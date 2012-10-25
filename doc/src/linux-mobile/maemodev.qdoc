@@ -34,7 +34,7 @@
     applications using the Qt framework.
     You can install the whole tool chain that you need to create, build, debug,
     run, and deploy Maemo 5 applications as a part of the custom installation
-    in the \QSDK online installer.
+    in the Qt 4 SDK online installer.
 
     \if defined(qcmanual)
     For more
@@ -56,14 +56,14 @@
                     (V20.2010.36-2) or later installed.
        \if defined(qcmanual)
        \o  MADDE cross-platform Maemo development
-           tool (installed as part of the \QSDK).
+           tool (installed as part of the Qt 4 SDK).
        \endif
 
        \o Nokia USB drivers.
 
        Only needed if you develop on Windows and if you use a USB connection
        to run applications on the device. The drivers are
-       installed as part of the \QSDK. You can also download them from
+       installed as part of the Qt 4 SDK. You can also download them from
        \l{https://garage.maemo.org/frs/?group_id=801&release_id=2655}{PC Connectivity}
        on the Maemo web site. Download and install the latest
        PC_Connectivity_<version>.exe (at the time of writing,
@@ -216,7 +216,7 @@
 
     To be able to run and debug applications on the Maemo
     emulator and devices, you must set up connections to the emulator and
-    devices in the \QC build and run settings. If you install \QSDK, the
+    devices in the \QC build and run settings. If you install Qt 4 SDK, the
     connection to the emulator is configured automatically and you
     only need to configure a connection to the device.
 
@@ -309,7 +309,7 @@
 
         \o To test applications on the emulator (QEMU) separately, you must
            create a connection to it from the development PC. If you installed
-           \QSDK, the connection is created automatically and you can omit this
+           Qt 4 SDK, the connection is created automatically and you can omit this
            step.
 
             \list a
@@ -340,24 +340,24 @@
                     above.
 
                 \o  In the \gui Sysroot field, specify the path to the sysroot.
-                    By default, the \QSDK installer places sysroot in the
+                    By default, the Qt 4 SDK installer places sysroot in the
                     following folder:
                     \c{QtSDK\Maemo\4.6.2\sysroots\fremantle-arm-sysroot-20.2010.36-2-slim}.
 
                 \o  In the \gui {Compiler type} field, select GCC.
 
                 \o  In the \gui Compiler field, specify the path to the GCC
-                    compiler. By default, the \QSDK installer places the
+                    compiler. By default, the Qt 4 SDK installer places the
                     compiler in the following folder:
                     \c{QtSDK\Maemo\4.6.2\targets\fremantle-pr13\bin\}.
 
                 \o  In the \gui Debugger field, specify the path to GDB. By
-                    default, the \QSDK installer places the debugger
+                    default, the Qt 4 SDK installer places the debugger
                     in the following folder:
                     \c{QtSDK\Maemo\4.6.2\targets\fremantle-pr13\bin\}.
 
                 \o  In the \gui {Qt version} field, choose the MADDE Qt version
-                    for Maemo5/Fremantle. By default, the \QSDK installer
+                    for Maemo5/Fremantle. By default, the Qt 4 SDK installer
                     places qmake in the following folder:
                     \c{QtSDK\Maemo\4.6.2\targets\fremantle-pr13\bin\}.
 

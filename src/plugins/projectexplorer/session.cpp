@@ -719,14 +719,14 @@ void SessionManager::restoreDependencies(const Utils::PersistentSettingsReader &
     QMap<QString, QVariant>::const_iterator i = depMap.constBegin();
     while (i != depMap.constEnd()) {
         const QString &key = i.key();
-        if (m_failedProjects.contains(key))
-            continue;
-        QStringList values;
-        foreach (const QString &value, i.value().toStringList()) {
-            if (!m_failedProjects.contains(value))
-                values << value;
+        if (!m_failedProjects.contains(key)) {
+            QStringList values;
+            foreach (const QString &value, i.value().toStringList()) {
+                if (!m_failedProjects.contains(value))
+                    values << value;
+            }
+            m_depMap.insert(key, values);
         }
-        m_depMap.insert(key, values);
         ++i;
     }
 }

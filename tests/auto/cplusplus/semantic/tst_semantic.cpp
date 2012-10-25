@@ -732,5 +732,5 @@ void tst_Semantic::diagnostic_error()
     QCOMPARE(doc->globals->memberCount(), 1U);
 }
 
-QTEST_APPLESS_MAIN(tst_Semantic)
+QTEST_MAIN(tst_Semantic)
 #include "tst_semantic.moc"

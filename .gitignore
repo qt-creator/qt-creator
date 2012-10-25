@@ -64,6 +64,9 @@ phony.c
 *.Debug
 *.Release
 
+# Python byte code
+*.pyc
+
 # translation related:
 share/qtcreator/translations/*_tr.h
 share/qtcreator/translations/qtcreator_untranslated.ts

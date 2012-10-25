@@ -336,10 +336,6 @@ QStringList ExamplesListModel::exampleSources(QString *examplesFallback, QString
 
     QtVersionManager *versionManager = QtVersionManager::instance();
     foreach (BaseQtVersion *version, versionManager->validVersions()) {
-        // There is no good solution for Qt 5 yet
-        if (version->qtVersion().majorVersion != 4)
-            continue;
-
         QFileInfoList fis;
         if (version->hasExamples())
             fis << QDir(version->examplesPath()).entryInfoList(pattern);
@@ -350,8 +346,9 @@ QStringList ExamplesListModel::exampleSources(QString *examplesFallback, QString
                 sources.append(fi.filePath());
             return sources;
         }
-        // check if this Qt version would be the preferred fallback
-        if (version->hasExamples() && version->hasDemos()) { // cached, so no performance hit
+
+        // check if this Qt version would be the preferred fallback, Qt 4 only
+        if (version->qtVersion().majorVersion == 4 && version->hasExamples() && version->hasDemos()) { // cached, so no performance hit
             bool hasDeclarative = QDir(version->examplesPath() + QLatin1String("/declarative")).exists();
             if (potentialExamplesFallback.isEmpty()
                     || (!potentialFallbackHasDeclarative && hasDeclarative)) {

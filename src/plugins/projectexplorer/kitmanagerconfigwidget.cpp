@@ -221,7 +221,9 @@ void KitManagerConfigWidget::setIcon()
 
 void KitManagerConfigWidget::setDisplayName()
 {
+    int pos = m_nameEdit->cursorPosition();
     m_modifiedKit->setDisplayName(m_nameEdit->text());
+    m_nameEdit->setCursorPosition(pos);
 }
 
 void KitManagerConfigWidget::workingCopyWasUpdated(Kit *k)

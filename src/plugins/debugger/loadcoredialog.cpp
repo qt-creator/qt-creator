@@ -46,6 +46,7 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
+#include <QCheckBox>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
@@ -60,6 +61,7 @@
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QHeaderView>
+#include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
@@ -224,8 +226,8 @@ class AttachCoreDialogPrivate
 public:
     KitChooser *kitChooser;
 
-    QSettings *settings;
-
+    QCheckBox *forceLocalCheckBox;
+    QLabel *forceLocalLabel;
     PathChooser *localExecFileName;
     PathChooser *localCoreFileName;
     QLineEdit *remoteCoreFileName;
@@ -242,14 +244,16 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     setWindowTitle(tr("Load Core File"));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    d->settings = ICore::settings();
-
     d->kitChooser = new DebuggerKitChooser(DebuggerKitChooser::RemoteDebugging, this);
     d->kitChooser->populate();
 
     d->selectRemoteCoreButton = new QPushButton(tr("Browse..."), this);
     d->remoteCoreFileName = new QLineEdit(this);
-    d->remoteCoreFileName->setEnabled(false);
+
+    d->forceLocalCheckBox = new QCheckBox(this);
+    d->forceLocalLabel = new QLabel(this);
+    d->forceLocalLabel->setText(tr("Use local core file:"));
+    d->forceLocalLabel->setBuddy(d->forceLocalCheckBox);
 
     d->localCoreFileName = new PathChooser(this);
     d->localCoreFileName->setExpectedKind(PathChooser::File);
@@ -279,6 +283,7 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     formLayout->setVerticalSpacing(6);
     formLayout->addRow(tr("Kit:"), d->kitChooser);
     formLayout->addRow(tr("&Executable:"), d->localExecFileName);
+    formLayout->addRow(d->forceLocalLabel, d->forceLocalCheckBox);
     formLayout->addRow(tr("Core file:"), coreLayout);
     formLayout->addRow(tr("Override &start script:"), d->overrideStartScriptFileName);
 
@@ -293,14 +298,6 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     vboxLayout->addStretch();
     vboxLayout->addWidget(line);
     vboxLayout->addWidget(d->buttonBox);
-
-    connect(d->selectRemoteCoreButton, SIGNAL(clicked()), SLOT(selectRemoteCoreFile()));
-    connect(d->remoteCoreFileName, SIGNAL(textChanged(QString)), SLOT(changed()));
-    connect(d->localCoreFileName, SIGNAL(changed(QString)), SLOT(changed()));
-    connect(d->kitChooser, SIGNAL(activated(int)), SLOT(changed()));
-    connect(d->buttonBox, SIGNAL(rejected()), SLOT(reject()));
-    connect(d->buttonBox, SIGNAL(accepted()), SLOT(accept()));
-    changed();
 }
 
 AttachCoreDialog::~AttachCoreDialog()
@@ -308,42 +305,60 @@ AttachCoreDialog::~AttachCoreDialog()
     delete d;
 }
 
-bool AttachCoreDialog::isLocal() const
+int AttachCoreDialog::exec()
+{
+    connect(d->selectRemoteCoreButton, SIGNAL(clicked()), SLOT(selectRemoteCoreFile()));
+    connect(d->remoteCoreFileName, SIGNAL(textChanged(QString)), SLOT(changed()));
+    connect(d->localCoreFileName, SIGNAL(changed(QString)), SLOT(changed()));
+    connect(d->forceLocalCheckBox, SIGNAL(stateChanged(int)), SLOT(changed()));
+    connect(d->kitChooser, SIGNAL(activated(int)), SLOT(changed()));
+    connect(d->buttonBox, SIGNAL(rejected()), SLOT(reject()));
+    connect(d->buttonBox, SIGNAL(accepted()), SLOT(accept()));
+    changed();
+
+    return QDialog::exec();
+}
+
+bool AttachCoreDialog::isLocalKit() const
 {
     Kit *k = d->kitChooser->currentKit();
     QTC_ASSERT(k, return false);
     IDevice::ConstPtr device = DeviceKitInformation::device(k);
     QTC_ASSERT(device, return false);
-    SshConnectionParameters sshParams = device->sshParameters();
-    d->settings->setValue(QLatin1String("LastProfile"),
-        d->kitChooser->currentKitId().toString());
-    return sshParams.host.isEmpty();
+    return device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+}
+
+bool AttachCoreDialog::useLocalCoreFile() const
+{
+    return isLocalKit() || d->forceLocalCheckBox->isChecked();
 }
 
 void AttachCoreDialog::changed()
 {
     bool isValid = d->kitChooser->currentIndex() >= 0 && d->localExecFileName->isValid();
+    bool isKitLocal = isLocalKit();
 
-    if (isLocal()) {
+    d->forceLocalLabel->setVisible(!isKitLocal);
+    d->forceLocalCheckBox->setVisible(!isKitLocal);
+    if (useLocalCoreFile()) {
         d->localCoreFileName->setVisible(true);
         d->remoteCoreFileName->setVisible(false);
         d->selectRemoteCoreButton->setVisible(false);
-        if (isValid)
-            isValid = d->localCoreFileName->isValid();
+        isValid = isValid && d->localCoreFileName->isValid();
     } else {
+        d->localCoreFileName->setVisible(false);
         d->remoteCoreFileName->setVisible(true);
         d->selectRemoteCoreButton->setVisible(true);
-        d->localCoreFileName->setVisible(false);
-        if (isValid)
-            isValid = !remoteCoreFile().isEmpty();
+        isValid = isValid && !remoteCoreFile().isEmpty();
     }
+
     d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(isValid);
 }
 
 void AttachCoreDialog::selectRemoteCoreFile()
 {
     changed();
-    QTC_ASSERT(!isLocal(), return);
+    QTC_ASSERT(!isLocalKit(), return);
     SelectRemoteFileDialog dlg(this);
     dlg.setWindowTitle(tr("Select Remote Core File"));
     dlg.attachToDevice(d->kitChooser->currentKit());
@@ -387,7 +402,16 @@ QString AttachCoreDialog::remoteCoreFile() const
 void AttachCoreDialog::setKitId(const Core::Id &id)
 {
     d->kitChooser->setCurrentKitId(id);
-    changed();
+}
+
+void AttachCoreDialog::setForceLocalCoreFile(bool on)
+{
+    d->forceLocalCheckBox->setChecked(on);
+}
+
+bool AttachCoreDialog::forcesLocalCoreFile() const
+{
+    return d->forceLocalCheckBox->isChecked();
 }
 
 Kit *AttachCoreDialog::kit() const

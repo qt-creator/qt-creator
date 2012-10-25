@@ -92,7 +92,7 @@
             \QS does not support any device specific APIs by design.
             Therefore, applications that run well on \QS also run on
             any device that hosts the Qt and Qt Mobility libraries.
-            The \QS is installed as part of the \QSDK. After it is
+            The \QS is installed as part of the Qt 4 SDK. After it is
             installed, you can create a \l{glossary-buildandrun-kit}{kit}
             with \gui Desktop device type and the Qt Simulator Qt version for
             building and running your projects.
@@ -106,7 +106,7 @@
             controls, such as the power button, and to the touch screen.
             Usually, it is faster to test on a real device connected to the
             development PC than to use the emulators. The emulator is installed
-            as part of the \QSDK.
+            as part of the Qt 4 SDK.
 
     \endlist
 

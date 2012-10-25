@@ -293,4 +293,4 @@ void LocalProcessList::reportDelayedKillStatus()
 }
 
 } // namespace Internal
-} // namespace RemoteLinux
+} // namespace ProjectExplorer

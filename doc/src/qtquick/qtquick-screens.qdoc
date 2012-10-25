@@ -42,7 +42,7 @@
 
     You can also use ready-made Qt Quick Components that allow you to create
     screens with a native look and feel for a particular target platform. You
-    can install the components as part of \QSDK.
+    can install the components as part of the Qt 4 SDK.
 
     \if defined(qcmanual)
     \section1 Adding Components to Screens

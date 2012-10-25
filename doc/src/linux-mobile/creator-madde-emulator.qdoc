@@ -31,7 +31,7 @@
     \title Using Maemo or MeeGo Harmattan Emulator
 
     The Maemo 5 (Fremantle) and MeeGo Harmattan emulator are installed as part
-    of the \QSDK. After they are installed, you can start them from \QC.
+    of the Qt 4 SDK. After they are installed, you can start them from \QC.
 
     The Maemo 5 emulator emulates the Nokia N900 device environment. You can
     test applications in conditions practically identical to running the

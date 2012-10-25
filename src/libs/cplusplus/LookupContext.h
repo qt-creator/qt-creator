@@ -58,7 +58,15 @@ public:
     }
     bool contains(const T *item)
     {
-        return _container.contains(item);
+        if (_container.contains(item))
+            return true;
+
+        foreach (const T *existingItem, _container) {
+            if (existingItem->isEqualTo(item))
+                return true;
+        }
+
+        return false;
     }
 
     void clear(const T *item)

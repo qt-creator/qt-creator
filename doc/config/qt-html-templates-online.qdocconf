@@ -9,9 +9,8 @@ HTML.postheader = \
     "    <div id=\"narrowsearch\"></div>\n" \
     "    <div id=\"nav-topright\">\n" \
     "      <ul>\n" \
-    "        <li class=\"nav-topright-home\"><a href=\"http://qt-project.org/\">Qt HOME</a></li>\n" \
+    "        <li class=\"nav-topright-home\"><a href=\"http://qt.digia.com/\">Qt HOME</a></li>\n" \
     "        <li class=\"nav-topright-dev\"><a href=\"http://wiki.qt-project.org/\">DEV</a></li>\n" \
-    "        <li class=\"nav-topright-labs\"><a href=\"http://planet.qt-project.org/\">DEV BLOGS</a></li>\n" \
     "        <li class=\"nav-topright-doc nav-topright-doc-active\"><a href=\"http://qt-project.org/doc/\">\n" \
     "          DOC</a></li>\n" \
     "        <li class=\"nav-topright-blog\"><a href=\"http://blog.qt.digia.com/\">BLOG</a></li>\n" \

@@ -92,7 +92,7 @@ def typeLines(editor, lines):
     if isinstance(lines, (list, tuple)):
         for line in lines:
             type(editor, line)
-            type(editor, "<Enter>")
+            type(editor, "<Return>")
     else:
         test.warning("Illegal parameter passed to typeLines()")
 

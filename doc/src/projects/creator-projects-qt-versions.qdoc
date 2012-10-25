@@ -32,7 +32,7 @@
 
     \QC allows you to have multiple versions of Qt installed on your development
     PC and use different versions to build your projects.
-    For example, \QSDK contains special Qt versions for developing applications
+    For example, Qt 4 SDK contains special Qt versions for developing applications
     for mobile devices.
 
     \QC automatically detects the Qt versions that are registered by

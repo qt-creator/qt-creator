@@ -204,6 +204,10 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
 void DeviceProcessesDialogPrivate::setDevice(const IDevice::ConstPtr &device)
 {
     delete processList;
+    processList = 0;
+    proxyModel.setSourceModel(0);
+    if (!device)
+        return;
 
     processList = device->createProcessListModel();
     QTC_ASSERT(processList, return);
@@ -246,7 +250,7 @@ void DeviceProcessesDialogPrivate::updateProcessList()
 void DeviceProcessesDialogPrivate::killProcess()
 {
     const QModelIndexList indexes = procView->selectionModel()->selectedIndexes();
-    if (indexes.empty())
+    if (indexes.empty() || !processList)
         return;
     updateListButton->setEnabled(false);
     killProcessButton->setEnabled(false);
@@ -275,7 +279,7 @@ void DeviceProcessesDialogPrivate::updateButtons()
 DeviceProcess DeviceProcessesDialogPrivate::selectedProcess() const
 {
     const QModelIndexList indexes = procView->selectionModel()->selectedIndexes();
-    if (indexes.empty())
+    if (indexes.empty() || !processList)
         return DeviceProcess();
     return processList->at(proxyModel.mapToSource(indexes.first()).row());
 }

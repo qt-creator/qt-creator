@@ -76,7 +76,7 @@
     QML elements allow you to write cross-platform applications with custom look
     and feel. You can also use ready-made Qt Quick Components that enable you to
     create applications with a native look and feel for a particular target
-    platform. You can install the components as part of \QSDK.
+    platform. You can install the components as part of the Qt 4 SDK.
 
     When you use the \QC project wizard to create Qt Quick applications, you
     can select which component set to use in your application.

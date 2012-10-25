@@ -33,7 +33,7 @@
     mobile devices. It allows developers to create applications using the Qt
     framework. You can install and configure the whole tool chain that you need
     to create, build, debug, run, and deploy Harmattan applications as part of
-    the \QSDK.
+    the Qt 4 SDK.
 
     \if defined(qcmanual)
     For more information about the Harmattan platform, see
@@ -42,7 +42,7 @@
     \endif
 
 
-    \note \QSDK does not contain the tool chains for building applications for
+    \note Qt 4 SDK does not contain the tool chains for building applications for
     other MeeGo devices than MeeGo Harmattan. You can try to run applications
     from \QC on other MeeGo devices, but it has not been extensively
     tested, and the instructions might not always apply.
@@ -191,7 +191,7 @@
 
     If you develop on Windows XP and use a USB connection to run applications on
     the device, you need the Nokia USB drivers that are installed as part of the
-    \QSDK.
+    Qt 4 SDK.
 
     When you connect the device to your Windows PC, Windows tries to install a
     driver for the Linux USB Ethernet connection. In the
@@ -229,7 +229,7 @@
 
     To be able to run and debug applications on the emulator and devices, you
     must set up connections to the emulator and devices in the \QC build
-    and run settings. If you install \QSDK, the connection to the emulator is
+    and run settings. If you install Qt 4 SDK, the connection to the emulator is
     configured automatically and you only need to configure a connection to the
     device.
 
@@ -324,7 +324,7 @@
 
         \o  To test applications on the emulator (QEMU), you must
             create a connection to it from the development PC. If you installed
-            \QSDK, the connection is created automatically and you can omit this
+            Qt 4 SDK, the connection is created automatically and you can omit this
             step.
 
             \list a
@@ -365,24 +365,24 @@
                     above.
 
                 \o  In the \gui Sysroot field, specify the path to the sysroot.
-                    By default, the \QSDK installer places sysroot in the
+                    By default, the Qt 4 SDK installer places sysroot in the
                     following folder:
                     \c{QtSDK\Madde\bin\sysroots\harmattan_sysroot_10.2011.34-1_slim}.
 
                 \o  In the \gui {Compiler type} field, select GCC.
 
                 \o  In the \gui Compiler field, specify the path to the GCC
-                    compiler. By default, the \QSDK installer places the
+                    compiler. By default, the Qt 4 SDK installer places the
                     compiler in the following folder:
                     \c{QtSDK\Madde\targets\harmattan_10.2011.34-1_rt1.2\bin\}.
 
                 \o  In the \gui Debugger field, specify the path to GDB. By
-                    default, the \QSDK installer places the debugger
+                    default, the Qt 4 SDK installer places the debugger
                     in the following folder:
                     \c{QtSDK\Madde\targets\harmattan_10.2011.34-1_rt1.2\bin\}.
 
                 \o  In the \gui {Qt version} field, choose the MADDE Qt version
-                    for MeeGo 1.2 Harmattan. By default, the \QSDK installer
+                    for MeeGo 1.2 Harmattan. By default, the Qt 4 SDK installer
                     places qmake in the following folder:
                     \c{QtSDK\Madde\targets\harmattan_10.2011.34-1_rt1.2\bin\}.
 

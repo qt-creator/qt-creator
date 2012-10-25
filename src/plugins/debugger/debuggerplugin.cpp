@@ -1601,11 +1601,12 @@ void DebuggerPluginPrivate::attachCore()
 {
     AttachCoreDialog dlg(mainWindow());
 
-    dlg.setKitId(Id(configValue(_("LastExternalProfile")).toString()));
+    dlg.setKitId(Id(configValue(_("LastExternalKit")).toString()));
     dlg.setLocalExecutableFile(configValue(_("LastExternalExecutableFile")).toString());
     dlg.setLocalCoreFile(configValue(_("LastLocalCoreFile")).toString());
     dlg.setRemoteCoreFile(configValue(_("LastRemoteCoreFile")).toString());
     dlg.setOverrideStartScript(configValue(_("LastExternalStartScript")).toString());
+    dlg.setForceLocalCoreFile(configValue(_("LastForceLocalCoreFile")).toBool());
 
     if (dlg.exec() != QDialog::Accepted)
         return;
@@ -1613,11 +1614,12 @@ void DebuggerPluginPrivate::attachCore()
     setConfigValue(_("LastExternalExecutableFile"), dlg.localExecutableFile());
     setConfigValue(_("LastLocalCoreFile"), dlg.localCoreFile());
     setConfigValue(_("LastRemoteCoreFile"), dlg.remoteCoreFile());
-    setConfigValue(_("LastExternalProfile"), dlg.kit()->id().toString());
+    setConfigValue(_("LastExternalKit"), dlg.kit()->id().toString());
     setConfigValue(_("LastExternalStartScript"), dlg.overrideStartScript());
+    setConfigValue(_("LastForceLocalCoreFile"), dlg.forcesLocalCoreFile());
 
     DebuggerStartParameters sp;
-    QString display = dlg.isLocal() ? dlg.localCoreFile() : dlg.remoteCoreFile();
+    QString display = dlg.useLocalCoreFile() ? dlg.localCoreFile() : dlg.remoteCoreFile();
     QTC_ASSERT(fillParameters(&sp, dlg.kit()), return);
     sp.masterEngineType = GdbEngineType;
     sp.executable = dlg.localExecutableFile();

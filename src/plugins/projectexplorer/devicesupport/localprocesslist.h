@@ -65,6 +65,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace RemoteLinux
+} // namespace ProjectExplorer
 
 #endif // LOCALPROCESSLIST_H
