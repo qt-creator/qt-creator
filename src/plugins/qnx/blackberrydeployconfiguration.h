@@ -61,9 +61,11 @@ public:
 protected:
     BlackBerryDeployConfiguration(ProjectExplorer::Target *parent, BlackBerryDeployConfiguration *source);
 
+private slots:
+    void setupBarDescriptor();
+
 private:
     void ctor();
-    void setupBarDescriptor();
     void addBarDescriptorToProject(const QString& barDescriptorPath);
 };
 

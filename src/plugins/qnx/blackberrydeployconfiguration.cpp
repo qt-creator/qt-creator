@@ -77,6 +77,8 @@ void BlackBerryDeployConfiguration::ctor()
         target()->project()->setNamedSettings(QLatin1String(DEPLOYMENT_INFO_SETTING), data);
     }
 
+    connect(target()->project(), SIGNAL(proFilesEvaluated()), this, SLOT(setupBarDescriptor()), Qt::UniqueConnection);
+
     setDefaultDisplayName(tr("Deploy to BlackBerry Device"));
 }
 
