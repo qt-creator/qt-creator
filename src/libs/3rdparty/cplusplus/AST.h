@@ -4395,7 +4395,13 @@ protected:
 class CaptureAST: public AST
 {
 public:
+    unsigned amper_token;
+    NameAST *identifier;
+
+public:
     CaptureAST()
+        : amper_token(0)
+        , identifier(0)
     {}
 
     virtual CaptureAST *asCapture() { return this; }

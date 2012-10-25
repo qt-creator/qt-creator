@@ -127,6 +127,11 @@ protected:
         return true;
     }
 
+    virtual bool visit(CaptureAST *ast)
+    {
+        return checkLocalUse(ast->identifier, ast->firstToken());
+    }
+
     virtual bool visit(IdExpressionAST *ast)
     {
         return checkLocalUse(ast->name, ast->firstToken());

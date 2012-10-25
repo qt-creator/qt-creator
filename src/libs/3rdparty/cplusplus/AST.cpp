@@ -403,12 +403,22 @@ unsigned CallAST::lastToken() const
 /** \generated */
 unsigned CaptureAST::firstToken() const
 {
+    if (amper_token)
+        return amper_token;
+    if (identifier)
+        if (unsigned candidate = identifier->firstToken())
+            return candidate;
     return 0;
 }
 
 /** \generated */
 unsigned CaptureAST::lastToken() const
 {
+    if (identifier)
+        if (unsigned candidate = identifier->lastToken())
+            return candidate;
+    if (amper_token)
+        return amper_token + 1;
     return 1;
 }
 

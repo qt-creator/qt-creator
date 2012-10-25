@@ -1069,7 +1069,7 @@ void Bind::capture(CaptureAST *ast)
     if (! ast)
         return;
 
-    // See QTCREATORBUG-7968
+    name(ast->identifier);
 }
 
 bool Bind::visit(LambdaDeclaratorAST *ast)

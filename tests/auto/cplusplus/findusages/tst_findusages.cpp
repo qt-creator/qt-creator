@@ -77,7 +77,8 @@ class tst_FindUsages: public QObject
 
 private Q_SLOTS:
     void inlineMethod();
-//    void lambdaArg();
+    void lambdaCaptureByValue();
+    void lambdaCaptureByReference();
 
     // Qt keywords
     void qproperty_1();
@@ -124,15 +125,14 @@ void tst_FindUsages::inlineMethod()
     QCOMPARE(findUsages.references().size(), 2);
 }
 
-#if 0 /* see QTCREATORBUG-7968 */
-void tst_FindUsages::lambdaArg()
+void tst_FindUsages::lambdaCaptureByValue()
 {
     const QByteArray src = "\n"
                            "void f() {\n"
                            "  int test;\n"
                            "  [test] { ++test; };\n"
                            "}\n";
-    Document::Ptr doc = Document::create("lambdaArg");
+    Document::Ptr doc = Document::create("lambdaCaptureByValue");
     doc->setUtf8Source(src);
     doc->parse();
     doc->check();
@@ -156,7 +156,38 @@ void tst_FindUsages::lambdaArg()
     findUsages(d);
     QCOMPARE(findUsages.usages().size(), 3);
 }
-#endif
+
+void tst_FindUsages::lambdaCaptureByReference()
+{
+    const QByteArray src = "\n"
+                           "void f() {\n"
+                           "  int test;\n"
+                           "  [&test] { ++test; };\n"
+                           "}\n";
+    Document::Ptr doc = Document::create("lambdaCaptureByReference");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 1U);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Function *f = doc->globalSymbolAt(0)->asFunction();
+    QVERIFY(f);
+    QCOMPARE(f->memberCount(), 1U);
+    Block *b = f->memberAt(0)->asBlock();
+    QCOMPARE(b->memberCount(), 2U);
+    Declaration *d = b->memberAt(0)->asDeclaration();
+    QVERIFY(d);
+    QCOMPARE(d->name()->identifier()->chars(), "test");
+
+    FindUsages findUsages(src, doc, snapshot);
+    findUsages(d);
+    QCOMPARE(findUsages.usages().size(), 3);
+}
 
 #if 0
 @interface Clazz {} +(void)method:(int)arg; @end

@@ -1703,6 +1703,9 @@ LambdaCaptureAST *LambdaCaptureAST::clone(MemoryPool *pool) const
 CaptureAST *CaptureAST::clone(MemoryPool *pool) const
 {
     CaptureAST *ast = new (pool) CaptureAST;
+    ast->amper_token = amper_token;
+    if (identifier)
+        ast->identifier = identifier->clone(pool);
     return ast;
 }
 

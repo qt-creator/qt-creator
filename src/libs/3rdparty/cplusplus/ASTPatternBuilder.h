@@ -1107,9 +1107,10 @@ public:
         return __ast;
     }
 
-    CaptureAST *Capture()
+    CaptureAST *Capture(NameAST *identifier = 0)
     {
         CaptureAST *__ast = new (&pool) CaptureAST;
+        __ast->identifier = identifier;
         return __ast;
     }
 

@@ -6294,43 +6294,56 @@ bool Parser::parseLambdaCapture(LambdaCaptureAST *&node)
     return true;
 }
 
-bool Parser::parseCapture(CaptureAST *&)
+bool Parser::parseCapture(CaptureAST *&node)
 {
-    // See QTCREATORBUG-7968
-
     DEBUG_THIS_RULE();
+
+    if (LA() == T_THIS) {
+        consumeToken();
+        return true;
+    }
+
+    if (LA() == T_AMPER)
+        consumeToken();
+
     if (LA() == T_IDENTIFIER) {
-        consumeToken();
-        return true;
+        SimpleNameAST *ast = new (_pool) SimpleNameAST;
+        ast->identifier_token = consumeToken();
 
-    } else if (LA() == T_AMPER && LA(2) == T_IDENTIFIER) {
-        consumeToken();
-        consumeToken();
-        return true;
-
-    } else if (LA() == T_THIS) {
-        consumeToken();
+        node = new (_pool) CaptureAST;
+        node->identifier = ast;
         return true;
     }
 
     return false;
 }
 
-bool Parser::parseCaptureList(CaptureListAST *&)
+bool Parser::parseCaptureList(CaptureListAST *&node)
 {
     DEBUG_THIS_RULE();
 
     CaptureAST *capture = 0;
 
     if (parseCapture(capture)) {
+        node = new (_pool) CaptureListAST;
+        node->value = capture;
+
+        CaptureListAST **l = &node->next;
         while (LA() == T_COMMA) {
             consumeToken(); // consume `,'
-
+            CaptureAST *capture = 0;
             parseCapture(capture);
+            if (capture) {
+                *l = new (_pool) CaptureListAST;
+                (*l)->value = capture;
+                l = &(*l)->next;
+            }
         }
+
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 bool Parser::parseLambdaDeclarator(LambdaDeclaratorAST *&node)

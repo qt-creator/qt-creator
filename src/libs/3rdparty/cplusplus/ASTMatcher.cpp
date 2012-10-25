@@ -2898,6 +2898,13 @@ bool ASTMatcher::match(CaptureAST *node, CaptureAST *pattern)
     (void) node;
     (void) pattern;
 
+    pattern->amper_token = node->amper_token;
+
+    if (! pattern->identifier)
+        pattern->identifier = node->identifier;
+    else if (! AST::match(node->identifier, pattern->identifier, this))
+        return false;
+
     return true;
 }
 

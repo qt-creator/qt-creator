@@ -1237,6 +1237,7 @@ void LambdaCaptureAST::accept0(ASTVisitor *visitor)
 void CaptureAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
+        accept(identifier, visitor);
     }
     visitor->endVisit(this);
 }

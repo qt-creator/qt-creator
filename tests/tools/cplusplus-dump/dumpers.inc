@@ -1645,6 +1645,9 @@ virtual bool visit(LambdaCaptureAST *ast)
 
 virtual bool visit(CaptureAST *ast)
 {
+    if (ast->amper_token)
+        terminal(ast->amper_token, ast);
+    nonterminal(ast->identifier);
     return false;
 }
 

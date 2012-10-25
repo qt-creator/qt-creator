@@ -869,7 +869,7 @@ void FindUsages::capture(CaptureAST *ast)
     if (! ast)
         return;
 
-    // See QTCREATORBUG-7968
+    this->name(ast->identifier);
 }
 
 bool FindUsages::visit(LambdaDeclaratorAST *ast)
