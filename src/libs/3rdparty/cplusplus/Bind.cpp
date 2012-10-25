@@ -2965,6 +2965,8 @@ bool Bind::visit(EnumSpecifierAST *ast)
     Enum *e = control()->newEnum(sourceLocation, enumName);
     e->setStartOffset(tokenAt(sourceLocation).end()); // at the end of the enum or identifier token.
     e->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    if (ast->key_token)
+        e->setScoped(true);
     ast->symbol = e;
     _scope->addMember(e);
 

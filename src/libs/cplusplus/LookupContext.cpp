@@ -83,6 +83,9 @@ static void path_helper(Symbol *symbol, QList<const Name *> *names)
         } else if (symbol->isFunction()) {
             if (const QualifiedNameId *q = symbol->name()->asQualifiedNameId())
                 addNames(q->base(), names);
+        } else if (Enum *e = symbol->asEnum()) {
+            if (e->isScoped())
+                addNames(symbol->name(), names);
         }
     }
 }
@@ -349,17 +352,10 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
             if (! candidates.isEmpty())
                 return candidates;  // it's a template parameter.
 
-        } else if (Class *klass = scope->asClass()) {
-
-            if (ClassOrNamespace *binding = bindings()->lookupType(klass)) {
-                candidates = binding->find(name);
-
-                if (! candidates.isEmpty())
-                    return candidates;
-            }
-
-        } else if (Namespace *ns = scope->asNamespace()) {
-            if (ClassOrNamespace *binding = bindings()->lookupType(ns))
+        } else if (scope->asNamespace()
+                   || scope->asClass()
+                   || (scope->asEnum() && scope->asEnum()->isScoped())) {
+            if (ClassOrNamespace *binding = bindings()->lookupType(scope))
                 candidates = binding->find(name);
 
                 if (! candidates.isEmpty())
@@ -419,7 +415,7 @@ QList<ClassOrNamespace *> ClassOrNamespace::usings() const
     return _usings;
 }
 
-QList<Enum *> ClassOrNamespace::enums() const
+QList<Enum *> ClassOrNamespace::unscopedEnums() const
 {
     const_cast<ClassOrNamespace *>(this)->flush();
     return _enums;
@@ -547,7 +543,7 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
             }
         }
 
-        foreach (Enum *e, binding->enums())
+        foreach (Enum *e, binding->unscopedEnums())
             _factory->lookupInScope(name, e, result, templateId, binding);
 
         foreach (ClassOrNamespace *u, binding->usings())
@@ -753,7 +749,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
         instantiation->_instantiationOrigin = origin;
 
         // The instantiation should have all symbols, enums, and usings from the reference.
-        instantiation->_enums.append(reference->enums());
+        instantiation->_enums.append(reference->unscopedEnums());
         instantiation->_usings.append(reference->usings());
 
         // It gets a bit complicated if the reference is actually a class template because we
@@ -917,7 +913,7 @@ void ClassOrNamespace::addTodo(Symbol *symbol)
     _todo.append(symbol);
 }
 
-void ClassOrNamespace::addEnum(Enum *e)
+void ClassOrNamespace::addUnscopedEnum(Enum *e)
 {
     _enums.append(e);
 }
@@ -1126,7 +1122,12 @@ bool CreateBindings::visit(ForwardClassDeclaration *klass)
 
 bool CreateBindings::visit(Enum *e)
 {
-    _currentClassOrNamespace->addEnum(e);
+    if (e->isScoped()) {
+        ClassOrNamespace *previous = enterClassOrNamespaceBinding(e);
+        _currentClassOrNamespace = previous;
+    } else {
+        _currentClassOrNamespace->addUnscopedEnum(e);
+    }
     return false;
 }
 

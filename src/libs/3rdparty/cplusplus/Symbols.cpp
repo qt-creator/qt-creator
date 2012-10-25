@@ -421,10 +421,12 @@ void Block::visitSymbol0(SymbolVisitor *visitor)
 
 Enum::Enum(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Scope(translationUnit, sourceLocation, name)
+    , _isScoped(false)
 { }
 
 Enum::Enum(Clone *clone, Subst *subst, Enum *original)
     : Scope(clone, subst, original)
+    , _isScoped(original->isScoped())
 { }
 
 Enum::~Enum()
@@ -445,6 +447,16 @@ bool Enum::isEqualTo(const Type *other) const
     else if (! l)
         return false;
     return l->isEqualTo(r);
+}
+
+bool Enum::isScoped() const
+{
+    return _isScoped;
+}
+
+void Enum::setScoped(bool scoped)
+{
+    _isScoped = scoped;
 }
 
 void Enum::accept0(TypeVisitor *visitor)

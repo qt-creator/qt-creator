@@ -1407,10 +1407,10 @@ void CppCompletionAssistProcessor::globalCompletion(CPlusPlus::Scope *currentSco
         const QList<Symbol *> symbols = currentBinding->symbols();
 
         if (! symbols.isEmpty()) {
-            if (symbols.first()->isNamespace())
-                completeNamespace(currentBinding);
-            else
+            if (symbols.first()->isClass())
                 completeClass(currentBinding);
+            else
+                completeNamespace(currentBinding);
         }
     }
 
@@ -1480,6 +1480,12 @@ bool CppCompletionAssistProcessor::completeScope(const QList<CPlusPlus::LookupIt
                 completeClass(b);
                 break;
             }
+
+        } else if (Enum *e = ty->asEnumType()) {
+            if (ClassOrNamespace *b = context.lookupType(e)) {
+                completeNamespace(b);
+                break;
+            }
         }
     }
 
@@ -1504,11 +1510,11 @@ void CppCompletionAssistProcessor::completeNamespace(CPlusPlus::ClassOrNamespace
         QSet<Scope *> scopesVisited;
 
         foreach (Symbol *bb, binding->symbols()) {
-            if (Namespace *ns = bb->asNamespace())
-                scopesToVisit.append(ns);
+            if (Scope *scope = bb->asScope())
+                scopesToVisit.append(scope);
         }
 
-        foreach (Enum *e, binding->enums()) {
+        foreach (Enum *e, binding->unscopedEnums()) {
             scopesToVisit.append(e);
         }
 
@@ -1549,7 +1555,7 @@ void CppCompletionAssistProcessor::completeClass(CPlusPlus::ClassOrNamespace *b,
                 scopesToVisit.append(k);
         }
 
-        foreach (Enum *e, binding->enums())
+        foreach (Enum *e, binding->unscopedEnums())
             scopesToVisit.append(e);
 
         while (! scopesToVisit.isEmpty()) {

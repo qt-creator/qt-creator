@@ -279,10 +279,16 @@ public:
     virtual Enum *asEnumType()
     { return this; }
 
+    bool isScoped() const;
+    void setScoped(bool scoped);
+
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
     virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+
+private:
+    bool _isScoped;
 };
 
 class CPLUSPLUS_EXPORT Function: public Scope, public Type
