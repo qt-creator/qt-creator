@@ -468,7 +468,7 @@ def __sortFilenamesOSDependent__(filenames):
 
 def __iterateChildren__(model, parent, nestingLevel=0):
     children = []
-    for currentIndex in [model.index(row, 0, parent) for row in range(model.rowCount(parent))]:
+    for currentIndex in dumpIndices(model, parent):
         children.append([str(currentIndex.text), nestingLevel])
         if model.hasChildren(currentIndex):
             children.extend(__iterateChildren__(model, currentIndex, nestingLevel + 1))

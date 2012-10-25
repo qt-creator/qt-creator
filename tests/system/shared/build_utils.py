@@ -142,7 +142,7 @@ def iterateBuildConfigs(targetCount, currentTarget, filter = ""):
     model = waitForObject(":scrollArea.Edit build configuration:_QComboBox", 20000).model()
     prog = re.compile(filter)
     # for each row in the model, write its data to a list
-    configNames = [str(model.index(row, 0).data()) for row in range(model.rowCount())]
+    configNames = dumpItems(model)
     # pick only those configuration names which pass the filter
     configs = [config for config in configNames if prog.match(config)]
     switchViewTo(ViewConstants.EDIT)

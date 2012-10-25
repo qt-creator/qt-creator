@@ -434,11 +434,9 @@ def iterateQtVersions(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
     pattern = re.compile("Qt version (?P<version>.*?) for (?P<target>.*)")
     treeWidget = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
     root = treeWidget.invisibleRootItem()
-    for childRow in range(root.childCount()):
-        rootChild = root.child(childRow)
+    for rootChild in dumpChildren(root):
         rootChildText = str(rootChild.text(0)).replace(".", "\\.")
-        for row in range(rootChild.childCount()):
-            subChild = rootChild.child(row)
+        for subChild in dumpChildren(rootChild):
             subChildText = str(subChild.text(0)).replace(".", "\\.")
             clickItem(treeWidget, ".".join([rootChildText,subChildText]), 5, 5, 0, Qt.LeftButton)
             currentText = str(waitForObject(":QtSupport__Internal__QtVersionManager.QLabel").text)
@@ -503,13 +501,13 @@ def iterateKits(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
     manual = model.index(1, 0)
     test.compare(manual.data().toString(), "Manual", "Verifying label for target section")
     for section in [autoDetected, manual]:
-        for index in [section.child(i, 0) for i in range(model.rowCount(section))]:
-            kitName = str(index.data().toString())
+        for currentItem in dumpItems(model, section):
+            kitName = currentItem
             if (kitName.endswith(" (default)")):
                 kitName = kitName.rsplit(" (default)", 1)[0]
             result.append(kitName)
             item = ".".join([str(section.data().toString()),
-                             str(index.data().toString()).replace(".", "\\.")])
+                             currentItem.replace(".", "\\.")])
             if additionalFunction:
                 try:
                     if isinstance(additionalFunction, (str, unicode)):
@@ -547,3 +545,19 @@ def removePackagingDirectory(projectPath):
         deleteDirIfExists(qtcPackaging)
     else:
         test.log("Couldn't remove packaging directory '%s' - did not exist." % qtcPackaging)
+
+# returns the indices from a QAbstractItemModel
+def dumpIndices(model, parent=None, column=0):
+    if parent:
+        return [model.index(row, column, parent) for row in range(model.rowCount(parent))]
+    else:
+        return [model.index(row, column) for row in range(model.rowCount())]
+
+DisplayRole = 0
+# returns the data from a QAbstractItemModel as strings
+def dumpItems(model, parent=None, role=DisplayRole, column=0):
+    return [str(index.data(role)) for index in dumpIndices(model, parent, column)]
+
+# returns the children of a QTreeWidgetItem
+def dumpChildren(item):
+    return [item.child(index) for index in range(item.childCount())]

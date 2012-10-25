@@ -24,20 +24,15 @@ def main():
     comboBox = waitForObject("{name='comboBox' type='QComboBox' visible='1' "
                              "window=':New_Core::Internal::NewDialog'}")
     test.compare(comboBox.currentText, "All Templates")
-    for row in range(catModel.rowCount(projects)):
-        index = catModel.index(row, 0, projects)
-        category = str(index.data()).replace(".", "\\.")
+    for category in [item.replace(".", "\\.") for item in dumpItems(catModel, projects)]:
         # skip non-configurable
         if "Import" in category or "Non-Qt" in category:
             continue
         clickItem(categoriesView, "Projects." + category, 5, 5, 0, Qt.LeftButton)
         templatesView = waitForObject("{name='templatesView' type='QListView' visible='1'}", 20000)
         # needed because categoriesView and templatesView using same model
-        tempRootIndex = templatesView.rootIndex()
-        tempModel = templatesView.model()
-        for tRow in range(tempModel.rowCount(tempRootIndex)):
-            tIndex = tempModel.index(tRow, 0, tempRootIndex)
-            template = str(tempModel.data(tIndex)).replace(".", "\\.")
+        for template in dumpItems(templatesView.model(), templatesView.rootIndex()):
+            template = template.replace(".", "\\.")
             # skip non-configurable
             if "Qt Quick UI" in template or "Plain C" in template:
                 continue

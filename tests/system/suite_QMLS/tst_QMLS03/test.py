@@ -13,14 +13,12 @@ def checkUsages(resultsView, expectedResults):
     resultsModel = resultsView.model()
     waitFor("resultsModel.rowCount() > 0", 5000)
     expectedResultIndex = 0
-    for row in range(resultsModel.rowCount()):
+    for index in dumpIndices(resultsModel):
         # enum Roles { ResultItemRole = Qt::UserRole, ResultLineRole, ResultLineNumberRole, ResultIconRole,
         # SearchTermStartRole, SearchTermLengthRole, IsGeneratedRole };
-        index = resultsModel.index(row, 0)
         # get only filename not full path
         resultFile = str(index.data(Qt.UserRole + 1).toString()).replace("\\", "/").split('/')[-1]
-        for chRow in range(resultsModel.rowCount(index)):
-            chIndex = resultsModel.index(chRow, 0, index)
+        for chIndex in dumpIndices(resultsModel, index):
             resultLine = str(chIndex.data(Qt.UserRole + 1).toString()).strip()
             resultLineNumber = chIndex.data(Qt.UserRole + 2).toInt()
             # verify if we don't get more results
