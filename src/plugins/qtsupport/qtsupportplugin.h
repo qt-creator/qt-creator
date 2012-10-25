@@ -49,6 +49,8 @@ public:
     bool delayedInitialize();
 
 private slots:
+    void updateVariable(const QByteArray &variable);
+
 #ifdef WITH_TESTS
     void testQtOutputParser_data();
     void testQtOutputParser();

@@ -45,7 +45,6 @@
 #include <coreplugin/id.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/variablemanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/session.h>
@@ -75,9 +74,6 @@ using ProjectExplorer::SourceType;
 using ProjectExplorer::FormType;
 using ProjectExplorer::ResourceType;
 using ProjectExplorer::UnknownFileType;
-
-static const char kHostBins[] = "CurrentProject:QT_HOST_BINS";
-static const char kInstallBins[] = "CurrentProject:QT_INSTALL_BINS";
 
 // Known file types of a Qt 4 project
 static const char *qt4FileTypes[] = {
@@ -138,15 +134,6 @@ void Qt4Manager::init()
 
     connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(editorChanged(Core::IEditor*)));
-
-    Core::VariableManager *vm = Core::VariableManager::instance();
-    vm->registerVariable(kHostBins,
-        tr("Full path to the host bin directory of the current project's Qt version."));
-    vm->registerVariable(kInstallBins,
-        tr("Full path to the target bin directory of the current project's Qt version."
-           " You probably want %1 instead.").arg(QString::fromLatin1(kHostBins)));
-    connect(vm, SIGNAL(variableUpdateRequested(QByteArray)),
-            this, SLOT(updateVariable(QByteArray)));
 }
 
 void Qt4Manager::editorChanged(Core::IEditor *editor)
@@ -185,27 +172,6 @@ void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
             }
         }
         m_lastEditor = 0;
-    }
-}
-
-void Qt4Manager::updateVariable(const QByteArray &variable)
-{
-    if (variable == kHostBins || variable == kInstallBins) {
-        Qt4Project *qt4pro = qobject_cast<Qt4Project *>(ProjectExplorer::ProjectExplorerPlugin::currentProject());
-        if (!qt4pro) {
-            Core::VariableManager::instance()->remove(variable);
-            return;
-        }
-        QString value;
-        const QtSupport::BaseQtVersion *qtv = 0;
-        if (ProjectExplorer::Target *t = qt4pro->activeTarget())
-            qtv = QtSupport::QtKitInformation::qtVersion(t->kit());
-        else
-            qtv = QtSupport::QtKitInformation::qtVersion(ProjectExplorer::KitManager::instance()->defaultKit());
-
-        if (qtv)
-            value = qtv->qmakeProperty(variable == kHostBins ? "QT_HOST_BINS" : "QT_INSTALL_BINS");
-        Core::VariableManager::instance()->insert(variable, value);
     }
 }
 
