@@ -168,17 +168,6 @@ QString ObjectNodeInstance::id() const
     return m_id;
 }
 
-bool ObjectNodeInstance::isQmlGraphicsItem() const
-{
-    return false;
-}
-
-
-bool ObjectNodeInstance::isGraphicsObject() const
-{
-    return false;
-}
-
 bool ObjectNodeInstance::isTransition() const
 {
     return false;

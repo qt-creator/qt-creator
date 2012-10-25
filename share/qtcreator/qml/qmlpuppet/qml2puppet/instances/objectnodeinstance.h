@@ -95,8 +95,6 @@ public:
     virtual void setId(const QString &id);
     virtual QString id() const;
 
-    virtual bool isQmlGraphicsItem() const;
-    virtual bool isGraphicsObject() const;
     virtual bool isTransition() const;
     virtual bool isPositioner() const;
     virtual bool isQuickItem() const;
