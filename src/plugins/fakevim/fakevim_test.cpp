@@ -1319,9 +1319,25 @@ void FakeVimPlugin::test_vim_substitute()
     COMMAND("1,2s/^/ * /", " * abc" N " " X "*  + def" N " + ghi");
     COMMAND("3,3s/^/ - /", " * abc" N " *  + def" N " " X "-  + ghi");
     COMMAND("%s/\\( \\S \\)*//g", "abc" N "def" N X "ghi");
+
+    // last substitution
+    data.setText("abc" N "def" N "ghi");
+    COMMAND("%s/DEF/+&/i", "abc" N X "+def" N "ghi");
+    COMMAND("&&", "abc" N X "++def" N "ghi");
+    COMMAND("&", "abc" N X "++def" N "ghi");
+    COMMAND("&&", "abc" N X "++def" N "ghi");
+    COMMAND("&i", "abc" N X "+++def" N "ghi");
+    COMMAND("s", "abc" N X "+++def" N "ghi");
+    COMMAND("&&i", "abc" N X "++++def" N "ghi");
+
+    // search for last substitute pattern
+    data.setText("abc" N "def" N "ghi");
+    COMMAND("%s/def/def", "abc" N X "def" N "ghi");
+    KEYS("gg", X "abc" N "def" N "ghi");
+    COMMAND("\\&", "abc" N X "def" N "ghi");
 }
 
-void FakeVimPlugin::test_vim_yank()
+void FakeVimPlugin::test_vim_ex_yank()
 {
     TestData data;
     setup(&data);
@@ -1346,7 +1362,50 @@ void FakeVimPlugin::test_vim_yank()
     COMMAND("u", "abc" N X "def");
 }
 
-void FakeVimPlugin::test_vim_move()
+void FakeVimPlugin::test_vim_ex_delete()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText("abc" N X "def" N "ghi" N "jkl");
+    COMMAND("d", "abc" N X "ghi" N "jkl");
+    COMMAND("1,2d", X "jkl");
+    COMMAND("u", X "abc" N "ghi" N "jkl");
+    COMMAND("u", "abc" N X "def" N "ghi" N "jkl");
+    KEYS("p", "abc" N "def" N X "abc" N "ghi" N "ghi" N "jkl");
+    COMMAND("set ws|" "/abc/,/ghi/d|" "set nows", X "ghi" N "jkl");
+    COMMAND("u", X "abc" N "def" N "abc" N "ghi" N "ghi" N "jkl");
+    COMMAND("2,/abc/d3", "abc" N "def" N X "jkl");
+    COMMAND("u", "abc" N "def" N X "abc" N "ghi" N "ghi" N "jkl");
+    COMMAND("5,.+1d", "abc" N "def" N "abc" N X "jkl");
+}
+
+void FakeVimPlugin::test_vim_ex_change()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText("abc" N X "def" N "ghi" N "jkl");
+    KEYS(":c<CR>xxx<ESC>0", "abc" N X "xxx" N "ghi" N "jkl");
+    KEYS(":-1,+1c<CR>XXX<ESC>0", X "XXX" N "jkl");
+}
+
+void FakeVimPlugin::test_vim_ex_shift()
+{
+    TestData data;
+    setup(&data);
+
+    data.doCommand("set expandtab");
+    data.doCommand("set shiftwidth=2");
+
+    data.setText("abc" N X "def" N "ghi" N "jkl");
+    COMMAND(">", "abc" N "  " X "def" N "ghi" N "jkl");
+    COMMAND(">>", "abc" N "      " X "def" N "ghi" N "jkl");
+    COMMAND("<", "abc" N "    " X "def" N "ghi" N "jkl");
+    COMMAND("<<", "abc" N X "def" N "ghi" N "jkl");
+}
+
+void FakeVimPlugin::test_vim_ex_move()
 {
     TestData data;
     setup(&data);
@@ -1362,6 +1421,58 @@ void FakeVimPlugin::test_vim_move()
     KEYS("`'", X "def" N "abc" N "ghi" N "jkl");
     KEYS("Vj:m+2<cr>", "ghi" N "def" N X "abc" N "jkl");
     KEYS("u", X "def" N "abc" N "ghi" N "jkl");
+
+    // move visual selection with indentation
+    data.doCommand("set expandtab");
+    data.doCommand("set shiftwidth=2");
+    data.doCommand("vnoremap <C-S-J> :m'>+<CR>gv=");
+    data.doCommand("vnoremap <C-S-K> :m-2<CR>gv=");
+    data.setText(
+         "int x;" N
+         "int y;" N
+         "int main() {" N
+         "  if (true) {" N
+         "  }" N
+         "}" N
+         "");
+    KEYS("Vj<C-S-J>",
+         "int main() {" N
+         "  int x;" N
+         "  int y;" N
+         "  if (true) {" N
+         "  }" N
+         "}" N
+         "");
+    KEYS("gv<C-S-J>",
+         "int main() {" N
+         "  if (true) {" N
+         "    int x;" N
+         "    int y;" N
+         "  }" N
+         "}" N
+         "");
+    KEYS("gv<C-S-K>",
+         "int main() {" N
+         "  int x;" N
+         "  int y;" N
+         "  if (true) {" N
+         "  }" N
+         "}" N
+         "");
+    data.doCommand("vunmap <C-S-K>");
+    data.doCommand("vunmap <C-S-J>");
+}
+
+void FakeVimPlugin::test_vim_ex_join()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText("  abc" N X "  def" N "  ghi" N "  jkl");
+    COMMAND("j", "  abc" N "  " X "def ghi" N "  jkl");
+    COMMAND("u", "  abc" N X "  def" N "  ghi" N "  jkl");
+    COMMAND("1j3", "  " X "abc def ghi" N "  jkl");
+    COMMAND("u", X "  abc" N "  def" N "  ghi" N "  jkl");
 }
 
 void FakeVimPlugin::test_advanced_commands()
@@ -1378,7 +1489,8 @@ void FakeVimPlugin::test_advanced_commands()
     COMMAND(":redo", "abc" N X "  OOO" N "  OOO" N "def");
 
     // redundant characters
-    COMMAND(":::   %s/\\S\\S\\S/ZZZ/g   |   ::::   %s/ZZZ/XXX/g ", "XXX" N "  XXX" N "  XXX" N X "XXX");
+    COMMAND(" :::   %s/\\S\\S\\S/ZZZ/g   |"
+        "  :: :  :   %s/ZZZ/XXX/g ", "XXX" N "  XXX" N "  XXX" N X "XXX");
 
     // bar character in regular expression is not command separator
     data.setText("abc");

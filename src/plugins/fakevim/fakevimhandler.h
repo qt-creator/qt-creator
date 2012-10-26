@@ -67,15 +67,8 @@ struct ExCommand
         const Range &range = Range());
 
     bool matches(const QString &min, const QString &full) const;
-    void setContentsFromLine(const QString &line);
-
-    // set cmd to next subcommand and return false only if no subcommand is left
-    bool nextSubcommand();
-
-    QString printCommand() const;
 
     QString cmd;
-    QStringList subCommands;
     bool hasBang;
     QString args;
     Range range;
