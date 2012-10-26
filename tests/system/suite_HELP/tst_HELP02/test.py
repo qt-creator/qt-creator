@@ -16,7 +16,9 @@ def getQtCreatorVersionFromDialog():
 def getQtCreatorVersionFromFile():
     qtCreatorPriFileName = "../../../../qtcreator.pri"
     # open file <qtCreatorPriFileName> and read version
-    fileText = open(qtCreatorPriFileName, "r").read()
+    file = open(qtCreatorPriFileName, "r")
+    fileText = file.read()
+    file.close()
     chk = re.search("(?<=QTCREATOR_VERSION =)\s\d+.\d+.\d+", fileText)
     try:
         ver = chk.group(0).strip()
