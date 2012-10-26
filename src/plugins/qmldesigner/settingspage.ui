@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>275</width>
-    <height>275</height>
+    <width>574</width>
+    <height>472</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox_3">
      <property name="title">
       <string>Snapping</string>
@@ -67,7 +67,7 @@
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="1" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Canvas</string>
@@ -132,7 +132,40 @@
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="2" column="0">
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Warnings</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <layout class="QFormLayout" name="formLayout_3">
+        <item row="0" column="1">
+         <widget class="QCheckBox" name="designerWarningsCheckBox">
+          <property name="toolTip">
+           <string>Warn about QML features which are not properly supported by the Qt Quick Designer</string>
+          </property>
+          <property name="text">
+           <string>Warn about unsupported features in the Qt Quick Designer</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QCheckBox" name="designerWarningsInEditorCheckBox">
+          <property name="toolTip">
+           <string>Also warn in the code editor about QML features which are not properly supported by the Qt Quick Designer</string>
+          </property>
+          <property name="text">
+           <string>Warn about unsupported features of Qt Quick Designer in the code editor</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="1">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

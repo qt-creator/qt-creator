@@ -369,8 +369,9 @@ void BauhausPlugin::switchTextDesign()
     }
 }
 
-DesignerSettings BauhausPlugin::settings() const
+DesignerSettings BauhausPlugin::settings()
 {
+    m_settings.fromSettings(Core::ICore::settings());
     return m_settings;
 }
 

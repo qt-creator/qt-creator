@@ -72,7 +72,7 @@ public:
 
     static BauhausPlugin *pluginInstance();
 
-    DesignerSettings settings() const;
+    DesignerSettings settings();
     void setSettings(const DesignerSettings &s);
 
 private slots:

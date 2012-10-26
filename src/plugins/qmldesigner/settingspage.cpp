@@ -53,6 +53,9 @@ DesignerSettings SettingsPageWidget::settings() const
     ds.snapMargin = m_ui.spinSnapMargin->value();
     ds.canvasWidth = m_ui.spinCanvasWidth->value();
     ds.canvasHeight = m_ui.spinCanvasHeight->value();
+    ds.warningsInDesigner = m_ui.designerWarningsCheckBox->isChecked();
+    ds.designerWarningsInEditor = m_ui.designerWarningsInEditorCheckBox->isChecked();
+
     return ds;
 }
 
@@ -62,6 +65,8 @@ void SettingsPageWidget::setSettings(const DesignerSettings &s)
     m_ui.spinSnapMargin->setValue(s.snapMargin);
     m_ui.spinCanvasWidth->setValue(s.canvasWidth);
     m_ui.spinCanvasHeight->setValue(s.canvasHeight);
+    m_ui.designerWarningsCheckBox->setChecked(s.warningsInDesigner);
+    m_ui.designerWarningsInEditorCheckBox->setChecked(s.designerWarningsInEditor);
 }
 
 QString SettingsPageWidget::searchKeywords() const

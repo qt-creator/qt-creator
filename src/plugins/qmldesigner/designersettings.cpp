@@ -39,7 +39,9 @@ DesignerSettings::DesignerSettings()
     itemSpacing(0),
     snapMargin(0),
     canvasWidth(10000),
-    canvasHeight(10000)
+    canvasHeight(10000),
+    warningsInDesigner(true),
+    designerWarningsInEditor(false)
 {}
 
 void DesignerSettings::fromSettings(QSettings *settings)
@@ -55,6 +57,11 @@ void DesignerSettings::fromSettings(QSettings *settings)
             QLatin1String(QmlDesigner::Constants::QML_SNAPMARGIN_KEY), QVariant(0)).toInt();
     canvasWidth = settings->value(QLatin1String(QmlDesigner::Constants::QML_CANVASWIDTH_KEY), QVariant(10000)).toInt();
     canvasHeight = settings->value(QLatin1String(QmlDesigner::Constants::QML_CANVASHEIGHT_KEY), QVariant(10000)).toInt();
+    warningsInDesigner = settings->value(
+            QLatin1String(QmlDesigner::Constants::QML_WARNIN_FOR_FEATURES_IN_DESIGNER_KEY), QVariant(true)).toBool();
+    designerWarningsInEditor = settings->value(
+            QLatin1String(QmlDesigner::Constants::QML_WARNIN_FOR_DESIGNER_FEATURES_IN_EDITOR_KEY), QVariant(false)).toBool();
+
     settings->endGroup();
     settings->endGroup();
 }
@@ -68,6 +75,9 @@ void DesignerSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_SNAPMARGIN_KEY), snapMargin);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_CANVASWIDTH_KEY), canvasWidth);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_CANVASHEIGHT_KEY), canvasHeight);
+    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_WARNIN_FOR_FEATURES_IN_DESIGNER_KEY), warningsInDesigner);
+    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_WARNIN_FOR_DESIGNER_FEATURES_IN_EDITOR_KEY), designerWarningsInEditor);
+
     settings->endGroup();
     settings->endGroup();
 }
@@ -77,5 +87,7 @@ bool DesignerSettings::equals(const DesignerSettings &other) const
     return openDesignMode == other.openDesignMode
             && snapMargin == other.snapMargin
             && canvasWidth == other.canvasWidth
-            && canvasHeight == other.canvasHeight;
+            && canvasHeight == other.canvasHeight
+            && warningsInDesigner == other.warningsInDesigner
+            && designerWarningsInEditor == other.designerWarningsInEditor;
 }

@@ -32,6 +32,7 @@
 #include "filemanager/firstdefinitionfinder.h"
 #include "filemanager/objectlengthcalculator.h"
 #include "filemanager/qmlrefactoring.h"
+#include "filemanager/qmlwarningdialog.h"
 #include "rewriteaction.h"
 #include "nodeproperty.h"
 #include "propertyparser.h"
@@ -800,13 +801,16 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
                 QString title = QCoreApplication::translate("QmlDesigner::TextToModelMerger warning message", "This .qml file contains features"
                                                             "which are not supported by Qt Quick Designer");
 
-                QString message;
+                QStringList message;
 
                 foreach (const RewriterView::Error &warning, warnings) {
-                    message += QLatin1String("Line: ") +  QString::number(warning.line()) + ": "  + warning.description() + QLatin1String("\n");
+                    QString string = QLatin1String("Line: ") +  QString::number(warning.line()) + QLatin1String(": ")  + warning.description();
+                    //string += QLatin1String(" <a href=\"") + QString::number(warning.line()) + QLatin1String("\">Go to error</a>") + QLatin1String("<p>");
+                    message << string;
                 }
 
-                if (QMessageBox::warning(0, title, message, QMessageBox::Ignore | QMessageBox::Cancel) == QMessageBox::Cancel) {
+                QmlWarningDialog warningDialog(0, message);
+                if (warningDialog.warningsEnabled() && warningDialog.exec()) {
                     m_rewriterView->setErrors(warnings);
                     setActive(false);
                     return false;

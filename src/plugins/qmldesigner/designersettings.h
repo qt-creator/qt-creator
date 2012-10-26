@@ -52,6 +52,8 @@ public:
     int snapMargin;    
     int canvasWidth;
     int canvasHeight;
+    bool warningsInDesigner;
+    bool designerWarningsInEditor;
 };
 
 inline bool operator==(const DesignerSettings &s1, const DesignerSettings &s2)
