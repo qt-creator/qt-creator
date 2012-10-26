@@ -161,38 +161,6 @@ def __getMkspecFromQmake__(qmakeCall):
                  "QMAKE_MKSPECS returned: '%s'" % QmakeConfPath)
     return None
 
-def getQMakeFromQtVersion(qtVersion):
-    invokeMenuItem("Tools", "Options...")
-    buildAndRun = waitForObject("{type='QModelIndex' text='Build & Run' "
-                                "container={type='QListView' unnamed='1' visible='1' "
-                                "window=':Options_Core::Internal::SettingsDialog'}}")
-    mouseClick(buildAndRun, 5, 5, 0, Qt.LeftButton)
-    qtVersionTab = waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' text='Qt Versions' type='TabItem'}")
-    mouseClick(qtVersionTab, 5, 5, 0, Qt.LeftButton)
-    qtVersionsTree = waitForObject("{name='qtdirList' type='QTreeWidget' visible='1'}")
-    rootIndex = qtVersionsTree.invisibleRootItem()
-    for current in dumpChildren(rootIndex):
-        child = getTreeWidgetChildByText(current, qtVersion)
-        if child != None:
-            break
-    if child != None:
-        qmake = "%s" % child.text(1)
-        if not os.path.exists(qmake):
-            test.warning("Qt version ('%s') found inside SettingsDialog does not exist." % qtVersion)
-            qmake = None
-    else:
-        test.warning("Could not find the Qt version ('%s') inside SettingsDialog." % qtVersion)
-        qmake = None
-    clickButton(waitForObject("{text='Cancel' type='QPushButton' unnamed='1' visible='1' "
-                              "window=':Options_Core::Internal::SettingsDialog'}"))
-    return qmake
-
-def getTreeWidgetChildByText(parent, text, column=0):
-    for child in dumpChildren(parent):
-        if child.text(column)==text:
-            return child
-    return None
-
 # helper that double clicks the table view at specified row and column
 # returns the QExpandingLineEdit (the editable table cell)
 def __doubleClickQTableView__(qtableView, row, column):
