@@ -3833,7 +3833,7 @@ namespace qprocess {
             proc[i].waitForStarted();
         }
         BREAK_HERE;
-        dummyStatement(&thread);
+        dummyStatement(&proc);
     }
 
 } // namespace qprocess
