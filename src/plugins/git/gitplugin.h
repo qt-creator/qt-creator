@@ -132,6 +132,10 @@ private slots:
     void pull();
     void push();
 
+#ifdef WITH_TESTS
+    void testStatusParsing_data();
+    void testStatusParsing();
+#endif
 protected:
     virtual void updateActions(VcsBase::VcsBasePlugin::ActionState);
     virtual bool submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor);
