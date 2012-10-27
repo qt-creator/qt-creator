@@ -104,7 +104,7 @@
     <name>Utils::NewClassWidget</name>
     <message>
         <source>Invalid base class name</source>
-        <translation>Niepoprawna nazwa klasy podstawowej</translation>
+        <translation>Niepoprawna nazwa klasy bazowej</translation>
     </message>
     <message>
         <source>Invalid header file name: &apos;%1&apos;</source>
@@ -120,7 +120,7 @@
     </message>
     <message>
         <source>Inherits QObject</source>
-        <translation>Wywiedziony z QObject</translation>
+        <translation>Dziedziczy z QObject</translation>
     </message>
     <message>
         <source>None</source>
@@ -128,7 +128,7 @@
     </message>
     <message>
         <source>Inherits QWidget</source>
-        <translation>Wywiedziony z QWidget</translation>
+        <translation>Dziedziczy z QWidget</translation>
     </message>
     <message>
         <source>&amp;Class name:</source>
@@ -136,7 +136,7 @@
     </message>
     <message>
         <source>&amp;Base class:</source>
-        <translation>Klasa &amp;podstawowa:</translation>
+        <translation>Klasa &amp;bazowa:</translation>
     </message>
     <message>
         <source>&amp;Type information:</source>
@@ -168,7 +168,7 @@
     </message>
     <message>
         <source>Inherits QDeclarativeItem</source>
-        <translation>Wywiedziony z QDeclarativeItem</translation>
+        <translation>Dziedziczy z QDeclarativeItem</translation>
     </message>
 </context>
 <context>
@@ -1187,7 +1187,7 @@
     </message>
     <message>
         <source>Widget &amp;base class:</source>
-        <translation>Klasa podsta&amp;wowa widżetu:</translation>
+        <translation>Klasa &amp;bazowa widżetu:</translation>
     </message>
     <message>
         <source>QWidget</source>
@@ -1793,7 +1793,7 @@ Przyczyna: %3</translation>
     </message>
     <message>
         <source>Plugin is not valid (does not derive from IPlugin)</source>
-        <translation>Wtyczka jest niepoprawna (nie jest wywiedziona z IPlugin)</translation>
+        <translation>Wtyczka jest niepoprawna (nie dziedziczy z IPlugin)</translation>
     </message>
     <message>
         <source>Initializing the plugin failed because state != Loaded</source>
@@ -9246,7 +9246,7 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     <name>Qt4ProjectManager::Internal::ConsoleAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 console application project. The application derives from QCoreApplication and does not provide a GUI.</source>
-        <translation>Ten kreator generuje projekt aplikacji konsolowej Qt4. Aplikacja wywiedziona jest z QCoreApplication i nie używa GUI.</translation>
+        <translation>Ten kreator generuje projekt aplikacji konsolowej Qt4. Aplikacja dziedziczy z QCoreApplication i nie używa GUI.</translation>
     </message>
 </context>
 <context>
@@ -9297,7 +9297,7 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     <name>Qt4ProjectManager::Internal::GuiAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 GUI application project. The application derives by default from QApplication and includes an empty widget.</source>
-        <translation>Ten kreator generuje projekt aplikacji GUI Qt4. Aplikacja wywiedziona jest domyślnie z QApplication i zawiera pusty widżet.</translation>
+        <translation>Ten kreator generuje projekt aplikacji GUI Qt4. Aplikacja domyślnie dziedziczy z QApplication i zawiera pusty widżet.</translation>
     </message>
     <message>
         <source>Details</source>
@@ -13872,18 +13872,18 @@ Wymaga &lt;b&gt;Qt 4.7.4&lt;/b&gt; lub nowszego.</translation>
     <name>Qt4ProjectManager::Internal::TestWizard</name>
     <message>
         <source>Qt Unit Test</source>
-        <translation>Test grupowy Qt</translation>
+        <translation>Test jednostkowy Qt</translation>
     </message>
     <message>
         <source>Creates a QTestLib-based unit test for a feature or a class. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
-        <translation>Tworzy grupowy test funkcjonalności lub klasy w oparciu o QTestLib. Grupowe testy pozwalają na weryfikowanie działania kodu i wykrywanie regresji.</translation>
+        <translation>Tworzy testy jednostkowe funkcjonalności lub klasy, dziedzicząc z QTestLib. Testy jednostkowe pozwalają na weryfikowanie działania kodu i wykrywanie regresji.</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::TestWizardDialog</name>
     <message>
         <source>This wizard generates a Qt unit test consisting of a single source file with a test class.</source>
-        <translation>Ten kreator generuje test grupowy składający się z pojedynczego pliku źródłowego z klasą testową.</translation>
+        <translation>Ten kreator generuje test jednostkowy składający się z pojedynczego pliku źródłowego z klasą testową.</translation>
     </message>
     <message>
         <source>Details</source>
@@ -15426,7 +15426,7 @@ Lista serwera: %2.</translation>
     </message>
     <message>
         <source>Derived</source>
-        <translation>Klasy wywiedzione</translation>
+        <translation>Klasy pochodne</translation>
     </message>
 </context>
 <context>
@@ -25472,7 +25472,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Displays names of QThread based threads.</source>
-        <translation>Wyświetlaj nazwy wątków wywiedzionych z QThread.</translation>
+        <translation>Wyświetla nazwy wątków dziedziczących z QThread.</translation>
     </message>
     <message>
         <source>Display thread names</source>
@@ -27668,8 +27668,6 @@ Sprawdź dokumentację SSH zmienną środowiskową SSH_ASKPASS.</translation>
     <message numerus="yes">
         <source>Zeroconf for [%1] accumulated %n consecutive errors, aborting.</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
