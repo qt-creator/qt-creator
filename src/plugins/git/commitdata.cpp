@@ -175,7 +175,7 @@ QStringList CommitData::filterFiles(const CommitData::FileState &state) const
 {
     QStringList result;
     foreach (const StateFilePair &p, files) {
-        if (state == AllStates || state == p.first)
+        if (state == p.first)
             result.append(p.second);
     }
     return result;

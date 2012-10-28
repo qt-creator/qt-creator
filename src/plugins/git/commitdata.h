@@ -99,7 +99,7 @@ public:
 
     // Convenience to retrieve the file names from
     // the specification list. Optionally filter for a certain state
-    QStringList filterFiles(const FileState &state = AllStates) const;
+    QStringList filterFiles(const FileState &state) const;
 
     static QString stateDisplayName(const FileState &state);
 
