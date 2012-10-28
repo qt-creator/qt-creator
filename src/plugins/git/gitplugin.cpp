@@ -1069,44 +1069,42 @@ GitClient *GitPlugin::gitClient() const
 
 #ifdef WITH_TESTS
 #include <QTest>
-Q_DECLARE_METATYPE(CommitData::FileState)
+Q_DECLARE_METATYPE(FileStates)
 void GitPlugin::testStatusParsing_data()
 {
-    QTest::addColumn<QString>("line");
-    QTest::addColumn<CommitData::FileState>("first");
-    QTest::addColumn<CommitData::FileState>("second");
+    QTest::addColumn<FileStates>("first");
+    QTest::addColumn<FileStates>("second");
 
-#define STATUS_TEST(status, first, second) \
-    QTest::newRow(status) << QString::fromLatin1(status) << CommitData::first << CommitData::second;
-    STATUS_TEST(" M", ModifiedFile, UnknownFileState);
-    STATUS_TEST(" D", DeletedFile, UnknownFileState);
-    STATUS_TEST("M ", ModifiedStagedFile, UnknownFileState);
-    STATUS_TEST("MM", ModifiedStagedFile, ModifiedFile);
-    STATUS_TEST("MD", ModifiedStagedFile, DeletedFile);
-    STATUS_TEST("A ", AddedStagedFile, UnknownFileState);
-    STATUS_TEST("AM", AddedStagedFile, ModifiedFile);
-    STATUS_TEST("AD", AddedStagedFile, DeletedFile);
-    STATUS_TEST("D ", DeletedStagedFile, UnknownFileState);
-    STATUS_TEST("DM", DeletedStagedFile, ModifiedFile);
-    STATUS_TEST("R ", RenamedStagedFile, UnknownFileState);
-    STATUS_TEST("RM", RenamedStagedFile, ModifiedFile);
-    STATUS_TEST("RD", RenamedStagedFile, DeletedFile);
-    STATUS_TEST("C ", CopiedStagedFile, UnknownFileState);
-    STATUS_TEST("CM", CopiedStagedFile, ModifiedFile);
-    STATUS_TEST("CD", CopiedStagedFile, DeletedFile);
+    QTest::newRow(" M") << FileStates(ModifiedFile) << FileStates(UnknownFileState);
+    QTest::newRow(" D") << FileStates(DeletedFile) << FileStates(UnknownFileState);
+    QTest::newRow("M ") << (ModifiedFile | StagedFile) << FileStates(UnknownFileState);
+    QTest::newRow("MM") << (ModifiedFile | StagedFile) << FileStates(ModifiedFile);
+    QTest::newRow("MD") << (ModifiedFile | StagedFile) << FileStates(DeletedFile);
+    QTest::newRow("A ") << (AddedFile | StagedFile) << FileStates(UnknownFileState);
+    QTest::newRow("AM") << (AddedFile | StagedFile) << FileStates(ModifiedFile);
+    QTest::newRow("AD") << (AddedFile | StagedFile) << FileStates(DeletedFile);
+    QTest::newRow("D ") << (DeletedFile | StagedFile) << FileStates(UnknownFileState);
+    QTest::newRow("DM") << (DeletedFile | StagedFile) << FileStates(ModifiedFile);
+    QTest::newRow("R ") << (RenamedFile | StagedFile) << FileStates(UnknownFileState);
+    QTest::newRow("RM") << (RenamedFile | StagedFile) << FileStates(ModifiedFile);
+    QTest::newRow("RD") << (RenamedFile | StagedFile) << FileStates(DeletedFile);
+    QTest::newRow("C ") << (CopiedFile | StagedFile) << FileStates(UnknownFileState);
+    QTest::newRow("CM") << (CopiedFile | StagedFile) << FileStates(ModifiedFile);
+    QTest::newRow("CD") << (CopiedFile | StagedFile) << FileStates(DeletedFile);
 }
 
 void GitPlugin::testStatusParsing()
 {
     CommitData data;
-    QFETCH(QString, line);
-    QFETCH(CommitData::FileState, first);
-    QFETCH(CommitData::FileState, second);
+    QFETCH(FileStates, first);
+    QFETCH(FileStates, second);
     QString output = QLatin1String("## master...origin/master [ahead 1]\n");
-    output += line + QLatin1String(" main.cpp\n");
+    output += QString::fromLatin1(QTest::currentDataTag()) + QLatin1String(" main.cpp\n");
     data.parseFilesFromStatus(output);
     QCOMPARE(data.files.at(0).first, first);
-    if (second != CommitData::UnknownFileState)
+    if (second == UnknownFileState)
+        QCOMPARE(data.files.size(), 1);
+    else
         QCOMPARE(data.files.at(1).first, second);
 }
 #endif

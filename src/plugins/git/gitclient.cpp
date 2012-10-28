@@ -1750,13 +1750,13 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         }
 
         // Filter out untracked files that are not part of the project
-        QStringList untrackedFiles = commitData->filterFiles(CommitData::UntrackedFile);
+        QStringList untrackedFiles = commitData->filterFiles(UntrackedFile);
 
         VcsBase::VcsBaseSubmitEditor::filterUntrackedFilesOfProject(repoDirectory, &untrackedFiles);
         QList<CommitData::StateFilePair> filteredFiles;
         QList<CommitData::StateFilePair>::const_iterator it = commitData->files.constBegin();
         for ( ; it != commitData->files.constEnd(); ++it) {
-            if (it->first == CommitData::UntrackedFile && !untrackedFiles.contains(it->second))
+            if (it->first == UntrackedFile && !untrackedFiles.contains(it->second))
                 continue;
             filteredFiles.append(*it);
         }
@@ -1836,47 +1836,41 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
     int commitCount = 0;
 
     for (int i = 0; i < model->rowCount(); ++i) {
-        const CommitData::FileState state = static_cast<CommitData::FileState>(model->extraData(i).toInt());
+        const FileStates state = static_cast<FileStates>(model->extraData(i).toInt());
         QString file = model->file(i);
         const bool checked = model->checked(i);
 
         if (checked)
             ++commitCount;
 
-        if (state == CommitData::UntrackedFile && checked)
+        if (state == UntrackedFile && checked)
             filesToAdd.append(file);
 
-        if (state == CommitData::ModifiedStagedFile && !checked) {
-            filesToReset.append(file);
-        } else if (state == CommitData::AddedStagedFile && !checked) {
-            filesToReset.append(file);
-        } else if (state == CommitData::DeletedStagedFile && !checked) {
-            filesToReset.append(file);
-        } else if (state == CommitData::RenamedStagedFile && !checked) {
-            const int pos = file.indexOf(QLatin1String(" -> "));
-            const QString newFile = file.mid(pos + 4);
-            filesToReset.append(newFile);
-        } else if (state == CommitData::CopiedStagedFile && !checked) {
-            const QString newFile = file.mid(file.indexOf(renameSeparator) + renameSeparator.count());
-            filesToReset.append(newFile);
-        } else if (state == CommitData::UpdatedStagedFile && !checked) {
-            QTC_ASSERT(false, continue); // There should not be updated files when commiting!
+        if ((state & StagedFile) && !checked) {
+            if (state & (AddedFile | DeletedFile)) {
+                filesToReset.append(file);
+            } else if (state & (RenamedFile | CopiedFile)) {
+                const QString newFile = file.mid(file.indexOf(renameSeparator) + renameSeparator.count());
+                filesToReset.append(newFile);
+            }
+        } else if (state & UnmergedFile && checked) {
+            QTC_ASSERT(false, continue); // There should not be unmerged files when commiting!
         }
 
-        if (state == CommitData::ModifiedFile && checked) {
+        if (state == ModifiedFile && checked) {
             filesToReset.removeAll(file);
             filesToAdd.append(file);
-        } else if (state == CommitData::AddedFile && checked) {
+        } else if (state == AddedFile && checked) {
             QTC_ASSERT(false, continue); // these should be untracked!
-        } else if (state == CommitData::DeletedFile && checked) {
+        } else if (state == DeletedFile && checked) {
             filesToReset.removeAll(file);
             filesToRemove.append(file);
-        } else if (state == CommitData::RenamedFile && checked) {
+        } else if (state == RenamedFile && checked) {
             QTC_ASSERT(false, continue); // git mv directly stages.
-        } else if (state == CommitData::CopiedFile && checked) {
+        } else if (state == CopiedFile && checked) {
             QTC_ASSERT(false, continue); // only is noticed after adding a new file to the index
-        } else if (state == CommitData::UpdatedFile && checked) {
-            QTC_ASSERT(false, continue); // There should not be updated files when commiting!
+        } else if (state == UnmergedFile && checked) {
+            QTC_ASSERT(false, continue); // There should not be unmerged files when commiting!
         }
     }
 
@@ -1965,8 +1959,8 @@ GitClient::RevertResult GitClient::revertI(QStringList files,
     }
 
     // From the status output, determine all modified [un]staged files.
-    const QStringList allStagedFiles = data.filterFiles(CommitData::ModifiedStagedFile);
-    const QStringList allUnstagedFiles = data.filterFiles(CommitData::ModifiedFile);
+    const QStringList allStagedFiles = data.filterFiles(StagedFile | ModifiedFile);
+    const QStringList allUnstagedFiles = data.filterFiles(ModifiedFile);
     // Unless a directory was passed, filter all modified files for the
     // argument file list.
     QStringList stagedFiles = allStagedFiles;
