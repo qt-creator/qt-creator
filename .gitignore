@@ -91,6 +91,8 @@ dist/gdb/source
 dist/gdb/staging
 ipch
 tmp
+/*-debug
+/*-release
 # ignore both a directory as well as a symlink
 share/qtcreator/QtProject/
 share/qtcreator/QtProject
