@@ -256,7 +256,24 @@ struct CursorPosition
     int column; // Position on line.
 };
 
-typedef QHash<int, CursorPosition> Marks;
+struct Mark
+{
+    Mark(const CursorPosition &pos = CursorPosition(), const QString &fileName = QString())
+        : position(pos), fileName(fileName) {}
+
+    bool isValid() const { return position.isValid(); }
+
+    bool isLocal(const QString &localFileName) const
+    {
+        return fileName.isEmpty() || fileName == localFileName;
+    }
+
+    CursorPosition position;
+    QString fileName;
+};
+typedef QHash<QChar, Mark> Marks;
+typedef QHashIterator<QChar, Mark> MarksIterator;
+
 struct State
 {
     State() : revision(-1), position(), marks(), lastVisualMode(NoVisualMode) {}
@@ -1509,11 +1526,12 @@ public:
     VisualMode m_visualMode;
     VisualMode m_lastVisualMode;
 
-    // marks as lines
-    CursorPosition mark(int code) const;
-    void setMark(int code, CursorPosition position);
-    typedef QHashIterator<int, CursorPosition> MarksIterator;
-    Marks m_marks;
+    // marks
+    Mark mark(QChar code) const;
+    void setMark(QChar code, CursorPosition position);
+    // jump to valid mark return true if mark is valid and local
+    bool jumpToMark(QChar mark, bool backTickMode);
+    Marks m_marks; // local marks
 
     // vi style configuration
     QVariant config(int code) const { return theFakeVimSetting(code)->value(); }
@@ -1624,6 +1642,9 @@ public:
         QString lastSubstituteFlags;
         QString lastSubstitutePattern;
         QString lastSubstituteReplacement;
+
+        // Global marks.
+        Marks marks;
     } g;
 };
 
@@ -1882,8 +1903,8 @@ void FakeVimHandler::Private::exportSelection()
             QTC_CHECK(false);
         }
 
-        setMark('<', mark('<'));
-        setMark('>', mark('>'));
+        setMark('<', mark('<').position);
+        setMark('>', mark('>').position);
     } else {
         if (m_subsubmode == SearchSubSubMode && !m_searchCursor.isNull())
             setCursor(m_searchCursor);
@@ -2134,6 +2155,10 @@ void FakeVimHandler::Private::updateFind(bool isComplete)
     sd.needle = needle;
     sd.forward = g.lastSearchForward;
     sd.highlightMatches = isComplete;
+    if (isComplete) {
+        setPosition(m_searchStartPosition);
+        recordJump();
+    }
     search(sd, isComplete);
 }
 
@@ -2212,8 +2237,8 @@ void FakeVimHandler::Private::setUndoPosition(bool overwrite)
         m_undo.pop();
     m_lastChangePosition = CursorPosition(document(), pos);
     if (isVisualMode()) {
-        setMark('<', mark('<'));
-        setMark('>', mark('>'));
+        setMark('<', mark('<').position);
+        setMark('>', mark('>').position);
     }
     m_undo.push(State(rev, m_lastChangePosition, m_marks, m_lastVisualMode));
 }
@@ -2390,7 +2415,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         const int la = lineForPosition(anchor());
         const int lp = lineForPosition(position());
         if (m_register != '"') {
-            setCursorPosition(mark(m_register));
+            setCursorPosition(mark(m_register).position);
             moveToStartOfLine();
         } else {
             if (anchor() <= position())
@@ -2460,7 +2485,7 @@ void FakeVimHandler::Private::updateSelection()
             it.next();
             QTextEdit::ExtraSelection sel;
             sel.cursor = cursor();
-            setCursorPosition(&sel.cursor, it.value());
+            setCursorPosition(&sel.cursor, it.value().position);
             sel.cursor.setPosition(sel.cursor.position(), MoveAnchor);
             sel.cursor.movePosition(Right, KeepAnchor);
             sel.format = cursor().blockCharFormat();
@@ -2626,23 +2651,14 @@ EventResult FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
             resetCommandMode();
         }
     } else if (m_subsubmode == MarkSubSubMode) {
-        setMark(input.asChar().unicode(), CursorPosition(cursor()));
+        setMark(input.asChar(), CursorPosition(cursor()));
         m_subsubmode = NoSubSubMode;
     } else if (m_subsubmode == BackTickSubSubMode
             || m_subsubmode == TickSubSubMode) {
-        ushort markChar = input.asChar().unicode();
-        CursorPosition m = mark(markChar);
-        if (m.isValid()) {
-            if (markChar == '\'' && !m_jumpListUndo.isEmpty())
-                m_jumpListUndo.pop();
-            recordJump();
-            setCursorPosition(m);
-            if (m_subsubmode == TickSubSubMode)
-                moveToFirstNonBlankOnLine();
+        if (jumpToMark(input.asChar(), m_subsubmode == BackTickSubSubMode))
             finishMovement();
-        } else {
-            showMessage(MessageError, msgMarkNotSet(input.text()));
-        }
+        else
+            resetCommandMode();
         m_subsubmode = NoSubSubMode;
     } else {
         handled = EventUnhandled;
@@ -3421,8 +3437,8 @@ EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
     } else if (m_gflag && input.is('v')) {
         m_gflag = false;
         if (m_lastVisualMode != NoVisualMode) {
-            CursorPosition from = mark('<');
-            CursorPosition to = mark('>');
+            CursorPosition from = mark('<').position;
+            CursorPosition to = mark('>').position;
             toggleVisualMode(m_lastVisualMode);
             setCursorPosition(from);
             setAnchor();
@@ -3997,13 +4013,13 @@ int FakeVimHandler::Private::parseLineAddress(QString *cmd)
             return -1;
         }
         c = cmd->at(0);
-        CursorPosition m = mark(c.unicode());
-        if (!m.isValid()) {
+        Mark m = mark(c);
+        if (!m.isValid() || !m.isLocal(m_currentFileName)) {
             showMessage(MessageError, msgMarkNotSet(c));
             return -1;
         }
         cmd->remove(0, 1);
-        result = m.line;
+        result = m.position.line;
     } else if (c.isDigit()) { // line with given number
         result = 0;
     } else if (c == '-' || c == '+') { // add or subtract from current line number
@@ -4526,8 +4542,8 @@ bool FakeVimHandler::Private::handleExMoveCommand(const ExCommand &cmd)
         return true;
     }
 
-    CursorPosition lastAnchor = mark('<');
-    CursorPosition lastPosition = mark('>');
+    CursorPosition lastAnchor = mark('<').position;
+    CursorPosition lastPosition = mark('>').position;
 
     recordJump();
     setPosition(cmd.range.beginPos);
@@ -4998,7 +5014,6 @@ void FakeVimHandler::Private::search(const SearchData &sd, bool showMessages)
         tc.setPosition(m_searchStartPosition);
     }
 
-    recordJump();
     if (isVisualMode()) {
         int d = tc.anchor() - tc.position();
         setPosition(tc.position() + d);
@@ -5025,6 +5040,7 @@ void FakeVimHandler::Private::searchNext(bool forward)
     sd.highlightMatches = true;
     m_searchStartPosition = position();
     showMessage(MessageCommand, (g.lastSearchForward ? '/' : '?') + sd.needle);
+    recordJump();
     search(sd);
 }
 
@@ -6045,8 +6061,8 @@ void FakeVimHandler::Private::leaveVisualMode()
     if (!isVisualMode())
         return;
 
-    setMark('<', mark('<'));
-    setMark('>', mark('>'));
+    setMark('<', mark('<').position);
+    setMark('>', mark('>').position);
     if (isVisualLineMode())
         m_movetype = MoveLineWise;
     else if (isVisualCharMode())
@@ -6511,10 +6527,8 @@ void FakeVimHandler::Private::selectQuotedStringTextObject(bool inner,
     m_movetype = MoveInclusive;
 }
 
-CursorPosition FakeVimHandler::Private::mark(int code) const
+Mark FakeVimHandler::Private::mark(QChar code) const
 {
-    // FIXME: distinguish local and global marks.
-    //qDebug() << "MARK: " << code << m_marks.value(code, -1) << m_marks;
     if (isVisualMode()) {
         if (code == '<')
             return CursorPosition(document(), qMin(anchor(), position()));
@@ -6523,13 +6537,42 @@ CursorPosition FakeVimHandler::Private::mark(int code) const
     }
     if (code == '.')
         return m_lastChangePosition;
+    if (code.isUpper())
+        return g.marks.value(code);
+
     return m_marks.value(code);
 }
 
-void FakeVimHandler::Private::setMark(int code, CursorPosition position)
+void FakeVimHandler::Private::setMark(QChar code, CursorPosition position)
 {
-    // FIXME: distinguish local and global marks.
-    m_marks[code] = position;
+    if (code.isUpper())
+        g.marks[code] = Mark(position, m_currentFileName);
+    else
+        m_marks[code] = Mark(position);
+}
+
+bool FakeVimHandler::Private::jumpToMark(QChar mark, bool backTickMode)
+{
+    Mark m = this->mark(mark);
+    if (!m.isValid()) {
+        showMessage(MessageError, msgMarkNotSet(mark));
+        return false;
+    }
+    if (!m.isLocal(m_currentFileName)) {
+        emit q->jumpToGlobalMark(mark, backTickMode, m.fileName);
+        return false;
+    }
+
+    if (mark == '\'' && !m_jumpListUndo.isEmpty())
+        m_jumpListUndo.pop();
+    recordJump();
+    setCursorPosition(m.position);
+    if (!backTickMode)
+        moveToFirstNonBlankOnLine();
+    setAnchor();
+    setTargetColumn();
+
+    return true;
 }
 
 RangeMode FakeVimHandler::Private::registerRangeMode(int reg) const
@@ -6808,6 +6851,11 @@ void FakeVimHandler::setTextCursorPosition(int position)
     else
         d->setAnchorAndPosition(pos, pos);
     d->setTargetColumn();
+}
+
+bool FakeVimHandler::jumpToLocalMark(QChar mark, bool backTickMode)
+{
+    return d->jumpToMark(mark, backTickMode);
 }
 
 } // namespace Internal

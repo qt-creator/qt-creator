@@ -126,6 +126,8 @@ public slots:
     // Set text cursor position. Keeps anchor if in visual mode.
     void setTextCursorPosition(int position);
 
+    bool jumpToLocalMark(QChar mark, bool backTickMode);
+
 signals:
     void commandBufferChanged(const QString &msg, int pos, int messageLevel, QObject *eventFilter);
     void statusDataChanged(const QString &msg);
@@ -147,6 +149,7 @@ signals:
     void foldToggle(int depth);
     void foldAll(bool fold);
     void fold(int depth, bool fold);
+    void jumpToGlobalMark(QChar mark, bool backTickMode, const QString &fileName);
 
 public:
     class Private;

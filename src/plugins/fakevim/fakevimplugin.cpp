@@ -139,7 +139,10 @@ public:
 
             setCurrentWidget(m_edit);
             m_edit->setFocus();
+        } else if (contents.isEmpty()) {
+            hide();
         } else {
+            show();
             m_label->setText(messageLevel == MessageMode ? "-- " + contents + " --" : contents);
 
             QString css;
@@ -161,7 +164,6 @@ public:
 
         if (m_eventFilter != eventFilter) {
             if (m_eventFilter != 0) {
-                m_label->setText(QString());
                 m_edit->removeEventFilter(m_eventFilter);
                 disconnect(SIGNAL(edited(QString,int)));
             }
@@ -847,6 +849,7 @@ private slots:
     void foldToggle(int depth);
     void foldAll(bool fold);
     void fold(int depth, bool fold);
+    void jumpToGlobalMark(QChar mark, bool backTickMode, const QString &fileName);
     void showSettingsDialog();
     void maybeReadVimRc();
     void setBlockSelection(bool);
@@ -1442,6 +1445,17 @@ void FakeVimPluginPrivate::fold(int depth, bool fold)
     documentLayout->emitDocumentSizeChanged();
 }
 
+void FakeVimPluginPrivate::jumpToGlobalMark(QChar mark, bool backTickMode,
+    const QString &fileName)
+{
+    Core::IEditor *iedit = Core::EditorManager::openEditor(fileName);
+    if (!iedit)
+        return;
+    FakeVimHandler *handler = m_editorToHandler.value(iedit, 0);
+    if (handler)
+        handler->jumpToLocalMark(mark, backTickMode);
+}
+
 // This class defers deletion of a child FakeVimHandler using deleteLater().
 class DeferredDeleter : public QObject
 {
@@ -1520,6 +1534,8 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         SLOT(foldAll(bool)));
     connect(handler, SIGNAL(fold(int,bool)),
         SLOT(fold(int,bool)));
+    connect(handler, SIGNAL(jumpToGlobalMark(QChar,bool,QString)),
+        SLOT(jumpToGlobalMark(QChar,bool,QString)));
 
     connect(handler, SIGNAL(handleExCommandRequested(bool*,ExCommand)),
         SLOT(handleExCommand(bool*,ExCommand)));
