@@ -129,8 +129,12 @@ QVariant HistoryCompleterPrivate::data(const QModelIndex &index, int role) const
 
 bool HistoryCompleterPrivate::removeRows(int row, int count, const QModelIndex &parent)
 {
-    beginRemoveRows (parent, row, row + count);
-    list.removeAt(row);
+    QTC_ASSERT(theSettings, return false);
+    if (row + count > list.count())
+        return false;
+    beginRemoveRows(parent, row, row + count -1);
+    for (int i = 0; i < count; ++i)
+        list.removeAt(row);
     theSettings->setValue(historyKey, list);
     endRemoveRows();
     return true;
