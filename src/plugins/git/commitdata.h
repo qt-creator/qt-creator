@@ -75,6 +75,9 @@ enum FileState {
     CopiedFile   = 0x20,
     UnmergedFile = 0x40,
 
+    UnmergedUs   = 0x100,
+    UnmergedThem = 0x200,
+
     UnknownFileState = 0x800
 };
 Q_DECLARE_FLAGS(FileStates, FileState)

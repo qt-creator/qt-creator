@@ -1091,6 +1091,15 @@ void GitPlugin::testStatusParsing_data()
     QTest::newRow("C ") << (CopiedFile | StagedFile) << FileStates(UnknownFileState);
     QTest::newRow("CM") << (CopiedFile | StagedFile) << FileStates(ModifiedFile);
     QTest::newRow("CD") << (CopiedFile | StagedFile) << FileStates(DeletedFile);
+
+    // Merges
+    QTest::newRow("DD") << (DeletedFile | UnmergedFile | UnmergedUs | UnmergedThem) << FileStates(UnknownFileState);
+    QTest::newRow("AA") << (AddedFile | UnmergedFile | UnmergedUs | UnmergedThem) << FileStates(UnknownFileState);
+    QTest::newRow("UU") << (ModifiedFile | UnmergedFile | UnmergedUs | UnmergedThem) << FileStates(UnknownFileState);
+    QTest::newRow("AU") << (AddedFile | UnmergedFile | UnmergedUs) << FileStates(UnknownFileState);
+    QTest::newRow("UD") << (DeletedFile | UnmergedFile | UnmergedThem) << FileStates(UnknownFileState);
+    QTest::newRow("UA") << (AddedFile | UnmergedFile | UnmergedThem) << FileStates(UnknownFileState);
+    QTest::newRow("DU") << (DeletedFile | UnmergedFile | UnmergedUs) << FileStates(UnknownFileState);
 }
 
 void GitPlugin::testStatusParsing()
