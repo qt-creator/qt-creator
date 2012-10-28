@@ -71,7 +71,7 @@ public:
 
     void clear(const T *item)
     {
-        if (_class != item)
+        if (_class != item || _container.size() == 1)
             _container.clear();
     }
 
