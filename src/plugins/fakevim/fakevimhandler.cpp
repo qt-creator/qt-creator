@@ -259,12 +259,15 @@ struct CursorPosition
 typedef QHash<int, CursorPosition> Marks;
 struct State
 {
-    State() : revision(-1), position(), marks() {}
-    State(int revision, const CursorPosition &position, const Marks &marks)
-        : revision(revision), position(position), marks(marks) {}
+    State() : revision(-1), position(), marks(), lastVisualMode(NoVisualMode) {}
+    State(int revision, const CursorPosition &position, const Marks &marks,
+        VisualMode lastVisualMode) : revision(revision), position(position), marks(marks),
+        lastVisualMode(lastVisualMode) {}
+
     int revision;
     CursorPosition position;
     Marks marks;
+    VisualMode lastVisualMode;
 };
 
 struct Column
@@ -1468,6 +1471,7 @@ public:
 
     // undo handling
     int revision() const { return document()->availableUndoSteps(); }
+    void undoRedo(bool undo);
     void undo();
     void redo();
     void setUndoPosition(bool overwrite = true);
@@ -1490,7 +1494,7 @@ public:
     void toggleVisualMode(VisualMode visualMode);
     void leaveVisualMode();
     VisualMode m_visualMode;
-    VisualMode m_oldVisualMode;
+    VisualMode m_lastVisualMode;
 
     // marks as lines
     CursorPosition mark(int code) const;
@@ -1533,7 +1537,6 @@ public:
     int m_searchStartPosition;
     int m_searchFromScreenLine;
     QString m_oldNeedle;
-    VisualMode m_lastSelectionMode;
 
     bool handleExCommandHelper(ExCommand &cmd); // Returns success.
     bool handleExPluginCommand(const ExCommand &cmd); // Handled by plugin?
@@ -1549,8 +1552,7 @@ public:
     bool handleExNohlsearchCommand(const ExCommand &cmd);
     bool handleExNormalCommand(const ExCommand &cmd);
     bool handleExReadCommand(const ExCommand &cmd);
-    bool handleExRedoCommand(const ExCommand &cmd);
-    bool handleExUndoCommand(const ExCommand &cmd);
+    bool handleExUndoRedoCommand(const ExCommand &cmd);
     bool handleExSetCommand(const ExCommand &cmd);
     bool handleExShiftCommand(const ExCommand &cmd);
     bool handleExSourceCommand(const ExCommand &cmd);
@@ -1640,7 +1642,7 @@ void FakeVimHandler::Private::init()
     m_register = '"';
     m_gflag = false;
     m_visualMode = NoVisualMode;
-    m_oldVisualMode = NoVisualMode;
+    m_lastVisualMode = NoVisualMode;
     m_targetColumn = 0;
     m_visualTargetColumn = 0;
     m_movetype = MoveInclusive;
@@ -1866,6 +1868,9 @@ void FakeVimHandler::Private::exportSelection()
         } else {
             QTC_CHECK(false);
         }
+
+        setMark('<', mark('<'));
+        setMark('>', mark('>'));
     } else {
         if (m_subsubmode == SearchSubSubMode && !m_searchCursor.isNull())
             setCursor(m_searchCursor);
@@ -1874,7 +1879,6 @@ void FakeVimHandler::Private::exportSelection()
     }
     m_oldExternalPosition = position();
     m_oldExternalAnchor = anchor();
-    m_oldVisualMode = m_visualMode;
 }
 
 void FakeVimHandler::Private::ensureCursorVisible()
@@ -1920,10 +1924,7 @@ void FakeVimHandler::Private::importSelection()
     if (position() == m_oldExternalPosition
             && anchor() == m_oldExternalAnchor) {
         // Undo drawing correction.
-        m_visualMode = m_oldVisualMode;
         setAnchorAndPosition(m_oldInternalAnchor, m_oldInternalPosition);
-        //setMark('<', m_oldInternalAnchor);
-        //setMark('>', m_oldInternalPosition);
     } else {
         // Import new selection.
         Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
@@ -1936,12 +1937,10 @@ void FakeVimHandler::Private::importSelection()
                 m_visualMode = VisualLineMode;
             else
                 m_visualMode = VisualCharMode;
+            m_lastVisualMode = m_visualMode;
         } else {
             m_visualMode = NoVisualMode;
         }
-        //dump("IS @");
-        //setMark('<', tc.anchor());
-        //setMark('>', tc.position());
     }
 }
 
@@ -2199,7 +2198,11 @@ void FakeVimHandler::Private::setUndoPosition(bool overwrite)
     while (!m_undo.empty() && m_undo.top().revision >= rev)
         m_undo.pop();
     m_lastChangePosition = CursorPosition(document(), pos);
-    m_undo.push(State(rev, m_lastChangePosition, m_marks));
+    if (isVisualMode()) {
+        setMark('<', mark('<'));
+        setMark('>', mark('>'));
+    }
+    m_undo.push(State(rev, m_lastChangePosition, m_marks, m_lastVisualMode));
 }
 
 void FakeVimHandler::Private::moveDown(int n)
@@ -3404,10 +3407,10 @@ EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
         finishMovement();
     } else if (m_gflag && input.is('v')) {
         m_gflag = false;
-        CursorPosition from = mark('<');
-        CursorPosition to = mark('>');
-        if (from.isValid() && to.isValid()) {
-            toggleVisualMode(m_lastSelectionMode);
+        if (m_lastVisualMode != NoVisualMode) {
+            CursorPosition from = mark('<');
+            CursorPosition to = mark('>');
+            toggleVisualMode(m_lastVisualMode);
             setCursorPosition(from);
             setAnchor();
             setCursorPosition(to);
@@ -4744,24 +4747,15 @@ bool FakeVimHandler::Private::handleExNohlsearchCommand(const ExCommand &cmd)
     return true;
 }
 
-bool FakeVimHandler::Private::handleExRedoCommand(const ExCommand &cmd)
-{
-    // :redo
-    if (cmd.cmd != "red" && cmd.cmd != "redo")
-        return false;
-
-    redo();
-    updateMiniBuffer();
-    return true;
-}
-
-bool FakeVimHandler::Private::handleExUndoCommand(const ExCommand &cmd)
+bool FakeVimHandler::Private::handleExUndoRedoCommand(const ExCommand &cmd)
 {
     // :undo
-    if (cmd.cmd != "u" && cmd.cmd != "un" && cmd.cmd != "undo")
+    // :redo
+    bool undo = (cmd.cmd == "u" || cmd.cmd == "un" || cmd.cmd == "undo");
+    if (!undo && cmd.cmd != "red" && cmd.cmd != "redo")
         return false;
 
-    undo();
+    undoRedo(undo);
     updateMiniBuffer();
     return true;
 }
@@ -4883,8 +4877,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExNohlsearchCommand(cmd)
         || handleExNormalCommand(cmd)
         || handleExReadCommand(cmd)
-        || handleExRedoCommand(cmd)
-        || handleExUndoCommand(cmd)
+        || handleExUndoRedoCommand(cmd)
         || handleExSetCommand(cmd)
         || handleExShiftCommand(cmd)
         || handleExSourceCommand(cmd)
@@ -6027,6 +6020,7 @@ void FakeVimHandler::Private::toggleVisualMode(VisualMode visualMode)
         m_positionPastEnd = false;
         m_anchorPastEnd = false;
         m_visualMode = visualMode;
+        m_lastVisualMode = visualMode;
         const int pos = position();
         setAnchorAndPosition(pos, pos);
         updateMiniBuffer();
@@ -6038,14 +6032,8 @@ void FakeVimHandler::Private::leaveVisualMode()
     if (!isVisualMode())
         return;
 
-    QTextCursor tc = cursor();
-    m_lastSelectionMode = m_visualMode;
-    int from = tc.anchor();
-    int to = tc.position();
-    if (from > to)
-        qSwap(from, to);
-    setMark('<', CursorPosition(document(), from));
-    setMark('>', CursorPosition(document(), to));
+    setMark('<', mark('<'));
+    setMark('>', mark('>'));
     if (isVisualLineMode())
         m_movetype = MoveLineWise;
     else if (isVisualCharMode())
@@ -6100,36 +6088,45 @@ char FakeVimHandler::Private::currentModeCode() const
         return 'i';
 }
 
-void FakeVimHandler::Private::undo()
+void FakeVimHandler::Private::undoRedo(bool undo)
 {
     // FIXME: That's only an approximaxtion. The real solution might
     // be to store marks and old userData with QTextBlock setUserData
     // and retrieve them afterward.
+    QStack<State> &stack = undo ? m_undo : m_redo;
+    QStack<State> &stack2 = undo ? m_redo : m_undo;
+
     CursorPosition lastPos(cursor());
     const int current = revision();
-    EDITOR(undo());
+    if (undo)
+        EDITOR(undo());
+    else
+        EDITOR(redo());
     const int rev = revision();
 
-    // rewind to last saved revision
-    while (!m_undo.empty() && m_undo.top().revision > rev)
-        m_undo.pop();
+    // rewind/forward to last saved revision
+    while (!stack.empty() && stack.top().revision > rev)
+        stack.pop();
 
     if (current == rev) {
-        showMessage(MessageInfo, FakeVimHandler::tr("Already at oldest change"));
+        const QString msg = undo ? FakeVimHandler::tr("Already at oldest change")
+            : FakeVimHandler::tr("Already at newest change");
+        showMessage(MessageInfo, msg);
         return;
     }
     clearMessage();
 
-    if (!m_undo.empty()) {
-        State &state = m_undo.top();
+    if (!stack.empty()) {
+        State &state = stack.top();
         if (state.revision == rev) {
             m_lastChangePosition = state.position;
             m_marks = state.marks;
+            m_lastVisualMode = state.lastVisualMode;
             setMark('\'', lastPos);
             setCursorPosition(m_lastChangePosition);
             setAnchor();
             state.revision = current;
-            m_redo.push(m_undo.pop());
+            stack2.push(stack.pop());
         }
     }
 
@@ -6138,38 +6135,14 @@ void FakeVimHandler::Private::undo()
         moveLeft();
 }
 
+void FakeVimHandler::Private::undo()
+{
+    undoRedo(true);
+}
+
 void FakeVimHandler::Private::redo()
 {
-    CursorPosition lastPos(cursor());
-    const int current = revision();
-    EDITOR(redo());
-    const int rev = revision();
-
-    // forward to last saved revision
-    while (!m_redo.empty() && m_redo.top().revision < rev)
-        m_redo.pop();
-
-    if (rev == current) {
-        showMessage(MessageInfo, FakeVimHandler::tr("Already at newest change"));
-        return;
-    }
-    clearMessage();
-
-    if (!m_redo.empty()) {
-        State &state = m_redo.top();
-        if (state.revision == rev) {
-            m_lastChangePosition = state.position;
-            m_marks = state.marks;
-            setMark('\'', lastPos);
-            setCursorPosition(m_lastChangePosition);
-            setAnchor();
-            state.revision = current;
-            m_undo.push(m_redo.pop());
-        }
-    }
-    setTargetColumn();
-    if (atEndOfLine())
-        moveLeft();
+    undoRedo(false);
 }
 
 void FakeVimHandler::Private::updateCursorShape()
