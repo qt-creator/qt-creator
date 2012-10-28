@@ -110,34 +110,33 @@ static CommitData::FileState stateFor(const QChar &c)
     }
 }
 
-static bool checkLine(const QString &stateInfo, const QString &file, QList<CommitData::StateFilePair> *files)
+bool CommitData::checkLine(const QString &stateInfo, const QString &file)
 {
     QTC_ASSERT(stateInfo.count() == 2, return false);
-    QTC_ASSERT(files, return false);
 
     if (stateInfo == QLatin1String("??")) {
-        files->append(qMakePair(CommitData::UntrackedFile, file));
+        files.append(qMakePair(UntrackedFile, file));
         return true;
     }
 
-    CommitData::FileState stagedState = stateFor(stateInfo.at(0));
-    if (stagedState == CommitData::UnknownFileState)
+    FileState stagedState = stateFor(stateInfo.at(0));
+    if (stagedState == UnknownFileState)
         return false;
 
-    stagedState = static_cast<CommitData::FileState>(stagedState | CommitData::StagedFile);
-    if (stagedState != CommitData::StagedFile)
-        files->append(qMakePair(stagedState, file));
+    stagedState = static_cast<FileState>(stagedState | StagedFile);
+    if (stagedState != StagedFile)
+        files.append(qMakePair(stagedState, file));
 
-    CommitData::FileState state = stateFor(stateInfo.at(1));
-    if (state == CommitData::UnknownFileState)
+    FileState state = stateFor(stateInfo.at(1));
+    if (state == UnknownFileState)
         return false;
 
-    if (state != CommitData::UntrackedFile) {
+    if (state != UntrackedFile) {
         QString newFile = file;
-        if (stagedState == CommitData::RenamedStagedFile || stagedState == CommitData::CopiedStagedFile)
+        if (stagedState == RenamedStagedFile || stagedState == CopiedStagedFile)
             newFile = file.mid(file.indexOf(QLatin1String(" -> ")) + 4);
 
-        files->append(qMakePair(state, newFile));
+        files.append(qMakePair(state, newFile));
     }
 
     return true;
@@ -165,7 +164,7 @@ bool CommitData::parseFilesFromStatus(const QString &output)
         QString file = line.mid(3);
         if (file.startsWith(QLatin1Char('"')))
             file.remove(0, 1).chop(1);
-        if (!checkLine(line.mid(0, 2), file, &files))
+        if (!checkLine(line.mid(0, 2), file))
             return false;
     }
 

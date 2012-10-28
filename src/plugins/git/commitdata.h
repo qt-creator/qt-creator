@@ -109,6 +109,9 @@ public:
     GitSubmitEditorPanelData panelData;
 
     QList<StateFilePair> files;
+
+private:
+    bool checkLine(const QString &stateInfo, const QString &file);
 };
 
 } // namespace Internal
