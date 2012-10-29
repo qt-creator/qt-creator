@@ -77,6 +77,7 @@ public:
 
     void cleanup();
     void watchExpression(const QString &exp, const QString &name = QString());
+    void watchVariable(const QString &exp);
     Q_SLOT void clearWatches();
 
     void updateWatchers(); // Called after locals are fetched
