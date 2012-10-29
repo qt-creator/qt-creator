@@ -1632,7 +1632,7 @@ void FakeVimPlugin::test_map()
     data.doCommand("noremap l k|noremap k j|noremap j h");
     KEYS("ikkk<esc>", "kk" X "k");
     KEYS("rj", "kk" X "j");
-    data.doCommand("unmap l k|unmap k j|unmap j h");
+    data.doCommand("unmap l|unmap k|unmap j");
 
     NOT_IMPLEMENTED
     // <C-o>

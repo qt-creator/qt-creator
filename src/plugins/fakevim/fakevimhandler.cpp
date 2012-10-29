@@ -601,7 +601,7 @@ public:
             m_key = x.toUpper().unicode();
     }
 
-    Input(int k, int m, const QString &t)
+    Input(int k, int m, const QString &t = QString())
         : m_key(k), m_modifiers(cleanModifier(m)), m_text(t)
     {
         // On Mac, QKeyEvent::text() returns non-empty strings for
@@ -610,6 +610,13 @@ public:
         // FIXME: Check the real conditions.
         if (m_text.size() == 1 && m_text.at(0).unicode() < ' ')
             m_text.clear();
+
+        // Set text only if input is ascii key without control modifier.
+        if (m_text.isEmpty() && k <= 0x7f && (m & (HostOsInfo::controlModifier())) == 0) {
+            QChar c = QChar::fromAscii(k);
+            m_text = QString((m & ShiftModifier) != 0 ? c.toUpper() : c.toLower());
+        }
+
         // m_xkey is only a cache.
         m_xkey = (m_text.size() == 1 ? m_text.at(0).unicode() : m_key);
     }
@@ -661,17 +668,23 @@ public:
         return m_modifiers == Qt::ShiftModifier && m_xkey == c;
     }
 
+    bool operator<(const Input &a) const
+    {
+        if (m_key != a.m_key)
+            return m_key < a.m_key;
+        // Text for some mapped key cannot be determined (e.g. <C-J>) so if text is not set for
+        // one of compared keys ignore it.
+        if (!m_text.isEmpty() && !a.m_text.isEmpty())
+            return m_text < a.m_text;
+        return m_modifiers < a.m_modifiers;
+    }
+
     bool operator==(const Input &a) const
     {
-        return m_key == a.m_key && m_modifiers == a.m_modifiers;
+        return !(*this < a || a < *this);
     }
 
     bool operator!=(const Input &a) const { return !operator==(a); }
-
-    bool operator<(const Input &a) const
-    {
-        return m_key < a.m_key || m_modifiers < a.m_modifiers;
-    }
 
     QString text() const { return m_text; }
 
@@ -843,14 +856,14 @@ static Input parseVimKeyName(const QString &keyName)
         if (key.length() == 1) {
             // simple character
             QChar c = key.at(0).toUpper();
-            return Input(c.unicode(), mods, QString(c));
+            return Input(c.unicode(), mods);
         }
 
         // find key name
         static const QMap<QString, int> k = vimKeyNames();
         QMap<QString, int>::ConstIterator it = k.constFind(key.toUpper());
         if (it != k.end())
-            return Input(*it, mods, *it <= 0x7f ? QString(QChar::fromLatin1(*it)) : QString(""));
+            return Input(*it, mods);
     }
 
     return Input();
