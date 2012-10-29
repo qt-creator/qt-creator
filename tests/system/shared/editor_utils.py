@@ -261,13 +261,11 @@ def validateSearchResult(expectedCount):
     matches = cast((str(counterLabel.text)).split(" ", 1)[0], "int")
     test.compare(matches, expectedCount, "Verified match count.")
     model = resultTreeView.model()
-    for row in range(model.rowCount()):
-        index = model.index(row, 0)
+    for index in dumpIndices(model):
         itemText = str(model.data(index).toString())
         doubleClickItem(resultTreeView, maskSpecialCharsForSearchResult(itemText), 5, 5, 0, Qt.LeftButton)
         test.log("%d occurrences in %s" % (model.rowCount(index), itemText))
-        for chRow in range(model.rowCount(index)):
-            chIndex = model.index(chRow, 0, index)
+        for chIndex in dumpIndices(model, index):
             resultTreeView.scrollTo(chIndex)
             text = str(chIndex.data()).rstrip('\r')
             rect = resultTreeView.visualRect(chIndex)

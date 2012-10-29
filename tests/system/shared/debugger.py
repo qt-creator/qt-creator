@@ -89,8 +89,7 @@ def removeOldBreakpoints():
             test.log("No breakpoints found...")
         else:
             test.log("Found %d breakpoints - removing them" % model.rowCount())
-            for row in range(model.rowCount()):
-                currentIndex = model.index(row,0)
+            for currentIndex in dumpIndices(model):
                 rect = breakPointTreeView.visualRect(currentIndex)
                 mouseClick(breakPointTreeView, rect.x+5, rect.y+5, 0, Qt.LeftButton)
                 type(breakPointTreeView, "<Delete>")

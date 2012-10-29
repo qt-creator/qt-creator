@@ -141,8 +141,6 @@ android {
 export (ICON)
 export (INSTALLS)
 export (DEPLOYMENT)
-export (TARGET.EPOCHEAPSIZE)
-export (TARGET.CAPABILITY)
 export (LIBS)
 export (QMAKE_EXTRA_TARGETS)
 }

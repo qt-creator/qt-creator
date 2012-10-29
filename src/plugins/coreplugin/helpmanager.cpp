@@ -167,13 +167,13 @@ void HelpManager::unregisterDocumentation(const QStringList &nameSpaces)
         emit documentationChanged();
 }
 
-QUrl buildQUrl(const QString &nameSpace, const QString &folder,
+static QUrl buildQUrl(const QString &ns, const QString &folder,
     const QString &relFileName, const QString &anchor)
 {
     QUrl url;
     url.setScheme(QLatin1String("qthelp"));
-    url.setAuthority(nameSpace);
-    url.setPath(folder + QLatin1Char('/') + relFileName);
+    url.setAuthority(ns);
+    url.setPath(QLatin1Char('/') + folder + QLatin1Char('/') + relFileName);
     url.setFragment(anchor);
     return url;
 }

@@ -16,9 +16,7 @@ def __beginTestSuggestions__(editorArea, lineText, textToType):
 def verifySuggestions(textToType):
     popup = findObject(":popupFrame_Proposal_QListView")
     model = popup.model()
-    for row in range(model.rowCount()):
-        index = model.index(row, 0)
-        text = str(model.data(index).toString())
+    for text in dumpItems(model):
         test.verify(textToType.lower() in text.lower(),
                     "Checking whether suggestion '%s' makes sense for typed '%s'"
                     % (text, textToType))

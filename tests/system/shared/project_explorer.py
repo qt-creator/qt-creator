@@ -188,12 +188,12 @@ def __selectTreeItemOnBuildAndRun__(treeViewOrWidget, itemText, isRegex=False):
         pattern = re.compile(itemText)
     found = False
     for section in [autoDetected, manual]:
-        for index in [section.child(i, 0) for i in range(model.rowCount(section))]:
-            if (isRegex and pattern.match(str(index.data().toString()))
-                or itemText == (str(index.data().toString()))):
+        for dumpedItem in dumpItems(model, section):
+            if (isRegex and pattern.match(dumpedItem)
+                or itemText == dumpedItem):
                 found = True
                 item = ".".join([str(section.data().toString()),
-                                 str(index.data().toString()).replace(".", "\\.")])
+                                 dumpedItem.replace(".", "\\.")])
                 clickItem(treeViewOrWidget, item, 5, 5, 0, Qt.LeftButton)
                 break
         if found:

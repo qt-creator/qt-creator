@@ -321,6 +321,8 @@ void BlackBerryApplicationRunner::handleTailOutput()
                 QStringList validLineBeginnings;
                 validLineBeginnings << QLatin1String("qt-msg      0  ")
                                     << QLatin1String("qt-msg*     0  ")
+                                    << QLatin1String("default*  9000  ")
+                                    << QLatin1String("default   9000  ")
                                     << QLatin1String("                           0  ");
                 Q_FOREACH (const QString &beginning, validLineBeginnings) {
                     if (showQtMessage(beginning, line))
