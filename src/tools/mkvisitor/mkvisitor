@@ -1,5 +1,0 @@
-#!/bin/sh
-me=$(dirname $0)
-${CPP-gcc} -DCPLUSPLUS_WITHOUT_QT -U__BLOCKS__ -xc++ -E -include $me/conf.c++ ../../libs/3rdparty/cplusplus/AST.h > $me/file.i
-$me/cplusplus0 $me/file.i
-rm -f $me/file.i

@@ -27,53 +27,36 @@
 **
 ****************************************************************************/
 
-#include <AST.h>
-#include <ASTVisitor.h>
-#include <ASTPatternBuilder.h>
-#include <ASTMatcher.h>
-#include <Control.h>
-#include <Scope.h>
-#include <TranslationUnit.h>
-#include <Literals.h>
-#include <Symbols.h>
-#include <Names.h>
-#include <CoreTypes.h>
-#include <CppDocument.h>
 
-#include <QFile>
-#include <QList>
-#include <QCoreApplication>
+#ifndef CPLUSPLUSTOOLSUTILS_H
+#define CPLUSPLUSTOOLSUTILS_H
+
+#include <QString>
 #include <QStringList>
-#include <QFileInfo>
-#include <QTime>
-#include <QDebug>
+#include <QMap>
 
-#include <cstdio>
-#include <cstdlib>
-#include <iostream>
+namespace CplusplusToolsUtils {
 
-using namespace CPlusPlus;
+QString portableExecutableName(const QString &executable);
+void executeCommand(const QString &command, const QStringList &arguments, const QString &outputFile,
+                    bool verbose = false);
 
-int main(int argc, char *argv[])
+// Preprocess a file by calling an external compiler in preprocessor mode (-E, /E).
+class SystemPreprocessor
 {
-    QCoreApplication app(argc, argv);
+public:
+    SystemPreprocessor(bool verbose = false);
+    void preprocessFile(const QString &inputFile, const QString &outputFile) const;
 
-    QStringList files = app.arguments();
-    files.removeFirst();
+private:
+    void check() const;
 
-    foreach (const QString &fileName, files) {
-        QFile file(fileName);
-        if (! file.open(QFile::ReadOnly))
-            continue;
+    QMap<QString, QString> m_knownCompilers;
+    QString m_compiler; // Compiler that will be called in preprocessor mode
+    QStringList m_compilerArguments;
+    bool m_verbose;
+};
 
-        const QByteArray source = file.readAll();
-        file.close();
+} // namespace
 
-        Document::Ptr doc = Document::create(fileName);
-        doc->control()->setDiagnosticClient(0);
-        doc->setUtf8Source(source);
-        doc->parse();
-    }
-
-    return EXIT_SUCCESS;
-}
+#endif // CPLUSPLUSTOOLSUTILS_H
