@@ -192,8 +192,12 @@ struct FakeVimPlugin::TestData
 
     QString text() const { return editor()->toPlainText(); }
 
+    void doCommand(const QString &cmd) { handler->handleCommand(cmd); }
+    void doKeys(const QString &keys) { handler->handleInput(keys); }
+
     void setText(const QString &text)
     {
+        doKeys("<ESC>");
         QString str = text;
         int i = str.indexOf(cursorString);
         if (!cursorString.isEmpty() && i != -1)
@@ -201,9 +205,6 @@ struct FakeVimPlugin::TestData
         editor()->document()->setPlainText(str);
         setPosition(i);
     }
-
-    void doCommand(const QString &cmd) { handler->handleCommand(cmd); }
-    void doKeys(const QString &keys) { handler->handleInput(keys); }
 
     int lines() const
     {
@@ -550,6 +551,27 @@ void FakeVimPlugin::test_vim_delete()
     // delete in empty document
     data.setText("");
     KEYS("dd", X);
+
+    // delete to start of line
+    data.setText("  abc" N "  de" X "f" N "  ghi");
+    KEYS("d0", "  abc" N X "f" N "  ghi");
+    INTEGRITY(false);
+    data.setText("  abc" N "  de" X "f" N "  ghi");
+    KEYS("d^", "  abc" N "  " X "f" N "  ghi");
+    INTEGRITY(false);
+
+    // delete to mark
+    data.setText("abc " X "def ghi");
+    KEYS("ma" "3l" "d`a", "abc " X " ghi");
+    KEYS("u" "gg" "d`a", X "def ghi");
+
+    // delete lines
+    data.setText("  abc" N "  de" X "f" N "  ghi" N "  jkl");
+    KEYS("dj", "  abc" N "  " X "jkl");
+    INTEGRITY(false);
+    data.setText("  abc" N "  def" N "  gh" X "i" N "  jkl");
+    KEYS("dk", "  abc" N "  " X "jkl");
+    INTEGRITY(false);
 }
 
 void FakeVimPlugin::test_vim_delete_inner_word()
@@ -724,6 +746,27 @@ void FakeVimPlugin::test_vim_change_replace()
          "  int j = 1;" X N
          "}" N
          "");
+
+    // change to start of line
+    data.setText("  abc" N "  de" X "f" N "  ghi");
+    KEYS("c0123<ESC>", "  abc" N "12" X "3f" N "  ghi");
+    INTEGRITY(false);
+    data.setText("  abc" N "  de" X "f" N "  ghi");
+    KEYS("c^123<ESC>", "  abc" N "  12" X "3f" N "  ghi");
+    INTEGRITY(false);
+
+    // change to mark
+    data.setText("abc " X "def ghi");
+    KEYS("ma" "3l" "c`a123<ESC>", "abc 12" X "3 ghi");
+    KEYS("u" "gg" "c`a123<ESC>", "12" X "3def ghi");
+
+    // change lines
+    data.setText("  abc" N "  de" X "f" N "  ghi" N "  jkl");
+    KEYS("cj123<ESC>", "  abc" N "  12" X "3" N "  jkl");
+    INTEGRITY(false);
+    data.setText("  abc" N "  def" N "  gh" X "i" N "  jkl");
+    KEYS("ck123<ESC>", "  abc" N "  12" X "3" N "  jkl");
+    INTEGRITY(false);
 }
 
 void FakeVimPlugin::test_vim_block_selection()

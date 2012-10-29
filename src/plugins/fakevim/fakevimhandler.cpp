@@ -2286,7 +2286,7 @@ void FakeVimHandler::Private::moveToStartOfLine()
 void FakeVimHandler::Private::fixSelection()
 {
     if (m_movetype == MoveExclusive) {
-        if (anchor() != position() && atBlockStart()) {
+        if (anchor() < position() && atBlockStart()) {
             // Exlusive motion ending at the beginning of line
             // becomes inclusive and end is moved to end of previous line.
             m_movetype = MoveInclusive;
@@ -2391,8 +2391,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
 
     QString dotCommand;
     if (m_submode == ChangeSubMode) {
-        if (m_rangemode == RangeLineMode)
-            m_rangemode = RangeLineModeExclusive;
+        if (m_rangemode != RangeLineModeExclusive)
+            setUndoPosition();
         removeText(currentRange());
         dotCommand = QString('c');
         if (m_movetype == MoveLineWise)
@@ -2401,8 +2401,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         enterInsertMode();
     } else if (m_submode == DeleteSubMode) {
         setUndoPosition();
-        Range range = currentRange();
-        removeText(range);
+        removeText(currentRange());
         dotCommand = QString('d');
         if (m_movetype == MoveLineWise)
             handleStartOfLine();
@@ -2904,8 +2903,6 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
         }
     } else if (input.is('`')) {
         m_subsubmode = BackTickSubSubMode;
-        if (m_submode != NoSubMode)
-            m_movetype = MoveLineWise;
     } else if (input.is('#') || input.is('*')) {
         // FIXME: That's not proper vim behaviour
         QString needle;
@@ -3047,12 +3044,12 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
         moveToNextWordStart(count(), true, false);
         setTargetColumn();
         finishMovement();
-    } else if (input.is('c') && isNoVisualMode()) {
-        setUndoPosition();
-        if (atEndOfLine())
-            moveLeft();
+    } else if ((input.is('c') || input.is('d')) && isNoVisualMode()) {
         setAnchor();
-        m_submode = ChangeSubMode;
+        m_opcount = m_mvcount;
+        m_mvcount.clear();
+        m_movetype = MoveExclusive;
+        m_submode = input.is('c') ? ChangeSubMode : DeleteSubMode;
     } else if ((input.is('c') || input.is('C') || input.is('s') || input.is('R'))
           && (isVisualCharMode() || isVisualLineMode())) {
         setDotCommand(visualDotCommand() + input.asChar());
@@ -3078,18 +3075,6 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
             showMessage(MessageInfo, "Type Alt-v,Alt-v  to quit FakeVim mode");
         else
             leaveVisualMode();
-    } else if (input.is('d') && isNoVisualMode()) {
-        if (m_rangemode == RangeLineMode) {
-            int pos = position();
-            moveToEndOfLine();
-            setAnchor();
-            setPosition(pos);
-        } else {
-            setAnchor();
-        }
-        m_opcount = m_mvcount;
-        m_mvcount.clear();
-        m_submode = DeleteSubMode;
     } else if ((input.is('d') || input.is('x') || input.isKey(Key_Delete))
             && isVisualMode()) {
         setUndoPosition();
@@ -3501,6 +3486,7 @@ EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
         finishMovement();
     } else if (input.is('y') && isNoVisualMode()) {
         setAnchor();
+        m_movetype = MoveExclusive;
         m_submode = YankSubMode;
     } else if (input.is('y') && isVisualCharMode()) {
         Range range(position(), anchor(), RangeCharMode);
@@ -6569,7 +6555,8 @@ bool FakeVimHandler::Private::jumpToMark(QChar mark, bool backTickMode)
     setCursorPosition(m.position);
     if (!backTickMode)
         moveToFirstNonBlankOnLine();
-    setAnchor();
+    if (m_submode == NoSubMode)
+        setAnchor();
     setTargetColumn();
 
     return true;
