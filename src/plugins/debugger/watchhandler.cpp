@@ -1634,7 +1634,7 @@ void WatchHandler::showEditValue(const WatchData &data)
         }
         int width, height, format;
         QByteArray ba;
-        uchar *bits;
+        uchar *bits = 0;
         if (data.editformat == DisplayImageData) {
             ba = QByteArray::fromHex(data.editvalue);
             const int *header = (int *)(ba.data());
