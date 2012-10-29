@@ -154,12 +154,14 @@ void NodeInstanceMetaObject::init(QObject *object, QQmlEngine *engine)
 
     //create cache
     cache = m_cache = QQmlEnginePrivate::get(engine)->cache(this);
+    cache->addref();
 
     //If our parent is not a VMEMetaObject we just se the flag to false again
     if (constructedMetaData(metaData))
         QQmlData::get(object)->hasVMEMetaObject = false;
 
     nodeInstanceMetaObjectList.insert(this, true);
+    hasAssignedMetaObjectData = true;
 }
 
 NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstance::Pointer &nodeInstance, QQmlEngine *engine)
@@ -193,6 +195,7 @@ NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstancePointer &
 
 NodeInstanceMetaObject::~NodeInstanceMetaObject()
 {
+    cache->release();
     m_type->release();
 
     nodeInstanceMetaObjectList.remove(this);
