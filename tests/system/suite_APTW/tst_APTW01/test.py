@@ -6,8 +6,7 @@ source("../shared/aptw.py")
 def main():
     startApplication("qtcreator" + SettingsPath)
     createProject_Qt_GUI(tempDir(), "SampleApp")
-    # pick version 4.7.4 and then run project for debug and release and verify results
-    pickVersion474runVerify()
-    #close Qt creator
+    # run project for debug and release and verify results
+    runVerify()
+    #close Qt Creator
     invokeMenuItem("File", "Exit")
-#no cleanup needed

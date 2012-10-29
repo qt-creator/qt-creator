@@ -7,8 +7,7 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     createNewQtQuickApplication(tempDir(), "SampleApp")
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
-    # pick version 4.7.4 and then run project for debug and release and verify results
-    pickVersion474runVerify()
-    #close Qt creator
+    # run project for debug and release and verify results
+    runVerify()
+    #close Qt Creator
     invokeMenuItem("File", "Exit")
-#no cleanup needed
