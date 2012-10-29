@@ -6,12 +6,12 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     # create qt quick application
     createNewQtQuickApplication(tempDir(), "SampleApp")
-    # build it - on all (except Qt 4.7.0 (would fail)) build configurations
-    availableConfigs = iterateBuildConfigs(1, 0)
+    # build it - on all build configurations
+    availableConfigs = iterateBuildConfigs(1)
     if not availableConfigs:
-        test.fatal("Haven't found a suitable Qt version (anything except Qt 4.7.0) - leaving without building.")
-    for config in availableConfigs:
-        selectBuildConfig(1, 0, config)
+        test.fatal("Haven't found a suitable Qt version - leaving without building.")
+    for kit, config in availableConfigs:
+        selectBuildConfig(1, kit, config)
         # try to compile
         test.log("Testing build configuration: " + config)
         clickButton(waitForObject(":*Qt Creator.Build Project_Core::Internal::FancyToolButton"))

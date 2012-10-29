@@ -33,13 +33,13 @@ def main():
         if result:
             expectedBreakpointsOrder = [{"main.cpp":9}, {"main.qml":13}]
             # Only use 4.7.4 to work around QTBUG-25187
-            availableConfigs = iterateBuildConfigs(1, 0, "Debug")
+            availableConfigs = iterateBuildConfigs(1, "Debug")
             if not availableConfigs:
                 test.fatal("Haven't found a suitable Qt version (need Qt 4.7.4) - leaving without debugging.")
-            for config in availableConfigs:
+            for kit, config in availableConfigs:
                 test.log("Selecting '%s' as build config" % config)
-                selectBuildConfig(1, 0, config)
-                verifyBuildConfig(1, 0, True, enableQmlDebug=True)
+                selectBuildConfig(1, kit, config)
+                verifyBuildConfig(1, kit, True, enableQmlDebug=True)
                 # explicitly build before start debugging for adding the executable as allowed program to WinFW
                 invokeMenuItem("Build", "Rebuild All")
                 waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}",

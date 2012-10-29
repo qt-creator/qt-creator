@@ -14,12 +14,12 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     # open example project
     openQmakeProject(examplePath)
-    # build and wait until finished - on all (except Qt 4.7.0 (would fail)) build configurations
-    availableConfigs = iterateBuildConfigs(1, 0)
+    # build and wait until finished - on all build configurations
+    availableConfigs = iterateBuildConfigs(1)
     if not availableConfigs:
-        test.fatal("Haven't found a suitable Qt version (anything except Qt 4.7.0) - leaving without building.")
-    for config in availableConfigs:
-        selectBuildConfig(1, 0, config)
+        test.fatal("Haven't found a suitable Qt version - leaving without building.")
+    for kit, config in availableConfigs:
+        selectBuildConfig(1, kit, config)
         # try to build project
         test.log("Testing build configuration: " + config)
         invokeMenuItem("Build", "Build All")

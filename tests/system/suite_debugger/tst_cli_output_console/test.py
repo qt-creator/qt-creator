@@ -36,11 +36,11 @@ def main():
     test.verify("CONFIG   += console" in str(proEditor.plainText), "Verifying that program is configured with console")
     setRunInTerminal(1, 0, False)
 
-    availableConfigs = iterateBuildConfigs(1, 0)
+    availableConfigs = iterateBuildConfigs(1)
     if not availableConfigs:
         test.fatal("Haven't found a suitable Qt version - leaving without building.")
-    for config in availableConfigs:
-        selectBuildConfig(1, 0, config)
+    for kit, config in availableConfigs:
+        selectBuildConfig(1, kit, config)
         test.log("Testing build configuration: " + config)
 
         test.log("Running application")

@@ -132,19 +132,22 @@ def createTasksFile(list):
     file.close()
     test.log("Written tasks file %s" % outfile)
 
-# returns a list of the build configurations for a target
-# param targetCount specifies the number of targets currently defined (must be correct!)
-# param currentTarget specifies the target for which to switch into the specified settings (zero based index)
+# returns a list of pairs each containing the zero based number of a kit
+# and the name of the matching build configuration
+# param kitCount specifies the number of kits currently defined (must be correct!)
 # param filter is a regular expression to filter the configuration by their name
-def iterateBuildConfigs(targetCount, currentTarget, filter = ""):
+def iterateBuildConfigs(kitCount, filter = ""):
     switchViewTo(ViewConstants.PROJECTS)
-    switchToBuildOrRunSettingsFor(targetCount, currentTarget, ProjectSettings.BUILD)
-    model = waitForObject(":scrollArea.Edit build configuration:_QComboBox", 20000).model()
-    prog = re.compile(filter)
-    # for each row in the model, write its data to a list
-    configNames = dumpItems(model)
-    # pick only those configuration names which pass the filter
-    configs = [config for config in configNames if prog.match(config)]
+    configs = []
+    for currentKit in range(kitCount):
+        switchToBuildOrRunSettingsFor(kitCount, currentKit, ProjectSettings.BUILD)
+        model = waitForObject(":scrollArea.Edit build configuration:_QComboBox", 20000).model()
+        prog = re.compile(filter)
+        # for each row in the model, write its data to a list
+        configNames = dumpItems(model)
+        # pick only those configuration names which pass the filter
+        configs += zip([currentKit] * len(configNames),
+                       [config for config in configNames if prog.match(config)])
     switchViewTo(ViewConstants.EDIT)
     return configs
 
