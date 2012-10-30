@@ -72,16 +72,12 @@ defineTest(minQtVersion) {
 
 isEqual(QT_MAJOR_VERSION, 5) {
 
-QTESTLIB = testlib
-
 # For use in custom compilers which just copy files
 defineReplace(stripSrcDir) {
     return($$relative_path($$absolute_path($$1, $$OUT_PWD), $$_PRO_FILE_PWD_))
 }
 
 } else { # qt5
-
-QTESTLIB = qtestlib
 
 # For use in custom compilers which just copy files
 win32:i_flag = i

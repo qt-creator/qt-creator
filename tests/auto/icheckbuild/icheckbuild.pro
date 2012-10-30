@@ -4,7 +4,7 @@ include(../../../qtcreator.pri)
 include($$IDE_SOURCE_TREE/src/libs/cplusplus/cplusplus.pri)
 include($$IDE_SOURCE_TREE/src/plugins/cpptools/cpptools.pri)
 
-QT += $$QTESTLIB
+QT += testlib
 
 DEFINES += ICHECK_BUILD ICHECK_APP_BUILD
 

@@ -1,6 +1,6 @@
 include(../../../../../qtcreator.pri)
 TEMPLATE = app
-QT += $$QTESTLIB
+QT += testlib
 CONFIG += qt warn_on console depend_includepath testcase
 include(../../../../../src/libs/qmljs/qmljs-lib.pri)
 DEFINES += QML_BUILD_STATIC_LIB

@@ -1,6 +1,6 @@
 include(../../../../../qtcreator.pri)
 #include(../../../../../src/plugins/qmldesigner/config.pri)
-QT += $$QTESTLIB
+QT += testlib
 CONFIG += testcase
 
 ##DEFINES += DONT_MESS_WITH_QDEBUG
