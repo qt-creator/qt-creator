@@ -61,7 +61,7 @@
             file that contains the main view. You can review Qt Quick UI
             projects in the QML Viewer and you need not build them. You do not
             need to have the development environment installed on your
-            computer to create and run this type of projects.
+            computer to create and run this type of project.
 
         \o  \gui {Qt Quick Application (from Existing QML File)} converts
             existing QML applications to Qt Quick application projects. This
