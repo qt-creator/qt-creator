@@ -91,6 +91,7 @@
 :Qt Creator_CompileOutput_Core::Internal::OutputPaneToggleButton	{occurrence='4' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Core::Internal::CommandComboBox	{type='Core::Internal::CommandComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Core::Internal::MainWindow	{type='Core::Internal::MainWindow' visible='1' windowTitle?='*Qt Creator'}
+:Qt Creator_Core::Internal::NavComboBox	{type='Core::Internal::NavComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_CppEditor::Internal::CPPEditorWidget	{type='CppEditor::Internal::CPPEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_FilenameQComboBox	{type='QComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Find::Internal::SearchResultTreeView	{type='Find::Internal::SearchResultTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -101,6 +102,7 @@
 :Qt Creator_QDeclarativeView	{type='QDeclarativeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QHelpContentWidget	{type='QHelpContentWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QTableView	{type='QTableView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_QmlJSEditor::Internal::QmlJSOutlineTreeView	{type='QmlJSEditor::Internal::QmlJSOutlineTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QmlJSEditor::QmlJSTextEditorWidget	{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_SearchResult_Core::Internal::OutputPaneToggleButton	{occurrence='2' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_SystemSettings.Details_Utils::DetailsButton	{occurrence='4' text='Details' type='Utils::DetailsButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
