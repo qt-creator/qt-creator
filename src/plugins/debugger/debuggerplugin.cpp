@@ -93,6 +93,7 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
@@ -972,6 +973,8 @@ public slots:
 public slots:
     void testLoadProject(const QString &proFile, const TestCallBack &cb);
     void testProjectLoaded(ProjectExplorer::Project *project);
+    void testProjectEvaluated();
+    void testProjectBuilt(bool success);
     void testUnloadProject();
     void testFinished();
 
@@ -989,6 +992,7 @@ public slots:
     void testBenchmark1();
 
 public:
+    ProjectExplorer::Project *m_testProject;
     bool m_testSuccess;
     QList<TestCallBack> m_testCallbacks;
 
@@ -3429,10 +3433,13 @@ void DebuggerPluginPrivate::testLoadProject(const QString &proFile, const TestCa
 
     m_testCallbacks.append(cb);
     QString error;
-    if (pe->openProject(proFile, &error))
-        return; // Will end up in callback.
+    if (pe->openProject(proFile, &error)) {
+        // Will end up in callback below due to the connections to
+        // signal currentProjectChanged().
+        return;
+    }
 
-    // Eat the unused callback.
+    // Project opening failed. Eat the unused callback.
     qWarning("Cannot open %s: %s", qPrintable(proFile), qPrintable(error));
     QVERIFY(false);
     m_testCallbacks.pop_back();
@@ -3444,14 +3451,25 @@ void DebuggerPluginPrivate::testProjectLoaded(Project *project)
         qWarning("Changed to null project.");
         return;
     }
-    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    disconnect(pe, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
-            this, SLOT(testProjectLoaded(ProjectExplorer::Project*)));
+    m_testProject = project;
+    connect(project, SIGNAL(proFilesEvaluated()), SLOT(testProjectEvaluated()));
+    project->configureAsExampleProject(QStringList());
+}
 
-    QString fileName = project->document()->fileName();
+void DebuggerPluginPrivate::testProjectEvaluated()
+{
+    QString fileName = m_testProject->document()->fileName();
     QVERIFY(!fileName.isEmpty());
     qWarning("Project %s loaded", qPrintable(fileName));
+    connect(ProjectExplorerPlugin::instance()->buildManager(),
+            SIGNAL(buildQueueFinished(bool)),
+            SLOT(testProjectBuilt(bool)));
+    ProjectExplorerPlugin::instance()->buildProject(m_testProject);
+}
 
+void DebuggerPluginPrivate::testProjectBuilt(bool success)
+{
+    QVERIFY(success);
     QVERIFY(!m_testCallbacks.isEmpty());
     TestCallBack cb = m_testCallbacks.takeLast();
     invoke<void>(cb.receiver, cb.slot);
@@ -3474,12 +3492,13 @@ static Kit *currentKit()
     Target *t = activeTarget();
     if (!t || !t->isEnabled())
         return 0;
-    return activeTarget()->kit();
+    return t->kit();
 }
 
 static LocalApplicationRunConfiguration *activeLocalRunConfiguration()
 {
-    return qobject_cast<LocalApplicationRunConfiguration *>(activeTarget()->activeRunConfiguration());
+    Target *t = activeTarget();
+    return t ? qobject_cast<LocalApplicationRunConfiguration *>(t->activeRunConfiguration()) : 0;
 }
 
 void DebuggerPluginPrivate::testRunProject(const DebuggerStartParameters &sp, const TestCallBack &cb)
