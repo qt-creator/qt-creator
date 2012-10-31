@@ -312,7 +312,8 @@
     \image qtcreator-cpp-class-wizard.png "Enter Class Name dialog"
 
     The names of the header and source file are based on the class name. To
-    change the default suffix of a file, click \gui Configure.
+    change the default suffix of a file, select \gui Tools > \gui Options >
+    \gui {C++} > \gui {File Naming}.
 
     You can create your own project and class wizards. For more information,
     see \l{Adding New Custom Wizards}.
