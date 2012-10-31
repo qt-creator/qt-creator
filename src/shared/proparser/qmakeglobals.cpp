@@ -221,7 +221,7 @@ bool QMakeGlobals::initProperties()
     }
 #endif
     foreach (QByteArray line, data.split('\n'))
-        if (!line.startsWith("QMAKE_")) {
+        {
             int off = line.indexOf(':');
             if (off < 0) // huh?
                 continue;
@@ -247,7 +247,6 @@ bool QMakeGlobals::initProperties()
                 }
             }
         }
-    properties.insert(ProKey("QMAKE_VERSION"), ProString("2.01a"));
     return true;
 }
 #else
