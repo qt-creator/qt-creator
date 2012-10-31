@@ -5291,11 +5291,46 @@ namespace basic {
         dummyStatement(&i, &b, &s);
     }
 
+    #ifdef Q_COMPILER_RVALUE_REFS
+    struct X { X() : a(2), b(3) {} int a, b; };
+
+    X testRValueReferenceHelper1()
+    {
+        return X();
+    }
+
+    X testRValueReferenceHelper2(X &&x)
+    {
+        return x;
+    }
+
+    void testRValueReference()
+    {
+        X &&x1 = testRValueReferenceHelper1();
+        X &&x2 = testRValueReferenceHelper2(std::move(x1));
+        X &&x3 = testRValueReferenceHelper2(testRValueReferenceHelper1());
+
+        X y1 = testRValueReferenceHelper1();
+        X y2 = testRValueReferenceHelper2(std::move(y1));
+        X y3 = testRValueReferenceHelper2(testRValueReferenceHelper1());
+
+        BREAK_HERE;
+        // Continue.
+        dummyStatement(&x1, &x2, &x3, &y1, &y2, &y3);
+    }
+
+    #else
+
+    void testRValueReference() {}
+
+    #endif
+
     void testBasic()
     {
         testReference1();
         testReference2();
         testReference3("hello");
+        testRValueReference();
         testDynamicReference();
         testReturn();
         testArray1();
