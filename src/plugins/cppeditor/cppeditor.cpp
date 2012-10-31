@@ -2122,7 +2122,7 @@ void SemanticHighlighter::run()
 SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
 {
     SemanticInfo semanticInfo;
-    semanticInfo.revision = source.revision;
+    semanticInfo.revision = m_lastSemanticInfo.revision;
     semanticInfo.forced = source.force;
 
     m_mutex.lock();
@@ -2162,6 +2162,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
         DeclarationAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, source.line, source.column);
 
         const LocalSymbols useTable(semanticInfo.doc, currentFunctionDefinition);
+        semanticInfo.revision = source.revision;
         semanticInfo.localUses = useTable.uses;
         semanticInfo.hasQ = useTable.hasQ;
         semanticInfo.hasD = useTable.hasD;
