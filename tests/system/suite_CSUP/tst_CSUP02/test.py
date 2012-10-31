@@ -26,7 +26,6 @@ def main():
     else:
         type(editorWidget, "<Ctrl+Space>")
     type(waitForObject(":popupFrame_Proposal_QListView"), "<Down>")
-    type(waitForObject(":popupFrame_Proposal_QListView"), "<Down>")
     listView = waitForObject(":popupFrame_Proposal_QListView")
     test.compare("class derived from QObject", str(listView.model().data(listView.currentIndex())),
                  "Verifying selecting the correct entry.")
