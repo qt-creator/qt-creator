@@ -236,8 +236,6 @@ AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
 
     setupActions();
 
-    connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
-            this, SLOT(modeChanged(Core::IMode*)));
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     connect(pe, SIGNAL(updateRunActions()), SLOT(updateRunActions()));
 }
@@ -294,6 +292,9 @@ void AnalyzerManagerPrivate::delayedInit()
 
     m_mode = new AnalyzerMode(q);
     createModeMainWindow();
+
+    connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
+            this, SLOT(modeChanged(Core::IMode*)));
 
     // Right-side window with editor, output etc.
     MiniSplitter *mainWindowSplitter = new MiniSplitter;
