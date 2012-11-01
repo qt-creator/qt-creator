@@ -59,6 +59,8 @@ public:
     bool m_markTextChanges;
     bool m_autoFoldFirstComment;
     bool m_centerCursorOnScroll;
+    bool m_openLinksInNextSplit;
+    bool m_forceOpenLinksInNextSplit;
 
     bool equals(const DisplaySettings &ds) const;
 };

@@ -74,6 +74,7 @@ QWidget *DisplaySettingsPage::createPage(QWidget *parent)
     QWidget *w = new QWidget(parent);
     d->m_page = new Internal::Ui::DisplaySettingsPage;
     d->m_page->setupUi(w);
+    connect(d->m_page->openLinksInNextSplit, SIGNAL(toggled(bool)), this, SLOT(updateForceOpenLinksInNextSplit(bool)));
     settingsToUI();
     if (d->m_searchKeywords.isEmpty()) {
         QTextStream(&d->m_searchKeywords) << d->m_page->displayLineNumbers->text()
@@ -85,7 +86,9 @@ QWidget *DisplaySettingsPage::createPage(QWidget *parent)
           << ' ' << d->m_page->highlightMatchingParentheses->text()
           << ' ' << d->m_page->enableTextWrapping->text()
           << ' ' << d->m_page->autoFoldFirstComment->text()
-          << ' ' << d->m_page->centerOnScroll->text();
+          << ' ' << d->m_page->centerOnScroll->text()
+          << ' ' << d->m_page->openLinksInNextSplit->text()
+          << ' ' << d->m_page->forceOpenLinksInNextSplit->text();
         d->m_searchKeywords.remove(QLatin1Char('&'));
     }
     return w;
@@ -109,6 +112,13 @@ void DisplaySettingsPage::finish()
     d->m_page = 0;
 }
 
+void DisplaySettingsPage::updateForceOpenLinksInNextSplit(bool openLinksInNextSplitChecked)
+{
+    d->m_page->forceOpenLinksInNextSplit->setEnabled(openLinksInNextSplitChecked);
+    if (!openLinksInNextSplitChecked)
+        d->m_page->forceOpenLinksInNextSplit->setChecked(openLinksInNextSplitChecked);
+}
+
 void DisplaySettingsPage::settingsFromUI(DisplaySettings &displaySettings) const
 {
     displaySettings.m_displayLineNumbers = d->m_page->displayLineNumbers->isChecked();
@@ -124,6 +134,8 @@ void DisplaySettingsPage::settingsFromUI(DisplaySettings &displaySettings) const
     displaySettings.m_markTextChanges = d->m_page->markTextChanges->isChecked();
     displaySettings.m_autoFoldFirstComment = d->m_page->autoFoldFirstComment->isChecked();
     displaySettings.m_centerCursorOnScroll = d->m_page->centerOnScroll->isChecked();
+    displaySettings.m_openLinksInNextSplit = d->m_page->openLinksInNextSplit->isChecked();
+    displaySettings.m_forceOpenLinksInNextSplit = d->m_page->forceOpenLinksInNextSplit->isChecked();
 }
 
 void DisplaySettingsPage::settingsToUI()
@@ -142,6 +154,8 @@ void DisplaySettingsPage::settingsToUI()
     d->m_page->markTextChanges->setChecked(displaySettings.m_markTextChanges);
     d->m_page->autoFoldFirstComment->setChecked(displaySettings.m_autoFoldFirstComment);
     d->m_page->centerOnScroll->setChecked(displaySettings.m_centerCursorOnScroll);
+    d->m_page->openLinksInNextSplit->setChecked(displaySettings.m_openLinksInNextSplit);
+    d->m_page->forceOpenLinksInNextSplit->setChecked(displaySettings.m_forceOpenLinksInNextSplit);
 }
 
 const DisplaySettings &DisplaySettingsPage::displaySettings() const

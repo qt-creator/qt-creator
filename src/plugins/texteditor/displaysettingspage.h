@@ -65,6 +65,9 @@ public:
 signals:
     void displaySettingsChanged(const TextEditor::DisplaySettings &);
 
+private slots:
+    void updateForceOpenLinksInNextSplit(bool openLinksInNextSplitChecked);
+
 private:
     void settingsFromUI(DisplaySettings &displaySettings) const;
     void settingsToUI();

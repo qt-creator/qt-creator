@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>471</width>
-    <height>288</height>
+    <width>501</width>
+    <height>323</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
@@ -80,31 +80,10 @@
       <string>Display</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="displayLineNumbers">
+      <item row="4" column="1">
+       <widget class="QCheckBox" name="highlightMatchingParentheses">
         <property name="text">
-         <string>Display line &amp;numbers</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QCheckBox" name="highlightCurrentLine">
-        <property name="text">
-         <string>Highlight current &amp;line</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QCheckBox" name="displayFoldingMarkers">
-        <property name="text">
-         <string>Display &amp;folding markers</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QCheckBox" name="highlightBlocks">
-        <property name="text">
-         <string>Highlight &amp;blocks</string>
+         <string>&amp;Highlight matching parentheses</string>
         </property>
        </widget>
       </item>
@@ -125,10 +104,10 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QCheckBox" name="animateMatchingParentheses">
+      <item row="1" column="1">
+       <widget class="QCheckBox" name="highlightBlocks">
         <property name="text">
-         <string>&amp;Animate matching parentheses</string>
+         <string>Highlight &amp;blocks</string>
         </property>
        </widget>
       </item>
@@ -139,19 +118,74 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="displayFoldingMarkers">
+        <property name="text">
+         <string>Display &amp;folding markers</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QCheckBox" name="highlightCurrentLine">
+        <property name="text">
+         <string>Highlight current &amp;line</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QCheckBox" name="animateMatchingParentheses">
+        <property name="text">
+         <string>&amp;Animate matching parentheses</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="displayLineNumbers">
+        <property name="text">
+         <string>Display line &amp;numbers</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
        <widget class="QCheckBox" name="autoFoldFirstComment">
         <property name="text">
          <string>Auto-fold first &amp;comment</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
-       <widget class="QCheckBox" name="highlightMatchingParentheses">
+      <item row="5" column="1">
+       <widget class="QCheckBox" name="openLinksInNextSplit">
         <property name="text">
-         <string>&amp;Highlight matching parentheses</string>
+         <string>Open Links in Another Split</string>
         </property>
        </widget>
+      </item>
+      <item row="6" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="forceOpenLinksInNextSplit">
+          <property name="text">
+           <string>Force Open Links in Next Split</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

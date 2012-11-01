@@ -55,6 +55,7 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/documentmanager.h>
 #include <cppeditor/cppeditorconstants.h>
+#include <texteditor/basetexteditor.h>
 
 #include <QtConcurrentRun>
 #include <QFutureSynchronizer>
@@ -158,8 +159,31 @@ void CppToolsPlugin::switchHeaderSource()
 {
     Core::IEditor *editor = Core::EditorManager::currentEditor();
     QString otherFile = correspondingHeaderOrSource(editor->document()->fileName());
-    if (!otherFile.isEmpty())
-        Core::EditorManager::openEditor(otherFile);
+    if (otherFile.isEmpty())
+        return;
+
+    Core::EditorManager* editorManager = Core::EditorManager::instance();
+    editorManager->addCurrentPositionToNavigationHistory();
+    TextEditor::BaseTextEditorWidget *ed = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
+    if (editorManager->hasSplitter()) {
+        if (ed->forceOpenLinksInNextSplit()) {
+            editorManager->gotoOtherSplit();
+        } else if (ed->openLinksInNextSplit()) {
+            bool isVisible = false;
+            foreach (Core::IEditor *visEditor, editorManager->visibleEditors()) {
+                if (visEditor->document() &&
+                        (otherFile == visEditor->document()->fileName())) {
+                    isVisible = true;
+                    editorManager->activateEditor(visEditor);
+                    break;
+                }
+            }
+
+            if (!isVisible)
+                editorManager->gotoOtherSplit();
+        }
+    }
+    Core::EditorManager::openEditor(otherFile);
 }
 
 static QStringList findFilesInProject(const QString &name,

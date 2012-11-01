@@ -181,6 +181,12 @@ public:
     void setLineNumbersVisible(bool b);
     bool lineNumbersVisible() const;
 
+    void setOpenLinksInNextSplit(bool b);
+    bool openLinksInNextSplit() const;
+
+    void setForceOpenLinksInNextSplit(bool b);
+    bool forceOpenLinksInNextSplit() const;
+
     void setMarksVisible(bool b);
     bool marksVisible() const;
 

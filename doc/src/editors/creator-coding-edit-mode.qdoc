@@ -118,7 +118,9 @@
     \section1 Moving to Symbol Definition or Declaration
 
     You can move directly to the definition or the declaration of a symbol by
-    holding the \key Ctrl and clicking the symbol.
+    holding the \key Ctrl and clicking the symbol. If you have multiple splits
+    opened, link will be opened in next split. To open it in current split,
+    hold \key Ctrl and \key Alt while clicking on the symbol.
 
     To enable this moving function, in \gui Tools > \gui{Options} >
     \gui{Text Editor} > \gui Behavior, select \gui{Enable mouse navigation}.
@@ -126,11 +128,17 @@
     You can also select the symbol and press \key F2, or right-click the symbol
     and select \gui {Follow Symbol Under Cursor} to move to its definition or
     declaration. This feature is supported for namespaces, classes, methods,
-    variables, include statements, and macros.
+    variables, include statements, and macros. If you have multiple splits
+    opened, the result will be shown in another split.
 
     To switch between the definition and declaration of a symbol, press
     \key {Shift+F2} or right-click the symbol and select \gui {Switch Between
-    Method Declaration/Definition}.
+    Method Declaration/Definition}. If you have multiple splits opened, the
+    result will be shown in another split.
+
+    Although links are opened in another split by default, this can be disabled
+    in \gui Tools > \gui{Options} > \gui{Text Editor} > \gui Display, by
+    unchecking \gui{Open Links in Next Split}.
 
     \section1 Using Update Code Model
 

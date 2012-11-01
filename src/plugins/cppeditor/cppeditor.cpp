@@ -1108,6 +1108,8 @@ void CPPEditorWidget::switchDeclarationDefinition()
         if (! function)
             function = lastVisibleSymbol->enclosingFunction();
 
+        Core::EditorManager* editorManager = Core::EditorManager::instance();
+
         if (function) {
             LookupContext context(thisDocument, snapshot);
 
@@ -1128,12 +1130,61 @@ void CPPEditorWidget::switchDeclarationDefinition()
                     }
                 }
             }
-            if (! best.isEmpty())
-                openCppEditorAt(linkToSymbol(best.first()));
+            if (! best.isEmpty()) {
+                Core::IEditor *editor = editorManager->currentEditor();
+                CPPEditorWidget::Link symbolLink = linkToSymbol(best.first());
+                if (editorManager->hasSplitter()) {
+                    if (forceOpenLinksInNextSplit()) {
+                        editorManager->gotoOtherSplit();
+                    } else if (openLinksInNextSplit()) {
+                        bool isVisible = false;
+                        foreach (Core::IEditor *visEditor, editorManager->visibleEditors()) {
+                            if (visEditor->document() &&
+                                    (symbolLink.fileName == visEditor->document()->fileName()) &&
+                                    (visEditor != editor)) {
+                                isVisible = true;
+                                editorManager->activateEditor(visEditor);
+                                break;
+                            }
+                        }
+
+                        if (!isVisible)
+                            editorManager->gotoOtherSplit();
+                    } else {
+                        editorManager->addCurrentPositionToNavigationHistory();
+                    }
+                }
+                openCppEditorAt(symbolLink);
+            }
 
         } else if (lastVisibleSymbol && lastVisibleSymbol->isDeclaration() && lastVisibleSymbol->type()->isFunctionType()) {
-            if (Symbol *def = symbolFinder()->findMatchingDefinition(lastVisibleSymbol, snapshot, true))
-                openCppEditorAt(linkToSymbol(def));
+            if (Symbol *def = symbolFinder()->findMatchingDefinition(lastVisibleSymbol, snapshot)) {
+                Core::IEditor *editor = editorManager->currentEditor();
+                CPPEditorWidget::Link symbolLink = linkToSymbol(def);
+                if (editorManager->hasSplitter() && (editor->document()->fileName() != symbolLink.fileName)) {
+                    if (forceOpenLinksInNextSplit()) {
+                        editorManager->gotoOtherSplit();
+                    } else if (openLinksInNextSplit()) {
+                        bool isVisible = false;
+                        foreach (Core::IEditor *visEditor, editorManager->visibleEditors()) {
+                            if (visEditor->document() &&
+                                    (symbolLink.fileName == visEditor->document()->fileName()) &&
+                                    (visEditor != editor)) {
+                                isVisible = true;
+                                editorManager->activateEditor(visEditor);
+                                break;
+                            }
+                        }
+
+                        if (!isVisible)
+                            editorManager->gotoOtherSplit();
+                    } else {
+                        editorManager->addCurrentPositionToNavigationHistory();
+                    }
+                }
+
+                openCppEditorAt(symbolLink);
+            }
         }
     }
 }
