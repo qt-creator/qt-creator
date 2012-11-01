@@ -981,7 +981,14 @@ public:
         setCursor(tc);
     }
     QTextCursor cursor() const { return EDITOR(textCursor()); }
-    void setCursor(const QTextCursor &tc) { EDITOR(setTextCursor(tc)); }
+    void setCursor(const QTextCursor &tc) {
+        // Workaround for crash when in edit block and adding text to last empty line.
+        if (m_editBlockLevel > 0)
+            cursor().endEditBlock();
+        EDITOR(setTextCursor(tc));
+        if (m_editBlockLevel > 0)
+            cursor().joinPreviousEditBlock();
+    }
 
     bool handleFfTt(QString key);
 
@@ -1002,12 +1009,29 @@ public:
     QTextDocument *document() const { return EDITOR(document()); }
     QChar characterAtCursor() const
         { return document()->characterAt(position()); }
+
+    int m_editBlockLevel; // current level of edit blocks
+
     void beginEditBlock()
-        { UNDO_DEBUG("BEGIN EDIT BLOCK"); cursor().beginEditBlock(); }
+    {
+        UNDO_DEBUG("BEGIN EDIT BLOCK");
+        ++m_editBlockLevel;
+        cursor().beginEditBlock();
+    }
     void endEditBlock()
-        { UNDO_DEBUG("END EDIT BLOCK"); cursor().endEditBlock(); }
+    {
+        UNDO_DEBUG("END EDIT BLOCK");
+        QTC_ASSERT(m_editBlockLevel > 0,
+            qDebug() << "beginEditBlock() not called before endEditBlock()!"; return);
+        --m_editBlockLevel;
+        cursor().endEditBlock();
+    }
     void joinPreviousEditBlock()
-        { UNDO_DEBUG("JOIN"); cursor().joinPreviousEditBlock(); }
+    {
+        UNDO_DEBUG("JOIN");
+        ++m_editBlockLevel;
+        cursor().joinPreviousEditBlock();
+    }
     void breakEditBlock() {
         QTextCursor tc = cursor();
         tc.clearSelection();
@@ -1281,6 +1305,7 @@ void FakeVimHandler::Private::init()
     m_oldExternalPosition = -1;
     m_oldPosition = -1;
     m_lastChangePosition = -1;
+    m_editBlockLevel = 0;
 
     setupCharClass();
 }
@@ -3205,7 +3230,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         QTextCursor tc = EDITOR(textCursor());
         moveToWordBoundary(false, false);
         QString str = selectText(Range(position(), tc.position()));
-        EDITOR(setTextCursor(tc));
+        setCursor(tc);
         emit q->simpleCompletionRequested(str, input.isControl('n'));
     } else if (!input.text().isEmpty()) {
         insertInInsertMode(input.text());
