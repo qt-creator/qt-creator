@@ -41,10 +41,6 @@ QT_BEGIN_NAMESPACE
 class QProcess;
 QT_END_NAMESPACE
 
-namespace Qt4ProjectManager {
-class Qt4BuildConfiguration;
-}
-
 namespace Android {
 namespace Internal {
 
