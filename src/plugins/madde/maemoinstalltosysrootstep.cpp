@@ -264,8 +264,7 @@ MaemoCopyToSysrootStep::MaemoCopyToSysrootStep(BuildStepList *bsl,
 
 bool MaemoCopyToSysrootStep::init()
 {
-    const Qt4BuildConfiguration * const bc
-        = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+    const BuildConfiguration * const bc = target()->activeBuildConfiguration();
     if (!bc) {
         addOutput(tr("Cannot copy to sysroot without build configuration."),
             ErrorMessageOutput);
