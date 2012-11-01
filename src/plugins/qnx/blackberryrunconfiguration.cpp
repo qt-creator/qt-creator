@@ -87,7 +87,12 @@ QString BlackBerryRunConfiguration::proFilePath() const
 
 QString BlackBerryRunConfiguration::deviceName() const
 {
-    return deployConfiguration()->deviceName();
+    BlackBerryDeviceConfiguration::ConstPtr device
+            = BlackBerryDeviceConfiguration::device(target()->kit());
+    if (!device)
+        return QString();
+
+    return device->displayName();
 }
 
 QString BlackBerryRunConfiguration::barPackage() const

@@ -41,6 +41,7 @@
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <utils/qtcassert.h>
+#include <ssh/sshconnection.h>
 
 #include <QDir>
 
@@ -173,14 +174,20 @@ ProjectExplorer::BuildStepConfigWidget *BlackBerryDeployStep::createConfigWidget
 
 QString BlackBerryDeployStep::deviceHost() const
 {
-    BlackBerryDeployConfiguration *dc = static_cast<BlackBerryDeployConfiguration *>(deployConfiguration());
-    return dc->deviceHost();
+    BlackBerryDeviceConfiguration::ConstPtr device
+            = BlackBerryDeviceConfiguration::device(target()->kit());
+    if (device)
+        return device->sshParameters().host;
+    return QString();
 }
 
 QString BlackBerryDeployStep::password() const
 {
-    BlackBerryDeployConfiguration *dc = static_cast<BlackBerryDeployConfiguration *>(deployConfiguration());
-    return dc->password();
+    BlackBerryDeviceConfiguration::ConstPtr device
+            = BlackBerryDeviceConfiguration::device(target()->kit());
+    if (device)
+        return device->sshParameters().password;
+    return QString();
 }
 
 void BlackBerryDeployStep::raiseError(const QString &errorMessage)

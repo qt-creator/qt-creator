@@ -58,10 +58,6 @@ public:
 
     BlackBerryDeployInformation *deploymentInfo() const;
 
-    QString deviceHost() const;
-    QString password() const;
-    QString deviceName() const;
-
 protected:
     BlackBerryDeployConfiguration(ProjectExplorer::Target *parent, BlackBerryDeployConfiguration *source);
 

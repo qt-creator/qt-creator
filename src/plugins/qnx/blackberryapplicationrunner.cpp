@@ -103,11 +103,11 @@ BlackBerryApplicationRunner::BlackBerryApplicationRunner(bool debugMode, BlackBe
     m_environment = buildConfig->environment();
     m_deployCmd = m_environment.searchInPath(QLatin1String(DEPLOY_CMD));
 
-    m_deviceHost = runConfiguration->deployConfiguration()->deviceHost();
-    m_password = runConfiguration->deployConfiguration()->password();
+    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target->kit());
+    m_deviceHost = device->sshParameters().host;
+    m_password = device->sshParameters().password;
     m_barPackage = runConfiguration->barPackage();
 
-    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target->kit());
     m_sshParams = device->sshParameters();
     // The BlackBerry device always uses key authentication
     m_sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByKey;

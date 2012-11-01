@@ -55,8 +55,12 @@ QMap<QString, int> BlackBerryConnect::m_usageCount = QMap<QString, int>();
 
 BlackBerryConnect *BlackBerryConnect::instance(BlackBerryRunConfiguration *runConfig)
 {
-    BlackBerryDeployConfiguration *deployConfig = runConfig->deployConfiguration();
-    QString deviceHost = deployConfig->deviceHost();
+
+    BlackBerryDeviceConfiguration::ConstPtr device
+            = BlackBerryDeviceConfiguration::device(runConfig->target()->kit());
+    QString deviceHost;
+    if (device)
+        deviceHost = device->sshParameters().host;
     if (!m_instances.contains(deviceHost)) {
         m_instances[deviceHost] = new BlackBerryConnect(runConfig);
         m_usageCount[deviceHost] = 1;
@@ -97,11 +101,10 @@ BlackBerryConnect::BlackBerryConnect(BlackBerryRunConfiguration *runConfig)
     m_connectCmd = env.searchInPath(QLatin1String(CONNECT_CMD));
     m_qnxHost = env.value(QLatin1String("QNX_HOST"));
 
-    BlackBerryDeployConfiguration *deployConfig = runConfig->deployConfiguration();
-    m_deviceHost = deployConfig->deviceHost();
-    m_password = deployConfig->password();
-
-    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target->kit());
+    BlackBerryDeviceConfiguration::ConstPtr device
+            = BlackBerryDeviceConfiguration::device(target->kit());
+    m_deviceHost = device->sshParameters().host;
+    m_password = device->sshParameters().password;
     m_publicKeyFile = device->sshParameters().privateKeyFile + QLatin1String(".pub");
 
     connect(m_process, SIGNAL(readyReadStandardOutput()), this, SLOT(readStandardOutput()));
