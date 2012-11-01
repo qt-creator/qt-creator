@@ -49,7 +49,6 @@ class EnvironmentWidget;
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeBuildConfiguration;
 class CMakeTarget;
 
 class CMakeRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
