@@ -43,7 +43,6 @@ namespace AutotoolsProjectManager {
 namespace Internal {
 
 class AutotoolsProject;
-class AutotoolsBuildConfiguration;
 class MakeStep;
 
 ///////////////////////////
@@ -94,7 +93,6 @@ class MakeStep : public ProjectExplorer::AbstractProcessStep
 public:
     MakeStep(ProjectExplorer::BuildStepList *bsl);
 
-    AutotoolsBuildConfiguration *autotoolsBuildConfiguration() const;
     bool init();
     void run(QFutureInterface<bool> &interface);
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();

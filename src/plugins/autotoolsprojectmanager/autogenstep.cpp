@@ -151,14 +151,9 @@ void AutogenStep::ctor()
     setDefaultDisplayName(tr("Autogen"));
 }
 
-AutotoolsBuildConfiguration *AutogenStep::autotoolsBuildConfiguration() const
-{
-    return static_cast<AutotoolsBuildConfiguration *>(buildConfiguration());
-}
-
 bool AutogenStep::init()
 {
-    AutotoolsBuildConfiguration *bc = autotoolsBuildConfiguration();
+    BuildConfiguration *bc = buildConfiguration();
 
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
@@ -172,7 +167,7 @@ bool AutogenStep::init()
 
 void AutogenStep::run(QFutureInterface<bool> &interface)
 {
-    AutotoolsBuildConfiguration *bc = autotoolsBuildConfiguration();
+    BuildConfiguration *bc = buildConfiguration();
 
     // Check whether we need to run autogen.sh
     const QFileInfo configureInfo(bc->buildDirectory() + QLatin1String("/configure"));
@@ -273,7 +268,7 @@ QString AutogenStepConfigWidget::summaryText() const
 
 void AutogenStepConfigWidget::updateDetails()
 {
-    AutotoolsBuildConfiguration *bc = m_autogenStep->autotoolsBuildConfiguration();
+    BuildConfiguration *bc = m_autogenStep->buildConfiguration();
 
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());

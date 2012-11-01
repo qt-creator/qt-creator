@@ -154,11 +154,6 @@ void MakeStep::ctor()
     setDefaultDisplayName(tr("Make"));
 }
 
-AutotoolsBuildConfiguration *MakeStep::autotoolsBuildConfiguration() const
-{
-    return static_cast<AutotoolsBuildConfiguration *>(buildConfiguration());
-}
-
 void MakeStep::setClean(bool clean)
 {
     m_clean = clean;
@@ -166,9 +161,9 @@ void MakeStep::setClean(bool clean)
 
 bool MakeStep::init()
 {
-    AutotoolsBuildConfiguration *bc = autotoolsBuildConfiguration();
+    BuildConfiguration *bc = buildConfiguration();
     if (!bc)
-        bc = static_cast<AutotoolsBuildConfiguration *>(target()->activeBuildConfiguration());
+        bc = target()->activeBuildConfiguration();
 
     m_tasks.clear();
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
@@ -310,7 +305,7 @@ QString MakeStepConfigWidget::summaryText() const
 
 void MakeStepConfigWidget::updateDetails()
 {
-    AutotoolsBuildConfiguration *bc = m_makeStep->autotoolsBuildConfiguration();
+    BuildConfiguration *bc = m_makeStep->buildConfiguration();
     ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(m_makeStep->target()->kit());
 
     if (tc) {

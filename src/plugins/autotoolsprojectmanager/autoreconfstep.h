@@ -42,7 +42,6 @@ namespace AutotoolsProjectManager {
 namespace Internal {
 
 class AutotoolsProject;
-class AutotoolsBuildConfiguration;
 class AutoreconfStep;
 
 ////////////////////////////////
@@ -96,7 +95,6 @@ class AutoreconfStep : public ProjectExplorer::AbstractProcessStep
 public:
     AutoreconfStep(ProjectExplorer::BuildStepList *bsl);
 
-    AutotoolsBuildConfiguration *autotoolsBuildConfiguration() const;
     bool init();
     void run(QFutureInterface<bool> &interface);
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
