@@ -396,9 +396,9 @@ void MakeStepConfigWidget::buildTargetsChanged()
 
 void MakeStepConfigWidget::updateDetails()
 {
-    CMakeBuildConfiguration *bc = m_makeStep->cmakeBuildConfiguration();
+    BuildConfiguration *bc = m_makeStep->buildConfiguration();
     if (!bc)
-        bc = static_cast<CMakeBuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
+        bc = m_makeStep->target()->activeBuildConfiguration();
     if (!bc) {
         m_summaryText = tr("<b>No build configuration found on this target.</b>");
         updateSummary();
