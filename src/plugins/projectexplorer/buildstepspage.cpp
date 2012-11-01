@@ -478,7 +478,7 @@ void BuildStepListWidget::updateBuildStepButtonsState()
 
         s->toolWidget->setUpEnabled((i > 0)
                                     && !(m_buildStepList->at(i)->immutable()
-                                         && m_buildStepList->at(i - 1)));
+                                         && m_buildStepList->at(i - 1)->immutable()));
         m_upMapper->setMapping(s->toolWidget, i);
         s->toolWidget->setDownEnabled((i + 1 < m_buildStepList->count())
                                       && !(m_buildStepList->at(i)->immutable()
