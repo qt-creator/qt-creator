@@ -1112,6 +1112,11 @@ void FakeVimPlugin::test_vim_copy_paste()
 
     data.setText("123" N "456" N "789");
     KEYS("wyiw" "wviwp", "123" N "456" N "45" X "6");
+
+    // QTCREATORBUG-8148
+    data.setText("abc");
+    KEYS("yyp", "abc" N X "abc");
+    KEYS("4p", "abc" N "abc" N X "abc" N "abc" N "abc" N "abc");
 }
 
 void FakeVimPlugin::test_vim_undo_redo()

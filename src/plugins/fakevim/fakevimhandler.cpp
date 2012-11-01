@@ -1369,9 +1369,21 @@ public:
         tc.setPosition(position, KeepAnchor);
         setCursor(tc);
     }
-    QTextCursor cursor() const { return EDITOR(textCursor()); }
 
-    void setCursor(const QTextCursor &tc) { EDITOR(setTextCursor(tc)); }
+    // Workaround for occational crash when setting text cursor while in edit block.
+    QTextCursor m_cursor;
+
+    QTextCursor cursor() const {
+        if (m_editBlockLevel > 0)
+            return m_cursor;
+        return EDITOR(textCursor());
+    }
+
+    void setCursor(const QTextCursor &tc) {
+        m_cursor = tc;
+        if (m_editBlockLevel == 0)
+            EDITOR(setTextCursor(tc));
+    }
 
     bool handleFfTt(QString key);
 
@@ -1391,6 +1403,7 @@ public:
     QChar characterAtCursor() const
         { return document()->characterAt(position()); }
 
+    int m_editBlockLevel; // current level of edit blocks
     void joinPreviousEditBlock();
     void beginEditBlock(bool rememberPosition = true);
     void beginLargeEditBlock() { beginEditBlock(false); }
@@ -1691,6 +1704,7 @@ void FakeVimHandler::Private::init()
     m_breakEditBlock = false;
     m_searchStartPosition = 0;
     m_searchFromScreenLine = 0;
+    m_editBlockLevel = 0;
 
     setupCharClass();
 }
@@ -3850,10 +3864,10 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
     //} else if (key >= control('a') && key <= control('z')) {
     //    // ignore these
     } else if (input.isControl('p') || input.isControl('n')) {
-        QTextCursor tc = EDITOR(textCursor());
+        QTextCursor tc = cursor();
         moveToNextWordStart(count(), false, false);
         QString str = selectText(Range(position(), tc.position()));
-        EDITOR(setTextCursor(tc));
+        setCursor(tc);
         emit q->simpleCompletionRequested(str, input.isControl('n'));
     } else if (!input.text().isEmpty()) {
         insertInInsertMode(input.text());
@@ -5826,8 +5840,7 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
                 }
                 moveDown();
             }
-            const int pos = position() - lastLine;
-            // do not insert empty line at the end of document
+            const int pos = position();
             if (lastLine)
                 insertText(text.repeated(count()).left(text.size() * count() - 1));
             else
@@ -6068,15 +6081,22 @@ QWidget *FakeVimHandler::Private::editor() const
 void FakeVimHandler::Private::joinPreviousEditBlock()
 {
     UNDO_DEBUG("JOIN");
-    if (m_breakEditBlock)
+    if (m_breakEditBlock) {
         beginEditBlock();
-    else
+    } else {
+        if (m_editBlockLevel == 0)
+            m_cursor = cursor();
+        ++m_editBlockLevel;
         cursor().joinPreviousEditBlock();
+    }
 }
 
 void FakeVimHandler::Private::beginEditBlock(bool rememberPosition)
 {
     UNDO_DEBUG("BEGIN EDIT BLOCK");
+    if (m_editBlockLevel == 0)
+        m_cursor = cursor();
+    ++m_editBlockLevel;
     cursor().beginEditBlock();
     if (rememberPosition)
         setUndoPosition(false);
@@ -6086,7 +6106,12 @@ void FakeVimHandler::Private::beginEditBlock(bool rememberPosition)
 void FakeVimHandler::Private::endEditBlock()
 {
     UNDO_DEBUG("END EDIT BLOCK");
+    QTC_ASSERT(m_editBlockLevel > 0,
+        qDebug() << "beginEditBlock() not called before endEditBlock()!"; return);
+    --m_editBlockLevel;
     cursor().endEditBlock();
+    if (m_editBlockLevel == 0)
+        setCursor(m_cursor);
 }
 
 char FakeVimHandler::Private::currentModeCode() const
