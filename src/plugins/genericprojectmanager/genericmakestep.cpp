@@ -96,16 +96,11 @@ GenericMakeStep::~GenericMakeStep()
 {
 }
 
-GenericBuildConfiguration *GenericMakeStep::genericBuildConfiguration() const
-{
-    return static_cast<GenericBuildConfiguration *>(buildConfiguration());
-}
-
 bool GenericMakeStep::init()
 {
-    GenericBuildConfiguration *bc = genericBuildConfiguration();
+    BuildConfiguration *bc = buildConfiguration();
     if (!bc)
-        bc = static_cast<GenericBuildConfiguration *>(target()->activeBuildConfiguration());
+        bc = target()->activeBuildConfiguration();
 
     m_tasks.clear();
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
@@ -285,18 +280,18 @@ QString GenericMakeStepConfigWidget::displayName() const
 
 void GenericMakeStepConfigWidget::updateMakeOverrrideLabel()
 {
-    GenericBuildConfiguration *bc = m_makeStep->genericBuildConfiguration();
+    BuildConfiguration *bc = m_makeStep->buildConfiguration();
     if (!bc)
-        bc = static_cast<GenericBuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
+        bc = m_makeStep->target()->activeBuildConfiguration();
 
     m_ui->makeLabel->setText(tr("Override %1:").arg(m_makeStep->makeCommand(bc->environment())));
 }
 
 void GenericMakeStepConfigWidget::updateDetails()
 {
-    GenericBuildConfiguration *bc = m_makeStep->genericBuildConfiguration();
+    BuildConfiguration *bc = m_makeStep->buildConfiguration();
     if (!bc)
-        bc = static_cast<GenericBuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
+        bc = m_makeStep->target()->activeBuildConfiguration();
 
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());

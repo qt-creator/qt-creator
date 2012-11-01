@@ -39,7 +39,6 @@ QT_END_NAMESPACE
 namespace GenericProjectManager {
 namespace Internal {
 
-class GenericBuildConfiguration;
 class GenericMakeStepConfigWidget;
 class GenericMakeStepFactory;
 namespace Ui { class GenericMakeStep; }
@@ -54,8 +53,6 @@ class GenericMakeStep : public ProjectExplorer::AbstractProcessStep
 public:
     GenericMakeStep(ProjectExplorer::BuildStepList *parent);
     ~GenericMakeStep();
-
-    GenericBuildConfiguration *genericBuildConfiguration() const;
 
     bool init();
     void run(QFutureInterface<bool> &fi);
