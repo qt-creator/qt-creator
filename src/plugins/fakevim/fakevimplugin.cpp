@@ -1942,6 +1942,36 @@ void FakeVimPlugin::setupTest(QString *title, FakeVimHandler **handler, QWidget 
     *edit = iedit->widget();
     *handler = d->m_editorToHandler.value(iedit, 0);
     (*handler)->handleCommand("set startofline");
+
+//    *handler = 0;
+//    m_statusMessage.clear();
+//    m_statusData.clear();
+//    m_infoMessage.clear();
+//    if (m_textedit) {
+//        m_textedit->setPlainText(lines);
+//        QTextCursor tc = m_textedit->textCursor();
+//        tc.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+//        m_textedit->setTextCursor(tc);
+//        m_textedit->setPlainText(lines);
+//        *handler = new FakeVimHandler(m_textedit);
+//    } else {
+//        m_plaintextedit->setPlainText(lines);
+//        QTextCursor tc = m_plaintextedit->textCursor();
+//        tc.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+//        m_plaintextedit->setTextCursor(tc);
+//        m_plaintextedit->setPlainText(lines);
+//        *handler = new FakeVimHandler(m_plaintextedit);
+//    }
+
+//    QObject::connect(*handler, SIGNAL(commandBufferChanged(QString,int)),
+//        this, SLOT(changeStatusMessage(QString,int)));
+//    QObject::connect(*handler, SIGNAL(extraInformationChanged(QString)),
+//        this, SLOT(changeExtraInformation(QString)));
+//    QObject::connect(*handler, SIGNAL(statusDataChanged(QString)),
+//        this, SLOT(changeStatusData(QString)));
+
+//    QCOMPARE(EDITOR(toPlainText()), lines);
+    (*handler)->handleCommand("set iskeyword=@,48-57,_,192-255,a-z,A-Z");
 }
 #endif
 

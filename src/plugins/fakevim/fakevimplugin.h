@@ -90,6 +90,87 @@ private slots:
     void test_advanced_commands();
     void test_map();
 
+//public slots:
+//    void changeStatusData(const QString &info) { m_statusData = info; }
+//    void changeStatusMessage(const QString &info, int) { m_statusMessage = info; }
+//    void changeExtraInformation(const QString &info) { m_infoMessage = info; }
+
+//private slots:
+//    // functional tests
+    void test_vim_indentation();
+
+    // command mode
+    void test_vim_command_oO();
+    void test_vim_command_put_at_eol();
+    void test_vim_command_Cxx_down_dot();
+    void test_vim_command_Gyyp();
+    void test_vim_command_J();
+    void test_vim_command_Yp();
+    void test_vim_command_cc();
+    void test_vim_command_cw();
+    void test_vim_command_cj();
+    void test_vim_command_ck();
+    void test_vim_command_c_dollar();
+    void test_vim_command_C();
+    void test_vim_command_dd();
+    void test_vim_command_dd_2();
+    void test_vim_command_d_dollar();
+    void test_vim_command_dgg();
+    void test_vim_command_dG();
+    void test_vim_command_dj();
+    void test_vim_command_dk();
+    void test_vim_command_D();
+    void test_vim_command_dfx_down();
+    void test_vim_command_dollar();
+    void test_vim_command_down();
+    void test_vim_command_dw();
+    void test_vim_command_e();
+    void test_vim_command_i();
+    void test_vim_command_left();
+    void test_vim_command_ma_yank();
+    void test_vim_command_r();
+    void test_vim_command_right();
+    void test_vim_command_up();
+    void test_vim_command_w();
+    void test_vim_command_x();
+    void test_vim_command_yyp();
+    void test_vim_command_y_dollar();
+
+    void test_vim_visual_d();
+    void test_vim_Visual_d();
+
+    // special tests
+    void test_i_cw_i();
+
+//private:
+//    void setup();
+//    void send(const QString &command) { sendEx("normal " + command); }
+//    void sendEx(const QString &command); // send an ex command
+
+//    bool checkContentsHelper(QString expected, const char* file, int line);
+//    bool checkHelper(bool isExCommand, QString cmd, QString expected,
+//        const char* file, int line);
+//    QString insertCursor(const QString &needle0);
+//    QString cursor(const QString &line, int pos); // insert @ at cursor pos, negative counts from back
+
+//    QString lmid(int i, int n = -1) const
+//        { return QStringList(l.mid(i, n)).join("\n"); }
+
+//    QTextEdit *m_textedit;
+//    QPlainTextEdit *m_plaintextedit;
+//    FakeVimHandler *m_handler;
+//    QList<QTextEdit::ExtraSelection> m_selection;
+
+//    QString m_statusMessage;
+//    QString m_statusData;
+//    QString m_infoMessage;
+
+//    // the individual lines
+//    static const QStringList l; // identifier intentionally kept short
+//    static const QString lines;
+//    static const QString escape;
+//};
+
 private:
     struct TestData;
     void setup(TestData *data);

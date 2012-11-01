@@ -43,6 +43,8 @@
 #include <QTextDocument>
 #include <QTextBlock>
 
+//TESTED_COMPONENT=src/plugins/fakevim
+
 /*!
  * Tests after this macro will be skipped and warning printed.
  * Uncomment it to test a feature -- if tests succeeds it should be removed from the test.
@@ -54,7 +56,21 @@
 
 // Text cursor representation in comparisons (set empty to disable cursor position checking).
 #define X "|"
-static const QString cursorString(X);
+const QString cursorString(X);
+
+const QString testLines =
+  /* 0         1         2         3        4 */
+  /* 0123456789012345678901234567890123457890 */
+    "\n"
+    "#include <QtCore>\n"
+    "#include <QtGui>\n"
+    "\n"
+    "int main(int argc, char *argv[])\n"
+    "{\n"
+    "    QApplication app(argc, argv);\n"
+    "\n"
+    "    return app.exec();\n"
+    "}\n";
 
 // More distinct line separator in code.
 #define N "\n"
@@ -138,20 +154,17 @@ static const QString helpFormat =
 using namespace FakeVim::Internal;
 using namespace TextEditor;
 
-namespace {
-
-QString textWithCursor(const QString &text, int position)
+static QString textWithCursor(const QString &text, int position)
 {
     return (position == -1) ? text : (text.left(position) + cursorString + text.mid(position));
 }
 
-QString textWithCursor(const QString &text, const QTextBlock &block, int column)
+static QString textWithCursor(const QString &text, const QTextBlock &block, int column)
 {
     const int pos = block.position() + qMin(column, qMax(0, block.length() - 2));
     return text.left(pos) + cursorString + text.mid(pos);
 }
 
-} // namespace
 
 // Data for tests containing BaseTextEditorWidget and FakeVimHAndler.
 struct FakeVimPlugin::TestData
@@ -200,9 +213,86 @@ struct FakeVimPlugin::TestData
     }
 };
 
+void FakeVimPlugin::setup(TestData *data)
+{
+    setupTest(&data->title, &data->handler, &data->edit);
+}
+
+
 void FakeVimPlugin::cleanup()
 {
     Core::EditorManager::instance()->closeAllEditors(false);
+}
+
+
+void FakeVimPlugin::test_vim_indentation()
+{
+    TestData data;
+    setup(&data);
+
+    data.doCommand("set expandtab");
+    data.doCommand("set tabstop=4");
+    data.doCommand("set shiftwidth=4");
+    QCOMPARE(data.handler->physicalIndentation("      \t\t\tx"), 6 + 3);
+    QCOMPARE(data.handler->logicalIndentation ("      \t\t\tx"), 4 + 3 * 4);
+    QCOMPARE(data.handler->physicalIndentation("     \t\t\tx"), 5 + 3);
+    QCOMPARE(data.handler->logicalIndentation ("     \t\t\tx"), 4 + 3 * 4);
+
+    QCOMPARE(data.handler->tabExpand(3), QLatin1String("   "));
+    QCOMPARE(data.handler->tabExpand(4), QLatin1String("    "));
+    QCOMPARE(data.handler->tabExpand(5), QLatin1String("     "));
+    QCOMPARE(data.handler->tabExpand(6), QLatin1String("      "));
+    QCOMPARE(data.handler->tabExpand(7), QLatin1String("       "));
+    QCOMPARE(data.handler->tabExpand(8), QLatin1String("        "));
+    QCOMPARE(data.handler->tabExpand(9), QLatin1String("         "));
+
+    data.doCommand("set expandtab");
+    data.doCommand("set tabstop=8");
+    data.doCommand("set shiftwidth=4");
+    QCOMPARE(data.handler->physicalIndentation("      \t\t\tx"), 6 + 3);
+    QCOMPARE(data.handler->logicalIndentation ("      \t\t\tx"), 0 + 3 * 8);
+    QCOMPARE(data.handler->physicalIndentation("     \t\t\tx"), 5 + 3);
+    QCOMPARE(data.handler->logicalIndentation ("     \t\t\tx"), 0 + 3 * 8);
+
+    QCOMPARE(data.handler->tabExpand(3), QLatin1String("   "));
+    QCOMPARE(data.handler->tabExpand(4), QLatin1String("    "));
+    QCOMPARE(data.handler->tabExpand(5), QLatin1String("     "));
+    QCOMPARE(data.handler->tabExpand(6), QLatin1String("      "));
+    QCOMPARE(data.handler->tabExpand(7), QLatin1String("       "));
+    QCOMPARE(data.handler->tabExpand(8), QLatin1String("        "));
+    QCOMPARE(data.handler->tabExpand(9), QLatin1String("         "));
+
+    data.doCommand("set noexpandtab");
+    data.doCommand("set tabstop=4");
+    data.doCommand("set shiftwidth=4");
+    QCOMPARE(data.handler->physicalIndentation("      \t\t\tx"), 6 + 3);
+    QCOMPARE(data.handler->logicalIndentation ("      \t\t\tx"), 4 + 3 * 4);
+    QCOMPARE(data.handler->physicalIndentation("     \t\t\tx"), 5 + 3);
+    QCOMPARE(data.handler->logicalIndentation ("     \t\t\tx"), 4 + 3 * 4);
+
+    QCOMPARE(data.handler->tabExpand(3), QLatin1String("   "));
+    QCOMPARE(data.handler->tabExpand(4), QLatin1String("\t"));
+    QCOMPARE(data.handler->tabExpand(5), QLatin1String("\t "));
+    QCOMPARE(data.handler->tabExpand(6), QLatin1String("\t  "));
+    QCOMPARE(data.handler->tabExpand(7), QLatin1String("\t   "));
+    QCOMPARE(data.handler->tabExpand(8), QLatin1String("\t\t"));
+    QCOMPARE(data.handler->tabExpand(9), QLatin1String("\t\t "));
+
+    data.doCommand("set noexpandtab");
+    data.doCommand("set tabstop=8");
+    data.doCommand("set shiftwidth=4");
+    QCOMPARE(data.handler->physicalIndentation("      \t\t\tx"), 6 + 3);
+    QCOMPARE(data.handler->logicalIndentation ("      \t\t\tx"), 0 + 3 * 8);
+    QCOMPARE(data.handler->physicalIndentation("     \t\t\tx"), 5 + 3);
+    QCOMPARE(data.handler->logicalIndentation ("     \t\t\tx"), 0 + 3 * 8);
+
+    QCOMPARE(data.handler->tabExpand(3), QLatin1String("   "));
+    QCOMPARE(data.handler->tabExpand(4), QLatin1String("    "));
+    QCOMPARE(data.handler->tabExpand(5), QLatin1String("     "));
+    QCOMPARE(data.handler->tabExpand(6), QLatin1String("      "));
+    QCOMPARE(data.handler->tabExpand(7), QLatin1String("       "));
+    QCOMPARE(data.handler->tabExpand(8), QLatin1String("\t"));
+    QCOMPARE(data.handler->tabExpand(9), QLatin1String("\t "));
 }
 
 void FakeVimPlugin::test_vim_movement()
@@ -1641,7 +1731,601 @@ void FakeVimPlugin::test_map()
     KEYS("iX", "abc xxx");
 }
 
-void FakeVimPlugin::setup(TestData *data)
+void FakeVimPlugin::test_vim_command_cc()
 {
-    setupTest(&data->title, &data->handler, &data->edit);
+    TestData data;
+    setup(&data);
+
+    data.setText("|123"  N  "456" N "789" N   "abc");
+    KEYS("cc456<ESC>",  "45|6" N  "456" N   "789" N   "abc");
+    KEYS("ccabc<Esc>",  "ab|c" N  "456" N   "789" N   "abc");
+//    KEYS(".<Esc>",      "ab|c" N  "456" N   "789" N   "abc");
+//    KEYS("j<Esc>",      "abc" N  "45|6" N   "789" N   "abc");
+//    KEYS(".<Esc>",      "abc" N  "456" N   "78|9" N   "abc");
+//    KEYS("kkk<Esc>",    "ab|c" N  "456" N   "789" N   "abc");
+//    KEYS("3ccxyz<Esc>", "xy|z" N "abc");
 }
+
+void FakeVimPlugin::test_vim_command_cw()
+{
+    TestData data;
+    setup(&data);
+    data.setText(X "123 456");
+    KEYS("cwx<Esc>", X "x 456");
+}
+
+void FakeVimPlugin::test_vim_command_cj()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("j$",               cursor(l[1], -1));
+//    KEYS("cj<Esc>",     l[0]+"\n@" + "\n" + lmid(3));
+//    KEYS("P",               lmid(0,1)+"\n" + "@"+lmid(1,2)+"\n" + "\n" +  lmid(3));
+//    KEYS("u",               l[0]+"\n@" + "\n" + lmid(3));
+
+//    TestData data;
+//    setup(&data);
+//    KEYS("j$",               cursor(l[1], -1));
+//    KEYS("cjabc<Esc>",  l[0]+"\nab@c\n" + lmid(3));
+//    KEYS("u",               lmid(0,1)+"\n" + cursor(l[1], -1)+"\n" + lmid(2));
+//    KEYS("gg",              "@" + lmid(0));
+//    KEYS(".",               "ab@c\n" + lmid(2));
+}
+
+void FakeVimPlugin::test_vim_command_ck()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("j$",               cursor(l[1], -1));
+//    KEYS("ck<Esc>",     "@\n" + lmid(2));
+//    KEYS("P",               "@" + lmid(0,2)+"\n" + "\n" + lmid(2));
+}
+
+void FakeVimPlugin::test_vim_command_c_dollar()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("j",                "@" + l[1]);
+//    KEYS("$",                cursor(l[1], -1));
+//    KEYS("c$<Esc>",     l[0]+"\n" + l[1].left(l[1].length()-2)+"@"+l[1][l[1].length()-2]+"\n" + lmid(2));
+//    KEYS("c$<Esc>",     l[0]+"\n" + l[1].left(l[1].length()-3)+"@"+l[1][l[1].length()-3]+"\n" + lmid(2));
+//    KEYS("0c$abc<Esc>", l[0]+"\n" + "ab@c\n" + lmid(2));
+//    KEYS("0c$abc<Esc>", l[0]+"\n" + "ab@c\n" + lmid(2));
+}
+
+void FakeVimPlugin::test_vim_command_C()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("j",                "@" + l[1]);
+//    KEYS("Cabc<Esc>",   l[0] + "\nab@c\n" + lmid(2));
+//    KEYS("Cabc<Esc>",   l[0] + "\nabab@c\n" + lmid(2));
+//    KEYS("$Cabc<Esc>",  l[0] + "\nababab@c\n" + lmid(2));
+//    KEYS("0C<Esc>",     l[0] + "\n@\n" + lmid(2));
+//    KEYS("0Cabc<Esc>",  l[0] + "\nab@c\n" + lmid(2));
+}
+
+void FakeVimPlugin::test_vim_command_dw()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("dw",  "@#include <QtCore>\n" + lmid(2));
+//    KEYS("dw",  "@include <QtCore>\n" + lmid(2));
+//    KEYS("dw",  "@<QtCore>\n" + lmid(2));
+//    KEYS("dw",  "@QtCore>\n" + lmid(2));
+//    KEYS("dw",  "@>\n" + lmid(2));
+//    KEYS("dw",  "@\n" + lmid(2)); // Real vim has this intermediate step, too
+//    KEYKEYS("dw",  "@#include <QtGui>\n" + lmid(3));
+//    KEYS("dw",  "@include <QtGui>\n" + lmid(3));
+//    KEYS("dw",  "@<QtGui>\n" + lmid(3));
+//    KEYS("dw",  "@QtGui>\n" + lmid(3));
+//    KEYS("dw",  "@>\n" + lmid(3));
+}
+
+void FakeVimPlugin::test_vim_command_dd()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("j",    "@" + l[1]);
+//    KEYS("dd",  l[0] + "\n@" + lmid(2));
+//    KEYS(".",   l[0] + "\n@" + lmid(3));
+//    KEYS("3dd", l[0] + "\n    @QApplication app(argc, argv);\n" + lmid(7));
+//    KEYS("4l",  l[0] + "\n    QApp@lication app(argc, argv);\n" + lmid(7));
+//    KEYS("dd",  l[0] + "\n@" + lmid(7));
+//    KEYS(".",   l[0] + "\n    @return app.exec();\n" + lmid(9));
+//    KEYS("dd",  l[0] + "\n@" + lmid(9));
+}
+
+void FakeVimPlugin::test_vim_command_dd_2()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("j",    "@" + l[1]);
+//    KEYS("dd",  l[0] + "\n@" + lmid(2));
+//    KEYS("p",   l[0] + "\n" + l[2] + "\n@" + l[1] + "\n" + lmid(3));
+//    KEYS("u",   l[0] + "\n@" + lmid(2));
+}
+
+void FakeVimPlugin::test_vim_command_d_dollar()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("j$",               cursor(l[1], -1));
+//    KEYS("$d$",             l[0]+"\n" + l[1].left(l[1].length()-2)+"@"+l[1][l[1].length()-2]+"\n" + lmid(2));
+//    KEYS("0d$",             l[0] + "\n"+"@\n" + lmid(2));
+}
+
+void FakeVimPlugin::test_vim_command_dj()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("j$",               cursor(l[1], -1));
+//    KEYS("dj",              l[0]+"\n@" + lmid(3));
+//    KEYS("P",               lmid(0,1)+"\n" + "@"+lmid(1));
+//    KEYS("0",                "@" + l[1]);
+//    KEYS("dj",              l[0]+"\n@" + lmid(3));
+//    KEYS("P",               lmid(0,1)+"\n" + "@"+lmid(1));
+//    KEYS("05l",              l[1].left(5) + "@" + l[1].mid(5));
+//    KEYS("dj",              l[0]+"\n@" + lmid(3));
+//    KEYS("P",               lmid(0,1)+"\n" + "@"+lmid(1));
+//    KEYS("dj",              l[0]+"\n@" + lmid(3));
+//    KEYS("p",               lmid(0,1)+"\n" + lmid(3,1)+"\n" + "@"+lmid(1,2)+"\n" + lmid(4));
+}
+
+void FakeVimPlugin::test_vim_command_dk()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("j$",               cursor(l[1], -1));
+//    KEYS("dk",              "@" + lmid(2));
+//    KEYS("P",               "@" + lmid(0));
+//    KEYS("j0",               "@" + l[1]);
+//    KEYS("dk",              "@" + lmid(2));
+//    KEYS("P",               "@" + lmid(0));
+//    KEYS("j05l",             l[1].left(5) + "@" + l[1].mid(5));
+//    KEYS("dk",              "@" + lmid(2));
+//    KEYS("P",               "@" + lmid(0));
+//    KEYS("j05l",             l[1].left(5) + "@" + l[1].mid(5));
+//    KEYS("dk",              "@" + lmid(2));
+//    KEYS("p",               lmid(2,1)+"\n" + "@" + lmid(0,2)+"\n" + lmid(3));
+}
+
+void FakeVimPlugin::test_vim_command_dgg()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("G",               lmid(0, l.size()-2)+"\n" "@"+lmid(l.size()-2));
+//    KEYS("dgg",             "@");
+//    KEYS("u",               "@" + lmid(0));
+}
+
+void FakeVimPlugin::test_vim_command_dG()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("dG",              "@");
+//    KEYS("u",               "@" + lmid(0));
+//    KEYS("j",                "@" + l[1]);
+//    KEYS("dG",              lmid(0,1)+"\n" + "@");
+//    KEYS("u",               l[0]+"\n" + "@" + lmid(1));
+//    KEYS("G",               lmid(0, l.size()-2)+"\n" + "@"+lmid(l.size()-2));
+//    qWarning("FIXME");
+//return;
+//    // include movement to first column, as otherwise the result depends on the 'startofline' setting
+//    KEYS("dG0",             lmid(0, l.size()-2)+"\n" + "@"+lmid(l.size()-2,1));
+//    KEYS("dG0",             lmid(0, l.size()-3)+"\n" + "@"+lmid(l.size()-3,1));
+}
+
+void FakeVimPlugin::test_vim_command_D()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("j",                "@" + l[1]);
+//    KEYS("$D",              l[0]+"\n" + l[1].left(l[1].length()-2)+"@"+l[1][l[1].length()-2]+"\n" + lmid(2));
+//    KEYS("0D",              l[0] + "\n@\n" + lmid(2));
+}
+
+void FakeVimPlugin::test_vim_command_dollar()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("j$",               cursor(l[1], -1));
+//    KEYS("j$",               cursor(l[2], -1));
+//    KEYS("2j", "@)");
+}
+
+void FakeVimPlugin::test_vim_command_down()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("j",  "@" + l[1]);
+//    KEYS("3j", "@int main");
+//    KEYS("4j", "@    return app.exec()");
+}
+
+void FakeVimPlugin::test_vim_command_dfx_down()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("j4l",  l[0] + "\n#inc@lude <QtCore>\n" + lmid(2));
+//    qWarning("FIXME");
+//return;
+//    KEYS("df ",  l[0] + "\n#inc@<QtCore>\n" + lmid(2));
+//    KEYS("j",    l[0] + "\n#inc<QtCore>\n#inc@lude <QtGui>\n" + lmid(3));
+//    KEYS(".",    l[0] + "\n#inc<QtCore>\n#inc@<QtGui>\n" + lmid(3));
+//    KEYS("u",    l[0] + "\n#inc<QtCore>\n#inc@lude <QtGui>\n" + lmid(3));
+//    KEYS("u",    l[0] + "\n#inc@lude <QtCore>\n" + lmid(2));
+}
+
+void FakeVimPlugin::test_vim_command_Cxx_down_dot()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("j4l",          l[0] + "\n#inc@lude <QtCore>\n" + lmid(2));
+//    KEYS("Cxx<Esc>", l[0] + "\n#incx@x\n" + lmid(2));
+//    KEYS("j",            l[0] + "\n#incxx\n#incl@ude <QtGui>\n" + lmid(3));
+//    KEYS(".",            l[0] + "\n#incxx\n#inclx@x\n" + lmid(3));
+}
+
+void FakeVimPlugin::test_vim_command_e()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("e",  "@#include <QtCore");
+//    KEYS("e",  "#includ@e <QtCore");
+//    KEYS("e",  "#include @<QtCore");
+//    KEYS("3e", "@#include <QtGui");
+//    KEYS("e",  "#includ@e <QtGui");
+//    KEYS("e",  "#include @<QtGui");
+//    KEYS("e",  "#include <QtGu@i");
+//    KEYS("4e", "int main@(int argc, char *argv[])");
+//    KEYS("e",  "int main(in@t argc, char *argv[])");
+//    KEYS("e",  "int main(int arg@c, char *argv[])");
+//    KEYS("e",  "int main(int argc@, char *argv[])");
+//    KEYS("e",  "int main(int argc, cha@r *argv[])");
+//    KEYS("e",  "int main(int argc, char @*argv[])");
+//    KEYS("e",  "int main(int argc, char *arg@v[])");
+//    KEYS("e",  "int main(int argc, char *argv[]@)");
+//    KEYS("e",  "@{");
+//    KEYS("10k","@\n"); // home.
+}
+
+void FakeVimPlugin::test_vim_command_i()
+{
+    TestData data;
+    setup(&data);
+
+//    // empty insertion at start of document
+//    KEYS("i<Esc>", "@" + lines);
+//    KEYS("u", "@" + lines);
+
+//    // small insertion at start of document
+//    KEYS("ix<Esc>", "@x" + lines);
+//    KEYS("u", "@" + lines);
+//    checkEx("redo", "@x" + lines);
+//    KEYS("u", "@" + lines);
+
+//    // small insertion at start of document
+//    KEYS("ixxx<Esc>", "xx@x" + lines);
+//    KEYS("u", "@" + lines);
+
+//    // combine insertions
+//    KEYS("i1<Esc>", "@1" + lines);
+//    KEYS("i2<Esc>", "@21" + lines);
+//    KEYS("i3<Esc>", "@321" + lines);
+//    KEYS("u",           "@21" + lines);
+//    KEYS("u",           "@1" + lines);
+//    KEYS("u",           "@" + lines);
+//    KEYS("ia<Esc>", "@a" + lines);
+//    KEYS("ibx<Esc>", "b@xa" + lines);
+//    KEYS("icyy<Esc>", "bcy@yxa" + lines);
+//    KEYS("u", "b@xa" + lines);
+//    KEYS("u", "@a" + lines);
+//    checkEx("redo", "b@xa" + lines);
+//    KEYS("u", "@a" + lines);
+}
+
+void FakeVimPlugin::test_vim_command_left()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("4j",  "@int main");
+//    KEYS("h",   "@int main"); // no move over left border
+//    KEYS("$",   "argv[]@)");
+//    KEYS("h",   "argv[@])");
+//    KEYS("3h",  "ar@gv[])");
+//    KEYS("50h", "@int main");
+}
+
+void FakeVimPlugin::test_vim_command_r()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("4j",   "@int main");
+//    KEYS("$",    "int main(int argc, char *argv[]@)");
+//    KEYS("rx",  lmid(0, 4) + "\nint main(int argc, char *argv[]@x\n" + lmid(5));
+//    KEYS("2h",  lmid(0, 4) + "\nint main(int argc, char *argv@[]x\n" + lmid(5));
+//    KEYS("4ra", lmid(0, 4) + "\nint main(int argc, char *argv@[]x\n" + lmid(5));
+//    KEYS("3rb", lmid(0, 4) + "\nint main(int argc, char *argvbb@b\n" + lmid(5));
+//    KEYS("2rc", lmid(0, 4) + "\nint main(int argc, char *argvbb@b\n" + lmid(5));
+//    KEYS("h2rc",lmid(0, 4) + "\nint main(int argc, char *argvbc@c\n" + lmid(5));
+}
+
+void FakeVimPlugin::test_vim_command_right()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("4j", "@int main");
+//    KEYS("l", "i@nt main");
+//    KEYS("3l", "int @main");
+//    KEYS("50l", "argv[]@)");
+}
+
+void FakeVimPlugin::test_vim_command_up()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("j", "@#include <QtCore");
+//    KEYS("3j", "@int main");
+//    KEYS("4j", "@    return app.exec()");
+}
+
+void FakeVimPlugin::test_vim_command_w()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("w",   "@#include <QtCore");
+//    KEYS("w",   "#@include <QtCore");
+//    KEYS("w",   "#include @<QtCore");
+//    KEYS("3w",  "@#include <QtGui");
+//    KEYS("w",   "#@include <QtGui");
+//    KEYS("w",   "#include @<QtGui");
+//    KEYS("w",   "#include <@QtGui");
+//    KEYS("4w",  "int @main(int argc, char *argv[])");
+//    KEYS("w",  "int main@(int argc, char *argv[])");
+//    KEYS("w",   "int main(@int argc, char *argv[])");
+//    KEYS("w",   "int main(int @argc, char *argv[])");
+//    KEYS("w",   "int main(int argc@, char *argv[])");
+//    KEYS("w",   "int main(int argc, @char *argv[])");
+//    KEYS("w",   "int main(int argc, char @*argv[])");
+//    KEYS("w",   "int main(int argc, char *@argv[])");
+//    KEYS("w",   "int main(int argc, char *argv@[])");
+//    KEYS("w",   "@{");
+}
+
+void FakeVimPlugin::test_vim_command_yyp()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("4j",   "@int main");
+//    KEYS("yyp", lmid(0, 4) + "\n" + lmid(4, 1) + "\n@" + lmid(4));
+}
+
+void FakeVimPlugin::test_vim_command_y_dollar()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("j",     "@" + l[1]);
+//    KEYS("$y$p", l[0]+"\n"+ l[1]+"@>\n" + lmid(2));
+//    KEYS("$y$p", l[0]+"\n"+ l[1]+">@>\n" + lmid(2));
+//    KEYS("$y$P", l[0]+"\n"+ l[1]+">@>>\n" + lmid(2));
+//    KEYS("$y$P", l[0]+"\n"+ l[1]+">>@>>\n" + lmid(2));
+}
+
+void FakeVimPlugin::test_vim_command_Yp()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("4j",   "@int main");
+//    KEYS("Yp", lmid(0, 4) + "\n" + lmid(4, 1) + "\n@" + lmid(4));
+}
+
+void FakeVimPlugin::test_vim_command_ma_yank()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("4j",   "@int main");
+//    KEYS("ygg", "@" + lmid(0));
+//    KEYS("4j",   "@int main");
+//    KEYS("p",    lmid(0,5) + "\n@" + lmid(0,4) +"\n" + lmid(4));
+
+//    TestData data;
+//    setup(&data);
+//    KEYS("ma", "@" + lmid(0));
+//    KEYS("4j",   "@int main");
+//    KEYS("mb", lmid(0,4) + "\n@" + lmid(4));
+//    KEYS("\"ay'a", "@" + lmid(0));
+//    KEYS("'b", lmid(0,4) + "\n@" + lmid(4));
+//    KEYS("\"ap", lmid(0,5) + "\n@" + lmid(0,4) +"\n" + lmid(4));
+}
+
+void FakeVimPlugin::test_vim_command_Gyyp()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("G",   lmid(0, l.size()-2) + "\n@" + lmid(l.size()-2));
+//    KEYS("yyp", lmid(0) + "@" + lmid(9, 1)+"\n");
+}
+
+void FakeVimPlugin::test_i_cw_i()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("j",                "@" + l[1]);
+//    KEYS("ixx<Esc>",    l[0] + "\nx@x" + lmid(1));
+//    KEYS("cwyy<Esc>",   l[0] + "\nxy@y" + lmid(1));
+//    KEYS("iaa<Esc>",    l[0] + "\nxya@ay" + lmid(1));
+}
+
+void FakeVimPlugin::test_vim_command_J()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("4j4l",   "int @main");
+
+//    KEYS("J", lmid(0, 5) + "@ " + lmid(5));
+//    KEYS("u", lmid(0, 4) + "\nint @main(int argc, char *argv[])\n" + lmid(5));
+//    checkEx("redo", lmid(0, 5) + "@ " + lmid(5));
+
+//    KEYS("3J", lmid(0, 5) + " " + lmid(5, 1) + " " + lmid(6, 1).mid(4) + "@ " + lmid(7));
+//    KEYS("uu", lmid(0, 4) + "\nint @main(int argc, char *argv[])\n" + lmid(5));
+//    checkEx("redo", lmid(0, 5) + "@ " + lmid(5));
+}
+
+void FakeVimPlugin::test_vim_command_put_at_eol()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("j$",               cursor(l[1], -1));
+//    KEYS("y$",              lmid(0,1)+"\n" + cursor(l[1], -1)+"\n" + lmid(2));
+//    KEYS("p",               lmid(0,2)+"@>\n" + lmid(2));
+//    KEYS("p",               lmid(0,2)+">@>\n" + lmid(2));
+//    KEYS("$",               lmid(0,2)+">@>\n" + lmid(2));
+//    KEYS("P",               lmid(0,2)+">@>>\n" + lmid(2));
+}
+
+void FakeVimPlugin::test_vim_command_oO()
+{
+    TestData data;
+    setup(&data);
+//    KEYS("gg",              "@" + lmid(0));
+//    KEYS("Ol1<Esc>",    "l@1\n" + lmid(0));
+//    KEYS("gg",              "@l1\n" + lmid(0));
+//    KEYS("ol2<Esc>",    "l1\n" "l@2\n" + lmid(0));
+//    KEYS("G",               "l1\n" "l2\n" + lmid(0,l.size()-2)+"\n" + "@"+lmid(l.size()-2));
+//    KEYS("G$",              "l1\n" "l2\n" + lmid(0,l.size()-2)+"\n" + "@"+lmid(l.size()-2));
+//    KEYS("ol-1<Esc>",   "l1\n" "l2\n" + lmid(0) + "l-@1\n");
+//    KEYS("G",               "l1\n" "l2\n" + lmid(0) + "@l-1\n");
+//    KEYS("Ol-2<Esc>",   "l1\n" "l2\n" + lmid(0) + "l-@2\n" + "l-1\n");
+}
+
+void FakeVimPlugin::test_vim_command_x()
+{
+    TestData data;
+    setup(&data);
+
+//    KEYS("x", "@" + lmid(0));
+//    KEYS("j$", cursor(l[1], -1));
+//    KEYS("x", lmid(0,1)+"\n" + l[1].left(l[1].length()-2)+"@"+l[1].mid(l[1].length()-2,1)+"\n" + lmid(2));
+}
+
+void FakeVimPlugin::test_vim_visual_d()
+{
+    TestData data;
+    setup(&data);
+
+//    KEYS("vd", "@" + lmid(0));
+//    KEYS("vx", "@" + lmid(0));
+//    KEYS("vjd", "@" + lmid(1).mid(1));
+//    KEYS("ugg", "@" + lmid(0)); // FIXME: cursor should be at begin of doc w/o gg
+//    KEYS("j", "@" + l[1]);
+//    KEYS("vd", lmid(0, 1)+"\n" + "@" + lmid(1).mid(1));
+//    KEYS("u", lmid(0, 1)+"\n" + "@" + lmid(1));
+//    KEYS("vx", lmid(0, 1)+"\n" + "@" + lmid(1).mid(1));
+//    KEYS("u", lmid(0, 1)+"\n" + "@" + lmid(1));
+//    KEYS("vhx", lmid(0, 1)+"\n" + "@" + lmid(1).mid(1));
+//    KEYS("u", lmid(0, 1)+"\n" + "@" + lmid(1));
+//    KEYS("vlx", lmid(0, 1)+"\n" + "@" + lmid(1).mid(2));
+//    KEYS("P", lmid(0, 1)+"\n" + lmid(1).left(1)+"@"+lmid(1).mid(1));
+//    KEYS("vhd", lmid(0, 1)+"\n" + "@" + lmid(1).mid(2));
+//    KEYS("u0", lmid(0, 1)+"\n" + "@" + lmid(1)); // FIXME: cursor should be at begin of line w/o 0
+//    qWarning("FIXME");
+//return;
+//    KEYS("v$d", lmid(0, 1)+"\n" + "@" + lmid(2));
+//    KEYS("v$od", lmid(0, 1)+"\n" + "@" + lmid(3));
+//    KEYS("$v$x", lmid(0, 1)+"\n" + lmid(3,1) + "@" + lmid(4));
+//    KEYS("0v$d", lmid(0, 1)+"\n" + "@" + lmid(5));
+//    KEYS("$v0d", lmid(0, 1)+"\n" + "@\n" + lmid(6));
+//    KEYS("v$o0k$d", lmid(0, 1)+"\n" + "@" + lmid(6).mid(1));
+}
+
+void FakeVimPlugin::test_vim_Visual_d()
+{
+    TestData data;
+    setup(&data);
+
+//    KEYS("Vd", "@" + lmid(1));
+//    KEYS("V2kd", "@" + lmid(2));
+//    KEYS("u", "@" + lmid(1));
+//    KEYS("u", "@" + lmid(0));
+//    KEYS("j", "@" + l[1]);
+//    KEYS("V$d", lmid(0,1)+"\n" + "@" + lmid(2));
+//    KEYS("$V$$d", lmid(0,1)+"\n" + "@" + lmid(3));
+//    KEYS("Vkx", "@" + lmid(4));
+//    KEYS("P", "@" + lmid(0,1)+"\n" + lmid(3));
+}
+
+
+//bool FakeVimPlugin::checkContentsHelper(QString want, const char* file, int line)
+//{
+//    QString got = EDITOR(toPlainText());
+//    int pos = EDITOR(textCursor().position());
+//    got = got.left(pos) + "@" + got.mid(pos);
+//    QStringList wantlist = want.split('\n');
+//    QStringList gotlist = got.split('\n');
+//    if (!QTest::qCompare(gotlist.size(), wantlist.size(), "", "", file, line)) {
+//        qDebug() << "0 WANT: " << want;
+//        qDebug() << "0 GOT: " << got;
+//        return false;
+//    }
+//    for (int i = 0; i < wantlist.size() && i < gotlist.size(); ++i) {
+//        QString g = QString("line %1: %2").arg(i + 1).arg(gotlist.at(i));
+//        QString w = QString("line %1: %2").arg(i + 1).arg(wantlist.at(i));
+//        if (!QTest::qCompare(g, w, "", "", file, line)) {
+//            qDebug() << "1 WANT: " << want;
+//            qDebug() << "1 GOT: " << got;
+//            return false;
+//        }
+//    }
+//    return true;
+//}
+
+//bool FakeVimPlugin::checkHelper(bool ex, QString cmd, QString expected,
+//    const char *file, int line)
+//{
+//    if (ex)
+//        data.doCommand((cmd);
+//    else
+//        send(cmd);
+//    return checkContentsHelper(expected, file, line);
+//}
+
+
+//#define checkContents(expected) \
+//    do { if (!checkContentsHelper(expected, __FILE__, __LINE__)) return; } while (0)
+
+//// Runs a "normal" command and checks the result.
+//// Cursor position is marked by a '@' in the expected contents.
+//#define check(cmd, expected) \
+//    do { if (!checkHelper(false, cmd, expected, __FILE__, __LINE__)) \
+//            return; } while (0)
+
+//#define move(cmd, expected) \
+//    do { if (!checkHelper(false, cmd, insertCursor(expected), __FILE__, __LINE__)) \
+//            return; } while (0)
+
+//// Runs an ex command and checks the result.
+//// Cursor position is marked by a '@' in the expected contents.
+//#define checkEx(cmd, expected) \
+//    do { if (!checkHelper(true, cmd, expected, __FILE__, __LINE__)) \
+//            return; } while (0)
+
+//QString FakeVimPlugin::insertCursor(const QString &needle0)
+//{
+//    QString needle = needle0;
+//    needle.remove('@');
+//    QString lines0 = lines;
+//    int pos = lines0.indexOf(needle);
+//    if (pos == -1)
+//        qDebug() << "Cannot find: \n----\n" + needle + "\n----\n";
+//    lines0.replace(pos, needle.size(), needle0);
+//    return lines0;
+//}
+
+//QString FakeVimPlugin::cursor(const QString &line, int pos)
+//{
+//    if (pos < 0)
+//        pos = line.length() + pos;
+
+//    return line.left(pos) + "@" + line.mid(pos);
+//}
