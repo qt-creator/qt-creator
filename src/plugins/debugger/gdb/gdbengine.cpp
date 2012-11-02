@@ -356,12 +356,7 @@ static inline QString msgWinException(const QByteArray &data)
     QString rc;
     QTextStream str(&rc);
     str << GdbEngine::tr("An exception was triggered: ");
-#ifdef Q_OS_WIN
     formatWindowsException(exCode, address, 0, 0, 0, str);
-#else
-    Q_UNUSED(exCode)
-    Q_UNUSED(address)
-#endif
     str << '.';
     return rc;
 }

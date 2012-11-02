@@ -145,25 +145,29 @@ void GdbTermEngine::setupInferior()
 void GdbTermEngine::handleStubAttached(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-#ifdef Q_OS_WIN
-    QString errorMessage;
-#endif // Q_OS_WIN
+
     switch (response.resultClass) {
     case GdbResultDone:
     case GdbResultRunning:
-#ifdef Q_OS_WIN
-        // Resume thread that was suspended by console stub process (see stub code).
-        if (winResumeThread(m_stubProc.applicationMainThreadID(), &errorMessage)) {
-            showMessage(QString::fromLatin1("Inferior attached, thread %1 resumed").
-                        arg(m_stubProc.applicationMainThreadID()), LogMisc);
+        if (startParameters().toolChainAbi.os() != ProjectExplorer::Abi::WindowsOS) {
+            showMessage(_("INFERIOR ATTACHED"));
         } else {
-            showMessage(QString::fromLatin1("Inferior attached, unable to resume thread %1: %2").
-                        arg(m_stubProc.applicationMainThreadID()).arg(errorMessage),
-                        LogWarning);
-        }
+            QString errorMessage;
+            // Resume thread that was suspended by console stub process (see stub code).
+#ifdef Q_OS_WIN
+            const qint64 mainThreadId = m_stubProc.applicationMainThreadID();
 #else
-        showMessage(_("INFERIOR ATTACHED"));
-#endif // Q_OS_WIN
+            const qint64 mainThreadId = -1;
+#endif
+            if (winResumeThread(mainThreadId, &errorMessage)) {
+                showMessage(QString::fromLatin1("Inferior attached, thread %1 resumed").
+                            arg(mainThreadId), LogMisc);
+            } else {
+                showMessage(QString::fromLatin1("Inferior attached, unable to resume thread %1: %2").
+                            arg(mainThreadId).arg(errorMessage),
+                            LogWarning);
+            }
+        }
         handleInferiorPrepared();
         break;
     case GdbResultError:

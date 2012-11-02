@@ -40,12 +40,8 @@ QT_END_NAMESPACE
 namespace Debugger {
 namespace Internal {
 
-#ifdef Q_OS_WIN
-
 // Resume a suspended thread by id.
 bool winResumeThread(unsigned long dwThreadId, QString *errorMessage);
-
-unsigned long winGetCurrentProcessId();
 
 bool isWinProcessBeingDebugged(unsigned long pid);
 
@@ -74,8 +70,6 @@ bool isFatalWinException(long code);
 
 // Check for EXCEPTION_BREAKPOINT, EXCEPTION_SINGLE_STEP
 bool isDebuggerWinException(unsigned long code);
-
-#endif // defined(Q_OS_WIN)
 
 } // namespace Internal
 } // namespace Debugger

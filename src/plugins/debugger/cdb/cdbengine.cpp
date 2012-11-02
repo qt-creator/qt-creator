@@ -2079,7 +2079,6 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
         WinException exception;
         exception.fromGdbMI(stopReason);
         QString description = exception.toString();
-#ifdef Q_OS_WIN
         // It is possible to hit on a startup trap or WOW86 exception while stepping (if something
         // pulls DLLs. Avoid showing a 'stopped' Message box.
         if (exception.exceptionCode == winExceptionStartupCompleteTrap
@@ -2099,7 +2098,6 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
             *message = msgInterrupted();
             return rc;
         }
-#endif
         *exceptionBoxMessage = msgStoppedByException(description, QString::number(threadId));
         *message = description;
         rc |= StopShowExceptionMessageBox|StopReportStatusMessage|StopNotifyStop;

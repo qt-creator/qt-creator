@@ -413,10 +413,8 @@ QString WinException::toString(bool includeLocation) const
 {
     QString rc;
     QTextStream str(&rc);
-#ifdef Q_OS_WIN
     formatWindowsException(exceptionCode, exceptionAddress,
                            exceptionFlags, info1, info2, str);
-#endif
     if (includeLocation) {
         if (lineNumber) {
             str << " at " << QLatin1String(file) << ':' << lineNumber;

@@ -82,11 +82,6 @@ bool winResumeThread(unsigned long dwThreadId, QString *errorMessage)
     return ok;
 }
 
-unsigned long winGetCurrentProcessId()
-{
-    return GetCurrentProcessId();
-}
-
 bool isWinProcessBeingDebugged(unsigned long pid)
 {
     HANDLE processHandle = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
@@ -228,7 +223,16 @@ bool isFatalWinException(long code)
     return true;
 }
 
-#endif // Q_OS_WIN
+#else // Q_OS_WIN
+
+bool winResumeThread(unsigned long, QString *) { return false; }
+bool isWinProcessBeingDebugged(unsigned long) { return false; }
+void formatWindowsException(unsigned long , quint64, unsigned long,
+                            quint64, quint64, QTextStream &) { }
+bool isFatalWinException(long) { return false; }
+bool isDebuggerWinException(unsigned long) { return false; }
+
+#endif // !Q_OS_WIN
 
 } // namespace Internal
 } // namespace Debugger

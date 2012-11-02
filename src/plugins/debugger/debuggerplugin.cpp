@@ -1692,14 +1692,15 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
         return;
     }
 
-    #ifdef Q_OS_WIN
-    if (isWinProcessBeingDebugged(process.pid)) {
+    bool isWindows = false;
+    if (const ProjectExplorer::ToolChain *tc = ToolChainKitInformation::toolChain(kit))
+        isWindows = tc->targetAbi().os() == ProjectExplorer::Abi::WindowsOS;
+    if (isWindows && isWinProcessBeingDebugged(process.pid)) {
         QMessageBox::warning(ICore::mainWindow(), tr("Process Already Under Debugger Control"),
                              tr("The process %1 is already under the control of a debugger.\n"
                                 "Qt Creator cannot attach to it.").arg(process.pid));
         return;
     }
-    #endif
 
     if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         DebuggerStartParameters sp;
