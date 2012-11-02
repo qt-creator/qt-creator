@@ -34,13 +34,15 @@
 
 #include <QDialog>
 
+QT_BEGIN_NAMESPACE
+class QListWidgetItem;
+QT_END_NAMESPACE
+
 namespace ExtensionSystem {
 
-class PluginManager;
-
 namespace Internal {
-class PluginErrorOverviewPrivate;
-}
+namespace Ui { class PluginErrorOverview; }
+} // namespace Internal
 
 class EXTENSIONSYSTEM_EXPORT PluginErrorOverview : public QDialog
 {
@@ -50,8 +52,11 @@ public:
     explicit PluginErrorOverview(QWidget *parent = 0);
     ~PluginErrorOverview();
 
+private slots:
+    void showDetails(QListWidgetItem *item);
+
 private:
-    Internal::PluginErrorOverviewPrivate *d;
+    Internal::Ui::PluginErrorOverview *m_ui;
 };
 
 } // ExtensionSystem

@@ -35,43 +35,12 @@
 Q_DECLARE_METATYPE(ExtensionSystem::PluginSpec*)
 
 namespace ExtensionSystem {
-namespace Internal {
-
-class PluginErrorOverviewPrivate : public QObject
-{
-    Q_OBJECT
-public:
-    PluginErrorOverviewPrivate(QDialog *dialog);
-    ~PluginErrorOverviewPrivate();
-
-private slots:
-    void showDetails(QListWidgetItem *item);
-
-private:
-    Ui::PluginErrorOverview *m_ui;
-};
-
-} // Internal
-} // ExtensionSystem
-
-using namespace ExtensionSystem;
-using namespace ExtensionSystem::Internal;
 
 PluginErrorOverview::PluginErrorOverview(QWidget *parent) :
     QDialog(parent),
-    d(new PluginErrorOverviewPrivate(this))
+    m_ui(new Internal::Ui::PluginErrorOverview)
 {
-}
-
-PluginErrorOverview::~PluginErrorOverview()
-{
-    delete d;
-}
-
-PluginErrorOverviewPrivate::PluginErrorOverviewPrivate(QDialog *dialog)
-    : m_ui(new Ui::PluginErrorOverview)
-{
-    m_ui->setupUi(dialog);
+    m_ui->setupUi(this);
     m_ui->buttonBox->addButton(tr("Continue"), QDialogButtonBox::AcceptRole);
 
     foreach (PluginSpec *spec, PluginManager::plugins()) {
@@ -90,12 +59,12 @@ PluginErrorOverviewPrivate::PluginErrorOverviewPrivate(QDialog *dialog)
         m_ui->pluginList->setCurrentRow(0);
 }
 
-PluginErrorOverviewPrivate::~PluginErrorOverviewPrivate()
+PluginErrorOverview::~PluginErrorOverview()
 {
     delete m_ui;
 }
 
-void PluginErrorOverviewPrivate::showDetails(QListWidgetItem *item)
+void PluginErrorOverview::showDetails(QListWidgetItem *item)
 {
     if (item) {
         PluginSpec *spec = item->data(Qt::UserRole).value<PluginSpec *>();
@@ -104,5 +73,7 @@ void PluginErrorOverviewPrivate::showDetails(QListWidgetItem *item)
         m_ui->pluginError->setText(QString());
     }
 }
+
+} // namespace ExtensionSystem
 
 #include "pluginerroroverview.moc"
