@@ -410,6 +410,8 @@
     you are debugging C++ or QML. Frequently used views are shown by
     default and rarely used ones are hidden. To change the default settings,
     select \gui {Window > Views}, and then select views to display or hide.
+    Alternatively, you can enable or disable views from the context menu
+    of the title bar of any visible debugger view.
 
     \image qtcreator-debugger-views.png "Debug mode views"
 
@@ -759,6 +761,20 @@
     for low-level commands for checking single instructions, such as \gui{Step Into}
     and \gui{Step Over}. By default, both \gui{Disassembler} and
     \gui{Registers} view are hidden.
+
+    \section2 Creating Snapshots
+
+    A snapshot contains the complete state of the debugged program
+    at a time, including the full memory contents.
+
+    To create snapshots of a debugged program, select \gui Create in the
+    context menu in the \gui Snapshot view.
+
+    Double-click on entries in the snapshot view to switch between
+    snapshots. The debugger views are updated to reflect the
+    state of the program at time of taking the snapshot.
+
+    By default, the \gui{Snapshots} view is hidden.
 
 */
 
