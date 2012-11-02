@@ -98,8 +98,6 @@ public:
 
     QVariantMap toMap() const;
 
-    ProjectExplorer::IOutputParser *createOutputParser() const;
-
     virtual bool isEnabled() const;
     virtual QString disabledReason() const;
     /// \internal For Qt4Project, since that manages the parsing information

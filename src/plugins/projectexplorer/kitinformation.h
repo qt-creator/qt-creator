@@ -112,6 +112,7 @@ public:
     ItemList toUserOutput(Kit *k) const;
 
     void addToEnvironment(const Kit *k, Utils::Environment &env) const;
+    IOutputParser *createOutputParser(const Kit *k) const;
 
     static ToolChain *toolChain(const Kit *k);
     static void setToolChain(Kit *k, ToolChain *tc);

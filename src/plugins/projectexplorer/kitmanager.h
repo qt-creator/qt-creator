@@ -43,6 +43,7 @@
 namespace Utils { class Environment; }
 
 namespace ProjectExplorer {
+class IOutputParser;
 class Kit;
 class KitConfigWidget;
 
@@ -82,6 +83,7 @@ public:
     virtual KitConfigWidget *createConfigWidget(Kit *) const = 0;
 
     virtual void addToEnvironment(const Kit *k, Utils::Environment &env) const;
+    virtual IOutputParser *createOutputParser(const Kit *k) const;
 
     virtual QString displayNamePostfix(const Kit *k) const;
 

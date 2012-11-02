@@ -34,6 +34,7 @@
 #include "kitmanager.h"
 #include "project.h"
 #include "toolchainmanager.h"
+#include "ioutputparser.h"
 
 #include <utils/qtcassert.h>
 
@@ -361,6 +362,23 @@ void Kit::addToEnvironment(Utils::Environment &env) const
     QList<KitInformation *> infoList = KitManager::instance()->kitInformation();
     foreach (KitInformation *ki, infoList)
         ki->addToEnvironment(this, env);
+}
+
+IOutputParser *Kit::createOutputParser() const
+{
+    IOutputParser *last = 0;
+    IOutputParser *first = 0;
+    QList<KitInformation *> infoList = KitManager::instance()->kitInformation();
+    foreach (KitInformation *ki, infoList) {
+        IOutputParser *next = ki->createOutputParser(this);
+        if (!first)
+            first = next;
+        if (last && next)
+            last->appendOutputParser(next);
+        if (next)
+            last = next;
+    }
+    return first;
 }
 
 QString Kit::toHtml()

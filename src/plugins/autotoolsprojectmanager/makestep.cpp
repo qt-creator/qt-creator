@@ -192,11 +192,9 @@ bool MakeStep::init()
     pp->setArguments(arguments);
 
     setOutputParser(new GnuMakeParser());
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    if (version)
-        appendOutputParser(new QtSupport::QtParser);
-    if (tc)
-        appendOutputParser(tc->outputParser());
+    IOutputParser *parser = target()->kit()->createOutputParser();
+    if (parser)
+        appendOutputParser(parser);
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
     return AbstractProcessStep::init();

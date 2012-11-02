@@ -32,6 +32,7 @@
 #include "qtkitconfigwidget.h"
 #include "qtsupportconstants.h"
 #include "qtversionmanager.h"
+#include "qtparser.h"
 
 #include <utils/environment.h>
 
@@ -124,6 +125,13 @@ void QtKitInformation::addToEnvironment(const ProjectExplorer::Kit *k, Utils::En
     BaseQtVersion *version = qtVersion(k);
     if (version)
         version->addToEnvironment(k, env);
+}
+
+ProjectExplorer::IOutputParser *QtKitInformation::createOutputParser(const ProjectExplorer::Kit *k) const
+{
+    if (qtVersion(k))
+        return new QtParser;
+    return 0;
 }
 
 int QtKitInformation::qtVersionId(const ProjectExplorer::Kit *k)

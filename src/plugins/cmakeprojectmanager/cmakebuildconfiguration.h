@@ -58,8 +58,6 @@ public:
 
     QVariantMap toMap() const;
 
-    ProjectExplorer::IOutputParser *createOutputParser() const;
-
     BuildType buildType() const;
 
     bool useNinja() const;

@@ -61,6 +61,7 @@ public:
     ItemList toUserOutput(ProjectExplorer::Kit *k) const;
 
     void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
+    ProjectExplorer::IOutputParser *createOutputParser(const ProjectExplorer::Kit *k) const;
 
     static int qtVersionId(const ProjectExplorer::Kit *k);
     static void setQtVersionId(ProjectExplorer::Kit *k, const int id);

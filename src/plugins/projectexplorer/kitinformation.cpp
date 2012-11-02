@@ -207,6 +207,14 @@ void ToolChainKitInformation::addToEnvironment(const Kit *k, Utils::Environment 
         tc->addToEnvironment(env);
 }
 
+IOutputParser *ToolChainKitInformation::createOutputParser(const Kit *k) const
+{
+    ToolChain *tc = toolChain(k);
+    if (tc)
+        return tc->outputParser();
+    return 0;
+}
+
 ToolChain *ToolChainKitInformation::toolChain(const Kit *k)
 {
     if (!k)

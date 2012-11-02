@@ -33,6 +33,7 @@
 #include "buildconfiguration.h"
 #include "projectexplorerconstants.h"
 #include "target.h"
+#include "kit.h"
 
 #include <coreplugin/idocument.h>
 #include <utils/qtcprocess.h>
@@ -95,7 +96,9 @@ bool ProcessStep::init()
     pp->setWorkingDirectory(workingDirectory());
     pp->setCommand(m_command);
     pp->setArguments(m_arguments);
-    setOutputParser(bc->createOutputParser());
+    IOutputParser *parser = target()->kit()->createOutputParser();
+    if (parser)
+        setOutputParser(parser);
     return AbstractProcessStep::init();
 }
 

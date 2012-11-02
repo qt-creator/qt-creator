@@ -538,12 +538,6 @@ FileName Qt4BuildConfiguration::extractSpecFromArguments(QString *args,
     return parsedSpec;
 }
 
-IOutputParser *Qt4BuildConfiguration::createOutputParser() const
-{
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
-    return tc ? tc->outputParser() : 0;
-}
-
 bool Qt4BuildConfiguration::isEnabled() const
 {
     return m_isEnabled;

@@ -53,7 +53,6 @@ public:
     QString buildDirectory() const;
     void setBuildDirectory(const QString &buildDirectory);
     QVariantMap toMap() const;
-    ProjectExplorer::IOutputParser *createOutputParser() const;
     BuildType buildType() const;
 
 protected:

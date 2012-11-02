@@ -110,12 +110,6 @@ BuildConfigWidget *GenericBuildConfiguration::createConfigWidget()
     return new GenericBuildSettingsWidget;
 }
 
-IOutputParser *GenericBuildConfiguration::createOutputParser() const
-{
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
-    return tc ? tc->outputParser() : 0;
-}
-
 
 /*!
   \class GenericBuildConfigurationFactory

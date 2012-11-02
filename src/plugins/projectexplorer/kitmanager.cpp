@@ -454,6 +454,12 @@ void KitInformation::addToEnvironment(const Kit *k, Utils::Environment &env) con
     Q_UNUSED(env);
 }
 
+IOutputParser *KitInformation::createOutputParser(const Kit *k) const
+{
+    Q_UNUSED(k);
+    return 0;
+}
+
 QString KitInformation::displayNamePostfix(const Kit *k) const
 {
     Q_UNUSED(k);

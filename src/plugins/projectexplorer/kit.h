@@ -40,6 +40,7 @@
 namespace Utils { class Environment; }
 
 namespace ProjectExplorer {
+class IOutputParser;
 
 namespace Internal {
 class KitManagerPrivate;
@@ -88,6 +89,7 @@ public:
     bool isEqual(const Kit *other) const;
 
     void addToEnvironment(Utils::Environment &env) const;
+    IOutputParser *createOutputParser() const;
 
     QString toHtml();
     Kit *clone(bool keepName = false) const;

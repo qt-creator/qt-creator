@@ -125,20 +125,6 @@ void CMakeBuildConfiguration::setBuildDirectory(const QString &buildDirectory)
     emit environmentChanged();
 }
 
-ProjectExplorer::IOutputParser *CMakeBuildConfiguration::createOutputParser() const
-{
-    ProjectExplorer::IOutputParser *parserchain = new ProjectExplorer::GnuMakeParser;
-
-    int versionId = QtSupport::QtKitInformation::qtVersionId(target()->kit());
-    if (versionId >= 0)
-        parserchain->appendOutputParser(new QtSupport::QtParser);
-
-    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
-    if (tc)
-        parserchain->appendOutputParser(tc->outputParser());
-    return parserchain;
-}
-
 /*!
   \class CMakeBuildConfigurationFactory
 */

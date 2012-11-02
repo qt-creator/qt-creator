@@ -1162,11 +1162,6 @@ BaseQtVersion::reportIssues(const QString &proFile, const QString &buildDir) con
     return results;
 }
 
-ProjectExplorer::IOutputParser *BaseQtVersion::createOutputParser() const
-{
-    return new ProjectExplorer::GnuMakeParser;
-}
-
 QtConfigWidget *BaseQtVersion::createConfigurationWidget() const
 {
     return 0;

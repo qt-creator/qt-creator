@@ -112,14 +112,6 @@ void AutotoolsBuildConfiguration::setBuildDirectory(const QString &buildDirector
     emit buildDirectoryChanged();
 }
 
-IOutputParser *AutotoolsBuildConfiguration::createOutputParser() const
-{
-    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
-    if (tc)
-        return tc->outputParser();
-    return 0;
-}
-
 //////////////////////////////////////
 // AutotoolsBuildConfiguration class
 //////////////////////////////////////

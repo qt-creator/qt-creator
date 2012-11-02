@@ -185,8 +185,6 @@ public:
     ///         warnings and finally info items.
     QList<ProjectExplorer::Task> reportIssues(const QString &proFile, const QString &buildDir) const;
 
-    virtual ProjectExplorer::IOutputParser *createOutputParser() const;
-
     static bool queryQMakeVariables(const Utils::FileName &binary, QHash<QString, QString> *versionInfo);
     static bool queryQMakeVariables(const Utils::FileName &binary, QHash<QString, QString> *versionInfo, bool *qmakeIsExecutable);
     static Utils::FileName mkspecDirectoryFromVersionInfo(const QHash<QString, QString> &versionInfo);
