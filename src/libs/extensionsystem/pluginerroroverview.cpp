@@ -75,5 +75,3 @@ void PluginErrorOverview::showDetails(QListWidgetItem *item)
 }
 
 } // namespace ExtensionSystem
-
-#include "pluginerroroverview.moc"
