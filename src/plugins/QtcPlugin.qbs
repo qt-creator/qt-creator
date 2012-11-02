@@ -28,7 +28,7 @@ Product {
     }
 
     cpp.defines: Defaults.defines(qbs).concat([name.toUpperCase() + "_LIBRARY"])
-    cpp.rpaths: ["$ORIGIN/../../.."]
+    cpp.rpaths: ["$ORIGIN/../.."]
     cpp.linkerFlags: {
         if (qbs.buildVariant == "release" && (qbs.toolchain == "gcc" || qbs.toolchain == "mingw"))
             return ["-Wl,-s"]
