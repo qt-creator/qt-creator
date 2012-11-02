@@ -17,7 +17,7 @@ def main():
     test.log("Collecting potential project types...")
     availableProjectTypes = []
     invokeMenuItem("File", "New File or Project...")
-    categoriesView = waitForObject(":New.templateCategoryView_QTreeView", 20000)
+    categoriesView = waitForObject(":New.templateCategoryView_QTreeView")
     catModel = categoriesView.model()
     projects = catModel.index(0, 0)
     test.compare("Projects", str(projects.data()))
@@ -29,7 +29,7 @@ def main():
         if "Import" in category or "Non-Qt" in category:
             continue
         clickItem(categoriesView, "Projects." + category, 5, 5, 0, Qt.LeftButton)
-        templatesView = waitForObject("{name='templatesView' type='QListView' visible='1'}", 20000)
+        templatesView = waitForObject("{name='templatesView' type='QListView' visible='1'}")
         # needed because categoriesView and templatesView using same model
         for template in dumpItems(templatesView.model(), templatesView.rootIndex()):
             template = template.replace(".", "\\.")
@@ -37,21 +37,21 @@ def main():
             if "Qt Quick UI" in template or "Plain C" in template:
                 continue
             availableProjectTypes.append({category:template})
-    clickButton(waitForObject("{text='Cancel' type='QPushButton' unnamed='1' visible='1'}", 20000))
+    clickButton(waitForObject("{text='Cancel' type='QPushButton' unnamed='1' visible='1'}"))
     for current in availableProjectTypes:
         category = current.keys()[0]
         template = current.values()[0]
         invokeMenuItem("File", "New File or Project...")
-        categoriesView = waitForObject(":New.templateCategoryView_QTreeView", 20000)
+        categoriesView = waitForObject(":New.templateCategoryView_QTreeView")
         clickItem(categoriesView, "Projects." + category, 5, 5, 0, Qt.LeftButton)
-        templatesView = waitForObject("{name='templatesView' type='QListView' visible='1'}", 20000)
+        templatesView = waitForObject("{name='templatesView' type='QListView' visible='1'}")
         test.log("Verifying '%s' -> '%s'" % (category.replace("\\.", "."), template.replace("\\.", ".")))
         textChanged = False
         clickItem(templatesView, template, 5, 5, 0, Qt.LeftButton)
         waitFor("textChanged", 2000)
         text = waitForObject(":frame.templateDescription_QTextBrowser").plainText
         displayedPlatforms, requiredVersion = __getSupportedPlatforms__(str(text), True)
-        clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
+        clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}"))
         # don't check because project could exist
         __createProjectSetNameAndPath__(os.path.expanduser("~"), 'untitled', False)
         try:
@@ -60,7 +60,7 @@ def main():
         except LookupError:
             try:
                 waitForObject("{text='Select Existing QML file' type='QLabel' visible='1'}", 1000)
-                baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
+                baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}")
                 type(baseLineEd, os.path.join(templateDir, qmlFile))
                 clickButton(waitForObject(":Next_QPushButton"))
             except LookupError:

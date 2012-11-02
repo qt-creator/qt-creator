@@ -31,7 +31,7 @@ def main():
     # Rely on code completion for closing bracket
     invokeMenuItem("File", "Save All")
     selectFromLocator(project + ".pro")
-    proEditor = waitForObject(":Qt Creator_ProFileEditorWidget", 20000)
+    proEditor = waitForObject(":Qt Creator_ProFileEditorWidget")
     test.verify("CONFIG   += console" in str(proEditor.plainText), "Verifying that program is configured with console")
     setRunInTerminal(1, 0, False)
 
@@ -44,11 +44,11 @@ def main():
 
         test.log("Running application")
         runControlFinished = False
-        clickButton(waitForObject("{type='Core::Internal::FancyToolButton' text='Run' visible='1'}", 20000))
+        clickButton(waitForObject("{type='Core::Internal::FancyToolButton' text='Run' visible='1'}"))
         waitFor("runControlFinished==True", 20000)
         if not runControlFinished:
             test.warning("Waiting for runControlFinished timed out")
-        appOutput = str(waitForObject("{type='Core::OutputWindow' unnamed='1' visible='1'}", 20000).plainText)
+        appOutput = str(waitForObject("{type='Core::OutputWindow' unnamed='1' visible='1'}").plainText)
         verifyOutput(appOutput, outputStdOut, "std::cout", "Application Output")
         verifyOutput(appOutput, outputStdErr, "std::cerr", "Application Output")
         verifyOutput(appOutput, outputQDebug, "qDebug()", "Application Output")
@@ -78,7 +78,7 @@ def main():
             else:
                 test.fatal("Debugger log did not behave as expected. Please check manually.")
         switchViewTo(ViewConstants.EDIT)
-        appOutput = str(waitForObject("{type='Core::OutputWindow' unnamed='1' visible='1'}", 20000).plainText)
+        appOutput = str(waitForObject("{type='Core::OutputWindow' unnamed='1' visible='1'}").plainText)
         if not "MSVC" in config:
             verifyOutput(appOutput, outputStdOut, "std::cout", "Application Output")
             verifyOutput(appOutput, outputStdErr, "std::cerr", "Application Output")

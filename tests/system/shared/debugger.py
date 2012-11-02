@@ -19,7 +19,7 @@ def handleDebuggerWarnings(config):
             pass # No warning. Fine.
     else:
         if "Release" in config and not platform.system() in ("Darwin", "Microsoft", "Windows"):
-            message = waitForObject("{container=':Qt Creator.DebugModeWidget_QSplitter' name='qt_msgbox_label' type='QLabel' visible='1'}", 20000)
+            message = waitForObject("{container=':Qt Creator.DebugModeWidget_QSplitter' name='qt_msgbox_label' type='QLabel' visible='1'}")
             messageText = str(message.text)
             test.verify(messageText.startswith('This does not seem to be a "Debug" build.\nSetting breakpoints by file name and line number may fail.'),
                         "Got warning: %s" % messageText)
@@ -27,7 +27,7 @@ def handleDebuggerWarnings(config):
 
 def takeDebuggerLog():
     invokeMenuItem("Window", "Views", "Debugger Log")
-    debuggerLogWindow = waitForObject("{container=':DebugModeWidget.Debugger Log_QDockWidget' type='Debugger::Internal::CombinedPane' unnamed='1' visible='1'}", 20000)
+    debuggerLogWindow = waitForObject("{container=':DebugModeWidget.Debugger Log_QDockWidget' type='Debugger::Internal::CombinedPane' unnamed='1' visible='1'}")
     debuggerLog = str(debuggerLogWindow.plainText)
     mouseClick(debuggerLogWindow, 5, 5, 0, Qt.LeftButton)
     activateItem(waitForObjectItem(openContextMenuOnTextCursorPosition(debuggerLogWindow),
@@ -58,7 +58,7 @@ def setBreakpointsForCurrentProject(filesAndLines):
         test.fatal("This function only takes a non-empty list/tuple holding dicts.")
         return False
     navTree = waitForObject("{type='Utils::NavigationTreeView' unnamed='1' visible='1' "
-                            "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
+                            "window=':Qt Creator_Core::Internal::MainWindow'}")
     for current in filesAndLines:
         for curFile,curLine in current.iteritems():
             fName = __doubleClickFile__(navTree, curFile)
@@ -180,7 +180,7 @@ def __startDebugger__(config):
 def __stopDebugger__():
     clickButton(waitForObject(":Debugger Toolbar.Exit Debugger_QToolButton"))
     ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
-    output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}", 20000)
+    output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}")
     waitFor("'Debugging has finished' in str(output.plainText)", 20000)
     return __logDebugResult__()
 

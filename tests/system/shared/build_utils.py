@@ -68,7 +68,7 @@ def checkLastBuild(expectedToFail=False):
         test.fail("Errors: %s | Warnings: %s" % (errors, warnings))
     # additional stuff - could be removed... or improved :)
     ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton")
-    list=waitForObject(":Qt Creator.Issues_QListView", 20000)
+    list=waitForObject(":Qt Creator.Issues_QListView")
     model = list.model()
     test.log("Rows inside issues: %d" % model.rowCount())
     if gotErrors and createTasksFileOnError:
@@ -78,7 +78,7 @@ def checkLastBuild(expectedToFail=False):
 # helper function to check the compilation when build wasn't successful
 def checkCompile():
     ensureChecked(":Qt Creator_CompileOutput_Core::Internal::OutputPaneToggleButton")
-    output = waitForObject(":Qt Creator.Compile Output_Core::OutputWindow", 20000)
+    output = waitForObject(":Qt Creator.Compile Output_Core::OutputWindow")
     waitFor("len(str(output.plainText))>0",5000)
     success = str(output.plainText).endswith("exited normally.")
     if success:
@@ -141,7 +141,7 @@ def iterateBuildConfigs(kitCount, filter = ""):
     configs = []
     for currentKit in range(kitCount):
         switchToBuildOrRunSettingsFor(kitCount, currentKit, ProjectSettings.BUILD)
-        model = waitForObject(":scrollArea.Edit build configuration:_QComboBox", 20000).model()
+        model = waitForObject(":scrollArea.Edit build configuration:_QComboBox").model()
         prog = re.compile(filter)
         # for each row in the model, write its data to a list
         configNames = dumpItems(model)

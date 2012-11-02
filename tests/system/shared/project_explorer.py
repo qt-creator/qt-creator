@@ -41,7 +41,7 @@ def prepareBuildSettings(targetCount, currentTarget, setReleaseBuild=True, disab
             else:
                 chooseThis = "Debug"
             editBuildCfg = waitForObject("{leftWidget={text='Edit build configuration:' type='QLabel' "
-                                         "unnamed='1' visible='1'} unnamed='1' type='QComboBox' visible='1'}", 20000)
+                                         "unnamed='1' visible='1'} unnamed='1' type='QComboBox' visible='1'}")
             selectFromCombo(editBuildCfg, chooseThis)
             ensureChecked("{name='shadowBuildCheckBox' type='QCheckBox' visible='1'}", not disableShadowBuild)
     # get back to the current target
