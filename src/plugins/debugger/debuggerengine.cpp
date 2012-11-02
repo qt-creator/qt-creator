@@ -1929,8 +1929,12 @@ TaskHub *DebuggerEnginePrivate::taskHub()
 {
     if (!m_taskHub) {
         m_taskHub = ProjectExplorerPlugin::instance()->taskHub();
-        m_taskHub->addCategory(Core::Id("Debuginfo"), tr("Debug Information"));
-        m_taskHub->addCategory(Core::Id("DebuggerTest"), tr("Debugger Test"));
+        m_taskHub->addCategory(Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO),
+                               tr("Debug Information"));
+        m_taskHub->addCategory(Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_TEST),
+                               tr("Debugger Test"));
+        m_taskHub->addCategory(Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME),
+                               tr("Debugger Runtime"));
     }
     return m_taskHub;
 }

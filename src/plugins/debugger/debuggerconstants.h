@@ -75,6 +75,10 @@ const char DOCKWIDGET_WATCHERS[]     = "Debugger.Docks.LocalsAndWatchers";
 
 const char DOCKWIDGET_QML_INSPECTOR[]     = "Debugger.Docks.QmlInspector";
 const char DOCKWIDGET_DEFAULT_AREA[]      = "Debugger.Docks.DefaultArea";
+
+const char TASK_CATEGORY_DEBUGGER_TEST[]      = "DebuggerTest";
+const char TASK_CATEGORY_DEBUGGER_DEBUGINFO[] = "Debuginfo";
+const char TASK_CATEGORY_DEBUGGER_RUNTIME[]   = "DebugRuntime";
 } // namespace Constants
 
 enum DebuggerState

@@ -62,6 +62,8 @@
 #include <texteditor/itexteditor.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/task.h>
+#include <projectexplorer/taskhub.h>
 
 #include <utils/synchronousprocess.h>
 #include <utils/winutils.h>
@@ -2380,10 +2382,20 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
         exception.fromGdbMI(gdbmi);
         const QString message = exception.toString(true);
         showStatusMessage(message);
-#ifdef Q_OS_WIN // Report C++ exception in application output as well.
+        // Report C++ exception in application output as well.
         if (exception.exceptionCode == winExceptionCppException)
             showMessage(message + QLatin1Char('\n'), AppOutput);
-#endif
+        if (!isDebuggerWinException(exception.exceptionCode)) {
+            const Task::TaskType type =
+                    isFatalWinException(exception.exceptionCode) ? Task::Error : Task::Warning;
+            const Utils::FileName fileName = exception.file.isEmpty() ?
+                        Utils::FileName() :
+                        Utils::FileName::fromUserInput(QString::fromLocal8Bit(exception.file));
+            const Task task(type, exception.toString(false),
+                            fileName, exception.lineNumber,
+                            Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME));
+            taskHub()->addTask(task);
+        }
         return;
     }
 

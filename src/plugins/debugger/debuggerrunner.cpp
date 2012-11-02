@@ -53,6 +53,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 
 #include <utils/outputformat.h>
@@ -596,6 +597,12 @@ DebuggerRunControl *DebuggerRunControlFactory::doCreate
     (const DebuggerStartParameters &sp0, RunConfiguration *rc, QString *errorMessage)
 {
     Q_UNUSED(errorMessage);
+
+    TaskHub *th = ProjectExplorerPlugin::instance()->taskHub();
+    th->clearTasks(Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO));
+    th->clearTasks(Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_TEST));
+    th->clearTasks(Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME));
+
     DebuggerStartParameters sp = sp0;
     if (!debuggerCore()->boolSetting(AutoEnrichParameters)) {
         const QString sysroot = sp.sysRoot;

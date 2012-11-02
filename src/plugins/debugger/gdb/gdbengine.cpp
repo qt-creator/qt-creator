@@ -344,14 +344,18 @@ static void dump(const char *first, const char *middle, const QString & to)
 
 // Parse "~:gdb: unknown target exception 0xc0000139 at 0x77bef04e\n"
 // and return an exception message
-static inline QString msgWinException(const QByteArray &data)
+static inline QString msgWinException(const QByteArray &data, unsigned *exCodeIn = 0)
 {
+    if (exCodeIn)
+        *exCodeIn = 0;
     const int exCodePos = data.indexOf("0x");
     const int blankPos = exCodePos != -1 ? data.indexOf(' ', exCodePos + 1) : -1;
     const int addressPos = blankPos != -1 ? data.indexOf("0x", blankPos + 1) : -1;
     if (addressPos < 0)
         return GdbEngine::tr("An exception was triggered.");
     const unsigned exCode = data.mid(exCodePos, blankPos - exCodePos).toUInt(0, 0);
+    if (exCodeIn)
+        *exCodeIn = exCode;
     const quint64 address = data.mid(addressPos).trimmed().toULongLong(0, 0);
     QString rc;
     QTextStream str(&rc);
@@ -692,8 +696,13 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // [Windows, most likely some DLL/Entry point not found]:
                 // "gdb: unknown target exception 0xc0000139 at 0x77bef04e"
                 // This may be fatal and cause the target to exit later
-                m_lastWinException = msgWinException(data);
+                unsigned exCode;
+                m_lastWinException = msgWinException(data, &exCode);
                 showMessage(m_lastWinException, LogMisc);
+                const Task::TaskType type = isFatalWinException(exCode) ? Task::Error : Task::Warning;
+                const Task task(type, m_lastWinException, Utils::FileName(), 0,
+                                Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME));
+                taskHub()->addTask(task);
             }
 
             if (data.startsWith("QMLBP:")) {
@@ -735,7 +744,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 Task task(Task::Warning,
                     tr("Missing debug information for %1\nTry: %2")
                         .arg(m_lastMissingDebugInfo).arg(cmd),
-                    FileName(), 0, Core::Id("Debuginfo"));
+                    FileName(), 0, Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO));
 
                 taskHub()->addTask(task);
 
