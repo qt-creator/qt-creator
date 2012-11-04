@@ -616,6 +616,10 @@ void FakeVimPlugin::test_vim_delete_inner_word()
     KEYS("3diw", "x" N X "" N "  ");
     data.setText("x" N X "" N "" N "" N "" N "" N "" N "  ");
     KEYS("4diw", "x" N X "" N "  ");
+
+    // delete single-character-word
+    data.setText("a " X "b c");
+    KEYS("diw", "a " X " c");
 }
 
 void FakeVimPlugin::test_vim_delete_a_word()
@@ -662,6 +666,10 @@ void FakeVimPlugin::test_vim_delete_a_word()
     KEYS("2daw", "x" N X "" N "  ");
     data.setText("x" N X "" N "" N "" N "" N "" N "" N "  ");
     KEYS("3daw", "x" N " " X " ");
+
+    // delete single-character-word
+    data.setText("a," X "b,c");
+    KEYS("daw", "a," X ",c");
 }
 
 void FakeVimPlugin::test_vim_change_a_word()
@@ -689,6 +697,11 @@ void FakeVimPlugin::test_vim_change_a_word()
 
     data.setText(" abc  " N "  def" N "  ghi" N " jkl");
     KEYS("3caw#", "#" X N " jkl");
+
+    // change single-character-word
+    data.setText("a " X "b c");
+    KEYS("ciwX<esc>", "a " X "X c");
+    KEYS("cawZ<esc>", "a " X "Zc");
 }
 
 void FakeVimPlugin::test_vim_change_replace()

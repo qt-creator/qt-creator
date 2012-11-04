@@ -1423,9 +1423,10 @@ public:
     void selectWORDTextObject(bool inner);
     void selectSentenceTextObject(bool inner);
     void selectParagraphTextObject(bool inner);
-    void selectBlockTextObject(bool inner, char left, char right);
     void changeNumberTextObject(int count);
-    void selectQuotedStringTextObject(bool inner, const QString &quote);
+    // return true only if cursor is in a block delimited with correct characters
+    bool selectBlockTextObject(bool inner, char left, char right);
+    bool selectQuotedStringTextObject(bool inner, const QString &quote);
 
     Q_SLOT void importSelection();
     void exportSelection();
@@ -2636,6 +2637,7 @@ EventResult FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
                            .arg(m_semicolonKey));
         }
     } else if (m_subsubmode == TextObjectSubSubMode) {
+        bool ok = true;
         if (input.is('w'))
             selectWordTextObject(m_subsubdata.is('i'));
         else if (input.is('W'))
@@ -2645,17 +2647,17 @@ EventResult FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
         else if (input.is('p'))
             selectParagraphTextObject(m_subsubdata.is('i'));
         else if (input.is('[') || input.is(']'))
-            selectBlockTextObject(m_subsubdata.is('i'), '[', ']');
+            ok = selectBlockTextObject(m_subsubdata.is('i'), '[', ']');
         else if (input.is('(') || input.is(')') || input.is('b'))
-            selectBlockTextObject(m_subsubdata.is('i'), '(', ')');
+            ok = selectBlockTextObject(m_subsubdata.is('i'), '(', ')');
         else if (input.is('<') || input.is('>'))
-            selectBlockTextObject(m_subsubdata.is('i'), '<', '>');
+            ok = selectBlockTextObject(m_subsubdata.is('i'), '<', '>');
         else if (input.is('{') || input.is('}') || input.is('B'))
-            selectBlockTextObject(m_subsubdata.is('i'), '{', '}');
+            ok = selectBlockTextObject(m_subsubdata.is('i'), '{', '}');
         else if (input.is('"') || input.is('\'') || input.is('`'))
-            selectQuotedStringTextObject(m_subsubdata.is('i'), input.asChar());
+            ok = selectQuotedStringTextObject(m_subsubdata.is('i'), input.asChar());
         m_subsubmode = NoSubSubMode;
-        if (cursor().hasSelection()) {
+        if (ok) {
             finishMovement(QString("%1%2%3")
                            .arg(count())
                            .arg(m_subsubdata.text())
@@ -6445,7 +6447,7 @@ void FakeVimHandler::Private::selectParagraphTextObject(bool inner)
     Q_UNUSED(inner);
 }
 
-void FakeVimHandler::Private::selectBlockTextObject(bool inner,
+bool FakeVimHandler::Private::selectBlockTextObject(bool inner,
     char left, char right)
 {
     QString sleft = QString(QLatin1Char(left));
@@ -6453,21 +6455,22 @@ void FakeVimHandler::Private::selectBlockTextObject(bool inner,
 
     int p1 = blockBoundary(sleft, sright, false, count());
     if (p1 == -1)
-        return;
+        return false;
 
     int p2 = blockBoundary(sleft, sright, true, count());
     if (p2 == -1)
-        return;
+        return false;
 
     if (inner) {
         p1 += sleft.size();
-        p2 = qMax(p1, p2 - 1);
     } else {
-        p2 -= sright.size() - 1;
+        p2 -= sright.size() - 2;
     }
 
     setAnchorAndPosition(p1, p2);
-    m_movetype = MoveInclusive;
+    m_movetype = MoveExclusive;
+
+    return true;
 }
 
 static bool isSign(const QChar c)
@@ -6506,7 +6509,7 @@ void FakeVimHandler::Private::changeNumberTextObject(int count)
     setPosition(p1 + repl.size() - 1);
 }
 
-void FakeVimHandler::Private::selectQuotedStringTextObject(bool inner,
+bool FakeVimHandler::Private::selectQuotedStringTextObject(bool inner,
     const QString &quote)
 {
     QTextCursor tc = cursor();
@@ -6517,25 +6520,27 @@ void FakeVimHandler::Private::selectQuotedStringTextObject(bool inner,
     while (tc2 <= tc) {
         tc1 = document()->find(quote, tc2);
         if (tc1.isNull() || tc1.anchor() > tc.position())
-            return;
+            return false;
         tc2 = document()->find(quote, tc1);
         if (tc2.isNull())
-            return;
+            return false;
     }
 
     int p1 = tc1.position();
     int p2 = tc2.position();
     if (inner) {
-        p2 = qMax(p1, p2 - sz - 1);
+        p2 = qMax(p1, p2 - sz);
         if (document()->characterAt(p1) == ParagraphSeparator)
             ++p1;
     } else {
         p1 -= sz;
-        p2 -= sz;
+        p2 -= sz - 1;
     }
 
     setAnchorAndPosition(p1, p2);
-    m_movetype = MoveInclusive;
+    m_movetype = MoveExclusive;
+
+    return true;
 }
 
 Mark FakeVimHandler::Private::mark(QChar code) const
