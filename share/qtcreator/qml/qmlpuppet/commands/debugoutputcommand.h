@@ -27,41 +27,43 @@
 **
 ****************************************************************************/
 
-#ifndef NODEINSTANCECLIENTINTERFACE_H
-#define NODEINSTANCECLIENTINTERFACE_H
+#ifndef QMLDESIGNER_DEBUGOUTPUTCOMMAND_H
+#define QMLDESIGNER_DEBUGOUTPUTCOMMAND_H
 
-#include <QtGlobal>
+#include <QMetaType>
+#include <QString>
+#include <QDataStream>
 
 namespace QmlDesigner {
 
-class ValuesChangedCommand;
-class PixmapChangedCommand;
-class InformationChangedCommand;
-class ChildrenChangedCommand;
-class StatePreviewImageChangedCommand;
-class ComponentCompletedCommand;
-class TokenCommand;
-class RemoveSharedMemoryCommand;
-class DebugOutputCommand;
-
-class NodeInstanceClientInterface
+class DebugOutputCommand
 {
+    friend QDataStream &operator>>(QDataStream &in, DebugOutputCommand &command);
+
 public:
-    virtual void informationChanged(const InformationChangedCommand &command) = 0;
-    virtual void valuesChanged(const ValuesChangedCommand &command) = 0;
-    virtual void pixmapChanged(const PixmapChangedCommand &command) = 0;
-    virtual void childrenChanged(const ChildrenChangedCommand &command) = 0;
-    virtual void statePreviewImagesChanged(const StatePreviewImageChangedCommand &command) = 0;
-    virtual void componentCompleted(const ComponentCompletedCommand &command) = 0;
-    virtual void token(const TokenCommand &command) = 0;
-    virtual void debugOutput(const DebugOutputCommand &command) = 0;
+    enum Type {
+        DebugType,
+        WarningType,
+        ErrorType,
+        FatalType
+    };
 
-    virtual void flush() {};
-    virtual void synchronizeWithClientProcess() {}
-    virtual qint64 bytesToWrite() const {return 0;}
+    DebugOutputCommand();
+    DebugOutputCommand(const QString &text, Type type);
 
+    qint32 type() const;
+    QString text() const;
+
+private:
+    QString m_text;
+    quint32 m_type;
 };
 
-}
+QDataStream &operator<<(QDataStream &out, const DebugOutputCommand &command);
+QDataStream &operator>>(QDataStream &in, DebugOutputCommand &command);
 
-#endif // NODEINSTANCECLIENTINTERFACE_H
+} // namespace QmlDesigner
+
+Q_DECLARE_METATYPE(QmlDesigner::DebugOutputCommand)
+
+#endif // QMLDESIGNER_DEBUGOUTPUTCOMMAND_H

@@ -135,6 +135,7 @@ public:
     void statePreviewImagesChanged(const StatePreviewImageChangedCommand &command);
     void componentCompleted(const ComponentCompletedCommand &command);
     void token(const TokenCommand &command);
+    void debugOutput(const DebugOutputCommand &command);
 
     QImage statePreviewImage(const ModelNode &stateNode) const;
 

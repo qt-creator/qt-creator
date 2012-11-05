@@ -1027,6 +1027,12 @@ QObject *NodeInstanceServer::dummyContextObject() const
     return m_dummyContextObject.data();
 }
 
+void NodeInstanceServer::sendDebugOutput(DebugOutputCommand::Type type, const QString &message)
+{
+    DebugOutputCommand command(message, type);
+    nodeInstanceClient()->debugOutput(command);
+}
+
 void NodeInstanceServer::notifyPropertyChange(qint32 instanceid, const QString &propertyName)
 {
     if (hasInstanceForId(instanceid))

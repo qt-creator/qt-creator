@@ -61,7 +61,7 @@
 #include "tokencommand.h"
 #include "removesharedmemorycommand.h"
 #include "endpuppetcommand.h"
-
+#include "debugoutputcommand.h"
 
 namespace QmlDesigner {
 
@@ -178,6 +178,9 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<EndPuppetCommand>("EndPuppetCommand");
     qRegisterMetaTypeStreamOperators<EndPuppetCommand>("EndPuppetCommand");
+
+    qRegisterMetaType<DebugOutputCommand>("DebugOutputCommand");
+    qRegisterMetaTypeStreamOperators<DebugOutputCommand>("DebugOutputCommand");
 }
 
 }

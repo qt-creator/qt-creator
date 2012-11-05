@@ -67,6 +67,7 @@
 #include "removesharedmemorycommand.h"
 #include "endpuppetcommand.h"
 #include "synchronizecommand.h"
+#include "debugoutputcommand.h"
 
 #include "nodeinstanceview.h"
 
@@ -263,6 +264,7 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
     static const int componentCompletedCommandType = QMetaType::type("ComponentCompletedCommand");
     static const int synchronizeCommandType = QMetaType::type("SynchronizeCommand");
     static const int tokenCommandType = QMetaType::type("TokenCommand");
+    static const int debugOutputCommandType = QMetaType::type("DebugOutputCommand");
 
     if (command.userType() ==  informationChangedCommandType)
         nodeInstanceClient()->informationChanged(command.value<InformationChangedCommand>());
@@ -278,6 +280,8 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
         nodeInstanceClient()->componentCompleted(command.value<ComponentCompletedCommand>());
     else if (command.userType() == tokenCommandType)
         nodeInstanceClient()->token(command.value<TokenCommand>());
+    else if (command.userType() == debugOutputCommandType)
+        nodeInstanceClient()->debugOutput(command.value<DebugOutputCommand>());
     else if (command.userType() == synchronizeCommandType) {
         SynchronizeCommand synchronizeCommand = command.value<SynchronizeCommand>();
         m_synchronizeId = synchronizeCommand.synchronizeId();

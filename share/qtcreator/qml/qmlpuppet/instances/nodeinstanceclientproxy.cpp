@@ -66,6 +66,7 @@
 #include "componentcompletedcommand.h"
 #include "changenodesourcecommand.h"
 #include "endpuppetcommand.h"
+#include "debugoutputcommand.h"
 
 namespace QmlDesigner {
 
@@ -135,6 +136,11 @@ void NodeInstanceClientProxy::componentCompleted(const ComponentCompletedCommand
 }
 
 void NodeInstanceClientProxy::token(const TokenCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceClientProxy::debugOutput(const DebugOutputCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
 }

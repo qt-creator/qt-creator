@@ -1217,6 +1217,10 @@ void NodeInstanceView::token(const TokenCommand &command)
     emitInstanceToken(command.tokenName(), command.tokenNumber(), nodeVector);
 }
 
+void NodeInstanceView::debugOutput(const DebugOutputCommand & /*command*/)
+{
+}
+
 void NodeInstanceView::sendToken(const QString &token, int number, const QVector<ModelNode> &nodeVector)
 {
     QVector<qint32> instanceIdVector;
