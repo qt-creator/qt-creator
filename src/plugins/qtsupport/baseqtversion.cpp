@@ -1269,28 +1269,38 @@ Utils::FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QStrin
     if (baseMkspecDir.isEmpty())
         return Utils::FileName();
 
-    Utils::FileName mkspecFullPath = Utils::FileName::fromString(baseMkspecDir.toString() + QLatin1String("/default"));
+    bool qt5 = false;
+    QString theSpec = qmakeProperty(versionInfo, "QMAKE_XSPEC");
+    if (theSpec.isEmpty())
+        theSpec = QLatin1String("default");
+    else
+        qt5 = true;
+
+    Utils::FileName mkspecFullPath = baseMkspecDir;
+    mkspecFullPath.appendPath(theSpec);
 
     // qDebug() << "default mkspec is located at" << mkspecFullPath;
 
 #ifdef Q_OS_WIN
-    QFile f2(mkspecFullPath.toString() + QLatin1String("/qmake.conf"));
-    if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
-        while (!f2.atEnd()) {
-            QByteArray line = f2.readLine();
-            if (line.startsWith("QMAKESPEC_ORIGINAL")) {
-                const QList<QByteArray> &temp = line.split('=');
-                if (temp.size() == 2) {
-                    QString possibleFullPath = QString::fromLocal8Bit(temp.at(1).trimmed().constData());
-                    // We sometimes get a mix of different slash styles here...
-                    possibleFullPath = possibleFullPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
-                    if (QFileInfo(possibleFullPath).exists()) // Only if the path exists
-                        mkspecFullPath = Utils::FileName::fromUserInput(possibleFullPath);
+    if (!qt5) {
+        QFile f2(mkspecFullPath.toString() + QLatin1String("/qmake.conf"));
+        if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
+            while (!f2.atEnd()) {
+                QByteArray line = f2.readLine();
+                if (line.startsWith("QMAKESPEC_ORIGINAL")) {
+                    const QList<QByteArray> &temp = line.split('=');
+                    if (temp.size() == 2) {
+                        QString possibleFullPath = QString::fromLocal8Bit(temp.at(1).trimmed().constData());
+                        // We sometimes get a mix of different slash styles here...
+                        possibleFullPath = possibleFullPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
+                        if (QFileInfo(possibleFullPath).exists()) // Only if the path exists
+                            mkspecFullPath = Utils::FileName::fromUserInput(possibleFullPath);
+                    }
+                    break;
                 }
-                break;
             }
+            f2.close();
         }
-        f2.close();
     }
 #else
 #  ifdef Q_OS_MAC
@@ -1314,10 +1324,13 @@ Utils::FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QStrin
         f2.close();
     }
 #  endif
-    //resolve mkspec link
-    QString rspec = mkspecFullPath.toFileInfo().readLink();
-    if (!rspec.isEmpty())
-        mkspecFullPath = Utils::FileName::fromUserInput(QDir(baseMkspecDir).absoluteFilePath(rspec));
+    if (!qt5) {
+        //resolve mkspec link
+        QString rspec = mkspecFullPath.toFileInfo().readLink();
+        if (!rspec.isEmpty())
+            mkspecFullPath = Utils::FileName::fromUserInput(
+                        QDir(baseMkspecDir.toString()).absoluteFilePath(rspec));
+    }
 #endif
 
     return mkspecFullPath;
