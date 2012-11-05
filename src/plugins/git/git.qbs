@@ -54,6 +54,8 @@ QtcPlugin {
         "gitutils.h",
         "gitversioncontrol.cpp",
         "gitversioncontrol.h",
+        "mergetool.cpp",
+        "mergetool.h",
         "remoteadditiondialog.ui",
         "remotedialog.cpp",
         "remotedialog.h",

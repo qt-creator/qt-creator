@@ -35,6 +35,7 @@
 #include "gitplugin.h"
 #include "gitsubmiteditor.h"
 #include "gitversioncontrol.h"
+#include "mergetool.h"
 
 #include <vcsbase/submitfilemodel.h>
 
@@ -570,6 +571,13 @@ void GitClient::diffBranch(const QString &workingDirectory,
               << userDiffArgs  << branchName;
 
     executeGit(workingDirectory, cmdArgs, editor);
+}
+
+void GitClient::merge(const QString &workingDirectory, const QStringList &unmergedFileNames)
+{
+    MergeTool *mergeTool = new MergeTool(this);
+    if (!mergeTool->start(workingDirectory, unmergedFileNames))
+        delete mergeTool;
 }
 
 void GitClient::status(const QString &workingDirectory)

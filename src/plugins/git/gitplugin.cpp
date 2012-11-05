@@ -43,6 +43,7 @@
 #include "stashdialog.h"
 #include "settingspage.h"
 #include "resetdialog.h"
+#include "mergetool.h"
 
 #include "gerrit/gerritplugin.h"
 
@@ -519,6 +520,10 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            tr("Amend Last Commit..."), Core::Id("Git.AmendCommit"),
                            globalcontext, true, SLOT(startAmendCommit()));
 
+    createRepositoryAction(gitContainer,
+                           tr("Merge Tool"), Core::Id("Git.MergeTool"),
+                           globalcontext, true, SLOT(startMergeTool()));
+
     // Subversion in a submenu.
     gitContainer->addSeparator(globalcontext);
 
@@ -563,6 +568,11 @@ GitVersionControl *GitPlugin::gitVersionControl() const
 void GitPlugin::submitEditorDiff(const QStringList &unstaged, const QStringList &staged)
 {
     m_gitClient->diff(m_submitRepository, QStringList(), unstaged, staged);
+}
+
+void GitPlugin::submitEditorMerge(const QStringList &unmerged)
+{
+    m_gitClient->merge(m_submitRepository, unmerged);
 }
 
 void GitPlugin::diffCurrentFile()
@@ -708,6 +718,7 @@ Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const Commit
     if (amend) // Allow for just correcting the message
         submitEditor->setEmptyFileListEnabled(true);
     connect(submitEditor, SIGNAL(diff(QStringList,QStringList)), this, SLOT(submitEditorDiff(QStringList,QStringList)));
+    connect(submitEditor, SIGNAL(merge(QStringList)), this, SLOT(submitEditorMerge(QStringList)));
     return editor;
 }
 
@@ -802,6 +813,13 @@ void GitPlugin::push()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     m_gitClient->synchronousPush(state.topLevel());
+}
+
+void GitPlugin::startMergeTool()
+{
+    const VcsBase::VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return);
+    m_gitClient->merge(state.topLevel());
 }
 
 // Retrieve member function of git client stored as user data of action

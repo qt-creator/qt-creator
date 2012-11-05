@@ -105,6 +105,7 @@ private slots:
     void diffCurrentProject();
     void diffRepository();
     void submitEditorDiff(const QStringList &unstaged, const QStringList &staged);
+    void submitEditorMerge(const QStringList &unmerged);
     void submitCurrentLog();
     void logFile();
     void blameFile();
@@ -131,6 +132,7 @@ private slots:
     void fetch();
     void pull();
     void push();
+    void startMergeTool();
 
 #ifdef WITH_TESTS
     void testStatusParsing_data();

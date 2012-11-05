@@ -27,51 +27,67 @@
 **
 ****************************************************************************/
 
-#ifndef GITSUBMITEDITOR_H
-#define GITSUBMITEDITOR_H
+#ifndef MERGETOOL_H
+#define MERGETOOL_H
 
-#include <vcsbase/vcsbasesubmiteditor.h>
-
+#include <QObject>
 #include <QStringList>
 
-namespace VcsBase {
-    class SubmitFileModel;
-}
+QT_BEGIN_NAMESPACE
+class QProcess;
+class QMessageBox;
+QT_END_NAMESPACE
 
 namespace Git {
 namespace Internal {
 
-class GitSubmitEditorWidget;
-class CommitData;
-struct GitSubmitEditorPanelData;
-
-class GitSubmitEditor : public VcsBase::VcsBaseSubmitEditor
+class MergeTool : public QObject
 {
     Q_OBJECT
+
+    enum FileState {
+        UnknownState,
+        ModifiedState,
+        CreatedState,
+        DeletedState,
+        SubmoduleState,
+        SymbolicLinkState
+    };
+
 public:
-    explicit GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent);
+    explicit MergeTool(QObject *parent = 0);
+    ~MergeTool();
+    bool start(const QString &workingDirectory, const QStringList &files = QStringList());
 
-    void setCommitData(const CommitData &);
-    GitSubmitEditorPanelData panelData() const;
-
-signals:
-    void diff(const QStringList &unstagedFiles, const QStringList &stagedFiles);
-    void merge(const QStringList &unmergedFiles);
-
-protected:
-    QByteArray fileContents() const;
+    enum MergeType {
+        NormalMerge,
+        SubmoduleMerge,
+        DeletedMerge,
+        SymbolicLinkMerge
+    };
 
 private slots:
-    void slotDiffSelected(const QStringList &);
+    void readData();
+    void done();
 
 private:
-    inline GitSubmitEditorWidget *submitEditorWidget();
+    FileState waitAndReadStatus(QString &extraInfo);
+    QString mergeTypeName();
+    QString stateName(FileState state, const QString &extraInfo);
+    void chooseAction();
+    void addButton(QMessageBox *msgBox, const QString &text, char key);
 
-    VcsBase::SubmitFileModel *m_model;
-    QString m_commitEncoding;
+    QProcess *m_process;
+    MergeType m_mergeType;
+    QString m_fileName;
+    FileState m_localState;
+    QString m_localInfo;
+    FileState m_remoteState;
+    QString m_remoteInfo;
+    bool m_merging;
 };
 
 } // namespace Internal
 } // namespace Git
 
-#endif // GITSUBMITEDITOR_H
+#endif // MERGETOOL_H

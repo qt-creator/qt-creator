@@ -81,7 +81,8 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
 
 void GitSubmitEditor::slotDiffSelected(const QStringList &files)
 {
-    // Sort it apart into staged/unstaged files
+    // Sort it apart into unmerged/staged/unstaged files
+    QStringList unmergedFiles;
     QStringList unstagedFiles;
     QStringList stagedFiles;
     const int fileColumn = fileNameColumn();
@@ -90,7 +91,9 @@ void GitSubmitEditor::slotDiffSelected(const QStringList &files)
         const QString fileName = m_model->item(r, fileColumn)->text();
         if (files.contains(fileName)) {
             const FileStates state = static_cast<FileStates>(m_model->extraData(r).toInt());
-            if (state & StagedFile)
+            if (state & UnmergedFile)
+                unmergedFiles.push_back(fileName);
+            else if (state & StagedFile)
                 stagedFiles.push_back(fileName);
             else if (state != UntrackedFile)
                 unstagedFiles.push_back(fileName);
@@ -98,6 +101,8 @@ void GitSubmitEditor::slotDiffSelected(const QStringList &files)
     }
     if (!unstagedFiles.empty() || !stagedFiles.empty())
         emit diff(unstagedFiles, stagedFiles);
+    if (!unmergedFiles.empty())
+        emit merge(unmergedFiles);
 }
 
 GitSubmitEditorPanelData GitSubmitEditor::panelData() const

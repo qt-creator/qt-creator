@@ -92,6 +92,7 @@ public:
     void diffBranch(const QString &workingDirectory,
                     const QStringList &diffArgs,
                     const QString &branchName);
+    void merge(const QString &workingDirectory, const QStringList &unmergedFileNames = QStringList());
 
     void status(const QString &workingDirectory);
     void graphLog(const QString &workingDirectory) { graphLog(workingDirectory, QString()); }
