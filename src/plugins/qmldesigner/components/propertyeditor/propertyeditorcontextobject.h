@@ -33,6 +33,7 @@
 #include <QObject>
 #include <QUrl>
 #include <QDeclarativePropertyMap>
+#include <QColor>
 
 namespace QmlDesigner {
 
