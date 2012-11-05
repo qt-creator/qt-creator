@@ -30,11 +30,10 @@
 #ifndef OPENEDITORSVIEW_H
 #define OPENEDITORSVIEW_H
 
-#include "ui_openeditorsview.h"
-
 #include <coreplugin/inavigationwidgetfactory.h>
 
 #include <QStyledItemDelegate>
+#include <QTreeView>
 
 namespace Core {
 class IEditor;
@@ -43,8 +42,6 @@ namespace Internal {
 
 class OpenEditorsDelegate : public QStyledItemDelegate
 {
-    Q_OBJECT
-
 public:
     explicit OpenEditorsDelegate(QObject *parent = 0);
 
@@ -54,7 +51,7 @@ public:
     mutable QModelIndex pressedIndex;
 };
 
-class OpenEditorsWidget : public QWidget
+class OpenEditorsWidget : public QTreeView
 {
     Q_OBJECT
 
@@ -74,8 +71,6 @@ private:
     void activateEditor(const QModelIndex &index);
     void closeEditor(const QModelIndex &index);
 
-    Ui::OpenEditorsView m_ui;
-    QWidget *m_widget;
     OpenEditorsDelegate *m_delegate;
 };
 

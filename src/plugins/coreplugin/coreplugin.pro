@@ -207,7 +207,6 @@ FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \
     dialogs/saveitemsdialog.ui \
     dialogs/openwithdialog.ui \
-    editormanager/openeditorsview.ui \
     generalsettings.ui \
     dialogs/externaltoolconfig.ui \
     variablechooser.ui \

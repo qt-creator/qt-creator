@@ -208,7 +208,6 @@ QtcPlugin {
         "editormanager/openeditorsmodel.h",
         "editormanager/openeditorsview.cpp",
         "editormanager/openeditorsview.h",
-        "editormanager/openeditorsview.ui",
         "editormanager/openeditorswindow.cpp",
         "editormanager/openeditorswindow.h",
         "editormanager/systemeditor.cpp",
