@@ -3,8 +3,8 @@ import qbs.fileinfo 1.0 as FileInfo
 
 Project {
     property string ide_version_major: '2'
-    property string ide_version_minor: '5'
-    property string ide_version_release: '85'
+    property string ide_version_minor: '6'
+    property string ide_version_release: '0'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.' + ide_version_release
     property var additionalCppDefines: [
         'IDE_LIBRARY_BASENAME="lib"',
