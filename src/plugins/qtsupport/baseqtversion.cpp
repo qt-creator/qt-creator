@@ -409,7 +409,8 @@ ProjectExplorer::ToolChain *BaseQtVersion::preferredToolChain(const Utils::FileN
             continue;
         if (tc->suggestedMkspecList().contains(spec))
             return tc; // perfect match
-        possibleTc = tc; // possible match
+        if (!possibleTc)
+            possibleTc = tc; // first possible match
     }
     return possibleTc;
 }
