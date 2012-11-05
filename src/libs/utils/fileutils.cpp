@@ -489,10 +489,9 @@ FileName FileName::fromString(const QString &filename)
 
 /// Constructs a FileName from \a fileName
 /// \a fileName is only passed through QDir::cleanPath
-/// and QDir::fromNativeSeparators
 FileName FileName::fromUserInput(const QString &filename)
 {
-    return FileName(QDir::cleanPath(QDir::fromNativeSeparators(filename)));
+    return FileName(QDir::cleanPath(filename));
 }
 
 FileName::FileName(const QString &string)
