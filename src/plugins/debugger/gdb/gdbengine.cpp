@@ -5367,6 +5367,7 @@ DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp)
     switch (sp.startMode) {
     case AttachCore:
         return new GdbCoreEngine(sp);
+    case StartRemoteProcess:
     case AttachToRemoteServer:
         return new GdbRemoteServerEngine(sp);
     case StartRemoteGdb:
