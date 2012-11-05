@@ -1292,7 +1292,8 @@ Utils::FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QStrin
         }
         f2.close();
     }
-#elif defined(Q_OS_MAC)
+#else
+#  ifdef Q_OS_MAC
     QFile f2(mkspecFullPath.toString() + QLatin1String("/qmake.conf"));
     if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
         while (!f2.atEnd()) {
@@ -1306,15 +1307,14 @@ Utils::FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QStrin
 //                      qDebug() << "default mkspec is xcode, falling back to g++";
                         mkspecFullPath = baseMkspecDir.appendPath(QLatin1String("macx-g++"));
                     }
-                    //resolve mkspec link
-                    mkspecFullPath = Utils::FileName::fromString(mkspecFullPath.toFileInfo().canonicalFilePath());
                 }
                 break;
             }
         }
         f2.close();
     }
-#else
+#  endif
+    //resolve mkspec link
     mkspecFullPath = Utils::FileName::fromString(mkspecFullPath.toFileInfo().canonicalFilePath());
 #endif
 
