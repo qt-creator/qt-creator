@@ -32,6 +32,7 @@
 #include "commonoptionspage.h"
 #include "debuggerinternalconstants.h"
 #include "cdbengine.h"
+#include "cdbsymbolpathlisteditor.h"
 
 #include <utils/synchronousprocess.h>
 
@@ -39,7 +40,10 @@
 
 #include <QTextStream>
 #include <QLineEdit>
+#include <QDialogButtonBox>
+#include <QPushButton>
 #include <QCheckBox>
+#include <QVBoxLayout>
 
 namespace Debugger {
 namespace Internal {
@@ -157,6 +161,46 @@ QStringList CdbBreakEventWidget::breakEvents() const
     return rc;
 }
 
+CdbPathDialog::CdbPathDialog(QWidget *parent, Mode mode)
+    : QDialog(parent)
+    , m_pathListEditor(0)
+{
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setMinimumWidth(700);
+
+    switch (mode) {
+    case SymbolPaths:
+        setWindowTitle(tr("CDB Symbol Paths"));
+        m_pathListEditor = new CdbSymbolPathListEditor(this);
+        break;
+    case SourcePaths:
+        setWindowTitle(tr("CDB Source Paths"));
+        m_pathListEditor = new Utils::PathListEditor(this);
+        break;
+    }
+
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    QGroupBox *groupBox = new QGroupBox(this);
+    (new QVBoxLayout(groupBox))->addWidget(m_pathListEditor);
+    layout->addWidget(groupBox);
+    QDialogButtonBox *buttonBox =
+        new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                             Qt::Horizontal, this);
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    layout->addWidget(buttonBox);
+}
+
+QStringList CdbPathDialog::paths() const
+{
+    return m_pathListEditor->pathList();
+}
+
+void CdbPathDialog::setPaths(const QStringList &paths)
+{
+    m_pathListEditor->setPathList(paths);
+}
+
 CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
     QWidget(parent), m_breakEventWidget(new CdbBreakEventWidget)
 {
@@ -165,11 +209,11 @@ CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
     // accommodate all options. This page only shows on
     // Windows, which has large margins by default.
 
-    const int margin = m_ui.verticalLayout->margin();
+    const int margin = layout()->margin();
     const QMargins margins(margin, margin / 3, margin, margin / 3);
 
     m_ui.startupFormLayout->setContentsMargins(margins);
-    m_ui.pathFormLayout->setContentsMargins(margins);
+    m_ui.pathGroupBox->layout()->setContentsMargins(margins);
     m_ui.breakpointLayout->setContentsMargins(margins);
 
     QVBoxLayout *eventLayout = new QVBoxLayout;
@@ -181,13 +225,34 @@ CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
     const QString hint = tr("This is useful to catch runtime error messages, for example caused by assert().");
     m_ui.breakCrtDbgReportCheckBox
         ->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip(CdbOptions::crtDbgReport, hint));
+
+    connect(m_ui.symbolPathButton, SIGNAL(clicked()), this, SLOT(showSymbolPathDialog()));
+    connect(m_ui.sourcePathButton, SIGNAL(clicked()), this, SLOT(showSourcePathDialog()));
+}
+
+void CdbOptionsPageWidget::setSymbolPaths(const QStringList &s)
+{
+    m_symbolPaths = s;
+    const QString summary =
+        tr("Symbol paths: %1").arg(m_symbolPaths.isEmpty() ?
+            tr("<none>") : QString::number(m_symbolPaths.size()));
+    m_ui.symbolPathLabel->setText(summary);
+}
+
+void CdbOptionsPageWidget::setSourcePaths(const QStringList &s)
+{
+    m_sourcePaths = s;
+    const QString summary =
+        tr("Source paths: %1").arg(m_sourcePaths.isEmpty() ?
+            tr("<none>") : QString::number(m_sourcePaths.size()));
+    m_ui.sourcePathLabel->setText(summary);
 }
 
 void CdbOptionsPageWidget::setOptions(CdbOptions &o)
 {
     m_ui.additionalArgumentsLineEdit->setText(o.additionalArguments);
     setSymbolPaths(o.symbolPaths);
-    m_ui.sourcePathListEditor->setPathList(o.sourcePaths);
+    setSourcePaths(o.sourcePaths);
     m_breakEventWidget->setBreakEvents(o.breakEvents);
     m_ui.consoleCheckBox->setChecked(o.cdbConsole);
     m_ui.breakpointCorrectionCheckBox->setChecked(o.breakpointCorrection);
@@ -198,8 +263,8 @@ CdbOptions CdbOptionsPageWidget::options() const
 {
     CdbOptions  rc;
     rc.additionalArguments = m_ui.additionalArgumentsLineEdit->text().trimmed();
-    rc.symbolPaths = symbolPaths();
-    rc.sourcePaths = m_ui.sourcePathListEditor->pathList();
+    rc.symbolPaths  = m_symbolPaths;
+    rc.sourcePaths = m_sourcePaths;
     rc.breakEvents = m_breakEventWidget->breakEvents();
     rc.cdbConsole = m_ui.consoleCheckBox->isChecked();
     rc.breakpointCorrection = m_ui.breakpointCorrectionCheckBox->isChecked();
@@ -208,21 +273,39 @@ CdbOptions CdbOptionsPageWidget::options() const
     return rc;
 }
 
-QStringList CdbOptionsPageWidget::symbolPaths() const
+void CdbOptionsPageWidget::showSymbolPathDialog()
 {
-    return m_ui.symbolPathListEditor->pathList();
+    CdbPathDialog pathDialog(this, CdbPathDialog::SymbolPaths);
+    pathDialog.setPaths(m_symbolPaths);
+    if (pathDialog.exec() == QDialog::Accepted)
+        setSymbolPaths(pathDialog.paths());
 }
 
-void CdbOptionsPageWidget::setSymbolPaths(const QStringList &s)
+void CdbOptionsPageWidget::showSourcePathDialog()
 {
-    m_ui.symbolPathListEditor->setPathList(s);
+    CdbPathDialog pathDialog(this, CdbPathDialog::SourcePaths);
+    pathDialog.setPaths(m_sourcePaths);
+    if (pathDialog.exec() == QDialog::Accepted)
+        setSourcePaths(pathDialog.paths());
+}
+
+static QString stripColon(QString s)
+{
+    const int lastColon = s.lastIndexOf(QLatin1Char(':'));
+    if (lastColon != -1)
+        s.truncate(lastColon);
+    return s;
 }
 
 QString CdbOptionsPageWidget::searchKeywords() const
 {
     QString rc;
-    QTextStream(&rc) << m_ui.symbolPathLabel->text()
-            << ' ' << m_ui.sourcePathLabel->text();
+    QTextStream(&rc)
+        << stripColon(m_ui.additionalArgumentsLabel->text()) << ' '
+        << stripColon(m_ui.breakFunctionGroupBox->title()) << ' '
+        << m_ui.breakpointsGroupBox->title() << ' '
+        << stripColon(m_ui.symbolPathLabel->text()) << ' '
+        << stripColon(m_ui.sourcePathLabel->text());
     rc.remove(QLatin1Char('&'));
     return rc;
 }

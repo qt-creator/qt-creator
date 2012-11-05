@@ -38,13 +38,19 @@
 #include <QWidget>
 #include <QPointer>
 #include <QSharedPointer>
+#include <QDialog>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
 QT_END_NAMESPACE
 
+namespace Utils {
+    class PathListEditor;
+}
 namespace Debugger {
 namespace Internal {
+
+class CdbSymbolPathListEditor;
 
 // Widget displaying a list of break events for the 'sxe' command
 // with a checkbox to enable 'break' and optionally a QLineEdit for
@@ -67,6 +73,24 @@ private:
     QList<QLineEdit*> m_lineEdits;
 };
 
+class CdbPathDialog : public QDialog
+{
+    Q_OBJECT
+public:
+    enum Mode {
+        SymbolPaths,
+        SourcePaths
+    };
+
+    explicit CdbPathDialog(QWidget *parent, Mode mode);
+
+    QStringList paths() const;
+    void setPaths(const QStringList &paths);
+
+private:
+    Utils::PathListEditor *m_pathListEditor;
+};
+
 class CdbOptionsPageWidget : public QWidget
 {
     Q_OBJECT
@@ -79,13 +103,20 @@ public:
 
     QString searchKeywords() const;
 
+private slots:
+    void showSymbolPathDialog();
+    void showSourcePathDialog();
+
 private:
-    QStringList symbolPaths() const;
-    void setSymbolPaths(const QStringList &s);
+    void setSymbolPaths(const QStringList &);
+    void setSourcePaths(const QStringList &);
+
     inline QString path() const;
 
     Ui::CdbOptionsPageWidget m_ui;
     CdbBreakEventWidget *m_breakEventWidget;
+    QStringList m_symbolPaths;
+    QStringList m_sourcePaths;
 };
 
 class CdbOptionsPage : public Core::IOptionsPage

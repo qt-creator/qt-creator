@@ -12,8 +12,8 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="0" column="0">
       <widget class="QGroupBox" name="cdbPathGroupBox">
        <property name="title">
         <string extracomment="Placeholder">Startup</string>
@@ -54,83 +54,88 @@
        </layout>
       </widget>
      </item>
+     <item row="0" column="1">
+      <widget class="QGroupBox" name="pathGroupBox">
+       <property name="title">
+        <string>Paths</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="symbolPathLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QPushButton" name="symbolPathButton">
+          <property name="text">
+           <string>Edit...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="sourcePathLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="sourcePathButton">
+          <property name="text">
+           <string>Edit...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QGroupBox" name="breakpointsGroupBox">
+       <property name="title">
+        <string>Breakpoints</string>
+       </property>
+       <layout class="QVBoxLayout" name="breakpointLayout">
+        <item>
+         <widget class="QCheckBox" name="breakpointCorrectionCheckBox">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attempt to correct the location of a breakpoint based on file and line number should it be in a comment or in a line for which no code is generated. The correction is based on the code model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Correct breakpoint location</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QGroupBox" name="breakFunctionGroupBox">
+       <property name="title">
+        <string>Break on functions:</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QCheckBox" name="breakCrtDbgReportCheckBox"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="2">
+      <widget class="QGroupBox" name="eventGroupBox">
+       <property name="title">
+        <string>Break on:</string>
+       </property>
+      </widget>
+     </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="startupGroupBox">
-     <property name="title">
-      <string>Debugger Paths</string>
-     </property>
-     <layout class="QFormLayout" name="pathFormLayout">
-      <property name="fieldGrowthPolicy">
-       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-      </property>
-      <item row="0" column="0">
-       <widget class="QLabel" name="symbolPathLabel">
-        <property name="text">
-         <string>&amp;Symbol paths:</string>
-        </property>
-        <property name="buddy">
-         <cstring>symbolPathListEditor</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="Debugger::Internal::CdbSymbolPathListEditor" name="symbolPathListEditor" native="true"/>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="sourcePathLabel">
-        <property name="text">
-         <string>S&amp;ource paths:</string>
-        </property>
-        <property name="buddy">
-         <cstring>sourcePathListEditor</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="Utils::PathListEditor" name="sourcePathListEditor" native="true"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="breakpointsGroupBox">
-     <property name="title">
-      <string>Breakpoints</string>
-     </property>
-     <layout class="QVBoxLayout" name="breakpointLayout">
-      <item>
-       <widget class="QCheckBox" name="breakpointCorrectionCheckBox">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attempt to correct the location of a breakpoint based on file and line number should it be in a comment or in a line for which no code is generated. The correction is based on the code model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>Correct breakpoint location</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="eventGroupBox">
-     <property name="title">
-      <string>Break on:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="breakFunctionGroupBox">
-     <property name="title">
-      <string>Break on functions:</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QCheckBox" name="breakCrtDbgReportCheckBox"/>
-      </item>
-     </layout>
-    </widget>
    </item>
    <item>
     <spacer name="verticalSpacer">
@@ -147,20 +152,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>Utils::PathListEditor</class>
-   <extends>QWidget</extends>
-   <header location="global">utils/pathlisteditor.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>Debugger::Internal::CdbSymbolPathListEditor</class>
-   <extends>QWidget</extends>
-   <header location="global">cdbsymbolpathlisteditor.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>
