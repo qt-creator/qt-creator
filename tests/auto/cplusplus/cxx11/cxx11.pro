@@ -1,5 +1,9 @@
 include(../../qttest.pri)
 include(../shared/shared.pri)
+
+# Inject the source dir for referencing test data from shadow builds.
+DEFINES += SRCDIR=\\\"$$PWD\\\"
+
 SOURCES += tst_cxx11.cpp
 OTHER_FILES += \
     data/inlineNamespace.1.cpp \
