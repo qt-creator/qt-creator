@@ -39,13 +39,17 @@ static const char breakFunctionsKeyC[] = "BreakFunctions";
 static const char additionalArgumentsKeyC[] = "AdditionalArguments";
 static const char cdbConsoleKeyC[] = "CDB_Console";
 static const char breakpointCorrectionKeyC[] = "BreakpointCorrection";
+static const char ignoreFirstChanceAccessViolationKeyC[] = "IgnoreFirstChanceAccessViolation";
 
 namespace Debugger {
 namespace Internal {
 
 const char *CdbOptions::crtDbgReport = "CrtDbgReport";
 
-CdbOptions::CdbOptions() : cdbConsole(false), breakpointCorrection(true)
+CdbOptions::CdbOptions()
+    : cdbConsole(false)
+    , breakpointCorrection(true)
+    , ignoreFirstChanceAccessViolation(false)
 {
 }
 
@@ -58,7 +62,8 @@ void CdbOptions::clear()
 {
     symbolPaths.clear();
     sourcePaths.clear();
-    cdbConsole = false;
+    breakpointCorrection = true;
+    cdbConsole = ignoreFirstChanceAccessViolation = false;
     breakEvents.clear();
     breakFunctions.clear();
 }
@@ -79,6 +84,7 @@ void CdbOptions::fromSettings(QSettings *s)
     breakFunctions = s->value(keyRoot + QLatin1String(breakFunctionsKeyC), QStringList()).toStringList();
     cdbConsole = s->value(keyRoot + QLatin1String(cdbConsoleKeyC), QVariant(false)).toBool();
     breakpointCorrection = s->value(keyRoot + QLatin1String(breakpointCorrectionKeyC), QVariant(true)).toBool();
+    ignoreFirstChanceAccessViolation = s->value(keyRoot + QLatin1String(ignoreFirstChanceAccessViolationKeyC), false).toBool();
 }
 
 void CdbOptions::toSettings(QSettings *s) const
@@ -91,6 +97,7 @@ void CdbOptions::toSettings(QSettings *s) const
     s->setValue(QLatin1String(additionalArgumentsKeyC), additionalArguments);
     s->setValue(QLatin1String(cdbConsoleKeyC), QVariant(cdbConsole));
     s->setValue(QLatin1String(breakpointCorrectionKeyC), QVariant(breakpointCorrection));
+    s->setValue(QLatin1String(ignoreFirstChanceAccessViolationKeyC), QVariant(ignoreFirstChanceAccessViolation));
     s->endGroup();
 }
 
@@ -98,6 +105,7 @@ bool CdbOptions::equals(const CdbOptions &rhs) const
 {
     return cdbConsole == rhs.cdbConsole
             && breakpointCorrection == rhs.breakpointCorrection
+            && ignoreFirstChanceAccessViolation == rhs.ignoreFirstChanceAccessViolation
             && additionalArguments == rhs.additionalArguments
             && symbolPaths == rhs.symbolPaths
             && sourcePaths == rhs.sourcePaths

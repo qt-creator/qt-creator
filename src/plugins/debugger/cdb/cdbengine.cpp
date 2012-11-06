@@ -668,6 +668,8 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
               << QLatin1String(".idle_cmd ") + QString::fromLatin1(m_extensionCommandPrefixBA) + QLatin1String("idle");
     if (sp.useTerminal) // Separate console
         arguments << QLatin1String("-2");
+    if (m_options->ignoreFirstChanceAccessViolation)
+        arguments << QLatin1String("-x");
     if (!m_options->symbolPaths.isEmpty())
         arguments << QLatin1String("-y") << m_options->symbolPaths.join(QString(QLatin1Char(';')));
     if (!m_options->sourcePaths.isEmpty())

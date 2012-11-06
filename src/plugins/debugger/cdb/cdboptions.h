@@ -66,6 +66,8 @@ public:
     bool cdbConsole;
     // Perform code-model based correction of breakpoint location.
     bool breakpointCorrection;
+    // Add -x to command line.
+    bool ignoreFirstChanceAccessViolation;
 
     static const char *crtDbgReport;
 };

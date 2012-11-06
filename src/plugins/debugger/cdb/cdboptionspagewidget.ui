@@ -138,6 +138,22 @@
     </layout>
    </item>
    <item>
+    <widget class="QGroupBox" name="variousGroupBox">
+     <property name="title">
+      <string>Various</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QCheckBox" name="ignoreFirstChanceAccessViolationCheckBox">
+        <property name="text">
+         <string>Ignore first chance access violations</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

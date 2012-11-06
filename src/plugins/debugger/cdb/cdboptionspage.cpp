@@ -253,6 +253,7 @@ void CdbOptionsPageWidget::setOptions(CdbOptions &o)
     m_ui.additionalArgumentsLineEdit->setText(o.additionalArguments);
     setSymbolPaths(o.symbolPaths);
     setSourcePaths(o.sourcePaths);
+    m_ui.ignoreFirstChanceAccessViolationCheckBox->setChecked(o.ignoreFirstChanceAccessViolation);
     m_breakEventWidget->setBreakEvents(o.breakEvents);
     m_ui.consoleCheckBox->setChecked(o.cdbConsole);
     m_ui.breakpointCorrectionCheckBox->setChecked(o.breakpointCorrection);
@@ -265,6 +266,7 @@ CdbOptions CdbOptionsPageWidget::options() const
     rc.additionalArguments = m_ui.additionalArgumentsLineEdit->text().trimmed();
     rc.symbolPaths  = m_symbolPaths;
     rc.sourcePaths = m_sourcePaths;
+    rc.ignoreFirstChanceAccessViolation = m_ui.ignoreFirstChanceAccessViolationCheckBox->isChecked();
     rc.breakEvents = m_breakEventWidget->breakEvents();
     rc.cdbConsole = m_ui.consoleCheckBox->isChecked();
     rc.breakpointCorrection = m_ui.breakpointCorrectionCheckBox->isChecked();
