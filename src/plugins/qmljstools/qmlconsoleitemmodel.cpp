@@ -60,7 +60,6 @@ QmlConsoleItemModel::~QmlConsoleItemModel()
 void QmlConsoleItemModel::clear()
 {
     beginResetModel();
-    reset();
     delete m_rootItem;
     m_rootItem = new ConsoleItem(0);
     endResetModel();
