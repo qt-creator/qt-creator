@@ -695,7 +695,7 @@ QString Qt4RunConfiguration::defaultDisplayName()
     if (!m_proFilePath.isEmpty())
         defaultName = QFileInfo(m_proFilePath).completeBaseName();
     else
-        defaultName = tr("Qt4 Run Configuration");
+        defaultName = tr("Qt Run Configuration");
     return defaultName;
 }
 

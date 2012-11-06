@@ -88,7 +88,7 @@ bool AbstractMaemoPackageCreationStep::init()
         return true;
 
     if (!qt4BuildConfiguration()) {
-        raiseError(tr("No Qt4 build configuration"));
+        raiseError(tr("No Qt build configuration"));
         return false;
     }
 

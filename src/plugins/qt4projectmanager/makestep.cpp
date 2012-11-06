@@ -87,7 +87,7 @@ MakeStep::MakeStep(BuildStepList *bsl, const Core::Id id) :
 
 void MakeStep::ctor()
 {
-    setDefaultDisplayName(tr("Make", "Qt4 MakeStep display name."));
+    setDefaultDisplayName(tr("Make", "Qt MakeStep display name."));
 }
 
 void MakeStep::setMakeCommand(const QString &make)
@@ -408,7 +408,7 @@ void MakeStepConfigWidget::updateDetails()
         return;
     }
     if (!bc) {
-        setSummaryText(tr("<b>Make:</b> No Qt4 build configuration."));
+        setSummaryText(tr("<b>Make:</b> No Qt build configuration."));
         return;
     }
 

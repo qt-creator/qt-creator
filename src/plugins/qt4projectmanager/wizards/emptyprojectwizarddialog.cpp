@@ -42,7 +42,7 @@ EmptyProjectWizardDialog::EmptyProjectWizardDialog(const QString &templateName,
     setWindowIcon(icon);
     setWindowTitle(templateName);
 
-    setIntroDescription(tr("This wizard generates an empty Qt4 project. "
+    setIntroDescription(tr("This wizard generates an empty Qt project. "
                            "Add files to it later on by using the other wizards."));
 
     if (!parameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_KIT_IDS))
