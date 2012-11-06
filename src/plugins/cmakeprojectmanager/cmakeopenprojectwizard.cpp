@@ -602,7 +602,7 @@ void CMakeRunPage::initializePage()
                                                                       ninja,
                                                                       true);
         foreach (const GeneratorInfo &info, infos)
-                m_generatorComboBox->addItem(info.displayName(), qVariantFromValue(info));
+            m_generatorComboBox->addItem(info.displayName(), qVariantFromValue(info));
     }
 }
 
