@@ -51,7 +51,6 @@ class AnchorLine;
 class ModelNode;
 class NodeState;
 class AbstractView;
-class WidgetQueryView;
 class NodeStateChangeSet;
 class MetaInfo;
 class NodeMetaInfo;
