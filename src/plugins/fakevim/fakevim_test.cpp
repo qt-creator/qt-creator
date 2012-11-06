@@ -823,6 +823,12 @@ void FakeVimPlugin::test_vim_block_selection()
     KEYS("di(", "((" X "))");
     data.setText("\"\"");
     KEYS("di\"", "\"" X "\"");
+
+    // repeat change inner
+    data.setText("(abc)" N "def" N "(ghi)");
+    KEYS("ci(xyz<esc>", "(xy" X "z)" N "def" N "(ghi)");
+    KEYS("j.", "(xyz)" N "de" X "f" N "(ghi)");
+    KEYS("j.", "(xyz)" N "def" N "(xy" X "z)");
 }
 
 void FakeVimPlugin::test_vim_repeat()
@@ -1784,6 +1790,20 @@ void FakeVimPlugin::test_map()
     KEYS("ikkk<esc>", "kk" X "k");
     KEYS("rj", "kk" X "j");
     data.doCommand("unmap l|unmap k|unmap j");
+
+    // bad mapping
+    data.setText(X "abc" N "def");
+    data.doCommand("map X Zxx");
+    KEYS("X", X "abc" N "def");
+    // cancelled mapping
+    data.doCommand("map X fxxx");
+    KEYS("X", X "abc" N "def");
+    data.doCommand("map X ciXxx");
+    KEYS("X", X "abc" N "def");
+    data.doCommand("map Y Xxx");
+    KEYS("Y", X "abc" N "def");
+    data.doCommand("unmap X|unmap Y");
+
 
     NOT_IMPLEMENTED
     // <C-o>

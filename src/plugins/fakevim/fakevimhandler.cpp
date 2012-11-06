@@ -232,6 +232,7 @@ enum EventResult
 {
     EventHandled,
     EventUnhandled,
+    EventCancelled, // Event is handled but a sub mode was cancelled.
     EventPassedToCore
 };
 
@@ -1216,7 +1217,8 @@ public:
     void init();
     EventResult handleKey(const Input &input);
     EventResult handleDefaultKey(const Input &input);
-    Q_SLOT void handleMappedKeys();
+    void handleMappedKeys();
+    void unhandleMappedKeys();
     EventResult handleInsertMode(const Input &);
     EventResult handleReplaceMode(const Input &);
     EventResult handleCommandMode(const Input &);
@@ -1524,7 +1526,7 @@ public:
     QStack<State> m_redo;
 
     // extra data for '.'
-    void replay(const QString &text, int count);
+    void replay(const QString &text);
     void setDotCommand(const QString &cmd) { g.dotCommand = cmd; }
     void setDotCommand(const QString &cmd, int n) { g.dotCommand = cmd.arg(n); }
     QString visualDotCommand() const;
@@ -2056,13 +2058,7 @@ EventResult FakeVimHandler::Private::handleKey(const Input &input)
 
         // invalid input is used to pop mapping state
         if (!in.isValid()) {
-            g.mapStates.pop_back();
-            QTC_CHECK(!g.mapStates.empty());
-            endEditBlock();
-            if (g.mapStates.size() == 1)
-                g.commandBuffer.setHistoryAutoSave(true);
-            if (m_mode == ExMode || m_subsubmode == SearchSubSubMode)
-                updateMiniBuffer(); // update cursor position on command line
+            unhandleMappedKeys();
         } else {
             if (handleMapped && !g.mapStates.last().noremap && m_subsubmode != SearchSubSubMode) {
                 if (!g.currentMap.isValid()) {
@@ -2085,7 +2081,12 @@ EventResult FakeVimHandler::Private::handleKey(const Input &input)
             }
 
             r = handleDefaultKey(in);
-            // TODO: Unhadled events!
+            if (r != EventHandled) {
+                // clear bad mapping
+                const int index = g.pendingInput.lastIndexOf(Input());
+                if (index != -1)
+                    g.pendingInput.remove(0, index - 1);
+            }
         }
         handleMapped = true;
         g.pendingInput.pop_front();
@@ -2136,6 +2137,18 @@ void FakeVimHandler::Private::handleMappedKeys()
         beginLargeEditBlock();
     }
     g.currentMap.reset();
+}
+
+void FakeVimHandler::Private::unhandleMappedKeys()
+{
+    if (g.mapStates.size() == 1)
+        return;
+    g.mapStates.pop_back();
+    endEditBlock();
+    if (g.mapStates.size() == 1)
+        g.commandBuffer.setHistoryAutoSave(true);
+    if (m_mode == ExMode || m_subsubmode == SearchSubSubMode)
+        updateMiniBuffer(); // update cursor position on command line
 }
 
 void FakeVimHandler::Private::timerEvent(QTimerEvent *ev)
@@ -2629,7 +2642,8 @@ EventResult FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
         m_subsubmode = NoSubSubMode;
         if (!valid) {
             m_submode = NoSubMode;
-            finishMovement();
+            resetCommandMode();
+            handled = EventCancelled;
         } else {
             finishMovement(QString("%1%2%3")
                            .arg(count())
@@ -2656,6 +2670,8 @@ EventResult FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
             ok = selectBlockTextObject(m_subsubdata.is('i'), '{', '}');
         else if (input.is('"') || input.is('\'') || input.is('`'))
             ok = selectQuotedStringTextObject(m_subsubdata.is('i'), input.asChar());
+        else
+            ok = false;
         m_subsubmode = NoSubSubMode;
         if (ok) {
             finishMovement(QString("%1%2%3")
@@ -2664,16 +2680,19 @@ EventResult FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
                            .arg(input.text()));
         } else {
             resetCommandMode();
+            handled = EventCancelled;
         }
     } else if (m_subsubmode == MarkSubSubMode) {
         setMark(input.asChar(), CursorPosition(cursor()));
         m_subsubmode = NoSubSubMode;
     } else if (m_subsubmode == BackTickSubSubMode
             || m_subsubmode == TickSubSubMode) {
-        if (jumpToMark(input.asChar(), m_subsubmode == BackTickSubSubMode))
+        if (jumpToMark(input.asChar(), m_subsubmode == BackTickSubSubMode)) {
             finishMovement();
-        else
+        } else {
             resetCommandMode();
+            handled = EventCancelled;
+        }
         m_subsubmode = NoSubSubMode;
     } else {
         handled = EventUnhandled;
@@ -2725,7 +2744,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
             updateMiniBuffer();
         }
     } else if (m_subsubmode != NoSubSubMode) {
-        handleCommandSubSubMode(input);
+        handled = handleCommandSubSubMode(input);
     } else if (m_submode == OpenSquareSubMode) {
         handled = handleOpenSquareSubMode(input);
     } else if (m_submode == CloseSquareSubMode) {
@@ -2839,6 +2858,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
             handleExCommand(QString(QLatin1Char('x')));
         else if (input.is('Q'))
             handleExCommand("q!");
+        else
+            handled = EventCancelled;
     } else if ((subModeCanUseTextObjects(m_submode) || isVisualMode())
             && (input.is('a') || input.is('i'))) {
         m_subsubmode = TextObjectSubSubMode;
@@ -2989,7 +3010,7 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
         //    << input;
         QString savedCommand = g.dotCommand;
         g.dotCommand.clear();
-        replay(savedCommand, 1);
+        replay(savedCommand);
         enterCommandMode();
         g.dotCommand = savedCommand;
     } else if (input.is('<') || input.is('>') || input.is('=')) {
@@ -3942,6 +3963,8 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
 
 EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
 {
+    EventResult handled = EventHandled;
+
     if (input.isEscape()) {
         g.currentMessage.clear();
         g.searchBuffer.clear();
@@ -3972,6 +3995,8 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
         }
         if (g.currentMessage.isEmpty())
             showMessage(MessageCommand, g.searchBuffer.display());
+        else
+            handled = EventCancelled;
         enterCommandMode();
         g.searchBuffer.clear();
     } else if (input.isKey(Key_Up) || input.isKey(Key_PageUp)) {
@@ -3990,7 +4015,7 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
     if (!input.isReturn() && !input.isEscape())
         updateFind(false);
 
-    return EventHandled;
+    return handled;
 }
 
 // This uses 0 based line counting (hidden lines included).
@@ -4467,7 +4492,7 @@ bool FakeVimHandler::Private::handleExNormalCommand(const ExCommand &cmd)
     if (!cmd.matches("norm", "normal"))
         return false;
     //qDebug() << "REPLAY NORMAL: " << quoteUnprintable(reNormal.cap(3));
-    replay(cmd.args, 1);
+    replay(cmd.args);
     return true;
 }
 
@@ -6332,14 +6357,13 @@ void FakeVimHandler::Private::handleStartOfLine()
         moveToFirstNonBlankOnLine();
 }
 
-void FakeVimHandler::Private::replay(const QString &command, int n)
+void FakeVimHandler::Private::replay(const QString &command)
 {
     //qDebug() << "REPLAY: " << quoteUnprintable(command);
     Inputs inputs(command);
-    for (int i = n; --i >= 0; ) {
-        foreach (Input in, inputs) {
-            handleDefaultKey(in);
-        }
+    foreach (Input in, inputs) {
+        if (handleDefaultKey(in) != EventHandled)
+            break;
     }
 }
 
@@ -6751,7 +6775,7 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
         int key = commitString.size() == 1 ? commitString.at(0).unicode() : 0;
         QKeyEvent kev(QEvent::KeyPress, key, Qt::KeyboardModifiers(), commitString);
         EventResult res = d->handleEvent(&kev);
-        return res == EventHandled;
+        return res == EventHandled || res == EventCancelled;
     }
 
     if (active && ev->type() == QEvent::KeyPress) {
@@ -6764,7 +6788,7 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
         //KEY_DEBUG("HANDLED CODE:" << res);
         //return res != EventPassedToCore;
         //return true;
-        return res == EventHandled;
+        return res == EventHandled || res == EventCancelled;
     }
 
     if (active && ev->type() == QEvent::ShortcutOverride && ob == d->editor()) {
@@ -6807,7 +6831,7 @@ void FakeVimHandler::handleCommand(const QString &cmd)
 
 void FakeVimHandler::handleReplay(const QString &keys)
 {
-    d->replay(keys, 1);
+    d->replay(keys);
 }
 
 void FakeVimHandler::handleInput(const QString &keys)
