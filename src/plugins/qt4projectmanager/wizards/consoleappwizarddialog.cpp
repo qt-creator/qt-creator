@@ -48,7 +48,7 @@ ConsoleAppWizardDialog::ConsoleAppWizardDialog(const QString &templateName,
     setSelectedModules(QLatin1String("core"));
     setDeselectedModules(QLatin1String("gui"));
 
-    setIntroDescription(tr("This wizard generates a Qt4 console application "
+    setIntroDescription(tr("This wizard generates a Qt console application "
                           "project. The application derives from QCoreApplication and does not "
                           "provide a GUI."));
 
