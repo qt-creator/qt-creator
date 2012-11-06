@@ -966,6 +966,39 @@ QByteArray CppModelManager::internalDefinedMacros() const
     return macros;
 }
 
+/// This method will aquire the mutex!
+void CppModelManager::dumpModelManagerConfiguration()
+{
+    // Tons of debug output...
+    qDebug()<<"========= CppModelManager::dumpModelManagerConfiguration ======";
+    foreach (const ProjectInfo &pinfo, m_projects.values()) {
+        qDebug()<<" for project:"<< pinfo.project().data()->document()->fileName();
+        foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
+            qDebug() << "=== part ===";
+            qDebug() << "language:" << (part->language == CXX ? "C++" : "ObjC++");
+            qDebug() << "C++11:" << part->cxx11Enabled;
+            qDebug() << "Qt version:" << part->qtVersion;
+            qDebug() << "precompiled header:" << part->precompiledHeaders;
+            qDebug() << "defines:" << part->defines;
+            qDebug() << "includes:" << part->includePaths;
+            qDebug() << "frameworkPaths:" << part->frameworkPaths;
+            qDebug() << "sources:" << part->sourceFiles;
+            qDebug() << "";
+        }
+    }
+
+    ensureUpdated();
+    qDebug() << "=== Merged include paths ===";
+    foreach (const QString &inc, m_includePaths)
+        qDebug() << inc;
+    qDebug() << "=== Merged framework paths ===";
+    foreach (const QString &inc, m_frameworkPaths)
+        qDebug() << inc;
+    qDebug() << "=== Merged defined macros ===";
+    qDebug() << m_definedMacros;
+    qDebug()<<"========= End of dump ======";
+}
+
 void CppModelManager::addEditorSupport(AbstractEditorSupport *editorSupport)
 {
     m_addtionalEditorSupport.insert(editorSupport);
@@ -1062,40 +1095,26 @@ CppModelManager::ProjectInfo CppModelManager::projectInfo(ProjectExplorer::Proje
 
 void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 {
-#if 0
-    // Tons of debug output...
-    qDebug()<<"========= CppModelManager::updateProjectInfo ======";
-    qDebug()<<" for project:"<< pinfo.project().data()->document()->fileName();
-    foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
-        qDebug() << "=== part ===";
-        qDebug() << "language:" << (part->language == CXX ? "C++" : "ObjC++");
-        qDebug() << "C++11:" << part->cxx11Enabled;
-        qDebug() << "Qt version:" << part->qtVersion;
-        qDebug() << "precompiled header:" << part->precompiledHeaders;
-        qDebug() << "defines:" << part->defines;
-        qDebug() << "includes:" << part->includePaths;
-        qDebug() << "frameworkPaths:" << part->frameworkPaths;
-        qDebug() << "sources:" << part->sourceFiles;
-        qDebug() << "";
+    { // only hold the mutex for a limited scope, so the dumping afterwards can aquire it without deadlocking.
+        QMutexLocker locker(&mutex);
+
+        if (! pinfo.isValid())
+            return;
+
+        ProjectExplorer::Project *project = pinfo.project().data();
+        m_projects.insert(project, pinfo);
+        m_dirty = true;
+
+        m_srcToProjectPart.clear();
+
+        foreach (const ProjectInfo &projectInfo, m_projects.values())
+            foreach (const ProjectPart::Ptr &projectPart, projectInfo.projectParts())
+                foreach (const QString &sourceFile, projectPart->sourceFiles)
+                    m_srcToProjectPart[sourceFile].append(projectPart);
     }
 
-    qDebug() << "";
-#endif
-    QMutexLocker locker(&mutex);
-
-    if (! pinfo.isValid())
-        return;
-
-    ProjectExplorer::Project *project = pinfo.project().data();
-    m_projects.insert(project, pinfo);
-    m_dirty = true;
-
-    m_srcToProjectPart.clear();
-
-    foreach (const ProjectInfo &projectInfo, m_projects.values())
-        foreach (const ProjectPart::Ptr &projectPart, projectInfo.projectParts())
-            foreach (const QString &sourceFile, projectPart->sourceFiles)
-                m_srcToProjectPart[sourceFile].append(projectPart);
+    if (!qgetenv("QTCREATOR_DUMP_PROJECT_INFO").isEmpty())
+        dumpModelManagerConfiguration();
 }
 
 QList<CppModelManager::ProjectPart::Ptr> CppModelManager::projectPart(const QString &fileName) const

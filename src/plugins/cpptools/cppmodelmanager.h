@@ -188,6 +188,8 @@ private:
     QStringList internalFrameworkPaths() const;
     QByteArray internalDefinedMacros() const;
 
+    void dumpModelManagerConfiguration();
+
 private:
     static QMutex m_modelManagerMutex;
     static CppModelManager *m_modelManagerInstance;
