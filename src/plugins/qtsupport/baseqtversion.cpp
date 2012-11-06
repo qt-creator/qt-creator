@@ -775,8 +775,10 @@ void BaseQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
             m_defaultConfigIsDebugAndRelease = true;
     }
     const QString designerBins = QLatin1String("QT.designer.bins");
-    const QString declarativeBins = QLatin1String("QT.qml.bins");
+    const QString qmlBins = QLatin1String("QT.qml.bins");
+    const QString declarativeBins = QLatin1String("QT.declarative.bins");
     m_mkspecValues.insert(designerBins, evaluator->value(designerBins));
+    m_mkspecValues.insert(qmlBins, evaluator->value(qmlBins));
     m_mkspecValues.insert(declarativeBins, evaluator->value(declarativeBins));
 }
 
