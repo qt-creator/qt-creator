@@ -34,6 +34,7 @@
 #include "qnxbaseqtconfigwidget.h"
 
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 
 #include <QDir>
 
@@ -180,13 +181,10 @@ void QnxAbstractQtVersion::setDefaultSdkPath()
         return;
 
     QString envFile;
-#if defined Q_OS_WIN
-    envFile = qtHostPrefix + QLatin1String("/bbndk-env.bat");
-#elif defined Q_OS_UNIX
-    envFile = qtHostPrefix + QLatin1String("/bbndk-env.sh");
-#endif
-
+    if (Utils::HostOsInfo::isWindowsHost())
+        envFile = qtHostPrefix + QLatin1String("/bbndk-env.bat");
+    else if (Utils::HostOsInfo::isAnyUnixHost())
+        envFile = qtHostPrefix + QLatin1String("/bbndk-env.sh");
     if (QFileInfo(envFile).exists())
         setSdkPath(qtHostPrefix);
-
 }

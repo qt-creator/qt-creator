@@ -66,29 +66,32 @@ QMultiMap<QString, QString> parseEnvironmentFile(const QString &fileName)
 
         QString value = line.mid(equalIndex + 1);
 
-#if defined Q_OS_WIN
-        QRegExp systemVarRegExp(QLatin1String("IF NOT DEFINED ([\\w\\d]+)\\s+set ([\\w\\d]+)=([\\w\\d]+)"));
-        if (line.contains(systemVarRegExp)) {
-            var = systemVarRegExp.cap(2);
-            Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
-            QString sysVar = systemVarRegExp.cap(1);
-            if (sysEnv.hasKey(sysVar))
-                value = sysEnv.value(sysVar);
-            else
-                value = systemVarRegExp.cap(3);
+        if (Utils::HostOsInfo::isWindowsHost()) {
+            QRegExp systemVarRegExp(QLatin1String("IF NOT DEFINED ([\\w\\d]+)\\s+set "
+                                                  "([\\w\\d]+)=([\\w\\d]+)"));
+            if (line.contains(systemVarRegExp)) {
+                var = systemVarRegExp.cap(2);
+                Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
+                QString sysVar = systemVarRegExp.cap(1);
+                if (sysEnv.hasKey(sysVar))
+                    value = sysEnv.value(sysVar);
+                else
+                    value = systemVarRegExp.cap(3);
+            }
         }
-#elif defined Q_OS_UNIX
-        QRegExp systemVarRegExp(QLatin1String("\\$\\{([\\w\\d]+):=([\\w\\d]+)\\}")); // to match e.g. "${QNX_HOST_VERSION:=10_0_9_52}"
-        if (value.contains(systemVarRegExp)) {
-            Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
-            QString sysVar = systemVarRegExp.cap(1);
-            if (sysEnv.hasKey(sysVar))
-                value = sysEnv.value(sysVar);
-            else
-                value = systemVarRegExp.cap(2);
-        }
-#endif
+        else if (Utils::HostOsInfo::isAnyUnixHost()) {
+            // to match e.g. "${QNX_HOST_VERSION:=10_0_9_52}"
+            QRegExp systemVarRegExp(QLatin1String("\\$\\{([\\w\\d]+):=([\\w\\d]+)\\}"));
 
+            if (value.contains(systemVarRegExp)) {
+                Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
+                QString sysVar = systemVarRegExp.cap(1);
+                if (sysEnv.hasKey(sysVar))
+                    value = sysEnv.value(sysVar);
+                else
+                    value = systemVarRegExp.cap(2);
+            }
+        }
         if (value.startsWith(QLatin1Char('"')))
             value = value.mid(1);
         if (value.endsWith(QLatin1Char('"')))
