@@ -113,8 +113,7 @@ public:
 
 private:
     static void raiseError(const QString &reason);
-    static bool openXmlFile(ProjectExplorer::Target *target, QDomDocument &doc,
-                            const Utils::FileName &fileName);
+    static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName);
     static bool saveXmlFile(ProjectExplorer::Target *target, QDomDocument &doc, const Utils::FileName &fileName);
     static bool openManifest(ProjectExplorer::Target *target, QDomDocument &doc);
     static bool saveManifest(ProjectExplorer::Target *target, QDomDocument &doc);

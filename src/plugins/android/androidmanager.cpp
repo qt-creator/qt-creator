@@ -106,7 +106,7 @@ bool AndroidManager::setPackageName(ProjectExplorer::Target *target, const QStri
 QString AndroidManager::applicationName(ProjectExplorer::Target *target)
 {
     QDomDocument doc;
-    if (!openXmlFile(target, doc, stringsPath(target)))
+    if (!openXmlFile(doc, stringsPath(target)))
         return QString();
     QDomElement metadataElem = doc.documentElement().firstChildElement(QLatin1String("string"));
     while (!metadataElem.isNull()) {
@@ -121,7 +121,7 @@ bool AndroidManager::setApplicationName(ProjectExplorer::Target *target, const Q
 {
     QDomDocument doc;
     Utils::FileName path = stringsPath(target);
-    if (!openXmlFile(target, doc, path))
+    if (!openXmlFile(doc, path))
         return false;
     QDomElement metadataElem = doc.documentElement().firstChildElement(QLatin1String("string"));
     while (!metadataElem.isNull()) {
@@ -403,11 +403,11 @@ bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *
     QDomDocument srcVersionDoc;
     Utils::FileName srcVersionPath = javaSrcPath;
     srcVersionPath.appendPath(QLatin1String("version.xml"));
-    if (openXmlFile(target, srcVersionDoc, srcVersionPath)) {
+    if (openXmlFile(srcVersionDoc, srcVersionPath)) {
         QDomDocument dstVersionDoc;
         Utils::FileName dstVersionPath=androidPath;
         dstVersionPath.appendPath(QLatin1String("version.xml"));
-        if (openXmlFile(target, dstVersionDoc, dstVersionPath))
+        if (openXmlFile(dstVersionDoc, dstVersionPath))
             forceUpdate = (srcVersionDoc.documentElement().attribute(QLatin1String("value")).toDouble()
                            > dstVersionDoc.documentElement().attribute(QLatin1String("value")).toDouble());
         else
@@ -674,7 +674,7 @@ bool AndroidManager::setPrebundledLibs(ProjectExplorer::Target *target, const QS
 
 bool AndroidManager::openLibsXml(ProjectExplorer::Target *target, QDomDocument &doc)
 {
-    return openXmlFile(target, doc, libsPath(target));
+    return openXmlFile(doc, libsPath(target));
 }
 
 bool AndroidManager::saveLibsXml(ProjectExplorer::Target *target, QDomDocument &doc)
@@ -698,7 +698,7 @@ QString AndroidManager::loadLocal(ProjectExplorer::Target *target, int apiLevel,
     QString localLibs;
 
     QDomDocument doc;
-    if (!openXmlFile(target, doc, localLibsRulesFilePath(target)))
+    if (!openXmlFile(doc, localLibsRulesFilePath(target)))
         return localLibs;
 
     QStringList libs;
@@ -733,8 +733,7 @@ QString AndroidManager::loadLocal(ProjectExplorer::Target *target, int apiLevel,
     return localLibs;
 }
 
-bool AndroidManager::openXmlFile(ProjectExplorer::Target *target, QDomDocument &doc,
-                                 const Utils::FileName &fileName)
+bool AndroidManager::openXmlFile(QDomDocument &doc, const Utils::FileName &fileName)
 {
     QFile f(fileName.toString());
     if (!f.open(QIODevice::ReadOnly))
@@ -762,7 +761,7 @@ bool AndroidManager::saveXmlFile(ProjectExplorer::Target *target, QDomDocument &
 
 bool AndroidManager::openManifest(ProjectExplorer::Target *target, QDomDocument &doc)
 {
-    return openXmlFile(target, doc, manifestPath(target));
+    return openXmlFile(doc, manifestPath(target));
 }
 
 bool AndroidManager::saveManifest(ProjectExplorer::Target *target, QDomDocument &doc)
