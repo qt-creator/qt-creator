@@ -30,7 +30,7 @@
 #ifndef DESIGNERMODEL_H
 #define DESIGNERMODEL_H
 
-#include <corelib_global.h>
+#include <qmldesignercorelib_global.h>
 #include <QObject>
 #include <QMimeData>
 #include <QPair>
@@ -62,7 +62,7 @@ class RewriterView;
 
 typedef QList<QPair<QString, QVariant> > PropertyListType;
 
-class CORESHARED_EXPORT Model : public QObject
+class QMLDESIGNERCORE_EXPORT Model : public QObject
 {
     friend class QmlDesigner::ModelNode;
     friend class QmlDesigner::NodeState;

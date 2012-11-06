@@ -30,11 +30,11 @@
 #ifndef PROPERTYNODE_H
 #define PROPERTYNODE_H
 
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT PropertyNode // : public BaseModelNode
+class QMLDESIGNERCORE_EXPORT PropertyNode // : public BaseModelNode
 {
 public:
     PropertyNode();

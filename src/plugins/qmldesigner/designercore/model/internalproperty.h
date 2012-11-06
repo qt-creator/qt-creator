@@ -30,7 +30,7 @@
 #ifndef INTERNALPROPERTY_H
 #define INTERNALPROPERTY_H
 
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 
 #include <QVariant>
 #include <QString>
@@ -55,7 +55,7 @@ class InternalNode;
 typedef QSharedPointer<InternalNode> InternalNodePointer;
 typedef QWeakPointer<InternalNode> InternalNodeWeakPointer;
 
-class CORESHARED_EXPORT InternalProperty
+class QMLDESIGNERCORE_EXPORT InternalProperty
 {
 public:
     typedef QSharedPointer<InternalProperty> Pointer;

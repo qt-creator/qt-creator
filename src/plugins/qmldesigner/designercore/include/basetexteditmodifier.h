@@ -31,7 +31,7 @@
 #ifndef BASETEXTEDITMODIFIER_H
 #define BASETEXTEDITMODIFIER_H
 
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 #include "plaintexteditmodifier.h"
 
 #include <texteditor/basetexteditor.h>
@@ -44,7 +44,7 @@ class Snapshot;
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT BaseTextEditModifier: public PlainTextEditModifier
+class QMLDESIGNERCORE_EXPORT BaseTextEditModifier: public PlainTextEditModifier
 {
 public:
     BaseTextEditModifier(TextEditor::BaseTextEditorWidget *textEdit);

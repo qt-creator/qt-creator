@@ -30,12 +30,12 @@
 #ifndef BINDINGPROPERTY_H
 #define BINDINGPROPERTY_H
 
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 #include "abstractproperty.h"
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT BindingProperty : public QmlDesigner::AbstractProperty
+class QMLDESIGNERCORE_EXPORT BindingProperty : public QmlDesigner::AbstractProperty
 {
     friend class QmlDesigner::ModelNode;
     friend class QmlDesigner::Internal::ModelPrivate;

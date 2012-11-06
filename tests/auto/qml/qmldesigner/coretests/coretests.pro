@@ -25,7 +25,7 @@ INCLUDEPATH += $$IDE_SOURCE_TREE//share/qtcreator/qml/qmlpuppet
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner
 
 
-include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/designercore.pri)
+include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/designercore-lib.pri)
 include($$IDE_SOURCE_TREE/src/plugins/qmljstools/qmljstools.pri)
 include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
 include($$IDE_SOURCE_TREE/src/libs/qmljs/qmljs.pri)

@@ -30,7 +30,7 @@
 #ifndef MODELTOTEXTMERGER_H
 #define MODELTOTEXTMERGER_H
 
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 #include <modelnode.h>
 #include "abstractview.h"
 #include "nodeabstractproperty.h"
@@ -46,7 +46,7 @@
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT RewriterView;
+class QMLDESIGNERCORE_EXPORT RewriterView;
 
 namespace Internal {
 

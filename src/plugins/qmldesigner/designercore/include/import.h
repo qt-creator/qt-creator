@@ -33,11 +33,11 @@
 #include <QString>
 #include <QStringList>
 
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT Import
+class QMLDESIGNERCORE_EXPORT Import
 {
 public:
     static Import createLibraryImport(const QString &url, const QString &version = QString(), const QString &alias = QString(), const QStringList &importPaths = QStringList());
@@ -71,7 +71,7 @@ private:
     QStringList m_importPathList;
 };
 
-CORESHARED_EXPORT uint qHash(const Import &import);
+QMLDESIGNERCORE_EXPORT uint qHash(const Import &import);
 
 } // namespace QmlDesigner
 

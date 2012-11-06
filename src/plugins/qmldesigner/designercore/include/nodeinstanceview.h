@@ -30,7 +30,7 @@
 #ifndef NODEINSTANCEVIEW_H
 #define NODEINSTANCEVIEW_H
 
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 #include "abstractview.h"
 
 #include <modelnode.h>
@@ -69,7 +69,7 @@ class CompleteComponentCommand;
 class InformationContainer;
 class TokenCommand;
 
-class CORESHARED_EXPORT NodeInstanceView : public AbstractView, public NodeInstanceClientInterface
+class QMLDESIGNERCORE_EXPORT NodeInstanceView : public AbstractView, public NodeInstanceClientInterface
 {
     Q_OBJECT
 

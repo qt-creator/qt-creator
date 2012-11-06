@@ -34,7 +34,7 @@
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT InvalidSlideIndexException : public Exception
+class QMLDESIGNERCORE_EXPORT InvalidSlideIndexException : public Exception
 {
 public:
     InvalidSlideIndexException(int line,

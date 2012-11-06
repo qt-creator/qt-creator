@@ -30,14 +30,14 @@
 #ifndef EXCEPTION_H
 #define EXCEPTION_H
 
-#include <corelib_global.h>
+#include <qmldesignercorelib_global.h>
 
 #include <QString>
 #include <QDebug>
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT Exception
+class QMLDESIGNERCORE_EXPORT Exception
 {
 public:
     Exception(int line,
@@ -64,7 +64,7 @@ private:
     static bool s_shouldAssert;
 };
 
-CORESHARED_EXPORT QDebug operator<<(QDebug debug, const Exception &exception);
+QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const Exception &exception);
 
 }
 

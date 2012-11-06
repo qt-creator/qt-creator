@@ -30,7 +30,7 @@
 #ifndef VARIANTROPERTY_H
 #define VARIANTROPERTY_H
 
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 #include "abstractproperty.h"
 
 QT_BEGIN_NAMESPACE
@@ -45,7 +45,7 @@ namespace Internal {
     class ModelPrivate;
 }
 
-class CORESHARED_EXPORT VariantProperty : public AbstractProperty
+class QMLDESIGNERCORE_EXPORT VariantProperty : public AbstractProperty
 {
     friend class QmlDesigner::ModelNode;
     friend class QmlDesigner::Internal::ModelPrivate;
@@ -65,8 +65,8 @@ protected:
     VariantProperty(const QString &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
 };
 
-CORESHARED_EXPORT QTextStream& operator<<(QTextStream &stream, const VariantProperty &property);
-CORESHARED_EXPORT QDebug operator<<(QDebug debug, const VariantProperty &VariantProperty);
+QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const VariantProperty &property);
+QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const VariantProperty &VariantProperty);
 
 }
 

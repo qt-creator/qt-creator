@@ -30,7 +30,7 @@
 #ifndef DESIGNERNODE_H
 #define DESIGNERNODE_H
 
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 #include <QWeakPointer>
 #include <QList>
 #include <QMetaType>
@@ -63,18 +63,18 @@ class NodeProperty;
 class NodeAbstractProperty;
 class ModelNode;
 
-CORESHARED_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);
+QMLDESIGNERCORE_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);
 
 typedef QList<QPair<QString, QVariant> > PropertyListType;
 
-class CORESHARED_EXPORT  ModelNode
+class QMLDESIGNERCORE_EXPORT  ModelNode
 {
-    friend CORESHARED_EXPORT bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode);
-    friend CORESHARED_EXPORT bool operator !=(const ModelNode &firstNode, const ModelNode &secondNode);
-    friend CORESHARED_EXPORT uint qHash(const ModelNode & node);
-    friend CORESHARED_EXPORT QDebug operator<<(QDebug debug, const ModelNode &modelNode);
-    friend CORESHARED_EXPORT bool operator <(const ModelNode &firstNode, const ModelNode &secondNode);
-    friend CORESHARED_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);
+    friend QMLDESIGNERCORE_EXPORT bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode);
+    friend QMLDESIGNERCORE_EXPORT bool operator !=(const ModelNode &firstNode, const ModelNode &secondNode);
+    friend QMLDESIGNERCORE_EXPORT uint qHash(const ModelNode & node);
+    friend QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const ModelNode &modelNode);
+    friend QMLDESIGNERCORE_EXPORT bool operator <(const ModelNode &firstNode, const ModelNode &secondNode);
+    friend QMLDESIGNERCORE_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);
     friend class QmlDesigner::Model;
     friend class QmlDesigner::AbstractView;
     friend class QmlDesigner::NodeListProperty;
@@ -192,12 +192,12 @@ private: // variables
     QWeakPointer<AbstractView> m_view;
 };
 
-CORESHARED_EXPORT bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode);
-CORESHARED_EXPORT bool operator !=(const ModelNode &firstNode, const ModelNode &secondNode);
-CORESHARED_EXPORT uint qHash(const ModelNode & node);
-CORESHARED_EXPORT bool operator <(const ModelNode &firstNode, const ModelNode &secondNode);
-CORESHARED_EXPORT QDebug operator<<(QDebug debug, const ModelNode &modelNode);
-CORESHARED_EXPORT QTextStream& operator<<(QTextStream &stream, const ModelNode &modelNode);
+QMLDESIGNERCORE_EXPORT bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode);
+QMLDESIGNERCORE_EXPORT bool operator !=(const ModelNode &firstNode, const ModelNode &secondNode);
+QMLDESIGNERCORE_EXPORT uint qHash(const ModelNode & node);
+QMLDESIGNERCORE_EXPORT bool operator <(const ModelNode &firstNode, const ModelNode &secondNode);
+QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const ModelNode &modelNode);
+QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const ModelNode &modelNode);
 }
 
 Q_DECLARE_METATYPE(QmlDesigner::ModelNode)

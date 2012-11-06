@@ -36,7 +36,7 @@
 #include "invalidpropertyexception.h"
 
 #include <QDebug>
-#include <corelib_global.h>
+#include <qmldesignercorelib_global.h>
 
 namespace QmlDesigner {
 namespace Internal {

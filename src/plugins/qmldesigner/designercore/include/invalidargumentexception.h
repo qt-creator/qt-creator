@@ -35,7 +35,7 @@
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT InvalidArgumentException : public Exception
+class QMLDESIGNERCORE_EXPORT InvalidArgumentException : public Exception
 {
 public:
     InvalidArgumentException(int line,

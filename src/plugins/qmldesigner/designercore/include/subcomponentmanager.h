@@ -30,7 +30,7 @@
 #ifndef SUBCOMPONENTMANAGER_H
 #define SUBCOMPONENTMANAGER_H
 
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 
 #include <import.h>
 
@@ -45,7 +45,7 @@ namespace QmlDesigner {
 
 class Model;
 
-class CORESHARED_EXPORT SubComponentManager : public QObject
+class QMLDESIGNERCORE_EXPORT SubComponentManager : public QObject
 {
     Q_OBJECT
 public:

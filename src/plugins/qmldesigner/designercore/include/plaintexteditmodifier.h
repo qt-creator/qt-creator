@@ -30,7 +30,7 @@
 #ifndef PLAINTEXTEDITMODIFIER_H
 #define PLAINTEXTEDITMODIFIER_H
 
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 #include "textmodifier.h"
 
 QT_BEGIN_NAMESPACE
@@ -44,7 +44,7 @@ namespace Utils {
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT PlainTextEditModifier: public TextModifier
+class QMLDESIGNERCORE_EXPORT PlainTextEditModifier: public TextModifier
 {
     Q_OBJECT
 
@@ -98,7 +98,7 @@ private:
     bool m_ongoingTextChange;
 };
 
-class CORESHARED_EXPORT NotIndentingTextEditModifier: public PlainTextEditModifier
+class QMLDESIGNERCORE_EXPORT NotIndentingTextEditModifier: public PlainTextEditModifier
 {
 public:
     NotIndentingTextEditModifier(QPlainTextEdit *textEdit)

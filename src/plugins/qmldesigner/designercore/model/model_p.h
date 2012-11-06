@@ -39,7 +39,7 @@
 #include "abstractview.h"
 #include "metainfo.h"
 
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;

@@ -30,13 +30,13 @@
 #ifndef QMLCHANGESET_H
 #define QMLCHANGESET_H
 
-#include <corelib_global.h>
+#include <qmldesignercorelib_global.h>
 #include <modelnode.h>
 #include "qmlmodelnodefacade.h"
 
 namespace QmlDesigner {
 
-class  CORESHARED_EXPORT QmlModelStateOperation : public QmlModelNodeFacade
+class  QMLDESIGNERCORE_EXPORT QmlModelStateOperation : public QmlModelNodeFacade
 {
 public:
     QmlModelStateOperation() : QmlModelNodeFacade() {}
@@ -47,7 +47,7 @@ public:
 };
 
 
-class  CORESHARED_EXPORT QmlPropertyChanges : public QmlModelStateOperation
+class  QMLDESIGNERCORE_EXPORT QmlPropertyChanges : public QmlModelStateOperation
 {
 public:
     QmlPropertyChanges() : QmlModelStateOperation() {}

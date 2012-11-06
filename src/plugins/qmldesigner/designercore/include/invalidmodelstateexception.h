@@ -34,7 +34,7 @@
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT InvalidModelStateException : public Exception
+class QMLDESIGNERCORE_EXPORT InvalidModelStateException : public Exception
 {
 public:
     InvalidModelStateException(int line,

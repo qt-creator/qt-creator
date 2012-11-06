@@ -32,15 +32,14 @@
 
 // Unnecessary since core isn't a dll any more.
 
-#define CORESHARED_EXPORT
 #define TEST_CORESHARED_EXPORT
 
-//#if defined(CORE_LIBRARY)
-//#  define CORESHARED_EXPORT Q_DECL_EXPORT
-//#else
-//#  define CORESHARED_EXPORT Q_DECL_IMPORT
-//#endif
-//
+#if defined(DESIGNER_CORE_LIBRARY)
+#  define QMLDESIGNERCORE_EXPORT Q_DECL_EXPORT
+#else
+#  define QMLDESIGNERCORE_EXPORT Q_DECL_IMPORT
+#endif
+
 //#if defined(TEST_EXPORTS)
 //#if defined(CORE_LIBRARY)
 //#  define TEST_CORESHARED_EXPORT Q_DECL_EXPORT

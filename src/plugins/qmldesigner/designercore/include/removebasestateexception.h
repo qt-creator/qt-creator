@@ -34,7 +34,7 @@
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT RemoveBaseStateException : public Exception
+class QMLDESIGNERCORE_EXPORT RemoveBaseStateException : public Exception
 {
 public:
     RemoveBaseStateException(int line,

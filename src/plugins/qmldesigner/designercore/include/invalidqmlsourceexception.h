@@ -34,7 +34,7 @@
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT InvalidQmlSourceException : public QmlDesigner::Exception
+class QMLDESIGNERCORE_EXPORT InvalidQmlSourceException : public QmlDesigner::Exception
 {
 public:
     InvalidQmlSourceException(int line,

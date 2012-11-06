@@ -34,7 +34,7 @@
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT InvalidIdException : public InvalidArgumentException
+class QMLDESIGNERCORE_EXPORT InvalidIdException : public InvalidArgumentException
 {
 public:
     enum Reason { InvalidCharacters, DuplicateId };

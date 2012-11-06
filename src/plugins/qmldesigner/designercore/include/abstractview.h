@@ -30,7 +30,7 @@
 #ifndef ABSTRACTVIEW_H
 #define ABSTRACTVIEW_H
 
-#include <corelib_global.h>
+#include <qmldesignercorelib_global.h>
 
 #include <model.h>
 #include <modelnode.h>
@@ -58,7 +58,7 @@ class QmlModelView;
 class NodeInstanceView;
 class RewriterView;
 
-class CORESHARED_EXPORT AbstractView : public QObject
+class QMLDESIGNERCORE_EXPORT AbstractView : public QObject
 {
     Q_OBJECT
 public:
@@ -191,8 +191,8 @@ private:
     QWeakPointer<Model> m_model;
 };
 
-CORESHARED_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);
-CORESHARED_EXPORT QList<ModelNode> toModelNodeList(const QList<Internal::InternalNodePointer> &nodeList, AbstractView *view);
+QMLDESIGNERCORE_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);
+QMLDESIGNERCORE_EXPORT QList<ModelNode> toModelNodeList(const QList<Internal::InternalNodePointer> &nodeList, AbstractView *view);
 
 }
 

@@ -30,7 +30,7 @@
 #ifndef QmlItemNode_H
 #define QmlItemNode_H
 
-#include <corelib_global.h>
+#include <qmldesignercorelib_global.h>
 #include <modelnode.h>
 #include "qmlobjectnode.h"
 #include "qmlstate.h"
@@ -44,9 +44,9 @@ namespace QmlDesigner {
 class QmlModelStateGroup;
 class QmlAnchors;
 
-class CORESHARED_EXPORT QmlItemNode : public QmlObjectNode
+class QMLDESIGNERCORE_EXPORT QmlItemNode : public QmlObjectNode
 {
-    friend class CORESHARED_EXPORT QmlAnchors;
+    friend class QMLDESIGNERCORE_EXPORT QmlAnchors;
 public:
     QmlItemNode() : QmlObjectNode() {}
     QmlItemNode(const ModelNode &modelNode)  : QmlObjectNode(modelNode) {}
@@ -97,9 +97,9 @@ public:
     bool hasAnySubModelNodes() const;
 };
 
-CORESHARED_EXPORT uint qHash(const QmlItemNode &node);
+QMLDESIGNERCORE_EXPORT uint qHash(const QmlItemNode &node);
 
-class CORESHARED_EXPORT QmlModelStateGroup
+class QMLDESIGNERCORE_EXPORT QmlModelStateGroup
 {
     friend class QmlItemNode;
     friend class QmlModelView;
@@ -122,8 +122,8 @@ private:
     ModelNode m_modelNode;
 };
 
-CORESHARED_EXPORT QList<ModelNode> toModelNodeList(const QList<QmlItemNode> &fxItemNodeList);
-CORESHARED_EXPORT QList<QmlItemNode> toQmlItemNodeList(const QList<ModelNode> &modelNodeList);
+QMLDESIGNERCORE_EXPORT QList<ModelNode> toModelNodeList(const QList<QmlItemNode> &fxItemNodeList);
+QMLDESIGNERCORE_EXPORT QList<QmlItemNode> toQmlItemNodeList(const QList<ModelNode> &modelNodeList);
 
 } //QmlDesigner
 

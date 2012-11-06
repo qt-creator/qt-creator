@@ -9,7 +9,7 @@ include(../../qtcreatorplugin.pri)
 include(../../private_headers.pri)
 include(qmldesigner_dependencies.pri)
 
-include(designercore/designercore.pri)
+include(designercore/designercore-lib.pri)
 include(components/componentcore/componentcore.pri)
 include(components/integration/integration.pri)
 include(components/propertyeditor/propertyeditor.pri)

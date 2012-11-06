@@ -30,7 +30,7 @@
 #ifndef FXSTATE_H
 #define FXSTATE_H
 
-#include <corelib_global.h>
+#include <qmldesignercorelib_global.h>
 #include "qmlmodelnodefacade.h"
 #include "qmlchangeset.h"
 
@@ -40,9 +40,9 @@ class QmlModelView;
 class QmlModelStateGroup;
 class QmlObjectNode;
 
-class CORESHARED_EXPORT QmlModelState : public QmlModelNodeFacade
+class QMLDESIGNERCORE_EXPORT QmlModelState : public QmlModelNodeFacade
 {
-    friend class CORESHARED_EXPORT QmlModelView;
+    friend class QMLDESIGNERCORE_EXPORT QmlModelView;
 
 public:
     QmlModelState();

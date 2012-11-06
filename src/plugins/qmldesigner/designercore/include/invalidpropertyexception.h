@@ -34,7 +34,7 @@
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT InvalidPropertyException : public Exception
+class QMLDESIGNERCORE_EXPORT InvalidPropertyException : public Exception
 {
 public:
     InvalidPropertyException(int line,

@@ -34,7 +34,7 @@
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT InvalidReparentingException : public Exception
+class QMLDESIGNERCORE_EXPORT InvalidReparentingException : public Exception
 {
 public:
     InvalidReparentingException(int line,

@@ -30,7 +30,7 @@
 #ifndef FXOBJECTNODE_H
 #define FXOBJECTNODE_H
 
-#include <corelib_global.h>
+#include <qmldesignercorelib_global.h>
 #include "qmlmodelnodefacade.h"
 #include "qmlstate.h"
 #include "qmlchangeset.h"
@@ -42,7 +42,7 @@ namespace QmlDesigner {
 class QmlItemNode;
 class QmlPropertyChanges;
 
-class CORESHARED_EXPORT QmlObjectNode : public QmlModelNodeFacade
+class QMLDESIGNERCORE_EXPORT QmlObjectNode : public QmlModelNodeFacade
 {
 public:
     QmlObjectNode() : QmlModelNodeFacade() {}
@@ -106,9 +106,9 @@ protected:
     QList<QmlModelState> allDefinedStates() const;
 };
 
-CORESHARED_EXPORT uint qHash(const QmlObjectNode &node);
-CORESHARED_EXPORT QList<ModelNode> toModelNodeList(const QList<QmlObjectNode> &fxObjectNodeList);
-CORESHARED_EXPORT QList<QmlObjectNode> toQmlObjectNodeList(const QList<ModelNode> &modelNodeList);
+QMLDESIGNERCORE_EXPORT uint qHash(const QmlObjectNode &node);
+QMLDESIGNERCORE_EXPORT QList<ModelNode> toModelNodeList(const QList<QmlObjectNode> &fxObjectNodeList);
+QMLDESIGNERCORE_EXPORT QList<QmlObjectNode> toQmlObjectNodeList(const QList<ModelNode> &modelNodeList);
 }// QmlDesigner
 
 #endif // FXOBJECTNODE_H

@@ -5,6 +5,7 @@ QT += script \
     network
 
 DEFINES += TEST_EXPORTS
+DEFINES += DESIGNER_CORE_LIBRARY
 INCLUDEPATH += $$PWD \
     $$PWD/include
 
@@ -76,7 +77,7 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/modelmerger.cpp \
     $$PWD/exceptions/rewritingexception.cpp
 
-HEADERS += $$PWD/include/corelib_global.h \
+HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/include/abstractview.h \
     $$PWD/include/nodeinstanceview.h \
     $$PWD/include/rewriterview.h \

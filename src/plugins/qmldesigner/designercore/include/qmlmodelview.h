@@ -30,7 +30,7 @@
 #ifndef QMLMODELVIEW_H
 #define QMLMODELVIEW_H
 
-#include <corelib_global.h>
+#include <qmldesignercorelib_global.h>
 #include <QPoint>
 #include <abstractview.h>
 #include "qmlitemnode.h"
@@ -42,11 +42,11 @@ namespace QmlDesigner {
 
 class ItemLibraryEntry;
 
-class CORESHARED_EXPORT QmlModelView : public AbstractView
+class QMLDESIGNERCORE_EXPORT QmlModelView : public AbstractView
 {
     Q_OBJECT
-    friend CORESHARED_EXPORT class QmlObjectNode;
-    friend CORESHARED_EXPORT class QmlModelNodeFacade;
+    friend QMLDESIGNERCORE_EXPORT class QmlObjectNode;
+    friend QMLDESIGNERCORE_EXPORT class QmlModelNodeFacade;
 
 public:
     QmlModelView(QObject *parent) ;

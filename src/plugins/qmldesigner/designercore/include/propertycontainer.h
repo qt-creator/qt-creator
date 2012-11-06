@@ -30,7 +30,7 @@
 #ifndef PROPERTYCONTAINER_H
 #define PROPERTYCONTAINER_H
 
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 
 #include <QString>
 #include <QExplicitlySharedDataPointer>
@@ -41,13 +41,13 @@ namespace QmlDesigner {
 
 class PropertyContainer;
 
-CORESHARED_EXPORT QDataStream &operator<<(QDataStream &stream, const PropertyContainer &propertyContainer);
-CORESHARED_EXPORT QDataStream &operator>>(QDataStream &stream, PropertyContainer &propertyContainer);
+QMLDESIGNERCORE_EXPORT QDataStream &operator<<(QDataStream &stream, const PropertyContainer &propertyContainer);
+QMLDESIGNERCORE_EXPORT QDataStream &operator>>(QDataStream &stream, PropertyContainer &propertyContainer);
 
-class CORESHARED_EXPORT PropertyContainer
+class QMLDESIGNERCORE_EXPORT PropertyContainer
 {
-    friend CORESHARED_EXPORT QDataStream &operator<<(QDataStream &stream, const PropertyContainer &propertyContainer);
-    friend CORESHARED_EXPORT QDataStream &operator>>(QDataStream &stream, PropertyContainer &propertyContainer);
+    friend QMLDESIGNERCORE_EXPORT QDataStream &operator<<(QDataStream &stream, const PropertyContainer &propertyContainer);
+    friend QMLDESIGNERCORE_EXPORT QDataStream &operator>>(QDataStream &stream, PropertyContainer &propertyContainer);
 
 public:
     PropertyContainer();
@@ -70,8 +70,8 @@ private:
     mutable QVariant m_value;
 };
 
-CORESHARED_EXPORT QDataStream &operator<<(QDataStream &stream, const QList<PropertyContainer> &propertyContainerList);
-CORESHARED_EXPORT QDataStream &operator>>(QDataStream &stream, QList<PropertyContainer> &propertyContainerList);
+QMLDESIGNERCORE_EXPORT QDataStream &operator<<(QDataStream &stream, const QList<PropertyContainer> &propertyContainerList);
+QMLDESIGNERCORE_EXPORT QDataStream &operator>>(QDataStream &stream, QList<PropertyContainer> &propertyContainerList);
 
 } //namespace QmlDesigner
 

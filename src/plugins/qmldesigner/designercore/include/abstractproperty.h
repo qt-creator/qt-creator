@@ -33,7 +33,7 @@
 #include <QVariant>
 #include <QWeakPointer>
 #include <QSharedPointer>
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 
 QT_BEGIN_NAMESPACE
 class QTextStream;
@@ -52,11 +52,11 @@ namespace QmlDesigner {
 class Model;
 class ModelNode;
 class AbstractView;
-class CORESHARED_EXPORT VariantProperty;
-class CORESHARED_EXPORT NodeListProperty;
-class CORESHARED_EXPORT NodeAbstractProperty;
-class CORESHARED_EXPORT BindingProperty;
-class CORESHARED_EXPORT NodeProperty;
+class QMLDESIGNERCORE_EXPORT VariantProperty;
+class QMLDESIGNERCORE_EXPORT NodeListProperty;
+class QMLDESIGNERCORE_EXPORT NodeAbstractProperty;
+class QMLDESIGNERCORE_EXPORT BindingProperty;
+class QMLDESIGNERCORE_EXPORT NodeProperty;
 class QmlObjectNode;
 
 
@@ -65,14 +65,14 @@ namespace Internal {
     class ModelPrivate;
 }
 
-class CORESHARED_EXPORT AbstractProperty
+class QMLDESIGNERCORE_EXPORT AbstractProperty
 {
     friend class QmlDesigner::ModelNode;
     friend class QmlDesigner::Internal::ModelPrivate;
 
-    friend CORESHARED_EXPORT bool operator ==(const AbstractProperty &property1, const AbstractProperty &property2);
-    friend CORESHARED_EXPORT bool operator !=(const AbstractProperty &property1, const AbstractProperty &property2);
-    friend CORESHARED_EXPORT uint qHash(const AbstractProperty& property);
+    friend QMLDESIGNERCORE_EXPORT bool operator ==(const AbstractProperty &property1, const AbstractProperty &property2);
+    friend QMLDESIGNERCORE_EXPORT bool operator !=(const AbstractProperty &property1, const AbstractProperty &property2);
+    friend QMLDESIGNERCORE_EXPORT uint qHash(const AbstractProperty& property);
 
 public:
     AbstractProperty();
@@ -117,11 +117,11 @@ private:
     QWeakPointer<AbstractView> m_view;
 };
 
-CORESHARED_EXPORT bool operator ==(const AbstractProperty &property1, const AbstractProperty &property2);
-CORESHARED_EXPORT bool operator !=(const AbstractProperty &property1, const AbstractProperty &property2);
-CORESHARED_EXPORT uint qHash(const AbstractProperty& property);
-CORESHARED_EXPORT QTextStream& operator<<(QTextStream &stream, const AbstractProperty &property);
-CORESHARED_EXPORT QDebug operator<<(QDebug debug, const AbstractProperty &AbstractProperty);
+QMLDESIGNERCORE_EXPORT bool operator ==(const AbstractProperty &property1, const AbstractProperty &property2);
+QMLDESIGNERCORE_EXPORT bool operator !=(const AbstractProperty &property1, const AbstractProperty &property2);
+QMLDESIGNERCORE_EXPORT uint qHash(const AbstractProperty& property);
+QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const AbstractProperty &property);
+QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const AbstractProperty &AbstractProperty);
 }
 
 #endif //ABSTRACTPROPERTY_H

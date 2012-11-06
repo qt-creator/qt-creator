@@ -30,14 +30,14 @@
 #ifndef FXMODELNODEFACADE_H
 #define FXMODELNODEFACADE_H
 
-#include <corelib_global.h>
+#include <qmldesignercorelib_global.h>
 #include <modelnode.h>
 
 namespace QmlDesigner {
 
 class QmlModelView;
 
-class CORESHARED_EXPORT QmlModelNodeFacade
+class QMLDESIGNERCORE_EXPORT QmlModelNodeFacade
 {
 public:
     operator ModelNode() const { return m_modelNode; }

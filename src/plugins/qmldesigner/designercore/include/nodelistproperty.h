@@ -31,7 +31,7 @@
 #define NODELISTPROPERTY_H
 
 
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 #include "nodeabstractproperty.h"
 #include <QList>
 
@@ -45,7 +45,7 @@ namespace Internal {
 }
 
 
-class CORESHARED_EXPORT NodeListProperty : public NodeAbstractProperty
+class QMLDESIGNERCORE_EXPORT NodeListProperty : public NodeAbstractProperty
 {
     friend class QmlDesigner::ModelNode;
     friend class QmlDesigner::AbstractProperty;

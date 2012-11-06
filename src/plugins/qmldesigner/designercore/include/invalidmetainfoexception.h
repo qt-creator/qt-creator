@@ -34,7 +34,7 @@
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT InvalidMetaInfoException : public Exception
+class QMLDESIGNERCORE_EXPORT InvalidMetaInfoException : public Exception
 {
 public:
     InvalidMetaInfoException(int line,

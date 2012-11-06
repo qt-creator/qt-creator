@@ -30,7 +30,7 @@
 #ifndef WIDGETQUERYVIEW_H
 #define WIDGETQUERYVIEW_H
 
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 #include "nodeinstanceview.h"
 #include "propertycontainer.h"
 #include <QHash>
@@ -41,7 +41,7 @@
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT WidgetQueryView : public NodeInstanceView
+class WidgetQueryView : public NodeInstanceView
 {
     Q_OBJECT
 public:

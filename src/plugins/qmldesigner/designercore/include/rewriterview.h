@@ -30,7 +30,7 @@
 #ifndef REWRITERVIEW_H
 #define REWRITERVIEW_H
 
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 #include "abstractview.h"
 #include "exception.h"
 #include <modelnodepositionstorage.h>
@@ -55,7 +55,7 @@ class ScopeChain;
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT TextModifier;
+class QMLDESIGNERCORE_EXPORT TextModifier;
 
 namespace Internal {
 
@@ -65,7 +65,7 @@ class ModelNodePositionStorage;
 
 } //Internal
 
-class CORESHARED_EXPORT RewriterView : public AbstractView
+class QMLDESIGNERCORE_EXPORT RewriterView : public AbstractView
 {
     Q_OBJECT
 

@@ -34,7 +34,7 @@
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT NotImplementedException : public Exception
+class QMLDESIGNERCORE_EXPORT NotImplementedException : public Exception
 {
 public:
     NotImplementedException(int line,

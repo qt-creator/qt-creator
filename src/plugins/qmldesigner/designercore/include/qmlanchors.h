@@ -30,13 +30,13 @@
 #ifndef QmlAnchors_H
 #define QmlAnchors_H
 
-#include <corelib_global.h>
+#include <qmldesignercorelib_global.h>
 #include <qmlitemnode.h>
 
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT AnchorLine
+class QMLDESIGNERCORE_EXPORT AnchorLine
 {
 public:
     enum Type {
@@ -73,7 +73,7 @@ private:
 };
 
 
-class CORESHARED_EXPORT QmlAnchors
+class QMLDESIGNERCORE_EXPORT QmlAnchors
 {
 public:
     QmlAnchors(const QmlItemNode &fxItemNode);

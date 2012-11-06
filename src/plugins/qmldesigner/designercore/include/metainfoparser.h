@@ -30,7 +30,7 @@
 #ifndef METAINFOPARSER_H
 #define METAINFOPARSER_H
 
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 #include <QXmlStreamReader>
 #include <QString>
 #include <QFile>
@@ -43,7 +43,7 @@ class ItemLibraryEntry;
 namespace Internal {
 
 
-class TEST_CORESHARED_EXPORT MetaInfoParser
+class QMLDESIGNERCORE_EXPORT MetaInfoParser
 {
 public:
     MetaInfoParser(const MetaInfo &metaInfo);

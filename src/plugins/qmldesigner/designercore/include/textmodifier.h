@@ -30,7 +30,7 @@
 #ifndef TEXTMODIFIER_H
 #define TEXTMODIFIER_H
 
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 
 #include <qmljs/qmljsdocument.h>
 
@@ -41,7 +41,7 @@
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT TextModifier: public QObject
+class QMLDESIGNERCORE_EXPORT TextModifier: public QObject
 {
     Q_OBJECT
 

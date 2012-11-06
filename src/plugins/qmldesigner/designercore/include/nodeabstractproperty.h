@@ -45,9 +45,9 @@ class NodeAbstractProperty : public AbstractProperty
     friend class QmlDesigner::Internal::ModelPrivate;
     friend class QmlDesigner::AbstractProperty;
 
-    friend CORESHARED_EXPORT bool operator ==(const NodeAbstractProperty &property1, const NodeAbstractProperty &property2);
-    friend CORESHARED_EXPORT bool operator !=(const NodeAbstractProperty &property1, const NodeAbstractProperty &property2);
-    friend CORESHARED_EXPORT uint qHash(const NodeAbstractProperty& property);
+    friend QMLDESIGNERCORE_EXPORT bool operator ==(const NodeAbstractProperty &property1, const NodeAbstractProperty &property2);
+    friend QMLDESIGNERCORE_EXPORT bool operator !=(const NodeAbstractProperty &property1, const NodeAbstractProperty &property2);
+    friend QMLDESIGNERCORE_EXPORT uint qHash(const NodeAbstractProperty& property);
 
 public:
     NodeAbstractProperty();
@@ -66,11 +66,11 @@ protected:
 };
 
 
-CORESHARED_EXPORT bool operator ==(const NodeAbstractProperty &property1, const NodeAbstractProperty &property2);
-CORESHARED_EXPORT bool operator !=(const NodeAbstractProperty &property1, const NodeAbstractProperty &property2);
-CORESHARED_EXPORT uint qHash(const NodeAbstractProperty& property);
-CORESHARED_EXPORT QTextStream& operator<<(QTextStream &stream, const NodeAbstractProperty &property);
-CORESHARED_EXPORT QDebug operator<<(QDebug debug, const NodeAbstractProperty &property);
+QMLDESIGNERCORE_EXPORT bool operator ==(const NodeAbstractProperty &property1, const NodeAbstractProperty &property2);
+QMLDESIGNERCORE_EXPORT bool operator !=(const NodeAbstractProperty &property1, const NodeAbstractProperty &property2);
+QMLDESIGNERCORE_EXPORT uint qHash(const NodeAbstractProperty& property);
+QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const NodeAbstractProperty &property);
+QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const NodeAbstractProperty &property);
 
 } // namespace QmlDesigner
 

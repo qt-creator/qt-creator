@@ -30,7 +30,7 @@
 #ifndef NODEPROPERTY_H
 #define NODEPROPERTY_H
 
-#include "corelib_global.h"
+#include "qmldesignercorelib_global.h"
 #include "nodeabstractproperty.h"
 
 namespace QmlDesigner {
@@ -39,7 +39,7 @@ namespace Internal {
     class ModelPrivate;
 }
 
-class CORESHARED_EXPORT NodeProperty : public NodeAbstractProperty
+class QMLDESIGNERCORE_EXPORT NodeProperty : public NodeAbstractProperty
 {
     friend class QmlDesigner::ModelNode;
     friend class QmlDesigner::Internal::ModelPrivate;
