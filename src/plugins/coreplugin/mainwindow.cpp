@@ -82,6 +82,7 @@
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <coreplugin/settingsdatabase.h>
 #include <utils/historycompleter.h>
+#include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/stylehelper.h>
 #include <utils/stringutils.h>
@@ -179,28 +180,27 @@ MainWindow::MainWindow() :
     Utils::HistoryCompleter::setSettings(m_settings);
 
     setWindowTitle(tr("Qt Creator"));
-#ifndef Q_OS_MAC
-    QApplication::setWindowIcon(QIcon(QLatin1String(Constants::ICON_QTLOGO_128)));
-#endif
+    if (!Utils::HostOsInfo::isMacHost())
+        QApplication::setWindowIcon(QIcon(QLatin1String(Constants::ICON_QTLOGO_128)));
     QCoreApplication::setApplicationName(QLatin1String("QtCreator"));
     QCoreApplication::setApplicationVersion(QLatin1String(Core::Constants::IDE_VERSION_LONG));
     QCoreApplication::setOrganizationName(QLatin1String(Constants::IDE_SETTINGSVARIANT_STR));
     QString baseName = QApplication::style()->objectName();
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-    if (baseName == QLatin1String("windows")) {
-        // Sometimes we get the standard windows 95 style as a fallback
-        if (QStyleFactory::keys().contains("Fusion"))
-            baseName = QLatin1String("fusion"); // Qt5
-        else { // Qt4
-            // e.g. if we are running on a KDE4 desktop
-            QByteArray desktopEnvironment = qgetenv("DESKTOP_SESSION");
-            if (desktopEnvironment == "kde")
-                baseName = QLatin1String("plastique");
-            else
-                baseName = QLatin1String("cleanlooks");
+    if (Utils::HostOsInfo::isAnyUnixHost() && !Utils::HostOsInfo::isMacHost()) {
+        if (baseName == QLatin1String("windows")) {
+            // Sometimes we get the standard windows 95 style as a fallback
+            if (QStyleFactory::keys().contains("Fusion"))
+                baseName = QLatin1String("fusion"); // Qt5
+            else { // Qt4
+                // e.g. if we are running on a KDE4 desktop
+                QByteArray desktopEnvironment = qgetenv("DESKTOP_SESSION");
+                if (desktopEnvironment == "kde")
+                    baseName = QLatin1String("plastique");
+                else
+                    baseName = QLatin1String("cleanlooks");
+            }
         }
     }
-#endif
     qApp->setStyle(new ManhattanStyle(baseName));
 
     setDockNestingEnabled(true);
@@ -485,9 +485,8 @@ void MainWindow::registerDefaultContainers()
 {
     ActionContainer *menubar = ActionManager::createMenuBar(Constants::MENU_BAR);
 
-#ifndef Q_OS_MAC // System menu bar on Mac
-    setMenuBar(menubar->menuBar());
-#endif
+    if (!Utils::HostOsInfo::isMacHost()) // System menu bar on Mac
+        setMenuBar(menubar->menuBar());
     menubar->appendGroup(Constants::G_FILE);
     menubar->appendGroup(Constants::G_EDIT);
     menubar->appendGroup(Constants::G_VIEW);
@@ -745,19 +744,18 @@ void MainWindow::registerDefaultActions()
     mwindow->addAction(cmd, Constants::G_WINDOW_VIEWS);
     m_toggleSideBarAction->setEnabled(false);
 
+
 #if defined(Q_OS_MAC)
-    bool fullScreenCheckable = false;
     const QString fullScreenActionText(tr("Enter Full Screen"));
     bool supportsFullScreen = MacFullScreen::supportsFullScreen();
 #else
-    bool fullScreenCheckable = true;
     const QString fullScreenActionText(tr("Full Screen"));
     bool supportsFullScreen = true;
 #endif
     if (supportsFullScreen) {
         // Full Screen Action
         m_toggleFullScreenAction = new QAction(fullScreenActionText, this);
-        m_toggleFullScreenAction->setCheckable(fullScreenCheckable);
+        m_toggleFullScreenAction->setCheckable(!Utils::HostOsInfo::isMacHost());
         cmd = ActionManager::registerAction(m_toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN, globalContext);
         cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Meta+F") : tr("Ctrl+Shift+F11")));
         cmd->setAttribute(Command::CA_UpdateText); /* for Mac */
@@ -772,17 +770,15 @@ void MainWindow::registerDefaultActions()
 
     // About IDE Action
     icon = QIcon::fromTheme(QLatin1String("help-about"));
-#ifdef Q_OS_MAC
-    tmpaction = new QAction(icon, tr("About &Qt Creator"), this); // it's convention not to add dots to the about menu
-#else
-    tmpaction = new QAction(icon, tr("About &Qt Creator..."), this);
-#endif
+    if (Utils::HostOsInfo::isMacHost())
+        tmpaction = new QAction(icon, tr("About &Qt Creator"), this); // it's convention not to add dots to the about menu
+    else
+        tmpaction = new QAction(icon, tr("About &Qt Creator..."), this);
     cmd = ActionManager::registerAction(tmpaction, Constants::ABOUT_QTCREATOR, globalContext);
     mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
     tmpaction->setEnabled(true);
-#ifdef Q_OS_MAC
-    cmd->action()->setMenuRole(QAction::ApplicationSpecificRole);
-#endif
+    if (Utils::HostOsInfo::isMacHost())
+        cmd->action()->setMenuRole(QAction::ApplicationSpecificRole);
     connect(tmpaction, SIGNAL(triggered()), this,  SLOT(aboutQtCreator()));
 
     //About Plugins Action
@@ -790,9 +786,8 @@ void MainWindow::registerDefaultActions()
     cmd = ActionManager::registerAction(tmpaction, Constants::ABOUT_PLUGINS, globalContext);
     mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
     tmpaction->setEnabled(true);
-#ifdef Q_OS_MAC
-    cmd->action()->setMenuRole(QAction::ApplicationSpecificRole);
-#endif
+    if (Utils::HostOsInfo::isMacHost())
+        cmd->action()->setMenuRole(QAction::ApplicationSpecificRole);
     connect(tmpaction, SIGNAL(triggered()), this,  SLOT(aboutPlugins()));
     // About Qt Action
 //    tmpaction = new QAction(tr("About &Qt..."), this);
@@ -801,12 +796,12 @@ void MainWindow::registerDefaultActions()
 //    tmpaction->setEnabled(true);
 //    connect(tmpaction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     // About sep
-#ifndef Q_OS_MAC // doesn't have the "About" actions in the Help menu
-    tmpaction = new QAction(this);
-    tmpaction->setSeparator(true);
-    cmd = ActionManager::registerAction(tmpaction, "QtCreator.Help.Sep.About", globalContext);
-    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
-#endif
+    if (!Utils::HostOsInfo::isMacHost()) { // doesn't have the "About" actions in the Help menu
+        tmpaction = new QAction(this);
+        tmpaction->setSeparator(true);
+        cmd = ActionManager::registerAction(tmpaction, "QtCreator.Help.Sep.About", globalContext);
+        mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
+    }
 }
 
 void MainWindow::newFile()
