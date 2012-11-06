@@ -403,11 +403,11 @@ bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *
     QDomDocument srcVersionDoc;
     Utils::FileName srcVersionPath = javaSrcPath;
     srcVersionPath.appendPath(QLatin1String("version.xml"));
-    if (openXmlFile(target, srcVersionDoc, srcVersionPath, false)) {
+    if (openXmlFile(target, srcVersionDoc, srcVersionPath)) {
         QDomDocument dstVersionDoc;
         Utils::FileName dstVersionPath=androidPath;
         dstVersionPath.appendPath(QLatin1String("version.xml"));
-        if (openXmlFile(target, dstVersionDoc, dstVersionPath, false))
+        if (openXmlFile(target, dstVersionDoc, dstVersionPath))
             forceUpdate = (srcVersionDoc.documentElement().attribute(QLatin1String("value")).toDouble()
                            > dstVersionDoc.documentElement().attribute(QLatin1String("value")).toDouble());
         else
@@ -734,11 +734,8 @@ QString AndroidManager::loadLocal(ProjectExplorer::Target *target, int apiLevel,
 }
 
 bool AndroidManager::openXmlFile(ProjectExplorer::Target *target, QDomDocument &doc,
-                                 const Utils::FileName &fileName, bool createAndroidTemplates)
+                                 const Utils::FileName &fileName)
 {
-    if (createAndroidTemplates && !createAndroidTemplatesIfNecessary(target))
-        return false;
-
     QFile f(fileName.toString());
     if (!f.open(QIODevice::ReadOnly))
         return false;
