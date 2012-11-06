@@ -177,8 +177,11 @@ NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstance::Pointer
 
     //Assign cache to object
     if (ddata && ddata->propertyCache) {
+        cache->setParent(ddata->propertyCache);
+        cache->invalidate(engine, this);
         ddata->propertyCache = m_cache;
     }
+
 }
 
 NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const QString &prefix, QQmlEngine *engine)
@@ -210,7 +213,9 @@ void NodeInstanceMetaObject::createNewProperty(const QString &name)
 
 
     //Updating cache
+    QQmlPropertyCache *oldParent = m_cache->parent();
     QQmlEnginePrivate::get(m_context->engine())->cache(this)->invalidate(m_context->engine(), this);
+    m_cache->setParent(oldParent);
 
     QQmlProperty property(myObject(), name, m_context);
     Q_ASSERT(property.isValid());
