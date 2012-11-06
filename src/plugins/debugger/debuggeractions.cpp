@@ -439,6 +439,12 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     insertItem(AttemptQuickStart, item);
 
     item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("MultiInferior"));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    insertItem(MultiInferior, item);
+
+    item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTips"));
     item->setText(tr("Use tooltips in main editor when debugging"));
     item->setToolTip(tr("Checking this will enable tooltips for variable "

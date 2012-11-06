@@ -4841,6 +4841,11 @@ void GdbEngine::startGdb(const QStringList &args)
 
     // Dummy command to guarantee a roundtrip before the adapter proceed.
     postCommand("pwd", ConsoleCommand, CB(reportEngineSetupOk));
+
+    if (debuggerCore()->boolSetting(MultiInferior)) {
+        //postCommand("set follow-exec-mode new");
+        postCommand("set detach-on-fork off");
+    }
 }
 
 void GdbEngine::reportEngineSetupOk(const GdbResponse &response)

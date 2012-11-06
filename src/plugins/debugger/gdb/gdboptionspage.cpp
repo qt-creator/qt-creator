@@ -76,6 +76,7 @@ public:
     QCheckBox *checkBoxBreakOnAbort;
     QCheckBox *checkBoxEnableReverseDebugging;
     QCheckBox *checkBoxAttemptQuickStart;
+    QCheckBox *checkBoxMultiInferior;
 
     QGroupBox *groupBoxStartupCommands;
     QTextEdit *textEditStartupCommands;
@@ -209,6 +210,12 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "This can result in faster startup times at the price of not being able to "
         "set breakpoints by file and number.</body></html>"));
 
+    checkBoxMultiInferior = new QCheckBox(groupBoxGeneral);
+    checkBoxMultiInferior->setText(GdbOptionsPage::tr("Debug all children"));
+    checkBoxMultiInferior->setToolTip(GdbOptionsPage::tr(
+        "<html><head/><body>Keep debugging all children after a fork."
+        "</body></html>"));
+
     groupBoxStartupCommands = new QGroupBox(this);
     groupBoxStartupCommands->setTitle(GdbOptionsPage::tr("Additional Startup Commands"));
     groupBoxStartupCommands->setToolTip(GdbOptionsPage::tr(
@@ -279,6 +286,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     formLayout->addRow(checkBoxBreakOnAbort);
     formLayout->addRow(checkBoxEnableReverseDebugging);
     formLayout->addRow(checkBoxAttemptQuickStart);
+    formLayout->addRow(checkBoxMultiInferior);
 
     QGridLayout *startLayout = new QGridLayout(groupBoxStartupCommands);
     startLayout->addWidget(textEditStartupCommands, 0, 0, 1, 1);
@@ -318,6 +326,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     group.insert(dc->action(BreakOnAbort), checkBoxBreakOnAbort);
     group.insert(dc->action(GdbWatchdogTimeout), spinBoxGdbWatchdogTimeout);
     group.insert(dc->action(AttemptQuickStart), checkBoxAttemptQuickStart);
+    group.insert(dc->action(MultiInferior), checkBoxMultiInferior);
 
     group.insert(dc->action(UseMessageBoxForSignals), checkBoxUseMessageBoxForSignals);
     group.insert(dc->action(SkipKnownFrames), checkBoxSkipKnownFrames);
@@ -342,6 +351,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
             << sep << checkBoxUseMessageBoxForSignals->text()
             << sep << checkBoxAdjustBreakpointLocations->text()
             << sep << checkBoxAttemptQuickStart->text()
+            << sep << checkBoxMultiInferior->text()
     //        << sep << groupBoxPluginDebugging->title()
     //        << sep << radioButtonAllPluginBreakpoints->text()
     //        << sep << radioButtonSelectedPluginBreakpoints->text()

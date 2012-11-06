@@ -125,6 +125,7 @@ enum DebuggerActionCode
     UseDynamicType,
     TargetAsync,
     WarnOnReleaseBuilds,
+    MultiInferior,
 
     // Stack
     MaximalStackDepth,
