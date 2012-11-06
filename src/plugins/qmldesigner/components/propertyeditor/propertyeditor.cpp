@@ -667,7 +667,7 @@ QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType, const QmlO
                 )).arg(name).arg(properName);
                  emptyTemplate = false;
             }
-            if (typeName == "bool") {
+            if (typeName == "bool" || typeName == "boolean") {
                  qmlTemplate +=  QString(QLatin1String(
                  "QWidget {\nlayout: HorizontalLayout {\nLabel {\ntext: \"%1\"\ntoolTip: \"%1\"\n}\nCheckBox {text: backendValues.%2.value\nbackendValue: backendValues.%2\nbaseStateFlag: isBaseState\ncheckable: true\n}\n}\n}\n"
                  )).arg(name).arg(properName);
