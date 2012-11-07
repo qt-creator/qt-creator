@@ -36,7 +36,8 @@ HEADERS += \
     $$PWD/jsoncheck.h \
     $$PWD/consolemanagerinterface.h \
     $$PWD/consoleitem.h \
-    $$PWD/iscriptevaluator.h
+    $$PWD/iscriptevaluator.h \
+    $$PWD/qmljssimplereader.h
 
 SOURCES += \
     $$PWD/qmljsbind.cpp \
@@ -63,7 +64,8 @@ SOURCES += \
     $$PWD/qmljsstaticanalysismessage.cpp \
     $$PWD/jsoncheck.cpp \
     $$PWD/consolemanagerinterface.cpp \
-    $$PWD/consoleitem.cpp
+    $$PWD/consoleitem.cpp \
+    $$PWD/qmljssimplereader.cpp
 
 RESOURCES += \
     $$PWD/qmljs.qrc
