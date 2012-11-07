@@ -60,7 +60,7 @@ class InsertQtPropertyMembers : public CppQuickFixFactory
     Q_OBJECT
 
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
 
 private:
     enum GenerateFlag {

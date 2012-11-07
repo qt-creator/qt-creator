@@ -38,18 +38,18 @@ namespace Internal {
 class DeclFromDef: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
 };
 
 class DefFromDecl: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
 };
 
 class ExtractFunction : public CppQuickFixFactory
 {
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
 };
 
 } // namespace Internal

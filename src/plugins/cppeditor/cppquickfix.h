@@ -42,8 +42,6 @@ namespace CppEditor {
 namespace Internal { class CppQuickFixAssistInterface; }
 
 typedef QSharedPointer<const Internal::CppQuickFixAssistInterface> CppQuickFixInterface;
-typedef TextEditor::QuickFixInterface QuickFixInterface;
-typedef TextEditor::QuickFixOperations QuickFixOperations;
 
 class CPPEDITOR_EXPORT CppQuickFixOperation: public TextEditor::QuickFixOperation
 {
@@ -66,13 +64,15 @@ class CPPEDITOR_EXPORT CppQuickFixFactory: public TextEditor::QuickFixFactory
 public:
     CppQuickFixFactory() {}
 
-    void matchingOperations(const QuickFixInterface &interface, QuickFixOperations &result);
+    void matchingOperations(const TextEditor::QuickFixInterface &interface,
+        TextEditor::QuickFixOperations &result);
 
     /*!
         Implement this method to match and create the appropriate
         CppQuickFixOperation objects.
      */
-    virtual void match(const CppQuickFixInterface &interface, QuickFixOperations &result) = 0;
+    virtual void match(const CppQuickFixInterface &interface,
+        TextEditor::QuickFixOperations &result) = 0;
 };
 
 } // namespace CppEditor

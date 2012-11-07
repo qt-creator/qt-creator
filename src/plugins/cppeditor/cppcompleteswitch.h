@@ -41,7 +41,7 @@ namespace Internal {
 class CompleteSwitchCaseStatement: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
 };
 
 } // namespace Internal

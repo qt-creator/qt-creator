@@ -59,6 +59,7 @@ using namespace CPlusPlus;
 using namespace CppEditor;
 using namespace CppEditor::Internal;
 using namespace CppTools;
+using namespace TextEditor;
 
 FunctionDeclDefLinkFinder::FunctionDeclDefLinkFinder(QObject *parent)
     : QObject(parent)

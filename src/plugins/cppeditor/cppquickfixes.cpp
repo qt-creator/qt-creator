@@ -76,8 +76,8 @@
 using namespace CppEditor;
 using namespace CppEditor::Internal;
 using namespace CppTools;
-using namespace TextEditor;
 using namespace CPlusPlus;
+using namespace TextEditor;
 using namespace Utils;
 
 static inline bool isQtStringLiteral(const QByteArray &id)
