@@ -137,6 +137,11 @@ public:
     virtual QString vcsGetRepositoryURL(const QString &director) = 0;
 
     /*!
+     * Topic (e.g. name of the current branch)
+     */
+    virtual QString vcsTopic(const QString &directory);
+
+    /*!
      * Create a snapshot of the current state and return an identifier or
      * an empty string in case of failure.
      */

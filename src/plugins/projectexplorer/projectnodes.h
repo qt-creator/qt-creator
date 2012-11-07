@@ -86,6 +86,7 @@ public:
     FolderNode *parentFolderNode() const; // parent folder or project
     QString path() const;                 // file system path
     virtual QString displayName() const;
+    virtual QString vcsTopic() const;
     virtual QString tooltip() const;
 
 protected:
@@ -182,6 +183,8 @@ public:
         Rename,
         HasSubProjectRunConfigurations
     };
+
+    QString vcsTopic() const;
 
     // all subFolders that are projects
     QList<ProjectNode*> subProjectNodes() const;

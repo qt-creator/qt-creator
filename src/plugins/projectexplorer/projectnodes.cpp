@@ -34,6 +34,9 @@
 
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/fileiconprovider.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/iversioncontrol.h>
+#include <coreplugin/vcsmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -102,6 +105,11 @@ QString Node::path() const
 QString Node::displayName() const
 {
     return QFileInfo(path()).fileName();
+}
+
+QString Node::vcsTopic() const
+{
+    return QString();
 }
 
 QString Node::tooltip() const
@@ -267,6 +275,16 @@ ProjectNode::ProjectNode(const QString &projectFilePath)
     // project node "manages" itself
     setProjectNode(this);
     setDisplayName(QFileInfo(projectFilePath).fileName());
+}
+
+QString ProjectNode::vcsTopic() const {
+    const QString dir = QFileInfo(path()).absolutePath();
+
+    if (Core::IVersionControl *const vc =
+            Core::ICore::vcsManager()->findVersionControlForDirectory(dir))
+        return vc->vcsTopic(dir);
+
+    return QString();
 }
 
 QList<ProjectNode*> ProjectNode::subProjectNodes() const

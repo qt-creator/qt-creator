@@ -41,4 +41,9 @@ QString IVersionControl::vcsMakeWritableText() const
     return QString();
 }
 
+QString IVersionControl::vcsTopic(const QString &)
+{
+    return QString();
+}
+
 }
