@@ -487,6 +487,11 @@ border-top: 1px solid #999;
 padding-top:11px;
 }
 
+.footer a[href*="http://"], a[href*="ftp://"],a[href*="https://"]{
+background-size: 13px 11px;
+padding-left: 16px;
+}
+
 .footerNavi{
 width:auto;
 text-align:right;
