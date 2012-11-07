@@ -45,6 +45,7 @@ Qt5NodeInstanceServer::Qt5NodeInstanceServer(NodeInstanceClientInterface *nodeIn
 {
     addImportString("import QtQuick 2.0\n");
     DesignerSupport::activateDesignerAnimationMode();
+    DesignerSupport::deactivateComponentComplete();
 }
 
 Qt5NodeInstanceServer::~Qt5NodeInstanceServer()

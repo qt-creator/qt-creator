@@ -448,13 +448,22 @@ void QuickItemNodeInstance::refresh()
     repositioning(quickItem());
 }
 
+void doComponentCompleteRecursive(QQuickItem *item)
+{
+    if (item) {
+        if (DesignerSupport::isComponentComplete(item))
+            return;
+
+        foreach (QQuickItem *childItem, item->childItems())
+            doComponentCompleteRecursive(childItem);
+
+        static_cast<QQmlParserStatus*>(item)->componentComplete();
+    }
+}
+
 void QuickItemNodeInstance::doComponentComplete()
 {
-    if (quickItem()) {
-        if (DesignerSupport::isComponentComplete(quickItem()))
-            return;
-        static_cast<QQmlParserStatus*>(quickItem())->componentComplete();
-    }
+    doComponentCompleteRecursive(quickItem());
 
     quickItem()->update();
 }
