@@ -1220,6 +1220,7 @@ public slots:
     QString stringSetting(int code) const;
 
     void showModuleSymbols(const QString &moduleName, const Symbols &symbols);
+    void showModuleSections(const QString &moduleName, const Sections &sections);
 
     bool parseArgument(QStringList::const_iterator &it,
         const QStringList::const_iterator &cend, QString *errorMessage);
@@ -3322,6 +3323,36 @@ void DebuggerPluginPrivate::showModuleSymbols(const QString &moduleName,
         it->setData(2, Qt::DisplayRole, s.state);
         it->setData(3, Qt::DisplayRole, s.section);
         it->setData(4, Qt::DisplayRole, s.demangled);
+        w->addTopLevelItem(it);
+    }
+    createNewDock(w);
+}
+
+void DebuggerPluginPrivate::showModuleSections(const QString &moduleName,
+    const Sections &sections)
+{
+    QTreeWidget *w = new QTreeWidget;
+    w->setUniformRowHeights(true);
+    w->setColumnCount(5);
+    w->setRootIsDecorated(false);
+    w->setAlternatingRowColors(true);
+    w->setSortingEnabled(true);
+    w->setObjectName(QLatin1String("Sections.") + moduleName);
+    QStringList header;
+    header.append(tr("Name"));
+    header.append(tr("From"));
+    header.append(tr("To"));
+    header.append(tr("Address"));
+    header.append(tr("Flags"));
+    w->setHeaderLabels(header);
+    w->setWindowTitle(tr("Sections in \"%1\"").arg(moduleName));
+    foreach (const Section &s, sections) {
+        QTreeWidgetItem *it = new QTreeWidgetItem;
+        it->setData(0, Qt::DisplayRole, s.name);
+        it->setData(1, Qt::DisplayRole, s.from);
+        it->setData(2, Qt::DisplayRole, s.to);
+        it->setData(3, Qt::DisplayRole, s.address);
+        it->setData(4, Qt::DisplayRole, s.flags);
         w->addTopLevelItem(it);
     }
     createNewDock(w);

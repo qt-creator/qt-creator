@@ -2128,6 +2128,7 @@ bool GdbEngine::hasCapability(unsigned cap) const
         | AddWatcherCapability
         | WatchWidgetsCapability
         | ShowModuleSymbolsCapability
+        | ShowModuleSectionsCapability
         | CatchCapability
         | OperateByInstructionCapability
         | RunToLineCapability
@@ -3325,7 +3326,7 @@ void GdbEngine::handleShowModuleSymbols(const GdbResponse &response)
     const QString modulePath = cookie.section(QLatin1Char('@'), 0, 0);
     const QString fileName = cookie.section(QLatin1Char('@'), 1, 1);
     if (response.resultClass == GdbResultDone) {
-        Symbols rc;
+        Symbols symbols;
         QFile file(fileName);
         file.open(QIODevice::ReadOnly);
         // Object file /opt/dev/qt/lib/libQtNetworkMyns.so.4:
@@ -3369,14 +3370,59 @@ void GdbEngine::handleShowModuleSymbols(const GdbResponse &response)
             symbol.name = _(line.mid(posName, lenName));
             symbol.section = _(line.mid(posSection, lenSection));
             symbol.demangled = _(line.mid(posDemangled, lenDemangled));
-            rc.push_back(symbol);
+            symbols.push_back(symbol);
         }
         file.close();
         file.remove();
-        debuggerCore()->showModuleSymbols(modulePath, rc);
+        debuggerCore()->showModuleSymbols(modulePath, symbols);
     } else {
         showMessageBox(QMessageBox::Critical, tr("Cannot Read Symbols"),
             tr("Cannot read symbols for module \"%1\".").arg(fileName));
+    }
+}
+
+void GdbEngine::requestModuleSections(const QString &moduleName)
+{
+    // There seems to be no way to get the symbols from a single .so.
+    postCommand("maint info section ALLOBJ",
+        NeedsStop, CB(handleShowModuleSections), moduleName);
+}
+
+void GdbEngine::handleShowModuleSections(const GdbResponse &response)
+{
+    // ~"  Object file: /usr/lib/i386-linux-gnu/libffi.so.6\n"
+    // ~"    0xb44a6114->0xb44a6138 at 0x00000114: .note.gnu.build-id ALLOC LOAD READONLY DATA HAS_CONTENTS\n"
+    if (response.resultClass == GdbResultDone) {
+        const QString moduleName = response.cookie.toString();
+        const QStringList lines = QString::fromLocal8Bit(response.consoleStreamOutput).split(QLatin1Char('\n'));
+        const QString prefix = QLatin1String("  Object file: ");
+        const QString needle = prefix + moduleName;
+        Sections sections;
+        bool active = false;
+        foreach (const QString &line, lines) {
+            if (line.startsWith(prefix)) {
+                if (active)
+                    break;
+                if (line == needle)
+                    active = true;
+            } else {
+                if (active) {
+                    QStringList items = line.split(QLatin1Char(' '), QString::SkipEmptyParts);
+                    QString fromTo = items.value(0, QString());
+                    const int pos = fromTo.indexOf(QLatin1Char('-'));
+                    QTC_ASSERT(pos >= 0, continue);
+                    Section section;
+                    section.from = fromTo.left(pos);
+                    section.to = fromTo.mid(pos + 2);
+                    section.address = items.value(2, QString());
+                    section.name = items.value(3, QString());
+                    section.flags = items.value(4, QString());
+                    sections.append(section);
+                }
+            }
+        }
+        if (!sections.isEmpty())
+            debuggerCore()->showModuleSections(moduleName, sections);
     }
 }
 

@@ -167,7 +167,8 @@ enum DebuggerCapabilities
     CatchCapability = 0x200000, //!< fork, vfork, syscall
     OperateByInstructionCapability = 0x400000,
     RunToLineCapability = 0x800000,
-    MemoryAddressCapability = 0x1000000
+    MemoryAddressCapability = 0x1000000,
+    ShowModuleSectionsCapability = 0x200000
 };
 
 enum LogChannel

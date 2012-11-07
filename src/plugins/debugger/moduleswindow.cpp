@@ -112,6 +112,7 @@ void ModulesTreeView::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actLoadSymbolsForModule = 0;
     QAction *actEditFile = 0;
     QAction *actShowModuleSymbols = 0;
+    QAction *actShowModuleSections = 0;
     QAction *actShowDependencies = 0; // Show dependencies by running 'depends.exe'
     if (name.isEmpty()) {
         actLoadSymbolsForModule = new QAction(tr("Load Symbols for Module"), &menu);
@@ -120,6 +121,8 @@ void ModulesTreeView::contextMenuEvent(QContextMenuEvent *ev)
         actEditFile->setEnabled(false);
         actShowModuleSymbols = new QAction(tr("Show Symbols"), &menu);
         actShowModuleSymbols->setEnabled(false);
+        actShowModuleSections = new QAction(tr("Show Sections"), &menu);
+        actShowModuleSections->setEnabled(false);
         actShowDependencies = new QAction(tr("Show Dependencies"), &menu);
         actShowDependencies->setEnabled(false);
     } else {
@@ -131,6 +134,9 @@ void ModulesTreeView::contextMenuEvent(QContextMenuEvent *ev)
         actShowModuleSymbols
             = new QAction(tr("Show Symbols in File \"%1\"").arg(name), &menu);
         actShowModuleSymbols->setEnabled(engine->hasCapability(ShowModuleSymbolsCapability));
+        actShowModuleSections
+            = new QAction(tr("Show Sections in File \"%1\"").arg(name), &menu);
+        actShowModuleSections->setEnabled(engine->hasCapability(ShowModuleSymbolsCapability));
         actShowDependencies = new QAction(tr("Show Dependencies of \"%1\"").arg(name), &menu);
         actShowDependencies->setEnabled(!fileName.isEmpty());
         if (!Utils::HostOsInfo::isWindowsHost())
@@ -146,6 +152,7 @@ void ModulesTreeView::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(actLoadSymbolsForModule);
     menu.addAction(actEditFile);
     menu.addAction(actShowModuleSymbols);
+    menu.addAction(actShowModuleSections);
     addBaseContextActions(&menu);
 
     QAction *act = menu.exec(ev->globalPos());
@@ -164,6 +171,8 @@ void ModulesTreeView::contextMenuEvent(QContextMenuEvent *ev)
         engine->gotoLocation(fileName);
     else if (act == actShowModuleSymbols)
         engine->requestModuleSymbols(fileName);
+    else if (act == actShowModuleSections)
+        engine->requestModuleSections(fileName);
     else if (actShowDependencies && act == actShowDependencies)
         QProcess::startDetached(QLatin1String("depends"), QStringList(fileName));
     else

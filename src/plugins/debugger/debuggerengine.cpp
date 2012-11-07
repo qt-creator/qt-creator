@@ -1451,6 +1451,10 @@ void DebuggerEngine::requestModuleSymbols(const QString &)
 {
 }
 
+void DebuggerEngine::requestModuleSections(const QString &)
+{
+}
+
 void DebuggerEngine::reloadRegisters()
 {
 }

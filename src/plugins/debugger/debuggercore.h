@@ -64,6 +64,7 @@ namespace Internal {
 class BreakHandler;
 class SnapshotHandler;
 class Symbol;
+class Section;
 class DebuggerToolTipManager;
 class GlobalDebuggerOptions;
 
@@ -113,6 +114,8 @@ public:
 //        DebuggerEngineType et = NoEngineType) const = 0;
     virtual void showModuleSymbols(const QString &moduleName,
         const QVector<Symbol> &symbols) = 0;
+    virtual void showModuleSections(const QString &moduleName,
+        const QVector<Section> &sections) = 0;
     virtual void openMemoryEditor() = 0;
     virtual void languagesChanged() = 0;
     virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages) = 0;

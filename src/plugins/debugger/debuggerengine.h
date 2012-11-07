@@ -179,6 +179,7 @@ public:
     virtual void loadSymbolsForStack();
     virtual void loadAllSymbols();
     virtual void requestModuleSymbols(const QString &moduleName);
+    virtual void requestModuleSections(const QString &moduleName);
 
     virtual void reloadRegisters();
     virtual void reloadSourceFiles();
