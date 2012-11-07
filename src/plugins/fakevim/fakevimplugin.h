@@ -88,7 +88,6 @@ private slots:
     void test_vim_ex_move();
     void test_vim_ex_join();
     void test_advanced_commands();
-    void test_map();
 
 //public slots:
 //    void changeStatusData(const QString &info) { m_statusData = info; }
@@ -141,6 +140,9 @@ private slots:
 
     // special tests
     void test_i_cw_i();
+
+    // map test should be last one since it changes default behaviour
+    void test_map();
 
 //private:
 //    void setup();
