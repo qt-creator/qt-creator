@@ -72,8 +72,11 @@ bool MakefileParser::parse()
     m_makefiles.clear();
 
     QFile *file = new QFile(m_makefile);
-    if (!file->open(QIODevice::ReadOnly | QIODevice::Text))
+    if (!file->open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning("%s: %s", qPrintable(m_makefile), qPrintable(file->errorString()));
+        delete file;
         return false;
+    }
 
     QFileInfo info(m_makefile);
     m_makefiles.append(info.fileName());
