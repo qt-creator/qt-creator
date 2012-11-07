@@ -263,6 +263,7 @@ private:
     void switchToPreferedMode();
     void updateAutoSave();
     void setCloseSplitEnabled(Internal::SplitterOrView *splitterOrView, bool enable);
+    void updateMakeWritableWarning();
 
     EditorManagerPrivate *d;
 
