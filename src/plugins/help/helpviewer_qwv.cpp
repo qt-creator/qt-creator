@@ -350,7 +350,7 @@ HelpViewer::HelpViewer(qreal zoom, QWidget *parent)
     connect(page(), SIGNAL(printRequested(QWebFrame*)), this, SIGNAL(printRequested()));
 
     setViewerFont(viewerFont());
-    setTextSizeMultiplier(zoom == 0.0 ? 1.0 : zoom);
+    setZoomFactor(zoom == 0.0 ? 1.0 : zoom);
 }
 
 HelpViewer::~HelpViewer()
@@ -376,22 +376,22 @@ void HelpViewer::setViewerFont(const QFont &font)
 
 void HelpViewer::scaleUp()
 {
-    setTextSizeMultiplier(textSizeMultiplier() + 0.1);
+    setZoomFactor(zoomFactor() + 0.1);
 }
 
 void HelpViewer::scaleDown()
 {
-    setTextSizeMultiplier(qMax(qreal(0.0), textSizeMultiplier() - qreal(0.1)));
+    setZoomFactor(qMax(qreal(0.0), zoomFactor() - qreal(0.1)));
 }
 
 void HelpViewer::resetScale()
 {
-    setTextSizeMultiplier(1.0);
+    setZoomFactor(1.0);
 }
 
 qreal HelpViewer::scale() const
 {
-    return textSizeMultiplier();
+    return zoomFactor();
 }
 
 QString HelpViewer::title() const
