@@ -58,7 +58,7 @@ public:
 
     virtual QVariantMap toMap() const;
 
-    virtual DeployConfigurationWidget *configurationWidget() const;
+    virtual DeployConfigurationWidget *createConfigWidget();
 
     virtual bool isEnabled() const;
     virtual QString disabledReason() const;

@@ -91,7 +91,7 @@ QVariantMap DeployConfiguration::toMap() const
     return map;
 }
 
-DeployConfigurationWidget *DeployConfiguration::configurationWidget() const
+DeployConfigurationWidget *DeployConfiguration::createConfigWidget()
 {
     return 0;
 }

@@ -159,7 +159,7 @@ BlackBerryDeployInformation *BlackBerryDeployConfiguration::deploymentInfo() con
     return info;
 }
 
-ProjectExplorer::DeployConfigurationWidget *BlackBerryDeployConfiguration::configurationWidget() const
+ProjectExplorer::DeployConfigurationWidget *BlackBerryDeployConfiguration::createConfigWidget()
 {
     return new BlackBerryDeployConfigurationWidget;
 }
