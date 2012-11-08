@@ -228,11 +228,8 @@ class CMakeBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget
 {
     Q_OBJECT
 public:
-    CMakeBuildSettingsWidget();
+    CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc);
     QString displayName() const;
-
-    // This is called to set up the config widget before showing it
-    void init(ProjectExplorer::BuildConfiguration *bc);
 
 private slots:
     void openChangeBuildDirectoryDialog();

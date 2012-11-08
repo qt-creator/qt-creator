@@ -156,11 +156,10 @@ class BuildStepsPage : public BuildConfigWidget
     Q_OBJECT
 
 public:
-    BuildStepsPage(Target *target, Core::Id id);
+    BuildStepsPage(BuildConfiguration *bc, Core::Id id);
     virtual ~BuildStepsPage();
 
     QString displayName() const;
-    void init(BuildConfiguration *bc);
 
 private:
     Core::Id m_id;

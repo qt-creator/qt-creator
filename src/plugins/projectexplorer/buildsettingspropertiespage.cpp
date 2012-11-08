@@ -242,15 +242,12 @@ void BuildSettingsWidget::updateBuildSettings()
     BuildConfigWidget *generalConfigWidget = m_buildConfiguration->createConfigWidget();
     addSubWidget(generalConfigWidget);
 
-    addSubWidget(new BuildStepsPage(m_target, Core::Id(Constants::BUILDSTEPS_BUILD)));
-    addSubWidget(new BuildStepsPage(m_target, Core::Id(Constants::BUILDSTEPS_CLEAN)));
+    addSubWidget(new BuildStepsPage(m_buildConfiguration, Core::Id(Constants::BUILDSTEPS_BUILD)));
+    addSubWidget(new BuildStepsPage(m_buildConfiguration, Core::Id(Constants::BUILDSTEPS_CLEAN)));
 
     QList<BuildConfigWidget *> subConfigWidgets = m_buildConfiguration->createSubConfigWidgets();
     foreach (BuildConfigWidget *subConfigWidget, subConfigWidgets)
         addSubWidget(subConfigWidget);
-
-    foreach (BuildConfigWidget *widget, subWidgets())
-        widget->init(m_buildConfiguration);
 }
 
 void BuildSettingsWidget::currentIndexChanged(int index)

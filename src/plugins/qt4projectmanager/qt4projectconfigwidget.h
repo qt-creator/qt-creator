@@ -53,11 +53,10 @@ class Qt4ProjectConfigWidget : public ProjectExplorer::BuildConfigWidget
 {
     Q_OBJECT
 public:
-    Qt4ProjectConfigWidget(ProjectExplorer::Target *target);
+    Qt4ProjectConfigWidget(Qt4BuildConfiguration *bc);
     ~Qt4ProjectConfigWidget();
 
     QString displayName() const;
-    void init(ProjectExplorer::BuildConfiguration *bc);
 
 private slots:
     // User changes in our widgets

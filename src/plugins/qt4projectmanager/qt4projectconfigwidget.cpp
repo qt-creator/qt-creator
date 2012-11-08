@@ -58,17 +58,13 @@
 #include <QPushButton>
 #include <utils/detailswidget.h>
 
-namespace {
-bool debug = false;
-}
-
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 using namespace ProjectExplorer;
 
-Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(ProjectExplorer::Target *target)
+Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4BuildConfiguration *bc)
     : BuildConfigWidget(),
-      m_buildConfiguration(0),
+      m_buildConfiguration(bc),
       m_ignoreChange(false)
 {
     QVBoxLayout *vbox = new QVBoxLayout(this);
@@ -95,11 +91,22 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(ProjectExplorer::Target *target)
     connect(m_ui->shadowBuildDirEdit, SIGNAL(changed(QString)),
             this, SLOT(shadowBuildEdited()));
 
-    Qt4Project *project = static_cast<Qt4Project *>(target->project());
+    Qt4Project *project = static_cast<Qt4Project *>(bc->target()->project());
     connect(project, SIGNAL(environmentChanged()), this, SLOT(environmentChanged()));
     connect(project, SIGNAL(buildDirectoryInitialized()), this, SLOT(updateProblemLabel()));
 
-    connect(target, SIGNAL(kitChanged()), this, SLOT(updateProblemLabel()));
+    connect(bc->target(), SIGNAL(kitChanged()), this, SLOT(updateProblemLabel()));
+
+    m_ui->shadowBuildDirEdit->setEnvironment(m_buildConfiguration->environment());
+
+    connect(m_buildConfiguration, SIGNAL(buildDirectoryChanged()),
+            this, SLOT(buildDirectoryChanged()));
+    connect(m_buildConfiguration, SIGNAL(qmakeBuildConfigurationChanged()),
+            this, SLOT(updateProblemLabel()));
+
+    m_ui->shadowBuildDirEdit->setBaseDirectory(m_buildConfiguration->target()->project()->projectDirectory());
+
+    buildDirectoryChanged();
 }
 
 Qt4ProjectConfigWidget::~Qt4ProjectConfigWidget()
@@ -129,32 +136,6 @@ void Qt4ProjectConfigWidget::environmentChanged()
 QString Qt4ProjectConfigWidget::displayName() const
 {
     return tr("General");
-}
-
-void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
-{
-    QTC_ASSERT(bc, return);
-
-    if (debug)
-        qDebug() << "Qt4ProjectConfigWidget::init() for" << bc->displayName();
-
-    if (m_buildConfiguration) {
-        disconnect(m_buildConfiguration, SIGNAL(buildDirectoryChanged()),
-                this, SLOT(buildDirectoryChanged()));
-        disconnect(m_buildConfiguration, SIGNAL(qmakeBuildConfigurationChanged()),
-                   this, SLOT(updateProblemLabel()));
-    }
-    m_buildConfiguration = static_cast<Qt4BuildConfiguration *>(bc);
-    m_ui->shadowBuildDirEdit->setEnvironment(m_buildConfiguration->environment());
-
-    connect(m_buildConfiguration, SIGNAL(buildDirectoryChanged()),
-            this, SLOT(buildDirectoryChanged()));
-    connect(m_buildConfiguration, SIGNAL(qmakeBuildConfigurationChanged()),
-            this, SLOT(updateProblemLabel()));
-
-    m_ui->shadowBuildDirEdit->setBaseDirectory(m_buildConfiguration->target()->project()->projectDirectory());
-
-    buildDirectoryChanged();
 }
 
 void Qt4ProjectConfigWidget::buildDirectoryChanged()

@@ -119,7 +119,7 @@ BuildConfiguration::~BuildConfiguration()
 
 QList<BuildConfigWidget*> BuildConfiguration::createSubConfigWidgets()
 {
-    return QList<BuildConfigWidget *>() << new ProjectExplorer::BuildEnvironmentWidget;
+    return QList<BuildConfigWidget *>() << new ProjectExplorer::BuildEnvironmentWidget(this);
 }
 
 Utils::AbstractMacroExpander *BuildConfiguration::macroExpander()

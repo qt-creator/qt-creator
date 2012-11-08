@@ -46,10 +46,9 @@ class PROJECTEXPLORER_EXPORT BuildEnvironmentWidget : public BuildConfigWidget
     Q_OBJECT
 
 public:
-    BuildEnvironmentWidget();
+    BuildEnvironmentWidget(BuildConfiguration *bc);
 
     QString displayName() const;
-    void init(BuildConfiguration *bc);
 
 private slots:
     void environmentModelUserChangesChanged();

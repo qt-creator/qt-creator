@@ -108,7 +108,7 @@ CMakeBuildConfiguration::~CMakeBuildConfiguration()
 
 ProjectExplorer::BuildConfigWidget *CMakeBuildConfiguration::createConfigWidget()
 {
-    return new CMakeBuildSettingsWidget;
+    return new CMakeBuildSettingsWidget(this);
 }
 
 QString CMakeBuildConfiguration::buildDirectory() const

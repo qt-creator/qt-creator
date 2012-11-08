@@ -40,7 +40,7 @@
 
 using namespace ProjectExplorer;
 
-BuildEnvironmentWidget::BuildEnvironmentWidget()
+BuildEnvironmentWidget::BuildEnvironmentWidget(BuildConfiguration *bc)
     : m_buildConfiguration(0)
 {
     QVBoxLayout *vbox = new QVBoxLayout(this);
@@ -55,21 +55,6 @@ BuildEnvironmentWidget::BuildEnvironmentWidget()
             this, SLOT(environmentModelUserChangesChanged()));
     connect(m_clearSystemEnvironmentCheckBox, SIGNAL(toggled(bool)),
             this, SLOT(clearSystemEnvironmentCheckBoxClicked(bool)));
-}
-
-QString BuildEnvironmentWidget::displayName() const
-{
-    return tr("Build Environment");
-}
-
-void BuildEnvironmentWidget::init(BuildConfiguration *bc)
-{
-    Q_ASSERT(bc);
-
-    if (m_buildConfiguration) {
-        disconnect(m_buildConfiguration->target(), SIGNAL(environmentChanged()),
-                   this, SLOT(environmentChanged()));
-    }
 
     m_buildConfiguration = bc;
 
@@ -80,6 +65,11 @@ void BuildEnvironmentWidget::init(BuildConfiguration *bc)
     m_buildEnvironmentWidget->setBaseEnvironment(m_buildConfiguration->baseEnvironment());
     m_buildEnvironmentWidget->setBaseEnvironmentText(m_buildConfiguration->baseEnvironmentText());
     m_buildEnvironmentWidget->setUserChanges(m_buildConfiguration->userEnvironmentChanges());
+}
+
+QString BuildEnvironmentWidget::displayName() const
+{
+    return tr("Build Environment");
 }
 
 void BuildEnvironmentWidget::environmentModelUserChangesChanged()

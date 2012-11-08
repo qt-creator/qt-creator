@@ -67,7 +67,7 @@ AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(ProjectExplorer::Target
 
 BuildConfigWidget *AutotoolsBuildConfiguration::createConfigWidget()
 {
-    return new AutotoolsBuildSettingsWidget;
+    return new AutotoolsBuildSettingsWidget(this);
 }
 
 AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, const Core::Id id)

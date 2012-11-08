@@ -902,7 +902,7 @@ bool CMakeFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
     return true;
 }
 
-CMakeBuildSettingsWidget::CMakeBuildSettingsWidget() : m_buildConfiguration(0)
+CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) : m_buildConfiguration(0)
 {
     QFormLayout *fl = new QFormLayout(this);
     fl->setContentsMargins(20, -1, 0, -1);
@@ -926,21 +926,18 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget() : m_buildConfiguration(0)
     hbox->addWidget(m_changeButton);
 
     fl->addRow(tr("Build directory:"), hbox);
-}
 
-QString CMakeBuildSettingsWidget::displayName() const
-{
-    return "CMake";
-}
-
-void CMakeBuildSettingsWidget::init(BuildConfiguration *bc)
-{
-    m_buildConfiguration = static_cast<CMakeBuildConfiguration *>(bc);
+    m_buildConfiguration = bc;
     m_pathLineEdit->setText(m_buildConfiguration->buildDirectory());
     if (m_buildConfiguration->buildDirectory() == bc->target()->project()->projectDirectory())
         m_changeButton->setEnabled(false);
     else
         m_changeButton->setEnabled(true);
+}
+
+QString CMakeBuildSettingsWidget::displayName() const
+{
+    return "CMake";
 }
 
 void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()

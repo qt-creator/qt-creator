@@ -49,7 +49,7 @@ using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
-AutotoolsBuildSettingsWidget::AutotoolsBuildSettingsWidget() :
+AutotoolsBuildSettingsWidget::AutotoolsBuildSettingsWidget(AutotoolsBuildConfiguration *bc) :
     m_buildConfiguration(0)
 {
     QFormLayout *fl = new QFormLayout(this);
@@ -61,18 +61,14 @@ AutotoolsBuildSettingsWidget::AutotoolsBuildSettingsWidget() :
     m_pathChooser->setExpectedKind(Utils::PathChooser::Directory);
     fl->addRow(tr("Build directory:"), m_pathChooser);
     connect(m_pathChooser, SIGNAL(changed(QString)), this, SLOT(buildDirectoryChanged()));
+
+    m_pathChooser->setBaseDirectory(bc->target()->project()->projectDirectory());
+    m_pathChooser->setPath(m_buildConfiguration->buildDirectory());
 }
 
 QString AutotoolsBuildSettingsWidget::displayName() const
 {
     return QLatin1String("Autotools Manager");
-}
-
-void AutotoolsBuildSettingsWidget::init(BuildConfiguration *bc)
-{
-    m_buildConfiguration = static_cast<AutotoolsBuildConfiguration *>(bc);
-    m_pathChooser->setBaseDirectory(bc->target()->project()->projectDirectory());
-    m_pathChooser->setPath(m_buildConfiguration->buildDirectory());
 }
 
 void AutotoolsBuildSettingsWidget::buildDirectoryChanged()

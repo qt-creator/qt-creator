@@ -186,7 +186,7 @@ void Qt4BuildConfiguration::emitBuildDirectoryChanged()
 
 BuildConfigWidget *Qt4BuildConfiguration::createConfigWidget()
 {
-    return new Qt4ProjectConfigWidget(target());
+    return new Qt4ProjectConfigWidget(this);
 }
 
 QString Qt4BuildConfiguration::defaultShadowBuildDirectory() const
