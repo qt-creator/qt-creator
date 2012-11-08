@@ -62,7 +62,7 @@ class Qt4MaemoDeployConfiguration : public RemoteLinux::RemoteLinuxDeployConfigu
 public:
     ~Qt4MaemoDeployConfiguration();
 
-    ProjectExplorer::DeployConfigurationWidget *createConfigWidget();
+    ProjectExplorer::NamedWidget *createConfigWidget();
 
     static Core::Id fremantleWithPackagingId();
     static Core::Id fremantleWithoutPackagingId();

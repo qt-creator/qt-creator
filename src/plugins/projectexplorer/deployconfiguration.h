@@ -44,7 +44,7 @@ namespace ProjectExplorer {
 class BuildStepList;
 class Target;
 class DeployConfigurationFactory;
-class DeployConfigurationWidget;
+class NamedWidget;
 
 class PROJECTEXPLORER_EXPORT DeployConfiguration : public ProjectConfiguration
 {
@@ -58,7 +58,7 @@ public:
 
     virtual QVariantMap toMap() const;
 
-    virtual DeployConfigurationWidget *createConfigWidget();
+    virtual NamedWidget *createConfigWidget();
 
     virtual bool isEnabled() const;
     virtual QString disabledReason() const;
@@ -122,14 +122,6 @@ protected:
     virtual bool canHandle(Target *parent) const;
 
 private:
-};
-
-class PROJECTEXPLORER_EXPORT DeployConfigurationWidget : public NamedWidget
-{
-    Q_OBJECT
-
-public:
-    explicit DeployConfigurationWidget(QWidget *parent = 0);
 };
 
 } // namespace ProjectExplorer

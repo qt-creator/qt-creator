@@ -47,8 +47,8 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 
 class DeployConfiguration;
-class DeployConfigurationWidget;
 class DeployConfigurationModel;
+class NamedWidget;
 class RunConfiguration;
 class RunConfigurationModel;
 class RunConfigWidget;
@@ -107,7 +107,7 @@ private:
     DeployConfigurationModel *m_deployConfigurationModel;
     QWidget *m_runConfigurationWidget;
     QVBoxLayout *m_runLayout;
-    DeployConfigurationWidget *m_deployConfigurationWidget;
+    NamedWidget *m_deployConfigurationWidget;
     QVBoxLayout *m_deployLayout;
     BuildStepListWidget *m_deploySteps;
     QMenu *m_addRunMenu;

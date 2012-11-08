@@ -41,7 +41,7 @@ class RemoteLinuxDeployConfigurationWidgetPrivate;
 } // namespace Internal
 
 class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+    : public ProjectExplorer::NamedWidget
 {
     Q_OBJECT
 

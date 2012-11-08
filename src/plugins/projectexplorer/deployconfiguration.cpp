@@ -91,7 +91,7 @@ QVariantMap DeployConfiguration::toMap() const
     return map;
 }
 
-DeployConfigurationWidget *DeployConfiguration::createConfigWidget()
+NamedWidget *DeployConfiguration::createConfigWidget()
 {
     return 0;
 }
@@ -273,10 +273,3 @@ bool DeployConfigurationFactory::canHandle(Target *parent) const
         return false;
     return DeviceTypeKitInformation::deviceTypeId(parent->kit()) == Constants::DESKTOP_DEVICE_TYPE;
 }
-
-///
-// DeployConfigurationWidget
-///
-
-DeployConfigurationWidget::DeployConfigurationWidget(QWidget *parent) : NamedWidget(parent)
-{ }

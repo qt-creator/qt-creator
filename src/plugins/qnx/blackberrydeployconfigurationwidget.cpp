@@ -45,7 +45,7 @@ using namespace Qnx::Internal;
 
 BlackBerryDeployConfigurationWidget::BlackBerryDeployConfigurationWidget(BlackBerryDeployConfiguration *dc,
                                                                          QWidget *parent)
-    : ProjectExplorer::DeployConfigurationWidget(parent)
+    : ProjectExplorer::NamedWidget(parent)
     , m_ui(new Ui::BlackBerryDeployConfigurationWidget)
     , m_deployConfiguration(0)
 {

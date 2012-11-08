@@ -43,7 +43,7 @@ class BlackBerryDeployConfigurationWidget;
 
 class BlackBerryDeployConfiguration;
 
-class BlackBerryDeployConfigurationWidget : public ProjectExplorer::DeployConfigurationWidget
+class BlackBerryDeployConfigurationWidget : public ProjectExplorer::NamedWidget
 {
     Q_OBJECT
 public:

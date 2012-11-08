@@ -55,7 +55,7 @@ using namespace Internal;
 
 RemoteLinuxDeployConfigurationWidget::RemoteLinuxDeployConfigurationWidget(RemoteLinuxDeployConfiguration *dc,
                                                                            QWidget *parent) :
-    DeployConfigurationWidget(parent), d(new RemoteLinuxDeployConfigurationWidgetPrivate)
+    NamedWidget(parent), d(new RemoteLinuxDeployConfigurationWidgetPrivate)
 {
     d->ui.setupUi(this);
     d->ui.deploymentDataView->setTextElideMode(Qt::ElideMiddle);

@@ -54,7 +54,7 @@ public:
     explicit BlackBerryDeployConfiguration(ProjectExplorer::Target *parent);
     virtual ~BlackBerryDeployConfiguration();
 
-    ProjectExplorer::DeployConfigurationWidget *createConfigWidget();
+    ProjectExplorer::NamedWidget *createConfigWidget();
 
     BlackBerryDeployInformation *deploymentInfo() const;
 
