@@ -731,10 +731,10 @@ bool WatchModel::canFetchMore(const QModelIndex &idx) const
 {
     if (!idx.isValid())
         return false;
-    if (!contentIsValid())
-        return false;
     WatchItem *item = watchItem(idx);
     QTC_ASSERT(item, return false);
+    if (!contentIsValid() && !item->isInspect())
+        return false;
     if (!item->iname.contains('.'))
         return false;
     return !m_fetchTriggered.contains(item->iname);
@@ -1032,7 +1032,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             static const QVariant red(QColor(200, 0, 0));
             static const QVariant gray(QColor(140, 140, 140));
             if (idx.column() == 1) {
-                if (!data.valueEnabled || !contentIsValid())
+                if (!data.valueEnabled || (!contentIsValid() && !data.isInspect()))
                     return gray;
                 if (data.value != m_valueCache.value(data.iname))
                     return red;
@@ -1152,10 +1152,11 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
 
 Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
 {
-    if (!contentIsValid())
+    if (!idx.isValid())
         return Qt::ItemFlags();
 
-    if (!idx.isValid())
+    const WatchData &data = *watchItem(idx);
+    if (!contentIsValid() && !data.isInspect())
         return Qt::ItemFlags();
 
     // Enabled, editable, selectable, checkable, and can be used both as the
@@ -1166,7 +1167,6 @@ Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
     static const Qt::ItemFlags editable = notEditable | Qt::ItemIsEditable;
 
     // Disable editing if debuggee is positively running except for Inspector data
-    const WatchData &data = *watchItem(idx);
     const bool isRunning = engine() && engine()->state() == InferiorRunOk;
     if (isRunning && engine() && !engine()->hasCapability(AddWatcherWhileRunningCapability) &&
             !data.isInspect())
