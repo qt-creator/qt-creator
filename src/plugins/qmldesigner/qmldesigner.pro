@@ -1,3 +1,3 @@
 TEMPLATE  = subdirs
 
-SUBDIRS   = qmldesignerplugin.pro qtquickplugin meegoplugin extrasplugin desktopplugin customstyleplugin
+SUBDIRS   = qmldesignerplugin.pro qtquickplugin desktopplugin
