@@ -934,7 +934,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     else
         m_changeButton->setEnabled(true);
 
-    setDisplayName(QLatin1String("CMake"));
+    setDisplayName(tr("CMake"));
 }
 
 void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
