@@ -30,10 +30,30 @@
 #include "basetreeview.h"
 
 #include <QHeaderView>
+#include <QItemDelegate>
+#include <QLabel>
 #include <QMenu>
 #include <QMouseEvent>
 
 namespace Utils {
+
+class BaseTreeViewDelegate : public QItemDelegate
+{
+public:
+    BaseTreeViewDelegate() {}
+
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+                          const QModelIndex &index) const
+    {
+        Q_UNUSED(option);
+        QLabel *label = new QLabel(parent);
+        label->setAutoFillBackground(true);
+        label->setTextInteractionFlags(Qt::TextSelectableByMouse
+            | Qt::LinksAccessibleByMouse);
+        label->setText(index.data().toString());
+        return label;
+    }
+};
 
 BaseTreeView::BaseTreeView(QWidget *parent)
     : QTreeView(parent)
@@ -44,7 +64,7 @@ BaseTreeView::BaseTreeView(QWidget *parent)
     setIconSize(QSize(10, 10));
     setSelectionMode(QAbstractItemView::ExtendedSelection);
     setUniformRowHeights(true);
-
+    setItemDelegate(new BaseTreeViewDelegate);
     header()->setDefaultAlignment(Qt::AlignLeft);
     header()->setClickable(true);
 
