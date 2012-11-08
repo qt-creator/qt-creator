@@ -43,11 +43,13 @@ class PropertyContainer;
 
 QMLDESIGNERCORE_EXPORT QDataStream &operator<<(QDataStream &stream, const PropertyContainer &propertyContainer);
 QMLDESIGNERCORE_EXPORT QDataStream &operator>>(QDataStream &stream, PropertyContainer &propertyContainer);
+QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const PropertyContainer &propertyContainer);
 
 class QMLDESIGNERCORE_EXPORT PropertyContainer
 {
     friend QMLDESIGNERCORE_EXPORT QDataStream &operator<<(QDataStream &stream, const PropertyContainer &propertyContainer);
     friend QMLDESIGNERCORE_EXPORT QDataStream &operator>>(QDataStream &stream, PropertyContainer &propertyContainer);
+    friend QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const PropertyContainer &propertyContainer);
 
 public:
     PropertyContainer();
@@ -72,6 +74,7 @@ private:
 
 QMLDESIGNERCORE_EXPORT QDataStream &operator<<(QDataStream &stream, const QList<PropertyContainer> &propertyContainerList);
 QMLDESIGNERCORE_EXPORT QDataStream &operator>>(QDataStream &stream, QList<PropertyContainer> &propertyContainerList);
+QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, QList<PropertyContainer> &propertyContainerList);
 
 } //namespace QmlDesigner
 

@@ -115,6 +115,15 @@ QDataStream &operator>>(QDataStream &stream, PropertyContainer &propertyContaine
     return stream;
 }
 
+QDebug operator<<(QDebug debug, const PropertyContainer &propertyContainer)
+{
+    debug << propertyContainer.m_name;
+    debug << propertyContainer.m_type;
+    debug << propertyContainer.m_value;
+
+    return debug.space();
+}
+
 QDataStream &operator<<(QDataStream &stream, const QList<PropertyContainer> &propertyContainerList)
 {
     stream << propertyContainerList.count();
@@ -136,6 +145,14 @@ QDataStream &operator>>(QDataStream &stream, QList<PropertyContainer> &propertyC
     }
 
     return stream;
+}
+
+QDebug operator<<(QDebug debug, QList<PropertyContainer> &propertyContainerList)
+{
+    foreach (const PropertyContainer &propertyContainer, propertyContainerList)
+        debug << propertyContainer;
+
+    return debug.space();
 }
 
 
