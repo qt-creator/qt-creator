@@ -84,7 +84,7 @@ public:
     void setName(const QString &name);
     void setIconPath(const QString &iconPath);
     void addProperty(const Property &p);
-    void addProperty(QString &name, QString &type, QString &value);
+    void addProperty(QString &name, QString &type, QVariant &value);
     void setDragIcon(const QIcon &icon);
     void setIcon(const QIcon &icon);
     void setCategory(const QString &category);

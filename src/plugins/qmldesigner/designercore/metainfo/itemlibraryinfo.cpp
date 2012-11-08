@@ -195,7 +195,7 @@ void ItemLibraryEntry::setForceImport(bool b)
     m_data->forceImport = b;
 }
 
-void ItemLibraryEntry::addProperty(QString &name, QString &type, QString &value)
+void ItemLibraryEntry::addProperty(QString &name, QString &type, QVariant &value)
 {
     Property property;
     property.set(name, type, value);
