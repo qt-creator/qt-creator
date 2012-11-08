@@ -65,11 +65,8 @@ BuildEnvironmentWidget::BuildEnvironmentWidget(BuildConfiguration *bc)
     m_buildEnvironmentWidget->setBaseEnvironment(m_buildConfiguration->baseEnvironment());
     m_buildEnvironmentWidget->setBaseEnvironmentText(m_buildConfiguration->baseEnvironmentText());
     m_buildEnvironmentWidget->setUserChanges(m_buildConfiguration->userEnvironmentChanges());
-}
 
-QString BuildEnvironmentWidget::displayName() const
-{
-    return tr("Build Environment");
+    setDisplayName(tr("Build Environment"));
 }
 
 void BuildEnvironmentWidget::environmentModelUserChangesChanged()

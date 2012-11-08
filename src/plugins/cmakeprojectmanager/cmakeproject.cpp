@@ -933,11 +933,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         m_changeButton->setEnabled(false);
     else
         m_changeButton->setEnabled(true);
-}
 
-QString CMakeBuildSettingsWidget::displayName() const
-{
-    return "CMake";
+    setDisplayName(QLatin1String("CMake"));
 }
 
 void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()

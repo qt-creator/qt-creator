@@ -127,10 +127,25 @@ public:
         :QWidget(0)
         {}
 
-    virtual QString displayName() const = 0;
+    QString displayName() const
+    {
+        return m_displayName;
+    }
 
 signals:
     void displayNameChanged(const QString &);
+
+protected:
+    void setDisplayName(const QString &displayName)
+    {
+        if (m_displayName == displayName)
+            return;
+        m_displayName = displayName;
+        emit displayNameChanged(m_displayName);
+    }
+
+private:
+    QString m_displayName;
 };
 
 class PROJECTEXPLORER_EXPORT BuildStepConfigWidget

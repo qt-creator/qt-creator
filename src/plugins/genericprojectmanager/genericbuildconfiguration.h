@@ -96,8 +96,6 @@ class GenericBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget
 public:
     GenericBuildSettingsWidget(GenericBuildConfiguration *bc);
 
-    QString displayName() const;
-
 private slots:
     void buildDirectoryChanged();
 

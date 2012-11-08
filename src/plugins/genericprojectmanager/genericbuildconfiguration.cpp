@@ -245,11 +245,7 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericBuildConfiguration
     m_buildConfiguration = bc;
     m_pathChooser->setBaseDirectory(bc->target()->project()->projectDirectory());
     m_pathChooser->setPath(m_buildConfiguration->rawBuildDirectory());
-}
-
-QString GenericBuildSettingsWidget::displayName() const
-{
-    return tr("Generic Manager");
+    setDisplayName(tr("Generic Manager"));
 }
 
 void GenericBuildSettingsWidget::buildDirectoryChanged()

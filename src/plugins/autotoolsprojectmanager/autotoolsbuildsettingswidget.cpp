@@ -64,11 +64,7 @@ AutotoolsBuildSettingsWidget::AutotoolsBuildSettingsWidget(AutotoolsBuildConfigu
 
     m_pathChooser->setBaseDirectory(bc->target()->project()->projectDirectory());
     m_pathChooser->setPath(m_buildConfiguration->buildDirectory());
-}
-
-QString AutotoolsBuildSettingsWidget::displayName() const
-{
-    return QLatin1String("Autotools Manager");
+    setDisplayName(QLatin1String("Autotools Manager"));
 }
 
 void AutotoolsBuildSettingsWidget::buildDirectoryChanged()

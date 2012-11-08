@@ -56,8 +56,6 @@ public:
     Qt4ProjectConfigWidget(Qt4BuildConfiguration *bc);
     ~Qt4ProjectConfigWidget();
 
-    QString displayName() const;
-
 private slots:
     // User changes in our widgets
     void shadowBuildClicked(bool checked);

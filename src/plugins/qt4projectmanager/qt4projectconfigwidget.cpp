@@ -107,6 +107,8 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4BuildConfiguration *bc)
     m_ui->shadowBuildDirEdit->setBaseDirectory(m_buildConfiguration->target()->project()->projectDirectory());
 
     buildDirectoryChanged();
+
+    setDisplayName(tr("General"));
 }
 
 Qt4ProjectConfigWidget::~Qt4ProjectConfigWidget()
@@ -131,11 +133,6 @@ void Qt4ProjectConfigWidget::setProblemLabel(const QString &text)
 void Qt4ProjectConfigWidget::environmentChanged()
 {
     m_ui->shadowBuildDirEdit->setEnvironment(m_buildConfiguration->environment());
-}
-
-QString Qt4ProjectConfigWidget::displayName() const
-{
-    return tr("General");
 }
 
 void Qt4ProjectConfigWidget::buildDirectoryChanged()

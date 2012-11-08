@@ -48,8 +48,6 @@ class PROJECTEXPLORER_EXPORT BuildEnvironmentWidget : public BuildConfigWidget
 public:
     BuildEnvironmentWidget(BuildConfiguration *bc);
 
-    QString displayName() const;
-
 private slots:
     void environmentModelUserChangesChanged();
     void clearSystemEnvironmentCheckBoxClicked(bool checked);

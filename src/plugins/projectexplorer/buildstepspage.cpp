@@ -502,16 +502,12 @@ BuildStepsPage::BuildStepsPage(BuildConfiguration *bc, Core::Id id) :
     layout->addWidget(m_widget);
 
     m_widget->init(bc->stepList(m_id));
+
+    if (m_id == Constants::BUILDSTEPS_BUILD)
+        setDisplayName(tr("Build Steps"));
+    if (m_id == Constants::BUILDSTEPS_CLEAN)
+        setDisplayName(tr("Clean Steps"));
 }
 
 BuildStepsPage::~BuildStepsPage()
 { }
-
-QString BuildStepsPage::displayName() const
-{
-    if (m_id == Constants::BUILDSTEPS_BUILD)
-        return tr("Build Steps");
-    if (m_id == Constants::BUILDSTEPS_CLEAN)
-        return tr("Clean Steps");
-    return QString();
-}

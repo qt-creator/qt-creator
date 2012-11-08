@@ -59,8 +59,6 @@ class AutotoolsBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget
 public:
     AutotoolsBuildSettingsWidget(AutotoolsBuildConfiguration *bc);
 
-    QString displayName() const;
-
 private slots:
     void buildDirectoryChanged();
 

@@ -159,8 +159,6 @@ public:
     BuildStepsPage(BuildConfiguration *bc, Core::Id id);
     virtual ~BuildStepsPage();
 
-    QString displayName() const;
-
 private:
     Core::Id m_id;
     BuildStepListWidget *m_widget;
