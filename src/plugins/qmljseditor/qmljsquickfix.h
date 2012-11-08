@@ -94,7 +94,7 @@ protected:
         Implement this method to match and create the appropriate
         QmlJSQuickFixOperation objects.
      */
-    virtual void match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result) = 0;
+    virtual void match(const QmlJSQuickFixInterface &interface, TextEditor::QuickFixOperations &result) = 0;
 };
 
 } // namespace QmlJSEditor

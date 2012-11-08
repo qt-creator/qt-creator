@@ -45,7 +45,6 @@ using namespace QmlJS::AST;
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 using namespace QmlJSTools;
-using namespace TextEditor;
 using TextEditor::RefactoringChanges;
 
 namespace {
@@ -80,7 +79,7 @@ class SplitInitializerOp: public QmlJSQuickFixFactory
         }
 
         if (objectInitializer)
-            result.append(QuickFixOperation::Ptr(new Operation(interface, objectInitializer)));
+            result.append(TextEditor::QuickFixOperation::Ptr(new Operation(interface, objectInitializer)));
     }
 
     class Operation: public QmlJSQuickFixOperation

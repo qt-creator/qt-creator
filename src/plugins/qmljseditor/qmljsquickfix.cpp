@@ -45,7 +45,6 @@ using namespace QmlJS::AST;
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 using namespace QmlJSTools;
-using namespace TextEditor;
 using TextEditor::RefactoringChanges;
 
 QmlJSQuickFixOperation::QmlJSQuickFixOperation(const QmlJSQuickFixInterface &interface,
