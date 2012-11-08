@@ -88,7 +88,7 @@ void MetaInfoParser::elementStart(const QString &name)
     case ParsingItemLibrary: setParserState(readItemLibraryEntryElement(name)); break;
     case ParsingProperty: setParserState(readPropertyElement(name)); break;
     case ParsingQmlSource: setParserState(readQmlSourceElement(name)); break;
-    case Finished: setParserState(Error);
+    case Finished:
     case Undefined: setParserState(Error);
         addError(tr("Illegal state while parsing"), currentSourceLocation());
     case Error:
@@ -99,13 +99,13 @@ void MetaInfoParser::elementStart(const QString &name)
 void MetaInfoParser::elementEnd()
 {
     switch (parserState()) {
-    case ParsingMetaInfo: setParserState(ParsingDocument); break;
+    case ParsingMetaInfo: setParserState(Finished); break;
     case ParsingType: setParserState(ParsingMetaInfo); break;
     case ParsingItemLibrary: insertItemLibraryEntry(); setParserState((ParsingType)); break;
     case ParsingProperty: insertProperty(); setParserState(ParsingItemLibrary);  break;
     case ParsingQmlSource: setParserState(ParsingItemLibrary); break;
-    case ParsingDocument: setParserState(Finished);
-    case Finished: setParserState(Error);
+    case ParsingDocument:
+    case Finished:
     case Undefined: setParserState(Error);
         addError(tr("Illegal state while parsing"), currentSourceLocation());
     case Error:
