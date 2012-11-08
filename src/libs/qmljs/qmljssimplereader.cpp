@@ -135,6 +135,9 @@ bool SimpleAbstractStreamReader::readFile(const QString &fileName)
 
 bool SimpleAbstractStreamReader::readFromSource(const QString &source)
 {
+    m_errors.clear();
+    m_currentSourceLocation = AST::SourceLocation();
+
     Engine engine;
     Lexer lexer(&engine);
     Parser parser(&engine);
