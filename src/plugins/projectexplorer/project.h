@@ -97,8 +97,6 @@ public:
     void saveSettings();
     bool restoreSettings();
 
-    virtual QList<BuildConfigWidget*> subConfigWidgets();
-
     virtual ProjectNode *rootProjectNode() const = 0;
 
     enum FilesMode { AllFiles, ExcludeGeneratedFiles };

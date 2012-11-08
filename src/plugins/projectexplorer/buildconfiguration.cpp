@@ -116,6 +116,11 @@ BuildConfiguration::~BuildConfiguration()
     delete m_macroExpander;
 }
 
+QList<BuildConfigWidget*> BuildConfiguration::subConfigWidgets()
+{
+    return QList<BuildConfigWidget*>();
+}
+
 Utils::AbstractMacroExpander *BuildConfiguration::macroExpander()
 {
     if (!m_macroExpander)

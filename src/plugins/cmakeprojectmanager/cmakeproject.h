@@ -85,8 +85,6 @@ public:
     Core::IDocument *document() const;
     CMakeManager *projectManager() const;
 
-    QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
-
     ProjectExplorer::ProjectNode *rootProjectNode() const;
 
     QStringList files(FilesMode fileMode) const;

@@ -39,6 +39,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <limits>
+#include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -187,6 +188,13 @@ void Qt4BuildConfiguration::emitBuildDirectoryChanged()
 BuildConfigWidget *Qt4BuildConfiguration::createConfigWidget()
 {
     return new Qt4ProjectConfigWidget(target());
+}
+
+QList<BuildConfigWidget*> Qt4BuildConfiguration::subConfigWidgets()
+{
+    QList<BuildConfigWidget*> subWidgets;
+    subWidgets << new ProjectExplorer::BuildEnvironmentWidget;
+    return subWidgets;
 }
 
 QString Qt4BuildConfiguration::defaultShadowBuildDirectory() const

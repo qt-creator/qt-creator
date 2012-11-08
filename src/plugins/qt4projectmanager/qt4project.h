@@ -92,8 +92,6 @@ public:
     virtual QStringList files(FilesMode fileMode) const;
     virtual QString generatedUiHeader(const QString &formFile) const;
 
-    QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
-
     QList<Qt4ProFileNode *> allProFiles() const;
     QList<Qt4ProFileNode *> applicationProFiles() const;
     bool hasApplicationProFile(const QString &path) const;

@@ -56,6 +56,7 @@ public:
     ~Qt4BuildConfiguration();
 
     ProjectExplorer::BuildConfigWidget *createConfigWidget();
+    QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
     QString buildDirectory() const;
     bool shadowBuild() const;
     QString shadowBuildDirectory() const;

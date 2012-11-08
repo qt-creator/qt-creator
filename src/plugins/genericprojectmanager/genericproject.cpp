@@ -39,7 +39,6 @@
 #include <cpptools/ModelManagerInterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/abi.h>
-#include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kitinformation.h>
@@ -396,13 +395,6 @@ IDocument *GenericProject::document() const
 IProjectManager *GenericProject::projectManager() const
 {
     return m_manager;
-}
-
-QList<BuildConfigWidget*> GenericProject::subConfigWidgets()
-{
-    QList<BuildConfigWidget*> list;
-    list << new BuildEnvironmentWidget;
-    return list;
 }
 
 GenericProjectNode *GenericProject::rootProjectNode() const

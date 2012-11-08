@@ -64,8 +64,6 @@ public:
     Core::IDocument *document() const;
     ProjectExplorer::IProjectManager *projectManager() const;
 
-    QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
-
     GenericProjectNode *rootProjectNode() const;
     QStringList files(FilesMode fileMode) const;
 

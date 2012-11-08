@@ -33,6 +33,7 @@
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 
+#include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/ioutputparser.h>
@@ -110,6 +111,14 @@ ProjectExplorer::BuildConfigWidget *CMakeBuildConfiguration::createConfigWidget(
 {
     return new CMakeBuildSettingsWidget;
 }
+
+QList<ProjectExplorer::BuildConfigWidget *> CMakeBuildConfiguration::subConfigWidgets()
+{
+    QList<ProjectExplorer::BuildConfigWidget*> list;
+    list << new ProjectExplorer::BuildEnvironmentWidget;
+    return list;
+}
+
 
 QString CMakeBuildConfiguration::buildDirectory() const
 {

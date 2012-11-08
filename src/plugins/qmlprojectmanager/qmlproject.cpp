@@ -301,11 +301,6 @@ bool QmlProject::supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) con
     return version;
 }
 
-QList<ProjectExplorer::BuildConfigWidget*> QmlProject::subConfigWidgets()
-{
-    return QList<ProjectExplorer::BuildConfigWidget*>();
-}
-
 ProjectExplorer::ProjectNode *QmlProject::rootProjectNode() const
 {
     return m_rootNode;

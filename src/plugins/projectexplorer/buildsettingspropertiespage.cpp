@@ -242,7 +242,7 @@ void BuildSettingsWidget::updateBuildSettings()
     addSubWidget(new BuildStepsPage(m_target, Core::Id(Constants::BUILDSTEPS_BUILD)));
     addSubWidget(new BuildStepsPage(m_target, Core::Id(Constants::BUILDSTEPS_CLEAN)));
 
-    QList<BuildConfigWidget *> subConfigWidgets = m_target->project()->subConfigWidgets();
+    QList<BuildConfigWidget *> subConfigWidgets = m_buildConfiguration->subConfigWidgets();
     foreach (BuildConfigWidget *subConfigWidget, subConfigWidgets)
         addSubWidget(subConfigWidget);
 

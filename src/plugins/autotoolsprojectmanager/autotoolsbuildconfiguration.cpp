@@ -38,6 +38,7 @@
 #include "autoreconfstep.h"
 #include "configurestep.h"
 
+#include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -69,6 +70,12 @@ BuildConfigWidget *AutotoolsBuildConfiguration::createConfigWidget()
 {
     return new AutotoolsBuildSettingsWidget;
 }
+
+QList<BuildConfigWidget *> AutotoolsBuildConfiguration::subConfigWidgets()
+{
+    return QList<BuildConfigWidget *>() << new ProjectExplorer::BuildEnvironmentWidget;
+}
+
 
 AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, const Core::Id id)
     : BuildConfiguration(parent, id)

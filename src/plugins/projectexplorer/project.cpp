@@ -306,10 +306,6 @@ bool Project::restoreSettings()
     return ok;
 }
 
-QList<BuildConfigWidget*> Project::subConfigWidgets()
-{
-    return QList<BuildConfigWidget*>();
-}
 
 /*!
     \brief Serialize all data into a QVariantMap.

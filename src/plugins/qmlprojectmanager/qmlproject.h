@@ -68,8 +68,6 @@ public:
 
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const;
 
-    QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
-
     ProjectExplorer::ProjectNode *rootProjectNode() const;
     QStringList files(FilesMode fileMode) const;
 

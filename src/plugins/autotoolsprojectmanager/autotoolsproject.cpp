@@ -40,7 +40,6 @@
 #include "makefileparserthread.h"
 
 #include <projectexplorer/abi.h>
-#include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -124,11 +123,6 @@ IProjectManager *AutotoolsProject::projectManager() const
 QString AutotoolsProject::defaultBuildDirectory() const
 {
     return projectDirectory();
-}
-
-QList<BuildConfigWidget *> AutotoolsProject::subConfigWidgets()
-{
-    return QList<BuildConfigWidget *>() << new BuildEnvironmentWidget;
 }
 
 ProjectNode *AutotoolsProject::rootProjectNode() const

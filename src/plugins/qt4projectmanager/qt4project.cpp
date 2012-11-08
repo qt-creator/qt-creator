@@ -55,7 +55,6 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -1055,13 +1054,6 @@ bool Qt4Project::parseInProgress(const QString &proFilePath) const
         return false;
     const Qt4ProFileNode *node = m_rootProjectNode->findProFileFor(proFilePath);
     return node && node->parseInProgress();
-}
-
-QList<BuildConfigWidget*> Qt4Project::subConfigWidgets()
-{
-    QList<BuildConfigWidget*> subWidgets;
-    subWidgets << new BuildEnvironmentWidget;
-    return subWidgets;
 }
 
 void Qt4Project::collectAllfProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNode *node)

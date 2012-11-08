@@ -41,7 +41,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/headerpath.h>
-#include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/kitinformation.h>
@@ -510,13 +509,6 @@ Core::IDocument *CMakeProject::document() const
 CMakeManager *CMakeProject::projectManager() const
 {
     return m_manager;
-}
-
-QList<ProjectExplorer::BuildConfigWidget*> CMakeProject::subConfigWidgets()
-{
-    QList<ProjectExplorer::BuildConfigWidget*> list;
-    list << new BuildEnvironmentWidget;
-    return list;
 }
 
 ProjectExplorer::ProjectNode *CMakeProject::rootProjectNode() const

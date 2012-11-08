@@ -74,7 +74,6 @@ public:
     Core::Id id() const;
     Core::IDocument *document() const;
     ProjectExplorer::IProjectManager *projectManager() const;
-    QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
     ProjectExplorer::ProjectNode *rootProjectNode() const;
     QStringList files(FilesMode fileMode) const;
     QString defaultBuildDirectory() const;
