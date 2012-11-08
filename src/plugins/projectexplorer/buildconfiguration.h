@@ -61,7 +61,7 @@ public:
     virtual QString buildDirectory() const = 0;
 
     virtual BuildConfigWidget *createConfigWidget() = 0;
-    virtual QList<BuildConfigWidget*> subConfigWidgets();
+    virtual QList<BuildConfigWidget*> createSubConfigWidgets();
 
     // Maybe the BuildConfiguration is not the best place for the environment
     Utils::Environment baseEnvironment() const;

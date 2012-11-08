@@ -70,12 +70,6 @@ BuildConfigWidget *AutotoolsBuildConfiguration::createConfigWidget()
     return new AutotoolsBuildSettingsWidget;
 }
 
-QList<BuildConfigWidget *> AutotoolsBuildConfiguration::subConfigWidgets()
-{
-    return QList<BuildConfigWidget *>() << new ProjectExplorer::BuildEnvironmentWidget;
-}
-
-
 AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, const Core::Id id)
     : BuildConfiguration(parent, id)
 {
