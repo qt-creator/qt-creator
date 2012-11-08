@@ -1711,19 +1711,19 @@ void EditorManager::updateMakeWritableWarning()
         if (ww) {
             // we are about to change a read-only file, warn user
             if (promptVCS) {
-                InfoBarEntry info(QLatin1String(kMakeWritableWarning),
+                InfoBarEntry info(Id(kMakeWritableWarning),
                                   tr("<b>Warning:</b> This file was not opened in %1 yet.")
                                   .arg(versionControl->displayName()));
                 info.setCustomButtonInfo(tr("Open"), this, SLOT(vcsOpenCurrentEditor()));
                 curEditor->document()->infoBar()->addInfo(info);
             } else {
-                InfoBarEntry info(QLatin1String(kMakeWritableWarning),
+                InfoBarEntry info(Id(kMakeWritableWarning),
                                   tr("<b>Warning:</b> You are changing a read-only file."));
                 info.setCustomButtonInfo(tr("Make Writable"), this, SLOT(makeCurrentEditorWritable()));
                 curEditor->document()->infoBar()->addInfo(info);
             }
         } else {
-            curEditor->document()->infoBar()->removeInfo(QLatin1String(kMakeWritableWarning));
+            curEditor->document()->infoBar()->removeInfo(Id(kMakeWritableWarning));
         }
     }
 }

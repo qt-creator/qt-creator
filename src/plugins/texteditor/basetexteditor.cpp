@@ -568,14 +568,13 @@ void BaseTextEditorWidget::updateCannotDecodeInfo()
 {
     setReadOnly(d->m_document->hasDecodingError());
     if (d->m_document->hasDecodingError()) {
-        Core::InfoBarEntry info(
-            QLatin1String(Constants::SELECT_ENCODING),
+        Core::InfoBarEntry info(Core::Id(Constants::SELECT_ENCODING),
             tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.")
             .arg(displayName()).arg(QString::fromLatin1(d->m_document->codec()->name())));
         info.setCustomButtonInfo(tr("Select Encoding"), this, SLOT(selectEncoding()));
         d->m_document->infoBar()->addInfo(info);
     } else {
-        d->m_document->infoBar()->removeInfo(QLatin1String(Constants::SELECT_ENCODING));
+        d->m_document->infoBar()->removeInfo(Core::Id(Constants::SELECT_ENCODING));
     }
 }
 

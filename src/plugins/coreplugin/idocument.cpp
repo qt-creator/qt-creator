@@ -85,7 +85,7 @@ void IDocument::setRestoredFrom(const QString &name)
 {
     m_autoSaveName = name;
     m_restored = true;
-    InfoBarEntry info(QLatin1String(kRestoredAutoSave),
+    InfoBarEntry info(Id(kRestoredAutoSave),
           tr("File was restored from auto-saved copy. "
              "Select Save to confirm or Revert to Saved to discard changes."));
     infoBar()->addInfo(info);
@@ -98,7 +98,7 @@ void IDocument::removeAutoSaveFile()
         m_autoSaveName.clear();
         if (m_restored) {
             m_restored = false;
-            infoBar()->removeInfo(QLatin1String(kRestoredAutoSave));
+            infoBar()->removeInfo(Id(kRestoredAutoSave));
         }
     }
 }

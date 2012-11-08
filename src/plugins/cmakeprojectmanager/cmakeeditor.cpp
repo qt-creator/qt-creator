@@ -84,7 +84,7 @@ void CMakeEditor::markAsChanged()
     if (m_infoBarShown)
         return;
     m_infoBarShown = true;
-    Core::InfoBarEntry info(QLatin1String("CMakeEditor.RunCMake"),
+    Core::InfoBarEntry info(Core::Id("CMakeEditor.RunCMake"),
                             tr("Changes to cmake files are shown in the project tree after building."));
     info.setCustomButtonInfo(tr("Build now"), this, SLOT(build()));
     document()->infoBar()->addInfo(info);

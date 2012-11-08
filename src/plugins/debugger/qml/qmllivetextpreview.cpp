@@ -714,7 +714,7 @@ void QmlLiveTextPreview::showSyncWarning(
     foreach (TextEditor::BaseTextEditorWidget *editor, m_editors) {
         if (editor) {
             Core::InfoBar *infoBar = editor->editorDocument()->infoBar();
-            Core::InfoBarEntry info(QLatin1String(INFO_OUT_OF_SYNC), errorMessage);
+            Core::InfoBarEntry info(Core::Id(INFO_OUT_OF_SYNC), errorMessage);
             BaseToolsClient *toolsClient = m_inspectorAdapter->toolsClient();
             if (toolsClient && toolsClient->supportReload())
                 info.setCustomButtonInfo(tr("Reload QML"), this,
@@ -735,7 +735,7 @@ void QmlLiveTextPreview::removeOutofSyncInfo()
     foreach (TextEditor::BaseTextEditorWidget *editor, m_editors) {
         if (editor) {
             Core::InfoBar *infoBar = editor->editorDocument()->infoBar();
-            infoBar->removeInfo(QLatin1String(INFO_OUT_OF_SYNC));
+            infoBar->removeInfo(Core::Id(INFO_OUT_OF_SYNC));
         }
     }
 }

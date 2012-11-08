@@ -31,6 +31,7 @@
 #define INFOBAR_H
 
 #include "core_global.h"
+#include <coreplugin/id.h>
 
 #include <QObject>
 
@@ -46,14 +47,14 @@ class InfoBarDisplay;
 class CORE_EXPORT InfoBarEntry
 {
 public:
-    InfoBarEntry(const QString &_id, const QString &_infoText);
+    InfoBarEntry(Id _id, const QString &_infoText);
     InfoBarEntry(const InfoBarEntry &other) { *this = other; }
     void setCustomButtonInfo(const QString &_buttonText, QObject *_object, const char *_member);
     void setCancelButtonInfo(QObject *_object, const char *_member);
     void setCancelButtonInfo(const QString &_cancelButtonText, QObject *_object, const char *_member);
 
 private:
-    QString id;
+    Id id;
     QString infoText;
     QString buttonText;
     QObject *object;
@@ -71,8 +72,8 @@ class CORE_EXPORT InfoBar : public QObject
 
 public:
     void addInfo(const InfoBarEntry &info);
-    void removeInfo(const QString &id);
-    bool containsInfo(const QString &id) const;
+    void removeInfo(Id id);
+    bool containsInfo(Id id) const;
     void clear();
 
 signals:

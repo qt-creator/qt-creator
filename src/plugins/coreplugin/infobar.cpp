@@ -40,7 +40,7 @@
 
 namespace Core {
 
-InfoBarEntry::InfoBarEntry(const QString &_id, const QString &_infoText)
+InfoBarEntry::InfoBarEntry(Id _id, const QString &_infoText)
     : id(_id)
     , infoText(_infoText)
     , object(0)
@@ -77,7 +77,7 @@ void InfoBar::addInfo(const InfoBarEntry &info)
     emit changed();
 }
 
-void InfoBar::removeInfo(const QString &id)
+void InfoBar::removeInfo(Id id)
 {
     QMutableListIterator<InfoBarEntry> it(m_infoBarEntries);
     while (it.hasNext())
@@ -88,7 +88,7 @@ void InfoBar::removeInfo(const QString &id)
         }
 }
 
-bool InfoBar::containsInfo(const QString &id) const
+bool InfoBar::containsInfo(Id id) const
 {
     QListIterator<InfoBarEntry> it(m_infoBarEntries);
     while (it.hasNext())
@@ -183,7 +183,7 @@ void InfoBarDisplay::update()
         }
 
         QToolButton *infoWidgetCloseButton = new QToolButton;
-        infoWidgetCloseButton->setProperty("infoId", info.id);
+        infoWidgetCloseButton->setProperty("infoId", info.id.uniqueIdentifier());
 
         // need to connect to cancelObjectbefore connecting to cancelButtonClicked,
         // because the latter removes the button and with it any connect
@@ -216,7 +216,7 @@ void InfoBarDisplay::widgetDestroyed()
 
 void InfoBarDisplay::cancelButtonClicked()
 {
-    m_infoBar->removeInfo(sender()->property("infoId").toString());
+    m_infoBar->removeInfo(Id::fromUniqueIdentifier(sender()->property("infoId").toInt()));
 }
 
 } // namespace Core
