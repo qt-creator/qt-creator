@@ -4727,10 +4727,10 @@ void GdbEngine::startGdb(const QStringList &args)
     postCommand("set width 0");
     postCommand("set height 0");
 
-    postCommand("set breakpoint always-inserted on", ConsoleCommand);
+    //postCommand("set breakpoint always-inserted on", ConsoleCommand);
     // displaced-stepping does not work in Thumb mode.
     //postCommand("set displaced-stepping on");
-    postCommand("set trust-readonly-sections on", ConsoleCommand);
+    //postCommand("set trust-readonly-sections on", ConsoleCommand);
 
     postCommand("set remotecache on", ConsoleCommand);
     //postCommand("set non-stop on", ConsoleCommand);
