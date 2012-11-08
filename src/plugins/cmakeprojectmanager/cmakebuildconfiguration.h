@@ -51,7 +51,7 @@ public:
     CMakeBuildConfiguration(ProjectExplorer::Target *parent);
     ~CMakeBuildConfiguration();
 
-    ProjectExplorer::BuildConfigWidget *createConfigWidget();
+    ProjectExplorer::NamedWidget *createConfigWidget();
     QString buildDirectory() const;
 
     void setBuildDirectory(const QString &buildDirectory);

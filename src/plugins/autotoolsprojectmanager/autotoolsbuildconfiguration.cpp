@@ -65,7 +65,7 @@ AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(ProjectExplorer::Target
         m_buildDirectory = project->defaultBuildDirectory();
 }
 
-BuildConfigWidget *AutotoolsBuildConfiguration::createConfigWidget()
+NamedWidget *AutotoolsBuildConfiguration::createConfigWidget()
 {
     return new AutotoolsBuildSettingsWidget(this);
 }

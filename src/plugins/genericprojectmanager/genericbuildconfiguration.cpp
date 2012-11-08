@@ -105,7 +105,7 @@ void GenericBuildConfiguration::setBuildDirectory(const QString &buildDirectory)
     emit buildDirectoryChanged();
 }
 
-BuildConfigWidget *GenericBuildConfiguration::createConfigWidget()
+NamedWidget *GenericBuildConfiguration::createConfigWidget()
 {
     return new GenericBuildSettingsWidget(this);
 }

@@ -63,7 +63,7 @@ using namespace Qt4ProjectManager::Internal;
 using namespace ProjectExplorer;
 
 Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4BuildConfiguration *bc)
-    : BuildConfigWidget(),
+    : NamedWidget(),
       m_buildConfiguration(bc),
       m_ignoreChange(false)
 {

@@ -48,7 +48,7 @@ class AutotoolsBuildConfiguration : public ProjectExplorer::BuildConfiguration
 public:
     explicit AutotoolsBuildConfiguration(ProjectExplorer::Target *parent);
 
-    ProjectExplorer::BuildConfigWidget *createConfigWidget();
+    ProjectExplorer::NamedWidget *createConfigWidget();
 
     QString buildDirectory() const;
     void setBuildDirectory(const QString &buildDirectory);

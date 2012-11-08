@@ -32,7 +32,7 @@
 #ifndef AUTOTOOLSBUILDSETTINGSWIDGET_H
 #define AUTOTOOLSBUILDSETTINGSWIDGET_H
 
-#include <projectexplorer/buildstep.h>
+#include <projectexplorer/namedwidget.h>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -52,7 +52,7 @@ class AutotoolsBuildConfiguration;
  *
  * Provides an editor to configure the build directory and build steps.
  */
-class AutotoolsBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget
+class AutotoolsBuildSettingsWidget : public ProjectExplorer::NamedWidget
 {
     Q_OBJECT
 

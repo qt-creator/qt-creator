@@ -49,7 +49,7 @@ class DeployConfigurationFactory;
 class IRunConfigurationFactory;
 class Kit;
 class Project;
-class BuildConfigWidget;
+class NamedWidget;
 
 class TargetPrivate;
 

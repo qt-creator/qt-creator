@@ -118,36 +118,6 @@ public:
     virtual BuildStep *clone(BuildStepList *parent, BuildStep *product) = 0;
 };
 
-class PROJECTEXPLORER_EXPORT BuildConfigWidget
-    : public QWidget
-{
-    Q_OBJECT
-public:
-    BuildConfigWidget()
-        :QWidget(0)
-        {}
-
-    QString displayName() const
-    {
-        return m_displayName;
-    }
-
-signals:
-    void displayNameChanged(const QString &);
-
-protected:
-    void setDisplayName(const QString &displayName)
-    {
-        if (m_displayName == displayName)
-            return;
-        m_displayName = displayName;
-        emit displayNameChanged(m_displayName);
-    }
-
-private:
-    QString m_displayName;
-};
-
 class PROJECTEXPLORER_EXPORT BuildStepConfigWidget
     : public QWidget
 {

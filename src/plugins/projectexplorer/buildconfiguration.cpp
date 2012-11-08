@@ -117,9 +117,9 @@ BuildConfiguration::~BuildConfiguration()
     delete m_macroExpander;
 }
 
-QList<BuildConfigWidget*> BuildConfiguration::createSubConfigWidgets()
+QList<NamedWidget *> BuildConfiguration::createSubConfigWidgets()
 {
-    return QList<BuildConfigWidget *>() << new ProjectExplorer::BuildEnvironmentWidget(this);
+    return QList<NamedWidget *>() << new ProjectExplorer::BuildEnvironmentWidget(this);
 }
 
 Utils::AbstractMacroExpander *BuildConfiguration::macroExpander()

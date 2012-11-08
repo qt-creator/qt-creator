@@ -492,7 +492,7 @@ void BuildStepListWidget::updateBuildStepButtonsState()
 }
 
 BuildStepsPage::BuildStepsPage(BuildConfiguration *bc, Core::Id id) :
-    BuildConfigWidget(),
+    NamedWidget(),
     m_id(id),
     m_widget(new BuildStepListWidget(this))
 {

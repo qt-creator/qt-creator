@@ -184,7 +184,7 @@ void Qt4BuildConfiguration::emitBuildDirectoryChanged()
     }
 }
 
-BuildConfigWidget *Qt4BuildConfiguration::createConfigWidget()
+NamedWidget *Qt4BuildConfiguration::createConfigWidget()
 {
     return new Qt4ProjectConfigWidget(this);
 }

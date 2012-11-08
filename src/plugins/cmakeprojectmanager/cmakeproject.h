@@ -37,8 +37,8 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/namedwidget.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -224,7 +224,7 @@ private:
     QString m_fileName;
 };
 
-class CMakeBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget
+class CMakeBuildSettingsWidget : public ProjectExplorer::NamedWidget
 {
     Q_OBJECT
 public:

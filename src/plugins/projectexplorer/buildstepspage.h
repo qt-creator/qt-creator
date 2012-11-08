@@ -151,7 +151,7 @@ namespace Ui {
     class BuildStepsPage;
 }
 
-class BuildStepsPage : public BuildConfigWidget
+class BuildStepsPage : public NamedWidget
 {
     Q_OBJECT
 

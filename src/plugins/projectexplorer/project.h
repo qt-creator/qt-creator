@@ -45,11 +45,11 @@ class Context;
 
 namespace ProjectExplorer {
 
-class BuildConfigWidget;
 class IProjectManager;
 class EditorConfiguration;
 class ProjectNode;
 class Kit;
+class NamedWidget;
 class Target;
 class ProjectPrivate;
 

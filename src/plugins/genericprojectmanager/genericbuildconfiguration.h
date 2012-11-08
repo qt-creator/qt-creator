@@ -31,7 +31,7 @@
 #define GENERICBUILDCONFIGURATION_H
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/buildstep.h> // for BuildConfigWidget
+#include <projectexplorer/namedwidget.h>
 
 namespace Utils { class PathChooser; }
 
@@ -49,7 +49,7 @@ class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
 public:
     explicit GenericBuildConfiguration(ProjectExplorer::Target *parent);
 
-    ProjectExplorer::BuildConfigWidget *createConfigWidget();
+    ProjectExplorer::NamedWidget *createConfigWidget();
     QString buildDirectory() const;
 
     QString rawBuildDirectory() const;
@@ -89,7 +89,7 @@ private:
     bool canHandle(const ProjectExplorer::Target *t) const;
 };
 
-class GenericBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget
+class GenericBuildSettingsWidget : public ProjectExplorer::NamedWidget
 {
     Q_OBJECT
 

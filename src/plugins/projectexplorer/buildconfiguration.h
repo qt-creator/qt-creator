@@ -44,7 +44,7 @@ class AbstractMacroExpander;
 namespace ProjectExplorer {
 
 class BuildConfiguration;
-class BuildConfigWidget;
+class NamedWidget;
 class BuildStepList;
 class Kit;
 class Target;
@@ -60,8 +60,8 @@ public:
 
     virtual QString buildDirectory() const = 0;
 
-    virtual BuildConfigWidget *createConfigWidget() = 0;
-    virtual QList<BuildConfigWidget*> createSubConfigWidgets();
+    virtual ProjectExplorer::NamedWidget *createConfigWidget() = 0;
+    virtual QList<NamedWidget *> createSubConfigWidgets();
 
     // Maybe the BuildConfiguration is not the best place for the environment
     Utils::Environment baseEnvironment() const;

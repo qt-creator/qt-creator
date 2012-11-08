@@ -175,7 +175,7 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
     connect(m_target, SIGNAL(kitChanged()), this, SLOT(updateAddButtonMenu()));
 }
 
-void BuildSettingsWidget::addSubWidget(BuildConfigWidget *widget)
+void BuildSettingsWidget::addSubWidget(NamedWidget *widget)
 {
     widget->setContentsMargins(0, 10, 0, 0);
 
@@ -205,7 +205,7 @@ void BuildSettingsWidget::clear()
     m_labels.clear();
 }
 
-QList<BuildConfigWidget *> BuildSettingsWidget::subWidgets() const
+QList<NamedWidget *> BuildSettingsWidget::subWidgets() const
 {
     return m_subWidgets;
 }
@@ -239,14 +239,14 @@ void BuildSettingsWidget::updateBuildSettings()
         return;
 
     // Add pages
-    BuildConfigWidget *generalConfigWidget = m_buildConfiguration->createConfigWidget();
+    NamedWidget *generalConfigWidget = m_buildConfiguration->createConfigWidget();
     addSubWidget(generalConfigWidget);
 
     addSubWidget(new BuildStepsPage(m_buildConfiguration, Core::Id(Constants::BUILDSTEPS_BUILD)));
     addSubWidget(new BuildStepsPage(m_buildConfiguration, Core::Id(Constants::BUILDSTEPS_CLEAN)));
 
-    QList<BuildConfigWidget *> subConfigWidgets = m_buildConfiguration->createSubConfigWidgets();
-    foreach (BuildConfigWidget *subConfigWidget, subConfigWidgets)
+    QList<NamedWidget *> subConfigWidgets = m_buildConfiguration->createSubConfigWidgets();
+    foreach (NamedWidget *subConfigWidget, subConfigWidgets)
         addSubWidget(subConfigWidget);
 }
 

@@ -106,7 +106,7 @@ void CMakeBuildConfiguration::setUseNinja(bool useNninja)
 CMakeBuildConfiguration::~CMakeBuildConfiguration()
 { }
 
-ProjectExplorer::BuildConfigWidget *CMakeBuildConfiguration::createConfigWidget()
+ProjectExplorer::NamedWidget *CMakeBuildConfiguration::createConfigWidget()
 {
     return new CMakeBuildSettingsWidget(this);
 }
