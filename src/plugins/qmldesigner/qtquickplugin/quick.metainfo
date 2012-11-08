@@ -209,7 +209,7 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Flickable"
             category: "Qt Quick - Basic"
-            libraryIcon: ":/qtquickplugin/flickable-icon.png"
+            libraryIcon: ":/qtquickplugin/images/flickable-icon.png"
             version: "1.0"
 
             Property { name: "width"; type: "int"; value: 300; }
@@ -234,7 +234,7 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Flipable"
             category: "Qt Quick - Basic"
-            libraryIcon: ":/qtquickplugin/flipable-icon.png"
+            libraryIcon: ":/qtquickplugin/images/flipable-icon.png"
             version: "1.0"
 
             Property { name: "width"; type: "int"; value: 200; }
@@ -259,7 +259,7 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Grid View"
             category: "Qt Quick - Views"
-            libraryIcon: ":/qtquickplugin/gridview-icon.png"
+            libraryIcon: ":/qtquickplugin/images/gridview-icon.png"
             version: "1.0"
 
             QmlSource { source: ":/qtquickplugin/source/gridview.qml" }
@@ -282,7 +282,7 @@ MetaInfo {
         ItemLibraryEntry {
             name: "List View"
             category: "Qt Quick - Views"
-            libraryIcon: ":/qtquickplugin/listview-icon.png"
+            libraryIcon: ":/qtquickplugin/images/pathview-icon.png"
             version: "1.0"
 
             QmlSource { source: ":/qtquickplugin/source/listview.qml" }
@@ -291,7 +291,7 @@ MetaInfo {
         ItemLibraryEntry {
             name: "List View"
             category: "Qt Quick - Views"
-            libraryIcon: ":/qtquickplugin/images/listview-icon.png"
+            libraryIcon: ":/qtquickplugin/images/pathview-icon.png"
             version: "2.0"
 
             QmlSource { source: ":/qtquickplugin/source/listviewv2.qml" }
@@ -305,7 +305,7 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Path View"
             category: "Qt Quick - Views"
-            libraryIcon: ":/qtquickplugin/pathview-icon.png"
+            libraryIcon: ":/qtquickplugin/images/pathview-icon.png"
             version: "1.0"
 
             QmlSource { source: ":/qtquickplugin/source/pathview.qml" }
@@ -328,7 +328,7 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Focus Scope"
             category: "Qt Quick - Basic"
-            libraryIcon: ":/qtquickplugin/focusscope-icon.png"
+            libraryIcon: ":/qtquickplugin/images/focusscope-icon.png"
             version: "1.0"
 
             Property { name: "width"; type: "int"; value: 100; }
@@ -352,7 +352,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Web View"
-            category: "Qt Quick - Positioner"
+            category: "Qt Quick - Basic"
             libraryIcon: ":/qtquickplugin/webview-icon.png"
             version: "1.0"
             requiredImport: "QtWebKit"
@@ -365,9 +365,11 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Web View"
-            category: "Qt Quick - Positioner"
+            category: "Qt Quick - Basic"
             libraryIcon: ":/qtquickplugin/images/webview-icon.png"
             version: "2.0"
+            requiredImport: "QtWebKit"
+            forceImport: "true"
 
             Property { name: "width"; type: "int"; value: 300; }
             Property { name: "height"; type: "int"; value: 300; }
@@ -382,7 +384,7 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Column"
             category: "Qt Quick - Positioner"
-            libraryIcon: ":/qtquickplugin/item-icon.png"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "1.0"
 
             Property { name: "width"; type: "int"; value: 200; }
@@ -407,7 +409,7 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Grid"
             category: "Qt Quick - Positioner"
-            libraryIcon: ":/qtquickplugin/item-icon.png"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "1.0"
 
             Property { name: "width"; type: "int"; value: 400; }
@@ -432,7 +434,7 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Flow"
             category: "Qt Quick - Positioner"
-            libraryIcon: ":/qtquickplugin/item-icon.png"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "1.0"
 
             Property { name: "width"; type: "int"; value: 400; }
