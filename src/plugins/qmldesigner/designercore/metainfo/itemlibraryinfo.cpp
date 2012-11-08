@@ -240,6 +240,25 @@ QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry)
     return stream;
 }
 
+QDebug operator<<(QDebug debug, const ItemLibraryEntry &itemLibraryEntry)
+{
+    debug << itemLibraryEntry.m_data->name;
+    debug << itemLibraryEntry.m_data->typeName;
+    debug << itemLibraryEntry.m_data->majorVersion;
+    debug << itemLibraryEntry.m_data->minorVersion;
+    debug << itemLibraryEntry.m_data->icon;
+    debug << itemLibraryEntry.m_data->iconPath;
+    debug << itemLibraryEntry.m_data->category;
+    debug << itemLibraryEntry.m_data->dragIcon;
+    debug << itemLibraryEntry.m_data->requiredImport;
+    debug << itemLibraryEntry.m_data->forceImport;
+
+    debug << itemLibraryEntry.m_data->properties;
+    debug << itemLibraryEntry.m_data->qml;
+
+    return debug.space();
+}
+
 //
 // ItemLibraryInfo
 //

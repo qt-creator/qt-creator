@@ -47,6 +47,7 @@ class ItemLibraryEntry;
 
 QMLDESIGNERCORE_EXPORT QDataStream& operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibraryEntry);
 QMLDESIGNERCORE_EXPORT QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry);
+QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const ItemLibraryEntry &itemLibraryEntry);
 
 class QMLDESIGNERCORE_EXPORT ItemLibraryEntry
 {
@@ -54,6 +55,7 @@ class QMLDESIGNERCORE_EXPORT ItemLibraryEntry
     //friend class QmlDesigner::Internal::MetaInfoParser;
     friend QMLDESIGNERCORE_EXPORT QDataStream& operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibraryEntry);
     friend QMLDESIGNERCORE_EXPORT QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry);
+    friend QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const ItemLibraryEntry &itemLibraryEntry);
 
 public:
     ItemLibraryEntry();
