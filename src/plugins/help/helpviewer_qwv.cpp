@@ -135,6 +135,7 @@ HelpNetworkReply::HelpNetworkReply(const QNetworkRequest &request,
     , dataLength(fileData.length())
 {
     setRequest(request);
+    setUrl(request.url());
     setOpenMode(QIODevice::ReadOnly);
 
     setHeader(QNetworkRequest::ContentTypeHeader, mimeType);
@@ -179,24 +180,6 @@ QNetworkReply *HelpNetworkAccessManager::createRequest(Operation op,
 
     QString url = request.url().toString();
     const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
-    // TODO: For some reason the url to load is already wrong (passed from webkit)
-    // though the css file and the references inside should work that way. One 
-    // possible problem might be that the css is loaded at the same level as the
-    // html, thus a path inside the css like (../images/foo.png) might cd out of
-    // the virtual folder
-    if (!engine.findFile(url).isValid()) {
-        if (url.startsWith(HelpViewer::NsNokia) || url.startsWith(HelpViewer::NsTrolltech)) {
-            QUrl newUrl = request.url();
-            if (!newUrl.path().startsWith(QLatin1String("/qdoc/")) ||
-                    !newUrl.path().startsWith(QLatin1String("/doc/"))) {
-                QString path = newUrl.path();
-                newUrl.setPath(QLatin1String("/qdoc/") + path);
-                if (!engine.findFile(newUrl).isValid())
-                    newUrl.setPath(QLatin1String("/doc/") + path);
-                url = newUrl.toString();
-            }
-        }
-    }
 
     const QString &mimeType = HelpViewer::mimeFromUrl(url);
     const QByteArray &data = engine.findFile(url).isValid() ? engine.fileData(url)
