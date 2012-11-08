@@ -235,6 +235,9 @@ void BuildSettingsWidget::updateBuildSettings()
     // update buttons
     m_removeButton->setEnabled(m_target->buildConfigurations().size() > 1);
 
+    if (!m_buildConfiguration)
+        return;
+
     // Add pages
     BuildConfigWidget *generalConfigWidget = m_buildConfiguration->createConfigWidget();
     addSubWidget(generalConfigWidget);
@@ -267,11 +270,7 @@ void BuildSettingsWidget::updateActiveConfiguration()
     BuildConfigurationModel *model = static_cast<BuildConfigurationModel *>(m_buildConfigurationComboBox->model());
     m_buildConfigurationComboBox->setCurrentIndex(model->indexFor(m_buildConfiguration).row());
 
-    foreach (QWidget *widget, subWidgets()) {
-        if (BuildConfigWidget *buildStepWidget = qobject_cast<BuildConfigWidget*>(widget)) {
-            buildStepWidget->init(m_buildConfiguration);
-        }
-    }
+    updateBuildSettings();
 }
 
 void BuildSettingsWidget::createConfiguration()
@@ -291,7 +290,6 @@ void BuildSettingsWidget::createConfiguration()
 
     QTC_CHECK(bc->id() == id);
     m_target->setActiveBuildConfiguration(bc);
-    updateBuildSettings();
 }
 
 void BuildSettingsWidget::cloneConfiguration()
@@ -357,8 +355,6 @@ void BuildSettingsWidget::cloneConfiguration(BuildConfiguration *sourceConfigura
 
     bc->setDisplayName(name);
     m_target->addBuildConfiguration(bc);
-    updateBuildSettings();
-
     m_target->setActiveBuildConfiguration(bc);
 }
 
@@ -392,6 +388,4 @@ void BuildSettingsWidget::deleteConfiguration(BuildConfiguration *deleteConfigur
     }
 
     m_target->removeBuildConfiguration(deleteConfiguration);
-
-    updateBuildSettings();
 }
