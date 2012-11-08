@@ -52,7 +52,6 @@ public:
     ~CMakeBuildConfiguration();
 
     ProjectExplorer::BuildConfigWidget *createConfigWidget();
-    QList<ProjectExplorer::BuildConfigWidget *> subConfigWidgets();
     QString buildDirectory() const;
 
     void setBuildDirectory(const QString &buildDirectory);

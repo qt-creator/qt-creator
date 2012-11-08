@@ -38,7 +38,6 @@
 #include "autoreconfstep.h"
 #include "configurestep.h"
 
-#include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>

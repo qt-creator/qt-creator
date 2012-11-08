@@ -32,7 +32,6 @@
 #include "genericmakestep.h"
 #include "genericproject.h"
 
-#include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -109,13 +108,6 @@ void GenericBuildConfiguration::setBuildDirectory(const QString &buildDirectory)
 BuildConfigWidget *GenericBuildConfiguration::createConfigWidget()
 {
     return new GenericBuildSettingsWidget;
-}
-
-QList<BuildConfigWidget*> GenericBuildConfiguration::subConfigWidgets()
-{
-    QList<BuildConfigWidget*> list;
-    list << new ProjectExplorer::BuildEnvironmentWidget;
-    return list;
 }
 
 /*!

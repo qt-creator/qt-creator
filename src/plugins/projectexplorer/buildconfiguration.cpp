@@ -39,6 +39,7 @@
 #include "kit.h"
 
 #include <coreplugin/variablemanager.h>
+#include <projectexplorer/buildenvironmentwidget.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
@@ -118,7 +119,7 @@ BuildConfiguration::~BuildConfiguration()
 
 QList<BuildConfigWidget*> BuildConfiguration::subConfigWidgets()
 {
-    return QList<BuildConfigWidget*>();
+    return QList<BuildConfigWidget *>() << new ProjectExplorer::BuildEnvironmentWidget;
 }
 
 Utils::AbstractMacroExpander *BuildConfiguration::macroExpander()
