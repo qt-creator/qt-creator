@@ -53,7 +53,7 @@ RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(ProjectExplorer::
 
 DeployConfigurationWidget *RemoteLinuxDeployConfiguration::createConfigWidget()
 {
-    return new RemoteLinuxDeployConfigurationWidget;
+    return new RemoteLinuxDeployConfigurationWidget(this);
 }
 
 } // namespace RemoteLinux

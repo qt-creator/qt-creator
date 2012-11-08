@@ -47,10 +47,8 @@ class BlackBerryDeployConfigurationWidget : public ProjectExplorer::DeployConfig
 {
     Q_OBJECT
 public:
-    explicit BlackBerryDeployConfigurationWidget(QWidget *parent = 0);
+    explicit BlackBerryDeployConfigurationWidget(BlackBerryDeployConfiguration *dc, QWidget *parent = 0);
     ~BlackBerryDeployConfigurationWidget();
-
-    void init(ProjectExplorer::DeployConfiguration *dc);
 
 private:
     Ui::BlackBerryDeployConfigurationWidget *m_ui;

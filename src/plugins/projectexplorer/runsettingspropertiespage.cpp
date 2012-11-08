@@ -497,10 +497,8 @@ void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
     m_ignoreChange = false;
 
     m_deployConfigurationWidget = dc->createConfigWidget();
-    if (m_deployConfigurationWidget) {
-        m_deployConfigurationWidget->init(dc);
+    if (m_deployConfigurationWidget)
         m_deployLayout->addWidget(m_deployConfigurationWidget);
-    }
 
     m_deploySteps = new BuildStepListWidget;
     m_deploySteps->init(dc->stepList());

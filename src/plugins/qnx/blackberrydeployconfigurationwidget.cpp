@@ -43,22 +43,14 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-BlackBerryDeployConfigurationWidget::BlackBerryDeployConfigurationWidget(QWidget *parent)
+BlackBerryDeployConfigurationWidget::BlackBerryDeployConfigurationWidget(BlackBerryDeployConfiguration *dc,
+                                                                         QWidget *parent)
     : ProjectExplorer::DeployConfigurationWidget(parent)
     , m_ui(new Ui::BlackBerryDeployConfigurationWidget)
     , m_deployConfiguration(0)
 {
     m_ui->setupUi(this);
-}
-
-BlackBerryDeployConfigurationWidget::~BlackBerryDeployConfigurationWidget()
-{
-    delete m_ui;
-}
-
-void BlackBerryDeployConfigurationWidget::init(ProjectExplorer::DeployConfiguration *dc)
-{
-    m_deployConfiguration = qobject_cast<BlackBerryDeployConfiguration *>(dc);
+    m_deployConfiguration = dc;
 
     m_ui->deployPackagesView->setModel(m_deployConfiguration->deploymentInfo());
 
@@ -74,4 +66,9 @@ void BlackBerryDeployConfigurationWidget::init(ProjectExplorer::DeployConfigurat
     m_ui->deployPackagesView->setItemDelegateForColumn(2, barPathDelegate);
 
     m_ui->deployPackagesView->header()->resizeSections(QHeaderView::ResizeToContents);
+}
+
+BlackBerryDeployConfigurationWidget::~BlackBerryDeployConfigurationWidget()
+{
+    delete m_ui;
 }

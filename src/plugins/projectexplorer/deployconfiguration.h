@@ -130,9 +130,6 @@ class PROJECTEXPLORER_EXPORT DeployConfigurationWidget : public NamedWidget
 
 public:
     explicit DeployConfigurationWidget(QWidget *parent = 0);
-
-    // This is called to set up the config widget before showing it
-    virtual void init(DeployConfiguration *dc) = 0;
 };
 
 } // namespace ProjectExplorer

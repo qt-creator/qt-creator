@@ -53,7 +53,8 @@ public:
 
 using namespace Internal;
 
-RemoteLinuxDeployConfigurationWidget::RemoteLinuxDeployConfigurationWidget(QWidget *parent) :
+RemoteLinuxDeployConfigurationWidget::RemoteLinuxDeployConfigurationWidget(RemoteLinuxDeployConfiguration *dc,
+                                                                           QWidget *parent) :
     DeployConfigurationWidget(parent), d(new RemoteLinuxDeployConfigurationWidgetPrivate)
 {
     d->ui.setupUi(this);
@@ -61,20 +62,16 @@ RemoteLinuxDeployConfigurationWidget::RemoteLinuxDeployConfigurationWidget(QWidg
     d->ui.deploymentDataView->setWordWrap(false);
     d->ui.deploymentDataView->setUniformRowHeights(true);
     d->ui.deploymentDataView->setModel(&d->deploymentDataModel);
+
+    d->deployConfiguration = dc;
+
+    connect(dc->target(), SIGNAL(deploymentDataChanged()), SLOT(updateDeploymentDataModel()));
+    updateDeploymentDataModel();
 }
 
 RemoteLinuxDeployConfigurationWidget::~RemoteLinuxDeployConfigurationWidget()
 {
     delete d;
-}
-
-void RemoteLinuxDeployConfigurationWidget::init(DeployConfiguration *dc)
-{
-    d->deployConfiguration = qobject_cast<RemoteLinuxDeployConfiguration *>(dc);
-    QTC_ASSERT(d->deployConfiguration, return);
-
-    connect(dc->target(), SIGNAL(deploymentDataChanged()), SLOT(updateDeploymentDataModel()));
-    updateDeploymentDataModel();
 }
 
 void RemoteLinuxDeployConfigurationWidget::updateDeploymentDataModel()

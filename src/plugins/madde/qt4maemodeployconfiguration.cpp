@@ -80,7 +80,7 @@ Qt4MaemoDeployConfiguration::Qt4MaemoDeployConfiguration(ProjectExplorer::Target
 
 DeployConfigurationWidget *Qt4MaemoDeployConfiguration::createConfigWidget()
 {
-    return new RemoteLinuxDeployConfigurationWidget;
+    return new RemoteLinuxDeployConfigurationWidget(this);
 }
 
 Qt4MaemoDeployConfiguration::~Qt4MaemoDeployConfiguration() {}

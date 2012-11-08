@@ -34,6 +34,8 @@
 #include <projectexplorer/deployconfiguration.h>
 
 namespace RemoteLinux {
+class RemoteLinuxDeployConfiguration;
+
 namespace Internal {
 class RemoteLinuxDeployConfigurationWidgetPrivate;
 } // namespace Internal
@@ -44,10 +46,9 @@ class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
     Q_OBJECT
 
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
+    explicit RemoteLinuxDeployConfigurationWidget(RemoteLinux::RemoteLinuxDeployConfiguration *dc,
+                                                  QWidget *parent = 0);
     ~RemoteLinuxDeployConfigurationWidget();
-
-    void init(ProjectExplorer::DeployConfiguration *dc);
 
 private slots:
     void updateDeploymentDataModel();
