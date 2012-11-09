@@ -10,7 +10,7 @@ include(designer_dependencies.pri)
 INCLUDEPATH += ../../tools/utils
 
 greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += printsupport designer
+    QT += printsupport designer designercomponents
 } else {
     # -- figure out shared dir location
     !exists($$[QT_INSTALL_HEADERS]/QtDesigner/private/qdesigner_integration_p.h) {
@@ -19,11 +19,10 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     }
     INCLUDEPATH += $$QMAKE_INCDIR_QT/QtDesigner
     qtAddLibrary(QtDesigner)
+    qtAddLibrary(QtDesignerComponents)
 }
 
 QT += xml
-
-qtAddLibrary(QtDesignerComponents)
 
 HEADERS += formeditorplugin.h \
         formeditorfactory.h \
