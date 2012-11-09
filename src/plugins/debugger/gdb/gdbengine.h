@@ -526,8 +526,7 @@ private: ////////// View & Data Stuff //////////
     DisassemblerLines parseDisassembler(const GdbResponse &response);
     DisassemblerLines parseCliDisassembler(const QByteArray &response);
     DisassemblerLines parseMiDisassembler(const GdbMi &response);
-    void reloadDisassembly();
-
+    Q_SLOT void reloadDisassembly();
 
     bool m_disassembleUsesComma;
 
