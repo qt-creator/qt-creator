@@ -1,6 +1,6 @@
 include(../../../../../qtcreator.pri)
 TEMPLATE = app
-QT += script declarative webkit $$QTESTLIB
+QT += script declarative webkit testlib
 CONFIG += testcase
 CONFIG += console
 CONFIG -= app_bundle

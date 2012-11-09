@@ -17,6 +17,7 @@ testSettings.logScreenshotOnError = True
 
 source("../../shared/classes.py")
 source("../../shared/utils.py")
+source("../../shared/fs_utils.py")
 source("../../shared/build_utils.py")
 source("../../shared/project.py")
 source("../../shared/editor_utils.py")

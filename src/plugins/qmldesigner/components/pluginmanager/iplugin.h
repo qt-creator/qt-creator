@@ -32,7 +32,7 @@
 
 #include <QObject>
 
-#define QMLDESIGNER_PLUGIN_INTERFACE "com.Nokia.QmlDesigner.IPlugin.v10"
+#define QMLDESIGNER_PLUGIN_INTERFACE "com.Digia.QmlDesigner.IPlugin.v10"
 
 namespace QmlDesigner {
 

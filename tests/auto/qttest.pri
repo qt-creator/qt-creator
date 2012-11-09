@@ -2,7 +2,7 @@ include(../../qtcreator.pri)
 include(qttestrpath.pri)
 
 isEmpty(TEMPLATE):TEMPLATE=app
-QT += $$QTESTLIB
+QT += testlib
 CONFIG += qt warn_on console depend_includepath testcase
 CONFIG -= app_bundle
 

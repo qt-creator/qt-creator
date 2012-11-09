@@ -174,6 +174,8 @@ QList<GeneratorInfo> GeneratorInfo::generatorInfosFor(ProjectExplorer::Kit *k, N
 {
     QList<GeneratorInfo> results;
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
+    if (!tc)
+        return results;
     ProjectExplorer::Abi targetAbi = tc->targetAbi();
     if (n != ForceNinja) {
         if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
@@ -574,9 +576,6 @@ void CMakeRunPage::initializePage()
                 ProjectExplorer::KitManager::instance()->kits();
 
         foreach (ProjectExplorer::Kit *k, kitList) {
-            ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
-            if (!tc)
-                continue;
             QList<GeneratorInfo> infos = GeneratorInfo::generatorInfosFor(k,
                                                                           hasNinjaGenerator ? GeneratorInfo::OfferNinja : GeneratorInfo::NoNinja,
                                                                           hasCodeBlocksGenerator);

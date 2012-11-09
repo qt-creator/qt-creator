@@ -2373,12 +2373,12 @@ unsigned GitClient::synchronousGitVersion(QString *errorMessage) const
     }
     // cut 'git version 1.6.5.1.sha'
     const QString output = commandOutputFromLocal8Bit(outputText);
-    QRegExp versionPattern(QLatin1String("^[^\\d]+([\\d])\\.([\\d])\\.([\\d]).*$"));
+    QRegExp versionPattern(QLatin1String("^[^\\d]+(\\d+)\\.(\\d+)\\.(\\d+).*$"));
     QTC_ASSERT(versionPattern.isValid(), return 0);
     QTC_ASSERT(versionPattern.exactMatch(output), return 0);
-    const unsigned major = versionPattern.cap(1).toUInt();
-    const unsigned minor = versionPattern.cap(2).toUInt();
-    const unsigned patch = versionPattern.cap(3).toUInt();
+    const unsigned major = versionPattern.cap(1).toUInt(0, 16);
+    const unsigned minor = versionPattern.cap(2).toUInt(0, 16);
+    const unsigned patch = versionPattern.cap(3).toUInt(0, 16);
     return version(major, minor, patch);
 }
 

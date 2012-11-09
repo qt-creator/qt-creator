@@ -19,11 +19,11 @@ def main():
 def prepareQmlFile():
     # make sure the QML file is opened
     navTree = waitForObject("{type='Utils::NavigationTreeView' unnamed='1' visible='1' "
-                            "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
+                            "window=':Qt Creator_Core::Internal::MainWindow'}")
     model = navTree.model()
     waitForObjectItem(navTree, "untitled.QML.qml/untitled.main\\.qml")
     doubleClickItem(navTree, "untitled.QML.qml/untitled.main\\.qml", 5, 5, 0, Qt.LeftButton)
-    editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget", 20000)
+    editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     for i in range(3):
         content = "%s" % editor.plainText
         start = content.find("Text {")

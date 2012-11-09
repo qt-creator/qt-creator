@@ -18,7 +18,7 @@ def deleteDirIfExists(path):
     shutil.rmtree(path, True)
 
 def verifyChecked(objectName):
-    object = waitForObject(objectName, 20000)
+    object = waitForObject(objectName)
     test.compare(object.checked, True)
     return object
 
@@ -70,7 +70,7 @@ def selectFromLocator(filter, itemName = None):
     if itemName == None:
         itemName = filter
     itemName = itemName.replace(".", "\\.").replace("_", "\\_")
-    locator = waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000)
+    locator = waitForObject(":*Qt Creator_Utils::FilterLineEdit")
     mouseClick(locator, 5, 5, 0, Qt.LeftButton)
     replaceEditorContent(locator, filter)
     # clicking the wanted item
@@ -196,7 +196,7 @@ def logApplicationOutput():
     # make sure application output is shown
     ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
     try:
-        output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}", 20000)
+        output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}")
         test.log("Application Output:\n%s" % output.plainText)
         return str(output.plainText)
     except:

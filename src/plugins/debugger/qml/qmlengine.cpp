@@ -420,17 +420,21 @@ void QmlEngine::beginConnection(quint16 port)
 
     QTC_ASSERT(state() == EngineRunRequested, return);
 
+    QString host =  startParameters().qmlServerAddress;
+    // Use localhost as default
+    if (host.isEmpty())
+        host = QLatin1String("localhost");
+
     if (port > 0) {
         QTC_ASSERT(startParameters().connParams.port == 0
                    || startParameters().connParams.port == port,
                    qWarning() << "Port " << port << "from application output does not match"
                    << startParameters().connParams.port << "from start parameters.");
-        m_adapter.beginConnectionTcp(startParameters().qmlServerAddress, port);
+        m_adapter.beginConnectionTcp(host, port);
         return;
     }
     // no port from application output, use the one from start parameters ...
-    m_adapter.beginConnectionTcp(startParameters().qmlServerAddress,
-                                 startParameters().qmlServerPort);
+    m_adapter.beginConnectionTcp(host, startParameters().qmlServerPort);
 }
 
 void QmlEngine::connectionStartupFailed()

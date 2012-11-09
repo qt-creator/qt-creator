@@ -31,7 +31,7 @@ def openQmakeProject(projectPath, targets = QtQuickConstants.Targets.DESKTOP_474
         pass
     __chooseTargets__(targets)
     configureButton = waitForObject("{text='Configure Project' type='QPushButton' unnamed='1' visible='1'"
-                                    "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
+                                    "window=':Qt Creator_Core::Internal::MainWindow'}")
     clickButton(configureButton)
 
 def openCmakeProject(projectPath, buildDir):
@@ -39,7 +39,7 @@ def openCmakeProject(projectPath, buildDir):
     selectFromFileDialog(projectPath)
     replaceEditorContent("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'"
                          "window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}", buildDir)
-    clickButton(waitForObject(":CMake Wizard.Next_QPushButton", 20000))
+    clickButton(waitForObject(":CMake Wizard.Next_QPushButton"))
     generatorCombo = waitForObject(":Generator:_QComboBox")
     mkspec = __getMkspecFromQmake__("qmake")
     test.log("Using mkspec '%s'" % mkspec)
@@ -56,7 +56,7 @@ def openCmakeProject(projectPath, buildDir):
         else:
             generatorCombo.setCurrentIndex(index)
 
-    clickButton(waitForObject(":CMake Wizard.Run CMake_QPushButton", 20000))
+    clickButton(waitForObject(":CMake Wizard.Run CMake_QPushButton"))
     try:
         clickButton(waitForObject(":CMake Wizard.Finish_QPushButton", 60000))
     except LookupError:
@@ -77,22 +77,22 @@ def __createProjectOrFileSelectType__(category, template, fromWelcome = False, i
         mouseClick(waitForObject(":CreateProject_QStyleItem"), 5, 5, 0, Qt.LeftButton)
     else:
         invokeMenuItem("File", "New File or Project...")
-    categoriesView = waitForObject("{type='QTreeView' name='templateCategoryView'}", 20000)
+    categoriesView = waitForObject("{type='QTreeView' name='templateCategoryView'}")
     if isProject:
         clickItem(categoriesView, "Projects." + category, 5, 5, 0, Qt.LeftButton)
     else:
         clickItem(categoriesView, "Files and Classes." + category, 5, 5, 0, Qt.LeftButton)
-    templatesView = waitForObject("{name='templatesView' type='QListView'}", 20000)
+    templatesView = waitForObject("{name='templatesView' type='QListView'}")
     clickItem(templatesView, template, 5, 5, 0, Qt.LeftButton)
     text = waitForObject("{type='QTextBrowser' name='templateDescription' visible='1'}").plainText
-    clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
+    clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}"))
     return __getSupportedPlatforms__(str(text))[0]
 
 def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
-    directoryEdit = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
+    directoryEdit = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}")
     replaceEditorContent(directoryEdit, path)
     projectNameEdit = waitForObject("{name='nameLineEdit' visible='1' "
-                                    "type='Utils::ProjectNameValidatingLineEdit'}", 20000)
+                                    "type='Utils::ProjectNameValidatingLineEdit'}")
     if projectName == None:
         projectName = projectNameEdit.text
     else:
@@ -128,7 +128,7 @@ def __createProjectHandleLastPage__(expectedFiles = None):
             test.verify(index > lastIndex, "'" + filename + "' found at index " + str(index))
             lastIndex = index
     selectFromCombo(":addToVersionControlComboBox_QComboBox", "<None>")
-    clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}", 20000))
+    clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}"))
 
 def __verifyFileCreation__(path, expectedFiles):
     for filename in expectedFiles:
@@ -208,13 +208,13 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
                                                 % qtQuickVersion, fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
     if templateFile:
-        baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
+        baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}")
         type(baseLineEd, templateFile)
-        nextButton = waitForObject(":Next_QPushButton", 20000)
+        nextButton = waitForObject(":Next_QPushButton")
         clickButton(nextButton)
     __chooseTargets__(targets, available)
     snooze(1)
-    nextButton = waitForObject(":Next_QPushButton", 20000)
+    nextButton = waitForObject(":Next_QPushButton")
     clickButton(nextButton)
     __createProjectHandleLastPage__()
     return projectName
@@ -236,10 +236,10 @@ def createNewQmlExtension(workingDir):
     nextButton = waitForObject(":Next_QPushButton")
     clickButton(nextButton)
     nameLineEd = waitForObject("{buddy={type='QLabel' text='Object Class-name:' unnamed='1' visible='1'} "
-                               "type='QLineEdit' unnamed='1' visible='1'}", 20000)
+                               "type='QLineEdit' unnamed='1' visible='1'}")
     replaceEditorContent(nameLineEd, "TestItem")
     uriLineEd = waitForObject("{buddy={type='QLabel' text='URI:' unnamed='1' visible='1'} "
-                              "type='QLineEdit' unnamed='1' visible='1'}", 20000)
+                              "type='QLineEdit' unnamed='1' visible='1'}")
     replaceEditorContent(uriLineEd, "org.qt-project.test.qmlcomponents")
     clickButton(nextButton)
     __createProjectHandleLastPage__()
@@ -247,7 +247,7 @@ def createNewQmlExtension(workingDir):
 # parameter components can only be one of the Constants defined in QtQuickConstants.Components
 def __chooseComponents__(components=QtQuickConstants.Components.BUILTIN):
     rbComponentToChoose = waitForObject("{type='QRadioButton' text='%s' visible='1'}"
-                              % QtQuickConstants.getStringForComponents(components), 20000)
+                              % QtQuickConstants.getStringForComponents(components))
     if rbComponentToChoose.checked:
         test.passes("Selected QRadioButton is '%s'" % QtQuickConstants.getStringForComponents(components))
     else:
@@ -298,7 +298,7 @@ def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None
     overrideInstallLazySignalHandler()
     installLazySignalHandler("{type='ProjectExplorer::ApplicationLaucher'}", "processStarted()", "__handleProcessStarted__")
     installLazySignalHandler("{type='ProjectExplorer::ApplicationLaucher'}", "processExited(int)", "__handleProcessExited__")
-    runButton = waitForObject("{type='Core::Internal::FancyToolButton' text='Run' visible='1'}", 20000)
+    runButton = waitForObject("{type='Core::Internal::FancyToolButton' text='Run' visible='1'}")
     clickButton(runButton)
     if sType != SubprocessType.QT_QUICK_UI:
         waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
@@ -358,7 +358,7 @@ def __closeSubprocessByPushingStop__(sType):
 def __closeSubprocessByHookingInto__(executable, port, function, sType, userDefType):
     global processExited
     ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
-    output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}", 20000)
+    output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}")
     if port == None:
         test.warning("I need a port number or attaching might fail.")
     else:

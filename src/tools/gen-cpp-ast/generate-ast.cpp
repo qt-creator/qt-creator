@@ -27,13 +27,21 @@
 **
 ****************************************************************************/
 
-#include <QCoreApplication>
 #include <QStringList>
 #include <QTextDocument>
 #include <QTextCursor>
 #include <QTextBlock>
 #include <QDir>
 #include <QDebug>
+
+#if QT_VERSION >= 0x050000
+    // Qt5: QTextDocument needs access to Fonts via QGuiApplication.
+    #include <QGuiApplication>
+    typedef QGuiApplication MyQApplication;
+#else
+    #include <QCoreApplication>
+    typedef QCoreApplication MyQApplication;
+#endif
 
 #include <Control.h>
 #include <Parser.h>
@@ -1064,9 +1072,7 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
     QTextDocument cpp_document;
     cpp_document.setPlainText(source);
 
-    Document::Ptr AST_cpp_document = Document::create(fileName);
-    const QByteArray preprocessedCode = snapshot.preprocessedCode(source, fileName);
-    AST_cpp_document->setUtf8Source(preprocessedCode);
+    Document::Ptr AST_cpp_document = snapshot.preprocessedDocument(source, fileName);
     AST_cpp_document->check();
 
     Overview oo;
@@ -1368,9 +1374,7 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, co
     QTextDocument document;
     document.setPlainText(source);
 
-    AST_h_document = Document::create(fileName);
-    const QByteArray preprocessedCode = snapshot.preprocessedCode(source, fileName);
-    AST_h_document->setUtf8Source(preprocessedCode);
+    AST_h_document  = snapshot.preprocessedDocument(source, fileName);
     AST_h_document->check();
 
     FindASTNodes process(AST_h_document, &document);
@@ -1514,10 +1518,7 @@ void generateASTFwd_h(const Snapshot &snapshot, const QDir &cplusplusDir, const 
 
     QTextDocument document;
     document.setPlainText(source);
-
-    Document::Ptr doc = Document::create(fileName);
-    const QByteArray preprocessedCode = snapshot.preprocessedCode(source, fileName);
-    doc->setUtf8Source(preprocessedCode);
+    Document::Ptr doc = snapshot.preprocessedDocument(source, fileName);
     doc->check();
 
     FindASTForwards process(doc, &document);
@@ -1667,7 +1668,8 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication app(argc, argv);
+    MyQApplication app(argc, argv);
+
     QStringList files = app.arguments();
     files.removeFirst();
 

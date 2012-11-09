@@ -627,8 +627,10 @@ QString BaseQtVersion::findQtBinary(Binaries binary) const
         ensureMkSpecParsed();
         switch (binary) {
         case QmlScene:
-        case QmlViewer:
             baseDir = m_mkspecValues.value(QLatin1String("QT.qml.bins"));
+            break;
+        case QmlViewer:
+            baseDir = m_mkspecValues.value(QLatin1String("QT.declarative.bins"));
             break;
         case Designer:
         case Linguist:
@@ -772,8 +774,10 @@ void BaseQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
             m_defaultConfigIsDebugAndRelease = true;
     }
     const QString designerBins = QLatin1String("QT.designer.bins");
-    const QString declarativeBins = QLatin1String("QT.qml.bins");
+    const QString qmlBins = QLatin1String("QT.qml.bins");
+    const QString declarativeBins = QLatin1String("QT.declarative.bins");
     m_mkspecValues.insert(designerBins, evaluator->value(designerBins));
+    m_mkspecValues.insert(qmlBins, evaluator->value(qmlBins));
     m_mkspecValues.insert(declarativeBins, evaluator->value(declarativeBins));
 }
 
@@ -1260,61 +1264,69 @@ FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QString> &ver
     if (baseMkspecDir.isEmpty())
         return FileName();
 
-    FileName mkspecFullPath = FileName::fromString(baseMkspecDir.toString() + QLatin1String("/default"));
+    bool qt5 = false;
+    QString theSpec = qmakeProperty(versionInfo, "QMAKE_XSPEC");
+    if (theSpec.isEmpty())
+        theSpec = QLatin1String("default");
+    else
+        qt5 = true;
+
+    FileName mkspecFullPath = baseMkspecDir;
+    mkspecFullPath.appendPath(theSpec);
 
     // qDebug() << "default mkspec is located at" << mkspecFullPath;
 
-    switch (HostOsInfo::hostOs()) {
-    case HostOsInfo::HostOsWindows: {
-        QFile f2(mkspecFullPath.toString() + QLatin1String("/qmake.conf"));
-        if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
-            while (!f2.atEnd()) {
-                QByteArray line = f2.readLine();
-                if (line.startsWith("QMAKESPEC_ORIGINAL")) {
-                    const QList<QByteArray> &temp = line.split('=');
-                    if (temp.size() == 2) {
-                        QString possibleFullPath = QString::fromLocal8Bit(temp.at(1).trimmed().constData());
-                        // We sometimes get a mix of different slash styles here...
-                        possibleFullPath = possibleFullPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
-                        if (QFileInfo(possibleFullPath).exists()) // Only if the path exists
-                            mkspecFullPath = FileName::fromUserInput(possibleFullPath);
-                    }
-                    break;
-                }
-            }
-            f2.close();
-        }
-        break;
-    }
-    case HostOsInfo::HostOsMac: {
-        QFile f2(mkspecFullPath.toString() + QLatin1String("/qmake.conf"));
-        if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
-            while (!f2.atEnd()) {
-                QByteArray line = f2.readLine();
-                if (line.startsWith("MAKEFILE_GENERATOR")) {
-                    const QList<QByteArray> &temp = line.split('=');
-                    if (temp.size() == 2) {
-                        const QByteArray &value = temp.at(1);
-                        if (value.contains("XCODE")) {
-                            // we don't want to generate xcode projects...
-                            //                      qDebug() << "default mkspec is xcode, falling back to g++";
-                            mkspecFullPath = baseMkspecDir.appendPath(QLatin1String("macx-g++"));
+    if (HostOsInfo::isWindowsHost()) {
+        if (!qt5) {
+            QFile f2(mkspecFullPath.toString() + QLatin1String("/qmake.conf"));
+            if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
+                while (!f2.atEnd()) {
+                    QByteArray line = f2.readLine();
+                    if (line.startsWith("QMAKESPEC_ORIGINAL")) {
+                        const QList<QByteArray> &temp = line.split('=');
+                        if (temp.size() == 2) {
+                            QString possibleFullPath = QString::fromLocal8Bit(temp.at(1).trimmed().constData());
+                            // We sometimes get a mix of different slash styles here...
+                            possibleFullPath = possibleFullPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
+                            if (QFileInfo(possibleFullPath).exists()) // Only if the path exists
+                                mkspecFullPath = FileName::fromUserInput(possibleFullPath);
                         }
-                        //resolve mkspec link
-                        mkspecFullPath = FileName::fromString(mkspecFullPath.toFileInfo().canonicalFilePath());
+                        break;
                     }
-                    break;
                 }
+                f2.close();
             }
-            f2.close();
         }
-        break;
+    } else {
+        if (HostOsInfo::isMacHost()) {
+            QFile f2(mkspecFullPath.toString() + QLatin1String("/qmake.conf"));
+            if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
+                while (!f2.atEnd()) {
+                    QByteArray line = f2.readLine();
+                    if (line.startsWith("MAKEFILE_GENERATOR")) {
+                        const QList<QByteArray> &temp = line.split('=');
+                        if (temp.size() == 2) {
+                            const QByteArray &value = temp.at(1);
+                            if (value.contains("XCODE")) {
+                                // we don't want to generate xcode projects...
+                                // qDebug() << "default mkspec is xcode, falling back to g++";
+                                return baseMkspecDir.appendPath(QLatin1String("macx-g++"));
+                            }
+                        }
+                        break;
+                    }
+                }
+                f2.close();
+            }
+        }
+        if (!qt5) {
+            //resolve mkspec link
+            QString rspec = mkspecFullPath.toFileInfo().readLink();
+            if (!rspec.isEmpty())
+                mkspecFullPath = FileName::fromUserInput(
+                            QDir(baseMkspecDir.toString()).absoluteFilePath(rspec));
+        }
     }
-    default:
-        mkspecFullPath = FileName::fromString(mkspecFullPath.toFileInfo().canonicalFilePath());
-        break;
-    }
-
     return mkspecFullPath;
 }
 

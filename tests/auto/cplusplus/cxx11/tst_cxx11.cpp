@@ -58,7 +58,8 @@ class tst_cxx11: public QObject
     */
     static QString testdata(const QString &name = QString())
     {
-        static const QString dataDirectory = QLatin1String(TESTSRCDIR) + QLatin1String("/data");
+        static const QString dataDirectory = QLatin1String(SRCDIR "/data");
+
         QString result = dataDirectory;
         if (!name.isEmpty()) {
             result += QLatin1Char('/');

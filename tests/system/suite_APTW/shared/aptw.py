@@ -13,16 +13,16 @@ def verifyBuildAndRun():
                     re.search('[Ss]tarting.*', str(appOutput)),
                     "Verifying if built app started and closed successfully.")
 
-# pick version 4.7.4 and then run project for debug and release
-def pickVersion474runVerify():
-    availableConfigs = iterateBuildConfigs(1, 0)
+# run project for debug and release
+def runVerify():
+    availableConfigs = iterateBuildConfigs(1)
     if not availableConfigs:
-        test.fatal("Haven't found needed Qt version (Qt 4.7.4), quitting")
+        test.fatal("Haven't found build configurations, quitting")
         invokeMenuItem("File", "Save All")
         invokeMenuItem("File", "Exit")
     # select debug configuration
-    for config in availableConfigs:
-        selectBuildConfig(1, 0, config)
+    for kit, config in availableConfigs:
+        selectBuildConfig(1, kit, config)
         test.log("Using build config '%s'" % config)
         runAndCloseApp()
         verifyBuildAndRun()

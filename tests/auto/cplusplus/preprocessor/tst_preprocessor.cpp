@@ -39,7 +39,7 @@ using namespace CPlusPlus;
 
 QByteArray loadSource(const QString &fileName)
 {
-    QFile inf(fileName);
+    QFile inf(QLatin1String(SRCDIR) + QLatin1Char('/') + fileName);
     if (!inf.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qDebug("Cannot open \"%s\"", fileName.toUtf8().constData());
         return QByteArray();
@@ -53,7 +53,7 @@ QByteArray loadSource(const QString &fileName)
 
 void saveData(const QByteArray &data, const QString &fileName)
 {
-    QFile inf(fileName);
+    QFile inf(QLatin1String(SRCDIR) + QLatin1Char('/') + fileName);
     if (!inf.open(QIODevice::WriteOnly | QIODevice::Text)) {
         qDebug("Cannot open \"%s\"", fileName.toUtf8().constData());
         return;

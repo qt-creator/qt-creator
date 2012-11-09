@@ -232,7 +232,8 @@ void dummyStatement(...) {}
 
 #if USE_AUTOBREAK
 #   ifdef Q_CC_MSVC
-#       define BREAK_HERE __asm { int 3 }; __asm { mov eax, eax }
+#       include <crtdbg.h>
+#       define BREAK_HERE _CrtDbgReport(_CRT_WARN, NULL, NULL, "simple_test_app", NULL)
 #   else
 #       define BREAK_HERE asm("int $3; mov %eax, %eax")
 #   endif
@@ -242,7 +243,8 @@ void dummyStatement(...) {}
 
 #if USE_UNINITIALIZED_AUTOBREAK
 #   ifdef Q_CC_MSVC
-#       define BREAK_UNINITIALIZED_HERE __asm { int 3 }; __asm { mov eax, eax }
+#       include <crtdbg.h>
+#       define BREAK_UNINITIALIZED_HERE _CrtDbgReport(_CRT_WARN, NULL, NULL, "simple_test_app", NULL)
 #   else
 #       define BREAK_UNINITIALIZED_HERE asm("int $3; mov %eax, %eax")
 #   endif

@@ -66,6 +66,7 @@
 #include <projectexplorer/taskhub.h>
 
 #include <utils/synchronousprocess.h>
+#include <utils/qtcprocess.h>
 #include <utils/winutils.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -681,7 +682,8 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
     case StartExternal:
         if (!nativeArguments.isEmpty())
             nativeArguments.push_back(blank);
-        nativeArguments += QDir::toNativeSeparators(sp.executable);
+        Utils::QtcProcess::addArgs(&nativeArguments,
+                                   QStringList(QDir::toNativeSeparators(sp.executable)));
         break;
     case AttachToRemoteServer:
         break;

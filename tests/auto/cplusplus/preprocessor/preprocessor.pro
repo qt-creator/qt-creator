@@ -1,7 +1,10 @@
 include(../../qttest.pri)
 include(../shared/shared.pri)
-SOURCES += tst_preprocessor.cpp
 
+# Inject the source dir for referencing test data from shadow builds.
+DEFINES += SRCDIR=\\\"$$PWD\\\"
+
+SOURCES += tst_preprocessor.cpp
 OTHER_FILES = \
     data/noPP.1.cpp \
     data/noPP.2.cpp \
