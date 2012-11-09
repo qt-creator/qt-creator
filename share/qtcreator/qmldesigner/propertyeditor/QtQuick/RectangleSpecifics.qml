@@ -29,7 +29,7 @@
 
 import QtQuick 1.0
 import Bauhaus 1.0
-
+import HelperWidgets 1.0
 
 QWidget {
     layout: QVBoxLayout {

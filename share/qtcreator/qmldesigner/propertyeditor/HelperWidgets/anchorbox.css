@@ -4,9 +4,9 @@ QPushButton::checked
     border-radius: 4px;
     border-image: none;
     background-color: #909090;
-} 
+}
 
-QPushButton:pressed 
+QPushButton:pressed
 {
     border: 2px solid #000000;
 }

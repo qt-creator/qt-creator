@@ -1,11 +1,11 @@
 QPushButton {
-    border-image: url(:/qmldesigner/images/anchor-right-normal.png);    
+    border-image: url(:/qmldesigner/images/anchor-right-normal.png);
  }
- 
+
   QPushButton:pressed {
     border-image: url(:/qmldesigner/images/anchor-right-pressed.png);
  }
- 
+
  QPushButton:checked {
     border-image: url(:/qmldesigner/images/anchor-right-pressed.png);
  }

@@ -111,6 +111,7 @@ PropertyEditor::NodeType::NodeType(PropertyEditor *propertyEditor) :
 
     QDeclarativeContext *ctxt = m_view->rootContext();
     m_view->engine()->setOutputWarningsToStandardError(debug);
+    m_view->engine()->addImportPath(sharedDirPath() + QLatin1String("/propertyeditor"));
     m_dummyPropertyEditorValue->setValue("#000000");
     ctxt->setContextProperty("dummyBackendValue", m_dummyPropertyEditorValue.data());
     m_contextObject->setBackendValues(&m_backendValuesPropertyMap);
@@ -993,7 +994,7 @@ void PropertyEditor::reloadQml()
 QString PropertyEditor::qmlFileName(const NodeMetaInfo &nodeInfo) const
 {
     if (nodeInfo.typeName().split('.').last() == "QDeclarativeItem")
-        return "Qt/ItemPane.qml";
+        return "QtQuick/ItemPane.qml";
     const QString fixedTypeName = fixTypeNameForPanes(nodeInfo.typeName());
     return fixedTypeName + QLatin1String("Pane.qml");
 }
@@ -1031,7 +1032,7 @@ QUrl PropertyEditor::qmlForNode(const ModelNode &modelNode, QString &className) 
             }
         }
     }
-    return fileToUrl(QDir(m_qmlDir).filePath("Qt/emptyPane.qml"));
+    return fileToUrl(QDir(m_qmlDir).filePath("QtQuick/emptyPane.qml"));
 }
 
 QString PropertyEditor::locateQmlFile(const QString &relativePath) const

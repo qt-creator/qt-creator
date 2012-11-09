@@ -3,9 +3,9 @@ QFrame, QSpinBox {
     font-size: 11px;
 }
 
-QFrame 
+QFrame
 {
-    border-radius: 0px;    
+    border-radius: 0px;
 }
 
 WidgetFrame {
@@ -34,7 +34,7 @@ QScrollArea {
      background-color: #4f4f4f;
 }
 
-QGroupBox 
+QGroupBox
 {
 	 background-color: #4f4f4f;
      border: 1px solid #4F4F4F;
@@ -42,7 +42,7 @@ QGroupBox
      font: bold ;
 }
 
-QLineEdit 
+QLineEdit
 {
      color: white;
      font-size: 11px;
@@ -82,7 +82,7 @@ QTextEdit
 
 
 
- QSpinBox 
+ QSpinBox
  {
      font-size: 11px;
      color: white;
@@ -96,12 +96,12 @@ QTextEdit
      background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                        stop: 0 #2c2c2c, stop: 1 #333333);
 
-     
+
      max-height: 16px;
      min-height: 16px;
  }
- 
- QDoubleSpinBox 
+
+ QDoubleSpinBox
  {
      font-size: 11px;
      color: white;
@@ -117,7 +117,7 @@ QTextEdit
      max-height: 16px;
      min-height: 16px;
  }
- 
+
  QSpinBox::down-button {
      subcontrol-origin: border;
      subcontrol-position: bottom right;
@@ -136,7 +136,7 @@ QSpinBox::down-button:pressed {
     border-image: url(:/qmldesigner/images/spindown_pressed.png) 1;
 }
 
- 
+
  QSpinBox::up-button {
      subcontrol-origin: border;
      subcontrol-position: top right; /* position at bottom right corner */
@@ -153,8 +153,8 @@ QSpinBox::up-button:hover {
 QSpinBox::up-button:pressed {
     border-image: url(:/qmldesigner/images/spinup_pressed.png) 1;
 }
- 
- 
+
+
  QDoubleSpinBox::down-button {
      subcontrol-origin: border;
      subcontrol-position: bottom right;
@@ -171,7 +171,7 @@ QDoubleSpinBox::down-button:hover {
 QDoubleSpinBox::down-button:pressed {
     border-image: url(:/qmldesigner/images/spindown_pressed.png) 1;
 }
- 
+
 QDoubleSpinBox::up-button {
      subcontrol-origin: border;
      subcontrol-position: top right;
@@ -188,7 +188,7 @@ QDoubleSpinBox::up-button:hover {
 QDoubleSpinBox::up-button:pressed {
     border-image: url(:/qmldesigner/images/spinup_pressed.png) 1;
 }
- 
+
 QToolButton
 {
      background: none;
@@ -235,7 +235,7 @@ QComboBox[editable="true"]:on, QMenuBar::item:on {
     border-width: 3;
 }
 
-QComboBox 
+QComboBox
 {
     font-size: 11px;
     color: white;
@@ -270,7 +270,7 @@ QComboBox[editable="false"]::down-arrow {
 
 QComboBox[editable="false"]::down-arrow:on {
     position: relative;
-    top: 1px;    
+    top: 1px;
 }
 
 QComboBox[editable="true"] {
@@ -410,8 +410,8 @@ QMenu {
      border-radius: 4px;
      padding: 2px 25px 2px 20px;
  }
- 
-  QMenu::item:disabled {    
+
+  QMenu::item:disabled {
     color: #aaaaaa;
  }
 QMenu::separator {
@@ -420,7 +420,7 @@ QMenu::separator {
      margin-left: 5px;
      margin-right: 5px;
  }
- 
+
  QComboBox QAbstractItemView {
      show-decoration-selected: 1;
      background-color: #494949;
@@ -430,7 +430,7 @@ QMenu::separator {
      selection-background-color: #d2d2d2;
      selection-color: #404040;
  }
- 
+
  QSlider::groove:horizontal {
     height: 2px;
 	border-image: url(:/qmldesigner/images/slider_line.png) 0;
@@ -440,7 +440,7 @@ QMenu::separator {
  QSlider::handle:horizontal {
      background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);
      width: 16px;
-     height: 16px;     
+     height: 16px;
      border: 1px solid #5c5c5c;
      width: 18px;
      margin: -4px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
