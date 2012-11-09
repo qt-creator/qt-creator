@@ -256,6 +256,13 @@ FakeVimSettings *theFakeVimSettings()
     item->setCheckable(true);
     instance->insertItem(ConfigClipboard, item, _("clipboard"), _("cb"));
 
+    item = new SavedAction(instance);
+    item->setDefaultValue(true);
+    item->setValue(true);
+    item->setSettingsKey(group, _("ShowCmd")); item->setCheckable(true);
+    item->setCheckable(true);
+    instance->insertItem(ConfigShowCmd, item, _("showcmd"), _("sc"));
+
     return instance;
 }
 

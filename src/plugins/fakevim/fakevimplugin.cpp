@@ -139,7 +139,7 @@ public:
 
             setCurrentWidget(m_edit);
             m_edit->setFocus();
-        } else if (contents.isEmpty()) {
+        } else if (contents.isEmpty() && messageLevel != MessageShowCmd) {
             hide();
         } else {
             show();
@@ -152,6 +152,9 @@ public:
             } else if (messageLevel == MessageWarning) {
                 css = QString("border:1px solid rgba(255,255,255,120);"
                               "background-color:rgba(255,255,0,20);");
+            } else if (messageLevel == MessageShowCmd) {
+                css = QString("border:1px solid rgba(255,255,255,120);"
+                              "background-color:rgba(100,255,100,30);");
             }
             m_label->setStyleSheet(QString(
                 "*{border-radius:2px;padding-left:4px;padding-right:4px;%1}").arg(css));
@@ -297,6 +300,9 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
         m_ui.checkBoxSmartCase);
     m_group.insert(theFakeVimSetting(ConfigWrapScan),
         m_ui.checkBoxWrapScan);
+
+    m_group.insert(theFakeVimSetting(ConfigShowCmd),
+        m_ui.checkBoxShowCmd);
 
     connect(m_ui.pushButtonCopyTextEditorSettings, SIGNAL(clicked()),
         SLOT(copyTextEditorSettings()));

@@ -615,6 +615,94 @@ static void setClipboardData(const QString &content, RangeMode mode,
     clipboard->setMimeData(data, clipboardMode);
 }
 
+static const QMap<QString, int> &vimKeyNames()
+{
+    static QMap<QString, int> k;
+    if (!k.isEmpty())
+        return k;
+
+    // FIXME: Should be value of mapleader.
+    k.insert("LEADER", Key_Backslash);
+
+    k.insert("SPACE", Key_Space);
+    k.insert("TAB", Key_Tab);
+    k.insert("NL", Key_Return);
+    k.insert("NEWLINE", Key_Return);
+    k.insert("LINEFEED", Key_Return);
+    k.insert("LF", Key_Return);
+    k.insert("CR", Key_Return);
+    k.insert("RETURN", Key_Return);
+    k.insert("ENTER", Key_Return);
+    k.insert("BS", Key_Backspace);
+    k.insert("BACKSPACE", Key_Backspace);
+    k.insert("ESC", Key_Escape);
+    k.insert("BAR", Key_Bar);
+    k.insert("BSLASH", Key_Backslash);
+    k.insert("DEL", Key_Delete);
+    k.insert("DELETE", Key_Delete);
+    k.insert("KDEL", Key_Delete);
+    k.insert("UP", Key_Up);
+    k.insert("DOWN", Key_Down);
+    k.insert("LEFT", Key_Left);
+    k.insert("RIGHT", Key_Right);
+
+    k.insert("F1", Key_F1);
+    k.insert("F2", Key_F2);
+    k.insert("F3", Key_F3);
+    k.insert("F4", Key_F4);
+    k.insert("F5", Key_F5);
+    k.insert("F6", Key_F6);
+    k.insert("F7", Key_F7);
+    k.insert("F8", Key_F8);
+    k.insert("F9", Key_F9);
+    k.insert("F10", Key_F10);
+
+    k.insert("F11", Key_F11);
+    k.insert("F12", Key_F12);
+    k.insert("F13", Key_F13);
+    k.insert("F14", Key_F14);
+    k.insert("F15", Key_F15);
+    k.insert("F16", Key_F16);
+    k.insert("F17", Key_F17);
+    k.insert("F18", Key_F18);
+    k.insert("F19", Key_F19);
+    k.insert("F20", Key_F20);
+
+    k.insert("F21", Key_F21);
+    k.insert("F22", Key_F22);
+    k.insert("F23", Key_F23);
+    k.insert("F24", Key_F24);
+    k.insert("F25", Key_F25);
+    k.insert("F26", Key_F26);
+    k.insert("F27", Key_F27);
+    k.insert("F28", Key_F28);
+    k.insert("F29", Key_F29);
+    k.insert("F30", Key_F30);
+
+    k.insert("F31", Key_F31);
+    k.insert("F32", Key_F32);
+    k.insert("F33", Key_F33);
+    k.insert("F34", Key_F34);
+    k.insert("F35", Key_F35);
+
+    k.insert("INSERT", Key_Insert);
+    k.insert("INS", Key_Insert);
+    k.insert("KINSERT", Key_Insert);
+    k.insert("HOME", Key_Home);
+    k.insert("END", Key_End);
+    k.insert("PAGEUP", Key_PageUp);
+    k.insert("PAGEDOWN", Key_PageDown);
+
+    k.insert("KPLUS", Key_Plus);
+    k.insert("KMINUS", Key_Minus);
+    k.insert("KDIVIDE", Key_Slash);
+    k.insert("KMULTIPLY", Key_Asterisk);
+    k.insert("KENTER", Key_Enter);
+    k.insert("KPOINT", Key_Period);
+
+    return k;
+}
+
 
 Range::Range()
     : beginPos(-1), endPos(-1), rangemode(RangeCharMode)
@@ -810,6 +898,17 @@ public:
         return m_key;
     }
 
+    QString toString() const
+    {
+        bool hasCtrl = m_modifiers & int(HostOsInfo::controlModifier());
+        QString key = vimKeyNames().key(m_key);
+        if (key.isEmpty())
+            key = QChar(m_xkey);
+        else
+            key = '<' + key + '>';
+        return (hasCtrl ? QString("^") : QString()) + key;
+    }
+
     QDebug dump(QDebug ts) const
     {
         return ts << m_key << '-' << m_modifiers << '-'
@@ -849,92 +948,6 @@ private:
     bool m_silent;
 };
 
-static QMap<QString, int> vimKeyNames()
-{
-    QMap<QString, int> k;
-
-    // FIXME: Should be value of mapleader.
-    k.insert("LEADER", Key_Backslash);
-
-    k.insert("SPACE", Key_Space);
-    k.insert("TAB", Key_Tab);
-    k.insert("NL", Key_Return);
-    k.insert("NEWLINE", Key_Return);
-    k.insert("LINEFEED", Key_Return);
-    k.insert("LF", Key_Return);
-    k.insert("CR", Key_Return);
-    k.insert("RETURN", Key_Return);
-    k.insert("ENTER", Key_Return);
-    k.insert("BS", Key_Backspace);
-    k.insert("BACKSPACE", Key_Backspace);
-    k.insert("ESC", Key_Escape);
-    k.insert("BAR", Key_Bar);
-    k.insert("BSLASH", Key_Backslash);
-    k.insert("DEL", Key_Delete);
-    k.insert("DELETE", Key_Delete);
-    k.insert("KDEL", Key_Delete);
-    k.insert("UP", Key_Up);
-    k.insert("DOWN", Key_Down);
-    k.insert("LEFT", Key_Left);
-    k.insert("RIGHT", Key_Right);
-
-    k.insert("F1", Key_F1);
-    k.insert("F2", Key_F2);
-    k.insert("F3", Key_F3);
-    k.insert("F4", Key_F4);
-    k.insert("F5", Key_F5);
-    k.insert("F6", Key_F6);
-    k.insert("F7", Key_F7);
-    k.insert("F8", Key_F8);
-    k.insert("F9", Key_F9);
-    k.insert("F10", Key_F10);
-
-    k.insert("F11", Key_F11);
-    k.insert("F12", Key_F12);
-    k.insert("F13", Key_F13);
-    k.insert("F14", Key_F14);
-    k.insert("F15", Key_F15);
-    k.insert("F16", Key_F16);
-    k.insert("F17", Key_F17);
-    k.insert("F18", Key_F18);
-    k.insert("F19", Key_F19);
-    k.insert("F20", Key_F20);
-
-    k.insert("F21", Key_F21);
-    k.insert("F22", Key_F22);
-    k.insert("F23", Key_F23);
-    k.insert("F24", Key_F24);
-    k.insert("F25", Key_F25);
-    k.insert("F26", Key_F26);
-    k.insert("F27", Key_F27);
-    k.insert("F28", Key_F28);
-    k.insert("F29", Key_F29);
-    k.insert("F30", Key_F30);
-
-    k.insert("F31", Key_F31);
-    k.insert("F32", Key_F32);
-    k.insert("F33", Key_F33);
-    k.insert("F34", Key_F34);
-    k.insert("F35", Key_F35);
-
-    k.insert("INSERT", Key_Insert);
-    k.insert("INS", Key_Insert);
-    k.insert("KINSERT", Key_Insert);
-    k.insert("HOME", Key_Home);
-    k.insert("END", Key_End);
-    k.insert("PAGEUP", Key_PageUp);
-    k.insert("PAGEDOWN", Key_PageDown);
-
-    k.insert("KPLUS", Key_Plus);
-    k.insert("KMINUS", Key_Minus);
-    k.insert("KDIVIDE", Key_Slash);
-    k.insert("KMULTIPLY", Key_Asterisk);
-    k.insert("KENTER", Key_Enter);
-    k.insert("KPOINT", Key_Period);
-
-    return k;
-}
-
 static Input parseVimKeyName(const QString &keyName)
 {
     if (keyName.length() == 1)
@@ -966,9 +979,8 @@ static Input parseVimKeyName(const QString &keyName)
         }
 
         // find key name
-        static const QMap<QString, int> k = vimKeyNames();
-        QMap<QString, int>::ConstIterator it = k.constFind(key.toUpper());
-        if (it != k.end())
+        QMap<QString, int>::ConstIterator it = vimKeyNames().constFind(key.toUpper());
+        if (it != vimKeyNames().end())
             return Input(*it, mods);
     }
 
@@ -1751,6 +1763,7 @@ public:
         // Current mini buffer message.
         QString currentMessage;
         MessageLevel currentMessageLevel;
+        QString currentCommand;
 
         // Search state.
         QString lastSearch;
@@ -1828,8 +1841,7 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
         if (isNoVisualMode()
                 && m_mode == CommandMode
                 && m_submode == NoSubMode
-                && m_opcount.isEmpty()
-                && m_mvcount.isEmpty())
+                && g.currentCommand.isEmpty())
             return false;
         return true;
     }
@@ -2141,6 +2153,8 @@ EventResult FakeVimHandler::Private::handleKey(const Input &input)
         // if the mapped input can be completed complete.
         if (hasInput && g.currentMap.walk(input)) {
             if (g.currentMap.canExtend()) {
+                g.currentCommand.append(input.toString());
+                updateMiniBuffer();
                 g.inputTimer = startTimer(1000);
                 return EventHandled;
             } else {
@@ -2153,6 +2167,8 @@ EventResult FakeVimHandler::Private::handleKey(const Input &input)
             g.currentMap.reset();
             handleMapped = false;
         }
+        g.currentCommand.clear();
+        updateMiniBuffer();
     }
 
     EventResult r = EventUnhandled;
@@ -2174,6 +2190,8 @@ EventResult FakeVimHandler::Private::handleKey(const Input &input)
 
                 // handle user mapping
                 if (g.currentMap.canExtend()) {
+                    g.currentCommand.append(in.toString());
+                    updateMiniBuffer();
                     // wait for user to press any key or trigger complete mapping after interval
                     g.inputTimer = startTimer(1000);
                     return EventHandled;
@@ -2496,7 +2514,6 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         int endLine = lineForPosition(position());
         setPosition(qMin(anchor(), position()));
         enterExMode(QString(".,+%1!").arg(qAbs(endLine - beginLine)));
-        updateMiniBuffer();
         return;
     }
 
@@ -2600,6 +2617,7 @@ void FakeVimHandler::Private::resetCommandMode()
     m_rangemode = RangeCharMode;
     if (isNoVisualMode())
         setAnchor();
+    g.currentCommand.clear();
 }
 
 void FakeVimHandler::Private::updateSelection()
@@ -2658,6 +2676,9 @@ void FakeVimHandler::Private::updateMiniBuffer()
     } else if (g.mapStates.size() > 1 && !g.mapStates.last().silent) {
         // Do not reset previous message when after running a mapped command.
         return;
+    } else if (m_mode == CommandMode && !g.currentCommand.isEmpty() && hasConfig(ConfigShowCmd)) {
+        msg = g.currentCommand;
+        messageLevel = MessageShowCmd;
     } else if (m_mode == CommandMode && isVisualMode()) {
         if (isVisualCharMode()) {
             msg = "VISUAL";
@@ -2696,14 +2717,12 @@ void FakeVimHandler::Private::showMessage(MessageLevel level, const QString &msg
     //qDebug() << "MSG: " << msg;
     g.currentMessage = msg;
     g.currentMessageLevel = level;
-    updateMiniBuffer();
 }
 
 void FakeVimHandler::Private::notImplementedYet()
 {
     qDebug() << "Not implemented in FakeVim";
     showMessage(MessageError, FakeVimHandler::tr("Not implemented in FakeVim"));
-    updateMiniBuffer();
 }
 
 void FakeVimHandler::Private::passShortcuts(bool enable)
@@ -2868,7 +2887,6 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
             m_searchFromScreenLine = firstVisibleLine();
             m_searchCursor = QTextCursor();
             g.searchBuffer.clear();
-            updateMiniBuffer();
         }
     } else if (input.is('`')) {
         m_subsubmode = BackTickSubSubMode;
@@ -3156,7 +3174,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         handled = handleChangeCaseSubMode(input);
     }
 
-    // Clear state if necessary.
+    // Clear state and display incomplete command if necessary.
     if (handled) {
         bool noMode =
             (m_mode == CommandMode && m_submode == NoSubMode && m_subsubmode == NoSubSubMode);
@@ -3172,6 +3190,11 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
                 m_mvcount.clear();
                 m_opcount.clear();
             }
+            // Show or clear current command on minibuffer (showcmd).
+            if (input.isEscape() || m_mode != CommandMode || clearCount)
+                g.currentCommand.clear();
+            else
+                g.currentCommand.append(input.toString());
         }
     } else {
         resetCommandMode();
@@ -3185,6 +3208,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         }
     }
 
+    updateMiniBuffer();
+
     m_positionPastEnd = (m_visualTargetColumn == -1) && isVisualMode();
 
     return handled ? EventHandled : EventCancelled;
@@ -3195,7 +3220,6 @@ bool FakeVimHandler::Private::handleEscape()
     if (isVisualMode())
         leaveVisualMode();
     resetCommandMode();
-    updateMiniBuffer();
     return true;
 }
 
@@ -3207,12 +3231,10 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         handleExCommand(m_gflag ? "%s//~/&" : "s");
     } else if (input.is(':')) {
         enterExMode();
-        updateMiniBuffer();
     } else if (input.is('!') && isNoVisualMode()) {
         m_submode = FilterSubMode;
     } else if (input.is('!') && isVisualMode()) {
         enterExMode(QString("!"));
-        updateMiniBuffer();
     } else if (input.is('"')) {
         m_submode = RegisterSubMode;
     } else if (input.is(',')) {
@@ -3257,7 +3279,6 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         if (!atEndOfLine())
             moveRight();
         setUndoPosition();
-        updateMiniBuffer();
     } else if (input.is('A')) {
         breakEditBlock();
         moveBehindEndOfLine();
@@ -3266,7 +3287,6 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         enterInsertMode();
         setDotCommand("%1A", count());
         m_lastInsertion.clear();
-        updateMiniBuffer();
     } else if (input.isControl('a')) {
         changeNumberTextObject(count());
         setDotCommand("%1<c-a>", count());
@@ -3360,7 +3380,6 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         setDotCommand("%1i", count());
         breakEditBlock();
         enterInsertMode();
-        updateMiniBuffer();
         if (atEndOfLine())
             moveLeft();
     } else if (input.is('I')) {
@@ -3430,7 +3449,6 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         setUndoPosition();
         breakEditBlock();
         enterReplaceMode();
-        updateMiniBuffer();
     } else if (input.isControl('r')) {
         int repeat = count();
         while (--repeat >= 0)

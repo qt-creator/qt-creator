@@ -82,7 +82,8 @@ enum MessageLevel
     MessageCommand, // show last Ex command or search
     MessageInfo,    // result of a command
     MessageWarning, // warning
-    MessageError    // error
+    MessageError,   // error
+    MessageShowCmd  // partial command
 };
 
 class FakeVimHandler : public QObject

@@ -70,7 +70,8 @@ enum FakeVimSettingsCode
     // other actions
     ConfigShowMarks,
     ConfigPassControlKey,
-    ConfigClipboard
+    ConfigClipboard,
+    ConfigShowCmd
 };
 
 class FakeVimSettings : public QObject
