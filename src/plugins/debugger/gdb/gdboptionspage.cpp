@@ -77,6 +77,7 @@ public:
     QCheckBox *checkBoxEnableReverseDebugging;
     QCheckBox *checkBoxAttemptQuickStart;
     QCheckBox *checkBoxMultiInferior;
+    QCheckBox *checkBoxIntelFlavor;
 
     QGroupBox *groupBoxStartupCommands;
     QTextEdit *textEditStartupCommands;
@@ -216,6 +217,12 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "<html><head/><body>Keep debugging all children after a fork."
         "</body></html>"));
 
+    checkBoxIntelFlavor = new QCheckBox(groupBoxGeneral);
+    checkBoxIntelFlavor->setText(GdbOptionsPage::tr("Use Intel style disassembly"));
+    checkBoxIntelFlavor->setToolTip(GdbOptionsPage::tr(
+        "<html><head/><body>GDB shows by default AT&&T style disassembly."
+        "</body></html>"));
+
     groupBoxStartupCommands = new QGroupBox(this);
     groupBoxStartupCommands->setTitle(GdbOptionsPage::tr("Additional Startup Commands"));
     groupBoxStartupCommands->setToolTip(GdbOptionsPage::tr(
@@ -277,6 +284,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     formLayout->addRow(checkBoxUseDynamicType);
     formLayout->addRow(checkBoxLoadGdbInit);
     formLayout->addRow(checkBoxWarnOnReleaseBuilds);
+    formLayout->addRow(checkBoxIntelFlavor);
     formLayout->addRow(new QLabel(QString()));
     formLayout->addRow(labelDangerous);
     formLayout->addRow(checkBoxTargetAsync);
@@ -327,6 +335,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     group.insert(dc->action(GdbWatchdogTimeout), spinBoxGdbWatchdogTimeout);
     group.insert(dc->action(AttemptQuickStart), checkBoxAttemptQuickStart);
     group.insert(dc->action(MultiInferior), checkBoxMultiInferior);
+    group.insert(dc->action(IntelFlavor), checkBoxIntelFlavor);
 
     group.insert(dc->action(UseMessageBoxForSignals), checkBoxUseMessageBoxForSignals);
     group.insert(dc->action(SkipKnownFrames), checkBoxSkipKnownFrames);

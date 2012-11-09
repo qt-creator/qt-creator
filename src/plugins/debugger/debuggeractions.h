@@ -126,6 +126,7 @@ enum DebuggerActionCode
     TargetAsync,
     WarnOnReleaseBuilds,
     MultiInferior,
+    IntelFlavor,
 
     // Stack
     MaximalStackDepth,
