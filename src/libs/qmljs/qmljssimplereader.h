@@ -102,7 +102,8 @@ private:
     void readChild(AST::UiObjectDefinition *uiObjectDefinition);
     void readProperties(AST::UiObjectDefinition *ast);
     void readProperty(AST::UiScriptBinding *uiScriptBinding);
-    QVariant parseProperty(AST::UiScriptBinding *ast);
+    QVariant parsePropertyScriptBinding(AST::UiScriptBinding *ExpressionNode);
+    QVariant parsePropertyExpression(AST::ExpressionNode *expressionNode);
     void setSourceLocation(const AST::SourceLocation &sourceLocation);
 
     QStringList m_errors;
