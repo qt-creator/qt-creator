@@ -1492,7 +1492,7 @@ class Dumper:
             if value.is_optimized_out:
                 self.putValue("<optimized out>")
             else:
-                self.putValue(int(value))
+                self.putValue(value)
             self.putNumChild(0)
             return
 

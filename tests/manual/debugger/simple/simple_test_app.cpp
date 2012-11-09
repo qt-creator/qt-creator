@@ -4564,6 +4564,32 @@ namespace basic {
 
     // This tests display of basic types.
 
+    void testInt()
+    {
+        quint64 u64 = ULONG_LONG_MAX;
+        qint64 s64 = LONG_LONG_MAX;
+        quint32 u32 = ULONG_MAX;
+        qint32 s32 = LONG_MAX;
+        quint64 u64s = 0;
+        qint64 s64s = LONG_LONG_MIN;
+        quint32 u32s = 0;
+        qint32 s32s = LONG_MIN;
+
+        BREAK_HERE;
+        // Check u64 18446744073709551615 quint64.
+        // Check s64 9223372036854775807 qint64.
+        // Check u32 4294967295 quint32.
+        // Check s32 2147483647 qint32.
+        // Check u64s 0 quint64.
+        // Check s64s -9223372036854775808 qint64.
+        // Check u32s 0 quint32.
+        // Check s32s -2147483648 qint32.
+        // Continue.
+
+        dummyStatement(&u64, &s64, &u32, &s32, &u64s, &s64s, &u32s, &s32s);
+    }
+
+
     void testArray1()
     {
         double d[3][3];
@@ -5329,6 +5355,7 @@ namespace basic {
 
     void testBasic()
     {
+        testInt();
         testReference1();
         testReference2();
         testReference3("hello");
