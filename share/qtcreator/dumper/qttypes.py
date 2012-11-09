@@ -798,10 +798,15 @@ def qdump__QObject(d, value):
         staticMetaObject = value["staticMetaObject"]
         d_ptr = value["d_ptr"]["d"].cast(privateType.pointer()).dereference()
         #warn("D_PTR: %s " % d_ptr)
+        objectName = None
         try:
             objectName = d_ptr["objectName"]
         except: # Qt 5
-            objectName = d_ptr["extraData"].dereference()["objectName"]
+            p = d_ptr["extraData"]
+            if not isNull(p):
+                objectName = p.dereference()["objectName"]
+        if not objectName is None:
+            d.putStringValue(objectName)
     except:
         d.putPlainChildren(value)
         return
@@ -833,13 +838,20 @@ def qdump__QObject(d, value):
     #warn("MO.D: %s " % mo["d"])
     metaData = mo["d"]["data"]
     metaStringData = mo["d"]["stringdata"]
+    # This is char * in Qt 4 and ByteArrayData * in Qt 5.
+    # Force it to the char * data in the Qt 5 case.
+    try:
+        offset = metaStringData["offset"]
+        metaStringData = metaStringData.cast(lookupType('char*')) + int(offset)
+    except:
+        pass
+
     #extradata = mo["d"]["extradata"]   # Capitalization!
     #warn("METADATA: %s " % metaData)
     #warn("STRINGDATA: %s " % metaStringData)
     #warn("TYPE: %s " % value.type)
     #warn("INAME: %s " % d.currentIName())
     #d.putValue("")
-    d.putStringValue(objectName)
     #QSignalMapper::staticMetaObject
     #checkRef(d_ptr["ref"])
     d.putNumChild(4)
