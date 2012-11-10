@@ -217,6 +217,7 @@ struct FakeVimPlugin::TestData
 void FakeVimPlugin::setup(TestData *data)
 {
     setupTest(&data->title, &data->handler, &data->edit);
+    data->handler->handleInput("<ESC><ESC>gg");
 }
 
 
@@ -426,6 +427,24 @@ void FakeVimPlugin::test_vim_insert()
     data.setText("abc" N "def");
     KEYS("3O 123<esc>", " 123" N " 123" N " 12" X "3" N "abc" N "def");
     INTEGRITY(false);
+
+    // <C-O>
+    data.setText("abc" N "d" X "ef");
+    KEYS("i<c-o>xX", "abc" N "dX" X "f");
+    KEYS("i<c-o><end>", "abc" N "dXf" X);
+    data.setText("ab" X "c" N "def");
+    KEYS("i<c-o>rX", "ab" X "X" N "def");
+    data.setText("abc" N "def");
+    KEYS("A<c-o>x", "ab" X N "def");
+    data.setText("abc" N "de" X "f");
+    KEYS("i<c-o>0x", "abc" N "x" X "def");
+    data.setText("abc" N "de" X "f");
+    KEYS("i<c-o>ggx", "x" X "abc" N "def");
+
+    // <INSERT> to toggle between insert and replace mode
+    data.setText("abc" N "def");
+    KEYS("<insert>XYZ<insert>xyz<esc>", "XYZxy" X "z" N "def");
+    KEYS("<insert><insert>" "<c-o>0<c-o>j" "XY<insert>Z", "XYZxyz" N "XYZ" X "f");
 }
 
 void FakeVimPlugin::test_vim_fFtT()
@@ -1821,8 +1840,6 @@ void FakeVimPlugin::test_map()
     KEYS("Y", X "abc" N "def");
     data.doCommand("unmap X|unmap Y");
 
-
-    NOT_IMPLEMENTED
     // <C-o>
     data.setText("abc def");
     data.doCommand("imap X <c-o>:%s/def/xxx/<cr>");

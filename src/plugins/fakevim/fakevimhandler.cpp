@@ -1341,6 +1341,8 @@ public:
     friend class FakeVimHandler;
 
     void init();
+    void focus();
+
     EventResult handleKey(const Input &input);
     EventResult handleDefaultKey(const Input &input);
     void handleMappedKeys();
@@ -1532,7 +1534,7 @@ public:
 
     void enterInsertMode();
     void enterReplaceMode();
-    void enterCommandMode();
+    void enterCommandMode(Mode returnToMode = CommandMode);
     void enterExMode(const QString &contents = QString());
     void showMessage(MessageLevel level, const QString &msg);
     void clearMessage() { showMessage(MessageInfo, QString()); }
@@ -1761,7 +1763,7 @@ public:
     {
         GlobalData()
             : mappings(), currentMap(&mappings), inputTimer(-1), currentMessageLevel(MessageInfo),
-              lastSearchForward(false), findPending(false)
+              lastSearchForward(false), findPending(false), returnToMode(CommandMode)
         {
             // default mapping state - shouldn't be removed
             mapStates << MappingState();
@@ -1803,6 +1805,9 @@ public:
 
         // Global marks.
         Marks marks;
+
+        // Return to insert/replace mode after single command (<C-O>).
+        Mode returnToMode;
     } g;
 };
 
@@ -1854,6 +1859,17 @@ void FakeVimHandler::Private::init()
     setupCharClass();
 }
 
+void FakeVimHandler::Private::focus()
+{
+    stopIncrementalFind();
+    if (g.returnToMode != CommandMode && g.currentCommand.isEmpty() && m_mode != ExMode) {
+        // Return to insert mode.
+        resetCommandMode();
+        updateMiniBuffer();
+        updateCursorShape();
+    }
+}
+
 bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
 {
     const int key = ev->key();
@@ -1867,7 +1883,8 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
         if (isNoVisualMode()
                 && m_mode == CommandMode
                 && m_submode == NoSubMode
-                && g.currentCommand.isEmpty())
+                && g.currentCommand.isEmpty()
+                && g.returnToMode == CommandMode)
             return false;
         return true;
     }
@@ -2009,7 +2026,7 @@ void FakeVimHandler::Private::installEventFilter()
 
 void FakeVimHandler::Private::setupWidget()
 {
-    enterCommandMode();
+    resetCommandMode();
     if (m_textedit) {
         m_textedit->setLineWrapMode(QTextEdit::NoWrap);
     } else if (m_plaintextedit) {
@@ -2325,8 +2342,9 @@ void FakeVimHandler::Private::updateFind(bool isComplete)
 
     g.currentMessage.clear();
 
+    const QString &needle = g.searchBuffer.contents();
     SearchData sd;
-    sd.needle = g.searchBuffer.contents();
+    sd.needle = needle;
     sd.forward = g.lastSearchForward;
     sd.highlightMatches = isComplete;
     if (isComplete) {
@@ -2573,7 +2591,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         if (m_movetype == MoveLineWise)
             insertAutomaticIndentation(true);
         endEditBlock();
-        enterInsertMode();
+        setTargetColumn();
+        g.returnToMode = InsertMode;
     } else if (m_submode == DeleteSubMode) {
         setUndoPosition();
         removeText(currentRange());
@@ -2643,6 +2662,13 @@ void FakeVimHandler::Private::resetCommandMode()
     if (isNoVisualMode())
         setAnchor();
     g.currentCommand.clear();
+    if (g.returnToMode != CommandMode) {
+        if (g.returnToMode == InsertMode)
+            enterInsertMode();
+        else
+            enterReplaceMode();
+        moveToTargetColumn();
+    }
 }
 
 void FakeVimHandler::Private::updateSelection()
@@ -2718,7 +2744,12 @@ void FakeVimHandler::Private::updateMiniBuffer()
         msg = "REPLACE";
     } else {
         QTC_CHECK(m_mode == CommandMode && m_subsubmode != SearchSubSubMode);
-        msg = "COMMAND";
+        if (g.returnToMode == CommandMode)
+            msg = "COMMAND";
+        else if (g.returnToMode == InsertMode)
+            msg = "(insert)";
+        else
+            msg = "(replace)";
     }
 
     emit q->commandBufferChanged(msg, cursorPos, messageLevel, q);
@@ -3261,7 +3292,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         QString savedCommand = g.dotCommand;
         g.dotCommand.clear();
         replay(savedCommand);
-        enterCommandMode();
+        resetCommandMode();
         g.dotCommand = savedCommand;
     } else if (input.is('<') || input.is('>') || input.is('=')) {
         if (isNoVisualMode()) {
@@ -3876,10 +3907,7 @@ EventResult FakeVimHandler::Private::handleReplaceMode(const Input &input)
     if (input.isEscape()) {
         moveLeft(qMin(1, leftDist()));
         setTargetColumn();
-        m_submode = NoSubMode;
-        m_mode = CommandMode;
-        finishMovement();
-        updateMiniBuffer();
+        enterCommandMode();
     } else if (input.isKey(Key_Left)) {
         breakEditBlock();
         moveLeft(1);
@@ -3895,6 +3923,10 @@ EventResult FakeVimHandler::Private::handleReplaceMode(const Input &input)
     } else if (input.isKey(Key_Down)) {
         breakEditBlock();
         moveDown(1);
+    } else if (input.isKey(Key_Insert)) {
+        m_mode = InsertMode;
+    } else if (input.isControl('o')) {
+        enterCommandMode(ReplaceMode);
     } else {
         joinPreviousEditBlock();
         if (!atEndOfLine()) {
@@ -3910,6 +3942,8 @@ EventResult FakeVimHandler::Private::handleReplaceMode(const Input &input)
         endEditBlock();
         setTargetColumn();
     }
+    updateMiniBuffer();
+
     return EventHandled;
 }
 
@@ -3960,12 +3994,13 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         g.dotCommand += m_lastInsertion;
         g.dotCommand += QChar(27);
         enterCommandMode();
-        m_submode = NoSubMode;
         m_ctrlVActive = false;
         m_opcount.clear();
         m_mvcount.clear();
     } else if (m_ctrlVActive) {
         insertInInsertMode(input.raw());
+    } else if (input.isControl('o')) {
+        enterCommandMode(InsertMode);
     } else if (input.isControl('v')) {
         m_ctrlVActive = true;
     } else if (input.isControl('w')) {
@@ -3976,10 +4011,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         Range range(beginPos, endPos, RangeCharMode);
         removeText(range);
     } else if (input.isKey(Key_Insert)) {
-        if (m_mode == ReplaceMode)
-            m_mode = InsertMode;
-        else
-            m_mode = ReplaceMode;
+        m_mode = ReplaceMode;
     } else if (input.isKey(Key_Left)) {
         moveLeft(count());
         setTargetColumn();
@@ -4145,7 +4177,8 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
 {
     if (input.isEscape()) {
         g.commandBuffer.clear();
-        enterCommandMode();
+        enterCommandMode(g.returnToMode);
+        resetCommandMode();
         m_ctrlVActive = false;
     } else if (m_ctrlVActive) {
         g.commandBuffer.insertChar(input.raw());
@@ -4154,10 +4187,12 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
         m_ctrlVActive = true;
         return EventHandled;
     } else if (input.isBackspace()) {
-        if (g.commandBuffer.isEmpty())
-            enterCommandMode();
-        else
+        if (g.commandBuffer.isEmpty()) {
+            enterCommandMode(g.returnToMode);
+            resetCommandMode();
+        } else {
             g.commandBuffer.deleteChar();
+        }
     } else if (input.isKey(Key_Tab)) {
         // FIXME: Complete actual commands.
         g.commandBuffer.historyUp();
@@ -4190,10 +4225,11 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
         g.searchBuffer.clear();
         setAnchorAndPosition(m_searchStartPosition, m_searchStartPosition);
         scrollToLine(m_searchFromScreenLine);
-        enterCommandMode();
+        enterCommandMode(g.returnToMode);
+        resetCommandMode();
     } else if (input.isBackspace()) {
         if (g.searchBuffer.isEmpty()) {
-            enterCommandMode();
+            resetCommandMode();
         } else {
             g.searchBuffer.deleteChar();
         }
@@ -4217,7 +4253,8 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
             showMessage(MessageCommand, g.searchBuffer.display());
         else
             handled = EventCancelled;
-        enterCommandMode();
+        enterCommandMode(g.returnToMode);
+        resetCommandMode();
         g.searchBuffer.clear();
     } else if (input.isKey(Key_Up) || input.isKey(Key_PageUp)) {
         g.searchBuffer.historyUp();
@@ -5122,7 +5159,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
 
     //qDebug() << "CMD: " << cmd;
 
-    enterCommandMode();
+    enterCommandMode(g.returnToMode);
 
     beginLargeEditBlock();
     ExCommand cmd;
@@ -5135,6 +5172,8 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
         lastCommand = line;
     }
     endEditBlock();
+
+    resetCommandMode();
 }
 
 bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
@@ -5420,17 +5459,14 @@ void FakeVimHandler::Private::moveToTargetColumn()
     const QTextBlock &bl = block();
     //Column column = cursorColumn();
     //int logical = logical
-    const int maxcol = bl.length() - 2;
+    const int pos = lastPositionInLine(bl.blockNumber() + 1, false);
     if (m_targetColumn == -1) {
-        setPosition(bl.position() + qMax(0, maxcol));
+        setPosition(pos);
         return;
     }
-    const int physical = logicalToPhysicalColumn(m_targetColumn, bl.text());
+    const int physical = bl.position() + logicalToPhysicalColumn(m_targetColumn, bl.text());
     //qDebug() << "CORRECTING COLUMN FROM: " << logical << "TO" << m_targetColumn;
-    if (physical >= maxcol)
-        setPosition(bl.position() + qMax(0, maxcol));
-    else
-        setPosition(bl.position() + physical);
+    setPosition(qMin(pos, physical));
 }
 
 /* if simple is given:
@@ -6463,6 +6499,7 @@ void FakeVimHandler::Private::enterReplaceMode()
     m_subsubmode = NoSubSubMode;
     m_lastInsertion.clear();
     m_lastDeletion.clear();
+    g.returnToMode = ReplaceMode;
 }
 
 void FakeVimHandler::Private::enterInsertMode()
@@ -6472,15 +6509,17 @@ void FakeVimHandler::Private::enterInsertMode()
     m_subsubmode = NoSubSubMode;
     m_lastInsertion.clear();
     m_lastDeletion.clear();
+    g.returnToMode = InsertMode;
 }
 
-void FakeVimHandler::Private::enterCommandMode()
+void FakeVimHandler::Private::enterCommandMode(Mode returnToMode)
 {
     if (atEndOfLine())
         moveLeft();
     m_mode = CommandMode;
     m_submode = NoSubMode;
     m_subsubmode = NoSubSubMode;
+    g.returnToMode = returnToMode;
 }
 
 void FakeVimHandler::Private::enterExMode(const QString &contents)
@@ -7012,7 +7051,8 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
         return res == EventHandled || res == EventCancelled;
     }
 
-    if (active && ev->type() == QEvent::KeyPress) {
+    if (active && ev->type() == QEvent::KeyPress &&
+        (ob == d->editor() || (d->m_mode == ExMode || d->m_subsubmode == SearchSubSubMode))) {
         QKeyEvent *kev = static_cast<QKeyEvent *>(ev);
         KEY_DEBUG("KEYPRESS" << kev->key() << kev->text() << QChar(kev->key()));
         EventResult res = d->handleEvent(kev);
@@ -7037,7 +7077,7 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
     }
 
     if (active && ev->type() == QEvent::FocusIn && ob == d->editor()) {
-        d->stopIncrementalFind();
+        d->focus();
     }
 
     return QObject::eventFilter(ob, ev);
