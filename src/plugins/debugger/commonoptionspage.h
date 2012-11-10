@@ -74,7 +74,9 @@ private:
     QCheckBox *checkBoxBreakpointsFullPath;
     QCheckBox *checkBoxRegisterForPostMortem;
     QLabel *labelMaximalStackDepth;
+    QLabel *labelMaximalStringLength;
     QSpinBox *spinBoxMaximalStackDepth;
+    QSpinBox *spinBoxMaximalStringLength;
 
     DebuggerSourcePathMappingWidget *sourcesMappingWidget;
     const QSharedPointer<Utils::SavedActionSet> m_group;

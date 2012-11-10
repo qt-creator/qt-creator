@@ -41,7 +41,7 @@
 
 #include <projectexplorer/projectexplorer.h>
 
-#include <QFileInfo>
+#include <QLabel>
 #include <QTextStream>
 
 using namespace Core;
@@ -93,14 +93,21 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     checkBoxRegisterForPostMortem->setToolTip(tr("Register Qt Creator for debugging crashed applications."));
     checkBoxRegisterForPostMortem->setText(tr("Use Qt Creator for post-mortem debugging"));
 
-    labelMaximalStackDepth = new QLabel(behaviorBox);
-    labelMaximalStackDepth->setText(tr("Maximum stack depth:"));
+    labelMaximalStackDepth = new QLabel(tr("Maximum stack depth:"), behaviorBox);
 
     spinBoxMaximalStackDepth = new QSpinBox(behaviorBox);
     spinBoxMaximalStackDepth->setSpecialValueText(tr("<unlimited>"));
     spinBoxMaximalStackDepth->setMaximum(999);
     spinBoxMaximalStackDepth->setSingleStep(5);
     spinBoxMaximalStackDepth->setValue(10);
+
+    labelMaximalStringLength = new QLabel(tr("Maximum string length:"), behaviorBox);
+
+    spinBoxMaximalStringLength = new QSpinBox(behaviorBox);
+    spinBoxMaximalStringLength->setSpecialValueText(tr("<unlimited>"));
+    spinBoxMaximalStringLength->setMaximum(10000000);
+    spinBoxMaximalStringLength->setSingleStep(1000);
+    spinBoxMaximalStringLength->setValue(10000);
 
     sourcesMappingWidget = new DebuggerSourcePathMappingWidget(this);
 
@@ -109,20 +116,25 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     horizontalLayout->addWidget(spinBoxMaximalStackDepth);
     horizontalLayout->addStretch();
 
+    QHBoxLayout *horizontalLayout2 = new QHBoxLayout();
+    horizontalLayout2->addWidget(labelMaximalStringLength);
+    horizontalLayout2->addWidget(spinBoxMaximalStringLength);
+    horizontalLayout2->addStretch();
+
     QGridLayout *gridLayout = new QGridLayout(behaviorBox);
     gridLayout->addWidget(checkBoxUseAlternatingRowColors, 0, 0, 1, 1);
     gridLayout->addWidget(checkBoxUseToolTipsInMainEditor, 1, 0, 1, 1);
     gridLayout->addWidget(checkBoxCloseBuffersOnExit, 2, 0, 1, 1);
     gridLayout->addWidget(checkBoxBringToForegroundOnInterrrupt, 3, 0, 1, 1);
     gridLayout->addWidget(checkBoxBreakpointsFullPath, 4, 0, 1, 1);
+    gridLayout->addLayout(horizontalLayout, 6, 0, 1, 2);
 
     gridLayout->addWidget(checkBoxFontSizeFollowsEditor, 0, 1, 1, 1);
     gridLayout->addWidget(checkBoxListSourceFiles, 1, 1, 1, 1);
     gridLayout->addWidget(checkBoxSwitchModeOnExit, 2, 1, 1, 1);
     gridLayout->addWidget(checkBoxShowQmlObjectTree, 3, 1, 1, 1);
     gridLayout->addWidget(checkBoxRegisterForPostMortem, 4, 1, 1, 1);
-
-    gridLayout->addLayout(horizontalLayout, 6, 0, 1, 2);
+    gridLayout->addLayout(horizontalLayout2, 6, 1, 1, 2);
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
     verticalLayout->addWidget(behaviorBox);
@@ -161,8 +173,8 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     m_group->insert(dc->action(UseAddressInBreakpointsView), 0);
     m_group->insert(dc->action(UseAddressInStackView), 0);
     m_group->insert(dc->action(AlwaysAdjustStackColumnWidths), 0);
-    m_group->insert(dc->action(MaximalStackDepth),
-        spinBoxMaximalStackDepth);
+    m_group->insert(dc->action(MaximalStackDepth), spinBoxMaximalStackDepth);
+    m_group->insert(dc->action(MaximalStringLength), spinBoxMaximalStringLength);
     m_group->insert(dc->action(ShowStdNamespace), 0);
     m_group->insert(dc->action(ShowQtNamespace), 0);
     m_group->insert(dc->action(SortStructMembers), 0);

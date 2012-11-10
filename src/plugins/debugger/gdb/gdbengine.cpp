@@ -4905,6 +4905,10 @@ void GdbEngine::loadPythonDumpers()
     postCommand("python execfile('" + dumperSourcePath + "qttypes.py')",
         ConsoleCommand|NonCriticalResponse);
 
+    postCommand("python qqStringCutOff = "
+        + debuggerCore()->action(MaximalStringLength)->value().toByteArray(),
+        ConsoleCommand|NonCriticalResponse);
+
     loadInitScript();
 
     postCommand("bbsetup", ConsoleCommand, CB(handleHasPython));

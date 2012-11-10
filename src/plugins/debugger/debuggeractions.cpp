@@ -553,6 +553,11 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     insertItem(MaximalStackDepth, item);
 
     item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("MaximalStringLength"));
+    item->setDefaultValue(10000);
+    insertItem(MaximalStringLength, item);
+
+    item = new SavedAction(this);
     item->setText(tr("Reload Full Stack"));
     insertItem(ExpandStack, item);
 

@@ -91,7 +91,7 @@ DisplayUtf8String \
     = range(7)
 
 
-qqStringCutOff = 1000
+qqStringCutOff = 10000
 
 #
 # Gnuplot based display for array-like structures.

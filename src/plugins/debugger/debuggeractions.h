@@ -140,6 +140,7 @@ enum DebuggerActionCode
     SortStructMembers,
     AutoDerefPointers,
     AlwaysAdjustLocalsColumnWidths,
+    MaximalStringLength,
 
     // Source List
     ListSourceFiles,
