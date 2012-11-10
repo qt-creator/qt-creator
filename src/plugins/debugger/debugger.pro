@@ -120,8 +120,7 @@ SOURCES += \
     localsandexpressionswindow.cpp
 
 FORMS += \
-    localsandexpressionsoptionspage.ui \
-    commonoptionspage.ui
+    localsandexpressionsoptionspage.ui
 
 RESOURCES += debugger.qrc
 

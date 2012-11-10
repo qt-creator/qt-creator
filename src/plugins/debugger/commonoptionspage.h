@@ -30,18 +30,21 @@
 #ifndef DEBUGGER_COMMONOPTIONSPAGE_H
 #define DEBUGGER_COMMONOPTIONSPAGE_H
 
-#include "ui_commonoptionspage.h"
+#include "debuggersourcepathmappingwidget.h"
 #include "ui_localsandexpressionsoptionspage.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/savedaction.h>
 
-#include <QSharedPointer>
+#include <QCheckBox>
+#include <QLabel>
 #include <QPointer>
-#include <QWidget>
+#include <QSharedPointer>
+#include <QSpinBox>
 
 namespace Debugger {
 namespace Internal {
+
 class GlobalDebuggerOptions;
 
 ///////////////////////////////////////////////////////////////////////
@@ -60,7 +63,20 @@ public:
     void setGlobalOptions(const GlobalDebuggerOptions &go);
 
 private:
-    Ui::CommonOptionsPage m_ui;
+    QCheckBox *checkBoxUseAlternatingRowColors;
+    QCheckBox *checkBoxFontSizeFollowsEditor;
+    QCheckBox *checkBoxUseToolTipsInMainEditor;
+    QCheckBox *checkBoxListSourceFiles;
+    QCheckBox *checkBoxCloseBuffersOnExit;
+    QCheckBox *checkBoxSwitchModeOnExit;
+    QCheckBox *checkBoxBringToForegroundOnInterrrupt;
+    QCheckBox *checkBoxShowQmlObjectTree;
+    QCheckBox *checkBoxBreakpointsFullPath;
+    QCheckBox *checkBoxRegisterForPostMortem;
+    QLabel *labelMaximalStackDepth;
+    QSpinBox *spinBoxMaximalStackDepth;
+
+    DebuggerSourcePathMappingWidget *sourcesMappingWidget;
     const QSharedPointer<Utils::SavedActionSet> m_group;
 };
 

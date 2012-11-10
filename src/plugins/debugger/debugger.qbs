@@ -47,7 +47,6 @@ QtcPlugin {
         "breakwindow.h",
         "commonoptionspage.cpp",
         "commonoptionspage.h",
-        "commonoptionspage.ui",
         "debugger.qrc",
         "debugger_global.h",
         "debuggeractions.cpp",
