@@ -2033,6 +2033,9 @@ def qdump__std__stack(d, value):
     qdump__std__deque(d, value["c"])
 
 
+def qform__std__string():
+    return "Inline,In Separate Window"
+
 def qdump__std__string(d, value):
     data = value["_M_dataplus"]["_M_p"]
     baseType = value.type.unqualified().strip_typedefs()
@@ -2053,40 +2056,36 @@ def qdump__std__string(d, value):
     check(rep['_M_refcount'] >= -1) # Can be -1 accoring to docs.
     check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
     p = gdb.Value(data.cast(charType.pointer()))
-    s = ""
     # Override "std::basic_string<...>
     if str(charType) == "char":
         d.putType("std::string", 1)
     elif str(charType) == "wchar_t":
         d.putType("std::wstring", 1)
 
-    n = min(size, 1000)
+    n = min(size, qqStringCutOff)
+    mem = readRawMemory(p, n * charType.sizeof)
     if charType.sizeof == 1:
-        format = "%02x"
-        for i in xrange(size):
-            s += format % int(p.dereference())
-            p += 1
-        d.putValue(s, Hex2EncodedLatin1)
-        d.putNumChild(0)
+        encodingType = Hex2EncodedLatin1
+        displayType = DisplayLatin1String
     elif charType.sizeof == 2:
-        format = "%02x%02x"
-        for i in xrange(size):
-            val = int(p.dereference())
-            s += format % (val % 256, val / 256)
-            p += 1
-        d.putValue(s, Hex4EncodedLittleEndian)
+        encodingType = Hex4EncodedLatin1
+        displayType = DisplayUtf16String
     else:
-        # FIXME: This is not always a proper solution.
-        format = "%02x%02x%02x%02x"
-        for i in xrange(size):
-            val = int(p.dereference())
-            hi = val / 65536
-            lo = val % 65536
-            s += format % (lo % 256, lo / 256, hi % 256, hi / 256)
-            p += 1
-        d.putValue(s, Hex8EncodedLittleEndian)
+        encodinfType = Hex8EncodedLatin1
+        displayType = DisplayUtf16String
 
+    d.putAddress(value.address)
     d.putNumChild(0)
+    d.putValue(mem, encodingType)
+
+    format = d.currentItemFormat()
+    if format == 1:
+        d.putDisplay(StopDisplay)
+    elif format == 2:
+        d.putField("editformat", displayType)
+        if n != size:
+            mem = readRawMemory(p, n * charType.sizeof)
+        d.putField("editvalue", mem)
 
 
 def qdump__std__shared_ptr(d, value):
