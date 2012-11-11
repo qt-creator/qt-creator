@@ -686,13 +686,11 @@ QVariantMap SettingsAccessor::restoreSettings() const
                             QApplication::translate("ProjectExplorer::SettingsAccessor",
                                                     "Unsupported Shared Settings File"),
                             QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                                    "The version of your .shared file is not yet "
+                                                    "The version of your .shared file is not "
                                                     "supported by this Qt Creator version. "
                                                     "Only settings that are still compatible "
                                                     "will be taken into account.\n\n"
-                                                    "Do you want to continue?\n\n"
-                                                    "If you choose not to continue Qt Creator will "
-                                                    "not try to load the .shared file."),
+                                                    "Do you want to try loading it?"),
                             QMessageBox::Yes | QMessageBox::No,
                             Core::ICore::mainWindow());
                 msgBox.setDefaultButton(QMessageBox::No);
