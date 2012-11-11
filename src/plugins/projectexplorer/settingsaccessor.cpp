@@ -630,25 +630,27 @@ QVariantMap SettingsAccessor::restoreSettings() const
             QString backup = fn + QLatin1Char('.') + fileId.mid(1, 7);
             QFile::copy(fn, backup);
 
-            // TODO tr, casing check
-            QMessageBox msgBox(
-                QMessageBox::Question,
-                QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                        "Project Settings File from a different Environment?"),
-                QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                        "Qt Creator has found a .user settings file which was "
-                                        "created for another development setup, maybe "
-                                        "originating from another machine.\n\n"
-                                        "The .user settings files contain environment specific "
-                                        "settings. They should not be copied to a different "
-                                        "environment. \n\n"
-                                        "Do you still want to load the settings file?"),
-                QMessageBox::Yes | QMessageBox::No,
-                Core::ICore::mainWindow());
-            msgBox.setDefaultButton(QMessageBox::No);
-            msgBox.setEscapeButton(QMessageBox::No);
-            if (msgBox.exec() == QMessageBox::No)
-                return QVariantMap();
+            if (!fileId.isEmpty()) {
+                // TODO tr, casing check
+                QMessageBox msgBox(
+                    QMessageBox::Question,
+                    QApplication::translate("ProjectExplorer::SettingsAccessor",
+                                            "Project Settings File from a different Environment?"),
+                    QApplication::translate("ProjectExplorer::SettingsAccessor",
+                                            "Qt Creator has found a .user settings file which was "
+                                            "created for another development setup, maybe "
+                                            "originating from another machine.\n\n"
+                                            "The .user settings files contain environment specific "
+                                            "settings. They should not be copied to a different "
+                                            "environment. \n\n"
+                                            "Do you still want to load the settings file?"),
+                    QMessageBox::Yes | QMessageBox::No,
+                    Core::ICore::mainWindow());
+                msgBox.setDefaultButton(QMessageBox::No);
+                msgBox.setEscapeButton(QMessageBox::No);
+                if (msgBox.exec() == QMessageBox::No)
+                    return QVariantMap();
+            }
         }
 
         // Do we need to generate a backup?
