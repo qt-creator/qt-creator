@@ -34,6 +34,7 @@
 #include <coreplugin/id.h>
 
 #include <QObject>
+#include <QSet>
 
 QT_BEGIN_NAMESPACE
 class QBoxLayout;
@@ -74,6 +75,9 @@ public:
     void addInfo(const InfoBarEntry &info);
     void removeInfo(Id id);
     bool containsInfo(Id id) const;
+    void suppressInfo(Id id);
+    bool canInfoBeAdded(Id id) const;
+    void enableInfo(Id id);
     void clear();
 
 signals:
@@ -81,6 +85,7 @@ signals:
 
 private:
     QList<InfoBarEntry> m_infoBarEntries;
+    QSet<Id> m_suppressed;
     friend class InfoBarDisplay;
 };
 

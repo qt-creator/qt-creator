@@ -98,6 +98,24 @@ bool InfoBar::containsInfo(Id id) const
     return false;
 }
 
+// Remove and suppress id
+void InfoBar::suppressInfo(Id id)
+{
+    removeInfo(id);
+    m_suppressed << id;
+}
+
+// Info can not be added more than once, or if it is suppressed
+bool InfoBar::canInfoBeAdded(Id id) const
+{
+    return !containsInfo(id) && !m_suppressed.contains(id);
+}
+
+void InfoBar::enableInfo(Id id)
+{
+    m_suppressed.remove(id);
+}
+
 void InfoBar::clear()
 {
     if (!m_infoBarEntries.isEmpty()) {
