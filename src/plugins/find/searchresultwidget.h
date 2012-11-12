@@ -106,7 +106,6 @@ signals:
     void navigateStateChanged();
 
 private slots:
-    void hideNoUndoWarning();
     void continueAfterSizeWarning();
     void cancelAfterSizeWarning();
     void handleJumpToSearchResult(const SearchResultItem &item);
@@ -115,15 +114,11 @@ private slots:
     void searchAgain();
 
 private:
-    bool showWarningMessage() const;
-    void setShowWarningMessage(bool showWarningMessage);
     QList<SearchResultItem> checkedItems() const;
     void updateMatchesFoundLabel();
 
     SearchResultTreeView *m_searchResultTreeView;
     int m_count;
-    bool m_sizeWarningActive;
-    bool m_sizeWarningOverridden;
     QString m_dontAskAgainGroup;
     QFrame *m_messageWidget;
     Core::InfoBar m_infoBar;
