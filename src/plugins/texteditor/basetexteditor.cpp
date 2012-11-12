@@ -5090,15 +5090,15 @@ void BaseTextEditorWidget::_q_matchParentheses()
             extraSelections.append(sel);
         } else {
 
-            if (d->m_displaySettings.m_animateMatchingParentheses)
-                animatePosition = backwardMatch.selectionStart();
-
             sel.cursor = backwardMatch;
             sel.format = d->m_matchFormat;
 
             sel.cursor.setPosition(backwardMatch.selectionStart());
             sel.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
             extraSelections.append(sel);
+
+            if (d->m_displaySettings.m_animateMatchingParentheses && sel.cursor.block().isVisible())
+                animatePosition = backwardMatch.selectionStart();
 
             sel.cursor.setPosition(backwardMatch.selectionEnd());
             sel.cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
@@ -5114,9 +5114,6 @@ void BaseTextEditorWidget::_q_matchParentheses()
             extraSelections.append(sel);
         } else {
 
-            if (d->m_displaySettings.m_animateMatchingParentheses)
-                animatePosition = forwardMatch.selectionEnd()-1;
-
             sel.cursor = forwardMatch;
             sel.format = d->m_matchFormat;
 
@@ -5125,6 +5122,9 @@ void BaseTextEditorWidget::_q_matchParentheses()
             extraSelections.append(sel);
 
             sel.cursor.setPosition(forwardMatch.selectionEnd());
+            if (d->m_displaySettings.m_animateMatchingParentheses && sel.cursor.block().isVisible())
+                animatePosition = forwardMatch.selectionEnd() - 1;
+
             sel.cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
             extraSelections.append(sel);
         }
