@@ -210,8 +210,7 @@ void InfoBarDisplay::update()
 
 void InfoBarDisplay::widgetDestroyed()
 {
-    // This means that the parent is being deleted
-    m_infoWidgets.clear();
+    m_infoWidgets.removeOne(static_cast<QWidget *>(sender()));
 }
 
 void InfoBarDisplay::cancelButtonClicked()
