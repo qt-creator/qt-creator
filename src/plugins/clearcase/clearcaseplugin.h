@@ -147,6 +147,7 @@ public:
     QString currentView() const { return m_view; }
     void refreshActivities();
     inline bool isUcm() const { return m_isUcm; }
+    void setStatus(const QString &file, FileStatus::Status status, bool update = true);
 
     bool ccCheckUcm(const QString &viewname, const QString &workingDir) const;
 
@@ -155,7 +156,6 @@ public slots:
                      const QString &revision = QString(), int lineNumber = -1) const;
     bool newActivity();
     void updateStreamAndView();
-    void setStatus(const QString &file, ClearCase::Internal::FileStatus::Status status, bool update = true);
 
 private slots:
     void checkOutCurrentFile();
@@ -180,6 +180,7 @@ private slots:
     void tasksFinished(const QString &type);
     void syncSlot();
     void closing();
+    void updateStatusActions();
 
 protected:
     void updateActions(VcsBase::VcsBasePlugin::ActionState);
@@ -210,7 +211,6 @@ private:
     inline ClearCaseControl *clearCaseControl() const;
     QString ccGetFileActivity(const QString &workingDir, const QString &file);
     QStringList ccGetActivityVersions(const QString &workingDir, const QString &activity);
-    void updateStatusActions();
     void diffGraphical(const QString &file1, const QString &file2 = QString());
     QString diffExternal(QString file1, QString file2 = QString(), bool keep = false);
     QString getFile(const QString &nativeFile, const QString &prefix);
@@ -263,7 +263,5 @@ private:
 
 } // namespace Internal
 } // namespace ClearCase
-
-Q_DECLARE_METATYPE(ClearCase::Internal::FileStatus::Status)
 
 #endif // CLEARCASEPLUGIN_H
