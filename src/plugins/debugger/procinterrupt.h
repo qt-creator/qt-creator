@@ -35,7 +35,8 @@
 namespace Debugger {
 namespace Internal {
 
-bool interruptProcess(int pID, int engineType, QString *errorMessage);
+bool interruptProcess(int pID, int engineType, QString *errorMessage,
+                      const bool engineExecutableIs64Bit = false);
 
 } // Internal
 } // GdbDebugger

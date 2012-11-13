@@ -265,6 +265,7 @@ private:
     bool m_operateByInstruction;
     bool m_notifyEngineShutdownOnTermination;
     bool m_hasDebuggee;
+    bool m_cdbIs64Bit;
     QTime m_logTime;
     mutable int m_elapsedLogTime;
     QByteArray m_extensionMessageBuffer;

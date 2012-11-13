@@ -78,7 +78,7 @@ static BOOL isWow64Process(HANDLE hproc)
 }
 
 // Open the process and break into it
-bool Debugger::Internal::interruptProcess(int pID, int engineType, QString *errorMessage)
+bool Debugger::Internal::interruptProcess(int pID, int engineType, QString *errorMessage, const bool engineExecutableIs64Bit)
 {
     bool ok = false;
     HANDLE inferior = NULL;
@@ -98,9 +98,10 @@ bool Debugger::Internal::interruptProcess(int pID, int engineType, QString *erro
         // Qt-Creator compiled 64 bit
         // Windows must be 64 bit
         // CDB 64 bit: use DebugBreakProcess for 32 an 64 bit processes.
-        // CDB 32 bit: untested
+        // TODO: CDB 32 bit: inferior 32 bit can not use DebugBreakProcess, we need a win32interrupt.exe
         // GDB: not supported
         const bool useDebugBreakApi= true;
+        Q_UNUSED(engineExecutableIs64Bit)
 
 #else
         // Qt-Creator compiled 32 bit:
@@ -115,8 +116,9 @@ bool Debugger::Internal::interruptProcess(int pID, int engineType, QString *erro
                 //    works in theory for other WOW64 processes, the break appears
                 //    as a WOW64 breakpoint, which CDB is configured to ignore since
                 //    it also triggers on module loading.
-                // CDB 32 bit: untested
-                useDebugBreakApi = false;
+                // CDB 32 bit: 32 bit applications can not be interrupted using the win64interrupt.exe
+                //    So we need to find out which bitness the currently used cdb has.
+                useDebugBreakApi = !engineExecutableIs64Bit;
             } else {
                 // GDB: Use win64interrupt for native 64bit processes only (it fails
                 //    for WOW64 processes.
@@ -165,7 +167,7 @@ bool Debugger::Internal::interruptProcess(int pID, int engineType, QString *erro
 #include <string.h>
 
 bool Debugger::Internal::interruptProcess(int pID, int /* engineType */,
-                                          QString *errorMessage)
+                                          QString *errorMessage, const bool /*engineExecutableIs64Bit*/)
 {
     if (pID <= 0) {
         *errorMessage = msgCannotInterrupt(pID, QString::fromLatin1("Invalid process id."));

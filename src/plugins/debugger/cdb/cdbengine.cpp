@@ -376,6 +376,7 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp, const OptionsPtr &option
     m_operateByInstruction(true), // Default CDB setting
     m_notifyEngineShutdownOnTermination(false),
     m_hasDebuggee(false),
+    m_cdbIs64Bit(false),
     m_elapsedLogTime(0),
     m_sourceStepInto(false),
     m_watchPointX(0),
@@ -641,13 +642,13 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
         return false;
     }
 
-    const bool is64bit =
+    m_cdbIs64Bit =
 #ifdef Q_OS_WIN
             Utils::winIs64BitBinary(executable);
 #else
             false;
 #endif
-    const QFileInfo extensionFi(CdbEngine::extensionLibraryName(is64bit));
+    const QFileInfo extensionFi(CdbEngine::extensionLibraryName(m_cdbIs64Bit));
     if (!extensionFi.isFile()) {
         *errorMessage = QString::fromLatin1("Internal error: The extension %1 cannot be found.").
                 arg(QDir::toNativeSeparators(extensionFi.absoluteFilePath()));
@@ -1163,7 +1164,9 @@ bool CdbEngine::doInterruptInferior(SpecialStopMode sm)
 
     showMessage(QString::fromLatin1("Interrupting process %1...").arg(inferiorPid()), LogMisc);
     QString errorMessage;
-    const bool ok = interruptProcess(inferiorPid(), CdbEngineType, &errorMessage);
+
+    const bool ok = interruptProcess(inferiorPid(), CdbEngineType,
+                                     &errorMessage, m_cdbIs64Bit);
     if (!ok) {
         m_specialStopMode = oldSpecialMode;
         showMessage(errorMessage, LogError);
