@@ -107,13 +107,6 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QCheckBox" name="alertWhenNoDefinition">
-        <property name="text">
-         <string>Alert when a highlight definition is not found</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QLabel" name="ignoreLabel">
@@ -158,7 +151,6 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>alertWhenNoDefinition</tabstop>
   <tabstop>ignoreEdit</tabstop>
  </tabstops>
  <resources/>

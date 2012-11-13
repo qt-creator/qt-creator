@@ -65,7 +65,6 @@ public:
     void configure(const QString& mimeType);
     void configure(const Core::MimeType &mimeType);
     bool isMissingSyntaxDefinition() const;
-    bool ignoreMissingSyntaxDefinition() const;
 
 public slots:
     virtual void unCommentSelection();
@@ -75,7 +74,6 @@ public slots:
 private slots:
     void configure();
     void acceptMissingSyntaxDefinitionInfo();
-    void ignoreMissingSyntaxDefinitionInfo();
 
 signals:
     void configured(Core::IEditor *editor);
@@ -87,7 +85,6 @@ private:
     QString findDefinitionId(const Core::MimeType &mimeType, bool considerParents) const;
 
     bool m_isMissingSyntaxDefinition;
-    bool m_ignoreMissingSyntaxDefinition;
     Utils::CommentDefinition m_commentDefinition;
 };
 

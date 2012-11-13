@@ -55,9 +55,6 @@ public:
     void setFallbackDefinitionFilesPath(const QString &path){ m_fallbackDefinitionFilesPath = path;}
     const QString &fallbackDefinitionFilesPath() const { return m_fallbackDefinitionFilesPath; }
 
-    void setAlertWhenNoDefinition(const bool alert) { m_alertWhenNoDefinition = alert; }
-    bool alertWhenNoDefinition() const { return m_alertWhenNoDefinition; }
-
     void setUseFallbackLocation(const bool use) { m_useFallbackLocation = use; }
     bool useFallbackLocation() const { return m_useFallbackLocation; }
 
@@ -74,7 +71,6 @@ private:
     void setExpressionsFromList(const QStringList &patterns);
     QStringList listFromExpressions() const;
 
-    bool m_alertWhenNoDefinition;
     bool m_useFallbackLocation;
     QString m_definitionFilesPath;
     QString m_fallbackDefinitionFilesPath;

@@ -98,9 +98,6 @@ public:
     bool reload(QString *errorString, QTextCodec *codec);
     void cleanWhitespace(const QTextCursor &cursor);
 
-    bool hasHighlightWarning() const;
-    void setHighlightWarning(bool has);
-
 signals:
     void titleChanged(QString title);
 

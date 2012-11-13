@@ -74,8 +74,6 @@ public:
     SyntaxHighlighter *m_highlighter;
 
     bool m_fileIsReadOnly;
-    bool m_hasHighlightWarning;
-
     int m_autoSaveRevision;
 };
 
@@ -83,7 +81,6 @@ BaseTextDocumentPrivate::BaseTextDocumentPrivate(BaseTextDocument *q) :
     m_document(new QTextDocument(q)),
     m_highlighter(0),
     m_fileIsReadOnly(false),
-    m_hasHighlightWarning(false),
     m_autoSaveRevision(-1)
 {
 }
@@ -491,16 +488,6 @@ void BaseTextDocument::ensureFinalNewLine(QTextCursor& cursor)
         cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
         cursor.insertText(QLatin1String("\n"));
     }
-}
-
-bool BaseTextDocument::hasHighlightWarning() const
-{
-    return d->m_hasHighlightWarning;
-}
-
-void BaseTextDocument::setHighlightWarning(bool has)
-{
-    d->m_hasHighlightWarning = has;
 }
 
 } // namespace TextEditor
