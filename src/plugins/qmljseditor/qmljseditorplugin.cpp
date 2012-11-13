@@ -140,13 +140,21 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     addObject(m_editor);
 
     QObject *core = Core::ICore::instance();
-    Core::BaseFileWizardParameters qmlWizardParameters(Core::IWizard::FileWizard);
-    qmlWizardParameters.setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
-    qmlWizardParameters.setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Core::Constants::WIZARD_TR_CATEGORY_QT));
-    qmlWizardParameters.setDescription(tr("Creates a QML file."));
-    qmlWizardParameters.setDisplayName(tr("QML File"));
-    qmlWizardParameters.setId(QLatin1String("Q.Qml"));
-    addAutoReleasedObject(new QmlFileWizard(qmlWizardParameters, core));
+    Core::BaseFileWizardParameters qml1WizardParameters(Core::IWizard::FileWizard);
+    qml1WizardParameters.setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
+    qml1WizardParameters.setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Core::Constants::WIZARD_TR_CATEGORY_QT));
+    qml1WizardParameters.setDescription(tr("Creates a QML file with boilerplate code, starting with \"import QtQuick 1.1\"."));
+    qml1WizardParameters.setDisplayName(tr("QML File (Qt Quick 1)"));
+    qml1WizardParameters.setId(QLatin1String(Constants::WIZARD_QML1FILE));
+    addAutoReleasedObject(new QmlFileWizard(qml1WizardParameters, core));
+
+    Core::BaseFileWizardParameters qml2WizardParameters(Core::IWizard::FileWizard);
+    qml2WizardParameters.setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
+    qml2WizardParameters.setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Core::Constants::WIZARD_TR_CATEGORY_QT));
+    qml2WizardParameters.setDescription(tr("Creates a QML file with boilerplate code, starting with \"import QtQuick 2.0\"."));
+    qml2WizardParameters.setDisplayName(tr("QML File (Qt Quick 2)"));
+    qml2WizardParameters.setId(QLatin1String(Constants::WIZARD_QML2FILE));
+    addAutoReleasedObject(new QmlFileWizard(qml2WizardParameters, core));
 
     Core::BaseFileWizardParameters jsWizardParameters(Core::IWizard::FileWizard);
     jsWizardParameters.setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
