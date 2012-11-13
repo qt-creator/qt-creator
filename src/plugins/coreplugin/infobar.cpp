@@ -273,7 +273,7 @@ void InfoBarDisplay::widgetDestroyed()
 
 void InfoBarDisplay::cancelButtonClicked()
 {
-    m_infoBar->removeInfo(Id::fromUniqueIdentifier(sender()->property("infoId").toInt()));
+    m_infoBar->suppressInfo(Id::fromUniqueIdentifier(sender()->property("infoId").toInt()));
 }
 
 void InfoBarDisplay::suppressButtonClicked()
