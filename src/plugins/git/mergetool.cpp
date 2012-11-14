@@ -33,6 +33,7 @@
 
 #include <vcsbase/vcsbaseoutputwindow.h>
 
+#include <QFile>
 #include <QMessageBox>
 #include <QProcess>
 #include <QPushButton>
@@ -257,10 +258,21 @@ void MergeTool::done()
 {
     VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
     int exitCode = m_process->exitCode();
-    if (!exitCode)
+    if (!exitCode) {
         outputWindow->append(tr("Merge tool process finished successully"));
-    else
+        QString workingDirectory = m_process->workingDirectory();
+        GitClient *client = GitPlugin::instance()->gitClient();
+        QString gitDir = client->findGitDirForRepository(workingDirectory);
+        if (QFile::exists(gitDir + QLatin1String("/rebase-apply/rebasing"))) {
+            if (QMessageBox::question(0, tr("Continue Rebase"),
+                                      tr("Continue rebase?"),
+                                      QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+                client->synchronousRebaseContinue(workingDirectory);
+            }
+        }
+    } else {
         outputWindow->append(tr("Merge tool process terminated with exit code %1").arg(exitCode));
+    }
     deleteLater();
 }
 

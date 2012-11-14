@@ -2036,11 +2036,8 @@ bool GitClient::synchronousFetch(const QString &workingDirectory, const QString 
     return resp.result == Utils::SynchronousProcessResponse::Finished;
 }
 
-bool GitClient::synchronousPull(const QString &workingDirectory, bool rebase)
+bool GitClient::synchronousPullOrRebase(const QString &workingDirectory, const QStringList &arguments, bool rebase)
 {
-    QStringList arguments(QLatin1String("pull"));
-    if (rebase)
-        arguments << QLatin1String("--rebase");
     // Disable UNIX terminals to suppress SSH prompting.
     const unsigned flags = VcsBase::VcsBasePlugin::SshPasswordPrompt|VcsBase::VcsBasePlugin::ShowStdOutInLogWindow;
     const Utils::SynchronousProcessResponse resp = synchronousGit(workingDirectory, arguments, flags);
@@ -2051,6 +2048,21 @@ bool GitClient::synchronousPull(const QString &workingDirectory, bool rebase)
     else
         handleMergeConflicts(workingDirectory, rebase);
     return ok;
+}
+
+bool GitClient::synchronousPull(const QString &workingDirectory, bool rebase)
+{
+    QStringList arguments(QLatin1String("pull"));
+    if (rebase)
+        arguments << QLatin1String("--rebase");
+    return synchronousPullOrRebase(workingDirectory, arguments, rebase);
+}
+
+bool GitClient::synchronousRebaseContinue(const QString &workingDirectory)
+{
+    QStringList arguments(QLatin1String("rebase"));
+    arguments << QLatin1String("--continue");
+    return synchronousPullOrRebase(workingDirectory, arguments, true);
 }
 
 void GitClient::handleMergeConflicts(const QString &workingDir, bool rebase)
