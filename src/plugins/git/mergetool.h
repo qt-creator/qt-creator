@@ -34,12 +34,13 @@
 #include <QStringList>
 
 QT_BEGIN_NAMESPACE
-class QProcess;
 class QMessageBox;
 QT_END_NAMESPACE
 
 namespace Git {
 namespace Internal {
+
+class MergeToolProcess;
 
 class MergeTool : public QObject
 {
@@ -77,7 +78,7 @@ private:
     void chooseAction();
     void addButton(QMessageBox *msgBox, const QString &text, char key);
 
-    QProcess *m_process;
+    MergeToolProcess *m_process;
     MergeType m_mergeType;
     QString m_fileName;
     FileState m_localState;

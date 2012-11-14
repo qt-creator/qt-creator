@@ -31,13 +31,43 @@
 #include "gitplugin.h"
 #include "mergetool.h"
 
+#include <vcsbase/vcsbaseoutputwindow.h>
+
 #include <QMessageBox>
 #include <QProcess>
 #include <QPushButton>
-#include <QRegExp>
 
 namespace Git {
 namespace Internal {
+
+class MergeToolProcess : public QProcess
+{
+public:
+    MergeToolProcess(QObject *parent = 0) :
+        QProcess(parent),
+        m_window(VcsBase::VcsBaseOutputWindow::instance())
+    {
+    }
+
+protected:
+    qint64 readData(char *data, qint64 maxlen)
+    {
+        qint64 res = QProcess::readData(data, maxlen);
+        if (res > 0)
+            m_window->append(QString::fromLocal8Bit(data, res));
+        return res;
+    }
+
+    virtual qint64 writeData(const char *data, qint64 len)
+    {
+        if (len > 0)
+            m_window->append(QString::fromLocal8Bit(data, len));
+        return QProcess::writeData(data, len);
+    }
+
+private:
+    VcsBase::VcsBaseOutputWindow *m_window;
+};
 
 MergeTool::MergeTool(QObject *parent) :
     QObject(parent),
@@ -62,8 +92,9 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
         }
         arguments << files;
     }
-    m_process = new QProcess(this);
+    m_process = new MergeToolProcess(this);
     m_process->setWorkingDirectory(workingDirectory);
+    VcsBase::VcsBaseOutputWindow::instance()->appendCommand(workingDirectory, QLatin1String("git"), arguments);
     m_process->start(QLatin1String("git"), arguments);
     if (m_process->waitForStarted()) {
         connect(m_process, SIGNAL(finished(int)), this, SLOT(done()));
@@ -224,7 +255,12 @@ void MergeTool::readData()
 
 void MergeTool::done()
 {
-    QMessageBox::information(0, tr("Done"), tr("Merge done"));
+    VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
+    int exitCode = m_process->exitCode();
+    if (!exitCode)
+        outputWindow->append(tr("Merge tool process finished successully"));
+    else
+        outputWindow->append(tr("Merge tool process terminated with exit code %1").arg(exitCode));
     deleteLater();
 }
 
