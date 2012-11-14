@@ -174,13 +174,13 @@ bool SimpleAbstractStreamReader::readDocument(AST::UiProgram *ast)
 {
     if (!ast) {
         addError(tr("Could not parse document"));
-        false;
+        return false;
     }
 
     AST::UiObjectDefinition *uiObjectDefinition = AST::cast<AST::UiObjectDefinition *>(ast->members->member);
     if (!uiObjectDefinition) {
         addError(tr("Expected document to contain a single object definition"));
-        false;
+        return false;
     }
     readChild(uiObjectDefinition);
 
