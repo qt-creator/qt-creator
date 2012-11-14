@@ -76,7 +76,6 @@ struct BuildManagerPrivate {
     QList<BuildStep *> m_buildQueue;
     QList<bool> m_enabledState;
     QStringList m_stepNames;
-    ProjectExplorerPlugin *m_projectExplorerPlugin;
     bool m_running;
     QFutureWatcher<bool> m_watcher;
     QFutureInterface<bool> m_futureInterfaceForAysnc;
@@ -116,8 +115,6 @@ BuildManagerPrivate::BuildManagerPrivate() :
 BuildManager::BuildManager(ProjectExplorerPlugin *parent, QAction *cancelBuildAction)
     : QObject(parent), d(new BuildManagerPrivate)
 {
-    d->m_projectExplorerPlugin = parent;
-
     connect(&d->m_watcher, SIGNAL(finished()),
             this, SLOT(nextBuildQueue()));
 
