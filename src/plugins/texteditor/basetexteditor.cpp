@@ -4391,7 +4391,7 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
             emit editor()->markTooltipRequested(editor(), mapToGlobal(e->pos()), line);
         }
 
-        if (e->buttons() & Qt::LeftButton) {
+        if (e->buttons() & Qt::LeftButton && !d->m_markDragStart.isNull()) {
             int dist = (e->pos() - d->m_markDragStart).manhattanLength();
             if (dist > QApplication::startDragDistance())
                 d->m_markDragging = true;
@@ -4428,7 +4428,17 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
             } else {
                 d->extraAreaToggleMarkBlockNumber = cursor.blockNumber();
                 d->m_markDragging = false;
-                d->m_markDragStart = e->pos();
+                QTextBlock block = cursor.document()->findBlockByNumber(d->extraAreaToggleMarkBlockNumber);
+                if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData())) {
+                    TextMarks marks = data->marks();
+                    for (int i = marks.size(); --i >= 0; ) {
+                        ITextMark *mark = marks.at(i);
+                        if (mark->isDraggable()) {
+                            d->m_markDragStart = e->pos();
+                            break;
+                        }
+                    }
+                }
             }
         }
     } else if (d->extraAreaSelectionAnchorBlockNumber >= 0) {
@@ -4465,6 +4475,7 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
             const bool sameLine = cursor.blockNumber() == n;
             const bool wasDragging = d->m_markDragging;
             d->m_markDragging = false;
+            d->m_markDragStart = QPoint();
             QTextBlock block = cursor.document()->findBlockByNumber(n);
             if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData())) {
                 TextMarks marks = data->marks();
