@@ -2036,11 +2036,6 @@ bool GitClient::synchronousFetch(const QString &workingDirectory, const QString 
     return resp.result == Utils::SynchronousProcessResponse::Finished;
 }
 
-bool GitClient::synchronousPull(const QString &workingDirectory)
-{
-    return synchronousPull(workingDirectory, settings()->boolValue(GitSettings::pullRebaseKey));
-}
-
 bool GitClient::synchronousPull(const QString &workingDirectory, bool rebase)
 {
     QStringList arguments(QLatin1String("pull"));
@@ -2051,28 +2046,37 @@ bool GitClient::synchronousPull(const QString &workingDirectory, bool rebase)
     const Utils::SynchronousProcessResponse resp = synchronousGit(workingDirectory, arguments, flags);
     // Notify about changed files or abort the rebase.
     const bool ok = resp.result == Utils::SynchronousProcessResponse::Finished;
-    if (ok) {
+    if (ok)
         GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(workingDirectory);
-    } else {
-        if (rebase)
-            syncAbortPullRebase(workingDirectory);
-    }
+    else
+        handleMergeConflicts(workingDirectory, rebase);
     return ok;
 }
 
-void GitClient::syncAbortPullRebase(const QString &workingDir)
+void GitClient::handleMergeConflicts(const QString &workingDir, bool rebase)
 {
-    // Abort rebase to clean if something goes wrong
-    VcsBase::VcsBaseOutputWindow *outwin = VcsBase::VcsBaseOutputWindow::instance();
-    outwin->appendError(tr("The command 'git pull --rebase' failed, aborting rebase."));
-    QStringList arguments;
-    arguments << QLatin1String("rebase") << QLatin1String("--abort");
-    QByteArray stdOut;
-    QByteArray stdErr;
-    const bool rc = fullySynchronousGit(workingDir, arguments, &stdOut, &stdErr, true);
-    outwin->append(commandOutputFromLocal8Bit(stdOut));
-    if (!rc)
-        outwin->appendError(commandOutputFromLocal8Bit(stdErr));
+    QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts detected"),
+                             tr("Conflicts detected"), QMessageBox::Ignore | QMessageBox::Abort);
+    mergeOrAbort.addButton(tr("Run Merge Tool"), QMessageBox::ActionRole);
+    switch (mergeOrAbort.exec()) {
+    case QMessageBox::Abort: {
+        // Abort merge/rebase to clean if something goes wrong
+        VcsBase::VcsBaseOutputWindow *outwin = VcsBase::VcsBaseOutputWindow::instance();
+        QStringList arguments;
+        arguments << QLatin1String(rebase ? "rebase" : "merge") << QLatin1String("--abort");
+        QByteArray stdOut;
+        QByteArray stdErr;
+        const bool rc = fullySynchronousGit(workingDir, arguments, &stdOut, &stdErr, true);
+        outwin->append(commandOutputFromLocal8Bit(stdOut));
+        if (!rc)
+            outwin->appendError(commandOutputFromLocal8Bit(stdErr));
+        break;
+    }
+    case QMessageBox::Ignore:
+        break;
+    default: // Merge
+        merge(workingDir);
+    }
 }
 
 // Subversion: git svn
