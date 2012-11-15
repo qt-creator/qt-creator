@@ -69,7 +69,6 @@ class DetailsWidgetPrivate
 public:
     DetailsWidgetPrivate(QWidget *parent);
 
-    QPixmap cacheBackground(const QSize &size);
     void updateControls();
     void changeHoverState(bool hovered);
 
@@ -131,15 +130,11 @@ DetailsWidgetPrivate::DetailsWidgetPrivate(QWidget *parent) :
     m_grid->addWidget(m_additionalSummaryLabel, 1, 0, 1, 3);
 }
 
-QPixmap DetailsWidgetPrivate::cacheBackground(const QSize &size)
+QPixmap DetailsWidget::createBackground(const QSize &size, int topHeight, QWidget *widget)
 {
     QPixmap pixmap(size);
     pixmap.fill(Qt::transparent);
     QPainter p(&pixmap);
-
-    int topHeight = m_useCheckBox ? m_summaryCheckBox->height() : m_summaryLabel->height();
-    if (m_state == DetailsWidget::Expanded || m_state == DetailsWidget::Collapsed) // Details Button is shown
-        topHeight = qMax(m_detailsButton->height(), topHeight);
 
     QRect topRect(0, 0, size.width(), topHeight);
     QRect fullRect(0, 0, size.width(), size.height());
@@ -160,7 +155,7 @@ QPixmap DetailsWidgetPrivate::cacheBackground(const QSize &size)
     p.setBrush(Qt::NoBrush);
     p.setPen(QColor(255,255,255,140));
     p.drawRoundedRect(fullRect.adjusted(1, 1, -2, -2), 2, 2);
-    p.setPen(QPen(q->palette().color(QPalette::Mid)));
+    p.setPen(QPen(widget->palette().color(QPalette::Mid)));
 
     return pixmap;
 }
@@ -263,15 +258,19 @@ void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
     QPoint topLeft(topLeftWidget->geometry().left() - MARGIN, contentsRect().top());
     const QRect paintArea(topLeft, contentsRect().bottomRight());
 
+    int topHeight = d->m_useCheckBox ? d->m_summaryCheckBox->height() : d->m_summaryLabel->height();
+    if (d->m_state == DetailsWidget::Expanded || d->m_state == DetailsWidget::Collapsed) // Details Button is shown
+        topHeight = qMax(d->m_detailsButton->height(), topHeight);
+
     if (d->m_state == Collapsed) {
         if (d->m_collapsedPixmap.isNull() ||
             d->m_collapsedPixmap.size() != size())
-            d->m_collapsedPixmap = d->cacheBackground(paintArea.size());
+            d->m_collapsedPixmap = createBackground(paintArea.size(), topHeight, this);
         p.drawPixmap(paintArea, d->m_collapsedPixmap);
     } else {
         if (d->m_expandedPixmap.isNull() ||
             d->m_expandedPixmap.size() != size())
-            d->m_expandedPixmap = d->cacheBackground(paintArea.size());
+            d->m_expandedPixmap = createBackground(paintArea.size(), topHeight, this);
         p.drawPixmap(paintArea, d->m_expandedPixmap);
     }
 }
