@@ -303,6 +303,7 @@ static MemoryMarkupList
     MemoryMarkupList result;
     int colorNumber = 0;
     ColorNumberToolTips ranges(size, ColorNumberToolTip(colorNumber, rootToolTip));
+    colorNumber++;
     const int childCount = memberVariableRecursion(model, modelIndex,
                                                    rootName, address, address + size,
                                                    &colorNumber, &ranges);
@@ -334,9 +335,10 @@ static MemoryMarkupList
     }
 
     // Assign colors from a list, use base color for 0 (contrast to black text).
-    QList<QColor> colors = TextEditor::SyntaxHighlighter::generateColors(colorNumber + 1,
+    // Overwrite the first color (which is usually very bright) by the base color.
+    QList<QColor> colors = TextEditor::SyntaxHighlighter::generateColors(colorNumber + 2,
                                                                          QColor(Qt::black));
-    colors.prepend(sizeIsEstimate ? defaultBackground : Qt::lightGray);
+    colors[0] = sizeIsEstimate ? defaultBackground : Qt::lightGray;
     const QColor registerColor = Qt::green;
     int lastColorNumber = 0;
     for (unsigned i = 0; i < size; ++i) {
