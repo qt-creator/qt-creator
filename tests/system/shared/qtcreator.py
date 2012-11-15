@@ -64,11 +64,18 @@ def waitForCleanShutdown(timeOut=10):
                     shutdownDone=True
             if not shutdownDone and datetime.utcnow() > endtime:
                 break
-    snooze(4)
 
-def __removeTmpSettingsDir__():
+def __removeTestingDir__():
+    def __removeIt__(directory):
+        deleteDirIfExists(directory)
+        return not os.path.exists(directory)
+
+    devicesXML = os.path.join(tmpSettingsDir, "QtProject", "qtcreator", "devices.xml")
+    lastMTime = os.path.getmtime(devicesXML)
+    testingDir = os.path.dirname(os.path.dirname(tmpSettingsDir))
     waitForCleanShutdown()
-    deleteDirIfExists(os.path.dirname(os.path.dirname(tmpSettingsDir)))
+    waitFor('os.path.getmtime(devicesXML) > lastMTime', 5000)
+    waitFor('__removeIt__(testingDir)', 2000)
 
 def substituteTildeWithinToolchains(settingsDir):
     toolchains = os.path.join(settingsDir, "QtProject", 'qtcreator', 'toolchains.xml')
@@ -170,5 +177,5 @@ if os.getenv("SYSTEST_NOSETTINGSPATH") != "1":
     if platform.system() in ('Linux', 'Darwin'):
         substituteTildeWithinToolchains(tmpSettingsDir)
     substituteUnchosenTargetABIs(tmpSettingsDir)
-    atexit.register(__removeTmpSettingsDir__)
+    atexit.register(__removeTestingDir__)
     SettingsPath = ' -settingspath "%s"' % tmpSettingsDir
