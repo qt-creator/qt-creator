@@ -2697,20 +2697,24 @@ if False:
                     d.putItem(v["a"])
 
 
-    def qdump__Function(d, value):
+if False:
+
+    def qform__basic__Function():
+        return "Normal,Displayed"
+
+    def qdump__basic__Function(d, value):
         min = value["min"]
         max = value["max"]
         data, size, alloc = qByteArrayData(value["var"])
-        var = extractCString(data)
+        var = extractCString(data, 0)
         data, size, alloc = qByteArrayData(value["f"])
-        f = extractCString(data)
+        f = extractCString(data, 0)
         d.putValue("%s, %s=%f..%f" % (f, var, min, max))
         d.putNumChild(0)
-        d.putField("typeformats", "Normal,Displayed");
         format = d.currentItemFormat()
-        if format == 0:
+        if format == 1:
             d.putDisplay(StopDisplay)
-        elif format == 1:
+        elif format == 2:
             input = "plot [%s=%f:%f] %s" % (var, min, max, f)
             d.putDisplay(DisplayProcess, input, "gnuplot")
 
