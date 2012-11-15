@@ -973,7 +973,7 @@ void ClearCasePlugin::startCheckInActivity()
             last = file;
         }
     }
-    startCheckIn(state.currentProjectPath(), files);
+    startCheckIn(topLevel, files);
 }
 
 /* Start check in of files of a single repository by displaying
