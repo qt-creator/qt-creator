@@ -29,7 +29,6 @@
 
 #include "baseannotationhighlighter.h"
 
-#include <math.h>
 #include <QSet>
 #include <QDebug>
 #include <QColor>
@@ -81,26 +80,12 @@ BaseAnnotationHighlighter::~BaseAnnotationHighlighter()
 
 void BaseAnnotationHighlighter::setChangeNumbers(const ChangeNumbers &changeNumbers)
 {
-    QColor bg = d->m_background;
     d->m_changeNumberMap.clear();
     if (!changeNumbers.isEmpty()) {
         // Assign a color gradient to annotation change numbers. Give
         // each change number a unique color.
-        const double oneThird = 1.0 / 3.0;
-        const int step = qRound(ceil(pow(double(changeNumbers.count()), oneThird)));
-        QList<QColor> colors;
-        const int factor = 255 / step;
-        int half = factor / 2;
-        for (int i=0; i<=step; ++i)
-            for (int j=0; j<=step; ++j)
-                for (int k=0; k<=step; ++k) {
-                    QColor c(i*factor, j*factor, k*factor);
-                    if ((bg.red() - half > c.red() ||bg.red() + half <= c.red())
-                            && (bg.green() - half > c.green() || bg.green() + half <= c.green())
-                            && (bg.blue() - half > c.blue() || bg.blue() + half <= c.blue()))
-                        colors.prepend(c);
-                }
-
+        const QList<QColor> colors =
+            TextEditor::SyntaxHighlighter::generateColors(changeNumbers.size(), d->m_background);
         int m = 0;
         const int cstep = colors.count() / changeNumbers.count();
         const ChangeNumbers::const_iterator cend = changeNumbers.constEnd();

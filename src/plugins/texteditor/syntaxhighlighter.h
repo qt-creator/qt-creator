@@ -66,6 +66,8 @@ public:
 
     void setExtraAdditionalFormats(const QTextBlock& block, const QList<QTextLayout::FormatRange> &formats);
 
+    static QList<QColor> generateColors(int n, const QColor &background);
+
 public Q_SLOTS:
     void rehighlight();
     void rehighlightBlock(const QTextBlock &block);

@@ -40,6 +40,8 @@
 #include <qtextedit.h>
 #include <qtimer.h>
 
+#include <math.h>
+
 using namespace TextEditor;
 
 class TextEditor::SyntaxHighlighterPrivate
@@ -753,6 +755,40 @@ void SyntaxHighlighter::setExtraAdditionalFormats(const QTextBlock& block,
     block.layout()->setAdditionalFormats(formatsToApply);
     document()->markContentsDirty(block.position(), block.length()-1);
     d->inReformatBlocks = wasInReformatBlocks;
+}
+
+/* Generate at least n different colors for highlighting, excluding background
+ * color. */
+
+QList<QColor> SyntaxHighlighter::generateColors(int n, const QColor &background)
+{
+    QList<QColor> result;
+    // Assign a color gradient. Generate a sufficient number of colors
+    // by using ceil and looping from 0..step.
+    const double oneThird = 1.0 / 3.0;
+    const int step = qRound(ceil(pow(double(n), oneThird)));
+    result.reserve(step * step * step);
+    const int factor = 255 / step;
+    const int half = factor / 2;
+    const int bgRed = background.red();
+    const int bgGreen = background.green();
+    const int bgBlue = background.blue();
+    for (int r = step; r >= 0; --r) {
+        const int red = r * factor;
+        if (bgRed - half > red || bgRed + half <= red) {
+            for (int g = step; g >= 0; --g) {
+                const int green = g * factor;
+                if (bgGreen - half > green || bgGreen + half <= green) {
+                    for (int b = step; b >= 0 ; --b) {
+                        const int blue = b * factor;
+                        if (bgBlue - half > blue || bgBlue + half <= blue)
+                            result.append(QColor(red, green, blue));
+                    }
+                }
+            }
+        }
+    }
+    return result;
 }
 
 #include "moc_syntaxhighlighter.cpp"

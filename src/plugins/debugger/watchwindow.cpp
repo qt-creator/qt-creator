@@ -43,6 +43,8 @@
 #include "debuggertooltipmanager.h"
 #include "memoryagent.h"
 
+#include <texteditor/syntaxhighlighter.h>
+
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
@@ -331,30 +333,18 @@ static MemoryMarkupList
             }
     }
 
-    // Condense ranges of identical color into markup ranges. Assign member colors
-    // interchangeably.
-    const QColor baseColor = sizeIsEstimate ? defaultBackground : Qt::lightGray;
+    // Assign colors from a list, use base color for 0 (contrast to black text).
+    QList<QColor> colors = TextEditor::SyntaxHighlighter::generateColors(colorNumber + 1,
+                                                                         QColor(Qt::black));
+    colors.prepend(sizeIsEstimate ? defaultBackground : Qt::lightGray);
     const QColor registerColor = Qt::green;
-    QColor memberColor1 = QColor(Qt::yellow).lighter();
-    QColor memberColor2 = QColor(Qt::cyan).lighter();
-
     int lastColorNumber = 0;
-    int childNumber = 0;
     for (unsigned i = 0; i < size; ++i) {
         const ColorNumberToolTip &range = ranges.at(i);
         if (result.isEmpty() || lastColorNumber != range.first) {
             lastColorNumber = range.first;
-            // Base colors: Parent/register
-            QColor color = range.first == registerColorNumber ? registerColor : baseColor;
-            if (range.first && range.first != registerColorNumber) {
-                if (childNumber++ & 1) { // Alternating member colors.
-                    color = memberColor1;
-                    memberColor1 = memberColor1.darker(120);
-                } else {
-                    color = memberColor2;
-                    memberColor2 = memberColor2.darker(120);
-                }
-            } // color switch
+            const QColor color = range.first == registerColorNumber ?
+                         registerColor : colors.at(range.first);
             result.push_back(MemoryMarkup(address + i, 1, color, range.second));
         } else {
             result.back().length++;
