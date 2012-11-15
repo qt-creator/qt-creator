@@ -1,11 +1,10 @@
 source("../../shared/qtcreator.py")
 
-workingDir = None
 templateDir = None
 searchFinished = False
 
 def main():
-    global workingDir,templateDir
+    global templateDir
     sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/keyinteraction/focus")
     qmlFile = os.path.join("qml", "focus.qml")
     if not neededFilePresent(os.path.join(sourceExample, qmlFile)):
@@ -13,12 +12,11 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     # add docs to have the correct tool tips
     addHelpDocumentationFromSDK()
-    # using a temporary directory won't mess up an eventually exisiting
-    workingDir = tempDir()
     templateDir = prepareTemplate(sourceExample)
     prepareForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     installLazySignalHandler("{type='Core::FutureProgress' unnamed='1'}", "finished()", "__handleFutureProgress__")
-    createNewQtQuickApplication(workingDir, "untitled", os.path.join(templateDir, qmlFile))
+    # using a temporary directory won't mess up a potentially existing
+    createNewQtQuickApplication(tempDir(), "untitled", os.path.join(templateDir, qmlFile))
     # wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     testRenameId()
@@ -184,14 +182,6 @@ def maskSpecialCharsForProjectTree(filename):
     # undoing mask operations on chars masked by mistake
     filename = filename.replace("/?","\\?").replace("/*","\\*")
     return filename
-
-def cleanup():
-    global workingDir, templateDir
-    waitForCleanShutdown()
-    if workingDir!=None:
-        deleteDirIfExists(workingDir)
-    if templateDir!=None:
-        deleteDirIfExists(os.path.dirname(templateDir))
 
 def __handleFutureProgress__(obj):
     global searchFinished

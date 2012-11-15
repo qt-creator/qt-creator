@@ -40,7 +40,6 @@ def main():
     # Add a new run configuration
 
     invokeMenuItem("File", "Exit")
-    waitForCleanShutdown()
 
 def init():
     global SpeedCrunchPath

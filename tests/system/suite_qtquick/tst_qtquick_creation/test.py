@@ -1,11 +1,8 @@
 source("../../shared/qtcreator.py")
 
-workingDir = None
-
 def main():
-    global workingDir
     startApplication("qtcreator" + SettingsPath)
-    # using a temporary directory won't mess up an eventually exisiting
+    # using a temporary directory won't mess up a potentially existing
     workingDir = tempDir()
     projectName = createNewQtQuickApplication(workingDir, targets = QtQuickConstants.Targets.DESKTOP_474_GCC)
     # wait for parsing to complete
@@ -40,11 +37,3 @@ def subprocessFunction():
                                    "enabled='true' text='Hello World' type='Text' unnamed='1' visible='true'}")
     test.log("Clicking 'Hello World' Text to close QmlApplicationViewer")
     mouseClick(helloWorldText, 5, 5, 0, Qt.LeftButton)
-
-def cleanup():
-    global workingDir
-    # waiting for a clean exit - for a full-remove of the temp directory
-    waitForCleanShutdown()
-    if workingDir != None:
-        deleteDirIfExists(workingDir)
-

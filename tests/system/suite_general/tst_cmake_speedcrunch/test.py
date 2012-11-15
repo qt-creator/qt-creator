@@ -19,7 +19,6 @@ def main():
     if not result:
         test.fatal("Could not open/create cmake project - leaving test")
         invokeMenuItem("File", "Exit")
-        waitForCleanShutdown()
         return
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
 
@@ -32,7 +31,6 @@ def main():
     checkLastBuild()
 
     invokeMenuItem("File", "Exit")
-    waitForCleanShutdown()
 
 def init():
     global SpeedCrunchPath

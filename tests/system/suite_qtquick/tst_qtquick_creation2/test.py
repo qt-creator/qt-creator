@@ -1,19 +1,14 @@
 source("../../shared/qtcreator.py")
 
-workingDir = None
-templateDir = None
-
 def main():
-    global workingDir,templateDir
     sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/text/textselection")
     qmlFile = os.path.join("qml", "textselection.qml")
     if not neededFilePresent(os.path.join(sourceExample, qmlFile)):
         return
     startApplication("qtcreator" + SettingsPath)
-    # using a temporary directory won't mess up an eventually exisiting
+    # using a temporary directory won't mess up a potentially existing
     workingDir = tempDir()
-    templateDir = prepareTemplate(sourceExample)
-    projectName = createNewQtQuickApplication(workingDir, None, os.path.join(templateDir, qmlFile))
+    projectName = createNewQtQuickApplication(workingDir, None, os.path.join(prepareTemplate(sourceExample), qmlFile))
     # wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     test.log("Building project")
@@ -50,12 +45,3 @@ def subprocessFunction():
     typeLines(textEdit, "This text is entered by Squish...")
     test.log("Closing QmlApplicationViewer")
     sendEvent("QCloseEvent", "{type='QmlApplicationViewer' unnamed='1' visible='1'}")
-
-def cleanup():
-    global workingDir,templateDir
-    # waiting for a clean exit - for a full-remove of the temp directory
-    waitForCleanShutdown()
-    if workingDir!=None:
-        deleteDirIfExists(workingDir)
-    if templateDir!=None:
-        deleteDirIfExists(os.path.dirname(templateDir))

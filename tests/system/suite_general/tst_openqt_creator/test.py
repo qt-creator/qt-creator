@@ -24,7 +24,6 @@ def main():
     test.compare(wordUnderCursor(waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "QList")
 
     invokeMenuItem("File", "Exit")
-    waitForCleanShutdown()
 
 def init():
     cleanup()
