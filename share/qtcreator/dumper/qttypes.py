@@ -1818,6 +1818,42 @@ def qdump__QxXmlAttributes(d, value):
 #
 #######################################################################
 
+def qdump____c_style_array__(d, value):
+    type = value.type.unqualified()
+    targetType = type.target()
+    typeName = str(type)
+    d.putAddress(value.address)
+    d.putType(typeName)
+    d.putNumChild(1)
+    format = d.currentItemFormat()
+    isDefault = format == None and str(targetType.unqualified()) == "char"
+    if isDefault or (format >= 0 and format <= 2):
+        blob = readRawMemory(value.address, type.sizeof)
+
+    if isDefault:
+        # Use Latin1 as default for char [].
+        d.putValue(blob, Hex2EncodedLatin1)
+    elif format == 0:
+        # Explicitly requested Latin1 formatting.
+        d.putValue(blob, Hex2EncodedLatin1)
+    elif format == 1:
+        # Explicitly requested UTF-8 formatting.
+        d.putValue(blob, Hex2EncodedUtf8)
+    elif format == 2:
+        # Explicitly requested Local 8-bit formatting.
+        d.putValue(blob, Hex2EncodedLocal8Bit)
+    else:
+        d.putValue("@0x%x" % long(value.cast(targetType.pointer())))
+
+    if d.currentIName in d.expandedINames:
+        p = value.address
+        ts = targetType.sizeof
+        if not d.tryPutArrayContents(targetType, p, type.sizeof / ts):
+            with Children(d, childType=targetType,
+                    addrBase=p, addrStep=ts):
+                d.putFields(value)
+
+
 def qdump__std__array(d, value):
     size = numericTemplateArgument(value.type, 1)
     d.putItemCount(size)
