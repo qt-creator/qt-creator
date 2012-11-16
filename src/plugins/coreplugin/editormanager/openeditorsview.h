@@ -70,6 +70,7 @@ private slots:
 private:
     void activateEditor(const QModelIndex &index);
     void closeEditor(const QModelIndex &index);
+    using QAbstractItemView::closeEditor;
 
     OpenEditorsDelegate *m_delegate;
 };
