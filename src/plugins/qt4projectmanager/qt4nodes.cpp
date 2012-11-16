@@ -2177,9 +2177,10 @@ TargetInformation Qt4ProFileNode::targetInformation(QtSupport::ProFileReader *re
 
     if (Utils::HostOsInfo::isMacHost()
             && reader->values(QLatin1String("CONFIG")).contains(QLatin1String("app_bundle"))) {
-        result.workingDir += QLatin1Char('/')
-                           + result.target
-                           + QLatin1String(".app/Contents/MacOS");
+        const QString infix = QLatin1Char('/') + result.target
+                + QLatin1String(".app/Contents/MacOS");
+        result.workingDir += infix;
+        destDir += infix;
     }
 
     result.workingDir = QDir::cleanPath(result.workingDir);
