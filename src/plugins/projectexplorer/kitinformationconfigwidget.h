@@ -44,7 +44,6 @@ namespace Utils { class PathChooser; }
 namespace ProjectExplorer {
 
 class DeviceManagerModel;
-class Kit;
 class ToolChain;
 
 namespace Internal {
@@ -58,18 +57,19 @@ class SysRootInformationConfigWidget : public KitConfigWidget
     Q_OBJECT
 
 public:
-    explicit SysRootInformationConfigWidget(Kit *k, QWidget *parent = 0);
+    explicit SysRootInformationConfigWidget(Kit *k);
 
     QString displayName() const;
     void refresh();
     void makeReadOnly();
     QWidget *buttonWidget() const;
+    QWidget *mainWidget() const;
+    QString toolTip() const;
 
 private slots:
     void pathWasChanged();
 
 private:
-    Kit *m_kit;
     Utils::PathChooser *m_chooser;
 };
 
@@ -82,12 +82,14 @@ class ToolChainInformationConfigWidget : public KitConfigWidget
     Q_OBJECT
 
 public:
-    explicit ToolChainInformationConfigWidget(Kit *k, QWidget *parent = 0);
+    explicit ToolChainInformationConfigWidget(Kit *k);
 
     QString displayName() const;
     void refresh();
     void makeReadOnly();
+    QWidget *mainWidget() const;
     QWidget *buttonWidget() const;
+    QString toolTip() const;
 
 private slots:
     void toolChainAdded(ProjectExplorer::ToolChain *tc);
@@ -101,7 +103,6 @@ private:
     int indexOf(const ToolChain *tc);
 
     bool m_isReadOnly;
-    Kit *m_kit;
     QComboBox *m_comboBox;
     QPushButton *m_manageButton;
 };
@@ -115,9 +116,11 @@ class DeviceTypeInformationConfigWidget : public KitConfigWidget
     Q_OBJECT
 
 public:
-    explicit DeviceTypeInformationConfigWidget(Kit *workingCopy, QWidget *parent = 0);
+    explicit DeviceTypeInformationConfigWidget(Kit *workingCopy);
 
+    QWidget *mainWidget() const;
     QString displayName() const;
+    QString toolTip() const;
     void refresh();
     void makeReadOnly();
 
@@ -126,7 +129,6 @@ private slots:
 
 private:
     bool m_isReadOnly;
-    Kit *m_kit;
     QComboBox *m_comboBox;
 };
 
@@ -139,12 +141,14 @@ class DeviceInformationConfigWidget : public KitConfigWidget
     Q_OBJECT
 
 public:
-    explicit DeviceInformationConfigWidget(Kit *workingCopy, QWidget *parent = 0);
+    explicit DeviceInformationConfigWidget(Kit *workingCopy);
 
+    QWidget *mainWidget() const;
+    QWidget *buttonWidget() const;
     QString displayName() const;
+    QString toolTip() const;
     void refresh();
     void makeReadOnly();
-    QWidget *buttonWidget() const;
 
 private slots:
     void manageDevices();
@@ -154,7 +158,6 @@ private slots:
 
 private:
     bool m_isReadOnly;
-    Kit *m_kit;
     QComboBox *m_comboBox;
     QPushButton *m_manageButton;
     DeviceManagerModel *m_model;

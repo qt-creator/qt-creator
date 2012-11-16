@@ -368,8 +368,7 @@ KitNode *KitModel::findWorkingCopy(Kit *k) const
 KitNode *KitModel::createNode(KitNode *parent, Kit *k)
 {
     KitNode *node = new KitNode(parent, k);
-    node->widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    m_parentLayout->addWidget(node->widget, 2);
+    m_parentLayout->addWidget(node->widget);
     connect(node->widget, SIGNAL(dirty()), this, SLOT(setDirty()));
     return node;
 }

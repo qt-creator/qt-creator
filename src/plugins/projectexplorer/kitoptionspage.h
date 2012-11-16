@@ -47,9 +47,6 @@ namespace ProjectExplorer {
 namespace Internal { class KitModel; }
 
 class Kit;
-class KitConfigWidget;
-class KitFactory;
-class KitManager;
 
 // --------------------------------------------------------------------------
 // KitOptionsPage:

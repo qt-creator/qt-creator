@@ -32,8 +32,9 @@
 
 #include "kitconfigwidget.h"
 
+#include <QWidget>
+
 QT_BEGIN_NAMESPACE
-class QHBoxLayout;
 class QGridLayout;
 class QLineEdit;
 class QToolButton;
@@ -49,7 +50,7 @@ class KitManagerConfigWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit KitManagerConfigWidget(Kit *k, QWidget *parent = 0);
+    explicit KitManagerConfigWidget(Kit *k);
     ~KitManagerConfigWidget();
 
     QString displayName() const;
@@ -68,8 +69,6 @@ public:
     bool isDefaultKit() const;
     void removeKit();
 
-public slots:
-
 signals:
     void dirty();
 
@@ -86,11 +85,8 @@ private:
         ButtonColumn
     };
 
-    void addToLayout(const QString &name, const QString &toolTip, QWidget *widget, QWidget *button = 0);
-
-
-    void addLabel(const QString &name, const QString &toolTip, int row);
-    void addButtonWidget(QWidget *button, const QString &toolTip, int row);
+    void setLabel(const QString &name, const QString &toolTip, int row);
+    void paintEvent(QPaintEvent *ev);
 
     QGridLayout *m_layout;
     QToolButton *m_iconButton;
@@ -100,6 +96,7 @@ private:
     Kit *m_modifiedKit;
     bool m_isDefaultKit;
     bool m_fixingKit;
+    QPixmap m_background;
 };
 
 } // namespace Internal

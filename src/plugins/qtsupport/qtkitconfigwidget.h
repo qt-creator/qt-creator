@@ -32,14 +32,12 @@
 
 #include <projectexplorer/kitconfigwidget.h>
 
-QT_FORWARD_DECLARE_CLASS(QComboBox)
-QT_FORWARD_DECLARE_CLASS(QPushButton)
-
-namespace ProjectExplorer { class Kit; }
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QPushButton;
+QT_END_NAMESPACE
 
 namespace QtSupport {
-class BaseQtVersion;
-
 namespace Internal {
 
 class QtKitConfigWidget : public ProjectExplorer::KitConfigWidget
@@ -47,14 +45,16 @@ class QtKitConfigWidget : public ProjectExplorer::KitConfigWidget
     Q_OBJECT
 
 public:
-    explicit QtKitConfigWidget(ProjectExplorer::Kit *k, QWidget *parent = 0);
+    explicit QtKitConfigWidget(ProjectExplorer::Kit *k);
 
     QString displayName() const;
 
     void makeReadOnly();
 
     void refresh();
+    QWidget *mainWidget() const;
     QWidget *buttonWidget() const;
+    QString toolTip() const;
 
 private slots:
     void versionsChanged(const QList<int> &added, const QList<int> &removed, const QList<int> &changed);
@@ -64,7 +64,6 @@ private slots:
 private:
     int findQtVersion(const int id) const;
 
-    ProjectExplorer::Kit *m_kit;
     QComboBox *m_combo;
     QPushButton *m_manageButton;
 };

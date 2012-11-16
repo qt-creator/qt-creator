@@ -62,23 +62,23 @@ class DebuggerKitConfigWidget : public ProjectExplorer::KitConfigWidget
 
 public:
     DebuggerKitConfigWidget(ProjectExplorer::Kit *workingCopy,
-                            const DebuggerKitInformation *ki,
-                            QWidget *parent = 0);
+                            const DebuggerKitInformation *ki);
 
     QString displayName() const;
+    QString toolTip() const;
 
     void makeReadOnly();
 
     void refresh();
 
     QWidget *buttonWidget() const;
+    QWidget *mainWidget() const;
 
 private slots:
     void autoDetectDebugger();
     void showDialog();
 
 private:
-    ProjectExplorer::Kit *m_kit;
     const DebuggerKitInformation *m_info;
     QLabel *m_label;
     QPushButton *m_button;

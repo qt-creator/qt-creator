@@ -85,7 +85,7 @@ QWidget *KitOptionsPage::createPage(QWidget *parent)
     buttonLayout->addWidget(m_cloneButton);
     buttonLayout->addWidget(m_delButton);
     buttonLayout->addWidget(m_makeDefaultButton);
-    buttonLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    buttonLayout->addStretch();
 
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
     horizontalLayout->addWidget(m_kitsView);
@@ -93,11 +93,12 @@ QWidget *KitOptionsPage::createPage(QWidget *parent)
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(m_configWidget);
     verticalLayout->addLayout(horizontalLayout);
-    verticalLayout->setStretch(0, 1);
 
     Q_ASSERT(!m_model);
     m_model = new Internal::KitModel(verticalLayout);
     connect(m_model, SIGNAL(kitStateChanged()), this, SLOT(updateState()));
+    verticalLayout->setStretch(0, 1);
+    verticalLayout->setStretch(1, 0);
 
     m_kitsView->setModel(m_model);
     m_kitsView->header()->setResizeMode(0, QHeaderView::Stretch);

@@ -45,33 +45,20 @@
 namespace QtSupport {
 namespace Internal {
 
-QtKitConfigWidget::QtKitConfigWidget(ProjectExplorer::Kit *k, QWidget *parent) :
-    ProjectExplorer::KitConfigWidget(parent),
-    m_kit(k),
-    m_combo(new QComboBox),
-    m_manageButton(new QPushButton(this))
+QtKitConfigWidget::QtKitConfigWidget(ProjectExplorer::Kit *k) :
+    KitConfigWidget(k)
 {
-    setToolTip(tr("The Qt library to use for all projects using this kit.<br>"
-                  "A Qt version is required for qmake-based projects and optional when using other build systems."));
-    QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setMargin(0);
-
-    m_combo->setContentsMargins(0, 0, 0, 0);
-    m_combo->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-    layout->addWidget(m_combo);
-
-    m_manageButton->setContentsMargins(0, 0, 0, 0);
-    m_manageButton->setText(tr("Manage..."));
+    m_combo = new QComboBox;
+    m_combo->addItem(tr("None"), -1);
 
     QtVersionManager *mgr = QtVersionManager::instance();
-
-    // initially populate combobox:
-    m_combo->addItem(tr("None"), -1);
     QList<BaseQtVersion *> versions = mgr->validVersions();
     QList<int> versionIds;
     foreach (BaseQtVersion *v, versions)
         versionIds.append(v->uniqueId());
     versionsChanged(versionIds, QList<int>(), QList<int>());
+
+    m_manageButton = new QPushButton(tr("Manage..."));
 
     refresh();
     connect(m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(currentWasChanged(int)));
@@ -87,6 +74,13 @@ QString QtKitConfigWidget::displayName() const
     return tr("Qt version:");
 }
 
+QString QtKitConfigWidget::toolTip() const
+{
+    return tr("The Qt library to use for all projects using this kit.<br>"
+              "A Qt version is required for qmake-based projects "
+              "and optional when using other build systems.");
+}
+
 void QtKitConfigWidget::makeReadOnly()
 {
     m_combo->setEnabled(false);
@@ -95,6 +89,11 @@ void QtKitConfigWidget::makeReadOnly()
 void QtKitConfigWidget::refresh()
 {
     m_combo->setCurrentIndex(findQtVersion(QtKitInformation::qtVersionId(m_kit)));
+}
+
+QWidget *QtKitConfigWidget::mainWidget() const
+{
+    return m_combo;
 }
 
 QWidget *QtKitConfigWidget::buttonWidget() const

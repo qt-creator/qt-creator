@@ -34,30 +34,34 @@
 
 #include <QWidget>
 
-QT_FORWARD_DECLARE_CLASS(QGridLayout)
-
 namespace ProjectExplorer {
+
+class Kit;
 
 // --------------------------------------------------------------------------
 // KitConfigWidget
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT KitConfigWidget : public QWidget
+class PROJECTEXPLORER_EXPORT KitConfigWidget : public QObject
 {
     Q_OBJECT
 
 public:
-    KitConfigWidget(QWidget *parent = 0) : QWidget(parent)
-    { }
+    KitConfigWidget(Kit *kit) : m_kit(kit)  { }
 
     virtual QString displayName() const = 0;
+    virtual QString toolTip() const { return QString(); }
     virtual void makeReadOnly() = 0;
     virtual void refresh() = 0;
 
+    virtual QWidget *mainWidget() const = 0;
     virtual QWidget *buttonWidget() const { return 0; }
 
 signals:
     void dirty();
+
+protected:
+    ProjectExplorer::Kit *m_kit;
 };
 
 } // namespace ProjectExplorer

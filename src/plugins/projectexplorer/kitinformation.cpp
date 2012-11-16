@@ -288,7 +288,6 @@ QList<Task> DeviceTypeKitInformation::validate(const Kit *k) const
 
 KitConfigWidget *DeviceTypeKitInformation::createConfigWidget(Kit *k) const
 {
-    Q_ASSERT(k);
     return new Internal::DeviceTypeInformationConfigWidget(k);
 }
 
@@ -381,7 +380,6 @@ void DeviceKitInformation::fix(Kit *k)
 
 KitConfigWidget *DeviceKitInformation::createConfigWidget(Kit *k) const
 {
-    Q_ASSERT(k);
     return new Internal::DeviceInformationConfigWidget(k);
 }
 

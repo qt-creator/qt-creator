@@ -35,32 +35,33 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <QHBoxLayout>
 #include <QLineEdit>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-QmakeKitConfigWidget::QmakeKitConfigWidget(ProjectExplorer::Kit *k, QWidget *parent) :
-    ProjectExplorer::KitConfigWidget(parent),
-    m_kit(k),
+QmakeKitConfigWidget::QmakeKitConfigWidget(ProjectExplorer::Kit *k) :
+    ProjectExplorer::KitConfigWidget(k),
     m_lineEdit(new QLineEdit)
 {
-    setToolTip(tr("The mkspec to use when building the project with qmake.<br>"
-                  "This setting is ignored when using other build systems."));
-    QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setMargin(0);
-
-    m_lineEdit->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(m_lineEdit);
-
     refresh(); // set up everything according to kit
     connect(m_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(mkspecWasChanged(QString)));
+}
+
+QWidget *QmakeKitConfigWidget::mainWidget() const
+{
+    return m_lineEdit;
 }
 
 QString QmakeKitConfigWidget::displayName() const
 {
     return tr("Qt mkspec:");
+}
+
+QString QmakeKitConfigWidget::toolTip() const
+{
+    return tr("The mkspec to use when building the project with qmake.<br>"
+              "This setting is ignored when using other build systems.");
 }
 
 void QmakeKitConfigWidget::makeReadOnly()

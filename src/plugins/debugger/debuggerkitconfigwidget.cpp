@@ -65,20 +65,12 @@ static const char dgbToolsDownloadLink64C[] = "http://www.microsoft.com/whdc/dev
 // -----------------------------------------------------------------------
 
 DebuggerKitConfigWidget::DebuggerKitConfigWidget(ProjectExplorer::Kit *workingCopy,
-                                                 const DebuggerKitInformation *ki,
-                                                 QWidget *parent) :
-    ProjectExplorer::KitConfigWidget(parent),
-    m_kit(workingCopy),
+                                                 const DebuggerKitInformation *ki)
+  : KitConfigWidget(workingCopy),
     m_info(ki),
-    m_label(new QLabel(this)),
-    m_button(new QPushButton(tr("Manage..."), this))
+    m_label(new QLabel),
+    m_button(new QPushButton(tr("Manage...")))
 {
-    setToolTip(tr("The debugger to use for this kit."));
-
-    QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setMargin(0);
-    layout->addWidget(m_label);
-
     // ToolButton with Menu, defaulting to 'Autodetect'.
     QMenu *buttonMenu = new QMenu(m_button);
     QAction *autoDetectAction = buttonMenu->addAction(tr("Auto-detect"));
@@ -88,6 +80,16 @@ DebuggerKitConfigWidget::DebuggerKitConfigWidget(ProjectExplorer::Kit *workingCo
     m_button->setMenu(buttonMenu);
 
     refresh();
+}
+
+QString DebuggerKitConfigWidget::toolTip() const
+{
+    return tr("The debugger to use for this kit.");
+}
+
+QWidget *DebuggerKitConfigWidget::mainWidget() const
+{
+       return m_label;
 }
 
 QWidget *DebuggerKitConfigWidget::buttonWidget() const

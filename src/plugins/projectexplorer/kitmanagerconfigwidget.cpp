@@ -33,12 +33,13 @@
 #include "kitmanager.h"
 
 #include <utils/detailswidget.h>
+#include <utils/qtcassert.h>
 
-#include <QHBoxLayout>
 #include <QFileDialog>
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QPainter>
 #include <QToolButton>
 #include <QScrollArea>
 #include <QSizePolicy>
@@ -47,11 +48,9 @@
 static const char WORKING_COPY_KIT_ID[] = "modified kit";
 
 namespace ProjectExplorer {
-
 namespace Internal {
 
-KitManagerConfigWidget::KitManagerConfigWidget(Kit *k, QWidget *parent) :
-    QWidget(parent),
+KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     m_layout(new QGridLayout),
     m_iconButton(new QToolButton),
     m_nameEdit(new QLineEdit),
@@ -59,30 +58,27 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k, QWidget *parent) :
     m_modifiedKit(new Kit(Core::Id(WORKING_COPY_KIT_ID))),
     m_fixingKit(false)
 {
-    QVBoxLayout *top = new QVBoxLayout(this);
-    top->setMargin(0);
+    m_layout->addWidget(m_nameEdit, 0, WidgetColumn);
+    m_layout->addWidget(m_iconButton, 0, ButtonColumn);
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+    QWidget *inner = new QWidget;
+    inner->setLayout(m_layout);
 
     QScrollArea *scroll = new QScrollArea;
+    scroll->setWidget(inner);
     scroll->setFrameShape(QFrame::NoFrame);
     scroll->setWidgetResizable(true);
     scroll->setFocusPolicy(Qt::NoFocus);
-    top->addWidget(scroll);
 
-    Utils::DetailsWidget *details = new Utils::DetailsWidget;
-    details->setState(Utils::DetailsWidget::NoSummary);
-    scroll->setWidget(details);
+    QGridLayout *mainLayout = new QGridLayout(this);
+    mainLayout->setMargin(1);
+    mainLayout->addWidget(scroll, 0, 0);
 
-    QWidget *widget = new QWidget;
+    QString toolTip = tr("Kit name and icon.");
+    setLabel(tr("Name:"), toolTip, 0);
+    m_iconButton->setToolTip(toolTip);
 
-    m_layout->setMargin(0);
-    m_layout->setSpacing(6);
-    m_layout->setContentsMargins(6, 0, 6, 0);
-    m_layout->setRowStretch(1, 1);
-    widget->setLayout(m_layout);
-
-    details->setWidget(widget);
-
-    addToLayout(tr("Name:"), tr("Kit name and icon."), m_nameEdit, m_iconButton);
     discard();
 
     connect(m_iconButton, SIGNAL(clicked()), this, SLOT(setIcon()));
@@ -100,7 +96,7 @@ KitManagerConfigWidget::~KitManagerConfigWidget()
     delete m_modifiedKit;
     // Make sure our workingCopy did not get registered somehow:
     foreach (const Kit *k, KitManager::instance()->kits())
-        Q_ASSERT(k->id() != Core::Id(WORKING_COPY_KIT_ID));
+        QTC_CHECK(k->id() != Core::Id(WORKING_COPY_KIT_ID));
 }
 
 QString KitManagerConfigWidget::displayName() const
@@ -159,10 +155,18 @@ QString KitManagerConfigWidget::validityMessage() const
 
 void KitManagerConfigWidget::addConfigWidget(ProjectExplorer::KitConfigWidget *widget)
 {
-    Q_ASSERT(widget);
-    Q_ASSERT(!m_widgets.contains(widget));
+    QTC_ASSERT(widget, return);
+    QTC_ASSERT(!m_widgets.contains(widget), return);
 
-    addToLayout(widget->displayName(), widget->toolTip(), widget, widget->buttonWidget());
+    QString name = widget->displayName();
+    QString toolTip = widget->toolTip();
+
+    int row = m_layout->rowCount();
+    m_layout->addWidget(widget->mainWidget(), row, WidgetColumn);
+    if (QWidget *button = widget->buttonWidget())
+        m_layout->addWidget(button, row, ButtonColumn);
+    setLabel(name, toolTip, row);
+
     m_widgets.append(widget);
 }
 
@@ -248,16 +252,7 @@ void KitManagerConfigWidget::kitWasUpdated(Kit *k)
         discard();
 }
 
-void KitManagerConfigWidget::addToLayout(const QString &name, const QString &toolTip,
-                                         QWidget *widget, QWidget *button)
-{
-    int row = m_layout->rowCount();
-    addLabel(name, toolTip, row);
-    m_layout->addWidget(widget, row, WidgetColumn);
-    addButtonWidget(button, toolTip, row);
-}
-
-void KitManagerConfigWidget::addLabel(const QString &name, const QString &toolTip, int row)
+void KitManagerConfigWidget::setLabel(const QString &name, const QString &toolTip, int row)
 {
     static const Qt::Alignment alignment
         = static_cast<Qt::Alignment>(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
@@ -266,13 +261,12 @@ void KitManagerConfigWidget::addLabel(const QString &name, const QString &toolTi
     m_layout->addWidget(label, row, LabelColumn, alignment);
 }
 
-void KitManagerConfigWidget::addButtonWidget(QWidget *button, const QString &toolTip, int row)
+void KitManagerConfigWidget::paintEvent(QPaintEvent *)
 {
-    if (!button)
-        return;
-    if (button->toolTip().isEmpty())
-        button->setToolTip(toolTip);
-    m_layout->addWidget(button, row, ButtonColumn);
+    QPainter p(this);
+    if (m_background.size() != size())
+        m_background = Utils::DetailsWidget::createBackground(size(), 0, this);
+    p.drawPixmap(rect(), m_background);
 }
 
 } // namespace Internal

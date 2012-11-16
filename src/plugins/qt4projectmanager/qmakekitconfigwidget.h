@@ -32,13 +32,11 @@
 
 #include <projectexplorer/kitconfigwidget.h>
 
-QT_FORWARD_DECLARE_CLASS(QLineEdit)
-
-namespace ProjectExplorer { class Kit; }
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
-class BaseQtVersion;
-
 namespace Internal {
 
 class QmakeKitConfigWidget : public ProjectExplorer::KitConfigWidget
@@ -46,12 +44,13 @@ class QmakeKitConfigWidget : public ProjectExplorer::KitConfigWidget
     Q_OBJECT
 
 public:
-    explicit QmakeKitConfigWidget(ProjectExplorer::Kit *k, QWidget *parent = 0);
+    explicit QmakeKitConfigWidget(ProjectExplorer::Kit *k);
 
+    QWidget *mainWidget() const;
     QString displayName() const;
+    QString toolTip() const;
 
     void makeReadOnly();
-
     void refresh();
 
 private slots:
@@ -60,7 +59,6 @@ private slots:
 private:
     int findQtVersion(const int id) const;
 
-    ProjectExplorer::Kit *m_kit;
     QLineEdit *m_lineEdit;
 };
 

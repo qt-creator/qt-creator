@@ -43,7 +43,6 @@
 #include <utils/pathchooser.h>
 
 #include <QComboBox>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
 
@@ -54,27 +53,24 @@ namespace Internal {
 // SysRootInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-SysRootInformationConfigWidget::SysRootInformationConfigWidget(Kit *k, QWidget *parent) :
-    KitConfigWidget(parent),
-    m_kit(k)
+SysRootInformationConfigWidget::SysRootInformationConfigWidget(Kit *k) :
+    KitConfigWidget(k)
 {
-    setToolTip(tr("The root directory of the system image to use.<br>"
-                  "Leave empty when building for the desktop."));
-    QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setMargin(0);
     m_chooser = new Utils::PathChooser;
-    m_chooser->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(m_chooser);
     m_chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
-
     m_chooser->setFileName(SysRootKitInformation::sysRoot(k));
-
     connect(m_chooser, SIGNAL(changed(QString)), this, SLOT(pathWasChanged()));
 }
 
 QString SysRootInformationConfigWidget::displayName() const
 {
     return tr("Sysroot:");
+}
+
+QString SysRootInformationConfigWidget::toolTip() const
+{
+    return tr("The root directory of the system image to use.<br>"
+                  "Leave empty when building for the desktop.");
 }
 
 void SysRootInformationConfigWidget::refresh()
@@ -85,6 +81,11 @@ void SysRootInformationConfigWidget::refresh()
 void SysRootInformationConfigWidget::makeReadOnly()
 {
     m_chooser->setEnabled(false);
+}
+
+QWidget *SysRootInformationConfigWidget::mainWidget() const
+{
+    return m_chooser->lineEdit();
 }
 
 QWidget *SysRootInformationConfigWidget::buttonWidget() const
@@ -101,22 +102,13 @@ void SysRootInformationConfigWidget::pathWasChanged()
 // ToolChainInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Kit *k, QWidget *parent) :
-    KitConfigWidget(parent),
-    m_isReadOnly(false), m_kit(k),
-    m_comboBox(new QComboBox), m_manageButton(new QPushButton(this))
+ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Kit *k) :
+    KitConfigWidget(k), m_isReadOnly(false)
 {
-    setToolTip(tr("The compiler to use for building.<br>"
-                  "Make sure the compiler will produce binaries compatible with the target device, "
-                  "Qt version and other libraries used."));
     ToolChainManager *tcm = ToolChainManager::instance();
 
-    QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setMargin(0);
-    m_comboBox->setContentsMargins(0, 0, 0, 0);
+    m_comboBox = new QComboBox;
     m_comboBox->setEnabled(false);
-    m_comboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-    layout->addWidget(m_comboBox);
 
     foreach (ToolChain *tc, tcm->toolChains())
         toolChainAdded(tc);
@@ -126,8 +118,8 @@ ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Kit *k, QWidg
     refresh();
     connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentToolChainChanged(int)));
 
+    m_manageButton = new QPushButton(tr("Manage..."));
     m_manageButton->setContentsMargins(0, 0, 0, 0);
-    m_manageButton->setText(tr("Manage..."));
     connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageToolChains()));
 
     connect(tcm, SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
@@ -143,6 +135,13 @@ QString ToolChainInformationConfigWidget::displayName() const
     return tr("Compiler:");
 }
 
+QString ToolChainInformationConfigWidget::toolTip() const
+{
+    return tr("The compiler to use for building.<br>"
+              "Make sure the compiler will produce binaries compatible with the target device, "
+              "Qt version and other libraries used.");
+}
+
 void ToolChainInformationConfigWidget::refresh()
 {
     m_comboBox->setCurrentIndex(indexOf(ToolChainKitInformation::toolChain(m_kit)));
@@ -151,6 +150,11 @@ void ToolChainInformationConfigWidget::refresh()
 void ToolChainInformationConfigWidget::makeReadOnly()
 {
     m_comboBox->setEnabled(false);
+}
+
+QWidget *ToolChainInformationConfigWidget::mainWidget() const
+{
+    return m_comboBox;
 }
 
 QWidget *ToolChainInformationConfigWidget::buttonWidget() const
@@ -222,33 +226,33 @@ int ToolChainInformationConfigWidget::indexOf(const ToolChain *tc)
 // DeviceTypeInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *workingCopy, QWidget *parent) :
-    KitConfigWidget(parent),
-    m_isReadOnly(false), m_kit(workingCopy),
-    m_comboBox(new QComboBox)
+DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *workingCopy) :
+    KitConfigWidget(workingCopy), m_isReadOnly(false), m_comboBox(new QComboBox)
 {
-    setToolTip(tr("The type of device to run applications on."));
-    QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setMargin(0);
-    m_comboBox->setContentsMargins(0, 0, 0, 0);
-    m_comboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-    layout->addWidget(m_comboBox);
-
     QList<IDeviceFactory *> factories
             = ExtensionSystem::PluginManager::instance()->getObjects<IDeviceFactory>();
     foreach (IDeviceFactory *factory, factories) {
-        foreach (Core::Id id, factory->availableCreationIds()) {
+        foreach (Core::Id id, factory->availableCreationIds())
             m_comboBox->addItem(factory->displayNameForId(id), id.uniqueIdentifier());
-        }
     }
 
     refresh();
     connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentTypeChanged(int)));
 }
 
+QWidget *DeviceTypeInformationConfigWidget::mainWidget() const
+{
+    return m_comboBox;
+}
+
 QString DeviceTypeInformationConfigWidget::displayName() const
 {
     return tr("Device type:");
+}
+
+QString DeviceTypeInformationConfigWidget::toolTip() const
+{
+    return tr("The type of device to run applications on.");
 }
 
 void DeviceTypeInformationConfigWidget::refresh()
@@ -279,37 +283,36 @@ void DeviceTypeInformationConfigWidget::currentTypeChanged(int idx)
 // DeviceInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-DeviceInformationConfigWidget::DeviceInformationConfigWidget(Kit *workingCopy, QWidget *parent) :
-    KitConfigWidget(parent),
-    m_isReadOnly(false), m_kit(workingCopy),
-    m_comboBox(new QComboBox), m_manageButton(new QPushButton(this)),
+DeviceInformationConfigWidget::DeviceInformationConfigWidget(Kit *workingCopy) :
+    KitConfigWidget(workingCopy),
+    m_isReadOnly(false),
+    m_comboBox(new QComboBox),
     m_model(new DeviceManagerModel(DeviceManager::instance()))
 {
-    connect(m_model, SIGNAL(modelAboutToBeReset()), SLOT(modelAboutToReset()));
-    connect(m_model, SIGNAL(modelReset()), SLOT(modelReset()));
-
-    setToolTip(tr("The device to run the applications on."));
-
-    QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setMargin(0);
-    m_comboBox->setContentsMargins(0, 0, 0, 0);
-    m_comboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-    layout->addWidget(m_comboBox);
-
     m_comboBox->setModel(m_model);
 
-    m_manageButton->setContentsMargins(0, 0, 0, 0);
-    m_manageButton->setText(tr("Manage..."));
+    m_manageButton = new QPushButton(tr("Manage"));
 
     refresh();
+    connect(m_model, SIGNAL(modelAboutToBeReset()), SLOT(modelAboutToReset()));
+    connect(m_model, SIGNAL(modelReset()), SLOT(modelReset()));
     connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentDeviceChanged()));
-
     connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageDevices()));
+}
+
+QWidget *DeviceInformationConfigWidget::mainWidget() const
+{
+    return m_comboBox;
 }
 
 QString DeviceInformationConfigWidget::displayName() const
 {
     return tr("Device:");
+}
+
+QString DeviceInformationConfigWidget::toolTip() const
+{
+    return tr("The device to run the applications on.");
 }
 
 void DeviceInformationConfigWidget::refresh()
