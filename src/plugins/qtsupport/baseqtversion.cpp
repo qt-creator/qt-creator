@@ -1363,7 +1363,9 @@ Utils::FileName BaseQtVersion::qtCorePath(const QHash<QString,QString> &versionI
             }
             if (info.isReadable()) {
                 if (file.startsWith(QLatin1String("libQtCore"))
-                        || file.startsWith(QLatin1String("QtCore"))) {
+                        || file.startsWith(QLatin1String("libQt5Core"))
+                        || file.startsWith(QLatin1String("QtCore"))
+                        || file.startsWith(QLatin1String("Qt5Core"))) {
                     // Only handle static libs if we can not find dynamic ones:
                     if (file.endsWith(QLatin1String(".a")) || file.endsWith(QLatin1String(".lib")))
                         staticLibs.append(info);
