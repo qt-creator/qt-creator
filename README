@@ -30,6 +30,9 @@ You can build Qt Creator with
     qmake -r
     make (or mingw32-make or nmake or jom, depending on your platform)
 
+Note: If you get "make: *** No targets specified and no makefile found. Stop."
+      on Mac OS X, you need to additionally pass "-spec macx-g++" to qmake.
+
 Installation ("make install") is not needed. It is however possible, using
 
     make install INSTALL_ROOT=$INSTALL_DIRECTORY
