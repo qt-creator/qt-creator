@@ -6,7 +6,8 @@
 namespace Find {
 namespace Internal {
 
-struct SearchResultColor{
+class SearchResultColor{
+public:
     QColor textBackground;
     QColor textForeground;
     QColor highlightBackground;
