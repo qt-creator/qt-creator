@@ -158,6 +158,12 @@ bool debug = false;
 static const char kCurrentProjectPath[] = "CurrentProject:Path";
 static const char kCurrentProjectFilePath[] = "CurrentProject:FilePath";
 static const char kCurrentProjectBuildPath[] = "CurrentProject:BuildPath";
+static const char kCurrentProjectName[] = "CurrentProject:Name";
+static const char kCurrentKitName[] = "CurrentKit:Name";
+static const char kCurrentKitFileSystemName[] = "CurrentKit:FileSystemName";
+static const char kCurrentKitId[] = "CurrentKit:Id";
+static const char kCurrentBuildName[] = "CurrentBuild:Name";
+static const char kCurrentBuildType[] = "CurrentBuild:Type";
 
 namespace ProjectExplorer {
 
@@ -996,6 +1002,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         tr("Full path of the current project's main file, excluding file name."));
     vm->registerVariable(kCurrentProjectBuildPath,
         tr("Full build path of the current project's active build configuration."));
+    vm->registerVariable(kCurrentProjectName, tr("The current project's name."));
+    vm->registerVariable(kCurrentKitName, tr("The currently active kit's name."));
+    vm->registerVariable(kCurrentKitFileSystemName,
+                         tr("The currently active kit's name in a filesystem friendly version."));
+    vm->registerVariable(kCurrentKitId, tr("The currently active kit's id."));
+    vm->registerVariable(kCurrentBuildName, tr("The currently active build configuration's name."));
+    vm->registerVariable(kCurrentBuildType, tr("The currently active build configuration's type."));
+
     connect(vm, SIGNAL(variableUpdateRequested(QByteArray)),
             this, SLOT(updateVariable(QByteArray)));
 
@@ -1146,6 +1160,50 @@ void ProjectExplorerPlugin::updateVariable(const QByteArray &variable)
         if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->activeBuildConfiguration()) {
             Core::VariableManager::instance()->insert(variable,
                                                       currentProject()->activeTarget()->activeBuildConfiguration()->buildDirectory());
+        } else {
+            Core::VariableManager::instance()->remove(variable);
+        }
+    } else if (variable == kCurrentProjectName) {
+        if (currentProject()) {
+            Core::VariableManager::instance()->insert(variable, currentProject()->displayName());
+        } else {
+            Core::VariableManager::instance()->remove(variable);
+        }
+    } else if (variable == kCurrentKitName) {
+        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->kit()) {
+            Core::VariableManager::instance()->insert(variable, currentProject()->activeTarget()->kit()->displayName());
+        } else {
+            Core::VariableManager::instance()->remove(variable);
+        }
+    } else if (variable == kCurrentKitFileSystemName) {
+        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->kit()) {
+            Core::VariableManager::instance()->insert(variable, currentProject()->activeTarget()->kit()->fileSystemFriendlyName());
+        } else {
+            Core::VariableManager::instance()->remove(variable);
+        }
+    } else if (variable == kCurrentKitId) {
+        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->kit()) {
+            Core::VariableManager::instance()->insert(variable, currentProject()->activeTarget()->kit()->id().toString());
+        } else {
+            Core::VariableManager::instance()->remove(variable);
+        }
+    } else if (variable == kCurrentBuildName) {
+        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->activeBuildConfiguration()) {
+            Core::VariableManager::instance()->insert(variable, currentProject()->activeTarget()->activeBuildConfiguration()->displayName());
+        } else {
+            Core::VariableManager::instance()->remove(variable);
+        }
+    } else if (variable == kCurrentBuildType) {
+        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->activeBuildConfiguration()) {
+            BuildConfiguration::BuildType type = currentProject()->activeTarget()->activeBuildConfiguration()->buildType();
+            QString typeString;
+            if (type == BuildConfiguration::Debug)
+                typeString = tr("debug");
+            else if (type == BuildConfiguration::Release)
+                typeString = tr("release");
+            else
+                typeString = tr("unknown");
+            Core::VariableManager::instance()->insert(variable, typeString);
         } else {
             Core::VariableManager::instance()->remove(variable);
         }
