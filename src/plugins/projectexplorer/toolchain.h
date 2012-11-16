@@ -93,7 +93,6 @@ public:
     virtual QString makeCommand(const Utils::Environment &env) const = 0;
 
     virtual Utils::FileName compilerCommand() const = 0;
-    virtual QString defaultMakeTarget() const;
     virtual IOutputParser *outputParser() const = 0;
 
     virtual bool operator ==(const ToolChain &) const;

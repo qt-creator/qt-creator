@@ -86,7 +86,6 @@ public:
     QMakeStep *qmakeStep() const;
     MakeStep *makeStep() const;
 
-    QString defaultMakeTarget() const;
     QString makefile() const;
 
     enum MakefileState { MakefileMatches, MakefileForWrongProject, MakefileIncompatible, MakefileMissing };

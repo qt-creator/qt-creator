@@ -133,11 +133,6 @@ bool ToolChain::canClone() const
     return true;
 }
 
-QString ToolChain::defaultMakeTarget() const
-{
-    return QString();
-}
-
 bool ToolChain::operator == (const ToolChain &tc) const
 {
     if (this == &tc)

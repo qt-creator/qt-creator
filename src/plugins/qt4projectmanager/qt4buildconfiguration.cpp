@@ -286,16 +286,6 @@ void Qt4BuildConfiguration::setShadowBuildAndDirectory(bool shadowBuild, const Q
     emitProFileEvaluateNeeded();
 }
 
-QString Qt4BuildConfiguration::defaultMakeTarget() const
-{
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
-    BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
-    if (!tc || !version)
-        return QString();
-
-    return tc->defaultMakeTarget();
-}
-
 QString Qt4BuildConfiguration::makefile() const
 {
     return static_cast<Qt4Project *>(target()->project())->rootQt4ProjectNode()->makefile();
