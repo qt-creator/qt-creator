@@ -87,7 +87,7 @@ void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel,
         args << files;
     } else {
         foreach (const QString &file, files)
-            emit setStatus(topLevelDir.relativeFilePath(file), FileStatus::Unknown, false);
+            m_plugin->setStatus(topLevelDir.relativeFilePath(file), FileStatus::Unknown, false);
         args << QLatin1String("-recurse");
         args << vobs;
     }
@@ -120,15 +120,15 @@ void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel,
                     if (reState.indexIn(buffer, wspos + 1, QRegExp::CaretAtOffset) != -1) {
                         ccState = reState.cap();
                         if (ccState.indexOf(QLatin1String("hijacked")) != -1)
-                            emit setStatus(file, FileStatus::Hijacked, true);
+                            m_plugin->setStatus(file, FileStatus::Hijacked, true);
                         else if (ccState.indexOf(QLatin1String("loaded but missing")) != -1)
-                            emit setStatus(file, FileStatus::Missing, false);
+                            m_plugin->setStatus(file, FileStatus::Missing, false);
                     }
                     else if (buffer.lastIndexOf(QLatin1String("CHECKEDOUT"), wspos) != -1)
-                        emit setStatus(file, FileStatus::CheckedOut, true);
+                        m_plugin->setStatus(file, FileStatus::CheckedOut, true);
                     // don't care about checked-in files not listed in project
                     else if (m_statusMap->contains(file))
-                        emit setStatus(file, FileStatus::CheckedIn, true);
+                        m_plugin->setStatus(file, FileStatus::CheckedIn, true);
                 }
                 buffer.clear();
                 future.setProgressValue(qMin(total, ++processed));
@@ -140,7 +140,7 @@ void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel,
         foreach (const QString &file, files) {
             QString relFile = topLevelDir.relativeFilePath(file);
             if (m_statusMap->value(relFile).status == FileStatus::Unknown)
-                emit setStatus(relFile, FileStatus::NotManaged, false);
+                m_plugin->setStatus(relFile, FileStatus::NotManaged, false);
         }
         future.setProgressValue(total + 1);
         if (!hot) {

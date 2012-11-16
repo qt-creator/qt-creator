@@ -702,7 +702,7 @@ void QtOptionsPageWidget::editPath()
     if (current->type() != version->type()) {
         // not the same type, error out
         QMessageBox::critical(this, tr("Incompatible Qt Versions"),
-                              tr("The Qt version selected must be for the same target."),
+                              tr("The Qt version selected must be for the same device type."),
                               QMessageBox::Ok);
         delete version;
         return;

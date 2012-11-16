@@ -91,7 +91,10 @@ void GeneralSettings::fillLanguageBox() const
         const QString locale = languageFile.mid(start, end-start);
         // no need to show a language that creator will not load anyway
         if (hasQmFilesForLocale(locale, creatorTrPath)) {
-            m_page->languageBox->addItem(QLocale::languageToString(QLocale(locale).language()), locale);
+            QLocale tmpLocale(locale);
+            QString languageItem = QLocale::languageToString(tmpLocale.language()) + QLatin1String(" (")
+                                   + QLocale::countryToString(tmpLocale.country()) + QLatin1Char(')');
+            m_page->languageBox->addItem(languageItem, locale);
             if (locale == currentLocale)
                 m_page->languageBox->setCurrentIndex(m_page->languageBox->count() - 1);
         }

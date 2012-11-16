@@ -338,7 +338,18 @@ QTextCursor BaseTextFind::findOne(const QRegExp &expr, const QTextCursor &from, 
                                   Q_ARG(QTextCursor, candidate));
         if (inVerticalFindScope)
             return candidate;
-        candidate = document()->find(expr, candidate, options);
+
+        QTextCursor newCandidate = document()->find(expr, candidate, options);
+        if (newCandidate == candidate) {
+            // When searching for regular expressions that match "zero length" strings (like ^ or \b)
+            // we need to move away from the match before searching for the next one.
+            candidate.movePosition(options & QTextDocument::FindBackward
+                                   ? QTextCursor::PreviousCharacter
+                                   : QTextCursor::NextCharacter);
+            candidate = document()->find(expr, candidate, options);
+        } else {
+            candidate = newCandidate;
+        }
     }
     return candidate;
 }

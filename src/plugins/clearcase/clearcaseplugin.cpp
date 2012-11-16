@@ -82,6 +82,7 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
+#include <QMetaObject>
 #include <QMutex>
 #include <QProcess>
 #include <QRegExp>
@@ -89,7 +90,6 @@
 #include <QtConcurrentRun>
 #include <QTemporaryFile>
 #include <QTextCodec>
-#include <QTimer>
 #include <QtPlugin>
 #include <QUrl>
 #include <QUuid>
@@ -643,11 +643,11 @@ void ClearCasePlugin::addCurrentFile()
     vcsAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void ClearCasePlugin::setStatus(const QString &file, ClearCase::Internal::FileStatus::Status status, bool update)
+void ClearCasePlugin::setStatus(const QString &file, FileStatus::Status status, bool update)
 {
     m_statusMap->insert(file, FileStatus(status, QFileInfo(currentState().topLevel(), file).permissions()));
     if (update && (currentState().relativeCurrentFile() == file))
-        updateStatusActions();
+        QMetaObject::invokeMethod(this, "updateStatusActions");
 }
 
 void ClearCasePlugin::undoCheckOutCurrent()
@@ -973,7 +973,7 @@ void ClearCasePlugin::startCheckInActivity()
             last = file;
         }
     }
-    startCheckIn(state.currentProjectPath(), files);
+    startCheckIn(topLevel, files);
 }
 
 /* Start check in of files of a single repository by displaying
@@ -1938,8 +1938,6 @@ void ClearCasePlugin::sync(QFutureInterface<void> &future, QString topLevel, QSt
     ClearCasePlugin *plugin = ClearCasePlugin::instance();
     ClearCaseSync ccSync(plugin, plugin->m_statusMap);
     connect(&ccSync, SIGNAL(updateStreamAndView()), plugin, SLOT(updateStreamAndView()));
-    connect(&ccSync, SIGNAL(setStatus(QString, ClearCase::Internal::FileStatus::Status, bool)),
-            plugin, SLOT(setStatus(QString, ClearCase::Internal::FileStatus::Status, bool)));
     ccSync.run(future, topLevel, files);
 }
 

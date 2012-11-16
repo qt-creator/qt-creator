@@ -141,7 +141,7 @@ int main()
     if (*argv[ArgEnv]) {
         FILE *envFd;
         long size;
-        if (!(envFd = _wfopen(argv[ArgEnv], L"r"))) {
+        if (!(envFd = _wfopen(argv[ArgEnv], L"rb"))) {
             fprintf(stderr, "Cannot read creator env file %S: %s\n",
                     argv[ArgEnv], strerror(errno));
             doExit(1);

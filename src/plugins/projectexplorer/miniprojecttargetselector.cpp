@@ -1414,7 +1414,7 @@ void MiniProjectTargetSelector::updateActionAndSummary()
     QStringList lines;
     lines << tr("<b>Project:</b> %1").arg(projectName);
     if (!targetName.isEmpty())
-        lines << tr("<b>Target:</b> %1").arg(targetName);
+        lines << tr("<b>Kit:</b> %1").arg(targetName);
     if (!buildConfig.isEmpty())
         lines << tr("<b>Build:</b> %1").arg(buildConfig);
     if (!deployConfig.isEmpty())

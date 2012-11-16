@@ -44,7 +44,6 @@ public:
 
 signals:
     void updateStreamAndView();
-    void setStatus(const QString &file, ClearCase::Internal::FileStatus::Status status, bool update);
 
 private:
     ClearCasePlugin *m_plugin;

@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "qmlfilewizard.h"
+#include "qmljseditorconstants.h"
 
 #include <qmljstools/qmljstoolsconstants.h>
 
@@ -61,9 +62,13 @@ QString QmlFileWizard::fileContents(const QString &) const
     QString contents;
     QTextStream str(&contents);
 
+    if (baseFileWizardParameters().id() == QLatin1String(Constants::WIZARD_QML1FILE))
+        str << QLatin1String("import QtQuick 1.1\n");
+    else
+        str << QLatin1String("import QtQuick 2.0\n");
+
     // 100:62 is the 'golden ratio'
-    str << QLatin1String("import QtQuick 1.1\n")
-        << QLatin1String("\n")
+    str << QLatin1String("\n")
         << QLatin1String("Rectangle {\n")
         << QLatin1String("    width: 100\n")
         << QLatin1String("    height: 62\n")

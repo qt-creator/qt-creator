@@ -194,7 +194,7 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
     // Check for Qt version:
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
     if (!version) {
-        setProblemLabel(tr("This target cannot build this project since it does not define a Qt version."));
+        setProblemLabel(tr("This kit cannot build this project since it does not define a Qt version."));
         return;
     }
 

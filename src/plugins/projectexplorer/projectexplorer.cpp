@@ -878,7 +878,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     d->m_projectSelectorActionQuick = new QAction(this);
     d->m_projectSelectorActionQuick->setEnabled(false);
-    d->m_projectSelectorActionQuick->setText(tr("Quick Switch Target Selector"));
+    d->m_projectSelectorActionQuick->setText(tr("Quick Switch Kit Selector"));
     connect(d->m_projectSelectorActionQuick, SIGNAL(triggered()), d->m_targetSelector, SLOT(nextOrShow()));
     cmd = Core::ActionManager::registerAction(d->m_projectSelectorActionQuick, ProjectExplorer::Constants::SELECTTARGETQUICK, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+T")));
@@ -2402,10 +2402,10 @@ QString ProjectExplorerPlugin::cannotRunReason(Project *project, RunMode runMode
         return tr("The project %1 is not configured.").arg(project->displayName());
 
     if (!project->activeTarget())
-        return tr("The project '%1' has no active target.").arg(project->displayName());
+        return tr("The project '%1' has no active kit.").arg(project->displayName());
 
     if (!project->activeTarget()->activeRunConfiguration())
-        return tr("The target '%1' for the project '%2' has no active run configuration.")
+        return tr("The kit '%1' for the project '%2' has no active run configuration.")
                 .arg(project->activeTarget()->displayName(), project->displayName());
 
 

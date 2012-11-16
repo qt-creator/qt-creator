@@ -402,7 +402,7 @@ void BuildManager::nextBuildQueue()
         // Build Failure
         const QString projectName = d->m_currentBuildStep->project()->displayName();
         const QString targetName = d->m_currentBuildStep->target()->displayName();
-        addToOutputWindow(tr("Error while building/deploying project %1 (target: %2)").arg(projectName, targetName), BuildStep::ErrorOutput);
+        addToOutputWindow(tr("Error while building/deploying project %1 (kit: %2)").arg(projectName, targetName), BuildStep::ErrorOutput);
         addToOutputWindow(tr("When executing step '%1'").arg(d->m_currentBuildStep->displayName()), BuildStep::ErrorOutput);
         // NBS TODO fix in qtconcurrent
         d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, tr("Error while building/deploying project %1 (target: %2)").arg(projectName, targetName));
