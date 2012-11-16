@@ -331,16 +331,6 @@ def numericTemplateArgument(type, position):
         return int(msg)
 
 
-def showException(msg, exType, exValue, exTraceback):
-    warn("**** CAUGHT EXCEPTION: %s ****" % msg)
-    try:
-        import traceback
-        for line in traceback.format_exception(exType, exValue, exTraceback):
-            warn("%s" % line)
-    except:
-        pass
-
-
 class OutputSafer:
     def __init__(self, d):
         self.d = d
@@ -548,11 +538,6 @@ def simpleEncoding(typeobj):
         if typeobj.sizeof == 8:
             return Hex2EncodedFloat8
     return None
-
-def warn(message):
-    if True or verbosity > 0:
-        print "XXX: %s\n" % message.encode("latin1")
-    pass
 
 def check(exp):
     if not exp:
