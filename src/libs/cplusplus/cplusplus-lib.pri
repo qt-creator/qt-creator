@@ -36,6 +36,7 @@ HEADERS += \
     $$PWD/TypePrettyPrinter.h \
     $$PWD/ResolveExpression.h \
     $$PWD/LookupItem.h \
+    $$PWD/AlreadyConsideredClassContainer.h \
     $$PWD/LookupContext.h \
     $$PWD/ASTParent.h \
     $$PWD/ASTPath.h \

@@ -86,6 +86,7 @@ QtcLibrary {
     }
 
     files: [
+        "AlreadyConsideredClassContainer.h",
         "ASTParent.cpp",
         "ASTParent.h",
         "ASTPath.cpp",
