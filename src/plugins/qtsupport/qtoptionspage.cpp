@@ -641,7 +641,13 @@ void QtOptionsPageWidget::addQtDir()
                                              QFileDialog::DontResolveSymlinks));
     if (qtVersion.isNull())
         return;
-    BaseQtVersion *version = QtVersionManager::instance()->qtVersionForQMakeBinary(qtVersion);
+    BaseQtVersion *version = 0;
+    foreach (BaseQtVersion *v, m_versions) {
+        if (v->qmakeCommand() == qtVersion) {
+            version = v;
+            break;
+        }
+    }
     if (version) {
         // Already exist
         QMessageBox::warning(this, tr("Qt known"),
