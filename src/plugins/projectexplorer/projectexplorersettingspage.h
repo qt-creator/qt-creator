@@ -55,9 +55,6 @@ public:
     bool useProjectsDirectory();
     void setUseProjectsDirectory(bool v);
 
-    bool useBuildDirectory() const;
-    void setUseBuildDirectory(bool v);
-
     QString buildDirectory() const;
     void setBuildDirectory(const QString &bd);
 
@@ -65,7 +62,8 @@ public:
 
 private slots:
     void slotDirectoryButtonGroupChanged();
-    void slotBuildDirectoryCheckBoxChanged(bool checked);
+    void resetDefaultBuildDirectory();
+    void updateResetButton();
 
 private:
     void setJomVisible(bool);

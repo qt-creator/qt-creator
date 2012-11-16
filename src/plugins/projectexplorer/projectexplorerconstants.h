@@ -235,6 +235,17 @@ const char DEFAULT_WORKING_DIR[] = "%{buildDir}";
 const char DESKTOP_DEVICE_ID[] = "Desktop Device";
 const char DESKTOP_DEVICE_TYPE[] = "Desktop";
 
+// Variable Names:
+const char VAR_CURRENTPROJECT_PATH[] = "CurrentProject:Path";
+const char VAR_CURRENTPROJECT_FILEPATH[] = "CurrentProject:FilePath";
+const char VAR_CURRENTPROJECT_BUILDPATH[] = "CurrentProject:BuildPath";
+const char VAR_CURRENTPROJECT_NAME[] = "CurrentProject:Name";
+const char VAR_CURRENTKIT_NAME[] = "CurrentKit:Name";
+const char VAR_CURRENTKIT_FILESYSTEMNAME[] = "CurrentKit:FileSystemName";
+const char VAR_CURRENTKIT_ID[] = "CurrentKit:Id";
+const char VAR_CURRENTBUILD_NAME[] = "CurrentBuild:Name";
+const char VAR_CURRENTBUILD_TYPE[] = "CurrentBuild:Type";
+
 } // namespace Constants
 
 // Run modes

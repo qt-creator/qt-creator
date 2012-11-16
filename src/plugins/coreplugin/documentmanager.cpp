@@ -98,8 +98,6 @@ static const char directoryGroupC[] = "Directories";
 static const char projectDirectoryKeyC[] = "Projects";
 static const char useProjectDirectoryKeyC[] = "UseProjectsDirectory";
 static const char buildDirectoryKeyC[] = "BuildDirectory";
-static const char useBuildDirectoryKeyC[] = "UseBuildDirectory";
-
 
 namespace Core {
 
@@ -159,7 +157,6 @@ struct DocumentManagerPrivate
     QString m_projectsDirectory;
     bool m_useProjectsDirectory;
     QString m_buildDirectory;
-    bool m_useBuildDirectory;
     // When we are callling into a IDocument
     // we don't want to receive a changed()
     // signal
@@ -202,7 +199,6 @@ DocumentManagerPrivate::DocumentManagerPrivate(QMainWindow *mw) :
     m_blockActivated(false),
     m_lastVisitedDirectory(QDir::currentPath()),
     m_useProjectsDirectory(Utils::HostOsInfo::isMacHost()), // Creator is in bizarre places when launched via finder.
-    m_useBuildDirectory(false),
     m_blockedIDocument(0)
 {
 }
@@ -1171,7 +1167,6 @@ void DocumentManager::saveSettings()
     s->setValue(QLatin1String(projectDirectoryKeyC), d->m_projectsDirectory);
     s->setValue(QLatin1String(useProjectDirectoryKeyC), d->m_useProjectsDirectory);
     s->setValue(QLatin1String(buildDirectoryKeyC), d->m_buildDirectory);
-    s->setValue(QLatin1String(useBuildDirectoryKeyC), d->m_useBuildDirectory);
     s->endGroup();
 }
 
@@ -1197,23 +1192,20 @@ void readSettings()
     s->beginGroup(QLatin1String(directoryGroupC));
     const QString settingsProjectDir = s->value(QLatin1String(projectDirectoryKeyC),
                                                 QString()).toString();
-    if (!settingsProjectDir.isEmpty() && QFileInfo(settingsProjectDir).isDir()) {
+    if (!settingsProjectDir.isEmpty() && QFileInfo(settingsProjectDir).isDir())
         d->m_projectsDirectory = settingsProjectDir;
-    } else {
+    else
         d->m_projectsDirectory = Utils::PathChooser::homePath();
-    }
     d->m_useProjectsDirectory = s->value(QLatin1String(useProjectDirectoryKeyC),
                                          d->m_useProjectsDirectory).toBool();
 
     const QString settingsShadowDir = s->value(QLatin1String(buildDirectoryKeyC),
                                                QString()).toString();
-    if (!settingsShadowDir.isEmpty() && QFileInfo(settingsShadowDir).isDir())
+    if (!settingsShadowDir.isEmpty())
         d->m_buildDirectory = settingsShadowDir;
     else
-        d->m_buildDirectory = Utils::PathChooser::homePath();
+        d->m_buildDirectory = QLatin1String(Constants::DEFAULT_BUILD_DIRECTORY);
 
-    d->m_useBuildDirectory = s->value(QLatin1String(useBuildDirectoryKeyC),
-                                      d->m_useBuildDirectory).toBool();
     s->endGroup();
 }
 
@@ -1285,30 +1277,9 @@ void DocumentManager::setProjectsDirectory(const QString &dir)
 }
 
 /*!
-    Returns whether the default shadow build directory is placed adjacent to the source in the
-    projects directory or in a separate build tree.
+    Returns the default build directory.
 
-    \sa setUseBuildDirectory, setBuildDirectory
-*/
-bool DocumentManager::useBuildDirectory()
-{
-    return d->m_useBuildDirectory;
-}
-
-/*!
-    Sets whether a separate build directory is to the used when shadow building.
-
-    \sa buildDirectory, usebuildDirectory
-*/
-void DocumentManager::setUseBuildDirectory(bool use)
-{
-    d->m_useBuildDirectory = use;
-}
-
-/*!
-    Returns the shadow build directory.
-
-    \sa setBuildDirectory, useBuildDirectory
+    \sa setBuildDirectory
 */
 QString DocumentManager::buildDirectory()
 {
@@ -1318,7 +1289,7 @@ QString DocumentManager::buildDirectory()
 /*!
     Sets the shadow build directory to \a directory.
 
-    \sa buildDirectory, useBuildDirectory
+    \sa buildDirectory
 */
 void DocumentManager::setBuildDirectory(const QString &directory)
 {

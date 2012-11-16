@@ -33,23 +33,6 @@
         </attribute>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="Utils::PathChooser" name="projectsDirectoryPathChooser" native="true"/>
-      </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="buildDirectoryCheckBox">
-        <property name="text">
-         <string>Build directory</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="Utils::PathChooser" name="buildDirectoryPathChooser" native="true">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="0">
        <widget class="QRadioButton" name="directoryRadioButton">
         <property name="text">
@@ -62,6 +45,9 @@
          <string notr="true">directoryButtonGroup</string>
         </attribute>
        </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="Utils::PathChooser" name="projectsDirectoryPathChooser"/>
       </item>
      </layout>
     </widget>
@@ -124,7 +110,7 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1" rowspan="2">
+      <item row="3" column="1">
        <widget class="QWidget" name="widget" native="true">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <property name="margin">
@@ -163,7 +149,21 @@
         </layout>
        </widget>
       </item>
-      <item row="7" column="0">
+      <item row="4" column="0">
+       <widget class="QCheckBox" name="showRunOutputCheckBox">
+        <property name="text">
+         <string>Open application output pane when running</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QCheckBox" name="showDebugOutputCheckBox">
+        <property name="text">
+         <string>Open application output pane when debugging</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
        <widget class="QCheckBox" name="promptToStopRunControlCheckBox">
         <property name="toolTip">
          <string>Ask before terminating the running application in response to clicking the stop button in Application Output.</string>
@@ -173,7 +173,7 @@
         </property>
        </widget>
       </item>
-      <item row="8" column="0" colspan="2">
+      <item row="7" column="0" colspan="2">
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="spacing">
          <number>0</number>
@@ -206,19 +206,29 @@
         </item>
        </layout>
       </item>
-      <item row="5" column="0">
-       <widget class="QCheckBox" name="showRunOutputCheckBox">
-        <property name="text">
-         <string>Open application output pane when running</string>
+      <item row="8" column="0" colspan="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <property name="topMargin">
+         <number>12</number>
         </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QCheckBox" name="showDebugOutputCheckBox">
-        <property name="text">
-         <string>Open application output pane when debugging</string>
-        </property>
-       </widget>
+        <item>
+         <widget class="QLabel" name="buildDirLabel">
+          <property name="text">
+           <string>Default Build Directory:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="buildDirectoryEdit"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="resetButton">
+          <property name="text">
+           <string>Reset</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
      <zorder>saveAllFilesCheckBox</zorder>
@@ -252,8 +262,8 @@
  <customwidgets>
   <customwidget>
    <class>Utils::PathChooser</class>
-   <extends>QWidget</extends>
-   <header location="global">utils/pathchooser.h</header>
+   <extends>QLineEdit</extends>
+   <header>utils/pathchooser.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -129,9 +129,6 @@ public:
     static QString projectsDirectory();
     static void setProjectsDirectory(const QString &);
 
-    static bool useBuildDirectory();
-    static void setUseBuildDirectory(bool use);
-
     static QString buildDirectory();
     static void setBuildDirectory(const QString &directory);
 

@@ -227,6 +227,8 @@ const char VARIABLE_SUPPORT_PROPERTY[] = "QtCreator.VariableSupport";
 
 const char TR_CLEAR_MENU[]         = QT_TRANSLATE_NOOP("Core", "Clear Menu");
 
+const char DEFAULT_BUILD_DIRECTORY[] = "../build-%{CurrentProject:Name}-%{CurrentKit:FileSystemName}-%{CurrentBuild:Name}";
+
 const int TARGET_ICON_SIZE = 32;
 
 } // namespace Constants

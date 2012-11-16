@@ -47,6 +47,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/variablemanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <cpptools/ModelManagerInterface.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -67,6 +68,7 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
 #include <utils/QtConcurrentTools>
+#include <utils/stringutils.h>
 
 #include <QDebug>
 #include <QDir>
@@ -114,6 +116,53 @@ QString sanitize(const QString &input)
     }
     return result;
 }
+
+class Qt4ProjectExpander : public Utils::AbstractQtcMacroExpander
+{
+public:
+    Qt4ProjectExpander(const QString &proFilePath, const Kit *k, const QString &bcName) :
+        m_proFile(proFilePath), m_kit(k), m_bcName(bcName)
+    { }
+
+    bool resolveMacro(const QString &name, QString *ret)
+    {
+        QString result;
+        bool found = false;
+        if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTPROJECT_NAME)) {
+            result = m_proFile.baseName();
+            found = true;
+        } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTPROJECT_PATH)) {
+            result = m_proFile.absolutePath();
+            found = true;
+        } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTPROJECT_FILEPATH)) {
+            result = m_proFile.absoluteFilePath();
+            found = true;
+        } else if (m_kit && name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTKIT_NAME)) {
+            result = m_kit->displayName();
+            found = true;
+        } else if (m_kit && name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTKIT_FILESYSTEMNAME)) {
+            result = m_kit->fileSystemFriendlyName();
+            found = true;
+        } else if (m_kit && name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTKIT_ID)) {
+            result = m_kit->id().toString();
+            found = true;
+        } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTBUILD_NAME)) {
+            result = m_bcName;
+            found = true;
+        } else {
+            result = Core::VariableManager::instance()->value(name.toUtf8(), &found);
+        }
+        if (ret)
+            *ret = result;
+        return found;
+    }
+
+private:
+    QFileInfo m_proFile;
+    const Kit *m_kit;
+    QString m_bcName;
+    Utils::AbstractMacroExpander *m_expander;
+};
 
 } // namespace
 
@@ -1411,35 +1460,20 @@ QString Qt4Project::disabledReasonForRunConfiguration(const QString &proFilePath
             .arg(QFileInfo(proFilePath).fileName());
 }
 
-QString Qt4Project::shadowBuildDirectory(const QString &profilePath, const Kit *k, const QString &suffix)
+QString Qt4Project::shadowBuildDirectory(const QString &proFilePath, const Kit *k, const QString &suffix)
 {
-    if (profilePath.isEmpty())
+    if (proFilePath.isEmpty())
         return QString();
-    QFileInfo info(profilePath);
+    QFileInfo info(proFilePath);
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
     if (version && !version->supportsShadowBuilds())
         return info.absolutePath();
 
-    Utils::FileName buildDirBase = Utils::FileName::fromString(projectDirectory(profilePath));
-    if (Core::DocumentManager::useProjectsDirectory() &&
-        Core::DocumentManager::useBuildDirectory()) {
-        const Utils::FileName projectsDirectory =
-            Utils::FileName::fromString(Core::DocumentManager::projectsDirectory());
-
-        if (buildDirBase.isChildOf(projectsDirectory)) {
-            Utils::FileName buildDirectory =
-                Utils::FileName::fromString(Core::DocumentManager::buildDirectory());
-
-            buildDirectory.appendPath(buildDirBase.relativeChildPath(projectsDirectory).toString());
-            buildDirBase = buildDirectory;
-        }
-    }
-
-    buildDirBase.append(QLatin1String("-build-") + buildNameFor(k) +
-                        QLatin1Char('-') + sanitize(suffix));
-
-    return QDir::cleanPath(buildDirBase.toString());
+    Qt4ProjectExpander expander(proFilePath, k, suffix);
+    QDir projectDir = QDir(projectDirectory(proFilePath));
+    QString buildPath = Utils::expandMacros(Core::DocumentManager::buildDirectory(), &expander);
+    return QDir::cleanPath(projectDir.absoluteFilePath(buildPath));
 }
 
 QString Qt4Project::buildNameFor(const Kit *k)
