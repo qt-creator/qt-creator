@@ -769,11 +769,18 @@ def qByteArrayData(value):
         # Qt 4:
         return private['data'], int(private['size']), int(private['alloc'])
 
-def encodeByteArray(value):
+def computeLimit(size, limit):
+    if limit is None:
+        return size
+    if limit == 0:
+        return min(size, qqStringCutOff)
+    return min(size, limit)
+
+def encodeByteArray(value, limit = None):
     data, size, alloc = qByteArrayData(value)
     if alloc != 0:
         check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    limit = min(size, qqStringCutOff)
+    limit = computeLimit(size, limit)
     s = readRawMemory(data, limit)
     if limit < size:
         s += "2e2e2e"
@@ -792,11 +799,11 @@ def qStringData(value):
         # Qt 4.
         return private['data'], int(private['size']), int(private['alloc'])
 
-def encodeString(value):
+def encodeString(value, limit = 0):
     data, size, alloc = qStringData(value)
     if alloc != 0:
         check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    limit = min(size, qqStringCutOff)
+    limit = computeLimit(size, limit)
     s = readRawMemory(data, 2 * limit)
     if limit < size:
         s += "2e002e002e00"
