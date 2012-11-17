@@ -323,7 +323,7 @@ bool SessionManager::save()
                 .arg(c.red(), 2, 16, QLatin1Char('0'))
                 .arg(c.green(), 2, 16, QLatin1Char('0'))
                 .arg(c.blue(), 2, 16, QLatin1Char('0'));
-        writer.saveValue(QLatin1String("Color"), tmp);
+        data.insert(QLatin1String("Color"), tmp);
     }
 
     QStringList projectFiles;
