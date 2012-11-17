@@ -373,6 +373,8 @@ static QRegExp vimPatternToQtPattern(QString needle, bool smartcase)
 
     bool escape = false;
     bool brace = false;
+    bool embraced = false;
+    bool range = false;
     bool curly = false;
     foreach (const QChar &c, needle) {
         if (brace) {
@@ -380,11 +382,35 @@ static QRegExp vimPatternToQtPattern(QString needle, bool smartcase)
             if (c == ']') {
                 pattern.append(_("\\[\\]"));
                 continue;
-            } else {
-                pattern.append('[');
             }
+            pattern.append('[');
+            escape = true;
+            embraced = true;
         }
-        if (QString("(){}+|?").indexOf(c) != -1) {
+        if (embraced) {
+            if (range) {
+                QChar c2 = pattern[pattern.size() - 2];
+                pattern.remove(pattern.size() - 2, 2);
+                pattern.append(c2.toUpper() + '-' + c.toUpper());
+                pattern.append(c2.toLower() + '-' + c.toLower());
+                range = false;
+            } else if (escape) {
+                escape = false;
+                pattern.append(c);
+            } else if (c == '\\') {
+                escape = true;
+            } else if (c == ']') {
+                pattern.append(']');
+                embraced = false;
+            } else if (c == '-') {
+                range = ignorecase && pattern[pattern.size() - 1].isLetter();
+                pattern.append('-');
+            } else if (c.isLetter() && ignorecase) {
+                pattern.append(c.toLower() + c.toUpper());
+            } else {
+                pattern.append(c);
+            }
+        } else if (QString("(){}+|?").indexOf(c) != -1) {
             if (c == '{') {
                 curly = escape;
             } else if (c == '}' && curly) {
@@ -2299,9 +2325,8 @@ void FakeVimHandler::Private::updateFind(bool isComplete)
 
     g.currentMessage.clear();
 
-    const QString &needle = g.searchBuffer.contents();
     SearchData sd;
-    sd.needle = needle;
+    sd.needle = g.searchBuffer.contents();
     sd.forward = g.lastSearchForward;
     sd.highlightMatches = isComplete;
     if (isComplete) {
