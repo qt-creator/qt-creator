@@ -880,15 +880,17 @@
     is also easier to extend as the script is less dependent on the
     actual Qt version and does not need compilation.
 
-    To extend the shipped Python based debugging helpers for custom types,
-    define one Python function per user defined type in the
-    GDB startup file. By default, the following startup file is used:
-    \c{~/.gdbinit}. To use another file, select \gui {Tools > Options >
-    Debugger > GDB}
-    and specify a filename in the \gui {GDB startup script} field.
+    To extend the shipped Python based debugging helpers for custom
+    types, add debugging helper implementations to the GDB startup file
+    \c{~/.gdbinit}, or specify them directly in the \gui{Additional
+    Startup Commands} in \gui {Tools > Options > Debugger > GDB}.
 
-    The function name has to be qdump__NS__Foo, where NS::Foo is the class
-    or class template to be examined. Nested namespaces are possible.
+    The implementation of a debugging helper typically
+    consists of a single Python function, which needs to be named
+    \c{qdump__NS__Foo}, where \c{NS::Foo} is the class
+    or class template to be examined. Note that the \c{::} scope
+    resolution operator is replaced by double underscores \c{__}.
+    Nested namespaces are possible.
 
     The debugger plugin calls this function whenever you want to
     display an object of this type. The function is passed the following
@@ -914,9 +916,6 @@
         p_ptr = value["p"]
         alloc = d_ptr["alloc"]
         size = d_ptr["size"]
-
-        check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
-        checkRef(d_ptr["ref"])
 
         innerType = templateArgument(value.type, 0)
         d.putItemCount(size)

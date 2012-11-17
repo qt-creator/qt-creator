@@ -229,7 +229,12 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "<html><head/><body><p>GDB commands entered here will be executed after "
         "GDB has been started and the debugging helpers have been initialized.</p>"
         "<p>You can add commands to load further debugging helpers here, or "
-        "modify existing ones.</p><p>To execute arbitrary Python scripts, "
+        "modify existing ones.</p>"
+        "<p>To execute simple Python commands, prefix them with \"python\".</p>"
+        "<p>To execute sequences of Python commands spanning multiple lines "
+        "prepend the block with \"python\" on a separate line, and append "
+        "\"end\" on a separate line.</p>"
+        "<p>To execute arbitrary Python scripts, "
         "use <i>python execfile('/path/to/script.py')</i>.</p>"
         "</body></html>"));
 
