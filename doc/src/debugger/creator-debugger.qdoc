@@ -1068,7 +1068,12 @@
 
         \o  \gui{putCallItem(self, name, value, func, *args)} -
             Uses GDB to call the function \c func on the value specified by
-            \a {value} and output the resulting item.
+            \a {value} and output the resulting item. Use \c{putCallItem}
+            only if there is no other way to access the data.
+            Calls cannot be executed
+            when inspecting a core file, they are expensive to execute
+            and have the potential to change the state of the debugged
+            program.
 
         \o  \gui{putItem(self, value)} - The "master function", handling
             basic types, references, pointers and enums directly, iterates
