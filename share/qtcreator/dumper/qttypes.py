@@ -1477,6 +1477,19 @@ def qdump__QString(d, value):
         d.putField("editvalue", encodeString(value, None))
 
 
+def qdump__QStringRef(d, value):
+    s = value["m_string"].dereference()
+    data, size, alloc = qStringData(s)
+    data += int(value["m_position"])
+    size = value["m_size"]
+    s = readRawMemory(data, 2 * size)
+    d.putValue(s, Hex4EncodedLittleEndian)
+    d.putNumChild(3)
+    if d.isExpanded():
+        with Children(d):
+            d.putFields(value)
+
+
 def qdump__QStringList(d, value):
     d_ptr = value['d']
     begin = d_ptr['begin']

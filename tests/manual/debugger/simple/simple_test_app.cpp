@@ -3676,11 +3676,22 @@ namespace qstring  {
         dummyStatement(&str, &string, pstring);
     }
 
+    void testQStringRef()
+    {
+        QString str = "Hello";
+        QStringRef ref(&str, 1, 2);
+        BREAK_HERE;
+        // Check ref "el" QString.
+        // Continue.
+        dummyStatement(&str, &ref);
+    }
+
     void testQString()
     {
         testQString1();
         testQString2();
         testQString3();
+        testQStringRef();
         testQStringQuotes();
     }
 
