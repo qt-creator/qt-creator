@@ -60,7 +60,7 @@ VariableChooser::VariableChooser(QWidget *parent) :
 
     VariableManager *vm = VariableManager::instance();
     foreach (const QByteArray &variable, vm->variables())
-        ui->variableList->addItem(variable);
+        ui->variableList->addItem(QString::fromLatin1(variable));
 
     connect(ui->variableList, SIGNAL(currentTextChanged(QString)),
             this, SLOT(updateDescription(QString)));

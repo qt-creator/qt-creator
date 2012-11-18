@@ -633,7 +633,7 @@ OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text,
     fnt.setPixelSize(11);
     m_label->setFont(fnt);
     m_label->setAlignment(Qt::AlignCenter);
-    m_label->setStyleSheet("background-color: #818181; color: white; border-radius: 6; padding-left: 4; padding-right: 4;");
+    m_label->setStyleSheet(QLatin1String("background-color: #818181; color: white; border-radius: 6; padding-left: 4; padding-right: 4;"));
     m_label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     m_label->hide();
 }
@@ -700,9 +700,11 @@ void OutputPaneToggleButton::checkStateSet()
     m_flashTimer->stop();
 
     if (isChecked())
-        m_label->setStyleSheet("background-color: #e1e1e1; color: #606060; border-radius: 6; padding-left: 4; padding-right: 4;");
+        m_label->setStyleSheet(QLatin1String("background-color: #e1e1e1; color: #606060; "
+                                             "border-radius: 6; padding-left: 4; padding-right: 4;"));
     else
-        m_label->setStyleSheet("background-color: #818181; color: white; border-radius: 6; padding-left: 4; padding-right: 4;");
+        m_label->setStyleSheet(QLatin1String("background-color: #818181; color: white; border-radius: 6; "
+                                             "padding-left: 4; padding-right: 4;"));
 }
 
 void OutputPaneToggleButton::flash(int count)

@@ -32,6 +32,7 @@ QtcPlugin {
         ]
     }
 
+    cpp.defines: base.concat([ "QT_NO_CAST_FROM_ASCII" ])
     files: [
         "basefilewizard.cpp",
         "basefilewizard.h",

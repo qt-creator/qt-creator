@@ -766,14 +766,14 @@ void SplitterOrView::unsplit()
             if (parentSplitter) { // not the toplevel splitterOrView
                 if (parentSplitter->orientation() == Qt::Horizontal) {
                     if (parentSplitter->widget(0) == this)
-                        m_view->setCloseSplitIcon(QIcon(Constants::ICON_CLOSE_SPLIT_LEFT));
+                        m_view->setCloseSplitIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_LEFT)));
                     else
-                        m_view->setCloseSplitIcon(QIcon(Constants::ICON_CLOSE_SPLIT_RIGHT));
+                        m_view->setCloseSplitIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_RIGHT)));
                 } else {
                     if (parentSplitter->widget(0) == this)
-                        m_view->setCloseSplitIcon(QIcon(Constants::ICON_CLOSE_SPLIT_TOP));
+                        m_view->setCloseSplitIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_TOP)));
                     else
-                        m_view->setCloseSplitIcon(QIcon(Constants::ICON_CLOSE_SPLIT_BOTTOM));
+                        m_view->setCloseSplitIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_BOTTOM)));
                 }
             }
         }

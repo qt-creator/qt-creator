@@ -189,7 +189,7 @@ MainWindow::MainWindow() :
     if (Utils::HostOsInfo::isAnyUnixHost() && !Utils::HostOsInfo::isMacHost()) {
         if (baseName == QLatin1String("windows")) {
             // Sometimes we get the standard windows 95 style as a fallback
-            if (QStyleFactory::keys().contains("Fusion"))
+            if (QStyleFactory::keys().contains(QLatin1String("Fusion")))
                 baseName = QLatin1String("fusion"); // Qt5
             else { // Qt4
                 // e.g. if we are running on a KDE4 desktop
