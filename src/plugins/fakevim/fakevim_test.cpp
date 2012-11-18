@@ -954,12 +954,29 @@ void FakeVimPlugin::test_vim_search()
     KEYS("n", X "abc abc abc abc");
     KEYS("N", "abc " X "abc abc abc");
 
-    NOT_IMPLEMENTED
+    // search is greedy
+    data.doCommand("set ws");
+    data.setText("abc" N "def" N "abc" N "ghi abc jkl");
+    KEYS("/[a-z]*<CR>", "abc" N X "def" N "abc" N "ghi abc jkl");
+    KEYS("2n", "abc" N "def" N "abc" N X "ghi abc jkl");
+    KEYS("3n", "abc" N "def" N "abc" N "ghi abc" X " jkl");
+    KEYS("3N", "abc" N "def" N "abc" N X "ghi abc jkl");
+    KEYS("2N", "abc" N X "def" N "abc" N "ghi abc jkl");
+
+    data.setText("a.b.c" N "" N "d.e.f");
+    KEYS("/[a-z]*<CR>", "a" X ".b.c" N "" N "d.e.f");
+    KEYS("n", "a." X "b.c" N "" N "d.e.f");
+    KEYS("2n", "a.b." X "c" N "" N "d.e.f");
+    KEYS("n", "a.b.c" N X "" N "d.e.f");
+    KEYS("n", "a.b.c" N "" N X "d.e.f");
+    KEYS("2N", "a.b." X "c" N "" N "d.e.f");
+    KEYS("2n", "a.b.c" N "" N X "d.e.f");
+
     // find same stuff forward and backward,
     // i.e. '<ab>c' forward but not 'a<bc>' backward
     data.setText("abc" N "def" N "ghi");
-    KEYS("/\\w\\{2}<CR>", X "abc" N "def" N "ghi");
-    KEYS("2n", "abc" N "def" N X "ghi");
+    KEYS("/\\w\\{2}<CR>", "abc" N X "def" N "ghi");
+    KEYS("n", "abc" N "def" N X "ghi");
     KEYS("N", "abc" N X "def" N "ghi");
     KEYS("N", X "abc" N "def" N "ghi");
     KEYS("2n2N", X "abc" N "def" N "ghi");

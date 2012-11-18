@@ -452,6 +452,94 @@ static QRegExp vimPatternToQtPattern(QString needle, bool smartcase)
     return QRegExp(pattern);
 }
 
+static bool afterEndOfLine(const QTextDocument *doc, int position)
+{
+    return doc->characterAt(position) == ParagraphSeparator
+        && doc->findBlock(position).length() > 1;
+}
+
+static void searchForward(QTextCursor *tc, QRegExp &needleExp, int *repeat)
+{
+    const QTextDocument *doc = tc->document();
+    const int startPos = tc->position();
+
+    // Search from beginning of line so that matched text is the same.
+    tc->movePosition(StartOfLine);
+
+    // forward to current position
+    *tc = doc->find(needleExp, *tc);
+    while (!tc->isNull() && tc->anchor() < startPos) {
+        if (!tc->hasSelection())
+            tc->movePosition(Right);
+        if (tc->atBlockEnd())
+            tc->movePosition(Right);
+        *tc = doc->find(needleExp, *tc);
+    }
+
+    if (tc->isNull())
+        return;
+
+    --*repeat;
+
+    while (*repeat > 0) {
+        if (!tc->hasSelection())
+            tc->movePosition(Right);
+        if (tc->atBlockEnd())
+            tc->movePosition(Right);
+        *tc = doc->find(needleExp, *tc);
+        if (tc->isNull())
+            return;
+        --*repeat;
+    }
+
+    if (!tc->isNull() && afterEndOfLine(doc, tc->anchor()))
+        tc->movePosition(Left);
+}
+
+static void searchBackward(QTextCursor *tc, QRegExp &needleExp, int *repeat)
+{
+    // Search from beginning of line so that matched text is the same.
+    QTextBlock block = tc->block();
+    QString line = block.text();
+
+    int i = line.indexOf(needleExp, 0);
+    while (i != -1 && i < tc->positionInBlock()) {
+        --*repeat;
+        i = line.indexOf(needleExp, i + qMax(1, needleExp.matchedLength()));
+        if (i == line.size())
+            i = -1;
+    }
+
+    if (i == tc->positionInBlock())
+        --*repeat;
+
+    while (*repeat > 0) {
+        block = block.previous();
+        if (!block.isValid())
+            break;
+        line = block.text();
+        i = line.indexOf(needleExp, 0);
+        while (i != -1) {
+            --*repeat;
+            i = line.indexOf(needleExp, i + qMax(1, needleExp.matchedLength()));
+            if (i == line.size())
+                i = -1;
+        }
+    }
+
+    if (!block.isValid()) {
+        *tc = QTextCursor();
+        return;
+    }
+
+    i = line.indexOf(needleExp, 0);
+    while (*repeat < 0) {
+        i = line.indexOf(needleExp, i + qMax(1, needleExp.matchedLength()));
+        ++*repeat;
+    }
+    tc->setPosition(block.position() + i);
+}
+
 static bool substituteText(QString *text, QRegExp &pattern, const QString &replacement,
     bool global)
 {
@@ -2360,8 +2448,7 @@ void FakeVimHandler::Private::fixSelection()
             // Omit first character in selection if it's line break on non-empty line.
             int start = anchor();
             int end = position();
-            if (document()->characterAt(start) == ParagraphSeparator
-                && start > 0 && document()->characterAt(start - 1) != ParagraphSeparator) {
+            if (afterEndOfLine(document(), start) && start > 0) {
                 start = qMin(start + 1, end);
                 if (m_submode == DeleteSubMode && !atDocumentEnd())
                     setAnchorAndPosition(start, end + 1);
@@ -5072,23 +5159,44 @@ void FakeVimHandler::Private::searchBalanced(bool forward, QChar needle, QChar o
 QTextCursor FakeVimHandler::Private::search(const SearchData &sd, int startPos, int count,
     bool showMessages)
 {
-    QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
-    if (!sd.forward)
-        flags |= QTextDocument::FindBackward;
-
     QRegExp needleExp = vimPatternToQtPattern(sd.needle, hasConfig(ConfigSmartCase));
+    if (!needleExp.isValid()) {
+        if (showMessages) {
+            QString error = needleExp.errorString();
+            showMessage(MessageError,
+                        FakeVimHandler::tr("Invalid regular expression: %1").arg(error));
+        }
+        if (sd.highlightMatches)
+            highlightMatches(QString());
+        return QTextCursor();
+    }
 
-    QTextCursor tc = document()->find(needleExp, startPos + (sd.forward ? 1 : -1), flags);
     int repeat = count;
-    while (!tc.isNull() && --repeat >= 1)
-        tc = document()->find(needleExp, tc, flags);
+    const int pos = startPos + (sd.forward ? 1 : -1);
+
+    QTextCursor tc;
+    if (pos >= 0 && pos < document()->characterCount()) {
+        tc = QTextCursor(document());
+        tc.setPosition(pos);
+        if (sd.forward && afterEndOfLine(document(), pos))
+            tc.movePosition(Right);
+
+        if (!tc.isNull()) {
+            if (sd.forward)
+                searchForward(&tc, needleExp, &repeat);
+            else
+                searchBackward(&tc, needleExp, &repeat);
+        }
+    }
 
     if (tc.isNull()) {
         if (hasConfig(ConfigWrapScan)) {
-            int newStartPos = sd.forward ? 0 : lastPositionInDocument(true);
-            tc = document()->find(needleExp, newStartPos, flags);
-            while (!tc.isNull() && --repeat >= 1)
-                tc = document()->find(needleExp, tc, flags);
+            tc = QTextCursor(document());
+            tc.movePosition(sd.forward ? StartOfDocument : EndOfDocument);
+            if (sd.forward)
+                searchForward(&tc, needleExp, &repeat);
+            else
+                searchBackward(&tc, needleExp, &repeat);
             if (tc.isNull()) {
                 if (showMessages) {
                     showMessage(MessageError,
@@ -5106,12 +5214,6 @@ QTextCursor FakeVimHandler::Private::search(const SearchData &sd, int startPos, 
                 : FakeVimHandler::tr("search hit TOP without match for: %1");
             showMessage(MessageError, msg.arg(sd.needle));
         }
-    }
-
-    if (tc.isNull() && !needleExp.isValid() && showMessages) {
-        QString error = needleExp.errorString();
-        showMessage(MessageError,
-                    FakeVimHandler::tr("Invalid regular expression: %1").arg(error));
     }
 
     if (sd.highlightMatches)
