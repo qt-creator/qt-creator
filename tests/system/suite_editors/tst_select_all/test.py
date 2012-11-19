@@ -42,7 +42,11 @@ def main():
             else:
                 pos = size
                 if key == "<Left>":
-                    pos -= 1
+                    if platform.system() == "Darwin":
+                        # native cursor behavior on Mac is different
+                        pos = 0
+                    else:
+                        pos -= 1
                 test.compare(editor.textCursor().selectionStart(), pos)
                 test.compare(editor.textCursor().selectionEnd(), pos)
                 test.compare(editor.textCursor().position(), pos)
