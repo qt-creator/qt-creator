@@ -997,7 +997,6 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
            "};\n"
            "\n"
            "Class<int> c;\n"
-           "c.\n"
            "@\n"
             ;
     completions.append("Class");
@@ -1007,5 +1006,4 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
     completions.append("class_recurse_t");
     QTest::newRow("case: direct cyclic inheritance with templates, more complex situation")
             << code << completions;
-
 }
