@@ -45,15 +45,16 @@ Component.prototype.beginInstallation = function()
 
 registerWindowsFileTypeExtensions = function()
 {
-    var headerExtensions = new Array("h", "hh", "hxx", "h++", "hpp", "hpp");
+    var headerExtensions = new Array("h", "hh", "hxx", "h++", "hpp");
 
     for (var i = 0; i < headerExtensions.length; ++i) {
         component.addOperation( "RegisterFileType",
                                 headerExtensions[i],
                                 "@TargetDir@\\bin\\qtcreator.exe -client '%1'",
                                 "C++ Header file",
-                                "",
-                                "@TargetDir@\\bin\\qtcreator.exe,3");
+                                "text/plain",
+                                "@TargetDir@\\bin\\qtcreator.exe,3",
+                                "ProgId=QtProject.QtCreator." + headerExtensions[i]);
     }
 
     var cppExtensions = new Array("cc", "cxx", "c++", "cp", "cpp");
@@ -63,46 +64,53 @@ registerWindowsFileTypeExtensions = function()
                                 cppExtensions[i],
                                 "@TargetDir@\\bin\\qtcreator.exe -client '%1'",
                                 "C++ Source file",
-                                "",
-                                "@TargetDir@\\bin\\qtcreator.exe,2");
+                                "text/plain",
+                                "@TargetDir@\\bin\\qtcreator.exe,2",
+                                "ProgId=QtProject.QtCreator." + cppExtensions[i]);
     }
 
     component.addOperation( "RegisterFileType",
                             "c",
                             "@TargetDir@\\bin\\qtcreator.exe -client '%1'",
                             "C Source file",
-                            "",
-                            "@TargetDir@\\bin\\qtcreator.exe,1");
+                            "text/plain",
+                            "@TargetDir@\\bin\\qtcreator.exe,1",
+                            "ProgId=QtProject.QtCreator.c");
     component.addOperation( "RegisterFileType",
                             "ui",
                             "@TargetDir@\\bin\\qtcreator.exe -client '%1'",
                             "Qt UI file",
-                            "",
-                            "@TargetDir@\\bin\\qtcreator.exe,4");
+                            "text/plain",
+                            "@TargetDir@\\bin\\qtcreator.exe,4",
+                            "ProgId=QtProject.QtCreator.ui");
     component.addOperation( "RegisterFileType",
                             "pro",
                             "@TargetDir@\\bin\\qtcreator.exe -client '%1'",
                             "Qt Project file",
-                            "",
-                            "@TargetDir@\\bin\\qtcreator.exe,5");
+                            "text/plain",
+                            "@TargetDir@\\bin\\qtcreator.exe,5",
+                            "ProgId=QtProject.QtCreator.pro");
     component.addOperation( "RegisterFileType",
                             "pri",
                             "@TargetDir@\\bin\\qtcreator.exe -client '%1'",
                             "Qt Project Include file",
-                            "",
-                            "@TargetDir@\\bin\\qtcreator.exe,6");
+                            "text/plain",
+                            "@TargetDir@\\bin\\qtcreator.exe,6",
+                            "ProgId=QtProject.QtCreator.pri");
     component.addOperation( "RegisterFileType",
                             "qs",
                             "@TargetDir@\\bin\\qtcreator.exe -client '%1'",
                             "Qt Script file",
-                            "",
-                            "@TargetDir@\\bin\\qtcreator.exe,0");
+                            "text/plain",
+                            "@TargetDir@\\bin\\qtcreator.exe,0",
+                            "ProgId=QtProject.QtCreator.qs");
     component.addOperation( "RegisterFileType",
                             "qml",
                             "@TargetDir@\\bin\\qtcreator.exe -client '%1'",
                             "Qt Quick Markup language file",
-                            "",
-                            "@TargetDir@\\bin\\qtcreator.exe,0");
+                            "text/plain",
+                            "@TargetDir@\\bin\\qtcreator.exe,0",
+                            "ProgId=QtProject.QtCreator.qml");
 }
 
 Component.prototype.createOperations = function()
