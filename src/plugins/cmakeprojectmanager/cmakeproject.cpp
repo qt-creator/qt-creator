@@ -52,9 +52,12 @@
 #include <cpptools/ModelManagerInterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/variablemanager.h>
 
 #include <QMap>
 #include <QDebug>
@@ -194,7 +197,8 @@ void CMakeProject::changeBuildDirectory(CMakeBuildConfiguration *bc, const QStri
 
 QString CMakeProject::defaultBuildDirectory() const
 {
-    return projectDirectory() + QLatin1String("-build");
+    return Utils::expandMacros(Core::DocumentManager::instance()->buildDirectory(),
+                               Core::VariableManager::instance()->macroExpander());
 }
 
 bool CMakeProject::parseCMakeLists()
