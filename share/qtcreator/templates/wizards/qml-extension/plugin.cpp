@@ -9,4 +9,6 @@ void %ProjectName:s%Plugin::registerTypes(const char *uri)
     qmlRegisterType<%ObjectName%>(uri, 1, 0, "%ObjectName%");
 }
 
-Q_EXPORT_PLUGIN2(%ProjectName:s%, %ProjectName:s%Plugin)
+#if QT_VERSION < 0x050000
+    Q_EXPORT_PLUGIN2(%ProjectName:s%, %ProjectName:s%Plugin)
+#endif
