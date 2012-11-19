@@ -7831,7 +7831,7 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>&amp;Debug</source>
-        <translation>&amp;Debuggen</translation>
+        <translation>Deb&amp;uggen</translation>
     </message>
     <message>
         <source>&amp;Start Debugging</source>
