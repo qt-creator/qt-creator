@@ -36,11 +36,11 @@ leave room for the Qt 4 target page.
 -->
 <wizard version="1" kind="project"
         class="qt4project" firstpage="10"
-        id="QmlExtensionPlugin" category="G.Libraries"
-        featuresRequired="QtSupport.Wizards.FeatureQtQuick,QtSupport.Wizards.FeatureQtQuick.1">
+        id="QtQuick2ExtensionPlugin" category="G.Libraries"
+        featuresRequired="QtSupport.Wizards.FeatureQtQuick,QtSupport.Wizards.FeatureQtQuick.2">
     <icon>lib.png</icon>
-    <description>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QDeclarativeEngine class.</description>
-    <displayname>Custom QML Extension Plugin</displayname>
+    <description>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QQmlEngine class.</description>
+    <displayname>Qt Quick 2 Extension Plugin</displayname>
     <displaycategory>Libraries</displaycategory>
     <files>
         <file source="qmldir" target="qmldir"/>

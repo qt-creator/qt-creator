@@ -1143,9 +1143,25 @@ Product {
     }
 
     Group {
-        qbs.installDir: "share/qtcreator/templates/wizards/qml-extension"
+        qbs.installDir: "share/qtcreator/templates/wizards/qtquick1-extension"
         fileTags: ["install"]
-        prefix: "qtcreator/templates/wizards/qml-extension/"
+        prefix: "qtcreator/templates/wizards/qtquick1-extension/"
+        files: [
+            "lib.png",
+            "object.cpp",
+            "object.h",
+            "plugin.cpp",
+            "plugin.h",
+            "project.pro",
+            "qmldir",
+            "wizard.xml",
+        ]
+    }
+
+    Group {
+        qbs.installDir: "share/qtcreator/templates/wizards/qtquick2-extension"
+        fileTags: ["install"]
+        prefix: "qtcreator/templates/wizards/qtquick2-extension/"
         files: [
             "lib.png",
             "object.cpp",
