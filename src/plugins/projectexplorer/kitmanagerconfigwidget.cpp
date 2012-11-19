@@ -98,6 +98,9 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k, QWidget *parent) :
 
 KitManagerConfigWidget::~KitManagerConfigWidget()
 {
+    qDeleteAll(m_widgets);
+    m_widgets.clear();
+
     delete m_modifiedKit;
     // Make sure our workingCopy did not get registered somehow:
     foreach (const Kit *k, KitManager::instance()->kits())
