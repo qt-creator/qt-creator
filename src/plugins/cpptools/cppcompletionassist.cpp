@@ -1437,7 +1437,7 @@ bool CppCompletionAssistProcessor::completeMember(const QList<CPlusPlus::LookupI
                                              m_model->m_completionOperator,
                                              &m_model->m_replaceDotForArrow)) {
         if (binding)
-            completeClass(binding, /*static lookup = */ false);
+            completeClass(binding, /*static lookup = */ true);
 
         return ! m_completions.isEmpty();
     }
