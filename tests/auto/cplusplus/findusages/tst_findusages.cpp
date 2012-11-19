@@ -79,6 +79,8 @@ private Q_SLOTS:
     void inlineMethod();
     void lambdaCaptureByValue();
     void lambdaCaptureByReference();
+    void shadowedNames_1();
+    void shadowedNames_2();
 
     // Qt keywords
     void qproperty_1();
@@ -183,6 +185,69 @@ void tst_FindUsages::lambdaCaptureByReference()
     Declaration *d = b->memberAt(0)->asDeclaration();
     QVERIFY(d);
     QCOMPARE(d->name()->identifier()->chars(), "test");
+
+    FindUsages findUsages(src, doc, snapshot);
+    findUsages(d);
+    QCOMPARE(findUsages.usages().size(), 3);
+}
+
+void tst_FindUsages::shadowedNames_1()
+{
+    const QByteArray src = "\n"
+                           "int a();\n"
+                           "struct X{ int a(); };\n"
+                           "int X::a() {}\n"
+                           "void f(X x) { x.a(); }\n"
+                           "void g() { a(); }\n"
+                           ;
+
+    Document::Ptr doc = Document::create("shadowedNames_1");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 5U);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Declaration *d = doc->globalSymbolAt(0)->asDeclaration();
+    QVERIFY(d);
+    QCOMPARE(d->name()->identifier()->chars(), "a");
+
+    FindUsages findUsages(src, doc, snapshot);
+    findUsages(d);
+    QCOMPARE(findUsages.usages().size(), 2);
+}
+
+void tst_FindUsages::shadowedNames_2()
+{
+    const QByteArray src = "\n"
+                           "int a();\n"
+                           "struct X{ int a(); };\n"
+                           "int X::a() {}\n"
+                           "void f(X x) { x.a(); }\n"
+                           "void g() { a(); }\n";
+
+    Document::Ptr doc = Document::create("shadowedNames_2");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 5U);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Class *c = doc->globalSymbolAt(1)->asClass();
+    QVERIFY(c);
+    QCOMPARE(c->name()->identifier()->chars(), "X");
+    QCOMPARE(c->memberCount(), 1U);
+    Declaration *d = c->memberAt(0)->asDeclaration();
+    QVERIFY(d);
+    QCOMPARE(d->name()->identifier()->chars(), "a");
 
     FindUsages findUsages(src, doc, snapshot);
     findUsages(d);

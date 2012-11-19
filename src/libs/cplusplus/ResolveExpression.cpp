@@ -806,7 +806,7 @@ bool ResolveExpression::visit(MemberAccessAST *ast)
     const int accessOp = tokenKind(ast->access_token);
 
     if (ClassOrNamespace *binding = baseExpression(baseResults, accessOp))
-        addResults(binding->lookup(memberName));
+        addResults(binding->find(memberName));
 
     return false;
 }

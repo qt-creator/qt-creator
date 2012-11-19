@@ -111,6 +111,7 @@ private:
     AlreadyConsideredClassContainer<TemplateNameId> _alreadyConsideredTemplates;
 
 #ifdef DEBUG_LOOKUP
+public:
     const Name *_name;
 #endif // DEBUG_LOOKUP
 
