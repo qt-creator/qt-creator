@@ -95,11 +95,11 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)
                                                      "Could not find explorer.exe in path to launch Windows Explorer."));
         return;
     }
-    QString param;
+    QStringList param;
     if (!QFileInfo(pathIn).isDir())
-        param = QLatin1String("/select,");
+        param += QLatin1String("/select,");
     param += QDir::toNativeSeparators(pathIn);
-    QProcess::startDetached(explorer, QStringList(param));
+    QProcess::startDetached(explorer, param);
 #elif defined(Q_OS_MAC)
     Q_UNUSED(parent)
     QStringList scriptArgs;
