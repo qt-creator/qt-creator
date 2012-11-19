@@ -204,7 +204,7 @@ def __getTargetFromToolTip__(toolTip):
     if toolTip == None or not isinstance(toolTip, (str, unicode)):
         test.warning("Parameter toolTip must be of type str or unicode and can't be None!")
         return None
-    pattern = re.compile(".*<b>Target:</b>(.*)<b>Deploy.*")
+    pattern = re.compile(".*<b>Kit:</b>(.*)<b>Deploy.*")
     target = pattern.match(toolTip)
     if target == None:
         test.fatal("UI seems to have changed - expected ToolTip does not match.",
