@@ -37,6 +37,8 @@
 
 #include "settings.h"
 
+#include <QDir>
+
 #include <iostream>
 
 // Qt version file stuff:
@@ -172,9 +174,15 @@ bool AddQtOperation::test() const
             || map.value(QLatin1String(VERSION)).toInt() != 1)
         return false;
 
+#if defined Q_OS_WIN
     map = addQt(map, QLatin1String("testId"), QLatin1String("Test Qt Version"), QLatin1String("testType"),
-                QLatin1String("/tmp/test/qmake"),
+                QLatin1String("/tmp//../tmp/test\\qmake"),
                 KeyValuePairList() << KeyValuePair(QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))));
+#else
+    map = addQt(map, QLatin1String("testId"), QLatin1String("Test Qt Version"), QLatin1String("testType"),
+                QLatin1String("/tmp//../tmp/test/qmake"),
+                KeyValuePairList() << KeyValuePair(QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))));
+#endif
 
     if (map.count() != 2
             || !map.contains(QLatin1String(VERSION))
@@ -281,13 +289,16 @@ QVariantMap AddQtOperation::addQt(const QVariantMap &map,
         nameList << GetOperation::get(map, nameKey).toString();
     const QString uniqueName = makeUnique(displayName, nameList);
 
+    // Sanitize qmake path:
+    QString saneQmake = QDir::cleanPath(QDir::fromNativeSeparators(qmake));
+
     // insert data:
     KeyValuePairList data;
     data << KeyValuePair(QStringList() << qt << QLatin1String(ID), QVariant(-1));
     data << KeyValuePair(QStringList() << qt << QLatin1String(DISPLAYNAME), QVariant(uniqueName));
     data << KeyValuePair(QStringList() << qt << QLatin1String(AUTODETECTED), QVariant(true));
     data << KeyValuePair(QStringList() << qt << QLatin1String(AUTODETECTION_SOURCE), QVariant(id));
-    data << KeyValuePair(QStringList() << qt << QLatin1String(QMAKE), QVariant(qmake));
+    data << KeyValuePair(QStringList() << qt << QLatin1String(QMAKE), QVariant(saneQmake));
     data << KeyValuePair(QStringList() << qt << QLatin1String(TYPE), QVariant(type));
 
     KeyValuePairList qtExtraList;
