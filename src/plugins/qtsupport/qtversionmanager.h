@@ -118,7 +118,6 @@ private:
     static BaseQtVersion::QmakeBuildConfigs qmakeBuildConfigFromCmdArgs(QList<QMakeAssignment> *assignments,
                                                                     BaseQtVersion::QmakeBuildConfigs defaultBuildConfig);
     bool restoreQtVersions();
-    bool legacyRestore();
     void findSystemQt();
     void saveQtVersions();
     void updateDocumentation();
