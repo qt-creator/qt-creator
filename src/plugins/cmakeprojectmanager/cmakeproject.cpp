@@ -303,13 +303,15 @@ bool CMakeProject::parseCMakeLists()
     allIncludePaths.append(projectDirectory());
     allIncludePaths.append(cbpparser.includeFiles());
 
+    QStringList cxxflags; // FIXME: We should do better than this!
+
     QByteArray allDefines;
-    allDefines.append(tc->predefinedMacros(QStringList()));
+    allDefines.append(tc->predefinedMacros(cxxflags));
     allDefines.append(cbpparser.defines());
 
     QStringList allFrameworkPaths;
     QList<ProjectExplorer::HeaderPath> allHeaderPaths;
-    allHeaderPaths = tc->systemHeaderPaths(SysRootKitInformation::sysRoot(k));
+    allHeaderPaths = tc->systemHeaderPaths(cxxflags, SysRootKitInformation::sysRoot(k));
     foreach (const ProjectExplorer::HeaderPath &headerPath, allHeaderPaths) {
         if (headerPath.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath)
             allFrameworkPaths.append(headerPath.path());

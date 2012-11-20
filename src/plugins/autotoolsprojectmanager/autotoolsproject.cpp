@@ -408,18 +408,21 @@ void AutotoolsProject::updateCppCodeModel()
     QStringList allFrameworkPaths;
     QByteArray macros;
 
+    QStringList cxxflags; // FIXME: Autotools should be able to do better than this!
+
     if (activeTarget()) {
         ProjectExplorer::Kit *k = activeTarget()->kit();
         ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
         if (tc) {
-            const QList<HeaderPath> allHeaderPaths = tc->systemHeaderPaths(SysRootKitInformation::sysRoot(k));
+            const QList<HeaderPath> allHeaderPaths = tc->systemHeaderPaths(cxxflags,
+                                                                           SysRootKitInformation::sysRoot(k));
             foreach (const HeaderPath &headerPath, allHeaderPaths) {
                 if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
                     allFrameworkPaths.append(headerPath.path());
                 else
                     allIncludePaths.append(headerPath.path());
             }
-            macros = tc->predefinedMacros(QStringList());
+            macros = tc->predefinedMacros(cxxflags);
             macros += '\n';
         }
     }

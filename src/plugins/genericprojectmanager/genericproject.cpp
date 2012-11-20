@@ -250,10 +250,11 @@ void GenericProject::refresh(RefreshOptions options)
         Kit *k = activeTarget() ? activeTarget()->kit() : KitManager::instance()->defaultKit();
         ToolChain *tc = k ? ToolChainKitInformation::toolChain(k) : 0;
         if (tc) {
-            part->defines = tc->predefinedMacros(QStringList());
+            QStringList cxxflags; // FIXME: Can we do better?
+            part->defines = tc->predefinedMacros(cxxflags);
             part->defines += '\n';
 
-            foreach (const HeaderPath &headerPath, tc->systemHeaderPaths(SysRootKitInformation::sysRoot(k))) {
+            foreach (const HeaderPath &headerPath, tc->systemHeaderPaths(cxxflags, SysRootKitInformation::sysRoot(k))) {
                 if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
                     part->frameworkPaths.append(headerPath.path());
                 else

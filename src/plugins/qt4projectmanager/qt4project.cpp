@@ -541,9 +541,11 @@ void Qt4Project::updateCppCodeModel()
         ProjectPart::Ptr part(new ProjectPart);
         part->qtVersion = qtVersionForPart;
 
+        QStringList cxxflags = pro->variableValue(CppFlagsVar);
+
         // part->defines
         if (tc)
-            part->defines = tc->predefinedMacros(pro->variableValue(CppFlagsVar));
+            part->defines = tc->predefinedMacros(cxxflags);
         part->defines += pro->cxxDefines();
 
         // part->includePaths
@@ -551,7 +553,7 @@ void Qt4Project::updateCppCodeModel()
 
         QList<HeaderPath> headers;
         if (tc)
-            headers = tc->systemHeaderPaths(SysRootKitInformation::sysRoot(k)); // todo pass cxxflags?
+            headers = tc->systemHeaderPaths(cxxflags, SysRootKitInformation::sysRoot(k));
         if (qtVersion) {
             headers.append(qtVersion->systemHeaderPathes(k));
         }
