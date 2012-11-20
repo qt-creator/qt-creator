@@ -102,7 +102,7 @@ QVariantMap ProjectConfiguration::toMap() const
 
 bool ProjectConfiguration::fromMap(const QVariantMap &map)
 {
-    m_id = Core::Id(map.value(QLatin1String(CONFIGURATION_ID_KEY), QByteArray()).toByteArray().constData());
+    m_id = Core::Id(map.value(QLatin1String(CONFIGURATION_ID_KEY), QByteArray()).toByteArray());
     m_displayName = map.value(QLatin1String(DISPLAY_NAME_KEY), QString()).toString();
     m_defaultDisplayName = map.value(QLatin1String(DEFAULT_DISPLAY_NAME_KEY),
                                      m_defaultDisplayName.isEmpty() ?

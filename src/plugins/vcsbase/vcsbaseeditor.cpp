@@ -178,7 +178,7 @@ private:
 VcsBaseEditor::VcsBaseEditor(VcsBaseEditorWidget *widget,
                              const VcsBaseEditorParameters *type)  :
     BaseTextEditor(widget),
-    m_id(type->id),
+    m_id(QByteArray(type->id)),
     m_temporary(false)
 {
     setContext(Core::Context(type->context, TextEditor::Constants::C_TEXTEDITOR));

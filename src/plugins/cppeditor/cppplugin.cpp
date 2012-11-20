@@ -98,7 +98,7 @@ CppEditorFactory::CppEditorFactory(CppPlugin *owner) :
 
 Core::Id CppEditorFactory::id() const
 {
-    return CppEditor::Constants::CPPEDITOR_ID;
+    return Core::Id(CppEditor::Constants::CPPEDITOR_ID);
 }
 
 QString CppEditorFactory::displayName() const

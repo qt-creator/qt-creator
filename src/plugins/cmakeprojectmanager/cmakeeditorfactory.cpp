@@ -69,7 +69,7 @@ CMakeEditorFactory::CMakeEditorFactory(CMakeManager *manager)
 
 Core::Id CMakeEditorFactory::id() const
 {
-    return CMakeProjectManager::Constants::CMAKE_EDITOR_ID;
+    return Core::Id(CMakeProjectManager::Constants::CMAKE_EDITOR_ID);
 }
 
 QString CMakeEditorFactory::displayName() const

@@ -65,7 +65,7 @@ QStringList ProjectFileFactory::mimeTypes() const
 
 Core::Id ProjectFileFactory::id() const
 {
-    return Constants::FILE_FACTORY_ID;
+    return Core::Id(Constants::FILE_FACTORY_ID);
 }
 
 QString ProjectFileFactory::displayName() const

@@ -558,14 +558,14 @@ void TaskWindow::updateCategoriesMenu()
         action->setCheckable(true);
         action->setText(displayName);
         action->setData(categoryId);
-        action->setChecked(!filteredCategories.contains(Core::Id(categoryId.constData())));
+        action->setChecked(!filteredCategories.contains(Core::Id(categoryId)));
         d->m_categoriesMenu->addAction(action);
     }
 }
 
 void TaskWindow::filterCategoryTriggered(QAction *action)
 {
-    Core::Id categoryId(action->data().toByteArray().constData());
+    Core::Id categoryId(action->data().toByteArray());
     QTC_CHECK(categoryId.uniqueIdentifier() != 0);
 
     setCategoryVisibility(categoryId, action->isChecked());

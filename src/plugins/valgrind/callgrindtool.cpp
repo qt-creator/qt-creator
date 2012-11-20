@@ -516,7 +516,7 @@ CallgrindTool::~CallgrindTool()
 
 Core::Id CallgrindTool::id() const
 {
-    return "Callgrind";
+    return Core::Id("Callgrind");
 }
 
 ProjectExplorer::RunMode CallgrindTool::runMode() const

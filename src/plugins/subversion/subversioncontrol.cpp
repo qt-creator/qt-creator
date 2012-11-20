@@ -50,7 +50,7 @@ QString SubversionControl::displayName() const
 
 Core::Id SubversionControl::id() const
 {
-    return VcsBase::Constants::VCS_ID_SUBVERSION;
+    return Core::Id(VcsBase::Constants::VCS_ID_SUBVERSION);
 }
 
 bool SubversionControl::isConfigured() const

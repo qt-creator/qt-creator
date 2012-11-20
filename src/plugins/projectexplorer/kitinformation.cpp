@@ -312,7 +312,7 @@ const Core::Id DeviceTypeKitInformation::deviceTypeId(const Kit *k)
 {
     if (!k)
         return Core::Id();
-    return Core::Id(k->value(Core::Id(DEVICETYPE_INFORMATION)).toByteArray().constData());
+    return Core::Id(k->value(Core::Id(DEVICETYPE_INFORMATION)).toByteArray());
 }
 
 void DeviceTypeKitInformation::setDeviceTypeId(Kit *k, Core::Id type)

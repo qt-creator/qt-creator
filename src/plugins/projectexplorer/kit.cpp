@@ -89,7 +89,7 @@ public:
         m_mustNotify(false)
     {
         if (!id.isValid())
-            m_id = Core::Id(QUuid::createUuid().toString().toLatin1().constData());
+            m_id = Core::Id(QUuid::createUuid().toString().toLatin1());
     }
 
     QString m_displayName;

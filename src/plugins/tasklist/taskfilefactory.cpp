@@ -59,7 +59,7 @@ QStringList TaskFileFactory::mimeTypes() const
 
 Core::Id TaskFileFactory::id() const
 {
-    return "ProjectExplorer.TaskFileFactory";
+    return Core::Id("ProjectExplorer.TaskFileFactory");
 }
 
 QString TaskFileFactory::displayName() const

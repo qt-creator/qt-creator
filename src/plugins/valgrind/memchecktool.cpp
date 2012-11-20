@@ -283,7 +283,7 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
 
 Core::Id MemcheckTool::id() const
 {
-    return "Memcheck";
+    return Core::Id("Memcheck");
 }
 
 ProjectExplorer::RunMode MemcheckTool::runMode() const

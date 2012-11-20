@@ -54,7 +54,7 @@ ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin) :
 
 Core::Id ResourceEditorFactory::id() const
 {
-    return RESOURCEEDITOR_ID;
+    return Core::Id(RESOURCEEDITOR_ID);
 }
 
 QString ResourceEditorFactory::displayName() const

@@ -43,7 +43,8 @@ class CORE_EXPORT Id
 public:
     Id() : m_id(0) {}
     Id(const char *name);
-    // FIXME: Replace with QByteArray
+    explicit Id(const QByteArray &name);
+    // FIXME: Remove
     explicit Id(const QString &name);
     QByteArray name() const;
     QString toString() const;

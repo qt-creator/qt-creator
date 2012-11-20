@@ -208,7 +208,7 @@ Core::IDocument *FormWindowEditor::document()
 
 Core::Id FormWindowEditor::id() const
 {
-    return Designer::Constants::K_DESIGNER_XML_EDITOR_ID;
+    return Core::Id(Designer::Constants::K_DESIGNER_XML_EDITOR_ID);
 }
 
 QString FormWindowEditor::displayName() const
@@ -278,7 +278,7 @@ TextEditor::PlainTextEditor *FormWindowEditor::textEditor()
 
 Core::Id FormWindowEditor::preferredModeType() const
 {
-    return Core::Constants::MODE_DESIGN_TYPE;
+    return Core::Id(Core::Constants::MODE_DESIGN_TYPE);
 }
 
 } // namespace Designer

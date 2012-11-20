@@ -300,7 +300,7 @@ void IDevice::fromMap(const QVariantMap &map)
 {
     d->type = typeFromMap(map);
     d->displayName = map.value(QLatin1String(DisplayNameKey)).toString();
-    d->id = Core::Id(map.value(QLatin1String(IdKey), newId().name()).toByteArray().constData());
+    d->id = Core::Id(map.value(QLatin1String(IdKey), newId().name()).toByteArray());
     d->origin = static_cast<Origin>(map.value(QLatin1String(OriginKey), ManuallyAdded).toInt());
 
     d->sshParameters.host = map.value(HostKey).toString();

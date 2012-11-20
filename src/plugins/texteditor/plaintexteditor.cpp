@@ -90,7 +90,7 @@ Core::IEditor *PlainTextEditor::duplicate(QWidget *parent)
 
 Core::Id PlainTextEditor::id() const
 {
-    return Core::Constants::K_DEFAULT_TEXT_EDITOR_ID;
+    return Core::Id(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
 }
 
 void PlainTextEditorWidget::unCommentSelection()

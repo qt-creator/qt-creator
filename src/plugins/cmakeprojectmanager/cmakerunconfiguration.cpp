@@ -565,5 +565,5 @@ QString CMakeRunConfigurationFactory::buildTargetFromId(Core::Id id)
 Core::Id CMakeRunConfigurationFactory::idFromBuildTarget(const QString &target)
 {
     QString id = QString::fromLatin1(CMAKE_RC_PREFIX) + target;
-    return Core::Id(id.toUtf8().constData());
+    return Core::Id(id.toUtf8());
 }

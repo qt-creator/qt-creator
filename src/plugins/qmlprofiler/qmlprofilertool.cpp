@@ -199,7 +199,7 @@ QmlProfilerTool::~QmlProfilerTool()
 
 Core::Id QmlProfilerTool::id() const
 {
-    return "QmlProfiler";
+    return Core::Id("QmlProfiler");
 }
 
 RunMode QmlProfilerTool::runMode() const

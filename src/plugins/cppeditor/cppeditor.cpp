@@ -1743,7 +1743,7 @@ Core::IEditor *CPPEditor::duplicate(QWidget *parent)
 
 Core::Id CPPEditor::id() const
 {
-    return CppEditor::Constants::CPPEDITOR_ID;
+    return Core::Id(CppEditor::Constants::CPPEDITOR_ID);
 }
 
 bool CPPEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)

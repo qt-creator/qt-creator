@@ -72,7 +72,7 @@ QStringList ProjectFilesFactory::mimeTypes() const
 
 Core::Id ProjectFilesFactory::id() const
 {
-    return Constants::FILES_EDITOR_ID;
+    return Core::Id(Constants::FILES_EDITOR_ID);
 }
 
 QString ProjectFilesFactory::displayName() const
@@ -94,7 +94,7 @@ ProjectFilesEditor::ProjectFilesEditor(ProjectFilesEditorWidget *editor)
 
 Core::Id ProjectFilesEditor::id() const
 {
-    return Constants::FILES_EDITOR_ID;
+    return Core::Id(Constants::FILES_EDITOR_ID);
 }
 
 bool ProjectFilesEditor::duplicateSupported() const

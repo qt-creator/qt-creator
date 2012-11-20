@@ -63,7 +63,7 @@ class CORE_EXPORT Feature : public Id
 {
 friend class FeatureSet;
 public:
-    Feature(const char *name) : Id(name) {}
+    Feature(const char *name) : Id(QByteArray(name)) {}
     explicit Feature(const QString &name) : Id(name) {}
 };
 

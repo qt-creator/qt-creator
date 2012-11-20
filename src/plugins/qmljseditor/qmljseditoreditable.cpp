@@ -85,7 +85,7 @@ Core::Id QmlJSEditorEditable::preferredModeType() const
     // have the user also access to this failsafe setting.
     if (editorWidget()->mimeType() == QLatin1String(QmlJSTools::Constants::QML_MIMETYPE)
         && openInDesignMode())
-        return Core::Constants::MODE_DESIGN_TYPE;
+        return Core::Id(Core::Constants::MODE_DESIGN_TYPE);
     return Core::Id();
 }
 

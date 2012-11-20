@@ -50,7 +50,7 @@ QString CvsControl::displayName() const
 
 Core::Id CvsControl::id() const
 {
-    return VcsBase::Constants::VCS_ID_CVS;
+    return Core::Id(VcsBase::Constants::VCS_ID_CVS);
 }
 
 bool CvsControl::isConfigured() const

@@ -56,7 +56,7 @@ QString GitVersionControl::displayName() const
 
 Core::Id GitVersionControl::id() const
 {
-    return VcsBase::Constants::VCS_ID_GIT;
+    return Core::Id(VcsBase::Constants::VCS_ID_GIT);
 }
 
 bool GitVersionControl::isConfigured() const

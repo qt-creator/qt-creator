@@ -69,12 +69,12 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace {
-const char * const QMAKE_BS_ID("QtProjectManager.QMakeBuildStep");
+const char QMAKE_BS_ID[] = "QtProjectManager.QMakeBuildStep";
 
-const char * const QMAKE_ARGUMENTS_KEY("QtProjectManager.QMakeBuildStep.QMakeArguments");
-const char * const QMAKE_FORCED_KEY("QtProjectManager.QMakeBuildStep.QMakeForced");
-const char * const QMAKE_QMLDEBUGLIBAUTO_KEY("QtProjectManager.QMakeBuildStep.LinkQmlDebuggingLibraryAuto");
-const char * const QMAKE_QMLDEBUGLIB_KEY("QtProjectManager.QMakeBuildStep.LinkQmlDebuggingLibrary");
+const char QMAKE_ARGUMENTS_KEY[] = "QtProjectManager.QMakeBuildStep.QMakeArguments";
+const char QMAKE_FORCED_KEY[] = "QtProjectManager.QMakeBuildStep.QMakeForced";
+const char QMAKE_QMLDEBUGLIBAUTO_KEY[] = "QtProjectManager.QMakeBuildStep.LinkQmlDebuggingLibraryAuto";
+const char QMAKE_QMLDEBUGLIB_KEY[] = "QtProjectManager.QMakeBuildStep.LinkQmlDebuggingLibrary";
 }
 
 QMakeStep::QMakeStep(BuildStepList *bsl) :

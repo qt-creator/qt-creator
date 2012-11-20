@@ -74,7 +74,7 @@ Core::IEditor *CMakeEditor::duplicate(QWidget *parent)
 
 Core::Id CMakeEditor::id() const
 {
-    return CMakeProjectManager::Constants::CMAKE_EDITOR_ID;
+    return Core::Id(CMakeProjectManager::Constants::CMAKE_EDITOR_ID);
 }
 
 void CMakeEditor::markAsChanged()

@@ -52,13 +52,13 @@ namespace Core {
 class StringHolder
 {
 public:
-    explicit StringHolder(const char *s)
-        : str(s)
+    StringHolder(const char *s, int length)
+        : n(length), str(s)
     {
-        n = strlen(s);
-        int m = n;
+        if (!n)
+            length = n = strlen(s);
         h = 0;
-        while (m--) {
+        while (length--) {
             h = (h << 4) + *s++;
             h ^= (h & 0xf0000000) >> 23;
             h &= 0x0fffffff;
@@ -97,10 +97,10 @@ static int lastUid = 0;
 static QVector<QByteArray> stringFromId;
 static IdCache idFromString;
 
-static int theId(const char *str)
+static int theId(const char *str, int n = 0)
 {
     QTC_ASSERT(str && *str, return 0);
-    StringHolder sh(str);
+    StringHolder sh(str, n);
     int res = idFromString.value(sh, 0);
     if (res == 0) {
         if (lastUid == 0)
@@ -113,8 +113,17 @@ static int theId(const char *str)
     return res;
 }
 
+static int theId(const QByteArray &ba)
+{
+    return theId(ba.constData(), ba.size());
+}
+
 Id::Id(const char *name)
-    : m_id(theId(name))
+    : m_id(theId(name, 0))
+{}
+
+Id::Id(const QByteArray &name)
+   : m_id(theId(name))
 {}
 
 Id::Id(const QString &name)

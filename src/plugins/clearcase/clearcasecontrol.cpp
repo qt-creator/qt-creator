@@ -52,7 +52,7 @@ QString ClearCaseControl::displayName() const
 
 Core::Id ClearCaseControl::id() const
 {
-    return ClearCase::Constants::VCS_ID_CLEARCASE;
+    return Core::Id(ClearCase::Constants::VCS_ID_CLEARCASE);
 }
 
 bool ClearCaseControl::isConfigured() const

@@ -64,7 +64,7 @@ GLSLEditorFactory::GLSLEditorFactory(QObject *parent)
 
 Core::Id GLSLEditorFactory::id() const
 {
-    return C_GLSLEDITOR_ID;
+    return Core::Id(C_GLSLEDITOR_ID);
 }
 
 QString GLSLEditorFactory::displayName() const

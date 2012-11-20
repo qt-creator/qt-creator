@@ -580,7 +580,7 @@ Core::IEditor *QmlJSEditorEditable::duplicate(QWidget *parent)
 
 Core::Id QmlJSEditorEditable::id() const
 {
-    return QmlJSEditor::Constants::C_QMLJSEDITOR_ID;
+    return Core::Id(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
 }
 
 bool QmlJSEditorEditable::open(QString *errorString, const QString &fileName, const QString &realFileName)

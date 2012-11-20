@@ -51,7 +51,7 @@ QString BazaarControl::displayName() const
 
 Core::Id BazaarControl::id() const
 {
-    return VcsBase::Constants::VCS_ID_BAZAAR;
+    return Core::Id(VcsBase::Constants::VCS_ID_BAZAAR);
 }
 
 bool BazaarControl::managesDirectory(const QString &directory, QString *topLevel) const

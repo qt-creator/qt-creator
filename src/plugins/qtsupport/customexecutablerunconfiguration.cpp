@@ -54,14 +54,14 @@ using namespace QtSupport;
 using namespace QtSupport::Internal;
 
 namespace {
-const char * const CUSTOM_EXECUTABLE_ID("ProjectExplorer.CustomExecutableRunConfiguration");
+const char CUSTOM_EXECUTABLE_ID[] = "ProjectExplorer.CustomExecutableRunConfiguration";
 
-const char * const EXECUTABLE_KEY("ProjectExplorer.CustomExecutableRunConfiguration.Executable");
-const char * const ARGUMENTS_KEY("ProjectExplorer.CustomExecutableRunConfiguration.Arguments");
-const char * const WORKING_DIRECTORY_KEY("ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory");
-const char * const USE_TERMINAL_KEY("ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal");
-const char * const USER_ENVIRONMENT_CHANGES_KEY("ProjectExplorer.CustomExecutableRunConfiguration.UserEnvironmentChanges");
-const char * const BASE_ENVIRONMENT_BASE_KEY("ProjectExplorer.CustomExecutableRunConfiguration.BaseEnvironmentBase");
+const char EXECUTABLE_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.Executable";
+const char ARGUMENTS_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.Arguments";
+const char WORKING_DIRECTORY_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory";
+const char USE_TERMINAL_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal";
+const char USER_ENVIRONMENT_CHANGES_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.UserEnvironmentChanges";
+const char BASE_ENVIRONMENT_BASE_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.BaseEnvironmentBase";
 }
 
 void CustomExecutableRunConfiguration::ctor()

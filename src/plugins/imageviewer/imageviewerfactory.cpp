@@ -95,7 +95,7 @@ QStringList ImageViewerFactory::mimeTypes() const
 
 Core::Id ImageViewerFactory::id() const
 {
-    return Constants::IMAGEVIEWER_ID;
+    return Core::Id(Constants::IMAGEVIEWER_ID);
 }
 
 QString ImageViewerFactory::displayName() const

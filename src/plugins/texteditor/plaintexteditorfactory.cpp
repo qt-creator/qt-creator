@@ -65,7 +65,7 @@ PlainTextEditorFactory::~PlainTextEditorFactory()
 
 Core::Id PlainTextEditorFactory::id() const
 {
-    return Core::Constants::K_DEFAULT_TEXT_EDITOR_ID;
+    return Core::Id(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
 }
 
 QString PlainTextEditorFactory::displayName() const

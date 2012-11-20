@@ -373,7 +373,7 @@ public:
         return m_file->open(errorString, fileName);
     }
     Core::IDocument *document() { return m_file; }
-    Core::Id id() const { return Core::Constants::K_DEFAULT_BINARY_EDITOR_ID; }
+    Core::Id id() const { return Core::Id(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID); }
     QString displayName() const { return m_displayName; }
     void setDisplayName(const QString &title) { m_displayName = title; emit changed(); }
 
@@ -417,7 +417,7 @@ BinEditorFactory::BinEditorFactory(BinEditorPlugin *owner) :
 
 Core::Id BinEditorFactory::id() const
 {
-    return Core::Constants::K_DEFAULT_BINARY_EDITOR_ID;
+    return Core::Id(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
 }
 
 QString BinEditorFactory::displayName() const

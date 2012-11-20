@@ -42,12 +42,12 @@ Context::Context(const char *id, int offset)
 
 void Context::add(const char *id)
 {
-    d.append(Id(id).uniqueIdentifier());
+    d.append(Id(QByteArray(id)).uniqueIdentifier());
 }
 
 bool Context::contains(const char *id) const
 {
-    return d.contains(Id(id).uniqueIdentifier());
+    return d.contains(Id(QByteArray(id)).uniqueIdentifier());
 }
 
 } // namespace Core

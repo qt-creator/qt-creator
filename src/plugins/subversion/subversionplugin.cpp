@@ -1145,7 +1145,7 @@ Core::IEditor *SubversionPlugin::showOutputInEditor(const QString &title, const 
 {
     const VcsBase::VcsBaseEditorParameters *params = findType(editorType);
     QTC_ASSERT(params, return 0);
-    const Core::Id id = params->id;
+    const Core::Id id = Core::Id(QByteArray(params->id));
     if (Subversion::Constants::debug)
         qDebug() << "SubversionPlugin::showOutputInEditor" << title << id.name()
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
