@@ -133,12 +133,17 @@ bool RmQtOperation::test() const
 
 QVariantMap RmQtOperation::rmQt(const QVariantMap &map, const QString &id)
 {
+    QString sdkId = id;
+    if (!id.startsWith(QLatin1String("SDK.")))
+        sdkId = QString::fromLatin1("SDK.") + id;
+
     QVariantList qtList;
     for (QVariantMap::const_iterator i = map.begin(); i != map.end(); ++i) {
         if (!i.key().startsWith(QLatin1String(PREFIX)))
             continue;
         QVariantMap qtData = i.value().toMap();
-        if (qtData.value(QLatin1String(AUTODETECTION_SOURCE)).toString() != id)
+        const QString dataId = qtData.value(QLatin1String(AUTODETECTION_SOURCE)).toString();
+        if ((dataId != id) && (dataId != sdkId))
             qtList.append(qtData);
     }
 

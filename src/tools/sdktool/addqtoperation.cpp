@@ -255,8 +255,12 @@ QVariantMap AddQtOperation::addQt(const QVariantMap &map,
                                   const QString &id, const QString &displayName, const QString &type,
                                   const QString &qmake, const KeyValuePairList &extra)
 {
+    QString sdkId = id;
+    if (!id.startsWith(QLatin1String("SDK.")))
+        sdkId = QString::fromLatin1("SDK.") + id;
+
     // Sanity check: Make sure autodetection source is not in use already:
-    QStringList valueKeys = FindValueOperation::findValues(map, id);
+    QStringList valueKeys = FindValueOperation::findValues(map, sdkId);
     bool hasId = false;
     foreach (const QString &k, valueKeys) {
         if (k.endsWith(QString(QLatin1Char('/')) + QLatin1String(AUTODETECTION_SOURCE))) {
@@ -297,7 +301,7 @@ QVariantMap AddQtOperation::addQt(const QVariantMap &map,
     data << KeyValuePair(QStringList() << qt << QLatin1String(ID), QVariant(-1));
     data << KeyValuePair(QStringList() << qt << QLatin1String(DISPLAYNAME), QVariant(uniqueName));
     data << KeyValuePair(QStringList() << qt << QLatin1String(AUTODETECTED), QVariant(true));
-    data << KeyValuePair(QStringList() << qt << QLatin1String(AUTODETECTION_SOURCE), QVariant(id));
+    data << KeyValuePair(QStringList() << qt << QLatin1String(AUTODETECTION_SOURCE), QVariant(sdkId));
     data << KeyValuePair(QStringList() << qt << QLatin1String(QMAKE), QVariant(saneQmake));
     data << KeyValuePair(QStringList() << qt << QLatin1String(TYPE), QVariant(type));
 
