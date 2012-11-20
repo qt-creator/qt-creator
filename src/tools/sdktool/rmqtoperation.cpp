@@ -87,7 +87,7 @@ int RmQtOperation::execute() const
     if (result == map)
         return -2;
 
-    return save(map, QLatin1String("qtversion")) ? 0 : -3;
+    return save(result, QLatin1String("qtversion")) ? 0 : -3;
 }
 
 #ifdef WITH_TESTS
