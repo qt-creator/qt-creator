@@ -212,9 +212,8 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
         call += ' ';
         call += batchArgs.toLocal8Bit();
     }
-    call += "\r\n";
+    saver.write(call + "\r\n");
 
-    saver.write(call);
     const QByteArray redirect = "set > " + Utils::QtcProcess::quoteArg(
                                     QDir::toNativeSeparators(tempOutFile)).toLocal8Bit() + "\r\n";
     saver.write(redirect);
@@ -250,6 +249,10 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
         Utils::SynchronousProcess::stopProcess(run);
         return false;
     }
+    // The SDK/MSVC scripts do not return exit codes != 0. Check on stdout.
+    const QByteArray stdOut = run.readAllStandardOutput();
+    if (!stdOut.isEmpty() && (stdOut.contains("Unknown") || stdOut.contains("Error")))
+        qWarning("%s: '%s' reports:\n%s", Q_FUNC_INFO, call.constData(), stdOut.constData());
 
     //
     // Now parse the file to get the environment settings
