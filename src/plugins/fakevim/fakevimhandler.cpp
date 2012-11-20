@@ -406,7 +406,7 @@ static QRegExp vimPatternToQtPattern(QString needle, bool smartcase)
                 range = ignorecase && pattern[pattern.size() - 1].isLetter();
                 pattern.append('-');
             } else if (c.isLetter() && ignorecase) {
-                pattern.append(c.toLower() + c.toUpper());
+                pattern.append(c.toLower()).append(c.toUpper());
             } else {
                 pattern.append(c);
             }
