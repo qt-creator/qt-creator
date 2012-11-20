@@ -467,19 +467,19 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
             tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::x86),
                                          findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::x86, version),
                                          fi.absoluteFilePath(), QLatin1String("/x86"), true));
-            // Add all platforms
+            // Add all platforms, cross-compiler is automatically selected by SetEnv.cmd if needed
             tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::amd64),
                                          findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::amd64, version),
-                                         fi.absoluteFilePath(), QLatin1String("/amd64"), true));
+                                         fi.absoluteFilePath(), QLatin1String("/x64"), true));
             tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::x86_amd64),
                                          findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::x86_amd64, version),
-                                         fi.absoluteFilePath(), QLatin1String("/x86_amd64"), true));
+                                         fi.absoluteFilePath(), QLatin1String("/x64"), true));
             tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::ia64),
                                          findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::ia64, version),
                                          fi.absoluteFilePath(), QLatin1String("/ia64"), true));
             tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::x86_ia64),
                                          findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::x86_ia64, version),
-                                         fi.absoluteFilePath(), QLatin1String("/x86_ia64"), true));
+                                         fi.absoluteFilePath(), QLatin1String("/ia64"), true));
             // Make sure the default is front.
             if (folder == defaultSdkPath)
                 results = tmp + results;
