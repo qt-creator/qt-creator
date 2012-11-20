@@ -91,10 +91,6 @@ public:
     static Utils::FileName findQMakeBinaryFromMakefile(const QString &directory);
     bool isValidId(int id) const;
 
-    // Compatibility with pre-2.2:
-    QString popPendingMwcUpdate();
-    QString popPendingGcceUpdate();
-
     Core::FeatureSet availableFeatures(const QString &platformName) const;
     QStringList availablePlatforms() const;
     QString displayNameForPlatform(const QString &string) const;
@@ -139,10 +135,6 @@ private:
     int m_idcount;
     // managed by QtProjectManagerPlugin
     static QtVersionManager *m_self;
-
-    // Compatibility with pre-2.2:
-    QStringList m_pendingMwcUpdates;
-    QStringList m_pendingGcceUpdates;
 
     Utils::FileSystemWatcher *m_configFileWatcher;
     QTimer *m_fileWatcherTimer;

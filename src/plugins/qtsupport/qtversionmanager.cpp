@@ -473,20 +473,6 @@ bool QtVersionManager::isValidId(int id) const
     return m_versions.contains(id);
 }
 
-QString QtVersionManager::popPendingMwcUpdate()
-{
-    if (m_pendingMwcUpdates.isEmpty())
-        return QString();
-    return m_pendingMwcUpdates.takeFirst();
-}
-
-QString QtVersionManager::popPendingGcceUpdate()
-{
-    if (m_pendingGcceUpdates.isEmpty())
-        return QString();
-    return m_pendingGcceUpdates.takeFirst();
-}
-
 Core::FeatureSet QtVersionManager::availableFeatures(const QString &platformName) const
 {
     Core::FeatureSet features;
