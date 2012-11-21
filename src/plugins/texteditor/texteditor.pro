@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = TextEditor
-DEFINES += TEXTEDITOR_LIBRARY
+DEFINES += TEXTEDITOR_LIBRARY QT_NO_CAST_FROM_ASCII
 QT += xml network
 CONFIG += exceptions
 greaterThan(QT_MAJOR_VERSION, 4): QT += printsupport

@@ -11,6 +11,7 @@ QtcPlugin {
     Depends { name: "Find" }
     Depends { name: "Locator" }
 
+    cpp.defines: base.concat(["QT_NO_CAST_FROM_ASCII"])
     cpp.includePaths: base.concat([
         "generichighlighter",
         "tooltip",

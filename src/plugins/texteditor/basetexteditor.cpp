@@ -6149,7 +6149,7 @@ void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
         menu->addAction(a);
 
     BaseTextDocument *doc = baseTextDocument();
-    if (doc->codec()->name() == QString(QLatin1String("UTF-8"))) {
+    if (doc->codec()->name() == QByteArray("UTF-8")) {
         a = Core::ActionManager::command(Constants::SWITCH_UTF8BOM)->action();
         if (a && a->isEnabled()) {
             a->setText(doc->format().hasUtf8Bom ? tr("Delete UTF-8 BOM on Save")
