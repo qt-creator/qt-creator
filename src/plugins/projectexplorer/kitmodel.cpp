@@ -323,6 +323,7 @@ Kit *KitModel::markForAddition(Kit *baseKit)
     if (baseKit) {
         Kit *k = node->widget->workingCopy();
         k->copyFrom(baseKit);
+        k->setAutoDetected(false); // Make sure we have a manual kit!
         k->setDisplayName(tr("Clone of %1").arg(k->displayName()));
     }
 
