@@ -186,7 +186,11 @@ bool MakeStep::init()
 
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
-    pp->setEnvironment(bc->environment());
+    Utils::Environment env = bc->environment();
+    // Force output to english for the parsers. Do this here and not in the toolchain's
+    // addToEnvironment() to not screw up the users run environment.
+    env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
+    pp->setEnvironment(env);
     pp->setWorkingDirectory(bc->buildDirectory());
     pp->setCommand(tc ? tc->makeCommand(bc->environment()) : QLatin1String("make"));
     pp->setArguments(arguments);
