@@ -322,6 +322,7 @@ Kit *KitModel::markForAddition(Kit *baseKit)
     KitNode *node = createNode(m_manualRoot, 0);
     if (baseKit) {
         Kit *k = node->widget->workingCopy();
+        KitGuard g(k);
         k->copyFrom(baseKit);
         k->setAutoDetected(false); // Make sure we have a manual kit!
         k->setDisplayName(tr("Clone of %1").arg(k->displayName()));
