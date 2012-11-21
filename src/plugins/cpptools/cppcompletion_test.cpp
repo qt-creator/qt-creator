@@ -370,6 +370,45 @@ void CppToolsPlugin::test_completion_template_5()
     QVERIFY(completions.contains("b"));
 }
 
+void CppToolsPlugin::test_completion_template_6()
+{
+    TestData data;
+    data.srcText = "\n"
+            "class Item\n"
+            "{\n"
+            "    int i;\n"
+            "};\n"
+            "\n"
+            "template <typename T>\n"
+            "class Container\n"
+            "{\n"
+            "    T get();\n"
+            "};\n"
+            "\n"
+            "template <typename T> class Container;\n"
+            "\n"
+            "class ItemContainer: public Container<Item>\n"
+            "{};\n"
+            "ItemContainer container;\n"
+            "@\n"
+            ;
+
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("container.get().");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains("Item"));
+    QVERIFY(completions.contains("i"));
+}
+
 void CppToolsPlugin::test_completion()
 {
     QFETCH(QByteArray, code);

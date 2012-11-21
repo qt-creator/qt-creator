@@ -730,7 +730,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
         return reference;
 
     const TemplateNameId *templId = name->asTemplateNameId();
-    if (_alreadyConsideredClasses.contains(referenceClass) ||
+    if ((! templId && _alreadyConsideredClasses.contains(referenceClass)) ||
             (templId &&
             _alreadyConsideredTemplates.contains(templId))) {
             return reference;
