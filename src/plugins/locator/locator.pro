@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = Locator
-DEFINES += LOCATOR_LIBRARY
+DEFINES += LOCATOR_LIBRARY QT_NO_CAST_FROM_ASCII
 include(../../qtcreatorplugin.pri)
 include(locator_dependencies.pri)
 HEADERS += locatorplugin.h \
