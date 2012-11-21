@@ -3050,15 +3050,6 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         m_movetype = MoveLineWise;
         moveDown(count);
         movement = "j";
-    } else if (input.is('J')) {
-        moveBehindEndOfLine();
-        const int pos = position();
-        beginEditBlock();
-        if (m_submode == NoSubMode)
-            joinLines(count, m_gflag);
-        endEditBlock();
-        setPosition(pos);
-        setDotCommand("%1J", count);
     } else if (input.is('k') || input.isKey(Key_Up) || input.isControl('p')) {
         m_movetype = MoveLineWise;
         moveUp(count);
@@ -3426,6 +3417,15 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         enterInsertMode();
     } else if (input.isControl('i')) {
         jump(count());
+    } else if (input.is('J')) {
+        moveBehindEndOfLine();
+        const int pos = position();
+        beginEditBlock();
+        if (m_submode == NoSubMode)
+            joinLines(count, m_gflag);
+        endEditBlock();
+        setPosition(pos);
+        setDotCommand("%1J", count);
     } else if (input.isControl('l')) {
         // screen redraw. should not be needed
     } else if (input.is('m')) {
