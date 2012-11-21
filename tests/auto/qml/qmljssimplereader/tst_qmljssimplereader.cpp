@@ -45,6 +45,7 @@ private slots:
     void testIllFormed01();
     void testIllFormed02();
     void testArrays();
+    void testBug01();
 };
 
 tst_SimpleReader::tst_SimpleReader()
@@ -212,6 +213,43 @@ void tst_SimpleReader::testArrays()
         const QVariant variant2 = variantList2;
 
         QCOMPARE(firstChild->property("propertyArrayMixed"), variant2);
+}
+
+void tst_SimpleReader::testBug01()
+{
+    char source[] = "\n"
+        "AutoTypes {\n"
+        "    imports: [ \"import HelperWidgets 1.0\", \"import QtQuick 1.0\", \"import Bauhaus 1.0\" ]\n"
+        "    Type {\n"
+        "        typeNames: [\"int\"]\n"
+        "        sourceFile: \"IntEditorTemplate.qml\"\n"
+        "    }\n"
+        "    Type {\n"
+        "        typeNames: [\"real\", \"double\", \"qreal\"]\n"
+        "        sourceFile: \"RealEditorTemplate.qml\"\n"
+        "    }\n"
+        "    Type {\n"
+        "        typeNames: [\"string\", \"QString\", \"QUrl\", \"url\"]\n"
+        "        sourceFile: \"StringEditorTemplate.qml\"\n"
+        "    }\n"
+        "    Type {\n"
+        "        typeNames: [\"bool\", \"boolean\"]\n"
+        "        sourceFile: \"BooleanEditorTemplate.qml\"\n"
+        "    }\n"
+        "    Type {\n"
+        "        typeNames: [\"color\", \"QColor\"]\n"
+        "        sourceFile: \"ColorEditorTemplate.qml\"\n"
+        "    }\n"
+        "}\n";
+
+    QmlJS::SimpleReader reader;
+    QmlJS::SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
+
+    QVERIFY(rootNode);
+    QVERIFY(rootNode->isValid());
+    QVERIFY(rootNode->isRoot());
+
+    QCOMPARE(rootNode->propertyNames().count(), 1);
 }
 
 QTEST_MAIN(tst_SimpleReader);
