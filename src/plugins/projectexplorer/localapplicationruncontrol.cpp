@@ -106,10 +106,10 @@ void LocalApplicationRunControl::start()
         emit finished();
     }  else {
         m_running = true;
-        m_applicationLauncher.start(m_runMode, m_executable, m_commandLineArguments);
-        setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
         QString msg = tr("Starting %1...\n").arg(QDir::toNativeSeparators(m_executable));
         appendMessage(msg, Utils::NormalMessageFormat);
+        m_applicationLauncher.start(m_runMode, m_executable, m_commandLineArguments);
+        setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
     }
 }
 
