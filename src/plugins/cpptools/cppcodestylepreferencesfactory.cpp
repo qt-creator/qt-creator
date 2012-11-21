@@ -98,7 +98,7 @@ Core::Id CppCodeStylePreferencesFactory::languageId()
 
 QString CppCodeStylePreferencesFactory::displayName()
 {
-    return Constants::CPP_SETTINGS_NAME;
+    return QString::fromUtf8(Constants::CPP_SETTINGS_NAME);
 }
 
 TextEditor::ICodeStylePreferences *CppCodeStylePreferencesFactory::createCodeStyle() const

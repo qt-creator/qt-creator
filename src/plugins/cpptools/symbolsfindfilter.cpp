@@ -207,7 +207,7 @@ void SymbolsFindFilter::startSearch(Find::SearchResult *search)
                                                     m_manager->snapshot(), projectFileNames));
     Core::FutureProgress *progress = Core::ICore::progressManager()->addTask(watcher->future(),
                                                         tr("Searching"),
-                                                        Find::Constants::TASK_SEARCH);
+                                                        QLatin1String(Find::Constants::TASK_SEARCH));
     connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
 }
 
@@ -256,17 +256,17 @@ QWidget *SymbolsFindFilter::createConfigWidget()
 void SymbolsFindFilter::writeSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String(SETTINGS_GROUP));
-    settings->setValue(SETTINGS_SYMBOLTYPES, (int)m_symbolsToSearch);
-    settings->setValue(SETTINGS_SEARCHSCOPE, (int)m_scope);
+    settings->setValue(QLatin1String(SETTINGS_SYMBOLTYPES), (int)m_symbolsToSearch);
+    settings->setValue(QLatin1String(SETTINGS_SEARCHSCOPE), (int)m_scope);
     settings->endGroup();
 }
 
 void SymbolsFindFilter::readSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String(SETTINGS_GROUP));
-    m_symbolsToSearch = (SearchSymbols::SymbolTypes)settings->value(SETTINGS_SYMBOLTYPES,
+    m_symbolsToSearch = (SearchSymbols::SymbolTypes)settings->value(QLatin1String(SETTINGS_SYMBOLTYPES),
                                         (int)SearchSymbols::AllTypes).toInt();
-    m_scope = (SearchScope)settings->value(SETTINGS_SEARCHSCOPE,
+    m_scope = (SearchScope)settings->value(QLatin1String(SETTINGS_SEARCHSCOPE),
                                            (int)SearchProjectsOnly).toInt();
     settings->endGroup();
     emit symbolsToSearchChanged();
@@ -274,7 +274,7 @@ void SymbolsFindFilter::readSettings(QSettings *settings)
 
 void SymbolsFindFilter::onTaskStarted(const QString &type)
 {
-    if (type == CppTools::Constants::TASK_INDEX) {
+    if (type == QLatin1String(CppTools::Constants::TASK_INDEX)) {
         m_enabled = false;
         emit enabledChanged(m_enabled);
     }
@@ -282,7 +282,7 @@ void SymbolsFindFilter::onTaskStarted(const QString &type)
 
 void SymbolsFindFilter::onAllTasksFinished(const QString &type)
 {
-    if (type == CppTools::Constants::TASK_INDEX) {
+    if (type == QLatin1String(CppTools::Constants::TASK_INDEX)) {
         m_enabled = true;
         emit enabledChanged(m_enabled);
     }

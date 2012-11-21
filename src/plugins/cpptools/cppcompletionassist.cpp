@@ -412,9 +412,9 @@ QString CppFunctionHintModel::text(int index) const
 
     QString hintText;
     hintText += Qt::escape(prettyMethod.left(begin));
-    hintText += "<b>";
+    hintText += QLatin1String("<b>");
     hintText += Qt::escape(prettyMethod.mid(begin, end - begin));
-    hintText += "</b>";
+    hintText += QLatin1String("</b>");
     hintText += Qt::escape(prettyMethod.mid(end));
     return hintText;
 }
@@ -648,7 +648,7 @@ Function *asFunctionOrTemplateFunctionType(FullySpecifiedType ty)
 CppCompletionAssistProcessor::CppCompletionAssistProcessor()
     : m_startPosition(-1)
     , m_objcEnabled(true)
-    , m_snippetCollector(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID,
+    , m_snippetCollector(QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID),
                          QIcon(QLatin1String(":/texteditor/images/snippet.png")))
     , preprocessorCompletions(QStringList()
           << QLatin1String("define")
@@ -1130,7 +1130,7 @@ void CppCompletionAssistProcessor::completeObjCMsgSend(CPlusPlus::ClassOrNamespa
                             if (i > 0)
                                 text += QLatin1Char(' ');
                             Symbol *arg = method->argumentAt(i);
-                            text += selectorName->nameAt(i)->identifier()->chars();
+                            text += QString::fromUtf8(selectorName->nameAt(i)->identifier()->chars());
                             text += QLatin1Char(':');
                             text += TextEditor::Snippet::kVariableDelimiter;
                             text += QLatin1Char('(');
@@ -1140,7 +1140,7 @@ void CppCompletionAssistProcessor::completeObjCMsgSend(CPlusPlus::ClassOrNamespa
                             text += TextEditor::Snippet::kVariableDelimiter;
                         }
                     } else {
-                        text = selectorName->identifier()->chars();
+                        text = QString::fromUtf8(selectorName->identifier()->chars());
                     }
                     data = text;
 
@@ -1237,7 +1237,7 @@ bool CppCompletionAssistProcessor::objcKeywordsWanted() const
     QString fileName = document->fileName();
 
     const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
-    return mdb->findByFile(fileName).type() == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE;
+    return mdb->findByFile(fileName).type() == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE);
 }
 
 int CppCompletionAssistProcessor::startCompletionInternal(const QString fileName,
@@ -1863,7 +1863,7 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
             int lineStartToken = bs.startOfLine(startToken);
             // make sure the required tokens are actually available
             bs.LA(startToken - lineStartToken);
-            QString possibleDecl = bs.mid(lineStartToken).trimmed().append("();");
+            QString possibleDecl = bs.mid(lineStartToken).trimmed().append(QLatin1String("();"));
 
             Document::Ptr doc = Document::create(QLatin1String("<completion>"));
             doc->setUtf8Source(possibleDecl.toLatin1());

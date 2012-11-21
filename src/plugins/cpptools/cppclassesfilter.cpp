@@ -35,7 +35,7 @@ using namespace CppTools::Internal;
 CppClassesFilter::CppClassesFilter(CppModelManager *manager)
     : CppLocatorFilter(manager)
 {
-    setShortcutString("c");
+    setShortcutString(QLatin1String("c"));
     setIncludedByDefault(false);
 
     search.setSymbolsToSearchFor(SearchSymbols::Classes);

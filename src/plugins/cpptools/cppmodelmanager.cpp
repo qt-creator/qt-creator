@@ -709,7 +709,7 @@ public:
         if (sourceFiles.count() > 1) {
             Core::ICore::progressManager()->addTask(result,
                                                     QCoreApplication::translate("IndexingSupport", "Parsing"),
-                                                    CppTools::Constants::TASK_INDEX);
+                                                    QLatin1String(CppTools::Constants::TASK_INDEX));
         }
 
         return result;
@@ -1052,13 +1052,13 @@ CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
     QSetIterator<AbstractEditorSupport *> jt(m_addtionalEditorSupport);
     while (jt.hasNext()) {
         AbstractEditorSupport *es =  jt.next();
-        workingCopy.insert(es->fileName(), es->contents());
+        workingCopy.insert(es->fileName(), QString::fromUtf8(es->contents()));
     }
 
     // add the project configuration file
     QByteArray conf(pp_configuration);
     conf += definedMacros();
-    workingCopy.insert(pp_configuration_file, conf);
+    workingCopy.insert(QLatin1String(pp_configuration_file), QString::fromUtf8(conf));
 
     return workingCopy;
 }
@@ -1124,7 +1124,7 @@ QList<CppModelManager::ProjectPart::Ptr> CppModelManager::projectPart(const QStr
         return parts;
 
     //### FIXME: This is a DIRTY hack!
-    if (fileName.endsWith(".h")) {
+    if (fileName.endsWith(QLatin1String(".h"))) {
         QString cppFile = fileName.mid(0, fileName.length() - 2) + QLatin1String(".cpp");
         parts = m_srcToProjectPart.value(cppFile);
         if (!parts.isEmpty())
@@ -1358,7 +1358,7 @@ void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
 void CppModelManager::onAboutToUnloadSession()
 {
     if (Core::ProgressManager *pm = Core::ICore::progressManager()) {
-        pm->cancelTasks(CppTools::Constants::TASK_INDEX);
+        pm->cancelTasks(QLatin1String(CppTools::Constants::TASK_INDEX));
     }
     do {
         QMutexLocker locker(&mutex);

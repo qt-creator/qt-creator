@@ -68,7 +68,7 @@ QList<Locator::FilterEntry> CppCurrentDocumentFilter::matchesFor(QFutureInterfac
     QRegExp regexp(asterisk + entry + asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
     if (!regexp.isValid())
         return goodEntries;
-    bool hasWildcard = (entry.contains(asterisk) || entry.contains('?'));
+    bool hasWildcard = (entry.contains(asterisk) || entry.contains(QLatin1Char('?')));
 
     if (m_currentFileName.isEmpty())
         return goodEntries;

@@ -123,7 +123,7 @@ void CppEditorSupport::updateDocumentNow()
         _updateDocumentTimer->stop();
 
         QStringList sourceFiles(_textEditor->document()->fileName());
-        _cachedContents = _textEditor->contents().toUtf8();
+        _cachedContents = _textEditor->contents();
         _documentParser = _modelManager->updateSourceFiles(sourceFiles);
     }
 }

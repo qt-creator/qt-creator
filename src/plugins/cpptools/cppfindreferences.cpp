@@ -297,7 +297,7 @@ void CppFindReferences::findAll_helper(Find::SearchResult *search)
 
     Core::ProgressManager *progressManager = Core::ICore::progressManager();
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching"),
-                                                              CppTools::Constants::TASK_SEARCH);
+                                                              QLatin1String(CppTools::Constants::TASK_SEARCH));
 
     connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
 }
@@ -410,7 +410,7 @@ namespace {
 class SymbolFinder : public SymbolVisitor
 {
 public:
-    SymbolFinder(const QStringList &uid) : m_uid(uid), m_index(0), m_result(0) { }
+    SymbolFinder(const QList<QByteArray> &uid) : m_uid(uid), m_index(0), m_result(0) { }
     Symbol *result() const { return m_result; }
 
     bool preVisit(Symbol *symbol)
@@ -439,7 +439,7 @@ public:
     }
 
 private:
-    QStringList m_uid;
+    QList<QByteArray> m_uid;
     int m_index;
     Symbol *m_result;
 };
@@ -461,7 +461,7 @@ bool CppFindReferences::findSymbol(CppFindReferencesParameters *parameters,
     doc->check();
 
     // construct id of old symbol
-    QStringList uid;
+    QList<QByteArray> uid;
     Symbol *current = parameters->symbol;
     do {
         uid.prepend(idForSymbol(current));
@@ -649,7 +649,7 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
     Find::SearchResult *search = Find::SearchResultWindow::instance()->startNewSearch(
                 tr("C++ Macro Usages:"),
                 QString(),
-                macro.name(),
+                QString::fromUtf8(macro.name()),
                 replace ? Find::SearchResultWindow::SearchAndReplace
                         : Find::SearchResultWindow::SearchOnly,
                 QLatin1String("CppEditor"));
@@ -683,13 +683,13 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
 
     Core::ProgressManager *progressManager = Core::ICore::progressManager();
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching"),
-                                                              CppTools::Constants::TASK_SEARCH);
+                                                              QLatin1String(CppTools::Constants::TASK_SEARCH));
     connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
 }
 
 void CppFindReferences::renameMacroUses(const Macro &macro, const QString &replacement)
 {
-    const QString textToReplace = replacement.isEmpty() ? macro.name() : replacement;
+    const QString textToReplace = replacement.isEmpty() ? QString::fromUtf8(macro.name()) : replacement;
     findMacroUses(macro, textToReplace, true);
 }
 

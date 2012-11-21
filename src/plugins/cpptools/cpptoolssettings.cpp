@@ -102,7 +102,7 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
     d->m_globalCodeStyle = new CppCodeStylePreferences(this);
     d->m_globalCodeStyle->setDelegatingPool(pool);
     d->m_globalCodeStyle->setDisplayName(tr("Global", "Settings"));
-    d->m_globalCodeStyle->setId(idKey);
+    d->m_globalCodeStyle->setId(QLatin1String(idKey));
     pool->addCodeStyle(d->m_globalCodeStyle);
     textEditorSettings->registerCodeStyle(CppTools::Constants::CPP_SETTINGS_ID, d->m_globalCodeStyle);
 
@@ -171,7 +171,7 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
 
     // load global settings (after built-in settings are added to the pool)
     QSettings *s = Core::ICore::settings();
-    d->m_globalCodeStyle->fromSettings(CppTools::Constants::CPP_SETTINGS_ID, Core::ICore::settings());
+    d->m_globalCodeStyle->fromSettings(QLatin1String(CppTools::Constants::CPP_SETTINGS_ID), Core::ICore::settings());
 
     // legacy handling start (Qt Creator Version < 2.4)
     const bool legacyTransformed =
@@ -214,7 +214,7 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
 
             // change the current delegate and save
             d->m_globalCodeStyle->setCurrentDelegate(oldCreator);
-            d->m_globalCodeStyle->toSettings(CppTools::Constants::CPP_SETTINGS_ID, s);
+            d->m_globalCodeStyle->toSettings(QLatin1String(CppTools::Constants::CPP_SETTINGS_ID), s);
         }
         // mark old settings as transformed
         s->setValue(QLatin1String("CppCodeStyleSettings/LegacyTransformed"), true);

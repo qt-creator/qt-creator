@@ -528,14 +528,14 @@ static InsertionLocation nextToSurroundingDefinitions(Declaration *declaration, 
         if (!definitionFunction)
             return noResult;
 
-        Document::Ptr targetDoc = changes.snapshot().document(definition->fileName());
+        Document::Ptr targetDoc = changes.snapshot().document(QString::fromUtf8(definition->fileName()));
         if (!targetDoc)
             return noResult;
 
         targetDoc->translationUnit()->getPosition(definitionFunction->endOffset(), &line, &column);
     } else {
         // we don't have an offset to the start of the function definition, so we need to manually find it...
-        CppRefactoringFilePtr targetFile = changes.file(definition->fileName());
+        CppRefactoringFilePtr targetFile = changes.file(QString::fromUtf8(definition->fileName()));
         if (!targetFile->isValid())
             return noResult;
 
@@ -547,7 +547,7 @@ static InsertionLocation nextToSurroundingDefinitions(Declaration *declaration, 
         targetFile->cppDocument()->translationUnit()->getTokenStartPosition(functionDefinition->firstToken(), &line, &column);
     }
 
-    return InsertionLocation(definition->fileName(), prefix, suffix, line, column);
+    return InsertionLocation(QString::fromUtf8(definition->fileName()), prefix, suffix, line, column);
 }
 
 QList<InsertionLocation> InsertionPointLocator::methodDefinition(

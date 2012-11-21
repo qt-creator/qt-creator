@@ -216,9 +216,8 @@ CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
     m_previews << m_ui->previewTextEditGeneral << m_ui->previewTextEditContent
                << m_ui->previewTextEditBraces << m_ui->previewTextEditSwitch
                << m_ui->previewTextEditPadding;
-    for (int i = 0; i < m_previews.size(); ++i) {
-        m_previews[i]->setPlainText(defaultCodeStyleSnippets[i]);
-    }
+    for (int i = 0; i < m_previews.size(); ++i)
+        m_previews[i]->setPlainText(QLatin1String(defaultCodeStyleSnippets[i]));
 
     TextEditor::TextEditorSettings *textEditorSettings = TextEditorSettings::instance();
     decorateEditors(textEditorSettings->fontSettings());
@@ -513,17 +512,17 @@ void CppCodeStyleSettingsPage::apply()
         if (originalCppCodeStylePreferences->codeStyleSettings() != m_pageCppCodeStylePreferences->codeStyleSettings()) {
             originalCppCodeStylePreferences->setCodeStyleSettings(m_pageCppCodeStylePreferences->codeStyleSettings());
             if (s)
-                originalCppCodeStylePreferences->toSettings(CppTools::Constants::CPP_SETTINGS_ID, s);
+                originalCppCodeStylePreferences->toSettings(QLatin1String(CppTools::Constants::CPP_SETTINGS_ID), s);
         }
         if (originalCppCodeStylePreferences->tabSettings() != m_pageCppCodeStylePreferences->tabSettings()) {
             originalCppCodeStylePreferences->setTabSettings(m_pageCppCodeStylePreferences->tabSettings());
             if (s)
-                originalCppCodeStylePreferences->toSettings(CppTools::Constants::CPP_SETTINGS_ID, s);
+                originalCppCodeStylePreferences->toSettings(QLatin1String(CppTools::Constants::CPP_SETTINGS_ID), s);
         }
         if (originalCppCodeStylePreferences->currentDelegate() != m_pageCppCodeStylePreferences->currentDelegate()) {
             originalCppCodeStylePreferences->setCurrentDelegate(m_pageCppCodeStylePreferences->currentDelegate());
             if (s)
-                originalCppCodeStylePreferences->toSettings(CppTools::Constants::CPP_SETTINGS_ID, s);
+                originalCppCodeStylePreferences->toSettings(QLatin1String(CppTools::Constants::CPP_SETTINGS_ID), s);
         }
     }
 }
