@@ -69,7 +69,7 @@ QmlJSToolsSettings::QmlJSToolsSettings(QObject *parent)
     m_globalCodeStyle = new SimpleCodeStylePreferences(this);
     m_globalCodeStyle->setDelegatingPool(pool);
     m_globalCodeStyle->setDisplayName(tr("Global", "Settings"));
-    m_globalCodeStyle->setId(idKey);
+    m_globalCodeStyle->setId(QLatin1String(idKey));
     pool->addCodeStyle(m_globalCodeStyle);
     textEditorSettings->registerCodeStyle(QmlJSTools::Constants::QML_JS_SETTINGS_ID, m_globalCodeStyle);
 
@@ -94,7 +94,7 @@ QmlJSToolsSettings::QmlJSToolsSettings(QObject *parent)
 
     // load global settings (after built-in settings are added to the pool)
     QSettings *s = Core::ICore::settings();
-    m_globalCodeStyle->fromSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID, s);
+    m_globalCodeStyle->fromSettings(QLatin1String(QmlJSTools::Constants::QML_JS_SETTINGS_ID), s);
 
     // legacy handling start (Qt Creator Version < 2.4)
     const bool legacyTransformed =
@@ -129,7 +129,7 @@ QmlJSToolsSettings::QmlJSToolsSettings(QObject *parent)
 
             // change the current delegate and save
             m_globalCodeStyle->setCurrentDelegate(oldCreator);
-            m_globalCodeStyle->toSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID, s);
+            m_globalCodeStyle->toSettings(QLatin1String(QmlJSTools::Constants::QML_JS_SETTINGS_ID), s);
         }
         // mark old settings as transformed
         s->setValue(QLatin1String("QmlJSTabPreferences/LegacyTransformed"), true);

@@ -160,14 +160,14 @@ QmlJS::AST::Node *SemanticInfo::declaringMemberNoProperties(int cursorPosition) 
             QList<AST::Node *> path = rangePath(cursorPosition);
             if (path.size() > 1)
                 return path.at(path.size() - 2);
-        } else if (name.contains("GradientStop")) {
+        } else if (name.contains(QLatin1String("GradientStop"))) {
             QList<AST::Node *> path = rangePath(cursorPosition);
             if (path.size() > 2)
                 return path.at(path.size() - 3);
         }
     } else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(node)) {
         const QString &name = objectBinding->qualifiedTypeNameId->name.toString();
-        if (name.contains("Gradient")) {
+        if (name.contains(QLatin1String("Gradient"))) {
             QList<AST::Node *> path = rangePath(cursorPosition);
             if (path.size() > 1)
                 return path.at(path.size() - 2);

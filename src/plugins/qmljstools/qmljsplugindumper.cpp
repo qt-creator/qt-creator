@@ -135,7 +135,7 @@ static QString makeAbsolute(const QString &path, const QString &base)
 {
     if (QFileInfo(path).isAbsolute())
         return path;
-    return QString("%1%2%3").arg(base, QDir::separator(), path);
+    return QString::fromLatin1("%1%2%3").arg(base, QDir::separator(), path);
 }
 
 void PluginDumper::onLoadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri, const QString &importVersion)
@@ -269,7 +269,7 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
 
     if (exitCode != 0) {
         Core::MessageManager *messageManager = Core::MessageManager::instance();
-        const QString errorMessages = process->readAllStandardError();
+        const QString errorMessages = QString::fromLocal8Bit(process->readAllStandardError());
         messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, errorMessages));
         libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, qmldumpFailedMessage(libraryPath, errorMessages));
     }
@@ -309,7 +309,7 @@ void PluginDumper::qmlPluginTypeDumpError(QProcess::ProcessError)
         return;
 
     Core::MessageManager *messageManager = Core::MessageManager::instance();
-    const QString errorMessages = process->readAllStandardError();
+    const QString errorMessages = QString::fromLocal8Bit(process->readAllStandardError());
     messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, errorMessages));
 
     if (!libraryPath.isEmpty()) {

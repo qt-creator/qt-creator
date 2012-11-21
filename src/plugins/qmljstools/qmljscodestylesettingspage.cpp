@@ -198,12 +198,12 @@ void QmlJSCodeStyleSettingsPage::apply()
         if (originalTabPreferences->tabSettings() != m_pageTabPreferences->tabSettings()) {
             originalTabPreferences->setTabSettings(m_pageTabPreferences->tabSettings());
             if (s)
-                originalTabPreferences->toSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID, s);
+                originalTabPreferences->toSettings(QLatin1String(QmlJSTools::Constants::QML_JS_SETTINGS_ID), s);
         }
         if (originalTabPreferences->currentDelegate() != m_pageTabPreferences->currentDelegate()) {
             originalTabPreferences->setCurrentDelegate(m_pageTabPreferences->currentDelegate());
             if (s)
-                originalTabPreferences->toSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID, s);
+                originalTabPreferences->toSettings(QLatin1String(QmlJSTools::Constants::QML_JS_SETTINGS_ID), s);
         }
     }
 }

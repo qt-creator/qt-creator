@@ -70,7 +70,7 @@ QList<Locator::FilterEntry> FunctionFilter::matchesFor(QFutureInterface<Locator:
     QRegExp regexp(asterisk + entry+ asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
     if (!regexp.isValid())
         return goodEntries;
-    bool hasWildcard = (entry.contains(asterisk) || entry.contains('?'));
+    bool hasWildcard = (entry.contains(asterisk) || entry.contains(QLatin1Char('?')));
 
     QHashIterator<QString, QList<LocatorData::Entry> > it(m_data->entries());
     while (it.hasNext()) {

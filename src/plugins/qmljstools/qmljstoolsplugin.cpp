@@ -132,14 +132,14 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlJSToolsPlugin::aboutToShutdown()
 
 void QmlJSToolsPlugin::onTaskStarted(const QString &type)
 {
-    if (type == QmlJSTools::Constants::TASK_INDEX) {
+    if (type == QLatin1String(QmlJSTools::Constants::TASK_INDEX)) {
         m_resetCodeModelAction->setEnabled(false);
     }
 }
 
 void QmlJSToolsPlugin::onAllTasksFinished(const QString &type)
 {
-    if (type == QmlJSTools::Constants::TASK_INDEX) {
+    if (type == QLatin1String(QmlJSTools::Constants::TASK_INDEX)) {
         m_resetCodeModelAction->setEnabled(true);
     }
 }

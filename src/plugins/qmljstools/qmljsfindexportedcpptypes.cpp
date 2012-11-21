@@ -282,7 +282,7 @@ protected:
         // and the expression
         const Token begin = translationUnit()->tokenAt(typeId->firstToken());
         const Token last = translationUnit()->tokenAt(typeId->lastToken() - 1);
-        exportedType.typeExpression = _doc->utf8Source().mid(begin.begin(), last.end() - begin.begin());
+        exportedType.typeExpression = QString::fromUtf8(_doc->utf8Source().mid(begin.begin(), last.end() - begin.begin()));
 
         _exportedTypes += exportedType;
 
@@ -410,12 +410,12 @@ private:
     {
         const Token firstToken = translationUnit()->tokenAt(first);
         const Token lastToken = translationUnit()->tokenAt(last);
-        return _doc->utf8Source().mid(firstToken.begin(), lastToken.end() - firstToken.begin());
+        return QString::fromUtf8(_doc->utf8Source().mid(firstToken.begin(), lastToken.end() - firstToken.begin()));
     }
 
     QString stringOf(const Token &token)
     {
-        return _doc->utf8Source().mid(token.begin(), token.length());
+        return QString::fromUtf8(_doc->utf8Source().mid(token.begin(), token.length()));
     }
 
     ExpressionAST *skipStringCall(ExpressionAST *exp)

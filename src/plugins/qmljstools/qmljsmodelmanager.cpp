@@ -72,17 +72,17 @@ static QStringList environmentImportPaths();
 
 QmlJS::Document::Language QmlJSTools::languageOfFile(const QString &fileName)
 {
-    QStringList jsSuffixes("js");
-    QStringList qmlSuffixes("qml");
-    QStringList jsonSuffixes("json");
+    QStringList jsSuffixes(QLatin1String("js"));
+    QStringList qmlSuffixes(QLatin1String("qml"));
+    QStringList jsonSuffixes(QLatin1String("json"));
 
     if (Core::ICore::instance()) {
         Core::MimeDatabase *db = Core::ICore::mimeDatabase();
-        Core::MimeType jsSourceTy = db->findByType(Constants::JS_MIMETYPE);
+        Core::MimeType jsSourceTy = db->findByType(QLatin1String(Constants::JS_MIMETYPE));
         jsSuffixes = jsSourceTy.suffixes();
-        Core::MimeType qmlSourceTy = db->findByType(Constants::QML_MIMETYPE);
+        Core::MimeType qmlSourceTy = db->findByType(QLatin1String(Constants::QML_MIMETYPE));
         qmlSuffixes = qmlSourceTy.suffixes();
-        Core::MimeType jsonSourceTy = db->findByType(Constants::JSON_MIMETYPE);
+        Core::MimeType jsonSourceTy = db->findByType(QLatin1String(Constants::JSON_MIMETYPE));
         jsonSuffixes = jsonSourceTy.suffixes();
     }
 
@@ -102,8 +102,8 @@ QStringList QmlJSTools::qmlAndJsGlobPatterns()
     QStringList pattern;
     if (Core::ICore::instance()) {
         Core::MimeDatabase *db = Core::ICore::mimeDatabase();
-        Core::MimeType jsSourceTy = db->findByType(Constants::JS_MIMETYPE);
-        Core::MimeType qmlSourceTy = db->findByType(Constants::QML_MIMETYPE);
+        Core::MimeType jsSourceTy = db->findByType(QLatin1String(Constants::JS_MIMETYPE));
+        Core::MimeType qmlSourceTy = db->findByType(QLatin1String(Constants::QML_MIMETYPE));
 
         QStringList pattern;
         foreach (const Core::MimeGlobPattern &glob, jsSourceTy.globPatterns())
@@ -111,7 +111,7 @@ QStringList QmlJSTools::qmlAndJsGlobPatterns()
         foreach (const Core::MimeGlobPattern &glob, qmlSourceTy.globPatterns())
             pattern << glob.regExp().pattern();
     } else {
-        pattern << "*.qml" << "*.js";
+        pattern << QLatin1String("*.qml") << QLatin1String("*.js");
     }
     return pattern;
 }
@@ -268,7 +268,7 @@ QFuture<void> ModelManager::refreshSourceFiles(const QStringList &sourceFiles,
 
     if (sourceFiles.count() > 1) {
         Core::ICore::progressManager()->addTask(result, tr("Indexing"),
-                        Constants::TASK_INDEX);
+                        QLatin1String(Constants::TASK_INDEX));
     }
 
     return result;
@@ -504,7 +504,7 @@ static void findNewQmlLibrary(
     QSet<QString> *scannedPaths,
     QSet<QString> *newLibraries)
 {
-    QString libraryPath = QString("%1.%2.%3").arg(
+    QString libraryPath = QString::fromLatin1("%1.%2.%3").arg(
                 path,
                 QString::number(version.majorVersion()),
                 QString::number(version.minorVersion()));
@@ -512,7 +512,7 @@ static void findNewQmlLibrary(
                 libraryPath, snapshot, modelManager,
                 importedFiles, scannedPaths, newLibraries);
 
-    libraryPath = QString("%1.%2").arg(
+    libraryPath = QString::fromLatin1("%1.%2").arg(
                 path,
                 QString::number(version.majorVersion()));
     findNewQmlLibraryInPath(

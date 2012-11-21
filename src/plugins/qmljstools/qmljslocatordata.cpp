@@ -82,7 +82,7 @@ public:
 protected:
     QString contextString(const QString &extra)
     {
-        return QString("%1, %2").arg(extra, m_documentContext);
+        return QString::fromLatin1("%1, %2").arg(extra, m_documentContext);
     }
 
     LocatorData::Entry basicEntry(SourceLocation loc)
@@ -130,7 +130,7 @@ protected:
 
         m_entries += entry;
 
-        accept(ast->body, contextString(QString("function %1").arg(entry.displayName)));
+        accept(ast->body, contextString(QString::fromLatin1("function %1").arg(entry.displayName)));
         return false;
     }
 
@@ -159,7 +159,7 @@ protected:
         QString context = toString(ast->qualifiedTypeNameId);
         const QString id = idOfObject(ast);
         if (!id.isEmpty())
-            context = QString("%1 (%2)").arg(id, context);
+            context = QString::fromLatin1("%1 (%2)").arg(id, context);
         accept(ast->initializer, contextString(context));
         return false;
     }
@@ -172,7 +172,7 @@ protected:
         QString context = toString(ast->qualifiedTypeNameId);
         const QString id = idOfObject(ast);
         if (!id.isEmpty())
-            context = QString("%1 (%2)").arg(id, context);
+            context = QString::fromLatin1("%1 (%2)").arg(id, context);
         accept(ast->initializer, contextString(context));
         return false;
     }
