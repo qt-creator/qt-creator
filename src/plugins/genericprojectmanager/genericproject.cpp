@@ -70,7 +70,7 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
       m_fileName(fileName)
 {
     setProjectContext(Context(GenericProjectManager::Constants::PROJECTCONTEXT));
-    setProjectLanguage(Context(ProjectExplorer::Constants::LANG_CXX));
+    setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
 
     QFileInfo fileInfo(m_fileName);
     QDir dir = fileInfo.dir();

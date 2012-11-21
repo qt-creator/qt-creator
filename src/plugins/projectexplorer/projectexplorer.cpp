@@ -1809,11 +1809,11 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
 
         if (d->m_currentProject) {
             oldContext.add(d->m_currentProject->projectContext());
-            oldContext.add(d->m_currentProject->projectLanguage());
+            oldContext.add(d->m_currentProject->projectLanguages());
         }
         if (project) {
             newContext.add(project->projectContext());
-            newContext.add(project->projectLanguage());
+            newContext.add(project->projectLanguages());
         }
 
         Core::ICore::updateAdditionalContexts(oldContext, newContext);
