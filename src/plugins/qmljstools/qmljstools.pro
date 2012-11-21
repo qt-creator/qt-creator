@@ -10,8 +10,6 @@ DEFINES += QMLJSTOOLS_LIBRARY
     DEFINES += QMLJSTOOLS_STATIC
 }
 
-QT += script
-
 HEADERS += \
     $$PWD/qmljstoolsplugin.h \
     $$PWD/qmljstoolsconstants.h \

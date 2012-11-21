@@ -35,7 +35,6 @@
 
 #include <qmljs/iscriptevaluator.h>
 
-#include <QScriptEngine>
 #include <QVariant>
 
 using namespace QmlJS;
@@ -45,7 +44,6 @@ namespace QmlJSTools {
 class QmlConsoleManagerPrivate
 {
 public:
-    QScriptEngine *scriptEngine;
     Internal::QmlConsoleItemModel *qmlConsoleItemModel;
     Internal::QmlConsolePane *qmlConsolePane;
     QmlJS::IScriptEvaluator *scriptEvaluator;
@@ -55,7 +53,6 @@ QmlConsoleManager::QmlConsoleManager(QObject *parent)
     : ConsoleManagerInterface(parent),
       d(new QmlConsoleManagerPrivate)
 {
-    d->scriptEngine = new QScriptEngine(this);
     d->qmlConsoleItemModel = new Internal::QmlConsoleItemModel(this);
     d->qmlConsoleItemModel->setHasEditableRow(true);
     d->qmlConsolePane = new Internal::QmlConsolePane(this);
@@ -175,9 +172,9 @@ void QmlConsoleModel::evaluate(const QString &expression)
             QmlConsoleModel::qmlConsoleItemModel()->appendEditableRow();
             manager->d->scriptEvaluator->evaluateScript(expression);
         } else {
-            QVariant result = manager->d->scriptEngine->evaluate(expression).toVariant();
             ConsoleItem *root = manager->rootItem();
-            ConsoleItem *item = constructLogItemTree(root, result);
+            ConsoleItem *item = constructLogItemTree(
+                        root, QObject::tr("Can only evaluate during a QML debug session."));
             if (item) {
                 QmlConsoleModel::qmlConsoleItemModel()->appendEditableRow();
                 manager->printToConsolePane(item);
