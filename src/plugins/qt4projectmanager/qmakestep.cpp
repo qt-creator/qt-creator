@@ -201,9 +201,12 @@ QStringList QMakeStep::deducedArguments()
         if (!version->needsQmlDebuggingLibrary()) {
             // This Qt version has the QML debugging services built in, however
             // they still need to be enabled at compile time
-            arguments << (version->qtVersion().majorVersion >= 5 ?
-                          QLatin1String(Constants::QMAKEVAR_DECLARATIVE_DEBUG5) :
-                          QLatin1String(Constants::QMAKEVAR_DECLARATIVE_DEBUG4));
+            // TODO: For Qt5, we can pass both arguments as there can be Qt Quick 1/2 projects.
+            // Currently there is no support for debugging multiple engines.
+            arguments << QLatin1String(Constants::QMAKEVAR_QUICK1_DEBUG);
+            if (version->qtVersion().majorVersion >= 5) {
+                arguments << QLatin1String(Constants::QMAKEVAR_QUICK2_DEBUG);
+            }
         } else {
             const QString qmlDebuggingHelperLibrary = version->qmlDebuggingHelperLibrary(true);
             if (!qmlDebuggingHelperLibrary.isEmpty()) {

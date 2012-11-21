@@ -89,8 +89,8 @@ const char ICON_HTML5_APP[] = ":/wizards/images/html5app.png";
 
 // Env variables
 const char QMAKEVAR_QMLJSDEBUGGER_PATH[] = "QMLJSDEBUGGER_PATH";
-const char QMAKEVAR_DECLARATIVE_DEBUG4[] = "CONFIG+=declarative_debug";
-const char QMAKEVAR_DECLARATIVE_DEBUG5[] = "CONFIG+=qml_debug";
+const char QMAKEVAR_QUICK1_DEBUG[] = "CONFIG+=declarative_debug";
+const char QMAKEVAR_QUICK2_DEBUG[] = "CONFIG+=qml_debug";
 
 // Unconfigured Panel
 const char UNCONFIGURED_PANEL_PAGE_ID[] = "UnconfiguredPanel";
