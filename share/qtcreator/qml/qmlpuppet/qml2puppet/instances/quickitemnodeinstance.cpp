@@ -35,6 +35,9 @@
 #include <QQuickView>
 #include <cmath>
 
+#include <private/qquicktextinput_p.h>
+#include <private/qquicktextedit_p.h>
+
 #include <QHash>
 
 #include <QDebug>
@@ -259,8 +262,24 @@ QuickItemNodeInstance::Pointer QuickItemNodeInstance::create(QObject *object)
     return instance;
 }
 
+static void disableTextCursor(QQuickItem *item)
+{
+    foreach (QQuickItem *childItem, item->childItems())
+        disableTextCursor(childItem);
+
+    QQuickTextInput *textInput = qobject_cast<QQuickTextInput*>(item);
+    if (textInput)
+        textInput->setCursorVisible(false);
+
+    QQuickTextEdit *textEdit = qobject_cast<QQuickTextEdit*>(item);
+    if (textEdit)
+        textEdit->setCursorVisible(false);
+}
+
 void QuickItemNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance)
 {
+    disableTextCursor(quickItem());
+
     if (instanceId() == 0) {
         DesignerSupport::setRootItem(nodeInstanceServer()->quickView(), quickItem());
     } else {
