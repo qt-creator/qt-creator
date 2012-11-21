@@ -154,7 +154,6 @@ public: // must be public to make Q_GADGET introspection work
         else_clause, // The else line of an if-else construct.
 
         condition_open, // Start of a condition in 'if', 'while', entered after opening paren
-        condition_paren_open, // After an lparen in a condition
 
         substatement, // The first line after a conditional or loop construct.
         substatement_open, // The brace that opens a substatement block.

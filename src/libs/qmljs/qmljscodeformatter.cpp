@@ -407,16 +407,10 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             break;
 
         case condition_open:
+            if (tryInsideExpression())
+                break;
             switch (kind) {
             case RightParenthesis:  turnInto(substatement); break;
-            case LeftParenthesis:   enter(condition_paren_open); break;
-            } break;
-
-        // paren nesting
-        case condition_paren_open:
-            switch (kind) {
-            case RightParenthesis:  leave(); break;
-            case LeftParenthesis:   enter(condition_paren_open); break;
             } break;
 
         case switch_statement:
@@ -1131,7 +1125,6 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     case signal_arglist_open:
     case function_arglist_open:
     case paren_open:
-    case condition_paren_open:
         if (!lastToken)
             *indentDepth = tokenPosition + 1;
         else

@@ -75,7 +75,8 @@ private Q_SLOTS:
     void ifStatementWithBraces3();
     void ifStatementMixed();
     void ifStatementAndComments();
-    void ifStatementLongCondition();
+    void ifStatementLongCondition1();
+    void ifStatementLongCondition2();
     void moreIfThenElse();
     void strayElse();
     void oneLineIf();
@@ -941,7 +942,7 @@ void tst_QMLCodeFormatter::ifStatementAndComments()
     checkIndent(data);
 }
 
-void tst_QMLCodeFormatter::ifStatementLongCondition()
+void tst_QMLCodeFormatter::ifStatementLongCondition1()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -953,6 +954,23 @@ void tst_QMLCodeFormatter::ifStatementLongCondition()
          << Line("                )")
          << Line("            ) {")
          << Line("        foo;")
+         << Line("    }")
+         << Line("}");
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::ifStatementLongCondition2()
+{
+    QList<Line> data;
+    data << Line("function test() {")
+         << Line("    if (foo(function() {")
+         << Line("        if (xx) {")
+         << Line("            yy = yy - 1")
+         << Line("        } else {")
+         << Line("            yy = yy + 1")
+         << Line("        }")
+         << Line("    })) {")
+         << Line("        zz = !zz")
          << Line("    }")
          << Line("}");
     checkIndent(data);
