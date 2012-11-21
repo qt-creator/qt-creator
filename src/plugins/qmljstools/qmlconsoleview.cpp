@@ -32,9 +32,9 @@
 #include "qmlconsoleitemmodel.h"
 
 #include <texteditor/basetexteditor.h>
+#include <coreplugin/manhattanstyle.h>
 
 #include <QMouseEvent>
-#include <QProxyStyle>
 #include <QPainter>
 #include <QApplication>
 #include <QClipboard>
@@ -42,20 +42,24 @@
 #include <QFileInfo>
 #include <QUrl>
 #include <QScrollBar>
+#include <QStyleFactory>
+#include <QString>
 
 using namespace QmlJS;
 
 namespace QmlJSTools {
 namespace Internal {
 
-class QmlConsoleViewStyle : public QProxyStyle
+class QmlConsoleViewStyle : public ManhattanStyle
 {
 public:
+    QmlConsoleViewStyle(const QString &baseStyleName) : ManhattanStyle(baseStyleName) {}
+
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter,
                        const QWidget *widget = 0) const
     {
         if (element != QStyle::PE_PanelItemViewRow)
-            QProxyStyle::drawPrimitive(element, option, painter, widget);
+            ManhattanStyle::drawPrimitive(element, option, painter, widget);
     }
 
     int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0,
@@ -63,7 +67,7 @@ public:
         if (hint == SH_ItemView_ShowDecorationSelected)
             return 0;
         else
-            return QProxyStyle::styleHint(hint, option, widget, returnData);
+            return ManhattanStyle::styleHint(hint, option, widget, returnData);
     }
 };
 
@@ -97,7 +101,24 @@ QmlConsoleView::QmlConsoleView(QWidget *parent) :
                                 "QTreeView::branch:open:has-children:has-siblings  {"
                                 "border-image: none;"
                                 "image: none; }"));
-    QmlConsoleViewStyle *style = new QmlConsoleViewStyle;
+
+    QString baseName = QApplication::style()->objectName();
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+    if (baseName == QLatin1String("windows")) {
+        // Sometimes we get the standard windows 95 style as a fallback
+        if (QStyleFactory::keys().contains("Fusion"))
+            baseName = QLatin1String("fusion"); // Qt5
+        else { // Qt4
+            // e.g. if we are running on a KDE4 desktop
+            QByteArray desktopEnvironment = qgetenv("DESKTOP_SESSION");
+            if (desktopEnvironment == "kde")
+                baseName = QLatin1String("plastique");
+            else
+                baseName = QLatin1String("cleanlooks");
+        }
+    }
+#endif
+    QmlConsoleViewStyle *style = new QmlConsoleViewStyle(baseName);
     setStyle(style);
     style->setParent(this);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
