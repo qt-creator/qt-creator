@@ -342,10 +342,33 @@ QStringList ExamplesListModel::exampleSources(QString *examplesFallback, QString
     QString potentialExamplesFallback;
     QString potentialDemosFallback;
     QString potentialSourceFallback;
-    bool potentialFallbackHasDeclarative = false; // we prefer Qt's with declarative as fallback
     const QStringList pattern(QLatin1String("*.xml"));
 
     QtVersionManager *versionManager = QtVersionManager::instance();
+
+    foreach (BaseQtVersion *version, versionManager->validVersions()) {
+        // qt5 with examples OR demos manifest
+        if (version->qtVersion().majorVersion == 5 && (version->hasExamples() || version->hasDemos())) {
+            // examples directory in Qt5 is under the qtbase submodule,
+            // search other submodule directories for further manifest files
+            QDir qt5docPath = QDir(version->documentationPath());
+            const QStringList examplesPattern(QLatin1String("examples-manifest.xml"));
+            const QStringList demosPattern(QLatin1String("demos-manifest.xml"));
+            QFileInfoList fis;
+            foreach (QFileInfo subDir, qt5docPath.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+                if (version->hasExamples())
+                    fis << QDir(subDir.absoluteFilePath()).entryInfoList(examplesPattern);
+                if (version->hasDemos())
+                    fis << QDir(subDir.absoluteFilePath()).entryInfoList(demosPattern);
+            }
+            if (!fis.isEmpty()) {
+                foreach (const QFileInfo &fi, fis)
+                    sources.append(fi.filePath());
+                return sources;
+            }
+        }
+    }
+
     foreach (BaseQtVersion *version, versionManager->validVersions()) {
         QFileInfoList fis;
         if (version->hasExamples())
@@ -357,13 +380,9 @@ QStringList ExamplesListModel::exampleSources(QString *examplesFallback, QString
                 sources.append(fi.filePath());
             return sources;
         }
-
         // check if this Qt version would be the preferred fallback, Qt 4 only
         if (version->qtVersion().majorVersion == 4 && version->hasExamples() && version->hasDemos()) { // cached, so no performance hit
-            bool hasDeclarative = QDir(version->examplesPath() + QLatin1String("/declarative")).exists();
-            if (potentialExamplesFallback.isEmpty()
-                    || (!potentialFallbackHasDeclarative && hasDeclarative)) {
-                potentialFallbackHasDeclarative = hasDeclarative;
+            if (potentialExamplesFallback.isEmpty()) {
                 potentialExamplesFallback = version->examplesPath();
                 potentialDemosFallback = version->demosPath();
                 potentialSourceFallback = version->sourcePath().toString();
