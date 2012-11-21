@@ -40,6 +40,7 @@
 #include <qtsupport/qtversionmanager.h>
 #include <utils/qtcassert.h>
 
+#include <utils/environment.h>
 #include <algorithm>
 
 using QtSupport::QtVersionManager;
@@ -308,6 +309,16 @@ QStringList ExamplesListModel::exampleSources(QString *examplesFallback, QString
     QTC_CHECK(sourceFallback);
     QStringList sources;
     QString resourceDir = Core::ICore::resourcePath() + QLatin1String("/welcomescreen/");
+
+    // overriding examples with a custom XML file
+    QString exampleFileEnvKey = QLatin1String("QTC_EXAMPLE_FILE");
+    if (Utils::Environment::systemEnvironment().hasKey(exampleFileEnvKey)) {
+        QString filePath = Utils::Environment::systemEnvironment().value(exampleFileEnvKey);
+        if (filePath.endsWith(QLatin1String(".xml")) && QFileInfo(filePath).exists()) {
+            sources.append(filePath);
+            return sources;
+        }
+    }
 
     // Qt Creator shipped tutorials
     sources << (resourceDir + QLatin1String("/qtcreator_tutorials.xml"));
