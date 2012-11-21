@@ -40,206 +40,275 @@
 namespace QmlDesigner {
 namespace Internal {
 
+enum {
+    debug = false
+};
+
+const char rootElementName[] = "MetaInfo";
+const char typeElementName[] = "Type";
+const char ItemLibraryEntryElementName[] = "ItemLibraryEntry";
+const char QmlSourceElementName[] = "QmlSource";
+const char PropertyElementName[] = "Property";
 
 MetaInfoParser::MetaInfoParser(const MetaInfo &metaInfo)
-        : m_metaInfo(metaInfo)
+        : m_parserState(Undefined),
+          m_metaInfo(metaInfo)
 {
 }
 
-void MetaInfoParser::parseFile(const QString &path)
+void MetaInfoParser::readMetaInfoFile(const QString &path)
 {
-    QFile file;
-    file.setFileName(path);
-    if (!file.open(QIODevice::ReadOnly))
-        throw new InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
-
-    QXmlStreamReader reader;
-    reader.setDevice(&file);
-
-    while (!reader.atEnd()) {
-        reader.readNext();
-        tokenHandler(reader);
+    m_parserState = ParsingDocument;
+    if (!SimpleAbstractStreamReader::readFile(path)) {
+        qWarning() << "readMetaInfoFile()" << path;
+        qWarning() << errors();
+        m_parserState = Error;
+        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
     }
-    errorHandling(reader, file);
-}
 
-void MetaInfoParser::tokenHandler(QXmlStreamReader &reader)
-{
-    if (reader.isStartElement() && reader.name() == "metainfo")
-        handleMetaInfoElement(reader);
-}
-
-void MetaInfoParser::handleMetaInfoElement(QXmlStreamReader &reader)
-{
-    while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "metainfo")) {
-        reader.readNext();
-        metaInfoHandler(reader);
+    if (!errors().isEmpty()) {
+        qWarning() << "readMetaInfoFile()" << path;
+        qWarning() << errors();
+        m_parserState = Error;
+        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
     }
 }
 
-void MetaInfoParser::metaInfoHandler(QXmlStreamReader &reader)
+QStringList MetaInfoParser::errors()
 {
-    if (reader.isStartElement())
-    {
-        if (reader.name() == "node")
-            handleNodeElement(reader);
+    return QmlJS::SimpleAbstractStreamReader::errors();
+}
+
+void MetaInfoParser::elementStart(const QString &name)
+{
+    switch (parserState()) {
+    case ParsingDocument: setParserState(readDocument(name)); break;
+    case ParsingMetaInfo: setParserState(readMetaInfoRootElement(name)); break;
+    case ParsingType: setParserState(readTypeElement(name)); break;
+    case ParsingItemLibrary: setParserState(readItemLibraryEntryElement(name)); break;
+    case ParsingProperty: setParserState(readPropertyElement(name)); break;
+    case ParsingQmlSource: setParserState(readQmlSourceElement(name)); break;
+    case Finished: setParserState(Error);
+    case Undefined: setParserState(Error);
+        addError(tr("Illegal state while parsing"), currentSourceLocation());
+    case Error:
+    default: return;
     }
 }
 
-void MetaInfoParser::handleNodeElement(QXmlStreamReader &reader)
+void MetaInfoParser::elementEnd()
 {
-    const QXmlStreamAttributes attributes = reader.attributes();
-
-    const QString className = attributes.value("name").toString();
-    const QIcon icon = QIcon(attributes.value("icon").toString());
-
-    if (className.isEmpty()) {
-        reader.raiseError("Invalid element 'node' - mandatory attribute 'name' is missing");
-        return;
-    }
-
-    while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "node")) {
-        reader.readNext();
-
-        handleNodeItemLibraryEntryElement(reader, className, icon);
+    switch (parserState()) {
+    case ParsingMetaInfo: setParserState(ParsingDocument); break;
+    case ParsingType: setParserState(ParsingMetaInfo); break;
+    case ParsingItemLibrary: insertItemLibraryEntry(); setParserState((ParsingType)); break;
+    case ParsingProperty: insertProperty(); setParserState(ParsingItemLibrary);  break;
+    case ParsingQmlSource: setParserState(ParsingItemLibrary); break;
+    case ParsingDocument: setParserState(Finished);
+    case Finished: setParserState(Error);
+    case Undefined: setParserState(Error);
+        addError(tr("Illegal state while parsing"), currentSourceLocation());
+    case Error:
+    default: return;
     }
 }
 
-void MetaInfoParser::handleNodeItemLibraryEntryElement(QXmlStreamReader &reader, const QString &className, const QIcon &icon)
+void MetaInfoParser::propertyDefinition(const QString &name, const QVariant &value)
 {
-    if (reader.isStartElement() && reader.name() == "itemlibraryentry")
-    {
-        const QString versionNumber = reader.attributes().value("version").toString();
+    switch (parserState()) {
+    case ParsingType: readTypeProperty(name, value); break;
+    case ParsingItemLibrary: readItemLibraryEntryProperty(name, value); break;
+    case ParsingProperty: readPropertyProperty(name, value); break;
+    case ParsingQmlSource: readQmlSourceProperty(name, value); break;
+    case ParsingMetaInfo: addError(tr("No property definition allowed"), currentSourceLocation()); break;
+    case ParsingDocument:
+    case Finished:
+    case Undefined: setParserState(Error);
+        addError(tr("Illegal state while parsing"), currentSourceLocation());
+    case Error:
+    default: return;
+    }
+}
 
-        int major = 1;
-        int minor = 0;
+MetaInfoParser::ParserSate MetaInfoParser::readDocument(const QString &name)
+{
+    if (name == QLatin1String(rootElementName)) {
+        m_currentClassName = QString();
+        m_currentIcon = QString();
+        return ParsingMetaInfo;
+    } else {
+        addErrorInvalidType(name);
+        return Error;
+    }
+}
 
-        if (!versionNumber.isEmpty()) {
-            int val;
-            bool ok;
-            if (versionNumber.contains('.')) {
-                val = versionNumber.split('.').first().toInt(&ok);
-                major = ok ? val : major;
-                val = versionNumber.split('.').last().toInt(&ok);
-                minor = ok ? val : minor;
-            } else {
-                val = versionNumber.toInt(&ok);
-                major = ok ? val : major;
-            }
-        }
+MetaInfoParser::ParserSate MetaInfoParser::readMetaInfoRootElement(const QString &name)
+{
+    if (name == QLatin1String(typeElementName)) {
+        m_currentClassName = QString();
+        m_currentIcon = QString();
+        return ParsingType;
+    } else {
+        addErrorInvalidType(name);
+        return Error;
+    }
+}
 
-        const QString name = reader.attributes().value("name").toString();
+MetaInfoParser::ParserSate MetaInfoParser::readTypeElement(const QString &name)
+{
+    if (name == QLatin1String(ItemLibraryEntryElementName)) {
+        m_currentEntry = ItemLibraryEntry();
+        m_currentEntry.setForceImport(false);
+        m_currentEntry.setType(m_currentClassName, -1, -1);
+        m_currentEntry.setIcon(QIcon(m_currentIcon));
+        return ParsingItemLibrary;
+    } else {
+        addErrorInvalidType(name);
+        return Error;
+    }
+}
 
-        ItemLibraryEntry entry;
-        entry.setType(className, major, minor);
-        entry.setName(name);
-        entry.setIcon(icon);
+MetaInfoParser::ParserSate MetaInfoParser::readItemLibraryEntryElement(const QString &name)
+{
+    if (name == QmlSourceElementName) {
+        return ParsingQmlSource;
+    } else if (name == PropertyElementName) {
+        m_currentPropertyName = QString();
+        m_currentPropertyType = QString();
+        m_currentPropertyValue = QVariant();
+        return ParsingProperty;
+    } else {
+        addError(tr("Invalid type %1").arg(name), currentSourceLocation());
+        return Error;
+    }
+}
 
-        QString iconPath = reader.attributes().value("libraryIcon").toString();
-        if (!iconPath.isEmpty()) 
-            entry.setIconPath(iconPath);
+MetaInfoParser::ParserSate MetaInfoParser::readPropertyElement(const QString &name)
+{
+    addError(tr("Invalid type %1").arg(name), currentSourceLocation());
+    return Error;
+}
 
-        QString category = reader.attributes().value("category").toString();
-        if (!category.isEmpty())
-            entry.setCategory(category);
+MetaInfoParser::ParserSate MetaInfoParser::readQmlSourceElement(const QString &name)
+{
+    addError(tr("Invalid type %1").arg(name), currentSourceLocation());
+    return Error;
+}
 
-        QString requiredImport = reader.attributes().value("requiredImport").toString();
-        if (!requiredImport.isEmpty())
-            entry.setRequiredImport(requiredImport);
+void MetaInfoParser::readTypeProperty(const QString &name, const QVariant &value)
+{
+    if (name == QLatin1String("name")) {
+        m_currentClassName = value.toString();
+    } else if (name == QLatin1String("icon")) {
+        m_currentIcon = value.toString();
+    } else {
+        addError(tr("Unknown property for Type %1").arg(name), currentSourceLocation());
+        setParserState(Error);
+    }
+}
 
-        if (reader.attributes().hasAttribute("forceImport")) {
-            QString forceImport = reader.attributes().value("forceImport").toString();
-            if (forceImport == QLatin1String("true") || forceImport == QLatin1String("True"))
-                entry.setForceImport(true);
-            else
-                entry.setForceImport(false);
+void MetaInfoParser::readItemLibraryEntryProperty(const QString &name, const QVariant &value)
+{
+    if (name == QLatin1String("name")) {
+        m_currentEntry.setName(value.toString());
+    } else if (name == QLatin1String("category")) {
+        m_currentEntry.setCategory(value.toString());
+    } else if (name == QLatin1String("libraryIcon")) {
+        m_currentEntry.setIconPath(value.toString());
+    } else if (name == QLatin1String("version")) {
+        setVersion(value.toString());
+    } else if (name == QLatin1String("requiredImport")) {
+        m_currentEntry.setRequiredImport(value.toString());
+    } else if (name == QLatin1String("forceImport")) {
+        m_currentEntry.setForceImport(value.toBool());
+    } else {
+        addError(tr("Unknown property for ItemLibraryEntry %1").arg(name), currentSourceLocation());
+        setParserState(Error);
+    }
+}
+
+void MetaInfoParser::readPropertyProperty(const QString &name, const QVariant &value)
+{
+    if (name == QLatin1String("name")) {
+       m_currentPropertyName = value.toString();
+    } else if (name == QLatin1String("type")) {
+        m_currentPropertyType = value.toString();
+    } else if (name == QLatin1String("value")) {
+        m_currentPropertyValue = value;
+    } else {
+        addError(tr("Unknown property for Property %1").arg(name), currentSourceLocation());
+        setParserState(Error);
+    }
+}
+
+void MetaInfoParser::readQmlSourceProperty(const QString &name, const QVariant &value)
+{
+    if (name == QLatin1String("source")) {
+        m_currentEntry.setQml(value.toString());
+    } else {
+        addError(tr("Unknown property for QmlSource %1").arg(name), currentSourceLocation());
+        setParserState(Error);
+    }
+}
+
+void MetaInfoParser::setVersion(const QString &versionNumber)
+{
+    const QString typeName = m_currentEntry.typeName();
+    int major = 1;
+    int minor = 0;
+
+    if (!versionNumber.isEmpty()) {
+        int val;
+        bool ok;
+        if (versionNumber.contains('.')) {
+            val = versionNumber.split('.').first().toInt(&ok);
+            major = ok ? val : major;
+            val = versionNumber.split('.').last().toInt(&ok);
+            minor = ok ? val : minor;
         } else {
-            entry.setForceImport(false);
+            val = versionNumber.toInt(&ok);
+            major = ok ? val : major;
         }
-
-        while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "itemlibraryentry")) {
-            reader.readNext();
-            handleItemLibraryEntryPropertyElement(reader, entry);
-            handleItemLibraryEntryQmlElement(reader, entry);
-        }
-
-        m_metaInfo.itemLibraryInfo()->addEntry(entry);
     }
+    m_currentEntry.setType(typeName, major, minor);
 }
 
-void MetaInfoParser::handleItemLibraryEntryPropertyElement(QXmlStreamReader &reader, ItemLibraryEntry &itemLibraryEntry)
+MetaInfoParser::ParserSate MetaInfoParser::parserState() const
 {
-    if (reader.isStartElement() && reader.name() == "property")
-    {
-        QXmlStreamAttributes attributes(reader.attributes());
-        QString name = attributes.value("name").toString();
-        QString type = attributes.value("type").toString();
-        QString value = attributes.value("value").toString();
-        itemLibraryEntry.addProperty(name, type, value);
-
-        reader.readNext();
-    }
+    return m_parserState;
 }
 
-void MetaInfoParser::handleItemLibraryEntryQmlElement(QXmlStreamReader &reader, ItemLibraryEntry &itemLibraryEntry)
+void MetaInfoParser::setParserState(ParserSate newParserState)
 {
-    if (reader.isStartElement() && reader.name() == "qml")
-    {
-        QXmlStreamAttributes attributes(reader.attributes());
-        QString source = attributes.value("source").toString();
-        itemLibraryEntry.setQml(source);
+    if (debug && newParserState == Error)
+        qDebug() << "Error";
 
-        reader.readNext();
-    }
+    m_parserState = newParserState;
 }
 
-void MetaInfoParser::errorHandling(QXmlStreamReader &reader, QFile &file)
+void MetaInfoParser::insertItemLibraryEntry()
 {
-    if (!reader.hasError())
-        return;
-
-    qDebug() << QString("Error at %1, %2:%3: %4")
-            .arg(file.fileName())
-            .arg(reader.lineNumber())
-            .arg(reader.columnNumber())
-            .arg(reader.errorString());
-
-    file.reset();
-
-    QString fileString = file.readAll();
-    QString snippetString;
-    int lineCount = 0;
-    int position = reader.characterOffset();
-    while (position >= 0)
-    {
-        if (fileString[position] == '\n') {
-            if (lineCount > 3)
-                break;
-            lineCount++;
-        }
-
-        snippetString.prepend(fileString[position]);
-        position--;
+    if (debug) {
+        qDebug() << "insertItemLibraryEntry()";
+        qDebug() << m_currentEntry;
     }
 
-    lineCount = 0;
-    position = reader.characterOffset();
-    while (position >= 0)
-    {
-        position++;
-        if (fileString[position] == '\n') {
-            if (lineCount > 1)
-                break;
-            lineCount++;
-        }
-
-        snippetString.append(fileString[position]);
+    try {
+        m_metaInfo.itemLibraryInfo()->addEntry(m_currentEntry);
+    } catch (InvalidMetaInfoException &) {
+        addError(tr("Invalid or duplicate item library entry %1").arg(m_currentEntry.name()), currentSourceLocation());
     }
-
-    qDebug() << snippetString;
-
 }
 
+void MetaInfoParser::insertProperty()
+{
+    m_currentEntry.addProperty(m_currentPropertyName, m_currentPropertyType, m_currentPropertyValue);
+}
 
+void MetaInfoParser::addErrorInvalidType(const QString &typeName)
+{
+    addError(tr("Invalid type %1").arg(typeName), currentSourceLocation());
 }
-}
+
+} //Internal
+} //QmlDesigner

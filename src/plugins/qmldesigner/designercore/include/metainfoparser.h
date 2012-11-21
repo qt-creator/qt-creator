@@ -31,10 +31,13 @@
 #define METAINFOPARSER_H
 
 #include "qmldesignercorelib_global.h"
-#include <QXmlStreamReader>
+#include <metainfo.h>
+
+#include <qmljs/qmljssimplereader.h>
+
 #include <QString>
 #include <QFile>
-#include <metainfo.h>
+
 
 namespace QmlDesigner {
 
@@ -43,25 +46,69 @@ class ItemLibraryEntry;
 namespace Internal {
 
 
-class QMLDESIGNERCORE_EXPORT MetaInfoParser
+class MetaInfoParser : protected QmlJS::SimpleAbstractStreamReader
 {
+    Q_DECLARE_TR_FUNCTIONS(QmlDesigner::Internal::MetaInfoParser)
+
 public:
     MetaInfoParser(const MetaInfo &metaInfo);
 
-    void parseFile(const QString &path);
+    void readMetaInfoFile(const QString &path);
+
+
+    QStringList errors();
 
 protected:
-    void errorHandling(QXmlStreamReader &reader, QFile &file);
-    void tokenHandler(QXmlStreamReader &reader);
-    void metaInfoHandler(QXmlStreamReader &reader);
-    void handleMetaInfoElement(QXmlStreamReader &reader);
-    void handleNodeElement(QXmlStreamReader &reader);
-    void handleNodeItemLibraryEntryElement(QXmlStreamReader &reader, const QString &className, const QIcon &icon);
-    void handleItemLibraryEntryPropertyElement(QXmlStreamReader &reader, ItemLibraryEntry &itemLibraryEntry);
-    void handleItemLibraryEntryQmlElement(QXmlStreamReader &reader, ItemLibraryEntry &itemLibraryEntry);
+    virtual void elementStart(const QString &name);
+    virtual void elementEnd();
+    virtual void propertyDefinition(const QString &name, const QVariant &value);
 
 private:
+    enum ParserSate { Error,
+                      Finished,
+                      Undefined,
+                      ParsingDocument,
+                      ParsingMetaInfo,
+                      ParsingType,
+                      ParsingItemLibrary,
+                      ParsingProperty,
+                      ParsingQmlSource
+                    };
+
+    ParserSate readDocument(const QString &name);
+
+    ParserSate readMetaInfoRootElement(const QString &name);
+    ParserSate readTypeElement(const QString &name);
+    ParserSate readItemLibraryEntryElement(const QString &name);
+    ParserSate readPropertyElement(const QString &name);
+    ParserSate readQmlSourceElement(const QString &name);
+
+    void readTypeProperty(const QString &name, const QVariant &value);
+    void readItemLibraryEntryProperty(const QString &name, const QVariant &value);
+    void readPropertyProperty(const QString &name, const QVariant &value);
+    void readQmlSourceProperty(const QString &name, const QVariant &value);
+
+    void setVersion(const QString &versionNumber);
+
+    ParserSate parserState() const;
+    void setParserState(ParserSate newParserState);
+
+    void insertItemLibraryEntry();
+    void insertProperty();
+
+    void addErrorInvalidType(const QString &typeName);
+
+    ParserSate m_parserState;
     MetaInfo m_metaInfo;
+
+    QString m_currentClassName;
+    QString m_currentIcon;
+    QString m_currentSource;
+    ItemLibraryEntry m_currentEntry;
+
+    QString m_currentPropertyName;
+    QString m_currentPropertyType;
+    QVariant m_currentPropertyValue;
 };
 
 }

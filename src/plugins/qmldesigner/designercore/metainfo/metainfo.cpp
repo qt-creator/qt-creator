@@ -38,7 +38,9 @@
 
 #include "pluginmanager/widgetpluginmanager.h"
 
+
 #include <QDebug>
+#include <QMessageBox>
 #include <QPair>
 #include <QtAlgorithms>
 
@@ -62,7 +64,7 @@ public:
 
     void initialize();
 
-    void parseXmlFiles();
+    void parseItemLibraryDescriptions();
 
     QScopedPointer<ItemLibraryInfo> m_itemLibraryInfo;
 
@@ -87,7 +89,7 @@ void MetaInfoPrivate::clear()
 
 void MetaInfoPrivate::initialize()
 {
-    parseXmlFiles();
+    parseItemLibraryDescriptions();
     m_isInitialized = true;
 }
 
@@ -107,7 +109,7 @@ static inline bool isDepricatedQtType(const QString &typeName)
     return typeName.contains("Qt.");
 }
 
-void MetaInfoPrivate::parseXmlFiles()
+void MetaInfoPrivate::parseItemLibraryDescriptions()
 {
     Internal::WidgetPluginManager pluginManager;
     foreach (const QString &pluginDir, m_q->s_pluginDirs)
@@ -115,7 +117,15 @@ void MetaInfoPrivate::parseXmlFiles()
     QList<IWidgetPlugin *> widgetPluginList = pluginManager.instances();
     foreach (IWidgetPlugin *plugin, widgetPluginList) {
         Internal::MetaInfoParser parser(*m_q);
-        parser.parseFile(plugin->metaInfo());
+        try {
+            parser.readMetaInfoFile(plugin->metaInfo());
+        } catch (InvalidMetaInfoException &e) {
+            qWarning() << e.description();
+            const QString errorMessage = plugin->metaInfo() + QLatin1Char('\n') + QLatin1Char('\n') + parser.errors().join(QLatin1String("\n"));
+            QMessageBox::critical(0,
+                                  QCoreApplication::translate("QmlDesigner::Internal::MetaInfoPrivate", "Invalid meta info"),
+                                  errorMessage);
+        }
     }
 }
 
