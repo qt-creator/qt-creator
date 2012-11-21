@@ -155,7 +155,7 @@ Utils::FileName AbstractMsvcToolChain::compilerCommand() const
 {
     Utils::Environment env;
     addToEnvironment(env);
-    return Utils::FileName::fromString(env.searchInPath("cl.exe"));
+    return Utils::FileName::fromString(env.searchInPath(QLatin1String("cl.exe")));
 }
 
 IOutputParser *AbstractMsvcToolChain::outputParser() const

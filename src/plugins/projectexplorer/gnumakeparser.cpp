@@ -284,7 +284,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << (QList<Task>()
                 << Task(Task::Error,
                         QString::fromLatin1("missing separator (did you mean TAB instead of 8 spaces?). Stop."),
-                        Utils::FileName::fromUserInput("Makefile"), 360,
+                        Utils::FileName::fromUserInput(QLatin1String("Makefile")), 360,
                         Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)))
             << QString()
             << QStringList();
@@ -417,12 +417,12 @@ void ProjectExplorerPlugin::testGnuMakeParserTaskMangling_data()
             << QStringList()
             << Task(Task::Error,
                     QLatin1String("unknown filename, no mangling"),
-                    Utils::FileName::fromUserInput("some/path/unknown.cpp"),
+                    Utils::FileName::fromUserInput(QLatin1String("some/path/unknown.cpp")),
                     -1,
                     Core::Id(Constants::TASK_CATEGORY_COMPILE))
             << Task(Task::Error,
                     QLatin1String("unknown filename, no mangling"),
-                    Utils::FileName::fromUserInput("some/path/unknown.cpp"),
+                    Utils::FileName::fromUserInput(QLatin1String("some/path/unknown.cpp")),
                     -1,
                     Core::Id(Constants::TASK_CATEGORY_COMPILE));
     QTest::newRow("find file")
@@ -430,12 +430,12 @@ void ProjectExplorerPlugin::testGnuMakeParserTaskMangling_data()
             << (QStringList(QLatin1String("test")))
             << Task(Task::Error,
                     QLatin1String("mangling"),
-                    Utils::FileName::fromUserInput("file.cpp"),
+                    Utils::FileName::fromUserInput(QLatin1String("file.cpp")),
                     10,
                     Core::Id(Constants::TASK_CATEGORY_COMPILE))
             << Task(Task::Error,
                     QLatin1String("mangling"),
-                    Utils::FileName::fromUserInput("$TMPDIR/test/file.cpp"),
+                    Utils::FileName::fromUserInput(QLatin1String("$TMPDIR/test/file.cpp")),
                     10,
                     Core::Id(Constants::TASK_CATEGORY_COMPILE));
 }

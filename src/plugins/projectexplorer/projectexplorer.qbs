@@ -14,7 +14,7 @@ QtcPlugin {
     Depends { name: "QtcSsh" }
 
     Depends { name: "cpp" }
-    cpp.defines: base.concat(["QTC_CPU=X86Architecture"])
+    cpp.defines: base.concat(["QTC_CPU=X86Architecture", "QT_NO_CAST_FROM_ASCII"])
     cpp.includePaths: base.concat([
         "customwizard",
         "publishing"

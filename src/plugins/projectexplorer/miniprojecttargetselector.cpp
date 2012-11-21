@@ -1451,13 +1451,13 @@ void MiniProjectTargetSelector::updateSummary()
                     .arg(startupProject->displayName());
         } else {
             if (!m_listWidgets[TARGET]->isVisibleTo(this))
-                summary.append("<br/>");
+                summary.append(QLatin1String("<br/>"));
             if (!m_listWidgets[BUILD]->isVisibleTo(this))
-                summary.append("<br/>");
+                summary.append(QLatin1String("<br/>"));
             if (!m_listWidgets[DEPLOY]->isVisibleTo(this))
-                summary.append("<br/>");
+                summary.append(QLatin1String("<br/>"));
             if (!m_listWidgets[RUN]->isVisibleTo(this))
-                summary.append("<br/>");
+                summary.append(QLatin1String("<br/>"));
         }
     }
     m_summaryLabel->setText(summary);

@@ -153,7 +153,7 @@ int KitModel::columnCount(const QModelIndex &parent) const
 
 QVariant KitModel::data(const QModelIndex &index, int role) const
 {
-    static QIcon warningIcon(":/projectexplorer/images/compile_warning.png");
+    static QIcon warningIcon(QLatin1String(":/projectexplorer/images/compile_warning.png"));
 
     if (!index.isValid() || index.column() != 0)
         return QVariant();

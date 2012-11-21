@@ -60,7 +60,7 @@ public:
 
     static QString createId(const QString &id)
     {
-        QString newId = id.left(id.indexOf(':'));
+        QString newId = id.left(id.indexOf(QLatin1Char(':')));
         newId.append(QLatin1Char(':') + QUuid::createUuid().toString());
         return newId;
     }

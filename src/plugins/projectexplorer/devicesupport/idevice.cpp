@@ -303,18 +303,18 @@ void IDevice::fromMap(const QVariantMap &map)
     d->id = Core::Id(map.value(QLatin1String(IdKey), newId().name()).toByteArray());
     d->origin = static_cast<Origin>(map.value(QLatin1String(OriginKey), ManuallyAdded).toInt());
 
-    d->sshParameters.host = map.value(HostKey).toString();
-    d->sshParameters.port = map.value(SshPortKey, 22).toInt();
-    d->sshParameters.userName = map.value(UserNameKey).toString();
+    d->sshParameters.host = map.value(QLatin1String(HostKey)).toString();
+    d->sshParameters.port = map.value(QLatin1String(SshPortKey), 22).toInt();
+    d->sshParameters.userName = map.value(QLatin1String(UserNameKey)).toString();
     d->sshParameters.authenticationType
-        = static_cast<AuthType>(map.value(AuthKey, DefaultAuthType).toInt());
-    d->sshParameters.password = map.value(PasswordKey).toString();
-    d->sshParameters.privateKeyFile = map.value(KeyFileKey, defaultPrivateKeyFilePath()).toString();
-    d->sshParameters.timeout = map.value(TimeoutKey, DefaultTimeout).toInt();
+        = static_cast<AuthType>(map.value(QLatin1String(AuthKey), DefaultAuthType).toInt());
+    d->sshParameters.password = map.value(QLatin1String(PasswordKey)).toString();
+    d->sshParameters.privateKeyFile = map.value(QLatin1String(KeyFileKey), defaultPrivateKeyFilePath()).toString();
+    d->sshParameters.timeout = map.value(QLatin1String(TimeoutKey), DefaultTimeout).toInt();
 
-    d->freePorts = Utils::PortList::fromString(map.value(PortsSpecKey,
+    d->freePorts = Utils::PortList::fromString(map.value(QLatin1String(PortsSpecKey),
         QLatin1String("10000-10100")).toString());
-    d->machineType = static_cast<MachineType>(map.value(MachineTypeKey, DefaultMachineType).toInt());
+    d->machineType = static_cast<MachineType>(map.value(QLatin1String(MachineTypeKey), DefaultMachineType).toInt());
 }
 
 QVariantMap IDevice::toMap() const
@@ -325,16 +325,16 @@ QVariantMap IDevice::toMap() const
     map.insert(QLatin1String(IdKey), d->id.name());
     map.insert(QLatin1String(OriginKey), d->origin);
 
-    map.insert(MachineTypeKey, d->machineType);
-    map.insert(HostKey, d->sshParameters.host);
-    map.insert(SshPortKey, d->sshParameters.port);
-    map.insert(UserNameKey, d->sshParameters.userName);
-    map.insert(AuthKey, d->sshParameters.authenticationType);
-    map.insert(PasswordKey, d->sshParameters.password);
-    map.insert(KeyFileKey, d->sshParameters.privateKeyFile);
-    map.insert(TimeoutKey, d->sshParameters.timeout);
+    map.insert(QLatin1String(MachineTypeKey), d->machineType);
+    map.insert(QLatin1String(HostKey), d->sshParameters.host);
+    map.insert(QLatin1String(SshPortKey), d->sshParameters.port);
+    map.insert(QLatin1String(UserNameKey), d->sshParameters.userName);
+    map.insert(QLatin1String(AuthKey), d->sshParameters.authenticationType);
+    map.insert(QLatin1String(PasswordKey), d->sshParameters.password);
+    map.insert(QLatin1String(KeyFileKey), d->sshParameters.privateKeyFile);
+    map.insert(QLatin1String(TimeoutKey), d->sshParameters.timeout);
 
-    map.insert(PortsSpecKey, d->freePorts.toString());
+    map.insert(QLatin1String(PortsSpecKey), d->freePorts.toString());
 
     return map;
 }

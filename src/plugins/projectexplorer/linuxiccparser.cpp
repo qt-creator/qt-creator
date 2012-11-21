@@ -144,7 +144,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Error,
                         QLatin1String("identifier \"f\" is undefined\nf(0);"),
-                        Utils::FileName::fromUserInput("main.cpp"), 13,
+                        Utils::FileName::fromUserInput(QLatin1String("main.cpp")), 13,
                         Core::Id(Constants::TASK_CATEGORY_COMPILE)))
             << QString();
 
@@ -158,7 +158,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Error,
                         QLatin1String("function \"AClass::privatefunc\" (declared at line 4 of \"main.h\") is inaccessible\nb.privatefunc();"),
-                        Utils::FileName::fromUserInput("main.cpp"), 53,
+                        Utils::FileName::fromUserInput(QLatin1String("main.cpp")), 53,
                         Core::Id(Constants::TASK_CATEGORY_COMPILE)))
             << QString();
 
@@ -172,7 +172,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Warning,
                         QLatin1String("use of \"=\" where \"==\" may have been intended\nwhile (a = true)"),
-                        Utils::FileName::fromUserInput("main.cpp"), 41,
+                        Utils::FileName::fromUserInput(QLatin1String("main.cpp")), 41,
                         Core::Id(Constants::TASK_CATEGORY_COMPILE)))
             << QString();
 }

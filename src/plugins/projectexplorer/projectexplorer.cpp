@@ -1942,7 +1942,7 @@ int ProjectExplorerPlugin::queue(QList<Project *> projects, QList<Core::Id> step
         foreach (const Project *p, projects)
             projectNames << p->displayName();
         foreach (const Core::Id id, stepIds)
-            stepNames << id.name();
+            stepNames << id.toString();
         qDebug() << "Building" << stepNames << "for projects" << projectNames;
     }
 

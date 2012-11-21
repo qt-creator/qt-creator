@@ -105,7 +105,7 @@ void MsvcParser::stdOutput(const QString &line)
 
     if (processCompileLine(line))
         return;
-    if (line.startsWith("Error:")) {
+    if (line.startsWith(QLatin1String("Error:"))) {
         m_lastTask = Task(Task::Error,
                           line.mid(6).trimmed(), /* description */
                           Utils::FileName(), /* fileName */
@@ -113,7 +113,7 @@ void MsvcParser::stdOutput(const QString &line)
                           Core::Id(Constants::TASK_CATEGORY_COMPILE));
         return;
     }
-    if (line.startsWith("Warning:")) {
+    if (line.startsWith(QLatin1String("Warning:"))) {
         m_lastTask = Task(Task::Warning,
                           line.mid(8).trimmed(), /* description */
                           Utils::FileName(), /* fileName */
@@ -203,19 +203,21 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
     QTest::newRow("labeled error")
             << QString::fromLatin1("qmlstandalone\\main.cpp(54) : error C4716: 'findUnresolvedModule' : must return a value") << OutputParserTester::STDOUT
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>() << Task(Task::Error,
-                                                       QLatin1String("C4716: 'findUnresolvedModule' : must return a value"),
-                                                       Utils::FileName::fromUserInput("qmlstandalone\\main.cpp"), 54,
-                                                       Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Error,
+                        QLatin1String("C4716: 'findUnresolvedModule' : must return a value"),
+                        Utils::FileName::fromUserInput(QLatin1String("qmlstandalone\\main.cpp")), 54,
+                        Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
 
     QTest::newRow("labeled warning")
             << QString::fromLatin1("x:\\src\\plugins\\projectexplorer\\msvcparser.cpp(69) : warning C4100: 'something' : unreferenced formal parameter") << OutputParserTester::STDOUT
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
-                                                       QLatin1String("C4100: 'something' : unreferenced formal parameter"),
-                                                       Utils::FileName::fromUserInput("x:\\src\\plugins\\projectexplorer\\msvcparser.cpp"), 69,
-                                                       Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Warning,
+                        QLatin1String("C4100: 'something' : unreferenced formal parameter"),
+                        Utils::FileName::fromUserInput(QLatin1String("x:\\src\\plugins\\projectexplorer\\msvcparser.cpp")), 69,
+                        Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
 
     QTest::newRow("additional information")
@@ -226,11 +228,11 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Warning,
                         QLatin1String("C4099: 'TextEditor::CompletionItem' : type name first seen using 'struct' now seen using 'class'"),
-                        Utils::FileName::fromUserInput("x:\\src\\plugins\\texteditor\\icompletioncollector.h"), 50,
+                        Utils::FileName::fromUserInput(QLatin1String("x:\\src\\plugins\\texteditor\\icompletioncollector.h")), 50,
                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
                 << Task(Task::Unknown,
                         QLatin1String("see declaration of 'TextEditor::CompletionItem'"),
-                        Utils::FileName::fromUserInput("x:\\src\\plugins\\texteditor\\completionsupport.h"), 39,
+                        Utils::FileName::fromUserInput(QLatin1String("x:\\src\\plugins\\texteditor\\completionsupport.h")), 39,
                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
 
@@ -273,7 +275,7 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                                       "    _Traits=std::_Tmap_traits<int,double,std::less<int>,std::allocator<std::pair<const int,double>>,false>\n"
                                       "]\n"
                                       "No constructor could take the source type, or constructor overload resolution was ambiguous"),
-                        Utils::FileName::fromUserInput("..\\untitled\\main.cpp"), 19,
+                        Utils::FileName::fromUserInput(QLatin1String("..\\untitled\\main.cpp")), 19,
                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
     QTest::newRow("Linker error 1")
@@ -283,7 +285,7 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Error,
                         QLatin1String("LNK2019: unresolved external symbol \"public: void __thiscall Data::doit(void)\" (?doit@Data@@QAEXXZ) referenced in function _main"),
-                        Utils::FileName::fromUserInput("main.obj"), -1,
+                        Utils::FileName::fromUserInput(QLatin1String("main.obj")), -1,
                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
     QTest::newRow("Linker error 2")
@@ -293,7 +295,7 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Error,
                         QLatin1String("LNK1120: 1 unresolved externals"),
-                        Utils::FileName::fromUserInput("debug\\Experimentation.exe"), -1,
+                        Utils::FileName::fromUserInput(QLatin1String("debug\\Experimentation.exe")), -1,
                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
     QTest::newRow("Linker error 3")
@@ -321,11 +323,11 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Warning,
                         QLatin1String("C4996: 'std::_Copy_impl': Function call with parameters that may be unsafe - this call relies on the caller to check that the passed values are correct. To disable this warning, use -D_SCL_SECURE_NO_WARNINGS. See documentation on how to use Visual C++ 'Checked Iterators'"),
-                        Utils::FileName::fromUserInput("c:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\INCLUDE\\xutility"), 2227,
+                        Utils::FileName::fromUserInput(QLatin1String("c:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\INCLUDE\\xutility")), 2227,
                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
                 << Task(Task::Unknown,
                         QLatin1String("see declaration of 'std::_Copy_impl'"),
-                        Utils::FileName::fromUserInput("c:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\INCLUDE\\xutility"), 2212,
+                        Utils::FileName::fromUserInput(QLatin1String("c:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\INCLUDE\\xutility")), 2212,
                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
                 << Task(Task::Unknown,
                         QLatin1String("see reference to function template instantiation '_OutIt std::copy<const unsigned char*,unsigned short*>(_InIt,_InIt,_OutIt)' being compiled\n"
@@ -334,7 +336,7 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                                       "    _OutIt=unsigned short *,\n"
                                       "    _InIt=const unsigned char *\n"
                                       "]"),
-                        Utils::FileName::fromUserInput("symbolgroupvalue.cpp"), 2314,
+                        Utils::FileName::fromUserInput(QLatin1String("symbolgroupvalue.cpp")), 2314,
                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
 }

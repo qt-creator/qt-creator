@@ -528,7 +528,7 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
                                                  vcvarsAllbat, QLatin1String("ia64"), true));
                 results.append(new MsvcToolChain(generateDisplayName(vsName, MsvcToolChain::VS, MsvcToolChain::x86_ia64),
                                                  findAbiOfMsvc(MsvcToolChain::VS, MsvcToolChain::x86_ia64, vsName),
-                                                 vcvarsAllbat, QString("x86_ia64"), true));
+                                                 vcvarsAllbat, QLatin1String("x86_ia64"), true));
             } else {
                 qWarning("Unable to find MSVC setup script %s in version %d", qPrintable(vcvarsAllbat), version);
             }

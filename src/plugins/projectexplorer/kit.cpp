@@ -63,10 +63,10 @@ namespace ProjectExplorer {
 static QString cleanName(const QString &name)
 {
     QString result = name;
-    result.replace(QRegExp("\\W"), QLatin1String("_"));
-    result.replace(QRegExp("_+"), "_"); // compact _
-    result.remove(QRegExp("^_*")); // remove leading _
-    result.remove(QRegExp("_+$")); // remove trailing _
+    result.replace(QRegExp(QLatin1String("\\W")), QLatin1String("_"));
+    result.replace(QRegExp(QLatin1String("_+")), QLatin1String("_")); // compact _
+    result.remove(QRegExp(QLatin1String("^_*"))); // remove leading _
+    result.remove(QRegExp(QLatin1String("_+$"))); // remove trailing _
     if (result.isEmpty())
         result = QLatin1String("unknown");
     return result;

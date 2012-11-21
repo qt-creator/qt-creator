@@ -2364,7 +2364,7 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
             tcId.replace(QLatin1String("Qt4ProjectManager.ToolChain.Maemo:"),
                            QLatin1String("ProjectExplorer.ToolChain.Gcc:")); // convert Maemo to GCC
             QString data = tcId.mid(tcId.indexOf(QLatin1Char(':')) + 1);
-            QStringList split = data.split('.', QString::KeepEmptyParts);
+            QStringList split = data.split(QLatin1Char('.'), QString::KeepEmptyParts);
             QString compilerPath;
             QString debuggerPath;
             Abi compilerAbi;
@@ -2423,7 +2423,7 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
                 int dcPos = deployIt.key();
                 const QVariantMap &dc = deployIt.value();
                 // Device
-                QString devId = dc.value(QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.DeviceId")).toString();
+                QByteArray devId = dc.value(QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.DeviceId")).toByteArray();
                 if (devId.isEmpty())
                     devId = QByteArray("Desktop Device");
                 if (!devId.isEmpty() && !DeviceManager::instance()->find(Core::Id(devId))) // We do not know that device

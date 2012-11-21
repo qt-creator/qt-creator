@@ -197,13 +197,13 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Unknown,
                         QLatin1String("In file included from ..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qnamespace.h:45:"),
-                        Utils::FileName::fromUserInput("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qnamespace.h"), 45,
+                        Utils::FileName::fromUserInput(QLatin1String("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qnamespace.h")), 45,
                         categoryCompile)
                 << Task(Task::Warning,
                         QLatin1String("unknown attribute 'dllimport' ignored [-Wunknown-attributes]\n"
                                       "class Q_CORE_EXPORT QSysInfo {\n"
                                       "      ^"),
-                        Utils::FileName::fromUserInput("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h"), 1425,
+                        Utils::FileName::fromUserInput(QLatin1String("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h")), 1425,
                         categoryCompile))
             << QString();
         QTest::newRow("note")
@@ -217,7 +217,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                             QLatin1String("instantiated from:\n"
                                           "#    define Q_CORE_EXPORT Q_DECL_IMPORT\n"
                                           "                          ^"),
-                            Utils::FileName::fromUserInput("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h"), 1289,
+                            Utils::FileName::fromUserInput(QLatin1String("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h")), 1289,
                             categoryCompile))
                 << QString();
         QTest::newRow("fatal error")
@@ -231,7 +231,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                             QLatin1String("'bits/c++config.h' file not found\n"
                                           "#include <bits/c++config.h>\n"
                                           "         ^"),
-                            Utils::FileName::fromUserInput("/usr/include/c++/4.6/utility"), 68,
+                            Utils::FileName::fromUserInput(QLatin1String("/usr/include/c++/4.6/utility")), 68,
                             categoryCompile))
                 << QString();
 
@@ -246,7 +246,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                             QLatin1String("?: has lower precedence than +; + will be evaluated first [-Wparentheses]\n"
                                           "            int x = option->rect.x() + horizontal ? 2 : 6;\n"
                                           "                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^"),
-                            Utils::FileName::fromUserInput("/home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp"), 567,
+                            Utils::FileName::fromUserInput(QLatin1String("/home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp")), 567,
                             categoryCompile))
                 << QString();
 }

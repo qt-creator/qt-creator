@@ -394,8 +394,8 @@ QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
 
 ToolChain::CompilerFlags GccToolChain::compilerFlags(const QStringList &cxxflags) const
 {
-    if (cxxflags.contains("-std=c++0x") || cxxflags.contains("-std=gnu++0x") ||
-        cxxflags.contains("-std=c++11") || cxxflags.contains("-std=gnu++11"))
+    if (cxxflags.contains(QLatin1String("-std=c++0x")) || cxxflags.contains(QLatin1String("-std=gnu++0x")) ||
+        cxxflags.contains(QLatin1String("-std=c++11")) || cxxflags.contains(QLatin1String("-std=gnu++11")))
         return STD_CXX11;
     return NO_FLAGS;
 }
@@ -621,7 +621,7 @@ ToolChain *Internal::GccToolChainFactory::restore(const QVariantMap &data)
     // Updating from 2.5:
     QVariantMap updated = data;
     QString id = idFromMap(updated);
-    if (id.startsWith(LEGACY_MAEMO_ID)) {
+    if (id.startsWith(QLatin1String(LEGACY_MAEMO_ID))) {
         id = QString::fromLatin1(Constants::GCC_TOOLCHAIN_ID).append(id.mid(id.indexOf(QLatin1Char(':'))));
         idToMap(updated, id);
         autoDetectionToMap(updated, false);
@@ -888,7 +888,7 @@ QList<FileName> MingwToolChain::suggestedMkspecList() const
     if (Utils::HostOsInfo::isWindowsHost())
         return QList<FileName>() << FileName::fromString(QLatin1String("win32-g++"));
     if (Utils::HostOsInfo::isLinuxHost()) {
-        if (version().startsWith("4.6."))
+        if (version().startsWith(QLatin1String("4.6.")))
             return QList<FileName>()
                     << FileName::fromString(QLatin1String("win32-g++-4.6-cross"))
                     << FileName::fromString(QLatin1String("unsupported/win32-g++-4.6-cross"));

@@ -189,7 +189,7 @@ static bool parseSDK(QXmlStreamReader& theReader,
 
         if (theReader.isEndElement()) {
             // Got to the end element so return...
-            if (theReader.name() == "Platform")
+            if (theReader.name() == QLatin1String("Platform"))
                 return (sdkArch!=Abi::UnknownArchitecture && !sdkName.isEmpty());
         } else if (theReader.isStartElement()) {
             const QStringRef elemName = theReader.name();

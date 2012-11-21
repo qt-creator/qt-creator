@@ -782,7 +782,7 @@ bool Target::fromMap(const QVariantMap &map)
         if (!factory) {
             Core::Id id = idFromMap(valueMap);
             qWarning("No factory found to restore deployment configuration of id '%s'!",
-                     qPrintable(id.isValid() ? id.toString() : "UNKNOWN"));
+                     id.isValid() ? qPrintable(id.toString()) : "UNKNOWN");
             continue;
         }
         DeployConfiguration *dc = factory->restore(this, valueMap);
