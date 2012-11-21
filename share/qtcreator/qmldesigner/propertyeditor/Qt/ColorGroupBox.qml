@@ -172,7 +172,7 @@ QExtGroupBox {
                 layout: HorizontalLayout {
                     spacing: 6
 
-                    LineEdit {
+                    ColorLineEdit {
                         inputMask: "\\#HHHHHH"
                         visible: gradientEditing == false
                         backendValue: colorGroupBox.backendColor
@@ -185,7 +185,12 @@ QExtGroupBox {
                         id: lineEditWidget;
                         QLineEdit {
                             y: 2
-                            text: color
+                            property color colorG: color
+                            onColorGChanged: {
+                                text = convertColorToString(color);
+                            }
+
+                            text: "#000000";
                             width: lineEditWidget.width
                             height: lineEditWidget.height
 

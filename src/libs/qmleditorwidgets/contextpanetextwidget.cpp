@@ -264,7 +264,7 @@ void ContextPaneTextWidget::onTextColorButtonToggled(bool flag)
     if (flag)
         ui->colorButton->setChecked(false);
     QPoint p = mapToGlobal(ui->textColorButton->pos());
-    parentContextWidget->colorDialog()->setupColor(ui->textColorButton->color());
+    parentContextWidget->colorDialog()->setupColor(ui->textColorButton->color().toString());
     p = parentContextWidget->colorDialog()->parentWidget()->mapFromGlobal(p);
     parentContextWidget->onShowColorDialog(flag, p);
 }
@@ -275,7 +275,7 @@ void ContextPaneTextWidget::onColorButtonToggled(bool flag)
         ui->textColorButton->setChecked(false);
     ContextPaneWidget *parentContextWidget = qobject_cast<ContextPaneWidget*>(parentWidget());
     QPoint p = mapToGlobal(ui->colorButton->pos());
-    parentContextWidget->colorDialog()->setupColor(ui->colorButton->color());
+    parentContextWidget->colorDialog()->setupColor(ui->colorButton->color().toString());
     p = parentContextWidget->colorDialog()->parentWidget()->mapFromGlobal(p);    
     parentContextWidget->onShowColorDialog(flag, p);
 }

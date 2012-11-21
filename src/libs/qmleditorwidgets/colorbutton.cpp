@@ -89,15 +89,15 @@ static inline QColor properColor(const QString &str)
 
 namespace QmlEditorWidgets {
 
-void ColorButton::setColor(const QString &colorStr)
+void ColorButton::setColor(const QVariant &colorStr)
 {
-    if (m_colorString == colorStr)
+    if (m_colorString == colorStr.toString())
         return;
 
 
-    setEnabled(isColorString(colorStr));
+    setEnabled(isColorString(colorStr.toString()));
 
-    m_colorString = colorStr;
+    m_colorString = colorStr.toString();
     update();
     emit colorChanged();
 }

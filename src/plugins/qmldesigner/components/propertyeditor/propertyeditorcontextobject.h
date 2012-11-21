@@ -65,6 +65,8 @@ public:
 
     QDeclarativePropertyMap* backendValues() const { return m_backendValues; }
 
+    Q_INVOKABLE QString convertColorToString(const QColor &color) { return color.name(); }
+
 signals:
     void globalBaseUrlChanged();
     void specificsUrlChanged();

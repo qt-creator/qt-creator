@@ -173,6 +173,11 @@ void PropertyEditorValue::setExpression(const QString &expression)
     }
 }
 
+QString PropertyEditorValue::valueToString() const
+{
+    return value().toString();
+}
+
 bool PropertyEditorValue::isInSubState() const
 {
     const QmlDesigner::QmlObjectNode objectNode(modelNode());

@@ -40,15 +40,15 @@ class QMLEDITORWIDGETS_EXPORT ColorButton : public QToolButton {
 
 Q_OBJECT
 
-Q_PROPERTY(QString color READ color WRITE setColor NOTIFY colorChanged)
+Q_PROPERTY(QVariant color READ color WRITE setColor NOTIFY colorChanged)
 Q_PROPERTY(bool noColor READ noColor WRITE setNoColor)
 Q_PROPERTY(bool showArrow READ showArrow WRITE setShowArrow)
 
 public:
     ColorButton(QWidget *parent = 0) : QToolButton (parent), m_colorString("#ffffff"), m_noColor(false), m_showArrow(true) {}
 
-    void setColor(const QString &colorStr);
-    QString color() const { return m_colorString; }
+    void setColor(const QVariant &colorStr);
+    QVariant color() const { return m_colorString; }
     QColor convertedColor() const;
     bool noColor() const { return m_noColor; }
     void setNoColor(bool f) { m_noColor = f; update(); }
