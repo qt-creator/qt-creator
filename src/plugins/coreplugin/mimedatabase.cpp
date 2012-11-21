@@ -1677,11 +1677,11 @@ QList<MimeType> MimeDatabasePrivate::readUserModifiedMimeTypes()
             switch (reader.readNext()) {
             case QXmlStreamReader::StartElement:
                 atts = reader.attributes();
-                if (reader.name() == mimeTypeTagC) {
+                if (reader.name() == QLatin1String(mimeTypeTagC)) {
                     mimeType.setType(atts.value(mimeTypeAttribute).toString());
                     const QString &patterns = atts.value(patternAttribute).toString();
                     mimeType.setGlobPatterns(toGlobPatterns(patterns.split(kSemiColon)));
-                } else if (reader.name() == matchTagC) {
+                } else if (reader.name() == QLatin1String(matchTagC)) {
                     const QString &value = atts.value(matchValueAttribute).toString();
                     const QString &type = atts.value(matchTypeAttribute).toString();
                     const QString &offset = atts.value(matchOffsetAttribute).toString();
@@ -1697,7 +1697,7 @@ QList<MimeType> MimeDatabasePrivate::readUserModifiedMimeTypes()
                 }
                 break;
             case QXmlStreamReader::EndElement:
-                if (reader.name() == mimeTypeTagC) {
+                if (reader.name() == QLatin1String(mimeTypeTagC)) {
                     mimeType.setMagicRuleMatchers(MagicRuleMatcher::createMatchers(rules));
                     mimeTypes.append(mimeType);
                     mimeType.clear();
