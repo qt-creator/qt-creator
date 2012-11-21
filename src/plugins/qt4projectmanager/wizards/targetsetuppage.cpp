@@ -80,6 +80,9 @@ public:
     void setupUi(QWidget *q)
     {
         QWidget *setupTargetPage = new QWidget(q);
+        descriptionLabel = new QLabel(setupTargetPage);
+        descriptionLabel->setWordWrap(true);
+        descriptionLabel->setVisible(false);
 
         headerLabel = new QLabel(setupTargetPage);
         headerLabel->setWordWrap(true);
@@ -89,9 +92,6 @@ public:
         noValidKitLabel->setWordWrap(true);
         noValidKitLabel->setText(TargetSetupPage::tr("<span style=\" font-weight:600;\">No valid kits found.</span>"));
 
-        descriptionLabel = new QLabel(setupTargetPage);
-        descriptionLabel->setWordWrap(true);
-        descriptionLabel->setVisible(false);
 
         optionHintLabel = new QLabel(setupTargetPage);
         optionHintLabel->setWordWrap(true);
