@@ -4,6 +4,8 @@ TARGET = CMakeProjectManager
 include(../../qtcreatorplugin.pri)
 include(cmakeprojectmanager_dependencies.pri)
 
+DEFINES += QT_NO_CAST_FROM_ASCII
+
 HEADERS = cmakeproject.h \
     cmakeprojectplugin.h \
     cmakeprojectmanager.h \

@@ -37,7 +37,7 @@
 using namespace CMakeProjectManager::Internal;
 
 
-static bool isVariable(const QString &word)
+static bool isVariable(const QByteArray &word)
 {
     if (word.length() < 4) // must be at least "${.}"
         return false;
@@ -53,14 +53,14 @@ CMakeHighlighter::CMakeHighlighter(QTextDocument *document) :
 
 void CMakeHighlighter::highlightBlock(const QString &text)
 {
-    QString buf;
+    QByteArray buf;
     bool inCommentMode = false;
     bool inStringMode = (previousBlockState() == 1);
 
     QTextCharFormat emptyFormat;
     int i=0;
     for (i=0; i < text.length(); i++) {
-        const QChar c = text.at(i);
+        char c = text.at(i).toLatin1();
         if (inCommentMode) {
             setFormat(i, 1, m_formats[CMakeCommentFormat]);
         } else {
@@ -80,7 +80,7 @@ void CMakeHighlighter::highlightBlock(const QString &text)
                 } else {
                     buf += c;
                 }
-            } else if (c.isSpace()) {
+            } else if (text.at(i).isSpace()) {
                 if (!inStringMode)
                     buf.clear();
                 else

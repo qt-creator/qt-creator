@@ -91,8 +91,8 @@ MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) :
 
 void MakeStep::ctor()
 {
-    m_percentProgress = QRegExp("^\\[\\s*(\\d*)%\\]");
-    m_ninjaProgress = QRegExp ("^\\[\\s*(\\d*)/\\s*(\\d*)");
+    m_percentProgress = QRegExp(QLatin1String("^\\[\\s*(\\d*)%\\]"));
+    m_ninjaProgress = QRegExp(QLatin1String("^\\[\\s*(\\d*)/\\s*(\\d*)"));
     m_ninjaProgressString = QLatin1String("[%s/%t "); // ninja: [33/100
     //: Default display name for the cmake make step.
     setDefaultDisplayName(tr("Make"));
@@ -455,7 +455,7 @@ BuildStep *MakeStepFactory::create(BuildStepList *parent, const Core::Id id)
     MakeStep *step = new MakeStep(parent);
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
         step->setClean(true);
-        step->setAdditionalArguments("clean");
+        step->setAdditionalArguments(QLatin1String("clean"));
     }
     return step;
 }

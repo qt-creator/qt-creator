@@ -223,7 +223,7 @@ CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     if (fi.exists()) {
         if (fi.isDir()) {
             QDir subDir(fi.absoluteFilePath());
-            QString subProject = subDir.filePath("CMakeLists.txt");
+            QString subProject = subDir.filePath(QLatin1String("CMakeLists.txt"));
             if (QFileInfo(subProject).exists())
                 fileName = subProject;
             else

@@ -133,7 +133,7 @@ ProjectExplorer::Project *CMakeManager::openProject(const QString &fileName, QSt
 
 QString CMakeManager::mimeType() const
 {
-    return Constants::CMAKEMIMETYPE;
+    return QLatin1String(Constants::CMAKEMIMETYPE);
 }
 
 QString CMakeManager::cmakeExecutable() const
@@ -224,7 +224,7 @@ QString CMakeManager::qtVersionForQMake(const QString &qmakePath)
         qWarning("Timeout running '%s'.", qPrintable(qmakePath));
         return QString();
     }
-    QString output = qmake.readAllStandardOutput();
+    QString output = QString::fromLocal8Bit(qmake.readAllStandardOutput());
     QRegExp regexp(QLatin1String("(QMake version|Qmake version:)[\\s]*([\\d.]*)"));
     regexp.indexIn(output);
     if (regexp.cap(2).startsWith(QLatin1String("2."))) {

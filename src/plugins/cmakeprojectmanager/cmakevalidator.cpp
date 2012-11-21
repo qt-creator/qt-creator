@@ -85,13 +85,13 @@ void CMakeValidator::finished(int exitCode)
         return;
     }
     if (m_state == CMakeValidator::RunningBasic) {
-        QString response = m_process->readAll();
+        QByteArray response = m_process->readAll();
         QRegExp versionRegexp(QLatin1String("^cmake version ([\\d\\.]*)"));
-        versionRegexp.indexIn(response);
+        versionRegexp.indexIn(QString::fromLocal8Bit(response));
 
         //m_supportsQtCreator = response.contains(QLatin1String("QtCreator"));
-        m_hasCodeBlocksMsvcGenerator = response.contains(QLatin1String("CodeBlocks - NMake Makefiles"));
-        m_hasCodeBlocksNinjaGenerator = response.contains(QLatin1String("CodeBlocks - Ninja"));
+        m_hasCodeBlocksMsvcGenerator = response.contains("CodeBlocks - NMake Makefiles");
+        m_hasCodeBlocksNinjaGenerator = response.contains("CodeBlocks - Ninja");
         m_version = versionRegexp.cap(1);
         if (!(versionRegexp.capturedTexts().size() > 3))
             m_version += QLatin1Char('.') + versionRegexp.cap(3);
@@ -169,7 +169,7 @@ static void extractKeywords(const QByteArray &input, QStringList *destination)
     QString keyword;
     int ignoreZone = 0;
     for (int i = 0; i < input.count(); ++i) {
-        const QChar chr = input.at(i);
+        const QChar chr = QLatin1Char(input.at(i));
         if (chr == QLatin1Char('{'))
             ++ignoreZone;
         if (chr == QLatin1Char('}'))
@@ -200,16 +200,14 @@ void CMakeValidator::parseFunctionOutput(const QByteArray &output)
     if (!cmakeFunctionsList.isEmpty()) {
         cmakeFunctionsList.removeFirst(); //remove version string
         foreach (const QByteArray &function, cmakeFunctionsList)
-            m_functions << QString(function).trimmed();
+            m_functions << QString::fromLocal8Bit(function.trimmed());
     }
 }
 
-QString CMakeValidator::formatFunctionDetails(const QString &command, const QByteArray &args)
+QString CMakeValidator::formatFunctionDetails(const QString &command, const QString &args)
 {
-    return QLatin1String("<table><tr><td><b>") + Qt::escape(command)
-            + QLatin1String("</b></td><td>")
-            + Qt::escape(args)
-            + QLatin1String("</td></tr>");
+    return QString::fromLatin1("<table><tr><td><b>%1</b></td><td>%2</td></tr>")
+            .arg(Qt::escape(command)).arg(Qt::escape(args));
 }
 
 void CMakeValidator::parseFunctionDetailsOutput(const QByteArray &output)
@@ -229,25 +227,26 @@ void CMakeValidator::parseFunctionDetailsOutput(const QByteArray &output)
                 if (cmakeFunctionsList.first().toLatin1() == lineTrimmed) {
                     //start of next function in output
                     if (!currentCommandSyntax.isEmpty())
-                        commandSyntaxes << currentCommandSyntax.append("</table>");
+                        commandSyntaxes << currentCommandSyntax.append(QLatin1String("</table>"));
                     --i;
                     break;
                 }
                 if (lineTrimmed.startsWith(currentCommand.toLatin1() + "(")) {
                     if (!currentCommandSyntax.isEmpty())
-                        commandSyntaxes << currentCommandSyntax.append("</table>");
+                        commandSyntaxes << currentCommandSyntax.append(QLatin1String("</table>"));
 
                     QByteArray argLine = lineTrimmed.mid(currentCommand.length());
                     extractKeywords(argLine, &m_variables);
-                    currentCommandSyntax = formatFunctionDetails(currentCommand, argLine);
+                    currentCommandSyntax = formatFunctionDetails(currentCommand, QString::fromUtf8(argLine));
                 } else {
                     if (!currentCommandSyntax.isEmpty()) {
                         if (lineTrimmed.isEmpty()) {
-                            commandSyntaxes << currentCommandSyntax.append("</table>");
+                            commandSyntaxes << currentCommandSyntax.append(QLatin1String("</table>"));
                             currentCommandSyntax.clear();
                         } else {
                             extractKeywords(lineTrimmed, &m_variables);
-                            currentCommandSyntax += "<tr><td>&nbsp;</td><td>" + Qt::escape(lineTrimmed)  + "</td></tr>";
+                            currentCommandSyntax += QString::fromLatin1("<tr><td>&nbsp;</td><td>%1</td></tr>")
+                                    .arg(Qt::escape(QString::fromLocal8Bit(lineTrimmed)));
                         }
                     }
                 }
@@ -259,4 +258,3 @@ void CMakeValidator::parseFunctionDetailsOutput(const QByteArray &output)
     m_variables.sort();
     m_variables.removeDuplicates();
 }
-

@@ -65,7 +65,7 @@ private:
     bool startProcess(const QStringList &args);
     void parseFunctionOutput(const QByteArray &output);
     void parseFunctionDetailsOutput(const QByteArray &output);
-    QString formatFunctionDetails(const QString &command, const QByteArray &args);
+    QString formatFunctionDetails(const QString &command, const QString &args);
 
     State m_state;
     QProcess *m_process;

@@ -200,7 +200,7 @@ QString CMakeRunConfiguration::defaultDisplayName() const
 {
     if (m_title.isEmpty())
         return tr("Run CMake kit");
-    return m_title + (m_enabled ? "" : tr(" (disabled)"));
+    return m_title + (m_enabled ? QString() : tr(" (disabled)"));
 }
 
 QWidget *CMakeRunConfiguration::createConfigurationWidget()

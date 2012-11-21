@@ -179,7 +179,7 @@ private slots:
     void cmakeReadyReadStandardError();
 private:
     void initWidgets();
-    QString cachedGeneratorFromFile(const QString &cache);
+    QByteArray cachedGeneratorFromFile(const QString &cache);
     CMakeOpenProjectWizard *m_cmakeWizard;
     QPlainTextEdit *m_output;
     QPushButton *m_runCMake;

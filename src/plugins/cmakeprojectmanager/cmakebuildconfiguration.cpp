@@ -203,15 +203,15 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
 
     MakeStep *cleanMakeStep = new MakeStep(cleanSteps);
     cleanSteps->insertStep(0, cleanMakeStep);
-    cleanMakeStep->setAdditionalArguments("clean");
+    cleanMakeStep->setAdditionalArguments(QLatin1String("clean"));
     cleanMakeStep->setClean(true);
 
     bc->setBuildDirectory(copw.buildDirectory());
     bc->setUseNinja(copw.useNinja());
 
     // Default to all
-    if (project->hasBuildTarget("all"))
-        makeStep->setBuildTarget("all", true);
+    if (project->hasBuildTarget(QLatin1String("all")))
+        makeStep->setBuildTarget(QLatin1String("all"), true);
 
     return bc;
 }
@@ -255,13 +255,13 @@ bool CMakeBuildConfigurationFactory::canHandle(const ProjectExplorer::Target *t)
 ProjectExplorer::BuildConfiguration::BuildType CMakeBuildConfiguration::buildType() const
 {
     QString cmakeBuildType;
-    QFile cmakeCache(buildDirectory() + "/CMakeCache.txt");
+    QFile cmakeCache(buildDirectory() + QLatin1String("/CMakeCache.txt"));
     if (cmakeCache.open(QIODevice::ReadOnly)) {
         while (!cmakeCache.atEnd()) {
-            QString line = cmakeCache.readLine();
+            QByteArray line = cmakeCache.readLine();
             if (line.startsWith("CMAKE_BUILD_TYPE")) {
                 if (int pos = line.indexOf('=')) {
-                    cmakeBuildType = line.mid(pos + 1).trimmed();
+                    cmakeBuildType = QString::fromLocal8Bit(line.mid(pos + 1).trimmed());
                 }
                 break;
             }
@@ -270,13 +270,13 @@ ProjectExplorer::BuildConfiguration::BuildType CMakeBuildConfiguration::buildTyp
     }
 
     // Cover all common CMake build types
-    if (cmakeBuildType.compare("Release", Qt::CaseInsensitive) == 0
-        || cmakeBuildType.compare("MinSizeRel", Qt::CaseInsensitive) == 0)
+    if (cmakeBuildType.compare(QLatin1String("Release"), Qt::CaseInsensitive) == 0
+        || cmakeBuildType.compare(QLatin1String("MinSizeRel"), Qt::CaseInsensitive) == 0)
     {
         return Release;
-    } else if (cmakeBuildType.compare("Debug", Qt::CaseInsensitive) == 0
-               || cmakeBuildType.compare("debugfull", Qt::CaseInsensitive) == 0
-               || cmakeBuildType.compare("RelWithDebInfo", Qt::CaseInsensitive) == 0)
+    } else if (cmakeBuildType.compare(QLatin1String("Debug"), Qt::CaseInsensitive) == 0
+               || cmakeBuildType.compare(QLatin1String("DebugFull"), Qt::CaseInsensitive) == 0
+               || cmakeBuildType.compare(QLatin1String("RelWithDebInfo"), Qt::CaseInsensitive) == 0)
     {
         return Debug;
     }

@@ -81,8 +81,8 @@ namespace Internal {
         bool isNinja() const;
 
         QString displayName() const;
-        QString generatorArgument() const;
-        QString generator() const;
+        QByteArray generatorArgument() const;
+        QByteArray generator() const;
 
     private:
         ProjectExplorer::Kit *m_kit;
@@ -111,36 +111,36 @@ bool GeneratorInfo::isNinja() const {
     return m_isNinja;
 }
 
-QString GeneratorInfo::generator() const
+QByteArray GeneratorInfo::generator() const
 {
     if (!m_kit)
-        return QString();
+        return QByteArray();
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(m_kit);
     ProjectExplorer::Abi targetAbi = tc->targetAbi();
     if (m_isNinja) {
-        return QLatin1String("Ninja");
+        return "Ninja";
     } else if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
         if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2005Flavor
                 || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
                 || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor
                 || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2012Flavor) {
-            return QLatin1String("NMake Makefiles");
+            return "NMake Makefiles";
         } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
             if (Utils::HostOsInfo::isWindowsHost())
-                return QLatin1String("MinGW Makefiles");
+                return "MinGW Makefiles";
             else
-                return QLatin1String("Unix Makefiles");
+                return "Unix Makefiles";
         }
     }
-    return QLatin1String("Unix Makefiles");
+    return "Unix Makefiles";
 }
 
-QString GeneratorInfo::generatorArgument() const
+QByteArray GeneratorInfo::generatorArgument() const
 {
-    QString tmp = generator();
+    QByteArray tmp = generator();
     if (tmp.isEmpty())
         return tmp;
-    return QLatin1String("-GCodeBlocks - ") + tmp;
+    return QByteArray("-GCodeBlocks - ") + tmp;
 }
 
 QString GeneratorInfo::displayName() const
@@ -267,7 +267,7 @@ CMakeManager *CMakeOpenProjectWizard::cmakeManager() const
 
 bool CMakeOpenProjectWizard::hasInSourceBuild() const
 {
-    QFileInfo fi(m_sourceDirectory + "/CMakeCache.txt");
+    QFileInfo fi(m_sourceDirectory + QLatin1String("/CMakeCache.txt"));
     if (fi.exists())
         return true;
     return false;
@@ -279,7 +279,7 @@ bool CMakeOpenProjectWizard::existsUpToDateXmlFile() const
     if (!cbpFile.isEmpty()) {
         // We already have a cbp file
         QFileInfo cbpFileInfo(cbpFile);
-        QFileInfo cmakeListsFileInfo(sourceDirectory() + "/CMakeLists.txt");
+        QFileInfo cmakeListsFileInfo(sourceDirectory() + QLatin1String("/CMakeLists.txt"));
 
         if (cbpFileInfo.lastModified() > cmakeListsFileInfo.lastModified())
             return true;
@@ -394,7 +394,7 @@ ChooseCMakePage::ChooseCMakePage(CMakeOpenProjectWizard *cmakeWizard)
     // Show a field for the user to enter
     m_cmakeExecutable = new Utils::PathChooser(this);
     m_cmakeExecutable->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    fl->addRow("cmake Executable:", m_cmakeExecutable);
+    fl->addRow(tr("cmake Executable:"), m_cmakeExecutable);
 
     connect(m_cmakeExecutable, SIGNAL(editingFinished()),
             this, SLOT(cmakeExecutableChanged()));
@@ -499,18 +499,18 @@ void CMakeRunPage::initWidgets()
     setMinimumSize(600, 400);
 }
 
-QString CMakeRunPage::cachedGeneratorFromFile(const QString &cache)
+QByteArray CMakeRunPage::cachedGeneratorFromFile(const QString &cache)
 {
     QFile fi(cache);
     if (fi.exists()) {
         // Cache exists, then read it...
         if (fi.open(QIODevice::ReadOnly | QIODevice::Text)) {
             while (!fi.atEnd()) {
-                QString line = fi.readLine();
+                QByteArray line = fi.readLine();
                 if (line.startsWith("CMAKE_GENERATOR:INTERNAL=")) {
                     int splitpos = line.indexOf('=');
                     if (splitpos != -1) {
-                        QString cachedGenerator = line.mid(splitpos + 1).trimmed();
+                        QByteArray cachedGenerator = line.mid(splitpos + 1).trimmed();
                         if (!cachedGenerator.isEmpty())
                             return cachedGenerator;
                     }
@@ -518,7 +518,7 @@ QString CMakeRunPage::cachedGeneratorFromFile(const QString &cache)
             }
         }
     }
-    return QString();
+    return QByteArray();
 }
 
 void CMakeRunPage::initializePage()
@@ -569,7 +569,7 @@ void CMakeRunPage::initializePage()
 
     if (m_mode == Initial) {
         // Try figuring out generator and toolchain from CMakeCache.txt
-        QString cachedGenerator = cachedGeneratorFromFile(m_buildDirectory + "/CMakeCache.txt");
+        QByteArray cachedGenerator = cachedGeneratorFromFile(m_buildDirectory + QLatin1String("/CMakeCache.txt"));
 
         m_generatorComboBox->show();
         QList<ProjectExplorer::Kit *> kitList =
@@ -652,7 +652,7 @@ void CMakeRunPage::runCMake()
         connect(m_cmakeProcess, SIGNAL(readyReadStandardError()), this, SLOT(cmakeReadyReadStandardError()));
         connect(m_cmakeProcess, SIGNAL(finished(int)), this, SLOT(cmakeFinished()));
         cmakeManager->createXmlFile(m_cmakeProcess, m_argumentsLineEdit->text(), m_cmakeWizard->sourceDirectory(),
-                                    m_buildDirectory, env, generatorInfo.generatorArgument());
+                                    m_buildDirectory, env, QString::fromLatin1(generatorInfo.generatorArgument()));
     } else {
         m_runCMake->setEnabled(true);
         m_argumentsLineEdit->setEnabled(true);
@@ -677,7 +677,7 @@ void CMakeRunPage::cmakeReadyReadStandardOutput()
     tf.setFont(font);
     tf.setForeground(m_output->palette().color(QPalette::Text));
 
-    cursor.insertText(m_cmakeProcess->readAllStandardOutput(), tf);
+    cursor.insertText(QString::fromLocal8Bit(m_cmakeProcess->readAllStandardOutput()), tf);
 }
 
 void CMakeRunPage::cmakeReadyReadStandardError()
@@ -691,7 +691,7 @@ void CMakeRunPage::cmakeReadyReadStandardError()
     tf.setFont(boldFont);
     tf.setForeground(mix_colors(m_output->palette().color(QPalette::Text), QColor(Qt::red)));
 
-    cursor.insertText(m_cmakeProcess->readAllStandardError(), tf);
+    cursor.insertText(QString::fromLocal8Bit(m_cmakeProcess->readAllStandardError()), tf);
 }
 
 void CMakeRunPage::cmakeFinished()
