@@ -1150,6 +1150,12 @@ void NodeInstanceServer::loadDummyDataContext(const QString& directory)
     }
 }
 
+void NodeInstanceServer::sendDebugOutput(DebugOutputCommand::Type type, const QString &message)
+{
+    DebugOutputCommand command(message, type);
+    nodeInstanceClient()->debugOutput(command);
+}
+
 QStringList NodeInstanceServer::dummyDataDirectories(const QString& directoryPath)
 {
     QStringList dummyDataDirectoryList;

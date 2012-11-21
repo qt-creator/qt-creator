@@ -38,6 +38,7 @@
 
 #include <nodeinstanceserverinterface.h>
 #include "servernodeinstance.h"
+#include "debugoutputcommand.h"
 
 QT_BEGIN_NAMESPACE
 class QFileSystemWatcher;
@@ -124,6 +125,8 @@ public:
 
     virtual QQmlView *declarativeView() const = 0;
     virtual QQuickView *quickView() const = 0;
+
+    void sendDebugOutput(DebugOutputCommand::Type type, const QString &message);
 
 public slots:
     void refreshLocalFileProperty(const QString &path);
