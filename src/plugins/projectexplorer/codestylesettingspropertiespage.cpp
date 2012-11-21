@@ -76,13 +76,13 @@ CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project) : QWidget(), 
 
     const EditorConfiguration *config = m_project->editorConfiguration();
 
-    QMap<QString, ICodeStylePreferencesFactory *> factories
+    QMap<Core::Id, ICodeStylePreferencesFactory *> factories
             = TextEditor::TextEditorSettings::instance()->codeStyleFactories();
-    QMapIterator<QString, ICodeStylePreferencesFactory *> it(factories);
+    QMapIterator<Core::Id, ICodeStylePreferencesFactory *> it(factories);
     while (it.hasNext()) {
         it.next();
         ICodeStylePreferencesFactory *factory = it.value();
-        const QString languageId = factory->languageId();
+        Core::Id languageId = factory->languageId();
         ICodeStylePreferences *codeStylePreferences = config->codeStyle(languageId);
 
         CodeStyleEditor *preview = new CodeStyleEditor(factory, codeStylePreferences, m_ui.stackedWidget);

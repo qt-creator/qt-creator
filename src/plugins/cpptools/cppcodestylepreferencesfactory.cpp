@@ -91,7 +91,7 @@ CppCodeStylePreferencesFactory::CppCodeStylePreferencesFactory()
 {
 }
 
-QString CppCodeStylePreferencesFactory::languageId()
+Core::Id CppCodeStylePreferencesFactory::languageId()
 {
     return Constants::CPP_SETTINGS_ID;
 }

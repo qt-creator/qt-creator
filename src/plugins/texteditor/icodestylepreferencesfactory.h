@@ -32,6 +32,8 @@
 
 #include "texteditor_global.h"
 
+#include <coreplugin/id.h>
+
 #include <QObject>
 
 namespace TextEditor {
@@ -47,7 +49,7 @@ class TEXTEDITOR_EXPORT ICodeStylePreferencesFactory : public QObject
 public:
     explicit ICodeStylePreferencesFactory(QObject *parent = 0);
 
-    virtual QString languageId() = 0;
+    virtual Core::Id languageId() = 0;
     virtual QString displayName() = 0;
     virtual ICodeStylePreferences *createCodeStyle() const = 0;
     virtual QWidget *createEditor(ICodeStylePreferences *preferences, QWidget *parent) const = 0;

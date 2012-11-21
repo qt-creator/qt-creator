@@ -4555,12 +4555,12 @@ const TabSettings &BaseTextEditorWidget::tabSettings() const
     return d->m_document->tabSettings();
 }
 
-void BaseTextEditorWidget::setLanguageSettingsId(const QString &settingsId)
+void BaseTextEditorWidget::setLanguageSettingsId(Core::Id settingsId)
 {
     d->m_tabSettingsId = settingsId;
 }
 
-QString BaseTextEditorWidget::languageSettingsId() const
+Core::Id BaseTextEditorWidget::languageSettingsId() const
 {
     return d->m_tabSettingsId;
 }

@@ -82,23 +82,23 @@ struct EditorConfigurationPrivate
     ExtraEncodingSettings m_extraEncodingSettings;
     QTextCodec *m_textCodec;
 
-    QMap<QString, ICodeStylePreferences *> m_languageCodeStylePreferences;
+    QMap<Core::Id, ICodeStylePreferences *> m_languageCodeStylePreferences;
 };
 
 EditorConfiguration::EditorConfiguration() : d(new EditorConfigurationPrivate)
 {
     TextEditorSettings *textEditorSettings = TextEditorSettings::instance();
 
-    const QMap<QString, ICodeStylePreferences *> languageCodeStylePreferences = textEditorSettings->codeStyles();
-    QMapIterator<QString, ICodeStylePreferences *> itCodeStyle(languageCodeStylePreferences);
+    const QMap<Core::Id, ICodeStylePreferences *> languageCodeStylePreferences = textEditorSettings->codeStyles();
+    QMapIterator<Core::Id, ICodeStylePreferences *> itCodeStyle(languageCodeStylePreferences);
     while (itCodeStyle.hasNext()) {
         itCodeStyle.next();
-        const QString languageId = itCodeStyle.key();
+        Core::Id languageId = itCodeStyle.key();
         ICodeStylePreferences *originalPreferences = itCodeStyle.value();
         ICodeStylePreferencesFactory *factory = textEditorSettings->codeStyleFactory(languageId);
         ICodeStylePreferences *preferences = factory->createCodeStyle();
         preferences->setDelegatingPool(textEditorSettings->codeStylePool(languageId));
-        preferences->setId(languageId + QLatin1String("Project"));
+        preferences->setId(languageId.toString() + QLatin1String("Project"));
         preferences->setDisplayName(tr("Project %1", "Settings, %1 is a language (C++ or QML)").arg(factory->displayName()));
         preferences->setCurrentDelegate(originalPreferences);
         d->m_languageCodeStylePreferences.insert(languageId, preferences);
@@ -165,12 +165,12 @@ ICodeStylePreferences *EditorConfiguration::codeStyle() const
     return d->m_defaultCodeStyle;
 }
 
-ICodeStylePreferences *EditorConfiguration::codeStyle(const QString &languageId) const
+ICodeStylePreferences *EditorConfiguration::codeStyle(Core::Id languageId) const
 {
     return d->m_languageCodeStylePreferences.value(languageId, codeStyle());
 }
 
-QMap<QString, ICodeStylePreferences *> EditorConfiguration::codeStyles() const
+QMap<Core::Id, ICodeStylePreferences *> EditorConfiguration::codeStyles() const
 {
     return d->m_languageCodeStylePreferences;
 }
@@ -182,12 +182,12 @@ QVariantMap EditorConfiguration::toMap() const
     map.insert(kCodec, d->m_textCodec->name());
 
     map.insert(kCodeStyleCount, d->m_languageCodeStylePreferences.count());
-    QMapIterator<QString, ICodeStylePreferences *> itCodeStyle(d->m_languageCodeStylePreferences);
+    QMapIterator<Core::Id, ICodeStylePreferences *> itCodeStyle(d->m_languageCodeStylePreferences);
     int i = 0;
     while (itCodeStyle.hasNext()) {
         itCodeStyle.next();
         QVariantMap settingsIdMap;
-        settingsIdMap.insert(QLatin1String("language"), itCodeStyle.key());
+        settingsIdMap.insert(QLatin1String("language"), itCodeStyle.key().name());
         QVariantMap value;
         itCodeStyle.value()->toMap(QString(), &value);
         settingsIdMap.insert(QLatin1String("value"), value);
@@ -220,7 +220,7 @@ void EditorConfiguration::fromMap(const QVariantMap &map)
             qWarning() << "No data for code style settings list" << i << "found!";
             continue;
         }
-        QString languageId = settingsIdMap.value(QLatin1String("language")).toString();
+        Core::Id languageId(settingsIdMap.value(QLatin1String("language")).toByteArray());
         QVariantMap value = settingsIdMap.value(QLatin1String("value")).toMap();
         ICodeStylePreferences *preferences = d->m_languageCodeStylePreferences.value(languageId);
         if (preferences) {

@@ -132,7 +132,7 @@ bool FontSettings::fromSettings(const QString &category,
         // Load color scheme from ini file
         foreach (const FormatDescription &desc, descriptions) {
             const TextStyle id = desc.id();
-            const QString fmt = s->value(group + Constants::nameForStyle(id), QString()).toString();
+            const QString fmt = s->value(group + QLatin1String(Constants::nameForStyle(id)), QString()).toString();
             Format format;
             if (fmt.isEmpty()) {
                 format.setForeground(desc.foreground());

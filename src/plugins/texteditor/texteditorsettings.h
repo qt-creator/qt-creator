@@ -32,6 +32,8 @@
 
 #include "texteditor_global.h"
 
+#include <coreplugin/id.h>
+
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
@@ -87,21 +89,21 @@ public:
 
     void setCompletionSettings(const TextEditor::CompletionSettings &);
 
-    ICodeStylePreferencesFactory *codeStyleFactory(const QString &languageId) const;
-    QMap<QString, ICodeStylePreferencesFactory *> codeStyleFactories() const;
+    ICodeStylePreferencesFactory *codeStyleFactory(Core::Id languageId) const;
+    QMap<Core::Id, ICodeStylePreferencesFactory *> codeStyleFactories() const;
     void registerCodeStyleFactory(ICodeStylePreferencesFactory *codeStyleFactory);
 
     CodeStylePool *codeStylePool() const;
-    CodeStylePool *codeStylePool(const QString &languageId) const;
-    void registerCodeStylePool(const QString &languageId, CodeStylePool *pool);
+    CodeStylePool *codeStylePool(Core::Id languageId) const;
+    void registerCodeStylePool(Core::Id languageId, CodeStylePool *pool);
 
     ICodeStylePreferences *codeStyle() const;
-    ICodeStylePreferences *codeStyle(const QString &languageId) const;
-    QMap<QString, ICodeStylePreferences *> codeStyles() const;
-    void registerCodeStyle(const QString &languageId, ICodeStylePreferences *prefs);
+    ICodeStylePreferences *codeStyle(Core::Id languageId) const;
+    QMap<Core::Id, ICodeStylePreferences *> codeStyles() const;
+    void registerCodeStyle(Core::Id languageId, ICodeStylePreferences *prefs);
 
-    void registerMimeTypeForLanguageId(const QString &mimeType, const QString &languageId);
-    QString languageId(const QString &mimeType) const;
+    void registerMimeTypeForLanguageId(const QString &mimeType, Core::Id languageId);
+    Core::Id languageId(const QString &mimeType) const;
 
 signals:
     void fontSettingsChanged(const TextEditor::FontSettings &);

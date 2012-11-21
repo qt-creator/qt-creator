@@ -115,7 +115,7 @@ CodeStylePool::~CodeStylePool()
 
 QString CodeStylePool::settingsDir() const
 {
-    const QString suffix = d->m_factory ? d->m_factory->languageId() : QLatin1String("default");
+    const QString suffix = d->m_factory ? d->m_factory->languageId().toString() : QLatin1String("default");
     return customCodeStylesPath().append(suffix);
 }
 

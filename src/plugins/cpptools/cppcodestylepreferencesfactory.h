@@ -39,14 +39,14 @@ class CppCodeStylePreferencesFactory : public TextEditor::ICodeStylePreferencesF
 public:
     CppCodeStylePreferencesFactory();
 
-    virtual QString languageId();
-    virtual QString displayName();
-    virtual TextEditor::ICodeStylePreferences *createCodeStyle() const;
-    virtual QWidget *createEditor(TextEditor::ICodeStylePreferences *settings,
-                                  QWidget *parent) const;
-    virtual TextEditor::Indenter *createIndenter() const;
-    virtual TextEditor::ISnippetProvider *snippetProvider() const;
-    virtual QString previewText() const;
+    Core::Id languageId();
+    QString displayName();
+    TextEditor::ICodeStylePreferences *createCodeStyle() const;
+    QWidget *createEditor(TextEditor::ICodeStylePreferences *settings,
+                          QWidget *parent) const;
+    TextEditor::Indenter *createIndenter() const;
+    TextEditor::ISnippetProvider *snippetProvider() const;
+    QString previewText() const;
 };
 
 } // namespace CppTools

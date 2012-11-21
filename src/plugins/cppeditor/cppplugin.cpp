@@ -150,7 +150,7 @@ void CppPlugin::initializeEditor(CPPEditorWidget *editor)
 {
     m_actionHandler->setupActions(editor);
 
-    editor->setLanguageSettingsId(QLatin1String(CppTools::Constants::CPP_SETTINGS_ID));
+    editor->setLanguageSettingsId(CppTools::Constants::CPP_SETTINGS_ID);
     TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
 
     // method combo box sorting

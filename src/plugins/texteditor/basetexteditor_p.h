@@ -36,6 +36,7 @@
 #include "fontsettings.h"
 #include "refactoroverlay.h"
 
+#include <coreplugin/id.h>
 #include <utils/changeset.h>
 
 #include <QBasicTimer>
@@ -202,7 +203,7 @@ public:
 
     QWidget *m_extraArea;
 
-    QString m_tabSettingsId;
+    Core::Id m_tabSettingsId;
     ICodeStylePreferences *m_codeStylePreferences;
     DisplaySettings m_displaySettings;
     FontSettings m_fontSettings;

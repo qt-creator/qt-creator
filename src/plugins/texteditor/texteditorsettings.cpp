@@ -69,11 +69,11 @@ public:
     HighlighterSettingsPage *m_highlighterSettingsPage;
     SnippetsSettingsPage *m_snippetsSettingsPage;
 
-    QMap<QString, ICodeStylePreferencesFactory *> m_languageToFactory;
+    QMap<Core::Id, ICodeStylePreferencesFactory *> m_languageToFactory;
 
-    QMap<QString, ICodeStylePreferences *> m_languageToCodeStyle;
-    QMap<QString, CodeStylePool *> m_languageToCodeStylePool;
-    QMap<QString, QString> m_mimeTypeToLanguage;
+    QMap<Core::Id, ICodeStylePreferences *> m_languageToCodeStyle;
+    QMap<Core::Id, CodeStylePool *> m_languageToCodeStylePool;
+    QMap<QString, Core::Id> m_mimeTypeToLanguage;
 
     CompletionSettings m_completionSettings;
 
@@ -411,12 +411,12 @@ void TextEditorSettings::registerCodeStyleFactory(ICodeStylePreferencesFactory *
     m_d->m_languageToFactory.insert(factory->languageId(), factory);
 }
 
-QMap<QString, ICodeStylePreferencesFactory *> TextEditorSettings::codeStyleFactories() const
+QMap<Core::Id, ICodeStylePreferencesFactory *> TextEditorSettings::codeStyleFactories() const
 {
     return m_d->m_languageToFactory;
 }
 
-ICodeStylePreferencesFactory *TextEditorSettings::codeStyleFactory(const QString &languageId) const
+ICodeStylePreferencesFactory *TextEditorSettings::codeStyleFactory(Core::Id languageId) const
 {
     return m_d->m_languageToFactory.value(languageId);
 }
@@ -426,17 +426,17 @@ ICodeStylePreferences *TextEditorSettings::codeStyle() const
     return m_d->m_behaviorSettingsPage->codeStyle();
 }
 
-ICodeStylePreferences *TextEditorSettings::codeStyle(const QString &languageId) const
+ICodeStylePreferences *TextEditorSettings::codeStyle(Core::Id languageId) const
 {
     return m_d->m_languageToCodeStyle.value(languageId, codeStyle());
 }
 
-QMap<QString, ICodeStylePreferences *> TextEditorSettings::codeStyles() const
+QMap<Core::Id, ICodeStylePreferences *> TextEditorSettings::codeStyles() const
 {
     return m_d->m_languageToCodeStyle;
 }
 
-void TextEditorSettings::registerCodeStyle(const QString &languageId, ICodeStylePreferences *prefs)
+void TextEditorSettings::registerCodeStyle(Core::Id languageId, ICodeStylePreferences *prefs)
 {
     m_d->m_languageToCodeStyle.insert(languageId, prefs);
 }
@@ -446,22 +446,22 @@ CodeStylePool *TextEditorSettings::codeStylePool() const
     return m_d->m_behaviorSettingsPage->codeStylePool();
 }
 
-CodeStylePool *TextEditorSettings::codeStylePool(const QString &languageId) const
+CodeStylePool *TextEditorSettings::codeStylePool(Core::Id languageId) const
 {
     return m_d->m_languageToCodeStylePool.value(languageId);
 }
 
-void TextEditorSettings::registerCodeStylePool(const QString &languageId, CodeStylePool *pool)
+void TextEditorSettings::registerCodeStylePool(Core::Id languageId, CodeStylePool *pool)
 {
     m_d->m_languageToCodeStylePool.insert(languageId, pool);
 }
 
-void TextEditorSettings::registerMimeTypeForLanguageId(const QString &mimeType, const QString &languageId)
+void TextEditorSettings::registerMimeTypeForLanguageId(const QString &mimeType, Core::Id languageId)
 {
     m_d->m_mimeTypeToLanguage.insert(mimeType, languageId);
 }
 
-QString TextEditorSettings::languageId(const QString &mimeType) const
+Core::Id TextEditorSettings::languageId(const QString &mimeType) const
 {
     return m_d->m_mimeTypeToLanguage.value(mimeType);
 }

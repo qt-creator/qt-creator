@@ -62,14 +62,14 @@ QmlJSCodeStylePreferencesFactory::QmlJSCodeStylePreferencesFactory()
 {
 }
 
-QString QmlJSCodeStylePreferencesFactory::languageId()
+Core::Id QmlJSCodeStylePreferencesFactory::languageId()
 {
     return Constants::QML_JS_SETTINGS_ID;
 }
 
 QString QmlJSCodeStylePreferencesFactory::displayName()
 {
-    return Constants::QML_JS_SETTINGS_NAME;
+    return QLatin1String(Constants::QML_JS_SETTINGS_NAME);
 }
 
 TextEditor::ICodeStylePreferences *QmlJSCodeStylePreferencesFactory::createCodeStyle() const

@@ -32,6 +32,8 @@
 
 #include "projectexplorer_export.h"
 
+#include <coreplugin/id.h>
+
 #include <QObject>
 #include <QVariantMap>
 
@@ -71,8 +73,8 @@ public:
     const TextEditor::ExtraEncodingSettings &extraEncodingSettings() const;
 
     TextEditor::ICodeStylePreferences *codeStyle() const;
-    TextEditor::ICodeStylePreferences *codeStyle(const QString &languageId) const;
-    QMap<QString, TextEditor::ICodeStylePreferences *> codeStyles() const;
+    TextEditor::ICodeStylePreferences *codeStyle(Core::Id languageId) const;
+    QMap<Core::Id, TextEditor::ICodeStylePreferences *> codeStyles() const;
 
     void configureEditor(TextEditor::ITextEditor *textEditor) const;
 

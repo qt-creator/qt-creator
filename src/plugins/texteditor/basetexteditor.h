@@ -33,8 +33,9 @@
 #include "itexteditor.h"
 #include "codeassist/assistenums.h"
 
-#include <find/ifindsupport.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/id.h>
+#include <find/ifindsupport.h>
 
 #include <QPlainTextEdit>
 
@@ -389,8 +390,8 @@ public:
     virtual void extraAreaMouseEvent(QMouseEvent *);
 
     const TabSettings &tabSettings() const;
-    void setLanguageSettingsId(const QString &settingsId);
-    QString languageSettingsId() const;
+    void setLanguageSettingsId(Core::Id settingsId);
+    Core::Id languageSettingsId() const;
 
     void setCodeStyle(ICodeStylePreferences *settings);
 
