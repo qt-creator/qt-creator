@@ -59,7 +59,7 @@ public:
 
     QWidget *outputWidget(QWidget *);
     QList<QWidget *> toolBarWidgets() const;
-    QString displayName() const { return tr("Console"); }
+    QString displayName() const { return tr("QML/JS Console"); }
     int priorityInStatusBar() const;
     void clearContents();
     void visibilityChanged(bool visible);
