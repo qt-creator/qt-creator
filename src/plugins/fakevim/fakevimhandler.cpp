@@ -3047,6 +3047,9 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         m_subsubmode = FtSubSubMode;
         m_movetype = MoveExclusive;
         m_subsubdata = input;
+    } else if (!m_gflag && input.is('g')) {
+        m_gflag = true;
+        return true;
     } else if (input.is('g') || input.is('G')) {
         QString dotCommand = QString("%1G").arg(count);
         recordJump();
@@ -3064,6 +3067,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
             setAnchor();
             setPosition(firstPositionInLine(n, false));
         }
+        setTargetColumn();
     } else if (input.is('h') || input.isKey(Key_Left) || input.isBackspace()) {
         m_movetype = MoveExclusive;
         int n = qMin(count, leftDist());
