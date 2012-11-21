@@ -333,7 +333,6 @@ static inline QString fixTypeNameForPanes(const QString &typeName)
 {
     QString fixedTypeName = typeName;
     fixedTypeName.replace('.', '/');
-    fixedTypeName.replace("QtQuick/", "Qt/");
     return fixedTypeName;
 }
 
