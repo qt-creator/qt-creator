@@ -55,7 +55,7 @@ class ScopeChain;
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT TextModifier;
+class TextModifier;
 
 namespace Internal {
 
