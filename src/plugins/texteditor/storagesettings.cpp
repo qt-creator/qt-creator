@@ -36,11 +36,11 @@
 
 namespace TextEditor {
 
-static const char * const cleanWhitespaceKey = "cleanWhitespace";
-static const char * const inEntireDocumentKey = "inEntireDocument";
-static const char * const addFinalNewLineKey = "addFinalNewLine";
-static const char * const cleanIndentationKey = "cleanIndentation";
-static const char * const groupPostfix = "StorageSettings";
+static const char cleanWhitespaceKey[] = "cleanWhitespace";
+static const char inEntireDocumentKey[] = "inEntireDocument";
+static const char addFinalNewLineKey[] = "addFinalNewLine";
+static const char cleanIndentationKey[] = "cleanIndentation";
+static const char groupPostfix[] = "StorageSettings";
 
 StorageSettings::StorageSettings()
     : m_cleanWhitespace(true),

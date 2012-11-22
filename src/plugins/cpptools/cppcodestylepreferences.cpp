@@ -31,7 +31,7 @@
 
 using namespace CppTools;
 
-static const char *settingsSuffixKey = "CodeStyleSettings";
+static const char settingsSuffixKey[] = "CodeStyleSettings";
 
 CppCodeStylePreferences::CppCodeStylePreferences(QObject *parent) :
     ICodeStylePreferences(parent)

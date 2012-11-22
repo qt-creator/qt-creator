@@ -31,23 +31,23 @@
 
 #include <utils/settingsutils.h>
 
-static const char *groupPostfix = "IndentSettings";
-static const char *indentBlockBracesKey = "IndentBlockBraces";
-static const char *indentBlockBodyKey = "IndentBlockBody";
-static const char *indentClassBracesKey = "IndentClassBraces";
-static const char *indentEnumBracesKey = "IndentEnumBraces";
-static const char *indentNamespaceBracesKey = "IndentNamespaceBraces";
-static const char *indentNamespaceBodyKey = "IndentNamespaceBody";
-static const char *indentAccessSpecifiersKey = "IndentAccessSpecifiers";
-static const char *indentDeclarationsRelativeToAccessSpecifiersKey = "IndentDeclarationsRelativeToAccessSpecifiers";
-static const char *indentFunctionBodyKey = "IndentFunctionBody";
-static const char *indentFunctionBracesKey = "IndentFunctionBraces";
-static const char *indentSwitchLabelsKey = "IndentSwitchLabels";
-static const char *indentStatementsRelativeToSwitchLabelsKey = "IndentStatementsRelativeToSwitchLabels";
-static const char *indentBlocksRelativeToSwitchLabelsKey = "IndentBlocksRelativeToSwitchLabels";
-static const char *indentControlFlowRelativeToSwitchLabelsKey = "IndentControlFlowRelativeToSwitchLabels";
-static const char *extraPaddingForConditionsIfConfusingAlignKey = "ExtraPaddingForConditionsIfConfusingAlign";
-static const char *alignAssignmentsKey = "AlignAssignments";
+static const char groupPostfix[] = "IndentSettings";
+static const char indentBlockBracesKey[] = "IndentBlockBraces";
+static const char indentBlockBodyKey[] = "IndentBlockBody";
+static const char indentClassBracesKey[] = "IndentClassBraces";
+static const char indentEnumBracesKey[] = "IndentEnumBraces";
+static const char indentNamespaceBracesKey[] = "IndentNamespaceBraces";
+static const char indentNamespaceBodyKey[] = "IndentNamespaceBody";
+static const char indentAccessSpecifiersKey[] = "IndentAccessSpecifiers";
+static const char indentDeclarationsRelativeToAccessSpecifiersKey[] = "IndentDeclarationsRelativeToAccessSpecifiers";
+static const char indentFunctionBodyKey[] = "IndentFunctionBody";
+static const char indentFunctionBracesKey[] = "IndentFunctionBraces";
+static const char indentSwitchLabelsKey[] = "IndentSwitchLabels";
+static const char indentStatementsRelativeToSwitchLabelsKey[] = "IndentStatementsRelativeToSwitchLabels";
+static const char indentBlocksRelativeToSwitchLabelsKey[] = "IndentBlocksRelativeToSwitchLabels";
+static const char indentControlFlowRelativeToSwitchLabelsKey[] = "IndentControlFlowRelativeToSwitchLabels";
+static const char extraPaddingForConditionsIfConfusingAlignKey[] = "ExtraPaddingForConditionsIfConfusingAlign";
+static const char alignAssignmentsKey[] = "AlignAssignments";
 
 using namespace CppTools;
 

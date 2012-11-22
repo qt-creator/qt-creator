@@ -40,9 +40,9 @@
 
 using namespace TextEditor;
 
-static const char *codeStyleDataKey = "CodeStyleData";
-static const char *displayNameKey = "DisplayName";
-static const char *codeStyleDocKey = "QtCreatorCodeStyle";
+static const char codeStyleDataKey[] = "CodeStyleData";
+static const char displayNameKey[] = "DisplayName";
+static const char codeStyleDocKey[] = "QtCreatorCodeStyle";
 
 namespace TextEditor {
 namespace Internal {

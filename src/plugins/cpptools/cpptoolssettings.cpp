@@ -45,7 +45,7 @@
 #include <coreplugin/icore.h>
 #include <QSettings>
 
-static const char *idKey = "CppGlobal";
+static const char idKey[] = "CppGlobal";
 
 using namespace CppTools;
 using namespace CppTools::Internal;

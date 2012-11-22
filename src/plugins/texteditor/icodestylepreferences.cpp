@@ -39,7 +39,7 @@
 
 using namespace TextEditor;
 
-static const char *currentPreferencesKey = "CurrentPreferences";
+static const char currentPreferencesKey[] = "CurrentPreferences";
 
 namespace TextEditor {
 namespace Internal {
