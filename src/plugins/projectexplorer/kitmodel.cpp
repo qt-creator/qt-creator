@@ -279,7 +279,9 @@ void KitModel::apply()
     }
 
     // Update kits:
-    foreach (KitNode *n, m_manualRoot->childNodes) {
+    nodes = m_autoRoot->childNodes; // These can be dirty due to being made default!
+    nodes.append(m_manualRoot->childNodes);
+    foreach (KitNode *n, nodes) {
         Q_ASSERT(n);
         Q_ASSERT(n->widget);
         if (n->widget->isDirty()) {
