@@ -46,7 +46,7 @@
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT RewriterView;
+class RewriterView;
 
 namespace Internal {
 
