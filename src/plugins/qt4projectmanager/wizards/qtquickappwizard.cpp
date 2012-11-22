@@ -135,7 +135,7 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
     QList<Core::BaseFileWizardParameters> list;
     Core::BaseFileWizardParameters parameter;
 
-    const QString basicDescription = tr("Creates a Qt Quick application project that can contain "
+    const QString basicDescription = tr("Creates a Qt Quick 1 application project that can contain "
                                         "both QML and C++ code and includes a QDeclarativeView.\n\n");
 
     Core::FeatureSet basicFeatures;
@@ -151,7 +151,7 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
 
     parameter = base;
     parameter.setDisplayName(tr("Qt Quick 2 Application (Built-in Elements)"));
-    parameter.setDescription(tr("Creates a Qt Quick application project that can contain "
+    parameter.setDescription(tr("Creates a Qt Quick 2 application project that can contain "
                                 "both QML and C++ code and includes a QQuickView.\n\n"
                                 "The built-in elements in the QtQuick 2 namespace allow "
                                 "you to write cross-platform applications with "
@@ -160,7 +160,7 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
     list << parameter;
 
     parameter = base;
-    parameter.setDisplayName(tr("Qt Quick Application for MeeGo Harmattan"));
+    parameter.setDisplayName(tr("Qt Quick 1 Application for MeeGo Harmattan"));
     parameter.setDescription(basicDescription +  tr("The Qt Quick Components for MeeGo Harmattan are "
                                                     "a set of ready-made components that are designed "
                                                     "with specific native appearance for the MeeGo Harmattan "
@@ -171,7 +171,7 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
     list << parameter;
 
     parameter = base;
-    parameter.setDisplayName(tr("Qt Quick Application (from Existing QML File)"));
+    parameter.setDisplayName(tr("Qt Quick 1 Application (from Existing QML File)"));
     parameter.setDescription(basicDescription +  tr("Creates a deployable Qt Quick application from "
                                                     "existing QML files. All files and directories that "
                                                     "reside in the same directory as the main .qml file "
