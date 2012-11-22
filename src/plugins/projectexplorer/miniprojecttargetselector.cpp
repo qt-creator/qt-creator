@@ -275,7 +275,7 @@ void ProjectListWidget::addProject(Project *project)
     }
 
     QFontMetrics fn(font());
-    int width = fn.width(project->displayName()) + padding();
+    int width = fn.width(displayName) + padding();
     if (width > optimalWidth())
         setOptimalWidth(width);
 
@@ -309,10 +309,8 @@ void ProjectListWidget::removeProject(Project *project)
 
     // recheck optimal width
     int width = 0;
-    for (int i = 0; i < count(); ++i) {
-        Project *p = item(i)->data(Qt::UserRole).value<Project *>();
-        width = qMax(fn.width(p->displayName()) + padding(), width);
-    }
+    for (int i = 0; i < count(); ++i)
+        width = qMax(fn.width(item(i)->text()) + padding(), width);
     setOptimalWidth(width);
 
     m_ignoreIndexChange = false;
@@ -355,10 +353,8 @@ void ProjectListWidget::projectDisplayNameChanged(Project *project)
     // recheck optimal width
     QFontMetrics fn(font());
     int width = 0;
-    for (int i = 0; i < count(); ++i) {
-        Project *p = item(i)->data(Qt::UserRole).value<Project *>();
-        width = qMax(fn.width(p->displayName()) + padding(), width);
-    }
+    for (int i = 0; i < count(); ++i)
+        width = qMax(fn.width(item(i)->text()) + padding(), width);
     setOptimalWidth(width);
 
     m_ignoreIndexChange = false;
