@@ -1590,7 +1590,7 @@ void tst_QMLCodeFormatter::bug3()
     checkIndent(data);
 }
 
-QTEST_APPLESS_MAIN(tst_QMLCodeFormatter)
+QTEST_MAIN(tst_QMLCodeFormatter)
 #include "tst_qmlcodeformatter.moc"
 
 
