@@ -1015,9 +1015,11 @@ void BaseTextEditorWidget::insertLineAbove()
 {
     QTextCursor cursor = textCursor();
     cursor.beginEditBlock();
-    cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor);
-    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::MoveAnchor);
+    // If the cursor is at the beginning of the document,
+    // it should still insert a line above the current line.
+    cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
     cursor.insertBlock();
+    cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor);
     indent(document(), cursor, QChar::Null);
     cursor.endEditBlock();
     setTextCursor(cursor);
