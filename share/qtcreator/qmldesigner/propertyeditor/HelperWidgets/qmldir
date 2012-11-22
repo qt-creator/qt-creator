@@ -45,3 +45,4 @@ Transformation 1.0 Transformation.qml
 Type 1.0 Type.qml
 VerticalLayout 1.0 VerticalLayout.qml
 Visibility 1.0 Visibility.qml
+UrlEdit 1.0 UrlEdit.qml

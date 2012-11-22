@@ -11,8 +11,12 @@ AutoTypes {
         sourceFile: "RealEditorTemplate.qml"
     }
     Type {
-        typeNames: ["string", "QString", "QUrl", "url"]
+        typeNames: ["string", "QString"]
         sourceFile: "StringEditorTemplate.qml"
+    }
+    Type {
+        typeNames: ["QUrl", "url"]
+        sourceFile: "UrlEditorTemplate.qml"
     }
     Type {
         typeNames: ["bool", "boolean"]
