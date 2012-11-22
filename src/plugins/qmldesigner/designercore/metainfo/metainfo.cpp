@@ -33,7 +33,7 @@
 #include "modelnode.h"
 #include "invalidmodelnodeexception.h"
 #include "invalidargumentexception.h"
-#include "metainfoparser.h"
+#include "metainforeader.h"
 #include "iwidgetplugin.h"
 
 #include "pluginmanager/widgetpluginmanager.h"
@@ -116,12 +116,12 @@ void MetaInfoPrivate::parseItemLibraryDescriptions()
         pluginManager.addPath(pluginDir);
     QList<IWidgetPlugin *> widgetPluginList = pluginManager.instances();
     foreach (IWidgetPlugin *plugin, widgetPluginList) {
-        Internal::MetaInfoParser parser(*m_q);
+        Internal::MetaInfoReader reader(*m_q);
         try {
-            parser.readMetaInfoFile(plugin->metaInfo());
+            reader.readMetaInfoFile(plugin->metaInfo());
         } catch (InvalidMetaInfoException &e) {
             qWarning() << e.description();
-            const QString errorMessage = plugin->metaInfo() + QLatin1Char('\n') + QLatin1Char('\n') + parser.errors().join(QLatin1String("\n"));
+            const QString errorMessage = plugin->metaInfo() + QLatin1Char('\n') + QLatin1Char('\n') + reader.errors().join(QLatin1String("\n"));
             QMessageBox::critical(0,
                                   QCoreApplication::translate("QmlDesigner::Internal::MetaInfoPrivate", "Invalid meta info"),
                                   errorMessage);

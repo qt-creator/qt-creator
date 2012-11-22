@@ -50,7 +50,7 @@ class AbstractProperty;
 
 namespace Internal {
     class MetaInfoPrivate;
-    class MetaInfoParser;
+    class MetaInfoReader;
     class SubComponentManagerPrivate;
     class ItemLibraryEntryData;
     class NodeMetaInfoPrivate;

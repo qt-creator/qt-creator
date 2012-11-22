@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "metainfoparser.h"
+#include "metainforeader.h"
 #include "metainfo.h"
 
 #include <propertyparser.h>
@@ -50,13 +50,13 @@ const char ItemLibraryEntryElementName[] = "ItemLibraryEntry";
 const char QmlSourceElementName[] = "QmlSource";
 const char PropertyElementName[] = "Property";
 
-MetaInfoParser::MetaInfoParser(const MetaInfo &metaInfo)
+MetaInfoReader::MetaInfoReader(const MetaInfo &metaInfo)
         : m_parserState(Undefined),
           m_metaInfo(metaInfo)
 {
 }
 
-void MetaInfoParser::readMetaInfoFile(const QString &path)
+void MetaInfoReader::readMetaInfoFile(const QString &path)
 {
     m_parserState = ParsingDocument;
     if (!SimpleAbstractStreamReader::readFile(path)) {
@@ -74,12 +74,12 @@ void MetaInfoParser::readMetaInfoFile(const QString &path)
     }
 }
 
-QStringList MetaInfoParser::errors()
+QStringList MetaInfoReader::errors()
 {
     return QmlJS::SimpleAbstractStreamReader::errors();
 }
 
-void MetaInfoParser::elementStart(const QString &name)
+void MetaInfoReader::elementStart(const QString &name)
 {
     switch (parserState()) {
     case ParsingDocument: setParserState(readDocument(name)); break;
@@ -96,7 +96,7 @@ void MetaInfoParser::elementStart(const QString &name)
     }
 }
 
-void MetaInfoParser::elementEnd()
+void MetaInfoReader::elementEnd()
 {
     switch (parserState()) {
     case ParsingMetaInfo: setParserState(Finished); break;
@@ -113,7 +113,7 @@ void MetaInfoParser::elementEnd()
     }
 }
 
-void MetaInfoParser::propertyDefinition(const QString &name, const QVariant &value)
+void MetaInfoReader::propertyDefinition(const QString &name, const QVariant &value)
 {
     switch (parserState()) {
     case ParsingType: readTypeProperty(name, value); break;
@@ -130,7 +130,7 @@ void MetaInfoParser::propertyDefinition(const QString &name, const QVariant &val
     }
 }
 
-MetaInfoParser::ParserSate MetaInfoParser::readDocument(const QString &name)
+MetaInfoReader::ParserSate MetaInfoReader::readDocument(const QString &name)
 {
     if (name == QLatin1String(rootElementName)) {
         m_currentClassName = QString();
@@ -142,7 +142,7 @@ MetaInfoParser::ParserSate MetaInfoParser::readDocument(const QString &name)
     }
 }
 
-MetaInfoParser::ParserSate MetaInfoParser::readMetaInfoRootElement(const QString &name)
+MetaInfoReader::ParserSate MetaInfoReader::readMetaInfoRootElement(const QString &name)
 {
     if (name == QLatin1String(typeElementName)) {
         m_currentClassName = QString();
@@ -154,7 +154,7 @@ MetaInfoParser::ParserSate MetaInfoParser::readMetaInfoRootElement(const QString
     }
 }
 
-MetaInfoParser::ParserSate MetaInfoParser::readTypeElement(const QString &name)
+MetaInfoReader::ParserSate MetaInfoReader::readTypeElement(const QString &name)
 {
     if (name == QLatin1String(ItemLibraryEntryElementName)) {
         m_currentEntry = ItemLibraryEntry();
@@ -168,7 +168,7 @@ MetaInfoParser::ParserSate MetaInfoParser::readTypeElement(const QString &name)
     }
 }
 
-MetaInfoParser::ParserSate MetaInfoParser::readItemLibraryEntryElement(const QString &name)
+MetaInfoReader::ParserSate MetaInfoReader::readItemLibraryEntryElement(const QString &name)
 {
     if (name == QmlSourceElementName) {
         return ParsingQmlSource;
@@ -183,19 +183,19 @@ MetaInfoParser::ParserSate MetaInfoParser::readItemLibraryEntryElement(const QSt
     }
 }
 
-MetaInfoParser::ParserSate MetaInfoParser::readPropertyElement(const QString &name)
+MetaInfoReader::ParserSate MetaInfoReader::readPropertyElement(const QString &name)
 {
     addError(tr("Invalid type %1").arg(name), currentSourceLocation());
     return Error;
 }
 
-MetaInfoParser::ParserSate MetaInfoParser::readQmlSourceElement(const QString &name)
+MetaInfoReader::ParserSate MetaInfoReader::readQmlSourceElement(const QString &name)
 {
     addError(tr("Invalid type %1").arg(name), currentSourceLocation());
     return Error;
 }
 
-void MetaInfoParser::readTypeProperty(const QString &name, const QVariant &value)
+void MetaInfoReader::readTypeProperty(const QString &name, const QVariant &value)
 {
     if (name == QLatin1String("name")) {
         m_currentClassName = value.toString();
@@ -207,7 +207,7 @@ void MetaInfoParser::readTypeProperty(const QString &name, const QVariant &value
     }
 }
 
-void MetaInfoParser::readItemLibraryEntryProperty(const QString &name, const QVariant &value)
+void MetaInfoReader::readItemLibraryEntryProperty(const QString &name, const QVariant &value)
 {
     if (name == QLatin1String("name")) {
         m_currentEntry.setName(value.toString());
@@ -227,7 +227,7 @@ void MetaInfoParser::readItemLibraryEntryProperty(const QString &name, const QVa
     }
 }
 
-void MetaInfoParser::readPropertyProperty(const QString &name, const QVariant &value)
+void MetaInfoReader::readPropertyProperty(const QString &name, const QVariant &value)
 {
     if (name == QLatin1String("name")) {
        m_currentPropertyName = value.toString();
@@ -241,7 +241,7 @@ void MetaInfoParser::readPropertyProperty(const QString &name, const QVariant &v
     }
 }
 
-void MetaInfoParser::readQmlSourceProperty(const QString &name, const QVariant &value)
+void MetaInfoReader::readQmlSourceProperty(const QString &name, const QVariant &value)
 {
     if (name == QLatin1String("source")) {
         m_currentEntry.setQml(value.toString());
@@ -251,7 +251,7 @@ void MetaInfoParser::readQmlSourceProperty(const QString &name, const QVariant &
     }
 }
 
-void MetaInfoParser::setVersion(const QString &versionNumber)
+void MetaInfoReader::setVersion(const QString &versionNumber)
 {
     const QString typeName = m_currentEntry.typeName();
     int major = 1;
@@ -273,12 +273,12 @@ void MetaInfoParser::setVersion(const QString &versionNumber)
     m_currentEntry.setType(typeName, major, minor);
 }
 
-MetaInfoParser::ParserSate MetaInfoParser::parserState() const
+MetaInfoReader::ParserSate MetaInfoReader::parserState() const
 {
     return m_parserState;
 }
 
-void MetaInfoParser::setParserState(ParserSate newParserState)
+void MetaInfoReader::setParserState(ParserSate newParserState)
 {
     if (debug && newParserState == Error)
         qDebug() << "Error";
@@ -286,7 +286,7 @@ void MetaInfoParser::setParserState(ParserSate newParserState)
     m_parserState = newParserState;
 }
 
-void MetaInfoParser::insertItemLibraryEntry()
+void MetaInfoReader::insertItemLibraryEntry()
 {
     if (debug) {
         qDebug() << "insertItemLibraryEntry()";
@@ -300,12 +300,12 @@ void MetaInfoParser::insertItemLibraryEntry()
     }
 }
 
-void MetaInfoParser::insertProperty()
+void MetaInfoReader::insertProperty()
 {
     m_currentEntry.addProperty(m_currentPropertyName, m_currentPropertyType, m_currentPropertyValue);
 }
 
-void MetaInfoParser::addErrorInvalidType(const QString &typeName)
+void MetaInfoReader::addErrorInvalidType(const QString &typeName)
 {
     addError(tr("Invalid type %1").arg(typeName), currentSourceLocation());
 }

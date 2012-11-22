@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef METAINFOPARSER_H
-#define METAINFOPARSER_H
+#ifndef METAINFOREADER_H
+#define METAINFOREADER_H
 
 #include "qmldesignercorelib_global.h"
 #include <metainfo.h>
@@ -46,12 +46,12 @@ class ItemLibraryEntry;
 namespace Internal {
 
 
-class MetaInfoParser : protected QmlJS::SimpleAbstractStreamReader
+class MetaInfoReader : protected QmlJS::SimpleAbstractStreamReader
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlDesigner::Internal::MetaInfoParser)
+    Q_DECLARE_TR_FUNCTIONS(QmlDesigner::Internal::MetaInfoReader)
 
 public:
-    MetaInfoParser(const MetaInfo &metaInfo);
+    MetaInfoReader(const MetaInfo &metaInfo);
 
     void readMetaInfoFile(const QString &path);
 
@@ -113,4 +113,4 @@ private:
 
 }
 }
-#endif // METAINFOPARSER_H
+#endif // METAINFOREADER_H

@@ -17,7 +17,7 @@ include (../../../../share/qtcreator/qml/qmlpuppet/container/container.pri)
 SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/rewriterview.cpp \
     $$PWD/metainfo/metainfo.cpp \
-    $$PWD/metainfo/metainfoparser.cpp \
+    $$PWD/metainfo/metainforeader.cpp \
     $$PWD/metainfo/nodemetainfo.cpp \
     $$PWD/metainfo/itemlibraryinfo.cpp \
     $$PWD/metainfo/subcomponentmanager.cpp \
@@ -82,7 +82,7 @@ HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/include/nodeinstanceview.h \
     $$PWD/include/rewriterview.h \
     $$PWD/include/metainfo.h \
-    $$PWD/include/metainfoparser.h \
+    $$PWD/include/metainforeader.h \
     $$PWD/include/nodemetainfo.h \
     $$PWD/include/itemlibraryinfo.h \
     $$PWD/model/internalproperty.h \

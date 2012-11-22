@@ -61,7 +61,7 @@ class QMLDESIGNERCORE_EXPORT MetaInfo
 {
     friend class QmlDesigner::Internal::MetaInfoPrivate;
     friend class QmlDesigner::Internal::ModelPrivate;
-    friend class QmlDesigner::Internal::MetaInfoParser;
+    friend class QmlDesigner::Internal::MetaInfoReader;
     friend class QmlDesigner::Internal::SubComponentManagerPrivate;
     friend bool operator==(const MetaInfo &, const MetaInfo &);
 
