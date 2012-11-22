@@ -145,33 +145,9 @@ private slots:
     void test_map();
 
 //private:
-//    void setup();
-//    void send(const QString &command) { sendEx("normal " + command); }
-//    void sendEx(const QString &command); // send an ex command
-
-//    bool checkContentsHelper(QString expected, const char* file, int line);
-//    bool checkHelper(bool isExCommand, QString cmd, QString expected,
-//        const char* file, int line);
-//    QString insertCursor(const QString &needle0);
-//    QString cursor(const QString &line, int pos); // insert @ at cursor pos, negative counts from back
-
-//    QString lmid(int i, int n = -1) const
-//        { return QStringList(l.mid(i, n)).join("\n"); }
-
-//    QTextEdit *m_textedit;
-//    QPlainTextEdit *m_plaintextedit;
-//    FakeVimHandler *m_handler;
-//    QList<QTextEdit::ExtraSelection> m_selection;
-
 //    QString m_statusMessage;
 //    QString m_statusData;
 //    QString m_infoMessage;
-
-//    // the individual lines
-//    static const QStringList l; // identifier intentionally kept short
-//    static const QString lines;
-//    static const QString escape;
-//};
 
 private:
     struct TestData;
