@@ -1272,9 +1272,13 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
         qDebug() << Q_FUNC_INFO << fileName << editorId.name();
 
     QString fn = fileName;
+    QFileInfo fi(fn);
     int lineNumber = -1;
-    if (flags && EditorManager::CanContainLineNumber)
+    if ((flags & EditorManager::CanContainLineNumber) && !fi.exists()) {
         lineNumber = extractLineNumber(&fn);
+        if (lineNumber != -1)
+            fi.setFile(fn);
+    }
 
     if (fn.isEmpty())
         return 0;
@@ -1285,13 +1289,12 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
     const QList<IEditor *> editors = editorsForFileName(fn);
     if (!editors.isEmpty()) {
         IEditor *editor = editors.first();
-        if (flags && EditorManager::CanContainLineNumber)
+        if (flags & EditorManager::CanContainLineNumber)
             editor->gotoLine(lineNumber, -1);
         return activateEditor(view, editor, flags);
     }
 
     QString realFn = autoSaveName(fn);
-    QFileInfo fi(fn);
     QFileInfo rfi(realFn);
     if (!fi.exists() || !rfi.exists() || fi.lastModified() >= rfi.lastModified()) {
         QFile::remove(realFn);
@@ -1325,7 +1328,7 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
     if (editor == result)
         restoreEditorState(editor);
 
-    if (flags && EditorManager::CanContainLineNumber)
+    if (flags & EditorManager::CanContainLineNumber)
         editor->gotoLine(lineNumber, -1);
 
     QApplication::restoreOverrideCursor();
