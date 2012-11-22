@@ -41,6 +41,8 @@
 #include <utils/qtcassert.h>
 
 #include <utils/environment.h>
+#include <projectexplorer/kitmanager.h>
+#include <qtsupport/qtkitinformation.h>
 #include <algorithm>
 
 using QtSupport::QtVersionManager;
@@ -344,9 +346,15 @@ QStringList ExamplesListModel::exampleSources(QString *examplesFallback, QString
     QString potentialSourceFallback;
     const QStringList pattern(QLatin1String("*.xml"));
 
+    // prioritize default qt version
     QtVersionManager *versionManager = QtVersionManager::instance();
+    QList <BaseQtVersion *> qtVersions = versionManager->validVersions();
+    ProjectExplorer::Kit *defaultKit = ProjectExplorer::KitManager::instance()->defaultKit();
+    BaseQtVersion *defaultVersion = QtKitInformation::qtVersion(defaultKit);
+    if (defaultVersion && qtVersions.contains(defaultVersion))
+        qtVersions.move(qtVersions.indexOf(defaultVersion), 0);
 
-    foreach (BaseQtVersion *version, versionManager->validVersions()) {
+    foreach (BaseQtVersion *version, qtVersions) {
         // qt5 with examples OR demos manifest
         if (version->qtVersion().majorVersion == 5 && (version->hasExamples() || version->hasDemos())) {
             // examples directory in Qt5 is under the qtbase submodule,
@@ -367,9 +375,7 @@ QStringList ExamplesListModel::exampleSources(QString *examplesFallback, QString
                 return sources;
             }
         }
-    }
 
-    foreach (BaseQtVersion *version, versionManager->validVersions()) {
         QFileInfoList fis;
         if (version->hasExamples())
             fis << QDir(version->examplesPath()).entryInfoList(pattern);
