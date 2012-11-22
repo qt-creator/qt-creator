@@ -529,20 +529,26 @@ public:
             }
         }
 
-        QVariant v(cleanedValue);
+        if (property->asColorValue()) {
+            return PropertyParser::read(QVariant::Color, cleanedValue);
+        } else if (property->asUrlValue()) {
+            return PropertyParser::read(QVariant::Url, cleanedValue);
+        }
+
+        QVariant value(cleanedValue);
         if (property->asBooleanValue()) {
-            v.convert(QVariant::Bool);
-        } else if (property->asColorValue()) {
-            v.convert(QVariant::Color);
+            value.convert(QVariant::Bool);
+            return value;
         } else if (property->asNumberValue()) {
-            v.convert(QVariant::Double);
+            value.convert(QVariant::Double);
+            return value;
         } else if (property->asStringValue()) {
             // nothing to do
         } else { //property alias et al
             if (!hasQuotes)
                 return cleverConvert(cleanedValue);
         }
-        return v;
+        return value;
     }
 
     QVariant convertToEnum(Statement *rhs, const QString &propertyPrefix, UiQualifiedId *propertyId)
