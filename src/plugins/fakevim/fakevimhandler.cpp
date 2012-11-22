@@ -6768,6 +6768,9 @@ bool FakeVimHandler::Private::selectBlockTextObject(bool inner,
         p2 -= sright.size() - 2;
     }
 
+    if (isVisualMode())
+        --p2;
+
     setAnchorAndPosition(p1, p2);
     m_movetype = MoveExclusive;
 

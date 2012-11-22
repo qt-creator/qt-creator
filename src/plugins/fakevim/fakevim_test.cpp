@@ -843,6 +843,15 @@ void FakeVimPlugin::test_vim_block_selection()
     data.setText("\"\"");
     KEYS("di\"", "\"" X "\"");
 
+    // visual selection
+    data.setText("(abc()" X "(def))");
+    KEYS("vi(d", "(abc()(" X "))");
+    KEYS("u", "(abc()(" X "def))");
+    KEYS("<c-r>", "(abc()(" X "))");
+    KEYS("va(d", "(abc()" X ")");
+    KEYS("u", "(abc()" X "())");
+    KEYS("<c-r>", "(abc()" X ")");
+
     // repeat change inner
     data.setText("(abc)" N "def" N "(ghi)");
     KEYS("ci(xyz<esc>", "(xy" X "z)" N "def" N "(ghi)");
