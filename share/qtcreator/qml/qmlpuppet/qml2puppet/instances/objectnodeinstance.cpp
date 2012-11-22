@@ -808,7 +808,9 @@ QStringList propertyNameForWritableProperties(QObject *object, const QString &ba
             QQmlValueType *valueType = QQmlValueTypeFactory::valueType(metaProperty.userType());
             valueType->setValue(metaProperty.read(object));
             propertyNameList.append(propertyNameForWritableProperties(valueType, baseName +  QString::fromUtf8(metaProperty.name()) + '.', inspectedObjects));
-        } else if (metaProperty.isReadable() && metaProperty.isWritable()) {
+        }
+
+        if (metaProperty.isReadable() && metaProperty.isWritable()) {
             propertyNameList.append(baseName + QString::fromUtf8(metaProperty.name()));
         }
     }
