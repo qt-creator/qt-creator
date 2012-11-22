@@ -866,7 +866,7 @@ void BaseQtVersion::updateVersionInfo() const
     m_hasQmlDebuggingLibrary = false;
     m_hasQmlObserver = false;
 
-    if (!queryQMakeVariables(qmakeCommand(), &m_versionInfo, &m_qmakeIsExecutable))
+    if (!queryQMakeVariables(qmakeCommand(), qmakeRunEnvironment(), &m_versionInfo, &m_qmakeIsExecutable))
         return;
 
     const QString qtInstallData = qmakeProperty("QT_INSTALL_DATA");
@@ -997,6 +997,16 @@ void BaseQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Environment 
     Q_UNUSED(k);
     env.set(QLatin1String("QTDIR"), QDir::toNativeSeparators(qmakeProperty("QT_HOST_DATA")));
     env.prependOrSetPath(qmakeProperty("QT_HOST_BINS"));
+}
+
+// Some Qt versions may require environment settings for qmake to work
+//
+// One such example is Blackberry which for some reason decided to always use the same
+// qmake and use environment variables embedded in their mkspecs to make that point to
+// the different Qt installations.
+Utils::Environment BaseQtVersion::qmakeRunEnvironment() const
+{
+    return Utils::Environment::systemEnvironment();
 }
 
 bool BaseQtVersion::hasGdbDebuggingHelper() const
@@ -1172,14 +1182,15 @@ QtConfigWidget *BaseQtVersion::createConfigurationWidget() const
     return 0;
 }
 
-bool BaseQtVersion::queryQMakeVariables(const FileName &binary, QHash<QString, QString> *versionInfo)
+bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Utils::Environment &env,
+                                        QHash<QString, QString> *versionInfo)
 {
     bool qmakeIsExecutable;
-    return BaseQtVersion::queryQMakeVariables(binary, versionInfo, &qmakeIsExecutable);
+    return BaseQtVersion::queryQMakeVariables(binary, env, versionInfo, &qmakeIsExecutable);
 }
 
-bool BaseQtVersion::queryQMakeVariables(const FileName &binary, QHash<QString, QString> *versionInfo,
-                                        bool *qmakeIsExecutable)
+bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Utils::Environment &env,
+                                        QHash<QString, QString> *versionInfo, bool *qmakeIsExecutable)
 {
     const int timeOutMS = 30000; // Might be slow on some machines.
     const QFileInfo qmake = binary.toFileInfo();
@@ -1188,7 +1199,7 @@ bool BaseQtVersion::queryQMakeVariables(const FileName &binary, QHash<QString, Q
         return false;
 
     QProcess process;
-    Environment env = Environment::systemEnvironment();
+    Environment qmakeEnv = env;
 
     if (HostOsInfo::isWindowsHost()) {
         // Add tool chain environment. This is necessary for non-static qmakes e.g. using mingw on windows
@@ -1198,11 +1209,11 @@ bool BaseQtVersion::queryQMakeVariables(const FileName &binary, QHash<QString, Q
         QList<ProjectExplorer::ToolChain *> tcList = ProjectExplorer::ToolChainManager::instance()->toolChains();
         foreach (ProjectExplorer::ToolChain *tc, tcList) {
             if (abiList.contains(tc->targetAbi()))
-                tc->addToEnvironment(env);
+                tc->addToEnvironment(qmakeEnv);
         }
     }
 
-    process.setEnvironment(env.toStringList());
+    process.setEnvironment(qmakeEnv.toStringList());
     process.start(qmake.absoluteFilePath(), QStringList(QLatin1String("-query")), QIODevice::ReadOnly);
 
     if (!process.waitForStarted()) {

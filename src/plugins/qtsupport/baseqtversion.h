@@ -131,6 +131,7 @@ public:
     static QString qmakeProperty(const QHash<QString,QString> &versionInfo, const QByteArray &name);
     QString qmakeProperty(const QByteArray &name) const;
     virtual void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
+    virtual Utils::Environment qmakeRunEnvironment() const;
 
     virtual Utils::FileName sourcePath() const;
     // used by QtUiCodeModelSupport
@@ -185,8 +186,11 @@ public:
     ///         warnings and finally info items.
     QList<ProjectExplorer::Task> reportIssues(const QString &proFile, const QString &buildDir) const;
 
-    static bool queryQMakeVariables(const Utils::FileName &binary, QHash<QString, QString> *versionInfo);
-    static bool queryQMakeVariables(const Utils::FileName &binary, QHash<QString, QString> *versionInfo, bool *qmakeIsExecutable);
+    static bool queryQMakeVariables(const Utils::FileName &binary, const Utils::Environment &env,
+                                    QHash<QString, QString> *versionInfo);
+    static bool queryQMakeVariables(const Utils::FileName &binary, const Utils::Environment &env,
+                                    QHash<QString, QString> *versionInfo,
+                                    bool *qmakeIsExecutable);
     static Utils::FileName mkspecDirectoryFromVersionInfo(const QHash<QString, QString> &versionInfo);
     static Utils::FileName mkspecFromVersionInfo(const QHash<QString, QString> &versionInfo);
 
