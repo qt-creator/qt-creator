@@ -349,6 +349,10 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map,
         nameList << GetOperation::get(map, nameKey).toString();
     const QString uniqueName = makeUnique(displayName, nameList);
 
+    QString qtId = qt;
+    if (!qtId.startsWith(QLatin1String("SDK.")))
+        qtId = QString::fromLatin1("SDK.") + qt;
+
     // insert data:
     KeyValuePairList data;
     data << KeyValuePair(QStringList() << kit << QLatin1String(ID), QVariant(id));
@@ -363,7 +367,7 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map,
     data << KeyValuePair(QStringList() << kit << QLatin1String(DATA) << DEVICE_TYPE, QVariant(deviceType));
     data << KeyValuePair(QStringList() << kit << QLatin1String(DATA) << SYSROOT, QVariant(sysRoot));
     data << KeyValuePair(QStringList() << kit << QLatin1String(DATA) << TOOLCHAIN, QVariant(tc));
-    data << KeyValuePair(QStringList() << kit << QLatin1String(DATA) << QT, QVariant(qt));
+    data << KeyValuePair(QStringList() << kit << QLatin1String(DATA) << QT, QVariant(qtId));
     data << KeyValuePair(QStringList() << kit << QLatin1String(DATA) << MKSPEC, QVariant(mkspec));
 
     data << KeyValuePair(QStringList() << QLatin1String(DEFAULT), QVariant(defaultKit));
