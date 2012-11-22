@@ -3457,10 +3457,10 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         const int pos = position();
         beginEditBlock();
         if (m_submode == NoSubMode)
-            joinLines(count, m_gflag);
+            joinLines(count(), m_gflag);
         endEditBlock();
         setPosition(pos);
-        setDotCommand("%1J", count);
+        setDotCommand("%1J", count());
     } else if (input.isControl('l')) {
         // screen redraw. should not be needed
     } else if (input.is('m')) {
