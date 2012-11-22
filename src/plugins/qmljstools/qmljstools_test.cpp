@@ -55,7 +55,7 @@ void QmlJSTools::Internal::QmlJSToolsPlugin::test_basic()
 {
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
 
-    const QString welcomescreenRootPath = Core::ICore::resourcePath() + "/welcomescreen/welcomescreen.qml";
+    const QString welcomescreenRootPath = Core::ICore::resourcePath() + QLatin1String("/welcomescreen/welcomescreen.qml");
     modelManager->updateSourceFiles(QStringList(welcomescreenRootPath), false);
     modelManager->joinAllThreads();
 
@@ -67,34 +67,34 @@ void QmlJSTools::Internal::QmlJSToolsPlugin::test_basic()
     QVERIFY(context);
 
     const CppComponentValue *rectangleValue = context->valueOwner()->cppQmlTypes().objectByQualifiedName(
-                "QtQuick", "QDeclarative1Rectangle", LanguageUtils::ComponentVersion(1, 0));
+                QLatin1String("QtQuick"), QLatin1String("QDeclarative1Rectangle"), LanguageUtils::ComponentVersion(1, 0));
     QVERIFY(rectangleValue);
-    QVERIFY(!rectangleValue->isWritable("border"));
-    QVERIFY(rectangleValue->hasProperty("border"));
-    QVERIFY(rectangleValue->isPointer("border"));
-    QVERIFY(rectangleValue->isWritable("color"));
-    QVERIFY(!rectangleValue->isPointer("color"));
+    QVERIFY(!rectangleValue->isWritable(QLatin1String("border")));
+    QVERIFY(rectangleValue->hasProperty(QLatin1String("border")));
+    QVERIFY(rectangleValue->isPointer(QLatin1String("border")));
+    QVERIFY(rectangleValue->isWritable(QLatin1String("color")));
+    QVERIFY(!rectangleValue->isPointer(QLatin1String("color")));
 
-    const ObjectValue *ovItem = context->lookupType(doc.data(), QStringList() << "Item");
+    const ObjectValue *ovItem = context->lookupType(doc.data(), QStringList(QLatin1String("Item")));
     QVERIFY(ovItem);
-    QCOMPARE(ovItem->className(), QString("Item"));
-    QCOMPARE(context->imports(doc.data())->info("Item", context.data()).name(), QString("QtQuick"));
+    QCOMPARE(ovItem->className(), QLatin1String("Item"));
+    QCOMPARE(context->imports(doc.data())->info(QLatin1String("Item"), context.data()).name(), QLatin1String("QtQuick"));
 
-    const ObjectValue *ovProperty = context->lookupType(doc.data(), QStringList() << "Item" << "states");
+    const ObjectValue *ovProperty = context->lookupType(doc.data(), QStringList() << QLatin1String("Item") << QLatin1String("states"));
     QVERIFY(ovProperty);
-    QCOMPARE(ovProperty->className(), QString("State"));
+    QCOMPARE(ovProperty->className(), QLatin1String("State"));
 
-    const CppComponentValue * qmlItemValue = value_cast<CppComponentValue>(ovItem);
+    const CppComponentValue *qmlItemValue = value_cast<CppComponentValue>(ovItem);
     QVERIFY(qmlItemValue);
-    QCOMPARE(qmlItemValue->defaultPropertyName(), QString("data"));
-    QCOMPARE(qmlItemValue->propertyType("state"), QString("string"));
+    QCOMPARE(qmlItemValue->defaultPropertyName(), QLatin1String("data"));
+    QCOMPARE(qmlItemValue->propertyType(QLatin1String("state")), QLatin1String("string"));
 
-    const ObjectValue *ovState = context->lookupType(doc.data(), QStringList() << "State");
-    const CppComponentValue * qmlState2Value = value_cast<CppComponentValue>(ovState);
-    QCOMPARE(qmlState2Value->className(), QString("State"));
+    const ObjectValue *ovState = context->lookupType(doc.data(), QStringList(QLatin1String("State")));
+    const CppComponentValue *qmlState2Value = value_cast<CppComponentValue>(ovState);
+    QCOMPARE(qmlState2Value->className(), QLatin1String("State"));
 
-    const ObjectValue *ovImage = context->lookupType(doc.data(), QStringList() << "Image");
-    const CppComponentValue * qmlImageValue = value_cast<CppComponentValue>(ovImage);
-    QCOMPARE(qmlImageValue->className(), QString("Image"));
-    QCOMPARE(qmlImageValue->propertyType("source"), QString("QUrl"));
+    const ObjectValue *ovImage = context->lookupType(doc.data(), QStringList(QLatin1String("Image")));
+    const CppComponentValue *qmlImageValue = value_cast<CppComponentValue>(ovImage);
+    QCOMPARE(qmlImageValue->className(), QLatin1String("Image"));
+    QCOMPARE(qmlImageValue->propertyType(QLatin1String("source")), QLatin1String("QUrl"));
 }

@@ -68,7 +68,7 @@ void CppToolsPlugin::test_codegen_public_in_empty_class()
             "};\n"
             "\n";
 
-    Document::Ptr doc = Document::create("public_in_empty_class");
+    Document::Ptr doc = Document::create(QLatin1String("public_in_empty_class"));
     doc->setUtf8Source(src);
     doc->parse();
     doc->check();
@@ -108,7 +108,7 @@ void CppToolsPlugin::test_codegen_public_in_nonempty_class()
             "};\n"        // line 4
             "\n";
 
-    Document::Ptr doc = Document::create("public_in_nonempty_class");
+    Document::Ptr doc = Document::create(QLatin1String("public_in_nonempty_class"));
     doc->setUtf8Source(src);
     doc->parse();
     doc->check();
@@ -148,7 +148,7 @@ void CppToolsPlugin::test_codegen_public_before_protected()
             "};\n"
             "\n";
 
-    Document::Ptr doc = Document::create("public_before_protected");
+    Document::Ptr doc = Document::create(QLatin1String("public_before_protected"));
     doc->setUtf8Source(src);
     doc->parse();
     doc->check();
@@ -189,7 +189,7 @@ void CppToolsPlugin::test_codegen_private_after_protected()
             "};\n"
             "\n";
 
-    Document::Ptr doc = Document::create("private_after_protected");
+    Document::Ptr doc = Document::create(QLatin1String("private_after_protected"));
     doc->setUtf8Source(src);
     doc->parse();
     doc->check();
@@ -230,7 +230,7 @@ void CppToolsPlugin::test_codegen_protected_in_nonempty_class()
             "};\n"        // line 4
             "\n";
 
-    Document::Ptr doc = Document::create("protected_in_nonempty_class");
+    Document::Ptr doc = Document::create(QLatin1String("protected_in_nonempty_class"));
     doc->setUtf8Source(src);
     doc->parse();
     doc->check();
@@ -271,7 +271,7 @@ void CppToolsPlugin::test_codegen_protected_between_public_and_private()
             "};\n"        // line 5
             "\n";
 
-    Document::Ptr doc = Document::create("protected_betwee_public_and_private");
+    Document::Ptr doc = Document::create(QLatin1String("protected_betwee_public_and_private"));
     doc->setUtf8Source(src);
     doc->parse();
     doc->check();
@@ -332,7 +332,7 @@ void CppToolsPlugin::test_codegen_qtdesigner_integration()
             "\n"
             "#endif // MAINWINDOW_H\n";
 
-    Document::Ptr doc = Document::create("qtdesigner_integration");
+    Document::Ptr doc = Document::create(QLatin1String("qtdesigner_integration"));
     doc->setUtf8Source(src);
     doc->parse();
     doc->check();
@@ -429,7 +429,7 @@ void CppToolsPlugin::test_codegen_definition_first_member()
             "};\n"
             "\n";
 
-    const QByteArray dstText = QString(
+    const QByteArray dstText = QString::fromLatin1(
                 "\n"
                 "#include \"%1/file.h\"\n" // line 1
                 "int x;\n"
@@ -498,7 +498,7 @@ void CppToolsPlugin::test_codegen_definition_last_member()
             "};\n"
             "\n";
 
-    const QByteArray dstText = QString(
+    const QByteArray dstText = QString::fromLatin1(
                 "\n"
                 "#include \"%1/file.h\"\n" // line 1
                 "int x;\n"
@@ -568,7 +568,7 @@ void CppToolsPlugin::test_codegen_definition_middle_member()
             "};\n"
             "\n";
 
-    const QByteArray dstText = QString(
+    const QByteArray dstText = QString::fromLatin1(
                 "\n"
                 "#include \"%1/file.h\"\n" // line 1
                 "int x;\n"
