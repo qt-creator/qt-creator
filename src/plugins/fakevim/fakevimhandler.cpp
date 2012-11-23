@@ -3534,6 +3534,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         moveRight(qMin(count(), rightDist()));
         setDotCommand("%1s", count());
         m_submode = ChangeSubMode;
+        m_movetype = MoveExclusive;
         finishMovement();
     } else if (input.is('S')) {
         m_movetype = MoveLineWise;

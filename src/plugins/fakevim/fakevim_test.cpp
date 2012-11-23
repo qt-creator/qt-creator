@@ -811,6 +811,18 @@ void FakeVimPlugin::test_vim_change_replace()
     data.setText("  abc" N "  def" N "  gh" X "i" N "  jkl");
     KEYS("ck123<ESC>", "  abc" N "  12" X "3" N "  jkl");
     INTEGRITY(false);
+
+    data.setText("abc" N X "def");
+    KEYS("sXYZ", "abc" N "XYZ" X "ef");
+    INTEGRITY(false);
+
+    data.setText("abc" N X "def");
+    KEYS("2sXYZ<ESC>", "abc" N "XY" X "Zf");
+    INTEGRITY(false);
+
+    data.setText("abc" N X "def");
+    KEYS("6sXYZ<ESC>", "abc" N "XY" X "Z");
+    INTEGRITY(false);
 }
 
 void FakeVimPlugin::test_vim_block_selection()
