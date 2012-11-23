@@ -2595,7 +2595,12 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         g.returnToMode = InsertMode;
     } else if (m_submode == DeleteSubMode) {
         setUndoPosition();
-        removeText(currentRange());
+        const int pos = position();
+        // Always delete something (e.g. 'dw' on an empty line deletes the line).
+        if (pos == anchor() && m_movetype == MoveInclusive)
+            removeText(Range(pos, pos + 1));
+        else
+            removeText(currentRange());
         dotCommand = QString('d');
         if (m_movetype == MoveLineWise)
             handleStartOfLine();
@@ -2998,7 +3003,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         if (count > 1)
             moveDown(count - 1);
         moveToEndOfLine();
-        m_movetype = MoveInclusive;
+        m_movetype = atEmptyLine() ? MoveExclusive : MoveInclusive;
         setTargetColumn();
         if (m_submode == NoSubMode)
             m_targetColumn = -1;
@@ -6680,9 +6685,15 @@ QString FakeVimHandler::Private::visualDotCommand() const
 void FakeVimHandler::Private::selectTextObject(bool simple, bool inner)
 {
     bool setupAnchor = (position() == anchor());
+    const int repeat = count();
 
     // set anchor if not already set
     if (setupAnchor) {
+        // Select nothing with 'inner' on empty line.
+        if (inner && atEmptyLine() && repeat == 1) {
+            m_movetype = MoveExclusive;
+            return;
+        }
         moveToBoundaryStart(1, simple, false);
         setAnchor();
     } else {
@@ -6691,7 +6702,6 @@ void FakeVimHandler::Private::selectTextObject(bool simple, bool inner)
             moveRight();
     }
 
-    const int repeat = count();
     if (inner) {
         moveToBoundaryEnd(repeat, simple);
     } else {

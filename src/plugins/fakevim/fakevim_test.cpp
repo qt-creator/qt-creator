@@ -2439,8 +2439,10 @@ void FakeVimPlugin::test_vim_visual_d()
     setup(&data);
 
     data.setText(testLines);
-    KEYS("vd",  "|" + lmid(0));
-    KEYS("vx",  "|" + lmid(0));
+    KEYS("vd",  "|" + lmid(1));
+    KEYS("u",   "|" + lmid(0));
+    KEYS("vx",  "|" + lmid(1));
+    KEYS("u",   "|" + lmid(0));
     KEYS("vjd", "|" + lmid(1).mid(1));
     KEYS("u",   "|" + lmid(0));
     KEYS("j",   lmid(0, 1)+"\n" + "|" + lmid(1));
