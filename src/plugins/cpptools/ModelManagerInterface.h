@@ -68,37 +68,36 @@ class CPPTOOLS_EXPORT CppModelManagerInterface : public QObject
     Q_OBJECT
 
 public:
-    enum Language { CXX, OBJC };
 
     class CPPTOOLS_EXPORT ProjectPart
     {
     public:
         ProjectPart()
             : language(CXX)
-            , cxx11Enabled(false)
             , qtVersion(UnknownQt)
         {}
 
-    public: //attributes
-        QStringList sourceFiles;
-        QByteArray defines;
-        QStringList includePaths;
-        QStringList frameworkPaths;
-        QStringList precompiledHeaders;
-        Language language;
-        bool cxx11Enabled;
+    public: // enums and types
+        enum Language { CXX, CXX11, C99, C89 };
         enum QtVersion {
             UnknownQt = -1,
             NoQt = 0,
             Qt4 = 1,
             Qt5 = 2
         };
-        QtVersion qtVersion;
-
-        bool objcEnabled() const
-        { return language == CppModelManagerInterface::OBJC; }
 
         typedef QSharedPointer<ProjectPart> Ptr;
+
+    public: //attributes
+        QStringList headerFiles;
+        QStringList sourceFiles;
+        QStringList objcSourceFiles;
+        QByteArray defines;
+        QStringList includePaths;
+        QStringList frameworkPaths;
+        QStringList precompiledHeaders;
+        Language language;
+        QtVersion qtVersion;
     };
 
     class CPPTOOLS_EXPORT ProjectInfo

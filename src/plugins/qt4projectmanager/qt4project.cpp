@@ -626,27 +626,21 @@ void Qt4Project::updateCppCodeModel()
         part->precompiledHeaders.append(pro->variableValue(PrecompiledHeaderVar));
 
         // part->language
-        part->language = CPlusPlus::CppModelManagerInterface::CXX;
-        // part->flags
         if (tc)
-            part->cxx11Enabled = tc->compilerFlags(pro->variableValue(CppFlagsVar)) == ToolChain::STD_CXX11;
+            part->language = tc->compilerFlags(pro->variableValue(CppFlagsVar)) == ToolChain::STD_CXX11 ? ProjectPart::CXX11 : ProjectPart::CXX;
+        else
+            part->language = CPlusPlus::CppModelManagerInterface::ProjectPart::CXX;
 
         part->sourceFiles = pro->variableValue(CppSourceVar);
-        part->sourceFiles += pro->variableValue(CppHeaderVar);
-        part->sourceFiles += pro->uiFiles();
+        part->headerFiles += pro->variableValue(CppHeaderVar);
+        part->headerFiles += pro->uiFiles();
         part->sourceFiles.prepend(QLatin1String("<configuration>"));
+        part->objcSourceFiles = pro->variableValue(ObjCSourceVar);
         pinfo.appendProjectPart(part);
 
+        allFiles += part->headerFiles;
         allFiles += part->sourceFiles;
-
-        part = ProjectPart::Ptr(new ProjectPart);
-        //  todo objc code?
-        part->language = CPlusPlus::CppModelManagerInterface::OBJC;
-        part->sourceFiles = pro->variableValue(ObjCSourceVar);
-        if (!part->sourceFiles.isEmpty())
-            pinfo.appendProjectPart(part);
-
-        allFiles += part->sourceFiles;
+        allFiles += part->objcSourceFiles;
     }
 
     modelmanager->updateProjectInfo(pinfo);

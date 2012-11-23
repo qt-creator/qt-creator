@@ -85,7 +85,11 @@ void CppModelManagerInterface::ProjectInfo::appendProjectPart(
 
     // update source files
     QSet<QString> srcs = QSet<QString>::fromList(m_sourceFiles);
+    foreach (const QString &src, part->headerFiles)
+        srcs.insert(src);
     foreach (const QString &src, part->sourceFiles)
+        srcs.insert(src);
+    foreach (const QString &src, part->objcSourceFiles)
         srcs.insert(src);
     m_sourceFiles = srcs.toList();
 

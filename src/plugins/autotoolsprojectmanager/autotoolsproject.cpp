@@ -441,7 +441,7 @@ void AutotoolsProject::updateCppCodeModel()
         part->sourceFiles = m_files;
         part->defines = macros;
         part->frameworkPaths = allFrameworkPaths;
-        part->language = CPlusPlus::CppModelManagerInterface::CXX;
+        part->language = CPlusPlus::CppModelManagerInterface::ProjectPart::CXX;
         pinfo.appendProjectPart(part);
 
         modelManager->updateProjectInfo(pinfo);

@@ -1875,7 +1875,7 @@ public:
         bool inProject = false;
         foreach (const CppModelManagerInterface::ProjectInfo &info, projectInfos) {
             foreach (CppModelManagerInterface::ProjectPart::Ptr part, info.projectParts()) {
-                if (part->sourceFiles.contains(doc->fileName())) {
+                if (part->sourceFiles.contains(doc->fileName()) || part->objcSourceFiles.contains(doc->fileName()) || part->headerFiles.contains(doc->fileName())) {
                     inProject = true;
                     includePaths += part->includePaths;
                 }

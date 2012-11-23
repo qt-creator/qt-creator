@@ -88,9 +88,10 @@
 #include <sstream>
 
 namespace CPlusPlus {
+
 uint qHash(const CppModelManagerInterface::ProjectPart &p)
 {
-    uint h = qHash(p.defines) ^ p.language ^ ((int) p.cxx11Enabled);
+    uint h = qHash(p.defines) ^ p.language ^ p.qtVersion;
 
     foreach (const QString &i, p.includePaths)
         h ^= qHash(i);
@@ -100,6 +101,7 @@ uint qHash(const CppModelManagerInterface::ProjectPart &p)
 
     return h;
 }
+
 bool operator==(const CppModelManagerInterface::ProjectPart &p1,
                 const CppModelManagerInterface::ProjectPart &p2)
 {
@@ -107,12 +109,13 @@ bool operator==(const CppModelManagerInterface::ProjectPart &p1,
         return false;
     if (p1.language != p2.language)
         return false;
-    if (p1.cxx11Enabled != p2.cxx11Enabled)
+    if (p1.qtVersion!= p2.qtVersion)
         return false;
     if (p1.includePaths != p2.includePaths)
         return false;
     return p1.frameworkPaths == p2.frameworkPaths;
 }
+
 } // namespace CPlusPlus
 
 using namespace CppTools;
@@ -775,8 +778,11 @@ QStringList CppModelManager::internalProjectFiles() const
     while (it.hasNext()) {
         it.next();
         ProjectInfo pinfo = it.value();
-        foreach (const ProjectPart::Ptr &part, pinfo.projectParts())
+        foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
+            files += part->headerFiles;
             files += part->sourceFiles;
+            files += part->objcSourceFiles;
+        }
     }
     files.removeDuplicates();
     return files;
@@ -841,14 +847,24 @@ void CppModelManager::dumpModelManagerConfiguration()
         qDebug()<<" for project:"<< pinfo.project().data()->document()->fileName();
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
             qDebug() << "=== part ===";
-            qDebug() << "language:" << (part->language == CXX ? "C++" : "ObjC++");
-            qDebug() << "C++11:" << part->cxx11Enabled;
+            const char* lang;
+            switch (part->language) {
+            case ProjectPart::CXX: lang = "C++"; break;
+            case ProjectPart::CXX11: lang = "C++11"; break;
+            case ProjectPart::C89: lang = "C89"; break;
+            case ProjectPart::C99: lang = "C99"; break;
+            default: lang = "INVALID";
+            }
+
+            qDebug() << "language:" << lang;
             qDebug() << "Qt version:" << part->qtVersion;
             qDebug() << "precompiled header:" << part->precompiledHeaders;
             qDebug() << "defines:" << part->defines;
             qDebug() << "includes:" << part->includePaths;
             qDebug() << "frameworkPaths:" << part->frameworkPaths;
+            qDebug() << "headers:" << part->headerFiles;
             qDebug() << "sources:" << part->sourceFiles;
+            qDebug() << "objc sources:" << part->objcSourceFiles;
             qDebug() << "";
         }
     }
@@ -972,10 +988,16 @@ void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 
         m_srcToProjectPart.clear();
 
-        foreach (const ProjectInfo &projectInfo, m_projects.values())
-            foreach (const ProjectPart::Ptr &projectPart, projectInfo.projectParts())
+        foreach (const ProjectInfo &projectInfo, m_projects.values()) {
+            foreach (const ProjectPart::Ptr &projectPart, projectInfo.projectParts()) {
                 foreach (const QString &sourceFile, projectPart->sourceFiles)
                     m_srcToProjectPart[sourceFile].append(projectPart);
+                foreach (const QString &objcSourceFile, projectPart->objcSourceFiles)
+                    m_srcToProjectPart[objcSourceFile].append(projectPart);
+                foreach (const QString &headerFile, projectPart->headerFiles)
+                    m_srcToProjectPart[headerFile].append(projectPart);
+            }
+        }
     }
 
     if (!qgetenv("QTCREATOR_DUMP_PROJECT_INFO").isEmpty())
