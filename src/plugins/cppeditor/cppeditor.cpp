@@ -2244,10 +2244,12 @@ void CPPEditorWidget::updateFunctionDeclDefLink()
     const int pos = textCursor().selectionStart();
 
     // if there's already a link, abort it if the cursor is outside or the name changed
+    // (adding a prefix is an exception since the user might type a return type)
     if (m_declDefLink
             && (pos < m_declDefLink->linkSelection.selectionStart()
                 || pos > m_declDefLink->linkSelection.selectionEnd()
-                || m_declDefLink->nameSelection.selectedText() != m_declDefLink->nameInitial)) {
+                || !m_declDefLink->nameSelection.selectedText().trimmed()
+                    .endsWith(m_declDefLink->nameInitial))) {
         abortDeclDefLink();
         return;
     }
