@@ -2605,10 +2605,18 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
             setTargetColumn();
         endEditBlock();
     } else if (m_submode == YankSubMode) {
-        setPosition(qMin(position(), anchor()));
+        const QTextCursor tc = cursor();
+        if (m_rangemode == RangeBlockMode) {
+            const int pos1 = tc.block().position();
+            const int pos2 = document()->findBlock(tc.anchor()).position();
+            const int col = qMin(tc.position() - pos1, tc.anchor() - pos2);
+            setPosition(qMin(pos1, pos2) + col);
+        } else {
+            setPosition(qMin(position(), anchor()));
+            if (m_rangemode == RangeLineMode)
+                moveToStartOfLine();
+        }
         leaveVisualMode();
-        if (anchor() <= position())
-            setPosition(anchor());
     } else if (m_submode == InvertCaseSubMode
         || m_submode == UpCaseSubMode
         || m_submode == DownCaseSubMode) {

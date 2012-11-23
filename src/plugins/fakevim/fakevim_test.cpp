@@ -1205,6 +1205,12 @@ void FakeVimPlugin::test_vim_copy_paste()
     data.setText("abc");
     KEYS("yyp", "abc" N X "abc");
     KEYS("4p", "abc" N "abc" N X "abc" N "abc" N "abc" N "abc");
+
+    // cursor position after yank
+    data.setText("ab" X "c" N "def");
+    KEYS("Vjy", X "abc" N "def");
+    data.setText("ab" X "c" N "def");
+    KEYS("<c-v>jhhy", X "abc" N "def");
 }
 
 void FakeVimPlugin::test_vim_undo_redo()
