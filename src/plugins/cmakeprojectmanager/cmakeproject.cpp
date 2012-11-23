@@ -977,7 +977,7 @@ bool CMakeCbpParser::parseCbpFile(const QString &fileName)
 
         while (!atEnd()) {
             readNext();
-            if (name() == "CodeBlocks_project_file") {
+            if (name() == QLatin1String("CodeBlocks_project_file")) {
                 parseCodeBlocks_project_file();
             } else if (isStartElement()) {
                 parseUnknownElement();
@@ -997,7 +997,7 @@ void CMakeCbpParser::parseCodeBlocks_project_file()
         readNext();
         if (isEndElement()) {
             return;
-        } else if (name() == "Project") {
+        } else if (name() == QLatin1String("Project")) {
             parseProject();
         } else if (isStartElement()) {
             parseUnknownElement();
@@ -1011,11 +1011,11 @@ void CMakeCbpParser::parseProject()
         readNext();
         if (isEndElement()) {
             return;
-        } else if (name() == "Option") {
+        } else if (name() == QLatin1String("Option")) {
             parseOption();
-        } else if (name() == "Unit") {
+        } else if (name() == QLatin1String("Unit")) {
             parseUnit();
-        } else if (name() == "Build") {
+        } else if (name() == QLatin1String("Build")) {
             parseBuild();
         } else if (isStartElement()) {
             parseUnknownElement();
@@ -1029,7 +1029,7 @@ void CMakeCbpParser::parseBuild()
         readNext();
         if (isEndElement()) {
             return;
-        } else if (name() == "Target") {
+        } else if (name() == QLatin1String("Target")) {
             parseBuildTarget();
         } else if (isStartElement()) {
             parseUnknownElement();
@@ -1051,9 +1051,9 @@ void CMakeCbpParser::parseBuildTarget()
                 m_buildTargets.append(m_buildTarget);
             }
             return;
-        } else if (name() == "Compiler") {
+        } else if (name() == QLatin1String("Compiler")) {
             parseCompiler();
-        } else if (name() == "Option") {
+        } else if (name() == QLatin1String("Option")) {
             parseBuildTargetOption();
         } else if (isStartElement()) {
             parseUnknownElement();
@@ -1081,7 +1081,7 @@ void CMakeCbpParser::parseBuildTargetOption()
         readNext();
         if (isEndElement()) {
             return;
-        } else if (name() == "MakeCommand") {
+        } else if (name() == QLatin1String("MakeCommand")) {
             parseMakeCommand();
         } else if (isStartElement()) {
             parseUnknownElement();
@@ -1118,9 +1118,9 @@ void CMakeCbpParser::parseMakeCommand()
         readNext();
         if (isEndElement()) {
             return;
-        } else if (name() == "Build") {
+        } else if (name() == QLatin1String("Build")) {
             parseBuildTargetBuild();
-        } else if (name() == "Clean") {
+        } else if (name() == QLatin1String("Clean")) {
             parseBuildTargetClean();
         } else if (isStartElement()) {
             parseUnknownElement();
@@ -1162,7 +1162,7 @@ void CMakeCbpParser::parseCompiler()
         readNext();
         if (isEndElement()) {
             return;
-        } else if (name() == "Add") {
+        } else if (name() == QLatin1String("Add")) {
             parseAdd();
         } else if (isStartElement()) {
             parseUnknownElement();
@@ -1235,7 +1235,7 @@ void CMakeCbpParser::parseUnit()
                 m_processedUnits.insert(fileName);
             }
             return;
-        } else if (name() == "Option") {
+        } else if (name() == QLatin1String("Option")) {
             parseUnitOption();
         } else if (isStartElement()) {
             parseUnknownElement();
