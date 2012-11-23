@@ -4079,7 +4079,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         setTargetColumn();
         breakEditBlock();
         m_lastInsertion.clear();
-    } else if (input.isReturn()) {
+    } else if (input.isReturn() || input.isControl('j') || input.isControl('m')) {
         joinPreviousEditBlock();
         m_submode = NoSubMode;
         insertText(QString("\n"));
