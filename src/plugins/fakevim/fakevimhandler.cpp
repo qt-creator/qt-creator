@@ -3012,13 +3012,15 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         movement = "$";
     } else if (input.is('%')) {
         recordJump();
-        if (count == 1) {
+        if (m_mvcount.isEmpty()) {
             moveToMatchingParanthesis();
+            m_movetype = MoveInclusive;
         } else {
             // set cursor position in percentage - formula taken from Vim help
             setPosition(firstPositionInLine((count * linesInDocument() + 99) / 100));
             moveToTargetColumn();
             handleStartOfLine();
+            m_movetype = MoveLineWise;
         }
     } else if (input.is('b') || input.isShift(Key_Left)) {
         m_movetype = MoveExclusive;
