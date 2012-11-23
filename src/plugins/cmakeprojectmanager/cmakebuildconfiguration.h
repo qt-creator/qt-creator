@@ -68,7 +68,7 @@ signals:
 
 protected:
     CMakeBuildConfiguration(ProjectExplorer::Target *parent, CMakeBuildConfiguration *source);
-    virtual bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map);
 
 private:
     QString m_buildDirectory;
