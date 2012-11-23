@@ -1807,6 +1807,11 @@ const WatchData *WatchHandler::watchData(const QModelIndex &idx) const
     return m_model->watchItem(idx);
 }
 
+const QModelIndex WatchHandler::watchDataIndex(const QByteArray &iname) const
+{
+    return m_model->watchIndex(m_model->findItem(iname));
+}
+
 const WatchData *WatchHandler::findData(const QByteArray &iname) const
 {
     return m_model->findItem(iname);

@@ -110,7 +110,7 @@ private slots:
 
 private:
     void updateObjectTree(const QmlDebug::ContextReference &context);
-
+    void verifyAndInsertObjectInTree(const QmlDebug::ObjectReference &object);
     void insertObjectInTree(const QmlDebug::ObjectReference &result);
 
     void buildDebugIdHashRecursive(const QmlDebug::ObjectReference &ref);

@@ -62,6 +62,7 @@ QmlInspectorAgent::QmlInspectorAgent(DebuggerEngine *engine, QObject *parent)
     , m_objectToSelect(-1)
     , m_newObjectsCreated(false)
 {
+    m_debugIdToIname.insert(-1, QByteArray("inspect"));
     connect(debuggerCore()->action(ShowQmlObjectTree),
             SIGNAL(valueChanged(QVariant)), SLOT(updateStatus()));
     m_delayQueryTimer.setSingleShot(true);
@@ -452,17 +453,17 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
     }
 
     if (m_objectTreeQueryIds.contains(queryId)) {
+        m_objectTreeQueryIds.removeOne(queryId);
         if (value.type() == QVariant::List) {
             QVariantList objList = value.toList();
             foreach (QVariant var, objList) {
                 // TODO: check which among the list is the actual
                 // object that needs to be selected.
-                insertObjectInTree(qvariant_cast<ObjectReference>(var));
+                verifyAndInsertObjectInTree(qvariant_cast<ObjectReference>(var));
             }
         } else {
-            insertObjectInTree(qvariant_cast<ObjectReference>(value));
+            verifyAndInsertObjectInTree(qvariant_cast<ObjectReference>(value));
         }
-        m_objectTreeQueryIds.removeOne(queryId);
     } else if (queryId == m_engineQueryId) {
         m_engineQueryId = 0;
         QList<EngineReference> engines = qvariant_cast<QList<EngineReference> >(value);
@@ -608,13 +609,13 @@ void QmlInspectorAgent::updateObjectTree(const ContextReference &context)
         return;
 
     foreach (const ObjectReference & obj, context.objects())
-        insertObjectInTree(obj);
+        verifyAndInsertObjectInTree(obj);
 
     foreach (const ContextReference &child, context.contexts())
         updateObjectTree(child);
 }
 
-void QmlInspectorAgent::insertObjectInTree(const ObjectReference &object)
+void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &object)
 {
     if (debug)
         qDebug() << __FUNCTION__ << '(' << object << ')';
@@ -622,17 +623,56 @@ void QmlInspectorAgent::insertObjectInTree(const ObjectReference &object)
     if (!object.isValid())
         return;
 
+    // Find out the correct position in the tree
+    // Objects are inserted to the tree if they satisfy one of the two conditions.
+    // Condition 1: Object is a root object i.e. parentId == -1.
+    // Condition 2: Object has an expanded parent i.e. siblings are known.
+    // If the two conditions are not met then we push the object to a stack and recursively
+    // fetch parents till we find a previously expanded parent.
+
+    WatchHandler *handler = m_debuggerEngine->watchHandler();
+    const int parentId = object.parentId();
+    const int objectDebugId = object.debugId();
+    if (m_debugIdToIname.contains(parentId)) {
+        QByteArray parentIname = m_debugIdToIname.value(parentId);
+        if (parentId != -1 && !handler->isExpandedIName(parentIname)) {
+            m_objectStack.push(object);
+            handler->model()->fetchMore(handler->watchDataIndex(parentIname));
+            return; // recursive
+        }
+        insertObjectInTree(object);
+
+    } else {
+        m_objectStack.push(object);
+        fetchObject(parentId);
+        return; // recursive
+    }
+    if (!m_objectStack.isEmpty()) {
+        const ObjectReference &top = m_objectStack.top();
+        // We want to expand only a particular branch and not the whole tree. Hence, we do not
+        // expand siblings.
+        if (object.children().contains(top)) {
+            QByteArray objectIname = m_debugIdToIname.value(objectDebugId);
+            if (!handler->isExpandedIName(objectIname)) {
+                handler->model()->fetchMore(handler->watchDataIndex(objectIname));
+            } else {
+                verifyAndInsertObjectInTree(m_objectStack.pop());
+                return; // recursive
+            }
+        }
+    }
+}
+
+void QmlInspectorAgent::insertObjectInTree(const ObjectReference &object)
+{
+    if (debug)
+        qDebug() << __FUNCTION__ << '(' << object << ')';
+
+    const int objectDebugId = object.debugId();
+    const int parentId = parentIdForIname(m_debugIdToIname.value(objectDebugId));
+
     QElapsedTimer timeElapsed;
-    // sync tree with watchhandler
     QList<WatchData> watchData;
-    int objectDebugId = object.debugId();
-
-    // When root items are inserted in the object tree, m_objectTreeQueryIds = 0
-    if (!m_debugIdToIname.contains(objectDebugId) && m_objectTreeQueryIds.count())
-        return;
-
-    int parentId = parentIdForIname(m_debugIdToIname.value(objectDebugId));
-
     if (debug)
         timeElapsed.start();
     watchData.append(buildWatchData(object, m_debugIdToIname.value(parentId), true));
@@ -829,6 +869,7 @@ void QmlInspectorAgent::clearObjectTree()
     m_debugIdHash.clear();
     m_debugIdHash.reserve(old_count + 1);
     m_debugIdToIname.clear();
+    m_debugIdToIname.insert(-1, QByteArray("inspect"));
     m_objectStack.clear();
     // reset only for qt > 4.8.3.
     if (m_engineClient->objectName() != QLatin1String(QDECLARATIVE_ENGINE))
