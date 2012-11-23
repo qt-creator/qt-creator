@@ -36,4 +36,12 @@ CppIndexingSupport::~CppIndexingSupport()
 {
 }
 
+SymbolSearcher::SymbolSearcher(QObject *parent)
+    : QObject(parent)
+{
+}
+
+SymbolSearcher::~SymbolSearcher()
+{}
+
 } // namespace CppTools

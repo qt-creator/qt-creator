@@ -131,7 +131,8 @@ public:
     virtual CppHighlightingSupport *highlightingSupport(Core::IEditor *editor) const;
     virtual void setHighlightingSupportFactory(CppHighlightingSupportFactory *highlightingFactory);
 
-    virtual void addIndexingSupport(CppIndexingSupport *indexingSupport);
+    virtual void setIndexingSupport(CppIndexingSupport *indexingSupport);
+    virtual CppIndexingSupport *indexingSupport();
 
     QStringList projectFiles()
     {
@@ -243,7 +244,7 @@ private:
     CppCompletionAssistProvider *m_completionFallback;
     CppHighlightingSupportFactory *m_highlightingFactory;
     CppHighlightingSupportFactory *m_highlightingFallback;
-    QList<CppIndexingSupport *> m_indexingSupporters;
+    CppIndexingSupport *m_indexingSupporter;
     CppIndexingSupport *m_internalIndexingSupport;
 };
 

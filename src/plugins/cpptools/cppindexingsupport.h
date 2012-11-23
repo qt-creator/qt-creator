@@ -32,10 +32,48 @@
 
 #include "cpptools_global.h"
 
+#include <find/searchresultwindow.h>
+#include <find/textfindconstants.h>
+
 #include <QFuture>
 #include <QStringList>
 
 namespace CppTools {
+
+class SymbolSearcher: public QObject
+{
+    Q_OBJECT
+
+public:
+    enum SymbolType {
+        Classes      = 0x1,
+        Functions    = 0x2,
+        Enums        = 0x4,
+        Declarations = 0x8
+    };
+
+    Q_DECLARE_FLAGS(SymbolTypes, SymbolType)
+
+    enum SearchScope {
+        SearchProjectsOnly,
+        SearchGlobal
+    };
+
+    struct Parameters
+    {
+        QString text;
+        Find::FindFlags flags;
+        SymbolTypes types;
+        SearchScope scope;
+    };
+
+
+public:
+    SymbolSearcher(QObject *parent = 0);
+    virtual ~SymbolSearcher() = 0;
+    virtual void runSearch(QFutureInterface<Find::SearchResultItem> &future) = 0;
+};
+
 
 class CPPTOOLS_EXPORT CppIndexingSupport
 {
@@ -43,8 +81,13 @@ public:
     virtual ~CppIndexingSupport() = 0;
 
     virtual QFuture<void> refreshSourceFiles(const QStringList &sourceFiles) = 0;
+    virtual SymbolSearcher *createSymbolSearcher(SymbolSearcher::Parameters parameters, QSet<QString> fileNames) = 0;
 };
 
 } // namespace CppTools
+
+Q_DECLARE_METATYPE(CppTools::SymbolSearcher::SearchScope)
+Q_DECLARE_METATYPE(CppTools::SymbolSearcher::Parameters)
+Q_DECLARE_METATYPE(CppTools::SymbolSearcher::SymbolTypes)
 
 #endif // CPPTOOLS_CPPINDEXINGSUPPORT_H

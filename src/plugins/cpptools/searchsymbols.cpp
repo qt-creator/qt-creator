@@ -39,13 +39,13 @@ using namespace CPlusPlus;
 using namespace CppTools;
 
 SearchSymbols::SymbolTypes SearchSymbols::AllTypes =
-        SearchSymbols::Classes
-        | SearchSymbols::Functions
-        | SearchSymbols::Enums
-        | SearchSymbols::Declarations;
+        SymbolSearcher::Classes
+        | SymbolSearcher::Functions
+        | SymbolSearcher::Enums
+        | SymbolSearcher::Declarations;
 
 SearchSymbols::SearchSymbols():
-    symbolsToSearchFor(Classes | Functions | Enums),
+    symbolsToSearchFor(SymbolSearcher::Classes | SymbolSearcher::Functions | SymbolSearcher::Enums),
     separateScope(false)
 {
 }
@@ -84,7 +84,7 @@ QString SearchSymbols::switchScope(const QString &scope)
 
 bool SearchSymbols::visit(Enum *symbol)
 {
-    if (!(symbolsToSearchFor & Enums))
+    if (!(symbolsToSearchFor & SymbolSearcher::Enums))
         return false;
 
     QString name = symbolName(symbol);
@@ -102,7 +102,7 @@ bool SearchSymbols::visit(Enum *symbol)
 
 bool SearchSymbols::visit(Function *symbol)
 {
-    if (!(symbolsToSearchFor & Functions))
+    if (!(symbolsToSearchFor & SymbolSearcher::Functions))
         return false;
 
     QString extraScope;
@@ -139,7 +139,7 @@ bool SearchSymbols::visit(Namespace *symbol)
 
 bool SearchSymbols::visit(Declaration *symbol)
 {
-    if (!(symbolsToSearchFor & Declarations))
+    if (!(symbolsToSearchFor & SymbolSearcher::Declarations))
         return false;
 
     QString name = symbolName(symbol);
@@ -157,7 +157,7 @@ bool SearchSymbols::visit(Class *symbol)
     QString name = symbolName(symbol);
     QString scopedName = scopedSymbolName(name);
     QString previousScope = switchScope(scopedName);
-    if (symbolsToSearchFor & Classes) {
+    if (symbolsToSearchFor & SymbolSearcher::Classes) {
         appendItem(separateScope ? name : scopedName,
                    separateScope ? previousScope : QString(),
                    ModelItemInfo::Class, symbol);

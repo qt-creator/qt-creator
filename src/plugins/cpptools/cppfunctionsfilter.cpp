@@ -37,7 +37,7 @@ CppFunctionsFilter::CppFunctionsFilter(CppModelManager *manager)
     setShortcutString(QString(QLatin1Char('m')));
     setIncludedByDefault(false);
 
-    search.setSymbolsToSearchFor(SearchSymbols::Functions);
+    search.setSymbolsToSearchFor(SymbolSearcher::Functions);
     search.setSeparateScope(true);
 }
 

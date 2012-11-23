@@ -221,7 +221,8 @@ public:
     virtual CppTools::CppHighlightingSupport *highlightingSupport(Core::IEditor *editor) const = 0;
     virtual void setHighlightingSupportFactory(CppTools::CppHighlightingSupportFactory *highlightingFactory) = 0;
 
-    virtual void addIndexingSupport(CppTools::CppIndexingSupport *indexingSupport) = 0;
+    virtual void setIndexingSupport(CppTools::CppIndexingSupport *indexingSupport) = 0;
+    virtual CppTools::CppIndexingSupport *indexingSupport() = 0;
 
 Q_SIGNALS:
     void documentUpdated(CPlusPlus::Document::Ptr doc);

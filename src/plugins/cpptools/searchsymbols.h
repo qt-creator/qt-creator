@@ -32,6 +32,8 @@
 
 #include "cpptools_global.h"
 
+#include "cppindexingsupport.h"
+
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Icons.h>
 #include <cplusplus/Overview.h>
@@ -101,14 +103,7 @@ class SearchSymbols: public std::unary_function<CPlusPlus::Document::Ptr, QList<
                      protected CPlusPlus::SymbolVisitor
 {
 public:
-    enum SymbolType {
-        Classes      = 0x1,
-        Functions    = 0x2,
-        Enums        = 0x4,
-        Declarations = 0x8
-    };
-
-    Q_DECLARE_FLAGS(SymbolTypes, SymbolType)
+    typedef SymbolSearcher::SymbolTypes SymbolTypes;
 
     static SymbolTypes AllTypes;
 
@@ -181,7 +176,6 @@ private:
 } // namespace CppTools
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(CppTools::SearchSymbols::SymbolTypes)
-Q_DECLARE_METATYPE(CppTools::SearchSymbols::SymbolTypes)
 Q_DECLARE_METATYPE(CppTools::ModelItemInfo)
 
 #endif // SEARCHSYMBOLS_H

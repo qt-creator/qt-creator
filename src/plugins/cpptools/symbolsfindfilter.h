@@ -50,12 +50,11 @@ class CppModelManager;
 class SymbolsFindFilter : public Find::IFindFilter
 {
     Q_OBJECT
-public:
-    enum SearchScope {
-        SearchProjectsOnly,
-        SearchGlobal
-    };
 
+public:
+    typedef SymbolSearcher::SearchScope SearchScope;
+
+public:
     explicit SymbolsFindFilter(CppModelManager *manager);
 
     QString id() const;
@@ -102,15 +101,6 @@ private:
     SearchScope m_scope;
 };
 
-class SymbolsFindParameters
-{
-public:
-    QString text;
-    Find::FindFlags flags;
-    SearchSymbols::SymbolTypes types;
-    SymbolsFindFilter::SearchScope scope;
-};
-
 class SymbolsFindFilterConfigWidget : public QWidget
 {
     Q_OBJECT
@@ -136,8 +126,5 @@ private:
 
 } // Internal
 } // CppTools
-
-Q_DECLARE_METATYPE(CppTools::Internal::SymbolsFindFilter::SearchScope)
-Q_DECLARE_METATYPE(CppTools::Internal::SymbolsFindParameters)
 
 #endif // SYMBOLSFINDFILTER_H

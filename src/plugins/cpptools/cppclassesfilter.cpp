@@ -38,7 +38,7 @@ CppClassesFilter::CppClassesFilter(CppModelManager *manager)
     setShortcutString(QLatin1String("c"));
     setIncludedByDefault(false);
 
-    search.setSymbolsToSearchFor(SearchSymbols::Classes);
+    search.setSymbolsToSearchFor(SymbolSearcher::Classes);
     search.setSeparateScope(true);
 }
 

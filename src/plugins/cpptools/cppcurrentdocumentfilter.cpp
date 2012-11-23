@@ -43,10 +43,10 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager, Cor
     setShortcutString(QString(QLatin1Char('.')));
     setIncludedByDefault(false);
 
-    search.setSymbolsToSearchFor(SearchSymbols::Declarations |
-                                 SearchSymbols::Enums |
-                                 SearchSymbols::Functions |
-                                 SearchSymbols::Classes);
+    search.setSymbolsToSearchFor(SymbolSearcher::Declarations |
+                                 SymbolSearcher::Enums |
+                                 SymbolSearcher::Functions |
+                                 SymbolSearcher::Classes);
 
     search.setSeparateScope(true);
 
