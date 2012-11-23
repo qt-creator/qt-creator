@@ -4023,12 +4023,15 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
     } else if (input.isControl('v')) {
         m_ctrlVActive = true;
     } else if (input.isControl('w')) {
-        int endPos = position();
+        const int blockNumber = cursor().blockNumber();
+        const int endPos = position();
         moveToNextWordStart(count(), false, false);
-        setTargetColumn();
-        int beginPos = position();
+        if (blockNumber != cursor().blockNumber())
+            moveToEndOfLine();
+        const int beginPos = position();
         Range range(beginPos, endPos, RangeCharMode);
         removeText(range);
+        setTargetColumn();
     } else if (input.isKey(Key_Insert)) {
         m_mode = ReplaceMode;
     } else if (input.isKey(Key_Left)) {
