@@ -121,6 +121,17 @@ void QmlInspectorAgent::updateWatchData(const WatchData &data)
     }
 }
 
+void QmlInspectorAgent::watchDataSelected(const WatchData *data)
+{
+    if (debug)
+        qDebug() << __FUNCTION__ << '(' << data->id << ')';
+
+    if (data->id) {
+        QTC_ASSERT(m_debugIdLocations.keys().contains(data->id), return);
+        emit jumpToObjectDefinition(m_debugIdLocations.value(data->id));
+    }
+}
+
 bool QmlInspectorAgent::selectObjectInTree(int debugId)
 {
     if (debug) {

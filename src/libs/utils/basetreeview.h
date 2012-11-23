@@ -49,6 +49,7 @@ public:
 
     void setModel(QAbstractItemModel *model);
     virtual void rowActivated(const QModelIndex &) {}
+    virtual void rowClicked(const QModelIndex &) {}
     void mousePressEvent(QMouseEvent *ev);
 
 public slots:
@@ -61,6 +62,7 @@ protected slots:
 
 private slots:
     void rowActivatedHelper(const QModelIndex &index) { rowActivated(index); }
+    void rowClickedHelper(const QModelIndex &index) { rowClicked(index); }
     void headerSectionClicked(int logicalIndex);
 
 private:

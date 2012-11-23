@@ -1021,6 +1021,13 @@ void QmlEngine::updateWatchData(const WatchData &data,
         watchHandler()->insertData(data);
 }
 
+void QmlEngine::watchDataSelected(const QByteArray &iname)
+{
+    const WatchData *wd = watchHandler()->findData(iname);
+    if (wd && wd->isInspect())
+        m_inspectorAdapter.agent()->watchDataSelected(wd);
+}
+
 void QmlEngine::synchronizeWatchers()
 {
     QStringList watchedExpressions = watchHandler()->watchedExpressions();

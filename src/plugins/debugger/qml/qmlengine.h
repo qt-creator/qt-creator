@@ -161,6 +161,7 @@ private:
     bool supportsThreads() const { return false; }
     void updateWatchData(const WatchData &data,
         const WatchUpdateFlags &flags);
+    void watchDataSelected(const QByteArray &iname);
     void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
     bool evaluateScriptExpression(const QString &expression);
 

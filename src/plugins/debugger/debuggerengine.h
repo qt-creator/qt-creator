@@ -149,6 +149,8 @@ public:
 
     virtual void updateWatchData(const Internal::WatchData &data,
         const Internal::WatchUpdateFlags & flags = Internal::WatchUpdateFlags());
+    virtual void watchDataSelected(const QByteArray &iname);
+
     virtual void startDebugger(DebuggerRunControl *runControl);
 
     virtual void watchPoint(const QPoint &);
