@@ -3461,13 +3461,12 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (input.isControl('i')) {
         jump(count());
     } else if (input.is('J')) {
+        setUndoPosition();
         moveBehindEndOfLine();
-        const int pos = position();
         beginEditBlock();
         if (m_submode == NoSubMode)
             joinLines(count(), m_gflag);
         endEditBlock();
-        setPosition(pos);
         setDotCommand("%1J", count());
     } else if (input.isControl('l')) {
         // screen redraw. should not be needed
@@ -6204,8 +6203,11 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
 
 void FakeVimHandler::Private::joinLines(int count, bool preserveSpace)
 {
-    for (int i = qMax(count - 2, 0); i >= 0; --i) {
+    int pos = position();
+    const int blockNumber = cursor().blockNumber();
+    for (int i = qMax(count - 2, 0); i >= 0 && blockNumber < document()->blockCount(); --i) {
         moveBehindEndOfLine();
+        pos = position();
         setAnchor();
         moveRight();
         if (preserveSpace) {
@@ -6216,6 +6218,7 @@ void FakeVimHandler::Private::joinLines(int count, bool preserveSpace)
             cursor().insertText(QString(QLatin1Char(' ')));
         }
     }
+    setPosition(pos);
 }
 
 QString FakeVimHandler::Private::lineContents(int line) const

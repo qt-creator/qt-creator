@@ -2384,11 +2384,11 @@ void FakeVimPlugin::test_vim_command_J()
 
     KEYS("J", lmid(0, 5) + "| " + lmid(5));
     KEYS("u", lmid(0, 4) + "\nint |main(int argc, char *argv[])\n" + lmid(5));
-    COMMAND("redo", lmid(0, 5) + "| " + lmid(5));
+    COMMAND("redo", lmid(0, 4) + "\nint |main(int argc, char *argv[]) " + lmid(5));
 
     KEYS("3J", lmid(0, 5) + " " + lmid(5, 1) + " " + lmid(6, 1).mid(4) + "| " + lmid(7));
     KEYS("uu", lmid(0, 4) + "\nint |main(int argc, char *argv[])\n" + lmid(5));
-    COMMAND("redo", lmid(0, 5) + "| " + lmid(5));
+    COMMAND("redo", lmid(0, 4) + "\nint |main(int argc, char *argv[]) " + lmid(5));
 }
 
 void FakeVimPlugin::test_vim_command_put_at_eol()
