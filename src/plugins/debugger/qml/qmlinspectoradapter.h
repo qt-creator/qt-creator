@@ -82,7 +82,6 @@ private slots:
     void toolsClientStatusChanged(QmlDebug::ClientStatus status);
     void engineClientStatusChanged(QmlDebug::ClientStatus status);
 
-    void selectObjectsFromEditor(const QList<int> &debugIds);
     void selectObjectsFromToolsClient(const QList<int> &debugIds);
     void onObjectFetched(const QmlDebug::ObjectReference &ref);
 
@@ -130,8 +129,6 @@ private:
     QHash<QString, QmlLiveTextPreview *> m_textPreviews;
     QmlJS::Snapshot m_loadedSnapshot; //the snapshot loaded by the viewer
     QStringList m_pendingPreviewDocumentNames;
-    bool m_selectionCallbackExpected;
-    bool m_cursorPositionChangedExternally;
 
     // toolbar
     bool m_toolsClientConnected;

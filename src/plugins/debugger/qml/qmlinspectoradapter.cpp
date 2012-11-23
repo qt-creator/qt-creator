@@ -71,8 +71,6 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
     , m_debugIdToSelect(-1)
     , m_currentSelectedDebugId(-1)
     , m_listeningToEditorManager(false)
-    , m_selectionCallbackExpected(false)
-    , m_cursorPositionChangedExternally(false)
     , m_toolsClientConnected(false)
     , m_inspectorToolsContext("Debugger.QmlInspector")
     , m_selectAction(new QAction(this))
@@ -263,18 +261,6 @@ void QmlInspectorAdapter::engineClientStatusChanged(QmlDebug::ClientStatus statu
     }
 }
 
-void QmlInspectorAdapter::selectObjectsFromEditor(const QList<int> &debugIds)
-{
-    if (m_selectionCallbackExpected) {
-        m_selectionCallbackExpected = false;
-        return;
-    }
-    m_cursorPositionChangedExternally = true;
-    m_targetToSync = ToolTarget;
-    m_debugIdToSelect = debugIds.first();
-    selectObject(agent()->objectForId(m_debugIdToSelect), ToolTarget);
-}
-
 void QmlInspectorAdapter::selectObjectsFromToolsClient(const QList<int> &debugIds)
 {
     if (debugIds.isEmpty())
@@ -327,9 +313,6 @@ void QmlInspectorAdapter::createPreviewForEditor(Core::IEditor *newEditor)
     } else {
         QmlLiveTextPreview *preview
                 = new QmlLiveTextPreview(doc, initdoc, this, this);
-        connect(preview,
-                SIGNAL(selectedItemsChanged(QList<int>)),
-                SLOT(selectObjectsFromEditor(QList<int>)));
 
         preview->setApplyChangesToQmlInspector(
                     debuggerCore()->action(QmlUpdateOnSave)->isChecked());
@@ -472,24 +455,14 @@ void QmlInspectorAdapter::showConnectionStatusMessage(const QString &message)
 void QmlInspectorAdapter::jumpToObjectDefinitionInEditor(
         const FileReference &objSource)
 {
-    if (m_cursorPositionChangedExternally) {
-        m_cursorPositionChangedExternally = false;
-        return;
-    }
-
     const QString fileName = m_engine->toFileInProject(objSource.url());
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
-    Core::IEditor *currentEditor = editorManager->currentEditor();
     Core::IEditor *editor = editorManager->openEditor(fileName);
     TextEditor::ITextEditor *textEditor
             = qobject_cast<TextEditor::ITextEditor*>(editor);
 
-    if (currentEditor != editor)
-        m_selectionCallbackExpected = true;
-
     if (textEditor) {
-        m_selectionCallbackExpected = true;
         editorManager->addCurrentPositionToNavigationHistory();
         textEditor->gotoLine(objSource.lineNumber());
         textEditor->widget()->setFocus();
