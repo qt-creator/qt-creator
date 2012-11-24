@@ -1690,6 +1690,8 @@ public:
     void setMark(QChar code, CursorPosition position);
     // jump to valid mark return true if mark is valid and local
     bool jumpToMark(QChar mark, bool backTickMode);
+    // update marks on undo/redo
+    void updateMarks(const Marks &newMarks);
     Marks m_marks; // local marks
 
     // vi style configuration
@@ -6483,7 +6485,9 @@ void FakeVimHandler::Private::undoRedo(bool undo)
         State &state = stack.top();
         if (state.revision == rev) {
             m_lastChangePosition = state.position;
-            m_marks = state.marks;
+            Marks marks = m_marks;
+            marks.swap(state.marks);
+            updateMarks(marks);
             m_lastVisualMode = state.lastVisualMode;
             setMark('\'', lastPos);
             setCursorPosition(m_lastChangePosition);
@@ -6924,6 +6928,14 @@ bool FakeVimHandler::Private::jumpToMark(QChar mark, bool backTickMode)
     setTargetColumn();
 
     return true;
+}
+
+void FakeVimHandler::Private::updateMarks(const Marks &newMarks)
+{
+    for (MarksIterator it(newMarks); it.hasNext(); ) {
+        it.next();
+        m_marks[it.key()] = it.value();
+    }
 }
 
 RangeMode FakeVimHandler::Private::registerRangeMode(int reg) const

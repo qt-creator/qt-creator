@@ -1151,6 +1151,19 @@ void FakeVimPlugin::test_vim_marks()
     KEYS("''",   "  "   "abc" N   "  " X "def" N   "  "   "ghi");
     KEYS("`'", X "  "   "abc" N   "  "   "def" N   "  "   "ghi");
     KEYS("`'",   "  "   "abc" N   "  " X "def" N   "  "   "ghi");
+
+    // new mark isn't lost on undo
+    data.setText(       "abc" N "d" X "ef" N "ghi");
+    KEYS("x" "mx" "gg", X "abc" N "df" N "ghi");
+    KEYS("ugg" "`x",    "abc" N "d" X "ef" N "ghi");
+
+    // previous value of mark is restored on undo/redo
+    data.setText(        "abc" N "d" X "ef" N "ghi");
+    KEYS("mx" "x" "ggl", "a" X "bc" N "df" N "ghi");
+    KEYS("mx" "uG" "`x", "abc" N "d" X "ef" N "ghi");
+    KEYS("<c-r>G" "`x",  "a" X "bc" N "df" N "ghi");
+    KEYS("uG" "`x",      "abc" N "d" X "ef" N "ghi");
+    KEYS("<c-r>G" "`x",  "a" X "bc" N "df" N "ghi");
 }
 
 void FakeVimPlugin::test_vim_jumps()
