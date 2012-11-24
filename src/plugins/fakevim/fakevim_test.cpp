@@ -876,11 +876,26 @@ void FakeVimPlugin::test_vim_block_selection()
     KEYS("u", "(abc()" X "())");
     KEYS("<c-r>", "(abc()" X ")");
 
+    data.setText("\"abc" X "\"\"def\"");
+    KEYS("vi\"d", "\"" X "\"\"def\"");
+
     // repeat change inner
     data.setText("(abc)" N "def" N "(ghi)");
     KEYS("ci(xyz<esc>", "(xy" X "z)" N "def" N "(ghi)");
     KEYS("j.", "(xyz)" N "de" X "f" N "(ghi)");
     KEYS("j.", "(xyz)" N "def" N "(xy" X "z)");
+
+    // quoted string
+    data.setText("\"abc" X "\"\"def\"");
+    KEYS("di\"", "\"" X "\"\"def\"");
+    KEYS("u", "\"" X "abc\"\"def\"");
+    KEYS("<c-r>", "\"" X "\"\"def\"");
+
+    NOT_IMPLEMENTED
+    // quoted string with escaped character
+    data.setText("\"abc\"");
+    KEYS("di\"", "\"abc\"\"" X "\"");
+    KEYS("u", "\"abc\"\"" X "def\"");
 }
 
 void FakeVimPlugin::test_vim_repeat()

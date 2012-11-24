@@ -6868,6 +6868,9 @@ bool FakeVimHandler::Private::selectQuotedStringTextObject(bool inner,
         p2 -= sz - 1;
     }
 
+    if (isVisualMode())
+        --p2;
+
     setAnchorAndPosition(p1, p2);
     m_movetype = MoveExclusive;
 
