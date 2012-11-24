@@ -80,6 +80,7 @@ private slots:
     void test_vim_letter_case();
     void test_vim_code_autoindent();
     void test_vim_code_folding();
+    void test_vim_code_completion();
     void test_vim_substitute();
     void test_vim_ex_yank();
     void test_vim_ex_delete();

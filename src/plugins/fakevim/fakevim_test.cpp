@@ -218,6 +218,14 @@ struct FakeVimPlugin::TestData
         setPosition(i);
     }
 
+    // Simulate text completion by inserting text directly to editor widget (bypassing FakeVim).
+    void completeText(const QString &text)
+    {
+        QTextCursor tc = editor()->textCursor();
+        tc.insertText(text);
+        editor()->setTextCursor(tc);
+    }
+
     int lines() const
     {
         QTextDocument *doc = editor()->document();
@@ -476,6 +484,28 @@ void FakeVimPlugin::test_vim_insert()
     data.setText("abc" N "def");
     KEYS("<insert>XYZ<insert>xyz<esc>", "XYZxy" X "z" N "def");
     KEYS("<insert><insert>" "<c-o>0<c-o>j" "XY<insert>Z", "XYZxyz" N "XYZ" X "f");
+
+    // dot command for insert
+    data.setText("abc" N "def");
+    KEYS("ix<insert>X<insert>y<esc>", "xX" X "ybc" N "def");
+    KEYS("0j.", "xXybc" N "xX" X "yef");
+
+    data.setText("abc" N "def");
+    KEYS("<insert>x<insert>X<right>Y<esc>", "xXb" X "Y" N "def");
+    KEYS("0j.", "xXbY" N X "Yef");
+
+    data.setText("abc" N "def");
+    KEYS("<insert>x<insert>X<left><left><down><esc>", "xXbc" N X "def");
+    KEYS(".", "xXbc" N "x" X "Xef");
+
+    // delete in insert mode is part of dot command
+    data.setText("abc" N "def");
+    KEYS("iX<delete>Y", "XY" X "bc" N "def");
+    KEYS("0j.", "XYbc" N "X" X "Yef");
+
+    data.setText("abc" N "def");
+    KEYS("2iX<delete>Y<esc>", "XYX" X "Yc" N "def");
+    KEYS("0j.", "XYXYc" N "XYX" X "Yf");
 }
 
 void FakeVimPlugin::test_vim_fFtT()
@@ -1546,6 +1576,58 @@ void FakeVimPlugin::test_vim_code_folding()
 
     NOT_IMPLEMENTED
     // Opening folds recursively isn't supported (previous position in fold isn't restored).
+}
+
+void FakeVimPlugin::test_vim_code_completion()
+{
+    // Test completion by simply bypassing FakeVim and inserting text directly in editor widget.
+    TestData data;
+    setup(&data);
+    data.setText(
+        "int test1Var;" N
+        "int test2Var;" N
+        "int main() {" N
+        "    " X ";" N
+        "}" N
+        "");
+
+    data.doKeys("i" "te");
+    data.completeText("st");
+    data.doKeys("1");
+    data.completeText("Var");
+    data.doKeys(" = 0");
+    KEYS("",
+        "int test1Var;" N
+        "int test2Var;" N
+        "int main() {" N
+        "    test1Var = " X "0;" N
+        "}" N
+        "");
+
+    data.doKeys("o" "te");
+    data.completeText("st");
+    data.doKeys("2");
+    data.completeText("Var");
+    data.doKeys(" = 1;");
+    KEYS("",
+        "int test1Var;" N
+        "int test2Var;" N
+        "int main() {" N
+        "    test1Var = 0;" N
+        "    test2Var = 1" X ";" N
+        "}" N
+        "");
+
+    // repeat text insertion with completion
+    KEYS(".",
+        "int test1Var;" N
+        "int test2Var;" N
+        "int main() {" N
+        "    test1Var = 0;" N
+        "    test2Var = 1;" N
+        "    test2Var = 1" X ";" N
+        "}" N
+        "");
 }
 
 void FakeVimPlugin::test_vim_substitute()

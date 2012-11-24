@@ -672,6 +672,8 @@ static const QMap<QString, int> &vimKeyNames()
     k.insert("LEFT", Key_Left);
     k.insert("RIGHT", Key_Right);
 
+    k.insert("LT", Key_Less);
+
     k.insert("F1", Key_F1);
     k.insert("F2", Key_F2);
     k.insert("F3", Key_F3);
@@ -1578,6 +1580,7 @@ public:
 
     Q_SLOT void importSelection();
     void exportSelection();
+    void recordInsertion(const QString &insert = QString());
     void ensureCursorVisible();
     void insertInInsertMode(const QString &text);
 
@@ -1615,7 +1618,6 @@ public:
 
     int m_findStartPosition;
     QString m_lastInsertion;
-    QString m_lastDeletion;
 
     bool m_breakEditBlock;
 
@@ -1867,7 +1869,7 @@ void FakeVimHandler::Private::init()
 void FakeVimHandler::Private::focus()
 {
     stopIncrementalFind();
-    if (g.returnToMode != CommandMode && g.currentCommand.isEmpty() && m_mode != ExMode) {
+    if (m_mode == CommandMode && g.returnToMode != CommandMode && g.currentCommand.isEmpty()) {
         // Return to insert mode.
         resetCommandMode();
         updateMiniBuffer();
@@ -1962,18 +1964,8 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     // Position changed externally, e.g. by code completion.
     if (position() != m_oldPosition) {
         setTargetColumn();
-        //qDebug() << "POSITION CHANGED EXTERNALLY";
-        if (m_mode == InsertMode) {
-            int dist = position() - m_oldPosition;
-            // Try to compensate for code completion
-            if (dist > 0 && dist <= physicalCursorColumn()) {
-                Range range(m_oldPosition, position());
-                m_lastInsertion.append(selectText(range));
-            }
-        } else if (!isVisualMode()) {
-            if (atEndOfLine())
-                moveLeft();
-        }
+        if (atEndOfLine() && !isVisualMode() && m_mode != InsertMode && m_mode != ReplaceMode)
+            moveLeft();
     }
 
     QTextCursor tc = cursor();
@@ -2093,6 +2085,29 @@ void FakeVimHandler::Private::exportSelection()
     }
     m_oldExternalPosition = position();
     m_oldExternalAnchor = anchor();
+}
+
+void FakeVimHandler::Private::recordInsertion(const QString &insert)
+{
+    const int pos = position();
+
+    if (insert.isNull()) {
+        const int dist = pos - m_oldPosition;
+
+        if (dist > 0) {
+            Range range(m_oldPosition, pos);
+            QString text = selectText(range);
+            // escape text like <ESC>
+            text.replace("<", "<LT>");
+            m_lastInsertion.append(text);
+        } else if (dist < 0) {
+            m_lastInsertion.resize(m_lastInsertion.size() + dist);
+        }
+    } else {
+        m_lastInsertion += insert;
+    }
+
+    m_oldPosition = position();
 }
 
 void FakeVimHandler::Private::ensureCursorVisible()
@@ -2628,6 +2643,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
             insertAutomaticIndentation(true);
         endEditBlock();
         setTargetColumn();
+        m_lastInsertion.clear();
         g.returnToMode = InsertMode;
     } else if (m_submode == DeleteSubMode) {
         setUndoPosition();
@@ -2712,16 +2728,18 @@ void FakeVimHandler::Private::resetCommandMode()
     m_register = '"';
     //m_tc.clearSelection();
     m_rangemode = RangeCharMode;
-    if (isNoVisualMode())
-        setAnchor();
     g.currentCommand.clear();
     if (g.returnToMode != CommandMode) {
+        const QString lastInsertion = m_lastInsertion;
         if (g.returnToMode == InsertMode)
             enterInsertMode();
         else
             enterReplaceMode();
+        m_lastInsertion = lastInsertion;
         moveToTargetColumn();
     }
+    if (isNoVisualMode())
+        setAnchor();
 }
 
 void FakeVimHandler::Private::updateSelection()
@@ -3383,11 +3401,10 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if ((!isVisualMode() && input.is('a')) || (isVisualMode() && input.is('A'))) {
         leaveVisualMode();
         breakEditBlock();
-        enterInsertMode();
         setDotCommand("%1a", count());
-        m_lastInsertion.clear();
-        if (!atEndOfLine())
+        if (!atEndOfLine() && !atEmptyLine())
             moveRight();
+        enterInsertMode();
         setUndoPosition();
     } else if (input.is('A')) {
         breakEditBlock();
@@ -3396,7 +3413,6 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         setAnchor();
         enterInsertMode();
         setDotCommand("%1A", count());
-        m_lastInsertion.clear();
     } else if (input.isControl('a')) {
         changeNumberTextObject(count());
         setDotCommand("%1<c-a>", count());
@@ -3548,10 +3564,10 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         }
         beginEditBlock();
         insertText(QString("\n"));
-        m_lastInsertion += '\n';
         if (!appendLine)
             moveUp();
         insertAutomaticIndentation(insertAfter);
+        recordInsertion(QString("\n"));
         setTargetColumn();
         endEditBlock();
     } else if (input.isControl('o')) {
@@ -3758,7 +3774,6 @@ bool FakeVimHandler::Private::handleChangeDeleteSubModes(const Input &input)
         const int pos = lastPositionInLine(line + count() - 1);
         setAnchorAndPosition(anc, pos);
         if (m_submode == ChangeSubMode) {
-            m_lastInsertion.clear();
             setDotCommand("%1cc", count());
         } else {
             setDotCommand("%1dd", count());
@@ -3967,44 +3982,54 @@ bool FakeVimHandler::Private::handleCapitalZSubMode(const Input &input)
 
 EventResult FakeVimHandler::Private::handleReplaceMode(const Input &input)
 {
+    bool clearLastInsertion = m_breakEditBlock;
+    if (m_oldPosition != position()) {
+        if (clearLastInsertion) {
+            clearLastInsertion = false;
+            m_lastInsertion = "<INSERT>";
+        }
+        recordInsertion();
+    }
+
     if (input.isEscape()) {
         moveLeft(qMin(1, leftDist()));
-        setTargetColumn();
         enterCommandMode();
+        g.dotCommand += m_lastInsertion;
+        g.dotCommand += QChar(27);
     } else if (input.isKey(Key_Left)) {
         breakEditBlock();
         moveLeft(1);
-        setTargetColumn();
     } else if (input.isKey(Key_Right)) {
         breakEditBlock();
         moveRight(1);
-        setTargetColumn();
     } else if (input.isKey(Key_Up)) {
         breakEditBlock();
         moveUp(1);
-        setTargetColumn();
     } else if (input.isKey(Key_Down)) {
         breakEditBlock();
         moveDown(1);
     } else if (input.isKey(Key_Insert)) {
         m_mode = InsertMode;
+        recordInsertion("<INSERT>");
     } else if (input.isControl('o')) {
         enterCommandMode(ReplaceMode);
     } else {
+        if (clearLastInsertion)
+            m_lastInsertion = "<INSERT>";
         joinPreviousEditBlock();
         if (!atEndOfLine()) {
             setAnchor();
             moveRight();
-            m_lastDeletion += selectText(Range(position(), anchor()));
             removeText(currentRange());
         }
         const QString text = input.text();
-        m_lastInsertion += text;
         setAnchor();
         insertText(text);
         endEditBlock();
-        setTargetColumn();
+        recordInsertion();
     }
+    m_oldPosition = position();
+    setTargetColumn();
     updateMiniBuffer();
 
     return EventHandled;
@@ -4012,9 +4037,17 @@ EventResult FakeVimHandler::Private::handleReplaceMode(const Input &input)
 
 EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
 {
-    //const int key = input.key;
-    //const QString &text = input.text;
+    bool clearLastInsertion = m_breakEditBlock;
+    if (m_oldPosition != position()) {
+        if (clearLastInsertion) {
+            clearLastInsertion = false;
+            m_lastInsertion.clear();
+        }
+        recordInsertion();
+    }
 
+    QString insert;
+    bool move = false;
     if (input.isEscape()) {
         if (isVisualBlockMode() && !m_lastInsertion.contains('\n')) {
             leaveVisualMode();
@@ -4022,7 +4055,6 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
             moveLeft(m_lastInsertion.size());
             setAnchor();
             int pos = position();
-            setTargetColumn();
             for (int i = 0; i < m_visualInsertCount; ++i) {
                 moveDown();
                 insertText(m_lastInsertion);
@@ -4039,23 +4071,19 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
             const int repeat = count();
             if (repeat > 1) {
                 const QString text = m_lastInsertion;
-                for (int i = 1; i < repeat; ++i) {
-                    m_lastInsertion.truncate(0);
-                    foreach (const QChar &c, text)
-                        handleInsertMode(Input(c));
-                }
+                m_lastInsertion.clear();
+                for (int i = 1; i < repeat; ++i)
+                    replay(text);
                 m_lastInsertion = text;
             }
             moveLeft(qMin(1, leftDist()));
-            setTargetColumn();
             leaveVisualMode();
             breakEditBlock();
         }
         // If command is 'o' or 'O' don't include the first line feed in dot command.
         if (g.dotCommand.endsWith(QChar('o'), Qt::CaseInsensitive))
             m_lastInsertion.remove(0, 1);
-        g.dotCommand += m_lastInsertion;
-        g.dotCommand += QChar(27);
+        g.dotCommand += m_lastInsertion + "<ESC>";
         enterCommandMode();
         m_ctrlVActive = false;
         m_opcount.clear();
@@ -4066,6 +4094,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         enterCommandMode(InsertMode);
     } else if (input.isControl('v')) {
         m_ctrlVActive = true;
+        insert = "<C-V>";
     } else if (input.isControl('w')) {
         const int blockNumber = cursor().blockNumber();
         const int endPos = position();
@@ -4075,61 +4104,47 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         const int beginPos = position();
         Range range(beginPos, endPos, RangeCharMode);
         removeText(range);
-        setTargetColumn();
+        insert = "<C-W>";
     } else if (input.isKey(Key_Insert)) {
         m_mode = ReplaceMode;
+        insert = "<INSERT>";
     } else if (input.isKey(Key_Left)) {
         moveLeft(count());
-        setTargetColumn();
-        breakEditBlock();
-        m_lastInsertion.clear();
+        move = true;
     } else if (input.isControl(Key_Left)) {
         moveToNextWordStart(count(), false, false);
-        setTargetColumn();
-        breakEditBlock();
-        m_lastInsertion.clear();
+        move = true;
     } else if (input.isKey(Key_Down)) {
         //removeAutomaticIndentation();
         m_submode = NoSubMode;
         moveDown(count());
-        breakEditBlock();
-        m_lastInsertion.clear();
+        move = true;
     } else if (input.isKey(Key_Up)) {
         //removeAutomaticIndentation();
         m_submode = NoSubMode;
         moveUp(count());
-        breakEditBlock();
-        m_lastInsertion.clear();
+        move = true;
     } else if (input.isKey(Key_Right)) {
         moveRight(count());
-        setTargetColumn();
-        breakEditBlock();
-        m_lastInsertion.clear();
+        move = true;
     } else if (input.isControl(Key_Right)) {
         moveToNextWordStart(count(), false, true);
         moveRight(); // we need one more move since we are in insert mode
-        setTargetColumn();
-        breakEditBlock();
-        m_lastInsertion.clear();
+        move = true;
     } else if (input.isKey(Key_Home)) {
         moveToStartOfLine();
-        setTargetColumn();
-        breakEditBlock();
-        m_lastInsertion.clear();
+        move = true;
     } else if (input.isKey(Key_End)) {
         if (count() > 1)
             moveDown(count() - 1);
         moveBehindEndOfLine();
-        setTargetColumn();
-        breakEditBlock();
-        m_lastInsertion.clear();
+        move = true;
     } else if (input.isReturn() || input.isControl('j') || input.isControl('m')) {
         joinPreviousEditBlock();
         m_submode = NoSubMode;
         insertText(QString("\n"));
-        m_lastInsertion += '\n';
+        insert = "\n";
         insertAutomaticIndentation(true);
-        setTargetColumn();
         endEditBlock();
     } else if (input.isBackspace()) {
         joinPreviousEditBlock();
@@ -4149,29 +4164,25 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
                 setLineContents(line, prefix + data.mid(col.physical));
                 moveToStartOfLine();
                 moveRight(prefix.size());
-                m_lastInsertion.clear(); // FIXME
             } else {
                 setAnchor();
                 cursor().deletePreviousChar();
-                m_lastInsertion.chop(1);
             }
-            setTargetColumn();
         }
+        insert = "<BS>";
         endEditBlock();
     } else if (input.isKey(Key_Delete)) {
         setAnchor();
         cursor().deleteChar();
-        m_lastInsertion.clear();
+        insert = "<DELETE>";
     } else if (input.isKey(Key_PageDown) || input.isControl('f')) {
         removeAutomaticIndentation();
         moveDown(count() * (linesOnScreen() - 2));
-        breakEditBlock();
-        m_lastInsertion.clear();
+        move = true;
     } else if (input.isKey(Key_PageUp) || input.isControl('b')) {
         removeAutomaticIndentation();
         moveUp(count() * (linesOnScreen() - 2));
-        breakEditBlock();
-        m_lastInsertion.clear();
+        move = true;
     } else if (input.isKey(Key_Tab)) {
         m_justAutoIndented = 0;
         if (hasConfig(ConfigExpandTab)) {
@@ -4180,10 +4191,10 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
             QString str = QString(ts - col % ts, ' ');
             m_lastInsertion.append(str);
             insertText(str);
-            setTargetColumn();
         } else {
             insertInInsertMode(input.raw());
         }
+        insert = "\t";
     } else if (input.isControl('d')) {
         // remove one level of indentation from the current line
         int shift = config(ConfigShiftWidth).toInt();
@@ -4202,6 +4213,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
                 break;
         }
         removeText(Range(pos, pos+i));
+        insert = "<C-D>";
     //} else if (key >= control('a') && key <= control('z')) {
     //    // ignore these
     } else if (input.isControl('p') || input.isControl('n')) {
@@ -4210,13 +4222,29 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         QString str = selectText(Range(position(), tc.position()));
         setCursor(tc);
         emit q->simpleCompletionRequested(str, input.isControl('n'));
+        if (input.isControl('p'))
+            insert = "<C-P>";
+        else
+            insert = "<C-N>";
     } else if (!input.text().isEmpty()) {
-        insertInInsertMode(input.text());
+        insert = input.text();
+        insertInInsertMode(insert);
     } else {
         // We don't want fancy stuff in insert mode.
         return EventHandled;
     }
+
+    if (move) {
+        breakEditBlock();
+        m_oldPosition = position();
+    } else {
+        if (clearLastInsertion)
+            m_lastInsertion.clear();
+        recordInsertion(insert);
+    }
+    setTargetColumn();
     updateMiniBuffer();
+
     return EventHandled;
 }
 
@@ -4224,7 +4252,6 @@ void FakeVimHandler::Private::insertInInsertMode(const QString &text)
 {
     joinPreviousEditBlock();
     m_justAutoIndented = 0;
-    m_lastInsertion.append(text);
     insertText(text);
     if (hasConfig(ConfigSmartIndent) && isElectricCharacter(text.at(0))) {
         const QString leftText = block().text()
@@ -6570,7 +6597,7 @@ void FakeVimHandler::Private::enterReplaceMode()
     m_submode = NoSubMode;
     m_subsubmode = NoSubSubMode;
     m_lastInsertion.clear();
-    m_lastDeletion.clear();
+    m_oldPosition = position();
     g.returnToMode = ReplaceMode;
 }
 
@@ -6580,7 +6607,7 @@ void FakeVimHandler::Private::enterInsertMode()
     m_submode = NoSubMode;
     m_subsubmode = NoSubSubMode;
     m_lastInsertion.clear();
-    m_lastDeletion.clear();
+    m_oldPosition = position();
     g.returnToMode = InsertMode;
 }
 
