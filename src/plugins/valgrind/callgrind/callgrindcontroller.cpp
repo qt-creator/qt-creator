@@ -148,7 +148,7 @@ void CallgrindController::processError(QProcess::ProcessError)
 {
     QTC_ASSERT(m_process, return);
     const QString error = m_process->errorString();
-    emit statusMessage(QString("An error occurred while trying to run %1: %2").arg(CALLGRIND_CONTROL_BINARY).arg(error));
+    emit statusMessage(tr("An error occurred while trying to run %1: %2").arg(CALLGRIND_CONTROL_BINARY).arg(error));
 
     m_process->deleteLater();
     m_process = 0;

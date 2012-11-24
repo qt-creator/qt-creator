@@ -509,9 +509,11 @@ bool CheckSymbols::visit(SimpleDeclarationAST *ast)
                         // Add a diagnostic message if non-virtual function has override/final marker
                         if ((_usages.back().kind != SemanticInfo::VirtualMethodUse)) {
                             if (funTy->isOverride())
-                                warning(declrIdNameAST, "Only virtual methods can be marked `override'");
+                                warning(declrIdNameAST, QCoreApplication::translate(
+                                            "CPlusplus::CheckSymbols", "Only virtual methods can be marked `override'"));
                             else if (funTy->isFinal())
-                                warning(declrIdNameAST, "Only virtual methods can be marked `final'");
+                                warning(declrIdNameAST, QCoreApplication::translate(
+                                            "CPlusplus::CheckSymbols", "Only virtual methods can be marked `final'"));
                         }
                     }
                 }
@@ -712,7 +714,7 @@ void CheckSymbols::checkNamespace(NameAST *name)
     }
 
     const unsigned length = tokenAt(name->lastToken() - 1).end() - tokenAt(name->firstToken()).begin();
-    warning(line, column, QCoreApplication::translate("CheckUndefinedSymbols", "Expected a namespace-name"), length);
+    warning(line, column, QCoreApplication::translate("CPlusPlus::CheckSymbols", "Expected a namespace-name"), length);
 }
 
 bool CheckSymbols::hasVirtualDestructor(Class *klass) const
@@ -1280,9 +1282,9 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
 
         // Add a diagnostic message if argument count does not match
         if (matchType == Match_TooFewArgs)
-            warning(line, column, "Too few arguments", length);
+            warning(line, column, QCoreApplication::translate("CPlusplus::CheckSymbols", "Too few arguments", length);
         else if (matchType == Match_TooManyArgs)
-            warning(line, column, "Too many arguments", length);
+            warning(line, column, QCoreApplication::translate("CPlusplus::CheckSymbols", "Too many arguments", length);
 
         const Use use(line, column, length, kind);
         addUse(use);

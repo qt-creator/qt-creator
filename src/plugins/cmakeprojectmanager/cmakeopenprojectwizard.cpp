@@ -395,7 +395,7 @@ ChooseCMakePage::ChooseCMakePage(CMakeOpenProjectWizard *cmakeWizard)
     // Show a field for the user to enter
     m_cmakeExecutable = new Utils::PathChooser(this);
     m_cmakeExecutable->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    fl->addRow("cmake Executable:", m_cmakeExecutable);
+    fl->addRow(tr("cmake Executable:"), m_cmakeExecutable);
 
     connect(m_cmakeExecutable, SIGNAL(editingFinished()),
             this, SLOT(cmakeExecutableChanged()));

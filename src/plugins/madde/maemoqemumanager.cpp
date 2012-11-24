@@ -87,7 +87,7 @@ MaemoQemuManager::MaemoQemuManager(QObject *parent)
     m_qemuStarterIcon.addFile(":/qt-maemo/images/qemu-stop.png", iconSize,
         QIcon::Normal, QIcon::On);
 
-    m_qemuAction = new QAction("MeeGo Emulator", this);
+    m_qemuAction = new QAction(tr("MeeGo Emulator"), this);
     m_qemuAction->setIcon(m_qemuStarterIcon.pixmap(iconSize));
     m_qemuAction->setToolTip(tr("Start MeeGo Emulator"));
     connect(m_qemuAction, SIGNAL(triggered()), this, SLOT(startRuntime()));

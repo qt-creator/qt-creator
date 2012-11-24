@@ -110,7 +110,7 @@ void PackageUploader::handleSftpChannelInitialized()
         setState(Inactive);
         emit uploadFinished(tr("Package upload failed: Could not open file."));
     } else {
-        emit progress("Starting upload...");
+        emit progress(tr("Starting upload..."));
         setState(Uploading);
     }
 }

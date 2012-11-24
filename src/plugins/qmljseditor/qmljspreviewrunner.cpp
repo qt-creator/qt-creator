@@ -67,7 +67,7 @@ void QmlJSPreviewRunner::run(const QString &filename)
                                     Utils::QtcProcess::quoteArg(filename));
 
     } else {
-        errorMessage = "No file specified.";
+        errorMessage = tr("No file specified.");
     }
 
     if (!errorMessage.isEmpty())

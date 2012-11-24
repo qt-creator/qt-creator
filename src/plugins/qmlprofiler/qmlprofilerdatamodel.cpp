@@ -806,7 +806,7 @@ void QmlProfilerDataModel::complete()
         compileStatistics(traceStartTime(), traceEndTime());
         setState(Done);
     } else {
-        emit error("Unexpected complete signal in data model");
+        emit error(tr("Unexpected complete signal in data model"));
     }
 }
 
@@ -1666,7 +1666,7 @@ void QmlProfilerDataModel::setState(QmlProfilerDataModel::State state)
             QTC_ASSERT(d->listState == ProcessingData || d->listState == Empty, return);
         break;
         default:
-            emit error("Trying to set unknown state in events list");
+            emit error(tr("Trying to set unknown state in events list"));
         break;
     }
 
