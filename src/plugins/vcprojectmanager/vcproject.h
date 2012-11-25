@@ -3,6 +3,7 @@
 
 #include "vcprojectreader.h"
 
+#include <projectexplorer/buildstep.h>
 #include <projectexplorer/project.h>
 
 class QFileSystemWatcher;
@@ -27,11 +28,12 @@ public:
     ProjectExplorer::IProjectManager *projectManager() const;
     ProjectExplorer::ProjectNode *rootProjectNode() const;
     QStringList files(FilesMode fileMode) const;
+    QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
+    QString defaultBuildDirectory() const;
 
 public slots:
     void reparse();
 
-//    virtual QList<BuildConfigWidget*> subConfigWidgets();
 //    virtual QString generatedUiHeader(const QString &formFile) const;
 //    static QString makeUnique(const QString &preferedName, const QStringList &usedNames);
 //    virtual QVariantMap toMap() const;
@@ -40,6 +42,10 @@ public slots:
 //    virtual bool needsConfiguration() const;
 //    virtual void configureAsExampleProject(const QStringList &platforms);
 
+protected:
+    bool fromMap(const QVariantMap &map);
+    bool setupTarget(ProjectExplorer::Target *t);
+
 private:
     VcManager *m_projectManager;
     VcProjectFile *m_projectFile;
@@ -47,6 +53,14 @@ private:
     VcProjectReader reader;
     QString m_name;
     QFileSystemWatcher *m_projectFileWatcher;
+};
+
+class VcProjectBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget
+{
+public:
+    VcProjectBuildSettingsWidget();
+    QString displayName() const;
+    void init(ProjectExplorer::BuildConfiguration *bc);
 };
 
 } // namespace Internal

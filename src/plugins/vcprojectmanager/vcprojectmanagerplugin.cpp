@@ -2,6 +2,8 @@
 
 #include "vcprojectmanager.h"
 #include "vcprojectmanagerconstants.h"
+#include "vcprojectbuildconfiguration.h"
+#include "vcmakestep.h"
 
 // TODO: clean up
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -48,6 +50,8 @@ bool VcProjectManagerPlugin::initialize(const QStringList &arguments, QString *e
         return false;
 
     addAutoReleasedObject(new VcManager);
+    addAutoReleasedObject(new VcProjectBuildConfigurationFactory);
+    addAutoReleasedObject(new VcMakeStepFactory);
 
     return true;
 }

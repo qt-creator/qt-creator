@@ -2,17 +2,27 @@
 
 #include "vcprojectfile.h"
 #include "vcprojectnodes.h"
+#include "vcmakestep.h"
 #include "vcprojectmanager.h"
 #include "vcprojectmanagerconstants.h"
 #include "vcprojectreader.h"
+#include "vcprojectbuildconfiguration.h"
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/target.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/filesystemwatcher.h>
 
 #include <QFileInfo>
 #include <QFileSystemWatcher>
+#include <QFormLayout>
+#include <QLabel>
 
 using namespace ProjectExplorer;
 
@@ -66,10 +76,20 @@ QStringList VcProject::files(Project::FilesMode fileMode) const
     return m_rootNode->files();
 }
 
+QList<BuildConfigWidget *> VcProject::subConfigWidgets()
+{
+    QList<ProjectExplorer::BuildConfigWidget*> list;
+    list << new BuildEnvironmentWidget;
+    return list;
+}
+
+QString VcProject::defaultBuildDirectory() const
+{
+    return projectDirectory() + QLatin1String("-build");
+}
+
 void VcProject::reparse()
 {
-    qDebug() << "reparse";
-
     QString projectFilePath = m_projectFile->filePath();
     VcProjectInfo::Project *projInfo = reader.parse(projectFilePath);
 
@@ -90,6 +110,55 @@ void VcProject::reparse()
 
     // TODO: can we (and is is important to) detect when the list really changed?
     emit fileListChanged();
+}
+
+bool VcProject::fromMap(const QVariantMap &map)
+{
+    Kit *defaultKit = KitManager::instance()->defaultKit();
+    if (defaultKit) {
+        qDebug() << "VcProject::fromMap() defaultKit:" << defaultKit->displayName();
+        Target *target = new Target(this, defaultKit);
+        VcProjectBuildConfiguration *bc = new VcProjectBuildConfiguration(target);
+        ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+        VcMakeStep *makeStep = new VcMakeStep(buildSteps);
+        buildSteps->insertStep(0, makeStep);
+        target->addBuildConfiguration(bc);
+        addTarget(target);
+    }
+
+    return Project::fromMap(map);
+}
+
+bool VcProject::setupTarget(ProjectExplorer::Target *t)
+{
+    VcProjectBuildConfigurationFactory *factory
+            = ExtensionSystem::PluginManager::instance()->getObject<VcProjectBuildConfigurationFactory>();
+    VcProjectBuildConfiguration *bc = factory->create(t, Constants::VC_PROJECT_BC_ID, QLatin1String("vcproj"));
+    if (!bc)
+        return false;
+
+    t->addBuildConfiguration(bc);
+    return true;
+}
+
+VcProjectBuildSettingsWidget::VcProjectBuildSettingsWidget()
+{
+    QFormLayout *f1 = new QFormLayout(this);
+    f1->setContentsMargins(0, 0, 0, 0);
+    f1->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+
+    QLabel *l = new QLabel(tr("Vcproj Build Configuration widget."));
+    f1->addRow(tr("Vc Project"), l);
+}
+
+QString VcProjectBuildSettingsWidget::displayName() const
+{
+    return tr("Vc Project Settings Widget");
+}
+
+void VcProjectBuildSettingsWidget::init(BuildConfiguration *bc)
+{
+    Q_UNUSED(bc);
 }
 
 } // namespace Internal
