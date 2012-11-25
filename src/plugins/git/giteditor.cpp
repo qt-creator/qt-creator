@@ -207,11 +207,32 @@ static QByteArray removeAnnotationDate(const QByteArray &b)
 void GitEditor::setPlainTextDataFiltered(const QByteArray &a)
 {
     QByteArray array = a;
+    GitPlugin *plugin = GitPlugin::instance();
     // If desired, filter out the date from annotation
-    const bool omitAnnotationDate = contentType() == VcsBase::AnnotateOutput
-                                    && GitPlugin::instance()->settings().boolValue(GitSettings::omitAnnotationDateKey);
-    if (omitAnnotationDate)
-        array = removeAnnotationDate(a);
+    switch (contentType())
+    {
+    case VcsBase::AnnotateOutput: {
+        const bool omitAnnotationDate = plugin->settings().boolValue(GitSettings::omitAnnotationDateKey);
+        if (omitAnnotationDate)
+            array = removeAnnotationDate(a);
+        break;
+    }
+    case VcsBase::DiffOutput: {
+        const QFileInfo fi(source());
+        const QString workingDirectory = fi.absolutePath();
+        QByteArray precedes, follows;
+        if (array.startsWith("commit ")) { // show
+            int lastHeaderLine = array.indexOf("\n\n") + 1;
+            plugin->gitClient()->synchronousTagsForCommit(workingDirectory, QLatin1String(array.mid(7, 8)), precedes, follows);
+            if (!precedes.isEmpty())
+                array.insert(lastHeaderLine, "Precedes: " + precedes + '\n');
+            if (!follows.isEmpty())
+                array.insert(lastHeaderLine, "Follows: " + follows + '\n');
+        }
+        break;
+    }
+    }
+
     setPlainTextData(array);
 }
 

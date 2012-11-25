@@ -1156,6 +1156,37 @@ QString GitClient::synchronousTopRevision(const QString &workingDirectory, QStri
     return revision;
 }
 
+void GitClient::synchronousTagsForCommit(const QString &workingDirectory, const QString &revision,
+                                         QByteArray &precedes, QByteArray &follows)
+{
+    QStringList arguments;
+    QByteArray parents;
+    arguments << QLatin1String("describe") << QLatin1String("--contains") << revision;
+    fullySynchronousGit(workingDirectory, arguments, &precedes);
+    int tilde = precedes.indexOf('~');
+    if (tilde != -1)
+        precedes.truncate(tilde);
+    else
+        precedes = precedes.trimmed();
+
+    arguments.clear();
+    arguments << QLatin1String("log") << QLatin1String("-n1") << QLatin1String("--pretty=format:%P") << revision;
+    fullySynchronousGit(workingDirectory, arguments, &parents);
+    foreach (const QByteArray &p, parents.split(' ')) {
+        QByteArray pf;
+        arguments.clear();
+        arguments << QLatin1String("describe") << QLatin1String("--tags")
+                  << QLatin1String("--abbrev=0") << QLatin1String(p);
+        fullySynchronousGit(workingDirectory, arguments, &pf);
+        pf.truncate(pf.lastIndexOf('\n'));
+        if (!pf.isEmpty()) {
+            if (!follows.isEmpty())
+                follows += ", ";
+            follows += pf;
+        }
+    }
+}
+
 // Format an entry in a one-liner for selection list using git log.
 QString GitClient::synchronousShortDescription(const QString &workingDirectory, const QString &revision,
                                             const QString &format)
