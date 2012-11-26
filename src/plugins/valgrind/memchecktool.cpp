@@ -346,7 +346,7 @@ public:
         //if no frame belonging to the project was found, return the first one that is not malloc/new
         foreach (const Frame &frame, frames) {
             if (!frame.functionName().isEmpty() && frame.functionName() != QLatin1String("malloc")
-                && !frame.functionName().startsWith("operator new(") )
+                && !frame.functionName().startsWith(QLatin1String("operator new(")))
             {
                 return frame;
             }
@@ -386,7 +386,7 @@ QWidget *MemcheckTool::createWidgets()
     m_errorView->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_errorView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     m_errorView->setAutoScroll(false);
-    m_errorView->setObjectName("Valgrind.MemcheckTool.ErrorView");
+    m_errorView->setObjectName(QLatin1String("Valgrind.MemcheckTool.ErrorView"));
 
     QDockWidget *errorDock = AnalyzerManager::createDockWidget
         (this, tr("Memory Issues"), m_errorView, Qt::BottomDockWidgetArea);
@@ -429,7 +429,7 @@ QWidget *MemcheckTool::createWidgets()
     m_goNext = action;
 
     QToolButton *filterButton = new QToolButton;
-    filterButton->setIcon(QIcon(Core::Constants::ICON_FILTER));
+    filterButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
     filterButton->setText(tr("Error Filter"));
     filterButton->setPopupMode(QToolButton::InstantPopup);
 

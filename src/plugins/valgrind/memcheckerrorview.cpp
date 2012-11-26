@@ -169,7 +169,7 @@ static QString makeFrameName(const Frame &frame, const QString &relativeTo,
 
     if (link && !f.isEmpty() && QFile::exists(fullPath)) {
         // make a hyperlink label
-        path = QString("<a href=\"file://%1:%2\" %4>%3</a>")
+        path = QString::fromLatin1("<a href=\"file://%1:%2\" %4>%3</a>")
                     .arg(fullPath, QString::number(frame.line()), path, linkAttr);
     }
 
@@ -177,7 +177,7 @@ static QString makeFrameName(const Frame &frame, const QString &relativeTo,
         return QCoreApplication::translate("Valgrind::Internal", "%1 in %2").arg(Qt::escape(fn), path);
     if (!path.isEmpty())
         return path;
-    return QString("0x%1").arg(frame.instructionPointer(), 0, 16);
+    return QString::fromLatin1("0x%1").arg(frame.instructionPointer(), 0, 16);
 }
 
 static QString relativeToPath()
@@ -216,7 +216,7 @@ QWidget *MemcheckErrorDelegate::createDetailsWidget(const QModelIndex &errorInde
     // code + white-space:pre so the padding (see below) works properly
     // don't include frameName here as it should wrap if required and pre-line is not supported
     // by Qt yet it seems
-    const QString displayTextTemplate = QString("<code style='white-space:pre'>%1:</code> %2");
+    const QString displayTextTemplate = QString::fromLatin1("<code style='white-space:pre'>%1:</code> %2");
     const QString relativeTo = relativeToPath();
     const Error error = errorIndex.data(ErrorListModel::ErrorRole).value<Error>();
 
@@ -227,11 +227,11 @@ QWidget *MemcheckErrorDelegate::createDetailsWidget(const QModelIndex &errorInde
     errorLabel->setIndent(0);
     QPalette p = errorLabel->palette();
     QColor lc = p.color(QPalette::Text);
-    QString linkStyle = QString("style=\"color:rgba(%1, %2, %3, %4);\"")
+    QString linkStyle = QString::fromLatin1("style=\"color:rgba(%1, %2, %3, %4);\"")
                             .arg(lc.red()).arg(lc.green()).arg(lc.blue()).arg(int(0.7 * 255));
     p.setBrush(QPalette::Text, p.highlightedText());
     errorLabel->setPalette(p);
-    errorLabel->setText(QString("%1&nbsp;&nbsp;<span %4>%2</span>")
+    errorLabel->setText(QString::fromLatin1("%1&nbsp;&nbsp;<span %4>%2</span>")
                             .arg(error.what(), errorLocation(errorIndex, error, true, linkStyle),
                                  linkStyle));
     connect(errorLabel, SIGNAL(linkActivated(QString)), SLOT(openLinkInEditor(QString)));
@@ -265,7 +265,7 @@ QWidget *MemcheckErrorDelegate::createDetailsWidget(const QModelIndex &errorInde
                 p.setBrush(QPalette::Base, p.alternateBase());
                 frameLabel->setPalette(p);
             }
-            frameLabel->setFont(QFont("monospace"));
+            frameLabel->setFont(QFont(QLatin1String("monospace")));
             connect(frameLabel, SIGNAL(linkActivated(QString)), SLOT(openLinkInEditor(QString)));
             // pad frameNr to 2 chars since only 50 frames max are supported by valgrind
             const QString displayText = displayTextTemplate
@@ -343,7 +343,7 @@ void MemcheckErrorDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
         const int widthLeft = opt.rect.width() - (pos.x() + whatWidth + space + s_itemMargin);
         if (widthLeft > 0) {
             QFont monospace = opt.font;
-            monospace.setFamily("monospace");
+            monospace.setFamily(QLatin1String("monospace"));
             QFontMetrics metrics(monospace);
             QColor nameColor = textColor;
             nameColor.setAlphaF(0.7);
@@ -430,7 +430,7 @@ void MemcheckErrorDelegate::copy()
 void MemcheckErrorDelegate::openLinkInEditor(const QString &link)
 {
     const int pathStart = strlen("file://");
-    const int pathEnd = link.lastIndexOf(':');
+    const int pathEnd = link.lastIndexOf(QLatin1Char(':'));
     const QString path = link.mid(pathStart, pathEnd - pathStart);
     const int line = link.mid(pathEnd + 1).toInt(0);
     TextEditor::BaseTextEditorWidget::openEditorAt(path, qMax(line, 0));
@@ -445,7 +445,7 @@ MemcheckErrorView::MemcheckErrorView(QWidget *parent)
 
     m_copyAction = new QAction(this);
     m_copyAction->setText(tr("Copy Selection"));
-    m_copyAction->setIcon(QIcon(Core::Constants::ICON_COPY));
+    m_copyAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_COPY)));
     m_copyAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
     m_copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     connect(m_copyAction, SIGNAL(triggered()), itemDelegate(), SLOT(copy()));

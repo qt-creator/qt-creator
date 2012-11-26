@@ -99,9 +99,9 @@ QStringList MemcheckEngine::toolArguments() const
         arguments << QLatin1String("--track-origins=yes");
 
     foreach (const QString &file, memcheckSettings->suppressionFiles())
-        arguments << QString("--suppressions=%1").arg(file);
+        arguments << QString::fromLatin1("--suppressions=%1").arg(file);
 
-    arguments << QString("--num-callers=%1").arg(memcheckSettings->numCallers());
+    arguments << QString::fromLatin1("--num-callers=%1").arg(memcheckSettings->numCallers());
     return arguments;
 }
 
@@ -119,7 +119,7 @@ void MemcheckEngine::receiveLogMessage(const QByteArray &b)
 {
     QString error = QString::fromLocal8Bit(b);
     // workaround https://bugs.kde.org/show_bug.cgi?id=255888
-    error.remove(QRegExp("==*== </valgrindoutput>", Qt::CaseSensitive, QRegExp::Wildcard));
+    error.remove(QRegExp(QLatin1String("==*== </valgrindoutput>"), Qt::CaseSensitive, QRegExp::Wildcard));
 
     error = error.trimmed();
 

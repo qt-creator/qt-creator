@@ -83,7 +83,7 @@ static QString suppressionText(const Error &error)
             newName = frame.object();
 
         if (!newName.isEmpty())
-            sup.setName(newName + '[' + sup.kind() + ']');
+            sup.setName(newName + QLatin1Char('[') + sup.kind() + QLatin1Char(']'));
     }
 
     return sup.toString();

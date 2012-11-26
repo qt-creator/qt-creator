@@ -553,7 +553,7 @@ void CallgrindTool::extensionsInitialized()
         editorContextMenu->addSeparator(analyzerContext);
 
         action = new QAction(tr("Profile Costs of this Function and its Callees"), this);
-        action->setIcon(QIcon(Analyzer::Constants::ANALYZER_CONTROL_START_ICON));
+        action->setIcon(QIcon(QLatin1String(Analyzer::Constants::ANALYZER_CONTROL_START_ICON)));
         connect(action, SIGNAL(triggered()), d, SLOT(handleShowCostsOfFunction()));
         cmd = Core::ActionManager::registerAction(action, "Analyzer.Callgrind.ShowCostsOfFunction",
             analyzerContext);
@@ -631,13 +631,13 @@ QWidget *CallgrindToolPrivate::createWidgets()
     Utils::FancyMainWindow *mw = AnalyzerManager::mainWindow();
     m_visualisation = new Visualisation(mw);
     m_visualisation->setFrameStyle(QFrame::NoFrame);
-    m_visualisation->setObjectName("Valgrind.CallgrindTool.Visualisation");
+    m_visualisation->setObjectName(QLatin1String("Valgrind.CallgrindTool.Visualisation"));
     m_visualisation->setModel(m_dataModel);
     connect(m_visualisation, SIGNAL(functionActivated(const Valgrind::Callgrind::Function*)),
             this, SLOT(visualisationFunctionSelected(const Valgrind::Callgrind::Function*)));
 
     m_callersView = new CostView(mw);
-    m_callersView->setObjectName("Valgrind.CallgrindTool.CallersView");
+    m_callersView->setObjectName(QLatin1String("Valgrind.CallgrindTool.CallersView"));
     m_callersView->sortByColumn(CallModel::CostColumn);
     m_callersView->setFrameStyle(QFrame::NoFrame);
     // enable sorting
@@ -649,7 +649,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
             this, SLOT(callerFunctionSelected(QModelIndex)));
 
     m_calleesView = new CostView(mw);
-    m_calleesView->setObjectName("Valgrind.CallgrindTool.CalleesView");
+    m_calleesView->setObjectName(QLatin1String("Valgrind.CallgrindTool.CalleesView"));
     m_calleesView->sortByColumn(CallModel::CostColumn);
     m_calleesView->setFrameStyle(QFrame::NoFrame);
     // enable sorting
@@ -661,7 +661,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
             this, SLOT(calleeFunctionSelected(QModelIndex)));
 
     m_flatView = new CostView(mw);
-    m_flatView->setObjectName("Valgrind.CallgrindTool.FlatView");
+    m_flatView->setObjectName(QLatin1String("Valgrind.CallgrindTool.FlatView"));
     m_flatView->sortByColumn(DataModel::SelfCostColumn);
     m_flatView->setFrameStyle(QFrame::NoFrame);
     m_flatView->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -821,7 +821,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
 
     // filtering
     action = new QAction(tr("Show Project Costs Only"), this);
-    action->setIcon(QIcon(Core::Constants::ICON_FILTER));
+    action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
     action->setToolTip(tr("Show only profiling info that originated from this project source."));
     action->setCheckable(true);
     connect(action, SIGNAL(toggled(bool)), this, SLOT(handleFilterProjectCosts()));
@@ -883,7 +883,7 @@ void CallgrindToolPrivate::showParserResults(const ParseData *data)
         if (data->events().isEmpty()) {
             msg = tr("Parsing finished, no data.");
         } else {
-            const QString costStr = QString("%1 %2").arg(QString::number(data->totalCost(0)), data->events().first());
+            const QString costStr = QString::fromLatin1("%1 %2").arg(QString::number(data->totalCost(0)), data->events().first());
             msg = tr("Parsing finished, total cost of %1 reported.").arg(costStr);
         }
     } else {
@@ -985,7 +985,7 @@ void CallgrindToolPrivate::createTextMarks()
         const QModelIndex index = model->index(row, DataModel::InclusiveCostColumn);
 
         QString fileName = index.data(DataModel::FileNameRole).toString();
-        if (fileName.isEmpty() || fileName == "???")
+        if (fileName.isEmpty() || fileName == QLatin1String("???"))
             continue;
 
         bool ok = false;
@@ -1000,7 +1000,7 @@ void CallgrindToolPrivate::createTextMarks()
             continue; // isEmpty == true => file does not exist, continue then
 
         // create only one text mark per location
-        const QString location = QString("%1:%2").arg(fileName, QString::number(lineNumber));
+        const QString location = QString::fromLatin1("%1:%2").arg(fileName, QString::number(lineNumber));
         if (locations.contains(location))
             continue;
         locations << location;

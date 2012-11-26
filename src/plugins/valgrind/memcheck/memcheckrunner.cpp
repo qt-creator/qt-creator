@@ -83,7 +83,7 @@ MemcheckRunner::~MemcheckRunner()
 
 QString MemcheckRunner::tool() const
 {
-    return QString("memcheck");
+    return QLatin1String("memcheck");
 }
 
 void MemcheckRunner::setParser(XmlProtocol::ThreadedParser *parser)
@@ -110,10 +110,10 @@ bool MemcheckRunner::start()
         connect(&d->logServer, SIGNAL(newConnection()), SLOT(logSocketConnected()));
 
         QStringList memcheckArguments;
-        memcheckArguments << QString("--xml=yes")
-                          << QString("--xml-socket=127.0.0.1:%1").arg(QString::number(xmlPortNumber))
-                          << QString("--child-silent-after-fork=yes")
-                          << QString("--log-socket=127.0.0.1:%1").arg(QString::number(logPortNumber))
+        memcheckArguments << QLatin1String("--xml=yes")
+                          << QString::fromLatin1("--xml-socket=127.0.0.1:%1").arg(xmlPortNumber)
+                          << QLatin1String("--child-silent-after-fork=yes")
+                          << QString::fromLatin1("--log-socket=127.0.0.1:%1").arg(logPortNumber)
                           << valgrindArguments();
         setValgrindArguments(memcheckArguments);
     }
@@ -139,10 +139,10 @@ bool MemcheckRunner::start()
         connect(&d->logServer, SIGNAL(newConnection()), SLOT(logSocketConnected()));
 
         QStringList memcheckArguments;
-        memcheckArguments << QString("--xml=yes")
-                          << QString("--xml-socket=%1:%2").arg(ip, QString::number(xmlPortNumber))
-                          << QString("--child-silent-after-fork=yes")
-                          << QString("--log-socket=%1:%2").arg(ip, QString::number(logPortNumber));
+        memcheckArguments << QLatin1String("--xml=yes")
+                          << QString::fromLatin1("--xml-socket=%1:%2").arg(ip).arg(xmlPortNumber)
+                          << QLatin1String("--child-silent-after-fork=yes")
+                          << QString::fromLatin1("--log-socket=%1:%2").arg(ip).arg(logPortNumber);
         setValgrindArguments(memcheckArguments);
     }
 

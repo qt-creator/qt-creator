@@ -54,7 +54,7 @@ CallgrindRunner::CallgrindRunner(QObject *parent)
 
 QString CallgrindRunner::tool() const
 {
-    return QString("callgrind");
+    return QLatin1String("callgrind");
 }
 
 Parser *CallgrindRunner::parser() const

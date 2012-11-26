@@ -212,7 +212,7 @@ QModelIndex DataModel::indexForObject(const Function *function) const
 static QString noWrap(const QString &str)
 {
     QString escapedStr = str;
-    return escapedStr.replace(QLatin1Char('-'), "&#8209;");
+    return escapedStr.replace(QLatin1Char('-'), QLatin1String("&#8209;"));
 }
 
 static QString shortenTemplate(QString str)

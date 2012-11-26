@@ -90,7 +90,7 @@ void ValgrindRunner::Private::run(ValgrindProcess *_process)
     // consider appending our options last so they override any interfering user-supplied options
     // -q as suggested by valgrind manual
     QStringList valgrindArgs = valgrindArguments;
-    valgrindArgs << QString("--tool=%1").arg(q->tool());
+    valgrindArgs << QString::fromLatin1("--tool=%1").arg(q->tool());
 
     if (Utils::HostOsInfo::isMacHost())
         // May be slower to start but without it we get no filenames for symbols.

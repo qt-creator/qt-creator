@@ -79,15 +79,15 @@ QString toOptionString(CallgrindController::Option option)
 
     switch (option) {
         case CallgrindController::Dump:
-            return "--dump";
+            return QLatin1String("--dump");
         case CallgrindController::ResetEventCounters:
-            return "--zero";
+            return QLatin1String("--zero");
         case CallgrindController::Pause:
-            return "--instr=off";
+            return QLatin1String("--instr=off");
         case CallgrindController::UnPause:
-            return "--instr=on";
+            return QLatin1String("--instr=on");
         default:
-            return ""; // never reached
+            return QString(); // never reached
     }
 }
 
@@ -144,7 +144,7 @@ void CallgrindController::processError(QProcess::ProcessError)
 {
     QTC_ASSERT(m_process, return);
     const QString error = m_process->errorString();
-    emit statusMessage(QString("An error occurred while trying to run %1: %2").arg(CALLGRIND_CONTROL_BINARY).arg(error));
+    emit statusMessage(tr("An error occurred while trying to run %1: %2").arg(CALLGRIND_CONTROL_BINARY).arg(error));
 
     m_process->deleteLater();
     m_process = 0;
@@ -197,7 +197,7 @@ void CallgrindController::getLocalDataFile()
     QTC_ASSERT(m_valgrindProc, return);
 
     // we look for callgrind.out.PID, but there may be updated ones called ~.PID.NUM
-    QString baseFileName = QString("callgrind.out.%1").
+    QString baseFileName = QString::fromLatin1("callgrind.out.%1").
             arg(m_valgrindProc->pid());
     const QString workingDir = m_valgrindProc->workingDirectory();
     // first, set the to-be-parsed file to callgrind.out.PID
@@ -208,13 +208,13 @@ void CallgrindController::getLocalDataFile()
         emit statusMessage(tr("Downloading remote profile data..."));
         m_ssh = remote->connection();
         // if there are files like callgrind.out.PID.NUM, set it to the most recent one of those
-        QString cmd = QString("ls -t %1* | head -n 1").arg(fileName);
+        QString cmd = QString::fromLatin1("ls -t %1* | head -n 1").arg(fileName);
         m_findRemoteFile = m_ssh->createRemoteProcess(cmd.toUtf8());
         connect(m_findRemoteFile.data(), SIGNAL(readyReadStandardOutput()), this,
             SLOT(foundRemoteFile()));
         m_findRemoteFile->start();
     } else {
-        QDir dir(workingDir, QString("%1.*").arg(baseFileName), QDir::Time);
+        QDir dir(workingDir, QString::fromLatin1("%1.*").arg(baseFileName), QDir::Time);
         QStringList outputFiles = dir.entryList();
         // if there are files like callgrind.out.PID.NUM, set it to the most recent one of those
         if (!outputFiles.isEmpty())
@@ -238,13 +238,13 @@ void CallgrindController::foundRemoteFile()
 void CallgrindController::sftpInitialized()
 {
     cleanupTempFile();
-    QTemporaryFile dataFile(QDir::tempPath() + QDir::separator() + "callgrind.out.");
+    QTemporaryFile dataFile(QDir::tempPath() + QDir::separator() + QLatin1String("callgrind.out."));
     QTC_ASSERT(dataFile.open(), return);
     m_tempDataFile = dataFile.fileName();
     dataFile.setAutoRemove(false);
     dataFile.close();
 
-    m_downloadJob = m_sftp->downloadFile(m_remoteFile, m_tempDataFile, QSsh::SftpOverwriteExisting);
+    m_downloadJob = m_sftp->downloadFile(QString::fromLocal8Bit(m_remoteFile), m_tempDataFile, QSsh::SftpOverwriteExisting);
 }
 
 void CallgrindController::sftpJobFinished(QSsh::SftpJobId job, const QString &error)

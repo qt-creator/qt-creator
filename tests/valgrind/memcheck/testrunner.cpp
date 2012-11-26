@@ -151,11 +151,11 @@ void TestRunner::testLeak1()
     QCOMPARE(stack.frames().count(), 2);
     {
         const Frame frame = stack.frames().at(0);
-        QCOMPARE(frame.functionName(), QString("operator new(unsigned long)"));
+        QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned long)"));
     }
     {
         const Frame frame = stack.frames().at(1);
-        QCOMPARE(frame.functionName(), QString("main"));
+        QCOMPARE(frame.functionName(), QLatin1String("main"));
         QCOMPARE(frame.line(), 5);
 
         QCOMPARE(frame.object(), binary);
@@ -181,15 +181,15 @@ void TestRunner::testLeak2()
     QCOMPARE(stack.frames().count(), 3);
     {
         const Frame frame = stack.frames().at(0);
-        QCOMPARE(frame.functionName(), QString("malloc"));
+        QCOMPARE(frame.functionName(), QLatin1String("malloc"));
     }
     {
         const Frame frame = stack.frames().at(1);
-        QCOMPARE(frame.functionName(), QString("strdup"));
+        QCOMPARE(frame.functionName(), QLatin1String("strdup"));
     }
     {
         const Frame frame = stack.frames().at(2);
-        QCOMPARE(frame.functionName(), QString("main"));
+        QCOMPARE(frame.functionName(), QLatin1String("main"));
         QCOMPARE(frame.line(), 7);
 
         QCOMPARE(frame.object(), binary);
@@ -215,15 +215,15 @@ void TestRunner::testLeak3()
     QCOMPARE(stack.frames().count(), 3);
     {
         const Frame frame = stack.frames().at(0);
-        QCOMPARE(frame.functionName(), QString("malloc"));
+        QCOMPARE(frame.functionName(), QLatin1String("malloc"));
     }
     {
         const Frame frame = stack.frames().at(1);
-        QCOMPARE(frame.functionName(), QString("strdup"));
+        QCOMPARE(frame.functionName(), QLatin1String("strdup"));
     }
     {
         const Frame frame = stack.frames().at(2);
-        QCOMPARE(frame.functionName(), QString("main"));
+        QCOMPARE(frame.functionName(), QLatin1String("main"));
         QCOMPARE(frame.line(), 7);
 
         QCOMPARE(frame.object(), binary);
@@ -254,11 +254,11 @@ void TestRunner::testLeak4()
     QCOMPARE(stack.frames().count(), 3);
     {
         const Frame frame = stack.frames().at(0);
-        QCOMPARE(frame.functionName(), QString("operator new(unsigned long)"));
+        QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned long)"));
     }
     {
         const Frame frame = stack.frames().at(2);
-        QCOMPARE(frame.functionName(), QString("main"));
+        QCOMPARE(frame.functionName(), QLatin1String("main"));
         QCOMPARE(frame.line(), 14);
 
         QCOMPARE(frame.object(), binary);
@@ -267,7 +267,7 @@ void TestRunner::testLeak4()
     }
     {
         const Frame frame = stack.frames().at(1);
-        QCOMPARE(frame.functionName(), QString("Foo::Foo()"));
+        QCOMPARE(frame.functionName(), QLatin1String("Foo::Foo()"));
         QCOMPARE(frame.line(), 6);
 
         QCOMPARE(frame.object(), binary);
@@ -276,7 +276,7 @@ void TestRunner::testLeak4()
     }
     {
         const Frame frame = stack.frames().at(2);
-        QCOMPARE(frame.functionName(), QString("main"));
+        QCOMPARE(frame.functionName(), QLatin1String("main"));
         QCOMPARE(frame.line(), 14);
 
         QCOMPARE(frame.object(), binary);
@@ -296,11 +296,11 @@ void TestRunner::testLeak4()
     QCOMPARE(stack.frames().count(), 2);
     {
         const Frame frame = stack.frames().at(0);
-        QCOMPARE(frame.functionName(), QString("operator new(unsigned long)"));
+        QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned long)"));
     }
     {
         const Frame frame = stack.frames().at(1);
-        QCOMPARE(frame.functionName(), QString("main"));
+        QCOMPARE(frame.functionName(), QLatin1String("main"));
         QCOMPARE(frame.line(), 14);
 
         QCOMPARE(frame.object(), binary);
@@ -329,7 +329,7 @@ void TestRunner::uninit1()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QString("main"));
+    QCOMPARE(frame.functionName(), QLatin1String("main"));
     QCOMPARE(frame.line(), 4);
 
     QCOMPARE(frame.object(), binary);
@@ -343,7 +343,7 @@ void TestRunner::uninit1()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QString("main"));
+    QCOMPARE(frame.functionName(), QLatin1String("main"));
     QCOMPARE(frame.line(), 2);
 
     QCOMPARE(frame.object(), binary);
@@ -374,7 +374,7 @@ void TestRunner::uninit2()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QString("main"));
+    QCOMPARE(frame.functionName(), QLatin1String("main"));
     QCOMPARE(frame.line(), 4);
 
     QCOMPARE(frame.object(), binary);
@@ -388,7 +388,7 @@ void TestRunner::uninit2()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QString("main"));
+    QCOMPARE(frame.functionName(), QLatin1String("main"));
     QCOMPARE(frame.line(), 2);
 
     QCOMPARE(frame.object(), binary);
@@ -407,7 +407,7 @@ void TestRunner::uninit2()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QString("main"));
+    QCOMPARE(frame.functionName(), QLatin1String("main"));
     QCOMPARE(frame.line(), 4);
 
     QCOMPARE(frame.object(), binary);
@@ -438,7 +438,7 @@ void TestRunner::uninit3()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QString("main"));
+    QCOMPARE(frame.functionName(), QLatin1String("main"));
     QCOMPARE(frame.line(), 4);
 
     QCOMPARE(frame.object(), binary);
@@ -452,7 +452,7 @@ void TestRunner::uninit3()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QString("main"));
+    QCOMPARE(frame.functionName(), QLatin1String("main"));
     QCOMPARE(frame.line(), 2);
 
     QCOMPARE(frame.object(), binary);
@@ -471,7 +471,7 @@ void TestRunner::uninit3()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QString("main"));
+    QCOMPARE(frame.functionName(), QLatin1String("main"));
     QCOMPARE(frame.line(), 4);
 
     QCOMPARE(frame.object(), binary);
@@ -501,15 +501,15 @@ void TestRunner::syscall()
     {
     ///TODO: is this platform specific?
     const Frame frame = stack.frames().at(0);
-    QCOMPARE(frame.functionName(), QString("_Exit"));
+    QCOMPARE(frame.functionName(), QLatin1String("_Exit"));
     }
     {
     const Frame frame = stack.frames().at(1);
-    QCOMPARE(frame.functionName(), QString("exit"));
+    QCOMPARE(frame.functionName(), QLatin1String("exit"));
     }
     {
     const Frame frame = stack.frames().at(2);
-    QCOMPARE(frame.functionName(), QString("(below main)"));
+    QCOMPARE(frame.functionName(), QLatin1String("(below main)"));
     }
     }
     //BEGIN second stack
@@ -519,7 +519,7 @@ void TestRunner::syscall()
     QCOMPARE(stack.frames().count(), 1);
 
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QString("main"));
+    QCOMPARE(frame.functionName(), QLatin1String("main"));
     QCOMPARE(frame.line(), 2);
 
     QCOMPARE(frame.object(), binary);
@@ -548,11 +548,11 @@ void TestRunner::free1()
 
     {
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QString("operator delete(void*)"));
+    QCOMPARE(frame.functionName(), QLatin1String("operator delete(void*)"));
     }
     {
     const Frame frame = stack.frames().last();
-    QCOMPARE(frame.functionName(), QString("main"));
+    QCOMPARE(frame.functionName(), QLatin1String("main"));
     QCOMPARE(frame.line(), 7);
 
     QCOMPARE(frame.object(), binary);
@@ -569,11 +569,11 @@ void TestRunner::free1()
 
     {
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QString("operator delete(void*)"));
+    QCOMPARE(frame.functionName(), QLatin1String("operator delete(void*)"));
     }
     {
     const Frame frame = stack.frames().last();
-    QCOMPARE(frame.functionName(), QString("main"));
+    QCOMPARE(frame.functionName(), QLatin1String("main"));
     QCOMPARE(frame.line(), 6);
 
     QCOMPARE(frame.object(), binary);
@@ -603,11 +603,11 @@ void TestRunner::free2()
 
     {
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QString("free"));
+    QCOMPARE(frame.functionName(), QLatin1String("free"));
     }
     {
     const Frame frame = stack.frames().last();
-    QCOMPARE(frame.functionName(), QString("main"));
+    QCOMPARE(frame.functionName(), QLatin1String("main"));
     QCOMPARE(frame.line(), 6);
 
     QCOMPARE(frame.object(), binary);
@@ -624,11 +624,11 @@ void TestRunner::free2()
 
     {
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QString("operator new(unsigned long)"));
+    QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned long)"));
     }
     {
     const Frame frame = stack.frames().last();
-    QCOMPARE(frame.functionName(), QString("main"));
+    QCOMPARE(frame.functionName(), QLatin1String("main"));
     QCOMPARE(frame.line(), 5);
 
     QCOMPARE(frame.object(), binary);
@@ -661,7 +661,7 @@ void TestRunner::invalidjump()
     }
     {
         const Frame frame = stack.frames().at(1);
-        QCOMPARE(frame.functionName(), QString("(below main)"));
+        QCOMPARE(frame.functionName(), QLatin1String("(below main)"));
     }
 }
 
@@ -684,11 +684,11 @@ void TestRunner::overlap()
     QCOMPARE(stack.frames().count(), 2);
     {
         const Frame frame = stack.frames().at(0);
-        QCOMPARE(frame.functionName(), QString("memcpy"));
+        QCOMPARE(frame.functionName(), QLatin1String("memcpy"));
     }
     {
         const Frame frame = stack.frames().last();
-        QCOMPARE(frame.functionName(), QString("main"));
+        QCOMPARE(frame.functionName(), QLatin1String("main"));
         QCOMPARE(frame.line(), 6);
 
         QCOMPARE(frame.object(), binary);

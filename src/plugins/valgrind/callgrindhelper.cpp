@@ -67,7 +67,7 @@ QString CallgrindHelper::toPercent(float costs, const QLocale &locale)
         return locale.toString(costs, 'f', 1) + locale.percent();
     if (costs > 0.009f)
         return locale.toString(costs, 'f', 2) + locale.percent();
-    return QString("<") + locale.toString(0.01f) + locale.percent();
+    return QLatin1Char('<') + locale.toString(0.01f) + locale.percent();
 }
 
 } // namespace Internal

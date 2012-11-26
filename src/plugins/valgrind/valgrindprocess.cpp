@@ -201,13 +201,13 @@ void RemoteValgrindProcess::connected()
     QString cmd;
 
     if (!m_workingDir.isEmpty())
-        cmd += QString("cd '%1' && ").arg(m_workingDir);
+        cmd += QString::fromLatin1("cd '%1' && ").arg(m_workingDir);
 
     QString arguments;
     Utils::QtcProcess::addArgs(&arguments, m_valgrindArgs);
     Utils::QtcProcess::addArg(&arguments, m_debuggee);
     Utils::QtcProcess::addArgs(&arguments, m_debuggeeArgs);
-    cmd += m_valgrindExe + ' ' + arguments;
+    cmd += m_valgrindExe + QLatin1Char(' ') + arguments;
 
     m_process = m_connection->createRemoteProcess(cmd.toUtf8());
     connect(m_process.data(), SIGNAL(readyReadStandardError()), this, SLOT(standardError()));
@@ -240,12 +240,12 @@ void RemoteValgrindProcess::processStarted()
     const QString proc = m_valgrindExe.split(QLatin1Char(' ')).last();
     // sleep required since otherwise we might only match "bash -c..."
     //  and not the actual valgrind run
-    const QString cmd = QString("sleep 1; ps ax" // list all processes with aliased name
-                                " | grep '\\b%1.*%2'" // find valgrind process
-                                " | tail -n 1" // limit to single process
-                                               // we pick the last one, first would be "bash -c ..."
-                                " | awk '{print $1;}'" // get pid
-                                ).arg(proc, QFileInfo(m_debuggee).fileName());
+    const QString cmd = QString::fromLatin1("sleep 1; ps ax" // list all processes with aliased name
+                                            " | grep '\\b%1.*%2'" // find valgrind process
+                                            " | tail -n 1" // limit to single process
+                                            // we pick the last one, first would be "bash -c ..."
+                                            " | awk '{print $1;}'" // get pid
+                                            ).arg(proc, QFileInfo(m_debuggee).fileName());
 
     m_findPID = m_connection->createRemoteProcess(cmd.toUtf8());
     connect(m_findPID.data(), SIGNAL(readyReadStandardError()), this, SLOT(standardError()));
@@ -297,11 +297,11 @@ void RemoteValgrindProcess::close()
     QTC_ASSERT(m_connection->state() == QSsh::SshConnection::Connected, return);
     if (m_process) {
         if (m_pid) {
-            const QString killTemplate = QString("kill -%2 %1" // kill
+            const QString killTemplate = QString::fromLatin1("kill -%2 %1" // kill
                                                 ).arg(m_pid);
 
-            const QString niceKill = killTemplate.arg("SIGTERM");
-            const QString brutalKill = killTemplate.arg("SIGKILL");
+            const QString niceKill = killTemplate.arg(QLatin1String("SIGTERM"));
+            const QString brutalKill = killTemplate.arg(QLatin1String("SIGKILL"));
             const QString remoteCall = niceKill + QLatin1String("; sleep 1; ") + brutalKill;
 
             QSsh::SshRemoteProcess::Ptr cleanup = m_connection->createRemoteProcess(remoteCall.toUtf8());

@@ -95,7 +95,7 @@ void CycleDetection::tarjan(Node *node)
             cycle->setFile(node->function->fileId());
             m_cycle++;
             qint64 id = -1;
-            m_data->addCompressedFunction(QString("cycle %1").arg(m_cycle), id);
+            m_data->addCompressedFunction(QString::fromLatin1("cycle %1").arg(m_cycle), id);
             cycle->setName(id);
             cycle->setObject(node->function->objectId());
             cycle->setFunctions(functions);

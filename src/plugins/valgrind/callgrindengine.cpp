@@ -68,19 +68,19 @@ QStringList CallgrindEngine::toolArguments() const
     QTC_ASSERT(callgrindSettings, return arguments);
 
     if (callgrindSettings->enableCacheSim())
-        arguments << "--cache-sim=yes";
+        arguments << QLatin1String("--cache-sim=yes");
 
     if (callgrindSettings->enableBranchSim())
-        arguments << "--branch-sim=yes";
+        arguments << QLatin1String("--branch-sim=yes");
 
     if (callgrindSettings->collectBusEvents())
-        arguments << "--collect-bus=yes";
+        arguments << QLatin1String("--collect-bus=yes");
 
     if (callgrindSettings->collectSystime())
-        arguments << "--collect-systime=yes";
+        arguments << QLatin1String("--collect-systime=yes");
 
     if (m_markAsPaused)
-        arguments << "--instr-atstart=no";
+        arguments << QLatin1String("--instr-atstart=no");
 
     // add extra arguments
     if (!m_argumentForToggleCollect.isEmpty())

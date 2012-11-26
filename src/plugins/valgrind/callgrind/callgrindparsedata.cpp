@@ -182,13 +182,13 @@ QString ParseData::prettyStringForEvent(const QString &event)
     QString type;
     if (event.contains(QLatin1Char('L')))
         type = ParseData::Private::tr("Last-level"); // first, "L" overwrites the others
-    else if (event.at(0) == 'I')
+    else if (event.at(0) == QLatin1Char('I'))
         type = ParseData::Private::tr("Instruction");
-    else if (event.at(0) == 'D')
+    else if (event.at(0) == QLatin1Char('D'))
         type = ParseData::Private::tr("Cache");
-    else if (event.leftRef(2) == "Bc")
+    else if (event.leftRef(2) == QLatin1String("Bc"))
         type = ParseData::Private::tr("Conditional branches");
-    else if (event.leftRef(2) == "Bi")
+    else if (event.leftRef(2) == QLatin1String("Bi"))
         type = ParseData::Private::tr("Indirect branches");
 
     QStringList prettyString;
@@ -198,7 +198,7 @@ QString ParseData::prettyStringForEvent(const QString &event)
         prettyString << ParseData::Private::tr("level %1").arg(event.at(1));
     prettyString << (isRead ? ParseData::Private::tr("read") : ParseData::Private::tr("write"));
 
-    if (event.at(0) == 'B')
+    if (event.at(0) == QLatin1Char('B'))
         prettyString << (isMiss ? ParseData::Private::tr("mispredicted") : ParseData::Private::tr("executed"));
     else
         prettyString << (isMiss ? ParseData::Private::tr("miss") : ParseData::Private::tr("access"));
@@ -221,9 +221,9 @@ void ParseData::setEvents(const QStringList &events)
 
 QString ParseData::prettyStringForPosition(const QString &position)
 {
-    if (position == "line")
+    if (position == QLatin1String("line"))
         return ParseData::Private::tr("Line:"); // as in: "line number"
-    else if (position == "instr")
+    else if (position == QLatin1String("instr"))
         return ParseData::Private::tr("Instruction"); // as in: "instruction address"
     return ParseData::Private::tr("Position:"); // never reached, in theory
 }
@@ -243,7 +243,7 @@ void ParseData::setPositions(const QStringList &positions)
     d->m_positions = positions;
     d->m_lineNumberPositionIndex = -1;
     for (int i = 0; i < positions.size(); ++i) {
-        if (positions.at(i) == "line") {
+        if (positions.at(i) == QLatin1String("line")) {
             d->m_lineNumberPositionIndex = i;
             break;
         }

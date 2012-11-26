@@ -121,8 +121,8 @@ void CallgrindParserTests::testHeaderData()
 {
     QScopedPointer<const ParseData> data(parseDataFile(dataFile("simpleFunction.out")));
 
-    QCOMPARE(data->command(), QString("ls"));
-    QCOMPARE(data->creator(), QString("callgrind-3.6.0.SVN-Debian"));
+    QCOMPARE(data->command(), QLatin1String("ls"));
+    QCOMPARE(data->creator(), QLatin1String("callgrind-3.6.0.SVN-Debian"));
     QCOMPARE(data->pid(), quint64(2992));
     QCOMPARE(data->version(), 1);
     QCOMPARE(data->part(), 1u);
@@ -144,9 +144,9 @@ void CallgrindParserTests::testSimpleFunction()
 
     {
     const Function *func = data->functions().at(0);
-    QCOMPARE(func->file(), QString("/my/file.cpp"));
-    QCOMPARE(func->object(), QString("/my/object"));
-    QCOMPARE(func->name(), QString("myFunction"));
+    QCOMPARE(func->file(), QLatin1String("/my/file.cpp"));
+    QCOMPARE(func->object(), QLatin1String("/my/object"));
+    QCOMPARE(func->name(), QLatin1String("myFunction"));
 
     QVERIFY(func->outgoingCalls().isEmpty());
     QCOMPARE(func->called(), quint64(0));
@@ -157,7 +157,7 @@ void CallgrindParserTests::testSimpleFunction()
     testSimpleCostItem(func->costItems().at(2), 3, 3);
     testSimpleCostItem(func->costItems().at(3), 1, 1);
     testSimpleCostItem(func->costItems().at(4), 5, 4);
-    testDifferringFileCostItem(func->costItems().at(5), QString("/my/file3.h"), 1, 5);
+    testDifferringFileCostItem(func->costItems().at(5), QLatin1String("/my/file3.h"), 1, 5);
     testSimpleCostItem(func->costItems().at(6), 7, 5);
     QCOMPARE(func->selfCost(0), quint64(20));
     QCOMPARE(func->inclusiveCost(0), quint64(20));
@@ -165,9 +165,9 @@ void CallgrindParserTests::testSimpleFunction()
 
     {
     const Function *func = data->functions().at(1);
-    QCOMPARE(func->file(), QString("/my/file.cpp"));
-    QCOMPARE(func->object(), QString("/my/object"));
-    QCOMPARE(func->name(), QString("myFunction2"));
+    QCOMPARE(func->file(), QLatin1String("/my/file.cpp"));
+    QCOMPARE(func->object(), QLatin1String("/my/object"));
+    QCOMPARE(func->name(), QLatin1String("myFunction2"));
 
     QVERIFY(func->incomingCalls().isEmpty());
     QCOMPARE(func->called(), quint64(0));
@@ -179,9 +179,9 @@ void CallgrindParserTests::testSimpleFunction()
 
     {
     const Function *func = data->functions().at(2);
-    QCOMPARE(func->file(), QString("/my/file2.cpp"));
-    QCOMPARE(func->object(), QString("/my/object"));
-    QCOMPARE(func->name(), QString("myFunction4"));
+    QCOMPARE(func->file(), QLatin1String("/my/file2.cpp"));
+    QCOMPARE(func->object(), QLatin1String("/my/object"));
+    QCOMPARE(func->name(), QLatin1String("myFunction4"));
 
     QVERIFY(func->incomingCalls().isEmpty());
     QCOMPARE(func->called(), quint64(0));
@@ -193,9 +193,9 @@ void CallgrindParserTests::testSimpleFunction()
 
     {
     const Function *func = data->functions().at(3);
-    QCOMPARE(func->file(), QString("/my/file.cpp"));
-    QCOMPARE(func->object(), QString("/my/object2"));
-    QCOMPARE(func->name(), QString("myFunction3"));
+    QCOMPARE(func->file(), QLatin1String("/my/file.cpp"));
+    QCOMPARE(func->object(), QLatin1String("/my/object2"));
+    QCOMPARE(func->name(), QLatin1String("myFunction3"));
 
     QVERIFY(func->incomingCalls().isEmpty());
     QCOMPARE(func->called(), quint64(0));
@@ -213,9 +213,9 @@ void CallgrindParserTests::testCallee()
 
     // basic function data testing
     const Function *main = data->functions().at(0);
-    QCOMPARE(main->file(), QString("file1.c"));
-    QCOMPARE(main->object(), QString(""));
-    QCOMPARE(main->name(), QString("main"));
+    QCOMPARE(main->file(), QLatin1String("file1.c"));
+    QCOMPARE(main->object(), QLatin1String(""));
+    QCOMPARE(main->name(), QLatin1String("main"));
 
     QVERIFY(main->incomingCalls().isEmpty());
     QCOMPARE(main->called(), quint64(0));
@@ -227,9 +227,9 @@ void CallgrindParserTests::testCallee()
     QCOMPARE(main->inclusiveCost(0), quint64(1230));
 
     const Function *func1 = data->functions().at(1);
-    QCOMPARE(func1->file(), QString("file1.c"));
-    QCOMPARE(func1->object(), QString(""));
-    QCOMPARE(func1->name(), QString("func1"));
+    QCOMPARE(func1->file(), QLatin1String("file1.c"));
+    QCOMPARE(func1->object(), QLatin1String(""));
+    QCOMPARE(func1->name(), QLatin1String("func1"));
 
     QCOMPARE(func1->incomingCalls().size(), 1);
     QCOMPARE(func1->called(), quint64(1));
@@ -240,9 +240,9 @@ void CallgrindParserTests::testCallee()
     QCOMPARE(func1->inclusiveCost(0), quint64(400));
 
     const Function *func2 = data->functions().at(2);
-    QCOMPARE(func2->file(), QString("file2.c"));
-    QCOMPARE(func2->object(), QString(""));
-    QCOMPARE(func2->name(), QString("func2"));
+    QCOMPARE(func2->file(), QLatin1String("file2.c"));
+    QCOMPARE(func2->object(), QLatin1String(""));
+    QCOMPARE(func2->name(), QLatin1String("func2"));
 
     QCOMPARE(func2->incomingCalls().size(), 2);
     QCOMPARE(func2->called(), quint64(8));
@@ -286,18 +286,18 @@ void CallgrindParserTests::testInlinedCalls()
     QCOMPARE(data->functions().size(), 3);
 
     const Function *main = data->functions().first();
-    QCOMPARE(main->name(), QString("main"));
-    QCOMPARE(main->file(), QString("file1.c"));
+    QCOMPARE(main->name(), QLatin1String("main"));
+    QCOMPARE(main->file(), QLatin1String("file1.c"));
     QCOMPARE(main->selfCost(0), quint64(4));
     QCOMPARE(main->inclusiveCost(0), quint64(804));
 
     const Function *inlined = data->functions().at(1);
-    QCOMPARE(inlined->name(), QString("Something::Inlined()"));
-    QCOMPARE(inlined->file(), QString("file.h"));
+    QCOMPARE(inlined->name(), QLatin1String("Something::Inlined()"));
+    QCOMPARE(inlined->file(), QLatin1String("file.h"));
 
     const Function *func1 = data->functions().last();
-    QCOMPARE(func1->name(), QString("func1"));
-    QCOMPARE(func1->file(), QString("file3.h"));
+    QCOMPARE(func1->name(), QLatin1String("func1"));
+    QCOMPARE(func1->file(), QLatin1String("file3.h"));
 
     QCOMPARE(main->outgoingCalls().size(), 2);
     QCOMPARE(main->costItems().at(2)->call()->callee(), inlined);
@@ -395,9 +395,9 @@ void CallgrindParserTests::testCycle()
     QCOMPARE(b->selfCost(0), quint64(20));
 
     QCOMPARE(data->functions(true).size(), 3);
-    QCOMPARE(findFunction(QString("main"), data->functions(true)), main);
-    QCOMPARE(findFunction(QString("A()"), data->functions(true)), a);
-    const FunctionCycle *cycle = dynamic_cast<const FunctionCycle*>(findFunction(QString("cycle 1"), data->functions(true)));
+    QCOMPARE(findFunction(QLatin1String("main"), data->functions(true)), main);
+    QCOMPARE(findFunction(QLatin1String("A()"), data->functions(true)), a);
+    const FunctionCycle *cycle = dynamic_cast<const FunctionCycle*>(findFunction(QLatin1String("cycle 1"), data->functions(true)));
     QVERIFY(cycle);
     QCOMPARE(cycle->called(), quint64(2));
     QCOMPARE(cycle->inclusiveCost(0), quint64(40));
@@ -409,34 +409,34 @@ void CallgrindParserTests::testRecursiveCycle()
     QScopedPointer<const ParseData> data(parseDataFile(dataFile("recursiveCycle.out")));
     QCOMPARE(data->functions().size(), 5);
 
-    const Function *main = findFunction(QString("main"), data->functions());
+    const Function *main = findFunction(QLatin1String("main"), data->functions());
     QVERIFY(main);
     QCOMPARE(main->inclusiveCost(0), quint64(70701765 + 3 + 4));
     QCOMPARE(data->totalCost(0), main->inclusiveCost(0));
     QCOMPARE(main->selfCost(0), quint64(3 + 4));
-    const Function *a1 = findFunction(QString("A(int)"), data->functions());
+    const Function *a1 = findFunction(QLatin1String("A(int)"), data->functions());
     QVERIFY(a1);
     QCOMPARE(a1->inclusiveCost(0), quint64(700017 + 70001746 + 2));
     QCOMPARE(a1->selfCost(0), quint64(700017 + 2));
-    const Function *a2 = findFunction(QString("A(int)'2"), data->functions());
+    const Function *a2 = findFunction(QLatin1String("A(int)'2"), data->functions());
     QVERIFY(a2);
     QCOMPARE(a2->inclusiveCost(0), quint64(35000846 + 1715042679 + 100));
     QCOMPARE(a2->selfCost(0), quint64(35000846 + 100));
-    const Function *b1 = findFunction(QString("B(int)"), data->functions());
+    const Function *b1 = findFunction(QLatin1String("B(int)"), data->functions());
     QVERIFY(b1);
     QCOMPARE(b1->inclusiveCost(0), quint64(700014 + 69301730 + 2));
     QCOMPARE(b1->selfCost(0), quint64(700014 + 2));
-    const Function *b2 = findFunction(QString("B(int)'2"), data->functions());
+    const Function *b2 = findFunction(QLatin1String("B(int)'2"), data->functions());
     QVERIFY(b2);
     QCOMPARE(b2->inclusiveCost(0), quint64(34300686 + 1680741895 + 98));
     QCOMPARE(b2->selfCost(0), quint64(34300686 + 98));
 
     { // cycle detection
         QCOMPARE(data->functions(true).size(), 4);
-        QCOMPARE(findFunction(QString("main"), data->functions(true)), main);
-        QCOMPARE(findFunction(QString("A(int)"), data->functions(true)), a1);
-        QCOMPARE(findFunction(QString("B(int)"), data->functions(true)), b1);
-        const FunctionCycle *cycle = dynamic_cast<const FunctionCycle*>(findFunction(QString("cycle 1"), data->functions(true)));
+        QCOMPARE(findFunction(QLatin1String("main"), data->functions(true)), main);
+        QCOMPARE(findFunction(QLatin1String("A(int)"), data->functions(true)), a1);
+        QCOMPARE(findFunction(QLatin1String("B(int)"), data->functions(true)), b1);
+        const FunctionCycle *cycle = dynamic_cast<const FunctionCycle*>(findFunction(QLatin1String("cycle 1"), data->functions(true)));
         QVERIFY(cycle);
         QCOMPARE(cycle->called(), quint64(1));
         const quint64 restCost = data->totalCost(0) - main->selfCost(0) - a1->selfCost(0) - b1->selfCost(0);
@@ -451,17 +451,17 @@ void CallgrindParserTests::testRecursion()
     QCOMPARE(data->functions().size(), 3);
     QCOMPARE(data->totalCost(0), quint64(35700972));
 
-    const Function *main = findFunction(QString("main"), data->functions());
+    const Function *main = findFunction(QLatin1String("main"), data->functions());
     QVERIFY(main);
     QCOMPARE(main->inclusiveCost(0), quint64(4 + 35700965 + 3));
     QCOMPARE(main->selfCost(0), quint64(4 + 3));
 
-    const Function *a1 = findFunction(QString("A(int)"), data->functions());
+    const Function *a1 = findFunction(QLatin1String("A(int)"), data->functions());
     QVERIFY(a1);
     QCOMPARE(a1->inclusiveCost(0), quint64(700010 + 35000946 + 2));
     QCOMPARE(a1->selfCost(0), quint64(700010 + 2));
 
-    const Function *a2 = findFunction(QString("A(int)'2"), data->functions());
+    const Function *a2 = findFunction(QLatin1String("A(int)'2"), data->functions());
     QVERIFY(a2);
     // inclusive cost must be the same as call-cost from a1
     QCOMPARE(a2->inclusiveCost(0), quint64(35000946));

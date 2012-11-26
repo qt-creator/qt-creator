@@ -174,7 +174,7 @@ QString ValgrindBaseSettings::valgrindExecutable() const
 
 QString ValgrindBaseSettings::id() const
 {
-    return "Analyzer.Valgrind.Settings";
+    return QLatin1String("Analyzer.Valgrind.Settings");
 }
 
 QString ValgrindBaseSettings::displayName() const
@@ -296,9 +296,9 @@ QVariantMap ValgrindGlobalSettings::defaults() const
     QVariantMap map = ValgrindBaseSettings::defaults();
 
     // Memcheck
-    map.insert(suppressionFilesC, QStringList());
-    map.insert(lastSuppressionDirectoryC, QString());
-    map.insert(lastSuppressionHistoryC, QStringList());
+    map.insert(QLatin1String(suppressionFilesC), QStringList());
+    map.insert(QLatin1String(lastSuppressionDirectoryC), QString());
+    map.insert(QLatin1String(lastSuppressionHistoryC), QStringList());
 
     // Callgrind
     map.insert(QLatin1String(callgrindCostFormatC), CostDelegate::FormatRelative);
@@ -312,9 +312,9 @@ void ValgrindGlobalSettings::fromMap(const QVariantMap &map)
     ValgrindBaseSettings::fromMap(map);
 
     // Memcheck
-    m_suppressionFiles = map.value(suppressionFilesC).toStringList();
-    m_lastSuppressionDirectory = map.value(lastSuppressionDirectoryC).toString();
-    m_lastSuppressionHistory = map.value(lastSuppressionHistoryC).toStringList();
+    m_suppressionFiles = map.value(QLatin1String(suppressionFilesC)).toStringList();
+    m_lastSuppressionDirectory = map.value(QLatin1String(lastSuppressionDirectoryC)).toString();
+    m_lastSuppressionHistory = map.value(QLatin1String(lastSuppressionHistoryC)).toStringList();
 
     // Callgrind
     // special code as the default one does not cope with the enum properly
@@ -336,9 +336,9 @@ QVariantMap ValgrindGlobalSettings::toMap() const
     QVariantMap map = ValgrindBaseSettings::toMap();
 
     // Memcheck
-    map.insert(suppressionFilesC, m_suppressionFiles);
-    map.insert(lastSuppressionDirectoryC, m_lastSuppressionDirectory);
-    map.insert(lastSuppressionHistoryC, m_lastSuppressionHistory);
+    map.insert(QLatin1String(suppressionFilesC), m_suppressionFiles);
+    map.insert(QLatin1String(lastSuppressionDirectoryC), m_lastSuppressionDirectory);
+    map.insert(QLatin1String(lastSuppressionHistoryC), m_lastSuppressionHistory);
 
     // Callgrind
     map.insert(QLatin1String(callgrindCostFormatC), m_costFormat);
@@ -449,8 +449,8 @@ QVariantMap ValgrindProjectSettings::defaults() const
     QVariantMap map = ValgrindBaseSettings::defaults();
 
     // Memcheck
-    map.insert(addedSuppressionFilesC, QStringList());
-    map.insert(removedSuppressionFilesC, QStringList());
+    map.insert(QLatin1String(addedSuppressionFilesC), QStringList());
+    map.insert(QLatin1String(removedSuppressionFilesC), QStringList());
 
     return map;
 }
@@ -460,8 +460,8 @@ void ValgrindProjectSettings::fromMap(const QVariantMap &map)
     ValgrindBaseSettings::fromMap(map);
 
     // Memcheck
-    setIfPresent(map, addedSuppressionFilesC, &m_addedSuppressionFiles);
-    setIfPresent(map, removedSuppressionFilesC, &m_disabledGlobalSuppressionFiles);
+    setIfPresent(map, QLatin1String(addedSuppressionFilesC), &m_addedSuppressionFiles);
+    setIfPresent(map, QLatin1String(removedSuppressionFilesC), &m_disabledGlobalSuppressionFiles);
 }
 
 AbstractAnalyzerSubConfig *ValgrindProjectSettings::clone()
@@ -476,8 +476,8 @@ QVariantMap ValgrindProjectSettings::toMap() const
     QVariantMap map = ValgrindBaseSettings::toMap();
 
     // Memcheck
-    map.insert(addedSuppressionFilesC, m_addedSuppressionFiles);
-    map.insert(removedSuppressionFilesC, m_disabledGlobalSuppressionFiles);
+    map.insert(QLatin1String(addedSuppressionFilesC), m_addedSuppressionFiles);
+    map.insert(QLatin1String(removedSuppressionFilesC), m_disabledGlobalSuppressionFiles);
 
     return map;
 }

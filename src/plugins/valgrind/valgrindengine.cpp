@@ -80,7 +80,7 @@ bool ValgrindEngine::start()
     emit starting(this);
 
     Core::FutureProgress *fp = Core::ICore::progressManager()->addTask(m_progress->future(),
-                                                        progressTitle(), "valgrind");
+                                                        progressTitle(), QLatin1String("valgrind"));
     fp->setKeepOnFinish(Core::FutureProgress::HideOnFinish);
     m_progress->setProgressRange(0, progressMaximum);
     m_progress->reportStarted();
@@ -97,7 +97,7 @@ bool ValgrindEngine::start()
     runner()->setWorkingDirectory(sp.workingDirectory);
     QString valgrindExe = m_settings->subConfig<ValgrindBaseSettings>()->valgrindExecutable();
     if (!sp.analyzerCmdPrefix.isEmpty())
-        valgrindExe = sp.analyzerCmdPrefix + ' ' + valgrindExe;
+        valgrindExe = sp.analyzerCmdPrefix + QLatin1Char(' ') + valgrindExe;
     runner()->setValgrindExecutable(valgrindExe);
     runner()->setValgrindArguments(toolArguments());
     runner()->setDebuggeeExecutable(sp.debuggee);
@@ -179,7 +179,7 @@ void ValgrindEngine::receiveProcessError(const QString &error, QProcess::Process
     } else if (m_isStopping && e == QProcess::Crashed) { // process gets killed on stop
         emit outputReceived(tr("** Process Terminated **\n"), Utils::ErrorMessageFormat);
     } else {
-        emit outputReceived(QString("** %1 **\n").arg(error), Utils::ErrorMessageFormat);
+        emit outputReceived(QString::fromLatin1("** %1 **\n").arg(error), Utils::ErrorMessageFormat);
     }
 
     if (m_isStopping)

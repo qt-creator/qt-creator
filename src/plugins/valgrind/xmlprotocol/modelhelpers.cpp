@@ -45,7 +45,7 @@ QString toolTipForFrame(const Frame &frame)
     if (!frame.file().isEmpty()) {
         location = frame.directory() + QDir::separator() + frame.file();
         if (frame.line() > 0)
-            location += ':' + QString::number(frame.line());
+            location += QLatin1Char(':') + QString::number(frame.line());
     }
 
     typedef QPair<QString, QString> StringPair;
@@ -64,10 +64,10 @@ QString toolTipForFrame(const Frame &frame)
     if (!frame.object().isEmpty())
         lines << qMakePair(QCoreApplication::translate("Valgrind::XmlProtocol", "Object:"), frame.object());
 
-    QString html = "<html>"
+    QString html = QLatin1String("<html>"
                    "<head>"
                    "<style>dt { font-weight:bold; } dd { font-family: monospace; }</style>\n"
-                   "<body><dl>";
+                   "<body><dl>");
 
     foreach (const StringPair &pair, lines) {
         html += QLatin1String("<dt>");
@@ -76,7 +76,7 @@ QString toolTipForFrame(const Frame &frame)
         html += pair.second;
         html += QLatin1String("</dd>\n");
     }
-    html += "</dl></body></html>";
+    html += QLatin1String("</dl></body></html>");
     return html;
 }
 
