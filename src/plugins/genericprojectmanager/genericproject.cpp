@@ -479,7 +479,7 @@ QString GenericProjectFile::suggestedFileName() const
 
 QString GenericProjectFile::mimeType() const
 {
-    return Constants::GENERICMIMETYPE;
+    return QLatin1String(Constants::GENERICMIMETYPE);
 }
 
 bool GenericProjectFile::isModified() const

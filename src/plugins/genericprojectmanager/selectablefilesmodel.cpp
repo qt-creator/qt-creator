@@ -49,7 +49,7 @@ SelectableFilesModel::SelectableFilesModel(const QString &baseDir, QObject *pare
 {
     // Dummy tree
     m_root = new Tree;
-    m_root->name = "/";
+    m_root->name = QLatin1String("/");
     m_root->parent = 0;
     m_root->fullPath = m_baseDir;
     m_root->isDir = true;
@@ -59,7 +59,7 @@ void SelectableFilesModel::setInitialMarkedFiles(const QStringList &files)
 {
     m_files = files.toSet();
     m_outOfBaseDirFiles.clear();
-    QString base = m_baseDir + '/';
+    QString base = m_baseDir + QLatin1Char('/');
     foreach (const QString &file, m_files)
         if (!file.startsWith(base))
             m_outOfBaseDirFiles.append(file);
@@ -75,7 +75,7 @@ void SelectableFilesModel::startParsing()
 {
     // Build a tree in a future
     m_rootForFuture = new Tree;
-    m_rootForFuture->name = "/";
+    m_rootForFuture->name = QLatin1String("/");
     m_rootForFuture->parent = 0;
     m_rootForFuture->fullPath = m_baseDir;
     m_rootForFuture->isDir = true;
@@ -361,14 +361,15 @@ void SelectableFilesModel::collectFiles(Tree *root, QStringList *result) const
 QList<Glob> SelectableFilesModel::parseFilter(const QString &filter)
 {
     QList<Glob> result;
-    QStringList list = filter.split(';', QString::SkipEmptyParts);
+    QStringList list = filter.split(QLatin1Char(';'), QString::SkipEmptyParts);
     foreach (const QString &e, list) {
         QString entry = e.trimmed();
         Glob g;
-        if (entry.indexOf('*') == -1 && entry.indexOf('?') == -1) {
+        if (entry.indexOf(QLatin1Char('*')) == -1 && entry.indexOf(QLatin1Char('?')) == -1) {
             g.mode = Glob::EXACT;
             g.matchString = entry;
-        } else if (entry.startsWith('*') && entry.indexOf('*', 1) == -1 && entry.indexOf('?', 1) == -1) {
+        } else if (entry.startsWith(QLatin1Char('*')) && entry.indexOf(QLatin1Char('*'), 1) == -1
+                   && entry.indexOf(QLatin1Char('?'), 1) == -1) {
             g.mode = Glob::ENDSWITH;
             g.matchString = entry.mid(1);
         } else {
@@ -518,8 +519,8 @@ SelectableFilesDialog::SelectableFilesDialog(const QString &path, const QStringL
     hbox->addWidget(m_filterLabel);
     m_filterLineEdit = new QLineEdit(this);
 
-    const QString filter = Core::ICore::settings()->value(Constants::FILEFILTER_SETTING,
-                                                          Constants::FILEFILTER_DEFAULT).toString();
+    const QString filter = Core::ICore::settings()->value(QLatin1String(Constants::FILEFILTER_SETTING),
+                                                          QLatin1String(Constants::FILEFILTER_DEFAULT)).toString();
     m_filterLineEdit->setText(filter);
     m_filterLineEdit->hide();
     hbox->addWidget(m_filterLineEdit);
@@ -610,7 +611,7 @@ QStringList SelectableFilesDialog::selectedFiles() const
 void SelectableFilesDialog::applyFilter()
 {
     const QString filter = m_filterLineEdit->text();
-    Core::ICore::settings()->setValue(Constants::FILEFILTER_SETTING, filter);
+    Core::ICore::settings()->setValue(QLatin1String(Constants::FILEFILTER_SETTING), filter);
     m_selectableFilesModel->applyFilter(filter);
 }
 

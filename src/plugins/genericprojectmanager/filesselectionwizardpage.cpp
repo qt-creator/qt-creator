@@ -55,8 +55,8 @@ FilesSelectionWizardPage::FilesSelectionWizardPage(GenericProjectWizardDialog *g
     hbox->addWidget(m_filterLabel);
     m_filterLineEdit = new QLineEdit;
 
-    const QString filter = Core::ICore::settings()->value(Constants::FILEFILTER_SETTING,
-                                                          Constants::FILEFILTER_DEFAULT).toString();
+    const QString filter = Core::ICore::settings()->value(QLatin1String(Constants::FILEFILTER_SETTING),
+                                                          QLatin1String(Constants::FILEFILTER_DEFAULT)).toString();
     m_filterLineEdit->setText(filter);
     m_filterLineEdit->hide();
     hbox->addWidget(m_filterLineEdit);
@@ -140,7 +140,7 @@ QStringList FilesSelectionWizardPage::selectedFiles() const
 void FilesSelectionWizardPage::applyFilter()
 {
     const QString filter = m_filterLineEdit->text();
-    Core::ICore::settings()->setValue(Constants::FILEFILTER_SETTING, filter);
+    Core::ICore::settings()->setValue(QLatin1String(Constants::FILEFILTER_SETTING), filter);
     m_model->applyFilter(filter);
 }
 
