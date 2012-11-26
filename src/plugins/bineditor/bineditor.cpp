@@ -142,15 +142,15 @@ void BinEditor::init()
         ++hex;
     }
 
-    if (m_isMonospacedFont && fm.width("M M ") != m_charWidth * 4) {
+    if (m_isMonospacedFont && fm.width(QLatin1String("M M ")) != m_charWidth * 4) {
         // On Qt/Mac, monospace font widths may have a fractional component
         // This breaks the assumption that width("MMM") == width('M') * 3
 
         m_isMonospacedFont = false;
-        m_columnWidth = fm.width("MMM");
+        m_columnWidth = fm.width(QLatin1String("MMM"));
         m_labelWidth = m_addressBytes == 4
-            ? fm.width("MMMM:MMMM")
-            : fm.width("MMMM:MMMM:MMMM:MMMM");
+            ? fm.width(QLatin1String("MMMM:MMMM"))
+            : fm.width(QLatin1String("MMMM:MMMM:MMMM:MMMM"));
     }
 
     horizontalScrollBar()->setRange(0, 2 * m_margin + m_bytesPerLine * m_columnWidth
@@ -691,9 +691,9 @@ QString BinEditor::addressString(quint64 address)
 
     for (int b = 0; b < m_addressBytes; ++b) {
         addressStringData[indices[2*m_addressBytes - 1 - b*2]] =
-            hex[(address >> (8*b)) & 0xf];
+            QLatin1Char(hex[(address >> (8*b)) & 0xf]);
         addressStringData[indices[2*m_addressBytes - 2 - b*2]] =
-            hex[(address >> (8*b + 4)) & 0xf];
+            QLatin1Char(hex[(address >> (8*b + 4)) & 0xf]);
     }
     return m_addressString;
 }
@@ -796,7 +796,7 @@ void BinEditor::paintEvent(QPaintEvent *e)
                 int pos = line * m_bytesPerLine + c;
                 if (pos >= m_size) {
                     while (c < m_bytesPerLine) {
-                        itemStringData[c*3] = itemStringData[c*3+1] = ' ';
+                        itemStringData[c*3] = itemStringData[c*3+1] = QLatin1Char(' ');
                         ++c;
                     }
                     break;
@@ -806,8 +806,8 @@ void BinEditor::paintEvent(QPaintEvent *e)
 
 
                 const uchar value = uchar(dataAt(pos, isOld));
-                itemStringData[c*3] = hex[value >> 4];
-                itemStringData[c*3+1] = hex[value & 0xf];
+                itemStringData[c*3] = QLatin1Char(hex[value >> 4]);
+                itemStringData[c*3+1] = QLatin1Char(hex[value & 0xf]);
                 if (hasOldData && !isOld && value != uchar(dataAt(pos, true))) {
                     changedString[c] = true;
                     somethingChanged = true;
@@ -1388,7 +1388,7 @@ void BinEditor::copy(bool raw)
     }
     const QByteArray &data = dataMid(selStart, selectionLength);
     if (raw) {
-        QApplication::clipboard()->setText(data);
+        QApplication::clipboard()->setText(QString::fromLatin1(data));
         return;
     }
     QString hexString;
@@ -1396,7 +1396,7 @@ void BinEditor::copy(bool raw)
     hexString.reserve(3 * data.size());
     for (int i = 0; i < data.size(); ++i) {
         const uchar val = static_cast<uchar>(data[i]);
-        hexString.append(hex[val >> 4]).append(hex[val & 0xf]).append(' ');
+        hexString.append(QLatin1Char(hex[val >> 4])).append(QLatin1Char(hex[val & 0xf])).append(QLatin1Char(' '));
     }
     hexString.chop(1);
     QApplication::clipboard()->setText(hexString);
