@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = Macros
 
-DEFINES += MACROS_LIBRARY
+DEFINES += MACROS_LIBRARY QT_NO_CAST_FROM_ASCII
 
 include(../../qtcreatorplugin.pri)
 include(macros_dependencies.pri)

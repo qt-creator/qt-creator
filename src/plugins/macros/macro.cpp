@@ -61,7 +61,7 @@ public:
 };
 
 Macro::MacroPrivate::MacroPrivate() :
-    version(Core::Constants::IDE_VERSION_LONG)
+    version(QLatin1String(Core::Constants::IDE_VERSION_LONG))
 {
 }
 

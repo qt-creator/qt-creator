@@ -41,7 +41,7 @@ SaveDialog::SaveDialog(QWidget *parent) :
     ui(new Ui::SaveDialog)
 {
     ui->setupUi(this);
-    ui->name->setValidator(new QRegExpValidator(QRegExp("\\w*"), this));
+    ui->name->setValidator(new QRegExpValidator(QRegExp(QLatin1String("\\w*")), this));
 }
 
 SaveDialog::~SaveDialog()

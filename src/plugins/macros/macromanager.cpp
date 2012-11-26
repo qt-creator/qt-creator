@@ -142,11 +142,11 @@ void MacroManager::MacroManagerPrivate::initialize()
     macros.clear();
     QDir dir(q->macrosDirectory());
     QStringList filter;
-    filter << QString("*.")+Constants::M_EXTENSION;
+    filter << QLatin1String("*.") + QLatin1String(Constants::M_EXTENSION);
     QStringList files = dir.entryList(filter, QDir::Files);
 
     foreach (const QString &name, files) {
-        QString fileName = dir.absolutePath() + '/' + name;
+        QString fileName = dir.absolutePath() + QLatin1Char('/') + name;
         Macro *macro = new Macro;
         if (macro->loadHeader(fileName))
             addMacro(macro);
@@ -175,7 +175,7 @@ void MacroManager::MacroManagerPrivate::removeMacro(const QString &name)
     if (!macros.contains(name))
         return;
     // Remove shortcut
-    Core::ActionManager::unregisterShortcut(Core::Id(Constants::PREFIX_MACRO+name));
+    Core::ActionManager::unregisterShortcut(Core::Id(QLatin1String(Constants::PREFIX_MACRO) + name));
 
     // Remove macro from the map
     Macro *macro = macros.take(name);
@@ -190,7 +190,8 @@ void MacroManager::MacroManagerPrivate::changeMacroDescription(Macro *macro, con
     macro->save(macro->fileName(), Core::ICore::mainWindow());
 
     // Change shortcut what's this
-    Core::Command *command = Core::ActionManager::command(Core::Id(Constants::PREFIX_MACRO+macro->displayName()));
+    Core::Command *command = Core::ActionManager::command(
+                Core::Id(QLatin1String(Constants::PREFIX_MACRO)+macro->displayName()));
     if (command && command->shortcut())
         command->shortcut()->setWhatsThis(description);
 }
@@ -233,8 +234,8 @@ void MacroManager::MacroManagerPrivate::showSaveDialog()
             return;
 
         // Save in the resource path
-        QString fileName = q->macrosDirectory() + '/' + dialog.name()
-                           + '.' + Constants::M_EXTENSION;
+        QString fileName = q->macrosDirectory() + QLatin1Char('/') + dialog.name()
+                           + QLatin1Char('.') + QLatin1String(Constants::M_EXTENSION);
         currentMacro->setDescription(dialog.description());
         currentMacro->save(fileName, mainWindow);
         addMacro(currentMacro);
