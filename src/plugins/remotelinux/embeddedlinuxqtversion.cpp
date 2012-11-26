@@ -56,7 +56,7 @@ EmbeddedLinuxQtVersion *EmbeddedLinuxQtVersion::clone() const
 
 QString EmbeddedLinuxQtVersion::type() const
 {
-    return RemoteLinux::Constants::EMBEDDED_LINUX_QT;
+    return QLatin1String(RemoteLinux::Constants::EMBEDDED_LINUX_QT);
 }
 
 QList<ProjectExplorer::Abi> EmbeddedLinuxQtVersion::detectQtAbis() const

@@ -71,7 +71,7 @@ private:
                 "cat $dir/stat;"
                 "readlink $dir/exe;"
                 "printf '%1''%2';"
-            "done").arg(Delimiter0).arg(Delimiter1);
+            "done").arg(QLatin1String(Delimiter0)).arg(QLatin1String(Delimiter1));
     }
 
     QList<DeviceProcess> buildProcessList(const QString &listProcessesReply) const

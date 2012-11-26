@@ -127,7 +127,7 @@ bool RemoteLinuxRunControl::isRunning() const
 
 QIcon RemoteLinuxRunControl::icon() const
 {
-    return QIcon(ProjectExplorer::Constants::ICON_RUN_SMALL);
+    return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 }
 
 void RemoteLinuxRunControl::setApplicationRunnerPreRunAction(DeviceApplicationHelperAction *action)

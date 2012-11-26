@@ -109,7 +109,7 @@ void PublicKeyDeploymentDialog::handleDeploymentFinished(const QString &errorMsg
         buttonText = errorMsg;
         textColor = "red";
     }
-    setLabelText(QString::fromLatin1("<font color=\"%1\">%2</font>").arg(textColor, buttonText));
+    setLabelText(QString::fromLatin1("<font color=\"%1\">%2</font>").arg(QLatin1String(textColor), buttonText));
     setCancelButtonText(tr("Close"));
 }
 

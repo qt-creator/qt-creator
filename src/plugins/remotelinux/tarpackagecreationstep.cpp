@@ -231,7 +231,7 @@ bool TarPackageCreationStep::writeHeader(QFile &tarFile, const QFileInfo &fileIn
     const int maxFilePathLength = sizeof header.fileNamePrefix + sizeof header.fileName;
     if (filePath.count() > maxFilePathLength) {
         raiseError(tr("Cannot add file '%1' to tar-archive: path too long.")
-            .arg(QDir::toNativeSeparators(filePath)));
+            .arg(QDir::toNativeSeparators(remoteFilePath)));
         return false;
     }
 
@@ -249,19 +249,19 @@ bool TarPackageCreationStep::writeHeader(QFile &tarFile, const QFileInfo &fileIn
         | (04 * fileInfo.permission(QFile::ReadOther))
         | (02 * fileInfo.permission(QFile::WriteOther))
         | (01 * fileInfo.permission(QFile::ExeOther));
-    const QByteArray permissionString = QString("%1").arg(permissions,
+    const QByteArray permissionString = QString::fromLatin1("%1").arg(permissions,
         sizeof header.fileMode - 1, 8, QLatin1Char('0')).toLatin1();
     std::memcpy(&header.fileMode, permissionString.data(), permissionString.length());
-    const QByteArray uidString = QString("%1").arg(fileInfo.ownerId(),
+    const QByteArray uidString = QString::fromLatin1("%1").arg(fileInfo.ownerId(),
         sizeof header.uid - 1, 8, QLatin1Char('0')).toLatin1();
     std::memcpy(&header.uid, uidString.data(), uidString.length());
-    const QByteArray gidString = QString("%1").arg(fileInfo.groupId(),
+    const QByteArray gidString = QString::fromLatin1("%1").arg(fileInfo.groupId(),
         sizeof header.gid - 1, 8, QLatin1Char('0')).toLatin1();
     std::memcpy(&header.gid, gidString.data(), gidString.length());
-    const QByteArray sizeString = QString("%1").arg(fileInfo.size(),
+    const QByteArray sizeString = QString::fromLatin1("%1").arg(fileInfo.size(),
         sizeof header.length - 1, 8, QLatin1Char('0')).toLatin1();
     std::memcpy(&header.length, sizeString.data(), sizeString.length());
-    const QByteArray mtimeString = QString("%1").arg(fileInfo.lastModified().toTime_t(),
+    const QByteArray mtimeString = QString::fromLatin1("%1").arg(fileInfo.lastModified().toTime_t(),
         sizeof header.mtime - 1, 8, QLatin1Char('0')).toLatin1();
     std::memcpy(&header.mtime, mtimeString.data(), mtimeString.length());
     if (fileInfo.isDir())
@@ -276,7 +276,7 @@ bool TarPackageCreationStep::writeHeader(QFile &tarFile, const QFileInfo &fileIn
     quint64 checksum = 0;
     for (size_t i = 0; i < sizeof header; ++i)
         checksum += reinterpret_cast<char *>(&header)[i];
-    const QByteArray checksumString = QString("%1").arg(checksum,
+    const QByteArray checksumString = QString::fromLatin1("%1").arg(checksum,
         sizeof header.chksum - 1, 8, QLatin1Char('0')).toLatin1();
     std::memcpy(&header.chksum, checksumString.data(), checksumString.length());
     header.chksum[sizeof header.chksum-1] = 0;
