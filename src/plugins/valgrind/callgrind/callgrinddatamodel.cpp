@@ -258,37 +258,39 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
         if (!d->m_verboseToolTips)
             return data(index, Qt::DisplayRole);
 
-        QString ret = "<html><head><style>\
+        QString ret = QLatin1String("<html><head><style>\
             dt { font-weight: bold; }\
             dd { font-family: monospace; }\
             tr.head, td.head { font-weight: bold; }\
             tr.head { text-decoration: underline; }\
             td.group { padding-left: 20px; }\
             td { white-space: nowrap; }\
-            </style></head>\n";
+            </style></head>\n<body><dl>");
 
+        QString entry = QLatin1String("<dt>%1</dt><dd>%2</dd>\n");
         // body, function info first
-        ret += "<body><dl>";
-        ret += "<dt>" + tr("Function:") + "</dt><dd>" + Qt::escape(func->name()) + "</dd>\n";
-        ret += "<dt>" + tr("File:") + "</dt><dd>" + func->file() + "</dd>\n";
+        ret += entry.arg(tr("Function:")).arg(Qt::escape(func->name()));
+        ret += entry.arg(tr("File:")).arg(func->file());
         if (!func->costItems().isEmpty()) {
             const CostItem *firstItem = func->costItems().first();
             for (int i = 0; i < d->m_data->positions().size(); ++i) {
-                ret += "<dt>" + ParseData::prettyStringForPosition(d->m_data->positions().at(i)) + "</dt>";
-                ret += "<dd>" + QString::number(firstItem->position(i)) + "</dd>\n";
+                ret += entry.arg(ParseData::prettyStringForPosition(d->m_data->positions().at(i)))
+                       .arg(firstItem->position(i));
             }
         }
-        ret += "<dt>" + tr("Object:") + "</dt><dd>" + func->object() + "</dd>\n";
-        ret += "<dt>" + tr("Called:") + "</dt><dd>" + tr("%n time(s)", 0, func->called()) + "</dd>\n";
-        ret += "</dl><p/>";
+        ret += entry.arg(tr("Object:")).arg(func->object());
+        ret += entry.arg(tr("Called:")).arg(tr("%n time(s)", 0, func->called()));
+        ret += QLatin1String("</dl><p/>");
 
         // self/inclusive costs
-        ret += "<table>";
-        ret += "<thead><tr class='head'><td>" + tr("Events") + "</td>";
-        ret += "<td class='group'>" + tr("Self costs") + "</td><td>" + tr("(%)") + "</td>";
-        ret += "<td class='group'>" + tr("Incl. costs") + "</td><td>" + tr("(%)") +  "</td>";
-        ret += "</tr></thead>";
-        ret += "<tbody>";
+        entry = QLatin1String("<td class='group'>%1</td><td>%2</td>");
+        ret += QLatin1String("<table>");
+        ret += QLatin1String("<thead><tr class='head'>");
+        ret += QLatin1String("<td>") + tr("Events") + QLatin1String("</td>");
+        ret += entry.arg(tr("Self costs")).arg(tr("(%)"));
+        ret += entry.arg(tr("Incl. costs")).arg(tr("(%)"));
+        ret += QLatin1String("</tr></thead>");
+        ret += QLatin1String("<tbody>");
         for (int i = 0; i < d->m_data->events().size(); ++i) {
             quint64 selfCost = func->selfCost(i);
             quint64 inclCost = func->inclusiveCost(i);
@@ -297,16 +299,16 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
             const float relSelfCost = (float)qRound((float)selfCost / totalCost * 10000) / 100;
             const float relInclCost = (float)qRound((float)inclCost / totalCost * 10000) / 100;
 
-            ret += "<tr>";
-            ret += "<td class='head'><nobr>" + noWrap(ParseData::prettyStringForEvent(d->m_data->events().at(i))) + "</nobr></td>";
-            ret += "<td class='group'>" + tr("%1").arg(selfCost) + "</td>";
-            ret += "<td>" + tr("(%1%)").arg(relSelfCost) + "</td>";
-            ret += "<td class='group'>" + tr("%1").arg(inclCost) + "</td>";
-            ret += "<td>" + tr("(%1%)").arg(relInclCost) + "</td>";
-            ret += "</tr>";
+            ret += QLatin1String("<tr>");
+            ret += QLatin1String("<td class='head'><nobr>") +
+                    noWrap(ParseData::prettyStringForEvent(d->m_data->events().at(i)))
+                    + QLatin1String("</nobr></td>");
+            ret += entry.arg(selfCost).arg(tr("(%1%)").arg(relSelfCost));
+            ret += entry.arg(inclCost).arg(tr("(%1%)").arg(relInclCost));
+            ret += QLatin1String("</tr>");
         }
-        ret += "</tbody></table>";
-        ret += "</body></html>";
+        ret += QLatin1String("</tbody></table>");
+        ret += QLatin1String("</body></html>");
         return ret;
     }
 
