@@ -186,7 +186,7 @@ void GeneralSettingsPage::apply()
         manager->setCustomValue(QLatin1String("ContextHelpOption"), helpOption);
 
         QSettings *settings = Core::ICore::settings();
-        settings->beginGroup(Help::Constants::ID_MODE_HELP);
+        settings->beginGroup(QLatin1String(Help::Constants::ID_MODE_HELP));
         settings->setValue(QLatin1String("ContextHelpOption"), helpOption);
         settings->endGroup();
 
@@ -247,7 +247,7 @@ void GeneralSettingsPage::exportBookmarks()
     m_ui->errorLabel->setVisible(false);
 
     QString fileName = QFileDialog::getSaveFileName(0, tr("Save File"),
-        "untitled.xbel", tr("Files (*.xbel)"));
+        QLatin1String("untitled.xbel"), tr("Files (*.xbel)"));
 
     QLatin1String suffix(".xbel");
     if (!fileName.endsWith(suffix))

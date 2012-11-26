@@ -364,7 +364,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(remoteHelpFilter, SIGNAL(linkActivated(QUrl)), this,
         SLOT(switchToHelpMode(QUrl)));
 
-    QDesktopServices::setUrlHandler("qthelp", this, "handleHelpRequest");
+    QDesktopServices::setUrlHandler(QLatin1String("qthelp"), this, "handleHelpRequest");
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*,
         Core::IMode*)), this, SLOT(modeChanged(Core::IMode*,Core::IMode*)));
 
@@ -462,7 +462,7 @@ void HelpPlugin::setupUi()
 
     ContentWindow *contentWindow = new ContentWindow();
     contentWindow->setWindowTitle(tr(SB_CONTENTS));
-    m_contentItem = new Core::SideBarItem(contentWindow, SB_CONTENTS);
+    m_contentItem = new Core::SideBarItem(contentWindow, QLatin1String(SB_CONTENTS));
     connect(contentWindow, SIGNAL(linkActivated(QUrl)), m_centralWidget,
         SLOT(setSource(QUrl)));
 
@@ -930,7 +930,7 @@ void HelpPlugin::activateContext()
                 "available.</center></body></html>").arg(m_idFromContext));
         } else {
             int version = 0;
-            QRegExp exp("(\\d+)");
+            QRegExp exp(QLatin1String("(\\d+)"));
             QUrl source = *links.begin();
             const QLatin1String qtRefDoc = QLatin1String("com.trolltech.qt");
 
@@ -1244,12 +1244,12 @@ void HelpPlugin::slotOpenActionUrl(QAction *action)
 
 void HelpPlugin::slotOpenSupportPage()
 {
-    switchToHelpMode(QUrl("qthelp://com.nokia.qtcreator/doc/technical-support.html"));
+    switchToHelpMode(QUrl(QLatin1String("qthelp://com.nokia.qtcreator/doc/technical-support.html")));
 }
 
 void HelpPlugin::slotReportBug()
 {
-    QDesktopServices::openUrl(QUrl("https://bugreports.qt-project.org"));
+    QDesktopServices::openUrl(QUrl(QLatin1String("https://bugreports.qt-project.org")));
 }
 
 void HelpPlugin::openFindToolBar()
@@ -1279,7 +1279,7 @@ void HelpPlugin::doSetupIfNeeded()
 int HelpPlugin::contextHelpOption() const
 {
     QSettings *settings = Core::ICore::settings();
-    const QString key = Help::Constants::ID_MODE_HELP + QLatin1String("/ContextHelpOption");
+    const QString key = QLatin1String(Help::Constants::ID_MODE_HELP) + QLatin1String("/ContextHelpOption");
     if (settings->contains(key))
         return settings->value(key, Help::Constants::SideBySideIfPossible).toInt();
 

@@ -49,7 +49,7 @@ ExternalHelpWindow::ExternalHelpWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(Help::Constants::ID_MODE_HELP);
+    settings->beginGroup(QLatin1String(Help::Constants::ID_MODE_HELP));
 
     const QVariant geometry = settings->value(QLatin1String("geometry"));
     if (geometry.isValid())
@@ -139,7 +139,7 @@ ExternalHelpWindow::ExternalHelpWindow(QWidget *parent)
         SLOT(gotoNextPage()));
     addAction(ctrlShiftTab);
 
-    action = new QAction(QIcon(Core::Constants::ICON_TOGGLE_SIDEBAR),
+    action = new QAction(QIcon(QLatin1String(Core::Constants::ICON_TOGGLE_SIDEBAR)),
         tr("Show Sidebar"), this);
     connect(action, SIGNAL(triggered()), this, SIGNAL(showHideSidebar()));
 
@@ -179,7 +179,7 @@ ExternalHelpWindow::~ExternalHelpWindow()
 void ExternalHelpWindow::closeEvent(QCloseEvent *event)
 {
     QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(Help::Constants::ID_MODE_HELP);
+    settings->beginGroup(QLatin1String(Help::Constants::ID_MODE_HELP));
     settings->setValue(QLatin1String("geometry"), saveGeometry());
     settings->endGroup();
 
