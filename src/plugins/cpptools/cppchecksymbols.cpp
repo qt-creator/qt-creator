@@ -1282,9 +1282,9 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
 
         // Add a diagnostic message if argument count does not match
         if (matchType == Match_TooFewArgs)
-            warning(line, column, QCoreApplication::translate("CPlusplus::CheckSymbols", "Too few arguments", 0, length));
+            warning(line, column, QCoreApplication::translate("CPlusplus::CheckSymbols", "Too few arguments"), length);
         else if (matchType == Match_TooManyArgs)
-            warning(line, column, QCoreApplication::translate("CPlusplus::CheckSymbols", "Too many arguments", 0, length));
+            warning(line, column, QCoreApplication::translate("CPlusplus::CheckSymbols", "Too many arguments"), length);
 
         const Use use(line, column, length, kind);
         addUse(use);
