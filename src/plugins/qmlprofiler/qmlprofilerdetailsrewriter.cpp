@@ -167,7 +167,7 @@ void QmlProfilerDetailsRewriter::rewriteDetailsForLocation(QTextStream &textDoc,
     qint64 len = node->lastSourceLocation().end() - startPos;
 
     textDoc.seek(startPos);
-    QString details = textDoc.read(len).replace('\n'," ").simplified();
+    QString details = textDoc.read(len).replace(QLatin1Char('\n'), QLatin1Char(' ')).simplified();
 
     emit rewriteDetailsString(type, location, details);
 }

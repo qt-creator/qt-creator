@@ -75,7 +75,7 @@ public:
 QmlProfilerClientManager::QmlProfilerClientManager(QObject *parent) :
     QObject(parent), d(new QmlProfilerClientManagerPrivate(this))
 {
-    setObjectName("QML Profiler Connections");
+    setObjectName(QLatin1String("QML Profiler Connections"));
 
     d->profilerState = 0;
 
@@ -224,7 +224,8 @@ void QmlProfilerClientManager::connectToClient()
     if (!d->connection || d->connection->state() != QAbstractSocket::UnconnectedState)
         return;
 
-    QmlProfilerTool::logStatus(QString("QML Profiler: Connecting to %1:%2 ...").arg(d->tcpHost, QString::number(d->tcpPort)));
+    QmlProfilerTool::logStatus(QString::fromLatin1("QML Profiler: Connecting to %1:%2 ...")
+                               .arg(d->tcpHost, QString::number(d->tcpPort)));
     d->connection->connectToHost(d->tcpHost, d->tcpPort);
 }
 
@@ -321,14 +322,14 @@ void QmlProfilerClientManager::retryMessageBoxFinished(int result)
         break;
     }
     case QMessageBox::Help: {
-        QmlProfilerTool::handleHelpRequest(QString("qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html"));
+        QmlProfilerTool::handleHelpRequest(QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html"));
         // fall through
     }
     default: {
         if (d->connection) {
-            QmlProfilerTool::logStatus("QML Profiler: Failed to connect! " + d->connection->errorString());
+            QmlProfilerTool::logStatus(QLatin1String("QML Profiler: Failed to connect! ") + d->connection->errorString());
         } else {
-            QmlProfilerTool::logStatus("QML Profiler: Failed to connect!");
+            QmlProfilerTool::logStatus(QLatin1String("QML Profiler: Failed to connect!"));
         }
 
         emit connectionFailed();

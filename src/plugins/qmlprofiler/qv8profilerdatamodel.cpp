@@ -298,24 +298,24 @@ void QV8ProfilerDataModel::QV8ProfilerDataModelPrivate::clearV8RootEvent()
 
 void QV8ProfilerDataModel::save(QXmlStreamWriter &stream)
 {
-    stream.writeStartElement("v8profile"); // v8 profiler output
-    stream.writeAttribute("totalTime", QString::number(d->v8MeasuredTime));
+    stream.writeStartElement(QLatin1String("v8profile")); // v8 profiler output
+    stream.writeAttribute(QLatin1String("totalTime"), QString::number(d->v8MeasuredTime));
     foreach (QV8EventData *v8event, d->v8EventHash.values()) {
-        stream.writeStartElement("event");
-        stream.writeAttribute("index",
+        stream.writeStartElement(QLatin1String("event"));
+        stream.writeAttribute(QLatin1String("index"),
                               QString::number(
                                   d->v8EventHash.keys().indexOf(
                                       v8event->eventHashStr)));
-        stream.writeTextElement("displayname", v8event->displayName);
-        stream.writeTextElement("functionname", v8event->functionName);
+        stream.writeTextElement(QLatin1String("displayname"), v8event->displayName);
+        stream.writeTextElement(QLatin1String("functionname"), v8event->functionName);
         if (!v8event->filename.isEmpty()) {
-            stream.writeTextElement("filename", v8event->filename);
-            stream.writeTextElement("line", QString::number(v8event->line));
+            stream.writeTextElement(QLatin1String("filename"), v8event->filename);
+            stream.writeTextElement(QLatin1String("line"), QString::number(v8event->line));
         }
-        stream.writeTextElement("totalTime", QString::number(v8event->totalTime));
-        stream.writeTextElement("selfTime", QString::number(v8event->selfTime));
+        stream.writeTextElement(QLatin1String("totalTime"), QString::number(v8event->totalTime));
+        stream.writeTextElement(QLatin1String("selfTime"), QString::number(v8event->selfTime));
         if (!v8event->childrenHash.isEmpty()) {
-            stream.writeStartElement("childrenEvents");
+            stream.writeStartElement(QLatin1String("childrenEvents"));
             QStringList childrenIndexes;
             QStringList childrenTimes;
             QStringList parentTimes;
@@ -325,9 +325,9 @@ void QV8ProfilerDataModel::save(QXmlStreamWriter &stream)
                 parentTimes << QString::number(v8child->totalTime);
             }
 
-            stream.writeAttribute("list", childrenIndexes.join(QString(", ")));
-            stream.writeAttribute("childrenTimes", childrenTimes.join(QString(", ")));
-            stream.writeAttribute("parentTimes", parentTimes.join(QString(", ")));
+            stream.writeAttribute(QLatin1String("list"), childrenIndexes.join(QLatin1String(", ")));
+            stream.writeAttribute(QLatin1String("childrenTimes"), childrenTimes.join(QLatin1String(", ")));
+            stream.writeAttribute(QLatin1String("parentTimes"), parentTimes.join(QLatin1String(", ")));
             stream.writeEndElement();
         }
         stream.writeEndElement();
@@ -349,8 +349,8 @@ void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
 
     // get the v8 time
     QXmlStreamAttributes attributes = stream.attributes();
-    if (attributes.hasAttribute("totalTime"))
-        d->v8MeasuredTime = attributes.value("totalTime").toString().toDouble();
+    if (attributes.hasAttribute(QLatin1String("totalTime")))
+        d->v8MeasuredTime = attributes.value(QLatin1String("totalTime")).toString().toDouble();
 
     while (!stream.atEnd() && !stream.hasError()) {
         QXmlStreamReader::TokenType token = stream.readNext();
@@ -358,10 +358,10 @@ void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
         switch (token) {
         case QXmlStreamReader::StartDocument :  continue;
         case QXmlStreamReader::StartElement : {
-                if (elementName == "event") {
+                if (elementName == QLatin1String("event")) {
                     QXmlStreamAttributes attributes = stream.attributes();
-                    if (attributes.hasAttribute("index")) {
-                        int ndx = attributes.value("index").toString().toInt();
+                    if (attributes.hasAttribute(QLatin1String("index"))) {
+                        int ndx = attributes.value(QLatin1String("index")).toString().toInt();
                         if (!v8eventBuffer.value(ndx))
                             v8eventBuffer[ndx] = new QV8EventData;
                         v8event = v8eventBuffer[ndx];
@@ -374,19 +374,19 @@ void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
                 if (!v8event)
                     break;
 
-                if (elementName == "childrenEvents") {
+                if (elementName == QLatin1String("childrenEvents")) {
                     QXmlStreamAttributes attributes = stream.attributes();
                     int eventIndex = v8eventBuffer.key(v8event);
-                    if (attributes.hasAttribute("list")) {
+                    if (attributes.hasAttribute(QLatin1String("list"))) {
                         // store for later parsing (we haven't read all the events yet)
-                        childrenIndexes[eventIndex] = attributes.value("list").toString();
+                        childrenIndexes[eventIndex] = attributes.value(QLatin1String("list")).toString();
                     }
-                    if (attributes.hasAttribute("childrenTimes")) {
+                    if (attributes.hasAttribute(QLatin1String("childrenTimes"))) {
                         childrenTimes[eventIndex] =
-                                attributes.value("childrenTimes").toString();
+                                attributes.value(QLatin1String("childrenTimes")).toString();
                     }
-                    if (attributes.hasAttribute("parentTimes")) {
-                        parentTimes[eventIndex] = attributes.value("parentTimes").toString();
+                    if (attributes.hasAttribute(QLatin1String("parentTimes"))) {
+                        parentTimes[eventIndex] = attributes.value(QLatin1String("parentTimes")).toString();
                     }
                 }
 
@@ -395,40 +395,40 @@ void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
                     break;
                 QString readData = stream.text().toString();
 
-                if (elementName == "displayname") {
+                if (elementName == QLatin1String("displayname")) {
                     v8event->displayName = readData;
                     break;
                 }
 
-                if (elementName == "functionname") {
+                if (elementName == QLatin1String("functionname")) {
                     v8event->functionName = readData;
                     break;
                 }
 
-                if (elementName == "filename") {
+                if (elementName == QLatin1String("filename")) {
                     v8event->filename = readData;
                     break;
                 }
 
-                if (elementName == "line") {
+                if (elementName == QLatin1String("line")) {
                     v8event->line = readData.toInt();
                     break;
                 }
 
-                if (elementName == "totalTime") {
+                if (elementName == QLatin1String("totalTime")) {
                     v8event->totalTime = readData.toDouble();
                     cumulatedV8Time += v8event->totalTime;
                     break;
                 }
 
-                if (elementName == "selfTime") {
+                if (elementName == QLatin1String("selfTime")) {
                     v8event->selfTime = readData.toDouble();
                     break;
                 }
             break;
         }
         case QXmlStreamReader::EndElement : {
-            if (elementName == "v8profile") {
+            if (elementName == QLatin1String("v8profile")) {
                 // done reading the v8 profile data
                 break;
             }
@@ -443,9 +443,9 @@ void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
 
     // find v8events' children and parents
     foreach (int parentIndex, childrenIndexes.keys()) {
-        QStringList childrenStrings = childrenIndexes.value(parentIndex).split(",");
-        QStringList childrenTimesStrings = childrenTimes.value(parentIndex).split(", ");
-        QStringList parentTimesStrings = parentTimes.value(parentIndex).split(", ");
+        QStringList childrenStrings = childrenIndexes.value(parentIndex).split(QLatin1String(","));
+        QStringList childrenTimesStrings = childrenTimes.value(parentIndex).split(QLatin1String(", "));
+        QStringList parentTimesStrings = parentTimes.value(parentIndex).split(QLatin1String(", "));
         for (int ndx = 0; ndx < childrenStrings.count(); ndx++) {
             int childIndex = childrenStrings[ndx].toInt();
             if (v8eventBuffer.value(childIndex)) {

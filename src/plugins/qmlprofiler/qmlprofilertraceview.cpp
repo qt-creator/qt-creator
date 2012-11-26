@@ -132,7 +132,7 @@ public:
 QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerTool *profilerTool, QmlProfilerViewManager *container, QmlProfilerDataModel *model, QmlProfilerStateManager *profilerState)
     : QWidget(parent), d(new QmlProfilerTraceViewPrivate(this))
 {
-    setObjectName("QML Profiler");
+    setObjectName(QLatin1String("QML Profiler"));
 
     d->m_zoomControl = new ZoomControl(this);
     connect(d->m_zoomControl, SIGNAL(rangeChanged()), this, SLOT(updateRange()));
@@ -183,9 +183,9 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     d->m_profilerDataModel = model;
     connect(d->m_profilerDataModel, SIGNAL(stateChanged()),
             this, SLOT(profilerDataModelStateChanged()));
-    d->m_mainView->rootContext()->setContextProperty("qmlProfilerDataModel",
+    d->m_mainView->rootContext()->setContextProperty(QLatin1String("qmlProfilerDataModel"),
                                                      d->m_profilerDataModel);
-    d->m_overview->rootContext()->setContextProperty("qmlProfilerDataModel",
+    d->m_overview->rootContext()->setContextProperty(QLatin1String("qmlProfilerDataModel"),
                                                      d->m_profilerDataModel);
 
     d->m_profilerState = profilerState;
@@ -210,14 +210,14 @@ QmlProfilerTraceView::~QmlProfilerTraceView()
 // Initialize widgets
 void QmlProfilerTraceView::reset()
 {
-    d->m_mainView->rootContext()->setContextProperty("zoomControl", d->m_zoomControl);
-    d->m_timebar->rootContext()->setContextProperty("zoomControl", d->m_zoomControl);
-    d->m_overview->rootContext()->setContextProperty("zoomControl", d->m_zoomControl);
+    d->m_mainView->rootContext()->setContextProperty(QLatin1String("zoomControl"), d->m_zoomControl);
+    d->m_timebar->rootContext()->setContextProperty(QLatin1String("zoomControl"), d->m_zoomControl);
+    d->m_overview->rootContext()->setContextProperty(QLatin1String("zoomControl"), d->m_zoomControl);
 
-    d->m_timebar->setSource(QUrl("qrc:/qmlprofiler/TimeDisplay.qml"));
-    d->m_overview->setSource(QUrl("qrc:/qmlprofiler/Overview.qml"));
+    d->m_timebar->setSource(QUrl(QLatin1String("qrc:/qmlprofiler/TimeDisplay.qml")));
+    d->m_overview->setSource(QUrl(QLatin1String("qrc:/qmlprofiler/Overview.qml")));
 
-    d->m_mainView->setSource(QUrl("qrc:/qmlprofiler/MainView.qml"));
+    d->m_mainView->setSource(QUrl(QLatin1String("qrc:/qmlprofiler/MainView.qml")));
     d->m_mainView->rootObject()->setProperty("width", QVariant(width()));
     d->m_mainView->rootObject()->setProperty("candidateHeight", QVariant(height() - d->m_timebar->height() - d->m_overview->height()));
 
@@ -244,19 +244,19 @@ QWidget *QmlProfilerTraceView::createToolbar()
     toolBarLayout->setSpacing(0);
 
     QToolButton *buttonPrev= new QToolButton;
-    buttonPrev->setIcon(QIcon(":/qmlprofiler/ico_prev.png"));
+    buttonPrev->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_prev.png")));
     buttonPrev->setToolTip(tr("Jump to previous event"));
     connect(buttonPrev, SIGNAL(clicked()), this, SIGNAL(jumpToPrev()));
     connect(this, SIGNAL(enableToolbar(bool)), buttonPrev, SLOT(setEnabled(bool)));
 
     QToolButton *buttonNext= new QToolButton;
-    buttonNext->setIcon(QIcon(":/qmlprofiler/ico_next.png"));
+    buttonNext->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_next.png")));
     buttonNext->setToolTip(tr("Jump to next event"));
     connect(buttonNext, SIGNAL(clicked()), this, SIGNAL(jumpToNext()));
     connect(this, SIGNAL(enableToolbar(bool)), buttonNext, SLOT(setEnabled(bool)));
 
     QToolButton *buttonZoomControls = new QToolButton;
-    buttonZoomControls->setIcon(QIcon(":/qmlprofiler/ico_zoom.png"));
+    buttonZoomControls->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_zoom.png")));
     buttonZoomControls->setToolTip(tr("Show zoom slider"));
     buttonZoomControls->setCheckable(true);
     buttonZoomControls->setChecked(false);
@@ -264,7 +264,7 @@ QWidget *QmlProfilerTraceView::createToolbar()
     connect(this, SIGNAL(enableToolbar(bool)), buttonZoomControls, SLOT(setEnabled(bool)));
 
     d->m_buttonRange = new QToolButton;
-    d->m_buttonRange->setIcon(QIcon(":/qmlprofiler/ico_rangeselection.png"));
+    d->m_buttonRange->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_rangeselection.png")));
     d->m_buttonRange->setToolTip(tr("Select range"));
     d->m_buttonRange->setCheckable(true);
     d->m_buttonRange->setChecked(false);
@@ -273,7 +273,7 @@ QWidget *QmlProfilerTraceView::createToolbar()
     connect(this, SIGNAL(rangeModeChanged(bool)), d->m_buttonRange, SLOT(setChecked(bool)));
 
     d->m_buttonLock = new QToolButton;
-    d->m_buttonLock->setIcon(QIcon(":/qmlprofiler/ico_selectionmode.png"));
+    d->m_buttonLock->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_selectionmode.png")));
     d->m_buttonLock->setToolTip(tr("View event information on mouseover"));
     d->m_buttonLock->setCheckable(true);
     d->m_buttonLock->setChecked(false);
@@ -313,7 +313,7 @@ QWidget *QmlProfilerTraceView::createZoomToolbar()
     connect(this, SIGNAL(enableToolbar(bool)), zoomSlider, SLOT(setEnabled(bool)));
     connect(zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setZoomLevel(int)));
     connect(this, SIGNAL(zoomLevelChanged(int)), zoomSlider, SLOT(setValue(int)));
-    zoomSlider->setStyleSheet("\
+    zoomSlider->setStyleSheet(QLatin1String("\
         QSlider:horizontal {\
             background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #444444, stop: 1 #5a5a5a);\
             border: 1px #313131;\
@@ -328,7 +328,7 @@ QWidget *QmlProfilerTraceView::createZoomToolbar()
             background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #5a5a5a, stop: 1 #444444);\
             border: 1px #313131;\
         }\
-        ");
+        "));
 
     toolBarLayout->addWidget(zoomSlider);
 
@@ -394,9 +394,9 @@ void QmlProfilerTraceView::toggleRangeMode(bool active)
     bool rangeMode = d->m_mainView->rootObject()->property("selectionRangeMode").toBool();
     if (active != rangeMode) {
         if (active)
-            d->m_buttonRange->setIcon(QIcon(":/qmlprofiler/ico_rangeselected.png"));
+            d->m_buttonRange->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_rangeselected.png")));
         else
-            d->m_buttonRange->setIcon(QIcon(":/qmlprofiler/ico_rangeselection.png"));
+            d->m_buttonRange->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_rangeselection.png")));
         d->m_mainView->rootObject()->setProperty("selectionRangeMode", QVariant(active));
     }
 }
@@ -405,9 +405,9 @@ void QmlProfilerTraceView::updateRangeButton()
 {
     bool rangeMode = d->m_mainView->rootObject()->property("selectionRangeMode").toBool();
     if (rangeMode)
-        d->m_buttonRange->setIcon(QIcon(":/qmlprofiler/ico_rangeselected.png"));
+        d->m_buttonRange->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_rangeselected.png")));
     else
-        d->m_buttonRange->setIcon(QIcon(":/qmlprofiler/ico_rangeselection.png"));
+        d->m_buttonRange->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_rangeselection.png")));
     emit rangeModeChanged(rangeMode);
 }
 

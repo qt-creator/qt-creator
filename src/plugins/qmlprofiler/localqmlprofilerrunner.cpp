@@ -43,11 +43,10 @@ LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuratio
 
 void LocalQmlProfilerRunner::start()
 {
-    QString arguments = QString("-qmljsdebugger=port:%1,block").arg(
-                QString::number(m_configuration.port));
+    QString arguments = QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(m_configuration.port);
 
     if (!m_configuration.executableArguments.isEmpty())
-        arguments += QChar(' ') + m_configuration.executableArguments;
+        arguments += QLatin1Char(' ') + m_configuration.executableArguments;
 
     if (QmlProfilerPlugin::debugOutput)
         qWarning("QmlProfiler: Launching %s:%d", qPrintable(m_configuration.executable),

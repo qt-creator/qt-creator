@@ -304,8 +304,8 @@ void QmlProfilerEngine::wrongSetupMessageBoxFinished(int button)
 {
     if (button == QMessageBox::Help) {
         Core::HelpManager *helpManager = Core::HelpManager::instance();
-        helpManager->handleHelpRequest("qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html"
-                               "#setting-up-qml-debugging");
+        helpManager->handleHelpRequest(QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html"
+                               "#setting-up-qml-debugging"));
     }
 }
 

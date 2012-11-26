@@ -215,7 +215,7 @@ public:
 QmlProfilerDataModel::QmlProfilerDataModel(QObject *parent) :
     QObject(parent), d(new QmlProfilerDataModelPrivate(this))
 {
-    setObjectName("QmlProfilerDataModel");
+    setObjectName(QLatin1String("QmlProfilerDataModel"));
 
     d->listState = Empty;
 
@@ -309,14 +309,14 @@ void QmlProfilerDataModel::addRangedEvent(int type, int bindingType, qint64 star
     if (data.isEmpty())
         details = tr("Source code not available");
     else {
-        details = data.join(" ").replace('\n'," ").simplified();
-        QRegExp rewrite("\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)");
+        details = data.join(QLatin1String(" ")).replace(QLatin1Char('\n'),QLatin1Char(' ')).simplified();
+        QRegExp rewrite(QLatin1String("\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)"));
         bool match = rewrite.exactMatch(details);
         if (match) {
-            details = rewrite.cap(1) + ": " + rewrite.cap(3);
+            details = rewrite.cap(1) + QLatin1String(": ") + rewrite.cap(3);
         }
-        if (details.startsWith(QString("file://")))
-            details = details.mid(details.lastIndexOf(QChar('/')) + 1);
+        if (details.startsWith(QLatin1String("file://")))
+            details = details.mid(details.lastIndexOf(QLatin1Char('/')) + 1);
     }
 
     // backwards compatibility: "compiling" events don't have a proper location in older
@@ -333,7 +333,7 @@ void QmlProfilerDataModel::addRangedEvent(int type, int bindingType, qint64 star
         eventHashStr = getHashStringForQmlEvent(eventLocation, type);
     } else {
         const QString filePath = QUrl(eventLocation.filename).path();
-        displayName = filePath.mid(filePath.lastIndexOf(QChar('/')) + 1) + colon +
+        displayName = filePath.mid(filePath.lastIndexOf(QLatin1Char('/')) + 1) + colon +
                 QString::number(eventLocation.line);
         eventHashStr = getHashStringForQmlEvent(eventLocation, type);
     }
@@ -450,7 +450,7 @@ void QmlProfilerDataModel::setTraceStartTime(qint64 time)
 QString QmlProfilerDataModel::getHashStringForQmlEvent(
         const QmlDebug::QmlEventLocation &location, int eventType)
 {
-    return QString("%1:%2:%3:%4").arg(location.filename,
+    return QString::fromLatin1("%1:%2:%3:%4").arg(location.filename,
                                       QString::number(location.line),
                                       QString::number(location.column),
                                       QString::number(eventType));
@@ -459,7 +459,7 @@ QString QmlProfilerDataModel::getHashStringForQmlEvent(
 QString QmlProfilerDataModel::getHashStringForV8Event(const QString &displayName,
                                                       const QString &function)
 {
-    return QString("%1:%2").arg(displayName, function);
+    return QString::fromLatin1("%1:%2").arg(displayName, function);
 }
 
 QString QmlProfilerDataModel::rootEventName()
@@ -806,7 +806,7 @@ void QmlProfilerDataModel::complete()
         compileStatistics(traceStartTime(), traceEndTime());
         setState(Done);
     } else {
-        emit error("Unexpected complete signal in data model");
+        emit error(tr("Unexpected complete signal in data model"));
     }
 }
 
@@ -1363,42 +1363,42 @@ bool QmlProfilerDataModel::save(const QString &filename)
     stream.setAutoFormatting(true);
     stream.writeStartDocument();
 
-    stream.writeStartElement("trace");
-    stream.writeAttribute("version", Constants::PROFILER_FILE_VERSION);
+    stream.writeStartElement(QLatin1String("trace"));
+    stream.writeAttribute(QLatin1String("version"), QLatin1String(Constants::PROFILER_FILE_VERSION));
 
-    stream.writeAttribute("traceStart", QString::number(traceStartTime()));
-    stream.writeAttribute("traceEnd", QString::number(traceEndTime()));
+    stream.writeAttribute(QLatin1String("traceStart"), QString::number(traceStartTime()));
+    stream.writeAttribute(QLatin1String("traceEnd"), QString::number(traceEndTime()));
 
-    stream.writeStartElement("eventData");
-    stream.writeAttribute("totalTime", QString::number(d->qmlMeasuredTime));
+    stream.writeStartElement(QLatin1String("eventData"));
+    stream.writeAttribute(QLatin1String("totalTime"), QString::number(d->qmlMeasuredTime));
 
     foreach (const QmlRangeEventData *eventData, d->rangeEventDictionary.values()) {
-        stream.writeStartElement("event");
-        stream.writeAttribute("index", QString::number(d->rangeEventDictionary.keys().indexOf(eventData->eventHashStr)));
-        stream.writeTextElement("displayname", eventData->displayName);
-        stream.writeTextElement("type", qmlEventTypeAsString(eventData->eventType));
+        stream.writeStartElement(QLatin1String("event"));
+        stream.writeAttribute(QLatin1String("index"), QString::number(d->rangeEventDictionary.keys().indexOf(eventData->eventHashStr)));
+        stream.writeTextElement(QLatin1String("displayname"), eventData->displayName);
+        stream.writeTextElement(QLatin1String("type"), qmlEventTypeAsString(eventData->eventType));
         if (!eventData->location.filename.isEmpty()) {
-            stream.writeTextElement("filename", eventData->location.filename);
-            stream.writeTextElement("line", QString::number(eventData->location.line));
-            stream.writeTextElement("column", QString::number(eventData->location.column));
+            stream.writeTextElement(QLatin1String("filename"), eventData->location.filename);
+            stream.writeTextElement(QLatin1String("line"), QString::number(eventData->location.line));
+            stream.writeTextElement(QLatin1String("column"), QString::number(eventData->location.column));
         }
-        stream.writeTextElement("details", eventData->details);
+        stream.writeTextElement(QLatin1String("details"), eventData->details);
         if (eventData->eventType == Binding)
-            stream.writeTextElement("bindingType", QString::number((int)eventData->bindingType));
+            stream.writeTextElement(QLatin1String("bindingType"), QString::number((int)eventData->bindingType));
         stream.writeEndElement();
     }
     stream.writeEndElement(); // eventData
 
-    stream.writeStartElement("profilerDataModel");
+    stream.writeStartElement(QLatin1String("profilerDataModel"));
     foreach (const QmlRangeEventStartInstance &rangedEvent, d->startInstanceList) {
-        stream.writeStartElement("range");
-        stream.writeAttribute("startTime", QString::number(rangedEvent.startTime));
-        stream.writeAttribute("duration", QString::number(rangedEvent.duration));
-        stream.writeAttribute("eventIndex", QString::number(d->rangeEventDictionary.keys().indexOf(rangedEvent.statsInfo->eventHashStr)));
+        stream.writeStartElement(QLatin1String("range"));
+        stream.writeAttribute(QLatin1String("startTime"), QString::number(rangedEvent.startTime));
+        stream.writeAttribute(QLatin1String("duration"), QString::number(rangedEvent.duration));
+        stream.writeAttribute(QLatin1String("eventIndex"), QString::number(d->rangeEventDictionary.keys().indexOf(rangedEvent.statsInfo->eventHashStr)));
         if (rangedEvent.statsInfo->eventType == QmlDebug::Painting && rangedEvent.animationCount >= 0) {
             // animation frame
-            stream.writeAttribute("framerate", QString::number(rangedEvent.frameRate));
-            stream.writeAttribute("animationcount", QString::number(rangedEvent.animationCount));
+            stream.writeAttribute(QLatin1String("framerate"), QString::number(rangedEvent.frameRate));
+            stream.writeAttribute(QLatin1String("animationcount"), QString::number(rangedEvent.animationCount));
         }
         stream.writeEndElement();
     }
@@ -1458,52 +1458,52 @@ void QmlProfilerDataModel::load()
         switch (token) {
         case QXmlStreamReader::StartDocument :  continue;
         case QXmlStreamReader::StartElement : {
-            if (elementName == "trace") {
+            if (elementName == QLatin1String("trace")) {
                 QXmlStreamAttributes attributes = stream.attributes();
-                if (attributes.hasAttribute("version"))
-                    validVersion = attributes.value("version").toString() == Constants::PROFILER_FILE_VERSION;
+                if (attributes.hasAttribute(QLatin1String("version")))
+                    validVersion = attributes.value(QLatin1String("version")).toString() == QLatin1String(Constants::PROFILER_FILE_VERSION);
                 else
                     validVersion = false;
-                if (attributes.hasAttribute("traceStart"))
-                    setTraceStartTime(attributes.value("traceStart").toString().toLongLong());
-                if (attributes.hasAttribute("traceEnd"))
-                    setTraceEndTime(attributes.value("traceEnd").toString().toLongLong());
+                if (attributes.hasAttribute(QLatin1String("traceStart")))
+                    setTraceStartTime(attributes.value(QLatin1String("traceStart")).toString().toLongLong());
+                if (attributes.hasAttribute(QLatin1String("traceEnd")))
+                    setTraceEndTime(attributes.value(QLatin1String("traceEnd")).toString().toLongLong());
             }
-            if (elementName == "eventData") {
+            if (elementName == QLatin1String("eventData")) {
                 readingQmlEvents = true;
                 QXmlStreamAttributes attributes = stream.attributes();
-                if (attributes.hasAttribute("totalTime"))
-                    d->qmlMeasuredTime = attributes.value("totalTime").toString().toDouble();
+                if (attributes.hasAttribute(QLatin1String("totalTime")))
+                    d->qmlMeasuredTime = attributes.value(QLatin1String("totalTime")).toString().toDouble();
                 break;
             }
-            if (elementName == "v8profile" && !readingQmlEvents) {
+            if (elementName == QLatin1String("v8profile") && !readingQmlEvents) {
                 d->v8DataModel->load(stream);
                 break;
             }
 
-            if (elementName == "trace") {
+            if (elementName == QLatin1String("trace")) {
                 QXmlStreamAttributes attributes = stream.attributes();
-                if (attributes.hasAttribute("traceStart"))
-                    setTraceStartTime(attributes.value("traceStart").toString().toLongLong());
-                if (attributes.hasAttribute("traceEnd"))
-                    setTraceEndTime(attributes.value("traceEnd").toString().toLongLong());
+                if (attributes.hasAttribute(QLatin1String("traceStart")))
+                    setTraceStartTime(attributes.value(QLatin1String("traceStart")).toString().toLongLong());
+                if (attributes.hasAttribute(QLatin1String("traceEnd")))
+                    setTraceEndTime(attributes.value(QLatin1String("traceEnd")).toString().toLongLong());
             }
 
-            if (elementName == "range") {
+            if (elementName == QLatin1String("range")) {
                 QmlRangeEventStartInstance rangedEvent;
                 QXmlStreamAttributes attributes = stream.attributes();
-                if (attributes.hasAttribute("startTime"))
-                    rangedEvent.startTime = attributes.value("startTime").toString().toLongLong();
-                if (attributes.hasAttribute("duration"))
-                    rangedEvent.duration = attributes.value("duration").toString().toLongLong();
-                if (attributes.hasAttribute("framerate"))
-                    rangedEvent.frameRate = attributes.value("framerate").toString().toInt();
-                if (attributes.hasAttribute("animationcount"))
-                    rangedEvent.animationCount = attributes.value("animationcount").toString().toInt();
+                if (attributes.hasAttribute(QLatin1String("startTime")))
+                    rangedEvent.startTime = attributes.value(QLatin1String("startTime")).toString().toLongLong();
+                if (attributes.hasAttribute(QLatin1String("duration")))
+                    rangedEvent.duration = attributes.value(QLatin1String("duration")).toString().toLongLong();
+                if (attributes.hasAttribute(QLatin1String("framerate")))
+                    rangedEvent.frameRate = attributes.value(QLatin1String("framerate")).toString().toInt();
+                if (attributes.hasAttribute(QLatin1String("animationcount")))
+                    rangedEvent.animationCount = attributes.value(QLatin1String("animationcount")).toString().toInt();
                 else
                     rangedEvent.animationCount = -1;
-                if (attributes.hasAttribute("eventIndex")) {
-                    int ndx = attributes.value("eventIndex").toString().toInt();
+                if (attributes.hasAttribute(QLatin1String("eventIndex"))) {
+                    int ndx = attributes.value(QLatin1String("eventIndex")).toString().toInt();
                     if (!descriptionBuffer.value(ndx))
                         descriptionBuffer[ndx] = new QmlRangeEventData;
                     rangedEvent.statsInfo = descriptionBuffer.value(ndx);
@@ -1524,10 +1524,10 @@ void QmlProfilerDataModel::load()
             }
 
             if (readingQmlEvents) {
-                if (elementName == "event") {
+                if (elementName == QLatin1String("event")) {
                     QXmlStreamAttributes attributes = stream.attributes();
-                    if (attributes.hasAttribute("index")) {
-                        int ndx = attributes.value("index").toString().toInt();
+                    if (attributes.hasAttribute(QLatin1String("index"))) {
+                        int ndx = attributes.value(QLatin1String("index")).toString().toInt();
                         if (!descriptionBuffer.value(ndx))
                             descriptionBuffer[ndx] = new QmlRangeEventData;
                         currentEvent = descriptionBuffer[ndx];
@@ -1548,30 +1548,30 @@ void QmlProfilerDataModel::load()
                     break;
                 QString readData = stream.text().toString();
 
-                if (elementName == "displayname") {
+                if (elementName == QLatin1String("displayname")) {
                     currentEvent->displayName = readData;
                     break;
                 }
-                if (elementName == "type") {
+                if (elementName == QLatin1String("type")) {
                     currentEvent->eventType = qmlEventTypeAsEnum(readData);
                     break;
                 }
-                if (elementName == "filename") {
+                if (elementName == QLatin1String("filename")) {
                     currentEvent->location.filename = readData;
                     break;
                 }
-                if (elementName == "line") {
+                if (elementName == QLatin1String("line")) {
                     currentEvent->location.line = readData.toInt();
                     break;
                 }
-                if (elementName == "column") {
+                if (elementName == QLatin1String("column")) {
                     currentEvent->location.column = readData.toInt();
                 }
-                if (elementName == "details") {
+                if (elementName == QLatin1String("details")) {
                     currentEvent->details = readData;
                     break;
                 }
-                if (elementName == "bindingType") {
+                if (elementName == QLatin1String("bindingType")) {
                     currentEvent->bindingType = readData.toInt();
                     break;
                 }
@@ -1579,11 +1579,11 @@ void QmlProfilerDataModel::load()
             break;
         }
         case QXmlStreamReader::EndElement : {
-            if (elementName == "event") {
+            if (elementName == QLatin1String("event")) {
                 currentEvent = 0;
                 break;
             }
-            if (elementName == "eventData") {
+            if (elementName == QLatin1String("eventData")) {
                 readingQmlEvents = false;
                 break;
             }
@@ -1666,7 +1666,7 @@ void QmlProfilerDataModel::setState(QmlProfilerDataModel::State state)
             QTC_ASSERT(d->listState == ProcessingData || d->listState == Empty, return);
         break;
         default:
-            emit error("Trying to set unknown state in events list");
+            emit error(tr("Trying to set unknown state in events list"));
         break;
     }
 

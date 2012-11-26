@@ -40,14 +40,14 @@ namespace Internal {
 
 inline QString stringForState(int state) {
     switch (state) {
-    case QmlProfilerStateManager::Idle: return QString("Idle");
-    case QmlProfilerStateManager::AppStarting: return QString("AppStarting");
-    case QmlProfilerStateManager::AppRunning: return QString("AppRunning");
-    case QmlProfilerStateManager::AppStopRequested: return QString("AppStopRequested");
-    case QmlProfilerStateManager::AppReadyToStop: return QString("AppReadyToStop");
-    case QmlProfilerStateManager::AppStopped: return QString("AppStopped");
-    case QmlProfilerStateManager::AppDying: return QString("AppDying");
-    case QmlProfilerStateManager::AppKilled: return QString("AppKilled");
+    case QmlProfilerStateManager::Idle: return QLatin1String("Idle");
+    case QmlProfilerStateManager::AppStarting: return QLatin1String("AppStarting");
+    case QmlProfilerStateManager::AppRunning: return QLatin1String("AppRunning");
+    case QmlProfilerStateManager::AppStopRequested: return QLatin1String("AppStopRequested");
+    case QmlProfilerStateManager::AppReadyToStop: return QLatin1String("AppReadyToStop");
+    case QmlProfilerStateManager::AppStopped: return QLatin1String("AppStopped");
+    case QmlProfilerStateManager::AppDying: return QLatin1String("AppDying");
+    case QmlProfilerStateManager::AppKilled: return QLatin1String("AppKilled");
     default: break;
     }
     return QString();

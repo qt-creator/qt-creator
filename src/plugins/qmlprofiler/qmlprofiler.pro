@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = QmlProfiler
 
-DEFINES += QMLPROFILER_LIBRARY
+DEFINES += QMLPROFILER_LIBRARY QT_NO_CAST_FROM_ASCII
 
 QT += network script declarative
 

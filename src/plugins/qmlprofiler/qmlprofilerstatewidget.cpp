@@ -66,7 +66,7 @@ QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateMan
         QmlProfilerDataModel *dataModel, QWidget *parent) :
     QWidget(parent), d(new QmlProfilerStateWidgetPrivate(this))
 {
-    setObjectName("QML Profiler State Display");
+    setObjectName(QLatin1String("QML Profiler State Display"));
 
     // UI elements
     QVBoxLayout *layout = new QVBoxLayout(this);

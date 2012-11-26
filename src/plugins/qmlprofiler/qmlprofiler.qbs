@@ -21,6 +21,7 @@ QtcPlugin {
 
     Depends { name: "cpp" }
     cpp.includePaths: base.concat("canvas")
+    cpp.defines: base.concat(["QT_NO_CAST_FROM_ASCII"])
 
     files: [
         "abstractqmlprofilerrunner.h",

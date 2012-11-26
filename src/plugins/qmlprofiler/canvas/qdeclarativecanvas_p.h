@@ -67,7 +67,7 @@ public:
 
 
 public Q_SLOTS:
-    Context2D *getContext(const QString & = QString("2d"));
+    Context2D *getContext(const QString & = QLatin1String("2d"));
     void requestPaint();
 
     FillMode fillMode() const;

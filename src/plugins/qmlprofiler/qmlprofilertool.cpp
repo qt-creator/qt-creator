@@ -123,7 +123,7 @@ public:
 QmlProfilerTool::QmlProfilerTool(QObject *parent)
     : IAnalyzerTool(parent), d(new QmlProfilerToolPrivate(this))
 {
-    setObjectName("QmlProfilerTool");
+    setObjectName(QLatin1String("QmlProfilerTool"));
 
     d->m_profilerState = 0;
     d->m_viewContainer = 0;
@@ -589,7 +589,8 @@ void QmlProfilerTool::showSaveOption()
 
 void QmlProfilerTool::showSaveDialog()
 {
-    QString filename = QFileDialog::getSaveFileName(Core::ICore::mainWindow(), tr("Save QML Trace"), QString(), tr("QML traces (*%1)").arg(TraceFileExtension));
+    QString filename = QFileDialog::getSaveFileName(Core::ICore::mainWindow(), tr("Save QML Trace"), QString(),
+                                                    tr("QML traces (*%1)").arg(QLatin1String(TraceFileExtension)));
     if (!filename.isEmpty()) {
         if (!filename.endsWith(QLatin1String(TraceFileExtension)))
             filename += QLatin1String(TraceFileExtension);
@@ -605,7 +606,8 @@ void QmlProfilerTool::showLoadDialog()
     if (AnalyzerManager::currentSelectedTool() != this)
         AnalyzerManager::selectTool(this, StartRemote);
 
-    QString filename = QFileDialog::getOpenFileName(Core::ICore::mainWindow(), tr("Load QML Trace"), QString(), tr("QML traces (*%1)").arg(TraceFileExtension));
+    QString filename = QFileDialog::getOpenFileName(Core::ICore::mainWindow(), tr("Load QML Trace"), QString(),
+                                                    tr("QML traces (*%1)").arg(QLatin1String(TraceFileExtension)));
 
     if (!filename.isEmpty()) {
         // delayed load (prevent graphical artifacts due to long load time)

@@ -66,22 +66,22 @@ static QList<qreal> parseNumbersList(QString::const_iterator &itr)
     while ((*itr).isSpace())
         ++itr;
     while ((*itr).isNumber() ||
-           (*itr) == '-' || (*itr) == '+' || (*itr) == '.') {
+           (*itr) == QLatin1Char('-') || (*itr) == QLatin1Char('+') || (*itr) == QLatin1Char('.')) {
         temp.clear();
 
-        if ((*itr) == '-')
+        if ((*itr) == QLatin1Char('-'))
             temp += *itr++;
-        else if ((*itr) == '+')
+        else if ((*itr) == QLatin1Char('+'))
             temp += *itr++;
         while ((*itr).isDigit())
             temp += *itr++;
-        if ((*itr) == '.')
+        if ((*itr) == QLatin1Char('.'))
             temp += *itr++;
         while ((*itr).isDigit())
             temp += *itr++;
         while ((*itr).isSpace())
             ++itr;
-        if ((*itr) == ',')
+        if ((*itr) == QLatin1Char(','))
             ++itr;
         points.append(temp.toDouble());
         //eat spaces
@@ -96,7 +96,7 @@ QColor colorFromString(const QString &name)
 {
     QString::const_iterator itr = name.constBegin();
     QList<qreal> compo;
-    if (name.startsWith("rgba(")) {
+    if (name.startsWith(QLatin1String("rgba("))) {
         ++itr; ++itr; ++itr; ++itr; ++itr;
         compo = parseNumbersList(itr);
         if (compo.size() != 4) {
@@ -106,7 +106,7 @@ QColor colorFromString(const QString &name)
         compo[3] *= 255;
         return QColor((int)compo[0], (int)compo[1],
                       (int)compo[2], (int)compo[3]);
-    } else if (name.startsWith("rgb(")) {
+    } else if (name.startsWith(QLatin1String("rgb("))) {
         ++itr; ++itr; ++itr; ++itr;
         compo = parseNumbersList(itr);
         if (compo.size() != 3) {
@@ -115,7 +115,7 @@ QColor colorFromString(const QString &name)
         return QColor((int)qClamp(compo[0], qreal(0), qreal(255)),
                       (int)qClamp(compo[1], qreal(0), qreal(255)),
                       (int)qClamp(compo[2], qreal(0), qreal(255)));
-    } else if (name.startsWith("hsla(")){
+    } else if (name.startsWith(QLatin1String("hsla("))) {
         ++itr; ++itr; ++itr; ++itr; ++itr;
         compo = parseNumbersList(itr);
         if (compo.size() != 4) {
@@ -123,7 +123,7 @@ QColor colorFromString(const QString &name)
         }
         return QColor::fromHslF(compo[0], compo[1],
                                 compo[2], compo[3]);
-    } else if (name.startsWith("hsl(")){
+    } else if (name.startsWith(QLatin1String("hsl("))) {
         ++itr; ++itr; ++itr; ++itr; ++itr;
         compo = parseNumbersList(itr);
         if (compo.size() != 3) {
@@ -174,53 +174,53 @@ static QString compositeOperatorToString(QPainter::CompositionMode op)
 {
     switch (op) {
     case QPainter::CompositionMode_SourceOver:
-        return "source-over";
+        return QLatin1String("source-over");
     case QPainter::CompositionMode_DestinationOver:
-        return "destination-over";
+        return QLatin1String("destination-over");
     case QPainter::CompositionMode_Clear:
-        return "clear";
+        return QLatin1String("clear");
     case QPainter::CompositionMode_Source:
-        return "source";
+        return QLatin1String("source");
     case QPainter::CompositionMode_Destination:
-        return "destination";
+        return QLatin1String("destination");
     case QPainter::CompositionMode_SourceIn:
-        return "source-in";
+        return QLatin1String("source-in");
     case QPainter::CompositionMode_DestinationIn:
-        return "destination-in";
+        return QLatin1String("destination-in");
     case QPainter::CompositionMode_SourceOut:
-        return "source-out";
+        return QLatin1String("source-out");
     case QPainter::CompositionMode_DestinationOut:
-        return "destination-out";
+        return QLatin1String("destination-out");
     case QPainter::CompositionMode_SourceAtop:
-        return "source-atop";
+        return QLatin1String("source-atop");
     case QPainter::CompositionMode_DestinationAtop:
-        return "destination-atop";
+        return QLatin1String("destination-atop");
     case QPainter::CompositionMode_Xor:
-        return "xor";
+        return QLatin1String("xor");
     case QPainter::CompositionMode_Plus:
-        return "plus";
+        return QLatin1String("plus");
     case QPainter::CompositionMode_Multiply:
-        return "multiply";
+        return QLatin1String("multiply");
     case QPainter::CompositionMode_Screen:
-        return "screen";
+        return QLatin1String("screen");
     case QPainter::CompositionMode_Overlay:
-        return "overlay";
+        return QLatin1String("overlay");
     case QPainter::CompositionMode_Darken:
-        return "darken";
+        return QLatin1String("darken");
     case QPainter::CompositionMode_Lighten:
-        return "lighten";
+        return QLatin1String("lighten");
     case QPainter::CompositionMode_ColorDodge:
-        return "color-dodge";
+        return QLatin1String("color-dodge");
     case QPainter::CompositionMode_ColorBurn:
-        return "color-burn";
+        return QLatin1String("color-burn");
     case QPainter::CompositionMode_HardLight:
-        return "hard-light";
+        return QLatin1String("hard-light");
     case QPainter::CompositionMode_SoftLight:
-        return "soft-light";
+        return QLatin1String("soft-light");
     case QPainter::CompositionMode_Difference:
-        return "difference";
+        return QLatin1String("difference");
     case QPainter::CompositionMode_Exclusion:
-        return "exclusion";
+        return QLatin1String("exclusion");
     default:
         break;
     }
@@ -379,11 +379,11 @@ QString Context2D::lineCap() const
 {
     switch (m_state.lineCap) {
     case Qt::FlatCap:
-        return "butt";
+        return QLatin1String("butt");
     case Qt::SquareCap:
-        return "square";
+        return QLatin1String("square");
     case Qt::RoundCap:
-        return "round";
+        return QLatin1String("round");
     default: ;
     }
     return QString();
@@ -396,7 +396,7 @@ void Context2D::setLineCap(const QString &capString)
         style = Qt::RoundCap;
     else if (capString == QLatin1String("square"))
         style = Qt::SquareCap;
-    else //if (capString == "butt")
+    else //if (capString == QLatin1String("butt"))
         style = Qt::FlatCap;
     m_state.lineCap = style;
     m_state.flags |= DirtyLineCap;
@@ -528,7 +528,7 @@ void Context2D::setTextBaseline(const QString &baseline)
         m_state.textBaseline = Context2D::Middle;
     else {
         m_state.textBaseline = Context2D::Alphabetic;
-        qWarning() << ("Context2D: invalid baseline:" + baseline);
+        qWarning() << (QLatin1String("Context2D: invalid baseline:") + baseline);
     }
     m_state.flags |= DirtyTextBaseline;
 }
@@ -577,7 +577,7 @@ void Context2D::setFont(const QString &fontString)
 {
     QFont font;
     // ### this is simplified and incomplete
-    QStringList tokens = fontString.split(QLatin1Char(' '));
+    QStringList tokens = fontString.split(QLatin1Char(QLatin1Char(' ')));
     foreach (const QString &token, tokens) {
         if (token == QLatin1String("italic"))
             font.setItalic(true);
@@ -585,7 +585,7 @@ void Context2D::setFont(const QString &fontString)
             font.setBold(true);
         else if (token.endsWith(QLatin1String("px"))) {
             QString number = token;
-            number.remove("px");
+            number.remove(QLatin1String("px"));
 #ifdef Q_OS_MACX
             // compensating the extra antialias space with bigger fonts
             // this class is only used by the QML Profiler

@@ -117,7 +117,7 @@ QmlProfilerEventsWidget::QmlProfilerEventsWidget(QWidget *parent,
                                                  QmlProfilerDataModel *profilerDataModel )
     : QWidget(parent), d(new QmlProfilerEventsWidgetPrivate(this))
 {
-    setObjectName("QmlProfilerEventsView");
+    setObjectName(QLatin1String("QmlProfilerEventsView"));
 
     d->m_profilerDataModel = profilerDataModel;
     connect(d->m_profilerDataModel, SIGNAL(stateChanged()),
@@ -179,7 +179,7 @@ void QmlProfilerEventsWidget::profilerDataModelStateChanged()
 
 void QmlProfilerEventsWidget::switchToV8View()
 {
-    setObjectName("QmlProfilerV8ProfileView");
+    setObjectName(QLatin1String("QmlProfilerV8ProfileView"));
     d->m_eventTree->setViewType(QmlProfilerEventsMainView::V8ProfileView);
     d->m_eventParents->setViewType(QmlProfilerEventsParentsAndChildrenView::V8ParentsView);
     d->m_eventChildren->setViewType(QmlProfilerEventsParentsAndChildrenView::V8ChildrenView);
@@ -368,7 +368,7 @@ QmlProfilerEventsMainView::QmlProfilerEventsMainView(ViewTypes viewType,
                                                      QmlProfilerDataModel *dataModel)
     : QTreeView(parent), d(new QmlProfilerEventsMainViewPrivate(this))
 {
-    setObjectName("QmlProfilerEventsTable");
+    setObjectName(QLatin1String("QmlProfilerEventsTable"));
     header()->setResizeMode(QHeaderView::Interactive);
     header()->setDefaultSectionSize(100);
     header()->setMinimumSectionSize(50);
@@ -430,7 +430,7 @@ void QmlProfilerEventsMainView::setViewType(ViewTypes type)
     d->m_viewType = type;
     switch (type) {
     case EventsView: {
-        setObjectName("QmlProfilerEventsTable");
+        setObjectName(QLatin1String("QmlProfilerEventsTable"));
         setFieldViewable(Name, true);
         setFieldViewable(Type, true);
         setFieldViewable(Percent, true);
@@ -446,7 +446,7 @@ void QmlProfilerEventsMainView::setViewType(ViewTypes type)
         break;
     }
     case V8ProfileView: {
-        setObjectName("QmlProfilerV8ProfileTable");
+        setObjectName(QLatin1String("QmlProfilerV8ProfileTable"));
         setFieldViewable(Name, true);
         setFieldViewable(Type, false);
         setFieldViewable(Percent, true);
@@ -730,7 +730,7 @@ void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildV8ModelFr
                 item->setEditable(false);
 
             // metadata
-            newRow.at(0)->setData(QString("%1:%2").arg(v8event->filename, QString::number(v8event->line)), EventHashStrRole);
+            newRow.at(0)->setData(QString::fromLatin1("%1:%2").arg(v8event->filename, QString::number(v8event->line)), EventHashStrRole);
             newRow.at(0)->setData(QVariant(v8event->filename), FilenameRole);
             newRow.at(0)->setData(QVariant(v8event->line), LineRole);
             newRow.at(0)->setData(QVariant(0),ColumnRole); // v8 events have no column info
@@ -880,7 +880,7 @@ QString QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::textForItem
         // indentation
         QStandardItem *itemParent = item->parent();
         while (itemParent) {
-            str += "    ";
+            str += QLatin1String("    ");
             itemParent = itemParent->parent();
         }
     }
@@ -890,9 +890,9 @@ QString QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::textForItem
     for (int j = 0; j < colCount; ++j) {
         QStandardItem *colItem = item->parent() ? item->parent()->child(item->row(),j) : m_model->item(item->row(),j);
         str += colItem->data(Qt::DisplayRole).toString();
-        if (j < colCount-1) str += '\t';
+        if (j < colCount-1) str += QLatin1Char('\t');
     }
-    str += '\n';
+    str += QLatin1Char('\n');
 
     // recursively print children
     if (recursive && item->child(0))
@@ -910,9 +910,9 @@ void QmlProfilerEventsMainView::copyTableToClipboard() const
     for (int i = 0; i < columnCount; ++i) {
         str += d->m_model->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString();
         if (i < columnCount - 1)
-            str += '\t';
+            str += QLatin1Char('\t');
         else
-            str += '\n';
+            str += QLatin1Char('\n');
     }
     // data
     int rowCount = d->m_model->rowCount();

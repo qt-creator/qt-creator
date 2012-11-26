@@ -65,7 +65,7 @@ QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
                                                QmlProfilerStateManager *profilerState)
     : QObject(parent), d(new QmlProfilerViewManagerPrivate(this))
 {
-    setObjectName("QML Profiler View Manager");
+    setObjectName(QLatin1String("QML Profiler View Manager"));
     d->traceView = 0;
     d->eventsView = 0;
     d->v8profilerView = 0;
