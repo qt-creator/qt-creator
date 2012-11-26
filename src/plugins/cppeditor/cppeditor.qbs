@@ -14,6 +14,7 @@ QtcPlugin {
     Depends { name: "cpp" }
 
     cpp.includePaths: base.concat("../../libs/3rdparty")
+    cpp.defines: base.concat(["QT_NO_CAST_FROM_ASCII"])
 
     files: [
         "CppEditor.mimetypes.xml",

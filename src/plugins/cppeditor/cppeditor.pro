@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = CppEditor
-DEFINES += CPPEDITOR_LIBRARY
+DEFINES += CPPEDITOR_LIBRARY QT_NO_CAST_FROM_ASCII
 include(../../qtcreatorplugin.pri)
 include(cppeditor_dependencies.pri)
 HEADERS += cppplugin.h \
