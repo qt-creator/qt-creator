@@ -151,7 +151,7 @@ void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr docum
             m_prototypes.append(object->className());
         }
 
-        if (m_prototypes.contains("PropertyChanges")) {
+        if (m_prototypes.contains(QLatin1String("PropertyChanges"))) {
             isPropertyChanges = true;
             const ObjectValue *targetObject = getPropertyChangesTarget(node, *scopeChain);
             m_prototypes.clear();
@@ -277,15 +277,15 @@ bool QuickToolBar::isAvailable(TextEditor::BaseTextEditor *, Document::Ptr docum
     QStringList prototypes;
     prototypes.append(name);
 
-    if (prototypes.contains("Rectangle") ||
-            prototypes.contains("Image") ||
-            prototypes.contains("BorderImage") ||
-            prototypes.contains("TextEdit") ||
-            prototypes.contains("TextInput") ||
-            prototypes.contains("PropertyAnimation") ||
-            prototypes.contains("NumberAnimation") ||
-            prototypes.contains("Text") ||
-            prototypes.contains("PropertyChanges"))
+    if (prototypes.contains(QLatin1String("Rectangle")) ||
+            prototypes.contains(QLatin1String("Image")) ||
+            prototypes.contains(QLatin1String("BorderImage")) ||
+            prototypes.contains(QLatin1String("TextEdit")) ||
+            prototypes.contains(QLatin1String("TextInput")) ||
+            prototypes.contains(QLatin1String("PropertyAnimation")) ||
+            prototypes.contains(QLatin1String("NumberAnimation")) ||
+            prototypes.contains(QLatin1String("Text")) ||
+            prototypes.contains(QLatin1String("PropertyChanges")))
         return true;
 
     return false;
@@ -296,7 +296,7 @@ void QuickToolBar::setProperty(const QString &propertyName, const QVariant &valu
 
     QString stringValue = value.toString();
     if (value.type() == QVariant::Color)
-        stringValue = QChar('\"') + value.toString() + QChar('\"');
+        stringValue = QLatin1Char('\"') + value.toString() + QLatin1Char('\"');
 
     if (cast<UiObjectDefinition*>(m_node) || cast<UiObjectBinding*>(m_node)) {
         UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(m_node);
@@ -316,7 +316,7 @@ void QuickToolBar::setProperty(const QString &propertyName, const QVariant &valu
 
         Rewriter::BindingType bindingType = Rewriter::ScriptBinding;
 
-        if (stringValue.contains("{") && stringValue.contains("}"))
+        if (stringValue.contains(QLatin1Char('{')) && stringValue.contains(QLatin1Char('}')))
             bindingType = Rewriter::ObjectBinding;
 
         PropertyReader propertyReader(m_doc, initializer);

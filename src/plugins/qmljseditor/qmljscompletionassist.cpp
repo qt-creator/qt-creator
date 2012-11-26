@@ -138,7 +138,7 @@ public:
         if (const FunctionValue *func = value->asFunctionValue()) {
             // constructors usually also have other interesting members,
             // don't consider them pure functions and complete the '()'
-            if (!func->lookupMember("prototype", 0, 0, false)) {
+            if (!func->lookupMember(QLatin1String("prototype"), 0, 0, false)) {
                 data = QVariant::fromValue(CompleteFunctionCall(func->namedArgumentCount() || func->isVariadic()));
             }
         }
@@ -498,7 +498,7 @@ IAssistProcessor *QmlJSCompletionAssistProvider::createProcessor() const
 // ------------------------------
 QmlJSCompletionAssistProcessor::QmlJSCompletionAssistProcessor()
     : m_startPosition(0)
-    , m_snippetCollector(Constants::QML_SNIPPETS_GROUP_ID, iconForColor(Qt::red), SnippetOrder)
+    , m_snippetCollector(QLatin1String(Constants::QML_SNIPPETS_GROUP_ID), iconForColor(Qt::red), SnippetOrder)
 {}
 
 QmlJSCompletionAssistProcessor::~QmlJSCompletionAssistProcessor()
@@ -753,9 +753,9 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
                 foreach (const QString &key, enumValue->keys()) {
                     QString completion;
                     if (name.isEmpty())
-                        completion = QString("\"%1\"").arg(key);
+                        completion = QString::fromLatin1("\"%1\"").arg(key);
                     else
-                        completion = QString("%1.%2").arg(name, key);
+                        completion = QString::fromLatin1("%1.%2").arg(name, key);
                     addCompletion(&m_completions, key, m_interface->symbolIcon(),
                                   EnumValueOrder, completion);
                 }

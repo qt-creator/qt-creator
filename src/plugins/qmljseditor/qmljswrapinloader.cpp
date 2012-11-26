@@ -144,8 +144,8 @@ public:
             const QString innerId = it.key();
             comment += tr("//       Rename all outer uses of the id '%1' to '%2.item.%1'.\n").arg(
                         innerId, loaderId);
-            changes.replace(it.value().begin(), it.value().end(), QString("inner_%1").arg(innerId));
-            innerIdForwarders += QString("\nproperty alias %1: inner_%1").arg(innerId);
+            changes.replace(it.value().begin(), it.value().end(), QString::fromLatin1("inner_%1").arg(innerId));
+            innerIdForwarders += QString::fromLatin1("\nproperty alias %1: inner_%1").arg(innerId);
         }
         if (!innerIdForwarders.isEmpty()) {
             innerIdForwarders.append(QLatin1Char('\n'));
@@ -156,14 +156,14 @@ public:
         const int objDefStart = m_objDef->firstSourceLocation().begin();
         const int objDefEnd = m_objDef->lastSourceLocation().end();
         changes.insert(objDefStart, comment +
-                       QString("Component {\n"
-                               "    id: %1\n").arg(componentId));
-        changes.insert(objDefEnd, QString("\n"
-                                          "}\n"
-                                          "Loader {\n"
-                                          "    id: %2\n"
-                                          "    sourceComponent: %1\n"
-                                          "}\n").arg(componentId, loaderId));
+                       QString::fromLatin1("Component {\n"
+                                           "    id: %1\n").arg(componentId));
+        changes.insert(objDefEnd, QString::fromLatin1("\n"
+                                                      "}\n"
+                                                      "Loader {\n"
+                                                      "    id: %2\n"
+                                                      "    sourceComponent: %1\n"
+                                                      "}\n").arg(componentId, loaderId));
         currentFile->setChangeSet(changes);
         currentFile->appendIndentRange(Range(objDefStart, objDefEnd));
         currentFile->apply();

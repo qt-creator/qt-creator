@@ -17,7 +17,7 @@ QtcPlugin {
     Depends { name: "CPlusPlus" }
 
     Depends { name: "cpp" }
-    cpp.defines: base.concat(["QT_CREATOR"])
+    cpp.defines: base.concat(["QT_CREATOR", "QT_NO_CAST_FROM_ASCII"])
 
     files: [
         "QmlJSEditor.mimetypes.xml",

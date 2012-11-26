@@ -162,7 +162,7 @@ private:
         {
             Utils::ChangeSet changes;
             const int insertLoc = _message.location.begin() - _message.location.startColumn + 1;
-            changes.insert(insertLoc, QString("// %1\n").arg(_message.suppressionString()));
+            changes.insert(insertLoc, QString::fromLatin1("// %1\n").arg(_message.suppressionString()));
             currentFile->setChangeSet(changes);
             currentFile->appendIndentRange(Range(insertLoc, insertLoc + 1));
             currentFile->apply();

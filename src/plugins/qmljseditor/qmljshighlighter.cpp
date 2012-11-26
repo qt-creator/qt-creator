@@ -87,12 +87,12 @@ void Highlighter::highlightBlock(const QString &text)
 
             case Token::Comment:
                 if (m_inMultilineComment && text.midRef(token.end() - 2, 2) == QLatin1String("*/")) {
-                    onClosingParenthesis('-', token.end() - 1, index == tokens.size()-1);
+                    onClosingParenthesis(QLatin1Char('-'), token.end() - 1, index == tokens.size()-1);
                     m_inMultilineComment = false;
                 } else if (!m_inMultilineComment
                            && (m_scanner.state() & Scanner::MultiLineMask) == Scanner::MultiLineComment
                            && index == tokens.size() - 1) {
-                    onOpeningParenthesis('+', token.offset, index == 0);
+                    onOpeningParenthesis(QLatin1Char('+'), token.offset, index == 0);
                     m_inMultilineComment = true;
                 }
                 setFormat(token.offset, token.length, m_formats[CommentFormat]);
@@ -103,27 +103,27 @@ void Highlighter::highlightBlock(const QString &text)
                 break;
 
             case Token::LeftParenthesis:
-                onOpeningParenthesis('(', token.offset, index == 0);
+                onOpeningParenthesis(QLatin1Char('('), token.offset, index == 0);
                 break;
 
             case Token::RightParenthesis:
-                onClosingParenthesis(')', token.offset, index == tokens.size()-1);
+                onClosingParenthesis(QLatin1Char(')'), token.offset, index == tokens.size()-1);
                 break;
 
             case Token::LeftBrace:
-                onOpeningParenthesis('{', token.offset, index == 0);
+                onOpeningParenthesis(QLatin1Char('{'), token.offset, index == 0);
                 break;
 
             case Token::RightBrace:
-                onClosingParenthesis('}', token.offset, index == tokens.size()-1);
+                onClosingParenthesis(QLatin1Char('}'), token.offset, index == tokens.size()-1);
                 break;
 
             case Token::LeftBracket:
-                onOpeningParenthesis('[', token.offset, index == 0);
+                onOpeningParenthesis(QLatin1Char('['), token.offset, index == 0);
                 break;
 
             case Token::RightBracket:
-                onClosingParenthesis(']', token.offset, index == tokens.size()-1);
+                onClosingParenthesis(QLatin1Char(']'), token.offset, index == tokens.size()-1);
                 break;
 
             case Token::Identifier: {

@@ -217,7 +217,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
     // Insert marker for "Refactoring" menu:
     Core::Command *sep = contextMenu->addSeparator(globalContext);
-    sep->action()->setObjectName(Constants::M_REFACTORING_MENU_INSERTION_POINT);
+    sep->action()->setObjectName(QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT));
     contextMenu->addSeparator(globalContext);
 
     cmd = Core::ActionManager::command(TextEditor::Constants::AUTO_INDENT_SELECTION);
@@ -235,7 +235,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     errorMessage->clear();
 
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(":/qmljseditor/images/qmlfile.png")), "qml");
+    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(":/qmljseditor/images/qmlfile.png")), QLatin1String("qml"));
 
     registerQuickFixes(this);
 

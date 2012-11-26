@@ -308,7 +308,7 @@ QmlOutlineModel::QmlOutlineModel(QmlJSTextEditorWidget *editor) :
 {
     m_icons = Icons::instance();
     const QString resourcePath = Core::ICore::resourcePath();
-    Icons::instance()->setIconFilesPath(resourcePath + "/qmlicons");
+    Icons::instance()->setIconFilesPath(resourcePath + QLatin1String("/qmlicons"));
 
     // TODO: Maybe add a Copy Action?
     setSupportedDragActions(Qt::MoveAction);
@@ -588,7 +588,7 @@ QModelIndex QmlOutlineModel::enterTestCase(AST::ObjectLiteral *objectLiteral)
 {
     QMap<int, QVariant> objectData;
 
-    objectData.insert(Qt::DisplayRole, "testcase");
+    objectData.insert(Qt::DisplayRole, QLatin1String("testcase"));
     objectData.insert(ItemTypeRole, ElementBindingType);
 
     QmlOutlineItem *item = enterNode(objectData, objectLiteral, 0, m_icons->objectDefinitionIcon());
@@ -940,9 +940,9 @@ QIcon QmlOutlineModel::getIcon(AST::UiQualifiedId *qualifiedId) {
             name = name.split(QLatin1Char('.')).last();
 
         // TODO: get rid of namespace prefixes.
-        icon = m_icons->icon("Qt", name);
+        icon = m_icons->icon(QLatin1String("Qt"), name);
         if (icon.isNull())
-            icon = m_icons->icon("QtWebkit", name);
+            icon = m_icons->icon(QLatin1String("QtWebkit"), name);
     }
     return icon;
 }
@@ -950,14 +950,14 @@ QIcon QmlOutlineModel::getIcon(AST::UiQualifiedId *qualifiedId) {
 QString QmlOutlineModel::getAnnotation(AST::UiObjectInitializer *objectInitializer) {
     const QHash<QString,QString> bindings = getScriptBindings(objectInitializer);
 
-    if (bindings.contains("id"))
-        return bindings.value("id");
+    if (bindings.contains(QLatin1String("id")))
+        return bindings.value(QLatin1String("id"));
 
-    if (bindings.contains("name"))
-        return bindings.value("name");
+    if (bindings.contains(QLatin1String("name")))
+        return bindings.value(QLatin1String("name"));
 
-    if (bindings.contains("target"))
-        return bindings.value("target");
+    if (bindings.contains(QLatin1String("target")))
+        return bindings.value(QLatin1String("target"));
 
     return QString();
 }
