@@ -5,6 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "GLSLEditor"
 
+    Depends { name: "cpp" }
     Depends { name: "Qt.widgets" }
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
@@ -12,6 +13,7 @@ QtcPlugin {
     Depends { name: "CppTools" }
     Depends { name: "GLSL" }
     Depends { name: "CPlusPlus" }
+    cpp.defines: base.concat(["QT_NO_CAST_FROM_ASCII"])
 
     files: [
         "GLSLEditor.mimetypes.xml",

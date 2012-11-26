@@ -138,7 +138,7 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     // Insert marker for "Refactoring" menu:
     Core::Context globalContext(Core::Constants::C_GLOBAL);
     Core::Command *sep = contextMenu->addSeparator(globalContext);
-    sep->action()->setObjectName(Constants::M_REFACTORING_MENU_INSERTION_POINT);
+    sep->action()->setObjectName(QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT));
     contextMenu->addSeparator(globalContext);
 
     cmd = Core::ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);

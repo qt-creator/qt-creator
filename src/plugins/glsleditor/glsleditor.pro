@@ -5,7 +5,8 @@ include(glsleditor_dependencies.pri)
 
 DEFINES += \
     GLSLEDITOR_LIBRARY \
-    QT_CREATOR
+    QT_CREATOR \
+    QT_NO_CAST_FROM_ASCII
 
 HEADERS += \
 glsleditor.h \
