@@ -66,7 +66,7 @@ QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::Filter
         }
     }
     QDir dirInfo(directory);
-    QDir::Filters dirFilter = QDir::Dirs|QDir::Drives;
+    QDir::Filters dirFilter = QDir::Dirs|QDir::Drives|QDir::NoDot;
     QDir::Filters fileFilter = QDir::Files;
     if (m_includeHidden) {
         dirFilter |= QDir::Hidden;
@@ -79,7 +79,7 @@ QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::Filter
     foreach (const QString &dir, dirs) {
         if (future.isCanceled())
             break;
-        if (dir != QLatin1String(".") && (name.isEmpty() || dir.startsWith(name, Qt::CaseInsensitive))) {
+        if (name.isEmpty() || dir.startsWith(name, Qt::CaseInsensitive)) {
             const QString fullPath = dirInfo.filePath(dir);
             FilterEntry filterEntry(this, dir, QString(fullPath + lineNoSuffix));
             filterEntry.resolveFileIcon = true;
