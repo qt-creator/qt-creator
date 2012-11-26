@@ -2620,8 +2620,12 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
             setPosition(qMin(pos1, pos2) + col);
         } else {
             setPosition(qMin(position(), anchor()));
-            if (m_rangemode == RangeLineMode)
-                moveToStartOfLine();
+            if (m_rangemode == RangeLineMode) {
+                if (isVisualMode())
+                    moveToStartOfLine();
+                else
+                    setTargetColumn();
+            }
         }
         leaveVisualMode();
     } else if (m_submode == InvertCaseSubMode

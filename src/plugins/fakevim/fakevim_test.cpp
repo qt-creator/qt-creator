@@ -1239,6 +1239,10 @@ void FakeVimPlugin::test_vim_copy_paste()
     KEYS("Vjy", X "abc" N "def");
     data.setText("ab" X "c" N "def");
     KEYS("<c-v>jhhy", X "abc" N "def");
+    data.setText("ab" X "c" N "def");
+    KEYS("yj", "ab" X "c" N "def");
+    data.setText("abc" N "de" X "f");
+    KEYS("yk", "ab" X "c" N "def");
 }
 
 void FakeVimPlugin::test_vim_undo_redo()
