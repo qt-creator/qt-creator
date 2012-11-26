@@ -1530,6 +1530,9 @@ public:
             EDITOR(setTextCursor(tc));
     }
 
+    bool moveToPreviousParagraph(int count) { return moveToNextParagraph(-count); }
+    bool moveToNextParagraph(int count);
+
     bool handleFfTt(QString key);
 
     void enterInsertMode();
@@ -2450,6 +2453,37 @@ void FakeVimHandler::Private::moveDown(int n)
     moveToTargetColumn();
 }
 
+bool FakeVimHandler::Private::moveToNextParagraph(int count)
+{
+    const bool forward = count > 0;
+    int repeat = forward ? count : -count;
+    QTextBlock block = this->block();
+
+    if (block.isValid() && block.length() == 1)
+        ++repeat;
+
+    for (; block.isValid(); block = forward ? block.next() : block.previous()) {
+        if (block.length() == 1) {
+            if (--repeat == 0)
+                break;
+            while (block.isValid() && block.length() == 1)
+                block = forward ? block.next() : block.previous();
+        }
+    }
+
+    if (repeat == 0)
+        setPosition(block.position());
+    else if (repeat == 1)
+        setPosition(forward ? lastPositionInDocument() : 0);
+    else
+        return false;
+
+    setTargetColumn();
+    m_movetype = MoveExclusive;
+
+    return true;
+}
+
 void FakeVimHandler::Private::moveToEndOfLine()
 {
     // Additionally select (in visual mode) or apply current command on hidden lines following
@@ -2986,6 +3020,10 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         moveToStartOfLine();
         moveRight(qMin(count, rightDist()) - 1);
         setTargetColumn();
+    } else if (input.is('}')) {
+        handled = moveToNextParagraph(count);
+    } else if (input.is('{')) {
+        handled = moveToPreviousParagraph(count);
     } else if (input.isReturn()) {
         moveToStartOfLine();
         moveDown();

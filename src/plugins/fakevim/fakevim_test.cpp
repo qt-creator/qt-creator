@@ -383,6 +383,25 @@ void FakeVimPlugin::test_vim_movement()
     KEYS("A", "abc def" X N "ghi");
     data.setText("abc def" N "ghi");
     KEYS("$a", "abc def" X N "ghi");
+
+    // paragraph movement
+    data.setText("abc"  N   N "def");
+    KEYS("}",     "abc" N X N "def");
+    KEYS("}",     "abc" N   N "de" X "f");
+    KEYS("{",     "abc" N X N "def");
+    KEYS("{",   X "abc" N   N "def");
+
+    data.setText("abc" N   N N   N "def");
+    KEYS("}",    "abc" N X N N   N "def");
+    KEYS("}",    "abc" N   N N   N "de" X "f");
+    KEYS("3{",   "abc" N   N N   N "de" X "f");
+    KEYS("{",    "abc" N   N N X N "def");
+    KEYS("{",  X "abc" N   N N   N "def");
+    KEYS("3}", X "abc" N   N N   N "def");
+
+    data.setText("abc def");
+    KEYS("}", "abc de" X "f");
+    KEYS("{", X "abc def");
 }
 
 void FakeVimPlugin::test_vim_insert()
