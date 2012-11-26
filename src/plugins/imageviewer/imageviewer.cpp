@@ -73,15 +73,15 @@ ImageViewer::ImageViewer(QWidget *parent)
     d->ui_toolbar.setupUi(d->toolbar);
 
     // icons update - try to use system theme
-    updateButtonIconByTheme(d->ui_toolbar.toolButtonZoomIn, "zoom-in");
-    updateButtonIconByTheme(d->ui_toolbar.toolButtonZoomOut, "zoom-out");
-    updateButtonIconByTheme(d->ui_toolbar.toolButtonOriginalSize, "zoom-original");
-    updateButtonIconByTheme(d->ui_toolbar.toolButtonFitToScreen, "zoom-fit-best");
+    updateButtonIconByTheme(d->ui_toolbar.toolButtonZoomIn, QLatin1String("zoom-in"));
+    updateButtonIconByTheme(d->ui_toolbar.toolButtonZoomOut, QLatin1String("zoom-out"));
+    updateButtonIconByTheme(d->ui_toolbar.toolButtonOriginalSize, QLatin1String("zoom-original"));
+    updateButtonIconByTheme(d->ui_toolbar.toolButtonFitToScreen, QLatin1String("zoom-fit-best"));
     // a display - something is on the background
-    updateButtonIconByTheme(d->ui_toolbar.toolButtonBackground, "video-display");
+    updateButtonIconByTheme(d->ui_toolbar.toolButtonBackground, QLatin1String("video-display"));
     // "emblem to specify the directory where the user stores photographs"
     // (photograph has outline - piece of paper)
-    updateButtonIconByTheme(d->ui_toolbar.toolButtonOutline, "emblem-photos");
+    updateButtonIconByTheme(d->ui_toolbar.toolButtonOutline, QLatin1String("emblem-photos"));
 
     d->ui_toolbar.toolButtonZoomIn->setCommandId(Constants::ACTION_ZOOM_IN);
     d->ui_toolbar.toolButtonZoomOut->setCommandId(Constants::ACTION_ZOOM_OUT);
