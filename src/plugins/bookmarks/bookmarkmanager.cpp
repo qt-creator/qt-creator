@@ -119,7 +119,7 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     painter->save();
 
     QFontMetrics fm(opt.font);
-    static int lwidth = fm.width("8888") + 18;
+    static int lwidth = fm.width(QLatin1String("8888")) + 18;
 
     QColor backgroundColor;
     QColor textColor;
@@ -753,11 +753,11 @@ void BookmarkManager::addBookmark(Bookmark *bookmark, bool userset)
 void BookmarkManager::addBookmark(const QString &s)
 {
     // index3 is a frontier beetween note text and other bookmarks data
-    int index3 = s.lastIndexOf('\t');
+    int index3 = s.lastIndexOf(QLatin1Char('\t'));
     if (index3 < 0)
         index3 = s.size();
-    int index2 = s.lastIndexOf(':', index3 - 1);
-    int index1 = s.indexOf(':');
+    int index2 = s.lastIndexOf(QLatin1Char(':'), index3 - 1);
+    int index1 = s.indexOf(QLatin1Char(':'));
 
     if (index3 != -1 || index2 != -1 || index1 != -1) {
         const QString &filePath = s.mid(index1+1, index2-index1-1);
@@ -795,7 +795,7 @@ void BookmarkManager::saveBookmarks()
     foreach (const Bookmark *bookmark, m_bookmarksList)
             list << bookmarkToString(bookmark);
 
-    sessionManager()->setValue("Bookmarks", list);
+    sessionManager()->setValue(QLatin1String("Bookmarks"), list);
 }
 
 void BookmarkManager::operateTooltip(TextEditor::ITextEditor *textEditor, const QPoint &pos, Bookmark *mark)
@@ -814,7 +814,7 @@ void BookmarkManager::operateTooltip(TextEditor::ITextEditor *textEditor, const 
 void BookmarkManager::loadBookmarks()
 {
     removeAllBookmarks();
-    const QStringList &list = sessionManager()->value("Bookmarks").toStringList();
+    const QStringList &list = sessionManager()->value(QLatin1String("Bookmarks")).toStringList();
     foreach (const QString &bookmarkString, list)
         addBookmark(bookmarkString);
 
