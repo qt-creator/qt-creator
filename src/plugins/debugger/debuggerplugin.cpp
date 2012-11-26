@@ -1471,7 +1471,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
     // a handshake when attaching to a crashed Windows process.
     // This is created by $QTC/src/tools/qtcdebugger/main.cpp:
     // args << QLatin1String("-wincrashevent")
-    //   << QString("%1:%2").arg(argWinCrashEvent).arg(argProcessId);
+    //   << QString::fromLatin1("%1:%2").arg(argWinCrashEvent).arg(argProcessId);
     if (*it == _("-wincrashevent")) {
         ++it;
         if (it == cend) {
@@ -2215,7 +2215,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     engine->watchHandler()->updateWatchersWindow();
 
     const DebuggerState state = engine->state();
-    //showMessage(QString("PLUGIN SET STATE: ")
+    //showMessage(QString::fromLatin1("PLUGIN SET STATE: ")
     //    + DebuggerEngine::stateName(state), LogStatus);
     //qDebug() << "PLUGIN SET STATE: " << state;
 

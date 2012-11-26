@@ -333,7 +333,7 @@ bool QmlInspectorAgent::addObjectWatch(int objectDebugId)
         return true;
 
     // is flooding the debugging output log!
-    // log(LogSend, QString("WATCH_PROPERTY %1").arg(objectDebugId));
+    // log(LogSend, QString::fromLatin1("WATCH_PROPERTY %1").arg(objectDebugId));
 
     if (m_engineClient->addWatch(objectDebugId))
         m_objectWatches.append(objectDebugId);
