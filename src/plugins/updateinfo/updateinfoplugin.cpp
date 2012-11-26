@@ -166,7 +166,7 @@ QDomDocument UpdateInfoPlugin::checkForUpdates()
         qWarning() << "Get update info application crashed.";
         //return; //maybe there is some output
     }
-    QString updaterOutput = updaterProcess.readAllStandardOutput();
+    QByteArray updaterOutput = updaterProcess.readAllStandardOutput();
     QDomDocument updatesDomDocument;
     updatesDomDocument.setContent(updaterOutput);
 
