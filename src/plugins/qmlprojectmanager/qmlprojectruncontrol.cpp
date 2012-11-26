@@ -104,7 +104,7 @@ bool QmlProjectRunControl::isRunning() const
 
 QIcon QmlProjectRunControl::icon() const
 {
-    return QIcon(ProjectExplorer::Constants::ICON_RUN_SMALL);
+    return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 }
 
 void QmlProjectRunControl::slotBringApplicationToForeground(qint64 pid)
@@ -200,9 +200,9 @@ RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConf
     Debugger::DebuggerStartParameters params;
     params.startMode = Debugger::StartInternal;
     params.executable = runConfig->observerPath();
-    params.qmlServerAddress = "127.0.0.1";
+    params.qmlServerAddress = QLatin1String("127.0.0.1");
     params.qmlServerPort = runConfig->debuggerAspect()->qmlDebugServerPort();
-    params.processArgs = QString("-qmljsdebugger=port:%1,block").arg(params.qmlServerPort);
+    params.processArgs = QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(params.qmlServerPort);
     params.processArgs += QLatin1Char(' ') + runConfig->viewerArguments();
     params.workingDirectory = runConfig->workingDirectory();
     params.environment = runConfig->environment();
@@ -223,7 +223,7 @@ RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConf
 
     if (params.executable.isEmpty()) {
         QmlProjectPlugin::showQmlObserverToolWarning();
-        *errorMessage = QString(""); // hack, we already showed a error message
+        errorMessage->clear(); // hack, we already showed a error message
         return 0;
     }
 

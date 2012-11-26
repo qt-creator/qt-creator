@@ -89,7 +89,8 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     QmlProjectFileFormat::registerDeclarativeTypes();
 
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(":/qmlproject/images/qmlproject.png")), "qmlproject");
+    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(":/qmlproject/images/qmlproject.png")),
+                                               QLatin1String("qmlproject"));
     return true;
 }
 
@@ -115,8 +116,8 @@ void QmlProjectPlugin::showQmlObserverToolWarning()
     dialog.exec();
     if (dialog.clickedButton() == qtPref) {
         Core::ICore::showOptionsDialog(
-                    ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
-                    QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
+                    QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
+                    QLatin1String(QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID));
     }
 }
 

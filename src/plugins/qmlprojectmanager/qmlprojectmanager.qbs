@@ -5,6 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "QmlProjectManager"
 
+    Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["widgets", "declarative"] }
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
@@ -14,6 +15,7 @@ QtcPlugin {
     Depends { name: "Debugger" }
     Depends { name: "QtSupport" }
     Depends { name: "app_version_header" }
+    cpp.defines: base.concat(["QMLPROJECTMANAGER_LIBRARY", "QT_NO_CAST_FROM_ASCII"])
 
     files: [
         "QmlProject.mimetypes.xml",

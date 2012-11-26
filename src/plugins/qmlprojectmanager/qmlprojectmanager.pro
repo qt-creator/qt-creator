@@ -7,7 +7,7 @@ include(../../qtcreatorplugin.pri)
 include(qmlprojectmanager_dependencies.pri)
 include(fileformat/fileformat.pri)
 
-DEFINES += QMLPROJECTMANAGER_LIBRARY
+DEFINES += QMLPROJECTMANAGER_LIBRARY QT_NO_CAST_FROM_ASCII
 HEADERS += qmlproject.h \
     qmlprojectplugin.h \
     qmlprojectmanager.h \

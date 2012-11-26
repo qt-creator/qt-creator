@@ -59,7 +59,7 @@ const char * const M_CURRENT_FILE = "CurrentFile";
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(ProjectExplorer::Target *parent,
                                                        Core::Id id) :
     ProjectExplorer::RunConfiguration(parent, id),
-    m_scriptFile(M_CURRENT_FILE),
+    m_scriptFile(QLatin1String(M_CURRENT_FILE)),
     m_isEnabled(false)
 {
     ctor();
@@ -145,7 +145,7 @@ QString QmlProjectRunConfiguration::viewerArguments() const
     // arguments from .qmlproject file
     QmlProject *project = static_cast<QmlProject *>(target()->project());
     foreach (const QString &importPath, project->customImportPaths()) {
-        Utils::QtcProcess::addArg(&args, "-I");
+        Utils::QtcProcess::addArg(&args, QLatin1String("-I"));
         Utils::QtcProcess::addArg(&args, importPath);
     }
 
@@ -230,7 +230,7 @@ void QmlProjectRunConfiguration::setScriptSource(MainScriptSource source,
                                                  const QString &settingsPath)
 {
     if (source == FileInEditor) {
-        m_scriptFile = M_CURRENT_FILE;
+        m_scriptFile = QLatin1String(M_CURRENT_FILE);
         m_mainScriptFilename.clear();
     } else if (source == FileInProjectFile) {
         m_scriptFile.clear();
@@ -273,11 +273,11 @@ QVariantMap QmlProjectRunConfiguration::toMap() const
 bool QmlProjectRunConfiguration::fromMap(const QVariantMap &map)
 {
     m_qmlViewerArgs = map.value(QLatin1String(Constants::QML_VIEWER_ARGUMENTS_KEY)).toString();
-    m_scriptFile = map.value(QLatin1String(Constants::QML_MAINSCRIPT_KEY), M_CURRENT_FILE).toString();
+    m_scriptFile = map.value(QLatin1String(Constants::QML_MAINSCRIPT_KEY), QLatin1String(M_CURRENT_FILE)).toString();
     m_userEnvironmentChanges = Utils::EnvironmentItem::fromStringList(
                 map.value(QLatin1String(Constants::USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
 
-    if (m_scriptFile == M_CURRENT_FILE)
+    if (m_scriptFile == QLatin1String(M_CURRENT_FILE))
         setScriptSource(FileInEditor);
     else if (m_scriptFile.isEmpty())
         setScriptSource(FileInProjectFile);
@@ -338,8 +338,8 @@ void QmlProjectRunConfiguration::updateEnabled()
 bool QmlProjectRunConfiguration::isValidVersion(QtSupport::BaseQtVersion *version)
 {
     if (version
-            && (version->type() == QtSupport::Constants::DESKTOPQT
-                || version->type() == QtSupport::Constants::SIMULATORQT)
+            && (version->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
+                || version->type() == QLatin1String(QtSupport::Constants::SIMULATORQT))
             && !version->qmlviewerCommand().isEmpty()) {
         return true;
     }

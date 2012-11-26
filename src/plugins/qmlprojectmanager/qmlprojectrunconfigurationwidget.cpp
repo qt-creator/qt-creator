@@ -138,7 +138,7 @@ void QmlProjectRunConfigurationWidget::updateFileComboBox()
 
     m_fileListCombo->setEnabled(true);
     m_fileListModel->clear();
-    m_fileListModel->appendRow(new QStandardItem(CURRENT_FILE));
+    m_fileListModel->appendRow(new QStandardItem(QLatin1String(CURRENT_FILE)));
     QModelIndex currentIndex;
 
     QStringList sortedFiles = project->files(ProjectExplorer::Project::AllFiles);

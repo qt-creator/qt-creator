@@ -105,7 +105,7 @@ Core::BaseFileWizardParameters QmlProjectApplicationWizard::parameters(ProjectTy
     }
 
     parameters.setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
-    parameters.setDisplayCategory(QT_TRANSLATE_NOOP("ProjectExplorer", "Qt Application"));
+    parameters.setDisplayCategory(QLatin1String(QT_TRANSLATE_NOOP("ProjectExplorer", "Qt Application")));
     return parameters;
 }
 
