@@ -156,7 +156,6 @@ void InsertQtPropertyMembers::Operation::perform()
 
     // getter declaration
     if (m_generateFlags & GenerateGetter) {
-        //                const QString getterDeclaration = QString("%1 %2() const;").arg(typeName, getterName);
         const QString getterDeclaration = typeName + QLatin1Char(' ') + m_getterName +
                 QLatin1String("() const\n{\nreturn ") + m_storageName + QLatin1String(";\n}\n");
         InsertionLocation getterLoc = locator.methodDeclarationInClass(file->fileName(), m_class, InsertionPointLocator::Public);
@@ -166,7 +165,6 @@ void InsertQtPropertyMembers::Operation::perform()
 
     // setter declaration
     if (m_generateFlags & GenerateSetter) {
-        //                const QString setterDeclaration = QString("void %1(%2 arg);").arg(setterName, typeName);
         QString setterDeclaration;
         QTextStream setter(&setterDeclaration);
         setter << "void " << m_setterName << '(' << typeName << " arg)\n{\n";
