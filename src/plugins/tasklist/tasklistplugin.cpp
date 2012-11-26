@@ -112,7 +112,7 @@ public:
                 file = QDir::fromNativeSeparators(file);
                 QFileInfo fi(file);
                 if (fi.isRelative() && context) {
-                    QString fullPath = context->projectDirectory() + '/' + file;
+                    QString fullPath = context->projectDirectory() + QLatin1Char('/') + file;
                     fi.setFile(fullPath);
                     file = fi.absoluteFilePath();
                 }
@@ -130,29 +130,29 @@ public:
     {
         QStringList result;
         QString line = QString::fromUtf8(raw.constData());
-        if (line.startsWith(QChar('#')))
+        if (line.startsWith(QLatin1Char('#')))
             return result;
 
-        return line.split(QChar('\t'));
+        return line.split(QLatin1Char('\t'));
     }
 
     QString unescape(const QString &input) const
     {
         QString result;
         for (int i = 0; i < input.count(); ++i) {
-            if (input.at(i) == QChar('\\')) {
+            if (input.at(i) == QLatin1Char('\\')) {
                 if (i == input.count() - 1)
                     continue;
-                if (input.at(i + 1) == QChar('n')) {
-                    result.append(QChar('\n'));
+                if (input.at(i + 1) == QLatin1Char('n')) {
+                    result.append(QLatin1Char('\n'));
                     ++i;
                     continue;
-                } else if (input.at(i + 1) == QChar('t')) {
-                    result.append(QChar('\t'));
+                } else if (input.at(i + 1) == QLatin1Char('t')) {
+                    result.append(QLatin1Char('\t'));
                     ++i;
                     continue;
-                } else if (input.at(i + 1) == QChar('\\')) {
-                    result.append(QChar('\\'));
+                } else if (input.at(i + 1) == QLatin1Char('\\')) {
+                    result.append(QLatin1Char('\\'));
                     ++i;
                     continue;
                 }
