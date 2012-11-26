@@ -101,7 +101,7 @@ static inline QStringList trimStringList(const QStringList &stringlist)
     return returnList;
 }
 
-QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader* reader, const QString& projectsOffset)
+QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader *reader, const QString &projectsOffset)
 {
     QList<ExampleItem> examples;
     ExampleItem item;
@@ -149,7 +149,7 @@ QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader* reader, co
     return examples;
 }
 
-QList<ExampleItem> ExamplesListModel::parseDemos(QXmlStreamReader* reader, const QString& projectsOffset)
+QList<ExampleItem> ExamplesListModel::parseDemos(QXmlStreamReader *reader, const QString &projectsOffset)
 {
     QList<ExampleItem> demos;
     ExampleItem item;
@@ -522,12 +522,11 @@ void ExamplesListModelFilter::updateFilter()
     }
 }
 
-bool containsSubString(const QStringList& list, const QString& substr, Qt::CaseSensitivity cs)
+bool containsSubString(const QStringList &list, const QString &substr, Qt::CaseSensitivity cs)
 {
-    foreach (const QString &elem, list) {
+    foreach (const QString &elem, list)
         if (elem.contains(substr, cs))
             return true;
-    }
 
     return false;
 }
@@ -549,10 +548,9 @@ bool ExamplesListModelFilter::filterAcceptsRow(int sourceRow, const QModelIndex 
     const QStringList tags = sourceModel()->index(sourceRow, 0, sourceParent).data(Tags).toStringList();
 
     if (!m_filterTags.isEmpty()) {
-        foreach(const QString &tag, m_filterTags) {
+        foreach(const QString &tag, m_filterTags)
             if (!tags.contains(tag, Qt::CaseInsensitive))
                 return false;
-        }
         return true;
     }
 
@@ -617,7 +615,8 @@ void ExamplesListModelFilter::timerEvent(QTimerEvent *timerEvent)
     }
 }
 
-struct SearchStringLexer {
+struct SearchStringLexer
+{
     QString code;
     const QChar *codePtr;
     QChar yychar;

@@ -87,6 +87,7 @@ QPointer<ExamplesListModel> &examplesModelStatic()
 class Fetcher : public QObject
 {
     Q_OBJECT
+
 public:
     Fetcher() : QObject(),  m_shutdown(false)
     {

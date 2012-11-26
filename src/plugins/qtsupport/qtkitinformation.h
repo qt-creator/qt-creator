@@ -32,9 +32,9 @@
 
 #include "qtsupport_global.h"
 
-#include <projectexplorer/kitinformation.h>
-
 #include "baseqtversion.h"
+
+#include <projectexplorer/kitinformation.h>
 
 namespace QtSupport {
 
@@ -67,6 +67,7 @@ public:
     static void setQtVersionId(ProjectExplorer::Kit *k, const int id);
     static BaseQtVersion *qtVersion(const ProjectExplorer::Kit *k);
     static void setQtVersion(ProjectExplorer::Kit *k, const BaseQtVersion *v);
+
 private slots:
     void qtVersionsChanged(const QList<int> &addedIds,
                            const QList<int> &removedIds,
@@ -88,8 +89,8 @@ class QTSUPPORT_EXPORT QtVersionKitMatcher : public ProjectExplorer::KitMatcher
 {
 public:
     explicit QtVersionKitMatcher(const Core::FeatureSet &required = Core::FeatureSet(),
-                                     const QtVersionNumber &min = QtVersionNumber(0, 0, 0),
-                                     const QtVersionNumber &max = QtVersionNumber(INT_MAX, INT_MAX, INT_MAX)) :
+                                 const QtVersionNumber &min = QtVersionNumber(0, 0, 0),
+                                 const QtVersionNumber &max = QtVersionNumber(INT_MAX, INT_MAX, INT_MAX)) :
         m_min(min), m_max(max), m_features(required)
     { }
 

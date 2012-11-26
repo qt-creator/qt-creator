@@ -65,6 +65,7 @@ private:
 class ExamplesWelcomePage : public Utils::IWelcomePage
 {
     Q_OBJECT
+
 public:
     ExamplesWelcomePage();
 
