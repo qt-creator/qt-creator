@@ -72,14 +72,14 @@ QList<Core::Id> MaemoDeployStepFactory::availableCreationIds(BuildStepList *pare
     if (version)
         platform = version->platformName();
 
-    if (platform == QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM) {
+    if (platform == QLatin1String(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM)) {
         ids << MaemoMakeInstallToSysrootStep::Id
             << MaemoInstallDebianPackageToSysrootStep::Id
             << MaemoUploadAndInstallPackageStep::stepId()
             << MaemoInstallPackageViaMountStep::stepId()
             << MaemoCopyFilesViaMountStep::stepId()
             << MaddeQemuStartStep::stepId();
-    } else if (platform == QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM) {
+    } else if (platform == QLatin1String(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM)) {
         ids << MaemoMakeInstallToSysrootStep::Id
             << MaemoInstallDebianPackageToSysrootStep::Id
             << MaemoUploadAndInstallPackageStep::stepId()

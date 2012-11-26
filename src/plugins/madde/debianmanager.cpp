@@ -58,11 +58,11 @@
 
 namespace {
 
-const QByteArray IconFieldName("XB-Maemo-Icon-26");
-const QByteArray NameFieldName("Package");
-const QByteArray ShortDescriptionFieldName("Description");
+const char IconFieldName[] = "XB-Maemo-Icon-26";
+const char NameFieldName[] = "Package";
+const char ShortDescriptionFieldName[] = "Description";
 
-const QLatin1String PackagingDirName("qtc_packaging");
+const char PackagingDirName[] = "qtc_packaging";
 
 // The QDateTime API can only deliver these in localized form...
 QString shortMonthName(const QDateTime &dt)
@@ -307,7 +307,7 @@ DebianManager::DebianManager(QObject *parent) :
 {
     m_instance = this;
 
-    m_watcher->setObjectName("Madde::DebianManager");
+    m_watcher->setObjectName(QLatin1String("Madde::DebianManager"));
     connect(m_watcher, SIGNAL(directoryChanged(QString)),
             this, SLOT(directoryWasChanged(QString)));
 }
@@ -441,7 +441,7 @@ bool DebianManager::setProjectVersion(const Utils::FileName &debianDir, const QS
 
 QString DebianManager::packageName(const Utils::FileName &debianDir)
 {
-    return QString::fromUtf8(controlFileFieldValue(controlFilePath(debianDir), NameFieldName, false));
+    return QString::fromUtf8(controlFileFieldValue(controlFilePath(debianDir), QLatin1String(NameFieldName), false));
 }
 
 bool DebianManager::setPackageName(const Utils::FileName &debianDir, const QString &newName)
@@ -484,7 +484,8 @@ bool DebianManager::setPackageName(const Utils::FileName &debianDir, const QStri
 
 QString DebianManager::shortDescription(const Utils::FileName &debianDir)
 {
-    return QString::fromUtf8(controlFileFieldValue(controlFilePath(debianDir), ShortDescriptionFieldName, false));
+    return QString::fromUtf8(controlFileFieldValue(controlFilePath(debianDir),
+                                                   QLatin1String(ShortDescriptionFieldName), false));
 }
 
 bool DebianManager::setShortDescription(const Utils::FileName &debianDir, const QString &description)
@@ -495,7 +496,7 @@ bool DebianManager::setShortDescription(const Utils::FileName &debianDir, const 
 QString DebianManager::packageManagerName(const Utils::FileName &debianDir, Core::Id deviceType)
 {
     return QString::fromUtf8(controlFileFieldValue(controlFilePath(debianDir),
-                                                   packageManagerNameFieldName(deviceType), false));
+                                                   QLatin1String(packageManagerNameFieldName(deviceType)), false));
 }
 
 bool DebianManager::setPackageManagerName(const Utils::FileName &debianDir, Core::Id deviceType, const QString &name)
@@ -507,7 +508,7 @@ bool DebianManager::setPackageManagerName(const Utils::FileName &debianDir, Core
 QIcon DebianManager::packageManagerIcon(const Utils::FileName &debianDir, QString *error)
 {
     const QByteArray &base64Icon
-            = controlFileFieldValue(controlFilePath(debianDir), IconFieldName, true);
+            = controlFileFieldValue(controlFilePath(debianDir), QLatin1String(IconFieldName), true);
     if (base64Icon.isEmpty())
         return QIcon();
     QPixmap pixmap;
@@ -545,7 +546,7 @@ bool DebianManager::setPackageManagerIcon(const Utils::FileName &debianDir, Core
     buffer.close();
     iconAsBase64 = iconAsBase64.toBase64();
     QByteArray contents = reader.data();
-    const QByteArray iconFieldNameWithColon = IconFieldName + ':';
+    const QByteArray iconFieldNameWithColon = QByteArray(IconFieldName) + ':';
     const int iconFieldPos = contents.startsWith(iconFieldNameWithColon)
         ? 0 : contents.indexOf('\n' + iconFieldNameWithColon);
     if (iconFieldPos == -1) {
@@ -672,7 +673,7 @@ QStringList DebianManager::debianFiles(const Utils::FileName &debianDir)
 Utils::FileName DebianManager::debianDirectory(ProjectExplorer::Target *target)
 {
     Utils::FileName path = Utils::FileName::fromString(target->project()->projectDirectory());
-    path.appendPath(PackagingDirName);
+    path.appendPath(QLatin1String(PackagingDirName));
     Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(target->kit());
     if (deviceType == HarmattanOsType)
         path.appendPath(QLatin1String("debian_harmattan"));
@@ -709,19 +710,19 @@ void DebianManager::changelogWasChanged()
 Utils::FileName DebianManager::changelogFilePath(const Utils::FileName &debianDir)
 {
     Utils::FileName result = debianDir;
-    return result.appendPath("changelog");
+    return result.appendPath(QLatin1String("changelog"));
 }
 
 Utils::FileName DebianManager::controlFilePath(const Utils::FileName &debianDir)
 {
     Utils::FileName result = debianDir;
-    return result.appendPath("control");
+    return result.appendPath(QLatin1String("control"));
 }
 
 Utils::FileName DebianManager::rulesFilePath(const Utils::FileName &debianDir)
 {
     Utils::FileName result = debianDir;
-    return result.appendPath("rules");
+    return result.appendPath(QLatin1String("rules"));
 }
 
 } // namespace Internal

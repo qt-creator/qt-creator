@@ -214,7 +214,7 @@ void MaddeDeviceTester::handleQmlToolingTestFinished(int exitStatus)
         m_result = TestFailure;
     } else if (m_processRunner->processExitCode() != 0) {
         emit errorMessage(tr("Missing directory '%1'. You will not be able to do "
-            "QML debugging on this device.\n").arg(QmlToolingDirectory));
+            "QML debugging on this device.\n").arg(QLatin1String(QmlToolingDirectory)));
         m_result = TestFailure;
     } else {
         emit progressMessage(tr("QML tooling support present.\n"));

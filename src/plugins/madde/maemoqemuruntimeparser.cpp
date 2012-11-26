@@ -95,7 +95,7 @@ MaemoQemuRuntime MaemoQemuRuntimeParser::parseRuntime(const QtSupport::BaseQtVer
         return runtime;
     if (!madProc.waitForStarted() || !madProc.waitForFinished())
         return runtime;
-    const QByteArray &madInfoOutput = madProc.readAllStandardOutput();
+    QString madInfoOutput = QString::fromLocal8Bit(madProc.readAllStandardOutput());
     const QString &targetName = MaemoGlobal::targetName(qtVersion->qmakeCommand().toString());
     runtime = MaemoQemuRuntimeParserV2(madInfoOutput, targetName, maddeRootPath)
         .parseRuntime();
@@ -128,7 +128,7 @@ MaemoQemuRuntime MaemoQemuRuntimeParserV1::parseRuntime()
                 && m_madInfoReader.name() == QLatin1String("target")) {
                 const QXmlStreamAttributes &attrs = m_madInfoReader.attributes();
                 if (attrs.value(QLatin1String("target_id")) == m_targetName)
-                    targetRuntime = attrs.value("runtime_id").toString();
+                    targetRuntime = attrs.value(QLatin1String("runtime_id")).toString();
             } else if (m_madInfoReader.name() == QLatin1String("runtime")) {
                 const QXmlStreamAttributes attrs = m_madInfoReader.attributes();
                 while (!m_madInfoReader.atEnd()) {

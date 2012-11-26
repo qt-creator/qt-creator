@@ -77,7 +77,7 @@ void MaemoQtVersion::fromMap(const QVariantMap &map)
 
 QString MaemoQtVersion::type() const
 {
-    return QtSupport::Constants::MAEMOQT;
+    return QLatin1String(QtSupport::Constants::MAEMOQT);
 }
 
 bool MaemoQtVersion::isValid() const
@@ -168,15 +168,15 @@ void MaemoQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Envi
     // Needed to make pkg-config stuff work.
     Utils::FileName sysRoot = ProjectExplorer::SysRootKitInformation::sysRoot(k);
     env.prependOrSet(QLatin1String("SYSROOT_DIR"), sysRoot.toUserOutput());
-    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/madbin")
+    env.prependOrSetPath(QDir::toNativeSeparators(QString::fromLatin1("%1/madbin")
         .arg(maddeRoot)));
-    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/madlib")
+    env.prependOrSetPath(QDir::toNativeSeparators(QString::fromLatin1("%1/madlib")
         .arg(maddeRoot)));
     env.prependOrSet(QLatin1String("PERL5LIB"),
-        QDir::toNativeSeparators(QString("%1/madlib/perl5").arg(maddeRoot)));
+        QDir::toNativeSeparators(QString::fromLatin1("%1/madlib/perl5").arg(maddeRoot)));
 
-    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin").arg(maddeRoot)));
-    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
+    env.prependOrSetPath(QDir::toNativeSeparators(QString::fromLatin1("%1/bin").arg(maddeRoot)));
+    env.prependOrSetPath(QDir::toNativeSeparators(QString::fromLatin1("%1/bin")
         .arg(MaemoGlobal::targetRoot(qmakeCommand().toString()))));
 
     // Actually this is tool chain related, but since we no longer have a tool chain...
