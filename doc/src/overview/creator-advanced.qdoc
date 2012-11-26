@@ -71,7 +71,8 @@
         \o  \l{Using External Tools}
 
             You can use external tools directly from \QC. Qt Linguist,
-            QML Viewer, the default text editor for your system, and the \c sort
+            QML preview tools (QML Viewer and QML Scene), the default text
+            editor for your system, and the \c sort
             tool are preconfigured for use. You can change their default
             configurations and configure new tools.
 

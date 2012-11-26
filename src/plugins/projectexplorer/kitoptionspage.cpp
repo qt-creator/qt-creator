@@ -94,7 +94,6 @@ QWidget *KitOptionsPage::createPage(QWidget *parent)
     QVBoxLayout *verticalLayout = new QVBoxLayout(m_configWidget);
     verticalLayout->addLayout(horizontalLayout);
 
-    Q_ASSERT(!m_model);
     m_model = new Internal::KitModel(verticalLayout);
     connect(m_model, SIGNAL(kitStateChanged()), this, SLOT(updateState()));
     verticalLayout->setStretch(0, 1);

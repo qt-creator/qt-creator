@@ -136,7 +136,7 @@ bool Debugger::Internal::interruptProcess(int pID, int engineType, QString *erro
                 *errorMessage = QLatin1String("DebugBreakProcess failed: ") + Utils::winErrorMessage(GetLastError());
         } else {
             const QString executable = QCoreApplication::applicationDirPath() + QLatin1String("/win64interrupt.exe");
-            switch (QProcess::execute(executable + QLatin1Char(' ') + QString::number(pID))) {
+            switch (QProcess::execute(executable, QStringList(QString::number(pID)))) {
             case -2:
                 *errorMessage = QString::fromLatin1("Cannot start %1. Check src\\tools\\win64interrupt\\win64interrupt.c for more information.").
                                 arg(QDir::toNativeSeparators(executable));

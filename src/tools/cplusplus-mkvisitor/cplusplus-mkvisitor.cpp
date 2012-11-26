@@ -44,6 +44,8 @@
 #include <Overview.h>
 #include <LookupContext.h>
 
+#include "cplusplus-tools-utils.h"
+
 #include <QFile>
 #include <QList>
 #include <QCoreApplication>
@@ -422,35 +424,65 @@ protected:
     }
 };
 
+void printUsage()
+{
+    std::cout << "Usage: " << qPrintable(QFileInfo(qApp->arguments().at(0)).fileName())
+              << " [-v] [path to AST.h]\n\n"
+              << "Print a visitor class based on AST.h to stdout.\n\n";
+    const QString defaulPath = QFileInfo(PATH_AST_H).canonicalFilePath();
+    std::cout << "Default path: " << qPrintable(defaulPath) << '.' << "\n";
+}
+
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
+    QStringList args = app.arguments();
+    args.removeFirst();
 
-    QStringList files = app.arguments();
-    files.removeFirst();
+    bool optionVerbose = false;
 
-    foreach (const QString &fileName, files) {
-        QFile file(fileName);
-        if (! file.open(QFile::ReadOnly))
-            continue;
-
-        const QByteArray source = file.readAll();
-        file.close();
-
-        Document::Ptr doc = Document::create(fileName);
-        //doc->control()->setDiagnosticClient(0);
-        doc->setUtf8Source(source);
-        doc->parse();
-
-        doc->translationUnit()->blockErrors(true);
-
-        doc->check();
-        Snapshot snapshot;
-	snapshot.insert(doc);
-
-	LookupContext context(doc, snapshot);
-	MkVisitor mkVisitor(context);
+    // Process options & arguments
+    if (args.contains("-v")) {
+        optionVerbose = true;
+        args.removeOne("-v");
     }
+    const bool helpRequested = args.contains("-h") || args.contains("-help");
+    if (helpRequested || args.count() >= 2) {
+        printUsage();
+        return helpRequested ? EXIT_SUCCESS : EXIT_FAILURE;
+    }
+
+    // Run the preprocessor
+    QString fileName = PATH_AST_H;
+    if (!args.isEmpty())
+        fileName = args.first();
+
+    const QString fileNamePreprocessed = fileName + QLatin1String(".preprocessed");
+    CplusplusToolsUtils::SystemPreprocessor preprocessor(optionVerbose);
+    preprocessor.preprocessFile(fileName, fileNamePreprocessed);
+
+    QFile file(fileNamePreprocessed);
+    if (! file.open(QFile::ReadOnly)) {
+        std::cerr << "Error: Could not open file \"" << qPrintable(file.fileName()) << "\"."
+                  << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    const QByteArray source = file.readAll();
+    file.close();
+
+    Document::Ptr doc = Document::create(fileName);
+    //doc->control()->setDiagnosticClient(0);
+    doc->setUtf8Source(source);
+    doc->parse();
+    doc->translationUnit()->blockErrors(true);
+    doc->check();
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    LookupContext context(doc, snapshot);
+    MkVisitor mkVisitor(context);
 
     return EXIT_SUCCESS;
 }

@@ -44,6 +44,7 @@ class IOutputParser;
 
 namespace Internal {
 class KitManagerPrivate;
+class KitModel;
 class KitPrivate;
 } // namespace Internal
 
@@ -110,6 +111,7 @@ private:
     Internal::KitPrivate *d;
 
     friend class KitManager;
+    friend class Internal::KitModel; // needed for setAutoDetected() when cloning kits
 };
 
 class KitGuard

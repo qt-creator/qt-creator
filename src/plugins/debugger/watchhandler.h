@@ -85,6 +85,7 @@ public:
     void showEditValue(const WatchData &data);
 
     const WatchData *watchData(const QModelIndex &) const;
+    const QModelIndex watchDataIndex(const QByteArray &iname) const;
     const WatchData *findData(const QByteArray &iname) const;
     const WatchData *findCppLocalVariable(const QString &name) const;
     QString displayForAutoTest(const QByteArray &iname) const;

@@ -141,8 +141,9 @@
 
             \o  Qt Quick UI
 
-                Use a single QML file that contains the main view. You can run
-                Qt Quick UI projects in the QML Viewer and you need not build
+                Use a single QML file that contains the main view. You can
+                review Qt Quick UI projects in a \l{Previewing QML Files}
+                {preview tool} and you need not build
                 them. You do not need to have the development environment
                 installed on your computer to create and run this type of
                 projects
@@ -273,7 +274,11 @@
         \o  Qt resource files, which allow you to store binary files in the
             application executable
 
-        \o  QML files, which specify elements in Qt Quick projects
+        \o  QML files, which specify elements in Qt Quick projects.
+            \gui {Qt Quick 1} creates a QML file that imports Qt Quick 1.1 and
+            \gui {Qt Quick 2} creates a QML file that imports Qt Quick 2.0.
+            Select \gui {Qt Quick 1} to add files to a Qt Quick 1 application
+            and \gui {Qt Quick 2} to add files to a Qt Quick 2 application.
 
         \o  JavaScript files that you can use to write the application logic in
             Qt Quick projects

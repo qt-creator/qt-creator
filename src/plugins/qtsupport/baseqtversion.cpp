@@ -1189,49 +1189,69 @@ bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Utils::Env
     return BaseQtVersion::queryQMakeVariables(binary, env, versionInfo, &qmakeIsExecutable);
 }
 
-bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Utils::Environment &env,
-                                        QHash<QString, QString> *versionInfo, bool *qmakeIsExecutable)
+static QByteArray runQmakeQuery(const FileName &binary, const Environment &env,
+                                bool *isExecutable)
 {
     const int timeOutMS = 30000; // Might be slow on some machines.
+
+    QProcess process;
+    process.setEnvironment(env.toStringList());
+    process.start(binary.toString(), QStringList(QLatin1String("-query")), QIODevice::ReadOnly);
+
+    if (!process.waitForStarted()) {
+        qWarning("Cannot start '%s': %s", qPrintable(binary.toUserOutput()), qPrintable(process.errorString()));
+        *isExecutable = false;
+        return QByteArray();
+    }
+    if (!process.waitForFinished(timeOutMS)) {
+        SynchronousProcess::stopProcess(process);
+        *isExecutable = true;
+        qWarning("Timeout running '%s' (%dms).", qPrintable(binary.toUserOutput()), timeOutMS);
+        return QByteArray();
+    }
+    if (process.exitStatus() != QProcess::NormalExit) {
+        qWarning("'%s' crashed.", qPrintable(binary.toUserOutput()));
+        *isExecutable = false;
+        return QByteArray();
+    }
+
+    *isExecutable = true;
+    return process.readAllStandardOutput();
+}
+
+bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Environment &env,
+                                        QHash<QString, QString> *versionInfo, bool *qmakeIsExecutable)
+{
     const QFileInfo qmake = binary.toFileInfo();
     *qmakeIsExecutable = qmake.exists() && qmake.isExecutable() && !qmake.isDir();
     if (!*qmakeIsExecutable)
         return false;
 
-    QProcess process;
-    Environment qmakeEnv = env;
+    QByteArray output;
+    output = runQmakeQuery(binary, env, qmakeIsExecutable);
 
-    if (HostOsInfo::isWindowsHost()) {
-        // Add tool chain environment. This is necessary for non-static qmakes e.g. using mingw on windows
-        // We can not just add all the environments of all tool chains since that will make PATH too long
-        // which in turn will trigger a crash when parsing the results of vcvars.bat of MSVC.
+    if (output.isNull() && !qmakeIsExecutable) {
+        // Note: Don't rerun if we were able to execute the binary before.
+
+        // Try running qmake with all kinds of tool chains set up in the environment.
+        // This is required to make non-static qmakes work on windows where every tool chain
+        // tries to be incompatible with any other.
         QList<ProjectExplorer::Abi> abiList = ProjectExplorer::Abi::abisOfBinary(binary);
         QList<ProjectExplorer::ToolChain *> tcList = ProjectExplorer::ToolChainManager::instance()->toolChains();
         foreach (ProjectExplorer::ToolChain *tc, tcList) {
-            if (abiList.contains(tc->targetAbi()))
-                tc->addToEnvironment(qmakeEnv);
+            if (!abiList.contains(tc->targetAbi()))
+                continue;
+            Environment realEnv = env;
+            tc->addToEnvironment(realEnv);
+            output = runQmakeQuery(binary, realEnv, qmakeIsExecutable);
+            if (qmakeIsExecutable)
+                break;
         }
     }
 
-    process.setEnvironment(qmakeEnv.toStringList());
-    process.start(qmake.absoluteFilePath(), QStringList(QLatin1String("-query")), QIODevice::ReadOnly);
+    if (output.isNull())
+        return false;
 
-    if (!process.waitForStarted()) {
-        *qmakeIsExecutable = false;
-        qWarning("Cannot start '%s': %s", qPrintable(binary.toUserOutput()), qPrintable(process.errorString()));
-        return false;
-    }
-    if (!process.waitForFinished(timeOutMS)) {
-        SynchronousProcess::stopProcess(process);
-        qWarning("Timeout running '%s' (%dms).", qPrintable(binary.toUserOutput()), timeOutMS);
-        return false;
-    }
-    if (process.exitStatus() != QProcess::NormalExit) {
-        *qmakeIsExecutable = false;
-        qWarning("'%s' crashed.", qPrintable(binary.toUserOutput()));
-        return false;
-    }
-    QByteArray output = process.readAllStandardOutput();
     QTextStream stream(&output);
     while (!stream.atEnd()) {
         const QString line = stream.readLine();

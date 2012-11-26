@@ -93,6 +93,9 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
 
 KitManagerConfigWidget::~KitManagerConfigWidget()
 {
+    qDeleteAll(m_widgets);
+    m_widgets.clear();
+
     delete m_modifiedKit;
     // Make sure our workingCopy did not get registered somehow:
     foreach (const Kit *k, KitManager::instance()->kits())
@@ -106,17 +109,18 @@ QString KitManagerConfigWidget::displayName() const
 
 void KitManagerConfigWidget::apply()
 {
+    bool mustSetDefault = m_isDefaultKit;
     KitManager *km = KitManager::instance();
     bool mustRegister = false;
     if (!m_kit) {
         mustRegister = true;
         m_kit = new Kit;
     }
-    m_kit->copyFrom(m_modifiedKit);
+    m_kit->copyFrom(m_modifiedKit);//m_isDefaultKit is reset in discard() here.
     if (mustRegister)
         km->registerKit(m_kit);
 
-    if (m_isDefaultKit)
+    if (mustSetDefault)
         km->setDefaultKit(m_kit);
     emit dirty();
 }
@@ -190,7 +194,7 @@ bool KitManagerConfigWidget::configures(Kit *k) const
 
 void KitManagerConfigWidget::setIsDefaultKit(bool d)
 {
-    if (m_isDefaultKit != d)
+    if (m_isDefaultKit == d)
         return;
     m_isDefaultKit = d;
     emit dirty();

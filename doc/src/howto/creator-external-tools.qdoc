@@ -31,7 +31,7 @@
     \title Using External Tools
 
     You can use external tools directly from \QC. Qt Linguist,
-    QML Viewer, the
+    QML preview tools, the
     default text editor for your system, and the \c sort tool are preconfigured
     for use. You can change their default configurations and configure new
     tools.
@@ -59,14 +59,14 @@
     \l{http://qt-project.org/doc/qt-4.8/linguist-manual.html}
     {Qt Linguist Manual}.
 
-    \section1 Using QML Viewer
+    \section1 Previewing QML Files
 
-    You can preview the current QML document in the QML Viewer. The QML Viewer
-    invokes the QML runtime to load QML documents and also includes additional
-    features useful for the development of QML-based applications.
+    You can preview the current QML document in the QML Viewer (Qt Quick 1) or
+    QML Scene (Qt Quick 2). The preview tools enable you to load QML documents
+    for viewing and testing while you are developing an application.
 
-    To preview the currently active QML file, select \gui {Tools > External >
-    Qt Quick > Preview (qmlviewer)}.
+    To preview the currently active QML file, select \gui Tools > \gui External
+    > \gui {Qt Quick} > \gui {Preview (qmlviewer)} or \gui {Preview (qmlscene)}.
 
     \section1 Using External Text Editors
 

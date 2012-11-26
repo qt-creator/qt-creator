@@ -79,7 +79,7 @@ Core::BaseFileWizardParameters QmlProjectApplicationWizard::parameters()
         "QML file that contains the main view.\n\n"
         "You can review Qt Quick UI projects in the QML Viewer and you need not build them. "
         "You do not need to have the development environment installed "
-        "on your computer to create and run this type of project.\n\nRequires <b>Qt 4.7.4</b> or newer."));
+        "on your computer to create and run this type of projects.\n\nRequires <b>Qt 5.0</b> or newer."));
     parameters.setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
     parameters.setDisplayCategory(QT_TRANSLATE_NOOP("ProjectExplorer", "Qt Application"));
     return parameters;
@@ -119,8 +119,7 @@ Core::GeneratedFiles QmlProjectApplicationWizard::generateFiles(const QWizard *w
         QTextStream out(&contents);
 
         out
-            << "// import QtQuick 1.0 // to target Maemo 5" << endl
-            << "import QtQuick 1.1" << endl
+            << "import QtQuick 2.0" << endl
             << endl
             << "Rectangle {" << endl
             << "    width: 360" << endl

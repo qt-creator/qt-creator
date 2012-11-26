@@ -188,14 +188,13 @@ bool MakeStep::init()
 
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
-    if (m_useNinja) {
-        Utils::Environment env = bc->environment();
-        if (!env.value(QLatin1String("NINJA_STATUS")).startsWith(m_ninjaProgressString))
-            env.set(QLatin1String("NINJA_STATUS"), m_ninjaProgressString + QLatin1String("%o/sec] "));
-        pp->setEnvironment(env);
-    } else {
-        pp->setEnvironment(bc->environment());
-    }
+    Utils::Environment env = bc->environment();
+    // Force output to english for the parsers. Do this here and not in the toolchain's
+    // addToEnvironment() to not screw up the users run environment.
+    env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
+    if (m_useNinja && !env.value(QLatin1String("NINJA_STATUS")).startsWith(m_ninjaProgressString))
+        env.set(QLatin1String("NINJA_STATUS"), m_ninjaProgressString + QLatin1String("%o/sec] "));
+    pp->setEnvironment(env);
     pp->setWorkingDirectory(bc->buildDirectory());
     pp->setCommand(makeCommand(tc, bc->environment()));
     pp->setArguments(arguments);

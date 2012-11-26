@@ -1051,5 +1051,4 @@ void CppToolsPlugin::test_completion_enclosing_template_class_data()
     completions.append(QLatin1String("int_nested"));
     QTest::newRow("case: nested template class with enclosing template class")
             << code << completions;
-
 }

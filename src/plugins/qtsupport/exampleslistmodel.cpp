@@ -40,6 +40,9 @@
 #include <qtsupport/qtversionmanager.h>
 #include <utils/qtcassert.h>
 
+#include <utils/environment.h>
+#include <projectexplorer/kitmanager.h>
+#include <qtsupport/qtkitinformation.h>
 #include <algorithm>
 
 using QtSupport::QtVersionManager;
@@ -309,6 +312,16 @@ QStringList ExamplesListModel::exampleSources(QString *examplesFallback, QString
     QStringList sources;
     QString resourceDir = Core::ICore::resourcePath() + QLatin1String("/welcomescreen/");
 
+    // overriding examples with a custom XML file
+    QString exampleFileEnvKey = QLatin1String("QTC_EXAMPLE_FILE");
+    if (Utils::Environment::systemEnvironment().hasKey(exampleFileEnvKey)) {
+        QString filePath = Utils::Environment::systemEnvironment().value(exampleFileEnvKey);
+        if (filePath.endsWith(QLatin1String(".xml")) && QFileInfo(filePath).exists()) {
+            sources.append(filePath);
+            return sources;
+        }
+    }
+
     // Qt Creator shipped tutorials
     sources << (resourceDir + QLatin1String("/qtcreator_tutorials.xml"));
 
@@ -331,11 +344,38 @@ QStringList ExamplesListModel::exampleSources(QString *examplesFallback, QString
     QString potentialExamplesFallback;
     QString potentialDemosFallback;
     QString potentialSourceFallback;
-    bool potentialFallbackHasDeclarative = false; // we prefer Qt's with declarative as fallback
     const QStringList pattern(QLatin1String("*.xml"));
 
+    // prioritize default qt version
     QtVersionManager *versionManager = QtVersionManager::instance();
-    foreach (BaseQtVersion *version, versionManager->validVersions()) {
+    QList <BaseQtVersion *> qtVersions = versionManager->validVersions();
+    ProjectExplorer::Kit *defaultKit = ProjectExplorer::KitManager::instance()->defaultKit();
+    BaseQtVersion *defaultVersion = QtKitInformation::qtVersion(defaultKit);
+    if (defaultVersion && qtVersions.contains(defaultVersion))
+        qtVersions.move(qtVersions.indexOf(defaultVersion), 0);
+
+    foreach (BaseQtVersion *version, qtVersions) {
+        // qt5 with examples OR demos manifest
+        if (version->qtVersion().majorVersion == 5 && (version->hasExamples() || version->hasDemos())) {
+            // examples directory in Qt5 is under the qtbase submodule,
+            // search other submodule directories for further manifest files
+            QDir qt5docPath = QDir(version->documentationPath());
+            const QStringList examplesPattern(QLatin1String("examples-manifest.xml"));
+            const QStringList demosPattern(QLatin1String("demos-manifest.xml"));
+            QFileInfoList fis;
+            foreach (QFileInfo subDir, qt5docPath.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+                if (version->hasExamples())
+                    fis << QDir(subDir.absoluteFilePath()).entryInfoList(examplesPattern);
+                if (version->hasDemos())
+                    fis << QDir(subDir.absoluteFilePath()).entryInfoList(demosPattern);
+            }
+            if (!fis.isEmpty()) {
+                foreach (const QFileInfo &fi, fis)
+                    sources.append(fi.filePath());
+                return sources;
+            }
+        }
+
         QFileInfoList fis;
         if (version->hasExamples())
             fis << QDir(version->examplesPath()).entryInfoList(pattern);
@@ -346,13 +386,9 @@ QStringList ExamplesListModel::exampleSources(QString *examplesFallback, QString
                 sources.append(fi.filePath());
             return sources;
         }
-
         // check if this Qt version would be the preferred fallback, Qt 4 only
         if (version->qtVersion().majorVersion == 4 && version->hasExamples() && version->hasDemos()) { // cached, so no performance hit
-            bool hasDeclarative = QDir(version->examplesPath() + QLatin1String("/declarative")).exists();
-            if (potentialExamplesFallback.isEmpty()
-                    || (!potentialFallbackHasDeclarative && hasDeclarative)) {
-                potentialFallbackHasDeclarative = hasDeclarative;
+            if (potentialExamplesFallback.isEmpty()) {
                 potentialExamplesFallback = version->examplesPath();
                 potentialDemosFallback = version->demosPath();
                 potentialSourceFallback = version->sourcePath().toString();

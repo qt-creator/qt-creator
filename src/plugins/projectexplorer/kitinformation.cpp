@@ -89,7 +89,6 @@ QList<Task> SysRootKitInformation::validate(const Kit *k) const
 
 KitConfigWidget *SysRootKitInformation::createConfigWidget(Kit *k) const
 {
-    Q_ASSERT(k);
     return new Internal::SysRootInformationConfigWidget(k);
 }
 
@@ -184,7 +183,6 @@ void ToolChainKitInformation::fix(Kit *k)
 
 KitConfigWidget *ToolChainKitInformation::createConfigWidget(Kit *k) const
 {
-    Q_ASSERT(k);
     return new Internal::ToolChainInformationConfigWidget(k);
 }
 

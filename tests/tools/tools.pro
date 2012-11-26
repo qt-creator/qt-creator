@@ -1,5 +1,5 @@
 TEMPLATE=subdirs
 
 SUBDIRS= \
-cplusplus-dump \
+cplusplus-ast2png \
 qml-ast2dot

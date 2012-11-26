@@ -59,7 +59,8 @@
             develop for platforms that run Qt 5.
         \o  \gui {Qt Quick UI} creates a Qt Quick UI project with a single QML
             file that contains the main view. You can review Qt Quick UI
-            projects in the QML Viewer and you need not build them. You do not
+            projects in a \l{Previewing QML Files}{preview tool} and you need
+            not build them. You do not
             need to have the development environment installed on your
             computer to create and run this type of project.
 

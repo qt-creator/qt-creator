@@ -251,7 +251,8 @@ void QmlInspectorAdapter::engineClientStatusChanged(QmlDebug::ClientStatus statu
     BaseEngineDebugClient *client
             = qobject_cast<BaseEngineDebugClient*>(sender());
 
-    if (status == QmlDebug::Enabled) {
+    if (status == QmlDebug::Enabled && !m_engineClientConnected) {
+        // We accept the first client that is enabled and reject the others.
         QTC_ASSERT(client, return);
         setActiveEngineClient(client);
     } else if (m_engineClientConnected && client == m_engineClient) {
