@@ -256,8 +256,9 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after,
     regexp.setPatternSyntax(usesRegExp ? QRegExp::RegExp : QRegExp::FixedString);
     regexp.setCaseSensitivity((findFlags & Find::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
     QTextCursor found = findOne(regexp, editCursor, Find::textDocumentFlagsForFindFlags(findFlags));
-    while (!found.isNull() && found.selectionStart() < found.selectionEnd()
-            && inScope(found.selectionStart(), found.selectionEnd())) {
+    while (!found.isNull()
+           && (found.selectionStart() < found.selectionEnd() || after.length() > 0)
+           && inScope(found.selectionStart(), found.selectionEnd())) {
         ++count;
         editCursor.setPosition(found.selectionStart());
         editCursor.setPosition(found.selectionEnd(), QTextCursor::KeepAnchor);
