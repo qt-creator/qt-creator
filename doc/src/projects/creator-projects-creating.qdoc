@@ -120,15 +120,15 @@
                 custom look and feel and QML and C++ code to implement the
                 application logic
 
-            \o  Qt Quick Application for MeeGo Harmattan
+            \o  Qt Quick 1 Application for MeeGo Harmattan
 
                 Use Qt Quick Components for MeeGo Harmattan to design a user
                 interface with the platform look and feel
 
-            \o  Qt Quick Application (from Existing QML File)
+            \o  Qt Quick 1 Application (from Existing QML File)
 
-                Convert existing QML applications to projects that you can run
-                in \QC or deploy to mobile devices
+                Convert existing Qt Quick 1 applications to projects that you
+                can run in \QC or deploy to mobile devices
 
             \o  Qt Console Application
 
@@ -158,11 +158,17 @@
 
                 Shared or static C++ library based on qmake
 
-            \o  Custom QML Extension Plugin
+            \o  Qt Quick 1 Extension Plugin
 
-                C++ plugin that makes it possible to offer extensions
-                that can be loaded dynamically into applications by using the
+                C++ plugin that makes it possible to offer extensions that can
+                be loaded dynamically into Qt Quick 1 applications by using the
                 QDeclarativeEngine class
+
+            \o  Qt Quick 2 Extension Plugin
+
+                C++ plugin that makes it possible to offer extensions that can
+                be loaded dynamically into Qt Quick 2 applications by using the
+                QQmlEngine class
 
             \o  \QC Plugin
 
