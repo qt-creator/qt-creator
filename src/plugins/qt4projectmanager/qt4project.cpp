@@ -1580,7 +1580,7 @@ void Qt4Project::collectLibraryData(const Qt4ProFileNode *node, DeploymentData &
         break;
     }
     case ProjectExplorer::Abi::MacOS:
-        if (config.contains("lib_bundle")) {
+        if (config.contains(QLatin1String("lib_bundle"))) {
             ti.workingDir.append(QLatin1Char('/')).append(ti.target)
                     .append(QLatin1String(".framework"));
         } else {

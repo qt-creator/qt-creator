@@ -53,7 +53,7 @@ public:
         if (dev.isNull() || dev->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID)
             return false;
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
-        return version && version->type() == QtSupport::Constants::DESKTOPQT;
+        return version && version->type() == QLatin1String(QtSupport::Constants::DESKTOPQT);
     }
 };
 
@@ -79,7 +79,7 @@ CustomWidgetWizardDialog::CustomWidgetWizardDialog(const QString &templateName,
     setIntroDescription(tr("This wizard generates a Qt Designer Custom Widget "
                            "or a Qt Designer Custom Widget Collection project."));
 
-    if (!parameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_KIT_IDS))
+    if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
         addTargetSetupPage();
     m_widgetPageId = addPage(m_widgetsPage);
     m_pluginPageId = addPage(m_pluginPage);

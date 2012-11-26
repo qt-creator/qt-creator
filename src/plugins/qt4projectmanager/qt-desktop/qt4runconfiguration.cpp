@@ -180,7 +180,7 @@ void Qt4RunConfiguration::ctor()
     setDefaultDisplayName(defaultDisplayName());
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    m_forcedGuiMode = (version && version->type() == QtSupport::Constants::SIMULATORQT);
+    m_forcedGuiMode = (version && version->type() == QLatin1String(QtSupport::Constants::SIMULATORQT));
 
     connect(target(), SIGNAL(environmentChanged()),
             this, SIGNAL(baseEnvironmentChanged()));
@@ -193,7 +193,7 @@ void Qt4RunConfiguration::ctor()
 void Qt4RunConfiguration::kitChanged()
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    m_forcedGuiMode = (version && version->type() == QtSupport::Constants::SIMULATORQT);
+    m_forcedGuiMode = (version && version->type() == QLatin1String(QtSupport::Constants::SIMULATORQT));
     emit runModeChanged(runMode()); // Always emit
 }
 

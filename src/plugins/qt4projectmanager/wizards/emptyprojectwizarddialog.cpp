@@ -45,7 +45,7 @@ EmptyProjectWizardDialog::EmptyProjectWizardDialog(const QString &templateName,
     setIntroDescription(tr("This wizard generates an empty Qt project. "
                            "Add files to it later on by using the other wizards."));
 
-    if (!parameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_KIT_IDS))
+    if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
         addTargetSetupPage();
 
     addExtensionPages(parameters.extensionPages());

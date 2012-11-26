@@ -20,7 +20,8 @@ QtcPlugin {
         "PROPARSER_AS_LIBRARY",
         "PROPARSER_THREAD_SAFE",
         "PROEVALUATOR_THREAD_SAFE",
-        "PROEVALUATOR_CUMULATIVE"
+        "PROEVALUATOR_CUMULATIVE",
+        "QT_NO_CAST_FROM_ASCII"
     ])
     cpp.includePaths: base.concat([
         "customwidgetwizard",

@@ -1919,7 +1919,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
 
         newVarValues[DefinesVar] = m_readerExact->values(QLatin1String("DEFINES"));
         newVarValues[IncludePathVar] = includePaths(m_readerExact);
-        newVarValues[CppFlagsVar] = m_readerExact->values("QMAKE_CXXFLAGS");
+        newVarValues[CppFlagsVar] = m_readerExact->values(QLatin1String("QMAKE_CXXFLAGS"));
         newVarValues[CppHeaderVar] = fileListForVar(m_readerExact, m_readerCumulative,
                                                     QLatin1String("HEADERS"), m_projectDir,
                                                     ProjectExplorer::HeaderType);
@@ -1948,8 +1948,8 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         newVarValues[VersionVar] = m_readerExact->values(QLatin1String("VERSION"));
         newVarValues[TargetVersionExtVar]
                 = m_readerExact->values(QLatin1String("TARGET_VERSION_EXT"));
-        newVarValues[StaticLibExtensionVar] = m_readerExact->values("QMAKE_EXTENSION_STATICLIB");
-        newVarValues[ShLibExtensionVar] = m_readerExact->values("QMAKE_EXTENSION_SHLIB");
+        newVarValues[StaticLibExtensionVar] = m_readerExact->values(QLatin1String("QMAKE_EXTENSION_STATICLIB"));
+        newVarValues[ShLibExtensionVar] = m_readerExact->values(QLatin1String("QMAKE_EXTENSION_SHLIB"));
 
         m_isDeployable = false;
         if (m_projectType == ApplicationTemplate) {
@@ -2113,19 +2113,19 @@ TargetInformation Qt4ProFileNode::targetInformation(QtSupport::ProFileReader *re
         return result;
 
     QtSupport::ProFileReader *readerBP = 0;
-    QStringList builds = reader->values("BUILDS");
+    QStringList builds = reader->values(QLatin1String("BUILDS"));
     QString buildTarget;
     if (!builds.isEmpty()) {
         QString build = builds.first();
-        buildTarget = reader->value(build + ".target");
+        buildTarget = reader->value(build + QLatin1String(".target"));
 
         QHash<QString, QStringList> basevars;
         QStringList basecfgs = reader->values(build + QLatin1String(".CONFIG"));
         basecfgs += build;
-        basecfgs += "build_pass";
-        basevars["BUILD_PASS"] = QStringList(build);
+        basecfgs += QLatin1String("build_pass");
+        basevars[QLatin1String("BUILD_PASS")] = QStringList(build);
         QStringList buildname = reader->values(build + QLatin1String(".name"));
-        basevars["BUILD_NAME"] = (buildname.isEmpty() ? QStringList(build) : buildname);
+        basevars[QLatin1String("BUILD_NAME")] = (buildname.isEmpty() ? QStringList(build) : buildname);
 
         readerBP = m_project->createProFileReader(this);
         readerBP->setExtraVars(basevars);

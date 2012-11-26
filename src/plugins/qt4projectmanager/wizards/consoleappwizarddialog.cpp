@@ -53,7 +53,7 @@ ConsoleAppWizardDialog::ConsoleAppWizardDialog(const QString &templateName,
                           "provide a GUI."));
 
     addModulesPage();
-    if (!parameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_KIT_IDS))
+    if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
         addTargetSetupPage();
 
     addExtensionPages(parameters.extensionPages());

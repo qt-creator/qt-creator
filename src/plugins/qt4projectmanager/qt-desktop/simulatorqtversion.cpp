@@ -100,6 +100,6 @@ Core::FeatureSet SimulatorQtVersion::availableFeatures() const
 
 bool SimulatorQtVersion::supportsPlatform(const QString &platformName) const
 {
-    return (platformName == QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM
-            || platformName.isEmpty());
+    return (platformName.isEmpty()
+            || platformName == QLatin1String(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM));
 }

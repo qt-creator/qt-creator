@@ -134,14 +134,14 @@ QStringList QtModulesInfo::modules()
 {
     QStringList result;
     foreach (const item *i, staticQtModuleInfo()->items)
-        result.push_back(i->config);
+        result.push_back(QLatin1String(i->config));
     return result;
 }
 
 static inline const item *itemForModule(const QString &module)
 {
     foreach (const item *i, staticQtModuleInfo()->items)
-        if (i->config == module)
+        if (QLatin1String(i->config) == module)
             return i;
     return 0;
 }

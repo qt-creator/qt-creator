@@ -137,7 +137,7 @@ void Qt4ProjectManagerPlugin::testQmakeOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Error,
                         QLatin1String("Parse Error ('sth odd')"),
-                        Utils::FileName::fromUserInput("e:\\project.pro"),
+                        Utils::FileName::fromUserInput(QLatin1String("e:\\project.pro")),
                         14,
                         categoryBuildSystem))
             << QString();
@@ -160,7 +160,7 @@ void Qt4ProjectManagerPlugin::testQmakeOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Warning,
                         QLatin1String("Unescaped backslashes are deprecated."),
-                        Utils::FileName::fromUserInput("e:\\NokiaQtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl"), 1,
+                        Utils::FileName::fromUserInput(QLatin1String("e:\\NokiaQtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl")), 1,
                         categoryBuildSystem))
             << QString();
 }

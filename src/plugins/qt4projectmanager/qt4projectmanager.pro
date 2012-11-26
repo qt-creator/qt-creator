@@ -1,9 +1,13 @@
 TEMPLATE = lib
 TARGET = Qt4ProjectManager
-DEFINES += QT_CREATOR QT4PROJECTMANAGER_LIBRARY
 QT += network
 include(../../qtcreatorplugin.pri)
 include(qt4projectmanager_dependencies.pri)
+
+DEFINES += \
+    QT_CREATOR \
+    QT4PROJECTMANAGER_LIBRARY \
+    QT_NO_CAST_FROM_ASCII
 
 HEADERS += \
     qmakekitinformation.h \
@@ -150,5 +154,4 @@ RESOURCES += qt4projectmanager.qrc \
 include(qt-desktop/qt-desktop.pri)
 include(customwidgetwizard/customwidgetwizard.pri)
 
-DEFINES += QT_NO_CAST_TO_ASCII
 OTHER_FILES += Qt4ProjectManager.mimetypes.xml

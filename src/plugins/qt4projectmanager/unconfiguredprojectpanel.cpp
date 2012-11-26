@@ -60,7 +60,7 @@ UnconfiguredProjectPanel::UnconfiguredProjectPanel()
 
 QString Qt4ProjectManager::Internal::UnconfiguredProjectPanel::id() const
 {
-    return Constants::UNCONFIGURED_PANEL_PAGE_ID;
+    return QLatin1String(Constants::UNCONFIGURED_PANEL_PAGE_ID);
 }
 
 QString Qt4ProjectManager::Internal::UnconfiguredProjectPanel::displayName() const
@@ -84,7 +84,7 @@ ProjectExplorer::PropertiesPanel *Qt4ProjectManager::Internal::UnconfiguredProje
 {
     ProjectExplorer::PropertiesPanel *panel = new ProjectExplorer::PropertiesPanel;
     panel->setDisplayName(displayName());
-    panel->setIcon(QIcon(":/projectexplorer/images/unconfigured.png"));
+    panel->setIcon(QIcon(QLatin1String(":/projectexplorer/images/unconfigured.png")));
 
     TargetSetupPageWrapper *w = new TargetSetupPageWrapper(project);
     panel->setWidget(w);

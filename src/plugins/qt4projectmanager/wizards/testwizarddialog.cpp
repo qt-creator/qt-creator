@@ -61,7 +61,7 @@ TestWizardDialog::TestWizardDialog(const QString &templateName,
     setWindowIcon(icon);
     setWindowTitle(templateName);
     setSelectedModules(QLatin1String("core testlib"), true);
-    if (!parameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_KIT_IDS))
+    if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
         addTargetSetupPage();
     m_modulesPageId = addModulesPage();
     m_testPageId = addPage(m_testPage);

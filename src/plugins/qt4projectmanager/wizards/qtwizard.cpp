@@ -168,7 +168,7 @@ CustomQt4ProjectWizard::CustomQt4ProjectWizard(const Core::BaseFileWizardParamet
 {
     BaseQt4ProjectWizardDialog *wizard = new BaseQt4ProjectWizardDialog(false, parent, wizardDialogParameters);
 
-    if (!wizardDialogParameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_KIT_IDS))
+    if (!wizardDialogParameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
         wizard->addTargetSetupPage(false, targetPageId);
 
     initProjectWizardDialog(wizard, wizardDialogParameters.defaultPath(),
@@ -192,7 +192,8 @@ BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage, QWi
     ProjectExplorer::BaseProjectWizardDialog(parent, parameters),
     m_modulesPage(0),
     m_targetSetupPage(0),
-    m_profileIds(parameters.extraValues().value(ProjectExplorer::Constants::PROJECT_KIT_IDS).value<QList<Core::Id> >())
+    m_profileIds(parameters.extraValues().value(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS))
+                 .value<QList<Core::Id> >())
 {
     init(showModulesPage);
 }
@@ -204,7 +205,8 @@ BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage,
     ProjectExplorer::BaseProjectWizardDialog(introPage, introId, parent, parameters),
     m_modulesPage(0),
     m_targetSetupPage(0),
-    m_profileIds(parameters.extraValues().value(ProjectExplorer::Constants::PROJECT_KIT_IDS).value<QList<Core::Id> >())
+    m_profileIds(parameters.extraValues().value(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS))
+                 .value<QList<Core::Id> >())
 {
     init(showModulesPage);
 }
