@@ -940,10 +940,10 @@ CodeFormatter::TokenKind CodeFormatter::extendedTokenKind(const QmlJS::Token &to
         if (text == "list")
             return List;
     } else if (kind == Keyword) {
-        const QChar char1 = text.at(0);
-        const QChar char2 = text.at(1);
-        const QChar char3 = (text.size() > 2 ? text.at(2) : QChar());
-        switch (char1.toLatin1()) {
+        const char char1 = text.at(0).toLatin1();
+        const char char2 = text.at(1).toLatin1();
+        const char char3 = (text.size() > 2 ? text.at(2).toLatin1() : 0);
+        switch (char1) {
         case 'v':
             return Var;
         case 'i':
@@ -1019,7 +1019,7 @@ void CodeFormatter::dump() const
     qDebug() << "Current indent depth:" << m_indentDepth;
 }
 
-QString CodeFormatter::stateToString(int type) const
+QByteArray CodeFormatter::stateToString(int type) const
 {
     const QMetaEnum &metaEnum = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("StateType"));
     return metaEnum.valueToKey(type);

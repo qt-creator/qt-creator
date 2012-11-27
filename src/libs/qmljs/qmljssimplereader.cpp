@@ -145,7 +145,7 @@ bool SimpleAbstractStreamReader::readFromSource(const QString &source)
     lexer.setCode(source, /*line = */ 1, /*qmlMode = */true);
 
     if (!parser.parse()) {
-        QString errorMessage = QString("%1:%2: %3").arg(
+        QString errorMessage = QString::fromLatin1("%1:%2: %3").arg(
                     QString::number(parser.errorLineNumber()),
                     QString::number(parser.errorColumnNumber()),
                     parser.errorMessage());
@@ -162,7 +162,7 @@ QStringList SimpleAbstractStreamReader::errors() const
 
 void SimpleAbstractStreamReader::addError(const QString &error, const AST::SourceLocation &sourceLocation)
 {
-    m_errors << QString("%1:%2: %3\n").arg(
+    m_errors << QString::fromLatin1("%1:%2: %3\n").arg(
                     QString::number(sourceLocation.startLine),
                     QString::number(sourceLocation.startColumn),
                     error);

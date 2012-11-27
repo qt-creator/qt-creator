@@ -1131,7 +1131,7 @@ QList<const ObjectValue *> PrototypeIterator::all()
 FunctionValue::FunctionValue(ValueOwner *valueOwner)
     : ObjectValue(valueOwner)
 {
-    setClassName("Function");
+    setClassName(QLatin1String("Function"));
     setMember(QLatin1String("length"), valueOwner->numberValue());
     setPrototype(valueOwner->functionPrototype());
 }
@@ -1450,7 +1450,7 @@ bool CppQmlTypes::hasModule(const QString &module) const
 
 QString CppQmlTypes::qualifiedName(const QString &module, const QString &type, ComponentVersion version)
 {
-    return QString("%1/%2 %3").arg(
+    return QString::fromLatin1("%1/%2 %3").arg(
                 module, type,
                 version.toString());
 
@@ -1532,14 +1532,16 @@ void ConvertToNumber::visit(const StringValue *)
 
 void ConvertToNumber::visit(const ObjectValue *object)
 {
-    if (const FunctionValue *valueOfMember = value_cast<FunctionValue>(object->lookupMember("valueOf", ContextPtr()))) {
+    if (const FunctionValue *valueOfMember = value_cast<FunctionValue>(
+                object->lookupMember(QLatin1String("valueOf"), ContextPtr()))) {
         _result = value_cast<NumberValue>(valueOfMember->returnValue());
     }
 }
 
 void ConvertToNumber::visit(const FunctionValue *object)
 {
-    if (const FunctionValue *valueOfMember = value_cast<FunctionValue>(object->lookupMember("valueOf", ContextPtr()))) {
+    if (const FunctionValue *valueOfMember = value_cast<FunctionValue>(
+                object->lookupMember(QLatin1String("valueOf"), ContextPtr()))) {
         _result = value_cast<NumberValue>(valueOfMember->returnValue());
     }
 }
@@ -1593,14 +1595,16 @@ void ConvertToString::visit(const StringValue *value)
 
 void ConvertToString::visit(const ObjectValue *object)
 {
-    if (const FunctionValue *toStringMember = value_cast<FunctionValue>(object->lookupMember("toString", ContextPtr()))) {
+    if (const FunctionValue *toStringMember = value_cast<FunctionValue>(
+                object->lookupMember(QLatin1String("toString"), ContextPtr()))) {
         _result = value_cast<StringValue>(toStringMember->returnValue());
     }
 }
 
 void ConvertToString::visit(const FunctionValue *object)
 {
-    if (const FunctionValue *toStringMember = value_cast<FunctionValue>(object->lookupMember("toString", ContextPtr()))) {
+    if (const FunctionValue *toStringMember = value_cast<FunctionValue>(
+                object->lookupMember(QLatin1String("toString"), ContextPtr()))) {
         _result = value_cast<StringValue>(toStringMember->returnValue());
     }
 }

@@ -334,8 +334,8 @@ bool LineInfo::readLine()
             the other way around, as we are parsing backwards.
         */
         yyLinizerState.braceDepth +=
-                yyLinizerState.line.count('}') + yyLinizerState.line.count(']') -
-                yyLinizerState.line.count('{') - yyLinizerState.line.count('[');
+                yyLinizerState.line.count(QLatin1Char('}')) + yyLinizerState.line.count(QLatin1Char(']')) -
+                yyLinizerState.line.count(QLatin1Char('{')) - yyLinizerState.line.count(QLatin1Char('['));
 
         /*
             We use a dirty trick for

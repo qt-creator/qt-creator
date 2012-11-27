@@ -194,10 +194,11 @@ PropertyReader::PropertyReader(Document::Ptr doc, AST::UiObjectInitializer *ast)
                             property->statement->firstSourceLocation(),
                             property->statement->lastSourceLocation()));
                         if (isLiteralValue(property)) {
-                            m_properties.insert(propertyName + '.' + propertyNamePart2, QVariant(deEscape(stripQuotes(astValue))));
+                            m_properties.insert(propertyName + QLatin1Char('.') + propertyNamePart2,
+                                                QVariant(deEscape(stripQuotes(astValue))));
                         } else if (isEnum(property->statement)) { //enum
-                            m_properties.insert(propertyName + '.' + propertyNamePart2, QVariant(astValue));
-                            m_bindingOrEnum.append(propertyName + '.' + propertyNamePart2);
+                            m_properties.insert(propertyName + QLatin1Char('.') + propertyNamePart2, QVariant(astValue));
+                            m_bindingOrEnum.append(propertyName + QLatin1Char('.') + propertyNamePart2);
                         }
                     }
                 }
@@ -230,7 +231,7 @@ QLinearGradient PropertyReader::parseGradient(const QString &propertyName,  bool
                                                              initializer->rbraceToken));
             const QString objectPropertyName = objectBinding->qualifiedId->name.toString();
             const QString typeName = objectBinding->qualifiedTypeNameId->name.toString();
-            if (objectPropertyName == propertyName && typeName.contains("Gradient")) {
+            if (objectPropertyName == propertyName && typeName.contains(QLatin1String("Gradient"))) {
                 QLinearGradient gradient;
                 QVector<QGradientStop> stops;
 
@@ -238,10 +239,10 @@ QLinearGradient PropertyReader::parseGradient(const QString &propertyName,  bool
                     UiObjectMember *member = members->member;
                     if (UiObjectDefinition *objectDefinition = cast<UiObjectDefinition *>(member)) {
                         PropertyReader localParser(m_doc, objectDefinition->initializer);
-                        if (localParser.hasProperty("color") && localParser.hasProperty("position")) {
-                            QColor color = QmlJS::toQColor(localParser.readProperty("color").toString());
-                            qreal position = localParser.readProperty("position").toReal();
-                            if (localParser.isBindingOrEnum("color") || localParser.isBindingOrEnum("position"))
+                        if (localParser.hasProperty(QLatin1String("color")) && localParser.hasProperty(QLatin1String("position"))) {
+                            QColor color = QmlJS::toQColor(localParser.readProperty(QLatin1String("color")).toString());
+                            qreal position = localParser.readProperty(QLatin1String("position")).toReal();
+                            if (localParser.isBindingOrEnum(QLatin1String("color")) || localParser.isBindingOrEnum(QLatin1String("position")))
                                 *isBound = true;
                             stops.append( QPair<qreal, QColor>(position, color));
                         }

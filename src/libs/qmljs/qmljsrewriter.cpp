@@ -331,7 +331,7 @@ void Rewriter::replaceMemberValue(UiObjectMember *propertyMember,
     }
 
     if (needsSemicolon)
-        replacement += ';';
+        replacement += QLatin1Char(';');
 
     m_changeSet->replace(startOffset, endOffset, replacement);
 }

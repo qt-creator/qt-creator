@@ -186,10 +186,10 @@ QChar QmlJSIndenter::lastParen() const
         const Token &token = yyLinizerState.tokens.at(index);
 
         if (token.is(Token::LeftParenthesis))
-            return QChar('(');
+            return QLatin1Char('(');
 
         else if (token.is(Token::RightParenthesis))
-            return QChar(')');
+            return QLatin1Char(')');
     }
 
     return QChar();
@@ -324,7 +324,7 @@ int QmlJSIndenter::indentForContinuationLine()
                 Q_ASSERT(j - 1 >= 0);
 
                 if (QString::fromLatin1("!=<>").indexOf(yyLine->at(j - 1)) == -1 &&
-                     j + 1 < yyLine->length() && yyLine->at(j + 1) != '=') {
+                     j + 1 < yyLine->length() && yyLine->at(j + 1) != QLatin1Char('=')) {
                     if (braceDepth == 0 && delimDepth == 0 &&
                          j < yyLine->length() - 1 &&
                          !yyLine->endsWith(QLatin1Char(',')) &&

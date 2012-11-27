@@ -131,7 +131,7 @@ public:
         }
 
         // ensure good ending
-        if (!_result.endsWith("\n\n") || !_line.isEmpty())
+        if (!_result.endsWith(QLatin1String("\n\n")) || !_line.isEmpty())
             newLine();
 
         return _result;
@@ -287,7 +287,7 @@ protected:
         while (startSpaces < line->size() && line->at(startSpaces).isSpace())
             ++startSpaces;
 
-        line->replace(0, startSpaces, QString(indent, ' '));
+        line->replace(0, startSpaces, QString(indent, QLatin1Char(' ')));
         for (int i = 0; i < splits->size(); ++i) {
             (*splits)[i].offset = splits->at(i).offset - startSpaces + indent;
         }
@@ -313,7 +313,7 @@ protected:
                 continue;
 
             // the extra space is to avoid // comments sticking to the 0 offset
-            QString indentLine = newContext.join("\n") + QLatin1String("\n ") + restLine;
+            QString indentLine = newContext.join(QLatin1String("\n")) + QLatin1String("\n ") + restLine;
             int indent = tryIndent(indentLine);
 
             QList<Split> newSplits = possibleSplits.mid(i + 1);
@@ -511,7 +511,7 @@ protected:
     {
         out("import ", ast->importToken);
         if (!ast->fileName.isNull()) {
-            out(QString("\"%1\"").arg(ast->fileName.toString()));
+            out(QString::fromLatin1("\"%1\"").arg(ast->fileName.toString()));
         } else {
             accept(ast->importUri);
         }

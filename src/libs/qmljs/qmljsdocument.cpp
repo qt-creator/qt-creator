@@ -125,11 +125,11 @@ Document::MutablePtr Document::create(const QString &fileName, Language language
 
 Document::Language Document::guessLanguageFromSuffix(const QString &fileName)
 {
-    if (fileName.endsWith(".qml", Qt::CaseInsensitive))
+    if (fileName.endsWith(QLatin1String(".qml"), Qt::CaseInsensitive))
         return QmlLanguage;
-    if (fileName.endsWith(".js", Qt::CaseInsensitive))
+    if (fileName.endsWith(QLatin1String(".js"), Qt::CaseInsensitive))
         return JavaScriptLanguage;
-    if (fileName.endsWith(".json", Qt::CaseInsensitive))
+    if (fileName.endsWith(QLatin1String(".json"), Qt::CaseInsensitive))
         return JsonLanguage;
     return UnknownLanguage;
 }

@@ -342,7 +342,7 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
     const QString &packagePath = importInfo.path();
     // check the filesystem with full version
     foreach (const QString &importPath, importPaths) {
-        QString libraryPath = QString("%1/%2.%3").arg(importPath, packagePath, version.toString());
+        QString libraryPath = QString::fromLatin1("%1/%2.%3").arg(importPath, packagePath, version.toString());
         if (importLibrary(doc, libraryPath, &import, importPath)) {
             importFound = true;
             break;
@@ -351,7 +351,7 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
     if (!importFound) {
         // check the filesystem with major version
         foreach (const QString &importPath, importPaths) {
-            QString libraryPath = QString("%1/%2.%3").arg(importPath, packagePath,
+            QString libraryPath = QString::fromLatin1("%1/%2.%3").arg(importPath, packagePath,
                                                           QString::number(version.majorVersion()));
             if (importLibrary(doc, libraryPath, &import, importPath)) {
                 importFound = true;
@@ -362,7 +362,7 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
     if (!importFound) {
         // check the filesystem with no version
         foreach (const QString &importPath, importPaths) {
-            QString libraryPath = QString("%1/%2").arg(importPath, packagePath);
+            QString libraryPath = QString::fromLatin1("%1/%2").arg(importPath, packagePath);
             if (importLibrary(doc, libraryPath, &import, importPath)) {
                 importFound = true;
                 break;

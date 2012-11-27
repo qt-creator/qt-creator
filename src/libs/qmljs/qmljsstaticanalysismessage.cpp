@@ -264,7 +264,7 @@ Message::Message(Type type,
         message = message.arg(arg1, arg2);
     }
     if (appendTypeId)
-        message.append(QString(" (M%1)").arg(QString::number(prototype.type)));
+        message.append(QString::fromLatin1(" (M%1)").arg(QString::number(prototype.type)));
 }
 
 bool Message::isValid() const
@@ -292,7 +292,7 @@ DiagnosticMessage Message::toDiagnosticMessage() const
 
 QString Message::suppressionString() const
 {
-    return QString("@disable-check M%1").arg(QString::number(type));
+    return QString::fromLatin1("@disable-check M%1").arg(QString::number(type));
 }
 
 QRegExp Message::suppressionPattern()
