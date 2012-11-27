@@ -79,8 +79,8 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
 {
     connect(m_agent, SIGNAL(objectFetched(QmlDebug::ObjectReference)),
             SLOT(onObjectFetched(QmlDebug::ObjectReference)));
-    connect(m_agent, SIGNAL(jumpToObjectDefinition(QmlDebug::FileReference)),
-            SLOT(jumpToObjectDefinitionInEditor(QmlDebug::FileReference)));
+    connect(m_agent, SIGNAL(jumpToObjectDefinition(QmlDebug::FileReference,int)),
+            SLOT(jumpToObjectDefinitionInEditor(QmlDebug::FileReference,int)));
 
     QmlDebugConnection *connection = m_debugAdapter->connection();
     DeclarativeEngineDebugClient *engineClient1
@@ -453,7 +453,7 @@ void QmlInspectorAdapter::showConnectionStatusMessage(const QString &message)
 }
 
 void QmlInspectorAdapter::jumpToObjectDefinitionInEditor(
-        const FileReference &objSource)
+        const FileReference &objSource, int debugId)
 {
     const QString fileName = m_engine->toFileInProject(objSource.url());
 
@@ -466,6 +466,12 @@ void QmlInspectorAdapter::jumpToObjectDefinitionInEditor(
         editorManager->addCurrentPositionToNavigationHistory();
         textEditor->gotoLine(objSource.lineNumber());
         textEditor->widget()->setFocus();
+    }
+
+    if (debugId != -1 && debugId != m_currentSelectedDebugId) {
+        m_currentSelectedDebugId = debugId;
+        m_currentSelectedDebugName = agent()->displayName(debugId);
+        emit selectionChanged();
     }
 }
 

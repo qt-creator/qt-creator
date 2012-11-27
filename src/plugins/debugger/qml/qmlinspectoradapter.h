@@ -96,7 +96,7 @@ private slots:
     void onReload();
     void onReloaded();
     void onDestroyedObject(int);
-    void jumpToObjectDefinitionInEditor(const QmlDebug::FileReference &objSource);
+    void jumpToObjectDefinitionInEditor(const QmlDebug::FileReference &objSource, int debugId = -1);
 
 private:
     void setActiveEngineClient(QmlDebug::BaseEngineDebugClient *client);

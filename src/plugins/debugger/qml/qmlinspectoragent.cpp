@@ -128,7 +128,7 @@ void QmlInspectorAgent::watchDataSelected(const WatchData *data)
 
     if (data->id) {
         QTC_ASSERT(m_debugIdLocations.keys().contains(data->id), return);
-        emit jumpToObjectDefinition(m_debugIdLocations.value(data->id));
+        emit jumpToObjectDefinition(m_debugIdLocations.value(data->id), data->id);
     }
 }
 
