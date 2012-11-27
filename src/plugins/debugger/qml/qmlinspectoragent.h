@@ -60,6 +60,7 @@ public:
 
     void assignValue(const WatchData *data, const QString &expression, const QVariant &valueV);
     void updateWatchData(const WatchData &data);
+    void watchDataSelected(const WatchData *data);
     bool selectObjectInTree(int debugId);
 
     quint32 setBindingForObject(int objectDebugId,
@@ -101,6 +102,7 @@ signals:
     void propertyChanged(int debugId, const QByteArray &propertyName,
                          const QVariant &propertyValue);
     void automaticUpdateFailed();
+    void jumpToObjectDefinition(const QmlDebug::FileReference &objSource);
 
 private slots:
     void updateStatus();

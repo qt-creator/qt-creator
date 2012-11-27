@@ -96,14 +96,13 @@ private slots:
     void onReload();
     void onReloaded();
     void onDestroyedObject(int);
+    void jumpToObjectDefinitionInEditor(const QmlDebug::FileReference &objSource);
 
 private:
     void setActiveEngineClient(QmlDebug::BaseEngineDebugClient *client);
 
     void initializePreviews();
     void showConnectionStatusMessage(const QString &message);
-
-    void gotoObjectReferenceDefinition(const QmlDebug::FileReference &objSource);
 
     enum SelectionTarget { NoTarget, ToolTarget, EditorTarget };
     void selectObject(

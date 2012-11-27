@@ -64,15 +64,17 @@
             need to have the development environment installed on your
             computer to create and run this type of project.
 
-        \o  \gui {Qt Quick Application (from Existing QML File)} converts
-            existing QML applications to Qt Quick application projects. This
-            enables you to run them from \QC and to deploy them to mobile
+        \o  \gui {Qt Quick 1 Application (from Existing QML File)} converts
+            existing Qt Quick 1 applications to Qt Quick application projects.
+            This enables you to run them from \QC and to deploy them to mobile
             devices.
 
-        \o  \gui {Custom QML Extension Plugin} (in the \gui Libraries category)
-            creates a C++ plugin that makes
-            it possible to offer extensions that can be loaded dynamically into
-            applications by using the QDeclarativeEngine class.
+        \o  \gui {Qt Quick Extension Plugins} (in the \gui Libraries category)
+            create C++ plugins that make it possible to offer extensions that
+            can be loaded dynamically into Qt Quick applications. Select
+            \gui {Qt Quick 1 Extension Plugin} to create extensions for
+            Qt Quick 1 applications and \gui {Qt Quick 2 Extension Plugin} to
+            create extensions for Qt Quick 2 applications.
 
     \endlist
 

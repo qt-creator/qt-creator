@@ -50,6 +50,7 @@ public:
         TextEditor::ITextEditor * editor, const DebuggerToolTipContext &);
     void updateWatchData(const WatchData &data,
         const WatchUpdateFlags &flags);
+    void watchDataSelected(const QByteArray &iname);
 
     void watchPoint(const QPoint &);
     void fetchMemory(MemoryAgent *, QObject *, quint64 addr, quint64 length);

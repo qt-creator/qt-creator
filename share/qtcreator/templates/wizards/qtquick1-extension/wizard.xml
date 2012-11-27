@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/****************************************************************************
+**
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+****************************************************************************/
+
+Custom project wizard configuration example file. Note that by convention, 
+the project file goes last.
+The "class" and "firstpage" attributes specify that it is a Qt 4 wizard and 
+leave room for the Qt 4 target page.
+-->
+<wizard version="1" kind="project"
+        class="qt4project" firstpage="10"
+        id="QtQuick1ExtensionPlugin" category="G.Libraries"
+        featuresRequired="QtSupport.Wizards.FeatureQtQuick,QtSupport.Wizards.FeatureQtQuick.1">
+    <icon>lib.png</icon>
+    <description>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QDeclarativeEngine class.</description>
+    <displayname>Qt Quick 1 Extension Plugin</displayname>
+    <displaycategory>Libraries</displaycategory>
+    <files>
+        <file source="qmldir" target="qmldir"/>
+        <file source="plugin.h" target="%ProjectName:l%_plugin.%CppHeaderSuffix%"/>
+        <file source="plugin.cpp" target="%ProjectName:l%_plugin.%CppSourceSuffix%"/>
+        <file source="object.h" target="%ObjectName:l%.%CppHeaderSuffix%"/>
+        <file source="object.cpp" target="%ObjectName:l%.%CppSourceSuffix%" openeditor="true"/>
+        <file source="project.pro" target="%ProjectName:l%.pro" openproject="true"/>
+    </files>
+    <!-- Create a 2nd wizard page with parameters -->
+    <fieldpagetitle>Custom QML Extension  Plugin Parameters</fieldpagetitle>
+    <fields>
+        <field mandatory="true" name="ObjectName">
+            <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9_]+$'  defaulttext="MyItem"/>
+            <fielddescription>Object Class-name:</fielddescription>
+        </field>
+        <field mandatory="true" name="Uri">
+            <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9]+([A-Za-z0-9-]*[A-Za-z0-9]+)?(\.[A-Za-z0-9]+([-A-Za-z0-9]*[A-Za-z0-9]+)?)*$' defaulttext="com.mycompany.qmlcomponents"/>
+            <fielddescription>URI:</fielddescription>
+        </field>
+    </fields>
+    <validationrules>
+        <validationrule condition='"%ObjectName%" != "%ProjectName%_plugin"'>
+            <message>The project name and the object class-name cannot be the same.</message>
+        </validationrule>
+    </validationrules>
+</wizard>

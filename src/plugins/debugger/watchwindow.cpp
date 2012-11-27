@@ -992,6 +992,11 @@ void WatchTreeView::setModel(QAbstractItemModel *model)
             SLOT(handleItemIsExpanded(QModelIndex)));
 }
 
+void WatchTreeView::rowClicked(const QModelIndex &index)
+{
+    currentEngine()->watchDataSelected(currentEngine()->watchHandler()->watchData(index)->iname);
+}
+
 void WatchTreeView::handleItemIsExpanded(const QModelIndex &idx)
 {
     bool on = idx.data(LocalsExpandedRole).toBool();

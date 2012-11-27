@@ -81,6 +81,8 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
 {
     connect(m_agent, SIGNAL(objectFetched(QmlDebug::ObjectReference)),
             SLOT(onObjectFetched(QmlDebug::ObjectReference)));
+    connect(m_agent, SIGNAL(jumpToObjectDefinition(QmlDebug::FileReference)),
+            SLOT(jumpToObjectDefinitionInEditor(QmlDebug::FileReference)));
 
     QmlDebugConnection *connection = m_debugAdapter->connection();
     DeclarativeEngineDebugClient *engineClient1
@@ -473,7 +475,7 @@ void QmlInspectorAdapter::showConnectionStatusMessage(const QString &message)
     m_engine->showMessage(_("QML Inspector: ") + message, LogStatus);
 }
 
-void QmlInspectorAdapter::gotoObjectReferenceDefinition(
+void QmlInspectorAdapter::jumpToObjectDefinitionInEditor(
         const FileReference &objSource)
 {
     if (m_cursorPositionChangedExternally) {
@@ -508,7 +510,7 @@ void QmlInspectorAdapter::selectObject(const ObjectReference &obj,
                     QList<ObjectReference>() << obj);
 
     if (target == EditorTarget)
-        gotoObjectReferenceDefinition(obj.source());
+        jumpToObjectDefinitionInEditor(obj.source());
 
     agent()->selectObjectInTree(obj.debugId());
 }

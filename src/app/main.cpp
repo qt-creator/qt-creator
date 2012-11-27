@@ -359,7 +359,11 @@ int main(int argc, char **argv)
     const QString &creatorTrPath = QCoreApplication::applicationDirPath()
             + QLatin1String(SHARE_PATH "/translations");
     foreach (QString locale, uiLanguages) {
+#if (QT_VERSION >= 0x050000)
+        locale = QLocale(locale).name();
+#else
         locale.replace(QLatin1Char('-'), QLatin1Char('_')); // work around QTBUG-25973
+#endif
         if (translator.load(QLatin1String("qtcreator_") + locale, creatorTrPath)) {
             const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
             const QString &qtTrFile = QLatin1String("qt_") + locale;

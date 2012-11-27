@@ -124,7 +124,7 @@ void GenericLinuxDeviceTester::handleConnected()
     d->process = d->connection->createRemoteProcess("uname -rsm");
     connect(d->process.data(), SIGNAL(closed(int)), SLOT(handleProcessFinished(int)));
 
-    emit progressMessage("Checking kernel version...");
+    emit progressMessage(tr("Checking kernel version..."));
     d->state = RunningUname;
     d->process->start();
 }
@@ -172,7 +172,7 @@ void GenericLinuxDeviceTester::handlePortListReady()
     QTC_ASSERT(d->state == TestingPorts, return);
 
     if (d->portsGatherer.usedPorts().isEmpty()) {
-        emit progressMessage("All specified ports are available.\n");
+        emit progressMessage(tr("All specified ports are available.\n"));
     } else {
         QString portList;
         foreach (const int port, d->portsGatherer.usedPorts())

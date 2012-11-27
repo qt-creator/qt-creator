@@ -19,8 +19,6 @@ Product {
     }
 
     Group {
-        condition: qbs.targetOS == "macx"
-        qbs.installDir: "share/qtcreator/scripts"
         fileTags: ["install"]
         files: "qtcreator/scripts/openTerminal.command"
     }

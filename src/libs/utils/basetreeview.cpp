@@ -70,6 +70,8 @@ BaseTreeView::BaseTreeView(QWidget *parent)
 
     connect(this, SIGNAL(activated(QModelIndex)),
         SLOT(rowActivatedHelper(QModelIndex)));
+    connect(this, SIGNAL(clicked(QModelIndex)),
+        SLOT(rowClickedHelper(QModelIndex)));
     connect(header(), SIGNAL(sectionClicked(int)),
         SLOT(headerSectionClicked(int)));
 

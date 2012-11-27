@@ -51,6 +51,7 @@ public:
     explicit WatchTreeView(Type type, QWidget *parent = 0);
     Type type() const { return m_type; }
     void setModel(QAbstractItemModel *model);
+    void rowClicked(const QModelIndex &index);
     void reset();
 
 public slots:

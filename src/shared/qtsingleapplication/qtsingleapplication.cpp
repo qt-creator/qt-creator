@@ -59,36 +59,6 @@ QtSingleApplication::QtSingleApplication(const QString &appId, int &argc, char *
     sysInit(appId);
 }
 
-
-QtSingleApplication::QtSingleApplication(int &argc, char **argv, Type type)
-    : QApplication(argc, argv, type)
-{
-    sysInit();
-}
-
-
-#if defined(Q_WS_X11)
-QtSingleApplication::QtSingleApplication(Display* dpy, Qt::HANDLE visual, Qt::HANDLE colormap)
-    : QApplication(dpy, visual, colormap)
-{
-    sysInit();
-}
-
-QtSingleApplication::QtSingleApplication(Display *dpy, int &argc, char **argv, Qt::HANDLE visual, Qt::HANDLE cmap)
-    : QApplication(dpy, argc, argv, visual, cmap)
-{
-    sysInit();
-}
-
-QtSingleApplication::QtSingleApplication(Display* dpy, const QString &appId,
-    int argc, char **argv, Qt::HANDLE visual, Qt::HANDLE colormap)
-    : QApplication(dpy, argc, argv, visual, colormap)
-{
-    this->appId = appId;
-    sysInit(appId);
-}
-#endif
-
 bool QtSingleApplication::event(QEvent *event)
 {
     if (event->type() == QEvent::FileOpen) {

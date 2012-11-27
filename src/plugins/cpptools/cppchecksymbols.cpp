@@ -509,9 +509,11 @@ bool CheckSymbols::visit(SimpleDeclarationAST *ast)
                         // Add a diagnostic message if non-virtual function has override/final marker
                         if ((_usages.back().kind != SemanticInfo::VirtualMethodUse)) {
                             if (funTy->isOverride())
-                                warning(declrIdNameAST, QCoreApplication::translate("CPlusplus::CheckSymbols", "Only virtual methods can be marked `override'"));
+                                warning(declrIdNameAST, QCoreApplication::translate(
+                                            "CPlusplus::CheckSymbols", "Only virtual methods can be marked `override'"));
                             else if (funTy->isFinal())
-                                warning(declrIdNameAST, QCoreApplication::translate("CPlusPlus::CheckSymbols", "Only virtual methods can be marked `final'"));
+                                warning(declrIdNameAST, QCoreApplication::translate(
+                                            "CPlusPlus::CheckSymbols", "Only virtual methods can be marked `final'"));
                         }
                     }
                 }
