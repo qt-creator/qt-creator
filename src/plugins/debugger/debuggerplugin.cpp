@@ -2848,32 +2848,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     connect(action(OperateByInstruction), SIGNAL(triggered(bool)),
         SLOT(handleOperateByInstructionTriggered(bool)));
 
-    QAction *qmlShowAppOnTopDummyAction = new QAction(tr("Show Application On Top"), this);
-    qmlShowAppOnTopDummyAction->setCheckable(true);
-    qmlShowAppOnTopDummyAction->setIcon(QIcon(_(":/debugger/images/qml/app-on-top.png")));
-    qmlShowAppOnTopDummyAction->setEnabled(false);
-    ActionManager::registerAction(qmlShowAppOnTopDummyAction, Constants::QML_SHOW_APP_ON_TOP,
-                                  globalcontext);
-
-    QAction *qmlUpdateOnSaveDummyAction = new QAction(tr("Apply Changes on Save"), this);
-    qmlUpdateOnSaveDummyAction->setCheckable(true);
-    qmlUpdateOnSaveDummyAction->setIcon(QIcon(_(":/debugger/images/qml/apply-on-save.png")));
-    qmlUpdateOnSaveDummyAction->setEnabled(false);
-    ActionManager::registerAction(qmlUpdateOnSaveDummyAction, Constants::QML_UPDATE_ON_SAVE,
-                                  globalcontext);
-
-    QAction *qmlSelectDummyAction = new QAction(tr("Select"), this);
-    qmlSelectDummyAction->setCheckable(true);
-    qmlSelectDummyAction->setIcon(QIcon(_(":/debugger/images/qml/select.png")));
-    qmlSelectDummyAction->setEnabled(false);
-    ActionManager::registerAction(qmlSelectDummyAction, Constants::QML_SELECTTOOL, globalcontext);
-
-    QAction *qmlZoomDummyAction = new QAction(tr("Zoom"), this);
-    qmlZoomDummyAction->setCheckable(true);
-    qmlZoomDummyAction->setIcon(QIcon(_(":/debugger/images/qml/zoom.png")));
-    qmlZoomDummyAction->setEnabled(false);
-    ActionManager::registerAction(qmlZoomDummyAction, Constants::QML_ZOOMTOOL, globalcontext);
-
     ActionContainer *debugMenu =
         ActionManager::actionContainer(ProjectExplorer::Constants::M_DEBUG);
 
@@ -3144,6 +3118,39 @@ void DebuggerPluginPrivate::extensionsInitialized()
     debugMenu->addAction(cmd);
     connect(m_breakAction, SIGNAL(triggered()),
         SLOT(toggleBreakpoint()));
+
+    debugMenu->addSeparator(globalcontext);
+
+    QAction *qmlUpdateOnSaveDummyAction = new QAction(tr("Apply Changes on Save"), this);
+    qmlUpdateOnSaveDummyAction->setCheckable(true);
+    qmlUpdateOnSaveDummyAction->setIcon(QIcon(_(":/debugger/images/qml/apply-on-save.png")));
+    qmlUpdateOnSaveDummyAction->setEnabled(false);
+    cmd = ActionManager::registerAction(qmlUpdateOnSaveDummyAction, Constants::QML_UPDATE_ON_SAVE,
+                                        globalcontext);
+    debugMenu->addAction(cmd);
+
+    QAction *qmlShowAppOnTopDummyAction = new QAction(tr("Show Application On Top"), this);
+    qmlShowAppOnTopDummyAction->setCheckable(true);
+    qmlShowAppOnTopDummyAction->setIcon(QIcon(_(":/debugger/images/qml/app-on-top.png")));
+    qmlShowAppOnTopDummyAction->setEnabled(false);
+    cmd = ActionManager::registerAction(qmlShowAppOnTopDummyAction, Constants::QML_SHOW_APP_ON_TOP,
+                                  globalcontext);
+    debugMenu->addAction(cmd);
+
+    QAction *qmlSelectDummyAction = new QAction(tr("Select"), this);
+    qmlSelectDummyAction->setCheckable(true);
+    qmlSelectDummyAction->setIcon(QIcon(_(":/debugger/images/qml/select.png")));
+    qmlSelectDummyAction->setEnabled(false);
+    cmd = ActionManager::registerAction(qmlSelectDummyAction, Constants::QML_SELECTTOOL,
+                                        globalcontext);
+    debugMenu->addAction(cmd);
+
+    QAction *qmlZoomDummyAction = new QAction(tr("Zoom"), this);
+    qmlZoomDummyAction->setCheckable(true);
+    qmlZoomDummyAction->setIcon(QIcon(_(":/debugger/images/qml/zoom.png")));
+    qmlZoomDummyAction->setEnabled(false);
+    cmd = ActionManager::registerAction(qmlZoomDummyAction, Constants::QML_ZOOMTOOL, globalcontext);
+    debugMenu->addAction(cmd);
 
     debugMenu->addSeparator(globalcontext);
 
