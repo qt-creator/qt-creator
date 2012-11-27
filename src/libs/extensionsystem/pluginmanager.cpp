@@ -669,7 +669,7 @@ void PluginManager::startTests()
             continue;
         const QMetaObject *mo = pluginSpec->plugin()->metaObject();
         QStringList methods;
-        methods.append("arg0");
+        methods.append(QLatin1String("arg0"));
         // We only want slots starting with "test"
         for (int i = mo->methodOffset(); i < mo->methodCount(); ++i) {
 #if QT_VERSION >= 0x050000
@@ -710,8 +710,8 @@ QString PluginManager::testDataDirectory()
     QByteArray ba = qgetenv("QTCREATOR_TEST_DIR");
     QString s = QString::fromLocal8Bit(ba.constData(), ba.size());
     if (s.isEmpty()) {
-        s = IDE_TEST_DIR;
-        s.append("/tests");
+        s = QLatin1String(IDE_TEST_DIR);
+        s.append(QLatin1String("/tests"));
     }
     s = QDir::cleanPath(s);
     return s;
@@ -1173,7 +1173,7 @@ void PluginManagerPrivate::readPluginPaths()
             searchPaths << subdir.absoluteFilePath();
     }
     defaultCollection = new PluginCollection(QString());
-    pluginCategories.insert("", defaultCollection);
+    pluginCategories.insert(QString(), defaultCollection);
 
     foreach (const QString &specFile, specFiles) {
         PluginSpec *spec = new PluginSpec;

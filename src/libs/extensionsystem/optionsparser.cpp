@@ -105,7 +105,7 @@ bool OptionsParser::checkForTestOption()
     if (m_currentArg != QLatin1String(TEST_OPTION))
         return false;
     if (nextToken(RequiredToken)) {
-        if(m_currentArg == "all") {
+        if (m_currentArg == QLatin1String("all")) {
             foreach(PluginSpec *spec, m_pmPrivate->pluginSpecs) {
                 if (spec && !m_pmPrivate->testSpecs.contains(spec))
                     m_pmPrivate->testSpecs.append(spec);

@@ -492,10 +492,10 @@ bool PluginSpecPrivate::read(const QString &fileName)
         = url
         = category
         = location
-        = "";
+        = QString();
     state = PluginSpec::Invalid;
     hasError = false;
-    errorString = "";
+    errorString.clear();
     dependencies.clear();
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly))
@@ -558,7 +558,7 @@ static inline QString msgAttributeMissing(const char *elt, const char *attribute
 
 static inline QString msgInvalidFormat(const char *content)
 {
-    return QCoreApplication::translate("PluginSpec", "'%1' has invalid format").arg(content);
+    return QCoreApplication::translate("PluginSpec", "'%1' has invalid format").arg(QLatin1String(content));
 }
 
 static inline QString msgInvalidElement(const QString &name)
@@ -583,16 +583,17 @@ static inline QString msgUnexpectedToken()
 void PluginSpecPrivate::readPluginSpec(QXmlStreamReader &reader)
 {
     QString element = reader.name().toString();
-    if (element != QString(PLUGIN)) {
-        reader.raiseError(QCoreApplication::translate("PluginSpec", "Expected element '%1' as top level element").arg(PLUGIN));
+    if (element != QLatin1String(PLUGIN)) {
+        reader.raiseError(QCoreApplication::translate("PluginSpec", "Expected element '%1' as top level element")
+                          .arg(QLatin1String(PLUGIN)));
         return;
     }
-    name = reader.attributes().value(PLUGIN_NAME).toString();
+    name = reader.attributes().value(QLatin1String(PLUGIN_NAME)).toString();
     if (name.isEmpty()) {
         reader.raiseError(msgAttributeMissing(PLUGIN, PLUGIN_NAME));
         return;
     }
-    version = reader.attributes().value(PLUGIN_VERSION).toString();
+    version = reader.attributes().value(QLatin1String(PLUGIN_VERSION)).toString();
     if (version.isEmpty()) {
         reader.raiseError(msgAttributeMissing(PLUGIN, PLUGIN_VERSION));
         return;
@@ -601,14 +602,14 @@ void PluginSpecPrivate::readPluginSpec(QXmlStreamReader &reader)
         reader.raiseError(msgInvalidFormat(PLUGIN_VERSION));
         return;
     }
-    compatVersion = reader.attributes().value(PLUGIN_COMPATVERSION).toString();
+    compatVersion = reader.attributes().value(QLatin1String(PLUGIN_COMPATVERSION)).toString();
     if (!compatVersion.isEmpty() && !isValidVersion(compatVersion)) {
         reader.raiseError(msgInvalidFormat(PLUGIN_COMPATVERSION));
         return;
     } else if (compatVersion.isEmpty()) {
         compatVersion = version;
     }
-    QString experimentalString = reader.attributes().value(PLUGIN_EXPERIMENTAL).toString();
+    QString experimentalString = reader.attributes().value(QLatin1String(PLUGIN_EXPERIMENTAL)).toString();
     experimental = (experimentalString.compare(QLatin1String("true"), Qt::CaseInsensitive) == 0);
     if (!experimentalString.isEmpty() && !experimental
             && experimentalString.compare(QLatin1String("false"), Qt::CaseInsensitive) != 0) {
@@ -622,21 +623,21 @@ void PluginSpecPrivate::readPluginSpec(QXmlStreamReader &reader)
         switch (reader.tokenType()) {
         case QXmlStreamReader::StartElement:
             element = reader.name().toString();
-            if (element == VENDOR)
+            if (element == QLatin1String(VENDOR))
                 vendor = reader.readElementText().trimmed();
-            else if (element == COPYRIGHT)
+            else if (element == QLatin1String(COPYRIGHT))
                 copyright = reader.readElementText().trimmed();
-            else if (element == LICENSE)
+            else if (element == QLatin1String(LICENSE))
                 license = reader.readElementText().trimmed();
-            else if (element == DESCRIPTION)
+            else if (element == QLatin1String(DESCRIPTION))
                 description = reader.readElementText().trimmed();
-            else if (element == URL)
+            else if (element == QLatin1String(URL))
                 url = reader.readElementText().trimmed();
-            else if (element == CATEGORY)
+            else if (element == QLatin1String(CATEGORY))
                 category = reader.readElementText().trimmed();
-            else if (element == DEPENDENCYLIST)
+            else if (element == QLatin1String(DEPENDENCYLIST))
                 readDependencies(reader);
-            else if (element == ARGUMENTLIST)
+            else if (element == QLatin1String(ARGUMENTLIST))
                 readArgumentDescriptions(reader);
             else
                 reader.raiseError(msgInvalidElement(name));
@@ -666,7 +667,7 @@ void PluginSpecPrivate::readArgumentDescriptions(QXmlStreamReader &reader)
         switch (reader.tokenType()) {
         case QXmlStreamReader::StartElement:
             element = reader.name().toString();
-            if (element == ARGUMENT) {
+            if (element == QLatin1String(ARGUMENT)) {
                 readArgumentDescription(reader);
             } else {
                 reader.raiseError(msgInvalidElement(name));
@@ -677,7 +678,7 @@ void PluginSpecPrivate::readArgumentDescriptions(QXmlStreamReader &reader)
             break;
         case QXmlStreamReader::EndElement:
             element = reader.name().toString();
-            if (element == ARGUMENTLIST)
+            if (element == QLatin1String(ARGUMENTLIST))
                 return;
             reader.raiseError(msgUnexpectedClosing(element));
             break;
@@ -695,12 +696,12 @@ void PluginSpecPrivate::readArgumentDescriptions(QXmlStreamReader &reader)
 void PluginSpecPrivate::readArgumentDescription(QXmlStreamReader &reader)
 {
     PluginArgumentDescription arg;
-    arg.name = reader.attributes().value(ARGUMENT_NAME).toString();
+    arg.name = reader.attributes().value(QLatin1String(ARGUMENT_NAME)).toString();
     if (arg.name.isEmpty()) {
         reader.raiseError(msgAttributeMissing(ARGUMENT, ARGUMENT_NAME));
         return;
     }
-    arg.parameter = reader.attributes().value(ARGUMENT_PARAMETER).toString();
+    arg.parameter = reader.attributes().value(QLatin1String(ARGUMENT_PARAMETER)).toString();
     arg.description = reader.readElementText();
     if (reader.tokenType() != QXmlStreamReader::EndElement)
         reader.raiseError(msgUnexpectedToken());
@@ -719,7 +720,7 @@ void PluginSpecPrivate::readDependencies(QXmlStreamReader &reader)
         switch (reader.tokenType()) {
         case QXmlStreamReader::StartElement:
             element = reader.name().toString();
-            if (element == DEPENDENCY) {
+            if (element == QLatin1String(DEPENDENCY)) {
                 readDependencyEntry(reader);
             } else {
                 reader.raiseError(msgInvalidElement(name));
@@ -730,7 +731,7 @@ void PluginSpecPrivate::readDependencies(QXmlStreamReader &reader)
             break;
         case QXmlStreamReader::EndElement:
             element = reader.name().toString();
-            if (element == DEPENDENCYLIST)
+            if (element == QLatin1String(DEPENDENCYLIST))
                 return;
             reader.raiseError(msgUnexpectedClosing(element));
             break;
@@ -748,19 +749,19 @@ void PluginSpecPrivate::readDependencies(QXmlStreamReader &reader)
 void PluginSpecPrivate::readDependencyEntry(QXmlStreamReader &reader)
 {
     PluginDependency dep;
-    dep.name = reader.attributes().value(DEPENDENCY_NAME).toString();
+    dep.name = reader.attributes().value(QLatin1String(DEPENDENCY_NAME)).toString();
     if (dep.name.isEmpty()) {
         reader.raiseError(msgAttributeMissing(DEPENDENCY, DEPENDENCY_NAME));
         return;
     }
-    dep.version = reader.attributes().value(DEPENDENCY_VERSION).toString();
+    dep.version = reader.attributes().value(QLatin1String(DEPENDENCY_VERSION)).toString();
     if (!dep.version.isEmpty() && !isValidVersion(dep.version)) {
         reader.raiseError(msgInvalidFormat(DEPENDENCY_VERSION));
         return;
     }
     dep.type = PluginDependency::Required;
-    if (reader.attributes().hasAttribute(DEPENDENCY_TYPE)) {
-        QString typeValue = reader.attributes().value(DEPENDENCY_TYPE).toString();
+    if (reader.attributes().hasAttribute(QLatin1String(DEPENDENCY_TYPE))) {
+        QString typeValue = reader.attributes().value(QLatin1String(DEPENDENCY_TYPE)).toString();
         if (typeValue == QLatin1String(DEPENDENCY_TYPE_HARD)) {
             dep.type = PluginDependency::Required;
         } else if (typeValue == QLatin1String(DEPENDENCY_TYPE_SOFT)) {
@@ -793,7 +794,7 @@ bool PluginSpecPrivate::provides(const QString &pluginName, const QString &plugi
 */
 QRegExp &PluginSpecPrivate::versionRegExp()
 {
-    static QRegExp reg("([0-9]+)(?:[.]([0-9]+))?(?:[.]([0-9]+))?(?:_([0-9]+))?");
+    static QRegExp reg(QLatin1String("([0-9]+)(?:[.]([0-9]+))?(?:[.]([0-9]+))?(?:_([0-9]+))?"));
     return reg;
 }
 /*!
@@ -916,21 +917,21 @@ bool PluginSpecPrivate::loadLibrary()
 #ifdef QT_NO_DEBUG
 
 #ifdef Q_OS_WIN
-    QString libName = QString("%1/%2.dll").arg(location).arg(name);
+    QString libName = QString::fromLatin1("%1/%2.dll").arg(location).arg(name);
 #elif defined(Q_OS_MAC)
-    QString libName = QString("%1/lib%2.dylib").arg(location).arg(name);
+    QString libName = QString::fromLatin1("%1/lib%2.dylib").arg(location).arg(name);
 #else
-    QString libName = QString("%1/lib%2.so").arg(location).arg(name);
+    QString libName = QString::fromLatin1("%1/lib%2.so").arg(location).arg(name);
 #endif
 
 #else //Q_NO_DEBUG
 
 #ifdef Q_OS_WIN
-    QString libName = QString("%1/%2d.dll").arg(location).arg(name);
+    QString libName = QString::fromLatin1("%1/%2d.dll").arg(location).arg(name);
 #elif defined(Q_OS_MAC)
-    QString libName = QString("%1/lib%2_debug.dylib").arg(location).arg(name);
+    QString libName = QString::fromLatin1("%1/lib%2_debug.dylib").arg(location).arg(name);
 #else
-    QString libName = QString("%1/lib%2.so").arg(location).arg(name);
+    QString libName = QString::fromLatin1("%1/lib%2.so").arg(location).arg(name);
 #endif
 
 #endif

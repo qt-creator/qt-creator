@@ -92,8 +92,8 @@ PluginView::PluginView(QWidget *parent)
     m_ui->categoryWidget->setColumnWidth(C_LOAD, 40);
 
     // cannot disable these
-    m_whitelist << QString("Core") << QString("Locator")
-                << QString("Find") << QString("TextEditor");
+    m_whitelist << QString::fromLatin1("Core") << QString::fromLatin1("Locator")
+                << QString::fromLatin1("Find") << QString::fromLatin1("TextEditor");
 
     connect(PluginManager::instance(), SIGNAL(pluginsChanged()), this, SLOT(updateList()));
     connect(m_ui->categoryWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),

@@ -6,7 +6,8 @@ QtcLibrary {
 
     cpp.defines: base.concat([
         "EXTENSIONSYSTEM_LIBRARY",
-        "IDE_TEST_DIR=\".\""
+        "IDE_TEST_DIR=\".\"",
+        "QT_NO_CAST_FROM_ASCII"
     ])
 
     Depends { name: "cpp" }
