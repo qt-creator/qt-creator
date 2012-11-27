@@ -814,6 +814,11 @@ void ModelNodeAction::layoutRow()
     if (!m_view)
         return;
 
+    NodeMetaInfo rowMetaInfo = m_view->model()->metaInfo(QLatin1String("QtQuick.Row"));
+
+    if (!rowMetaInfo.isValid())
+        return;
+
     ModelNode row;
     {
         RewriterTransaction transaction(m_view);
@@ -822,7 +827,9 @@ void ModelNodeAction::layoutRow()
         if (!parent.isValid())
             return;
 
-        row = m_view->createModelNode(QLatin1String("QtQuick.Row"), parent.modelNode().majorQtQuickVersion(), 0);
+        qDebug() << parent.modelNode().majorQtQuickVersion();
+
+        row = m_view->createModelNode(QLatin1String("QtQuick.Row"), rowMetaInfo.majorVersion(), rowMetaInfo.minorVersion());
 
         reparentTo(row, parent);
     }
@@ -850,6 +857,11 @@ void ModelNodeAction::layoutColumn()
     if (!m_view)
         return;
 
+    NodeMetaInfo columnMetaInfo = m_view->model()->metaInfo(QLatin1String("QtQuick.Column"));
+
+    if (!columnMetaInfo.isValid())
+        return;
+
     ModelNode column;
     {
         RewriterTransaction transaction(m_view);
@@ -858,7 +870,7 @@ void ModelNodeAction::layoutColumn()
         if (!parent.isValid())
             return;
 
-        column = m_view->createModelNode(QLatin1String("QtQuick.Column"), parent.modelNode().majorQtQuickVersion(), 0);
+        column = m_view->createModelNode(QLatin1String("QtQuick.Column"), columnMetaInfo.majorVersion(), columnMetaInfo.minorVersion());
 
         reparentTo(column, parent);
     }
@@ -886,6 +898,11 @@ void ModelNodeAction::layoutGrid()
     if (!m_view)
         return;
 
+    NodeMetaInfo gridMetaInfo = m_view->model()->metaInfo(QLatin1String("QtQuick.Grid"));
+
+    if (!gridMetaInfo.isValid())
+        return;
+
     ModelNode grid;
     {
         RewriterTransaction transaction(m_view);
@@ -894,7 +911,7 @@ void ModelNodeAction::layoutGrid()
         if (!parent.isValid())
             return;
 
-        grid = m_view->createModelNode(QLatin1String("QtQuick.Grid"), parent.modelNode().majorQtQuickVersion(), 0);
+        grid = m_view->createModelNode(QLatin1String("QtQuick.Grid"), gridMetaInfo.majorVersion(), gridMetaInfo.minorVersion());
         grid.variantProperty(QLatin1String("columns")) = int(sqrt(double(m_modelNodeList.count())));
 
         reparentTo(grid, parent);
@@ -923,6 +940,11 @@ void ModelNodeAction::layoutFlow()
     if (!m_view)
         return;
 
+    NodeMetaInfo flowMetaInfo = m_view->model()->metaInfo(QLatin1String("QtQuick.Flow"));
+
+    if (!flowMetaInfo.isValid())
+        return;
+
     ModelNode flow;
     {
         RewriterTransaction transaction(m_view);
@@ -931,7 +953,7 @@ void ModelNodeAction::layoutFlow()
         if (!parent.isValid())
             return;
 
-        flow = m_view->createModelNode(QLatin1String("QtQuick.Flow"), parent.modelNode().majorQtQuickVersion(), 0);
+        flow = m_view->createModelNode(QLatin1String("QtQuick.Flow"), flowMetaInfo.majorVersion(), flowMetaInfo.minorVersion());
 
         reparentTo(flow, parent);
     }
