@@ -559,18 +559,12 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     const QString qmlInspectorGroup = QLatin1String("QML.Inspector");
     item = new SavedAction(this);
     item->setSettingsKey(qmlInspectorGroup, QLatin1String("QmlInspector.ShowAppOnTop"));
-    item->setText(tr("Show Application On Top"));
-    item->setCheckable(true);
     item->setDefaultValue(false);
-    item->setIcon(QIcon(QLatin1String(":/debugger/images/qml/app-on-top.png")));
     insertItem(ShowAppOnTop, item);
 
     item = new SavedAction(this);
     item->setSettingsKey(qmlInspectorGroup, QLatin1String("QmlInspector.FromQml"));
-    item->setText(tr("Apply Changes on Save"));
-    item->setCheckable(true);
     item->setDefaultValue(false);
-    item->setIcon(QIcon(QLatin1String(":/debugger/images/qml/apply-on-save.png")));
     insertItem(QmlUpdateOnSave, item);
 }
 

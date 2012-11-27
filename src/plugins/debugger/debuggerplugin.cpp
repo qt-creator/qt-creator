@@ -2848,6 +2848,20 @@ void DebuggerPluginPrivate::extensionsInitialized()
     connect(action(OperateByInstruction), SIGNAL(triggered(bool)),
         SLOT(handleOperateByInstructionTriggered(bool)));
 
+    QAction *qmlShowAppOnTopDummyAction = new QAction(tr("Show Application On Top"), this);
+    qmlShowAppOnTopDummyAction->setCheckable(true);
+    qmlShowAppOnTopDummyAction->setIcon(QIcon(_(":/debugger/images/qml/app-on-top.png")));
+    qmlShowAppOnTopDummyAction->setEnabled(false);
+    ActionManager::registerAction(qmlShowAppOnTopDummyAction, Constants::QML_SHOW_APP_ON_TOP,
+                                  globalcontext);
+
+    QAction *qmlUpdateOnSaveDummyAction = new QAction(tr("Apply Changes on Save"), this);
+    qmlUpdateOnSaveDummyAction->setCheckable(true);
+    qmlUpdateOnSaveDummyAction->setIcon(QIcon(_(":/debugger/images/qml/apply-on-save.png")));
+    qmlUpdateOnSaveDummyAction->setEnabled(false);
+    ActionManager::registerAction(qmlUpdateOnSaveDummyAction, Constants::QML_UPDATE_ON_SAVE,
+                                  globalcontext);
+
     QAction *qmlSelectDummyAction = new QAction(tr("Select"), this);
     qmlSelectDummyAction->setCheckable(true);
     qmlSelectDummyAction->setIcon(QIcon(_(":/debugger/images/qml/select.png")));
@@ -3256,8 +3270,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
     hbox = new QHBoxLayout(qmlToolbar);
     hbox->setMargin(0);
     hbox->setSpacing(0);
-    hbox->addWidget(toolButton(action(QmlUpdateOnSave)));
-    hbox->addWidget(toolButton(action(ShowAppOnTop)));
+    hbox->addWidget(toolButton(Constants::QML_UPDATE_ON_SAVE));
+    hbox->addWidget(toolButton(Constants::QML_SHOW_APP_ON_TOP));
     hbox->addWidget(new StyledSeparator);
     hbox->addWidget(toolButton(Constants::QML_SELECTTOOL));
     hbox->addWidget(toolButton(Constants::QML_ZOOMTOOL));
