@@ -193,12 +193,10 @@ void FileUtils::removeFile(const QString &filePath, bool deleteFromFS)
 static inline bool fileSystemRenameFile(const QString &orgFilePath,
                                         const QString &newFilePath)
 {
-#if QT_VERSION < 0x050000 // ### fixme: QTBUG-3570 might be fixed in Qt 5?
     QFile f(orgFilePath); // Due to QTBUG-3570
     QAbstractFileEngine *fileEngine = f.fileEngine();
     if (!fileEngine->caseSensitive() && orgFilePath.compare(newFilePath, Qt::CaseInsensitive) == 0)
         return fileEngine->rename(newFilePath);
-#endif
     return QFile::rename(orgFilePath, newFilePath);
 }
 
