@@ -36,6 +36,7 @@ Product {
     cpp.includePaths: [ ".", ".." ]
 
     Group {
+        name: "PluginSpec"
         files: [ product.name + ".pluginspec.in" ]
         fileTags: ["pluginSpecIn"]
     }
