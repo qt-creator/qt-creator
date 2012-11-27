@@ -120,14 +120,14 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
     ZeroMemory(d->m_pid, sizeof(PROCESS_INFORMATION));
 
     QString workDir = QDir::toNativeSeparators(workingDirectory());
-    if (!workDir.isEmpty() && !workDir.endsWith('\\'))
-        workDir.append('\\');
+    if (!workDir.isEmpty() && !workDir.endsWith(QLatin1Char('\\')))
+        workDir.append(QLatin1Char('\\'));
 
     QStringList stubArgs;
     stubArgs << modeOption(d->m_mode)
              << d->m_stubServer.fullServerName()
              << workDir
-             << (d->m_tempFile ? d->m_tempFile->fileName() : 0)
+             << (d->m_tempFile ? d->m_tempFile->fileName() : QString())
              << createWinCommandline(pcmd, pargs)
              << msgPromptToClose();
 

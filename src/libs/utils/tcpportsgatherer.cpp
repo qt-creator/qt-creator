@@ -169,7 +169,7 @@ void TcpPortsGathererPrivate::updateLinux(TcpPortsGatherer::ProtocolFlags protoc
                                              ));
         while (!file.atEnd()) {
             QByteArray line = file.readLine();
-            if (pattern.indexIn(line) != -1) {
+            if (pattern.indexIn(QLatin1String(line)) != -1) {
                 bool isNumber;
                 quint16 port = pattern.cap(1).toUShort(&isNumber, 16);
                 QTC_ASSERT(isNumber, continue);
@@ -213,12 +213,12 @@ void TcpPortsGathererPrivate::updateNetstat(TcpPortsGatherer::ProtocolFlags prot
                                              "\\s+\\d+"           // whitespace, number (Recv-Q)
                                              "\\s+\\d+"           // whitespace, number (Send-Q)
                                              "\\s+(\\S+)"));       // whitespace, Local Address
-        if (pattern.indexIn(line) != -1) {
+        if (pattern.indexIn(QLatin1String(line)) != -1) {
             QString localAddress = pattern.cap(1);
 
             // Examples of local addresses:
             // '*.56501' , '*.*' 'fe80::1%lo0.123'
-            int portDelimiterPos = localAddress.lastIndexOf(".");
+            int portDelimiterPos = localAddress.lastIndexOf(QLatin1Char('.'));
             if (portDelimiterPos == -1)
                 continue;
 

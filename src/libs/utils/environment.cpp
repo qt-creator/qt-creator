@@ -48,7 +48,7 @@ public:
             lib.cd(QLatin1String("../lib"));
             QString toReplace = lib.path();
             lib.cd(QLatin1String("qtcreator"));
-            toReplace.append(QLatin1String(":"));
+            toReplace.append(QLatin1Char(':'));
             toReplace.append(lib.path());
 
             if (ldLibraryPath.startsWith(toReplace))

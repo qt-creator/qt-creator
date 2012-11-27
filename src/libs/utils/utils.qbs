@@ -4,7 +4,7 @@ import "../QtcLibrary.qbs" as QtcLibrary
 QtcLibrary {
     name: "Utils"
 
-    cpp.defines: base.concat(["QTCREATOR_UTILS_LIB"])
+    cpp.defines: base.concat(["QTCREATOR_UTILS_LIB", "QT_NO_CAST_FROM_ASCII"])
 
     Properties {
         condition: qbs.targetOS == "windows"
