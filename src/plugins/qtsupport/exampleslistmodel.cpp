@@ -455,6 +455,8 @@ void ExamplesListModel::clear()
 
 void ExamplesListModel::addItems(const QList<ExampleItem> &newItems)
 {
+    if (newItems.isEmpty())
+        return;
     beginInsertRows(QModelIndex(), exampleItems.size(), exampleItems.size() - 1 + newItems.size());
     exampleItems.append(newItems);
     endInsertRows();
