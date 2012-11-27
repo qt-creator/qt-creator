@@ -519,15 +519,15 @@ static inline QString fixNestedTemplates(QString s)
 CPLUSPLUS_EXPORT QString simplifySTLType(const QString &typeIn)
 {
     QString type = typeIn;
-    if (type.startsWith("class ")) // MSVC prepends class,struct
+    if (type.startsWith(QLatin1String("class "))) // MSVC prepends class,struct
         type.remove(0, 6);
-    if (type.startsWith("struct "))
+    if (type.startsWith(QLatin1String("struct ")))
         type.remove(0, 7);
 
     type.replace(QLatin1Char('*'), QLatin1Char('@'));
 
     for (int i = 0; i < 10; ++i) {
-        int start = type.indexOf("std::allocator<");
+        int start = type.indexOf(QLatin1String("std::allocator<"));
         if (start == -1)
             break;
         // search for matching '>'
@@ -575,7 +575,7 @@ CPLUSPLUS_EXPORT QString simplifySTLType(const QString &typeIn)
             type.replace(setRE.cap(0), QString::fromLatin1("set<%1>").arg(inner));
 
         // std::map
-        if (inner.startsWith("std::pair<")) {
+        if (inner.startsWith(QLatin1String("std::pair<"))) {
             // search for outermost ',', split key and value
             int pos;
             int level = 0;
@@ -595,18 +595,18 @@ CPLUSPLUS_EXPORT QString simplifySTLType(const QString &typeIn)
                 pos++;
             const QString value = inner.mid(pos, inner.size() - pos - 1).trimmed();
             const QString valueEsc = QRegExp::escape(value);
-            QRegExp mapRE1(QString("map<%1, ?%2, ?std::less<%3 ?>, ?%4\\s*>")
+            QRegExp mapRE1(QString::fromLatin1("map<%1, ?%2, ?std::less<%3 ?>, ?%4\\s*>")
                 .arg(keyEsc, valueEsc, keyEsc, allocEsc));
             mapRE1.setMinimal(true);
             QTC_ASSERT(mapRE1.isValid(), return typeIn);
             if (mapRE1.indexIn(type) != -1) {
-                type.replace(mapRE1.cap(0), QString("map<%1, %2>").arg(key, value));
+                type.replace(mapRE1.cap(0), QString::fromLatin1("map<%1, %2>").arg(key, value));
             } else {
-                QRegExp mapRE2(QString("map<const %1, ?%2, ?std::less<const %3>, ?%4\\s*>")
+                QRegExp mapRE2(QString::fromLatin1("map<const %1, ?%2, ?std::less<const %3>, ?%4\\s*>")
                     .arg(keyEsc, valueEsc, keyEsc, allocEsc));
                 mapRE2.setMinimal(true);
                 if (mapRE2.indexIn(type) != -1) {
-                    type.replace(mapRE2.cap(0), QString("map<const %1, %2>").arg(key, value));
+                    type.replace(mapRE2.cap(0), QString::fromLatin1("map<const %1, %2>").arg(key, value));
                 }
             }
         }

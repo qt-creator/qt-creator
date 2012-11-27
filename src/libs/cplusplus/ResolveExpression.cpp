@@ -533,7 +533,7 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
                 continue;
 
             TypeOfExpression exprTyper;
-            Document::Ptr doc = _context.snapshot().document(decl->fileName());
+            Document::Ptr doc = _context.snapshot().document(QString::fromLocal8Bit(decl->fileName()));
             exprTyper.init(doc, _context.snapshot(), _context.bindings());
 
             Document::Ptr exprDoc =

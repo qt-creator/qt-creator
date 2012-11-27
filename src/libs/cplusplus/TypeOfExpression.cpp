@@ -193,7 +193,7 @@ QByteArray TypeOfExpression::preprocessedExpression(const QByteArray &utf8code) 
     }
 
     Preprocessor preproc(0, m_environment.data());
-    return preproc.run("<expression>", utf8code);
+    return preproc.run(QLatin1String("<expression>"), utf8code);
 }
 
 namespace CPlusPlus {

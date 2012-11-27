@@ -133,7 +133,7 @@ LookupContext::LookupContext()
 
 LookupContext::LookupContext(Document::Ptr thisDocument,
                              const Snapshot &snapshot)
-    : _expressionDocument(Document::create("<LookupContext>")),
+    : _expressionDocument(Document::create(QLatin1String("<LookupContext>"))),
       _thisDocument(thisDocument),
       _snapshot(snapshot),
       _control(new Control()),

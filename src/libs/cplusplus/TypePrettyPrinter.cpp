@@ -365,11 +365,11 @@ void TypePrettyPrinter::visit(Function *type)
         _text += QLatin1Char(')');
         if (type->isConst()) {
             appendSpace();
-            _text += "const";
+            _text += QLatin1String("const");
         }
         if (type->isVolatile()) {
             appendSpace();
-            _text += "volatile";
+            _text += QLatin1String("volatile");
         }
     }
 }
@@ -394,7 +394,7 @@ void TypePrettyPrinter::prependSpaceUnlessBracket()
     const QChar ch = _text.at(0);
 
     if (ch != QLatin1Char('['))
-        _text.prepend(" ");
+        _text.prepend(QLatin1Char(' '));
 }
 
 void TypePrettyPrinter::prependWordSeparatorSpace()
@@ -405,19 +405,19 @@ void TypePrettyPrinter::prependWordSeparatorSpace()
     const QChar ch = _text.at(0);
 
     if (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
-        _text.prepend(" ");
+        _text.prepend(QLatin1Char(' '));
 }
 
 void TypePrettyPrinter::prependCv(const FullySpecifiedType &ty)
 {
     if (ty.isVolatile()) {
         prependWordSeparatorSpace();
-        _text.prepend("volatile");
+        _text.prepend(QLatin1String("volatile"));
     }
 
     if (ty.isConst()) {
         prependWordSeparatorSpace();
-        _text.prepend("const");
+        _text.prepend(QLatin1String("const"));
     }
 }
 

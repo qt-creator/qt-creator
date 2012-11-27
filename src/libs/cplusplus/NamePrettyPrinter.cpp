@@ -90,7 +90,7 @@ void NamePrettyPrinter::visit(const TemplateNameId *name)
         else
             _name += arg;
     }
-    if (! _name.isEmpty() && _name.at(_name.length() - 1) == '>')
+    if (! _name.isEmpty() && _name.at(_name.length() - 1) == QLatin1Char('>'))
         _name += QLatin1Char(' ');
     _name += QLatin1Char('>');
 }
@@ -263,7 +263,7 @@ void NamePrettyPrinter::visit(const SelectorNameId *name)
             _name += QString::fromLatin1(id->chars(), id->size());
 
             if (name->hasArguments() || name->nameCount() > 1)
-                _name += ':';
+                _name += QLatin1Char(':');
         }
     }
 }

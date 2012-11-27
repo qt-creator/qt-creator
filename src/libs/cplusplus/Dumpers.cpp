@@ -55,24 +55,25 @@ static QString indent(QString s, int level = 2)
 QString CPlusPlus::toString(const Name *name, QString id)
 {
     Overview oo;
-    return QString("%0: %1").arg(id, name ? oo.prettyName(name) : QLatin1String("(null)"));
+    return QString::fromLatin1("%0: %1").arg(id, name ? oo.prettyName(name) : QLatin1String("(null)"));
 }
 
 QString CPlusPlus::toString(FullySpecifiedType ty, QString id)
 {
     Overview oo;
-    return QString("%0: %1 (a %2)").arg(id, oo.prettyType(ty), ty.type() ? typeid(*ty.type()).name() : "(null)");
+    return QString::fromLatin1("%0: %1 (a %2)").arg(id, oo.prettyType(ty),
+                                                    QLatin1String(ty.type() ? typeid(*ty.type()).name() : "(null)"));
 }
 
 QString CPlusPlus::toString(const Symbol *s, QString id)
 {
     if (!s)
-        return QString("%0: (null)").arg(id);
+        return QString::fromLatin1("%0: (null)").arg(id);
 
-    return QString("%0: %1 (%2) at %3:%4:%5\n%6").arg(
+    return QString::fromLatin1("%0: %1 (%2) at %3:%4:%5\n%6").arg(
                 id,
                 QString::fromLatin1(typeid(*s).name()),
-                s->identifier() ? QString::fromUtf8(s->identifier()->chars()) : "no id",
+                s->identifier() ? QString::fromUtf8(s->identifier()->chars()) : QLatin1String("no id"),
                 QString::fromLatin1(s->fileName()),
                 QString::number(s->line()),
                 QString::number(s->column()),
@@ -81,18 +82,18 @@ QString CPlusPlus::toString(const Symbol *s, QString id)
 
 QString CPlusPlus::toString(LookupItem it, QString id)
 {
-    QString result = QString("%1:").arg(id);
+    QString result = QString::fromLatin1("%1:").arg(id);
     if (it.declaration()) {
-        result.append(QString("\n%1").arg(indent(toString(it.declaration(), QLatin1String("Decl")))));
+        result.append(QString::fromLatin1("\n%1").arg(indent(toString(it.declaration(), QLatin1String("Decl")))));
     }
     if (it.type().isValid()) {
-        result.append(QString("\n%1").arg(indent(toString(it.type()))));
+        result.append(QString::fromLatin1("\n%1").arg(indent(toString(it.type()))));
     }
     if (it.scope()) {
-        result.append(QString("\n%1").arg(indent(toString(it.scope(), QLatin1String("Scope")))));
+        result.append(QString::fromLatin1("\n%1").arg(indent(toString(it.scope(), QLatin1String("Scope")))));
     }
     if (it.binding()) {
-        result.append(QString("\n%1").arg(indent(toString(it.binding(), QLatin1String("Binding")))));
+        result.append(QString::fromLatin1("\n%1").arg(indent(toString(it.binding(), QLatin1String("Binding")))));
     }
     return result;
 }
@@ -100,13 +101,13 @@ QString CPlusPlus::toString(LookupItem it, QString id)
 QString CPlusPlus::toString(const ClassOrNamespace *binding, QString id)
 {
     if (!binding)
-        return QString("%0: (null)").arg(id);
+        return QString::fromLatin1("%0: (null)").arg(id);
 
-    QString result = QString("%0: %1 symbols").arg(
+    QString result = QString::fromLatin1("%0: %1 symbols").arg(
                 id,
                 QString::number(binding->symbols().length()));
     if (binding->templateId()) {
-        result.append(QString("\n%1").arg(indent(toString(binding->templateId(), QLatin1String("Template")))));
+        result.append(QString::fromLatin1("\n%1").arg(indent(toString(binding->templateId(), QLatin1String("Template")))));
     }
     return result;
 }
