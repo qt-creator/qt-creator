@@ -44,7 +44,8 @@
 #include <QDebug>
 #include <QApplication>
 #include <QGraphicsOpacityEffect>
-#include <QWindowsStyle>
+#include <QStyleFactory>
+#include <QScopedPointer>
 
 #include <QTextEdit>
 
@@ -55,14 +56,14 @@ class WindowsStyleSingleton
 {
    public:
      static WindowsStyleSingleton* instance();
-     QStyle* style() {return &m_style; };
+     QStyle* style() { return m_style.data(); };
 
    private:
      static WindowsStyleSingleton *m_instance;
 
-     QWindowsStyle m_style;
+     QScopedPointer<QStyle> m_style;
 
-     WindowsStyleSingleton() {}
+     WindowsStyleSingleton() : m_style(QStyleFactory::create(QLatin1String("windows"))) {}
      WindowsStyleSingleton( const WindowsStyleSingleton& );
 
      class WindowsWatcher {
