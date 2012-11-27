@@ -135,9 +135,11 @@ QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader* reader, co
             break;
         case QXmlStreamReader::EndElement:
             if (reader->name() == QLatin1String("example")) {
-                if (item.projectPath.isEmpty() || !QFileInfo(item.projectPath).exists())
+                bool projectExists = !item.projectPath.isEmpty() && QFileInfo(item.projectPath).exists();
+                if (!projectExists)
                     item.tags.append(QLatin1String("broken"));
-                examples.append(item);
+                if (projectExists || !qgetenv("QTC_DEBUG_EXAMPLESMODEL").isEmpty())
+                    examples.append(item);
             } else if (reader->name() == QLatin1String("examples")) {
                 return examples;
             }
@@ -179,10 +181,15 @@ QList<ExampleItem> ExamplesListModel::parseDemos(QXmlStreamReader* reader, const
             }
             break;
         case QXmlStreamReader::EndElement:
-            if (reader->name() == QLatin1String("demo"))
-                demos.append(item);
-            else if (reader->name() == QLatin1String("demos"))
+            if (reader->name() == QLatin1String("demo")) {
+                bool projectExists = !item.projectPath.isEmpty() && QFileInfo(item.projectPath).exists();
+                if (!projectExists)
+                    item.tags.append(QLatin1String("broken"));
+                if (projectExists || !qgetenv("QTC_DEBUG_EXAMPLESMODEL").isEmpty())
+                    demos.append(item);
+            } else if (reader->name() == QLatin1String("demos")) {
                 return demos;
+            }
             break;
         default: // nothing
             break;
