@@ -102,6 +102,8 @@ QtcPlugin {
         "symbolsfindfilter.h",
         "uicodecompletionsupport.cpp",
         "uicodecompletionsupport.h",
+        "builtinindexingsupport.cpp",
+        "builtinindexingsupport.h"
     ]
 
     Group {
