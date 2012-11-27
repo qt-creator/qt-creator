@@ -464,6 +464,10 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, in
     if (context()) {
         const CppComponentValue *objectValue = getCppComponentValue();
         if (objectValue) {
+            if (m_majorVersion == -1 && m_minorVersion == -1) {
+                m_majorVersion = objectValue->componentVersion().majorVersion();
+                m_minorVersion = objectValue->componentVersion().minorVersion();
+            }
             setupPropertyInfo(getTypes(objectValue, context()));
             setupLocalPropertyInfo(getTypes(objectValue, context(), true));
             m_defaultPropertyName = objectValue->defaultPropertyName();
