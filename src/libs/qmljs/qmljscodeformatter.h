@@ -278,7 +278,7 @@ protected:
     bool isExpressionEndState(int type) const;
 
     void dump() const;
-    QByteArray stateToString(int type) const;
+    QString stateToString(int type) const;
 
 private:
     void recalculateStateAfter(const QTextBlock &block);

@@ -1019,10 +1019,10 @@ void CodeFormatter::dump() const
     qDebug() << "Current indent depth:" << m_indentDepth;
 }
 
-QByteArray CodeFormatter::stateToString(int type) const
+QString CodeFormatter::stateToString(int type) const
 {
     const QMetaEnum &metaEnum = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("StateType"));
-    return metaEnum.valueToKey(type);
+    return QString::fromUtf8(metaEnum.valueToKey(type));
 }
 
 QtStyleCodeFormatter::QtStyleCodeFormatter()
