@@ -16,8 +16,7 @@ namespace {
 
 static void parse(QFutureInterface<void> &future,
                   CppPreprocessor *preproc,
-                  QStringList files,
-                  const char *pp_configuration_file)
+                  QStringList files)
 {
     if (files.isEmpty())
         return;
@@ -53,8 +52,7 @@ static void parse(QFutureInterface<void> &future,
 
     future.setProgressRange(0, files.size());
 
-    QString conf = QLatin1String(pp_configuration_file);
-
+    const QString conf = CPlusPlus::CppModelManagerInterface::configurationFileName();
     bool processingHeaders = false;
 
     for (int i = 0; i < files.size(); ++i) {
@@ -163,9 +161,8 @@ private:
 
 } // anonymous namespace
 
-BuiltinIndexingSupport::BuiltinIndexingSupport(const char *pp_configuration_file)
-    : m_pp_configuration_file(pp_configuration_file)
-    , m_revision(0)
+BuiltinIndexingSupport::BuiltinIndexingSupport()
+    : m_revision(0)
 {
     m_synchronizer.setCancelOnWait(true);
     m_dumpFileNameWhileParsing = !qgetenv("QTCREATOR_DUMP_FILENAME_WHILE_PARSING").isNull();
@@ -186,7 +183,7 @@ QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(const QStringList &sour
     preproc->setFrameworkPaths(mgr->frameworkPaths());
     preproc->setWorkingCopy(workingCopy);
 
-    QFuture<void> result = QtConcurrent::run(&parse, preproc, sourceFiles, m_pp_configuration_file);
+    QFuture<void> result = QtConcurrent::run(&parse, preproc, sourceFiles);
 
     if (m_synchronizer.futures().size() > 10) {
         QList<QFuture<void> > futures = m_synchronizer.futures();

@@ -75,6 +75,9 @@ class CPLUSPLUS_EXPORT Preprocessor
     typedef Internal::Value Value;
 
 public:
+    static const QString configurationFileName;
+
+public:
     Preprocessor(Client *client, Environment *env);
 
     QByteArray run(const QString &filename, const QString &source);

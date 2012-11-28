@@ -528,9 +528,9 @@ bool Qt4Project::equalFileList(const QStringList &a, const QStringList &b)
     QStringList::const_iterator bend = b.constEnd();
 
     while (ait != aend && bit != bend) {
-        if (*ait == QLatin1String("<configuration>"))
+        if (*ait == CPlusPlus::CppModelManagerInterface::configurationFileName())
             ++ait;
-        else if (*bit == QLatin1String("<configuration>"))
+        else if (*bit == CPlusPlus::CppModelManagerInterface::configurationFileName())
             ++bit;
         else if (*ait == *bit)
             ++ait, ++bit;
@@ -634,7 +634,7 @@ void Qt4Project::updateCppCodeModel()
         part->sourceFiles = pro->variableValue(CppSourceVar);
         part->headerFiles += pro->variableValue(CppHeaderVar);
         part->headerFiles += pro->uiFiles();
-        part->sourceFiles.prepend(QLatin1String("<configuration>"));
+        part->sourceFiles.prepend(CPlusPlus::CppModelManagerInterface::configurationFileName());
         part->objcSourceFiles = pro->variableValue(ObjCSourceVar);
         pinfo.appendProjectPart(part);
 

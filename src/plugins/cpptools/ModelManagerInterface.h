@@ -181,6 +181,9 @@ public:
     };
 
 public:
+    static const QString configurationFileName();
+
+public:
     CppModelManagerInterface(QObject *parent = 0);
     virtual ~CppModelManagerInterface();
 

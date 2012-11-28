@@ -273,7 +273,7 @@ void GenericProject::refresh(RefreshOptions options)
 
         if (options & Configuration) {
             filesToUpdate = part->sourceFiles;
-            filesToUpdate.append(QLatin1String("<configuration>")); // XXX don't hardcode configuration file name
+            filesToUpdate.append(CPlusPlus::CppModelManagerInterface::configurationFileName());
             // Full update, if there's a code model update, cancel it
             m_codeModelFuture.cancel();
         } else if (options & Files) {

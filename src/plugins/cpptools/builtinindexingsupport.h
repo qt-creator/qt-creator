@@ -14,14 +14,13 @@ public:
     typedef CPlusPlus::CppModelManagerInterface::WorkingCopy WorkingCopy;
 
 public:
-    BuiltinIndexingSupport(const char *m_pp_configuration_file);
+    BuiltinIndexingSupport();
     ~BuiltinIndexingSupport();
 
     virtual QFuture<void> refreshSourceFiles(const QStringList &sourceFiles);
     virtual SymbolSearcher *createSymbolSearcher(SymbolSearcher::Parameters parameters, QSet<QString> fileNames);
 
 private:
-    const char *m_pp_configuration_file;
     QFutureSynchronizer<void> m_synchronizer;
     unsigned m_revision;
     bool m_dumpFileNameWhileParsing;

@@ -164,8 +164,6 @@ protected:
 
 #endif // QTCREATOR_WITH_DUMP_AST
 
-static const char pp_configuration_file[] = "<configuration>";
-
 static const char pp_configuration[] =
     "# 1 \"<configuration>\"\n"
     "#define __cplusplus 1\n"
@@ -396,7 +394,7 @@ static inline void appendDirSeparatorIfNeeded(QString &path)
 QString CppPreprocessor::tryIncludeFile_helper(QString &fileName, IncludeType type, unsigned *revision)
 {
     QFileInfo fileInfo(fileName);
-    if (fileName == QLatin1String(pp_configuration_file) || fileInfo.isAbsolute()) {
+    if (fileName == Preprocessor::configurationFileName || fileInfo.isAbsolute()) {
         QString contents;
         includeFile(fileName, &contents, revision);
         return contents;
@@ -741,7 +739,7 @@ CppModelManager::CppModelManager(QObject *parent)
     ExtensionSystem::PluginManager::addObject(m_completionAssistProvider);
     m_highlightingFallback = new CppHighlightingSupportInternalFactory;
     m_highlightingFactory = m_highlightingFallback;
-    m_internalIndexingSupport = new BuiltinIndexingSupport(pp_configuration_file);
+    m_internalIndexingSupport = new BuiltinIndexingSupport;
 }
 
 CppModelManager::~CppModelManager()
@@ -940,7 +938,7 @@ CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
     // add the project configuration file
     QByteArray conf(pp_configuration);
     conf += definedMacros();
-    workingCopy.insert(QLatin1String(pp_configuration_file), QString::fromUtf8(conf));
+    workingCopy.insert(configurationFileName(), QString::fromUtf8(conf));
 
     return workingCopy;
 }

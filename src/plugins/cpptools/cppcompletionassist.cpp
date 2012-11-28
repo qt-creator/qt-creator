@@ -1418,7 +1418,7 @@ void CppCompletionAssistProcessor::globalCompletion(CPlusPlus::Scope *currentSco
         completeNamespace(b);
 
     addKeywords();
-    addMacros(QLatin1String("<configuration>"), context.snapshot());
+    addMacros(CppModelManagerInterface::configurationFileName(), context.snapshot());
     addMacros(context.thisDocument()->fileName(), context.snapshot());
     addSnippets();
 }

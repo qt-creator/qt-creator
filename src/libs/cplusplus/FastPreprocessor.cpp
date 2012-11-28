@@ -30,13 +30,12 @@
 #include "FastPreprocessor.h"
 #include <Literals.h>
 #include <TranslationUnit.h>
-#include <QDebug>
 
 using namespace CPlusPlus;
 
 FastPreprocessor::FastPreprocessor(const Snapshot &snapshot)
-    : _snapshot(snapshot),
-      _preproc(this, &_env)
+    : _snapshot(snapshot)
+    , _preproc(this, &_env)
 { }
 
 QByteArray FastPreprocessor::run(Document::Ptr newDoc, const QString &source)
@@ -49,7 +48,7 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc, const QString &source)
     if (Document::Ptr doc = _snapshot.document(fileName)) {
         _merged.insert(fileName);
 
-        mergeEnvironment(QLatin1String("<configuration>"));
+        mergeEnvironment(Preprocessor::configurationFileName);
         foreach (const Document::Include &i, doc->includes())
             mergeEnvironment(i.fileName());
     }

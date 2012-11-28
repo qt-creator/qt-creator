@@ -589,6 +589,8 @@ void Preprocessor::State::popTokenBuffer()
         --m_tokenBufferDepth;
 }
 
+const QString Preprocessor::configurationFileName = QLatin1String("<configuration>");
+
 Preprocessor::Preprocessor(Client *client, Environment *env)
     : m_client(client)
     , m_env(env)
@@ -1751,7 +1753,7 @@ void Preprocessor::handleIfDefDirective(bool checkUndefined, PPToken *tk)
 
             // the macro is a feature constraint(e.g. QT_NO_XXX)
             if (checkUndefined && macroName.startsWith("QT_NO_")) {
-                if (macro->fileName() == QLatin1String("<configuration>")) {
+                if (macro->fileName() == configurationFileName) {
                     // and it' defined in a pro file (e.g. DEFINES += QT_NO_QOBJECT)
 
                     value = false; // take the branch

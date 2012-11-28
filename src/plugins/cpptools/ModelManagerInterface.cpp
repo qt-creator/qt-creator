@@ -28,12 +28,16 @@
 ****************************************************************************/
 
 #include "ModelManagerInterface.h"
+#include "pp-engine.h"
 
 #include <QtCore/QSet>
 
 using namespace CPlusPlus;
 
 static CppModelManagerInterface *g_instance = 0;
+
+const QString CppModelManagerInterface::configurationFileName()
+{ return Preprocessor::configurationFileName; }
 
 CppModelManagerInterface::CppModelManagerInterface(QObject *parent)
     : QObject(parent)
