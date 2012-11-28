@@ -206,7 +206,11 @@ static QString candidateName(const QString &name, const QString &postfix)
 {
     if (name.contains(postfix))
         return QString();
-    return name + QLatin1Char('-') + postfix;
+    QString candidate = name;
+    if (!candidate.isEmpty())
+        candidate.append(QLatin1Char('-'));
+    candidate.append(postfix);
+    return candidate;
 }
 
 void Kit::setDisplayName(const QString &name)
