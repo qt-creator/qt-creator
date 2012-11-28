@@ -127,7 +127,7 @@ bool SimpleAbstractStreamReader::readFile(const QString &fileName)
     if (file.open(QIODevice::ReadOnly)) {
         QByteArray source = file.readAll();
         file.close();
-        return readFromSource(source);
+        return readFromSource(QString::fromLocal8Bit(source));
     }
     addError(tr("Cannot find file %1").arg(fileName));
     return false;
