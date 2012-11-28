@@ -219,6 +219,7 @@ void Kit::setDisplayName(const QString &name)
     QList<KitInformation *> kitInfo = km->kitInformation();
 
     QStringList nameList;
+    nameList << QString(); // Disallow empty kit names!
     foreach (Kit *k, km->kits()) {
         if (k == this)
             continue;
