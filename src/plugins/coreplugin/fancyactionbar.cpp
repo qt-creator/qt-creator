@@ -70,7 +70,7 @@ void FancyToolButton::forceVisible(bool visible)
 
 bool FancyToolButton::event(QEvent *e)
 {
-    switch(e->type()) {
+    switch (e->type()) {
     case QEvent::Enter:
         {
             QPropertyAnimation *animation = new QPropertyAnimation(this, "fader");

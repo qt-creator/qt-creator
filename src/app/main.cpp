@@ -473,7 +473,7 @@ int main(int argc, char **argv)
         if (app.isRunning(pid)) {
             // Nah app is still running, ask the user
             int button = askMsgSendFailed();
-            while(button == QMessageBox::Retry) {
+            while (button == QMessageBox::Retry) {
                 if (app.sendMessage(PluginManager::serializedArguments(), 5000 /*timeout*/, pid))
                     return 0;
                 if (!app.isRunning(pid)) // App quit while we were trying so start a new creator

@@ -104,7 +104,7 @@ bool QmlRefactoring::addToObjectMemberList(int parentLocation, const QString &co
 
 bool QmlRefactoring::addProperty(int parentLocation, const QString &name, const QString &value, PropertyType propertyType)
 {
-    if(parentLocation < 0)
+    if (parentLocation < 0)
         return false;
 
     AddPropertyVisitor visit(*textModifier, (quint32) parentLocation, name, value, propertyType, m_propertyOrder);

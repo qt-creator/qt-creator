@@ -311,7 +311,7 @@ Core::IWizard *NewDialog::showDialog()
     QModelIndex idx;
 
     if (!lastCategory.isEmpty())
-        foreach(QStandardItem* item, m_categoryItems) {
+        foreach (QStandardItem* item, m_categoryItems) {
             if (item->data(Qt::UserRole) == lastCategory) {
                 idx = m_twoLevelProxyModel->mapToSource(m_model->indexFromItem(item));
         }

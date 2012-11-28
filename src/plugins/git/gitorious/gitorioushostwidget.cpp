@@ -105,7 +105,7 @@ GitoriousHostWidget::GitoriousHostWidget(QWidget *parent) :
     m_model->setHorizontalHeaderLabels(headers);
 
     Gitorious &gitorious = Gitorious::instance();
-    foreach( const GitoriousHost &gh, gitorious.hosts())
+    foreach (const GitoriousHost &gh, gitorious.hosts())
         m_model->appendRow(hostEntry(gh));
     appendNewDummyEntry();
     connect(m_model, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(slotItemEdited(QStandardItem*)));

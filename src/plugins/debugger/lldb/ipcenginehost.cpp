@@ -430,7 +430,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                     gotoLocation(Location(sh->currentFrame(), true));
                 else if (!m_sourceAgents.contains(sh->currentFrame().file))
                     fetchFrameSource(token);
-                foreach(SourceAgent *agent, m_sourceAgents.values())
+                foreach (SourceAgent *agent, m_sourceAgents.values())
                     agent->updateLocationMarker();
             }
             break;

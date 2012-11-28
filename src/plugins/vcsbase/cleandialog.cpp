@@ -64,7 +64,7 @@ static void removeFileRecursion(const QFileInfo &f, QString *errorMessage)
         return;
     if (f.isDir()) {
         const QDir dir(f.absoluteFilePath());
-        foreach(const QFileInfo &fi, dir.entryInfoList(QDir::AllEntries|QDir::NoDotAndDotDot|QDir::Hidden))
+        foreach (const QFileInfo &fi, dir.entryInfoList(QDir::AllEntries|QDir::NoDotAndDotDot|QDir::Hidden))
             removeFileRecursion(fi, errorMessage);
         QDir parent = f.absoluteDir();
         if (!parent.rmdir(f.fileName()))
@@ -108,7 +108,7 @@ CleanFilesTask::CleanFilesTask(const QString &repository, const QStringList &fil
 
 void CleanFilesTask::run()
 {
-    foreach(const QString &name, m_files)
+    foreach (const QString &name, m_files)
         removeFileRecursion(QFileInfo(name), &m_errorMessage);
     if (!m_errorMessage.isEmpty()) {
         // Format and emit error.

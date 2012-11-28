@@ -347,7 +347,7 @@ void NodeInstanceView::propertiesRemoved(const QList<AbstractProperty>& /*proper
 
 void NodeInstanceView::removeInstanceAndSubInstances(const ModelNode &node)
 {
-    foreach(const ModelNode &subNode, node.allSubModelNodes()) {
+    foreach (const ModelNode &subNode, node.allSubModelNodes()) {
         if (hasInstanceForNode(subNode))
             removeInstanceNodeRelationship(subNode);
     }
@@ -427,7 +427,7 @@ void NodeInstanceView::nodeOrderChanged(const NodeListProperty & listProperty,
     if (hasInstanceForNode(containerNode))
         containerInstanceId = instanceForNode(containerNode).instanceId();
 
-    foreach(const ModelNode &node, listProperty.toModelNodeList()) {
+    foreach (const ModelNode &node, listProperty.toModelNodeList()) {
         qint32 instanceId = -1;
         if (hasInstanceForNode(node)) {
             instanceId = instanceForNode(node).instanceId();
@@ -657,7 +657,7 @@ NodeInstance NodeInstanceView::rootNodeInstance() const
 void NodeInstanceView::insertInstanceRelationships(const NodeInstance &instance)
 {
     Q_ASSERT(instance.instanceId() >=0);
-    if(m_nodeInstanceHash.contains(instance.modelNode()))
+    if (m_nodeInstanceHash.contains(instance.modelNode()))
         return;
 
     m_nodeInstanceHash.insert(instance.modelNode(), instance);
@@ -738,7 +738,7 @@ QRectF NodeInstanceView::sceneRect() const
 QList<ModelNode> filterNodesForSkipItems(const QList<ModelNode> &nodeList)
 {
     QList<ModelNode> filteredNodeList;
-    foreach(const ModelNode &node, nodeList) {
+    foreach (const ModelNode &node, nodeList) {
         if (isSkippedNode(node))
             continue;
 
@@ -781,7 +781,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
 
 
     QVector<InstanceContainer> instanceContainerList;
-    foreach(const NodeInstance &instance, instanceList) {
+    foreach (const NodeInstance &instance, instanceList) {
         InstanceContainer::NodeSourceType nodeSourceType = static_cast<InstanceContainer::NodeSourceType>(instance.modelNode().nodeSourceType());
 
         InstanceContainer::NodeMetaType nodeMetaType = InstanceContainer::ObjectMetaType;
@@ -802,7 +802,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     }
 
     QVector<ReparentContainer> reparentContainerList;
-    foreach(const NodeInstance &instance, instanceList) {
+    foreach (const NodeInstance &instance, instanceList) {
         if (instance.modelNode().hasParentProperty()) {
             NodeAbstractProperty parentProperty = instance.modelNode().parentProperty();
             ReparentContainer container(instance.instanceId(), -1, QString(), instanceForNode(parentProperty.parentModelNode()).instanceId(), parentProperty.name());
@@ -811,7 +811,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     }
 
     QVector<IdContainer> idContainerList;
-    foreach(const NodeInstance &instance, instanceList) {
+    foreach (const NodeInstance &instance, instanceList) {
         QString id = instance.modelNode().id();
         if (!id.isEmpty()) {
             IdContainer container(instance.instanceId(), id);
@@ -820,7 +820,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     }
 
     QVector<PropertyValueContainer> valueContainerList;
-    foreach(const VariantProperty &property, variantPropertyList) {
+    foreach (const VariantProperty &property, variantPropertyList) {
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForNode(node)) {
             NodeInstance instance = instanceForNode(node);
@@ -830,7 +830,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     }
 
     QVector<PropertyBindingContainer> bindingContainerList;
-    foreach(const BindingProperty &property, bindingPropertyList) {
+    foreach (const BindingProperty &property, bindingPropertyList) {
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForNode(node)) {
             NodeInstance instance = instanceForNode(node);
@@ -840,7 +840,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     }
 
     QVector<AddImportContainer> importVector;
-    foreach(const Import &import, model()->imports())
+    foreach (const Import &import, model()->imports())
         importVector.append(AddImportContainer(import.url(), import.file(), import.version(), import.alias(), import.importPaths()));
 
     return CreateSceneCommand(instanceContainerList,
@@ -861,7 +861,7 @@ ClearSceneCommand NodeInstanceView::createClearSceneCommand() const
 CompleteComponentCommand NodeInstanceView::createComponentCompleteCommand(const QList<NodeInstance> &instanceList) const
 {
     QVector<qint32> containerList;
-    foreach(const NodeInstance &instance, instanceList) {
+    foreach (const NodeInstance &instance, instanceList) {
         if (instance.instanceId() >= 0)
             containerList.append(instance.instanceId());
     }
@@ -872,7 +872,7 @@ CompleteComponentCommand NodeInstanceView::createComponentCompleteCommand(const 
 ComponentCompletedCommand NodeInstanceView::createComponentCompletedCommand(const QList<NodeInstance> &instanceList) const
 {
     QVector<qint32> containerList;
-    foreach(const NodeInstance &instance, instanceList) {
+    foreach (const NodeInstance &instance, instanceList) {
         if (instance.instanceId() >= 0)
             containerList.append(instance.instanceId());
     }
@@ -883,7 +883,7 @@ ComponentCompletedCommand NodeInstanceView::createComponentCompletedCommand(cons
 CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QList<NodeInstance> &instanceList) const
 {
     QVector<InstanceContainer> containerList;
-    foreach(const NodeInstance &instance, instanceList) {
+    foreach (const NodeInstance &instance, instanceList) {
         InstanceContainer::NodeSourceType nodeSourceType = static_cast<InstanceContainer::NodeSourceType>(instance.modelNode().nodeSourceType());
 
         InstanceContainer::NodeMetaType nodeMetaType = InstanceContainer::ObjectMetaType;
@@ -901,7 +901,7 @@ CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QLis
 ReparentInstancesCommand NodeInstanceView::createReparentInstancesCommand(const QList<NodeInstance> &instanceList) const
 {
     QVector<ReparentContainer> containerList;
-    foreach(const NodeInstance &instance, instanceList) {
+    foreach (const NodeInstance &instance, instanceList) {
         if (instance.modelNode().hasParentProperty()) {
             NodeAbstractProperty parentProperty = instance.modelNode().parentProperty();
             ReparentContainer container(instance.instanceId(), -1, QString(), instanceForNode(parentProperty.parentModelNode()).instanceId(), parentProperty.name());
@@ -943,7 +943,7 @@ ChangeValuesCommand NodeInstanceView::createChangeValueCommand(const QList<Varia
 {
     QVector<PropertyValueContainer> containerList;
 
-    foreach(const VariantProperty &property, propertyList) {
+    foreach (const VariantProperty &property, propertyList) {
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForNode(node)) {
             NodeInstance instance = instanceForNode(node);
@@ -960,7 +960,7 @@ ChangeBindingsCommand NodeInstanceView::createChangeBindingCommand(const QList<B
 {
     QVector<PropertyBindingContainer> containerList;
 
-    foreach(const BindingProperty &property, propertyList) {
+    foreach (const BindingProperty &property, propertyList) {
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForNode(node)) {
             NodeInstance instance = instanceForNode(node);
@@ -976,7 +976,7 @@ ChangeBindingsCommand NodeInstanceView::createChangeBindingCommand(const QList<B
 ChangeIdsCommand NodeInstanceView::createChangeIdsCommand(const QList<NodeInstance> &instanceList) const
 {
     QVector<IdContainer> containerList;
-    foreach(const NodeInstance &instance, instanceList) {
+    foreach (const NodeInstance &instance, instanceList) {
         QString id = instance.modelNode().id();
         if (!id.isEmpty()) {
             IdContainer container(instance.instanceId(), id);
@@ -992,7 +992,7 @@ ChangeIdsCommand NodeInstanceView::createChangeIdsCommand(const QList<NodeInstan
 RemoveInstancesCommand NodeInstanceView::createRemoveInstancesCommand(const QList<ModelNode> &nodeList) const
 {
     QVector<qint32> idList;
-    foreach(const ModelNode &node, nodeList) {
+    foreach (const ModelNode &node, nodeList) {
         if (node.isValid() && hasInstanceForNode(node)) {
             NodeInstance instance = instanceForNode(node);
 
@@ -1019,7 +1019,7 @@ RemovePropertiesCommand NodeInstanceView::createRemovePropertiesCommand(const QL
 {
     QVector<PropertyAbstractContainer> containerList;
 
-    foreach(const AbstractProperty &property, propertyList) {
+    foreach (const AbstractProperty &property, propertyList) {
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForNode(node)) {
             NodeInstance instance = instanceForNode(node);
@@ -1054,7 +1054,7 @@ void NodeInstanceView::valuesChanged(const ValuesChangedCommand &command)
 
     QList<QPair<ModelNode, QString> > valuePropertyChangeList;
 
-    foreach(const PropertyValueContainer &container, command.valueChanges()) {
+    foreach (const PropertyValueContainer &container, command.valueChanges()) {
         if (hasInstanceForId(container.instanceId())) {
             NodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
@@ -1165,7 +1165,7 @@ void NodeInstanceView::componentCompleted(const ComponentCompletedCommand &comma
 
     QVector<ModelNode> nodeVector;
 
-    foreach(const qint32 &instanceId, command.instances()) {
+    foreach (const qint32 &instanceId, command.instances()) {
         if (hasModelNodeForInternalId(instanceId)) {
             nodeVector.append(modelNodeForInternalId(instanceId));
         }
@@ -1183,7 +1183,7 @@ void NodeInstanceView::childrenChanged(const ChildrenChangedCommand &command)
 
     QVector<ModelNode> childNodeVector;
 
-    foreach(qint32 instanceId, command.childrenInstances()) {
+    foreach (qint32 instanceId, command.childrenInstances()) {
         if (hasInstanceForId(instanceId)) {
             NodeInstance instance = instanceForId(instanceId);
             instance.setParentId(command.parentInstanceId());

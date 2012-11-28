@@ -275,7 +275,7 @@ QStringList QmlDumpTool::locationsByInstallData(const QString &qtInstallData, bo
     QStringList result;
     QFileInfo fileInfo;
     const QStringList binFilenames = validBinaryFilenames(debugDump);
-    foreach(const QString &directory, installDirectories(qtInstallData)) {
+    foreach (const QString &directory, installDirectories(qtInstallData)) {
         if (getHelperFileInfoFor(binFilenames, directory, &fileInfo))
             result << fileInfo.filePath();
     }
@@ -294,7 +294,7 @@ QString QmlDumpTool::copy(const QString &qtInstallData, QString *errorMessage)
     const QStringList directories = QmlDumpTool::installDirectories(qtInstallData);
 
     // Try to find a writeable directory.
-    foreach(const QString &directory, directories) {
+    foreach (const QString &directory, directories) {
         if (copyFiles(sourcePath(), sourceFileNames(), directory, errorMessage)) {
             return directory;
         }

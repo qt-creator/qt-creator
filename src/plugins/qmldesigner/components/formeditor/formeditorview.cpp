@@ -215,12 +215,12 @@ void FormEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 
 void FormEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
 {
-    foreach(const AbstractProperty &property, propertyList) {
+    foreach (const AbstractProperty &property, propertyList) {
         if (property.isNodeAbstractProperty()) {
             NodeAbstractProperty nodeAbstractProperty = property.toNodeAbstractProperty();
             QList<FormEditorItem*> removedItemList;
 
-            foreach(const ModelNode &modelNode, nodeAbstractProperty.allSubNodes()) {
+            foreach (const ModelNode &modelNode, nodeAbstractProperty.allSubNodes()) {
                 QmlItemNode qmlItemNode(modelNode);
 
                 if (qmlItemNode.isValid() && m_scene->hasItemForQmlItemNode(qmlItemNode)) {
@@ -405,7 +405,7 @@ void FormEditorView::changeToTransformTools()
 void FormEditorView::nodeSlidedToIndex(const NodeListProperty &listProperty, int /*newIndex*/, int /*oldIndex*/)
 {
     QList<ModelNode> newOrderModelNodeList = listProperty.toModelNodeList();
-    foreach(const ModelNode &node, newOrderModelNodeList) {
+    foreach (const ModelNode &node, newOrderModelNodeList) {
         FormEditorItem *item = m_scene->itemForQmlItemNode(QmlItemNode(node));
         if (item) {
             FormEditorItem *oldParentItem = item->parentItem();

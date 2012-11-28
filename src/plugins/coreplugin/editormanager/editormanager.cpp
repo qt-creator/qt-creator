@@ -833,7 +833,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
 
     // add duplicates
     QList<IEditor *> duplicates;
-    foreach(IEditor *editor, acceptedEditors)
+    foreach (IEditor *editor, acceptedEditors)
         duplicates += d->m_editorModel->duplicatesFor(editor);
     acceptedEditors += duplicates;
 
@@ -915,7 +915,7 @@ void EditorManager::closeDuplicate(Core::IEditor *editor)
 
     emit editorAboutToClose(editor);
 
-    if(d->m_splitter->findView(editor)) {
+    if (d->m_splitter->findView(editor)) {
         EditorView *view = d->m_splitter->findView(editor)->view();
         removeEditor(editor);
         view->removeEditor(editor);
@@ -1107,7 +1107,7 @@ template <class EditorFactoryLike>
 EditorFactoryLike *findById(const Core::Id &id)
 {
     const QList<EditorFactoryLike *> factories = ExtensionSystem::PluginManager::getObjects<EditorFactoryLike>();
-    foreach(EditorFactoryLike *efl, factories)
+    foreach (EditorFactoryLike *efl, factories)
         if (id == efl->id())
             return efl;
     return 0;

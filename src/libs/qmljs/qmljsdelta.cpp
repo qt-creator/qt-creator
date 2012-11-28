@@ -99,11 +99,11 @@ static QString label(UiObjectMember *member, Document::Ptr doc)
 
     if (UiObjectDefinition* foo = cast<UiObjectDefinition *>(member)) {
         str = label(foo->qualifiedTypeNameId);
-    } else if(UiObjectBinding *foo = cast<UiObjectBinding *>(member)) {
+    } else if (UiObjectBinding *foo = cast<UiObjectBinding *>(member)) {
         str = label(foo->qualifiedId) + QLatin1Char(' ') + label(foo->qualifiedTypeNameId);
-    } else if(UiArrayBinding *foo = cast<UiArrayBinding *>(member)) {
+    } else if (UiArrayBinding *foo = cast<UiArrayBinding *>(member)) {
         str = label(foo->qualifiedId) + QLatin1String("[]");
-    } else if(UiScriptBinding *foo = cast<UiScriptBinding *>(member)) {
+    } else if (UiScriptBinding *foo = cast<UiScriptBinding *>(member)) {
         str = label(foo->qualifiedId) + QLatin1Char(':');
         if (foo->statement) {
             quint32 start = foo->statement->firstSourceLocation().begin();
@@ -172,7 +172,7 @@ static QList<UiObjectMember *> children(UiObjectMember *ast)
             ret.append(list->member);
             list = list->next;
         }
-    } else if(UiArrayBinding *foo = cast<UiArrayBinding *>(ast)) {
+    } else if (UiArrayBinding *foo = cast<UiArrayBinding *>(ast)) {
         UiArrayMemberList* list = foo->members;
         while (list) {
             ret.append(list->member);
@@ -189,7 +189,7 @@ static Map buildMapping_helper(UiObjectMember *x, UiObjectMember *y, const Map &
         return M2;
     if (M.way2.contains(y))
         return M2;
-    if(label(x, doc1) != label(y, doc2))
+    if (label(x, doc1) != label(y, doc2))
         return M2;
     M2.insert(x, y);
     QList<UiObjectMember *> list1 = children(x);
@@ -222,7 +222,7 @@ static Map buildMapping(Document::Ptr doc1, Document::Ptr doc2)
     Map M;
     QList<UiObjectMember *> todo;
     todo.append(doc1->qmlProgram()->members->member);
-    while(!todo.isEmpty()) {
+    while (!todo.isEmpty()) {
         UiObjectMember *x = todo.takeFirst();
         todo += children(x);
 
@@ -380,7 +380,7 @@ void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const Q
         // Also, a relative URL is expected (no "file://" prepending!)
         QString filename =  doc->fileName() + QLatin1Char('_') + QString::number(doc->editorRevision())
                          + QLatin1Char(':') + QString::number(startLine-importList.count());
-        foreach(DebugId debugId, debugReferences) {
+        foreach (DebugId debugId, debugReferences) {
             if (debugId != -1) {
                 int order = 0;
                 // skip children which are not objects
@@ -492,7 +492,7 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
     QList<UiObjectMember *> todo;
     todo.append(doc2->qmlProgram()->members->member);
     //UiObjectMemberList *list = 0;
-    while(!todo.isEmpty()) {
+    while (!todo.isEmpty()) {
         UiObjectMember *y = todo.takeFirst();
         todo += children(y);
 
@@ -539,7 +539,7 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
     }
 
     todo.append(doc1->qmlProgram()->members->member);
-    while(!todo.isEmpty()) {
+    while (!todo.isEmpty()) {
         UiObjectMember *x = todo.takeFirst();
         todo += children(x);
         if (!cast<UiObjectDefinition *>(x))

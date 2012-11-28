@@ -2231,7 +2231,7 @@ bool BaseTextEditorWidget::restoreState(const QByteArray &state)
         stream >> collapsedBlocks;
         QTextDocument *doc = document();
         bool layoutChanged = false;
-        foreach(int blockNumber, collapsedBlocks) {
+        foreach (int blockNumber, collapsedBlocks) {
             QTextBlock block = doc->findBlockByNumber(qMax(0, blockNumber));
             if (block.isValid()) {
                 BaseTextDocumentLayout::doFoldOrUnfold(block, false);

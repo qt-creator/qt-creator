@@ -289,7 +289,7 @@ QList<InternalProperty::Pointer> InternalNode::propertyList() const
 QList<InternalNodeAbstractProperty::Pointer> InternalNode::nodeAbstractPropertyList() const
 {
     QList<InternalNodeAbstractProperty::Pointer> abstractPropertyList;
-    foreach(const InternalProperty::Pointer &property, propertyList()) {
+    foreach (const InternalProperty::Pointer &property, propertyList()) {
         if (property->isNodeAbstractProperty())
             abstractPropertyList.append(property->toNodeAbstractProperty());
     }
@@ -301,7 +301,7 @@ QList<InternalNodeAbstractProperty::Pointer> InternalNode::nodeAbstractPropertyL
 QList<InternalNode::Pointer> InternalNode::allSubNodes() const
 {
     QList<InternalNode::Pointer> nodeList;
-    foreach(const InternalNodeAbstractProperty::Pointer &property, nodeAbstractPropertyList()) {
+    foreach (const InternalNodeAbstractProperty::Pointer &property, nodeAbstractPropertyList()) {
         nodeList.append(property->allSubNodes());
     }
 
@@ -311,7 +311,7 @@ QList<InternalNode::Pointer> InternalNode::allSubNodes() const
 QList<InternalNode::Pointer> InternalNode::allDirectSubNodes() const
 {
     QList<InternalNode::Pointer> nodeList;
-    foreach(const InternalNodeAbstractProperty::Pointer &property, nodeAbstractPropertyList()) {
+    foreach (const InternalNodeAbstractProperty::Pointer &property, nodeAbstractPropertyList()) {
         nodeList.append(property->allDirectSubNodes());
     }
 

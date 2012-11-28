@@ -242,7 +242,7 @@ NodeInstanceServerProxy::~NodeInstanceServerProxy()
     if (m_secondSocket)
         m_secondSocket->close();
 
-    if(m_thirdSocket)
+    if (m_thirdSocket)
         m_thirdSocket->close();
 
 
@@ -298,7 +298,7 @@ NodeInstanceClientInterface *NodeInstanceServerProxy::nodeInstanceClient() const
 
 static void writeCommandToSocket(const QVariant &command, QLocalSocket *socket, unsigned int commandCounter)
 {
-    if(socket) {
+    if (socket) {
         QByteArray block;
         QDataStream out(&block, QIODevice::WriteOnly);
         out.setVersion(QDataStream::Qt_4_8);

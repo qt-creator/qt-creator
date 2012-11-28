@@ -198,7 +198,7 @@ void ParserTreeItem::add(const ParserTreeItem::ConstPtr &target)
             target->d->symbolInformations.constBegin();
     QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator end =
             target->d->symbolInformations.constEnd();
-    while(cur != end) {
+    while (cur != end) {
         const SymbolInformation &inf = cur.key();
         const ParserTreeItem::Ptr &targetChild = cur.value();
         if (d->symbolInformations.contains(inf)) {
@@ -231,7 +231,7 @@ void ParserTreeItem::subtract(const ParserTreeItem::ConstPtr &target)
             target->d->symbolInformations.constBegin();
     QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator end =
             target->d->symbolInformations.constEnd();
-    while(cur != end) {
+    while (cur != end) {
         const SymbolInformation &inf = cur.key();
         if (d->symbolInformations.contains(inf)) {
             // this item has the same child node
@@ -258,7 +258,7 @@ void ParserTreeItem::convertTo(QStandardItem *item, bool recursive) const
             d->symbolInformations.constBegin();
     QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator endHash =
             d->symbolInformations.constEnd();
-    while(curHash != endHash) {
+    while (curHash != endHash) {
         map.insert(curHash.key(), curHash.value());
         ++curHash;
     }
@@ -266,7 +266,7 @@ void ParserTreeItem::convertTo(QStandardItem *item, bool recursive) const
     // add to item
     QMap<SymbolInformation, ParserTreeItem::Ptr>::const_iterator cur = map.constBegin();
     QMap<SymbolInformation, ParserTreeItem::Ptr>::const_iterator end = map.constEnd();
-    while(cur != end) {
+    while (cur != end) {
         const SymbolInformation &inf = cur.key();
         ParserTreeItem::Ptr ptr = cur.value();
 
@@ -310,7 +310,7 @@ bool ParserTreeItem::canFetchMore(QStandardItem *item) const
             d->symbolInformations.constBegin();
     QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator endHash =
             d->symbolInformations.constEnd();
-    while(curHash != endHash) {
+    while (curHash != endHash) {
         const ParserTreeItem::Ptr &child = curHash.value();
         if (!child.isNull()) {
             internalChildren += child->childCount();
@@ -321,7 +321,7 @@ bool ParserTreeItem::canFetchMore(QStandardItem *item) const
         ++curHash;
     }
 
-    if(storedChildren < internalChildren)
+    if (storedChildren < internalChildren)
         return true;
 
     return false;
@@ -359,7 +359,7 @@ void ParserTreeItem::debugDump(int ident) const
             d->symbolInformations.constBegin();
     QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator endHash =
             d->symbolInformations.constEnd();
-    while(curHash != endHash) {
+    while (curHash != endHash) {
         const SymbolInformation &inf = curHash.key();
         qDebug() << QString(2*ident, QLatin1Char(' ')) << inf.iconType() << inf.name() << inf.type()
                 << curHash.value().isNull();

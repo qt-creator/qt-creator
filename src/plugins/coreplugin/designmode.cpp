@@ -167,7 +167,7 @@ bool DesignMode::designModeIsRequired() const
 QStringList DesignMode::registeredMimeTypes() const
 {
     QStringList rc;
-    foreach(const DesignEditorInfo *i, d->m_editors)
+    foreach (const DesignEditorInfo *i, d->m_editors)
         rc += i->mimeTypes;
     return rc;
 }
@@ -195,7 +195,7 @@ void DesignMode::registerDesignWidget(QWidget *widget,
 void DesignMode::unregisterDesignWidget(QWidget *widget)
 {
     d->m_stackWidget->removeWidget(widget);
-    foreach(DesignEditorInfo *info, d->m_editors) {
+    foreach (DesignEditorInfo *info, d->m_editors) {
         if (info->widget == widget) {
             d->m_editors.removeAll(info);
             break;

@@ -75,7 +75,7 @@ void SingleSelectionManipulator::select(SelectionType selectionType, bool select
 
     QmlItemNode selectedNode;
 
-    foreach(QGraphicsItem* item, itemList)
+    foreach (QGraphicsItem* item, itemList)
     {
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
 
@@ -90,7 +90,7 @@ void SingleSelectionManipulator::select(SelectionType selectionType, bool select
 
     QList<QmlItemNode> nodeList;
 
-    switch(selectionType) {
+    switch (selectionType) {
         case AddToSelection: {
                 nodeList.append(m_oldSelectionList);
                 if (selectedNode.isValid())

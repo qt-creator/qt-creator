@@ -53,7 +53,7 @@ CheckoutWizardDialog::CheckoutWizardDialog(const QList<QWizardPage *> &parameter
     m_progressPageId(-1)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    foreach(QWizardPage *wp, parameterPages)
+    foreach (QWizardPage *wp, parameterPages)
         addPage(wp);
     m_progressPageId = parameterPages.size();
     setPage(m_progressPageId, m_progressPage);

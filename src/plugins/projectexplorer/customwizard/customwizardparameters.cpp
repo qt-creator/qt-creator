@@ -175,7 +175,7 @@ bool CustomWizardValidationRule::validateRules(const QList<CustomWizardValidatio
     if (rules.isEmpty())
         return true;
     QScriptEngine engine;
-    foreach(const CustomWizardValidationRule &rule, rules)
+    foreach (const CustomWizardValidationRule &rule, rules)
     if (!rule.validate(engine, replacementMap)) {
         *errorMessage = rule.message;
         CustomWizardContext::replaceFields(replacementMap, errorMessage);
@@ -334,7 +334,7 @@ static bool parseCustomProjectElement(QXmlStreamReader &reader,
 static inline QMap<QString, QString> attributesToStringMap(const QXmlStreamAttributes &attributes)
 {
     QMap<QString, QString> rc;
-    foreach(const QXmlStreamAttribute &attribute, attributes)
+    foreach (const QXmlStreamAttribute &attribute, attributes)
         rc.insert(attribute.name().toString(), attribute.value().toString());
     return rc;
 }
@@ -748,12 +748,12 @@ QString CustomWizardParameters::toString() const
     str << "Directory: " << directory << " Klass: '" << klass << "'\n";
     if (!filesGeneratorScriptArguments.isEmpty()) {
         str << "Script:";
-        foreach(const QString &a, filesGeneratorScript)
+        foreach (const QString &a, filesGeneratorScript)
             str << " '" << a << '\'';
         if (!filesGeneratorScriptWorkingDirectory.isEmpty())
             str << "\nrun in '" <<  filesGeneratorScriptWorkingDirectory << '\'';
         str << "\nArguments: ";
-        foreach(const GeneratorScriptArgument &a, filesGeneratorScriptArguments) {
+        foreach (const GeneratorScriptArgument &a, filesGeneratorScriptArguments) {
             str << " '" << a.value  << '\'';
             if (a.flags & GeneratorScriptArgument::OmitEmpty)
                 str << " [omit empty]";
@@ -763,7 +763,7 @@ QString CustomWizardParameters::toString() const
         }
         str << '\n';
     }
-    foreach(const CustomWizardFile &f, files) {
+    foreach (const CustomWizardFile &f, files) {
         str << "  File source: " << f.source << " Target: " << f.target;
         if (f.openEditor)
             str << " [editor]";
@@ -773,7 +773,7 @@ QString CustomWizardParameters::toString() const
             str << " [binary]";
         str << '\n';
     }
-    foreach(const CustomWizardField &f, fields) {
+    foreach (const CustomWizardField &f, fields) {
         str << "  Field name: " << f.name;
         if (f.mandatory)
             str << '*';
@@ -787,7 +787,7 @@ QString CustomWizardParameters::toString() const
         }
         str << '\n';
     }
-    foreach(const CustomWizardValidationRule &r, rules)
+    foreach (const CustomWizardValidationRule &r, rules)
             str << "  Rule: '" << r.condition << "'->'" << r.message << '\n';
     return rc;
 }

@@ -80,7 +80,7 @@ WindowsStyleSingleton* WindowsStyleSingleton::m_instance = 0;
 WindowsStyleSingleton* WindowsStyleSingleton::instance()
 {
   static WindowsWatcher w;
-  if( m_instance == 0 )
+  if ( m_instance == 0 )
     m_instance = new WindowsStyleSingleton();
   return m_instance;
 }

@@ -188,7 +188,7 @@ QStringList GitVersionControl::vcsSnapshots(const QString &topLevel)
         return QStringList();
     // Return the git stash 'message' as identifier, ignoring empty ones
     QStringList rc;
-    foreach(const Stash &s, stashes)
+    foreach (const Stash &s, stashes)
         if (!s.message.isEmpty())
             rc.push_back(s.message);
     return rc;

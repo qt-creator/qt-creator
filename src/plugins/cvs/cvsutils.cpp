@@ -50,7 +50,7 @@ QDebug operator<<(QDebug d, const CvsLogEntry &e)
 {
     QDebug nospace = d.nospace();
     nospace << "File: " << e.file << e.revisions.size() << '\n';
-    foreach(const CvsRevision &r, e.revisions)
+    foreach (const CvsRevision &r, e.revisions)
         nospace << "  " << r.revision << ' ' << r.date << ' ' << r.commitId << '\n';
     return d;
 }
@@ -93,7 +93,7 @@ QList<CvsLogEntry> parseLogEntries(const QString &o,
 
     // Parse using a state enumeration and regular expressions as not to fall for weird
     // commit messages in state 'RevisionState'
-    foreach(const QString &line, lines) {
+    foreach (const QString &line, lines) {
         switch (state) {
             case FileState:
             if (line.startsWith(workingFilePrefix)) {

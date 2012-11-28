@@ -87,7 +87,7 @@ QString StyleManager::applicationStyle()
     QStyle *applicationStyle = qApp->style();
     QStyle *style;
     if (applicationStyle)
-    foreach(const QString &name, styles())
+    foreach (const QString &name, styles())
         if ((style = QStyleFactory::create(name)) &&
             (applicationStyle->metaObject()->className() ==
                         style->metaObject()->className()))

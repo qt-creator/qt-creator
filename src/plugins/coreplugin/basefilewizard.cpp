@@ -653,7 +653,7 @@ bool BaseFileWizard::postGenerateFiles(const QWizard *, const GeneratedFiles &l,
 
 bool BaseFileWizard::postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage)
 {
-    foreach(const Core::GeneratedFile &file, l) {
+    foreach (const Core::GeneratedFile &file, l) {
         if (file.attributes() & Core::GeneratedFile::OpenEditorAttribute) {
             if (!Core::EditorManager::openEditor(file.path(), file.editorId(), Core::EditorManager::ModeSwitch )) {
                 if (errorMessage)

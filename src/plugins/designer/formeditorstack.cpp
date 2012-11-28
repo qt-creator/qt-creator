@@ -95,7 +95,7 @@ void FormEditorStack::add(const EditorData &data)
 int FormEditorStack::indexOfFormWindow(const QDesignerFormWindowInterface *fw) const
 {
     const int count = m_formEditors.size();
-     for(int i = 0; i < count; ++i)
+     for (int i = 0; i < count; ++i)
          if (m_formEditors[i].widgetHost->formWindow() == fw)
              return i;
      return -1;
@@ -104,7 +104,7 @@ int FormEditorStack::indexOfFormWindow(const QDesignerFormWindowInterface *fw) c
 int FormEditorStack::indexOfFormEditor(const QObject *xmlEditor) const
 {
     const int count = m_formEditors.size();
-    for(int i = 0; i < count; ++i)
+    for (int i = 0; i < count; ++i)
         if (m_formEditors[i].formWindowEditor == xmlEditor)
             return i;
     return -1;
@@ -158,7 +158,7 @@ void FormEditorStack::updateFormWindowSelectionHandles()
     if (Designer::Constants::Internal::debug)
         qDebug() << "updateFormWindowSelectionHandles";
     QDesignerFormWindowInterface *activeFormWindow = m_designerCore->formWindowManager()->activeFormWindow();
-    foreach(const EditorData  &fdm, m_formEditors) {
+    foreach (const EditorData  &fdm, m_formEditors) {
         const bool active = activeFormWindow == fdm.widgetHost->formWindow();
         fdm.widgetHost->updateFormWindowSelectionHandles(active);
     }
@@ -189,7 +189,7 @@ void FormEditorStack::modeAboutToChange(Core::IMode *m)
 
     // Sync the editor when entering edit mode
     if (m && m->id() == Core::Constants::MODE_EDIT)
-        foreach(const EditorData &data, m_formEditors)
+        foreach (const EditorData &data, m_formEditors)
             data.formWindowEditor->syncXmlEditor();
 }
 

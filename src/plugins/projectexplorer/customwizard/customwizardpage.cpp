@@ -181,7 +181,7 @@ CustomWizardFieldPage::CustomWizardFieldPage(const QSharedPointer<CustomWizardCo
     m_formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     if (debug)
         qDebug() << Q_FUNC_INFO << parameters->fields.size();
-    foreach(const CustomWizardField &f, parameters->fields)
+    foreach (const CustomWizardField &f, parameters->fields)
         addField(f);
     vLayout->addLayout(m_formLayout);
     m_errorLabel->setVisible(false);
@@ -362,7 +362,7 @@ void CustomWizardFieldPage::initializePage()
 {
     QWizardPage::initializePage();
     clearError();
-    foreach(const LineEditData &led, m_lineEdits) {
+    foreach (const LineEditData &led, m_lineEdits) {
         if (!led.userChange.isNull()) {
             led.lineEdit->setText(led.userChange);
         } else if (!led.defaultText.isEmpty()) {
@@ -371,7 +371,7 @@ void CustomWizardFieldPage::initializePage()
             led.lineEdit->setText(defaultText);
         }
     }
-    foreach(const TextEditData &ted, m_textEdits) {
+    foreach (const TextEditData &ted, m_textEdits) {
         if (!ted.userChange.isNull()) {
             ted.textEdit->setText(ted.userChange);
         } else if (!ted.defaultText.isEmpty()) {
@@ -428,7 +428,7 @@ bool CustomWizardFieldPage::validatePage()
 {
     clearError();
     // Check line edits with validators
-    foreach(const LineEditData &led, m_lineEdits) {
+    foreach (const LineEditData &led, m_lineEdits) {
         if (const QValidator *val = led.lineEdit->validator()) {
             int pos = 0;
             QString text = led.lineEdit->text();
@@ -456,7 +456,7 @@ QMap<QString, QString> CustomWizardFieldPage::replacementMap(const QWizard *w,
                                                              const FieldList &f)
 {
     QMap<QString, QString> fieldReplacementMap = ctx->baseReplacements;
-    foreach(const Internal::CustomWizardField &field, f) {
+    foreach (const Internal::CustomWizardField &field, f) {
         const QString value = w->field(field.name).toString();
         fieldReplacementMap.insert(field.name, value);
     }

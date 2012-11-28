@@ -46,7 +46,7 @@ PaintEventFilter::PaintEventFilter(QObject *parent)
 
 bool PaintEventFilter::eventFilter(QObject *object, QEvent *event)
 {
-    switch(event->type())
+    switch (event->type())
     {
         case QEvent::Paint :
         {

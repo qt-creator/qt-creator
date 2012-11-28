@@ -142,7 +142,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
                             new FileShareProtocol
                            };
     const int count = sizeof(protos) / sizeof(Protocol *);
-    for(int i = 0; i < count; ++i) {
+    for (int i = 0; i < count; ++i) {
         connect(protos[i], SIGNAL(pasteDone(QString)), this, SLOT(finishPost(QString)));
         connect(protos[i], SIGNAL(fetchDone(QString,QString,bool)),
                 this, SLOT(finishFetch(QString,QString,bool)));
@@ -202,7 +202,7 @@ void CodepasterPlugin::extensionsInitialized()
 ExtensionSystem::IPlugin::ShutdownFlag CodepasterPlugin::aboutToShutdown()
 {
     // Delete temporary, fetched files
-    foreach(const QString &fetchedSnippet, m_fetchedSnippets) {
+    foreach (const QString &fetchedSnippet, m_fetchedSnippets) {
         QFile file(fetchedSnippet);
         if (file.exists())
             file.remove();

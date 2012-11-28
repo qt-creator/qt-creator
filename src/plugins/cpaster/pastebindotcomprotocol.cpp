@@ -324,7 +324,7 @@ static inline QStringList parseLists(QIODevice *io)
     QString age;
 
     while (!reader.atEnd()) {
-        switch(reader.readNext()) {
+        switch (reader.readNext()) {
         case QXmlStreamReader::StartElement:
             state = nextOpeningState(state, reader);
             switch (state) {

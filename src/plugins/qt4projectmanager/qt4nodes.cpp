@@ -1310,7 +1310,7 @@ QSet<Utils::FileName> Qt4PriFileNode::filterFilesRecursiveEnumerata(ProjectExplo
     QSet<Utils::FileName> result;
     if (fileType != ProjectExplorer::QMLType && fileType != ProjectExplorer::UnknownFileType)
         return result;
-    if(fileType == ProjectExplorer::QMLType) {
+    if (fileType == ProjectExplorer::QMLType) {
         foreach (const Utils::FileName &file, files)
             if (file.endsWith(QLatin1String(".qml")))
                 result << file;
@@ -1797,7 +1797,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
             // Remove case
             toRemove << *existingIt;
             ++existingIt;
-        } else if(! newExactAtEnd
+        } else if (! newExactAtEnd
                   && (existingAtEnd || *newExactIt < (*existingIt)->path())
                   && (newCumlativeAtEnd || *newExactIt < *newCumlativeIt)) {
             // Mark node from exact for adding
@@ -1824,7 +1824,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
                 ++newCumlativeIt;
             } else if (newCumlativeAtEnd) {
                 ++newExactIt;
-            } else if(*newExactIt < *newCumlativeIt) {
+            } else if (*newExactIt < *newCumlativeIt) {
                 ++newExactIt;
             } else if (*newCumlativeIt < *newExactIt) {
                 ++newCumlativeIt;

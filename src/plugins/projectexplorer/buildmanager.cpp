@@ -530,7 +530,7 @@ bool BuildManager::buildList(BuildStepList *bsl, const QString &stepListName)
 bool BuildManager::buildLists(QList<BuildStepList *> bsls, const QStringList &stepListNames, const QStringList &preambelMessage)
 {
     QList<BuildStep *> steps;
-    foreach(BuildStepList *list, bsls)
+    foreach (BuildStepList *list, bsls)
         steps.append(list->steps());
 
     QStringList names;

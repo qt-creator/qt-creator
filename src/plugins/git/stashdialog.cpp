@@ -95,7 +95,7 @@ void StashModel::setStashes(const QList<Stash> &stashes)
     m_stashes = stashes;
     if (const int rows = rowCount())
         removeRows(0, rows);
-    foreach(const Stash &s, stashes)
+    foreach (const Stash &s, stashes)
         appendRow(stashModelRowItems(s));
 }
 
@@ -185,7 +185,7 @@ void StashDialog::refresh(const QString &repository, bool force)
         gitClient()->synchronousStashList(m_repository, &stashes);
         m_model->setStashes(stashes);
         if (!stashes.isEmpty()) {
-            for(int c = 0; c < ColumnCount; c++)
+            for (int c = 0; c < ColumnCount; c++)
                 ui->stashView->resizeColumnToContents(c);
         }
     }
@@ -379,7 +379,7 @@ int StashDialog::currentRow() const
 QList<int> StashDialog::selectedRows() const
 {
     QList<int> rc;
-    foreach(const QModelIndex &proxyIndex, ui->stashView->selectionModel()->selectedRows()) {
+    foreach (const QModelIndex &proxyIndex, ui->stashView->selectionModel()->selectedRows()) {
         const QModelIndex index = m_proxyModel->mapToSource(proxyIndex);
         if (index.isValid())
             rc.push_back(index.row());

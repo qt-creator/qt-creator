@@ -118,7 +118,7 @@ SideBar::~SideBar()
 QString SideBar::idForTitle(const QString &title) const
 {
     QMapIterator<QString, QPointer<SideBarItem> > iter(d->m_itemMap);
-    while(iter.hasNext()) {
+    while (iter.hasNext()) {
         iter.next();
         if (iter.value().data()->title() == title)
             return iter.key();
@@ -173,7 +173,7 @@ void SideBar::makeItemAvailable(SideBarItem *item)
 void SideBar::setUnavailableItemIds(const QStringList &itemIds)
 {
     // re-enable previous items
-    foreach(const QString &id, d->m_unavailableItemIds) {
+    foreach (const QString &id, d->m_unavailableItemIds) {
         d->m_availableItemIds.append(id);
         d->m_availableItemTitles.append(d->m_itemMap.value(id).data()->title());
     }

@@ -202,7 +202,7 @@ Core::GeneratedFiles
     if (CustomWizard::verbose()) {
         QDebug nospace = qDebug().nospace();
         nospace << script << " generated:\n";
-        foreach(const Core::GeneratedFile &f, files)
+        foreach (const Core::GeneratedFile &f, files)
             nospace << ' ' << f.path() << f.attributes() << '\n';
     }
     return files;

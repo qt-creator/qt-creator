@@ -840,7 +840,7 @@ void PluginManagerPrivate::writeSettings()
         return;
     QStringList tempDisabledPlugins;
     QStringList tempForceEnabledPlugins;
-    foreach(PluginSpec *spec, pluginSpecs) {
+    foreach (PluginSpec *spec, pluginSpecs) {
         if (!spec->isDisabledByDefault() && !spec->isEnabled())
             tempDisabledPlugins.append(spec->name());
         if (spec->isDisabledByDefault() && spec->isEnabled())

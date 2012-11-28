@@ -121,7 +121,7 @@ QDebug operator<<(QDebug d, const GitoriousProject &p)
 {
     QDebug nospace = d.nospace();
     nospace << "  project=" << p.name << " description=" << p.description << '\n';
-    foreach(const GitoriousRepository &r, p.repositories)
+    foreach (const GitoriousRepository &r, p.repositories)
         nospace << "    " << r << '\n';
     return d;
 }
@@ -136,9 +136,9 @@ QDebug operator<<(QDebug d, const GitoriousHost &h)
 {
     QDebug nospace = d.nospace();
     nospace << "  Host=" << h.hostName << " description=" << h.description << '\n';
-    foreach(const QSharedPointer<GitoriousCategory> &c, h.categories)
+    foreach (const QSharedPointer<GitoriousCategory> &c, h.categories)
         nospace << *c;
-    foreach(const QSharedPointer<GitoriousProject> &p, h.projects)
+    foreach (const QSharedPointer<GitoriousProject> &p, h.projects)
         nospace << *p;
     return d;
 }
@@ -568,7 +568,7 @@ void Gitorious::saveSettings(const QString &group, QSettings *s)
 {
     const QChar separator = QLatin1Char('|');
     QStringList hosts;
-    foreach(const GitoriousHost &h, m_hosts) {
+    foreach (const GitoriousHost &h, m_hosts) {
         QString entry = h.hostName;
         if (!h.description.isEmpty()) {
             entry += separator;

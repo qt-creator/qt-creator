@@ -1125,7 +1125,7 @@ void ProjectExplorerPlugin::loadCustomWizards()
     static bool firstTime = true;
     if (firstTime) {
         firstTime = false;
-        foreach(Core::IWizard *cpw, ProjectExplorer::CustomWizard::createWizards())
+        foreach (Core::IWizard *cpw, ProjectExplorer::CustomWizard::createWizards())
             addAutoReleasedObject(cpw);
     }
 }
@@ -2114,7 +2114,7 @@ void ProjectExplorerPlugin::runProjectContextMenu()
 bool ProjectExplorerPlugin::hasBuildSettings(Project *pro)
 {
     const QList<Project *> & projects = d->m_session->projectOrder(pro);
-    foreach(Project *project, projects)
+    foreach (Project *project, projects)
         if (project
                 && project->activeTarget()
                 && project->activeTarget()->activeBuildConfiguration())
@@ -2140,7 +2140,7 @@ QPair<bool, QString> ProjectExplorerPlugin::buildSettingsEnabled(Project *pro)
         result.second = tr("Project has no build settings.");
     } else {
         const QList<Project *> & projects = d->m_session->projectOrder(pro);
-        foreach(Project *project, projects) {
+        foreach (Project *project, projects) {
             if (project
                     && project->activeTarget()
                     && project->activeTarget()->activeBuildConfiguration()
@@ -2170,7 +2170,7 @@ QPair<bool, QString> ProjectExplorerPlugin::buildSettingsEnabledForSession()
         result.second = tr("Project has no build settings");
     } else {
         const QList<Project *> & projects = d->m_session->projectOrder(0);
-        foreach(Project *project, projects) {
+        foreach (Project *project, projects) {
             if (project
                     && project->activeTarget()
                     && project->activeTarget()->activeBuildConfiguration()
@@ -2207,7 +2207,7 @@ bool ProjectExplorerPlugin::coreAboutToClose()
 bool ProjectExplorerPlugin::hasDeploySettings(Project *pro)
 {
     const QList<Project *> & projects = d->m_session->projectOrder(pro);
-    foreach(Project *project, projects)
+    foreach (Project *project, projects)
         if (project->activeTarget()
                 && project->activeTarget()->activeDeployConfiguration()
                 && !project->activeTarget()->activeDeployConfiguration()->stepList()->isEmpty())
@@ -2508,7 +2508,7 @@ void ProjectExplorerPlugin::addToRecentProjects(const QString &fileName, const Q
     QString prettyFileName(QDir::toNativeSeparators(fileName));
 
     QList<QPair<QString, QString> >::iterator it;
-    for(it = d->m_recentProjects.begin(); it != d->m_recentProjects.end();)
+    for (it = d->m_recentProjects.begin(); it != d->m_recentProjects.end();)
         if ((*it).first == prettyFileName)
             it = d->m_recentProjects.erase(it);
         else
@@ -2973,9 +2973,9 @@ QStringList ProjectExplorerPlugin::projectFilePatterns()
 {
     QStringList patterns;
     const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
-    foreach(const IProjectManager *pm, allProjectManagers())
+    foreach (const IProjectManager *pm, allProjectManagers())
         if (const Core::MimeType mt = mdb->findByType(pm->mimeType()))
-            foreach(const Core::MimeGlobPattern &gp, mt.globPatterns())
+            foreach (const Core::MimeGlobPattern &gp, mt.globPatterns())
                 patterns += gp.regExp().pattern();
     return patterns;
 }

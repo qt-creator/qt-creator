@@ -90,7 +90,7 @@ QSize DetailsButton::sizeHint() const
 
 bool DetailsButton::event(QEvent *e)
 {
-    switch(e->type()) {
+    switch (e->type()) {
     case QEvent::Enter:
         {
             QPropertyAnimation *animation = new QPropertyAnimation(this, "fader");
@@ -164,7 +164,7 @@ QPixmap DetailsButton::cacheRendering(const QSize &size, bool checked)
     p.drawRoundedRect(1, 1, size.width()-3, size.height()-3, 1, 1);
     p.setPen(QPen(QColor(0, 0, 0, 40)));
     p.drawLine(0, 1, 0, size.height() - 2);
-    if(checked)
+    if (checked)
         p.drawLine(1, size.height() - 1, size.width() - 1, size.height() - 1);
 
     p.setPen(palette().color(QPalette::Text));

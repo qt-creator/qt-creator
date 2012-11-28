@@ -118,7 +118,7 @@ void RubberBandSelectionManipulator::select(SelectionType selectionType)
 
     QList<QmlItemNode> nodeList;
 
-    switch(selectionType) {
+    switch (selectionType) {
     case AddToSelection: {
             nodeList.append(m_oldSelectionList);
             nodeList.append(newNodeList);

@@ -142,7 +142,7 @@ void ResizeTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> & /*itemList*
 
 void ResizeTool::keyPressEvent(QKeyEvent * event)
 {
-    switch(event->key()) {
+    switch (event->key()) {
         case Qt::Key_Shift:
         case Qt::Key_Alt:
         case Qt::Key_Control:
@@ -156,7 +156,7 @@ void ResizeTool::keyPressEvent(QKeyEvent * event)
     if (event->modifiers().testFlag(Qt::ShiftModifier))
         moveStep = 10.0;
 
-    switch(event->key()) {
+    switch (event->key()) {
         case Qt::Key_Left: m_resizeManipulator.moveBy(-moveStep, 0.0); break;
         case Qt::Key_Right: m_resizeManipulator.moveBy(moveStep, 0.0); break;
         case Qt::Key_Up: m_resizeManipulator.moveBy(0.0, -moveStep); break;
@@ -167,7 +167,7 @@ void ResizeTool::keyPressEvent(QKeyEvent * event)
 
 void ResizeTool::keyReleaseEvent(QKeyEvent * keyEvent)
 {
-     switch(keyEvent->key()) {
+     switch (keyEvent->key()) {
         case Qt::Key_Shift:
         case Qt::Key_Alt:
         case Qt::Key_Control:

@@ -1472,7 +1472,7 @@ void CdbEngine::updateLocals(bool forNewStackFrame)
     if (!expanded.isEmpty()) {
         str << blankSeparator << "-e ";
         int i = 0;
-        foreach(const QByteArray &e, expanded) {
+        foreach (const QByteArray &e, expanded) {
             if (i++)
                 str << ',';
             str << e;
@@ -1488,7 +1488,7 @@ void CdbEngine::updateLocals(bool forNewStackFrame)
         if (!uninitializedVariables.isEmpty()) {
             str << blankSeparator << "-u \"";
             int i = 0;
-            foreach(const QString &u, uninitializedVariables) {
+            foreach (const QString &u, uninitializedVariables) {
                 if (i++)
                     str << ',';
                 str << localsPrefixC << u;
@@ -2135,7 +2135,7 @@ void CdbEngine::handleSessionIdle(const QByteArray &messageBA)
 
     m_specialStopMode = NoSpecialStop;
 
-    switch(specialStopMode) {
+    switch (specialStopMode) {
     case SpecialStopSynchronizeBreakpoints:
         if (debug)
             qDebug("attemptBreakpointSynchronization in special stop");
@@ -2259,7 +2259,7 @@ void CdbEngine::handleSessionAccessible(unsigned long cdbExState)
         qDebug("CdbEngine::handleSessionAccessible %dms in state '%s'/'%s', special mode %d",
                elapsedLogTime(), cdbStatusName(cdbExState), stateName(state()), m_specialStopMode);
 
-    switch(s) {
+    switch (s) {
     case EngineShutdownRequested:
         shutdownEngine();
         break;
@@ -2563,7 +2563,7 @@ static QByteArray multiBreakpointCommand(const char *cmdC, const Breakpoints &bp
 {
     QByteArray cmd(cmdC);
     ByteArrayInputStream str(cmd);
-    foreach(const BreakpointData *bp, bps)
+    foreach (const BreakpointData *bp, bps)
         str << ' ' << bp->bpNumber;
     return cmd;
 }

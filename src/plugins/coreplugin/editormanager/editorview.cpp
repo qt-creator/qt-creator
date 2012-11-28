@@ -305,7 +305,7 @@ void EditorView::updateEditorHistory(IEditor *editor)
     location.id = editor->id();
     location.state = QVariant(state);
 
-    for(int i = 0; i < m_editorHistory.size(); ++i) {
+    for (int i = 0; i < m_editorHistory.size(); ++i) {
         if (m_editorHistory.at(i).document == 0
             || m_editorHistory.at(i).document == document
             ){
@@ -668,7 +668,7 @@ void SplitterOrView::split(Qt::Orientation orientation)
     SplitterOrView *otherView = 0;
     if (e) {
 
-        foreach(IEditor *editor, m_view->editors())
+        foreach (IEditor *editor, m_view->editors())
             m_view->removeEditor(editor);
 
         m_splitter->addWidget((view = new SplitterOrView(e)));

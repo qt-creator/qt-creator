@@ -477,7 +477,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         case block_open:
             if (tryStatement())
                 break;
-            switch(kind) {
+            switch (kind) {
             case T_RBRACE:      leave(true); break;
             } break;
 

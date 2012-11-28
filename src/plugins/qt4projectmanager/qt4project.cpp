@@ -913,7 +913,7 @@ void Qt4Project::asyncUpdate()
     } else {
         if (debug)
             qDebug()<<"  partial update,"<<m_partialEvaluate.size()<<"nodes to update";
-        foreach(Qt4ProFileNode *node, m_partialEvaluate)
+        foreach (Qt4ProFileNode *node, m_partialEvaluate)
             node->asyncUpdate();
     }
 
@@ -970,10 +970,10 @@ QStringList Qt4Project::files(FilesMode fileMode) const
 // Find the folder that contains a file a certain type (recurse down)
 static FolderNode *folderOf(FolderNode *in, FileType fileType, const QString &fileName)
 {
-    foreach(FileNode *fn, in->fileNodes())
+    foreach (FileNode *fn, in->fileNodes())
         if (fn->fileType() == fileType && fn->path() == fileName)
             return in;
-    foreach(FolderNode *folder, in->subFolderNodes())
+    foreach (FolderNode *folder, in->subFolderNodes())
         if (FolderNode *pn = folderOf(folder, fileType, fileName))
             return pn;
     return 0;
@@ -1210,7 +1210,7 @@ void Qt4Project::notifyChanged(const QString &name)
     if (files(Qt4Project::ExcludeGeneratedFiles).contains(name)) {
         QList<Qt4ProFileNode *> list;
         findProFile(name, rootQt4ProjectNode(), list);
-        foreach(Qt4ProFileNode *node, list) {
+        foreach (Qt4ProFileNode *node, list) {
             QtSupport::ProFileCacheManager::instance()->discardFile(name);
             node->update();
         }
@@ -1353,7 +1353,7 @@ void CentralizedFolderWatcher::folderChanged(const QString &folder)
 
 void CentralizedFolderWatcher::onTimer()
 {
-    foreach(const QString &folder, m_changedFolders)
+    foreach (const QString &folder, m_changedFolders)
         delayedFolderChanged(folder);
     m_changedFolders.clear();
 }

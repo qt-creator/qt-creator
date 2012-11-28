@@ -427,7 +427,7 @@ bool SubDirFileIterator::hasNext() const
 {
     if (!m_currentFiles.isEmpty())
         return true;
-    while(!m_dirs.isEmpty() && m_currentFiles.isEmpty()) {
+    while (!m_dirs.isEmpty() && m_currentFiles.isEmpty()) {
         QDir dir = m_dirs.pop();
         const qreal dirProgressMax = m_progressValues.pop();
         const bool processed = m_processedValues.pop();

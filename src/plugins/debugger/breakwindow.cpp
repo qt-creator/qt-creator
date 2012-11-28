@@ -523,7 +523,7 @@ void BreakpointDialog::typeChanged(int)
     const BreakpointType newType = type();
     m_previousType = newType;
     // Save current state.
-    switch(previousType) {
+    switch (previousType) {
     case UnknownType:
         break;
     case BreakpointByFileAndLine:

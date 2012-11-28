@@ -299,7 +299,7 @@ bool BuildableHelperLibrary::getHelperFileInfoFor(const QStringList &validBinary
     if (!info)
         return false;
 
-    foreach(const QString &binaryFilename, validBinaryFilenames) {
+    foreach (const QString &binaryFilename, validBinaryFilenames) {
         info->setFile(directory + binaryFilename);
         if (info->exists())
             return true;
@@ -335,7 +335,7 @@ QString BuildableHelperLibrary::byInstallDataHelper(const QString &sourcePath,
     QString newestHelper;
     QDateTime newestHelperModified = sourcesModified; // prevent using one that's older than the sources
     QFileInfo fileInfo;
-    foreach(const QString &installDirectory, installDirectories) {
+    foreach (const QString &installDirectory, installDirectories) {
         if (getHelperFileInfoFor(validBinaryFilenames, installDirectory, &fileInfo)) {
             if (!newestHelperModified.isValid()
                     || (fileInfo.lastModified() > newestHelperModified)) {

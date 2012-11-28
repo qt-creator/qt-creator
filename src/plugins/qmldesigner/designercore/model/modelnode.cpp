@@ -134,7 +134,7 @@ QString ModelNode::generateNewId() const
     int counter = 1;
     QString newId = QString("%1%2").arg(simplifiedTypeName().toLower()).arg(counter);
 
-    while(view()->hasId(newId)) {
+    while (view()->hasId(newId)) {
         counter += 1;
         newId = QString("%1%2").arg(simplifiedTypeName().toLower()).arg(counter);
     }

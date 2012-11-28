@@ -69,7 +69,7 @@ void ImageViewerActionHandler::actionTriggered(int supportedAction)
         return;
 
     SupportedActions action = static_cast<SupportedActions>(supportedAction);
-    switch(action) {
+    switch (action) {
     case ZoomIn:
         viewer->zoomIn();
         break;

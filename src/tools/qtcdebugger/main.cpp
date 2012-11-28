@@ -222,7 +222,7 @@ static inline bool registryReplaceStringKey(HKEY rootHandle, // HKEY_LOCAL_MACHI
                 break;
         }
         rc = true;
-    } while(false);
+    } while (false);
     if (handle)
         RegCloseKey(handle);
     return rc;

@@ -194,7 +194,7 @@ QPointF MoveManipulator::findSnappingOffset(const QHash<FormEditorItem*, QRectF>
     QMap<double, double> horizontalOffsetMap;
 
     QHashIterator<FormEditorItem*, QRectF> hashIterator(boundingRectHash);
-    while(hashIterator.hasNext()) {
+    while (hashIterator.hasNext()) {
         hashIterator.next();
         FormEditorItem *formEditorItem = hashIterator.key();
         QRectF boundingRect = hashIterator.value();
@@ -241,7 +241,7 @@ QHash<FormEditorItem*, QRectF> MoveManipulator::tanslatedBoundingRects(const QHa
     QHash<FormEditorItem*, QRectF> translatedBoundingRectHash;
 
     QHashIterator<FormEditorItem*, QRectF> hashIterator(boundingRectHash);
-    while(hashIterator.hasNext()) {
+    while (hashIterator.hasNext()) {
         QPointF alignedOffset(offsetVector);
         hashIterator.next();
         FormEditorItem *formEditorItem = hashIterator.key();

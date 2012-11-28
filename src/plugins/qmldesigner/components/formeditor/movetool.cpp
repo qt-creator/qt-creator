@@ -143,7 +143,7 @@ void MoveTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
 
 void MoveTool::keyPressEvent(QKeyEvent *event)
 {
-    switch(event->key()) {
+    switch (event->key()) {
         case Qt::Key_Shift:
         case Qt::Key_Alt:
         case Qt::Key_Control:
@@ -168,7 +168,7 @@ void MoveTool::keyPressEvent(QKeyEvent *event)
         m_moveManipulator.beginRewriterTransaction();
     }
 
-    switch(event->key()) {
+    switch (event->key()) {
         case Qt::Key_Left: m_moveManipulator.moveBy(-moveStep, 0.0); break;
         case Qt::Key_Right: m_moveManipulator.moveBy(moveStep, 0.0); break;
         case Qt::Key_Up: m_moveManipulator.moveBy(0.0, -moveStep); break;
@@ -183,7 +183,7 @@ void MoveTool::keyPressEvent(QKeyEvent *event)
 
 void MoveTool::keyReleaseEvent(QKeyEvent *keyEvent)
 {
-    switch(keyEvent->key()) {
+    switch (keyEvent->key()) {
         case Qt::Key_Shift:
         case Qt::Key_Alt:
         case Qt::Key_Control:

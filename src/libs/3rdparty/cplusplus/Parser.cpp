@@ -1216,7 +1216,7 @@ bool Parser::parseCvQualifiers(SpecifierListAST *&node)
             spec->specifier_token = consumeToken();
             *ast = new (_pool) SpecifierListAST(spec);
             ast = &(*ast)->next;
-        } else if(LA() == T___ATTRIBUTE__) {
+        } else if (LA() == T___ATTRIBUTE__) {
             parseAttributeSpecifier(*ast);
             ast = &(*ast)->next;
         } else {

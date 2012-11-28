@@ -56,11 +56,11 @@ QWheelArea::QWheelArea(QDeclarativeItem *parent)
 QWheelArea::~QWheelArea() {}
 
 bool QWheelArea::event (QEvent * e) {
-    switch(e->type()) {
+    switch (e->type()) {
     case QEvent::GraphicsSceneWheel: {
         QGraphicsSceneWheelEvent *we = static_cast<QGraphicsSceneWheelEvent*>(e);
-        if(we) {
-            switch(we->orientation()) {
+        if (we) {
+            switch (we->orientation()) {
                 case Qt::Horizontal:
                     setHorizontalDelta(we->delta());
                     break;
@@ -72,8 +72,8 @@ bool QWheelArea::event (QEvent * e) {
     }
     case QEvent::Wheel: {
         QWheelEvent *we = static_cast<QWheelEvent*>(e);
-        if(we) {
-            switch(we->orientation()) {
+        if (we) {
+            switch (we->orientation()) {
                 case Qt::Horizontal:
                     setHorizontalDelta(we->delta());
 

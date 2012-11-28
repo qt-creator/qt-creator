@@ -124,7 +124,7 @@ void BazaarClient::view(const QString &source, const QString &id, const QStringL
 
 QString BazaarClient::vcsEditorKind(VcsCommand cmd) const
 {
-    switch(cmd) {
+    switch (cmd) {
     case AnnotateCommand:
         return QLatin1String(Constants::ANNOTATELOG);
     case DiffCommand:

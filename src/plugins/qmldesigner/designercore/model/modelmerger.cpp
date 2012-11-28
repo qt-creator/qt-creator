@@ -85,7 +85,7 @@ static void splitIdInBaseNameAndNumber(const QString &id, QString *baseId, int *
 {
 
     int counter = 0;
-    while(counter < id.count()) {
+    while (counter < id.count()) {
         bool canConvertToInteger = false;
         int newNumber = id.right(counter +1).toInt(&canConvertToInteger);
         if (canConvertToInteger)

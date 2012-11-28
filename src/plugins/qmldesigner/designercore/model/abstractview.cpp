@@ -252,7 +252,7 @@ QList<ModelNode> AbstractView::toModelNodeList(const QList<Internal::InternalNod
 QList<ModelNode> toModelNodeList(const QList<Internal::InternalNode::Pointer> &nodeList, AbstractView *view)
 {
     QList<ModelNode> newNodeList;
-    foreach(const Internal::InternalNode::Pointer &node, nodeList)
+    foreach (const Internal::InternalNode::Pointer &node, nodeList)
         newNodeList.append(ModelNode(node, view->model(), view));
 
     return newNodeList;
@@ -261,7 +261,7 @@ QList<ModelNode> toModelNodeList(const QList<Internal::InternalNode::Pointer> &n
 QList<Internal::InternalNode::Pointer> toInternalNodeList(const QList<ModelNode> &nodeList)
 {
     QList<Internal::InternalNode::Pointer> newNodeList;
-    foreach(const ModelNode &node, nodeList)
+    foreach (const ModelNode &node, nodeList)
         newNodeList.append(node.internalNode());
 
     return newNodeList;

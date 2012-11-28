@@ -410,7 +410,7 @@ static inline void getProjectChoicesAndToolTips(QStringList *projectChoicesParam
     ProjectNode::ProjectAction projectAction =
            context->wizard->kind() == Core::IWizard::ProjectWizard
             ? ProjectNode::AddSubProject : ProjectNode::AddNewFile;
-    foreach(ProjectNode *n, AllProjectNodesVisitor::allProjects(projectAction)) {
+    foreach (ProjectNode *n, AllProjectNodesVisitor::allProjects(projectAction)) {
         if (projectAction == ProjectNode::AddNewFile
                 || (projectAction == ProjectNode::AddSubProject
                 && (generatedProjectFilePath.isEmpty() ? true : n->canAddSubProject(generatedProjectFilePath))))

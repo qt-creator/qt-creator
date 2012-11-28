@@ -988,7 +988,7 @@ void QmlJSTextEditorWidget::setSelectedElements()
         QList<UiObjectMember *> members = selectedMembers(m_semanticInfo.document,
                                                           startPos, endPos);
         if (!members.isEmpty()) {
-            foreach(UiObjectMember *m, members) {
+            foreach (UiObjectMember *m, members) {
                 offsets << m;
             }
         }

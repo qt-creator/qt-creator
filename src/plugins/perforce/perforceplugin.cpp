@@ -561,7 +561,7 @@ void PerforcePlugin::updateCheckout(const QString &workingDir, const QStringList
             perforceVersionControl()->emitRepositoryChanged(workingDir);
     } else {
         const QChar slash = QLatin1Char('/');
-        foreach(const QString &dir, dirs)
+        foreach (const QString &dir, dirs)
             perforceVersionControl()->emitRepositoryChanged(workingDir + slash + dir);
     }
 }
@@ -864,7 +864,7 @@ bool PerforcePlugin::managesDirectoryFstat(const QString &directory)
                                                  RunFullySynchronous);
         managed = result.stdOut.contains(QLatin1String("depotFile"))
                   || result.stdErr.contains(QLatin1String("... - no such file(s)"));
-    } while(false);
+    } while (false);
 
     m_managedDirectoryCache.insert(directory, managed);
     return managed;

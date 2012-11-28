@@ -113,7 +113,7 @@ void OutputPanePlaceHolder::maximizeOrMinimize(bool maximize)
     if (maximize) {
         d->m_lastNonMaxSize = sizes[idx];
         int sum = 0;
-        foreach(int s, sizes)
+        foreach (int s, sizes)
             sum += s;
         for (int i = 0; i < sizes.count(); ++i) {
             sizes[i] = 32;

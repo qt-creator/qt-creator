@@ -356,7 +356,7 @@ QList<ModelNode> toModelNodeList(const QList<QmlObjectNode> &fxObjectNodeList)
 {
     QList<ModelNode> modelNodeList;
 
-    foreach(const QmlObjectNode &fxObjectNode, fxObjectNodeList)
+    foreach (const QmlObjectNode &fxObjectNode, fxObjectNodeList)
         modelNodeList.append(fxObjectNode.modelNode());
 
     return modelNodeList;
@@ -366,7 +366,7 @@ QList<QmlObjectNode> toQmlObjectNodeList(const QList<ModelNode> &modelNodeList)
 {
     QList<QmlObjectNode> qmlObjectNodeList;
 
-    foreach(const ModelNode &modelNode, modelNodeList) {
+    foreach (const ModelNode &modelNode, modelNodeList) {
         QmlObjectNode objectNode(modelNode);
         if (objectNode.isValid())
             qmlObjectNodeList.append(objectNode);

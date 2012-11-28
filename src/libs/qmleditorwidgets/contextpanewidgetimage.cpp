@@ -423,7 +423,7 @@ static inline bool parseSciFile(const QString &fileName, QString &pixmapFileName
     data.open(QIODevice::ReadOnly);
 
     QByteArray raw;
-    while(raw = data.readLine(), !raw.isEmpty()) {
+    while (raw = data.readLine(), !raw.isEmpty()) {
         QString line = QString::fromUtf8(raw.trimmed());
         if (line.isEmpty() || line.startsWith(QLatin1Char('#')))
             continue;

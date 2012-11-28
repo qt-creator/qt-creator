@@ -62,7 +62,7 @@ void RefactorOverlay::paint(QPainter *painter, const QRect &clip)
 RefactorMarker RefactorOverlay::markerAt(const QPoint &pos) const
 {
     QPointF offset = m_editor->contentOffset();
-    foreach(const RefactorMarker &marker, m_markers) {
+    foreach (const RefactorMarker &marker, m_markers) {
         if (marker.rect.translated(offset.toPoint()).contains(pos))
             return marker;
     }

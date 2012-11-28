@@ -337,7 +337,7 @@ void StatesEditorView::instancesPreviewImageChanged(const QVector<ModelNode> &no
 {
     int minimumIndex = 10000;
     int maximumIndex = -1;
-    foreach(const ModelNode &node, nodeList) {
+    foreach (const ModelNode &node, nodeList) {
         if (node.isRootNode()) {
             minimumIndex = qMin(minimumIndex, 0);
             maximumIndex = qMax(maximumIndex, 0);

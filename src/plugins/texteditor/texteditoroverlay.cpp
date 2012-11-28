@@ -248,7 +248,7 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
     points += selection.at(0).bottomRight() + QPointF(margin+1, 0);
 
 
-    for(int i = 1; i < selection.count()-1; ++i) {
+    for (int i = 1; i < selection.count()-1; ++i) {
 
 #define MAX3(a,b,c) qMax(a, qMax(b,c))
         qreal x = MAX3(selection.at(i-1).right(),
@@ -265,7 +265,7 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
     points += selection.at(selection.count()-1).bottomLeft() + QPointF(-margin, margin+extra);
     points += selection.at(selection.count()-1).topLeft() + QPointF(-margin, 0);
 
-    for(int i = selection.count()-2; i > 0; --i) {
+    for (int i = selection.count()-2; i > 0; --i) {
 #define MIN3(a,b,c) qMin(a, qMin(b,c))
         qreal x = MIN3(selection.at(i-1).left(),
                        selection.at(i).left(),

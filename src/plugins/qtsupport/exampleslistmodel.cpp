@@ -548,7 +548,7 @@ bool ExamplesListModelFilter::filterAcceptsRow(int sourceRow, const QModelIndex 
     const QStringList tags = sourceModel()->index(sourceRow, 0, sourceParent).data(Tags).toStringList();
 
     if (!m_filterTags.isEmpty()) {
-        foreach(const QString &tag, m_filterTags)
+        foreach (const QString &tag, m_filterTags)
             if (!tags.contains(tag, Qt::CaseInsensitive))
                 return false;
         return true;
@@ -559,7 +559,7 @@ bool ExamplesListModelFilter::filterAcceptsRow(int sourceRow, const QModelIndex 
         const QString name = sourceModel()->index(sourceRow, 0, sourceParent).data(Name).toString();
 
 
-        foreach(const QString &subString, m_searchString) {
+        foreach (const QString &subString, m_searchString) {
             bool wordMatch = false;
             wordMatch |= (bool)name.contains(subString, Qt::CaseInsensitive);
             if (wordMatch)

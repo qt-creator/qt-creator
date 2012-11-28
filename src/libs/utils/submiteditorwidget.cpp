@@ -332,7 +332,7 @@ QString SubmitEditorWidget::descriptionText() const
     QString rc = trimMessageText(lineWrap() ? wrappedText(d->m_ui.description) :
                                               d->m_ui.description->toPlainText());
     // append field entries
-    foreach(const SubmitFieldWidget *fw, d->m_fieldWidgets)
+    foreach (const SubmitFieldWidget *fw, d->m_fieldWidgets)
         rc += fw->fieldValues();
     return cleanupDescription(rc);
 }

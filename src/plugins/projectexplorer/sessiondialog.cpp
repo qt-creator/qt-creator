@@ -170,7 +170,7 @@ void SessionDialog::addItems(bool setDefaultSession)
 }
 void SessionDialog::markItems()
 {
-    for(int i = 0; i < m_ui.sessionList->count(); ++i) {
+    for (int i = 0; i < m_ui.sessionList->count(); ++i) {
         QListWidgetItem *item = m_ui.sessionList->item(i);
         QFont f = item->font();
         QString session = item->data(Qt::DisplayRole).toString();

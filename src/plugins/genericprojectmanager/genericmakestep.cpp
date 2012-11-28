@@ -223,7 +223,7 @@ void GenericMakeStep::setBuildTarget(const QString &target, bool on)
     QStringList old = m_buildTargets;
     if (on && !old.contains(target))
          old << target;
-    else if(!on && old.contains(target))
+    else if (!on && old.contains(target))
         old.removeOne(target);
 
     m_buildTargets = old;

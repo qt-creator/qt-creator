@@ -1358,7 +1358,7 @@ bool GitClient::cleanList(const QString &workingDirectory, const QString &flag, 
     }
     // Filter files that git would remove
     const QString prefix = QLatin1String("Would remove ");
-    foreach(const QString &line, commandOutputLinesFromLocal8Bit(outputText))
+    foreach (const QString &line, commandOutputLinesFromLocal8Bit(outputText))
         if (line.startsWith(prefix))
             files->push_back(line.mid(prefix.size()));
     return true;
@@ -1605,7 +1605,7 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
     QString headSha;
     if (resp.result == Utils::SynchronousProcessResponse::Finished) {
         // split "82bfad2f51d34e98b18982211c82220b8db049b<tab>refs/heads/master"
-        foreach(const QString &line, resp.stdOut.split(QLatin1Char('\n'))) {
+        foreach (const QString &line, resp.stdOut.split(QLatin1Char('\n'))) {
             if (line.endsWith(QLatin1String("\tHEAD"))) {
                 QTC_CHECK(headSha.isNull());
                 headSha = line.left(line.indexOf(QLatin1Char('\t')));
@@ -2252,7 +2252,7 @@ bool GitClient::synchronousStashList(const QString &workingDirectory,
         return false;
     }
     Stash stash;
-    foreach(const QString &line, commandOutputLinesFromLocal8Bit(outputText))
+    foreach (const QString &line, commandOutputLinesFromLocal8Bit(outputText))
         if (stash.parseStashLine(line))
             stashes->push_back(stash);
     return true;

@@ -144,7 +144,7 @@ void CustomWizard::initWizardDialog(Utils::Wizard *wizard, const QString &defaul
     addWizardPage(wizard, customPage, parameters()->firstPageId);
     if (!parameters()->fieldPageTitle.isEmpty())
         customPage->setTitle(parameters()->fieldPageTitle);
-    foreach(QWizardPage *ep, extensionPages)
+    foreach (QWizardPage *ep, extensionPages)
         BaseFileWizard::applyExtensionPageShortTitle(wizard, wizard->addPage(ep));
     Core::BaseFileWizard::setupWizard(wizard);
     if (CustomWizardPrivate::verbose)
@@ -314,7 +314,7 @@ Core::GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) co
             return rc;
     }
     // Add the template files specified by the <file> elements.
-    foreach(const Internal::CustomWizardFile &file, d->m_parameters->files)
+    foreach (const Internal::CustomWizardFile &file, d->m_parameters->files)
         if (!createFile(file, d->m_parameters->directory, ctx->targetPath, context()->replacements, &rc, errorMessage))
             return Core::GeneratedFiles();
     return rc;
@@ -449,7 +449,7 @@ QList<CustomWizard*> CustomWizard::createWizards()
     const QString configFile = QLatin1String(configFileC);
     // Check and parse config file in each directory.
 
-    foreach(const QFileInfo &dirFi, dirs) {
+    foreach (const QFileInfo &dirFi, dirs) {
         const QDir dir(dirFi.absoluteFilePath());
         if (CustomWizardPrivate::verbose)
             verboseLog += QString::fromLatin1("CustomWizard: Scanning %1\n").arg(dirFi.absoluteFilePath());
@@ -548,7 +548,7 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
         if (!pa->fieldPageTitle.isEmpty())
             cp->setTitle(pa->fieldPageTitle);
     }
-    foreach(QWizardPage *ep, extensionPages)
+    foreach (QWizardPage *ep, extensionPages)
         BaseFileWizard::applyExtensionPageShortTitle(w, w->addPage(ep));
     w->setPath(defaultPath);
     w->setProjectName(BaseProjectWizardDialog::uniqueProjectName(defaultPath));
@@ -584,7 +584,7 @@ Core::GeneratedFiles CustomProjectWizard::generateFiles(const QWizard *w, QStrin
 bool CustomProjectWizard::postGenerateOpen(const Core::GeneratedFiles &l, QString *errorMessage)
 {
     // Post-Generate: Open the project and the editors as desired
-    foreach(const Core::GeneratedFile &file, l) {
+    foreach (const Core::GeneratedFile &file, l) {
         if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
             if (!ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(file.path(), errorMessage)) {
                 return false;

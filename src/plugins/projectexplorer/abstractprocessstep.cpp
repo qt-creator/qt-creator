@@ -389,7 +389,7 @@ void AbstractProcessStep::taskAdded(const ProjectExplorer::Task &task)
                 filePath.remove(0, 3);
             int count = 0;
             QString possibleFilePath;
-            foreach(const QFileInfo &fi, possibleFiles) {
+            foreach (const QFileInfo &fi, possibleFiles) {
                 if (fi.filePath().endsWith(filePath)) {
                     possibleFilePath = fi.filePath();
                     ++count;

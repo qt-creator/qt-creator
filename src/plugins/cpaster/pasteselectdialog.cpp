@@ -44,7 +44,7 @@ PasteSelectDialog::PasteSelectDialog(const QList<Protocol*> &protocols,
     m_protocols(protocols)
 {
     m_ui.setupUi(this);
-    foreach(const Protocol *protocol, protocols) {
+    foreach (const Protocol *protocol, protocols) {
         m_ui.protocolBox->addItem(protocol->name());
         connect(protocol, SIGNAL(listDone(QString,QStringList)),
                 this, SLOT(listDone(QString,QStringList)));

@@ -72,7 +72,7 @@ Utils::Utils()
 QList<QVariant> Utils::locationsToRole(const QSet<SymbolLocation> &locations)
 {
     QList<QVariant> locationsVar;
-    foreach(const SymbolLocation &loc, locations)
+    foreach (const SymbolLocation &loc, locations)
         locationsVar.append(QVariant::fromValue(loc));
 
     return locationsVar;
@@ -81,7 +81,7 @@ QList<QVariant> Utils::locationsToRole(const QSet<SymbolLocation> &locations)
 QSet<SymbolLocation> Utils::roleToLocations(const QList<QVariant> &locationsVar)
 {
     QSet<SymbolLocation> locations;
-    foreach(const QVariant &loc, locationsVar) {
+    foreach (const QVariant &loc, locationsVar) {
         if (loc.canConvert<SymbolLocation>()) {
             locations.insert(loc.value<SymbolLocation>());
         }

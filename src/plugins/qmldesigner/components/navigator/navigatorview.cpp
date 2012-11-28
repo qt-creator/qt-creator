@@ -401,7 +401,7 @@ void NavigatorView::updateItemSelection()
         treeWidget()->scrollTo(m_treeModel->indexForNode(selectedModelNodes().first()));
 
     // make sure selected nodes a visible
-    foreach(const QModelIndex &selectedIndex, itemSelection.indexes()) {
+    foreach (const QModelIndex &selectedIndex, itemSelection.indexes()) {
         if (selectedIndex.column() == 0)
             expandRecursively(selectedIndex);
     }

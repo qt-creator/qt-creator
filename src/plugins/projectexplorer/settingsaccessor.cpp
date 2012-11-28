@@ -1628,7 +1628,7 @@ QVariantMap Version4Handler::update(Project *, const QVariantMap &map)
             const QVariantMap &originalBc = targetIt.value().toMap();
             QVariantMap newBc;
             QMapIterator<QString, QVariant> bcIt(originalBc);
-            while(bcIt.hasNext()) {
+            while (bcIt.hasNext()) {
                 bcIt.next();
                 const QString &bcKey = bcIt.key();
                 if (!bcKey.startsWith(QLatin1String("ProjectExplorer.BuildConfiguration.BuildStep."))) {

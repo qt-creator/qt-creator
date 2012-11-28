@@ -99,7 +99,7 @@ QString DebuggingHelperLibrary::copy(const QString &qtInstallData,
     const QStringList directories = DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData);
 
     // Try to find a writeable directory.
-    foreach(const QString &directory, directories)
+    foreach (const QString &directory, directories)
         if (copyFiles(sourcePath(), sourceFileNames(), directory, errorMessage)) {
             errorMessage->clear();
             return directory;

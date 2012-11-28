@@ -250,7 +250,7 @@ bool OpenEditorsModel::isDuplicate(IEditor *editor) const
 IEditor *OpenEditorsModel::originalForDuplicate(IEditor *duplicate) const
 {
     IDocument *document = duplicate->document();
-    foreach(const Entry &e, d->m_editors)
+    foreach (const Entry &e, d->m_editors)
         if (e.editor && e.editor->document() == document)
             return e.editor;
     return 0;
@@ -260,7 +260,7 @@ QList<IEditor *> OpenEditorsModel::duplicatesFor(IEditor *editor) const
 {
     QList<IEditor *> result;
     IDocument *document = editor->document();
-    foreach(IEditor *e, d->m_duplicateEditors)
+    foreach (IEditor *e, d->m_duplicateEditors)
         if (e->document() == document)
             result += e;
     return result;

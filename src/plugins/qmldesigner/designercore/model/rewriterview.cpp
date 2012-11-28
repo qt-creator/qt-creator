@@ -107,7 +107,7 @@ QString RewriterView::Error::toString() const
         str += tr("line %1").arg(line());
     }
 
-    if(column() != -1) {
+    if (column() != -1) {
         if (!str.isEmpty())
             str += QLatin1Char(' ');
 

@@ -144,7 +144,7 @@ void SelectionTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
 
     FormEditorItem *topSelectableItem = 0;
 
-    foreach(QGraphicsItem* item, itemList)
+    foreach (QGraphicsItem* item, itemList)
     {
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
 
@@ -206,7 +206,7 @@ void SelectionTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList,
 
 void SelectionTool::keyPressEvent(QKeyEvent *event)
 {
-    switch(event->key()) {
+    switch (event->key()) {
         case Qt::Key_Left:
         case Qt::Key_Right:
         case Qt::Key_Up:

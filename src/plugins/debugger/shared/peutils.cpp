@@ -261,7 +261,7 @@ bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *
         if (debugSectionCount)
             collectPDBfiles(fileMemory, debugDir, debugSectionCount, rc);
         success = true;
-    } while(false);
+    } while (false);
 
     if (fileMemory)
         UnmapViewOfFile(fileMemory);

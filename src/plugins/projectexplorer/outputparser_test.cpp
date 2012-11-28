@@ -84,7 +84,7 @@ void OutputParserTester::testParsing(const QString &lines,
     QCOMPARE(m_receivedStdOutChildLine, childStdOutLines);
     QCOMPARE(m_receivedTasks.size(), tasks.size());
     if (m_receivedTasks.size() == tasks.size()) {
-        for(int i = 0; i < tasks.size(); ++i) {
+        for (int i = 0; i < tasks.size(); ++i) {
             QCOMPARE(m_receivedTasks.at(i).category, tasks.at(i).category);
             QCOMPARE(m_receivedTasks.at(i).description, tasks.at(i).description);
             QCOMPARE(m_receivedTasks.at(i).file, tasks.at(i).file);

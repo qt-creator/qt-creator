@@ -473,7 +473,7 @@ static QLineF mergedHorizontalLine(const QList<QLineF> &lineList)
 
     double minimumX =  std::numeric_limits<double>::max();
     double maximumX =  std::numeric_limits<double>::min();
-    foreach(const QLineF &line, lineList) {
+    foreach (const QLineF &line, lineList) {
         minimumX = qMin(minimumX, double(line.x1()));
         minimumX = qMin(minimumX, double(line.x2()));
         maximumX = qMax(maximumX, double(line.x1()));
@@ -491,7 +491,7 @@ static QLineF mergedVerticalLine(const QList<QLineF> &lineList)
 
     double minimumY =  std::numeric_limits<double>::max();
     double maximumY =  std::numeric_limits<double>::min();
-    foreach(const QLineF &line, lineList) {
+    foreach (const QLineF &line, lineList) {
         minimumY = qMin(minimumY, double(line.y1()));
         minimumY = qMin(minimumY, double(line.y2()));
         maximumY = qMax(maximumY, double(line.y1()));
@@ -585,13 +585,13 @@ QList<QGraphicsItem*> Snapper::generateSnappingLines(const QList<QRectF> &boundi
 {
     QList<QGraphicsItem*> graphicsItemList;
     QList<QLineF> lineList;
-    foreach(const QRectF &boundingRect, boundingRectList) {
+    foreach (const QRectF &boundingRect, boundingRectList) {
         QList<QRectF> snappedBoundingRectList;
         lineList += mergedHorizontalLines(horizontalSnappedLines(boundingRect, &snappedBoundingRectList));
         lineList += mergedVerticalLines(verticalSnappedLines(boundingRect, &snappedBoundingRectList));
 
 //        snappedBoundingRectList.append(boundingRect);
-//        foreach(const QRectF &snappedBoundingRect, snappedBoundingRectList) {
+//        foreach (const QRectF &snappedBoundingRect, snappedBoundingRectList) {
 //            QPolygonF rect = transform.map(snappedBoundingRect);
 //            alignVertices(rect);
 //            QGraphicsPolygonItem * item = new QGraphicsPolygonItem(rect, layerItem);
@@ -607,7 +607,7 @@ QList<QGraphicsItem*> Snapper::generateSnappingLines(const QList<QRectF> &boundi
 //        }
     }
 
-    foreach(const QLineF &line, lineList) {
+    foreach (const QLineF &line, lineList) {
         QLineF lineInTransformationSpace = transform.map(line);
 //        alignLine(lineInTransformationSpace);
         QGraphicsLineItem * lineItem = new QGraphicsLineItem(lineInTransformationSpace, layerItem);

@@ -140,14 +140,14 @@ void ViewLogger::propertiesRemoved(const QList<AbstractProperty> &propertyList)
 void ViewLogger::variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange)
 {
     m_output << time() << indent("variantPropertiesChanged:") << serialize(propertyChange) << endl;
-    foreach(const VariantProperty &property, propertyList)
+    foreach (const VariantProperty &property, propertyList)
         m_output << time() << indent() << property << endl;
 }
 
 void ViewLogger::bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange)
 {
     m_output << time() << indent("bindingPropertiesChanged:") << serialize(propertyChange) << endl;
-    foreach(const BindingProperty &property, propertyList)
+    foreach (const BindingProperty &property, propertyList)
         m_output << time() << indent() << property << endl;
 }
 
@@ -160,9 +160,9 @@ void ViewLogger::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                   const QList<ModelNode> &lastSelectedNodeList)
 {
     m_output << time() << indent("selectedNodesChanged:") << endl;
-    foreach(const ModelNode &node, selectedNodeList)
+    foreach (const ModelNode &node, selectedNodeList)
         m_output << time() << indent("new: ") << node << endl;
-    foreach(const ModelNode &node, lastSelectedNodeList)
+    foreach (const ModelNode &node, lastSelectedNodeList)
         m_output << time() << indent("old: ") << node << endl;
 }
 
@@ -184,18 +184,18 @@ void ViewLogger::auxiliaryDataChanged(const ModelNode &node, const QString &name
 void ViewLogger::importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
 {
     m_output << time() << indent("importsChanged:") << endl;
-    foreach(const Import &import, addedImports)
+    foreach (const Import &import, addedImports)
         m_output << time() << indent("import added: ") << import.toString() << endl;
-    foreach(const Import &import, removedImports)
+    foreach (const Import &import, removedImports)
         m_output << time() << indent("import removed: ") << import.toString() << endl;
 }
 
 void ViewLogger::customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
     m_output << time() << indent("customNotification:") << view << identifier << endl;
-    foreach(const ModelNode &node, nodeList)
+    foreach (const ModelNode &node, nodeList)
         m_output << time() << indent("node: ") << node << endl;
-    foreach(const QVariant &variant, data)
+    foreach (const QVariant &variant, data)
         m_output << time() << indent("data: ") << variant.toString() << endl;
 }
 
@@ -209,7 +209,7 @@ void ViewLogger::instancePropertyChange(const QList<QPair<ModelNode, QString> > 
     typedef QPair<ModelNode, QString> PropertyPair;
     m_output << time() << indent("instancePropertyChange:") << endl;
 
-    foreach(const PropertyPair &propertyPair, propertyList)
+    foreach (const PropertyPair &propertyPair, propertyList)
         m_output << time() << indent("property: ") << propertyPair.first << propertyPair.second << endl;
 }
 
@@ -217,7 +217,7 @@ void ViewLogger::instancesCompleted(const QVector<ModelNode> &completedNodeList)
 {
      m_output << time() << indent("instancesCompleted:") << endl;
 
-     foreach(const ModelNode &node, completedNodeList)
+     foreach (const ModelNode &node, completedNodeList)
          m_output << time() << indent("node: ") << node << endl;
 
 }
@@ -238,7 +238,7 @@ void ViewLogger::instancesRenderImageChanged(const QVector<ModelNode> &nodeList)
 {
     m_output << time() << indent("instancesRenderImageChanged:") << endl;
 
-    foreach(const ModelNode &node, nodeList)
+    foreach (const ModelNode &node, nodeList)
         m_output << time() << indent("node: ") << node << endl;
 }
 
@@ -246,7 +246,7 @@ void ViewLogger::instancesPreviewImageChanged(const QVector<ModelNode> &nodeList
 {
     m_output << time() << indent("instancesPreviewImageChanged:") << endl;
 
-    foreach(const ModelNode &node, nodeList)
+    foreach (const ModelNode &node, nodeList)
         m_output << time() << indent("node: ") << node << endl;
 }
 
@@ -254,7 +254,7 @@ void ViewLogger::instancesChildrenChanged(const QVector<ModelNode> &nodeList)
 {
     m_output << time() << indent("instancesChildrenChanged:") << endl;
 
-    foreach(const ModelNode &node, nodeList)
+    foreach (const ModelNode &node, nodeList)
         m_output << time() << indent("node: ") << node << endl;
 }
 

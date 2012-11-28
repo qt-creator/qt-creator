@@ -118,7 +118,7 @@ bool QmlModelState::hasPropertyChanges(const ModelNode &node) const
     if (isBaseState())
         return false;
 
-    foreach(const QmlPropertyChanges &changeSet, propertyChanges()) {
+    foreach (const QmlPropertyChanges &changeSet, propertyChanges()) {
         if (changeSet.target().isValid() && changeSet.target() == node)
             return true;
     }
@@ -132,7 +132,7 @@ bool QmlModelState::hasStateOperation(const ModelNode &node) const
     if (isBaseState())
         return false;
 
-    foreach(const  QmlModelStateOperation &stateOperation, stateOperations()) {
+    foreach (const  QmlModelStateOperation &stateOperation, stateOperations()) {
         if (stateOperation.target() == node)
             return true;
     }

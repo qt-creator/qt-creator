@@ -705,7 +705,7 @@ static inline QString msgDebugInsert(const WatchData &d0, const QList<WatchData>
     QString rc;
     QTextStream str(&rc);
     str << "INSERTING " << d0.toString() << '\n';
-    foreach(const WatchData &c, children)
+    foreach (const WatchData &c, children)
         str << "          " << c.toString() << '\n';
     return rc;
 }

@@ -86,7 +86,7 @@ void FormEditorScene::setupScene()
 
 void FormEditorScene::resetScene()
 {
-    foreach(QGraphicsItem *item, m_manipulatorLayerItem->childItems())
+    foreach (QGraphicsItem *item, m_manipulatorLayerItem->childItems())
        removeItem(item);
 
     setSceneRect(-canvasWidth()/2., -canvasHeight()/2., canvasWidth(), canvasHeight());
@@ -340,7 +340,7 @@ LayerItem* FormEditorScene::formLayerItem() const
 
 bool FormEditorScene::event(QEvent * event)
 {
-    switch(event->type())
+    switch (event->type())
     {
         case QEvent::GraphicsSceneHoverEnter :
             hoverEnterEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
@@ -414,7 +414,7 @@ void FormEditorScene::clearFormEditorItems()
 
 void FormEditorScene::highlightBoundingRect(FormEditorItem *highlighItem)
 {
-    foreach(FormEditorItem *item, allFormEditorItems()) {
+    foreach (FormEditorItem *item, allFormEditorItems()) {
         if (item == highlighItem)
             item->setHighlightBoundingRect(true);
         else

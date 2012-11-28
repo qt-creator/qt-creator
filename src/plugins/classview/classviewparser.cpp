@@ -188,7 +188,7 @@ ParserTreeItem::ConstPtr Parser::findItemByRoot(const QStandardItem *item, bool 
     // go item by item to the root
     QList<const QStandardItem *> uiList;
     const QStandardItem *cur = item;
-    while(cur) {
+    while (cur) {
         uiList.append(cur);
         cur = cur->parent();
     }
@@ -201,7 +201,7 @@ ParserTreeItem::ConstPtr Parser::findItemByRoot(const QStandardItem *item, bool 
     // using internal root - search correct item
     ParserTreeItem::ConstPtr internal = d->rootItem;
 
-    while(uiList.count() > 0) {
+    while (uiList.count() > 0) {
         cur = uiList.last();
         uiList.removeLast();
         const SymbolInformation &inf = Utils::symbolInformationFromItem(cur);
@@ -223,7 +223,7 @@ ParserTreeItem::ConstPtr Parser::parse()
 
     // check all projects
     QList<ProjectExplorer::Project *> projects = getProjectList();
-    foreach(const ProjectExplorer::Project *prj, projects) {
+    foreach (const ProjectExplorer::Project *prj, projects) {
         if (!prj)
             continue;
 
@@ -355,7 +355,7 @@ ParserTreeItem::Ptr Parser::createFlatTree(const QStringList &projectList)
     QReadLocker locker(&d->prjLocker);
 
     ParserTreeItem::Ptr item(new ParserTreeItem());
-    foreach(const QString &project, projectList) {
+    foreach (const QString &project, projectList) {
         if (!d->cachedPrjTrees.contains(project))
             continue;
         ParserTreeItem::ConstPtr list = d->cachedPrjTrees[project];
@@ -371,7 +371,7 @@ ParserTreeItem::Ptr Parser::getParseProjectTree(const QStringList &fileList,
     //! changed files only (old edition), and add curent editions
     ParserTreeItem::Ptr item(new ParserTreeItem());
     unsigned revision = 0;
-    foreach(const QString &file, fileList) {
+    foreach (const QString &file, fileList) {
         // ? locker for document?..
         const CPlusPlus::Document::Ptr &doc = d->document(file);
         if (doc.isNull())
@@ -406,7 +406,7 @@ ParserTreeItem::Ptr Parser::getCachedOrParseProjectTree(const QStringList &fileL
     if (!projectId.isEmpty() && d->cachedPrjTrees.contains(projectId)) {
         // calculate project's revision
         unsigned revision = 0;
-        foreach(const QString &file, fileList) {
+        foreach (const QString &file, fileList) {
             const CPlusPlus::Document::Ptr &doc = d->document(file);
             if (doc.isNull())
                 continue;
@@ -610,14 +610,14 @@ QStringList Parser::projectNodeFileList(const ProjectExplorer::FolderNode *node)
     QList<ProjectExplorer::FileNode *> fileNodes = node->fileNodes();
     QList<ProjectExplorer::FolderNode *> subFolderNodes = node->subFolderNodes();
 
-    foreach(const ProjectExplorer::FileNode *file, fileNodes) {
+    foreach (const ProjectExplorer::FileNode *file, fileNodes) {
         if (file->isGenerated())
             continue;
 
         list << file->path();
     }
 
-    foreach(const ProjectExplorer::FolderNode *folder, subFolderNodes) {
+    foreach (const ProjectExplorer::FolderNode *folder, subFolderNodes) {
         if (folder->nodeType() != ProjectExplorer::FolderNodeType
                 && folder->nodeType() != ProjectExplorer::VirtualFolderNodeType)
             continue;
@@ -654,7 +654,7 @@ QStringList Parser::addProjectNode(const ParserTreeItem::Ptr &item,
     // subnodes
     QList<ProjectExplorer::ProjectNode *> projectNodes = node->subProjectNodes();
 
-    foreach(const ProjectExplorer::ProjectNode *project, projectNodes) {
+    foreach (const ProjectExplorer::ProjectNode *project, projectNodes) {
         ParserTreeItem::Ptr itemPrj(new ParserTreeItem());
         SymbolInformation information(project->displayName(), project->path());
 

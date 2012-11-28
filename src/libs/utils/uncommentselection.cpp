@@ -258,7 +258,7 @@ void Utils::unCommentSelection(QPlainTextEdit *edit, const CommentDefinition &de
                 }
             } else {
                 QString text = block.text();
-                foreach(QChar c, text) {
+                foreach (QChar c, text) {
                     if (!c.isSpace()) {
                         if (definition.isAfterWhiteSpaces())
                             cursor.setPosition(block.position() + text.indexOf(c));

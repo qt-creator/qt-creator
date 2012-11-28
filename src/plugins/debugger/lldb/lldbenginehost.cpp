@@ -160,7 +160,7 @@ LldbEngineHost::LldbEngineHost(const DebuggerStartParameters &startParameters)
 
 
         QString a = Core::ICore::resourcePath() + QLatin1String("/qtcreator-lldb");
-        if(getenv("QTC_LLDB_GUEST") != 0)
+        if (getenv("QTC_LLDB_GUEST") != 0)
             a = QString::fromLocal8Bit(getenv("QTC_LLDB_GUEST"));
 
         showStatusMessage(QString(QLatin1String("starting %1")).arg(a));

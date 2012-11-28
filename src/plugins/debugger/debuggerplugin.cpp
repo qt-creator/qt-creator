@@ -159,7 +159,7 @@
 //#   define STATE_DEBUG(s)
 //    do { QString msg; QTextStream ts(&msg); ts << s;
 //      showMessage(msg, LogDebug); } while (0)
-#   define STATE_DEBUG(s) do { qDebug() << s; } while(0)
+#   define STATE_DEBUG(s) do { qDebug() << s; } while (0)
 #else
 #   define STATE_DEBUG(s)
 #endif

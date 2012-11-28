@@ -125,7 +125,7 @@ GitoriousProjectWidget *GitoriousProjectWizardPage::currentProjectWidget() const
 int GitoriousProjectWizardPage::stackIndexOf(const QString &hostName) const
 {
     const int count = m_stackedWidget->count();
-    for(int i = 0; i < count; i++)
+    for (int i = 0; i < count; i++)
         if (projectWidgetAt(i)->hostName() == hostName)
             return i;
     return -1;

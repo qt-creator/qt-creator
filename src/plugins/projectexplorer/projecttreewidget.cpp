@@ -208,7 +208,7 @@ void ProjectTreeWidget::recursiveSaveExpandData(const QModelIndex &index, QStrin
 void ProjectTreeWidget::foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*> &list)
 {
     Node *n = m_explorer->currentNode();
-    while(n) {
+    while (n) {
         if (FolderNode *fn = qobject_cast<FolderNode *>(n)) {
             if (list.contains(fn)) {
                 ProjectNode *pn = n->projectNode();

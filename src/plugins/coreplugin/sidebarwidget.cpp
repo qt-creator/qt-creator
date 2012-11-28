@@ -94,7 +94,7 @@ SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &id)
     qSort(titleList);
     QString t = id;
     if (titleList.count()) {
-        foreach(const QString &itemTitle, titleList)
+        foreach (const QString &itemTitle, titleList)
             m_comboBox->addItem(itemTitle, m_sideBar->idForTitle(itemTitle));
 
         m_comboBox->setCurrentIndex(0);
@@ -160,7 +160,7 @@ void SideBarWidget::updateAvailableItems()
         titleList.append(currentTitle);
     qSort(titleList);
 
-    foreach(const QString &itemTitle, titleList)
+    foreach (const QString &itemTitle, titleList)
         m_comboBox->addItem(itemTitle, m_sideBar->idForTitle(itemTitle));
 
     int idx = m_comboBox->findText(currentTitle);

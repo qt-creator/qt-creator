@@ -803,7 +803,7 @@ void FormEditorW::toolChanged(int t)
 
 void FormEditorW::closeFormEditorsForXmlEditors(QList<Core::IEditor*> editors)
 {
-    foreach(Core::IEditor *editor, editors) {
+    foreach (Core::IEditor *editor, editors) {
         m_editorWidget->removeFormWindowEditor(editor);
     }
 }

@@ -237,7 +237,7 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
     // class in case the user did not specify one.
     QString parentQObjectClass;
     bool defineQObjectMacro = false;
-    switch(params.classType) {
+    switch (params.classType) {
     case Utils::NewClassWidget::ClassInheritsQObject:
         parentQObjectClass = QLatin1String("QObject");
         defineQObjectMacro = true;

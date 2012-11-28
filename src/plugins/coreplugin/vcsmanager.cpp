@@ -132,7 +132,7 @@ public:
         VcsInfo *newInfo = new VcsInfo(vc, topLevel);
         bool createdNewInfo(true);
         // Do we have a matching VcsInfo already?
-        foreach(VcsInfo *i, m_vcsInfoList) {
+        foreach (VcsInfo *i, m_vcsInfoList) {
             if (*i == *newInfo) {
                 delete newInfo;
                 newInfo = i;

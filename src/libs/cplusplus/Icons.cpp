@@ -137,7 +137,7 @@ Icons::IconType Icons::iconTypeForSymbol(const Symbol *symbol)
 
 QIcon Icons::iconForType(IconType type) const
 {
-    switch(type) {
+    switch (type) {
     case ClassIconType:
         return _classIcon;
     case EnumIconType:

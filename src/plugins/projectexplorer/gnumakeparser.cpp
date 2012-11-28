@@ -368,7 +368,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing()
     QStringList searchDirs = childParser->searchDirectories();
 
     // add extra directories:
-    foreach(const QString &dir, extraSearchDirs)
+    foreach (const QString &dir, extraSearchDirs)
         childParser->addDirectory(dir);
 
     testbench.testParsing(input, inputChannel,

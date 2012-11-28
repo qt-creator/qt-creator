@@ -138,7 +138,7 @@ QDataStream &operator>>(QDataStream &stream, QList<PropertyContainer> &propertyC
     int count;
     stream >> count;
     Q_ASSERT(count >= 0);
-    for( int i = 0; i < count; i++) {
+    for ( int i = 0; i < count; i++) {
         PropertyContainer propertyContainer;
         stream >> propertyContainer;
         propertyContainerList.append(propertyContainer);

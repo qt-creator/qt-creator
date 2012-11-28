@@ -53,7 +53,7 @@ QtOutputFormatter::QtOutputFormatter(ProjectExplorer::Project *project)
     , m_qtTestFail(QLatin1String("^   Loc: \\[(.*)\\]"))
     , m_project(project)
 {
-    if(project) {
+    if (project) {
         m_projectFinder.setProjectFiles(project->files(Project::ExcludeGeneratedFiles));
         m_projectFinder.setProjectDirectory(project->projectDirectory());
 

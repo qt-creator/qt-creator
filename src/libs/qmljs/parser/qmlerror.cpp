@@ -211,7 +211,7 @@ QString QmlError::toString() const
         rv = QLatin1String("<Unknown File>");
     } else if (line() != -1) {
         rv = url().toString() + QLatin1Char(':') + QString::number(line());
-        if(column() != -1)
+        if (column() != -1)
             rv += QLatin1Char(':') + QString::number(column());
     } else {
         rv = url().toString();
@@ -251,7 +251,7 @@ QDebug operator<<(QDebug debug, const QmlError &error)
                 const QString &line = lines.at(error.line() - 1);
                 debug << "\n    " << qPrintable(line);
 
-                if(error.column() > 0) {
+                if (error.column() > 0) {
                     int column = qMax(0, error.column() - 1);
                     column = qMin(column, line.length());
 

@@ -41,7 +41,7 @@ namespace {
     QByteArray listAsByteArray(const QList<QByteArray> &list)
     {
         QByteArray array;
-        foreach(const QByteArray &elem, list)
+        foreach (const QByteArray &elem, list)
             array += elem + ',';
         if (!array.isEmpty())
             array.remove(array.count() - 1, 1);

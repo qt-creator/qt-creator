@@ -836,7 +836,7 @@ void FlatModel::filesAboutToBeRemoved(FolderNode *folder, const QList<FileNode*>
     FolderNode *folderNode = visibleFolderNode(folder);
 
     QSet<Node *> blackList;
-    foreach(Node *node, staleFiles)
+    foreach (Node *node, staleFiles)
         blackList.insert(node);
 
     // Now get the new List for that folder

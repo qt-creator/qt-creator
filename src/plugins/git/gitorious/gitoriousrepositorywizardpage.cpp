@@ -163,7 +163,7 @@ void GitoriousRepositoryWizardPage::initializePage()
         qStableSort(repositories.begin(), repositories.end(), gitRepoLessThanByType);
         const QString types[GitoriousRepository::PersonalRepository + 1] =
             { tr("Mainline Repositories"), tr("Clones"), tr("Baseline Repositories"), tr("Shared Project Repositories"), tr("Personal Repositories") };
-        foreach(const GitoriousRepository &r, repositories) {
+        foreach (const GitoriousRepository &r, repositories) {
             // New Header?
             if (r.type != lastRepoType || !header) {
                 lastRepoType = r.type;

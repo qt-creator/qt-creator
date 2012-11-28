@@ -193,7 +193,7 @@ static inline QStringList parseLists(QIODevice *io)
     QXmlStreamReader reader(data);
     State state = OutsideRecentLink;
     while (!reader.atEnd()) {
-        switch(reader.readNext()) {
+        switch (reader.readNext()) {
         case QXmlStreamReader::StartElement:
             // Inside a <div> of an entry: Anchor or description
             if (state == InsideRecentLink && reader.name() == anchorElement) { // Anchor

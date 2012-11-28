@@ -36,7 +36,7 @@ namespace QmlDesigner {
 double sum(const QList<double> & list)
 {
     double sum = 0.0;
-    for(QList<double>::const_iterator iterator = list.constBegin(); iterator != list.constEnd(); ++iterator)
+    for (QList<double>::const_iterator iterator = list.constBegin(); iterator != list.constEnd(); ++iterator)
     {
         sum += *iterator;
     }
