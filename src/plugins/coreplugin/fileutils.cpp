@@ -45,6 +45,8 @@
 
 #if QT_VERSION < 0x050000
 #include <QAbstractFileEngine>
+#else
+#include <private/qabstractfileengine_p.h>
 #endif
 
 #ifndef Q_OS_WIN
@@ -193,8 +195,7 @@ void FileUtils::removeFile(const QString &filePath, bool deleteFromFS)
 static inline bool fileSystemRenameFile(const QString &orgFilePath,
                                         const QString &newFilePath)
 {
-    QFile f(orgFilePath); // Due to QTBUG-3570
-    QAbstractFileEngine *fileEngine = f.fileEngine();
+    QAbstractFileEngine *fileEngine = QAbstractFileEngine::create(orgFilePath); // Due to QTBUG-3570
     if (!fileEngine->caseSensitive() && orgFilePath.compare(newFilePath, Qt::CaseInsensitive) == 0)
         return fileEngine->rename(newFilePath);
     return QFile::rename(orgFilePath, newFilePath);
