@@ -927,17 +927,17 @@ CodeFormatter::TokenKind CodeFormatter::extendedTokenKind(const QmlJS::Token &to
     QStringRef text = m_currentLine.midRef(token.begin(), token.length);
 
     if (kind == Identifier) {
-        if (text == "as")
+        if (text == QLatin1String("as"))
             return As;
-        if (text == "import")
+        if (text == QLatin1String("import"))
             return Import;
-        if (text == "signal")
+        if (text == QLatin1String("signal"))
             return Signal;
-        if (text == "property")
+        if (text == QLatin1String("property"))
             return Property;
-        if (text == "on")
+        if (text == QLatin1String("on"))
             return On;
-        if (text == "list")
+        if (text == QLatin1String("list"))
             return List;
     } else if (kind == Keyword) {
         const char char1 = text.at(0).toLatin1();
@@ -998,11 +998,11 @@ CodeFormatter::TokenKind CodeFormatter::extendedTokenKind(const QmlJS::Token &to
             return Break;
         }
     } else if (kind == Delimiter) {
-        if (text == "?")
+        if (text == QLatin1String("?"))
             return Question;
-        else if (text == "++")
+        else if (text == QLatin1String("++"))
             return PlusPlus;
-        else if (text == "--")
+        else if (text == QLatin1String("--"))
             return MinusMinus;
     }
 
