@@ -145,7 +145,7 @@ BlackBerryQtVersion::BlackBerryQtVersion()
 BlackBerryQtVersion::BlackBerryQtVersion(QnxArchitecture arch, const Utils::FileName &path, bool isAutoDetected, const QString &autoDetectionSource)
     : QnxAbstractQtVersion(arch, path, isAutoDetected, autoDetectionSource)
 {
-
+    setDisplayName(defaultDisplayName(qtVersionString(), path, false));
 }
 
 BlackBerryQtVersion::~BlackBerryQtVersion()

@@ -44,7 +44,9 @@ EmbeddedLinuxQtVersion::EmbeddedLinuxQtVersion()
 
 EmbeddedLinuxQtVersion::EmbeddedLinuxQtVersion(const Utils::FileName &path, bool isAutodetected, const QString &autodetectionSource)
     : BaseQtVersion(path, isAutodetected, autodetectionSource)
-{ }
+{
+    setDisplayName(defaultDisplayName(qtVersionString(), path, false));
+}
 
 EmbeddedLinuxQtVersion::~EmbeddedLinuxQtVersion()
 { }

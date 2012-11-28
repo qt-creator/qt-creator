@@ -185,7 +185,6 @@ BaseQtVersion::BaseQtVersion(const FileName &qmakeCommand, bool isAutodetected, 
       m_qmakeIsExecutable(true)
 {
     ctor(qmakeCommand);
-    setDisplayName(defaultDisplayName(qtVersionString(), qmakeCommand, false));
 }
 
 BaseQtVersion::BaseQtVersion()

@@ -46,6 +46,7 @@ QnxQtVersion::QnxQtVersion()
 QnxQtVersion::QnxQtVersion(QnxArchitecture arch, const Utils::FileName &path, bool isAutoDetected, const QString &autoDetectionSource)
     : QnxAbstractQtVersion(arch, path, isAutoDetected, autoDetectionSource)
 {
+    setDisplayName(defaultDisplayName(qtVersionString(), path, false));
 }
 
 QnxQtVersion *QnxQtVersion::clone() const

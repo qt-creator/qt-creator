@@ -60,7 +60,7 @@ MaemoQtVersion::MaemoQtVersion(const Utils::FileName &path, bool isAutodetected,
       m_isvalidVersion(false),
       m_initialized(false)
 {
-
+    setDisplayName(defaultDisplayName(qtVersionString(), path, false));
 }
 
 MaemoQtVersion::~MaemoQtVersion()
