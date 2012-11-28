@@ -223,7 +223,7 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
     return projectName
 
 def createNewQtQuickUI(workingDir):
-    __createProjectOrFileSelectType__("  Applications", "Qt Quick UI")
+    __createProjectOrFileSelectType__("  Applications", "Qt Quick 1 UI")
     if workingDir == None:
         workingDir = tempDir()
     projectName = __createProjectSetNameAndPath__(workingDir)
