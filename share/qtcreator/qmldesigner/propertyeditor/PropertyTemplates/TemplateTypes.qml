@@ -4,26 +4,26 @@ AutoTypes {
 
     Type {
        typeNames: ["int"]
-       sourceFile: "IntEditorTemplate.qml"
+       sourceFile: "IntEditorTemplate.template"
     }
     Type {
         typeNames: ["real", "double", "qreal"]
-        sourceFile: "RealEditorTemplate.qml"
+        sourceFile: "RealEditorTemplate.template"
     }
     Type {
         typeNames: ["string", "QString"]
-        sourceFile: "StringEditorTemplate.qml"
+        sourceFile: "StringEditorTemplate.template"
     }
     Type {
         typeNames: ["QUrl", "url"]
-        sourceFile: "UrlEditorTemplate.qml"
+        sourceFile: "UrlEditorTemplate.template"
     }
     Type {
         typeNames: ["bool", "boolean"]
-        sourceFile: "BooleanEditorTemplate.qml"
+        sourceFile: "BooleanEditorTemplate.template"
     }
     Type {
         typeNames: ["color", "QColor"]
-        sourceFile: "ColorEditorTemplate.qml"
+        sourceFile: "ColorEditorTemplate.template"
     }
 }
