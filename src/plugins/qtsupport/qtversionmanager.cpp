@@ -424,12 +424,14 @@ void QtVersionManager::updateDocumentation()
     Q_ASSERT(helpManager);
     QStringList files;
     foreach (BaseQtVersion *v, m_versions) {
-        const QString docPath = v->documentationPath() + QLatin1String("/qch/");
-        const QDir versionHelpDir(docPath);
-        foreach (const QString &helpFile,
-                versionHelpDir.entryList(QStringList() << QLatin1String("*.qch"), QDir::Files))
-            files << docPath + helpFile;
-
+        const QStringList docPaths = QStringList() << v->documentationPath() + QLatin1Char('/')
+                                                   << v->documentationPath() + QLatin1String("/qch/");
+        foreach (const QString &docPath, docPaths) {
+            const QDir versionHelpDir(docPath);
+            foreach (const QString &helpFile,
+                     versionHelpDir.entryList(QStringList() << QLatin1String("*.qch"), QDir::Files))
+                files << docPath + helpFile;
+        }
     }
     helpManager->registerDocumentation(files);
 }
