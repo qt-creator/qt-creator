@@ -242,6 +242,7 @@ bool MakeStep::init()
 
     pp->setEnvironment(env);
     pp->setArguments(args);
+    pp->resolveAll();
 
     setOutputParser(new ProjectExplorer::GnuMakeParser());
     IOutputParser *parser = target()->kit()->createOutputParser();

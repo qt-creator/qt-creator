@@ -289,6 +289,7 @@ bool QMakeStep::init()
     pp->setCommand(program.toString());
     pp->setArguments(args);
     pp->setEnvironment(qt4bc->environment());
+    pp->resolveAll();
 
     setOutputParser(new QMakeParser);
 

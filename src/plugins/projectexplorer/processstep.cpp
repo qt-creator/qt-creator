@@ -97,6 +97,8 @@ bool ProcessStep::init()
     pp->setWorkingDirectory(workingDirectory());
     pp->setCommand(m_command);
     pp->setArguments(m_arguments);
+    pp->resolveAll();
+
     IOutputParser *parser = target()->kit()->createOutputParser();
     if (parser)
         setOutputParser(parser);

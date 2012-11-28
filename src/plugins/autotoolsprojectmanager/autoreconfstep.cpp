@@ -160,6 +160,7 @@ bool AutoreconfStep::init()
     pp->setWorkingDirectory(bc->buildDirectory());
     pp->setCommand(QLatin1String("autoreconf"));
     pp->setArguments(additionalArguments());
+    pp->resolveAll();
 
     return AbstractProcessStep::init();
 }

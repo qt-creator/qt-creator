@@ -198,6 +198,7 @@ bool MakeStep::init()
     pp->setWorkingDirectory(bc->buildDirectory());
     pp->setCommand(makeCommand(tc, bc->environment()));
     pp->setArguments(arguments);
+    pp->resolveAll();
 
     setOutputParser(new ProjectExplorer::GnuMakeParser());
     IOutputParser *parser = target()->kit()->createOutputParser();

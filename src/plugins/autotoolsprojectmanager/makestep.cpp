@@ -189,6 +189,7 @@ bool MakeStep::init()
     pp->setWorkingDirectory(bc->buildDirectory());
     pp->setCommand(tc ? tc->makeCommand(bc->environment()) : QLatin1String("make"));
     pp->setArguments(arguments);
+    pp->resolveAll();
 
     setOutputParser(new GnuMakeParser());
     IOutputParser *parser = target()->kit()->createOutputParser();

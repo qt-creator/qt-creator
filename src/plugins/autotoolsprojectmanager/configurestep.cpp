@@ -161,6 +161,7 @@ bool ConfigureStep::init()
     pp->setWorkingDirectory(bc->buildDirectory());
     pp->setCommand(QLatin1String("configure"));
     pp->setArguments(additionalArguments());
+    pp->resolveAll();
 
     return AbstractProcessStep::init();
 }

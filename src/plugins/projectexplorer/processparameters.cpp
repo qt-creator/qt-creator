@@ -198,3 +198,10 @@ QString ProcessParameters::summaryInWorkdir(const QString &displayName) const
                  prettyArguments(),
                  QDir::toNativeSeparators(effectiveWorkingDirectory()));
 }
+
+void ProcessParameters::resolveAll()
+{
+    effectiveCommand();
+    effectiveArguments();
+    effectiveWorkingDirectory();
+}

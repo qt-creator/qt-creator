@@ -121,6 +121,7 @@ bool GenericMakeStep::init()
     pp->setEnvironment(env);
     pp->setCommand(makeCommand(bc->environment()));
     pp->setArguments(allArguments());
+    pp->resolveAll();
 
     // If we are cleaning, then make can fail with an error code, but that doesn't mean
     // we should stop the clean queue

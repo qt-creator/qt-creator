@@ -76,6 +76,7 @@ public:
     QString summary(const QString &displayName) const;
     QString summaryInWorkdir(const QString &displayName) const;
 
+    void resolveAll();
 private:
     QString m_workingDirectory;
     QString m_command;
