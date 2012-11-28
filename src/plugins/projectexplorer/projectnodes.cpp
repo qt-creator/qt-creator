@@ -756,7 +756,7 @@ void SessionNode::watcherDestroyed(QObject *watcher)
   by calling ProjectNode::unregisterWatcher and
   SessionNode::unregisterWatcher().
 
-  The NodesWatcher is similar to the Observer in the  
+  The NodesWatcher is similar to the Observer in the
   well-known Observer pattern (Booch et al).
 
   \sa ProjectExplorer::Node

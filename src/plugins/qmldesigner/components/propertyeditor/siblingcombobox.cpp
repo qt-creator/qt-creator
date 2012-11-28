@@ -34,7 +34,7 @@ namespace QmlDesigner {
 
 void SiblingComboBox::setItemNode(const QVariant &itemNode)
 {
-    
+
     if (!itemNode.value<ModelNode>().isValid() || !QmlItemNode(itemNode.value<ModelNode>()).hasNodeParent())
         return;
     m_itemNode = itemNode.value<ModelNode>();

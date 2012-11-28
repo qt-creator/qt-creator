@@ -751,7 +751,7 @@ public:
 
     AST::UiQualifiedId *qmlTypeName() const;
 
-private:    
+private:
     virtual const Value *value(ReferenceContext *referenceContext) const;
 
     AST::UiQualifiedId *_qmlTypeName;

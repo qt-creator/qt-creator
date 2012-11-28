@@ -64,7 +64,7 @@ QAbstractSpinBox::StepEnabled FontSizeSpinBox::stepEnabled() const
 {
     if (value() > 1)
         return (StepUpEnabled | StepDownEnabled);
-    else 
+    else
         return StepUpEnabled;
 }
 void FontSizeSpinBox::setText()

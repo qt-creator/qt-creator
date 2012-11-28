@@ -313,7 +313,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                         QLatin1String("unused variable 'handler'"),
                         Utils::FileName::fromUserInput("../../../../master/src/plugins/debugger/gdb/gdbengine.cpp"), 2115,
                         categoryCompile))
-            << QString();    
+            << QString();
     QTest::newRow("gnumakeparser.cpp errors")
             << QString::fromLatin1("/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp: In member function 'void ProjectExplorer::ProjectExplorerPlugin::testGnuMakeParserTaskMangling_data()':\n"
                                    "/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp:264: error: expected primary-expression before ':' token\n"

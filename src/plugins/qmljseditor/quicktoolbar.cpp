@@ -219,7 +219,7 @@ void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr docum
             m_node = 0;
             PropertyReader propertyReader(document, initializer);
             QTextCursor tc(editor->editorWidget()->document());
-            tc.setPosition(offset); 
+            tc.setPosition(offset);
             QPoint p1 = editor->editorWidget()->mapToParent(editor->editorWidget()->viewport()->mapToParent(editor->editorWidget()->cursorRect(tc).topLeft()) - QPoint(0, contextWidget()->height() + 10));
             tc.setPosition(end);
             QPoint p2 = editor->editorWidget()->mapToParent(editor->editorWidget()->viewport()->mapToParent(editor->editorWidget()->cursorRect(tc).bottomLeft()) + QPoint(0, 10));
@@ -237,7 +237,7 @@ void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr docum
                 contextWidget()->rePosition(p3 , p1, p2, QuickToolBarSettings::get().pinContextPane);
             contextWidget()->setOptions(QuickToolBarSettings::get().enableContextPane, QuickToolBarSettings::get().pinContextPane);
             contextWidget()->setPath(document->path());
-            contextWidget()->setProperties(&propertyReader); 
+            contextWidget()->setProperties(&propertyReader);
             m_doc = document;
             m_node = node;
         } else {

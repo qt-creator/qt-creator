@@ -234,7 +234,7 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
                 rootModelNode.variantProperty("y") = propertyPairList.at(1).second;
 
                 ModelMerger merger(this);
-                newNode = merger.insertModel(rootModelNode);               
+                newNode = merger.insertModel(rootModelNode);
             }
         }
 

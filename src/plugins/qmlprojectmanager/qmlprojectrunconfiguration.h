@@ -108,7 +108,7 @@ protected:
 private:
     void ctor();
     static bool isValidVersion(QtSupport::BaseQtVersion *version);
-    
+
     static QString canonicalCapsPath(const QString &filePath);
 
     Utils::Environment baseEnvironment() const;

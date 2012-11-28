@@ -54,7 +54,7 @@ bool LabelFilter::eventFilter(QObject *obj, QEvent *event)
         emit doubleClicked();
         event->accept();
         return true;
-    }    
+    }
     return QObject::eventFilter(obj, event);
 }
 
@@ -113,7 +113,7 @@ ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent, bool borderImage
         connect(ui->horizontalStretchRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));
         connect(ui->verticalStretchRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));
         connect(ui->preserveAspectFitRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));
-        connect(ui->cropAspectFitRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));        
+        connect(ui->cropAspectFitRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));
     }
     previewDialog();
     m_fileWidget->setShowComboBox(true);
@@ -205,7 +205,7 @@ void ContextPaneWidgetImage::setProperties(QmlJS::PropertyReader *propertyReader
                 ui->cropAspectFitRadioButton->setChecked(true);
         } else {
             ui->stretchRadioButton->setChecked(true);
-        }        
+        }
     }
     if (propertyReader->hasProperty(QLatin1String("source"))) {
         QString source = propertyReader->readProperty(QLatin1String("source")).toString();
@@ -336,7 +336,7 @@ void ContextPaneWidgetImage::onFileNameChanged()
 }
 
 void ContextPaneWidgetImage::onPixmapDoubleClicked()
-{    
+{
     previewDialog()->setParent(parentWidget()->parentWidget());
     previewDialog()->setMaximumSize(previewDialog()->parentWidget()->size() - QSize(150, 100));
     if (m_borderImage)
@@ -358,7 +358,7 @@ void ContextPaneWidgetImage::onPixmapDoubleClicked()
     if (previewDialog()->pos().x() < 0)
         previewDialog()->move(0, previewDialog()->pos().y());
     if (previewDialog()->pos().y() < 0)
-        previewDialog()->move(previewDialog()->pos().x(), 0);        
+        previewDialog()->move(previewDialog()->pos().x(), 0);
 
     previewDialog()->raise();
 }

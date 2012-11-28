@@ -124,7 +124,7 @@ public:
 
     void setPattern(const QString &pattern);
     void setInsensitive(const QString &insensitive);
-    void setMinimal(const QString &minimal);    
+    void setMinimal(const QString &minimal);
 
 private:
     virtual bool doMatchSucceed(const QString &text,

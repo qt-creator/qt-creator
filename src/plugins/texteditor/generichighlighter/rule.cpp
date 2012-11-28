@@ -163,7 +163,7 @@ bool Rule::charPredicateMatchSucceed(const QString &text,
 }
 
 bool Rule::matchSucceed(const QString &text, const int length, ProgressData *progress)
-{ 
+{
     if (m_firstNonSpace && !progress->isOnlySpacesSoFar())
         return false;
 

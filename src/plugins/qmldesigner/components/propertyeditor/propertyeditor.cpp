@@ -254,11 +254,11 @@ void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QS
         m_backendAnchorBinding.setup(QmlItemNode(fxObjectNode.modelNode()));
 
         ctxt->setContextProperty("anchorBackend", &m_backendAnchorBinding);
-        
+
         ctxt->setContextProperty("transaction", m_propertyEditorTransaction.data());
-        
+
         m_contextObject->setSpecificsUrl(qmlSpecificsFile);
-        
+
         m_contextObject->setStateName(stateName);
         if (!fxObjectNode.isValid())
             return;
@@ -774,7 +774,7 @@ void PropertyEditor::resetView()
         ctxt->setContextProperty("finishedNotify", QVariant(false));
         if (specificQmlData.isEmpty())
             type->m_contextObject->setSpecificQmlData(specificQmlData);
-            
+
         type->m_contextObject->setGlobalBaseUrl(qmlFile);
         type->m_contextObject->setSpecificQmlData(specificQmlData);
         type->m_view->setSource(qmlFile);
@@ -785,7 +785,7 @@ void PropertyEditor::resetView()
             fxObjectNode = QmlObjectNode(m_selectedNode);
         }
         QDeclarativeContext *ctxt = type->m_view->rootContext();
-        
+
         ctxt->setContextProperty("finishedNotify", QVariant(false));
         if (specificQmlData.isEmpty())
             type->m_contextObject->setSpecificQmlData(specificQmlData);

@@ -351,7 +351,7 @@ void HighlightDefinitionHandler::keywordStarted(const QXmlAttributes &atts)
 }
 
 void HighlightDefinitionHandler::intStarted(const QXmlAttributes &atts)
-{    
+{
     ruleElementStarted(atts, QSharedPointer<Rule>(new IntRule));
 }
 
@@ -361,17 +361,17 @@ void HighlightDefinitionHandler::floatStarted(const QXmlAttributes &atts)
 }
 
 void HighlightDefinitionHandler::hlCOctStarted(const QXmlAttributes &atts)
-{    
+{
     ruleElementStarted(atts, QSharedPointer<Rule>(new HlCOctRule));
 }
 
 void HighlightDefinitionHandler::hlCHexStarted(const QXmlAttributes &atts)
-{    
+{
     ruleElementStarted(atts, QSharedPointer<Rule>(new HlCHexRule));
 }
 
 void HighlightDefinitionHandler::hlCStringCharStarted(const QXmlAttributes &atts)
-{    
+{
     ruleElementStarted(atts, QSharedPointer<Rule>(new HlCStringCharRule));
 }
 
@@ -389,7 +389,7 @@ void HighlightDefinitionHandler::rangeDetectStarted(const QXmlAttributes &atts)
 }
 
 void HighlightDefinitionHandler::lineContinue(const QXmlAttributes &atts)
-{    
+{
     ruleElementStarted(atts, QSharedPointer<Rule>(new LineContinueRule));
 }
 

@@ -371,7 +371,7 @@ void DisassemblerAgent::updateLocationMarker()
 
     QPlainTextEdit *plainTextEdit =
         qobject_cast<QPlainTextEdit *>(d->editor->widget());
-    QTC_ASSERT(plainTextEdit, return); 
+    QTC_ASSERT(plainTextEdit, return);
     QTextCursor tc = plainTextEdit->textCursor();
     QTextBlock block = tc.document()->findBlockByNumber(lineNumber - 1);
     tc.setPosition(block.position());

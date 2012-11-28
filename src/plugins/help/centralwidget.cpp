@@ -288,7 +288,7 @@ void CentralWidget::focusInEvent(QFocusEvent * /* event */)
 void CentralWidget::highlightSearchTerms()
 {
     if (HelpViewer *viewer = currentHelpViewer()) {
-        QHelpSearchEngine *searchEngine = 
+        QHelpSearchEngine *searchEngine =
             LocalHelpManager::helpEngine().searchEngine();
         QList<QHelpSearchQuery> queryList = searchEngine->query();
 

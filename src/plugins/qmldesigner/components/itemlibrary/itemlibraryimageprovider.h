@@ -39,7 +39,7 @@ namespace Internal {
 class ItemLibraryImageProvider : public QDeclarativeImageProvider
 {
 public:
-    ItemLibraryImageProvider(); 
+    ItemLibraryImageProvider();
 
     QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize);
 };

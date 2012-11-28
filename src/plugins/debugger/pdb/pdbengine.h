@@ -162,7 +162,7 @@ private:
 
     QQueue<PdbCommand> m_commands;
 
-    QByteArray m_inbuffer; 
+    QByteArray m_inbuffer;
     QString m_scriptFileName;
     QProcess m_pdbProc;
     QString m_pdb;

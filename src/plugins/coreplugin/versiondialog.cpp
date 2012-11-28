@@ -85,7 +85,7 @@ VersionDialog::VersionDialog(QWidget *parent)
         "The program is provided AS IS with NO WARRANTY OF ANY KIND, "
         "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A "
         "PARTICULAR PURPOSE.<br/>")
-        .arg(version, 
+        .arg(version,
              QLatin1String(QT_VERSION_STR), QString::number(QSysInfo::WordSize),
              QLatin1String(__DATE__), QLatin1String(__TIME__), QLatin1String(Constants::IDE_YEAR),
              (QLatin1String(Constants::IDE_AUTHOR)), ideVersionDescription,

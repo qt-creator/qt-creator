@@ -161,7 +161,7 @@ void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, QmlIt
     Q_ASSERT(m_dragNode.modelNode().isValid());
 
     QList<QmlItemNode> nodeList;
-    nodeList.append(m_dragNode);    
+    nodeList.append(m_dragNode);
     m_selectionIndicator.setItems(scene()->itemsForQmlItemNodes(nodeList));
 }
 

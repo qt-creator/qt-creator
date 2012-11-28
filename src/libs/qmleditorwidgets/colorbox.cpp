@@ -199,7 +199,7 @@ void ColorBox::paintEvent(QPaintEvent *event)
         }
         m_cache = QPixmap::fromImage(cache);
     }
-    
+
     p.drawPixmap(5, 5, m_cache);
 
     int x = clamp(m_color.hsvSaturationF() * 120, 0, 119) + 5;

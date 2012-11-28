@@ -139,7 +139,7 @@ static inline QString fixEscapedUnicodeChar(const QString &value) //convert "\u2
     }
     return value;
 }
- 
+
 static inline bool isSignalPropertyName(const QString &signalName)
 {
     // see QmlCompiler::isSignalPropertyName
@@ -258,7 +258,7 @@ static bool isCustomParserType(const QString &type)
 
 
 static bool isPropertyChangesType(const QString &type)
-{    
+{
     return  type == QLatin1String("PropertyChanges") || type == QLatin1String("QtQuick.PropertyChanges") || type == QLatin1String("Qt.PropertyChanges");
 }
 
@@ -1567,7 +1567,7 @@ ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProp
             modelProperty.reparentHere(newNode);
         } else { //The default property could a NodeProperty implicitly (delegate:)
             modelProperty.parentModelNode().removeProperty(modelProperty.name());
-            modelProperty.reparentHere(newNode); 
+            modelProperty.reparentHere(newNode);
         }
     } else {
         modelProperty.reparentHere(newNode);

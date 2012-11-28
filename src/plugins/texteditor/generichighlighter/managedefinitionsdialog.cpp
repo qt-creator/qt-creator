@@ -54,7 +54,7 @@ ManageDefinitionsDialog::ManageDefinitionsDialog(
     m_definitionsMetaData(metaDataList),
     m_path(path)
 {
-    ui.setupUi(this);    
+    ui.setupUi(this);
     ui.definitionsTable->setHorizontalHeaderLabels(
         QStringList() << tr("Name") << tr("Installed") << tr("Available"));
     ui.definitionsTable->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);

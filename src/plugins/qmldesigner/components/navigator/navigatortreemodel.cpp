@@ -252,7 +252,7 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
 
 void NavigatorTreeModel::updateItemRow(const ModelNode &node, ItemRow items)
 {
-    bool blockSignal = blockItemChangedSignal(true);    
+    bool blockSignal = blockItemChangedSignal(true);
 
     items.idItem->setText(node.id());
     items.visibilityItem->setCheckState(node.auxiliaryData("invisible").toBool() ? Qt::Unchecked : Qt::Checked);
@@ -632,7 +632,7 @@ QStringList NavigatorTreeModel::visibleProperties(const ModelNode &node) const
                 propertyList.append(propertyName);
             }
         }
-    }    
+    }
 
     return propertyList;
 }

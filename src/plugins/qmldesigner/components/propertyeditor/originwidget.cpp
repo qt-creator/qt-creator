@@ -108,7 +108,7 @@ void OriginWidget::mouseReleaseEvent(QMouseEvent *event)
 }
 
 void OriginWidget::mousePressEvent(QMouseEvent * event)
-{    
+{
     if (event->button() == Qt::LeftButton) {
         m_pressed = true;
         for (int i = 0; i < positions.size(); i++)

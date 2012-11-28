@@ -49,7 +49,7 @@ public:
         : zoomCount(zoom)
         , forceFont(false)
         , lastAnchor(QString())
-        
+
     {}
 
     bool hasAnchorAt(QTextBrowser *browser, const QPoint& pos)

@@ -32,7 +32,7 @@ namespace QmlDesigner {
 
 namespace Internal {
 
-ItemLibraryImageProvider::ItemLibraryImageProvider() : 
+ItemLibraryImageProvider::ItemLibraryImageProvider() :
         QDeclarativeImageProvider(QDeclarativeImageProvider::Pixmap)
 {
 }
@@ -44,7 +44,7 @@ QPixmap ItemLibraryImageProvider::requestPixmap(const QString &id, QSize *size, 
         size->setWidth(pixmap.width());
         size->setHeight(pixmap.height());
     }
-    if (requestedSize.isValid()) 
+    if (requestedSize.isValid())
         return pixmap.scaled(requestedSize);
     return pixmap;
 }

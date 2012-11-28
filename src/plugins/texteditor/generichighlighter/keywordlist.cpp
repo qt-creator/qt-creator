@@ -35,7 +35,7 @@ using namespace Internal;
 void KeywordList::addKeyword(const QString &keyword)
 {
     if (keyword.isEmpty())
-        return; 
+        return;
 
     m_keywords.insert(keyword);
 }

@@ -96,7 +96,7 @@ instanciated instance of this object.
 
 */
 QVariant  QmlObjectNode::instanceValue(const QString &name) const
-{    
+{
     return nodeInstance().property(name);
 }
 

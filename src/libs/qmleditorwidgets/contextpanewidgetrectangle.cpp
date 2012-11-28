@@ -74,7 +74,7 @@ ContextPaneWidgetRectangle::~ContextPaneWidgetRectangle()
 }
 
 void ContextPaneWidgetRectangle::setProperties(QmlJS::PropertyReader *propertyReader)
-{    
+{
     m_hasGradient = propertyReader->hasProperty(QLatin1String("gradient"));
     m_none = false;
     m_hasBorder = false;

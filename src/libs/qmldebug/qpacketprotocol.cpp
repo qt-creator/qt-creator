@@ -226,7 +226,7 @@ QPacketProtocol::~QPacketProtocol()
 /*!
   Returns the maximum packet size allowed.  By default this is
   2,147,483,647 bytes.
-  
+
   If a packet claiming to be larger than the maximum packet size is received,
   the QPacketProtocol::invalidPacket() signal is emitted.
 

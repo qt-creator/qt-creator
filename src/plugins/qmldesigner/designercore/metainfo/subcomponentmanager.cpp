@@ -88,7 +88,7 @@ void SubComponentManager::addImport(int pos, const Import &import)
         }
     } else {
         QString url = import.url();
-        
+
         url.replace(QLatin1Char('.'), QLatin1Char('/'));
 
         foreach (const QString &path, importPaths()) {

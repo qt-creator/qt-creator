@@ -164,7 +164,7 @@ FutureProgress::FutureProgress(QWidget *parent) :
     connect(&d->m_watcher, SIGNAL(progressValueChanged(int)), this, SLOT(setProgressValue(int)));
     connect(&d->m_watcher, SIGNAL(progressTextChanged(QString)),
             this, SLOT(setProgressText(QString)));
-    connect(d->m_progress, SIGNAL(clicked()), this, SLOT(cancel()));    
+    connect(d->m_progress, SIGNAL(clicked()), this, SLOT(cancel()));
 }
 
 /*!

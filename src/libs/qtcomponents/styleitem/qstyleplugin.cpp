@@ -36,7 +36,7 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
- 
+
 #include <qdeclarative.h>
 #include "qstyleplugin.h"
 #include "qstyleitem.h"

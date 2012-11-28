@@ -762,7 +762,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     nodeList = filterNodesForSkipItems(nodeList);
 
     QList<VariantProperty> variantPropertyList;
-    QList<BindingProperty> bindingPropertyList;    
+    QList<BindingProperty> bindingPropertyList;
 
     QVector<PropertyValueContainer> auxiliaryContainerVector;
     foreach (const ModelNode &node, nodeList) {

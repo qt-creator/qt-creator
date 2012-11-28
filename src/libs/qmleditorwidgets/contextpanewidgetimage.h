@@ -129,7 +129,7 @@ public:
     explicit ContextPaneWidgetImage(QWidget *parent = 0, bool borderImage = false);
     ~ContextPaneWidgetImage();
     void setProperties(QmlJS::PropertyReader *propertyReader);
-    void setPath(const QString& path);   
+    void setPath(const QString& path);
     PreviewDialog* previewDialog();
 
 signals:

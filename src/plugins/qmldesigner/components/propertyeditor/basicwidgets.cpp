@@ -652,7 +652,7 @@ protected:
         QFontMetrics fm(font());
         if (fm.width(text()) > (contentsRect().width() - 8) && text().length() > 4) {
             QPainter p(this);
-            QString elided_txt;            
+            QString elided_txt;
             elided_txt = fm.elidedText(text(), Qt::ElideRight, contentsRect().width() - 8, Qt::TextShowMnemonic);
             p.drawText(contentsRect().adjusted(12, 0, 0, 0), Qt::TextSingleLine, elided_txt);
         }

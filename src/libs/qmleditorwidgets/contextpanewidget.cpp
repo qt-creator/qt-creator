@@ -411,7 +411,7 @@ void ContextPaneWidget::onTogglePane()
 }
 
 void ContextPaneWidget::onShowColorDialog(bool checked, const QPoint &p)
-{    
+{
     if (checked) {
         colorDialog()->setParent(parentWidget());
         colorDialog()->move(p);
@@ -423,7 +423,7 @@ void ContextPaneWidget::onShowColorDialog(bool checked, const QPoint &p)
 }
 
 void ContextPaneWidget::onDisable(bool b)
-{       
+{
     enabledChanged(b);
     if (!b) {
         hide();
@@ -448,7 +448,7 @@ void ContextPaneWidget::protectedMoved()
 }
 
 QWidget* ContextPaneWidget::createFontWidget()
-{    
+{
     m_textWidget = new ContextPaneTextWidget(this);
     connect(m_textWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
     connect(m_textWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));

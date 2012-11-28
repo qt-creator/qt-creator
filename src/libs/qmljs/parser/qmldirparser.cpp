@@ -220,7 +220,7 @@ bool QmlDirParser::parse(const QString &source)
                 }
             }
         } else {
-            reportError(lineNumber, -1, 
+            reportError(lineNumber, -1,
                         QString::fromUtf8("a component declaration requires two or three arguments, but %1 were provided").arg(sectionCount));
         }
 

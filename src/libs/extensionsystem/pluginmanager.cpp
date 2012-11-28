@@ -133,7 +133,7 @@ enum { debugLeaks = 0 };
     invokable methods of the "provider" object in the object pool.
 
     The \c{ExtensionSystem::invoke} function template encapsulates
-    {ExtensionSystem::Invoker} construction for the common case where 
+    {ExtensionSystem::Invoker} construction for the common case where
     the success of the call is not checked.
 
     \code

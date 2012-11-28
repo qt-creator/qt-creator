@@ -797,7 +797,7 @@ void PerforcePlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)
 {
     if (!enableMenuAction(as, m_menuAction)) {
         m_commandLocator->setEnabled(false);
-        return;        
+        return;
     }
     const bool hasTopLevel = currentState().hasTopLevel();
     m_commandLocator->setEnabled(hasTopLevel);
