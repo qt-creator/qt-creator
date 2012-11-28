@@ -48,9 +48,6 @@
 #include <QStyleOption>
 #include <QHeaderView>
 #include <QKeyEvent>
-#ifdef Q_OS_MAC
-#include <qmacstyle_mac.h>
-#endif
 
 using namespace Core;
 using namespace Core::Internal;

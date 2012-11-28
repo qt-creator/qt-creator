@@ -42,10 +42,6 @@
 #include <QMouseEvent>
 #include <QMenu>
 
-#ifdef Q_OS_MAC
-#include <qmacstyle_mac.h>
-#endif
-
 using namespace Help::Internal;
 
 // -- OpenPagesDelegate
