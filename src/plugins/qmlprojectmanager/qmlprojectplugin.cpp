@@ -80,7 +80,11 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     addAutoReleasedObject(manager);
     addAutoReleasedObject(new Internal::QmlProjectRunConfigurationFactory);
     addAutoReleasedObject(new Internal::QmlProjectRunControlFactory);
-    addAutoReleasedObject(new Internal::QmlProjectApplicationWizard);
+
+    addAutoReleasedObject(new Internal::QmlProjectApplicationWizard(
+                              Internal::QmlProjectApplicationWizard::QtQuick1Project));
+    addAutoReleasedObject(new Internal::QmlProjectApplicationWizard(
+                              Internal::QmlProjectApplicationWizard::QtQuick2Project));
 
     QmlProjectFileFormat::registerDeclarativeTypes();
 

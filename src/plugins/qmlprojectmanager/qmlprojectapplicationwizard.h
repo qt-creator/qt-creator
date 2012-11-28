@@ -49,11 +49,16 @@ class QmlProjectApplicationWizard : public Core::BaseFileWizard
     Q_OBJECT
 
 public:
-    QmlProjectApplicationWizard();
+    enum ProjectType {
+        QtQuick2Project,
+        QtQuick1Project
+    };
+
+    QmlProjectApplicationWizard(ProjectType projectType);
     virtual ~QmlProjectApplicationWizard();
     virtual Core::FeatureSet requiredFeatures() const;
 
-    static Core::BaseFileWizardParameters parameters();
+    static Core::BaseFileWizardParameters parameters(ProjectType projectType);
 
 protected:
     virtual QWizard *createWizardDialog(QWidget *parent,
@@ -63,6 +68,9 @@ protected:
                                                QString *errorMessage) const;
 
     virtual bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
+
+private:
+    const ProjectType m_projectType;
 };
 
 } // namespace Internal

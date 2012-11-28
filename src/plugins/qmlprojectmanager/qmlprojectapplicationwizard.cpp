@@ -56,8 +56,8 @@ QmlProjectApplicationWizardDialog::QmlProjectApplicationWizardDialog(QWidget *pa
     setIntroDescription(tr("This wizard generates a Qt Quick UI project."));
 }
 
-QmlProjectApplicationWizard::QmlProjectApplicationWizard()
-    : Core::BaseFileWizard(parameters())
+QmlProjectApplicationWizard::QmlProjectApplicationWizard(ProjectType projectType)
+    : Core::BaseFileWizard(parameters(projectType)), m_projectType(projectType)
 { }
 
 QmlProjectApplicationWizard::~QmlProjectApplicationWizard()
@@ -65,21 +65,45 @@ QmlProjectApplicationWizard::~QmlProjectApplicationWizard()
 
 Core::FeatureSet QmlProjectApplicationWizard::requiredFeatures() const
 {
-    return Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2) | Core::Feature(QtSupport::Constants::FEATURE_QMLPROJECT);
+    switch (m_projectType) {
+    case QtQuick2Project:
+        return Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2)
+                | Core::Feature(QtSupport::Constants::FEATURE_QMLPROJECT);
+    case QtQuick1Project:
+    default:
+        return Core::Feature(QtSupport::Constants::FEATURE_QMLPROJECT)
+                | Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1_1);
+    }
 }
 
-Core::BaseFileWizardParameters QmlProjectApplicationWizard::parameters()
+Core::BaseFileWizardParameters QmlProjectApplicationWizard::parameters(ProjectType projectType)
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(QLatin1String(QtSupport::Constants::QML_WIZARD_ICON)));
-    parameters.setDisplayName(tr("Qt Quick UI"));
-    parameters.setId(QLatin1String("QB.QML Application"));
+    switch (projectType) {
+    case QtQuick2Project:
+        parameters.setDisplayName(tr("Qt Quick 2 UI"));
+        parameters.setId(QLatin1String("QB.QML Application for Qt Quick 2.0"));
 
-    parameters.setDescription(tr("Creates a Qt Quick UI project with a single "
-        "QML file that contains the main view.\n\n"
-        "You can review Qt Quick UI projects in the QML Viewer and you need not build them. "
-        "You do not need to have the development environment installed "
-        "on your computer to create and run this type of projects.\n\nRequires <b>Qt 5.0</b> or newer."));
+        parameters.setDescription(tr("Creates a Qt Quick UI 2 project with a single "
+                                     "QML file that contains the main view.\n\n"
+                                     "You can review Qt Quick UI 2 projects in the QML Scene and you need not build them. "
+                                     "You do not need to have the development environment installed "
+                                     "on your computer to create and run this type of projects.\n\nRequires <b>Qt 5.0</b> or newer."));
+        break;
+    case QtQuick1Project:
+    default:
+        parameters.setDisplayName(tr("Qt Quick 1 UI"));
+        parameters.setId(QLatin1String("QB.QML Application for Qt Quick 1.1"));
+
+        parameters.setDescription(tr("Creates a Qt Quick UI 1 project with a single "
+                                     "QML file that contains the main view.\n\n"
+                                     "You can review Qt Quick UI 1 projects in the QML Viewer and you need not build them. "
+                                     "You do not need to have the development environment installed "
+                                     "on your computer to create and run this type of projects.\n\nRequires <b>Qt 4.8</b> or newer."));
+
+    }
+
     parameters.setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
     parameters.setDisplayCategory(QT_TRANSLATE_NOOP("ProjectExplorer", "Qt Application"));
     return parameters;
@@ -118,8 +142,16 @@ Core::GeneratedFiles QmlProjectApplicationWizard::generateFiles(const QWizard *w
     {
         QTextStream out(&contents);
 
+        switch (m_projectType) {
+        case QtQuick2Project:
+            out << "import QtQuick 2.0" << endl;
+            break;
+        case QtQuick1Project:
+        default:
+            out << "import QtQuick 1.1" << endl;
+        }
+
         out
-            << "import QtQuick 2.0" << endl
             << endl
             << "Rectangle {" << endl
             << "    width: 360" << endl
