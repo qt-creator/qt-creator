@@ -541,29 +541,26 @@ struct InternalNode
 };
 }
 
-QStringList Qt4PriFileNode::baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir) const
+QStringList Qt4PriFileNode::baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir, const QString &buildDir) const
 {
     QStringList result;
     if (!reader)
         return result;
     result += reader->absolutePathValues(QLatin1String("VPATH"), projectDir);
     result << projectDir; // QMAKE_ABSOLUTE_SOURCE_PATH
-    result += reader->absolutePathValues(QLatin1String("DEPENDPATH"), projectDir);
+    result << buildDir;
     result.removeDuplicates();
     return result;
 }
 
 QStringList Qt4PriFileNode::fullVPaths(const QStringList &baseVPaths, QtSupport::ProFileReader *reader,
-                                       FileType type, const QString &qmakeVariable, const QString &projectDir) const
+                                       const QString &qmakeVariable, const QString &projectDir) const
 {
     QStringList vPaths;
     if (!reader)
         return vPaths;
-    if (type == ProjectExplorer::SourceType)
-        vPaths = reader->absolutePathValues(QLatin1String("VPATH_") + qmakeVariable, projectDir);
+    vPaths = reader->absolutePathValues(QLatin1String("VPATH_") + qmakeVariable, projectDir);
     vPaths += baseVPaths;
-    if (type == ProjectExplorer::HeaderType)
-        vPaths += reader->absolutePathValues(QLatin1String("INCLUDEPATH"), projectDir);
     vPaths.removeDuplicates();
     return vPaths;
 }
@@ -652,10 +649,10 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader 
 
     QStringList baseVPathsExact;
     if (includeFileExact)
-        baseVPathsExact = baseVPaths(readerExact, projectDir);
+        baseVPathsExact = baseVPaths(readerExact, projectDir, m_qt4ProFileNode->buildDir());
     QStringList baseVPathsCumulative;
     if (includeFileCumlative)
-        baseVPathsCumulative = baseVPaths(readerCumulative, projectDir);
+        baseVPathsCumulative = baseVPaths(readerCumulative, projectDir, m_qt4ProFileNode->buildDir());
 
     const QVector<Qt4NodeStaticData::FileTypeData> &fileTypes = qt4NodeStaticData()->fileTypeData;
 
@@ -667,13 +664,13 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader 
         QSet<Utils::FileName> newFilePaths;
         foreach (const QString &qmakeVariable, qmakeVariables) {
             if (includeFileExact) {
-                QStringList vPathsExact = fullVPaths(baseVPathsExact, readerExact, type, qmakeVariable, projectDir);
+                QStringList vPathsExact = fullVPaths(baseVPathsExact, readerExact, qmakeVariable, projectDir);
                 QStringList tmp = readerExact->absoluteFileValues(qmakeVariable, projectDir, vPathsExact, includeFileExact);
                 foreach (const QString &t, tmp)
                     newFilePaths += Utils::FileName::fromString(t);
             }
             if (includeFileCumlative) {
-                QStringList vPathsCumulative = fullVPaths(baseVPathsCumulative, readerCumulative, type, qmakeVariable, projectDir);
+                QStringList vPathsCumulative = fullVPaths(baseVPathsCumulative, readerCumulative, qmakeVariable, projectDir);
                 QStringList tmp = readerCumulative->absoluteFileValues(qmakeVariable, projectDir, vPathsCumulative, includeFileCumlative);
                 foreach (const QString &t, tmp)
                     newFilePaths += Utils::FileName::fromString(t);
@@ -1914,6 +1911,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         m_subProjectsNotToDeploy = subProjectsNotToDeploy;
         setupInstallsList(m_readerExact);
 
+        QString buildDirectory = buildDir();
         // update other variables
         QHash<Qt4Variable, QStringList> newVarValues;
 
@@ -1921,14 +1919,11 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         newVarValues[IncludePathVar] = includePaths(m_readerExact);
         newVarValues[CppFlagsVar] = m_readerExact->values(QLatin1String("QMAKE_CXXFLAGS"));
         newVarValues[CppHeaderVar] = fileListForVar(m_readerExact, m_readerCumulative,
-                                                    QLatin1String("HEADERS"), m_projectDir,
-                                                    ProjectExplorer::HeaderType);
+                                                    QLatin1String("HEADERS"), m_projectDir, buildDirectory);
         newVarValues[CppSourceVar] = fileListForVar(m_readerExact, m_readerCumulative,
-                                                    QLatin1String("SOURCES"), m_projectDir,
-                                                    ProjectExplorer::SourceType);
+                                                    QLatin1String("SOURCES"), m_projectDir, buildDirectory);
         newVarValues[ObjCSourceVar] = fileListForVar(m_readerExact, m_readerCumulative,
-                                                     QLatin1String("OBJECTIVE_SOURCES"), m_projectDir,
-                                                     ProjectExplorer::SourceType);
+                                                     QLatin1String("OBJECTIVE_SOURCES"), m_projectDir, buildDirectory);
         newVarValues[UiDirVar] = QStringList() << uiDirPath(m_readerExact);
         newVarValues[MocDirVar] = QStringList() << mocDirPath(m_readerExact);
         newVarValues[PkgConfigVar] = m_readerExact->values(QLatin1String("PKGCONFIG"));
@@ -1985,10 +1980,10 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
 }
 
 QStringList Qt4ProFileNode::fileListForVar(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative,
-                                           const QString &varName, const QString &projectDir, FileType type) const
+                                           const QString &varName, const QString &projectDir, const QString &buildDir) const
 {
-    QStringList baseVPathsExact = baseVPaths(readerExact, projectDir);
-    QStringList vPathsExact = fullVPaths(baseVPathsExact, readerExact, type, varName, projectDir);
+    QStringList baseVPathsExact = baseVPaths(readerExact, projectDir, buildDir);
+    QStringList vPathsExact = fullVPaths(baseVPathsExact, readerExact, varName, projectDir);
 
     QStringList result;
     result = readerExact->absoluteFileValues(varName,
@@ -1996,8 +1991,8 @@ QStringList Qt4ProFileNode::fileListForVar(QtSupport::ProFileReader *readerExact
                                              vPathsExact,
                                              0);
     if (readerCumulative) {
-        QStringList baseVPathsCumulative = baseVPaths(readerCumulative, projectDir);
-        QStringList vPathsCumulative = fullVPaths(baseVPathsCumulative, readerCumulative, type, varName, projectDir);
+        QStringList baseVPathsCumulative = baseVPaths(readerCumulative, projectDir, buildDir);
+        QStringList vPathsCumulative = fullVPaths(baseVPathsCumulative, readerCumulative, varName, projectDir);
         result += readerCumulative->absoluteFileValues(varName,
                                                        projectDir,
                                                        vPathsCumulative,

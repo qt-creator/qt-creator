@@ -191,9 +191,8 @@ private:
     bool priFileWritable(const QString &path);
     bool saveModifiedEditors();
     QStringList formResources(const QString &formFile) const;
-    QStringList baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir) const;
-    QStringList fullVPaths(const QStringList &baseVPaths, QtSupport::ProFileReader *reader,
-                           FileType type, const QString &qmakeVariable, const QString &projectDir) const;
+    QStringList baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir, const QString &buildDir) const;
+    QStringList fullVPaths(const QStringList &baseVPaths, QtSupport::ProFileReader *reader, const QString &qmakeVariable, const QString &projectDir) const;
     void watchFolders(const QSet<QString> &folders);
 
     Qt4Project *m_project;
@@ -424,7 +423,7 @@ private:
     void createUiCodeModelSupport();
 
     QStringList fileListForVar(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative,
-                               const QString &varName, const QString &projectDir, FileType type) const;
+                               const QString &varName, const QString &projectDir, const QString &buildDir) const;
     QString uiDirPath(QtSupport::ProFileReader *reader) const;
     QString mocDirPath(QtSupport::ProFileReader *reader) const;
     QStringList includePaths(QtSupport::ProFileReader *reader) const;
