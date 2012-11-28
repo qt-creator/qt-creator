@@ -1010,14 +1010,6 @@ QList<CppModelManager::ProjectPart::Ptr> CppModelManager::projectPart(const QStr
     if (!parts.isEmpty())
         return parts;
 
-    //### FIXME: This is a DIRTY hack!
-    if (fileName.endsWith(QLatin1String(".h"))) {
-        QString cppFile = fileName.mid(0, fileName.length() - 2) + QLatin1String(".cpp");
-        parts = m_srcToProjectPart.value(cppFile);
-        if (!parts.isEmpty())
-            return parts;
-    }
-
     DependencyTable table;
     table.build(snapshot());
     QStringList deps = table.filesDependingOn(fileName);
