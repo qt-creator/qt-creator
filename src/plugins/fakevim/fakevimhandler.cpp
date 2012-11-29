@@ -172,9 +172,7 @@ enum SubMode
     YankSubMode,         // Used for y
     ZSubMode,            // Used for z
     CapitalZSubMode,     // Used for Z
-    ReplaceSubMode,      // Used for r
-    OpenSquareSubMode,   // Used for [
-    CloseSquareSubMode   // Used for ]
+    ReplaceSubMode      // Used for r
 };
 
 /*! A \e SubSubMode is used for things that require one more data item
@@ -183,12 +181,14 @@ enum SubMode
 enum SubSubMode
 {
     NoSubSubMode,
-    FtSubSubMode,         // Used for f, F, t, T.
-    MarkSubSubMode,       // Used for m.
-    BackTickSubSubMode,   // Used for `.
-    TickSubSubMode,       // Used for '.
-    TextObjectSubSubMode, // Used for thing like iw, aW, as etc.
-    ZSubSubMode,          // Used for zj, zk
+    FtSubSubMode,          // Used for f, F, t, T.
+    MarkSubSubMode,        // Used for m.
+    BackTickSubSubMode,    // Used for `.
+    TickSubSubMode,        // Used for '.
+    TextObjectSubSubMode,  // Used for thing like iw, aW, as etc.
+    ZSubSubMode,           // Used for zj, zk
+    OpenSquareSubSubMode,  // Used for [{, {(, [z
+    CloseSquareSubSubMode, // Used for ]}, ]), ]z
     SearchSubSubMode
 };
 
@@ -1368,8 +1368,6 @@ public:
     bool handleYankSubMode(const Input &);
     bool handleZSubMode(const Input &);
     bool handleCapitalZSubMode(const Input &);
-    bool handleOpenSquareSubMode(const Input &);
-    bool handleCloseSquareSubMode(const Input &);
 
     bool handleMovement(const Input &);
 
@@ -2930,7 +2928,7 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
         handled = false;
         if (input.is('j') || input.is('k')) {
             int pos = position();
-            emit q->foldGoTo(input.is('j') ? count() : -count());
+            emit q->foldGoTo(input.is('j') ? count() : -count(), false);
             if (pos != position()) {
                 handled = true;
                 finishMovement(QString("%1z%2")
@@ -2938,34 +2936,26 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
                                .arg(input.text()));
             }
         }
-    } else {
-        handled = false;
-    }
-    return handled;
-}
-
-bool FakeVimHandler::Private::handleOpenSquareSubMode(const Input &input)
-{
-    bool handled = true;
-    m_submode = NoSubMode;
-    if (input.is('{')) {
-        searchBalanced(false, '{', '}');
-    } else if (input.is('(')) {
-        searchBalanced(false, '(', ')');
-    } else {
-        handled = false;
-    }
-    return handled;
-}
-
-bool FakeVimHandler::Private::handleCloseSquareSubMode(const Input &input)
-{
-    bool handled = true;
-    m_submode = NoSubMode;
-    if (input.is('}')) {
-        searchBalanced(true, '}', '{');
-    } else if (input.is(')')) {
-        searchBalanced(true, ')', '(');
+    } else if (m_subsubmode == OpenSquareSubSubMode || CloseSquareSubSubMode) {
+        int pos = position();
+        if ((input.is('{') && m_subsubmode == OpenSquareSubSubMode)) {
+            searchBalanced(false, '{', '}');
+        } else if ((input.is('}') && m_subsubmode == CloseSquareSubSubMode)) {
+            searchBalanced(true, '}', '{');
+        } else if ((input.is('(') && m_subsubmode == OpenSquareSubSubMode)) {
+            searchBalanced(false, '(', ')');
+        } else if ((input.is(')') && m_subsubmode == CloseSquareSubSubMode)) {
+            searchBalanced(true, ')', '(');
+        } else if (input.is('z')) {
+            emit q->foldGoTo(m_subsubmode == OpenSquareSubSubMode ? -count() : count(), true);
+        }
+        handled = pos != position();
+        if (handled) {
+            finishMovement(QString("%1%2%3")
+                           .arg(count())
+                           .arg(m_subsubmode == OpenSquareSubSubMode ? '[' : ']')
+                           .arg(input.text()));
+        }
     } else {
         handled = false;
     }
@@ -3237,9 +3227,9 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         m_movetype =  MoveLineWise;
         m_subsubmode = ZSubSubMode;
     } else if (input.is('[')) {
-        m_submode = OpenSquareSubMode;
+        m_subsubmode = OpenSquareSubSubMode;
     } else if (input.is(']')) {
-        m_submode = CloseSquareSubMode;
+        m_subsubmode = CloseSquareSubSubMode;
     } else if (input.isKey(Key_PageDown) || input.isControl('f')) {
         moveDown(count * (linesOnScreen() - 2) - cursorLineOnScreen());
         scrollToLine(cursorLine());
@@ -3304,10 +3294,6 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         handled = handleZSubMode(input);
     } else if (m_submode == CapitalZSubMode) {
         handled = handleCapitalZSubMode(input);
-    } else if (m_submode == OpenSquareSubMode) {
-        handled = handleOpenSquareSubMode(input);
-    } else if (m_submode == CloseSquareSubMode) {
-        handled = handleCloseSquareSubMode(input);
     } else if (m_submode == ShiftLeftSubMode
         || m_submode == ShiftRightSubMode
         || m_submode == IndentSubMode) {
@@ -3969,7 +3955,7 @@ bool FakeVimHandler::Private::handleZSubMode(const Input &input)
         foldMaybeClosed = input.is('M');
         emit q->foldAll(foldMaybeClosed);
     } else if (input.is('j') || input.is('k')) {
-        emit q->foldGoTo(input.is('j') ? count() : -count());
+        emit q->foldGoTo(input.is('j') ? count() : -count(), false);
     } else {
         handled = false;
     }

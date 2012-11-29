@@ -150,7 +150,7 @@ signals:
     void foldToggle(int depth);
     void foldAll(bool fold);
     void fold(int depth, bool fold);
-    void foldGoTo(int count);
+    void foldGoTo(int count, bool current);
     void jumpToGlobalMark(QChar mark, bool backTickMode, const QString &fileName);
 
 public:
