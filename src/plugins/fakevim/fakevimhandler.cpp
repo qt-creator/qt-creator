@@ -188,6 +188,7 @@ enum SubSubMode
     BackTickSubSubMode,   // Used for `.
     TickSubSubMode,       // Used for '.
     TextObjectSubSubMode, // Used for thing like iw, aW, as etc.
+    ZSubSubMode,          // Used for zj, zk
     SearchSubSubMode
 };
 
@@ -2925,6 +2926,18 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
             handled = false;
         }
         m_subsubmode = NoSubSubMode;
+    } else if (m_subsubmode == ZSubSubMode) {
+        handled = false;
+        if (input.is('j') || input.is('k')) {
+            int pos = position();
+            emit q->foldGoTo(input.is('j') ? count() : -count());
+            if (pos != position()) {
+                handled = true;
+                finishMovement(QString("%1z%2")
+                               .arg(count())
+                               .arg(input.text()));
+            }
+        }
     } else {
         handled = false;
     }
@@ -3220,6 +3233,9 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
             m_movetype = MoveExclusive;
         }
         setTargetColumn();
+    } else if (input.is('z')) {
+        m_movetype =  MoveLineWise;
+        m_subsubmode = ZSubSubMode;
     } else if (input.is('[')) {
         m_submode = OpenSquareSubMode;
     } else if (input.is(']')) {
@@ -3936,27 +3952,24 @@ bool FakeVimHandler::Private::handleZSubMode(const Input &input)
         const bool moveToNonBlank = (input.is('.') || input.isReturn() || input.is('-'));
         const int line = m_mvcount.isEmpty() ? -1 : firstPositionInLine(count());
         alignViewportToCursor(align, line, moveToNonBlank);
-        finishMovement();
     } else if (input.is('o') || input.is('c')) {
         // Open/close current fold.
         foldMaybeClosed = input.is('c');
         emit q->fold(count(), foldMaybeClosed);
-        finishMovement();
     } else if (input.is('O') || input.is('C')) {
         // Recursively open/close current fold.
         foldMaybeClosed = input.is('C');
         emit q->fold(-1, foldMaybeClosed);
-        finishMovement();
     } else if (input.is('a') || input.is('A')) {
         // Toggle current fold.
         foldMaybeClosed = true;
         emit q->foldToggle(input.is('a') ? count() : -1);
-        finishMovement();
     } else if (input.is('R') || input.is('M')) {
         // Open/close all folds in document.
         foldMaybeClosed = input.is('M');
         emit q->foldAll(foldMaybeClosed);
-        finishMovement();
+    } else if (input.is('j') || input.is('k')) {
+        emit q->foldGoTo(input.is('j') ? count() : -count());
     } else {
         handled = false;
     }

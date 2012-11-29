@@ -855,6 +855,7 @@ private slots:
     void foldToggle(int depth);
     void foldAll(bool fold);
     void fold(int depth, bool fold);
+    void foldGoTo(int count);
     void jumpToGlobalMark(QChar mark, bool backTickMode, const QString &fileName);
     void showSettingsDialog();
     void maybeReadVimRc();
@@ -1451,6 +1452,56 @@ void FakeVimPluginPrivate::fold(int depth, bool fold)
     documentLayout->emitDocumentSizeChanged();
 }
 
+void FakeVimPluginPrivate::foldGoTo(int count)
+{
+    IEditor *ieditor = EditorManager::currentEditor();
+    BaseTextEditorWidget *editor = qobject_cast<BaseTextEditorWidget *>(ieditor->widget());
+    QTC_ASSERT(editor != 0, return);
+
+    QTextCursor tc = editor->textCursor();
+    QTextBlock block = tc.block();
+
+    int pos = -1;
+    if (count > 0) {
+        int repeat = count;
+        QTextBlock prevBlock = block;
+        block = block.next();
+        int indent = BaseTextDocumentLayout::foldingIndent(block);
+        while (block.isValid()) {
+            int newIndent = BaseTextDocumentLayout::foldingIndent(block);
+            if (prevBlock.isVisible() && indent < newIndent) {
+                pos = prevBlock.position();
+                if (--repeat <= 0)
+                    break;
+            }
+            indent = newIndent;
+            prevBlock = block;
+            block = block.next();
+        }
+    } else if (count < 0) {
+        int repeat = -count;
+        int indent = BaseTextDocumentLayout::foldingIndent(block);
+        block = block.previous();
+        while (block.isValid()) {
+            int newIndent = BaseTextDocumentLayout::foldingIndent(block);
+            if (indent < newIndent) {
+                while (block.isValid() && !block.isVisible())
+                    block = block.previous();
+                pos = block.position();
+                if (--repeat <= 0)
+                    break;
+            }
+            indent = newIndent;
+            block = block.previous();
+        }
+    }
+
+    if (pos != -1) {
+        tc.setPosition(pos, QTextCursor::KeepAnchor);
+        editor->setTextCursor(tc);
+    }
+}
+
 void FakeVimPluginPrivate::jumpToGlobalMark(QChar mark, bool backTickMode,
     const QString &fileName)
 {
@@ -1540,6 +1591,8 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         SLOT(foldAll(bool)));
     connect(handler, SIGNAL(fold(int,bool)),
         SLOT(fold(int,bool)));
+    connect(handler, SIGNAL(foldGoTo(int)),
+        SLOT(foldGoTo(int)));
     connect(handler, SIGNAL(jumpToGlobalMark(QChar,bool,QString)),
         SLOT(jumpToGlobalMark(QChar,bool,QString)));
 
