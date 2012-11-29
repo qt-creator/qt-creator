@@ -1712,13 +1712,19 @@ bool ClearCasePlugin::ccCheckUcm(const QString &viewname, const QString &working
 
 ViewData ClearCasePlugin::ccGetView(const QString &workingDir) const
 {
-    ViewData res;
-    QStringList args(QLatin1String("lsview"));
-    args << QLatin1String("-cview");
-    QString data = runCleartoolSync(workingDir, args);
-    res.isDynamic = !data.isEmpty() && (data.at(0) == QLatin1Char('*'));
-    res.name = data.mid(2, data.indexOf(QLatin1Char(' '), 2) - 2);
-    res.isUcm = ccCheckUcm(res.name, workingDir);
+    static QHash<QString, ViewData> viewCache;
+
+    bool inCache = viewCache.contains(workingDir);
+    ViewData &res = viewCache[workingDir];
+    if (!inCache) {
+        QStringList args(QLatin1String("lsview"));
+        args << QLatin1String("-cview");
+        QString data = runCleartoolSync(workingDir, args);
+        res.isDynamic = !data.isEmpty() && (data.at(0) == QLatin1Char('*'));
+        res.name = data.mid(2, data.indexOf(QLatin1Char(' '), 2) - 2);
+        res.isUcm = ccCheckUcm(res.name, workingDir);
+    }
+
     return res;
 }
 
