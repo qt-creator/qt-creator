@@ -396,7 +396,10 @@ QString GitClient::findGitDirForRepository(const QString &repositoryDir)
     QStringList arguments;
     arguments << QLatin1String("rev-parse") << QLatin1String("--git-dir");
     fullySynchronousGit(repositoryDir, arguments, &outputText, 0, false);
-    return QString::fromLocal8Bit(outputText.trimmed());
+    QString res = QString::fromLocal8Bit(outputText.trimmed());
+    if (!QDir(res).isAbsolute())
+        res.prepend(repositoryDir + QLatin1Char('/'));
+    return res;
 }
 
 VcsBase::VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *registerDynamicProperty,
