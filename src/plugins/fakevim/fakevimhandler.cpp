@@ -6877,40 +6877,67 @@ bool FakeVimHandler::Private::selectBlockTextObject(bool inner,
     return true;
 }
 
-static bool isSign(const QChar c)
-{
-    return c.unicode() == '-' || c.unicode() == '+';
-}
-
 void FakeVimHandler::Private::changeNumberTextObject(int count)
 {
-    QTextCursor tc = cursor();
-    int pos = tc.position();
-    const int n = lastPositionInLine(lineForPosition(pos)) + 1;
-    QTextDocument *doc = document();
-    QChar c = doc->characterAt(pos);
-    while (!c.isNumber()) {
-        if (pos == n)
-            return;
-        ++pos;
-        c = doc->characterAt(pos);
-    }
-    int p1 = pos;
-    while (p1 >= 1 && doc->characterAt(p1 - 1).isNumber())
-        --p1;
-    if (p1 >= 1 && isSign(doc->characterAt(p1 - 1)))
-        --p1;
-    int p2 = pos + 1;
-    while (p2 <= n - 1 && doc->characterAt(p2).isNumber())
-        ++p2;
-    setAnchorAndPosition(p1, p2);
+    const QTextBlock block = this->block();
+    const QString lineText = block.text();
+    const int posMin = cursor().positionInBlock() + 1;
 
-    QString orig = selectText(currentRange());
-    int value = orig.toInt();
-    value += count;
-    QString repl = QString::fromLatin1("%1").arg(value);
+    // find first decimal, hexadecimal or octal number under or after cursor position
+    QRegExp re("(0[xX])(0*[0-9a-fA-F]+)|(0)(0*[0-7]+)(?=\\D|$)|(\\d+)");
+    int pos = 0;
+    while ((pos = re.indexIn(lineText, pos)) != -1 && pos + re.matchedLength() < posMin)
+        ++pos;
+    if (pos == -1)
+        return;
+    int len = re.matchedLength();
+    QString prefix = re.cap(1) + re.cap(3);
+    bool hex = prefix.length() >= 2 && (prefix[1].toLower() == 'x');
+    bool octal = !hex && !prefix.isEmpty();
+    const QString num = hex ? re.cap(2) : octal ? re.cap(4) : re.cap(5);
+
+    // parse value
+    bool ok;
+    int base = hex ? 16 : octal ? 8 : 10;
+    qlonglong value;  // decimal value
+    qlonglong uvalue; // hexadecimal or octal value (only unsigned)
+    if (hex || octal)
+        uvalue = num.toULongLong(&ok, base);
+    else
+        value = num.toLongLong(&ok, base);
+    QTC_ASSERT(ok, qDebug() << "Cannot parse number:" << num << "base:" << base; return);
+
+    // negative decimal number
+    if (!octal && !hex && pos > 0 && lineText[pos - 1] == '-') {
+        value = -value;
+        --pos;
+        ++len;
+    }
+
+    // result to string
+    QString repl;
+    if (hex || octal)
+        repl = QString::number(uvalue + count, base);
+    else
+        repl = QString::number(value + count, base);
+
+    // convert hexadecimal number to upper-case if last letter was upper-case
+    if (hex) {
+        const int lastLetter = num.lastIndexOf(QRegExp("[a-fA-F]"));
+        if (lastLetter != -1 && num[lastLetter].isUpper())
+            repl = repl.toUpper();
+    }
+
+    // preserve leading zeroes
+    if ((octal || hex) && repl.size() < num.size()) {
+        prefix.append(QString("0").repeated(num.size() - repl.size()));
+    }
+    repl.prepend(prefix);
+
+    pos += block.position();
+    setAnchorAndPosition(pos, pos + len);
     replaceText(currentRange(), repl);
-    setPosition(p1 + repl.size() - 1);
+    setPosition(pos + repl.size() - 1);
 }
 
 bool FakeVimHandler::Private::selectQuotedStringTextObject(bool inner,

@@ -577,6 +577,37 @@ void FakeVimPlugin::test_vim_transform_numbers()
     KEYS("2<c-a><c-a>", "-- " X "1 --");
     KEYS("<c-a>2<c-a>", "-- " X "4 --");
     KEYS(".", "-- " X "6 --");
+
+    // hexadecimal and octal numbers
+    data.setText("0x0 0x1 -1 07 08");
+    KEYS("3<c-a>", "0x" X "3 0x1 -1 07 08");
+    KEYS("7<c-a>", "0x" X "a 0x1 -1 07 08");
+    KEYS("9<c-a>", "0x1" X "3 0x1 -1 07 08");
+    // if last letter in hexadecimal number is capital then all letters are capital
+    KEYS("ifA<esc>", "0x1f" X "A3 0x1 -1 07 08");
+    KEYS("9<c-a>", "0x1FA" X "C 0x1 -1 07 08");
+    KEYS("w1022<c-a>", "0x1FAC 0x3f" X "f -1 07 08");
+    KEYS("w.", "0x1FAC 0x3ff 102" X "1 07 08");
+    // octal number
+    KEYS("w.", "0x1FAC 0x3ff 1021 0200" X "5 08");
+    // non-octal number with leading zeroes
+    KEYS("w.", "0x1FAC 0x3ff 1021 02005 103" X "0");
+
+    // preserve width of hexadecimal and octal numbers
+    data.setText("0x0001");
+    KEYS("<c-a>", "0x000" X "2");
+    KEYS("10<c-a>", "0x000" X "c");
+    KEYS(".", "0x001" X "6");
+    KEYS("999<c-a>", "0x03f" X "d");
+    KEYS("99999<c-a>", "0x18a9" X "c");
+    data.setText("0001");
+    KEYS("<c-a>", "000" X "2");
+    KEYS("10<c-a>", "001" X "4");
+    KEYS("999<c-a>", "0176" X "3");
+    data.setText("0x0100");
+    KEYS("<c-x>", "0x00f" X "f");
+    data.setText("0100");
+    KEYS("<c-x>", "007" X "7");
 }
 
 void FakeVimPlugin::test_vim_delete()
