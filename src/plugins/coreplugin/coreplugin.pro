@@ -6,7 +6,7 @@ QT += network \
     sql
 
 greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += help printsupport core-private
+    QT += help printsupport
 } else {
     CONFIG += help
 }
