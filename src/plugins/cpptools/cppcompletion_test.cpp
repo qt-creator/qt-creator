@@ -409,6 +409,49 @@ void CppToolsPlugin::test_completion_template_6()
     QVERIFY(completions.contains(QLatin1String("i")));
 }
 
+
+void CppToolsPlugin::test_completion_template_7()
+{
+    TestData data;
+    data.srcText = "\n"
+            "struct Test\n"
+            "{\n"
+            "   int i;\n"
+            "};\n"
+            "\n"
+            "template<typename T>\n"
+            "struct TemplateClass\n"
+            "{\n"
+            "    T* ptr;\n"
+            "\n"
+            "    typedef T element_type;\n"
+            "    TemplateClass(T* t) : ptr(t) {}\n"
+            "    element_type* operator->()\n"
+            "    {\n"
+            "        return ptr;\n"
+            "    }\n"
+            "};\n"
+            "\n"
+            "TemplateClass<Test> p(new Test);\n"
+            "@\n"
+            ;
+
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("p->");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("Test")));
+    QVERIFY(completions.contains(QLatin1String("i")));
+}
+
 void CppToolsPlugin::test_completion()
 {
     QFETCH(QByteArray, code);
