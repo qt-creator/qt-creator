@@ -35,6 +35,7 @@
 #include "target.h"
 
 #include <coreplugin/idocument.h>
+#include <coreplugin/variablemanager.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
@@ -90,8 +91,8 @@ bool ProcessStep::init()
     if (!bc)
         bc = target()->activeBuildConfiguration();
     ProcessParameters *pp = processParameters();
-    pp->setMacroExpander(bc->macroExpander());
-    pp->setEnvironment(bc->environment());
+    pp->setMacroExpander(bc ? bc->macroExpander() : Core::VariableManager::instance()->macroExpander());
+    pp->setEnvironment(bc ? bc->environment() : Utils::Environment::systemEnvironment());
     pp->setWorkingDirectory(workingDirectory());
     pp->setCommand(m_command);
     pp->setArguments(m_arguments);
@@ -245,10 +246,11 @@ ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step)
     BuildConfiguration *bc = m_step->buildConfiguration();
     if (!bc)
         bc = m_step->target()->activeBuildConfiguration();
-    m_ui.command->setEnvironment(bc->environment());
+    Utils::Environment env = bc ? bc->environment() : Utils::Environment::systemEnvironment();
+    m_ui.command->setEnvironment(env);
     m_ui.command->setPath(m_step->command());
 
-    m_ui.workingDirectory->setEnvironment(bc->environment());
+    m_ui.workingDirectory->setEnvironment(env);
     m_ui.workingDirectory->setPath(m_step->workingDirectory());
 
     m_ui.commandArgumentsLineEdit->setText(m_step->arguments());
@@ -273,8 +275,8 @@ void ProcessStepConfigWidget::updateDetails()
     BuildConfiguration *bc = m_step->buildConfiguration();
     if (!bc) // iff the step is actually in the deploy list
         bc = m_step->target()->activeBuildConfiguration();
-    param.setMacroExpander(bc->macroExpander());
-    param.setEnvironment(bc->environment());
+    param.setMacroExpander(bc ? bc->macroExpander() : Core::VariableManager::instance()->macroExpander());
+    param.setEnvironment(bc ? bc->environment() : Utils::Environment::systemEnvironment());
 
     param.setWorkingDirectory(m_step->workingDirectory());
     param.setCommand(m_step->command());
