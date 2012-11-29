@@ -1110,7 +1110,7 @@ static inline QString msgCannotDetermineBranch(const QString &workingDirectory, 
 }
 
 // Retrieve head branch
-QString GitClient::synchronousBranch(const QString &workingDirectory)
+QString GitClient::synchronousTopic(const QString &workingDirectory)
 {
     QByteArray outputTextData;
     QStringList arguments;

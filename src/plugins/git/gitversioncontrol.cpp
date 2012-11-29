@@ -142,7 +142,7 @@ QString GitVersionControl::vcsGetRepositoryURL(const QString &directory)
 
 QString GitVersionControl::vcsTopic(const QString &directory)
 {
-    return m_client->synchronousBranch(directory);
+    return m_client->synchronousTopic(directory);
 }
 
 /* Snapshots are implemented using stashes, relying on stash messages for
@@ -169,7 +169,7 @@ QString GitVersionControl::vcsCreateSnapshot(const QString &topLevel)
         QString topRevision = m_client->synchronousTopRevision(topLevel);
         if (topRevision.isEmpty())
             return QString();
-        QString branch = m_client->synchronousBranch(topLevel);
+        QString branch = m_client->synchronousTopic(topLevel);
         const QChar colon = QLatin1Char(':');
         QString id = QLatin1String(stashRevisionIdC);
         id += colon;

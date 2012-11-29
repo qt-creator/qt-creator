@@ -161,7 +161,7 @@ public:
     QString synchronousShortDescription(const QString &workingDirectory, const QString &revision);
     QString synchronousShortDescription(const QString &workingDirectory, const QString &revision,
                                      const QString &format);
-    QString synchronousBranch(const QString &workingDirectory);
+    QString synchronousTopic(const QString &workingDirectory);
     QString synchronousTopRevision(const QString &workingDirectory, QString *errorMessage = 0);
     void synchronousTagsForCommit(const QString &workingDirectory, const QString &revision,
                                   QByteArray &precedes, QByteArray &follows);
