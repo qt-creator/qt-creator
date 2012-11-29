@@ -1109,26 +1109,42 @@ static inline QString msgCannotDetermineBranch(const QString &workingDirectory, 
     return GitClient::tr("Cannot retrieve branch of \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), why);
 }
 
+struct TopicData
+{
+    QDateTime timeStamp;
+    QString topic;
+};
+
 // Retrieve head branch
 QString GitClient::synchronousTopic(const QString &workingDirectory)
 {
+    static QHash<QString, TopicData> topicCache;
+    QString gitDir = findGitDirForRepository(workingDirectory);
+    if (gitDir.isEmpty())
+        return QString();
+    TopicData &data = topicCache[gitDir];
+    QDateTime lastModified = QFileInfo(gitDir + QLatin1String("/HEAD")).lastModified();
+    if (lastModified == data.timeStamp)
+        return data.topic;
+    data.timeStamp = lastModified;
     QByteArray outputTextData;
     QStringList arguments;
     arguments << QLatin1String("symbolic-ref") << QLatin1String("HEAD");
-    // if HEAD is detached, the command is expected to fail.
-    if (!fullySynchronousGit(workingDirectory, arguments, &outputTextData))
-        return QString();
-    QString branch = commandOutputFromLocal8Bit(outputTextData);
-    branch.remove(QLatin1Char('\n'));
+    // First try to find branch
+    if (fullySynchronousGit(workingDirectory, arguments, &outputTextData)) {
+        QString branch = commandOutputFromLocal8Bit(outputTextData.trimmed());
 
-    // Must strip the "refs/heads/" prefix manually since the --short switch
-    // of git symbolic-ref only got introduced with git 1.7.10, which is not
-    // available for all popular Linux distributions yet.
-    const QString refsHeadsPrefix = QLatin1String("refs/heads/");
-    if (branch.startsWith(refsHeadsPrefix))
-        branch.remove(0, refsHeadsPrefix.count());
+        // Must strip the "refs/heads/" prefix manually since the --short switch
+        // of git symbolic-ref only got introduced with git 1.7.10, which is not
+        // available for all popular Linux distributions yet.
+        const QString refsHeadsPrefix = QLatin1String("refs/heads/");
+        if (branch.startsWith(refsHeadsPrefix))
+            branch.remove(0, refsHeadsPrefix.count());
 
-    return branch;
+        return data.topic = branch;
+    }
+
+    return QString();
 }
 
 // Retrieve head revision
