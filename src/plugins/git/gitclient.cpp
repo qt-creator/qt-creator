@@ -68,6 +68,7 @@
 #include <QTime>
 #include <QFileInfo>
 #include <QDir>
+#include <QHash>
 #include <QSignalMapper>
 
 #include <QComboBox>
@@ -392,11 +393,15 @@ QString GitClient::findRepositoryForDirectory(const QString &dir)
 
 QString GitClient::findGitDirForRepository(const QString &repositoryDir)
 {
+    static QHash<QString, QString> repoDirCache;
+    QString &res = repoDirCache[repositoryDir];
+    if (!res.isEmpty())
+        return res;
     QByteArray outputText;
     QStringList arguments;
     arguments << QLatin1String("rev-parse") << QLatin1String("--git-dir");
     fullySynchronousGit(repositoryDir, arguments, &outputText, 0, false);
-    QString res = QString::fromLocal8Bit(outputText.trimmed());
+    res = QString::fromLocal8Bit(outputText.trimmed());
     if (!QDir(res).isAbsolute())
         res.prepend(repositoryDir + QLatin1Char('/'));
     return res;
