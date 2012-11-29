@@ -1573,7 +1573,7 @@ public:
     void selectWORDTextObject(bool inner);
     void selectSentenceTextObject(bool inner);
     void selectParagraphTextObject(bool inner);
-    void changeNumberTextObject(int count);
+    bool changeNumberTextObject(int count);
     // return true only if cursor is in a block delimited with correct characters
     bool selectBlockTextObject(bool inner, char left, char right);
     bool selectQuotedStringTextObject(bool inner, const QString &quote);
@@ -3414,8 +3414,8 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         enterInsertMode();
         setDotCommand("%1A", count());
     } else if (input.isControl('a')) {
-        changeNumberTextObject(count());
-        setDotCommand("%1<c-a>", count());
+        if (changeNumberTextObject(count()))
+            setDotCommand("%1<c-a>", count());
     } else if ((input.is('c') || input.is('d')) && isNoVisualMode()) {
         setAnchor();
         m_opcount = m_mvcount;
@@ -3663,8 +3663,8 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         setDotCommand("%1x", count());
         finishMovement();
     } else if (input.isControl('x')) {
-        changeNumberTextObject(-count());
-        setDotCommand("%1<c-x>", count());
+        if (changeNumberTextObject(-count()))
+            setDotCommand("%1<c-x>", count());
     } else if (input.is('X')) {
         if (leftDist() > 0) {
             setAnchor();
@@ -6877,7 +6877,7 @@ bool FakeVimHandler::Private::selectBlockTextObject(bool inner,
     return true;
 }
 
-void FakeVimHandler::Private::changeNumberTextObject(int count)
+bool FakeVimHandler::Private::changeNumberTextObject(int count)
 {
     const QTextBlock block = this->block();
     const QString lineText = block.text();
@@ -6889,7 +6889,7 @@ void FakeVimHandler::Private::changeNumberTextObject(int count)
     while ((pos = re.indexIn(lineText, pos)) != -1 && pos + re.matchedLength() < posMin)
         ++pos;
     if (pos == -1)
-        return;
+        return false;
     int len = re.matchedLength();
     QString prefix = re.cap(1) + re.cap(3);
     bool hex = prefix.length() >= 2 && (prefix[1].toLower() == 'x');
@@ -6905,7 +6905,7 @@ void FakeVimHandler::Private::changeNumberTextObject(int count)
         uvalue = num.toULongLong(&ok, base);
     else
         value = num.toLongLong(&ok, base);
-    QTC_ASSERT(ok, qDebug() << "Cannot parse number:" << num << "base:" << base; return);
+    QTC_ASSERT(ok, qDebug() << "Cannot parse number:" << num << "base:" << base; return false);
 
     // negative decimal number
     if (!octal && !hex && pos > 0 && lineText[pos - 1] == '-') {
@@ -6935,9 +6935,12 @@ void FakeVimHandler::Private::changeNumberTextObject(int count)
     repl.prepend(prefix);
 
     pos += block.position();
+    setUndoPosition();
     setAnchorAndPosition(pos, pos + len);
     replaceText(currentRange(), repl);
     setPosition(pos + repl.size() - 1);
+
+    return true;
 }
 
 bool FakeVimHandler::Private::selectQuotedStringTextObject(bool inner,

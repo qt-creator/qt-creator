@@ -571,12 +571,16 @@ void FakeVimPlugin::test_vim_transform_numbers()
     KEYS("B9<c-x>", "x-x+x: " X "0 0 0 0 0");
     KEYS("B9<c-x>", "x-x+x: -" X "9 0 0 0 0");
 
-    data.setText("-- 1 --");
+    data.setText("-" X "- 1 --");
     KEYS("<c-x>", "-- " X "0 --");
+    KEYS("u", "-" X "- 1 --");
+    KEYS("<c-r>", "-" X "- 0 --");
     KEYS("<c-x><c-x>", "-- -" X "2 --");
     KEYS("2<c-a><c-a>", "-- " X "1 --");
     KEYS("<c-a>2<c-a>", "-- " X "4 --");
     KEYS(".", "-- " X "6 --");
+    KEYS("u", "-- " X "4 --");
+    KEYS("<c-r>", "-- " X "6 --");
 
     // hexadecimal and octal numbers
     data.setText("0x0 0x1 -1 07 08");
