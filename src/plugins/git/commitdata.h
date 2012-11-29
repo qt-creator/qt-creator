@@ -45,7 +45,6 @@ struct GitSubmitEditorPanelInfo
 {
     void clear();
     QString repository;
-    QString description;
     QString branch;
 };
 

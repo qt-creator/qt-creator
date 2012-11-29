@@ -1779,15 +1779,6 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         return false;
     }
 
-    // Read description
-    const QString descriptionFile = QDir(gitDir).absoluteFilePath(QLatin1String("description"));
-    if (QFileInfo(descriptionFile).isFile()) {
-        Utils::FileReader reader;
-        if (!reader.fetch(descriptionFile, QIODevice::Text, errorMessage))
-            return false;
-        commitData->panelInfo.description = commandOutputFromLocal8Bit(reader.data()).trimmed();
-    }
-
     // Run status. Note that it has exitcode 1 if there are no added files.
     QString output;
     const StatusResult status = gitStatus(repoDirectory, true, &output, errorMessage);

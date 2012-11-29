@@ -40,14 +40,12 @@ namespace Internal {
 void GitSubmitEditorPanelInfo::clear()
 {
     repository.clear();
-    description.clear();
     branch.clear();
 }
 
 QDebug operator<<(QDebug d, const GitSubmitEditorPanelInfo &data)
 {
-    d.nospace() << "Rep: " << data.repository << " Descr: " << data.description
-        << " branch: " << data.branch;
+    d.nospace() << "Rep: " << data.repository << " branch: " << data.branch;
     return d;
 }
 
