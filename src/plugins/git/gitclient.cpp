@@ -1115,7 +1115,7 @@ struct TopicData
     QString topic;
 };
 
-// Retrieve head branch
+// Retrieve topic (branch, tag or HEAD hash)
 QString GitClient::synchronousTopic(const QString &workingDirectory)
 {
     static QHash<QString, TopicData> topicCache;
@@ -1144,7 +1144,15 @@ QString GitClient::synchronousTopic(const QString &workingDirectory)
         return data.topic = branch;
     }
 
-    return QString();
+    // Detached HEAD, try a tag
+    arguments.clear();
+    arguments << QLatin1String("describe") << QLatin1String("--tags")
+              << QLatin1String("--exact-match") << QLatin1String("HEAD");
+    if (fullySynchronousGit(workingDirectory, arguments, &outputTextData))
+        return data.topic = commandOutputFromLocal8Bit(outputTextData.trimmed());
+
+    // No tag, return HEAD hash
+    return data.topic = synchronousTopRevision(workingDirectory).left(7);
 }
 
 // Retrieve head revision
