@@ -259,7 +259,7 @@ def main():
     QT_INSTALL_IMPORTS = readQmakeVar(qmake_bin, 'QT_INSTALL_IMPORTS')
     QT_INSTALL_TRANSLATIONS = readQmakeVar(qmake_bin, 'QT_INSTALL_TRANSLATIONS')
 
-    plugins = ['accessible', 'designer', 'iconengines', 'imageformats', 'platforms', 'sqldrivers']
+    plugins = ['accessible', 'designer', 'iconengines', 'imageformats', 'platforms', 'printsupport', 'sqldrivers']
     imports = ['Qt', 'QtWebKit']
     tr_catalogs = ['assistant', 'designer', 'qt', 'qt_help']
 
