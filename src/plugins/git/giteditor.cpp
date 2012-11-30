@@ -231,6 +231,8 @@ void GitEditor::setPlainTextDataFiltered(const QByteArray &a)
         }
         break;
     }
+    default:
+        break;
     }
 
     setPlainTextData(array);
