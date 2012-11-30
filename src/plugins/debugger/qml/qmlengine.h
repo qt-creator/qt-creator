@@ -60,7 +60,8 @@ class QmlEngine : public DebuggerEngine, QmlJS::IScriptEvaluator
     Q_OBJECT
 
 public:
-    explicit QmlEngine(const DebuggerStartParameters &startParameters);
+    explicit QmlEngine(const DebuggerStartParameters &startParameters,
+                       DebuggerEngine *masterEngine = 0);
     ~QmlEngine();
 
     void notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort);

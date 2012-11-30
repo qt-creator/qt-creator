@@ -101,7 +101,23 @@ static inline QStringList trimStringList(const QStringList &stringlist)
     return returnList;
 }
 
-QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader *reader, const QString &projectsOffset)
+static QString relativeOrInstallPath(const QString &path, const QString &manifestPath,
+                                     const QString &installPath)
+{
+    const QChar slash = QLatin1Char('/');
+    const QString relativeResolvedPath = manifestPath + slash + path;
+    const QString installResolvedPath = installPath + slash + path;
+    if (QFile::exists(relativeResolvedPath))
+        return relativeResolvedPath;
+    else if (QFile::exists(installResolvedPath))
+        return installResolvedPath;
+    // doesn't exist, just return relative
+    return relativeResolvedPath;
+}
+
+QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader *reader,
+                                                    const QString &projectsOffset,
+                                                    const QString &examplesInstallPath)
 {
     QList<ExampleItem> examples;
     ExampleItem item;
@@ -116,12 +132,12 @@ QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader *reader, co
                 item.name = attributes.value(QLatin1String("name")).toString();
                 item.projectPath = attributes.value(QLatin1String("projectPath")).toString();
                 item.hasSourceCode = !item.projectPath.isEmpty();
-                item.projectPath.prepend(slash);
-                item.projectPath.prepend(projectsOffset);
+                item.projectPath = relativeOrInstallPath(item.projectPath, projectsOffset, examplesInstallPath);
                 item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
                 item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
             } else if (reader->name() == QLatin1String("fileToOpen")) {
-                item.filesToOpen.append(projectsOffset + slash + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                item.filesToOpen.append(relativeOrInstallPath(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement),
+                                                              projectsOffset, examplesInstallPath));
             } else if (reader->name() == QLatin1String("description")) {
                 item.description =  fixStringForTags(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("dependency")) {
@@ -135,9 +151,11 @@ QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader *reader, co
             break;
         case QXmlStreamReader::EndElement:
             if (reader->name() == QLatin1String("example")) {
-                if (item.projectPath.isEmpty() || !QFileInfo(item.projectPath).exists())
+                bool projectExists = !item.projectPath.isEmpty() && QFileInfo(item.projectPath).exists();
+                if (!projectExists)
                     item.tags.append(QLatin1String("broken"));
-                examples.append(item);
+                if (projectExists || !qgetenv("QTC_DEBUG_EXAMPLESMODEL").isEmpty())
+                    examples.append(item);
             } else if (reader->name() == QLatin1String("examples")) {
                 return examples;
             }
@@ -149,7 +167,9 @@ QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader *reader, co
     return examples;
 }
 
-QList<ExampleItem> ExamplesListModel::parseDemos(QXmlStreamReader *reader, const QString &projectsOffset)
+QList<ExampleItem> ExamplesListModel::parseDemos(QXmlStreamReader *reader,
+                                                 const QString &projectsOffset,
+                                                 const QString &demosInstallPath)
 {
     QList<ExampleItem> demos;
     ExampleItem item;
@@ -164,12 +184,12 @@ QList<ExampleItem> ExamplesListModel::parseDemos(QXmlStreamReader *reader, const
                 item.name = attributes.value(QLatin1String("name")).toString();
                 item.projectPath = attributes.value(QLatin1String("projectPath")).toString();
                 item.hasSourceCode = !item.projectPath.isEmpty();
-                item.projectPath.prepend(slash);
-                item.projectPath.prepend(projectsOffset);
+                item.projectPath = relativeOrInstallPath(item.projectPath, projectsOffset, demosInstallPath);
                 item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
                 item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
             } else if (reader->name() == QLatin1String("fileToOpen")) {
-                item.filesToOpen.append(projectsOffset + slash + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                item.filesToOpen.append(relativeOrInstallPath(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement),
+                                                              projectsOffset, demosInstallPath));
             } else if (reader->name() == QLatin1String("description")) {
                 item.description =  fixStringForTags(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("dependency")) {
@@ -179,10 +199,15 @@ QList<ExampleItem> ExamplesListModel::parseDemos(QXmlStreamReader *reader, const
             }
             break;
         case QXmlStreamReader::EndElement:
-            if (reader->name() == QLatin1String("demo"))
-                demos.append(item);
-            else if (reader->name() == QLatin1String("demos"))
+            if (reader->name() == QLatin1String("demo")) {
+                bool projectExists = !item.projectPath.isEmpty() && QFileInfo(item.projectPath).exists();
+                if (!projectExists)
+                    item.tags.append(QLatin1String("broken"));
+                if (projectExists || !qgetenv("QTC_DEBUG_EXAMPLESMODEL").isEmpty())
+                    demos.append(item);
+            } else if (reader->name() == QLatin1String("demos")) {
                 return demos;
+            }
             break;
         default: // nothing
             break;
@@ -251,11 +276,14 @@ void ExamplesListModel::handleQtVersionsChanged()
 void ExamplesListModel::updateExamples()
 {
     clear();
+    QString examplesInstallPath;
+    QString demosInstallPath;
     QString examplesFallback;
     QString demosFallback;
     QString sourceFallback;
     foreach (const QString &exampleSource,
-             exampleSources(&examplesFallback, &demosFallback, &sourceFallback)) {
+             exampleSources(&examplesInstallPath, &demosInstallPath,
+                            &examplesFallback, &demosFallback, &sourceFallback)) {
         QFile exampleFile(exampleSource);
         if (!exampleFile.open(QIODevice::ReadOnly)) {
             qDebug() << Q_FUNC_INFO << "Could not open file" << exampleSource;
@@ -284,9 +312,9 @@ void ExamplesListModel::updateExamples()
             switch (reader.readNext()) {
             case QXmlStreamReader::StartElement:
                 if (reader.name() == QLatin1String("examples"))
-                    addItems(parseExamples(&reader, examplesDir.path()));
+                    addItems(parseExamples(&reader, examplesDir.path(), examplesInstallPath));
                 else if (reader.name() == QLatin1String("demos"))
-                    addItems(parseDemos(&reader, demosDir.path()));
+                    addItems(parseDemos(&reader, demosDir.path(), demosInstallPath));
                 else if (reader.name() == QLatin1String("tutorials"))
                     addItems(parseTutorials(&reader, examplesDir.path()));
                 break;
@@ -303,7 +331,8 @@ void ExamplesListModel::updateExamples()
     emit tagsUpdated();
 }
 
-QStringList ExamplesListModel::exampleSources(QString *examplesFallback, QString *demosFallback,
+QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QString *demosInstallPath,
+                                              QString *examplesFallback, QString *demosFallback,
                                               QString *sourceFallback)
 {
     QTC_CHECK(examplesFallback);
@@ -372,6 +401,10 @@ QStringList ExamplesListModel::exampleSources(QString *examplesFallback, QString
             if (!fis.isEmpty()) {
                 foreach (const QFileInfo &fi, fis)
                     sources.append(fi.filePath());
+                if (examplesInstallPath)
+                    *examplesInstallPath = version->examplesPath();
+                if (demosInstallPath)
+                    *demosInstallPath = version->demosPath();
                 return sources;
             }
         }
@@ -422,6 +455,8 @@ void ExamplesListModel::clear()
 
 void ExamplesListModel::addItems(const QList<ExampleItem> &newItems)
 {
+    if (newItems.isEmpty())
+        return;
     beginInsertRows(QModelIndex(), exampleItems.size(), exampleItems.size() - 1 + newItems.size());
     exampleItems.append(newItems);
     endInsertRows();

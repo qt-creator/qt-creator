@@ -207,7 +207,11 @@ static QString candidateName(const QString &name, const QString &postfix)
 {
     if (name.contains(postfix))
         return QString();
-    return name + QLatin1Char('-') + postfix;
+    QString candidate = name;
+    if (!candidate.isEmpty())
+        candidate.append(QLatin1Char('-'));
+    candidate.append(postfix);
+    return candidate;
 }
 
 void Kit::setDisplayName(const QString &name)
@@ -216,6 +220,7 @@ void Kit::setDisplayName(const QString &name)
     QList<KitInformation *> kitInfo = km->kitInformation();
 
     QStringList nameList;
+    nameList << QString(); // Disallow empty kit names!
     foreach (Kit *k, km->kits()) {
         if (k == this)
             continue;

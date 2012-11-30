@@ -37,6 +37,10 @@
 #include <utils/pathchooser.h>
 #include <utils/fileutils.h>
 
+#ifdef Q_OS_WIN
+#include <utils/winutils.h>
+#endif
+
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreplugin.h>
 #include <coreplugin/documentmanager.h>
@@ -206,7 +210,13 @@ GettingStartedWelcomePage::GettingStartedWelcomePage() : m_engine(0)
 
 QUrl GettingStartedWelcomePage::pageLocation() const
 {
-    return QUrl::fromLocalFile(Core::ICore::resourcePath() + QLatin1String("/welcomescreen/gettingstarted.qml"));
+    QString resourcePath = Core::ICore::resourcePath();
+#ifdef Q_OS_WIN
+    // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
+    resourcePath = Utils::normalizePathName(resourcePath);
+#endif
+
+    return QUrl::fromLocalFile(resourcePath + QLatin1String("/welcomescreen/gettingstarted.qml"));
 }
 
 QString GettingStartedWelcomePage::title() const
@@ -265,10 +275,15 @@ QString ExamplesWelcomePage::title() const
 
 QUrl ExamplesWelcomePage::pageLocation() const
 {
+    QString resourcePath = Core::ICore::resourcePath();
+#ifdef Q_OS_WIN
+    // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
+    resourcePath = Utils::normalizePathName(resourcePath);
+#endif
     if (m_showExamples)
-        return QUrl::fromLocalFile(Core::ICore::resourcePath() + QLatin1String("/welcomescreen/examples.qml"));
+        return QUrl::fromLocalFile(resourcePath + QLatin1String("/welcomescreen/examples.qml"));
     else
-        return QUrl::fromLocalFile(Core::ICore::resourcePath() + QLatin1String("/welcomescreen/tutorials.qml"));
+        return QUrl::fromLocalFile(resourcePath + QLatin1String("/welcomescreen/tutorials.qml"));
 }
 
 void ExamplesWelcomePage::facilitateQml(QDeclarativeEngine *engine)

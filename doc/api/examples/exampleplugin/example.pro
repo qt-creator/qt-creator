@@ -32,7 +32,7 @@ isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=/Users/example/qtcreator-build
 ## <localappdata>/plugins/<ideversion>
 ##    where <localappdata> is e.g.
 ##    "%LOCALAPPDATA%\QtProject\qtcreator" on Windows Vista and later
-##    "$XDG_DATA_HOME/QtProject/qtcreator" or "~/.local/share/QtProject/qtcreator" on Linux
+##    "$XDG_DATA_HOME/data/QtProject/qtcreator" or "~/.local/share/data/QtProject/qtcreator" on Linux
 ##    "~/Library/Application Support/QtProject/Qt Creator" on Mac
 # USE_USER_DESTDIR = yes
 #! [4]

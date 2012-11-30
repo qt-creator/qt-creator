@@ -93,8 +93,7 @@ QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp, QString *errorMess
 {
     setObjectName(QLatin1String("QmlCppEngine"));
     d = new QmlCppEnginePrivate;
-    d->m_qmlEngine = new QmlEngine(sp);
-    d->m_qmlEngine->setMasterEngine(this);
+    d->m_qmlEngine = new QmlEngine(sp, this);
     d->m_cppEngine = DebuggerRunControlFactory::createEngine(sp.firstSlaveEngineType, sp, errorMessage);
     d->m_cppEngine->setMasterEngine(this);
     if (!d->m_cppEngine) {

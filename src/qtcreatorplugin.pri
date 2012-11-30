@@ -23,6 +23,7 @@ isEmpty(USE_USER_DESTDIR) {
         DESTDIRAPPNAME = "qtcreator"
         DESTDIRBASE = "$$(XDG_DATA_HOME)"
         isEmpty(DESTDIRBASE):DESTDIRBASE = "$$(HOME)/.local/share/data"
+        else:DESTDIRBASE = "$$DESTDIRBASE/data"
     }
     DESTDIR = "$$DESTDIRBASE/QtProject/$$DESTDIRAPPNAME/plugins/$$QTCREATOR_VERSION/$$PROVIDER"
 }

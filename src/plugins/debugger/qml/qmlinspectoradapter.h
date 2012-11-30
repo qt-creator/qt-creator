@@ -81,7 +81,6 @@ private slots:
     void toolsClientStatusChanged(QmlDebug::ClientStatus status);
     void engineClientStatusChanged(QmlDebug::ClientStatus status);
 
-    void selectObjectsFromEditor(const QList<int> &debugIds);
     void selectObjectsFromToolsClient(const QList<int> &debugIds);
     void onObjectFetched(const QmlDebug::ObjectReference &ref);
 
@@ -96,7 +95,7 @@ private slots:
     void onReload();
     void onReloaded();
     void onDestroyedObject(int);
-    void jumpToObjectDefinitionInEditor(const QmlDebug::FileReference &objSource);
+    void jumpToObjectDefinitionInEditor(const QmlDebug::FileReference &objSource, int debugId = -1);
 
 private:
     void setActiveEngineClient(QmlDebug::BaseEngineDebugClient *client);
@@ -129,8 +128,6 @@ private:
     QHash<QString, QmlLiveTextPreview *> m_textPreviews;
     QmlJS::Snapshot m_loadedSnapshot; //the snapshot loaded by the viewer
     QStringList m_pendingPreviewDocumentNames;
-    bool m_selectionCallbackExpected;
-    bool m_cursorPositionChangedExternally;
 
     // toolbar
     bool m_toolsClientConnected;

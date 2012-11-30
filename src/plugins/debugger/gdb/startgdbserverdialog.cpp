@@ -209,6 +209,7 @@ void GdbServerStarter::attach(int port)
     QTC_ASSERT(fillParameters(&sp, d->kit), return);
     sp.masterEngineType = GdbEngineType;
     sp.connParams.port = port;
+    sp.remoteChannel = sp.connParams.host + QLatin1Char(':') + QString::number(sp.connParams.port);
     sp.displayName = tr("Remote: \"%1:%2\"").arg(sp.connParams.host).arg(port);
     sp.executable = localExecutable;
     sp.startMode = AttachToRemoteServer;

@@ -45,11 +45,9 @@ FileSystemFilter::FileSystemFilter(EditorManager *editorManager, LocatorWidget *
     setIncludedByDefault(false);
 }
 
-QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry_)
+QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry)
 {
     QList<FilterEntry> value;
-    QString entry = entry_;
-    const QString lineNoSuffix = EditorManager::splitLineNumber(&entry);
     QFileInfo entryInfo(entry);
     QString name = entryInfo.fileName();
     QString directory = entryInfo.path();
@@ -81,11 +79,15 @@ QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::Filter
             break;
         if (name.isEmpty() || dir.startsWith(name, Qt::CaseInsensitive)) {
             const QString fullPath = dirInfo.filePath(dir);
-            FilterEntry filterEntry(this, dir, QString(fullPath + lineNoSuffix));
+            FilterEntry filterEntry(this, dir, fullPath);
             filterEntry.resolveFileIcon = true;
             value.append(filterEntry);
         }
     }
+    // file names can match with +linenumber or :linenumber
+    name = entry;
+    const QString lineNoSuffix = EditorManager::splitLineNumber(&name);
+    name = QFileInfo(name).fileName();
     foreach (const QString &file, files) {
         if (future.isCanceled())
             break;
@@ -102,18 +104,15 @@ QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::Filter
 void FileSystemFilter::accept(FilterEntry selection) const
 {
     QString file = selection.internalData.toString();
-    const QString lineNoSuffix = EditorManager::splitLineNumber(&file);
-
     QFileInfo info(file);
     if (info.isDir()) {
         QString value = shortcutString();
         value += QLatin1Char(' ');
         value += QDir::toNativeSeparators(info.absoluteFilePath() + QLatin1Char('/'));
-        value += lineNoSuffix;
         m_locatorWidget->show(value, value.length());
         return;
     }
-    EditorManager::openEditor(selection.internalData.toString(), Id(),
+    EditorManager::openEditor(file, Id(),
                               EditorManager::ModeSwitch | EditorManager::CanContainLineNumber);
 }
 

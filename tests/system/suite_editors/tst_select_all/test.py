@@ -51,4 +51,3 @@ def main():
                 test.compare(editor.textCursor().selectionEnd(), pos)
                 test.compare(editor.textCursor().position(), pos)
     invokeMenuItem("File", "Exit")
-    waitForCleanShutdown()

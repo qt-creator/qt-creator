@@ -1,11 +1,9 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    global workingDir
     startApplication("qtcreator" + SettingsPath)
-    # using a temporary directory won't mess up an eventually exisiting
-    workingDir = tempDir()
-    createNewQtQuickApplication(workingDir, "untitled")
+    # using a temporary directory won't mess up a potentially exisiting
+    createNewQtQuickApplication(tempDir(), "untitled")
     # wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 5000)
     if not prepareQmlFile():
@@ -75,11 +73,3 @@ def testReIndent():
 
 def shrinkText(txt, lines=10):
     return "".join(txt.splitlines(True)[0:lines])
-
-def cleanup():
-    global workingDir
-    # waiting for a clean exit - for a full-remove of the temp directory
-    waitForCleanShutdown()
-    if workingDir!=None:
-        deleteDirIfExists(workingDir)
-

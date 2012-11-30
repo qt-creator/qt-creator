@@ -96,11 +96,14 @@ public slots:
 
 private:
     void addItems(const QList<ExampleItem> &items);
-    QList<ExampleItem> parseExamples(QXmlStreamReader *reader, const QString &projectsOffset);
-    QList<ExampleItem> parseDemos(QXmlStreamReader *reader, const QString &projectsOffset);
+    QList<ExampleItem> parseExamples(QXmlStreamReader *reader, const QString &projectsOffset,
+                                     const QString &examplesInstallPath);
+    QList<ExampleItem> parseDemos(QXmlStreamReader *reader, const QString &projectsOffset,
+                                  const QString &demosInstallPath);
     QList<ExampleItem> parseTutorials(QXmlStreamReader *reader, const QString &projectsOffset);
     void clear();
-    QStringList exampleSources(QString *examplesFallback, QString *demosFallback,
+    QStringList exampleSources(QString *examplesInstallPath, QString *demosInstallPath,
+                               QString *examplesFallback, QString *demosFallback,
                                QString *sourceFallback);
     QList<ExampleItem> exampleItems;
     QStringList m_tags;

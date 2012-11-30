@@ -404,6 +404,9 @@ void QStyleItem::initStyleOption()
         m_styleoption = new QStyleOption();
 
     m_styleoption->rect = QRect(m_paintMargins, m_paintMargins, width() - 2* m_paintMargins, height() - 2 * m_paintMargins);
+#if QT_VERSION >= 0x050000
+    m_styleoption->styleObject = this;
+#endif
 
     if (isEnabled())
         m_styleoption->state |= QStyle::State_Enabled;

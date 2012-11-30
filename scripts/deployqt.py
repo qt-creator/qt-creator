@@ -186,6 +186,13 @@ def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, plugins
             shutil.rmtree(target)
         shutil.copytree(os.path.join(qt_import_dir, qtimport), target, ignore=copy_ignore_func, symlinks=True)
 
+def add_qt_conf(install_dir):
+    print "Creating qt.conf:"
+    f = open(install_dir + '/bin/qt.conf', 'w')
+    f.write('[Paths]\n')
+    f.write('Libraries=../lib/qtcreator\n')
+    f.close()
+
 def copy_translations(install_dir, qt_tr_dir, tr_catalogs):
     langs = []
     tr_dir = os.path.join(install_dir, 'share', 'qtcreator', 'translations')
@@ -252,7 +259,7 @@ def main():
     QT_INSTALL_IMPORTS = readQmakeVar(qmake_bin, 'QT_INSTALL_IMPORTS')
     QT_INSTALL_TRANSLATIONS = readQmakeVar(qmake_bin, 'QT_INSTALL_TRANSLATIONS')
 
-    plugins = ['accessible', 'designer', 'iconengines', 'imageformats', 'platforms', 'sqldrivers']
+    plugins = ['accessible', 'designer', 'iconengines', 'imageformats', 'platforms', 'printsupport', 'sqldrivers']
     imports = ['Qt', 'QtWebKit']
     tr_catalogs = ['assistant', 'designer', 'qt', 'qt_help']
 
@@ -268,6 +275,7 @@ def main():
 
     if not sys.platform.startswith('win'):
         fix_rpaths(chrpath_bin, install_dir)
+    add_qt_conf(install_dir)
 
 if __name__ == "__main__":
     if sys.platform == 'darwin':

@@ -2301,7 +2301,7 @@ Local pulls are not applied to the master branch.</source>
     <name>CMakeProjectManager::Internal::CMakeManager</name>
     <message>
         <source>Run CMake</source>
-        <translation>Запуск CMake</translation>
+        <translation>Запустить CMake</translation>
     </message>
 </context>
 <context>
@@ -2314,8 +2314,8 @@ Local pulls are not applied to the master branch.</source>
 <context>
     <name>CMakeProjectManager::Internal::CMakeRunConfiguration</name>
     <message>
-        <source>Run CMake target</source>
-        <translation>Запустить цель CMake</translation>
+        <source>Run CMake kit</source>
+        <translation>Запуск инструментария CMake</translation>
     </message>
     <message>
         <source>Clean Environment</source>
@@ -2385,7 +2385,7 @@ Local pulls are not applied to the master branch.</source>
     <name>CMakeProjectManager::Internal::CMakeRunPage</name>
     <message>
         <source>Run CMake</source>
-        <translation>Запуск CMake</translation>
+        <translation>Запустить CMake</translation>
     </message>
     <message>
         <source>The directory %1 already contains a cbp file, which is recent enough. You can pass special arguments and rerun CMake. Or simply finish the wizard directly.</source>
@@ -2454,6 +2454,10 @@ Local pulls are not applied to the master branch.</source>
 <context>
     <name>CMakeProjectManager::Internal::ChooseCMakePage</name>
     <message>
+        <source>cmake Executable:</source>
+        <translation>Исполняемый файл cmake:</translation>
+    </message>
+    <message>
         <source>Choose Cmake Executable</source>
         <translation>Выбор исполняемого файла Cmake</translation>
     </message>
@@ -2512,17 +2516,17 @@ Local pulls are not applied to the master branch.</source>
         <translation>Дополнительные параметры:</translation>
     </message>
     <message>
-        <source>Targets:</source>
-        <translation>Цели:</translation>
+        <source>Kits:</source>
+        <translation>Инструментарии:</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;No build configuration found on this kit.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Для этого инструментария отсутствует конфигурация сборки.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Make</source>
         <comment>CMakeProjectManager::MakeStepConfigWidget display name.</comment>
         <translation>Сборка</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;No build configuration found on this target.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Для этой цели отсутствует конфигурация сборки.&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -2553,6 +2557,13 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
+    <name>CPlusPlus::CheckSymbols</name>
+    <message>
+        <source>Expected a namespace-name</source>
+        <translation>Требуется название пространства имён</translation>
+    </message>
+</context>
+<context>
     <name>CPlusPlus::OverviewModel</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
@@ -2564,10 +2575,22 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>CheckUndefinedSymbols</name>
+    <name>CPlusplus::CheckSymbols</name>
     <message>
-        <source>Expected a namespace-name</source>
-        <translation>Ожидается название пространства имён</translation>
+        <source>Only virtual methods can be marked `override&apos;</source>
+        <translation>Только виртуальные методы можно отмечать «override»</translation>
+    </message>
+    <message>
+        <source>Only virtual methods can be marked `final&apos;</source>
+        <translation>Только виртуальные методы можно отмечать «final»</translation>
+    </message>
+    <message>
+        <source>Too few arguments</source>
+        <translation>Слишком мало параметров</translation>
+    </message>
+    <message>
+        <source>Too many arguments</source>
+        <translation>Слишком много параметров</translation>
     </message>
 </context>
 <context>
@@ -2849,7 +2872,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>The comment check failed. Do you want to check in the files?</source>
-        <translation>Возникла ошибка при проверке комментария. Зафиксировать файлы?</translation>
+        <translation>Ошибка при проверке комментария. Зафиксировать файлы?</translation>
     </message>
     <message>
         <source>Do you want to undo the check out of &apos;%1&apos;?</source>
@@ -8519,15 +8542,15 @@ Qt Creator не может подключиться к нему.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation>Возникла ошибка при отправке данных процессу gdb. Например, процесс может уже не работать или он мог закрыть свой входной канал.</translation>
+        <translation>Ошибка при отправке данных процессу gdb. Например, процесс может уже не работать или он мог закрыть свой входной канал.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to read from the gdb process. For example, the process may not be running.</source>
-        <translation>Возникла ошибка при получении данных от процесса gdb. Например, процесс может уже не работать.</translation>
+        <translation>Ошибка при получении данных от процесса gdb. Например, процесс может уже не работать.</translation>
     </message>
     <message>
         <source>An unknown error in the gdb process occurred. </source>
-        <translation>Неизвестная ошибка возникла у процесса gdb. </translation>
+        <translation>У процесса gdb возникла неизвестная ошибка. </translation>
     </message>
     <message>
         <source>Library %1 unloaded</source>
@@ -9111,11 +9134,11 @@ receives a signal like SIGSEGV during debugging.</source>
     </message>
     <message>
         <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation>Возникла ошибка при отправке данных процессу выгрузки. Например, процесс может уже не работать или он мог закрыть свой входной канал.</translation>
+        <translation>Ошибка при отправке данных процессу выгрузки. Например, процесс может уже не работать или он мог закрыть свой входной канал.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to read from the upload process. For example, the process may not be running.</source>
-        <translation>Возникла ошибка при получении данных от процесса выгрузки. Например, процесс может уже не работать.</translation>
+        <translation>Ошибка при получении данных от процесса выгрузки. Например, процесс может уже не работать.</translation>
     </message>
     <message>
         <source>An unknown error in the upload process occurred. This is the default return value of error().</source>
@@ -9507,15 +9530,15 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
     <message>
         <source>An error occurred when attempting to write to the Pdb process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation>Возникла ошибка при отправке данных процессу Pdb. Например, процесс может уже не работать или он мог закрыть свой входной канал.</translation>
+        <translation>Ошибка при отправке данных процессу Pdb. Например, процесс может уже не работать или он мог закрыть свой входной канал.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to read from the Pdb process. For example, the process may not be running.</source>
-        <translation>Возникла ошибка при получении данных от процесса Pdb. Например, процесс может уже не работать.</translation>
+        <translation>Ошибка при получении данных от процесса Pdb. Например, процесс может уже не работать.</translation>
     </message>
     <message>
         <source>An unknown error in the Pdb process occurred. </source>
-        <translation>Неизвестная ошибка возникла у процесса Pdb. </translation>
+        <translation>У процесса Pdb возникла неизвестная ошибка. </translation>
     </message>
 </context>
 <context>
@@ -15372,7 +15395,7 @@ Do you want to kill it?</source>
     </message>
     <message>
         <source>An error occurred while replaying the macro, execution stopped.</source>
-        <translation>Возникла ошибка при воспроизведении сценария, оно остановлено.</translation>
+        <translation>Ошибка при воспроизведении сценария, оно остановлено.</translation>
     </message>
     <message>
         <source>Macro mode. Type &quot;%1&quot; to stop recording and &quot;%2&quot; to play it</source>
@@ -15431,8 +15454,8 @@ Do you want to kill it?</source>
         <translation>Не удалось создать пакет: не задан профил Qt.</translation>
     </message>
     <message>
-        <source>No Qt4 build configuration</source>
-        <translation>Нет конфигурации сборки Qt4</translation>
+        <source>No Qt build configuration</source>
+        <translation>Нет конфигурации сборки Qt</translation>
     </message>
     <message>
         <source>Creating package file...</source>
@@ -16027,6 +16050,14 @@ We will try to work around that, but you may experience problems.</source>
 <context>
     <name>Madde::Internal::MaemoMakeInstallToSysrootStep</name>
     <message>
+        <source>Cannot deploy: No active build dconfiguration.</source>
+        <translation>Невозможно установить: нет активной конфигурации сборки.</translation>
+    </message>
+    <message>
+        <source>Cannot deploy: Unusable build configuration.</source>
+        <translation>Невозможно установить: конфигурация сборки некорректна.</translation>
+    </message>
+    <message>
         <source>Copy files to sysroot</source>
         <translation>Скопировать файлы в sysroot</translation>
     </message>
@@ -16449,6 +16480,10 @@ We will try to work around that, but you may experience problems.</source>
 </context>
 <context>
     <name>Madde::Internal::MaemoQemuManager</name>
+    <message>
+        <source>MeeGo Emulator</source>
+        <translation>Эмулятор MeeGo</translation>
+    </message>
     <message>
         <source>Start MeeGo Emulator</source>
         <translation>Запустить эмулятор MeeGo</translation>
@@ -18339,8 +18374,8 @@ Preselects Qt for Simulator and mobile targets if available.</source>
         <translation>Сборка/установка была отменена.</translation>
     </message>
     <message>
-        <source>Error while building/deploying project %1 (target: %2)</source>
-        <translation>Возникла ошибка при сборке/установке проекта %1 (цель: %2)</translation>
+        <source>Error while building/deploying project %1 (kit: %2)</source>
+        <translation>Ошибка при сборке/установке проекта %1 (инструментарий: %2)</translation>
     </message>
     <message>
         <source>When executing step &apos;%1&apos;</source>
@@ -18422,10 +18457,6 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     <message>
         <source>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QDeclarativeEngine class.</source>
         <translation>Создание подключаемого модуля на C++, являющегося расширением, которое может быть динамически загружено в приложения через класс QDeclarativeEngine.</translation>
-    </message>
-    <message>
-        <source>Custom QML Extension Plugin</source>
-        <translation>Особый модуль расширяющий QML</translation>
     </message>
     <message>
         <source>Custom QML Extension  Plugin Parameters</source>
@@ -18534,6 +18565,18 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     <message>
         <source>Libraries</source>
         <translation>Библиотеки</translation>
+    </message>
+    <message>
+        <source>Qt Quick 1 Extension Plugin</source>
+        <translation>Модуль, расширяющий Qt Quick 1</translation>
+    </message>
+    <message>
+        <source>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QQmlEngine class.</source>
+        <translation>Создание подключаемого модуля на C++, являющегося расширением, которое может быть динамически загружено в приложения через класс QQmlEngine.</translation>
+    </message>
+    <message>
+        <source>Qt Quick 2 Extension Plugin</source>
+        <translation>Модуль, расширяющий Qt Quick 2</translation>
     </message>
     <message>
         <source>Qt Creator Plugin</source>
@@ -19472,8 +19515,8 @@ Remote error output was: %1</source>
         <translation>&lt;b&gt;Проект:&lt;/b&gt; %1</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Target:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Цель:&lt;/b&gt; %1</translation>
+        <source>&lt;b&gt;Kit:&lt;/b&gt; %1</source>
+        <translation>&lt;b&gt;Инструментарий:&lt;/b&gt; %1</translation>
     </message>
     <message>
         <source>&lt;b&gt;Build:&lt;/b&gt; %1</source>
@@ -20286,11 +20329,11 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>New Project...</source>
-        <translation>Новый проект...</translation>
+        <translation>Создать проект...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+N</source>
-        <translation></translation>
+        <translation>Ctrl+Shift+N</translation>
     </message>
     <message>
         <source>Load Project...</source>
@@ -20298,7 +20341,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Ctrl+Shift+O</source>
-        <translation></translation>
+        <translation>Ctrl+Shift+O</translation>
     </message>
     <message>
         <source>Open File</source>
@@ -20326,7 +20369,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Ctrl+Shift+B</source>
-        <translation></translation>
+        <translation>Ctrl+Shift+B</translation>
     </message>
     <message>
         <source>Rebuild All</source>
@@ -20350,7 +20393,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Ctrl+B</source>
-        <translation></translation>
+        <translation>Ctrl+B</translation>
     </message>
     <message>
         <source>Rebuild Project</source>
@@ -20406,7 +20449,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Ctrl+R</source>
-        <translation></translation>
+        <translation>Ctrl+R</translation>
     </message>
     <message>
         <source>Cancel Build</source>
@@ -20422,7 +20465,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Remove File...</source>
-        <translation>Убрать файл...</translation>
+        <translation>Удалить файл...</translation>
     </message>
     <message>
         <source>Remove Project...</source>
@@ -20500,6 +20543,14 @@ to project &apos;%2&apos;.</source>
         <translation>Не закрывать</translation>
     </message>
     <message>
+        <source>The project &apos;%1&apos; has no active kit.</source>
+        <translation>У проекта «%1» нет активного инструментария.</translation>
+    </message>
+    <message>
+        <source>The kit &apos;%1&apos; for the project &apos;%2&apos; has no active run configuration.</source>
+        <translation>Для инструментария «%1» проекта «%2» нет активной конфигурации запуска.</translation>
+    </message>
+    <message>
         <source>A build is still in progress.</source>
         <translation>Сборка ещё выполняется.</translation>
     </message>
@@ -20530,11 +20581,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>New Subproject...</source>
-        <translation>Новый подпроект...</translation>
-    </message>
-    <message>
-        <source>Quick Switch Target Selector</source>
-        <translation>Выбор быстрого переключения целей</translation>
+        <translation>Создать подпроект...</translation>
     </message>
     <message>
         <source>Ctrl+T</source>
@@ -20565,7 +20612,7 @@ Do you want to ignore them?</source>
     </message>
     <message>
         <source>Clean</source>
-        <translation>Очистка</translation>
+        <translation>Очистить</translation>
     </message>
     <message>
         <source>Close All Projects and Editors</source>
@@ -20573,7 +20620,7 @@ Do you want to ignore them?</source>
     </message>
     <message>
         <source>Build</source>
-        <translation>Сборка</translation>
+        <translation>Собрать</translation>
     </message>
     <message>
         <source>Rebuild</source>
@@ -20581,7 +20628,7 @@ Do you want to ignore them?</source>
     </message>
     <message>
         <source>Deploy</source>
-        <translation>Установка</translation>
+        <translation>Установить</translation>
     </message>
     <message>
         <source>Set &quot;%1&quot; as Active Project</source>
@@ -20590,6 +20637,10 @@ Do you want to ignore them?</source>
     <message>
         <source>Open Build and Run Kit Selector...</source>
         <translation>Открыть выбор инструментария для сборки и запуска...</translation>
+    </message>
+    <message>
+        <source>Quick Switch Kit Selector</source>
+        <translation>Выбор быстрого переключения инструментариев</translation>
     </message>
     <message>
         <source>Full build path of the current project&apos;s active build configuration.</source>
@@ -20649,14 +20700,6 @@ Do you want to ignore them?</source>
         <translation>Нет активного проекта.</translation>
     </message>
     <message>
-        <source>The project &apos;%1&apos; has no active target.</source>
-        <translation>У проекта «%1» нет активной цели.</translation>
-    </message>
-    <message>
-        <source>The target &apos;%1&apos; for the project &apos;%2&apos; has no active run configuration.</source>
-        <translation>У цели «%1» проекта «%2» нет активной конфигурации запуска.</translation>
-    </message>
-    <message>
         <source>Cannot run &apos;%1&apos;.</source>
         <translation>Не удалось запустить «%1».</translation>
     </message>
@@ -20671,7 +20714,7 @@ Do you want to ignore them?</source>
     </message>
     <message>
         <source>Add Existing Files</source>
-        <translation>Добавить существующие файлы</translation>
+        <translation>Добавление существующих файлов</translation>
     </message>
     <message>
         <source>Could not add following files to project %1:
@@ -20689,19 +20732,19 @@ Do you want to ignore them?</source>
     </message>
     <message>
         <source>Could not remove file %1 from project %2.</source>
-        <translation>Не удалось убрать файл %1 из проекта %2.</translation>
+        <translation>Не удалось удалить файл «%1» из проекта «%2».</translation>
     </message>
     <message>
         <source>Could not delete file %1.</source>
-        <translation>Не удалось удалить файл %1.</translation>
+        <translation>Не удалось удалить файл «%1».</translation>
     </message>
     <message>
         <source>Delete File</source>
-        <translation>Удалить файл</translation>
+        <translation>Удаление файла</translation>
     </message>
     <message>
         <source>Delete %1 from file system?</source>
-        <translation>Удалить %1 с диска?</translation>
+        <translation>Удалить «%1» с диска?</translation>
     </message>
 </context>
 <context>
@@ -20858,16 +20901,12 @@ Do you still want to load the settings file?</source>
         <translation>Неподдерживаемый файл общих настроек</translation>
     </message>
     <message>
-        <source>The version of your .shared file is not yet supported by this Qt Creator version. Only settings that are still compatible will be taken into account.
+        <source>The version of your .shared file is not supported by this Qt Creator version. Only settings that are still compatible will be taken into account.
 
-Do you want to continue?
+Do you want to try loading it?</source>
+        <translation>Версия вашего файла .shared не поддерживается этой версией Qt Creator. Будут загружены только совместимые настройки.
 
-If you choose not to continue Qt Creator will not try to load the .shared file.</source>
-        <translation>Версия вашего файла .shared ещё не поддерживается этой версией Qt Creator. Загружены будут только совместимые настройки.
-
-Продолжить?
-
-В случае отрицательного ответа Qt Creator не будет пытаться грузить файл .shared.</translation>
+Попробовать загрузить файл?</translation>
     </message>
 </context>
 <context>
@@ -22105,12 +22144,20 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
 <context>
     <name>QmlJSEditor::Internal::QmlJSEditorPlugin</name>
     <message>
-        <source>Creates a QML file.</source>
-        <translation>Создание файла QML.</translation>
+        <source>Creates a QML file with boilerplate code, starting with &quot;import QtQuick 1.1&quot;.</source>
+        <translation>Создание файл QML с шаблонным кодом, начинающимся с «import QtQuick 1.1».</translation>
     </message>
     <message>
-        <source>QML File</source>
-        <translation>Файл QML</translation>
+        <source>QML File (Qt Quick 1)</source>
+        <translation>Файл QML (Qt Quick 1)</translation>
+    </message>
+    <message>
+        <source>Creates a QML file with boilerplate code, starting with &quot;import QtQuick 2.0&quot;.</source>
+        <translation>Создание файл QML с шаблонным кодом, начинающимся с «import QtQuick 2.0».</translation>
+    </message>
+    <message>
+        <source>QML File (Qt Quick 2)</source>
+        <translation>Файл QML (Qt Quick 2)</translation>
     </message>
     <message>
         <source>Creates a JavaScript file.</source>
@@ -22181,6 +22228,10 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
 </context>
 <context>
     <name>QmlJSEditor::Internal::QmlJSPreviewRunner</name>
+    <message>
+        <source>No file specified.</source>
+        <translation>Файл не указан.</translation>
+    </message>
     <message>
         <source>Failed to preview Qt Quick file</source>
         <translation>Не удалось выполнить предпросмотр файла Qt Quick</translation>
@@ -22306,7 +22357,7 @@ Qt Creator know about a likely URI.</source>
 
 Module path: %1
 See &quot;Using QML Modules with Plugins&quot; in the documentation.</source>
-        <translation>Модуль QML не содержит информации о элементах содержащихся в расширении
+        <translation>Модуль QML не содержит информации об элементах содержащихся в расширении
 
 Путь к модулю: %1
 См. раздел «Using QML Modules with Plugins» документации.</translation>
@@ -22500,6 +22551,10 @@ Do you want to retry?</source>
         <translation>%1 анимаций, %2 кадров в секунду</translation>
     </message>
     <message>
+        <source>Unexpected complete signal in data model</source>
+        <translation>Неожиданный сигнал complete в модели данных</translation>
+    </message>
+    <message>
         <source>No data to save</source>
         <translation>Нет данных для сохранения</translation>
     </message>
@@ -22518,6 +22573,10 @@ Do you want to retry?</source>
     <message>
         <source>Invalid version of QML Trace file.</source>
         <translation>Неверная версия файла трассировки QML.</translation>
+    </message>
+    <message>
+        <source>Trying to set unknown state in events list</source>
+        <translation>Попытка установить неизвестное состояние в списке событий</translation>
     </message>
 </context>
 <context>
@@ -22879,12 +22938,12 @@ Please use the stop button instead.</source>
 
 You can review Qt Quick UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.
 
-Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
+Requires &lt;b&gt;Qt 5.0&lt;/b&gt; or newer.</source>
         <translation>Создание проекта приложения Qt Quick с одним QML файлом, содержащим главный вид.
 &lt;br/&gt;
 Проекты Qt Quick можно просматривать в QML Viewer и они не требуют сборки. Для создания и запуска проектов данного типа не требуется установка на компьютер среды разработки.
 &lt;br/&gt;
-Требуется &lt;b&gt;Qt&lt;/b&gt; версии не ниже &lt;b&gt;4.7.4&lt;/b&gt;.</translation>
+Требуется &lt;b&gt;Qt&lt;/b&gt; версии не ниже &lt;b&gt;5.0&lt;/b&gt;.</translation>
     </message>
 </context>
 <context>
@@ -23754,8 +23813,8 @@ Preselects a desktop Qt for building the application if available.</source>
 <context>
     <name>Qt4ProjectManager::Internal::ConsoleAppWizardDialog</name>
     <message>
-        <source>This wizard generates a Qt4 console application project. The application derives from QCoreApplication and does not provide a GUI.</source>
-        <translation>Этот мастер создаст проект консольного приложения Qt4. Оно будет наследником от QCoreApplication и без GUI.</translation>
+        <source>This wizard generates a Qt console application project. The application derives from QCoreApplication and does not provide a GUI.</source>
+        <translation>Этот мастер создаст проект консольного приложения Qt. Оно будет производным от QCoreApplication и без GUI.</translation>
     </message>
 </context>
 <context>
@@ -23834,8 +23893,8 @@ Preselects a desktop Qt for building the application if available.</source>
 <context>
     <name>Qt4ProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
-        <source>This wizard generates a Qt4 Designer Custom Widget or a Qt4 Designer Custom Widget Collection project.</source>
-        <translation>Этот мастер создаст пользовательский виджет или набор пользовательских виджетов для Qt4 Designer.</translation>
+        <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
+        <translation>Этот мастер создаст пользовательский виджет или набор пользовательских виджетов для Qt Designer.</translation>
     </message>
     <message>
         <source>Custom Widgets</source>
@@ -23906,8 +23965,8 @@ Preselects a desktop Qt for building the application if available.</source>
 <context>
     <name>Qt4ProjectManager::Internal::EmptyProjectWizardDialog</name>
     <message>
-        <source>This wizard generates an empty Qt4 project. Add files to it later on by using the other wizards.</source>
-        <translation>Этот мастер создаст пустой проект Qt4. Нужно будет позже добавить в него файлы с помощью других мастеров.</translation>
+        <source>This wizard generates an empty Qt project. Add files to it later on by using the other wizards.</source>
+        <translation>Этот мастер создаст пустой проект Qt. Нужно будет позже добавить в него файлы с помощью других мастеров.</translation>
     </message>
 </context>
 <context>
@@ -23950,8 +24009,8 @@ Preselects a desktop Qt for building the application if available.</source>
 <context>
     <name>Qt4ProjectManager::Internal::GuiAppWizardDialog</name>
     <message>
-        <source>This wizard generates a Qt4 GUI application project. The application derives by default from QApplication and includes an empty widget.</source>
-        <translation>Этот мастер создаст проект графического приложения Qt4. По умолчанию приложение будет базироваться на QApplication и будет включать пустой виджет.</translation>
+        <source>This wizard generates a Qt GUI application project. The application derives by default from QApplication and includes an empty widget.</source>
+        <translation>Этот мастер создаст проект графического приложения Qt. По умолчанию приложение будет производным от QApplication и будет включать пустой виджет.</translation>
     </message>
     <message>
         <source>Details</source>
@@ -24418,12 +24477,12 @@ Adds the library and include paths to the .pro file.</source>
         <translation>Ошибка:</translation>
     </message>
     <message>
-        <source>This target cannot build this project since it does not define a Qt version.</source>
-        <translation>Невозможно собрать данную цель, так как в проекте не задан профиль Qt.</translation>
-    </message>
-    <message>
         <source>building in &lt;b&gt;%1&lt;/b&gt;</source>
         <translation>сборка в &lt;b&gt;%1&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>This kit cannot build this project since it does not define a Qt version.</source>
+        <translation>Невозможно собрать проект данным инструментарием, так как он не определяет профиль Qt.</translation>
     </message>
     <message>
         <source>The Qt version %1 does not support shadow builds, building might fail.</source>
@@ -24537,8 +24596,8 @@ Adds the library and include paths to the .pro file.</source>
         <translation>Среда сборки</translation>
     </message>
     <message>
-        <source>Qt4 Run Configuration</source>
-        <translation>Конфигурация выполнения Qt4</translation>
+        <source>Qt Run Configuration</source>
+        <translation>Конфигурация выполнения Qt</translation>
     </message>
 </context>
 <context>
@@ -24633,10 +24692,10 @@ Adds the library and include paths to the .pro file.</source>
 <context>
     <name>Qt4ProjectManager::Internal::QtQuickAppWizard</name>
     <message>
-        <source>Creates a Qt Quick application project that can contain both QML and C++ code and includes a QDeclarativeView.
+        <source>Creates a Qt Quick 1 application project that can contain both QML and C++ code and includes a QDeclarativeView.
 
 </source>
-        <translation>Создание проекта приложения Qt Quick, который может содержать код как QML, так и на С++, а так же включает QDeclarativeView.
+        <translation>Создание проекта приложения Qt Quick 1, который может содержать код как QML, так и на С++, а так же включает QDeclarativeView.
 
 </translation>
     </message>
@@ -24657,20 +24716,24 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
         <translation>Приложение Qt Quick 2 (встроенные элементы)</translation>
     </message>
     <message>
-        <source>Creates a Qt Quick application project that can contain both QML and C++ code and includes a QQuickView.
+        <source>Creates a Qt Quick 2 application project that can contain both QML and C++ code and includes a QQuickView.
 
 The built-in elements in the QtQuick 2 namespace allow you to write cross-platform applications with a custom look and feel.
 
 Requires &lt;b&gt;Qt 5.0&lt;/b&gt; or newer.</source>
-        <translation>Создание проекта приложения Qt Quick, который может одновременно содержать код С++ и QML и включать QQuickView.
+        <translation>Создание проекта приложения Qt Quick 2, который может одновременно содержать код С++ и QML, а также включать QQuickView.
 
 Встроенные элементы пространства имён QtQuick 2 позволяют создавать кросс-платформенные приложения с особым внешним видом и эргономикой.
 
 Требуется &lt;b&gt;Qt&lt;/b&gt; версии &lt;b&gt;5.0&lt;/b&gt; и выше.</translation>
     </message>
     <message>
-        <source>Qt Quick Application for MeeGo Harmattan</source>
-        <translation>Приложение Qt Quick для MeeGo Harmattan</translation>
+        <source>Qt Quick 1 Application for MeeGo Harmattan</source>
+        <translation>Приложение Qt Quick 1 для MeeGo Harmattan</translation>
+    </message>
+    <message>
+        <source>Qt Quick 1 Application (from Existing QML File)</source>
+        <translation>Приложение Qt Quick 1 (из существующего файла QML)</translation>
     </message>
     <message>
         <source>The Qt Quick Components for MeeGo Harmattan are a set of ready-made components that are designed with specific native appearance for the MeeGo Harmattan platform.
@@ -24679,10 +24742,6 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer, and the component set installed f
         <translation>Элементы Qt Quick для MeeGo Harmattan - это набор готовых элементов разработанных с учётом особенностей внешнего вида приложений для платформы MeeGo/Harmattan.
 &lt;br/&gt;
 Требуется &lt;b&gt;Qt&lt;/b&gt; версии не ниже &lt;b&gt;4.7.4&lt;/b&gt; и установленный набор элементов для выбранного профиля Qt.</translation>
-    </message>
-    <message>
-        <source>Qt Quick Application (from Existing QML File)</source>
-        <translation>Приложение Qt Quick (из файла .qml)</translation>
     </message>
     <message>
         <source>Creates a deployable Qt Quick application from existing QML files. All files and directories that reside in the same directory as the main .qml file are deployed. You can modify the contents of the directory any time before deploying.
@@ -24750,8 +24809,8 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
 <context>
     <name>Qt4ProjectManager::Internal::SubdirsProjectWizardDialog</name>
     <message>
-        <source>This wizard generates a Qt4 subdirs project. Add subprojects to it later on by using the other wizards.</source>
-        <translation>Этот мастер создаёт проект Qt4 с подкаталогами. Добавьте подпроекты в него позже с использованием уже других мастеров.</translation>
+        <source>This wizard generates a Qt subdirs project. Add subprojects to it later on by using the other wizards.</source>
+        <translation>Этот мастер создаёт проект Qt с подкаталогами. Добавьте подпроекты в него позже с использованием уже других мастеров.</translation>
     </message>
 </context>
 <context>
@@ -24868,7 +24927,7 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
     <name>Qt4ProjectManager::MakeStep</name>
     <message>
         <source>Make</source>
-        <comment>Qt4 MakeStep display name.</comment>
+        <comment>Qt MakeStep display name.</comment>
         <translation>Сборка</translation>
     </message>
     <message>
@@ -24895,8 +24954,8 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
         <translation>&lt;b&gt;Make:&lt;/b&gt; %1</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Make:&lt;/b&gt; No Qt4 build configuration.</source>
-        <translation>&lt;b&gt;Make:&lt;/b&gt; Нет конфигурации сборки Qt4.</translation>
+        <source>&lt;b&gt;Make:&lt;/b&gt; No Qt build configuration.</source>
+        <translation>&lt;b&gt;Make:&lt;/b&gt; Нет конфигурации сборки Qt.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 not found in the environment.</source>
@@ -25697,6 +25756,10 @@ cannot be found in the path.</source>
         <translation>Этот профиль Qt уже зарегистрирован как «%1».</translation>
     </message>
     <message>
+        <source>The Qt version selected must be for the same device type.</source>
+        <translation>Выбранный профиль Qt должен соответствовать типу устройства.</translation>
+    </message>
+    <message>
         <source>Helpers: None available</source>
         <translation>Помощники отсутствуют</translation>
     </message>
@@ -25740,10 +25803,6 @@ cannot be found in the path.</source>
     <message>
         <source>Incompatible Qt Versions</source>
         <translation>Несовместимые профили Qt</translation>
-    </message>
-    <message>
-        <source>The Qt version selected must be for the same target.</source>
-        <translation>Выбранный профиль Qt должен быть для такой же цели.</translation>
     </message>
 </context>
 <context>
@@ -26276,6 +26335,10 @@ In addition, device connectivity will be tested.</source>
         <translation>Подключение к узлу...</translation>
     </message>
     <message>
+        <source>Checking kernel version...</source>
+        <translation>Проверка версии ядра...</translation>
+    </message>
+    <message>
         <source>SSH connection failure: %1
 </source>
         <translation>Не удалось установить подключение SSH: %1</translation>
@@ -26298,6 +26361,11 @@ In addition, device connectivity will be tested.</source>
         <source>Error gathering ports: %1
 </source>
         <translation>Ошибка резервирования портов: %1</translation>
+    </message>
+    <message>
+        <source>All specified ports are available.
+</source>
+        <translation>Все указанные порты доступны.</translation>
     </message>
     <message>
         <source>The following specified ports are currently in use: %1
@@ -26419,6 +26487,10 @@ In addition, device connectivity will be tested.</source>
     <message>
         <source>Package upload failed: Could not open file.</source>
         <translation>Не удалось отправить пакет: Невозможно открыть файл.</translation>
+    </message>
+    <message>
+        <source>Starting upload...</source>
+        <translation>Запуск отправки...</translation>
     </message>
     <message>
         <source>Failed to upload package: %2</source>
@@ -27831,6 +27903,17 @@ with a password, which you can enter below.</source>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>Общие</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::BehaviorSettingsWidget</name>
+    <message>
+        <source>Display context-sensitive help or type information on mouseover.</source>
+        <translation>Отображать контекстную справку или информацию о типе при наведении курсора мыши.</translation>
+    </message>
+    <message>
+        <source>Display context-sensitive help or type information on Shift+Mouseover.</source>
+        <translation>Отображать контекстную справку или информацию о типе при наведении курсора мыши с зажатой клавишей Shift.</translation>
     </message>
 </context>
 <context>
@@ -30559,7 +30642,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>An encoding error was encountered.</source>
-        <translation>Возникла ошибка кодировки.</translation>
+        <translation>Ошибка кодировки.</translation>
     </message>
 </context>
 <context>
@@ -30809,6 +30892,10 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>Unpausing instrumentation...</source>
         <translation>Продолжение работы...</translation>
+    </message>
+    <message>
+        <source>An error occurred while trying to run %1: %2</source>
+        <translation>Ошибка при попытке запустить %1: %2</translation>
     </message>
     <message>
         <source>Callgrind dumped profiling info</source>
@@ -31221,7 +31308,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Error occurred parsing valgrind output: %1</source>
-        <translation>Возникла ошибка при разборе вывода valgrind: %1</translation>
+        <translation>Ошибка при разборе вывода valgrind: %1</translation>
     </message>
 </context>
 <context>
@@ -32338,7 +32425,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>cAvahiClient, an error occurred on the client side.</source>
-        <translation>cAvahiClient, возникла ошибка на стороне клиента.</translation>
+        <translation>cAvahiClient, ошибка на стороне клиента.</translation>
     </message>
     <message>
         <source>cAvahiClient, still connecting, no server available.</source>
@@ -32450,7 +32537,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>To become familiar with the parts of the Qt Creator user interface and to learn how to use them.</source>
-        <translation>Узнайте больше о элементах пользовательского интерфейса Qt Creator и методах их использования.</translation>
+        <translation>Узнайте больше об элементах пользовательского интерфейса Qt Creator и методах их использования.</translation>
     </message>
     <message>
         <source>User Interface</source>

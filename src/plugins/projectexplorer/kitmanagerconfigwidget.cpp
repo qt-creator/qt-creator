@@ -122,6 +122,8 @@ void KitManagerConfigWidget::apply()
 
     if (mustSetDefault)
         km->setDefaultKit(m_kit);
+
+    m_isDefaultKit = mustSetDefault;
     emit dirty();
 }
 

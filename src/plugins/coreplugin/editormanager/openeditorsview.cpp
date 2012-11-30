@@ -51,9 +51,6 @@
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QTreeView>
-#ifdef Q_OS_MAC
-#include <qmacstyle_mac.h>
-#endif
 
 using namespace Core;
 using namespace Core::Internal;

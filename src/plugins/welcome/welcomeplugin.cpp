@@ -45,6 +45,10 @@
 #include <utils/iwelcomepage.h>
 #include <utils/networkaccessmanager.h>
 
+#ifdef Q_OS_WIN
+#include <utils/winutils.h>
+#endif
+
 #include <QScrollArea>
 #include <QDesktopServices>
 #include <QPainter>
@@ -195,6 +199,26 @@ void WelcomeMode::facilitateQml(QDeclarativeEngine * /*engine*/)
 {
 }
 
+static QString applicationDirPath()
+{
+#ifdef Q_OS_WIN
+    // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
+    return Utils::normalizePathName(QCoreApplication::applicationDirPath());
+#else
+    return QCoreApplication::applicationDirPath();
+#endif
+}
+
+static QString resourcePath()
+{
+#ifdef Q_OS_WIN
+    // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
+    return Utils::normalizePathName(Core::ICore::resourcePath());
+#else
+    return Core::ICore::resourcePath();
+#endif
+}
+
 void WelcomeMode::initPlugins()
 {
     QSettings *settings = Core::ICore::settings();
@@ -234,12 +258,12 @@ void WelcomeMode::initPlugins()
 
     QDeclarativeEngine *engine = m_welcomePage->engine();
     QStringList importPathList = engine->importPathList();
-    importPathList << Core::ICore::resourcePath() + QLatin1String("/welcomescreen");
+    importPathList << resourcePath() + QLatin1String("/welcomescreen");
     engine->setImportPathList(importPathList);
     if (!debug)
         engine->setOutputWarningsToStandardError(false);
     engine->setNetworkAccessManagerFactory(m_networkAccessManagerFactory);
-    QString pluginPath = QCoreApplication::applicationDirPath();
+    QString pluginPath = applicationDirPath();
     if (HostOsInfo::isMacHost())
         pluginPath += QLatin1String("/../PlugIns");
     else
@@ -253,9 +277,11 @@ void WelcomeMode::initPlugins()
 
     ctx->setContextProperty(QLatin1String("pagesModel"), QVariant::fromValue(m_pluginList));
 
+    QString path = resourcePath() + QLatin1String("/welcomescreen/welcomescreen.qml");
+
     // finally, load the root page
     m_welcomePage->setSource(
-            QUrl::fromLocalFile(Core::ICore::resourcePath() + QLatin1String("/welcomescreen/welcomescreen.qml")));
+            QUrl::fromLocalFile(path));
 }
 
 QString WelcomeMode::platform() const

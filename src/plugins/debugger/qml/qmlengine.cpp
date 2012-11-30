@@ -274,7 +274,7 @@ QmlJS::ConsoleManagerInterface *qmlConsoleManager()
 //
 ///////////////////////////////////////////////////////////////////////
 
-QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
+QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters, DebuggerEngine *masterEngine)
   : DebuggerEngine(startParameters)
   , m_adapter(this)
   , m_inspectorAdapter(&m_adapter, this)
@@ -282,6 +282,9 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
   , m_automaticConnect(false)
 {
     setObjectName(QLatin1String("QmlEngine"));
+
+    if (masterEngine)
+        setMasterEngine(masterEngine);
 
     connect(&m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),
         SLOT(connectionError(QAbstractSocket::SocketError)));
@@ -292,9 +295,9 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
     connect(&m_adapter, SIGNAL(connectionStartupFailed()),
         SLOT(connectionStartupFailed()));
 
-    connect(this, SIGNAL(stateChanged(Debugger::DebuggerState)),
+    connect(stackHandler(), SIGNAL(stackChanged()),
             SLOT(updateCurrentContext()));
-    connect(this->stackHandler(), SIGNAL(currentIndexChanged()),
+    connect(stackHandler(), SIGNAL(currentIndexChanged()),
             SLOT(updateCurrentContext()));
     connect(inspectorTreeView(), SIGNAL(currentIndexChanged(QModelIndex)),
             SLOT(updateCurrentContext()));

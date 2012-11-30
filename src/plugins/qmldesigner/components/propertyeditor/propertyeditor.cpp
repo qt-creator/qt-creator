@@ -75,6 +75,10 @@
 #include <QGraphicsOpacityEffect>
 #include <QToolBar>
 
+#ifdef Q_OS_WIN
+#include <utils/winutils.h>
+#endif
+
 enum {
     debug = false
 };
@@ -82,6 +86,16 @@ enum {
 const int collapseButtonOffset = 114;
 
 namespace QmlDesigner {
+
+static QString applicationDirPath()
+{
+#ifdef Q_OS_WIN
+    // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
+    return Utils::normalizePathName(QCoreApplication::applicationDirPath());
+#else
+    return QCoreApplication::applicationDirPath();
+#endif
+}
 
 #ifdef Q_OS_MAC
 #  define SHARE_PATH "/../Resources/qmldesigner"
@@ -91,7 +105,7 @@ namespace QmlDesigner {
 
 static inline QString sharedDirPath()
 {
-    QString appPath = QCoreApplication::applicationDirPath();
+    QString appPath = applicationDirPath();
 
     return QFileInfo(appPath + SHARE_PATH).absoluteFilePath();
 }

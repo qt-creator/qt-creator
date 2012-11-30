@@ -95,11 +95,11 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)
                                                      "Could not find explorer.exe in path to launch Windows Explorer."));
         return;
     }
-    QString param;
+    QStringList param;
     if (!QFileInfo(pathIn).isDir())
-        param = QLatin1String("/select,");
+        param += QLatin1String("/select,");
     param += QDir::toNativeSeparators(pathIn);
-    QProcess::startDetached(explorer, QStringList(param));
+    QProcess::startDetached(explorer, param);
 #elif defined(Q_OS_MAC)
     Q_UNUSED(parent)
     QStringList scriptArgs;
@@ -193,12 +193,13 @@ void FileUtils::removeFile(const QString &filePath, bool deleteFromFS)
 static inline bool fileSystemRenameFile(const QString &orgFilePath,
                                         const QString &newFilePath)
 {
-#if QT_VERSION < 0x050000 // ### fixme: QTBUG-3570 might be fixed in Qt 5?
-    QFile f(orgFilePath); // Due to QTBUG-3570
-    QAbstractFileEngine *fileEngine = f.fileEngine();
+#if QT_VERSION < 0x050000
+    QAbstractFileEngine *fileEngine = QAbstractFileEngine::create(orgFilePath); // Due to QTBUG-3570
     if (!fileEngine->caseSensitive() && orgFilePath.compare(newFilePath, Qt::CaseInsensitive) == 0)
         return fileEngine->rename(newFilePath);
 #endif
+    // QTBUG-3570 is also valid for Qt 5 but QAbstractFileEngine is now in a private header file and
+    // the symbol is not exported.
     return QFile::rename(orgFilePath, newFilePath);
 }
 

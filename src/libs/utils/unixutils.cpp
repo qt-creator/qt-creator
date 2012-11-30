@@ -77,11 +77,11 @@ QString UnixUtils::substituteFileBrowserParameters(const QString &pre, const QSt
             c = pre.at(++i);
             QString s;
             if (c == QLatin1Char('d'))
-                s = QFileInfo(file).path();
+                s = QLatin1Char('"') + QFileInfo(file).path() + QLatin1Char('"');
             else if (c == QLatin1Char('f'))
-                s = file;
+                s = QLatin1Char('"') + file + QLatin1Char('"');
             else if (c == QLatin1Char('n'))
-                s = QFileInfo(file).fileName();
+                s = QLatin1Char('"') + QFileInfo(file).fileName() + QLatin1Char('"');
             else if (c == QLatin1Char('%'))
                 s = c;
             else {

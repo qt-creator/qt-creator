@@ -102,7 +102,7 @@ signals:
     void propertyChanged(int debugId, const QByteArray &propertyName,
                          const QVariant &propertyValue);
     void automaticUpdateFailed();
-    void jumpToObjectDefinition(const QmlDebug::FileReference &objSource);
+    void jumpToObjectDefinition(const QmlDebug::FileReference &objSource, int debugId);
 
 private slots:
     void updateStatus();
