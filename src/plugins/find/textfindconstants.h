@@ -59,6 +59,7 @@ const char REPLACE_ALL[]       = "Find.ReplaceAll";
 const char CASE_SENSITIVE[]    = "Find.CaseSensitive";
 const char WHOLE_WORDS[]       = "Find.WholeWords";
 const char REGULAR_EXPRESSIONS[] = "Find.RegularExpressions";
+const char PRESERVE_CASE[]     = "Find.PreserveCase";
 const char TASK_SEARCH[]       = "Find.Task.Search";
 
 } // namespace Constants
@@ -67,7 +68,8 @@ enum FindFlag {
     FindBackward = 0x01,
     FindCaseSensitively = 0x02,
     FindWholeWords = 0x04,
-    FindRegularExpression = 0x08
+    FindRegularExpression = 0x08,
+    FindPreserveCase = 0x10
 };
 Q_DECLARE_FLAGS(FindFlags, FindFlag)
 

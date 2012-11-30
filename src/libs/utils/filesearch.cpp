@@ -348,6 +348,72 @@ QString Utils::expandRegExpReplacement(const QString &replaceText, const QString
     return result;
 }
 
+namespace Utils {
+namespace Internal {
+QString matchCaseReplacement(const QString &originalText, const QString &replaceText)
+{
+    //Now proceed with actual case matching
+    bool firstIsUpperCase = originalText.at(0).isUpper();
+    bool firstIsLowerCase = originalText.at(0).isLower();
+    bool restIsLowerCase = true; // to be verified
+    bool restIsUpperCase = true; // to be verified
+
+    for (int i = 1; i < originalText.length(); ++i) {
+        if (originalText.at(i).isUpper())
+            restIsLowerCase = false;
+        else if (originalText.at(i).isLower())
+            restIsUpperCase = false;
+
+        if (!restIsLowerCase && !restIsUpperCase)
+            return replaceText; // mixed
+    }
+
+    if (restIsLowerCase) {
+        QString res = replaceText.toLower();
+        if (firstIsUpperCase)
+            res.replace(0, 1, res.at(0).toUpper());
+        return res;
+    }
+
+    if (restIsUpperCase) {
+        QString res = replaceText.toUpper();
+        if (firstIsLowerCase)
+            res.replace(0, 1, res.at(0).toLower());
+        return res;
+    }
+
+    return replaceText;         // mixed
+}
+}
+}
+
+QString Utils::matchCaseReplacement(const QString &originalText, const QString &replaceText)
+{
+    if (originalText.isEmpty())
+        return replaceText;
+
+    //Find common prefix & suffix: these will be unaffected
+    const int replaceTextLen = replaceText.length();
+    const int originalTextLen = originalText.length();
+
+    int prefixLen = 0;
+    for (; prefixLen <= replaceTextLen && prefixLen <= originalTextLen; prefixLen++)
+        if (replaceText.at(prefixLen).toLower() != originalText.at(prefixLen).toLower())
+            break;
+
+    int suffixLen = 0;
+    for (; suffixLen < replaceTextLen - prefixLen && suffixLen < originalTextLen - prefixLen; suffixLen++)
+        if (replaceText.at(replaceTextLen - 1 - suffixLen).toLower() != originalText.at(originalTextLen- 1 - suffixLen).toLower())
+            break;
+
+    //keep prefix and suffix, and do actual replacement on the 'middle' of the string
+    return originalText.left(prefixLen)
+            + Internal::matchCaseReplacement(originalText.mid(prefixLen, originalTextLen - prefixLen - suffixLen),
+                                             replaceText.mid(prefixLen, replaceTextLen - prefixLen - suffixLen))
+            + originalText.right(suffixLen);
+
+}
+
 // #pragma mark -- FileIterator
 
 FileIterator::FileIterator()

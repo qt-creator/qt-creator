@@ -933,8 +933,8 @@ void FindReferences::displayResults(int first, int last)
             m_currentSearch = Find::SearchResultWindow::instance()->startNewSearch(
                         label, QString(), symbolName, Find::SearchResultWindow::SearchAndReplace);
             m_currentSearch->setTextToReplace(replacement);
-            connect(m_currentSearch, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
-                    SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
+            connect(m_currentSearch, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>,bool)),
+                    SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>,bool)));
         }
         connect(m_currentSearch, SIGNAL(activated(Find::SearchResultItem)),
                 this, SLOT(openEditor(Find::SearchResultItem)));
@@ -996,9 +996,9 @@ void FindReferences::openEditor(const Find::SearchResultItem &item)
     }
 }
 
-void FindReferences::onReplaceButtonClicked(const QString &text, const QList<Find::SearchResultItem> &items)
+void FindReferences::onReplaceButtonClicked(const QString &text, const QList<Find::SearchResultItem> &items, bool preserveCase)
 {
-    const QStringList fileNames = TextEditor::BaseFileFind::replaceAll(text, items);
+    const QStringList fileNames = TextEditor::BaseFileFind::replaceAll(text, items, preserveCase);
 
     // files that are opened in an editor are changed, but not saved
     QStringList changedOnDisk;

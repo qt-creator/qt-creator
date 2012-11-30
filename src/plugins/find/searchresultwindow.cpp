@@ -218,7 +218,7 @@ using namespace Find::Internal;
 */
 
 /*!
-    \fn void SearchResult::replaceButtonClicked(const QString &replaceText, const QList<Find::SearchResultItem> &checkedItems)
+    \fn void SearchResult::replaceButtonClicked(const QString &replaceText, const QList<Find::SearchResultItem> &checkedItems, bool preserveCase)
     \brief Sent when the user initiated a replace, e.g. by pressing the replace
     all button.
 
@@ -614,8 +614,8 @@ SearchResult::SearchResult(SearchResultWidget *widget)
 {
     connect(widget, SIGNAL(activated(Find::SearchResultItem)),
             this, SIGNAL(activated(Find::SearchResultItem)));
-    connect(widget, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
-            this, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)));
+    connect(widget, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>,bool)),
+            this, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>,bool)));
     connect(widget, SIGNAL(cancelled()),
             this, SIGNAL(cancelled()));
     connect(widget, SIGNAL(paused(bool)),

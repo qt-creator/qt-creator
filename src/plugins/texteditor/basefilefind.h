@@ -71,7 +71,8 @@ public:
 
     /* returns the list of unique files that were passed in items */
     static QStringList replaceAll(const QString &txt,
-                                  const QList<Find::SearchResultItem> &items);
+                                  const QList<Find::SearchResultItem> &items,
+                                  bool preserveCase = false);
 
 protected:
     virtual Utils::FileIterator *files(const QStringList &nameFilters,
@@ -95,7 +96,8 @@ private slots:
     void setPaused(bool paused);
     void openEditor(const Find::SearchResultItem &item);
     void doReplace(const QString &txt,
-                    const QList<Find::SearchResultItem> &items);
+                   const QList<Find::SearchResultItem> &items,
+                   bool preserveCase);
     void hideHighlightAll(bool visible);
     void searchAgain();
 

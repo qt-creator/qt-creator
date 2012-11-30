@@ -83,6 +83,7 @@ public slots:
     void setWholeWord(bool wholeOnly);
     void setBackward(bool backward);
     void setRegularExpression(bool regExp);
+    void setPreserveCase(bool preserveCase);
 
 signals:
     void findFlagsChanged();

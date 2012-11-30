@@ -270,6 +270,11 @@ void FindPlugin::setRegularExpression(bool regExp)
     setFindFlag(Find::FindRegularExpression, regExp);
 }
 
+void FindPlugin::setPreserveCase(bool preserveCase)
+{
+    setFindFlag(Find::FindPreserveCase, preserveCase);
+}
+
 void FindPlugin::setFindFlag(Find::FindFlag flag, bool enabled)
 {
     bool hasFlag = hasFindFlag(flag);
@@ -296,6 +301,7 @@ void FindPlugin::writeSettings()
     settings->setValue(QLatin1String("CaseSensitively"), hasFindFlag(Find::FindCaseSensitively));
     settings->setValue(QLatin1String("WholeWords"), hasFindFlag(Find::FindWholeWords));
     settings->setValue(QLatin1String("RegularExpression"), hasFindFlag(Find::FindRegularExpression));
+    settings->setValue(QLatin1String("PreserveCase"), hasFindFlag(Find::FindPreserveCase));
     settings->setValue(QLatin1String("FindStrings"), d->m_findCompletions);
     settings->setValue(QLatin1String("ReplaceStrings"), d->m_replaceCompletions);
     settings->endGroup();
@@ -312,6 +318,7 @@ void FindPlugin::readSettings()
     setCaseSensitive(settings->value(QLatin1String("CaseSensitively"), false).toBool());
     setWholeWord(settings->value(QLatin1String("WholeWords"), false).toBool());
     setRegularExpression(settings->value(QLatin1String("RegularExpression"), false).toBool());
+    setPreserveCase(settings->value(QLatin1String("PreserveCase"), false).toBool());
     blockSignals(block);
     d->m_findCompletions = settings->value(QLatin1String("FindStrings")).toStringList();
     d->m_replaceCompletions = settings->value(QLatin1String("ReplaceStrings")).toStringList();

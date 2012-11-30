@@ -110,7 +110,7 @@ public slots:
 
 signals:
     void activated(const Find::SearchResultItem &item);
-    void replaceButtonClicked(const QString &replaceText, const QList<Find::SearchResultItem> &checkedItems);
+    void replaceButtonClicked(const QString &replaceText, const QList<Find::SearchResultItem> &checkedItems, bool preserveCase);
     void cancelled();
     void paused(bool paused);
     void visibilityChanged(bool visible);

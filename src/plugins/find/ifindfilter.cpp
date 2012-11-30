@@ -225,13 +225,16 @@ QPixmap Find::IFindFilter::pixmapForFindFlags(Find::FindFlags flags)
     static const QPixmap casesensitiveIcon = QPixmap(QLatin1String(":/find/images/casesensitively.png"));
     static const QPixmap regexpIcon = QPixmap(QLatin1String(":/find/images/regexp.png"));
     static const QPixmap wholewordsIcon = QPixmap(QLatin1String(":/find/images/wholewords.png"));
+    static const QPixmap preservecaseIcon = QPixmap(QLatin1String(":/find/images/preservecase.png"));
     bool casesensitive = flags & Find::FindCaseSensitively;
     bool wholewords = flags & Find::FindWholeWords;
     bool regexp = flags & Find::FindRegularExpression;
+    bool preservecase = flags & Find::FindPreserveCase;
     int width = 0;
     if (casesensitive) width += 6;
     if (wholewords) width += 6;
     if (regexp) width += 6;
+    if (preservecase) width += 6;
     if (width > 0) --width;
     QPixmap pixmap(width, 17);
     pixmap.fill(Qt::transparent);
@@ -248,6 +251,10 @@ QPixmap Find::IFindFilter::pixmapForFindFlags(Find::FindFlags flags)
     }
     if (regexp) {
         painter.drawPixmap(x - 6, 0, regexpIcon);
+        x += 6;
+    }
+    if (preservecase) {
+        painter.drawPixmap(x - 6, 0, preservecaseIcon);
     }
     return pixmap;
 }
@@ -261,6 +268,8 @@ QString Find::IFindFilter::descriptionForFindFlags(Find::FindFlags flags)
         flagStrings.append(tr("Whole words"));
     if (flags & Find::FindRegularExpression)
         flagStrings.append(tr("Regular expressions"));
+    if (flags & Find::FindPreserveCase)
+        flagStrings.append(tr("Preserve case"));
     QString description = tr("Flags: %1");
     if (flagStrings.isEmpty())
         description = description.arg(tr("None"));

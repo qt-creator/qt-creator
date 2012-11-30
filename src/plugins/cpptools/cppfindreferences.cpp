@@ -255,8 +255,8 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
                                                         : Find::SearchResultWindow::SearchOnly,
                                                 QLatin1String("CppEditor"));
     search->setTextToReplace(replacement);
-    connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
-            SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
+    connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>,bool)),
+            SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>,bool)));
     connect(search, SIGNAL(paused(bool)), this, SLOT(setPaused(bool)));
     search->setSearchAgainSupported(true);
     connect(search, SIGNAL(searchAgainRequested()), this, SLOT(searchAgain()));
@@ -303,9 +303,10 @@ void CppFindReferences::findAll_helper(Find::SearchResult *search)
 }
 
 void CppFindReferences::onReplaceButtonClicked(const QString &text,
-                                               const QList<Find::SearchResultItem> &items)
+                                               const QList<Find::SearchResultItem> &items,
+                                               bool preserveCase)
 {
-    const QStringList fileNames = TextEditor::BaseFileFind::replaceAll(text, items);
+    const QStringList fileNames = TextEditor::BaseFileFind::replaceAll(text, items, preserveCase);
     if (!fileNames.isEmpty()) {
         _modelManager->updateSourceFiles(fileNames);
         Find::SearchResultWindow::instance()->hide();

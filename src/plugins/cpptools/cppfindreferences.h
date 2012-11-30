@@ -89,7 +89,7 @@ private Q_SLOTS:
     void cancel();
     void setPaused(bool paused);
     void openEditor(const Find::SearchResultItem &item);
-    void onReplaceButtonClicked(const QString &text, const QList<Find::SearchResultItem> &items);
+    void onReplaceButtonClicked(const QString &text, const QList<Find::SearchResultItem> &items, bool preserveCase);
     void searchAgain();
 
 private:

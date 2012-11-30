@@ -1172,6 +1172,28 @@
 
     \endlist
 
+    The \gui{Preserve Case when Replacing} option can be selected to preserve
+    the case of the original text when replacing. This option is not compatible
+    with the \gui {Regular Expressions} search option, and will thus be
+    disabled when regular expressions are used. When the option is used, the
+    case of the occurrence will be conserved, according to the following rules:
+
+    \list
+
+        \o All upper-case occurrences are replaced with the upper-case new text.
+
+        \o All lower-case occurrences are replaced with the lower-case new text.
+
+        \o Capitalized occurrences are replaced with the capitalized new text.
+
+        \o Other occurrences are replaced with the new text as entered.
+
+        \o If an occurrence and the new text have the same prefix or suffix,
+           then the case of the prefix and/or suffix are preserved, and the
+           other rules are applied on the rest of the occurrence only.
+
+    \endlist
+
     \section1 Advanced Search
 
     To search through projects, files on a file system or the currently open

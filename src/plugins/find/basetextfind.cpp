@@ -124,7 +124,8 @@ bool BaseTextFind::supportsReplace() const
 Find::FindFlags BaseTextFind::supportedFindFlags() const
 {
     return Find::FindBackward | Find::FindCaseSensitively
-            | Find::FindRegularExpression | Find::FindWholeWords;
+            | Find::FindRegularExpression | Find::FindWholeWords
+            | Find::FindPreserveCase;
 }
 
 void BaseTextFind::resetIncrementalSearch()
@@ -216,12 +217,19 @@ QTextCursor BaseTextFind::replaceInternal(const QString &before, const QString &
 {
     QTextCursor cursor = textCursor();
     bool usesRegExp = (findFlags & Find::FindRegularExpression);
+    bool preserveCase = (findFlags & Find::FindPreserveCase);
     QRegExp regexp(before,
                    (findFlags & Find::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive,
                    usesRegExp ? QRegExp::RegExp : QRegExp::FixedString);
 
     if (regexp.exactMatch(cursor.selectedText())) {
-        QString realAfter = usesRegExp ? Utils::expandRegExpReplacement(after, regexp.capturedTexts()) : after;
+        QString realAfter;
+        if (usesRegExp)
+            realAfter = Utils::expandRegExpReplacement(after, regexp.capturedTexts());
+        else if (preserveCase)
+            realAfter = Utils::matchCaseReplacement(cursor.selectedText(), after);
+        else
+            realAfter = after;
         int start = cursor.selectionStart();
         cursor.insertText(realAfter);
         if ((findFlags&Find::FindBackward) != 0)
@@ -252,6 +260,7 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after,
     editCursor.beginEditBlock();
     int count = 0;
     bool usesRegExp = (findFlags & Find::FindRegularExpression);
+    bool preserveCase = (findFlags & Find::FindPreserveCase);
     QRegExp regexp(before);
     regexp.setPatternSyntax(usesRegExp ? QRegExp::RegExp : QRegExp::FixedString);
     regexp.setCaseSensitivity((findFlags & Find::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
@@ -263,7 +272,14 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after,
         editCursor.setPosition(found.selectionStart());
         editCursor.setPosition(found.selectionEnd(), QTextCursor::KeepAnchor);
         regexp.exactMatch(found.selectedText());
-        QString realAfter = usesRegExp ? Utils::expandRegExpReplacement(after, regexp.capturedTexts()) : after;
+
+        QString realAfter;
+        if (usesRegExp)
+            realAfter = Utils::expandRegExpReplacement(after, regexp.capturedTexts());
+        else if (preserveCase)
+            realAfter = Utils::matchCaseReplacement(found.selectedText(), after);
+        else
+            realAfter = after;
         editCursor.insertText(realAfter);
         found = findOne(regexp, editCursor, Find::textDocumentFlagsForFindFlags(findFlags));
     }

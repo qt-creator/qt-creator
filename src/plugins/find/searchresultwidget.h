@@ -39,6 +39,7 @@
 #include <QLineEdit>
 #include <QToolButton>
 #include <QWidget>
+#include <QCheckBox>
 
 namespace Find {
 namespace Internal {
@@ -94,7 +95,7 @@ public slots:
 
 signals:
     void activated(const Find::SearchResultItem &item);
-    void replaceButtonClicked(const QString &replaceText, const QList<Find::SearchResultItem> &checkedItems);
+    void replaceButtonClicked(const QString &replaceText, const QList<Find::SearchResultItem> &checkedItems, bool preserveCase);
     void searchAgainRequested();
     void cancelled();
     void paused(bool paused);
@@ -132,6 +133,7 @@ private:
     QLineEdit *m_replaceTextEdit;
     QToolButton *m_replaceButton;
     QToolButton *m_searchAgainButton;
+    QCheckBox *m_preserveCaseCheck;
     bool m_searchAgainSupported;
     QWidget *m_descriptionContainer;
     QLabel *m_label;
