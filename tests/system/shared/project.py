@@ -231,7 +231,7 @@ def createNewQtQuickUI(workingDir):
     return projectName
 
 def createNewQmlExtension(workingDir):
-    available = __createProjectOrFileSelectType__("  Libraries", "Custom QML Extension Plugin")
+    available = __createProjectOrFileSelectType__("  Libraries", "Qt Quick 1 Extension Plugin")
     if workingDir == None:
         workingDir = tempDir()
     __createProjectSetNameAndPath__(workingDir)
