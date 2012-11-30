@@ -9279,7 +9279,6 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>修改</translation>
     </message>
     <message>
-    <message>
         <source>The repository %1 is not initialized yet.</source>
         <translation type="obsolete">仓库 %1 还没有被初始化。</translation>
     </message>
