@@ -99,6 +99,16 @@ public:
 
 typedef QHash<QString, FileStatus> StatusMap;
 
+class ViewData
+{
+public:
+    ViewData();
+
+    QString name;
+    bool isDynamic;
+    bool isUcm;
+};
+
 class ClearCasePlugin : public VcsBase::VcsBasePlugin
 {
     Q_OBJECT
@@ -141,13 +151,13 @@ public:
     QList<QStringPair> activities(int *current = 0) const;
     QString ccGetPredecessor(const QString &version) const;
     QStringList ccGetActiveVobs() const;
-    QString ccGetView(const QString &workingDir, bool *isDynamic = 0, bool *isUcm = 0) const;
+    ViewData ccGetView(const QString &workingDir) const;
     bool ccFileOp(const QString &workingDir, const QString &title, const QStringList &args,
                   const QString &fileName, const QString &file2 = QString());
     FileStatus vcsStatus(const QString &file) const;
-    QString currentView() const { return m_view; }
+    QString currentView() const { return m_viewData.name; }
     void refreshActivities();
-    inline bool isUcm() const { return m_isUcm; }
+    inline bool isUcm() const { return m_viewData.isUcm; }
     void setStatus(const QString &file, FileStatus::Status status, bool update = true);
 
     bool ccCheckUcm(const QString &viewname, const QString &workingDir) const;
@@ -225,9 +235,7 @@ private:
     QString m_checkInView;
     QString m_topLevel;
     QString m_stream;
-    QString m_view;
-    bool m_isDynamic;
-    bool m_isUcm;
+    ViewData m_viewData;
     QString m_intStream;
     QString m_activity;
     QString m_diffPrefix;

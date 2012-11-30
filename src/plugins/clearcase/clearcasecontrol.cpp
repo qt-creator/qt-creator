@@ -146,7 +146,7 @@ QString ClearCaseControl::vcsMakeWritableText() const
 
 QString ClearCaseControl::vcsTopic(const QString &directory)
 {
-    return m_plugin->ccGetView(directory);
+    return m_plugin->ccGetView(directory).name;
 }
 
 void ClearCaseControl::emitRepositoryChanged(const QString &s)
