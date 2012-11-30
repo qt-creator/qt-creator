@@ -112,7 +112,7 @@ bool CorePlugin::delayedInitialize()
 
 void CorePlugin::remoteCommand(const QStringList & /* options */, const QStringList &args)
 {
-    m_mainWindow->openFiles(args, ICore::SwitchMode);
+    m_mainWindow->openFiles(args, Core::ICore::OpenFilesFlags(ICore::SwitchMode | ICore::CanContainLineNumbers));
     m_mainWindow->activateWindow();
 }
 
