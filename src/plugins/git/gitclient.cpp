@@ -1689,18 +1689,18 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
     return branches;
 }
 
-void GitClient::launchGitK(const QString &workingDirectory)
+void GitClient::launchGitK(const QString &workingDirectory, const QString &fileName)
 {
     const QFileInfo binaryInfo(gitBinaryPath());
     QDir foundBinDir(binaryInfo.dir());
     const bool foundBinDirIsCmdDir = foundBinDir.dirName() == QLatin1String("cmd");
     QProcessEnvironment env = processEnvironment();
-    if (tryLauchingGitK(env, workingDirectory, foundBinDir.path(), foundBinDirIsCmdDir))
+    if (tryLauchingGitK(env, workingDirectory, fileName, foundBinDir.path(), foundBinDirIsCmdDir))
         return;
     if (!foundBinDirIsCmdDir)
         return;
     foundBinDir.cdUp();
-    tryLauchingGitK(env, workingDirectory, foundBinDir.path() + QLatin1String("/bin"), false);
+    tryLauchingGitK(env, workingDirectory, fileName, foundBinDir.path() + QLatin1String("/bin"), false);
 }
 
 void GitClient::launchRepositoryBrowser(const QString &workingDirectory)
@@ -1712,6 +1712,7 @@ void GitClient::launchRepositoryBrowser(const QString &workingDirectory)
 
 bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
                                 const QString &workingDirectory,
+                                const QString &fileName,
                                 const QString &gitBinDirectory,
                                 bool silent)
 {
@@ -1729,6 +1730,8 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
     const QString gitkOpts = settings()->stringValue(GitSettings::gitkOptionsKey);
     if (!gitkOpts.isEmpty())
         arguments.append(Utils::QtcProcess::splitArgs(gitkOpts));
+    if (!fileName.isEmpty())
+        arguments << QLatin1String("--") << fileName;
     outwin->appendCommand(workingDirectory, binary, arguments);
     // This should always use QProcess::startDetached (as not to kill
     // the child), but that does not have an environment parameter.

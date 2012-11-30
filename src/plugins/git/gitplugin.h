@@ -115,6 +115,8 @@ private slots:
     void resetRepository();
     void stageFile();
     void unstageFile();
+    void gitkForCurrentFile();
+    void gitkForCurrentFolder();
     void cleanProject();
     void cleanRepository();
     void applyCurrentFilePatch();

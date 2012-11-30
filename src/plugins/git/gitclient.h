@@ -214,7 +214,9 @@ public:
                            QString *output = 0,
                            QString *errorMessage = 0);
 
-    void launchGitK(const QString &workingDirectory);
+    void launchGitK(const QString &workingDirectory, const QString &fileName);
+    void launchGitK(const QString &workingDirectory) { launchGitK(workingDirectory, QString()); }
+
     void launchRepositoryBrowser(const QString &workingDirectory);
 
     QStringList synchronousRepositoryBranches(const QString &repositoryURL);
@@ -291,6 +293,7 @@ private:
     void handleMergeConflicts(const QString &workingDir, bool rebase);
     bool tryLauchingGitK(const QProcessEnvironment &env,
                          const QString &workingDirectory,
+                         const QString &fileName,
                          const QString &gitBinDirectory,
                          bool silent);
     bool cleanList(const QString &workingDirectory, const QString &flag, QStringList *files, QString *errorMessage);

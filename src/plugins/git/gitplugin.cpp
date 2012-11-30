@@ -545,6 +545,19 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            tr("Gitk"), Core::Id("Git.LaunchGitK"),
                            globalcontext, true, &GitClient::launchGitK);
 
+    parameterActionCommand
+            = createFileAction(gitToolsMenu,
+                               tr("Gitk Current File"), tr("Gitk of \"%1\""),
+                               Core::Id("Git.GitkFile"), globalcontext, true, SLOT(gitkForCurrentFile()));
+
+    parameterActionCommand
+            = createFileAction(gitToolsMenu,
+                               tr("Gitk for folder of Current File"), tr("Gitk for folder of \"%1\""),
+                               Core::Id("Git.GitkFolder"), globalcontext, true, SLOT(gitkForCurrentFolder()));
+
+    // --------------
+    gitToolsMenu->addSeparator(globalcontext);
+
     m_repositoryBrowserAction
             = createRepositoryAction(gitToolsMenu,
                                      tr("Repository Browser"), Core::Id("Git.LaunchRepositoryBrowser"),
@@ -696,6 +709,43 @@ void GitPlugin::unstageFile()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     m_gitClient->synchronousReset(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
+}
+
+void GitPlugin::gitkForCurrentFile()
+{
+    const VcsBase::VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return);
+    m_gitClient->launchGitK(state.currentFileTopLevel(), state.relativeCurrentFile());
+}
+
+void GitPlugin::gitkForCurrentFolder()
+{
+    const VcsBase::VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return);
+
+    /*
+     *  entire lower part of the code can be easily replaced with one line:
+     *
+     *  m_gitClient->launchGitK(dir.currentFileDirectory(), QLatin1String("."));
+     *
+     *  However, there is a bug in gitk in version 1.7.9.5, and if you run above
+     *  command, there will be no documents listed in lower right section.
+     *
+     *  This is why I use lower combination in order to avoid this problems in gitk.
+     *
+     *  Git version 1.7.10.4 does not have this issue, and it can easily use
+     *  one line command mentioned above.
+     *
+     */
+    QDir dir(state.currentFileDirectory());
+    if (QFileInfo(dir,QLatin1String(".git")).exists() || dir.cd(QLatin1String(".git")))
+        m_gitClient->launchGitK(state.currentFileDirectory());
+    else {
+        QString folderName = dir.absolutePath();
+        dir.cdUp();
+        folderName = folderName.remove(0, dir.absolutePath().length() + 1);
+        m_gitClient->launchGitK(dir.absolutePath(), folderName);
+    }
 }
 
 void GitPlugin::startAmendCommit()
