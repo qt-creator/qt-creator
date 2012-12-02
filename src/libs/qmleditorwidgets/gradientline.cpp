@@ -62,7 +62,7 @@ static inline QColor invertColor(const QColor color)
 GradientLine::GradientLine(QWidget *parent) :
         QWidget(parent),
         m_activeColor(Qt::black),
-        m_gradientName("gradient"),
+        m_gradientName(QLatin1String("gradient")),
         m_colorIndex(0),
         m_dragActive(false),
         m_yOffset(0),

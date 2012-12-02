@@ -42,7 +42,11 @@
 
 namespace QmlEditorWidgets {
 
-FileWidget::FileWidget(QWidget *parent) : QWidget(parent), m_filter("(*.*)"), m_showComboBox(false), m_lock(false)
+FileWidget::FileWidget(QWidget *parent) :
+    QWidget(parent),
+    m_filter(QLatin1String("(*.*)")),
+    m_showComboBox(false),
+    m_lock(false)
 {
     m_pushButton = new QToolButton(this);
     m_pushButton->setFixedWidth(32);
@@ -56,7 +60,7 @@ FileWidget::FileWidget(QWidget *parent) : QWidget(parent), m_filter("(*.*)"), m_
     layout->addWidget(m_comboBox);
     m_comboBox->setEditable(true);
     layout->addWidget(m_pushButton);
-    m_pushButton->setText("...");
+    m_pushButton->setText(QLatin1String("..."));
     connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(lineEditChanged()));
     connect(m_pushButton, SIGNAL(released()), this, SLOT(onButtonReleased()));
     connect(m_comboBox, SIGNAL(editTextChanged(QString)), this, SLOT(comboBoxChanged()));
@@ -126,7 +130,7 @@ void FileWidget::setupComboBox()
     if (m_path.isValid())
         dir = QDir(m_path.toLocalFile());
 
-    QStringList filterList = m_filter.split(' ');
+    QStringList filterList = m_filter.split(QLatin1Char(' '));
 
     QDirIterator it(dir.absolutePath(), filterList, QDir::Files, QDirIterator::Subdirectories);
     while (it.hasNext()) {

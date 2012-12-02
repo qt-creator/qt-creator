@@ -71,9 +71,9 @@ void FontSizeSpinBox::setText()
 {
     QString text = QString::number(m_value);
     if (isPointSize())
-        text.append(" pt");
+        text.append(QLatin1String(" pt"));
     else
-        text.append(" px");
+        text.append(QLatin1String(" px"));
     lineEdit()->setText(text);
 
 }
@@ -81,20 +81,20 @@ void FontSizeSpinBox::setText()
 void FontSizeSpinBox::onEditingFinished()
 {
     QString str = lineEdit()->text();
-    if (str.contains("px")) {
+    if (str.contains(QLatin1String("px"))) {
         setIsPixelSize(true);
-        str.remove("px");
+        str.remove(QLatin1String("px"));
         setValue(str.toInt());
     } else {
         setIsPointSize(true);
-        str.remove("pt");
+        str.remove(QLatin1String("pt"));
         setValue(str.toInt());
     }
 }
 
 QValidator::State FontSizeSpinBox::validate (QString &input, int &p) const
 {
-    QRegExp rx("\\d+\\s*(px|pt)");
+    QRegExp rx(QLatin1String("\\d+\\s*(px|pt)"));
     QRegExpValidator v(rx, 0);
     return v.validate(input, p);
 }

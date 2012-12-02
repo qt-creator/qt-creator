@@ -52,7 +52,7 @@ class EasingSimulation : public QObject
 public:
     QGraphicsView *m_g;
     EasingSimulation(QObject *parent=0, QGraphicsView *v=0):QObject(parent) {
-        m_qtLogo = new PixmapItem(QPixmap(":/qt_logo.png"));
+        m_qtLogo = new PixmapItem(QPixmap(QLatin1String(":/qt_logo.png")));
         m_scene.addItem(m_qtLogo);
         m_scene.setSceneRect(0,0,v->viewport()->width(),m_qtLogo->boundingRect().height());
         m_qtLogo->hide();
@@ -145,20 +145,20 @@ EasingContextPane::~EasingContextPane()
 
 bool EasingContextPane::acceptsType(const QStringList &types)
 {
-    return types.contains("NumberAnimation") ||
-            types.contains("PropertyAnimation") ||
-            types.contains("ColorAnimation") ||
-            types.contains("RotationAnimation");
+    return types.contains(QLatin1String("NumberAnimation")) ||
+            types.contains(QLatin1String("PropertyAnimation")) ||
+            types.contains(QLatin1String("ColorAnimation")) ||
+            types.contains(QLatin1String("RotationAnimation"));
 }
 
 void EasingContextPane::setProperties(QmlJS::PropertyReader *propertyReader)
 {
     m_easingGraph->setGeometry(ui->graphicsView->geometry().adjusted(2,2,-2,-2));
-    QString newEasingType = QString("Linear");
+    QString newEasingType = QLatin1String("Linear");
     if (propertyReader->hasProperty(QLatin1String("easing.type"))) {
         newEasingType = propertyReader->readProperty(QLatin1String("easing.type")).toString();
-        if (newEasingType.contains("."))
-            newEasingType = newEasingType.right(newEasingType.length() - newEasingType.indexOf(".") - 1);
+        if (newEasingType.contains(QLatin1Char('.')))
+            newEasingType = newEasingType.right(newEasingType.length() - newEasingType.indexOf(QLatin1Char('.')) - 1);
     }
 
     m_easingGraph->setEasingName(newEasingType);
@@ -306,13 +306,13 @@ void QmlEditorWidgets::EasingContextPane::on_durationSpinBox_valueChanged(int ne
 
 void QmlEditorWidgets::EasingContextPane::on_easingShapeComboBox_currentIndexChanged(QString newShape)
 {
-    if (newShape=="Linear")
+    if (newShape==QLatin1String("Linear"))
         setLinear();
-    else if (newShape=="Bounce")
+    else if (newShape==QLatin1String("Bounce"))
         setBounce();
-    else if (newShape=="Elastic")
+    else if (newShape==QLatin1String("Elastic"))
         setElastic();
-    else if (newShape=="Back")
+    else if (newShape==QLatin1String("Back"))
         setBack();
     else
         setOthers();
@@ -343,7 +343,8 @@ void QmlEditorWidgets::EasingContextPane::on_easingExtremesComboBox_currentIndex
 void QmlEditorWidgets::EasingContextPane::on_amplitudeSpinBox_valueChanged(double newAmplitude)
 {
     if ((newAmplitude != m_easingGraph->amplitude()) &&
-        (m_easingGraph->easingShape()=="Bounce" || m_easingGraph->easingShape()=="Elastic")) {
+        (m_easingGraph->easingShape()==QLatin1String("Bounce")
+         || m_easingGraph->easingShape()==QLatin1String("Elastic"))) {
         m_easingGraph->setAmplitude(newAmplitude);
         m_simulation->updateCurve(m_easingGraph->easingCurve(),ui->durationSpinBox->value());
         emit propertyChanged(QLatin1String("easing.amplitude"), newAmplitude);
@@ -352,7 +353,7 @@ void QmlEditorWidgets::EasingContextPane::on_amplitudeSpinBox_valueChanged(doubl
 
 void QmlEditorWidgets::EasingContextPane::on_periodSpinBox_valueChanged(double newPeriod)
 {
-    if ((newPeriod != m_easingGraph->period()) && (m_easingGraph->easingShape()=="Elastic")) {
+    if ((newPeriod != m_easingGraph->period()) && (m_easingGraph->easingShape()==QLatin1String("Elastic"))) {
         m_easingGraph->setPeriod(newPeriod);
         m_simulation->updateCurve(m_easingGraph->easingCurve(),ui->durationSpinBox->value());
         emit propertyChanged(QLatin1String("easing.period"), newPeriod);
@@ -362,7 +363,7 @@ void QmlEditorWidgets::EasingContextPane::on_periodSpinBox_valueChanged(double n
 
 void QmlEditorWidgets::EasingContextPane::on_overshootSpinBox_valueChanged(double newOvershoot)
 {
-    if ((newOvershoot != m_easingGraph->overshoot()) && (m_easingGraph->easingShape()=="Back")) {
+    if ((newOvershoot != m_easingGraph->overshoot()) && (m_easingGraph->easingShape()==QLatin1String("Back"))) {
         m_easingGraph->setOvershoot(newOvershoot);
         m_simulation->updateCurve(m_easingGraph->easingCurve(),ui->durationSpinBox->value());
         emit propertyChanged(QLatin1String("easing.overshoot"), newOvershoot);

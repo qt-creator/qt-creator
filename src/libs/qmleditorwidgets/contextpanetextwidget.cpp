@@ -95,7 +95,7 @@ ContextPaneTextWidget::ContextPaneTextWidget(QWidget *parent) :
 
 static inline bool checkIfBoolean(QVariant v)
 {
-    return (v.toString() == "true" || v.toString() == "false");
+    return (v.toString() == QLatin1String("true") || v.toString() == QLatin1String("false"));
 }
 
 void ContextPaneTextWidget::setProperties(QmlJS::PropertyReader *propertyReader)
@@ -170,13 +170,13 @@ void ContextPaneTextWidget::setProperties(QmlJS::PropertyReader *propertyReader)
     }
 
     if (propertyReader->hasProperty(QLatin1String("color"))) {
-        ui->colorButton->setColor(propertyReader->readProperty("color").toString());
+        ui->colorButton->setColor(propertyReader->readProperty(QLatin1String("color")).toString());
     } else {
         ui->colorButton->setColor(QLatin1String("black"));
     }
 
     if (propertyReader->hasProperty(QLatin1String("styleColor"))) {
-        ui->textColorButton->setColor(propertyReader->readProperty("styleColor").toString());
+        ui->textColorButton->setColor(propertyReader->readProperty(QLatin1String("styleColor")).toString());
     } else {
         ui->textColorButton->setColor(QLatin1String("black"));
     }
@@ -197,7 +197,7 @@ void ContextPaneTextWidget::setProperties(QmlJS::PropertyReader *propertyReader)
         QString alignment = propertyReader->readProperty(QLatin1String("horizontalAlignment")).toString();
         ui->leftAlignmentButton->setChecked(true);
         ui->leftAlignmentButton->setEnabled(true);
-        if (alignment == QLatin1String("Text.AlignHCenter") || alignment == "AlignHCenter")
+        if (alignment == QLatin1String("Text.AlignHCenter") || alignment == QLatin1String("AlignHCenter"))
             ui->centerHAlignmentButton->setChecked(true);
         else if (alignment == QLatin1String("Text.AlignRight") || alignment == QLatin1String("AlignRight"))
             ui->rightAlignmentButton->setChecked(true);
@@ -354,7 +354,7 @@ void ContextPaneTextWidget::onStrikeoutCheckedChanged(bool value)
 void ContextPaneTextWidget::onCurrentFontChanged(const QFont &font)
 {
     font.family();
-    emit propertyChanged(QLatin1String("font.family"), QVariant(QString('\"') + font.family() + QString('\"')));
+    emit propertyChanged(QLatin1String("font.family"), QVariant(QLatin1Char('"') + font.family() + QLatin1Char('"')));
 }
 
 void ContextPaneTextWidget::onHorizontalAlignmentChanged()

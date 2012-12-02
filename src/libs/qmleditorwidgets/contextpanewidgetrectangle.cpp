@@ -80,7 +80,7 @@ void ContextPaneWidgetRectangle::setProperties(QmlJS::PropertyReader *propertyRe
     m_hasBorder = false;
 
     if (propertyReader->hasProperty(QLatin1String("color"))) {
-        QString str = propertyReader->readProperty("color").toString();
+        QString str = propertyReader->readProperty(QLatin1String("color")).toString();
         if (QmlJS::toQColor(str).alpha() == 0)
             m_none = true;
         ui->colorColorButton->setColor(str);
@@ -90,7 +90,7 @@ void ContextPaneWidgetRectangle::setProperties(QmlJS::PropertyReader *propertyRe
     }
 
     if (propertyReader->hasProperty(QLatin1String("border.color"))) {
-        ui->borderColorButton->setColor(propertyReader->readProperty("border.color").toString());
+        ui->borderColorButton->setColor(propertyReader->readProperty(QLatin1String("border.color")).toString());
         m_hasBorder = true;
     } else {
         ui->borderColorButton->setColor(QLatin1String("transparent"));
@@ -112,11 +112,11 @@ void ContextPaneWidgetRectangle::setProperties(QmlJS::PropertyReader *propertyRe
     if (m_hasGradient && isGradientEditingEnabled()) {
         bool isBound;
         ui->colorGradient->setChecked(true);
-        ui->gradientLine->setGradient(propertyReader->parseGradient("gradient", &isBound));
+        ui->gradientLine->setGradient(propertyReader->parseGradient(QLatin1String("gradient"), &isBound));
         if (isBound) {
             ui->gradientLabel->setEnabled(false);
             ui->gradientLine->setEnabled(false);
-            ui->colorColorButton->setColor("invalidColor");
+            ui->colorColorButton->setColor(QLatin1String("invalidColor"));
         }
     } else {
         ui->gradientLine->setEnabled(false);
@@ -205,7 +205,8 @@ void ContextPaneWidgetRectangle::onColorNoneClicked()
 {
     if (ui->colorNone->isChecked()) {
         ui->colorGradient->setEnabled(isGradientEditingEnabled());
-        emit removeAndChangeProperty("gradient", "color", "transparent", true);
+        emit removeAndChangeProperty(QLatin1String("gradient"), QLatin1String("color"),
+                                     QLatin1String("transparent"), true);
     }
     ui->colorGradient->setEnabled(isGradientEditingEnabled());
 }
@@ -214,7 +215,8 @@ void ContextPaneWidgetRectangle::onColorSolidClicked()
 {
     if (ui->colorSolid->isChecked()) {
         ui->gradientLine->setEnabled(false);
-        emit removeAndChangeProperty("gradient", "color", "\"black\"", true);
+        emit removeAndChangeProperty(QLatin1String("gradient"), QLatin1String("color"),
+                                     QLatin1String("\"black\""), true);
     }
     ui->colorGradient->setEnabled(isGradientEditingEnabled());
 }
@@ -222,15 +224,15 @@ void ContextPaneWidgetRectangle::onColorSolidClicked()
 void ContextPaneWidgetRectangle::onBorderNoneClicked()
 {
     if (ui->borderNone->isChecked()) {
-        emit removeProperty("border.color");
-        emit removeProperty("border.width");//###
+        emit removeProperty(QLatin1String("border.color"));
+        emit removeProperty(QLatin1String("border.width"));//###
     }
 }
 
 void ContextPaneWidgetRectangle::onBorderSolidClicked()
 {
     if (ui->borderSolid->isChecked()) {
-        emit propertyChanged("border.color", "\"black\"");
+        emit propertyChanged(QLatin1String("border.color"), QLatin1String("\"black\""));
     }
 }
 
@@ -258,7 +260,7 @@ void ContextPaneWidgetRectangle::timerEvent(QTimerEvent *event)
         m_gradientTimer = -1;
 
         QLinearGradient gradient = ui->gradientLine->gradient();
-        QString str = "Gradient {\n";
+        QString str = QLatin1String("Gradient {\n");
         foreach (const QGradientStop &stop, gradient.stops()) {
             str += QLatin1String("GradientStop {\n");
             str += QLatin1String("position: ") + QString::number(stop.first, 'f', 2) + QLatin1String(";\n");
@@ -266,7 +268,7 @@ void ContextPaneWidgetRectangle::timerEvent(QTimerEvent *event)
             str += QLatin1String("}\n");
         }
         str += QLatin1String("}");
-        emit propertyChanged("gradient", str);
+        emit propertyChanged(QLatin1String("gradient"), str);
     }
 }
 

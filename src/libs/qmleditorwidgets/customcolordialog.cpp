@@ -101,10 +101,10 @@ CustomColorDialog::CustomColorDialog(QWidget *parent) : QFrame(parent )
 
     gridLayout->addWidget(colorFrameWidget, 0, 2, 2, 1);
 
-    gridLayout->addWidget(new QLabel("R", this), 0, 3, 1, 1);
-    gridLayout->addWidget(new QLabel("G", this), 1, 3, 1, 1);
-    gridLayout->addWidget(new QLabel("B", this), 2, 3, 1, 1);
-    gridLayout->addWidget(new QLabel("A", this), 3, 3, 1, 1);
+    gridLayout->addWidget(new QLabel(QLatin1String("R"), this), 0, 3, 1, 1);
+    gridLayout->addWidget(new QLabel(QLatin1String("G"), this), 1, 3, 1, 1);
+    gridLayout->addWidget(new QLabel(QLatin1String("B"), this), 2, 3, 1, 1);
+    gridLayout->addWidget(new QLabel(QLatin1String("A"), this), 3, 3, 1, 1);
 
     gridLayout->addWidget(m_rSpinBox, 0, 4, 1, 1);
     gridLayout->addWidget(m_gSpinBox, 1, 4, 1, 1);

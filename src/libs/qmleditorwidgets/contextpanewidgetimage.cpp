@@ -117,7 +117,7 @@ ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent, bool borderImage
     }
     previewDialog();
     m_fileWidget->setShowComboBox(true);
-    m_fileWidget->setFilter("*.png *.gif *.jpg");
+    m_fileWidget->setFilter(QLatin1String("*.png *.gif *.jpg"));
 
     connect(m_fileWidget, SIGNAL(fileNameChanged(QUrl)), this, SLOT(onFileNameChanged()));
     connect(labelFilter, SIGNAL(doubleClicked()), this, SLOT(onPixmapDoubleClicked()));
@@ -153,16 +153,16 @@ void ContextPaneWidgetImage::setProperties(QmlJS::PropertyReader *propertyReader
 
         if (propertyReader->hasProperty(QLatin1String("horizontalTileMode"))) {
             QString fillMode = propertyReader->readProperty(QLatin1String("horizontalTileMode")).toString();
-            if (fillMode.contains("BorderImage."))
-                fillMode.remove("BorderImage.");
+            if (fillMode.contains(QLatin1String("BorderImage.")))
+                fillMode.remove(QLatin1String("BorderImage."));
 
             uiBorderImage->horizontalStretchRadioButton->setChecked(true);
 
-            if (fillMode == "Stretch")
+            if (fillMode == QLatin1String("Stretch"))
                 uiBorderImage->horizontalStretchRadioButton->setChecked(true);
-            if (fillMode == "Repeat")
+            if (fillMode == QLatin1String("Repeat"))
                 uiBorderImage->horizontalTileRadioButton->setChecked(true);
-            if (fillMode == "Round")
+            if (fillMode == QLatin1String("Round"))
                 uiBorderImage->horizontalTileRadioButtonNoCrop->setChecked(true);
         } else {
             //uiBorderImage
@@ -170,16 +170,16 @@ void ContextPaneWidgetImage::setProperties(QmlJS::PropertyReader *propertyReader
         }
         if (propertyReader->hasProperty(QLatin1String("verticalTileMode"))) {
             QString fillMode = propertyReader->readProperty(QLatin1String("verticalTileMode")).toString();
-            if (fillMode.contains("BorderImage."))
-                fillMode.remove("BorderImage.");
+            if (fillMode.contains(QLatin1String("BorderImage.")))
+                fillMode.remove(QLatin1String("BorderImage."));
 
             uiBorderImage->verticalStretchRadioButton->setChecked(true);
 
-            if (fillMode == "Stretch")
+            if (fillMode == QLatin1String("Stretch"))
                 uiBorderImage->verticalStretchRadioButton->setChecked(true);
-            if (fillMode == "Repeat")
+            if (fillMode == QLatin1String("Repeat"))
                 uiBorderImage->verticalTileRadioButton->setChecked(true);
-            if (fillMode == "Round")
+            if (fillMode == QLatin1String("Round"))
                 uiBorderImage->verticalTileRadioButtonNoCrop->setChecked(true);
         } else {
             //uiBorderImage
@@ -188,20 +188,20 @@ void ContextPaneWidgetImage::setProperties(QmlJS::PropertyReader *propertyReader
     } else {
         if (propertyReader->hasProperty(QLatin1String("fillMode"))) {
             QString fillMode = propertyReader->readProperty(QLatin1String("fillMode")).toString();
-            if (fillMode.contains("Image."))
-                fillMode.remove("Image.");
+            if (fillMode.contains(QLatin1String("Image.")))
+                fillMode.remove(QLatin1String("Image."));
 
             ui->stretchRadioButton->setChecked(true);
 
-            if (fillMode == "Image.Tile" || fillMode == "Tile")
+            if (fillMode == QLatin1String("Image.Tile") || fillMode == QLatin1String("Tile"))
                 ui->tileRadioButton->setChecked(true);
-            if (fillMode == "Image.TileVertically" || fillMode == "TileVertically")
+            if (fillMode == QLatin1String("Image.TileVertically") || fillMode == QLatin1String("TileVertically"))
                 ui->horizontalStretchRadioButton->setChecked(true);
-            if (fillMode == "Image.TileHorizontally" || fillMode == "TileHorizontally")
+            if (fillMode == QLatin1String("Image.TileHorizontally") || fillMode == QLatin1String("TileHorizontally"))
                 ui->verticalStretchRadioButton->setChecked(true);
-            if (fillMode == "Image.PreserveAspectFit" || fillMode == "PreserveAspectFit")
+            if (fillMode == QLatin1String("Image.PreserveAspectFit") || fillMode == QLatin1String("PreserveAspectFit"))
                 ui->preserveAspectFitRadioButton->setChecked(true);
-            if (fillMode == "Image.PreserveAspectCrop" || fillMode == "PreserveAspectCrop")
+            if (fillMode == QLatin1String("Image.PreserveAspectCrop") || fillMode == QLatin1String("PreserveAspectCrop"))
                 ui->cropAspectFitRadioButton->setChecked(true);
         } else {
             ui->stretchRadioButton->setChecked(true);
@@ -210,14 +210,14 @@ void ContextPaneWidgetImage::setProperties(QmlJS::PropertyReader *propertyReader
     if (propertyReader->hasProperty(QLatin1String("source"))) {
         QString source = propertyReader->readProperty(QLatin1String("source")).toString();
         m_fileWidget->setFileName(source);
-        if (QFile::exists(m_path + '/' + source))
-            setPixmap(m_path + '/' + source);
+        if (QFile::exists(m_path + QLatin1Char('/') + source))
+            setPixmap(m_path + QLatin1Char('/') + source);
         else
             setPixmap(source);
     } else {
-        m_sizeLabel->setText("");
+        m_sizeLabel->clear();
         m_fileWidget->setFileName(QUrl());
-        setPixmap("");
+        setPixmap(QString());
     }
 }
 
@@ -233,27 +233,27 @@ void PreviewDialog::setZoom(int z)
     m_label->setZoom(z);
     switch (m_zoom) {
     case 1:
-        m_zoomLabel->setText("100%");
+        m_zoomLabel->setText(QLatin1String("100%"));
         m_slider->setValue(1);
         break;
     case 2:
-        m_zoomLabel->setText("200%");
+        m_zoomLabel->setText(QLatin1String("200%"));
         m_slider->setValue(2);
         break;
     case 4:
-        m_zoomLabel->setText("400%");
+        m_zoomLabel->setText(QLatin1String("400%"));
         m_slider->setValue(3);
         break;
     case 6:
-        m_zoomLabel->setText("600%");
+        m_zoomLabel->setText(QLatin1String("600%"));
         m_slider->setValue(4);
         break;
     case 8:
-        m_zoomLabel->setText("800%");
+        m_zoomLabel->setText(QLatin1String("800%"));
         m_slider->setValue(5);
         break;
     case 10:
-        m_zoomLabel->setText("1000%");
+        m_zoomLabel->setText(QLatin1String("1000%"));
         m_slider->setValue(6);
         break;
     default: break;
@@ -479,10 +479,10 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
                 Qt::TileRule horizontalTileRule;
                 Qt::TileRule verticalTileRule;
                 if (parseSciFile(fileName, pixmapFileName, left, right, top, bottom, horizontalTileRule, verticalTileRule)) {
-                    localFileName = QFileInfo(fileName).absoluteDir().absolutePath() + '/' + pixmapFileName;
+                    localFileName = QFileInfo(fileName).absoluteDir().absolutePath() + QLatin1Char('/') + pixmapFileName;
                     previewDialog()->previewLabel()->setMargins(left, top, right, bottom);
                 } else { // sci file not parsed correctly
-                    uiBorderImage->sizeLabel->setText("");
+                    uiBorderImage->sizeLabel->clear();
                     return;
                 }
             }
@@ -490,7 +490,8 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
             if (source.isNull())
                 source = pix;
             previewDialog()->setPixmap(source, previewDialog()->zoom());
-            uiBorderImage->sizeLabel->setText(QString::number(source.width()) + 'x' + QString::number(source.height()));
+            uiBorderImage->sizeLabel->setText(QString::number(source.width()) + QLatin1Char('x')
+                                              + QString::number(source.height()));
             QPainter p(&pix);
             Qt::TileRule horizontalTileMode = Qt::StretchTile;
             Qt::TileRule verticalTileMode = Qt::StretchTile;
@@ -507,14 +508,14 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
             qDrawBorderPixmap(&p, QRect(0, 0, 76, 76), margins, source, source.rect(), margins, rules);
             //p.drawPixmap(0,0,76,76, source);
         } else {
-            uiBorderImage->sizeLabel->setText("");
+            uiBorderImage->sizeLabel->clear();
         }
         uiBorderImage->label->setPixmap(pix);
     } else {
         if (QFile(fileName).exists()) {
             QPixmap source(fileName);
             previewDialog()->setPixmap(source, 1);
-            ui->sizeLabel->setText(QString::number(source.width()) + 'x' + QString::number(source.height()));
+            ui->sizeLabel->setText(QString::number(source.width()) + QLatin1Char('x') + QString::number(source.height()));
             QPainter p(&pix);
             if (ui->stretchRadioButton->isChecked()) {
                 p.drawPixmap(0,0,76,76, source);
@@ -543,7 +544,7 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
                 p.drawPixmap(offset, 0, cropped.width(), 76, source);
             }
         } else {
-            ui->sizeLabel->setText("");
+            ui->sizeLabel->clear();
         }
 
         ui->label->setPixmap(pix);
@@ -704,25 +705,25 @@ void PreviewLabel::mousePressEvent(QMouseEvent * event)
             QApplication::setOverrideCursor(QCursor(Qt::SizeHorCursor));
             m_dragging_left = true;
             event->accept();
-            m_hooverInfo->setText("Left " + QString::number(m_left));
+            m_hooverInfo->setText(QLatin1String("Left ") + QString::number(m_left));
             m_hooverInfo->show();
         } else if (rangeCheck(m_top * m_zoom, event->pos().y())) {
             QApplication::setOverrideCursor(QCursor(Qt::SizeVerCursor));
             m_dragging_top = true;
             event->accept();
-            m_hooverInfo->setText("Top " + QString::number(m_top));
+            m_hooverInfo->setText(QLatin1String("Top ") + QString::number(m_top));
             m_hooverInfo->show();
         } else if (rangeCheck(m_right * m_zoom, width() - event->pos().x())) {
             QApplication::setOverrideCursor(QCursor(Qt::SizeHorCursor));
             m_dragging_right = true;
             event->accept();
-            m_hooverInfo->setText("Right " + QString::number(m_right));
+            m_hooverInfo->setText(QLatin1String("Right ") + QString::number(m_right));
             m_hooverInfo->show();
         } else if (rangeCheck(m_bottom * m_zoom, height() - event->pos().y())) {
             QApplication::setOverrideCursor(QCursor(Qt::SizeVerCursor));
             m_dragging_bottom = true;
             event->accept();
-            m_hooverInfo->setText("Bottom " + QString::number(m_bottom));
+            m_hooverInfo->setText(QLatin1String("Bottom ") + QString::number(m_bottom));
             m_hooverInfo->show();
             bottom = true;
         } else {
@@ -825,46 +826,46 @@ void PreviewLabel::mouseMoveEvent(QMouseEvent * event)
         m_left = p.x() / m_zoom;
         m_left = limitPositive(m_left);
         event->accept();
-        m_hooverInfo->setText("Left " + QString::number(m_left));
+        m_hooverInfo->setText(QLatin1String("Left ") + QString::number(m_left));
         update();
     } else if (m_dragging_top) {
         m_top = p.y() / m_zoom;
         m_top = limitPositive(m_top);
         event->accept();
-        m_hooverInfo->setText("Top " + QString::number(m_top));
+        m_hooverInfo->setText(QLatin1String("Top ") + QString::number(m_top));
         update();
     }  else if (m_dragging_right) {
         m_right = (width() - p.x()) / m_zoom;
         m_right = limitPositive(m_right);
         event->accept();
-        m_hooverInfo->setText("Right " + QString::number(m_right));
+        m_hooverInfo->setText(QLatin1String("Right ") + QString::number(m_right));
         update();
     } else if (m_dragging_bottom) {
         m_bottom = (height() - p.y()) / m_zoom;
         m_bottom = limitPositive(m_bottom);
         event->accept();
-        m_hooverInfo->setText("Bottom " + QString::number(m_bottom));
+        m_hooverInfo->setText(QLatin1String("Bottom ") + QString::number(m_bottom));
         bottom = true;
         update();
     } else if (rangeCheck(m_left * m_zoom, p.x())) {
         QApplication::setOverrideCursor(QCursor(Qt::SizeHorCursor));
         event->accept();
-        m_hooverInfo->setText("Left " + QString::number(m_left));
+        m_hooverInfo->setText(QLatin1String("Left ") + QString::number(m_left));
         m_hooverInfo->show();
     } else if (rangeCheck(m_top * m_zoom, p.y())) {
         QApplication::setOverrideCursor(QCursor(Qt::SizeVerCursor));
         event->accept();
-        m_hooverInfo->setText("Top " + QString::number(m_top));
+        m_hooverInfo->setText(QLatin1String("Top ") + QString::number(m_top));
         m_hooverInfo->show();
     } else if (rangeCheck(m_right * m_zoom, width() - p.x())) {
         QApplication::setOverrideCursor(QCursor(Qt::SizeHorCursor));
         event->accept();
-        m_hooverInfo->setText("Right " + QString::number(m_right));
+        m_hooverInfo->setText(QLatin1String("Right ") + QString::number(m_right));
         m_hooverInfo->show();
     } else if (rangeCheck(m_bottom * m_zoom, height() - p.y())) {
         QApplication::setOverrideCursor(QCursor(Qt::SizeVerCursor));
         event->accept();
-        m_hooverInfo->setText("Bottom " + QString::number(m_bottom));
+        m_hooverInfo->setText(QLatin1String("Bottom ") + QString::number(m_bottom));
         m_hooverInfo->show();
         bottom = true;
     } else {

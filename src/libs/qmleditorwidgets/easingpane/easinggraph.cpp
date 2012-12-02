@@ -106,17 +106,17 @@ QEasingCurve EasingGraph::easingCurve() const
 QString EasingGraph::easingShape() const
 {
     QString name = easingName();
-    if (name.left(5)=="InOut") return name.right(name.length()-5);
-    if (name.left(5)=="OutIn") return name.right(name.length()-5);
-    if (name.left(3)=="Out") return name.right(name.length()-3);
-    if (name.left(2)=="In") return name.right(name.length()-2);
+    if (name.left(5)==QLatin1String("InOut")) return name.right(name.length()-5);
+    if (name.left(5)==QLatin1String("OutIn")) return name.right(name.length()-5);
+    if (name.left(3)==QLatin1String("Out")) return name.right(name.length()-3);
+    if (name.left(2)==QLatin1String("In")) return name.right(name.length()-2);
     return name;
 }
 
 void EasingGraph::setEasingShape(const QString &newShape)
 {
     if (easingShape() != newShape) {
-        if (newShape=="Linear")
+        if (newShape==QLatin1String("Linear"))
             setEasingName(newShape);
         else
             setEasingName(m_easingExtremes+newShape);
@@ -126,10 +126,10 @@ void EasingGraph::setEasingShape(const QString &newShape)
 QString EasingGraph::easingExtremes() const
 {
     QString name = easingName();
-    if (name.left(5)=="InOut") return "InOut";
-    if (name.left(5)=="OutIn") return "OutIn";
-    if (name.left(3)=="Out") return "Out";
-    if (name.left(2)=="In") return "In";
+    if (name.left(5)==QLatin1String("InOut")) return QLatin1String("InOut");
+    if (name.left(5)==QLatin1String("OutIn")) return QLatin1String("OutIn");
+    if (name.left(3)==QLatin1String("Out")) return QLatin1String("Out");
+    if (name.left(2)==QLatin1String("In")) return QLatin1String("In");
     return QString();
 }
 
@@ -137,7 +137,7 @@ void EasingGraph::setEasingExtremes(const QString &newExtremes)
 {
     if (m_easingExtremes != newExtremes) {
         m_easingExtremes = newExtremes;
-        if (easingShape()!="Linear")
+        if (easingShape()!=QLatin1String("Linear"))
             setEasingName(newExtremes+easingShape());
     }
 }
@@ -167,7 +167,7 @@ qreal EasingGraph::overshoot() const
 
 void EasingGraph::setOvershoot(qreal newOvershoot)
 {
-    if ((overshoot() != newOvershoot) && (easingShape()=="Back")) {
+    if ((overshoot() != newOvershoot) && (easingShape()==QLatin1String("Back"))) {
         m_curveFunction.setOvershoot(newOvershoot);
         emit overshootChanged();
         update();
@@ -180,7 +180,7 @@ qreal EasingGraph::amplitude() const
 
 void EasingGraph::setAmplitude(qreal newAmplitude)
 {
-    if ((amplitude() != newAmplitude) && ((easingShape()=="Bounce") ||(easingShape()=="Elastic"))) {
+    if ((amplitude() != newAmplitude) && ((easingShape()==QLatin1String("Bounce")) ||(easingShape()==QLatin1String("Elastic")))) {
         m_curveFunction.setAmplitude(newAmplitude);
         emit amplitudeChanged();
         update();
@@ -194,7 +194,7 @@ qreal EasingGraph::period() const
 
 void EasingGraph::setPeriod(qreal newPeriod)
 {
-    if ((period() != newPeriod) && (easingShape()=="Elastic")) {
+    if ((period() != newPeriod) && (easingShape()==QLatin1String("Elastic"))) {
         m_curveFunction.setPeriod(newPeriod);
         emit periodChanged();
         update();
