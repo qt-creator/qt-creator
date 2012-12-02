@@ -1349,6 +1349,11 @@ void FakeVimPlugin::test_vim_copy_paste()
     KEYS("yj", "ab" X "c" N "def");
     data.setText("abc" N "de" X "f");
     KEYS("yk", "ab" X "c" N "def");
+
+    // copy empty line
+    data.setText(X "a" N "" N "b");
+    KEYS("Vjy", X "a" N "" N "b");
+    KEYS("p", "a" N X "a" N "" N "" N "b");
 }
 
 void FakeVimPlugin::test_vim_undo_redo()

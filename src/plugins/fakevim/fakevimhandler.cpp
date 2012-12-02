@@ -3692,6 +3692,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             || (input.is('Y') && isVisualLineMode())
             || (input.is('Y') && isVisualCharMode())) {
         m_rangemode = RangeLineMode;
+        m_movetype = MoveLineWise;
         m_submode = YankSubMode;
         finishMovement();
     } else if ((input.is('y') || input.is('Y')) && isVisualBlockMode()) {
