@@ -133,9 +133,11 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
     : QWidget(parent),
       m_listView(new QListView(this)),
       m_fileSystemModel(new FolderNavigationModel(this)),
+      m_filterHiddenFilesAction(new QAction(tr("Show Hidden Files"), this)),
       m_filterModel(new DotRemovalFilter(this)),
       m_title(new QLabel(this)),
-      m_autoSync(false)
+      m_autoSync(false),
+      m_toggleSync(new QToolButton(this))
 {
     m_fileSystemModel->setResolveSymlinks(false);
     m_fileSystemModel->setIconProvider(Core::FileIconProvider::instance());
@@ -147,6 +149,8 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
 #endif
     m_fileSystemModel->setFilter(filters);
     m_filterModel->setSourceModel(m_fileSystemModel);
+    m_filterHiddenFilesAction->setCheckable(true);
+    setHiddenFilesFilter(false);
     m_listView->setIconSize(QSize(16,16));
     m_listView->setModel(m_filterModel);
     m_listView->setFrameStyle(QFrame::NoFrame);
@@ -161,11 +165,16 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
+    m_toggleSync->setIcon(QIcon(QLatin1String(Core::Constants::ICON_LINK)));
+    m_toggleSync->setCheckable(true);
+    m_toggleSync->setToolTip(tr("Synchronize with Editor"));
+    setAutoSynchronization(true);
+
     // connections
     connect(m_listView, SIGNAL(activated(QModelIndex)),
             this, SLOT(slotOpenItem(QModelIndex)));
-
-    setAutoSynchronization(true);
+    connect(m_filterHiddenFilesAction, SIGNAL(toggled(bool)), this, SLOT(setHiddenFilesFilter(bool)));
+    connect(m_toggleSync, SIGNAL(clicked(bool)), this, SLOT(toggleAutoSynchronization()));
 }
 
 void FolderNavigationWidget::toggleAutoSynchronization()
@@ -180,6 +189,7 @@ bool FolderNavigationWidget::autoSynchronization() const
 
 void FolderNavigationWidget::setAutoSynchronization(bool sync)
 {
+    m_toggleSync->setChecked(sync);
     if (sync == m_autoSync)
         return;
 
@@ -380,6 +390,22 @@ void FolderNavigationWidget::findOnFileSystem(const QString &pathIn)
     Find::FindPlugin::instance()->openFindDialog(fif);
 }
 
+void FolderNavigationWidget::setHiddenFilesFilter(bool filter)
+{
+    QDir::Filters filters = m_fileSystemModel->filter();
+    if (filter)
+        filters |= QDir::Hidden;
+    else
+        filters &= ~(QDir::Hidden);
+    m_fileSystemModel->setFilter(filters);
+    m_filterHiddenFilesAction->setChecked(filter);
+}
+
+bool FolderNavigationWidget::hiddenFilesFilter() const
+{
+    return m_filterHiddenFilesAction->isChecked();
+}
+
 // --------------------FolderNavigationWidgetFactory
 FolderNavigationWidgetFactory::FolderNavigationWidgetFactory()
 {
@@ -412,18 +438,39 @@ QKeySequence FolderNavigationWidgetFactory::activationSequence() const
 Core::NavigationView FolderNavigationWidgetFactory::createWidget()
 {
     Core::NavigationView n;
-    FolderNavigationWidget *ptw = new FolderNavigationWidget;
-    n.widget = ptw;
-    QToolButton *toggleSync = new QToolButton;
-    toggleSync->setIcon(QIcon(QLatin1String(Core::Constants::ICON_LINK)));
-    toggleSync->setCheckable(true);
-    toggleSync->setChecked(ptw->autoSynchronization());
-    toggleSync->setToolTip(tr("Synchronize with Editor"));
-    connect(toggleSync, SIGNAL(clicked(bool)), ptw, SLOT(toggleAutoSynchronization()));
-    n.dockToolBarWidgets << toggleSync;
+    FolderNavigationWidget *fnw = new FolderNavigationWidget;
+    n.widget = fnw;
+    QToolButton *filter = new QToolButton;
+    filter->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
+    filter->setToolTip(tr("Filter Files"));
+    filter->setPopupMode(QToolButton::InstantPopup);
+    filter->setProperty("noArrow", true);
+    QMenu *filterMenu = new QMenu(filter);
+    filterMenu->addAction(fnw->m_filterHiddenFilesAction);
+    filter->setMenu(filterMenu);
+    n.dockToolBarWidgets << filter << fnw->m_toggleSync;
     return n;
 }
 
+void FolderNavigationWidgetFactory::saveSettings(int position, QWidget *widget)
+{
+    FolderNavigationWidget *fnw = qobject_cast<FolderNavigationWidget *>(widget);
+    QTC_ASSERT(fnw, return);
+    QSettings *settings = Core::ICore::settings();
+    const QString baseKey = QLatin1String("FolderNavigationWidget.") + QString::number(position);
+    settings->setValue(baseKey + QLatin1String(".HiddenFilesFilter"), fnw->hiddenFilesFilter());
+    settings->setValue(baseKey + QLatin1String(".SyncWithEditor"), fnw->autoSynchronization());
+}
+
+void FolderNavigationWidgetFactory::restoreSettings(int position, QWidget *widget)
+{
+    FolderNavigationWidget *fnw = qobject_cast<FolderNavigationWidget *>(widget);
+    QTC_ASSERT(fnw, return);
+    QSettings *settings = Core::ICore::settings();
+    const QString baseKey = QLatin1String("FolderNavigationWidget.") + QString::number(position);
+    fnw->setHiddenFilesFilter(settings->value(baseKey + QLatin1String(".HiddenFilesFilter"), false).toBool());
+    fnw->setAutoSynchronization(settings->value(baseKey +  QLatin1String(".SyncWithEditor"), true).toBool());
+}
 } // namespace Internal
 } // namespace ProjectExplorer
 

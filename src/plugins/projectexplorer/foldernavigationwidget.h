@@ -63,6 +63,8 @@ public:
 
     static void findOnFileSystem(const QString &pathIn);
     static QString msgFindOnFileSystem();
+    bool hiddenFilesFilter() const;
+
 public slots:
     void setAutoSynchronization(bool sync);
     void toggleAutoSynchronization();
@@ -70,6 +72,7 @@ public slots:
 private slots:
     void setCurrentFile(const QString &filePath);
     void slotOpenItem(const QModelIndex &viewIndex);
+    void setHiddenFilesFilter(bool filter);
 
 protected:
     virtual void contextMenuEvent(QContextMenuEvent *ev);
@@ -83,9 +86,13 @@ private:
 
     QListView *m_listView;
     QFileSystemModel *m_fileSystemModel;
+    QAction *m_filterHiddenFilesAction;
     QSortFilterProxyModel *m_filterModel;
     QLabel *m_title;
     bool m_autoSync;
+    QToolButton *m_toggleSync;
+    // FolderNavigationWidgetFactory needs private members to build a menu
+    friend class FolderNavigationWidgetFactory;
 };
 
 class FolderNavigationWidgetFactory : public Core::INavigationWidgetFactory
@@ -100,6 +107,8 @@ public:
     Core::Id id() const;
     QKeySequence activationSequence() const;
     Core::NavigationView createWidget();
+    void saveSettings(int position, QWidget *widget);
+    void restoreSettings(int position, QWidget *widget);
 };
 
 } // namespace Internal
