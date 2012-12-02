@@ -125,9 +125,9 @@ Semantic::ExprResult Semantic::functionIdentifier(FunctionIdentifierAST *ast)
                 if (s->asOverloadSet() != 0 || s->asFunction() != 0)
                     result.type = s->type();
                 else
-                    _engine->error(ast->lineno, QString("`%1' cannot be used as a function").arg(*ast->name));
+                    _engine->error(ast->lineno, QString::fromLatin1("`%1' cannot be used as a function").arg(*ast->name));
             } else {
-                _engine->error(ast->lineno, QString("`%1' was not declared in this scope").arg(*ast->name));
+                _engine->error(ast->lineno, QString::fromLatin1("`%1' was not declared in this scope").arg(*ast->name));
             }
         } else if (ast->type) {
             const Type *ty = type(ast->type);
@@ -187,7 +187,7 @@ bool Semantic::visit(IdentifierExpressionAST *ast)
         if (Symbol *s = _scope->lookup(*ast->name)) {
             _expr.type = s->type();
         } else {
-            _engine->error(ast->lineno, QString("`%1' was not declared in this scope").arg(*ast->name));
+            _engine->error(ast->lineno, QString::fromLatin1("`%1' was not declared in this scope").arg(*ast->name));
         }
     }
     return false;
@@ -225,7 +225,7 @@ bool Semantic::visit(BinaryExpressionAST *ast)
             if (const IndexType *idxType = left.type->asIndexType())
                 _expr = idxType->indexElementType();
             else
-                _engine->error(ast->lineno, QString("Invalid type `%1' for array subscript").arg(left.type->toString()));
+                _engine->error(ast->lineno, QString::fromLatin1("Invalid type `%1' for array subscript").arg(left.type->toString()));
         }
         break;
 
@@ -294,16 +294,16 @@ bool Semantic::visit(MemberAccessExpressionAST *ast)
             if (Symbol *s = vecTy->find(*ast->field)) {
                 _expr.type = s->type();
             } else {
-                _engine->error(ast->lineno, QString("`%1' has no member named `%2'").arg(vecTy->name()).arg(*ast->field));
+                _engine->error(ast->lineno, QString::fromLatin1("`%1' has no member named `%2'").arg(vecTy->name()).arg(*ast->field));
             }
         } else if (const Struct *structTy = expr.type->asStructType()) {
             if (Symbol *s = structTy->find(*ast->field)) {
                 _expr.type = s->type();
             } else {
-                _engine->error(ast->lineno, QString("`%1' has no member named `%2'").arg(structTy->name()).arg(*ast->field));
+                _engine->error(ast->lineno, QString::fromLatin1("`%1' has no member named `%2'").arg(structTy->name()).arg(*ast->field));
             }
         } else {
-            _engine->error(ast->lineno, QString("Requested for member `%1', in a non class or vec instance").arg(*ast->field));
+            _engine->error(ast->lineno, QString::fromLatin1("Requested for member `%1', in a non class or vec instance").arg(*ast->field));
         }
     }
     return false;
@@ -375,9 +375,9 @@ bool Semantic::visit(FunctionCallExpressionAST *ast)
     if (id.isValid()) {
         if (const Function *funTy = id.type->asFunctionType()) {
             if (actuals.size() < funTy->argumentCount())
-                _engine->error(ast->lineno, QString("not enough arguments"));
+                _engine->error(ast->lineno, QString::fromLatin1("not enough arguments"));
             else if (actuals.size() > funTy->argumentCount())
-                _engine->error(ast->lineno, QString("too many arguments"));
+                _engine->error(ast->lineno, QString::fromLatin1("too many arguments"));
             _expr.type = funTy->returnType();
         } else if (const OverloadSet *overloads = id.type->asOverloadSetType()) {
             QVector<GLSL::Function *> candidates;
@@ -733,7 +733,7 @@ bool Semantic::visit(BasicTypeAST *ast)
         break;
 
     default:
-        _engine->error(ast->lineno, QString("Unknown type `%1'").arg(QLatin1String(GLSLParserTable::spell[ast->token])));
+        _engine->error(ast->lineno, QString::fromLatin1("Unknown type `%1'").arg(QLatin1String(GLSLParserTable::spell[ast->token])));
     }
 
     return false;
@@ -748,7 +748,7 @@ bool Semantic::visit(NamedTypeAST *ast)
                 return false;
             }
         }
-        _engine->error(ast->lineno, QString("Undefined type `%1'").arg(*ast->name));
+        _engine->error(ast->lineno, QString::fromLatin1("Undefined type `%1'").arg(*ast->name));
     }
 
     return false;

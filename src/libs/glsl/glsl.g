@@ -580,7 +580,7 @@ AST *Parser::parse(int startToken)
             QString message = QLatin1String("Syntax error");
             if (yytoken != -1) {
                 const QLatin1String s(spell[yytoken]);
-                message = QString("Unexpected token `%1'").arg(s);
+                message = QString::fromLatin1("Unexpected token `%1'").arg(s);
             }
 
             for (; _tos; --_tos) {
@@ -600,7 +600,7 @@ AST *Parser::parse(int startToken)
                     if (next > 0) {
                         if (! yyrecovering && ! _recovered) {
                             _recovered = true;
-                            error(line, QString("Expected `%1'").arg(QLatin1String(spell[*tptr])));
+                            error(line, QString::fromLatin1("Expected `%1'").arg(QLatin1String(spell[*tptr])));
                         }
 
                         yyrecovering = 3;
