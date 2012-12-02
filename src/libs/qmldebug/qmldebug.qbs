@@ -5,7 +5,8 @@ QtcLibrary {
     name: "QmlDebug"
 
     cpp.defines: base.concat([
-        "QMLDEBUG_LIB"
+        "QMLDEBUG_LIB",
+        "QT_NO_CAST_FROM_ASCII"
     ])
 
     Depends { name: "cpp" }

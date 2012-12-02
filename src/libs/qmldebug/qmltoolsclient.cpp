@@ -112,7 +112,7 @@ void QmlToolsClient::messageReceived(const QByteArray &message)
                 }
             }
             log(LogReceive, type + ':' + event,
-                QString("[%1]").arg(debugIdStrings.join(QLatin1String(","))));
+                QString::fromLatin1("[%1]").arg(debugIdStrings.join(QLatin1String(","))));
             emit currentObjectsChanged(m_currentDebugIds);
         }
     } else {
@@ -140,7 +140,7 @@ void QmlToolsClient::setCurrentObjects(const QList<int> &debugIds)
     ds << QByteArray(REQUEST) << m_requestId++
        << QByteArray(SELECT) << m_currentDebugIds;
 
-    log(LogSend, SELECT, QString("%1 [list of ids]").arg(debugIds.length()));
+    log(LogSend, SELECT, QString::fromLatin1("%1 [list of ids]").arg(debugIds.length()));
 
     sendMessage(message);
 }
@@ -275,9 +275,9 @@ void QmlToolsClient::createQmlObject(const QString &qmlText,
        << filename
        << order;
 
-    log(LogSend, CREATE_OBJECT, QString("%1 %2 [%3] %4").arg(qmlText,
+    log(LogSend, CREATE_OBJECT, QString::fromLatin1("%1 %2 [%3] %4").arg(qmlText,
                                                    QString::number(parentDebugId),
-                                                   imports.join(","), filename));
+                                                   imports.join(QLatin1String(",")), filename));
 
     sendMessage(message);
 }
@@ -306,7 +306,7 @@ void QmlToolsClient::reparentQmlObject(int debugId, int newParent)
     ds << QByteArray(REQUEST) << m_requestId++
        << QByteArray(MOVE_OBJECT) << debugId << newParent;
 
-    log(LogSend, MOVE_OBJECT, QString("%1 %2").arg(QString::number(debugId),
+    log(LogSend, MOVE_OBJECT, QString::fromLatin1("%1 %2").arg(QString::number(debugId),
                                            QString::number(newParent)));
 
     sendMessage(message);
@@ -339,7 +339,7 @@ void QmlToolsClient::log(LogDirection direction,
     else
         msg += QLatin1String("receiving ");
 
-    msg += message;
+    msg += QLatin1String(message);
     msg += QLatin1Char(' ');
     msg += extra;
     emit logActivity(name(), msg);

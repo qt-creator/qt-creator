@@ -83,12 +83,12 @@ public:
 
     static inline QString toString(Message message)
     {
-        return staticMetaObject.enumerator(0).valueToKey(message);
+        return QString::fromUtf8(staticMetaObject.enumerator(0).valueToKey(message));
     }
 
     static inline QString toString(Tool tool)
     {
-        return staticMetaObject.enumerator(1).valueToKey(tool);
+        return QString::fromUtf8(staticMetaObject.enumerator(1).valueToKey(tool));
     }
 };
 
@@ -153,7 +153,7 @@ void DeclarativeToolsClient::messageReceived(const QByteArray &message)
         int objectCount;
         ds >> objectCount;
 
-        log(LogReceive, type, QString("%1 [list of debug ids]").arg(objectCount));
+        log(LogReceive, type, QString::fromLatin1("%1 [list of debug ids]").arg(objectCount));
 
         m_currentDebugIds.clear();
 
@@ -255,7 +255,7 @@ void DeclarativeToolsClient::setCurrentObjects(const QList<int> &debugIds)
         ds << id;
     }
 
-    log(LogSend, cmd, QString("%1 [list of ids]").arg(debugIds.length()));
+    log(LogSend, cmd, QString::fromLatin1("%1 [list of ids]").arg(debugIds.length()));
 
     sendMessage(message);
 }
@@ -283,7 +283,7 @@ void DeclarativeToolsClient::setObjectIdList(
     }
 
     log(LogSend, cmd,
-        QString("%1 %2 [list of debug / object ids]").arg(debugIds.length()));
+        QString::fromLatin1("%1 %2 [list of debug / object ids]").arg(debugIds.length()));
 
     sendMessage(message);
 }
@@ -464,9 +464,9 @@ void DeclarativeToolsClient::createQmlObject(const QString &qmlText,
        << filename
        << order;
 
-    log(LogSend, cmd, QString("%1 %2 [%3] %4").arg(qmlText,
+    log(LogSend, cmd, QString::fromLatin1("%1 %2 [%3] %4").arg(qmlText,
                                                    QString::number(parentDebugId),
-                                                   imports.join(","), filename));
+                                                   imports.join(QLatin1String(",")), filename));
 
     sendMessage(message);
 }
@@ -498,7 +498,7 @@ void DeclarativeToolsClient::reparentQmlObject(int debugId, int newParent)
        << debugId
        << newParent;
 
-    log(LogSend, cmd, QString("%1 %2").arg(QString::number(debugId),
+    log(LogSend, cmd, QString::fromLatin1("%1 %2").arg(QString::number(debugId),
                                            QString::number(newParent)));
 
     sendMessage(message);
