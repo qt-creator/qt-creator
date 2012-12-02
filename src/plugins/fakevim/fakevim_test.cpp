@@ -798,6 +798,26 @@ void FakeVimPlugin::test_vim_delete_a_word()
     // delete single-character-word
     data.setText("a," X "b,c");
     KEYS("daw", "a," X ",c");
+
+    // delete a word with visual selection
+    data.setText(X "a" N "" N "b");
+    KEYS("vawd", X "" N "" N "b");
+    data.setText(X "a" N "" N "b");
+    KEYS("Vawd", X "" N "" N "b");
+
+    data.setText("abc def g" X "hi");
+    KEYS("vawd", "abc de" X "f");
+    KEYS("u", "abc def" X " ghi");
+
+    // backward visual selection
+    data.setText("abc def g" X "hi");
+    KEYS("vhawd", "abc " X "i");
+
+    data.setText("abc def gh" X "i");
+    KEYS("vhawd", "abc de" X "f");
+
+    data.setText("abc def gh" X "i");
+    KEYS("vh2awd", "ab" X "c");
 }
 
 void FakeVimPlugin::test_vim_change_a_word()

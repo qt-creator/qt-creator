@@ -6795,7 +6795,10 @@ QString FakeVimHandler::Private::visualDotCommand() const
 
 void FakeVimHandler::Private::selectTextObject(bool simple, bool inner)
 {
-    bool setupAnchor = (position() == anchor());
+    const int position1 = this->position();
+    const int anchor1 = this->anchor();
+    bool setupAnchor = (position1 == anchor1);
+    bool forward = anchor1 <= position1;
     const int repeat = count();
 
     // set anchor if not already set
@@ -6807,28 +6810,43 @@ void FakeVimHandler::Private::selectTextObject(bool simple, bool inner)
         }
         moveToBoundaryStart(1, simple, false);
         setAnchor();
-    } else {
+    } else if (forward) {
         moveRight();
         if (atEndOfLine())
             moveRight();
+    } else {
+        moveLeft();
+        if (atBlockStart())
+            moveLeft();
     }
 
     if (inner) {
         moveToBoundaryEnd(repeat, simple);
     } else {
+        const int direction = forward ? 1 : -1;
         for (int i = 0; i < repeat; ++i) {
             // select leading spaces
             bool leadingSpace = characterAtCursor().isSpace();
-            if (leadingSpace)
-                moveToNextBoundaryStart(1, simple);
+            if (leadingSpace) {
+                if (forward)
+                    moveToNextBoundaryStart(1, simple);
+                else
+                    moveToNextBoundaryEnd(1, simple, false);
+            }
 
             // select word
-            moveToWordEnd(1, simple);
+            if (forward)
+                moveToWordEnd(1, simple);
+            else
+                moveToWordStart(1, simple, false);
 
             // select trailing spaces if no leading space
-            if (!leadingSpace && document()->characterAt(position() + 1).isSpace()
+            if (!leadingSpace && document()->characterAt(position() + direction).isSpace()
                 && !atBlockStart()) {
-                moveToNextBoundaryEnd(1, simple);
+                if (forward)
+                    moveToNextBoundaryEnd(1, simple);
+                else
+                    moveToNextBoundaryStart(1, simple, false);
             }
 
             // if there are no trailing spaces in selection select all leading spaces
@@ -6842,9 +6860,15 @@ void FakeVimHandler::Private::selectTextObject(bool simple, bool inner)
             }
 
             if (i + 1 < repeat) {
-                moveRight();
-                if (atEndOfLine())
+                if (forward) {
                     moveRight();
+                    if (atEndOfLine())
+                        moveRight();
+                } else {
+                    moveLeft();
+                    if (atBlockStart())
+                        moveLeft();
+                }
             }
         }
     }
@@ -6853,9 +6877,13 @@ void FakeVimHandler::Private::selectTextObject(bool simple, bool inner)
         m_movetype = MoveInclusive;
     } else {
         m_movetype = MoveExclusive;
-        moveRight();
-        if (atEndOfLine())
+        if (isNoVisualMode()) {
             moveRight();
+            if (atEndOfLine())
+                moveRight();
+        } else if (isVisualLineMode()) {
+            m_visualMode = VisualCharMode;
+        }
     }
 
     setTargetColumn();
