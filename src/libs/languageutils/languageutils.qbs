@@ -7,7 +7,8 @@ QtcLibrary {
     cpp.includePaths: base.concat("../3rdparty/cplusplus")
     cpp.defines: base.concat([
         "QT_CREATOR",
-        "LANGUAGEUTILS_BUILD_DIR"
+        "LANGUAGEUTILS_BUILD_DIR",
+        "QT_NO_CAST_FROM_ASCII"
     ])
     cpp.optimization: "fast"
 
