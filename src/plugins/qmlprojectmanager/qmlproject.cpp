@@ -170,7 +170,7 @@ void QmlProject::refresh(RefreshOptions options)
 
     QmlJS::ModelManagerInterface::ProjectInfo pinfo(this);
     pinfo.sourceFiles = files();
-    pinfo.importPaths = importPaths();
+    pinfo.importPaths = customImportPaths();
     QtSupport::BaseQtVersion *version = 0;
     if (activeTarget()) {
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(activeTarget()->kit());
@@ -220,25 +220,11 @@ bool QmlProject::validProjectFile() const
     return !m_projectItem.isNull();
 }
 
-QStringList QmlProject::importPaths() const
+QStringList QmlProject::customImportPaths() const
 {
     QStringList importPaths;
     if (m_projectItem)
         importPaths = m_projectItem.data()->importPaths();
-
-    // add the default import path for the target Qt version
-    if (activeTarget()) {
-        const QmlProjectRunConfiguration *runConfig =
-                qobject_cast<QmlProjectRunConfiguration*>(activeTarget()->activeRunConfiguration());
-        if (runConfig) {
-            const QtSupport::BaseQtVersion *qtVersion = runConfig->qtVersion();
-            if (qtVersion && qtVersion->isValid()) {
-                const QString qtVersionImportPath = qtVersion->qmakeProperty("QT_INSTALL_IMPORTS");
-                if (!qtVersionImportPath.isEmpty())
-                    importPaths += qtVersionImportPath;
-            }
-        }
-    }
 
     return importPaths;
 }
