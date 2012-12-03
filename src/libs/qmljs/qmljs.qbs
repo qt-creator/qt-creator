@@ -97,6 +97,8 @@ QtcLibrary {
         "parser/qmljsmemorypool_p.h",
         "parser/qmljsparser.cpp",
         "parser/qmljsparser_p.h",
+        "persistenttrie.cpp",
+        "persistenttrie.h",
         "consolemanagerinterface.cpp",
         "consolemanagerinterface.h",
         "consoleitem.cpp",
