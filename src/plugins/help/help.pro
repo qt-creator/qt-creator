@@ -4,7 +4,7 @@ TARGET = Help
 QT += network
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += printsupport help
-    !isEmpty(QT.webkitwidgets.name): QT += webkitwidgets
+    !isEmpty(QT.webkitwidgets.name): QT += webkitwidgets webkit
     else: DEFINES += QT_NO_WEBKIT
 } else {
     CONFIG += help
