@@ -269,7 +269,7 @@ private:
         AST::IdentifierExpression *lhsIdent = AST::cast<AST::IdentifierExpression *>(binExp->left);
         AST::ObjectLiteral *rhsObjLit = AST::cast<AST::ObjectLiteral *>(binExp->right);
 
-        if (lhsIdent && rhsObjLit && (lhsIdent->name == "testcase")
+        if (lhsIdent && rhsObjLit && (lhsIdent->name == QLatin1String("testcase"))
             && (binExp->op == QSOperator::Assign)) {
             QModelIndex index = m_model->enterTestCase(rhsObjLit);
             m_nodeToIndex.insert(rhsObjLit, index);
