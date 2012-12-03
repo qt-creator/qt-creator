@@ -323,7 +323,7 @@ GccToolChain::GccToolChain(const QString &id, bool autodetect) :
 
 GccToolChain::GccToolChain(const GccToolChain &tc) :
     ToolChain(tc),
-    m_predefinedMacros(tc.predefinedMacros(QStringList())),
+    m_predefinedMacros(tc.m_predefinedMacros),
     m_compilerCommand(tc.compilerCommand()),
     m_targetAbi(tc.m_targetAbi),
     m_supportedAbis(tc.m_supportedAbis),
