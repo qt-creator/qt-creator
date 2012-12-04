@@ -1537,6 +1537,7 @@ public:
     bool handleFfTt(QString key);
 
     void enterInsertMode();
+    void initVisualBlockInsertMode(QChar command);
     void enterReplaceMode();
     void enterCommandMode(Mode returnToMode = CommandMode);
     void enterExMode(const QString &contents = QString());
@@ -1605,7 +1606,7 @@ public:
     QString m_opcount;
     MoveType m_movetype;
     RangeMode m_rangemode;
-    int m_visualInsertCount;
+    bool m_visualBlockInsert;
 
     bool m_fakeEnd;
     bool m_anchorPastEnd;
@@ -1838,6 +1839,7 @@ void FakeVimHandler::Private::init()
     m_firstKeyPending = false;
     g.findPending = false;
     m_findStartPosition = -1;
+    m_visualBlockInsert = false;
     m_fakeEnd = false;
     m_positionPastEnd = false;
     m_anchorPastEnd = false;
@@ -2022,6 +2024,7 @@ void FakeVimHandler::Private::installEventFilter()
 
 void FakeVimHandler::Private::setupWidget()
 {
+    m_mode = CommandMode;
     resetCommandMode();
     if (m_textedit) {
         m_textedit->setLineWrapMode(QTextEdit::NoWrap);
@@ -3401,11 +3404,13 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             setDotCommand(selectDotCommand + QString("%1%2%2").arg(repeat).arg(input.raw()));
         }
     } else if ((!isVisualMode() && input.is('a')) || (isVisualMode() && input.is('A'))) {
-        leaveVisualMode();
-        breakEditBlock();
-        setDotCommand("%1a", count());
+        if (isVisualBlockMode())
+            initVisualBlockInsertMode('A');
+        else
+            setDotCommand("%1a", count());
         if (!atEndOfLine() && !atEmptyLine())
             moveRight();
+        breakEditBlock();
         enterInsertMode();
         setUndoPosition();
     } else if (input.is('A')) {
@@ -3512,13 +3517,10 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             moveLeft();
     } else if (input.is('I')) {
         setUndoPosition();
-        setDotCommand("%1I", count());
         if (isVisualMode()) {
-            int beginLine = lineForPosition(anchor());
-            int endLine = lineForPosition(position());
-            m_visualInsertCount = qAbs(endLine - beginLine);
-            setPosition(qMin(position(), anchor()));
+            initVisualBlockInsertMode('I');
         } else {
+            setDotCommand("%1I", count());
             if (m_gflag)
                 moveToStartOfLine();
             else
@@ -3590,16 +3592,12 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         while (--repeat >= 0)
             redo();
     } else if (input.is('s') && isVisualBlockMode()) {
+        m_opcount.clear();
+        m_mvcount.clear();
         setUndoPosition();
-        Range range(position(), anchor(), RangeBlockMode);
-        int beginLine = lineForPosition(anchor());
-        int endLine = lineForPosition(position());
-        m_visualInsertCount = qAbs(endLine - beginLine);
-        setPosition(qMin(position(), anchor()));
-        yankText(range, m_register);
-        removeText(range);
-        setDotCommand("%1s", count());
-        breakEditBlock();
+        beginEditBlock();
+        initVisualBlockInsertMode('s');
+        endEditBlock();
         enterInsertMode();
     } else if (input.is('s')) {
         setUndoPosition();
@@ -4048,45 +4046,49 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
     QString insert;
     bool move = false;
     if (input.isEscape()) {
-        if (isVisualBlockMode() && !m_lastInsertion.contains('\n')) {
-            leaveVisualMode();
-            joinPreviousEditBlock();
-            moveLeft(m_lastInsertion.size());
-            setAnchor();
-            int pos = position();
-            for (int i = 0; i < m_visualInsertCount; ++i) {
-                moveDown();
-                insertText(m_lastInsertion);
+        // Repeat insertion [count] times.
+        // One instance was already physically inserted while typing.
+        const QString text = m_lastInsertion;
+        const int repeat = count();
+        m_lastInsertion.clear();
+        joinPreviousEditBlock();
+        replay(text.repeated(repeat - 1));
+
+        if (m_visualBlockInsert && !text.contains('\n')) {
+            const CursorPosition lastAnchor = mark('<').position;
+            const CursorPosition lastPosition = mark('>').position;
+            CursorPosition startPos(lastAnchor.line, qMin(lastPosition.column, lastAnchor.column));
+            CursorPosition pos = startPos;
+            if (g.dotCommand.endsWith(QChar('A')))
+                pos.column = qMax(lastPosition.column, lastAnchor.column) + 1;
+            while (pos.line < lastPosition.line) {
+                ++pos.line;
+                QTextCursor tc = cursor();
+                setCursorPosition(&tc, pos);
+                if (pos.line != tc.blockNumber())
+                    break;
+                setCursor(tc);
+                if (tc.positionInBlock() == pos.column)
+                    replay(text.repeated(repeat));
             }
-            moveLeft(1);
-            Range range(pos, position(), RangeBlockMode);
-            yankText(range);
-            setPosition(pos);
-            setDotCommand("p");
-            endEditBlock();
+
+            setCursorPosition(startPos);
         } else {
-            // Normal insertion. Start with '1', as one instance was
-            // already physically inserted while typing.
-            const int repeat = count();
-            if (repeat > 1) {
-                const QString text = m_lastInsertion;
-                m_lastInsertion.clear();
-                for (int i = 1; i < repeat; ++i)
-                    replay(text);
-                m_lastInsertion = text;
-            }
             moveLeft(qMin(1, leftDist()));
-            leaveVisualMode();
-            breakEditBlock();
+            leaveVisualMode(); // TODO: Remove! Should not be requiered here!
         }
+
+        endEditBlock();
+        breakEditBlock();
+
+        m_lastInsertion = text;
         // If command is 'o' or 'O' don't include the first line feed in dot command.
         if (g.dotCommand.endsWith(QChar('o'), Qt::CaseInsensitive))
             m_lastInsertion.remove(0, 1);
         g.dotCommand += m_lastInsertion + "<ESC>";
         enterCommandMode();
         m_ctrlVActive = false;
-        m_opcount.clear();
-        m_mvcount.clear();
+        m_visualBlockInsert = false;
     } else if (m_ctrlVActive) {
         insertInInsertMode(input.raw());
     } else if (input.isControl('o')) {
@@ -6610,6 +6612,28 @@ void FakeVimHandler::Private::enterInsertMode()
     g.returnToMode = InsertMode;
 }
 
+void FakeVimHandler::Private::initVisualBlockInsertMode(QChar command)
+{
+    m_visualBlockInsert = true;
+
+    setDotCommand(visualDotCommand() + QString::number(count()) + command);
+
+    leaveVisualMode();
+    const CursorPosition lastAnchor = mark('<').position;
+    const CursorPosition lastPosition = mark('>').position;
+    CursorPosition pos(lastAnchor.line,
+        command == 'A' ? qMax(lastPosition.column, lastAnchor.column)
+                       : qMin(lastPosition.column, lastAnchor.column));
+
+    if (command == 's') {
+        Range range(position(), anchor(), RangeBlockMode);
+        yankText(range, m_register);
+        removeText(range);
+    }
+
+    setCursorPosition(pos);
+}
+
 void FakeVimHandler::Private::enterCommandMode(Mode returnToMode)
 {
     if (atEndOfLine())
@@ -6744,19 +6768,28 @@ QString FakeVimHandler::Private::visualDotCommand() const
     QTextCursor end(start);
     end.setPosition(end.anchor());
 
+    QString command;
+
     if (isVisualCharMode())
-        return QString("v%1l").arg(qAbs(start.position() - end.position()));
+        command = "v";
+    else if (isVisualLineMode())
+        command = "V";
+    else if (isVisualBlockMode())
+        command = "<c-v>";
+    else
+        return QString();
 
-    if (isVisualLineMode())
-        return QString("V%1j").arg(qAbs(start.blockNumber() - end.blockNumber()));
+    const int down = qAbs(start.blockNumber() - end.blockNumber());
+    if (down != 0)
+        command.append(QString("%1j").arg(down));
 
-    if (isVisualBlockMode()) {
-        return QString("<c-v>%1l%2j")
-            .arg(qAbs(start.positionInBlock() - end.positionInBlock()))
-            .arg(qAbs(start.blockNumber() - end.blockNumber()));
+    const int right = start.positionInBlock() - end.positionInBlock();
+    if (right != 0) {
+        command.append(QString::number(qAbs(right)));
+        command.append(right < 0 && isVisualBlockMode() ? 'h' : 'l');
     }
 
-    return QString();
+    return command;
 }
 
 void FakeVimHandler::Private::selectTextObject(bool simple, bool inner)

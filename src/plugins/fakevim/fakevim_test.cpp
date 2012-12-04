@@ -506,6 +506,19 @@ void FakeVimPlugin::test_vim_insert()
     data.setText("abc" N "def");
     KEYS("2iX<delete>Y<esc>", "XYX" X "Yc" N "def");
     KEYS("0j.", "XYXYc" N "XYX" X "Yf");
+
+    // insert in visual block mode
+    data.setText("abc" N "d" X "ef" N "jkl" N "mno" N "pqr");
+    KEYS("<c-v>2j" "2I" "XYZ<esc>", "abc" N "d" X "XYZXYZef" N "jXYZXYZkl" N "mXYZXYZno" N "pqr");
+    INTEGRITY(false);
+
+    data.setText("abc" N "d" X "ef" N "jkl" N "mno" N "pqr");
+    KEYS("<c-v>2j" "2A" "XYZ<esc>", "abc" N "d" X "eXYZXYZf" N "jkXYZXYZl" N "mnXYZXYZo" N "pqr");
+    INTEGRITY(false);
+
+    data.setText("abc" N "de" X "f" N  "" N "jkl" N "mno");
+    KEYS("<c-v>2jh" "2I" "XYZ<esc>", "abc" N "d" X "XYZXYZef" N "" N "jXYZXYZkl" N "mno");
+    INTEGRITY(false);
 }
 
 void FakeVimPlugin::test_vim_fFtT()
@@ -906,6 +919,15 @@ void FakeVimPlugin::test_vim_change_replace()
 
     data.setText("abc" N X "def");
     KEYS("6sXYZ<ESC>", "abc" N "XY" X "Z");
+    INTEGRITY(false);
+
+    // insert in visual block mode
+    data.setText("abc" N "d" X "ef" N "jkl" N "mno" N "pqr");
+    KEYS("<c-v>2j" "2s" "XYZ<esc>", "abc" N "d" X "XYZf" N "jXYZl" N "mXYZo" N "pqr");
+    INTEGRITY(false);
+
+    data.setText("abc" N "de" X "f" N  "" N "jkl" N "mno");
+    KEYS("<c-v>2jh" "2s" "XYZ<esc>", "abc" N "d" X "XYZ" N "" N "jXYZ" N "mno");
     INTEGRITY(false);
 }
 
