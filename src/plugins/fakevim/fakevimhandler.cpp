@@ -2056,10 +2056,18 @@ void FakeVimHandler::Private::exportSelection()
     m_oldInternalAnchor = anc;
 
     if (isVisualMode()) {
-        if (pos >= anc)
-            setAnchorAndPosition(anc, pos + 1);
-        else
+        bool visualBlockInverted;
+        if (m_visualMode == VisualBlockMode) {
+            const int col1 = anc - document()->findBlock(anc).position();
+            const int col2 = pos - document()->findBlock(pos).position();
+            visualBlockInverted = col1 > col2;
+        } else {
+            visualBlockInverted = anc > pos;
+        }
+        if (visualBlockInverted)
             setAnchorAndPosition(anc + 1, pos);
+        else
+            setAnchorAndPosition(anc, pos + 1);
 
         if (m_visualMode == VisualBlockMode) {
             emit q->requestSetBlockSelection(false);
