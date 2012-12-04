@@ -124,11 +124,6 @@ QString AbstractPackagingStep::packageDirectory() const
         ? d->currentBuildConfiguration->buildDirectory() : QString();
 }
 
-RemoteLinuxDeployConfiguration *AbstractPackagingStep::deployConfiguration() const
-{
-    return qobject_cast<RemoteLinuxDeployConfiguration *>(parent()->parent());
-}
-
 bool AbstractPackagingStep::isPackagingNeeded() const
 {
     QFileInfo packageInfo(packageFilePath());

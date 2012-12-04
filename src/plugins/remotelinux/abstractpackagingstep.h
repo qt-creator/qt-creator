@@ -60,7 +60,6 @@ protected:
     void setPackagingFinished(bool success);
 
     void raiseError(const QString &errorMessage);
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
     QString cachedPackageDirectory() const;
     QString packageDirectory() const;
 
