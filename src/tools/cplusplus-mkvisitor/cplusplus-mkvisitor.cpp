@@ -86,7 +86,7 @@ class MkVisitor: protected SymbolVisitor
         if (interfaces.contains(b) || isMiscNode(b)) {
             QString className = oo(b->symbols().first()->name());
 
-            if (className.endsWith("AST")) {
+            if (className.endsWith(QLatin1String("AST"))) {
                 className.chop(3);
 
                 QString funcName = className;
@@ -141,13 +141,13 @@ public:
             Q_ASSERT(klass != 0);
 
             QString className = oo(klass->name());
-            if (className == "AST")
+            if (className == QLatin1String("AST"))
                 continue;
 
             QString baseClassName = className;
             baseClassName.chop(3);
 
-            QString retTy = false;
+            QString retTy;
             QString funcName = getAcceptFunctionName(b, &retTy);
 
             std::cout
@@ -222,13 +222,13 @@ public:
             Q_ASSERT(klass != 0);
 
             QString className = oo(klass->name());
-            if (className == "AST")
+            if (className == QLatin1String("AST"))
                 continue;
 
             QString baseClassName = className;
             baseClassName.chop(3);
 
-            QString current = "_current";
+            QString current = QLatin1String("_current");
             current += baseClassName;
 
             std::cout << "    " << qPrintable(baseClassName) << "Ty " << qPrintable(current) << ";" << std::endl;
@@ -255,7 +255,7 @@ public:
             Q_ASSERT(klass != 0);
 
             QString className = oo(klass->name());
-            if (className == "AST")
+            if (className == QLatin1String("AST"))
                 continue;
 
             QString baseClassName = className;
@@ -264,7 +264,7 @@ public:
             QString retTy;
             QString funcName = getAcceptFunctionName(b, &retTy);
 
-            QString current = "_current";
+            QString current = QLatin1String("_current");
             current += baseClassName;
 
             std::cout << "Semantic::" << qPrintable(baseClassName) << "Ty Semantic::"
@@ -322,10 +322,10 @@ public:
                     if (PointerType *ptrTy = decl->type()->asPointerType()) {
                         if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
                             const QString eltTyName = oo(namedTy->name());
-                            if (eltTyName.endsWith("ListAST")) {
+                            if (eltTyName.endsWith(QLatin1String("ListAST"))) {
                                 QString name = eltTyName;
                                 name.chop(7);
-                                name += "AST";
+                                name += QLatin1String("AST");
 
                                 Control *control = context.thisDocument()->control();
                                 const Name *n = control->identifier(name.toLatin1().constData());
@@ -352,7 +352,7 @@ public:
                             if (ClassOrNamespace *ty = context.lookupType(namedTy->name(), klass)) {
                                 QString className = oo(ty->symbols().first()->name());
                                 QString baseClassName = className;
-                                if (baseClassName.endsWith("AST")) {
+                                if (baseClassName.endsWith(QLatin1String("AST"))) {
                                     baseClassName.chop(3);
 
                                     QString retTy;
@@ -394,7 +394,7 @@ protected:
 
     virtual bool visit(Class *klass) {
         const QString className = oo(klass->name());
-        if (! className.endsWith("AST"))
+        if (! className.endsWith(QLatin1String("AST")))
             return false;
 
         ClassOrNamespace *b = context.lookupType(klass);
@@ -429,7 +429,7 @@ void printUsage()
     std::cout << "Usage: " << qPrintable(QFileInfo(qApp->arguments().at(0)).fileName())
               << " [-v] [path to AST.h]\n\n"
               << "Print a visitor class based on AST.h to stdout.\n\n";
-    const QString defaulPath = QFileInfo(PATH_AST_H).canonicalFilePath();
+    const QString defaulPath = QFileInfo(QLatin1String(PATH_AST_H)).canonicalFilePath();
     std::cout << "Default path: " << qPrintable(defaulPath) << '.' << "\n";
 }
 
@@ -442,18 +442,19 @@ int main(int argc, char *argv[])
     bool optionVerbose = false;
 
     // Process options & arguments
-    if (args.contains("-v")) {
+    if (args.contains(QLatin1String("-v"))) {
         optionVerbose = true;
-        args.removeOne("-v");
+        args.removeOne(QLatin1String("-v"));
     }
-    const bool helpRequested = args.contains("-h") || args.contains("-help");
+    const bool helpRequested = args.contains(QLatin1String("-h"))
+        || args.contains(QLatin1String("-help"));
     if (helpRequested || args.count() >= 2) {
         printUsage();
         return helpRequested ? EXIT_SUCCESS : EXIT_FAILURE;
     }
 
     // Run the preprocessor
-    QString fileName = PATH_AST_H;
+    QString fileName = QLatin1String(PATH_AST_H);
     if (!args.isEmpty())
         fileName = args.first();
 

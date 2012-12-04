@@ -383,7 +383,7 @@ QString example()
 #else
     QString::fromLatin1("$ echo \"int foo() {}\" | ./%1 && xdg-open %2.ast.png")
 #endif
-    .arg(QFileInfo(qApp->arguments().at(0)).fileName(), PATH_STDIN_FILE);
+    .arg(QFileInfo(qApp->arguments().at(0)).fileName(), QLatin1String(PATH_STDIN_FILE));
 }
 
 void printUsage()
@@ -391,7 +391,7 @@ void printUsage()
     std::cout << "Usage: " << qPrintable(QFileInfo(qApp->arguments().at(0)).fileName())
               << " [-v] <file1> <file2> ...\n\n";
 
-    std::cout << qPrintable(QString::fromLatin1(
+    std::cout << QString::fromLatin1(
     "Visualize AST and symbol hierarchy of given C++ files by generating png image files\n"
     "in the same directory as the input files. Print paths to generated image files.\n"
     "\n"
@@ -404,7 +404,7 @@ void printUsage()
     "Prerequisites:\n"
     " 1) Make sure to have 'dot' from graphviz locatable by PATH.\n"
     " 2) Make sure to have an up to date dumpers file by using 'cplusplus-update-frontend'.\n"
-    ).arg(PATH_STDIN_FILE, example()));
+    ).arg(QLatin1String(PATH_STDIN_FILE), example()).toLocal8Bit().constData();
 }
 
 int main(int argc, char *argv[])
@@ -417,7 +417,7 @@ int main(int argc, char *argv[])
 
     // Data from stdin?
     if (!tty_for_stdin()) {
-        QFile file("_stdincontents.cpp");
+        QFile file((QLatin1String(PATH_STDIN_FILE)));
         if (! file.open(QFile::WriteOnly)) {
             std::cerr << "Error: Cannot open file for writing\"" << qPrintable(file.fileName())
                       << "\"" << std::endl;
@@ -429,11 +429,12 @@ int main(int argc, char *argv[])
     }
 
     // Process options & arguments
-    if (args.contains("-v")) {
+    if (args.contains(QLatin1String("-v"))) {
         optionVerbose = true;
-        args.removeOne("-v");
+        args.removeOne(QLatin1String("-v"));
     }
-    const bool helpRequested = args.contains("-h") || args.contains("-help");
+    const bool helpRequested = args.contains(QLatin1String("-h"))
+        || args.contains(QLatin1String("-help"));
     if (args.isEmpty() || helpRequested) {
         printUsage();
         return helpRequested ? EXIT_SUCCESS : EXIT_FAILURE;

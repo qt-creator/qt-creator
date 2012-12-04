@@ -169,7 +169,7 @@ protected:
 
         const QString className = oo(klass->name());
 
-        if (className.endsWith("AST")) {
+        if (className.endsWith(QLatin1String("AST"))) {
             if (className == QLatin1String("AST"))
                 _nodes.base = ast;
             else {
@@ -1414,11 +1414,16 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, co
         cursors[classAST] = removeCastMethods(classAST);
         const QString className = oo(classAST->symbol->name());
         const QString methodName = QLatin1String("as") + className.mid(0, className.length() - 3);
-        replacementCastMethods[classAST] = QString("    virtual %1 *%2() { return this; }\n").arg(className, methodName);
-        castMethods.append(QString("    virtual %1 *%2() { return 0; }\n").arg(className, methodName));
+        replacementCastMethods[classAST]
+                = QString::fromLatin1("    virtual %1 *%2() { return this; }\n")
+                    .arg(className, methodName);
+        castMethods.append(
+                QString::fromLatin1("    virtual %1 *%2() { return 0; }\n")
+                    .arg(className, methodName));
         astDerivedClasses.append(className);
 
-        constructors[classAST] = removeConstructors(classAST, AST_h_document->translationUnit(), &document);
+        constructors[classAST] = removeConstructors(classAST, AST_h_document->translationUnit(),
+                                                    &document);
         replacementConstructors[classAST] = createConstructor(classAST);
     }
 
@@ -1612,7 +1617,7 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
 
         const QString className = oo(klass->name());
 
-        if (! className.endsWith("AST"))
+        if (! className.endsWith(QLatin1String("AST")))
             continue;
 
         const QString methodName = className.left(className.length() - 3);
@@ -1633,9 +1638,9 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
                 continue;
 
             const QString tyName = oo(ptrTy->elementType());
-            if (tyName.endsWith("ListAST"))
+            if (tyName.endsWith(QLatin1String("ListAST")))
                 listClasses.insert(tyName);
-            if (tyName.endsWith("AST")) {
+            if (tyName.endsWith(QLatin1String("AST"))) {
                 if (! first)
                     out << ", ";
 
@@ -1699,8 +1704,10 @@ void printUsage()
               << "to AST.h and print the paths of the written files. Run this tool after\n"
               << "modifying AST.h."
               << "\n\n";
-    const QString defaultPathCppFrontend = QFileInfo(PATH_CPP_FRONTEND).canonicalFilePath();
-    const QString defaultPathDumpersFile = QFileInfo(PATH_DUMPERS_FILE).canonicalFilePath();
+    const QString defaultPathCppFrontend
+        = QFileInfo(QLatin1String(PATH_CPP_FRONTEND)).canonicalFilePath();
+    const QString defaultPathDumpersFile
+        = QFileInfo(QLatin1String(PATH_DUMPERS_FILE)).canonicalFilePath();
     std::cout << "Default values:" << "\n"
               << "   frontend-dir: " << qPrintable(defaultPathCppFrontend) << "\n"
               << "   dumpers-file: " << qPrintable(defaultPathDumpersFile) << "\n";
@@ -1712,10 +1719,11 @@ int main(int argc, char *argv[])
     QStringList args = app.arguments();
     args.removeFirst();
 
-    QString pathCppFrontend = PATH_CPP_FRONTEND;
-    QString pathDumpersFile = PATH_DUMPERS_FILE;
+    QString pathCppFrontend = QLatin1String(PATH_CPP_FRONTEND);
+    QString pathDumpersFile = QLatin1String(PATH_DUMPERS_FILE);
 
-    const bool helpRequested = args.contains("-h") || args.contains("-help");
+    const bool helpRequested = args.contains(QLatin1String("-h"))
+        || args.contains(QLatin1String("-help"));
     if (args.count() == 1 || args.count() >= 3 || helpRequested) {
         printUsage();
         return helpRequested ? EXIT_SUCCESS : EXIT_FAILURE;

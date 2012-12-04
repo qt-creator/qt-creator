@@ -10,6 +10,7 @@ INCLUDEPATH += . ../../libs
 include(../../../qtcreator.pri)
 include(../../libs/cplusplus/cplusplus-lib.pri)
 
+DEFINES *= QT_NO_CAST_FROM_ASCII
 DEFINES += PATH_CPP_FRONTEND=\\\"$$PWD/../../libs/3rdparty/cplusplus\\\"
 DEFINES += PATH_DUMPERS_FILE=\\\"$$PWD/../../../tests/tools/cplusplus-ast2png/dumpers.inc\\\"
 SOURCES += cplusplus-update-frontend.cpp ../../libs/utils/changeset.cpp

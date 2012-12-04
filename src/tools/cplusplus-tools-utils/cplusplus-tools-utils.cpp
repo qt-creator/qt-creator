@@ -65,7 +65,7 @@ void executeCommand(const QString &command, const QStringList &arguments, const 
         process.setStandardOutputFile(outputFile, QIODevice::Truncate);
     process.start(command, arguments);
     if (!process.waitForStarted()) {
-        out << QString("Error: Process \"%1\" did not start within timeout: %2.")
+        out << QString::fromLatin1("Error: Process \"%1\" did not start within timeout: %2.")
                 .arg(fullCommand, process.errorString())
             << endl;
         exit(EXIT_FAILURE);
@@ -73,14 +73,15 @@ void executeCommand(const QString &command, const QStringList &arguments, const 
     if (!process.waitForFinished()) {
         if (!verbose)
             out << process.readAll() << endl;
-        out << QString("Error: Process \"%1\" did not finish within timeout.").arg(fullCommand)
+        out << QString::fromLatin1("Error: Process \"%1\" did not finish within timeout.")
+               .arg(fullCommand)
             << endl;
         exit(EXIT_FAILURE);
     }
     const int exitCode = process.exitCode();
     if (exitCode != 0) {
         out << process.readAllStandardError() << endl;
-        out << QString("Error: Process \"%1\" finished with non zero exit value %2")
+        out << QString::fromLatin1("Error: Process \"%1\" finished with non zero exit value %2")
             .arg(fullCommand, exitCode) << endl;
         exit(EXIT_FAILURE);
     }
@@ -89,9 +90,9 @@ void executeCommand(const QString &command, const QStringList &arguments, const 
 SystemPreprocessor::SystemPreprocessor(bool verbose)
     : m_verbose(verbose)
 {
-    m_knownCompilers[portableExecutableName("gcc")]
+    m_knownCompilers[portableExecutableName(QLatin1String("gcc"))]
         = QLatin1String("-DCPLUSPLUS_WITHOUT_QT -U__BLOCKS__ -xc++ -E -include");
-    m_knownCompilers[portableExecutableName("cl")]
+    m_knownCompilers[portableExecutableName(QLatin1String("cl"))]
         = QLatin1String("/DCPLUSPLUS_WITHOUT_QT /U__BLOCKS__ /TP /E /I . /FI");
 
     QMapIterator<QString, QString> i(m_knownCompilers);
@@ -112,14 +113,17 @@ SystemPreprocessor::SystemPreprocessor(bool verbose)
 void SystemPreprocessor::check() const
 {
     QTextStream out(stderr);
-    if (!QFile::exists(PATH_PREPROCESSOR_CONFIG)) {
-        out << QString("Error: File \"%1\" does not exist.").arg(PATH_PREPROCESSOR_CONFIG) << endl;
+    if (!QFile::exists(QLatin1String(PATH_PREPROCESSOR_CONFIG))) {
+        out << QString::fromLatin1("Error: File \"%1\" does not exist.")
+               .arg(QLatin1String(PATH_PREPROCESSOR_CONFIG))
+            << endl;
         exit(EXIT_FAILURE);
     }
     if (m_compiler.isEmpty()) {
         const QString triedCompilers
             = QStringList(m_knownCompilers.keys()).join(QLatin1String(", "));
-        out << QString("Error: No compiler found. Tried %1.").arg(triedCompilers) << endl;
+        out << QString::fromLatin1("Error: No compiler found. Tried %1.").arg(triedCompilers)
+            << endl;
         exit(EXIT_FAILURE);
     }
 }
@@ -129,7 +133,7 @@ void SystemPreprocessor::preprocessFile(const QString &inputFile, const QString 
     check();
     if (!QFile::exists(inputFile)) {
         QTextStream out(stderr);
-        out << QString("Error: File \"%1\" does not exist.").arg(inputFile) << endl;
+        out << QString::fromLatin1("Error: File \"%1\" does not exist.").arg(inputFile) << endl;
         exit(EXIT_FAILURE);
     }
     const QStringList arguments = QStringList(m_compilerArguments)
