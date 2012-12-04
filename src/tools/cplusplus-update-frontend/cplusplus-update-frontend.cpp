@@ -1599,7 +1599,7 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
             << endl;
 
     Control *control = AST_h_document->control();
-    QSet<QString> listClasses;
+    QSet<QString> classesSet;
 
     foreach (ClassSpecifierAST *classNode, astNodes.deriveds) {
         Class *klass = classNode->symbol;
@@ -1639,7 +1639,7 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
 
             const QString tyName = oo(ptrTy->elementType());
             if (tyName.endsWith(QLatin1String("ListAST")))
-                listClasses.insert(tyName);
+                classesSet.insert(tyName);
             if (tyName.endsWith(QLatin1String("AST"))) {
                 if (! first)
                     out << ", ";
@@ -1669,7 +1669,9 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
                 << endl;
     }
 
-    foreach (const QString &className, listClasses) {
+    QStringList classesList = classesSet.toList();
+    qSort(classesList);
+    foreach (const QString &className, classesList) {
         const QString methodName = className.left(className.length() - 3);
         const QString elementName = className.left(className.length() - 7) + QLatin1String("AST");
         out
