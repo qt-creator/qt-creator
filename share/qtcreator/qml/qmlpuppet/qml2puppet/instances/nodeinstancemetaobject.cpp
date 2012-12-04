@@ -198,7 +198,9 @@ NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstancePointer &
 
 NodeInstanceMetaObject::~NodeInstanceMetaObject()
 {
-    cache->release();
+    if (cache->count() > 1) // qml is chrashing because the property cache is not removed from the engine
+        cache->release();
+    else
     m_type->release();
 
     nodeInstanceMetaObjectList.remove(this);
