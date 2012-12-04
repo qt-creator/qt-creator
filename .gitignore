@@ -132,6 +132,9 @@ tests/manual/preprocessor/pp
 tests/tools/cplusplus-ast2png/cplusplus-ast2png
 tests/tools/cplusplus-ast2png/cplusplus-ast2png.exe
 tests/auto/cplusplus/codegen/tst_codegen
+tests/auto/cplusplus/cxx11/tst_cxx11
+tests/auto/cplusplus/misc/tst_misc
+tests/auto/cplusplus/simplifytypes/tst_simplifytypes
 tests/auto/cplusplus/ast/tst_ast
 tests/auto/cplusplus/codeformatter/tst_codeformatter
 tests/auto/cplusplus/findusages/tst_findusages
