@@ -103,6 +103,7 @@ HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/include/invalidargumentexception.h \
     $$PWD/include/notimplementedexception.h \
     $$PWD/include/invalidpropertyexception.h \
+    $$PWD/include/invalidmodelnodeexception.h \
     $$PWD/include/invalidmodelstateexception.h \
     $$PWD/include/removebasestateexception.h \
     $$PWD/include/invalididexception.h \

@@ -177,6 +177,7 @@ QtcPlugin {
             "include/invalidargumentexception.h",
             "include/invalididexception.h",
             "include/invalidmetainfoexception.h",
+            "include/invalidmodelnodeexception.h",
             "include/invalidmodelstateexception.h",
             "include/invalidpropertyexception.h",
             "include/invalidqmlsourceexception.h",
