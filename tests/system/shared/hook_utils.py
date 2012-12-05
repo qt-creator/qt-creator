@@ -54,8 +54,7 @@ def modifyRunSettingsForHookInto(projectName, port):
     switchViewTo(ViewConstants.EDIT)
     return result
 
-def modifyRunSettingsForHookIntoQtQuickUI(projectName, port):
-    global workingDir
+def modifyRunSettingsForHookIntoQtQuickUI(workingDir, projectName, port):
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(1, 0, ProjectSettings.RUN, True)
 

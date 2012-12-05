@@ -1,13 +1,12 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    global workingDir
     startApplication("qtcreator" + SettingsPath)
     # using a temporary directory won't mess up a potentially existing
     workingDir = tempDir()
     projectName = createNewQtQuickUI(workingDir)
     test.log("Running project")
-    qmlViewer = modifyRunSettingsForHookIntoQtQuickUI(projectName, 11223)
+    qmlViewer = modifyRunSettingsForHookIntoQtQuickUI(workingDir, projectName, 11223)
     if qmlViewer!=None:
         qmlViewerPath = os.path.dirname(qmlViewer)
         qmlViewer = os.path.basename(qmlViewer)

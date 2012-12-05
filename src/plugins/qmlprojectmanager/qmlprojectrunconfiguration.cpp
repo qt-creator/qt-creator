@@ -144,7 +144,7 @@ QString QmlProjectRunConfiguration::viewerArguments() const
 
     // arguments from .qmlproject file
     QmlProject *project = static_cast<QmlProject *>(target()->project());
-    foreach (const QString &importPath, project->importPaths()) {
+    foreach (const QString &importPath, project->customImportPaths()) {
         Utils::QtcProcess::addArg(&args, "-I");
         Utils::QtcProcess::addArg(&args, importPath);
     }

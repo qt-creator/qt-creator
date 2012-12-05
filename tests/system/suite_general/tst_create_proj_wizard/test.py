@@ -34,7 +34,7 @@ def main():
         for template in dumpItems(templatesView.model(), templatesView.rootIndex()):
             template = template.replace(".", "\\.")
             # skip non-configurable
-            if "Qt Quick UI" in template or "Plain C" in template:
+            if "Qt Quick 1 UI" in template or "Plain C" in template:
                 continue
             availableProjectTypes.append({category:template})
     clickButton(waitForObject("{text='Cancel' type='QPushButton' unnamed='1' visible='1'}"))

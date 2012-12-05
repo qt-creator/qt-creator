@@ -3,3 +3,6 @@
 "creator/qtcreator.pri"
 "creator/doc/snippets/qml/list-of-transitions.qml"
 "creator/share/qtcreator/glsl/glsl_120.frag"
+"creator/tests/manual/cplusplus-frontend/conf.c++"
+"creator/src/plugins/coreplugin/basefilewizard.cpp"
+"creator/src/plugins/coreplugin/basefilewizard.h"
