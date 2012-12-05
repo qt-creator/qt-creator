@@ -152,6 +152,87 @@ void CppToolsPlugin::test_completion_forward_declarations_present()
     QCOMPARE(completions, expected);
 }
 
+void CppToolsPlugin::test_completion_inside_parentheses_c_style_conversion()
+{
+    TestData data;
+    data.srcText = "\n"
+            "class Base\n"
+            "{\n"
+            "    int i_base;\n"
+            "};\n"
+            "\n"
+            "class Derived : public Base\n"
+            "{\n"
+            "    int i_derived;\n"
+            "};\n"
+            "\n"
+            "void fun()\n"
+            "{\n"
+            "    Base *b = new Derived;\n"
+            "    if (1)\n"
+            "        @\n"
+            "}\n"
+            ;
+
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("((Derived *)b)->");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 4);
+    QVERIFY(completions.contains(QLatin1String("Derived")));
+    QVERIFY(completions.contains(QLatin1String("Base")));
+    QVERIFY(completions.contains(QLatin1String("i_derived")));
+    QVERIFY(completions.contains(QLatin1String("i_base")));
+
+}
+
+void CppToolsPlugin::test_completion_inside_parentheses_cast_operator_conversion()
+{
+    TestData data;
+    data.srcText = "\n"
+            "class Base\n"
+            "{\n"
+            "    int i_base;\n"
+            "};\n"
+            "\n"
+            "class Derived : public Base\n"
+            "{\n"
+            "    int i_derived;\n"
+            "};\n"
+            "\n"
+            "void fun()\n"
+            "{\n"
+            "    Base *b = new Derived;\n"
+            "    if (1)\n"
+            "        @\n"
+            "}\n"
+            ;
+
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("(static_cast<Derived *>(b))->");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 4);
+    QVERIFY(completions.contains(QLatin1String("Derived")));
+    QVERIFY(completions.contains(QLatin1String("Base")));
+    QVERIFY(completions.contains(QLatin1String("i_derived")));
+    QVERIFY(completions.contains(QLatin1String("i_base")));
+}
+
 void CppToolsPlugin::test_completion_basic_1()
 {
     TestData data;

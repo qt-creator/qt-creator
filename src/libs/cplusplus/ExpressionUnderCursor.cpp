@@ -157,6 +157,8 @@ int ExpressionUnderCursor::startOfExpression_helper(BackwardsScanner &tk, int in
         return index - 1;
     } else if (tk[index - 1].is(T_RPAREN)) {
         int matchingBraceIndex = tk.startOfMatchingBrace(index);
+        if (! matchingBraceIndex)
+            return matchingBraceIndex;
         if (matchingBraceIndex != index) {
             if (tk[matchingBraceIndex - 1].is(T_GREATER)) {
                 int lessIndex = tk.startOfMatchingBrace(matchingBraceIndex);
