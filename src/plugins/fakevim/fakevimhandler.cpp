@@ -250,6 +250,8 @@ struct CursorPosition
         column = position - block.position();
     }
     bool isValid() const { return line >= 0 && column >= 0; }
+    bool operator>(const CursorPosition &other) const
+        { return line > other.line || column > other.column; }
     bool operator==(const CursorPosition &other) const
         { return line == other.line && column == other.column; }
     bool operator!=(const CursorPosition &other) const { return !operator==(other); }
@@ -278,15 +280,18 @@ typedef QHashIterator<QChar, Mark> MarksIterator;
 
 struct State
 {
-    State() : revision(-1), position(), marks(), lastVisualMode(NoVisualMode) {}
+    State() : revision(-1), position(), marks(), lastVisualMode(NoVisualMode),
+        lastVisualModeInverted(false) {}
     State(int revision, const CursorPosition &position, const Marks &marks,
-        VisualMode lastVisualMode) : revision(revision), position(position), marks(marks),
-        lastVisualMode(lastVisualMode) {}
+        VisualMode lastVisualMode, bool lastVisualModeInverted) : revision(revision),
+        position(position), marks(marks), lastVisualMode(lastVisualMode),
+        lastVisualModeInverted(lastVisualModeInverted) {}
 
     int revision;
     CursorPosition position;
     Marks marks;
     VisualMode lastVisualMode;
+    bool lastVisualModeInverted;
 };
 
 struct Column
@@ -1689,6 +1694,7 @@ public:
     void leaveVisualMode();
     VisualMode m_visualMode;
     VisualMode m_lastVisualMode;
+    bool m_lastVisualModeInverted;
 
     // marks
     Mark mark(QChar code) const;
@@ -1848,6 +1854,7 @@ void FakeVimHandler::Private::init()
     m_gflag = false;
     m_visualMode = NoVisualMode;
     m_lastVisualMode = NoVisualMode;
+    m_lastVisualModeInverted = false;
     m_targetColumn = 0;
     m_visualTargetColumn = 0;
     m_movetype = MoveInclusive;
@@ -2454,7 +2461,8 @@ void FakeVimHandler::Private::setUndoPosition(bool overwrite)
         setMark('<', mark('<').position);
         setMark('>', mark('>').position);
     }
-    m_undo.push(State(rev, m_lastChangePosition, m_marks, m_lastVisualMode));
+    m_undo.push(
+        State(rev, m_lastChangePosition, m_marks, m_lastVisualMode, m_lastVisualModeInverted));
 }
 
 void FakeVimHandler::Private::moveDown(int n)
@@ -3643,9 +3651,9 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             CursorPosition from = mark('<').position;
             CursorPosition to = mark('>').position;
             toggleVisualMode(m_lastVisualMode);
-            setCursorPosition(from);
+            setCursorPosition(m_lastVisualModeInverted ? to : from);
             setAnchor();
-            setCursorPosition(to);
+            setCursorPosition(m_lastVisualModeInverted ? from : to);
         }
     } else if (input.is('v')) {
         toggleVisualMode(VisualCharMode);
@@ -6458,6 +6466,7 @@ void FakeVimHandler::Private::leaveVisualMode()
 
     setMark('<', mark('<').position);
     setMark('>', mark('>').position);
+    m_lastVisualModeInverted = anchor() > position();
     if (isVisualLineMode())
         m_movetype = MoveLineWise;
     else if (isVisualCharMode())
@@ -6560,6 +6569,7 @@ void FakeVimHandler::Private::undoRedo(bool undo)
             marks.swap(state.marks);
             updateMarks(marks);
             m_lastVisualMode = state.lastVisualMode;
+            m_lastVisualModeInverted = state.lastVisualModeInverted;
             setMark('\'', lastPos);
             setCursorPosition(m_lastChangePosition);
             setAnchor();
