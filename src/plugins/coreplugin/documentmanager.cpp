@@ -97,7 +97,7 @@ static const char editorsKeyC[] = "EditorIds";
 static const char directoryGroupC[] = "Directories";
 static const char projectDirectoryKeyC[] = "Projects";
 static const char useProjectDirectoryKeyC[] = "UseProjectsDirectory";
-static const char buildDirectoryKeyC[] = "BuildDirectory";
+static const char buildDirectoryKeyC[] = "BuildDirectory.Template";
 
 namespace Core {
 
