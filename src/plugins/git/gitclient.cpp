@@ -1136,7 +1136,7 @@ QString GitClient::synchronousTopic(const QString &workingDirectory)
     QStringList arguments;
     arguments << QLatin1String("symbolic-ref") << QLatin1String("HEAD");
     // First try to find branch
-    if (fullySynchronousGit(workingDirectory, arguments, &outputTextData)) {
+    if (fullySynchronousGit(workingDirectory, arguments, &outputTextData, 0, false)) {
         QString branch = commandOutputFromLocal8Bit(outputTextData.trimmed());
 
         // Must strip the "refs/heads/" prefix manually since the --short switch
@@ -1153,7 +1153,7 @@ QString GitClient::synchronousTopic(const QString &workingDirectory)
     arguments.clear();
     arguments << QLatin1String("describe") << QLatin1String("--tags")
               << QLatin1String("--exact-match") << QLatin1String("HEAD");
-    if (fullySynchronousGit(workingDirectory, arguments, &outputTextData))
+    if (fullySynchronousGit(workingDirectory, arguments, &outputTextData, 0, false))
         return data.topic = commandOutputFromLocal8Bit(outputTextData.trimmed());
 
     // No tag, return HEAD hash
@@ -1169,7 +1169,7 @@ QString GitClient::synchronousTopRevision(const QString &workingDirectory, QStri
     QString errorMessage;
     // get revision
     arguments << QLatin1String("rev-parse") << QLatin1String("HEAD");
-    if (!fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText)) {
+    if (!fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText, false)) {
         errorMessage = tr("Cannot retrieve top revision of \"%1\": %2")
                 .arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
         return QString();
@@ -1191,7 +1191,7 @@ void GitClient::synchronousTagsForCommit(const QString &workingDirectory, const 
     QStringList arguments;
     QByteArray parents;
     arguments << QLatin1String("describe") << QLatin1String("--contains") << revision;
-    fullySynchronousGit(workingDirectory, arguments, &precedes);
+    fullySynchronousGit(workingDirectory, arguments, &precedes, 0, false);
     int tilde = precedes.indexOf('~');
     if (tilde != -1)
         precedes.truncate(tilde);
@@ -1200,13 +1200,13 @@ void GitClient::synchronousTagsForCommit(const QString &workingDirectory, const 
 
     arguments.clear();
     arguments << QLatin1String("log") << QLatin1String("-n1") << QLatin1String("--pretty=format:%P") << revision;
-    fullySynchronousGit(workingDirectory, arguments, &parents);
+    fullySynchronousGit(workingDirectory, arguments, &parents, 0, false);
     foreach (const QByteArray &p, parents.split(' ')) {
         QByteArray pf;
         arguments.clear();
         arguments << QLatin1String("describe") << QLatin1String("--tags")
                   << QLatin1String("--abbrev=0") << QLatin1String(p);
-        fullySynchronousGit(workingDirectory, arguments, &pf);
+        fullySynchronousGit(workingDirectory, arguments, &pf, 0, false);
         pf.truncate(pf.lastIndexOf('\n'));
         if (!pf.isEmpty()) {
             if (!follows.isEmpty())
