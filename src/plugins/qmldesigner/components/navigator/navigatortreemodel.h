@@ -50,7 +50,7 @@ class NavigatorTreeModel : public QStandardItemModel
     struct ItemRow {
         ItemRow()
             : idItem(0), lockItem(0), visibilityItem(0) {}
-        ItemRow(QStandardItem *id, QStandardItem *lock, QStandardItem *visibility, const PropertyItemMap &properties)
+        ItemRow(QStandardItem *id, QStandardItem *lock, QStandardItem *visibility, const QMap<QString, QStandardItem *> &properties)
             : idItem(id), lockItem(lock), visibilityItem(visibility), propertyItems(properties) {}
 
         QList<QStandardItem*> toList() const {
