@@ -31,6 +31,7 @@
 
 #include <QFile>
 #include <QDir>
+#include <QUrl>
 #include <QXmlStreamReader>
 
 #include <QDebug>
@@ -115,6 +116,23 @@ static QString relativeOrInstallPath(const QString &path, const QString &manifes
     return relativeResolvedPath;
 }
 
+static bool isValidExampleOrDemo(ExampleItem &item)
+{
+    static QString invalidPrefix = QLatin1String("qthelp:////"); /* means that the qthelp url
+                                                                    doesn't have any namespace */
+    bool ok = true;
+    if (item.hasSourceCode && !QFileInfo(item.projectPath).exists())
+        ok = false;
+    else if (item.imageUrl.startsWith(invalidPrefix) || !QUrl(item.imageUrl).isValid())
+        ok = false;
+    else if (!item.docUrl.isEmpty()
+             && (item.imageUrl.startsWith(invalidPrefix) || !QUrl(item.docUrl).isValid()))
+        ok = false;
+    if (!ok)
+        item.tags.append(QLatin1String("broken"));
+    return ok || !qgetenv("QTC_DEBUG_EXAMPLESMODEL").isEmpty();
+}
+
 QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader *reader,
                                                     const QString &projectsOffset,
                                                     const QString &examplesInstallPath)
@@ -151,10 +169,7 @@ QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader *reader,
             break;
         case QXmlStreamReader::EndElement:
             if (reader->name() == QLatin1String("example")) {
-                bool projectExists = !item.projectPath.isEmpty() && QFileInfo(item.projectPath).exists();
-                if (!projectExists)
-                    item.tags.append(QLatin1String("broken"));
-                if (projectExists || !qgetenv("QTC_DEBUG_EXAMPLESMODEL").isEmpty())
+                if (isValidExampleOrDemo(item))
                     examples.append(item);
             } else if (reader->name() == QLatin1String("examples")) {
                 return examples;
@@ -200,10 +215,7 @@ QList<ExampleItem> ExamplesListModel::parseDemos(QXmlStreamReader *reader,
             break;
         case QXmlStreamReader::EndElement:
             if (reader->name() == QLatin1String("demo")) {
-                bool projectExists = !item.projectPath.isEmpty() && QFileInfo(item.projectPath).exists();
-                if (!projectExists)
-                    item.tags.append(QLatin1String("broken"));
-                if (projectExists || !qgetenv("QTC_DEBUG_EXAMPLESMODEL").isEmpty())
+                if (isValidExampleOrDemo(item))
                     demos.append(item);
             } else if (reader->name() == QLatin1String("demos")) {
                 return demos;
