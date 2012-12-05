@@ -198,17 +198,17 @@ QList<QToolButton *> ItemLibraryWidget::createToolBarWidgets()
     return buttons; //import management gets disabled for now (TODO ###)
 
     buttons << new QToolButton();
-    buttons.first()->setText("I ");
+    buttons.first()->setText(tr("I "));
     buttons.first()->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
-    buttons.first()->setToolTip("Manage imports for components");
+    buttons.first()->setToolTip(tr("Manage imports for components"));
     buttons.first()->setPopupMode(QToolButton::InstantPopup);
     QMenu * menu = new QMenu;
     QAction * basicQtAction = new QAction(menu);
     basicQtAction->setCheckable(true);
-    basicQtAction->setText("Basic Qt Quick only");
+    basicQtAction->setText(tr("Basic Qt Quick only"));
     QAction * meegoAction= new QAction(menu);
     meegoAction->setCheckable(true);
-    meegoAction->setText("Meego Components");
+    meegoAction->setText(tr("Meego Components"));
     menu->addAction(basicQtAction);
     menu->addAction(meegoAction);
     buttons.first()->setMenu(menu);

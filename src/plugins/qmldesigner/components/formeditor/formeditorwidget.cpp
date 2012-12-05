@@ -65,7 +65,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     m_toolActionGroup = new QActionGroup(this);
 
-    m_transformToolAction = m_toolActionGroup->addAction("Transform Tool (Press Key Q)");
+    m_transformToolAction = m_toolActionGroup->addAction(tr("Transform Tool (Press Key Q)"));
     m_transformToolAction->setShortcut(Qt::Key_Q);
     m_transformToolAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_transformToolAction->setCheckable(true);
@@ -83,7 +83,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_snappingAction->setChecked(true);
     m_snappingAction->setIcon(QPixmap(":/icon/layout/snapping.png"));
 
-    m_snappingAndAnchoringAction = layoutActionGroup->addAction("Toogle Snapping And Anchoring (Press Key R)");
+    m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Toogle Snapping And Anchoring (Press Key R)"));
     m_snappingAndAnchoringAction->setShortcut(Qt::Key_R);
     m_snappingAndAnchoringAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_snappingAndAnchoringAction->setCheckable(true);
@@ -130,7 +130,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     addAction(m_rootHeightAction.data());
     upperActions.append(m_rootHeightAction.data());
 
-    m_snappingAndAnchoringAction = layoutActionGroup->addAction("Toogle Snapping And Anchoring (Press Key R)");
+    m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Toogle Snapping And Anchoring (Press Key R)"));
 
     m_toolBox = new ToolBox(this);
     fillLayout->addWidget(m_toolBox.data());

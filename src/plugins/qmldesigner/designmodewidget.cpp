@@ -97,7 +97,7 @@ DesignModeWidget *DesignModeWidget::s_instance = 0;
 
 DocumentWarningWidget::DocumentWarningWidget(DesignModeWidget *parent) :
         Utils::FakeToolTip(parent),
-        m_errorMessage(new QLabel("Placeholder", this)),
+        m_errorMessage(new QLabel(tr("Placeholder"), this)),
         m_goToError(new QLabel(this)),
         m_designModeWidget(parent)
 {

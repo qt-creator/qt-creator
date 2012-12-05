@@ -51,7 +51,7 @@ ResetWidget::ResetWidget(QWidget *parent) : QGroupBox(parent), m_backendObject(0
     m_vlayout->setContentsMargins(2,2,2,2);
 
     QPushButton *b = new QPushButton(this);
-    b->setText("reset all properties");
+    b->setText(tr("reset all properties"));
     m_vlayout->addWidget(b);
 
     setLayout(m_vlayout);
