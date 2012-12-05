@@ -74,7 +74,7 @@ QList<FilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locator::Fil
                 QFileInfo fi(fileName);
                 FilterEntry fiEntry(this, fi.fileName(), QString(fileName + lineNoSuffix));
                 fiEntry.extraInfo = FileUtils::shortNativePath(FileName(fi));
-                fiEntry.resolveFileIcon = true;
+                fiEntry.fileName = fileName;
                 value.append(fiEntry);
             }
         }

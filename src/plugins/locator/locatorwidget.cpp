@@ -187,11 +187,9 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
                             + QLatin1String("\n\n") + mEntries.at(index.row()).extraInfo);
     } else if (role == Qt::DecorationRole && index.column() == 0) {
         FilterEntry &entry = mEntries[index.row()];
-        if (entry.resolveFileIcon && entry.displayIcon.isNull()) {
-            entry.resolveFileIcon = false;
-            QString path = entry.internalData.toString();
-            Core::EditorManager::splitLineNumber(&path);
-            entry.displayIcon = Core::FileIconProvider::instance()->icon(QFileInfo(path));
+        if (!entry.fileIconResolved && !entry.fileName.isEmpty() && entry.displayIcon.isNull()) {
+            entry.fileIconResolved = true;
+            entry.displayIcon = Core::FileIconProvider::instance()->icon(QFileInfo(entry.fileName));
         }
         return entry.displayIcon;
     } else if (role == Qt::ForegroundRole && index.column() == 1) {

@@ -83,7 +83,7 @@ QList<FilterEntry> BaseFileFilter::matchesFor(QFutureInterface<Locator::FilterEn
             QFileInfo fi(path);
             FilterEntry entry(this, fi.fileName(), QString(path + lineNoSuffix));
             entry.extraInfo = FileUtils::shortNativePath(FileName(fi));
-            entry.resolveFileIcon = true;
+            entry.fileName = path;
             if (name.startsWith(needle))
                 matches.append(entry);
             else

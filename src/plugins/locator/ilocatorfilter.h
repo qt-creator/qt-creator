@@ -44,7 +44,7 @@ struct FilterEntry
 {
     FilterEntry()
         : filter(0)
-        , resolveFileIcon(false)
+        , fileIconResolved(false)
     {}
 
     FilterEntry(ILocatorFilter *fromFilter, const QString &name, const QVariant &data,
@@ -53,7 +53,7 @@ struct FilterEntry
         , displayName(name)
         , internalData(data)
         , displayIcon(icon)
-        , resolveFileIcon(false)
+        , fileIconResolved(false)
     {}
 
     bool operator==(const FilterEntry &other) const {
@@ -72,8 +72,10 @@ struct FilterEntry
     QVariant internalData;
     /* icon to display along with the entry */
     QIcon displayIcon;
-    /* internal data is interpreted as file name and icon is retrieved from the file system if true */
-    bool resolveFileIcon;
+    /* file name, if the entry is related to a file, is used e.g. for resolving a file icon */
+    QString fileName;
+    /* internal */
+    bool fileIconResolved;
 };
 
 class LOCATOR_EXPORT ILocatorFilter : public QObject

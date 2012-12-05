@@ -79,8 +79,8 @@ QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::Filter
             break;
         if (name.isEmpty() || dir.startsWith(name, Qt::CaseInsensitive)) {
             const QString fullPath = dirInfo.filePath(dir);
-            FilterEntry filterEntry(this, dir, fullPath);
-            filterEntry.resolveFileIcon = true;
+            FilterEntry filterEntry(this, dir, QVariant());
+            filterEntry.fileName = fullPath;
             value.append(filterEntry);
         }
     }
@@ -94,7 +94,7 @@ QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::Filter
         if (name.isEmpty() || file.startsWith(name, Qt::CaseInsensitive)) {
             const QString fullPath = dirInfo.filePath(file);
             FilterEntry filterEntry(this, file, QString(fullPath + lineNoSuffix));
-            filterEntry.resolveFileIcon = true;
+            filterEntry.fileName = fullPath;
             value.append(filterEntry);
         }
     }
@@ -103,8 +103,8 @@ QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::Filter
 
 void FileSystemFilter::accept(FilterEntry selection) const
 {
-    QString file = selection.internalData.toString();
-    QFileInfo info(file);
+    QString fileName = selection.fileName;
+    QFileInfo info(fileName);
     if (info.isDir()) {
         QString value = shortcutString();
         value += QLatin1Char(' ');
@@ -112,7 +112,7 @@ void FileSystemFilter::accept(FilterEntry selection) const
         m_locatorWidget->show(value, value.length());
         return;
     }
-    EditorManager::openEditor(file, Id(),
+    EditorManager::openEditor(selection.internalData.toString(), Id(),
                               EditorManager::ModeSwitch | EditorManager::CanContainLineNumber);
 }
 
