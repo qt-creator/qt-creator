@@ -111,6 +111,7 @@ VcProjectBuildConfiguration *VcProjectBuildConfigurationFactory::create(ProjectE
 
     VcProjectBuildConfiguration *bc = new VcProjectBuildConfiguration(parent);
     bc->setDisplayName(buildConfigName);
+    bc->setDefaultDisplayName(buildConfigName);
 
     ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
 

@@ -3,10 +3,14 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 
+class QComboBox;
+class QLabel;
+
 namespace VcProjectManager {
 namespace Internal {
 
 class VcProjectBuildConfiguration;
+struct MsBuildInformation;
 
 class VcMakeStep : public ProjectExplorer::AbstractProcessStep
 {
@@ -22,14 +26,19 @@ public:
     bool immutable() const;
 
     VcProjectBuildConfiguration *vcProjectBuildConfiguration() const;
+    QString msBuildCommand() const;
+    void setMsBuildCommand(const QString &msBuild);
 
     QVariantMap toMap() const;
     bool fromMap(const QVariantMap &map);
+
 private:
     explicit VcMakeStep(ProjectExplorer::BuildStepList *parent, VcMakeStep *vcMakeStep);
 
     QList<ProjectExplorer::Task> m_tasks;
     QFutureInterface<bool> *m_futureInterface;
+    ProjectExplorer::ProcessParameters *m_processParams;
+    QString m_msBuildCommand;
 };
 
 class VcMakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
@@ -37,10 +46,17 @@ class VcMakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
     Q_OBJECT
 public:
     VcMakeStepConfigWidget(VcMakeStep *makeStep);
-    virtual QString displayName() const;
-    virtual QString summaryText() const;
+    QString displayName() const;
+    QString summaryText() const;
+
+private slots:
+    void onMsBuildSelectionChanged(int index);
+    void onMsBuildInformationsUpdated();
+
 private:
     VcMakeStep *m_makeStep;
+    QComboBox *m_msBuildComboBox;
+    QLabel *m_msBuildPath;
 };
 
 class VcMakeStepFactory : public ProjectExplorer::IBuildStepFactory
@@ -49,7 +65,7 @@ class VcMakeStepFactory : public ProjectExplorer::IBuildStepFactory
 
 public:
     explicit VcMakeStepFactory(QObject *parent = 0);
-    virtual ~VcMakeStepFactory();
+    ~VcMakeStepFactory();
 
     bool canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const;
     ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id);

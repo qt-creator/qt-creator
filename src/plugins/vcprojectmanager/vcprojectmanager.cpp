@@ -1,6 +1,7 @@
 #include "vcprojectmanager.h"
 
 #include "vcproject.h"
+#include "vcprojectbuildoptionspage.h"
 #include "vcprojectmanagerconstants.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -18,7 +19,8 @@ using namespace ProjectExplorer;
 namespace VcProjectManager {
 namespace Internal {
 
-VcManager::VcManager()
+VcManager::VcManager(VcProjectBuildOptionsPage *configPage) :
+    m_configPage(configPage)
 {
     ProjectExplorerPlugin *projectExplorer = ProjectExplorerPlugin::instance();
     connect(projectExplorer, SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)),
@@ -77,6 +79,18 @@ ProjectExplorer::Project *VcManager::openProject(const QString &fileName, QStrin
     }
 
     return new VcProject(this, canonicalFilePath);
+}
+
+QVector<MsBuildInformation *> VcManager::msBuilds() const
+{
+    if (!m_configPage)
+        return  QVector<MsBuildInformation *>();
+    return m_configPage->msBuilds();
+}
+
+VcProjectBuildOptionsPage *VcManager::buildOptionsPage()
+{
+    return m_configPage;
 }
 
 void VcManager::reparseActiveProject()

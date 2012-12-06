@@ -9,15 +9,20 @@ class QAction;
 namespace VcProjectManager {
 namespace Internal {
 
+class VcProjectBuildOptionsPage;
+struct MsBuildInformation;
+
 class VcManager : public ProjectExplorer::IProjectManager
 {
     Q_OBJECT
 
 public:
-    VcManager();
+    VcManager(VcProjectBuildOptionsPage *configPage);
 
     QString mimeType() const;
     ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString);
+    QVector<MsBuildInformation *> msBuilds() const;
+    VcProjectBuildOptionsPage *buildOptionsPage();
 
 private slots:
     void reparseActiveProject();
@@ -28,6 +33,7 @@ private:
     ProjectExplorer::Project *m_contextProject;
     QAction *m_reparseAction;
     QAction *m_reparseContextMenuAction;
+    VcProjectBuildOptionsPage *m_configPage;
 };
 
 } // namespace Internal

@@ -119,6 +119,7 @@ bool VcProject::fromMap(const QVariantMap &map)
         qDebug() << "VcProject::fromMap() defaultKit:" << defaultKit->displayName();
         Target *target = new Target(this, defaultKit);
         VcProjectBuildConfiguration *bc = new VcProjectBuildConfiguration(target);
+        bc->setDefaultDisplayName(tr("vcproj"));
         ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
         VcMakeStep *makeStep = new VcMakeStep(buildSteps);
         buildSteps->insertStep(0, makeStep);

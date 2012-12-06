@@ -3,6 +3,7 @@
 #include "vcprojectmanager.h"
 #include "vcprojectmanagerconstants.h"
 #include "vcprojectbuildconfiguration.h"
+#include "vcprojectbuildoptionspage.h"
 #include "vcmakestep.h"
 
 // TODO: clean up
@@ -49,7 +50,9 @@ bool VcProjectManagerPlugin::initialize(const QStringList &arguments, QString *e
     if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":vcproject/VcProject.mimetypes.xml"), errorString))
         return false;
 
-    addAutoReleasedObject(new VcManager);
+    VcProjectBuildOptionsPage *confPage = new VcProjectBuildOptionsPage;
+    addAutoReleasedObject(confPage);
+    addAutoReleasedObject(new VcManager(confPage));
     addAutoReleasedObject(new VcProjectBuildConfigurationFactory);
     addAutoReleasedObject(new VcMakeStepFactory);
 
