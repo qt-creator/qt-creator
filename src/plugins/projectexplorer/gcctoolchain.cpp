@@ -149,6 +149,8 @@ static QByteArray gccPredefinedMacros(const FileName &gcc, const QStringList &ar
     return predefinedMacros;
 }
 
+const int GccToolChain::PREDEFINED_MACROS_CACHE_SIZE = 16;
+
 QList<HeaderPath> GccToolChain::gccHeaderPaths(const FileName &gcc, const QStringList &args,
                                                const QStringList &env, const FileName &sysrootPath)
 {
@@ -381,15 +383,42 @@ bool GccToolChain::isValid() const
     return !m_compilerCommand.isNull();
 }
 
+/**
+ * @brief Asks compiler for set of predefined macros
+ * @param cxxflags - compiler flags collected from project settings
+ * @return defines list, one per line, e.g. "#define __GXX_WEAK__ 1"
+ *
+ * @note changing compiler flags sometimes changes macros set, e.g. -fopenmp
+ * adds _OPENMP macro, for full list of macro search by word "when" on this page:
+ * http://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html
+ */
 QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
 {
-    if (m_predefinedMacros.isEmpty()) {
-        // Using a clean environment breaks ccache/distcc/etc.
-        Environment env = Environment::systemEnvironment();
-        addToEnvironment(env);
-        m_predefinedMacros = gccPredefinedMacros(m_compilerCommand, cxxflags, env.toStringList());
-    }
-    return m_predefinedMacros;
+    typedef QPair<QStringList, QByteArray> CacheItem;
+
+    for (GccCache::iterator it = m_predefinedMacros.begin(); it != m_predefinedMacros.end(); ++it)
+        if (it->first == cxxflags) {
+            // Increase cached item priority
+            CacheItem pair = *it;
+            m_predefinedMacros.erase(it);
+            m_predefinedMacros.push_back(pair);
+
+            return pair.second;
+        }
+
+    CacheItem runResults;
+    runResults.first = cxxflags;
+
+    // Using a clean environment breaks ccache/distcc/etc.
+    Environment env = Environment::systemEnvironment();
+    addToEnvironment(env);
+    runResults.second = gccPredefinedMacros(m_compilerCommand, cxxflags, env.toStringList());
+
+    m_predefinedMacros.push_back(runResults);
+    if (m_predefinedMacros.size() > PREDEFINED_MACROS_CACHE_SIZE)
+        m_predefinedMacros.pop_front();
+
+    return runResults.second;
 }
 
 ToolChain::CompilerFlags GccToolChain::compilerFlags(const QStringList &cxxflags) const

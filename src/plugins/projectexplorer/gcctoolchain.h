@@ -82,6 +82,8 @@ public:
     ToolChain *clone() const;
 
 protected:
+    typedef QList<QPair<QStringList, QByteArray> > GccCache;
+
     GccToolChain(const QString &id, bool autodetect);
     GccToolChain(const GccToolChain &);
 
@@ -92,7 +94,8 @@ protected:
 
     static QList<HeaderPath> gccHeaderPaths(const Utils::FileName &gcc, const QStringList &args, const QStringList &env, const Utils::FileName &sysrootPath);
 
-    mutable QByteArray m_predefinedMacros;
+    static const int PREDEFINED_MACROS_CACHE_SIZE;
+    mutable GccCache m_predefinedMacros;
 
 private:
     GccToolChain(bool autodetect);
