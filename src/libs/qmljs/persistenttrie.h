@@ -96,8 +96,8 @@ public:
     void intersect(const Trie &v);
     void merge(const Trie &v);
 
-    friend QDebug &operator<<(QDebug &dbg, const TrieNode::Ptr &trie);
-    friend QDebug &operator<<(QDebug &dbg, const Trie &trie);
+    friend QMLJS_EXPORT QDebug &operator<<(QDebug &dbg, const TrieNode::Ptr &trie);
+    friend QMLJS_EXPORT QDebug &operator<<(QDebug &dbg, const Trie &trie);
 
     TrieNode::Ptr trie;
 };
