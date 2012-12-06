@@ -796,7 +796,8 @@ FileType typeForFileName(const Core::MimeDatabase *db, const QFileInfo &file)
         return ResourceType;
     if (typeName == QLatin1String(Constants::FORM_MIMETYPE))
         return FormType;
-    if (typeName == QLatin1String(Constants::QML_MIMETYPE))
+    if (mt.subClassesOf().contains(QLatin1String(Constants::QML_MIMETYPE))
+            || typeName == QLatin1String(Constants::QML_MIMETYPE))
         return QMLType;
     return UnknownFileType;
 }

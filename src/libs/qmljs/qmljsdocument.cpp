@@ -83,6 +83,21 @@ using namespace QmlJS::AST;
 */
 
 
+bool Document::isQmlLikeLanguage(Document::Language language)
+{
+    switch (language) {
+    case QmlLanguage:
+    case QmlQtQuick1Language:
+    case QmlQtQuick2Language:
+    case QmlQbsLanguage:
+    case QmlProjectLanguage:
+    case QmlTypeInfoLanguage:
+        return true;
+    default:
+        return false;
+    }
+}
+
 Document::Document(const QString &fileName, Language language)
     : _engine(0)
     , _ast(0)
@@ -95,7 +110,7 @@ Document::Document(const QString &fileName, Language language)
     QFileInfo fileInfo(fileName);
     _path = QDir::cleanPath(fileInfo.absolutePath());
 
-    if (language == QmlLanguage) {
+    if (isQmlLikeLanguage(language)) {
         _componentName = fileInfo.baseName();
 
         if (! _componentName.isEmpty()) {
@@ -127,6 +142,8 @@ Document::Language Document::guessLanguageFromSuffix(const QString &fileName)
 {
     if (fileName.endsWith(QLatin1String(".qml"), Qt::CaseInsensitive))
         return QmlLanguage;
+    if (fileName.endsWith(QLatin1String(".qbs"), Qt::CaseInsensitive))
+        return QmlQbsLanguage;
     if (fileName.endsWith(QLatin1String(".js"), Qt::CaseInsensitive))
         return JavaScriptLanguage;
     if (fileName.endsWith(QLatin1String(".json"), Qt::CaseInsensitive))
@@ -141,7 +158,7 @@ Document::Ptr Document::ptr() const
 
 bool Document::isQmlDocument() const
 {
-    return _language == QmlLanguage;
+    return isQmlLikeLanguage(_language);
 }
 
 Document::Language Document::language() const
@@ -259,7 +276,7 @@ bool Document::parse_helper(int startToken)
     Parser parser(_engine);
 
     QString source = _source;
-    lexer.setCode(source, /*line = */ 1, /*qmlMode = */_language == QmlLanguage);
+    lexer.setCode(source, /*line = */ 1, /*qmlMode = */isQmlLikeLanguage(_language));
 
     CollectDirectives collectDirectives(path());
     _engine->setDirectives(&collectDirectives);

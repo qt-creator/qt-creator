@@ -35,7 +35,10 @@
 namespace QmlJSTools {
 namespace Constants {
 
-const char QML_MIMETYPE[] = "application/x-qml";
+const char QML_MIMETYPE[] = "application/x-qml"; // separate def also in projectexplorerconstants.h
+const char QBS_MIMETYPE[] = "application/x-qt.qbs+qml";
+const char QMLPROJECT_MIMETYPE[] = "application/x-qmlproject";
+const char QMLTYPES_MIMETYPE[] = "application/x-qt.meta-info+qml";
 const char JS_MIMETYPE[] = "application/javascript";
 const char JSON_MIMETYPE[] = "application/json";
 

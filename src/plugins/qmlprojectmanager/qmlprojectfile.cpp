@@ -77,7 +77,7 @@ QString QmlProjectFile::suggestedFileName() const
 
 QString QmlProjectFile::mimeType() const
 {
-    return QLatin1String(Constants::QMLMIMETYPE);
+    return QLatin1String(Constants::QMLPROJECT_MIMETYPE);
 }
 
 bool QmlProjectFile::isModified() const

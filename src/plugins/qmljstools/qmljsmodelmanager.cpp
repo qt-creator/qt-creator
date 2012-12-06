@@ -70,27 +70,41 @@ using namespace QmlJSTools::Internal;
 
 static QStringList environmentImportPaths();
 
+static void mergeSuffixes(QStringList &l1, const QStringList &l2)
+{
+    if (!l2.isEmpty())
+        l1 = l2;
+}
+
 QmlJS::Document::Language QmlJSTools::languageOfFile(const QString &fileName)
 {
     QStringList jsSuffixes(QLatin1String("js"));
     QStringList qmlSuffixes(QLatin1String("qml"));
+    QStringList qmlProjectSuffixes(QLatin1String("qmlproject"));
     QStringList jsonSuffixes(QLatin1String("json"));
+    QStringList qbsSuffixes(QLatin1String("qbs"));
 
     if (Core::ICore::instance()) {
         Core::MimeDatabase *db = Core::ICore::mimeDatabase();
         Core::MimeType jsSourceTy = db->findByType(QLatin1String(Constants::JS_MIMETYPE));
-        jsSuffixes = jsSourceTy.suffixes();
+        mergeSuffixes(jsSuffixes, jsSourceTy.suffixes());
         Core::MimeType qmlSourceTy = db->findByType(QLatin1String(Constants::QML_MIMETYPE));
-        qmlSuffixes = qmlSourceTy.suffixes();
+        mergeSuffixes(qmlSuffixes, qmlSourceTy.suffixes());
+        Core::MimeType qbsSourceTy = db->findByType(QLatin1String(Constants::QBS_MIMETYPE));
+        mergeSuffixes(qbsSuffixes, qbsSourceTy.suffixes());
+        Core::MimeType qmlProjectSourceTy = db->findByType(QLatin1String(Constants::QMLPROJECT_MIMETYPE));
+        mergeSuffixes(qbsSuffixes, qmlProjectSourceTy.suffixes());
         Core::MimeType jsonSourceTy = db->findByType(QLatin1String(Constants::JSON_MIMETYPE));
-        jsonSuffixes = jsonSourceTy.suffixes();
+        mergeSuffixes(jsonSuffixes, jsonSourceTy.suffixes());
     }
 
     const QFileInfo info(fileName);
     const QString fileSuffix = info.suffix();
     if (jsSuffixes.contains(fileSuffix))
         return QmlJS::Document::JavaScriptLanguage;
-    if (qmlSuffixes.contains(fileSuffix))
+    if (qbsSuffixes.contains(fileSuffix))
+        return QmlJS::Document::QmlQbsLanguage;
+    if (qmlSuffixes.contains(fileSuffix) || qmlProjectSuffixes.contains(fileSuffix))
         return QmlJS::Document::QmlLanguage;
     if (jsonSuffixes.contains(fileSuffix))
         return QmlJS::Document::JsonLanguage;

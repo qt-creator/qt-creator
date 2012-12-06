@@ -5,10 +5,24 @@
         <sub-class-of type="text/plain"/>
         <comment>QML file</comment>
         <glob pattern="*.qml"/>
-        <glob pattern="*.qmlproject"/>
-        <glob pattern="*.qmltypes"/>
+    </mime-type>
+    <mime-type type="application/x-qt.qbs+qml">
+        <alias type="text/x-qt.qbs+qml"/>
+        <sub-class-of type="application/x-qml"/>
+        <comment>Qt Build Suite file</comment>
         <glob pattern="*.qbs"/>
-        <glob pattern="*.qbp"/>
+    </mime-type>
+    <mime-type type="application/x-qmlproject">
+        <alias type="text/x-qmlproject"/>
+        <sub-class-of type="application/x-qml"/>
+        <comment>Qt Creator Qt UI project file</comment>
+        <glob pattern="*.qmlproject"/>
+    </mime-type>
+    <mime-type type="application/x-qt.meta-info+qml">
+        <alias type="text/x-qt.meta-info+qml"/>
+        <sub-class-of type="application/x-qml"/>
+        <comment>QML file</comment>
+        <glob pattern="*.qmltypes"/>
     </mime-type>
     <mime-type type="application/javascript">
         <alias type="application/x-javascript"/>

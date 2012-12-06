@@ -59,6 +59,9 @@ QmlJSEditorFactory::QmlJSEditorFactory(QObject *parent)
 {
     m_mimeTypes
             << QLatin1String(QmlJSTools::Constants::QML_MIMETYPE)
+            << QLatin1String(QmlJSTools::Constants::QMLPROJECT_MIMETYPE)
+            << QLatin1String(QmlJSTools::Constants::QBS_MIMETYPE)
+            << QLatin1String(QmlJSTools::Constants::QMLTYPES_MIMETYPE)
             << QLatin1String(QmlJSTools::Constants::JS_MIMETYPE)
             << QLatin1String(QmlJSTools::Constants::JSON_MIMETYPE)
             ;

@@ -51,15 +51,20 @@ public:
     typedef QSharedPointer<const Document> Ptr;
     typedef QSharedPointer<Document> MutablePtr;
 
-    // used in a 3-bit bitfield
     enum Language
     {
-        QmlLanguage = 0,
+        UnknownLanguage = 0,
         JavaScriptLanguage = 1,
         JsonLanguage = 2,
-        UnknownLanguage = 3
+        QmlLanguage = 3,
+        QmlQtQuick1Language = 4,
+        QmlQtQuick2Language = 5,
+        QmlQbsLanguage = 6,
+        QmlProjectLanguage = 7,
+        QmlTypeInfoLanguage = 8
     };
 
+    static bool isQmlLikeLanguage(Language languge);
 protected:
     Document(const QString &fileName, Language language);
 
@@ -117,8 +122,8 @@ private:
     QString _source;
     QWeakPointer<Document> _ptr;
     int _editorRevision;
-    Language _language : 3;
-    bool _parsedCorrectly : 1;
+    Language _language;
+    bool _parsedCorrectly;
 
     // for documentFromSource
     friend class Snapshot;

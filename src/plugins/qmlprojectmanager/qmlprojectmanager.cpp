@@ -47,7 +47,7 @@ Manager::Manager()
 }
 
 QString Manager::mimeType() const
-{ return QLatin1String(Constants::QMLMIMETYPE); }
+{ return QLatin1String(Constants::QMLPROJECT_MIMETYPE); }
 
 ProjectExplorer::Project *Manager::openProject(const QString &fileName, QString *errorString)
 {
