@@ -57,7 +57,7 @@ public:
 
     QString summaryText() const
     {
-        TarPackageCreationStep * const step = qobject_cast<TarPackageCreationStep *>(this->step());
+        TarPackageCreationStep * const step = static_cast<TarPackageCreationStep *>(this->step());
         if (step->packageFilePath().isEmpty()) {
             return QLatin1String("<font color=\"red\">")
                 + tr("Tarball creation not possible.") + QLatin1String("</font>");
