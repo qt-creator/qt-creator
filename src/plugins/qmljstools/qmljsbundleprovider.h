@@ -27,45 +27,54 @@
 **
 ****************************************************************************/
 
-#include "qmljsmodelmanagerinterface.h"
+#ifndef QMLJSBUNDLEPROVIDER_H
+#define QMLJSBUNDLEPROVIDER_H
 
-using namespace QmlJS;
+#include <QObject>
 
-/*!
-    \class QmlJS::ModelManagerInterface
-    \brief Interface to the global state of the QmlJS code model.
-    \sa QmlJS::Document QmlJS::Snapshot QmlJSTools::Internal::ModelManager
+#include <qmljs/qmljsbundle.h>
+#include <qmljs/qmljsdocument.h>
 
-    The ModelManagerInterface is an interface for global state and actions in
-    the QmlJS code model. It is implemented by \l{QmlJSTools::Internal::ModelManager}
-    and the instance can be accessed through ModelManagerInterface::instance().
+#include "qmljstools_global.h"
 
-    One of its primary concerns is to keep the Snapshots it
-    maintains up to date by parsing documents and finding QML modules.
-
-    It has a Snapshot that contains only valid Documents,
-    accessible through ModelManagerInterface::snapshot() and a Snapshot with
-    potentially more recent, but invalid documents that is exposed through
-    ModelManagerInterface::newestSnapshot().
-*/
-
-static ModelManagerInterface *g_instance = 0;
-
-ModelManagerInterface::ModelManagerInterface(QObject *parent)
-    : QObject(parent)
-{
-    Q_ASSERT(! g_instance);
-    g_instance = this;
+namespace ProjectExplorer {
+class Kit;
+class Project;
+class Target;
 }
 
-ModelManagerInterface::~ModelManagerInterface()
-{
-    Q_ASSERT(g_instance == this);
-    g_instance = 0;
-}
+namespace QmlJSTools {
 
-ModelManagerInterface *ModelManagerInterface::instance()
+class QMLJSTOOLS_EXPORT IBundleProvider : public QObject
 {
-    return g_instance;
-}
+    Q_OBJECT
+public:
+    explicit IBundleProvider(QObject *parent = 0)
+        : QObject(parent)
+    { }
 
+    virtual void mergeBundlesForKit(ProjectExplorer::Kit *kit, QmlJS::QmlLanguageBundles &bundles
+                                    , const QHash<QString,QString> &replacements) = 0;
+};
+
+class QMLJSTOOLS_EXPORT BasicBundleProvider : public IBundleProvider
+{
+    Q_OBJECT
+public:
+    explicit BasicBundleProvider(QObject *parent = 0);
+
+    virtual void mergeBundlesForKit(ProjectExplorer::Kit *kit, QmlJS::QmlLanguageBundles &bundles
+                                    , const QHash<QString,QString> &replacements);
+
+    static QmlJS::QmlBundle defaultBundle(const QString &bundleInfoName);
+    static QmlJS::QmlBundle defaultQt4QtQuick1Bundle();
+    static QmlJS::QmlBundle defaultQt5QtQuick1Bundle();
+    static QmlJS::QmlBundle defaultQt5QtQuick2Bundle();
+    static QmlJS::QmlBundle defaultQbsBundle();
+    static QmlJS::QmlBundle defaultQmltypesBundle();
+    static QmlJS::QmlBundle defaultQmlprojectBundle();
+};
+
+} // end QmlJSTools namespace
+
+#endif // QMLJSBUNDLEPROVIDER_H

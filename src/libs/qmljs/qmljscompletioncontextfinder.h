@@ -54,6 +54,7 @@ public:
 
     bool isInStringLiteral() const;
     bool isInImport() const;
+    QString libVersionImport() const;
 
 private:
     int findOpeningBrace(int startTokenIndex);
@@ -69,6 +70,7 @@ private:
     bool m_behaviorBinding;
     bool m_inStringLiteral;
     bool m_inImport;
+    QString m_libVersion;
 };
 
 } // namespace QmlJS

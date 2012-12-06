@@ -35,6 +35,7 @@
 #include "qmljstoolsconstants.h"
 #include "qmljstoolssettings.h"
 #include "qmlconsolemanager.h"
+#include "qmljsbundleprovider.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -94,6 +95,7 @@ bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(locatorData);
     addAutoReleasedObject(new FunctionFilter(locatorData));
     addAutoReleasedObject(new QmlJSCodeStyleSettingsPage);
+    addAutoReleasedObject(new BasicBundleProvider);
 
     // Menus
     Core::ActionContainer *mtools = Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);

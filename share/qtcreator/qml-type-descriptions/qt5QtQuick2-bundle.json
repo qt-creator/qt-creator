@@ -1,0 +1,20 @@
+{
+    "name": "QtQuick2",
+    "searchPaths": [
+        "$(QT_INSTALL_QML)"],
+    "installPaths": [
+        "$(QT_INSTALL_QML)"],
+    "implicitImports": [
+        "__javascriptQt5__"],
+    "supportedImports": [
+        "Qt.labs.folderlistmodel 2.0",
+        "QtAudioEngine 1.0",
+        "QtMultimedia 5.0",
+        "QtQuick.LocalStorage 2.0",
+        "QtQuick.Particles 2.0",
+        "QtQuick.Window 2.0",
+        "QtQuick.XmlListModel 2.0",
+        "QtQuick 2.0",
+        "QtTest 1.0",
+        "QtWebKit 3.0"]
+}

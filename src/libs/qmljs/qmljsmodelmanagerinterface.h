@@ -32,6 +32,7 @@
 
 #include "qmljs_global.h"
 #include "qmljsdocument.h"
+#include "qmljsbundle.h"
 
 #include <utils/environment.h>
 
@@ -73,6 +74,8 @@ public:
         bool isNull() const
         { return project.isNull(); }
 
+        QStringList completeImportPaths();
+
     public: // attributes
         QPointer<ProjectExplorer::Project> project;
         QStringList sourceFiles;
@@ -86,6 +89,8 @@ public:
         QString qtImportsPath;
         QString qtQmlPath;
         QString qtVersionString;
+        QmlJS::QmlLanguageBundles activeBundle;
+        QmlJS::QmlLanguageBundles extendedBundle;
     };
 
     class WorkingCopy
@@ -141,8 +146,11 @@ public:
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const = 0;
     virtual void updateProjectInfo(const ProjectInfo &pinfo) = 0;
     Q_SLOT virtual void removeProjectInfo(ProjectExplorer::Project *project) = 0;
+    virtual ProjectInfo projectInfoForPath(QString path) = 0;
 
     virtual QStringList importPaths() const = 0;
+    virtual QmlJS::QmlLanguageBundles activeBundles() const = 0;
+    virtual QmlJS::QmlLanguageBundles extendedBundles() const = 0;
 
     virtual void loadPluginTypes(const QString &libraryPath, const QString &importPath,
                                  const QString &importUri, const QString &importVersion) = 0;

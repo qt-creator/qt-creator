@@ -54,6 +54,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <qtsupport/qtkitinformation.h>
+#include <qmljstools/qmljsmodelmanager.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
@@ -603,61 +604,10 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
 
 void QbsProject::updateQmlJsCodeModel(const qbs::ProjectData *prj)
 {
-    // FIXME: No information about import directories, so ignore this for now.
-#if 1
     Q_UNUSED(prj);
-#else
-    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    if (!modelManager)
-        return;
-
-    QmlJS::ModelManagerInterface::ProjectInfo projectInfo = modelManager->projectInfo(this);
-    projectInfo.sourceFiles = m_projectFiles->files[QMLType];
-
-    FindQt4ProFiles findQt4ProFiles;
-    QList<Qt4ProFileNode *> proFiles = findQt4ProFiles(rootProjectNode());
-
-    projectInfo.importPaths.clear();
-    foreach (Qt4ProFileNode *node, proFiles) {
-        projectInfo.importPaths.append(node->variableValue(QmlImportPathVar));
-    }
-
-    bool preferDebugDump = false;
-    projectInfo.tryQmlDump = false;
-
-    ProjectExplorer::Target *t = activeTarget();
-    ProjectExplorer::Kit *k = t ? t->kit() : ProjectExplorer::KitManager::instance()->defaultKit();
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
-
-    if (t) {
-        if (Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(t->activeBuildConfiguration()))
-            preferDebugDump = bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild;
-    } else {
-        if (qtVersion)
-            preferDebugDump = qtVersion->defaultBuildConfig() & QtSupport::BaseQtVersion::DebugBuild;
-    }
-    if (qtVersion && qtVersion->isValid()) {
-        projectInfo.tryQmlDump = qtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
-                || qtVersion->type() == QLatin1String(QtSupport::Constants::SIMULATORQT);
-        projectInfo.qtImportsPath = qtVersion->qmakeProperty("QT_INSTALL_IMPORTS");
-        if (!projectInfo.qtImportsPath.isEmpty())
-            projectInfo.importPaths += projectInfo.qtImportsPath;
-        projectInfo.qtVersionString = qtVersion->qtVersionString();
-    }
-    projectInfo.importPaths.removeDuplicates();
-
-    if (projectInfo.tryQmlDump) {
-        QtSupport::QmlDumpTool::pathAndEnvironment(this, qtVersion,
-                                                   ToolChainKitInformation::toolChain(k),
-                                                   preferDebugDump, &projectInfo.qmlDumpPath,
-                                                   &projectInfo.qmlDumpEnvironment);
-    } else {
-        projectInfo.qmlDumpPath.clear();
-        projectInfo.qmlDumpEnvironment.clear();
-    }
-
+    QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
+            QmlJSTools::defaultProjectInfoForProject(this);
     modelManager->updateProjectInfo(projectInfo);
-#endif
 }
 
 } // namespace Internal

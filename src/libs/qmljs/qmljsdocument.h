@@ -78,6 +78,7 @@ public:
 
     bool isQmlDocument() const;
     Language language() const;
+    void setLanguage(Language l);
 
     AST::UiProgram *qmlProgram() const;
     AST::Program *jsProgram() const;

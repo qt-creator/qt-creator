@@ -1,0 +1,14 @@
+{
+    "name": "qbs",
+    "searchPaths": [
+        "$(QBS_IMPORT_PATH)"],
+    "installPaths": [
+        "$(QBS_IMPORT_PATH)"],
+    "implicitImports": [
+        "__javascriptQt5__"],
+    "supportedImports": [
+        "qbs.base 1.0",
+        "qbs 1.0",
+        "qbs.fileinfo 1.0",
+        "qbs.probe 1.0"]
+}

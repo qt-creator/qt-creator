@@ -166,6 +166,11 @@ Document::Language Document::language() const
     return _language;
 }
 
+void Document::setLanguage(Document::Language l)
+{
+    _language = l;
+}
+
 AST::UiProgram *Document::qmlProgram() const
 {
     return cast<UiProgram *>(_ast);

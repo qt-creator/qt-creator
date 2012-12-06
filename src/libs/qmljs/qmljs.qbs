@@ -23,6 +23,8 @@ QtcLibrary {
         "qmljs_global.h",
         "qmljsbind.cpp",
         "qmljsbind.h",
+        "qmljsbundle.cpp",
+        "qmljsbundle.h",
         "qmljscheck.cpp",
         "qmljscheck.h",
         "qmljscodeformatter.cpp",

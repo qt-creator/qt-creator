@@ -31,6 +31,7 @@
 #include "qmljsbind.h"
 #include "qmljsutils.h"
 #include "qmljsdocument.h"
+#include "qmljsmodelmanagerinterface.h"
 
 #include <languageutils/componentversion.h>
 
@@ -204,15 +205,27 @@ bool Bind::visit(UiImport *ast)
             _diagnosticMessages->append(
                         errorMessage(ast, tr("package import requires a version number")));
         }
-        _imports += ImportInfo::moduleImport(toString(ast->importUri), version,
-                                             ast->importId.toString(), ast);
+        ImportInfo import = ImportInfo::moduleImport(toString(ast->importUri), version,
+                                                     ast->importId.toString(), ast);
+        if (_doc->language() == Document::QmlLanguage) {
+            QString importStr = import.name() + ast->importId.toString();
+            QmlLanguageBundles langBundles = ModelManagerInterface::instance()->extendedBundles();
+            QmlBundle qq1 = langBundles.bundleForLanguage(Document::QmlQtQuick1Language);
+            QmlBundle qq2 = langBundles.bundleForLanguage(Document::QmlQtQuick2Language);
+            bool isQQ1 = qq1.supportedImports().contains(importStr);
+            bool isQQ2 = qq2.supportedImports().contains(importStr);
+            if (isQQ1 && ! isQQ2)
+                _doc->setLanguage(Document::QmlQtQuick1Language);
+            if (isQQ2 && ! isQQ1)
+                _doc->setLanguage(Document::QmlQtQuick2Language);
+        }
+        _imports += import;
     } else if (!ast->fileName.isEmpty()) {
         _imports += ImportInfo::pathImport(_doc->path(), ast->fileName.toString(),
                                            version, ast->importId.toString(), ast);
     } else {
         _imports += ImportInfo::invalidImport(ast);
     }
-
     return false;
 }
 

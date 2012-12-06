@@ -45,6 +45,7 @@
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljstools/qmljsmodelmanager.h>
 #include <utils/fileutils.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
@@ -184,32 +185,10 @@ void QmlProject::refresh(RefreshOptions options)
     if (options & Files)
         m_rootNode->refresh();
 
-    QmlJS::ModelManagerInterface::ProjectInfo projectInfo(this);
-    projectInfo.sourceFiles = files();
+    QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
+            QmlJSTools::defaultProjectInfoForProject(this);
     projectInfo.importPaths = customImportPaths();
 
-    QtSupport::BaseQtVersion *qtVersion = 0;
-    {
-        ProjectExplorer::Target *target = activeTarget();
-        ProjectExplorer::Kit *kit = target ? target->kit() : ProjectExplorer::KitManager::instance()->defaultKit();
-        ProjectExplorer::ToolChain *toolChain = ProjectExplorer::ToolChainKitInformation::toolChain(kit);
-        qtVersion = QtSupport::QtKitInformation::qtVersion(kit);
-        QtSupport::QmlDumpTool::pathAndEnvironment(this, qtVersion, toolChain, false,
-                                                   &projectInfo.qmlDumpPath, &projectInfo.qmlDumpEnvironment);
-    }
-
-    if (qtVersion) {
-        projectInfo.tryQmlDump = true;
-        projectInfo.qtImportsPath = qtVersion->qmakeProperty("QT_INSTALL_IMPORTS");
-        projectInfo.qtQmlPath = qtVersion->qmakeProperty("QT_INSTALL_QML");
-        projectInfo.qtVersionString = qtVersion->qtVersionString();
-
-        if (!projectInfo.qtQmlPath.isEmpty())
-            projectInfo.importPaths += projectInfo.qtQmlPath;
-        if (!projectInfo.qtImportsPath.isEmpty())
-            projectInfo.importPaths += projectInfo.qtImportsPath;
-
-    }
     m_modelManager->updateProjectInfo(projectInfo);
 }
 

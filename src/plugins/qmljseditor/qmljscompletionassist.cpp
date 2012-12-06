@@ -51,7 +51,9 @@
 #include <qmljs/qmljsscanner.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljscompletioncontextfinder.h>
+#include <qmljs/qmljsbundle.h>
 #include <qmljs/qmljsscopebuilder.h>
+#include <projectexplorer/projectexplorer.h>
 
 #include <QFile>
 #include <QFileInfo>
@@ -61,6 +63,7 @@
 #include <QDirIterator>
 #include <QStringList>
 #include <QIcon>
+#include <QTextDocumentFragment>
 
 using namespace QmlJS;
 using namespace QmlJSEditor;
@@ -645,8 +648,37 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
     }
 
     // currently path-in-stringliteral is the only completion available in imports
-    if (contextFinder.isInImport())
+    if (contextFinder.isInImport()) {
+        QmlJS::ModelManagerInterface::ProjectInfo pInfo = QmlJS::ModelManagerInterface::instance()
+                ->projectInfo(ProjectExplorer::ProjectExplorerPlugin::currentProject());
+        QmlBundle platform = pInfo.extendedBundle.bundleForLanguage(document->language());
+        if (!platform.supportedImports().isEmpty()) {
+            QTextCursor tc(qmlInterface->textDocument());
+            tc.setPosition(qmlInterface->position());
+            QmlExpressionUnderCursor expressionUnderCursor;
+            expressionUnderCursor(tc);
+            QString libVersion = contextFinder.libVersionImport();
+            if (!libVersion.isNull()) {
+                QStringList completions=platform.supportedImports().complete(libVersion, QString(), QmlJS::PersistentTrie::LookupFlags(QmlJS::PersistentTrie::CaseInsensitive|QmlJS::PersistentTrie::SkipChars|QmlJS::PersistentTrie::SkipSpaces));
+                completions = QmlJS::PersistentTrie::matchStrengthSort(libVersion, completions);
+
+                int toSkip = qMax(libVersion.lastIndexOf(QLatin1Char(' '))
+                                  , libVersion.lastIndexOf(QLatin1Char('.')));
+                if (++toSkip > 0) {
+                    QStringList nCompletions;
+                    QString prefix(libVersion.left(toSkip));
+                    nCompletions.reserve(completions.size());
+                    foreach (QString completion, completions)
+                        if (completion.startsWith(prefix))
+                            nCompletions.append(completion.right(completion.size()-toSkip));
+                    completions = nCompletions;
+                }
+                addCompletions(&m_completions, completions, m_interface->fileNameIcon(), KeywordOrder);
+                return createContentProposal();
+            }
+        }
         return 0;
+    }
 
     // member "a.bc<complete>" or function "foo(<complete>" completion
     if (completionOperator == QLatin1Char('.')

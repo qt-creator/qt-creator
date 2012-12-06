@@ -14,6 +14,7 @@ QtcPlugin {
     Depends { name: "QmlJS" }
     Depends { name: "CPlusPlus" }
     Depends { name: "TextEditor" }
+    Depends { name: "QmlJSTools" }
 
     Depends { name: "cpp" }
     cpp.defines: base.concat([

@@ -82,12 +82,15 @@ public:
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
     virtual void updateProjectInfo(const ProjectInfo &pinfo);
     Q_SLOT virtual void removeProjectInfo(ProjectExplorer::Project *project);
+    virtual ProjectInfo projectInfoForPath(QString path);
 
     void updateDocument(QmlJS::Document::Ptr doc);
     void updateLibraryInfo(const QString &path, const QmlJS::LibraryInfo &info);
     void emitDocumentChangedOnDisk(QmlJS::Document::Ptr doc);
 
     virtual QStringList importPaths() const;
+    virtual QmlJS::QmlLanguageBundles activeBundles() const;
+    virtual QmlJS::QmlLanguageBundles extendedBundles() const;
 
     virtual void loadPluginTypes(const QString &libraryPath, const QString &importPath,
                                  const QString &importUri, const QString &importVersion);
@@ -136,6 +139,8 @@ private:
     QmlJS::Snapshot _newestSnapshot;
     QStringList m_allImportPaths;
     QStringList m_defaultImportPaths;
+    QmlJS::QmlLanguageBundles m_activeBundles;
+    QmlJS::QmlLanguageBundles m_extendedBundles;
 
     QFutureSynchronizer<void> m_synchronizer;
 
@@ -153,6 +158,11 @@ private:
 };
 
 } // namespace Internal
+
+QMLJSTOOLS_EXPORT QmlJS::ModelManagerInterface::ProjectInfo defaultProjectInfoForProject(
+        ProjectExplorer::Project *project);
+QMLJSTOOLS_EXPORT void setupProjectInfoQmlBundles(QmlJS::ModelManagerInterface::ProjectInfo &projectInfo);
+
 } // namespace QmlJSTools
 
 #endif // QMLJSMODELMANAGER_H
