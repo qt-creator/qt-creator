@@ -40,9 +40,9 @@
 namespace QSsh { class SshConnection; }
 
 namespace ProjectExplorer {
-class BuildConfiguration;
 class DeployableFile;
 class Kit;
+class Target;
 }
 
 namespace RemoteLinux {
@@ -56,7 +56,7 @@ public:
     explicit AbstractRemoteLinuxDeployService(QObject *parent = 0);
     ~AbstractRemoteLinuxDeployService();
 
-    void setBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
+    void setTarget(ProjectExplorer::Target *bc);
     void start();
     void stop();
 
@@ -73,7 +73,7 @@ signals:
     void stdErrData(const QString &data);
 
 protected:
-    const ProjectExplorer::BuildConfiguration *buildConfiguration() const;
+    const ProjectExplorer::Target *target() const;
     const ProjectExplorer::Kit *profile() const;
     ProjectExplorer::IDevice::ConstPtr deviceConfiguration() const;
     QSsh::SshConnection *connection() const;
