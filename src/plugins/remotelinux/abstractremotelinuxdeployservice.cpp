@@ -130,13 +130,9 @@ void AbstractRemoteLinuxDeployService::saveDeploymentTimeStamp(const DeployableF
 {
     if (!d->target)
         return;
-    const QtSupport::BaseQtVersion *const qtVersion
-            = QtSupport::QtKitInformation::qtVersion(d->kit);
     QString systemRoot;
     if (SysRootKitInformation::hasSysRoot(d->kit))
         systemRoot = SysRootKitInformation::sysRoot(d->kit).toString();
-    if (!qtVersion || !qtVersion->isValid())
-        return;
     d->lastDeployed.insert(DeployParameters(deployableFile,
                                             deviceConfiguration()->sshParameters().host,
                                             systemRoot),
@@ -146,10 +142,6 @@ void AbstractRemoteLinuxDeployService::saveDeploymentTimeStamp(const DeployableF
 bool AbstractRemoteLinuxDeployService::hasChangedSinceLastDeployment(const DeployableFile &deployableFile) const
 {
     if (!target())
-        return true;
-    const QtSupport::BaseQtVersion *const qtVersion
-            = QtSupport::QtKitInformation::qtVersion(d->kit);
-    if (!qtVersion || !qtVersion->isValid())
         return true;
     QString systemRoot;
     if (SysRootKitInformation::hasSysRoot(d->kit))
