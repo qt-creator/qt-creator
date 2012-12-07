@@ -158,6 +158,9 @@ Symbol *SymbolFinder::findMatchingDefinition(Symbol *declaration,
                 continue; // nothing to do
 
             foreach (Function *fun, result) {
+                if (fun->unqualifiedName()->isDestructorNameId() != declaration->unqualifiedName()->isDestructorNameId())
+                    continue;
+
                 const QList<LookupItem> declarations = context.lookup(fun->name(), fun->enclosingScope());
                 if (declarations.isEmpty())
                     continue;
