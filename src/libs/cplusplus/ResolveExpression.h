@@ -56,7 +56,8 @@ public:
     const LookupContext &context() const;
 
 protected:
-    ClassOrNamespace *findClass(const FullySpecifiedType &ty, Scope *scope) const;
+    ClassOrNamespace *findClass(const FullySpecifiedType &ty, Scope *scope,
+                                ClassOrNamespace* enclosingTemplateInstantiation = 0) const;
 
     QList<LookupItem> expression(ExpressionAST *ast);
 

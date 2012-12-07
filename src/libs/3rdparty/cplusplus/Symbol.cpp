@@ -105,7 +105,7 @@ Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, const 
 
 Symbol::Symbol(Clone *clone, Subst *subst, Symbol *original)
     : _name(clone->name(original->_name, subst)),
-      _scope(0),
+      _scope(original->_scope),
       _next(0),
       _fileId(clone->control()->stringLiteral(original->fileName(), original->fileNameLength())),
       _sourceLocation(original->_sourceLocation),

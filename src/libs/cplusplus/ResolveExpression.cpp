@@ -811,16 +811,17 @@ bool ResolveExpression::visit(MemberAccessAST *ast)
     return false;
 }
 
-ClassOrNamespace *ResolveExpression::findClass(const FullySpecifiedType &originalTy, Scope *scope) const
+ClassOrNamespace *ResolveExpression::findClass(const FullySpecifiedType &originalTy, Scope *scope,
+                                               ClassOrNamespace* enclosingTemplateInstantiation) const
 {
     FullySpecifiedType ty = originalTy.simplified();
     ClassOrNamespace *binding = 0;
 
     if (Class *klass = ty->asClassType())
-        binding = _context.lookupType(klass);
+        binding = _context.lookupType(klass, enclosingTemplateInstantiation);
 
     else if (NamedType *namedTy = ty->asNamedType())
-        binding = _context.lookupType(namedTy->name(), scope);
+        binding = _context.lookupType(namedTy->name(), scope, enclosingTemplateInstantiation);
 
     else if (Function *funTy = ty->asFunctionType())
         return findClass(funTy->returnType(), scope);
@@ -979,7 +980,13 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                 }
             }
 
-            if (ClassOrNamespace *binding = findClass(ty, scope))
+            ClassOrNamespace *enclosingTemplateInstantiation = 0;
+            if (ClassOrNamespace *binding = r.binding()) {
+                if (binding->instantiationOrigin())
+                    enclosingTemplateInstantiation = binding;
+            }
+
+            if (ClassOrNamespace *binding = findClass(ty, scope, enclosingTemplateInstantiation))
                 return binding;
         }
     }

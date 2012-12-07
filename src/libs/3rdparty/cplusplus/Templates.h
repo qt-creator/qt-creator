@@ -54,6 +54,8 @@ public:
 
     FullySpecifiedType &operator[](const Name *name) { return _map[name]; }
 
+    bool contains(const Name *name) const { return _map.find(name) != _map.end(); }
+
 private:
     Control *_control;
     Subst *_previous;

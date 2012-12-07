@@ -1176,3 +1176,87 @@ void CppToolsPlugin::test_completion_enclosing_template_class_data()
     QTest::newRow("case: nested template class with enclosing template class")
             << code << completions;
 }
+
+void CppToolsPlugin::test_completion_instantiate_nested_class_when_enclosing_is_template()
+{
+    TestData data;
+    data.srcText = "\n"
+            "struct Foo \n"
+            "{\n"
+            "    int foo_i;\n"
+            "};\n"
+            "\n"
+            "template <typename T>\n"
+            "struct Enclosing\n"
+            "{\n"
+            "    struct Nested\n"
+            "    {\n"
+            "        T nested_t;\n"
+            "    } nested;\n"
+            "\n"
+            "    T enclosing_t;\n"
+            "};\n"
+            "\n"
+            "Enclosing<Foo> enclosing;\n"
+            "@\n"
+            ;
+
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("enclosing.nested.nested_t.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("Foo")));
+    QVERIFY(completions.contains(QLatin1String("foo_i")));
+}
+
+void CppToolsPlugin::test_completion_instantiate_nested_of_nested_class_when_enclosing_is_template()
+{
+    TestData data;
+    data.srcText = "\n"
+            "struct Foo \n"
+            "{\n"
+            "    int foo_i;\n"
+            "};\n"
+            "\n"
+            "template <typename T>\n"
+            "struct Enclosing\n"
+            "{\n"
+            "    struct Nested\n"
+            "    {\n"
+            "        T nested_t;\n"
+            "        struct NestedNested\n"
+            "        {\n"
+            "            T nestedNested_t;\n"
+            "        } nestedNested;\n"
+            "    } nested;\n"
+            "\n"
+            "    T enclosing_t;\n"
+            "};\n"
+            "\n"
+            "Enclosing<Foo> enclosing;\n"
+            "@\n"
+            ;
+
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("enclosing.nested.nestedNested.nestedNested_t.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("Foo")));
+    QVERIFY(completions.contains(QLatin1String("foo_i")));
+}

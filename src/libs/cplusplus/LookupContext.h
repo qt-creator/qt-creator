@@ -41,6 +41,7 @@
 #include <QSet>
 #include <map>
 #include <functional>
+#include <QMap>
 
 namespace CPlusPlus {
 
@@ -92,8 +93,15 @@ private:
 
     ClassOrNamespace *nestedType(const Name *name, ClassOrNamespace *origin);
 
+    void instantiateNestedClasses(ClassOrNamespace *enclosingTemplateClass,
+                                  Clone &cloner,
+                                  Subst &subst,
+                                  ClassOrNamespace *enclosingTemplateClassInstantiation);
+    bool isInstantiateNestedClassNeeded(const QList<Symbol *>& symbols, const Subst &subst) const;
+
 private:
     typedef std::map<const Name *, ClassOrNamespace *, Name::Compare> Table;
+
     CreateBindings *_factory;
     ClassOrNamespace *_parent;
     QList<Symbol *> _symbols;
@@ -102,6 +110,7 @@ private:
     QList<Enum *> _enums;
     QList<Symbol *> _todo;
     QSharedPointer<Control> _control;
+    QMap<const Name *, ClassOrNamespace *> _instantiations;
 
     // it's an instantiation.
     const TemplateNameId *_templateId;
@@ -109,6 +118,28 @@ private:
 
     AlreadyConsideredClassContainer<Class> _alreadyConsideredClasses;
     AlreadyConsideredClassContainer<TemplateNameId> _alreadyConsideredTemplates;
+
+    class NestedClassInstantiator
+    {
+    public:
+        NestedClassInstantiator(CreateBindings *factory, Clone &cloner, Subst &subst)
+            : _factory(factory)
+            , _cloner(cloner)
+            , _subst(subst)
+        {}
+        void instantiate(ClassOrNamespace *enclosingTemplateClass,
+                         ClassOrNamespace *enclosingTemplateClassInstantiation);
+    private:
+        bool isInstantiateNestedClassNeeded(const QList<Symbol *> &symbols) const;
+        bool containsTemplateType(Declaration *declaration) const;
+        bool containsTemplateType(Function *function) const;
+        NamedType *findMemberNamedType(Type *memberType) const;
+
+        QSet<ClassOrNamespace *> _alreadyConsideredNestedClassInstantiations;
+        CreateBindings *_factory;
+        Clone &_cloner;
+        Subst &_subst;
+    };
 
 #ifdef DEBUG_LOOKUP
 public:
@@ -130,8 +161,10 @@ public:
     ClassOrNamespace *globalNamespace() const;
 
     /// Finds the binding associated to the given symbol.
-    ClassOrNamespace *lookupType(Symbol *symbol);
-    ClassOrNamespace *lookupType(const QList<const Name *> &path);
+    ClassOrNamespace *lookupType(Symbol *symbol,
+                                 ClassOrNamespace* enclosingTemplateInstantiation = 0);
+    ClassOrNamespace *lookupType(const QList<const Name *> &path,
+                                 ClassOrNamespace* enclosingTemplateInstantiation = 0);
 
     /// Returns the Control that must be used to create temporary symbols.
     /// \internal
@@ -228,8 +261,10 @@ public:
     ClassOrNamespace *globalNamespace() const;
 
     QList<LookupItem> lookup(const Name *name, Scope *scope) const;
-    ClassOrNamespace *lookupType(const Name *name, Scope *scope) const;
-    ClassOrNamespace *lookupType(Symbol *symbol) const;
+    ClassOrNamespace *lookupType(const Name *name, Scope *scope,
+                                 ClassOrNamespace* enclosingTemplateInstantiation = 0) const;
+    ClassOrNamespace *lookupType(Symbol *symbol,
+                                 ClassOrNamespace* enclosingTemplateInstantiation = 0) const;
     ClassOrNamespace *lookupParent(Symbol *symbol) const;
 
     /// \internal
