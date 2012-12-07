@@ -372,6 +372,9 @@ void GerritPlugin::openView()
                 this, SLOT(fetchApply(QSharedPointer<Gerrit::Internal::GerritChange>)));
         connect(gd, SIGNAL(fetchCheckout(QSharedPointer<Gerrit::Internal::GerritChange>)),
                 this, SLOT(fetchCheckout(QSharedPointer<Gerrit::Internal::GerritChange>)));
+        connect(this, SIGNAL(fetchStarted(QSharedPointer<Gerrit::Internal::GerritChange>)),
+                gd, SLOT(fetchStarted(QSharedPointer<Gerrit::Internal::GerritChange>)));
+        connect(this, SIGNAL(fetchFinished()), gd, SLOT(fetchFinished()));
         m_dialog = gd;
     }
     const Qt::WindowStates state = m_dialog.data()->windowState();
@@ -442,6 +445,8 @@ void GerritPlugin::fetch(const QSharedPointer<Gerrit::Internal::GerritChange> &c
 
     FetchContext *fc = new FetchContext(change, repository, git,
                                         m_parameters, FetchMode(mode), this);
+    connect(fc, SIGNAL(destroyed(QObject*)), this, SIGNAL(fetchFinished()));
+    emit fetchStarted(change);
     fc->start();
 }
 

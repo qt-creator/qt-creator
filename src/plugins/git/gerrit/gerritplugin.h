@@ -62,6 +62,10 @@ public slots:
     void fetchApply(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
     void fetchCheckout(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
 
+signals:
+    void fetchStarted(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
+    void fetchFinished();
+
 private slots:
     void openView();
 

@@ -84,6 +84,10 @@ signals:
     void fetchApply(const QSharedPointer<Gerrit::Internal::GerritChange> &);
     void fetchCheckout(const QSharedPointer<Gerrit::Internal::GerritChange> &);
 
+public slots:
+    void fetchStarted(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
+    void fetchFinished();
+
 private slots:
     void slotCurrentChanged();
     void slotDoubleClicked(const QModelIndex &);
@@ -98,6 +102,7 @@ private:
     const QStandardItem *currentItem(int column = 0) const;
     QPushButton *addActionButton(const QString &text, const char *buttonSlot);
     void updateCompletions(const QString &query);
+    void updateButtons();
 
     const QSharedPointer<GerritParameters> m_parameters;
     QSortFilterProxyModel *m_filterModel;
@@ -112,6 +117,7 @@ private:
     QPushButton *m_applyButton;
     QPushButton *m_checkoutButton;
     QPushButton *m_refreshButton;
+    bool m_fetchRunning;
 };
 
 } // namespace Internal

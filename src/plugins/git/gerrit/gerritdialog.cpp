@@ -104,6 +104,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     , m_queryLineEdit(new QueryValidatingLineEdit)
     , m_filterLineEdit(new Utils::FilterLineEdit)
     , m_buttonBox(new QDialogButtonBox(QDialogButtonBox::Close))
+    , m_fetchRunning(false)
 {
     setWindowTitle(tr("Gerrit %1@%2").arg(p->user, p->host));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -266,6 +267,14 @@ const QStandardItem *GerritDialog::currentItem(int column) const
     return 0;
 }
 
+void GerritDialog::updateButtons()
+{
+    const bool enabled = !m_fetchRunning && m_treeView->selectionModel()->currentIndex().isValid();
+    m_displayButton->setEnabled(enabled);
+    m_applyButton->setEnabled(enabled);
+    m_checkoutButton->setEnabled(enabled);
+}
+
 void GerritDialog::slotCurrentChanged()
 {
     const QModelIndex current = m_treeView->selectionModel()->currentIndex();
@@ -276,9 +285,27 @@ void GerritDialog::slotCurrentChanged()
     } else {
         m_detailsBrowser->setText(QString());
     }
-    m_displayButton->setEnabled(valid);
-    m_applyButton->setEnabled(valid);
-    m_checkoutButton->setEnabled(valid);
+    updateButtons();
+}
+
+void GerritDialog::fetchStarted(const QSharedPointer<Gerrit::Internal::GerritChange> &change)
+{
+    // Disable buttons to prevent parallel gerrit operations which can cause mix-ups.
+    m_fetchRunning = true;
+    updateButtons();
+    const QString toolTip = tr("Fetching \"%1\"...").arg(change->title);
+    m_displayButton->setToolTip(toolTip);
+    m_applyButton->setToolTip(toolTip);
+    m_checkoutButton->setToolTip(toolTip);
+}
+
+void GerritDialog::fetchFinished()
+{
+    m_fetchRunning = false;
+    updateButtons();
+    m_displayButton->setToolTip(QString());
+    m_applyButton->setToolTip(QString());
+    m_checkoutButton->setToolTip(QString());
 }
 
 } // namespace Internal
