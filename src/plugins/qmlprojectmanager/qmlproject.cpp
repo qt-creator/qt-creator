@@ -180,6 +180,7 @@ void QmlProject::refresh(RefreshOptions options)
     if (version) {
         pinfo.tryQmlDump = true;
         pinfo.qtImportsPath = version->qmakeProperty("QT_INSTALL_IMPORTS");
+        pinfo.qtQmlPath = version->qmakeProperty("QT_INSTALL_QML");
         pinfo.qtVersionString = version->qtVersionString();
     }
     m_modelManager->updateProjectInfo(pinfo);

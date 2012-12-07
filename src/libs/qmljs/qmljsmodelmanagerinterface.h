@@ -84,6 +84,7 @@ public:
         ::Utils::Environment qmlDumpEnvironment;
 
         QString qtImportsPath;
+        QString qtQmlPath;
         QString qtVersionString;
     };
 

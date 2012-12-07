@@ -610,6 +610,9 @@ void Qt4Project::updateQmlJSCodeModel()
     if (qtVersion && qtVersion->isValid()) {
         projectInfo.tryQmlDump = qtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
                 || qtVersion->type() == QLatin1String(QtSupport::Constants::SIMULATORQT);
+        projectInfo.qtQmlPath = qtVersion->qmakeProperty("QT_INSTALL_QML");
+        if (!projectInfo.qtQmlPath.isEmpty())
+            projectInfo.importPaths += projectInfo.qtQmlPath;
         projectInfo.qtImportsPath = qtVersion->qmakeProperty("QT_INSTALL_IMPORTS");
         if (!projectInfo.qtImportsPath.isEmpty())
             projectInfo.importPaths += projectInfo.qtImportsPath;
