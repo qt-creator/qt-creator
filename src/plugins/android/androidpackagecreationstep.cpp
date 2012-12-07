@@ -192,6 +192,21 @@ static inline QString msgCannotFindExecutable(const QString &appPath)
         "built successfully and is selected in Application tab ('Run option').").arg(appPath);
 }
 
+static void parseSharedLibs(const QByteArray &buffer, QStringList *libs)
+{
+#if defined(_WIN32)
+    QList<QByteArray> lines = buffer.trimmed().split('\r');
+#else
+    QList<QByteArray> lines = buffer.trimmed().split('\n');
+#endif
+    foreach (QByteArray line, lines) {
+        if (line.contains("(NEEDED)") && line.contains("Shared library:") ) {
+            const int pos = line.lastIndexOf('[') + 1;
+            (*libs) << QString::fromLatin1(line.mid(pos, line.length() - pos - 1));
+        }
+    }
+}
+
 void AndroidPackageCreationStep::checkRequiredLibraries()
 {
     QProcess readelfProc;
@@ -207,13 +222,7 @@ void AndroidPackageCreationStep::checkRequiredLibraries()
         return;
     }
     QStringList libs;
-    QList<QByteArray> lines = readelfProc.readAll().trimmed().split('\n');
-    foreach (const QByteArray &line, lines) {
-        if (line.contains("(NEEDED)") && line.contains("Shared library:") ) {
-            const int pos = line.lastIndexOf('[') + 1;
-            libs << QString::fromLatin1(line.mid(pos, line.length() - pos - 1));
-        }
-    }
+    parseSharedLibs(readelfProc.readAll(), &libs);
     QStringList checkedLibs = AndroidManager::qtLibs(target());
     QStringList requiredLibraries;
     foreach (const QString &qtLib, AndroidManager::availableQtLibs(target())) {
@@ -254,14 +263,7 @@ void AndroidPackageCreationStep::checkRequiredLibrariesForRun()
         return;
     }
     QStringList libs;
-    QList<QByteArray> lines = readelfProc.readAll().trimmed().split('\n');
-    foreach (const QByteArray &line, lines) {
-        if (line.contains("(NEEDED)") && line.contains("Shared library:") ) {
-            const int pos = line.lastIndexOf('[') + 1;
-            libs << QString::fromLatin1(line.mid(pos, line.length() - pos - 1));
-        }
-    }
-
+    parseSharedLibs(readelfProc.readAll(), &libs);
     QStringList requiredLibraries;
     foreach (const QString &qtLib, m_availableQtLibs) {
         if (libs.contains(QLatin1String("lib") + qtLib + QLatin1String(".so")) || m_qtLibs.contains(qtLib))
