@@ -65,11 +65,14 @@ def which(program):
     return None
 
 def is_debug(fpath):
+    # match all Qt Core dlls from Qt4, Qt5beta2 and Qt5rc1 and later
+    # which all have the number at different places
+    coredebug = re.compile(r'Qt[1-9]?Core[1-9]?d[1-9]?.dll')
     # bootstrap exception
-    if fpath.endswith('QtCore4d.dll') or fpath.endswith('QtCore5d.dll'):
+    if re.search(fpath):
         return True
     output = subprocess.check_output(['dumpbin', '/imports', fpath])
-    return output.find('QtCore4d.dll') != -1 or output.find('QtCore5d.dll') != -1
+    return re.search(output)
 
 def is_debug_build(install_dir):
     return is_debug(os.path.join(install_dir, 'bin', 'qtcreator.exe'))
