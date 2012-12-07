@@ -1351,6 +1351,9 @@ public:
     void init();
     void focus();
 
+    void enterFakeVim(); // Call before any FakeVim processing (import cursor position from editor)
+    void leaveFakeVim(); // Call after any FakeVim processing (export cursor position to editor)
+
     EventResult handleKey(const Input &input);
     EventResult handleDefaultKey(const Input &input);
     void handleMappedKeys();
@@ -1597,7 +1600,6 @@ public:
     FakeVimHandler *q;
     Mode m_mode;
     bool m_passing; // let the core see the next event
-    bool m_firstKeyPending;
     SubMode m_submode;
     SubSubMode m_subsubmode;
     Input m_subsubdata;
@@ -1729,7 +1731,7 @@ public:
     RangeMode registerRangeMode(int reg) const;
     void getRegisterType(int reg, bool *isClipboard, bool *isSelection) const;
 
-    void recordJump();
+    void recordJump(int position = -1);
     void jump(int distance);
     QStack<CursorPosition> m_jumpListUndo;
     QStack<CursorPosition> m_jumpListRedo;
@@ -1842,7 +1844,6 @@ void FakeVimHandler::Private::init()
     m_submode = NoSubMode;
     m_subsubmode = NoSubSubMode;
     m_passing = false;
-    m_firstKeyPending = false;
     g.findPending = false;
     m_findStartPosition = -1;
     m_visualBlockInsert = false;
@@ -1881,6 +1882,51 @@ void FakeVimHandler::Private::focus()
         // Return to insert mode.
         resetCommandMode();
         updateMiniBuffer();
+        updateCursorShape();
+    }
+}
+
+void FakeVimHandler::Private::enterFakeVim()
+{
+    importSelection();
+
+    QTextCursor tc = cursor();
+
+    // Position changed externally, e.g. by code completion.
+    if (tc.position() != m_oldPosition) {
+        // record external jump to different line
+        if (m_oldPosition != -1 && lineForPosition(m_oldPosition) != lineForPosition(tc.position()))
+            recordJump(m_oldPosition);
+        setTargetColumn();
+        if (atEndOfLine() && !isVisualMode() && m_mode != InsertMode && m_mode != ReplaceMode)
+            moveLeft();
+    }
+
+    tc.setVisualNavigation(true);
+    setCursor(tc);
+
+    if (m_fakeEnd)
+        moveRight();
+}
+
+void FakeVimHandler::Private::leaveFakeVim()
+{
+    // The command might have destroyed the editor.
+    if (m_textedit || m_plaintextedit) {
+        // We fake vi-style end-of-line behaviour
+        m_fakeEnd = atEndOfLine() && m_mode == CommandMode && !isVisualBlockMode();
+
+        //QTC_ASSERT(m_mode == InsertMode || m_mode == ReplaceMode
+        //        || !atBlockEnd() || block().length() <= 1,
+        //    qDebug() << "Cursor at EOL after key handler");
+        if (m_fakeEnd)
+            moveLeft();
+
+        m_oldPosition = position();
+        if (hasConfig(ConfigShowMarks))
+            updateSelection();
+
+        exportSelection();
         updateCursorShape();
     }
 }
@@ -1967,26 +2013,6 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     //if (0 && hasBlock) {
     //    (pos > anc) ? --pos : --anc;
 
-    importSelection();
-
-    // Position changed externally, e.g. by code completion.
-    if (position() != m_oldPosition) {
-        setTargetColumn();
-        if (atEndOfLine() && !isVisualMode() && m_mode != InsertMode && m_mode != ReplaceMode)
-            moveLeft();
-    }
-
-    QTextCursor tc = cursor();
-    tc.setVisualNavigation(true);
-    if (m_firstKeyPending) {
-        m_firstKeyPending = false;
-        recordJump();
-    }
-    setCursor(tc);
-
-    if (m_fakeEnd)
-        moveRight();
-
     //if ((mods & RealControlModifier) != 0) {
     //    if (key >= Key_A && key <= Key_Z)
     //        key = shift(key); // make it lower case
@@ -1999,26 +2025,9 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     //        || !atBlockEnd() || block().length() <= 1,
     //    qDebug() << "Cursor at EOL before key handler");
 
+    enterFakeVim();
     EventResult result = handleKey(Input(key, mods, ev->text()));
-
-    // The command might have destroyed the editor.
-    if (m_textedit || m_plaintextedit) {
-        // We fake vi-style end-of-line behaviour
-        m_fakeEnd = atEndOfLine() && m_mode == CommandMode && !isVisualBlockMode();
-
-        //QTC_ASSERT(m_mode == InsertMode || m_mode == ReplaceMode
-        //        || !atBlockEnd() || block().length() <= 1,
-        //    qDebug() << "Cursor at EOL after key handler");
-        if (m_fakeEnd)
-            moveLeft();
-
-        m_oldPosition = position();
-        if (hasConfig(ConfigShowMarks))
-            updateSelection();
-
-        exportSelection();
-        updateCursorShape();
-    }
+    leaveFakeVim();
 
     return result;
 }
@@ -2039,12 +2048,16 @@ void FakeVimHandler::Private::setupWidget()
         m_plaintextedit->setLineWrapMode(QPlainTextEdit::NoWrap);
     }
     m_wasReadOnly = EDITOR(isReadOnly());
-    m_firstKeyPending = true;
 
     updateEditor();
     importSelection();
     updateMiniBuffer();
     updateCursorShape();
+
+    recordJump();
+    setTargetColumn();
+    if (atEndOfLine() && !isVisualMode() && m_mode != InsertMode && m_mode != ReplaceMode)
+        moveLeft();
 }
 
 void FakeVimHandler::Private::exportSelection()
@@ -2357,7 +2370,10 @@ void FakeVimHandler::Private::timerEvent(QTimerEvent *ev)
     if (ev->timerId() == g.inputTimer) {
         if (g.currentMap.isComplete())
             handleMappedKeys();
+
+        enterFakeVim();
         handleKey(Input());
+        leaveFakeVim();
     }
 }
 
@@ -6675,9 +6691,10 @@ void FakeVimHandler::Private::enterExMode(const QString &contents)
     m_subsubmode = NoSubSubMode;
 }
 
-void FakeVimHandler::Private::recordJump()
+void FakeVimHandler::Private::recordJump(int position)
 {
-    CursorPosition pos(cursor());
+    CursorPosition pos = position >= 0 ? CursorPosition(document(), position)
+                                       : CursorPosition(cursor());
     setMark(QLatin1Char('\''), pos);
     if (m_jumpListUndo.isEmpty() || m_jumpListUndo.top() != pos)
         m_jumpListUndo.push(pos);
@@ -7327,19 +7344,25 @@ void FakeVimHandler::restoreWidget(int tabSize)
 
 void FakeVimHandler::handleCommand(const QString &cmd)
 {
+    d->enterFakeVim();
     d->handleCommand(cmd);
+    d->leaveFakeVim();
 }
 
 void FakeVimHandler::handleReplay(const QString &keys)
 {
+    d->enterFakeVim();
     d->replay(keys);
+    d->leaveFakeVim();
 }
 
 void FakeVimHandler::handleInput(const QString &keys)
 {
     Inputs inputs(keys);
+    d->enterFakeVim();
     foreach (const Input &input, inputs)
         d->handleKey(input);
+    d->leaveFakeVim();
 }
 
 void FakeVimHandler::setCurrentFileName(const QString &fileName)

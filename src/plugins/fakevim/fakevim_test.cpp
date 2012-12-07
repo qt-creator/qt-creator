@@ -239,18 +239,34 @@ struct FakeVimPlugin::TestData
         editor()->setTextCursor(tc);
     }
 
+    // Simulate external position change.
+    void jump(const char *textWithCursorPosition)
+    {
+        int pos = QString(_(textWithCursorPosition)).indexOf(_(X));
+        QTextCursor tc = editor()->textCursor();
+        tc.setPosition(pos);
+        editor()->setTextCursor(tc);
+        QCOMPARE(QByteArray(textWithCursorPosition), textWithCursor(text(), position()));
+    }
+
     int lines() const
     {
         QTextDocument *doc = editor()->document();
         Q_ASSERT(doc != 0);
         return doc->lineCount();
     }
+
+    // Enter command mode and go to start.
+    void reset()
+    {
+        handler->handleInput(_("<ESC><ESC>gg0"));
+    }
 };
 
 void FakeVimPlugin::setup(TestData *data)
 {
     setupTest(&data->title, &data->handler, &data->edit);
-    data->handler->handleInput(_("<ESC><ESC>gg"));
+    data->reset();
 }
 
 
@@ -1333,6 +1349,15 @@ void FakeVimPlugin::test_vim_jumps()
     KEYS("u", "  aBc" N "  d" X "ef" N "  ghi");
     KEYS("''", "  aBc" N "  " X "def" N "  ghi");
     KEYS("`'", "  aBc" N "  d" X "ef" N "  ghi");
+
+    // record external position changes
+    data.setText("abc" N "def" N "g" X "hi");
+    data.jump("abc" N "de" X "f" N "ghi");
+    KEYS("<C-O>", "abc" N "def" N "g" X "hi");
+    KEYS("<C-I>", "abc" N "de" X "f" N "ghi");
+    data.jump("ab" X "c" N "def" N "ghi");
+    KEYS("<C-O>", "abc" N "de" X "f" N "ghi");
+    KEYS("<C-O>", "abc" N "def" N "g" X "hi");
 }
 
 void FakeVimPlugin::test_vim_copy_paste()
