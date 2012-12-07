@@ -40,6 +40,8 @@ QWidget { //This is a special checkBox that does color coding for states
     property alias checkable: localCheckBox.checkable
     property alias text: localLabel.text
 
+    property alias checked: localCheckBox.checked
+
     onBaseStateFlagChanged: {
         evaluate();
     }
