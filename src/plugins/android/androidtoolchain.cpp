@@ -30,15 +30,16 @@
 #include "androidtoolchain.h"
 #include "androidconstants.h"
 #include "androidconfigurations.h"
-#include "androidmanager.h"
 #include "androidqtversion.h"
+
+
+#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtversionmanager.h>
 
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorer.h>
-#include <qt4projectmanager/qt4project.h>
 #include <qtsupport/qtkitinformation.h>
-#include <qtsupport/qtversionmanager.h>
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -52,7 +53,6 @@ namespace Android {
 namespace Internal {
 
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
 using namespace Utils;
 
 static const char ANDROID_QT_VERSION_KEY[] = "Qt4ProjectManager.Android.QtVersion";
@@ -92,11 +92,6 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
 // TODO this vars should be configurable in projects -> build tab
 // TODO invalidate all .pro files !!!
 
-    Qt4Project *qt4pro = qobject_cast<Qt4Project *>(ProjectExplorerPlugin::instance()->currentProject());
-    if (!qt4pro || !qt4pro->activeTarget()
-            || QtSupport::QtKitInformation::qtVersion(qt4pro->activeTarget()->kit())->type() != QLatin1String(Constants::ANDROIDQT))
-        return;
-
     QString ndkHost;
     switch (HostOsInfo::hostOs()) {
     case HostOsInfo::HostOsLinux:
@@ -111,15 +106,10 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
     default:
         break;
     }
-
-    // this env vars are used by qmake mkspecs to generate makefiles (check QTDIR/mkspecs/android-g++/qmake.conf for more info)
     env.set(QLatin1String("ANDROID_NDK_HOST"), ndkHost);
-    env.set(QLatin1String("ANDROID_NDK_ROOT"), AndroidConfigurations::instance().config().ndkLocation.toUserOutput());
     env.set(QLatin1String("ANDROID_NDK_TOOLCHAIN_PREFIX"), AndroidConfigurations::toolchainPrefix(targetAbi().architecture()));
     env.set(QLatin1String("ANDROID_NDK_TOOLS_PREFIX"), AndroidConfigurations::toolsPrefix(targetAbi().architecture()));
     env.set(QLatin1String("ANDROID_NDK_TOOLCHAIN_VERSION"), AndroidConfigurations::instance().config().ndkToolchainVersion);
-    env.set(QLatin1String("ANDROID_NDK_PLATFORM"),
-            AndroidConfigurations::instance().bestMatch(AndroidManager::targetSDK(qt4pro->activeTarget())));
 }
 
 bool AndroidToolChain::operator ==(const ToolChain &tc) const

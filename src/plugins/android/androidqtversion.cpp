@@ -29,11 +29,24 @@
 
 #include "androidqtversion.h"
 #include "androidconstants.h"
-#include "qt4projectmanager/qt4projectmanagerconstants.h"
+#include "androidconfigurations.h"
+#include "androidmanager.h"
 
+#include <utils/environment.h>
+
+#include <qt4projectmanager/qt4project.h>
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
+
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <qtsupport/qtversionmanager.h>
+
+#include <projectexplorer/kit.h>
+#include <projectexplorer/projectexplorer.h>
 
 using namespace Android::Internal;
+using namespace ProjectExplorer;
+using namespace Qt4ProjectManager;
 
 AndroidQtVersion::AndroidQtVersion()
     : QtSupport::BaseQtVersion()
@@ -78,6 +91,31 @@ QList<ProjectExplorer::Abi> AndroidQtVersion::detectQtAbis() const
     return QList<ProjectExplorer::Abi>() << ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::LinuxOS,
                                                                  ProjectExplorer::Abi::AndroidLinuxFlavor, ProjectExplorer::Abi::ElfFormat,
                                                                  32);
+}
+
+void AndroidQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const
+{
+    QString ndk_host = QLatin1String(
+#if defined(Q_OS_LINUX)
+        "linux-x86"
+#elif defined(Q_OS_WIN)
+        "windows"
+#elif defined(Q_OS_MAC)
+        "darwin-x86"
+#endif
+    );
+
+    // this env vars are used by qmake mkspecs to generate makefiles (check QTDIR/mkspecs/android-g++/qmake.conf for more info)
+    env.set(QLatin1String("ANDROID_NDK_HOST"), ndk_host);
+    env.set(QLatin1String("ANDROID_NDK_ROOT"), AndroidConfigurations::instance().config().ndkLocation.toUserOutput());
+
+    Qt4Project *qt4pro = qobject_cast<Qt4ProjectManager::Qt4Project *>(ProjectExplorerPlugin::instance()->currentProject());
+    if (!qt4pro || !qt4pro->activeTarget()
+            || QtSupport::QtKitInformation::qtVersion(k)->type() != QLatin1String(Constants::ANDROIDQT))
+        return;
+    env.set(QLatin1String("ANDROID_NDK_PLATFORM"),
+            AndroidConfigurations::instance().bestMatch(AndroidManager::targetSDK(qt4pro->activeTarget())));
+
 }
 
 QString AndroidQtVersion::description() const

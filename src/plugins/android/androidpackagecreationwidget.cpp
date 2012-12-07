@@ -260,6 +260,15 @@ void AndroidPackageCreationWidget::initGui()
     m_ui->prebundledLibsListView->setModel(m_prebundledLibs);
     m_ui->permissionsListView->setModel(m_permissionsModel);
     m_ui->KeystoreLocationLineEdit->setText(m_step->keystorePath().toUserOutput());
+
+    // Make the buildconfiguration emit a evironmentChanged() signal
+    // TODO find a better way
+    Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(m_step->target()->activeBuildConfiguration());
+    if (!bc)
+        return;
+    bool use = bc->useSystemEnvironment();
+    bc->setUseSystemEnvironment(!use);
+    bc->setUseSystemEnvironment(use);
 }
 
 void AndroidPackageCreationWidget::updateAndroidProjectInfo()

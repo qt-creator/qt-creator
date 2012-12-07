@@ -55,7 +55,7 @@ public:
     QVariantMap toMap() const;
     bool fromMap(const QVariantMap &data);
     QList<Utils::FileName> suggestedMkspecList() const;
-    QString makeCommand(const Utils::Environment &env) const;
+    QString makeCommand(const Utils::Environment &environment) const;
 
     void setQtVersionId(int);
     int qtVersionId() const;
