@@ -1,4 +1,4 @@
-<plugin name=\"Android\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\" experimental=\"$$ANDROID_EXPERIMENTAL_STR\">
+<plugin name=\"Android\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\">
     <vendor>KDE Necessitas</vendor>
     <copyright>(C) 2012 BogDan Vatra</copyright>
     <license>
@@ -12,7 +12,7 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     </license>
     <description>Support for deployment to and execution on Android Devices</description>
     <category>Device Support</category>
-    <url>http://community.kde.org/Necessitas</url>
+    <url>http://necessitas.kde.org</url>
     <dependencyList>
         <dependency name=\"Core\" version=\"$$QTCREATOR_VERSION\"/>
         <dependency name=\"Debugger\" version=\"$$QTCREATOR_VERSION\"/>
