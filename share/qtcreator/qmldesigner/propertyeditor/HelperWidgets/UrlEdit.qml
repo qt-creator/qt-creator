@@ -36,12 +36,15 @@ QWidget { //This is a special spinBox that does color coding for states
     property bool enabled: true
     property variant backendValue;
     property variant baseStateFlag;
+    property alias filter: fileWidget.filter
+    property alias showComboBox: fileWidget.showComboBox
 
     minimumHeight: 22;
 
     layout: HorizontalLayout {
         spacing: 4
         FileWidget {
+            id: fileWidget
             enabled: (isBaseState || backendValues.id.value != "") && urlEdit.enabled
             fileName: backendValue.value;
             onFileNameChanged: {
