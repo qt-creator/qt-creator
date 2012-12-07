@@ -68,7 +68,7 @@ AndroidRunner::AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig
 
 AndroidRunner::~AndroidRunner()
 {
-    stop();
+    stop(false);
 }
 
 void AndroidRunner::checkPID()
@@ -232,7 +232,7 @@ void AndroidRunner::startLogcat()
     emit remoteProcessStarted(5039);
 }
 
-void AndroidRunner::stop()
+void AndroidRunner::stop(bool async)
 {
     QMutexLocker locker(&m_mutex);
     m_adbLogcatProcess.terminate();
@@ -240,7 +240,10 @@ void AndroidRunner::stop()
     m_checkPIDTimer.stop();
     if (m_processPID == -1)
         return; // don't emit another signal
-    QtConcurrent::run(this, &AndroidRunner::asyncStop);
+    if (async)
+        QtConcurrent::run(this, &AndroidRunner::asyncStop);
+    else
+        asyncStop();
 }
 void AndroidRunner::asyncStop()
 {

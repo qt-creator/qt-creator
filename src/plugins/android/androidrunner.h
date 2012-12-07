@@ -55,7 +55,7 @@ public:
 
 public slots:
     void start();
-    void stop();
+    void stop(bool async);
 
 signals:
     void remoteProcessStarted(int gdbServerPort = -1, int qmlPort = -1);
