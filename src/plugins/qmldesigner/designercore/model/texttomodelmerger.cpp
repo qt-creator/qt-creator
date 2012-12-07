@@ -369,8 +369,6 @@ public:
                 QDir dir(m_doc->path());
                 QString relativeDir = dir.relativeFilePath(path);
                 QString name = relativeDir.replace(QLatin1Char('/'), QLatin1Char('.'));
-                if (!name.isEmpty())
-                    typeName.prepend(name + QLatin1Char('.'));
             }
         }
     }
