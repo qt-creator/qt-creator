@@ -44,6 +44,8 @@ QWidget {
     property bool slider: true
     property alias alignment: label.alignment
 
+    property bool editorEnabled: true
+
     layout: HorizontalLayout {
         Label {
             id: label
@@ -53,6 +55,7 @@ QWidget {
         }
 
         SpinBox {
+            enabled: editorEnabled
             backendValue: (intEditor.backendValue === undefined ||
             intEditor.backendValue === null)
             ? null : intEditor.backendValue;
@@ -73,6 +76,7 @@ QWidget {
             id: sliderWidget
             QSlider {
                 id: intSlider
+                enabled: editorEnabled
                 y: sliderWidget.height / 2 - 12
                 width: sliderWidget.width
                 height: 24
