@@ -2,33 +2,54 @@
 # specified relative to the template directory and will be copied into
 # subdirectories of the output directory.
 
-HTML.templatedir = $SRCDIR/templates
+HTML.templatedir = $SRCDIR/config
 
-HTML.stylesheets = style/offline.css
+HTML.stylesheets = ../templates/style/offline.css
 
 HTML.scripts     =
 
 # Files not referenced in any qdoc file (last four needed by qtdemo)
 # See also qhp.Qt.extraFiles
-extraimages.HTML        = qt-logo.png \
-                          arrow_down.png \
-                          breadcrumb.png \
-                          bullet_gt.png \
-                          bullet_dn.png \
-                          bullet_sq.png \
-                          bullet_up.png \
-                          horBar.png \
-                          sprites-combined.png \
-                          qtcreator-screenshots.png \
-                          bgrContent.png \
-                          blu_dot.png \
-                          btn_next.png \
-                          btn_prev.png \
-                          ico_note.png \
-                          ico_note_attention.png \
-                          ico_out.png \
-                          arrow_bc.png \
-                          home.png
+# for Qt 4:
+extraimages.HTML        = ../templates/images/qt-logo.png \
+                          ../templates/images/arrow_down.png \
+                          ../templates/images/breadcrumb.png \
+                          ../templates/images/bullet_gt.png \
+                          ../templates/images/bullet_dn.png \
+                          ../templates/images/bullet_sq.png \
+                          ../templates/images/bullet_up.png \
+                          ../templates/images/horBar.png \
+                          ../templates/images/sprites-combined.png \
+                          ../templates/images/qtcreator-screenshots.png \
+                          ../templates/images/bgrContent.png \
+                          ../templates/images/blu_dot.png \
+                          ../templates/images/btn_next.png \
+                          ../templates/images/btn_prev.png \
+                          ../templates/images/ico_note.png \
+                          ../templates/images/ico_note_attention.png \
+                          ../templates/images/ico_out.png \
+                          ../templates/images/arrow_bc.png \
+                          ../templates/images/home.png
+# for Qt 5
+HTML.extraimages        = ../templates/images/qt-logo.png \
+                          ../templates/images/arrow_down.png \
+                          ../templates/images/breadcrumb.png \
+                          ../templates/images/bullet_gt.png \
+                          ../templates/images/bullet_dn.png \
+                          ../templates/images/bullet_sq.png \
+                          ../templates/images/bullet_up.png \
+                          ../templates/images/horBar.png \
+                          ../templates/images/sprites-combined.png \
+                          ../templates/images/qtcreator-screenshots.png \
+                          ../templates/images/bgrContent.png \
+                          ../templates/images/blu_dot.png \
+                          ../templates/images/btn_next.png \
+                          ../templates/images/btn_prev.png \
+                          ../templates/images/ico_note.png \
+                          ../templates/images/ico_note_attention.png \
+                          ../templates/images/ico_out.png \
+                          ../templates/images/arrow_bc.png \
+                          ../templates/images/home.png
 
 # Include the style sheets and scripts used.
 
