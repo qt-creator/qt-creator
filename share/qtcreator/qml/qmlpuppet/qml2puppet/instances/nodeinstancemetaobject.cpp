@@ -109,15 +109,6 @@ static QQmlPropertyCache *cacheForObject(QObject *object, QQmlEngine *engine)
     return QQmlEnginePrivate::get(engine)->cache(object);
 }
 
-static QAbstractDynamicMetaObject *abstractDynamicMetaObject(QObject *object)
-{
-    QObjectPrivate *op = QObjectPrivate::get(object);
-    if (op->metaObject)
-        return static_cast<QAbstractDynamicMetaObject *>(op->metaObject);
-    return const_cast<QAbstractDynamicMetaObject *>(static_cast<const QAbstractDynamicMetaObject *>(object->metaObject()));
-}
-
-
 NodeInstanceMetaObject *NodeInstanceMetaObject::createNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QQmlEngine *engine)
 {
     //Avoid setting up multiple NodeInstanceMetaObjects on the same QObject
@@ -187,8 +178,8 @@ NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstance::Pointer
 NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const QString &prefix, QQmlEngine *engine)
     : QQmlVMEMetaObject(object, cacheForObject(object, engine), vMEMetaDataForObject(object)),
       m_nodeInstance(nodeInstance),
-      m_context(engine->contextForObject(object)),
       m_prefix(prefix),
+      m_context(engine->contextForObject(object)),
 
       m_data(new MetaPropertyData),
       m_cache(0)

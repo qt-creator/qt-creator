@@ -51,7 +51,7 @@
 #include <private/qqmlvaluetype_p.h>
 #include <private/qquicktransition_p.h>
 #include <private/qquickanimation_p.h>
-#include <private/qquicktimer_p.h>
+#include <private/qqmltimer_p.h>
 #include <private/qqmlengine_p.h>
 
 namespace QmlDesigner {
@@ -712,7 +712,7 @@ static void stopAnimation(QObject *object)
 
     QQuickTransition *transition = qobject_cast<QQuickTransition*>(object);
     QQuickAbstractAnimation *animation = qobject_cast<QQuickAbstractAnimation*>(object);
-    QQuickTimer *timer = qobject_cast<QQuickTimer*>(object);
+    QQmlTimer *timer = qobject_cast<QQmlTimer*>(object);
     if (transition) {
        transition->setFromState("");
        transition->setToState("");

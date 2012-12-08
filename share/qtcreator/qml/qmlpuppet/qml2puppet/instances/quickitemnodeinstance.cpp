@@ -143,7 +143,7 @@ bool QuickItemNodeInstance::childItemsHaveContent(QQuickItem *quickItem)
 
 QPointF QuickItemNodeInstance::position() const
 {
-    return quickItem()->pos();
+    return quickItem()->position();
 }
 
 static QTransform transformForItem(QQuickItem *item, NodeInstanceServer *nodeInstanceServer)
