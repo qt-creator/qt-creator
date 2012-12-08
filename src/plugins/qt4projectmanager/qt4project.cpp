@@ -588,7 +588,11 @@ void Qt4Project::updateCppCodeModel()
     QStringList allFiles;
     foreach (Qt4ProFileNode *pro, proFiles) {
         ProjectPart::Ptr part(new ProjectPart);
-        part->qtVersion = qtVersionForPart;
+
+        if (pro->variableValue(ConfigVar).contains(QLatin1String("qt")))
+            part->qtVersion = qtVersionForPart;
+        else
+            part->qtVersion = ProjectPart::NoQt;
 
         QStringList cxxflags = pro->variableValue(CppFlagsVar);
 
