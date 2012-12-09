@@ -30,14 +30,78 @@
 #include "branchadddialog.h"
 #include "ui_branchadddialog.h"
 
+#include <QPushButton>
+#include <QValidator>
+
 namespace Git {
 namespace Internal {
+
+/*!
+ * \brief Validates the corresponding string as a valid git branch name
+ *
+ * The class does this by a couple of rules that are applied on the string.
+ *
+ */
+class BranchNameValidator : public QValidator
+{
+public:
+    BranchNameValidator(QObject *parent = 0) :
+        QValidator(parent),
+        m_invalidChars(QLatin1String(
+                                   "\\s"          // no whitespace
+                                   "|~"         // no "~"
+                                   "|\\^"       // no "^"
+                                   "|\\["       // no "["
+                                   "|\\.\\."    // no ".."
+                                   "|/\\."      // no slashdot
+                                   "|:"         // no ":"
+                                   "|@\\{"      // no "@{" sequence
+                                   "|\\\\"      // no backslash
+                                   "|//"    // no double slash
+                                   "|^/"  // no leading slash
+                                   ))
+    {
+    }
+
+    ~BranchNameValidator() {}
+
+    State validate(QString &input, int &pos) const
+    {
+        Q_UNUSED(pos)
+
+        // NoGos
+
+        if (input.contains(m_invalidChars))
+            return Invalid;
+
+
+        // "Intermediate" patterns, may change to Acceptable when user edits further:
+
+        if (input.endsWith(QLatin1String(".lock"))) //..may not end with ".lock"
+            return Intermediate;
+
+        if (input.endsWith(QLatin1Char('.'))) // no dot at the end (but allowed in the middle)
+            return Intermediate;
+
+        if (input.endsWith(QLatin1Char('/'))) // no slash at the end (but allowed in the middle)
+            return Intermediate;
+
+        // is a valid branch name
+        return Acceptable;
+    }
+
+private:
+    const QRegExp m_invalidChars;
+};
+
 
 BranchAddDialog::BranchAddDialog(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::BranchAddDialog)
 {
     m_ui->setupUi(this);
+    m_ui->branchNameEdit->setValidator(new BranchNameValidator(this));
+    connect(m_ui->branchNameEdit, SIGNAL(textChanged(QString)), this, SLOT(updateButtonStatus()));
 }
 
 BranchAddDialog::~BranchAddDialog()
@@ -70,6 +134,12 @@ void BranchAddDialog::setTrackedBranchName(const QString &name, bool remote)
 bool BranchAddDialog::track()
 {
     return m_ui->trackingCheckBox->isChecked();
+}
+
+/*! Updates the ok button enabled state of the dialog according to the validity of the branch name. */
+void BranchAddDialog::updateButtonStatus()
+{
+    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(m_ui->branchNameEdit->hasAcceptableInput());
 }
 
 } // namespace Internal

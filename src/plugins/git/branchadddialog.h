@@ -55,6 +55,9 @@ public:
 
     bool track();
 
+private slots:
+    void updateButtonStatus();
+
 private:
     Ui::BranchAddDialog *m_ui;
 };
