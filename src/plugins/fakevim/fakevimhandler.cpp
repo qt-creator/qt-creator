@@ -136,8 +136,8 @@ namespace Internal {
 typedef QLatin1String _;
 
 /* Clipboard MIME types used by Vim. */
-static const QString vimMimeText = "_VIM_TEXT";
-static const QString vimMimeTextEncoded = "_VIMENC_TEXT";
+static const QString vimMimeText = _("_VIM_TEXT");
+static const QString vimMimeTextEncoded = _("_VIMENC_TEXT");
 
 using namespace Qt;
 
@@ -334,11 +334,11 @@ struct SearchData
 };
 
 // If string begins with given prefix remove it with trailing spaces and return true.
-static bool eatString(const QString &prefix, QString *str)
+static bool eatString(const char *prefix, QString *str)
 {
-    if (!str->startsWith(prefix))
+    if (!str->startsWith(_(prefix)))
         return false;
-    *str = str->mid(prefix.size()).trimmed();
+    *str = str->mid(strlen(prefix)).trimmed();
     return true;
 }
 
@@ -373,7 +373,7 @@ static QRegExp vimPatternToQtPattern(QString needle, bool smartcase)
      *   \c - set ignorecase for rest
      *   \C - set noignorecase for rest
      */
-    bool ignorecase = smartcase && !needle.contains(QRegExp("[A-Z]"));
+    bool ignorecase = smartcase && !needle.contains(QRegExp(_("[A-Z]")));
     QString pattern;
     pattern.reserve(2 * needle.size());
 
@@ -385,11 +385,11 @@ static QRegExp vimPatternToQtPattern(QString needle, bool smartcase)
     foreach (const QChar &c, needle) {
         if (brace) {
             brace = false;
-            if (c == ']') {
+            if (c == QLatin1Char(']')) {
                 pattern.append(_("\\[\\]"));
                 continue;
             }
-            pattern.append('[');
+            pattern.append(QLatin1Char('['));
             escape = true;
             embraced = true;
         }
@@ -397,29 +397,29 @@ static QRegExp vimPatternToQtPattern(QString needle, bool smartcase)
             if (range) {
                 QChar c2 = pattern[pattern.size() - 2];
                 pattern.remove(pattern.size() - 2, 2);
-                pattern.append(c2.toUpper() + '-' + c.toUpper());
-                pattern.append(c2.toLower() + '-' + c.toLower());
+                pattern.append(c2.toUpper() + QLatin1Char('-') + c.toUpper());
+                pattern.append(c2.toLower() + QLatin1Char('-') + c.toLower());
                 range = false;
             } else if (escape) {
                 escape = false;
                 pattern.append(c);
-            } else if (c == '\\') {
+            } else if (c == QLatin1Char('\\')) {
                 escape = true;
-            } else if (c == ']') {
-                pattern.append(']');
+            } else if (c == QLatin1Char(']')) {
+                pattern.append(QLatin1Char(']'));
                 embraced = false;
-            } else if (c == '-') {
+            } else if (c == QLatin1Char('-')) {
                 range = ignorecase && pattern[pattern.size() - 1].isLetter();
-                pattern.append('-');
+                pattern.append(QLatin1Char('-'));
             } else if (c.isLetter() && ignorecase) {
                 pattern.append(c.toLower()).append(c.toUpper());
             } else {
                 pattern.append(c);
             }
-        } else if (QString("(){}+|?").indexOf(c) != -1) {
-            if (c == '{') {
+        } else if (QString::fromLatin1("(){}+|?").indexOf(c) != -1) {
+            if (c == QLatin1Char('{')) {
                 curly = escape;
-            } else if (c == '}' && curly) {
+            } else if (c == QLatin1Char('}') && curly) {
                 curly = false;
                 escape = true;
             }
@@ -427,59 +427,59 @@ static QRegExp vimPatternToQtPattern(QString needle, bool smartcase)
             if (escape)
                 escape = false;
             else
-                pattern.append('\\');
+                pattern.append(QLatin1Char('\\'));
             pattern.append(c);
         } else if (escape) {
             // escape expression
             escape = false;
-            if (c == '<' || c == '>')
+            if (c == QLatin1Char('<') || c == QLatin1Char('>'))
                 pattern.append(_("\\b"));
-            else if (c == 'a')
+            else if (c == QLatin1Char('a'))
                 pattern.append(_("[a-zA-Z]"));
-            else if (c == 'A')
+            else if (c == QLatin1Char('A'))
                 pattern.append(_("[^a-zA-Z]"));
-            else if (c == 'h')
+            else if (c == QLatin1Char('h'))
                 pattern.append(_("[A-Za-z_]"));
-            else if (c == 'H')
+            else if (c == QLatin1Char('H'))
                 pattern.append(_("[^A-Za-z_]"));
-            else if (c == 'c' || c == 'C')
-                ignorecase = (c == 'c');
-            else if (c == 'l')
+            else if (c == QLatin1Char('c') || c == QLatin1Char('C'))
+                ignorecase = (c == QLatin1Char('c'));
+            else if (c == QLatin1Char('l'))
                 pattern.append(_("[a-z]"));
-            else if (c == 'L')
+            else if (c == QLatin1Char('L'))
                 pattern.append(_("[^a-z]"));
-            else if (c == 'o')
+            else if (c == QLatin1Char('o'))
                 pattern.append(_("[0-7]"));
-            else if (c == 'O')
+            else if (c == QLatin1Char('O'))
                 pattern.append(_("[^0-7]"));
-            else if (c == 'u')
+            else if (c == QLatin1Char('u'))
                 pattern.append(_("[A-Z]"));
-            else if (c == 'U')
+            else if (c == QLatin1Char('U'))
                 pattern.append(_("[^A-Z]"));
-            else if (c == 'x')
+            else if (c == QLatin1Char('x'))
                 pattern.append(_("[0-9A-Fa-f]"));
-            else if (c == 'X')
+            else if (c == QLatin1Char('X'))
                 pattern.append(_("[^0-9A-Fa-f]"));
-            else if (c == '=')
+            else if (c == QLatin1Char('='))
                 pattern.append(_("?"));
             else
-                pattern.append('\\' + c);
+                pattern.append(QLatin1Char('\\') + c);
         } else {
             // unescaped expression
-            if (c == '\\')
+            if (c == QLatin1Char('\\'))
                 escape = true;
-            else if (c == '[')
+            else if (c == QLatin1Char('['))
                 brace = true;
             else if (c.isLetter() && ignorecase)
-                pattern.append('[' + c.toLower() + c.toUpper() + ']');
+                pattern.append(QLatin1Char('[') + c.toLower() + c.toUpper() + QLatin1Char(']'));
             else
                 pattern.append(c);
         }
     }
     if (escape)
-        pattern.append('\\');
+        pattern.append(QLatin1Char('\\'));
     else if (brace)
-        pattern.append('[');
+        pattern.append(QLatin1Char('['));
 
     return QRegExp(pattern);
 }
@@ -597,9 +597,9 @@ static bool substituteText(QString *text, QRegExp &pattern, const QString &repla
                     repl += c;
                 }
             } else {
-                if (c == '\\')
+                if (c == QLatin1Char('\\'))
                     escape = true;
-                else if (c == '&')
+                else if (c == QLatin1Char('&'))
                     repl += pattern.cap(0);
                 else
                     repl += c;
@@ -618,7 +618,7 @@ static bool substituteText(QString *text, QRegExp &pattern, const QString &repla
 static int findUnescaped(QChar c, const QString &line, int from)
 {
     for (int i = from; i < line.size(); ++i) {
-        if (line.at(i) == c && (i == 0 || line.at(i - 1) != '\\'))
+        if (line.at(i) == c && (i == 0 || line.at(i - 1) != QLatin1Char('\\')))
             return i;
     }
     return -1;
@@ -654,85 +654,85 @@ static const QMap<QString, int> &vimKeyNames()
         return k;
 
     // FIXME: Should be value of mapleader.
-    k.insert("LEADER", Key_Backslash);
+    k.insert(_("LEADER"), Key_Backslash);
 
-    k.insert("SPACE", Key_Space);
-    k.insert("TAB", Key_Tab);
-    k.insert("NL", Key_Return);
-    k.insert("NEWLINE", Key_Return);
-    k.insert("LINEFEED", Key_Return);
-    k.insert("LF", Key_Return);
-    k.insert("CR", Key_Return);
-    k.insert("RETURN", Key_Return);
-    k.insert("ENTER", Key_Return);
-    k.insert("BS", Key_Backspace);
-    k.insert("BACKSPACE", Key_Backspace);
-    k.insert("ESC", Key_Escape);
-    k.insert("BAR", Key_Bar);
-    k.insert("BSLASH", Key_Backslash);
-    k.insert("DEL", Key_Delete);
-    k.insert("DELETE", Key_Delete);
-    k.insert("KDEL", Key_Delete);
-    k.insert("UP", Key_Up);
-    k.insert("DOWN", Key_Down);
-    k.insert("LEFT", Key_Left);
-    k.insert("RIGHT", Key_Right);
+    k.insert(_("SPACE"), Key_Space);
+    k.insert(_("TAB"), Key_Tab);
+    k.insert(_("NL"), Key_Return);
+    k.insert(_("NEWLINE"), Key_Return);
+    k.insert(_("LINEFEED"), Key_Return);
+    k.insert(_("LF"), Key_Return);
+    k.insert(_("CR"), Key_Return);
+    k.insert(_("RETURN"), Key_Return);
+    k.insert(_("ENTER"), Key_Return);
+    k.insert(_("BS"), Key_Backspace);
+    k.insert(_("BACKSPACE"), Key_Backspace);
+    k.insert(_("ESC"), Key_Escape);
+    k.insert(_("BAR"), Key_Bar);
+    k.insert(_("BSLASH"), Key_Backslash);
+    k.insert(_("DEL"), Key_Delete);
+    k.insert(_("DELETE"), Key_Delete);
+    k.insert(_("KDEL"), Key_Delete);
+    k.insert(_("UP"), Key_Up);
+    k.insert(_("DOWN"), Key_Down);
+    k.insert(_("LEFT"), Key_Left);
+    k.insert(_("RIGHT"), Key_Right);
 
-    k.insert("LT", Key_Less);
+    k.insert(_("LT"), Key_Less);
 
-    k.insert("F1", Key_F1);
-    k.insert("F2", Key_F2);
-    k.insert("F3", Key_F3);
-    k.insert("F4", Key_F4);
-    k.insert("F5", Key_F5);
-    k.insert("F6", Key_F6);
-    k.insert("F7", Key_F7);
-    k.insert("F8", Key_F8);
-    k.insert("F9", Key_F9);
-    k.insert("F10", Key_F10);
+    k.insert(_("F1"), Key_F1);
+    k.insert(_("F2"), Key_F2);
+    k.insert(_("F3"), Key_F3);
+    k.insert(_("F4"), Key_F4);
+    k.insert(_("F5"), Key_F5);
+    k.insert(_("F6"), Key_F6);
+    k.insert(_("F7"), Key_F7);
+    k.insert(_("F8"), Key_F8);
+    k.insert(_("F9"), Key_F9);
+    k.insert(_("F10"), Key_F10);
 
-    k.insert("F11", Key_F11);
-    k.insert("F12", Key_F12);
-    k.insert("F13", Key_F13);
-    k.insert("F14", Key_F14);
-    k.insert("F15", Key_F15);
-    k.insert("F16", Key_F16);
-    k.insert("F17", Key_F17);
-    k.insert("F18", Key_F18);
-    k.insert("F19", Key_F19);
-    k.insert("F20", Key_F20);
+    k.insert(_("F11"), Key_F11);
+    k.insert(_("F12"), Key_F12);
+    k.insert(_("F13"), Key_F13);
+    k.insert(_("F14"), Key_F14);
+    k.insert(_("F15"), Key_F15);
+    k.insert(_("F16"), Key_F16);
+    k.insert(_("F17"), Key_F17);
+    k.insert(_("F18"), Key_F18);
+    k.insert(_("F19"), Key_F19);
+    k.insert(_("F20"), Key_F20);
 
-    k.insert("F21", Key_F21);
-    k.insert("F22", Key_F22);
-    k.insert("F23", Key_F23);
-    k.insert("F24", Key_F24);
-    k.insert("F25", Key_F25);
-    k.insert("F26", Key_F26);
-    k.insert("F27", Key_F27);
-    k.insert("F28", Key_F28);
-    k.insert("F29", Key_F29);
-    k.insert("F30", Key_F30);
+    k.insert(_("F21"), Key_F21);
+    k.insert(_("F22"), Key_F22);
+    k.insert(_("F23"), Key_F23);
+    k.insert(_("F24"), Key_F24);
+    k.insert(_("F25"), Key_F25);
+    k.insert(_("F26"), Key_F26);
+    k.insert(_("F27"), Key_F27);
+    k.insert(_("F28"), Key_F28);
+    k.insert(_("F29"), Key_F29);
+    k.insert(_("F30"), Key_F30);
 
-    k.insert("F31", Key_F31);
-    k.insert("F32", Key_F32);
-    k.insert("F33", Key_F33);
-    k.insert("F34", Key_F34);
-    k.insert("F35", Key_F35);
+    k.insert(_("F31"), Key_F31);
+    k.insert(_("F32"), Key_F32);
+    k.insert(_("F33"), Key_F33);
+    k.insert(_("F34"), Key_F34);
+    k.insert(_("F35"), Key_F35);
 
-    k.insert("INSERT", Key_Insert);
-    k.insert("INS", Key_Insert);
-    k.insert("KINSERT", Key_Insert);
-    k.insert("HOME", Key_Home);
-    k.insert("END", Key_End);
-    k.insert("PAGEUP", Key_PageUp);
-    k.insert("PAGEDOWN", Key_PageDown);
+    k.insert(_("INSERT"), Key_Insert);
+    k.insert(_("INS"), Key_Insert);
+    k.insert(_("KINSERT"), Key_Insert);
+    k.insert(_("HOME"), Key_Home);
+    k.insert(_("END"), Key_End);
+    k.insert(_("PAGEUP"), Key_PageUp);
+    k.insert(_("PAGEDOWN"), Key_PageDown);
 
-    k.insert("KPLUS", Key_Plus);
-    k.insert("KMINUS", Key_Minus);
-    k.insert("KDIVIDE", Key_Slash);
-    k.insert("KMULTIPLY", Key_Asterisk);
-    k.insert("KENTER", Key_Enter);
-    k.insert("KPOINT", Key_Period);
+    k.insert(_("KPLUS"), Key_Plus);
+    k.insert(_("KMINUS"), Key_Minus);
+    k.insert(_("KDIVIDE"), Key_Slash);
+    k.insert(_("KMULTIPLY"), Key_Asterisk);
+    k.insert(_("KENTER"), Key_Enter);
+    k.insert(_("KPOINT"), Key_Period);
 
     return k;
 }
@@ -748,7 +748,7 @@ Range::Range(int b, int e, RangeMode m)
 
 QString Range::toString() const
 {
-    return QString("%1-%2 (mode: %3)").arg(beginPos).arg(endPos)
+    return QString::fromLatin1("%1-%2 (mode: %3)").arg(beginPos).arg(endPos)
         .arg(rangemode);
 }
 
@@ -787,10 +787,10 @@ QString quoteUnprintable(const QString &ba)
         const int cc = c.unicode();
         if (c.isPrint())
             res += c;
-        else if (cc == '\n')
+        else if (cc == QLatin1Char('\n'))
             res += _("<CR>");
         else
-            res += QString("\\x%1").arg(c.unicode(), 2, 16, QLatin1Char('0'));
+            res += QString::fromLatin1("\\x%1").arg(c.unicode(), 2, 16, QLatin1Char('0'));
     }
     return res;
 }
@@ -800,7 +800,7 @@ static bool startsWithWhitespace(const QString &str, int col)
     QTC_ASSERT(str.size() >= col, return false);
     for (int i = 0; i < col; ++i) {
         uint u = str.at(i).unicode();
-        if (u != ' ' && u != '\t')
+        if (u != QLatin1Char(' ') && u != QLatin1Char('\t'))
             return false;
     }
     return true;
@@ -856,7 +856,7 @@ public:
 
     bool isDigit() const
     {
-        return m_xkey >= '0' && m_xkey <= '9';
+        return m_xkey >= QLatin1Char('0') && m_xkey <= QLatin1Char('9');
     }
 
     bool isKey(int c) const
@@ -871,7 +871,7 @@ public:
 
     bool isReturn() const
     {
-        return m_key == '\n' || m_key == Key_Return || m_key == Key_Enter;
+        return m_key == QLatin1Char('\n') || m_key == Key_Return || m_key == Key_Enter;
     }
 
     bool isEscape() const
@@ -926,9 +926,9 @@ public:
     QChar raw() const
     {
         if (m_key == Key_Tab)
-            return '\t';
+            return QLatin1Char('\t');
         if (m_key == Key_Return)
-            return '\n';
+            return QLatin1Char('\n');
         return m_key;
     }
 
@@ -939,8 +939,8 @@ public:
         if (key.isEmpty())
             key = QChar(m_xkey);
         else
-            key = '<' + key + '>';
-        return (hasCtrl ? QString("^") : QString()) + key;
+            key = QLatin1Char('<') + key + QLatin1Char('>');
+        return (hasCtrl ? QString::fromLatin1("^") : QString()) + key;
     }
 
     QDebug dump(QDebug ts) const
@@ -987,7 +987,7 @@ static Input parseVimKeyName(const QString &keyName)
     if (keyName.length() == 1)
         return Input(keyName.at(0));
 
-    const QStringList keys = keyName.split('-');
+    const QStringList keys = keyName.split(QLatin1Char('-'));
     const int len = keys.length();
 
     if (len == 1 && keys.at(0) == _("nop"))
@@ -996,9 +996,9 @@ static Input parseVimKeyName(const QString &keyName)
     int mods = NoModifier;
     for (int i = 0; i < len - 1; ++i) {
         const QString &key = keys[i].toUpper();
-        if (key == "S")
+        if (key == _("S"))
             mods |= Qt::ShiftModifier;
-        else if (key == "C")
+        else if (key == _("C"))
             mods |= HostOsInfo::controlModifier();
         else
             return Input();
@@ -1026,12 +1026,12 @@ void Inputs::parseFrom(const QString &str)
     const int n = str.size();
     for (int i = 0; i < n; ++i) {
         uint c = str.at(i).unicode();
-        if (c == '<') {
-            int j = str.indexOf('>', i);
+        if (c == QLatin1Char('<')) {
+            int j = str.indexOf(QLatin1Char('>'), i);
             Input input;
             if (j != -1) {
                 const QString key = str.mid(i+1, j - i - 1);
-                if (!key.contains('<'))
+                if (!key.contains(QLatin1Char('<')))
                     input = parseVimKeyName(key);
             }
             if (input.isValid()) {
@@ -1141,7 +1141,7 @@ public:
         for (int i = 0; i != m_buffer.size(); ++i) {
             const QChar c = m_buffer.at(i);
             if (c.unicode() < 32) {
-                msg += '^';
+                msg += QLatin1Char('^');
                 msg += QLatin1Char(c.unicode() + 64);
             } else {
                 msg += c;
@@ -1709,7 +1709,7 @@ public:
     QVariant config(int code) const { return theFakeVimSetting(code)->value(); }
     bool hasConfig(int code) const { return config(code).toBool(); }
     bool hasConfig(int code, const char *value) const // FIXME
-        { return config(code).toString().contains(value); }
+        { return config(code).toString().contains(_(value)); }
 
     int m_targetColumn; // -1 if past end of line
     int m_visualTargetColumn; // 'l' can move past eol in visual mode only
@@ -1780,7 +1780,7 @@ public:
         {
             // default mapping state - shouldn't be removed
             mapStates << MappingState();
-            commandBuffer.setPrompt(':');
+            commandBuffer.setPrompt(QLatin1Char(':'));
         }
 
         // Repetition.
@@ -2092,8 +2092,8 @@ void FakeVimHandler::Private::exportSelection()
             QTC_CHECK(false);
         }
 
-        setMark('<', mark('<').position);
-        setMark('>', mark('>').position);
+        setMark(QLatin1Char('<'), mark(QLatin1Char('<')).position);
+        setMark(QLatin1Char('>'), mark(QLatin1Char('>')).position);
     } else {
         if (m_subsubmode == SearchSubSubMode && !m_searchCursor.isNull())
             setCursor(m_searchCursor);
@@ -2115,7 +2115,7 @@ void FakeVimHandler::Private::recordInsertion(const QString &insert)
             Range range(m_oldPosition, pos);
             QString text = selectText(range);
             // escape text like <ESC>
-            text.replace("<", "<LT>");
+            text.replace(_("<"), _("<LT>"));
             m_lastInsertion.append(text);
         } else if (dist < 0) {
             m_lastInsertion.resize(m_lastInsertion.size() + dist);
@@ -2192,7 +2192,7 @@ void FakeVimHandler::Private::importSelection()
 
 void FakeVimHandler::Private::updateEditor()
 {
-    const int charWidth = QFontMetrics(EDITOR(font())).width(QChar(' '));
+    const int charWidth = QFontMetrics(EDITOR(font())).width(QLatin1Char(' '));
     EDITOR(setTabStopWidth(charWidth * config(ConfigTabStop).toInt()));
     setupCharClass();
 }
@@ -2203,7 +2203,7 @@ void FakeVimHandler::Private::restoreWidget(int tabSize)
     //updateMiniBuffer();
     //EDITOR(removeEventFilter(q));
     //EDITOR(setReadOnly(m_wasReadOnly));
-    const int charWidth = QFontMetrics(EDITOR(font())).width(QChar(' '));
+    const int charWidth = QFontMetrics(EDITOR(font())).width(QLatin1Char(' '));
     EDITOR(setTabStopWidth(charWidth * tabSize));
     m_visualMode = NoVisualMode;
     // Force "ordinary" cursor.
@@ -2326,7 +2326,7 @@ void FakeVimHandler::Private::handleMappedKeys()
     }
 
     if (maxMapDepth <= 0) {
-        showMessage(MessageError, "recursive mapping");
+        showMessage(MessageError, tr("recursive mapping"));
         g.pendingInput.remove(0, g.currentMap.mapLength() + invalidCount);
     } else {
         const Inputs &inputs = g.currentMap.inputs();
@@ -2466,8 +2466,8 @@ void FakeVimHandler::Private::setUndoPosition(bool overwrite)
         m_undo.pop();
     m_lastChangePosition = CursorPosition(document(), pos);
     if (isVisualMode()) {
-        setMark('<', mark('<').position);
-        setMark('>', mark('>').position);
+        setMark(QLatin1Char('<'), mark(QLatin1Char('<')).position);
+        setMark(QLatin1Char('>'), mark(QLatin1Char('>')).position);
     }
     m_undo.push(
         State(rev, m_lastChangePosition, m_marks, m_lastVisualMode, m_lastVisualModeInverted));
@@ -2625,7 +2625,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         int beginLine = lineForPosition(anchor());
         int endLine = lineForPosition(position());
         setPosition(qMin(anchor(), position()));
-        enterExMode(QString(".,+%1!").arg(qAbs(endLine - beginLine)));
+        enterExMode(QString::fromLatin1(".,+%1!").arg(qAbs(endLine - beginLine)));
         return;
     }
 
@@ -2656,7 +2656,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         if (m_rangemode != RangeLineModeExclusive)
             setUndoPosition();
         removeText(currentRange());
-        dotCommand = QString('c');
+        dotCommand = _("c");
         if (m_movetype == MoveLineWise)
             insertAutomaticIndentation(true);
         endEditBlock();
@@ -2671,7 +2671,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
             removeText(Range(pos, pos + 1));
         else
             removeText(currentRange());
-        dotCommand = QString('d');
+        dotCommand = _("d");
         if (m_movetype == MoveLineWise)
             handleStartOfLine();
         if (atEndOfLine())
@@ -2701,13 +2701,13 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         || m_submode == DownCaseSubMode) {
         if (m_submode == InvertCaseSubMode) {
             invertCase(currentRange());
-            dotCommand = QString("g~");
+            dotCommand = QString::fromLatin1("g~");
         } else if (m_submode == DownCaseSubMode) {
             downCase(currentRange());
-            dotCommand = QString("gu");
+            dotCommand = QString::fromLatin1("gu");
         } else if (m_submode == UpCaseSubMode) {
             upCase(currentRange());
-            dotCommand = QString("gU");
+            dotCommand = QString::fromLatin1("gU");
         }
         if (m_movetype == MoveLineWise)
             handleStartOfLine();
@@ -2719,13 +2719,13 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         setUndoPosition();
         if (m_submode == IndentSubMode) {
             indentSelectedText();
-            dotCommand = QString('=');
+            dotCommand = _("=");
         } else if (m_submode == ShiftRightSubMode) {
             shiftRegionRight(1);
-            dotCommand = QString('>');
+            dotCommand = _(">");
         } else if (m_submode == ShiftLeftSubMode) {
             shiftRegionLeft(1);
-            dotCommand = QString('<');
+            dotCommand = _("<");
         }
     }
 
@@ -2800,7 +2800,7 @@ void FakeVimHandler::Private::updateMiniBuffer()
         g.currentMessage.clear();
 
     if (m_passing) {
-        msg = "PASSING";
+        msg = _("PASSING");
     } else if (m_subsubmode == SearchSubSubMode) {
         msg = g.searchBuffer.display();
         if (g.mapStates.size() == 1)
@@ -2821,24 +2821,24 @@ void FakeVimHandler::Private::updateMiniBuffer()
         messageLevel = MessageShowCmd;
     } else if (m_mode == CommandMode && isVisualMode()) {
         if (isVisualCharMode()) {
-            msg = "VISUAL";
+            msg = _("VISUAL");
         } else if (isVisualLineMode()) {
-            msg = "VISUAL LINE";
+            msg = _("VISUAL LINE");
         } else if (isVisualBlockMode()) {
-            msg = "VISUAL BLOCK";
+            msg = _("VISUAL BLOCK");
         }
     } else if (m_mode == InsertMode) {
-        msg = "INSERT";
+        msg = _("INSERT");
     } else if (m_mode == ReplaceMode) {
-        msg = "REPLACE";
+        msg = _("REPLACE");
     } else {
         QTC_CHECK(m_mode == CommandMode && m_subsubmode != SearchSubSubMode);
         if (g.returnToMode == CommandMode)
-            msg = "COMMAND";
+            msg = _("COMMAND");
         else if (g.returnToMode == InsertMode)
-            msg = "(insert)";
+            msg = _("(insert)");
         else
-            msg = "(replace)";
+            msg = _("(replace)");
     }
 
     emit q->commandBufferChanged(msg, cursorPos, messageLevel, q);
@@ -2894,7 +2894,7 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
             resetCommandMode();
             handled = false;
         } else {
-            finishMovement(QString("%1%2%3")
+            finishMovement(QString::fromLatin1("%1%2%3")
                            .arg(count())
                            .arg(m_semicolonType.text())
                            .arg(m_semicolonKey));
@@ -2923,7 +2923,7 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
             ok = false;
         m_subsubmode = NoSubSubMode;
         if (ok) {
-            finishMovement(QString("%1%2%3")
+            finishMovement(QString::fromLatin1("%1%2%3")
                            .arg(count())
                            .arg(m_subsubdata.text())
                            .arg(input.text()));
@@ -2950,7 +2950,7 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
             emit q->foldGoTo(input.is('j') ? count() : -count(), false);
             if (pos != position()) {
                 handled = true;
-                finishMovement(QString("%1z%2")
+                finishMovement(QString::fromLatin1("%1z%2")
                                .arg(count())
                                .arg(input.text()));
             }
@@ -2958,19 +2958,19 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
     } else if (m_subsubmode == OpenSquareSubSubMode || CloseSquareSubSubMode) {
         int pos = position();
         if ((input.is('{') && m_subsubmode == OpenSquareSubSubMode)) {
-            searchBalanced(false, '{', '}');
+            searchBalanced(false, QLatin1Char('{'), QLatin1Char('}'));
         } else if ((input.is('}') && m_subsubmode == CloseSquareSubSubMode)) {
-            searchBalanced(true, '}', '{');
+            searchBalanced(true, QLatin1Char('}'), QLatin1Char('{'));
         } else if ((input.is('(') && m_subsubmode == OpenSquareSubSubMode)) {
-            searchBalanced(false, '(', ')');
+            searchBalanced(false, QLatin1Char('('), QLatin1Char(')'));
         } else if ((input.is(')') && m_subsubmode == CloseSquareSubSubMode)) {
-            searchBalanced(true, ')', '(');
+            searchBalanced(true, QLatin1Char(')'), QLatin1Char('('));
         } else if (input.is('z')) {
             emit q->foldGoTo(m_subsubmode == OpenSquareSubSubMode ? -count() : count(), true);
         }
         handled = pos != position();
         if (handled) {
-            finishMovement(QString("%1%2%3")
+            finishMovement(QString::fromLatin1("%1%2%3")
                            .arg(count())
                            .arg(m_subsubmode == OpenSquareSubSubMode ? '[' : ']')
                            .arg(input.text()));
@@ -3031,7 +3031,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
             g.currentMessage.clear();
             m_movetype = MoveExclusive;
             m_subsubmode = SearchSubSubMode;
-            g.searchBuffer.setPrompt(g.lastSearchForward ? '/' : '?');
+            g.searchBuffer.setPrompt(g.lastSearchForward ? QLatin1Char('/') : QLatin1Char('?'));
             m_searchStartPosition = position();
             m_searchFromScreenLine = firstVisibleLine();
             m_searchCursor = QTextCursor();
@@ -3046,7 +3046,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         tc.select(QTextCursor::WordUnderCursor);
         needle = QRegExp::escape(tc.selection().toPlainText());
         if (!m_gflag)
-            needle = "\\<" + needle + "\\>";
+            needle = _("\\<") + needle + _("\\>");
         setAnchorAndPosition(tc.position(), tc.anchor());
         g.searchBuffer.historyPush(needle);
         g.lastSearch = needle;
@@ -3082,7 +3082,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
     } else if (input.isKey(Key_Home)) {
         moveToStartOfLine();
         setTargetColumn();
-        movement = "<HOME>";
+        movement = _("<HOME>");
     } else if (input.is('$') || input.isKey(Key_End)) {
         if (count > 1)
             moveDown(count - 1);
@@ -3093,7 +3093,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
             m_targetColumn = -1;
         if (isVisualMode())
             m_visualTargetColumn = -1;
-        movement = "$";
+        movement = _("$");
     } else if (input.is('%')) {
         recordJump();
         if (m_mvcount.isEmpty()) {
@@ -3110,7 +3110,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         m_movetype = MoveExclusive;
         moveToNextWordStart(count, false, false);
         setTargetColumn();
-        movement = "b";
+        movement = _("b");
     } else if (input.is('B')) {
         m_movetype = MoveExclusive;
         moveToNextWordStart(count, true, false);
@@ -3123,7 +3123,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         m_movetype = MoveInclusive;
         moveToNextWordEnd(count, false, true, false);
         setTargetColumn();
-        movement = "e";
+        movement = _("e");
     } else if (input.is('E') && m_gflag) {
         m_movetype = MoveInclusive;
         moveToNextWordEnd(count, true, false);
@@ -3137,7 +3137,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         if (cursorLineOnScreen() == 0)
             moveDown(1);
         scrollDown(1);
-        movement = "<C-E>";
+        movement = _("<C-E>");
     } else if (input.is('f')) {
         m_subsubmode = FtSubSubMode;
         m_movetype = MoveInclusive;
@@ -3150,7 +3150,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         m_gflag = true;
         return true;
     } else if (input.is('g') || input.is('G')) {
-        QString dotCommand = QString("%1G").arg(count);
+        QString dotCommand = QString::fromLatin1("%1G").arg(count);
         recordJump();
         if (input.is('G') && m_mvcount.isEmpty())
             dotCommand = QString(QLatin1Char('G'));
@@ -3174,7 +3174,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
             ++n;
         moveLeft(n);
         setTargetColumn();
-        movement = "h";
+        movement = _("h");
     } else if (input.is('H')) {
         setCursor(EDITOR(cursorForPosition(QPoint(0, 0))));
         moveDown(qMax(count - 1, 0));
@@ -3183,11 +3183,11 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
             || input.isControl('j') || input.isControl('n')) {
         m_movetype = MoveLineWise;
         moveDown(count);
-        movement = "j";
+        movement = _("j");
     } else if (input.is('k') || input.isKey(Key_Up) || input.isControl('p')) {
         m_movetype = MoveLineWise;
         moveUp(count);
-        movement = "k";
+        movement = _("k");
     } else if (input.is('l') || input.isKey(Key_Right) || input.is(' ')) {
         m_movetype = MoveExclusive;
         bool pastEnd = count >= rightDist() - 1;
@@ -3253,12 +3253,12 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         moveDown(count * (linesOnScreen() - 2) - cursorLineOnScreen());
         scrollToLine(cursorLine());
         handleStartOfLine();
-        movement = "f";
+        movement = _("f");
     } else if (input.isKey(Key_PageUp) || input.isControl('b')) {
         moveUp(count * (linesOnScreen() - 2) + cursorLineOnScreen());
         scrollToLine(cursorLine() + linesOnScreen() - 2);
         handleStartOfLine();
-        movement = "b";
+        movement = _("b");
     } else if (input.isKey(Key_BracketLeft) || input.isKey(Key_BracketRight)) {
 
     } else {
@@ -3272,7 +3272,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
             // finish movement for sub modes
             const QString dotMovement =
                 (count > 1 ? QString::number(count) : QString())
-                + (m_gflag ? "g" : "")\
+                + _(m_gflag ? "g" : "")
                 + (movement.isNull() ? QString(input.asChar()) : movement);
             finishMovement(dotMovement);
             setTargetColumn();
@@ -3377,13 +3377,13 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     bool handled = true;
 
     if (input.is('&')) {
-        handleExCommand(m_gflag ? "%s//~/&" : "s");
+        handleExCommand(m_gflag ? _("%s//~/&") : _("s"));
     } else if (input.is(':')) {
         enterExMode();
     } else if (input.is('!') && isNoVisualMode()) {
         m_submode = FilterSubMode;
     } else if (input.is('!') && isVisualMode()) {
-        enterExMode(QString("!"));
+        enterExMode(QString::fromLatin1("!"));
     } else if (input.is('"')) {
         m_submode = RegisterSubMode;
     } else if (input.is(',')) {
@@ -3416,14 +3416,14 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             else
                 indentSelectedText();
             const QString selectDotCommand =
-                    (lines > 1) ? QString("V%1j").arg(lines - 1): QString();
-            setDotCommand(selectDotCommand + QString("%1%2%2").arg(repeat).arg(input.raw()));
+                    (lines > 1) ? QString::fromLatin1("V%1j").arg(lines - 1): QString();
+            setDotCommand(selectDotCommand + QString::fromLatin1("%1%2%2").arg(repeat).arg(input.raw()));
         }
     } else if ((!isVisualMode() && input.is('a')) || (isVisualMode() && input.is('A'))) {
         if (isVisualBlockMode())
-            initVisualBlockInsertMode('A');
+            initVisualBlockInsertMode(QLatin1Char('A'));
         else
-            setDotCommand("%1a", count());
+            setDotCommand(_("%1a"), count());
         if (!atEndOfLine() && !atEmptyLine())
             moveRight();
         breakEditBlock();
@@ -3435,10 +3435,10 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         setUndoPosition();
         setAnchor();
         enterInsertMode();
-        setDotCommand("%1A", count());
+        setDotCommand(_("%1A"), count());
     } else if (input.isControl('a')) {
         if (changeNumberTextObject(count()))
-            setDotCommand("%1<c-a>", count());
+            setDotCommand(_("%1<c-a>"), count());
     } else if ((input.is('c') || input.is('d')) && isNoVisualMode()) {
         setAnchor();
         m_opcount = m_mvcount;
@@ -3467,13 +3467,13 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         finishMovement();
     } else if (input.isControl('c')) {
         if (isNoVisualMode())
-            showMessage(MessageInfo, "Type Alt-v,Alt-v  to quit FakeVim mode");
+            showMessage(MessageInfo, tr("Type Alt-v,Alt-v  to quit FakeVim mode"));
         else
             leaveVisualMode();
     } else if ((input.is('d') || input.is('x') || input.isKey(Key_Delete))
             && isVisualMode()) {
         setUndoPosition();
-        setDotCommand(visualDotCommand() + 'x');
+        setDotCommand(visualDotCommand() + QLatin1Char('x'));
         if (isVisualCharMode()) {
             leaveVisualMode();
             m_submode = DeleteSubMode;
@@ -3503,7 +3503,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         setTargetColumn();
     } else if ((input.is('D') || input.is('X')) &&
          (isVisualCharMode() || isVisualLineMode())) {
-        setDotCommand(visualDotCommand() + 'X');
+        setDotCommand(visualDotCommand() + QLatin1Char('X'));
         leaveVisualMode();
         m_rangemode = RangeLineMode;
         m_submode = NoSubMode;
@@ -3511,7 +3511,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         removeText(currentRange());
         moveToFirstNonBlankOnLine();
     } else if ((input.is('D') || input.is('X')) && isVisualBlockMode()) {
-        setDotCommand(visualDotCommand() + 'X');
+        setDotCommand(visualDotCommand() + QLatin1Char('X'));
         leaveVisualMode();
         m_rangemode = RangeBlockAndTailMode;
         yankText(currentRange(), m_register);
@@ -3526,7 +3526,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (!m_gflag && input.is('g')) {
         m_gflag = true;
     } else if (!isVisualMode() && (input.is('i') || input.isKey(Key_Insert))) {
-        setDotCommand("%1i", count());
+        setDotCommand(_("%1i"), count());
         breakEditBlock();
         enterInsertMode();
         if (atEndOfLine())
@@ -3534,9 +3534,9 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (input.is('I')) {
         setUndoPosition();
         if (isVisualMode()) {
-            initVisualBlockInsertMode('I');
+            initVisualBlockInsertMode(QLatin1Char('I'));
         } else {
-            setDotCommand("%1I", count());
+            setDotCommand(_("%1I"), count());
             if (m_gflag)
                 moveToStartOfLine();
             else
@@ -3554,7 +3554,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         if (m_submode == NoSubMode)
             joinLines(count(), m_gflag);
         endEditBlock();
-        setDotCommand("%1J", count());
+        setDotCommand(_("%1J"), count());
     } else if (input.isControl('l')) {
         // screen redraw. should not be needed
     } else if (input.is('m')) {
@@ -3568,7 +3568,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             m_visualTargetColumn = -1;
     } else if (input.is('o') || input.is('O')) {
         bool insertAfter = input.is('o');
-        setDotCommand(insertAfter ? "%1o" : "%1O", count());
+        setDotCommand(_(insertAfter ? "%1o" : "%1O"), count());
         setUndoPosition();
         enterInsertMode();
         // Insert new line so that command can be repeated [count] times inserting new line
@@ -3583,11 +3583,11 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             setPosition(block.position());
         }
         beginEditBlock();
-        insertText(QString("\n"));
+        insertText(QString::fromLatin1("\n"));
         if (!appendLine)
             moveUp();
         insertAutomaticIndentation(insertAfter);
-        recordInsertion(QString("\n"));
+        recordInsertion(QString::fromLatin1("\n"));
         setTargetColumn();
         endEditBlock();
     } else if (input.isControl('o')) {
@@ -3595,7 +3595,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (input.is('p') || input.is('P')) {
         pasteText(input.is('p'));
         setTargetColumn();
-        setDotCommand("%1p", count());
+        setDotCommand(_("%1p"), count());
         finishMovement();
     } else if (input.is('r')) {
         m_submode = ReplaceSubMode;
@@ -3612,7 +3612,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         m_mvcount.clear();
         setUndoPosition();
         beginEditBlock();
-        initVisualBlockInsertMode('s');
+        initVisualBlockInsertMode(QLatin1Char('s'));
         endEditBlock();
         enterInsertMode();
     } else if (input.is('s')) {
@@ -3622,7 +3622,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             moveLeft();
         setAnchor();
         moveRight(qMin(count(), rightDist()));
-        setDotCommand("%1s", count());
+        setDotCommand(_("%1s"), count());
         m_submode = ChangeSubMode;
         m_movetype = MoveExclusive;
         finishMovement();
@@ -3635,15 +3635,15 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             const int pos = lastPositionInLine(line + count() - 1);
             setAnchorAndPosition(anc, pos);
         }
-        setDotCommand("%1S", count());
+        setDotCommand(_("%1S"), count());
         m_submode = ChangeSubMode;
         finishMovement();
     } else if (m_gflag && input.is('t')) {
-        handleExCommand("tabnext");
+        handleExCommand(_("tabnext"));
     } else if (m_gflag && input.is('T')) {
-        handleExCommand("tabprev");
+        handleExCommand(_("tabprev"));
     } else if (input.isControl('t')) {
-        handleExCommand("pop");
+        handleExCommand(_("pop"));
     } else if (!m_gflag && input.is('u') && !isVisualMode()) {
         int repeat = count();
         while (--repeat >= 0)
@@ -3656,8 +3656,8 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         scrollToLine(cursorLine() - sline);
     } else if (m_gflag && input.is('v')) {
         if (m_lastVisualMode != NoVisualMode) {
-            CursorPosition from = mark('<').position;
-            CursorPosition to = mark('>').position;
+            CursorPosition from = mark(QLatin1Char('<')).position;
+            CursorPosition to = mark(QLatin1Char('>')).position;
             toggleVisualMode(m_lastVisualMode);
             setCursorPosition(m_lastVisualModeInverted ? to : from);
             setAnchor();
@@ -3671,16 +3671,16 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         toggleVisualMode(VisualBlockMode);
     } else if (input.isControl('w')) {
         m_submode = WindowSubMode;
-    } else if (input.is('x') && isNoVisualMode()) { // = "dl"
+    } else if (input.is('x') && isNoVisualMode()) { // = _("dl")
         m_movetype = MoveExclusive;
         m_submode = DeleteSubMode;
         const int n = qMin(count(), rightDist());
         setAnchorAndPosition(position(), position() + n);
-        setDotCommand("%1x", count());
+        setDotCommand(_("%1x"), count());
         finishMovement();
     } else if (input.isControl('x')) {
         if (changeNumberTextObject(-count()))
-            setDotCommand("%1<c-x>", count());
+            setDotCommand(_("%1<c-x>"), count());
     } else if (input.is('X')) {
         if (leftDist() > 0) {
             setAnchor();
@@ -3689,7 +3689,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             removeText(currentRange());
         }
     } else if (input.is('Y') && isNoVisualMode())  {
-        handleYankSubMode(Input('y'));
+        handleYankSubMode(Input(QLatin1Char('y')));
     } else if (input.isControl('y')) {
         // FIXME: this should use the "scroll" option, and "count"
         if (cursorLineOnScreen() == linesOnScreen() - 1)
@@ -3768,7 +3768,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         if (atEndOfLine())
             moveLeft();
     } else if (input.isControl(Key_BracketRight)) {
-        handleExCommand("tag");
+        handleExCommand(_("tag"));
     } else if (handleMovement(input)) {
         // movement handled
     } else {
@@ -3791,9 +3791,9 @@ bool FakeVimHandler::Private::handleChangeDeleteSubModes(const Input &input)
         const int pos = lastPositionInLine(line + count() - 1);
         setAnchorAndPosition(anc, pos);
         if (m_submode == ChangeSubMode) {
-            setDotCommand("%1cc", count());
+            setDotCommand(_("%1cc"), count());
         } else {
-            setDotCommand("%1dd", count());
+            setDotCommand(_("%1dd"), count());
         }
         finishMovement();
         m_submode = NoSubMode;
@@ -3809,7 +3809,7 @@ bool FakeVimHandler::Private::handleReplaceSubMode(const Input &input)
 {
     bool handled = true;
 
-    setDotCommand(visualDotCommand() + 'r' + input.asChar());
+    setDotCommand(visualDotCommand() + QLatin1Char('r') + input.asChar());
     if (isVisualMode()) {
         setUndoPosition();
         if (isVisualLineMode())
@@ -3833,14 +3833,14 @@ bool FakeVimHandler::Private::handleReplaceSubMode(const Input &input)
         if (input.isReturn()) {
             beginEditBlock();
             replaceText(range, QString());
-            insertText(QString("\n"));
+            insertText(QString::fromLatin1("\n"));
             endEditBlock();
         } else {
             replaceText(range, QString(count(), input.asChar()));
             moveRight(count() - 1);
         }
         setTargetColumn();
-        setDotCommand("%1r" + input.text(), count());
+        setDotCommand(_("%1r") + input.text(), count());
     } else {
         handled = false;
     }
@@ -3860,7 +3860,7 @@ bool FakeVimHandler::Private::handleRegisterSubMode(const Input &input)
     bool handled = false;
 
     QChar reg = input.asChar();
-    if (QString("*+.%#:-\"").contains(reg) || reg.isLetterOrNumber()) {
+    if (QString::fromLatin1("*+.%#:-\"").contains(reg) || reg.isLetterOrNumber()) {
         m_register = reg.unicode();
         m_rangemode = RangeLineMode;
         handled = true;
@@ -3879,7 +3879,7 @@ bool FakeVimHandler::Private::handleShiftSubMode(const Input &input)
         m_movetype = MoveLineWise;
         setUndoPosition();
         moveDown(count() - 1);
-        setDotCommand(QString("%2%1%1").arg(input.asChar()), count());
+        setDotCommand(QString::fromLatin1("%2%1%1").arg(input.asChar()), count());
         finishMovement();
         handled = true;
         m_submode = NoSubMode;
@@ -3903,7 +3903,7 @@ bool FakeVimHandler::Private::handleChangeCaseSubMode(const Input &input)
         setUndoPosition();
         setAnchor();
         setPosition(lastPositionInLine(cursorLine() + count()) + 1);
-        finishMovement(QString("%1%2").arg(count()).arg(input.raw()));
+        finishMovement(QString::fromLatin1("%1%2").arg(count()).arg(input.raw()));
         handled = true;
         m_submode = NoSubMode;
     } else {
@@ -3987,7 +3987,7 @@ bool FakeVimHandler::Private::handleCapitalZSubMode(const Input &input)
     if (input.is('Z'))
         handleExCommand(QString(QLatin1Char('x')));
     else if (input.is('Q'))
-        handleExCommand("q!");
+        handleExCommand(_("q!"));
     else
         handled = false;
     m_submode = NoSubMode;
@@ -4000,7 +4000,7 @@ EventResult FakeVimHandler::Private::handleReplaceMode(const Input &input)
     if (m_oldPosition != position()) {
         if (clearLastInsertion) {
             clearLastInsertion = false;
-            m_lastInsertion = "<INSERT>";
+            m_lastInsertion = _("<INSERT>");
         }
         recordInsertion();
     }
@@ -4024,12 +4024,12 @@ EventResult FakeVimHandler::Private::handleReplaceMode(const Input &input)
         moveDown(1);
     } else if (input.isKey(Key_Insert)) {
         m_mode = InsertMode;
-        recordInsertion("<INSERT>");
+        recordInsertion(_("<INSERT>"));
     } else if (input.isControl('o')) {
         enterCommandMode(ReplaceMode);
     } else {
         if (clearLastInsertion)
-            m_lastInsertion = "<INSERT>";
+            m_lastInsertion = _("<INSERT>");
         joinPreviousEditBlock();
         if (!atEndOfLine()) {
             setAnchor();
@@ -4071,12 +4071,12 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         joinPreviousEditBlock();
         replay(text.repeated(repeat - 1));
 
-        if (m_visualBlockInsert && !text.contains('\n')) {
-            const CursorPosition lastAnchor = mark('<').position;
-            const CursorPosition lastPosition = mark('>').position;
+        if (m_visualBlockInsert && !text.contains(QLatin1Char('\n'))) {
+            const CursorPosition lastAnchor = mark(QLatin1Char('<')).position;
+            const CursorPosition lastPosition = mark(QLatin1Char('>')).position;
             CursorPosition startPos(lastAnchor.line, qMin(lastPosition.column, lastAnchor.column));
             CursorPosition pos = startPos;
-            if (g.dotCommand.endsWith(QChar('A')))
+            if (g.dotCommand.endsWith(QLatin1Char('A')))
                 pos.column = qMax(lastPosition.column, lastAnchor.column) + 1;
             while (pos.line < lastPosition.line) {
                 ++pos.line;
@@ -4100,9 +4100,9 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
 
         m_lastInsertion = text;
         // If command is 'o' or 'O' don't include the first line feed in dot command.
-        if (g.dotCommand.endsWith(QChar('o'), Qt::CaseInsensitive))
+        if (g.dotCommand.endsWith(QLatin1Char('o'), Qt::CaseInsensitive))
             m_lastInsertion.remove(0, 1);
-        g.dotCommand += m_lastInsertion + "<ESC>";
+        g.dotCommand += m_lastInsertion + _("<ESC>");
         enterCommandMode();
         m_ctrlVActive = false;
         m_visualBlockInsert = false;
@@ -4112,7 +4112,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         enterCommandMode(InsertMode);
     } else if (input.isControl('v')) {
         m_ctrlVActive = true;
-        insert = "<C-V>";
+        insert = _("<C-V>");
     } else if (input.isControl('w')) {
         const int blockNumber = cursor().blockNumber();
         const int endPos = position();
@@ -4122,10 +4122,10 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         const int beginPos = position();
         Range range(beginPos, endPos, RangeCharMode);
         removeText(range);
-        insert = "<C-W>";
+        insert = _("<C-W>");
     } else if (input.isKey(Key_Insert)) {
         m_mode = ReplaceMode;
-        insert = "<INSERT>";
+        insert = _("<INSERT>");
     } else if (input.isKey(Key_Left)) {
         moveLeft(count());
         move = true;
@@ -4160,8 +4160,8 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
     } else if (input.isReturn() || input.isControl('j') || input.isControl('m')) {
         joinPreviousEditBlock();
         m_submode = NoSubMode;
-        insertText(QString("\n"));
-        insert = "\n";
+        insertText(QString::fromLatin1("\n"));
+        insert = _("\n");
         insertAutomaticIndentation(true);
         endEditBlock();
     } else if (input.isBackspace()) {
@@ -4187,12 +4187,12 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
                 cursor().deletePreviousChar();
             }
         }
-        insert = "<BS>";
+        insert = _("<BS>");
         endEditBlock();
     } else if (input.isKey(Key_Delete)) {
         setAnchor();
         cursor().deleteChar();
-        insert = "<DELETE>";
+        insert = _("<DELETE>");
     } else if (input.isKey(Key_PageDown) || input.isControl('f')) {
         removeAutomaticIndentation();
         moveDown(count() * (linesOnScreen() - 2));
@@ -4206,13 +4206,13 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         if (hasConfig(ConfigExpandTab)) {
             const int ts = config(ConfigTabStop).toInt();
             const int col = logicalCursorColumn();
-            QString str = QString(ts - col % ts, ' ');
+            QString str = QString(ts - col % ts, QLatin1Char(' '));
             m_lastInsertion.append(str);
             insertText(str);
         } else {
             insertInInsertMode(input.raw());
         }
-        insert = "\t";
+        insert = _("\t");
     } else if (input.isControl('d')) {
         // remove one level of indentation from the current line
         int shift = config(ConfigShiftWidth).toInt();
@@ -4223,15 +4223,15 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         int amount = 0;
         int i = 0;
         for (; i < text.size() && amount < shift; ++i) {
-            if (text.at(i) == ' ')
+            if (text.at(i) == QLatin1Char(' '))
                 ++amount;
-            else if (text.at(i) == '\t')
+            else if (text.at(i) == QLatin1Char('\t'))
                 amount += tab; // FIXME: take position into consideration
             else
                 break;
         }
         removeText(Range(pos, pos+i));
-        insert = "<C-D>";
+        insert = _("<C-D>");
     //} else if (key >= control('a') && key <= control('z')) {
     //    // ignore these
     } else if (input.isControl('p') || input.isControl('n')) {
@@ -4241,9 +4241,9 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         setCursor(tc);
         emit q->simpleCompletionRequested(str, input.isControl('n'));
         if (input.isControl('p'))
-            insert = "<C-P>";
+            insert = _("<C-P>");
         else
-            insert = "<C-N>";
+            insert = _("<C-N>");
     } else if (!input.text().isEmpty()) {
         insert = input.text();
         insertInInsertMode(insert);
@@ -4356,7 +4356,7 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
             g.searchBuffer.setContents(g.lastSearch);
         if (!g.lastSearch.isEmpty()) {
             updateFind(true);
-            finishMovement(g.searchBuffer.prompt() + g.lastSearch + '\n');
+            finishMovement(g.searchBuffer.prompt() + g.lastSearch + QLatin1Char('\n'));
         } else {
             finishMovement();
         }
@@ -4395,13 +4395,13 @@ int FakeVimHandler::Private::parseLineAddress(QString *cmd)
 
     int result = -1;
     QChar c = cmd->at(0);
-    if (c == '.') { // current line
+    if (c == QLatin1Char('.')) { // current line
         result = cursorBlockNumber();
         cmd->remove(0, 1);
-    } else if (c == '$') { // last line
+    } else if (c == QLatin1Char('$')) { // last line
         result = document()->blockCount() - 1;
         cmd->remove(0, 1);
-    } else if (c == '\'') { // mark
+    } else if (c == QLatin1Char('\'')) { // mark
         cmd->remove(0, 1);
         if (cmd->isEmpty()) {
             showMessage(MessageError, msgMarkNotSet(QString()));
@@ -4417,13 +4417,13 @@ int FakeVimHandler::Private::parseLineAddress(QString *cmd)
         result = m.position.line;
     } else if (c.isDigit()) { // line with given number
         result = 0;
-    } else if (c == '-' || c == '+') { // add or subtract from current line number
+    } else if (c == QLatin1Char('-') || c == QLatin1Char('+')) { // add or subtract from current line number
         result = cursorBlockNumber();
-    } else if (c == '/' || c == '?'
-        || (c == '\\' && cmd->size() > 1 && QString("/?&").contains(cmd->at(1)))) {
+    } else if (c == QLatin1Char('/') || c == QLatin1Char('?')
+        || (c == QLatin1Char('\\') && cmd->size() > 1 && QString::fromLatin1("/?&").contains(cmd->at(1)))) {
         // search for expression
         SearchData sd;
-        if (c == '/' || c == '?') {
+        if (c == QLatin1Char('/') || c == QLatin1Char('?')) {
             const int end = findUnescaped(c, *cmd, 1);
             if (end == -1)
                 return -1;
@@ -4432,9 +4432,9 @@ int FakeVimHandler::Private::parseLineAddress(QString *cmd)
         } else {
             c = cmd->at(1);
             cmd->remove(0, 2);
-            sd.needle = (c == '&') ? g.lastSubstitutePattern : g.lastSearch;
+            sd.needle = (c == QLatin1Char('&')) ? g.lastSubstitutePattern : g.lastSearch;
         }
-        sd.forward = (c != '?');
+        sd.forward = (c != QLatin1Char('?'));
         const QTextBlock b = block();
         const int pos = b.position() + (sd.forward ? b.length() - 1 : 0);
         QTextCursor tc = search(sd, pos, 1, true);
@@ -4452,10 +4452,10 @@ int FakeVimHandler::Private::parseLineAddress(QString *cmd)
     int i = 0;
     for (; i < cmd->size(); ++i) {
         c = cmd->at(i);
-        if (c == '-' || c == '+') {
+        if (c == QLatin1Char('-') || c == QLatin1Char('+')) {
             if (n != 0)
                 result = result + (add ? n - 1 : -(n - 1));
-            add = c == '+';
+            add = c == QLatin1Char('+');
             result = result + (add ? 1 : -1);
             n = 0;
         } else if (c.isDigit()) {
@@ -4484,7 +4484,7 @@ bool FakeVimHandler::Private::parseExCommmand(QString *line, ExCommand *cmd)
         return false;
 
     // remove leading colons and spaces
-    line->remove(QRegExp("^\\s*(:+\\s*)*"));
+    line->remove(QRegExp(_("^\\s*(:+\\s*)*")));
 
     // parse range first
     if (!parseLineRange(line, cmd))
@@ -4496,16 +4496,16 @@ bool FakeVimHandler::Private::parseExCommmand(QString *line, ExCommand *cmd)
     int i = 0;
     for (; i < line->size(); ++i) {
         const QChar &c = line->at(i);
-        if (c == '\\') {
+        if (c == QLatin1Char('\\')) {
             ++i; // skip escaped character
         } else if (close.isNull()) {
-            if (c == '|') {
+            if (c == QLatin1Char('|')) {
                 // split on |
                 break;
-            } else if (c == '/') {
-                subst = i > 0 && (line->at(i - 1) == 's');
+            } else if (c == QLatin1Char('/')) {
+                subst = i > 0 && (line->at(i - 1) == QLatin1Char('s'));
                 close = c;
-            } else if (c == '"' || c == '\'') {
+            } else if (c == QLatin1Char('"') || c == QLatin1Char('\'')) {
                 close = c;
             }
         } else if (c == close) {
@@ -4519,13 +4519,13 @@ bool FakeVimHandler::Private::parseExCommmand(QString *line, ExCommand *cmd)
     cmd->cmd = line->mid(0, i).trimmed();
 
     // command arguments starts with first non-letter character
-    cmd->args = cmd->cmd.section(QRegExp("(?=[^a-zA-Z])"), 1);
+    cmd->args = cmd->cmd.section(QRegExp(_("(?=[^a-zA-Z])")), 1);
     if (!cmd->args.isEmpty()) {
         cmd->cmd.chop(cmd->args.size());
         cmd->args = cmd->args.trimmed();
 
         // '!' at the end of command
-        cmd->hasBang = cmd->args.startsWith('!');
+        cmd->hasBang = cmd->args.startsWith(QLatin1Char('!'));
         if (cmd->hasBang)
             cmd->args = cmd->args.mid(1).trimmed();
     }
@@ -4540,11 +4540,11 @@ bool FakeVimHandler::Private::parseLineRange(QString *line, ExCommand *cmd)
 {
     // FIXME: that seems to be different for %w and %s
     if (line->startsWith(QLatin1Char('%')))
-        line->replace(0, 1, "1,$");
+        line->replace(0, 1, _("1,$"));
 
     int beginLine = parseLineAddress(line);
     int endLine;
-    if (line->startsWith(',')) {
+    if (line->startsWith(QLatin1Char(','))) {
         *line = line->mid(1).trimmed();
         endLine = parseLineAddress(line);
     } else {
@@ -4582,14 +4582,14 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd)
 bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
 {
     // :substitute
-    if (!cmd.matches("s", "substitute")
-        && !(cmd.cmd.isEmpty() && !cmd.args.isEmpty() && QString("&~").contains(cmd.args[0]))) {
+    if (!cmd.matches(_("s"), _("substitute"))
+        && !(cmd.cmd.isEmpty() && !cmd.args.isEmpty() && QString::fromLatin1("&~").contains(cmd.args[0]))) {
         return false;
     }
 
     int count = 1;
     QString line = cmd.args;
-    const int countIndex = line.lastIndexOf(QRegExp("\\d+$"));
+    const int countIndex = line.lastIndexOf(QRegExp(_("\\d+$")));
     if (countIndex != -1) {
         count = line.mid(countIndex).toInt();
         line = line.mid(0, countIndex).trimmed();
@@ -4597,11 +4597,11 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
 
     if (cmd.cmd.isEmpty()) {
         // keep previous substitution flags on '&&' and '~&'
-        if (line.size() > 1 && line[1] == '&')
+        if (line.size() > 1 && line[1] == QLatin1Char('&'))
             g.lastSubstituteFlags += line.mid(2);
         else
             g.lastSubstituteFlags = line.mid(1);
-        if (line[0] == '~')
+        if (line[0] == QLatin1Char('~'))
             g.lastSubstitutePattern = g.lastSearch;
     } else {
         if (line.isEmpty()) {
@@ -4625,14 +4625,14 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
     count = qMax(1, count);
     QString needle = g.lastSubstitutePattern;
 
-    if (g.lastSubstituteFlags.contains('i'))
-        needle.prepend("\\c");
+    if (g.lastSubstituteFlags.contains(QLatin1Char('i')))
+        needle.prepend(_("\\c"));
 
     QRegExp pattern = vimPatternToQtPattern(needle, hasConfig(ConfigSmartCase));
 
     QTextBlock lastBlock;
     QTextBlock firstBlock;
-    const bool global = g.lastSubstituteFlags.contains('g');
+    const bool global = g.lastSubstituteFlags.contains(QLatin1Char('g'));
     for (int a = 0; a != count; ++a) {
         for (QTextBlock block = document()->findBlock(cmd.range.endPos);
             block.isValid() && block.position() + block.length() > cmd.range.beginPos;
@@ -4736,8 +4736,8 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
         break;
     }
 
-    const QString lhs = args.section(QRegExp("\\s+"), 0, 0);
-    const QString rhs = args.section(QRegExp("\\s+"), 1);
+    const QString lhs = args.section(QRegExp(_("\\s+")), 0, 0);
+    const QString rhs = args.section(QRegExp(_("\\s+")), 1);
     if ((rhs.isNull() && type != Unmap) || (!rhs.isNull() && type == Unmap)) {
         // FIXME: Dump mappings here.
         //qDebug() << g.mappings;
@@ -4765,16 +4765,16 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
 bool FakeVimHandler::Private::handleExHistoryCommand(const ExCommand &cmd)
 {
     // :his[tory]
-    if (!cmd.matches("his", "history"))
+    if (!cmd.matches(_("his"), _("history")))
         return false;
 
     if (cmd.args.isEmpty()) {
         QString info;
-        info += "#  command history\n";
+        info += _("#  command history\n");
         int i = 0;
         foreach (const QString &item, g.commandBuffer.historyItems()) {
             ++i;
-            info += QString("%1 %2\n").arg(i, -8).arg(item);
+            info += QString::fromLatin1("%1 %2\n").arg(i, -8).arg(item);
         }
         emit q->extraInformationChanged(info);
     } else {
@@ -4787,7 +4787,7 @@ bool FakeVimHandler::Private::handleExHistoryCommand(const ExCommand &cmd)
 bool FakeVimHandler::Private::handleExRegisterCommand(const ExCommand &cmd)
 {
     // :reg[isters] and :di[splay]
-    if (!cmd.matches("reg", "registers") && !cmd.matches("di", "display"))
+    if (!cmd.matches(_("reg"), _("registers")) && !cmd.matches(_("di"), _("display")))
         return false;
 
     QByteArray regs = cmd.args.toLatin1();
@@ -4801,10 +4801,10 @@ bool FakeVimHandler::Private::handleExRegisterCommand(const ExCommand &cmd)
         }
     }
     QString info;
-    info += "--- Registers ---\n";
+    info += _("--- Registers ---\n");
     foreach (char reg, regs) {
         QString value = quoteUnprintable(registerContents(reg));
-        info += QString("\"%1   %2\n").arg(reg).arg(value);
+        info += QString::fromLatin1("\"%1   %2\n").arg(reg).arg(value);
     }
     emit q->extraInformationChanged(info);
     updateMiniBuffer();
@@ -4814,7 +4814,7 @@ bool FakeVimHandler::Private::handleExRegisterCommand(const ExCommand &cmd)
 bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
 {
     // :se[t]
-    if (!cmd.matches("se", "set"))
+    if (!cmd.matches(_("se"), _("set")))
         return false;
 
     clearMessage();
@@ -4829,7 +4829,7 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
             {} // nothing to do
     } else if (act) {
         // Non-boolean to show.
-        showMessage(MessageInfo, cmd.args + '=' + act->value().toString());
+        showMessage(MessageInfo, cmd.args + QLatin1Char('=') + act->value().toString());
     } else if (cmd.args.startsWith(_("no"))
             && (act = theFakeVimSettings()->item(cmd.args.mid(2)))) {
         // Boolean config to be switched off.
@@ -4838,9 +4838,9 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
             act->setValue(false);
         else if (oldValue == false)
             {} // nothing to do
-    } else if (cmd.args.contains('=')) {
+    } else if (cmd.args.contains(QLatin1Char('='))) {
         // Non-boolean config to set.
-        int p = cmd.args.indexOf('=');
+        int p = cmd.args.indexOf(QLatin1Char('='));
         QString error = theFakeVimSettings()
                 ->trySetValue(cmd.args.left(p), cmd.args.mid(p + 1));
         if (!error.isEmpty())
@@ -4856,7 +4856,7 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
 bool FakeVimHandler::Private::handleExNormalCommand(const ExCommand &cmd)
 {
     // :norm[al]
-    if (!cmd.matches("norm", "normal"))
+    if (!cmd.matches(_("norm"), _("normal")))
         return false;
     //qDebug() << "REPLAY NORMAL: " << quoteUnprintable(reNormal.cap(3));
     replay(cmd.args);
@@ -4867,8 +4867,8 @@ bool FakeVimHandler::Private::handleExYankDeleteCommand(const ExCommand &cmd)
 {
     // :[range]d[elete] [x] [count]
     // :[range]y[ank] [x] [count]
-    const bool remove = cmd.matches("d", "delete");
-    if (!remove && !cmd.matches("y", "yank"))
+    const bool remove = cmd.matches(_("d"), _("delete"));
+    if (!remove && !cmd.matches(_("y"), _("yank")))
         return false;
 
     // get register from arguments
@@ -4895,7 +4895,7 @@ bool FakeVimHandler::Private::handleExYankDeleteCommand(const ExCommand &cmd)
 bool FakeVimHandler::Private::handleExChangeCommand(const ExCommand &cmd)
 {
     // :[range]c[hange]
-    if (!cmd.matches("c", "change"))
+    if (!cmd.matches(_("c"), _("change")))
         return false;
 
     const bool oldAutoIndent = hasConfig(ConfigAutoIndent);
@@ -4921,7 +4921,7 @@ bool FakeVimHandler::Private::handleExChangeCommand(const ExCommand &cmd)
 bool FakeVimHandler::Private::handleExMoveCommand(const ExCommand &cmd)
 {
     // :[range]m[ove] {address}
-    if (!cmd.matches("m", "move"))
+    if (!cmd.matches(_("m"), _("move")))
         return false;
 
     QString lineCode = cmd.args;
@@ -4930,14 +4930,14 @@ bool FakeVimHandler::Private::handleExMoveCommand(const ExCommand &cmd)
     const int endLine = document()->findBlock(cmd.range.endPos).blockNumber();
     const int lines = endLine - startLine + 1;
 
-    int targetLine = lineCode == "0" ? -1 : parseLineAddress(&lineCode);
+    int targetLine = lineCode == _("0") ? -1 : parseLineAddress(&lineCode);
     if (targetLine >= startLine && targetLine < endLine) {
         showMessage(MessageError, FakeVimHandler::tr("Move lines into themselves"));
         return true;
     }
 
-    CursorPosition lastAnchor = mark('<').position;
-    CursorPosition lastPosition = mark('>').position;
+    CursorPosition lastAnchor = mark(QLatin1Char('<')).position;
+    CursorPosition lastPosition = mark(QLatin1Char('>')).position;
 
     recordJump();
     setPosition(cmd.range.beginPos);
@@ -4957,7 +4957,7 @@ bool FakeVimHandler::Private::handleExMoveCommand(const ExCommand &cmd)
     if (insertAtEnd) {
         moveBehindEndOfLine();
         text.chop(1);
-        insertText(QString('\n'));
+        insertText(QString::fromLatin1("\n"));
     }
     insertText(text);
 
@@ -4972,8 +4972,8 @@ bool FakeVimHandler::Private::handleExMoveCommand(const ExCommand &cmd)
         lastAnchor.line += targetLine - startLine + 1;
     if (lastPosition.line >= startLine && lastPosition.line <= endLine)
         lastPosition.line += targetLine - startLine + 1;
-    setMark('<', lastAnchor);
-    setMark('>', lastPosition);
+    setMark(QLatin1Char('<'), lastAnchor);
+    setMark(QLatin1Char('>'), lastPosition);
 
     if (lines > 2)
         showMessage(MessageInfo, FakeVimHandler::tr("%1 lines moved").arg(lines));
@@ -4985,7 +4985,7 @@ bool FakeVimHandler::Private::handleExJoinCommand(const ExCommand &cmd)
 {
     // :[range]j[oin][!] [count]
     // FIXME: Argument [count] can follow immediately.
-    if (!cmd.matches("j", "join"))
+    if (!cmd.matches(_("j"), _("join")))
         return false;
 
     // get [count] from arguments
@@ -5014,7 +5014,7 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
 {
     // :w, :x, :wq, ...
     //static QRegExp reWrite("^[wx]q?a?!?( (.*))?$");
-    if (cmd.cmd != "w" && cmd.cmd != "x" && cmd.cmd != "wq")
+    if (cmd.cmd != _("w") && cmd.cmd != _("x") && cmd.cmd != _("wq"))
         return false;
 
     int beginLine = lineForPosition(cmd.range.beginPos);
@@ -5027,8 +5027,8 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
     //qDebug() << "LINES: " << beginLine << endLine;
     //QString prefix = cmd.args;
     const bool forced = cmd.hasBang;
-    //const bool quit = prefix.contains(QChar('q')) || prefix.contains(QChar('x'));
-    //const bool quitAll = quit && prefix.contains(QChar('a'));
+    //const bool quit = prefix.contains(QLatin1Char('q')) || prefix.contains(QLatin1Char('x'));
+    //const bool quitAll = quit && prefix.contains(QLatin1Char('a'));
     QString fileName = cmd.args;
     if (fileName.isEmpty())
         fileName = m_currentFileName;
@@ -5057,7 +5057,7 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
         file3.open(QIODevice::ReadOnly);
         QByteArray ba = file3.readAll();
         showMessage(MessageInfo, FakeVimHandler::tr("\"%1\" %2 %3L, %4C written")
-            .arg(fileName).arg(exists ? " " : tr(" [New] "))
+            .arg(fileName).arg(exists ? _(" ") : tr(" [New] "))
             .arg(ba.count('\n')).arg(ba.size()));
         //if (quitAll)
         //    passUnknownExCommand(forced ? "qa!" : "qa");
@@ -5073,7 +5073,7 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
 bool FakeVimHandler::Private::handleExReadCommand(const ExCommand &cmd)
 {
     // :r[ead]
-    if (!cmd.matches("r", "read"))
+    if (!cmd.matches(_("r"), _("read")))
         return false;
 
     beginEditBlock();
@@ -5088,7 +5088,7 @@ bool FakeVimHandler::Private::handleExReadCommand(const ExCommand &cmd)
     insertText(data);
     endEditBlock();
     showMessage(MessageInfo, FakeVimHandler::tr("\"%1\" %2L, %3C")
-        .arg(m_currentFileName).arg(data.count('\n')).arg(data.size()));
+        .arg(m_currentFileName).arg(data.count(QLatin1Char('\n'))).arg(data.size()));
     return true;
 }
 
@@ -5099,7 +5099,7 @@ bool FakeVimHandler::Private::handleExBangCommand(const ExCommand &cmd) // :!
 
     setCurrentRange(cmd.range);
     int targetPosition = firstPositionInLine(lineForPosition(cmd.range.beginPos));
-    QString command = QString(cmd.cmd.mid(1) + ' ' + cmd.args).trimmed();
+    QString command = QString(cmd.cmd.mid(1) + QLatin1Char(' ') + cmd.args).trimmed();
     QString text = selectText(cmd.range);
     QProcess proc;
     proc.start(command);
@@ -5121,7 +5121,7 @@ bool FakeVimHandler::Private::handleExBangCommand(const ExCommand &cmd) // :!
         leaveVisualMode();
         //qDebug() << "FILTER: " << command;
         showMessage(MessageInfo, FakeVimHandler::tr("%n lines filtered", 0,
-            text.count('\n')));
+            text.count(QLatin1Char('\n'))));
     }
     return true;
 }
@@ -5129,7 +5129,7 @@ bool FakeVimHandler::Private::handleExBangCommand(const ExCommand &cmd) // :!
 bool FakeVimHandler::Private::handleExShiftCommand(const ExCommand &cmd)
 {
     // :[range]{<|>}* [count]
-    if (!cmd.cmd.isEmpty() || (!cmd.args.startsWith('<') && !cmd.args.startsWith('>')))
+    if (!cmd.cmd.isEmpty() || (!cmd.args.startsWith(QLatin1Char('<')) && !cmd.args.startsWith(QLatin1Char('>'))))
         return false;
 
     const QChar c = cmd.args.at(0);
@@ -5150,7 +5150,7 @@ bool FakeVimHandler::Private::handleExShiftCommand(const ExCommand &cmd)
     parseRangeCount(cmd.args.mid(i), &range);
 
     setCurrentRange(range);
-    if (c == '<')
+    if (c == QLatin1Char('<'))
         shiftRegionLeft(repeat);
     else
         shiftRegionRight(repeat);
@@ -5163,7 +5163,7 @@ bool FakeVimHandler::Private::handleExShiftCommand(const ExCommand &cmd)
 bool FakeVimHandler::Private::handleExNohlsearchCommand(const ExCommand &cmd)
 {
     // :nohlsearch
-    if (!cmd.cmd.startsWith("noh"))
+    if (!cmd.cmd.startsWith(_("noh")))
         return false;
 
     highlightMatches(QString());
@@ -5174,8 +5174,8 @@ bool FakeVimHandler::Private::handleExUndoRedoCommand(const ExCommand &cmd)
 {
     // :undo
     // :redo
-    bool undo = (cmd.cmd == "u" || cmd.cmd == "un" || cmd.cmd == "undo");
-    if (!undo && cmd.cmd != "red" && cmd.cmd != "redo")
+    bool undo = (cmd.cmd == _("u") || cmd.cmd == _("un") || cmd.cmd == _("undo"));
+    if (!undo && cmd.cmd != _("red") && cmd.cmd != _("redo"))
         return false;
 
     undoRedo(undo);
@@ -5198,7 +5198,7 @@ bool FakeVimHandler::Private::handleExGotoCommand(const ExCommand &cmd)
 bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
 {
     // :source
-    if (cmd.cmd != "so" && cmd.cmd != "source")
+    if (cmd.cmd != _("so") && cmd.cmd != _("source"))
         return false;
 
     QString fileName = cmd.args;
@@ -5250,7 +5250,7 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
 bool FakeVimHandler::Private::handleExEchoCommand(const ExCommand &cmd)
 {
     // :echo
-    if (cmd.cmd != "echo")
+    if (cmd.cmd != _("echo"))
         return false;
     showMessage(MessageInfo, cmd.args);
     return true;
@@ -5450,7 +5450,7 @@ void FakeVimHandler::Private::searchNext(bool forward)
     sd.forward = forward ? g.lastSearchForward : !g.lastSearchForward;
     sd.highlightMatches = true;
     m_searchStartPosition = position();
-    showMessage(MessageCommand, (g.lastSearchForward ? '/' : '?') + sd.needle);
+    showMessage(MessageCommand, QLatin1Char(g.lastSearchForward ? '/' : '?') + sd.needle);
     recordJump();
     search(sd);
 }
@@ -5497,7 +5497,7 @@ void FakeVimHandler::Private::indentSelectedText(QChar typedChar)
     setPosition(firstPositionInLine(beginLine));
     handleStartOfLine();
     setTargetColumn();
-    setDotCommand("%1==", endLine - beginLine + 1);
+    setDotCommand(_("%1=="), endLine - beginLine + 1);
     endEditBlock();
 
     const int lines = endLine - beginLine + 1;
@@ -5597,12 +5597,12 @@ int FakeVimHandler::Private::charClass(QChar c, bool simple) const
     // FIXME: This means that only characters < 256 in the
     // ConfigIsKeyword setting are handled properly.
     if (c.unicode() < 256) {
-        //int old = (c.isLetterOrNumber() || c.unicode() == '_') ? 2
+        //int old = (c.isLetterOrNumber() || c.unicode() == QLatin1Char('_')) ? 2
         //    :  c.isSpace() ? 0 : 1;
         //qDebug() << c.unicode() << old << m_charClass[c.unicode()];
         return m_charClass[c.unicode()];
     }
-    if (c.isLetterOrNumber() || c.unicode() == '_')
+    if (c.isLetterOrNumber() || c.unicode() == QLatin1Char('_'))
         return 2;
     return c.isSpace() ? 0 : 1;
 }
@@ -5989,7 +5989,7 @@ QString FakeVimHandler::Private::selectText(const Range &range) const
         int lastPos = endOfDoc ? lastPositionInDocument(true) : firstPositionInLine(lastLine + 1);
         tc.setPosition(firstPos, MoveAnchor);
         tc.setPosition(lastPos, KeepAnchor);
-        return tc.selection().toPlainText() + QString((endOfDoc? "\n" : ""));
+        return tc.selection().toPlainText() + _(endOfDoc? "\n" : "");
     }
     // FIXME: Performance?
     int beginLine = lineForPosition(range.beginPos);
@@ -6010,11 +6010,11 @@ QString FakeVimHandler::Private::selectText(const Range &range) const
         if (range.rangemode == RangeBlockMode) {
             line = line.mid(beginColumn, len);
             if (line.size() < len)
-                line += QString(len - line.size(), QChar(' '));
+                line += QString(len - line.size(), QLatin1Char(' '));
         }
         contents += line;
-        if (!contents.endsWith('\n'))
-            contents += '\n';
+        if (!contents.endsWith(QLatin1Char('\n')))
+            contents += QLatin1Char('\n');
         block = block.next();
     }
     //qDebug() << "SELECTED: " << contents;
@@ -6225,7 +6225,7 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
             if (pasteAfter && rightDist() > 0)
                 moveRight();
             insertText(text.repeated(count()));
-            if (text.contains('\n'))
+            if (text.contains(QLatin1Char('\n')))
                 setPosition(pos);
             else
                 moveLeft();
@@ -6265,7 +6265,7 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
             QTextCursor tc = cursor();
             const int col = tc.columnNumber();
             QTextBlock block = tc.block();
-            const QStringList lines = text.split(QChar('\n'));
+            const QStringList lines = text.split(QLatin1Char('\n'));
             for (int i = 0; i < lines.size() - 1; ++i) {
                 if (!block.isValid()) {
                     tc.movePosition(EndOfDocument);
@@ -6278,7 +6278,7 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
                 int begin = block.position();
                 if (col >= length) {
                     tc.setPosition(begin + length - 1);
-                    tc.insertText(QString(col - length + 1, QChar(' ')));
+                    tc.insertText(QString(col - length + 1, QLatin1Char(' ')));
                 } else {
                     tc.setPosition(begin + col);
                 }
@@ -6312,7 +6312,7 @@ void FakeVimHandler::Private::joinLines(int count, bool preserveSpace)
         if (preserveSpace) {
             removeText(currentRange());
         } else {
-            while (characterAtCursor() == ' ' || characterAtCursor() == '\t')
+            while (characterAtCursor() == QLatin1Char(' ') || characterAtCursor() == QLatin1Char('\t'))
                 moveRight();
             cursor().insertText(QString(QLatin1Char(' ')));
         }
@@ -6472,8 +6472,8 @@ void FakeVimHandler::Private::leaveVisualMode()
     if (!isVisualMode())
         return;
 
-    setMark('<', mark('<').position);
-    setMark('>', mark('>').position);
+    setMark(QLatin1Char('<'), mark(QLatin1Char('<')).position);
+    setMark(QLatin1Char('>'), mark(QLatin1Char('>')).position);
     m_lastVisualModeInverted = anchor() > position();
     if (isVisualLineMode())
         m_movetype = MoveLineWise;
@@ -6578,7 +6578,7 @@ void FakeVimHandler::Private::undoRedo(bool undo)
             updateMarks(marks);
             m_lastVisualMode = state.lastVisualMode;
             m_lastVisualModeInverted = state.lastVisualModeInverted;
-            setMark('\'', lastPos);
+            setMark(QLatin1Char('\''), lastPos);
             setCursorPosition(m_lastChangePosition);
             setAnchor();
             state.revision = current;
@@ -6638,13 +6638,13 @@ void FakeVimHandler::Private::initVisualBlockInsertMode(QChar command)
     setDotCommand(visualDotCommand() + QString::number(count()) + command);
 
     leaveVisualMode();
-    const CursorPosition lastAnchor = mark('<').position;
-    const CursorPosition lastPosition = mark('>').position;
+    const CursorPosition lastAnchor = mark(QLatin1Char('<')).position;
+    const CursorPosition lastPosition = mark(QLatin1Char('>')).position;
     CursorPosition pos(lastAnchor.line,
-        command == 'A' ? qMax(lastPosition.column, lastAnchor.column)
+        command == QLatin1Char('A') ? qMax(lastPosition.column, lastAnchor.column)
                        : qMin(lastPosition.column, lastAnchor.column));
 
-    if (command == 's') {
+    if (command == QLatin1Char('s')) {
         Range range(position(), anchor(), RangeBlockMode);
         yankText(range, m_register);
         removeText(range);
@@ -6667,7 +6667,7 @@ void FakeVimHandler::Private::enterExMode(const QString &contents)
 {
     g.currentMessage.clear();
     if (isVisualMode())
-        g.commandBuffer.setContents(QString("'<,'>") + contents, contents.size() + 5);
+        g.commandBuffer.setContents(QString::fromLatin1("'<,'>") + contents, contents.size() + 5);
     else
         g.commandBuffer.setContents(contents, contents.size());
     m_mode = ExMode;
@@ -6678,7 +6678,7 @@ void FakeVimHandler::Private::enterExMode(const QString &contents)
 void FakeVimHandler::Private::recordJump()
 {
     CursorPosition pos(cursor());
-    setMark('\'', pos);
+    setMark(QLatin1Char('\''), pos);
     if (m_jumpListUndo.isEmpty() || m_jumpListUndo.top() != pos)
         m_jumpListUndo.push(pos);
     m_jumpListRedo.clear();
@@ -6691,7 +6691,7 @@ void FakeVimHandler::Private::jump(int distance)
     QStack<CursorPosition> &to   = (distance > 0) ? m_jumpListUndo : m_jumpListRedo;
     int len = qMin(qAbs(distance), from.size());
     CursorPosition m(cursor());
-    setMark('\'', m);
+    setMark(QLatin1Char('\''), m);
     for (int i = 0; i < len; ++i) {
         to.push(m);
         setCursorPosition(from.top());
@@ -6790,22 +6790,22 @@ QString FakeVimHandler::Private::visualDotCommand() const
     QString command;
 
     if (isVisualCharMode())
-        command = "v";
+        command = _("v");
     else if (isVisualLineMode())
-        command = "V";
+        command = _("V");
     else if (isVisualBlockMode())
-        command = "<c-v>";
+        command = _("<c-v>");
     else
         return QString();
 
     const int down = qAbs(start.blockNumber() - end.blockNumber());
     if (down != 0)
-        command.append(QString("%1j").arg(down));
+        command.append(QString::fromLatin1("%1j").arg(down));
 
     const int right = start.positionInBlock() - end.positionInBlock();
     if (right != 0) {
         command.append(QString::number(qAbs(right)));
-        command.append(right < 0 && isVisualBlockMode() ? 'h' : 'l');
+        command.append(QLatin1Char(right < 0 && isVisualBlockMode() ? 'h' : 'l'));
     }
 
     return command;
@@ -6963,7 +6963,7 @@ bool FakeVimHandler::Private::changeNumberTextObject(int count)
     const int posMin = cursor().positionInBlock() + 1;
 
     // find first decimal, hexadecimal or octal number under or after cursor position
-    QRegExp re("(0[xX])(0*[0-9a-fA-F]+)|(0)(0*[0-7]+)(?=\\D|$)|(\\d+)");
+    QRegExp re(_("(0[xX])(0*[0-9a-fA-F]+)|(0)(0*[0-7]+)(?=\\D|$)|(\\d+)"));
     int pos = 0;
     while ((pos = re.indexIn(lineText, pos)) != -1 && pos + re.matchedLength() < posMin)
         ++pos;
@@ -6971,7 +6971,7 @@ bool FakeVimHandler::Private::changeNumberTextObject(int count)
         return false;
     int len = re.matchedLength();
     QString prefix = re.cap(1) + re.cap(3);
-    bool hex = prefix.length() >= 2 && (prefix[1].toLower() == 'x');
+    bool hex = prefix.length() >= 2 && (prefix[1].toLower() == QLatin1Char('x'));
     bool octal = !hex && !prefix.isEmpty();
     const QString num = hex ? re.cap(2) : octal ? re.cap(4) : re.cap(5);
 
@@ -6987,7 +6987,7 @@ bool FakeVimHandler::Private::changeNumberTextObject(int count)
     QTC_ASSERT(ok, qDebug() << "Cannot parse number:" << num << "base:" << base; return false);
 
     // negative decimal number
-    if (!octal && !hex && pos > 0 && lineText[pos - 1] == '-') {
+    if (!octal && !hex && pos > 0 && lineText[pos - 1] == QLatin1Char('-')) {
         value = -value;
         --pos;
         ++len;
@@ -7002,14 +7002,14 @@ bool FakeVimHandler::Private::changeNumberTextObject(int count)
 
     // convert hexadecimal number to upper-case if last letter was upper-case
     if (hex) {
-        const int lastLetter = num.lastIndexOf(QRegExp("[a-fA-F]"));
+        const int lastLetter = num.lastIndexOf(QRegExp(_("[a-fA-F]")));
         if (lastLetter != -1 && num[lastLetter].isUpper())
             repl = repl.toUpper();
     }
 
     // preserve leading zeroes
     if ((octal || hex) && repl.size() < num.size()) {
-        prefix.append(QString("0").repeated(num.size() - repl.size()));
+        prefix.append(QString::fromLatin1("0").repeated(num.size() - repl.size()));
     }
     repl.prepend(prefix);
 
@@ -7062,12 +7062,12 @@ bool FakeVimHandler::Private::selectQuotedStringTextObject(bool inner,
 Mark FakeVimHandler::Private::mark(QChar code) const
 {
     if (isVisualMode()) {
-        if (code == '<')
+        if (code == QLatin1Char('<'))
             return CursorPosition(document(), qMin(anchor(), position()));
-        if (code == '>')
+        if (code == QLatin1Char('>'))
             return CursorPosition(document(), qMax(anchor(), position()));
     }
-    if (code == '.')
+    if (code == QLatin1Char('.'))
         return m_lastChangePosition;
     if (code.isUpper())
         return g.marks.value(code);
@@ -7095,7 +7095,7 @@ bool FakeVimHandler::Private::jumpToMark(QChar mark, bool backTickMode)
         return false;
     }
 
-    if (mark == '\'' && !m_jumpListUndo.isEmpty())
+    if (mark == QLatin1Char('\'') && !m_jumpListUndo.isEmpty())
         m_jumpListUndo.pop();
     recordJump();
     setCursorPosition(m.position);
@@ -7138,7 +7138,7 @@ RangeMode FakeVimHandler::Private::registerRangeMode(int reg) const
         //  - return RangeLineMode if text ends with new line char,
         //  - return RangeCharMode otherwise.
         QString text = clipboard->text(mode);
-        return (text.endsWith('\n') || text.endsWith('\r')) ? RangeLineMode : RangeCharMode;
+        return (text.endsWith(QLatin1Char('\n')) || text.endsWith(QLatin1Char('\r'))) ? RangeLineMode : RangeCharMode;
     }
 
     return g.registers[reg].rangemode;
@@ -7151,8 +7151,8 @@ void FakeVimHandler::Private::setRegister(int reg, const QString &contents, Rang
     getRegisterType(reg, &copyToClipboard, &copyToSelection);
 
     QString contents2 = contents;
-    if (mode == RangeLineMode && !contents2.endsWith('\n'))
-        contents2.append('\n');
+    if (mode == RangeLineMode && !contents2.endsWith(QLatin1Char('\n')))
+        contents2.append(QLatin1Char('\n'));
 
     if (copyToClipboard || copyToSelection) {
         if (copyToClipboard)
@@ -7187,13 +7187,13 @@ void FakeVimHandler::Private::getRegisterType(int reg, bool *isClipboard, bool *
     bool clipboard = false;
     bool selection = false;
 
-    if (reg == '"') {
-        QStringList list = config(ConfigClipboard).toString().split(',');
-        clipboard = list.contains(QString("unnamedplus"));
-        selection = list.contains(QString("unnamed"));
-    } else if (reg == '+') {
+    if (reg == QLatin1Char('"')) {
+        QStringList list = config(ConfigClipboard).toString().split(QLatin1Char(','));
+        clipboard = list.contains(_("unnamedplus"));
+        selection = list.contains(_("unnamed"));
+    } else if (reg == QLatin1Char('+')) {
         clipboard = true;
-    } else if (reg == '*') {
+    } else if (reg == QLatin1Char('*')) {
         selection = true;
     }
 

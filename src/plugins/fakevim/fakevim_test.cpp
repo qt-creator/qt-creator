@@ -66,21 +66,21 @@
 #define LINE_END ">\n"
 
 // Format of message after comparison fails (used by KEYS, COMMAND).
-static const QString helpFormat =
+static const QString helpFormat = QLatin1String(
     "\n\tBefore command [%1]:\n" \
     LINE_START "%2" LINE_END \
     "\n\tAfter the command:\n" \
     LINE_START "%3" LINE_END \
     "\n\tShould be:\n" \
-    LINE_START "%4" LINE_END;
+    LINE_START "%4" LINE_END);
 
 // Compare document contents with a expectedText.
 // Also check cursor position if the expectedText contains | chracter.
 #define COMPARE(beforeText, beforePosition, afterText, afterPosition, expectedText, cmd) \
     do { \
-        QString before(beforeText); \
-        QString actual(afterText); \
-        QString expected(expectedText); \
+        QByteArray before(beforeText); \
+        QByteArray actual(afterText); \
+        QByteArray expected = expectedText; \
         data.oldPosition = beforePosition; \
         data.oldText = before; \
         if (expected.contains(X)) {\
@@ -88,10 +88,10 @@ static const QString helpFormat =
             actual = textWithCursor(actual, afterPosition); \
         } \
         QString help = helpFormat \
-            .arg(QString(cmd)) \
-            .arg(before.replace('\n', LINE_END LINE_START)) \
-            .arg(actual.replace('\n', LINE_END LINE_START)) \
-            .arg(expected.replace('\n', LINE_END LINE_START)); \
+            .arg(QLatin1String(cmd)) \
+            .arg(QLatin1String(before.replace('\n', LINE_END LINE_START))) \
+            .arg(QLatin1String(actual.replace('\n', LINE_END LINE_START))) \
+            .arg(QLatin1String(expected.replace('\n', LINE_END LINE_START))); \
         QVERIFY2(actual == expected, help.toLatin1().constData()); \
     } while (false)
 
@@ -99,7 +99,7 @@ static const QString helpFormat =
 // Escape is always prepended to keys so that previous command is cancelled.
 #define KEYS(keys, expected) \
     do { \
-        QString beforeText(data.text()); \
+        QByteArray beforeText(data.text()); \
         int beforePosition = data.position(); \
         data.doKeys("<ESC>"); \
         data.doKeys(keys); \
@@ -109,7 +109,7 @@ static const QString helpFormat =
 // Run Ex command and check if the expected result is same as document contents.
 #define COMMAND(cmd, expected) \
     do { \
-        QString beforeText(data.text()); \
+        QByteArray beforeText(data.text()); \
         int beforePosition = data.position(); \
         data.doCommand(cmd); \
         COMPARE(beforeText, beforePosition, data.text(), data.position(), (expected), (":" cmd)); \
@@ -123,7 +123,7 @@ static const QString helpFormat =
         data.doKeys("<ESC>"); \
         const int newPosition = data.position(); \
         const int oldPosition = data.oldPosition; \
-        const QString redo = data.text(); \
+        const QByteArray redo = data.text(); \
         KEYS("u", data.oldText); \
         const QTextCursor tc = data.cursor(); \
         const int pos = tc.position(); \
@@ -140,18 +140,18 @@ static const QString helpFormat =
 using namespace FakeVim::Internal;
 using namespace TextEditor;
 
-static QString textWithCursor(const QString &text, int position)
+static QByteArray textWithCursor(const QByteArray &text, int position)
 {
     return (position == -1) ? text : (text.left(position) + X + text.mid(position));
 }
 
-static QString textWithCursor(const QString &text, const QTextBlock &block, int column)
+static QByteArray textWithCursor(const QByteArray &text, const QTextBlock &block, int column)
 {
     const int pos = block.position() + qMin(column, qMax(0, block.length() - 2));
     return text.left(pos) + X + text.mid(pos);
 }
 
-const QString testLines =
+const QByteArray testLines =
   /* 0         1         2         3        4 */
   /* 0123456789012345678901234567890123457890 */
     "\n"
@@ -165,18 +165,29 @@ const QString testLines =
     "    return app.exec();\n"
     "}\n";
 
-const QStringList l = testLines.split('\n');
+const QList<QByteArray> l = testLines.split('\n');
 
-// Insert cursor char at pos, negative counts from back.
-static QString cursor(int line, int column)
+static QByteArray bajoin(const QList<QByteArray> &balist)
 {
-    const int col = column >= 0 ? column : l[line].size() + column;
-    QStringList res = l.mid(0, line) << textWithCursor(l[line], col);
-    res.append(l.mid(line + 1));
-    return res.join("\n");
+    QByteArray res;
+    for (int i = 0; i < balist.size(); ++i) {
+        if (i)
+            res += '\n';
+        res += balist.at(i);
+    }
+    return res;
 }
 
-static QString lmid(int i, int n = -1) { return QStringList(l.mid(i, n)).join("\n"); }
+// Insert cursor char at pos, negative counts from back.
+static QByteArray cursor(int line, int column)
+{
+    const int col = column >= 0 ? column : l[line].size() + column;
+    QList<QByteArray> res = l.mid(0, line) << textWithCursor(l[line], col);
+    res.append(l.mid(line + 1));
+    return bajoin(res);
+}
+
+static QByteArray lmid(int i, int n = -1) { return bajoin(l.mid(i, n)); }
 
 // Data for tests containing BaseTextEditorWidget and FakeVimHAndler.
 struct FakeVimPlugin::TestData
@@ -186,7 +197,7 @@ struct FakeVimPlugin::TestData
     QString title;
 
     int oldPosition;
-    QString oldText;
+    QByteArray oldText;
 
     BaseTextEditorWidget *editor() const { return qobject_cast<BaseTextEditorWidget *>(edit); }
 
@@ -202,27 +213,27 @@ struct FakeVimPlugin::TestData
         handler->setTextCursorPosition(position);
     }
 
-    QString text() const { return editor()->toPlainText(); }
+    QByteArray text() const { return editor()->toPlainText().toUtf8(); }
 
-    void doCommand(const QString &cmd) { handler->handleCommand(cmd); }
-    void doKeys(const QString &keys) { handler->handleInput(keys); }
+    void doCommand(const char *cmd) { handler->handleCommand(QLatin1String(cmd)); }
+    void doKeys(const char *keys) { handler->handleInput(QLatin1String(keys)); }
 
-    void setText(const QString &text)
+    void setText(const char *text)
     {
         doKeys("<ESC>");
-        QString str = text;
+        QByteArray str = text;
         int i = str.indexOf(X);
         if (i != -1)
             str.remove(i, 1);
-        editor()->document()->setPlainText(str);
+        editor()->document()->setPlainText(QLatin1String(str));
         setPosition(i);
     }
 
     // Simulate text completion by inserting text directly to editor widget (bypassing FakeVim).
-    void completeText(const QString &text)
+    void completeText(const char *text)
     {
         QTextCursor tc = editor()->textCursor();
-        tc.insertText(text);
+        tc.insertText(QLatin1String(text));
         editor()->setTextCursor(tc);
     }
 
@@ -237,7 +248,7 @@ struct FakeVimPlugin::TestData
 void FakeVimPlugin::setup(TestData *data)
 {
     setupTest(&data->title, &data->handler, &data->edit);
-    data->handler->handleInput("<ESC><ESC>gg");
+    data->handler->handleInput(QLatin1String("<ESC><ESC>gg"));
 }
 
 
@@ -255,10 +266,10 @@ void FakeVimPlugin::test_vim_indentation()
     data.doCommand("set expandtab");
     data.doCommand("set tabstop=4");
     data.doCommand("set shiftwidth=4");
-    QCOMPARE(data.handler->physicalIndentation("      \t\t\tx"), 6 + 3);
-    QCOMPARE(data.handler->logicalIndentation ("      \t\t\tx"), 4 + 3 * 4);
-    QCOMPARE(data.handler->physicalIndentation("     \t\t\tx"), 5 + 3);
-    QCOMPARE(data.handler->logicalIndentation ("     \t\t\tx"), 4 + 3 * 4);
+    QCOMPARE(data.handler->physicalIndentation(QLatin1String("      \t\t\tx")), 6 + 3);
+    QCOMPARE(data.handler->logicalIndentation (QLatin1String("      \t\t\tx")), 4 + 3 * 4);
+    QCOMPARE(data.handler->physicalIndentation(QLatin1String("     \t\t\tx")), 5 + 3);
+    QCOMPARE(data.handler->logicalIndentation (QLatin1String("     \t\t\tx")), 4 + 3 * 4);
 
     QCOMPARE(data.handler->tabExpand(3), QLatin1String("   "));
     QCOMPARE(data.handler->tabExpand(4), QLatin1String("    "));
@@ -271,10 +282,10 @@ void FakeVimPlugin::test_vim_indentation()
     data.doCommand("set expandtab");
     data.doCommand("set tabstop=8");
     data.doCommand("set shiftwidth=4");
-    QCOMPARE(data.handler->physicalIndentation("      \t\t\tx"), 6 + 3);
-    QCOMPARE(data.handler->logicalIndentation ("      \t\t\tx"), 0 + 3 * 8);
-    QCOMPARE(data.handler->physicalIndentation("     \t\t\tx"), 5 + 3);
-    QCOMPARE(data.handler->logicalIndentation ("     \t\t\tx"), 0 + 3 * 8);
+    QCOMPARE(data.handler->physicalIndentation(QLatin1String("      \t\t\tx")), 6 + 3);
+    QCOMPARE(data.handler->logicalIndentation (QLatin1String("      \t\t\tx")), 0 + 3 * 8);
+    QCOMPARE(data.handler->physicalIndentation(QLatin1String("     \t\t\tx")), 5 + 3);
+    QCOMPARE(data.handler->logicalIndentation (QLatin1String("     \t\t\tx")), 0 + 3 * 8);
 
     QCOMPARE(data.handler->tabExpand(3), QLatin1String("   "));
     QCOMPARE(data.handler->tabExpand(4), QLatin1String("    "));
@@ -287,10 +298,10 @@ void FakeVimPlugin::test_vim_indentation()
     data.doCommand("set noexpandtab");
     data.doCommand("set tabstop=4");
     data.doCommand("set shiftwidth=4");
-    QCOMPARE(data.handler->physicalIndentation("      \t\t\tx"), 6 + 3);
-    QCOMPARE(data.handler->logicalIndentation ("      \t\t\tx"), 4 + 3 * 4);
-    QCOMPARE(data.handler->physicalIndentation("     \t\t\tx"), 5 + 3);
-    QCOMPARE(data.handler->logicalIndentation ("     \t\t\tx"), 4 + 3 * 4);
+    QCOMPARE(data.handler->physicalIndentation(QLatin1String("      \t\t\tx")), 6 + 3);
+    QCOMPARE(data.handler->logicalIndentation (QLatin1String("      \t\t\tx")), 4 + 3 * 4);
+    QCOMPARE(data.handler->physicalIndentation(QLatin1String("     \t\t\tx")), 5 + 3);
+    QCOMPARE(data.handler->logicalIndentation (QLatin1String("     \t\t\tx")), 4 + 3 * 4);
 
     QCOMPARE(data.handler->tabExpand(3), QLatin1String("   "));
     QCOMPARE(data.handler->tabExpand(4), QLatin1String("\t"));
@@ -303,10 +314,10 @@ void FakeVimPlugin::test_vim_indentation()
     data.doCommand("set noexpandtab");
     data.doCommand("set tabstop=8");
     data.doCommand("set shiftwidth=4");
-    QCOMPARE(data.handler->physicalIndentation("      \t\t\tx"), 6 + 3);
-    QCOMPARE(data.handler->logicalIndentation ("      \t\t\tx"), 0 + 3 * 8);
-    QCOMPARE(data.handler->physicalIndentation("     \t\t\tx"), 5 + 3);
-    QCOMPARE(data.handler->logicalIndentation ("     \t\t\tx"), 0 + 3 * 8);
+    QCOMPARE(data.handler->physicalIndentation(QLatin1String("      \t\t\tx")), 6 + 3);
+    QCOMPARE(data.handler->logicalIndentation (QLatin1String("      \t\t\tx")), 0 + 3 * 8);
+    QCOMPARE(data.handler->physicalIndentation(QLatin1String("     \t\t\tx")), 5 + 3);
+    QCOMPARE(data.handler->logicalIndentation (QLatin1String("     \t\t\tx")), 0 + 3 * 8);
 
     QCOMPARE(data.handler->tabExpand(3), QLatin1String("   "));
     QCOMPARE(data.handler->tabExpand(4), QLatin1String("    "));
