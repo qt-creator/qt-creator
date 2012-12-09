@@ -125,7 +125,7 @@ QVariant FolderNavigationModel::data(const QModelIndex &index, int role) const
 }
 
 /*!
-  /class FolderNavigationWidget
+  \class FolderNavigationWidget
 
   Shows a file system folder
   */
