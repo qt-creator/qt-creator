@@ -30,7 +30,7 @@ macx {
     APPBUNDLE = "$$OUT_PWD/bin/Qt Creator.app"
     BINDIST_SOURCE = "$$OUT_PWD/bin/Qt Creator.app"
     BINDIST_INSTALLER_SOURCE = $$BINDIST_SOURCE
-    deployqt.commands = $$PWD/scripts/deployqtHelper_mac.sh \"$${APPBUNDLE}\" \"$$[QT_INSTALL_TRANSLATIONS]\"
+    deployqt.commands = $$PWD/scripts/deployqtHelper_mac.sh \"$${APPBUNDLE}\" \"$$[QT_INSTALL_TRANSLATIONS]\" \"$$[QT_INSTALL_PLUGINS]\"
     codesign.commands = codesign -s \"$(SIGNING_IDENTITY)\" $(SIGNING_FLAGS) \"$${APPBUNDLE}\"
     dmg.commands = $$PWD/scripts/makedmg.sh $$OUT_PWD/bin qt-creator-$${PATTERN}.dmg
     dmg.depends = deployqt
