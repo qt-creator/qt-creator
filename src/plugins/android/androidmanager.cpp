@@ -852,7 +852,7 @@ QStringList AndroidManager::dependencies(const Utils::FileName &readelfPath, con
     readelfProc.start(readelfPath.toString(), QStringList() << QLatin1String("-d") << QLatin1String("-W") << lib);
 
     if (!readelfProc.waitForFinished(-1)) {
-        readelfProc.terminate();
+        readelfProc.kill();
         return libs;
     }
 

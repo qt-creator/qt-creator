@@ -412,7 +412,7 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices(int apiLevel)
     QProcess adbProc;
     adbProc.start(adbToolPath().toString(), QStringList() << QLatin1String("devices"));
     if (!adbProc.waitForFinished(-1)) {
-        adbProc.terminate();
+        adbProc.kill();
         return devices;
     }
     QList<QByteArray> adbDevs = adbProc.readAll().trimmed().split('\n');
@@ -565,7 +565,7 @@ QString AndroidConfigurations::startAVD(int *apiLevel, const QString &name) cons
     proc.start(adbToolPath().toString(), QStringList() << QLatin1String("-e") << QLatin1String("wait-for-device"));
     while (!proc.waitForFinished(500)) {
         if (avdProcess->waitForFinished(0)) {
-            proc.terminate();
+            proc.kill();
             proc.waitForFinished(-1);
             return QString();
         }
@@ -575,7 +575,7 @@ QString AndroidConfigurations::startAVD(int *apiLevel, const QString &name) cons
     // workaround for stupid adb bug
     proc.start(adbToolPath().toString(), QStringList() << QLatin1String("devices"));
     if (!proc.waitForFinished(-1)) {
-        proc.terminate();
+        proc.kill();
         return QString();
     }
 
@@ -597,7 +597,7 @@ int AndroidConfigurations::getSDKVersion(const QString &device) const
                   << QLatin1String("shell") << QLatin1String("getprop")
                   << QLatin1String("ro.build.version.sdk"));
     if (!adbProc.waitForFinished(-1)) {
-        adbProc.terminate();
+        adbProc.kill();
         return -1;
     }
     return adbProc.readAll().trimmed().toInt();

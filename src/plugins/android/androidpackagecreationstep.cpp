@@ -203,7 +203,7 @@ void AndroidPackageCreationStep::checkRequiredLibraries()
     readelfProc.start(AndroidConfigurations::instance().readelfPath(target()->activeRunConfiguration()->abi().architecture()).toString(),
                       QStringList() << QLatin1String("-d") << QLatin1String("-W") << appPath);
     if (!readelfProc.waitForFinished(-1)) {
-        readelfProc.terminate();
+        readelfProc.kill();
         return;
     }
     QStringList libs;
@@ -250,7 +250,7 @@ void AndroidPackageCreationStep::checkRequiredLibrariesForRun()
     }
     readelfProc.start(m_readElf.toString(), QStringList() << QLatin1String("-d") << QLatin1String("-W") << m_appPath.toUserOutput());
     if (!readelfProc.waitForFinished(-1)) {
-        readelfProc.terminate();
+        readelfProc.kill();
         return;
     }
     QStringList libs;
@@ -467,7 +467,7 @@ void AndroidPackageCreationStep::stripAndroidLibs(const QStringList & files, Abi
                            QStringList()<<QLatin1String("--strip-unneeded") << file);
         stripProcess.waitForStarted();
         if (!stripProcess.waitForFinished())
-            stripProcess.terminate();
+            stripProcess.kill();
     }
 }
 

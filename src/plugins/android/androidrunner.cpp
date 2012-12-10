@@ -82,7 +82,7 @@ void AndroidRunner::checkPID()
                  QStringList() << QLatin1String("-s") << m_deviceSerialNumber
                  << QLatin1String("shell") << QLatin1String("readlink") << QLatin1String("$(which ps)"));
     if (!psProc.waitForFinished(-1)) {
-        psProc.terminate();
+        psProc.kill();
         return;
     }
     QByteArray which = psProc.readAll();
@@ -251,7 +251,7 @@ void AndroidRunner::startLogcat()
 void AndroidRunner::stop()
 {
     QMutexLocker locker(&m_mutex);
-    m_adbLogcatProcess.terminate();
+    m_adbLogcatProcess.kill();
     m_adbLogcatProcess.waitForFinished(-1);
     m_checkPIDTimer.stop();
     if (m_processPID == -1)
@@ -301,7 +301,7 @@ void AndroidRunner::adbKill(qint64 pid, const QString &device, int timeout, cons
 
     process.start(AndroidConfigurations::instance().adbToolPath().toString(), arguments);
     if (!process.waitForFinished(timeout))
-        process.terminate();
+        process.kill();
 }
 
 QString AndroidRunner::displayName() const
