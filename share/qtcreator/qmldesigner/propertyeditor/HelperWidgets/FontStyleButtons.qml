@@ -34,6 +34,12 @@ QGroupBox {
     id: fontStyleButtons
 
     property int buttonWidth: 46
+
+    property variant bold: backendValues.font_bold
+    property variant italic: backendValues.font_italic
+    property variant underline: backendValues.font_underline
+    property variant strikeout: backendValues.font_strikeout
+
     layout: HorizontalLayout {
 
         QWidget {
@@ -48,17 +54,17 @@ QGroupBox {
                 fixedHeight: 28
                 height: fixedHeight
                 styleSheetFile: "styledbuttonleft.css";
-                checked: backendValues.font_bold.value;
-                backendValue: backendValues.font_bold;
+                checked: bold.value;
+                backendValue: bold;
 
                 iconFromFile: flagActive ? "images/bold-h-icon.png" : "images/bold-icon.png"
 
                 onClicked: {
-                    backendValues.font_bold.value = checked;
+                    bold.value = checked;
                 }
 
                 ExtendedFunctionButton {
-                    backendValue:   backendValues.font_bold;
+                    backendValue: bold
                     y: 7
                     x: 2
                 }
@@ -75,15 +81,15 @@ QGroupBox {
                 iconFromFile: flagActive ? "images/italic-h-icon.png" : "images/italic-icon.png"
 
                 styleSheetFile: "styledbuttonmiddle.css";
-                checked: backendValues.font_italic.value;
-                backendValue: backendValues.font_italic;
+                checked: italic.value;
+                backendValue: italic;
 
                 onClicked: {
-                    backendValues.font_italic.value = checked;
+                    italic.value = checked;
                 }
 
                 ExtendedFunctionButton {
-                    backendValue:   backendValues.font_italic
+                    backendValue: italic
                     y: 7
                     x: 2
                 }
@@ -100,15 +106,15 @@ QGroupBox {
                 iconFromFile:  flagActive ? "images/underline-h-icon.png" : "images/underline-icon.png"
 
                 styleSheetFile: "styledbuttonmiddle.css";
-                checked: backendValues.font_underline.value;
-                backendValue: backendValues.font_underline;
+                checked: underline.value;
+                backendValue: underline;
 
                 onClicked: {
-                    backendValues.font_underline.value = checked;
+                    underline.value = checked;
                 }
 
                 ExtendedFunctionButton {
-                    backendValue:   backendValues.font_underline;
+                    backendValue: underline;
                     y: 7
                     x: 2
                 }
@@ -125,15 +131,15 @@ QGroupBox {
                 iconFromFile: flagActive ? "images/strikeout-h-icon.png" : "images/strikeout-icon.png"
 
                 styleSheetFile: "styledbuttonright.css";
-                checked: backendValues.font_strikeout.value;
-                backendValue: backendValues.font_strikeout;
+                checked: strikeout.value;
+                backendValue: strikeout;
 
                 onClicked: {
-                    backendValues.font_strikeout.value = checked;
+                    strikeout.value = checked;
                 }
 
                 ExtendedFunctionButton {
-                    backendValue:   backendValues.font_strikeout;
+                    backendValue: strikeout;
                     y: 7
                     x: 2
                 }

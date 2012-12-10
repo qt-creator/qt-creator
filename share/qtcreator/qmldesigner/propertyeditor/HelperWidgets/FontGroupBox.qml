@@ -34,6 +34,16 @@ GroupBox {
     id: fontGroupBox
     caption: qsTr("Font")
     property variant showStyle: false
+
+    property variant fontFamily: backendValues.font_family
+    property variant pointSize: backendValues.font_pointSize
+    property variant pixelSize: backendValues.font_pixelSize
+
+    property variant boldStyle: backendValues.font_bold
+    property variant italicStyle: backendValues.font_italic
+    property variant underlineStyle: backendValues.font_underline
+    property variant strikeoutStyle: backendValues.font_strikeout
+
     layout: VerticalLayout {
 
         QWidget {
@@ -43,7 +53,7 @@ GroupBox {
                 }
 
                 FontComboBox {
-                    backendValue: backendValues.font_family
+                    backendValue: fontFamily
                     baseStateFlag: isBaseState
                 }
             }
@@ -58,7 +68,7 @@ GroupBox {
             onSelectionFlagChanged: {
                 isSetup = true;
                 sizeType.currentText = "points";
-                if (backendValues.font_pixelSize.isInModel)
+                if (pixelSize.isInModel)
                     sizeType.currentText = "pixels";
                 isSetup = false;
             }            
@@ -70,14 +80,14 @@ GroupBox {
                     minimum: 0
                     maximum: 400
                     visible: !sizeWidget.pixelSize
-                    backendValue: backendValues.font_pointSize
+                    backendValue: pointSize
                     baseStateFlag: isBaseState;
                 }                
                 SpinBox {
                     minimum: 0
                     maximum: 400
                     visible: sizeWidget.pixelSize
-                    backendValue: backendValues.font_pixelSize
+                    backendValue: pixelSize
                     baseStateFlag: isBaseState;
                 }                
                 QComboBox {
@@ -88,11 +98,11 @@ GroupBox {
                         if (sizeWidget.isSetup)
                             return;
                         if (currentText == "pixels") {
-                            backendValues.font_pointSize.resetValue();
-                            backendValues.font_pixelSize.value = 8;
+                            pointSize.resetValue();
+                            pixelSize.value = 8;
                         } else {
-                            backendValues.font_pixelSize.resetValue();
-                            }
+                            pixelSize.resetValue();
+                        }
                     }
                 }
             }
@@ -102,7 +112,12 @@ GroupBox {
                 Label {
                     text: qsTr("Font style")
                 }
-                FontStyleButtons {}
+                FontStyleButtons {
+                    bold: boldStyle
+                    italic: italicStyle
+                    underline: underlineStyle
+                    strikeout: strikeoutStyle
+                }
             }
         }
         QWidget {
