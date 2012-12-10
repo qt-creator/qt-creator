@@ -71,8 +71,8 @@ public:
     {
         if (daemonPath.isEmpty())
             m_maxErrors = 0;
-        if (!daemonPath.isEmpty() && daemonPath.at(0) != '/' && daemonPath.at(0) != '.')
-            this->daemonPath = QCoreApplication::applicationDirPath() + QChar('/') + daemonPath;
+        if (!daemonPath.isEmpty() && daemonPath.at(0) != QLatin1Char('/') && daemonPath.at(0) != QLatin1Char('.'))
+            this->daemonPath = QCoreApplication::applicationDirPath() + QLatin1Char('/') + daemonPath;
     }
 
     ~EmbeddedZConfLib()
@@ -114,7 +114,7 @@ public:
             QString daemonCmd = daemonPath;
             QStringList daemonArgs;
 #ifdef Q_OS_LINUX
-            if (QFile::exists("/tmp/mdnsd") && logger)
+            if (QFile::exists(QLatin1String("/tmp/mdnsd")) && logger)
                 logger->appendError(ErrorMessage::WarningLevel,
                                     ZConfLib::tr("%1 detected a file at /tmp/mdnsd, daemon startup will probably fail.")
                                     .arg(name()));

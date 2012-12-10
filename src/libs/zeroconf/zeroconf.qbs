@@ -8,7 +8,7 @@ QtcLibrary {
     Depends { name: "Qt.network" }
     cpp.includePaths: base.concat(".")
 
-    cpp.defines: base.concat("ZEROCONF_LIBRARY")
+    cpp.defines: base.concat(["ZEROCONF_LIBRARY", "QT_NO_CAST_FROM_ASCII"])
 
     Properties {
         condition: qbs.targetOS == "windows"

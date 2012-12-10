@@ -663,7 +663,7 @@ extern "C" void DNSSD_API cServiceResolveReply(DNSServiceRef                    
                  << ((size_t)context);
     ServiceGatherer *ctxGatherer = reinterpret_cast<ServiceGatherer *>(context);
     if (ctxGatherer){
-        if (ctxGatherer->currentService->fullName() != fullname){
+        if (ctxGatherer->currentService->fullName() != QString::fromLocal8Bit(fullname)) {
             qDebug() << "ServiceBrowser " << ctxGatherer->serviceBrowser->serviceType
                      << " for service " << ctxGatherer->currentService->name()
                      << " ignoring resolve reply for " << fullname << " vs. "
@@ -1078,7 +1078,7 @@ void ServiceGatherer::serviceResolveReply(DNSServiceFlags                     fl
     }
     currentService->m_interfaceNr = interfaceIndex;
     currentService->m_port = port;
-    if (hostName != hosttarget) {
+    if (hostName != QString::fromUtf8(hosttarget)) {
         hostName = QString::fromUtf8(hosttarget);
         if (!currentService->host())
             currentService->m_host = new QHostInfo();
@@ -1224,7 +1224,7 @@ void ServiceGatherer::addrReply(DNSServiceFlags                  flags,
     serviceBrowser->updateFlowStatusForFlags(flags);
     if (!currentService->host())
         currentService->m_host = new QHostInfo();
-    if (currentService->host()->hostName() != hostname) {
+    if (currentService->host()->hostName() != QString::fromUtf8(hostname)) {
         if ((flags & kDNSServiceFlagsAdd) == 1)
             currentService->m_host->setHostName(QString::fromUtf8(hostname));
         if (currentService->host()->addresses().isEmpty()) {
@@ -1475,9 +1475,9 @@ void ServiceBrowserPrivate::browseReply(DNSServiceFlags                     flag
     QString newServiceName = QString::fromUtf8(serviceName);
     QString newType = serviceType;
     QString newDomain = domain;
-    if (serviceType != regtype) // discard? should not happen...
+    if (serviceType != QString::fromUtf8(regtype)) // discard? should not happen...
         newType = QString::fromUtf8(regtype);
-    if (domain != replyDomain)
+    if (domain != QString::fromUtf8(replyDomain))
         domain = QString::fromUtf8(replyDomain);
     QString fullName = toFullNameC(serviceName, regtype, replyDomain);
     updateFlowStatusForFlags(flags);

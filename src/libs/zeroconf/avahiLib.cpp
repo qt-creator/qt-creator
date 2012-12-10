@@ -467,7 +467,7 @@ extern "C" void cAvahiClientReply (AvahiClient * /*s*/, AvahiClientState state, 
         break;
     case (AVAHI_CLIENT_S_RUNNING):
         /* Server state: RUNNING */
-        lib->setError(false, QString(""));
+        lib->setError(false, QString());
         break;
     case (AVAHI_CLIENT_S_COLLISION):
         /* Server state: COLLISION */

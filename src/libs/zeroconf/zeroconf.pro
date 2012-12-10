@@ -5,7 +5,7 @@ CONFIG   += exceptions
 TARGET = zeroconf
 TEMPLATE = lib
 
-DEFINES += ZEROCONF_LIBRARY
+DEFINES += ZEROCONF_LIBRARY QT_NO_CAST_FROM_ASCII
 
 SOURCES += servicebrowser.cpp \
     embeddedLib.cpp \
