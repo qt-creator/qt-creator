@@ -700,7 +700,7 @@ QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType, const QmlO
         if (typeName == QLatin1String("alias") && objectNode.isValid())
             typeName = objectNode.instanceType(name);
 
-        if (!superType.hasProperty(name) && type.propertyIsWritable(name)) {
+        if (!superType.hasProperty(name) && type.propertyIsWritable(name) && !name.contains(QLatin1String("."))) {
             foreach (const QmlJS::SimpleReaderNode::Ptr &node, templateConfiguration()->children())
                 if (variantToStringList(node->property(QLatin1String("typeNames"))).contains(typeName)) {
                     const QString fileName = propertyTemplatesPath() + node->property(QLatin1String("sourceFile")).toString();
