@@ -83,7 +83,9 @@ using namespace QmlJS;
 
 typedef QPair<QString, QString> PropertyInfo;
 
-static QString resolveTypeName(const ASTPropertyReference *ref, const ContextPtr &context)
+QList<PropertyInfo> getObjectTypes(const ObjectValue *ov, const ContextPtr &context, bool local = false);
+
+static QString resolveTypeName(const ASTPropertyReference *ref, const ContextPtr &context,  QList<PropertyInfo> &dotProperties)
 {
     QString type = QLatin1String("unknown");
 
@@ -101,6 +103,7 @@ static QString resolveTypeName(const ASTPropertyReference *ref, const ContextPtr
                     type = astObjectValue->typeName()->name.toString();
             } else if (const ObjectValue * objectValue = value->asObjectValue()) {
                 type = objectValue->className();
+                dotProperties = getObjectTypes(objectValue, context);
             } else if (value->asColorValue()) {
                 type = QLatin1String("color");
             } else if (value->asUrlValue()) {
@@ -129,8 +132,17 @@ public:
     {
         const ASTPropertyReference *ref = value_cast<ASTPropertyReference>(value);
         if (ref) {
-            const QString type = resolveTypeName(ref, m_context);
+            QList<PropertyInfo> dotProperties;
+            const QString type = resolveTypeName(ref, m_context, dotProperties);
             m_properties.append(qMakePair(name, type));
+            if (!dotProperties.isEmpty()) {
+                foreach (const PropertyInfo &propertyInfo, dotProperties) {
+                    QString dotName = propertyInfo.first;
+                    QString type = propertyInfo.second;
+                    dotName = name + '.' + dotName;
+                    m_properties.append(qMakePair(dotName, type));
+                }
+            }
         } else {
             if (const CppComponentValue * ov = value_cast<CppComponentValue>(value)) {
                 QString qualifiedTypeName = ov->moduleName().isEmpty() ? ov->className() : ov->moduleName() + '.' + ov->className();
@@ -142,7 +154,7 @@ public:
                     if (value->asRealValue()) {
                         typeName = "real";
                     } else {
-                    typeName = "int";
+                        typeName = "int";
                     }
                 }
                 m_properties.append(qMakePair(name, typeName));
@@ -204,8 +216,6 @@ QStringList prototypes(const ObjectValue *ov, const ContextPtr &context, bool ve
     }
     return list;
 }
-
-QList<PropertyInfo> getObjectTypes(const ObjectValue *ov, const ContextPtr &context, bool local = false);
 
 QList<PropertyInfo> getQmlTypes(const CppComponentValue *ov, const ContextPtr &context, bool local = false)
 {
