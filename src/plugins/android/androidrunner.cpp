@@ -74,19 +74,36 @@ AndroidRunner::~AndroidRunner()
 void AndroidRunner::checkPID()
 {
     QProcess psProc;
+    QLatin1String psCmd = QLatin1String("ps");
+    QLatin1String psPidRx = QLatin1String("\\d+\\s+(\\d+)");
+
+    // Detect busybox, as we need to pass -w to it to get wide output.
     psProc.start(AndroidConfigurations::instance().adbToolPath().toString(),
                  QStringList() << QLatin1String("-s") << m_deviceSerialNumber
-                 << QLatin1String("shell") << QLatin1String("ps"));
+                 << QLatin1String("shell") << QLatin1String("readlink") << QLatin1String("$(which ps)"));
     if (!psProc.waitForFinished(-1)) {
         psProc.terminate();
         return;
     }
+    QByteArray which = psProc.readAll();
+    if (which.startsWith("busybox")) {
+        psCmd = QLatin1String("ps -w");
+        psPidRx = QLatin1String("(\\d+)");
+    }
+
+    psProc.start(AndroidConfigurations::instance().adbToolPath().toString(),
+                 QStringList() << QLatin1String("-s") << m_deviceSerialNumber
+                 << QLatin1String("shell") << psCmd);
+    if (!psProc.waitForFinished(-1)) {
+        psProc.kill();
+        return;
+    }
+    QRegExp rx(psPidRx);
     qint64 pid = -1;
     QList<QByteArray> procs = psProc.readAll().split('\n');
     foreach (const QByteArray &proc, procs) {
         if (proc.trimmed().endsWith(m_packageName.toLatin1())) {
-            QRegExp rx(QLatin1String("(\\d+)"));
-            if (rx.indexIn(QLatin1String(proc), proc.indexOf(' ')) > 0) {
+            if (rx.indexIn(QLatin1String(proc)) > -1) {
                 pid = rx.cap(1).toLongLong();
                 break;
             }
@@ -105,8 +122,7 @@ void AndroidRunner::checkPID()
     m_gdbserverPID = -1;
     foreach (const QByteArray &proc, procs) {
         if (proc.trimmed().endsWith("gdbserver")) {
-            QRegExp rx(QLatin1String("(\\d+)"));
-            if (rx.indexIn(QLatin1String(proc), proc.indexOf(' ')) > 0) {
+            if (rx.indexIn(QLatin1String(proc)) > -1) {
                 m_gdbserverPID = rx.cap(1).toLongLong();
                 break;
             }
