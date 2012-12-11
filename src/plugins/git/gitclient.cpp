@@ -1156,8 +1156,8 @@ QString GitClient::synchronousTopic(const QString &workingDirectory)
     if (fullySynchronousGit(workingDirectory, arguments, &outputTextData, 0, false))
         return data.topic = commandOutputFromLocal8Bit(outputTextData.trimmed());
 
-    // No tag, return HEAD hash
-    return data.topic = synchronousTopRevision(workingDirectory).left(7);
+    // No tag
+    return data.topic = tr("(detached)");
 }
 
 // Retrieve head revision
