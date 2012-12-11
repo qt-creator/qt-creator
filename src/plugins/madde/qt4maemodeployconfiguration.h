@@ -68,6 +68,9 @@ public:
     static Core::Id fremantleWithoutPackagingId();
     static Core::Id harmattanId();
 
+signals:
+    void packagingChanged();
+
 private slots:
     void debianDirChanged(const Utils::FileName &dir);
     void setupPackaging();

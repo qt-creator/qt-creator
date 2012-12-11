@@ -65,9 +65,6 @@ public:
         return 0;
     }
 
-signals:
-    void packagingChanged();
-
 private:
     friend class Internal::RemoteLinuxDeployConfigurationFactory;
 };
