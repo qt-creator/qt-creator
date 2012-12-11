@@ -48,6 +48,7 @@ ArgumentsCollector::ArgumentsCollector(const QStringList &args)
 QSsh::SshConnectionParameters ArgumentsCollector::collect(bool &success) const
 {
     SshConnectionParameters parameters;
+    parameters.options &= ~SshIgnoreDefaultProxy;
     parameters.host = QLatin1String("localhost");
 
     try {
@@ -80,13 +81,13 @@ QSsh::SshConnectionParameters ArgumentsCollector::collect(bool &success) const
                 authTypeGiven = true;
                 continue;
             }
-            if (!checkForNoProxy(pos, parameters.proxyType, proxySettingGiven))
+            if (!checkForNoProxy(pos, parameters.options, proxySettingGiven))
                 throw ArgumentErrorException(QLatin1String("unknown option ") + m_arguments.at(pos));
         }
 
         Q_ASSERT(pos <= m_arguments.count());
         if (pos == m_arguments.count() - 1) {
-            if (!checkForNoProxy(pos, parameters.proxyType, proxySettingGiven))
+            if (!checkForNoProxy(pos, parameters.options, proxySettingGiven))
                 throw ArgumentErrorException(QLatin1String("unknown option ") + m_arguments.at(pos));
         }
 
@@ -160,13 +161,13 @@ bool ArgumentsCollector::checkAndSetIntArg(int &pos, int &val,
     return false;
 }
 
-bool ArgumentsCollector::checkForNoProxy(int &pos,
-    SshConnectionParameters::ProxyType &type, bool &alreadyGiven) const
+bool ArgumentsCollector::checkForNoProxy(int &pos, SshConnectionOptions &options,
+                                         bool &alreadyGiven) const
 {
     if (m_arguments.at(pos) == QLatin1String("-no-proxy")) {
         if (alreadyGiven)
             throw ArgumentErrorException(QLatin1String("proxy setting given twice."));
-        type = SshConnectionParameters::NoProxy;
+        options |= SshIgnoreDefaultProxy;
         alreadyGiven = true;
         return true;
     }
