@@ -95,10 +95,10 @@ private slots:
     void removePreviewForEditor(Core::IEditor *editor);
     void updatePendingPreviewDocuments(QmlJS::Document::Ptr doc);
 
-    void onSelectActionTriggered(const bool checked);
-    void onZoomActionTriggered(const bool checked);
-    void onShowAppOnTopChanged(const bool checked);
-    void onUpdateOnSaveChanged(const bool checked);
+    void onSelectActionTriggered(bool checked);
+    void onZoomActionTriggered(bool checked);
+    void onShowAppOnTopChanged(bool checked);
+    void onUpdateOnSaveChanged(bool checked);
     void onReload();
     void onReloaded();
     void onDestroyedObject(int);

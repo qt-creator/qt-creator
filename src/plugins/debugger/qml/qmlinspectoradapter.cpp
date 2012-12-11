@@ -367,7 +367,7 @@ void QmlInspectorAdapter::updatePendingPreviewDocuments(QmlJS::Document::Ptr doc
         preview->associateEditor(editor);
 }
 
-void QmlInspectorAdapter::onSelectActionTriggered(const bool checked)
+void QmlInspectorAdapter::onSelectActionTriggered(bool checked)
 {
     QTC_ASSERT(toolsClient(), return);
     if (checked) {
@@ -379,7 +379,7 @@ void QmlInspectorAdapter::onSelectActionTriggered(const bool checked)
     }
 }
 
-void QmlInspectorAdapter::onZoomActionTriggered(const bool checked)
+void QmlInspectorAdapter::onZoomActionTriggered(bool checked)
 {
     QTC_ASSERT(toolsClient(), return);
     if (checked) {
@@ -391,13 +391,13 @@ void QmlInspectorAdapter::onZoomActionTriggered(const bool checked)
     }
 }
 
-void QmlInspectorAdapter::onShowAppOnTopChanged(const bool checked)
+void QmlInspectorAdapter::onShowAppOnTopChanged(bool checked)
 {
     QTC_ASSERT(toolsClient(), return);
     toolsClient()->showAppOnTop(checked);
 }
 
-void QmlInspectorAdapter::onUpdateOnSaveChanged(const bool checked)
+void QmlInspectorAdapter::onUpdateOnSaveChanged(bool checked)
 {
     QTC_ASSERT(toolsClient(), return);
     for (QHash<QString, QmlLiveTextPreview *>::const_iterator it
