@@ -69,10 +69,10 @@ def is_debug(fpath):
     # which all have the number at different places
     coredebug = re.compile(r'Qt[1-9]?Core[1-9]?d[1-9]?.dll')
     # bootstrap exception
-    if re.search(fpath):
+    if coredebug.search(fpath):
         return True
     output = subprocess.check_output(['dumpbin', '/imports', fpath])
-    return re.search(output)
+    return coredebug.search(output)
 
 def is_debug_build(install_dir):
     return is_debug(os.path.join(install_dir, 'bin', 'qtcreator.exe'))
