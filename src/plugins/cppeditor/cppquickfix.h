@@ -47,6 +47,7 @@ class CPPEDITOR_EXPORT CppQuickFixOperation: public TextEditor::QuickFixOperatio
 {
 public:
     explicit CppQuickFixOperation(const CppQuickFixInterface &interface, int priority = -1);
+    ~CppQuickFixOperation();
 
 protected:
     QString fileName() const;

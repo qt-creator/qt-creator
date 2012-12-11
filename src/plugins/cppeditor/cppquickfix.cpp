@@ -59,6 +59,9 @@ CppQuickFixOperation::CppQuickFixOperation(const CppQuickFixInterface &interface
     , m_interface(interface)
 {}
 
+CppQuickFixOperation::~CppQuickFixOperation()
+{}
+
 Snapshot CppQuickFixOperation::snapshot() const
 {
     return m_interface->snapshot();
