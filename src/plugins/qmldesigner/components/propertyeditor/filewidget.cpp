@@ -38,6 +38,8 @@
 
 QT_BEGIN_NAMESPACE
 
+static QString s_lastBrowserPath;
+
 FileWidget::FileWidget(QWidget *parent) : QWidget(parent), m_filter("(*.*)"), m_showComboBox(false), m_lock(false)
 {
     m_pushButton = new QToolButton(this);
@@ -56,7 +58,6 @@ FileWidget::FileWidget(QWidget *parent) : QWidget(parent), m_filter("(*.*)"), m_
     connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(lineEditChanged()));
     connect(m_pushButton, SIGNAL(pressed()), this, SLOT(buttonPressed()));
     connect(m_comboBox, SIGNAL(editTextChanged(QString)), this, SLOT(comboBoxChanged()));
-    m_currentPath = QDir::currentPath();
 }
 
 FileWidget::~FileWidget()
@@ -96,15 +97,45 @@ void FileWidget::comboBoxChanged()
 
 void FileWidget::buttonPressed()
 {
-    QString path = m_currentPath;
+    QString modelPath;
     if (m_itemNode.isValid()) {
-        path = QFileInfo(m_itemNode.modelNode().model()->fileUrl().toLocalFile()).absoluteDir().absolutePath();
+        modelPath = QFileInfo(m_itemNode.modelNode().model()->fileUrl().toLocalFile()).absoluteDir().absolutePath();
     }
+
+    m_lastModelPath = modelPath;
+
+    bool documentChanged = m_lastModelPath == modelPath;
+
+    //First we try the last path this browser widget was opened with
+    //if the document was not changed
+    QString path = documentChanged ? QString() : m_currentPath;
+
+
+    //If that one is not valid we try the path for the current file
+    if (path.isEmpty() && !m_fileName.isEmpty())
+        path = QFileInfo(modelPath + QLatin1String("/") + m_fileName.toString()).absoluteDir().absolutePath();
+
+
+    //Next we try to fall back to the path any file browser was opened with
+    if (!QFileInfo(path).exists()) {
+        path = s_lastBrowserPath;
+
+        //The last fallback is to try the path of the document
+        if (!QFileInfo(path).exists()) {
+            if (m_itemNode.isValid()) {
+                path = modelPath;
+            }
+        }
+    }
+
     QString newFile = QFileDialog::getOpenFileName(0, tr("Open File"), path, m_filter);
-    if (!newFile.isEmpty())
+
+    if (!newFile.isEmpty()) {
         setFileNameStr(newFile);
 
-    m_currentPath = QFileInfo(newFile).absolutePath();
+        m_currentPath = QFileInfo(newFile).absolutePath();
+        s_lastBrowserPath = m_currentPath;
+    }
 }
 
 void FileWidget::setFileNameStr(const QString &fileName)

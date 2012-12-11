@@ -119,6 +119,7 @@ private:
     bool m_showComboBox;
     bool m_lock;
     QString m_currentPath;
+    QString m_lastModelPath;
 
 };
 
