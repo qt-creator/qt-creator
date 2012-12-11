@@ -59,12 +59,6 @@ ProcessStep::ProcessStep(BuildStepList *bsl) :
     ctor();
 }
 
-ProcessStep::ProcessStep(BuildStepList *bsl, const Core::Id id) :
-    AbstractProcessStep(bsl, id)
-{
-    ctor();
-}
-
 ProcessStep::ProcessStep(BuildStepList *bsl, ProcessStep *bs) :
     AbstractProcessStep(bsl, bs),
     m_command(bs->m_command),

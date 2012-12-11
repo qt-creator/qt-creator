@@ -85,7 +85,6 @@ public:
 
 protected:
     ProcessStep(BuildStepList *bsl, ProcessStep *bs);
-    ProcessStep(BuildStepList *bsl, const Core::Id id);
 
     bool fromMap(const QVariantMap &map);
 
