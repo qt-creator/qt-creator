@@ -58,9 +58,6 @@ public:
     virtual bool init();
     virtual void run(QFutureInterface<bool> &);
 
-    virtual BuildStepConfigWidget *createConfigWidget() = 0;
-    virtual bool immutable() const = 0;
-
     ProcessParameters *processParameters() { return &m_param; }
 
     bool ignoreReturnValue();
