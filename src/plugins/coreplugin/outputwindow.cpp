@@ -59,6 +59,7 @@ OutputWindow::OutputWindow(Core::Context context, QWidget *parent)
     //setCenterOnScroll(false);
     setFrameShape(QFrame::NoFrame);
     setMouseTracking(true);
+    setUndoRedoEnabled(false);
 
     m_outputWindowContext = new Core::IContext;
     m_outputWindowContext->setContext(context);
