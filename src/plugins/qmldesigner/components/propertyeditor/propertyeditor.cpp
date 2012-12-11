@@ -485,8 +485,9 @@ void PropertyEditor::changeValue(const QString &propertyName)
     }
 
     if (fxObjectNode.modelNode().metaInfo().isValid() && fxObjectNode.modelNode().metaInfo().hasProperty(propertyName))
-        if (fxObjectNode.modelNode().metaInfo().propertyTypeName(propertyName) == QLatin1String("QUrl")) { //turn absolute local file paths into relative paths
-        QString filePath = castedValue.toUrl().toString();
+        if (fxObjectNode.modelNode().metaInfo().propertyTypeName(propertyName) == QLatin1String("QUrl")
+                || fxObjectNode.modelNode().metaInfo().propertyTypeName(propertyName) == QLatin1String("url")) { //turn absolute local file paths into relative paths
+            QString filePath = castedValue.toUrl().toString();
         if (QFileInfo(filePath).exists() && QFileInfo(filePath).isAbsolute()) {
             QDir fileDir(QFileInfo(model()->fileUrl().toLocalFile()).absolutePath());
             castedValue = QUrl(fileDir.relativeFilePath(filePath));
