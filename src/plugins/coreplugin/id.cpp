@@ -52,7 +52,9 @@ namespace Core {
 class StringHolder
 {
 public:
-    StringHolder() {}
+    StringHolder()
+        : n(0), str(0)
+    {}
 
     StringHolder(const char *s, int length)
         : n(length), str(s)
