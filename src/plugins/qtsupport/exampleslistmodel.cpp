@@ -121,7 +121,7 @@ static bool isValidExampleOrDemo(ExampleItem &item)
     static QString invalidPrefix = QLatin1String("qthelp:////"); /* means that the qthelp url
                                                                     doesn't have any namespace */
     bool ok = true;
-    if (item.hasSourceCode && !QFileInfo(item.projectPath).exists())
+    if (!item.hasSourceCode || !QFileInfo(item.projectPath).exists())
         ok = false;
     else if (item.imageUrl.startsWith(invalidPrefix) || !QUrl(item.imageUrl).isValid())
         ok = false;
