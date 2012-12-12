@@ -161,6 +161,17 @@ def substituteUnchosenTargetABIs(settingsDir):
     os.remove(origToolchains)
     test.log("Substituted unchosen ABIs inside toolchains.xml...")
 
+def copySettingsToTmpDir():
+    global tmpSettingsDir
+    global SettingsPath
+    tmpSettingsDir = tempDir()
+    tmpSettingsDir = os.path.abspath(tmpSettingsDir + "/settings")
+    shutil.copytree(cwd, tmpSettingsDir)
+    if platform.system() in ('Linux', 'Darwin'):
+        substituteTildeWithinToolchains(tmpSettingsDir)
+    substituteUnchosenTargetABIs(tmpSettingsDir)
+    SettingsPath = ' -settingspath "%s"' % tmpSettingsDir
+
 if platform.system() in ('Windows', 'Microsoft'):
     sdkPath = "C:\\QtSDK"
     cwd = os.getcwd()       # current dir is directory holding qtcreator.py
@@ -178,11 +189,5 @@ overrideStartApplication()
 # the following only doesn't work if the test ends in an exception
 if os.getenv("SYSTEST_NOSETTINGSPATH") != "1":
     cwd = os.path.abspath(cwd)
-    tmpSettingsDir = tempDir()
-    tmpSettingsDir = os.path.abspath(tmpSettingsDir+"/settings")
-    shutil.copytree(cwd, tmpSettingsDir)
-    if platform.system() in ('Linux', 'Darwin'):
-        substituteTildeWithinToolchains(tmpSettingsDir)
-    substituteUnchosenTargetABIs(tmpSettingsDir)
+    copySettingsToTmpDir()
     atexit.register(__removeTestingDir__)
-    SettingsPath = ' -settingspath "%s"' % tmpSettingsDir
