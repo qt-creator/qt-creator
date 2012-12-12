@@ -1822,10 +1822,10 @@ QString ProjectExplorerPlugin::displayNameForStepId(Core::Id stepId)
     if (stepId == Constants::BUILDSTEPS_CLEAN)
         return tr("Clean");
     if (stepId == Constants::BUILDSTEPS_BUILD)
-        return tr("Build");
+        return tr("Build", "Build step");
     if (stepId == Constants::BUILDSTEPS_DEPLOY)
         return tr("Deploy");
-    return tr("Build");
+    return tr("Build", "Build step");
 }
 
 int ProjectExplorerPlugin::queue(QList<Project *> projects, QList<Core::Id> stepIds)
