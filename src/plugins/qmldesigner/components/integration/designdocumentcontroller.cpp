@@ -38,12 +38,13 @@
 #include <metainfo.h>
 #include <invalidargumentexception.h>
 #include <componentaction.h>
+#include <designeractionmanager.h>
 #include <qmlobjectnode.h>
 #include <rewritingexception.h>
 #include <nodelistproperty.h>
 #include <variantproperty.h>
 #include <rewritingexception.h>
-#include <modelnodecontextmenu.h>
+#include <modelnodeoperations.h>
 #include <designmodewidget.h>
 
 #include <projectexplorer/projectexplorer.h>
@@ -489,7 +490,7 @@ void DesignDocumentController::goIntoComponent()
 
     s_clearCrumblePath = false;
     if (selectedNodes.count() == 1)
-        ModelNodeAction::goIntoComponent(selectedNodes.first());
+        ModelNodeOperations::goIntoComponent(selectedNodes.first());
     s_clearCrumblePath = true;
 }
 
@@ -518,6 +519,7 @@ void DesignDocumentController::loadCurrentModel()
 
     m_model->attachView(m_propertyEditorView.data());
 
+    m_model->attachView(DesignerActionManager::view());
 
     if (s_clearCrumblePath)
         m_formEditorView->crumblePath()->clear();

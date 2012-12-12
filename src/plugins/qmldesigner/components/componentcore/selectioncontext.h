@@ -27,33 +27,73 @@
 **
 ****************************************************************************/
 
-#ifndef MODELNODECONTEXTMENU_H
-#define MODELNODECONTEXTMENU_H
-
-#include <QPoint>
-#include <QCoreApplication>
-
 #include <qmlmodelview.h>
-#include "selectioncontext.h"
+
+#ifndef SELECTIONCONTEXT_H
+#define SELECTIONCONTEXT_H
 
 namespace QmlDesigner {
 
-class ModelNodeContextMenu
-{
-    Q_DECLARE_TR_FUNCTIONS(QmlDesigner::ModelNodeContextMenu)
-public:
-    ModelNodeContextMenu(QmlModelView *view);
-    void execute(const QPoint &pos, bool selectionMenu);
-    void setScenePos(const QPoint &pos);
+class SelectionContext {
 
-    static void showContextMenu(QmlModelView *view, const QPoint &globalPosition, const QPoint &scenePosition, bool showSelection);
+public:
+    SelectionContext();
+    SelectionContext(QmlModelView *view);
+
+    void setTargetNode(const ModelNode &modelNode)
+    { m_targetNode = modelNode; }
+
+    bool singleSelected() const
+    { return m_singleSelected; }
+
+    bool isInBaseState() const
+    { return m_isInBaseState; }
+
+    ModelNode targetNode() const
+    { return m_targetNode; }
+
+    ModelNode currentSingleSelectedNode() const
+    { return m_currentSingleSelectedNode; }
+
+    QList<ModelNode> selectedModelNodes() const
+    { return m_selectedModelNodes; }
+
+    QmlModelView *view() const
+    { return m_view; }
+
+    void setShowSelectionTools(bool show)
+    { m_showSelectionTools = show; }
+
+    bool showSelectionTools() const
+    { return m_showSelectionTools; }
+
+    QPoint scenePos() const
+    { return m_scenePos; }
+
+    void setScenePos(const QPoint &pos)
+    { m_scenePos = pos; }
+
+    void setToggled(bool b)
+    { m_toggled = b; }
+
+    bool toggled() const
+    { return m_toggled; }
+
+    bool isValid() const
+    { return view() && view()->model() && view()->nodeInstanceView(); }
 
 private:
     QmlModelView *m_view;
+    bool m_singleSelected;
+    ModelNode m_currentSingleSelectedNode;
+    ModelNode m_targetNode;
+    bool m_isInBaseState;
+    QList<ModelNode> m_selectedModelNodes;
+    bool m_showSelectionTools;
     QPoint m_scenePos;
-    SelectionContext m_selectionContext;
+    bool m_toggled;
 };
 
-}; //QmlDesigner
+} //QmlDesigner
 
-#endif // MODELNODECONTEXTMENU_H
+#endif //SELECTIONCONTEXT_H

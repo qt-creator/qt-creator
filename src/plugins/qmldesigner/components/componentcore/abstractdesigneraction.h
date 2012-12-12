@@ -27,33 +27,41 @@
 **
 ****************************************************************************/
 
-#ifndef MODELNODECONTEXTMENU_H
-#define MODELNODECONTEXTMENU_H
+#ifndef ABSTRACTDESIGNERACTION_H
+#define ABSTRACTDESIGNERACTION_H
 
-#include <QPoint>
-#include <QCoreApplication>
-
-#include <qmlmodelview.h>
+#include "componentcore_constants.h"
 #include "selectioncontext.h"
 
 namespace QmlDesigner {
 
-class ModelNodeContextMenu
+class AbstractDesignerAction
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlDesigner::ModelNodeContextMenu)
 public:
-    ModelNodeContextMenu(QmlModelView *view);
-    void execute(const QPoint &pos, bool selectionMenu);
-    void setScenePos(const QPoint &pos);
+    enum Type {
+        Menu,
+        Action
+    };
 
-    static void showContextMenu(QmlModelView *view, const QPoint &globalPosition, const QPoint &scenePosition, bool showSelection);
+    enum Priorities {
+        HighestPriority = ComponentCoreConstants::priorityFirst,
+        CustomActionsPriority = ComponentCoreConstants::priorityCustomActions,
+        RefactoringActionsPriority = ComponentCoreConstants::priorityRefactoring,
+        LowestPriority = ComponentCoreConstants::priorityLast
+    };
 
-private:
-    QmlModelView *m_view;
-    QPoint m_scenePos;
-    SelectionContext m_selectionContext;
+    virtual QAction *action() const = 0;
+    virtual QString category() const = 0;
+    virtual QString menuId() const = 0;
+    virtual int priority() const = 0;
+    virtual Type type() const = 0;
+    virtual void setCurrentContext(const SelectionContext &selectionState) = 0;
+
+protected:
+    virtual bool isVisible(const SelectionContext &selectionState) const = 0;
+    virtual bool isEnabled(const SelectionContext &selectionState) const = 0;
 };
 
-}; //QmlDesigner
+} //QmlDesigner
 
-#endif // MODELNODECONTEXTMENU_H
+#endif //ABSTRACTDESIGNERACTION_H

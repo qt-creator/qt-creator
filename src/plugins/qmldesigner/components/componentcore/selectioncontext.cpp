@@ -27,33 +27,33 @@
 **
 ****************************************************************************/
 
-#ifndef MODELNODECONTEXTMENU_H
-#define MODELNODECONTEXTMENU_H
-
-#include <QPoint>
-#include <QCoreApplication>
-
-#include <qmlmodelview.h>
 #include "selectioncontext.h"
 
 namespace QmlDesigner {
 
-class ModelNodeContextMenu
+
+SelectionContext::SelectionContext() :
+    m_view(0),
+    m_isInBaseState(false),
+    m_toggled(false)
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlDesigner::ModelNodeContextMenu)
-public:
-    ModelNodeContextMenu(QmlModelView *view);
-    void execute(const QPoint &pos, bool selectionMenu);
-    void setScenePos(const QPoint &pos);
 
-    static void showContextMenu(QmlModelView *view, const QPoint &globalPosition, const QPoint &scenePosition, bool showSelection);
+}
 
-private:
-    QmlModelView *m_view;
-    QPoint m_scenePos;
-    SelectionContext m_selectionContext;
-};
+SelectionContext::SelectionContext(QmlModelView *view) :
+    m_view(view),
+    m_isInBaseState(view->currentState().isBaseState()),
+    m_toggled(false)
+{
+    if (m_view && m_view->model())
+        m_selectedModelNodes = view->selectedModelNodes();
 
-}; //QmlDesigner
+    if (m_selectedModelNodes.count()== 1) {
+        m_singleSelected = true;
+        m_currentSingleSelectedNode = m_selectedModelNodes.first();
+    } else {
+        m_singleSelected = false;
+    }
+}
 
-#endif // MODELNODECONTEXTMENU_H
+} //QmlDesigner

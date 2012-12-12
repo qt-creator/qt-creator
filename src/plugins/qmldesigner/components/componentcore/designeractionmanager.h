@@ -27,33 +27,40 @@
 **
 ****************************************************************************/
 
-#ifndef MODELNODECONTEXTMENU_H
-#define MODELNODECONTEXTMENU_H
+#ifndef DESIGNERACTIONMANAGER_H
+#define DESIGNERACTIONMANAGER_H
 
-#include <QPoint>
-#include <QCoreApplication>
+#include "abstractdesigneraction.h"
+#include "qmlmodelview.h"
 
-#include <qmlmodelview.h>
-#include "selectioncontext.h"
+#include <QScopedPointer>
 
 namespace QmlDesigner {
 
-class ModelNodeContextMenu
-{
-    Q_DECLARE_TR_FUNCTIONS(QmlDesigner::ModelNodeContextMenu)
-public:
-    ModelNodeContextMenu(QmlModelView *view);
-    void execute(const QPoint &pos, bool selectionMenu);
-    void setScenePos(const QPoint &pos);
+namespace Internal {
+class DesignerActionManagerView;
+}
 
-    static void showContextMenu(QmlModelView *view, const QPoint &globalPosition, const QPoint &scenePosition, bool showSelection);
+class DesignerActionManager {
+public:
+    static void addDesignerAction(AbstractDesignerAction *newAction);
+    static QList<AbstractDesignerAction* > designerActions();
+
+    static void createDefaultDesignerActions();
+    static QmlModelView *view();
+
+protected:
+    static DesignerActionManager *instance();
+    void addDesignerActionInternal(AbstractDesignerAction *newAction);
+    QList<AbstractDesignerAction* > factoriesInternal() const;
+    DesignerActionManager();
 
 private:
-    QmlModelView *m_view;
-    QPoint m_scenePos;
-    SelectionContext m_selectionContext;
+    static DesignerActionManager *m_instance;
+    QList<QSharedPointer<AbstractDesignerAction> > m_designerActions;
+    QScopedPointer<Internal::DesignerActionManagerView> m_view;
 };
 
-}; //QmlDesigner
+} //QmlDesigner
 
-#endif // MODELNODECONTEXTMENU_H
+#endif //DESIGNERACTIONMANAGER_H
