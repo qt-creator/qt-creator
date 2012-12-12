@@ -71,7 +71,6 @@ private slots:
     void logcatReadStandardOutput();
     void startLogcat();
     void asyncStart();
-    void asyncStop();
 
 private:
     void adbKill(qint64 pid, const QString &device, int timeout = 2000, const QString &runAsPackageName = QString());

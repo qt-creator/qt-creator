@@ -256,10 +256,6 @@ void AndroidRunner::stop()
     m_checkPIDTimer.stop();
     if (m_processPID == -1)
         return; // don't emit another signal
-    QtConcurrent::run(this, &AndroidRunner::asyncStop);
-}
-void AndroidRunner::asyncStop()
-{
     killPID();
     emit remoteProcessFinished(tr("\n\n'%1' killed.").arg(m_packageName));
 }
