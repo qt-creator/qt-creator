@@ -33,7 +33,7 @@ import widgets 1.0
 Rectangle {
     id: rectangle1
     width: 1024
-    height: Math.min(920, parent.height - y)
+    height: Math.min(3024, parent.height - y)
 
     PageCaption {
         id: pageCaption
