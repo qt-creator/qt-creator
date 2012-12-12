@@ -14,6 +14,7 @@ SettingsPath = ''
 tmpSettingsDir = ''
 testSettings.logScreenshotOnFail = True
 testSettings.logScreenshotOnError = True
+__origStartApplication__ = None
 
 source("../../shared/classes.py")
 source("../../shared/utils.py")
@@ -26,15 +27,20 @@ source("../../shared/hook_utils.py")
 source("../../shared/debugger.py")
 source("../../shared/workarounds.py")
 
-if platform.system() == "Darwin":
-    __origStartApplication__ = startApplication
-
+# ATTENTION: if a test case calls startApplication("qtcreator...") for several times this
+# function must be called BEFORE any call except the first (which is done always automatically)
+def overrideStartApplication():
+    global startApplication, __origStartApplication__
+    if (platform.system() != "Darwin"):
+        return
+    if (__origStartApplication__ == None):
+        __origStartApplication__ = startApplication
     def startApplication(*args):
         args = list(args)
         if str(args[0]).startswith('qtcreator'):
             args[0] = args[0].replace('qtcreator', '"Qt Creator"', 1)
-        __origStartApplication__(*args)
-        test.log("Using workaround for MacOS (different AUT name)")
+            test.log("Using workaround for MacOS (different AUT name)")
+        return __origStartApplication__(*args)
 
 def waitForCleanShutdown(timeOut=10):
     appCtxt = currentApplicationContext()
@@ -166,6 +172,8 @@ else:
     cwd+="/../../settings/unix"
     defaultQtVersion = "Desktop Qt 4.7.4 for GCC (Qt SDK)"
 srcPath = os.getenv("SYSTEST_SRCPATH", sdkPath + "/src")
+
+overrideStartApplication()
 
 # the following only doesn't work if the test ends in an exception
 if os.getenv("SYSTEST_NOSETTINGSPATH") != "1":
