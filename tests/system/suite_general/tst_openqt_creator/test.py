@@ -15,9 +15,9 @@ def main():
     # Wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 300000)
 
-    naviTreeView = "{column='0' container=':Qt Creator_Utils::NavigationTreeView' text='%s' type='QModelIndex'}"
-    compareProjectTree(naviTreeView % "speedcrunch", "projecttree_speedcrunch.tsv")
-    compareProjectTree(naviTreeView % "qtcreator", "projecttree_creator.tsv")
+    naviTreeView = "{column='0' container=':Qt Creator_Utils::NavigationTreeView' text~='%s' type='QModelIndex'}"
+    compareProjectTree(naviTreeView % "speedcrunch( \(\S+\))?", "projecttree_speedcrunch.tsv")
+    compareProjectTree(naviTreeView % "qtcreator( \(\S+\))?", "projecttree_creator.tsv")
 
     # Now check some basic lookups in the search box
     selectFromLocator(": Qlist::QList", "QList::QList")
