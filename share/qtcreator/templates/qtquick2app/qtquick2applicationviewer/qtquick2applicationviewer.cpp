@@ -22,17 +22,15 @@ class QtQuick2ApplicationViewerPrivate
 
 QString QtQuick2ApplicationViewerPrivate::adjustPath(const QString &path)
 {
-#ifdef Q_OS_UNIX
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC)
     if (!QDir::isAbsolutePath(path))
         return QString::fromLatin1("%1/../Resources/%2")
                 .arg(QCoreApplication::applicationDirPath(), path);
-#elif !defined(Q_OS_ANDROID)
+#elif defined(Q_OS_UNIX)
     const QString pathInInstallDir =
             QString::fromLatin1("%1/../%2").arg(QCoreApplication::applicationDirPath(), path);
     if (QFileInfo(pathInInstallDir).exists())
         return pathInInstallDir;
-#endif
 #endif
     return path;
 }
@@ -43,10 +41,6 @@ QtQuick2ApplicationViewer::QtQuick2ApplicationViewer(QWindow *parent)
 {
     connect(engine(), SIGNAL(quit()), SLOT(close()));
     setResizeMode(QQuickView::SizeRootObjectToView);
-
-#ifdef Q_OS_ANDROID
-    engine()->setBaseUrl(QUrl::fromLocalFile("/"));
-#endif
 }
 
 QtQuick2ApplicationViewer::~QtQuick2ApplicationViewer()
