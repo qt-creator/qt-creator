@@ -52,6 +52,7 @@
 
 #include <QLabel>
 #include <QTextEdit>
+#include <QTabWidget>
 
 #include <ctype.h>
 #include <utils/qtcassert.h>
@@ -1611,6 +1612,39 @@ static void swapEndian(char *d, int nchar)
     }
 }
 
+static int indexOf(const QTabWidget *tw, const QWidget *w)
+{
+    for (int i = 0; i < tw->count(); ++i)
+    if (tw->widget(i) == w)
+        return i;
+    return -1;
+}
+
+void WatchHandler::removeSeparateWidget(QObject *o)
+{
+    const int index = o && o->isWidgetType() && !m_separateWindow.isNull() ?
+              indexOf(m_separateWindow, static_cast<QWidget *>(o)) : -1;
+    if (index != -1)
+        m_separateWindow->removeTab(index);
+}
+
+void WatchHandler::showSeparateWidget(QWidget *w)
+{
+    if (m_separateWindow.isNull()) {
+        m_separateWindow = new QTabWidget(debuggerCore()->mainWindow());
+        m_separateWindow->setWindowFlags(m_separateWindow->windowFlags() | Qt::Window);
+        m_separateWindow->setWindowTitle(WatchHandler::tr("Debugger - Qt Creator"));
+    }
+    const int index = indexOf(m_separateWindow, w);
+    if (index != -1) {
+        m_separateWindow->setTabText(index, w->windowTitle());
+    } else {
+        m_separateWindow->addTab(w, w->windowTitle());
+    }
+    m_separateWindow->show();
+    m_separateWindow->raise();
+}
+
 void WatchHandler::showEditValue(const WatchData &data)
 {
     const QByteArray key  = data.address ? data.hexAddress() : data.iname;
@@ -1623,6 +1657,7 @@ void WatchHandler::showEditValue(const WatchData &data)
         // QImage
         QLabel *l = qobject_cast<QLabel *>(w);
         if (!l) {
+            removeSeparateWidget(w);
             delete w;
             l = new QLabel;
             const QString title = data.address ?
@@ -1630,6 +1665,7 @@ void WatchHandler::showEditValue(const WatchData &data)
                     QLatin1String(data.hexAddress())) :
                 tr("%1 Object at Unknown Address").arg(QLatin1String(data.type));
             l->setWindowTitle(title);
+            showSeparateWidget(l);
             m_model->m_editHandlers[key] = l;
         }
         int width, height, format;
@@ -1655,13 +1691,14 @@ void WatchHandler::showEditValue(const WatchData &data)
         QImage im(bits, width, height, QImage::Format(format));
         l->setPixmap(QPixmap::fromImage(im));
         l->resize(width, height);
-        l->show();
+        showSeparateWidget(l);
     } else if (data.editformat == DisplayUtf16String
                || data.editformat == DisplayLatin1String
                || data.editformat == DisplayUtf16String) {
         // String data.
         QTextEdit *t = qobject_cast<QTextEdit *>(w);
         if (!t) {
+            removeSeparateWidget(w);
             delete w;
             t = new QTextEdit;
             m_model->m_editHandlers[key] = t;
@@ -1674,9 +1711,11 @@ void WatchHandler::showEditValue(const WatchData &data)
             str = QString::fromLatin1(ba.constData(), ba.size());
         else if (data.editformat == DisplayUtf8String)
             str = QString::fromUtf8(ba.constData(), ba.size());
+        t->setWindowTitle(QString::fromLatin1("%1 (%2)").
+                          arg(data.name, data.displayedType.isEmpty() ?
+                              QLatin1String(data.type) : data.displayedType));
         t->setText(str);
-        t->resize(400, 200);
-        t->show();
+        showSeparateWidget(t);
     } else if (data.editformat == 4) {
         // Generic Process.
         int pos = data.editvalue.indexOf('|');

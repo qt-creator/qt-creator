@@ -35,7 +35,10 @@
 #include <QHash>
 #include <QSet>
 #include <QStringList>
+#include <QPointer>
 #include <QAbstractItemModel>
+
+QT_FORWARD_DECLARE_CLASS(QTabWidget)
 
 namespace Debugger {
 
@@ -136,6 +139,9 @@ public:
     void resetValueCache();
 
 private:
+    void removeSeparateWidget(QObject *o);
+    void showSeparateWidget(QWidget *w);
+
     friend class WatchModel;
 
     void saveWatchers();
@@ -146,6 +152,7 @@ private:
 
     WatchModel *m_model;
     DebuggerEngine *m_engine;
+    QPointer<QTabWidget> m_separateWindow;
 
     int m_watcherCounter;
 
