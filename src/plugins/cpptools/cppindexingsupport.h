@@ -40,7 +40,7 @@
 
 namespace CppTools {
 
-class SymbolSearcher: public QObject
+class CPPTOOLS_EXPORT SymbolSearcher: public QObject
 {
     Q_OBJECT
 
