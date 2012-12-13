@@ -36,7 +36,6 @@
 #include <coreplugin/ioutputpane.h>
 
 QT_BEGIN_NAMESPACE
-class QTreeView;
 class QToolButton;
 class QButtonGroup;
 class QModelIndex;
@@ -48,6 +47,7 @@ namespace Internal {
 
 class TodoItem;
 class TodoItemsModel;
+class TodoOutputTreeView;
 
 class TodoOutputPane : public Core::IOutputPane
 {
@@ -84,7 +84,7 @@ private slots:
     void updateTodoCount();
 
 private:
-    QTreeView *m_todoTreeView;
+    TodoOutputTreeView *m_todoTreeView;
     QToolButton *m_currentFileButton;
     QToolButton *m_wholeProjectButton;
     QWidget *m_spacer;

@@ -42,6 +42,8 @@ QtcPlugin {
         "todoitemsscanner.h",
         "todooutputpane.cpp",
         "todooutputpane.h",
+        "todooutputtreeview.cpp",
+        "todooutputtreeview.h",
         "todoplugin.cpp",
         "todoplugin.h",
         "todoplugin.qrc",
