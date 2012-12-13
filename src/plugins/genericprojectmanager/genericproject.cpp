@@ -330,6 +330,8 @@ QStringList GenericProject::processEntries(const QStringList &paths,
 
         expandEnvironmentVariables(env, trimmedPath);
 
+        trimmedPath = Utils::FileName::fromUserInput(trimmedPath).toString();
+
         const QString absPath = QFileInfo(projectDir, trimmedPath).absoluteFilePath();
         absolutePaths.append(absPath);
         if (map)
