@@ -629,8 +629,7 @@ std::string SymbolGroupValue::pointedToSymbolName(ULONG64 address, const std::st
  * (due to the amiguities and artifacts that appear like 'QGuid4!qstrdup'). */
 
 static inline std::string resolveQtSymbol(const char *symbolC,
-                                          const char *defaultModuleNameC,
-                                          const char *modulePatternC,
+                                          const char *moduleNameC,
                                           const SymbolGroupValueContext &ctx)
 {
     enum { debugResolveQtSymbol =  0 };
@@ -638,13 +637,20 @@ static inline std::string resolveQtSymbol(const char *symbolC,
     typedef StringList::const_iterator StringListConstIt;
 
     if (debugResolveQtSymbol)
-        DebugPrint() << ">resolveQtSymbol" << symbolC << " def=" << defaultModuleNameC << " defModName="
-                     << defaultModuleNameC << " modPattern=" << modulePatternC;
-    const SubStringPredicate modulePattern(modulePatternC);
-    // First try a match with the default module name 'QtCored4!qstrdup' for speed reasons
+        DebugPrint() << ">resolveQtSymbol" << symbolC << " def=" << moduleNameC << " defModName="
+                     << moduleNameC;
+    const SubStringPredicate modulePattern(moduleNameC);
+    // First try a match with the default module name 'QtCored4!qstrdup' or
+    //  'Qt5Cored!qstrdup' for speed reasons.
     for (int qtVersion = 4; qtVersion < 6; qtVersion++) {
         std::ostringstream str;
-        str << defaultModuleNameC << qtVersion << '!' << symbolC;
+        str << "Qt";
+        if (qtVersion >= 5)
+            str << qtVersion;
+        str << moduleNameC << 'd';
+        if (qtVersion == 4)
+            str << qtVersion;
+        str << '!' << symbolC;
         const std::string defaultPattern = str.str();
         const StringList defaultMatches = SymbolGroupValue::resolveSymbolName(defaultPattern.c_str(), ctx);
         if (debugResolveQtSymbol)
@@ -685,7 +691,7 @@ const QtInfo &QtInfo::get(const SymbolGroupValueContext &ctx)
     do {
         // Lookup qstrdup() to hopefully get module (potential libinfix) and namespace
         // Typically, this resolves to 'QtGuid4!qstrdup' and 'QtCored4!qstrdup'...
-        const std::string qualifiedSymbol = resolveQtSymbol("qstrdup", "QtCored", "Core", ctx);
+        const std::string qualifiedSymbol = resolveQtSymbol("qstrdup", "Core", ctx);
         const std::string::size_type libPos = qualifiedSymbol.find("Core");
         const std::string::size_type exclPos = qualifiedSymbol.find('!'); // Resolved: 'QtCored4!qstrdup'
         if (libPos == std::string::npos || exclPos == std::string::npos) {
