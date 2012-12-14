@@ -70,6 +70,8 @@ protected:
     virtual bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
 
 private:
+    void writeUserFile(const QString &fileName) const;
+    mutable QString m_creatorFileName;
     const ProjectType m_projectType;
 };
 

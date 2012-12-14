@@ -30,11 +30,17 @@
 #include "qmlprojectapplicationwizard.h"
 
 #include "qmlprojectconstants.h"
+#include "qmlprojectmanager.h"
+#include "qmlproject.h"
 
 #include <app/app_version.h>
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/customwizard/customwizard.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <QIcon>
 
@@ -130,9 +136,9 @@ Core::GeneratedFiles QmlProjectApplicationWizard::generateFiles(const QWizard *w
     const QString projectName = wizard->projectName();
     const QString projectPath = wizard->path() + QLatin1Char('/') + projectName;
 
-    const QString creatorFileName = Core::BaseFileWizard::buildFileName(projectPath,
-                                                                        projectName,
-                                                                        QLatin1String("qmlproject"));
+    m_creatorFileName = Core::BaseFileWizard::buildFileName(projectPath,
+                                                            projectName,
+                                                            QLatin1String("qmlproject"));
 
     const QString mainFileName = Core::BaseFileWizard::buildFileName(projectPath,
                                                                      projectName,
@@ -197,7 +203,7 @@ Core::GeneratedFiles QmlProjectApplicationWizard::generateFiles(const QWizard *w
             << "    // importPaths: [ \"../exampleplugin\" ]" << endl
             << "}" << endl;
     }
-    Core::GeneratedFile generatedCreatorFile(creatorFileName);
+    Core::GeneratedFile generatedCreatorFile(m_creatorFileName);
     generatedCreatorFile.setContents(projectContents);
     generatedCreatorFile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
 
@@ -208,8 +214,28 @@ Core::GeneratedFiles QmlProjectApplicationWizard::generateFiles(const QWizard *w
     return files;
 }
 
+void QmlProjectApplicationWizard::writeUserFile(const QString &fileName) const
+{
+    Manager *manager = ExtensionSystem::PluginManager::getObject<Manager>();
+
+    QmlProject *pro = new QmlProject(manager, fileName);
+    Core::FeatureSet features = Core::FeatureSet(QtSupport::Constants::FEATURE_QT_QUICK_1);
+    if (m_projectType == QtQuick2Project)
+        features = Core::FeatureSet(QtSupport::Constants::FEATURE_QT_QUICK_2);
+    QtSupport::QtVersionKitMatcher featureMatcher(features);
+    QList<ProjectExplorer::Kit *> kits = ProjectExplorer::KitManager::instance()->kits();
+    foreach (ProjectExplorer::Kit *k, kits)
+        if (featureMatcher.matches(k)
+                && pro->supportsKit(k, 0)) // checks for desktop device
+            pro->addTarget(pro->createTarget(k));
+
+    pro->saveSettings();
+    delete pro;
+}
+
 bool QmlProjectApplicationWizard::postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage)
 {
+    writeUserFile(m_creatorFileName);
     return ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
 
 }
