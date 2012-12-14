@@ -1649,12 +1649,13 @@ void WatchHandler::showEditValue(const WatchData &data)
 {
     const QByteArray key  = data.address ? data.hexAddress() : data.iname;
     QObject *w = m_model->m_editHandlers.value(key);
-    if (data.editformat == 0x0) {
+    switch (data.editformat) {
+    case StopDisplay:
         m_model->m_editHandlers.remove(data.iname);
         delete w;
-    } else if (data.editformat == DisplayImageData
-               || data.editformat == DisplayImageFile) {
-        // QImage
+        break;
+    case DisplayImageData:
+    case DisplayImageFile: {  // QImage
         QLabel *l = qobject_cast<QLabel *>(w);
         if (!l) {
             removeSeparateWidget(w);
@@ -1692,10 +1693,11 @@ void WatchHandler::showEditValue(const WatchData &data)
         l->setPixmap(QPixmap::fromImage(im));
         l->resize(width, height);
         showSeparateWidget(l);
-    } else if (data.editformat == DisplayUtf16String
-               || data.editformat == DisplayLatin1String
-               || data.editformat == DisplayUtf8String) {
-        // String data.
+    }
+        break;
+    case DisplayUtf16String:
+    case DisplayLatin1String:
+    case DisplayUtf8String: { // String data.
         QTextEdit *t = qobject_cast<QTextEdit *>(w);
         if (!t) {
             removeSeparateWidget(w);
@@ -1716,7 +1718,9 @@ void WatchHandler::showEditValue(const WatchData &data)
                               QLatin1String(data.type) : data.displayedType));
         t->setText(str);
         showSeparateWidget(t);
-    } else if (data.editformat == 4) {
+    }
+        break;
+    case DisplayProcess: {
         // Generic Process.
         int pos = data.editvalue.indexOf('|');
         QByteArray cmd = data.editvalue.left(pos);
@@ -1729,8 +1733,11 @@ void WatchHandler::showEditValue(const WatchData &data)
             m_model->m_editHandlers[key] = p;
         }
         p->write(input + '\n');
-    } else {
+    }
+        break;
+    default:
         QTC_ASSERT(false, qDebug() << "Display format: " << data.editformat);
+        break;
     }
 }
 
