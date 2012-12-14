@@ -414,8 +414,11 @@ void CMakeRunConfigurationWidget::setWorkingDirectory()
 
 void CMakeRunConfigurationWidget::workingDirectoryChanged(const QString &workingDirectory)
 {
-    if (!m_ignoreChange)
+    if (!m_ignoreChange) {
+        m_ignoreChange = true;
         m_workingDirectoryEdit->setPath(workingDirectory);
+        m_ignoreChange = false;
+    }
 }
 
 void CMakeRunConfigurationWidget::resetWorkingDirectory()
