@@ -116,8 +116,7 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
 
     if (m_searchKeywords.isEmpty()) {
         QTextStream(&m_searchKeywords) << ' ' << m_ui->contextHelpLabel->text()
-           << ' ' << m_ui->startPageLabel->text() << ' ' << m_ui->homePageLabel->text()
-           << ' ' << m_ui->bookmarkGroupBox->title();
+           << ' ' << m_ui->startPageLabel->text() << ' ' << m_ui->homePageLabel->text();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
 
