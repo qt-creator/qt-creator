@@ -115,8 +115,11 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     m_ui.replaceEdit->setPlaceholderText(QString());
 
     connect(m_ui.findEdit, SIGNAL(textChanged(QString)), this, SLOT(invokeFindIncremental()));
-    connect(m_ui.findEdit, SIGNAL(returnPressed()), this, SLOT(invokeFindEnter()));
-    connect(m_ui.replaceEdit, SIGNAL(returnPressed()), this, SLOT(invokeReplaceEnter()));
+
+    // invoke{Find,Replace}Helper change the completion model. QueuedConnection is used to perform these
+    // changes only after the completer's activated() signal is handled (QTCREATORBUG-8408)
+    connect(m_ui.findEdit, SIGNAL(returnPressed()), this, SLOT(invokeFindEnter()), Qt::QueuedConnection);
+    connect(m_ui.replaceEdit, SIGNAL(returnPressed()), this, SLOT(invokeReplaceEnter()), Qt::QueuedConnection);
 
     QAction *shiftEnterAction = new QAction(m_ui.findEdit);
     shiftEnterAction->setShortcut(QKeySequence(tr("Shift+Enter")));

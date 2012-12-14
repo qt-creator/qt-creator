@@ -12,4 +12,7 @@
     <ForcedInstallation>true</ForcedInstallation>
     <Default>true</Default>
     <AutoDependOn>org.qtproject.qtcreator</AutoDependOn>
+    <UserInterfaces>
+        <UserInterface>associatecommonfiletypesform.ui</UserInterface>
+    </UserInterfaces>
 </Package>

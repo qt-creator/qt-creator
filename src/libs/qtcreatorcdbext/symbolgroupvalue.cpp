@@ -686,15 +686,20 @@ const QtInfo &QtInfo::get(const SymbolGroupValueContext &ctx)
         // Lookup qstrdup() to hopefully get module (potential libinfix) and namespace
         // Typically, this resolves to 'QtGuid4!qstrdup' and 'QtCored4!qstrdup'...
         const std::string qualifiedSymbol = resolveQtSymbol("qstrdup", "QtCored", "Core", ctx);
+        const std::string::size_type libPos = qualifiedSymbol.find("Core");
         const std::string::size_type exclPos = qualifiedSymbol.find('!'); // Resolved: 'QtCored4!qstrdup'
-        if (exclPos == std::string::npos) {
+        if (libPos == std::string::npos || exclPos == std::string::npos) {
             rc.libInfix = "d4";
             rc.version = 4;
             break;
         }
-        // Should be 'QtCored4!qstrdup'
-        rc.libInfix = qualifiedSymbol.substr(6, exclPos - 6);
-        rc.version = qualifiedSymbol.at(exclPos - 1) - '0';
+        rc.libInfix = qualifiedSymbol.substr(libPos + 4, exclPos - libPos - 4);
+        // 'Qt5Cored!qstrdup' or 'QtCored4!qstrdup'.
+        if (isdigit(qualifiedSymbol.at(2))) {
+            rc.version = qualifiedSymbol.at(2) - '0';
+        } else {
+            rc.version = qualifiedSymbol.at(exclPos - 1) - '0';
+        }
         // Any namespace? 'QtCored4!nsp::qstrdup'
         const std::string::size_type nameSpaceStart = exclPos + 1;
         const std::string::size_type colonPos = qualifiedSymbol.find(':', nameSpaceStart);
@@ -716,8 +721,13 @@ std::string QtInfo::moduleName(Module m) const
 {
     // Must match the enumeration
     static const char* modNames[] =
-        {"QtCore", "QtGui", "QtWidgets", "QtNetwork", "QtScript" };
-    return modNames[m] + libInfix;
+        {"Core", "Gui", "Widgets", "Network", "Script" };
+    std::ostringstream result;
+    result << "Qt";
+    if (version >= 5)
+        result << version;
+    result << modNames[m] << libInfix;
+    return result.str();
 }
 
 std::string QtInfo::prependModuleAndNameSpace(const std::string &type,

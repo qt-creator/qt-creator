@@ -31,6 +31,7 @@
 
 #include <QFile>
 #include <QDir>
+#include <QUrl>
 #include <QXmlStreamReader>
 
 #include <QDebug>
@@ -115,6 +116,39 @@ static QString relativeOrInstallPath(const QString &path, const QString &manifes
     return relativeResolvedPath;
 }
 
+static bool debugExamples()
+{
+    static bool isDebugging = !qgetenv("QTC_DEBUG_EXAMPLESMODEL").isEmpty();
+    return isDebugging;
+}
+
+static bool isValidExampleOrDemo(ExampleItem &item)
+{
+    static QString invalidPrefix = QLatin1String("qthelp:////"); /* means that the qthelp url
+                                                                    doesn't have any namespace */
+    QString reason;
+    bool ok = true;
+    if (!item.hasSourceCode || !QFileInfo(item.projectPath).exists()) {
+        ok = false;
+        reason = QString::fromLatin1("projectPath '%1' empty or does not exist").arg(item.projectPath);
+    } else if (item.imageUrl.startsWith(invalidPrefix) || !QUrl(item.imageUrl).isValid()) {
+        ok = false;
+        reason = QString::fromLatin1("imageUrl '%1' not valid").arg(item.imageUrl);
+    } else if (!item.docUrl.isEmpty()
+             && (item.docUrl.startsWith(invalidPrefix) || !QUrl(item.docUrl).isValid())) {
+        ok = false;
+        reason = QString::fromLatin1("docUrl '%1' non-empty but not valid").arg(item.docUrl);
+    }
+    if (!ok) {
+        item.tags.append(QLatin1String("broken"));
+        if (debugExamples())
+            qWarning() << QString::fromLatin1("ERROR: Item '%1' broken: %2").arg(item.name, reason);
+    }
+    if (debugExamples() && item.description.isEmpty())
+        qWarning() << QString::fromLatin1("WARNING: Item '%1' has no description").arg(item.name);
+    return ok || debugExamples();
+}
+
 QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader *reader,
                                                     const QString &projectsOffset,
                                                     const QString &examplesInstallPath)
@@ -151,10 +185,7 @@ QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader *reader,
             break;
         case QXmlStreamReader::EndElement:
             if (reader->name() == QLatin1String("example")) {
-                bool projectExists = !item.projectPath.isEmpty() && QFileInfo(item.projectPath).exists();
-                if (!projectExists)
-                    item.tags.append(QLatin1String("broken"));
-                if (projectExists || !qgetenv("QTC_DEBUG_EXAMPLESMODEL").isEmpty())
+                if (isValidExampleOrDemo(item))
                     examples.append(item);
             } else if (reader->name() == QLatin1String("examples")) {
                 return examples;
@@ -200,10 +231,7 @@ QList<ExampleItem> ExamplesListModel::parseDemos(QXmlStreamReader *reader,
             break;
         case QXmlStreamReader::EndElement:
             if (reader->name() == QLatin1String("demo")) {
-                bool projectExists = !item.projectPath.isEmpty() && QFileInfo(item.projectPath).exists();
-                if (!projectExists)
-                    item.tags.append(QLatin1String("broken"));
-                if (projectExists || !qgetenv("QTC_DEBUG_EXAMPLESMODEL").isEmpty())
+                if (isValidExampleOrDemo(item))
                     demos.append(item);
             } else if (reader->name() == QLatin1String("demos")) {
                 return demos;
@@ -286,7 +314,8 @@ void ExamplesListModel::updateExamples()
                             &examplesFallback, &demosFallback, &sourceFallback)) {
         QFile exampleFile(exampleSource);
         if (!exampleFile.open(QIODevice::ReadOnly)) {
-            qDebug() << Q_FUNC_INFO << "Could not open file" << exampleSource;
+            if (debugExamples())
+                qWarning() << "ERROR: Could not open file" << exampleSource;
             continue;
         }
 
@@ -307,6 +336,8 @@ void ExamplesListModel::updateExamples()
             }
         }
 
+        if (debugExamples())
+            qWarning() << QString::fromLatin1("Reading file '%1'...").arg(fi.absoluteFilePath());
         QXmlStreamReader reader(&exampleFile);
         while (!reader.atEnd())
             switch (reader.readNext()) {
@@ -322,8 +353,8 @@ void ExamplesListModel::updateExamples()
                 break;
             }
 
-        if (reader.hasError())
-            qDebug() << "error parsing file" <<  exampleSource << "as XML document";
+        if (reader.hasError() && debugExamples())
+            qWarning() << QString::fromLatin1("ERROR: Could not parse file as XML document ('%1')").arg(exampleSource);
     }
 
     m_tags.sort();

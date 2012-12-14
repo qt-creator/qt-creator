@@ -168,6 +168,13 @@ void KitManager::restoreKits()
             if (kitsToCheck.at(i)->id() == current->id()) {
                 toStore = kitsToCheck.at(i);
                 kitsToCheck.removeAt(i);
+
+                // Overwrite settings that the SDK sets to those values:
+                foreach (const KitInformation *ki, kitInformation()) {
+                    if (current->hasValue(ki->dataId()))
+                        toStore->setValue(ki->dataId(), current->value(ki->dataId()));
+                }
+
                 delete current;
                 break;
             }

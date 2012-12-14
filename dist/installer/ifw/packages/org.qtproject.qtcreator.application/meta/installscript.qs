@@ -30,8 +30,19 @@
 // constructor
 function Component()
 {
+    component.loaded.connect(this, Component.prototype.loaded);
     installer.finishButtonClicked.connect(this, Component.prototype.installationFinished);
     installer.setDefaultPageVisible(QInstaller.ComponentSelection, false);
+}
+
+Component.prototype.loaded = function()
+{
+    try {
+        if (installer.value("os") == "win" && installer.isInstaller())
+            installer.addWizardPageItem(component, "AssociateCommonFiletypesForm", QInstaller.TargetDirectory);
+    } catch(e) {
+        print(e);
+    }
 }
 
 Component.prototype.beginInstallation = function()
@@ -43,7 +54,7 @@ Component.prototype.beginInstallation = function()
     }
 }
 
-registerWindowsFileTypeExtensions = function()
+registerCommonWindowsFileTypeExtensions = function()
 {
     var headerExtensions = new Array("h", "hh", "hxx", "h++", "hpp");
 
@@ -76,6 +87,10 @@ registerWindowsFileTypeExtensions = function()
                             "text/plain",
                             "@TargetDir@\\bin\\qtcreator.exe,1",
                             "ProgId=QtProject.QtCreator.c");
+}
+
+registerWindowsFileTypeExtensions = function()
+{
     component.addOperation( "RegisterFileType",
                             "ui",
                             "@TargetDir@\\bin\\qtcreator.exe -client '%1'",
@@ -131,6 +146,15 @@ Component.prototype.createOperations = function()
                                 "workingDirectory=@homeDir@" );
         component.addElevatedOperation("Execute", "{0,3010,1638}", "@TargetDir@\\lib\\vcredist_msvc2010\\vcredist_x86.exe", "/norestart", "/q");
         registerWindowsFileTypeExtensions();
+
+        try {
+            if (component.userInterface("AssociateCommonFiletypesForm").AssociateCommonFiletypesCheckBox
+                .checked) {
+                    registerCommonWindowsFileTypeExtensions();
+            }
+        } catch(e) {
+            print(e);
+        }
     }
     if ( installer.value("os") == "x11" )
     {

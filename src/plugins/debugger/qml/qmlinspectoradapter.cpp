@@ -33,7 +33,7 @@
 #include "debuggercore.h"
 #include "debuggerstringutils.h"
 #include "qmladapter.h"
-#include "qmlengine.h"
+#include "debuggerengine.h"
 #include "qmlinspectoragent.h"
 #include "qmllivetextpreview.h"
 
@@ -59,7 +59,7 @@ namespace Internal {
  * integration with the text editor.
  */
 QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
-                                         QmlEngine *engine,
+                                         DebuggerEngine *engine,
                                          QObject *parent)
     : QObject(parent)
     , m_debugAdapter(debugAdapter)
@@ -75,8 +75,14 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
     , m_inspectorToolsContext("Debugger.QmlInspector")
     , m_selectAction(new QAction(this))
     , m_zoomAction(new QAction(this))
+    , m_showAppOnTopAction(debuggerCore()->action(ShowAppOnTop))
+    , m_updateOnSaveAction(debuggerCore()->action(QmlUpdateOnSave))
     , m_engineClientConnected(false)
 {
+    if (!m_engine->isMasterEngine())
+        m_engine = m_engine->masterEngine();
+    connect(m_engine, SIGNAL(stateChanged(Debugger::DebuggerState)),
+            SLOT(onEngineStateChanged(Debugger::DebuggerState)));
     connect(m_agent, SIGNAL(objectFetched(QmlDebug::ObjectReference)),
             SLOT(onObjectFetched(QmlDebug::ObjectReference)));
     connect(m_agent, SIGNAL(jumpToObjectDefinition(QmlDebug::FileReference,int)),
@@ -131,11 +137,21 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
     m_zoomAction->setObjectName(QLatin1String("QML Zoom Action"));
     m_selectAction->setCheckable(true);
     m_zoomAction->setCheckable(true);
+    m_showAppOnTopAction->setCheckable(true);
+    m_updateOnSaveAction->setCheckable(true);
+    m_selectAction->setEnabled(false);
+    m_zoomAction->setEnabled(false);
+    m_showAppOnTopAction->setEnabled(false);
+    m_updateOnSaveAction->setEnabled(false);
 
     connect(m_selectAction, SIGNAL(triggered(bool)),
             SLOT(onSelectActionTriggered(bool)));
     connect(m_zoomAction, SIGNAL(triggered(bool)),
             SLOT(onZoomActionTriggered(bool)));
+    connect(m_showAppOnTopAction, SIGNAL(triggered(bool)),
+            SLOT(onShowAppOnTopChanged(bool)));
+    connect(m_updateOnSaveAction, SIGNAL(triggered(bool)),
+            SLOT(onUpdateOnSaveChanged(bool)));
 }
 
 QmlInspectorAdapter::~QmlInspectorAdapter()
@@ -193,56 +209,49 @@ void QmlInspectorAdapter::toolsClientStatusChanged(QmlDebug::ClientStatus status
         connect(client, SIGNAL(reloaded()), SLOT(onReloaded()));
         connect(client, SIGNAL(destroyedObject(int)), SLOT(onDestroyedObject(int)));
 
-        // only enable zoom action for Qt 4.x/old client
-        // (zooming is integrated into selection tool in Qt 5).
-        m_zoomAction->setEnabled(
-                    qobject_cast<DeclarativeToolsClient*>(client) != 0);
-
         // register actions here
         // because there can be multiple QmlEngines
         // at the same time (but hopefully one one is connected)
         Core::ActionManager::registerAction(m_selectAction,
-                           Core::Id(Constants::QML_SELECTTOOL),
-                           m_inspectorToolsContext);
+                                            Core::Id(Constants::QML_SELECTTOOL),
+                                            m_inspectorToolsContext);
         Core::ActionManager::registerAction(m_zoomAction, Core::Id(Constants::QML_ZOOMTOOL),
-                           m_inspectorToolsContext);
+                                            m_inspectorToolsContext);
+        Core::ActionManager::registerAction(m_showAppOnTopAction,
+                                            Core::Id(Constants::QML_SHOW_APP_ON_TOP),
+                                            m_inspectorToolsContext);
+        Core::ActionManager::registerAction(m_updateOnSaveAction,
+                                            Core::Id(Constants::QML_UPDATE_ON_SAVE),
+                                            m_inspectorToolsContext);
 
-        Core::ICore::updateAdditionalContexts(Core::Context(),
-                                       m_inspectorToolsContext);
-
-        Utils::SavedAction *action = debuggerCore()->action(QmlUpdateOnSave);
-        connect(action, SIGNAL(valueChanged(QVariant)),
-                SLOT(onUpdateOnSaveChanged(QVariant)));
-
-        action = debuggerCore()->action(ShowAppOnTop);
-        connect(action, SIGNAL(valueChanged(QVariant)),
-                SLOT(onShowAppOnTopChanged(QVariant)));
-        if (action->isChecked())
-            m_toolsClient->showAppOnTop(true);
+        Core::ICore::updateAdditionalContexts(Core::Context(), m_inspectorToolsContext);
 
         m_toolsClientConnected = true;
+        onEngineStateChanged(m_engine->state());
+        if (m_showAppOnTopAction->isChecked())
+            m_toolsClient->showAppOnTop(true);
+
     } else if (m_toolsClientConnected && client == m_toolsClient) {
         disconnect(client, SIGNAL(currentObjectsChanged(QList<int>)),
                    this, SLOT(selectObjectsFromToolsClient(QList<int>)));
         disconnect(client, SIGNAL(logActivity(QString,QString)),
                    m_debugAdapter, SLOT(logServiceActivity(QString,QString)));
 
-        Core::ActionManager::unregisterAction(m_selectAction,
-                             Core::Id(Constants::QML_SELECTTOOL));
-        Core::ActionManager::unregisterAction(m_zoomAction,
-                             Core::Id(Constants::QML_ZOOMTOOL));
+        Core::ActionManager::unregisterAction(m_selectAction, Core::Id(Constants::QML_SELECTTOOL));
+        Core::ActionManager::unregisterAction(m_zoomAction, Core::Id(Constants::QML_ZOOMTOOL));
+        Core::ActionManager::unregisterAction(m_showAppOnTopAction,
+                                              Core::Id(Constants::QML_SHOW_APP_ON_TOP));
+        Core::ActionManager::unregisterAction(m_updateOnSaveAction,
+                                              Core::Id(Constants::QML_UPDATE_ON_SAVE));
 
-        m_selectAction->setChecked(false);
-        m_zoomAction->setChecked(false);
-        Core::ICore::updateAdditionalContexts(m_inspectorToolsContext,
-                                       Core::Context());
+        Core::ICore::updateAdditionalContexts(m_inspectorToolsContext, Core::Context());
 
-        Utils::SavedAction *action = debuggerCore()->action(QmlUpdateOnSave);
-        disconnect(action, 0, this, 0);
-        action = debuggerCore()->action(ShowAppOnTop);
-        disconnect(action, 0, this, 0);
-
+        enableTools(false);
         m_toolsClientConnected = false;
+        m_selectAction->setCheckable(false);
+        m_zoomAction->setCheckable(false);
+        m_showAppOnTopAction->setCheckable(false);
+        m_updateOnSaveAction->setCheckable(false);
     }
 }
 
@@ -384,20 +393,19 @@ void QmlInspectorAdapter::onZoomActionTriggered(bool checked)
     }
 }
 
-void QmlInspectorAdapter::onShowAppOnTopChanged(const QVariant &value)
+void QmlInspectorAdapter::onShowAppOnTopChanged(bool checked)
 {
-    bool showAppOnTop = value.toBool();
-    if (m_toolsClient && m_toolsClient->status() == QmlDebug::Enabled)
-        m_toolsClient->showAppOnTop(showAppOnTop);
+    QTC_ASSERT(toolsClient(), return);
+    toolsClient()->showAppOnTop(checked);
 }
 
-void QmlInspectorAdapter::onUpdateOnSaveChanged(const QVariant &value)
+void QmlInspectorAdapter::onUpdateOnSaveChanged(bool checked)
 {
-    bool updateOnSave = value.toBool();
+    QTC_ASSERT(toolsClient(), return);
     for (QHash<QString, QmlLiveTextPreview *>::const_iterator it
          = m_textPreviews.constBegin();
          it != m_textPreviews.constEnd(); ++it) {
-        it.value()->setApplyChangesToQmlInspector(updateOnSave);
+        it.value()->setApplyChangesToQmlInspector(checked);
     }
 }
 
@@ -499,6 +507,19 @@ void QmlInspectorAdapter::deletePreviews()
         delete m_textPreviews.take(key);
 }
 
+void QmlInspectorAdapter::enableTools(const bool enable)
+{
+    if (!m_toolsClientConnected)
+        return;
+    m_selectAction->setEnabled(enable);
+    m_showAppOnTopAction->setEnabled(enable);
+    m_updateOnSaveAction->setEnabled(enable);
+    // only enable zoom action for Qt 4.x/old client
+    // (zooming is integrated into selection tool in Qt 5).
+    if (!qobject_cast<QmlToolsClient*>(m_toolsClient))
+        m_zoomAction->setEnabled(enable);
+}
+
 void QmlInspectorAdapter::onReload()
 {
     QHash<QString, QByteArray> changesHash;
@@ -540,6 +561,11 @@ void QmlInspectorAdapter::onReloaded()
 void QmlInspectorAdapter::onDestroyedObject(int objectDebugId)
 {
     m_agent->fetchObject(m_agent->parentIdForObject(objectDebugId));
+}
+
+void QmlInspectorAdapter::onEngineStateChanged(const DebuggerState state)
+{
+    enableTools(state == InferiorRunOk);
 }
 
 } // namespace Internal

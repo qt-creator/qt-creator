@@ -65,11 +65,14 @@ def which(program):
     return None
 
 def is_debug(fpath):
+    # match all Qt Core dlls from Qt4, Qt5beta2 and Qt5rc1 and later
+    # which all have the number at different places
+    coredebug = re.compile(r'Qt[1-9]?Core[1-9]?d[1-9]?.dll')
     # bootstrap exception
-    if fpath.endswith('QtCore4d.dll') or fpath.endswith('QtCore5d.dll'):
+    if coredebug.search(fpath):
         return True
     output = subprocess.check_output(['dumpbin', '/imports', fpath])
-    return output.find('QtCore4d.dll') != -1 or output.find('QtCore5d.dll') != -1
+    return coredebug.search(output)
 
 def is_debug_build(install_dir):
     return is_debug(os.path.join(install_dir, 'bin', 'qtcreator.exe'))
@@ -193,25 +196,14 @@ def add_qt_conf(install_dir):
     f.write('Libraries=../lib/qtcreator\n')
     f.close()
 
-def copy_translations(install_dir, qt_tr_dir, tr_catalogs):
-    langs = []
+def copy_translations(install_dir, qt_tr_dir):
+    translations = glob(os.path.join(qt_tr_dir, '*.qm'))
     tr_dir = os.path.join(install_dir, 'share', 'qtcreator', 'translations')
-    p = re.compile(r'_(.*).qm')
-    for dirpath, dirnames, filenames in os.walk(tr_dir):
-        for filename in filenames:
-            if filename.endswith('.qm') and string.find(filename, 'qtcreator_') != -1:
-                lang = p.findall(filename)
-                if lang != '':
-                    langs += lang
 
     print "copying translations..."
-    for lang in langs:
-        for catalog in tr_catalogs:
-            copy_file = "%s_%s.qm" % (catalog, lang)
-            copy_src = os.path.join(qt_tr_dir, copy_file)
-            copy_dst = os.path.join(tr_dir, copy_file)
-            print copy_src, '->', copy_dst
-            shutil.copy(copy_src, copy_dst)
+    for translation in translations:
+        print translation, '->', tr_dir
+        shutil.copy(translation, tr_dir)
 
 def readQmakeVar(qmake_bin, var):
     pipe = os.popen(' '.join([qmake_bin, '-query', var]))
@@ -261,7 +253,6 @@ def main():
 
     plugins = ['accessible', 'designer', 'iconengines', 'imageformats', 'platforms', 'printsupport', 'sqldrivers']
     imports = ['Qt', 'QtWebKit']
-    tr_catalogs = ['assistant', 'designer', 'qt', 'qt_help']
 
     if sys.platform.startswith('win'):
         global debug_build
@@ -271,7 +262,7 @@ def main():
       copy_qt_libs(install_dir, QT_INSTALL_BINS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, plugins, imports)
     else:
       copy_qt_libs(install_dir, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, plugins, imports)
-    copy_translations(install_dir, QT_INSTALL_TRANSLATIONS, tr_catalogs)
+    copy_translations(install_dir, QT_INSTALL_TRANSLATIONS)
 
     if not sys.platform.startswith('win'):
         fix_rpaths(chrpath_bin, install_dir)

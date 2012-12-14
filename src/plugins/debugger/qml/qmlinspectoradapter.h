@@ -30,6 +30,8 @@
 #ifndef QMLINSPECTORADAPTER_H
 #define QMLINSPECTORADAPTER_H
 
+#include "debuggerconstants.h"
+
 #include <QObject>
 #include <QStringList>
 
@@ -49,11 +51,13 @@ class FileReference;
 }
 
 namespace Debugger {
+
+class DebuggerEngine;
+
 namespace Internal {
 
 class WatchTreeView;
 class QmlAdapter;
-class QmlEngine;
 class QmlInspectorAgent;
 class QmlLiveTextPreview;
 
@@ -62,7 +66,7 @@ class QmlInspectorAdapter : public QObject
     Q_OBJECT
 
 public:
-    QmlInspectorAdapter(QmlAdapter *debugAdapter, QmlEngine *engine,
+    QmlInspectorAdapter(QmlAdapter *debugAdapter, DebuggerEngine *engine,
                         QObject *parent = 0);
     ~QmlInspectorAdapter();
 
@@ -77,6 +81,8 @@ signals:
     void expressionResult();
 
 private slots:
+    void onEngineStateChanged(const Debugger::DebuggerState);
+
     void clientStatusChanged(QmlDebug::ClientStatus status);
     void toolsClientStatusChanged(QmlDebug::ClientStatus status);
     void engineClientStatusChanged(QmlDebug::ClientStatus status);
@@ -90,8 +96,8 @@ private slots:
 
     void onSelectActionTriggered(bool checked);
     void onZoomActionTriggered(bool checked);
-    void onShowAppOnTopChanged(const QVariant &value);
-    void onUpdateOnSaveChanged(const QVariant &value);
+    void onShowAppOnTopChanged(bool checked);
+    void onUpdateOnSaveChanged(bool checked);
     void onReload();
     void onReloaded();
     void onDestroyedObject(int);
@@ -109,9 +115,10 @@ private:
             SelectionTarget target);
     void deletePreviews();
 
+    void enableTools(const bool enable);
 
     QmlAdapter *m_debugAdapter;
-    QmlEngine *m_engine;
+    DebuggerEngine *m_engine; // Master Engine
     QmlDebug::BaseEngineDebugClient *m_engineClient;
     QHash<QString, QmlDebug::BaseEngineDebugClient*> m_engineClients;
     QmlDebug::BaseToolsClient *m_toolsClient;
@@ -134,6 +141,8 @@ private:
     Core::Context m_inspectorToolsContext;
     QAction *m_selectAction;
     QAction *m_zoomAction;
+    QAction *m_showAppOnTopAction;
+    QAction *m_updateOnSaveAction;
 
     bool m_engineClientConnected;
 };

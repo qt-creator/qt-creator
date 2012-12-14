@@ -2,49 +2,76 @@
 # specified relative to the template directory and will be copied into
 # subdirectories of the output directory.
 
-HTML.templatedir = $SRCDIR/templates
+HTML.templatedir = $SRCDIR/config
 
-HTML.stylesheets = style/narrow.css \
-                   style/style.css \
-                   style/style_ie6.css \
-                   style/style_ie7.css \
-                   style/style_ie8.css \
-                   style/superfish.css
+HTML.stylesheets = ../templates/style/narrow.css \
+                   ../templates/style/style.css \
+                   ../templates/style/style_ie6.css \
+                   ../templates/style/style_ie7.css \
+                   ../templates/style/style_ie8.css \
+                   ../templates/style/superfish.css
 
 # Adding jquery and functions - providing online tools and search features
-HTML.scripts     = scripts/functions.js \
-                   scripts/narrow.js \
-                   scripts/superfish.js \
-                   scripts/jquery.js
+HTML.scripts     = ../templates/scripts/functions.js \
+                   ../templates/scripts/narrow.js \
+                   ../templates/scripts/superfish.js \
+                   ../templates/scripts/jquery.js
 
 
 # Files not referenced in any qdoc file.
 # See also qhp.Qt.extraFiles
-extraimages.HTML        = qt-logo.png \
-                          bg_l.png \
-                          bg_l_blank.png \
-                          bg_ll_blank.png \
-                          bg_ul_blank.png \
-                          btn_next_green.png \
-                          btn_prev_green.png \
-                          header_bg.png \
-                          bg_r.png \
-                          box_bg.png \
-                          breadcrumb.png \
-                          btn_next_green.png \
-                          btn_prev_green.png \
-                          bullet_gt.png \
-                          bullet_dn.png \
-                          bullet_sq.png \
-                          bullet_up.png \
-                          arrow_down.png \
-                          feedbackground.png \
-                          horBar.png \
-                          page.png \
-                          page_bg.png \
-                          sprites-combined.png \
-                          spinner.gif \
-                          qtcreator-screenshots.png
+# for Qt 4
+extraimages.HTML        = ../templates/images/qt-logo.png \
+                          ../templates/images/bg_l.png \
+                          ../templates/images/bg_l_blank.png \
+                          ../templates/images/bg_ll_blank.png \
+                          ../templates/images/bg_ul_blank.png \
+                          ../templates/images/btn_next_green.png \
+                          ../templates/images/btn_prev_green.png \
+                          ../templates/images/header_bg.png \
+                          ../templates/images/bg_r.png \
+                          ../templates/images/box_bg.png \
+                          ../templates/images/breadcrumb.png \
+                          ../templates/images/btn_next_green.png \
+                          ../templates/images/btn_prev_green.png \
+                          ../templates/images/bullet_gt.png \
+                          ../templates/images/bullet_dn.png \
+                          ../templates/images/bullet_sq.png \
+                          ../templates/images/bullet_up.png \
+                          ../templates/images/arrow_down.png \
+                          ../templates/images/feedbackground.png \
+                          ../templates/images/horBar.png \
+                          ../templates/images/page.png \
+                          ../templates/images/page_bg.png \
+                          ../templates/images/sprites-combined.png \
+                          ../templates/images/spinner.gif \
+                          ../templates/images/qtcreator-screenshots.png
+# for Qt 5
+HTML.extraimages        = ../templates/images/qt-logo.png \
+                          ../templates/images/bg_l.png \
+                          ../templates/images/bg_l_blank.png \
+                          ../templates/images/bg_ll_blank.png \
+                          ../templates/images/bg_ul_blank.png \
+                          ../templates/images/btn_next_green.png \
+                          ../templates/images/btn_prev_green.png \
+                          ../templates/images/header_bg.png \
+                          ../templates/images/bg_r.png \
+                          ../templates/images/box_bg.png \
+                          ../templates/images/breadcrumb.png \
+                          ../templates/images/btn_next_green.png \
+                          ../templates/images/btn_prev_green.png \
+                          ../templates/images/bullet_gt.png \
+                          ../templates/images/bullet_dn.png \
+                          ../templates/images/bullet_sq.png \
+                          ../templates/images/bullet_up.png \
+                          ../templates/images/arrow_down.png \
+                          ../templates/images/feedbackground.png \
+                          ../templates/images/horBar.png \
+                          ../templates/images/page.png \
+                          ../templates/images/page_bg.png \
+                          ../templates/images/sprites-combined.png \
+                          ../templates/images/spinner.gif \
+                          ../templates/images/qtcreator-screenshots.png
     
 # Include the style sheets and scripts used.
 

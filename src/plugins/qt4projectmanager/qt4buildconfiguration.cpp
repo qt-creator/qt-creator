@@ -631,11 +631,6 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(Target *parent, const C
     if (buildConfigurationName != version->displayName())
         customSecondName = tr("%1 Release").arg(buildConfigurationName);
 
-    if (!(version->defaultBuildConfig() & BaseQtVersion::DebugBuild)) {
-        qSwap(defaultFirstName, defaultSecondName);
-        qSwap(customFirstName, customSecondName);
-    }
-
     BuildConfiguration *bc
             = Qt4BuildConfiguration::setup(parent, defaultFirstName, customFirstName,
                                            version->defaultBuildConfig(), QString(), QString(), false);
@@ -685,7 +680,7 @@ QList<BuildConfigurationInfo> Qt4BuildConfigurationFactory::availableBuildConfig
     BaseQtVersion *version = QtKitInformation::qtVersion(k);
     if (!version || !version->isValid())
         return infoList;
-    BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
+    BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig() | QtSupport::BaseQtVersion::DebugBuild;
     BuildConfigurationInfo info = BuildConfigurationInfo(config, QString(), QString(), false);
     info.directory = Qt4Project::shadowBuildDirectory(proFilePath, k, buildConfigurationDisplayName(info));
     infoList.append(info);

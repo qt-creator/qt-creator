@@ -723,7 +723,7 @@ QVariantMap SettingsAccessor::restoreSettings() const
             m_project->setProperty(SHARED_SETTINGS, sharedSettings.m_map);
             if (settings.isValid())
                 mergeSharedSettings(&settings.m_map, sharedSettings.m_map);
-            else
+            if (!settings.isValid())
                 settings = sharedSettings;
         }
     }

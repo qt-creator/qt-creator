@@ -1229,7 +1229,7 @@ bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Environmen
     QByteArray output;
     output = runQmakeQuery(binary, env, qmakeIsExecutable);
 
-    if (output.isNull() && !qmakeIsExecutable) {
+    if (output.isNull() && !*qmakeIsExecutable) {
         // Note: Don't rerun if we were able to execute the binary before.
 
         // Try running qmake with all kinds of tool chains set up in the environment.
@@ -1243,7 +1243,7 @@ bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Environmen
             Environment realEnv = env;
             tc->addToEnvironment(realEnv);
             output = runQmakeQuery(binary, realEnv, qmakeIsExecutable);
-            if (qmakeIsExecutable)
+            if (*qmakeIsExecutable)
                 break;
         }
     }

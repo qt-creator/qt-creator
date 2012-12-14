@@ -181,7 +181,7 @@ ProFileEditorWidget::Link ProFileEditorWidget::findLinkAt(const QTextCursor &cur
             else
                 return link;
         }
-        link.fileName = fileName;
+        link.fileName = QDir::cleanPath(fileName);
         link.begin = cursor.position() - positionInBlock + beginPos + 1;
         link.end = cursor.position() - positionInBlock + endPos;
     }
