@@ -1694,7 +1694,7 @@ void WatchHandler::showEditValue(const WatchData &data)
         showSeparateWidget(l);
     } else if (data.editformat == DisplayUtf16String
                || data.editformat == DisplayLatin1String
-               || data.editformat == DisplayUtf16String) {
+               || data.editformat == DisplayUtf8String) {
         // String data.
         QTextEdit *t = qobject_cast<QTextEdit *>(w);
         if (!t) {
