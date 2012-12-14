@@ -29,14 +29,14 @@
 **
 ****************************************************************************/
 -->
-<externaltool id="qmlviewer">
-    <description>Runs the current QML file with qmlviewer</description>
-    <displayname>Qt Quick 1 Preview (qmlviewer)</displayname>
+<externaltool id="qmlscene">
+    <description>Runs the current QML file with qmlscene. This requires Qt 5.</description>
+    <displayname>Qt Quick 2 Preview (qmlscene)</displayname>
     <category>Qt Quick</category>
     <order>1</order>
     <executable>
-        <path>%{CurrentProject:QT_INSTALL_BINS}/qmlviewer</path>
-        <path>qmlviewer</path>
+        <path>%{CurrentProject:QT_INSTALL_BINS}/qmlscene</path>
+        <path>qmlscene</path>
         <arguments>%{CurrentDocument:FilePath}</arguments>
         <workingdirectory>%{CurrentDocument:Path}</workingdirectory>
     </executable>

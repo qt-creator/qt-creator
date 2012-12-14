@@ -12,6 +12,7 @@ Product {
             "lrelease.xml",
             "lupdate.xml",
             "qmlviewer.xml",
+            "qmlscene.xml",
             "sort.xml",
         ]
     }

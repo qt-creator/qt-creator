@@ -95,7 +95,8 @@ DATA_FILES_SRC = \
     externaltools/lrelease.xml \
     externaltools/lupdate.xml \
     externaltools/sort.xml \
-    externaltools/qmlviewer.xml
+    externaltools/qmlviewer.xml \
+    externaltools/qmlscene.xml
 unix {
     macx:DATA_FILES_SRC += externaltools/vi_mac.xml
     else:DATA_FILES_SRC += externaltools/vi.xml
