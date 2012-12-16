@@ -29,7 +29,8 @@ HEADERS += gitplugin.h \
     remotedialog.h \
     branchadddialog.h \
     resetdialog.h \
-    mergetool.h
+    mergetool.h \
+    branchcheckoutdialog.h
 
 SOURCES += gitplugin.cpp \
     gitclient.cpp \
@@ -52,7 +53,8 @@ SOURCES += gitplugin.cpp \
     remotedialog.cpp \
     branchadddialog.cpp \
     resetdialog.cpp \
-    mergetool.cpp
+    mergetool.cpp \
+    branchcheckoutdialog.cpp
 
 FORMS += changeselectiondialog.ui \
     settingspage.ui \
@@ -61,7 +63,8 @@ FORMS += changeselectiondialog.ui \
     stashdialog.ui \
     remotedialog.ui \
     remoteadditiondialog.ui \
-    branchadddialog.ui
+    branchadddialog.ui \
+    branchcheckoutdialog.ui
 
 include(gitorious/gitorious.pri)
 

@@ -29,9 +29,11 @@
 
 #include "branchdialog.h"
 #include "branchadddialog.h"
+#include "branchcheckoutdialog.h"
 #include "branchmodel.h"
 #include "gitclient.h"
 #include "gitplugin.h"
+#include "gitutils.h"
 #include "ui_branchdialog.h"
 #include "stashdialog.h" // Label helpers
 
@@ -42,6 +44,7 @@
 #include <QItemSelectionModel>
 #include <QPushButton>
 #include <QMessageBox>
+#include <QList>
 
 #include <QDebug>
 
@@ -159,7 +162,59 @@ void BranchDialog::checkout()
     QModelIndex idx = selectedIndex();
     QTC_CHECK(m_model->isLocal(idx));
 
-    m_model->checkoutBranch(idx);
+    const QString currentBranch = m_model->branchName(m_model->currentBranch());
+    const QString nextBranch = m_model->branchName(idx);
+    const QString popMessageStart = QCoreApplication::applicationName() +
+            QLatin1String(" ") + nextBranch + QLatin1String("-AutoStash ");
+
+    BranchCheckoutDialog branchCheckoutDialog(this, currentBranch, nextBranch);
+    GitClient *gitClient = GitPlugin::instance()->gitClient();
+
+    if (gitClient->gitStatus(m_repository, StatusMode(NoUntracked | NoSubmodules)) != GitClient::StatusChanged)
+        branchCheckoutDialog.foundNoLocalChanges();
+
+    QList<Stash> stashes;
+    gitClient->synchronousStashList(m_repository, &stashes);
+    foreach (const Stash &stash, stashes) {
+        if (stash.message.startsWith(popMessageStart)) {
+            branchCheckoutDialog.foundStashForNextBranch();
+            break;
+        }
+    }
+
+    if (!branchCheckoutDialog.hasLocalChanges() &&
+        !branchCheckoutDialog.hasStashForNextBranch()) {
+        // No local changes and no Auto Stash - no need to open dialog
+        m_model->checkoutBranch(idx);
+    } else if (branchCheckoutDialog.exec() == QDialog::Accepted && m_model) {
+
+        QString stashMessage;
+        if (branchCheckoutDialog.makeStashOfCurrentBranch()
+            || branchCheckoutDialog.moveLocalChangesToNextBranch()) {
+            stashMessage = gitClient->synchronousStash(m_repository, currentBranch + QLatin1String("-AutoStash"));
+        } else if (branchCheckoutDialog.discardLocalChanges()) {
+            gitClient->synchronousReset(m_repository);
+        }
+
+        m_model->checkoutBranch(idx);
+
+        QString stashName;
+        gitClient->synchronousStashList(m_repository, &stashes);
+        foreach (const Stash &stash, stashes) {
+            if (stash.message.startsWith(popMessageStart)) {
+                stashName = stash.name;
+                break;
+            }
+        }
+
+        if (!stashMessage.isEmpty() && branchCheckoutDialog.moveLocalChangesToNextBranch())
+            gitClient->stashPop(m_repository);
+        else if (branchCheckoutDialog.popStashOfNextBranch())
+            gitClient->synchronousStashRestore(m_repository, stashName);
+
+        if (branchCheckoutDialog.hasStashForNextBranch())
+            gitClient->synchronousStashRemove(m_repository, stashName);
+    }
     enableButtons();
 }
 
