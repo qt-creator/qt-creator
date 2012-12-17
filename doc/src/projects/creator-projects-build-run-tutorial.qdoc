@@ -39,32 +39,19 @@
 
             \image qtcreator-gs-build-example-open.png "Selecting an example"
 
-        \o  Search for \gui {Toys: Clocks Example} (2) in the list of examples
-            and select it (3).
+        \o  Select an example in the list of examples. You can also search for
+            examples (2).
 
             \note The project opens in the \gui Edit mode, and the documentation
             for the example hides these instructions. To return to these
             instructions, select \gui {Previous Page} on the toolbar or
             press \key {Alt+Left}.
 
-        \o  Select \gui Projects to configure the project:
-
-            \image qtcreator-gs-build-example-targets.png "Selecting kit for building and running"
-
-            \list 1
-
-                \o  Select the kits \l{glossary-buildandrun-kit}{kits} (1) that
-                    specify the devices you develop for.
-
-                \o  Select \gui {Configure Project} (2).
-
-            \endlist
-
         \o  To check that the application code can be compiled and linked for a
             device, click the \gui {Kit Selector} and select a kit for the
             device.
 
-            \image qtcreator-kit-selector.png "Selecting a kit to build with"
+            \image qtcreator-gs-build-example-kit-selector.png "Selecting a kit to build with"
 
         \o  Click
             \inlineimage qtcreator-run.png
