@@ -9,6 +9,6 @@
         <file>images/qt_qrc.png</file>
         <file>images/sources.png</file>
         <file>images/unknown.png</file>
-        <file>images/qml.ico</file>
+        <file>images/qml.png</file>
     </qresource>
 </RCC>
