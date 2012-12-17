@@ -43,7 +43,6 @@ namespace ProjectExplorer {
 class IOutputParser;
 
 namespace Internal {
-class KitManagerPrivate;
 class KitModel;
 class KitPrivate;
 } // namespace Internal
@@ -58,7 +57,6 @@ class PROJECTEXPLORER_EXPORT Kit
 {
 public:
     Kit(Core::Id id = Core::Id());
-    ~Kit();
 
     // Do not trigger evaluations
     void blockNotification();
@@ -98,6 +96,8 @@ public:
     void copyFrom(const Kit *k);
 
 private:
+    ~Kit();
+
     // Unimplemented.
     Kit(const Kit &other);
     void operator=(const Kit &other);

@@ -121,6 +121,8 @@ public:
 
     Internal::KitManagerConfigWidget *createConfigWidget(Kit *k) const;
 
+    static void deleteKit(Kit *k);
+
 public slots:
     bool registerKit(ProjectExplorer::Kit *k);
     void deregisterKit(ProjectExplorer::Kit *k);

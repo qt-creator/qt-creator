@@ -2228,7 +2228,7 @@ Version11Handler::~Version11Handler()
     QList<Kit *> knownKits = km->kits();
     foreach (Kit *k, m_targets.keys()) {
         if (!knownKits.contains(k))
-            delete k;
+            KitManager::deleteKit(k);
     }
     m_targets.clear();
 }
@@ -2314,13 +2314,13 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
         const QString oldTargetId = extraTargetData.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id")).toString();
 
         // Check each BCs/DCs and create profiles as needed
-        static Kit rawKit; // Do not needlessly use Core::Ids
+        Kit *rawKit = new Kit; // Do not needlessly use Core::Ids
         QMapIterator<int, QVariantMap> buildIt(bcs);
         while (buildIt.hasNext()) {
             buildIt.next();
             int bcPos = buildIt.key();
             const QVariantMap &bc = buildIt.value();
-            Kit *tmpKit = &rawKit;
+            Kit *tmpKit = rawKit;
 
             if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.AndroidDeviceTarget")) {
                 tmpKit->setIconPath(QLatin1String(":/android/images/QtAndroid.png"));
@@ -2442,6 +2442,7 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
                     m_targets[k].insert(QLatin1String("Update.IsActive"), true);
             } // dcs
         } // bcs
+        KitManager::deleteKit(rawKit);
     } // read in map data
 
     int newPos = 0;

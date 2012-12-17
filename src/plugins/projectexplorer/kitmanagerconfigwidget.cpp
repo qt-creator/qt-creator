@@ -99,7 +99,7 @@ KitManagerConfigWidget::~KitManagerConfigWidget()
     qDeleteAll(m_widgets);
     m_widgets.clear();
 
-    delete m_modifiedKit;
+    KitManager::deleteKit(m_modifiedKit);
     // Make sure our workingCopy did not get registered somehow:
     foreach (const Kit *k, KitManager::instance()->kits())
         QTC_CHECK(k->id() != Core::Id(WORKING_COPY_KIT_ID));
