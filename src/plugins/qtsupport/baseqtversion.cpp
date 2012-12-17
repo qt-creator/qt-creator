@@ -865,8 +865,11 @@ void BaseQtVersion::updateVersionInfo() const
     m_hasQmlDebuggingLibrary = false;
     m_hasQmlObserver = false;
 
-    if (!queryQMakeVariables(qmakeCommand(), qmakeRunEnvironment(), &m_versionInfo, &m_qmakeIsExecutable))
+    if (!queryQMakeVariables(qmakeCommand(), qmakeRunEnvironment(), &m_versionInfo)) {
+        m_qmakeIsExecutable = false;
         return;
+    }
+    m_qmakeIsExecutable = true;
 
     const QString qtInstallData = qmakeProperty("QT_INSTALL_DATA");
     const QString qtInstallBins = qmakeProperty("QT_INSTALL_BINS");
@@ -1181,15 +1184,8 @@ QtConfigWidget *BaseQtVersion::createConfigurationWidget() const
     return 0;
 }
 
-bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Utils::Environment &env,
-                                        QHash<QString, QString> *versionInfo)
-{
-    bool qmakeIsExecutable;
-    return BaseQtVersion::queryQMakeVariables(binary, env, versionInfo, &qmakeIsExecutable);
-}
-
 static QByteArray runQmakeQuery(const FileName &binary, const Environment &env,
-                                bool *isExecutable)
+                                QString *error)
 {
     const int timeOutMS = 30000; // Might be slow on some machines.
 
@@ -1198,38 +1194,41 @@ static QByteArray runQmakeQuery(const FileName &binary, const Environment &env,
     process.start(binary.toString(), QStringList(QLatin1String("-query")), QIODevice::ReadOnly);
 
     if (!process.waitForStarted()) {
-        qWarning("Cannot start '%s': %s", qPrintable(binary.toUserOutput()), qPrintable(process.errorString()));
-        *isExecutable = false;
+        if (error)
+            *error = QCoreApplication::translate("QtVersion", "Cannot start '%1': %2").arg(binary.toUserOutput()).arg(process.errorString());
         return QByteArray();
     }
     if (!process.waitForFinished(timeOutMS)) {
         SynchronousProcess::stopProcess(process);
-        *isExecutable = true;
-        qWarning("Timeout running '%s' (%dms).", qPrintable(binary.toUserOutput()), timeOutMS);
+        if (error)
+            *error = QCoreApplication::translate("QtVersion", "Timeout running '%1' (%2ms).").arg(binary.toUserOutput()).arg(timeOutMS);
         return QByteArray();
     }
     if (process.exitStatus() != QProcess::NormalExit) {
-        qWarning("'%s' crashed.", qPrintable(binary.toUserOutput()));
-        *isExecutable = false;
+        if (error)
+            *error = QCoreApplication::translate("QtVersion", "'%s' crashed.").arg(binary.toUserOutput());
         return QByteArray();
     }
 
-    *isExecutable = true;
+    if (error)
+        error->clear();
     return process.readAllStandardOutput();
 }
 
 bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Environment &env,
-                                        QHash<QString, QString> *versionInfo, bool *qmakeIsExecutable)
+                                        QHash<QString, QString> *versionInfo, QString *error)
 {
     const QFileInfo qmake = binary.toFileInfo();
-    *qmakeIsExecutable = qmake.exists() && qmake.isExecutable() && !qmake.isDir();
-    if (!*qmakeIsExecutable)
+    if (!qmake.exists() || !qmake.isExecutable() || qmake.isDir()) {
+        if (error)
+            *error = QCoreApplication::translate("QtVersion", "qmake '%1' is not a executable").arg(binary.toUserOutput());
         return false;
+    }
 
     QByteArray output;
-    output = runQmakeQuery(binary, env, qmakeIsExecutable);
+    output = runQmakeQuery(binary, env, error);
 
-    if (output.isNull() && !*qmakeIsExecutable) {
+    if (output.isNull() && !error->isEmpty()) {
         // Note: Don't rerun if we were able to execute the binary before.
 
         // Try running qmake with all kinds of tool chains set up in the environment.
@@ -1242,8 +1241,8 @@ bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Environmen
                 continue;
             Environment realEnv = env;
             tc->addToEnvironment(realEnv);
-            output = runQmakeQuery(binary, realEnv, qmakeIsExecutable);
-            if (*qmakeIsExecutable)
+            output = runQmakeQuery(binary, realEnv, error);
+            if (error->isEmpty())
                 break;
         }
     }
