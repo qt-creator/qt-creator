@@ -33,6 +33,7 @@
 #include "qmakekitconfigwidget.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/toolchainmanager.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
@@ -81,6 +82,30 @@ QList<ProjectExplorer::Task> QmakeKitInformation::validate(const ProjectExplorer
                                         Utils::FileName(), -1,
                                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
     return result;
+}
+
+void QmakeKitInformation::fix(ProjectExplorer::Kit *k)
+{
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
+    if (!version)
+        return;
+
+    Utils::FileName spec = QmakeKitInformation::mkspec(k);
+    if (spec.isEmpty())
+        spec = version->mkspec();
+
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
+
+    if (!tc || !tc->suggestedMkspecList().contains(spec)) {
+        QList<ProjectExplorer::ToolChain *> tcList = ProjectExplorer::ToolChainManager::instance()->toolChains();
+        foreach (ProjectExplorer::ToolChain *current, tcList) {
+            if (version->qtAbis().contains(current->targetAbi())
+                    && current->suggestedMkspecList().contains(spec)) {
+                ProjectExplorer::ToolChainKitInformation::setToolChain(k, current);
+                break;
+            }
+        }
+    }
 }
 
 ProjectExplorer::KitConfigWidget *
