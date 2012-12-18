@@ -51,7 +51,10 @@ Item {
     y: 25
 
     property int yoffset: root.scrollY
-    onYoffsetChanged: y = relativey + yoffset
+    onYoffsetChanged: {
+        y = relativey + yoffset
+        fitInView();
+    }
     property int relativey : y - yoffset
     onYChanged: relativey = y - yoffset
 
@@ -71,10 +74,10 @@ Item {
             x = root.width - width;
         if (x < 0)
             x = 0;
-        if (y + height > root.candidateHeight)
-            y = root.candidateHeight - height;
-        if (y < 0)
-            y = 0;
+        if (y - yoffset + height > root.candidateHeight)
+            y = root.candidateHeight - height + yoffset;
+        if (y < yoffset)
+            y = yoffset;
     }
 
     // shadow
@@ -187,8 +190,8 @@ Item {
         drag.target: parent
         drag.minimumX: 0
         drag.maximumX: root.width - parent.width
-        drag.minimumY: 0
-        drag.maximumY: root.candidateHeight - parent.height
+        drag.minimumY: yoffset
+        drag.maximumY: root.candidateHeight - parent.height + yoffset
         onClicked: {
             root.gotoSourceLocation(file, line, column);
             root.recenterOnItem(view.selectedItem);

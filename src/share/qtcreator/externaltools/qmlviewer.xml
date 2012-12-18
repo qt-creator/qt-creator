@@ -31,7 +31,7 @@
 -->
 <externaltool id="qmlviewer">
     <description>Runs the current QML file with qmlviewer</description>
-    <displayname>Preview (qmlviewer)</displayname>
+    <displayname>Qt Quick 1 Preview (qmlviewer)</displayname>
     <category>Qt Quick</category>
     <order>1</order>
     <executable>

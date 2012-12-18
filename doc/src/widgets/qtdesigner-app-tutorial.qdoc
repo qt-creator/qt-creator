@@ -216,7 +216,7 @@
             \c{Ui::TextFinder} pointer, as illustrated by the following code
             snippet:
 
-            \snippet examples/textfinder/textfinder.h 0
+            \snippet textfinder/textfinder.h 0
 
     \endlist
 
@@ -236,12 +236,12 @@
             {setPlainText()}.
             This is illustrated by the following code snippet:
 
-            \snippet examples/textfinder/textfinder.cpp 0
+            \snippet textfinder/textfinder.cpp 0
 
         \o  To use QFile and QTextStream, add the following #includes to
             textfinder.cpp:
 
-            \snippet examples/textfinder/textfinder.cpp 1
+            \snippet textfinder/textfinder.cpp 1
 
         \o  For the \c{on_findButton_clicked()} slot, add code to extract the
             search string and use the
@@ -250,13 +250,13 @@
             to look for the search string within the text file. This is
             illustrated by the following code snippet:
 
-            \snippet examples/textfinder/textfinder.cpp 2
+            \snippet textfinder/textfinder.cpp 2
 
         \o  Once both of these functions are complete, add a line to call
             \c{loadTextFile()} in the constructor, as illustrated by the
             following code snippet:
 
-            \snippet examples/textfinder/textfinder.cpp 3
+            \snippet textfinder/textfinder.cpp 3
 
     \endlist
 

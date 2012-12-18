@@ -21,4 +21,4 @@ test -d "$qmlpuppetResources" || mkdir -p "$qmlpuppetResources"
 cp "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/qmlpuppet_qt.conf" "$qmlpuppetResources/qt.conf" || exit 1
 
 # copy Qt translations
-cp "$2"/qt_*.qm "$1/Contents/Resources/translations/" || exit 1
+cp "$2"/*.qm "$1/Contents/Resources/translations/" || exit 1

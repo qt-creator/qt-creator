@@ -38,6 +38,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/coreconstants.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
@@ -103,6 +104,7 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(ProjectExplorer::Project *project
     setLayout(layout);
 
     m_targetSetupPage = new TargetSetupPage(this);
+    m_targetSetupPage->setRequiredKitMatcher(new QtSupport::QtVersionKitMatcher);
     m_targetSetupPage->setUseScrollArea(false);
     m_targetSetupPage->setImportSearch(true);
     m_targetSetupPage->setProFilePath(project->document()->fileName());

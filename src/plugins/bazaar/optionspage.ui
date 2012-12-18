@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>392</width>
-    <height>303</height>
+    <width>649</width>
+    <height>337</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -103,6 +103,23 @@
        </widget>
       </item>
       <item row="0" column="2">
+       <widget class="QLabel" name="timeoutSecondsLabel">
+        <property name="text">
+         <string>Timeout:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QSpinBox" name="timeout">
+        <property name="suffix">
+         <string>s</string>
+        </property>
+        <property name="value">
+         <number>30</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -115,24 +132,7 @@
         </property>
        </spacer>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="timeoutSecondsLabel">
-        <property name="text">
-         <string>Timeout:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QSpinBox" name="timeout">
-        <property name="suffix">
-         <string>s</string>
-        </property>
-        <property name="value">
-         <number>30</number>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="3">
+      <item row="1" column="0" colspan="2">
        <widget class="QCheckBox" name="promptOnSubmitCheckBox">
         <property name="text">
          <string>Prompt on submit</string>

@@ -207,7 +207,7 @@
 
             The qml.main file should now look as follows:
 
-            \snippet examples/transitions/qml/Transitions/main.qml 0
+            \snippet transitions/qml/Transitions/main.qml 0
 
         \o  In the \gui Navigator pane, copy topLeftRect (by pressing
             \key {Ctrl+C}) and paste it to the canvas twice (by pressing
@@ -259,7 +259,7 @@
 
             The qml.main file should now look as follows:
 
-            \snippet examples/transitions/qml/Transitions/main.qml 1
+            \snippet transitions/qml/Transitions/main.qml 1
 
         \endlist
 
@@ -360,6 +360,6 @@
 
     When you have completed the steps, the main.qml file should look as follows:
 
-    \snippet examples/transitions/qml/Transitions/main.qml 2
+    \snippet transitions/qml/Transitions/main.qml 2
 
 */

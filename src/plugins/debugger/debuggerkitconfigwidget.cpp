@@ -56,9 +56,7 @@
 namespace Debugger {
 namespace Internal {
 
-
-static const char dgbToolsDownloadLink32C[] = "http://www.microsoft.com/whdc/devtools/debugging/installx86.Mspx";
-static const char dgbToolsDownloadLink64C[] = "http://www.microsoft.com/whdc/devtools/debugging/install64bit.Mspx";
+static const char debuggingToolsWikiLinkC[] = "http://qt-project.org/wiki/Qt_Creator_Windows_Debugging";
 
 // -----------------------------------------------------------------------
 // DebuggerKitConfigWidget:
@@ -207,12 +205,12 @@ void DebuggerKitConfigDialog::refreshLabel()
 #else
         const bool is64bit = false;
 #endif
-        const QString link = is64bit ? QLatin1String(dgbToolsDownloadLink64C) : QLatin1String(dgbToolsDownloadLink32C);
         const QString versionString = is64bit ? tr("64-bit version") : tr("32-bit version");
         //: Label text for path configuration. %2 is "x-bit version".
         text = tr("<html><body><p>Specify the path to the "
                   "<a href=\"%1\">Windows Console Debugger executable</a>"
-                  " (%2) here.</p>""</body></html>").arg(link, versionString);
+                  " (%2) here.</p>""</body></html>").
+                arg(QLatin1String(debuggingToolsWikiLinkC), versionString);
     }
         break;
     default:

@@ -81,6 +81,8 @@ ExamplesListModel::ExamplesListModel(QObject *parent) :
             SLOT(helpInitialized()));
     connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
             this, SLOT(handleQtVersionsChanged()));
+    connect(ProjectExplorer::KitManager::instance(), SIGNAL(defaultkitChanged()),
+            SLOT(handleQtVersionsChanged()));
 }
 
 static inline QString fixStringForTags(const QString &string)

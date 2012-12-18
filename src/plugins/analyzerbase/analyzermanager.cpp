@@ -582,13 +582,16 @@ QAction *AnalyzerManagerPrivate::actionFromToolAndMode(IAnalyzerTool *tool, Star
 void AnalyzerManagerPrivate::selectSavedTool()
 {
     const QSettings *settings = ICore::settings();
-    const Id lastActiveAction(settings->value(QLatin1String(LAST_ACTIVE_TOOL)).toString());
-    foreach (QAction *action, m_actions) {
-        IAnalyzerTool *tool = m_toolFromAction.value(action);
-        StartMode mode = m_modeFromAction.value(action);
-        if (tool->actionId(mode) == lastActiveAction) {
-            selectTool(tool, mode);
-            return;
+
+    if (settings->contains(QLatin1String(LAST_ACTIVE_TOOL))) {
+        const Id lastActiveAction(settings->value(QLatin1String(LAST_ACTIVE_TOOL)).toString());
+        foreach (QAction *action, m_actions) {
+            IAnalyzerTool *tool = m_toolFromAction.value(action);
+            StartMode mode = m_modeFromAction.value(action);
+            if (tool->actionId(mode) == lastActiveAction) {
+                selectTool(tool, mode);
+                return;
+            }
         }
     }
     // fallback to first available tool

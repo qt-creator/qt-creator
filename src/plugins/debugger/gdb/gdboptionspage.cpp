@@ -171,6 +171,9 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "<html><head/><body>The options below give access to advanced "
         "or experimental functions of GDB. Enabling them may negatively "
         "impact your debugging experience.</body></html>"));
+    QFont f = labelDangerous->font();
+    f.setItalic(true);
+    labelDangerous->setFont(f);
 
     checkBoxTargetAsync = new QCheckBox(groupBoxGeneral);
     checkBoxTargetAsync->setText(GdbOptionsPage::tr(
@@ -290,7 +293,6 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     formLayout->addRow(checkBoxLoadGdbInit);
     formLayout->addRow(checkBoxWarnOnReleaseBuilds);
     formLayout->addRow(checkBoxIntelFlavor);
-    formLayout->addRow(new QLabel(QString()));
     formLayout->addRow(labelDangerous);
     formLayout->addRow(checkBoxTargetAsync);
     formLayout->addRow(checkBoxAutoEnrichParameters);

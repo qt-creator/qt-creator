@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>513</width>
-    <height>461</height>
+    <height>464</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -15,13 +15,6 @@
     <widget class="QCheckBox" name="checkBoxUseFakeVim">
      <property name="text">
       <string>Use FakeVim</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="checkBoxReadVimRc">
-     <property name="text">
-      <string>Read .vimrc</string>
      </property>
     </widget>
    </item>
@@ -270,6 +263,13 @@
         </property>
        </widget>
       </item>
+      <item row="6" column="2">
+       <widget class="QCheckBox" name="checkBoxReadVimRc">
+        <property name="text">
+         <string>Read .vimrc</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -290,7 +290,6 @@
  </widget>
  <tabstops>
   <tabstop>checkBoxUseFakeVim</tabstop>
-  <tabstop>checkBoxReadVimRc</tabstop>
   <tabstop>checkBoxAutoIndent</tabstop>
   <tabstop>checkBoxSmartIndent</tabstop>
   <tabstop>checkBoxExpandTab</tabstop>

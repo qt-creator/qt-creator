@@ -87,13 +87,13 @@
         \o  To check the paths used in the Qwt library, enter the following
             \c otool command:
 
-            \snippet examples/doc_src_plugins.qdoc 0
+            \snippet doc_src_plugins.qdoc 0
 
             The output for Qwt 5.2.1 indicates that the plugin uses Qt core
             libraries (QtDesigner, QtScript, QtXml, QtGui and QtCore) and
             libqwt.5.dylib:
 
-            \snippet examples/doc_src_plugins.qdoc 1
+            \snippet doc_src_plugins.qdoc 1
 
 
         \o  You must copy the \QD plugin and the Qwt library files to the
@@ -110,21 +110,21 @@
 
             Enter the following commands:
 
-            \snippet examples/doc_src_plugins.qdoc 4
+            \snippet doc_src_plugins.qdoc 4
 
         \o  Enter the following \c otool command to check the libraries that are
             used by the Qwt library:
 
-            \snippet examples/doc_src_plugins.qdoc 2
+            \snippet doc_src_plugins.qdoc 2
 
             The command returns the following output:
 
-            \snippet examples/doc_src_plugins.qdoc 3
+            \snippet doc_src_plugins.qdoc 3
 
         \o  Enter the following \c install_name_tool command to fix the
             references of the libraries:
 
-            \snippet examples/doc_src_plugins.qdoc 5
+            \snippet doc_src_plugins.qdoc 5
 
     \endlist
 
