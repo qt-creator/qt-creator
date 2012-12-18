@@ -55,7 +55,7 @@ public:
 
 public slots:
     void start();
-    void stop(bool async);
+    void stop();
     void asyncStop();
 
 signals:

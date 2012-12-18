@@ -156,9 +156,8 @@ void AndroidDebugSupport::handleRemoteProcessStarted(int gdbServerPort, int qmlP
 
 void AndroidDebugSupport::handleRemoteProcessFinished(const QString &errorMsg)
 {
-    disconnect(m_runner, SIGNAL(remoteProcessFinished(QString)),
-        this,SLOT(handleRemoteProcessFinished(QString)));
-    m_runControl->engine()->notifyEngineRemoteSetupFailed(errorMsg);
+    if (m_runControl)
+        m_runControl->showMessage(errorMsg, AppStuff);
 }
 
 void AndroidDebugSupport::handleRemoteOutput(const QByteArray &output)
