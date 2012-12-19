@@ -51,6 +51,7 @@ class LinuxIccToolChainFactory;
 class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 {
 public:
+    GccToolChain(const QString &id, bool autodetect);
     QString type() const;
     QString typeDisplayName() const;
     Abi targetAbi() const;
@@ -84,7 +85,6 @@ public:
 protected:
     typedef QList<QPair<QStringList, QByteArray> > GccCache;
 
-    GccToolChain(const QString &id, bool autodetect);
     GccToolChain(const GccToolChain &);
 
     virtual QString defaultDisplayName() const;
