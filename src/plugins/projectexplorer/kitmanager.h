@@ -110,7 +110,7 @@ public:
     QList<Kit *> kits(const KitMatcher *m = 0) const;
     Kit *find(const Core::Id &id) const;
     Kit *find(const KitMatcher *m) const;
-    Kit *defaultKit();
+    Kit *defaultKit() const;
 
     QList<KitInformation *> kitInformation() const;
 
