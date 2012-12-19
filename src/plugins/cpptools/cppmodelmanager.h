@@ -265,6 +265,7 @@ public:
     void run(const QString &fileName);
 
     void resetEnvironment();
+    static QString cleanPath(const QString &path);
 
     const QSet<QString> &todo() const
     { return m_todo; }
@@ -305,7 +306,6 @@ private:
     CPlusPlus::Environment env;
     CPlusPlus::Preprocessor preprocess;
     QStringList m_includePaths;
-    QStringList m_systemIncludePaths;
     CPlusPlus::CppModelManagerInterface::WorkingCopy m_workingCopy;
     QStringList m_projectFiles;
     QStringList m_frameworkPaths;

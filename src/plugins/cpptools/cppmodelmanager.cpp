@@ -234,10 +234,8 @@ void CppPreprocessor::setIncludePaths(const QStringList &includePaths)
                     continue;
                 }
             }
-            m_includePaths.append(path);
-        } else {
-            m_includePaths.append(path);
         }
+        m_includePaths.append(cleanPath(path));
     }
 }
 
@@ -262,11 +260,11 @@ void CppPreprocessor::addFrameworkPath(const QString &frameworkPath)
     // The algorithm below is a bit too eager, but that's because we're not getting
     // in the frameworks we're linking against. If we would have that, then we could
     // add only those private frameworks.
-    if (!m_frameworkPaths.contains(frameworkPath)) {
-        m_frameworkPaths.append(frameworkPath);
-    }
+    QString cleanFrameworkPath = cleanPath(frameworkPath);
+    if (!m_frameworkPaths.contains(cleanFrameworkPath))
+        m_frameworkPaths.append(cleanFrameworkPath);
 
-    const QDir frameworkDir(frameworkPath);
+    const QDir frameworkDir(cleanFrameworkPath);
     const QStringList filter = QStringList() << QLatin1String("*.framework");
     foreach (const QFileInfo &framework, frameworkDir.entryInfoList(filter)) {
         if (!framework.isDir())
@@ -385,10 +383,13 @@ QString CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type, uns
     return contents;
 }
 
-static inline void appendDirSeparatorIfNeeded(QString &path)
+QString CppPreprocessor::cleanPath(const QString &path)
 {
-    if (!path.endsWith(QLatin1Char('/'), Qt::CaseInsensitive))
-        path += QLatin1Char('/');
+    QString result = QDir::cleanPath(path);
+    const QChar slash(QLatin1Char('/'));
+    if (!result.endsWith(slash))
+        result.append(slash);
+    return result;
 }
 
 QString CppPreprocessor::tryIncludeFile_helper(QString &fileName, IncludeType type, unsigned *revision)
@@ -402,10 +403,7 @@ QString CppPreprocessor::tryIncludeFile_helper(QString &fileName, IncludeType ty
 
     if (type == IncludeLocal && m_currentDoc) {
         QFileInfo currentFileInfo(m_currentDoc->fileName());
-        QString path = currentFileInfo.absolutePath();
-        appendDirSeparatorIfNeeded(path);
-        path += fileName;
-        path = QDir::cleanPath(path);
+        QString path = cleanPath(currentFileInfo.absolutePath()) + fileName;
         QString contents;
         if (includeFile(path, &contents, revision)) {
             fileName = path;
@@ -414,23 +412,7 @@ QString CppPreprocessor::tryIncludeFile_helper(QString &fileName, IncludeType ty
     }
 
     foreach (const QString &includePath, m_includePaths) {
-        QString path = includePath;
-        appendDirSeparatorIfNeeded(path);
-        path += fileName;
-        path = QDir::cleanPath(path);
-        QString contents;
-        if (includeFile(path, &contents, revision)) {
-            fileName = path;
-            return contents;
-        }
-    }
-
-    // look in the system include paths
-    foreach (const QString &includePath, m_systemIncludePaths) {
-        QString path = includePath;
-        appendDirSeparatorIfNeeded(path);
-        path += fileName;
-        path = QDir::cleanPath(path);
+        QString path = includePath + fileName;
         QString contents;
         if (includeFile(path, &contents, revision)) {
             fileName = path;
@@ -441,33 +423,15 @@ QString CppPreprocessor::tryIncludeFile_helper(QString &fileName, IncludeType ty
     int index = fileName.indexOf(QLatin1Char('/'));
     if (index != -1) {
         QString frameworkName = fileName.left(index);
-        QString name = fileName.mid(index + 1);
+        QString name = frameworkName + QLatin1String(".framework/Headers/") + fileName.mid(index + 1);
 
         foreach (const QString &frameworkPath, m_frameworkPaths) {
-            QString path = frameworkPath;
-            appendDirSeparatorIfNeeded(path);
-            path += frameworkName;
-            path += QLatin1String(".framework/Headers/");
-            path += name;
-            path = QDir::cleanPath(path);
+            QString path = frameworkPath + name;
             QString contents;
             if (includeFile(path, &contents, revision)) {
                 fileName = path;
                 return contents;
             }
-        }
-    }
-
-    QString path = fileName;
-    if (path.at(0) != QLatin1Char('/'))
-        path.prepend(QLatin1Char('/'));
-
-    foreach (const QString &projectFile, m_projectFiles) {
-        if (projectFile.endsWith(path)) {
-            fileName = projectFile;
-            QString contents;
-            includeFile(fileName, &contents, revision);
-            return contents;
         }
     }
 
@@ -794,7 +758,8 @@ QStringList CppModelManager::internalIncludePaths() const
         it.next();
         ProjectInfo pinfo = it.value();
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts())
-            includePaths += part->includePaths;
+            foreach (const QString &path, part->includePaths)
+                includePaths.append(CppPreprocessor::cleanPath(path));
     }
     includePaths.removeDuplicates();
     return includePaths;
@@ -808,7 +773,8 @@ QStringList CppModelManager::internalFrameworkPaths() const
         it.next();
         ProjectInfo pinfo = it.value();
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts())
-            frameworkPaths += part->frameworkPaths;
+            foreach (const QString &path, part->frameworkPaths)
+                frameworkPaths.append(CppPreprocessor::cleanPath(path));
     }
     frameworkPaths.removeDuplicates();
     return frameworkPaths;
