@@ -37,6 +37,10 @@
 #include <QLocalSocket>
 #include <QLocalServer>
 
+QT_BEGIN_NAMESPACE
+class QTimer;
+QT_END_NAMESPACE
+
 #ifdef Q_OS_WIN
 #  if QT_VERSION >= 0x050000
 #    include <QWinEventNotifier>
@@ -51,6 +55,7 @@ namespace Utils {
 struct ConsoleProcessPrivate {
     ConsoleProcessPrivate();
 
+    static QString m_defaultConsoleProcess;
     ConsoleProcess::Mode m_mode;
     QString m_workingDir;
     Environment m_environment;
@@ -66,6 +71,9 @@ struct ConsoleProcessPrivate {
     QProcess m_process;
     QByteArray m_stubServerDir;
     QSettings *m_settings;
+    bool m_stubConnected;
+    qint64 m_stubPid;
+    QTimer *m_stubConnectTimer;
 #else
     qint64 m_appMainThreadId;
     PROCESS_INFORMATION *m_pid;

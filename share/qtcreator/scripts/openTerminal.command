@@ -1,11 +1,18 @@
 #! /bin/bash
 
-i=`pwd`
-i=${i//\\/\\\\\\\\}
-i=${i//\"/\\\\\\\"}
-i=${i//\$/\\\\\\\$}
-i=${i//\`/\\\\\\\`}
-i=\\\"$i\\\"
+# ugly escaping: for apple script \ and " need to be escaped, whereas %q takes care of all bash escaping
+declare -a args
+mydir=`pwd`
+mydir=$(printf '%q' "$mydir")
+mydir="${mydir//\\/\\\\}"
+args[0]="cd ${mydir//\"/\\\"};"
+for a in "$@" ; do
+    x=$(printf '%q ' "$a")
+    x="${x//\\/\\\\}"
+    args[${#args[@]}]="${x//\"/\\\"}"
+done
+mArgs=${args[@]:0}
+
 osascript <<EOF
     --Terminal opens a window by default when it is not running, so check
     on applicationIsRunning(applicationName)
@@ -14,7 +21,7 @@ osascript <<EOF
     end applicationIsRunning
     set terminalWasRunning to applicationIsRunning("Terminal")
 
-    set cdScript to "cd $i"
+    set cdScript to "$mArgs"
     tell application "Terminal"
         --do script will open a new window if none given, but terminal already opens one if not running
         if terminalWasRunning then

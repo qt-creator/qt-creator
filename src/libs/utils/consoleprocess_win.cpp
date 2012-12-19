@@ -151,21 +151,31 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
 
     d->processFinishedNotifier = new QWinEventNotifier(d->m_pid->hProcess, this);
     connect(d->processFinishedNotifier, SIGNAL(activated(HANDLE)), SLOT(stubExited()));
-    emit wrapperStarted();
     return true;
 }
 
-void ConsoleProcess::stop()
+
+void ConsoleProcess::killProcess()
 {
     if (d->m_hInferior != NULL) {
         TerminateProcess(d->m_hInferior, (unsigned)-1);
         cleanupInferior();
     }
+}
+
+void ConsoleProcess::killStub()
+{
     if (d->m_pid) {
         TerminateProcess(d->m_pid->hProcess, (unsigned)-1);
         WaitForSingleObject(d->m_pid->hProcess, INFINITE);
         cleanupStub();
     }
+}
+
+void ConsoleProcess::stop()
+{
+    killProcess();
+    killStub();
 }
 
 bool ConsoleProcess::isRunning() const
@@ -192,6 +202,7 @@ void ConsoleProcess::stubServerShutdown()
 
 void ConsoleProcess::stubConnectionAvailable()
 {
+    emit stubStarted();
     d->m_stubSocket = d->m_stubServer.nextPendingConnection();
     connect(d->m_stubSocket, SIGNAL(readyRead()), SLOT(readStubOutput()));
 }
@@ -281,7 +292,7 @@ void ConsoleProcess::stubExited()
         d->m_appCode = -1;
         emit processStopped();
     }
-    emit wrapperStopped();
+    emit stubStopped();
 }
 
 QStringList ConsoleProcess::fixWinEnvironment(const QStringList &env)

@@ -546,7 +546,7 @@ bool CdbEngine::startConsole(const DebuggerStartParameters &sp, QString *errorMe
             SLOT(consoleStubError(QString)));
     connect(m_consoleStub.data(), SIGNAL(processStarted()),
             SLOT(consoleStubProcessStarted()));
-    connect(m_consoleStub.data(), SIGNAL(wrapperStopped()),
+    connect(m_consoleStub.data(), SIGNAL(stubStopped()),
             SLOT(consoleStubExited()));
     m_consoleStub->setWorkingDirectory(sp.workingDirectory);
     if (sp.environment.size())

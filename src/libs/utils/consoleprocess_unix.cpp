@@ -37,6 +37,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QSettings>
+#include <QTimer>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -51,7 +52,10 @@ ConsoleProcessPrivate::ConsoleProcessPrivate() :
     m_appPid(0),
     m_stubSocket(0),
     m_tempFile(0),
-    m_settings(0)
+    m_settings(0),
+    m_stubConnected(false),
+    m_stubPid(0),
+    m_stubConnectTimer(0)
 {
 }
 
@@ -61,8 +65,6 @@ ConsoleProcess::ConsoleProcess(QObject *parent)  :
     connect(&d->m_stubServer, SIGNAL(newConnection()), SLOT(stubConnectionAvailable()));
 
     d->m_process.setProcessChannelMode(QProcess::ForwardedChannels);
-    connect(&d->m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
-            SLOT(stubExited()));
 }
 
 void ConsoleProcess::setSettings(QSettings *settings)
@@ -159,21 +161,54 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         d->m_tempFile = 0;
         return false;
     }
+    d->m_stubConnectTimer = new QTimer(this);
+    connect(d->m_stubConnectTimer, SIGNAL(timeout()), SLOT(stop()));
+    d->m_stubConnectTimer->setSingleShot(true);
+    d->m_stubConnectTimer->start(10000);
     d->m_executable = program;
-    emit wrapperStarted();
     return true;
+}
+
+void ConsoleProcess::killProcess()
+{
+    if (d->m_stubSocket && d->m_stubSocket->isWritable()) {
+        d->m_stubSocket->write("k", 1);
+        d->m_stubSocket->flush();
+    }
+    d->m_appPid = 0;
+}
+
+void ConsoleProcess::killStub()
+{
+    if (d->m_stubSocket && d->m_stubSocket->isWritable()) {
+        d->m_stubSocket->write("s", 1);
+        d->m_stubSocket->flush();
+    }
+    stubServerShutdown();
+    d->m_stubPid = 0;
+}
+
+void ConsoleProcess::detachStub()
+{
+    if (d->m_stubSocket && d->m_stubSocket->isWritable()) {
+        d->m_stubSocket->write("d", 1);
+        d->m_stubSocket->flush();
+    }
+    stubServerShutdown();
+    d->m_stubPid = 0;
 }
 
 void ConsoleProcess::stop()
 {
-    if (!isRunning())
-        return;
-    stubServerShutdown();
-    d->m_appPid = 0;
-    d->m_process.terminate();
-    if (!d->m_process.waitForFinished(1000))
-        d->m_process.kill();
-    d->m_process.waitForFinished();
+    killProcess();
+    killStub();
+    if (isRunning()) {
+        d->m_process.terminate();
+        if (!d->m_process.waitForFinished(1000)) {
+            d->m_process.kill();
+            d->m_process.waitForFinished();
+        }
+    }
 }
 
 bool ConsoleProcess::isRunning() const
@@ -210,7 +245,8 @@ QString ConsoleProcess::stubServerListen()
 
 void ConsoleProcess::stubServerShutdown()
 {
-    delete d->m_stubSocket;
+    if (d->m_stubSocket)
+        d->m_stubSocket->deleteLater(); // we might be called from the disconnected signal of m_stubSocket
     d->m_stubSocket = 0;
     if (d->m_stubServer.isListening()) {
         d->m_stubServer.close();
@@ -220,8 +256,15 @@ void ConsoleProcess::stubServerShutdown()
 
 void ConsoleProcess::stubConnectionAvailable()
 {
+    if (d->m_stubConnectTimer) {
+        delete d->m_stubConnectTimer;
+        d->m_stubConnectTimer = 0;
+    }
+    d->m_stubConnected = true;
+    emit stubStarted();
     d->m_stubSocket = d->m_stubServer.nextPendingConnection();
     connect(d->m_stubSocket, SIGNAL(readyRead()), SLOT(readStubOutput()));
+    connect(d->m_stubSocket, SIGNAL(disconnected()), SLOT(stubExited()));
 }
 
 static QString errorMsg(int code)
@@ -238,11 +281,12 @@ void ConsoleProcess::readStubOutput()
             emit processError(msgCannotChangeToWorkDir(workingDirectory(), errorMsg(out.mid(10).toInt())));
         } else if (out.startsWith("err:exec ")) {
             emit processError(msgCannotExecute(d->m_executable, errorMsg(out.mid(9).toInt())));
-        } else if (out.startsWith("pid ")) {
-            // Will not need it any more
+        } else if (out.startsWith("spid ")) {
             delete d->m_tempFile;
             d->m_tempFile = 0;
 
+            d->m_stubPid = out.mid(4).toInt();
+        } else if (out.startsWith("pid ")) {
             d->m_appPid = out.mid(4).toInt();
             emit processStarted();
         } else if (out.startsWith("exit ")) {
@@ -257,6 +301,7 @@ void ConsoleProcess::readStubOutput()
             emit processStopped();
         } else {
             emit processError(msgUnexpectedOutput(out));
+            d->m_stubPid = 0;
             d->m_process.terminate();
             break;
         }
@@ -269,6 +314,7 @@ void ConsoleProcess::stubExited()
     if (d->m_stubSocket && d->m_stubSocket->state() == QLocalSocket::ConnectedState)
         d->m_stubSocket->waitForDisconnected();
     stubServerShutdown();
+    d->m_stubPid = 0;
     delete d->m_tempFile;
     d->m_tempFile = 0;
     if (d->m_appPid) {
@@ -277,7 +323,7 @@ void ConsoleProcess::stubExited()
         d->m_appPid = 0;
         emit processStopped(); // Maybe it actually did not, but keep state consistent
     }
-    emit wrapperStopped();
+    emit stubStopped();
 }
 
 struct Terminal {
@@ -293,15 +339,18 @@ static const Terminal knownTerminals[] =
     {"rxvt", "-e"},
     {"urxvt", "-e"},
     {"xfce4-terminal", "-x"},
-    {"konsole", "--nofork -e"},
+    {"konsole", "-e"},
     {"gnome-terminal", "-x"}
 };
 
 QString ConsoleProcess::defaultTerminalEmulator()
 {
-    if (Utils::HostOsInfo::isMacHost())
+    if (Utils::HostOsInfo::isMacHost()) {
+        QString termCmd = QCoreApplication::applicationDirPath() + QLatin1String("/../Resources/scripts/openTerminal.command");
+        if (QFile(termCmd).exists())
+            return termCmd.replace(QLatin1Char(' '), QLatin1String("\\ "));
         return QLatin1String("/usr/X11/bin/xterm");
-
+    }
     const Environment env = Environment::systemEnvironment();
     const int terminalCount = int(sizeof(knownTerminals) / sizeof(knownTerminals[0]));
     for (int i = 0; i < terminalCount; ++i) {
@@ -317,9 +366,6 @@ QString ConsoleProcess::defaultTerminalEmulator()
 
 QStringList ConsoleProcess::availableTerminalEmulators()
 {
-    if (Utils::HostOsInfo::isMacHost())
-        return QStringList(defaultTerminalEmulator());
-
     QStringList result;
     const Environment env = Environment::systemEnvironment();
     const int terminalCount = int(sizeof(knownTerminals) / sizeof(knownTerminals[0]));
@@ -331,6 +377,8 @@ QStringList ConsoleProcess::availableTerminalEmulators()
             result.push_back(terminal);
         }
     }
+    if (!result.contains(defaultTerminalEmulator()))
+        result.append(defaultTerminalEmulator());
     result.sort();
     return result;
 }

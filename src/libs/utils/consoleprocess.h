@@ -62,16 +62,23 @@ public:
     Environment environment() const;
 
     bool start(const QString &program, const QString &args);
+public slots:
     void stop();
 
+public:
     void setMode(Mode m);
     Mode mode() const;
 
     bool isRunning() const; // This reflects the state of the console+stub
     qint64 applicationPID() const;
 
+    void killProcess();
+    void killStub();
+
 #ifdef Q_OS_WIN
     qint64 applicationMainThreadID() const;
+#else
+    void detachStub();
 #endif
 
     int exitCode() const;
@@ -99,8 +106,8 @@ signals:
     void processStopped();
 
     // These reflect the state of the console+stub
-    void wrapperStarted();
-    void wrapperStopped();
+    void stubStarted();
+    void stubStopped();
 
 private slots:
     void stubConnectionAvailable();

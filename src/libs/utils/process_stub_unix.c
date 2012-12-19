@@ -45,6 +45,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include <assert.h>
 
 /* For OpenBSD */
 #ifndef EPROTO
@@ -55,6 +56,10 @@ extern char **environ;
 
 static int qtcFd;
 static char *sleepMsg;
+static int chldPipe[2];
+static int isDebug;
+static volatile int isDetached;
+static volatile int chldPid;
 
 static void __attribute__((noreturn)) doExit(int code)
 {
@@ -71,10 +76,10 @@ static void sendMsg(const char *msg, int num)
     char pidStr[64];
 
     pidStrLen = sprintf(pidStr, msg, num);
-    if ((ioRet = write(qtcFd, pidStr, pidStrLen)) != pidStrLen) {
+    if (!isDetached && (ioRet = write(qtcFd, pidStr, pidStrLen)) != pidStrLen) {
         fprintf(stderr, "Cannot write to creator comm socket: %s\n",
                         (ioRet < 0) ? strerror(errno) : "short write");
-        doExit(3);
+        isDetached = 2;
     }
 }
 
@@ -88,16 +93,88 @@ enum {
     ArgExe
 };
 
+/* Handle sigchld */
+static void sigchldHandler(int sig)
+{
+    int chldStatus;
+    /* Currently we have only one child, so we exit in case of error. */
+    int waitRes;
+    (void)sig;
+    for (;;) {
+        waitRes = waitpid(-1, &chldStatus, WNOHANG);
+        if (!waitRes)
+            break;
+        if (waitRes < 0) {
+            perror("Cannot obtain exit status of child process");
+            doExit(3);
+        }
+        if (WIFSTOPPED(chldStatus)) {
+            /* The child stopped. This can be only the result of ptrace(TRACE_ME). */
+            /* We won't need the notification pipe any more, as we know that
+             * the exec() succeeded. */
+            close(chldPipe[0]);
+            close(chldPipe[1]);
+            chldPipe[0] = -1;
+            /* If we are not debugging, just skip the "handover enabler".
+             * This is suboptimal, as it makes us ignore setuid/-gid bits. */
+            if (isDebug) {
+                /* Stop the child after we detach from it, so we can hand it over to gdb.
+                 * If the signal delivery is not queued, things will go awry. It works on
+                 * Linux and MacOSX ... */
+                kill(chldPid, SIGSTOP);
+            }
+#ifdef __linux__
+            ptrace(PTRACE_DETACH, chldPid, 0, 0);
+#else
+            ptrace(PT_DETACH, chldPid, 0, 0);
+#endif
+            sendMsg("pid %d\n", chldPid);
+            if (isDetached == 2 && isDebug) {
+                /* qtcreator was not informed and died while debugging, killing the child */
+                kill(chldPid, SIGKILL);
+            }
+        } else if (WIFEXITED(chldStatus)) {
+            int errNo;
+
+            /* The child exited normally. */
+            if (chldPipe[0] >= 0) {
+                /* The child exited before being stopped by ptrace(). That can only
+                 * mean that the exec() failed. */
+                switch (read(chldPipe[0], &errNo, sizeof(errNo))) {
+                default:
+                    /* Read of unknown length. Should never happen ... */
+                    errno = EPROTO;
+                    /* fallthrough */
+                case -1:
+                    /* Read failed. Should never happen, either ... */
+                    perror("Cannot read status from child process");
+                    doExit(3);
+                case sizeof(errNo):
+                    /* Child telling us the errno from exec(). */
+                    sendMsg("err:exec %d\n", errNo);
+                    doExit(3);
+                }
+            }
+            sendMsg("exit %d\n", WEXITSTATUS(chldStatus));
+            doExit(0);
+        } else {
+            sendMsg("crash %d\n", WTERMSIG(chldStatus));
+            doExit(0);
+        }
+    }
+}
+
+
 /* syntax: $0 {"run"|"debug"} <pid-socket> <continuation-msg> <workdir> <env-file> <exe> <args...> */
 /* exit codes: 0 = ok, 1 = invocation error, 3 = internal error */
 int main(int argc, char *argv[])
 {
-    int errNo;
-    int chldPid;
-    int chldStatus;
-    int chldPipe[2];
+    int errNo, hadInvalidCommand = 0;
     char **env = 0;
     struct sockaddr_un sau;
+    struct sigaction act;
+
+    memset(&act, 0, sizeof(act));
 
     if (argc < ArgEnv) {
         fprintf(stderr, "This is an internal helper of Qt Creator. Do not run it manually.\n");
@@ -117,6 +194,11 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Cannot connect creator comm socket %s: %s\n", sau.sun_path, strerror(errno));
         doExit(1);
     }
+
+    isDebug = !strcmp(argv[ArgAction], "debug");
+    isDetached = 0;
+
+    sendMsg("spid %ld\n", (long)getpid());
 
     if (*argv[ArgDir] && chdir(argv[ArgDir])) {
         /* Only expected error: no such file or direcotry */
@@ -154,10 +236,26 @@ int main(int argc, char *argv[])
     }
 
 
-    /* Ignore SIGTTOU. Without this, calling tcsetpgrp() from a background
-     * process group (in which we will be, once as child and once as parent)
-     * generates the mentioned signal and stops the concerned process. */
-    signal(SIGTTOU, SIG_IGN);
+    /*
+     * set up the signal handlers
+     */
+    {
+        /* Ignore SIGTTOU. Without this, calling tcsetpgrp() from a background
+         * process group (in which we will be, once as child and once as parent)
+         * generates the mentioned signal and stops the concerned process. */
+        act.sa_handler = SIG_IGN;
+        if (sigaction(SIGTTOU, &act, 0)) {
+            perror("sigaction SIGTTOU");
+            doExit(3);
+        }
+
+        /* Handle SIGCHLD to keep track of what the child does without blocking */
+        act.sa_handler = sigchldHandler;
+        if (sigaction(SIGCHLD, &act, 0)) {
+            perror("sigaction SIGCHLD");
+            doExit(3);
+        }
+    }
 
     /* Create execution result notification pipe. */
     if (pipe(chldPipe)) {
@@ -174,6 +272,10 @@ int main(int argc, char *argv[])
             doExit(3);
         case 0:
             close(qtcFd);
+
+            /* Remove the SIGCHLD handler from the child */
+            act.sa_handler = SIG_DFL;
+            sigaction(SIGCHLD, &act, 0);
 
             /* Put the process into an own process group and make it the foregroud
              * group on this terminal, so it will receive ctrl-c events, etc.
@@ -200,57 +302,51 @@ int main(int argc, char *argv[])
             _exit(0);
         default:
             for (;;) {
-                if (wait(&chldStatus) < 0) {
-                    perror("Cannot obtain exit status of child process");
-                    doExit(3);
-                }
-                if (WIFSTOPPED(chldStatus)) {
-                    /* The child stopped. This can be only the result of ptrace(TRACE_ME). */
-                    /* We won't need the notification pipe any more, as we know that
-                     * the exec() succeeded. */
-                    close(chldPipe[0]);
-                    close(chldPipe[1]);
-                    chldPipe[0] = -1;
-                    /* If we are not debugging, just skip the "handover enabler".
-                     * This is suboptimal, as it makes us ignore setuid/-gid bits. */
-                    if (!strcmp(argv[ArgAction], "debug")) {
-                        /* Stop the child after we detach from it, so we can hand it over to gdb.
-                         * If the signal delivery is not queued, things will go awry. It works on
-                         * Linux and MacOSX ... */
-                        kill(chldPid, SIGSTOP);
+                char buffer[100];
+                int nbytes;
+
+                nbytes = read(qtcFd, buffer, 100);
+                if (nbytes <= 0) {
+                    if (nbytes < 0 && errno == EINTR)
+                        continue;
+                    if (!isDetached) {
+                        isDetached = 2;
+                        if (nbytes == 0)
+                            fprintf(stderr, "Lost connection to QtCreator, detaching from it.\n");
+                        else
+                            perror("Lost connection to QtCreator, detaching from it");
                     }
-#ifdef __linux__
-                    ptrace(PTRACE_DETACH, chldPid, 0, 0);
-#else
-                    ptrace(PT_DETACH, chldPid, 0, 0);
-#endif
-                    sendMsg("pid %d\n", chldPid);
-                } else if (WIFEXITED(chldStatus)) {
-                    /* The child exited normally. */
-                    if (chldPipe[0] >= 0) {
-                        /* The child exited before being stopped by ptrace(). That can only
-                         * mean that the exec() failed. */
-                        switch (read(chldPipe[0], &errNo, sizeof(errNo))) {
-                            default:
-                                /* Read of unknown length. Should never happen ... */
-                                errno = EPROTO;
-                            case -1:
-                                /* Read failed. Should never happen, either ... */
-                                perror("Cannot read status from child process");
-                                doExit(3);
-                            case sizeof(errNo):
-                                /* Child telling us the errno from exec(). */
-                                sendMsg("err:exec %d\n", errNo);
-                                return 3;
+                    break;
+                } else {
+                    int i;
+                    for (i = 0; i < nbytes; ++i) {
+                        switch (buffer[i]) {
+                        case 'k':
+                            if (chldPid > 0) {
+                                kill(chldPid, SIGTERM);
+                                sleep(1);
+                                kill(chldPid, SIGKILL);
+                            }
+                            break;
+                        case 'd':
+                            isDetached = 1;
+                            break;
+                        case 's':
+                            exit(0);
+                        default:
+                            if (!hadInvalidCommand) {
+                                fprintf(stderr, "Ignoring invalid commands from QtCreator.\n");
+                                hadInvalidCommand = 1;
+                            }
                         }
                     }
-                    sendMsg("exit %d\n", WEXITSTATUS(chldStatus));
-                    doExit(0);
-                } else {
-                    sendMsg("crash %d\n", WTERMSIG(chldStatus));
-                    doExit(0);
                 }
             }
-            break;
+            if (isDetached) {
+                for (;;)
+                    pause(); /* will exit in the signal handler... */
+            }
     }
+    assert(0);
+    return 0;
 }

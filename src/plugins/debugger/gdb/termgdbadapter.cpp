@@ -103,7 +103,7 @@ void GdbTermEngine::setupEngine()
 
     connect(&m_stubProc, SIGNAL(processError(QString)), SLOT(stubError(QString)));
     connect(&m_stubProc, SIGNAL(processStarted()), SLOT(stubStarted()));
-    connect(&m_stubProc, SIGNAL(wrapperStopped()), SLOT(stubExited()));
+    connect(&m_stubProc, SIGNAL(stubStopped()), SLOT(stubExited()));
     // FIXME: Starting the stub implies starting the inferior. This is
     // fairly unclean as far as the state machine and error reporting go.
 
