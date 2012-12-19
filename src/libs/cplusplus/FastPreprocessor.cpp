@@ -30,6 +30,7 @@
 #include "FastPreprocessor.h"
 #include <Literals.h>
 #include <TranslationUnit.h>
+#include <QDir>
 
 using namespace CPlusPlus;
 
@@ -62,7 +63,9 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc, const QString &source)
 void FastPreprocessor::sourceNeeded(unsigned line, QString &fileName, IncludeType)
 {
     Q_ASSERT(_currentDoc);
-    _currentDoc->addIncludeFile(fileName, line);
+    // CHECKME: Is that cleanName needed?
+    QString cleanName = QDir::cleanPath(fileName);
+    _currentDoc->addIncludeFile(cleanName, line);
 
     mergeEnvironment(fileName);
 }

@@ -340,9 +340,10 @@ QStringList Document::includedFiles() const
     return files;
 }
 
+// This assumes to be called with a QDir::cleanPath cleaned fileName.
 void Document::addIncludeFile(const QString &fileName, unsigned line)
 {
-    _includes.append(Include(QDir::cleanPath(fileName), line));
+    _includes.append(Include(fileName, line));
 }
 
 void Document::appendMacro(const Macro &macro)
