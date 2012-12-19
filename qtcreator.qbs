@@ -4,7 +4,7 @@ import qbs.fileinfo 1.0 as FileInfo
 Project {
     property string ide_version_major: '2'
     property string ide_version_minor: '6'
-    property string ide_version_release: '1'
+    property string ide_version_release: '2'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.' + ide_version_release
     property var additionalCppDefines: [
         'IDE_LIBRARY_BASENAME="lib"',
