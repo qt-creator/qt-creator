@@ -29,28 +29,23 @@
 
 #include "exampleslistmodel.h"
 
-#include <QFile>
+#include <QDebug>
 #include <QDir>
+#include <QFile>
 #include <QUrl>
 #include <QXmlStreamReader>
 
-#include <QDebug>
-
-#include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
-#include <qtsupport/qtversionmanager.h>
-#include <utils/qtcassert.h>
-
-#include <utils/environment.h>
+#include <coreplugin/icore.h>
 #include <projectexplorer/kitmanager.h>
 #include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtversionmanager.h>
+#include <utils/environment.h>
+#include <utils/qtcassert.h>
+
 #include <algorithm>
 
-using QtSupport::QtVersionManager;
-using QtSupport::BaseQtVersion;
-
 namespace QtSupport {
-
 namespace Internal {
 
 ExamplesListModel::ExamplesListModel(QObject *parent) :
@@ -85,7 +80,7 @@ ExamplesListModel::ExamplesListModel(QObject *parent) :
             SLOT(handleQtVersionsChanged()));
 }
 
-static inline QString fixStringForTags(const QString &string)
+static QString fixStringForTags(const QString &string)
 {
     QString returnString = string;
     returnString.remove(QLatin1String("<i>"));
@@ -95,7 +90,7 @@ static inline QString fixStringForTags(const QString &string)
     return returnString;
 }
 
-static inline QStringList trimStringList(const QStringList &stringlist)
+static QStringList trimStringList(const QStringList &stringlist)
 {
     QStringList returnList;
     foreach (const QString &string, stringlist)
@@ -112,7 +107,7 @@ static QString relativeOrInstallPath(const QString &path, const QString &manifes
     const QString installResolvedPath = installPath + slash + path;
     if (QFile::exists(relativeResolvedPath))
         return relativeResolvedPath;
-    else if (QFile::exists(installResolvedPath))
+    if (QFile::exists(installResolvedPath))
         return installResolvedPath;
     // doesn't exist, just return relative
     return relativeResolvedPath;
@@ -151,11 +146,9 @@ static bool isValidExampleOrDemo(ExampleItem &item)
     return ok || debugExamples();
 }
 
-QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader *reader,
-                                                    const QString &projectsOffset,
-                                                    const QString &examplesInstallPath)
+void ExamplesListModel::parseExamples(QXmlStreamReader *reader,
+    const QString &projectsOffset, const QString &examplesInstallPath)
 {
-    QList<ExampleItem> examples;
     ExampleItem item;
     const QChar slash = QLatin1Char('/');
     while (!reader->atEnd()) {
@@ -175,7 +168,7 @@ QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader *reader,
                 item.filesToOpen.append(relativeOrInstallPath(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement),
                                                               projectsOffset, examplesInstallPath));
             } else if (reader->name() == QLatin1String("description")) {
-                item.description =  fixStringForTags(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                item.description = fixStringForTags(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("dependency")) {
                 item.dependencies.append(projectsOffset + slash + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("tags")) {
@@ -188,23 +181,20 @@ QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader *reader,
         case QXmlStreamReader::EndElement:
             if (reader->name() == QLatin1String("example")) {
                 if (isValidExampleOrDemo(item))
-                    examples.append(item);
+                    m_exampleItems.append(item);
             } else if (reader->name() == QLatin1String("examples")) {
-                return examples;
+                return;
             }
             break;
         default: // nothing
             break;
         }
     }
-    return examples;
 }
 
-QList<ExampleItem> ExamplesListModel::parseDemos(QXmlStreamReader *reader,
-                                                 const QString &projectsOffset,
-                                                 const QString &demosInstallPath)
+void ExamplesListModel::parseDemos(QXmlStreamReader *reader,
+    const QString &projectsOffset, const QString &demosInstallPath)
 {
-    QList<ExampleItem> demos;
     ExampleItem item;
     const QChar slash = QLatin1Char('/');
     while (!reader->atEnd()) {
@@ -234,21 +224,19 @@ QList<ExampleItem> ExamplesListModel::parseDemos(QXmlStreamReader *reader,
         case QXmlStreamReader::EndElement:
             if (reader->name() == QLatin1String("demo")) {
                 if (isValidExampleOrDemo(item))
-                    demos.append(item);
+                    m_exampleItems.append(item);
             } else if (reader->name() == QLatin1String("demos")) {
-                return demos;
+                return;
             }
             break;
         default: // nothing
             break;
         }
     }
-    return demos;
 }
 
-QList<ExampleItem> ExamplesListModel::parseTutorials(QXmlStreamReader* reader, const QString& projectsOffset)
+void ExamplesListModel::parseTutorials(QXmlStreamReader *reader, const QString &projectsOffset)
 {
-    QList<ExampleItem> tutorials;
     ExampleItem item;
     const QChar slash = QLatin1Char('/');
     while (!reader->atEnd()) {
@@ -285,16 +273,14 @@ QList<ExampleItem> ExamplesListModel::parseTutorials(QXmlStreamReader* reader, c
             break;
         case QXmlStreamReader::EndElement:
             if (reader->name() == QLatin1String("tutorial"))
-                tutorials.append(item);
+                m_exampleItems.append(item);
             else if (reader->name() == QLatin1String("tutorials"))
-                return tutorials;
+                return;
             break;
         default: // nothing
             break;
         }
     }
-
-    return tutorials;
 }
 
 void ExamplesListModel::handleQtVersionsChanged()
@@ -305,15 +291,20 @@ void ExamplesListModel::handleQtVersionsChanged()
 
 void ExamplesListModel::updateExamples()
 {
-    clear();
     QString examplesInstallPath;
     QString demosInstallPath;
     QString examplesFallback;
     QString demosFallback;
     QString sourceFallback;
-    foreach (const QString &exampleSource,
-             exampleSources(&examplesInstallPath, &demosInstallPath,
-                            &examplesFallback, &demosFallback, &sourceFallback)) {
+
+    QStringList sources = exampleSources(&examplesInstallPath, &demosInstallPath,
+                            &examplesFallback, &demosFallback, &sourceFallback);
+
+    beginResetModel();
+    m_tags.clear();
+    m_exampleItems.clear();
+
+    foreach (const QString &exampleSource, sources) {
         QFile exampleFile(exampleSource);
         if (!exampleFile.open(QIODevice::ReadOnly)) {
             if (debugExamples())
@@ -345,11 +336,11 @@ void ExamplesListModel::updateExamples()
             switch (reader.readNext()) {
             case QXmlStreamReader::StartElement:
                 if (reader.name() == QLatin1String("examples"))
-                    addItems(parseExamples(&reader, examplesDir.path(), examplesInstallPath));
+                    parseExamples(&reader, examplesDir.path(), examplesInstallPath);
                 else if (reader.name() == QLatin1String("demos"))
-                    addItems(parseDemos(&reader, demosDir.path(), demosInstallPath));
+                    parseDemos(&reader, demosDir.path(), demosInstallPath);
                 else if (reader.name() == QLatin1String("tutorials"))
-                    addItems(parseTutorials(&reader, examplesDir.path()));
+                    parseTutorials(&reader, examplesDir.path());
                 break;
             default: // nothing
                 break;
@@ -358,6 +349,7 @@ void ExamplesListModel::updateExamples()
         if (reader.hasError() && debugExamples())
             qWarning() << QString::fromLatin1("ERROR: Could not parse file as XML document ('%1')").arg(exampleSource);
     }
+    endResetModel();
 
     m_tags.sort();
     m_tags.erase(std::unique(m_tags.begin(), m_tags.end()), m_tags.end());
@@ -476,40 +468,21 @@ QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QStr
     return sources;
 }
 
-void ExamplesListModel::clear()
-{
-    if (exampleItems.count() > 0) {
-        beginRemoveRows(QModelIndex(), 0,  exampleItems.size()-1);
-        exampleItems.clear();
-        endRemoveRows();
-    }
-    m_tags.clear();
-}
-
-void ExamplesListModel::addItems(const QList<ExampleItem> &newItems)
-{
-    if (newItems.isEmpty())
-        return;
-    beginInsertRows(QModelIndex(), exampleItems.size(), exampleItems.size() - 1 + newItems.size());
-    exampleItems.append(newItems);
-    endInsertRows();
-}
-
 int ExamplesListModel::rowCount(const QModelIndex &) const
 {
     ensureInitialized();
-    return exampleItems.size();
+    return m_exampleItems.size();
 }
 
 QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
 {
     ensureInitialized();
-    if (!index.isValid() || index.row()+1 > exampleItems.count()) {
+    if (!index.isValid() || index.row()+1 > m_exampleItems.count()) {
         qDebug() << Q_FUNC_INFO << "invalid index requested";
         return QVariant();
     }
 
-    ExampleItem item = exampleItems.at(index.row());
+    ExampleItem item = m_exampleItems.at(index.row());
     switch (role)
     {
     case Qt::DisplayRole: // for search only
@@ -548,7 +521,6 @@ QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
         qDebug() << Q_FUNC_INFO << "role type not supported";
         return QVariant();
     }
-
 }
 
 QStringList ExamplesListModel::tags() const
@@ -626,7 +598,6 @@ bool ExamplesListModelFilter::filterAcceptsRow(int sourceRow, const QModelIndex 
         const QString description = sourceModel()->index(sourceRow, 0, sourceParent).data(Description).toString();
         const QString name = sourceModel()->index(sourceRow, 0, sourceParent).data(Name).toString();
 
-
         foreach (const QString &subString, m_searchString) {
             bool wordMatch = false;
             wordMatch |= (bool)name.contains(subString, Qt::CaseInsensitive);
@@ -641,11 +612,7 @@ bool ExamplesListModelFilter::filterAcceptsRow(int sourceRow, const QModelIndex 
         }
     }
 
-    bool ok = QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
-    if (!ok)
-        return false;
-
-    return true;
+    return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
 }
 
 int ExamplesListModelFilter::rowCount(const QModelIndex &parent) const

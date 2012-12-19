@@ -95,17 +95,16 @@ public slots:
     void helpInitialized();
 
 private:
-    void addItems(const QList<ExampleItem> &items);
-    QList<ExampleItem> parseExamples(QXmlStreamReader *reader, const QString &projectsOffset,
+    void parseExamples(QXmlStreamReader *reader, const QString &projectsOffset,
                                      const QString &examplesInstallPath);
-    QList<ExampleItem> parseDemos(QXmlStreamReader *reader, const QString &projectsOffset,
+    void parseDemos(QXmlStreamReader *reader, const QString &projectsOffset,
                                   const QString &demosInstallPath);
-    QList<ExampleItem> parseTutorials(QXmlStreamReader *reader, const QString &projectsOffset);
-    void clear();
+    void parseTutorials(QXmlStreamReader *reader, const QString &projectsOffset);
     QStringList exampleSources(QString *examplesInstallPath, QString *demosInstallPath,
                                QString *examplesFallback, QString *demosFallback,
                                QString *sourceFallback);
-    QList<ExampleItem> exampleItems;
+
+    QList<ExampleItem> m_exampleItems;
     QStringList m_tags;
     bool m_updateOnQtVersionsChanged;
     bool m_initialized;
@@ -125,7 +124,7 @@ public:
 
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 
-    bool showTutorialsOnly() {return m_showTutorialsOnly;}
+    bool showTutorialsOnly() { return m_showTutorialsOnly; }
     QStringList filterTags() const { return m_filterTags; }
     QStringList searchStrings() const { return m_searchString; }
 
@@ -156,8 +155,8 @@ public slots:
 
 signals:
     void showTutorialsOnlyChanged();
-    void filterTagsChanged(const QStringList& arg);
-    void searchStrings(const QStringList& arg);
+    void filterTagsChanged(const QStringList &arg);
+    void searchStrings(const QStringList &arg);
 
 private:
     void timerEvent(QTimerEvent *event);
