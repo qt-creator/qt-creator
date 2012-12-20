@@ -311,10 +311,10 @@ static inline QString keyForEntry(const ItemLibraryEntry &entry)
     return entry.name() + entry.category() + QString::number(entry.majorVersion());
 }
 
-void ItemLibraryInfo::addEntry(const ItemLibraryEntry &entry)
+void ItemLibraryInfo::addEntry(const ItemLibraryEntry &entry, bool overwriteDuplicate)
 {
     const QString key = keyForEntry(entry);
-    if (m_nameToEntryHash.contains(key))
+    if (!overwriteDuplicate && m_nameToEntryHash.contains(key))
         throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
     m_nameToEntryHash.insert(key, entry);
 

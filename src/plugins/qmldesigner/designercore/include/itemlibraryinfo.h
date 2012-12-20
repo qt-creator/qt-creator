@@ -106,7 +106,7 @@ public:
     QList<ItemLibraryEntry> entriesForType(const QString &typeName, int majorVersion, int minorVersion) const;
     ItemLibraryEntry entry(const QString &name) const;
 
-    void addEntry(const ItemLibraryEntry &entry);
+    void addEntry(const ItemLibraryEntry &entry, bool overwriteDuplicate = false);
     bool containsEntry(const ItemLibraryEntry &entry);
     void clearEntries();
 
