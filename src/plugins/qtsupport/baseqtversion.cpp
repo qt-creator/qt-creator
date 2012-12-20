@@ -48,6 +48,7 @@
 #include <utils/persistentsettings.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDir>
@@ -1187,6 +1188,8 @@ QtConfigWidget *BaseQtVersion::createConfigurationWidget() const
 static QByteArray runQmakeQuery(const FileName &binary, const Environment &env,
                                 QString *error)
 {
+    QTC_ASSERT(error, return QByteArray());
+
     const int timeOutMS = 30000; // Might be slow on some machines.
 
     QProcess process;
@@ -1194,34 +1197,33 @@ static QByteArray runQmakeQuery(const FileName &binary, const Environment &env,
     process.start(binary.toString(), QStringList(QLatin1String("-query")), QIODevice::ReadOnly);
 
     if (!process.waitForStarted()) {
-        if (error)
-            *error = QCoreApplication::translate("QtVersion", "Cannot start '%1': %2").arg(binary.toUserOutput()).arg(process.errorString());
+        *error = QCoreApplication::translate("QtVersion", "Cannot start '%1': %2").arg(binary.toUserOutput()).arg(process.errorString());
         return QByteArray();
     }
     if (!process.waitForFinished(timeOutMS)) {
         SynchronousProcess::stopProcess(process);
-        if (error)
-            *error = QCoreApplication::translate("QtVersion", "Timeout running '%1' (%2ms).").arg(binary.toUserOutput()).arg(timeOutMS);
+        *error = QCoreApplication::translate("QtVersion", "Timeout running '%1' (%2ms).").arg(binary.toUserOutput()).arg(timeOutMS);
         return QByteArray();
     }
     if (process.exitStatus() != QProcess::NormalExit) {
-        if (error)
-            *error = QCoreApplication::translate("QtVersion", "'%s' crashed.").arg(binary.toUserOutput());
+        *error = QCoreApplication::translate("QtVersion", "'%s' crashed.").arg(binary.toUserOutput());
         return QByteArray();
     }
 
-    if (error)
-        error->clear();
+    error->clear();
     return process.readAllStandardOutput();
 }
 
 bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Environment &env,
                                         QHash<QString, QString> *versionInfo, QString *error)
 {
+    QString tmp;
+    if (!error)
+        error = &tmp;
+
     const QFileInfo qmake = binary.toFileInfo();
     if (!qmake.exists() || !qmake.isExecutable() || qmake.isDir()) {
-        if (error)
-            *error = QCoreApplication::translate("QtVersion", "qmake '%1' is not a executable").arg(binary.toUserOutput());
+        *error = QCoreApplication::translate("QtVersion", "qmake '%1' is not a executable").arg(binary.toUserOutput());
         return false;
     }
 
