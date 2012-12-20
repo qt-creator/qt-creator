@@ -84,7 +84,7 @@ using namespace Qnx::Internal;
 BlackBerryApplicationRunner::BlackBerryApplicationRunner(bool debugMode, BlackBerryRunConfiguration *runConfiguration, QObject *parent)
     : QObject(parent)
     , m_debugMode(debugMode)
-    , m_slog2infoFound(true)
+    , m_slog2infoFound(false)
     , m_pid(-1)
     , m_appId(QString())
     , m_running(false)
@@ -146,8 +146,9 @@ void BlackBerryApplicationRunner::start()
 
 void BlackBerryApplicationRunner::checkSlog2Info()
 {
-    // Not necessary to retest if slog2info exists.
-    if (!m_testSlog2Process) {
+    if (m_slog2infoFound) {
+        tailApplicationLog();
+    } else if (!m_testSlog2Process) {
         m_testSlog2Process = new QSsh::SshRemoteProcessRunner(this);
         connect(m_testSlog2Process, SIGNAL(processClosed(int)),
                 this, SLOT(handleSlog2InfoFound()));
