@@ -385,6 +385,7 @@ public:
 
     QString componentSource() const;
     QString componentFileName() const;
+    QString importDirectoryPath() const;
 
     static Pointer create(Model *model, const QString &type, int maj = -1, int min = -1);
 
@@ -852,6 +853,16 @@ QString NodeMetaInfoPrivate::componentFileName() const
     return QString();
 }
 
+QString NodeMetaInfoPrivate::importDirectoryPath() const
+{
+    if (isValid()) {
+        const Imports *imports = context()->imports(document());
+        ImportInfo importInfo = imports->info(qualfiedTypeName(), context().data());
+
+        return importInfo.path();
+    }
+    return QString();
+}
 
 QString NodeMetaInfoPrivate::lookupName() const
 {
@@ -1109,7 +1120,12 @@ QString NodeMetaInfo::componentSource() const
 
 QString NodeMetaInfo::componentFileName() const
 {
-    return NodeMetaInfo::m_privateData->componentFileName();
+    return m_privateData->componentFileName();
+}
+
+QString NodeMetaInfo::importDirectoryPath() const
+{
+    return m_privateData->importDirectoryPath();
 }
 
 bool NodeMetaInfo::hasCustomParser() const

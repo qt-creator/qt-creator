@@ -99,6 +99,8 @@ public:
 
     bool isPositioner() const;
 
+    QString importDirectoryPath() const;
+
     static void clearCache();
 
 private:
