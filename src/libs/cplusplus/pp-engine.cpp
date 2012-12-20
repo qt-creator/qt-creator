@@ -1095,16 +1095,17 @@ void Preprocessor::trackExpansionCycles(PPToken *tk)
                 m_state.m_expandedTokensInfo.clear();
             } else if (m_state.m_expansionStatus == Expanding) {
                 m_state.m_expansionStatus = JustFinishedExpansion;
-                maybeStartOutputLine();
-                writeOutput("# expansion begin ");
 
-                QByteArray expansionInfo;
-                expansionInfo.reserve(m_state.m_expandedTokensInfo.size() * 2); // Rough estimate
+                QByteArray *buffer = currentOutputBuffer();
+                if (!buffer)
+                    return;
+
+                maybeStartOutputLine();
 
                 // Offset and length of the macro invocation
-                expansionInfo.append(QByteArray::number(tk->offset));
-                expansionInfo.append(',');
-                expansionInfo.append(QByteArray::number(tk->length()));
+                char chunk[40];
+                qsnprintf(chunk, sizeof(chunk), "# expansion begin %d,%d", tk->offset, tk->length());
+                buffer->append(chunk);
 
                 // Expanded tokens
                 unsigned generatedCount = 0;
@@ -1112,28 +1113,24 @@ void Preprocessor::trackExpansionCycles(PPToken *tk)
                     const QPair<unsigned, unsigned> &p = m_state.m_expandedTokensInfo.at(i);
                     if (p.first) {
                         if (generatedCount) {
-                            expansionInfo.append(" ~");
-                            expansionInfo.append(QByteArray::number(generatedCount));
+                            qsnprintf(chunk, sizeof(chunk), " ~%d", generatedCount);
+                            buffer->append(chunk);
                             generatedCount = 0;
                         }
-                        expansionInfo.append(' ');
-                        expansionInfo.append(QByteArray::number(p.first));
-                        expansionInfo.append(':');
-                        expansionInfo.append(QByteArray::number(p.second));
+                        qsnprintf(chunk, sizeof(chunk), " %d:%d", p.first, p.second);
+                        buffer->append(chunk);
                     } else {
                         ++generatedCount;
                     }
                 }
                 if (generatedCount) {
-                    expansionInfo.append(" ~");
-                    expansionInfo.append(QByteArray::number(generatedCount));
+                    qsnprintf(chunk, sizeof(chunk), " ~%d", generatedCount);
+                    buffer->append(chunk);
                 }
-                expansionInfo.append('\n');
-
-                writeOutput(expansionInfo);
-                writeOutput(m_state.m_expansionResult);
+                buffer->append('\n');
+                buffer->append(m_state.m_expansionResult);
                 maybeStartOutputLine();
-                writeOutput("# expansion end\n");
+                buffer->append("# expansion end\n");
             }
 
             lex(tk);
