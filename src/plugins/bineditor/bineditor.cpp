@@ -973,7 +973,8 @@ void BinEditor::mousePressEvent(QMouseEvent *e)
 {
     if (e->button() != Qt::LeftButton)
         return;
-    setCursorPosition(posAt(e->pos()));
+    MoveMode moveMode = e->modifiers() & Qt::ShiftModifier ? KeepAnchor : MoveAnchor;
+    setCursorPosition(posAt(e->pos()), moveMode);
     setBlinkingCursorEnabled(true);
     if (m_hexCursor == inTextArea(e->pos())) {
         m_hexCursor = !m_hexCursor;
