@@ -98,6 +98,9 @@ private:
 
     void addErrorInvalidType(const QString &typeName);
 
+    QString absoluteFilePathForDocument(const QString &relativeFilePath);
+
+    QString m_documentPath;
     ParserSate m_parserState;
     MetaInfo m_metaInfo;
 

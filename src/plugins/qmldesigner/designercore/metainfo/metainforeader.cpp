@@ -34,6 +34,7 @@
 #include <QXmlStreamReader>
 #include <QString>
 #include <QFile>
+#include <QFileInfo>
 #include <QDebug>
 #include <QIcon>
 
@@ -58,6 +59,7 @@ MetaInfoReader::MetaInfoReader(const MetaInfo &metaInfo)
 
 void MetaInfoReader::readMetaInfoFile(const QString &path)
 {
+    m_documentPath = path;
     m_parserState = ParsingDocument;
     if (!SimpleAbstractStreamReader::readFile(path)) {
         qWarning() << "readMetaInfoFile()" << path;
@@ -200,7 +202,7 @@ void MetaInfoReader::readTypeProperty(const QString &name, const QVariant &value
     if (name == QLatin1String("name")) {
         m_currentClassName = value.toString();
     } else if (name == QLatin1String("icon")) {
-        m_currentIcon = value.toString();
+        m_currentIcon = absoluteFilePathForDocument(value.toString());
     } else {
         addError(tr("Unknown property for Type %1").arg(name), currentSourceLocation());
         setParserState(Error);
@@ -214,7 +216,7 @@ void MetaInfoReader::readItemLibraryEntryProperty(const QString &name, const QVa
     } else if (name == QLatin1String("category")) {
         m_currentEntry.setCategory(value.toString());
     } else if (name == QLatin1String("libraryIcon")) {
-        m_currentEntry.setIconPath(value.toString());
+        m_currentEntry.setIconPath(absoluteFilePathForDocument(value.toString()));
     } else if (name == QLatin1String("version")) {
         setVersion(value.toString());
     } else if (name == QLatin1String("requiredImport")) {
@@ -308,6 +310,16 @@ void MetaInfoReader::insertProperty()
 void MetaInfoReader::addErrorInvalidType(const QString &typeName)
 {
     addError(tr("Invalid type %1").arg(typeName), currentSourceLocation());
+}
+
+QString MetaInfoReader::absoluteFilePathForDocument(const QString &relativeFilePath)
+{
+
+    QFileInfo fileInfo(relativeFilePath);
+    if (fileInfo.isAbsolute() && fileInfo.exists())
+        return relativeFilePath;
+
+    return QFileInfo(QFileInfo(m_documentPath).absolutePath() + QLatin1String("/") + relativeFilePath).absoluteFilePath();
 }
 
 } //Internal
