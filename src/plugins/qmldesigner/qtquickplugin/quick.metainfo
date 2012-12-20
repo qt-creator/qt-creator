@@ -403,6 +403,31 @@ MetaInfo {
     }
 
     Type {
+        name: "QtQuick.Column"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Row"
+            category: "Qt Quick - Positioner"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "1.0"
+
+            Property { name: "width"; type: "int"; value: 200; }
+            Property { name: "height"; type: "int"; value: 400; }
+        }
+
+        ItemLibraryEntry {
+            name: "Row"
+            category: "Qt Quick - Positioner"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "2.0"
+
+            Property { name: "width"; type: "int"; value: 200; }
+            Property { name: "height"; type: "int"; value: 400; }
+        }
+    }
+
+    Type {
         name: "QtQuick.Grid"
         icon: ":/qtquickplugin/images/item-icon16.png"
 
