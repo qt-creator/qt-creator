@@ -180,6 +180,12 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
 
     try {
         RewriterTransaction transaction = beginRewriterTransaction();
+
+        NodeMetaInfo metaInfo = model()->metaInfo(itemLibraryEntry.typeName());
+
+        int minorVersion = metaInfo.minorVersion();
+        int majorVersion = metaInfo.majorVersion();
+
         if (itemLibraryEntry.typeName().contains('.')) {
 
             const QString newImportUrl = itemLibraryEntry.requiredImport();
@@ -212,7 +218,7 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
             foreach (const PropertyContainer &property, itemLibraryEntry.properties())
                 propertyPairList.append(qMakePair(property.name(), property.value()));
 
-            newNode = createQmlItemNode(itemLibraryEntry.typeName(), itemLibraryEntry.majorVersion(), itemLibraryEntry.minorVersion(), propertyPairList);
+            newNode = createQmlItemNode(itemLibraryEntry.typeName(), majorVersion, minorVersion, propertyPairList);
         } else {
             QScopedPointer<Model> inputModel(Model::create("QtQuick.Rectangle", 1, 0, model()));
             inputModel->setFileUrl(model()->fileUrl());
