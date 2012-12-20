@@ -33,6 +33,10 @@
 #include "componentcore_constants.h"
 #include "selectioncontext.h"
 
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
+
 namespace QmlDesigner {
 
 class AbstractDesignerAction

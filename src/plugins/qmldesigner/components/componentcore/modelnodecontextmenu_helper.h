@@ -32,9 +32,112 @@
 
 #include "modelnodecontextmenu.h"
 #include "designeractionmanager.h"
+
 #include <QAction>
+#include <QMenu>
 
 namespace QmlDesigner {
+
+namespace SelectionContextFunctors {
+
+struct Always {
+    bool operator() (const SelectionContext &) {
+        return true;
+    }
+};
+
+struct InBaseState {
+    bool operator() (const SelectionContext &selectionState) {
+        return selectionState.isInBaseState();
+    }
+};
+
+struct SingleSelection {
+    bool operator() (const SelectionContext &selectionState) {
+        return selectionState.singleSelected();
+    }
+};
+
+struct SelectionEnabled {
+    bool operator() (const SelectionContext &selectionState) {
+        return selectionState.showSelectionTools();
+    }
+};
+
+struct SelectionNotEmpty {
+    bool operator() (const SelectionContext &selectionState) {
+        return !selectionState.selectedModelNodes().isEmpty();
+    }
+};
+
+struct SingleSelectionNotRoot {
+    bool operator() (const SelectionContext &selectionState) {
+        return selectionState.singleSelected()
+                && !selectionState.currentSingleSelectedNode().isRootNode();
+    }
+};
+
+template <class T1, class T2>
+struct And {
+    bool operator() (const SelectionContext &selectionState) {
+        T1 t1;
+        T2 t2;
+        return t1(selectionState) && t2(selectionState);
+    }
+};
+
+template <class T1, class T2>
+struct Or {
+    bool operator() (const SelectionContext &selectionState) {
+        T1 t1;
+        T2 t2;
+        return t1(selectionState) || t2(selectionState);
+    }
+};
+
+template <class T1>
+struct Not {
+    bool operator() (const SelectionContext &selectionState) {
+        T1 t1;
+        return !t1(selectionState);
+    }
+};
+
+template <char* PROPERTYNAME>
+struct SelectionHasProperty {
+    bool operator() (const SelectionContext &selectionState) {
+        foreach (const ModelNode &modelNode, selectionState.selectedModelNodes())
+            if (modelNode.hasProperty(QLatin1String(PROPERTYNAME)))
+                return true;
+        return false;
+    }
+};
+
+struct SelectionHasSameParent {
+    bool operator() (const SelectionContext &selectionState);
+};
+
+struct SelectionIsComponent {
+    bool operator() (const SelectionContext &selectionState);
+};
+
+struct SingleSelectionItemIsAnchored {
+    bool operator() (const SelectionContext &selectionState);
+};
+
+struct SingleSelectionItemNotAnchored {
+    bool operator() (const SelectionContext &selectionState);
+};
+
+struct SingleSelectedItem {
+    bool operator() (const SelectionContext &selectionState) {
+        QmlItemNode itemNode(selectionState.currentSingleSelectedNode());
+        return itemNode.isValid();
+    }
+};
+
+} //SelectionStateFunctors
+
 
 class ComponentUtils {
 public:
@@ -240,105 +343,6 @@ private:
  const int m_priority;
 };
 
-namespace SelectionContextFunctors {
-
-struct Always {
-    bool operator() (const SelectionContext &) {
-        return true;
-    }
-};
-
-struct InBaseState {
-    bool operator() (const SelectionContext &selectionState) {
-        return selectionState.isInBaseState();
-    }
-};
-
-struct SingleSelection {
-    bool operator() (const SelectionContext &selectionState) {
-        return selectionState.singleSelected();
-    }
-};
-
-struct SelectionEnabled {
-    bool operator() (const SelectionContext &selectionState) {
-        return selectionState.showSelectionTools();
-    }
-};
-
-struct SelectionNotEmpty {
-    bool operator() (const SelectionContext &selectionState) {
-        return !selectionState.selectedModelNodes().isEmpty();
-    }
-};
-
-struct SingleSelectionNotRoot {
-    bool operator() (const SelectionContext &selectionState) {
-        return selectionState.singleSelected()
-                && !selectionState.currentSingleSelectedNode().isRootNode();
-    }
-};
-
-template <class T1, class T2>
-struct And {
-    bool operator() (const SelectionContext &selectionState) {
-        T1 t1;
-        T2 t2;
-        return t1(selectionState) && t2(selectionState);
-    }
-};
-
-template <class T1, class T2>
-struct Or {
-    bool operator() (const SelectionContext &selectionState) {
-        T1 t1;
-        T2 t2;
-        return t1(selectionState) || t2(selectionState);
-    }
-};
-
-template <class T1>
-struct Not {
-    bool operator() (const SelectionContext &selectionState) {
-        T1 t1;
-        return !t1(selectionState);
-    }
-};
-
-template <char* PROPERTYNAME>
-struct SelectionHasProperty {
-    bool operator() (const SelectionContext &selectionState) {
-        foreach (const ModelNode &modelNode, selectionState.selectedModelNodes())
-            if (modelNode.hasProperty(QLatin1String(PROPERTYNAME)))
-                return true;
-        return false;
-    }
-};
-
-struct SelectionHasSameParent {
-    bool operator() (const SelectionContext &selectionState);
-};
-
-struct SelectionIsComponent {
-    bool operator() (const SelectionContext &selectionState);
-};
-
-struct SingleSelectionItemIsAnchored {
-    bool operator() (const SelectionContext &selectionState);
-};
-
-struct SingleSelectionItemNotAnchored {
-    bool operator() (const SelectionContext &selectionState);
-};
-
-struct SingleSelectedItem {
-    bool operator() (const SelectionContext &selectionState) {
-        QmlItemNode itemNode(selectionState.currentSingleSelectedNode());
-        return itemNode.isValid();
-    }
-};
-
-} //SelectionStateFunctors
 
 } //QmlDesigner
 

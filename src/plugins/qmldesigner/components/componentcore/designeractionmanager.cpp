@@ -235,17 +235,17 @@ public:
     {}
     virtual void updateContext()
     {
-        m_action->setSelectionContext(m_selectionContext);
-        if (m_selectionContext.isValid()) {
-            m_action->setEnabled(isEnabled(m_selectionContext));
-            m_action->setVisible(isVisible(m_selectionContext));
+        this->m_action->setSelectionContext(this->m_selectionContext);
+        if (this->m_selectionContext.isValid()) {
+            this->m_action->setEnabled(this->isEnabled(this->m_selectionContext));
+            this->m_action->setVisible(this->isVisible(this->m_selectionContext));
 
-            m_action->setCheckable(true);
-            QmlItemNode itemNode = QmlItemNode(m_selectionContext.currentSingleSelectedNode());
+            this->m_action->setCheckable(true);
+            QmlItemNode itemNode = QmlItemNode(this->m_selectionContext.currentSingleSelectedNode());
             if (itemNode.isValid())
-                m_action->setChecked(itemNode.instanceValue("visible").toBool());
+                this->m_action->setChecked(itemNode.instanceValue("visible").toBool());
             else
-                m_action->setEnabled(false);
+                this->m_action->setEnabled(false);
         }
     }
 };

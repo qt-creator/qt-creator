@@ -30,6 +30,8 @@
 #ifndef COMPONENTCORE_CONSTANTS_H
 #define COMPONENTCORE_CONSTANTS_H
 
+#include <QtGlobal>
+
 namespace QmlDesigner {
 
 namespace ComponentCoreConstants {
