@@ -940,19 +940,18 @@ void BinEditor::setCursorPosition(int pos, MoveMode moveMode)
     pos = qMin(m_size-1, qMax(0, pos));
     int oldCursorPosition = m_cursorPosition;
 
-    bool hasSelection = m_anchorPosition != m_cursorPosition;
+    bool hadSelection = hasSelection();
     m_lowNibble = false;
-    if (!hasSelection)
+    if (!hadSelection)
         updateLines();
     m_cursorPosition = pos;
     if (moveMode == MoveAnchor) {
-        if (hasSelection)
+        if (hadSelection)
             updateLines(m_anchorPosition, oldCursorPosition);
         m_anchorPosition = m_cursorPosition;
     }
 
-    hasSelection = m_anchorPosition != m_cursorPosition;
-    updateLines(hasSelection ? oldCursorPosition : m_cursorPosition, m_cursorPosition);
+    updateLines(hadSelection || hasSelection() ? oldCursorPosition : m_cursorPosition, m_cursorPosition);
     ensureCursorVisible();
     emit cursorPositionChanged(m_cursorPosition);
 }
