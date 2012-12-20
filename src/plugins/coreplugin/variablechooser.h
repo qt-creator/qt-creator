@@ -58,6 +58,7 @@ public:
 
 protected:
     void keyPressEvent(QKeyEvent *ke);
+    bool eventFilter(QObject *, QEvent *event);
 
 private slots:
     void updateDescription(const QString &variable);

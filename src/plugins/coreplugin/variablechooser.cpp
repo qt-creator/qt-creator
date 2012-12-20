@@ -87,7 +87,8 @@ void VariableChooser::updateDescription(const QString &variable)
 
 void VariableChooser::updateCurrentEditor(QWidget *old, QWidget *widget)
 {
-    Q_UNUSED(old)
+    if (old)
+        old->removeEventFilter(this);
     if (!widget) // we might loose focus, but then keep the previous state
         return;
     // prevent children of the chooser itself, and limit to children of chooser's parent
@@ -104,6 +105,7 @@ void VariableChooser::updateCurrentEditor(QWidget *old, QWidget *widget)
     }
     if (!handle)
         return;
+    widget->installEventFilter(this); // for intercepting escape key presses
     QLineEdit *previousLineEdit = m_lineEdit;
     m_lineEdit = 0;
     m_textEdit = 0;
@@ -182,10 +184,26 @@ void VariableChooser::insertVariable(const QString &variable)
     }
 }
 
-void VariableChooser::keyPressEvent(QKeyEvent *ke)
+static bool handleEscapePressed(QKeyEvent *ke, QWidget *widget)
 {
     if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
         ke->accept();
-        QTimer::singleShot(0, this, SLOT(close()));
+        QTimer::singleShot(0, widget, SLOT(close()));
+        return true;
     }
+    return false;
+}
+
+void VariableChooser::keyPressEvent(QKeyEvent *ke)
+{
+    handleEscapePressed(ke, this);
+}
+
+bool VariableChooser::eventFilter(QObject *, QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress && isVisible()) {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        return handleEscapePressed(ke, this);
+    }
+    return false;
 }
