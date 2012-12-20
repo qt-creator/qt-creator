@@ -283,7 +283,7 @@ MetaInfo {
             name: "List View"
             category: "Qt Quick - Views"
             libraryIcon: ":/qtquickplugin/images/pathview-icon.png"
-            version: "1.0"
+            version: "1.1"
 
             QmlSource { source: ":/qtquickplugin/source/listview.qml" }
         }
