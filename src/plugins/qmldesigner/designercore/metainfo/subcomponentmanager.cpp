@@ -224,7 +224,7 @@ void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool a
     }
 }
 
-void SubComponentManager::parseFile(const QString &canonicalFilePath, bool addToLibrary, const QString& /* qualification */)
+void SubComponentManager::parseFile(const QString &canonicalFilePath, bool addToLibrary, const QString&  qualification)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << canonicalFilePath;
@@ -238,7 +238,7 @@ void SubComponentManager::parseFile(const QString &canonicalFilePath, bool addTo
     foreach (const QString &qualifier, m_dirToQualifier.values(dir)) {
         registerQmlFile(canonicalFilePath, qualifier, addToLibrary);
     }
-    registerQmlFile(canonicalFilePath, QString(), addToLibrary);
+    registerQmlFile(canonicalFilePath, qualification, addToLibrary);
 }
 
 void SubComponentManager::parseFile(const QString &canonicalFilePath)
@@ -284,12 +284,6 @@ void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QStri
 
     QString componentName = fileInfo.baseName();
 
-    if (!qualifier.isEmpty()) {
-        QString fixedQualifier = qualifier;
-        if (qualifier.right(1) == QLatin1String("."))
-            fixedQualifier.chop(1); //remove last char if it is a dot
-        componentName = fixedQualifier + '.' + componentName;
-    }
 
     if (debug)
         qDebug() << "SubComponentManager" << __FUNCTION__ << componentName;
@@ -300,6 +294,10 @@ void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QStri
         itemLibraryEntry.setType(componentName, -1, -1);
         itemLibraryEntry.setName(componentName);
         itemLibraryEntry.setCategory("QML Components");
+        if (!qualifier.isEmpty()) {
+            itemLibraryEntry.setForceImport(true);
+            itemLibraryEntry.setRequiredImport(qualifier);
+        }
 
 
         if (model()->metaInfo(componentName).isValid() && model()->metaInfo(componentName).isSubclassOf("QtQuick.Item", -1, -1) &&
