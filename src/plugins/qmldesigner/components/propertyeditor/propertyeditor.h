@@ -129,7 +129,7 @@ private: //functions
     QString qmlFileName(const NodeMetaInfo &nodeInfo) const;
     QUrl fileToUrl(const QString &filePath) const;
     QUrl qmlForNode(const ModelNode &modelNode, QString &className) const;
-    QString locateQmlFile(const QString &relativePath) const;
+    QString locateQmlFile(const NodeMetaInfo &info, const QString &relativePath) const;
     void select(const ModelNode& node);
 
     void delayedResetView();

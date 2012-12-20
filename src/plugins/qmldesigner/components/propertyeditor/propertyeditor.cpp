@@ -29,6 +29,8 @@
 
 #include "propertyeditor.h"
 
+#include <qmldesignerconstants.h>
+
 #include <nodemetainfo.h>
 #include <metainfo.h>
 
@@ -86,6 +88,8 @@ enum {
 const int collapseButtonOffset = 114;
 
 namespace QmlDesigner {
+
+const char resourcePropertyEditorPath[] = ":/propertyeditor";
 
 static QString applicationDirPath()
 {
@@ -385,11 +389,12 @@ static inline QString fixTypeNameForPanes(const QString &typeName)
 
 void PropertyEditor::setupPane(const QString &typeName)
 {
+    NodeMetaInfo metaInfo = model()->metaInfo(typeName);
 
-    QUrl qmlFile = fileToUrl(locateQmlFile(QLatin1String("Qt/ItemPane.qml")));
+    QUrl qmlFile = fileToUrl(locateQmlFile(metaInfo, QLatin1String("Qt/ItemPane.qml")));
     QUrl qmlSpecificsFile;
 
-    qmlSpecificsFile = fileToUrl(locateQmlFile(fixTypeNameForPanes(typeName) + "Specifics.qml"));
+    qmlSpecificsFile = fileToUrl(locateQmlFile(metaInfo, fixTypeNameForPanes(typeName) + "Specifics.qml"));
     NodeType *type = m_typeHash.value(qmlFile.toString());
 
     if (!type) {
@@ -756,7 +761,7 @@ void PropertyEditor::resetView()
         foreach (const NodeMetaInfo &info, hierarchy) {
             if (QFileInfo(qmlSpecificsFile.toLocalFile()).exists())
                 break;
-            qmlSpecificsFile = fileToUrl(locateQmlFile(fixTypeNameForPanes(info.typeName()) + "Specifics.qml"));
+            qmlSpecificsFile = fileToUrl(locateQmlFile(info, fixTypeNameForPanes(info.typeName()) + "Specifics.qml"));
             diffClassName = info.typeName();
         }
     }
@@ -1061,7 +1066,7 @@ QUrl PropertyEditor::qmlForNode(const ModelNode &modelNode, QString &className) 
         hierarchy << modelNode.metaInfo().superClasses();
 
         foreach (const NodeMetaInfo &info, hierarchy) {
-            QUrl fileUrl = fileToUrl(locateQmlFile(qmlFileName(info)));
+            QUrl fileUrl = fileToUrl(locateQmlFile(info, qmlFileName(info)));
             if (fileUrl.isValid()) {
                 className = info.typeName();
                 return fileUrl;
@@ -1071,11 +1076,14 @@ QUrl PropertyEditor::qmlForNode(const ModelNode &modelNode, QString &className) 
     return fileToUrl(QDir(m_qmlDir).filePath("QtQuick/emptyPane.qml"));
 }
 
-QString PropertyEditor::locateQmlFile(const QString &relativePath) const
+QString PropertyEditor::locateQmlFile(const NodeMetaInfo &info, const QString &relativePath) const
 {
     QDir fileSystemDir(m_qmlDir);
-    static QDir resourcesDir(":/propertyeditor");
+    static QDir resourcesDir(resourcePropertyEditorPath);
+    QDir importDir(info.importDirectoryPath() + QLatin1String(Constants::QML_DESIGNER_SUBFOLDER));
 
+    if (importDir.exists(relativePath))
+        return importDir.absoluteFilePath(relativePath);
     if (fileSystemDir.exists(relativePath))
         return fileSystemDir.absoluteFilePath(relativePath);
     if (resourcesDir.exists(relativePath))

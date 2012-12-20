@@ -66,6 +66,8 @@ enum { QML_OPENDESIGNMODE_DEFAULT = 0 }; // 0 for text mode, 1 for design mode
 
 const char SETTINGS_CATEGORY_QML_ICON[] = ":/core/images/category_qml.png";
 
+const char QML_DESIGNER_SUBFOLDER[] = "/designer/";
+
 namespace Internal {
     enum { debug = 0 };
 }
