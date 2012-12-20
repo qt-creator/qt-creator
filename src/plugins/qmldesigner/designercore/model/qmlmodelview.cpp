@@ -45,6 +45,7 @@
 #include "rewriterview.h"
 #include "plaintexteditmodifier.h"
 #include "modelmerger.h"
+#include "nodemetainfo.h"
 
 #include <utils/qtcassert.h>
 
@@ -110,7 +111,7 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
     RewriterTransaction transaction = beginRewriterTransaction();
     {
         const QString newImportUrl = QLatin1String("QtQuick");
-        const QString newImportVersion = QLatin1String("1.0");
+        const QString newImportVersion = QLatin1String("1.1");
         Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
 
         foreach (const Import &import, model()->imports()) {
@@ -140,7 +141,7 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
         }
 
         propertyPairList.append(qMakePair(QString("source"), QVariant(relativeImageName)));
-        newNode = createQmlItemNode("QtQuick.Image", 1, 0, propertyPairList);
+        newNode = createQmlItemNode("QtQuick.Image", -1, -1, propertyPairList);
         parentNode.nodeAbstractProperty("data").reparentHere(newNode);
 
         Q_ASSERT(newNode.isValid());
