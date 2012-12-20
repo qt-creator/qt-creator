@@ -41,6 +41,15 @@
 #include <QMessageBox>
 #include <QUrl>
 
+#include <qmljs/qmljsevaluate.h>
+#include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljscontext.h>
+#include <qmljs/qmljslink.h>
+#include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/qmljsscopebuilder.h>
+#include <qmljs/qmljsscopechain.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
+
 enum { debug = false };
 
 QT_BEGIN_NAMESPACE
@@ -66,6 +75,70 @@ static inline QStringList importPaths() {
     }
 
     return paths;
+}
+
+static inline bool checkIfDerivedFromItem(const QString &fileName)
+{
+    QmlJS::Snapshot snapshot;
+
+
+    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
+    if (modelManager)
+        snapshot =  modelManager->snapshot();
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly))
+        return false;
+
+    QByteArray source = file.readAll();
+    file.close();
+
+    QmlJS::Document::MutablePtr document =
+            QmlJS::Document::create(fileName.isEmpty() ?
+                                        QLatin1String("<internal>") : fileName, QmlJS::Document::QmlLanguage);
+    document->setSource(source);
+    document->parseQml();
+
+
+    if (!document->isParsedCorrectly()) {
+        return false;
+    }
+
+    snapshot.insert(document);
+
+    QmlJS::Link link(snapshot, QStringList(), QmlJS::ModelManagerInterface::instance()->builtins(document));
+
+    QList<QmlJS::DiagnosticMessage> diagnosticLinkMessages;
+    QmlJS::ContextPtr context = link(document, &diagnosticLinkMessages);
+
+    QmlJS::AST::UiObjectMember *astRootNode = 0;
+    if (QmlJS::AST::UiProgram *program = document->qmlProgram())
+        if (program->members)
+            astRootNode = program->members->member;
+
+    QmlJS::AST::UiObjectDefinition *definition = QmlJS::AST::cast<QmlJS::AST::UiObjectDefinition *>(astRootNode);
+
+    if (!definition)
+        return false;
+
+    QString fullTypeName;
+    for (QmlJS::AST::UiQualifiedId *iter = definition->qualifiedTypeNameId; iter; iter = iter->next)
+        if (!iter->name.isEmpty())
+            fullTypeName += iter->name.toString() + QLatin1Char('.');
+
+    if (fullTypeName.endsWith(QLatin1Char('.')))
+        fullTypeName.chop(1);
+
+    const QmlJS::ObjectValue *objectValue = context->lookupType(document.data(), fullTypeName.split('.'));
+
+    QList<const QmlJS::ObjectValue *> prototypes = QmlJS::PrototypeIterator(objectValue, context).all();
+
+    foreach (const QmlJS::ObjectValue *prototype, prototypes) {
+        if (prototype->className() == "Item")
+            return true;
+    }
+
+    return false;
 }
 
 namespace QmlDesigner {
@@ -317,6 +390,9 @@ void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QStri
     if (!model())
         return;
 
+    if (!checkIfDerivedFromItem(fileInfo.absoluteFilePath()))
+        return;
+
     QString componentName = fileInfo.baseName();
 
 
@@ -335,8 +411,7 @@ void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QStri
         }
 
 
-        if (model()->metaInfo(componentName).isValid() && model()->metaInfo(componentName).isSubclassOf("QtQuick.Item", -1, -1) &&
-            !model()->metaInfo().itemLibraryInfo()->containsEntry(itemLibraryEntry)) {
+        if (!model()->metaInfo().itemLibraryInfo()->containsEntry(itemLibraryEntry)) {
 
             model()->metaInfo().itemLibraryInfo()->addEntry(itemLibraryEntry);
         }
