@@ -27,14 +27,18 @@
 **
 ****************************************************************************/
 
+#include <qmldesignerconstants.h>
+
 #include "subcomponentmanager.h"
 #include "model.h"
 #include "metainfo.h"
+#include "metainforeader.h"
 
 #include <utils/hostosinfo.h>
 
 #include <QDir>
 #include <QMetaType>
+#include <QMessageBox>
 #include <QUrl>
 
 enum { debug = false };
@@ -164,6 +168,33 @@ void SubComponentManager::parseDirectories()
 
 void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool addToLibrary, const QString& qualification)
 {
+
+    QDir designerDir(canonicalDirPath + Constants::QML_DESIGNER_SUBFOLDER);
+    if (designerDir.exists()) {
+        QStringList filter;
+        filter << "*.metainfo";
+        designerDir.setNameFilters(filter);
+
+        QStringList metaFiles = designerDir.entryList(QDir::Files);
+        foreach (const QFileInfo &metaInfoFile, designerDir.entryInfoList(QDir::Files)) {
+            if (model() && model()->metaInfo().itemLibraryInfo()) {
+                Internal::MetaInfoReader reader(model()->metaInfo());
+                try {
+                    reader.readMetaInfoFile(metaInfoFile.absoluteFilePath(), true);
+                } catch (InvalidMetaInfoException &e) {
+                    qWarning() << e.description();
+                    const QString errorMessage = metaInfoFile.absoluteFilePath() + QLatin1Char('\n') + QLatin1Char('\n') + reader.errors().join(QLatin1String("\n"));
+                    QMessageBox::critical(0,
+                                          QCoreApplication::translate("SubComponentManager::parseDirectory", "Invalid meta info"),
+                                          errorMessage);
+                }
+            }
+        }
+        if (!metaFiles.isEmpty()) {
+            return;
+        }
+    }
+
     if (debug)
         qDebug() << Q_FUNC_INFO << canonicalDirPath;
 
