@@ -131,6 +131,33 @@ static BreakpointParameters fixWinMSVCBreakpoint(const BreakpointParameters &p)
     return p;
 }
 
+int breakPointIdToCdbId(const BreakpointModelId &id)
+{
+    return cdbBreakPointStartId +  id.majorPart();
+}
+
+template <class ModelId>
+inline ModelId cdbIdToBreakpointId(const GdbMi &data)
+{
+    if (data.isValid()) { // Might not be valid if there is not id
+        bool ok;
+        const int id = data.data().toInt(&ok);
+        if (ok && id >= cdbBreakPointStartId)
+            return ModelId(id - cdbBreakPointStartId);
+    }
+    return ModelId();
+}
+
+BreakpointModelId cdbIdToBreakpointModelId(const GdbMi &id)
+{
+    return cdbIdToBreakpointId<BreakpointModelId>(id);
+}
+
+BreakpointResponseId cdbIdToBreakpointResponseId(const GdbMi &id)
+{
+    return cdbIdToBreakpointId<BreakpointResponseId>(id);
+}
+
 QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
                                    const QList<QPair<QString, QString> > &sourcePathMapping,
                                    BreakpointModelId id /* = BreakpointId() */,
@@ -148,7 +175,7 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
     // when resolving).
     str << (bp.type == WatchpointAtAddress ? "ba" : "bu");
     if (id.isValid())
-        str << id.toString();
+        str << breakPointIdToCdbId(id);
     str << ' ';
     if (oneshot)
         str << "/1 ";
@@ -304,13 +331,8 @@ void parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r,
     gdbmiChildToBool(gdbmi, "enabled", &(r->enabled));
     gdbmiChildToBool(gdbmi, "deferred", &(r->pending));
     r->id = BreakpointResponseId();
-    const GdbMi idG = gdbmi.findChild("id");
-    if (idG.isValid()) { // Might not be valid if there is not id
-        bool ok;
-        const int id = idG.data().toInt(&ok);
-        if (ok)
-            r->id = BreakpointResponseId(id);
-    }
+    // Might not be valid if there is not id
+    r->id = cdbIdToBreakpointResponseId(gdbmi.findChild("id"));
     const GdbMi moduleG = gdbmi.findChild("module");
     if (moduleG.isValid())
         r->module = QString::fromLocal8Bit(moduleG.data());
