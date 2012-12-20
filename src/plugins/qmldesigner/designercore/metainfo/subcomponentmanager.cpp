@@ -135,6 +135,10 @@ void SubComponentManager::parseDirectories()
         QFileInfo dirInfo = QFileInfo(QFileInfo(file).path());
         if (dirInfo.exists() && dirInfo.isDir())
             parseDirectory(dirInfo.canonicalFilePath());
+
+        foreach (const QString subDir, QDir(QFileInfo(file).path()).entryList(QDir::Dirs | QDir::NoDot | QDir::NoDotDot)) {
+            parseDirectory(dirInfo.canonicalFilePath() + "/" + subDir, true, subDir);
+        }
     }
 
     foreach (const Import &import, m_imports) {
