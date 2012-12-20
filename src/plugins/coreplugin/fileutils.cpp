@@ -29,41 +29,36 @@
 
 #include "fileutils.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/removefiledialog.h>
 #include <coreplugin/vcsmanager.h>
+#include <utils/consoleprocess.h>
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
+#include <utils/qtcprocess.h>
+#include <utils/unixutils.h>
 
+#include <QApplication>
 #include <QDir>
 #include <QFileInfo>
-#include <QProcess>
-#include <QApplication>
 #include <QMessageBox>
+#include <QProcess>
+#include <QPushButton>
 #include <QWidget>
 
 #if QT_VERSION < 0x050000
 #include <QAbstractFileEngine>
 #endif
 
-#ifndef Q_OS_WIN
-#include <utils/consoleprocess.h>
-#include <utils/qtcprocess.h>
-#ifndef Q_OS_MAC
-#include <coreplugin/coreconstants.h>
-#include <utils/unixutils.h>
-#include <QPushButton>
-#endif
-#endif
+using namespace Utils;
 
-using namespace Core;
+namespace Core {
 
-#if !defined(Q_OS_WIN) && !defined(Q_OS_MAC)
 // Show error with option to open settings.
-static inline void showGraphicalShellError(QWidget *parent,
-                                           const QString &app,
-                                           const QString &error)
+static void showGraphicalShellError(QWidget *parent, const QString &app, const QString &error)
 {
     const QString title = QApplication::translate("Core::Internal",
                                                   "Launching a file browser failed");
@@ -76,73 +71,71 @@ static inline void showGraphicalShellError(QWidget *parent,
     QAbstractButton *settingsButton = mbox.addButton(QApplication::translate("Core::Internal", "Settings..."),
                                                      QMessageBox::ActionRole);
     mbox.exec();
-    if (mbox.clickedButton() == settingsButton)
-        Core::ICore::showOptionsDialog(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE),
-                                                   QLatin1String(Core::Constants::SETTINGS_ID_ENVIRONMENT));
+    if (mbox.clickedButton() == settingsButton) {
+        ICore::showOptionsDialog(QLatin1String(Constants::SETTINGS_CATEGORY_CORE),
+                                 QLatin1String(Constants::SETTINGS_ID_ENVIRONMENT));
+    }
 }
-#endif
 
 void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)
 {
     // Mac, Windows support folder or file.
-#if defined(Q_OS_WIN)
-    const QString explorer = Utils::Environment::systemEnvironment().searchInPath(QLatin1String("explorer.exe"));
-    if (explorer.isEmpty()) {
-        QMessageBox::warning(parent,
-                             QApplication::translate("Core::Internal",
-                                                     "Launching Windows Explorer Failed"),
-                             QApplication::translate("Core::Internal",
-                                                     "Could not find explorer.exe in path to launch Windows Explorer."));
-        return;
+    if (HostOsInfo::isWindowsHost()) {
+        const QString explorer = Environment::systemEnvironment().searchInPath(QLatin1String("explorer.exe"));
+        if (explorer.isEmpty()) {
+            QMessageBox::warning(parent,
+                                 QApplication::translate("Core::Internal",
+                                                         "Launching Windows Explorer Failed"),
+                                 QApplication::translate("Core::Internal",
+                                                         "Could not find explorer.exe in path to launch Windows Explorer."));
+            return;
+        }
+        QStringList param;
+        if (!QFileInfo(pathIn).isDir())
+            param += QLatin1String("/select,");
+        param += QDir::toNativeSeparators(pathIn);
+        QProcess::startDetached(explorer, param);
+    } else if (HostOsInfo::isMacHost()) {
+        QStringList scriptArgs;
+        scriptArgs << QLatin1String("-e")
+                   << QString::fromLatin1("tell application \"Finder\" to reveal POSIX file \"%1\"")
+                                         .arg(pathIn);
+        QProcess::execute(QLatin1String("/usr/bin/osascript"), scriptArgs);
+        scriptArgs.clear();
+        scriptArgs << QLatin1String("-e")
+                   << QLatin1String("tell application \"Finder\" to activate");
+        QProcess::execute(QLatin1String("/usr/bin/osascript"), scriptArgs);
+    } else {
+        // we cannot select a file here, because no file browser really supports it...
+        const QFileInfo fileInfo(pathIn);
+        const QString folder = fileInfo.isDir() ? fileInfo.absoluteFilePath() : fileInfo.filePath();
+        const QString app = UnixUtils::fileBrowser(ICore::settings());
+        QProcess browserProc;
+        const QString browserArgs = UnixUtils::substituteFileBrowserParameters(app, folder);
+        bool success = browserProc.startDetached(browserArgs);
+        const QString error = QString::fromLocal8Bit(browserProc.readAllStandardError());
+        success = success && error.isEmpty();
+        if (!success)
+            showGraphicalShellError(parent, app, error);
     }
-    QStringList param;
-    if (!QFileInfo(pathIn).isDir())
-        param += QLatin1String("/select,");
-    param += QDir::toNativeSeparators(pathIn);
-    QProcess::startDetached(explorer, param);
-#elif defined(Q_OS_MAC)
-    Q_UNUSED(parent)
-    QStringList scriptArgs;
-    scriptArgs << QLatin1String("-e")
-               << QString::fromLatin1("tell application \"Finder\" to reveal POSIX file \"%1\"")
-                                     .arg(pathIn);
-    QProcess::execute(QLatin1String("/usr/bin/osascript"), scriptArgs);
-    scriptArgs.clear();
-    scriptArgs << QLatin1String("-e")
-               << QLatin1String("tell application \"Finder\" to activate");
-    QProcess::execute(QLatin1String("/usr/bin/osascript"), scriptArgs);
-#else
-    // we cannot select a file here, because no file browser really supports it...
-    const QFileInfo fileInfo(pathIn);
-    const QString folder = fileInfo.isDir() ? fileInfo.absoluteFilePath() : fileInfo.filePath();
-    const QString app = Utils::UnixUtils::fileBrowser(Core::ICore::settings());
-    QProcess browserProc;
-    const QString browserArgs = Utils::UnixUtils::substituteFileBrowserParameters(app, folder);
-    bool success = browserProc.startDetached(browserArgs);
-    const QString error = QString::fromLocal8Bit(browserProc.readAllStandardError());
-    success = success && error.isEmpty();
-    if (!success)
-        showGraphicalShellError(parent, app, error);
-#endif
 }
 
 void FileUtils::openTerminal(const QString &path)
 {
     // Get terminal application
-#ifdef Q_OS_WIN
-    const QString terminalEmulator = QString::fromLocal8Bit(qgetenv("COMSPEC"));
-    const QStringList args; // none
-#elif defined(Q_OS_MAC)
-    const QString terminalEmulator = Core::ICore::resourcePath()
-            + QLatin1String("/scripts/openTerminal.command");
+    QString terminalEmulator;
     QStringList args;
-#else
-    QStringList args = Utils::QtcProcess::splitArgs(
-        Utils::ConsoleProcess::terminalEmulator(Core::ICore::settings()));
-    const QString terminalEmulator = args.takeFirst();
-    const QString shell = QString::fromLocal8Bit(qgetenv("SHELL"));
-    args.append(shell);
-#endif
+    if (HostOsInfo::isWindowsHost()) {
+        terminalEmulator = QString::fromLocal8Bit(qgetenv("COMSPEC"));
+    } else if (HostOsInfo::isMacHost()) {
+        terminalEmulator = ICore::resourcePath()
+            + QLatin1String("/scripts/openTerminal.command");
+    } else {
+        args = QtcProcess::splitArgs(ConsoleProcess::terminalEmulator(ICore::settings()));
+        terminalEmulator = args.takeFirst();
+        args.append(QString::fromLocal8Bit(qgetenv("SHELL")));
+    }
+
     // Launch terminal with working directory set.
     const QFileInfo fileInfo(path);
     const QString pwd = QDir::toNativeSeparators(fileInfo.isDir() ?
@@ -153,22 +146,18 @@ void FileUtils::openTerminal(const QString &path)
 
 QString FileUtils::msgGraphicalShellAction()
 {
-#if defined(Q_OS_WIN)
-    return QApplication::translate("Core::Internal", "Show in Explorer");
-#elif defined(Q_OS_MAC)
-    return QApplication::translate("Core::Internal", "Show in Finder");
-#else
+    if (HostOsInfo::isWindowsHost())
+        return QApplication::translate("Core::Internal", "Show in Explorer");
+    if (HostOsInfo::isMacHost())
+        return QApplication::translate("Core::Internal", "Show in Finder");
     return QApplication::translate("Core::Internal", "Show Containing Folder");
-#endif
 }
 
 QString FileUtils::msgTerminalAction()
 {
-#ifdef Q_OS_WIN
-    return QApplication::translate("Core::Internal", "Open Command Prompt Here");
-#else
+    if (HostOsInfo::isWindowsHost())
+        return QApplication::translate("Core::Internal", "Open Command Prompt Here");
     return QApplication::translate("Core::Internal", "Open Terminal Here");
-#endif
 }
 
 void FileUtils::removeFile(const QString &filePath, bool deleteFromFS)
@@ -209,10 +198,10 @@ bool FileUtils::renameFile(const QString &orgFilePath, const QString &newFilePat
         return false;
 
     QString dir = QFileInfo(orgFilePath).absolutePath();
-    Core::IVersionControl *vc = Core::ICore::vcsManager()->findVersionControlForDirectory(dir);
+    IVersionControl *vc = ICore::vcsManager()->findVersionControlForDirectory(dir);
 
     bool result = false;
-    if (vc && vc->supportsOperation(Core::IVersionControl::MoveOperation))
+    if (vc && vc->supportsOperation(IVersionControl::MoveOperation))
         result = vc->vcsMove(orgFilePath, newFilePath);
     if (!result) // The moving via vcs failed or the vcs does not support moving, fall back
         result = fileSystemRenameFile(orgFilePath, newFilePath);
@@ -222,3 +211,5 @@ bool FileUtils::renameFile(const QString &orgFilePath, const QString &newFilePat
     }
     return result;
 }
+
+} // namespace Core

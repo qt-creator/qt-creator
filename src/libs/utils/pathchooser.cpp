@@ -34,19 +34,19 @@
 #include "qtcassert.h"
 
 #include "synchronousprocess.h"
+#include "hostosinfo.h"
 
 #include <QDebug>
-#include <QDir>
-#include <QFileInfo>
-#include <QSettings>
-#include <QProcess>
-
-#include <qevent.h>
 #include <QDesktopServices>
+#include <QDir>
+#include <QEvent>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QHBoxLayout>
 #include <QLineEdit>
+#include <QProcess>
 #include <QPushButton>
+#include <QSettings>
 
 /*!
     \class Utils::PathChooser
@@ -57,7 +57,7 @@
     Has some validation logic for embedding into QWizardPage.
 */
 
-/*static*/ const char * const Utils::PathChooser::browseButtonLabel =
+const char * const Utils::PathChooser::browseButtonLabel =
 #ifdef Q_OS_MAC
                    QT_TRANSLATE_NOOP("Utils::PathChooser", "Choose...");
 #else
@@ -541,14 +541,12 @@ QString PathChooser::label()
 
 QString PathChooser::homePath()
 {
-#ifdef Q_OS_WIN
     // Return 'users/<name>/Documents' on Windows, since Windows explorer
     // does not let people actually display the contents of their home
     // directory. Alternatively, create a QtCreator-specific directory?
-    return QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
-#else
+    if (HostOsInfo::isWindowsHost())
+        return QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
     return QDir::homePath();
-#endif
 }
 
 void PathChooser::setExpectedKind(Kind expected)
