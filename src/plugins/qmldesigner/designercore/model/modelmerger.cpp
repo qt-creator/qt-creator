@@ -33,6 +33,7 @@
 #include "modelnode.h"
 #include "abstractview.h"
 #include "model.h"
+#include "nodemetainfo.h"
 #include "nodeproperty.h"
 #include "nodelistproperty.h"
 #include "bindingproperty.h"
@@ -145,7 +146,8 @@ static ModelNode createNodeFromNode(const ModelNode &modelNode,const QHash<QStri
     foreach (const VariantProperty &variantProperty, modelNode.variantProperties()) {
         propertyList.append(QPair<QString, QVariant>(variantProperty.name(), variantProperty.value()));
     }
-    ModelNode newNode(view->createModelNode(modelNode.type(),modelNode.majorVersion(),modelNode.minorVersion(),
+    NodeMetaInfo nodeMetaInfo = view->model()->metaInfo(modelNode.type());
+    ModelNode newNode(view->createModelNode(modelNode.type(), nodeMetaInfo.majorVersion(), nodeMetaInfo.minorVersion(),
                                             propertyList, variantPropertyList, modelNode.nodeSource(), modelNode.nodeSourceType()));
     syncBindingProperties(newNode, modelNode, idRenamingHash);
     syncId(newNode, modelNode, idRenamingHash);
