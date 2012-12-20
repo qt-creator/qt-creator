@@ -75,6 +75,7 @@ private slots:
     void test_vim_indent();
     void test_vim_marks();
     void test_vim_jumps();
+    void test_vim_current_column();
     void test_vim_copy_paste();
     void test_vim_undo_redo();
     void test_vim_letter_case();

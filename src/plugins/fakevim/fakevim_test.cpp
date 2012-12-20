@@ -1370,6 +1370,60 @@ void FakeVimPlugin::test_vim_jumps()
     KEYS("<C-O>", "abc" N "def" N "g" X "hi");
 }
 
+void FakeVimPlugin::test_vim_current_column()
+{
+    // Check if column is correct after command and vertical cursor movement.
+    TestData data;
+    setup(&data);
+
+    // always at end of line after <end>
+    data.setText("  abc" N "  def 123" N "" N "  ghi");
+    KEYS("<end><down>", "  abc" N "  def 12" X "3" N "" N "  ghi");
+    KEYS("<down><down>", "  abc" N "  def 123" N "" N "  gh" X "i");
+    KEYS("<up>", "  abc" N "  def 123" N X "" N "  ghi");
+    KEYS("<up>", "  abc" N "  def 12" X "3" N "" N "  ghi");
+    // ... in insert
+    KEYS("i<end><up>", "  abc" X N "  def 123" N "" N "  ghi");
+    KEYS("<down>i<end><up><down>", "  abc" N "  def 123" X N "" N "  ghi");
+
+    // vertical movement doesn't reset column
+    data.setText("  abc" N "  def 1" X "23" N "" N "  ghi");
+    KEYS("<up>", "  ab" X "c" N "  def 123" N "" N "  ghi");
+    KEYS("<down>", "  abc" N "  def 1" X "23" N "" N "  ghi");
+    KEYS("<down><down>", "  abc" N "  def 123" N "" N "  gh" X "i");
+    KEYS("<up><up>", "  abc" N "  def 1" X "23" N "" N "  ghi");
+    KEYS("^jj", "  abc" N "  def 123" N "" N "  " X "ghi");
+    KEYS("kk", "  abc" N "  " X "def 123" N "" N "  ghi");
+
+    // yiw, yaw
+    data.setText("  abc" N "  def" N "  ghi");
+    KEYS("e<down>", "  abc" N "  de" X "f" N "  ghi");
+    KEYS("b<down>", "  abc" N "  def" N "  " X "ghi");
+    KEYS("ll<up>", "  abc" N "  de" X "f" N "  ghi");
+    KEYS("<down>yiw<up>", "  abc" N "  " X "def" N "  ghi");
+    KEYS("llyaw<up>", "  " X "abc" N "  def" N "  ghi");
+
+    // insert
+    data.setText("  abc" N "  def" N "  ghi");
+    KEYS("lljj", "  abc" N "  def" N "  " X "ghi");
+    KEYS("i123<up>", "  abc" N "  def" X N "  123ghi");
+    KEYS("a456<up><down>", "  abc" N "  def456" X N "  123ghi");
+
+    data.setText("  abc" N X "  def 123" N "" N "  ghi");
+    KEYS("A<down><down>", "  abc" N "  def 123" N "" N "  ghi" X);
+    KEYS("A<up><up>", "  abc" N "  def" X " 123" N "" N "  ghi");
+    KEYS("A<down><down><up><up>", "  abc" N "  def 123" X N "" N "  ghi");
+
+    data.setText("  abc" N X "  def 123" N "" N "  ghi");
+    KEYS("I<down><down>", "  abc" N "  def 123" N "" N "  " X "ghi");
+
+    // change
+    data.setText("  abc" N "  d" X "ef" N "  ghi");
+    KEYS("cc<up>", "  " X "abc" N "  " N "  ghi");
+    data.setText("  abc" N "  d" X "ef" N "  ghi");
+    KEYS("cc<up>x<down><down>", "  xabc" N "  " N "  g" X "hi");
+}
+
 void FakeVimPlugin::test_vim_copy_paste()
 {
     TestData data;

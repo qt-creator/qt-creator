@@ -2137,7 +2137,10 @@ void FakeVimHandler::Private::recordInsertion(const QString &insert)
         m_lastInsertion += insert;
     }
 
-    m_oldPosition = position();
+    if (m_oldPosition != pos) {
+        m_oldPosition = pos;
+        setTargetColumn();
+    }
 }
 
 void FakeVimHandler::Private::ensureCursorVisible()
@@ -2707,11 +2710,10 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
             if (m_rangemode == RangeLineMode) {
                 if (isVisualMode())
                     moveToStartOfLine();
-                else
-                    setTargetColumn();
             }
         }
         leaveVisualMode();
+        setTargetColumn();
     } else if (m_submode == InvertCaseSubMode
         || m_submode == UpCaseSubMode
         || m_submode == DownCaseSubMode) {
@@ -3451,6 +3453,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         setUndoPosition();
         setAnchor();
         enterInsertMode();
+        setTargetColumn();
         setDotCommand(_("%1A"), count());
     } else if (input.isControl('a')) {
         if (changeNumberTextObject(count()))
@@ -3561,6 +3564,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         setUndoPosition();
         breakEditBlock();
         enterInsertMode();
+        setTargetColumn();
     } else if (input.isControl('i')) {
         jump(count());
     } else if (input.is('J')) {
@@ -4029,9 +4033,11 @@ EventResult FakeVimHandler::Private::handleReplaceMode(const Input &input)
     } else if (input.isKey(Key_Left)) {
         breakEditBlock();
         moveLeft(1);
+        setTargetColumn();
     } else if (input.isKey(Key_Right)) {
         breakEditBlock();
         moveRight(1);
+        setTargetColumn();
     } else if (input.isKey(Key_Up)) {
         breakEditBlock();
         moveUp(1);
@@ -4059,7 +4065,6 @@ EventResult FakeVimHandler::Private::handleReplaceMode(const Input &input)
         recordInsertion();
     }
     m_oldPosition = position();
-    setTargetColumn();
     updateMiniBuffer();
 
     return EventHandled;
@@ -4145,9 +4150,11 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
     } else if (input.isKey(Key_Left)) {
         moveLeft(count());
         move = true;
+        setTargetColumn();
     } else if (input.isControl(Key_Left)) {
         moveToNextWordStart(count(), false, false);
         move = true;
+        setTargetColumn();
     } else if (input.isKey(Key_Down)) {
         //removeAutomaticIndentation();
         m_submode = NoSubMode;
@@ -4161,18 +4168,22 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
     } else if (input.isKey(Key_Right)) {
         moveRight(count());
         move = true;
+        setTargetColumn();
     } else if (input.isControl(Key_Right)) {
         moveToNextWordStart(count(), false, true);
         moveRight(); // we need one more move since we are in insert mode
         move = true;
+        setTargetColumn();
     } else if (input.isKey(Key_Home)) {
         moveToStartOfLine();
         move = true;
+        setTargetColumn();
     } else if (input.isKey(Key_End)) {
         if (count() > 1)
             moveDown(count() - 1);
         moveBehindEndOfLine();
         move = true;
+        setTargetColumn();
     } else if (input.isReturn() || input.isControl('j') || input.isControl('m')) {
         joinPreviousEditBlock();
         m_submode = NoSubMode;
@@ -4277,7 +4288,6 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
             m_lastInsertion.clear();
         recordInsertion(insert);
     }
-    setTargetColumn();
     updateMiniBuffer();
 
     return EventHandled;
