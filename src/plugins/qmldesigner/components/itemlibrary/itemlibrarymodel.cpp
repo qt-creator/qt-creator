@@ -403,9 +403,12 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
     foreach (ItemLibraryEntry entry, itemLibraryInfo->entries()) {
 
-         bool valid = model->metaInfo(entry.typeName(), entry.majorVersion(), entry.minorVersion()).isValid();
+         NodeMetaInfo metaInfo = model->metaInfo(entry.typeName(), -1, -1);
+         bool valid = metaInfo.isValid() && metaInfo.majorVersion() == entry.majorVersion();
 
-        if (valid && (entry.requiredImport().isEmpty() || model->hasImport(entryToImport(entry), true, true) || entry.forceImport())) {
+         if ((valid || entry.forceImport())
+                 && (entry.requiredImport().isEmpty()
+                     || model->hasImport(entryToImport(entry), true, false) || entry.forceImport())) {
             QString itemSectionName = entry.category();
             ItemLibrarySectionModel *sectionModel;
             ItemLibraryItemModel *itemModel;
