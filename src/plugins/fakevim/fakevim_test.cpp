@@ -548,6 +548,16 @@ void FakeVimPlugin::test_vim_insert()
     data.setText("abc" N "de" X "f" N  "" N "jkl" N "mno");
     KEYS("<c-v>2jh" "2I" "XYZ<esc>", "abc" N "d" X "XYZXYZef" N "" N "jXYZXYZkl" N "mno");
     INTEGRITY(false);
+
+    // repeat insert with special characters
+    data.setText("ab" X "c" N "def");
+    KEYS("2i<lt>down><esc>", "ab<down><down" X ">c" N "def");
+    INTEGRITY(false);
+
+    data.setText("  ab" X "c" N "  def");
+    KEYS("2I<lt>end><esc>", "  <end><end" X ">abc" N "  def");
+    KEYS("u", "  " X "abc" N "  def");
+    KEYS(".", "  <end><end" X ">abc" N "  def");
 }
 
 void FakeVimPlugin::test_vim_fFtT()

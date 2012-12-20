@@ -3548,7 +3548,6 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         if (atEndOfLine())
             moveLeft();
     } else if (input.is('I')) {
-        setUndoPosition();
         if (isVisualMode()) {
             initVisualBlockInsertMode(QLatin1Char('I'));
         } else {
@@ -3559,6 +3558,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
                 moveToFirstNonBlankOnLine();
             //m_tc.clearSelection();
         }
+        setUndoPosition();
         breakEditBlock();
         enterInsertMode();
     } else if (input.isControl('i')) {
@@ -4263,6 +4263,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
     } else if (!input.text().isEmpty()) {
         insert = input.text();
         insertInInsertMode(insert);
+        insert.replace(_("<"), _("<LT>"));
     } else {
         // We don't want fancy stuff in insert mode.
         return EventHandled;
