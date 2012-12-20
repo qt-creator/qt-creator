@@ -187,6 +187,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "of debug information such as <i>/usr/src/debug</i> "
         "when starting GDB.</body></html>"));
 
+    // #fixme: 2.7 Move to common settings page.
     checkBoxBreakOnWarning = new QCheckBox(groupBoxGeneral);
     checkBoxBreakOnWarning->setText(CommonOptionsPage::msgSetBreakpointAtFunction("qWarning"));
     checkBoxBreakOnWarning->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("qWarning"));

@@ -5096,13 +5096,18 @@ void GdbEngine::handleNamespaceExtraction(const GdbResponse &response)
     } else {
         if (debuggerCore()->boolSetting(BreakOnAbort))
             postCommand("-break-insert -f abort");
-        if (debuggerCore()->boolSetting(BreakOnWarning))
+        if (debuggerCore()->boolSetting(BreakOnWarning)) {
             postCommand("-break-insert -f '" + qtNamespace() + "qWarning'");
-        if (debuggerCore()->boolSetting(BreakOnFatal))
+            postCommand("-break-insert -f '" + qtNamespace() + "QMessageLogger::warning'");
+        }
+        if (debuggerCore()->boolSetting(BreakOnFatal)) {
             postCommand("-break-insert -f '" + qtNamespace() + "qFatal'",
-                CB(handleBreakOnQFatal));
-        else
+                        CB(handleBreakOnQFatal), QVariant(false));
+            postCommand("-break-insert -f '" + qtNamespace() + "QMessageLogger::fatal'",
+                        CB(handleBreakOnQFatal), QVariant(true));
+        } else {
             notifyInferiorSetupOk();
+        }
     }
 }
 
@@ -5119,7 +5124,8 @@ void GdbEngine::handleBreakOnQFatal(const GdbResponse &response)
     }
 
     // Continue setup.
-    notifyInferiorSetupOk();
+    if (response.cookie.toBool())
+        notifyInferiorSetupOk();
 }
 
 void GdbEngine::notifyInferiorSetupFailed(const QString &msg)

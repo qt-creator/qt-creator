@@ -825,6 +825,14 @@ void CdbEngine::runEngine()
             postCommand(breakAtFunctionCommand(breakFunction), 0);
         }
     }
+    if (debuggerCore()->boolSetting(BreakOnWarning)) {
+        postCommand("bm /( QtCored4!qWarning", 0); // 'bm': All overloads.
+        postCommand("bm /( Qt5Cored!QMessageLogger::warning", 0);
+    }
+    if (debuggerCore()->boolSetting(BreakOnFatal)) {
+        postCommand("bm /( QtCored4!qFatal", 0); // 'bm': All overloads.
+        postCommand("bm /( Qt5Cored!QMessageLogger::fatal", 0);
+    }
     if (startParameters().startMode == AttachCore) {
         QTC_ASSERT(!m_coreStopReason.isNull(), return; );
         notifyInferiorUnrunnable();
