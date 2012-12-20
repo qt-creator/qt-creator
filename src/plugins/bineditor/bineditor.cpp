@@ -734,7 +734,7 @@ void BinEditor::paintEvent(QPaintEvent *e)
         selEnd = m_cursorPosition;
     } else {
         selStart = m_cursorPosition;
-        selEnd = m_anchorPosition + 1;
+        selEnd = m_anchorPosition;
     }
 
     QString itemString(m_bytesPerLine*3, QLatin1Char(' '));
@@ -834,7 +834,7 @@ void BinEditor::paintEvent(QPaintEvent *e)
                                      m_lineHeight, color);
                 }
 
-                if (selStart < selEnd && !isFullySelected && pos >= selStart && pos < selEnd) {
+                if (selStart < selEnd && !isFullySelected && pos >= selStart && pos <= selEnd) {
                     selectionRect |= QRect(item_x, y-m_ascent, m_columnWidth, m_lineHeight);
                     int printable_item_x = -xoffset + m_margin + m_labelWidth + m_bytesPerLine * m_columnWidth + m_charWidth
                                            + fm.width(printable.left(c));
@@ -1380,7 +1380,7 @@ void BinEditor::copy(bool raw)
     if (selStart >= selEnd)
         qSwap(selStart, selEnd);
 
-    const int selectionLength = selEnd - selStart;
+    const int selectionLength = selEnd - selStart + 1;
     if (selectionLength >> 22) {
         QMessageBox::warning(this, tr("Copying Failed"),
                              tr("You cannot copy more than 4 MB of binary data."));
