@@ -99,8 +99,6 @@ public slots:
 private slots:
     void fetchLazyData(Core::IEditor *, quint64 block);
     void provideNewRange(Core::IEditor *editor, quint64 address);
-    void handleStartOfFileRequested(Core::IEditor *editor);
-    void handleEndOfFileRequested(Core::IEditor *editor);
     void handleDataChanged(Core::IEditor *editor, quint64 address,
         const QByteArray &data);
     void handleWatchpointRequest(quint64 address, uint size);

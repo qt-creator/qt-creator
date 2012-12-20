@@ -142,8 +142,6 @@ Q_SIGNALS:
     void newWindowRequested(quint64 address);
     void newRangeRequested(Core::IEditor *, quint64 address);
     void addWatchpointRequested(quint64 address, uint size);
-    void startOfFileRequested(Core::IEditor *);
-    void endOfFileRequested(Core::IEditor *);
     void dataChanged(Core::IEditor *, quint64 address, const QByteArray &data);
 
 protected:

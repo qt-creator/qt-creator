@@ -141,12 +141,6 @@ void MemoryAgent::connectBinEditorWidget(QWidget *w)
         SIGNAL(newRangeRequested(Core::IEditor*,quint64)),
         SLOT(provideNewRange(Core::IEditor*,quint64)));
     connect(w,
-        SIGNAL(startOfFileRequested(Core::IEditor*)),
-        SLOT(handleStartOfFileRequested(Core::IEditor*)));
-    connect(w,
-        SIGNAL(endOfFileRequested(Core::IEditor*)),
-        SLOT(handleEndOfFileRequested(Core::IEditor*)));
-    connect(w,
         SIGNAL(dataChanged(Core::IEditor*,quint64,QByteArray)),
         SLOT(handleDataChanged(Core::IEditor*,quint64,QByteArray)));
     connect(w,
@@ -248,23 +242,6 @@ void MemoryAgent::provideNewRange(IEditor *, quint64 address)
     QWidget *w = qobject_cast<QWidget *>(sender());
     QTC_ASSERT(w, return);
     MemoryView::setBinEditorRange(w, address, DataRange, BinBlockSize);
-}
-
-// Since we are not dealing with files, we take these signals to mean
-// "move to start/end of range". This seems to make more sense than
-// jumping to the start or end of the address space, respectively.
-void MemoryAgent::handleStartOfFileRequested(IEditor *)
-{
-    QWidget *w = qobject_cast<QWidget *>(sender());
-    QTC_ASSERT(w, return);
-    MemoryView::binEditorSetCursorPosition(w, 0);
-}
-
-void MemoryAgent::handleEndOfFileRequested(IEditor *)
-{
-    QWidget *w = qobject_cast<QWidget *>(sender());
-    QTC_ASSERT(w, return);
-    MemoryView::binEditorSetCursorPosition(w, DataRange - 1);
 }
 
 void MemoryAgent::handleDataChanged(IEditor *,

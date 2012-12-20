@@ -1302,20 +1302,22 @@ void BinEditor::keyPressEvent(QKeyEvent *e)
         setCursorPosition((verticalScrollBar()->value() + line) * m_bytesPerLine + m_cursorPosition % m_bytesPerLine, moveMode);
     } break;
 
-    case Qt::Key_Home:
-        if (e->modifiers() & Qt::ControlModifier) {
-            emit startOfFileRequested(editor());
-        } else {
-            setCursorPosition(m_cursorPosition/m_bytesPerLine * m_bytesPerLine, moveMode);
-        }
-        break;
-    case Qt::Key_End:
-        if (e->modifiers() & Qt::ControlModifier) {
-            emit endOfFileRequested(editor());
-        } else {
-            setCursorPosition(m_cursorPosition/m_bytesPerLine * m_bytesPerLine + 15, moveMode);
-        }
-        break;
+    case Qt::Key_Home: {
+        int pos;
+        if (e->modifiers() & Qt::ControlModifier)
+            pos = 0;
+        else
+            pos = m_cursorPosition/m_bytesPerLine * m_bytesPerLine;
+        setCursorPosition(pos, moveMode);
+    } break;
+    case Qt::Key_End: {
+        int pos;
+        if (e->modifiers() & Qt::ControlModifier)
+            pos = m_size;
+        else
+            pos = m_cursorPosition/m_bytesPerLine * m_bytesPerLine + 15;
+        setCursorPosition(pos, moveMode);
+    } break;
     default:
         if (m_readOnly)
             break;
