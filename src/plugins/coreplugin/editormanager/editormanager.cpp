@@ -206,6 +206,10 @@ struct EditorManagerPrivate
     QAction *m_removeAllSplitsAction;
     QAction *m_gotoOtherSplitAction;
 
+    QAction *m_saveCurrentEditorContextAction;
+    QAction *m_saveAsCurrentEditorContextAction;
+    QAction *m_revertToSavedCurrentEditorContextAction;
+
     QAction *m_closeCurrentEditorContextAction;
     QAction *m_closeAllEditorsContextAction;
     QAction *m_closeOtherEditorsContextAction;
@@ -244,6 +248,9 @@ EditorManagerPrivate::EditorManagerPrivate(QWidget *parent) :
     m_gotoPreviousDocHistoryAction(new QAction(EditorManager::tr("Previous Open Document in History"), parent)),
     m_goBackAction(new QAction(QIcon(QLatin1String(Constants::ICON_PREV)), EditorManager::tr("Go Back"), parent)),
     m_goForwardAction(new QAction(QIcon(QLatin1String(Constants::ICON_NEXT)), EditorManager::tr("Go Forward"), parent)),
+    m_saveCurrentEditorContextAction(new QAction(EditorManager::tr("&Save"), parent)),
+    m_saveAsCurrentEditorContextAction(new QAction(EditorManager::tr("Save &As..."), parent)),
+    m_revertToSavedCurrentEditorContextAction(new QAction(EditorManager::tr("Revert to Saved"), parent)),
     m_closeCurrentEditorContextAction(new QAction(EditorManager::tr("Close"), parent)),
     m_closeAllEditorsContextAction(new QAction(EditorManager::tr("Close All"), parent)),
     m_closeOtherEditorsContextAction(new QAction(EditorManager::tr("Close Others"), parent)),
@@ -334,6 +341,11 @@ EditorManager::EditorManager(QWidget *parent) :
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     connect(d->m_closeOtherEditorsAction, SIGNAL(triggered()), this, SLOT(closeOtherEditors()));
+
+    //Save XXX Context Actions
+    connect(d->m_saveCurrentEditorContextAction, SIGNAL(triggered()), this, SLOT(saveDocumentFromContextMenu()));
+    connect(d->m_saveAsCurrentEditorContextAction, SIGNAL(triggered()), this, SLOT(saveDocumentAsFromContextMenu()));
+    connect(d->m_revertToSavedCurrentEditorContextAction, SIGNAL(triggered()), this, SLOT(revertToSavedFromContextMenu()));
 
     // Close XXX Context Actions
     connect(d->m_closeAllEditorsContextAction, SIGNAL(triggered()), this, SLOT(closeAllEditors()));
@@ -723,10 +735,37 @@ void EditorManager::closeEditor()
     closeEditor(d->m_currentEditor);
 }
 
-void EditorManager::addCloseEditorActions(QMenu *contextMenu, const QModelIndex &editorIndex)
+static void assignAction(QAction *self, QAction *other)
+{
+    self->setText(other->text());
+    self->setIcon(other->icon());
+    self->setShortcut(other->shortcut());
+    self->setEnabled(other->isEnabled());
+}
+
+void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, const QModelIndex &editorIndex)
 {
     QTC_ASSERT(contextMenu, return);
     d->m_contextMenuEditorIndex = editorIndex;
+
+    assignAction(d->m_saveCurrentEditorContextAction, ActionManager::command(Constants::SAVE)->action());
+    assignAction(d->m_saveAsCurrentEditorContextAction, ActionManager::command(Constants::SAVEAS)->action());
+    assignAction(d->m_revertToSavedCurrentEditorContextAction, ActionManager::command(Constants::REVERTTOSAVED)->action());
+
+    IEditor *editor = d->m_contextMenuEditorIndex.data(Qt::UserRole).value<Core::IEditor*>();
+
+    setupSaveActions(editor,
+                     d->m_saveCurrentEditorContextAction,
+                     d->m_saveAsCurrentEditorContextAction,
+                     d->m_revertToSavedCurrentEditorContextAction);
+
+    contextMenu->addAction(d->m_saveCurrentEditorContextAction);
+    contextMenu->addAction(d->m_saveAsCurrentEditorContextAction);
+    contextMenu->addAction(ActionManager::command(Constants::SAVEALL)->action());
+    contextMenu->addAction(d->m_revertToSavedCurrentEditorContextAction);
+
+    contextMenu->addSeparator();
+
     d->m_closeCurrentEditorContextAction->setText(editorIndex.isValid()
                                                     ? tr("Close \"%1\"").arg(editorIndex.data().toString())
                                                     : tr("Close Editor"));
@@ -748,6 +787,27 @@ void EditorManager::addNativeDirActions(QMenu *contextMenu, const QModelIndex &e
     d->m_openTerminalAction->setEnabled(editorIndex.isValid());
     contextMenu->addAction(d->m_openGraphicalShellAction);
     contextMenu->addAction(d->m_openTerminalAction);
+}
+
+void EditorManager::saveDocumentFromContextMenu()
+{
+    IEditor *editor = d->m_contextMenuEditorIndex.data(Qt::UserRole).value<Core::IEditor*>();
+    if (editor)
+        saveDocument(editor->document());
+}
+
+void EditorManager::saveDocumentAsFromContextMenu()
+{
+    IEditor *editor = d->m_contextMenuEditorIndex.data(Qt::UserRole).value<Core::IEditor*>();
+    if (editor)
+        saveDocumentAs(editor->document());
+}
+
+void EditorManager::revertToSavedFromContextMenu()
+{
+    IEditor *editor = d->m_contextMenuEditorIndex.data(Qt::UserRole).value<Core::IEditor*>();
+    if (editor)
+        revertToSaved(editor);
 }
 
 void EditorManager::closeEditorFromContextMenu()
@@ -1731,21 +1791,47 @@ void EditorManager::updateMakeWritableWarning()
     }
 }
 
+QString EditorManager::fileNameForEditor(IEditor *editor)
+{
+    QString fileName;
+
+    if (editor) {
+        if (!editor->document()->fileName().isEmpty()) {
+            QFileInfo fileInfo(curEditor->document()->fileName());
+            fileName = fileInfo.fileName();
+        } else {
+            fileName = editor->displayName();
+        }
+    }
+    return fileName;
+}
+
+void EditorManager::setupSaveActions(IEditor *editor, QAction *saveAction, QAction *saveAsAction, QAction *revertToSavedAction)
+{
+    saveAction->setEnabled(editor != 0 && editor->document()->isModified());
+    saveAsAction->setEnabled(editor != 0 && editor->document()->isSaveAsAllowed());
+    revertToSavedAction->setEnabled(editor != 0
+                                    && !editor->document()->fileName().isEmpty() && editor->document()->isModified());
+
+    const QString fileName = fileNameForEditor(editor);
+    QString quotedName;
+
+    if (!fileName.isEmpty())
+        quotedName = QLatin1Char('"') + fileName + QLatin1Char('"');
+    if (!quotedName.isEmpty()) {
+        saveAction->setText(tr("&Save %1").arg(quotedName));
+        saveAsAction->setText(tr("Save %1 &As...").arg(quotedName));
+        revertToSavedAction->setText(tr("Revert %1 to Saved").arg(quotedName));
+    }
+}
+
 void EditorManager::updateActions()
 {
-    QString fName;
     IEditor *curEditor = currentEditor();
+    const QString fileName = fileNameForEditor(curEditor);
     int openedCount = openedEditors().count() + d->m_editorModel->restoredEditors().count();
 
     if (curEditor) {
-
-        if (!curEditor->document()->fileName().isEmpty()) {
-            QFileInfo fi(curEditor->document()->fileName());
-            fName = fi.fileName();
-        } else {
-            fName = curEditor->displayName();
-        }
-
         if (HostOsInfo::isMacHost())
             window()->setWindowModified(curEditor->document()->isModified());
         updateMakeWritableWarning();
@@ -1755,18 +1841,10 @@ void EditorManager::updateActions()
 
     setCloseSplitEnabled(d->m_splitter, d->m_splitter->isSplitter());
 
-    d->m_saveAction->setEnabled(curEditor != 0 && curEditor->document()->isModified());
-    d->m_saveAsAction->setEnabled(curEditor != 0 && curEditor->document()->isSaveAsAllowed());
-    d->m_revertToSavedAction->setEnabled(curEditor != 0
-        && !curEditor->document()->fileName().isEmpty() && curEditor->document()->isModified());
-
     QString quotedName;
-    if (!fName.isEmpty())
-        quotedName = QLatin1Char('"') + fName + QLatin1Char('"');
-
-    d->m_saveAsAction->setText(tr("Save %1 &As...").arg(quotedName));
-    d->m_saveAction->setText(tr("&Save %1").arg(quotedName));
-    d->m_revertToSavedAction->setText(tr("Revert %1 to Saved").arg(quotedName));
+    if (!fileName.isEmpty())
+        quotedName = QLatin1Char('"') + fileName + QLatin1Char('"');
+    setupSaveActions(curEditor, d->m_saveAction, d->m_saveAsAction, d->m_revertToSavedAction);
 
     d->m_closeCurrentEditorAction->setEnabled(curEditor != 0);
     d->m_closeCurrentEditorAction->setText(tr("Close %1").arg(quotedName));
@@ -2020,13 +2098,17 @@ void EditorManager::readSettings()
 
 void EditorManager::revertToSaved()
 {
-    IEditor *currEditor = currentEditor();
-    if (!currEditor)
+    revertToSaved(currentEditor());
+}
+
+void EditorManager::revertToSaved(Core::IEditor *editor)
+{
+    if (!editor)
         return;
-    const QString fileName =  currEditor->document()->fileName();
+    const QString fileName =  editor->document()->fileName();
     if (fileName.isEmpty())
         return;
-    if (currEditor->document()->isModified()) {
+    if (editor->document()->isModified()) {
         QMessageBox msgBox(QMessageBox::Question, tr("Revert to Saved"),
                            tr("You will lose your current changes if you proceed reverting %1.").arg(QDir::toNativeSeparators(fileName)),
                            QMessageBox::Yes|QMessageBox::No, ICore::mainWindow());
@@ -2039,7 +2121,7 @@ void EditorManager::revertToSaved()
 
     }
     QString errorString;
-    if (!currEditor->document()->reload(&errorString, IDocument::FlagReload, IDocument::TypeContents))
+    if (!editor->document()->reload(&errorString, IDocument::FlagReload, IDocument::TypeContents))
         QMessageBox::critical(ICore::mainWindow(), tr("File Error"), errorString);
 }
 

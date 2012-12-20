@@ -186,7 +186,7 @@ public:
     void setWindowTitleAddition(const QString &addition);
     QString windowTitleAddition() const;
 
-    void addCloseEditorActions(QMenu *contextMenu, const QModelIndex &editorIndex);
+    void addSaveAndCloseEditorActions(QMenu *contextMenu, const QModelIndex &editorIndex);
     void addNativeDirActions(QMenu *contextMenu, const QModelIndex &editorIndex);
 
 signals:
@@ -203,6 +203,7 @@ public slots:
     bool saveDocument(Core::IDocument *documentParam = 0);
     bool saveDocumentAs(Core::IDocument *documentParam = 0);
     void revertToSaved();
+    void revertToSaved(Core::IEditor *editor);
     void closeEditor();
     void closeOtherEditors();
 
@@ -217,6 +218,10 @@ private slots:
     void handleEditorStateChange();
     void updateVariable(const QByteArray &variable);
     void autoSave();
+
+    void saveDocumentFromContextMenu();
+    void saveDocumentAsFromContextMenu();
+    void revertToSavedFromContextMenu();
 
     void closeEditorFromContextMenu();
     void closeOtherEditorsFromContextMenu();
@@ -264,6 +269,8 @@ private:
     void updateAutoSave();
     void setCloseSplitEnabled(Internal::SplitterOrView *splitterOrView, bool enable);
     void updateMakeWritableWarning();
+    QString fileNameForEditor(IEditor *editor);
+    void setupSaveActions(IEditor *editor, QAction *saveAction, QAction *saveAsAction, QAction *revertToSavedAction);
 
     EditorManagerPrivate *d;
 

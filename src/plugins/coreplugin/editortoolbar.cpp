@@ -333,7 +333,7 @@ void EditorToolBar::listContextMenu(QPoint pos)
     QMenu menu;
     QAction *copyPath = menu.addAction(tr("Copy Full Path to Clipboard"));
     menu.addSeparator();
-    EditorManager::instance()->addCloseEditorActions(&menu, index);
+    EditorManager::instance()->addSaveAndCloseEditorActions(&menu, index);
     menu.addSeparator();
     EditorManager::instance()->addNativeDirActions(&menu, index);
     QAction *result = menu.exec(d->m_editorList->mapToGlobal(pos));

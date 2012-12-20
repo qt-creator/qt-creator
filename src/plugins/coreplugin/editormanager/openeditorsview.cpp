@@ -215,7 +215,7 @@ void OpenEditorsWidget::contextMenuRequested(QPoint pos)
 {
     QMenu contextMenu;
     QModelIndex editorIndex = indexAt(pos);
-    EditorManager::instance()->addCloseEditorActions(&contextMenu, editorIndex);
+    EditorManager::instance()->addSaveAndCloseEditorActions(&contextMenu, editorIndex);
     contextMenu.addSeparator();
     EditorManager::instance()->addNativeDirActions(&contextMenu, editorIndex);
     contextMenu.exec(mapToGlobal(pos));
