@@ -136,7 +136,6 @@ Q_SIGNALS:
     void modificationChanged(bool modified);
     void undoAvailable(bool);
     void redoAvailable(bool);
-    void copyAvailable(bool);
     void cursorPositionChanged(int position);
 
     void dataRequested(Core::IEditor *editor, quint64 block);

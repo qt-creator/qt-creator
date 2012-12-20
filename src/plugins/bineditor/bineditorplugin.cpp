@@ -508,7 +508,6 @@ void BinEditorPlugin::initializeEditor(BinEditor *editor)
 
     QObject::connect(editor, SIGNAL(undoAvailable(bool)), this, SLOT(updateActions()));
     QObject::connect(editor, SIGNAL(redoAvailable(bool)), this, SLOT(updateActions()));
-    QObject::connect(editor, SIGNAL(copyAvailable(bool)), this, SLOT(updateActions()));
 
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     BinEditorFind *binEditorFind = new BinEditorFind(editor);
@@ -570,8 +569,6 @@ void BinEditorPlugin::updateActions()
         m_undoAction->setEnabled(m_currentEditor && m_currentEditor->isUndoAvailable());
     if (m_redoAction)
         m_redoAction->setEnabled(m_currentEditor && m_currentEditor->isRedoAvailable());
-    if (m_copyAction)
-        m_copyAction->setEnabled(m_currentEditor && m_currentEditor->hasSelection());
 }
 
 void BinEditorPlugin::undoAction()
