@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "cpptoolsplugin.h"
+#include "CppDocument.h"
 #include "cppmodelmanager.h"
 #include "modelmanagertesthelper.h"
 
@@ -36,6 +37,7 @@
 
 using namespace CppTools::Internal;
 
+typedef CPlusPlus::Document Document;
 typedef CPlusPlus::CppModelManagerInterface::ProjectInfo ProjectInfo;
 typedef CPlusPlus::CppModelManagerInterface::ProjectPart ProjectPart;
 typedef ProjectExplorer::Project Project;
@@ -60,6 +62,11 @@ QString testIncludeDir(bool cleaned = true)
 QString testFrameworksDir(bool cleaned = true)
 {
     return testDataDir(QLatin1String("frameworks"), cleaned);
+}
+
+QString testSource(const QString &fileName)
+{
+    return testDataDir(QLatin1String("sources")) + fileName;
 }
 } // anonymous namespace
 
@@ -89,4 +96,43 @@ void CppToolsPlugin::test_modelmanager_paths()
     QStringList frameworkPaths = mm->frameworkPaths();
     QCOMPARE(frameworkPaths.size(), 1);
     QVERIFY(frameworkPaths.contains(testFrameworksDir()));
+}
+
+void CppToolsPlugin::test_modelmanager_framework_headers()
+{
+    ModelManagerTestHelper helper;
+    CppModelManager *mm = CppModelManager::instance();
+
+    Project *project = helper.createProject(QLatin1String("test_modelmanager_framework_headers"));
+    ProjectInfo pi = mm->projectInfo(project);
+    QCOMPARE(pi.project().data(), project);
+
+    ProjectPart::Ptr part(new ProjectPart);
+    pi.appendProjectPart(part);
+    part->language = ProjectPart::CXX;
+    part->qtVersion = ProjectPart::Qt5;
+    part->defines = QByteArray("#define OH_BEHAVE -1\n");
+    part->includePaths << testIncludeDir();
+    part->frameworkPaths << testFrameworksDir();
+    part->sourceFiles << testSource(QLatin1String("test_modelmanager_framework_headers.cpp"));
+
+    mm->updateProjectInfo(pi);
+    mm->updateSourceFiles(part->sourceFiles).waitForFinished();
+    QCoreApplication::processEvents();
+
+    QVERIFY(mm->snapshot().contains(part->sourceFiles.first()));
+    Document::Ptr doc = mm->snapshot().document(part->sourceFiles.first());
+    QVERIFY(!doc.isNull());
+    CPlusPlus::Namespace *ns = doc->globalNamespace();
+    QVERIFY(ns);
+    QVERIFY(ns->memberCount() > 0);
+    for (unsigned i = 0, ei = ns->memberCount(); i < ei; ++i) {
+        CPlusPlus::Symbol *s = ns->memberAt(i);
+        QVERIFY(s);
+        QVERIFY(s->name());
+        const CPlusPlus::Identifier *id = s->name()->asNameId();
+        QVERIFY(id);
+        QByteArray chars = id->chars();
+        QVERIFY(chars.startsWith("success"));
+    }
 }
