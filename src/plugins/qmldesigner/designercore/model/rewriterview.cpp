@@ -681,6 +681,26 @@ QString RewriterView::convertTypeToImportAlias(const QString &type) const
     return result;
 }
 
+QString RewriterView::pathForImport(const Import &import)
+{
+    if (scopeChain() && scopeChain()->context() && document()) {
+        const QString importStr = import.isFileImport() ? import.file() : import.url();
+        const QmlJS::Imports *imports = scopeChain()->context()->imports(document());
+
+        QmlJS::ImportInfo importInfo;
+
+        foreach (QmlJS::Import qmljsImport, imports->all()) {
+            if (qmljsImport.info.name() == importStr) {
+                importInfo = qmljsImport.info;
+            }
+        }
+        const QString importPath = importInfo.path();
+        return importPath;
+    }
+
+    return QString();
+}
+
 
 void RewriterView::qmlTextChanged()
 {

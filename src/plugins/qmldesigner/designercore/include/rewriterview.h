@@ -196,6 +196,8 @@ public:
     void setCheckSemanticErrors(bool b)
     { m_checkErrors = b; }
 
+    QString pathForImport(const Import &import);
+
 signals:
     void errorsChanged(const QList<RewriterView::Error> &errors);
 
