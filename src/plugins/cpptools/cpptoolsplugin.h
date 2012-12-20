@@ -113,6 +113,8 @@ private slots:
     void test_completion_instantiate_nested_class_when_enclosing_is_template();
     void test_completion_instantiate_nested_of_nested_class_when_enclosing_is_template();
 
+    void test_modelmanager_paths();
+
 private:
     void test_completion();
 #endif

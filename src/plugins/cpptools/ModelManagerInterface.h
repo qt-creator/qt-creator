@@ -168,6 +168,9 @@ public:
         QHashIterator<QString, QPair<QString, unsigned> > iterator() const
         { return QHashIterator<QString, QPair<QString, unsigned> >(_elements); }
 
+        int size() const
+        { return _elements.size(); }
+
     private:
         typedef QHash<QString, QPair<QString, unsigned> > Table;
         Table _elements;
