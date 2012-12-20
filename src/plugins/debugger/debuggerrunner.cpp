@@ -596,8 +596,6 @@ static bool fixupEngineTypes(DebuggerStartParameters &sp, RunConfiguration *rc, 
 DebuggerRunControl *DebuggerRunControlFactory::doCreate
     (const DebuggerStartParameters &sp0, RunConfiguration *rc, QString *errorMessage)
 {
-    Q_UNUSED(errorMessage);
-
     TaskHub *th = ProjectExplorerPlugin::instance()->taskHub();
     th->clearTasks(Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO));
     th->clearTasks(Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_TEST));
