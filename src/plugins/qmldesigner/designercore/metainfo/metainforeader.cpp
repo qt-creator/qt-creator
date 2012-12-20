@@ -55,11 +55,13 @@ MetaInfoReader::MetaInfoReader(const MetaInfo &metaInfo)
         : m_parserState(Undefined),
           m_metaInfo(metaInfo)
 {
+    m_overwriteDuplicates = false;
 }
 
-void MetaInfoReader::readMetaInfoFile(const QString &path)
+void MetaInfoReader::readMetaInfoFile(const QString &path, bool overwriteDuplicates)
 {
     m_documentPath = path;
+    m_overwriteDuplicates = overwriteDuplicates;
     m_parserState = ParsingDocument;
     if (!SimpleAbstractStreamReader::readFile(path)) {
         qWarning() << "readMetaInfoFile()" << path;
@@ -296,7 +298,7 @@ void MetaInfoReader::insertItemLibraryEntry()
     }
 
     try {
-        m_metaInfo.itemLibraryInfo()->addEntry(m_currentEntry);
+        m_metaInfo.itemLibraryInfo()->addEntry(m_currentEntry, m_overwriteDuplicates);
     } catch (InvalidMetaInfoException &) {
         addError(tr("Invalid or duplicate item library entry %1").arg(m_currentEntry.name()), currentSourceLocation());
     }

@@ -53,7 +53,7 @@ class MetaInfoReader : protected QmlJS::SimpleAbstractStreamReader
 public:
     MetaInfoReader(const MetaInfo &metaInfo);
 
-    void readMetaInfoFile(const QString &path);
+    void readMetaInfoFile(const QString &path, bool overwriteDuplicates = false);
 
 
     QStringList errors();
@@ -112,6 +112,8 @@ private:
     QString m_currentPropertyName;
     QString m_currentPropertyType;
     QVariant m_currentPropertyValue;
+
+    bool m_overwriteDuplicates;
 };
 
 }
