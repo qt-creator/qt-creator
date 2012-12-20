@@ -1755,6 +1755,14 @@ bool Model::hasImport(const Import &import, bool ignoreAlias, bool allowHigherVe
     return false;
 }
 
+QString Model::pathForImport(const Import &import)
+{
+    if (!rewriterView())
+        return QString();
+
+   return  rewriterView()->pathForImport(import);
+}
+
 RewriterView *Model::rewriterView() const
 {
     return d->rewriterView();

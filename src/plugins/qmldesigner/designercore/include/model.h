@@ -100,6 +100,7 @@ public:
     QList<Import> imports() const;
     void changeImports(const QList<Import> &importsToBeAdded, const QList<Import> &importsToBeRemoved);
     bool hasImport(const Import &import, bool ignoreAlias = true, bool allowHigherVersion = false);
+    QString pathForImport(const Import &import);
 
     RewriterView *rewriterView() const;
 
