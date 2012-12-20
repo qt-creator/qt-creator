@@ -69,6 +69,9 @@
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLabel" name="refreshIntervalLabel">
+       <property name="toolTip">
+        <string>Locator filters that do not update their cached data immediately, such as the custom directory filters, update it after this time interval.</string>
+       </property>
        <property name="text">
         <string>Refresh interval:</string>
        </property>
