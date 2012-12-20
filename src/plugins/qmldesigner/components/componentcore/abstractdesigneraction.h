@@ -50,6 +50,8 @@ public:
         LowestPriority = ComponentCoreConstants::priorityLast
     };
 
+    virtual ~AbstractDesignerAction() {}
+
     virtual QAction *action() const = 0;
     virtual QString category() const = 0;
     virtual QString menuId() const = 0;
