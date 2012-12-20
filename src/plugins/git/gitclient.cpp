@@ -2102,7 +2102,7 @@ bool GitClient::synchronousPullOrRebase(const QString &workingDirectory, const Q
     const bool ok = resp.result == Utils::SynchronousProcessResponse::Finished;
     if (ok)
         GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(workingDirectory);
-    else
+    else if (resp.stdOut.contains(QLatin1String("CONFLICT")))
         handleMergeConflicts(workingDirectory, rebase);
     return ok;
 }
