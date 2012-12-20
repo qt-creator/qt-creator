@@ -118,8 +118,7 @@ private slots:
     void selectedToolChainChanged(int index);
 
     void qtVersionsDumpUpdated(const Utils::FileName &qmakeCommand);
-    void handleInfoWidgetExpanded(bool expanded);
-    void handleDebuggingHelperExpanded(bool expanded);
+    void setInfoWidgetVisibility();
     void infoAnchorClicked(const QUrl &);
 
 private:

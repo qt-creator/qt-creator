@@ -62,6 +62,7 @@ enum ModelRoles { VersionIdRole = Qt::UserRole, ToolChainIdRole, BuildLogRole, B
 
 using namespace QtSupport;
 using namespace QtSupport::Internal;
+using namespace Utils;
 
 ///
 // QtOptionsPage
@@ -130,14 +131,14 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     connect(m_infoBrowser, SIGNAL(anchorClicked(QUrl)), this, SLOT(infoAnchorClicked(QUrl)));
     m_ui->infoWidget->setWidget(m_infoBrowser);
     connect(m_ui->infoWidget, SIGNAL(expanded(bool)),
-            this, SLOT(handleInfoWidgetExpanded(bool)));
+            this, SLOT(setInfoWidgetVisibility()));
 
     m_ui->versionInfoWidget->setWidget(versionInfoWidget);
     m_ui->versionInfoWidget->setState(Utils::DetailsWidget::NoSummary);
 
     m_ui->debuggingHelperWidget->setWidget(debuggingHelperDetailsWidget);
     connect(m_ui->debuggingHelperWidget, SIGNAL(expanded(bool)),
-            this, SLOT(handleDebuggingHelperExpanded(bool)));
+            this, SLOT(setInfoWidgetVisibility()));
 
     // setup parent items for auto-detected and manual versions
     m_ui->qtdirList->header()->setResizeMode(QHeaderView::ResizeToContents);
@@ -335,16 +336,12 @@ void QtOptionsPageWidget::qtVersionsDumpUpdated(const Utils::FileName &qmakeComm
     }
 }
 
-void QtOptionsPageWidget::handleInfoWidgetExpanded(bool expanded)
+void QtOptionsPageWidget::setInfoWidgetVisibility()
 {
-    m_ui->versionInfoWidget->setVisible(!expanded);
-    m_ui->debuggingHelperWidget->setVisible(!expanded);
-}
-
-void QtOptionsPageWidget::handleDebuggingHelperExpanded(bool expanded)
-{
-    m_ui->versionInfoWidget->setVisible(!expanded);
-    m_ui->infoWidget->setVisible(!expanded);
+    m_ui->versionInfoWidget->setVisible((m_ui->infoWidget->state() == DetailsWidget::Collapsed)
+                                        && (m_ui->debuggingHelperWidget->state() == DetailsWidget::Collapsed));
+    m_ui->infoWidget->setVisible(m_ui->debuggingHelperWidget->state() == DetailsWidget::Collapsed);
+    m_ui->debuggingHelperWidget->setVisible(m_ui->infoWidget->state() == DetailsWidget::Collapsed);
 }
 
 void QtOptionsPageWidget::infoAnchorClicked(const QUrl &url)
@@ -918,8 +915,7 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
 
         m_debuggingHelperUi->rebuildButton->setEnabled(canBuild && !isBuilding);
         m_debuggingHelperUi->toolChainComboBox->setEnabled(canBuild && !isBuilding);
-
-        m_ui->debuggingHelperWidget->setVisible(true);
+        setInfoWidgetVisibility();
     }
 }
 
@@ -967,12 +963,12 @@ void QtOptionsPageWidget::updateDescriptionLabel()
 
     if (version) {
         m_infoBrowser->setHtml(version->toHtml(true));
-        m_ui->versionInfoWidget->setVisible(true);
-        m_ui->infoWidget->setVisible(true);
+        setInfoWidgetVisibility();
     } else {
         m_infoBrowser->setHtml(QString());
         m_ui->versionInfoWidget->setVisible(false);
         m_ui->infoWidget->setVisible(false);
+        m_ui->debuggingHelperWidget->setVisible(false);
     }
 }
 
