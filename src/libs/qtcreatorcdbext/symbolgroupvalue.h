@@ -40,6 +40,7 @@
 class AbstractSymbolGroupNode;
 class SymbolGroupNode;
 class SymbolGroup;
+class MemoryHandle;
 
 struct SymbolGroupValueContext
 {
@@ -248,7 +249,11 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
                         std::wstring *s,
                         int *knownType = 0,
                         int *containerSizeIn = 0,
-                        void **specialInfoIn = 0);
+                        void **specialInfoIn = 0,
+                        MemoryHandle **memoryHandleIn = 0);
+
+bool dumpEditValue(const SymbolGroupNode *n, const SymbolGroupValueContext &,
+                   int desiredFormat, std::ostream &str);
 
 enum AssignEncoding
 {

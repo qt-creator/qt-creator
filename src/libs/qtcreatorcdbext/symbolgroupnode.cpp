@@ -327,7 +327,12 @@ int DumpParameters::format(const std::string &type, const std::string &iname) co
             return iit->second;
     }
     if (!typeFormats.empty()) {
-        const FormatMap::const_iterator tit = typeFormats.find(type);
+        // Strip 'struct' / 'class' prefixes and pointer types
+        // when called with a raw cdb types.
+        std::string stripped = SymbolGroupValue::stripClassPrefixes(type);
+        if (stripped != type)
+            stripped = SymbolGroupValue::stripPointerType(stripped);
+        const FormatMap::const_iterator tit = typeFormats.find(stripped);
         if (tit != typeFormats.end())
             return tit->second;
     }
@@ -589,13 +594,23 @@ SymbolGroupNode::SymbolGroupNode(SymbolGroup *symbolGroup,
                                  ULONG index,
                                  const std::string &module,
                                  const std::string &name,
-                                 const std::string &iname) :
-    BaseSymbolGroupNode(name, iname),
-    m_symbolGroup(symbolGroup),
-    m_module(module), m_index(index), m_dumperType(-1), m_dumperContainerSize(-1), m_dumperSpecialInfo(0)
+                                 const std::string &iname)
+    : BaseSymbolGroupNode(name, iname)
+    , m_symbolGroup(symbolGroup)
+    , m_module(module)
+    , m_index(index)
+    , m_dumperType(-1)
+    , m_dumperContainerSize(-1)
+    , m_dumperSpecialInfo(0)
+    , m_memory(0)
 {
     memset(&m_parameters, 0, sizeof(DEBUG_SYMBOL_PARAMETERS));
     m_parameters.ParentSymbol = DEBUG_ANY_ID;
+}
+
+SymbolGroupNode::~SymbolGroupNode()
+{
+    delete m_memory;
 }
 
 const SymbolGroupNode *SymbolGroupNode::symbolGroupNodeParent() const
@@ -1004,7 +1019,8 @@ bool SymbolGroupNode::runSimpleDumpers(const SymbolGroupValueContext &ctx)
     if (testFlags(SimpleDumperMask))
         return false;
     addFlags(dumpSimpleType(this , ctx, &m_dumperValue,
-                            &m_dumperType, &m_dumperContainerSize, &m_dumperSpecialInfo));
+                            &m_dumperType, &m_dumperContainerSize,
+                            &m_dumperSpecialInfo, &m_memory));
     if (symbolGroupDebug)
         DebugPrint() << "<SymbolGroupNode::runSimpleDumpers " << name() << " '"
                      << wStringToString(m_dumperValue) << "' Type="
@@ -1105,6 +1121,9 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
             base64Encode(str, reinterpret_cast<const unsigned char *>(value.c_str()), value.size() * sizeof(wchar_t));
             str << '"';
         }
+        const int format = dumpParameters.format(t, aFullIName);
+        if (format > 0)
+            dumpEditValue(this, ctx, format, str);
     }
     // Children: Dump all known non-obscured or subelements
     unsigned childCountGuess = 0;

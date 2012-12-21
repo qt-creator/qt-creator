@@ -27,6 +27,10 @@
 **
 ****************************************************************************/
 
+#ifndef _SCL_SECURE_NO_WARNINGS // silence std::string::copy
+# define _SCL_SECURE_NO_WARNINGS
+#endif
+
 #include "stringutils.h"
 
 #include <cctype>
@@ -285,12 +289,29 @@ void decodeHex(const char *p, const char *end, unsigned char *target)
     }
 }
 
-std::wstring dataToHexW(const unsigned char *p, const unsigned char *end)
+MemoryHandle *MemoryHandle::fromStdString(const std::string &s)
+{
+    const size_t size = s.size();
+    unsigned char *data = new unsigned char[size];
+    s.copy(reinterpret_cast<char *>(data), size);
+    return new MemoryHandle(data, size);
+}
+
+MemoryHandle *MemoryHandle::fromStdWString(const std::wstring &ws)
+{
+    const size_t size = ws.size();
+    wchar_t *data = new wchar_t[size];
+    ws.copy(data, size);
+    return new MemoryHandle(data, size);
+}
+
+template <class String>
+inline String dataToHexHelper(const unsigned char *p, const unsigned char *end)
 {
     if (p == end)
-        return std::wstring();
+        return String();
 
-    std::wstring rc;
+    String rc;
     rc.reserve(2 * (end - p));
     for ( ; p < end ; ++p) {
         const unsigned c = *p;
@@ -298,6 +319,16 @@ std::wstring dataToHexW(const unsigned char *p, const unsigned char *end)
         rc.push_back(toHexDigit(c &0xF));
     }
     return rc;
+}
+
+std::wstring dataToHexW(const unsigned char *p, const unsigned char *end)
+{
+    return dataToHexHelper<std::wstring>(p, end);
+}
+
+std::string dataToHex(const unsigned char *p, const unsigned char *end)
+{
+    return dataToHexHelper<std::string>(p, end);
 }
 
 // Readable hex: '0xAA 0xBB'..

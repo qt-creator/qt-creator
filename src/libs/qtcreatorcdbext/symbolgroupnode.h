@@ -45,6 +45,7 @@ class SymbolGroupNodeVisitor;
 class SymbolGroup;
 struct SymbolGroupValueContext;
 class SymbolGroupNode;
+class MemoryHandle;
 
 // Helper struct used for check results when recoding CDB char pointer output.
 struct DumpParameterRecodeResult
@@ -214,6 +215,8 @@ public:
         WatchNode = 0x100
     };
 
+    ~SymbolGroupNode();
+
     typedef std::vector<DEBUG_SYMBOL_PARAMETERS> SymbolParameterVector;
 
     void parseParameters(SymbolParameterVector::size_type index,
@@ -268,6 +271,8 @@ public:
     ULONG subElements() const { return m_parameters.SubElements; }
     ULONG index() const { return m_index; }
 
+    MemoryHandle *memory() const { return m_memory; }
+
     virtual SymbolGroupNode *asSymbolGroupNode() { return this; }
     virtual const SymbolGroupNode *asSymbolGroupNode() const { return this; }
 
@@ -296,6 +301,7 @@ private:
     int m_dumperType;
     int m_dumperContainerSize;
     void *m_dumperSpecialInfo; // Opaque information passed from simple to complex dumpers
+    MemoryHandle *m_memory; // Memory shared between simple dumper and edit value.
 };
 
 class ReferenceSymbolGroupNode : public AbstractSymbolGroupNode

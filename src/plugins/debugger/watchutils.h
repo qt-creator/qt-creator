@@ -83,7 +83,7 @@ enum DebuggerEncoding
     Hex2EncodedFloat8                      = 26
 };
 
-// Keep in sync with dumper.py
+// Keep in sync with dumper.py, symbolgroupvalue.cpp of CDB
 enum DebuggerDisplay {
     StopDisplay                            = 0,
     DisplayImageData                       = 1,

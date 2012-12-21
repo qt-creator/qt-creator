@@ -1546,7 +1546,8 @@ bool readQt5StringData(const SymbolGroupValue &dV, int qtMajorVersion,
     return true;
 }
 
-static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str)
+static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str,
+                               MemoryHandle **memoryHandle = 0)
 {
     const QtInfo &qtInfo = QtInfo::get(v.context());
     const SymbolGroupValue dV = v["d"];
@@ -1557,7 +1558,10 @@ static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str)
         if (const SymbolGroupValue sizeValue = dV["size"]) {
             const int size = sizeValue.intValue();
             if (size >= 0) {
-                str << L'"' << dV["data"].wcharPointerData(size) << L'"';
+                const std::wstring stringData = dV["data"].wcharPointerData(size);
+                str << L'"' << stringData << L'"';
+                if (memoryHandle)
+                    *memoryHandle = MemoryHandle::fromStdWString(stringData);
                 return true;
             }
         }
@@ -1581,7 +1585,11 @@ static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str)
     } else {
         str << L"\"\"";
     }
-    delete [] memory;
+    if (memoryHandle)  {
+        *memoryHandle = new MemoryHandle(memory, size);
+    } else {
+        delete [] memory;
+    }
     return true;
 }
 
@@ -1634,7 +1642,8 @@ static unsigned qAtomicIntSize(const SymbolGroupValueContext &ctx)
 }
 
 // Dump a QByteArray
-static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str)
+static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str,
+                                  MemoryHandle **memoryHandle = 0)
 {
     const QtInfo &qtInfo = QtInfo::get(v.context());
     const SymbolGroupValue dV = v["d"];
@@ -1682,7 +1691,11 @@ static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str)
     } else {
         str << L"<empty>";
     }
-    delete [] memory;
+    if (memoryHandle) {
+        *memoryHandle = new MemoryHandle(reinterpret_cast<unsigned char *>(memory), size);
+    } else {
+        delete [] memory;
+    }
     return true;
 }
 
@@ -2441,7 +2454,8 @@ static inline bool dumpQSharedPointer(const SymbolGroupValue &v, std::wostream &
 unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
                         std::wstring *s, int *knownTypeIn /* = 0 */,
                         int *containerSizeIn /* = 0 */,
-                        void **specialInfoIn /* = 0 */)
+                        void **specialInfoIn /* = 0 */,
+                        MemoryHandle **memoryHandleIn /* = 0 */)
 {
     QTC_TRACE_IN
     if (containerSizeIn)
@@ -2491,7 +2505,7 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
         rc = dumpQChar(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QByteArray:
-        rc = dumpQByteArray(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        rc = dumpQByteArray(v, str, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QFileInfo:
         rc = dumpQFileInfo(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
@@ -2518,7 +2532,7 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
         rc = dumpQScriptValue(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QString:
-        rc = dumpQString(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        rc = dumpQString(v, str, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QColor:
         rc = dumpQColor(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
@@ -2592,6 +2606,51 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
         dp << "] returns " << rc;
     }
     return rc;
+}
+
+static inline void formatEditValue(int displayFormat, const MemoryHandle *mh, std::ostream &str)
+{
+    str << "editformat=\"" << displayFormat << "\",editvalue=\""
+        << mh->toHex() << "\",";
+}
+
+bool dumpEditValue(const SymbolGroupNode *n, const SymbolGroupValueContext &,
+                   int desiredFormat, std::ostream &str)
+{
+    // Keep in sync watchhandler.cpp/showEditValue(), dumper.py.
+    enum DebuggerEditFormats {
+        DisplayImageData                       = 1,
+        DisplayUtf16String                     = 2,
+        DisplayImageFile                       = 3,
+        DisplayProcess                         = 4,
+        DisplayLatin1String                    = 5,
+        DisplayUtf8String                      = 6
+    };
+
+    enum Formats {
+        NormalFormat = 0,
+        StringSeparateWindow = 1 // corresponds to menu index.
+    };
+
+    if (desiredFormat <= 0)
+        return true;
+
+    if (SymbolGroupValue::verbose)
+        DebugPrint() << __FUNCTION__ << ' ' << n->name() << '/' << desiredFormat;
+
+    switch (n->dumperType()) {
+    case KT_QString:
+        if (desiredFormat == StringSeparateWindow)
+            if (const MemoryHandle *mh = n->memory())
+                formatEditValue(DisplayUtf16String, mh, str);
+        break;
+    case KT_QByteArray:
+        if (desiredFormat == StringSeparateWindow)
+            if (const MemoryHandle *mh = n->memory())
+                formatEditValue(DisplayLatin1String, mh, str);
+        break;
+    }
+    return true;
 }
 
 // Dump of QByteArray: Display as an array of unsigned chars.

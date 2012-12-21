@@ -188,8 +188,40 @@ std::string stringFromHex(const char *begin, const char *end);
 void decodeHex(const char *begin, const char *end, unsigned char *target);
 
 std::wstring dataToHexW(const unsigned char *begin, const unsigned char *end);
+std::string dataToHex(const unsigned char *begin, const unsigned char *end);
 // Create readable hex: '0xAA 0xBB'..
 std::wstring dataToReadableHexW(const unsigned char *begin, const unsigned char *end);
+
+// Flat memory handle to pass allocated memory around.
+class MemoryHandle {
+    MemoryHandle(const MemoryHandle &);
+    MemoryHandle& operator=(const MemoryHandle &);
+
+public:
+    explicit MemoryHandle(const unsigned char *memory, size_t size) : m_size(size), m_memory(memory) {}
+    explicit MemoryHandle(const wchar_t *wcharData, size_t size) :
+                 m_size(size * sizeof(wchar_t)),
+                 m_memory(reinterpret_cast<const unsigned char *>(wcharData)) {}
+
+    static MemoryHandle* fromStdString(const std::string &s);
+    static MemoryHandle* fromStdWString(const std::wstring &s);
+
+    ~MemoryHandle() { delete [] m_memory; }
+
+    size_t size() const { return m_size; }
+    const unsigned char *data() const { return m_memory; }
+    const unsigned char *begin() const { return m_memory; }
+    const unsigned char *end() const { return m_memory + m_size; }
+
+    std::string dump(bool wantQuotes) const { return dumpMemory(begin(), m_size, wantQuotes); }
+    std::wstring toHexW() const { return dataToHexW(begin(), end()); }
+    std::string toHex() const { return dataToHex(begin(), end()); }
+    std::wstring toReadableHexW() const { return dataToReadableHexW(begin(), end()); }
+
+private:
+    const size_t m_size;
+    const unsigned char *m_memory;
+};
 
 // Format a map as a GDBMI hash {key="value",..}
 void formatGdbmiHash(std::ostream &os, const std::map<std::string, std::string> &, bool closeHash = true);

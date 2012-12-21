@@ -625,6 +625,13 @@ void CdbEngine::setupEngine()
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupFailed")
         notifyEngineSetupFailed();
     }
+    const QStringList stringFormats = QStringList()
+        << tr("Normal") << tr("Separate Window");
+    WatchHandler *wh = watchHandler();
+    wh->addTypeFormats("QString", stringFormats);
+    wh->addTypeFormats("QString *", stringFormats);
+    wh->addTypeFormats("QByteArray", stringFormats);
+    wh->addTypeFormats("QByteArray *", stringFormats);
 }
 
 bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessage)

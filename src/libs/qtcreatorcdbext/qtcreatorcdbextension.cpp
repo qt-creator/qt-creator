@@ -275,7 +275,7 @@ extern "C" HRESULT CALLBACK pid(CIDebugClient *client, PCSTR args)
 
     int token;
     commandTokens<StringList>(args, &token);
-    dprintf("Qt Creator CDB extension version 2.6.1 (Qt 5 support) %d bit built %s.\n",
+    dprintf("Qt Creator CDB extension version 2.7 (Qt 5 support) %d bit built %s.\n",
             sizeof(void *) * 8, __DATE__);
     if (const ULONG pid = currentProcessId(client)) {
         ExtensionContext::instance().report('R', token, 0, "pid", "%u", pid);
