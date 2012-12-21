@@ -216,6 +216,12 @@ public:
         *m_output = m_pp.run(fileName, src, nolines, true);
     }
 
+    virtual void markAsIncludeGuard(const QByteArray &macroName)
+    { m_includeGuardMacro = macroName; }
+
+    QByteArray includeGuard() const
+    { return m_includeGuardMacro; }
+
     QList<Block> skippedBlocks() const
     { return m_skippedBlocks; }
 
@@ -246,6 +252,7 @@ private:
     Preprocessor m_pp;
     QList<QDir> m_includePaths;
     unsigned m_includeDepth;
+    QByteArray m_includeGuardMacro;
     QList<Block> m_skippedBlocks;
     QList<Include> m_recordedIncludes;
     QList<QByteArray> m_expandedMacros;
@@ -340,6 +347,8 @@ private slots:
     void multiline_strings_data();
     void skip_unknown_directives();
     void skip_unknown_directives_data();
+    void include_guard();
+    void include_guard_data();
 };
 
 // Remove all #... lines, and 'simplify' string, to allow easily comparing the result
@@ -1479,6 +1488,88 @@ void tst_Preprocessor::skip_unknown_directives_data()
                "#\n";
     expected = "# 1 \"<stdin>\"\n";
     QTest::newRow("case 1") << original << expected;
+}
+
+void tst_Preprocessor::include_guard()
+{
+    QFETCH(QString, includeGuard);
+    QFETCH(QString, input);
+
+    QByteArray output;
+    Environment env;
+    MockClient client(&env, &output);
+    Preprocessor preprocess(&client, &env);
+    preprocess.setKeepComments(true);
+    /*QByteArray prep =*/ preprocess.run(QLatin1String("<test-case>"), input);
+    QCOMPARE(QString::fromUtf8(client.includeGuard()), includeGuard);
+}
+
+void tst_Preprocessor::include_guard_data()
+{
+    QTest::addColumn<QString>("includeGuard");
+    QTest::addColumn<QString>("input");
+
+    QTest::newRow("basic-test") << "BASIC_TEST"
+                                << "#ifndef BASIC_TEST\n"
+                                   "#define BASIC_TEST\n"
+                                   "\n"
+                                   "#endif // BASIC_TEST\n";
+    QTest::newRow("comments-1") << "GUARD"
+                                << "/* some\n"
+                                   " * copyright\n"
+                                   " * header.\n"
+                                   " */\n"
+                                   "#ifndef GUARD\n"
+                                   "#define GUARD\n"
+                                   "\n"
+                                   "#endif // GUARD\n";
+    QTest::newRow("comments-2") << "GUARD"
+                                << "#ifndef GUARD\n"
+                                   "#define GUARD\n"
+                                   "\n"
+                                   "#endif // GUARD\n"
+                                   "/* some\n"
+                                   " * trailing\n"
+                                   " * comments.\n"
+                                   " */\n"
+                                   ;
+    QTest::newRow("nested-ifdef") << "GUARD"
+                                  << "#ifndef GUARD\n"
+                                     "#define GUARD\n"
+                                     "#ifndef NOT_GUARD\n"
+                                     "#define NOT_GUARD\n"
+                                     "#endif // NOT_GUARD\n"
+                                     "\n"
+                                     "#endif // GUARD\n"
+                                     ;
+    QTest::newRow("leading-tokens") << ""
+                                    << "int i;\n"
+                                       "#ifndef GUARD\n"
+                                       "#define GUARD\n"
+                                       "\n"
+                                       "#endif // GUARD\n"
+                                       ;
+    QTest::newRow("trailing-tokens") << ""
+                                     << "#ifndef GUARD\n"
+                                        "#define GUARD\n"
+                                        "\n"
+                                        "#endif // GUARD\n"
+                                        "int i;\n"
+                                        ;
+    QTest::newRow("surprising-but-correct") << "GUARD"
+                                            << "#ifndef GUARD\n"
+                                               "int i;\n"
+                                               "\n"
+                                               "#define GUARD\n"
+                                               "#endif // GUARD\n"
+                                               ;
+    QTest::newRow("incomplete-1") << ""
+                                  << "#ifndef GUARD\n"
+                                     ;
+    QTest::newRow("incomplete-2") << "GUARD"
+                                  << "#ifndef GUARD\n"
+                                     "#define GUARD\n"
+                                     ;
 }
 
 void tst_Preprocessor::compare_input_output(bool keepComments)

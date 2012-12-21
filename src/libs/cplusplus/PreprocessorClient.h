@@ -90,6 +90,9 @@ public:
                                             = QVector<MacroArgumentReference>()) = 0;
   virtual void stopExpandingMacro(unsigned offset, const Macro &macro) = 0;
 
+  /// Mark the given macro name as the include guard for the current file.
+  virtual void markAsIncludeGuard(const QByteArray &macroName) = 0;
+
   /// Start skipping from the given offset.
   virtual void startSkippingBlocks(unsigned offset) = 0;
   virtual void stopSkippingBlocks(unsigned offset) = 0;

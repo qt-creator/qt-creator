@@ -499,6 +499,14 @@ void CppPreprocessor::stopExpandingMacro(unsigned, const Macro &)
     //qDebug() << "stop expanding:" << macro.name;
 }
 
+void CppPreprocessor::markAsIncludeGuard(const QByteArray &macroName)
+{
+    if (!m_currentDoc)
+        return;
+
+    m_currentDoc->setIncludeGuardMacroName(macroName);
+}
+
 void CppPreprocessor::mergeEnvironment(Document::Ptr doc)
 {
     if (! doc)

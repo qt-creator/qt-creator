@@ -296,6 +296,7 @@ protected:
                                      const CPlusPlus::Macro &macro,
                                      const QVector<CPlusPlus::MacroArgumentReference> &actuals);
     virtual void stopExpandingMacro(unsigned offset, const CPlusPlus::Macro &macro);
+    virtual void markAsIncludeGuard(const QByteArray &macroName);
     virtual void startSkippingBlocks(unsigned offset);
     virtual void stopSkippingBlocks(unsigned offset);
     virtual void sourceNeeded(unsigned line, QString &fileName, IncludeType type);

@@ -81,7 +81,8 @@ public:
     Preprocessor(Client *client, Environment *env);
 
     QByteArray run(const QString &filename, const QString &source);
-    QByteArray run(const QString &filename, const QByteArray &source, bool noLines = false, bool markGeneratedTokens = true);
+    QByteArray run(const QString &filename, const QByteArray &source,
+                   bool noLines = false, bool markGeneratedTokens = true);
 
     bool expandFunctionlikeMacros() const;
     void setExpandFunctionlikeMacros(bool expandFunctionlikeMacros);
@@ -90,9 +91,9 @@ public:
     void setKeepComments(bool keepComments);
 
 private:
-    void preprocess(const QString &filename,
-                    const QByteArray &source,
-                    QByteArray *result, bool noLines, bool markGeneratedTokens, bool inCondition,
+    void preprocess(const QString &filename, const QByteArray &source,
+                    QByteArray *result, QByteArray *includeGuardMacroName,
+                    bool noLines, bool markGeneratedTokens, bool inCondition,
                     unsigned offsetRef = 0, unsigned lineRef = 1);
 
     enum { MAX_LEVEL = 512 };
@@ -133,6 +134,61 @@ private:
         ExpansionStatus m_expansionStatus;
         QByteArray m_expansionResult;
         QVector<QPair<unsigned, unsigned> > m_expandedTokensInfo;
+
+        enum {
+            /// State to indicate that no guard is possible anymore.
+            IncludeGuardState_NoGuard = 0,
+            /// Initial state before the first non-comment token.
+            IncludeGuardState_BeforeIfndef,
+            /// State to indicate that the first interesting token was a
+            /// #ifndef token.
+            IncludeGuardState_AfterIfndef,
+            /// State to indicate that the only interesting tokens were
+            /// a #ifndef and a #define .
+            IncludeGuardState_AfterDefine,
+            /// State for after reading the #endif belonging to the #ifndef
+            IncludeGuardState_AfterEndif
+        } m_includeGuardState;
+        QByteArray m_includeGuardMacroName;
+
+        enum IncludeGuardStateHint {
+            /// anything that is not a comment, a #ifndef, a #define, or a
+            /// #endif
+            IncludeGuardStateHint_OtherToken = 0,
+            /// we hit a #ifndef
+            IncludeGuardStateHint_Ifndef,
+            /// we hit a #define
+            IncludeGuardStateHint_Define,
+            /// we hit a #endif
+            IncludeGuardStateHint_Endif
+        };
+
+        /// Update the include-guard state.
+        ///
+        /// \param hint indicates what kind of token is encountered in the input
+        /// \param idToken the identifier token that ought to be in the input
+        ///        after a #ifndef or a #define .
+        inline void updateIncludeGuardState(IncludeGuardStateHint hint,
+                                            PPToken *idToken = 0)
+        {
+            // some quick checks for the majority of the uninteresting cases:
+            if (m_includeGuardState == IncludeGuardState_NoGuard)
+                return; // no valid guard is possible
+            if (m_includeGuardState == IncludeGuardState_AfterDefine
+                    && hint == IncludeGuardStateHint_OtherToken)
+                return; // after the #define of the guard, and before the
+                        // #endif, any non-endif token won't change the state
+            if (m_inCondition)
+                return; // include guards can never occur in pp-conditions
+
+            updateIncludeGuardState_helper(hint, idToken);
+        }
+
+    private:
+#ifdef DEBUG_INCLUDE_GUARD_TRACKING
+        static QString guardStateToString(int guardState);
+#endif // DEBUG_INCLUDE_GUARD_TRACKING
+        void updateIncludeGuardState_helper(IncludeGuardStateHint hint, PPToken *idToken);
     };
 
     void handleDefined(PPToken *tk);

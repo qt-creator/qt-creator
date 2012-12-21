@@ -80,6 +80,7 @@ enum {
 }
 
 namespace {
+/// RAII object to save a value, and restore it when the scope is left.
 template<typename _T>
 class ScopedSwap
 {
@@ -100,7 +101,6 @@ public:
     }
 };
 typedef ScopedSwap<bool> ScopedBoolSwap;
-typedef ScopedSwap<unsigned> ScopedUnsignedSwap;
 } // anonymous namespace
 
 namespace CPlusPlus {
@@ -557,6 +557,7 @@ Preprocessor::State::State()
     , m_offsetRef(0)
     , m_lineRef(1)
     , m_expansionStatus(NotExpanding)
+    , m_includeGuardState(IncludeGuardState_BeforeIfndef)
 {
     m_skipping[m_ifLevel] = false;
     m_trueTest[m_ifLevel] = false;
@@ -596,6 +597,88 @@ void Preprocessor::State::popTokenBuffer()
         --m_tokenBufferDepth;
 }
 
+#ifdef DEBUG_INCLUDE_GUARD_TRACKING
+QString Preprocessor::State::guardStateToString(int guardState)
+{
+    switch (guardState) {
+    case IncludeGuardState_NoGuard: return QLatin1String("NoGuard");
+    case IncludeGuardState_BeforeIfndef: return QLatin1String("BeforeIfndef");
+    case IncludeGuardState_AfterIfndef: return QLatin1String("AfterIfndef");
+    case IncludeGuardState_AfterDefine: return QLatin1String("AfterDefine");
+    case IncludeGuardState_AfterEndif: return QLatin1String("AfterEndif");
+    default: return QLatin1String("UNKNOWN");
+    }
+}
+#endif // DEBUG_INCLUDE_GUARD_TRACKING
+
+/**
+ * @brief Update the include-guard tracking state.
+ *
+ * Include guards are the #ifdef/#define/#endif sequence typically found in
+ * header files to prevent repeated definition of the contents of that header
+ * file. So, for a file to have an include guard, it must look like this:
+ * \code
+ * #ifndef SOME_ID
+ * ... all declarations/definitions/etc. go here ...
+ * #endif
+ * \endcode
+ *
+ * SOME_ID is an identifier, and is also the include guard. The only tokens
+ * allowed before the #ifndef and after the #endif are comments (in any form)
+ * or #line directives. The only other requirement is that a #define SOME_ID
+ * occurs inside the #ifndef block, but not nested inside other
+ * #if/#ifdef/#ifndef blocks.
+ *
+ * This method tracks the state, and is called from \c updateIncludeGuardState
+ * which handles the most common no-op cases.
+ *
+ * @param hint indicates what kind of token is encountered in the input
+ * @param idToken the identifier token that ought to be in the input
+ *        after a #ifndef or a #define .
+ */
+void Preprocessor::State::updateIncludeGuardState_helper(IncludeGuardStateHint hint, PPToken *idToken)
+{
+#ifdef DEBUG_INCLUDE_GUARD_TRACKING
+    int oldIncludeGuardState = m_includeGuardState;
+    QByteArray oldIncludeGuardMacroName = m_includeGuardMacroName;
+#endif // DEBUG_INCLUDE_GUARD_TRACKING
+
+    switch (m_includeGuardState) {
+    case IncludeGuardState_NoGuard:
+        break;
+    case IncludeGuardState_BeforeIfndef:
+        if (hint == IncludeGuardStateHint_Ifndef
+                && idToken && idToken->is(T_IDENTIFIER)) {
+            m_includeGuardMacroName = idToken->asByteArrayRef().toByteArray();
+            m_includeGuardState = IncludeGuardState_AfterIfndef;
+        } else {
+            m_includeGuardState = IncludeGuardState_NoGuard;
+        }
+        break;
+    case IncludeGuardState_AfterIfndef:
+        if (hint == IncludeGuardStateHint_Define
+                && idToken && idToken->is(T_IDENTIFIER)
+                && idToken->asByteArrayRef() == m_includeGuardMacroName)
+            m_includeGuardState = IncludeGuardState_AfterDefine;
+        break;
+    case IncludeGuardState_AfterDefine:
+        if (hint == IncludeGuardStateHint_Endif)
+            m_includeGuardState = IncludeGuardState_AfterEndif;
+        break;
+    case IncludeGuardState_AfterEndif:
+        m_includeGuardState = IncludeGuardState_NoGuard;
+        m_includeGuardMacroName.clear();
+        break;
+    }
+
+#ifdef DEBUG_INCLUDE_GUARD_TRACKING
+    qDebug() << "***" << guardStateToString(oldIncludeGuardState)
+             << "->" << guardStateToString(m_includeGuardState)
+             << "hint:" << hint
+             << "guard:" << oldIncludeGuardMacroName << "->" << m_includeGuardMacroName;
+#endif // DEBUG_INCLUDE_GUARD_TRACKING
+}
+
 const QString Preprocessor::configurationFileName = QLatin1String("<configuration>");
 
 Preprocessor::Preprocessor(Client *client, Environment *env)
@@ -618,8 +701,11 @@ QByteArray Preprocessor::run(const QString &fileName,
 {
     m_scratchBuffer.clear();
 
-    QByteArray preprocessed;
-    preprocess(fileName, source, &preprocessed, noLines, markGeneratedTokens, false);
+    QByteArray preprocessed, includeGuardMacroName;
+    preprocess(fileName, source, &preprocessed, &includeGuardMacroName, noLines,
+               markGeneratedTokens, false);
+    if (!includeGuardMacroName.isEmpty())
+        m_client->markAsIncludeGuard(includeGuardMacroName);
     return preprocessed;
 }
 
@@ -736,6 +822,7 @@ _Lclassify:
             } while (isContinuationToken(*tk));
             goto _Lclassify;
         } else if (tk->is(T_IDENTIFIER) && !isQtReservedWord(tk->asByteArrayRef())) {
+            m_state.updateIncludeGuardState(State::IncludeGuardStateHint_OtherToken);
             if (m_state.m_inCondition && tk->asByteArrayRef() == "defined") {
                 handleDefined(tk);
             } else {
@@ -743,6 +830,8 @@ _Lclassify:
                 if (handleIdentifier(tk))
                     goto _Lagain;
             }
+        } else if (tk->isNot(T_COMMENT) && tk->isNot(T_EOF_SYMBOL)) {
+            m_state.updateIncludeGuardState(State::IncludeGuardStateHint_OtherToken);
         }
     }
 }
@@ -1244,15 +1333,15 @@ void Preprocessor::enforceSpacing(const Preprocessor::PPToken &tk, bool forceSpa
 
 /// invalid pp-tokens are used as markers to force whitespace checks.
 void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
-                              QByteArray *result, bool noLines,
+                              QByteArray *result, QByteArray *includeGuardMacroName,
+                              bool noLines,
                               bool markGeneratedTokens, bool inCondition,
                               unsigned offsetRef, unsigned lineRef)
 {
     if (source.isEmpty())
         return;
 
-    const State savedState = m_state;
-    m_state = State();
+    ScopedSwap<State> savedState(m_state, State());
     m_state.m_currentFileName = fileName;
     m_state.m_source = source;
     m_state.m_lexer = new Lexer(source.constBegin(), source.constEnd());
@@ -1267,12 +1356,9 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
     m_state.m_offsetRef = offsetRef;
     m_state.m_lineRef = lineRef;
 
-    const QString previousFileName = m_env->currentFile;
-    m_env->currentFile = fileName;
-    m_env->currentFileUtf8 = fileName.toUtf8();
-
-    const unsigned previousCurrentLine = m_env->currentLine;
-    m_env->currentLine = 1;
+    ScopedSwap<QString> savedFileName(m_env->currentFile, fileName);
+    ScopedSwap<QByteArray> savedUtf8FileName(m_env->currentFileUtf8, fileName.toUtf8());
+    ScopedSwap<unsigned> savedCurrentLine(m_env->currentLine, 1);
 
     if (!m_state.m_noLines)
         generateOutputLineMarker(1);
@@ -1313,14 +1399,14 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
 
     removeTrailingOutputLines();
 
+    if (includeGuardMacroName) {
+        if (m_state.m_includeGuardState == State::IncludeGuardState_AfterDefine
+                || m_state.m_includeGuardState == State::IncludeGuardState_AfterEndif)
+            *includeGuardMacroName = m_state.m_includeGuardMacroName;
+    }
     delete m_state.m_lexer;
     while (m_state.m_tokenBuffer)
         m_state.popTokenBuffer();
-    m_state = savedState;
-
-    m_env->currentFile = previousFileName;
-    m_env->currentFileUtf8 = previousFileName.toUtf8();
-    m_env->currentLine = previousCurrentLine;
 }
 
 bool Preprocessor::collectActualArguments(PPToken *tk, QVector<QVector<PPToken> > *actuals)
@@ -1426,27 +1512,31 @@ void Preprocessor::handlePreprocessorDirective(PPToken *tk)
     if (tk->is(T_IDENTIFIER)) {
         const ByteArrayRef directive = tk->asByteArrayRef();
 
-        if (!skipping() && directive == ppDefine)
+        if (!skipping() && directive == ppDefine) {
             handleDefineDirective(tk);
-        else if (!skipping() && directive == ppUndef)
-            handleUndefDirective(tk);
-        else if (!skipping() && (directive == ppInclude
-                                 || directive == ppImport))
-            handleIncludeDirective(tk, false);
-        else if (!skipping() && directive == ppIncludeNext)
-            handleIncludeDirective(tk, true);
-        else if (directive == ppIf)
-            handleIfDirective(tk);
-        else if (directive == ppIfDef)
-            handleIfDefDirective(false, tk);
-        else if (directive == ppIfNDef)
+        } else if (directive == ppIfNDef) {
             handleIfDefDirective(true, tk);
-        else if (directive == ppEndIf)
+        } else if (directive == ppEndIf) {
             handleEndIfDirective(tk, poundToken);
-        else if (directive == ppElse)
-            handleElseDirective(tk, poundToken);
-        else if (directive == ppElif)
-            handleElifDirective(tk, poundToken);
+        } else {
+            m_state.updateIncludeGuardState(State::IncludeGuardStateHint_OtherToken);
+
+            if (!skipping() && directive == ppUndef)
+                handleUndefDirective(tk);
+            else if (!skipping() && (directive == ppInclude
+                                    || directive == ppImport))
+                handleIncludeDirective(tk, false);
+            else if (!skipping() && directive == ppIncludeNext)
+                handleIncludeDirective(tk, true);
+            else if (directive == ppIf)
+                handleIfDirective(tk);
+            else if (directive == ppIfDef)
+                handleIfDefDirective(false, tk);
+            else if (directive == ppElse)
+                handleElseDirective(tk, poundToken);
+            else if (directive == ppElif)
+                handleElifDirective(tk, poundToken);
+        }
     }
 
     skipPreprocesorDirective(tk);
@@ -1506,6 +1596,8 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
     macro.setName(macroName);
     macro.setOffset(tk->offset);
 
+    PPToken idToken(*tk);
+
     lex(tk);
 
     if (isContinuationToken(*tk) && tk->is(T_LPAREN) && ! tk->whitespace()) {
@@ -1540,6 +1632,9 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
         }
         if (isContinuationToken(*tk) && tk->is(T_RPAREN))
             lex(tk); // consume ")" token
+    } else {
+        if (m_state.m_ifLevel == 1)
+            m_state.updateIncludeGuardState(State::IncludeGuardStateHint_Define, &idToken);
     }
 
     QVector<PPToken> bodyTokens;
@@ -1636,7 +1731,7 @@ QByteArray Preprocessor::expand(PPToken *tk, PPToken *lastConditionToken)
 //    qDebug("*** Condition before: [%s]", condition.constData());
     QByteArray result;
     result.reserve(256);
-    preprocess(m_state.m_currentFileName, condition, &result, true, false, true, begin, line);
+    preprocess(m_state.m_currentFileName, condition, &result, 0, true, false, true, begin, line);
     result.squeeze();
 //    qDebug("*** Condition after: [%s]", result.constData());
 
@@ -1757,6 +1852,9 @@ void Preprocessor::handleEndIfDirective(PPToken *tk, const PPToken &poundToken)
         --m_state.m_ifLevel;
         if (m_client && wasSkipping && !m_state.m_skipping[m_state.m_ifLevel])
             m_client->stopSkippingBlocks(poundToken.offset - 1);
+
+        if (m_state.m_ifLevel == 0)
+            m_state.updateIncludeGuardState(State::IncludeGuardStateHint_Endif);
     }
 
     lex(tk); // consume "endif" token
@@ -1768,6 +1866,9 @@ void Preprocessor::handleIfDefDirective(bool checkUndefined, PPToken *tk)
 
     lex(tk); // consume "ifdef" token
     if (tk->is(T_IDENTIFIER)) {
+        if (checkUndefined && m_state.m_ifLevel == 0)
+            m_state.updateIncludeGuardState(State::IncludeGuardStateHint_Ifndef, tk);
+
         bool value = false;
         const ByteArrayRef macroName = tk->asByteArrayRef();
         if (Macro *macro = macroDefinition(macroName, tk->offset, tk->lineno, m_env, m_client)) {

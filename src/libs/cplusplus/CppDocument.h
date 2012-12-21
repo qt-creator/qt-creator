@@ -312,6 +312,11 @@ public:
     QList<UndefinedMacroUse> undefinedMacroUses() const
     { return _undefinedMacroUses; }
 
+    void setIncludeGuardMacroName(const QByteArray &includeGuardMacroName)
+    { _includeGuardMacroName = includeGuardMacroName; }
+    QByteArray includeGuardMacroName() const
+    { return _includeGuardMacroName; }
+
     const Macro *findMacroDefinitionAt(unsigned line) const;
     const MacroUse *findMacroUseAt(unsigned offset) const;
     const UndefinedMacroUse *findUndefinedMacroUseAt(unsigned offset) const;
@@ -327,12 +332,19 @@ private:
     Control *_control;
     TranslationUnit *_translationUnit;
     Namespace *_globalNamespace;
+
+    /// All messages generated during lexical/syntactic/semantic analysis.
     QList<DiagnosticMessage> _diagnosticMessages;
+
     QList<Include> _includes;
     QList<Macro> _definedMacros;
     QList<Block> _skippedBlocks;
     QList<MacroUse> _macroUses;
     QList<UndefinedMacroUse> _undefinedMacroUses;
+
+     /// the macro name of the include guard, if there is one.
+    QByteArray _includeGuardMacroName;
+
     QByteArray _source;
     QDateTime _lastModified;
     QAtomicInt _keepSourceAndASTCount;
