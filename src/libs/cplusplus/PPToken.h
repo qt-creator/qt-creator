@@ -89,7 +89,7 @@ public:
     { return !this->operator==(other); }
 
     bool operator==(const char *other) const
-    { return qstrncmp(m_start, other, qstrlen(other)) == 0; }
+    { return m_length == (int) qstrlen(other) && !qstrncmp(m_start, other, m_length); }
     bool operator!=(const char *other) const
     { return !this->operator==(other); }
 
