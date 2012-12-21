@@ -63,6 +63,9 @@ public:
     QString debugToken() const;
     ProjectExplorer::IDevice::MachineType machineType() const;
 
+private slots:
+    void handleMachineTypeChanged();
+
 private:
     Ui::BlackBerryDeviceConfigurationWizardSetupPage *m_ui;
 };

@@ -45,6 +45,11 @@ using namespace Qnx::Internal;
 
 namespace {
 const char DEVICENAME_FIELD_ID[] = "DeviceName";
+
+QString defaultDeviceHostIp(IDevice::MachineType type)
+{
+    return type == IDevice::Hardware ? QLatin1String("169.254.0.1") : QString();
+}
 }
 
 BlackBerryDeviceConfigurationWizardSetupPage::BlackBerryDeviceConfigurationWizardSetupPage(QWidget *parent)
@@ -59,7 +64,7 @@ BlackBerryDeviceConfigurationWizardSetupPage::BlackBerryDeviceConfigurationWizar
 
     connect(m_ui->deviceName, SIGNAL(textChanged(QString)), this, SIGNAL(completeChanged()));
     connect(m_ui->deviceHostIp, SIGNAL(textChanged(QString)), this, SIGNAL(completeChanged()));
-    connect(m_ui->physicalDevice, SIGNAL(toggled(bool)), this, SIGNAL(completeChanged()));
+    connect(m_ui->physicalDevice, SIGNAL(toggled(bool)), this, SLOT(handleMachineTypeChanged()));
     connect(m_ui->debugToken, SIGNAL(changed(QString)), this, SIGNAL(completeChanged()));
 
     registerField(QLatin1String(DEVICENAME_FIELD_ID), m_ui->deviceName);
@@ -74,9 +79,9 @@ BlackBerryDeviceConfigurationWizardSetupPage::~BlackBerryDeviceConfigurationWiza
 void BlackBerryDeviceConfigurationWizardSetupPage::initializePage()
 {
     m_ui->deviceName->setText(tr("BlackBerry Device"));
-    m_ui->deviceHostIp->setText(QString());
     m_ui->password->setText(QString());
     m_ui->physicalDevice->setChecked(true);
+    m_ui->deviceHostIp->setText(defaultDeviceHostIp(machineType()));
 }
 
 bool BlackBerryDeviceConfigurationWizardSetupPage::isComplete() const
@@ -112,6 +117,11 @@ QString BlackBerryDeviceConfigurationWizardSetupPage::debugToken() const
 IDevice::MachineType BlackBerryDeviceConfigurationWizardSetupPage::machineType() const
 {
     return m_ui->physicalDevice->isChecked() ? IDevice::Hardware : IDevice::Emulator;
+}
+
+void BlackBerryDeviceConfigurationWizardSetupPage::handleMachineTypeChanged()
+{
+    m_ui->deviceHostIp->setText(defaultDeviceHostIp(machineType()));
 }
 
 
