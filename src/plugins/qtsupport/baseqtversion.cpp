@@ -1206,7 +1206,7 @@ static QByteArray runQmakeQuery(const FileName &binary, const Environment &env,
         return QByteArray();
     }
     if (process.exitStatus() != QProcess::NormalExit) {
-        *error = QCoreApplication::translate("QtVersion", "'%s' crashed.").arg(binary.toUserOutput());
+        *error = QCoreApplication::translate("QtVersion", "'%1' crashed.").arg(binary.toUserOutput());
         return QByteArray();
     }
 
