@@ -2096,7 +2096,7 @@ bool GitClient::synchronousFetch(const QString &workingDirectory, const QString 
     return resp.result == Utils::SynchronousProcessResponse::Finished;
 }
 
-bool GitClient::synchronousPullOrRebase(const QString &workingDirectory, const QStringList &arguments, bool rebase)
+bool GitClient::synchronousMergeOrRebase(const QString &workingDirectory, const QStringList &arguments, bool rebase)
 {
     // Disable UNIX terminals to suppress SSH prompting.
     const unsigned flags = VcsBase::VcsBasePlugin::SshPasswordPrompt|VcsBase::VcsBasePlugin::ShowStdOutInLogWindow;
@@ -2115,14 +2115,14 @@ bool GitClient::synchronousPull(const QString &workingDirectory, bool rebase)
     QStringList arguments(QLatin1String("pull"));
     if (rebase)
         arguments << QLatin1String("--rebase");
-    return synchronousPullOrRebase(workingDirectory, arguments, rebase);
+    return synchronousMergeOrRebase(workingDirectory, arguments, rebase);
 }
 
 bool GitClient::synchronousRebaseContinue(const QString &workingDirectory)
 {
     QStringList arguments(QLatin1String("rebase"));
     arguments << QLatin1String("--continue");
-    return synchronousPullOrRebase(workingDirectory, arguments, true);
+    return synchronousMergeOrRebase(workingDirectory, arguments, true);
 }
 
 void GitClient::handleMergeConflicts(const QString &workingDir, bool rebase)
@@ -2194,6 +2194,23 @@ bool GitClient::synchronousPush(const QString &workingDirectory, const QString &
     const Utils::SynchronousProcessResponse resp =
             synchronousGit(workingDirectory, arguments, flags);
     return resp.result == Utils::SynchronousProcessResponse::Finished;
+}
+
+bool GitClient::synchronousMerge(const QString &workingDirectory, const QString &branch)
+{
+    QStringList arguments(QLatin1String("merge"));
+    arguments << branch;
+    return synchronousMergeOrRebase(workingDirectory, arguments, false);
+}
+
+bool GitClient::synchronousRebase(const QString &workingDirectory, const QString &baseBranch,
+                                  const QString &topicBranch)
+{
+    QStringList arguments(QLatin1String("rebase"));
+    arguments << baseBranch;
+    if (!topicBranch.isEmpty())
+        arguments << topicBranch;
+    return synchronousMergeOrRebase(workingDirectory, arguments, true);
 }
 
 QString GitClient::msgNoChangedFiles()

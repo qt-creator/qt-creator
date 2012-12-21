@@ -65,6 +65,8 @@ BranchDialog::BranchDialog(QWidget *parent) :
     connect(m_ui->removeButton, SIGNAL(clicked()), this, SLOT(remove()));
     connect(m_ui->diffButton, SIGNAL(clicked()), this, SLOT(diff()));
     connect(m_ui->logButton, SIGNAL(clicked()), this, SLOT(log()));
+    connect(m_ui->mergeButton, SIGNAL(clicked()), this, SLOT(merge()));
+    connect(m_ui->rebaseButton, SIGNAL(clicked()), this, SLOT(rebase()));
 
     m_ui->branchView->setModel(m_model);
 
@@ -102,11 +104,14 @@ void BranchDialog::enableButtons()
     const bool currentSelected = hasSelection && idx == m_model->currentBranch();
     const bool isLocal = m_model->isLocal(idx);
     const bool isLeaf = m_model->isLeaf(idx);
+    const bool currentLocal = m_model->isLocal(m_model->currentBranch());
 
     m_ui->removeButton->setEnabled(hasSelection && !currentSelected && isLocal && isLeaf);
     m_ui->logButton->setEnabled(hasSelection && isLeaf);
     m_ui->diffButton->setEnabled(hasSelection && isLeaf);
     m_ui->checkoutButton->setEnabled(hasSelection && !currentSelected && isLeaf);
+    m_ui->rebaseButton->setEnabled(hasSelection && !currentSelected && isLeaf && currentLocal);
+    m_ui->mergeButton->setEnabled(hasSelection && !currentSelected && isLeaf && currentLocal);
 }
 
 void BranchDialog::refresh()
@@ -192,6 +197,40 @@ void BranchDialog::log()
     if (branchName.isEmpty())
         return;
     GitPlugin::instance()->gitClient()->graphLog(m_repository, branchName);
+}
+
+void BranchDialog::merge()
+{
+    QModelIndex idx = selectedIndex();
+    QTC_CHECK(m_model->isLocal(m_model->currentBranch())); // otherwise the button would not be enabled!
+    QTC_CHECK(idx != m_model->currentBranch());            // otherwise the button would not be enabled!
+
+    const QString branch = m_model->branchName(idx);
+    GitClient *gitClient = GitPlugin::instance()->gitClient();
+    QString stashMessage;
+
+    if (gitClient->gitStatus(m_repository, StatusMode(NoUntracked | NoSubmodules)) == GitClient::StatusChanged)
+        stashMessage = gitClient->synchronousStash(m_repository, QLatin1String("merge"));
+
+    if (gitClient->synchronousMerge(m_repository, branch) && (!stashMessage.isEmpty()))
+        gitClient->stashPop(m_repository);
+}
+
+void BranchDialog::rebase()
+{
+    QModelIndex idx = selectedIndex();
+    QTC_CHECK(m_model->isLocal(m_model->currentBranch())); // otherwise the button would not be enabled!
+    QTC_CHECK(idx != m_model->currentBranch());            // otherwise the button would not be enabled!
+
+    const QString baseBranch = m_model->branchName(idx);
+    GitClient *gitClient = GitPlugin::instance()->gitClient();
+    QString stashMessage;
+
+    if (gitClient->gitStatus(m_repository, StatusMode(NoUntracked | NoSubmodules)) == GitClient::StatusChanged)
+        stashMessage = gitClient->synchronousStash(m_repository, QLatin1String("rebase"));
+
+    if (gitClient->synchronousRebase(m_repository, baseBranch) && (!stashMessage.isEmpty()))
+        gitClient->stashPop(m_repository);
 }
 
 void BranchDialog::changeEvent(QEvent *e)

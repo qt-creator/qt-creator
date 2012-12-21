@@ -179,6 +179,10 @@ public:
     bool synchronousPull(const QString &workingDirectory, bool rebase);
     bool synchronousRebaseContinue(const QString &workingDirectory);
     bool synchronousPush(const QString &workingDirectory, const QString &remote = QString());
+    bool synchronousMerge(const QString &workingDirectory, const QString &branch);
+    bool synchronousRebase(const QString &workingDirectory,
+                           const QString &baseBranch,
+                           const QString &topicBranch = QString());
 
     // git svn support (asynchronous).
     void synchronousSubversionFetch(const QString &workingDirectory);
@@ -296,7 +300,7 @@ private:
                          QString *errorMessage,
                          bool revertStaging);
     void connectRepositoryChanged(const QString & repository, VcsBase::Command *cmd);
-    bool synchronousPullOrRebase(const QString &workingDirectory, const QStringList &arguments, bool rebase);
+    bool synchronousMergeOrRebase(const QString &workingDirectory, const QStringList &arguments, bool rebase);
     void handleMergeConflicts(const QString &workingDir, bool rebase);
     bool tryLauchingGitK(const QProcessEnvironment &env,
                          const QString &workingDirectory,

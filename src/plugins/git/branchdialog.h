@@ -71,6 +71,8 @@ private slots:
     void remove();
     void diff();
     void log();
+    void merge();
+    void rebase();
 
 protected:
     void changeEvent(QEvent *e);
