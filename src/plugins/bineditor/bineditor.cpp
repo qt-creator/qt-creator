@@ -1080,20 +1080,19 @@ QString BinEditor::toolTip(const QHelpEvent *helpEvent) const
     // Selection if mouse is in, else 1 byte at cursor
     int selStart = selectionStart();
     int selEnd = selectionEnd();
-    int byteCount = selEnd - selStart;
-    if (byteCount <= 0) {
+    int byteCount = selEnd - selStart + 1;
+    if (byteCount <= 1) {
         selStart = posAt(helpEvent->pos());
-        selEnd = selStart + 1;
+        selEnd = selStart;
         byteCount = 1;
     }
     if (m_hexCursor == 0 || byteCount > 8)
         return QString();
 
     const QPoint &startPoint = offsetToPos(selStart);
-    const QPoint &endPoint = offsetToPos(selEnd);
-    const QPoint expandedEndPoint
-            = QPoint(endPoint.x(), endPoint.y() + m_lineHeight);
-    const QRect selRect(startPoint, expandedEndPoint);
+    const QPoint &endPoint = offsetToPos(selEnd + 1);
+    QRect selRect(startPoint, endPoint);
+    selRect.setHeight(m_lineHeight);
     if (!selRect.contains(helpEvent->pos()))
         return QString();
 
@@ -1488,7 +1487,7 @@ void BinEditor::redo()
 void BinEditor::contextMenuEvent(QContextMenuEvent *event)
 {
     const int selStart = selectionStart();
-    const int byteCount = selectionEnd() - selStart;
+    const int byteCount = selectionEnd() - selStart + 1;
 
     QMenu contextMenu;
     QAction copyAsciiAction(tr("Copy Selection as ASCII Characters"), this);
@@ -1502,12 +1501,6 @@ void BinEditor::contextMenuEvent(QContextMenuEvent *event)
     contextMenu.addAction(&copyHexAction);
     contextMenu.addAction(&addWatchpointAction);
 
-    copyAsciiAction.setEnabled(byteCount > 0);
-    copyHexAction.setEnabled(byteCount > 0);;
-    jumpToBeAddressHereAction.setEnabled(byteCount > 0);
-    jumpToBeAddressNewWindowAction.setEnabled(byteCount > 0);
-    jumpToLeAddressHereAction.setEnabled(byteCount > 0);
-    jumpToLeAddressNewWindowAction.setEnabled(byteCount > 0);
     addWatchpointAction.setEnabled(byteCount > 0 && byteCount <= 32);
 
     quint64 beAddress = 0;
