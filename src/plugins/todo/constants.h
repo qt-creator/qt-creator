@@ -55,10 +55,6 @@ const char ICON_TODO[] = ":/todoplugin/images/todo.png";
 const char ICON_WARNING[] = ":/projectexplorer/images/compile_warning.png";
 const char ICON_ERROR[] = ":/projectexplorer/images/compile_error.png";
 
-// Public domain, I am the author
-const char ICON_CURRENT_FILE[] = ":/todoplugin/images/current-file.png";
-const char ICON_WHOLE_PROJECT[] = ":/todoplugin/images/whole-project.png";
-
 
 // Settings entries
 const char SETTINGS_GROUP[] = "TodoPlugin";

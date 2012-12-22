@@ -187,13 +187,13 @@ void TodoOutputPane::freeTreeView()
 void TodoOutputPane::createScopeButtons()
 {
     m_currentFileButton = new QToolButton();
-    m_currentFileButton->setIcon(QIcon(QLatin1String(Constants::ICON_CURRENT_FILE)));
     m_currentFileButton->setCheckable(true);
+    m_currentFileButton->setText(tr("Current File"));
     m_currentFileButton->setToolTip(tr("Scan in the current opened file"));
 
     m_wholeProjectButton = new QToolButton();
-    m_wholeProjectButton->setIcon(QIcon(QLatin1String(Constants::ICON_WHOLE_PROJECT)));
     m_wholeProjectButton->setCheckable(true);
+    m_wholeProjectButton->setText(tr("Whole Project"));
     m_wholeProjectButton->setToolTip(tr("Scan in the whole project"));
 
     m_scopeButtons = new QButtonGroup();
