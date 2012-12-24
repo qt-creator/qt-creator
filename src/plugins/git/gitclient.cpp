@@ -1716,15 +1716,15 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
                                 const QString &gitBinDirectory,
                                 bool silent)
 {
-    QString binary;
+    QString binary = gitBinDirectory + QLatin1String("/gitk");
     QStringList arguments;
     if (Utils::HostOsInfo::isWindowsHost()) {
-        // Launch 'wish' shell from git binary directory with the gitk located there
-        binary = gitBinDirectory + QLatin1String("/wish");
-        arguments << (gitBinDirectory + QLatin1String("/gitk"));
-    } else {
-        // Simple: Run gitk from binary path
-        binary = gitBinDirectory + QLatin1String("/gitk");
+        // If git/bin is in path, use 'wish' shell to run. Otherwise (git/cmd), directly run gitk
+        QString wish = gitBinDirectory + QLatin1String("/wish");
+        if (QFileInfo(wish + QLatin1String(".exe")).exists()) {
+            arguments << binary;
+            binary = wish;
+        }
     }
     VcsBase::VcsBaseOutputWindow *outwin = VcsBase::VcsBaseOutputWindow::instance();
     const QString gitkOpts = settings()->stringValue(GitSettings::gitkOptionsKey);
