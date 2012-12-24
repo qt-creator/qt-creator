@@ -103,12 +103,6 @@ QString VariableManager::value(const QByteArray &variable, bool *found)
     return d->m_map.value(variable);
 }
 
-QString VariableManager::value(const QByteArray &variable, const QString &defaultValue)
-{
-    emit variableUpdateRequested(variable);
-    return d->m_map.value(variable, defaultValue);
-}
-
 Utils::AbstractMacroExpander *VariableManager::macroExpander()
 {
     return &d->m_macroExpander;
