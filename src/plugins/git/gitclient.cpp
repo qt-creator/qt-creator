@@ -1624,8 +1624,8 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, bo
     QByteArray errorText;
 
     QStringList statusArgs(QLatin1String("status"));
-    if (untracked)
-        statusArgs << QLatin1String("-u");
+    if (!untracked)
+        statusArgs << QLatin1String("--untracked-files=no");
     statusArgs << QLatin1String("-s") << QLatin1String("-b");
 
     const bool statusRc = fullySynchronousGit(workingDirectory, statusArgs, &outputText, &errorText);
@@ -1646,7 +1646,7 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, bo
     // Unchanged (output text depending on whether -u was passed)
     QList<QByteArray> lines = outputText.split('\n');
     foreach (const QByteArray &line, lines)
-        if (!line.isEmpty() && !line.startsWith('#') && !line.startsWith('?'))
+        if (!line.isEmpty() && !line.startsWith('#'))
             return StatusChanged;
     return StatusUnchanged;
 }
