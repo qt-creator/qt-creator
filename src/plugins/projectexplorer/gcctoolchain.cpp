@@ -122,11 +122,14 @@ static QByteArray gccPredefinedMacros(const FileName &gcc, const QStringList &ar
                 || a == QLatin1String("-O2") || a == QLatin1String("-O3")
                 || a == QLatin1String("-ffinite-math-only") || a == QLatin1String("-fshort-double")
                 || a == QLatin1String("-fshort-wchar") || a == QLatin1String("-fsignaling-nans")
+                || a == QLatin1String("-fno-inline") || a == QLatin1String("-fno-exceptions")
+                || a == QLatin1String("-fstack-protector") || a == QLatin1String("-fstack-protector-all")
+                || a == QLatin1String("-fsanitize=address") || a == QLatin1String("-fno-rtti")
                 || a.startsWith(QLatin1String("-std=")) || a.startsWith(QLatin1String("-stdlib="))
                 || a.startsWith(QLatin1String("-specs="))
-                || a == QLatin1String("-ansi")
+                || a == QLatin1String("-ansi") || a == QLatin1String("-undef")
                 || a.startsWith(QLatin1String("-D")) || a.startsWith(QLatin1String("-U"))
-                || a == QLatin1String("-undef"))
+                || a == QLatin1String("-fopenmp") || a == QLatin1String("-Wno-deprecated"))
             arguments << a;
     }
 
