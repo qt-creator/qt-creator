@@ -61,8 +61,10 @@ GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget()
 
 void GitSubmitEditor::setCommitData(const CommitData &d)
 {
-    submitEditorWidget()->setPanelData(d.panelData);
-    submitEditorWidget()->setPanelInfo(d.panelInfo);
+    GitSubmitEditorWidget *w = submitEditorWidget();
+    w->setPanelData(d.panelData);
+    w->setPanelInfo(d.panelInfo);
+    w->setHasUnmerged(false);
 
     m_commitEncoding = d.commitEncoding;
 
@@ -73,12 +75,14 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
             const FileStates state = it->first;
             const QString file = it->second;
             VcsBase::CheckMode checkMode;
-            if (state & UnmergedFile)
+            if (state & UnmergedFile) {
                 checkMode = VcsBase::Uncheckable;
-            else if (state & StagedFile)
+                w->setHasUnmerged(true);
+            } else if (state & StagedFile) {
                 checkMode = VcsBase::Checked;
-            else
+            } else {
                 checkMode = VcsBase::Unchecked;
+            }
             m_model->addFile(file, CommitData::stateDisplayName(state), checkMode,
                              QVariant(static_cast<int>(state)));
         }

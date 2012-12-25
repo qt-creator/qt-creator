@@ -59,11 +59,10 @@ class GitSubmitEditorWidget : public Utils::SubmitEditorWidget
 public:
     explicit GitSubmitEditorWidget(QWidget *parent = 0);
 
-
     GitSubmitEditorPanelData panelData() const;
     void setPanelData(const GitSubmitEditorPanelData &data);
-
     void setPanelInfo(const GitSubmitEditorPanelInfo &info);
+    void setHasUnmerged(bool e);
 
 protected:
     bool canSubmit() const;
@@ -78,6 +77,7 @@ private:
     QWidget *m_gitSubmitPanel;
     Ui::GitSubmitPanel m_gitSubmitPanelUi;
     QValidator *m_emailValidator;
+    bool m_hasUnmerged;
 };
 
 } // namespace Internal

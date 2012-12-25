@@ -115,7 +115,8 @@ void GitSubmitHighlighter::highlightBlock(const QString &text)
 // ------------------
 GitSubmitEditorWidget::GitSubmitEditorWidget(QWidget *parent) :
     Utils::SubmitEditorWidget(parent),
-    m_gitSubmitPanel(new QWidget)
+    m_gitSubmitPanel(new QWidget),
+    m_hasUnmerged(false)
 {
     m_gitSubmitPanelUi.setupUi(m_gitSubmitPanel);
     insertTopWidget(m_gitSubmitPanel);
@@ -139,6 +140,11 @@ void GitSubmitEditorWidget::setPanelInfo(const GitSubmitEditorPanelInfo &info)
         m_gitSubmitPanelUi.branchLabel->setText(info.branch);
 }
 
+void GitSubmitEditorWidget::setHasUnmerged(bool e)
+{
+    m_hasUnmerged = e;
+}
+
 GitSubmitEditorPanelData GitSubmitEditorWidget::panelData() const
 {
     GitSubmitEditorPanelData rc;
@@ -159,7 +165,8 @@ void GitSubmitEditorWidget::setPanelData(const GitSubmitEditorPanelData &data)
 bool GitSubmitEditorWidget::canSubmit() const
 {
     if (m_gitSubmitPanelUi.invalidAuthorLabel->isVisible()
-        || m_gitSubmitPanelUi.invalidEmailLabel->isVisible())
+        || m_gitSubmitPanelUi.invalidEmailLabel->isVisible()
+        || m_hasUnmerged)
         return false;
     return SubmitEditorWidget::canSubmit();
 }
