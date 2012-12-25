@@ -69,6 +69,6 @@ void CommitEditor::setFields(const QString &repositoryRoot,
     m_fileModel = new VcsBase::SubmitFileModel(this);
     foreach (const VcsBase::VcsBaseClient::StatusItem &item, repoStatus)
         if (item.flags != QLatin1String("Unknown"))
-            m_fileModel->addFile(item.file, item.flags, true);
+            m_fileModel->addFile(item.file, item.flags);
     setFileModel(m_fileModel, repositoryRoot);
 }

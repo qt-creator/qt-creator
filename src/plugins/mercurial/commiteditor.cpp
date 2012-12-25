@@ -69,7 +69,7 @@ void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &bra
         if (item.flags == QLatin1String("Untracked"))
             shouldTrack.append(item.file);
         else
-            fileModel->addFile(item.file, item.flags, false);
+            fileModel->addFile(item.file, item.flags, VcsBase::Unchecked);
     }
 
     VcsBaseSubmitEditor::filterUntrackedFilesOfProject(repositoryRoot.absoluteFilePath(),
@@ -78,7 +78,7 @@ void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &bra
     foreach (const QString &track, shouldTrack) {
         foreach (const VcsBaseClient::StatusItem &item, repoStatus) {
             if (item.file == track)
-                fileModel->addFile(item.file, item.flags, false);
+                fileModel->addFile(item.file, item.flags, VcsBase::Unchecked);
         }
     }
 

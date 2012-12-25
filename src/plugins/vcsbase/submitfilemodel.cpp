@@ -43,11 +43,12 @@ namespace VcsBase {
 // --------------------------------------------------------------------------
 
 static QList<QStandardItem *> createFileRow(const QString &fileName, const QString &status,
-                                            bool checked, const QVariant &v)
+                                            CheckMode checked, const QVariant &v)
 {
     QStandardItem *statusItem = new QStandardItem(status);
-    statusItem->setCheckable(true);
-    statusItem->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+    statusItem->setCheckable(checked != Uncheckable);
+    if (checked != Uncheckable)
+        statusItem->setCheckState(checked == Checked ? Qt::Checked : Qt::Unchecked);
     statusItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
     statusItem->setData(v);
     QStandardItem *fileItem = new QStandardItem(fileName);
@@ -78,10 +79,10 @@ SubmitFileModel::SubmitFileModel(QObject *parent) :
     setHorizontalHeaderLabels(headerLabels);
 }
 
-QList<QStandardItem *> SubmitFileModel::addFile(const QString &fileName, const QString &status, bool checked,
+QList<QStandardItem *> SubmitFileModel::addFile(const QString &fileName, const QString &status, CheckMode checkMode,
                                                 const QVariant &v)
 {
-    const QList<QStandardItem *> row = createFileRow(fileName, status, checked, v);
+    const QList<QStandardItem *> row = createFileRow(fileName, status, checkMode, v);
     appendRow(row);
     return row;
 }

@@ -72,7 +72,14 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
              it != d.files.constEnd(); ++it) {
             const FileStates state = it->first;
             const QString file = it->second;
-            m_model->addFile(file, CommitData::stateDisplayName(state), state & StagedFile,
+            VcsBase::CheckMode checkMode;
+            if (state & UnmergedFile)
+                checkMode = VcsBase::Uncheckable;
+            else if (state & StagedFile)
+                checkMode = VcsBase::Checked;
+            else
+                checkMode = VcsBase::Unchecked;
+            m_model->addFile(file, CommitData::stateDisplayName(state), checkMode,
                              QVariant(static_cast<int>(state)));
         }
     }

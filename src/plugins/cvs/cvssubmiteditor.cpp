@@ -65,6 +65,6 @@ void CvsSubmitEditor::setStateList(const StateFilePairs &statusOutput)
 
     const ConstIterator cend = statusOutput.constEnd();
     for (ConstIterator it = statusOutput.constBegin(); it != cend; ++it)
-        model->addFile(it->second, stateName(it->first), true);
+        model->addFile(it->second, stateName(it->first));
     setFileModel(model);
 }
