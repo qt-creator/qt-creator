@@ -108,6 +108,15 @@ static FileStates stateFor(const QChar &c)
     }
 }
 
+bool operator<(const CommitData::StateFilePair &a, const CommitData::StateFilePair &b)
+{
+    if ((a.first & UnmergedFile) && !(b.first & UnmergedFile))
+        return false;
+    if ((b.first & UnmergedFile) && !(a.first & UnmergedFile))
+        return true;
+    return a.second < b.second;
+}
+
 bool CommitData::checkLine(const QString &stateInfo, const QString &file)
 {
     QTC_ASSERT(stateInfo.count() == 2, return false);
@@ -147,6 +156,7 @@ bool CommitData::checkLine(const QString &stateInfo, const QString &file)
             files.append(qMakePair(yState, newFile));
         }
     }
+    qSort(files);
     return true;
 }
 

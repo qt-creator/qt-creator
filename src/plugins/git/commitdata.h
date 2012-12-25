@@ -109,6 +109,8 @@ private:
     bool checkLine(const QString &stateInfo, const QString &file);
 };
 
+bool operator<(const CommitData::StateFilePair &a, const CommitData::StateFilePair &b);
+
 } // namespace Internal
 } // namespace Git
 
