@@ -888,8 +888,7 @@ void GitPlugin::pull()
     switch (stashResult) {
     case GitClient::StashUnchanged:
     case GitClient::Stashed:
-        m_gitClient->synchronousPull(state.topLevel(), rebase);
-        if (stashResult == GitClient::Stashed)
+        if (m_gitClient->synchronousPull(state.topLevel(), rebase) && (stashResult == GitClient::Stashed))
             m_gitClient->stashPop(state.topLevel());
         break;
     case GitClient::NotStashed:
