@@ -27,13 +27,16 @@
 **
 ****************************************************************************/
 
+#include "commitdata.h"
+#include "gitclient.h"
+#include "gitconstants.h"
+#include "gitplugin.h"
 #include "gitsubmiteditor.h"
 #include "gitsubmiteditorwidget.h"
-#include "gitconstants.h"
-#include "commitdata.h"
 
 #include <utils/qtcassert.h>
 #include <vcsbase/submitfilemodel.h>
+#include <vcsbase/vcsbaseoutputwindow.h>
 
 #include <QDebug>
 #include <QStringList>
@@ -49,7 +52,8 @@ namespace Internal {
 
 GitSubmitEditor::GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent) :
     VcsBaseSubmitEditor(parameters, new GitSubmitEditorWidget(parent)),
-    m_model(0)
+    m_model(0),
+    m_amend(false)
 {
     connect(this, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(slotDiffSelected(QStringList)));
 }
@@ -57,6 +61,25 @@ GitSubmitEditor::GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *p
 GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget()
 {
     return static_cast<GitSubmitEditorWidget *>(widget());
+}
+
+static void mergeFileModels(VcsBase::SubmitFileModel *model, const VcsBase::SubmitFileModel *source)
+{
+    int j = 0;
+    for (int i = 0; i < model->rowCount() && j < source->rowCount(); ++i) {
+        CommitData::StateFilePair stateFile(
+                    static_cast<FileStates>(model->extraData(i).toInt()), model->file(i));
+        for (; j < source->rowCount(); ++j) {
+            CommitData::StateFilePair sourceStateFile(
+                        static_cast<FileStates>(source->extraData(j).toInt()), source->file(j));
+            if (stateFile == sourceStateFile) {
+                model->setChecked(i, source->checked(j));
+                break;
+            } else if (stateFile < sourceStateFile) {
+                break;
+            }
+        }
+    }
 }
 
 void GitSubmitEditor::setCommitData(const CommitData &d)
@@ -67,7 +90,9 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
     w->setHasUnmerged(false);
 
     m_commitEncoding = d.commitEncoding;
+    m_workingDirectory = d.panelInfo.repository;
 
+    VcsBase::SubmitFileModel *oldModel = m_model;
     m_model = new VcsBase::SubmitFileModel(this);
     if (!d.files.isEmpty()) {
         for (QList<CommitData::StateFilePair>::const_iterator it = d.files.constBegin();
@@ -87,7 +112,17 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
                              QVariant(static_cast<int>(state)));
         }
     }
+    if (oldModel) {
+        mergeFileModels(m_model, oldModel);
+        delete oldModel;
+    }
     setFileModel(m_model, d.panelInfo.repository);
+}
+
+void GitSubmitEditor::setAmend(bool amend)
+{
+    m_amend = amend;
+    setEmptyFileListEnabled(amend); // Allow for just correcting the message
 }
 
 void GitSubmitEditor::slotDiffSelected(const QStringList &files)
@@ -114,6 +149,17 @@ void GitSubmitEditor::slotDiffSelected(const QStringList &files)
         emit diff(unstagedFiles, stagedFiles);
     if (!unmergedFiles.empty())
         emit merge(unmergedFiles);
+}
+
+void GitSubmitEditor::updateFileModel()
+{
+    GitClient *client = GitPlugin::instance()->gitClient();
+    QString errorMessage, commitTemplate;
+    CommitData data;
+    if (client->getCommitData(m_workingDirectory, m_amend, &commitTemplate, &data, &errorMessage))
+        setCommitData(data);
+    else
+        VcsBase::VcsBaseOutputWindow::instance()->append(errorMessage);
 }
 
 GitSubmitEditorPanelData GitSubmitEditor::panelData() const

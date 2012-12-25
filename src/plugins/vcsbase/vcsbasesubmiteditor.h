@@ -134,6 +134,7 @@ public:
 
     void setFileModel(QAbstractItemModel *m, const QString &repositoryDirectory = QString());
     QAbstractItemModel *fileModel() const;
+    virtual void updateFileModel() { }
 
     // Utilities returning some predefined icons for actions
     static QIcon diffIcon();
@@ -161,6 +162,7 @@ private slots:
     void slotInsertNickName();
     void slotSetFieldNickName(int);
     void slotUpdateEditorSettings(const VcsBase::Internal::CommonVcsSettings &);
+    void slotRefreshCommitData();
 
 protected:
     /* These hooks allow for modifying the contents that goes to

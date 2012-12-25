@@ -44,11 +44,12 @@
 #include <cplusplus/Symbol.h>
 #include <cplusplus/Symbols.h>
 #include <cplusplus/TranslationUnit.h>
-#include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/id.h>
+#include <coreplugin/idocument.h>
+#include <coreplugin/mainwindow.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <utils/completingtextedit.h>
 #include <utils/submiteditorwidget.h>
 #include <utils/checkablemessagebox.h>
@@ -238,6 +239,9 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
     connect(VcsPlugin::instance(),
             SIGNAL(settingsChanged(VcsBase::Internal::CommonVcsSettings)),
             this, SLOT(slotUpdateEditorSettings(VcsBase::Internal::CommonVcsSettings)));
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+            this, SLOT(slotRefreshCommitData()));
+    connect(Core::ICore::mainWindow(), SIGNAL(windowActivated()), this, SLOT(slotRefreshCommitData()));
 
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     aggregate->add(new Find::BaseTextFind(d->m_widget->descriptionEdit()));
@@ -255,6 +259,12 @@ void VcsBaseSubmitEditor::slotUpdateEditorSettings(const CommonVcsSettings &s)
 {
     setLineWrapWidth(s.lineWrapWidth);
     setLineWrap(s.lineWrap);
+}
+
+void VcsBaseSubmitEditor::slotRefreshCommitData()
+{
+    if (Core::EditorManager::currentEditor() == this)
+        updateFileModel();
 }
 
 // Return a trimmed list of non-empty field texts

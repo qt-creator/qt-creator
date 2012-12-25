@@ -117,6 +117,12 @@ bool SubmitFileModel::checked(int row) const
     return (item(row)->checkState() == Qt::Checked);
 }
 
+void SubmitFileModel::setChecked(int row, bool check)
+{
+    if (row >= 0 || row < rowCount())
+        item(row)->setCheckState(check ? Qt::Checked : Qt::Unchecked);
+}
+
 QVariant SubmitFileModel::extraData(int row) const
 {
     if (row < 0 || row >= rowCount())

@@ -52,6 +52,7 @@ public:
     explicit GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent);
 
     void setCommitData(const CommitData &);
+    void setAmend(bool amend);
     GitSubmitEditorPanelData panelData() const;
 
 signals:
@@ -60,6 +61,7 @@ signals:
 
 protected:
     QByteArray fileContents() const;
+    void updateFileModel();
 
 private slots:
     void slotDiffSelected(const QStringList &);
@@ -69,6 +71,8 @@ private:
 
     VcsBase::SubmitFileModel *m_model;
     QString m_commitEncoding;
+    bool m_amend;
+    QString m_workingDirectory;
 };
 
 } // namespace Internal
