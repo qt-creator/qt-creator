@@ -1268,7 +1268,7 @@ QString GitClient::synchronousStash(const QString &workingDirectory, const QStri
     bool success = false;
     // Check for changes and stash
     QString errorMessage;
-    switch (gitStatus(workingDirectory, false, 0, &errorMessage)) {
+    switch (gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules), 0, &errorMessage)) {
     case  StatusChanged: {
             message = creatorStashMessage(messageKeyword);
             do {
@@ -1575,7 +1575,8 @@ GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory)
 GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory, QString *errorMessage)
 {
     QString statusOutput;
-    switch (gitStatus(workingDirectory, false, &statusOutput, errorMessage)) {
+    switch (gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules),
+                      &statusOutput, errorMessage)) {
         case StatusChanged:
         break;
         case StatusUnchanged:
@@ -1616,7 +1617,7 @@ static inline QString trimFileSpecification(QString fileSpec)
     return fileSpec;
 }
 
-GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, bool untracked,
+GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, StatusMode mode,
                                              QString *output, QString *errorMessage)
 {
     // Run 'status'. Note that git returns exitcode 1 if there are no added files.
@@ -1624,8 +1625,10 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, bo
     QByteArray errorText;
 
     QStringList statusArgs(QLatin1String("status"));
-    if (!untracked)
+    if (mode & NoUntracked)
         statusArgs << QLatin1String("--untracked-files=no");
+    if (mode & NoSubmodules)
+        statusArgs << QLatin1String("--ignore-submodules=all");
     statusArgs << QLatin1String("-s") << QLatin1String("-b");
 
     const bool statusRc = fullySynchronousGit(workingDirectory, statusArgs, &outputText, &errorText);
@@ -1789,7 +1792,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
 
     // Run status. Note that it has exitcode 1 if there are no added files.
     QString output;
-    const StatusResult status = gitStatus(repoDirectory, true, &output, errorMessage);
+    const StatusResult status = gitStatus(repoDirectory, ShowAll, &output, errorMessage);
     switch (status) {
     case  StatusChanged:
         break;
@@ -2000,7 +2003,7 @@ GitClient::RevertResult GitClient::revertI(QStringList files,
 
     // Check for changes
     QString output;
-    switch (gitStatus(repoDirectory, false, &output, errorMessage)) {
+    switch (gitStatus(repoDirectory, StatusMode(NoUntracked | NoSubmodules), &output, errorMessage)) {
     case StatusChanged:
         break;
     case StatusUnchanged:

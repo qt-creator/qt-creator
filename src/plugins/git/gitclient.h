@@ -70,6 +70,13 @@ class CommitData;
 struct GitSubmitEditorPanelData;
 class Stash;
 
+enum StatusMode
+{
+    ShowAll = 0,
+    NoUntracked = 1,
+    NoSubmodules = 2
+};
+
 class GitClient : public QObject
 {
     Q_OBJECT
@@ -210,7 +217,7 @@ public:
 
     enum StatusResult { StatusChanged, StatusUnchanged, StatusFailed };
     StatusResult gitStatus(const QString &workingDirectory,
-                           bool untracked = false,
+                           StatusMode mode,
                            QString *output = 0,
                            QString *errorMessage = 0);
 
