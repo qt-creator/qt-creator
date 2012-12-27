@@ -93,7 +93,7 @@ void CMakeValidator::finished(int exitCode)
         m_hasCodeBlocksMsvcGenerator = response.contains("CodeBlocks - NMake Makefiles");
         m_hasCodeBlocksNinjaGenerator = response.contains("CodeBlocks - Ninja");
         m_version = versionRegexp.cap(1);
-        if (!(versionRegexp.capturedTexts().size() > 3))
+        if (versionRegexp.capturedTexts().size() > 3)
             m_version += QLatin1Char('.') + versionRegexp.cap(3);
 
         if (m_version.isEmpty()) {
