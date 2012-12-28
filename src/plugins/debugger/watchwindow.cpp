@@ -616,8 +616,10 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
 
     const QStringList alternativeFormats =
         mi0.data(LocalsTypeFormatListRole).toStringList();
-    const int typeFormat =
+    int typeFormat =
         mi0.data(LocalsTypeFormatRole).toInt();
+    if (typeFormat >= alternativeFormats.size())
+        typeFormat = -1;
     const int individualFormat =
         mi0.data(LocalsIndividualFormatRole).toInt();
     const int unprintableBase = handler->unprintableBase();
