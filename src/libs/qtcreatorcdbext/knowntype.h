@@ -80,7 +80,7 @@ enum KnownType
     KT_QUrl = KT_Qt_Type + KT_Qt_MovableType + 31 + KT_HasSimpleDumper,
     KT_QIcon = KT_Qt_Type + KT_Qt_MovableType + 32,
     KT_QBrush = KT_Qt_Type + KT_Qt_MovableType + 33,
-    KT_QImage = KT_Qt_Type + KT_Qt_MovableType + 35,
+    KT_QImage = KT_Qt_Type + KT_HasSimpleDumper + KT_Qt_MovableType + 35,
     KT_QLocale = KT_Qt_Type + KT_Qt_MovableType + 36,
     KT_QMatrix = KT_Qt_Type + KT_Qt_MovableType + 37,
     KT_QRegExp = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 38,

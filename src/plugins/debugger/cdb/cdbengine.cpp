@@ -625,14 +625,19 @@ void CdbEngine::setupEngine()
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupFailed")
         notifyEngineSetupFailed();
     }
+    const QString normalFormat = tr("Normal");
     const QStringList stringFormats = QStringList()
-        << tr("Normal") << tr("Separate Window");
+        << normalFormat << tr("Separate Window");
     WatchHandler *wh = watchHandler();
     wh->addTypeFormats("QString", stringFormats);
     wh->addTypeFormats("QString *", stringFormats);
     wh->addTypeFormats("QByteArray", stringFormats);
     wh->addTypeFormats("QByteArray *", stringFormats);
     wh->addTypeFormats("std__basic_string", stringFormats);  // Python dumper naming convention for std::[w]string
+    const QStringList imageFormats = QStringList()
+        << normalFormat << tr("Image");
+    wh->addTypeFormats("QImage", imageFormats);
+    wh->addTypeFormats("QImage *", imageFormats);
 }
 
 bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessage)
