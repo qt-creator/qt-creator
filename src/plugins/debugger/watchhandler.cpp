@@ -1624,8 +1624,11 @@ void WatchHandler::removeSeparateWidget(QObject *o)
 {
     const int index = o && o->isWidgetType() && !m_separateWindow.isNull() ?
               indexOf(m_separateWindow, static_cast<QWidget *>(o)) : -1;
-    if (index != -1)
+    if (index != -1) {
         m_separateWindow->removeTab(index);
+        if (!m_separateWindow->count())
+            m_separateWindow->hide();
+    }
 }
 
 void WatchHandler::showSeparateWidget(QWidget *w)
@@ -1713,9 +1716,7 @@ void WatchHandler::showEditValue(const WatchData &data)
             str = QString::fromLatin1(ba.constData(), ba.size());
         else if (data.editformat == DisplayUtf8String)
             str = QString::fromUtf8(ba.constData(), ba.size());
-        t->setWindowTitle(QString::fromLatin1("%1 (%2)").
-                          arg(data.name, data.displayedType.isEmpty() ?
-                              QLatin1String(data.type) : data.displayedType));
+        t->setWindowTitle(data.name);
         t->setText(str);
         showSeparateWidget(t);
     }
