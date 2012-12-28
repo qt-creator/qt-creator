@@ -1678,7 +1678,8 @@ void WatchHandler::showEditValue(const WatchData &data)
         if (data.editformat == DisplayImageData) {
             ba = QByteArray::fromHex(data.editvalue);
             const int *header = (int *)(ba.data());
-            swapEndian(ba.data(), ba.size());
+            if (!ba.at(0) && !ba.at(1)) // Check on 'width' for Python dumpers returning 4-byte swapped-data.
+                swapEndian(ba.data(), ba.size());
             bits = 12 + (uchar *)(ba.data());
             width = header[0];
             height = header[1];
