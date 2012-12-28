@@ -1348,7 +1348,7 @@ void MainWindow::setFullScreen(bool on)
 bool MainWindow::showWarningWithOptions(const QString &title,
                                         const QString &text,
                                         const QString &details,
-                                        const QString &settingsCategory,
+                                        Id settingsCategory,
                                         const QString &settingsId,
                                         QWidget *parent)
 {
@@ -1359,11 +1359,11 @@ bool MainWindow::showWarningWithOptions(const QString &title,
     if (!details.isEmpty())
         msgBox.setDetailedText(details);
     QAbstractButton *settingsButton = 0;
-    if (!settingsId.isEmpty() || !settingsCategory.isEmpty())
+    if (!settingsId.isEmpty() || settingsCategory.isValid())
         settingsButton = msgBox.addButton(tr("Settings..."), QMessageBox::AcceptRole);
     msgBox.exec();
     if (settingsButton && msgBox.clickedButton() == settingsButton) {
-        return showOptionsDialog(settingsCategory, settingsId);
+        return showOptionsDialog(settingsCategory.toString(), settingsId);
     }
     return false;
 }

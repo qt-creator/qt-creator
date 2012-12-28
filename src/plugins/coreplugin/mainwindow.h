@@ -144,7 +144,7 @@ public slots:
 
     bool showWarningWithOptions(const QString &title, const QString &text,
                                 const QString &details = QString(),
-                                const QString &settingsCategory = QString(),
+                                Id settingsCategory = Id(),
                                 const QString &settingsId = QString(),
                                 QWidget *parent = 0);
 

@@ -4991,7 +4991,7 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg,
             Core::ICore::showWarningWithOptions(title, msg);
         } else {
             Core::ICore::showWarningWithOptions(title, msg, QString(),
-                _(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY), settingsIdHint);
+                Constants::DEBUGGER_SETTINGS_CATEGORY, settingsIdHint);
         }
     }
     notifyEngineSetupFailed();

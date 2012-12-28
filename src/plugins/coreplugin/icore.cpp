@@ -400,7 +400,7 @@ bool ICore::showOptionsDialog(const QString &group, const QString &page, QWidget
 
 bool ICore::showWarningWithOptions(const QString &title, const QString &text,
                                    const QString &details,
-                                   const QString &settingsCategory,
+                                   Id settingsCategory,
                                    const QString &settingsId,
                                    QWidget *parent)
 {
