@@ -632,6 +632,7 @@ void CdbEngine::setupEngine()
     wh->addTypeFormats("QString *", stringFormats);
     wh->addTypeFormats("QByteArray", stringFormats);
     wh->addTypeFormats("QByteArray *", stringFormats);
+    wh->addTypeFormats("std__basic_string", stringFormats);  // Python dumper naming convention for std::[w]string
 }
 
 bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessage)

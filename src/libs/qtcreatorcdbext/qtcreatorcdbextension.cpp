@@ -498,6 +498,8 @@ static std::string commmandLocals(ExtensionCommandContext &commandExtCtx,PCSTR a
         symGroup->markUninitialized(uninitializedInames);
 
     SymbolGroupValue::verbose = parameters.verbose;
+    if (SymbolGroupValue::verbose)
+        DebugPrint() << parameters.dumpParameters;
 
     // Synchronize watches if desired.
     WatchesSymbolGroup *watchesSymbolGroup = extCtx.watchesSymbolGroup();

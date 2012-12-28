@@ -993,10 +993,10 @@ static inline void formatMilliSeconds(std::wostream &str, int milliSecs)
         << '.' << std::setw(3) << milliSecs;
 }
 
-static const char stdStringTypeC[] = "std::basic_string<char,std::char_traits<char>,std::allocator<char> >";
-static const char stdWStringTypeC[] = "std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >";
+const char *stdStringTypeC = "std::basic_string<char,std::char_traits<char>,std::allocator<char> >";
+const char *stdWStringTypeC = "std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >";
 // Compiler option:  -Zc:wchar_t-:
-static const char stdWStringWCharTypeC[] = "std::basic_string<wchar_t,std::char_traits<wchar_t>,std::allocator<wchar_t> >";
+const char *stdWStringWCharTypeC = "std::basic_string<wchar_t,std::char_traits<wchar_t>,std::allocator<wchar_t> >";
 
 static KnownType knownPODTypeHelper(const std::string &type, std::string::size_type endPos)
 {
@@ -2206,29 +2206,32 @@ static inline bool dumpQWindow(const SymbolGroupValue &v, std::wostream &str, vo
 }
 
 // Dump a std::string.
-static bool dumpStd_W_String(const SymbolGroupValue &v, int type, std::wostream &str)
+static bool dumpStd_W_String(const SymbolGroupValue &v, int type, std::wostream &str,
+                             MemoryHandle **memoryHandle = 0)
 {
     // Find 'bx'. MSVC 2012 has 2 base classes, MSVC 2010 1,
     // and MSVC2008 none
     const SymbolGroupValue bx = SymbolGroupValue::findMember(v, "_Bx");
     const int reserved = bx.parent()["_Myres"].intValue();
-    if (!bx || reserved < 0)
+    const int size = bx.parent()["_Mysize"].intValue();
+    if (!bx || reserved < 0 || size < 0)
         return false;
     // 'Buf' array for small strings, else pointer 'Ptr'.
     const int bufSize = type == KT_StdString ? 16 : 8; // see basic_string.
-    const SymbolGroupValue string = bufSize <= reserved ? bx["_Ptr"] : bx["_Buf"];
-    if (!string)
+    const unsigned long memSize = type == KT_StdString ? size : 2 * size;
+    const ULONG64 address = reserved >= bufSize ? bx["_Ptr"].pointerValue() : bx["_Buf"].address();
+    if (!address)
         return false;
-    // Potentially re-code char arrays (preferably relying on
-    // CDB to initially format the string array).
-    const DumpParameterRecodeResult recode = checkCharArrayRecode(string);
-    if (recode.buffer) {
-        str << (type == KT_StdString ?
-            quotedWStringFromCharData(recode.buffer, recode.size) :
-            quotedWStringFromWCharData(recode.buffer, recode.size));
-        delete [] recode.buffer;
+    unsigned char *memory = SymbolGroupValue::readMemory(v.context().dataspaces, address, memSize);
+    if (!memory)
+        return false;
+    str << (type == KT_StdString ?
+        quotedWStringFromCharData(memory, memSize) :
+        quotedWStringFromWCharData(memory, memSize));
+    if (memoryHandle) {
+        *memoryHandle = new MemoryHandle(memory, memSize);
     } else {
-        str << string.value();
+        delete [] memory;
     }
     return true;
 }
@@ -2590,7 +2593,7 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
         break;
     case KT_StdString:
     case KT_StdWString:
-        rc = dumpStd_W_String(v, kt, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        rc = dumpStd_W_String(v, kt, str, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     default:
         break;
@@ -2640,11 +2643,13 @@ bool dumpEditValue(const SymbolGroupNode *n, const SymbolGroupValueContext &,
 
     switch (n->dumperType()) {
     case KT_QString:
+    case KT_StdWString:
         if (desiredFormat == StringSeparateWindow)
             if (const MemoryHandle *mh = n->memory())
                 formatEditValue(DisplayUtf16String, mh, str);
         break;
     case KT_QByteArray:
+    case KT_StdString:
         if (desiredFormat == StringSeparateWindow)
             if (const MemoryHandle *mh = n->memory())
                 formatEditValue(DisplayLatin1String, mh, str);

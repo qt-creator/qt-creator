@@ -294,6 +294,10 @@ DumpParameters::DumpParameters() : dumpFlags(0)
 DumpParameters::FormatMap DumpParameters::decodeFormatArgument(const std::string &f,
                                                                bool isHex)
 {
+    extern const char *stdStringTypeC;
+    extern const char *stdWStringTypeC;
+    extern const char *stdWStringWCharTypeC;
+
     FormatMap rc;
     const std::string::size_type size = f.size();
     // Split 'hexname=4,'
@@ -313,7 +317,13 @@ DumpParameters::FormatMap DumpParameters::decodeFormatArgument(const std::string
         int format;
         if (!integerFromString(f.substr(numberPos, nextPos - numberPos), &format))
             return rc;
-        rc.insert(FormatMap::value_type(name, format));
+        if (name == "std::basic_string") {  // Python dumper naming convention for types
+            rc.insert(FormatMap::value_type(stdStringTypeC, format));
+            rc.insert(FormatMap::value_type(stdWStringTypeC, format));
+            rc.insert(FormatMap::value_type(stdWStringWCharTypeC, format));
+        } else {
+            rc.insert(FormatMap::value_type(name, format));
+        }
         pos = nextPos + 1;
     }
     return rc;
