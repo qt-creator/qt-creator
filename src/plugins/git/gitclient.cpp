@@ -1157,7 +1157,7 @@ QString GitClient::synchronousTopic(const QString &workingDirectory)
         return data.topic = commandOutputFromLocal8Bit(outputTextData.trimmed());
 
     // No tag
-    return data.topic = tr("(detached)");
+    return data.topic = tr("Detached HEAD");
 }
 
 // Retrieve head revision
@@ -1667,7 +1667,7 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
             VcsBase::VcsBasePlugin::SuppressFailMessageInLogWindow;
     const Utils::SynchronousProcessResponse resp = synchronousGit(QString(), arguments, flags);
     QStringList branches;
-    branches << QLatin1String("<detached HEAD>");
+    branches << tr("<Detached HEAD>");
     QString headSha;
     if (resp.result == Utils::SynchronousProcessResponse::Finished) {
         // split "82bfad2f51d34e98b18982211c82220b8db049b<tab>refs/heads/master"
