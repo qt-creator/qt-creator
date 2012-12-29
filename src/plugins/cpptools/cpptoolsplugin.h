@@ -100,6 +100,7 @@ private slots:
     void test_completion_template_5();
     void test_completion_template_6();
     void test_completion_template_7();
+    void test_completion_type_of_pointer_is_typedef();
     void test_completion_template_as_base();
     void test_completion_template_as_base_data();
     void test_completion_use_global_identifier_as_base_class();

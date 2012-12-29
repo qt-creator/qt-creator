@@ -533,6 +533,34 @@ void CppToolsPlugin::test_completion_template_7()
     QVERIFY(completions.contains(QLatin1String("i")));
 }
 
+void CppToolsPlugin::test_completion_type_of_pointer_is_typedef()
+{
+    TestData data;
+    data.srcText = "\n"
+            "typedef struct Foo\n"
+            "{\n"
+            "    int foo;\n"
+            "} Foo;\n"
+            "Foo *bar;\n"
+            "@\n"
+            ;
+
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("bar->");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("Foo")));
+    QVERIFY(completions.contains(QLatin1String("foo")));
+}
+
 void CppToolsPlugin::test_completion()
 {
     QFETCH(QByteArray, code);
