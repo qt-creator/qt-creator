@@ -1638,12 +1638,13 @@ void WatchHandler::showSeparateWidget(QWidget *w)
         m_separateWindow->setWindowFlags(m_separateWindow->windowFlags() | Qt::Window);
         m_separateWindow->setWindowTitle(WatchHandler::tr("Debugger - Qt Creator"));
     }
-    const int index = indexOf(m_separateWindow, w);
+    int index = indexOf(m_separateWindow, w);
     if (index != -1) {
         m_separateWindow->setTabText(index, w->windowTitle());
     } else {
-        m_separateWindow->addTab(w, w->windowTitle());
+        index = m_separateWindow->addTab(w, w->windowTitle());
     }
+    m_separateWindow->setCurrentIndex(index);
     m_separateWindow->show();
     m_separateWindow->raise();
 }
