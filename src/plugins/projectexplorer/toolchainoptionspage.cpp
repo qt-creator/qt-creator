@@ -447,7 +447,7 @@ ToolChainOptionsPage::ToolChainOptionsPage() :
 {
     setId(QLatin1String(Constants::TOOLCHAIN_SETTINGS_PAGE_ID));
     setDisplayName(tr("Compilers"));
-    setCategory(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY));
+    setCategory(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
         Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY));
     setCategoryIcon(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));

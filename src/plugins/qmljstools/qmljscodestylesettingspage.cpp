@@ -168,7 +168,7 @@ QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage(/*QSharedPointer<CppFileS
 {
     setId(QLatin1String(Constants::QML_JS_CODE_STYLE_SETTINGS_ID));
     setDisplayName(QCoreApplication::translate("QmlJSTools", Constants::QML_JS_CODE_STYLE_SETTINGS_NAME));
-    setCategory(QLatin1String(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML));
+    setCategory(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
     setDisplayCategory(QCoreApplication::translate("QmlJSEditor", QmlJSEditor::Constants::SETTINGS_TR_CATEGORY_QML));
     setCategoryIcon(QLatin1String(QmlDesigner::Constants::SETTINGS_CATEGORY_QML_ICON));
 }

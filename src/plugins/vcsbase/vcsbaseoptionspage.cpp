@@ -44,7 +44,7 @@ namespace VcsBase {
 VcsBaseOptionsPage::VcsBaseOptionsPage(QObject *parent) :
     Core::IOptionsPage(parent)
 {
-    setCategory(QLatin1String(Constants::VCS_SETTINGS_CATEGORY));
+    setCategory(Constants::VCS_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("VcsBase", Constants::VCS_SETTINGS_TR_CATEGORY));
     setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_VCS_ICON));
 }

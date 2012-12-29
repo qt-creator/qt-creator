@@ -105,7 +105,7 @@ MaemoQemuSettingsPage::MaemoQemuSettingsPage(QObject *parent)
 {
     setId(pageId());
     setDisplayName(tr("MeeGo Qemu Settings"));
-    setCategory(pageCategory().toString());
+    setCategory(pageCategory());
     //setDisplayCategory(QString()); // Will be set by device configurations page.
     //setCategoryIcon(QIcon()) // See above.
 }

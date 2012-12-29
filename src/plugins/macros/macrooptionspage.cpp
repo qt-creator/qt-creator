@@ -48,7 +48,7 @@ MacroOptionsPage::MacroOptionsPage(QObject *parent)
 {
     setId(QLatin1String(Constants::M_OPTIONS_PAGE));
     setDisplayName(QCoreApplication::translate("Macros", Constants::M_OPTIONS_TR_PAGE));
-    setCategory(QLatin1String(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY));
+    setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("TextEditor",
         TextEditor::Constants::TEXT_EDITOR_SETTINGS_TR_CATEGORY));
 }

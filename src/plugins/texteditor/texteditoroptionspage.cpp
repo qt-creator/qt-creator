@@ -38,7 +38,7 @@ using namespace TextEditor;
 TextEditorOptionsPage::TextEditorOptionsPage(QObject *parent) :
     Core::IOptionsPage(parent)
 {
-    setCategory(QLatin1String(Constants::TEXT_EDITOR_SETTINGS_CATEGORY));
+    setCategory(Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("TextEditor", Constants::TEXT_EDITOR_SETTINGS_TR_CATEGORY));
     setCategoryIcon(QLatin1String(Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON));
 }

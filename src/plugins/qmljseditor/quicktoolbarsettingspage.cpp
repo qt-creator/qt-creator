@@ -123,7 +123,7 @@ QuickToolBarSettingsPage::QuickToolBarSettingsPage() :
 {
     setId(QLatin1String("C.QmlToolbar"));
     setDisplayName(tr("Qt Quick ToolBar"));
-    setCategory(QLatin1String(Constants::SETTINGS_CATEGORY_QML));
+    setCategory(Constants::SETTINGS_CATEGORY_QML);
     setDisplayCategory(QCoreApplication::translate("QmlJSEditor",
         QmlJSEditor::Constants::SETTINGS_TR_CATEGORY_QML));
     setCategoryIcon(QLatin1String(QmlDesigner::Constants::SETTINGS_CATEGORY_QML_ICON));

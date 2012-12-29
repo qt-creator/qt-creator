@@ -50,7 +50,7 @@ SettingsPage::SettingsPage(LocatorPlugin *plugin)
 {
     setId(QLatin1String(Constants::FILTER_OPTIONS_PAGE));
     setDisplayName(QCoreApplication::translate("Locator", Locator::Constants::FILTER_OPTIONS_PAGE));
-    setCategory(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE));
+    setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
     setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE));
     setCategoryIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
 }

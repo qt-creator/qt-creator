@@ -107,7 +107,7 @@ CppSettingsPage::CppSettingsPage(QObject *parent) : Core::IOptionsPage(parent)
     m_parameters.fromSettings(Core::ICore::settings());
     setId(QLatin1String(Designer::Constants::SETTINGS_CPP_SETTINGS_ID));
     setDisplayName(QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_CPP_SETTINGS_NAME));
-    setCategory(QLatin1String(Designer::Constants::SETTINGS_CATEGORY));
+    setCategory(Designer::Constants::SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_TR_CATEGORY));
     setCategoryIcon(QLatin1String(Designer::Constants::SETTINGS_CATEGORY_ICON));
 }

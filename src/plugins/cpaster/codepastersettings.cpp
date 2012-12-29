@@ -53,7 +53,7 @@ CodePasterSettingsPage::CodePasterSettingsPage()
 {
     setId(QLatin1String("C.CodePaster"));
     setDisplayName(tr("CodePaster"));
-    setCategory(QLatin1String(Constants::CPASTER_SETTINGS_CATEGORY));
+    setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("CodePaster",
         Constants::CPASTER_SETTINGS_TR_CATEGORY));
 

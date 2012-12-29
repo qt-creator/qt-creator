@@ -232,7 +232,7 @@ public:
     {
         setId(_(SETTINGS_ID));
         setDisplayName(tr("General"));
-        setCategory(_(SETTINGS_CATEGORY));
+        setCategory(SETTINGS_CATEGORY);
         setDisplayCategory(tr("FakeVim"));
         setCategoryIcon(_(SETTINGS_CATEGORY_FAKEVIM_ICON));
     }
@@ -399,7 +399,7 @@ public:
     {
         setId(_(SETTINGS_EX_CMDS_ID));
         setDisplayName(tr("Ex Command Mapping"));
-        setCategory(_(SETTINGS_CATEGORY));
+        setCategory(SETTINGS_CATEGORY);
         setDisplayCategory(tr("FakeVim"));
         setCategoryIcon(_(SETTINGS_CATEGORY_FAKEVIM_ICON));
     }
@@ -621,7 +621,7 @@ public:
     {
         setId(_(SETTINGS_USER_CMDS_ID));
         setDisplayName(tr("User Command Mapping"));
-        setCategory(_(SETTINGS_CATEGORY));
+        setCategory(SETTINGS_CATEGORY);
         setDisplayCategory(tr("FakeVim"));
         setCategoryIcon(_(SETTINGS_CATEGORY_FAKEVIM_ICON));
     }

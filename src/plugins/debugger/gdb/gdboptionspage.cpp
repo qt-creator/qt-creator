@@ -382,7 +382,7 @@ GdbOptionsPage::GdbOptionsPage()
 {
     setId(QLatin1String("M.Gdb"));
     setDisplayName(tr("GDB"));
-    setCategory(QLatin1String(Constants::DEBUGGER_SETTINGS_CATEGORY));
+    setCategory(Constants::DEBUGGER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Debugger", Constants::DEBUGGER_SETTINGS_TR_CATEGORY));
     setCategoryIcon(QLatin1String(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }

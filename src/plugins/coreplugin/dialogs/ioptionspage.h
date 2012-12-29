@@ -30,7 +30,7 @@
 #ifndef IOPTIONSPAGE_H
 #define IOPTIONSPAGE_H
 
-#include <coreplugin/core_global.h>
+#include <coreplugin/id.h>
 
 #include <QIcon>
 #include <QObject>
@@ -46,7 +46,7 @@ public:
 
     QString id() const { return m_id; }
     QString displayName() const { return m_displayName; }
-    QString category() const { return m_category; }
+    Core::Id category() const { return m_category; }
     QString displayCategory() const { return m_displayCategory; }
     QIcon categoryIcon() const { return QIcon(m_categoryIcon); }
 
@@ -58,13 +58,13 @@ public:
 protected:
     void setId(const QString &id) { m_id = id; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
-    void setCategory(const QString &category) { m_category = category; }
+    void setCategory(Id category) { m_category = category; }
     void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
     void setCategoryIcon(const QString &categoryIcon) { m_categoryIcon = categoryIcon; }
 
     QString m_id;
     QString m_displayName;
-    QString m_category;
+    Core::Id m_category;
     QString m_displayCategory;
     QString m_categoryIcon;
 };
@@ -84,18 +84,18 @@ class CORE_EXPORT IOptionsPageProvider : public QObject
 public:
     IOptionsPageProvider(QObject *parent = 0) : QObject(parent) {}
 
-    QString category() const { return m_category; }
+    Core::Id category() const { return m_category; }
     QString displayCategory() const { return m_displayCategory; }
     QIcon categoryIcon() const { return QIcon(m_categoryIcon); }
 
     virtual QList<IOptionsPage *> pages() const = 0;
 
 protected:
-    void setCategory(const QString &category) { m_category = category; }
+    void setCategory(Core::Id category) { m_category = category; }
     void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
     void setCategoryIcon(const QString &categoryIcon) { m_categoryIcon = categoryIcon; }
 
-    QString m_category;
+    Core::Id m_category;
     QString m_displayCategory;
     QString m_categoryIcon;
 };

@@ -72,7 +72,7 @@ QtOptionsPage::QtOptionsPage()
 {
     setId(QLatin1String(Constants::QTVERSION_SETTINGS_PAGE_ID));
     setDisplayName(QCoreApplication::translate("Qt4ProjectManager", Constants::QTVERSION_SETTINGS_PAGE_NAME));
-    setCategory(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY));
+    setCategory(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
         ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY));
     setCategoryIcon(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));

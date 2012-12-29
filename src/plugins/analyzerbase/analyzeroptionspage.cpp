@@ -48,7 +48,7 @@ AnalyzerOptionsPage::AnalyzerOptionsPage(AbstractAnalyzerSubConfig *config, QObj
 {
     setId(m_config->id());
     setDisplayName(m_config->displayName());
-    setCategory(QLatin1String("T.Analyzer"));
+    setCategory("T.Analyzer");
     setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
     setCategoryIcon(QLatin1String(":/images/analyzer_category.png"));
 }

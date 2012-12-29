@@ -80,7 +80,7 @@ SettingsPage::SettingsPage(const QSharedPointer<Settings> &settings) :
 {
     setId(QLatin1String("A.General"));
     setDisplayName(tr("General"));
-    setCategory(QLatin1String(Constants::CPASTER_SETTINGS_CATEGORY));
+    setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("CodePaster",
         Constants::CPASTER_SETTINGS_TR_CATEGORY));
     setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CPASTER_ICON));

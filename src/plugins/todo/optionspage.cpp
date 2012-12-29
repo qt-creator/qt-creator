@@ -51,7 +51,7 @@ OptionsPage::OptionsPage(const Settings &settings, QObject *parent) :
 
     setId(QLatin1String("TodoSettings"));
     setDisplayName(tr("To-Do"));
-    setCategory(QLatin1String("To-Do"));
+    setCategory("To-Do");
     setDisplayCategory(tr("To-Do"));
     setCategoryIcon(QLatin1String(Constants::ICON_TODO));
 }

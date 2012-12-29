@@ -48,7 +48,7 @@ SettingsPage::SettingsPage(QDesignerOptionsPageInterface *designerPage) :
 {
     setId(m_designerPage->name());
     setDisplayName(m_designerPage->name());
-    setCategory(QLatin1String(Designer::Constants::SETTINGS_CATEGORY));
+    setCategory(Designer::Constants::SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Designer",
         Designer::Constants::SETTINGS_TR_CATEGORY));
     setCategoryIcon(QLatin1String(Designer::Constants::SETTINGS_CATEGORY_ICON));
@@ -75,7 +75,7 @@ void SettingsPage::finish()
 SettingsPageProvider::SettingsPageProvider(QObject *parent)
     : IOptionsPageProvider(parent), m_initialized(false)
 {
-    setCategory(QLatin1String(Designer::Constants::SETTINGS_CATEGORY));
+    setCategory(Designer::Constants::SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Designer",
         Designer::Constants::SETTINGS_TR_CATEGORY));
     setCategoryIcon(QLatin1String(Designer::Constants::SETTINGS_CATEGORY_ICON));

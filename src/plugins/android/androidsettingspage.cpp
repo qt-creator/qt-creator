@@ -42,7 +42,7 @@ AndroidSettingsPage::AndroidSettingsPage(QObject *parent)
 {
     setId(QLatin1String(Constants::ANDROID_SETTINGS_ID));
     setDisplayName(tr("Android Configurations"));
-    setCategory(QLatin1String(Constants::ANDROID_SETTINGS_CATEGORY));
+    setCategory(Constants::ANDROID_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Android",
         Constants::ANDROID_SETTINGS_TR_CATEGORY));
     setCategoryIcon(QLatin1String(Constants::ANDROID_SETTINGS_CATEGORY_ICON));

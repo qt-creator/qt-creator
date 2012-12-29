@@ -35,7 +35,6 @@
 
 #include <QList>
 #include <QSet>
-#include <QPointer>
 #include <QEventLoop>
 #include <QDialog>
 
@@ -99,7 +98,7 @@ private:
     QSet<Core::IOptionsPage*> m_visitedPages;
     QSortFilterProxyModel *m_proxyModel;
     CategoryModel *m_model;
-    QString m_currentCategory;
+    Core::Id m_currentCategory;
     QString m_currentPage;
     QStackedLayout *m_stackedLayout;
     Utils::FilterLineEdit *m_filterLineEdit;

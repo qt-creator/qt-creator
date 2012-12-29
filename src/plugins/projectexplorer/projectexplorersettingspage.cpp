@@ -177,7 +177,7 @@ ProjectExplorerSettingsPage::ProjectExplorerSettingsPage()
 {
     setId(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_ID));
     setDisplayName(tr("General"));
-    setCategory(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY));
+    setCategory(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
         Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY));
     setCategoryIcon(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));

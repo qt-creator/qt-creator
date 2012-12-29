@@ -318,7 +318,7 @@ FontSettingsPage::FontSettingsPage(const FormatDescriptions &fd,
                                    const QString &id,
                                    QObject *parent) :
     TextEditorOptionsPage(parent),
-    d_ptr(new FontSettingsPagePrivate(fd, id, tr("Font && Colors"), category()))
+    d_ptr(new FontSettingsPagePrivate(fd, id, tr("Font && Colors"), category().toString()))
 {
     setId(d_ptr->m_id);
     setDisplayName(d_ptr->m_displayName);

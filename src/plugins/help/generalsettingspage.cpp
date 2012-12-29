@@ -65,7 +65,7 @@ GeneralSettingsPage::GeneralSettingsPage()
 #endif
     setId(QLatin1String("A.General settings"));
     setDisplayName(tr("General"));
-    setCategory(QLatin1String(Help::Constants::HELP_CATEGORY));
+    setCategory(Help::Constants::HELP_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY));
     setCategoryIcon(QLatin1String(Help::Constants::HELP_CATEGORY_ICON));
 }
