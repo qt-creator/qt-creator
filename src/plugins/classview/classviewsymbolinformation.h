@@ -40,7 +40,7 @@ namespace Internal {
 
 /*!
    \class SymbolInformation
-   \brief
+   \brief Provides name, type and icon for single item in Class View tree
  */
 
 class SymbolInformation

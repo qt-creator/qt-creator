@@ -82,7 +82,7 @@ public:
 
     /*!
        \brief Set symbol information to the \a QStandardItem
-       \param information
+       \param information Provides name, type and icon
        \param item Item
        \return Filled item
      */

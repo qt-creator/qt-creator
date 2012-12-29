@@ -57,7 +57,7 @@ class Manager : public QObject
 
 public:
     /*!
-       \brief
+       \brief Creates shared instance
        \param parent Parent object
      */
     explicit Manager(QObject *parent = 0);
@@ -132,8 +132,8 @@ public slots:
     /*!
        \brief Open text editor for file \a fileName on line \a lineNumber and column \a column.
        \param fileName File which has to be open
-       \param lineNumber Line
-       \param column Column
+       \param line Line number, 1-based
+       \param column Column, 1-based
      */
     void gotoLocation(const QString &fileName, int line = 0, int column = 0);
 
@@ -227,7 +227,7 @@ protected:
 
     /*!
        \brief Set internal Manager state.
-       \param true if Manager has to be enabled, false otherwise
+       \param state true if Manager has to be enabled, false otherwise
        \sa state, stateChanged
      */
     void setState(bool state);

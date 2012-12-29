@@ -353,8 +353,7 @@ int JsonSchema::itemArraySchemaSize() const
  *
  * The method also marks the context as being inside an array evaluation.
  *
- * \param index
- * \return whether it was necessary to "enter" a schema for the supplied array index
+ * \return whether it was necessary to "enter" a schema for the supplied array index, false if index is out of bounds
  */
 bool JsonSchema::maybeEnterNestedArraySchema(int index)
 {
