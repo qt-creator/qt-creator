@@ -124,7 +124,7 @@ void FileUtils::openTerminal(const QString &path)
     QString terminalEmulator;
     QStringList args;
     if (HostOsInfo::isWindowsHost()) {
-        terminalEmulator = QString::fromLocal8Bit(qgetenv("COMSPEC"));
+        terminalEmulator = ConsoleProcess::defaultTerminalEmulator();
     } else if (HostOsInfo::isMacHost()) {
         terminalEmulator = ICore::resourcePath()
             + QLatin1String("/scripts/openTerminal.command");

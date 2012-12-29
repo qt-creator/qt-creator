@@ -29,6 +29,8 @@
 
 #include "consoleprocess_p.h"
 
+#include <QSettings>
+
 namespace Utils {
 
 ConsoleProcess::~ConsoleProcess()
@@ -135,6 +137,21 @@ QString ConsoleProcess::msgCannotChangeToWorkDir(const QString & dir, const QStr
 QString ConsoleProcess::msgCannotExecute(const QString & p, const QString &why)
 {
     return tr("Cannot execute '%1': %2").arg(p, why);
+}
+
+QString ConsoleProcess::terminalEmulator(const QSettings *settings)
+{
+    if (settings) {
+        const QString value = settings->value(QLatin1String("General/TerminalEmulator")).toString();
+        if (!value.isEmpty())
+            return value;
+    }
+    return defaultTerminalEmulator();
+}
+
+void ConsoleProcess::setTerminalEmulator(QSettings *settings, const QString &term)
+{
+    return settings->setValue(QLatin1String("General/TerminalEmulator"), term);
 }
 
 }

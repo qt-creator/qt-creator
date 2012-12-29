@@ -358,4 +358,14 @@ QString ConsoleProcess::createWinCommandline(const QString &program, const QStri
     return programName;
 }
 
+QString ConsoleProcess::defaultTerminalEmulator()
+{
+    return QString::fromLocal8Bit(qgetenv("COMSPEC"));
+}
+
+QStringList ConsoleProcess::availableTerminalEmulators()
+{
+    return QStringList(ConsoleProcess::defaultTerminalEmulator());
+}
+
 } // namespace Utils

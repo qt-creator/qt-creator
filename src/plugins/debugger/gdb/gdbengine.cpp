@@ -5378,7 +5378,7 @@ bool GdbEngine::prepareCommand()
         // perr == BadQuoting is never returned on Windows
         // FIXME? QTCREATORBUG-2809
         handleAdapterStartFailed(QCoreApplication::translate("DebuggerEngine", // Same message in CdbEngine
-            "Debugging complex command lines is currently not supported on Windows."), QString());
+                                                             "Debugging complex command lines is currently not supported on Windows."), Core::Id());
         return false;
     }
 #endif
