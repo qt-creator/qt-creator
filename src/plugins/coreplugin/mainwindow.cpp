@@ -965,7 +965,7 @@ bool MainWindow::showOptionsDialog(Id category, Id page, QWidget *parent)
     emit m_coreImpl->optionsDialogRequested();
     if (!parent)
         parent = this;
-    SettingsDialog *dialog = SettingsDialog::getSettingsDialog(parent, category.toString(), page.toString());
+    SettingsDialog *dialog = SettingsDialog::getSettingsDialog(parent, category, page);
     return dialog->execDialog();
 }
 

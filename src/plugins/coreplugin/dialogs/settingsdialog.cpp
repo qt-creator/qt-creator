@@ -29,33 +29,34 @@
 
 #include "settingsdialog.h"
 
-#include <extensionsystem/pluginmanager.h>
 #include "icore.h"
 
+#include <extensionsystem/pluginmanager.h>
 #include <utils/hostosinfo.h>
 #include <utils/filterlineedit.h>
 
-#include <QSettings>
-#include <QSortFilterProxyModel>
-#include <QItemSelectionModel>
+#include <QApplication>
+#include <QDialogButtonBox>
+#include <QFrame>
+#include <QGridLayout>
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QIcon>
+#include <QItemSelectionModel>
 #include <QLabel>
-#include <QPushButton>
-#include <QToolButton>
-#include <QToolBar>
-#include <QScrollBar>
-#include <QSpacerItem>
-#include <QStyle>
-#include <QStackedLayout>
-#include <QGridLayout>
 #include <QLineEdit>
-#include <QFrame>
-#include <QDialogButtonBox>
 #include <QListView>
-#include <QApplication>
-#include <QGroupBox>
+#include <QPointer>
+#include <QPushButton>
+#include <QScrollBar>
+#include <QSettings>
+#include <QSortFilterProxyModel>
+#include <QSpacerItem>
+#include <QStackedLayout>
+#include <QStyle>
 #include <QStyledItemDelegate>
+#include <QToolBar>
+#include <QToolButton>
 
 static const char categoryKeyC[] = "General/LastPreferenceCategory";
 static const char pageKeyC[] = "General/LastPreferencePage";
@@ -64,7 +65,7 @@ const int categoryIconSize = 24;
 namespace Core {
 namespace Internal {
 
-QPointer<SettingsDialog> SettingsDialog::m_instance = 0;
+static QPointer<SettingsDialog> m_instance = 0;
 
 // ----------- Category model
 
@@ -325,11 +326,11 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     m_categoryList->setFocus();
 }
 
-void SettingsDialog::showPage(const QString &categoryId, const QString &pageId)
+void SettingsDialog::showPage(Id categoryId, Id pageId)
 {
     // handle the case of "show last page"
-    QString initialCategory = categoryId;
-    QString initialPage = pageId;
+    QString initialCategory = categoryId.toString();
+    QString initialPage = pageId.toString();
     if (initialCategory.isEmpty() && initialPage.isEmpty()) {
         QSettings *settings = ICore::settings();
         initialCategory = settings->value(QLatin1String(categoryKeyC), QVariant(QString())).toString();
@@ -565,12 +566,10 @@ QSize SettingsDialog::sizeHint() const
 }
 
 SettingsDialog *SettingsDialog::getSettingsDialog(QWidget *parent,
-                           const QString &initialCategory,
-                           const QString &initialPage)
+    Id initialCategory, Id initialPage)
 {
-    if (!m_instance) {
+    if (!m_instance)
         m_instance = new SettingsDialog(parent);
-    }
     m_instance->showPage(initialCategory, initialPage);
     return m_instance;
 }
@@ -601,7 +600,6 @@ bool SettingsDialog::execDialog()
     }
     return m_applied;
 }
-
 
 } // namespace Internal
 } // namespace Core
