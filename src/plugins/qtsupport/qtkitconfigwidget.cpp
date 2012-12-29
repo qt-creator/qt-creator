@@ -128,8 +128,8 @@ void QtKitConfigWidget::versionsChanged(const QList<int> &added, const QList<int
 
 void QtKitConfigWidget::manageQtVersions()
 {
-    Core::ICore::showOptionsDialog(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
-                                   QLatin1String(QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID));
+    Core::ICore::showOptionsDialog(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
+                                   Constants::QTVERSION_SETTINGS_PAGE_ID);
 }
 
 void QtKitConfigWidget::currentWasChanged(int idx)

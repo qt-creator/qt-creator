@@ -1191,7 +1191,7 @@ void FakeVimPluginPrivate::maybeReadVimRc()
 
 void FakeVimPluginPrivate::showSettingsDialog()
 {
-    ICore::showOptionsDialog(_(SETTINGS_CATEGORY), _(SETTINGS_ID));
+    ICore::showOptionsDialog(SETTINGS_CATEGORY, SETTINGS_ID);
 }
 
 void FakeVimPluginPrivate::triggerAction(const Id &id)

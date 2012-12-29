@@ -228,8 +228,8 @@ void Qt4TargetSetupWidget::manageKit()
         return;
 
     page->showKit(m_kit);
-    Core::ICore::showOptionsDialog(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
-                                   QLatin1String(ProjectExplorer::Constants::KITS_SETTINGS_PAGE_ID));
+    Core::ICore::showOptionsDialog(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
+                                   ProjectExplorer::Constants::KITS_SETTINGS_PAGE_ID);
 }
 
 void Qt4TargetSetupWidget::setProFilePath(const QString &proFilePath)

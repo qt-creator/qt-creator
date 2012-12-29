@@ -168,8 +168,8 @@ bool Protocol::showConfigurationError(const Protocol *p,
     mb.exec();
     bool rc = false;
     if (mb.clickedButton() == settingsButton)
-        rc = Core::ICore::showOptionsDialog(p->settingsPage()->category(),
-                                                        p->settingsPage()->id(),
+        rc = Core::ICore::showOptionsDialog(Core::Id(p->settingsPage()->category()),
+                                            Core::Id(p->settingsPage()->id()),
                                                         parent);
     return rc;
 }

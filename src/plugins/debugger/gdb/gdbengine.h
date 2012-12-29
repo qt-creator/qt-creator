@@ -37,6 +37,8 @@
 #include "watchutils.h"
 #include "threaddata.h"
 
+#include <coreplugin/id.h>
+
 #include <QByteArray>
 #include <QProcess>
 #include <QHash>
@@ -239,7 +241,7 @@ protected: ////////// Gdb Process Management //////////
     // Something went wrong with the adapter *before* adapterStarted() was emitted.
     // Make sure to clean up everything before emitting this signal.
     void handleAdapterStartFailed(const QString &msg,
-        const QString &settingsIdHint = QString());
+        Core::Id settingsIdHint = Core::Id());
 
     // This triggers the initial breakpoint synchronization and causes
     // finishInferiorSetup() being called once done.

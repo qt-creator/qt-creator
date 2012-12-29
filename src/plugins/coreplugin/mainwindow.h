@@ -138,14 +138,12 @@ public slots:
                            const QString &defaultLocation = QString(),
                            const QVariantMap &extraVariables = QVariantMap());
 
-    bool showOptionsDialog(const QString &category = QString(),
-                           const QString &page = QString(),
-                           QWidget *parent = 0);
+    bool showOptionsDialog(Id category, Id page, QWidget *parent = 0);
 
     bool showWarningWithOptions(const QString &title, const QString &text,
                                 const QString &details = QString(),
                                 Id settingsCategory = Id(),
-                                const QString &settingsId = QString(),
+                                Id settingsId = Id(),
                                 QWidget *parent = 0);
 
 protected:

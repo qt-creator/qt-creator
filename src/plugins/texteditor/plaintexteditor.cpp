@@ -51,8 +51,10 @@
 
 #include <QDebug>
 
-using namespace TextEditor;
+using namespace Core;
 using namespace TextEditor::Internal;
+
+namespace TextEditor {
 
 PlainTextEditor::PlainTextEditor(PlainTextEditorWidget *editor)
   : BaseTextEditor(editor)
@@ -218,11 +220,13 @@ QString PlainTextEditorWidget::findDefinitionId(const Core::MimeType &mimeType,
 
 void PlainTextEditorWidget::acceptMissingSyntaxDefinitionInfo()
 {
-    Core::ICore::showOptionsDialog(QLatin1String(Constants::TEXT_EDITOR_SETTINGS_CATEGORY),
-                                               QLatin1String(Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS));
+    ICore::showOptionsDialog(Constants::TEXT_EDITOR_SETTINGS_CATEGORY,
+                             Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS);
 }
 
 void PlainTextEditorWidget::ignoreMissingSyntaxDefinitionInfo()
 {
     m_ignoreMissingSyntaxDefinition = true;
 }
+
+} // namespace TextEditor

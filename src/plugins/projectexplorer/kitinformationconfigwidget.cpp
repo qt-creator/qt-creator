@@ -46,6 +46,8 @@
 #include <QLabel>
 #include <QPushButton>
 
+using namespace Core;
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -186,8 +188,8 @@ void ToolChainInformationConfigWidget::toolChainUpdated(ProjectExplorer::ToolCha
 
 void ToolChainInformationConfigWidget::manageToolChains()
 {
-    Core::ICore::showOptionsDialog(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
-                                   QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_PAGE_ID));
+    Core::ICore::showOptionsDialog(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
+                                   Constants::TOOLCHAIN_SETTINGS_PAGE_ID);
 }
 
 void ToolChainInformationConfigWidget::currentToolChainChanged(int idx)
@@ -333,8 +335,8 @@ QWidget *DeviceInformationConfigWidget::buttonWidget() const
 
 void DeviceInformationConfigWidget::manageDevices()
 {
-    Core::ICore::showOptionsDialog(QLatin1String(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY),
-                                   QLatin1String(ProjectExplorer::Constants::DEVICE_SETTINGS_PAGE_ID));
+    ICore::showOptionsDialog(Constants::DEVICE_SETTINGS_CATEGORY,
+                             Constants::DEVICE_SETTINGS_PAGE_ID);
 }
 
 void DeviceInformationConfigWidget::modelAboutToReset()

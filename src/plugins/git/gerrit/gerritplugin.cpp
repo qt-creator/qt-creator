@@ -360,8 +360,8 @@ void GerritPlugin::openView()
 {
     if (m_dialog.isNull()) {
         while (!m_parameters->isValid()) {
-            const QString group = QLatin1String(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-            if (!Core::ICore::instance()->showOptionsDialog(group, GerritOptionsPage::optionsId()))
+            const Core::Id group = VcsBase::Constants::VCS_SETTINGS_CATEGORY;
+            if (!Core::ICore::instance()->showOptionsDialog(group, Core::Id("Gerrit")))
                 return;
         }
         GerritDialog *gd = new GerritDialog(m_parameters, Core::ICore::mainWindow());

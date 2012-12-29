@@ -393,7 +393,7 @@ void ICore::showNewItemDialog(const QString &title,
     m_mainwindow->showNewItemDialog(title, wizards, defaultLocation, extraVariables);
 }
 
-bool ICore::showOptionsDialog(const QString &group, const QString &page, QWidget *parent)
+bool ICore::showOptionsDialog(const Id group, const Id page, QWidget *parent)
 {
     return m_mainwindow->showOptionsDialog(group, page, parent);
 }
@@ -401,7 +401,7 @@ bool ICore::showOptionsDialog(const QString &group, const QString &page, QWidget
 bool ICore::showWarningWithOptions(const QString &title, const QString &text,
                                    const QString &details,
                                    Id settingsCategory,
-                                   const QString &settingsId,
+                                   Id settingsId,
                                    QWidget *parent)
 {
     return m_mainwindow->showWarningWithOptions(title, text,

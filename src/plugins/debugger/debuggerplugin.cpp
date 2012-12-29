@@ -2406,9 +2406,7 @@ void DebuggerPluginPrivate::onModeChanged(IMode *mode)
 
 void DebuggerPluginPrivate::showSettingsDialog()
 {
-    ICore::showOptionsDialog(
-        _(DEBUGGER_SETTINGS_CATEGORY),
-        _(DEBUGGER_COMMON_SETTINGS_ID));
+    ICore::showOptionsDialog(DEBUGGER_SETTINGS_CATEGORY, DEBUGGER_COMMON_SETTINGS_ID);
 }
 
 void DebuggerPluginPrivate::updateDebugWithoutDeployMenu()

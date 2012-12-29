@@ -116,8 +116,8 @@ void QmlProjectPlugin::showQmlObserverToolWarning()
     dialog.exec();
     if (dialog.clickedButton() == qtPref) {
         Core::ICore::showOptionsDialog(
-                    QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
-                    QLatin1String(QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID));
+                    ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
+                    QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
     }
 }
 

@@ -31,6 +31,7 @@
 #define MAEMOSETTINGSPAGES_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/id.h>
 
 namespace Madde{
 namespace Internal {
@@ -50,7 +51,7 @@ public:
 
     static void showQemuCrashDialog();
     static QString pageId();
-    static QString pageCategory();
+    static Core::Id pageCategory();
 
 private:
     QString m_keywords;

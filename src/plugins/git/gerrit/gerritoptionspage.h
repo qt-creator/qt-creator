@@ -75,8 +75,6 @@ public:
     GerritOptionsPage(const QSharedPointer<GerritParameters> &p,
                       QObject *parent = 0);
 
-    static QString optionsId();
-
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }

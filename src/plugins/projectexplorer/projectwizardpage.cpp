@@ -193,6 +193,6 @@ void ProjectWizardPage::slotProjectChanged(int index)
 
 void ProjectWizardPage::slotManageVcs()
 {
-    Core::ICore::showOptionsDialog(QLatin1String(VcsBase::Constants::VCS_SETTINGS_CATEGORY),
-                            QLatin1String(VcsBase::Constants::VCS_COMMON_SETTINGS_ID));
+    Core::ICore::showOptionsDialog(VcsBase::Constants::VCS_SETTINGS_CATEGORY,
+                                   VcsBase::Constants::VCS_COMMON_SETTINGS_ID);
 }

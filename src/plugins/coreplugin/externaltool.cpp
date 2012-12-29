@@ -944,6 +944,5 @@ void ExternalToolManager::writeSettings()
 
 void ExternalToolManager::openPreferences()
 {
-    ICore::showOptionsDialog(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE),
-                                         QLatin1String(Core::Constants::SETTINGS_ID_TOOLS));
+    ICore::showOptionsDialog(Constants::SETTINGS_CATEGORY_CORE, Constants::SETTINGS_ID_TOOLS);
 }

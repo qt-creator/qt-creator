@@ -59,9 +59,11 @@
 #include <QVBoxLayout>
 #include <QToolTip>
 
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
 
+using namespace Core;
+
+namespace ProjectExplorer {
+namespace Internal {
 
 ///
 // TargetSettingsWidget
@@ -593,13 +595,12 @@ void TargetSettingsPanelWidget::openTargetPreferences()
 {
     int targetIndex = m_selector->currentIndex();
     if (targetIndex >= 0 && targetIndex < m_targets.size()) {
-        ProjectExplorer::KitOptionsPage *page =
-                ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::KitOptionsPage>();
+        KitOptionsPage *page = ExtensionSystem::PluginManager::getObject<ProjectExplorer::KitOptionsPage>();
         if (page)
             page->showKit(m_targets.at(targetIndex)->kit());
     }
-    Core::ICore::showOptionsDialog(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
-                                   QLatin1String(Constants::KITS_SETTINGS_PAGE_ID));
+    ICore::showOptionsDialog(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
+                             Constants::KITS_SETTINGS_PAGE_ID);
 }
 
 int TargetSettingsPanelWidget::currentSubIndex() const
@@ -611,3 +612,6 @@ void TargetSettingsPanelWidget::setCurrentSubIndex(int subIndex)
 {
     m_selector->setCurrentSubIndex(subIndex);
 }
+
+} // namespace Internal
+} // namespace ProjectExplorer

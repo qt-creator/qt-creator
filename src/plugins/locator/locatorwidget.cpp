@@ -73,6 +73,8 @@
 Q_DECLARE_METATYPE(Locator::ILocatorFilter*)
 Q_DECLARE_METATYPE(Locator::FilterEntry)
 
+using namespace Core;
+
 namespace Locator {
 namespace Internal {
 
@@ -622,6 +624,5 @@ void LocatorWidget::showEvent(QShowEvent *event)
 
 void LocatorWidget::showConfigureDialog()
 {
-    Core::ICore::showOptionsDialog(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE),
-          QLatin1String(Constants::FILTER_OPTIONS_PAGE));
+    ICore::showOptionsDialog(Core::Constants::SETTINGS_CATEGORY_CORE, Constants::FILTER_OPTIONS_PAGE);
 }
