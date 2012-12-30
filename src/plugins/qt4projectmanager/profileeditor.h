@@ -40,15 +40,9 @@ class TextEditorActionHandler;
 }
 
 namespace Qt4ProjectManager {
-
-class Qt4Manager;
-class Qt4Project;
-
 namespace Internal {
 
 class ProFileEditorFactory;
-class ProFileHighlighter;
-
 class ProFileEditorWidget;
 
 class ProFileEditor : public TextEditor::BaseTextEditor
@@ -78,6 +72,7 @@ public:
     TextEditor::TextEditorActionHandler *actionHandler() const { return m_ah; }
 
     void unCommentSelection();
+
 protected:
     virtual Link findLinkAt(const QTextCursor &, bool resolveTarget = true);
     TextEditor::BaseTextEditor *createEditor();

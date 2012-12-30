@@ -35,6 +35,7 @@
 #include <QtAlgorithms>
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
+#include <QVector>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -52,18 +53,17 @@ public:
     };
 
     ProFileHighlighter(QTextDocument *document = 0);
-    virtual void highlightBlock(const QString &text);
+    void highlightBlock(const QString &text);
 
     // Set formats from a sequence of type QTextCharFormat
-    template <class InputIterator>
-        void setFormats(InputIterator begin, InputIterator end) {
-            qCopy(begin, end, m_formats);
-        }
+    void setFormats(const QVector<QTextCharFormat> &formats)
+    {
+        qCopy(formats.begin(), formats.end(), m_formats);
+    }
 
 private:
     QTextCharFormat m_formats[NumProfileFormats];
     TextEditor::Keywords m_keywords;
-
 };
 
 } // namespace Internal

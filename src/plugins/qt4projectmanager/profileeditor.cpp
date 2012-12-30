@@ -34,10 +34,10 @@
 #include "qt4projectmanagerconstants.h"
 #include "profileeditorfactory.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/id.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/id.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
@@ -45,21 +45,19 @@
 
 #include <QFileInfo>
 #include <QDir>
-#include <QMenu>
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+namespace Qt4ProjectManager {
+namespace Internal {
 
 //
-// ProFileEditorEditable
+// ProFileEditor
 //
 
 ProFileEditor::ProFileEditor(ProFileEditorWidget *editor)
   : BaseTextEditor(editor)
 {
-    setContext(Core::Context(Qt4ProjectManager::Constants::C_PROFILEEDITOR,
+    setContext(Core::Context(Constants::C_PROFILEEDITOR,
               TextEditor::Constants::C_TEXTEDITOR));
-//    m_contexts << uidm->uniqueIdentifier(Qt4ProjectManager::Constants::PROJECT_KIND);
 }
 
 Core::IEditor *ProFileEditor::duplicate(QWidget *parent)
@@ -73,18 +71,18 @@ Core::IEditor *ProFileEditor::duplicate(QWidget *parent)
 
 Core::Id ProFileEditor::id() const
 {
-    return Core::Id(Qt4ProjectManager::Constants::PROFILE_EDITOR_ID);
+    return Core::Id(Constants::PROFILE_EDITOR_ID);
 }
 
 //
-// ProFileEditorEditor
+// ProFileEditorWidget
 //
 
 ProFileEditorWidget::ProFileEditorWidget(QWidget *parent, ProFileEditorFactory *factory, TextEditor::TextEditorActionHandler *ah)
     : BaseTextEditorWidget(parent), m_factory(factory), m_ah(ah)
 {
     ProFileDocument *doc = new ProFileDocument();
-    doc->setMimeType(QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE));
+    doc->setMimeType(QLatin1String(Constants::PROFILE_MIMETYPE));
     setBaseTextDocument(doc);
 
     ah->setupActions(this);
@@ -101,14 +99,12 @@ void ProFileEditorWidget::unCommentSelection()
 
 static bool isValidFileNameChar(const QChar &c)
 {
-    if (c.isLetterOrNumber()
+    return c.isLetterOrNumber()
             || c == QLatin1Char('.')
             || c == QLatin1Char('_')
             || c == QLatin1Char('-')
             || c == QLatin1Char('/')
-            || c == QLatin1Char('\\'))
-        return true;
-    return false;
+            || c == QLatin1Char('\\');
 }
 
 ProFileEditorWidget::Link ProFileEditorWidget::findLinkAt(const QTextCursor &cursor,
@@ -213,8 +209,7 @@ void ProFileEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
                    << TextEditor::C_VISUAL_WHITESPACE;
     }
 
-    const QVector<QTextCharFormat> formats = fs.toTextCharFormats(categories);
-    highlighter->setFormats(formats.constBegin(), formats.constEnd());
+    highlighter->setFormats(fs.toTextCharFormats(categories));
     highlighter->rehighlight();
 }
 
@@ -238,3 +233,6 @@ QString ProFileDocument::suggestedFileName() const
     QFileInfo fi(fileName());
     return fi.fileName();
 }
+
+} // namespace Internal
+} // namespace Qt4ProjectManager
