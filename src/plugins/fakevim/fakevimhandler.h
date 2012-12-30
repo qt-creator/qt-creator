@@ -122,7 +122,7 @@ public slots:
     int logicalIndentation(const QString &line) const;
     QString tabExpand(int n) const;
 
-    void miniBufferTextEdited(const QString &text, int cursorPos);
+    void miniBufferTextEdited(const QString &text, int cursorPos, int anchorPos);
 
     // Set text cursor position. Keeps anchor if in visual mode.
     void setTextCursorPosition(int position);

@@ -123,6 +123,7 @@ public:
         m_edit->installEventFilter(this);
         connect(m_edit, SIGNAL(textEdited(QString)), SLOT(changed()));
         connect(m_edit, SIGNAL(cursorPositionChanged(int,int)), SLOT(changed()));
+        connect(m_edit, SIGNAL(selectionChanged()), SLOT(changed()));
         m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
         addWidget(m_label);
@@ -164,7 +165,7 @@ public:
                 "*{border-radius:2px;padding-left:4px;padding-right:4px;%1}").arg(css));
 
             if (m_edit->hasFocus())
-                emit edited(QString(), -1);
+                emit edited(QString(), -1, -1);
 
             setCurrentWidget(m_label);
         }
@@ -172,12 +173,12 @@ public:
         if (m_eventFilter != eventFilter) {
             if (m_eventFilter != 0) {
                 m_edit->removeEventFilter(m_eventFilter);
-                disconnect(SIGNAL(edited(QString,int)));
+                disconnect(SIGNAL(edited(QString,int,int)));
             }
             if (eventFilter != 0) {
                 m_edit->installEventFilter(eventFilter);
-                connect(this, SIGNAL(edited(QString,int)),
-                        eventFilter, SLOT(miniBufferTextEdited(QString,int)));
+                connect(this, SIGNAL(edited(QString,int,int)),
+                        eventFilter, SLOT(miniBufferTextEdited(QString,int,int)));
             }
             m_eventFilter = eventFilter;
         }
@@ -191,12 +192,16 @@ public:
     }
 
 signals:
-    void edited(const QString &text, int cursorPos);
+    void edited(const QString &text, int cursorPos, int anchorPos);
 
 private slots:
     void changed()
     {
-        emit edited(m_edit->text(), m_edit->cursorPosition());
+        const int cursorPos = m_edit->cursorPosition();
+        int anchorPos = m_edit->selectionStart();
+        if (anchorPos == cursorPos)
+            anchorPos = cursorPos + m_edit->selectedText().length();
+        emit edited(m_edit->text(), cursorPos, anchorPos);
     }
 
     bool eventFilter(QObject *ob, QEvent *ev)
@@ -204,7 +209,7 @@ private slots:
         // cancel editing on escape
         if (m_eventFilter != 0 && ob == m_edit && ev->type() == QEvent::ShortcutOverride
             && static_cast<QKeyEvent*>(ev)->key() == Qt::Key_Escape) {
-            emit edited(QString(), -1);
+            emit edited(QString(), -1, -1);
             ev->accept();
             return true;
         }

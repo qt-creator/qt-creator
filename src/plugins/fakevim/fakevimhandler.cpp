@@ -1098,7 +1098,10 @@ public:
     void setPrompt(const QChar &prompt) { m_prompt = prompt; }
     void setContents(const QString &s) { m_buffer = s; m_anchor = m_pos = s.size(); }
 
-    void setContents(const QString &s, int pos) { m_buffer = s; m_anchor = m_pos = m_userPos = pos; }
+    void setContents(const QString &s, int pos, int anchor = -1)
+    {
+        m_buffer = s; m_pos = m_userPos = pos; m_anchor = anchor >= 0 ? anchor : pos;
+    }
 
     QStringRef userContents() const { return m_buffer.leftRef(m_userPos); }
     const QChar &prompt() const { return m_prompt; }
@@ -1106,6 +1109,7 @@ public:
     bool isEmpty() const { return m_buffer.isEmpty(); }
     int cursorPos() const { return m_pos; }
     int anchorPos() const { return m_anchor; }
+    bool hasSelection() const { return m_pos != m_anchor; }
 
     void insertChar(QChar c) { m_buffer.insert(m_pos++, c); m_anchor = m_userPos = m_pos; }
     void insertText(const QString &s)
@@ -1189,16 +1193,16 @@ public:
         } else if (input.isKey(Key_Down) || input.isKey(Key_PageDown)) {
             historyDown();
         } else if (input.isKey(Key_Delete)) {
-            if (m_anchor == m_pos) {
+            if (hasSelection()) {
+                deleteSelected();
+            } else {
                 if (m_pos < m_buffer.size())
                     m_buffer.remove(m_pos, 1);
                 else
                     deleteChar();
-            } else {
-                deleteSelected();
             }
         } else if (!input.text().isEmpty()) {
-            if (m_anchor != m_pos)
+            if (hasSelection())
                 deleteSelected();
             insertText(input.text());
         } else {
@@ -1807,7 +1811,7 @@ public:
     signed char m_charClass[256];
     bool m_ctrlVActive;
 
-    void miniBufferTextEdited(const QString &text, int cursorPos);
+    void miniBufferTextEdited(const QString &text, int cursorPos, int anchorPos);
 
     static struct GlobalData
     {
@@ -4368,6 +4372,8 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
         if (g.commandBuffer.isEmpty()) {
             enterCommandMode(g.returnToMode);
             resetCommandMode();
+        } else if (g.commandBuffer.hasSelection()) {
+            g.commandBuffer.deleteSelected();
         } else {
             g.commandBuffer.deleteChar();
         }
@@ -5660,7 +5666,8 @@ int FakeVimHandler::Private::charClass(QChar c, bool simple) const
     return c.isSpace() ? 0 : 1;
 }
 
-void FakeVimHandler::Private::miniBufferTextEdited(const QString &text, int cursorPos)
+void FakeVimHandler::Private::miniBufferTextEdited(const QString &text, int cursorPos,
+    int anchorPos)
 {
     if (m_subsubmode != SearchSubSubMode && m_mode != ExMode) {
         editor()->setFocus();
@@ -5671,16 +5678,19 @@ void FakeVimHandler::Private::miniBufferTextEdited(const QString &text, int curs
         updateCursorShape();
     } else {
         CommandBuffer &cmdBuf = (m_mode == ExMode) ? g.commandBuffer : g.searchBuffer;
+        int pos = qMax(1, cursorPos);
+        int anchor = anchorPos == -1 ? pos : qMax(1, anchorPos);
+        QString buffer = text;
         // prepend prompt character if missing
-        if (!text.startsWith(cmdBuf.prompt())) {
-            emit q->commandBufferChanged(cmdBuf.prompt() + text,
-                                         cmdBuf.cursorPos() + 1,
-                                         cmdBuf.anchorPos() + 1,
-                                         0, q);
-            cmdBuf.setContents(text, cursorPos - 1);
-        } else {
-            cmdBuf.setContents(text.mid(1), cursorPos - 1);
+        if (!buffer.startsWith(cmdBuf.prompt())) {
+            buffer.prepend(cmdBuf.prompt());
+            ++pos;
+            ++anchor;
         }
+        // update command/search buffer
+        cmdBuf.setContents(buffer.mid(1), pos - 1, anchor - 1);
+        if (pos != cursorPos || anchor != anchorPos || buffer != text)
+            emit q->commandBufferChanged(buffer, pos, anchor, 0, q);
         // update search expression
         if (m_subsubmode == SearchSubSubMode) {
             updateFind(false);
@@ -7443,9 +7453,9 @@ QString FakeVimHandler::tabExpand(int n) const
     return d->tabExpand(n);
 }
 
-void FakeVimHandler::miniBufferTextEdited(const QString &text, int cursorPos)
+void FakeVimHandler::miniBufferTextEdited(const QString &text, int cursorPos, int anchorPos)
 {
-    d->miniBufferTextEdited(text, cursorPos);
+    d->miniBufferTextEdited(text, cursorPos, anchorPos);
 }
 
 void FakeVimHandler::setTextCursorPosition(int position)
