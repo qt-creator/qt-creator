@@ -33,28 +33,21 @@
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/id.h>
-#include <QPointer>
 #include <glsl/glsl.h>
 
+#include <QPointer>
+
 QT_FORWARD_DECLARE_CLASS(QAction)
-QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace TextEditor {
 class TextEditorActionHandler;
+class ITextEditor;
 } // namespace TextEditor
 
 namespace Core {
 class Command;
 class ActionContainer;
 class ActionManager;
-}
-
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace GLSL {
-class ModelManagerInterface;
 }
 
 namespace GLSLEditor {
@@ -64,8 +57,6 @@ class GLSLTextEditorWidget;
 namespace Internal {
 
 class GLSLEditorFactory;
-class GLSLPreviewRunner;
-class GLSLQuickFixCollector;
 
 class GLSLEditorPlugin : public ExtensionSystem::IPlugin
 {
@@ -74,26 +65,27 @@ class GLSLEditorPlugin : public ExtensionSystem::IPlugin
 
 public:
     GLSLEditorPlugin();
-    virtual ~GLSLEditorPlugin();
+    ~GLSLEditorPlugin();
 
     // IPlugin
     bool initialize(const QStringList &arguments, QString *errorMessage = 0);
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
 
-    static GLSLEditorPlugin *instance()
-    { return m_instance; }
+    static GLSLEditorPlugin *instance() { return m_instance; }
 
     void initializeEditor(GLSLEditor::GLSLTextEditorWidget *editor);
 
-    struct InitFile {
-        GLSL::Engine *engine;
-        GLSL::TranslationUnitAST *ast;
-
+    struct InitFile
+    {
         InitFile(GLSL::Engine *engine = 0, GLSL::TranslationUnitAST *ast = 0)
-            : engine(engine), ast(ast) {}
+            : engine(engine), ast(ast)
+        {}
 
         ~InitFile();
+
+        GLSL::Engine *engine;
+        GLSL::TranslationUnitAST *ast;
     };
 
     const InitFile *fragmentShaderInit(int variant) const;
@@ -104,10 +96,6 @@ private:
     QByteArray glslFile(const QString &fileName) const;
     InitFile *getInitFile(const QString &fileName, InitFile **initFile) const;
     void parseGlslFile(const QString &fileName, InitFile *initFile) const;
-
-    // FIXME: Unused?
-    Core::Command *addToolAction(QAction *a, Core::Context &context, const Core::Id &name,
-                                 Core::ActionContainer *c1, const QString &keySequence);
 
     static GLSLEditorPlugin *m_instance;
 

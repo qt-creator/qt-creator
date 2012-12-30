@@ -65,9 +65,11 @@
 #include <QMenu>
 #include <QAction>
 
-using namespace GLSLEditor;
-using namespace GLSLEditor::Internal;
-using namespace GLSLEditor::Constants;
+using namespace Core;
+using namespace TextEditor;
+
+namespace GLSLEditor {
+namespace Internal {
 
 GLSLEditorPlugin *GLSLEditorPlugin::m_instance = 0;
 
@@ -104,7 +106,7 @@ GLSLEditorPlugin::~GLSLEditorPlugin()
 
 bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
-    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/glsleditor/GLSLEditor.mimetypes.xml"), errorMessage))
+    if (!ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/glsleditor/GLSLEditor.mimetypes.xml"), errorMessage))
         return false;
 
 //    m_modelManager = new ModelManager(this);
@@ -112,42 +114,40 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
 
     addAutoReleasedObject(new GLSLHoverHandler(this));
 
-    Core::Context context(GLSLEditor::Constants::C_GLSLEDITOR_ID);
-
     m_editor = new GLSLEditorFactory(this);
     addObject(m_editor);
 
     addAutoReleasedObject(new GLSLCompletionAssistProvider);
 
-    m_actionHandler = new TextEditor::TextEditorActionHandler(GLSLEditor::Constants::C_GLSLEDITOR_ID,
-                                                              TextEditor::TextEditorActionHandler::Format
-                                                              | TextEditor::TextEditorActionHandler::UnCommentSelection
-                                                              | TextEditor::TextEditorActionHandler::UnCollapseAll);
+    m_actionHandler = new TextEditorActionHandler(Constants::C_GLSLEDITOR_ID,
+                                                              TextEditorActionHandler::Format
+                                                              | TextEditorActionHandler::UnCommentSelection
+                                                              | TextEditorActionHandler::UnCollapseAll);
     m_actionHandler->initializeActions();
 
-    Core::ActionContainer *contextMenu = Core::ActionManager::createMenu(GLSLEditor::Constants::M_CONTEXT);
-    Core::ActionContainer *glslToolsMenu = Core::ActionManager::createMenu(Core::Id(Constants::M_TOOLS_GLSL));
-    glslToolsMenu->setOnAllDisabledBehavior(Core::ActionContainer::Hide);
+    ActionContainer *contextMenu = ActionManager::createMenu(GLSLEditor::Constants::M_CONTEXT);
+    ActionContainer *glslToolsMenu = ActionManager::createMenu(Id(Constants::M_TOOLS_GLSL));
+    glslToolsMenu->setOnAllDisabledBehavior(ActionContainer::Hide);
     QMenu *menu = glslToolsMenu->menu();
     //: GLSL sub-menu in the Tools menu
     menu->setTitle(tr("GLSL"));
-    Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(glslToolsMenu);
+    ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(glslToolsMenu);
 
-    Core::Command *cmd = 0;
+    Command *cmd = 0;
 
     // Insert marker for "Refactoring" menu:
-    Core::Context globalContext(Core::Constants::C_GLOBAL);
-    Core::Command *sep = contextMenu->addSeparator(globalContext);
+    Context globalContext(Core::Constants::C_GLOBAL);
+    Command *sep = contextMenu->addSeparator(globalContext);
     sep->action()->setObjectName(QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT));
     contextMenu->addSeparator(globalContext);
 
-    cmd = Core::ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
+    cmd = ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
     errorMessage->clear();
 
-    Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-    Core::MimeDatabase *mimeDatabase = Core::ICore::mimeDatabase();
+    FileIconProvider *iconProvider = FileIconProvider::instance();
+    MimeDatabase *mimeDatabase = ICore::mimeDatabase();
     iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/glsleditor/images/glslfile.png")),
                                                  mimeDatabase->findByType(QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE)));
     iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/glsleditor/images/glslfile.png")),
@@ -159,8 +159,8 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/glsleditor/images/glslfile.png")),
                                                  mimeDatabase->findByType(QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG_ES)));
 
-    QObject *core = Core::ICore::instance();
-    Core::BaseFileWizardParameters fragWizardParameters(Core::IWizard::FileWizard);
+    QObject *core = ICore::instance();
+    BaseFileWizardParameters fragWizardParameters(IWizard::FileWizard);
     fragWizardParameters.setCategory(QLatin1String(Constants::WIZARD_CATEGORY_GLSL));
     fragWizardParameters.setDisplayCategory(QCoreApplication::translate("GLSLEditor", Constants::WIZARD_TR_CATEGORY_GLSL));
     fragWizardParameters.setDescription
@@ -172,7 +172,7 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     fragWizardParameters.setId(QLatin1String("F.GLSL"));
     addAutoReleasedObject(new GLSLFileWizard(fragWizardParameters, GLSLFileWizard::FragmentShaderES, core));
 
-    Core::BaseFileWizardParameters vertWizardParameters(Core::IWizard::FileWizard);
+    BaseFileWizardParameters vertWizardParameters(IWizard::FileWizard);
     vertWizardParameters.setCategory(QLatin1String(Constants::WIZARD_CATEGORY_GLSL));
     vertWizardParameters.setDisplayCategory(QCoreApplication::translate("GLSLEditor", Constants::WIZARD_TR_CATEGORY_GLSL));
     vertWizardParameters.setDescription
@@ -212,28 +212,14 @@ void GLSLEditorPlugin::extensionsInitialized()
 ExtensionSystem::IPlugin::ShutdownFlag GLSLEditorPlugin::aboutToShutdown()
 {
     // delete GLSL::Icons::instance(); // delete object held by singleton
-
     return IPlugin::aboutToShutdown();
 }
 
 void GLSLEditorPlugin::initializeEditor(GLSLEditor::GLSLTextEditorWidget *editor)
 {
     QTC_CHECK(m_instance);
-
     m_actionHandler->setupActions(editor);
-
-    TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
-}
-
-Core::Command *GLSLEditorPlugin::addToolAction(QAction *a,
-                                               Core::Context &context, const Core::Id &id,
-                                               Core::ActionContainer *c1, const QString &keySequence)
-{
-    Core::Command *command = Core::ActionManager::registerAction(a, id, context);
-    if (!keySequence.isEmpty())
-        command->setDefaultKeySequence(QKeySequence(keySequence));
-    c1->addAction(command);
-    return command;
+    TextEditorSettings::instance()->initializeEditor(editor);
 }
 
 GLSLEditorPlugin::InitFile *GLSLEditorPlugin::getInitFile(const QString &fileName, InitFile **initFile) const
@@ -247,10 +233,7 @@ GLSLEditorPlugin::InitFile *GLSLEditorPlugin::getInitFile(const QString &fileNam
 
 QByteArray GLSLEditorPlugin::glslFile(const QString &fileName) const
 {
-    QString path = Core::ICore::resourcePath();
-    path += QLatin1String("/glsl/");
-    path += fileName;
-    QFile file(path);
+    QFile file(ICore::resourcePath() + QLatin1String("/glsl/") + fileName);
     if (file.open(QFile::ReadOnly))
         return file.readAll();
     return QByteArray();
@@ -290,5 +273,8 @@ const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::shaderInit(int variant) cons
     else
         return getInitFile(QLatin1String("glsl_es_100_common.glsl"), &m_glsl_es_100_common);
 }
+
+} // namespace Internal
+} // namespace GLSLEditor
 
 Q_EXPORT_PLUGIN(GLSLEditorPlugin)
