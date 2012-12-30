@@ -114,4 +114,14 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Git::Internal::FileStates)
 
+namespace Git {
+namespace Internal {
+
+// Must appear after Q_DECLARE_OPERATORS_FOR_FLAGS
+bool operator<(const CommitData::StateFilePair &a,
+               const CommitData::StateFilePair &b);
+
+} // namespace Internal
+} // namespace Git
+
 #endif // COMMITDATA_H
