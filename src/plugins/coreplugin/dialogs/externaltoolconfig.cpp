@@ -32,9 +32,11 @@
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/variablechooser.h>
+#include <coreplugin/variablemanager.h>
 
 #include <QTextStream>
 #include <QFile>
@@ -417,6 +419,7 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     connect(ui->executable, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
     connect(ui->executable, SIGNAL(browsingFinished()), this, SLOT(updateCurrentItem()));
     connect(ui->arguments, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
+    connect(ui->arguments, SIGNAL(editingFinished()), this, SLOT(updateEffectiveArguments()));
     connect(ui->workingDirectory, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
     connect(ui->workingDirectory, SIGNAL(browsingFinished()), this, SLOT(updateCurrentItem()));
     connect(ui->outputBehavior, SIGNAL(activated(int)), this, SLOT(updateCurrentItem()));
@@ -556,6 +559,7 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
 
     ui->description->setCursorPosition(0);
     ui->arguments->setCursorPosition(0);
+    updateEffectiveArguments();
 }
 
 QMap<QString, QList<ExternalTool *> > ExternalToolConfig::tools() const
@@ -601,4 +605,10 @@ void ExternalToolConfig::addCategory()
     ui->toolTree->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Clear);
     ui->toolTree->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
     ui->toolTree->edit(index);
+}
+
+void ExternalToolConfig::updateEffectiveArguments()
+{
+    ui->effectiveArguments->setText(Utils::QtcProcess::expandMacros(ui->arguments->text(),
+            Core::VariableManager::instance()->macroExpander()));
 }

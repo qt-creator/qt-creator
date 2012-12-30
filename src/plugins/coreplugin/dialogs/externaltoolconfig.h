@@ -108,6 +108,7 @@ private slots:
     void addTool();
     void removeTool();
     void addCategory();
+    void updateEffectiveArguments();
 
 private:
     Ui::ExternalToolConfig *ui;
