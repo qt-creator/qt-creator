@@ -395,11 +395,6 @@ namespace PE = ProjectExplorer::Constants;
 
 
 namespace Debugger {
-namespace Constants {
-
-} // namespace Constants
-
-
 namespace Internal {
 
 // To be passed through margin menu action's data
@@ -554,9 +549,9 @@ public:
 //
 ///////////////////////////////////////////////////////////////////////
 
-static inline QString executableForPid(qint64 pid)
+static QString executableForPid(qint64 pid)
 {
-    foreach (const ProjectExplorer::DeviceProcess &p, ProjectExplorer::DeviceProcessList::localProcesses())
+    foreach (const DeviceProcess &p, DeviceProcessList::localProcesses())
         if (p.pid == pid)
             return p.exe;
     return QString();
@@ -672,11 +667,11 @@ bool fillParameters(DebuggerStartParameters *sp, const Kit *kit /* = 0 */, QStri
     }
     // validate debugger if C++ debugging is enabled
     if (sp->languages & CppLanguage) {
-        const QList<ProjectExplorer::Task> tasks = DebuggerKitInformation::validateDebugger(kit);
+        const QList<Task> tasks = DebuggerKitInformation::validateDebugger(kit);
         if (!tasks.isEmpty()) {
             sp->startMode = NoStartMode;
             if (errorMessage) {
-                foreach (const ProjectExplorer::Task &t, tasks) {
+                foreach (const Task &t, tasks) {
                     if (errorMessage->isEmpty())
                         errorMessage->append(QLatin1Char('\n'));
                     errorMessage->append(t.description);
@@ -992,7 +987,7 @@ public slots:
     void testBenchmark1();
 
 public:
-    ProjectExplorer::Project *m_testProject;
+    Project *m_testProject;
     bool m_testSuccess;
     QList<TestCallBack> m_testCallbacks;
 
@@ -1698,8 +1693,8 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
     }
 
     bool isWindows = false;
-    if (const ProjectExplorer::ToolChain *tc = ToolChainKitInformation::toolChain(kit))
-        isWindows = tc->targetAbi().os() == ProjectExplorer::Abi::WindowsOS;
+    if (const ToolChain *tc = ToolChainKitInformation::toolChain(kit))
+        isWindows = tc->targetAbi().os() == Abi::WindowsOS;
     if (isWindows && isWinProcessBeingDebugged(process.pid)) {
         QMessageBox::warning(ICore::mainWindow(), tr("Process Already Under Debugger Control"),
                              tr("The process %1 is already under the control of a debugger.\n"
@@ -1707,7 +1702,7 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
         return;
     }
 
-    if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+    if (device->type() == PE::DESKTOP_DEVICE_TYPE) {
         DebuggerStartParameters sp;
         QTC_ASSERT(fillParameters(&sp, kit), return);
         sp.attachPID = process.pid;
@@ -1722,7 +1717,7 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
     }
 }
 
-void DebuggerPluginPrivate::attachExternalApplication(ProjectExplorer::RunControl *rc)
+void DebuggerPluginPrivate::attachExternalApplication(RunControl *rc)
 {
     DebuggerStartParameters sp;
     sp.attachPID = rc->applicationProcessHandle().pid();
@@ -2840,8 +2835,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     connect(action(OperateByInstruction), SIGNAL(triggered(bool)),
         SLOT(handleOperateByInstructionTriggered(bool)));
 
-    ActionContainer *debugMenu =
-        ActionManager::actionContainer(ProjectExplorer::Constants::M_DEBUG);
+    ActionContainer *debugMenu = ActionManager::actionContainer(PE::M_DEBUG);
 
     // Dock widgets
     QDockWidget *dock = 0;
@@ -3402,7 +3396,8 @@ using namespace Debugger::Internal;
     This is the "external" interface of the debugger plugin that's visible
     from Qt Creator core. The internal interface to global debugger
     functionality that is used by debugger views and debugger engines
-    is DebuggerCore, implemented in DebuggerPluginPrivate. */
+    is DebuggerCore, implemented in DebuggerPluginPrivate.
+*/
 
 DebuggerPlugin::DebuggerPlugin()
 {
