@@ -218,17 +218,18 @@ void QmlProfilerTraceView::reset()
     d->m_overview->setSource(QUrl(QLatin1String("qrc:/qmlprofiler/Overview.qml")));
 
     d->m_mainView->setSource(QUrl(QLatin1String("qrc:/qmlprofiler/MainView.qml")));
-    d->m_mainView->rootObject()->setProperty("width", QVariant(width()));
-    d->m_mainView->rootObject()->setProperty("candidateHeight", QVariant(height() - d->m_timebar->height() - d->m_overview->height()));
+    QGraphicsObject *rootObject = d->m_mainView->rootObject();
+    rootObject->setProperty("width", QVariant(width()));
+    rootObject->setProperty("candidateHeight", QVariant(height() - d->m_timebar->height() - d->m_overview->height()));
 
-    connect(d->m_mainView->rootObject(), SIGNAL(updateCursorPosition()), this, SLOT(updateCursorPosition()));
-    connect(d->m_mainView->rootObject(), SIGNAL(updateRangeButton()), this, SLOT(updateRangeButton()));
-    connect(d->m_mainView->rootObject(), SIGNAL(updateLockButton()), this, SLOT(updateLockButton()));
-    connect(this, SIGNAL(jumpToPrev()), d->m_mainView->rootObject(), SLOT(prevEvent()));
-    connect(this, SIGNAL(jumpToNext()), d->m_mainView->rootObject(), SLOT(nextEvent()));
-    connect(d->m_mainView->rootObject(), SIGNAL(selectedEventChanged(int)), this, SIGNAL(selectedEventChanged(int)));
-    connect(d->m_mainView->rootObject(), SIGNAL(changeToolTip(QString)), this, SLOT(updateToolTip(QString)));
-    connect(d->m_mainView->rootObject(), SIGNAL(updateVerticalScroll(int)), this, SLOT(updateVerticalScroll(int)));
+    connect(rootObject, SIGNAL(updateCursorPosition()), this, SLOT(updateCursorPosition()));
+    connect(rootObject, SIGNAL(updateRangeButton()), this, SLOT(updateRangeButton()));
+    connect(rootObject, SIGNAL(updateLockButton()), this, SLOT(updateLockButton()));
+    connect(this, SIGNAL(jumpToPrev()), rootObject, SLOT(prevEvent()));
+    connect(this, SIGNAL(jumpToNext()), rootObject, SLOT(nextEvent()));
+    connect(rootObject, SIGNAL(selectedEventChanged(int)), this, SIGNAL(selectedEventChanged(int)));
+    connect(rootObject, SIGNAL(changeToolTip(QString)), this, SLOT(updateToolTip(QString)));
+    connect(rootObject, SIGNAL(updateVerticalScroll(int)), this, SLOT(updateVerticalScroll(int)));
 }
 
 QWidget *QmlProfilerTraceView::createToolbar()
@@ -338,25 +339,25 @@ QWidget *QmlProfilerTraceView::createZoomToolbar()
 /////////////////////////////////////////////////////////
 bool QmlProfilerTraceView::hasValidSelection() const
 {
-    if (d->m_mainView->rootObject()) {
-        return d->m_mainView->rootObject()->property("selectionRangeReady").toBool();
-    }
+    QGraphicsObject *rootObject = d->m_mainView->rootObject();
+    if (rootObject)
+        return rootObject->property("selectionRangeReady").toBool();
     return false;
 }
 
 qint64 QmlProfilerTraceView::selectionStart() const
 {
-    if (d->m_mainView->rootObject()) {
-        return d->m_mainView->rootObject()->property("selectionRangeStart").toLongLong();
-    }
+    QGraphicsObject *rootObject = d->m_mainView->rootObject();
+    if (rootObject)
+        return rootObject->property("selectionRangeStart").toLongLong();
     return 0;
 }
 
 qint64 QmlProfilerTraceView::selectionEnd() const
 {
-    if (d->m_mainView->rootObject()) {
-        return d->m_mainView->rootObject()->property("selectionRangeEnd").toLongLong();
-    }
+    QGraphicsObject *rootObject = d->m_mainView->rootObject();
+    if (rootObject)
+        return rootObject->property("selectionRangeEnd").toLongLong();
     return 0;
 }
 
@@ -373,8 +374,9 @@ void QmlProfilerTraceView::clearDisplay()
 
 void QmlProfilerTraceView::selectNextEventWithId(int eventId)
 {
-    if (d->m_mainView->rootObject())
-        QMetaObject::invokeMethod(d->m_mainView->rootObject(), "selectNextWithId",
+    QGraphicsObject *rootObject = d->m_mainView->rootObject();
+    if (rootObject)
+        QMetaObject::invokeMethod(rootObject, "selectNextWithId",
                                   Q_ARG(QVariant,QVariant(eventId)));
 }
 
@@ -382,22 +384,24 @@ void QmlProfilerTraceView::selectNextEventWithId(int eventId)
 // Goto source location
 void QmlProfilerTraceView::updateCursorPosition()
 {
-    emit gotoSourceLocation(d->m_mainView->rootObject()->property("fileName").toString(),
-                            d->m_mainView->rootObject()->property("lineNumber").toInt(),
-                            d->m_mainView->rootObject()->property("columnNumber").toInt());
+    QGraphicsObject *rootObject = d->m_mainView->rootObject();
+    emit gotoSourceLocation(rootObject->property("fileName").toString(),
+                            rootObject->property("lineNumber").toInt(),
+                            rootObject->property("columnNumber").toInt());
 }
 
 /////////////////////////////////////////////////////////
 // Toolbar buttons
 void QmlProfilerTraceView::toggleRangeMode(bool active)
 {
-    bool rangeMode = d->m_mainView->rootObject()->property("selectionRangeMode").toBool();
+    QGraphicsObject *rootObject = d->m_mainView->rootObject();
+    bool rangeMode = rootObject->property("selectionRangeMode").toBool();
     if (active != rangeMode) {
         if (active)
             d->m_buttonRange->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_rangeselected.png")));
         else
             d->m_buttonRange->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_rangeselection.png")));
-        d->m_mainView->rootObject()->setProperty("selectionRangeMode", QVariant(active));
+        rootObject->setProperty("selectionRangeMode", QVariant(active));
     }
 }
 
@@ -413,10 +417,11 @@ void QmlProfilerTraceView::updateRangeButton()
 
 void QmlProfilerTraceView::toggleLockMode(bool active)
 {
-    bool lockMode = !d->m_mainView->rootObject()->property("selectionLocked").toBool();
+    QGraphicsObject *rootObject = d->m_mainView->rootObject();
+    bool lockMode = !rootObject->property("selectionLocked").toBool();
     if (active != lockMode) {
-        d->m_mainView->rootObject()->setProperty("selectionLocked", QVariant(!active));
-        d->m_mainView->rootObject()->setProperty("selectedItem", QVariant(-1));
+        rootObject->setProperty("selectionLocked", QVariant(!active));
+        rootObject->setProperty("selectedItem", QVariant(-1));
     }
 }
 
@@ -456,8 +461,9 @@ void QmlProfilerTraceView::updateRange()
 void QmlProfilerTraceView::mouseWheelMoved(int mouseX, int mouseY, int wheelDelta)
 {
     Q_UNUSED(mouseY);
-    if (d->m_mainView->rootObject()) {
-        QMetaObject::invokeMethod(d->m_mainView->rootObject(), "wheelZoom",
+    QGraphicsObject *rootObject = d->m_mainView->rootObject();
+    if (rootObject) {
+        QMetaObject::invokeMethod(rootObject, "wheelZoom",
                                   Q_ARG(QVariant, QVariant(mouseX)),
                                   Q_ARG(QVariant, QVariant(wheelDelta)));
     }
@@ -476,10 +482,11 @@ void QmlProfilerTraceView::updateVerticalScroll(int newPosition)
 void QmlProfilerTraceView::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
-    if (d->m_mainView->rootObject()) {
-        d->m_mainView->rootObject()->setProperty("width", QVariant(event->size().width()));
+    QGraphicsObject *rootObject = d->m_mainView->rootObject();
+    if (rootObject) {
+        rootObject->setProperty("width", QVariant(event->size().width()));
         int newHeight = event->size().height() - d->m_timebar->height() - d->m_overview->height();
-        d->m_mainView->rootObject()->setProperty("candidateHeight", QVariant(newHeight));
+        rootObject->setProperty("candidateHeight", QVariant(newHeight));
     }
     emit resized();
 }
@@ -490,35 +497,28 @@ void QmlProfilerTraceView::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
     QAction *viewAllAction = 0;
-    QAction *getLocalStatsAction = 0;
-    QAction *getGlobalStatsAction = 0;
 
     QmlProfilerTool *profilerTool = qobject_cast<QmlProfilerTool *>(d->m_profilerTool);
-    QPoint position = ev->globalPos();
 
-    if (profilerTool) {
-        QList <QAction *> commonActions = profilerTool->profilerContextMenuActions();
-        foreach (QAction *act, commonActions) {
-            menu.addAction(act);
-        }
-    }
+    if (profilerTool)
+        menu.addActions(profilerTool->profilerContextMenuActions());
 
     menu.addSeparator();
-    getLocalStatsAction = menu.addAction(tr("Limit Events Pane to Current Range"));
+
+    QAction *getLocalStatsAction = menu.addAction(tr("Limit Events Pane to Current Range"));
     if (!d->m_viewContainer->hasValidSelection())
         getLocalStatsAction->setEnabled(false);
-    getGlobalStatsAction = menu.addAction(tr("Reset Events Pane"));
+
+    QAction *getGlobalStatsAction = menu.addAction(tr("Reset Events Pane"));
     if (d->m_viewContainer->hasGlobalStats())
         getGlobalStatsAction->setEnabled(false);
-
 
     if (d->m_profilerDataModel->count() > 0) {
         menu.addSeparator();
         viewAllAction = menu.addAction(tr("Reset Zoom"));
     }
 
-
-    QAction *selectedAction = menu.exec(position);
+    QAction *selectedAction = menu.exec(ev->globalPos());
 
     if (selectedAction) {
         if (selectedAction == viewAllAction) {
@@ -543,14 +543,16 @@ void QmlProfilerTraceView::contextMenuEvent(QContextMenuEvent *ev)
 // Tell QML the state of the profiler
 void QmlProfilerTraceView::setRecording(bool recording)
 {
-    if (d->m_mainView->rootObject())
-        d->m_mainView->rootObject()->setProperty("recordingEnabled", QVariant(recording));
+    QGraphicsObject *rootObject = d->m_mainView->rootObject();
+    if (rootObject)
+        rootObject->setProperty("recordingEnabled", QVariant(recording));
 }
 
 void QmlProfilerTraceView::setAppKilled()
 {
-    if (d->m_mainView->rootObject())
-        d->m_mainView->rootObject()->setProperty("appKilled",QVariant(true));
+    QGraphicsObject *rootObject = d->m_mainView->rootObject();
+    if (rootObject)
+        rootObject->setProperty("appKilled",QVariant(true));
 }
 ////////////////////////////////////////////////////////////////
 // Profiler State
