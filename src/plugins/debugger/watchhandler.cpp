@@ -145,6 +145,26 @@ private:
 //
 ///////////////////////////////////////////////////////////////////////
 
+class SeparateViewWidget : public QTabWidget
+{
+    Q_OBJECT
+
+public:
+    SeparateViewWidget(QWidget *parent) : QTabWidget(parent)
+    {
+        setTabsClosable(true);
+        connect(this, SIGNAL(tabCloseRequested(int)), SLOT(closeTab(int)));
+        setWindowFlags(windowFlags() | Qt::Window);
+        setWindowTitle(WatchHandler::tr("Debugger - Qt Creator"));
+    }
+
+public slots:
+    void closeTab(int index)
+    {
+        removeTab(index);
+    }
+};
+
 class WatchModel : public QAbstractItemModel
 {
     Q_OBJECT
@@ -1633,11 +1653,9 @@ void WatchHandler::removeSeparateWidget(QObject *o)
 
 void WatchHandler::showSeparateWidget(QWidget *w)
 {
-    if (m_separateWindow.isNull()) {
-        m_separateWindow = new QTabWidget(debuggerCore()->mainWindow());
-        m_separateWindow->setWindowFlags(m_separateWindow->windowFlags() | Qt::Window);
-        m_separateWindow->setWindowTitle(WatchHandler::tr("Debugger - Qt Creator"));
-    }
+    if (m_separateWindow.isNull())
+        m_separateWindow = new SeparateViewWidget(debuggerCore()->mainWindow());
+
     int index = indexOf(m_separateWindow, w);
     if (index != -1) {
         m_separateWindow->setTabText(index, w->windowTitle());
