@@ -277,4 +277,4 @@ const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::shaderInit(int variant) cons
 } // namespace Internal
 } // namespace GLSLEditor
 
-Q_EXPORT_PLUGIN(GLSLEditorPlugin)
+Q_EXPORT_PLUGIN(GLSLEditor::Internal::GLSLEditorPlugin)
