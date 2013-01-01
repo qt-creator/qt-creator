@@ -162,7 +162,6 @@ public:
     QList<ProjectExplorer::FileNode *> cmakeFileList();
     QStringList includeFiles();
     QList<CMakeBuildTarget> buildTargets();
-    QByteArray defines() const;
     QString projectName() const;
     QString compilerName() const;
     bool hasCMakeFiles();
@@ -174,7 +173,7 @@ private:
     void parseOption();
     void parseBuildTarget();
     void parseBuildTargetOption();
-    void parseMakeCommand();
+    void parseMakeCommands();
     void parseBuildTargetBuild();
     void parseBuildTargetClean();
     void parseCompiler();
@@ -189,7 +188,6 @@ private:
     bool m_parsingCmakeUnit;
     QStringList m_includeFiles;
     QStringList m_compilerOptions;
-    QByteArray m_defines;
 
     CMakeBuildTarget m_buildTarget;
     bool m_buildTargetType;

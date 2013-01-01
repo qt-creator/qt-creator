@@ -53,6 +53,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/hostosinfo.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/documentmanager.h>
@@ -306,11 +307,40 @@ bool CMakeProject::parseCMakeLists()
     allIncludePaths.append(projectDirectory());
     allIncludePaths.append(cbpparser.includeFiles());
 
-    QStringList cxxflags; // FIXME: We should do better than this!
+    QStringList cxxflags;
+    foreach (const CMakeBuildTarget &buildTarget, m_buildTargets) {
+        if (buildTarget.title.endsWith(QLatin1String("/fast")))
+            continue;
+        QString makeCommand = QDir::fromNativeSeparators(buildTarget.makeCommand);
+        int startIndex = makeCommand.indexOf(QLatin1Char('\"'));
+        int endIndex = makeCommand.indexOf(QLatin1Char('\"'), startIndex + 1);
+        if (startIndex == -1 || endIndex == -1)
+            continue;
+        startIndex += 1;
+        QString makefile = makeCommand.mid(startIndex, endIndex - startIndex);
+        int slashIndex = makefile.lastIndexOf(QLatin1Char('/'));
+        makefile.truncate(slashIndex);
+        makefile.append(QLatin1String("/CMakeFiles/") + buildTarget.title + QLatin1String(".dir/flags.make"));
+        QFile file(makefile);
+        bool found = false;
+        if (file.exists()) {
+            file.open(QIODevice::ReadOnly | QIODevice::Text);
+            QStringList lines = QString::fromLatin1(file.readAll()).split(QLatin1Char('\n'));
+            foreach (const QString &line, lines) {
+                if (line.startsWith(QLatin1String("CXX_FLAGS ="))) {
+                    int index = line.indexOf(QLatin1Char('=')) + 1;
+                    cxxflags = line.mid(index).trimmed().split(QLatin1Char(' '));
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (found)
+            break;
+    }
 
     QByteArray allDefines;
     allDefines.append(tc->predefinedMacros(cxxflags));
-    allDefines.append(cbpparser.defines());
 
     QStringList allFrameworkPaths;
     QList<ProjectExplorer::HeaderPath> allHeaderPaths;
@@ -338,7 +368,12 @@ bool CMakeProject::parseCMakeLists()
             part->sourceFiles = m_files;
             part->defines = allDefines;
             part->frameworkPaths = allFrameworkPaths;
-            part->language = CPlusPlus::CppModelManagerInterface::ProjectPart::CXX11;
+            if (tc)
+                part->language = tc->compilerFlags(cxxflags) == ToolChain::STD_CXX11
+                        ? CPlusPlus::CppModelManagerInterface::ProjectPart::CXX11
+                        : CPlusPlus::CppModelManagerInterface::ProjectPart::CXX;
+            else
+                part->language = CPlusPlus::CppModelManagerInterface::ProjectPart::CXX11;
             pinfo.appendProjectPart(part);
             modelmanager->updateProjectInfo(pinfo);
             m_codeModelFuture.cancel();
@@ -1061,6 +1096,8 @@ void CMakeCbpParser::parseBuildTarget()
             parseCompiler();
         } else if (name() == QLatin1String("Option")) {
             parseBuildTargetOption();
+        } else if (name() == QLatin1String("MakeCommands")) {
+            parseMakeCommands();
         } else if (isStartElement()) {
             parseUnknownElement();
         }
@@ -1087,8 +1124,6 @@ void CMakeCbpParser::parseBuildTargetOption()
         readNext();
         if (isEndElement())
             return;
-        else if (name() == QLatin1String("MakeCommand"))
-            parseMakeCommand();
         else if (isStartElement())
             parseUnknownElement();
     }
@@ -1116,7 +1151,7 @@ void CMakeCbpParser::parseOption()
     }
 }
 
-void CMakeCbpParser::parseMakeCommand()
+void CMakeCbpParser::parseMakeCommands()
 {
     while (!atEnd()) {
         readNext();
@@ -1182,18 +1217,8 @@ void CMakeCbpParser::parseAdd()
 
     QString compilerOption = addAttributes.value(QLatin1String("option")).toString();
     // defining multiple times a macro to the same value makes no sense
-    if (!compilerOption.isEmpty() && !m_compilerOptions.contains(compilerOption)) {
+    if (!compilerOption.isEmpty() && !m_compilerOptions.contains(compilerOption))
         m_compilerOptions.append(compilerOption);
-        int macroNameIndex = compilerOption.indexOf(QLatin1String("-D")) + 2;
-        if (macroNameIndex != 1) {
-            int assignIndex = compilerOption.indexOf(QLatin1Char('='), macroNameIndex);
-            if (assignIndex != -1)
-                compilerOption[assignIndex] = ' ';
-            m_defines.append("#define ");
-            m_defines.append(compilerOption.mid(macroNameIndex).toLatin1());
-            m_defines.append('\n');
-        }
-    }
 
     while (!atEnd()) {
         readNext();
@@ -1289,11 +1314,6 @@ bool CMakeCbpParser::hasCMakeFiles()
 QStringList CMakeCbpParser::includeFiles()
 {
     return m_includeFiles;
-}
-
-QByteArray CMakeCbpParser::defines() const
-{
-    return m_defines;
 }
 
 QList<CMakeBuildTarget> CMakeCbpParser::buildTargets()
