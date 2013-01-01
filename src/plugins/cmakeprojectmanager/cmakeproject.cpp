@@ -339,7 +339,7 @@ bool CMakeProject::parseCMakeLists()
             part->sourceFiles = m_files;
             part->defines = allDefines;
             part->frameworkPaths = allFrameworkPaths;
-            part->language = CPlusPlus::CppModelManagerInterface::ProjectPart::CXX;
+            part->language = CPlusPlus::CppModelManagerInterface::ProjectPart::CXX11;
             pinfo.appendProjectPart(part);
             modelmanager->updateProjectInfo(pinfo);
             m_codeModelFuture.cancel();

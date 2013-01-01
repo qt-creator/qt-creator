@@ -633,7 +633,7 @@ void Qt4Project::updateCppCodeModel()
         if (tc)
             part->language = tc->compilerFlags(pro->variableValue(CppFlagsVar)) == ToolChain::STD_CXX11 ? ProjectPart::CXX11 : ProjectPart::CXX;
         else
-            part->language = CPlusPlus::CppModelManagerInterface::ProjectPart::CXX;
+            part->language = CPlusPlus::CppModelManagerInterface::ProjectPart::CXX11;
 
         part->sourceFiles = pro->variableValue(CppSourceVar);
         part->headerFiles += pro->variableValue(CppHeaderVar);

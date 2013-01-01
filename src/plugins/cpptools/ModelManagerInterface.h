@@ -73,7 +73,7 @@ public:
     {
     public:
         ProjectPart()
-            : language(CXX)
+            : language(CXX11)
             , qtVersion(UnknownQt)
         {}
 
