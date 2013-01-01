@@ -966,6 +966,8 @@ void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 
     if (!qgetenv("QTCREATOR_DUMP_PROJECT_INFO").isEmpty())
         dumpModelManagerConfiguration();
+
+    emit projectPartsUpdated(pinfo.project().data());
 }
 
 QList<CppModelManager::ProjectPart::Ptr> CppModelManager::projectPart(const QString &fileName) const

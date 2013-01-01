@@ -239,6 +239,11 @@ Q_SIGNALS:
     void sourceFilesRefreshed(const QStringList &files);
     void extraDiagnosticsUpdated(QString fileName);
 
+    /// \brief Emitted after updateProjectInfo method is called on the model-manager.
+    ///
+    /// Other classes can use this to get notified when the \c ProjectExplorer has updated the parts.
+    void projectPartsUpdated(ProjectExplorer::Project *project);
+
 public Q_SLOTS:
     virtual void updateModifiedSourceFiles() = 0;
     virtual QFuture<void> updateSourceFiles(const QStringList &sourceFiles) = 0;
