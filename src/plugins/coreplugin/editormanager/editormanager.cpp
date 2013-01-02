@@ -1797,7 +1797,7 @@ QString EditorManager::fileNameForEditor(IEditor *editor)
 
     if (editor) {
         if (!editor->document()->fileName().isEmpty()) {
-            QFileInfo fileInfo(curEditor->document()->fileName());
+            QFileInfo fileInfo(editor->document()->fileName());
             fileName = fileInfo.fileName();
         } else {
             fileName = editor->displayName();
