@@ -31,7 +31,9 @@ HEADERS += vcsbase_global.h \
     command.h \
     vcsbaseclient.h \
     vcsbaseclientsettings.h \
-    vcsbaseeditorparameterwidget.h
+    vcsbaseeditorparameterwidget.h \
+    submitfieldwidget.h \
+    submiteditorwidget.h
 
 SOURCES += vcsplugin.cpp \
     vcsbaseplugin.cpp \
@@ -59,7 +61,9 @@ SOURCES += vcsplugin.cpp \
     command.cpp \
     vcsbaseclient.cpp \
     vcsbaseclientsettings.cpp \
-    vcsbaseeditorparameterwidget.cpp
+    vcsbaseeditorparameterwidget.cpp \
+    submitfieldwidget.cpp \
+    submiteditorwidget.cpp
 
 RESOURCES += vcsbase.qrc
 
@@ -67,5 +71,6 @@ FORMS += commonsettingspage.ui \
     nicknamedialog.ui \
     checkoutprogresswizardpage.ui \
     basecheckoutwizardpage.ui \
-    cleandialog.ui
+    cleandialog.ui \
+    submiteditorwidget.ui
 

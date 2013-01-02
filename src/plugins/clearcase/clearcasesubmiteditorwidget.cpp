@@ -40,7 +40,7 @@
 using namespace ClearCase::Internal;
 
 ClearCaseSubmitEditorWidget::ClearCaseSubmitEditorWidget(QWidget *parent) :
-    Utils::SubmitEditorWidget(parent),
+    VcsBase::SubmitEditorWidget(parent),
     m_actSelector(0)
 {
     setDescriptionMandatory(false);

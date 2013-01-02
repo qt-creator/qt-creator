@@ -32,7 +32,7 @@
 
 #include "ui_gitsubmitpanel.h"
 
-#include <utils/submiteditorwidget.h>
+#include <vcsbase/submiteditorwidget.h>
 
 QT_BEGIN_NAMESPACE
 class QValidator;
@@ -52,7 +52,7 @@ struct GitSubmitEditorPanelData;
  * remaining un-added and untracked files will be added 'unchecked' for the
  * user to click. */
 
-class GitSubmitEditorWidget : public Utils::SubmitEditorWidget
+class GitSubmitEditorWidget : public VcsBase::SubmitEditorWidget
 {
     Q_OBJECT
 

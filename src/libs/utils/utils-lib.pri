@@ -40,12 +40,10 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/fancylineedit.cpp \
     $$PWD/qtcolorbutton.cpp \
     $$PWD/savedaction.cpp \
-    $$PWD/submiteditorwidget.cpp \
     $$PWD/synchronousprocess.cpp \
     $$PWD/savefile.cpp \
     $$PWD/fileutils.cpp \
     $$PWD/textfileformat.cpp \
-    $$PWD/submitfieldwidget.cpp \
     $$PWD/consoleprocess.cpp \
     $$PWD/uncommentselection.cpp \
     $$PWD/parameteraction.cpp \
@@ -123,14 +121,12 @@ HEADERS += \
     $$PWD/fancylineedit.h \
     $$PWD/qtcolorbutton.h \
     $$PWD/savedaction.h \
-    $$PWD/submiteditorwidget.h \
     $$PWD/consoleprocess.h \
     $$PWD/consoleprocess_p.h \
     $$PWD/synchronousprocess.h \
     $$PWD/savefile.h \
     $$PWD/fileutils.h \
     $$PWD/textfileformat.h \
-    $$PWD/submitfieldwidget.h \
     $$PWD/uncommentselection.h \
     $$PWD/parameteraction.h \
     $$PWD/treewidgetcolumnstretcher.h \
@@ -174,7 +170,6 @@ HEADERS += \
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
-    $$PWD/newclasswidget.ui \
-    $$PWD/submiteditorwidget.ui
+    $$PWD/newclasswidget.ui
 
 RESOURCES += $$PWD/utils.qrc

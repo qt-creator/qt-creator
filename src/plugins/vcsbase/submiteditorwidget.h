@@ -30,8 +30,9 @@
 #ifndef SUBMITEDITORWIDGET_H
 #define SUBMITEDITORWIDGET_H
 
-#include "utils_global.h"
-#include "completingtextedit.h"
+#include "vcsbase_global.h"
+
+#include <utils/completingtextedit.h>
 
 #include <QWidget>
 #include <QAbstractItemView>
@@ -44,12 +45,12 @@ class QModelIndex;
 class QLineEdit;
 QT_END_NAMESPACE
 
-namespace Utils {
+namespace VcsBase {
 
 class SubmitFieldWidget;
 struct SubmitEditorWidgetPrivate;
 
-class QTCREATOR_UTILS_EXPORT SubmitEditorWidget : public QWidget
+class VCSBASE_EXPORT SubmitEditorWidget : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(QString descriptionText READ descriptionText WRITE setDescriptionText DESIGNABLE true)
@@ -103,7 +104,7 @@ public:
     // Selected files for diff
     QStringList selectedFiles() const;
 
-    CompletingTextEdit *descriptionEdit() const;
+    Utils::CompletingTextEdit *descriptionEdit() const;
 
     void addDescriptionEditContextMenuAction(QAction *a);
     void insertDescriptionEditContextMenuAction(int pos, QAction *a);
@@ -151,6 +152,6 @@ private:
     SubmitEditorWidgetPrivate *d;
 };
 
-} // namespace Utils
+} // namespace VcsBase
 
 #endif // SUBMITEDITORWIDGET_H

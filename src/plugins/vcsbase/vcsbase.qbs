@@ -53,6 +53,11 @@ QtcPlugin {
         "nicknamedialog.ui",
         "submiteditorfile.cpp",
         "submiteditorfile.h",
+        "submiteditorwidget.cpp",
+        "submiteditorwidget.h",
+        "submiteditorwidget.ui",
+        "submitfieldwidget.cpp",
+        "submitfieldwidget.h",
         "submitfilemodel.cpp",
         "submitfilemodel.h",
         "vcsbase.qrc",
@@ -79,6 +84,7 @@ QtcPlugin {
         "vcsplugin.cpp",
         "vcsplugin.h",
         "images/diff.png",
+        "images/removesubmitfield.png",
         "images/submit.png",
     ]
 }

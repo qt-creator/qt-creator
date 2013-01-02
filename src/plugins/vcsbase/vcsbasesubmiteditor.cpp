@@ -30,10 +30,12 @@
 #include "vcsbasesubmiteditor.h"
 
 #include "commonvcssettings.h"
-#include "vcsbaseoutputwindow.h"
-#include "vcsplugin.h"
 #include "nicknamedialog.h"
 #include "submiteditorfile.h"
+#include "submiteditorwidget.h"
+#include "submitfieldwidget.h"
+#include "vcsbaseoutputwindow.h"
+#include "vcsplugin.h"
 
 #include <aggregation/aggregate.h>
 #include <cplusplus/Control.h>
@@ -51,10 +53,8 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/completingtextedit.h>
-#include <utils/submiteditorwidget.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/synchronousprocess.h>
-#include <utils/submitfieldwidget.h>
 #include <utils/fileutils.h>
 #include <find/basetextfind.h>
 #include <texteditor/fontsettings.h>
@@ -119,7 +119,7 @@ static const char *belongingClassName(const CPlusPlus::Function *function)
 /*!
     \class  VcsBase::VcsBaseSubmitEditor
 
-    \brief Base class for a submit editor based on the Utils::SubmitEditorWidget.
+    \brief Base class for a submit editor based on the SubmitEditorWidget.
 
     Presents the commit message in a text editor and an
     checkable list of modified files in a list window. The user can delete

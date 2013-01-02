@@ -114,7 +114,7 @@ void MercurialSubmitHighlighter::highlightBlock(const QString &text)
 
 
 MercurialCommitWidget::MercurialCommitWidget(QWidget *parent) :
-        Utils::SubmitEditorWidget(parent),
+        VcsBase::SubmitEditorWidget(parent),
         mercurialCommitPanel(new QWidget)
 {
     mercurialCommitPanelUi.setupUi(mercurialCommitPanel);

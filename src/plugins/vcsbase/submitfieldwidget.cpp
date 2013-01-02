@@ -52,7 +52,7 @@ static void inline setComboBlocked(QComboBox *cb, int index)
 }
 
 /*!
-    \class Utils::SubmitFieldWidget
+    \class VcsBase::SubmitFieldWidget
     \brief A widget for editing submit message fields like "reviewed-by:",
     "signed-off-by:".
 
@@ -63,7 +63,7 @@ static void inline setComboBlocked(QComboBox *cb, int index)
     completer can be added.
 */
 
-namespace Utils {
+namespace VcsBase {
 
 // Field/Row entry
 struct FieldEntry {
@@ -142,7 +142,7 @@ struct SubmitFieldWidgetPrivate {
 };
 
 SubmitFieldWidgetPrivate::SubmitFieldWidgetPrivate() :
-        removeFieldIcon(QLatin1String(":/utils/images/removesubmitfield.png")),
+        removeFieldIcon(QLatin1String(":/vcsbase/images/removesubmitfield.png")),
         completer(0),
         hasBrowseButton(false),
         allowDuplicateFields(false),

@@ -42,13 +42,12 @@ class QAbstractItemModel;
 class QAction;
 QT_END_NAMESPACE
 
-namespace Utils { class SubmitEditorWidget; }
-
 namespace VcsBase {
 namespace Internal {
     class CommonVcsSettings;
 }
 struct VcsBaseSubmitEditorPrivate;
+class SubmitEditorWidget;
 
 class VCSBASE_EXPORT VcsBaseSubmitEditorParameters
 {
@@ -71,7 +70,7 @@ class VCSBASE_EXPORT VcsBaseSubmitEditor : public Core::IEditor
 
 protected:
     explicit VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *parameters,
-                                 Utils::SubmitEditorWidget *editorWidget);
+                                 SubmitEditorWidget *editorWidget);
 
 public:
     // Register the actions with the submit editor widget.

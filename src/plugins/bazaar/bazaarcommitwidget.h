@@ -31,7 +31,7 @@
 
 #include "ui_bazaarcommitpanel.h"
 
-#include <utils/submiteditorwidget.h>
+#include <vcsbase/submiteditorwidget.h>
 
 namespace Bazaar {
 namespace Internal {
@@ -42,7 +42,7 @@ class BranchInfo;
   Some extra fields have been added to the standard SubmitEditorWidget,
   to help to conform to the commit style that is used by both git and Bazaar*/
 
-class BazaarCommitWidget : public Utils::SubmitEditorWidget
+class BazaarCommitWidget : public VcsBase::SubmitEditorWidget
 {
 
 public:

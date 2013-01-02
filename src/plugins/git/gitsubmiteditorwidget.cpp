@@ -114,7 +114,7 @@ void GitSubmitHighlighter::highlightBlock(const QString &text)
 
 // ------------------
 GitSubmitEditorWidget::GitSubmitEditorWidget(QWidget *parent) :
-    Utils::SubmitEditorWidget(parent),
+    VcsBase::SubmitEditorWidget(parent),
     m_gitSubmitPanel(new QWidget),
     m_hasUnmerged(false)
 {

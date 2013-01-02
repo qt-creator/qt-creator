@@ -33,7 +33,7 @@ namespace Perforce {
 namespace Internal {
 
 PerforceSubmitEditorWidget::PerforceSubmitEditorWidget(QWidget *parent) :
-    Utils::SubmitEditorWidget(parent),
+    VcsBase::SubmitEditorWidget(parent),
     m_submitPanel(new QGroupBox)
 {
     m_submitPanelUi.setupUi(m_submitPanel);

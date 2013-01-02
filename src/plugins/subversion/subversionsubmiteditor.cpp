@@ -30,14 +30,14 @@
 
 #include "subversionsubmiteditor.h"
 
-#include <utils/submiteditorwidget.h>
+#include <vcsbase/submiteditorwidget.h>
 #include <vcsbase/submitfilemodel.h>
 
 using namespace Subversion::Internal;
 
 SubversionSubmitEditor::SubversionSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters,
                                                QWidget *parentWidget) :
-    VcsBase::VcsBaseSubmitEditor(parameters, new Utils::SubmitEditorWidget(parentWidget))
+    VcsBase::VcsBaseSubmitEditor(parameters, new VcsBase::SubmitEditorWidget(parentWidget))
 {
     setDisplayName(tr("Subversion Submit"));
     setDescriptionMandatory(false);

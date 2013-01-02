@@ -31,7 +31,7 @@
 #include "clearcasesubmiteditor.h"
 #include "clearcasesubmiteditorwidget.h"
 
-#include <utils/submiteditorwidget.h>
+#include <vcsbase/submiteditorwidget.h>
 #include <vcsbase/submitfilemodel.h>
 
 using namespace ClearCase::Internal;

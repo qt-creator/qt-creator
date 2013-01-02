@@ -30,7 +30,7 @@
 
 #include "cvssubmiteditor.h"
 
-#include <utils/submiteditorwidget.h>
+#include <vcsbase/submiteditorwidget.h>
 #include <vcsbase/submitfilemodel.h>
 
 using namespace Cvs::Internal;
@@ -38,7 +38,7 @@ using namespace VcsBase;
 
 CvsSubmitEditor::CvsSubmitEditor(const VcsBaseSubmitEditorParameters *parameters,
                                  QWidget *parentWidget) :
-    VcsBaseSubmitEditor(parameters, new Utils::SubmitEditorWidget(parentWidget)),
+    VcsBaseSubmitEditor(parameters, new VcsBase::SubmitEditorWidget(parentWidget)),
     m_msgAdded(tr("Added")),
     m_msgRemoved(tr("Removed")),
     m_msgModified(tr("Modified"))

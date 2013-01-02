@@ -152,11 +152,6 @@ QtcLibrary {
         "styledbar.h",
         "stylehelper.cpp",
         "stylehelper.h",
-        "submiteditorwidget.cpp",
-        "submiteditorwidget.h",
-        "submiteditorwidget.ui",
-        "submitfieldwidget.cpp",
-        "submitfieldwidget.h",
         "synchronousprocess.cpp",
         "synchronousprocess.h",
         "tcpportsgatherer.cpp",
@@ -178,7 +173,6 @@ QtcLibrary {
         "images/crumblepath-segment-selected-end.png",
         "images/crumblepath-segment-selected.png",
         "images/crumblepath-segment.png",
-        "images/removesubmitfield.png",
         "images/triangle_vert.png",
     ]
 

@@ -32,7 +32,7 @@
 
 #include "ui_mercurialcommitpanel.h"
 
-#include <utils/submiteditorwidget.h>
+#include <vcsbase/submiteditorwidget.h>
 
 namespace Mercurial {
 namespace Internal {
@@ -41,7 +41,7 @@ namespace Internal {
   Some extra fields have been added to the standard SubmitEditorWidget,
   to help to conform to the commit style that is used by both git and Mercurial*/
 
-class MercurialCommitWidget : public Utils::SubmitEditorWidget
+class MercurialCommitWidget : public VcsBase::SubmitEditorWidget
 {
 
 public:

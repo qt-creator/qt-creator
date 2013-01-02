@@ -114,7 +114,7 @@ void BazaarSubmitHighlighter::highlightBlock(const QString &text)
 
 
 BazaarCommitWidget::BazaarCommitWidget(QWidget *parent) :
-    Utils::SubmitEditorWidget(parent),
+    VcsBase::SubmitEditorWidget(parent),
     m_bazaarCommitPanel(new QWidget)
 {
     m_bazaarCommitPanelUi.setupUi(m_bazaarCommitPanel);

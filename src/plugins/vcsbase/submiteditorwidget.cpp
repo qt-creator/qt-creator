@@ -49,7 +49,7 @@ enum { defaultLineWidth = 72 };
 enum { checkableColumn = 0 };
 
 /*!
-    \class Utils::SubmitEditorWidget
+    \class VcsBase::SubmitEditorWidget
 
     \brief Presents a VCS commit message in a text editor and a
      checkable list of modified files in a list window.
@@ -71,7 +71,7 @@ enum { checkableColumn = 0 };
     editor closes.
 */
 
-namespace Utils {
+namespace VcsBase {
 
 // QActionPushButton: A push button tied to an action
 // (similar to a QToolButton)
@@ -466,7 +466,7 @@ QStringList SubmitEditorWidget::checkedFiles() const
     return rc;
 }
 
-CompletingTextEdit *SubmitEditorWidget::descriptionEdit() const
+Utils::CompletingTextEdit *SubmitEditorWidget::descriptionEdit() const
 {
     return d->m_ui.description;
 }
@@ -714,6 +714,6 @@ void SubmitEditorWidget::setEmptyFileListEnabled(bool e)
     }
 }
 
-} // namespace Utils
+} // namespace VcsBase
 
 #include "submiteditorwidget.moc"

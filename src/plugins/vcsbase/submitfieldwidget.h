@@ -30,7 +30,7 @@
 #ifndef SUBMITFIELDWIDGET_H
 #define SUBMITFIELDWIDGET_H
 
-#include "utils_global.h"
+#include "vcsbase_global.h"
 
 #include  <QWidget>
 
@@ -38,11 +38,11 @@ QT_BEGIN_NAMESPACE
 class QCompleter;
 QT_END_NAMESPACE
 
-namespace Utils {
+namespace VcsBase {
 
 struct SubmitFieldWidgetPrivate;
 
-class QTCREATOR_UTILS_EXPORT SubmitFieldWidget : public QWidget
+class VCSBASE_EXPORT SubmitFieldWidget : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(QStringList fields READ fields WRITE setFields DESIGNABLE true)
@@ -87,6 +87,6 @@ private:
     SubmitFieldWidgetPrivate *d;
 };
 
-} // namespace Utils
+} // namespace VcsBase
 
 #endif // SUBMITFIELDWIDGET_H

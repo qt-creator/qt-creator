@@ -2,6 +2,7 @@
     <qresource prefix="/vcsbase" >
         <file>VcsBase.mimetypes.xml</file>
         <file>images/diff.png</file>
+        <file>images/removesubmitfield.png</file>
         <file>images/submit.png</file>
     </qresource>
 </RCC>
