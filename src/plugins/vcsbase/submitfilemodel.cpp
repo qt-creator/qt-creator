@@ -150,4 +150,28 @@ unsigned int SubmitFileModel::filterFiles(const QStringList &filter)
     return rc;
 }
 
+/*! Updates user selections from \a source model.
+ *
+ *  Assumption: Both model are sorted with the same order, and there
+ *              are no duplicate entries.
+ */
+void SubmitFileModel::updateSelections(SubmitFileModel *source)
+{
+    Q_ASSERT(source);
+    int rows = rowCount();
+    int sourceRows = source->rowCount();
+    int lastMatched = 0;
+    for (int i = 0; i < rows; ++i) {
+        // Since both models are sorted with the same order, there is no need
+        // to test rows earlier than latest match found
+        for (int j = lastMatched; j < sourceRows; ++j) {
+            if (file(i) == source->file(j) && state(i) == source->state(j)) {
+                setChecked(i, source->checked(j));
+                lastMatched = j + 1; // No duplicates, start on next entry
+                break;
+            }
+        }
+    }
+}
+
 } // namespace VcsBase

@@ -65,6 +65,8 @@ public:
     // Filter for entries contained in the filter list. Returns the
     // number of deleted entries.
     unsigned int filterFiles(const QStringList &filter);
+
+    virtual void updateSelections(SubmitFileModel *source);
 };
 
 } // namespace VcsBase

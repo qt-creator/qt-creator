@@ -45,6 +45,36 @@
 namespace Git {
 namespace Internal {
 
+class GitSubmitFileModel : public VcsBase::SubmitFileModel
+{
+public:
+    GitSubmitFileModel(QObject *parent = 0) : VcsBase::SubmitFileModel(parent)
+    { }
+
+    virtual void updateSelections(SubmitFileModel *source)
+    {
+        int j = 0;
+        for (int i = 0; i < rowCount() && j < source->rowCount(); ++i) {
+            CommitData::StateFilePair stateFile = stateFilePair(i);
+            for (; j < source->rowCount(); ++j) {
+                CommitData::StateFilePair sourceStateFile = stateFilePair(j);
+                if (stateFile == sourceStateFile) {
+                    setChecked(i, source->checked(j));
+                    break;
+                } else if (stateFile < sourceStateFile) {
+                    break;
+                }
+            }
+        }
+    }
+
+private:
+    CommitData::StateFilePair stateFilePair(int row)
+    {
+        return CommitData::StateFilePair(static_cast<FileStates>(extraData(row).toInt()), file(row));
+    }
+};
+
 /* The problem with git is that no diff can be obtained to for a random
  * multiselection of staged/unstaged files; it requires the --cached
  * option for staged files. So, we sort apart the diff file lists
@@ -63,25 +93,6 @@ GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget()
     return static_cast<GitSubmitEditorWidget *>(widget());
 }
 
-static void mergeFileModels(VcsBase::SubmitFileModel *model, const VcsBase::SubmitFileModel *source)
-{
-    int j = 0;
-    for (int i = 0; i < model->rowCount() && j < source->rowCount(); ++i) {
-        CommitData::StateFilePair stateFile(
-                    static_cast<FileStates>(model->extraData(i).toInt()), model->file(i));
-        for (; j < source->rowCount(); ++j) {
-            CommitData::StateFilePair sourceStateFile(
-                        static_cast<FileStates>(source->extraData(j).toInt()), source->file(j));
-            if (stateFile == sourceStateFile) {
-                model->setChecked(i, source->checked(j));
-                break;
-            } else if (stateFile < sourceStateFile) {
-                break;
-            }
-        }
-    }
-}
-
 void GitSubmitEditor::setCommitData(const CommitData &d)
 {
     GitSubmitEditorWidget *w = submitEditorWidget();
@@ -92,8 +103,7 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
     m_commitEncoding = d.commitEncoding;
     m_workingDirectory = d.panelInfo.repository;
 
-    VcsBase::SubmitFileModel *oldModel = m_model;
-    m_model = new VcsBase::SubmitFileModel(this);
+    m_model = new GitSubmitFileModel(this);
     if (!d.files.isEmpty()) {
         for (QList<CommitData::StateFilePair>::const_iterator it = d.files.constBegin();
              it != d.files.constEnd(); ++it) {
@@ -111,10 +121,6 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
             m_model->addFile(file, CommitData::stateDisplayName(state), checkMode,
                              QVariant(static_cast<int>(state)));
         }
-    }
-    if (oldModel) {
-        mergeFileModels(m_model, oldModel);
-        delete oldModel;
     }
     setFileModel(m_model, d.panelInfo.repository);
 }

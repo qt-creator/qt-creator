@@ -479,6 +479,11 @@ QStringList VcsBaseSubmitEditor::checkedFiles() const
 
 void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *m, const QString &repositoryDirectory)
 {
+    Q_ASSERT(m);
+    if (SubmitFileModel *oldModel = d->m_widget->fileModel()) {
+        m->updateSelections(oldModel);
+        delete oldModel;
+    }
     d->m_widget->setFileModel(m);
 
     QSet<QString> uniqueSymbols;
