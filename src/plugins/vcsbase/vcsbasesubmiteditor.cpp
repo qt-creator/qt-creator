@@ -34,6 +34,7 @@
 #include "submiteditorfile.h"
 #include "submiteditorwidget.h"
 #include "submitfieldwidget.h"
+#include "submitfilemodel.h"
 #include "vcsbaseoutputwindow.h"
 #include "vcsplugin.h"
 
@@ -318,16 +319,6 @@ void VcsBaseSubmitEditor::unregisterActions(QAction *editorUndoAction,  QAction 
     d->m_diffAction = d->m_submitAction = 0;
 }
 
-int VcsBaseSubmitEditor::fileNameColumn() const
-{
-    return d->m_widget->fileNameColumn();
-}
-
-void VcsBaseSubmitEditor::setFileNameColumn(int c)
-{
-    d->m_widget->setFileNameColumn(c);
-}
-
 QAbstractItemView::SelectionMode VcsBaseSubmitEditor::fileListSelectionMode() const
 {
     return d->m_widget->fileListSelectionMode();
@@ -486,7 +477,7 @@ QStringList VcsBaseSubmitEditor::checkedFiles() const
     return d->m_widget->checkedFiles();
 }
 
-void VcsBaseSubmitEditor::setFileModel(QAbstractItemModel *m, const QString &repositoryDirectory)
+void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *m, const QString &repositoryDirectory)
 {
     d->m_widget->setFileModel(m);
 
@@ -495,8 +486,7 @@ void VcsBaseSubmitEditor::setFileModel(QAbstractItemModel *m, const QString &rep
 
     // Iterate over the files and get interesting symbols
     for (int row = 0; row < m->rowCount(); ++row) {
-        const QString fileName = m->data(m->index(row, d->m_widget->fileNameColumn())).toString();
-        const QFileInfo fileInfo(repositoryDirectory, fileName);
+        const QFileInfo fileInfo(repositoryDirectory, m->file(row));
 
         // Add file name
         uniqueSymbols.insert(fileInfo.fileName());
@@ -539,7 +529,7 @@ void VcsBaseSubmitEditor::setFileModel(QAbstractItemModel *m, const QString &rep
     }
 }
 
-QAbstractItemModel *VcsBaseSubmitEditor::fileModel() const
+SubmitFileModel *VcsBaseSubmitEditor::fileModel() const
 {
     return d->m_widget->fileModel();
 }

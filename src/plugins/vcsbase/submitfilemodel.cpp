@@ -42,6 +42,8 @@ namespace VcsBase {
 // Helpers:
 // --------------------------------------------------------------------------
 
+enum { fileColumn = 1 };
+
 static QList<QStandardItem *> createFileRow(const QString &fileName, const QString &status,
                                             CheckMode checked, const QVariant &v)
 {
@@ -87,15 +89,6 @@ QList<QStandardItem *> SubmitFileModel::addFile(const QString &fileName, const Q
     return row;
 }
 
-QList<QStandardItem *> SubmitFileModel::rowAt(int row) const
-{
-    const int colCount = columnCount();
-    QList<QStandardItem *> rc;
-    for (int c = 0; c < colCount; c++)
-        rc.push_back(item(row, c));
-    return rc;
-}
-
 QString SubmitFileModel::state(int row) const
 {
     if (row < 0 || row >= rowCount())
@@ -107,7 +100,7 @@ QString SubmitFileModel::file(int row) const
 {
     if (row < 0 || row >= rowCount())
         return QString();
-    return item(row, 1)->text();
+    return item(row, fileColumn)->text();
 }
 
 bool SubmitFileModel::checked(int row) const
@@ -120,6 +113,13 @@ bool SubmitFileModel::checked(int row) const
 void SubmitFileModel::setChecked(int row, bool check)
 {
     if (row >= 0 || row < rowCount())
+        item(row)->setCheckState(check ? Qt::Checked : Qt::Unchecked);
+}
+
+void SubmitFileModel::setAllChecked(bool check)
+{
+    int rows = rowCount();
+    for (int row = 0; row < rows; ++row)
         item(row)->setCheckState(check ? Qt::Checked : Qt::Unchecked);
 }
 
@@ -139,25 +139,14 @@ bool SubmitFileModel::hasCheckedFiles() const
     return false;
 }
 
-QList<QStandardItem *> SubmitFileModel::findRow(const QString &text, int column) const
+unsigned int SubmitFileModel::filterFiles(const QStringList &filter)
 {
-    // Single item
-    const QList<QStandardItem *> items = findItems(text, Qt::MatchExactly, column);
-    if (items.empty())
-        return items;
-    // Compile row
-    return rowAt(items.front()->row());
- }
-
-unsigned SubmitFileModel::filter(const QStringList &filter, int column)
-{
-    unsigned rc = 0;
+    unsigned int rc = 0;
     for (int r = rowCount() - 1; r >= 0; r--)
-        if (const QStandardItem *i = item(r, column))
-            if (!filter.contains(i->text())) {
-                qDeleteAll(takeRow(r));
-                rc++;
-            }
+        if (!filter.contains(file(r))) {
+            removeRow(r);
+            rc++;
+        }
     return rc;
 }
 

@@ -38,23 +38,20 @@
 #include <QAbstractItemView>
 
 QT_BEGIN_NAMESPACE
-class QListWidgetItem;
 class QAction;
-class QAbstractItemModel;
 class QModelIndex;
-class QLineEdit;
 QT_END_NAMESPACE
 
 namespace VcsBase {
 
 class SubmitFieldWidget;
 struct SubmitEditorWidgetPrivate;
+class SubmitFileModel;
 
 class VCSBASE_EXPORT SubmitEditorWidget : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(QString descriptionText READ descriptionText WRITE setDescriptionText DESIGNABLE true)
-    Q_PROPERTY(int fileNameColumn READ fileNameColumn WRITE setFileNameColumn DESIGNABLE false)
     Q_PROPERTY(QAbstractItemView::SelectionMode fileListSelectionMode READ fileListSelectionMode WRITE setFileListSelectionMode DESIGNABLE true)
     Q_PROPERTY(bool lineWrap READ lineWrap WRITE setLineWrap DESIGNABLE true)
     Q_PROPERTY(int lineWrapWidth READ lineWrapWidth WRITE setLineWrapWidth DESIGNABLE true)
@@ -80,9 +77,6 @@ public:
     bool isEmptyFileListEnabled() const;
     void setEmptyFileListEnabled(bool e);
 
-    int fileNameColumn() const;
-    void setFileNameColumn(int c);
-
     bool lineWrap() const;
     void setLineWrap(bool);
 
@@ -95,8 +89,8 @@ public:
     QAbstractItemView::SelectionMode fileListSelectionMode() const;
     void setFileListSelectionMode(QAbstractItemView::SelectionMode sm);
 
-    void setFileModel(QAbstractItemModel *model);
-    QAbstractItemModel *fileModel() const;
+    void setFileModel(SubmitFileModel *model);
+    SubmitFileModel *fileModel() const;
 
     // Files to be included in submit
     QStringList checkedFiles() const;

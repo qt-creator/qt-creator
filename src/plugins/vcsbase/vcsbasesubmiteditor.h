@@ -38,7 +38,6 @@
 
 QT_BEGIN_NAMESPACE
 class QIcon;
-class QAbstractItemModel;
 class QAction;
 QT_END_NAMESPACE
 
@@ -48,6 +47,7 @@ namespace Internal {
 }
 struct VcsBaseSubmitEditorPrivate;
 class SubmitEditorWidget;
+class SubmitFileModel;
 
 class VCSBASE_EXPORT VcsBaseSubmitEditorParameters
 {
@@ -61,7 +61,6 @@ public:
 class VCSBASE_EXPORT VcsBaseSubmitEditor : public Core::IEditor
 {
     Q_OBJECT
-    Q_PROPERTY(int fileNameColumn READ fileNameColumn WRITE setFileNameColumn DESIGNABLE false)
     Q_PROPERTY(QAbstractItemView::SelectionMode fileListSelectionMode READ fileListSelectionMode WRITE setFileListSelectionMode DESIGNABLE true)
     Q_PROPERTY(bool lineWrap READ lineWrap WRITE setLineWrap DESIGNABLE true)
     Q_PROPERTY(int lineWrapWidth READ lineWrapWidth WRITE setLineWrapWidth DESIGNABLE true)
@@ -93,9 +92,6 @@ public:
                                     bool *promptSetting,
                                     bool forcePrompt = false,
                                     bool canCommitOnFailure = true) const;
-
-    int fileNameColumn() const;
-    void setFileNameColumn(int c);
 
     QAbstractItemView::SelectionMode fileListSelectionMode() const;
     void setFileListSelectionMode(QAbstractItemView::SelectionMode sm);
@@ -131,8 +127,8 @@ public:
 
     QStringList checkedFiles() const;
 
-    void setFileModel(QAbstractItemModel *m, const QString &repositoryDirectory = QString());
-    QAbstractItemModel *fileModel() const;
+    void setFileModel(SubmitFileModel *m, const QString &repositoryDirectory = QString());
+    SubmitFileModel *fileModel() const;
     virtual void updateFileModel() { }
 
     // Utilities returning some predefined icons for actions

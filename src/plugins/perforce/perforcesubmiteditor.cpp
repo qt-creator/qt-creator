@@ -114,7 +114,7 @@ bool PerforceSubmitEditor::parseText(QString text)
 
 void PerforceSubmitEditor::restrictToProjectFiles(const QStringList &knownProjectFiles)
 {
-    m_fileModel->filter(knownProjectFiles, fileNameColumn());
+    m_fileModel->filterFiles(knownProjectFiles);
 }
 
 void PerforceSubmitEditor::updateFields()
