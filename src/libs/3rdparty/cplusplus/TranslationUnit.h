@@ -136,7 +136,7 @@ public:
 
     bool maybeSplitGreaterGreaterToken(unsigned tokenIndex);
 
-public:
+private:
     struct PPLine {
         unsigned offset;
         unsigned line;
@@ -158,7 +158,6 @@ public:
         { return offset < other.offset; }
     };
 
-private:
     unsigned findLineNumber(unsigned offset) const;
     unsigned findColumnNumber(unsigned offset, unsigned lineNumber) const;
     PPLine findPreprocessorLine(unsigned offset) const;
