@@ -262,7 +262,7 @@ typedef QSharedPointer<SelectionAction> SelectionActionPtr;
 
 public:
     SelectionModelNodeAction(const QString &displayName, const QString &menuId, int priority) :
-       MenuDesignerAction(displayName, menuId, priority)
+       MenuDesignerAction<SelectionContextFunctors::Always, SelectionContextFunctors::SelectionEnabled>(displayName, menuId, priority)
     {}
 
     virtual void updateContext()
