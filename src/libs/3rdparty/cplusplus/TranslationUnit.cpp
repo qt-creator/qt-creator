@@ -206,16 +206,16 @@ void TranslationUnit::tokenize()
                         lex(&tk);
 
                         // Gather where the expansion happens and its length.
-                        unsigned macroOffset = static_cast<unsigned>(strtoul(tk.spell(), 0, 0));
+                        //unsigned macroOffset = static_cast<unsigned>(strtoul(tk.spell(), 0, 0));
                         lex(&tk);
                         lex(&tk); // Skip the separating comma
-                        unsigned macroLength = static_cast<unsigned>(strtoul(tk.spell(), 0, 0));
+                        //unsigned macroLength = static_cast<unsigned>(strtoul(tk.spell(), 0, 0));
                         lex(&tk);
 
                         // NOTE: We are currently not using the macro offset and length. They
                         // are kept here for now because of future use.
-                        Q_UNUSED(macroOffset)
-                        Q_UNUSED(macroLength)
+                        //Q_UNUSED(macroOffset)
+                        //Q_UNUSED(macroLength)
 
                         // Now we need to gather the real line and columns from the upcoming
                         // tokens. But notice this is only relevant for tokens which are expanded
