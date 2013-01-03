@@ -33,11 +33,12 @@
 
 #include <QTreeView>
 #include <QLabel>
-#include <QDialogButtonBox>
 #include <QPushButton>
 #include <QStandardItemModel>
+#include <QDialogButtonBox>
 #include <QItemSelectionModel>
 #include <QVBoxLayout>
+#include <QComboBox>
 #include <QDir>
 
 namespace Git {
@@ -55,21 +56,31 @@ ResetDialog::ResetDialog(QWidget *parent)
     , m_treeView(new QTreeView(this))
     , m_model(new QStandardItemModel(0, ColumnCount, this))
     , m_dialogButtonBox(new QDialogButtonBox(this))
+    , m_resetTypeComboBox(new QComboBox(this))
 {
     QStringList headers;
     headers << tr("Sha1")<< tr("Subject");
     m_model->setHorizontalHeaderLabels(headers);
     QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(new QLabel(tr("Reset to:")));
+    layout->addWidget(new QLabel(tr("Reset to:"), this));
     m_treeView->setModel(m_model);
     m_treeView->setMinimumWidth(300);
     m_treeView->setUniformRowHeights(true);
     m_treeView->setRootIsDecorated(false);
     m_treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     layout->addWidget(m_treeView);
-    layout->addWidget(m_dialogButtonBox);
+    QHBoxLayout *popUpLayout = new QHBoxLayout();
+    popUpLayout->addWidget(new QLabel(tr("Reset type:"), this));
+    m_resetTypeComboBox->addItem(tr("Hard Reset"), HardReset);
+    m_resetTypeComboBox->addItem(tr("Soft Reset"), SoftReset);
+    popUpLayout->addWidget(m_resetTypeComboBox);
+    popUpLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
+
+    popUpLayout->addWidget(m_dialogButtonBox);
     m_dialogButtonBox->addButton(QDialogButtonBox::Cancel);
     QPushButton *okButton = m_dialogButtonBox->addButton(QDialogButtonBox::Ok);
+    layout->addLayout(popUpLayout);
+
     connect(m_treeView, SIGNAL(doubleClicked(QModelIndex)),
             okButton, SLOT(animateClick()));
 
@@ -99,6 +110,11 @@ QString ResetDialog::commit() const
     if (const QStandardItem *sha1Item = currentItem(Sha1Column))
         return sha1Item->row() ? sha1Item->text() :  QString();
     return QString();
+}
+
+ResetType ResetDialog::resetType() const
+{
+    return static_cast<ResetType>(m_resetTypeComboBox->itemData(m_resetTypeComboBox->currentIndex()).toInt());
 }
 
 bool ResetDialog::populateLog(const QString &repository)

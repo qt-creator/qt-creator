@@ -111,6 +111,7 @@ public:
     void checkout(const QString &workingDirectory, const QString &file);
     void checkoutBranch(const QString &workingDirectory, const QString &branch);
     void hardReset(const QString &workingDirectory, const QString &commit = QString());
+    void softReset(const QString &workingDirectory, const QString &commit);
     void addFile(const QString &workingDirectory, const QString &fileName);
     bool synchronousLog(const QString &workingDirectory,
                         const QStringList &arguments,

@@ -35,6 +35,7 @@
 QT_BEGIN_NAMESPACE
 class QTreeView;
 class QDialogButtonBox;
+class QComboBox;
 class QStandardItemModel;
 class QStandardItem;
 QT_END_NAMESPACE
@@ -43,7 +44,12 @@ namespace Git {
 namespace Internal {
 
 // A dialog that lists SHA1 and subject of the changes
-// for reset --hard.
+// for reset --hard and --soft.
+
+enum ResetType {
+    HardReset,
+    SoftReset
+};
 
 class ResetDialog : public QDialog
 {
@@ -54,6 +60,7 @@ public:
     bool runDialog(const QString &repository);
 
     QString commit() const;
+    ResetType resetType() const;
 
 private:
     bool populateLog(const QString &repository);
@@ -62,6 +69,7 @@ private:
     QTreeView *m_treeView;
     QStandardItemModel *m_model;
     QDialogButtonBox *m_dialogButtonBox;
+    QComboBox *m_resetTypeComboBox;
 };
 
 } // namespace Internal

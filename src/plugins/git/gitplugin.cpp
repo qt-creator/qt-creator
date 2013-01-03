@@ -694,7 +694,14 @@ void GitPlugin::resetRepository()
 
     ResetDialog dialog;
     if (dialog.runDialog(state.topLevel()))
-        m_gitClient->hardReset(state.topLevel(), dialog.commit());
+        switch (dialog.resetType()) {
+        case HardReset:
+            m_gitClient->hardReset(state.topLevel(), dialog.commit());
+            break;
+        case SoftReset:
+            m_gitClient->softReset(state.topLevel(), dialog.commit());
+            break;
+        }
 }
 
 void GitPlugin::stageFile()
