@@ -12,6 +12,9 @@ QT += xml
 
 contains(QT_CONFIG, webkit) {
     QT += webkit
+    greaterThan(QT_MAJOR_VERSION, 4) {
+        QT += webkitwidgets
+    }
 }
 
 greaterThan(QT_MAJOR_VERSION, 4) {
