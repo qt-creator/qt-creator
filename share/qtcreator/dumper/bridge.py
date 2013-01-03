@@ -353,7 +353,7 @@ try:
     ReferenceCode = gdb.TYPE_CODE_REF
     CharCode = gdb.TYPE_CODE_CHAR
     BoolCode = gdb.TYPE_CODE_BOOL
-    ComplexCode = gdb.TYPE_CODE_COMPLEX # Fortran ?
+    ComplexCode = gdb.TYPE_CODE_COMPLEX
     TypedefCode = gdb.TYPE_CODE_TYPEDEF
     NamespaceCode = gdb.TYPE_CODE_NAMESPACE
     #Code = gdb.TYPE_CODE_DECFLOAT # Decimal floating point.

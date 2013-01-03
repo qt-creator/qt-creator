@@ -1508,6 +1508,16 @@ class Dumper:
             self.putNumChild(0)
             return
 
+        if type.code == ComplexCode:
+            self.putAddress(value.address)
+            self.putType(typeName)
+            if value.is_optimized_out:
+                self.putValue("<optimized out>")
+            else:
+                self.putValue("%s" % value)
+            self.putNumChild(0)
+            return
+
         if type.code == TypedefCode:
             if typeName in qqDumpers:
                 self.putType(typeName)
