@@ -68,7 +68,8 @@ class CPLUSPLUS_EXPORT Client
 public:
   enum IncludeType {
     IncludeLocal,
-    IncludeGlobal
+    IncludeGlobal,
+    IncludeNext
   };
 
 public:

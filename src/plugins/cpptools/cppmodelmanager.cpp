@@ -373,13 +373,15 @@ QString CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type, uns
 
             return QString();
         }
+
+        const QString originalFileName = fileName;
+        const QString contents = tryIncludeFile_helper(fileName, type, revision);
+        m_fileNameCache.insert(originalFileName, fileName);
+        return contents;
     }
 
-    const QString originalFileName = fileName;
-    const QString contents = tryIncludeFile_helper(fileName, type, revision);
-    if (type == IncludeGlobal)
-        m_fileNameCache.insert(originalFileName, fileName);
-    return contents;
+    // IncludeLocal, IncludeNext
+    return tryIncludeFile_helper(fileName, type, revision);
 }
 
 QString CppPreprocessor::cleanPath(const QString &path)

@@ -1407,9 +1407,10 @@ void Preprocessor::handlePreprocessorDirective(PPToken *tk)
         else if (!skipping() && directive == ppUndef)
             handleUndefDirective(tk);
         else if (!skipping() && (directive == ppInclude
-                                 || directive == ppIncludeNext
                                  || directive == ppImport))
-            handleIncludeDirective(tk);
+            handleIncludeDirective(tk, false);
+        else if (!skipping() && directive == ppIncludeNext)
+            handleIncludeDirective(tk, true);
         else if (directive == ppIf)
             handleIfDirective(tk);
         else if (directive == ppIfDef)
@@ -1428,7 +1429,7 @@ void Preprocessor::handlePreprocessorDirective(PPToken *tk)
 }
 
 
-void Preprocessor::handleIncludeDirective(PPToken *tk)
+void Preprocessor::handleIncludeDirective(PPToken *tk, bool includeNext)
 {
     m_state.m_lexer->setScanAngleStringLiteralTokens(true);
     lex(tk); // consume "include" token
@@ -1451,7 +1452,9 @@ void Preprocessor::handleIncludeDirective(PPToken *tk)
 
 //    qDebug("include [[%s]]", included.toUtf8().constData());
     Client::IncludeType mode;
-    if (included.at(0) == '"')
+    if (includeNext)
+        mode = Client::IncludeNext;
+    else if (included.at(0) == '"')
         mode = Client::IncludeLocal;
     else if (included.at(0) == '<')
         mode = Client::IncludeGlobal;

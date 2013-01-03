@@ -155,7 +155,7 @@ private:
     void scanActualArgument(PPToken *tk, QVector<PPToken> *tokens);
 
     void handlePreprocessorDirective(PPToken *tk);
-    void handleIncludeDirective(PPToken *tk);
+    void handleIncludeDirective(PPToken *tk, bool includeNext);
     void handleDefineDirective(PPToken *tk);
     QByteArray expand(PPToken *tk, PPToken *lastConditionToken = 0);
     const Internal::PPToken evalExpression(PPToken *tk, Value &result);
