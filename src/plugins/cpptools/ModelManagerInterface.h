@@ -78,7 +78,12 @@ public:
         {}
 
     public: // enums and types
-        enum Language { CXX, CXX11, C99, C89 };
+        enum Language {
+            C89 = 1,
+            C99 = 2,
+            CXX = 3,
+            CXX11 = 4
+        };
         enum QtVersion {
             UnknownQt = -1,
             NoQt = 0,
