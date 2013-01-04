@@ -92,10 +92,10 @@ win32 {
 }
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
 
-unix:!macx {
+
     HEADERS += $$PWD/unixutils.h
     SOURCES += $$PWD/unixutils.cpp
-}
+
 HEADERS += \
     $$PWD/environment.h \
     $$PWD/environmentmodel.h \
