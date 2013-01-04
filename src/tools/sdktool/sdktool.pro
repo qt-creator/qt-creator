@@ -7,6 +7,8 @@ CONFIG -= app_bundle
 
 QT -= gui test
 
+isEmpty(PRECOMPILED_HEADER):PRECOMPILED_HEADER = $$PWD/../../shared/qtcreator_pch.h
+
 SOURCES += \
     main.cpp \
     addkeysoperation.cpp \
