@@ -929,9 +929,6 @@ int CppCompletionAssistProcessor::startCompletionHelper()
                                           &m_model->m_completionOperator,
                                           /*want function call =*/ true);
 
-    const Core::IDocument *document = m_interface->document();
-    QString fileName = document->fileName();
-
     if (m_model->m_completionOperator == T_DOXY_COMMENT) {
         for (int i = 1; i < T_DOXY_LAST_TAG; ++i)
             addCompletionItem(QString::fromLatin1(doxygenTagSpell(i)), m_icons.keywordIcon());
@@ -1003,6 +1000,7 @@ int CppCompletionAssistProcessor::startCompletionHelper()
 
     int line = 0, column = 0;
     Convenience::convertPosition(m_interface->textDocument(), startOfExpression, &line, &column);
+    const QString fileName = m_interface->document()->fileName();
     return startCompletionInternal(fileName, line, column, expression, endOfExpression);
 }
 
@@ -1231,8 +1229,7 @@ bool CppCompletionAssistProcessor::objcKeywordsWanted() const
     if (!m_objcEnabled)
         return false;
 
-    const Core::IDocument *document = m_interface->document();
-    QString fileName = document->fileName();
+    const QString fileName = m_interface->document()->fileName();
 
     const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
     return mdb->findByFile(fileName).type() == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE);
