@@ -136,6 +136,16 @@ private slots:
     void assignment_1();
     void assignment_2();
 
+    // constructor declarations
+    void cpp_constructor_one_unamed_arg();
+    void cpp_constructor_one_unamed_arg_namespace();
+    void cpp_constructor_one_knowntype_arg();
+    void cpp_constructor_one_const_arg();
+    void cpp_constructor_one_ref_arg();
+    void cpp_constructor_one_named_arg();
+    void cpp_constructor_no_arg();
+    void cpp_constructor_multiple_args();
+
     // objc++
     void objc_simple_class();
     void objc_attributes_followed_by_at_keyword();
@@ -1048,6 +1058,150 @@ void tst_AST::cpp_initializer_or_function_declaration()
     QVERIFY(param->type_specifier_list->value->asNamedTypeSpecifier()->name != 0);
     QVERIFY(param->type_specifier_list->value->asNamedTypeSpecifier()->name->asSimpleName() != 0);
     QCOMPARE(param->type_specifier_list->value->asNamedTypeSpecifier()->name->asSimpleName()->identifier_token, 4U);
+}
+
+void tst_AST::cpp_constructor_one_unamed_arg()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(QString /*name*/) {}"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    FunctionDefinitionAST *funDef = ast->asFunctionDefinition();
+    QVERIFY(funDef != 0);
+    QVERIFY(funDef->declarator != 0);
+    QVERIFY(funDef->declarator->postfix_declarator_list != 0);
+    QVERIFY(funDef->declarator->postfix_declarator_list->lastValue() != 0);
+
+    FunctionDeclaratorAST *funDecl = funDef->declarator->postfix_declarator_list->lastValue()->asFunctionDeclarator();
+    QVERIFY(funDecl != 0);
+    QVERIFY(funDecl->parameter_declaration_clause != 0);
+    QVERIFY(funDecl->parameter_declaration_clause->parameter_declaration_list != 0);
+}
+
+void tst_AST::cpp_constructor_one_unamed_arg_namespace()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("Foo::QFileInfo::QFileInfo(QString /*name*/) {}"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    FunctionDefinitionAST *funDef = ast->asFunctionDefinition();
+    QVERIFY(funDef != 0);
+    QVERIFY(funDef->declarator != 0);
+    QVERIFY(funDef->declarator->postfix_declarator_list != 0);
+    QVERIFY(funDef->declarator->postfix_declarator_list->lastValue() != 0);
+
+    FunctionDeclaratorAST *funDecl = funDef->declarator->postfix_declarator_list->lastValue()->asFunctionDeclarator();
+    QVERIFY(funDecl != 0);
+    QVERIFY(funDecl->parameter_declaration_clause != 0);
+    QVERIFY(funDecl->parameter_declaration_clause->parameter_declaration_list != 0);
+}
+
+void tst_AST::cpp_constructor_one_named_arg()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(QString name) {}"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    FunctionDefinitionAST *funDef = ast->asFunctionDefinition();
+    QVERIFY(funDef != 0);
+    QVERIFY(funDef->declarator != 0);
+    QVERIFY(funDef->declarator->postfix_declarator_list != 0);
+    QVERIFY(funDef->declarator->postfix_declarator_list->lastValue() != 0);
+
+    FunctionDeclaratorAST *funDecl = funDef->declarator->postfix_declarator_list->lastValue()->asFunctionDeclarator();
+    QVERIFY(funDecl != 0);
+    QVERIFY(funDecl->parameter_declaration_clause != 0);
+    QVERIFY(funDecl->parameter_declaration_clause->parameter_declaration_list != 0);
+}
+
+void tst_AST::cpp_constructor_one_knowntype_arg()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(int /*name*/) {}"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    FunctionDefinitionAST *funDef = ast->asFunctionDefinition();
+    QVERIFY(funDef != 0);
+    QVERIFY(funDef->declarator != 0);
+    QVERIFY(funDef->declarator->postfix_declarator_list != 0);
+    QVERIFY(funDef->declarator->postfix_declarator_list->lastValue() != 0);
+
+    FunctionDeclaratorAST *funDecl = funDef->declarator->postfix_declarator_list->lastValue()->asFunctionDeclarator();
+    QVERIFY(funDecl != 0);
+    QVERIFY(funDecl->parameter_declaration_clause != 0);
+    QVERIFY(funDecl->parameter_declaration_clause->parameter_declaration_list != 0);
+}
+
+
+void tst_AST::cpp_constructor_one_const_arg()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(const QString /*name*/) {}"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    FunctionDefinitionAST *funDef = ast->asFunctionDefinition();
+    QVERIFY(funDef != 0);
+    QVERIFY(funDef->declarator != 0);
+    QVERIFY(funDef->declarator->postfix_declarator_list != 0);
+    QVERIFY(funDef->declarator->postfix_declarator_list->lastValue() != 0);
+
+    FunctionDeclaratorAST *funDecl = funDef->declarator->postfix_declarator_list->lastValue()->asFunctionDeclarator();
+    QVERIFY(funDecl != 0);
+    QVERIFY(funDecl->parameter_declaration_clause != 0);
+    QVERIFY(funDecl->parameter_declaration_clause->parameter_declaration_list != 0);
+}
+
+void tst_AST::cpp_constructor_one_ref_arg()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(QString & /*name*/) {}"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    FunctionDefinitionAST *funDef = ast->asFunctionDefinition();
+    QVERIFY(funDef != 0);
+    QVERIFY(funDef->declarator != 0);
+    QVERIFY(funDef->declarator->postfix_declarator_list != 0);
+    QVERIFY(funDef->declarator->postfix_declarator_list->lastValue() != 0);
+
+    FunctionDeclaratorAST *funDecl = funDef->declarator->postfix_declarator_list->lastValue()->asFunctionDeclarator();
+    QVERIFY(funDecl != 0);
+    QVERIFY(funDecl->parameter_declaration_clause != 0);
+    QVERIFY(funDecl->parameter_declaration_clause->parameter_declaration_list != 0);
+}
+
+void tst_AST::cpp_constructor_no_arg()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo() {}"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    FunctionDefinitionAST *funDef = ast->asFunctionDefinition();
+    QVERIFY(funDef != 0);
+    QVERIFY(funDef->declarator != 0);
+    QVERIFY(funDef->declarator->postfix_declarator_list != 0);
+    QVERIFY(funDef->declarator->postfix_declarator_list->lastValue() != 0);
+
+    FunctionDeclaratorAST *funDecl = funDef->declarator->postfix_declarator_list->lastValue()->asFunctionDeclarator();
+    QVERIFY(funDecl != 0);
+    QVERIFY(funDecl->parameter_declaration_clause == 0);
+}
+
+void tst_AST::cpp_constructor_multiple_args()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(QString /*name*/, QString /*type*/) {}"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    FunctionDefinitionAST *funDef = ast->asFunctionDefinition();
+    QVERIFY(funDef != 0);
+    QVERIFY(funDef->declarator != 0);
+    QVERIFY(funDef->declarator->postfix_declarator_list != 0);
+    QVERIFY(funDef->declarator->postfix_declarator_list->lastValue() != 0);
+
+    FunctionDeclaratorAST *funDecl = funDef->declarator->postfix_declarator_list->lastValue()->asFunctionDeclarator();
+    QVERIFY(funDecl != 0);
+    QVERIFY(funDecl->parameter_declaration_clause != 0);
+    QVERIFY(funDecl->parameter_declaration_clause->parameter_declaration_list != 0);
 }
 
 void tst_AST::objc_simple_class()

@@ -3904,12 +3904,17 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
             startOfNamedTypeSpecifier = cursor();
             if (parseName(named_type_specifier)) {
 
-              if (LA() == T_LPAREN && identifier(named_type_specifier) == className(declaringClass)) {
-                // looks like a constructor declaration
-                rewind(startOfNamedTypeSpecifier);
-                break;
-              }
+                const Identifier *classIdentifier = className(declaringClass);
+                if (QualifiedNameAST *qn = named_type_specifier->asQualifiedName())
+                    if (NestedNameSpecifierListAST *namesList = qn->nested_name_specifier_list)
+                        if (NestedNameSpecifierAST *lastName = namesList->lastValue())
+                            classIdentifier = identifier(lastName->class_or_namespace_name);
 
+                if (LA() == T_LPAREN && identifier(named_type_specifier) == classIdentifier) {
+                    // looks like a constructor declaration
+                    rewind(startOfNamedTypeSpecifier);
+                    break;
+                }
 
                 NamedTypeSpecifierAST *spec = new (_pool) NamedTypeSpecifierAST;
                 spec->name = named_type_specifier;
