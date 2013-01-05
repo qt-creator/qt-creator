@@ -1665,8 +1665,10 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, St
 // Quietly retrieve branch list of remote repository URL
 //
 // The branch HEAD is pointing to is always returned first.
-QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryURL)
+QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryURL, bool *isDetached)
 {
+    if (isDetached)
+        *isDetached = true;
     QStringList arguments(QLatin1String("ls-remote"));
     arguments << repositoryURL << QLatin1String("HEAD") << QLatin1String("refs/heads/*");
     const unsigned flags =
@@ -1689,10 +1691,13 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
         const int pos = line.lastIndexOf(pattern);
         if (pos != -1) {
             const QString branchName = line.mid(pos + pattern.count());
-            if (line.startsWith(headSha))
+            if (line.startsWith(headSha)) {
                 branches[0] = branchName;
-            else
+                if (isDetached)
+                    *isDetached = false;
+            } else {
                 branches.push_back(branchName);
+            }
         }
     }
     return branches;

@@ -888,7 +888,17 @@ void GitPlugin::pull()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    const bool rebase = m_gitClient->settings()->boolValue(GitSettings::pullRebaseKey);
+    bool rebase = m_gitClient->settings()->boolValue(GitSettings::pullRebaseKey);
+
+    if (!rebase) {
+        bool isDetached;
+        QString branchRebaseConfig = m_gitClient->synchronousRepositoryBranches(state.topLevel(), &isDetached).at(0);
+        if (!isDetached) {
+            branchRebaseConfig.prepend(QLatin1String("branch."));
+            branchRebaseConfig.append(QLatin1String(".rebase"));
+            rebase = (m_gitClient->readConfigValue(state.topLevel(), branchRebaseConfig) == QLatin1String("true"));
+        }
+    }
 
     GitClient::StashResult stashResult = m_gitClient->ensureStash(state.topLevel());
     switch (stashResult) {

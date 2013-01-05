@@ -231,7 +231,7 @@ public:
 
     void launchRepositoryBrowser(const QString &workingDirectory);
 
-    QStringList synchronousRepositoryBranches(const QString &repositoryURL);
+    QStringList synchronousRepositoryBranches(const QString &repositoryURL, bool *isDetached = 0);
 
     GitSettings *settings() const;
 
