@@ -570,6 +570,11 @@ QString AndroidManager::loadLocalJars(ProjectExplorer::Target *target, int apiLe
     return loadLocal(target, apiLevel, Jar);
 }
 
+QString AndroidManager::loadLocalJarsInitClasses(ProjectExplorer::Target *target, int apiLevel)
+{
+    return loadLocal(target, apiLevel, Jar, QLatin1String("initClass"));
+}
+
 QStringList AndroidManager::availableQtLibs(ProjectExplorer::Target *target)
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
@@ -686,7 +691,7 @@ void AndroidManager::raiseError(const QString &reason)
     QMessageBox::critical(0, tr("Error creating Android templates"), reason);
 }
 
-QString AndroidManager::loadLocal(ProjectExplorer::Target *target, int apiLevel, ItemType item)
+QString AndroidManager::loadLocal(ProjectExplorer::Target *target, int apiLevel, ItemType item, const QString &attribute)
 {
     QString itemType;
     if (item == Lib)
@@ -717,13 +722,15 @@ QString AndroidManager::loadLocal(ProjectExplorer::Target *target, int apiLevel,
         if (libs.contains(element.attribute(QLatin1String("name")))) {
             QDomElement libElement = element.firstChildElement(QLatin1String("depends")).firstChildElement(itemType);
             while (!libElement.isNull()) {
-                localLibs += libElement.attribute(QLatin1String("file")).arg(apiLevel) + QLatin1Char(':');
+                if (libElement.hasAttribute(attribute))
+                    localLibs += libElement.attribute(attribute).arg(apiLevel) + QLatin1Char(':');
                 libElement = libElement.nextSiblingElement(itemType);
             }
 
             libElement = element.firstChildElement(QLatin1String("replaces")).firstChildElement(itemType);
             while (!libElement.isNull()) {
-                localLibs.replace(libElement.attribute(QLatin1String("file")).arg(apiLevel) + QLatin1Char(':'), QString());
+                if (libElement.hasAttribute(attribute))
+                    localLibs.replace(libElement.attribute(attribute).arg(apiLevel) + QLatin1Char(':'), QString());
                 libElement = libElement.nextSiblingElement(itemType);
             }
         }

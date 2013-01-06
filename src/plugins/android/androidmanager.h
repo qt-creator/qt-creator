@@ -102,6 +102,7 @@ public:
     static Utils::FileName localLibsRulesFilePath(ProjectExplorer::Target *target);
     static QString loadLocalLibs(ProjectExplorer::Target *target, int apiLevel);
     static QString loadLocalJars(ProjectExplorer::Target *target, int apiLevel);
+    static QString loadLocalJarsInitClasses(ProjectExplorer::Target *target, int apiLevel);
 
     static QStringList availableQtLibs(ProjectExplorer::Target *target);
     static QStringList qtLibs(ProjectExplorer::Target *target);
@@ -127,7 +128,7 @@ private:
         Lib,
         Jar
     };
-    static QString loadLocal(ProjectExplorer::Target *target, int apiLevel, ItemType item);
+    static QString loadLocal(ProjectExplorer::Target *target, int apiLevel, ItemType item, const QString &attribute=QLatin1String("file"));
 
     class Library
     {

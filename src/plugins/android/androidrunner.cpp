@@ -55,6 +55,7 @@ AndroidRunner::AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig
     if ((m_useLocalQtLibs = ds->useLocalQtLibs())) {
         m_localLibs = AndroidManager::loadLocalLibs(target, ds->deviceAPILevel());
         m_localJars = AndroidManager::loadLocalJars(target, ds->deviceAPILevel());
+        m_localJarsInitClasses = AndroidManager::loadLocalJarsInitClasses(target, ds->deviceAPILevel());
     }
     m_intentName = AndroidManager::intentName(target);
     m_packageName = m_intentName.left(m_intentName.indexOf(QLatin1Char('/')));
@@ -198,6 +199,8 @@ void AndroidRunner::asyncStart()
         extraParams += QLatin1String(" -e libs_prefix /data/local/qt/");
         extraParams += QLatin1String(" -e load_local_libs ") + m_localLibs;
         extraParams += QLatin1String(" -e load_local_jars ") + m_localJars;
+        if (!m_localJarsInitClasses.isEmpty())
+            extraParams += QLatin1String(" -e static_init_classes ") + m_localJarsInitClasses;
     }
 
     extraParams = extraParams.trimmed();
