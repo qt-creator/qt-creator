@@ -252,7 +252,7 @@ bool AndroidDeployStep::deployPackage()
         writeOutput(tr("Clean old Qt libraries"));
         runCommand(deployProc, AndroidConfigurations::instance().adbToolPath().toString(),
                    QStringList() << QLatin1String("-s") << m_deviceSerialNumber
-                   << QLatin1String("shell") << QLatin1String("rm") << QLatin1String("-r") << QLatin1String("/data/local/qt"));
+                   << QLatin1String("shell") << QLatin1String("rm") << QLatin1String("-r") << QLatin1String("/data/local/tmp/qt"));
 
         writeOutput(tr("Deploy Qt libraries. This may take some time, please wait."));
         const QString tempPath = QDir::tempPath() + QLatin1String("/android_qt_libs_") + m_packageName;
@@ -269,7 +269,7 @@ bool AndroidDeployStep::deployPackage()
         AndroidPackageCreationStep::stripAndroidLibs(stripFiles, target()->activeRunConfiguration()->abi().architecture());
         runCommand(deployProc, AndroidConfigurations::instance().adbToolPath().toString(),
                    QStringList() << QLatin1String("-s") << m_deviceSerialNumber
-                   << QLatin1String("push") << tempPath << QLatin1String("/data/local/qt"));
+                   << QLatin1String("push") << tempPath << QLatin1String("/data/local/tmp/qt"));
         AndroidPackageCreationStep::removeDirectory(tempPath);
         emit (resetDelopyAction());
     }

@@ -196,7 +196,7 @@ void AndroidRunner::asyncStart()
 
     if (m_useLocalQtLibs) {
         extraParams += QLatin1String(" -e use_local_qt_libs true");
-        extraParams += QLatin1String(" -e libs_prefix /data/local/qt/");
+        extraParams += QLatin1String(" -e libs_prefix /data/local/tmp/qt/");
         extraParams += QLatin1String(" -e load_local_libs ") + m_localLibs;
         extraParams += QLatin1String(" -e load_local_jars ") + m_localJars;
         if (!m_localJarsInitClasses.isEmpty())
