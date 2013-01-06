@@ -307,10 +307,8 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
     branchArgs << QLatin1String(GitClient::noColorOption)
                << QLatin1String("-v") << QLatin1String("-a");
     QString output;
-    if (!m_client->synchronousBranchCmd(workingDirectory, branchArgs, &output, errorMessage)) {
+    if (!m_client->synchronousBranchCmd(workingDirectory, branchArgs, &output, errorMessage))
         VcsBase::VcsBaseOutputWindow::instance()->appendError(*errorMessage);
-        return false;
-    }
 
     beginResetModel();
 
@@ -472,10 +470,8 @@ bool BranchModel::branchIsMerged(const QModelIndex &idx)
     QStringList args;
 
     args << QLatin1String("-a") << QLatin1String("--contains") << sha(idx);
-    if (!m_client->synchronousBranchCmd(m_workingDirectory, args, &output, &errorMessage)) {
+    if (!m_client->synchronousBranchCmd(m_workingDirectory, args, &output, &errorMessage))
         VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
-        return false;
-    }
 
     QStringList lines = output.split(QLatin1Char('\n'), QString::SkipEmptyParts);
     foreach (const QString &l, lines) {

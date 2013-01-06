@@ -1363,11 +1363,11 @@ bool GitClient::synchronousBranchCmd(const QString &workingDirectory, QStringLis
     QByteArray outputText;
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, branchArgs, &outputText, &errorText);
+    *output = commandOutputFromLocal8Bit(outputText);
     if (!rc) {
         *errorMessage = tr("Cannot run \"git branch\" in \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
         return false;
     }
-    *output = commandOutputFromLocal8Bit(outputText);
     return true;
 }
 
@@ -1669,24 +1669,22 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
     QStringList branches;
     branches << tr("<Detached HEAD>");
     QString headSha;
-    if (resp.result == Utils::SynchronousProcessResponse::Finished) {
-        // split "82bfad2f51d34e98b18982211c82220b8db049b<tab>refs/heads/master"
-        foreach (const QString &line, resp.stdOut.split(QLatin1Char('\n'))) {
-            if (line.endsWith(QLatin1String("\tHEAD"))) {
-                QTC_CHECK(headSha.isNull());
-                headSha = line.left(line.indexOf(QLatin1Char('\t')));
-                continue;
-            }
+    // split "82bfad2f51d34e98b18982211c82220b8db049b<tab>refs/heads/master"
+    foreach (const QString &line, resp.stdOut.split(QLatin1Char('\n'))) {
+        if (line.endsWith(QLatin1String("\tHEAD"))) {
+            QTC_CHECK(headSha.isNull());
+            headSha = line.left(line.indexOf(QLatin1Char('\t')));
+            continue;
+        }
 
-            const QString pattern = QLatin1String("\trefs/heads/");
-            const int pos = line.lastIndexOf(pattern);
-            if (pos != -1) {
-                const QString branchName = line.mid(pos + pattern.count());
-                if (line.startsWith(headSha))
-                    branches[0] = branchName;
-                else
-                    branches.push_back(branchName);
-            }
+        const QString pattern = QLatin1String("\trefs/heads/");
+        const int pos = line.lastIndexOf(pattern);
+        if (pos != -1) {
+            const QString branchName = line.mid(pos + pattern.count());
+            if (line.startsWith(headSha))
+                branches[0] = branchName;
+            else
+                branches.push_back(branchName);
         }
     }
     return branches;
