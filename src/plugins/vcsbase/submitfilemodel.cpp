@@ -31,6 +31,7 @@
 #include "vcsbaseconstants.h"
 
 #include <coreplugin/fileiconprovider.h>
+#include <utils/qtcassert.h>
 
 #include <QStandardItem>
 #include <QFileInfo>
@@ -157,7 +158,7 @@ unsigned int SubmitFileModel::filterFiles(const QStringList &filter)
  */
 void SubmitFileModel::updateSelections(SubmitFileModel *source)
 {
-    Q_ASSERT(source);
+    QTC_ASSERT(source, return);
     int rows = rowCount();
     int sourceRows = source->rowCount();
     int lastMatched = 0;

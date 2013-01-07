@@ -57,6 +57,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/synchronousprocess.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 #include <find/basetextfind.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
@@ -477,21 +478,21 @@ QStringList VcsBaseSubmitEditor::checkedFiles() const
     return d->m_widget->checkedFiles();
 }
 
-void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *m, const QString &repositoryDirectory)
+void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *model, const QString &repositoryDirectory)
 {
-    Q_ASSERT(m);
+    QTC_ASSERT(model, return);
     if (SubmitFileModel *oldModel = d->m_widget->fileModel()) {
-        m->updateSelections(oldModel);
+        model->updateSelections(oldModel);
         delete oldModel;
     }
-    d->m_widget->setFileModel(m);
+    d->m_widget->setFileModel(model);
 
     QSet<QString> uniqueSymbols;
     const CPlusPlus::Snapshot cppSnapShot = CPlusPlus::CppModelManagerInterface::instance()->snapshot();
 
     // Iterate over the files and get interesting symbols
-    for (int row = 0; row < m->rowCount(); ++row) {
-        const QFileInfo fileInfo(repositoryDirectory, m->file(row));
+    for (int row = 0; row < model->rowCount(); ++row) {
+        const QFileInfo fileInfo(repositoryDirectory, model->file(row));
 
         // Add file name
         uniqueSymbols.insert(fileInfo.fileName());
