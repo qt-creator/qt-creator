@@ -267,7 +267,7 @@ void MergeTool::done()
             if (QMessageBox::question(0, tr("Continue Rebase"),
                                       tr("Continue rebase?"),
                                       QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-                client->synchronousRebaseContinue(workingDirectory);
+                client->synchronousCommandContinue(workingDirectory, QLatin1String("rebase"));
             }
         }
     } else {
