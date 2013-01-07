@@ -1,4 +1,5 @@
 import qbs.base 1.0
+import qbs.fileinfo as FileInfo
 
 import "../QtcPlugin.qbs" as QtcPlugin
 import "../../../qbs/defaults.js" as Defaults
@@ -108,7 +109,14 @@ QtcPlugin {
 
     Group {
         condition: Defaults.testsEnabled(qbs)
-        files: ["cppcodegen_test.cpp", "cppcompletion_test.cpp"]
+        files: [
+            "cppcodegen_test.cpp",
+            "cppcompletion_test.cpp",
+            "cppmodelmanager_test.cpp",
+            "modelmanagertesthelper.cpp", "modelmanagertesthelper.h"
+        ]
+
+        cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])
     }
 
     ProductModule {
