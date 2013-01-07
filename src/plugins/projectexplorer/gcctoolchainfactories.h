@@ -98,7 +98,6 @@ private:
 
     Utils::PathChooser *m_compilerCommand;
     AbiWidget *m_abiWidget;
-    Utils::FileName m_autoDebuggerCommand;
 
     QList<Abi> m_abiList;
     bool m_isReadOnly;
