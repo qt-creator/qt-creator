@@ -594,7 +594,7 @@ void Qt4Project::updateCppCodeModel()
         else
             part->qtVersion = ProjectPart::NoQt;
 
-        QStringList cxxflags = pro->variableValue(CppFlagsVar);
+        const QStringList cxxflags = pro->variableValue(CppFlagsVar);
 
         // part->defines
         if (tc)
@@ -630,7 +630,7 @@ void Qt4Project::updateCppCodeModel()
 
         // part->language
         if (tc)
-            part->language = tc->compilerFlags(pro->variableValue(CppFlagsVar)) == ToolChain::STD_CXX11 ? ProjectPart::CXX11 : ProjectPart::CXX;
+            part->language = tc->compilerFlags(cxxflags) == ToolChain::STD_CXX11 ? ProjectPart::CXX11 : ProjectPart::CXX;
         else
             part->language = CPlusPlus::CppModelManagerInterface::ProjectPart::CXX11;
 
