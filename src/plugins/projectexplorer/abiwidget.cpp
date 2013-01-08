@@ -157,6 +157,7 @@ void AbiWidget::setAbis(const QList<Abi> &abiList, const Abi &current)
             d->m_abi->setCurrentIndex(i + 1);
     }
 
+    d->m_abi->setVisible(!abiList.isEmpty());
     if (d->m_abi->currentIndex() == 0) {
         if (!current.isValid() && !abiList.isEmpty())
             d->m_abi->setCurrentIndex(1); // default to the first Abi if none is selected.
