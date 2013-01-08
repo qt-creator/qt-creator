@@ -43,10 +43,10 @@ try:
     #
     #######################################################################
 
-    try:
-        gdb.execute("set auto-load-scripts no")
-    except:
-        pass
+    #try:
+    #    gdb.execute("set auto-load-scripts no")
+    #except:
+    #    pass
 
 
     #######################################################################
