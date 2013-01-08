@@ -336,9 +336,11 @@ QString GccToolChain::defaultDisplayName() const
 {
     if (!m_targetAbi.isValid())
         return typeDisplayName();
-    return QString::fromLatin1("%1 (%2 %3)").arg(typeDisplayName(),
-                                                 Abi::toString(m_targetAbi.architecture()),
-                                                 Abi::toString(m_targetAbi.wordWidth()));
+    return QCoreApplication::translate("ProjectExplorer::GccToolChain",
+                                       "%1 (%2 %3 in %4)").arg(typeDisplayName(),
+                                                               Abi::toString(m_targetAbi.architecture()),
+                                                               Abi::toString(m_targetAbi.wordWidth()),
+                                                               compilerCommand().parentDir().toUserOutput());
 }
 
 QString GccToolChain::type() const
