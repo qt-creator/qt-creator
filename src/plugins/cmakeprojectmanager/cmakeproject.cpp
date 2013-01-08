@@ -651,16 +651,28 @@ QString CMakeProject::uicCommand() const
 
 QString CMakeProject::uiHeaderFile(const QString &uiFile)
 {
-    QDir srcDirRoot = QDir(projectDirectory());
-    QString relativePath = srcDirRoot.relativeFilePath(uiFile);
+    QFileInfo fi(uiFile);
+    Utils::FileName project = Utils::FileName::fromString(projectDirectory());
+    Utils::FileName baseDirectory = Utils::FileName::fromString(fi.absolutePath());
+
+    while (baseDirectory.isChildOf(project)) {
+        Utils::FileName cmakeListsTxt = baseDirectory;
+        cmakeListsTxt.appendPath(QLatin1String("CMakeLists.txt"));
+        if (cmakeListsTxt.toFileInfo().exists())
+            break;
+        QDir dir(baseDirectory.toString());
+        dir.cdUp();
+        baseDirectory = Utils::FileName::fromString(dir.absolutePath());
+    }
+
+    QDir srcDirRoot = QDir(project.toString());
+    QString relativePath = srcDirRoot.relativeFilePath(baseDirectory.toString());
     QDir buildDir = QDir(activeTarget()->activeBuildConfiguration()->buildDirectory());
     QString uiHeaderFilePath = buildDir.absoluteFilePath(relativePath);
-
-    QFileInfo fi(uiHeaderFilePath);
-    uiHeaderFilePath = fi.absolutePath();
     uiHeaderFilePath += QLatin1String("/ui_");
     uiHeaderFilePath += fi.completeBaseName();
     uiHeaderFilePath += QLatin1String(".h");
+
     return QDir::cleanPath(uiHeaderFilePath);
 }
 
