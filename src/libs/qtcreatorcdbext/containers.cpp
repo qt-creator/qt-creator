@@ -843,7 +843,7 @@ SymbolGroupValueVector qHashNodes(const SymbolGroupValue &v,
     for (SymbolGroupValueVector::const_iterator it = dummyNodeList.begin(); it != dcend; ++it) {
         if (const SymbolGroupValue n = (*it).typeCast(nodeType.c_str()))
             nodeList.push_back(n);
-        }  else
+        else
             return SymbolGroupValueVector();
     }
     return nodeList;
