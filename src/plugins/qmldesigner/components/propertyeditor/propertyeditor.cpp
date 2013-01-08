@@ -136,9 +136,8 @@ QmlJS::SimpleReaderNode::Ptr templateConfiguration()
         const QString fileName = propertyTemplatesPath() + QLatin1String("TemplateTypes.qml");
         s_templateConfiguration = reader.readFile(fileName);
 
-        if (!s_templateConfiguration) {
+        if (!s_templateConfiguration)
             qWarning() << PropertyEditor::tr("template defitions:") << reader.errors();
-        }
     }
 
     return s_templateConfiguration;
@@ -207,12 +206,11 @@ void createPropertyEditorValue(const QmlObjectNode &fxObjectNode, const QString 
     valueObject->setName(name);
     valueObject->setModelNode(fxObjectNode);
 
-    if (fxObjectNode.propertyAffectedByCurrentState(name) && !(fxObjectNode.modelNode().property(name).isBindingProperty())) {
+    if (fxObjectNode.propertyAffectedByCurrentState(name) && !(fxObjectNode.modelNode().property(name).isBindingProperty()))
         valueObject->setValue(fxObjectNode.modelValue(name));
 
-    } else {
+    else
         valueObject->setValue(value);
-    }
 
     if (propertyName != QLatin1String("id") &&
         fxObjectNode.currentState().isBaseState() &&
@@ -239,9 +237,8 @@ void PropertyEditor::NodeType::setValue(const QmlObjectNode & fxObjectNode, cons
 
 void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditor *propertyEditor)
 {
-    if (!fxObjectNode.isValid()) {
+    if (!fxObjectNode.isValid())
         return;
-    }
 
     QDeclarativeContext *ctxt = m_view->rootContext();
 
@@ -469,9 +466,8 @@ void PropertyEditor::changeValue(const QString &propertyName)
     underscoreName.replace(QLatin1Char('.'), QLatin1Char('_'));
     PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(variantToQObject(m_currentType->m_backendValuesPropertyMap.value(underscoreName)));
 
-    if (value ==0) {
+    if (value ==0)
         return;
-    }
 
     QmlObjectNode fxObjectNode(m_selectedNode);
 
@@ -670,9 +666,8 @@ void PropertyEditor::delayedResetView()
 
 void PropertyEditor::timerEvent(QTimerEvent *timerEvent)
 {
-    if (m_timerId == timerEvent->timerId()) {
+    if (m_timerId == timerEvent->timerId())
         resetView();
-    }
 }
 
 QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType, const QmlObjectNode &objectNode)
@@ -801,9 +796,8 @@ void PropertyEditor::resetView()
         ctxt->setContextProperty("finishedNotify", QVariant(true));
     } else {
         QmlObjectNode fxObjectNode;
-        if (m_selectedNode.isValid()) {
+        if (m_selectedNode.isValid())
             fxObjectNode = QmlObjectNode(m_selectedNode);
-        }
         QDeclarativeContext *ctxt = type->m_view->rootContext();
 
         ctxt->setContextProperty("finishedNotify", QVariant(false));
@@ -975,9 +969,8 @@ void PropertyEditor::nodeIdChanged(const ModelNode& node, const QString& newId, 
 
     if (node == m_selectedNode) {
 
-        if (m_currentType) {
+        if (m_currentType)
             setValue(node, "id", newId);
-        }
     }
 }
 

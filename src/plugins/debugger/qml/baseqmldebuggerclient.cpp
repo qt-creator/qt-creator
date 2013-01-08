@@ -65,11 +65,10 @@ void BaseQmlDebuggerClient::statusChanged(QmlDebug::ClientStatus status)
 
 void BaseQmlDebuggerClient::sendMessage(const QByteArray &msg)
 {
-    if (status() == QmlDebug::Enabled) {
+    if (status() == QmlDebug::Enabled)
         QmlDebugClient::sendMessage(msg);
-    } else {
+    else
         d->sendBuffer.append(msg);
-    }
 }
 
 void BaseQmlDebuggerClient::flushSendBuffer()

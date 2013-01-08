@@ -111,20 +111,18 @@ NodeInstance &NodeInstance::operator=(const NodeInstance &other)
 
 ModelNode NodeInstance::modelNode() const
 {
-    if (d) {
+    if (d)
         return  d->modelNode;
-    } else {
+    else
         return ModelNode();
-    }
 }
 
 qint32 NodeInstance::instanceId() const
 {
-    if (d) {
+    if (d)
         return d->modelNode.internalId();
-    } else {
+    else
         return -1;
-    }
 }
 
 bool NodeInstance::isValid() const
@@ -140,108 +138,96 @@ void NodeInstance::makeInvalid()
 
 QRectF NodeInstance::boundingRect() const
 {
-    if (isValid()) {
+    if (isValid())
         return  d->boundingRect;
-    } else {
+    else
         return QRectF();
-    }
 }
 
 bool NodeInstance::hasContent() const
 {
-    if (isValid()) {
+    if (isValid())
         return d->hasContent;
-    } else {
+    else
         return false;
-    }
 }
 
 bool NodeInstance::isAnchoredBySibling() const
 {
-    if (isValid()) {
+    if (isValid())
         return d->isAnchoredBySibling;
-    } else {
+    else
         return false;
-    }
 }
 
 bool NodeInstance::isAnchoredByChildren() const
 {
-    if (isValid()) {
+    if (isValid())
         return d->isAnchoredByChildren;
-    } else {
+    else
         return false;
-    }
 }
 
 bool NodeInstance::isMovable() const
 {
-    if (isValid()) {
+    if (isValid())
         return d->isMovable;
-    } else {
+    else
         return false;
-    }
 }
 
 bool NodeInstance::isResizable() const
 {
-    if (isValid()) {
+    if (isValid())
         return d->isResizable;
-    } else {
+    else
         return false;
-    }
 }
 
 QTransform NodeInstance::transform() const
 {
-    if (isValid()) {
+    if (isValid())
         return d->transform;
-    } else {
+    else
         return QTransform();
-    }
 }
 QTransform NodeInstance::sceneTransform() const
 {
-    if (isValid()) {
+    if (isValid())
         return d->sceneTransform;
-    } else {
+    else
         return QTransform();
-    }
 }
 bool NodeInstance::isInPositioner() const
 {
-    if (isValid()) {
+    if (isValid())
         return d->isInPositioner;
-    } else {
+    else
         return false;
-    }
 }
 
 QPointF NodeInstance::position() const
 {
-    if (isValid()) {
+    if (isValid())
         return d->position;
-    } else {
+    else
         return QPointF();
-    }
 }
 
 QSizeF NodeInstance::size() const
 {
-    if (isValid()) {
+    if (isValid())
         return d->size;
-    } else {
+    else
         return QSizeF();
-    }
 }
 
 int NodeInstance::penWidth() const
 {
-    if (isValid()) {
+    if (isValid())
         return d->penWidth;
-    } else {
+    else
         return 1;
-    }
 }
 
 void NodeInstance::paint(QPainter *painter)
@@ -276,11 +262,10 @@ QString NodeInstance::instanceType(const QString &name) const
 
 qint32 NodeInstance::parentId() const
 {
-    if (isValid()) {
+    if (isValid())
         return d->parentInstanceId;
-    } else {
+    else
         return false;
-    }
 }
 
 bool NodeInstance::hasAnchor(const QString &name) const

@@ -114,9 +114,8 @@ QList<InternalNodePointer> InternalNodeProperty::allDirectSubNodes() const
 {
     QList<InternalNode::Pointer> nodeList;
 
-    if (node()) {
+    if (node())
         nodeList.append(node());
-    }
 
     return nodeList;
 }

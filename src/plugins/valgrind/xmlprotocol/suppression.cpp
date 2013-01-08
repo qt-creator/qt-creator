@@ -105,11 +105,10 @@ void SuppressionFrame::setObject(const QString &obj)
 
 QString SuppressionFrame::toString() const
 {
-    if (!d->fun.isEmpty()) {
+    if (!d->fun.isEmpty())
         return QLatin1String("fun:") + d->fun;
-    } else {
+    else
         return QLatin1String("obj:") + d->obj;
-    }
 }
 
 class Suppression::Private : public QSharedData

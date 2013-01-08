@@ -192,14 +192,12 @@ bool FunctionHintProposalWidget::eventFilter(QObject *obj, QEvent *e)
 {
     switch (e->type()) {
     case QEvent::ShortcutOverride:
-        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape) {
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape)
             d->m_escapePressed = true;
-        }
         break;
     case QEvent::KeyPress:
-        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape) {
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape)
             d->m_escapePressed = true;
-        }
         if (d->m_model->size() > 1) {
             QKeyEvent *ke = static_cast<QKeyEvent*>(e);
             if (ke->key() == Qt::Key_Up) {
@@ -221,9 +219,8 @@ bool FunctionHintProposalWidget::eventFilter(QObject *obj, QEvent *e)
         break;
     case QEvent::WindowDeactivate:
     case QEvent::FocusOut:
-        if (obj != d->m_underlyingWidget) {
+        if (obj != d->m_underlyingWidget)
             break;
-        }
         abort();
         break;
     case QEvent::MouseButtonPress:
@@ -234,11 +231,10 @@ bool FunctionHintProposalWidget::eventFilter(QObject *obj, QEvent *e)
             if (!d->m_popupFrame->isAncestorOf(widget)) {
                 abort();
             } else if (e->type() == QEvent::Wheel) {
-                if (static_cast<QWheelEvent*>(e)->delta() > 0) {
+                if (static_cast<QWheelEvent*>(e)->delta() > 0)
                     previousPage();
-                } else {
+                else
                     nextPage();
-                }
                 return true;
             }
         }

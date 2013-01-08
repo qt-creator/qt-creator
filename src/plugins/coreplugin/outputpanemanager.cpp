@@ -317,11 +317,10 @@ void OutputPaneManager::shortcutTriggered()
     // then just give it focus.
     int current = currentIndex();
     if (OutputPanePlaceHolder::isCurrentVisible() && current == idx) {
-        if (!outputPane->hasFocus() && outputPane->canFocus()) {
+        if (!outputPane->hasFocus() && outputPane->canFocus())
             outputPane->setFocus();
-        } else {
+        else
             slotHide();
-        }
     } else {
         // Else do the same as clicking on the button does.
         buttonTriggered(idx);

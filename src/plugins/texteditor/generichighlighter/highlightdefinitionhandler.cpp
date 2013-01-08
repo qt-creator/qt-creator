@@ -135,55 +135,54 @@ bool HighlightDefinitionHandler::startElement(const QString &,
                                               const QString &qName,
                                               const QXmlAttributes &atts)
 {
-    if (qName == kList) {
+    if (qName == kList)
         listElementStarted(atts);
-    } else if (qName == kItem) {
+    else if (qName == kItem)
         itemElementStarted();
-    } else if (qName == kContext) {
+    else if (qName == kContext)
         contextElementStarted(atts);
-    } else if (qName == kItemData) {
+    else if (qName == kItemData)
         itemDataElementStarted(atts);
-    } else if (qName == kComment) {
+    else if (qName == kComment)
         commentElementStarted(atts);
-    } else if (qName == kKeywords) {
+    else if (qName == kKeywords)
         keywordsElementStarted(atts);
-    } else if (qName == kFolding) {
+    else if (qName == kFolding)
         foldingElementStarted(atts);
-    } else if (qName == kDetectChar) {
+    else if (qName == kDetectChar)
         detectCharStarted(atts);
-    } else if (qName == kDetect2Chars) {
+    else if (qName == kDetect2Chars)
         detect2CharsStarted(atts);
-    } else if (qName == kAnyChar) {
+    else if (qName == kAnyChar)
         anyCharStarted(atts);
-    } else if (qName == kStringDetect) {
+    else if (qName == kStringDetect)
         stringDetectedStarted(atts);
-    } else if (qName == kRegExpr) {
+    else if (qName == kRegExpr)
         regExprStarted(atts);
-    } else if (qName == kKeyword) {
+    else if (qName == kKeyword)
         keywordStarted(atts);
-    } else if (qName == kInt) {
+    else if (qName == kInt)
         intStarted(atts);
-    } else if (qName == kFloat) {
+    else if (qName == kFloat)
         floatStarted(atts);
-    } else if (qName == kHlCOct) {
+    else if (qName == kHlCOct)
         hlCOctStarted(atts);
-    } else if (qName == kHlCHex) {
+    else if (qName == kHlCHex)
         hlCHexStarted(atts);
-    } else if (qName == kHlCStringChar) {
+    else if (qName == kHlCStringChar)
         hlCStringCharStarted(atts);
-    } else if (qName == kHlCChar) {
+    else if (qName == kHlCChar)
         hlCCharStarted(atts);
-    } else if (qName == kRangeDetect) {
+    else if (qName == kRangeDetect)
         rangeDetectStarted(atts);
-    } else if (qName == kLineContinue) {
+    else if (qName == kLineContinue)
         lineContinue(atts);
-    } else if (qName == kIncludeRules) {
+    else if (qName == kIncludeRules)
         includeRulesStarted(atts);
-    } else if (qName == kDetectSpaces) {
+    else if (qName == kDetectSpaces)
         detectSpacesStarted(atts);
-    } else if (qName == kDetectIdentifier) {
+    else if (qName == kDetectIdentifier)
         detectIdentifier(atts);
-    }
 
     return true;
 }

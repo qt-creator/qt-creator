@@ -217,11 +217,10 @@ static unsigned debuggerConfigurationErrors(const ProjectExplorer::Kit *k)
         return NoDebugger;
 
     const QFileInfo fi = item.binary.toFileInfo();
-    if (!fi.exists() || fi.isDir()) {
+    if (!fi.exists() || fi.isDir())
         result |= DebuggerNotFound;
-    } else if (!fi.isExecutable()) {
+    else if (!fi.isExecutable())
         result |= DebuggerNotExecutable;
-    }
 
     if (!fi.exists() || fi.isDir())
         // We need an absolute path to be able to locate Python on Windows.

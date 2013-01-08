@@ -494,11 +494,10 @@ void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
     }
 
     if (mask & ExpressionPart) {
-        if (!data.expression.isEmpty()) {
+        if (!data.expression.isEmpty())
             m_lineEditExpression->setText(data.expression);
-        } else {
+        else
             m_lineEditExpression->clear();
-        }
     }
 
     if (mask & ConditionPart)

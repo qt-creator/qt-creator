@@ -387,21 +387,17 @@ ModificationGroupToken ModelRewriter::beginModificationGroup()
 
 void ModelRewriter::endModificationGroup(const ModificationGroupToken& token)
 {
-    if (m_activeModificationGroups.isEmpty()) {
+    if (m_activeModificationGroups.isEmpty())
         throw ModificationGroupException(__LINE__, Q_FUNC_INFO, __FILE__);
-    }
 
-    if (m_activeModificationGroups.last() != token) {
+    if (m_activeModificationGroups.last() != token)
         throw ModificationGroupException(__LINE__, Q_FUNC_INFO, __FILE__);
-    }
 
-    if (!m_activeModificationGroups.removeAll(token)) {
+    if (!m_activeModificationGroups.removeAll(token))
         throw ModificationGroupException(__LINE__, Q_FUNC_INFO, __FILE__);
-    }
 
-    if (!modificationGroupActive()) {
+    if (!modificationGroupActive())
         m_modelToTextMerger.applyChanges(*m_textModifier);
-    }
 }
 
 bool ModelRewriter::lastRewriteFailed() const
@@ -438,9 +434,8 @@ bool ModelRewriter::paste(QMimeData *transferData, const InternalNode::Pointer &
 
     Paster paster(transferData, intoNode);
     if (paster.doPaste(m_modelToTextMerger)) {
-        if (!modificationGroupActive()) {
+        if (!modificationGroupActive())
             m_modelToTextMerger.applyChanges(*m_textModifier);
-        }
         return true;
     } else {
         m_modelToTextMerger.clear();

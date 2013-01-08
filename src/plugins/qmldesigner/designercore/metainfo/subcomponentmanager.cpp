@@ -100,9 +100,8 @@ static inline bool checkIfDerivedFromItem(const QString &fileName)
     document->parseQml();
 
 
-    if (!document->isParsedCorrectly()) {
+    if (!document->isParsedCorrectly())
         return false;
-    }
 
     snapshot.insert(document);
 
@@ -221,9 +220,8 @@ void SubComponentManager::parseDirectories()
     foreach (const Import &import, m_imports) {
         if (import.isFileImport()) {
             QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.file()).toLocalFile());
-            if (dirInfo.exists() && dirInfo.isDir()) {
+            if (dirInfo.exists() && dirInfo.isDir())
                 parseDirectory(dirInfo.canonicalFilePath());
-            }
         } else {
             QString url = import.url();
             foreach (const QString &path, importPaths()) {
@@ -263,9 +261,8 @@ void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool a
                 }
             }
         }
-        if (!metaFiles.isEmpty()) {
+        if (!metaFiles.isEmpty())
             return;
-        }
     }
 
     if (debug)
@@ -338,9 +335,8 @@ void SubComponentManager::parseFile(const QString &canonicalFilePath, bool addTo
         qDebug() << Q_FUNC_INFO << canonicalFilePath;
 
     QFile file(canonicalFilePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
-    }
 
     QString dir = QFileInfo(canonicalFilePath).path();
     foreach (const QString &qualifier, m_dirToQualifier.values(dir)) {
@@ -361,9 +357,8 @@ QList<QFileInfo> SubComponentManager::watchedFiles(const QString &canonicalDirPa
 
     foreach (const QString &monitoredFile, m_watcher.files()) {
         QFileInfo fileInfo(monitoredFile);
-        if (fileInfo.dir().absolutePath() == canonicalDirPath) {
+        if (fileInfo.dir().absolutePath() == canonicalDirPath)
             files.append(fileInfo);
-        }
     }
     return files;
 }
@@ -469,9 +464,8 @@ void SubComponentManager::update(const QUrl &filePath, const QList<Import> &impo
                 m_watcher.removePath(oldDir.filePath());
         }
 
-        if (!newDir.filePath().isEmpty()) {
+        if (!newDir.filePath().isEmpty())
             m_dirToQualifier.insertMulti(newDir.canonicalFilePath(), QString());
-        }
     }
 
     //

@@ -276,9 +276,8 @@ bool MaemoGlobal::callMaddeShellScript(QProcess &proc,
 QStringList MaemoGlobal::targetArgs(const QString &qmakePath, bool useTarget)
 {
     QStringList args;
-    if (useTarget) {
+    if (useTarget)
         args << QLatin1String("-t") << targetName(qmakePath);
-    }
     return args;
 }
 

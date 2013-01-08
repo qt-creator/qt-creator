@@ -801,11 +801,10 @@ bool GitClient::synchronousCheckoutBranch(const QString &workingDirectory,
         const QString stdErr = commandOutputFromLocal8Bit(errorText);
         //: Meaning of the arguments: %1: Branch, %2: Repository, %3: Error message
         const QString msg = tr("Cannot checkout \"%1\" of \"%2\": %3").arg(branch, workingDirectory, stdErr);
-        if (errorMessage) {
+        if (errorMessage)
             *errorMessage = msg;
-        } else {
+        else
             outputWindow()->appendError(msg);
-        }
         return false;
     }
     return true;
@@ -859,11 +858,10 @@ bool GitClient::synchronousLog(const QString &workingDirectory, const QStringLis
         const QString errorMessage = tr("Cannot obtain log of \"%1\": %2").
                                      arg(QDir::toNativeSeparators(workingDirectory),
                                          commandOutputFromLocal8Bit(errorText));
-        if (errorMessageIn) {
+        if (errorMessageIn)
             *errorMessageIn = errorMessage;
-        } else {
+        else
             outputWindow()->appendError(errorMessage);
-        }
     }
     return rc;
 }
@@ -954,11 +952,10 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
                             tr("Cannot reset \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), stdErr) :
                             tr("Cannot reset %n file(s) in \"%1\": %2", 0, files.size()).
                             arg(QDir::toNativeSeparators(workingDirectory), stdErr);
-        if (errorMessage) {
+        if (errorMessage)
             *errorMessage = msg;
-        } else {
+        else
             outputWindow()->appendError(msg);
-        }
         return false;
     }
     return true;
@@ -1010,11 +1007,10 @@ bool GitClient::synchronousCheckoutFiles(const QString &workingDirectory,
         //: %4: Error message
         const QString msg = tr("Cannot checkout \"%1\" of %2 in \"%3\": %4").
                             arg(revision, fileArg, workingDirectory, commandOutputFromLocal8Bit(errorText));
-        if (errorMessage) {
+        if (errorMessage)
             *errorMessage = msg;
-        } else {
+        else
             outputWindow()->appendError(msg);
-        }
         return false;
     }
     return true;
@@ -1316,11 +1312,10 @@ bool GitClient::executeSynchronousStash(const QString &workingDirectory,
         const QString msg = tr("Cannot stash in \"%1\": %2").
                             arg(QDir::toNativeSeparators(workingDirectory),
                                 commandOutputFromLocal8Bit(errorText));
-        if (errorMessage) {
+        if (errorMessage)
             *errorMessage = msg;
-        } else {
+        else
             outputWindow()->append(msg);
-        }
         return false;
     }
     return true;
@@ -1348,11 +1343,10 @@ bool GitClient::stashNameFromMessage(const QString &workingDirectory,
     }
     //: Look-up of a stash via its descriptive message failed.
     const QString msg = tr("Cannot resolve stash message \"%1\" in \"%2\".").arg(message, workingDirectory);
-    if (errorMessage) {
+    if (errorMessage)
         *errorMessage = msg;
-    } else {
+    else
         outputWindow()->append(msg);
-    }
     return  false;
 }
 
@@ -2263,11 +2257,10 @@ bool GitClient::synchronousStashRemove(const QString &workingDirectory,
                             QString *errorMessage /* = 0 */)
 {
     QStringList arguments(QLatin1String("stash"));
-    if (stash.isEmpty()) {
+    if (stash.isEmpty())
         arguments << QLatin1String("clear");
-    } else {
+    else
         arguments << QLatin1String("drop") << stash;
-    }
     QByteArray outputText;
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
@@ -2319,11 +2312,10 @@ bool GitClient::synchronousStashList(const QString &workingDirectory,
         const QString msg = tr("Cannot retrieve stash list of \"%1\": %2").
                             arg(QDir::toNativeSeparators(workingDirectory),
                                 commandOutputFromLocal8Bit(errorText));
-        if (errorMessage) {
+        if (errorMessage)
             *errorMessage = msg;
-        } else {
+        else
             outputWindow()->append(msg);
-        }
         return false;
     }
     Stash stash;

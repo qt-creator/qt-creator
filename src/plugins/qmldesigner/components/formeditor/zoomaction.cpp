@@ -64,13 +64,12 @@ void ZoomAction::zoomOut()
 
 void ZoomAction::setZoomLevel(double zoomLevel)
 {
-    if (zoomLevel < .1) {
+    if (zoomLevel < .1)
         m_zoomLevel = 0.1;
-    } else if (zoomLevel > 16.0) {
+    else if (zoomLevel > 16.0)
         m_zoomLevel = 16.0;
-    } else {
+    else
         m_zoomLevel = zoomLevel;
-    }
 
     emit zoomLevelChanged(m_zoomLevel);
 }

@@ -79,11 +79,10 @@ void StatesEditorView::removeState(int nodeId)
                 setCurrentState(baseState());
             } else if (parentProperty.isValid()){
                 int index = parentProperty.indexOf(stateNode);
-                if (index == 0) {
+                if (index == 0)
                     setCurrentState(parentProperty.at(1));
-                } else {
+                else
                     setCurrentState(parentProperty.at(index - 1));
-                }
             }
 
 
@@ -112,11 +111,10 @@ void StatesEditorView::synchonizeCurrentStateFromWidget()
 
 void StatesEditorView::createNewState()
 {
-    if (currentState().isBaseState()) {
+    if (currentState().isBaseState())
         addState();
-    } else {
+    else
         duplicateCurrentState();
-    }
 }
 
 void StatesEditorView::addState()
@@ -154,11 +152,10 @@ void StatesEditorView::resetModel()
         m_statesEditorModel->reset();
 
     if (m_statesEditorWidget) {
-        if (currentState().isBaseState()) {
+        if (currentState().isBaseState())
             m_statesEditorWidget->setCurrentStateInternalId(currentState().modelNode().internalId());
-        } else {
+        else
             m_statesEditorWidget->setCurrentStateInternalId(0);
-        }
     }
 }
 
@@ -258,9 +255,8 @@ void StatesEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
     if (removedNode.hasParentProperty()) {
         const NodeAbstractProperty propertyParent = removedNode.parentProperty();
-        if (propertyParent.parentModelNode().isRootNode() && propertyParent.name() == "states") {
+        if (propertyParent.parentModelNode().isRootNode() && propertyParent.name() == "states")
             m_lastIndex = propertyParent.indexOf(removedNode);
-        }
     }
     if (currentState().isValid() && removedNode == currentState())
         setCurrentState(baseState());
@@ -310,11 +306,10 @@ void StatesEditorView::actualStateChanged(const ModelNode &node)
 {
     QmlModelState newQmlModelState(node);
 
-    if (newQmlModelState.isBaseState()) {
+    if (newQmlModelState.isBaseState())
         m_statesEditorWidget->setCurrentStateInternalId(0);
-    } else {
+    else
         m_statesEditorWidget->setCurrentStateInternalId(newQmlModelState.modelNode().internalId());
-    }
     QmlModelView::actualStateChanged(node);
 }
 

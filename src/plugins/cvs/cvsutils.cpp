@@ -130,11 +130,10 @@ QList<CvsLogEntry> parseLogEntries(const QString &o,
     // Purge out files with no matching commits
     if (!filterCommitId.isEmpty()) {
         for (QList<CvsLogEntry>::iterator it = rc.begin(); it != rc.end(); ) {
-            if (it->revisions.empty()) {
+            if (it->revisions.empty())
                 it = rc.erase(it);
-            } else {
+            else
                 ++it;
-            }
         }
     }
     return rc;
@@ -152,11 +151,10 @@ QString fixDiffOutput(QString d)
         if (endOfLinePos == -1)
             break;
         const int nextLinePos = endOfLinePos + 1;
-        if (d.at(pos) == questionMark) {
+        if (d.at(pos) == questionMark)
             d.remove(pos, nextLinePos - pos);
-        } else {
+        else
             pos = nextLinePos;
-        }
     }
     return d;
 }

@@ -63,9 +63,8 @@ protected:
         if (didRewriting())
             return false;
 
-        if (ast->qualifiedTypeNameId->identifierToken.offset == targetParentObjectLocation) {
+        if (ast->qualifiedTypeNameId->identifierToken.offset == targetParentObjectLocation)
             insertInto(ast->initializer);
-        }
 
         return !didRewriting();
     }
@@ -75,9 +74,8 @@ protected:
         if (didRewriting())
             return false;
 
-        if (ast->firstSourceLocation().offset == targetParentObjectLocation) {
+        if (ast->firstSourceLocation().offset == targetParentObjectLocation)
             insertInto(ast->initializer);
-        }
 
         return !didRewriting();
     }
@@ -122,11 +120,10 @@ private:
             moveInfo.prefixToInsert = QLatin1String("\n") + targetPropertyName + (targetIsArrayBinding ? QLatin1String(": [") : QLatin1String(": "));
             moveInfo.suffixToInsert = targetIsArrayBinding ? QLatin1String("\n]") : QLatin1String("");
 
-            if (insertAfter && insertAfter->member) {
+            if (insertAfter && insertAfter->member)
                 moveInfo.destination = insertAfter->member->lastSourceLocation().end();
-            } else {
+            else
                 moveInfo.destination = ast->lbraceToken.end();
-            }
 
             move(moveInfo);
 

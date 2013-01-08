@@ -337,9 +337,8 @@ void EditorToolBar::listContextMenu(QPoint pos)
     menu.addSeparator();
     EditorManager::instance()->addNativeDirActions(&menu, index);
     QAction *result = menu.exec(d->m_editorList->mapToGlobal(pos));
-    if (result == copyPath) {
+    if (result == copyPath)
         QApplication::clipboard()->setText(QDir::toNativeSeparators(fileName));
-    }
 }
 
 void EditorToolBar::makeEditorWritable()

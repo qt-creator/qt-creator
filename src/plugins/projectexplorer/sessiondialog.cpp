@@ -219,9 +219,8 @@ void SessionDialog::createNew()
         m_ui.sessionList->addItems(sessions);
         m_ui.sessionList->setCurrentRow(sessions.indexOf(newSession));
         markItems();
-        if (newSessionInputDialog.isSwitchToRequested()) {
+        if (newSessionInputDialog.isSwitchToRequested())
             switchToSession();
-        }
     }
 }
 

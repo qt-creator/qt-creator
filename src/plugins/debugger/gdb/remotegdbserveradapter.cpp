@@ -314,11 +314,10 @@ void GdbRemoteServerEngine::handleTargetQnx(const GdbResponse &response)
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
 
         const qint64 pid = isMasterEngine() ? startParameters().attachPID : masterEngine()->startParameters().attachPID;
-        if (pid > -1) {
+        if (pid > -1)
             postCommand("attach " + QByteArray::number(pid), CB(handleAttach));
-        } else {
+        else
             handleInferiorPrepared();
-        }
     } else {
         // 16^error,msg="hd:5555: Connection timed out."
         QString msg = msgConnectRemoteServerFailed(

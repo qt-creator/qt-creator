@@ -239,11 +239,10 @@ void CustomWizardFieldPage::addField(const CustomWizardField &field)\
     } else {
         fieldWidget = registerLineEdit(fieldName, field);
     }
-    if (spansRow) {
+    if (spansRow)
         m_formLayout->addRow(fieldWidget);
-    } else {
+    else
         addRow(field.description, fieldWidget);
-    }
 }
 
 // Return the list of values and display texts for combo
@@ -345,11 +344,10 @@ QWidget *CustomWizardFieldPage::registerLineEdit(const QString &fieldName,
     const QString validationRegExp = field.controlAttributes.value(QLatin1String("validator"));
     if (!validationRegExp.isEmpty()) {
         QRegExp re(validationRegExp);
-        if (re.isValid()) {
+        if (re.isValid())
             lineEdit->setValidator(new QRegExpValidator(re, lineEdit));
-        } else {
+        else
             qWarning("Invalid custom wizard field validator regular expression %s.", qPrintable(validationRegExp));
-        }
     }
     registerField(fieldName, lineEdit, "text", SIGNAL(textEdited(QString)));
 

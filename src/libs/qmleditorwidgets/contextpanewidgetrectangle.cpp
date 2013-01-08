@@ -231,9 +231,8 @@ void ContextPaneWidgetRectangle::onBorderNoneClicked()
 
 void ContextPaneWidgetRectangle::onBorderSolidClicked()
 {
-    if (ui->borderSolid->isChecked()) {
+    if (ui->borderSolid->isChecked())
         emit propertyChanged(QLatin1String("border.color"), QLatin1String("\"black\""));
-    }
 }
 
 void ContextPaneWidgetRectangle::onGradientLineDoubleClicked(const QPoint &p)

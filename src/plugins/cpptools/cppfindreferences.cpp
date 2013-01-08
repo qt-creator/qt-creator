@@ -450,9 +450,8 @@ bool CppFindReferences::findSymbol(CppFindReferencesParameters *parameters,
                                       const Snapshot &snapshot)
 {
     QString symbolFile = QLatin1String(parameters->symbol->fileName());
-    if (!snapshot.contains(symbolFile)) {
+    if (!snapshot.contains(symbolFile))
         return false;
-    }
 
     Document::Ptr newSymbolDocument = snapshot.document(symbolFile);
     // document is not parsed and has no bindings yet, do it

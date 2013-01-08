@@ -244,9 +244,8 @@ QStringList SettingsDatabase::childKeys() const
     QMapIterator<QString, QVariant> i(d->m_settings);
     while (i.hasNext()) {
         const QString &key = i.next().key();
-        if (key.startsWith(g) && key.indexOf(QLatin1Char('/'), g.length() + 1) == -1) {
+        if (key.startsWith(g) && key.indexOf(QLatin1Char('/'), g.length() + 1) == -1)
             children.append(key.mid(g.length() + 1));
-        }
     }
 
     return children;

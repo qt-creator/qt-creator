@@ -62,11 +62,10 @@ void BaseTextEditModifier::indent(int offset, int length)
 
 int BaseTextEditModifier::indentDepth() const
 {
-    if (TextEditor::BaseTextEditorWidget *bte = qobject_cast<TextEditor::BaseTextEditorWidget*>(plainTextEdit())) {
+    if (TextEditor::BaseTextEditorWidget *bte = qobject_cast<TextEditor::BaseTextEditorWidget*>(plainTextEdit()))
         return bte->tabSettings().m_indentSize;
-    } else {
+    else
         return 0;
-    }
 }
 
 bool BaseTextEditModifier::renameId(const QString &oldId, const QString &newId)

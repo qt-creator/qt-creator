@@ -207,11 +207,10 @@ GitoriousProjectReader::ProjectList GitoriousProjectReader::read(const QByteArra
     while (!reader.atEnd()) {
         reader.readNext();
         if (reader.isStartElement()) {
-            if (reader.name() == QLatin1String("projects")) {
+            if (reader.name() == QLatin1String("projects"))
                 readProjects(reader);
-            } else {
+            else
                 readUnknownElement(reader);
-            }
         }
     }
 
@@ -259,17 +258,16 @@ QSharedPointer<GitoriousProject> GitoriousProjectReader::readProject(QXmlStreamR
 
         if (reader.isStartElement()) {
             const QStringRef name = reader.name();
-            if (name == QLatin1String("description")) {
+            if (name == QLatin1String("description"))
                 project->description = reader.readElementText();
-            } else if (name == QLatin1String("title")) {
+            else if (name == QLatin1String("title"))
                 project->name = reader.readElementText();
-            } else if (name == QLatin1String("slug") && project->name.isEmpty()) {
+            else if (name == QLatin1String("slug") && project->name.isEmpty())
                 project->name = reader.readElementText();
-            } else if (name == QLatin1String("repositories")) {
+            else if (name == QLatin1String("repositories"))
                 project->repositories = readRepositories(reader);
-            } else {
+            else
                 readUnknownElement(reader);
-            }
         }
     }
     return project;
@@ -287,24 +285,22 @@ QList<GitoriousRepository> GitoriousProjectReader::readRepositories(QXmlStreamRe
 
         if (reader.isEndElement()) {
             const QStringRef name = reader.name();
-            if (name == m_mainLinesElement || name == m_clonesElement) {
+            if (name == m_mainLinesElement || name == m_clonesElement)
                 defaultType = -1;
-            } else {
+            else
                 break;
-            }
         }
 
         if (reader.isStartElement()) {
             const QStringRef name = reader.name();
-            if (reader.name() == QLatin1String("repository")) {
+            if (reader.name() == QLatin1String("repository"))
                 repositories.push_back(readRepository(reader, defaultType));
-            } else if (name == m_mainLinesElement) {
+            else if (name == m_mainLinesElement)
                 defaultType = GitoriousRepository::MainLineRepository;
-            } else if (name == m_clonesElement) {
+            else if (name == m_clonesElement)
                 defaultType = GitoriousRepository::CloneRepository;
-            } else {
+            else
                 readUnknownElement(reader);
-            }
         }
     }
     return repositories;
@@ -324,23 +320,22 @@ GitoriousRepository GitoriousProjectReader::readRepository(QXmlStreamReader &rea
 
         if (reader.isStartElement()) {
             const QStringRef name = reader.name();
-            if (name == QLatin1String("name")) {
+            if (name == QLatin1String("name"))
                 repository.name = reader.readElementText();
-            } else if (name == QLatin1String("owner")) {
+            else if (name == QLatin1String("owner"))
                 repository.owner = reader.readElementText();
-            } else if (name == QLatin1String("id")) {
+            else if (name == QLatin1String("id"))
                 repository.id = reader.readElementText().toInt();
-            } else if (name == QLatin1String("description")) {
+            else if (name == QLatin1String("description"))
                 repository.description = reader.readElementText();
-            } else if (name == QLatin1String("push_url")) {
+            else if (name == QLatin1String("push_url"))
                 repository.pushUrl = reader.readElementText();
-            } else if (name == QLatin1String("clone_url")) {
+            else if (name == QLatin1String("clone_url"))
                 repository.cloneUrl = reader.readElementText();
-            } else if (name == QLatin1String("namespace")) {
+            else if (name == QLatin1String("namespace"))
                 repository.type = repositoryType(reader.readElementText());
-            } else {
+            else
                 readUnknownElement(reader);
-            }
         }
     }
     return repository;
@@ -588,11 +583,10 @@ void Gitorious::restoreSettings(const QString &group, const QSettings *s)
     const QStringList hosts = s->value(group + QLatin1Char('/') + QLatin1String(settingsKeyC), QStringList()).toStringList();
     foreach (const QString &h, hosts) {
         const int sepPos = h.indexOf(separator);
-        if (sepPos == -1) {
+        if (sepPos == -1)
             addHost(GitoriousHost(h));
-        } else {
+        else
             addHost(GitoriousHost(h.mid(0, sepPos), h.mid(sepPos + 1)));
-        }
     }
 }
 

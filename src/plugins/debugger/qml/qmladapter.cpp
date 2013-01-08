@@ -95,9 +95,8 @@ void QmlAdapter::closeConnection()
     if (m_connectionTimer.isActive()) {
         m_connectionTimer.stop();
     } else {
-        if (m_conn) {
+        if (m_conn)
             m_conn->close();
-        }
     }
 }
 

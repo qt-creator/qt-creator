@@ -115,9 +115,8 @@ QString CloneWizardPage::directoryFromRepository(const QString &urlIn) const
     if (url.endsWith(d->mainLinePostfix)) {
         url.truncate(url.size() - d->mainLinePostfix.size());
     } else {
-        if (url.endsWith(d->gitPostFix)) {
+        if (url.endsWith(d->gitPostFix))
             url.truncate(url.size() - d->gitPostFix.size());
-        }
     }
     // Check for equal parts, something like "qt/qt" -> "qt"
     const int slashPos = url.indexOf(slash);

@@ -701,11 +701,10 @@ const QtInfo &QtInfo::get(const SymbolGroupValueContext &ctx)
         }
         rc.libInfix = qualifiedSymbol.substr(libPos + 4, exclPos - libPos - 4);
         // 'Qt5Cored!qstrdup' or 'QtCored4!qstrdup'.
-        if (isdigit(qualifiedSymbol.at(2))) {
+        if (isdigit(qualifiedSymbol.at(2)))
             rc.version = qualifiedSymbol.at(2) - '0';
-        } else {
+        else
             rc.version = qualifiedSymbol.at(exclPos - 1) - '0';
-        }
         // Any namespace? 'QtCored4!nsp::qstrdup'
         const std::string::size_type nameSpaceStart = exclPos + 1;
         const std::string::size_type colonPos = qualifiedSymbol.find(':', nameSpaceStart);
@@ -1585,11 +1584,10 @@ static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str,
     } else {
         str << L"\"\"";
     }
-    if (memoryHandle)  {
+    if (memoryHandle)
         *memoryHandle = new MemoryHandle(memory, size);
-    } else {
+    else
         delete [] memory;
-    }
     return true;
 }
 
@@ -1691,11 +1689,10 @@ static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str,
     } else {
         str << L"<empty>";
     }
-    if (memoryHandle) {
+    if (memoryHandle)
         *memoryHandle = new MemoryHandle(reinterpret_cast<unsigned char *>(memory), size);
-    } else {
+    else
         delete [] memory;
-    }
     return true;
 }
 
@@ -2012,13 +2009,12 @@ static inline bool dumpQFlags(const SymbolGroupValue &v, std::wostream &str)
 
 static bool dumpJulianDate(int julianDay, std::wostream &str)
 {
-    if (julianDay < 0) {
+    if (julianDay < 0)
         return false;
-    } else if (!julianDay) {
+    else if (!julianDay)
         str << L"<null>";
-    } else {
+    else
         formatJulianDate(str, julianDay);
-    }
     return true;
 }
 
@@ -2292,11 +2288,10 @@ static bool dumpStd_W_String(const SymbolGroupValue &v, int type, std::wostream 
     str << (type == KT_StdString ?
         quotedWStringFromCharData(memory, memSize) :
         quotedWStringFromWCharData(memory, memSize));
-    if (memoryHandle) {
+    if (memoryHandle)
         *memoryHandle = new MemoryHandle(memory, memSize);
-    } else {
+    else
         delete [] memory;
-    }
     return true;
 }
 
@@ -2403,9 +2398,8 @@ static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, void **s
         break;
     case 10: // String
         str << L"(QString) ";
-        if (const SymbolGroupValue sv = dataV.typeCast(qtInfo.prependQtCoreModule("QString *").c_str())) {
+        if (const SymbolGroupValue sv = dataV.typeCast(qtInfo.prependQtCoreModule("QString *").c_str()))
             dumpQString(sv, str);
-        }
         break;
     case 11: //StringList: Dump container size
         str << L"(QStringList) ";

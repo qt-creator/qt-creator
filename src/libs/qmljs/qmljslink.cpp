@@ -460,11 +460,10 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
             // all but no-uri module apis become available for import
             QList<ModuleApiInfo> noUriModuleApis;
             foreach (const ModuleApiInfo &moduleApi, libraryInfo.moduleApis()) {
-                if (moduleApi.uri.isEmpty()) {
+                if (moduleApi.uri.isEmpty())
                     noUriModuleApis += moduleApi;
-                } else {
+                else
                     importableModuleApis[moduleApi.uri] += moduleApi;
-                }
             }
 
             // if a module api has no uri, it shares the same name
@@ -501,9 +500,8 @@ void LinkPrivate::loadQmldirComponents(ObjectValue *import, ComponentVersion ver
                                 const LibraryInfo &libraryInfo, const QString &libraryPath)
 {
     // if the version isn't valid, import the latest
-    if (!version.isValid()) {
+    if (!version.isValid())
         version = ComponentVersion(ComponentVersion::MaxVersion, ComponentVersion::MaxVersion);
-    }
 
 
     QSet<QString> importedTypes;
@@ -535,9 +533,8 @@ void LinkPrivate::loadImplicitDirectoryImports(Imports *imports, Document::Ptr d
         if (directoryImport.object)
             importCache.insert(ImportCacheKey(implcitDirectoryImportInfo), directoryImport);
     }
-    if (directoryImport.object) {
+    if (directoryImport.object)
         imports->append(directoryImport);
-    }
 }
 
 void LinkPrivate::loadImplicitDefaultImports(Imports *imports)

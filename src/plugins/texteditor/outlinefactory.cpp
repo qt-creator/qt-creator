@@ -106,9 +106,8 @@ void OutlineWidgetStack::restoreSettings(int position)
     const bool toggleSync = settings->value(outLineKey(position), true).toBool();
     toggleSyncButton()->setChecked(toggleSync);
 
-    if (IOutlineWidget *outlineWidget = qobject_cast<IOutlineWidget*>(currentWidget())) {
+    if (IOutlineWidget *outlineWidget = qobject_cast<IOutlineWidget*>(currentWidget()))
         outlineWidget->restoreSettings(position);
-    }
 }
 
 void OutlineWidgetStack::saveSettings(int position)
@@ -118,9 +117,8 @@ void OutlineWidgetStack::saveSettings(int position)
     QSettings *settings = Core::ICore::settings();
     settings->setValue(outLineKey(position), toggleSyncButton()->isEnabled());
 
-    if (IOutlineWidget *outlineWidget = qobject_cast<IOutlineWidget*>(currentWidget())) {
+    if (IOutlineWidget *outlineWidget = qobject_cast<IOutlineWidget*>(currentWidget()))
         outlineWidget->saveSettings(position);
-    }
 }
 
 bool OutlineWidgetStack::isCursorSynchronized() const

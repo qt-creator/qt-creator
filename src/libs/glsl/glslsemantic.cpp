@@ -184,11 +184,10 @@ bool Semantic::visit(StructTypeAST::Field *ast)
 bool Semantic::visit(IdentifierExpressionAST *ast)
 {
     if (ast->name) {
-        if (Symbol *s = _scope->lookup(*ast->name)) {
+        if (Symbol *s = _scope->lookup(*ast->name))
             _expr.type = s->type();
-        } else {
+        else
             _engine->error(ast->lineno, QString::fromLatin1("`%1' was not declared in this scope").arg(*ast->name));
-        }
     }
     return false;
 }
@@ -291,17 +290,15 @@ bool Semantic::visit(MemberAccessExpressionAST *ast)
     ExprResult expr = expression(ast->expr);
     if (expr.type && ast->field) {
         if (const VectorType *vecTy = expr.type->asVectorType()) {
-            if (Symbol *s = vecTy->find(*ast->field)) {
+            if (Symbol *s = vecTy->find(*ast->field))
                 _expr.type = s->type();
-            } else {
+            else
                 _engine->error(ast->lineno, QString::fromLatin1("`%1' has no member named `%2'").arg(vecTy->name()).arg(*ast->field));
-            }
         } else if (const Struct *structTy = expr.type->asStructType()) {
-            if (Symbol *s = structTy->find(*ast->field)) {
+            if (Symbol *s = structTy->find(*ast->field))
                 _expr.type = s->type();
-            } else {
+            else
                 _engine->error(ast->lineno, QString::fromLatin1("`%1' has no member named `%2'").arg(structTy->name()).arg(*ast->field));
-            }
         } else {
             _engine->error(ast->lineno, QString::fromLatin1("Requested for member `%1', in a non class or vec instance").arg(*ast->field));
         }

@@ -537,11 +537,10 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
         consoleManager->printToConsolePane(QmlJS::ConsoleItem::UndefinedType, msg);
 
     debuggerCore()->showMessage(msg, channel, timeout);
-    if (d->m_runControl) {
+    if (d->m_runControl)
         d->m_runControl->showMessage(msg, channel);
-    } else {
+    else
         qWarning("Warning: %s (no active run control)", qPrintable(msg));
-    }
 }
 
 void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
@@ -986,9 +985,8 @@ void DebuggerEngine::notifyInferiorStopOk()
             showMessage(_("NOTE: ... FORWARDING TO 'STOP OK'. "));
             setState(InferiorStopOk);
         }
-        if (state() == InferiorStopOk || state() == InferiorStopFailed) {
+        if (state() == InferiorStopOk || state() == InferiorStopFailed)
             d->queueShutdownInferior();
-        }
         showMessage(_("NOTE: ... IGNORING STOP MESSAGE"));
         return;
     }

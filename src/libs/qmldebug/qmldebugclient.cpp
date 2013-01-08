@@ -203,11 +203,10 @@ void QmlDebugConnectionPrivate::readyRead()
 
             QHash<QString, QmlDebugClient *>::Iterator iter =
                     plugins.find(name);
-            if (iter == plugins.end()) {
+            if (iter == plugins.end())
                 qWarning() << "QML Debug Client: Message received for missing plugin" << name;
-            } else {
+            else
                 (*iter)->messageReceived(message);
-            }
         }
     }
 }

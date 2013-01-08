@@ -444,11 +444,10 @@ static void addStackLayoutMemoryView(DebuggerEngine *engine, bool separateView,
     const RegisterMapConstIt regcEnd = regMap.constEnd();
     for (RegisterMapConstIt it = regMap.constBegin(); it != regcEnd; ++it) {
         const quint64 value = it.key();
-        if (value < start && start - value < 512) {
+        if (value < start && start - value < 512)
             start = value;
-        } else if (value > end && value - end < 512) {
+        else if (value > end && value - end < 512)
             end = value + 1;
-        }
     }
     // Indicate all variables.
     const QColor background = parent->palette().color(QPalette::Normal, QPalette::Base);

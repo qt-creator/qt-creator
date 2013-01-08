@@ -420,9 +420,8 @@ void NavigationWidget::setSuppressed(bool b)
 int NavigationWidget::factoryIndex(const Id &id)
 {
     for (int row = 0; row < d->m_factoryModel->rowCount(); ++row) {
-        if (d->m_factoryModel->data(d->m_factoryModel->index(row, 0), FactoryIdRole).value<Core::Id>() == id) {
+        if (d->m_factoryModel->data(d->m_factoryModel->index(row, 0), FactoryIdRole).value<Core::Id>() == id)
             return row;
-        }
     }
     return -1;
 }

@@ -94,18 +94,16 @@ bool MercurialClient::synchronousClone(const QString &workingDir,
     if (workingDirectory.exists()) {
         // Let's make first init
         QStringList arguments(QLatin1String("init"));
-        if (!vcsFullySynchronousExec(workingDirectory.path(), arguments, &output)) {
+        if (!vcsFullySynchronousExec(workingDirectory.path(), arguments, &output))
             return false;
-        }
 
         // Then pull remote repository
         arguments.clear();
         arguments << QLatin1String("pull") << dstLocation;
         const Utils::SynchronousProcessResponse resp1 =
                 vcsSynchronousExec(workingDirectory.path(), arguments, flags);
-        if (resp1.result != Utils::SynchronousProcessResponse::Finished) {
+        if (resp1.result != Utils::SynchronousProcessResponse::Finished)
             return false;
-        }
 
         // By now, there is no hgrc file -> create it
         Utils::FileSaver saver(workingDirectory.path() + QLatin1String("/.hg/hgrc"));

@@ -1034,11 +1034,10 @@ void GitPlugin::applyPatch(const QString &workingDirectory, QString file)
     VcsBase::VcsBaseOutputWindow *outwin = VcsBase::VcsBaseOutputWindow::instance();
     QString errorMessage;
     if (m_gitClient->synchronousApplyPatch(workingDirectory, file, &errorMessage)) {
-        if (errorMessage.isEmpty()) {
+        if (errorMessage.isEmpty())
             outwin->append(tr("Patch %1 successfully applied to %2").arg(file, workingDirectory));
-        } else {
+        else
             outwin->append(errorMessage);
-        }
     } else {
         outwin->appendError(errorMessage);
     }

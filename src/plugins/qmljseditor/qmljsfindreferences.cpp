@@ -250,9 +250,8 @@ private:
         if (idEnv && idEnv->lookupMember(_name, _scopeChain.context()))
             return idEnv == _scope;
         const ObjectValue *root = chain->document()->bind()->rootObjectValue();
-        if (root && root->lookupMember(_name, _scopeChain.context())) {
+        if (root && root->lookupMember(_name, _scopeChain.context()))
             return check(root);
-        }
 
         foreach (const QmlComponentChain *parent, chain->instantiatingComponents()) {
             if (contains(parent))
@@ -506,13 +505,12 @@ protected:
 
     virtual bool preVisit(Node *node)
     {
-        if (Statement *stmt = node->statementCast()) {
+        if (Statement *stmt = node->statementCast())
             return containsOffset(stmt->firstSourceLocation(), stmt->lastSourceLocation());
-        } else if (ExpressionNode *exp = node->expressionCast()) {
+        else if (ExpressionNode *exp = node->expressionCast())
             return containsOffset(exp->firstSourceLocation(), exp->lastSourceLocation());
-        } else if (UiObjectMember *ui = node->uiObjectMemberCast()) {
+        else if (UiObjectMember *ui = node->uiObjectMemberCast())
             return containsOffset(ui->firstSourceLocation(), ui->lastSourceLocation());
-        }
         return true;
     }
 

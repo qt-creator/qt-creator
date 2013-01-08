@@ -223,9 +223,8 @@ void EditorConfiguration::fromMap(const QVariantMap &map)
         Core::Id languageId(settingsIdMap.value(QLatin1String("language")).toByteArray());
         QVariantMap value = settingsIdMap.value(QLatin1String("value")).toMap();
         ICodeStylePreferences *preferences = d->m_languageCodeStylePreferences.value(languageId);
-        if (preferences) {
+        if (preferences)
              preferences->fromMap(QString(), value);
-        }
     }
 
     d->m_defaultCodeStyle->fromMap(kPrefix, map);

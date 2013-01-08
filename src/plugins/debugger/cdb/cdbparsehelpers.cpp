@@ -385,11 +385,10 @@ QString debugByteArray(const QByteArray &a)
             str << "\\r";
             break;
         default:
-            if (uc >=32 && uc < 128) {
+            if (uc >=32 && uc < 128)
                 str << a.at(i);
-            } else {
+            else
                 str << '<' << unsigned(uc) << '>';
-            }
             break;
         }
     }
@@ -614,9 +613,8 @@ DisassemblerLines parseCdbDisassembler(const QList<QByteArray> &a)
             }
             // Determine address of function from the first assembler line after a
             // function header line.
-            if (!functionAddress && disassemblyLine.address) {
+            if (!functionAddress && disassemblyLine.address)
                 functionAddress = disassemblyLine.address - functionOffset;
-            }
             if (functionAddress && disassemblyLine.address)
                 disassemblyLine.offset = disassemblyLine.address - functionAddress;
             disassemblyLine.function = currentFunction;

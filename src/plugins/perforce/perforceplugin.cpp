@@ -584,11 +584,10 @@ void PerforcePlugin::printOpenedFileList()
         const int delimiterPos = line.indexOf(delimiter);
         if (delimiterPos > 0)
             mapped = fileNameFromPerforceName(line.left(delimiterPos), true, &errorMessage);
-        if (mapped.isEmpty()) {
+        if (mapped.isEmpty())
             outWin->appendSilently(line);
-        } else {
+        else
             outWin->appendSilently(mapped + QLatin1Char(' ') + line.mid(delimiterPos));
-        }
     }
     outWin->popup(Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus);
 }
@@ -722,11 +721,10 @@ void PerforcePlugin::annotate(const QString &workingDir,
     const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, files);
     QStringList args;
     args << QLatin1String("annotate") << QLatin1String("-cqi");
-    if (changeList.isEmpty()) {
+    if (changeList.isEmpty())
         args << fileName;
-    } else {
+    else
         args << (fileName + QLatin1Char('@') + changeList);
-    }
     const PerforceResponse result = runP4Cmd(workingDir, args,
                                              CommandToWindow|StdErrToWindow|ErrorToWindow,
                                              QStringList(), QByteArray(), codec);
@@ -833,11 +831,10 @@ bool PerforcePlugin::managesDirectory(const QString &directory, QString *topLeve
 {
     const bool rc = managesDirectoryFstat(directory);
     if (topLevel) {
-        if (rc) {
+        if (rc)
             *topLevel = m_settings.topLevelSymLinkTarget();
-        } else {
+        else
             topLevel->clear();
-        }
     }
     return rc;
 }
@@ -1260,11 +1257,10 @@ void PerforcePlugin::p4Diff(const PerforceDiffParameters &p)
     if (!p.diffArguments.isEmpty()) // -duw..
         args << (QLatin1String("-d") + p.diffArguments.join(QString()));
     QStringList extraArgs;
-    if (p.files.size() > 1) {
+    if (p.files.size() > 1)
         extraArgs = p.files;
-    } else {
+    else
         args.append(p.files);
-    }
     const unsigned flags = CommandToWindow|StdErrToWindow|ErrorToWindow|OverrideDiffEnvironment;
     const PerforceResponse result = runP4Cmd(p.workingDir, args, flags,
                                              extraArgs, QByteArray(), codec);

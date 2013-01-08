@@ -168,12 +168,10 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
     Utils::WizardProgressItem *introItem = wizardProgress()->item(startId());
     Utils::WizardProgressItem *targetItem = 0;
     Utils::WizardProgressItem *mobileItem = 0;
-    if (m_targetPageId != -1) {
+    if (m_targetPageId != -1)
         targetItem = wizardProgress()->item(m_targetPageId);
-    }
-    if (m_mobilePageId != -1) {
+    if (m_mobilePageId != -1)
         mobileItem = wizardProgress()->item(m_mobilePageId);
-    }
     Utils::WizardProgressItem *modulesItem = wizardProgress()->item(m_modulesPageId);
     Utils::WizardProgressItem *filesItem = wizardProgress()->item(m_filesPageId);
     filesItem->setTitle(tr("Details"));
@@ -357,9 +355,8 @@ LibraryParameters LibraryWizardDialog::libraryParameters() const
     rc.sourceFileName = m_filesPage->sourceFileName();
     rc.headerFileName = m_filesPage->headerFileName();
     if (!rc.baseClassName.isEmpty())
-        if (const PluginBaseClasses *plb = findPluginBaseClass(rc.baseClassName)) {
+        if (const PluginBaseClasses *plb = findPluginBaseClass(rc.baseClassName))
             rc.baseClassModule = QLatin1String(plb->module);
-        }
     return rc;
 }
 

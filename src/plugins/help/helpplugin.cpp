@@ -1172,11 +1172,10 @@ void HelpPlugin::handleHelpRequest(const QUrl &url)
             || address.startsWith(HelpViewer::NsTrolltech)) {
                 // local help not installed, resort to external web help
                 QString urlPrefix = QLatin1String("http://doc.qt.digia.com/");
-                if (url.authority() == QLatin1String("com.nokia.qtcreator")) {
+                if (url.authority() == QLatin1String("com.nokia.qtcreator"))
                     urlPrefix.append(QString::fromLatin1("qtcreator"));
-                } else {
+                else
                     urlPrefix.append(QLatin1String("latest"));
-                }
             address = urlPrefix + address.mid(address.lastIndexOf(QLatin1Char('/')));
         }
     }

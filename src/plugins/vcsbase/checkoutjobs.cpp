@@ -162,11 +162,10 @@ void ProcessCheckoutJob::slotFinished (int exitCode, QProcess::ExitStatus exitSt
     switch (exitStatus) {
     case QProcess::NormalExit:
         emit output(tr("The process terminated with exit code %1.").arg(exitCode));
-        if (exitCode == 0) {
+        if (exitCode == 0)
             slotNext();
-        } else {
+        else
             emit failed(tr("The process returned exit code %1.").arg(exitCode));
-        }
         break;
     case QProcess::CrashExit:
         emit failed(tr("The process terminated in an abnormal way."));

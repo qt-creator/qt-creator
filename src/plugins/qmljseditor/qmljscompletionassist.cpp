@@ -138,9 +138,8 @@ public:
         if (const FunctionValue *func = value->asFunctionValue()) {
             // constructors usually also have other interesting members,
             // don't consider them pure functions and complete the '()'
-            if (!func->lookupMember(QLatin1String("prototype"), 0, 0, false)) {
+            if (!func->lookupMember(QLatin1String("prototype"), 0, 0, false))
                 data = QVariant::fromValue(CompleteFunctionCall(func->namedArgumentCount() || func->isVariadic()));
-            }
         }
         addCompletion(completions, name, icon, order, data);
     }

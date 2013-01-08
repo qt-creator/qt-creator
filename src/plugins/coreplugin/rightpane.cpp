@@ -176,11 +176,10 @@ void RightPaneWidget::saveSettings(QSettings *settings)
 
 void RightPaneWidget::readSettings(QSettings *settings)
 {
-    if (settings->contains(QLatin1String("RightPane/Visible"))) {
+    if (settings->contains(QLatin1String("RightPane/Visible")))
         setShown(settings->value(QLatin1String("RightPane/Visible")).toBool());
-    } else {
+    else
         setShown(false);
-    }
 
     if (settings->contains(QLatin1String("RightPane/Width"))) {
         m_width = settings->value(QLatin1String("RightPane/Width")).toInt();
@@ -190,9 +189,8 @@ void RightPaneWidget::readSettings(QSettings *settings)
         m_width = 500; //pixel
     }
     // Apply
-    if (RightPanePlaceHolder::m_current) {
+    if (RightPanePlaceHolder::m_current)
         RightPanePlaceHolder::m_current->applyStoredSize(m_width);
-    }
 }
 
 void RightPaneWidget::setShown(bool b)

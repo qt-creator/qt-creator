@@ -120,18 +120,16 @@ void CppCurrentDocumentFilter::refresh(QFutureInterface<void> &future)
 
 void CppCurrentDocumentFilter::onDocumentUpdated(Document::Ptr doc)
 {
-    if (m_currentFileName == doc->fileName()) {
+    if (m_currentFileName == doc->fileName())
         m_itemsOfCurrentDoc.clear();
-    }
 }
 
 void CppCurrentDocumentFilter::onCurrentEditorChanged(Core::IEditor * currentEditor)
 {
-    if (currentEditor) {
+    if (currentEditor)
         m_currentFileName = currentEditor->document()->fileName();
-    } else {
+    else
         m_currentFileName.clear();
-    }
     m_itemsOfCurrentDoc.clear();
 }
 

@@ -193,9 +193,8 @@ void QV8ProfilerDataModel::addV8Event(int depth,
         parentEvent = &d->v8RootEvent;
         d->v8MeasuredTime += totalTime;
     }
-    if (depth > 0 && d->v8parents.contains(depth-1)) {
+    if (depth > 0 && d->v8parents.contains(depth-1))
         parentEvent = d->v8parents.value(depth-1);
-    }
 
     if (parentEvent != 0) {
         if (!eventData->parentHash.contains(parentEvent->eventHashStr)) {
@@ -385,9 +384,8 @@ void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
                         childrenTimes[eventIndex] =
                                 attributes.value(QLatin1String("childrenTimes")).toString();
                     }
-                    if (attributes.hasAttribute(QLatin1String("parentTimes"))) {
+                    if (attributes.hasAttribute(QLatin1String("parentTimes")))
                         parentTimes[eventIndex] = attributes.value(QLatin1String("parentTimes")).toString();
-                    }
                 }
 
                 stream.readNext();
@@ -451,12 +449,10 @@ void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
             if (v8eventBuffer.value(childIndex)) {
                 QV8EventSub *newChild = new QV8EventSub(v8eventBuffer[childIndex]);
                 QV8EventSub *newParent = new QV8EventSub(v8eventBuffer[parentIndex]);
-                if (childrenTimesStrings.count() > ndx) {
+                if (childrenTimesStrings.count() > ndx)
                     newChild->totalTime = childrenTimesStrings[ndx].toDouble();
-                }
-                if (parentTimesStrings.count() > ndx) {
+                if (parentTimesStrings.count() > ndx)
                     newParent->totalTime = parentTimesStrings[ndx].toDouble();
-                }
                 v8eventBuffer[parentIndex]->childrenHash.insert(
                             newChild->reference->displayName,
                             newChild);

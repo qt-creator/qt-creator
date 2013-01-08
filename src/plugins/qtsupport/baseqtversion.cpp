@@ -268,12 +268,10 @@ Core::FeatureSet BaseQtVersion::availableFeatures() const
          features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QT_QUICK);
          features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QT_QUICK_1);
      }
-     if (qtVersion() >= QtSupport::QtVersionNumber(4, 7, 1)) {
+     if (qtVersion() >= QtSupport::QtVersionNumber(4, 7, 1))
          features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QT_QUICK_1_1);
-     }
-     if (qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0)) {
+     if (qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0))
          features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QT_QUICK_2);
-     }
 
      return features;
 }

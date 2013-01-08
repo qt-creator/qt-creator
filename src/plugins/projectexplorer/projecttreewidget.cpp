@@ -226,9 +226,8 @@ void ProjectTreeWidget::foldersAboutToBeRemoved(FolderNode *, const QList<Folder
 void ProjectTreeWidget::filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &list)
 {
     if (FileNode *fileNode = qobject_cast<FileNode *>(m_explorer->currentNode())) {
-        if (list.contains(fileNode)) {
+        if (list.contains(fileNode))
             m_explorer->setCurrentNode(fileNode->projectNode());
-        }
     }
 }
 
@@ -285,9 +284,8 @@ void ProjectTreeWidget::setCurrentItem(Node *node, Project *project)
         qDebug() << "ProjectTreeWidget::setCurrentItem(" << (project ? project->displayName() : QLatin1String("0"))
                  << ", " <<  (node ? node->path() : QLatin1String("0")) << ")";
 
-    if (!project) {
+    if (!project)
         return;
-    }
 
     const QModelIndex mainIndex = m_model->indexForNode(node);
 

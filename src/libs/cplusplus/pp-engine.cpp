@@ -368,9 +368,8 @@ protected:
                                                     env, client)
                                     != 0);
                     ++(*_lex);
-                    if ((*_lex)->is(T_RPAREN)) {
+                    if ((*_lex)->is(T_RPAREN))
                         ++(*_lex);
-                    }
                 }
             }
         } else if ((*_lex)->is(T_IDENTIFIER)) {
@@ -1539,9 +1538,8 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
                 }
             }
         } else if (macroReference) {
-            if (tk->is(T_LPAREN)) {
+            if (tk->is(T_LPAREN))
                 m_client->notifyMacroReference(previousOffset, previousLine, *macroReference);
-            }
             macroReference = 0;
         }
 

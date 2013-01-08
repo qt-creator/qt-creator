@@ -2081,11 +2081,10 @@ void FakeVimHandler::Private::setupWidget()
 {
     m_mode = CommandMode;
     resetCommandMode();
-    if (m_textedit) {
+    if (m_textedit)
         m_textedit->setLineWrapMode(QTextEdit::NoWrap);
-    } else if (m_plaintextedit) {
+    else if (m_plaintextedit)
         m_plaintextedit->setLineWrapMode(QPlainTextEdit::NoWrap);
-    }
     m_wasReadOnly = EDITOR(isReadOnly());
 
     updateEditor();
@@ -2617,9 +2616,8 @@ void FakeVimHandler::Private::fixSelection()
 
             // Exclusive motion ending at the beginning of line and
             // starting at or before first non-blank on a line becomes linewise.
-            if (anchor() < block().position() && isFirstNonBlankOnLine(anchor())) {
+            if (anchor() < block().position() && isFirstNonBlankOnLine(anchor()))
                 m_movetype = MoveLineWise;
-            }
         }
     }
 
@@ -2666,9 +2664,8 @@ void FakeVimHandler::Private::fixSelection()
         setAnchorAndPosition(anc, position());
     }
 
-    if (m_anchorPastEnd) {
+    if (m_anchorPastEnd)
         setAnchorAndPosition(anchor() + 1, position());
-    }
 }
 
 void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement, int count)
@@ -2882,13 +2879,12 @@ void FakeVimHandler::Private::updateMiniBuffer()
         msg = g.currentCommand;
         messageLevel = MessageShowCmd;
     } else if (m_mode == CommandMode && isVisualMode()) {
-        if (isVisualCharMode()) {
+        if (isVisualCharMode())
             msg = _("VISUAL");
-        } else if (isVisualLineMode()) {
+        else if (isVisualLineMode())
             msg = _("VISUAL LINE");
-        } else if (isVisualBlockMode()) {
+        else if (isVisualBlockMode())
             msg = _("VISUAL BLOCK");
-        }
     } else if (m_mode == InsertMode) {
         msg = _("INSERT");
     } else if (m_mode == ReplaceMode) {
@@ -2911,11 +2907,10 @@ void FakeVimHandler::Private::updateMiniBuffer()
     const QString pos = QString::fromLatin1("%1,%2")
         .arg(l + 1).arg(physicalCursorColumn() + 1);
     // FIXME: physical "-" logical
-    if (linesInDoc != 0) {
+    if (linesInDoc != 0)
         status = FakeVimHandler::tr("%1%2%").arg(pos, -10).arg(l * 100 / linesInDoc, 4);
-    } else {
+    else
         status = FakeVimHandler::tr("%1All").arg(pos, -10);
-    }
     emit q->statusDataChanged(status);
 }
 
@@ -3019,17 +3014,16 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
         }
     } else if (m_subsubmode == OpenSquareSubSubMode || CloseSquareSubSubMode) {
         int pos = position();
-        if ((input.is('{') && m_subsubmode == OpenSquareSubSubMode)) {
+        if ((input.is('{') && m_subsubmode == OpenSquareSubSubMode))
             searchBalanced(false, QLatin1Char('{'), QLatin1Char('}'));
-        } else if ((input.is('}') && m_subsubmode == CloseSquareSubSubMode)) {
+        else if ((input.is('}') && m_subsubmode == CloseSquareSubSubMode))
             searchBalanced(true, QLatin1Char('}'), QLatin1Char('{'));
-        } else if ((input.is('(') && m_subsubmode == OpenSquareSubSubMode)) {
+        else if ((input.is('(') && m_subsubmode == OpenSquareSubSubMode))
             searchBalanced(false, QLatin1Char('('), QLatin1Char(')'));
-        } else if ((input.is(')') && m_subsubmode == CloseSquareSubSubMode)) {
+        else if ((input.is(')') && m_subsubmode == CloseSquareSubSubMode))
             searchBalanced(true, QLatin1Char(')'), QLatin1Char('('));
-        } else if (input.is('z')) {
+        else if (input.is('z'))
             emit q->foldGoTo(m_subsubmode == OpenSquareSubSubMode ? -count() : count(), true);
-        }
         handled = pos != position();
         if (handled) {
             finishMovement(QString::fromLatin1("%1%2%3")
@@ -3414,9 +3408,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
 
         // if a key which produces text was pressed, don't mark it as unhandled
         // - otherwise the text would be inserted while being in command mode
-        if (input.text().isEmpty()) {
+        if (input.text().isEmpty())
             handled = EventUnhandled;
-        }
     }
 
     updateMiniBuffer();
@@ -3854,11 +3847,10 @@ bool FakeVimHandler::Private::handleChangeDeleteSubModes(const Input &input)
         const int anc = firstPositionInLine(line);
         const int pos = lastPositionInLine(line + count() - 1);
         setAnchorAndPosition(anc, pos);
-        if (m_submode == ChangeSubMode) {
+        if (m_submode == ChangeSubMode)
             setDotCommand(_("%1cc"), count());
-        } else {
+        else
             setDotCommand(_("%1dd"), count());
-        }
         finishMovement();
         m_submode = NoSubMode;
         handled = true;
@@ -4406,11 +4398,10 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
         enterCommandMode(g.returnToMode);
         resetCommandMode();
     } else if (input.isBackspace()) {
-        if (g.searchBuffer.isEmpty()) {
+        if (g.searchBuffer.isEmpty())
             resetCommandMode();
-        } else {
+        else
             g.searchBuffer.deleteChar();
-        }
     } else if (input.isReturn()) {
         const QString &needle = g.searchBuffer.contents();
         if (!needle.isEmpty())
@@ -7008,11 +6999,10 @@ bool FakeVimHandler::Private::selectBlockTextObject(bool inner,
     if (p2 == -1)
         return false;
 
-    if (inner) {
+    if (inner)
         p1 += sleft.size();
-    } else {
+    else
         p2 -= sright.size() - 2;
-    }
 
     if (isVisualMode())
         --p2;
@@ -7075,9 +7065,8 @@ bool FakeVimHandler::Private::changeNumberTextObject(int count)
     }
 
     // preserve leading zeroes
-    if ((octal || hex) && repl.size() < num.size()) {
+    if ((octal || hex) && repl.size() < num.size())
         prefix.append(QString::fromLatin1("0").repeated(num.size() - repl.size()));
-    }
     repl.prepend(prefix);
 
     pos += block.position();
@@ -7318,9 +7307,8 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
         }
         if (active && ev->type() == QEvent::MouseButtonPress) {
             QMouseEvent *mev = static_cast<QMouseEvent *>(ev);
-            if (mev->button() == Qt::LeftButton) {
+            if (mev->button() == Qt::LeftButton)
                 d->m_visualMode = NoVisualMode;
-            }
         }
         return QObject::eventFilter(ob, ev);
     }
@@ -7370,9 +7358,8 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
         return true;
     }
 
-    if (active && ev->type() == QEvent::FocusIn && ob == d->editor()) {
+    if (active && ev->type() == QEvent::FocusIn && ob == d->editor())
         d->focus();
-    }
 
     return QObject::eventFilter(ob, ev);
 }

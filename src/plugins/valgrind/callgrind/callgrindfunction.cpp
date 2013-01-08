@@ -201,9 +201,8 @@ QString Function::location() const
 
     if (!f.isEmpty()) {
         QFileInfo info(f);
-        if (info.exists()) {
+        if (info.exists())
             f = info.canonicalFilePath();
-        }
     }
 
     QString o = object();
@@ -287,11 +286,10 @@ void Function::addCostItem(const CostItem *item)
     d->m_costItems.append(item);
 
     // accumulate costs
-    if (item->call()) {
+    if (item->call())
         d->accumulateCost(d->m_inclusiveCost, item->costs());
-    } else {
+    else
         d->accumulateCost(d->m_selfCost, item->costs());
-    }
 }
 
 void Function::finalize()

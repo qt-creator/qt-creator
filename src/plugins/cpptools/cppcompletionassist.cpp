@@ -264,9 +264,8 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
 #if 0
                 } else if (function->templateParameterCount() != 0 && typedChar != QLatin1Char('(')) {
                     // If there are no arguments, then we need the template specification
-                    if (function->argumentCount() == 0) {
+                    if (function->argumentCount() == 0)
                         extraChars += QLatin1Char('<');
-                    }
 #endif
                 } else if (!isDereferenced(editor, basePosition) && ! function->isAmbiguous()) {
                     // When the user typed the opening parenthesis, he'll likely also type the closing one,
@@ -579,9 +578,8 @@ protected:
     virtual void visit(const Identifier *name)
     {
         _item = newCompletionItem(name);
-        if (!_symbol->isScope() || _symbol->isFunction()) {
+        if (!_symbol->isScope() || _symbol->isFunction())
             _item->setDetail(overview.prettyType(_symbol->type(), name));
-        }
     }
 
     virtual void visit(const TemplateNameId *name)
@@ -1580,11 +1578,10 @@ void CppCompletionAssistProcessor::completeClass(CPlusPlus::ClassOrNamespace *b,
                     continue;
                 }
 
-                if (member->isPublic()) {
+                if (member->isPublic())
                     addCompletionItem(member, PublicClassMemberOrder);
-                } else {
+                else
                     addCompletionItem(member);
-                }
             }
         }
     }
@@ -1818,9 +1815,8 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
                         Symbol *overload = r.declaration();
                         FullySpecifiedType overloadTy = overload->type().simplified();
 
-                        if (Function *funTy = overloadTy->asFunctionType()) {
+                        if (Function *funTy = overloadTy->asFunctionType())
                             functions.append(funTy);
-                        }
                     }
                 }
             }

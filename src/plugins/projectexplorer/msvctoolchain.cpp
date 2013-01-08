@@ -241,9 +241,8 @@ QByteArray MsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
             QList<QByteArray> split = line.split('=');
             const QByteArray key = split.at(0).mid(1);
             QByteArray value = split.at(1);
-            if (!value.isEmpty()) {
+            if (!value.isEmpty())
                 value.chop(1); //remove '\n'
-            }
             predefinedMacros += "#define ";
             predefinedMacros += key;
             predefinedMacros += ' ';

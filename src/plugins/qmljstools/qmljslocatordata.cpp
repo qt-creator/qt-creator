@@ -70,11 +70,10 @@ public:
     QList<LocatorData::Entry> run(const Document::Ptr &doc)
     {
         m_doc = doc;
-        if (!doc->componentName().isEmpty()) {
+        if (!doc->componentName().isEmpty())
             m_documentContext = doc->componentName();
-        } else {
+        else
             m_documentContext = QFileInfo(doc->fileName()).fileName();
-        }
         accept(doc->ast(), m_documentContext);
         return m_entries;
     }

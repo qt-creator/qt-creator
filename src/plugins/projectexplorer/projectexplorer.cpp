@@ -1154,35 +1154,30 @@ void ProjectExplorerPlugin::updateVariable(const QByteArray &variable)
             Core::VariableManager::instance()->remove(variable);
         }
     } else if (variable == Constants::VAR_CURRENTPROJECT_NAME) {
-        if (currentProject()) {
+        if (currentProject())
             Core::VariableManager::instance()->insert(variable, currentProject()->displayName());
-        } else {
+        else
             Core::VariableManager::instance()->remove(variable);
-        }
     } else if (variable == Constants::VAR_CURRENTKIT_NAME) {
-        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->kit()) {
+        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->kit())
             Core::VariableManager::instance()->insert(variable, currentProject()->activeTarget()->kit()->displayName());
-        } else {
+        else
             Core::VariableManager::instance()->remove(variable);
-        }
     } else if (variable == Constants::VAR_CURRENTKIT_FILESYSTEMNAME) {
-        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->kit()) {
+        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->kit())
             Core::VariableManager::instance()->insert(variable, currentProject()->activeTarget()->kit()->fileSystemFriendlyName());
-        } else {
+        else
             Core::VariableManager::instance()->remove(variable);
-        }
     } else if (variable == Constants::VAR_CURRENTKIT_ID) {
-        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->kit()) {
+        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->kit())
             Core::VariableManager::instance()->insert(variable, currentProject()->activeTarget()->kit()->id().toString());
-        } else {
+        else
             Core::VariableManager::instance()->remove(variable);
-        }
     } else if (variable == Constants::VAR_CURRENTBUILD_NAME) {
-        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->activeBuildConfiguration()) {
+        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->activeBuildConfiguration())
             Core::VariableManager::instance()->insert(variable, currentProject()->activeTarget()->activeBuildConfiguration()->displayName());
-        } else {
+        else
             Core::VariableManager::instance()->remove(variable);
-        }
     } else if (variable == Constants::VAR_CURRENTBUILD_TYPE) {
         if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->activeBuildConfiguration()) {
             BuildConfiguration::BuildType type = currentProject()->activeTarget()->activeBuildConfiguration()->buildType();
@@ -1644,9 +1639,8 @@ void ProjectExplorerPlugin::showContextMenu(QWidget *view, const QPoint &globalP
     updateContextMenuActions();
     d->m_projectTreeCollapseAllAction->disconnect(SIGNAL(triggered()));
     connect(d->m_projectTreeCollapseAllAction, SIGNAL(triggered()), view, SLOT(collapseAll()));
-    if (contextMenu && contextMenu->actions().count() > 0) {
+    if (contextMenu && contextMenu->actions().count() > 0)
         contextMenu->popup(globalPos);
-    }
 }
 
 BuildManager *ProjectExplorerPlugin::buildManager() const
@@ -2682,11 +2676,10 @@ QString pathOrDirectoryFor(Node *node, bool dir)
         }
     } else {
         QFileInfo fi(path);
-        if (dir) {
+        if (dir)
             location = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
-        } else {
+        else
             location = fi.absoluteFilePath();
-        }
     }
     return location;
 }

@@ -89,13 +89,12 @@ protected:
 
     virtual bool preVisit(AST::Node *node)
     {
-        if (Statement *stmt = node->statementCast()) {
+        if (Statement *stmt = node->statementCast())
             return handleLocationAst(stmt);
-        } else if (ExpressionNode *exp = node->expressionCast()) {
+        else if (ExpressionNode *exp = node->expressionCast())
             return handleLocationAst(exp);
-        } else if (UiObjectMember *ui = node->uiObjectMemberCast()) {
+        else if (UiObjectMember *ui = node->uiObjectMemberCast())
             return handleLocationAst(ui);
-        }
         return true;
     }
 
@@ -182,11 +181,10 @@ QList<AST::Node *> SemanticInfo::rangePath(int cursorPosition) const
     QList<AST::Node *> path;
 
     foreach (const Range &range, ranges) {
-        if (range.begin.isNull() || range.end.isNull()) {
+        if (range.begin.isNull() || range.end.isNull())
             continue;
-        } else if (cursorPosition >= range.begin.position() && cursorPosition <= range.end.position()) {
+        else if (cursorPosition >= range.begin.position() && cursorPosition <= range.end.position())
             path += range.ast;
-        }
     }
 
     return path;

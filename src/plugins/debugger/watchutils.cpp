@@ -407,11 +407,10 @@ static void blockRecursion(const CPlusPlus::Overview &overview,
             // the already seen occurrences in a hash.
             const QString name = overview.prettyName(symbol->name());
             SeenHash::iterator it = seenHash->find(name);
-            if (it == seenHash->end()) {
+            if (it == seenHash->end())
                 it = seenHash->insert(name, 0);
-            } else {
+            else
                 ++(it.value());
-            }
             // Is the declaration on or past the current line, that is,
             // the variable not initialized.
             if (symbol->line() >= line)

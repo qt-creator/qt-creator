@@ -2615,9 +2615,8 @@ void Version11Handler::parseQtversionFile()
                     const QStringList &list = line.split(QLatin1Char(' '));
                     if (list.count() <= 1)
                         continue;
-                    if (list.at(0) == QLatin1String("sysroot")) {
+                    if (list.at(0) == QLatin1String("sysroot"))
                         sysRoot = maddeRoot(qmake) + QLatin1String("/sysroots/") + list.at(1);
-                    }
                 }
             }
         }

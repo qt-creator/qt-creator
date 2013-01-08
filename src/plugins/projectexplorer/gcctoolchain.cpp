@@ -138,9 +138,8 @@ static QByteArray gccPredefinedMacros(const FileName &gcc, const QStringList &ar
         const QByteArray blocksDefine("#define __BLOCKS__ 1");
         const QByteArray blocksUndefine("#undef __BLOCKS__");
         const int idx = predefinedMacros.indexOf(blocksDefine);
-        if (idx != -1) {
+        if (idx != -1)
             predefinedMacros.replace(idx, blocksDefine.length(), blocksUndefine);
-        }
 
         // Define __strong and __weak (used for Apple's GC extension of C) to be empty
         predefinedMacros.append("#define __strong\n");

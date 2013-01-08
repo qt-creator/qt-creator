@@ -201,9 +201,8 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
     // Class declaration
     headerStr << '\n' << namespaceIndent << "class " << unqualifiedClassName
               << " : public " << formBaseClass;
-    if (generationParameters.embedding == Internal::InheritedUiClass) {
+    if (generationParameters.embedding == Internal::InheritedUiClass)
         headerStr << ", private " << uiClassName;
-    }
     headerStr << "\n{\n" << namespaceIndent << indent << "Q_OBJECT\n\n"
               << namespaceIndent << "public:\n"
               << namespaceIndent << indent << "explicit " << unqualifiedClassName << "(QWidget *parent = 0);\n";

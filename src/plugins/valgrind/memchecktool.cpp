@@ -231,9 +231,8 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
     if (ProjectExplorer::Project *project = pe->startupProject()) {
         if (ProjectExplorer::Target *target = project->activeTarget()) {
-            if (ProjectExplorer::RunConfiguration *rc = target->activeRunConfiguration()) {
+            if (ProjectExplorer::RunConfiguration *rc = target->activeRunConfiguration())
                 settings = rc->extraAspect<AnalyzerRunConfigurationAspect>();
-            }
         }
     }
 

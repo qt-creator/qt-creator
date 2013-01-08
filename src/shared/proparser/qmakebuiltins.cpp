@@ -685,11 +685,10 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
         }
         break;
     case E_EVAL:
-        if (args.count() != 1) {
+        if (args.count() != 1)
             evalError(fL1S("eval(variable) requires one argument."));
-        } else {
+        else
             ret += values(map(args.at(0)));
-        }
         break;
     case E_LIST: {
         QString tmp;
@@ -1152,9 +1151,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
 
         for (int i = configs.size() - 1; i >= 0; i--) {
             for (int mut = 0; mut < mutuals.count(); mut++) {
-                if (configs[i] == mutuals[mut].trimmed()) {
+                if (configs[i] == mutuals[mut].trimmed())
                     return returnBool(configs[i] == args[0]);
-                }
             }
         }
         return ReturnFalse;
@@ -1413,9 +1411,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         }
         const QString &file = resolvePath(m_option->expandEnvVars(args.at(0).toQString(m_tmp1)));
 
-        if (IoUtils::exists(file)) {
+        if (IoUtils::exists(file))
             return ReturnTrue;
-        }
         int slsh = file.lastIndexOf(QLatin1Char('/'));
         QString fn = file.mid(slsh+1);
         if (fn.contains(QLatin1Char('*')) || fn.contains(QLatin1Char('?'))) {

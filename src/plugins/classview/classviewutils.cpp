@@ -82,9 +82,8 @@ QSet<SymbolLocation> Utils::roleToLocations(const QList<QVariant> &locationsVar)
 {
     QSet<SymbolLocation> locations;
     foreach (const QVariant &loc, locationsVar) {
-        if (loc.canConvert<SymbolLocation>()) {
+        if (loc.canConvert<SymbolLocation>())
             locations.insert(loc.value<SymbolLocation>());
-        }
     }
 
     return locations;

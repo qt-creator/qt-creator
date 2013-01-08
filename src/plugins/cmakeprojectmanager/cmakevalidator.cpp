@@ -180,17 +180,15 @@ static void extractKeywords(const QByteArray &input, QStringList *destination)
                 keyword += chr;
             } else {
                 if (!keyword.isEmpty()) {
-                    if (keyword.size() > 1) {
+                    if (keyword.size() > 1)
                         *destination << keyword;
-                    }
                     keyword.clear();
                 }
             }
         }
     }
-    if (keyword.size() > 1) {
+    if (keyword.size() > 1)
         *destination << keyword;
-    }
 }
 
 void CMakeValidator::parseFunctionOutput(const QByteArray &output)

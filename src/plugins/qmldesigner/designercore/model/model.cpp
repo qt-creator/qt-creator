@@ -158,9 +158,8 @@ void ModelPrivate::notifyImportsChanged(const QList<Import> &addedImports, const
     QString description;
 
     try {
-        if (rewriterView()) {
+        if (rewriterView())
             rewriterView()->importsChanged(addedImports, removedImports);
-        }
     } catch (RewritingException &e) {
         description = e.description();
         resetModel = true;
@@ -174,9 +173,8 @@ void ModelPrivate::notifyImportsChanged(const QList<Import> &addedImports, const
     foreach (const QWeakPointer<AbstractView> &view, m_viewList)
         view->importsChanged(addedImports, removedImports);
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 QUrl ModelPrivate::fileUrl() const
@@ -359,9 +357,8 @@ void ModelPrivate::notifyAuxiliaryDataChanged(const InternalNodePointer &interna
         nodeInstanceView()->auxiliaryDataChanged(node, name, data);
     }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::notifyNodeSourceChanged(const InternalNodePointer &internalNode, const QString &newNodeSource)
@@ -391,9 +388,8 @@ void ModelPrivate::notifyNodeSourceChanged(const InternalNodePointer &internalNo
         nodeInstanceView()->nodeSourceChanged(node, newNodeSource);
     }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::notifyRootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
@@ -418,9 +414,8 @@ void ModelPrivate::notifyRootNodeTypeChanged(const QString &type, int majorVersi
 
     }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::notifyInstancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyPairList)
@@ -461,13 +456,11 @@ void ModelPrivate::notifyInstancesCompleted(const QVector<ModelNode> &nodeVector
         view->instancesCompleted(toModelNodeVector(internalVector, view.data()));
     }
 
-    if (nodeInstanceView()) {
+    if (nodeInstanceView())
         nodeInstanceView()->instancesCompleted(toModelNodeVector(internalVector, nodeInstanceView()));
-    }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 QMultiHash<ModelNode, InformationName> convertModelNodeInformationHash(const QMultiHash<ModelNode, InformationName> &informationChangeHash, AbstractView *view)
@@ -501,13 +494,11 @@ void ModelPrivate::notifyInstancesInformationsChange(const QMultiHash<ModelNode,
         view->instanceInformationsChange(convertModelNodeInformationHash(informationChangeHash, view.data()));
     }
 
-    if (nodeInstanceView()) {
+    if (nodeInstanceView())
         nodeInstanceView()->instanceInformationsChange(convertModelNodeInformationHash(informationChangeHash, nodeInstanceView()));
-    }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::notifyInstancesRenderImageChanged(const QVector<ModelNode> &nodeVector)
@@ -530,13 +521,11 @@ void ModelPrivate::notifyInstancesRenderImageChanged(const QVector<ModelNode> &n
         view->instancesRenderImageChanged(toModelNodeVector(internalVector, view.data()));
     }
 
-    if (nodeInstanceView()) {
+    if (nodeInstanceView())
         nodeInstanceView()->instancesRenderImageChanged(toModelNodeVector(internalVector, nodeInstanceView()));
-    }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::notifyInstancesPreviewImageChanged(const QVector<ModelNode> &nodeVector)
@@ -559,13 +548,11 @@ void ModelPrivate::notifyInstancesPreviewImageChanged(const QVector<ModelNode> &
         view->instancesPreviewImageChanged(toModelNodeVector(internalVector, view.data()));
     }
 
-    if (nodeInstanceView()) {
+    if (nodeInstanceView())
         nodeInstanceView()->instancesPreviewImageChanged(toModelNodeVector(internalVector, nodeInstanceView()));
-    }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::notifyInstancesChildrenChanged(const QVector<ModelNode> &nodeVector)
@@ -588,13 +575,11 @@ void ModelPrivate::notifyInstancesChildrenChanged(const QVector<ModelNode> &node
         view->instancesChildrenChanged(toModelNodeVector(internalVector, view.data()));
     }
 
-    if (nodeInstanceView()) {
+    if (nodeInstanceView())
         nodeInstanceView()->instancesChildrenChanged(toModelNodeVector(internalVector, nodeInstanceView()));
-    }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::notifyActualStateChanged(const ModelNode &node)
@@ -617,13 +602,11 @@ void ModelPrivate::notifyActualStateChanged(const ModelNode &node)
         view->actualStateChanged(ModelNode(node.internalNode(), model(), view.data()));
     }
 
-    if (nodeInstanceView()) {
+    if (nodeInstanceView())
         nodeInstanceView()->actualStateChanged(ModelNode(node.internalNode(), model(), nodeInstanceView()));
-    }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::notifyRewriterBeginTransaction()
@@ -644,13 +627,11 @@ void ModelPrivate::notifyRewriterBeginTransaction()
         view->rewriterBeginTransaction();
     }
 
-    if (nodeInstanceView()) {
+    if (nodeInstanceView())
         nodeInstanceView()->rewriterBeginTransaction();
-    }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::notifyRewriterEndTransaction()
@@ -671,13 +652,11 @@ void ModelPrivate::notifyRewriterEndTransaction()
         view->rewriterEndTransaction();
     }
 
-    if (nodeInstanceView()) {
+    if (nodeInstanceView())
         nodeInstanceView()->rewriterEndTransaction();
-    }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::notifyInstanceToken(const QString &token, int number, const QVector<ModelNode> &nodeVector)
@@ -701,13 +680,11 @@ void ModelPrivate::notifyInstanceToken(const QString &token, int number, const Q
         view->instancesToken(token, number, toModelNodeVector(internalVector, view.data()));
     }
 
-    if (nodeInstanceView()) {
+    if (nodeInstanceView())
         nodeInstanceView()->instancesToken(token, number, toModelNodeVector(internalVector, nodeInstanceView()));
-    }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::notifyCustomNotification(const AbstractView *senderView, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
@@ -730,13 +707,11 @@ void ModelPrivate::notifyCustomNotification(const AbstractView *senderView, cons
         view->customNotification(senderView, identifier, toModelNodeList(internalList, view.data()), data);
     }
 
-    if (nodeInstanceView()) {
+    if (nodeInstanceView())
         nodeInstanceView()->customNotification(senderView, identifier, toModelNodeList(internalList, nodeInstanceView()), data);
-    }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 
@@ -781,9 +756,8 @@ void ModelPrivate::notifyPropertiesRemoved(const QList<PropertyPair> &propertyPa
         view->propertiesRemoved(propertyList);
     }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::notifyPropertiesAboutToBeRemoved(const QList<InternalProperty::Pointer> &internalPropertyList)
@@ -833,9 +807,8 @@ void ModelPrivate::notifyPropertiesAboutToBeRemoved(const QList<InternalProperty
         nodeInstanceView()->propertiesAboutToBeRemoved(propertyList);
     }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::setAuxiliaryData(const InternalNode::Pointer& node, const QString &name, const QVariant &data)
@@ -846,9 +819,8 @@ void ModelPrivate::setAuxiliaryData(const InternalNode::Pointer& node, const QSt
 
 void ModelPrivate::resetModelByRewriter(const QString &description)
 {
-    if (rewriterView()) {
+    if (rewriterView())
         rewriterView()->resetToLastCorrectQml();
-    }
 
     throw RewritingException(__LINE__, __FUNCTION__, __FILE__, description, rewriterView()->textModifierContent());
 }
@@ -899,9 +871,8 @@ void ModelPrivate::notifyNodeCreated(const InternalNode::Pointer &newInternalNod
         view->nodeCreated(createdNode);
     }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::notifyNodeAboutToBeRemoved(const InternalNode::Pointer &nodePointer)
@@ -930,9 +901,8 @@ void ModelPrivate::notifyNodeAboutToBeRemoved(const InternalNode::Pointer &nodeP
         nodeInstanceView()->nodeAboutToBeRemoved(node);
     }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::notifyNodeRemoved(const InternalNodePointer &nodePointer, const InternalNodePointer &parentNodePointer, const QString &parentPropertyName, AbstractView::PropertyChangeFlags propertyChange)
@@ -965,9 +935,8 @@ void ModelPrivate::notifyNodeRemoved(const InternalNodePointer &nodePointer, con
 
     }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::notifyNodeIdChanged(const InternalNode::Pointer& nodePointer, const QString& newId, const QString& oldId)
@@ -996,9 +965,8 @@ void ModelPrivate::notifyNodeIdChanged(const InternalNode::Pointer& nodePointer,
         nodeInstanceView()->nodeIdChanged(node, newId, oldId);
     }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::notifyBindingPropertiesChanged(const QList<InternalBindingPropertyPointer> &internalBropertyList, AbstractView::PropertyChangeFlags propertyChange)
@@ -1037,9 +1005,8 @@ void ModelPrivate::notifyBindingPropertiesChanged(const QList<InternalBindingPro
         nodeInstanceView()->bindingPropertiesChanged(propertyList, propertyChange);
     }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::notifyScriptFunctionsChanged(const InternalNodePointer &internalNodePointer, const QStringList &scriptFunctionList)
@@ -1070,9 +1037,8 @@ void ModelPrivate::notifyScriptFunctionsChanged(const InternalNodePointer &inter
 
     }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 
@@ -1127,9 +1093,8 @@ void ModelPrivate::notifyVariantPropertiesChanged(const InternalNodePointer &int
         nodeInstanceView()->variantPropertiesChanged(propertyList, propertyChange);
     }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::notifyNodeAboutToBeReparent(const InternalNodePointer &internalNodePointer, const InternalNodeAbstractPropertyPointer &newPropertyParent, const InternalNodePointer &oldParent, const QString &oldPropertyName, AbstractView::PropertyChangeFlags propertyChange)
@@ -1184,9 +1149,8 @@ void ModelPrivate::notifyNodeAboutToBeReparent(const InternalNodePointer &intern
         nodeInstanceView()->nodeAboutToBeReparented(node, newProperty, oldProperty, propertyChange);
     }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 
@@ -1242,9 +1206,8 @@ void ModelPrivate::notifyNodeReparent(const InternalNode::Pointer &internalNodeP
         nodeInstanceView()->nodeReparented(node, newProperty, oldProperty, propertyChange);
     }
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListPropertyPointer &internalListPropertyPointer,
@@ -1276,9 +1239,8 @@ void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListPropertyPointer 
                            ModelNode(internalNodePointer, model(), nodeInstanceView()),
                            oldIndex);
 
-    if (resetModel) {
+    if (resetModel)
         resetModelByRewriter(description);
-    }
 }
 
 void ModelPrivate::setSelectedNodes(const QList<InternalNode::Pointer> &selectedNodeList)

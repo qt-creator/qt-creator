@@ -468,9 +468,8 @@ void FormEditorView::instancesRenderImageChanged(const QVector<ModelNode> &nodeL
 {
     foreach (const ModelNode &node, nodeList) {
         QmlItemNode qmlItemNode(node);
-        if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
+        if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode))
            scene()->itemForQmlItemNode(qmlItemNode)->update();
-        }
     }
 }
 
@@ -591,9 +590,8 @@ void FormEditorView::actualStateChanged(const ModelNode &node)
 
 Utils::CrumblePath *FormEditorView::crumblePath() const
 {
-    if (widget() && widget()->toolBox()) {
+    if (widget() && widget()->toolBox())
         return widget()->toolBox()->crumblePath();
-    }
     return 0;
 }
 

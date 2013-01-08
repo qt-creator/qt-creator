@@ -181,9 +181,8 @@ QModelIndex ExternalToolModel::index(int row, int column, const QModelIndex &par
         QString category = categoryForIndex(parent, &found);
         if (found) {
             QList<ExternalTool *> items = m_tools.value(category);
-            if (row < items.count()) {
+            if (row < items.count())
                 return createIndex(row, 0, items.at(row));
-            }
         }
     } else if (column == 0 && row < m_tools.keys().count()) {
         return createIndex(row, 0);
@@ -210,14 +209,12 @@ int ExternalToolModel::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
         return m_tools.keys().count();
-    if (toolForIndex(parent)) {
+    if (toolForIndex(parent))
         return 0;
-    }
     bool found;
     QString category = categoryForIndex(parent, &found);
-    if (found) {
+    if (found)
         return m_tools.value(category).count();
-    }
 
     return 0;
 }

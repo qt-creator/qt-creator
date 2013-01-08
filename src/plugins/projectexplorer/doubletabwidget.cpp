@@ -201,11 +201,10 @@ void DoubleTabWidget::removeTab(int index)
         --m_currentIndex;
         if (m_currentIndex < 0 && m_tabs.size() > 0)
             m_currentIndex = 0;
-        if (m_currentIndex < 0) {
+        if (m_currentIndex < 0)
             emit currentIndexChanged(-1, -1);
-        } else {
+        else
             emit currentIndexChanged(m_currentIndex, m_tabs.at(m_currentIndex).currentSubTab);
-        }
     }
     update();
 }
@@ -233,18 +232,16 @@ QPair<DoubleTabWidget::HitArea, int> DoubleTabWidget::convertPosToTab(QPoint pos
         for (i = 0; i <= m_lastVisibleIndex; ++i) {
             int otherX = x + 2 * MARGIN + fm.width(m_tabs.at(
                     m_currentTabIndices.at(i)).displayName());
-            if (eventX > x && eventX < otherX) {
+            if (eventX > x && eventX < otherX)
                 break;
-            }
             x = otherX;
         }
         if (i <= m_lastVisibleIndex) {
             return qMakePair(HITTAB, i);
         } else if (m_lastVisibleIndex < m_tabs.size() - 1) {
             // handle overflow menu
-            if (eventX > x && eventX < x + OVERFLOW_DROPDOWN_WIDTH) {
+            if (eventX > x && eventX < x + OVERFLOW_DROPDOWN_WIDTH)
                 return qMakePair(HITOVERFLOW, -1);
-            }
         }
     } else if (pos.y() < Utils::StyleHelper::navigationWidgetHeight() + OTHER_HEIGHT) {
         int diff = (OTHER_HEIGHT - SELECTION_IMAGE_HEIGHT) / 2;
@@ -264,14 +261,12 @@ QPair<DoubleTabWidget::HitArea, int> DoubleTabWidget::convertPosToTab(QPoint pos
         int i;
         for (i = 0; i < subTabs.size(); ++i) {
             int otherX = x + 2 * SELECTION_IMAGE_WIDTH + fm.width(subTabs.at(i));
-            if (eventX > x && eventX < otherX) {
+            if (eventX > x && eventX < otherX)
                 break;
-            }
             x = otherX + 2 * MARGIN;
         }
-        if (i < subTabs.size()) {
+        if (i < subTabs.size())
             return qMakePair(HITSUBTAB, i);
-        }
     }
     return qMakePair(HITNOTHING, -1);
 }

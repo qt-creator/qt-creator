@@ -169,17 +169,15 @@ void ContextPaneTextWidget::setProperties(QmlJS::PropertyReader *propertyReader)
         ui->strikeoutButton->setChecked(false);
     }
 
-    if (propertyReader->hasProperty(QLatin1String("color"))) {
+    if (propertyReader->hasProperty(QLatin1String("color")))
         ui->colorButton->setColor(propertyReader->readProperty(QLatin1String("color")).toString());
-    } else {
+    else
         ui->colorButton->setColor(QLatin1String("black"));
-    }
 
-    if (propertyReader->hasProperty(QLatin1String("styleColor"))) {
+    if (propertyReader->hasProperty(QLatin1String("styleColor")))
         ui->textColorButton->setColor(propertyReader->readProperty(QLatin1String("styleColor")).toString());
-    } else {
+    else
         ui->textColorButton->setColor(QLatin1String("black"));
-    }
 
     if (propertyReader->hasProperty(QLatin1String("font.family"))) {
         QString familyName = propertyReader->readProperty(QLatin1String("font.family")).toString();
@@ -310,11 +308,10 @@ void ContextPaneTextWidget::onFontSizeChanged(int)
 void ContextPaneTextWidget::onFontFormatChanged()
 {
     int size = ui->fontSizeSpinBox->value();
-    if (ui->fontSizeSpinBox->isPointSize()) {
+    if (ui->fontSizeSpinBox->isPointSize())
         emit removeAndChangeProperty(QLatin1String("font.pixelSize"), QLatin1String("font.pointSize"), size, true);
-    } else {
+    else
         emit removeAndChangeProperty(QLatin1String("font.pointSize"), QLatin1String("font.pixelSize"), size, true);
-    }
 
 }
 

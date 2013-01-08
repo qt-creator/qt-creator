@@ -129,9 +129,8 @@ QtProperty* GenericPropertiesWidget::addVariantProperty(const PropertyMetaInfo& 
             }
         }
 
-        if (!item->isModified()) {
+        if (!item->isModified())
             item->setValue(instance.property(propertyMetaInfo.name())); //TODO fix this
-        }
 
         return item;
     } else {
@@ -167,9 +166,8 @@ QtProperty* GenericPropertiesWidget::addEnumProperty(const PropertyMetaInfo& pro
 
     if (!item->isModified()) {
         int selectionIndex = elementNames.indexOf(instance.property(propertyMetaInfo.name()).toString()); // TODO Fix this
-        if (selectionIndex != -1) {
+        if (selectionIndex != -1)
             enumManager->setValue(item, selectionIndex);
-        }
     }
 
     return item;
@@ -200,17 +198,15 @@ QtProperty* GenericPropertiesWidget::addProperties(const NodeMetaInfo& nodeMetaI
 
         QtProperty* property = 0;
 
-        if (propMetaInfo.isEnumType()) {
+        if (propMetaInfo.isEnumType())
             property = addEnumProperty(propMetaInfo, propertiesWithValues, instance);
-        } else if (propMetaInfo.isFlagType()) {
+        else if (propMetaInfo.isFlagType())
             property = addFlagProperty(propMetaInfo, propertiesWithValues, instance);
-        } else {
+        else
             property = addVariantProperty(propMetaInfo, propertiesWithValues, instance);
-        }
 
-        if (property) {
+        if (property)
             groupItem->addSubProperty(property);
-        }
     }
 
     return groupItem;
@@ -218,9 +214,8 @@ QtProperty* GenericPropertiesWidget::addProperties(const NodeMetaInfo& nodeMetaI
 
 void GenericPropertiesWidget::buildPropertyEditorItems()
 {
-    if (!selectedNode.isValid()) {
+    if (!selectedNode.isValid())
         return;
-    }
 
 //    qDebug() << "buildPropertyEditorItems for node" << selectedNode.name() << "...";
 
@@ -294,16 +289,14 @@ void GenericPropertiesWidget::nodeCreated(const ModelNode&)
 
 void GenericPropertiesWidget::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
-    if (selectedNode.isValid() && removedNode.isValid() && selectedNode == removedNode) {
+    if (selectedNode.isValid() && removedNode.isValid() && selectedNode == removedNode)
         select(selectedNode.parentNode());
-    }
 }
 
 void GenericPropertiesWidget::propertyAdded(const NodeState& state, const NodeProperty&)
 {
-    if (selectedNode.isValid() && state.isValid() && selectedNode == state.modelNode()) {
+    if (selectedNode.isValid() && state.isValid() && selectedNode == state.modelNode())
         select(state.modelNode());
-    }
 }
 
 void GenericPropertiesWidget::propertyAboutToBeRemoved(const NodeState& /* state */, const NodeProperty&)

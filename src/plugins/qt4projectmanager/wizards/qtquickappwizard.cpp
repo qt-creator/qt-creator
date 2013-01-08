@@ -93,9 +93,8 @@ QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent,
 
 bool QtQuickAppWizardDialog::validateCurrentPage()
 {
-    if (currentPage() == m_componentOptionsPage) {
+    if (currentPage() == m_componentOptionsPage)
         setIgnoreGenericOptionsPage(false);
-    }
     return AbstractMobileAppWizardDialog::validateCurrentPage();
 }
 

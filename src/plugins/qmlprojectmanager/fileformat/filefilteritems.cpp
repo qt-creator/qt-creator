@@ -129,11 +129,10 @@ bool FileFilterBaseItem::recursive() const
     } else if (m_recurse == DoNotRecurse) {
         recursive = false;
     } else {  // RecurseDefault
-        if (m_explicitFiles.isEmpty()) {
+        if (m_explicitFiles.isEmpty())
             recursive = true;
-        } else {
+        else
             recursive = false;
-        }
     }
     return recursive;
 }
@@ -142,11 +141,10 @@ void FileFilterBaseItem::setRecursive(bool recurse)
 {
     bool oldRecursive = recursive();
 
-    if (recurse) {
+    if (recurse)
         m_recurse = Recurse;
-    } else {
+    else
             m_recurse = DoNotRecurse;
-    }
 
     if (recurse != oldRecursive)
         updateFileList();
@@ -204,11 +202,10 @@ QString FileFilterBaseItem::absolutePath(const QString &path) const
 QString FileFilterBaseItem::absoluteDir() const
 {
     QString absoluteDir;
-    if (QFileInfo(m_rootDir).isAbsolute()) {
+    if (QFileInfo(m_rootDir).isAbsolute())
         absoluteDir = m_rootDir;
-    } else if (!m_defaultDir.isEmpty()) {
+    else if (!m_defaultDir.isEmpty())
         absoluteDir = m_defaultDir + QLatin1Char('/') + m_rootDir;
-    }
 
     return QDir::cleanPath(absoluteDir);
 }
@@ -264,15 +261,13 @@ void FileFilterBaseItem::updateFileListNow()
 bool FileFilterBaseItem::fileMatches(const QString &fileName) const
 {
     foreach (const QString &suffix, m_fileSuffixes) {
-        if (fileName.endsWith(suffix, Qt::CaseInsensitive)) {
+        if (fileName.endsWith(suffix, Qt::CaseInsensitive))
             return true;
-        }
     }
 
     foreach (QRegExp filter, m_regExpList) {
-        if (filter.exactMatch(fileName)) {
+        if (filter.exactMatch(fileName))
             return true;
-        }
     }
 
     return false;

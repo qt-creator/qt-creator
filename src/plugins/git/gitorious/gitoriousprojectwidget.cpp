@@ -212,11 +212,10 @@ void GitoriousProjectWidget::setDescription(const QString &description,
         descLine.truncate(newLinePos);
     if (descLine.size() > MaxDescriptionLineLength) {
         const int dotPos = descLine.lastIndexOf(QLatin1Char('.'), MaxDescriptionLineLength);
-        if (dotPos != -1) {
+        if (dotPos != -1)
             descLine.truncate(dotPos);
-        } else {
+        else
             descLine.truncate(MaxDescriptionLineLength);
-        }
         descLine += QLatin1String("...");
     }
     items->at(descriptionColumn)->setText(descLine);
@@ -230,11 +229,10 @@ void GitoriousProjectWidget::setDescription(const QString &description,
         // Do not fall for "(http://XX)", strip special characters
         static QRegExp urlRegExp(QLatin1String("(http://[\\w\\.-]+/[a-zA-Z0-9/\\-&]*)"));
         QTC_CHECK(urlRegExp.isValid());
-        if (urlRegExp.indexIn(description) != -1) {
+        if (urlRegExp.indexIn(description) != -1)
             *url= urlRegExp.cap(1);
-        } else {
+        else
             url->clear();
-        }
     }
 }
 

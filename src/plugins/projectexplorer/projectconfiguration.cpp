@@ -68,11 +68,10 @@ void ProjectConfiguration::setDisplayName(const QString &name)
 {
     if (displayName() == name)
         return;
-    if (name == m_defaultDisplayName) {
+    if (name == m_defaultDisplayName)
         m_displayName.clear();
-    } else {
+    else
         m_displayName = name;
-    }
     emit displayNameChanged();
 }
 

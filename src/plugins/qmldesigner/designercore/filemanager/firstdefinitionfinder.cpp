@@ -78,9 +78,8 @@ void FirstDefinitionFinder::extractFirstObjectDefinition(UiObjectInitializer* as
         return;
 
     for (UiObjectMemberList *iter = ast->members; iter; iter = iter->next) {
-        if (UiObjectDefinition *def = cast<UiObjectDefinition*>(iter->member)) {
+        if (UiObjectDefinition *def = cast<UiObjectDefinition*>(iter->member))
             m_firstObjectDefinition = def;
-        }
     }
 }
 

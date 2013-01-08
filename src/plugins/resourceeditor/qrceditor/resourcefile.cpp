@@ -650,11 +650,10 @@ int ResourceModel::rowCount(const QModelIndex &parent) const
         Q_ASSERT(prefix);
         bool const isFileNode = (prefix != node);
 
-        if (isFileNode) {
+        if (isFileNode)
             return 0;
-        } else {
+        else
             return prefix->file_list.count();
-        }
     } else {
         return m_resource_file.prefixCount();
     }
@@ -948,15 +947,13 @@ void ResourceModel::addFiles(int prefixIndex, const QStringList &fileNames, int 
     firstFile = -1;
     lastFile = -1;
 
-    if (!prefix_model_idx.isValid()) {
+    if (!prefix_model_idx.isValid())
         return;
-    }
 
     QStringList unique_list = existingFilesSubtracted(prefixIndex, fileNames);
 
-    if (unique_list.isEmpty()) {
+    if (unique_list.isEmpty())
         return;
-    }
 
     const int cnt = m_resource_file.fileCount(prefixIndex);
     beginInsertRows(prefix_model_idx, cnt, cnt + unique_list.count() - 1); // ### FIXME

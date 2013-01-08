@@ -147,12 +147,10 @@ static DeclaratorIdAST *getDeclaratorId(DeclaratorAST *declarator)
 {
     if (!declarator || !declarator->core_declarator)
         return 0;
-    if (DeclaratorIdAST *id = declarator->core_declarator->asDeclaratorId()) {
+    if (DeclaratorIdAST *id = declarator->core_declarator->asDeclaratorId())
         return id;
-    }
-    if (NestedDeclaratorAST *nested = declarator->core_declarator->asNestedDeclarator()) {
+    if (NestedDeclaratorAST *nested = declarator->core_declarator->asNestedDeclarator())
         return getDeclaratorId(nested->declarator);
-    }
     return 0;
 }
 
@@ -174,9 +172,8 @@ static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<Functio
     } else if (link->sourceDeclaration->asSimpleDeclaration()) {
         target = finder.findMatchingDefinition(link->sourceFunctionDeclarator->symbol, snapshot, true);
     }
-    if (!target) {
+    if (!target)
         return noResult;
-    }
 
     // parse the target file to get the linked decl/def
     const QString targetFileName = QString::fromUtf8(
@@ -420,9 +417,8 @@ static bool hasCommentedName(
         return false;
 
     ParameterDeclarationAST *param = list->value;
-    if (param->symbol && param->symbol->name()) {
+    if (param->symbol && param->symbol->name())
         return false;
-    }
 
     // maybe in a comment but in the right spot?
     int nameStart = 0;
@@ -441,9 +437,8 @@ static bool hasCommentedName(
 
     QString text = source.mid(nameStart, nameEnd - nameStart);
 
-    if (commentArgNameRegexp()->isEmpty()) {
+    if (commentArgNameRegexp()->isEmpty())
         *commentArgNameRegexp() = QRegExp(QLatin1String("/\\*\\s*(\\w*)\\s*\\*/"));
-    }
     return commentArgNameRegexp()->indexIn(text) != -1;
 }
 
@@ -538,9 +533,8 @@ static QString ensureCorrectParameterSpacing(const QString &text, bool isFirstPa
             ++firstNonSpace;
         return text.mid(firstNonSpace);
     } else { // ensure one leading space
-        if (text.isEmpty() || !text.at(0).isSpace()) {
+        if (text.isEmpty() || !text.at(0).isSpace())
             return QLatin1Char(' ') + text;
-        }
     }
     return text;
 }
@@ -966,11 +960,10 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
                 SimpleSpecifierAST *specifier = constSpecifier ? constSpecifier : volatileSpecifier;
                 QTC_ASSERT(specifier, return changes);
 
-                if (!newFunction->isConst() && !newFunction->isVolatile()) {
+                if (!newFunction->isConst() && !newFunction->isVolatile())
                     changes.remove(targetFile->endOf(specifier->specifier_token - 1), targetFile->endOf(specifier));
-                } else {
+                else
                     changes.replace(targetFile->range(specifier), cvString);
-                }
             }
         }
     }

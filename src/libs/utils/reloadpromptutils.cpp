@@ -97,12 +97,11 @@ QTCREATOR_UTILS_EXPORT Utils::FileDeletedPromptAnswer
     box.setDefaultButton(saveas);
     box.exec();
     QAbstractButton *clickedbutton = box.clickedButton();
-    if (clickedbutton == close) {
+    if (clickedbutton == close)
         return FileDeletedClose;
-    } else if (clickedbutton == saveas) {
+    else if (clickedbutton == saveas)
         return FileDeletedSaveAs;
-    } else if (clickedbutton == save) {
+    else if (clickedbutton == save)
         return FileDeletedSave;
-    }
     return FileDeletedClose;
 }

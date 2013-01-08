@@ -116,13 +116,12 @@ static bool parse(const QString &fileName,
             }
             // Parse elements
             elementCount++;
-            if (user && elementName == QLatin1String(userElementC)) {
+            if (user && elementName == QLatin1String(userElementC))
                 *user = reader.readElementText();
-            } else if (description && elementName == QLatin1String(descriptionElementC)) {
+            else if (description && elementName == QLatin1String(descriptionElementC))
                 *description = reader.readElementText();
-            } else if (text && elementName == QLatin1String(textElementC)) {
+            else if (text && elementName == QLatin1String(textElementC))
                 *text = reader.readElementText();
-            }
         }
     }
     if (reader.hasError()) {
@@ -151,11 +150,10 @@ void FileShareProtocol::fetch(const QString &id)
         fi = QFileInfo(m_settings->path + QLatin1Char('/') + id);
     QString errorMessage;
     QString text;
-    if (parse(fi.absoluteFilePath(), &errorMessage, 0, 0, &text)) {
+    if (parse(fi.absoluteFilePath(), &errorMessage, 0, 0, &text))
         emit fetchDone(id, text, false);
-    } else {
+    else
         emit fetchDone(id, errorMessage, true);
-    }
 }
 
 void FileShareProtocol::list()

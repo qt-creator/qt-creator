@@ -99,9 +99,8 @@ QColor colorFromString(const QString &name)
     if (name.startsWith(QLatin1String("rgba("))) {
         ++itr; ++itr; ++itr; ++itr; ++itr;
         compo = parseNumbersList(itr);
-        if (compo.size() != 4) {
+        if (compo.size() != 4)
             return QColor();
-        }
         //alpha seems to be always between 0-1
         compo[3] *= 255;
         return QColor((int)compo[0], (int)compo[1],
@@ -109,26 +108,23 @@ QColor colorFromString(const QString &name)
     } else if (name.startsWith(QLatin1String("rgb("))) {
         ++itr; ++itr; ++itr; ++itr;
         compo = parseNumbersList(itr);
-        if (compo.size() != 3) {
+        if (compo.size() != 3)
             return QColor();
-        }
         return QColor((int)qClamp(compo[0], qreal(0), qreal(255)),
                       (int)qClamp(compo[1], qreal(0), qreal(255)),
                       (int)qClamp(compo[2], qreal(0), qreal(255)));
     } else if (name.startsWith(QLatin1String("hsla("))) {
         ++itr; ++itr; ++itr; ++itr; ++itr;
         compo = parseNumbersList(itr);
-        if (compo.size() != 4) {
+        if (compo.size() != 4)
             return QColor();
-        }
         return QColor::fromHslF(compo[0], compo[1],
                                 compo[2], compo[3]);
     } else if (name.startsWith(QLatin1String("hsl("))) {
         ++itr; ++itr; ++itr; ++itr; ++itr;
         compo = parseNumbersList(itr);
-        if (compo.size() != 3) {
+        if (compo.size() != 3)
             return QColor();
-        }
         return QColor::fromHslF(compo[0], compo[1],
                                 compo[2]);
     } else {
@@ -141,31 +137,30 @@ QColor colorFromString(const QString &name)
 
 static QPainter::CompositionMode compositeOperatorFromString(const QString &compositeOperator)
 {
-    if (compositeOperator == QLatin1String("source-over")) {
+    if (compositeOperator == QLatin1String("source-over"))
         return QPainter::CompositionMode_SourceOver;
-    } else if (compositeOperator == QLatin1String("source-out")) {
+    else if (compositeOperator == QLatin1String("source-out"))
         return QPainter::CompositionMode_SourceOut;
-    } else if (compositeOperator == QLatin1String("source-in")) {
+    else if (compositeOperator == QLatin1String("source-in"))
         return QPainter::CompositionMode_SourceIn;
-    } else if (compositeOperator == QLatin1String("source-atop")) {
+    else if (compositeOperator == QLatin1String("source-atop"))
         return QPainter::CompositionMode_SourceAtop;
-    } else if (compositeOperator == QLatin1String("destination-atop")) {
+    else if (compositeOperator == QLatin1String("destination-atop"))
         return QPainter::CompositionMode_DestinationAtop;
-    } else if (compositeOperator == QLatin1String("destination-in")) {
+    else if (compositeOperator == QLatin1String("destination-in"))
         return QPainter::CompositionMode_DestinationIn;
-    } else if (compositeOperator == QLatin1String("destination-out")) {
+    else if (compositeOperator == QLatin1String("destination-out"))
         return QPainter::CompositionMode_DestinationOut;
-    } else if (compositeOperator == QLatin1String("destination-over")) {
+    else if (compositeOperator == QLatin1String("destination-over"))
         return QPainter::CompositionMode_DestinationOver;
-    } else if (compositeOperator == QLatin1String("darker")) {
+    else if (compositeOperator == QLatin1String("darker"))
         return QPainter::CompositionMode_SourceOver;
-    } else if (compositeOperator == QLatin1String("lighter")) {
+    else if (compositeOperator == QLatin1String("lighter"))
         return QPainter::CompositionMode_SourceOver;
-    } else if (compositeOperator == QLatin1String("copy")) {
+    else if (compositeOperator == QLatin1String("copy"))
         return QPainter::CompositionMode_Source;
-    } else if (compositeOperator == QLatin1String("xor")) {
+    else if (compositeOperator == QLatin1String("xor"))
         return QPainter::CompositionMode_Xor;
-    }
 
     return QPainter::CompositionMode_SourceOver;
 }
@@ -833,11 +828,10 @@ void Context2D::arc(qreal xc, qreal yc, qreal radius,
     double width  = radius*2;
     double height = radius*2;
 
-    if (!anticlockwise && (ea < sa)) {
+    if (!anticlockwise && (ea < sa))
         span += 360;
-    } else if (anticlockwise && (sa < ea)) {
+    else if (anticlockwise && (sa < ea))
         span -= 360;
-    }
 
     //### this is also due to switched coordinate system
     // we would end up with a 0 span instead of 360

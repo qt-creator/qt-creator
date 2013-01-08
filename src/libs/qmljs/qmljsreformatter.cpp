@@ -166,11 +166,10 @@ protected:
         if (precededByEmptyLine(fixedLoc))
             newLine();
         out(toString(fixedLoc)); // don't use the sourceloc overload here
-        if (followedByNewLine(fixedLoc)) {
+        if (followedByNewLine(fixedLoc))
             newLine();
-        } else {
+        else
             out(" ");
-        }
     }
 
     void out(const QString &str, const SourceLocation &lastLoc = SourceLocation())
@@ -260,9 +259,8 @@ protected:
             qreal result = badnessFromSplits;
             foreach (const QString &line, lines) {
                 // really long lines should be avoided at all cost
-                if (line.size() > strongMaxLineLength) {
+                if (line.size() > strongMaxLineLength)
                     result += 50 + (line.size() - strongMaxLineLength);
-                }
                 // having long lines is bad
                 else if (line.size() > maxLineLength) {
                     result += 3 + (line.size() - maxLineLength);
@@ -446,22 +444,20 @@ protected:
     virtual bool preVisit(Node *ast)
     {
         SourceLocation firstLoc;
-        if (ExpressionNode *expr = ast->expressionCast()) {
+        if (ExpressionNode *expr = ast->expressionCast())
             firstLoc = expr->firstSourceLocation();
-        } else if (Statement *stmt = ast->statementCast()) {
+        else if (Statement *stmt = ast->statementCast())
             firstLoc = stmt->firstSourceLocation();
-        } else if (UiObjectMember *mem = ast->uiObjectMemberCast()) {
+        else if (UiObjectMember *mem = ast->uiObjectMemberCast())
             firstLoc = mem->firstSourceLocation();
-        } else if (UiImport *import = cast<UiImport *>(ast)) {
+        else if (UiImport *import = cast<UiImport *>(ast))
             firstLoc = import->firstSourceLocation();
-        }
 
         if (firstLoc.isValid() && int(firstLoc.offset) != _lastNewlineOffset) {
             _lastNewlineOffset = firstLoc.offset;
 
-            if (precededByEmptyLine(firstLoc) && !_result.endsWith(QLatin1String("\n\n"))) {
+            if (precededByEmptyLine(firstLoc) && !_result.endsWith(QLatin1String("\n\n")))
                 newLine();
-            }
         }
 
         return true;
@@ -470,15 +466,14 @@ protected:
     virtual void postVisit(Node *ast)
     {
         SourceLocation lastLoc;
-        if (ExpressionNode *expr = ast->expressionCast()) {
+        if (ExpressionNode *expr = ast->expressionCast())
             lastLoc = expr->lastSourceLocation();
-        } else if (Statement *stmt = ast->statementCast()) {
+        else if (Statement *stmt = ast->statementCast())
             lastLoc = stmt->lastSourceLocation();
-        } else if (UiObjectMember *mem = ast->uiObjectMemberCast()) {
+        else if (UiObjectMember *mem = ast->uiObjectMemberCast())
             lastLoc = mem->lastSourceLocation();
-        } else if (UiImport *import = cast<UiImport *>(ast)) {
+        else if (UiImport *import = cast<UiImport *>(ast))
             lastLoc = import->lastSourceLocation();
-        }
 
         if (lastLoc.isValid()) {
             const QList<SourceLocation> &comments = _doc->engine()->comments();
@@ -510,11 +505,10 @@ protected:
     virtual bool visit(UiImport *ast)
     {
         out("import ", ast->importToken);
-        if (!ast->fileName.isNull()) {
+        if (!ast->fileName.isNull())
             out(QString::fromLatin1("\"%1\"").arg(ast->fileName.toString()));
-        } else {
+        else
             accept(ast->importUri);
-        }
         if (ast->versionToken.isValid()) {
             out(" ");
             out(ast->versionToken);

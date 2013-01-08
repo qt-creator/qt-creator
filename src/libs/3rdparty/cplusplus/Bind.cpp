@@ -129,9 +129,8 @@ void Bind::setDeclSpecifiers(Symbol *symbol, const FullySpecifiedType &declSpeci
     symbol->setStorage(storage);
 
     if (Function *funTy = symbol->asFunction()) {
-        if (declSpecifiers.isVirtual()) {
+        if (declSpecifiers.isVirtual())
             funTy->setVirtual(true);
-        }
     }
 
     if (declSpecifiers.isDeprecated())
@@ -466,9 +465,8 @@ void Bind::enumerator(EnumeratorAST *ast, Enum *symbol)
         EnumeratorDeclaration *e = control()->newEnumeratorDeclaration(ast->identifier_token, name);
         e->setType(control()->integerType(IntegerType::Int)); // ### introduce IntegerType::Enumerator
 
-        if (ExpressionAST *expr = ast->expression) {
+        if (ExpressionAST *expr = ast->expression)
             e->setConstantValue(asStringLiteral(expr->firstToken(), expr->lastToken()));
-        }
 
         symbol->addMember(e);
     }
@@ -1845,9 +1843,8 @@ bool Bind::visit(SimpleDeclarationAST *ast)
 
         const Name *declName = 0;
         unsigned sourceLocation = location(it->value, ast->firstToken());
-        if (declaratorId && declaratorId->name) {
+        if (declaratorId && declaratorId->name)
             declName = declaratorId->name->name;
-        }
 
         Declaration *decl = control()->newDeclaration(sourceLocation, declName);
         decl->setType(declTy);

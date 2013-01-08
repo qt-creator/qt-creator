@@ -606,11 +606,10 @@ QStringList AndroidManager::availableQtLibs(ProjectExplorer::Target *target)
         int it = 0;
         while (it < mapLibs[key].dependencies.size()) {
             const QString &dependName = mapLibs[key].dependencies[it];
-            if (!mapLibs.keys().contains(dependName) && dependName.startsWith(QLatin1String("lib")) && dependName.endsWith(QLatin1String(".so"))) {
+            if (!mapLibs.keys().contains(dependName) && dependName.startsWith(QLatin1String("lib")) && dependName.endsWith(QLatin1String(".so")))
                 mapLibs[key].dependencies.removeAt(it);
-            } else {
+            else
                 ++it;
-            }
         }
         if (!mapLibs[key].dependencies.size())
             mapLibs[key].level = 0;

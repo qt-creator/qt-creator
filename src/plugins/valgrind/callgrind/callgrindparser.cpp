@@ -537,9 +537,8 @@ void Parser::Private::parseCostItem(const char *begin, const char *end)
         skipSpace(&current, end);
     }
 
-    if (call) {
+    if (call)
         call->setCosts(costItem->costs());
-    }
 
     currentFunction->addCostItem(costItem);
 }

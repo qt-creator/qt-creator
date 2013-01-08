@@ -158,9 +158,8 @@ void BaseProjectWizardDialog::slotAccepted()
 
 void BaseProjectWizardDialog::nextClicked()
 {
-    if (currentId() == d->introPageId) {
+    if (currentId() == d->introPageId)
         emit projectParametersChanged(d->introPage->projectName(), d->introPage->path());
-    }
 }
 
 Utils::ProjectIntroPage *BaseProjectWizardDialog::introPage() const

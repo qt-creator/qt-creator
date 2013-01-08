@@ -314,9 +314,8 @@ void ResourceView::addFiles(int prefixIndex, const QStringList &fileNames, int c
 
     // Expand prefix node
     const QModelIndex prefixModelIndex = m_qrcModel->index(prefixIndex, 0, QModelIndex());
-    if (prefixModelIndex.isValid()) {
+    if (prefixModelIndex.isValid())
         this->setExpanded(prefixModelIndex, true);
-    }
 }
 
 void ResourceView::removeFiles(int prefixIndex, int firstFileIndex, int lastFileIndex)

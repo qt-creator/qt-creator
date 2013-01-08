@@ -76,9 +76,8 @@ void LocalQmlProfilerRunner::stop()
     if (QmlProfilerPlugin::debugOutput)
         qWarning("QmlProfiler: Stopping application ...");
 
-    if (m_launcher.isRunning()) {
+    if (m_launcher.isRunning())
         m_launcher.stop();
-    }
 }
 
 quint16 LocalQmlProfilerRunner::debugPort() const

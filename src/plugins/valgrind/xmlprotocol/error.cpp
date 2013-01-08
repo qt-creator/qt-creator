@@ -224,29 +224,23 @@ QString Error::toXml() const
     }
 
     foreach (const Stack &stack, d->stacks) {
-        if (!stack.auxWhat().isEmpty()) {
+        if (!stack.auxWhat().isEmpty())
             stream << "  <auxwhat>" << stack.auxWhat() << "</auxwhat>\n";
-        }
         stream << "  <stack>\n";
 
         foreach (const Frame &frame, stack.frames()) {
             stream << "    <frame>\n";
             stream << "      <ip>0x" << QString::number(frame.instructionPointer(), 16) << "</ip>\n";
-            if (!frame.object().isEmpty()) {
+            if (!frame.object().isEmpty())
                 stream << "      <obj>" << frame.object() << "</obj>\n";
-            }
-            if (!frame.functionName().isEmpty()) {
+            if (!frame.functionName().isEmpty())
                 stream << "      <fn>" << frame.functionName() << "</fn>\n";
-            }
-            if (!frame.directory().isEmpty()) {
+            if (!frame.directory().isEmpty())
                 stream << "      <dir>" << frame.directory() << "</dir>\n";
-            }
-            if (!frame.file().isEmpty()) {
+            if (!frame.file().isEmpty())
                 stream << "      <file>" << frame.file() << "</file>\n";
-            }
-            if (frame.line() != -1) {
+            if (frame.line() != -1)
                 stream << "      <line>" << frame.line() << "</line>";
-            }
             stream << "    </frame>\n";
         }
 

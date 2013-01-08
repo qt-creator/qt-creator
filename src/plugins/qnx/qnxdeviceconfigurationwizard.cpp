@@ -67,11 +67,10 @@ IDevice::Ptr QnxDeviceConfigurationWizard::device()
     sshParams.port = 22;
     sshParams.timeout = 10;
     sshParams.authenticationType = m_setupPage->authenticationType();
-    if (sshParams.authenticationType == QSsh::SshConnectionParameters::AuthenticationByPassword) {
+    if (sshParams.authenticationType == QSsh::SshConnectionParameters::AuthenticationByPassword)
         sshParams.password = m_setupPage->password();
-    } else {
+    else
         sshParams.privateKeyFile = m_setupPage->privateKeyFilePath();
-    }
 
     QnxDeviceConfiguration::Ptr device = QnxDeviceConfiguration::create(m_setupPage->configurationName(),
         Core::Id(Constants::QNX_QNX_OS_TYPE), IDevice::Hardware);

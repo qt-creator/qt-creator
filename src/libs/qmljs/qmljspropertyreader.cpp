@@ -143,9 +143,8 @@ static bool isEnum(AST::Statement *ast)
     if (!ast)
         return false;
 
-    if (ExpressionStatement *exprStmt = cast<ExpressionStatement*>(ast)) {
+    if (ExpressionStatement *exprStmt = cast<ExpressionStatement*>(ast))
         return isEnum(exprStmt->expression);
-    }
     return false;
 }
 

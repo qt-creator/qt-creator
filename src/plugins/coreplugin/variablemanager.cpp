@@ -97,9 +97,8 @@ bool VariableManager::remove(const QByteArray &variable)
 QString VariableManager::value(const QByteArray &variable, bool *found)
 {
     emit variableUpdateRequested(variable);
-    if (found) {
+    if (found)
         *found = d->m_map.contains(variable);
-    }
     return d->m_map.value(variable);
 }
 

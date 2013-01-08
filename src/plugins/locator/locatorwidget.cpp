@@ -176,11 +176,10 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     if (role == Qt::DisplayRole) {
-        if (index.column() == 0) {
+        if (index.column() == 0)
             return mEntries.at(index.row()).displayName;
-        } else if (index.column() == 1) {
+        else if (index.column() == 1)
             return mEntries.at(index.row()).extraInfo;
-        }
     } else if (role == Qt::ToolTipRole) {
         if (mEntries.at(index.row()).extraInfo.isEmpty())
             return QVariant(mEntries.at(index.row()).displayName);
@@ -540,9 +539,8 @@ void LocatorWidget::updateEntries()
 
     const QList<FilterEntry> entries = m_entriesWatcher->future().results();
     m_locatorModel->setEntries(entries);
-    if (m_locatorModel->rowCount() > 0) {
+    if (m_locatorModel->rowCount() > 0)
         m_completionList->setCurrentIndex(m_locatorModel->index(0, 0));
-    }
 #if 0
     m_completionList->updatePreferredSize();
 #endif

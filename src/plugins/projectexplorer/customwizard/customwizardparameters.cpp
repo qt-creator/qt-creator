@@ -657,11 +657,10 @@ CustomWizardParameters::ParseResult
                         file.binary = booleanAttributeValue(reader, fileBinaryAttributeC, false);
                         if (file.target.isEmpty())
                             file.target = file.source;
-                        if (file.source.isEmpty()) {
+                        if (file.source.isEmpty())
                             qWarning("Skipping empty file name in custom project.");
-                        } else {
+                        else
                             files.push_back(file);
-                        }
                     }
                     break;
                 case ParseWithinScript:

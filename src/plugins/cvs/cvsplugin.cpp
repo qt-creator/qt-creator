@@ -681,11 +681,10 @@ void CvsPlugin::revertAll()
     const CvsResponse revertResponse =
             runCvs(state.topLevel(), args, m_settings.timeOutMS(),
                    SshPasswordPrompt|ShowStdOutInLogWindow);
-    if (revertResponse.result == CvsResponse::Ok) {
+    if (revertResponse.result == CvsResponse::Ok)
         cvsVersionControl()->emitRepositoryChanged(state.topLevel());
-    } else {
+    else
         QMessageBox::warning(0, title, tr("Revert failed: %1").arg(revertResponse.message), QMessageBox::Ok);
-    }
 }
 
 void CvsPlugin::revertCurrentFile()
@@ -719,9 +718,8 @@ void CvsPlugin::revertCurrentFile()
     const CvsResponse revertResponse =
             runCvs(state.currentFileTopLevel(), args, m_settings.timeOutMS(),
                    SshPasswordPrompt|ShowStdOutInLogWindow);
-    if (revertResponse.result == CvsResponse::Ok) {
+    if (revertResponse.result == CvsResponse::Ok)
         cvsVersionControl()->emitFilesChanged(QStringList(state.currentFile()));
-    }
 }
 
 void CvsPlugin::diffProject()
@@ -776,11 +774,10 @@ void CvsPlugin::startCommit(const QString &workingDir, const QStringList &files)
     StateList statusOutput = parseStatusOutput(QString(), response.stdOut);
     if (!files.isEmpty()) {
         for (StateList::iterator it = statusOutput.begin(); it != statusOutput.end() ; ) {
-            if (files.contains(it->second)) {
+            if (files.contains(it->second))
                 ++it;
-            } else {
+            else
                 it = statusOutput.erase(it);
-            }
         }
     }
     if (statusOutput.empty()) {

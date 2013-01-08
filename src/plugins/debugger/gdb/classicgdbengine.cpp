@@ -552,11 +552,10 @@ void DumperHelper::evaluationParameters(const WatchData &data,
     // in rare cases we need more or less:
     switch (td.type) {
     case QAbstractItemType:
-        if (data.dumperFlags.isEmpty()) {
+        if (data.dumperFlags.isEmpty())
             qWarning("Internal error: empty dumper state '%s'.", data.iname.constData());
-        } else {
+        else
             inner = data.dumperFlags.mid(1);
-        }
         break;
     case QObjectSlotType:
     case QObjectSignalType: {
@@ -1068,11 +1067,10 @@ void GdbEngine::handleDebuggingHelperValue3Classic(const GdbResponse &response)
                     data1.type = data.type.left(data.type.size() - 4);
                     data1.iname = data.iname + '.' + QByteArray::number(i);
                     const QByteArray &addressSpec = list.at(i);
-                    if (addressSpec.startsWith("0x")) {
+                    if (addressSpec.startsWith("0x"))
                         data.setHexAddress(addressSpec);
-                    } else {
+                    else
                         data.dumperFlags = addressSpec; // Item model dumpers pull tricks
-                    }
                     data1.exp = "((" + gdbQuoteTypes(data1.type) + "*)" + addressSpec + ')';
                     data1.setHasChildren(false);
                     data1.setValueNeeded();

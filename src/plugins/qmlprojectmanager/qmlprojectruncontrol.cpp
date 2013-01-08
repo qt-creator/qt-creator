@@ -59,11 +59,10 @@ QmlProjectRunControl::QmlProjectRunControl(QmlProjectRunConfiguration *runConfig
     m_applicationLauncher.setEnvironment(runConfiguration->environment());
     m_applicationLauncher.setWorkingDirectory(runConfiguration->workingDirectory());
 
-    if (mode == NormalRunMode) {
+    if (mode == NormalRunMode)
         m_executable = runConfiguration->viewerPath();
-    } else {
+    else
         m_executable = runConfiguration->observerPath();
-    }
     m_commandLineArguments = runConfiguration->viewerArguments();
     m_mainQmlFile = runConfiguration->mainScript();
 
@@ -217,9 +216,8 @@ RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConf
     // Makes sure that all bindings go through the JavaScript engine, so that
     // breakpoints are actually hit!
     const QString optimizerKey = QLatin1String("QML_DISABLE_OPTIMIZER");
-    if (!params.environment.hasKey(optimizerKey)) {
+    if (!params.environment.hasKey(optimizerKey))
         params.environment.set(optimizerKey, QLatin1String("1"));
-    }
 
     if (params.executable.isEmpty()) {
         QmlProjectPlugin::showQmlObserverToolWarning();

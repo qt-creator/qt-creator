@@ -147,9 +147,8 @@ QString ModelNode::generateNewId() const
 */
 QString ModelNode::id() const
 {
-    if (!isValid()) {
+    if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
 
     return m_internalNode->id();
 }
@@ -353,9 +352,8 @@ void ModelNode::setParentProperty(NodeAbstractProperty parent)
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     }
 
-    if (!parent.parentModelNode().isValid()) {
+    if (!parent.parentModelNode().isValid())
         throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, "newParentNode");
-    }
 
     if (*this == parent.parentModelNode()) {
         Q_ASSERT_X(*this != parent.parentModelNode(), Q_FUNC_INFO, "cannot set parent to itself");
@@ -631,9 +629,8 @@ void ModelNode::destroy()
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     }
 
-    if (isRootNode()) {
+    if (isRootNode())
         throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, "rootNode");
-    }
 
     removeModelNodeFromSelection(*this);
     model()->d->removeNode(internalNode());
@@ -881,9 +878,8 @@ QTextStream& operator<<(QTextStream &stream, const ModelNode &modelNode)
 
 void ModelNode::selectNode()
 {
-    if (!isValid()) {
+    if (!isValid())
             throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
 
     QList<ModelNode> selectedNodeList;
     selectedNodeList.append(*this);
@@ -893,9 +889,8 @@ void ModelNode::selectNode()
 
 void ModelNode::deselectNode()
 {
-    if (!isValid()) {
+    if (!isValid())
             throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
 
     QList<ModelNode> selectedNodeList(view()->selectedModelNodes());
     selectedNodeList.removeAll(*this);
@@ -915,9 +910,8 @@ QVariant ModelNode::toVariant() const
 
 QVariant ModelNode::auxiliaryData(const QString &name) const
 {
-    if (!isValid()) {
+    if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
 
     return internalNode()->auxiliaryData(name);
 }
@@ -930,18 +924,16 @@ void ModelNode::setAuxiliaryData(const QString &name, const QVariant &data) cons
 
 bool ModelNode::hasAuxiliaryData(const QString &name) const
 {
-    if (!isValid()) {
+    if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
 
     return internalNode()->hasAuxiliaryData(name);
 }
 
 QHash<QString, QVariant> ModelNode::auxiliaryData() const
 {
-    if (!isValid()) {
+    if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
 
     return internalNode()->auxiliaryData();
 }
@@ -981,18 +973,16 @@ void ModelNode::setNodeSource(const QString &newNodeSource)
 
 QString ModelNode::nodeSource() const
 {
-    if (!isValid()) {
+    if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
 
     return internalNode()->nodeSource();
 }
 
 QString ModelNode::convertTypeToImportAlias() const
 {
-    if (!isValid()) {
+    if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
 
     if (model()->rewriterView())
         return model()->rewriterView()->convertTypeToImportAlias(type());
@@ -1002,9 +992,8 @@ QString ModelNode::convertTypeToImportAlias() const
 
 ModelNode::NodeSourceType ModelNode::nodeSourceType() const
 {
-    if (!isValid()) {
+    if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
 
     return static_cast<ModelNode::NodeSourceType>(internalNode()->nodeSourceType());
 

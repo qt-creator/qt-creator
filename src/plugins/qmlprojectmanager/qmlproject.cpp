@@ -201,11 +201,10 @@ QStringList QmlProject::convertToAbsoluteFiles(const QStringList &paths) const
 QStringList QmlProject::files() const
 {
     QStringList files;
-    if (m_projectItem) {
+    if (m_projectItem)
         files = m_projectItem.data()->files();
-    } else {
+    else
         files = m_files;
-    }
     return files;
 }
 

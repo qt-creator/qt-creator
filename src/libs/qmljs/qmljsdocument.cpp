@@ -378,9 +378,8 @@ Document::MutablePtr Snapshot::documentFromSource(
 {
     Document::MutablePtr newDoc = Document::create(fileName, language);
 
-    if (Document::Ptr thisDocument = document(fileName)) {
+    if (Document::Ptr thisDocument = document(fileName))
         newDoc->_editorRevision = thisDocument->_editorRevision;
-    }
 
     newDoc->setSource(code);
     return newDoc;

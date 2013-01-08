@@ -221,9 +221,8 @@ QXmlStreamReader::TokenType Parser::Private::blockingReadNext()
                 QIODevice *dev = reader.device();
                 QAbstractSocket *sock = qobject_cast<QAbstractSocket *>(dev);
 
-                if (!sock || sock->state() != QAbstractSocket::ConnectedState) {
+                if (!sock || sock->state() != QAbstractSocket::ConnectedState)
                     throw ParserException(dev->errorString());
-                }
             }
         } else if (reader.hasError()) {
             throw ParserException(reader.errorString()); //TODO add line, column?

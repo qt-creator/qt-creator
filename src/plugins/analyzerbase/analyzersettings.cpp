@@ -209,11 +209,10 @@ void AnalyzerRunConfigurationAspect::setUsingGlobalSettings(bool value)
     if (value == m_useGlobalSettings)
         return;
     m_useGlobalSettings = value;
-    if (m_useGlobalSettings) {
+    if (m_useGlobalSettings)
         m_subConfigs = AnalyzerGlobalSettings::instance()->subConfigs();
-    } else {
+    else
         m_subConfigs = m_customConfigurations;
-    }
 }
 
 void AnalyzerRunConfigurationAspect::resetCustomToGlobalSettings()

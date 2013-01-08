@@ -188,9 +188,8 @@ QVariant CallModel::data(const QModelIndex &index, int role) const
         return parentCost;
     }
 
-    if (role == FunctionCallRole) {
+    if (role == FunctionCallRole)
         return QVariant::fromValue(call);
-    }
 
     if (role == RelativeTotalCostRole) {
         const quint64 totalCost = d->m_data->totalCost(d->m_event);

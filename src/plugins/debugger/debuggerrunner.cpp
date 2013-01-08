@@ -604,9 +604,8 @@ DebuggerRunControl *DebuggerRunControlFactory::doCreate
     DebuggerStartParameters sp = sp0;
     if (!debuggerCore()->boolSetting(AutoEnrichParameters)) {
         const QString sysroot = sp.sysRoot;
-        if (sp.debugInfoLocation.isEmpty()) {
+        if (sp.debugInfoLocation.isEmpty())
             sp.debugInfoLocation = sysroot + QLatin1String("/usr/lib/debug");
-        }
         if (sp.debugSourceLocation.isEmpty()) {
             QString base = sysroot + QLatin1String("/usr/src/debug/");
             sp.debugSourceLocation.append(base + QLatin1String("qt5base/src/corelib"));

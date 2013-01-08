@@ -174,11 +174,10 @@ QAction *PathListEditor::insertAction(int index /* -1 */, const QString &text, Q
             beforeAction = actions.at(index);
     }
     QAction *rc = createAction(this, text, receiver, slotFunc);
-    if (beforeAction) {
+    if (beforeAction)
         d->buttonMenu->insertAction(beforeAction, rc);
-    } else {
+    else
         d->buttonMenu->addAction(rc);
-    }
     return rc;
 }
 

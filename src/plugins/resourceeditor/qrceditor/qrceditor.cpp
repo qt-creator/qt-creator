@@ -287,9 +287,8 @@ void QrcEditor::resolveLocationIssues(QStringList &files)
     }
 
     // All paths fine -> no interaction needed
-    if (i == count) {
+    if (i == count)
         return;
-    }
 
     // Interact with user from now on
     ResolveLocationContext context;
@@ -298,9 +297,8 @@ void QrcEditor::resolveLocationIssues(QStringList &files)
         // Path fine -> skip file
         QString const &file = *it;
         QString const relativePath = dir.relativeFilePath(file);
-        if (!relativePath.startsWith(dotdotSlash)) {
+        if (!relativePath.startsWith(dotdotSlash))
             continue;
-        }
         // Path troublesome and aborted -> remove file
         bool ok = false;
         if (!abort) {

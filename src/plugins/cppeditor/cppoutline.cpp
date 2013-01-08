@@ -82,9 +82,8 @@ bool CppOutlineFilterModel::filterAcceptsRow(int sourceRow,
                                              const QModelIndex &sourceParent) const
 {
     // ignore artifical "<Select Symbol>" entry
-    if (!sourceParent.isValid() && sourceRow == 0) {
+    if (!sourceParent.isValid() && sourceRow == 0)
         return false;
-    }
     // ignore generated symbols, e.g. by macro expansion (Q_OBJECT)
     const QModelIndex sourceIndex = m_sourceModel->index(sourceRow, 0, sourceParent);
     CPlusPlus::Symbol *symbol = m_sourceModel->symbolFromIndex(sourceIndex);

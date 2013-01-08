@@ -398,11 +398,10 @@ void BreakHandler::loadBreakpoints()
         v = map.value(_("message"));
         if (v.isValid())
             data.message = v.toString();
-        if (data.isValid()) {
+        if (data.isValid())
             appendBreakpoint(data);
-        } else {
+        else
             qWarning("Not restoring invalid breakpoint: %s", qPrintable(data.toString()));
-        }
     }
     //qDebug() << "LOADED BREAKPOINTS" << this << list.size();
 }

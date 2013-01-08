@@ -386,9 +386,8 @@ void QmlEngine::connectionEstablished()
 {
     attemptBreakpointSynchronization();
 
-    if (!watchHandler()->watcherNames().isEmpty()) {
+    if (!watchHandler()->watcherNames().isEmpty())
         synchronizeWatchers();
-    }
     connect(watchersModel(),SIGNAL(layoutChanged()),this,SLOT(synchronizeWatchers()));
 
     if (state() == EngineRunRequested)
@@ -532,9 +531,8 @@ void QmlEngine::filterApplicationMessage(const QString &output, int /*channel*/)
 
 void QmlEngine::showMessage(const QString &msg, int channel, int timeout) const
 {
-    if (channel == AppOutput || channel == AppError) {
+    if (channel == AppOutput || channel == AppError)
         const_cast<QmlEngine*>(this)->filterApplicationMessage(msg, channel);
-    }
     DebuggerEngine::showMessage(msg, channel, timeout);
 }
 
@@ -560,9 +558,8 @@ void QmlEngine::gotoLocation(const Location &location)
         if (!editor) {
             editor = Core::EditorManager::openEditorWithContents(QmlJSEditor::Constants::C_QMLJSEDITOR_ID,
                                                            &titlePattern);
-            if (editor) {
+            if (editor)
                 editor->setProperty(Constants::OPENED_BY_DEBUGGER, true);
-            }
 
             updateEditor(editor, m_sourceDocuments.value(fileName));
         }
@@ -648,9 +645,8 @@ void QmlEngine::shutdownInferior()
     if (m_adapter.activeDebuggerClient())
         m_adapter.activeDebuggerClient()->endSession();
 
-    if (isSlaveEngine()) {
+    if (isSlaveEngine())
         resetLocation();
-    }
     stopApplicationLauncher();
     closeConnection();
 
@@ -692,9 +688,8 @@ void QmlEngine::setupEngine()
 void QmlEngine::continueInferior()
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
-    if (m_adapter.activeDebuggerClient()) {
+    if (m_adapter.activeDebuggerClient())
         m_adapter.activeDebuggerClient()->continueInferior();
-    }
     resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -702,44 +697,39 @@ void QmlEngine::continueInferior()
 
 void QmlEngine::interruptInferior()
 {
-    if (m_adapter.activeDebuggerClient()) {
+    if (m_adapter.activeDebuggerClient())
         m_adapter.activeDebuggerClient()->interruptInferior();
-    }
     notifyInferiorStopOk();
 }
 
 void QmlEngine::executeStep()
 {
-    if (m_adapter.activeDebuggerClient()) {
+    if (m_adapter.activeDebuggerClient())
         m_adapter.activeDebuggerClient()->executeStep();
-    }
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
 }
 
 void QmlEngine::executeStepI()
 {
-    if (m_adapter.activeDebuggerClient()) {
+    if (m_adapter.activeDebuggerClient())
         m_adapter.activeDebuggerClient()->executeStepI();
-    }
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
 }
 
 void QmlEngine::executeStepOut()
 {
-    if (m_adapter.activeDebuggerClient()) {
+    if (m_adapter.activeDebuggerClient())
         m_adapter.activeDebuggerClient()->executeStepOut();
-    }
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
 }
 
 void QmlEngine::executeNext()
 {
-    if (m_adapter.activeDebuggerClient()) {
+    if (m_adapter.activeDebuggerClient())
         m_adapter.activeDebuggerClient()->executeNext();
-    }
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
 }
@@ -783,9 +773,8 @@ void QmlEngine::activateFrame(int index)
     if (state() != InferiorStopOk && state() != InferiorUnrunnable)
         return;
 
-    if (m_adapter.activeDebuggerClient()) {
+    if (m_adapter.activeDebuggerClient())
         m_adapter.activeDebuggerClient()->activateFrame(index);
-    }
     gotoLocation(stackHandler()->frames().value(index));
 }
 
@@ -854,9 +843,8 @@ void QmlEngine::removeBreakpoint(BreakpointModelId id)
         }
     }
 
-    if (handler->state(id) == BreakpointRemoveProceeding) {
+    if (handler->state(id) == BreakpointRemoveProceeding)
         handler->notifyBreakpointRemoveOk(id);
-    }
 }
 
 void QmlEngine::changeBreakpoint(BreakpointModelId id)
@@ -874,9 +862,8 @@ void QmlEngine::changeBreakpoint(BreakpointModelId id)
         }
     }
 
-    if (handler->state(id) == BreakpointChangeProceeding) {
+    if (handler->state(id) == BreakpointChangeProceeding)
         handler->notifyBreakpointChangeOk(id);
-    }
 }
 
 void QmlEngine::attemptBreakpointSynchronization()
@@ -941,9 +928,8 @@ bool QmlEngine::acceptsBreakpoint(BreakpointModelId id) const
     //For now, the event breakpoint can be set after the activeDebuggerClient is known
     //This is because the older client does not support BreakpointOnQmlSignalHandler
     bool acceptBreakpoint = false;
-    if (m_adapter.activeDebuggerClient()) {
+    if (m_adapter.activeDebuggerClient())
         acceptBreakpoint = m_adapter.activeDebuggerClient()->acceptsBreakpoint(id);
-    }
     return acceptBreakpoint;
 }
 
@@ -962,9 +948,8 @@ void QmlEngine::reloadModules()
 
 void QmlEngine::reloadSourceFiles()
 {
-    if (m_adapter.activeDebuggerClient()) {
+    if (m_adapter.activeDebuggerClient())
         m_adapter.activeDebuggerClient()->getSourceFiles();
-    }
 }
 
 void QmlEngine::requestModuleSymbols(const QString &moduleName)
@@ -1014,9 +999,8 @@ void QmlEngine::updateWatchData(const WatchData &data,
         m_inspectorAdapter.agent()->updateWatchData(data);
     } else {
         if (!data.name.isEmpty() && m_adapter.activeDebuggerClient()) {
-            if (data.isValueNeeded()) {
+            if (data.isValueNeeded())
                 m_adapter.activeDebuggerClient()->updateWatchData(data);
-            }
             if (data.isChildrenNeeded()
                     && watchHandler()->isExpandedIName(data.iname)) {
                 m_adapter.activeDebuggerClient()->expandObject(data.iname, data.id);
@@ -1208,9 +1192,8 @@ void QmlEngine::appendDebugOutput(QtMsgType type, const QString &message,
 
 void QmlEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
 {
-    if ((languages & QmlLanguage) && m_adapter.activeDebuggerClient()) {
+    if ((languages & QmlLanguage) && m_adapter.activeDebuggerClient())
         m_adapter.activeDebuggerClient()->executeDebuggerCommand(command);
-    }
 }
 
 bool QmlEngine::evaluateScript(const QString &expression)

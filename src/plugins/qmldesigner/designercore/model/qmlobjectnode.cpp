@@ -464,9 +464,8 @@ QString QmlObjectNode::defaultProperty() const
 
 void QmlObjectNode::setParent(QmlObjectNode newParent)
 {
-    if (newParent.hasDefaultProperty()) {
+    if (newParent.hasDefaultProperty())
         newParent.modelNode().nodeAbstractProperty(newParent.defaultProperty()).reparentHere(modelNode());
-    }
 }
 
 QmlItemNode QmlObjectNode::toQmlItemNode() const

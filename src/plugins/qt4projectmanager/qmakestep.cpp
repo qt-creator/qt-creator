@@ -206,9 +206,8 @@ QStringList QMakeStep::deducedArguments()
             // TODO: For Qt5, we can pass both arguments as there can be Qt Quick 1/2 projects.
             // Currently there is no support for debugging multiple engines.
             arguments << QLatin1String(Constants::QMAKEVAR_QUICK1_DEBUG);
-            if (version->qtVersion().majorVersion >= 5) {
+            if (version->qtVersion().majorVersion >= 5)
                 arguments << QLatin1String(Constants::QMAKEVAR_QUICK2_DEBUG);
-            }
         } else {
             const QString qmlDebuggingHelperLibrary = version->qmlDebuggingHelperLibrary(true);
             if (!qmlDebuggingHelperLibrary.isEmpty()) {
@@ -490,11 +489,10 @@ bool QMakeStep::fromMap(const QVariantMap &map)
     if (map.value(QLatin1String(QMAKE_QMLDEBUGLIBAUTO_KEY), false).toBool()) {
         m_linkQmlDebuggingLibrary = DebugLink;
     } else {
-        if (map.value(QLatin1String(QMAKE_QMLDEBUGLIB_KEY), false).toBool()) {
+        if (map.value(QLatin1String(QMAKE_QMLDEBUGLIB_KEY), false).toBool())
             m_linkQmlDebuggingLibrary = DoLink;
-        } else {
+        else
             m_linkQmlDebuggingLibrary = DoNotLink;
-        }
     }
 
     return BuildStep::fromMap(map);

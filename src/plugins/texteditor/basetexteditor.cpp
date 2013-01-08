@@ -301,9 +301,8 @@ void BaseTextEditorWidget::print(QPrinter *printer)
     printer->setFullPage(true);
     QPrintDialog *dlg = new QPrintDialog(printer, this);
     dlg->setWindowTitle(tr("Print Document"));
-    if (dlg->exec() == QDialog::Accepted) {
+    if (dlg->exec() == QDialog::Accepted)
         d->print(printer);
-    }
     printer->setFullPage(oldFullPage);
     delete dlg;
 }
@@ -1411,12 +1410,10 @@ bool BaseTextEditorWidget::cursorMoveKeyEvent(QKeyEvent *e)
     QTextCursor::MoveMode mode = QTextCursor::MoveAnchor;
     QTextCursor::MoveOperation op = QTextCursor::NoMove;
 
-    if (e == QKeySequence::MoveToNextChar) {
+    if (e == QKeySequence::MoveToNextChar)
             op = QTextCursor::Right;
-    }
-    else if (e == QKeySequence::MoveToPreviousChar) {
+    else if (e == QKeySequence::MoveToPreviousChar)
             op = QTextCursor::Left;
-    }
     else if (e == QKeySequence::SelectNextChar) {
            op = QTextCursor::Right;
            mode = QTextCursor::KeepAnchor;
@@ -1524,13 +1521,12 @@ bool BaseTextEditorWidget::cursorMoveKeyEvent(QKeyEvent *e)
     bool visualNavigation = cursor.visualNavigation();
     cursor.setVisualNavigation(true);
 
-    if (camelCaseNavigationEnabled() && op == QTextCursor::WordRight) {
+    if (camelCaseNavigationEnabled() && op == QTextCursor::WordRight)
         camelCaseRight(cursor, mode);
-    } else if (camelCaseNavigationEnabled() && op == QTextCursor::WordLeft) {
+    else if (camelCaseNavigationEnabled() && op == QTextCursor::WordLeft)
         camelCaseLeft(cursor, mode);
-    } else if (!cursor.movePosition(op, mode) && mode == QTextCursor::MoveAnchor) {
+    else if (!cursor.movePosition(op, mode) && mode == QTextCursor::MoveAnchor)
         cursor.clearSelection();
-    }
     cursor.setVisualNavigation(visualNavigation);
 
     setTextCursor(cursor);
@@ -1968,11 +1964,10 @@ void BaseTextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg, cons
             int cursorPosition = cursor.position();
             cursor.insertText(textToInsert);
 
-            if (textToInsert.isEmpty()) {
+            if (textToInsert.isEmpty())
                 positions.insert(cursorPosition, 0);
-            } else {
+            else
                 positions.insert(cursorPosition, textToInsert.length());
-            }
 
             ++pos;
         }
@@ -2813,11 +2808,10 @@ QString BaseTextEditorWidgetPrivate::copyBlockSelection()
             if (endOffset < 0)
                 --endPos;
             selection += text.mid(startPos, endPos - startPos);
-            if (endOffset < 0) {
+            if (endOffset < 0)
                 selection += QString(ts.m_tabSize + endOffset, QLatin1Char(' '));
-            } else if (endOffset > 0) {
+            else if (endOffset > 0)
                 selection += QString(endOffset, QLatin1Char(' '));
-            }
         }
         if (block == lastBlock)
             break;
@@ -3144,9 +3138,8 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                     QRectF rr = line.naturalTextRect();
                     rr.moveTop(rr.top() + r.top());
                     rr.setLeft(r.left() + x);
-                    if (line.lineNumber() == eline.lineNumber())  {
+                    if (line.lineNumber() == eline.lineNumber())
                         rr.setRight(r.left() + ex);
-                    }
                     painter.fillRect(rr, d->m_searchScopeFormat.background());
 
                     QColor lineCol = d->m_searchScopeFormat.foreground().color();
@@ -3298,9 +3291,8 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                 QRectF rr = line.naturalTextRect();
                 rr.moveTop(rr.top() + r.top());
                 rr.setLeft(r.left() + x);
-                if (line.lineNumber() == eline.lineNumber())  {
+                if (line.lineNumber() == eline.lineNumber())
                     rr.setRight(r.left() + ex);
-                }
                 painter.fillRect(rr, palette().highlight());
                 if ((d->m_blockSelection.anchor == BaseTextBlockSelection::TopLeft
                         && block == d->m_blockSelection.firstBlock.block())
@@ -3976,11 +3968,10 @@ void BaseTextEditorWidget::slotModificationChanged(bool m)
     if (oldLastSaveRevision != documentLayout->lastSaveRevision) {
         QTextBlock block = doc->begin();
         while (block.isValid()) {
-            if (block.revision() < 0 || block.revision() != oldLastSaveRevision) {
+            if (block.revision() < 0 || block.revision() != oldLastSaveRevision)
                 block.setRevision(-documentLayout->lastSaveRevision - 1);
-            } else {
+            else
                 block.setRevision(documentLayout->lastSaveRevision);
-            }
             block = block.next();
         }
     }
@@ -4069,9 +4060,8 @@ void BaseTextEditorWidget::updateHighlights()
             // when we uncheck "highlight matching parentheses"
             // we need clear current selection before viewport update
             // otherwise we get sticky highlighted parentheses
-            if (!d->m_displaySettings.m_highlightMatchingParentheses) {
+            if (!d->m_displaySettings.m_highlightMatchingParentheses)
                 setExtraSelections(ParenthesesMatchingSelection, QList<QTextEdit::ExtraSelection>());
-            }
 
             // use 0-timer, not direct call, to give the syntax highlighter a chance
             // to update the parentheses information
@@ -4201,9 +4191,8 @@ void BaseTextEditorWidget::mouseMoveEvent(QMouseEvent *e)
 
                 // get visual column
                 int column = tabSettings().columnAt(cursor.block().text(), cursor.positionInBlock());
-                if (cursor.positionInBlock() == cursor.block().length()-1) {
+                if (cursor.positionInBlock() == cursor.block().length()-1)
                     column += (e->pos().x() - cursorRect().center().x())/QFontMetricsF(font()).width(QLatin1Char(' '));
-                }
                 d->m_blockSelection.moveAnchor(cursor.blockNumber(), column);
                 setTextCursor(d->m_blockSelection.selection(tabSettings()));
                 viewport()->update();
@@ -5433,11 +5422,10 @@ void BaseTextEditorWidget::setIfdefedOutBlocks(const QList<BaseTextEditorWidget:
         bool set = false;
         if (rangeNumber < blocks.size()) {
             const BlockRange &range = blocks.at(rangeNumber);
-            if (block.position() >= range.first && ((block.position() + block.length() - 1) <= range.last || !range.last)) {
+            if (block.position() >= range.first && ((block.position() + block.length() - 1) <= range.last || !range.last))
                 set = BaseTextDocumentLayout::setIfdefedOut(block);
-            } else {
+            else
                 cleared = BaseTextDocumentLayout::clearIfdefedOut(block);
-            }
             if (block.contains(range.last))
                 ++rangeNumber;
         } else {
@@ -5864,9 +5852,8 @@ void BaseTextEditorWidget::copy()
 
 void BaseTextEditorWidget::paste()
 {
-    if (d->m_inBlockSelectionMode) {
+    if (d->m_inBlockSelectionMode)
         d->removeBlockSelection();
-    }
     QPlainTextEdit::paste();
 }
 

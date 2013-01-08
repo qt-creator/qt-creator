@@ -803,11 +803,10 @@ void BookmarkManager::operateTooltip(TextEditor::ITextEditor *textEditor, const 
     if (!mark)
         return;
 
-    if (mark->note().isEmpty()) {
+    if (mark->note().isEmpty())
         TextEditor::ToolTip::instance()->hide();
-    } else {
+    else
         TextEditor::ToolTip::instance()->show(pos, TextEditor::TextContent(mark->note()), textEditor->widget());
-    }
 }
 
 /* Loads the bookmarks from the session settings. */

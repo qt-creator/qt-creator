@@ -69,9 +69,8 @@ bool MoveObjectBeforeObjectVisitor::operator ()(QmlJS::AST::UiProgram *ast)
 
     QMLRewriter::operator ()(ast);
 
-    if (foundEverything()) {
+    if (foundEverything())
         doMove();
-    }
 
     return didRewriting();
 }
@@ -140,12 +139,10 @@ void MoveObjectBeforeObjectVisitor::doMove()
     int start = moveInfo.objectStart;
     int end = moveInfo.objectEnd;
     if (!inDefaultProperty) {
-        if (arrayMember->commaToken.isValid()) {
+        if (arrayMember->commaToken.isValid())
             start = arrayMember->commaToken.begin();
-        }
-        else {
+        else
             end = otherArrayMember->commaToken.end();
-        }
     }
 
     includeSurroundingWhitespace(start, end);

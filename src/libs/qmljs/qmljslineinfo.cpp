@@ -205,11 +205,10 @@ QString LineInfo::trimmedCodeLine(const QString &t)
                 while (i >= 2) {
                     const Token &prev = yyLinizerState.tokens.at(i-1);
                     const Token &prevPrev = yyLinizerState.tokens.at(i-2);
-                    if (prev.kind == Token::Dot && prevPrev.kind == Token::Identifier) {
+                    if (prev.kind == Token::Dot && prevPrev.kind == Token::Identifier)
                         i -= 2;
-                    } else {
+                    else
                         break;
-                    }
                 }
 
                 // it could also be 'a = \n Foo \n {', but that sounds unlikely

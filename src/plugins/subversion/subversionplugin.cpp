@@ -681,11 +681,10 @@ void SubversionPlugin::revertAll()
     const SubversionResponse revertResponse =
             runSvn(state.topLevel(), args, m_settings.timeOutMS(),
                    SshPasswordPrompt|ShowStdOutInLogWindow);
-    if (revertResponse.error) {
+    if (revertResponse.error)
         QMessageBox::warning(0, title, tr("Revert failed: %1").arg(revertResponse.message), QMessageBox::Ok);
-    } else {
+    else
         subVersionControl()->emitRepositoryChanged(state.topLevel());
-    }
 }
 
 void SubversionPlugin::revertCurrentFile()
@@ -718,9 +717,8 @@ void SubversionPlugin::revertCurrentFile()
             runSvn(state.currentFileTopLevel(), args, m_settings.timeOutMS(),
                    SshPasswordPrompt|ShowStdOutInLogWindow);
 
-    if (!revertResponse.error) {
+    if (!revertResponse.error)
         subVersionControl()->emitFilesChanged(QStringList(state.currentFile()));
-    }
 }
 
 void SubversionPlugin::diffProject()

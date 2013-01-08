@@ -61,9 +61,8 @@ void BaseTextMarkRegistry::add(BaseTextMark *mark)
     foreach (Core::IEditor *editor, em->editorsForFileName(mark->fileName())) {
         if (ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor)) {
             ITextMarkable *markableInterface = textEditor->markableInterface();
-            if (markableInterface->addMark(mark)) {
+            if (markableInterface->addMark(mark))
                 break;
-            }
         }
     }
 }

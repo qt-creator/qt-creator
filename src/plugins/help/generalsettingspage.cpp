@@ -337,9 +337,8 @@ int GeneralSettingsPage::closestPointSizeIndex(int desiredPointSize) const
             if (closestAbsError == 0)
                 break;
         } else {    // past optimum
-            if (absError > closestAbsError) {
+            if (absError > closestAbsError)
                 break;
-            }
         }
     }
     return closestIndex;

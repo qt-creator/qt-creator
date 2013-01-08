@@ -338,20 +338,18 @@ QmlModelView *AbstractView::toQmlModelView()
 
 NodeInstanceView *AbstractView::nodeInstanceView() const
 {
-    if (model()) {
+    if (model())
         return model()->d->nodeInstanceView();
-    } else {
+    else
         return 0;
-    }
 }
 
 RewriterView *AbstractView::rewriterView() const
 {
-    if (model()) {
+    if (model())
         return model()->d->rewriterView();
-    } else {
+    else
         return 0;
-    }
 }
 
 void AbstractView::resetView()

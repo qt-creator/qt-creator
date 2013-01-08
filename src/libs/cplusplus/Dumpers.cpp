@@ -83,18 +83,14 @@ QString CPlusPlus::toString(const Symbol *s, QString id)
 QString CPlusPlus::toString(LookupItem it, QString id)
 {
     QString result = QString::fromLatin1("%1:").arg(id);
-    if (it.declaration()) {
+    if (it.declaration())
         result.append(QString::fromLatin1("\n%1").arg(indent(toString(it.declaration(), QLatin1String("Decl")))));
-    }
-    if (it.type().isValid()) {
+    if (it.type().isValid())
         result.append(QString::fromLatin1("\n%1").arg(indent(toString(it.type()))));
-    }
-    if (it.scope()) {
+    if (it.scope())
         result.append(QString::fromLatin1("\n%1").arg(indent(toString(it.scope(), QLatin1String("Scope")))));
-    }
-    if (it.binding()) {
+    if (it.binding())
         result.append(QString::fromLatin1("\n%1").arg(indent(toString(it.binding(), QLatin1String("Binding")))));
-    }
     return result;
 }
 
@@ -106,9 +102,8 @@ QString CPlusPlus::toString(const ClassOrNamespace *binding, QString id)
     QString result = QString::fromLatin1("%0: %1 symbols").arg(
                 id,
                 QString::number(binding->symbols().length()));
-    if (binding->templateId()) {
+    if (binding->templateId())
         result.append(QString::fromLatin1("\n%1").arg(indent(toString(binding->templateId(), QLatin1String("Template")))));
-    }
     return result;
 }
 

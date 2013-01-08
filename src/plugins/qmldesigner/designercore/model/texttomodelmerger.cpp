@@ -264,9 +264,8 @@ static bool isPropertyChangesType(const QString &type)
 
 static bool propertyIsComponentType(const QmlDesigner::NodeAbstractProperty &property, const QString &type, QmlDesigner::Model *model)
 {
-    if (model->metaInfo(type, -1, -1).isSubclassOf(QLatin1String("QtQuick.Component"), -1, -1) && !isComponentType(type)) {
+    if (model->metaInfo(type, -1, -1).isSubclassOf(QLatin1String("QtQuick.Component"), -1, -1) && !isComponentType(type))
         return false; //If the type is already a subclass of Component keep it
-    }
 
     return property.parentModelNode().isValid() &&
             isComponentType(property.parentModelNode().metaInfo().propertyTypeName(property.name()));
@@ -281,16 +280,14 @@ static inline QString extractComponentFromQml(const QString &source)
     if (source.contains("Component")) { //explicit component
         QmlDesigner::FirstDefinitionFinder firstDefinitionFinder(source);
         int offset = firstDefinitionFinder(0);
-        if (offset < 0) {
+        if (offset < 0)
             return QString(); //No object definition found
-        }
         QmlDesigner::ObjectLengthCalculator objectLengthCalculator;
         unsigned length;
-        if (objectLengthCalculator(source, offset, length)) {
+        if (objectLengthCalculator(source, offset, length))
             result = source.mid(offset, length);
-        } else {
+        else
             result = source;
-        }
     } else {
         result = source; //implicit component
     }
@@ -527,11 +524,10 @@ public:
             }
         }
 
-        if (property->asColorValue()) {
+        if (property->asColorValue())
             return PropertyParser::read(QVariant::Color, cleanedValue);
-        } else if (property->asUrlValue()) {
+        else if (property->asUrlValue())
             return PropertyParser::read(QVariant::Url, cleanedValue);
-        }
 
         QVariant value(cleanedValue);
         if (property->asBooleanValue()) {
@@ -557,9 +553,8 @@ public:
 
         const ObjectValue *containingObject = 0;
         QString name;
-        if (!lookupProperty(propertyPrefix, propertyId, 0, &containingObject, &name)) {
+        if (!lookupProperty(propertyPrefix, propertyId, 0, &containingObject, &name))
             return QVariant();
-        }
 
         if (containingObject)
             containingObject->lookupMember(name, m_context, &containingObject);
@@ -631,16 +626,14 @@ static inline bool smartVeryFuzzyCompare(QVariant value1, QVariant value2)
         if (!ok1 || !ok2)
             return false;
 
-        if (qFuzzyCompare(a, b)) {
+        if (qFuzzyCompare(a, b))
             return true;
-        }
 
         int ai = qRound(a * 1000);
         int bi = qRound(b * 1000);
 
-        if (qFuzzyCompare((qreal(ai) / 1000), (qreal(bi) / 1000))) {
+        if (qFuzzyCompare((qreal(ai) / 1000), (qreal(bi) / 1000)))
             return true;
-        }
     }
     return false;
 }
@@ -951,11 +944,10 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 QString name;
                 if (context->lookupProperty(QString(), binding->qualifiedId, &propertyType, &containingObject, &name) || isPropertyChangesType(typeName)) {
                     AbstractProperty modelProperty = modelNode.property(astPropertyName);
-                    if (context->isArrayProperty(propertyType, containingObject, name)) {
+                    if (context->isArrayProperty(propertyType, containingObject, name))
                         syncArrayProperty(modelProperty, QList<QmlJS::AST::UiObjectMember*>() << member, context, differenceHandler);
-                    } else {
+                    else
                         syncNodeProperty(modelProperty, binding, context, differenceHandler);
-                    }
                     modelPropertyNames.remove(astPropertyName);
                 } else {
                     qWarning() << "Skipping invalid node property" << astPropertyName
@@ -1428,11 +1420,10 @@ void ModelAmender::bindingExpressionsDiffer(BindingProperty &modelProperty,
                                             const QString &javascript,
                                             const QString &astType)
 {
-    if (astType.isEmpty()) {
+    if (astType.isEmpty())
         modelProperty.setExpression(javascript);
-    } else {
+    else
         modelProperty.setDynamicTypeNameAndExpression(astType, javascript);
-    }
 }
 
 void ModelAmender::shouldBeBindingProperty(AbstractProperty &modelProperty,
@@ -1441,11 +1432,10 @@ void ModelAmender::shouldBeBindingProperty(AbstractProperty &modelProperty,
 {
     ModelNode theNode = modelProperty.parentModelNode();
     BindingProperty newModelProperty = theNode.bindingProperty(modelProperty.name());
-    if (astType.isEmpty()) {
+    if (astType.isEmpty())
         newModelProperty.setExpression(javascript);
-    } else {
+    else
         newModelProperty.setDynamicTypeNameAndExpression(astType, javascript);
-    }
 }
 
 void ModelAmender::shouldBeNodeListProperty(AbstractProperty &modelProperty,
@@ -1633,9 +1623,8 @@ void TextToModelMerger::setupComponent(const ModelNode &node)
 
     QString result = extractComponentFromQml(componentText);
 
-    if (result.isEmpty()) {
+    if (result.isEmpty())
         return; //No object definition found
-    }
 
     if (node.nodeSource() != result)
         ModelNode(node).setNodeSource(result);

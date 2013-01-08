@@ -107,11 +107,10 @@ int SearchResultTreeItem::insertionIndex(const QString &text, SearchResultTreeIt
     QList<SearchResultTreeItem *>::const_iterator insertionPosition =
             qLowerBound(m_children.begin(), m_children.end(), text, lessThanByText);
     if (existingItem) {
-        if (insertionPosition != m_children.end() && (*insertionPosition)->item.text == text) {
+        if (insertionPosition != m_children.end() && (*insertionPosition)->item.text == text)
             (*existingItem) = (*insertionPosition);
-        } else {
+        else
             *existingItem = 0;
-        }
     }
     return insertionPosition - m_children.begin();
 }

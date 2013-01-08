@@ -130,11 +130,10 @@ void PasteBinDotComProtocol::paste(const QString &text,
 
 void PasteBinDotComProtocol::pasteFinished()
 {
-    if (m_pasteReply->error()) {
+    if (m_pasteReply->error())
         qWarning("Pastebin.com protocol error: %s", qPrintable(m_pasteReply->errorString()));
-    } else {
+    else
         emit pasteDone(QString::fromLatin1(m_pasteReply->readAll()));
-    }
 
     m_pasteReply->deleteLater();
     m_pasteReply = 0;

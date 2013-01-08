@@ -102,9 +102,8 @@ void VariantProperty::setDynamicTypeNameAndValue(const QString &type, const QVar
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
 
-    if (type.isEmpty()) {
+    if (type.isEmpty())
         throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, name());
-    }
 
     if (internalNode()->hasProperty(name())) { //check if oldValue != value
         Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());

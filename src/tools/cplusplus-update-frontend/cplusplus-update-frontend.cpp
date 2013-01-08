@@ -276,9 +276,8 @@ protected:
                 if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
                     QByteArray typeName = namedTy->name()->identifier()->chars();
 
-                    if (typeName.endsWith("AST") && memberName != "next") {
+                    if (typeName.endsWith("AST") && memberName != "next")
                         *out << "        accept(" << memberName.constData() << ", visitor);" << endl;
-                    }
                 }
             }
         }
@@ -286,9 +285,8 @@ protected:
         for (unsigned i = 0; i < klass->baseClassCount(); ++i) {
             const QByteArray baseClassName = klass->baseClassAt(i)->identifier()->chars();
 
-            if (ClassSpecifierAST *baseClassSpec = classMap.value(baseClassName, 0)) {
+            if (ClassSpecifierAST *baseClassSpec = classMap.value(baseClassName, 0))
                 visitMembers(baseClassSpec->symbol);
-            }
         }
     }
 
@@ -550,9 +548,8 @@ protected:
         for (unsigned i = 0; i < klass->baseClassCount(); ++i) {
             const QByteArray baseClassName = klass->baseClassAt(i)->identifier()->chars();
 
-            if (ClassSpecifierAST *baseClassSpec = classMap.value(baseClassName, 0)) {
+            if (ClassSpecifierAST *baseClassSpec = classMap.value(baseClassName, 0))
                 visitMembers(baseClassSpec->symbol);
-            }
         }
     }
 
@@ -693,9 +690,8 @@ protected:
         for (unsigned i = 0; i < klass->baseClassCount(); ++i) {
             const QByteArray baseClassName = klass->baseClassAt(i)->identifier()->chars();
 
-            if (ClassSpecifierAST *baseClassSpec = classMap.value(baseClassName, 0)) {
+            if (ClassSpecifierAST *baseClassSpec = classMap.value(baseClassName, 0))
                 visitMembers(baseClassSpec->symbol);
-            }
         }
     }
 
@@ -826,9 +822,8 @@ protected:
         for (unsigned i = 0; i < klass->baseClassCount(); ++i) {
             const QByteArray baseClassName = klass->baseClassAt(i)->identifier()->chars();
 
-            if (ClassSpecifierAST *baseClassSpec = classMap.value(baseClassName, 0)) {
+            if (ClassSpecifierAST *baseClassSpec = classMap.value(baseClassName, 0))
                 visitMembers(baseClassSpec->symbol);
-            }
         }
     }
 
@@ -1198,11 +1193,10 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
         QTextStream os(&method);
         const QStringList fields = collectFieldNames(info.classAST, true);
 
-        if (info.firstToken) {
+        if (info.firstToken)
             generateFirstToken(os, className, fields);
-        } else if (info.lastToken) {
+        else if (info.lastToken)
             generateLastToken(os, className, fields);
-        }
 
         changes.replace(info.start, info.end, method);
     }

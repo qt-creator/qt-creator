@@ -253,9 +253,8 @@ QPixmap Find::IFindFilter::pixmapForFindFlags(Find::FindFlags flags)
         painter.drawPixmap(x - 6, 0, regexpIcon);
         x += 6;
     }
-    if (preservecase) {
+    if (preservecase)
         painter.drawPixmap(x - 6, 0, preservecaseIcon);
-    }
     return pixmap;
 }
 

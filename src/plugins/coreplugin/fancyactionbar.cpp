@@ -109,11 +109,10 @@ static QVector<QString> splitInTwoLines(const QString &text, const QFontMetrics 
                                       nextSplitPos - text.length() - 1);
         if (nextSplitPos != -1) {
             int splitCandidate = nextSplitPos + rx.matchedLength();
-            if (fontMetrics.width(text.mid(splitCandidate)) <= availableWidth) {
+            if (fontMetrics.width(text.mid(splitCandidate)) <= availableWidth)
                 splitPos = splitCandidate;
-            } else {
+            else
                 break;
-            }
         }
     } while (nextSplitPos > 0 && fontMetrics.width(text.left(nextSplitPos)) > availableWidth);
     // check if we could split at white space at all

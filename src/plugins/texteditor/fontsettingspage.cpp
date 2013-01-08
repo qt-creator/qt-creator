@@ -248,18 +248,16 @@ QColor FormatDescription::foreground() const
 {
     if (m_id == C_LINE_NUMBER) {
         const QColor bg = QApplication::palette().background().color();
-        if (bg.value() < 128) {
+        if (bg.value() < 128)
             return QApplication::palette().foreground().color();
-        } else {
+        else
             return QApplication::palette().dark().color();
-        }
     } else if (m_id == C_CURRENT_LINE_NUMBER) {
         const QColor bg = QApplication::palette().background().color();
-        if (bg.value() < 128) {
+        if (bg.value() < 128)
             return QApplication::palette().foreground().color();
-        } else {
+        else
             return m_format.foreground();
-        }
     } else if (m_id == C_OCCURRENCES_UNUSED) {
         return Qt::darkYellow;
     } else if (m_id == C_PARENTHESES) {

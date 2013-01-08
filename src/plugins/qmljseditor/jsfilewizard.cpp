@@ -121,9 +121,8 @@ QString JsFileWizard::fileContents(const QString &, bool statelessLibrary) const
     QString contents;
     QTextStream str(&contents);
 
-    if (statelessLibrary) {
+    if (statelessLibrary)
         str << QLatin1String(".pragma library\n\n");
-    }
     str << QLatin1String("function func() {\n")
         << QLatin1String("\n")
         << QLatin1String("}\n");

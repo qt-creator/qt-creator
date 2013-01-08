@@ -328,9 +328,8 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
         }
     } else if (obj == this && event->type() == QEvent::Hide) {
         invokeClearResults();
-        if (m_currentDocumentFind->isEnabled()) {
+        if (m_currentDocumentFind->isEnabled())
             m_currentDocumentFind->clearFindScope();
-        }
     }
     return Utils::StyledBar::eventFilter(obj, event);
 }
@@ -338,9 +337,8 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
 void FindToolBar::adaptToCandidate()
 {
     updateFindAction();
-    if (findToolBarPlaceHolder() == Core::FindToolBarPlaceHolder::getCurrent()) {
+    if (findToolBarPlaceHolder() == Core::FindToolBarPlaceHolder::getCurrent())
         m_currentDocumentFind->acceptCandidate();
-    }
 }
 
 void FindToolBar::updateFindAction()
@@ -399,16 +397,14 @@ void FindToolBar::invokeFindEnter()
 
 void FindToolBar::invokeReplaceEnter()
 {
-    if (m_currentDocumentFind->isEnabled() && m_currentDocumentFind->supportsReplace()) {
+    if (m_currentDocumentFind->isEnabled() && m_currentDocumentFind->supportsReplace())
         invokeReplaceNext();
-    }
 }
 
 void FindToolBar::invokeClearResults()
 {
-    if (m_currentDocumentFind->isEnabled()) {
+    if (m_currentDocumentFind->isEnabled())
         m_currentDocumentFind->clearResults();
-    }
 }
 
 
@@ -512,9 +508,8 @@ void FindToolBar::invokeReplaceAll()
 {
     m_plugin->updateFindCompletion(getFindText());
     m_plugin->updateReplaceCompletion(getReplaceText());
-    if (m_currentDocumentFind->isEnabled() && m_currentDocumentFind->supportsReplace()) {
+    if (m_currentDocumentFind->isEnabled() && m_currentDocumentFind->supportsReplace())
         m_currentDocumentFind->replaceAll(getFindText(), getReplaceText(), effectiveFindFlags());
-    }
 }
 
 void FindToolBar::invokeResetIncrementalSearch()
@@ -548,9 +543,8 @@ void FindToolBar::findFlagsChanged()
     updateIcons();
     updateFlagMenus();
     invokeClearResults();
-    if (isVisible()) {
+    if (isVisible())
         m_currentDocumentFind->highlightAll(getFindText(), effectiveFindFlags());
-    }
 }
 
 void FindToolBar::updateIcons()

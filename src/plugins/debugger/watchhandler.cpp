@@ -1157,11 +1157,10 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
 
         case LocalsIndividualFormatRole: {
             const int format = value.toInt();
-            if (format == -1) {
+            if (format == -1)
                 theIndividualFormats.remove(data.iname);
-            } else {
+            else
                 theIndividualFormats[data.iname] = format;
-            }
             engine()->updateWatchData(data);
             break;
         }
@@ -1277,17 +1276,15 @@ static bool watchDataLessThan(const QByteArray &iname1, int sortId1,
         return sortId1 < sortId2;
     // Get positions of last part of iname 'local.this.i1" -> "i1"
     int cmpPos1 = iname1.lastIndexOf('.');
-    if (cmpPos1 == -1) {
+    if (cmpPos1 == -1)
         cmpPos1 = 0;
-    } else {
+    else
         cmpPos1++;
-    }
     int cmpPos2 = iname2.lastIndexOf('.');
-    if (cmpPos2 == -1) {
+    if (cmpPos2 == -1)
         cmpPos2 = 0;
-    } else {
+    else
         cmpPos2++;
-    }
     // Are we looking at an array with numerical inames 'local.this.i1.0" ->
     // Go by sort id.
     if (cmpPos1 < iname1.size() && cmpPos2 < iname2.size()
@@ -1612,11 +1609,10 @@ void WatchHandler::watchExpression(const QString &exp, const QString &name)
 // (address) if it can be found. Default to watchExpression().
 void WatchHandler::watchVariable(const QString &exp)
 {
-    if (const WatchData *localVariable = findCppLocalVariable(exp)) {
+    if (const WatchData *localVariable = findCppLocalVariable(exp))
         watchExpression(QLatin1String(localVariable->exp), exp);
-    } else {
+    else
         watchExpression(exp);
-    }
 }
 
 static void swapEndian(char *d, int nchar)
@@ -1657,11 +1653,10 @@ void WatchHandler::showSeparateWidget(QWidget *w)
         m_separateWindow = new SeparateViewWidget(debuggerCore()->mainWindow());
 
     int index = indexOf(m_separateWindow, w);
-    if (index != -1) {
+    if (index != -1)
         m_separateWindow->setTabText(index, w->windowTitle());
-    } else {
+    else
         index = m_separateWindow->addTab(w, w->windowTitle());
-    }
     m_separateWindow->setCurrentIndex(index);
     m_separateWindow->show();
     m_separateWindow->raise();

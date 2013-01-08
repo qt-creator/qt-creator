@@ -299,11 +299,10 @@ void QScriptDebuggerClient::synchronizeBreakpoints()
     str << cmd << " (";
     bool first = true;
     foreach (const JSAgentBreakpointData &bp, d->breakpoints) {
-        if (first) {
+        if (first)
             first = false;
-        } else {
+        else
             str << ", ";
-        }
         str << '[' << bp.functionName << ", " << bp.fileUrl << ", " << bp.lineNumber << ']';
     }
     str << ')';

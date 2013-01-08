@@ -1073,11 +1073,10 @@ bool BaseMimeTypeParser::parse(QIODevice *dev, const QString &fileName, QString 
             switch (ps) {
             case ParseMimeType: { // start parsing a type
                 const QString type = atts.value(QLatin1String(mimeTypeAttributeC)).toString();
-                if (type.isEmpty()) {
+                if (type.isEmpty())
                     reader.raiseError(QString::fromLatin1("Missing 'type'-attribute"));
-                } else {
+                else
                     data.type = type;
-                }
             }
                 break;
             case ParseGlobPattern:
@@ -1094,11 +1093,10 @@ bool BaseMimeTypeParser::parse(QIODevice *dev, const QString &fileName, QString 
                 // comments have locale attributes. We want the default, English one
                 QString locale = atts.value(QLatin1String(localeAttributeC)).toString();
                 const QString comment = QCoreApplication::translate("MimeType", reader.readElementText().toLatin1());
-                if (locale.isEmpty()) {
+                if (locale.isEmpty())
                     data.comment = comment;
-                } else {
+                else
                     data.localeComments.insert(locale, comment);
-                }
             }
                 break;
             case ParseAlias: {
@@ -1467,11 +1465,10 @@ MimeType MimeDatabasePrivate::findByFile(const QFileInfo &f) const
         qDebug() << '>' << Q_FUNC_INFO << f.absoluteFilePath();
     const MimeType rc = findByFile(f, &priority);
     if (debugMimeDB) {
-        if (rc) {
+        if (rc)
             qDebug() << "<MimeDatabase::findByFile: match prio=" << priority << rc.type();
-        } else {
+        else
             qDebug() << "<MimeDatabase::findByFile: no match";
-        }
     }
     return rc;
 }
@@ -1536,11 +1533,10 @@ MimeType MimeDatabasePrivate::findByData(const QByteArray &data) const
         qDebug() << '>' << Q_FUNC_INFO << data.left(20).toHex();
     const MimeType rc = findByData(data, &priority);
     if (debugMimeDB) {
-        if (rc) {
+        if (rc)
             qDebug() << "<MimeDatabase::findByData: match prio=" << priority << rc.type();
-        } else {
+        else
             qDebug() << "<MimeDatabase::findByData: no match";
-        }
     }
     return rc;
 }

@@ -312,9 +312,8 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
         return ret;
     }
 
-    if (role == FunctionRole) {
+    if (role == FunctionRole)
         return QVariant::fromValue(func);
-    }
 
     if (role == ParentCostRole) {
         const quint64 totalCost = d->m_data->totalCost(d->m_event);
@@ -326,18 +325,15 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
         const quint64 totalCost = d->m_data->totalCost(d->m_event);
         if (index.column() == SelfCostColumn)
             return double(func->selfCost(d->m_event)) / totalCost;
-        if (index.column() == InclusiveCostColumn) {
+        if (index.column() == InclusiveCostColumn)
             return double(func->inclusiveCost(d->m_event)) / totalCost;
-        }
     }
 
-    if (role == LineNumberRole) {
+    if (role == LineNumberRole)
         return func->lineNumber();
-    }
 
-    if (role == FileNameRole) {
+    if (role == FileNameRole)
         return func->file();
-    }
 
     if (role == Qt::TextAlignmentRole) {
         if (index.column() == CalledColumn)

@@ -282,9 +282,8 @@ void StateListener::slotStateChanged()
                                                                     &state.currentProjectTopLevel);
         if (projectControl) {
             // If we have both, let the file's one take preference
-            if (fileControl && projectControl != fileControl) {
+            if (fileControl && projectControl != fileControl)
                 state.clearProject();
-            }
         } else {
             state.clearProject(); // No control found
         }

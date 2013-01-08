@@ -784,11 +784,10 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
             data1.name = it.name();
             data.id = m_watchIdCounter++;
             m_watchIdToScriptValue.insert(data.id, it.value());
-            if (watchHandler()->isExpandedIName(data1.iname)) {
+            if (watchHandler()->isExpandedIName(data1.iname))
                 data1.setChildrenNeeded();
-            } else {
+            else
                 data1.setChildrenUnneeded();
-            }
             children.push_back(data1);
         }
         data.setHasChildren(!children.isEmpty());

@@ -84,15 +84,13 @@ void RemovePropertyVisitor::removeFrom(QmlJS::AST::UiObjectInitializer *ast)
         UiObjectMember *member = it->member;
 
         // run full name match (for ungrouped properties):
-        if (memberNameMatchesPropertyName(propertyName, member)) {
+        if (memberNameMatchesPropertyName(propertyName, member))
             removeMember(member);
-        }
         // check for grouped properties:
         else if (!prefix.isEmpty()) {
             if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member)) {
-                if (toString(def->qualifiedTypeNameId) == prefix) {
+                if (toString(def->qualifiedTypeNameId) == prefix)
                     removeGroupedProperty(def);
-                }
             }
         }
     }
@@ -113,9 +111,8 @@ void RemovePropertyVisitor::removeGroupedProperty(UiObjectDefinition *ast)
         ++memberCount;
         UiObjectMember *member = it->member;
 
-        if (!wanted && memberNameMatchesPropertyName(propName, member)) {
+        if (!wanted && memberNameMatchesPropertyName(propName, member))
             wanted = member;
-        }
     }
 
     if (!wanted)

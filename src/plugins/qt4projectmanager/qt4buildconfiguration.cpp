@@ -503,11 +503,10 @@ FileName Qt4BuildConfiguration::extractSpecFromArguments(QString *args,
     // if it is the former we need to get the canonical form
     // for the other one we don't need to do anything
     if (parsedSpec.toFileInfo().isRelative()) {
-        if (QFileInfo(directory + QLatin1Char('/') + parsedSpec.toString()).exists()) {
+        if (QFileInfo(directory + QLatin1Char('/') + parsedSpec.toString()).exists())
             parsedSpec = FileName::fromUserInput(directory + QLatin1Char('/') + parsedSpec.toString());
-        } else {
+        else
             parsedSpec = FileName::fromUserInput(baseMkspecDir.toString() + QLatin1Char('/') + parsedSpec.toString());
-        }
     }
 
     QFileInfo f2 = parsedSpec.toFileInfo();
@@ -521,9 +520,8 @@ FileName Qt4BuildConfiguration::extractSpecFromArguments(QString *args,
     } else {
         FileName sourceMkSpecPath = FileName::fromString(version->sourcePath().toString()
                                                          + QLatin1String("/mkspecs"));
-        if (parsedSpec.isChildOf(sourceMkSpecPath)) {
+        if (parsedSpec.isChildOf(sourceMkSpecPath))
             parsedSpec = parsedSpec.relativeChildPath(sourceMkSpecPath);
-        }
     }
     return parsedSpec;
 }

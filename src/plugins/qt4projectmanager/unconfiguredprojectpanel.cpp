@@ -194,9 +194,8 @@ void TargetSetupPageWrapper::keyPressEvent(QKeyEvent *event)
 
 void TargetSetupPageWrapper::keyReleaseEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
         event->accept();
-    }
 }
 
 void TargetSetupPageWrapper::cancel()

@@ -124,9 +124,8 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
             }
         }
 
-        if (!model()->imports().contains(newImport)) {
+        if (!model()->imports().contains(newImport))
             model()->changeImports(QList<Import>() << newImport, QList<Import>());
-        }
 
         QList<QPair<QString, QVariant> > propertyPairList;
         propertyPairList.append(qMakePair(QString("x"), QVariant( round(position.x(), 4))));
@@ -204,9 +203,8 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
                     }
                 }
 
-                if (!model()->hasImport(newImport, true, true)) {
+                if (!model()->hasImport(newImport, true, true))
                     model()->changeImports(QList<Import>() << newImport, QList<Import>());
-                }
             }
         }
 
@@ -245,9 +243,8 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
             }
         }
 
-        if (parentNode.hasDefaultProperty()) {
+        if (parentNode.hasDefaultProperty())
             parentNode.nodeAbstractProperty(parentNode.defaultProperty()).reparentHere(newNode);
-        }
 
         if (!newNode.isValid())
             return newNode;
@@ -478,11 +475,10 @@ ModelNode QmlModelView::createQmlState(const QmlDesigner::PropertyListType &prop
 
     QTC_CHECK(rootModelNode().majorQtQuickVersion() < 3);
 
-    if (rootModelNode().majorQtQuickVersion() > 1) {
+    if (rootModelNode().majorQtQuickVersion() > 1)
         return createModelNode("QtQuick.State", 2, 0, propertyList);
-    } else {
+    else
         return createModelNode("QtQuick.State", 1, 0, propertyList);
-    }
 }
 
 

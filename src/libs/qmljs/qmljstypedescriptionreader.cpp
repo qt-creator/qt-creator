@@ -157,11 +157,10 @@ void TypeDescriptionReader::readModule(UiObjectDefinition *ast)
             continue;
         }
 
-        if (typeName == QLatin1String("Component")) {
+        if (typeName == QLatin1String("Component"))
             readComponent(component);
-        } else if (typeName == QLatin1String("ModuleApi")) {
+        else if (typeName == QLatin1String("ModuleApi"))
             readModuleApi(component);
-        }
     }
 }
 
@@ -191,15 +190,14 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
         UiScriptBinding *script = dynamic_cast<UiScriptBinding *>(member);
         if (component) {
             QString name = toString(component->qualifiedTypeNameId);
-            if (name == QLatin1String("Property")) {
+            if (name == QLatin1String("Property"))
                 readProperty(component, fmo);
-            } else if (name == QLatin1String("Method") || name == QLatin1String("Signal")) {
+            else if (name == QLatin1String("Method") || name == QLatin1String("Signal"))
                 readSignalOrMethod(component, name == QLatin1String("Method"), fmo);
-            } else if (name == QLatin1String("Enum")) {
+            else if (name == QLatin1String("Enum"))
                 readEnum(component, fmo);
-            } else {
+            else
                 addWarning(component->firstSourceLocation(), tr("Expected only Property, Method, Signal and Enum object definitions"));
-            }
         } else if (script) {
             QString name = toString(script->qualifiedId);
             if (name == QLatin1String("name")) {
@@ -283,22 +281,20 @@ void TypeDescriptionReader::readSignalOrMethod(UiObjectDefinition *ast, bool isM
         UiScriptBinding *script = dynamic_cast<UiScriptBinding *>(member);
         if (component) {
             QString name = toString(component->qualifiedTypeNameId);
-            if (name == QLatin1String("Parameter")) {
+            if (name == QLatin1String("Parameter"))
                 readParameter(component, &fmm);
-            } else {
+            else
                 addWarning(component->firstSourceLocation(), tr("Expected only Parameter object definitions"));
-            }
         } else if (script) {
             QString name = toString(script->qualifiedId);
-            if (name == QLatin1String("name")) {
+            if (name == QLatin1String("name"))
                 fmm.setMethodName(readStringBinding(script));
-            } else if (name == QLatin1String("type")) {
+            else if (name == QLatin1String("type"))
                 fmm.setReturnType(readStringBinding(script));
-            } else if (name == QLatin1String("revision")) {
+            else if (name == QLatin1String("revision"))
                 fmm.setRevision(readIntBinding(script));
-            } else {
+            else
                 addWarning(script->firstSourceLocation(), tr("Expected only name and type script bindings"));
-            }
 
         } else {
             addWarning(member->firstSourceLocation(), tr("Expected only script bindings and object definitions"));
@@ -331,21 +327,20 @@ void TypeDescriptionReader::readProperty(UiObjectDefinition *ast, FakeMetaObject
         }
 
         QString id = toString(script->qualifiedId);
-        if (id == QLatin1String("name")) {
+        if (id == QLatin1String("name"))
             name = readStringBinding(script);
-        } else if (id == QLatin1String("type")) {
+        else if (id == QLatin1String("type"))
             type = readStringBinding(script);
-        } else if (id == QLatin1String("isPointer")) {
+        else if (id == QLatin1String("isPointer"))
             isPointer = readBoolBinding(script);
-        } else if (id == QLatin1String("isReadonly")) {
+        else if (id == QLatin1String("isReadonly"))
             isReadonly = readBoolBinding(script);
-        } else if (id == QLatin1String("isList")) {
+        else if (id == QLatin1String("isList"))
             isList = readBoolBinding(script);
-        } else if (id == QLatin1String("revision")) {
+        else if (id == QLatin1String("revision"))
             revision = readIntBinding(script);
-        } else {
+        else
             addWarning(script->firstSourceLocation(), tr("Expected only type, name, revision, isPointer, isReadonly and isList script bindings"));
-        }
     }
 
     if (name.isEmpty() || type.isEmpty()) {
@@ -369,13 +364,12 @@ void TypeDescriptionReader::readEnum(UiObjectDefinition *ast, FakeMetaObject::Pt
         }
 
         QString name = toString(script->qualifiedId);
-        if (name == QLatin1String("name")) {
+        if (name == QLatin1String("name"))
             fme.setName(readStringBinding(script));
-        } else if (name == QLatin1String("values")) {
+        else if (name == QLatin1String("values"))
             readEnumValues(script, &fme);
-        } else {
+        else
             addWarning(script->firstSourceLocation(), tr("Expected only name and values script bindings"));
-        }
     }
 
     fmo->addEnum(fme);

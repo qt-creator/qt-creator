@@ -238,9 +238,8 @@ void CompletionContextFinder::checkImport()
                     break;
                 }
             } else if (tokenString == QLatin1String("import")) {
-                if (state == Unknown || (state & ExpectImport)) {
+                if (state == Unknown || (state & ExpectImport))
                     m_inImport = true;
-                }
             } else {
                 if (state == Unknown || (state & ExpectAnyTarget)
                         || (state & ExpectTargetIdentifier)) {

@@ -126,9 +126,8 @@ QVariant RunConfigurationModel::data(const QModelIndex &index, int role) const
 {
     if (role == Qt::DisplayRole) {
         const int row = index.row();
-        if (row < m_runConfigurations.size()) {
+        if (row < m_runConfigurations.size())
             return m_runConfigurations.at(row)->displayName();
-        }
     }
 
     return QVariant();
@@ -162,9 +161,8 @@ void RunConfigurationModel::addedRunConfiguration(ProjectExplorer::RunConfigurat
     RunConfigurationComparer compare;
     int i = 0;
     for (; i < m_runConfigurations.size(); ++i) {
-        if (compare(rc, m_runConfigurations.at(i))) {
+        if (compare(rc, m_runConfigurations.at(i)))
             break;
-        }
     }
 
     beginInsertRows(QModelIndex(), i, i);

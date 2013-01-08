@@ -69,9 +69,8 @@ public:
 
         Node::accept(sourceAST->imports, this);
 
-        if (sourceAST->members && sourceAST->members->member) {
+        if (sourceAST->members && sourceAST->members->member)
             visitRootMember(sourceAST->members->member);
-        }
 
         return m_locations.isEmpty();
     }
@@ -136,18 +135,16 @@ protected:
                 switchStateName(prevStateName);
                 return false;
             } else if (ast->qualifiedTypeNameId && ast->qualifiedTypeNameId->name && ast->qualifiedTypeNameId->name->asString() == "PropertyChanges") {
-                if (m_locations.remove(toLocation(start, end))) {
+                if (m_locations.remove(toLocation(start, end)))
                     m_paster->addNodeState(m_stateName, textAt(start, end));
-                }
 
                 return false;
             } else {
                 return true;
             }
         } else {
-            if (m_locations.remove(toLocation(start, end))) {
+            if (m_locations.remove(toLocation(start, end)))
                 m_paster->addNode(textAt(start, end));
-            }
 
             return false;
         }
@@ -171,9 +168,8 @@ protected:
     bool visit(UiScriptBinding *ast) {
         if (m_inStates && ast->qualifiedId && ast->qualifiedId->name && ast->qualifiedId->name->asString() == "name") {
             if (ExpressionStatement *stmt = AST::cast<ExpressionStatement *>(ast->statement)) {
-                if (StringLiteral * str = AST::cast<StringLiteral *>(stmt->expression)) {
+                if (StringLiteral * str = AST::cast<StringLiteral *>(stmt->expression))
                     m_stateName = str->value->asString();
-                }
             }
         }
 

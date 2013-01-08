@@ -553,9 +553,8 @@ QList<WizardProgressItem *> WizardProgressPrivate::singlePathBetween(WizardProgr
         if (itItem.value().count() != 1)
             return QList<WizardProgressItem *>();
         it = itItem.value().constBegin().key();
-        if (it == item) {
+        if (it == item)
             return path;
-        }
         itItem = visitedItemsToParents.constFind(it);
     }
     return QList<WizardProgressItem *>();

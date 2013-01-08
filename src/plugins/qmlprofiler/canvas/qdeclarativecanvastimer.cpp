@@ -46,9 +46,8 @@ void CanvasTimer::handleTimeout()
 {
     Q_ASSERT(m_value.isFunction());
     m_value.call();
-    if (isSingleShot()) {
+    if (isSingleShot())
         removeTimer(this);
-    }
 }
 
 void CanvasTimer::createTimer(QObject *parent, const QScriptValue &val, long timeout, bool singleshot)

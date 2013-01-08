@@ -312,9 +312,8 @@ void QmlProfilerDataModel::addRangedEvent(int type, int bindingType, qint64 star
         details = data.join(QLatin1String(" ")).replace(QLatin1Char('\n'),QLatin1Char(' ')).simplified();
         QRegExp rewrite(QLatin1String("\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)"));
         bool match = rewrite.exactMatch(details);
-        if (match) {
+        if (match)
             details = rewrite.cap(1) + QLatin1String(": ") + rewrite.cap(3);
-        }
         if (details.startsWith(QLatin1String("file://")))
             details = details.mid(details.lastIndexOf(QLatin1Char('/')) + 1);
     }
@@ -510,11 +509,10 @@ QmlEventType QmlProfilerDataModel::qmlEventTypeAsEnum(const QString &typeString)
     } else {
         bool isNumber = false;
         int type = typeString.toUInt(&isNumber);
-        if (isNumber) {
+        if (isNumber)
             return (QmlEventType)type;
-        } else {
+        else
             return MaximumQmlEventType;
-        }
     }
 }
 
@@ -843,9 +841,8 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::prepareForDisplay()
             typeCounts[typeNumber] = new QmlRangeEventTypeCount;
             typeCounts[typeNumber]->nestingCount = 0;
         }
-        if (eventStartData.nestingLevel > typeCounts[typeNumber]->nestingCount) {
+        if (eventStartData.nestingLevel > typeCounts[typeNumber]->nestingCount)
             typeCounts[typeNumber]->nestingCount = eventStartData.nestingLevel;
-        }
         if (!typeCounts[typeNumber]->eventIds.contains(eventStartData.statsInfo->eventId))
             typeCounts[typeNumber]->eventIds << eventStartData.statsInfo->eventId;
     }
@@ -1133,9 +1130,8 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::redoTree(qint64 fromTime
         int level = startInstanceList[index].level;
 
         QmlRangeEventData *parentEvent = listedRootEvent;
-        if (level > Constants::QML_MIN_LEVEL && lastParent.contains(level-1)) {
+        if (level > Constants::QML_MIN_LEVEL && lastParent.contains(level-1))
             parentEvent = lastParent[level-1];
-        }
 
         if (!eventDescription->parentHash.contains(parentEvent->eventHashStr)) {
             QmlRangeEventRelative *newParentEvent = new QmlRangeEventRelative(parentEvent);
@@ -1165,9 +1161,8 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::redoTree(qint64 fromTime
 
         lastParent[level] = eventDescription;
 
-        if (level == Constants::QML_MIN_LEVEL) {
+        if (level == Constants::QML_MIN_LEVEL)
             totalTime += duration;
-        }
     }
 
     // fake rootEvent statistics
@@ -1564,9 +1559,8 @@ void QmlProfilerDataModel::load()
                     currentEvent->location.line = readData.toInt();
                     break;
                 }
-                if (elementName == QLatin1String("column")) {
+                if (elementName == QLatin1String("column"))
                     currentEvent->location.column = readData.toInt();
-                }
                 if (elementName == QLatin1String("details")) {
                     currentEvent->details = readData;
                     break;

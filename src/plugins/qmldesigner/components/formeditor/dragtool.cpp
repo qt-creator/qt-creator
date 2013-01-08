@@ -213,11 +213,10 @@ FormEditorItem* DragTool::calculateContainer(const QPointF &point, FormEditorIte
         const QString newImportVersion = QString("%1.%2").arg(QString::number(itemLibraryEntry.majorVersion()), QString::number(itemLibraryEntry.minorVersion()));
         Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
 
-        if (itemLibraryEntry.majorVersion() == -1 && itemLibraryEntry.minorVersion() == -1) {
+        if (itemLibraryEntry.majorVersion() == -1 && itemLibraryEntry.minorVersion() == -1)
             newImport = Import::createFileImport(newImportUrl, QString());
-        } else {
+        else
             newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
-        }
     }
     return importToBeAddedList;
 }

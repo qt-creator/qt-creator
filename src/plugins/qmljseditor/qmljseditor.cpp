@@ -406,9 +406,8 @@ protected:
 
     virtual bool visit(AST::UiScriptBinding *ast)
     {
-        if (AST::Block *block = AST::cast<AST::Block *>(ast->statement)) {
+        if (AST::Block *block = AST::cast<AST::Block *>(ast->statement))
             _ranges.append(createRange(ast, block));
-        }
         return true;
     }
 
@@ -663,13 +662,12 @@ static void appendExtraSelectionsForMessages(
             sel.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, d.location.length);
         }
 
-        if (d.severity == StaticAnalysis::Warning || d.severity == StaticAnalysis::MaybeWarning) {
+        if (d.severity == StaticAnalysis::Warning || d.severity == StaticAnalysis::MaybeWarning)
             sel.format.setUnderlineColor(Qt::darkYellow);
-        } else if (d.severity == StaticAnalysis::Error || d.severity == StaticAnalysis::MaybeError) {
+        else if (d.severity == StaticAnalysis::Error || d.severity == StaticAnalysis::MaybeError)
             sel.format.setUnderlineColor(Qt::red);
-        } else if (d.severity == StaticAnalysis::Hint) {
+        else if (d.severity == StaticAnalysis::Hint)
             sel.format.setUnderlineColor(Qt::darkGreen);
-        }
 
         sel.format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
         sel.format.setToolTip(d.message);
@@ -896,9 +894,8 @@ protected:
         UiQualifiedId *id = qualifiedTypeNameId(member);
         if (id) {
             const QStringRef &name = id->name;
-            if (!name.isEmpty() && name.at(0).isUpper()) {
+            if (!name.isEmpty() && name.at(0).isUpper())
                 return true;
-            }
         }
 
         return false;
@@ -1286,9 +1283,8 @@ void QmlJSTextEditorWidget::wheelEvent(QWheelEvent *event)
 
     BaseTextEditorWidget::wheelEvent(event);
 
-    if (visible) {
+    if (visible)
         m_contextPane->apply(editor(), semanticInfo().document, 0, m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition), false, true);
-    }
 }
 
 void QmlJSTextEditorWidget::resizeEvent(QResizeEvent *event)
@@ -1424,9 +1420,8 @@ QModelIndex QmlJSTextEditorWidget::indexForPosition(unsigned cursorPosition, con
 bool QmlJSTextEditorWidget::hideContextPane()
 {
     bool b = (m_contextPane) && m_contextPane->widget()->isVisible();
-    if (b) {
+    if (b)
         m_contextPane->apply(editor(), semanticInfo().document, 0, 0, false);
-    }
     return b;
 }
 

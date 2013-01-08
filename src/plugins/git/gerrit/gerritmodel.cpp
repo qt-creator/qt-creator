@@ -354,11 +354,10 @@ void QueryContext::errorTermination(const QString &msg)
 void QueryContext::processError(QProcess::ProcessError e)
 {
     const QString msg = tr("Error running %1: %2").arg(m_binary, m_process.errorString());
-    if (e == QProcess::FailedToStart) {
+    if (e == QProcess::FailedToStart)
         errorTermination(msg);
-    } else {
+    else
         VcsBase::VcsBaseOutputWindow::instance()->appendError(msg);
-    }
 }
 
 void QueryContext::processFinished(int exitCode, QProcess::ExitStatus es)
@@ -413,11 +412,10 @@ void QueryContext::timeout()
     box.exec();
     if (m_process.state() != QProcess::Running)
         return;
-    if (box.clickedButton() == terminateButton) {
+    if (box.clickedButton() == terminateButton)
         Utils::SynchronousProcess::stopProcess(m_process);
-    } else {
+    else
         m_timer.start();
-    }
 }
 
 GerritModel::GerritModel(const QSharedPointer<GerritParameters> &p, QObject *parent)

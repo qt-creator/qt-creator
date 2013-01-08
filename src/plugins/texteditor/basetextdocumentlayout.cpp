@@ -395,9 +395,8 @@ bool TextBlockUserData::findPreviousBlockOpenParenthesis(QTextCursor *cursor, bo
                 if (block == cursor->block()) {
                     if (position - block.position() <= paren.pos + (paren.type == Parenthesis::Closed ? 1 : 0))
                         continue;
-                    if (checkStartPosition && paren.type == Parenthesis::Opened && paren.pos== cursor->position()) {
+                    if (checkStartPosition && paren.type == Parenthesis::Opened && paren.pos== cursor->position())
                         return true;
-                    }
                 }
                 if (paren.type == Parenthesis::Closed) {
                     ++ignore;

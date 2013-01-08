@@ -75,9 +75,8 @@ bool sortNodes(Node *n1, Node *n2)
             return true; // project file is before everything else
         }
     } else {
-        if (file2 && file2->fileType() == ProjectFileType) {
+        if (file2 && file2->fileType() == ProjectFileType)
             return false;
-        }
     }
 
     // projects
@@ -151,11 +150,10 @@ bool sortNodes(Node *n1, Node *n2)
             return result < 0; // sort by filename
         } else {
             result = caseFriendlyCompare(filePath1, filePath2);
-            if (result != 0) {
+            if (result != 0)
                 return result < 0; // sort by filepath
-            } else {
+            else
                 return n1 < n2; // sort by pointer value
-            }
         }
     }
     return false;

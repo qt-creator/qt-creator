@@ -308,11 +308,10 @@ void WelcomeMode::welcomePluginAdded(QObject *obj)
         if (pluginHash.contains(plugin->id())) {
             Utils::IWelcomePage* pluginOther = pluginHash.value(plugin->id());
 
-            if (pluginOther->priority() > plugin->priority()) {
+            if (pluginOther->priority() > plugin->priority())
                 m_pluginList.removeAll(pluginOther);
-            } else {
+            else
                 return;
-            }
         }
 
         int insertPos = 0;

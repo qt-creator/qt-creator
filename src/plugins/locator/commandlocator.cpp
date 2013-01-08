@@ -99,9 +99,8 @@ QList<Locator::FilterEntry> CommandLocator::matchesFor(QFutureInterface<Locator:
                 if (action->isEnabled()) {
                 QString text = action->text();
                 text.remove(ampersand);
-                if (text.contains(entry, Qt::CaseInsensitive)) {
+                if (text.contains(entry, Qt::CaseInsensitive))
                     filters.append(FilterEntry(this, text, QVariant(i)));
-                }
             }
         }
     }

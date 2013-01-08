@@ -284,9 +284,8 @@ bool CMakeProject::parseCMakeLists()
     while (!cmakeCache.atEnd()) {
         QByteArray line = cmakeCache.readLine();
         if (line.startsWith("QT_UIC_EXECUTABLE")) {
-            if (int pos = line.indexOf('=')) {
+            if (int pos = line.indexOf('='))
                 m_uicCommand = QString::fromLocal8Bit(line.mid(pos + 1).trimmed());
-            }
             break;
         }
     }
@@ -977,11 +976,10 @@ bool CMakeCbpParser::parseCbpFile(const QString &fileName)
 
         while (!atEnd()) {
             readNext();
-            if (name() == QLatin1String("CodeBlocks_project_file")) {
+            if (name() == QLatin1String("CodeBlocks_project_file"))
                 parseCodeBlocks_project_file();
-            } else if (isStartElement()) {
+            else if (isStartElement())
                 parseUnknownElement();
-            }
         }
         fi.close();
         m_includeFiles.sort();
@@ -995,13 +993,12 @@ void CMakeCbpParser::parseCodeBlocks_project_file()
 {
     while (!atEnd()) {
         readNext();
-        if (isEndElement()) {
+        if (isEndElement())
             return;
-        } else if (name() == QLatin1String("Project")) {
+        else if (name() == QLatin1String("Project"))
             parseProject();
-        } else if (isStartElement()) {
+        else if (isStartElement())
             parseUnknownElement();
-        }
     }
 }
 
@@ -1009,17 +1006,16 @@ void CMakeCbpParser::parseProject()
 {
     while (!atEnd()) {
         readNext();
-        if (isEndElement()) {
+        if (isEndElement())
             return;
-        } else if (name() == QLatin1String("Option")) {
+        else if (name() == QLatin1String("Option"))
             parseOption();
-        } else if (name() == QLatin1String("Unit")) {
+        else if (name() == QLatin1String("Unit"))
             parseUnit();
-        } else if (name() == QLatin1String("Build")) {
+        else if (name() == QLatin1String("Build"))
             parseBuild();
-        } else if (isStartElement()) {
+        else if (isStartElement())
             parseUnknownElement();
-        }
     }
 }
 
@@ -1027,13 +1023,12 @@ void CMakeCbpParser::parseBuild()
 {
     while (!atEnd()) {
         readNext();
-        if (isEndElement()) {
+        if (isEndElement())
             return;
-        } else if (name() == QLatin1String("Target")) {
+        else if (name() == QLatin1String("Target"))
             parseBuildTarget();
-        } else if (isStartElement()) {
+        else if (isStartElement())
             parseUnknownElement();
-        }
     }
 }
 
@@ -1047,9 +1042,8 @@ void CMakeCbpParser::parseBuildTarget()
     while (!atEnd()) {
         readNext();
         if (isEndElement()) {
-            if (m_buildTargetType || m_buildTarget.title == QLatin1String("all") || m_buildTarget.title == QLatin1String("install")) {
+            if (m_buildTargetType || m_buildTarget.title == QLatin1String("all") || m_buildTarget.title == QLatin1String("install"))
                 m_buildTargets.append(m_buildTarget);
-            }
             return;
         } else if (name() == QLatin1String("Compiler")) {
             parseCompiler();
@@ -1079,13 +1073,12 @@ void CMakeCbpParser::parseBuildTargetOption()
     }
     while (!atEnd()) {
         readNext();
-        if (isEndElement()) {
+        if (isEndElement())
             return;
-        } else if (name() == QLatin1String("MakeCommand")) {
+        else if (name() == QLatin1String("MakeCommand"))
             parseMakeCommand();
-        } else if (isStartElement()) {
+        else if (isStartElement())
             parseUnknownElement();
-        }
     }
 }
 
@@ -1104,11 +1097,10 @@ void CMakeCbpParser::parseOption()
 
     while (!atEnd()) {
         readNext();
-        if (isEndElement()) {
+        if (isEndElement())
             return;
-        } else if (isStartElement()) {
+        else if (isStartElement())
             parseUnknownElement();
-        }
     }
 }
 
@@ -1116,15 +1108,14 @@ void CMakeCbpParser::parseMakeCommand()
 {
     while (!atEnd()) {
         readNext();
-        if (isEndElement()) {
+        if (isEndElement())
             return;
-        } else if (name() == QLatin1String("Build")) {
+        else if (name() == QLatin1String("Build"))
             parseBuildTargetBuild();
-        } else if (name() == QLatin1String("Clean")) {
+        else if (name() == QLatin1String("Clean"))
             parseBuildTargetClean();
-        } else if (isStartElement()) {
+        else if (isStartElement())
             parseUnknownElement();
-        }
     }
 }
 
@@ -1134,11 +1125,10 @@ void CMakeCbpParser::parseBuildTargetBuild()
         m_buildTarget.makeCommand = attributes().value(QLatin1String("command")).toString();
     while (!atEnd()) {
         readNext();
-        if (isEndElement()) {
+        if (isEndElement())
             return;
-        } else if (isStartElement()) {
+        else if (isStartElement())
             parseUnknownElement();
-        }
     }
 }
 
@@ -1148,11 +1138,10 @@ void CMakeCbpParser::parseBuildTargetClean()
         m_buildTarget.makeCleanCommand = attributes().value(QLatin1String("command")).toString();
     while (!atEnd()) {
         readNext();
-        if (isEndElement()) {
+        if (isEndElement())
             return;
-        } else if (isStartElement()) {
+        else if (isStartElement())
             parseUnknownElement();
-        }
     }
 }
 
@@ -1160,13 +1149,12 @@ void CMakeCbpParser::parseCompiler()
 {
     while (!atEnd()) {
         readNext();
-        if (isEndElement()) {
+        if (isEndElement())
             return;
-        } else if (name() == QLatin1String("Add")) {
+        else if (name() == QLatin1String("Add"))
             parseAdd();
-        } else if (isStartElement()) {
+        else if (isStartElement())
             parseUnknownElement();
-        }
     }
 }
 
@@ -1177,9 +1165,8 @@ void CMakeCbpParser::parseAdd()
 
     const QString includeDirectory = addAttributes.value(QLatin1String("directory")).toString();
     // allow adding multiple times because order happens
-    if (!includeDirectory.isEmpty()) {
+    if (!includeDirectory.isEmpty())
         m_includeFiles.append(includeDirectory);
-    }
 
     QString compilerOption = addAttributes.value(QLatin1String("option")).toString();
     // defining multiple times a macro to the same value makes no sense
@@ -1188,9 +1175,8 @@ void CMakeCbpParser::parseAdd()
         int macroNameIndex = compilerOption.indexOf(QLatin1String("-D")) + 2;
         if (macroNameIndex != 1) {
             int assignIndex = compilerOption.indexOf(QLatin1Char('='), macroNameIndex);
-            if (assignIndex != -1) {
+            if (assignIndex != -1)
                 compilerOption[assignIndex] = ' ';
-            }
             m_defines.append("#define ");
             m_defines.append(compilerOption.mid(macroNameIndex).toLatin1());
             m_defines.append('\n');
@@ -1199,11 +1185,10 @@ void CMakeCbpParser::parseAdd()
 
     while (!atEnd()) {
         readNext();
-        if (isEndElement()) {
+        if (isEndElement())
             return;
-        } else if (isStartElement()) {
+        else if (isStartElement())
             parseUnknownElement();
-        }
     }
 }
 

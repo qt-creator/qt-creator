@@ -856,11 +856,10 @@ QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions(Node *node) c
         // work on a subset of the file types according to project type.
 
         actions << AddNewFile;
-        if (m_recursiveEnumerateFiles.contains(Utils::FileName::fromString(node->path()))) {
+        if (m_recursiveEnumerateFiles.contains(Utils::FileName::fromString(node->path())))
             actions << EraseFile;
-        } else {
+        else
             actions << RemoveFile;
-        }
 
         bool addExistingFiles = true;
         if (node->nodeType() == ProjectExplorer::VirtualFolderNodeType) {
@@ -1530,9 +1529,8 @@ void Qt4ProFileNode::emitProFileUpdatedRecursive()
             emit qt4Watcher->proFileUpdated(this, m_validParse, m_parseInProgress);
 
     foreach (ProjectNode *subNode, subProjectNodes()) {
-        if (Qt4ProFileNode *node = qobject_cast<Qt4ProFileNode *>(subNode)) {
+        if (Qt4ProFileNode *node = qobject_cast<Qt4ProFileNode *>(subNode))
             node->emitProFileUpdatedRecursive();
-        }
     }
 }
 
@@ -1540,9 +1538,8 @@ void Qt4ProFileNode::setParseInProgressRecursive(bool b)
 {
     setParseInProgress(b);
     foreach (ProjectNode *subNode, subProjectNodes()) {
-        if (Qt4ProFileNode *node = qobject_cast<Qt4ProFileNode *>(subNode)) {
+        if (Qt4ProFileNode *node = qobject_cast<Qt4ProFileNode *>(subNode))
             node->setParseInProgressRecursive(b);
-        }
     }
 }
 
@@ -1560,9 +1557,8 @@ void Qt4ProFileNode::setValidParseRecursive(bool b)
 {
     setValidParse(b);
     foreach (ProjectNode *subNode, subProjectNodes()) {
-        if (Qt4ProFileNode *node = qobject_cast<Qt4ProFileNode *>(subNode)) {
+        if (Qt4ProFileNode *node = qobject_cast<Qt4ProFileNode *>(subNode))
             node->setValidParseRecursive(b);
-        }
     }
 }
 
@@ -2041,9 +2037,8 @@ QStringList Qt4ProFileNode::libDirectories(QtSupport::ProFileReader *reader) con
 {
     QStringList result;
     foreach (const QString &str, reader->values(QLatin1String("LIBS"))) {
-        if (str.startsWith(QLatin1String("-L"))) {
+        if (str.startsWith(QLatin1String("-L")))
             result.append(str.mid(2));
-        }
     }
     return result;
 }
@@ -2077,11 +2072,10 @@ QStringList Qt4ProFileNode::subDirsPaths(QtSupport::ProFileReader *reader, QStri
         realDir = info.filePath();
 
         QString realFile;
-        if (info.isDir()) {
+        if (info.isDir())
             realFile = QString::fromLatin1("%1/%2.pro").arg(realDir, info.fileName());
-        } else {
+        else
             realFile = realDir;
-        }
 
         if (QFile::exists(realFile)) {
             realFile = QDir::cleanPath(realFile);

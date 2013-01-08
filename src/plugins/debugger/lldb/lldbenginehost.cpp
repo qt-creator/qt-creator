@@ -97,9 +97,8 @@ qint64 SshIODevice::readData (char * data, qint64 maxSize)
         return 0;
     qint64 size = maxSize;
     while (size > 0) {
-        if (!buckets.size()) {
+        if (!buckets.size())
             return maxSize - size;
-        }
         QByteArray &bucket = buckets.head();
         if ((size + buckethead) >= bucket.size()) {
             int d =  bucket.size() - buckethead;

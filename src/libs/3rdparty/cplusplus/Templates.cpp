@@ -499,9 +499,8 @@ Symbol *Clone::instantiate(Template *templ, const FullySpecifiedType *const args
     if (argc < templ->templateParameterCount()) {
         for (unsigned i = argc; i < templ->templateParameterCount(); ++i) {
             Symbol *formal = templ->templateParameterAt(i);
-            if (TypenameArgument *tn = formal->asTypenameArgument()) {
+            if (TypenameArgument *tn = formal->asTypenameArgument())
                 subst.bind(name(formal->name(), &subst), type(tn->type(), &subst));
-            }
         }
     }
     if (Symbol *inst = symbol(templ->declaration(), &subst)) {

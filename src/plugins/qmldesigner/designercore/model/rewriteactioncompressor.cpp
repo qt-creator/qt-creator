@@ -306,13 +306,11 @@ void RewriteActionCompressor::compressAddEditActions(QList<RewriteAction *> &act
                 dirtyActions.insert(action);
             }
         } else if (ChangeIdRewriteAction *changeIdAction = action->asChangeIdRewriteAction()) {
-            if (nodeOrParentInSet(changeIdAction->node(), addedNodes)) {
+            if (nodeOrParentInSet(changeIdAction->node(), addedNodes))
                 actionsToRemove.append(action);
-            }
         } else if (ChangeTypeRewriteAction *changeTypeAction = action->asChangeTypeRewriteAction()) {
-            if (nodeOrParentInSet(changeTypeAction->node(), addedNodes)) {
+            if (nodeOrParentInSet(changeTypeAction->node(), addedNodes))
                 actionsToRemove.append(action);
-            }
         }
     }
 
@@ -337,9 +335,8 @@ void RewriteActionCompressor::compressAddEditActions(QList<RewriteAction *> &act
         }
 
         const int idx = actions.indexOf(action);
-        if (newAction && idx >= 0) {
+        if (newAction && idx >= 0)
             actions[idx] = newAction;
-        }
     }
 }
 
@@ -355,11 +352,10 @@ void RewriteActionCompressor::compressAddReparentActions(QList<RewriteAction *> 
         if (action->asAddPropertyRewriteAction() || action->asChangePropertyRewriteAction()) {
             ModelNode containedNode;
 
-            if (AddPropertyRewriteAction *addAction = action->asAddPropertyRewriteAction()) {
+            if (AddPropertyRewriteAction *addAction = action->asAddPropertyRewriteAction())
                 containedNode = addAction->containedModelNode();
-            } else if (ChangePropertyRewriteAction *changeAction = action->asChangePropertyRewriteAction()) {
+            else if (ChangePropertyRewriteAction *changeAction = action->asChangePropertyRewriteAction())
                 containedNode = changeAction->containedModelNode();
-            }
 
             if (!containedNode.isValid())
                 continue;

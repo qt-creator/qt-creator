@@ -493,9 +493,8 @@ void LldbEngineGuest::selectThread(qint64 token)
                 qDebug() << "\t\tsymbol:  " << sym.IsValid() << sym.GetName() << sym.GetMangledName();
                 qDebug() << "\t\tfunction:" << func.IsValid();
                 qDebug() << "\t\ttu:      " << tu.IsValid();
-                if (tu.IsValid()) {
+                if (tu.IsValid())
 
-                }
                 qDebug() << "\t\tmodule:  " << module.IsValid() << module.GetFileSpec().IsValid()
                     << module.GetFileSpec().GetFilename();
                 qDebug() << "\t\tblock:   " << block.IsValid() << block.GetInlinedName();
@@ -676,9 +675,8 @@ void LldbEngineGuest::lldbEvent(lldb::SBEvent *ev)
         case 1:
             switch (m_process->GetState()) {
                 case lldb::eStateRunning: // 5
-                    if (!m_running) {
+                    if (!m_running)
                         m_running = true;
-                    }
                     notifyInferiorPid(m_process->GetProcessID());
                     switch (state()) {
                         case EngineRunRequested:
@@ -696,9 +694,8 @@ void LldbEngineGuest::lldbEvent(lldb::SBEvent *ev)
                     }
                     break;
                 case lldb::eStateExited: // 9
-                    if (m_running) {
+                    if (m_running)
                         m_running = false;
-                    }
                     switch (state()) {
                         case InferiorShutdownRequested:
                             notifyInferiorShutdownOk();
@@ -716,9 +713,8 @@ void LldbEngineGuest::lldbEvent(lldb::SBEvent *ev)
                     }
                     break;
                 case lldb::eStateStopped: // 4
-                    if (m_running) {
+                    if (m_running)
                         m_running = false;
-                    }
                     switch (state()) {
                         case InferiorShutdownRequested:
                             notifyInferiorShutdownOk();
@@ -735,9 +731,8 @@ void LldbEngineGuest::lldbEvent(lldb::SBEvent *ev)
                     }
                     break;
                 case lldb::eStateCrashed: // 7
-                    if (m_running) {
+                    if (m_running)
                         m_running = false;
-                    }
                     switch (state()) {
                         case InferiorShutdownRequested:
                             notifyInferiorShutdownOk();

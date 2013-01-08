@@ -108,9 +108,8 @@ void CppEditorSupport::updateDocument()
 {
     _revision = editorRevision();
 
-    if (qobject_cast<TextEditor::BaseTextEditorWidget*>(_textEditor->widget()) != 0) {
+    if (qobject_cast<TextEditor::BaseTextEditorWidget*>(_textEditor->widget()) != 0)
         _modelManager->stopEditorSelectionsUpdate();
-    }
 
     _updateDocumentTimer->start(_updateDocumentInterval);
 }

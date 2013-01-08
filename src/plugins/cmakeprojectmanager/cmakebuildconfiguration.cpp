@@ -260,9 +260,8 @@ ProjectExplorer::BuildConfiguration::BuildType CMakeBuildConfiguration::buildTyp
         while (!cmakeCache.atEnd()) {
             QByteArray line = cmakeCache.readLine();
             if (line.startsWith("CMAKE_BUILD_TYPE")) {
-                if (int pos = line.indexOf('=')) {
+                if (int pos = line.indexOf('='))
                     cmakeBuildType = QString::fromLocal8Bit(line.mid(pos + 1).trimmed());
-                }
                 break;
             }
         }

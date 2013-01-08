@@ -379,11 +379,10 @@ void MaemoQemuRuntimeParserV2::handleVariableTag(MaemoQemuRuntime &runtime)
 
     if (varName.isEmpty())
         return;
-    if (isGlBackend) {
+    if (isGlBackend)
         runtime.m_openGlBackendVarName = varName;
-    } else {
+    else
         runtime.m_normalVars << MaemoQemuRuntime::Variable(varName, varValue);
-    }
 }
 
 QList<MaemoQemuRuntimeParserV2::Port> MaemoQemuRuntimeParserV2::handleTcpPortListTag()

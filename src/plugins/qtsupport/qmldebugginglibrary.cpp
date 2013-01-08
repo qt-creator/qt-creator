@@ -100,11 +100,10 @@ QString QmlDebuggingLibrary::copy(const QString &qtInstallData, QString *errorMe
 
     // Try to find a writeable directory.
     foreach (const QString &directory, directories) {
-        if (!mkpath(directory, errorMessage)) {
+        if (!mkpath(directory, errorMessage))
             continue;
-        } else {
+        else
             errorMessage->clear();
-        }
 
         if (copyFiles(sourcePath(), sourceFileNames(),
                       directory, errorMessage))
@@ -124,9 +123,8 @@ QStringList QmlDebuggingLibrary::recursiveFileList(const QDir &dir, const QStrin
     QStringList files;
 
     QString _prefix = prefix;
-    if (!_prefix.isEmpty() && !_prefix.endsWith(QLatin1Char('/'))) {
+    if (!_prefix.isEmpty() && !_prefix.endsWith(QLatin1Char('/')))
         _prefix = _prefix + QLatin1Char('/');
-    }
     foreach (const QString &fileName, dir.entryList(QDir::Files)) {
         files << _prefix + fileName;
     }

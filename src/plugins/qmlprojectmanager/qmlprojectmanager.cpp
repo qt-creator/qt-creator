@@ -78,9 +78,8 @@ void Manager::unregisterProject(QmlProject *project)
 void Manager::notifyChanged(const QString &fileName)
 {
     foreach (QmlProject *project, m_projects) {
-        if (fileName == project->filesFileName()) {
+        if (fileName == project->filesFileName())
             project->refresh(QmlProject::Files);
-        }
     }
 }
 

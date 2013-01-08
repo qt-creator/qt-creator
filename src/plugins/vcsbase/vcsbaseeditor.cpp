@@ -772,11 +772,10 @@ QTextCodec *VcsBaseEditorWidget::codec() const
 
 void VcsBaseEditorWidget::setCodec(QTextCodec *c)
 {
-    if (c) {
+    if (c)
         baseTextDocument()->setCodec(c);
-    } else {
+    else
         qWarning("%s: Attempt to set 0 codec.", Q_FUNC_INFO);
-    }
 }
 
 EditorContentType VcsBaseEditorWidget::contentType() const
@@ -1113,9 +1112,8 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
 
     int chunkStart = 0;
     for ( ; block.isValid() ; block = block.previous()) {
-        if (checkChunkLine(block.text(), &chunkStart)) {
+        if (checkChunkLine(block.text(), &chunkStart))
             break;
-        }
     }
     if (!chunkStart || !block.isValid())
         return rc;
@@ -1142,11 +1140,10 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
 
 void VcsBaseEditorWidget::setPlainTextData(const QByteArray &data)
 {
-    if (data.size() > Core::EditorManager::maxTextFileSize()) {
+    if (data.size() > Core::EditorManager::maxTextFileSize())
         setPlainText(msgTextTooLarge(data.size()));
-    } else {
+    else
         setPlainText(codec()->toUnicode(data));
-    }
 }
 
 void VcsBaseEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
@@ -1455,11 +1452,10 @@ void VcsBaseEditorWidget::slotApplyDiffChunk()
         return;
 
     if (applyDiffChunk(chunkAction.chunk, chunkAction.revert)) {
-        if (chunkAction.revert) {
+        if (chunkAction.revert)
             emit diffChunkReverted(chunkAction.chunk);
-        } else {
+        else
             emit diffChunkApplied(chunkAction.chunk);
-        }
     }
 }
 

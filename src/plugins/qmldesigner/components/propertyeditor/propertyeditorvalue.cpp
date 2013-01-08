@@ -55,9 +55,8 @@ QVariant PropertyEditorValue::value() const
 {
     QVariant returnValue = m_value;
     if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name()))
-        if (modelNode().metaInfo().propertyTypeName(name()) == QLatin1String("QUrl")) {
+        if (modelNode().metaInfo().propertyTypeName(name()) == QLatin1String("QUrl"))
         returnValue = returnValue.toUrl().toString();
-    }
     return returnValue;
 }
 
@@ -67,9 +66,8 @@ static bool cleverDoubleCompare(QVariant value1, QVariant value2)
         int a = value1.toDouble() * 100;
         int b = value2.toDouble() * 100;
 
-        if (qFuzzyCompare((qreal(a) / 100), (qreal(b) / 100))) {
+        if (qFuzzyCompare((qreal(a) / 100), (qreal(b) / 100)))
             return true;
-        }
     }
     return false;
 }
@@ -85,12 +83,10 @@ static bool cleverColorCompare(QVariant value1, QVariant value2)
             return false;
         return (c1.alpha() == c2.alpha());
     }
-    if ((value1.type() == QVariant::String) && (value2.type() == QVariant::Color)) {
+    if ((value1.type() == QVariant::String) && (value2.type() == QVariant::Color))
         return cleverColorCompare(QVariant(QColor(value1.toString())), value2);
-    }
-    if ((value1.type() == QVariant::Color) && (value2.type() == QVariant::String)) {
+    if ((value1.type() == QVariant::Color) && (value2.type() == QVariant::String))
         return cleverColorCompare(value1, QVariant(QColor(value2.toString())));
-    }
     return false;
 }
 
@@ -119,9 +115,8 @@ static void fixUrl(const QmlDesigner::ModelNode &modelNode, const QString &name,
     if (modelNode.isValid() && modelNode.metaInfo().isValid()
             && (modelNode.metaInfo().propertyTypeName(name) == "QUrl"
                 || modelNode.metaInfo().propertyTypeName(name) == "url")) {
-        if (!value->isValid()) {
+        if (!value->isValid())
             *value = QString(QLatin1String(""));
-        }
     }
 }
 
@@ -130,9 +125,8 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
     if (m_value != value || isBound()) {
         QVariant newValue = value;
         if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name()))
-            if (modelNode().metaInfo().propertyTypeName(name()) == QLatin1String("QUrl")) {
+            if (modelNode().metaInfo().propertyTypeName(name()) == QLatin1String("QUrl"))
             newValue = QUrl(newValue.toString());
-        }
 
         if (cleverDoubleCompare(newValue, m_value))
             return;
@@ -333,9 +327,8 @@ void PropertyEditorNodeWrapper::add(const QString &type)
             propertyType.chop(1);
         m_modelNode = m_editorValue->modelNode().view()->createModelNode(propertyType, 4, 7);
         m_editorValue->modelNode().nodeAbstractProperty(m_editorValue->name()).reparentHere(m_modelNode);
-        if (!m_modelNode.isValid()) {
+        if (!m_modelNode.isValid())
             qWarning("PropertyEditorNodeWrapper::add failed");
-        }
     } else {
         qWarning("PropertyEditorNodeWrapper::add failed - node invalid");
     }
@@ -407,9 +400,8 @@ void PropertyEditorNodeWrapper::setup()
 void PropertyEditorNodeWrapper::update()
 {
     if (m_editorValue && m_editorValue->modelNode().isValid()) {
-        if (m_editorValue->modelNode().hasProperty(m_editorValue->name()) && m_editorValue->modelNode().property(m_editorValue->name()).isNodeProperty()) {
+        if (m_editorValue->modelNode().hasProperty(m_editorValue->name()) && m_editorValue->modelNode().property(m_editorValue->name()).isNodeProperty())
             m_modelNode = m_editorValue->modelNode().nodeProperty(m_editorValue->name()).modelNode();
-        }
         setup();
         emit existsChanged();
         emit typeChanged();

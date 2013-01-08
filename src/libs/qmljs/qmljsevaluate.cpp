@@ -318,9 +318,8 @@ bool Evaluate::visit(AST::FieldMemberExpression *ast)
         return false;
 
     if (const Value *base = _valueOwner->convertToObject(value(ast->base))) {
-        if (const ObjectValue *obj = base->asObjectValue()) {
+        if (const ObjectValue *obj = base->asObjectValue())
             _result = obj->lookupMember(ast->name.toString(), _context);
-        }
     }
 
     return false;
@@ -328,26 +327,23 @@ bool Evaluate::visit(AST::FieldMemberExpression *ast)
 
 bool Evaluate::visit(AST::NewMemberExpression *ast)
 {
-    if (const FunctionValue *ctor = value_cast<FunctionValue>(value(ast->base))) {
+    if (const FunctionValue *ctor = value_cast<FunctionValue>(value(ast->base)))
         _result = ctor->returnValue();
-    }
     return false;
 }
 
 bool Evaluate::visit(AST::NewExpression *ast)
 {
-    if (const FunctionValue *ctor = value_cast<FunctionValue>(value(ast->expression))) {
+    if (const FunctionValue *ctor = value_cast<FunctionValue>(value(ast->expression)))
         _result = ctor->returnValue();
-    }
     return false;
 }
 
 bool Evaluate::visit(AST::CallExpression *ast)
 {
     if (const Value *base = value(ast->base)) {
-        if (const FunctionValue *obj = base->asFunctionValue()) {
+        if (const FunctionValue *obj = base->asFunctionValue())
             _result = obj->returnValue();
-        }
     }
     return false;
 }

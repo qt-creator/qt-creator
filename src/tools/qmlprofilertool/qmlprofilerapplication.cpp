@@ -123,15 +123,13 @@ bool QmlProfilerApplication::parseArguments()
     for (int argPos = 1; argPos < arguments().size(); ++argPos) {
         const QString arg = arguments().at(argPos);
         if (arg == QLatin1String("-attach") || arg == QLatin1String("-a")) {
-            if (argPos + 1 == arguments().size()) {
+            if (argPos + 1 == arguments().size())
                 return false;
-            }
             m_hostName = arguments().at(++argPos);
             m_runMode = AttachMode;
         } else if (arg == QLatin1String("-port") || arg == QLatin1String("-p")) {
-            if (argPos + 1 == arguments().size()) {
+            if (argPos + 1 == arguments().size())
                 return false;
-            }
             const QString portStr = arguments().at(++argPos);
             bool isNumber;
             m_port = portStr.toUShort(&isNumber);
@@ -359,11 +357,10 @@ void QmlProfilerApplication::traceFinished()
 
 void QmlProfilerApplication::recordingChanged()
 {
-    if (m_qmlProfilerClient.isRecording()) {
+    if (m_qmlProfilerClient.isRecording())
         print(QLatin1String("Recording is on."));
-    } else {
+    else
         print(QLatin1String("Recording is off."));
-    }
 }
 
 void QmlProfilerApplication::print(const QString &line)

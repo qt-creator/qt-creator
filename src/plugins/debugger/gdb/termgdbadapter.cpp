@@ -61,11 +61,10 @@ GdbTermEngine::GdbTermEngine(const DebuggerStartParameters &startParameters)
 {
 #ifdef Q_OS_WIN
     // Windows up to xp needs a workaround for attaching to freshly started processes. see proc_stub_win
-    if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA) {
+    if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA)
         m_stubProc.setMode(Utils::ConsoleProcess::Suspend);
-    } else {
+    else
         m_stubProc.setMode(Utils::ConsoleProcess::Debug);
-    }
 #else
     m_stubProc.setMode(Utils::ConsoleProcess::Debug);
     m_stubProc.setSettings(Core::ICore::settings());

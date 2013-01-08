@@ -174,9 +174,8 @@ bool OptionsParser::checkForPluginOption()
     if (!spec)
         return false;
     spec->addArgument(m_currentArg);
-    if (requiresParameter && nextToken(RequiredToken)) {
+    if (requiresParameter && nextToken(RequiredToken))
         spec->addArgument(m_currentArg);
-    }
     return true;
 }
 

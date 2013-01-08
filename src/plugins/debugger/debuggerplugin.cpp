@@ -1192,9 +1192,8 @@ public slots:
         // Go to source only if we have the file.
         if (currentEngine()->stackHandler()->currentIndex() >= 0) {
             const StackFrame frame = currentEngine()->stackHandler()->currentFrame();
-            if (operateByInstructionTriggered || frame.isUsable()) {
+            if (operateByInstructionTriggered || frame.isUsable())
                 currentEngine()->gotoLocation(Location(frame, true));
-            }
         }
     }
 

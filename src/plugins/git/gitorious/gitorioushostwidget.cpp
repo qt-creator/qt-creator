@@ -64,9 +64,8 @@ static QList<QStandardItem *> hostEntry(const QString &host,
     // Empty for dummy, else "..." or count
     QStandardItem *projectCountItem = 0;
     QString countItemText;
-    if (!isDummyEntry) {
+    if (!isDummyEntry)
         countItemText = projectCount ? QString::number(projectCount) : QString(QLatin1String("..."));
-    }
     projectCountItem = new QStandardItem(countItemText);
     projectCountItem->setFlags(nonEditableFlags);
     QStandardItem *descriptionItem = new QStandardItem(description);

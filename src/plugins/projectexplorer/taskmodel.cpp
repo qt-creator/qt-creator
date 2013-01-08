@@ -252,25 +252,24 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
     if (!index.isValid() || index.row() >= m_tasks.count() || index.column() != 0)
         return QVariant();
 
-    if (role == TaskModel::File) {
+    if (role == TaskModel::File)
         return m_tasks.at(index.row()).file.toString();
-    } else if (role == TaskModel::Line) {
+    else if (role == TaskModel::Line)
         return m_tasks.at(index.row()).line;
-    } else if (role == TaskModel::MovedLine) {
+    else if (role == TaskModel::MovedLine)
         return m_tasks.at(index.row()).movedLine;
-    } else if (role == TaskModel::Description) {
+    else if (role == TaskModel::Description)
         return m_tasks.at(index.row()).description;
-    } else if (role == TaskModel::FileNotFound) {
+    else if (role == TaskModel::FileNotFound)
         return m_fileNotFound.value(m_tasks.at(index.row()).file.toString());
-    } else if (role == TaskModel::Type) {
+    else if (role == TaskModel::Type)
         return (int)m_tasks.at(index.row()).type;
-    } else if (role == TaskModel::Category) {
+    else if (role == TaskModel::Category)
         return m_tasks.at(index.row()).category.uniqueIdentifier();
-    } else if (role == TaskModel::Icon) {
+    else if (role == TaskModel::Icon)
         return taskTypeIcon(m_tasks.at(index.row()).type);
-    } else if (role == TaskModel::Task_t) {
+    else if (role == TaskModel::Task_t)
         return QVariant::fromValue(task(index));
-    }
     return QVariant();
 }
 

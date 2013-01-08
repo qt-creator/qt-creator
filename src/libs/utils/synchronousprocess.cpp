@@ -256,11 +256,10 @@ SynchronousProcess::~SynchronousProcess()
 
 void SynchronousProcess::setTimeout(int timeoutMS)
 {
-    if (timeoutMS >= 0) {
+    if (timeoutMS >= 0)
         d->m_maxHangTimerCount = qMax(2, timeoutMS / 1000);
-    } else {
+    else
         d->m_maxHangTimerCount = INT_MAX;
-    }
 }
 
 int SynchronousProcess::timeout() const

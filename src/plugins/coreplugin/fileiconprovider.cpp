@@ -180,11 +180,10 @@ void FileIconProvider::registerIconOverlayForSuffix(const QIcon &icon,
     const QPixmap fileIconPixmap = overlayIcon(QStyle::SP_FileIcon, icon, QSize(16, 16));
     // replace old icon, if it exists
     const CacheIterator it = findBySuffix(suffix, d->m_cache.begin(), d->m_cache.end());
-    if (it == d->m_cache.end()) {
+    if (it == d->m_cache.end())
         d->m_cache.append(StringIconPair(suffix, fileIconPixmap));
-    } else {
+    else
        (*it).second = fileIconPixmap;
-    }
 }
 
 /*!

@@ -198,11 +198,10 @@ void StashDialog::deleteAll()
     if (!ask(title, tr("Do you want to delete all stashes?")))
         return;
     QString errorMessage;
-    if (gitClient()->synchronousStashRemove(m_repository, QString(), &errorMessage)) {
+    if (gitClient()->synchronousStashRemove(m_repository, QString(), &errorMessage))
         refresh(m_repository, true);
-    } else {
+    else
         warning(title, errorMessage);
-    }
 }
 
 void StashDialog::deleteSelection()

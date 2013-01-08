@@ -111,13 +111,12 @@ void VariableChooser::updateCurrentEditor(QWidget *old, QWidget *widget)
     QVariant variablesSupportProperty = widget->property(Constants::VARIABLE_SUPPORT_PROPERTY);
     bool supportsVariables = (variablesSupportProperty.isValid()
                               ? variablesSupportProperty.toBool() : false);
-    if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(widget)) {
+    if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(widget))
         m_lineEdit = (supportsVariables ? lineEdit : 0);
-    } else if (QTextEdit *textEdit = qobject_cast<QTextEdit *>(widget)) {
+    else if (QTextEdit *textEdit = qobject_cast<QTextEdit *>(widget))
         m_textEdit = (supportsVariables ? textEdit : 0);
-    } else if (QPlainTextEdit *plainTextEdit = qobject_cast<QPlainTextEdit *>(widget)) {
+    else if (QPlainTextEdit *plainTextEdit = qobject_cast<QPlainTextEdit *>(widget))
         m_plainTextEdit = (supportsVariables ? plainTextEdit : 0);
-    }
     if (!(m_lineEdit || m_textEdit || m_plainTextEdit))
         hide();
     if (m_lineEdit != previousLineEdit) {

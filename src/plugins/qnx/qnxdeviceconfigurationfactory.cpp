@@ -67,9 +67,8 @@ ProjectExplorer::IDevice::Ptr QnxDeviceConfigurationFactory::create(Core::Id id)
 {
     Q_UNUSED(id);
     QnxDeviceConfigurationWizard wizard;
-    if (wizard.exec() != QDialog::Accepted) {
+    if (wizard.exec() != QDialog::Accepted)
         return ProjectExplorer::IDevice::Ptr();
-    }
     return wizard.device();
 }
 

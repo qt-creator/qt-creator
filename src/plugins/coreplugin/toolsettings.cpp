@@ -67,9 +67,8 @@ QWidget *ToolSettings::createPage(QWidget *parent)
 {
     m_widget = new ExternalToolConfig(parent);
     m_widget->setTools(ExternalToolManager::instance()->toolsByCategory());
-    if (m_searchKeywords.isEmpty()) {
+    if (m_searchKeywords.isEmpty())
         m_searchKeywords = m_widget->searchKeywords();
-    }
     return m_widget;
 }
 
@@ -151,9 +150,8 @@ void ToolSettings::apply()
             ExternalTool *toolToAdd = 0;
             if (ExternalTool *originalTool = originalTools.take(tool->id())) {
                 // check if it has different category and is custom tool
-                if (tool->displayCategory() != it.key() && !tool->preset()) {
+                if (tool->displayCategory() != it.key() && !tool->preset())
                     tool->setDisplayCategory(it.key());
-                }
                 // check if the tool has changed
                 if ((*originalTool) == (*tool)) {
                     toolToAdd = originalTool;

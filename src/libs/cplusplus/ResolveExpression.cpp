@@ -357,9 +357,8 @@ void ResolveExpression::thisObject()
 bool ResolveExpression::visit(CompoundExpressionAST *ast)
 {
     CompoundStatementAST *cStmt = ast->statement;
-    if (cStmt && cStmt->statement_list) {
+    if (cStmt && cStmt->statement_list)
         accept(cStmt->statement_list->lastValue());
-    }
     return false;
 }
 

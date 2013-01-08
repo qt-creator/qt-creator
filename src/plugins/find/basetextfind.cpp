@@ -142,9 +142,8 @@ void BaseTextFind::clearResults()
 QString BaseTextFind::currentFindString() const
 {
     QTextCursor cursor = textCursor();
-    if (cursor.hasSelection() && cursor.block() != cursor.document()->findBlock(cursor.anchor())) {
+    if (cursor.hasSelection() && cursor.block() != cursor.document()->findBlock(cursor.anchor()))
         return QString(); // multi block selection
-    }
 
     if (cursor.hasSelection())
         return cursor.selectedText();
@@ -330,9 +329,8 @@ bool BaseTextFind::find(const QString &txt, Find::FindFlags findFlags,
                 *wrapped = true;
         }
     }
-    if (!found.isNull()) {
+    if (!found.isNull())
         setTextCursor(found);
-    }
     return true;
 }
 

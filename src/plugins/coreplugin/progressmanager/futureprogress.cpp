@@ -247,11 +247,10 @@ void FutureProgress::setFinished()
 
     d->m_progress->setFinished(true);
 
-    if (d->m_watcher.future().isCanceled()) {
+    if (d->m_watcher.future().isCanceled())
         d->m_progress->setError(true);
-    } else {
+    else
         d->m_progress->setError(false);
-    }
     emit finished();
     d->tryToFadeAway();
 }
@@ -363,15 +362,13 @@ QString FutureProgress::type() const
 
 void FutureProgress::setKeepOnFinish(KeepOnFinishType keepType)
 {
-    if (d->m_keep == keepType) {
+    if (d->m_keep == keepType)
         return;
-    }
     d->m_keep = keepType;
 
     //if it is not finished tryToFadeAway is called by setFinished at the end
-    if (d->m_watcher.isFinished()) {
+    if (d->m_watcher.isFinished())
         d->tryToFadeAway();
-    }
 }
 
 bool FutureProgress::keepOnFinish() const

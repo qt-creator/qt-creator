@@ -259,9 +259,8 @@ void TargetSelector::getControlAt(int x, int y, int *buttonIndex, int *targetInd
     int tx = NAVBUTTON_WIDTH + 3;
     int index;
     for (index = m_startIndex; index < m_targets.size(); ++index) {
-        if (x <= tx) {
+        if (x <= tx)
             break;
-        }
         tx += targetWidth() + 1;
     }
     --index;
@@ -405,11 +404,10 @@ void TargetSelector::paintEvent(QPaintEvent *event)
         bool buildSelected = target.currentSubIndex == 0;
         if (index == m_currentTargetIndex) {
             p.setPen(QColor(255, 255, 255));
-            if (buildSelected) {
+            if (buildSelected)
                 image = m_buildselected;
-            } else {
+            else
                 image = m_runselected;
-            }
         } else {
             p.setPen(Qt::black);
         }

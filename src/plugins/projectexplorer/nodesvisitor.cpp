@@ -92,13 +92,11 @@ void FindNodesForFileVisitor::visitProjectNode(ProjectNode *node)
 
 void FindNodesForFileVisitor::visitFolderNode(FolderNode *node)
 {
-    if (node->path() == m_path) {
+    if (node->path() == m_path)
         m_nodes << node;
-    }
     foreach (FileNode *fileNode, node->fileNodes()) {
-        if (fileNode->path() == m_path) {
+        if (fileNode->path() == m_path)
             m_nodes << fileNode;
-        }
     }
 }
 

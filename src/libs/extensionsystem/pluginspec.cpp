@@ -667,11 +667,10 @@ void PluginSpecPrivate::readArgumentDescriptions(QXmlStreamReader &reader)
         switch (reader.tokenType()) {
         case QXmlStreamReader::StartElement:
             element = reader.name().toString();
-            if (element == QLatin1String(ARGUMENT)) {
+            if (element == QLatin1String(ARGUMENT))
                 readArgumentDescription(reader);
-            } else {
+            else
                 reader.raiseError(msgInvalidElement(name));
-            }
             break;
         case QXmlStreamReader::Comment:
         case QXmlStreamReader::Characters:
@@ -720,11 +719,10 @@ void PluginSpecPrivate::readDependencies(QXmlStreamReader &reader)
         switch (reader.tokenType()) {
         case QXmlStreamReader::StartElement:
             element = reader.name().toString();
-            if (element == QLatin1String(DEPENDENCY)) {
+            if (element == QLatin1String(DEPENDENCY))
                 readDependencyEntry(reader);
-            } else {
+            else
                 reader.raiseError(msgInvalidElement(name));
-            }
             break;
         case QXmlStreamReader::Comment:
         case QXmlStreamReader::Characters:
@@ -1019,9 +1017,8 @@ bool PluginSpecPrivate::delayedInitialize()
 {
     if (hasError)
         return false;
-    if (state != PluginSpec::Running) {
+    if (state != PluginSpec::Running)
         return false;
-    }
     if (!plugin) {
         errorString = QCoreApplication::translate("PluginSpec", "Internal error: have no plugin instance to perform delayedInitialize");
         hasError = true;

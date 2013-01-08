@@ -132,9 +132,8 @@ void SessionModel::cloneSession(const QString &session)
         m_manager->cloneSession(session, newSession);
         endResetModel();
 
-        if (newSessionInputDialog.isSwitchToRequested()) {
+        if (newSessionInputDialog.isSwitchToRequested())
             m_manager->loadSession(newSession);
-        }
     }
 }
 
@@ -159,9 +158,8 @@ void SessionModel::renameSession(const QString &session)
         m_manager->renameSession(session, newSession);
         endResetModel();
 
-        if (newSessionInputDialog.isSwitchToRequested()) {
+        if (newSessionInputDialog.isSwitchToRequested())
             m_manager->loadSession(newSession);
-        }
     }
 }
 

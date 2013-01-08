@@ -148,11 +148,10 @@ public:
         while (tmpDir.count() >= topLevel.count() && tmpDir.count() > 0) {
             m_cachedMatches.insert(tmpDir, newInfo);
             const int slashPos = tmpDir.lastIndexOf(slash);
-            if (slashPos >= 0) {
+            if (slashPos >= 0)
                 tmpDir.truncate(slashPos);
-            } else {
+            else
                 tmpDir.clear();
-            }
         }
     }
 

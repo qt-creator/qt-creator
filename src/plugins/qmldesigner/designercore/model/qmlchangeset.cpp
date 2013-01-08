@@ -37,11 +37,10 @@ namespace QmlDesigner {
 
 ModelNode QmlModelStateOperation::target() const
 {
-    if (modelNode().property("target").isBindingProperty()) {
+    if (modelNode().property("target").isBindingProperty())
         return modelNode().bindingProperty("target").resolveToModelNode();
-    } else {
+    else
         return ModelNode(); //exception?
-    }
 }
 
 void QmlModelStateOperation::setTarget(const ModelNode &target)

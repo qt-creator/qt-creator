@@ -212,9 +212,8 @@ void BindingProperty::setDynamicTypeNameAndExpression(const QString &typeName, c
     if (expression.isEmpty())
         throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, name());
 
-    if (typeName.isEmpty()) {
+    if (typeName.isEmpty())
         throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, name());
-    }
 
     if (internalNode()->hasProperty(name())) { //check if oldValue != value
         Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());

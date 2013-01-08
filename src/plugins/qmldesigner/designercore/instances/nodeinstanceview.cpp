@@ -191,11 +191,10 @@ void NodeInstanceView::handleChrash()
 {
     int elaspsedTimeSinceLastCrash = m_lastCrashTime.restart();
 
-    if (elaspsedTimeSinceLastCrash > 2000) {
+    if (elaspsedTimeSinceLastCrash > 2000)
         restartProcess();
-    } else {
+    else
         emit  qmlPuppetCrashed();
-    }
 }
 
 
@@ -250,17 +249,15 @@ void NodeInstanceView::resetHorizontalAnchors(const ModelNode &modelNode)
     QList<BindingProperty> bindingList;
     QList<VariantProperty> valueList;
 
-    if (modelNode.hasBindingProperty("x")) {
+    if (modelNode.hasBindingProperty("x"))
         bindingList.append(modelNode.bindingProperty("x"));
-    } else if (modelNode.hasVariantProperty("x")) {
+    else if (modelNode.hasVariantProperty("x"))
         valueList.append(modelNode.variantProperty("x"));
-    }
 
-    if (modelNode.hasBindingProperty("width")) {
+    if (modelNode.hasBindingProperty("width"))
         bindingList.append(modelNode.bindingProperty("width"));
-    } else if (modelNode.hasVariantProperty("width")) {
+    else if (modelNode.hasVariantProperty("width"))
         valueList.append(modelNode.variantProperty("width"));
-    }
 
     if (!valueList.isEmpty())
         nodeInstanceServer()->changePropertyValues(createChangeValueCommand(valueList));
@@ -275,17 +272,15 @@ void NodeInstanceView::resetVerticalAnchors(const ModelNode &modelNode)
     QList<BindingProperty> bindingList;
     QList<VariantProperty> valueList;
 
-    if (modelNode.hasBindingProperty("yx")) {
+    if (modelNode.hasBindingProperty("yx"))
         bindingList.append(modelNode.bindingProperty("yx"));
-    } else if (modelNode.hasVariantProperty("y")) {
+    else if (modelNode.hasVariantProperty("y"))
         valueList.append(modelNode.variantProperty("y"));
-    }
 
-    if (modelNode.hasBindingProperty("height")) {
+    if (modelNode.hasBindingProperty("height"))
         bindingList.append(modelNode.bindingProperty("height"));
-    } else if (modelNode.hasVariantProperty("height")) {
+    else if (modelNode.hasVariantProperty("height"))
         valueList.append(modelNode.variantProperty("height"));
-    }
 
     if (!valueList.isEmpty())
         nodeInstanceServer()->changePropertyValues(createChangeValueCommand(valueList));
@@ -301,11 +296,10 @@ void NodeInstanceView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
     QList<AbstractProperty> nonNodePropertyList;
 
     foreach (const AbstractProperty &property, propertyList) {
-        if (property.isNodeAbstractProperty()) {
+        if (property.isNodeAbstractProperty())
             nodeList.append(property.toNodeAbstractProperty().allSubNodes());
-        } else {
+        else
             nonNodePropertyList.append(property);
-        }
     }
 
     nodeInstanceServer()->removeInstances(createRemoveInstancesCommand(nodeList));
@@ -551,11 +545,10 @@ void NodeInstanceView::actualStateChanged(const ModelNode &node)
 {
     NodeInstance newStateInstance = instanceForNode(node);
 
-    if (newStateInstance.isValid() && node.metaInfo().isSubclassOf("QtQuick.State", 1, 0)) {
+    if (newStateInstance.isValid() && node.metaInfo().isSubclassOf("QtQuick.State", 1, 0))
         nodeInstanceView()->activateState(newStateInstance);
-    } else {
+    else
         nodeInstanceView()->activateBaseState();
-    }
 }
 
 
@@ -698,9 +691,8 @@ NodeInstance NodeInstanceView::loadNode(const ModelNode &node)
 
     insertInstanceRelationships(instance);
 
-    if (node.isRootNode()) {
+    if (node.isRootNode())
         m_rootNodeInstance = instance;
-    }
 
     return instance;
 }
@@ -996,9 +988,8 @@ RemoveInstancesCommand NodeInstanceView::createRemoveInstancesCommand(const QLis
         if (node.isValid() && hasInstanceForNode(node)) {
             NodeInstance instance = instanceForNode(node);
 
-            if (instance.instanceId() >= 0) {
+            if (instance.instanceId() >= 0)
                 idList.append(instance.instanceId());
-            }
         }
     }
 
@@ -1166,9 +1157,8 @@ void NodeInstanceView::componentCompleted(const ComponentCompletedCommand &comma
     QVector<ModelNode> nodeVector;
 
     foreach (const qint32 &instanceId, command.instances()) {
-        if (hasModelNodeForInternalId(instanceId)) {
+        if (hasModelNodeForInternalId(instanceId))
             nodeVector.append(modelNodeForInternalId(instanceId));
-        }
     }
 
     if (!nodeVector.isEmpty())
@@ -1208,9 +1198,8 @@ void NodeInstanceView::token(const TokenCommand &command)
     QVector<ModelNode> nodeVector;
 
     foreach (const qint32 &instanceId, command.instances()) {
-        if (hasModelNodeForInternalId(instanceId)) {
+        if (hasModelNodeForInternalId(instanceId))
             nodeVector.append(modelNodeForInternalId(instanceId));
-        }
     }
 
 

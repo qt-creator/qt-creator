@@ -56,9 +56,8 @@ Utils::FileName BuildableHelperLibrary::findSystemQt(const Utils::Environment &e
         foreach (const QString &possibleCommand, possibleQMakeCommands()) {
             const QFileInfo qmake(prefix + possibleCommand);
             if (qmake.exists()) {
-                if (!qtVersionForQMake(qmake.absoluteFilePath()).isNull()) {
+                if (!qtVersionForQMake(qmake.absoluteFilePath()).isNull())
                     return Utils::FileName(qmake);
-                }
             }
         }
     }
@@ -158,9 +157,8 @@ bool BuildableHelperLibrary::copyFiles(const QString &sourcePath,
                 return false;
             }
         }
-        if (!destInfo.dir().exists()) {
+        if (!destInfo.dir().exists())
             QDir().mkpath(destInfo.dir().absolutePath());
-        }
 
         if (!QFile::copy(source, dest)) {
             *errorMessage = QCoreApplication::translate("ProjectExplorer::DebuggingHelperLibrary", "The file %1 could not be copied to %2.").arg(source, dest);

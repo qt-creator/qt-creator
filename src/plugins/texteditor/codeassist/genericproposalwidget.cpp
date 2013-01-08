@@ -136,13 +136,12 @@ QVariant ModelAdapter::data(const QModelIndex &index, int role) const
     if (index.row() >= m_completionModel->size())
         return QVariant();
 
-    if (role == Qt::DisplayRole) {
+    if (role == Qt::DisplayRole)
         return m_completionModel->text(index.row());
-    } else if (role == Qt::DecorationRole) {
+    else if (role == Qt::DecorationRole)
         return m_completionModel->icon(index.row());
-    } else if (role == Qt::WhatsThisRole) {
+    else if (role == Qt::WhatsThisRole)
         return m_completionModel->detail(index.row());
-    }
 
     return QVariant();
 }

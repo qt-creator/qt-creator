@@ -262,9 +262,8 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
     parentItem->appendRow(projectKindItem);
     parentItem->appendRow(filesClassesKindItem);
 
-    if (m_dummyIcon.isNull()) {
+    if (m_dummyIcon.isNull())
         m_dummyIcon = QIcon(QLatin1String(Core::Constants::ICON_NEWFILE));
-    }
 
     QStringList availablePlatforms = IWizard::allAvailablePlatforms();
 
@@ -312,9 +311,8 @@ Core::IWizard *NewDialog::showDialog()
 
     if (!lastCategory.isEmpty())
         foreach (QStandardItem* item, m_categoryItems) {
-            if (item->data(Qt::UserRole) == lastCategory) {
+            if (item->data(Qt::UserRole) == lastCategory)
                 idx = m_twoLevelProxyModel->mapToSource(m_model->indexFromItem(item));
-        }
     }
     if (!idx.isValid())
         idx = m_twoLevelProxyModel->index(0,0, m_twoLevelProxyModel->index(0,0));
@@ -390,11 +388,10 @@ void NewDialog::addItem(QStandardItem *topLEvelCategoryItem, IWizard *wizard)
     QIcon wizardIcon;
 
     // spacing hack. Add proper icons instead
-    if (wizard->icon().isNull()) {
+    if (wizard->icon().isNull())
         wizardIcon = m_dummyIcon;
-    } else {
+    else
         wizardIcon = wizard->icon();
-    }
     wizardItem->setIcon(wizardIcon);
     wizardItem->setData(QVariant::fromValue(WizardContainer(wizard, 0)), Qt::UserRole);
     wizardItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);

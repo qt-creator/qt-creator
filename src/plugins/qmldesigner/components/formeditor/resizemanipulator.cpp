@@ -135,13 +135,11 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
             }
             boundingRect.setBottomRight(updatePointInLocalSpace);
 
-            if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter)) {
+            if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter))
                 boundingRect.setLeft(boundingRect.left() - (updatePointInLocalSpace.x() - m_beginBoundingRect.right()));
-            }
 
-            if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter)) {
+            if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter))
                 boundingRect.setTop(boundingRect.top() - (updatePointInLocalSpace.y() - m_beginBoundingRect.bottom()));
-            }
 
             if (boundingRect.width() < minimumWidth)
                 boundingRect.setWidth(minimumWidth);
@@ -174,13 +172,11 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
             }
             boundingRect.setTopLeft(updatePointInLocalSpace);
 
-            if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter)) {
+            if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter))
                 boundingRect.setRight(boundingRect.right() - (updatePointInLocalSpace.x() - m_beginBoundingRect.left()));
-            }
 
-            if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter)) {
+            if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter))
                 boundingRect.setBottom(boundingRect.bottom() - (updatePointInLocalSpace.y() - m_beginBoundingRect.top()));
-            }
 
 
             if (boundingRect.width() < minimumWidth)
@@ -216,13 +212,11 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
             }
             boundingRect.setTopRight(updatePointInLocalSpace);
 
-            if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter)) {
+            if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter))
                 boundingRect.setLeft(boundingRect.left() - (updatePointInLocalSpace.x() - m_beginBoundingRect.right()));
-            }
 
-            if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter)) {
+            if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter))
                 boundingRect.setBottom(boundingRect.bottom() - (updatePointInLocalSpace.y() - m_beginBoundingRect.top()));
-            }
 
             if (boundingRect.height() < minimumHeight)
                 boundingRect.setTop(boundingRect.top() - minimumHeight + boundingRect.height());
@@ -256,13 +250,11 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
 
             boundingRect.setBottomLeft(updatePointInLocalSpace);
 
-            if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter)) {
+            if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter))
                 boundingRect.setRight(boundingRect.right() - (updatePointInLocalSpace.x() - m_beginBoundingRect.left()));
-            }
 
-            if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter)) {
+            if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter))
                 boundingRect.setTop(boundingRect.top() - (updatePointInLocalSpace.y() - m_beginBoundingRect.bottom()));
-            }
 
             if (boundingRect.height() < minimumHeight)
                 boundingRect.setHeight(minimumHeight);
@@ -292,9 +284,8 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
 
             boundingRect.setBottom(updatePointInLocalSpace.y());
 
-            if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter)) {
+            if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter))
                 boundingRect.setTop(boundingRect.top() - (updatePointInLocalSpace.y() - m_beginBoundingRect.bottom()));
-            }
 
             if (boundingRect.height() < minimumHeight)
                 boundingRect.setHeight(minimumHeight);
@@ -316,9 +307,8 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
 
             boundingRect.setTop(updatePointInLocalSpace.y());
 
-            if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter)) {
+            if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter))
                 boundingRect.setBottom(boundingRect.bottom() - (updatePointInLocalSpace.y() - m_beginBoundingRect.top()));
-            }
 
             if (boundingRect.height() < minimumHeight)
                 boundingRect.setTop(boundingRect.top() - minimumHeight + boundingRect.height());
@@ -341,9 +331,8 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
 
             boundingRect.setRight(updatePointInLocalSpace.x());
 
-            if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter)) {
+            if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter))
                 boundingRect.setLeft(boundingRect.left() - (updatePointInLocalSpace.x() - m_beginBoundingRect.right()));
-            }
 
             if (boundingRect.width() < minimumWidth)
                 boundingRect.setWidth(minimumWidth);
@@ -366,9 +355,8 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
 
             boundingRect.setLeft(updatePointInLocalSpace.x());
 
-            if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter)) {
+            if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter))
                 boundingRect.setRight(boundingRect.right() - (updatePointInLocalSpace.x() - m_beginBoundingRect.left()));
-            }
 
             if (boundingRect.width() < minimumWidth)
                 boundingRect.setLeft(boundingRect.left() - minimumWidth + boundingRect.width());
@@ -410,13 +398,11 @@ void ResizeManipulator::moveBy(double deltaX, double deltaY)
             qmlItemNode.setVariantProperty("width", round(qmlItemNode.instanceValue("width").toDouble() - deltaX, 4));
 
 
-            if (anchors.instanceHasAnchor(AnchorLine::Left)) {
+            if (anchors.instanceHasAnchor(AnchorLine::Left))
                anchors.setMargin(AnchorLine::Left, anchors.instanceMargin(AnchorLine::Left) + deltaX);
-            }
 
-            if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter)) {
+            if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter))
                 qmlItemNode.setVariantProperty("width", round(qmlItemNode.instanceValue("width").toDouble() - (deltaX * 2), 4));
-            }
         }
 
         if (m_resizeController.isRightHandle(resizeHandle())
@@ -424,13 +410,11 @@ void ResizeManipulator::moveBy(double deltaX, double deltaY)
             || m_resizeController.isBottomRightHandle(resizeHandle())) {
             qmlItemNode.setVariantProperty("width", round(qmlItemNode.instanceValue("width").toDouble() + deltaX, 4));
 
-            if (anchors.instanceHasAnchor(AnchorLine::Right)) {
+            if (anchors.instanceHasAnchor(AnchorLine::Right))
                anchors.setMargin(AnchorLine::Right, round(anchors.instanceMargin(AnchorLine::Right) - deltaX, 4));
-            }
 
-            if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter)) {
+            if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter))
                 qmlItemNode.setVariantProperty("width", round(qmlItemNode.instanceValue("width").toDouble() + (deltaX * 2), 4));
-            }
         }
 
 
@@ -440,13 +424,11 @@ void ResizeManipulator::moveBy(double deltaX, double deltaY)
             qmlItemNode.setVariantProperty("y", round(qmlItemNode.instanceValue("y").toDouble() + deltaY, 4));
             qmlItemNode.setVariantProperty("height", round(qmlItemNode.instanceValue("height").toDouble() - deltaY, 4));
 
-            if (anchors.instanceHasAnchor(AnchorLine::Top)) {
+            if (anchors.instanceHasAnchor(AnchorLine::Top))
                anchors.setMargin(AnchorLine::Top, anchors.instanceMargin(AnchorLine::Top) + deltaY);
-            }
 
-            if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter)) {
+            if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter))
                 qmlItemNode.setVariantProperty("height", round(qmlItemNode.instanceValue("height").toDouble() - (deltaY * 2), 4));
-            }
         }
 
         if (m_resizeController.isBottomHandle(resizeHandle())
@@ -454,13 +436,11 @@ void ResizeManipulator::moveBy(double deltaX, double deltaY)
             || m_resizeController.isBottomRightHandle(resizeHandle())) {
             qmlItemNode.setVariantProperty("height",  round(qmlItemNode.instanceValue("height").toDouble() + deltaY, 4));
 
-            if (anchors.instanceHasAnchor(AnchorLine::Bottom)) {
+            if (anchors.instanceHasAnchor(AnchorLine::Bottom))
                anchors.setMargin(AnchorLine::Bottom, anchors.instanceMargin(AnchorLine::Bottom) - deltaY);
-            }
 
-            if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter)) {
+            if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter))
                 qmlItemNode.setVariantProperty("height",  round(qmlItemNode.instanceValue("height").toDouble() + (deltaY * 2), 4));
-            }
         }
 
     }

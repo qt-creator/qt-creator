@@ -132,9 +132,8 @@ bool FormClassWizardPage::validatePage()
 {
     QString errorMessage;
     const bool rc = m_ui->newClassWidget->isValid(&errorMessage);
-    if (!rc) {
+    if (!rc)
         QMessageBox::warning(this, tr("%1 - Error").arg(title()), errorMessage);
-    }
     return rc;
 }
 

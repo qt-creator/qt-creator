@@ -98,9 +98,8 @@ void FileWidget::comboBoxChanged()
 void FileWidget::buttonPressed()
 {
     QString modelPath;
-    if (m_itemNode.isValid()) {
+    if (m_itemNode.isValid())
         modelPath = QFileInfo(m_itemNode.modelNode().model()->fileUrl().toLocalFile()).absoluteDir().absolutePath();
-    }
 
     m_lastModelPath = modelPath;
 
@@ -122,9 +121,8 @@ void FileWidget::buttonPressed()
 
         //The last fallback is to try the path of the document
         if (!QFileInfo(path).exists()) {
-            if (m_itemNode.isValid()) {
+            if (m_itemNode.isValid())
                 path = modelPath;
-            }
         }
     }
 

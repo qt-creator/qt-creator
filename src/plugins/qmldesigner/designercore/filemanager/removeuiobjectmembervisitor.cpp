@@ -75,11 +75,10 @@ bool RemoveUIObjectMemberVisitor::visitObjectMember(QmlJS::AST::UiObjectMember *
         int start = objectLocation;
         int end = ast->lastSourceLocation().end();
 
-        if (UiArrayBinding *parentArray = containingArray()) {
+        if (UiArrayBinding *parentArray = containingArray())
             extendToLeadingOrTrailingComma(parentArray, ast, start, end);
-        } else {
+        else
             includeSurroundingWhitespace(start, end);
-        }
 
         includeLeadingEmptyLine(start);
         replace(start, end - start, QLatin1String(""));
@@ -99,9 +98,8 @@ bool RemoveUIObjectMemberVisitor::visitObjectMember(QmlJS::AST::UiObjectMember *
 UiArrayBinding *RemoveUIObjectMemberVisitor::containingArray() const
 {
     if (parents.size() > 2) {
-        if (cast<UiArrayMemberList*>(parents[parents.size() - 2])) {
+        if (cast<UiArrayMemberList*>(parents[parents.size() - 2]))
             return cast<UiArrayBinding*>(parents[parents.size() - 3]);
-        }
     }
 
     return 0;

@@ -989,11 +989,10 @@ int CodeFormatter::column(int index) const
     const QChar tab = QLatin1Char('\t');
 
     for (int i = 0; i < index; i++) {
-        if (m_currentLine[i] == tab) {
+        if (m_currentLine[i] == tab)
             col = ((col / m_tabSize) + 1) * m_tabSize;
-        } else {
+        else
             col++;
-        }
     }
     return col;
 }
@@ -1328,9 +1327,8 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
             *indentDepth += m_tabSettings.m_indentSize;
         }
 
-        if (followedByData) {
+        if (followedByData)
             *paddingDepth = nextTokenPosition-*indentDepth;
-        }
         break;
     }
 
@@ -1483,11 +1481,10 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
         } else if ((topState.type == expression && previousState.type == declaration_start)
                    || topState.type == member_init || topState.type == member_init_open) {
             // the declaration_start indent is the base
-            if (topState.type == member_init) {
+            if (topState.type == member_init)
                 *indentDepth = state(2).savedIndentDepth;
-            } else {
+            else
                 *indentDepth = previousState.savedIndentDepth;
-            }
             if (m_styleSettings.indentFunctionBraces)
                 *indentDepth += m_tabSettings.m_indentSize;
             *paddingDepth = 0;

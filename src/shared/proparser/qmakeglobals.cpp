@@ -152,29 +152,28 @@ QMakeGlobals::ArgumentReturn QMakeGlobals::addCommandLineArguments(
             break;
         default:
             if (arg.startsWith(QLatin1Char('-'))) {
-                if (arg == QLatin1String("-after")) {
+                if (arg == QLatin1String("-after"))
                     state.after = true;
-                } else if (arg == QLatin1String("-config")) {
+                else if (arg == QLatin1String("-config"))
                     argState = ArgConfig;
-                } else if (arg == QLatin1String("-nocache")) {
+                else if (arg == QLatin1String("-nocache"))
                     do_cache = false;
-                } else if (arg == QLatin1String("-cache")) {
+                else if (arg == QLatin1String("-cache"))
                     argState = ArgCache;
-                } else if (arg == QLatin1String("-platform") || arg == QLatin1String("-spec")) {
+                else if (arg == QLatin1String("-platform") || arg == QLatin1String("-spec"))
                     argState = ArgSpec;
-                } else if (arg == QLatin1String("-xplatform") || arg == QLatin1String("-xspec")) {
+                else if (arg == QLatin1String("-xplatform") || arg == QLatin1String("-xspec"))
                     argState = ArgXSpec;
-                } else if (arg == QLatin1String("-template") || arg == QLatin1String("-t")) {
+                else if (arg == QLatin1String("-template") || arg == QLatin1String("-t"))
                     argState = ArgTmpl;
-                } else if (arg == QLatin1String("-template_prefix") || arg == QLatin1String("-tp")) {
+                else if (arg == QLatin1String("-template_prefix") || arg == QLatin1String("-tp"))
                     argState = ArgTmplPfx;
-                } else if (arg == QLatin1String("-win32")) {
+                else if (arg == QLatin1String("-win32"))
                     dir_sep = QLatin1Char('\\');
-                } else if (arg == QLatin1String("-unix")) {
+                else if (arg == QLatin1String("-unix"))
                     dir_sep = QLatin1Char('/');
-                } else {
+                else
                     return ArgumentUnknown;
-                }
             } else if (arg.contains(QLatin1Char('='))) {
                 if (state.after)
                     state.postcmds << arg;

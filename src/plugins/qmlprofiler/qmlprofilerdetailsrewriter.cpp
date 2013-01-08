@@ -77,9 +77,8 @@ protected:
 
     virtual bool preVisit(QmlJS::AST::Node *node)
     {
-        if (QmlJS::AST::cast<QmlJS::AST::UiQualifiedId *>(node)) {
+        if (QmlJS::AST::cast<QmlJS::AST::UiQualifiedId *>(node))
             return false;
-        }
         return containsLocation(node->firstSourceLocation(), node->lastSourceLocation());
     }
 

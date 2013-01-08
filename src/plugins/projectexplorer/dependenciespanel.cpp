@@ -214,9 +214,8 @@ void DependenciesView::updateSizeHint()
     int heightOffset = size().height() - viewport()->height();
 
     int heightPerRow = sizeHintForRow(0);
-    if (heightPerRow == -1) {
+    if (heightPerRow == -1)
         heightPerRow = 30;
-    }
     int rows = qMin(qMax(model()->rowCount(), 2), 10);
     int height = rows * heightPerRow + heightOffset;
     if (m_sizeHint.height() != height) {

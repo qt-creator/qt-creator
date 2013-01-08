@@ -218,11 +218,10 @@ static inline QStringList parseLists(QIODevice *io)
 void PasteBinDotCaProtocol::listFinished()
 {
     const bool error = m_listReply->error();
-    if (error) {
+    if (error)
         qWarning("pastebin.ca list failed: %s", qPrintable(m_listReply->errorString()));
-    } else {
+    else
         emit listDone(name(), parseLists(m_listReply));
-    }
     m_listReply->deleteLater();
     m_listReply = 0;
 }

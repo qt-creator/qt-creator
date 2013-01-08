@@ -506,9 +506,8 @@ extern "C" void cAvahiBrowseReply(
     }
 
     ServiceBrowserPrivate *browser = reinterpret_cast<ServiceBrowserPrivate *>(context);
-    if (browser == 0) {
+    if (browser == 0)
         qDebug() << "Error context is null in cAvahiBrowseReply";
-    }
     switch (event) {
         case AVAHI_BROWSER_FAILURE:
             browser->browseReply(kDNSServiceFlagsMoreComing, 0, protocol, kDNSServiceErr_Unknown,

@@ -300,29 +300,23 @@ void MoveManipulator::update(const QPointF& updatePoint, Snapping useSnapping, S
             if (stateToBeManipulated == UseActualState) {
                 QmlAnchors anchors(item->qmlItemNode().anchors());
 
-                if (anchors.instanceHasAnchor(AnchorLine::Top)) {
+                if (anchors.instanceHasAnchor(AnchorLine::Top))
                     anchors.setMargin(AnchorLine::Top, m_beginTopMarginHash.value(item) + offsetVector.y());
-                }
 
-                if (anchors.instanceHasAnchor(AnchorLine::Left)) {
+                if (anchors.instanceHasAnchor(AnchorLine::Left))
                     anchors.setMargin(AnchorLine::Left, m_beginLeftMarginHash.value(item) + offsetVector.x());
-                }
 
-                if (anchors.instanceHasAnchor(AnchorLine::Bottom)) {
+                if (anchors.instanceHasAnchor(AnchorLine::Bottom))
                     anchors.setMargin(AnchorLine::Bottom, m_beginBottomMarginHash.value(item) - offsetVector.y());
-                }
 
-                if (anchors.instanceHasAnchor(AnchorLine::Right)) {
+                if (anchors.instanceHasAnchor(AnchorLine::Right))
                     anchors.setMargin(AnchorLine::Right, m_beginRightMarginHash.value(item) - offsetVector.x());
-                }
 
-                if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter)) {
+                if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter))
                     anchors.setMargin(AnchorLine::HorizontalCenter, m_beginHorizontalCenterHash.value(item) + offsetVector.x());
-                }
 
-                if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter)) {
+                if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter))
                     anchors.setMargin(AnchorLine::VerticalCenter, m_beginVerticalCenterHash.value(item) + offsetVector.y());
-                }
 
                 setPosition(item->qmlItemNode(), positionInContainerSpace);
             } else {
@@ -376,11 +370,10 @@ void MoveManipulator::reparentTo(FormEditorItem *newParent)
 
     QmlItemNode parent(newParent->qmlItemNode());
     if (parent.isValid()) {
-        if (parent.hasDefaultProperty()) {
+        if (parent.hasDefaultProperty())
             parentProperty = parent.nodeAbstractProperty(parent.defaultProperty());
-        } else {
+        else
             parentProperty = parent.nodeAbstractProperty("data");
-        }
 
         foreach (FormEditorItem* item, m_itemList) {
             if (!item || !item->qmlItemNode().isValid())
@@ -415,29 +408,23 @@ void MoveManipulator::moveBy(double deltaX, double deltaY)
 
         QmlAnchors anchors(item->qmlItemNode().anchors());
 
-        if (anchors.instanceHasAnchor(AnchorLine::Top)) {
+        if (anchors.instanceHasAnchor(AnchorLine::Top))
             anchors.setMargin(AnchorLine::Top, anchors.instanceMargin(AnchorLine::Top) + deltaY);
-        }
 
-        if (anchors.instanceHasAnchor(AnchorLine::Left)) {
+        if (anchors.instanceHasAnchor(AnchorLine::Left))
             anchors.setMargin(AnchorLine::Left, anchors.instanceMargin(AnchorLine::Left) + deltaX);
-        }
 
-        if (anchors.instanceHasAnchor(AnchorLine::Bottom)) {
+        if (anchors.instanceHasAnchor(AnchorLine::Bottom))
             anchors.setMargin(AnchorLine::Bottom, anchors.instanceMargin(AnchorLine::Bottom) - deltaY);
-        }
 
-        if (anchors.instanceHasAnchor(AnchorLine::Right)) {
+        if (anchors.instanceHasAnchor(AnchorLine::Right))
             anchors.setMargin(AnchorLine::Right, anchors.instanceMargin(AnchorLine::Right) - deltaX);
-        }
 
-        if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter)) {
+        if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter))
             anchors.setMargin(AnchorLine::HorizontalCenter, anchors.instanceMargin(AnchorLine::HorizontalCenter) + deltaX);
-        }
 
-        if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter)) {
+        if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter))
             anchors.setMargin(AnchorLine::VerticalCenter, anchors.instanceMargin(AnchorLine::VerticalCenter) + deltaY);
-        }
 
         setPosition(item->qmlItemNode(), QPointF(item->qmlItemNode().instanceValue("x").toDouble() + deltaX,
                                                   item->qmlItemNode().instanceValue("y").toDouble() + deltaY));

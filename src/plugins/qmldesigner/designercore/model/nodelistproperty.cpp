@@ -76,9 +76,8 @@ const QList<ModelNode> NodeListProperty::toModelNodeList() const
 
     if (internalNode()->hasProperty(name())) {
         Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());
-        if (internalProperty->isNodeListProperty()) {
+        if (internalProperty->isNodeListProperty())
             return internalNodesToModelNodes(internalProperty->toNodeListProperty()->nodeList(), model(), view());
-        }
     }
 
     return QList<ModelNode>();

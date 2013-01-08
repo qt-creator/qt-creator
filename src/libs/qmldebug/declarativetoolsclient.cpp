@@ -173,13 +173,12 @@ void DeclarativeToolsClient::messageReceived(const QByteArray &message)
 
         log(LogReceive, type, QString::number(toolId));
 
-        if (toolId == Constants::ZoomMode) {
+        if (toolId == Constants::ZoomMode)
             emit zoomToolActivated();
-        } else if (toolId == Constants::SelectionToolMode) {
+        else if (toolId == Constants::SelectionToolMode)
             emit selectToolActivated();
-        } else if (toolId == Constants::MarqueeSelectionToolMode) {
+        else if (toolId == Constants::MarqueeSelectionToolMode)
             emit selectMarqueeToolActivated();
-        }
         break;
     }
     case InspectorProtocol::AnimationSpeedChanged: {

@@ -768,19 +768,18 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     break;
 
             QByteArray resultClass = QByteArray::fromRawData(from, inner - from);
-            if (resultClass == "done") {
+            if (resultClass == "done")
                 response.resultClass = GdbResultDone;
-            } else if (resultClass == "running") {
+            else if (resultClass == "running")
                 response.resultClass = GdbResultRunning;
-            } else if (resultClass == "connected") {
+            else if (resultClass == "connected")
                 response.resultClass = GdbResultConnected;
-            } else if (resultClass == "error") {
+            else if (resultClass == "error")
                 response.resultClass = GdbResultError;
-            } else if (resultClass == "exit") {
+            else if (resultClass == "exit")
                 response.resultClass = GdbResultExit;
-            } else {
+            else
                 response.resultClass = GdbResultUnknown;
-            }
 
             from = inner;
             if (from != to) {
@@ -958,9 +957,8 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
             showMessage(_("QUEUING COMMAND " + cmd.command));
             m_commandsToRunOnTemporaryBreak.append(cmd);
             if (state() == InferiorStopRequested) {
-                if (cmd.flags & LosesChild) {
+                if (cmd.flags & LosesChild)
                     notifyInferiorIll();
-                }
                 showMessage(_("CHILD ALREADY BEING INTERRUPTED. STILL HOPING."));
                 // Calling shutdown() here breaks all situations where two
                 // NeedsStop commands are issued in quick succession.
@@ -2177,11 +2175,10 @@ void GdbEngine::executeStep()
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step requested..."), 5000);
-    if (isReverseDebugging()) {
+    if (isReverseDebugging())
         postCommand("reverse-step", RunRequest, CB(handleExecuteStep));
-    } else {
+    else
         postCommand("-exec-step", RunRequest, CB(handleExecuteStep));
-    }
 }
 
 void GdbEngine::handleExecuteStep(const GdbResponse &response)

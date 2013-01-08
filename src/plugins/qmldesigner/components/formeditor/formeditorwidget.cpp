@@ -171,22 +171,20 @@ void FormEditorWidget::changeRootItemWidth(const QString &widthText)
 {
     bool canConvert;
     int width = widthText.toInt(&canConvert);
-    if (canConvert) {
+    if (canConvert)
         m_formEditorView->rootModelNode().setAuxiliaryData("width", width);
-    } else {
+    else
         m_formEditorView->rootModelNode().setAuxiliaryData("width", QVariant());
-    }
 }
 
 void FormEditorWidget::changeRootItemHeight(const QString &heighText)
 {
     bool canConvert;
     int height = heighText.toInt(&canConvert);
-    if (canConvert) {
+    if (canConvert)
         m_formEditorView->rootModelNode().setAuxiliaryData("height", height);
-    } else {
+    else
         m_formEditorView->rootModelNode().setAuxiliaryData("height", QVariant());
-    }
 }
 
 void FormEditorWidget::resetNodeInstanceView()
@@ -198,11 +196,10 @@ void FormEditorWidget::resetNodeInstanceView()
 void FormEditorWidget::wheelEvent(QWheelEvent *event)
 {
     if (event->modifiers().testFlag(Qt::ControlModifier)) {
-        if (event->delta() > 0) {
+        if (event->delta() > 0)
             zoomAction()->zoomOut();
-        } else {
+        else
             zoomAction()->zoomIn();
-        }
 
         event->accept();
     } else {
@@ -214,16 +211,14 @@ void FormEditorWidget::wheelEvent(QWheelEvent *event)
 void FormEditorWidget::updateActions()
 {
     if (m_formEditorView->model() && m_formEditorView->rootModelNode().isValid()) {
-        if (m_formEditorView->rootModelNode().hasAuxiliaryData("width") && m_formEditorView->rootModelNode().auxiliaryData("width").isValid()) {
+        if (m_formEditorView->rootModelNode().hasAuxiliaryData("width") && m_formEditorView->rootModelNode().auxiliaryData("width").isValid())
             m_rootWidthAction->setLineEditText(m_formEditorView->rootModelNode().auxiliaryData("width").toString());
-        } else {
+        else
             m_rootWidthAction->clearLineEditText();
-        }
-        if (m_formEditorView->rootModelNode().hasAuxiliaryData("height") && m_formEditorView->rootModelNode().auxiliaryData("height").isValid()) {
+        if (m_formEditorView->rootModelNode().hasAuxiliaryData("height") && m_formEditorView->rootModelNode().auxiliaryData("height").isValid())
             m_rootHeightAction->setLineEditText(m_formEditorView->rootModelNode().auxiliaryData("height").toString());
-        } else {
+        else
             m_rootHeightAction->clearLineEditText();
-        }
     } else {
         m_rootWidthAction->clearLineEditText();
         m_rootHeightAction->clearLineEditText();

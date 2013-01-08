@@ -124,9 +124,8 @@ QList<Locator::FilterEntry> RemoteHelpFilter::matchesFor(QFutureInterface<Locato
 void RemoteHelpFilter::accept(Locator::FilterEntry selection) const
 {
     const QString &url = selection.displayName;
-    if (!url.isEmpty()) {
+    if (!url.isEmpty())
         emit linkActivated(url);
-    }
 }
 
 void RemoteHelpFilter::refresh(QFutureInterface<void> &future)

@@ -800,11 +800,10 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
             gdbHelperText = QDir::toNativeSeparators(version->gdbDebuggingHelperLibrary());
             gdbHelperTextFlags = Qt::TextSelectableByMouse;
         } else {
-            if (canBuildGdbHelper) {
+            if (canBuildGdbHelper)
                 gdbHelperText =  tr("<i>Not yet built.</i>");
-            } else {
+            else
                 gdbHelperText =  tr("<i>Not needed.</i>");
-            }
         }
         m_debuggingHelperUi->gdbHelperStatus->setText(gdbHelperText);
         m_debuggingHelperUi->gdbHelperStatus->setTextInteractionFlags(gdbHelperTextFlags);
@@ -996,9 +995,8 @@ QTreeWidgetItem *QtOptionsPageWidget::treeItemForIndex(int index) const
         QTreeWidgetItem *toplevelItem = m_ui->qtdirList->topLevelItem(i);
         for (int j = 0; j < toplevelItem->childCount(); ++j) {
             QTreeWidgetItem *item = toplevelItem->child(j);
-            if (item->data(0, VersionIdRole).toInt() == uniqueId) {
+            if (item->data(0, VersionIdRole).toInt() == uniqueId)
                 return item;
-            }
         }
     }
     return 0;

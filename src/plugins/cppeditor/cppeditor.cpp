@@ -819,9 +819,8 @@ static QList<int> lazyFindReferences(Scope *scope, QString code, Document::Ptr d
     TypeOfExpression typeOfExpression;
     snapshot.insert(doc);
     typeOfExpression.init(doc, snapshot);
-    if (Symbol *canonicalSymbol = CanonicalSymbol::canonicalSymbol(scope, code, typeOfExpression)) {
+    if (Symbol *canonicalSymbol = CanonicalSymbol::canonicalSymbol(scope, code, typeOfExpression))
         return CppModelManagerInterface::instance()->references(canonicalSymbol, typeOfExpression.context());
-    }
     return QList<int>();
 }
 
@@ -1462,9 +1461,8 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
         else {
             if (ch == QLatin1Char('(') && ! expression.isEmpty()) {
                 tc.setPosition(pos);
-                if (TextEditor::TextBlockUserData::findNextClosingParenthesis(&tc, true)) {
+                if (TextEditor::TextBlockUserData::findNextClosingParenthesis(&tc, true))
                     expression.append(tc.selectedText());
-                }
             }
 
             break;

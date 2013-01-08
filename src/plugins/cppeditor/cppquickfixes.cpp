@@ -520,9 +520,8 @@ private:
     if (a)
         b;
     becomes
-    if (a) {
+    if (a)
         b;
-    }
 
     Activates on: the if
 */
@@ -765,9 +764,8 @@ private:
      }
 
   with
-     if (something) {
-        if (something_else) {
-        }
+     if (something)
+        if (something_else)
      }
 
   and

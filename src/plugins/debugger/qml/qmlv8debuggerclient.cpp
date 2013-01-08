@@ -1207,14 +1207,12 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                     //do nothing, wait for next break
 
                 } else if (debugCommand == _(BACKTRACE)) {
-                    if (success) {
+                    if (success)
                         updateStack(resp.value(_(BODY)), resp.value(_(REFS)));
-                    }
 
                 } else if (debugCommand == _(LOOKUP)) {
-                    if (success) {
+                    if (success)
                         expandLocalsAndWatchers(resp.value(_(BODY)), resp.value(_(REFS)));
-                    }
 
                 } else if (debugCommand == _(EVALUATE)) {
                     int seq = resp.value(_("request_seq")).toInt();
@@ -1228,9 +1226,8 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                     }
 
                 } else if (debugCommand == _(LISTBREAKPOINTS)) {
-                    if (success) {
+                    if (success)
                         updateBreakpoints(resp.value(_(BODY)));
-                    }
 
                 } else if (debugCommand == _(SETBREAKPOINT)) {
                     //                { "seq"         : <number>,
@@ -1296,14 +1293,12 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
 
 
                 } else if (debugCommand == _(FRAME)) {
-                    if (success) {
+                    if (success)
                         setCurrentFrameDetails(resp.value(_(BODY)), resp.value(_(REFS)));
-                    }
 
                 } else if (debugCommand == _(SCOPE)) {
-                    if (success) {
+                    if (success)
                         updateScope(resp.value(_(BODY)), resp.value(_(REFS)));
-                    }
 
                 } else if (debugCommand == _(SCOPES)) {
                 } else if (debugCommand == _(SOURCE)) {
@@ -1478,9 +1473,8 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                         d->backtrace();
                     }
 
-                    if (d->engine->state() == InferiorStopOk) {
+                    if (d->engine->state() == InferiorStopOk)
                         d->backtrace();
-                    }
 
                 } else if (eventType == _("afterCompile")) {
                     //Currently break point relocation is disabled.

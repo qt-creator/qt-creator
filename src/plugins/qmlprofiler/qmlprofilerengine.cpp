@@ -341,16 +341,14 @@ void QmlProfilerEngine::processIsRunning(quint16 port)
 void QmlProfilerEngine::registerProfilerStateManager( QmlProfilerStateManager *profilerState )
 {
     // disconnect old
-    if (d->m_profilerState) {
+    if (d->m_profilerState)
         disconnect(d->m_profilerState, SIGNAL(stateChanged()), this, SLOT(profilerStateChanged()));
-    }
 
     d->m_profilerState = profilerState;
 
     // connect
-    if (d->m_profilerState) {
+    if (d->m_profilerState)
         connect(d->m_profilerState, SIGNAL(stateChanged()), this, SLOT(profilerStateChanged()));
-    }
 }
 
 void QmlProfilerEngine::profilerStateChanged()

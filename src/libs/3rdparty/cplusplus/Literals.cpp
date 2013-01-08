@@ -206,9 +206,8 @@ bool Identifier::isEqualTo(const Name *other) const
         return true;
 
     else if (other) {
-        if (const Identifier *nameId = other->asNameId()) {
+        if (const Identifier *nameId = other->asNameId())
             return equalTo(nameId);
-        }
     }
     return false;
 }

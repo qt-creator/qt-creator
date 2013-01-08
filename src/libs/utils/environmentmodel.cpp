@@ -48,9 +48,8 @@ public:
         // Add removed variables again and mark them as "<UNSET>" so
         // that the user can actually see those removals:
         foreach (const Utils::EnvironmentItem &item, m_items) {
-            if (item.unset) {
+            if (item.unset)
                 m_resultEnvironment.set(item.name, EnvironmentModel::tr("<UNSET>"));
-            }
         }
     }
 

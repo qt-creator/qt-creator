@@ -344,9 +344,8 @@ void DesignModeWidget::closeEditors(QList<Core::IEditor*> editors)
 {
     foreach (Core::IEditor* editor, editors) {
         if (QPlainTextEdit *textEdit = qobject_cast<QPlainTextEdit*>(editor->widget())) {
-            if (m_currentTextEdit.data() == textEdit) {
+            if (m_currentTextEdit.data() == textEdit)
                 setCurrentDocument(0);
-            }
             if (m_documentHash.contains(textEdit)) {
                 if (debug)
                     qDebug() << Q_FUNC_INFO << editor->document()->fileName();
@@ -546,11 +545,10 @@ void DesignModeWidget::updateErrorStatus(const QList<RewriterView::Error> &error
     if (debug)
         qDebug() << Q_FUNC_INFO << errors.count();
 
-    if (m_isDisabled && errors.isEmpty()) {
+    if (m_isDisabled && errors.isEmpty())
         enable();
-    } else if (!errors.isEmpty()) {
+    else if (!errors.isEmpty())
         disable(errors);
-    }
 }
 
 void DesignModeWidget::setAutoSynchronization(bool sync)
@@ -578,9 +576,8 @@ void DesignModeWidget::setAutoSynchronization(bool sync)
             // set selection to text cursor
             const int cursorPos = m_currentTextEdit->textCursor().position();
             ModelNode node = nodeForPosition(cursorPos);
-            if (rewriter && node.isValid()) {
+            if (rewriter && node.isValid())
                 rewriter->setSelectedModelNodes(QList<ModelNode>() << node);
-            }
             enable();
         } else {
             disable(errors);

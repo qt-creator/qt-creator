@@ -154,11 +154,10 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
                 QString description;
                 ModelNode parentNode = node.parentProperty().parentModelNode();
                 if (parentNode.isValid()) {
-                    if (parentNode.id().isEmpty()) {
+                    if (parentNode.id().isEmpty())
                         description = parentNode.simplifiedTypeName() + QLatin1Char(' ');
-                    } else {
+                    else
                         description = parentNode.id() + QLatin1Char(' ');
-                    }
                 }
                 description += node.parentProperty().name();
                 QStandardItem *item = new QStandardItem(description);
@@ -183,9 +182,8 @@ void ComponentView::searchForComponentAndRemoveFromList(const ModelNode &node)
 
 
     foreach (const ModelNode &childNode, nodeList) {
-        if (childNode.nodeSourceType() == ModelNode::NodeWithComponentSource) {
+        if (childNode.nodeSourceType() == ModelNode::NodeWithComponentSource)
             removeSingleNodeFromList(childNode);
-        }
     }
 }
 

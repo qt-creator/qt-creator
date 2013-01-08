@@ -430,11 +430,10 @@ static bool isDesktopFileManagerDrop(const QMimeData *d, QStringList *files = 0)
         const QString fileName = it->toLocalFile();
         if (!fileName.isEmpty()) {
             hasFiles = true;
-            if (files) {
+            if (files)
                 files->push_back(fileName);
-            } else {
+            else
                 break; // No result list, sufficient for checking
-            }
         }
     }
     return hasFiles;
@@ -442,11 +441,10 @@ static bool isDesktopFileManagerDrop(const QMimeData *d, QStringList *files = 0)
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
-    if (isDesktopFileManagerDrop(event->mimeData()) && m_filesToOpenDelayed.isEmpty()) {
+    if (isDesktopFileManagerDrop(event->mimeData()) && m_filesToOpenDelayed.isEmpty())
         event->accept();
-    } else {
+    else
         event->ignore();
-    }
 }
 
 void MainWindow::dropEvent(QDropEvent *event)
@@ -992,11 +990,10 @@ void MainWindow::openFileWith()
         const Id editorId = editorManager()->getOpenWithEditorId(fileName, &isExternal);
         if (!editorId.isValid())
             continue;
-        if (isExternal) {
+        if (isExternal)
             EditorManager::openExternalEditor(fileName, editorId);
-        } else {
+        else
             EditorManager::openEditor(fileName, editorId, Core::EditorManager::ModeSwitch);
-        }
     }
 }
 
@@ -1178,9 +1175,8 @@ void MainWindow::readSettings()
                                   QColor(Utils::StyleHelper::DEFAULT_BASE_COLOR)).value<QColor>());
     }
 
-    if (!restoreGeometry(m_settings->value(QLatin1String(windowGeometryKey)).toByteArray())) {
+    if (!restoreGeometry(m_settings->value(QLatin1String(windowGeometryKey)).toByteArray()))
         resize(1008, 700); // size without window decoration
-    }
     restoreState(m_settings->value(QLatin1String(windowStateKey)).toByteArray());
 
     m_settings->endGroup();

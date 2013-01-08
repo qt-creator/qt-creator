@@ -66,13 +66,12 @@ void ModelToTextMerger::nodeRemoved(const ModelNode &removedNode, const NodeAbst
     if (!isInHierarchy(parentProperty))
         return;
 
-    if (parentProperty.isDefaultProperty()) {
+    if (parentProperty.isDefaultProperty())
         schedule(new RemoveNodeRewriteAction(removedNode));
-    } else if (AbstractView::EmptyPropertiesRemoved == propertyChange) {
+    else if (AbstractView::EmptyPropertiesRemoved == propertyChange)
         schedule(new RemovePropertyRewriteAction(parentProperty));
-    } else if (parentProperty.isNodeListProperty()) {
+    else if (parentProperty.isNodeListProperty())
         schedule(new RemoveNodeRewriteAction(removedNode));
-    }
 }
 
 void ModelToTextMerger::propertiesRemoved(const QList<AbstractProperty>& propertyList)
@@ -157,11 +156,10 @@ void ModelToTextMerger::nodeReparented(const ModelNode &node, const NodeAbstract
         if (oldPropertyParent.isNodeProperty()) {
             // ignore, the subsequent remove property will take care of all
         } else if (oldPropertyParent.isNodeListProperty()) {
-            if (!oldPropertyParent.isDefaultProperty() && oldPropertyParent.toNodeListProperty().toModelNodeList().size() == 0) {
+            if (!oldPropertyParent.isDefaultProperty() && oldPropertyParent.toNodeListProperty().toModelNodeList().size() == 0)
                 schedule(new RemovePropertyRewriteAction(oldPropertyParent));
-            } else {
+            else
                 schedule(new RemoveNodeRewriteAction(node));
-            }
         } else {
             schedule(new RemoveNodeRewriteAction(node));
         }
@@ -253,9 +251,8 @@ void ModelToTextMerger::applyChanges()
 
         for (int i = 0; i < m_rewriteActions.size(); ++i) {
             RewriteAction* action = m_rewriteActions.at(i);
-            if (DebugRewriteActions) {
+            if (DebugRewriteActions)
                 qDebug() << "Next rewrite action:" << qPrintable(action->info());
-            }
 
             ModelNodePositionStorage *positionStore = m_rewriterView->positionStorage();
             bool success = action->execute(refactoring, *positionStore);

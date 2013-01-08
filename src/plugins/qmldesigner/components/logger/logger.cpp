@@ -140,9 +140,8 @@ QLogger::~QLogger()
 
 QLogger* QLogger::instance()
 {
-    if (!m_instance) {
+    if (!m_instance)
         m_instance = new QLogger();
-    }
     return m_instance;
 }
 

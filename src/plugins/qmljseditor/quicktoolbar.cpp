@@ -73,11 +73,10 @@ static inline const ObjectValue * getPropertyChangesTarget(Node *node, const Sco
                         && ! scriptBinding->qualifiedId->next) {
                     Evaluate evaluator(&scopeChain);
                     const Value *targetValue = evaluator(scriptBinding->statement);
-                    if (const ObjectValue *targetObject = value_cast<ObjectValue>(targetValue)) {
+                    if (const ObjectValue *targetObject = value_cast<ObjectValue>(targetValue))
                         return targetObject;
-                    } else {
+                    else
                         return 0;
-                    }
                 }
             }
         }
@@ -267,12 +266,11 @@ bool QuickToolBar::isAvailable(TextEditor::BaseTextEditor *, Document::Ptr docum
 
     UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(node);
     UiObjectBinding *objectBinding = cast<UiObjectBinding*>(node);
-    if (objectDefinition) {
+    if (objectDefinition)
         name = objectDefinition->qualifiedTypeNameId->name.toString();
 
-    } else if (objectBinding) {
+    else if (objectBinding)
         name = objectBinding->qualifiedTypeNameId->name.toString();
-    }
 
     QStringList prototypes;
     prototypes.append(name);
@@ -320,11 +318,10 @@ void QuickToolBar::setProperty(const QString &propertyName, const QVariant &valu
             bindingType = Rewriter::ObjectBinding;
 
         PropertyReader propertyReader(m_doc, initializer);
-        if (propertyReader.hasProperty(propertyName)) {
+        if (propertyReader.hasProperty(propertyName))
             rewriter.changeBinding(initializer, propertyName, stringValue, bindingType);
-        } else {
+        else
             rewriter.addBinding(initializer, propertyName, stringValue, bindingType);
-        }
 
         int column;
 

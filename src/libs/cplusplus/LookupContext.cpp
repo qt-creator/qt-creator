@@ -643,13 +643,11 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
     if (const QualifiedNameId *q = name->asQualifiedNameId()) {
 
         QSet<ClassOrNamespace *> innerProcessed;
-        if (! q->base()) {
+        if (! q->base())
             return globalNamespace()->lookupType_helper(q->name(), &innerProcessed, true, origin);
-        }
 
-        if (ClassOrNamespace *binding = lookupType_helper(q->base(), processed, true, origin)) {
+        if (ClassOrNamespace *binding = lookupType_helper(q->base(), processed, true, origin))
             return binding->lookupType_helper(q->name(), &innerProcessed, false, origin);
-        }
 
         return 0;
 
@@ -966,9 +964,8 @@ bool ClassOrNamespace::NestedClassInstantiator::containsTemplateType(Declaration
     NamedType *memberNamedType = findMemberNamedType(memberType);
     if (memberNamedType) {
         const Name *name = memberNamedType->name();
-        if (_subst.contains(name)) {
+        if (_subst.contains(name))
             return true;
-        }
     }
     return false;
 }
@@ -981,15 +978,12 @@ bool ClassOrNamespace::NestedClassInstantiator::containsTemplateType(Function * 
 
 NamedType *ClassOrNamespace::NestedClassInstantiator::findMemberNamedType(Type *memberType) const
 {
-    if (NamedType *namedType = memberType->asNamedType()) {
+    if (NamedType *namedType = memberType->asNamedType())
         return namedType;
-    }
-    else if (PointerType *pointerType = memberType->asPointerType()) {
+    else if (PointerType *pointerType = memberType->asPointerType())
         return findMemberNamedType(pointerType->elementType().type());
-    }
-    else if (ReferenceType *referenceType = memberType->asReferenceType()) {
+    else if (ReferenceType *referenceType = memberType->asReferenceType())
         return findMemberNamedType(referenceType->elementType().type());
-    }
 
     return 0;
 }

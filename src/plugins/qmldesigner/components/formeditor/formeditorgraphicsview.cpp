@@ -70,11 +70,10 @@ FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent) :
 
 void FormEditorGraphicsView::wheelEvent(QWheelEvent *event)
 {
-    if (event->modifiers().testFlag(Qt::ControlModifier)) {
+    if (event->modifiers().testFlag(Qt::ControlModifier))
         event->ignore();
-    } else {
+    else
         QGraphicsView::wheelEvent(event);
-    }
 
 }
 

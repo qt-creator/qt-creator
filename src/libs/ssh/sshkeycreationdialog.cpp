@@ -81,11 +81,10 @@ void SshKeyCreationDialog::generateKeys()
         m_ui->comboBox->currentText().toUShort());
     QApplication::restoreOverrideCursor();
 
-    if (success) {
+    if (success)
         saveKeys();
-    } else {
+    else
         QMessageBox::critical(this, tr("Key Generation Failed"), m_keyGenerator->error());
-    }
 }
 
 void SshKeyCreationDialog::handleBrowseButtonClicked()

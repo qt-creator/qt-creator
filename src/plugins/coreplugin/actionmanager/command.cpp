@@ -462,11 +462,10 @@ void Action::removeOverrideAction(QAction *action)
     QMutableMapIterator<int, QPointer<QAction> > it(m_contextActionMap);
     while (it.hasNext()) {
         it.next();
-        if (it.value() == 0) {
+        if (it.value() == 0)
             it.remove();
-        } else if (it.value() == action) {
+        else if (it.value() == action)
             it.remove();
-        }
     }
     setCurrentContext(m_context);
 }

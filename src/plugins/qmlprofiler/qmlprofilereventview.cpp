@@ -171,9 +171,8 @@ void QmlProfilerEventsWidget::profilerDataModelStateChanged()
 {
     if (d->m_profilerDataModel) {
         QmlProfilerDataModel::State newState = d->m_profilerDataModel->currentState();
-        if (newState == QmlProfilerDataModel::Empty) {
+        if (newState == QmlProfilerDataModel::Empty)
             clear();
-        }
     }
 }
 
@@ -601,9 +600,8 @@ void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildModelFrom
             continue;
 
         QList<QStandardItem *> newRow;
-        if (m_fieldShown[Name]) {
+        if (m_fieldShown[Name])
             newRow << new EventsViewItem(binding->displayName);
-        }
 
         if (m_fieldShown[Type]) {
             QString typeString = QmlProfilerEventsMainView::nameForType(binding->eventType);
@@ -695,9 +693,8 @@ void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildV8ModelFr
         QV8EventData *v8event = list.at(index);
         QList<QStandardItem *> newRow;
 
-        if (m_fieldShown[Name]) {
+        if (m_fieldShown[Name])
             newRow << new EventsViewItem(v8event->displayName);
-        }
 
         if (m_fieldShown[Percent]) {
             newRow << new EventsViewItem(QString::number(v8event->totalPercent,'f',2)+QLatin1String(" %"));
@@ -813,9 +810,8 @@ void QmlProfilerEventsMainView::jumpToItem(const QModelIndex &index)
     emit eventSelected(infoItem->data(EventIdRole).toInt());
 
     // show in timelinerenderer
-    if (d->m_viewType == EventsView) {
+    if (d->m_viewType == EventsView)
         emit showEventInTimeline(infoItem->data(EventIdRole).toInt());
-    }
 
     d->m_preventSelectBounce = false;
 }

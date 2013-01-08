@@ -98,9 +98,8 @@ UpdateInfoPlugin::~UpdateInfoPlugin()
 
 void UpdateInfoPlugin::startCheckTimer(uint milliseconds)
 {
-    if (d->currentTimerId != 0) {
+    if (d->currentTimerId != 0)
         stopCurrentCheckTimer();
-    }
     d->currentTimerId = startTimer(milliseconds);
 }
 
@@ -150,9 +149,8 @@ bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *
 
 QDomDocument UpdateInfoPlugin::checkForUpdates()
 {
-    if (QThread::currentThread() == QCoreApplication::instance()->thread()) {
+    if (QThread::currentThread() == QCoreApplication::instance()->thread())
         qWarning() << Q_FUNC_INFO << " Was not designed to run in main/gui thread -> it is using updaterProcess.waitForFinished()";
-    }
 
     //starting
     QProcess updaterProcess;
@@ -203,9 +201,8 @@ void UpdateInfoPlugin::reactOnUpdaterOutput()
 void UpdateInfoPlugin::startUpdaterUiApplication()
 {
     QProcess::startDetached(d->updaterProgram, QStringList() << d->updaterRunUiArgument);
-    if (!d->updateInfoProgress.isNull()) {
+    if (!d->updateInfoProgress.isNull())
         d->updateInfoProgress->setKeepOnFinish(Core::FutureProgress::HideOnFinish); //this is fading out the last updateinfo
-    }
     startCheckTimer(OneMinute);
 }
 

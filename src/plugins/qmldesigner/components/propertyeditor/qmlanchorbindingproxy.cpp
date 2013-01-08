@@ -363,9 +363,8 @@ void QmlAnchorBindingProxy::setBottomAnchor(bool anchor)
         removeBottomAnchor();
     } else {
         calcBottomMargin();
-        if (topAnchored()) {
+        if (topAnchored())
             backupPropertyAndRemove(modelNode(), "height");
-        }
     }
     emit bottomAnchorChanged();
 
@@ -388,9 +387,8 @@ void QmlAnchorBindingProxy::setLeftAnchor(bool anchor)
     } else {
         calcLeftMargin();
         backupPropertyAndRemove(modelNode(), "x");
-        if (rightAnchored()) {
+        if (rightAnchored())
             backupPropertyAndRemove(modelNode(), "width");
-       }
     }
 
     emit leftAnchorChanged();
@@ -412,9 +410,8 @@ void QmlAnchorBindingProxy::setRightAnchor(bool anchor)
         removeRightAnchor();
     } else {
         calcRightMargin();
-        if (leftAnchored()) {
+        if (leftAnchored())
             backupPropertyAndRemove(modelNode(), "width");
-        }
     }
     emit rightAnchorChanged();
     if (hasAnchors() != anchor)
@@ -529,9 +526,8 @@ void QmlAnchorBindingProxy::setTopAnchor(bool anchor)
     } else {
         calcTopMargin();
         backupPropertyAndRemove(modelNode(), "y");
-        if (bottomAnchored()) {
+        if (bottomAnchored())
             backupPropertyAndRemove(modelNode(), "height");
-        }
     }
     emit topAnchorChanged();
     if (hasAnchors() != anchor)

@@ -193,9 +193,8 @@ static inline bool checkIfNodeIsAView(const ModelNode &node)
 
 void AbstractFormEditorTool::mousePressEvent(const QList<QGraphicsItem*> & /*itemList*/, QGraphicsSceneMouseEvent *event)
 {
-    if (event->button() == Qt::RightButton) {
+    if (event->button() == Qt::RightButton)
         event->accept();
-    }
 }
 
 void AbstractFormEditorTool::mouseReleaseEvent(const QList<QGraphicsItem*> & /*itemList*/, QGraphicsSceneMouseEvent *event)

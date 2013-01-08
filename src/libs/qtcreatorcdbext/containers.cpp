@@ -360,11 +360,10 @@ AbstractSymbolGroupNodePtrVector
             block -= blockArraySize;
         const ULONG64 blockOffset = offset % dequeSize;
         const ULONG64 address = blockArray[block] + innerTypeSize * blockOffset;
-        if (SymbolGroupNode *n = sg->addSymbol(module, SymbolGroupValue::pointedToSymbolName(address, innerType), std::string(), &errorMessage)) {
+        if (SymbolGroupNode *n = sg->addSymbol(module, SymbolGroupValue::pointedToSymbolName(address, innerType), std::string(), &errorMessage))
             rc.push_back(ReferenceSymbolGroupNode::createArrayNode(i, n));
-        } else {
+        else
             return AbstractSymbolGroupNodePtrVector();
-        }
     }
     return rc;
 }
@@ -842,11 +841,10 @@ SymbolGroupValueVector qHashNodes(const SymbolGroupValue &v,
     nodeList.reserve(count);
     const SymbolGroupValueVector::const_iterator dcend = dummyNodeList.end();
     for (SymbolGroupValueVector::const_iterator it = dummyNodeList.begin(); it != dcend; ++it) {
-        if (const SymbolGroupValue n = (*it).typeCast(nodeType.c_str())) {
+        if (const SymbolGroupValue n = (*it).typeCast(nodeType.c_str()))
             nodeList.push_back(n);
-        }  else {
+        }  else
             return SymbolGroupValueVector();
-        }
     }
     return nodeList;
 }
@@ -865,11 +863,10 @@ static inline AbstractSymbolGroupNodePtrVector
         return rc;
     rc.reserve(count);
     for (int i = 0; i < count; i++) {
-        if (const SymbolGroupValue key = nodes.at(i)["key"]) {
+        if (const SymbolGroupValue key = nodes.at(i)["key"])
             rc.push_back(ReferenceSymbolGroupNode::createArrayNode(i, key.node()));
-        } else {
+        else
             return AbstractSymbolGroupNodePtrVector();
-        }
     }
     return rc;
 }

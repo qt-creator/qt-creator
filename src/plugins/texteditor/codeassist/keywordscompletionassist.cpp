@@ -232,9 +232,8 @@ int KeywordsCompletionAssistProcessor::findStartOfName(int pos)
         pos = m_interface->position();
 
     QChar chr = m_interface->characterAt(pos-1);
-    if (chr == QLatin1Char('(')) {
+    if (chr == QLatin1Char('('))
         --pos;
-    }
     // Skip to the start of a name
     do {
         chr = m_interface->characterAt(--pos);

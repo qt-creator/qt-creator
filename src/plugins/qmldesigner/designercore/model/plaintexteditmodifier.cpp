@@ -154,11 +154,10 @@ void PlainTextEditModifier::commitGroup()
 
 void PlainTextEditModifier::textEditChanged()
 {
-    if (!m_ongoingTextChange && m_changeSignalsEnabled) {
+    if (!m_ongoingTextChange && m_changeSignalsEnabled)
         emit textChanged();
-    } else {
+    else
         m_pendingChangeSignal = true;
-    }
 }
 
 void PlainTextEditModifier::runRewriting(ChangeSet *changeSet)

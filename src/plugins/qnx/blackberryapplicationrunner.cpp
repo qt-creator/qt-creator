@@ -232,11 +232,10 @@ void BlackBerryApplicationRunner::readStandardOutput()
         QString line = QString::fromLocal8Bit(process->readLine());
         emit output(line, Utils::StdOutFormat);
 
-        if (line.startsWith(QLatin1String("result::"))) {
+        if (line.startsWith(QLatin1String("result::")))
             m_pid = parsePid(line);
-        } else if (line.startsWith(QLatin1String("Info: Launching"))) {
+        else if (line.startsWith(QLatin1String("Info: Launching")))
             m_appId = parseAppId(line);
-        }
     }
 }
 
@@ -255,11 +254,10 @@ void BlackBerryApplicationRunner::killTailProcess()
     QSsh::SshRemoteProcessRunner *slayProcess = new QSsh::SshRemoteProcessRunner(this);
     connect(slayProcess, SIGNAL(processClosed(int)), this, SIGNAL(finished()));
 
-    if (m_slog2infoFound) {
+    if (m_slog2infoFound)
         slayProcess->run("slay slog2info", m_sshParams);
-    } else {
+    else
         slayProcess->run("slay tail", m_sshParams);
-    }
 
     // Not supported by OpenSSH server
     //m_tailProcess->sendSignalToProcess(Utils::SshRemoteProcess::KillSignal);

@@ -268,11 +268,10 @@ std::string dumpMemory(const unsigned char *p, size_t size,
         case '\n':
             str << "\\n";
         default:
-            if (u >= 32 && u < 128) {
+            if (u >= 32 && u < 128)
                 str << (char(u));
-            } else {
+            else
                 str  << '\\' << std::setw(3) << unsigned(u);
-            }
         }
     }
     if (wantQuotes)

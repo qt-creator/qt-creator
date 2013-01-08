@@ -168,11 +168,10 @@ void QmlProjectRunConfigurationWidget::updateFileComboBox()
             currentIndex = item->index();
     }
 
-    if (currentIndex.isValid()) {
+    if (currentIndex.isValid())
         m_fileListCombo->setCurrentIndex(currentIndex.row());
-    } else {
+    else
         m_fileListCombo->setCurrentIndex(0);
-    }
 }
 
 void QmlProjectRunConfigurationWidget::setMainScript(int index)

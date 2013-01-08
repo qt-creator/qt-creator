@@ -180,13 +180,12 @@ bool Project::removeTarget(Target *target)
         return false;
 
     if (target == activeTarget()) {
-        if (d->m_targets.size() == 1) {
+        if (d->m_targets.size() == 1)
             setActiveTarget(0);
-        } else if (d->m_targets.first() == target) {
+        else if (d->m_targets.first() == target)
             setActiveTarget(d->m_targets.at(1));
-        } else {
+        else
             setActiveTarget(d->m_targets.at(0));
-        }
     }
 
     emit aboutToRemoveTarget(target);

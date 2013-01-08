@@ -79,9 +79,8 @@ Qt::ItemFlags SearchResultTreeModel::flags(const QModelIndex &idx) const
 
     if (idx.isValid()) {
         if (const SearchResultTreeItem *item = treeItemAtIndex(idx)) {
-            if (item->isUserCheckable()) {
+            if (item->isUserCheckable())
                 flags |= Qt::ItemIsUserCheckable;
-            }
         }
     }
 
@@ -202,13 +201,12 @@ bool SearchResultTreeModel::setCheckState(const QModelIndex &idx, Qt::CheckState
                     SearchResultTreeItem *child = parent->childAt(i);
                     if (!child->isUserCheckable())
                         continue;
-                    if (child->checkState() == Qt::Checked) {
+                    if (child->checkState() == Qt::Checked)
                         hasChecked = true;
-                    } else if (child->checkState() == Qt::Unchecked) {
+                    else if (child->checkState() == Qt::Unchecked)
                         hasUnchecked = true;
-                    } else if (child->checkState() == Qt::PartiallyChecked) {
+                    else if (child->checkState() == Qt::PartiallyChecked)
                         hasChecked = hasUnchecked = true;
-                    }
                 }
                 if (hasChecked && hasUnchecked)
                     parent->setCheckState(Qt::PartiallyChecked);

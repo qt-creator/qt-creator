@@ -58,18 +58,16 @@ static void execMenuAtWidget(QMenu *menu, QWidget *widget)
     QSize sh = menu->sizeHint();
     QRect rect = widget->rect();
     if (widget->isRightToLeft()) {
-        if (widget->mapToGlobal(QPoint(0, rect.bottom())).y() + sh.height() <= screen.height()) {
+        if (widget->mapToGlobal(QPoint(0, rect.bottom())).y() + sh.height() <= screen.height())
             p = widget->mapToGlobal(rect.bottomRight());
-        } else {
+        else
             p = widget->mapToGlobal(rect.topRight() - QPoint(0, sh.height()));
-        }
         p.rx() -= sh.width();
     } else {
-        if (widget->mapToGlobal(QPoint(0, rect.bottom())).y() + sh.height() <= screen.height()) {
+        if (widget->mapToGlobal(QPoint(0, rect.bottom())).y() + sh.height() <= screen.height())
             p = widget->mapToGlobal(rect.bottomLeft());
-        } else {
+        else
             p = widget->mapToGlobal(rect.topLeft() - QPoint(0, sh.height()));
-        }
     }
     p.rx() = qMax(screen.left(), qMin(p.x(), screen.right() - sh.width()));
     p.ry() += 1;

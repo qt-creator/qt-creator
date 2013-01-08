@@ -155,9 +155,8 @@ void RewriterView::modelAttached(Model *model)
 
     ModelAmender differenceHandler(m_textToModelMerger.data());
     const QString qmlSource = m_textModifier->text();
-    if (m_textToModelMerger->load(qmlSource, differenceHandler)) {
+    if (m_textToModelMerger->load(qmlSource, differenceHandler))
         lastCorrectQmlSource = qmlSource;
-    }
 }
 
 void RewriterView::modelAboutToBeDetached(Model * /*model*/)
@@ -497,9 +496,8 @@ void RewriterView::applyChanges()
 
     try {
         modelToTextMerger()->applyChanges();
-        if (!errors().isEmpty()) {
+        if (!errors().isEmpty())
             enterErrorState(errors().first().description());
-        }
     } catch (Exception &e) {
         const QString content = textModifierContent();
         qDebug() << "RewriterException:" << m_rewritingErrorMessage;
@@ -690,9 +688,8 @@ QString RewriterView::pathForImport(const Import &import)
         QmlJS::ImportInfo importInfo;
 
         foreach (QmlJS::Import qmljsImport, imports->all()) {
-            if (qmljsImport.info.name() == importStr) {
+            if (qmljsImport.info.name() == importStr)
                 importInfo = qmljsImport.info;
-            }
         }
         const QString importPath = importInfo.path();
         return importPath;
@@ -719,9 +716,8 @@ void RewriterView::qmlTextChanged()
         switch (m_differenceHandling) {
             case Validate: {
                 ModelValidator differenceHandler(m_textToModelMerger.data());
-                if (m_textToModelMerger->load(newQmlText.toUtf8(), differenceHandler)) {
+                if (m_textToModelMerger->load(newQmlText.toUtf8(), differenceHandler))
                     lastCorrectQmlSource = newQmlText;
-                }
                 break;
             }
 
@@ -729,9 +725,8 @@ void RewriterView::qmlTextChanged()
             default: {
                 emitCustomNotification(StartRewriterAmend);
                 ModelAmender differenceHandler(m_textToModelMerger.data());
-                if (m_textToModelMerger->load(newQmlText, differenceHandler)) {
+                if (m_textToModelMerger->load(newQmlText, differenceHandler))
                     lastCorrectQmlSource = newQmlText;
-                }
                 emitCustomNotification(EndRewriterAmend);
                 break;
             }

@@ -357,9 +357,8 @@ const Value *CppComponentValue::valueForCppName(const QString &typeName) const
     // might be an enum
     const CppComponentValue *base = this;
     const QStringList components = typeName.split(QLatin1String("::"));
-    if (components.size() == 2) {
+    if (components.size() == 2)
         base = valueOwner()->cppQmlTypes().objectByCppName(components.first());
-    }
     if (base) {
         if (const QmlEnumValue *value = base->getEnumValue(components.last()))
             return value;
@@ -413,9 +412,8 @@ QString CppComponentValue::propertyType(const QString &propertyName) const
     foreach (const CppComponentValue *it, prototypes()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
-        if (propIdx != -1) {
+        if (propIdx != -1)
             return iter->property(propIdx).typeName();
-        }
     }
     return QString();
 }
@@ -425,9 +423,8 @@ bool CppComponentValue::isListProperty(const QString &propertyName) const
     foreach (const CppComponentValue *it, prototypes()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
-        if (propIdx != -1) {
+        if (propIdx != -1)
             return iter->property(propIdx).isList();
-        }
     }
     return false;
 }
@@ -510,9 +507,8 @@ bool CppComponentValue::isWritable(const QString &propertyName) const
     foreach (const CppComponentValue *it, prototypes()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
-        if (propIdx != -1) {
+        if (propIdx != -1)
             return iter->property(propIdx).isWritable();
-        }
     }
     return false;
 }
@@ -522,9 +518,8 @@ bool CppComponentValue::isPointer(const QString &propertyName) const
     foreach (const CppComponentValue *it, prototypes()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
-        if (propIdx != -1) {
+        if (propIdx != -1)
             return iter->property(propIdx).isPointer();
-        }
     }
     return false;
 }
@@ -542,9 +537,8 @@ bool CppComponentValue::hasProperty(const QString &propertyName) const
     foreach (const CppComponentValue *it, prototypes()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
-        if (propIdx != -1) {
+        if (propIdx != -1)
             return true;
-        }
     }
     return false;
 }
@@ -956,9 +950,8 @@ const ObjectValue *ObjectValue::prototype(const Context *context) const
 {
     const ObjectValue *prototypeObject = value_cast<ObjectValue>(_prototype);
     if (! prototypeObject) {
-        if (const Reference *prototypeReference = value_cast<Reference>(_prototype)) {
+        if (const Reference *prototypeReference = value_cast<Reference>(_prototype))
             prototypeObject = value_cast<ObjectValue>(context->lookupReference(prototypeReference));
-        }
     }
     return prototypeObject;
 }
@@ -1110,9 +1103,8 @@ const ObjectValue *PrototypeIterator::next()
 
 const ObjectValue *PrototypeIterator::peekNext()
 {
-    if (hasNext()) {
+    if (hasNext())
         return m_next;
-    }
     return 0;
 }
 
@@ -1299,11 +1291,10 @@ void CppQmlTypesLoader::parseQmlTypeDescriptions(const QByteArray &xml,
     warningMessage->clear();
     TypeDescriptionReader reader(QString::fromUtf8(xml));
     if (!reader(newObjects, newModuleApis)) {
-        if (reader.errorMessage().isEmpty()) {
+        if (reader.errorMessage().isEmpty())
             *errorMessage = QLatin1String("unknown error");
-        } else {
+        else
             *errorMessage = reader.errorMessage();
-        }
     }
     *warningMessage = reader.warningMessage();
 }
@@ -2106,18 +2097,16 @@ ImportInfo ImportInfo::pathImport(const QString &docPath, const QString &path,
     info._name = path;
 
     QFileInfo importFileInfo(path);
-    if (!importFileInfo.isAbsolute()) {
+    if (!importFileInfo.isAbsolute())
         importFileInfo = QFileInfo(docPath + QDir::separator() + path);
-    }
     info._path = importFileInfo.absoluteFilePath();
 
-    if (importFileInfo.isFile()) {
+    if (importFileInfo.isFile())
         info._type = FileImport;
-    } else if (importFileInfo.isDir()) {
+    else if (importFileInfo.isDir())
         info._type = DirectoryImport;
-    } else {
+    else
         info._type = UnknownFileImport;
-    }
 
     info._version = version;
     info._as = as;
@@ -2230,11 +2219,10 @@ void TypeScope::processMembers(MemberProcessor *processor) const
         if (info.type() == ImportInfo::FileImport)
             continue;
 
-        if (!info.as().isEmpty()) {
+        if (!info.as().isEmpty())
             processor->processProperty(info.as(), import);
-        } else {
+        else
             import->processMembers(processor);
-        }
     }
 }
 

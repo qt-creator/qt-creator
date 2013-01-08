@@ -63,9 +63,8 @@ void BehaviorWidget::setComplexNode(PropertyEditorNodeWrapper* complexNode)
     m_propertyName = complexNode->propertyName();
     m_modelNode = complexNode->parentModelNode();
 
-    if (!modelNode().isValid()) {
+    if (!modelNode().isValid())
         m_BehaviorDialog->hide();
-    }
 
     m_BehaviorDialog->setup(modelNode(), propertyName());
 }

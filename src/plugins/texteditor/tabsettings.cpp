@@ -243,11 +243,10 @@ bool TabSettings::guessSpacesForTabs(const QTextBlock &_block) const
                 if (!block.isValid() || block.length() == 0)
                     continue;
                 const QChar firstChar = doc->characterAt(block.position());
-                if (firstChar == QLatin1Char(' ')) {
+                if (firstChar == QLatin1Char(' '))
                     return true;
-                } else if (firstChar == QLatin1Char('\t')) {
+                else if (firstChar == QLatin1Char('\t'))
                     return false;
-                }
             }
             if (done)
                 break;

@@ -171,11 +171,10 @@ void ValgrindEngine::receiveProcessError(const QString &error, QProcess::Process
 {
     if (e == QProcess::FailedToStart) {
         const QString &valgrind = m_settings->subConfig<ValgrindBaseSettings>()->valgrindExecutable();
-        if (!valgrind.isEmpty()) {
+        if (!valgrind.isEmpty())
             emit outputReceived(tr("** Error: \"%1\" could not be started: %2 **\n").arg(valgrind).arg(error), Utils::ErrorMessageFormat);
-        } else {
+        else
             emit outputReceived(tr("** Error: no valgrind executable set **\n"), Utils::ErrorMessageFormat);
-        }
     } else if (m_isStopping && e == QProcess::Crashed) { // process gets killed on stop
         emit outputReceived(tr("** Process Terminated **\n"), Utils::ErrorMessageFormat);
     } else {

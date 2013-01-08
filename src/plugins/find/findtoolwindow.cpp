@@ -165,9 +165,8 @@ void FindToolWindow::setCurrentFilter(IFindFilter *filter)
     if (!filter)
         filter = m_currentFilter;
     int index = m_filters.indexOf(filter);
-    if (index >= 0) {
+    if (index >= 0)
         setCurrentFilter(index);
-    }
     updateFindFlags();
     m_ui.searchTerm->setFocus();
     m_ui.searchTerm->selectAll();
@@ -185,9 +184,8 @@ void FindToolWindow::setCurrentFilter(int index)
             m_currentFilter = m_filters.at(i);
             connect(m_currentFilter, SIGNAL(enabledChanged(bool)), this, SLOT(updateButtonStates()));
             updateButtonStates();
-            if (m_configWidget) {
+            if (m_configWidget)
                 m_ui.configWidget->layout()->addWidget(m_configWidget);
-            }
         } else {
             if (configWidget)
                 configWidget->setParent(0);
@@ -258,9 +256,8 @@ void FindToolWindow::readSettings()
     for (int i = 0; i < m_filters.size(); ++i) {
         IFindFilter *filter = m_filters.at(i);
         filter->readSettings(settings);
-        if (filter->id() == currentFilter) {
+        if (filter->id() == currentFilter)
             setCurrentFilter(i);
-        }
     }
     settings->endGroup();
 }

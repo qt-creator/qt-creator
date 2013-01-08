@@ -61,9 +61,8 @@ private:
 
 bool BuildParentHash::preVisit(Node* ast)
 {
-    if (ast->uiObjectMemberCast()) {
+    if (ast->uiObjectMemberCast())
         stack.append(ast->uiObjectMemberCast());
-    }
     return true;
 }
 
@@ -71,9 +70,8 @@ void BuildParentHash::postVisit(Node* ast)
 {
     if (ast->uiObjectMemberCast()) {
         stack.removeLast();
-        if (!stack.isEmpty()) {
+        if (!stack.isEmpty())
             parent.insert(ast->uiObjectMemberCast(), stack.last());
-        }
     }
 }
 
@@ -291,9 +289,8 @@ static QString _propertyName(UiQualifiedId *id)
 static QString _methodName(UiSourceElement *source)
 {
     if (source) {
-        if (FunctionDeclaration *declaration = cast<FunctionDeclaration*>(source->sourceElement)) {
+        if (FunctionDeclaration *declaration = cast<FunctionDeclaration*>(source->sourceElement))
             return declaration->name.toString();
-        }
     }
     return QString();
 }
@@ -415,9 +412,8 @@ void Delta::update(UiObjectMember* oldObject, const QmlJS::Document::Ptr& oldDoc
             const QString scriptCode = _scriptCode(script, newDoc);
             UiScriptBinding *previousScript = cast<UiScriptBinding *>(oldMember);
             if (!previousScript || _scriptCode(previousScript, oldDoc) != scriptCode) {
-                if (debugReferences.count()==0) {
+                if (debugReferences.count()==0)
                     notifyUnsyncronizableElementChange(newObject);
-                }
                 foreach (DebugId ref, debugReferences) {
                     if (ref != -1)
                         updateScriptBinding(ref, newObject, script, property, scriptCode);
@@ -429,9 +425,8 @@ void Delta::update(UiObjectMember* oldObject, const QmlJS::Document::Ptr& oldDoc
             UiSourceElement *previousSource = cast<UiSourceElement*>(oldMember);
 
             if (!previousSource || _methodCode(previousSource, oldDoc) != methodCode) {
-                if (debugReferences.count()==0) {
+                if (debugReferences.count()==0)
                     notifyUnsyncronizableElementChange(newObject);
-                }
                 foreach (DebugId ref, debugReferences) {
                     if (ref != -1)
                         updateMethodBody(ref, newObject, script, methodName, methodCode);

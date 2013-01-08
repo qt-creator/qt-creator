@@ -242,9 +242,8 @@ bool ToolTip::eventFilter(QObject *o, QEvent *event)
     }
 #endif
     case QEvent::Leave:
-        if (o == m_tip) {
+        if (o == m_tip)
             hideTipWithDelay();
-        }
         break;
     case QEvent::Enter:
         // User moved cursor into tip and wants to interact.
@@ -266,9 +265,8 @@ bool ToolTip::eventFilter(QObject *o, QEvent *event)
     case QEvent::Wheel:
         if (m_tip) {
             if (m_tip->isInteractive()) { // Do not close on interaction with the tooltip
-                if (o != m_tip && !m_tip->isAncestorOf(static_cast<QWidget *>(o))) {
+                if (o != m_tip && !m_tip->isAncestorOf(static_cast<QWidget *>(o)))
                     hideTipImmediately();
-                }
             } else {
                 hideTipImmediately();
             }

@@ -132,16 +132,14 @@ void QStyleItem::initStyleOption()
         break;
 
     case Splitter: {
-            if (!m_styleoption) {
+            if (!m_styleoption)
                 m_styleoption = new QStyleOption;
-            }
         }
         break;
 
     case Item: {
-            if (!m_styleoption) {
+            if (!m_styleoption)
                 m_styleoption = new QStyleOptionViewItemV4();
-            }
             QStyleOptionViewItemV4 *opt = qstyleoption_cast<QStyleOptionViewItemV4*>(m_styleoption);
             opt->features = QStyleOptionViewItemV4::HasDisplay;
             opt->text = text();
@@ -446,11 +444,10 @@ void QStyleItem::initStyleOption()
         m_styleoption->fontMetrics = widget()->fontMetrics();
         if (!m_styleoption->palette.resolve())
             m_styleoption->palette = widget()->palette();
-        if (m_hint.contains("mac.mini")) {
+        if (m_hint.contains("mac.mini"))
             widget()->setAttribute(Qt::WA_MacMiniSize);
-        } else if (m_hint.contains("mac.small")) {
+        else if (m_hint.contains("mac.small"))
             widget()->setAttribute(Qt::WA_MacSmallSize);
-        }
     }
 }
 
@@ -1018,9 +1015,8 @@ void QStyleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWid
         qApp->style()->drawComplexControl(QStyle::CC_ScrollBar, qstyleoption_cast<QStyleOptionComplex*>(m_styleoption), painter, widget());
         break;
     case Menu: {
-            if (QMenu *menu = qobject_cast<QMenu*>(widget())) {
+            if (QMenu *menu = qobject_cast<QMenu*>(widget()))
                 m_styleoption->palette = menu->palette();
-            }
             QStyleHintReturnMask val;
             qApp->style()->styleHint(QStyle::SH_Menu_Mask, m_styleoption, widget(), &val);
             painter->save();

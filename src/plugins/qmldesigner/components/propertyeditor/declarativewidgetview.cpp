@@ -47,11 +47,10 @@ void DeclarativeWidgetView::execute()
 
     if (!m_source.isEmpty()) {
         m_component = new QDeclarativeComponent(&m_engine, m_source, this);
-        if (!m_component->isLoading()) {
+        if (!m_component->isLoading())
             continueExecute();
-        } else {
+        else
             connect(m_component.data(), SIGNAL(statusChanged(QDeclarativeComponent::Status)), this, SLOT(continueExecute()));
-        }
     }
 }
 
@@ -132,17 +131,15 @@ void DeclarativeWidgetView::setRootWidget(QWidget *widget)
     window()->setAttribute(Qt::WA_OpaquePaintEvent, false);
     window()->setAttribute(Qt::WA_NoSystemBackground, false);
     widget->setParent(this);
-    if (isVisible()) {
+    if (isVisible())
         widget->setVisible(true);
-    }
     resize(widget->size());
     m_root.reset(widget);
 
     if (m_root) {
         QSize initialSize = m_root->size();
-        if (initialSize != size()) {
+        if (initialSize != size())
             resize(initialSize);
-        }
     }
 }
 

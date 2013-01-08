@@ -69,25 +69,24 @@ bool AnchorLine::isVerticalAnchorLine(Type anchorline)
 
 static AnchorLine::Type propertyNameToLineType(const QString & string)
 {
-    if (string == QLatin1String("left")) {
+    if (string == QLatin1String("left"))
         return AnchorLine::Left;
-    } else if (string == QLatin1String("top")) {
+    else if (string == QLatin1String("top"))
         return AnchorLine::Top;
-    } else if (string == QLatin1String("right")) {
+    else if (string == QLatin1String("right"))
         return AnchorLine::Right;
-    } else if (string == QLatin1String("bottom")) {
+    else if (string == QLatin1String("bottom"))
         return AnchorLine::Bottom;
-    } else if (string == QLatin1String("horizontalCenter")) {
+    else if (string == QLatin1String("horizontalCenter"))
         return AnchorLine::HorizontalCenter;
-    } else if (string == QLatin1String("verticalCenter")) {
+    else if (string == QLatin1String("verticalCenter"))
         return AnchorLine::VerticalCenter;
-    } else if (string == QLatin1String("baseline")) {
+    else if (string == QLatin1String("baseline"))
         return AnchorLine::VerticalCenter;
-    } else if (string == QLatin1String("centerIn")) {
+    else if (string == QLatin1String("centerIn"))
         return AnchorLine::Center;
-    } else if (string == QLatin1String("fill")) {
+    else if (string == QLatin1String("fill"))
         return AnchorLine::Fill;
-    }
 
     return AnchorLine::Invalid;
 }

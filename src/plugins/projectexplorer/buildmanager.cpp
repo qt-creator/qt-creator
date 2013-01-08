@@ -235,11 +235,10 @@ void BuildManager::updateTaskCount()
 {
     Core::ProgressManager *progressManager = Core::ICore::progressManager();
     const int errors = getErrorTaskCount();
-    if (errors > 0) {
+    if (errors > 0)
         progressManager->setApplicationLabel(QString::number(errors));
-    } else {
+    else
         progressManager->setApplicationLabel(QString());
-    }
     emit tasksChanged();
 }
 

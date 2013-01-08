@@ -107,11 +107,10 @@ void getFrame(CIDebugSymbols *debugSymbols,
     WCHAR wBuf[MAX_PATH];
     f->address = s.InstructionOffset;
     HRESULT hr = debugSymbols->GetNameByOffsetWide(f->address, wBuf, MAX_PATH, 0, 0);
-    if (SUCCEEDED(hr)) {
+    if (SUCCEEDED(hr))
         f->function = wBuf;
-    } else {
+    else
         f->function.clear();
-    }
     ULONG64 ul64Displacement = 0;
     hr = debugSymbols->GetLineByOffsetWide(f->address, &(f->line), wBuf, MAX_PATH, 0, &ul64Displacement);
     if (SUCCEEDED(hr)) {

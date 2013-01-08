@@ -82,9 +82,8 @@ public:
             if (StringLiteral *stringLiteral = cast<StringLiteral *>(_ast)) {
                 const QString valueName = stringLiteral->value.toString();
 
-                if (!enumValue->keys().contains(valueName)) {
+                if (!enumValue->keys().contains(valueName))
                     setMessage(ErrInvalidEnumValue);
-                }
             } else if (! _rhsValue->asStringValue() && ! _rhsValue->asNumberValue()
                        && ! _rhsValue->asUnknownValue()) {
                 setMessage(ErrEnumValueMustBeStringOrNumber);
@@ -131,9 +130,8 @@ public:
                             fileName.prepend(QDir::separator());
                             fileName.prepend(_doc->path());
                         }
-                        if (!QFileInfo(fileName).exists()) {
+                        if (!QFileInfo(fileName).exists())
                             setMessage(WarnFileOrDirectoryDoesNotExist);
-                        }
                     }
                 }
             }
@@ -421,9 +419,8 @@ protected:
 
     bool visit(VariableStatement *ast)
     {
-        if (_seenNonDeclarationStatement) {
+        if (_seenNonDeclarationStatement)
             addMessage(HintDeclarationsShouldBeAtStartOfFunction, ast->declarationKindToken);
-        }
         return true;
     }
 
@@ -433,13 +430,12 @@ protected:
             return true;
         const QString &name = ast->name.toString();
 
-        if (_formalParameterNames.contains(name)) {
+        if (_formalParameterNames.contains(name))
             addMessage(WarnAlreadyFormalParameter, ast->identifierToken, name);
-        } else if (_declaredFunctions.contains(name)) {
+        else if (_declaredFunctions.contains(name))
             addMessage(WarnAlreadyFunction, ast->identifierToken, name);
-        } else if (_declaredVariables.contains(name)) {
+        else if (_declaredVariables.contains(name))
             addMessage(WarnDuplicateDeclaration, ast->identifierToken, name);
-        }
 
         if (_possiblyUndeclaredUses.contains(name)) {
             foreach (const SourceLocation &loc, _possiblyUndeclaredUses.value(name)) {
@@ -454,9 +450,8 @@ protected:
 
     bool visit(FunctionDeclaration *ast)
     {
-        if (_seenNonDeclarationStatement) {
+        if (_seenNonDeclarationStatement)
             addMessage(HintDeclarationsShouldBeAtStartOfFunction, ast->functionToken);
-        }
 
         return visit(static_cast<FunctionExpression *>(ast));
     }
@@ -467,13 +462,12 @@ protected:
             return false;
         const QString &name = ast->name.toString();
 
-        if (_formalParameterNames.contains(name)) {
+        if (_formalParameterNames.contains(name))
             addMessage(WarnAlreadyFormalParameter, ast->identifierToken, name);
-        } else if (_declaredVariables.contains(name)) {
+        else if (_declaredVariables.contains(name))
             addMessage(WarnAlreadyVar, ast->identifierToken, name);
-        } else if (_declaredFunctions.contains(name)) {
+        else if (_declaredFunctions.contains(name))
             addMessage(WarnDuplicateDeclaration, ast->identifierToken, name);
-        }
 
         if (FunctionDeclaration *decl = cast<FunctionDeclaration *>(ast)) {
             if (_possiblyUndeclaredUses.contains(name)) {
@@ -642,9 +636,8 @@ void Check::checkProperty(UiQualifiedId *qualifiedId)
 {
     const QString id = toString(qualifiedId);
     if (id.at(0).isLower()) {
-        if (m_propertyStack.top().contains(id)) {
+        if (m_propertyStack.top().contains(id))
             addMessage(ErrPropertiesCanOnlyHaveOneBinding, fullLocationForQualifiedId(qualifiedId));
-        }
         m_propertyStack.top().insert(id);
     }
 }
@@ -1155,9 +1148,8 @@ bool Check::visit(ExpressionStatement *ast)
             default: break;
             }
         }
-        if (!ok) {
+        if (!ok)
             ok = _inStatementBinding;
-        }
 
         if (!ok) {
             addMessage(WarnConfusingExpressionStatement,
@@ -1242,9 +1234,8 @@ void Check::checkNewExpression(ExpressionNode *ast)
     const QString name = functionName(ast, &location);
     if (name.isEmpty())
         return;
-    if (!name.at(0).isUpper()) {
+    if (!name.at(0).isUpper())
         addMessage(WarnNewWithLowercaseFunction, location);
-    }
 }
 
 void Check::checkBindingRhs(Statement *statement)
@@ -1261,9 +1252,8 @@ void Check::checkBindingRhs(Statement *statement)
 
 void Check::checkExtraParentheses(ExpressionNode *expression)
 {
-    if (NestedExpression *nested = cast<NestedExpression *>(expression)) {
+    if (NestedExpression *nested = cast<NestedExpression *>(expression))
         addMessage(HintExtraParentheses, nested->lparenToken);
-    }
 }
 
 void Check::addMessages(const QList<Message> &messages)
@@ -1311,9 +1301,8 @@ void Check::scanCommentsForAnnotations()
         const QString &comment = _doc->source().mid(commentLoc.begin(), commentLoc.length);
 
         // enable all checks annotation
-        if (comment.contains(QLatin1String("@enable-all-checks"))) {
+        if (comment.contains(QLatin1String("@enable-all-checks")))
             _enabledMessages = Message::allMessageTypes().toSet();
-        }
 
         // find all disable annotations
         int lastOffset = -1;

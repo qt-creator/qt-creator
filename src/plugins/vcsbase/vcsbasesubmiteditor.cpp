@@ -807,11 +807,10 @@ void VcsBaseSubmitEditor::filterUntrackedFilesOfProject(const QString &repositor
     const QDir repoDir(repositoryDirectory);
     for (QStringList::iterator it = untrackedFiles->begin(); it != untrackedFiles->end(); ) {
         const QString path = QDir::toNativeSeparators(repoDir.absoluteFilePath(*it));
-        if (nativeProjectFiles.contains(path)) {
+        if (nativeProjectFiles.contains(path))
             ++it;
-        } else {
+        else
             it = untrackedFiles->erase(it);
-        }
     }
 }
 

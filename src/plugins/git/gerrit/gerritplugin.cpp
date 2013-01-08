@@ -243,21 +243,19 @@ void FetchContext::processReadyReadStandardError()
 {
     // Note: fetch displays progress on stderr.
     const QString errorOutput = QString::fromLocal8Bit(m_process.readAllStandardError());
-    if (m_state == FetchState || m_state == CheckoutState) {
+    if (m_state == FetchState || m_state == CheckoutState)
         VcsBase::VcsBaseOutputWindow::instance()->append(errorOutput);
-    } else {
+    else
         VcsBase::VcsBaseOutputWindow::instance()->appendError(errorOutput);
-    }
 }
 
 void FetchContext::processReadyReadStandardOutput()
 {
     const QByteArray output = m_process.readAllStandardOutput();
-    if (m_state == WritePatchFileState) {
+    if (m_state == WritePatchFileState)
         m_patchFile->write(output);
-    } else {
+    else
         VcsBase::VcsBaseOutputWindow::instance()->append(QString::fromLocal8Bit(output));
-    }
 }
 
 void FetchContext::handleError(const QString &e)
@@ -272,11 +270,10 @@ void FetchContext::handleError(const QString &e)
 void FetchContext::processError(QProcess::ProcessError e)
 {
     const QString msg = tr("Error running %1: %2").arg(m_git, m_process.errorString());
-    if (e == QProcess::FailedToStart) {
+    if (e == QProcess::FailedToStart)
         handleError(msg);
-    } else {
+    else
         VcsBase::VcsBaseOutputWindow::instance()->appendError(msg);
-    }
 }
 
 void FetchContext::startWritePatchFile()

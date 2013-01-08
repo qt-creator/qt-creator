@@ -730,9 +730,8 @@ JsonSchema *JsonSchemaManager::parseSchema(const QString &schemaFileName) const
     if (reader.fetch(schemaFileName, QIODevice::Text)) {
         const QString &contents = QString::fromUtf8(reader.data());
         JsonValue *json = JsonValue::create(contents);
-        if (json && json->kind() == JsonValue::Object) {
+        if (json && json->kind() == JsonValue::Object)
             return new JsonSchema(json->toObject(), this);
-        }
     }
 
     return 0;

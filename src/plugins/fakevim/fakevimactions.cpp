@@ -70,9 +70,8 @@ void FakeVimSettings::insertItem(int code, SavedAction *item,
         m_nameToCode[longName] = code;
         m_codeToName[code] = longName;
     }
-    if (!shortName.isEmpty()) {
+    if (!shortName.isEmpty())
         m_nameToCode[shortName] = code;
-    }
 }
 
 void FakeVimSettings::readSettings(QSettings *settings)

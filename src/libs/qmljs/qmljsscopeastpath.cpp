@@ -55,13 +55,12 @@ void ScopeAstPath::accept(Node *node)
 
 bool ScopeAstPath::preVisit(Node *node)
 {
-    if (Statement *stmt = node->statementCast()) {
+    if (Statement *stmt = node->statementCast())
         return containsOffset(stmt->firstSourceLocation(), stmt->lastSourceLocation());
-    } else if (ExpressionNode *exp = node->expressionCast()) {
+    else if (ExpressionNode *exp = node->expressionCast())
         return containsOffset(exp->firstSourceLocation(), exp->lastSourceLocation());
-    } else if (UiObjectMember *ui = node->uiObjectMemberCast()) {
+    else if (UiObjectMember *ui = node->uiObjectMemberCast())
         return containsOffset(ui->firstSourceLocation(), ui->lastSourceLocation());
-    }
     return true;
 }
 

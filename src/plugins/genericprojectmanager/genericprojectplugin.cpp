@@ -119,9 +119,8 @@ void GenericProjectPlugin::editFiles()
     GenericProject *genericProject = static_cast<GenericProject *>(m_contextMenuProject);
     SelectableFilesDialog sfd(QFileInfo(genericProject->document()->fileName()).path(), genericProject->files(),
                               Core::ICore::mainWindow());
-    if (sfd.exec() == QDialog::Accepted) {
+    if (sfd.exec() == QDialog::Accepted)
         genericProject->setFiles(sfd.selectedFiles());
-    }
 }
 
 } // namespace Internal

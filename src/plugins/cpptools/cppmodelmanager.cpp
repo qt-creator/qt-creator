@@ -270,9 +270,8 @@ void CppPreprocessor::addFrameworkPath(const QString &frameworkPath)
         if (!framework.isDir())
             continue;
         const QFileInfo privateFrameworks(framework.absoluteFilePath(), QLatin1String("Frameworks"));
-        if (privateFrameworks.exists() && privateFrameworks.isDir()) {
+        if (privateFrameworks.exists() && privateFrameworks.isDir())
             addFrameworkPath(privateFrameworks.absoluteFilePath());
-        }
     }
 }
 
@@ -645,9 +644,8 @@ CppModelManager *CppModelManager::instance()
     if (m_modelManagerInstance)
         return m_modelManagerInstance;
     QMutexLocker locker(&m_modelManagerMutex);
-    if (!m_modelManagerInstance) {
+    if (!m_modelManagerInstance)
         m_modelManagerInstance = new CppModelManager;
-    }
     return m_modelManagerInstance;
 }
 
@@ -1202,9 +1200,8 @@ void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
 
 void CppModelManager::onAboutToUnloadSession()
 {
-    if (Core::ProgressManager *pm = Core::ICore::progressManager()) {
+    if (Core::ProgressManager *pm = Core::ICore::progressManager())
         pm->cancelTasks(QLatin1String(CppTools::Constants::TASK_INDEX));
-    }
     do {
         QMutexLocker locker(&mutex);
         m_projects.clear();
@@ -1232,9 +1229,8 @@ void CppModelManager::GC()
 
         processed.insert(fn);
 
-        if (Document::Ptr doc = currentSnapshot.document(fn)) {
+        if (Document::Ptr doc = currentSnapshot.document(fn))
             todo += doc->includedFiles();
-        }
     }
 
     QStringList removedFiles;

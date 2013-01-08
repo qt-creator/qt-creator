@@ -116,9 +116,8 @@ bool DataProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_
         return false;
 
     // if the filter regexp is a non-empty string, ignore our filters
-    if (!filterRegExp().isEmpty()) {
+    if (!filterRegExp().isEmpty())
         return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
-    }
 
     // check max rows
     if (m_maxRows > 0 && source_row > m_maxRows)
@@ -141,9 +140,8 @@ bool DataProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_
                 break;
             }
         }
-        if (!isValid) {
+        if (!isValid)
             return false;
-        }
     }
 
     // check minimum inclusive costs

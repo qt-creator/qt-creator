@@ -57,11 +57,10 @@ void QV8ProfilerClientPrivate::sendRecordingStatus()
     QByteArray option("");
     QByteArray title("");
 
-    if (recording) {
+    if (recording)
         option = "start";
-    } else {
+    else
         option = "stop";
-    }
     stream << cmd << option << title;
     q->sendMessage(ba);
 }
@@ -108,9 +107,8 @@ void QV8ProfilerClient::setRecording(bool v)
 
     d->recording = v;
 
-    if (status() == Enabled) {
+    if (status() == Enabled)
         sendRecordingStatus();
-    }
 
     emit recordingChanged(v);
 }

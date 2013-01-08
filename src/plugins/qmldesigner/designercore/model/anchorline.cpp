@@ -84,9 +84,8 @@ AnchorLine &AnchorLine::operator =(const AnchorLine &other)
 
 ModelNode AnchorLine::modelNode() const
 {
-    if (m_internalNode.isNull() || m_internalNodeState.isNull() || m_model.isNull()) {
+    if (m_internalNode.isNull() || m_internalNodeState.isNull() || m_model.isNull())
         return ModelNode();
-    }
     return ModelNode(m_internalNode, m_model.data());
 }
 

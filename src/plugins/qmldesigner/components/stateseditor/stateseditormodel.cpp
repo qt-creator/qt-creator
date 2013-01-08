@@ -106,22 +106,20 @@ QVariant StatesEditorModel::data(const QModelIndex &index, int role) const
             if (index.row() == 0) {
                 return QString(tr("base state", "Implicit default state"));
             } else {
-                if (stateNode.hasVariantProperty("name")) {
+                if (stateNode.hasVariantProperty("name"))
                     return stateNode.variantProperty("name").value();
-                } else {
+                else
                     return QVariant();
-                }
             }
 
         }
     case StateImageSourceRole: {
         static int randomNumber = 0;
         randomNumber++;
-        if (index.row() == 0) {
+        if (index.row() == 0)
             return QString("image://qmldesigner_stateseditor/baseState-%1").arg(randomNumber);
-        } else {
+        else
             return QString("image://qmldesigner_stateseditor/%1-%2").arg(index.internalId()).arg(randomNumber);
-        }
     }
     case NodeId : return index.internalId();
     }

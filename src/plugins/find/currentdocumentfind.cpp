@@ -230,9 +230,8 @@ bool CurrentDocumentFind::setFocusToCurrentFindSupport()
 bool CurrentDocumentFind::eventFilter(QObject *obj, QEvent *event)
 {
     if (m_currentWidget && obj == m_currentWidget) {
-        if (event->type() == QEvent::Hide || event->type() == QEvent::Show) {
+        if (event->type() == QEvent::Hide || event->type() == QEvent::Show)
             emit changed();
-        }
     }
     return QObject::eventFilter(obj, event);
 }

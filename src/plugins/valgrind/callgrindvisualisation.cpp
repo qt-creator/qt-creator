@@ -256,9 +256,8 @@ void Visualisation::Private::handleMousePressEvent(QMouseEvent *event,
     if (itemAtPos) {
         const Function *func = q->functionForItem(itemAtPos);
 
-        if (doubleClicked) {
+        if (doubleClicked)
             q->functionActivated(func);
-        }
         else {
             q->scene()->clearSelection();
             itemAtPos->setSelected(true);

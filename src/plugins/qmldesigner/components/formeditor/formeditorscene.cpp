@@ -264,9 +264,8 @@ QList<QGraphicsItem *> FormEditorScene::removeLayerItems(const QList<QGraphicsIt
 
 void FormEditorScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (editorView() && editorView()->model()) {
+    if (editorView() && editorView()->model())
         currentTool()->mousePressEvent(removeLayerItems(items(event->scenePos())), event);
-    }
 }
 
 static QTime staticTimer()
@@ -311,16 +310,14 @@ void FormEditorScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 
 void FormEditorScene::keyPressEvent(QKeyEvent *keyEvent)
 {
-    if (editorView() && editorView()->model()) {
+    if (editorView() && editorView()->model())
         currentTool()->keyPressEvent(keyEvent);
-    }
 }
 
 void FormEditorScene::keyReleaseEvent(QKeyEvent *keyEvent)
 {
-    if (editorView() && editorView()->model()) {
+    if (editorView() && editorView()->model())
         currentTool()->keyReleaseEvent(keyEvent);
-    }
 }
 
 FormEditorView *FormEditorScene::editorView() const
@@ -401,9 +398,8 @@ void FormEditorScene::clearFormEditorItems()
     QList<QGraphicsItem*> itemList(items());
 
     foreach (QGraphicsItem *item, itemList) {
-        if (qgraphicsitem_cast<FormEditorItem* >(item)) {
+        if (qgraphicsitem_cast<FormEditorItem* >(item))
             item->setParentItem(0);
-        }
     }
 
     foreach (QGraphicsItem *item, itemList) {

@@ -207,11 +207,10 @@ void PasteView::setProtocol(const QString &protocol)
 {
      const int index = m_ui.protocolBox->findText(protocol);
      m_ui.protocolBox->setCurrentIndex(index);
-     if (index == m_ui.protocolBox->currentIndex()) {
+     if (index == m_ui.protocolBox->currentIndex())
          protocolChanged(index); // Force enabling
-     } else {
+     else
          m_ui.protocolBox->setCurrentIndex(index);
-     }
 }
 
 } //namespace CodePaster

@@ -104,13 +104,12 @@ void AbstractRemoteLinuxPackageInstaller::handleInstallationFinished(int exitSta
     if (!d->isRunning)
         return;
 
-    if (exitStatus != SshRemoteProcess::NormalExit || d->installer->processExitCode() != 0) {
+    if (exitStatus != SshRemoteProcess::NormalExit || d->installer->processExitCode() != 0)
         emit finished(tr("Installing package failed."));
-    } else if (!errorString().isEmpty()) {
+    else if (!errorString().isEmpty())
         emit finished(errorString());
-    } else {
+    else
         emit finished();
-    }
 
     setFinished();
 }

@@ -597,9 +597,8 @@ Utils::Environment Qt4RunConfiguration::baseEnvironment() const
                 && target()->activeBuildConfiguration()) {
         env = target()->activeBuildConfiguration()->environment();
     }
-    if (m_isUsingDyldImageSuffix) {
+    if (m_isUsingDyldImageSuffix)
         env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
-    }
 
     // The user could be linking to a library found via a -L/some/dir switch
     // to find those libraries while actually running we explicitly prepend those

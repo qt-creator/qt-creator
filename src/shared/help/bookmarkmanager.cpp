@@ -397,12 +397,10 @@ void BookmarkWidget::customContextMenuRequested(const QPoint &point)
     if (!pickedAction)
         return;
 
-    if (pickedAction == showItem) {
+    if (pickedAction == showItem)
         emit linkActivated(data);
-    }
-    else if (pickedAction == showItemNewTab) {
+    else if (pickedAction == showItemNewTab)
         emit createPage(QUrl(data), false);
-    }
     else if (pickedAction == removeItem) {
         bookmarkManager->removeBookmarkItem(treeView,
             filterBookmarkModel->mapToSource(index));
@@ -674,11 +672,10 @@ QModelIndex BookmarkManager::addNewFolder(const QModelIndex& index)
     item->setData(QLatin1String("Folder"), Qt::UserRole + 10);
     item->setIcon(QApplication::style()->standardIcon(QStyle::SP_DirClosedIcon));
 
-    if (index.isValid()) {
+    if (index.isValid())
         treeModel->itemFromIndex(index)->appendRow(item);
-    } else {
+    else
         treeModel->appendRow(item);
-    }
     return treeModel->indexFromItem(item);
 }
 
@@ -785,9 +782,8 @@ void BookmarkManager::setupBookmarkModels()
                 }
             }
             parents.last()->appendRow(item);
-            if (type == QLatin1String("Folder")) {
+            if (type == QLatin1String("Folder"))
                 parents << item; lastDepths << depth;
-            }
         }
 
         if (type != QLatin1String("Folder")) {

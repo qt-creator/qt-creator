@@ -833,11 +833,10 @@ int CodeFormatter::column(int index) const
     const QChar tab = QLatin1Char('\t');
 
     for (int i = 0; i < index; i++) {
-        if (m_currentLine[i] == tab) {
+        if (m_currentLine[i] == tab)
             col = ((col / m_tabSize) + 1) * m_tabSize;
-        } else {
+        else
             col++;
-        }
     }
     return col;
 }
@@ -1318,9 +1317,8 @@ void QtStyleCodeFormatter::adjustIndent(const QList<Token> &tokens, int startLex
         break;
 
     case Colon:
-        if (topState.type == ternary_op) {
+        if (topState.type == ternary_op)
             *indentDepth -= 2;
-        }
         break;
 
     case Question:

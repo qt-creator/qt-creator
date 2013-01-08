@@ -77,9 +77,8 @@ static void syncBindingProperties(ModelNode &outputNode, const ModelNode &inputN
 
 static void syncId(ModelNode &outputNode, const ModelNode &inputNode, const QHash<QString, QString> &idRenamingHash)
 {
-    if (!inputNode.id().isEmpty()) {
+    if (!inputNode.id().isEmpty())
         outputNode.setId(idRenamingHash.value(inputNode.id()));
-    }
 }
 
 static void splitIdInBaseNameAndNumber(const QString &id, QString *baseId, int *number)
@@ -164,9 +163,8 @@ ModelNode ModelMerger::insertModel(const ModelNode &modelNode)
     QList<Import> newImports;
 
     foreach (const Import &import, modelNode.model()->imports()) {
-        if (!view()->model()->hasImport(import, true, true)) {
+        if (!view()->model()->hasImport(import, true, true))
             newImports.append(import);
-        }
     }
 
     view()->model()->changeImports(newImports, QList<Import>());

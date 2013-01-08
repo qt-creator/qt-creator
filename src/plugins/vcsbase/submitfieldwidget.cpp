@@ -344,11 +344,10 @@ void SubmitFieldWidget::slotComboIndexChanged(int comboIndex)
         return;
     // Accept new index or reset combo to previous value?
     int &previousIndex = d->fieldEntries[pos].comboIndex;
-    if (comboIndexChange(pos, comboIndex)) {
+    if (comboIndexChange(pos, comboIndex))
         previousIndex = comboIndex;
-    } else {
+    else
         setComboBlocked(d->fieldEntries.at(pos).combo, previousIndex);
-    }
     if (debug)
         qDebug() << '<' << Q_FUNC_INFO << pos;
 }

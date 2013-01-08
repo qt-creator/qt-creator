@@ -111,15 +111,13 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
 
     // Is this a QObject (plugin)
     const bool inheritsQObject = t == QtProjectParameters::Qt4Plugin;
-    if (inheritsQObject) {
+    if (inheritsQObject)
         headerStr << namespaceIndent << indent << "Q_OBJECT\n";
-    }
     headerStr << namespaceIndent << "public:\n";
-    if (inheritsQObject) {
+    if (inheritsQObject)
         headerStr << namespaceIndent << indent << unqualifiedClassName << "(QObject *parent = 0);\n";
-    } else {
+    else
         headerStr << namespaceIndent << indent << unqualifiedClassName << "();\n";
-    }
     headerStr << namespaceIndent << "};\n\n";
     Utils::writeClosingNameSpaces(namespaceList, indent, headerStr);
     headerStr <<  "#endif // "<<  guard << '\n';

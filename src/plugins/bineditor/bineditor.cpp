@@ -73,9 +73,8 @@ static QByteArray calculateHexPattern(const QByteArray &pattern)
         int i = 0;
         while (i < pattern.size()) {
             ushort s = pattern.mid(i, 2).toUShort(&ok, 16);
-            if (!ok) {
+            if (!ok)
                 return QByteArray();
-            }
             result.append(s);
             i += 2;
         }
@@ -1061,11 +1060,10 @@ bool BinEditor::event(QEvent *e)
     case QEvent::ToolTip: {
         const QHelpEvent *helpEvent = static_cast<const QHelpEvent *>(e);
         const QString tt = toolTip(helpEvent);
-        if (tt.isEmpty()) {
+        if (tt.isEmpty())
             QToolTip::hideText();
-        } else {
+        else
             QToolTip::showText(helpEvent->globalPos(), tt, this);
-        }
         e->accept();
         return true;
     }
@@ -1437,9 +1435,8 @@ void BinEditor::changeData(int position, uchar character, bool highNibble)
     changeDataAt(position, (char) character);
     bool emitModificationChanged = (m_undoStack.size() == m_unmodifiedState);
     m_undoStack.push(cmd);
-    if (emitModificationChanged) {
+    if (emitModificationChanged)
         emit modificationChanged(m_undoStack.size() != m_unmodifiedState);
-    }
 
     if (m_undoStack.size() == 1)
         emit undoAvailable(true);

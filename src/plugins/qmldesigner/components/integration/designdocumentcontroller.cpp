@@ -137,12 +137,10 @@ void DesignDocumentController::detachNodeInstanceView()
 
 void DesignDocumentController::attachNodeInstanceView()
 {
-    if (m_nodeInstanceView) {
+    if (m_nodeInstanceView)
         model()->attachView(m_nodeInstanceView.data());
-    }
-    if (m_formEditorView) {
+    if (m_formEditorView)
         m_formEditorView->resetView();
-    }
 }
 
 void DesignDocumentController::changeToMasterModel()
@@ -306,9 +304,8 @@ QString DesignDocumentController::simplfiedDisplayName() const
 {
     if (!m_componentNode.isRootNode()) {
         if (m_componentNode.id().isEmpty()) {
-            if (m_formEditorView->rootModelNode().id().isEmpty()) {
+            if (m_formEditorView->rootModelNode().id().isEmpty())
                 return m_formEditorView->rootModelNode().simplifiedTypeName();
-            }
             return m_formEditorView->rootModelNode().id();
         }
         return m_componentNode.id();
@@ -327,11 +324,10 @@ void DesignDocumentController::setFileName(const QString &fileName)
 {
     m_fileName = fileName;
 
-    if (QFileInfo(fileName).exists()) {
+    if (QFileInfo(fileName).exists())
         m_searchPath = QUrl::fromLocalFile(fileName);
-    } else {
+    else
         m_searchPath = QUrl(fileName);
-    }
 
     if (m_model)
         m_model->setFileUrl(m_searchPath);
@@ -413,9 +409,8 @@ void DesignDocumentController::changeToSubComponent(const ModelNode &componentNo
     QWeakPointer<Model> oldModel = m_model;
     Q_ASSERT(oldModel.data());
 
-    if (m_model == m_subComponentModel) {
+    if (m_model == m_subComponentModel)
         changeToMasterModel();
-    }
 
     QString componentText = m_rewriterView->extractText(QList<ModelNode>() << componentNode).value(componentNode);
 
@@ -752,9 +747,8 @@ void DesignDocumentController::paste()
             targetNode = view.selectedModelNodes().first();
 
         //In case we copy and paste a selection we paste in the parent item
-        if ((view.selectedModelNodes().count() == selectedNodes.count()) && targetNode.isValid() && targetNode.parentProperty().isValid()) {
+        if ((view.selectedModelNodes().count() == selectedNodes.count()) && targetNode.isValid() && targetNode.parentProperty().isValid())
             targetNode = targetNode.parentProperty().parentModelNode();
-        }
 
         if (!targetNode.isValid())
             targetNode = view.rootModelNode();
@@ -810,9 +804,8 @@ void DesignDocumentController::paste()
             QString defaultProperty(targetNode.metaInfo().defaultPropertyName());
 
             scatterItem(pastedNode, targetNode);
-            if (targetNode.nodeListProperty(defaultProperty).isValid()) {
+            if (targetNode.nodeListProperty(defaultProperty).isValid())
                 targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
-            }
 
             transaction.commit();
             NodeMetaInfo::clearCache();

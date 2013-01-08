@@ -242,11 +242,10 @@ QString HelpExtractor::loadDescription(const QString &name)
     int errorLine, errorColumn;
 
     QDomDocument exampleDoc;
-    if (ba.isEmpty()) {
+    if (ba.isEmpty())
         qDebug() << "No documentation found for" << name << "Is the documentation built?";
-    } else if (!exampleDoc.setContent(ba, false, &errorMsg, &errorLine, &errorColumn)) {
+    else if (!exampleDoc.setContent(ba, false, &errorMsg, &errorLine, &errorColumn))
         qDebug() << "Error loading documentation for " << name << ": " << errorMsg << errorLine << errorColumn;
-    }
 
     QDomNodeList paragraphs = exampleDoc.elementsByTagName("p");
     if (paragraphs.length() < 1)
@@ -255,9 +254,8 @@ QString HelpExtractor::loadDescription(const QString &name)
     QString description = QLatin1String("");
     for (int p = 0; p < int(paragraphs.length()); ++p) {
         description = extractTextFromParagraph(paragraphs.item(p));
-        if (isSummaryOf(description, name)) {
+        if (isSummaryOf(description, name))
             break;
-        }
     }
     return description;
 }

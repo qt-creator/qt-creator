@@ -113,9 +113,8 @@ int fromFullNameC(const char * const fullName, QString &service, QString &regtyp
                 fullNameDecoded[decodedI++] = c;
             }
         } else if (c == '.') {
-            if (iPos < 4) {
+            if (iPos < 4)
                 oldPos[iPos++] = decodedI;
-            }
             fullNameDecoded[decodedI++] = c;
         } else {
             fullNameDecoded[decodedI++] = c;
@@ -387,11 +386,10 @@ QDebug operator<<(QDebug dbg, const Service &service)
 }
 
 QDebug operator<<(QDebug dbg, const Service::ConstPtr &service){
-    if (service.data() == 0){
+    if (service.data() == 0)
         dbg << "Service{*NULL*}";
-    } else {
+    else
         dbg << *service.data();
-    }
     return dbg;
 }
 
@@ -718,9 +716,8 @@ extern "C" void DNSSD_API cAddrReply(DNSServiceRef                    sdRef,
                  << interfaceIndex << ", " << ((int)errorCode) << ", " << hostname << ", "
                  << QHostAddress(address).toString() << ", " << ttl << ", " << ((size_t)context);
     ServiceGatherer *ctxGatherer = reinterpret_cast<ServiceGatherer *>(context);
-    if (ctxGatherer){
+    if (ctxGatherer)
         ctxGatherer->addrReply(flags, errorCode, hostname, address, ttl);
-    }
 }
 
 /// callback for service browsing
@@ -856,9 +853,8 @@ void ServiceGatherer::restartResolve(ZK_IP_Protocol protocol)
                     changed = true;
                 }
             }
-            if (changed) {
+            if (changed)
                 currentService->m_host->setAddresses(addrNow);
-            }
         }
         DNSServiceErrorType err = lib()->resolve(
                     serviceBrowser->mainRef(),
@@ -889,9 +885,8 @@ void ServiceGatherer::restartResolve(ZK_IP_Protocol protocol)
                         changed = true;
                     }
                 }
-                if (changed) {
+                if (changed)
                     currentService->m_host->setAddresses(addrNow);
-                }
             }
         }
         DNSServiceErrorType err = lib()->resolve(
@@ -1085,9 +1080,8 @@ void ServiceGatherer::serviceResolveReply(DNSServiceFlags                     fl
         else
             currentService->m_host->setAddresses(QList<QHostAddress>());
         currentService->m_host->setHostName(hostName);
-        if (serviceBrowser->autoResolveAddresses){
+        if (serviceBrowser->autoResolveAddresses)
             restartHostResolution();
-        }
     }
     if (currentServiceCanBePublished())
         serviceBrowser->pendingGathererAdd(gatherer());
@@ -1144,9 +1138,8 @@ void ServiceGatherer::txtRecordReply(DNSServiceFlags                     flags,
             currentService->m_txtRecord.remove(QString::fromUtf8(keyBuf)); // check value???
         }
     }
-    if ((flags & kDNSServiceFlagsAdd) != 0) {
+    if ((flags & kDNSServiceFlagsAdd) != 0)
         status |= TxtConnectionSuccess;
-    }
     if (currentService->m_txtRecord.count() != 0 && currentServiceCanBePublished())
         serviceBrowser->pendingGathererAdd(gatherer());
 }
@@ -1373,12 +1366,10 @@ ServiceBrowserPrivate::~ServiceBrowserPrivate()
 {
     if (DEBUG_ZEROCONF)
         qDebug() << "destroying ServiceBrowserPrivate " << serviceType;
-    if (browsing){
+    if (browsing)
         stopBrowsing();
-    }
-    if (mainConnection){
+    if (mainConnection)
         mainConnection->removeBrowser(this);
-    }
 }
 
 void ServiceBrowserPrivate::insertGatherer(const QString &fullName)
@@ -1498,9 +1489,8 @@ void ServiceBrowserPrivate::browseReply(DNSServiceFlags                     flag
         if (pos == knownServices.end() || *pos != fullName)
             knownServices.insert(pos, fullName);
     } else {
-        if (gatherers.contains(fullName)){
+        if (gatherers.contains(fullName))
             gatherers[fullName]->maybeRemove();
-        }
         knownServices.removeOne(fullName);
     }
     maybeUpdateLists(); // avoid?

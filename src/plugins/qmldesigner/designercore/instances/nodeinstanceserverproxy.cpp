@@ -138,9 +138,8 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    }
 
    QByteArray envImportPath = qgetenv("QTCREATOR_QMLPUPPET_PATH");
-   if (!envImportPath.isEmpty()) {
+   if (!envImportPath.isEmpty())
        applicationPath = envImportPath;
-   }
 
    QProcessEnvironment enviroment = QProcessEnvironment::systemEnvironment();
 
@@ -363,9 +362,8 @@ void NodeInstanceServerProxy::readFirstDataStream()
         QDataStream in(m_firstSocket.data());
         in.setVersion(QDataStream::Qt_4_8);
 
-        if (m_firstBlockSize == 0) {
+        if (m_firstBlockSize == 0)
             in >> m_firstBlockSize;
-        }
 
         if (m_firstSocket->bytesAvailable() < m_firstBlockSize)
             break;
@@ -401,9 +399,8 @@ void NodeInstanceServerProxy::readSecondDataStream()
         QDataStream in(m_secondSocket.data());
         in.setVersion(QDataStream::Qt_4_8);
 
-        if (m_secondBlockSize == 0) {
+        if (m_secondBlockSize == 0)
             in >> m_secondBlockSize;
-        }
 
         if (m_secondSocket->bytesAvailable() < m_secondBlockSize)
             break;
@@ -439,9 +436,8 @@ void NodeInstanceServerProxy::readThirdDataStream()
         QDataStream in(m_thirdSocket.data());
         in.setVersion(QDataStream::Qt_4_8);
 
-        if (m_thirdBlockSize == 0) {
+        if (m_thirdBlockSize == 0)
             in >> m_thirdBlockSize;
-        }
 
         if (m_thirdSocket->bytesAvailable() < m_thirdBlockSize)
             break;

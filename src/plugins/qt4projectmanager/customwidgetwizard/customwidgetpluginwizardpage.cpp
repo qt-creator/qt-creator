@@ -123,11 +123,10 @@ void CustomWidgetPluginWizardPage::slotCheckCompleteness()
     // A collection is complete only with class name
     bool completeNow = false;
     if (!pluginName().isEmpty()) {
-        if (m_classCount > 1) {
+        if (m_classCount > 1)
             completeNow = !collectionClassName().isEmpty();
-        } else {
+        else
             completeNow = true;
-        }
     }
     if (completeNow != m_complete) {
         m_complete = completeNow;

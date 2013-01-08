@@ -272,9 +272,8 @@ void ProgressManagerPrivate::cancelTasks(const QString &type)
         delete task.key();
         task = m_runningTasks.erase(task);
     }
-    if (found) {
+    if (found)
         emit allTasksFinished(type);
-    }
 }
 
 void ProgressManagerPrivate::cancelAllRunningTasks()
@@ -330,9 +329,8 @@ void ProgressManagerPrivate::taskFinished()
     m_runningTasks.remove(task);
     delete task;
 
-    if (!m_runningTasks.key(type, 0)) {
+    if (!m_runningTasks.key(type, 0))
         emit allTasksFinished(type);
-    }
 }
 
 void ProgressManagerPrivate::disconnectApplicationTask()

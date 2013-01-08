@@ -865,9 +865,8 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
 
             State bflags = toolbutton->state;
             if (bflags & State_AutoRaise) {
-                if (!(bflags & State_MouseOver)) {
+                if (!(bflags & State_MouseOver))
                     bflags &= ~State_Raised;
-                }
             }
 
             State mflags = bflags;

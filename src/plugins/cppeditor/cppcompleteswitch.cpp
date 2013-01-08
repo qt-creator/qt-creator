@@ -192,9 +192,8 @@ void CompleteSwitchCaseStatement::match(const CppQuickFixInterface &interface, Q
                 QStringList values;
                 Overview prettyPrint;
                 for (unsigned i = 0; i < e->memberCount(); ++i) {
-                    if (Declaration *decl = e->memberAt(i)->asDeclaration()) {
+                    if (Declaration *decl = e->memberAt(i)->asDeclaration())
                         values << prettyPrint.prettyName(LookupContext::fullyQualifiedName(decl));
-                    }
                 }
                 // Get the used values
                 Block *block = switchStatement->symbol;

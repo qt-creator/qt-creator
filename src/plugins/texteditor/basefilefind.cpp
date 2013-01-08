@@ -104,9 +104,8 @@ QStringList BaseFileFind::fileNameFilters() const
         const QStringList parts = m_filterCombo->currentText().split(QLatin1Char(','));
         foreach (const QString &part, parts) {
             const QString filter = part.trimmed();
-            if (!filter.isEmpty()) {
+            if (!filter.isEmpty())
                 filters << filter;
-            }
         }
     }
     return filters;
@@ -280,11 +279,10 @@ void BaseFileFind::updateComboEntries(QComboBox *combo, bool onTop)
 {
     int index = combo->findText(combo->currentText());
     if (index < 0) {
-        if (onTop) {
+        if (onTop)
             combo->insertItem(0, combo->currentText());
-        } else {
+        else
             combo->addItem(combo->currentText());
-        }
         combo->setCurrentIndex(combo->findText(combo->currentText()));
     }
 }

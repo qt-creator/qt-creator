@@ -262,9 +262,8 @@ bool QmlConsoleView::canShowItemInTextEditor(const QModelIndex &index)
     QString filePath = model()->data(index, QmlConsoleItemModel::FileRole).toString();
     if (!filePath.isEmpty()) {
         QFileInfo fi(filePath);
-        if (fi.exists() && fi.isFile() && fi.isReadable()) {
+        if (fi.exists() && fi.isFile() && fi.isReadable())
             return true;
-        }
     }
     return false;
 }

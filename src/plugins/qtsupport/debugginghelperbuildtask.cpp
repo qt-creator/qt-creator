@@ -224,9 +224,8 @@ bool DebuggingHelperBuildTask::buildDebuggingHelper(QFutureInterface<void> &futu
         }
 
         log(output, error);
-        if (!success) {
+        if (!success)
             return false;
-        }
     }
     future.setProgressValue(4);
 
@@ -247,9 +246,8 @@ bool DebuggingHelperBuildTask::buildDebuggingHelper(QFutureInterface<void> &futu
             success = false;
         }
         log(output, error);
-        if (!success) {
+        if (!success)
             return false;
-        }
     }
     future.setProgressValue(5);
     return true;

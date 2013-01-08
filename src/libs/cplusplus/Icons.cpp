@@ -88,13 +88,12 @@ Icons::IconType Icons::iconTypeForSymbol(const Symbol *symbol)
             function = symbol->type()->asFunctionType();
 
         if (function->isSlot()) {
-            if (function->isPublic()) {
+            if (function->isPublic())
                 return SlotPublicIconType;
-            } else if (function->isProtected()) {
+            else if (function->isProtected())
                 return SlotProtectedIconType;
-            } else if (function->isPrivate()) {
+            else if (function->isPrivate())
                 return SlotPrivateIconType;
-            }
         } else if (function->isSignal()) {
             return SignalIconType;
         } else if (symbol->isPublic()) {
@@ -107,13 +106,12 @@ Icons::IconType Icons::iconTypeForSymbol(const Symbol *symbol)
     } else if (symbol->enclosingScope() && symbol->enclosingScope()->isEnum()) {
         return EnumeratorIconType;
     } else if (symbol->isDeclaration() || symbol->isArgument()) {
-        if (symbol->isPublic()) {
+        if (symbol->isPublic())
             return VarPublicIconType;
-        } else if (symbol->isProtected()) {
+        else if (symbol->isProtected())
             return VarProtectedIconType;
-        } else if (symbol->isPrivate()) {
+        else if (symbol->isPrivate())
             return VarPrivateIconType;
-        }
     } else if (symbol->isEnum()) {
         return EnumIconType;
     } else if (symbol->isClass() || symbol->isForwardClassDeclaration()) {

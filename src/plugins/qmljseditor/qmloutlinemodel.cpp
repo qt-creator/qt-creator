@@ -76,9 +76,8 @@ QVariant QmlOutlineItem::data(int role) const
         return prettyPrint(value, scopeChain.context());
     }
 
-    if (role == Qt::DecorationRole) {
+    if (role == Qt::DecorationRole)
         return m_outlineModel->icon(index());
-    }
 
     return QStandardItem::data(role);
 }
@@ -104,15 +103,13 @@ QString QmlOutlineItem::prettyPrint(const Value *value, const ContextPtr &contex
 
     if (const ObjectValue *objectValue = value->asObjectValue()) {
         const QString className = objectValue->className();
-        if (!className.isEmpty()) {
+        if (!className.isEmpty())
             return className;
-        }
     }
 
     const QString typeId = context->valueOwner()->typeId(value);
-    if (typeId == QLatin1String("undefined")) {
+    if (typeId == QLatin1String("undefined"))
         return QString();
-    }
 
     return typeId;
 }
@@ -145,9 +142,8 @@ private:
     {
         if (AST::UiObjectMember *objMember = node->uiObjectMemberCast()) {
             stack.removeLast();
-            if (!stack.isEmpty()) {
+            if (!stack.isEmpty())
                 parent.insert(objMember, stack.last());
-            }
         }
     }
 };
@@ -462,9 +458,8 @@ QModelIndex QmlOutlineModel::enterObjectDefinition(AST::UiObjectDefinition *objD
         data.insert(ItemTypeRole, ElementType);
         data.insert(AnnotationRole, getAnnotation(objDef->initializer));
         idNode = objDef->qualifiedTypeNameId;
-        if (!m_typeToIcon.contains(typeName)) {
+        if (!m_typeToIcon.contains(typeName))
             m_typeToIcon.insert(typeName, getIcon(objDef->qualifiedTypeNameId));
-        }
         icon = m_typeToIcon.value(typeName);
     } else {
         // it's a grouped propery like 'anchors'
@@ -492,9 +487,8 @@ QModelIndex QmlOutlineModel::enterObjectBinding(AST::UiObjectBinding *objBinding
     QmlOutlineItem *bindingItem = enterNode(bindingData, objBinding, objBinding->qualifiedId, m_icons->scriptBindingIcon());
 
     const QString typeName = asString(objBinding->qualifiedTypeNameId);
-    if (!m_typeToIcon.contains(typeName)) {
+    if (!m_typeToIcon.contains(typeName))
         m_typeToIcon.insert(typeName, getIcon(objBinding->qualifiedTypeNameId));
-    }
 
     QMap<int, QVariant> objectData;
     objectData.insert(Qt::DisplayRole, typeName);
@@ -608,13 +602,12 @@ QModelIndex QmlOutlineModel::enterTestCaseProperties(AST::PropertyNameAndValueLi
         objectData.insert(Qt::DisplayRole, propertyName->id.toString());
         objectData.insert(ItemTypeRole, ElementBindingType);
         QmlOutlineItem *item;
-        if (propertyNameAndValueList->value->kind == AST::Node::Kind_FunctionExpression) {
+        if (propertyNameAndValueList->value->kind == AST::Node::Kind_FunctionExpression)
             item = enterNode(objectData, propertyNameAndValueList, 0, m_icons->functionDeclarationIcon());
-        } else if (propertyNameAndValueList->value->kind == AST::Node::Kind_ObjectLiteral) {
+        else if (propertyNameAndValueList->value->kind == AST::Node::Kind_ObjectLiteral)
             item = enterNode(objectData, propertyNameAndValueList, 0, m_icons->objectDefinitionIcon());
-        } else {
+        else
             item = enterNode(objectData, propertyNameAndValueList, 0, m_icons->scriptBindingIcon());
-        }
 
         return item->index();
     } else {
@@ -645,13 +638,12 @@ AST::SourceLocation QmlOutlineModel::sourceLocation(const QModelIndex &index) co
     QTC_ASSERT(index.isValid() && (index.model() == this), return location);
     AST::Node *node = nodeForIndex(index);
     if (node) {
-        if (AST::UiObjectMember *member = node->uiObjectMemberCast()) {
+        if (AST::UiObjectMember *member = node->uiObjectMemberCast())
             location = getLocation(member);
-        } else if (AST::ExpressionNode *expression = node->expressionCast()) {
+        else if (AST::ExpressionNode *expression = node->expressionCast())
             location = getLocation(expression);
-        } else if (AST::PropertyNameAndValueList *propertyNameAndValueList = AST::cast<AST::PropertyNameAndValueList *>(node)) {
+        else if (AST::PropertyNameAndValueList *propertyNameAndValueList = AST::cast<AST::PropertyNameAndValueList *>(node))
             location = getLocation(propertyNameAndValueList);
-        }
     }
     return location;
 }
@@ -830,11 +822,10 @@ void QmlOutlineModel::moveObjectMember(AST::UiObjectMember *toMove,
             }
             Rewriter::BindingType bindingType = Rewriter::ScriptBinding;
 
-            if (insertionOrderSpecified) {
+            if (insertionOrderSpecified)
                 *addedRange = rewriter.addBinding(objDefinition->initializer, propertyName, propertyValue, bindingType, listInsertAfter);
-            } else {
+            else
                 *addedRange = rewriter.addBinding(objDefinition->initializer, propertyName, propertyValue, bindingType);
-            }
         } else {
             QString strToMove;
             {
@@ -843,11 +834,10 @@ void QmlOutlineModel::moveObjectMember(AST::UiObjectMember *toMove,
                 strToMove = documentText.mid(offset, length);
             }
 
-            if (insertionOrderSpecified) {
+            if (insertionOrderSpecified)
                 *addedRange = rewriter.addObject(objDefinition->initializer, strToMove, listInsertAfter);
-            } else {
+            else
                 *addedRange = rewriter.addObject(objDefinition->initializer, strToMove);
-            }
         }
     } else if (AST::UiArrayBinding *arrayBinding = AST::cast<AST::UiArrayBinding*>(newParent)) {
         AST::UiArrayMemberList *listInsertAfter = 0;
@@ -865,11 +855,10 @@ void QmlOutlineModel::moveObjectMember(AST::UiObjectMember *toMove,
             strToMove = documentText.mid(offset, length);
         }
 
-        if (insertionOrderSpecified) {
+        if (insertionOrderSpecified)
             *addedRange = rewriter.addObject(arrayBinding, strToMove, listInsertAfter);
-        } else {
+        else
             *addedRange = rewriter.addObject(arrayBinding, strToMove);
-        }
     } else if (AST::cast<AST::UiObjectBinding*>(newParent)) {
         qDebug() << "TODO: Reparent to UiObjectBinding";
         return;

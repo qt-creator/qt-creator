@@ -81,14 +81,12 @@ void ScopeBuilder::push(AST::Node *node)
                     break;
             }
             // signals defined in QML
-            if (const ASTSignal *astsig = value_cast<ASTSignal>(value)) {
+            if (const ASTSignal *astsig = value_cast<ASTSignal>(value))
                 _scopeChain->appendJsScope(astsig->bodyScope());
-            }
             // signals defined in C++
             else if (const CppComponentValue *qmlObject = value_cast<CppComponentValue>(owner)) {
-                if (const ObjectValue *scope = qmlObject->signalScope(name)) {
+                if (const ObjectValue *scope = qmlObject->signalScope(name))
                     _scopeChain->appendJsScope(scope);
-                }
             }
         }
     }
@@ -170,11 +168,10 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
     }
 
     const ObjectValue *scopeObject = _scopeChain->document()->bind()->findQmlObject(node);
-    if (scopeObject) {
+    if (scopeObject)
         qmlScopeObjects += scopeObject;
-    } else {
+    else
         return; // Probably syntax errors, where we're working with a "recovered" AST.
-    }
 
     // check if the object has a Qt.ListElement or Qt.Connections ancestor
     // ### allow only signal bindings for Connections
@@ -208,11 +205,10 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
                         Evaluate evaluator(_scopeChain);
                         const Value *targetValue = evaluator(scriptBinding->statement);
 
-                        if (const ObjectValue *target = value_cast<ObjectValue>(targetValue)) {
+                        if (const ObjectValue *target = value_cast<ObjectValue>(targetValue))
                             qmlScopeObjects.prepend(target);
-                        } else {
+                        else
                             qmlScopeObjects.clear();
-                        }
                     }
                 }
             }

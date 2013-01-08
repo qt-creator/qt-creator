@@ -123,9 +123,8 @@ int OverviewModel::rowCount(const QModelIndex &parent) const
                     parentSymbol = templateParentSymbol;
 
             if (Scope *parentScope = parentSymbol->asScope()) {
-                if (!parentScope->isFunction() && !parentScope->isObjCMethod()) {
+                if (!parentScope->isFunction() && !parentScope->isObjCMethod())
                     return parentScope->memberCount();
-                }
             }
             return 0;
         }

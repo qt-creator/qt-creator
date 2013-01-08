@@ -71,9 +71,8 @@ void CppCodeStylePreferences::setCodeStyleSettings(const CppCodeStyleSettings &d
     v.setValue(data);
     emit valueChanged(v);
     emit codeStyleSettingsChanged(m_data);
-    if (!currentDelegate()) {
+    if (!currentDelegate())
         emit currentValueChanged(v);
-    }
 }
 
 CppCodeStyleSettings CppCodeStylePreferences::currentCodeStyleSettings() const

@@ -288,9 +288,8 @@ void Rewriter::changeBinding(UiObjectInitializer *ast,
         // for grouped properties:
         else if (!prefix.isEmpty()) {
             if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member)) {
-                if (toString(def->qualifiedTypeNameId) == prefix) {
+                if (toString(def->qualifiedTypeNameId) == prefix)
                     changeBinding(def->initializer, suffix, newValue, binding);
-                }
             }
         }
     }
@@ -353,11 +352,10 @@ bool Rewriter::isMatchingPropertyMember(const QString &propertyName,
 
 bool Rewriter::nextMemberOnSameLine(UiObjectMemberList *members)
 {
-    if (members && members->next && members->next->member) {
+    if (members && members->next && members->next->member)
         return members->next->member->firstSourceLocation().startLine == members->member->lastSourceLocation().startLine;
-    } else {
+    else
         return false;
-    }
 }
 
 void Rewriter::insertIntoArray(UiArrayBinding *ast, const QString &newValue)
@@ -388,15 +386,13 @@ void Rewriter::removeBindingByName(UiObjectInitializer *ast, const QString &prop
         UiObjectMember *member = it->member;
 
         // run full name match (for ungrouped properties):
-        if (isMatchingPropertyMember(propertyName, member)) {
+        if (isMatchingPropertyMember(propertyName, member))
             removeMember(member);
-        }
         // check for grouped properties:
         else if (!prefix.isEmpty()) {
             if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member)) {
-                if (toString(def->qualifiedTypeNameId) == prefix) {
+                if (toString(def->qualifiedTypeNameId) == prefix)
                     removeGroupedProperty(def, propertyName);
-                }
             }
         }
     }
@@ -417,9 +413,8 @@ void Rewriter::removeGroupedProperty(UiObjectDefinition *ast,
         ++memberCount;
         UiObjectMember *member = it->member;
 
-        if (!wanted && isMatchingPropertyMember(propName, member)) {
+        if (!wanted && isMatchingPropertyMember(propName, member))
             wanted = member;
-        }
     }
 
     if (!wanted)
@@ -517,9 +512,8 @@ void Rewriter::includeEmptyGroupedProperty(UiObjectDefinition *groupedProperty, 
         // grouped property
         UiObjectMemberList *memberIter = groupedProperty->initializer->members;
         while (memberIter) {
-            if (memberIter->member != memberToBeRemoved) {
+            if (memberIter->member != memberToBeRemoved)
                 return;
-            }
             memberIter = memberIter->next;
         }
         start = groupedProperty->firstSourceLocation().begin();
@@ -670,9 +664,8 @@ void Rewriter::removeObjectMember(UiObjectMember *member, UiObjectMember *parent
     if (UiArrayBinding *parentArray = cast<UiArrayBinding *>(parent)) {
         extendToLeadingOrTrailingComma(parentArray, member, start, end);
     } else {
-        if (UiObjectDefinition *parentObjectDefinition = cast<UiObjectDefinition *>(parent)) {
+        if (UiObjectDefinition *parentObjectDefinition = cast<UiObjectDefinition *>(parent))
             includeEmptyGroupedProperty(parentObjectDefinition, member, start, end);
-        }
         includeSurroundingWhitespace(m_originalText, start, end);
     }
 

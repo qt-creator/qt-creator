@@ -406,9 +406,8 @@ FullySpecifiedType UseMinimalNames::apply(const Name *name, Rewrite *rewrite) co
 
     const QList<LookupItem> results = context.lookup(name, scope);
     foreach (const LookupItem &r, results) {
-        if (Symbol *d = r.declaration()) {
+        if (Symbol *d = r.declaration())
             return control->namedType(LookupContext::minimalName(d, _target, control));
-        }
 
         return r.type();
     }
@@ -605,9 +604,8 @@ CPLUSPLUS_EXPORT QString simplifySTLType(const QString &typeIn)
                 QRegExp mapRE2(QString::fromLatin1("map<const %1, ?%2, ?std::less<const %3>, ?%4\\s*>")
                     .arg(keyEsc, valueEsc, keyEsc, allocEsc));
                 mapRE2.setMinimal(true);
-                if (mapRE2.indexIn(type) != -1) {
+                if (mapRE2.indexIn(type) != -1)
                     type.replace(mapRE2.cap(0), QString::fromLatin1("map<const %1, %2>").arg(key, value));
-                }
             }
         }
     }

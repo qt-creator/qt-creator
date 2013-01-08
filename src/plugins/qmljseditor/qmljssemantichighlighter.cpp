@@ -270,11 +270,10 @@ protected:
 
     bool visit(UiObjectDefinition *ast)
     {
-        if (m_scopeChain.document()->bind()->isGroupedPropertyBinding(ast)) {
+        if (m_scopeChain.document()->bind()->isGroupedPropertyBinding(ast))
             processBindingName(ast->qualifiedTypeNameId);
-        } else {
+        else
             processTypeId(ast->qualifiedTypeNameId);
-        }
         scopedAccept(ast, ast->initializer);
         return false;
     }
@@ -342,9 +341,8 @@ protected:
             return false;
 
         const QString &value = ast->value.toString();
-        if (m_stateNames.contains(value)) {
+        if (m_stateNames.contains(value))
             addUse(ast->literalToken, SemanticHighlighter::LocalStateNameType);
-        }
 
         return false;
     }

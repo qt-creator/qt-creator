@@ -127,9 +127,8 @@ void Canvas::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget 
             painter->setWorldTransform(scale * old);
             painter->drawPixmap(0, 0, m_context->pixmap());
             painter->setWorldTransform(old);
-            if (clip()) {
+            if (clip())
                 painter->restore();
-            }
         }
     } else {
         painter->drawPixmap(0, 0, m_context->pixmap());

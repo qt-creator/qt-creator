@@ -335,9 +335,8 @@ bool PluginManager::hasError()
 {
     foreach (PluginSpec *spec, plugins()) {
         // only show errors on startup if plugin is enabled.
-        if (spec->hasError() && spec->isEnabled() && !spec->isDisabledIndirectly()) {
+        if (spec->hasError() && spec->isEnabled() && !spec->isDisabledIndirectly())
             return true;
-        }
     }
     return false;
 }
@@ -505,11 +504,10 @@ QString PluginManager::serializedArguments()
         foreach (const QString &argument, m_instance->d->arguments) {
             rc += separator;
             const QFileInfo fi(argument);
-            if (fi.exists() && fi.isRelative()) {
+            if (fi.exists() && fi.isRelative())
                 rc += fi.absoluteFilePath();
-            } else {
+            else
                 rc += argument;
-            }
         }
     }
     return rc;
@@ -857,9 +855,8 @@ void PluginManagerPrivate::writeSettings()
 */
 void PluginManagerPrivate::readSettings()
 {
-    if (globalSettings) {
+    if (globalSettings)
         defaultDisabledPlugins = globalSettings->value(QLatin1String(C_IGNORED_PLUGINS)).toStringList();
-    }
     if (settings) {
         disabledPlugins = settings->value(QLatin1String(C_IGNORED_PLUGINS)).toStringList();
         forceEnabledPlugins = settings->value(QLatin1String(C_FORCEENABLED_PLUGINS)).toStringList();
@@ -996,9 +993,8 @@ void PluginManagerPrivate::shutdown()
         shutdownEventLoop->exec();
     }
     deleteAll();
-    if (!allObjects.isEmpty()) {
+    if (!allObjects.isEmpty())
         qDebug() << "There are" << allObjects.size() << "objects left in the plugin manager pool: " << allObjects;
-    }
 }
 
 /*!
@@ -1270,11 +1266,10 @@ void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *s
         const int absoluteElapsedMS = m_profileTimer->elapsed();
         const int elapsedMS = absoluteElapsedMS - m_profileElapsedMS;
         m_profileElapsedMS = absoluteElapsedMS;
-        if (spec) {
+        if (spec)
             qDebug("%-22s %-22s %8dms (%8dms)", what, qPrintable(spec->name()), absoluteElapsedMS, elapsedMS);
-        } else {
+        else
             qDebug("%-45s %8dms (%8dms)", what, absoluteElapsedMS, elapsedMS);
-        }
     }
 }
 

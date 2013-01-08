@@ -90,9 +90,8 @@ static inline void applyProperties(ModelNode &node, const QHash<QString, QVarian
                    node.property(propertyIterator.key()).dynamicTypeName() == QLatin1String("alias") &&
                    node.property(propertyIterator.key()).isBindingProperty()) {
             AbstractProperty targetProperty = node.bindingProperty(propertyIterator.key()).resolveToProperty();
-            if (targetProperty.isValid()) {
+            if (targetProperty.isValid())
                 targetProperty.parentModelNode().setAuxiliaryData(targetProperty.name() + QLatin1String("@NodeInstance"), propertyIterator.value());
-            }
         } else {
             node.setAuxiliaryData(propertyIterator.key() + QLatin1String("@NodeInstance"), propertyIterator.value());
         }

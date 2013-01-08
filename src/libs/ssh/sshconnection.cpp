@@ -472,9 +472,8 @@ void SshConnectionPrivate::handleKeyExchangeInitPacket()
     // If the server sends a guessed packet, the guess must be wrong,
     // because the algorithms we support require us to initiate the
     // key exchange.
-    if (m_keyExchange->sendDhInitPacket(m_incomingPacket)) {
+    if (m_keyExchange->sendDhInitPacket(m_incomingPacket))
         m_ignoreNextPacket = true;
-    }
 
     m_keyExchangeState = DhInitSent;
 }

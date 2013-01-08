@@ -208,11 +208,10 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
     idItem->setDropEnabled(dropEnabled);
     idItem->setEditable(true);
     idItem->setData(hash, NavigatorRole);
-    if (node.metaInfo().isValid()) {
+    if (node.metaInfo().isValid())
         idItem->setToolTip(node.type());
-    } else {
+    else
         idItem->setToolTip(msgUnknownItem(node.type()));
-    }
 #    ifdef _LOCK_ITEMS_
     QStandardItem *lockItem = new QStandardItem;
     lockItem->setDragEnabled(true);
@@ -227,9 +226,8 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
     visibilityItem->setCheckable(true);
     visibilityItem->setEditable(false);
     visibilityItem->setData(hash, NavigatorRole);
-    if (node.isRootNode()) {
+    if (node.isRootNode())
         visibilityItem->setCheckable(false);
-    }
 
     QMap<QString, QStandardItem *> propertyItems;
     foreach (const QString &propertyName, visibleProperties(node)) {
@@ -256,11 +254,10 @@ void NavigatorTreeModel::updateItemRow(const ModelNode &node, ItemRow items)
 
     items.idItem->setText(node.id());
     items.visibilityItem->setCheckState(node.auxiliaryData("invisible").toBool() ? Qt::Unchecked : Qt::Checked);
-    if (node.metaInfo().isValid()) {
+    if (node.metaInfo().isValid())
         items.idItem->setToolTip(node.type());
-    } else {
+    else
         items.idItem->setToolTip(msgUnknownItem(node.type()));
-    }
 
     blockItemChangedSignal(blockSignal);
 }
@@ -496,9 +493,8 @@ void NavigatorTreeModel::removeSubTree(const ModelNode &node)
 
     QList<QStandardItem*> rowList;
     ItemRow itemRow = itemRowForNode(node);
-    if (itemRow.idItem->parent()) {
+    if (itemRow.idItem->parent())
         rowList = itemRow.idItem->parent()->takeRow(itemRow.idItem->row());
-    }
 
     foreach (const ModelNode &childNode, modelNodeChildren(node)) {
         removeSubTree(childNode);
@@ -531,9 +527,8 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentPropert
                         if (parentProperty.isNodeProperty()) {
                             ModelNode propertyNode = parentProperty.toNodeProperty().modelNode();
                             // Destruction of ancestors is not allowed
-                            if (propertyNode.isAncestorOf(node)) {
+                            if (propertyNode.isAncestorOf(node))
                                 continue;
-                            }
                             if (propertyNode.isValid()) {
                                 QApplication::setOverrideCursor(Qt::ArrowCursor);
                                 if (QMessageBox::warning(0, tr("Warning"), tr("Reparenting the component %1 here will cause the component %2 to be deleted. Do you want to proceed?").arg(node.id(), propertyNode.id()), QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Cancel) {
@@ -569,9 +564,8 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentPropert
                         if (index < targetIndex) { // item is first removed from oldIndex, then inserted at new index
                             --targetIndex;
                         }
-                        if (index != targetIndex) {
+                        if (index != targetIndex)
                             parentProperty.toNodeListProperty().slide(index, targetIndex);
-                        }
                     }
             }
         }

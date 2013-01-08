@@ -88,9 +88,8 @@ void OpenEditorsWindow::selectAndHide()
 void OpenEditorsWindow::setVisible(bool visible)
 {
     QWidget::setVisible(visible);
-    if (visible) {
+    if (visible)
         setFocus();
-    }
 }
 
 bool OpenEditorsWindow::isCentering()

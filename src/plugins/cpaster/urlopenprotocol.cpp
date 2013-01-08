@@ -63,11 +63,10 @@ void UrlOpenProtocol::fetchFinished()
     const QString title = m_fetchReply->url().toString();
     QString content;
     const bool error = m_fetchReply->error();
-    if (error) {
+    if (error)
         content = m_fetchReply->errorString();
-    } else {
+    else
         content = QString::fromUtf8(m_fetchReply->readAll());
-    }
     m_fetchReply->deleteLater();
     m_fetchReply = 0;
     emit fetchDone(title, content, error);

@@ -366,11 +366,10 @@ static inline void reparentTo(const ModelNode &node, const QmlItemNode &parent)
     if (parent.isValid() && node.isValid()) {
         NodeAbstractProperty parentProperty;
 
-        if (parent.hasDefaultProperty()) {
+        if (parent.hasDefaultProperty())
             parentProperty = parent.nodeAbstractProperty(parent.defaultProperty());
-        } else {
+        else
             parentProperty = parent.nodeAbstractProperty(QLatin1String("data"));
-        }
 
         parentProperty.reparentHere(node);
     }

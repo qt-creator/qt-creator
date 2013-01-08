@@ -114,9 +114,8 @@ void ICodeStylePreferences::setTabSettings(const TabSettings &settings)
     d->m_tabSettings = settings;
 
     emit tabSettingsChanged(d->m_tabSettings);
-    if (!currentDelegate()) {
+    if (!currentDelegate())
         emit currentTabSettingsChanged(d->m_tabSettings);
-    }
 }
 
 TabSettings ICodeStylePreferences::tabSettings() const

@@ -56,9 +56,8 @@ QList<QmlFileFilterItem*> QmlProjectItemPrivate::qmlFileFilters() const
     for (int i = 0; i < content.size(); ++i) {
         QmlProjectContentItem *contentElement = content.at(i);
         QmlFileFilterItem *qmlFileFilter = qobject_cast<QmlFileFilterItem*>(contentElement);
-        if (qmlFileFilter) {
+        if (qmlFileFilter)
             qmlFilters << qmlFileFilter;
-        }
     }
     return qmlFilters;
 }

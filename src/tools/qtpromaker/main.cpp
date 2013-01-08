@@ -399,9 +399,8 @@ int main(int argc, char *argv[])
         paths.append(".");
     }
 
-    if (outputFileName.isEmpty()) {
+    if (outputFileName.isEmpty())
         outputFileName = QDir(paths.at(0)).dirName() + '.' + proExtension;
-    }
 
     if (targetDepth == -1)
         targetDepth = 1000000; // "infinity"

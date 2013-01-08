@@ -147,11 +147,10 @@ int QmlJSIndenter::columnForIndex(const QString &t, int index) const
         index = t.length();
 
     for (int i = 0; i < index; i++) {
-        if (t.at(i) == QLatin1Char('\t')) {
+        if (t.at(i) == QLatin1Char('\t'))
             col = ((col / ppHardwareTabSize) + 1) * ppHardwareTabSize;
-        } else {
+        else
             col++;
-        }
     }
     return col;
 }
@@ -288,11 +287,10 @@ int QmlJSIndenter::indentForContinuationLine()
                     delimiters.
                 */
                 if (braceDepth == -1) {
-                    if (j < yyLine->length() - 1) {
+                    if (j < yyLine->length() - 1)
                         hook = j;
-                    } else {
+                    else
                         return 0; // shouldn't happen
-                    }
                 }
                 break;
             case '=':
@@ -587,17 +585,15 @@ int QmlJSIndenter::indentForBottomLine(QTextBlock begin, QTextBlock end, QChar t
             smartly, unless the user has already played around with it,
             in which case it's better to leave her stuff alone.
         */
-        if (isOnlyWhiteSpace(bottomLine)) {
+        if (isOnlyWhiteSpace(bottomLine))
             indent = indentWhenBottomLineStartsInMultiLineComment();
-        } else {
+        else
             indent = indentOfLine(bottomLine);
-        }
     } else {
-        if (isUnfinishedLine()) {
+        if (isUnfinishedLine())
             indent = indentForContinuationLine();
-        } else {
+        else
             indent = indentForStandaloneLine();
-        }
 
         if ((okay(typedIn, QLatin1Char('}')) && firstCh == QLatin1Char('}'))
             || (okay(typedIn, QLatin1Char(']')) && firstCh == QLatin1Char(']'))) {

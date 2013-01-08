@@ -441,9 +441,8 @@ ExternalTool * ExternalTool::createFromFile(const QString &fileName, QString *er
     if (!reader.fetch(absFileName, errorMessage))
         return 0;
     ExternalTool *tool = ExternalTool::createFromXml(reader.data(), errorMessage, locale);
-    if (!tool) {
+    if (!tool)
         return 0;
-    }
     tool->m_fileName = absFileName;
     return tool;
 }
@@ -624,9 +623,8 @@ void ExternalToolRunner::run()
 
 void ExternalToolRunner::started()
 {
-    if (!m_resolvedInput.isEmpty()) {
+    if (!m_resolvedInput.isEmpty())
         m_process->write(m_resolvedInput.toLocal8Bit());
-    }
     m_process->closeWriteChannel();
 }
 
@@ -637,9 +635,8 @@ void ExternalToolRunner::finished(int exitCode, QProcess::ExitStatus status)
                 || m_tool->errorHandling() == ExternalTool::ReplaceSelection) {
             emit ExternalToolManager::instance()->replaceSelectionRequested(m_processOutput);
         }
-        if (m_tool->modifiesCurrentDocument()) {
+        if (m_tool->modifiesCurrentDocument())
             DocumentManager::unexpectFileChange(m_expectedFileName);
-        }
     }
     ICore::messageManager()->printToOutputPane(
                 tr("'%1' finished").arg(m_resolvedExecutable), false);
@@ -661,11 +658,10 @@ void ExternalToolRunner::readStandardOutput()
         return;
     QByteArray data = m_process->readAllStandardOutput();
     QString output = m_outputCodec->toUnicode(data.constData(), data.length(), &m_outputCodecState);
-    if (m_tool->outputHandling() == ExternalTool::ShowInPane) {
+    if (m_tool->outputHandling() == ExternalTool::ShowInPane)
         ICore::messageManager()->printToOutputPane(output, true);
-    } else if (m_tool->outputHandling() == ExternalTool::ReplaceSelection) {
+    else if (m_tool->outputHandling() == ExternalTool::ReplaceSelection)
         m_processOutput.append(output);
-    }
 }
 
 void ExternalToolRunner::readStandardError()
@@ -674,11 +670,10 @@ void ExternalToolRunner::readStandardError()
         return;
     QByteArray data = m_process->readAllStandardError();
     QString output = m_outputCodec->toUnicode(data.constData(), data.length(), &m_errorCodecState);
-    if (m_tool->errorHandling() == ExternalTool::ShowInPane) {
+    if (m_tool->errorHandling() == ExternalTool::ShowInPane)
         ICore::messageManager()->printToOutputPane(output, true);
-    } else if (m_tool->errorHandling() == ExternalTool::ReplaceSelection) {
+    else if (m_tool->errorHandling() == ExternalTool::ReplaceSelection)
         m_processOutput.append(output);
-    }
 }
 
 // #pragma mark -- ExternalToolManager
@@ -777,9 +772,8 @@ void ExternalToolManager::menuActivated()
     ExternalTool *tool = m_tools.value(action->data().toString());
     QTC_ASSERT(tool, return);
     ExternalToolRunner *runner = new ExternalToolRunner(tool);
-    if (runner->hasError()) {
+    if (runner->hasError())
         ICore::messageManager()->printToOutputPane(runner->errorString(), true);
-    }
 }
 
 QMap<QString, QList<Internal::ExternalTool *> > ExternalToolManager::toolsByCategory() const
@@ -839,11 +833,10 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<Internal:
         if (containerName.isEmpty()) { // no displayCategory, so put into external tools menu directly
             container = mexternaltools;
         } else {
-            if (m_containers.contains(containerName)) {
+            if (m_containers.contains(containerName))
                 container = m_containers.take(containerName); // remove to avoid deletion below
-            } else {
+            else
                 container = ActionManager::createMenu(Id(QLatin1String("Tools.External.Category.") + containerName));
-            }
             newContainers.insert(containerName, container);
             mexternaltools->addMenu(container, Constants::G_DEFAULT_ONE);
             container->menu()->setTitle(containerName);

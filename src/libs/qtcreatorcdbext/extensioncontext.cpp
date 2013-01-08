@@ -88,11 +88,10 @@ void ExtensionContext::hookCallbacks(CIDebugClient *client)
 
 void ExtensionContext::startRecordingOutput()
 {
-    if (m_creatorOutputCallback) {
+    if (m_creatorOutputCallback)
         m_creatorOutputCallback->startRecording();
-    } else {
+    else
         report('X', 0, 0, "Error", "ExtensionContext::startRecordingOutput() called with no output hooked.\n");
-    }
 }
 
 std::wstring ExtensionContext::stopRecordingOutput()
@@ -189,18 +188,16 @@ void ExtensionContext::notifyIdleCommand(CIDebugClient *client)
         formatGdbmiHash(str, stopReasons, false);
         const std::string threadInfo = gdbmiThreadList(exc.systemObjects(), exc.symbols(),
                                                        exc.control(), exc.advanced(), &errorMessage);
-        if (threadInfo.empty()) {
+        if (threadInfo.empty())
             str << ",threaderror=" << gdbmiStringFormat(errorMessage);
-        } else {
+        else
             str << ",threads=" << threadInfo;
-        }
         const std::string stackInfo = gdbmiStack(exc.control(), exc.symbols(),
                                                  maxStackFrames, false, &errorMessage);
-        if (stackInfo.empty()) {
+        if (stackInfo.empty())
             str << ",stackerror=" << gdbmiStringFormat(errorMessage);
-        } else {
+        else
             str << ",stack=" << stackInfo;
-        }
         str << '}';
         reportLong('E', 0, "session_idle", str.str());
     }

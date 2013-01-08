@@ -607,9 +607,8 @@ void Qt4Project::updateCppCodeModel()
         QList<HeaderPath> headers;
         if (tc)
             headers = tc->systemHeaderPaths(cxxflags, SysRootKitInformation::sysRoot(k));
-        if (qtVersion) {
+        if (qtVersion)
             headers.append(qtVersion->systemHeaderPathes(k));
-        }
 
         foreach (const HeaderPath &headerPath, headers) {
             if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
@@ -1313,9 +1312,8 @@ void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, Qt4
         if (!folder.endsWith(slash))
             folder.append(slash);
         m_map.remove(folder, node);
-        if (!m_map.contains(folder)) {
+        if (!m_map.contains(folder))
             m_watcher.removePath(folder);
-        }
 
         // Figure out which recursive directories we can remove
         // this might not scale. I'm pretty sure it doesn't

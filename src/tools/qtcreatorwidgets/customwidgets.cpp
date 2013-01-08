@@ -303,11 +303,10 @@ DetailsWidgetContainerExtension::DetailsWidgetContainerExtension(Utils::DetailsW
 
 void DetailsWidgetContainerExtension::addWidget(QWidget *widget)
 {
-    if (m_detailsWidget->widget()) {
+    if (m_detailsWidget->widget())
         qWarning("Cannot add 2nd child to DetailsWidget");
-    } else {
+    else
         m_detailsWidget->setWidget(widget);
-    }
 }
 
 int DetailsWidgetContainerExtension::count() const

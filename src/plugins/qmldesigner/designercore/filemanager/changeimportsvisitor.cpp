@@ -51,11 +51,10 @@ bool ChangeImportsVisitor::add(QmlJS::AST::UiProgram *ast, const Import &import)
 
     if (ast->imports && ast->imports->import) {
         int insertionPoint = 0;
-        if (ast->members && ast->members->member) {
+        if (ast->members && ast->members->member)
             insertionPoint = ast->members->member->firstSourceLocation().begin();
-        } else {
+        else
             insertionPoint = m_source.length();
-        }
         while (insertionPoint > 0) {
             --insertionPoint;
             const QChar c = m_source.at(insertionPoint);
@@ -93,11 +92,10 @@ bool ChangeImportsVisitor::remove(QmlJS::AST::UiProgram *ast, const Import &impo
 
 bool ChangeImportsVisitor::equals(QmlJS::AST::UiImport *ast, const Import &import)
 {
-    if (import.isLibraryImport()) {
+    if (import.isLibraryImport())
         return toString(ast->importUri) == import.url();
-    } else if (import.isFileImport()) {
+    else if (import.isFileImport())
         return ast->fileName == import.file();
-    } else {
+    else
         return false;
-    }
 }

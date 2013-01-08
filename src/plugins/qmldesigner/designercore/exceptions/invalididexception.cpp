@@ -40,11 +40,10 @@ InvalidIdException::InvalidIdException(int line,
     InvalidArgumentException(line, function, file, "id"),
     m_id(id)
 {
-    if (reason == InvalidCharacters) {
+    if (reason == InvalidCharacters)
         m_description = QCoreApplication::translate("InvalidIdException", "Only alphanumeric characters and underscore allowed.\nIds must begin with a lowercase letter.");
-    } else {
+    else
         m_description = QCoreApplication::translate("InvalidIdException", "Ids have to be unique.");
-    }
 }
 
 InvalidIdException::InvalidIdException(int line,

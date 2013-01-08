@@ -465,11 +465,10 @@ QList<CustomWizard*> CustomWizard::createWizards()
                             << baseFileParameters.category() << " / " <<baseFileParameters.displayCategory() << '\n'
                             << "  (" <<   baseFileParameters.description() << ")\n"
                             << parameters->toString();
-                if (CustomWizard *w = createWizard(parameters, baseFileParameters)) {
+                if (CustomWizard *w = createWizard(parameters, baseFileParameters))
                     rc.push_back(w);
-                } else {
+                else
                     qWarning("Custom wizard factory function failed for %s", qPrintable(baseFileParameters.id()));
-                }
                 break;
             case Internal::CustomWizardParameters::ParseDisabled:
                 if (CustomWizardPrivate::verbose)
@@ -586,9 +585,8 @@ bool CustomProjectWizard::postGenerateOpen(const Core::GeneratedFiles &l, QStrin
     // Post-Generate: Open the project and the editors as desired
     foreach (const Core::GeneratedFile &file, l) {
         if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
-            if (!ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(file.path(), errorMessage)) {
+            if (!ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(file.path(), errorMessage))
                 return false;
-            }
         }
     }
     return BaseFileWizard::postGenerateOpenEditors(l, errorMessage);

@@ -103,13 +103,12 @@ TextFileFormat TextFileFormat::detect(const QByteArray &data)
     }
     // end code taken from qtextstream
     const int newLinePos = data.indexOf('\n');
-    if (newLinePos == -1) {
+    if (newLinePos == -1)
         result.lineTerminationMode = NativeLineTerminator;
-    } else if (newLinePos == 0) {
+    else if (newLinePos == 0)
         result.lineTerminationMode = LFLineTerminator;
-    } else {
+    else
         result.lineTerminationMode = data.at(newLinePos - 1) == '\r' ? CRLFLineTerminator : LFLineTerminator;
-    }
     return result;
 }
 
@@ -286,11 +285,10 @@ bool TextFileFormat::writeFile(const QString &fileName, QString plainText, QStri
     // let QFile do the work, else manually add.
     QIODevice::OpenMode fileMode = QIODevice::NotOpen;
     if (lineTerminationMode == CRLFLineTerminator) {
-        if (NativeLineTerminator == CRLFLineTerminator) {
+        if (NativeLineTerminator == CRLFLineTerminator)
             fileMode |= QIODevice::Text;
-        } else {
+        else
             plainText.replace(QLatin1Char('\n'), QLatin1String("\r\n"));
-        }
     }
 
     Utils::FileSaver saver(fileName, fileMode);

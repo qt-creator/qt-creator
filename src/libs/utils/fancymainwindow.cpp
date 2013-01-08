@@ -105,11 +105,10 @@ QDockWidget *FancyMainWindow::addDockForWidget(QWidget *widget)
     dockWidget->setWidget(widget);
     // Set an object name to be used in settings, derive from widget name
     const QString objectName = widget->objectName();
-    if (objectName.isEmpty()) {
+    if (objectName.isEmpty())
         dockWidget->setObjectName(QLatin1String("dockWidget") + QString::number(dockWidgets().size() + 1));
-    } else {
+    else
         dockWidget->setObjectName(objectName + QLatin1String("DockWidget"));
-    }
     connect(dockWidget->toggleViewAction(), SIGNAL(triggered()),
         this, SLOT(onDockActionTriggered()), Qt::QueuedConnection);
     connect(dockWidget, SIGNAL(visibilityChanged(bool)),

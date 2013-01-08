@@ -126,9 +126,8 @@ QVariant DeployConfigurationModel::data(const QModelIndex &index, int role) cons
 {
     if (role == Qt::DisplayRole) {
         const int row = index.row();
-        if (row < m_deployConfigurations.size()) {
+        if (row < m_deployConfigurations.size())
             return m_deployConfigurations.at(row)->displayName();
-        }
     }
 
     return QVariant();
@@ -162,9 +161,8 @@ void DeployConfigurationModel::addedDeployConfiguration(ProjectExplorer::DeployC
     DeployConfigurationComparer compare;
     int i = 0;
     for (; i < m_deployConfigurations.size(); ++i) {
-        if (compare(dc, m_deployConfigurations.at(i))) {
+        if (compare(dc, m_deployConfigurations.at(i)))
             break;
-        }
     }
 
     beginInsertRows(QModelIndex(), i, i);

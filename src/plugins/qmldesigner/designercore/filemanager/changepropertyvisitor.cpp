@@ -120,9 +120,8 @@ void ChangePropertyVisitor::replaceInMembers(UiObjectInitializer *initializer,
         // for grouped properties:
         else if (!prefix.isEmpty()) {
             if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member)) {
-                if (toString(def->qualifiedTypeNameId) == prefix) {
+                if (toString(def->qualifiedTypeNameId) == prefix)
                     replaceInMembers(def->initializer, suffix);
-                }
             }
         }
     }
@@ -172,27 +171,25 @@ void ChangePropertyVisitor::replaceMemberValue(UiObjectMember *propertyMember, b
 bool ChangePropertyVisitor::isMatchingPropertyMember(const QString &propName,
                                                      UiObjectMember *member)
 {
-    if (UiObjectBinding *objectBinding = AST::cast<UiObjectBinding *>(member)) {
+    if (UiObjectBinding *objectBinding = AST::cast<UiObjectBinding *>(member))
         return propName == toString(objectBinding->qualifiedId);
-    } else if (UiScriptBinding *scriptBinding = AST::cast<UiScriptBinding *>(member)) {
+    else if (UiScriptBinding *scriptBinding = AST::cast<UiScriptBinding *>(member))
         return propName == toString(scriptBinding->qualifiedId);
-    } else if (UiArrayBinding *arrayBinding = AST::cast<UiArrayBinding *>(member)) {
+    else if (UiArrayBinding *arrayBinding = AST::cast<UiArrayBinding *>(member))
         return propName == toString(arrayBinding->qualifiedId);
-    } else if (UiPublicMember *publicMember = AST::cast<UiPublicMember *>(member)) {
+    else if (UiPublicMember *publicMember = AST::cast<UiPublicMember *>(member))
         return propName == publicMember->name;
-    } else {
+    else
         return false;
-    }
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 bool ChangePropertyVisitor::nextMemberOnSameLine(UiObjectMemberList *members)
 {
-    if (members && members->next && members->next->member) {
+    if (members && members->next && members->next->member)
         return members->next->member->firstSourceLocation().startLine == members->member->lastSourceLocation().startLine;
-    } else {
+    else
         return false;
-    }
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this

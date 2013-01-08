@@ -612,11 +612,10 @@ void SubmitEditorWidget::editorCustomContextMenuRequested(const QPoint &pos)
     // Extend
     foreach (const SubmitEditorWidgetPrivate::AdditionalContextMenuAction &a, d->descriptionEditContextMenuActions) {
         if (a.second) {
-            if (a.first >= 0) {
+            if (a.first >= 0)
                 menu->insertAction(menu->actions().at(a.first), a.second);
-            } else {
+            else
                 menu->addAction(a.second);
-            }
         }
     }
     menu->exec(d->m_ui.description->mapToGlobal(pos));

@@ -320,9 +320,8 @@ QRect EditorView::editorArea() const
 
 void EditorView::addCurrentPositionToNavigationHistory(IEditor *editor, const QByteArray &saveState)
 {
-    if (editor && editor != currentEditor()) {
+    if (editor && editor != currentEditor())
         return; // we only save editor sate for the current editor, when the user interacts
-    }
 
     if (!editor)
         editor = currentEditor();
@@ -334,11 +333,10 @@ void EditorView::addCurrentPositionToNavigationHistory(IEditor *editor, const QB
         return;
 
     QByteArray state;
-    if (saveState.isNull()) {
+    if (saveState.isNull())
         state = editor->saveState();
-    } else {
+    else
         state = saveState;
-    }
 
     EditLocation location;
     location.document = document;
@@ -606,9 +604,8 @@ SplitterOrView *SplitterOrView::findNextView(SplitterOrView *view)
 
 SplitterOrView *SplitterOrView::findNextView_helper(SplitterOrView *view, bool *found)
 {
-    if (*found && m_view) {
+    if (*found && m_view)
         return this;
-    }
 
     if (this == view) {
         *found = true;
@@ -721,9 +718,8 @@ void SplitterOrView::unsplitAll_helper()
         ICore::editorManager()->emptyView(m_view);
     if (m_splitter) {
         for (int i = 0; i < m_splitter->count(); ++i) {
-            if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i))) {
+            if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
                 splitterOrView->unsplitAll_helper();
-            }
         }
     }
 }

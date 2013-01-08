@@ -61,9 +61,8 @@ bool GLSLHoverHandler::acceptEditor(IEditor *editor)
 void GLSLHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
 {
     if (GLSLTextEditorWidget *glslEditor = qobject_cast<GLSLTextEditorWidget *>(editor->widget())) {
-        if (! glslEditor->extraSelectionTooltip(pos).isEmpty()) {
+        if (! glslEditor->extraSelectionTooltip(pos).isEmpty())
             setToolTip(glslEditor->extraSelectionTooltip(pos));
-        }
     }
 }
 

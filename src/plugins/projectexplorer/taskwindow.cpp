@@ -384,11 +384,10 @@ void TaskWindow::setCategoryVisibility(const Core::Id &categoryId, bool visible)
 
     QList<Core::Id> categories = d->m_filter->filteredCategories();
 
-    if (visible) {
+    if (visible)
         categories.removeOne(categoryId);
-    } else {
+    else
         categories.append(categoryId);
-    }
 
     d->m_filter->setFilteredCategories(categories);
 
@@ -612,9 +611,8 @@ void TaskWindow::setFocus()
 {
     if (d->m_filter->rowCount()) {
         d->m_listview->setFocus();
-        if (d->m_listview->currentIndex() == QModelIndex()) {
+        if (d->m_listview->currentIndex() == QModelIndex())
             d->m_listview->setCurrentIndex(d->m_filter->index(0,0, QModelIndex()));
-        }
     }
 }
 

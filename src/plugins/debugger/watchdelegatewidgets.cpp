@@ -134,11 +134,10 @@ QValidator::State IntegerValidator::validateEntry(const QString &s, int base, bo
     if (bigInt)
         return QValidator::Acceptable;
     bool ok;
-    if (signedV) {
+    if (signedV)
         s.toLongLong(&ok, base);
-    } else {
+    else
         s.toULongLong(&ok, base);
-    }
     return ok ? QValidator::Acceptable : QValidator::Intermediate;
 }
 

@@ -326,11 +326,10 @@ void QmlProfilerClientManager::retryMessageBoxFinished(int result)
         // fall through
     }
     default: {
-        if (d->connection) {
+        if (d->connection)
             QmlProfilerTool::logStatus(QLatin1String("QML Profiler: Failed to connect! ") + d->connection->errorString());
-        } else {
+        else
             QmlProfilerTool::logStatus(QLatin1String("QML Profiler: Failed to connect!"));
-        }
 
         emit connectionFailed();
         break;
@@ -399,9 +398,8 @@ void QmlProfilerClientManager::profilerStateChanged()
     QTC_ASSERT(d->profilerState, return);
     switch (d->profilerState->currentState()) {
     case QmlProfilerStateManager::AppStopRequested :
-        if (d->profilerState->serverRecording()) {
+        if (d->profilerState->serverRecording())
             stopClientsRecording();
-        }
         else
             d->profilerState->setCurrentState(QmlProfilerStateManager::AppReadyToStop);
         break;

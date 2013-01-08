@@ -181,11 +181,10 @@ QString GitSubmitEditorWidget::cleanupDescription(const QString &input) const
     for (int pos = 0; pos < message.size(); ) {
         const int newLinePos = message.indexOf(newLine, pos);
         const int startOfNextLine = newLinePos == -1 ? message.size() : newLinePos + 1;
-        if (message.at(pos) == hash) {
+        if (message.at(pos) == hash)
             message.remove(pos, startOfNextLine - pos);
-        } else {
+        else
             pos = startOfNextLine;
-        }
     }
     return message;
 

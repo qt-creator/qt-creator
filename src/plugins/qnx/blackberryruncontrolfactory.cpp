@@ -158,9 +158,8 @@ Debugger::DebuggerStartParameters BlackBerryRunControlFactory::startParameters(
 
     if (const ProjectExplorer::Project *project = runConfig->target()->project()) {
         params.projectSourceDirectory = project->projectDirectory();
-        if (const ProjectExplorer::BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration()) {
+        if (const ProjectExplorer::BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
             params.projectBuildDirectory = buildConfig->buildDirectory();
-        }
         params.projectSourceFiles = project->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
     }
 

@@ -280,11 +280,10 @@ void StandardItemTreeModelBuilder::addItem(const QString &s)
 
 void StandardItemTreeModelBuilder::pushRow()
 {
-    if (m_rowParents.isEmpty()) {
+    if (m_rowParents.isEmpty())
         m_model->appendRow(m_row);
-    } else {
+    else
         m_rowParents.top()->appendRow(m_row);
-    }
     m_rowParents.push(m_row.front());
     m_row.clear();
 }
@@ -379,11 +378,10 @@ void XmlWriterTreeModelVisitor::run()
 void XmlWriterTreeModelVisitor::handleItem(const QModelIndex &m)
 {
     const QString value = m.data(Qt::DisplayRole).toString();
-    if (value.isEmpty()) {
+    if (value.isEmpty())
         m_writer.writeEmptyElement(m_modelItemElement);
-    } else {
+    else
         m_writer.writeTextElement(m_modelItemElement, value);
-    }
 }
 
 // TreeModelVisitor for debugging/copying models
@@ -1030,11 +1028,10 @@ void DebuggerToolTipWidget::restoreTreeModel(QXmlStreamReader &r, QStandardItemM
         case QXmlStreamReader::EndElement: {
             const QStringRef element = r.name();
             // Row closing: pop off parent.
-            if (element == QLatin1String(modelRowElementC)) {
+            if (element == QLatin1String(modelRowElementC))
                 builder.endRow();
-            } else if (element == QLatin1String(modelElementC)) {
+            else if (element == QLatin1String(modelElementC))
                 withinModel = false;
-            }
         }
             break; // EndElement
         default:
@@ -1145,11 +1142,10 @@ void DebuggerToolTipManager::registerToolTip(DebuggerToolTipWidget *toolTipWidge
 void DebuggerToolTipManager::purgeClosedToolTips()
 {
     for (DebuggerToolTipWidgetList::iterator it = m_tooltips.begin(); it != m_tooltips.end() ; ) {
-        if (it->isNull()) {
+        if (it->isNull())
             it = m_tooltips.erase(it);
-        } else {
+        else
             ++it;
-        }
     }
 }
 
@@ -1272,11 +1268,10 @@ void DebuggerToolTipManager::slotUpdateVisibleToolTips()
     // Reposition and show all tooltips of that file.
     const QString fileName = toolTipEditor.fileName();
     foreach (const QPointer<DebuggerToolTipWidget> &tw, m_tooltips) {
-        if (tw->fileName() == fileName) {
+        if (tw->fileName() == fileName)
             tw->positionShow(toolTipEditor);
-        } else {
+        else
             tw->hide();
-        }
     }
 }
 

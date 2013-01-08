@@ -137,9 +137,8 @@ void ParseData::Private::addCompressedString(NameLookupTable &lookup, const QStr
 
 void ParseData::Private::cycleDetection()
 {
-    if (m_cycleCacheValid) {
+    if (m_cycleCacheValid)
         return;
-    }
     cleanupFunctionCycles();
     Internal::CycleDetection algorithm(m_q);
     m_cycleCache = algorithm.run(m_functions);

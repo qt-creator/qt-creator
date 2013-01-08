@@ -232,11 +232,10 @@ void BasicProposalItemListModel::filter(const QString &prefix)
             keyRegExp += QLatin1Char(')');
         } else {
             if (!first) {
-                if (c.isUpper()) {
+                if (c.isUpper())
                     keyRegExp += uppercaseWordContinuation;
-                } else {
+                else
                     keyRegExp += lowercaseWordContinuation;
-                }
             }
             keyRegExp += QRegExp::escape(c);
         }
