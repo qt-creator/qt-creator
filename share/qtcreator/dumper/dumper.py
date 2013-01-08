@@ -1948,6 +1948,41 @@ def threadnames(arg):
 registerCommand("threadnames", threadnames)
 
 
+#######################################################################
+#
+# Import plain gdb pretty printers
+#
+#######################################################################
+
+class PlainDumper:
+    def __init__(self, printer):
+        self.printer = printer
+
+    def __call__(self, d, value):
+        printer = self.printer.invoke(value)
+        lister = getattr(printer, "children", None)
+        children = [] if lister is None else list(lister())
+        d.putType(self.printer.name)
+        d.putValue(printer.to_string())
+        d.putNumChild(len(children))
+        if d.isExpanded():
+            with Children(d):
+                for child in children:
+                    d.putSubItem(child[0], child[1])
+
+def importPlainDumper(printer):
+    name = printer.name.replace("::", "__")
+    qqDumpers[name] = PlainDumper(printer)
+    qqFormats[name] = ""
+
+def importPlainDumpers(args):
+    for obj in gdb.objfiles():
+        for printers in obj.pretty_printers + gdb.pretty_printers:
+            for printer in printers.subprinters:
+                importPlainDumper(printer)
+
+registerCommand("importPlainDumpers", importPlainDumpers)
+
 
 #######################################################################
 #
