@@ -1,4 +1,4 @@
-<plugin name=\"Madde\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\">
+<plugin name=\"Madde\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\" disabledByDefault=\"true\">
     <vendor>Digia Plc</vendor>
     <copyright>(C) 2012 Digia Plc</copyright>
     <license>
