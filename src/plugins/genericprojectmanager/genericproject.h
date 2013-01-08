@@ -89,7 +89,6 @@ public:
     QStringList allIncludePaths() const;
     QStringList projectIncludePaths() const;
     QStringList files() const;
-    QStringList generated() const;
 
 protected:
     bool fromMap(const QVariantMap &map);
@@ -113,7 +112,6 @@ private:
     QStringList m_rawFileList;
     QStringList m_files;
     QHash<QString, QString> m_rawListEntries;
-    QStringList m_generated;
     QStringList m_includePaths;
     QStringList m_projectIncludePaths;
     QByteArray m_defines;

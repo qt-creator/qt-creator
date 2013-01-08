@@ -36,6 +36,8 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/mimedatabase.h>
+#include <cpptools/cpptoolsconstants.h>
 #include <cpptools/ModelManagerInterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/abi.h>
@@ -248,8 +250,7 @@ void GenericProject::refresh(RefreshOptions options)
                     new CPlusPlus::CppModelManagerInterface::ProjectPart);
 
         Kit *k = activeTarget() ? activeTarget()->kit() : KitManager::instance()->defaultKit();
-        ToolChain *tc = k ? ToolChainKitInformation::toolChain(k) : 0;
-        if (tc) {
+        if (ToolChain *tc = ToolChainKitInformation::toolChain(k)) {
             QStringList cxxflags; // FIXME: Can we do better?
             part->defines = tc->predefinedMacros(cxxflags);
             part->defines += '\n';
@@ -266,8 +267,21 @@ void GenericProject::refresh(RefreshOptions options)
         part->defines += m_defines;
 
         // ### add _defines.
-        part->sourceFiles = files();
-        part->sourceFiles += generated();
+
+        // Add any C/C++ files to be parsed
+        QStringList cppMimeTypes;
+        cppMimeTypes << QLatin1String(CppTools::Constants::C_SOURCE_MIMETYPE)
+                     << QLatin1String(CppTools::Constants::C_HEADER_MIMETYPE)
+                     << QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)
+                     << QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
+                     << QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE);
+
+        const Core::MimeDatabase *mimeDatabase = Core::ICore::mimeDatabase();
+        foreach (const QString &file, files()) {
+            const Core::MimeType mimeType = mimeDatabase->findByFile(QFileInfo(file));
+            if (cppMimeTypes.contains(mimeType.type()))
+                part->sourceFiles += file;
+        }
 
         QStringList filesToUpdate;
 
@@ -278,7 +292,7 @@ void GenericProject::refresh(RefreshOptions options)
             m_codeModelFuture.cancel();
         } else if (options & Files) {
             // Only update files that got added to the list
-            QSet<QString> newFileList = m_files.toSet();
+            QSet<QString> newFileList = part->sourceFiles.toSet();
             newFileList.subtract(oldFileList);
             filesToUpdate.append(newFileList.toList());
         }
@@ -360,11 +374,6 @@ QStringList GenericProject::files() const
     return m_files;
 }
 
-QStringList GenericProject::generated() const
-{
-    return m_generated;
-}
-
 QStringList GenericProject::includePaths() const
 {
     return m_includePaths;
@@ -408,7 +417,7 @@ GenericProjectNode *GenericProject::rootProjectNode() const
 QStringList GenericProject::files(FilesMode fileMode) const
 {
     Q_UNUSED(fileMode)
-    return m_files; // ### TODO: handle generated files here.
+    return m_files;
 }
 
 QStringList GenericProject::buildTargets() const
