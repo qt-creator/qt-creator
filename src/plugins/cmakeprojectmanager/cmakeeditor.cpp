@@ -56,8 +56,7 @@ using namespace CMakeProjectManager::Internal;
 //
 
 CMakeEditor::CMakeEditor(CMakeEditorWidget *editor)
-  : BaseTextEditor(editor),
-    m_infoBarShown(false)
+  : BaseTextEditor(editor)
 {
     setContext(Core::Context(CMakeProjectManager::Constants::C_CMAKEEDITOR,
               TextEditor::Constants::C_TEXTEDITOR));
@@ -82,13 +81,14 @@ void CMakeEditor::markAsChanged()
 {
     if (!document()->isModified())
         return;
-    if (m_infoBarShown)
+    Core::InfoBar *infoBar = document()->infoBar();
+    Core::Id infoRunCmake("CMakeEditor.RunCMake");
+    if (!infoBar->canInfoBeAdded(infoRunCmake))
         return;
-    m_infoBarShown = true;
-    Core::InfoBarEntry info(Core::Id("CMakeEditor.RunCMake"),
+    Core::InfoBarEntry info(infoRunCmake,
                             tr("Changes to cmake files are shown in the project tree after building."));
     info.setCustomButtonInfo(tr("Build now"), this, SLOT(build()));
-    document()->infoBar()->addInfo(info);
+    infoBar->addInfo(info);
 }
 
 void CMakeEditor::build()
