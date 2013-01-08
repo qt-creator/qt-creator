@@ -31,7 +31,8 @@
     \section2 Main Tag
 
     The root tag is \c plugin. It has the mandatory attributes \c name
-    and \c version, and the optional attributes \c compatVersion and \c experimental.
+    and \c version, and the optional attributes \c compatVersion, \c experimental
+    and \c disabledByDefault.
     \table
         \header
             \o Tag
@@ -68,9 +69,16 @@
                (inclusive).
         \row
             \o experimental
-            \o Optional. Can be \c yes or \c no, defaults to \c no.
+            \o Optional. Can be \c true or \c false, defaults to \c false.
                Experimental plugins are not loaded by default but must be explicitly
-               enabled by the user.
+               enabled by the user. This attribute should be enabled for new plugins which have the
+               potential to negatively affect the user experience.
+        \row
+            \o disabledByDefault
+            \o Optional. Can be \c true or \c false, defaults to \c false.
+               If set, the respective plugin is not loaded by default but must be explicitly
+               enabled by the user. This should be done for plugins which are not expected
+               to be used by so many people as to justify the additional resource consumption.
     \endtable
 
     \section2 Plugin-describing Tags

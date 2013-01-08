@@ -441,6 +441,7 @@ namespace {
     const char PLUGIN_VERSION[] = "version";
     const char PLUGIN_COMPATVERSION[] = "compatVersion";
     const char PLUGIN_EXPERIMENTAL[] = "experimental";
+    const char PLUGIN_DISABLED_BY_DEFAULT[] = "disabledByDefault";
     const char VENDOR[] = "vendor";
     const char COPYRIGHT[] = "copyright";
     const char LICENSE[] = "license";
@@ -609,15 +610,13 @@ void PluginSpecPrivate::readPluginSpec(QXmlStreamReader &reader)
     } else if (compatVersion.isEmpty()) {
         compatVersion = version;
     }
-    QString experimentalString = reader.attributes().value(QLatin1String(PLUGIN_EXPERIMENTAL)).toString();
-    experimental = (experimentalString.compare(QLatin1String("true"), Qt::CaseInsensitive) == 0);
-    if (!experimentalString.isEmpty() && !experimental
-            && experimentalString.compare(QLatin1String("false"), Qt::CaseInsensitive) != 0) {
-        reader.raiseError(msgInvalidFormat(PLUGIN_EXPERIMENTAL));
+    disabledByDefault = readBooleanValue(reader, PLUGIN_DISABLED_BY_DEFAULT);
+    experimental = readBooleanValue(reader, PLUGIN_EXPERIMENTAL);
+    if (reader.hasError())
         return;
-    }
-    disabledByDefault = experimental;
-    enabled = !experimental;
+    if (experimental)
+        disabledByDefault = true;
+    enabled = !disabledByDefault;
     while (!reader.atEnd()) {
         reader.readNext();
         switch (reader.tokenType()) {
@@ -705,6 +704,17 @@ void PluginSpecPrivate::readArgumentDescription(QXmlStreamReader &reader)
     if (reader.tokenType() != QXmlStreamReader::EndElement)
         reader.raiseError(msgUnexpectedToken());
     argumentDescriptions.push_back(arg);
+}
+
+bool PluginSpecPrivate::readBooleanValue(QXmlStreamReader &reader, const char *key)
+{
+    const QString valueString = reader.attributes().value(QLatin1String(key)).toString();
+    const bool isOn = valueString.compare(QLatin1String("true"), Qt::CaseInsensitive) == 0;
+    if (!valueString.isEmpty() && !isOn
+            && valueString.compare(QLatin1String("false"), Qt::CaseInsensitive) != 0) {
+        reader.raiseError(msgInvalidFormat(key));
+    }
+    return isOn;
 }
 
 /*!

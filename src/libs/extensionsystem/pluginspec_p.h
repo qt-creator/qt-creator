@@ -103,6 +103,7 @@ private:
     void readDependencyEntry(QXmlStreamReader &reader);
     void readArgumentDescriptions(QXmlStreamReader &reader);
     void readArgumentDescription(QXmlStreamReader &reader);
+    bool readBooleanValue(QXmlStreamReader &reader, const char *key);
 
     static QRegExp &versionRegExp();
 };
