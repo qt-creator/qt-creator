@@ -36,6 +36,7 @@
 #include "debuggerengine.h"
 #include "debuggerdialogs.h"
 #include "watchutils.h"
+#include "imageviewer.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -1673,11 +1674,11 @@ void WatchHandler::showEditValue(const WatchData &data)
         break;
     case DisplayImageData:
     case DisplayImageFile: {  // QImage
-        QLabel *l = qobject_cast<QLabel *>(w);
+        ImageViewer *l = qobject_cast<ImageViewer *>(w);
         if (!l) {
             removeSeparateWidget(w);
             delete w;
-            l = new QLabel;
+            l = new  ImageViewer;
             const QString title = data.address ?
                 tr("%1 Object at %2").arg(QLatin1String(data.type),
                     QLatin1String(data.hexAddress())) :
@@ -1707,9 +1708,7 @@ void WatchHandler::showEditValue(const WatchData &data)
             ba = f.readAll();
             bits = (uchar*)ba.data();
         }
-        QImage im(bits, width, height, QImage::Format(format));
-        l->setPixmap(QPixmap::fromImage(im));
-        l->resize(width, height);
+        l->setImage(QImage(bits, width, height, QImage::Format(format)));
         showSeparateWidget(l);
     }
         break;

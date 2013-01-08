@@ -70,7 +70,8 @@ HEADERS += \
     debuggertooltipmanager.h \
     debuggersourcepathmappingwidget.h \
     memoryview.h \
-    localsandexpressionswindow.h
+    localsandexpressionswindow.h \
+    imageviewer.h
 
 SOURCES += \
     basewindow.cpp \
@@ -117,7 +118,8 @@ SOURCES += \
     debuggertooltipmanager.cpp \
     debuggersourcepathmappingwidget.cpp \
     memoryview.cpp \
-    localsandexpressionswindow.cpp
+    localsandexpressionswindow.cpp \
+    imageviewer.cpp
 
 FORMS += \
     localsandexpressionsoptionspage.ui
