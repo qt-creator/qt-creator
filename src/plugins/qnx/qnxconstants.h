@@ -75,6 +75,7 @@ const char QNX_QNX_OS_TYPE[] = "QnxOsType";
 
 const char QNX_DEBUG_TOKEN_KEY[] = "debugToken";
 
+const char QNX_BLACKBERRY_CASCADES_WIZARD_ID[]     = "Q.QnxBlackBerryCascadesApp";
 const char QNX_BAR_DESCRIPTOR_WIZARD_ID[]          = "Q.QnxBlackBerryBarDescriptor";
 const char QNX_BLACKBERRY_QTQUICK_APP_WIZARD_ID[]  = "Q.QnxBlackBerryQQApp";
 const char QNX_BLACKBERRY_QTQUICK2_APP_WIZARD_ID[] = "Q.QnxBlackBerryQQ2App";

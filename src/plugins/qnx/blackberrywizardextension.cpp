@@ -51,6 +51,7 @@ BlackBerryWizardExtension::BlackBerryWizardExtension()
 QList<QWizardPage *> BlackBerryWizardExtension::extensionPages(const Core::IWizard *wizard)
 {
     QStringList validIds;
+    validIds << QLatin1String(Constants::QNX_BLACKBERRY_CASCADES_WIZARD_ID);
     validIds << QLatin1String(Constants::QNX_BAR_DESCRIPTOR_WIZARD_ID);
     validIds << QLatin1String(Constants::QNX_BLACKBERRY_QTQUICK_APP_WIZARD_ID);
     validIds << QLatin1String(Constants::QNX_BLACKBERRY_GUI_APP_WIZARD_ID);

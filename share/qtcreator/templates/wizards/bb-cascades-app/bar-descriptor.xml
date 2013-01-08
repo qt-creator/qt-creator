@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8' standalone='no'?>
+<qnx xmlns="http://www.qnx.com/schemas/application/1.0">
+    <id>com.example.%ProjectName%</id>
+    <name>%ProjectName%</name>
+    <versionNumber>1.0.0</versionNumber>
+    <description>DESCRIPTION</description>
+    <initialWindow>
+        <systemChrome>none</systemChrome>
+        <transparent>false</transparent>
+        <autoOrients>true</autoOrients>
+        <aspectRatio>landscape</aspectRatio>
+    </initialWindow>
+    <env value="app/native/lib:/usr/lib/qt4/lib/" var="LD_LIBRARY_PATH"/>
+    <action system="true">run_native</action>
+    <asset path="%ProjectName%" type="Qnx/Elf" entry="true">%ProjectName%</asset>
+    <asset path="%SRC_DIR%/assets">assets</asset>
+</qnx>
