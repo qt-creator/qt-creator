@@ -230,12 +230,13 @@ protected: ////////// Gdb Process Management //////////
 
     void startGdb(const QStringList &args = QStringList());
     void reportEngineSetupOk(const GdbResponse &response);
+    void handleCheckForPython(const GdbResponse &response);
     void handleInferiorShutdown(const GdbResponse &response);
     void handleGdbExit(const GdbResponse &response);
     void handleNamespaceExtraction(const GdbResponse &response);
 
     void loadInitScript();
-    void loadPythonDumpers();
+    void tryLoadPythonDumpers();
     void pythonDumpersFailed();
 
     // Something went wrong with the adapter *before* adapterStarted() was emitted.
@@ -705,6 +706,7 @@ protected:
     // debug information.
     bool attemptQuickStart() const;
     bool m_fullStartDone;
+    bool m_pythonAttemptedToLoad;
 
     // Test
     bool m_forceAsyncModel;

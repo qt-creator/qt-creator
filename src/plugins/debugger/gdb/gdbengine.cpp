@@ -262,6 +262,7 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
     m_terminalTrap = startParameters.useTerminal;
     m_fullStartDone = false;
     m_forceAsyncModel = false;
+    m_pythonAttemptedToLoad = false;
 
     invalidateSourcesList();
 
@@ -1433,11 +1434,12 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         return;
     }
 
+    tryLoadPythonDumpers();
+
     bool gotoHandleStop1 = true;
     if (!m_fullStartDone) {
         m_fullStartDone = true;
         postCommand("sharedlibrary .*");
-        loadPythonDumpers();
         postCommand("p 3", CB(handleStop1));
         gotoHandleStop1 = false;
     }
@@ -4842,16 +4844,19 @@ void GdbEngine::startGdb(const QStringList &args)
     } else {
         m_fullStartDone = true;
         postCommand("set auto-solib-add on", ConsoleCommand);
-        loadPythonDumpers();
     }
-
-    // Dummy command to guarantee a roundtrip before the adapter proceed.
-    postCommand("pwd", ConsoleCommand, CB(reportEngineSetupOk));
 
     if (debuggerCore()->boolSetting(MultiInferior)) {
         //postCommand("set follow-exec-mode new");
         postCommand("set detach-on-fork off");
     }
+
+    // Quick check whether we have python.
+    postCommand("python print 43", ConsoleCommand, CB(handleHasPython));
+
+    // Dummy command to guarantee a roundtrip before the adapter proceed.
+    // Make sure this stays the last command in startGdb().
+    postCommand("pwd", ConsoleCommand, CB(reportEngineSetupOk));
 }
 
 void GdbEngine::reportEngineSetupOk(const GdbResponse &response)
@@ -4888,10 +4893,15 @@ void GdbEngine::loadInitScript()
     }
 }
 
-void GdbEngine::loadPythonDumpers()
+void GdbEngine::tryLoadPythonDumpers()
 {
     if (m_forceAsyncModel)
         return;
+    if (!m_hasPython)
+        return;
+    if (m_pythonAttemptedToLoad)
+        return;
+    m_pythonAttemptedToLoad = true;
 
     const QByteArray dumperSourcePath =
         Core::ICore::resourcePath().toLocal8Bit() + "/dumper/";
@@ -4909,7 +4919,7 @@ void GdbEngine::loadPythonDumpers()
 
     loadInitScript();
 
-    postCommand("bbsetup", ConsoleCommand, CB(handleHasPython));
+    postCommand("bbsetup", ConsoleCommand);
 }
 
 void GdbEngine::handleGdbError(QProcess::ProcessError error)

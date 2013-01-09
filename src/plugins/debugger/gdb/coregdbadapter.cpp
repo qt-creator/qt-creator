@@ -185,7 +185,7 @@ void GdbCoreEngine::handleTargetCore(const GdbResponse &response)
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         // HACK: The namespace is not accessible in the initial run.
-        loadPythonDumpers();
+        tryLoadPythonDumpers();
         showMessage(tr("Attached to core."), StatusBar);
         handleInferiorPrepared();
         // Due to the auto-solib-add off setting, we don't have any
