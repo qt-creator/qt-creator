@@ -73,6 +73,7 @@
 #include <QInputDialog>
 #include <QToolBar>
 #include <QTreeView>
+#include <QSharedPointer>
 
 using namespace GLSL;
 using namespace GLSLEditor;
@@ -159,7 +160,7 @@ GLSLTextEditorWidget::GLSLTextEditorWidget(QWidget *parent) :
 
     connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
 
-    new Highlighter(baseTextDocument());
+    new Highlighter(baseTextDocument().data());
 
 //    if (m_modelManager) {
 //        m_semanticHighlighter->setModelManager(m_modelManager);

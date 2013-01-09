@@ -46,6 +46,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <QFileInfo>
+#include <QSharedPointer>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -112,7 +113,7 @@ void CMakeEditor::build()
 CMakeEditorWidget::CMakeEditorWidget(QWidget *parent, CMakeEditorFactory *factory, TextEditor::TextEditorActionHandler *ah)
     : BaseTextEditorWidget(parent), m_factory(factory), m_ah(ah)
 {
-    CMakeDocument *doc = new CMakeDocument();
+    QSharedPointer<CMakeDocument> doc(new CMakeDocument);
     doc->setMimeType(QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
     setBaseTextDocument(doc);
 

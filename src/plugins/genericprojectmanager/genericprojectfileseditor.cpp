@@ -37,6 +37,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <QCoreApplication>
+#include <QSharedPointer>
 
 using namespace TextEditor;
 
@@ -124,7 +125,7 @@ ProjectFilesEditorWidget::ProjectFilesEditorWidget(QWidget *parent, ProjectFiles
       m_factory(factory),
       m_actionHandler(handler)
 {
-    BaseTextDocument *doc = new BaseTextDocument();
+    QSharedPointer<BaseTextDocument> doc(new BaseTextDocument());
     setBaseTextDocument(doc);
 
     handler->setupActions(this);

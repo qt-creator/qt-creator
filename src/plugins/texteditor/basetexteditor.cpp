@@ -525,7 +525,7 @@ BaseTextEditor *BaseTextEditorWidget::editor() const
 
 void BaseTextEditorWidget::selectEncoding()
 {
-    BaseTextDocument *doc = d->m_document;
+    BaseTextDocument *doc = d->m_document.data();
     CodecSelector codecSelector(this, doc);
 
     switch (codecSelector.exec()) {
@@ -655,7 +655,7 @@ void BaseTextEditorWidget::setChangeSet(const Utils::ChangeSet &changeSet)
 
 Core::IDocument *BaseTextEditorWidget::editorDocument() const
 {
-    return d->m_document;
+    return d->m_document.data();
 }
 
 void BaseTextEditorWidget::editorContentsChange(int position, int charsRemoved, int charsAdded)
@@ -2136,15 +2136,15 @@ void BaseTextEditorWidget::setDisplayName(const QString &title)
     emit changed();
 }
 
-BaseTextDocument *BaseTextEditorWidget::baseTextDocument() const
+QSharedPointer<BaseTextDocument> BaseTextEditorWidget::baseTextDocument() const
 {
     return d->m_document;
 }
 
 
-void BaseTextEditorWidget::setBaseTextDocument(BaseTextDocument *doc)
+void BaseTextEditorWidget::setBaseTextDocument(const QSharedPointer<BaseTextDocument> &doc)
 {
-    if (doc) {
+    if (!doc.isNull()) {
         d->setupDocumentSignals(doc);
         d->m_document = doc;
     }
@@ -2504,12 +2504,12 @@ BaseTextEditorWidgetPrivate::~BaseTextEditorWidgetPrivate()
 {
 }
 
-void BaseTextEditorWidgetPrivate::setupDocumentSignals(BaseTextDocument *document)
+void BaseTextEditorWidgetPrivate::setupDocumentSignals(const QSharedPointer<BaseTextDocument> &document)
 {
-    BaseTextDocument *oldDocument = q->baseTextDocument();
-    if (oldDocument) {
+    QSharedPointer<BaseTextDocument> oldDocument = q->baseTextDocument();
+    if (!oldDocument.isNull()) {
         q->disconnect(oldDocument->document(), 0, q, 0);
-        q->disconnect(oldDocument, 0, q, 0);
+        q->disconnect(oldDocument.data(), 0, q, 0);
     }
 
     QTextDocument *doc = document->document();
@@ -2534,10 +2534,10 @@ void BaseTextEditorWidgetPrivate::setupDocumentSignals(BaseTextDocument *documen
     QObject::connect(doc, SIGNAL(modificationChanged(bool)), q, SIGNAL(changed()));
     QObject::connect(doc, SIGNAL(contentsChange(int,int,int)), q,
         SLOT(editorContentsChange(int,int,int)), Qt::DirectConnection);
-    QObject::connect(document, SIGNAL(changed()), q, SIGNAL(changed()));
-    QObject::connect(document, SIGNAL(titleChanged(QString)), q, SLOT(setDisplayName(QString)));
-    QObject::connect(document, SIGNAL(aboutToReload()), q, SLOT(documentAboutToBeReloaded()));
-    QObject::connect(document, SIGNAL(reloaded()), q, SLOT(documentReloaded()));
+    QObject::connect(document.data(), SIGNAL(changed()), q, SIGNAL(changed()));
+    QObject::connect(document.data(), SIGNAL(titleChanged(QString)), q, SLOT(setDisplayName(QString)));
+    QObject::connect(document.data(), SIGNAL(aboutToReload()), q, SLOT(documentAboutToBeReloaded()));
+    QObject::connect(document.data(), SIGNAL(reloaded()), q, SLOT(documentReloaded()));
     q->slotUpdateExtraAreaWidth();
 }
 
@@ -6137,7 +6137,7 @@ void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
     if (a && a->isEnabled())
         menu->addAction(a);
 
-    BaseTextDocument *doc = baseTextDocument();
+    QSharedPointer<BaseTextDocument> doc = baseTextDocument();
     if (doc->codec()->name() == QByteArray("UTF-8")) {
         a = Core::ActionManager::command(Constants::SWITCH_UTF8BOM)->action();
         if (a && a->isEnabled()) {
@@ -6599,7 +6599,7 @@ IAssistInterface *BaseTextEditorWidget::createAssistInterface(AssistKind kind,
                                                               AssistReason reason) const
 {
     Q_UNUSED(kind);
-    return new DefaultAssistInterface(document(), position(), d->m_document, reason);
+    return new DefaultAssistInterface(document(), position(), d->m_document.data(), reason);
 }
 
 QString TextEditor::BaseTextEditorWidget::foldReplacementText(const QTextBlock &) const

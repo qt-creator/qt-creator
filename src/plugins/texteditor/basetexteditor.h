@@ -38,6 +38,7 @@
 #include <find/ifindsupport.h>
 
 #include <QPlainTextEdit>
+#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QToolBar;
@@ -357,8 +358,8 @@ public:
     void duplicateFrom(BaseTextEditorWidget *editor);
 
 protected:
-    BaseTextDocument *baseTextDocument() const;
-    void setBaseTextDocument(BaseTextDocument *doc);
+    QSharedPointer<BaseTextDocument> baseTextDocument() const;
+    void setBaseTextDocument(const QSharedPointer<BaseTextDocument> &doc);
 
     void setDefaultPath(const QString &defaultPath);
 

@@ -40,7 +40,7 @@
 #include <utils/changeset.h>
 
 #include <QBasicTimer>
-#include <QSharedData>
+#include <QSharedPointer>
 #include <QPointer>
 #include <QScopedPointer>
 
@@ -75,73 +75,6 @@ public:
     void fromSelection(const TabSettings &ts, const QTextCursor &selection);
 };
 
-//========== Pointers with reference count ==========
-
-template <class T> class QRefCountData : public QSharedData
-{
-public:
-    QRefCountData(T *data) { m_data = data; }
-
-    ~QRefCountData() { delete m_data; }
-
-    T *m_data;
-};
-
-/* MOSTLY COPIED FROM QSHAREDDATA(-POINTER) */
-template <class T> class QRefCountPointer
-{
-public:
-    inline T &operator*() { return d ? *(d->m_data) : 0; }
-    inline const T &operator*() const { return d ? *(d->m_data) : 0; }
-    inline T *operator->() { return d ? d->m_data : 0; }
-    inline const T *operator->() const { return d ? d->m_data : 0; }
-    inline operator T *() { return d ? d->m_data : 0; }
-    inline operator const T *() const { return d ? d->m_data : 0; }
-
-    inline bool operator==(const QRefCountPointer<T> &other) const { return d == other.d; }
-    inline bool operator!=(const QRefCountPointer<T> &other) const { return d != other.d; }
-
-    inline QRefCountPointer() { d = 0; }
-    inline ~QRefCountPointer() { if (d && !d->ref.deref()) delete d; }
-
-    explicit QRefCountPointer(T *data) {
-        if (data) {
-            d = new QRefCountData<T>(data);
-            d->ref.ref();
-        }
-        else {
-            d = 0;
-        }
-    }
-    inline QRefCountPointer(const QRefCountPointer<T> &o) : d(o.d) { if (d) d->ref.ref(); }
-    inline QRefCountPointer<T> & operator=(const QRefCountPointer<T> &o) {
-        if (o.d != d) {
-            if (d && !d->ref.deref())
-                delete d;
-            //todo: atomic assign of pointers
-            d = o.d;
-            if (d)
-                d->ref.ref();
-        }
-        return *this;
-    }
-    inline QRefCountPointer &operator=(T *o) {
-        if (d == 0 || d->m_data != o) {
-            if (d && !d->ref.deref())
-                delete d;
-            d = new QRefCountData<T>(o);
-            if (d)
-                d->ref.ref();
-        }
-        return *this;
-    }
-
-    inline bool operator!() const { return !d; }
-
-private:
-    QRefCountData<T> *d;
-};
-
 //================BaseTextEditorPrivate==============
 
 struct BaseTextEditorPrivateHighlightBlocks
@@ -168,7 +101,7 @@ public:
     ~BaseTextEditorWidgetPrivate();
 
     void setupBasicEditActions(TextEditorActionHandler *actionHandler);
-    void setupDocumentSignals(BaseTextDocument *document);
+    void setupDocumentSignals(const QSharedPointer<BaseTextDocument> &document);
     void updateLineSelectionColor();
 
     void print(QPrinter *printer);
@@ -184,7 +117,7 @@ public:
     QList<QTextEdit::ExtraSelection> m_syntaxHighlighterSelections;
     QTextEdit::ExtraSelection m_lineSelection;
 
-    QRefCountPointer<BaseTextDocument> m_document;
+    QSharedPointer<BaseTextDocument> m_document;
     QByteArray m_tempState;
     QByteArray m_tempNavigationState;
 

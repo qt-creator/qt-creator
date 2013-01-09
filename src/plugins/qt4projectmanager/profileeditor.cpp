@@ -45,6 +45,7 @@
 
 #include <QFileInfo>
 #include <QDir>
+#include <QSharedPointer>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -81,7 +82,7 @@ Core::Id ProFileEditor::id() const
 ProFileEditorWidget::ProFileEditorWidget(QWidget *parent, ProFileEditorFactory *factory, TextEditor::TextEditorActionHandler *ah)
     : BaseTextEditorWidget(parent), m_factory(factory), m_ah(ah)
 {
-    ProFileDocument *doc = new ProFileDocument();
+    QSharedPointer<ProFileDocument> doc(new ProFileDocument());
     doc->setMimeType(QLatin1String(Constants::PROFILE_MIMETYPE));
     setBaseTextDocument(doc);
 

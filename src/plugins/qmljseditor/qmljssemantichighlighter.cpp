@@ -436,7 +436,7 @@ void SemanticHighlighter::applyResults(int from, int to)
     if (m_startRevision != m_editor->editorRevision())
         return;
 
-    TextEditor::BaseTextDocument *baseTextDocument = m_editor->baseTextDocument();
+    TextEditor::BaseTextDocument *baseTextDocument = m_editor->baseTextDocument().data();
     QTC_ASSERT(baseTextDocument, return);
     TextEditor::SyntaxHighlighter *highlighter = qobject_cast<TextEditor::SyntaxHighlighter *>(baseTextDocument->syntaxHighlighter());
     QTC_ASSERT(highlighter, return);
@@ -452,7 +452,7 @@ void SemanticHighlighter::finished()
     if (m_startRevision != m_editor->editorRevision())
         return;
 
-    TextEditor::BaseTextDocument *baseTextDocument = m_editor->baseTextDocument();
+    TextEditor::BaseTextDocument *baseTextDocument = m_editor->baseTextDocument().data();
     QTC_ASSERT(baseTextDocument, return);
     TextEditor::SyntaxHighlighter *highlighter = qobject_cast<TextEditor::SyntaxHighlighter *>(baseTextDocument->syntaxHighlighter());
     QTC_ASSERT(highlighter, return);
