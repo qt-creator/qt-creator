@@ -2132,6 +2132,7 @@ bool GdbEngine::hasCapability(unsigned cap) const
         | CatchCapability
         | OperateByInstructionCapability
         | RunToLineCapability
+        | WatchComplexExpressionsCapability
         | MemoryAddressCapability))
         return true;
 

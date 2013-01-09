@@ -820,7 +820,7 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
 // free debugger expression.
 QString fixCppExpression(const QString &expIn)
 {
-    QString exp = expIn;
+    QString exp = expIn.trimmed();;
     // Extract the first identifier, everything else is considered
     // too dangerous.
     int pos1 = 0, pos2 = exp.size();
@@ -838,7 +838,12 @@ QString fixCppExpression(const QString &expIn)
         }
     }
     exp = exp.mid(pos1, pos2 - pos1);
+    return removeObviousSideEffects(exp);
+}
 
+QString removeObviousSideEffects(const QString &expIn)
+{
+    QString exp = expIn.trimmed();
     if (exp.isEmpty() || exp.startsWith(QLatin1Char('#')) || !hasLetterOrNumber(exp) || isKeyWord(exp))
         return QString();
 
