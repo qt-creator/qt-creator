@@ -1138,8 +1138,10 @@ void BaseTextEditorWidget::moveLineUpDown(bool up)
     int end = move.position();
 
     if (hasSelection) {
+        move.setPosition(end);
+        move.setPosition(start, QTextCursor::KeepAnchor);
+    } else {
         move.setPosition(start);
-        move.setPosition(end, QTextCursor::KeepAnchor);
     }
 
     //update positions of affectedMarkers
