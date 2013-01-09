@@ -68,15 +68,8 @@ void CustomExecutableRunConfiguration::ctor()
 {
     setDefaultDisplayName(defaultDisplayName());
 
-    connect(target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(activeBuildConfigurationChanged()));
-
-    m_lastActiveBuildConfiguration = activeBuildConfiguration();
-
-    if (m_lastActiveBuildConfiguration) {
-        connect(m_lastActiveBuildConfiguration, SIGNAL(environmentChanged()),
-                this, SIGNAL(baseEnvironmentChanged()));
-    }
+    connect(target(), SIGNAL(environmentChanged()),
+            this, SIGNAL(baseEnvironmentChanged()));
 }
 
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(ProjectExplorer::Target *parent) :
@@ -104,19 +97,6 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(ProjectExplor
 // Note: Qt4Project deletes all empty customexecrunconfigs for which isConfigured() == false.
 CustomExecutableRunConfiguration::~CustomExecutableRunConfiguration()
 {
-}
-
-void CustomExecutableRunConfiguration::activeBuildConfigurationChanged()
-{
-    if (m_lastActiveBuildConfiguration) {
-        disconnect(m_lastActiveBuildConfiguration, SIGNAL(environmentChanged()),
-                   this, SIGNAL(baseEnvironmentChanged()));
-    }
-    m_lastActiveBuildConfiguration = activeBuildConfiguration();
-    if (m_lastActiveBuildConfiguration) {
-        connect(m_lastActiveBuildConfiguration, SIGNAL(environmentChanged()),
-                this, SIGNAL(baseEnvironmentChanged()));
-    }
 }
 
 // Dialog embedding the CustomExecutableConfigurationWidget

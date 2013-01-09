@@ -87,9 +87,6 @@ signals:
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &diff);
 
-private slots:
-    void activeBuildConfigurationChanged();
-
 protected:
     CustomExecutableRunConfiguration(ProjectExplorer::Target *parent,
                                      CustomExecutableRunConfiguration *source);
@@ -127,7 +124,6 @@ private:
     QString m_userName;
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
     BaseEnvironmentBase m_baseEnvironmentBase;
-    ProjectExplorer::BuildConfiguration *m_lastActiveBuildConfiguration;
 };
 
 class CustomExecutableRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
