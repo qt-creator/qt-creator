@@ -2139,12 +2139,6 @@ inline void dumpRect(std::wostream &str, T x, T y, T width, T height)
     str << y;
 }
 
-template <class T>
-inline void dumpRectPoints(std::wostream &str, T x1, T y1, T x2, T y2)
-{
-    dumpRect(str, x1, y1, (x2 - x1), (y2 - y1));
-}
-
 // Dump Qt's simple geometrical types
 static inline bool dumpQSize_F(const SymbolGroupValue &v, std::wostream &str)
 {
@@ -2172,7 +2166,11 @@ static inline bool dumpQLine_F(const SymbolGroupValue &v, std::wostream &str)
 
 static inline bool dumpQRect(const SymbolGroupValue &v, std::wostream &str)
 {
-    dumpRectPoints(str, v["x1"].intValue(), v["y1"].intValue(), v["x2"].intValue(), v["y2"].intValue());
+    const int x1 = v["x1"].intValue();
+    const int y1 = v["y1"].intValue();
+    const int x2 = v["x2"].intValue();
+    const int y2 = v["y2"].intValue();
+    dumpRect(str, x1, y1, (x2 - x1 + 1), (y2 - y1 + 1));
     return true;
 }
 
