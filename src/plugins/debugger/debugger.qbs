@@ -82,6 +82,8 @@ QtcPlugin {
         "disassembleragent.h",
         "disassemblerlines.cpp",
         "disassemblerlines.h",
+        "imageviewer.cpp",
+        "imageviewer.h",
         "loadcoredialog.cpp",
         "loadcoredialog.h",
         "localsandexpressionsoptionspage.ui",
