@@ -29,37 +29,30 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXUTILS_H
-#define QNX_INTERNAL_QNXUTILS_H
+#ifndef BLACKBERRYSETTINGSPAGE_H
+#define BLACKBERRYSETTINGSPAGE_H
 
-#include "qnxconstants.h"
-
-#include <utils/environment.h>
-#include <utils/qtcassert.h>
-#include <utils/fileutils.h>
-
-#include <QTextStream>
-#include <QString>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace Qnx {
 namespace Internal {
 
-class QnxAbstractQtVersion;
+class BlackBerrySettingsWidget;
 
-class QnxUtils
+class BlackBerrySettingsPage : public Core::IOptionsPage
 {
+    Q_OBJECT
 public:
-    static QString addQuotes(const QString &string);
-    static Qnx::QnxArchitecture cpudirToArch(const QString &cpuDir);
-    static QStringList searchPaths(QnxAbstractQtVersion *qtVersion);
-    static QMultiMap<QString, QString> parseEnvironmentFile(const QString &fileName);
-    static bool isValidNdkPath(const QString & ndkPath);
-    static QString envFilePath(const QString & ndkPath);
-    static void prependQnxMapToEnvironment(const QMultiMap<QString, QString> &qnxMap, Utils::Environment &env);
-    static Utils::FileName executableWithExtension(const Utils::FileName &fileName);
+    explicit BlackBerrySettingsPage(QObject *parent = 0);
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish();
+
+private:
+    BlackBerrySettingsWidget *m_widget;
 };
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_QNXUTILS_H
+#endif // BLACKBERRYSETTINGSPAGE_H

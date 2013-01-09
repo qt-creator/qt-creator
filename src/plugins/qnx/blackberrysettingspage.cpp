@@ -29,37 +29,40 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXUTILS_H
-#define QNX_INTERNAL_QNXUTILS_H
-
+#include "blackberrysettingspage.h"
+#include "blackberrysettingswidget.h"
 #include "qnxconstants.h"
 
-#include <utils/environment.h>
-#include <utils/qtcassert.h>
-#include <utils/fileutils.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
-#include <QTextStream>
-#include <QString>
+#include <QCoreApplication>
 
 namespace Qnx {
 namespace Internal {
 
-class QnxAbstractQtVersion;
-
-class QnxUtils
+BlackBerrySettingsPage::BlackBerrySettingsPage(QObject *parent) :
+    Core::IOptionsPage(parent)
 {
-public:
-    static QString addQuotes(const QString &string);
-    static Qnx::QnxArchitecture cpudirToArch(const QString &cpuDir);
-    static QStringList searchPaths(QnxAbstractQtVersion *qtVersion);
-    static QMultiMap<QString, QString> parseEnvironmentFile(const QString &fileName);
-    static bool isValidNdkPath(const QString & ndkPath);
-    static QString envFilePath(const QString & ndkPath);
-    static void prependQnxMapToEnvironment(const QMultiMap<QString, QString> &qnxMap, Utils::Environment &env);
-    static Utils::FileName executableWithExtension(const Utils::FileName &fileName);
-};
+    setId(QLatin1String(Constants::QNX_SETTINGS_ID));
+    setDisplayName(tr("BlackBerry"));
+    setCategory(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("BlackBerry",
+                                                   Constants::QNX_SETTINGS_TR_CATEGORY));
+}
+
+QWidget *BlackBerrySettingsPage::createPage(QWidget *parent)
+{
+    m_widget = new BlackBerrySettingsWidget(parent);
+    return m_widget;
+}
+
+void BlackBerrySettingsPage::apply()
+{
+}
+
+void BlackBerrySettingsPage::finish()
+{
+}
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_QNXUTILS_H

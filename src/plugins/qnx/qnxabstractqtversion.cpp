@@ -30,8 +30,9 @@
 ****************************************************************************/
 
 #include "qnxabstractqtversion.h"
-
 #include "qnxbaseqtconfigwidget.h"
+
+#include "qnxutils.h"
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -51,7 +52,6 @@ QnxAbstractQtVersion::QnxAbstractQtVersion(QnxArchitecture arch, const Utils::Fi
     : QtSupport::BaseQtVersion(path, isAutoDetected, autoDetectionSource)
     , m_arch(arch)
 {
-    setDefaultSdkPath();
 }
 
 QnxArchitecture QnxAbstractQtVersion::architecture() const
@@ -69,7 +69,6 @@ QString QnxAbstractQtVersion::archString() const
     case UnknownArch:
         return QString();
     }
-
     return QString();
 }
 
@@ -97,25 +96,24 @@ QList<ProjectExplorer::Abi> QnxAbstractQtVersion::detectQtAbis() const
 void QnxAbstractQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const
 {
     QtSupport::BaseQtVersion::addToEnvironment(k, env);
+    updateEnvironment();
+    QnxUtils::prependQnxMapToEnvironment(m_envMap, env);
+    env.prependOrSetLibrarySearchPath(versionInfo().value(QLatin1String("QT_INSTALL_LIBS")));
+}
 
-    if (!m_environmentUpToDate)
-        updateEnvironment();
-
-    QMultiMap<QString, QString>::const_iterator it;
-    QMultiMap<QString, QString>::const_iterator end(m_envMap.constEnd());
-    for (it = m_envMap.constBegin(); it != end; ++it) {
-        const QString key = it.key();
-        const QString value = it.value();
-
-        if (key == QLatin1String("PATH"))
-            env.prependOrSetPath(value);
-        else if (key == QLatin1String("LD_LIBRARY_PATH"))
-            env.prependOrSetLibrarySearchPath(value);
-        else
-            env.set(key, value);
+Utils::Environment QnxAbstractQtVersion::qmakeRunEnvironment() const
+{
+    if (!m_environmentUpToDate && !sdkPath().isEmpty())
+    {
+        // TODO: return Utils::Environment instead(?)
+        m_envMap = QnxUtils::parseEnvironmentFile(QnxUtils::envFilePath(sdkPath()));
+        m_environmentUpToDate = true;
     }
 
-    env.prependOrSetLibrarySearchPath(versionInfo().value(QLatin1String("QT_INSTALL_LIBS")));
+    Utils::Environment env = Utils::Environment::systemEnvironment();
+    QnxUtils::prependQnxMapToEnvironment(m_envMap, env);
+
+    return env;
 }
 
 QString QnxAbstractQtVersion::sdkPath() const
@@ -134,8 +132,10 @@ void QnxAbstractQtVersion::setSdkPath(const QString &sdkPath)
 
 void QnxAbstractQtVersion::updateEnvironment() const
 {
-    m_envMap = environment();
-    m_environmentUpToDate = true;
+    if (!m_environmentUpToDate) {
+        m_envMap = environment();
+        m_environmentUpToDate = true;
+    }
 }
 
 QString QnxAbstractQtVersion::qnxHost() const
@@ -171,20 +171,3 @@ QString QnxAbstractQtVersion::invalidReason() const
     return QtSupport::BaseQtVersion::invalidReason();
 }
 
-void QnxAbstractQtVersion::setDefaultSdkPath()
-{
-    QHash<QString, QString> info = versionInfo();
-    QString qtHostPrefix;
-    if (info.contains(QLatin1String("QT_HOST_PREFIX")))
-        qtHostPrefix = info.value(QLatin1String("QT_HOST_PREFIX"));
-    else
-        return;
-
-    QString envFile;
-    if (Utils::HostOsInfo::isWindowsHost())
-        envFile = qtHostPrefix + QLatin1String("/bbndk-env.bat");
-    else if (Utils::HostOsInfo::isAnyUnixHost())
-        envFile = qtHostPrefix + QLatin1String("/bbndk-env.sh");
-    if (QFileInfo(envFile).exists())
-        setSdkPath(qtHostPrefix);
-}

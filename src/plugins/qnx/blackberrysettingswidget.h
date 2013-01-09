@@ -29,37 +29,46 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXUTILS_H
-#define QNX_INTERNAL_QNXUTILS_H
+#ifndef BLACKBERRYSETTINGSWIDGET_H
+#define BLACKBERRYSETTINGSWIDGET_H
 
-#include "qnxconstants.h"
+#include "blackberryconfiguration.h"
 
-#include <utils/environment.h>
-#include <utils/qtcassert.h>
-#include <utils/fileutils.h>
+#include <QWidget>
+#include <QStandardItemModel>
 
-#include <QTextStream>
-#include <QString>
 
 namespace Qnx {
 namespace Internal {
 
-class QnxAbstractQtVersion;
+class Ui_BlackBerrySettingsWidget;
 
-class QnxUtils
+
+class BlackBerrySettingsWidget : public QWidget
 {
+    Q_OBJECT
 public:
-    static QString addQuotes(const QString &string);
-    static Qnx::QnxArchitecture cpudirToArch(const QString &cpuDir);
-    static QStringList searchPaths(QnxAbstractQtVersion *qtVersion);
-    static QMultiMap<QString, QString> parseEnvironmentFile(const QString &fileName);
-    static bool isValidNdkPath(const QString & ndkPath);
-    static QString envFilePath(const QString & ndkPath);
-    static void prependQnxMapToEnvironment(const QMultiMap<QString, QString> &qnxMap, Utils::Environment &env);
-    static Utils::FileName executableWithExtension(const Utils::FileName &fileName);
+   explicit BlackBerrySettingsWidget(QWidget *parent = 0);
+
+signals:
+    void sdkPathChanged();
+
+public slots:
+    void checkSdkPath();
+    void updateInfoTable();
+    void clearInfoTable();
+    void cleanConfiguration();
+
+private:
+    void initInfoTable();
+    QString m_sdkPath;
+    Ui_BlackBerrySettingsWidget *m_ui;
+    BlackBerryConfiguration *m_bbConfig;
+    QStandardItemModel *m_infoModel;
+
 };
 
 } // namespace Internal
-} // namespace Qnx
+} // namespeace Qnx
 
-#endif // QNX_INTERNAL_QNXUTILS_H
+#endif // BLACKBERRYSETTINGSWIDGET_H

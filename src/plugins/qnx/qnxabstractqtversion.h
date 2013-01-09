@@ -63,6 +63,7 @@ public:
     QList<ProjectExplorer::Abi> detectQtAbis() const;
 
     void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
+    Utils::Environment qmakeRunEnvironment() const;
 
     QtSupport::QtConfigWidget *createConfigurationWidget() const;
 
@@ -70,16 +71,14 @@ public:
     QString invalidReason() const;
 
     virtual QString sdkDescription() const = 0;
-    void setDefaultSdkPath();
 
 protected:
     QString sdkPath() const;
+    void setSdkPath(const QString &sdkPath);
 
 private:
     void updateEnvironment() const;
     virtual QMultiMap<QString, QString> environment() const = 0;
-
-    void setSdkPath(const QString &sdkPath);
 
     QnxArchitecture m_arch;
     QString m_sdkPath;

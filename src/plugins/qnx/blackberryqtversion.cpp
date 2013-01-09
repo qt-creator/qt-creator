@@ -31,6 +31,7 @@
 
 #include "blackberryqtversion.h"
 
+#include "qnxutils.h"
 #include "qnxconstants.h"
 
 #include <utils/environment.h>
@@ -42,110 +43,18 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-namespace {
-QMultiMap<QString, QString> parseEnvironmentFile(const QString &fileName)
-{
-    QMultiMap<QString, QString> result;
-
-    QFile file(fileName);
-    if (!file.open(QIODevice::ReadOnly))
-        return result;
-
-    QTextStream str(&file);
-    QMap<QString, QString> fileContent;
-    while (!str.atEnd()) {
-        QString line = str.readLine();
-        if (!line.contains(QLatin1Char('=')))
-            continue;
-
-        int equalIndex = line.indexOf(QLatin1Char('='));
-        QString var = line.left(equalIndex);
-        //Remove set in front
-        if (var.startsWith(QLatin1String("set ")))
-            var = var.right(var.size() - 4);
-
-        QString value = line.mid(equalIndex + 1);
-
-        if (Utils::HostOsInfo::isWindowsHost()) {
-            QRegExp systemVarRegExp(QLatin1String("IF NOT DEFINED ([\\w\\d]+)\\s+set "
-                                                  "([\\w\\d]+)=([\\w\\d]+)"));
-            if (line.contains(systemVarRegExp)) {
-                var = systemVarRegExp.cap(2);
-                Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
-                QString sysVar = systemVarRegExp.cap(1);
-                if (sysEnv.hasKey(sysVar))
-                    value = sysEnv.value(sysVar);
-                else
-                    value = systemVarRegExp.cap(3);
-            }
-        }
-        else if (Utils::HostOsInfo::isAnyUnixHost()) {
-            // to match e.g. "${QNX_HOST_VERSION:=10_0_9_52}"
-            QRegExp systemVarRegExp(QLatin1String("\\$\\{([\\w\\d]+):=([\\w\\d]+)\\}"));
-
-            if (value.contains(systemVarRegExp)) {
-                Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
-                QString sysVar = systemVarRegExp.cap(1);
-                if (sysEnv.hasKey(sysVar))
-                    value = sysEnv.value(sysVar);
-                else
-                    value = systemVarRegExp.cap(2);
-            }
-        }
-        if (value.startsWith(QLatin1Char('"')))
-            value = value.mid(1);
-        if (value.endsWith(QLatin1Char('"')))
-            value = value.left(value.size() - 1);
-
-        fileContent[var] = value;
-    }
-    file.close();
-
-    QMapIterator<QString, QString> it(fileContent);
-    while (it.hasNext()) {
-        it.next();
-        const QStringList values
-                = it.value().split(Utils::HostOsInfo::pathListSeparator());
-        QString key = it.key();
-        foreach (const QString &value, values) {
-            const QString ownKeyAsWindowsVar = QLatin1Char('%') + key + QLatin1Char('%');
-            const QString ownKeyAsUnixVar = QLatin1Char('$') + key;
-            if (value != ownKeyAsUnixVar && value != ownKeyAsWindowsVar) { // to ignore e.g. PATH=$PATH
-                QString val = value;
-                if (val.contains(QLatin1Char('%')) || val.contains(QLatin1Char('$'))) {
-                    QMapIterator<QString, QString> replaceIt(fileContent);
-                    while (replaceIt.hasNext()) {
-                        replaceIt.next();
-                        const QString replaceKey = replaceIt.key();
-                        if (replaceKey == key)
-                            continue;
-
-                        const QString keyAsWindowsVar = QLatin1Char('%') + replaceKey + QLatin1Char('%');
-                        const QString keyAsUnixVar = QLatin1Char('$') + replaceKey;
-                        if (val.contains(keyAsWindowsVar))
-                            val.replace(keyAsWindowsVar, replaceIt.value());
-                        if (val.contains(keyAsUnixVar))
-                            val.replace(keyAsUnixVar, replaceIt.value());
-                    }
-                }
-                result.insert(key, val);
-            }
-        }
-    }
-
-    return result;
-}
-}
-
 BlackBerryQtVersion::BlackBerryQtVersion()
     : QnxAbstractQtVersion()
 {
 }
 
-BlackBerryQtVersion::BlackBerryQtVersion(QnxArchitecture arch, const Utils::FileName &path, bool isAutoDetected, const QString &autoDetectionSource)
+BlackBerryQtVersion::BlackBerryQtVersion(QnxArchitecture arch, const Utils::FileName &path, bool isAutoDetected, const QString &autoDetectionSource, const QString &sdkPath)
     : QnxAbstractQtVersion(arch, path, isAutoDetected, autoDetectionSource)
 {
-    setDisplayName(defaultDisplayName(qtVersionString(), path, false));
+    if (QnxUtils::isValidNdkPath(sdkPath))
+        setSdkPath(sdkPath);
+    else
+        setDefaultSdkPath();
 }
 
 BlackBerryQtVersion::~BlackBerryQtVersion()
@@ -174,12 +83,20 @@ QMultiMap<QString, QString> BlackBerryQtVersion::environment() const
     if (sdkPath().isEmpty())
         return QMultiMap<QString, QString>();
 
-    QString envFile;
-    if (Utils::HostOsInfo::isWindowsHost())
-        envFile = sdkPath() + QLatin1String("/bbndk-env.bat");
-    else if (Utils::HostOsInfo::isAnyUnixHost())
-        envFile = sdkPath() + QLatin1String("/bbndk-env.sh");
-    return parseEnvironmentFile(envFile);
+    return QnxUtils::parseEnvironmentFile(QnxUtils::envFilePath(sdkPath()));
+}
+
+void BlackBerryQtVersion::setDefaultSdkPath()
+{
+    QHash<QString, QString> info = versionInfo();
+    QString qtHostPrefix;
+    if (info.contains(QLatin1String("QT_HOST_PREFIX")))
+        qtHostPrefix = info.value(QLatin1String("QT_HOST_PREFIX"));
+    else
+        return;
+
+    if (QnxUtils::isValidNdkPath(qtHostPrefix))
+        setSdkPath(qtHostPrefix);
 }
 
 Core::FeatureSet BlackBerryQtVersion::availableFeatures() const

@@ -32,6 +32,8 @@
 #ifndef QNX_QNXCONSTANTS_H
 #define QNX_QNXCONSTANTS_H
 
+#include <QtGlobal>
+
 namespace Qnx {
 
 enum QnxArchitecture {
@@ -85,6 +87,9 @@ const char QNX_QNX_PLATFORM_NAME[] = "QNX";
 const char QNX_BB_PLATFORM_NAME[]  = "BlackBerry";
 
 const char QNX_DEBUG_EXECUTABLE[] = "pdebug";
+
+const char QNX_SETTINGS_ID[] = "ZZ.Qnx Configuration";
+const char QNX_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("BlackBerry", "BlackBerry");
 
 } // namespace Constants
 } // namespace Qnx
