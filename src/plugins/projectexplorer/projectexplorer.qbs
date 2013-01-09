@@ -75,6 +75,8 @@ QtcPlugin {
         "currentprojectfilter.h",
         "currentprojectfind.cpp",
         "currentprojectfind.h",
+        "customtoolchain.cpp",
+        "customtoolchain.h",
         "dependenciespanel.cpp",
         "dependenciespanel.h",
         "deployablefile.cpp",

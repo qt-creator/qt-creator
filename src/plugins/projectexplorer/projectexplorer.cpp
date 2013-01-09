@@ -79,6 +79,7 @@
 #include "buildconfiguration.h"
 #include "miniprojecttargetselector.h"
 #include "taskhub.h"
+#include "customtoolchain.h"
 #include "devicesupport/desktopdevice.h"
 #include "devicesupport/desktopdevicefactory.h"
 #include "devicesupport/devicemanager.h"
@@ -333,6 +334,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 #endif
     addAutoReleasedObject(new Internal::GccToolChainFactory);
     addAutoReleasedObject(new Internal::ClangToolChainFactory);
+    addAutoReleasedObject(new Internal::CustomToolChainFactory);
 
     addAutoReleasedObject(new Internal::DesktopDeviceFactory);
 

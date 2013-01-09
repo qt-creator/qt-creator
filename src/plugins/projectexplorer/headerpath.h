@@ -56,6 +56,12 @@ public:
     QString path() const { return m_path; }
     Kind kind() const { return m_kind; }
 
+    bool operator==(const HeaderPath &other) const
+    {
+        return m_kind == other.m_kind
+                && m_path == other.m_path;
+    }
+
 private:
     QString m_path;
     Kind m_kind;

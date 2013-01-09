@@ -127,7 +127,8 @@ HEADERS += projectexplorer.h \
     devicesupport/localprocesslist.h \
     devicesupport/sshdeviceprocesslist.h \
     deploymentdata.h \
-    buildtargetinfo.h
+    buildtargetinfo.h \
+    customtoolchain.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -234,7 +235,8 @@ SOURCES += projectexplorer.cpp \
     devicesupport/deviceapplicationrunner.cpp \
     devicesupport/localprocesslist.cpp \
     devicesupport/sshdeviceprocesslist.cpp \
-    deployablefile.cpp
+    deployablefile.cpp \
+    customtoolchain.cpp
 
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \
