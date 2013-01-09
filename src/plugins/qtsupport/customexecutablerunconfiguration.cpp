@@ -260,6 +260,8 @@ Utils::Environment CustomExecutableRunConfiguration::baseEnvironment() const
     } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::BuildEnvironmentBase) {
         if (activeBuildConfiguration())
             env = activeBuildConfiguration()->environment();
+        else
+            env = Utils::Environment::systemEnvironment(); // fall back
     }
     return env;
 }
