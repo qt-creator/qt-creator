@@ -264,6 +264,8 @@ bool AndroidDeployStep::deployPackage()
                  tempPath + QLatin1String("/plugins"), stripFiles);
         copyLibs(m_qtVersionSourcePath + QLatin1String("/imports"),
                  tempPath + QLatin1String("/imports"), stripFiles);
+        copyLibs(m_qtVersionSourcePath + QLatin1String("/qml"),
+                 tempPath + QLatin1String("/qml"), stripFiles);
         copyLibs(m_qtVersionSourcePath + QLatin1String("/jar"),
                  tempPath + QLatin1String("/jar"), stripFiles);
         AndroidPackageCreationStep::stripAndroidLibs(stripFiles, target()->activeRunConfiguration()->abi().architecture());
