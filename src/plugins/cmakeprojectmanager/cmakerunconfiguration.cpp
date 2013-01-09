@@ -103,6 +103,8 @@ CMakeRunConfiguration::~CMakeRunConfiguration()
 void CMakeRunConfiguration::ctor()
 {
     setDefaultDisplayName(defaultDisplayName());
+    connect(target(), SIGNAL(environmentChanged()),
+            this, SIGNAL(baseEnvironmentChanged()));
 }
 
 QString CMakeRunConfiguration::executable() const
