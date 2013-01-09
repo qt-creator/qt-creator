@@ -80,7 +80,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/qtcassert.cpp \
     $$PWD/elfreader.cpp \
     $$PWD/bracematcher.cpp \
-    $$PWD/proxyaction.cpp
+    $$PWD/proxyaction.cpp \
+    $$PWD/elidinglabel.cpp \
 
 win32 {
     SOURCES += \
@@ -166,7 +167,8 @@ HEADERS += \
     $$PWD/elfreader.h \
     $$PWD/bracematcher.h \
     $$PWD/proxyaction.h \
-    $$PWD/hostosinfo.h
+    $$PWD/hostosinfo.h \
+    $$PWD/elidinglabel.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
