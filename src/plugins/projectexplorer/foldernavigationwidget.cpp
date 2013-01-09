@@ -47,6 +47,7 @@
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/elidinglabel.h>
 
 #include <QDebug>
 #include <QSize>
@@ -135,7 +136,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
       m_fileSystemModel(new FolderNavigationModel(this)),
       m_filterHiddenFilesAction(new QAction(tr("Show Hidden Files"), this)),
       m_filterModel(new DotRemovalFilter(this)),
-      m_title(new QLabel(this)),
+      m_title(new Utils::ElidingLabel(this)),
       m_autoSync(false),
       m_toggleSync(new QToolButton(this))
 {
