@@ -37,6 +37,7 @@
 #include "mainwindow.h"
 #include "mimedatabase.h"
 #include "modemanager.h"
+#include "infobar.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -92,6 +93,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
         addObject(m_editMode);
         ModeManager::activateMode(m_editMode->id());
         m_designMode = new DesignMode;
+        InfoBar::initializeGloballySuppressed();
     }
     return success;
 }

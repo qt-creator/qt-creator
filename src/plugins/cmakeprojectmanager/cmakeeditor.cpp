@@ -86,7 +86,8 @@ void CMakeEditor::markAsChanged()
     if (!infoBar->canInfoBeAdded(infoRunCmake))
         return;
     Core::InfoBarEntry info(infoRunCmake,
-                            tr("Changes to cmake files are shown in the project tree after building."));
+                            tr("Changes to cmake files are shown in the project tree after building."),
+                            Core::InfoBarEntry::GlobalSuppressionEnabled);
     info.setCustomButtonInfo(tr("Build now"), this, SLOT(build()));
     infoBar->addInfo(info);
 }

@@ -29,24 +29,30 @@
 
 #include "infobar.h"
 
-#include <coreplugin/coreconstants.h>
+#include "coreconstants.h"
+#include "icore.h"
 
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QSettings>
 #include <QToolButton>
-
 #include <QVariant>
+
+static const char C_SUPPRESSED_WARNINGS[] = "SuppressedWarnings";
 
 namespace Core {
 
-InfoBarEntry::InfoBarEntry(Id _id, const QString &_infoText)
+QSet<Id> InfoBar::globallySuppressed;
+
+InfoBarEntry::InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppressionMode _globalSuppression)
     : id(_id)
     , infoText(_infoText)
     , object(0)
     , buttonPressMember(0)
     , cancelObject(0)
     , cancelButtonPressMember(0)
+    , globalSuppression(_globalSuppression)
 {
 }
 
@@ -108,7 +114,7 @@ void InfoBar::suppressInfo(Id id)
 // Info can not be added more than once, or if it is suppressed
 bool InfoBar::canInfoBeAdded(Id id) const
 {
-    return !containsInfo(id) && !m_suppressed.contains(id);
+    return !containsInfo(id) && !m_suppressed.contains(id) && !globallySuppressed.contains(id);
 }
 
 void InfoBar::enableInfo(Id id)
@@ -122,6 +128,22 @@ void InfoBar::clear()
         m_infoBarEntries.clear();
         emit changed();
     }
+}
+
+void InfoBar::globallySuppressInfo(Id id)
+{
+    globallySuppressed.insert(id);
+    QStringList list;
+    foreach (Id i, globallySuppressed)
+        list << QLatin1String(i.name());
+    ICore::settings()->setValue(QLatin1String(C_SUPPRESSED_WARNINGS), list);
+}
+
+void InfoBar::initializeGloballySuppressed()
+{
+    QStringList list = ICore::settings()->value(QLatin1String(C_SUPPRESSED_WARNINGS)).toStringList();
+    foreach (const QString &id, list)
+        globallySuppressed.insert(Id(id.toLatin1()));
 }
 
 
@@ -200,6 +222,14 @@ void InfoBarDisplay::update()
             hbox->addWidget(infoWidgetButton);
         }
 
+        QToolButton *infoWidgetSuppressButton = 0;
+        if (info.globalSuppression == InfoBarEntry::GlobalSuppressionEnabled) {
+            infoWidgetSuppressButton = new QToolButton;
+            infoWidgetSuppressButton->setProperty("infoId", info.id.uniqueIdentifier());
+            infoWidgetSuppressButton->setText(tr("Do not show again"));
+            connect(infoWidgetSuppressButton, SIGNAL(clicked()), SLOT(suppressButtonClicked()));
+        }
+
         QToolButton *infoWidgetCloseButton = new QToolButton;
         infoWidgetCloseButton->setProperty("infoId", info.id.uniqueIdentifier());
 
@@ -214,11 +244,15 @@ void InfoBarDisplay::update()
             infoWidgetCloseButton->setAutoRaise(true);
             infoWidgetCloseButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLEAR)));
             infoWidgetCloseButton->setToolTip(tr("Close"));
+            if (infoWidgetSuppressButton)
+                hbox->addWidget(infoWidgetSuppressButton);
+            hbox->addWidget(infoWidgetCloseButton);
         } else {
             infoWidgetCloseButton->setText(info.cancelButtonText);
+            hbox->addWidget(infoWidgetCloseButton);
+            if (infoWidgetSuppressButton)
+                hbox->addWidget(infoWidgetSuppressButton);
         }
-
-        hbox->addWidget(infoWidgetCloseButton);
 
         connect(infoWidget, SIGNAL(destroyed()), SLOT(widgetDestroyed()));
         m_boxLayout->insertWidget(m_boxIndex, infoWidget);
@@ -234,6 +268,13 @@ void InfoBarDisplay::widgetDestroyed()
 void InfoBarDisplay::cancelButtonClicked()
 {
     m_infoBar->removeInfo(Id::fromUniqueIdentifier(sender()->property("infoId").toInt()));
+}
+
+void InfoBarDisplay::suppressButtonClicked()
+{
+    Id id = Id::fromUniqueIdentifier(sender()->property("infoId").toInt());
+    m_infoBar->removeInfo(id);
+    InfoBar::globallySuppressInfo(id);
 }
 
 } // namespace Core
