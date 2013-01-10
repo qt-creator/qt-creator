@@ -660,9 +660,7 @@ def call(value, func, *args):
     return call2(value, func, args)
 
 def makeValue(type, init):
-    type = stripClassTag(type)
-    if type.find(":") >= 0:
-        type = "'" + type + "'"
+    type = "::" + stripClassTag(str(type));
     # Avoid malloc symbol clash with QVector.
     gdb.execute("set $d = (%s*)calloc(sizeof(%s), 1)" % (type, type))
     gdb.execute("set *$d = {%s}" % init)
@@ -685,9 +683,7 @@ def makeStdString(init):
 
 
 def makeExpression(value):
-    type = stripClassTag(str(value.type))
-    if type.find(":") >= 0:
-        type = "'" + type + "'"
+    type = "::" + stripClassTag(str(value.type))
     #warn("  TYPE: %s" % type)
     #exp = "(*(%s*)(&%s))" % (type, value.address)
     exp = "(*(%s*)(%s))" % (type, value.address)
