@@ -32,6 +32,8 @@
 
 #include <utils/stylehelper.h>
 #include <utils/stringutils.h>
+#include <utils/tooltip/tooltip.h>
+#include <utils/tooltip/tipcontents.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
@@ -87,6 +89,12 @@ bool FancyToolButton::event(QEvent *e)
             animation->start(QAbstractAnimation::DeleteWhenStopped);
         }
         break;
+    case QEvent::ToolTip:
+        {
+            QHelpEvent *he = static_cast<QHelpEvent *>(e);
+            Utils::ToolTip::instance()->show(mapToGlobal(he->pos()), Utils::TextContent(toolTip()), this);
+            return true;
+        }
     default:
         return QToolButton::event(e);
     }

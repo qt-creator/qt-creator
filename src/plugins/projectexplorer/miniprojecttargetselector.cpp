@@ -1371,6 +1371,7 @@ void MiniProjectTargetSelector::mousePressEvent(QMouseEvent *e)
 void MiniProjectTargetSelector::updateActionAndSummary()
 {
     QString projectName;
+    QString fileName; // contains the path if projectName is not unique
     QString targetName;
     QString targetToolTipText;
     QString buildConfig;
@@ -1381,6 +1382,12 @@ void MiniProjectTargetSelector::updateActionAndSummary()
     Project *project = ProjectExplorerPlugin::instance()->startupProject();
     if (project) {
         projectName = project->displayName();
+        foreach (Project *p, ProjectExplorerPlugin::instance()->session()->projects()) {
+            if (p != project && p->displayName() == projectName) {
+                fileName = project->document()->fileName();
+                break;
+            }
+        }
 
         if (Target *target = project->activeTarget()) {
             targetName = project->activeTarget()->displayName();
@@ -1406,6 +1413,8 @@ void MiniProjectTargetSelector::updateActionAndSummary()
     m_projectAction->setIcon(targetIcon);
     QStringList lines;
     lines << tr("<b>Project:</b> %1").arg(projectName);
+    if (!fileName.isEmpty())
+        lines << tr("<b>Path:</b> %1").arg(fileName);
     if (!targetName.isEmpty())
         lines << tr("<b>Kit:</b> %1").arg(targetName);
     if (!buildConfig.isEmpty())
