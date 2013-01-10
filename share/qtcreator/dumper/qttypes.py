@@ -121,8 +121,16 @@ def qdump__QModelIndex(d, value):
         return
     r = value["r"]
     c = value["c"]
-    p = value["p"]
+    try:
+        p = value["p"]
+    except:
+        p = value["i"]
     m = value["m"]
+    if isNull(m) or r < 0 or c < 0:
+        d.putValue("(invalid)")
+        d.putPlainChildren(value)
+        return
+
     mm = m.dereference()
     mm = mm.cast(mm.type.unqualified())
     try:
@@ -132,6 +140,7 @@ def qdump__QModelIndex(d, value):
         rowCount = int(parseAndEvaluate("%s.rowCount(%s)" % (mm_, mi_)))
         columnCount = int(parseAndEvaluate("%s.columnCount(%s)" % (mm_, mi_)))
     except:
+        d.putValue(" ")
         d.putPlainChildren(value)
         return
 
@@ -143,30 +152,23 @@ def qdump__QModelIndex(d, value):
     except:
         d.putValue("(invalid)")
 
-    if r >= 0 and c >= 0 and not isNull(m):
-        d.putNumChild(rowCount * columnCount)
-        if d.isExpanded():
-            with Children(d):
-                i = 0
-                for row in xrange(rowCount):
-                    for column in xrange(columnCount):
-                        with UnnamedSubItem(d, i):
-                            d.putName("[%s, %s]" % (row, column))
-                            mi2 = parseAndEvaluate("%s.index(%d,%d,%s)"
-                                % (mm_, row, column, mi_))
-                            d.putItem(mi2)
-                            i = i + 1
-                #d.putCallItem("parent", val, "parent")
-                #with SubItem(d, "model"):
-                #    d.putValue(m)
-                #    d.putType(d.ns + "QAbstractItemModel*")
-                #    d.putNumChild(1)
-    else:
-        d.putValue("(invalid)")
-        d.putNumChild(0)
-        if d.isExpanded():
-            with Children(d):
-                pass
+    d.putNumChild(rowCount * columnCount)
+    if d.isExpanded():
+        with Children(d):
+            i = 0
+            for row in xrange(rowCount):
+                for column in xrange(columnCount):
+                    with UnnamedSubItem(d, i):
+                        d.putName("[%s, %s]" % (row, column))
+                        mi2 = parseAndEvaluate("%s.index(%d,%d,%s)"
+                            % (mm_, row, column, mi_))
+                        d.putItem(mi2)
+                        i = i + 1
+            #d.putCallItem("parent", val, "parent")
+            #with SubItem(d, "model"):
+            #    d.putValue(m)
+            #    d.putType(d.ns + "QAbstractItemModel*")
+            #    d.putNumChild(1)
     #gdb.execute("call free($mi)")
 
 
