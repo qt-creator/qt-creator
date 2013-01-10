@@ -58,6 +58,7 @@ public:
 
 private slots:
     void resetInterfaceColor();
+    void resetWarnings();
     void resetLanguage();
     void showHelpForFileBrowser();
     void resetFileBrowser();

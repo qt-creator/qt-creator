@@ -146,6 +146,12 @@ void InfoBar::initializeGloballySuppressed()
         globallySuppressed.insert(Id(id.toLatin1()));
 }
 
+void InfoBar::clearGloballySuppressed()
+{
+    globallySuppressed.clear();
+    ICore::settings()->setValue(QLatin1String(C_SUPPRESSED_WARNINGS), QStringList());
+}
+
 
 InfoBarDisplay::InfoBarDisplay(QObject *parent)
     : QObject(parent)

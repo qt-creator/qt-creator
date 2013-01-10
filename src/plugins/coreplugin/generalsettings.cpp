@@ -29,13 +29,14 @@
 
 #include "generalsettings.h"
 #include "coreconstants.h"
+#include "icore.h"
+#include "infobar.h"
+#include "editormanager/editormanager.h"
 
 #include <utils/stylehelper.h>
 #include <utils/qtcolorbutton.h>
 #include <utils/consoleprocess.h>
 #include <utils/unixutils.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
 
 #include <QMessageBox>
 
@@ -139,6 +140,8 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
 
     connect(m_page->resetColorButton, SIGNAL(clicked()),
             this, SLOT(resetInterfaceColor()));
+    connect(m_page->resetWarningsButton, SIGNAL(clicked()),
+            this, SLOT(resetWarnings()));
 #ifdef Q_OS_UNIX
     connect(m_page->resetTerminalButton, SIGNAL(clicked()),
             this, SLOT(resetTerminal()));
@@ -200,6 +203,12 @@ void GeneralSettings::finish()
 void GeneralSettings::resetInterfaceColor()
 {
     m_page->colorButton->setColor(StyleHelper::DEFAULT_BASE_COLOR);
+}
+
+void GeneralSettings::resetWarnings()
+{
+    Core::InfoBar::clearGloballySuppressed();
+    QMessageBox::information(0, tr("Reset warnings"), tr("Done"));
 }
 
 void GeneralSettings::resetTerminal()

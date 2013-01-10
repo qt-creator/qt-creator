@@ -107,6 +107,13 @@
         </item>
        </layout>
       </item>
+      <item row="3" column="0">
+       <widget class="QPushButton" name="resetWarningsButton">
+        <property name="text">
+         <string>Reset warnings</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
