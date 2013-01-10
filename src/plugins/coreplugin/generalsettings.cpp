@@ -137,7 +137,7 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     m_page->autoSaveCheckBox->setChecked(EditorManager::instance()->autoSaveEnabled());
     m_page->autoSaveInterval->setValue(EditorManager::instance()->autoSaveInterval());
 
-    connect(m_page->resetButton, SIGNAL(clicked()),
+    connect(m_page->resetColorButton, SIGNAL(clicked()),
             this, SLOT(resetInterfaceColor()));
 #ifdef Q_OS_UNIX
     connect(m_page->resetTerminalButton, SIGNAL(clicked()),

@@ -76,7 +76,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="resetButton">
+         <widget class="QPushButton" name="resetColorButton">
           <property name="toolTip">
            <string comment="Color">Reset to default.</string>
           </property>
@@ -307,7 +307,7 @@
  </customwidgets>
  <tabstops>
   <tabstop>colorButton</tabstop>
-  <tabstop>resetButton</tabstop>
+  <tabstop>resetColorButton</tabstop>
   <tabstop>languageBox</tabstop>
   <tabstop>terminalComboBox</tabstop>
   <tabstop>resetTerminalButton</tabstop>
