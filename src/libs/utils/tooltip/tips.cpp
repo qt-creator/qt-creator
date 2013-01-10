@@ -31,7 +31,7 @@
 #include "tipcontents.h"
 #include "reuse.h"
 
-#include <utils/qtcassert.h>
+#include "qtcassert.h"
 
 #include <QRect>
 #include <QColor>
@@ -47,7 +47,7 @@
 #include <QPaintEvent>
 #include <QVBoxLayout>
 
-namespace TextEditor {
+namespace Utils {
     namespace Internal {
 
 namespace {
@@ -82,7 +82,7 @@ bool QTipLabel::isInteractive() const
 
 void QTipLabel::setContent(const TipContent &content)
 {
-    TextEditor::TipContent *tmpTipContent = m_tipContent;
+    Utils::TipContent *tmpTipContent = m_tipContent;
     m_tipContent = content.clone();
     delete tmpTipContent;
 }
@@ -266,4 +266,4 @@ bool WidgetTip::canHandleContentReplacement(const TipContent & ) const
 #include "moc_tips.cpp"
 
 } // namespace Internal
-} // namespace TextEditor
+} // namespace Utils

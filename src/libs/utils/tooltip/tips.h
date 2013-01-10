@@ -36,12 +36,12 @@
 
 QT_FORWARD_DECLARE_CLASS(QVBoxLayout)
 
-namespace TextEditor {
+namespace Utils {
 class TipContent;
 }
 
 #ifndef Q_MOC_RUN
-namespace TextEditor {
+namespace Utils {
 namespace Internal {
 #endif
 
@@ -55,16 +55,16 @@ protected:
 public:
     virtual ~QTipLabel();
 
-    void setContent(const TextEditor::TipContent &content);
-    const TextEditor::TipContent &content() const;
+    void setContent(const Utils::TipContent &content);
+    const Utils::TipContent &content() const;
 
     virtual void configure(const QPoint &pos, QWidget *w) = 0;
-    virtual bool canHandleContentReplacement(const TextEditor::TipContent &content) const = 0;
+    virtual bool canHandleContentReplacement(const Utils::TipContent &content) const = 0;
 
     bool isInteractive() const;
 
 private:
-    TextEditor::TipContent *m_tipContent;
+    Utils::TipContent *m_tipContent;
 };
 
 class ColorTip : public QTipLabel
@@ -118,7 +118,7 @@ private:
 
 #ifndef Q_MOC_RUN
 } // namespace Internal
-} // namespace TextEditor
+} // namespace Utils
 #endif
 
 #endif // TIPS_H

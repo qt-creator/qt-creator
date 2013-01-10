@@ -34,7 +34,7 @@
 #include "effects.h"
 #include "reuse.h"
 
-#include <utils/hostosinfo.h>
+#include "hostosinfo.h"
 
 #include <QString>
 #include <QColor>
@@ -45,7 +45,7 @@
 
 #include <QDebug>
 
-using namespace TextEditor;
+using namespace Utils;
 using namespace Internal;
 
 ToolTip::ToolTip() : m_tipFactory(new TipFactory), m_tip(0), m_widget(0)

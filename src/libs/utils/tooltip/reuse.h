@@ -27,29 +27,36 @@
 **
 ****************************************************************************/
 
-#ifndef TIPFACTORY_H
-#define TIPFACTORY_H
+#ifndef TOOLTIPREUSE_H
+#define TOOLTIPREUSE_H
 
+#include <QPoint>
+#include <QRect>
 #include <QWidget>
+#include <QApplication>
+#include <QDesktopWidget>
 
-namespace TextEditor {
-
-class TipContent;
-
+namespace Utils {
 namespace Internal {
-class QTipLabel;
 
-class TipFactory
+inline int screenNumber(const QPoint &pos, QWidget *w)
 {
-public:
-    TipFactory();
-    virtual ~TipFactory();
-    Q_DISABLE_COPY(TipFactory)
+    if (QApplication::desktop()->isVirtualDesktop())
+        return QApplication::desktop()->screenNumber(pos);
+    else
+        return QApplication::desktop()->screenNumber(w);
+}
 
-    virtual QTipLabel *createTip(const TipContent &content, QWidget *w);
-};
+inline QRect screenGeometry(const QPoint &pos, QWidget *w)
+{
+#ifdef Q_OS_MAC
+    return QApplication::desktop()->availableGeometry(screenNumber(pos, w));
+#else
+    return QApplication::desktop()->screenGeometry(screenNumber(pos, w));
+#endif
+}
 
 } // namespace Internal
-} // namespace TextEditor
+} // namespace Utils
 
-#endif // TIPFACTORY_H
+#endif // TOOLTIPREUSE_H

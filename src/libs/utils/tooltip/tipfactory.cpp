@@ -27,36 +27,31 @@
 **
 ****************************************************************************/
 
-#ifndef TOOLTIPREUSE_H
-#define TOOLTIPREUSE_H
+#include "tipfactory.h"
+#include "tipcontents.h"
+#include "tips.h"
+#include "qtcassert.h"
 
-#include <QPoint>
-#include <QRect>
-#include <QWidget>
-#include <QApplication>
-#include <QDesktopWidget>
+#include <QVBoxLayout>
 
-namespace TextEditor {
-namespace Internal {
+using namespace Utils;
+using namespace Internal;
 
-inline int screenNumber(const QPoint &pos, QWidget *w)
+TipFactory::TipFactory()
+{}
+
+TipFactory::~TipFactory()
+{}
+
+Internal::QTipLabel *TipFactory::createTip(const TipContent &content, QWidget *w)
 {
-    if (QApplication::desktop()->isVirtualDesktop())
-        return QApplication::desktop()->screenNumber(pos);
-    else
-        return QApplication::desktop()->screenNumber(w);
+    if (content.typeId() == TextContent::TEXT_CONTENT_ID)
+        return new TextTip(w);
+    if (content.typeId() == ColorContent::COLOR_CONTENT_ID)
+        return new ColorTip(w);
+    if (content.typeId() == WidgetContent::WIDGET_CONTENT_ID)
+        return new WidgetTip(w);
+
+    QTC_CHECK(false);
+    return 0;
 }
-
-inline QRect screenGeometry(const QPoint &pos, QWidget *w)
-{
-#ifdef Q_OS_MAC
-    return QApplication::desktop()->availableGeometry(screenNumber(pos, w));
-#else
-    return QApplication::desktop()->screenGeometry(screenNumber(pos, w));
-#endif
-}
-
-} // namespace Internal
-} // namespace TextEditor
-
-#endif // TOOLTIPREUSE_H

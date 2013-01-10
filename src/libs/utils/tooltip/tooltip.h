@@ -30,7 +30,7 @@
 #ifndef TOOLTIP_H
 #define TOOLTIP_H
 
-#include "texteditor/texteditor_global.h"
+#include "../utils_global.h"
 
 #include <QSharedPointer>
 #include <QObject>
@@ -52,7 +52,7 @@ class QPoint;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace TextEditor {
+namespace Utils {
 
 namespace Internal {
 class TipFactory;
@@ -61,7 +61,7 @@ class QTipLabel;
 
 class TipContent;
 
-class TEXTEDITOR_EXPORT ToolTip : public QObject
+class QTCREATOR_UTILS_EXPORT ToolTip : public QObject
 {
     Q_OBJECT
 private:
@@ -103,6 +103,6 @@ private:
     QTimer m_hideDelayTimer;
 };
 
-} // namespace TextEditor
+} // namespace Utils
 
 #endif // TOOLTIP_H

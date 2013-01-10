@@ -41,8 +41,6 @@
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
 #include "syntaxhighlighter.h"
-#include "tooltip.h"
-#include "tipcontents.h"
 #include "indenter.h"
 #include "autocompleter.h"
 #include "snippet.h"
@@ -70,6 +68,8 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
+#include <utils/tooltip/tooltip.h>
+#include <utils/tooltip/tipcontents.h>
 
 #include <QCoreApplication>
 #include <QTextCodec>
@@ -6388,7 +6388,7 @@ QString BaseTextEditor::contextHelpId() const
     return m_contextHelpId;
 }
 
-Internal::RefactorMarkers BaseTextEditorWidget::refactorMarkers() const
+RefactorMarkers BaseTextEditorWidget::refactorMarkers() const
 {
     return d->m_refactorOverlay->markers();
 }
@@ -6414,7 +6414,7 @@ void BaseTextEditorWidget::doFoo() {
 #endif
 }
 
-void Internal::BaseTextBlockSelection::moveAnchor(int blockNumber, int visualColumn)
+void BaseTextBlockSelection::moveAnchor(int blockNumber, int visualColumn)
 {
     if (visualColumn >= 0) {
         if (anchor % 2) {
@@ -6451,7 +6451,7 @@ void Internal::BaseTextBlockSelection::moveAnchor(int blockNumber, int visualCol
     lastBlock.movePosition(QTextCursor::EndOfBlock);
 }
 
-QTextCursor Internal::BaseTextBlockSelection::selection(const TabSettings &ts) const
+QTextCursor BaseTextBlockSelection::selection(const TabSettings &ts) const
 {
     QTextCursor cursor = firstBlock;
     if (anchor <= TopRight) {
@@ -6466,7 +6466,7 @@ QTextCursor Internal::BaseTextBlockSelection::selection(const TabSettings &ts) c
     return cursor;
 }
 
-void Internal::BaseTextBlockSelection::fromSelection(const TabSettings &ts, const QTextCursor &selection)
+void BaseTextBlockSelection::fromSelection(const TabSettings &ts, const QTextCursor &selection)
 {
     firstBlock = selection;
     firstBlock.setPosition(selection.selectionStart());

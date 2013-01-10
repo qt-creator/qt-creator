@@ -27,31 +27,29 @@
 **
 ****************************************************************************/
 
-#include "tipfactory.h"
-#include "tipcontents.h"
-#include "tips.h"
-#include <utils/qtcassert.h>
+#ifndef TIPFACTORY_H
+#define TIPFACTORY_H
 
-#include <QVBoxLayout>
+#include <QWidget>
 
-using namespace TextEditor;
-using namespace Internal;
+namespace Utils {
 
-TipFactory::TipFactory()
-{}
+class TipContent;
 
-TipFactory::~TipFactory()
-{}
+namespace Internal {
+class QTipLabel;
 
-Internal::QTipLabel *TipFactory::createTip(const TipContent &content, QWidget *w)
+class TipFactory
 {
-    if (content.typeId() == TextContent::TEXT_CONTENT_ID)
-        return new TextTip(w);
-    if (content.typeId() == ColorContent::COLOR_CONTENT_ID)
-        return new ColorTip(w);
-    if (content.typeId() == WidgetContent::WIDGET_CONTENT_ID)
-        return new WidgetTip(w);
+public:
+    TipFactory();
+    virtual ~TipFactory();
+    Q_DISABLE_COPY(TipFactory)
 
-    QTC_CHECK(false);
-    return 0;
-}
+    virtual QTipLabel *createTip(const TipContent &content, QWidget *w);
+};
+
+} // namespace Internal
+} // namespace Utils
+
+#endif // TIPFACTORY_H

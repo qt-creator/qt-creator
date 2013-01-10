@@ -30,14 +30,14 @@
 #ifndef TIPCONTENTS_H
 #define TIPCONTENTS_H
 
-#include "texteditor/texteditor_global.h"
+#include "../utils_global.h"
 
 #include <QString>
 #include <QColor>
 
-namespace TextEditor {
+namespace Utils {
 
-class TEXTEDITOR_EXPORT TipContent
+class QTCREATOR_UTILS_EXPORT TipContent
 {
 protected:
     TipContent();
@@ -53,7 +53,7 @@ public:
     virtual bool equals(const TipContent &tipContent) const = 0;
 };
 
-class TEXTEDITOR_EXPORT ColorContent : public TipContent
+class QTCREATOR_UTILS_EXPORT ColorContent : public TipContent
 {
 public:
     ColorContent(const QColor &color);
@@ -74,7 +74,7 @@ private:
     QColor m_color;
 };
 
-class TEXTEDITOR_EXPORT TextContent : public TipContent
+class QTCREATOR_UTILS_EXPORT TextContent : public TipContent
 {
 public:
     TextContent(const QString &text);
@@ -96,7 +96,7 @@ private:
 };
 
 // A content for displaying any widget (with a layout).
-class TEXTEDITOR_EXPORT WidgetContent : public TipContent
+class QTCREATOR_UTILS_EXPORT WidgetContent : public TipContent
 {
 public:
     explicit WidgetContent(QWidget *w, bool interactive = false);
@@ -123,6 +123,6 @@ private:
     bool m_interactive;
 };
 
-} // namespace TextEditor
+} // namespace Utils
 
 #endif // TIPCONTENTS_H

@@ -46,8 +46,8 @@
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/helpitem.h>
-#include <texteditor/tooltip/tooltip.h>
-#include <texteditor/tooltip/tipcontents.h>
+#include <utils/tooltip/tooltip.h>
+#include <utils/tooltip/tipcontents.h>
 
 #include <QDir>
 #include <QList>
@@ -265,15 +265,15 @@ void HoverHandler::reset()
 void HoverHandler::operateTooltip(TextEditor::ITextEditor *editor, const QPoint &point)
 {
     if (toolTip().isEmpty())
-        TextEditor::ToolTip::instance()->hide();
+        Utils::ToolTip::instance()->hide();
     else {
         if (m_colorTip.isValid()) {
-            TextEditor::ToolTip::instance()->show(point,
-                                                  TextEditor::ColorContent(m_colorTip),
+            Utils::ToolTip::instance()->show(point,
+                                                  Utils::ColorContent(m_colorTip),
                                                   editor->widget());
         } else {
-            TextEditor::ToolTip::instance()->show(point,
-                                                  TextEditor::TextContent(toolTip()),
+            Utils::ToolTip::instance()->show(point,
+                                                  Utils::TextContent(toolTip()),
                                                   editor->widget());
         }
     }

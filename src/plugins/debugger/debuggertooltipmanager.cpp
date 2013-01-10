@@ -44,9 +44,9 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
-#include <texteditor/tooltip/tooltip.h>
-#include <texteditor/tooltip/tipcontents.h>
 
+#include <utils/tooltip/tooltip.h>
+#include <utils/tooltip/tipcontents.h>
 #include <utils/qtcassert.h>
 
 #include <QToolButton>
@@ -515,7 +515,7 @@ void DebuggerToolTipWidget::pin()
     if (parentWidget()) {
         // We are currently within a text editor tooltip:
         // Rip out of parent widget and re-show as a tooltip
-        WidgetContent::pinToolTip(this);
+        Utils::WidgetContent::pinToolTip(this);
     } else {
         // We have just be restored from session data.
         setWindowFlags(Qt::ToolTip);
@@ -1128,8 +1128,8 @@ void DebuggerToolTipManager::showToolTip(const QPoint &p, IEditor *editor,
     QWidget *widget = editor->widget();
     if (debugToolTipPositioning)
         qDebug() << "DebuggerToolTipManager::showToolTip" << p << " Mouse at " << QCursor::pos();
-    const WidgetContent widgetContent(toolTipWidget, true);
-    ToolTip::instance()->show(p, widgetContent, widget);
+    const Utils::WidgetContent widgetContent(toolTipWidget, true);
+    Utils::ToolTip::instance()->show(p, widgetContent, widget);
     registerToolTip(toolTipWidget);
 }
 

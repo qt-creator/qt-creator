@@ -5,6 +5,9 @@ QtcLibrary {
     name: "Utils"
 
     cpp.defines: base.concat(["QTCREATOR_UTILS_LIB", "QT_NO_CAST_FROM_ASCII"])
+    cpp.includePaths: base.concat([
+        "tooltip"
+    ])
 
     Properties {
         condition: qbs.targetOS == "windows"
@@ -177,6 +180,22 @@ QtcLibrary {
         "images/crumblepath-segment.png",
         "images/triangle_vert.png",
     ]
+
+    Group {
+        prefix: "tooltip/"
+        files: [
+            "effects.h",
+            "reuse.h",
+            "tipcontents.cpp",
+            "tipcontents.h",
+            "tipfactory.cpp",
+            "tipfactory.h",
+            "tips.cpp",
+            "tips.h",
+            "tooltip.cpp",
+            "tooltip.h",
+        ]
+    }
 
     Group {
         condition: qbs.targetOS == "windows"

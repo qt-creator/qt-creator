@@ -64,7 +64,6 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/refactoroverlay.h>
-#include <texteditor/tooltip/tooltip.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/basicproposalitemlistmodel.h>
 #include <qmldesigner/qmldesignerconstants.h>

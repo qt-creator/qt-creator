@@ -4,7 +4,7 @@ dll {
     DEFINES += QTCREATOR_UTILS_STATIC_LIB
 }
 
-INCLUDEPATH += $$PWD
+INCLUDEPATH += $$PWD $$PWD/tooltip
 QT += script network
 
 CONFIG += exceptions # used by portlist.cpp, textfileformat.cpp, and ssh/*
@@ -82,6 +82,10 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/bracematcher.cpp \
     $$PWD/proxyaction.cpp \
     $$PWD/elidinglabel.cpp \
+    $$PWD/tooltip/tooltip.cpp \
+    $$PWD/tooltip/tips.cpp \
+    $$PWD/tooltip/tipcontents.cpp \
+    $$PWD/tooltip/tipfactory.cpp
 
 win32 {
     SOURCES += \
@@ -168,7 +172,13 @@ HEADERS += \
     $$PWD/bracematcher.h \
     $$PWD/proxyaction.h \
     $$PWD/hostosinfo.h \
-    $$PWD/elidinglabel.h
+    $$PWD/elidinglabel.h \
+    $$PWD/tooltip/tooltip.h \
+    $$PWD/tooltip/tips.h \
+    $$PWD/tooltip/tipcontents.h \
+    $$PWD/tooltip/reuse.h \
+    $$PWD/tooltip/effects.h \
+    $$PWD/tooltip/tipfactory.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

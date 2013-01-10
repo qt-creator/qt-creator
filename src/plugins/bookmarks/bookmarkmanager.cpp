@@ -40,8 +40,8 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <texteditor/basetexteditor.h>
-#include <texteditor/tooltip/tooltip.h>
-#include <texteditor/tooltip/tipcontents.h>
+#include <utils/tooltip/tooltip.h>
+#include <utils/tooltip/tipcontents.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -804,9 +804,9 @@ void BookmarkManager::operateTooltip(TextEditor::ITextEditor *textEditor, const 
         return;
 
     if (mark->note().isEmpty())
-        TextEditor::ToolTip::instance()->hide();
+        Utils::ToolTip::instance()->hide();
     else
-        TextEditor::ToolTip::instance()->show(pos, TextEditor::TextContent(mark->note()), textEditor->widget());
+        Utils::ToolTip::instance()->show(pos, Utils::TextContent(mark->note()), textEditor->widget());
 }
 
 /* Loads the bookmarks from the session settings. */

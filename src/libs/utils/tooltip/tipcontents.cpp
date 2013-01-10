@@ -35,7 +35,7 @@
 
 #include <QtGlobal>
 
-namespace TextEditor {
+namespace Utils {
 
 TipContent::TipContent()
 {}
@@ -192,4 +192,4 @@ bool WidgetContent::pinToolTip(QWidget *w)
     return false;
 }
 
-} // namespace TextEditor
+} // namespace Utils

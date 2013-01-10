@@ -14,7 +14,6 @@ QtcPlugin {
     cpp.defines: base.concat(["QT_NO_CAST_FROM_ASCII"])
     cpp.includePaths: base.concat([
         "generichighlighter",
-        "tooltip",
         "snippets",
         "codeassist"
     ])
@@ -266,22 +265,6 @@ QtcPlugin {
             "snippetssettingspage.cpp",
             "snippetssettingspage.h",
             "snippetssettingspage.ui",
-        ]
-    }
-
-    Group {
-        prefix: "tooltip/"
-        files: [
-            "effects.h",
-            "reuse.h",
-            "tipcontents.cpp",
-            "tipcontents.h",
-            "tipfactory.cpp",
-            "tipfactory.h",
-            "tips.cpp",
-            "tips.h",
-            "tooltip.cpp",
-            "tooltip.h",
         ]
     }
 

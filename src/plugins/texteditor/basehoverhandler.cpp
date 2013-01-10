@@ -31,14 +31,14 @@
 #include "itexteditor.h"
 #include "basetexteditor.h"
 #include "displaysettings.h"
-#include "tooltip.h"
-#include "tipcontents.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/id.h>
 #include <debugger/debuggerconstants.h>
+#include <utils/tooltip/tooltip.h>
+#include <utils/tooltip/tipcontents.h>
 
 #include <QPoint>
 
@@ -89,7 +89,7 @@ void BaseHoverHandler::updateContextHelpId(TextEditor::ITextEditor *editor, int 
 
     // If the tooltip is visible and there is a help match, this match is used to update
     // the help id. Otherwise, let the identification process happen.
-    if (!ToolTip::instance()->isVisible() || !lastHelpItemIdentified().isValid())
+    if (!Utils::ToolTip::instance()->isVisible() || !lastHelpItemIdentified().isValid())
         process(editor, pos);
 
     if (lastHelpItemIdentified().isValid())
@@ -162,9 +162,9 @@ void BaseHoverHandler::decorateToolTip()
 void BaseHoverHandler::operateTooltip(ITextEditor *editor, const QPoint &point)
 {
     if (m_toolTip.isEmpty())
-        ToolTip::instance()->hide();
+        Utils::ToolTip::instance()->hide();
     else
-        ToolTip::instance()->show(point, TextContent(m_toolTip), editor->widget());
+        Utils::ToolTip::instance()->show(point, Utils::TextContent(m_toolTip), editor->widget());
 }
 
 BaseTextEditorWidget *BaseHoverHandler::baseTextEditor(ITextEditor *editor)

@@ -44,8 +44,8 @@
 #include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/symbolfinder.h>
 #include <texteditor/refactoroverlay.h>
-#include <texteditor/tooltip/tooltip.h>
-#include <texteditor/tooltip/tipcontents.h>
+#include <utils/tooltip/tooltip.h>
+#include <utils/tooltip/tipcontents.h>
 #include <utils/qtcassert.h>
 #include <utils/proxyaction.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -313,9 +313,9 @@ void FunctionDeclDefLink::apply(CPPEditorWidget *editor, bool jumpToMatch)
         }
         newTargetFile->apply();
     } else {
-        TextEditor::ToolTip::instance()->show(
+        Utils::ToolTip::instance()->show(
                     editor->toolTipPosition(linkSelection),
-                    TextEditor::TextContent(
+                    Utils::TextContent(
                         tr("Target file was changed, could not apply changes")));
     }
 }

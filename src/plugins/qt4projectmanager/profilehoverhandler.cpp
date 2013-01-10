@@ -38,7 +38,6 @@
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/helpitem.h>
-#include <texteditor/tooltip/tooltip.h>
 #include <utils/htmldocextractor.h>
 
 #include <QTextCursor>

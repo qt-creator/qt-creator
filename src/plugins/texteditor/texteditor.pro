@@ -7,7 +7,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += printsupport
 include(../../qtcreatorplugin.pri)
 include(texteditor_dependencies.pri)
 INCLUDEPATH += generichighlighter \
-    tooltip \
     snippets \
     codeassist
 SOURCES += texteditorplugin.cpp \
@@ -65,10 +64,6 @@ SOURCES += texteditorplugin.cpp \
     refactoringchanges.cpp \
     refactoroverlay.cpp \
     outlinefactory.cpp \
-    tooltip/tooltip.cpp \
-    tooltip/tips.cpp \
-    tooltip/tipcontents.cpp \
-    tooltip/tipfactory.cpp \
     basehoverhandler.cpp \
     helpitem.cpp \
     autocompleter.cpp \
@@ -180,12 +175,6 @@ HEADERS += texteditorplugin.h \
     refactoroverlay.h \
     outlinefactory.h \
     ioutlinewidget.h \
-    tooltip/tooltip.h \
-    tooltip/tips.h \
-    tooltip/tipcontents.h \
-    tooltip/reuse.h \
-    tooltip/effects.h \
-    tooltip/tipfactory.h \
     basehoverhandler.h \
     helpitem.h \
     autocompleter.h \
@@ -252,13 +241,4 @@ FORMS += \
     codestyleselectorwidget.ui
 RESOURCES += texteditor.qrc
 OTHER_FILES += TextEditor.mimetypes.xml
-
-
-
-
-
-
-
-
-
 
