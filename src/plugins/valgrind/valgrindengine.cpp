@@ -87,13 +87,13 @@ bool ValgrindEngine::start()
     m_progressWatcher->setFuture(m_progress->future());
     m_progress->setProgressValue(progressMaximum / 10);
 
+    const AnalyzerStartParameters &sp = startParameters();
 #if VALGRIND_DEBUG_OUTPUT
-    emit outputReceived(tr("Valgrind options: %1").arg(toolArguments().join(" ")), Utils::DebugFormat);
-    emit outputReceived(tr("Working directory: %1").arg(m_workingDirectory), Utils::DebugFormat);
-    emit outputReceived(tr("Command-line arguments: %1").arg(m_commandLineArguments), Utils::DebugFormat);
+    emit outputReceived(tr("Valgrind options: %1").arg(toolArguments().join(QLatin1Char(' '))), Utils::DebugFormat);
+    emit outputReceived(tr("Working directory: %1").arg(sp.workingDirectory), Utils::DebugFormat);
+    emit outputReceived(tr("Commandline arguments: %1").arg(sp.debuggeeArgs), Utils::DebugFormat);
 #endif
 
-    const AnalyzerStartParameters &sp = startParameters();
     runner()->setWorkingDirectory(sp.workingDirectory);
     QString valgrindExe = m_settings->subConfig<ValgrindBaseSettings>()->valgrindExecutable();
     if (!sp.analyzerCmdPrefix.isEmpty())
