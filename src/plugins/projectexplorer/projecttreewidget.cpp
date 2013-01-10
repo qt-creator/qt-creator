@@ -57,6 +57,7 @@
 #include <QPalette>
 #include <QMenu>
 
+using namespace Core;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
@@ -71,20 +72,19 @@ public:
     {
         setEditTriggers(QAbstractItemView::EditKeyPressed);
         setContextMenuPolicy(Qt::CustomContextMenu);
-//        setExpandsOnDoubleClick(false);
-        m_context = new Core::IContext(this);
-        m_context->setContext(Core::Context(Constants::C_PROJECT_TREE));
+        m_context = new IContext(this);
+        m_context->setContext(Context(ProjectExplorer::Constants::C_PROJECT_TREE));
         m_context->setWidget(this);
-        Core::ICore::addContextObject(m_context);
+        ICore::addContextObject(m_context);
     }
     ~ProjectTreeView()
     {
-        Core::ICore::removeContextObject(m_context);
+        ICore::removeContextObject(m_context);
         delete m_context;
     }
 
 private:
-    Core::IContext *m_context;
+    IContext *m_context;
 };
 
 /*!
@@ -357,7 +357,7 @@ void ProjectTreeWidget::openItem(const QModelIndex &mainIndex)
 {
     Node *node = m_model->nodeForIndex(mainIndex);
     if (node->nodeType() == FileNodeType)
-        Core::EditorManager::openEditor(node->path(), Core::Id(), Core::EditorManager::ModeSwitch);
+        EditorManager::openEditor(node->path(), Id(), EditorManager::ModeSwitch);
 }
 
 void ProjectTreeWidget::setProjectFilter(bool filter)
@@ -401,19 +401,19 @@ int ProjectTreeWidgetFactory::priority() const
     return 100;
 }
 
-Core::Id ProjectTreeWidgetFactory::id() const
+Id ProjectTreeWidgetFactory::id() const
 {
-    return Core::Id("Projects");
+    return Id("Projects");
 }
 
 QKeySequence ProjectTreeWidgetFactory::activationSequence() const
 {
-    return QKeySequence(Core::UseMacShortcuts ? tr("Meta+X") : tr("Alt+X"));
+    return QKeySequence(UseMacShortcuts ? tr("Meta+X") : tr("Alt+X"));
 }
 
-Core::NavigationView ProjectTreeWidgetFactory::createWidget()
+NavigationView ProjectTreeWidgetFactory::createWidget()
 {
-    Core::NavigationView n;
+    NavigationView n;
     ProjectTreeWidget *ptw = new ProjectTreeWidget;
     n.widget = ptw;
 
@@ -435,7 +435,7 @@ void ProjectTreeWidgetFactory::saveSettings(int position, QWidget *widget)
 {
     ProjectTreeWidget *ptw = qobject_cast<ProjectTreeWidget *>(widget);
     Q_ASSERT(ptw);
-    QSettings *settings = Core::ICore::settings();
+    QSettings *settings = ICore::settings();
     const QString baseKey = QLatin1String("ProjectTreeWidget.") + QString::number(position);
     settings->setValue(baseKey + QLatin1String(".ProjectFilter"), ptw->projectFilter());
     settings->setValue(baseKey + QLatin1String(".GeneratedFilter"), ptw->generatedFilesFilter());
@@ -446,7 +446,7 @@ void ProjectTreeWidgetFactory::restoreSettings(int position, QWidget *widget)
 {
     ProjectTreeWidget *ptw = qobject_cast<ProjectTreeWidget *>(widget);
     Q_ASSERT(ptw);
-    QSettings *settings = Core::ICore::settings();
+    QSettings *settings = ICore::settings();
     const QString baseKey = QLatin1String("ProjectTreeWidget.") + QString::number(position);
     ptw->setProjectFilter(settings->value(baseKey + QLatin1String(".ProjectFilter"), false).toBool());
     ptw->setGeneratedFilesFilter(settings->value(baseKey + QLatin1String(".GeneratedFilter"), true).toBool());
