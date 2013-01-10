@@ -17,13 +17,66 @@
       <string>User Interface</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QLabel" name="colorLabel">
+     <item row="0" column="0">
+      <widget class="QLabel" name="colorLabel">
+       <property name="text">
+        <string>Color:</string>
+       </property>
+       <property name="buddy">
+        <cstring>colorButton</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="Utils::QtColorButton" name="colorButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>64</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="alphaAllowed" stdset="0">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="resetColorButton">
+         <property name="toolTip">
+          <string comment="Color">Reset to default.</string>
+         </property>
+         <property name="text">
+          <string>Reset</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>285</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="languageLabel">
         <property name="text">
-         <string>Color:</string>
-        </property>
-        <property name="buddy">
-         <cstring>colorButton</cstring>
+         <string>Language:</string>
         </property>
        </widget>
       </item>
@@ -54,59 +107,6 @@
         </item>
        </layout>
       </item>
-      <item row="0" column="1">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="Utils::QtColorButton" name="colorButton">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>64</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="alphaAllowed" stdset="0">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="resetColorButton">
-          <property name="toolTip">
-           <string comment="Color">Reset to default.</string>
-          </property>
-          <property name="text">
-           <string>Reset</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>285</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="languageLabel">
-        <property name="text">
-         <string>Language:</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
@@ -130,6 +130,16 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="resetTerminalButton">
+        <property name="toolTip">
+         <string comment="Terminal">Reset to default.</string>
+        </property>
+        <property name="text">
+         <string>Reset</string>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="0">
        <widget class="QLabel" name="externalFileBrowserLabel">
         <property name="text">
@@ -139,6 +149,16 @@
       </item>
       <item row="1" column="1">
        <widget class="QLineEdit" name="externalFileBrowserEdit"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="resetFileBrowserButton">
+        <property name="toolTip">
+         <string comment="File Browser">Reset to default.</string>
+        </property>
+        <property name="text">
+         <string>Reset</string>
+        </property>
+       </widget>
       </item>
       <item row="1" column="3">
        <widget class="QToolButton" name="helpExternalFileBrowserButton">
@@ -196,26 +216,6 @@
          </spacer>
         </item>
        </layout>
-      </item>
-      <item row="0" column="2">
-       <widget class="QPushButton" name="resetTerminalButton">
-        <property name="toolTip">
-         <string comment="Terminal">Reset to default.</string>
-        </property>
-        <property name="text">
-         <string>Reset</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QPushButton" name="resetFileBrowserButton">
-        <property name="toolTip">
-         <string comment="File Browser">Reset to default.</string>
-        </property>
-        <property name="text">
-         <string>Reset</string>
-        </property>
-       </widget>
       </item>
       <item row="3" column="0" colspan="4">
        <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -305,17 +305,6 @@
    <header location="global">utils/qtcolorbutton.h</header>
   </customwidget>
  </customwidgets>
- <tabstops>
-  <tabstop>colorButton</tabstop>
-  <tabstop>resetColorButton</tabstop>
-  <tabstop>languageBox</tabstop>
-  <tabstop>terminalComboBox</tabstop>
-  <tabstop>resetTerminalButton</tabstop>
-  <tabstop>externalFileBrowserEdit</tabstop>
-  <tabstop>resetFileBrowserButton</tabstop>
-  <tabstop>helpExternalFileBrowserButton</tabstop>
-  <tabstop>reloadBehavior</tabstop>
- </tabstops>
  <resources>
   <include location="core.qrc"/>
  </resources>
