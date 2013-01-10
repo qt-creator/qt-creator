@@ -168,22 +168,33 @@ void QmlProject::refresh(RefreshOptions options)
     if (options & Files)
         m_rootNode->refresh();
 
-    QmlJS::ModelManagerInterface::ProjectInfo pinfo(this);
-    pinfo.sourceFiles = files();
-    pinfo.importPaths = customImportPaths();
-    QtSupport::BaseQtVersion *version = 0;
-    if (activeTarget()) {
-        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(activeTarget()->kit());
-        version = QtSupport::QtKitInformation::qtVersion(activeTarget()->kit());
-        QtSupport::QmlDumpTool::pathAndEnvironment(this, version, tc, false, &pinfo.qmlDumpPath, &pinfo.qmlDumpEnvironment);
+    QmlJS::ModelManagerInterface::ProjectInfo projectInfo(this);
+    projectInfo.sourceFiles = files();
+    projectInfo.importPaths = customImportPaths();
+
+    QtSupport::BaseQtVersion *qtVersion = 0;
+    {
+        ProjectExplorer::Target *target = activeTarget();
+        ProjectExplorer::Kit *kit = target ? target->kit() : ProjectExplorer::KitManager::instance()->defaultKit();
+        ProjectExplorer::ToolChain *toolChain = ProjectExplorer::ToolChainKitInformation::toolChain(kit);
+        qtVersion = QtSupport::QtKitInformation::qtVersion(kit);
+        QtSupport::QmlDumpTool::pathAndEnvironment(this, qtVersion, toolChain, false,
+                                                   &projectInfo.qmlDumpPath, &projectInfo.qmlDumpEnvironment);
     }
-    if (version) {
-        pinfo.tryQmlDump = true;
-        pinfo.qtImportsPath = version->qmakeProperty("QT_INSTALL_IMPORTS");
-        pinfo.qtQmlPath = version->qmakeProperty("QT_INSTALL_QML");
-        pinfo.qtVersionString = version->qtVersionString();
+
+    if (qtVersion) {
+        projectInfo.tryQmlDump = true;
+        projectInfo.qtImportsPath = qtVersion->qmakeProperty("QT_INSTALL_IMPORTS");
+        projectInfo.qtQmlPath = qtVersion->qmakeProperty("QT_INSTALL_QML");
+        projectInfo.qtVersionString = qtVersion->qtVersionString();
+
+        if (!projectInfo.qtQmlPath.isEmpty())
+            projectInfo.importPaths += projectInfo.qtQmlPath;
+        if (!projectInfo.qtImportsPath.isEmpty())
+            projectInfo.importPaths += projectInfo.qtImportsPath;
+
     }
-    m_modelManager->updateProjectInfo(pinfo);
+    m_modelManager->updateProjectInfo(projectInfo);
 }
 
 QStringList QmlProject::convertToAbsoluteFiles(const QStringList &paths) const
