@@ -1413,7 +1413,7 @@ void DebuggerEngine::updateWatchData(const WatchData &, const WatchUpdateFlags &
 {
 }
 
-void DebuggerEngine::watchDataSelected(const QByteArray &iname)
+void DebuggerEngine::watchDataSelected(const QByteArray &)
 {
 }
 
