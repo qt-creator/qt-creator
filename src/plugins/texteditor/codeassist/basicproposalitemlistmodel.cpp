@@ -271,22 +271,27 @@ bool BasicProposalItemListModel::keepPerfectMatch(AssistReason reason) const
 
 QString BasicProposalItemListModel::proposalPrefix() const
 {
-    if (m_currentItems.size() >= kMaxPrefixFilter)
+    if (m_currentItems.size() >= kMaxPrefixFilter || m_currentItems.isEmpty())
         return QString();
 
     // Compute common prefix
-    QString firstKey = m_currentItems.first()->text();
-    QString lastKey = m_currentItems.last()->text();
-    const int length = qMin(firstKey.length(), lastKey.length());
-    firstKey.truncate(length);
-    lastKey.truncate(length);
+    QString commonPrefix = m_currentItems.first()->text();
+    for (int i = 1, ei = m_currentItems.size(); i < ei; ++i) {
+        QString nextItem = m_currentItems.at(i)->text();
+        const int length = qMin(commonPrefix.length(), nextItem.length());
+        commonPrefix.truncate(length);
+        nextItem.truncate(length);
 
-    while (firstKey != lastKey) {
-        firstKey.chop(1);
-        lastKey.chop(1);
+        while (commonPrefix != nextItem) {
+            commonPrefix.chop(1);
+            nextItem.chop(1);
+        }
+
+        if (commonPrefix.isEmpty()) // there is no common prefix, so return.
+            return commonPrefix;
     }
 
-    return firstKey;
+    return commonPrefix;
 }
 
 IAssistProposalItem *BasicProposalItemListModel::proposalItem(int index) const
