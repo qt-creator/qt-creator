@@ -45,8 +45,11 @@
 #define VALGRIND_DEBUG_OUTPUT 0
 
 using namespace Analyzer;
-using namespace Valgrind::Internal;
+using namespace Core;
 using namespace Utils;
+
+namespace Valgrind {
+namespace Internal {
 
 const int progressMaximum  = 1000000;
 
@@ -79,9 +82,9 @@ bool ValgrindEngine::start()
 {
     emit starting(this);
 
-    Core::FutureProgress *fp = Core::ICore::progressManager()->addTask(m_progress->future(),
+    FutureProgress *fp = ICore::progressManager()->addTask(m_progress->future(),
                                                         progressTitle(), QLatin1String("valgrind"));
-    fp->setKeepOnFinish(Core::FutureProgress::HideOnFinish);
+    fp->setKeepOnFinish(FutureProgress::HideOnFinish);
     m_progress->setProgressRange(0, progressMaximum);
     m_progress->reportStarted();
     m_progressWatcher->setFuture(m_progress->future());
@@ -89,9 +92,9 @@ bool ValgrindEngine::start()
 
     const AnalyzerStartParameters &sp = startParameters();
 #if VALGRIND_DEBUG_OUTPUT
-    emit outputReceived(tr("Valgrind options: %1").arg(toolArguments().join(QLatin1Char(' '))), Utils::DebugFormat);
-    emit outputReceived(tr("Working directory: %1").arg(sp.workingDirectory), Utils::DebugFormat);
-    emit outputReceived(tr("Commandline arguments: %1").arg(sp.debuggeeArgs), Utils::DebugFormat);
+    emit outputReceived(tr("Valgrind options: %1").arg(toolArguments().join(QLatin1Char(' '))), DebugFormat);
+    emit outputReceived(tr("Working directory: %1").arg(sp.workingDirectory), DebugFormat);
+    emit outputReceived(tr("Commandline arguments: %1").arg(sp.debuggeeArgs), DebugFormat);
 #endif
 
     runner()->setWorkingDirectory(sp.workingDirectory);
@@ -140,12 +143,12 @@ void ValgrindEngine::handleProgressCanceled()
 
 void ValgrindEngine::handleProgressFinished()
 {
-    QApplication::alert(Core::ICore::mainWindow(), 3000);
+    QApplication::alert(ICore::mainWindow(), 3000);
 }
 
 void ValgrindEngine::runnerFinished()
 {
-    emit outputReceived(tr("** Analyzing finished **\n"), Utils::NormalMessageFormat);
+    emit outputReceived(tr("** Analyzing finished **\n"), NormalMessageFormat);
     emit finished();
 
     m_progress->reportFinished();
@@ -156,7 +159,7 @@ void ValgrindEngine::runnerFinished()
                this, SLOT(runnerFinished()));
 }
 
-void ValgrindEngine::receiveProcessOutput(const QByteArray &b, Utils::OutputFormat format)
+void ValgrindEngine::receiveProcessOutput(const QByteArray &output, OutputFormat format)
 {
     int progress = m_progress->progressValue();
     if (progress < 5 * progressMaximum / 10)
@@ -164,32 +167,30 @@ void ValgrindEngine::receiveProcessOutput(const QByteArray &b, Utils::OutputForm
     else if (progress < 9 * progressMaximum / 10)
         progress += progress / 1000;
     m_progress->setProgressValue(progress);
-    emit outputReceived(QString::fromLocal8Bit(b), format);
+    emit outputReceived(QString::fromLocal8Bit(output), format);
 }
 
-void ValgrindEngine::receiveProcessError(const QString &error, QProcess::ProcessError e)
+void ValgrindEngine::receiveProcessError(const QString &message, QProcess::ProcessError error)
 {
-    if (e == QProcess::FailedToStart) {
+    if (error == QProcess::FailedToStart) {
         const QString &valgrind = m_settings->subConfig<ValgrindBaseSettings>()->valgrindExecutable();
         if (!valgrind.isEmpty())
-            emit outputReceived(tr("** Error: \"%1\" could not be started: %2 **\n").arg(valgrind).arg(error), Utils::ErrorMessageFormat);
+            emit outputReceived(tr("** Error: \"%1\" could not be started: %2 **\n").arg(valgrind).arg(message), ErrorMessageFormat);
         else
-            emit outputReceived(tr("** Error: no valgrind executable set **\n"), Utils::ErrorMessageFormat);
-    } else if (m_isStopping && e == QProcess::Crashed) { // process gets killed on stop
-        emit outputReceived(tr("** Process Terminated **\n"), Utils::ErrorMessageFormat);
+            emit outputReceived(tr("** Error: no valgrind executable set **\n"), ErrorMessageFormat);
+    } else if (m_isStopping && error == QProcess::Crashed) { // process gets killed on stop
+        emit outputReceived(tr("** Process Terminated **\n"), ErrorMessageFormat);
     } else {
-        emit outputReceived(QString::fromLatin1("** %1 **\n").arg(error), Utils::ErrorMessageFormat);
+        emit outputReceived(QString::fromLatin1("** %1 **\n").arg(message), ErrorMessageFormat);
     }
 
     if (m_isStopping)
         return;
 
-    ///FIXME: get a better API for this into Qt Creator
-    QList<Core::IOutputPane *> panes = ExtensionSystem::PluginManager::getObjects<Core::IOutputPane>();
-    foreach (Core::IOutputPane *pane, panes) {
-        if (pane->displayName() == tr("Application Output")) {
-            pane->popup(Core::IOutputPane::NoModeSwitch);
-            break;
-        }
-    }
+    QObject *obj = ExtensionSystem::PluginManager::getObjectByName(QLatin1String("AppOutputPane"));
+    if (IOutputPane *pane = qobject_cast<IOutputPane *>(obj))
+        pane->popup(IOutputPane::NoModeSwitch);
 }
+
+} // namespace Internal
+} // namepsace Valgrind

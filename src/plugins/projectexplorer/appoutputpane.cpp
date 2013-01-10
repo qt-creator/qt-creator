@@ -121,6 +121,8 @@ AppOutputPane::AppOutputPane() :
     m_stopButton(new QToolButton),
     m_attachButton(new QToolButton)
 {
+    setObjectName(QLatin1String("AppOutputPane")); // Used in valgrind engine
+
     // Rerun
     m_reRunButton->setIcon(QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL)));
     m_reRunButton->setToolTip(tr("Re-run this run-configuration"));

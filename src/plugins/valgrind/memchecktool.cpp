@@ -86,6 +86,7 @@
 #include <utils/stylehelper.h>
 
 using namespace Analyzer;
+using namespace ProjectExplorer;
 using namespace Valgrind::XmlProtocol;
 
 namespace Valgrind {
@@ -116,11 +117,11 @@ void MemcheckErrorFilterProxyModel::setFilterExternalIssues(bool filter)
 
 bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-    // we only deal with toplevel items
+    // We only deal with toplevel items.
     if (sourceParent.isValid())
         return true;
 
-    // because toplevel items have no parent, we can't use sourceParent to find them. we just use
+    // Because toplevel items have no parent, we can't use sourceParent to find them. we just use
     // sourceParent as an invalid index, telling the model that the index we're looking for has no
     // parent.
     QAbstractItemModel *model = sourceModel();
@@ -130,23 +131,21 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
 
     const Error error = sourceIndex.data(ErrorListModel::ErrorRole).value<Error>();
 
-    // filter on kind
+    // Filter on kind
     if (!m_acceptedKinds.contains(error.kind()))
         return false;
 
-    // filter non-project stuff
+    // Filter non-project stuff
     if (m_filterExternalIssues && !error.stacks().isEmpty()) {
         // ALGORITHM: look at last five stack frames, if none of these is inside any open projects,
         // assume this error was created by an external library
-        ProjectExplorer::SessionManager *session
-            = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
+        SessionManager *session = ProjectExplorerPlugin::instance()->session();
         QSet<QString> validFolders;
-        foreach (ProjectExplorer::Project *project, session->projects()) {
+        foreach (Project *project, session->projects()) {
             validFolders << project->projectDirectory();
-            foreach (ProjectExplorer::Target *target, project->targets()) {
-                foreach (ProjectExplorer::BuildConfiguration *config, target->buildConfigurations()) {
+            foreach (Target *target, project->targets()) {
+                foreach (BuildConfiguration *config, target->buildConfigurations())
                     validFolders << config->buildDirectory();
-                }
             }
         }
 
@@ -155,7 +154,7 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
         const int framesToLookAt = qMin(6, frames.size());
 
         bool inProject = false;
-        for ( int i = 0; i < framesToLookAt; ++i ) {
+        for (int i = 0; i < framesToLookAt; ++i) {
             const Frame &frame = frames.at(i);
             foreach (const QString &folder, validFolders) {
                 if (frame.object().startsWith(folder)) {
@@ -228,13 +227,11 @@ void MemcheckTool::settingsDestroyed(QObject *settings)
 void MemcheckTool::maybeActiveRunConfigurationChanged()
 {
     AnalyzerSettings *settings = 0;
-    ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
-    if (ProjectExplorer::Project *project = pe->startupProject()) {
-        if (ProjectExplorer::Target *target = project->activeTarget()) {
-            if (ProjectExplorer::RunConfiguration *rc = target->activeRunConfiguration())
+    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
+    if (Project *project = pe->startupProject())
+        if (Target *target = project->activeTarget())
+            if (RunConfiguration *rc = target->activeRunConfiguration())
                 settings = rc->extraAspect<AnalyzerRunConfigurationAspect>();
-        }
-    }
 
     if (!settings) // fallback to global settings
         settings = AnalyzerGlobalSettings::instance();
@@ -285,9 +282,9 @@ Core::Id MemcheckTool::id() const
     return Core::Id("Memcheck");
 }
 
-ProjectExplorer::RunMode MemcheckTool::runMode() const
+RunMode MemcheckTool::runMode() const
 {
-    return ProjectExplorer::MemcheckRunMode;
+    return MemcheckRunMode;
 }
 
 QString MemcheckTool::displayName() const
@@ -392,7 +389,7 @@ QWidget *MemcheckTool::createWidgets()
     errorDock->show();
     mw->splitDockWidget(mw->toolBarDockWidget(), errorDock, Qt::Vertical);
 
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
+    connect(ProjectExplorerPlugin::instance(),
             SIGNAL(updateRunActions()), SLOT(maybeActiveRunConfigurationChanged()));
 
     //
@@ -450,10 +447,10 @@ QWidget *MemcheckTool::createWidgets()
 }
 
 IAnalyzerEngine *MemcheckTool::createEngine(const AnalyzerStartParameters &sp,
-                                            ProjectExplorer::RunConfiguration *runConfiguration)
+                                            RunConfiguration *runConfiguration)
 {
     m_frameFinder->setFiles(runConfiguration ? runConfiguration->target()
-        ->project()->files(ProjectExplorer::Project::AllFiles) : QStringList());
+        ->project()->files(Project::AllFiles) : QStringList());
 
     MemcheckEngine *engine = new MemcheckEngine(this, sp, runConfiguration);
 
@@ -479,7 +476,7 @@ void MemcheckTool::engineStarting(const IAnalyzerEngine *engine)
     clearErrorView();
 
     QString dir;
-    if (ProjectExplorer::RunConfiguration *rc = engine->runConfiguration())
+    if (RunConfiguration *rc = engine->runConfiguration())
         dir = rc->target()->project()->projectDirectory() + QDir::separator();
 
     const MemcheckEngine *mEngine = dynamic_cast<const MemcheckEngine *>(engine);

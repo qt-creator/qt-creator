@@ -32,19 +32,13 @@
 #define VALGRINDENGINE_H
 
 #include <analyzerbase/ianalyzerengine.h>
-
 #include <utils/environment.h>
-
 #include <valgrind/valgrindrunner.h>
 
-#include <QString>
-#include <QByteArray>
 #include <QFutureInterface>
 #include <QFutureWatcher>
 
-namespace Analyzer {
-class AnalyzerSettings;
-}
+namespace Analyzer { class AnalyzerSettings; }
 
 namespace Valgrind {
 namespace Internal {
@@ -78,8 +72,8 @@ private slots:
     void handleProgressFinished();
     void runnerFinished();
 
-    void receiveProcessOutput(const QByteArray &, Utils::OutputFormat);
-    void receiveProcessError(const QString &, QProcess::ProcessError);
+    void receiveProcessOutput(const QByteArray &output, Utils::OutputFormat format);
+    void receiveProcessError(const QString &message, QProcess::ProcessError error);
 
 private:
     bool m_isStopping;
