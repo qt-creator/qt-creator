@@ -502,11 +502,8 @@ void WatchTreeView::collapseNode(const QModelIndex &idx)
 void WatchTreeView::keyPressEvent(QKeyEvent *ev)
 {
     if (ev->key() == Qt::Key_Delete && m_type == WatchersType) {
-        QModelIndexList indices = selectionModel()->selectedRows();
-        if (indices.isEmpty() && selectionModel()->currentIndex().isValid())
-            indices.append(selectionModel()->currentIndex());
         WatchHandler *handler = currentEngine()->watchHandler();
-        foreach (const QModelIndex &idx, indices)
+        foreach (const QModelIndex &idx, activeRows())
             handler->removeData(idx.data(LocalsINameRole).toByteArray());
     } else if (ev->key() == Qt::Key_Return
             && ev->modifiers() == Qt::ControlModifier
@@ -599,6 +596,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     DebuggerEngine *engine = currentEngine();
     WatchHandler *handler = engine->watchHandler();
 
+    const QModelIndexList active = activeRows();
     const QModelIndex idx = indexAt(ev->pos());
     const QModelIndex mi0 = idx.sibling(idx.row(), 0);
     const QModelIndex mi1 = idx.sibling(idx.row(), 1);
@@ -924,9 +922,11 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actRemoveWatches) {
         handler->clearWatches();
     } else if (act == clearTypeFormatAction) {
-        setModelData(LocalsTypeFormatRole, -1, mi1);
+        foreach (const QModelIndex &idx, active)
+            setModelData(LocalsTypeFormatRole, -1, idx);
     } else if (act == clearIndividualFormatAction) {
-        setModelData(LocalsIndividualFormatRole, -1, mi1);
+        foreach (const QModelIndex &idx, active)
+            setModelData(LocalsIndividualFormatRole, -1, idx);
     } else if (act == actShowInEditor) {
         QString contents = handler->editorContents();
         debuggerCore()->openTextEditor(tr("Locals & Expressions"), contents);
@@ -943,13 +943,20 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     } else if (handleBaseContextAction(act)) {
         ;
     } else {
+        // Restrict multiple changes to items of the same type
+        // to avoid assigning illegal formats.
+        const QVariant currentType = mi1.data(LocalsTypeRole);
         for (int i = 0; i != typeFormatActions.size(); ++i) {
             if (act == typeFormatActions.at(i))
-                setModelData(LocalsTypeFormatRole, i, mi1);
+                foreach (const QModelIndex &idx, active)
+                    if (idx.data(LocalsTypeRole) == currentType)
+                        setModelData(LocalsTypeFormatRole, i, idx);
         }
         for (int i = 0; i != individualFormatActions.size(); ++i) {
             if (act == individualFormatActions.at(i))
-                setModelData(LocalsIndividualFormatRole, i, mi1);
+                foreach (const QModelIndex &idx, active)
+                    if (idx.data(LocalsTypeRole) == currentType)
+                        setModelData(LocalsIndividualFormatRole, i, idx);
         }
     }
 }
