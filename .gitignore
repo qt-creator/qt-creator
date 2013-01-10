@@ -28,11 +28,15 @@ moc_*.cpp
 ui_*.h
 qrc_*.cpp
 Thumbs.db
+*.res
+*.rc
+*.embed.manifest
 
 # qtcreator generated files
 *.pro.user*
 *.qmlproject.user*
 *.pluginspec
+*.json
 src/app/Info.plist
 app_version.h
 src/plugins/coreplugin/ide_version.h
