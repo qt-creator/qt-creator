@@ -153,4 +153,16 @@ void BaseTreeView::reset()
         resizeColumnsToContents();
 }
 
+QModelIndexList BaseTreeView::activeRows() const
+{
+    QItemSelectionModel *selection = selectionModel();
+    QModelIndexList indices = selection->selectedRows();
+    if (indices.isEmpty()) {
+        QModelIndex current = selection->currentIndex();
+        if (current.isValid())
+            indices.append(current);
+    }
+    return indices;
+}
+
 } // namespace Utils
