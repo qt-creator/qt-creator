@@ -2119,7 +2119,8 @@ bool GitClient::executeAndHandleConflicts(const QString &workingDirectory, const
     const bool ok = resp.result == Utils::SynchronousProcessResponse::Finished;
     if (ok)
         GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(workingDirectory);
-    else if (resp.stdOut.contains(QLatin1String("CONFLICT")))
+    else if (resp.stdOut.contains(QLatin1String("CONFLICT"))
+             || resp.stdErr.contains(QLatin1String("conflict")))
         handleMergeConflicts(workingDirectory, abortCommand);
     return ok;
 }
@@ -2244,6 +2245,24 @@ bool GitClient::synchronousRebase(const QString &workingDirectory, const QString
     arguments << command << baseBranch;
     if (!topicBranch.isEmpty())
         arguments << topicBranch;
+
+    return executeAndHandleConflicts(workingDirectory, arguments, command);
+}
+
+bool GitClient::revertCommit(const QString &workingDirectory, const QString &commit)
+{
+    QStringList arguments;
+    QString command = QLatin1String("revert");
+    arguments << command << QLatin1String("--no-edit") << commit;
+
+    return executeAndHandleConflicts(workingDirectory, arguments, command);
+}
+
+bool GitClient::cherryPickCommit(const QString &workingDirectory, const QString &commit)
+{
+    QStringList arguments;
+    QString command = QLatin1String("cherry-pick");
+    arguments << command << commit;
 
     return executeAndHandleConflicts(workingDirectory, arguments, command);
 }

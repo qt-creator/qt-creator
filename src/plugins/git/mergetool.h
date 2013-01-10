@@ -41,6 +41,7 @@ namespace Git {
 namespace Internal {
 
 class MergeToolProcess;
+class GitClient;
 
 class MergeTool : public QObject
 {
@@ -77,6 +78,8 @@ private:
     QString stateName(FileState state, const QString &extraInfo);
     void chooseAction();
     void addButton(QMessageBox *msgBox, const QString &text, char key);
+    void continuePreviousGitCommand(const QString &msgBoxTitle, const QString &msgBoxText,
+                                    const QString &buttonName, const QString &gitCommand);
 
     MergeToolProcess *m_process;
     MergeType m_mergeType;
@@ -85,6 +88,7 @@ private:
     QString m_localInfo;
     FileState m_remoteState;
     QString m_remoteInfo;
+    GitClient *m_gitClient;
     bool m_merging;
 };
 

@@ -184,6 +184,9 @@ public:
     bool synchronousRebase(const QString &workingDirectory,
                            const QString &baseBranch,
                            const QString &topicBranch = QString());
+    bool revertCommit(const QString &workingDirectory, const QString &commit);
+    bool cherryPickCommit(const QString &workingDirectory, const QString &commit);
+    void synchronousAbortCommand(const QString &workingDir, const QString &abortCommand);
 
     // git svn support (asynchronous).
     void synchronousSubversionFetch(const QString &workingDirectory);
@@ -303,7 +306,6 @@ private:
     void connectRepositoryChanged(const QString & repository, VcsBase::Command *cmd);
     bool executeAndHandleConflicts(const QString &workingDirectory, const QStringList &arguments,
                                    const QString &abortCommand = QString());
-    void synchronousAbortCommand(const QString &workingDir, const QString &abortCommand);
     void handleMergeConflicts(const QString &workingDir, const QString &abortCommand);
     bool tryLauchingGitK(const QProcessEnvironment &env,
                          const QString &workingDirectory,

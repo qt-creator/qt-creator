@@ -425,10 +425,20 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     createRepositoryAction(localRepositoryMenu,
                            tr("Amend Last Commit..."), Core::Id("Git.AmendCommit"),
                            globalcontext, true, SLOT(startAmendCommit()));
+    // --------------
+    localRepositoryMenu->addSeparator(globalcontext);
 
     createRepositoryAction(localRepositoryMenu,
                            tr("Reset..."), Core::Id("Git.Reset"),
                            globalcontext, false, SLOT(resetRepository()));
+
+    createRepositoryAction(localRepositoryMenu,
+                           tr("Revert Single Commit..."), Core::Id("Git.Revert"),
+                           globalcontext, true, SLOT(startRevertCommit()));
+
+    createRepositoryAction(localRepositoryMenu,
+                           tr("Cherry-Pick Commit..."), Core::Id("Git.CherryPick"),
+                           globalcontext, true, SLOT(startCherryPickCommit()));
 
     // --------------
     localRepositoryMenu->addSeparator(globalcontext);
@@ -702,6 +712,56 @@ void GitPlugin::resetRepository()
             m_gitClient->softReset(state.topLevel(), dialog.commit());
             break;
         }
+}
+
+
+void GitPlugin::startRevertCommit()
+{
+    startRevertOrCherryPick(true);
+}
+
+void GitPlugin::startCherryPickCommit()
+{
+    startRevertOrCherryPick(false);
+}
+
+void GitPlugin::startRevertOrCherryPick(bool isRevert)
+{
+    const VcsBase::VcsBasePluginState state = currentState();
+
+    QString stashKeyword = (isRevert ? QLatin1String("Revert") : QLatin1String("Cherry-pick"));
+
+    GitClient::StashResult stashResult =
+            m_gitClient->ensureStash(state.topLevel(), stashKeyword);
+    switch (stashResult) {
+    case GitClient::StashUnchanged:
+    case GitClient::Stashed:
+        break;
+    default:
+        return;
+    }
+
+    QString workingDirectory;
+    if (state.hasFile())
+        workingDirectory = state.currentFileDirectory();
+    else if (state.hasTopLevel())
+        workingDirectory = state.topLevel();
+    else
+        return;
+
+    ChangeSelectionDialog changeSelectionDialog(workingDirectory);
+
+    if (changeSelectionDialog.exec() != QDialog::Accepted)
+        return;
+    const QString change = changeSelectionDialog.change();
+    if (change.isEmpty())
+        return;
+
+    bool success = (isRevert ? m_gitClient->revertCommit(workingDirectory, change) :
+                               m_gitClient->cherryPickCommit(workingDirectory, change));
+
+    if (success && (stashResult == GitClient::Stashed))
+        m_gitClient->stashPop(workingDirectory);
 }
 
 void GitPlugin::stageFile()

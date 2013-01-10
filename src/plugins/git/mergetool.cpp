@@ -72,7 +72,8 @@ private:
 
 MergeTool::MergeTool(QObject *parent) :
     QObject(parent),
-    m_process(0)
+    m_process(0),
+    m_gitClient(GitPlugin::instance()->gitClient())
 {
 }
 
@@ -85,9 +86,8 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
 {
     QStringList arguments;
     arguments << QLatin1String("mergetool") << QLatin1String("-y");
-    GitClient *client = GitPlugin::instance()->gitClient();
     if (!files.isEmpty()) {
-        if (client->gitVersion() < 0x010708) {
+        if (m_gitClient->gitVersion() < 0x010708) {
             QMessageBox::warning(0, tr("Error"), tr("Files input for mergetool requires git >= 1.7.8"));
             return false;
         }
@@ -95,7 +95,7 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
     }
     m_process = new MergeToolProcess(this);
     m_process->setWorkingDirectory(workingDirectory);
-    const QString binary = client->gitBinaryPath();
+    const QString binary = m_gitClient->gitBinaryPath();
     VcsBase::VcsBaseOutputWindow::instance()->appendCommand(workingDirectory, binary, arguments);
     m_process->start(binary, arguments);
     if (m_process->waitForStarted()) {
@@ -255,21 +255,48 @@ void MergeTool::readData()
     }
 }
 
+void MergeTool::continuePreviousGitCommand(const QString &msgBoxTitle, const QString &msgBoxText,
+                                           const QString &buttonName, const QString &gitCommand)
+{
+    QString workingDirectory = m_process->workingDirectory();
+    QMessageBox msgBox;
+    QPushButton *commandButton = msgBox.addButton(buttonName,  QMessageBox::AcceptRole);
+    QPushButton *abortButton = msgBox.addButton(QMessageBox::Abort);
+    msgBox.addButton(QMessageBox::Ignore);
+    msgBox.setIcon(QMessageBox::Question);
+    msgBox.setWindowTitle(msgBoxTitle);
+    msgBox.setText(msgBoxText);
+    msgBox.exec();
+
+    if (msgBox.clickedButton() == commandButton) {      // Continue
+        if (gitCommand == QLatin1String("rebase"))
+            m_gitClient->synchronousCommandContinue(workingDirectory, gitCommand);
+        else
+            GitPlugin::instance()->startCommit();
+    } else if (msgBox.clickedButton() == abortButton) { // Abort
+        m_gitClient->synchronousAbortCommand(workingDirectory, gitCommand);
+    }
+}
+
 void MergeTool::done()
 {
     VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
     int exitCode = m_process->exitCode();
     if (!exitCode) {
         outputWindow->append(tr("Merge tool process finished successully"));
-        QString workingDirectory = m_process->workingDirectory();
-        GitClient *client = GitPlugin::instance()->gitClient();
-        QString gitDir = client->findGitDirForRepository(workingDirectory);
+        QString gitDir = m_gitClient->findGitDirForRepository(m_process->workingDirectory());
+
         if (QFile::exists(gitDir + QLatin1String("/rebase-apply/rebasing"))) {
-            if (QMessageBox::question(0, tr("Continue Rebase"),
-                                      tr("Continue rebase?"),
-                                      QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-                client->synchronousCommandContinue(workingDirectory, QLatin1String("rebase"));
-            }
+            continuePreviousGitCommand(tr("Continue Rebase"), tr("Continue rebase?"),
+                    tr("Continue"), QLatin1String("rebase"));
+        } else if (QFile::exists(gitDir + QLatin1String("/REVERT_HEAD"))) {
+            continuePreviousGitCommand(tr("Continue Revert"),
+                    tr("You need to commit changes to finish revert.\nCommit now?"),
+                    tr("Commit"), QLatin1String("revert"));
+        } else if (QFile::exists(gitDir + QLatin1String("/CHERRY_PICK_HEAD"))) {
+            continuePreviousGitCommand(tr("Continue Cherry-Pick"),
+                    tr("You need to commit changes to finish cherry-pick.\nCommit now?"),
+                    tr("Commit"), QLatin1String("cherry-pick"));
         }
     } else {
         outputWindow->append(tr("Merge tool process terminated with exit code %1").arg(exitCode));

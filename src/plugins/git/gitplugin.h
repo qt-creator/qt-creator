@@ -100,6 +100,9 @@ public:
 
     GitClient *gitClient() const;
 
+public slots:
+    void startCommit();
+
 private slots:
     void diffCurrentFile();
     void diffCurrentProject();
@@ -113,6 +116,9 @@ private slots:
     void undoFileChanges(bool revertStaging = true);
     void undoUnstagedFileChanges();
     void resetRepository();
+    void startRevertCommit();
+    void startCherryPickCommit();
+    void startRevertOrCherryPick(bool isRevert);
     void stageFile();
     void unstageFile();
     void gitkForCurrentFile();
@@ -124,7 +130,6 @@ private slots:
     void gitClientMemberFuncRepositoryAction();
 
     void showCommit();
-    void startCommit();
     void startAmendCommit();
     void stash();
     void stashSnapshot();
