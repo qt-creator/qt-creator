@@ -44,6 +44,8 @@ using namespace CPlusPlus;
 TypePrettyPrinter::TypePrettyPrinter(const Overview *overview)
     : _overview(overview)
     , _needsParens(false)
+    , _isIndirectionType(false)
+    , _isIndirectionToArrayOrFunction(false)
 { }
 
 TypePrettyPrinter::~TypePrettyPrinter()
@@ -91,13 +93,28 @@ QString TypePrettyPrinter::switchName(const QString &name)
     const QString previousName = _name;
     _name = name;
     return previousName;
+
 }
 
-QString TypePrettyPrinter::switchText(const QString &name)
+bool TypePrettyPrinter::switchIsIndirectionType(bool isIndirectionType)
 {
-    QString previousName = _text;
-    _text = name;
-    return previousName;
+    bool previousIsIndirectionType = _isIndirectionType;
+    _isIndirectionType = isIndirectionType;
+    return previousIsIndirectionType;
+}
+
+bool TypePrettyPrinter::switchIsIndirectionToArrayOrFunction(bool isIndirectionToArrayOrFunction)
+{
+    bool previousIsIndirectionToArrayOrFunction = _isIndirectionToArrayOrFunction;
+    _isIndirectionToArrayOrFunction = isIndirectionToArrayOrFunction;
+    return previousIsIndirectionToArrayOrFunction;
+}
+
+QString TypePrettyPrinter::switchText(const QString &text)
+{
+    QString previousText = _text;
+    _text = text;
+    return previousText;
 }
 
 bool TypePrettyPrinter::switchNeedsParens(bool needsParens)
@@ -175,6 +192,46 @@ void TypePrettyPrinter::visit(Enum *type)
     prependCv(_fullySpecifiedType);
 }
 
+void TypePrettyPrinter::visitIndirectionType(
+    const TypePrettyPrinter::IndirectionType indirectionType,
+    const FullySpecifiedType &elementType,
+    bool isIndirectionToArrayOrFunction)
+{
+    QLatin1Char indirectionSign = indirectionType == aPointerType
+        ? QLatin1Char('*') : QLatin1Char('&');
+
+    const bool prevIsIndirectionType = switchIsIndirectionType(true);
+    const bool hasName = ! _name.isEmpty();
+    if (hasName) {
+        _text.prepend(_name);
+        _name.clear();
+    }
+    prependCv(_fullySpecifiedType);
+
+    if (_text.startsWith(QLatin1Char('&')) && indirectionType != aPointerType)
+        _text.prepend(QLatin1Char(' '));
+
+    const bool prevIsIndirectionToArrayOrFunction
+        = switchIsIndirectionToArrayOrFunction(isIndirectionToArrayOrFunction);
+
+    // Space after indirectionSign?
+    prependSpaceAfterIndirection(hasName);
+
+    // Write indirectionSign or reference
+    if (indirectionType == aRvalueReferenceType)
+        _text.prepend(QLatin1String("&&"));
+    else
+        _text.prepend(indirectionSign);
+
+    // Space before indirectionSign?
+    prependSpaceBeforeIndirection(elementType);
+
+    _needsParens = true;
+    acceptType(elementType);
+    (bool) switchIsIndirectionToArrayOrFunction(prevIsIndirectionToArrayOrFunction);
+    (bool) switchIsIndirectionType(prevIsIndirectionType);
+}
+
 void TypePrettyPrinter::visit(IntegerType *type)
 {
     prependSpaceUnlessBracket();
@@ -246,35 +303,54 @@ void TypePrettyPrinter::visit(PointerToMemberType *type)
     acceptType(type->elementType());
 }
 
+void TypePrettyPrinter::prependSpaceBeforeIndirection(const FullySpecifiedType &type)
+{
+    const bool elementTypeIsPointerOrReference = type.type()->isPointerType()
+        || type.type()->isReferenceType();
+    const bool elementIsConstPointerOrReference = elementTypeIsPointerOrReference && type.isConst();
+    const bool shouldBindToLeftSpecifier = _overview->starBindFlags & Overview::BindToLeftSpecifier;
+    if (elementIsConstPointerOrReference && ! shouldBindToLeftSpecifier)
+        _text.prepend(QLatin1String(" "));
+}
+
+void TypePrettyPrinter::prependSpaceAfterIndirection(bool hasName)
+{
+    const bool hasCvSpecifier = _fullySpecifiedType.isConst() || _fullySpecifiedType.isVolatile();
+    const bool shouldBindToIdentifier = _overview->starBindFlags & Overview::BindToIdentifier;
+    const bool shouldBindToRightSpecifier =
+        _overview->starBindFlags & Overview::BindToRightSpecifier;
+
+    const bool spaceBeforeNameNeeded = hasName && ! shouldBindToIdentifier
+        && ! _isIndirectionToArrayOrFunction;
+    const bool spaceBeforeSpecifierNeeded = hasCvSpecifier && ! shouldBindToRightSpecifier;
+
+    const bool case1 = hasCvSpecifier && spaceBeforeSpecifierNeeded;
+    const bool case2 = ! hasCvSpecifier && spaceBeforeNameNeeded;
+    // case 3: In "char *argv[]", put a space between '*' and "argv" when requested
+    const bool case3 = ! hasCvSpecifier && ! shouldBindToIdentifier
+        && ! _isIndirectionToArrayOrFunction && _text.size() && _text.at(0).isLetter();
+    if (case1 || case2 || case3)
+        _text.prepend(QLatin1String(" "));
+}
+
 void TypePrettyPrinter::visit(PointerType *type)
 {
-    if (! _name.isEmpty()) {
-        _text.prepend(_name);
-        _name.clear();
-    }
-    prependCv(_fullySpecifiedType);
-    _text.prepend(QLatin1String("*"));
-    _needsParens = true;
-    acceptType(type->elementType());
+    const bool isIndirectionToFunction = type->elementType().type()->isFunctionType();
+    const bool isIndirectionToArray = type->elementType().type()->isArrayType();
+
+    visitIndirectionType(aPointerType, type->elementType(),
+        isIndirectionToFunction || isIndirectionToArray);
 }
 
 void TypePrettyPrinter::visit(ReferenceType *type)
 {
-    if (! _name.isEmpty()) {
-        _text.prepend(_name);
-        _name.clear();
-    }
-    prependCv(_fullySpecifiedType);
+    const bool isIndirectionToFunction = type->elementType().type()->isFunctionType();
+    const bool isIndirectionToArray = type->elementType().type()->isArrayType();
+    const IndirectionType indirectionType = type->isRvalueReference()
+        ? aRvalueReferenceType : aReferenceType;
 
-    if (_text.startsWith(QLatin1Char('&')))
-        _text.prepend(QLatin1Char(' '));
-
-    if (type->isRvalueReference())
-        _text.prepend(QLatin1String("&&"));
-    else
-        _text.prepend(QLatin1String("&"));
-    _needsParens = true;
-    acceptType(type->elementType());
+    visitIndirectionType(indirectionType, type->elementType(),
+        isIndirectionToFunction || isIndirectionToArray);
 }
 
 void TypePrettyPrinter::visit(ArrayType *type)
@@ -326,6 +402,7 @@ void TypePrettyPrinter::visit(Function *type)
 
     if (_overview->showFunctionSignatures) {
         Overview argumentText;
+        argumentText.starBindFlags = _overview->starBindFlags;
         argumentText.showReturnTypes = true;
         argumentText.showArgumentNames = false;
         argumentText.showFunctionSignatures = true;
@@ -393,8 +470,16 @@ void TypePrettyPrinter::prependSpaceUnlessBracket()
 
     const QChar ch = _text.at(0);
 
-    if (ch != QLatin1Char('['))
-        _text.prepend(QLatin1Char(' '));
+    if (ch != QLatin1Char('[')) {
+        const bool shouldBindToTypeNam = _overview->starBindFlags & Overview::BindToTypeName;
+        const bool caseNoIndirection = ! _isIndirectionType;
+        const bool caseIndirectionToArrayOrFunction = _isIndirectionType
+            && _isIndirectionToArrayOrFunction;
+        const bool casePointerNoBind = _isIndirectionType && ! _isIndirectionToArrayOrFunction
+            && ! shouldBindToTypeNam;
+        if (caseNoIndirection || caseIndirectionToArrayOrFunction || casePointerNoBind)
+            _text.prepend(QLatin1Char(' '));
+    }
 }
 
 void TypePrettyPrinter::prependWordSeparatorSpace()

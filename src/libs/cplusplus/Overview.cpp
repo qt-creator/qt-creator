@@ -38,14 +38,15 @@
 using namespace CPlusPlus;
 
 Overview::Overview()
-    : markedArgument(0),
-      markedArgumentBegin(0),
-      markedArgumentEnd(0),
+    : starBindFlags(BindToIdentifier), // default to "Qt Style"
       showArgumentNames(false),
       showReturnTypes(false),
       showFunctionSignatures(true),
       showDefaultArguments(true),
-      showTemplateParameters(false)
+      showTemplateParameters(false),
+      markedArgument(0),
+      markedArgumentBegin(0),
+      markedArgumentEnd(0)
 { }
 
 QString Overview::prettyName(const Name *name) const

@@ -39,6 +39,14 @@ namespace CPlusPlus {
 class Overview;
 class FullySpecifiedType;
 
+/*!
+   \class TypePrettyPrinter
+
+   \brief Helper class for Overview. Does the main type conversation work.
+
+   Don't use this class directly, use Overview instead.
+ */
+
 class CPLUSPLUS_EXPORT TypePrettyPrinter: protected TypeVisitor
 {
 public:
@@ -50,11 +58,7 @@ public:
     QString operator()(const FullySpecifiedType &type);
     QString operator()(const FullySpecifiedType &type, const QString &name);
 
-protected:
-    QString switchText(const QString &text = QString());
-    bool switchNeedsParens(bool needsParens);
-    QString switchName(const QString &name);
-
+private:
     void acceptType(const FullySpecifiedType &ty);
 
     virtual void visit(UndefinedType *type);
@@ -72,17 +76,30 @@ protected:
     virtual void visit(Class *type);
     virtual void visit(Enum *type);
 
+    QString switchName(const QString &name);
+    QString switchText(const QString &text = QString());
+    bool switchNeedsParens(bool needsParens);
+    bool switchIsIndirectionType(bool isIndirectionType);
+    bool switchIsIndirectionToArrayOrFunction(bool isIndirectionToArrayOrFunction);
+
     void appendSpace();
     void prependSpaceUnlessBracket();
     void prependWordSeparatorSpace();
     void prependCv(const FullySpecifiedType &ty);
+    void prependSpaceAfterIndirection(bool hasName);
+    void prependSpaceBeforeIndirection(const FullySpecifiedType &type);
 
-private:
+    enum IndirectionType { aPointerType, aReferenceType, aRvalueReferenceType };
+    void visitIndirectionType(const IndirectionType indirectionType,
+        const FullySpecifiedType &elementType, bool isIndirectionToArrayOrFunction);
+
     const Overview *_overview;
     QString _name;
     QString _text;
     FullySpecifiedType _fullySpecifiedType;
     bool _needsParens;
+    bool _isIndirectionType;
+    bool _isIndirectionToArrayOrFunction;
 };
 
 } // namespace CPlusPlus
