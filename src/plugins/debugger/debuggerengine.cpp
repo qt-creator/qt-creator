@@ -1469,6 +1469,10 @@ void DebuggerEngine::reloadFullStack()
 {
 }
 
+void DebuggerEngine::reloadDebuggingHelpers()
+{
+}
+
 void DebuggerEngine::addOptionPages(QList<Core::IOptionsPage*> *) const
 {
 }

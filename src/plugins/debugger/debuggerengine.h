@@ -186,6 +186,7 @@ public:
     virtual void reloadRegisters();
     virtual void reloadSourceFiles();
     virtual void reloadFullStack();
+    virtual void reloadDebuggingHelpers();
 
     virtual void setRegisterValue(int regnr, const QString &value);
     virtual void addOptionPages(QList<Core::IOptionsPage*> *) const;

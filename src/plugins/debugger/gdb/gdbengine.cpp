@@ -4922,6 +4922,15 @@ void GdbEngine::tryLoadPythonDumpers()
     postCommand("bbsetup", ConsoleCommand);
 }
 
+void GdbEngine::reloadDebuggingHelpers()
+{
+    // Only supported for python.
+    if (m_hasPython) {
+        m_pythonAttemptedToLoad = false;
+        tryLoadPythonDumpers();
+    }
+}
+
 void GdbEngine::handleGdbError(QProcess::ProcessError error)
 {
     const QString msg = errorMessage(error);

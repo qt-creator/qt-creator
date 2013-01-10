@@ -31,6 +31,7 @@
 
 #include "debuggeractions.h"
 #include "debuggercore.h"
+#include "debuggerengine.h"
 
 #include <QDebug>
 #include <QFile>
@@ -161,7 +162,14 @@ public:
         m_saveContentsAction = new QAction(this);
         m_saveContentsAction->setText(tr("Save Contents"));
         m_saveContentsAction->setEnabled(true);
-        connect(m_saveContentsAction, SIGNAL(triggered()), this, SLOT(saveContents()));
+        connect(m_saveContentsAction, SIGNAL(triggered()),
+            this, SLOT(saveContents()));
+
+        m_reloadDebuggingHelpersAction = new QAction(this);
+        m_reloadDebuggingHelpersAction->setText(tr("Reload Debugging Helpers"));
+        m_reloadDebuggingHelpersAction->setEnabled(true);
+        connect(m_reloadDebuggingHelpersAction, SIGNAL(triggered()),
+            this, SLOT(reloadDebuggingHelpers()));
     }
 
     void contextMenuEvent(QContextMenuEvent *ev)
@@ -171,6 +179,7 @@ public:
         menu->addAction(m_saveContentsAction); // X11 clipboard is unreliable for long texts
         menu->addAction(debuggerCore()->action(LogTimeStamps));
         menu->addAction(debuggerCore()->action(VerboseLog));
+        menu->addAction(m_reloadDebuggingHelpersAction);
         menu->addSeparator();
         menu->addAction(debuggerCore()->action(SettingsDialog));
         menu->exec(ev->globalPos());
@@ -192,15 +201,22 @@ public:
 
 private slots:
     void saveContents();
+    void reloadDebuggingHelpers();
 
 private:
     QAction *m_clearContentsAction;
     QAction *m_saveContentsAction;
+    QAction *m_reloadDebuggingHelpersAction;
 };
 
 void DebuggerPane::saveContents()
 {
     LogWindow::writeLogContents(this, this);
+}
+
+void DebuggerPane::reloadDebuggingHelpers()
+{
+    debuggerCore()->currentEngine()->reloadDebuggingHelpers();
 }
 
 /////////////////////////////////////////////////////////////////////
