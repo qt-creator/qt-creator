@@ -33,6 +33,7 @@
 
 #include <QDir>
 #include <QProcess>
+#include <QProcessEnvironment>
 #include <QString>
 #include <QCoreApplication>
 
@@ -40,7 +41,7 @@ class SystemEnvironment : public Utils::Environment
 {
 public:
     SystemEnvironment()
-        : Environment(QProcess::systemEnvironment())
+        : Environment(QProcessEnvironment::systemEnvironment().toStringList())
     {
         if (Utils::HostOsInfo::isLinuxHost()) {
             QString ldLibraryPath = value(QLatin1String("LD_LIBRARY_PATH"));
