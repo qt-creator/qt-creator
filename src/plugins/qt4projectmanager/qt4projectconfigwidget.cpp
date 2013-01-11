@@ -35,6 +35,7 @@
 #include "qt4projectmanagerconstants.h"
 #include "qt4projectmanager.h"
 #include "qt4buildconfiguration.h"
+#include "qt4nodes.h"
 #include "ui_qt4projectconfigwidget.h"
 
 #include <coreplugin/icore.h>
@@ -94,6 +95,7 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4BuildConfiguration *bc)
     Qt4Project *project = static_cast<Qt4Project *>(bc->target()->project());
     connect(project, SIGNAL(environmentChanged()), this, SLOT(environmentChanged()));
     connect(project, SIGNAL(buildDirectoryInitialized()), this, SLOT(updateProblemLabel()));
+    connect(project, SIGNAL(proFilesEvaluated()), this, SLOT(updateProblemLabel()));
 
     connect(bc->target(), SIGNAL(kitChanged()), this, SLOT(updateProblemLabel()));
 
@@ -195,6 +197,12 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
     if (!version) {
         setProblemLabel(tr("This kit cannot build this project since it does not define a Qt version."));
+        return;
+    }
+
+    Qt4Project *p = static_cast<Qt4Project *>(m_buildConfiguration->target()->project());
+    if (p->rootQt4ProjectNode()->parseInProgress() || !p->rootQt4ProjectNode()->validParse()) {
+        setProblemLabel(QString());
         return;
     }
 
