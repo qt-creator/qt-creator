@@ -145,7 +145,7 @@ private:
     Utils::ProxyAction *m_action;
     QString m_toolTip;
 
-    QMap<int, QPointer<QAction> > m_contextActionMap;
+    QMap<Id, QPointer<QAction> > m_contextActionMap;
     QMap<QAction*, bool> m_scriptableMap;
     bool m_active;
     bool m_contextInitialized;

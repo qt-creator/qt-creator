@@ -333,8 +333,8 @@ QKeySequence Shortcut::keySequence() const
 
 void Shortcut::setCurrentContext(const Core::Context &context)
 {
-    foreach (int ctxt, m_context) {
-        if (context.contains(ctxt)) {
+    foreach (Id id, m_context) {
+        if (context.contains(id)) {
             if (!m_shortcut->isEnabled()) {
                 m_shortcut->setEnabled(true);
                 emit activeStateChanged();
@@ -423,7 +423,7 @@ void Action::updateActiveState()
     setActive(m_action->isEnabled() && m_action->isVisible() && !m_action->isSeparator());
 }
 
-static QString msgActionWarning(QAction *newAction, int k, QAction *oldAction)
+static QString msgActionWarning(QAction *newAction, Id id, QAction *oldAction)
 {
     QString msg;
     QTextStream str(&msg);
@@ -431,9 +431,8 @@ static QString msgActionWarning(QAction *newAction, int k, QAction *oldAction)
          << ": Action ";
     if (oldAction)
         str << oldAction->objectName() << '/' << oldAction->text();
-    str << " is already registered for context " << k << ' '
-        << Core::Id::fromUniqueIdentifier(k).toString()
-        << '.';
+    str << " is already registered for context " << id.uniqueIdentifier() << ' '
+        << id.toString() << '.';
     return msg;
 }
 
@@ -447,10 +446,10 @@ void Action::addOverrideAction(QAction *action, const Core::Context &context, bo
         m_contextActionMap.insert(0, action);
     } else {
         for (int i = 0; i < context.size(); ++i) {
-            int k = context.at(i);
-            if (m_contextActionMap.contains(k))
-                qWarning("%s", qPrintable(msgActionWarning(action, k, m_contextActionMap.value(k, 0))));
-            m_contextActionMap.insert(k, action);
+            Id id = context.at(i);
+            if (m_contextActionMap.contains(id))
+                qWarning("%s", qPrintable(msgActionWarning(action, id, m_contextActionMap.value(id, 0))));
+            m_contextActionMap.insert(id, action);
         }
     }
     m_scriptableMap[action] = scriptable;
@@ -459,7 +458,7 @@ void Action::addOverrideAction(QAction *action, const Core::Context &context, bo
 
 void Action::removeOverrideAction(QAction *action)
 {
-    QMutableMapIterator<int, QPointer<QAction> > it(m_contextActionMap);
+    QMutableMapIterator<Id, QPointer<QAction> > it(m_contextActionMap);
     while (it.hasNext()) {
         it.next();
         if (it.value() == 0)

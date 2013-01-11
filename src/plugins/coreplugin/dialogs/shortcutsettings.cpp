@@ -362,7 +362,7 @@ void ShortcutSettings::markPossibleCollisions(ShortcutItem *item)
     if (item->m_key.isEmpty())
         return;
 
-    int globalId = Context(Constants::C_GLOBAL).at(0);
+    Id globalId = Context(Constants::C_GLOBAL).at(0);
 
     foreach (ShortcutItem *currentItem, m_scitems) {
 
@@ -371,11 +371,10 @@ void ShortcutSettings::markPossibleCollisions(ShortcutItem *item)
             continue;
         }
 
-        foreach (int context, currentItem->m_cmd->context()) {
-
+        foreach (Id id, currentItem->m_cmd->context()) {
             // conflict if context is identical, OR if one
             // of the contexts is the global context
-            if (item->m_cmd->context().contains(context) ||
+            if (item->m_cmd->context().contains(id) ||
                (item->m_cmd->context().contains(globalId) &&
                 !currentItem->m_cmd->context().isEmpty()) ||
                 (currentItem->m_cmd->context().contains(globalId) &&

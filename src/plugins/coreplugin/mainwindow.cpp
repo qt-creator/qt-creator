@@ -1206,21 +1206,21 @@ void MainWindow::writeSettings()
 
 void MainWindow::updateAdditionalContexts(const Context &remove, const Context &add)
 {
-    foreach (const int context, remove) {
-        if (context == 0)
+    foreach (const Id id, remove) {
+        if (!id.isValid())
             continue;
 
-        int index = m_additionalContexts.indexOf(context);
+        int index = m_additionalContexts.indexOf(id);
         if (index != -1)
             m_additionalContexts.removeAt(index);
     }
 
-    foreach (const int context, add) {
-        if (context == 0)
+    foreach (const Id id, add) {
+        if (!id.isValid())
             continue;
 
-        if (!m_additionalContexts.contains(context))
-            m_additionalContexts.prepend(context);
+        if (!m_additionalContexts.contains(id))
+            m_additionalContexts.prepend(id);
     }
 
     updateContext();
@@ -1237,9 +1237,9 @@ void MainWindow::updateContext()
 
     Context uniquecontexts;
     for (int i = 0; i < contexts.size(); ++i) {
-        const int c = contexts.at(i);
-        if (!uniquecontexts.contains(c))
-            uniquecontexts.add(c);
+        const Id id = contexts.at(i);
+        if (!uniquecontexts.contains(id))
+            uniquecontexts.add(id);
     }
 
     m_actionManager->d->setContext(uniquecontexts);

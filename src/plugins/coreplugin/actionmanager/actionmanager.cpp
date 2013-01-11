@@ -466,12 +466,12 @@ ActionManagerPrivate::~ActionManagerPrivate()
     qDeleteAll(m_idCmdMap.values());
 }
 
-QDebug operator<<(QDebug in, const Context &context)
+QDebug operator<<(QDebug d, const Context &context)
 {
-    in << "CONTEXT: ";
-    foreach (int c, context)
-        in << "   " << c << Id::fromUniqueIdentifier(c).toString();
-    return in;
+    d << "CONTEXT: ";
+    foreach (Id id, context)
+        d << "   " << id.uniqueIdentifier() << " " << id.toString();
+    return d;
 }
 
 void ActionManagerPrivate::setContext(const Context &context)
