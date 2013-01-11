@@ -85,11 +85,6 @@ public:
     bool findText(const QString &text, Find::FindFlags flags,
         bool incremental, bool fromSearch, bool *wrapped = 0);
 
-    static const QString NsNokia;
-    static const QString NsTrolltech;
-    static const QString AboutBlankPage;
-    static const QString PageNotFoundMessage;
-
     static bool isLocalUrl(const QUrl &url);
     static bool canOpenPage(const QString &url);
     static QString mimeFromUrl(const QUrl &url);

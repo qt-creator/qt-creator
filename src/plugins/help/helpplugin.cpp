@@ -1168,8 +1168,8 @@ void HelpPlugin::handleHelpRequest(const QUrl &url)
 
     QString address = url.toString();
     if (!Core::HelpManager::instance()->findFile(url).isValid()) {
-        if (address.startsWith(HelpViewer::NsNokia)
-            || address.startsWith(HelpViewer::NsTrolltech)) {
+        if (address.startsWith(QLatin1String("qthelp://com.nokia."))
+            || address.startsWith(QLatin1String("qthelp://com.trolltech."))) {
                 // local help not installed, resort to external web help
                 QString urlPrefix = QLatin1String("http://doc.qt.digia.com/");
                 if (url.authority() == QLatin1String("com.nokia.qtcreator"))
