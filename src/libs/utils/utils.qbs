@@ -57,6 +57,8 @@ QtcLibrary {
         "detailswidget.h",
         "elfreader.cpp",
         "elfreader.h",
+        "elidinglabel.cpp",
+        "elidinglabel.h",
         "environment.cpp",
         "environment.h",
         "environmentmodel.cpp",
