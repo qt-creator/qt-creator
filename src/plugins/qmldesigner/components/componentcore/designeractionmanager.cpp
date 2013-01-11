@@ -47,7 +47,7 @@ static inline QString captionForModelNode(const ModelNode &modelNode)
 
 static inline bool contains(const QmlItemNode &node, const QPoint &position)
 {
-    return node.instanceSceneTransform().mapRect(node.instanceBoundingRect()).contains(position);
+    return node.isValid() && node.instanceSceneTransform().mapRect(node.instanceBoundingRect()).contains(position);
 }
 
 namespace Internal {
