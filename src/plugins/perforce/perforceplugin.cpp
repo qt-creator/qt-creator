@@ -211,7 +211,8 @@ static const VcsBase::VcsBaseSubmitEditorParameters submitParameters = {
     Perforce::Constants::SUBMIT_MIMETYPE,
     Perforce::Constants::PERFORCE_SUBMIT_EDITOR_ID,
     Perforce::Constants::PERFORCE_SUBMIT_EDITOR_DISPLAY_NAME,
-    Perforce::Constants::PERFORCESUBMITEDITOR_CONTEXT
+    Perforce::Constants::PERFORCESUBMITEDITOR_CONTEXT,
+    VcsBase::VcsBaseSubmitEditorParameters::DiffFiles
 };
 
 bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *errorMessage)

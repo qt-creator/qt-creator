@@ -56,6 +56,7 @@ public:
     const char *id;
     const char *displayName;
     const char *context;
+    enum DiffType { DiffRows, DiffFiles } diffType;
 };
 
 class VCSBASE_EXPORT VcsBaseSubmitEditor : public Core::IEditor
@@ -130,6 +131,7 @@ public:
     void setFileModel(SubmitFileModel *m, const QString &repositoryDirectory = QString());
     SubmitFileModel *fileModel() const;
     virtual void updateFileModel() { }
+    QStringList rowsToFiles(const QList<int> &rows) const;
 
     // Utilities returning some predefined icons for actions
     static QIcon diffIcon();
@@ -148,9 +150,10 @@ public:
 
 signals:
     void diffSelectedFiles(const QStringList &files);
+    void diffSelectedFiles(const QList<int> &rows);
 
 private slots:
-    void slotDiffSelectedVcsFiles(const QStringList &rawList);
+    void slotDiffSelectedVcsFiles(const QList<int> &rawList);
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     void slotDescriptionChanged();
     void slotCheckSubmitMessage();

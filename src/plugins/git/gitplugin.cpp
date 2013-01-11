@@ -175,7 +175,8 @@ static const VcsBase::VcsBaseSubmitEditorParameters submitParameters = {
     Git::Constants::SUBMIT_MIMETYPE,
     Git::Constants::GITSUBMITEDITOR_ID,
     Git::Constants::GITSUBMITEDITOR_DISPLAY_NAME,
-    Git::Constants::C_GITSUBMITEDITOR
+    Git::Constants::C_GITSUBMITEDITOR,
+    VcsBase::VcsBaseSubmitEditorParameters::DiffRows
 };
 
 // Create a parameter action

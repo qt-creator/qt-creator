@@ -258,7 +258,8 @@ static const VcsBase::VcsBaseSubmitEditorParameters submitParameters = {
     ClearCase::Constants::CLEARCASE_SUBMIT_MIMETYPE,
     ClearCase::Constants::CLEARCASECHECKINEDITOR_ID,
     ClearCase::Constants::CLEARCASECHECKINEDITOR_DISPLAY_NAME,
-    ClearCase::Constants::CLEARCASECHECKINEDITOR
+    ClearCase::Constants::CLEARCASECHECKINEDITOR,
+    VcsBase::VcsBaseSubmitEditorParameters::DiffFiles
 };
 
 bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *errorMessage)

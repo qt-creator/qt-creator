@@ -210,7 +210,7 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
     connect(d->m_file, SIGNAL(saveMe(QString*,QString,bool)),
             this, SLOT(save(QString*,QString,bool)));
 
-    connect(d->m_widget, SIGNAL(diffSelected(QStringList)), this, SLOT(slotDiffSelectedVcsFiles(QStringList)));
+    connect(d->m_widget, SIGNAL(diffSelected(QList<int>)), this, SLOT(slotDiffSelectedVcsFiles(QList<int>)));
     connect(d->m_widget->descriptionEdit(), SIGNAL(textChanged()), this, SLOT(slotDescriptionChanged()));
 
     const CommonVcsSettings settings = VcsPlugin::instance()->settings();
@@ -540,9 +540,25 @@ SubmitFileModel *VcsBaseSubmitEditor::fileModel() const
     return d->m_widget->fileModel();
 }
 
-void VcsBaseSubmitEditor::slotDiffSelectedVcsFiles(const QStringList &rawList)
+QStringList VcsBaseSubmitEditor::rowsToFiles(const QList<int> &rows) const
 {
-     emit diffSelectedFiles(rawList);
+    if (rows.empty())
+        return QStringList();
+
+    QStringList rc;
+    const SubmitFileModel *model = fileModel();
+    const int count = rows.size();
+    for (int i = 0; i < count; i++)
+        rc.push_back(model->file(rows.at(i)));
+    return rc;
+}
+
+void VcsBaseSubmitEditor::slotDiffSelectedVcsFiles(const QList<int> &rawList)
+{
+    if (d->m_parameters->diffType == VcsBaseSubmitEditorParameters::DiffRows)
+        emit diffSelectedFiles(rawList);
+    else
+        emit diffSelectedFiles(rowsToFiles(rawList));
 }
 
 bool VcsBaseSubmitEditor::save(QString *errorString, const QString &fileName, bool autoSave)

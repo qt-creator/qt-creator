@@ -403,20 +403,6 @@ SubmitFileModel *SubmitEditorWidget::fileModel() const
     return static_cast<SubmitFileModel *>(d->m_ui.fileView->model());
 }
 
-QStringList SubmitEditorWidget::selectedFiles() const
-{
-    const QList<int> selection = selectedRows(d->m_ui.fileView);
-    if (selection.empty())
-        return QStringList();
-
-    QStringList rc;
-    const SubmitFileModel *model = fileModel();
-    const int count = selection.size();
-    for (int i = 0; i < count; i++)
-        rc.push_back(model->file(selection.at(i)));
-    return rc;
-}
-
 QStringList SubmitEditorWidget::checkedFiles() const
 {
     QStringList rc;
@@ -437,15 +423,14 @@ Utils::CompletingTextEdit *SubmitEditorWidget::descriptionEdit() const
 
 void SubmitEditorWidget::triggerDiffSelected()
 {
-    const QStringList sel = selectedFiles();
+    const QList<int> sel = selectedRows(d->m_ui.fileView);
     if (!sel.empty())
         emit diffSelected(sel);
 }
 
 void SubmitEditorWidget::diffActivatedDelayed()
 {
-    const QStringList files = QStringList(fileModel()->file(d->m_activatedRow));
-    emit diffSelected(files);
+    emit diffSelected(QList<int>() << d->m_activatedRow);
 }
 
 void SubmitEditorWidget::diffActivated(const QModelIndex &index)

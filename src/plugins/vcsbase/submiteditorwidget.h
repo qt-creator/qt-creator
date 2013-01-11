@@ -95,9 +95,6 @@ public:
     // Files to be included in submit
     QStringList checkedFiles() const;
 
-    // Selected files for diff
-    QStringList selectedFiles() const;
-
     Utils::CompletingTextEdit *descriptionEdit() const;
 
     void addDescriptionEditContextMenuAction(QAction *a);
@@ -109,7 +106,7 @@ public:
     virtual bool canSubmit() const;
 
 signals:
-    void diffSelected(const QStringList &);
+    void diffSelected(const QList<int> &);
     void fileSelectionChanged(bool someFileSelected);
     void submitActionTextChanged(const QString &);
     void submitActionEnabledChanged(bool);

@@ -64,7 +64,7 @@ protected:
     void updateFileModel();
 
 private slots:
-    void slotDiffSelected(const QStringList &);
+    void slotDiffSelected(const QList<int> &rows);
 
 private:
     inline GitSubmitEditorWidget *submitEditorWidget();

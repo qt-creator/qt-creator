@@ -236,7 +236,8 @@ static const VcsBase::VcsBaseSubmitEditorParameters submitParameters = {
     Subversion::Constants::SUBVERSION_SUBMIT_MIMETYPE,
     Subversion::Constants::SUBVERSIONCOMMITEDITOR_ID,
     Subversion::Constants::SUBVERSIONCOMMITEDITOR_DISPLAY_NAME,
-    Subversion::Constants::SUBVERSIONCOMMITEDITOR
+    Subversion::Constants::SUBVERSIONCOMMITEDITOR,
+    VcsBase::VcsBaseSubmitEditorParameters::DiffFiles
 };
 
 bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *errorMessage)

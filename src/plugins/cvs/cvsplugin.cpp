@@ -213,7 +213,8 @@ static const VcsBaseSubmitEditorParameters submitParameters = {
     Constants::CVS_SUBMIT_MIMETYPE,
     Constants::CVSCOMMITEDITOR_ID,
     Constants::CVSCOMMITEDITOR_DISPLAY_NAME,
-    Constants::CVSCOMMITEDITOR
+    Constants::CVSCOMMITEDITOR,
+    VcsBase::VcsBaseSubmitEditorParameters::DiffFiles
 };
 
 bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)

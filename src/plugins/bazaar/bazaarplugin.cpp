@@ -108,7 +108,8 @@ static const VcsBase::VcsBaseSubmitEditorParameters submitEditorParameters = {
     Constants::COMMITMIMETYPE,
     Constants::COMMIT_ID,
     Constants::COMMIT_DISPLAY_NAME,
-    Constants::COMMIT_ID
+    Constants::COMMIT_ID,
+    VcsBase::VcsBaseSubmitEditorParameters::DiffFiles
 };
 
 

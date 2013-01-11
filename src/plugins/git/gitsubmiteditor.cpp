@@ -85,7 +85,7 @@ GitSubmitEditor::GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *p
     m_model(0),
     m_amend(false)
 {
-    connect(this, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(slotDiffSelected(QStringList)));
+    connect(this, SIGNAL(diffSelectedFiles(QList<int>)), this, SLOT(slotDiffSelected(QList<int>)));
 }
 
 GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget()
@@ -131,24 +131,21 @@ void GitSubmitEditor::setAmend(bool amend)
     setEmptyFileListEnabled(amend); // Allow for just correcting the message
 }
 
-void GitSubmitEditor::slotDiffSelected(const QStringList &files)
+void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
 {
     // Sort it apart into unmerged/staged/unstaged files
     QStringList unmergedFiles;
     QStringList unstagedFiles;
     QStringList stagedFiles;
-    const int rowCount = m_model->rowCount();
-    for (int r = 0; r < rowCount; r++) {
-        const QString fileName = m_model->file(r);
-        if (files.contains(fileName)) {
-            const FileStates state = static_cast<FileStates>(m_model->extraData(r).toInt());
-            if (state & UnmergedFile)
-                unmergedFiles.push_back(fileName);
-            else if (state & StagedFile)
-                stagedFiles.push_back(fileName);
-            else if (state != UntrackedFile)
-                unstagedFiles.push_back(fileName);
-        }
+    foreach (int row, rows) {
+        const QString fileName = m_model->file(row);
+        const FileStates state = static_cast<FileStates>(m_model->extraData(row).toInt());
+        if (state & UnmergedFile)
+            unmergedFiles.push_back(fileName);
+        else if (state & StagedFile)
+            stagedFiles.push_back(fileName);
+        else if (state != UntrackedFile)
+            unstagedFiles.push_back(fileName);
     }
     if (!unstagedFiles.empty() || !stagedFiles.empty())
         emit diff(unstagedFiles, stagedFiles);
