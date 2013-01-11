@@ -155,6 +155,8 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
 
 void GitSubmitEditor::updateFileModel()
 {
+    if (m_workingDirectory.isEmpty())
+        return;
     GitClient *client = GitPlugin::instance()->gitClient();
     QString errorMessage, commitTemplate;
     CommitData data;
