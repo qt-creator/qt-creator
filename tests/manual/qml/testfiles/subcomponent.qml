@@ -30,8 +30,8 @@
 import Qt 4.7
 
 Rectangle {
-    x: 640
-    y: 480
+    width: 640
+    height: 480
     Component {
         id: redSquare
         Rectangle {
