@@ -48,30 +48,6 @@ QtMsgHandler systemMsgOutput = 0;
 static QDeclarativeViewer *openFile(const QString &fileName);
 static void showViewer(QDeclarativeViewer *viewer);
 
-#if defined (Q_OS_SYMBIAN)
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
-void myMessageOutput(QtMsgType type, const char *msg)
-{
-    static int fd = -1;
-    if (fd == -1)
-        fd = ::open("E:\\qml.log", O_WRONLY | O_CREAT);
-
-    ::write(fd, msg, strlen(msg));
-    ::write(fd, "\n", 1);
-    ::fsync(fd);
-
-    switch (type) {
-    case QtFatalMsg:
-        abort();
-    }
-}
-
-#else // !defined (Q_OS_SYMBIAN)
-
 QWeakPointer<LoggerWidget> logger;
 
 QString warnings;
@@ -111,8 +87,6 @@ void myMessageOutput(QtMsgType type, const char *msg)
         fflush(stderr);
     }
 }
-
-#endif
 
 static QDeclarativeViewer* globalViewer = 0;
 
@@ -208,11 +182,6 @@ struct ViewerOptions
           warningsConfig(DefaultWarnings),
           sizeToView(true)
     {
-#if defined(Q_OS_SYMBIAN)
-        maximized = true;
-        useNativeFileBrowser = false;
-#endif
-
 #if defined(Q_OS_MAC)
         useGL = true;
 #endif
@@ -462,7 +431,6 @@ static QDeclarativeViewer *createViewer()
         viewer->setScript(opts.script);
     }
 
-#if !defined(Q_OS_SYMBIAN)
     logger = viewer->warningsWidget();
     if (opts.warningsConfig == ShowWarnings) {
         logger.data()->setDefaultVisibility(LoggerWidget::ShowWarnings);
@@ -470,7 +438,6 @@ static QDeclarativeViewer *createViewer()
     } else if (opts.warningsConfig == HideWarnings){
         logger.data()->setDefaultVisibility(LoggerWidget::HideWarnings);
     }
-#endif
 
     if (opts.experimentalGestures)
         viewer->enableExperimentalGestures();
@@ -522,11 +489,7 @@ QDeclarativeViewer *openFile(const QString &fileName)
 
 int main(int argc, char ** argv)
 {
-#if defined (Q_OS_SYMBIAN)
-    qInstallMsgHandler(myMessageOutput);
-#else
     systemMsgOutput = qInstallMsgHandler(myMessageOutput);
-#endif
 
 #if defined (Q_WS_X11) || defined (Q_OS_MAC)
     //### default to using raster graphics backend for now
