@@ -445,11 +445,6 @@ bool ActionManager::isPresentationModeEnabled()
     return m_instance->d->m_presentationLabel;
 }
 
-bool ActionManager::hasContext(int context)
-{
-    return m_instance->d->m_context.contains(context);
-}
-
 /*!
     \class ActionManagerPrivate
     \inheaderfile actionmanager_p.h

@@ -117,7 +117,6 @@ public:
     // Adds and removes additional active contexts, these contexts are appended
     // to the currently active contexts.
     static void updateAdditionalContexts(const Context &remove, const Context &add);
-    static bool hasContext(int context);
     static void addContextObject(IContext *context);
     static void removeContextObject(IContext *context);
 

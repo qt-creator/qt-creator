@@ -115,7 +115,6 @@ public:
     QStatusBar *statusBar() const;
 
     void updateAdditionalContexts(const Context &remove, const Context &add);
-    bool hasContext(int context) const;
 
     void setSuppressNavigationWidget(bool suppress);
 

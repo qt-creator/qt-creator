@@ -1226,11 +1226,6 @@ void MainWindow::updateAdditionalContexts(const Context &remove, const Context &
     updateContext();
 }
 
-bool MainWindow::hasContext(int context) const
-{
-    return ActionManager::hasContext(context);
-}
-
 void MainWindow::updateContext()
 {
     Context contexts;

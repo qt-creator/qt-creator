@@ -76,8 +76,6 @@ public:
     static void setPresentationModeEnabled(bool enabled);
     static bool isPresentationModeEnabled();
 
-    static bool hasContext(int context);
-
 signals:
     void commandListChanged();
     void commandAdded(const QString &id);

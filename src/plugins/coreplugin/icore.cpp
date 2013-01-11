@@ -532,11 +532,6 @@ void ICore::updateAdditionalContexts(const Context &remove, const Context &add)
     m_mainwindow->updateAdditionalContexts(remove, add);
 }
 
-bool ICore::hasContext(int context)
-{
-    return m_mainwindow->hasContext(context);
-}
-
 void ICore::addContextObject(IContext *context)
 {
     m_mainwindow->addContextObject(context);
