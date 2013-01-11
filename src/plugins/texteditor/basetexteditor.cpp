@@ -6393,7 +6393,7 @@ RefactorMarkers BaseTextEditorWidget::refactorMarkers() const
     return d->m_refactorOverlay->markers();
 }
 
-void BaseTextEditorWidget::setRefactorMarkers(const Internal::RefactorMarkers &markers)
+void BaseTextEditorWidget::setRefactorMarkers(const RefactorMarkers &markers)
 {
     foreach (const RefactorMarker &marker, d->m_refactorOverlay->markers())
         requestBlockUpdate(marker.cursor.block());

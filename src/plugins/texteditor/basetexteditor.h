@@ -59,11 +59,11 @@ class IAssistMonitorInterface;
 class IAssistInterface;
 class IAssistProvider;
 class ICodeStylePreferences;
+typedef QList<RefactorMarker> RefactorMarkers;
 
 namespace Internal {
     class BaseTextEditorWidgetPrivate;
     class TextEditorOverlay;
-    typedef QList<RefactorMarker> RefactorMarkers;
     typedef QString (QString::*TransformationMethod)() const;
 }
 
@@ -426,8 +426,8 @@ public:
     QList<QTextEdit::ExtraSelection> extraSelections(ExtraSelectionKind kind) const;
     QString extraSelectionTooltip(int pos) const;
 
-    Internal::RefactorMarkers refactorMarkers() const;
-    void setRefactorMarkers(const Internal::RefactorMarkers &markers);
+    RefactorMarkers refactorMarkers() const;
+    void setRefactorMarkers(const RefactorMarkers &markers);
 signals:
     void refactorMarkerClicked(const TextEditor::RefactorMarker &marker);
 
