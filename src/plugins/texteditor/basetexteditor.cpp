@@ -6572,7 +6572,7 @@ int BaseTextEditorWidget::rowCount() const
 
   @see uppercaseSelection, lowercaseSelection
 */
-void BaseTextEditorWidget::transformSelection(Internal::TransformationMethod method)
+void BaseTextEditorWidget::transformSelection(TransformationMethod method)
 {
     if (hasBlockSelection()) {
         transformBlockSelection(method);
@@ -6605,7 +6605,7 @@ void BaseTextEditorWidget::transformSelection(Internal::TransformationMethod met
     setTextCursor(cursor);
 }
 
-void BaseTextEditorWidget::transformBlockSelection(Internal::TransformationMethod method)
+void BaseTextEditorWidget::transformBlockSelection(TransformationMethod method)
 {
     QTextCursor cursor = textCursor();
     int minPos = cursor.anchor();
