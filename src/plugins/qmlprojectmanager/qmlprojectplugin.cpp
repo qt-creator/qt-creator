@@ -29,11 +29,11 @@
 
 #include "qmlprojectplugin.h"
 #include "qmlprojectmanager.h"
-#include "qmlprojectapplicationwizard.h"
 #include "qmlprojectconstants.h"
 #include "qmlproject.h"
 #include "qmlprojectrunconfigurationfactory.h"
 #include "qmlprojectruncontrol.h"
+#include "qmlapplicationwizard.h"
 #include "fileformat/qmlprojectfileformat.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -81,10 +81,8 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     addAutoReleasedObject(new Internal::QmlProjectRunConfigurationFactory);
     addAutoReleasedObject(new Internal::QmlProjectRunControlFactory);
 
-    addAutoReleasedObject(new Internal::QmlProjectApplicationWizard(
-                              Internal::QmlProjectApplicationWizard::QtQuick1Project));
-    addAutoReleasedObject(new Internal::QmlProjectApplicationWizard(
-                              Internal::QmlProjectApplicationWizard::QtQuick2Project));
+
+    Internal::QmlApplicationWizard::createInstances(this);
 
     QmlProjectFileFormat::registerDeclarativeTypes();
 

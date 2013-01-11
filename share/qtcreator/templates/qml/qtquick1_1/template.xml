@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template openeditor="main.qml" priority="2"
+    featuresRequired="QtSupport.Wizards.FeatureQtQuickProject, QtSupport.Wizards.FeatureQtQuick, QtSupport.Wizards.FeatureQtQuick.1.1"
+    id="QB.QML Application for Qt Quick 1.1">
+    <displayname>Qt Quick 1 UI</displayname>
+    <displayname xml:lang="de">Qt Quick 1 UI</displayname>
+    <description>Creates a Qt Quick UI 1 project with a single QML file that contains the main view.
+
+                 You can review Qt Quick UI 1 projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.
+
+                 Requires &lt;b&gt;Qt 4.8&lt;/b&gt; or newer.
+    </description>
+</template>

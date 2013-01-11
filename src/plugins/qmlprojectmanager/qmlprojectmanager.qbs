@@ -18,12 +18,14 @@ QtcPlugin {
     cpp.defines: base.concat(["QMLPROJECTMANAGER_LIBRARY", "QT_NO_CAST_FROM_ASCII"])
 
     files: [
+        "qmlapp.cpp",
+        "qmlapp.h",
+        "qmlapplicationwizard.cpp",
+        "qmlapplicationwizard.h",
         "QmlProject.mimetypes.xml",
         "qmlproject.cpp",
         "qmlproject.h",
         "qmlproject.qrc",
-        "qmlprojectapplicationwizard.cpp",
-        "qmlprojectapplicationwizard.h",
         "qmlprojectconstants.h",
         "qmlprojectfile.cpp",
         "qmlprojectfile.h",

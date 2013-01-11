@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -27,55 +27,62 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROJECTAPPLICATIONWIZARD_H
-#define QMLPROJECTAPPLICATIONWIZARD_H
+#ifndef QMLAPPLICATIONWIZARD_H
+#define QMLAPPLICATIONWIZARD_H
 
 #include <coreplugin/basefilewizard.h>
 #include <projectexplorer/baseprojectwizarddialog.h>
 
+namespace ExtensionSystem {
+class IPlugin;
+} // namespace ExtensionSystem
+
 namespace QmlProjectManager {
 namespace Internal {
 
-class QmlProjectApplicationWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
+class QmlApp;
+class TemplateInfo;
+
+class QmlApplicationWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
 {
     Q_OBJECT
 public:
-    explicit QmlProjectApplicationWizardDialog(QWidget *parent,
-                                               const Core::WizardDialogParameters &parameters);
-};
+    QmlApplicationWizardDialog(QmlApp *qmlApp, QWidget *parent,
+                               const Core::WizardDialogParameters &parameters);
 
-class QmlProjectApplicationWizard : public Core::BaseFileWizard
-{
-    Q_OBJECT
-
-public:
-    enum ProjectType {
-        QtQuick2Project,
-        QtQuick1Project
-    };
-
-    QmlProjectApplicationWizard(ProjectType projectType);
-    virtual ~QmlProjectApplicationWizard();
-    virtual Core::FeatureSet requiredFeatures() const;
-
-    static Core::BaseFileWizardParameters parameters(ProjectType projectType);
-
-protected:
-    virtual QWizard *createWizardDialog(QWidget *parent,
-                                        const Core::WizardDialogParameters &wizardDialogParameters) const;
-
-    virtual Core::GeneratedFiles generateFiles(const QWizard *w,
-                                               QString *errorMessage) const;
-
-    virtual bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
+    QmlApp *qmlApp() const;
 
 private:
+    QmlApp *m_qmlApp;
+};
+
+
+class QmlApplicationWizard : public Core::BaseFileWizard
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(QmlApplicationWizard)
+public:
+    QmlApplicationWizard(const Core::BaseFileWizardParameters &parameters,
+                             const TemplateInfo &templateInfo, QObject *parent = 0);
+
+    static void createInstances(ExtensionSystem::IPlugin *plugin);
+
+
+private: // functions
+    QWizard *createWizardDialog(QWidget *parent,
+                                const Core::WizardDialogParameters &wizardDialogParameters) const;
+    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
     void writeUserFile(const QString &fileName) const;
-    mutable QString m_creatorFileName;
-    const ProjectType m_projectType;
+    bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
+
+    static Core::BaseFileWizardParameters parameters();
+
+private: //variables
+    mutable QString m_id;
+    QmlApp *m_qmlApp;
 };
 
 } // namespace Internal
 } // namespace QmlProjectManager
 
-#endif // QMLPROJECTAPPLICATIONWIZARD_H
+#endif // QMLAPPLICATIONWIZARD_H
