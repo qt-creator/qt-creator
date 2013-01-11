@@ -40,6 +40,7 @@ def main():
     installLazySignalHandler(":QWebPage","loadFinished(bool)", "webPageContentLoaded")
     installLazySignalHandler(":*Qt Creator_Help::Internal::HelpViewer", "loadFinished(bool)",
                              "webPageContentLoaded")
+    addHelpDocumentationFromSDK()
     setAlwaysStartFullHelp()
     if not test.verify(checkIfObjectExists(getQmlItem("Text", ":Qt Creator_QDeclarativeView", False,
                                                       "text='Getting Started'")),
