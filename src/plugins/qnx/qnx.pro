@@ -55,7 +55,14 @@ SOURCES += qnxplugin.cpp \
     blackberryabstractdeploystep.cpp \
     blackberryndksettingswidget.cpp \
     blackberryndksettingspage.cpp \
-    blackberryconfiguration.cpp
+    blackberryconfiguration.cpp \
+    bardescriptormagicmatcher.cpp \
+    bardescriptoreditorfactory.cpp \
+    bardescriptoreditor.cpp \
+    bardescriptoreditorwidget.cpp \
+    bardescriptordocument.cpp \
+    bardescriptordocumentnodehandlers.cpp \
+    bardescriptorpermissionsmodel.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -107,7 +114,14 @@ HEADERS += qnxplugin.h\
     blackberryabstractdeploystep.h \
     blackberryndksettingswidget.h \
     blackberryndksettingspage.h \
-    blackberryconfiguration.h
+    blackberryconfiguration.h \
+    bardescriptormagicmatcher.h \
+    bardescriptoreditorfactory.h \
+    bardescriptoreditor.h \
+    bardescriptoreditorwidget.h \
+    bardescriptordocument.h \
+    bardescriptordocumentnodehandlers.h \
+    bardescriptorpermissionsmodel.h
 
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \
@@ -117,7 +131,10 @@ FORMS += \
     blackberrydeviceconfigurationwidget.ui \
     qnxbaseqtconfigwidget.ui \
     bardescriptorfileimagewizardpage.ui \
-    blackberryndksettingswidget.ui
+    blackberryndksettingswidget.ui \
+    bardescriptoreditorwidget.ui
+
+DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII
 
 RESOURCES += \
     qnx.qrc
