@@ -1568,17 +1568,17 @@ static inline int askWithDetailedText(QWidget *parent,
 }
 
 // Convenience that pops up an msg box.
-GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory)
+GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory, const QString &keyword, QString *message)
 {
     QString errorMessage;
-    const StashResult sr = ensureStash(workingDirectory, &errorMessage);
+    const StashResult sr = ensureStash(workingDirectory, keyword, message, &errorMessage);
     if (sr == StashFailed)
         outputWindow()->appendError(errorMessage);
     return sr;
 }
 
 // Ensure that changed files are stashed before a pull or similar
-GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory, QString *errorMessage)
+GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory, const QString &keyword, QString *message, QString *errorMessage)
 {
     QString statusOutput;
     switch (gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules),
@@ -1597,14 +1597,17 @@ GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory, Q
     switch (answer) {
         case QMessageBox::Cancel:
             return StashCanceled;
-        case QMessageBox::Yes:
-            if (!executeSynchronousStash(workingDirectory, creatorStashMessage(QLatin1String("push")), errorMessage))
+        case QMessageBox::Yes: {
+            const QString stashMessage = creatorStashMessage(keyword);
+            if (!executeSynchronousStash(workingDirectory, stashMessage, errorMessage))
                 return StashFailed;
+            if (message)
+                *message = stashMessage;
             break;
+        }
         case QMessageBox::No: // At your own risk, so.
             return NotStashed;
         }
-
     return Stashed;
  }
 

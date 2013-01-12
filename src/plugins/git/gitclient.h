@@ -207,8 +207,8 @@ public:
 
     enum StashResult { StashUnchanged, StashCanceled, StashFailed,
                        Stashed, NotStashed /* User did not want it */ };
-    StashResult ensureStash(const QString &workingDirectory, QString *errorMessage);
-    StashResult ensureStash(const QString &workingDirectory);
+    StashResult ensureStash(const QString &workingDirectory, const QString &keyword, QString *message = 0);
+    StashResult ensureStash(const QString &workingDirectory, const QString &keyword, QString *message, QString *errorMessage);
 
     bool getCommitData(const QString &workingDirectory, bool amend,
                        QString *commitTemplate, CommitData *commitData,

@@ -901,7 +901,7 @@ void GitPlugin::pull()
         }
     }
 
-    GitClient::StashResult stashResult = m_gitClient->ensureStash(state.topLevel());
+    GitClient::StashResult stashResult = m_gitClient->ensureStash(state.topLevel(), QLatin1String("Pull"));
     switch (stashResult) {
     case GitClient::StashUnchanged:
     case GitClient::Stashed:
@@ -1031,7 +1031,7 @@ void GitPlugin::promptApplyPatch()
 void GitPlugin::applyPatch(const QString &workingDirectory, QString file)
 {
     // Ensure user has been notified about pending changes
-    switch (m_gitClient->ensureStash(workingDirectory)) {
+    switch (m_gitClient->ensureStash(workingDirectory, QLatin1String("Apply-Patch"))) {
     case GitClient::StashUnchanged:
     case GitClient::Stashed:
     case GitClient::NotStashed:
