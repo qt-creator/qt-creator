@@ -208,6 +208,7 @@ struct SynchronousProcessPrivate {
     int m_maxHangTimerCount;
     bool m_startFailure;
     bool m_timeOutMessageBoxEnabled;
+    bool m_waitingForUser;
     QString m_binary;
 
     ChannelBuffer m_stdOut;
@@ -219,7 +220,8 @@ SynchronousProcessPrivate::SynchronousProcessPrivate() :
     m_hangTimerCount(0),
     m_maxHangTimerCount(defaultMaxHangTimerCount),
     m_startFailure(false),
-    m_timeOutMessageBoxEnabled(false)
+    m_timeOutMessageBoxEnabled(false),
+    m_waitingForUser(false)
 {
 }
 
@@ -412,10 +414,12 @@ static inline bool askToKill(const QString &binary = QString())
 
 void SynchronousProcess::slotTimeout()
 {
-    if (++d->m_hangTimerCount > d->m_maxHangTimerCount) {
+    if (!d->m_waitingForUser && (++d->m_hangTimerCount > d->m_maxHangTimerCount)) {
         if (debug)
             qDebug() << Q_FUNC_INFO << "HANG detected, killing";
+        d->m_waitingForUser = true;
         const bool terminate = !d->m_timeOutMessageBoxEnabled || askToKill(d->m_binary);
+        d->m_waitingForUser = false;
         if (terminate) {
             SynchronousProcess::stopProcess(d->m_process);
             d->m_result.result = SynchronousProcessResponse::Hang;
