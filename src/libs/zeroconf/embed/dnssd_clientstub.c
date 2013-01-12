@@ -757,6 +757,7 @@ static DNSServiceErrorType deliver_request(ipc_msg_hdr *hdr, DNSServiceOp *sdr)
                 struct msghdr msg;
                 struct cmsghdr *cmsg;
                 char cbuf[CMSG_SPACE(sizeof(dnssd_sock_t))];
+                dnssd_sock_t *sock;
 
                 if (sdr->op == send_bpf)    // Okay to use sdr->op when checking for op == send_bpf
                         {
@@ -784,7 +785,8 @@ static DNSServiceErrorType deliver_request(ipc_msg_hdr *hdr, DNSServiceOp *sdr)
                 cmsg->cmsg_len     = CMSG_LEN(sizeof(dnssd_sock_t));
                 cmsg->cmsg_level   = SOL_SOCKET;
                 cmsg->cmsg_type    = SCM_RIGHTS;
-                *((dnssd_sock_t *)CMSG_DATA(cmsg)) = listenfd;
+                sock = (dnssd_sock_t *)CMSG_DATA(cmsg);
+                *sock = listenfd;
 
 #if TEST_KQUEUE_CONTROL_MESSAGE_BUG
                 sleep(1);
