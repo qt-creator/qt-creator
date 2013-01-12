@@ -263,7 +263,8 @@ public:
             QVarLengthArray<FullySpecifiedType, 8> args(name->templateArgumentCount());
             for (unsigned i = 0; i < name->templateArgumentCount(); ++i)
                 args[i] = rewrite->rewriteType(name->templateArgumentAt(i));
-            temps.append(control()->templateNameId(identifier(name->identifier()), args.data(), args.size()));
+            temps.append(control()->templateNameId(identifier(name->identifier()), name->isSpecialization(),
+                                                   args.data(), args.size()));
         }
 
         virtual void visit(const DestructorNameId *name)

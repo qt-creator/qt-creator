@@ -716,6 +716,42 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
 
     ClassOrNamespace *reference = it->second;
 
+    const TemplateNameId *templId = name->asTemplateNameId();
+    if (templId) {
+        // if it is a TemplateNameId it could be a specialization(full or partial) or
+        // instantiation of one of the specialization(reference->_specialization) or
+        // base class(reference)
+        if (templId->isSpecialization()) {
+            // if it is a specialization we try to find or create new one and
+            // add to base class(reference)
+            TemplateNameIdTable::const_iterator cit = reference->_specializations.find(templId);
+            if (cit != reference->_specializations.end()) {
+                return cit->second;
+            } else {
+                ClassOrNamespace *newSpecialization = _factory->allocClassOrNamespace(reference);
+#ifdef DEBUG_LOOKUP
+                newSpecialization->_name = templId;
+#endif // DEBUG_LOOKUP
+                reference->_specializations[templId] = newSpecialization;
+                return newSpecialization;
+            }
+        } else {
+            TemplateNameId *nonConstTemplId = const_cast<TemplateNameId *>(templId);
+            // make this instantiation looks like specialization which help to find
+            // full specialization for this instantiation
+            nonConstTemplId->setIsSpecialization(true);
+            TemplateNameIdTable::const_iterator cit = reference->_specializations.find(templId);
+            if (cit != reference->_specializations.end()) {
+                // we found full specialization
+                reference = cit->second;
+            } else {
+                // TODO: find the best specialization(probably partial) for this instantiation
+            }
+            // let's instantiation be instantiation
+            nonConstTemplId->setIsSpecialization(false);
+        }
+    }
+
     // The reference binding might still be missing some of its base classes in the case they
     // are templates. We need to collect them now. First, we track the bases which are already
     // part of the binding so we can identify the missings ones later.
@@ -737,7 +773,6 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
     if (!referenceClass)
         return reference;
 
-    const TemplateNameId *templId = name->asTemplateNameId();
     if ((! templId && _alreadyConsideredClasses.contains(referenceClass)) ||
             (templId &&
             _alreadyConsideredTemplates.contains(templId))) {
@@ -752,9 +787,6 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
     // If we are dealling with a template type, more work is required, since we need to
     // construct all instantiation data.
     if (templId) {
-        if (_instantiations.contains(templId))
-            return _instantiations[templId];
-
         _alreadyConsideredTemplates.insert(templId);
         ClassOrNamespace *instantiation = _factory->allocClassOrNamespace(reference);
 #ifdef DEBUG_LOOKUP
@@ -863,7 +895,6 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
         }
 
         _alreadyConsideredTemplates.clear(templId);
-        _instantiations[templId] = instantiation;
         return instantiation;
     }
 

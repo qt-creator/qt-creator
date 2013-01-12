@@ -101,6 +101,7 @@ private:
 
 private:
     typedef std::map<const Name *, ClassOrNamespace *, Name::Compare> Table;
+    typedef std::map<const TemplateNameId *, ClassOrNamespace *, TemplateNameId::Compare> TemplateNameIdTable;
 
     CreateBindings *_factory;
     ClassOrNamespace *_parent;
@@ -110,7 +111,7 @@ private:
     QList<Enum *> _enums;
     QList<Symbol *> _todo;
     QSharedPointer<Control> _control;
-    QMap<const Name *, ClassOrNamespace *> _instantiations;
+    TemplateNameIdTable _specializations;
 
     // it's an instantiation.
     const TemplateNameId *_templateId;

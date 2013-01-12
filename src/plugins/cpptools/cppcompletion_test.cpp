@@ -564,6 +564,42 @@ void CppToolsPlugin::test_completion_type_of_pointer_is_typedef()
     QVERIFY(completions.contains(QLatin1String("foo")));
 }
 
+void CppToolsPlugin::test_completion_instantiate_full_specialization()
+{
+    TestData data;
+    data.srcText = "\n"
+            "template<typename T>\n"
+            "struct Template\n"
+            "{\n"
+            "   int templateT_i;\n"
+            "};\n"
+            "\n"
+            "template<>\n"
+            "struct Template<char>\n"
+            "{\n"
+            "    int templateChar_i;\n"
+            "};\n"
+            "\n"
+            "Template<char> templateChar;\n"
+            "@\n"
+            ;
+
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("templateChar.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("Template")));
+    QVERIFY(completions.contains(QLatin1String("templateChar_i")));
+}
+
 void CppToolsPlugin::test_completion()
 {
     QFETCH(QByteArray, code);

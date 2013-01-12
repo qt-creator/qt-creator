@@ -414,9 +414,10 @@ void CloneName::visit(const TemplateNameId *name)
     for (unsigned i = 0; i < args.size(); ++i)
         args[i] = _clone->type(name->templateArgumentAt(i), _subst);
     if (args.empty())
-        _name = _control->templateNameId(_clone->identifier(name->identifier()));
+        _name = _control->templateNameId(_clone->identifier(name->identifier()), name->isSpecialization());
     else
-        _name = _control->templateNameId(_clone->identifier(name->identifier()), &args[0], args.size());
+        _name = _control->templateNameId(_clone->identifier(name->identifier()), name->isSpecialization(),
+                                         &args[0], args.size());
 }
 
 void CloneName::visit(const DestructorNameId *name)
@@ -528,7 +529,8 @@ FullySpecifiedType Subst::apply(const Name *name) const
             const NamedType *name = apply(q->base())->asNamedType();
             const NamedType *unqualified = apply(q->name())->asNamedType();
             if (name && name->name()->identifier() != 0 && unqualified)
-                return control()->namedType(control()->qualifiedNameId(name->name()->identifier(), unqualified->name()));
+                return control()->namedType(control()->qualifiedNameId(name->name()->identifier(),
+                                                                       unqualified->name()));
         }
 
     }

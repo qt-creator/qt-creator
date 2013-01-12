@@ -253,6 +253,7 @@ private:
             }
 
             const TemplateNameId *templId = control()->templateNameId(name->identifier(),
+                                                                      name->isSpecialization(),
                                                                       arguments.data(),
                                                                       arguments.size());
             _type = control()->namedType(templId);
@@ -269,13 +270,15 @@ private:
 
             } else if (const TemplateNameId *templId = name->asTemplateNameId()) {
                 QVarLengthArray<FullySpecifiedType, 8> arguments(templId->templateArgumentCount());
-                for (unsigned templateArgIndex = 0; templateArgIndex < templId->templateArgumentCount(); ++templateArgIndex) {
+                for (unsigned templateArgIndex = 0; templateArgIndex < templId->templateArgumentCount();
+                     ++templateArgIndex) {
                     FullySpecifiedType argTy = templId->templateArgumentAt(templateArgIndex);
                     arguments[templateArgIndex] = q->apply(argTy);
                 }
                 const Identifier *id = control()->identifier(templId->identifier()->chars(),
                                                                          templId->identifier()->size());
-                return control()->templateNameId(id, arguments.data(), arguments.size());
+                return control()->templateNameId(id, templId->isSpecialization(), arguments.data(),
+                                                 arguments.size());
 
             } else if (const QualifiedNameId *qq = name->asQualifiedNameId()) {
                 const Name *base = instantiate(qq->base());

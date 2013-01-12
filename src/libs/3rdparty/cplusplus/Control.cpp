@@ -131,9 +131,18 @@ template <> struct Compare<TemplateNameId>
         const Identifier *id = name.identifier();
         const Identifier *otherId = otherName.identifier();
 
-        if (id == otherId)
-            return std::lexicographical_compare(name.firstTemplateArgument(), name.lastTemplateArgument(),
-                                                otherName.firstTemplateArgument(), otherName.lastTemplateArgument());
+        if (id == otherId) {
+            // we have to differentiate TemplateNameId with respect to specialization or
+            // instantiation
+            if (name.isSpecialization() == otherName.isSpecialization()) {
+                return std::lexicographical_compare(name.firstTemplateArgument(),
+                                                    name.lastTemplateArgument(),
+                                                    otherName.firstTemplateArgument(),
+                                                    otherName.lastTemplateArgument());
+            } else {
+                return name.isSpecialization();
+            }
+        }
 
         return id < otherId;
     }
@@ -211,9 +220,10 @@ public:
     }
 
     template <typename _Iterator>
-    const TemplateNameId *findOrInsertTemplateNameId(const Identifier *id, _Iterator first, _Iterator last)
+    const TemplateNameId *findOrInsertTemplateNameId(const Identifier *id, bool isSpecialization,
+                                                     _Iterator first, _Iterator last)
     {
-        return templateNameIds.intern(TemplateNameId(id, first, last));
+        return templateNameIds.intern(TemplateNameId(id, isSpecialization, first, last));
     }
 
     const DestructorNameId *findOrInsertDestructorNameId(const Name *name)
@@ -598,10 +608,11 @@ const NumericLiteral *Control::numericLiteral(const char *chars)
 }
 
 const TemplateNameId *Control::templateNameId(const Identifier *id,
+                                              bool isSpecialization,
                                               const FullySpecifiedType *const args,
                                               unsigned argv)
 {
-    return d->findOrInsertTemplateNameId(id, args, args + argv);
+    return d->findOrInsertTemplateNameId(id, isSpecialization, args, args + argv);
 }
 
 const DestructorNameId *Control::destructorNameId(const Name *name)

@@ -51,6 +51,7 @@ public:
 
     /// Returns the canonical template name id.
     const TemplateNameId *templateNameId(const Identifier *id,
+                                         bool isSpecialization,
                                          const FullySpecifiedType *const args = 0,
                                          unsigned argc = 0);
 

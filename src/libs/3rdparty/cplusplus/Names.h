@@ -80,8 +80,11 @@ class CPLUSPLUS_EXPORT TemplateNameId: public Name
 {
 public:
     template <typename _Iterator>
-    TemplateNameId(const Identifier *identifier, _Iterator first, _Iterator last)
-        : _identifier(identifier), _templateArguments(first, last) {}
+    TemplateNameId(const Identifier *identifier, bool isSpecialization, _Iterator first,
+                   _Iterator last)
+        : _identifier(identifier)
+        , _templateArguments(first, last)
+        , _isSpecialization(isSpecialization) {}
 
     virtual ~TemplateNameId();
 
@@ -100,6 +103,15 @@ public:
 
     TemplateArgumentIterator firstTemplateArgument() const { return _templateArguments.begin(); }
     TemplateArgumentIterator lastTemplateArgument() const { return _templateArguments.end(); }
+    bool isSpecialization() const { return _isSpecialization; }
+    // this is temporary solution needed in ClassOrNamespace::nestedType
+    // when we try to find correct specialization for instantiation
+    void setIsSpecialization(bool isSpecialization) { _isSpecialization = isSpecialization; }
+
+    // Comparator needed to distinguish between two different TemplateNameId(e.g.:used in std::map)
+    struct Compare: std::binary_function<const TemplateNameId *, const TemplateNameId *, bool> {
+        bool operator()(const TemplateNameId *name, const TemplateNameId *other) const;
+    };
 
 protected:
     virtual void accept0(NameVisitor *visitor) const;
@@ -107,6 +119,8 @@ protected:
 private:
     const Identifier *_identifier;
     std::vector<FullySpecifiedType> _templateArguments;
+    // now TemplateNameId can be a specialization or an instantiation
+    bool _isSpecialization;
 };
 
 class CPLUSPLUS_EXPORT OperatorNameId: public Name

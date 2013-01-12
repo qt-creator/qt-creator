@@ -2639,10 +2639,14 @@ bool Bind::visit(TemplateIdAST *ast)
     }
 
     const Identifier *id = identifier(ast->identifier_token);
+    const int tokenKindBeforeIdentifier(translationUnit()->tokenKind(ast->identifier_token - 1));
+    const bool isSpecialization = (tokenKindBeforeIdentifier == T_CLASS ||
+                                   tokenKindBeforeIdentifier == T_STRUCT);
     if (templateArguments.empty())
-        _name = control()->templateNameId(id);
+        _name = control()->templateNameId(id, isSpecialization);
     else
-        _name = control()->templateNameId(id, &templateArguments[0], templateArguments.size());
+        _name = control()->templateNameId(id, isSpecialization, &templateArguments[0],
+                templateArguments.size());
 
     ast->name = _name;
     return false;
