@@ -296,7 +296,7 @@ int main(int argc, char **argv)
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
     // QML is unusable with the xlib backend
-    QApplication::setGraphicsSystem("raster");
+    QApplication::setGraphicsSystem(QLatin1String("raster"));
 #endif
 
     SharedTools::QtSingleApplication app((QLatin1String(appNameC)), argc, argv);
@@ -353,7 +353,7 @@ int main(int argc, char **argv)
 #else
     uiLanguages << QLocale::system().name();
 #endif
-    QString overrideLanguage = settings->value("General/OverrideLanguage").toString();
+    QString overrideLanguage = settings->value(QLatin1String("General/OverrideLanguage")).toString();
     if (!overrideLanguage.isEmpty())
         uiLanguages.prepend(overrideLanguage);
     const QString &creatorTrPath = QCoreApplication::applicationDirPath()
