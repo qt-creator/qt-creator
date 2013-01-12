@@ -112,7 +112,5 @@ FORMS += \
     qnxbaseqtconfigwidget.ui \
     bardescriptorfileimagewizardpage.ui
 
-DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII
-
 RESOURCES += \
     qnx.qrc

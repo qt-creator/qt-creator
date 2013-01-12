@@ -2,8 +2,7 @@ TEMPLATE = lib
 TARGET = GLSL
 DEFINES += \
     GLSL_BUILD_LIB \
-    QT_CREATOR \
-    QT_NO_CAST_FROM_ASCII
+    QT_CREATOR
 
 include(../../qtcreatorlibrary.pri)
 include(glsl-lib.pri)

@@ -6,8 +6,7 @@ QtcLibrary {
 
     cpp.defines: base.concat([
         "QT_CREATOR",
-        "GLSL_BUILD_LIB",
-        "QT_NO_CAST_FROM_ASCII"
+        "GLSL_BUILD_LIB"
     ])
 
     Depends { name: "cpp" }

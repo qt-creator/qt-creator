@@ -12,7 +12,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
     Depends { name: "QtcSsh" }
-    cpp.defines: base.concat(["QT_NO_CAST_FROM_ASCII"])
+    cpp.defines: base.concat("REMOTELINUX_LIBRARY")
 
     files: [
         "abstractpackagingstep.cpp",

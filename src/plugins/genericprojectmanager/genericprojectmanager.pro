@@ -3,8 +3,6 @@ TARGET = GenericProjectManager
 include(../../qtcreatorplugin.pri)
 include(genericprojectmanager_dependencies.pri)
 
-DEFINES += QT_NO_CAST_FROM_ASCII
-
 HEADERS = genericproject.h \
     genericprojectplugin.h \
     genericprojectmanager.h \

@@ -8,8 +8,7 @@ QtcLibrary {
     cpp.defines: base.concat([
         "QWEAKPOINTER_ENABLE_ARROW",
         "BUILD_QMLEDITORWIDGETS_LIB",
-        "QT_CREATOR",
-        "QT_NO_CAST_FROM_ASCII"
+        "QT_CREATOR"
     ])
     cpp.optimization: "fast"
 

@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = AnalyzerBase
 
-DEFINES += ANALYZER_LIBRARY QT_NO_CAST_FROM_ASCII
+DEFINES += ANALYZER_LIBRARY
 
 include(../../qtcreatorplugin.pri)
 include(analyzerbase_dependencies.pri)

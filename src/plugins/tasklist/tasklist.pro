@@ -5,8 +5,6 @@ include(../../qtcreatorplugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/projectexplorer/projectexplorer.pri)
 
-DEFINES += QT_NO_CAST_FROM_ASCII
-
 HEADERS += tasklistplugin.h \
     tasklist_export.h \
     tasklistconstants.h \

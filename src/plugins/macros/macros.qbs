@@ -5,14 +5,12 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "Macros"
 
-    Depends { name: "cpp" }
     Depends { name: "Qt.widgets" }
     Depends { name: "Core" }
     Depends { name: "Locator" }
     Depends { name: "Find" }
     Depends { name: "TextEditor" }
     Depends { name: "app_version_header" }
-    cpp.defines: base.concat(["QT_NO_CAST_FROM_ASCII"])
 
     files: [
         "actionmacrohandler.cpp",

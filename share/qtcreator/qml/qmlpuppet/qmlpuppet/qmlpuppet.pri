@@ -19,6 +19,7 @@ include (../interfaces/interfaces.pri)
 
 SOURCES += $$PWD/main.cpp
 RESOURCES += $$PWD/../qmlpuppet.qrc
+DEFINES -= QT_NO_CAST_FROM_ASCII
 
 OTHER_FILES += Info.plist.in
 macx {

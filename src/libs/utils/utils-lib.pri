@@ -9,8 +9,6 @@ QT += script network
 
 CONFIG += exceptions # used by portlist.cpp, textfileformat.cpp, and ssh/*
 
-DEFINES += QT_NO_CAST_FROM_ASCII
-
 win32-msvc* {
     # disable warnings caused by botan headers
     QMAKE_CXXFLAGS += -wd4250 -wd4290

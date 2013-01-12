@@ -15,7 +15,7 @@ QtcPlugin {
     Depends { name: "Debugger" }
     Depends { name: "QtSupport" }
     Depends { name: "app_version_header" }
-    cpp.defines: base.concat(["QMLPROJECTMANAGER_LIBRARY", "QT_NO_CAST_FROM_ASCII"])
+    cpp.defines: base.concat("QMLPROJECTMANAGER_LIBRARY")
 
     files: [
         "qmlapp.cpp",

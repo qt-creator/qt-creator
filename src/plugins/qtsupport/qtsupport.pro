@@ -61,6 +61,3 @@ FORMS   +=  \
     qtversioninfo.ui \
     debugginghelper.ui \
     qtversionmanager.ui \
-
-
-DEFINES += QT_NO_CAST_FROM_ASCII

@@ -8,7 +8,6 @@ include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/vcsbase/vcsbase.pri)
 include(../../libs/utils/utils.pri)
 
-DEFINES += QT_NO_CAST_FROM_ASCII
 HEADERS += annotationhighlighter.h \
     cvsplugin.h \
     cvscontrol.h \

@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = ExtensionSystem
-DEFINES += EXTENSIONSYSTEM_LIBRARY QT_NO_CAST_FROM_ASCII
+DEFINES += EXTENSIONSYSTEM_LIBRARY
 include(../../qtcreatorlibrary.pri)
 include(extensionsystem_dependencies.pri)
 

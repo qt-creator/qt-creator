@@ -4,8 +4,6 @@ TARGET = Perforce
 include(../../qtcreatorplugin.pri)
 include(perforce_dependencies.pri)
 
-DEFINES += QT_NO_CAST_FROM_ASCII
-
 HEADERS += \
     perforceplugin.h \
     perforcechecker.h \

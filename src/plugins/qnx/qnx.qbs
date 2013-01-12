@@ -14,7 +14,6 @@ QtcPlugin {
     Depends { name: "RemoteLinux" }
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
 
-    cpp.defines: base.concat(["QT_NO_CAST_TO_ASCII", "QT_NO_CAST_FROM_ASCII"])
     cpp.includePaths: base.concat("../../shared")
 
     files: [

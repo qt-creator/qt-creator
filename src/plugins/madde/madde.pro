@@ -108,4 +108,4 @@ FORMS += \
     maemodeviceconfigwizardkeydeploymentpage.ui
 
 RESOURCES += qt-maemo.qrc
-DEFINES += MADDE_LIBRARY QT_NO_CAST_FROM_ASCII
+DEFINES += MADDE_LIBRARY

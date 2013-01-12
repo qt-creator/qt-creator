@@ -2,8 +2,6 @@ TARGET = UpdateInfo
 TEMPLATE = lib
 QT += network xml
 
-DEFINES += QT_NO_CAST_FROM_ASCII
-
 HEADERS += updateinfoplugin.h \
     updateinfobutton.h
 SOURCES += updateinfoplugin.cpp \

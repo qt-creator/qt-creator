@@ -4,9 +4,9 @@ import "../QtcLibrary.qbs" as QtcLibrary
 QtcLibrary {
     name: "Aggregation"
 
-    cpp.defines: base.concat(["AGGREGATION_LIBRARY", "QT_NO_CAST_FROM_ASCII"])
     Depends { name: "cpp" }
     Depends { name: "Qt.core" }
+    cpp.defines: base.concat("AGGREGATION_LIBRARY")
 
     files: [
         "aggregate.cpp",

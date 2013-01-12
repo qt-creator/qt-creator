@@ -1,7 +1,6 @@
 TEMPLATE = lib
 TARGET = AutotoolsProjectManager
 #PROVIDER = Openismus
-DEFINES += QT_NO_CAST_FROM_ASCII
 
 include(../../qtcreatorplugin.pri)
 include(autotoolsprojectmanager_dependencies.pri)

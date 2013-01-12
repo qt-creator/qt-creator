@@ -3,7 +3,6 @@ TEMPLATE = lib
 TARGET = CodePaster
 include(../../qtcreatorplugin.pri)
 include(cpaster_dependencies.pri)
-DEFINES += QT_NO_CAST_FROM_ASCII
 HEADERS += cpasterplugin.h \
     settingspage.h \
     protocol.h \

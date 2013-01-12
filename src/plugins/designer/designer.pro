@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = Designer
-DEFINES += DESIGNER_LIBRARY QT_NO_CAST_FROM_ASCII
+DEFINES += DESIGNER_LIBRARY
 
 include(../../qtcreatorplugin.pri)
 include(../../shared/designerintegrationv2/designerintegration.pri)

@@ -3,8 +3,6 @@ TARGET = ImageViewer
 include(../../qtcreatorplugin.pri)
 include(imageviewer_dependencies.pri)
 
-DEFINES += QT_NO_CAST_FROM_ASCII
-
 HEADERS += \
     imageviewerplugin.h \
     imageviewerfactory.h \

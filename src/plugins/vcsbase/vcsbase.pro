@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = VcsBase
-DEFINES += VCSBASE_LIBRARY QT_NO_CAST_FROM_ASCII
+DEFINES += VCSBASE_LIBRARY
 include(../../qtcreatorplugin.pri)
 include(vcsbase_dependencies.pri)
 HEADERS += vcsbase_global.h \

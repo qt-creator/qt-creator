@@ -1,6 +1,5 @@
 TEMPLATE = lib
 TARGET = Git
-DEFINES += QT_NO_CAST_FROM_ASCII
 include(../../qtcreatorplugin.pri)
 include(../../plugins/projectexplorer/projectexplorer.pri)
 include(../../plugins/texteditor/texteditor.pri)

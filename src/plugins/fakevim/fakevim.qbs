@@ -10,9 +10,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "Find" }
     Depends { name: "Qt.widgets" }
-    Depends { name: "cpp" }
 
-    cpp.defines: base.concat(["QT_NO_CAST_FROM_ASCII"])
     files: [
         "fakevimactions.cpp",
         "fakevimactions.h",

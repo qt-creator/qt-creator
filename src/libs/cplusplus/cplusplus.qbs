@@ -7,8 +7,7 @@ QtcLibrary {
     cpp.includePaths: base.concat("../3rdparty/cplusplus")
     cpp.defines: base.concat([
         "NDEBUG",
-        "CPLUSPLUS_BUILD_LIB",
-        "QT_NO_CAST_FROM_ASCII"
+        "CPLUSPLUS_BUILD_LIB"
     ])
     cpp.optimization: "fast"
 

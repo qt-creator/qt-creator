@@ -6,12 +6,10 @@ QtcPlugin {
     name: "TextEditor"
 
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script", "printsupport"] }
-    Depends { name: "cpp" }
     Depends { name: "Core" }
     Depends { name: "Find" }
     Depends { name: "Locator" }
 
-    cpp.defines: base.concat(["QT_NO_CAST_FROM_ASCII"])
     cpp.includePaths: base.concat([
         "generichighlighter",
         "snippets",

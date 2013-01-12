@@ -5,10 +5,8 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "ImageViewer"
 
-    Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["widgets", "svg"] }
     Depends { name: "Core" }
-    cpp.defines: base.concat(["QT_NO_CAST_FROM_ASCII"])
 
     files: [
         "ImageViewer.mimetypes.xml",

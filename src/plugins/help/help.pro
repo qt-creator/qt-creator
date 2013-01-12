@@ -18,8 +18,7 @@ include(help_dependencies.pri)
 
 DEFINES += \
     QT_CLUCENE_SUPPORT \
-    HELP_LIBRARY \
-    QT_NO_CAST_FROM_ASCII
+    HELP_LIBRARY
 
 HEADERS += \
     centralwidget.h \

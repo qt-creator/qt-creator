@@ -4,8 +4,6 @@ TARGET = Todo
 include(../../qtcreatorplugin.pri)
 include(todo_dependencies.pri)
 
-DEFINES += QT_NO_CAST_FROM_ASCII
-
 HEADERS += todoplugin.h \
     keyword.h \
     constants.h \

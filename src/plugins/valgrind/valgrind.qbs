@@ -5,7 +5,6 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "Valgrind"
 
-    Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
     Depends { name: "Core" }
     Depends { name: "AnalyzerBase" }
@@ -13,7 +12,6 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "RemoteLinux" }
     Depends { name: "CPlusPlus"}
-    cpp.defines: base.concat(["QT_NO_CAST_FROM_ASCII"])
 
     files: [
         "callgrindcostdelegate.cpp",

@@ -6,8 +6,7 @@ QT += script
 
 DEFINES += \
     QMLJSEDITOR_LIBRARY \
-    QT_CREATOR \
-    QT_NO_CAST_FROM_ASCII
+    QT_CREATOR
 
 HEADERS += \
     qmljseditor.h \

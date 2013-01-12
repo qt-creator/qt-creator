@@ -20,3 +20,5 @@ include(components/pluginmanager/pluginmanager.pri)
 include(components/stateseditor/stateseditor.pri)
 include(components/resources/resources.pri)
 include(qmldesignerplugin.pri)
+
+DEFINES -= QT_NO_CAST_FROM_ASCII

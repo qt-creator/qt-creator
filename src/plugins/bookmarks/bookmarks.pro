@@ -6,8 +6,6 @@ include(../../plugins/projectexplorer/projectexplorer.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/texteditor/texteditor.pri)
 
-DEFINES += QT_NO_CAST_FROM_ASCII
-
 HEADERS += bookmarksplugin.h \
            bookmark.h \
            bookmarkmanager.h \

@@ -16,9 +16,6 @@ QtcPlugin {
     Depends { name: "VcsBase" }
     Depends { name: "Locator" }
 
-    Depends { name: "cpp" }
-    cpp.defines: base.concat(["QT_NO_CAST_FROM_ASCII"])
-
     files: [
         "activityselector.cpp",
         "activityselector.h",

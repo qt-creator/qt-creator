@@ -5,7 +5,6 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "CMakeProjectManager"
 
-    Depends { name: "cpp" }
     Depends { name: "Qt.widgets" }
     Depends { name: "Core" }
     Depends { name: "CppTools" }
@@ -14,7 +13,6 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "QtSupport" }
-    cpp.defines: base.concat(["QT_NO_CAST_FROM_ASCII"])
 
     files: [
         "CMakeProject.mimetypes.xml",
@@ -52,4 +50,3 @@ QtcPlugin {
         "makestep.h",
     ]
 }
-

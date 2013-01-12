@@ -12,9 +12,6 @@ QtcPlugin {
     Depends { name: "RemoteLinux" }
     Depends { name: "Qt.gui" }
 
-    Depends { name: "cpp" }
-    cpp.defines: base.concat(["QT_NO_CAST_FROM_ASCII"])
-
     files: [
         "debianmanager.cpp",
         "debianmanager.h",

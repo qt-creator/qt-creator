@@ -3,7 +3,7 @@ TARGET = Aggregation
 
 include(../../qtcreatorlibrary.pri)
 
-DEFINES += AGGREGATION_LIBRARY QT_NO_CAST_FROM_ASCII
+DEFINES += AGGREGATION_LIBRARY
 
 HEADERS = aggregate.h \
     aggregation_global.h

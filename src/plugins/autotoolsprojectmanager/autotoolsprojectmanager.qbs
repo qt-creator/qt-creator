@@ -11,9 +11,6 @@ QtcPlugin {
     Depends { name: "QtSupport" }
     Depends { name: "CppTools" }
 
-    Depends { name: "cpp" }
-    cpp.defines: base.concat(["QT_NO_CAST_FROM_ASCII"])
-
     files: [
         "autogenstep.cpp",
         "autogenstep.h",

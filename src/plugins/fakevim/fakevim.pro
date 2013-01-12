@@ -7,7 +7,6 @@ include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/texteditor/texteditor.pri)
 include(../../plugins/find/find.pri)
 
-DEFINES += QT_NO_CAST_FROM_ASCII
 QT += gui
 SOURCES += fakevimactions.cpp \
     fakevimhandler.cpp \

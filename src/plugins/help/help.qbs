@@ -25,7 +25,7 @@ QtcPlugin {
         condition: qtcore.versionMajor >= 5
         cpp.defines: base.concat(["QT_NO_WEBKIT"])
     }
-    cpp.defines: base.concat(["QT_CLUCENE_SUPPORT", "QT_NO_CAST_FROM_ASCII"])
+    cpp.defines: base.concat("QT_CLUCENE_SUPPORT")
     cpp.includePaths: base.concat("../../shared/help")
 
     files: [

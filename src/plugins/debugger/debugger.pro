@@ -8,7 +8,7 @@ TARGET = Debugger
 include(../../qtcreatorplugin.pri)
 include(debugger_dependencies.pri)
 
-DEFINES += DEBUGGER_LIBRARY QT_NO_CAST_FROM_ASCII
+DEFINES += DEBUGGER_LIBRARY
 
 INCLUDEPATH += $$PWD/../../libs/utils
 

@@ -13,10 +13,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
 
     Depends { name: "cpp" }
-    cpp.defines: base.concat([
-        "ANALYZER_LIBRARY",
-        "QT_NO_CAST_FROM_ASCII"
-    ])
+    cpp.defines: base.concat("ANALYZER_LIBRARY")
 
     files: [
         "analyzerbase.qrc",

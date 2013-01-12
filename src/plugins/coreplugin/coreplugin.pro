@@ -1,7 +1,6 @@
 TEMPLATE = lib
 TARGET = Core
-DEFINES += CORE_LIBRARY \
-    QT_NO_CAST_FROM_ASCII
+DEFINES += CORE_LIBRARY
 QT += network \
     script \
     sql

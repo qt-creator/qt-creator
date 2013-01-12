@@ -6,8 +6,7 @@ include(qt4projectmanager_dependencies.pri)
 
 DEFINES += \
     QT_CREATOR \
-    QT4PROJECTMANAGER_LIBRARY \
-    QT_NO_CAST_FROM_ASCII
+    QT4PROJECTMANAGER_LIBRARY
 
 HEADERS += \
     qmakekitinformation.h \

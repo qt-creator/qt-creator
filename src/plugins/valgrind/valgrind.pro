@@ -12,8 +12,6 @@ CONFIG += exceptions
 
 INCLUDEPATH *= $$PWD
 
-DEFINES += QT_NO_CAST_FROM_ASCII
-
 HEADERS += \
     valgrindplugin.h \
     valgrindengine.h \

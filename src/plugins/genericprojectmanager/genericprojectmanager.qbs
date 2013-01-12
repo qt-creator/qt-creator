@@ -5,7 +5,6 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "GenericProjectManager"
 
-    Depends { name: "cpp" }
     Depends { name: "Qt.widgets" }
     Depends { name: "Core" }
     Depends { name: "CPlusPlus" }
@@ -15,7 +14,6 @@ QtcPlugin {
     Depends { name: "Find" }
     Depends { name: "Locator" }
     Depends { name: "QtSupport" }
-    cpp.defines: base.concat(["QT_NO_CAST_FROM_ASCII"])
 
     files: [
         "filesselectionwizardpage.cpp",

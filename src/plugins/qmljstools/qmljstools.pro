@@ -3,7 +3,6 @@ TARGET = QmlJSTools
 include(../../qtcreatorplugin.pri)
 include(qmljstools_dependencies.pri)
 
-DEFINES += QT_NO_CAST_FROM_ASCII
 DEFINES += QMLJSTOOLS_LIBRARY
 
 !dll {

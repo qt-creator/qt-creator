@@ -4,10 +4,7 @@ import "../QtcLibrary.qbs" as QtcLibrary
 QtcLibrary {
     name: "QmlDebug"
 
-    cpp.defines: base.concat([
-        "QMLDEBUG_LIB",
-        "QT_NO_CAST_FROM_ASCII"
-    ])
+    cpp.defines: base.concat("QMLDEBUG_LIB")
 
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["gui", "network"] }

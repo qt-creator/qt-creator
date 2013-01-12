@@ -2,7 +2,6 @@ TARGET = Bazaar
 TEMPLATE = lib
 include(../../qtcreatorplugin.pri)
 include(bazaar_dependencies.pri)
-DEFINES += QT_NO_CAST_FROM_ASCII
 SOURCES += \
     bazaarclient.cpp \
     bazaarcontrol.cpp \

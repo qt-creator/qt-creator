@@ -5,8 +5,6 @@ TARGET = ClearCase
 include(../../qtcreatorplugin.pri)
 include(clearcase_dependencies.pri)
 
-DEFINES += QT_NO_CAST_FROM_ASCII
-
 HEADERS += activityselector.h \
     annotationhighlighter.h \
     checkoutdialog.h \
