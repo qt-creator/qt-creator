@@ -364,11 +364,16 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map,
                          << QLatin1String(DEBUGGER) << QLatin1String(DEBUGGER_ENGINE), QVariant(debuggerType));
     data << KeyValuePair(QStringList() << kit << QLatin1String(DATA)
                          << QLatin1String(DEBUGGER) << QLatin1String(DEBUGGER_BINARY), QVariant(debugger));
-    data << KeyValuePair(QStringList() << kit << QLatin1String(DATA) << DEVICE_TYPE, QVariant(deviceType));
-    data << KeyValuePair(QStringList() << kit << QLatin1String(DATA) << SYSROOT, QVariant(sysRoot));
-    data << KeyValuePair(QStringList() << kit << QLatin1String(DATA) << TOOLCHAIN, QVariant(tc));
-    data << KeyValuePair(QStringList() << kit << QLatin1String(DATA) << QT, QVariant(qtId));
-    data << KeyValuePair(QStringList() << kit << QLatin1String(DATA) << MKSPEC, QVariant(mkspec));
+    data << KeyValuePair(QStringList() << kit << QLatin1String(DATA)
+                         << QLatin1String(DEVICE_TYPE), QVariant(deviceType));
+    data << KeyValuePair(QStringList() << kit << QLatin1String(DATA)
+                         << QLatin1String(SYSROOT), QVariant(sysRoot));
+    data << KeyValuePair(QStringList() << kit << QLatin1String(DATA)
+                         << QLatin1String(TOOLCHAIN), QVariant(tc));
+    data << KeyValuePair(QStringList() << kit << QLatin1String(DATA)
+                         << QLatin1String(QT), QVariant(qtId));
+    data << KeyValuePair(QStringList() << kit << QLatin1String(DATA)
+                         << QLatin1String(MKSPEC), QVariant(mkspec));
 
     data << KeyValuePair(QStringList() << QLatin1String(DEFAULT), QVariant(defaultKit));
     data << KeyValuePair(QStringList() << QLatin1String(COUNT), QVariant(count + 1));
