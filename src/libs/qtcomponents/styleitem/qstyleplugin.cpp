@@ -68,7 +68,7 @@ public:
     {
         Q_UNUSED(requestedSize);
         Q_UNUSED(size);
-        int pos = id.lastIndexOf('/');
+        int pos = id.lastIndexOf(QLatin1Char('/'));
         QString iconName = id.right(id.length() - pos);
         int width = qApp->style()->pixelMetric(QStyle::PM_ToolBarIconSize);
         return QIcon::fromTheme(iconName).pixmap(width);
@@ -92,7 +92,7 @@ void StylePlugin::registerTypes(const char *uri)
 void StylePlugin::initializeEngine(QDeclarativeEngine *engine, const char *uri)
 {
     Q_UNUSED(uri);
-    engine->addImageProvider("desktoptheme", new DesktopIconProvider);
+    engine->addImageProvider(QLatin1String("desktoptheme"), new DesktopIconProvider);
 }
 
 #if QT_VERSION < 0x050000

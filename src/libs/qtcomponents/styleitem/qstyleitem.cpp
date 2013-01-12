@@ -115,7 +115,7 @@ void QStyleItem::initStyleOption()
 
             QStyleOptionButton *opt = qstyleoption_cast<QStyleOptionButton*>(m_styleoption);
             opt->text = text();
-            opt->features = (activeControl() == "default") ?
+            opt->features = (activeControl() == QLatin1String("default")) ?
                             QStyleOptionButton::DefaultButton :
                             QStyleOptionButton::None;
         }
@@ -126,7 +126,7 @@ void QStyleItem::initStyleOption()
 
             QStyleOptionViewItemV4 *opt = qstyleoption_cast<QStyleOptionViewItemV4*>(m_styleoption);
             opt->features = 0;
-            if (activeControl() == "alternate")
+            if (activeControl() == QLatin1String("alternate"))
                 opt->features |= QStyleOptionViewItemV2::Alternate;
         }
         break;
@@ -155,9 +155,9 @@ void QStyleItem::initStyleOption()
 
             QStyleOptionHeader *opt = qstyleoption_cast<QStyleOptionHeader*>(m_styleoption);
             opt->text = text();
-            opt->sortIndicator = activeControl() == "down" ?
+            opt->sortIndicator = activeControl() == QLatin1String("down") ?
                                  QStyleOptionHeader::SortDown
-                                     : activeControl() == "up" ?
+                                     : activeControl() == QLatin1String("up") ?
                                      QStyleOptionHeader::SortUp : QStyleOptionHeader::None;
             if (activeControl() == QLatin1String("beginning"))
                 opt->position = QStyleOptionHeader::Beginning;
@@ -193,7 +193,7 @@ void QStyleItem::initStyleOption()
             QStyleOptionTabV3 *opt =
                     qstyleoption_cast<QStyleOptionTabV3*>(m_styleoption);
             opt->text = text();
-            opt->shape = info() == "South" ? QTabBar::RoundedSouth : QTabBar::RoundedNorth;
+            opt->shape = info() == QLatin1String("South") ? QTabBar::RoundedSouth : QTabBar::RoundedNorth;
             if (activeControl() == QLatin1String("beginning"))
                 opt->position = QStyleOptionTabV3::Beginning;
             else if (activeControl() == QLatin1String("end"))
@@ -224,7 +224,7 @@ void QStyleItem::initStyleOption()
             if (!m_styleoption)
                 m_styleoption = new QStyleOptionTabWidgetFrameV2();
             QStyleOptionTabWidgetFrameV2 *opt = qstyleoption_cast<QStyleOptionTabWidgetFrameV2*>(m_styleoption);
-            opt->shape = (info() == "South") ? QTabBar::RoundedSouth : QTabBar::RoundedNorth;
+            opt->shape = (info() == QLatin1String("South")) ? QTabBar::RoundedSouth : QTabBar::RoundedNorth;
             if (minimum())
                 opt->selectedTabRect = QRect(value(), 0, minimum(), height());
             opt->tabBarSize = QSize(minimum() , height());
@@ -320,8 +320,8 @@ void QStyleItem::initStyleOption()
             else
                 opt->sliderValue = value();
             opt->subControls = QStyle::SC_SliderGroove | QStyle::SC_SliderHandle;
-            opt->tickPosition = (activeControl() == "below") ?
-                                QSlider::TicksBelow : (activeControl() == "above" ?
+            opt->tickPosition = (activeControl() == QLatin1String("below")) ?
+                                QSlider::TicksBelow : (activeControl() == QLatin1String("above") ?
                                                        QSlider::TicksAbove:
                                                        QSlider::NoTicks);
             if (opt->tickPosition != QSlider::NoTicks)
@@ -359,7 +359,7 @@ void QStyleItem::initStyleOption()
                 opt->subControls |= QStyle::SC_GroupBoxFrame;
             else
                 opt->features |= QStyleOptionFrameV2::Flat;
-            if (activeControl() == "checkbox")
+            if (activeControl() == QLatin1String("checkbox"))
                 opt->subControls |= QStyle::SC_GroupBoxCheckBox;
 
             if (QGroupBox *group= qobject_cast<QGroupBox*>(widget())) {
@@ -431,9 +431,9 @@ void QStyleItem::initStyleOption()
             // Some styles actually check the beginning and end position
             // using widget geometry, so we have to trick it
             widget()->setGeometry(0, 0, width(), height());
-            if (activeControl() != "beginning")
+            if (activeControl() != QLatin1String("beginning"))
                 m_styleoption->rect.translate(1, 0); // Don't position at start of widget
-            if (activeControl() != "end")
+            if (activeControl() != QLatin1String("end"))
                 widget()->resize(200, height());
         }
 #ifdef Q_WS_WIN
@@ -444,9 +444,9 @@ void QStyleItem::initStyleOption()
         m_styleoption->fontMetrics = widget()->fontMetrics();
         if (!m_styleoption->palette.resolve())
             m_styleoption->palette = widget()->palette();
-        if (m_hint.contains("mac.mini"))
+        if (m_hint.contains(QLatin1String("mac.mini")))
             widget()->setAttribute(Qt::WA_MacMiniSize);
-        else if (m_hint.contains("mac.small"))
+        else if (m_hint.contains(QLatin1String("mac.small")))
             widget()->setAttribute(Qt::WA_MacSmallSize);
     }
 }
@@ -463,15 +463,15 @@ void QStyleItem::initStyleOption()
 
 QString QStyleItem::style() const
 {
-    QString style = qApp->style()->metaObject()->className();
+    QByteArray style = qApp->style()->metaObject()->className();
     style = style.toLower();
-    if (style.contains(QLatin1String("oxygen")))
+    if (style.contains("oxygen"))
         return QLatin1String("oxygen");
-    if (style.startsWith(QLatin1Char('q')))
-        style = style.right(style.length() - 1);
+    if (style.startsWith('q'))
+        style.remove(0, 1);
     if (style.endsWith("style"))
-        style = style.left(style.length() - 5);
-    return style.toLower();
+        style.chop(5);
+    return QLatin1String(style);
 }
 
 QString QStyleItem::hitTest(int px, int py)
@@ -484,9 +484,9 @@ QString QStyleItem::hitTest(int px, int py)
                                                               qstyleoption_cast<QStyleOptionComplex*>(m_styleoption),
                                                               QPoint(px,py), 0);
             if (subcontrol == QStyle::SC_SpinBoxUp)
-                return "up";
+                return QLatin1String("up");
             else if (subcontrol == QStyle::SC_SpinBoxDown)
-                return "down";
+                return QLatin1String("down");
 
         }
         break;
@@ -496,7 +496,7 @@ QString QStyleItem::hitTest(int px, int py)
                                                               qstyleoption_cast<QStyleOptionComplex*>(m_styleoption),
                                                               QPoint(px,py), 0);
             if (subcontrol == QStyle::SC_SliderHandle)
-                return "handle";
+                return QLatin1String("handle");
 
         }
         break;
@@ -505,23 +505,23 @@ QString QStyleItem::hitTest(int px, int py)
                                                           qstyleoption_cast<QStyleOptionComplex*>(m_styleoption),
                                                           QPoint(px,py), 0);
         if (subcontrol == QStyle::SC_ScrollBarSlider)
-            return "handle";
+            return QLatin1String("handle");
 
         if (subcontrol == QStyle::SC_ScrollBarSubLine)
-            return "up";
+            return QLatin1String("up");
         else if (subcontrol == QStyle::SC_ScrollBarSubPage)
-            return "upPage";
+            return QLatin1String("upPage");
 
         if (subcontrol == QStyle::SC_ScrollBarAddLine)
-            return "down";
+            return QLatin1String("down");
         else if (subcontrol == QStyle::SC_ScrollBarAddPage)
-            return "downPage";
+            return QLatin1String("downPage");
         }
         break;
     default:
         break;
     }
-    return "none";
+    return QLatin1String("none");
 }
 
 QSize QStyleItem::sizeFromContents(int width, int height)
@@ -587,37 +587,37 @@ QSize QStyleItem::sizeFromContents(int width, int height)
 int QStyleItem::pixelMetric(const QString &metric)
 {
 
-    if (metric == "scrollbarExtent")
+    if (metric == QLatin1String("scrollbarExtent"))
         return qApp->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, widget());
-    else if (metric == "defaultframewidth")
+    else if (metric == QLatin1String("defaultframewidth"))
         return qApp->style()->pixelMetric(QStyle::PM_DefaultFrameWidth, 0, widget());
-    else if (metric == "taboverlap")
+    else if (metric == QLatin1String("taboverlap"))
         return qApp->style()->pixelMetric(QStyle::PM_TabBarTabOverlap, 0 , widget());
-    else if (metric == "tabbaseoverlap")
+    else if (metric == QLatin1String("tabbaseoverlap"))
 #ifdef Q_WS_WIN
         // On windows the tabbar paintmargin extends the overlap by one pixels
         return 1 + qApp->style()->pixelMetric(QStyle::PM_TabBarBaseOverlap, 0 , widget());
 #else
     return qApp->style()->pixelMetric(QStyle::PM_TabBarBaseOverlap, 0 , widget());
 #endif
-    else if (metric == "tabhspace")
+    else if (metric == QLatin1String("tabhspace"))
         return qApp->style()->pixelMetric(QStyle::PM_TabBarTabHSpace, 0 , widget());
-    else if (metric == "tabvspace")
+    else if (metric == QLatin1String("tabvspace"))
         return qApp->style()->pixelMetric(QStyle::PM_TabBarTabVSpace, 0 , widget());
-    else if (metric == "tabbaseheight")
+    else if (metric == QLatin1String("tabbaseheight"))
         return qApp->style()->pixelMetric(QStyle::PM_TabBarBaseHeight, 0 , widget());
-    else if (metric == "tabvshift")
+    else if (metric == QLatin1String("tabvshift"))
         return qApp->style()->pixelMetric(QStyle::PM_TabBarTabShiftVertical, 0 , widget());
-    else if (metric == "menuhmargin")
+    else if (metric == QLatin1String("menuhmargin"))
         return qApp->style()->pixelMetric(QStyle::PM_MenuHMargin, 0 , widget());
-    else if (metric == "menuvmargin")
+    else if (metric == QLatin1String("menuvmargin"))
         return qApp->style()->pixelMetric(QStyle::PM_MenuVMargin, 0 , widget());
-    else if (metric == "menupanelwidth")
+    else if (metric == QLatin1String("menupanelwidth"))
         return qApp->style()->pixelMetric(QStyle::PM_MenuPanelWidth, 0 , widget());
-    else if (metric == "splitterwidth")
+    else if (metric == QLatin1String("splitterwidth"))
         return qApp->style()->pixelMetric(QStyle::PM_SplitterWidth, 0 , widget());
     // This metric is incorrectly negative on oxygen
-    else if (metric == "scrollbarspacing")
+    else if (metric == QLatin1String("scrollbarspacing"))
         return abs(qApp->style()->pixelMetric(QStyle::PM_ScrollView_ScrollBarSpacing, 0 , widget()));
     return 0;
 }
@@ -625,26 +625,26 @@ int QStyleItem::pixelMetric(const QString &metric)
 QVariant QStyleItem::styleHint(const QString &metric)
 {
     initStyleOption();
-    if (metric == "comboboxpopup") {
+    if (metric == QLatin1String("comboboxpopup")) {
         return qApp->style()->styleHint(QStyle::SH_ComboBox_Popup, m_styleoption);
-    } else if (metric == "highlightedTextColor") {
+    } else if (metric == QLatin1String("highlightedTextColor")) {
         if (widget())
             return widget()->palette().highlightedText().color().name();
         return qApp->palette().highlightedText().color().name();
-    } else if (metric == "textColor") {
+    } else if (metric == QLatin1String("textColor")) {
         if (widget())
             return widget()->palette().text().color().name();
         return qApp->palette().text().color().name();
-    } else if (metric == "focuswidget") {
+    } else if (metric == QLatin1String("focuswidget")) {
         return qApp->style()->styleHint(QStyle::SH_FocusFrame_AboveWidget);
-    } else if (metric == "tabbaralignment") {
+    } else if (metric == QLatin1String("tabbaralignment")) {
         int result = qApp->style()->styleHint(QStyle::SH_TabBar_Alignment);
         if (result == Qt::AlignCenter)
-            return "center";
-        return "left";
-    } else if (metric == "framearoundcontents") {
+            return QLatin1String("center");
+        return QLatin1String("left");
+    } else if (metric == QLatin1String("framearoundcontents")) {
         return qApp->style()->styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents);
-    } else if (metric == "scrollToClickPosition")
+    } else if (metric == QLatin1String("scrollToClickPosition"))
         return qApp->style()->styleHint(QStyle::SH_ScrollBar_LeftClickAbsolutePosition);
     return 0;
 }
@@ -653,19 +653,19 @@ void QStyleItem::setCursor(const QString &str)
 {
     if (m_cursor != str) {
         m_cursor = str;
-        if (m_cursor == "sizehorcursor")
+        if (m_cursor == QLatin1String("sizehorcursor"))
             QDeclarativeItem::setCursor(Qt::SizeHorCursor);
-        else if (m_cursor == "sizevercursor")
+        else if (m_cursor == QLatin1String("sizevercursor"))
             QDeclarativeItem::setCursor(Qt::SizeVerCursor);
-        else if (m_cursor == "sizeallcursor")
+        else if (m_cursor == QLatin1String("sizeallcursor"))
             QDeclarativeItem::setCursor(Qt::SizeAllCursor);
-        else if (m_cursor == "splithcursor")
+        else if (m_cursor == QLatin1String("splithcursor"))
             QDeclarativeItem::setCursor(Qt::SplitHCursor);
-        else if (m_cursor == "splitvcursor")
+        else if (m_cursor == QLatin1String("splitvcursor"))
             QDeclarativeItem::setCursor(Qt::SplitVCursor);
-        else if (m_cursor == "wait")
+        else if (m_cursor == QLatin1String("wait"))
             QDeclarativeItem::setCursor(Qt::WaitCursor);
-        else if (m_cursor == "pointinghandcursor")
+        else if (m_cursor == QLatin1String("pointinghandcursor"))
             QDeclarativeItem::setCursor(Qt::PointingHandCursor);
         emit cursorChanged();
     }
@@ -692,22 +692,22 @@ void QStyleItem::setElementType(const QString &str)
 
     // Only enable visible if the widget can animate
     bool visible = false;
-    if (str == "menu" || str == "menuitem") {
+    if (str == QLatin1String("menu") || str == QLatin1String("menuitem")) {
         // Since these are used by the delegate, it makes no
         // sense to re-create them per item
         static QWidget *menu = new QMenu();
         m_sharedWidget = true;
         m_dummywidget = menu;
-        m_itemType = (str == "menu") ? Menu : MenuItem;
-    } else if (str == "item" || str == "itemrow" || str == "header") {
+        m_itemType = (str == QLatin1String("menu")) ? Menu : MenuItem;
+    } else if (str == QLatin1String("item") || str == QLatin1String("itemrow") || str == QLatin1String("header")) {
         // Since these are used by the delegate, it makes no
         // sense to re-create them per item
         static QTreeView *menu = new QTreeView();
         menu->setAttribute(Qt::WA_MacMiniSize);
         m_sharedWidget = true;
-        if (str == "header") {
+        if (str == QLatin1String("header")) {
             m_dummywidget = menu->header();
-            if (style() == "mac") { // The default qt font seems to big
+            if (style() == QLatin1String("mac")) { // The default qt font seems to big
                 QFont font = m_dummywidget->font();
                 font.setPointSize(11);
                 m_dummywidget->setFont(font);
@@ -715,26 +715,26 @@ void QStyleItem::setElementType(const QString &str)
             m_itemType = Header;
         } else {
             m_dummywidget = menu;
-            m_itemType = (str == "item") ? Item : ItemRow;
+            m_itemType = (str == QLatin1String("item")) ? Item : ItemRow;
         }
-    } else if (str == "groupbox") {
+    } else if (str == QLatin1String("groupbox")) {
         // Since these are used by the delegate, it makes no
         // sense to re-create them per item
         static QGroupBox *group = new QGroupBox();
         m_sharedWidget = true;
         m_dummywidget = group;
         m_itemType = GroupBox;
-    } else if (str == "tabframe" || str == "tab") {
+    } else if (str == QLatin1String("tabframe") || str == QLatin1String("tab")) {
         static QTabWidget *tabframe = new QTabWidget();
         m_sharedWidget = true;
-        if (str == "tab") {
+        if (str == QLatin1String("tab")) {
             m_dummywidget = tabframe->findChild<QTabBar*>();
             m_itemType = Tab;
         } else {
             m_dummywidget = tabframe;
             m_itemType = TabFrame;
         }
-    } else if (str == "comboboxitem")  {
+    } else if (str == QLatin1String("comboboxitem"))  {
         // Gtk uses qobject cast, hence we need to separate this from menuitem
         // On mac, we temporarily use the menu item because it has more accurate
         // palette.
@@ -746,7 +746,7 @@ void QStyleItem::setElementType(const QString &str)
         m_sharedWidget = true;
         m_dummywidget = combo;
         m_itemType = ComboBoxItem;
-    } else if (str == "toolbar") {
+    } else if (str == QLatin1String("toolbar")) {
         static QToolBar *tb = 0;
         if (!tb) {
             QMainWindow *mw = new QMainWindow();
@@ -754,7 +754,7 @@ void QStyleItem::setElementType(const QString &str)
         }
         m_dummywidget = tb;
         m_itemType = ToolBar;
-    } else if (str == "toolbutton") {
+    } else if (str == QLatin1String("toolbutton")) {
         static QToolButton *tb = 0;
         static QToolBar *bar = 0;
         // KDE animations are too broken with these widgets
@@ -767,58 +767,58 @@ void QStyleItem::setElementType(const QString &str)
         m_sharedWidget = true;
         m_dummywidget = tb;
         m_itemType = ToolButton;
-    } else if (str == "slider") {
+    } else if (str == QLatin1String("slider")) {
         static QSlider *slider = new QSlider();
         m_sharedWidget = true;
         m_dummywidget = slider;
         m_itemType = Slider;
-    } else if (str == "frame") {
+    } else if (str == QLatin1String("frame")) {
         static QFrame *frame = new QFrame();
         m_sharedWidget = true;
         m_dummywidget = frame;
         m_itemType = Frame;
-    } else if (str == "combobox") {
+    } else if (str == QLatin1String("combobox")) {
         m_dummywidget = new QComboBox();
         visible = true;
         m_itemType = ComboBox;
-    } else if (str == "splitter") {
+    } else if (str == QLatin1String("splitter")) {
         visible = true;
         m_itemType = Splitter;
-    } else if (str == "progressbar") {
+    } else if (str == QLatin1String("progressbar")) {
         m_dummywidget = new QProgressBar();
         visible = true;
         m_itemType = ProgressBar;
-    } else if (str == "button") {
+    } else if (str == QLatin1String("button")) {
         m_dummywidget = new QPushButton();
         visible = true;
         m_itemType = Button;
-    } else if (str == "checkbox") {
+    } else if (str == QLatin1String("checkbox")) {
         m_dummywidget = new QCheckBox();
         visible = true;
         m_itemType = CheckBox;
-    } else if (str == "radiobutton") {
+    } else if (str == QLatin1String("radiobutton")) {
         m_dummywidget = new QRadioButton();
         visible = true;
         m_itemType = RadioButton;
-    } else if (str == "edit") {
+    } else if (str == QLatin1String("edit")) {
         m_dummywidget = new QLineEdit();
         visible = true;
         m_itemType = Edit;
-    } else if (str == "spinbox") {
+    } else if (str == QLatin1String("spinbox")) {
 #ifndef Q_WS_WIN // Vista spinbox is currently not working due to grabwidget
         m_dummywidget = new QSpinBox();
         visible = true;
 #endif
         m_itemType = SpinBox;
-    } else if (str == "scrollbar") {
+    } else if (str == QLatin1String("scrollbar")) {
         m_dummywidget = new QScrollBar();
         visible = true;
         m_itemType = ScrollBar;
-    } else if (str == "widget") {
+    } else if (str == QLatin1String("widget")) {
         m_itemType = Widget;
-    } else if (str == "focusframe") {
+    } else if (str == QLatin1String("focusframe")) {
         m_itemType = FocusFrame;
-    } else if (str == "dial") {
+    } else if (str == QLatin1String("dial")) {
         m_itemType = Dial;
     }
     if (m_dummywidget) {
