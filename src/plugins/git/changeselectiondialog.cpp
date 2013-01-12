@@ -33,17 +33,38 @@
 
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QProcess>
 
 namespace Git {
 namespace Internal {
 
-ChangeSelectionDialog::ChangeSelectionDialog(QWidget *parent)
+ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, QWidget *parent)
     : QDialog(parent)
+    , m_process(0)
 {
     m_ui.setupUi(this);
+    if (!workingDirectory.isEmpty()) {
+        setWorkingDirectory(workingDirectory);
+        m_ui.workingDirectoryButton->setEnabled(false);
+        m_ui.workingDirectoryEdit->setEnabled(false);
+    }
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     connect(m_ui.workingDirectoryButton, SIGNAL(clicked()), this, SLOT(selectWorkingDirectory()));
     setWindowTitle(tr("Select a Git Commit"));
+
+    bool ok;
+    m_gitBinaryPath = GitPlugin::instance()->gitClient()->gitBinaryPath(&ok);
+    if (!ok)
+        return;
+
+    m_gitEnvironment = GitPlugin::instance()->gitClient()->processEnvironment();
+    connect(m_ui.changeNumberEdit, SIGNAL(textChanged(QString)),
+            this, SLOT(recalculateToolTip(QString)));
+}
+
+ChangeSelectionDialog::~ChangeSelectionDialog()
+{
+    delete m_process;
 }
 
 QString ChangeSelectionDialog::change() const
@@ -82,5 +103,39 @@ void ChangeSelectionDialog::selectWorkingDirectory()
                               tr("Selected directory is not a Git repository"));
 }
 
+//! Set commit message as toolTip
+void ChangeSelectionDialog::setToolTip(int exitCode)
+{
+    if (exitCode == 0)
+        m_ui.changeNumberEdit->setToolTip(QString::fromUtf8(m_process->readAllStandardOutput()));
+    else
+        m_ui.changeNumberEdit->setToolTip(tr("Error: unknown reference"));
 }
+
+void ChangeSelectionDialog::recalculateToolTip(const QString &ref)
+{
+    if (m_process) {
+        m_process->kill();
+        m_process->waitForFinished();
+        delete m_process;
+    }
+
+    QStringList args;
+    args << QLatin1String("log") << QLatin1String("-n1") << ref;
+
+    m_process = new QProcess(this);
+    m_process->setWorkingDirectory(workingDirectory());
+    m_process->setProcessEnvironment(m_gitEnvironment);
+
+    connect(m_process, SIGNAL(finished(int)), this, SLOT(setToolTip(int)));
+
+    m_process->start(m_gitBinaryPath, args);
+    m_process->closeWriteChannel();
+    if (!m_process->waitForStarted())
+        m_ui.changeNumberEdit->setToolTip(tr("Error: could not start git"));
+    else
+        m_ui.changeNumberEdit->setToolTip(tr("Fetching commit data..."));
 }
+
+} // Internal
+} // Git
