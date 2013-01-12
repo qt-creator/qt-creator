@@ -58,7 +58,7 @@ static const char *defaultExtensions[] =
 
 typedef QHash<QByteArray, QByteArray> Extensions;
 
-static QByteArray proExtension = "pro";
+static QString proExtension = QLatin1String("pro");
 
 
 class FileClass
@@ -67,7 +67,7 @@ public:
     FileClass() {}
 
     //! suffixes is a comma separated string of extensions.
-    FileClass(const QByteArray &suffixes, const QString &varName)
+    FileClass(const QByteArray &suffixes, const QByteArray &varName)
         : m_suffixes(',' + suffixes + ','), m_varName(varName)
     {}
 
@@ -111,7 +111,7 @@ private:
     typedef QMap<QString, Dummy> Files;
 
     QByteArray m_suffixes;
-    QString m_varName;
+    QByteArray m_varName;
     Files m_files;
 };
 
@@ -194,18 +194,18 @@ void Project::handleItem(const QString &item)
 void Project::handleBinary(const QString &item)
 {
     QStringList args;
-    args.append("--batch-silent");
-    args.append("--nx");
-    args.append("--quiet");
-    args.append("-i");
-    args.append("mi");
-    args.append("--se=" + item);
-    args.append("-ex");
-    args.append("interpreter-exec mi -file-list-exec-source-files");
-    args.append("-ex");
-    args.append("quit");
+    args.append(QLatin1String("--batch-silent"));
+    args.append(QLatin1String("--nx"));
+    args.append(QLatin1String("--quiet"));
+    args.append(QLatin1String("-i"));
+    args.append(QLatin1String("mi"));
+    args.append(QLatin1String("--se=") + item);
+    args.append(QLatin1String("-ex"));
+    args.append(QLatin1String("interpreter-exec mi -file-list-exec-source-files"));
+    args.append(QLatin1String("-ex"));
+    args.append(QLatin1String("quit"));
     QProcess proc;
-    proc.start("gdb", args);
+    proc.start(QLatin1String("gdb"), args);
     if (!proc.waitForStarted()) {
         qDebug() << "COULD NOT START";
         return;
@@ -222,11 +222,11 @@ void Project::handleBinary(const QString &item)
     QString input = QString::fromLatin1(ba, ba.size());
     // ^done,files=[{file="<<C++-namespaces>>",{file=...,fullname=}
     // "}] (gdb)
-    int first = input.indexOf('{');
-    input = input.mid(first, input.lastIndexOf('}') - first);
-    foreach (QString item, input.split("},{")) {
+    int first = input.indexOf(QLatin1Char('{'));
+    input = input.mid(first, input.lastIndexOf(QLatin1Char('}')) - first);
+    foreach (QString item, input.split(QLatin1String("},{"))) {
         //qDebug() << "ITEM: " << item;
-        int full = item.indexOf(",fullname=\"");
+        int full = item.indexOf(QLatin1String(",fullname=\""));
         if (full != -1)
             item = item.mid(full + 11);
         else
@@ -249,7 +249,7 @@ void Project::handleDir(const QString &item)
         it.next();
         const QFileInfo fi = it.fileInfo();
         if (fi.isDir()) {
-            if (fi.fileName() == ".." || fi.fileName() == ".")
+            if (fi.fileName() == QLatin1String("..") || fi.fileName() == QLatin1String("."))
                 continue;
             const QString filePath = fi.filePath();
             if (m_treeLevel < targetDepth) {
@@ -280,21 +280,17 @@ void Project::writeProFile()
     QFile file(m_outputFileName);
     if (file.exists()) {
         if (!forceOverWrite) {
-            qWarning("%s", qPrintable(QString(
-                "%1 not overwritten. Use -f if this should be done.")
-                .arg(m_outputFileName)));
+            qWarning("%s not overwritten. Use -f if this should be done.", qPrintable(m_outputFileName));
             return;
         }
         if (!file.remove()) {
-            qWarning("%s", qPrintable(QString(
-                "%1 could not be deleted.").arg(m_outputFileName)));
+            qWarning("%s could not be deleted.", qPrintable(m_outputFileName));
             return;
         }
     }
 
     if (!file.open(QIODevice::WriteOnly)) {
-         qWarning("%s", qPrintable(QString(
-            "%1 cannot be written").arg(m_outputFileName)));
+         qWarning("%s cannot be written", qPrintable(m_outputFileName));
          return;
     }
 
@@ -359,7 +355,7 @@ int main(int argc, char *argv[])
     // Override by command line.
     for (int i = 1, n = args.size(); i < n; ++i) {
         const QString arg = args.at(i);
-        if (arg == "-h" || arg == "--help" || arg == "-help") {
+        if (arg == QLatin1String("-h") || arg == QLatin1String("--help") || arg == QLatin1String("-help")) {
             qWarning() << "Usage: " << qPrintable(args.at(0))
                 << " [-f] [-o out.pro] [dir...]"
                 << "\n\n"
@@ -373,14 +369,14 @@ int main(int argc, char *argv[])
         }
 
         bool handled = true;
-        if (arg == "-f" || arg == "--force" || arg == "-force") {
+        if (arg == QLatin1String("-f") || arg == QLatin1String("--force") || arg == QLatin1String("-force")) {
             forceOverWrite = true;
         } else if (i < n - 1) {
-            if (arg == "-o" || arg == "--output" || arg == "-output")
+            if (arg == QLatin1String("-o") || arg == QLatin1String("--output") || arg == QLatin1String("-output"))
                 outputFileName = args.at(++i);
-            else if (arg == "-d" || arg == "--depth" || arg == "-depth")
+            else if (arg == QLatin1String("-d") || arg == QLatin1String("--depth") || arg == QLatin1String("-depth"))
                 targetDepth = args.at(++i).toInt();
-            else if (arg == "-s" || arg == "--separator" || arg == "-separator")
+            else if (arg == QLatin1String("-s") || arg == QLatin1String("--separator") || arg == QLatin1String("-separator"))
                 subProjectSeparator = args.at(++i);
             else
                 handled = false;
@@ -395,12 +391,12 @@ int main(int argc, char *argv[])
     // Fallbacks.
     if (paths.isEmpty()) {
         QDir dir = QDir::currentPath();
-        outputFileName = dir.dirName() + '.' + proExtension;
-        paths.append(".");
+        outputFileName = dir.dirName() + QLatin1Char('.') + proExtension;
+        paths.append(QLatin1String("."));
     }
 
     if (outputFileName.isEmpty())
-        outputFileName = QDir(paths.at(0)).dirName() + '.' + proExtension;
+        outputFileName = QDir(paths.at(0)).dirName() + QLatin1Char('.') + proExtension;
 
     if (targetDepth == -1)
         targetDepth = 1000000; // "infinity"
