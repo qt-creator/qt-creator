@@ -30,7 +30,8 @@
 #include "tipfactory.h"
 #include "tipcontents.h"
 #include "tips.h"
-#include "qtcassert.h"
+
+#include <utils/qtcassert.h>
 
 #include <QVBoxLayout>
 

@@ -34,7 +34,7 @@
 #include "effects.h"
 #include "reuse.h"
 
-#include "hostosinfo.h"
+#include <utils/hostosinfo.h>
 
 #include <QString>
 #include <QColor>

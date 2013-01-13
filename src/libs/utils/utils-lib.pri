@@ -4,7 +4,7 @@ dll {
     DEFINES += QTCREATOR_UTILS_STATIC_LIB
 }
 
-INCLUDEPATH += $$PWD $$PWD/tooltip
+INCLUDEPATH += $$PWD
 QT += script network
 
 CONFIG += exceptions # used by portlist.cpp, textfileformat.cpp, and ssh/*

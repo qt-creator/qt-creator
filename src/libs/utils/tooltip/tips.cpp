@@ -31,7 +31,7 @@
 #include "tipcontents.h"
 #include "reuse.h"
 
-#include "qtcassert.h"
+#include <utils/qtcassert.h>
 
 #include <QRect>
 #include <QColor>

@@ -5,9 +5,6 @@ QtcLibrary {
     name: "Utils"
 
     cpp.defines: base.concat(["QTCREATOR_UTILS_LIB", "QT_NO_CAST_FROM_ASCII"])
-    cpp.includePaths: base.concat([
-        "tooltip"
-    ])
 
     Properties {
         condition: qbs.targetOS == "windows"
