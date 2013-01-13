@@ -24,9 +24,9 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <argumentList>
         <argument name=\"-debug\" parameter=\"pid\">Attach to local process</argument>
         <argument name=\"-debug\" parameter=\"executable\">Start and debug executable</argument>
-        <argument name=\"-debug [executable,]core=&lt;corefile&gt;[,sysroot=&lt;sysroot&gt;]\">
+        <argument name=\"-debug [executable,]core=&lt;corefile&gt;[,kit=&lt;kit&gt;]\">
                 Attach to core file</argument>
-        <argument name=\"-debug &lt;executable&gt;,server=&lt;server:port&gt;[,sysroot=&lt;sysroot&gt;][,arch=&lt;arch&gt;]\">
+        <argument name=\"-debug &lt;executable&gt;,server=&lt;server:port&gt;[,kit=&lt;kit&gt;]\">
                 Attach to remote debug server</argument>
         <argument name=\"-wincrashevent\"
             parameter=\"eventhandle:pid\">
