@@ -55,14 +55,14 @@ public slots:
     void commandFinishedGotoLine(bool ok, int exitCode, const QVariant &v);
 
 private:
-    virtual QSet<QString> annotationChanges() const;
-    virtual QString changeUnderCursor(const QTextCursor &) const;
-    virtual VcsBase::DiffHighlighter *createDiffHighlighter() const;
-    virtual VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes, const QColor &bg) const;
-    virtual QString fileNameFromDiffSpecification(const QTextBlock &diffFileName) const;
-    virtual QString decorateVersion(const QString &revision) const;
-    virtual QStringList annotationPreviousVersions(const QString &revision) const;
-    virtual bool isValidRevision(const QString &revision) const;
+    QSet<QString> annotationChanges() const;
+    QString changeUnderCursor(const QTextCursor &) const;
+    VcsBase::DiffHighlighter *createDiffHighlighter() const;
+    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes, const QColor &bg) const;
+    QString fileNameFromDiffSpecification(const QTextBlock &diffFileName) const;
+    QString decorateVersion(const QString &revision) const;
+    QStringList annotationPreviousVersions(const QString &revision) const;
+    bool isValidRevision(const QString &revision) const;
 
     mutable QRegExp m_changeNumberPattern8;
     mutable QRegExp m_changeNumberPattern40;
