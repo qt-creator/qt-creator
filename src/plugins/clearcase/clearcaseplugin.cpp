@@ -940,6 +940,7 @@ void ClearCasePlugin::startCheckInAll()
         if (iterator.value().status == FileStatus::CheckedOut)
             files.append(QDir::toNativeSeparators(iterator.key()));
     }
+    files.sort();
     startCheckIn(topLevel, files);
 }
 
@@ -976,6 +977,7 @@ void ClearCasePlugin::startCheckInActivity()
             last = file;
         }
     }
+    files.sort();
     startCheckIn(topLevel, files);
 }
 
