@@ -230,14 +230,13 @@ void SearchResultWidget::addResults(const QList<SearchResultItem> &items, Search
     m_searchResultTreeView->addResults(items, mode);
     updateMatchesFoundLabel();
     if (firstItems) {
-        QByteArray undoWarningIdName(UNDO_WARNING_ID);
-        if (!m_dontAskAgainGroup.isEmpty())
-            undoWarningIdName.append('/' + m_dontAskAgainGroup.toLatin1());
-        Core::Id undoWarningId(undoWarningIdName);
-        if (m_infoBar.canInfoBeAdded(undoWarningId)) {
-            Core::InfoBarEntry info(undoWarningId, tr("This change cannot be undone."),
-                                    Core::InfoBarEntry::GlobalSuppressionEnabled);
-            m_infoBar.addInfo(info);
+        if (!m_dontAskAgainGroup.isEmpty()) {
+            Core::Id undoWarningId(QByteArray(UNDO_WARNING_ID) + '/' + m_dontAskAgainGroup.toLatin1());
+            if (m_infoBar.canInfoBeAdded(undoWarningId)) {
+                Core::InfoBarEntry info(undoWarningId, tr("This change cannot be undone."),
+                                        Core::InfoBarEntry::GlobalSuppressionEnabled);
+                m_infoBar.addInfo(info);
+            }
         }
 
         m_replaceTextEdit->setEnabled(true);
