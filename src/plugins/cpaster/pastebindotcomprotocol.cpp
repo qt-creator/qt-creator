@@ -82,6 +82,7 @@ static inline QByteArray format(Protocol::ContentType ct)
         break;
     case Protocol::Cpp:
         format += "cpp-qt";
+        break;
     case Protocol::JavaScript:
         format += "javascript";
         break;
