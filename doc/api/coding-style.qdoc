@@ -254,6 +254,11 @@
     }
     \endcode
 
+    \section3 Comments
+
+    In general, put one space after "//". To align text in multiline
+    comments, you can insert multiple spaces.
+
     \section2 Braces
 
     As a base rule, place the left curly brace on the same line as the
