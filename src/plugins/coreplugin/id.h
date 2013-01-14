@@ -34,6 +34,7 @@
 
 #include <QMetaType>
 #include <QString>
+#include <QVariant>
 
 namespace Core {
 
@@ -41,6 +42,8 @@ namespace Core {
 class CORE_EXPORT Id
 {
 public:
+    enum { IdsPerPlugin = 10000, ReservedPlugins = 1000 };
+
     Id() : m_id(0) {}
     Id(int uid) : m_id(uid) {}
     Id(const char *name);
@@ -48,7 +51,8 @@ public:
     // FIXME: Remove
     explicit Id(const QString &name);
     QByteArray name() const;
-    QString toString() const;
+    QString toString() const; // Avoid.
+    QVariant toSetting() const; // Good to use.
     bool isValid() const { return m_id; }
     bool operator==(Id id) const { return m_id == id.m_id; }
     bool operator==(const char *name) const;
@@ -58,6 +62,10 @@ public:
     bool operator>(Id id) const { return m_id > id.m_id; }
     int uniqueIdentifier() const { return m_id; }
     static Id fromUniqueIdentifier(int uid) { return Id(uid); }
+    static Id fromString(const QString &str); // FIXME: avoid.
+    static Id fromSetting(const QVariant &variant); // Good to use.
+    static Id withSuffix(Id base, int suffix);
+    static Id withSuffix(Id base, const char *name);
     static void registerId(int uid, const char *name);
 
 private:

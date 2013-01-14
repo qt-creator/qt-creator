@@ -43,9 +43,22 @@ namespace Core {
 /*!
     \class Core::Id
 
-    \brief The class Id encapsulates an identifier. It is used as a type-safe
-    helper class instead of a \c QString or \c QByteArray. The internal
-    representation of the id is assumed to be plain 7-bit-clean ASCII.
+    \brief The class Id encapsulates an identifier that is unique
+    within a specific running Qt Creator process.
+
+    \c{Core::Id} is used as facility to identify objects of interest
+    in a more typesafe and faster manner than a plain \c QString or
+    \c QByteArray would provide.
+
+    An id is internally represented as a 32 bit integer (its \c UID)
+    and associated with a be plain 7-bit-clean ASCII name used
+    for display and persistency.
+
+    Each plugin that is distributed as part of Qt Creator has a
+    private range of 10000 UIDs that are guaranteed to be unique.
+
+    Third party plugins are advised to construct ids from their
+    string representation.
 
 */
 
@@ -97,7 +110,8 @@ struct IdCache : public QHash<StringHolder, int>
 };
 
 
-static int lastUid = 1000 * 1000;
+static int firstUnusedId = Id::IdsPerPlugin * Id::ReservedPlugins;
+
 static QHash<int, StringHolder> stringFromId;
 static IdCache idFromString;
 
@@ -107,7 +121,7 @@ static int theId(const char *str, int n = 0)
     StringHolder sh(str, n);
     int res = idFromString.value(sh, 0);
     if (res == 0) {
-        res = ++lastUid;
+        res = firstUnusedId++;
         sh.str = qstrdup(sh.str);
         idFromString[sh] = res;
         stringFromId[res] = sh;
@@ -120,27 +134,132 @@ static int theId(const QByteArray &ba)
     return theId(ba.constData(), ba.size());
 }
 
+/*!
+    \fn Core::Id(int uid)
+
+    \brief Constructs an id given a UID.
+
+    The UID is an integer value that is unique within the running
+    Qt Creator process.
+
+    It is the callers responsibility to ensure the uniqueness of
+    the passed integer. The recommended approach is to use
+    \c{registerId()} with an value taken from the plugin's
+    private range.
+
+    \sa registerId()
+
+*/
+
+/*!
+    Constructs an id given its associated name. The internal
+    representation will be unspecified, but consistent within a
+    Qt Creator process.
+
+*/
 Id::Id(const char *name)
     : m_id(theId(name, 0))
 {}
 
+/*!
+    \overload
+
+*/
 Id::Id(const QByteArray &name)
    : m_id(theId(name))
 {}
 
+/*!
+    \overload
+    \deprecated
+*/
 Id::Id(const QString &name)
    : m_id(theId(name.toUtf8()))
 {}
+
+/*!
+  Returns an internal representation of the id.
+*/
 
 QByteArray Id::name() const
 {
     return stringFromId.value(m_id).str;
 }
 
+/*!
+  Returns a string representation of the id suitable
+  for UI display.
+
+  This should not be used to create a persistent version
+  of the Id, use \c{toSetting()} instead.
+
+  \sa fromString(), toSetting()
+*/
+
 QString Id::toString() const
 {
     return QString::fromUtf8(stringFromId.value(m_id).str);
 }
+
+/*!
+  Creates an id from a string representation.
+
+  This should not be used to handle a persistent version
+  of the Id, use \c{fromSetting()} instead.
+
+  \sa toString(), fromSetting()
+*/
+
+Id Id::fromString(const QString &name)
+{
+    return Id(theId(name.toUtf8()));
+}
+
+/*!
+  Returns a persistent value representing the id which is
+  suitable to be stored in QSettings.
+
+  \sa fromSetting()
+*/
+
+QVariant Id::toSetting() const
+{
+    return QVariant(QString::fromUtf8(stringFromId.value(m_id).str));
+}
+
+/*!
+  Reconstructs an id from a persistent value.
+
+  \sa toSetting()
+*/
+
+Id Id::fromSetting(const QVariant &variant)
+{
+    const QByteArray ba = variant.toString().toUtf8();
+    return Id(theId(ba));
+}
+
+Id Id::withSuffix(Id id, int suffix)
+{
+    const QByteArray ba = id.name() + QByteArray::number(suffix);
+    return Id(ba.constData());
+}
+
+Id Id::withSuffix(Id id, const char *suffix)
+{
+    const QByteArray ba = id.name() + suffix;
+    return Id(ba.constData());
+}
+
+
+/*!
+  Associates a id with its uid and its string
+  representation.
+
+  The uid should be taken from the plugin's private range.
+
+  \sa fromSetting()
+*/
 
 void Id::registerId(int uid, const char *name)
 {
