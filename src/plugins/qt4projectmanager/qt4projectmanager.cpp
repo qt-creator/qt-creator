@@ -61,7 +61,6 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QVariant>
-#include <QFileDialog>
 #include <QMessageBox>
 
 using namespace Qt4ProjectManager;

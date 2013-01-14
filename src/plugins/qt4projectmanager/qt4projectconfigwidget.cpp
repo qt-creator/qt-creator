@@ -55,7 +55,6 @@
 #include <utils/qtcprocess.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <QFileDialog>
 #include <QPushButton>
 #include <utils/detailswidget.h>
 
