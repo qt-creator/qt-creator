@@ -384,7 +384,7 @@ void ChangeTextCursorHandler::slotCopyRevision()
 
 QAction *ChangeTextCursorHandler::createDescribeAction(const QString &change) const
 {
-    QAction *a = new QAction(VcsBaseEditorWidget::tr("Describe change %1").arg(change), 0);
+    QAction *a = new QAction(VcsBaseEditorWidget::tr("Describe Change %1").arg(change), 0);
     connect(a, SIGNAL(triggered()), this, SLOT(slotDescribe()));
     return a;
 }

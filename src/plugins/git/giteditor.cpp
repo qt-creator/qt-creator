@@ -67,7 +67,7 @@ GitEditor::GitEditor(const VcsBase::VcsBaseEditorParameters *type,
     QTC_ASSERT(m_changeNumberPattern8.isValid(), return);
     QTC_ASSERT(m_changeNumberPattern40.isValid(), return);
     setAnnotateRevisionTextFormat(tr("Blame %1"));
-    setAnnotatePreviousRevisionTextFormat(tr("Blame parent revision %1"));
+    setAnnotatePreviousRevisionTextFormat(tr("Blame Parent Revision %1"));
 }
 
 QSet<QString> GitEditor::annotationChanges() const
