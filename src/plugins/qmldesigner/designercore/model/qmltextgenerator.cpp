@@ -154,10 +154,12 @@ QString QmlTextGenerator::toQml(const ModelNode &node, int indentDepth) const
 
     QString alias;
     if (!url.isEmpty()) {
-        const QString &versionUrl = QString("%1.%2").arg(QString::number(node.majorVersion()), QString::number(node.minorVersion()));
         foreach (const Import &import, node.model()->imports()) {
-            if (import.url() == url
-                && import.version() == versionUrl) {
+            if (import.url() == url) {
+                alias = import.alias();
+                break;
+            }
+            if (import.file() == url) {
                 alias = import.alias();
                 break;
             }
