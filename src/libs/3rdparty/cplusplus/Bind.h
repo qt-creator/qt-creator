@@ -34,6 +34,7 @@ public:
 
     void operator()(TranslationUnitAST *ast, Namespace *globalNamespace);
     void operator()(DeclarationAST *ast, Scope *scope);
+    void operator()(StatementAST *ast, Scope *scope);
     FullySpecifiedType operator()(ExpressionAST *ast, Scope *scope);
     FullySpecifiedType operator()(NewTypeIdAST *ast, Scope *scope);
 

@@ -74,9 +74,8 @@ public:
 
 private slots:
     void switchHeaderSource();
-#ifdef WITH_TESTS
 
-    // codegen tests
+#ifdef WITH_TESTS
     void test_codegen_public_in_empty_class();
     void test_codegen_public_in_nonempty_class();
     void test_codegen_public_before_protected();
@@ -113,6 +112,15 @@ private slots:
     void test_completion_enclosing_template_class_data();
     void test_completion_instantiate_nested_class_when_enclosing_is_template();
     void test_completion_instantiate_nested_of_nested_class_when_enclosing_is_template();
+
+    void test_format_pointerdeclaration_in_simpledeclarations();
+    void test_format_pointerdeclaration_in_simpledeclarations_data();
+    void test_format_pointerdeclaration_in_controlflowstatements();
+    void test_format_pointerdeclaration_in_controlflowstatements_data();
+    void test_format_pointerdeclaration_multiple_declarators();
+    void test_format_pointerdeclaration_multiple_declarators_data();
+    void test_format_pointerdeclaration_multiple_matches();
+    void test_format_pointerdeclaration_multiple_matches_data();
 
     void test_modelmanager_paths();
     void test_modelmanager_framework_headers();

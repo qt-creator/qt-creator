@@ -74,6 +74,8 @@ QtcPlugin {
         "cppmodelmanager.h",
         "cppqtstyleindenter.cpp",
         "cppqtstyleindenter.h",
+        "cpppointerdeclarationformatter.cpp",
+        "cpppointerdeclarationformatter.h",
         "cpprefactoringchanges.cpp",
         "cpprefactoringchanges.h",
         "cppsemanticinfo.cpp",
@@ -110,7 +112,8 @@ QtcPlugin {
             "cppcodegen_test.cpp",
             "cppcompletion_test.cpp",
             "cppmodelmanager_test.cpp",
-            "modelmanagertesthelper.cpp", "modelmanagertesthelper.h"
+            "modelmanagertesthelper.cpp", "modelmanagertesthelper.h",
+            "cpppointerdeclarationformatter_test.cpp"
         ]
 
         cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])

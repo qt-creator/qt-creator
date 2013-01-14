@@ -181,6 +181,13 @@ void Bind::operator()(DeclarationAST *ast, Scope *scope)
     (void) switchScope(previousScope);
 }
 
+void Bind::operator()(StatementAST *ast, Scope *scope)
+{
+    Scope *previousScope = switchScope(scope);
+    statement(ast);
+    (void) switchScope(previousScope);
+}
+
 FullySpecifiedType Bind::operator()(ExpressionAST *ast, Scope *scope)
 {
     Scope *previousScope = switchScope(scope);

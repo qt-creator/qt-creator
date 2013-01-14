@@ -595,6 +595,8 @@ void Document::check(CheckMode mode)
 
     if (TranslationUnitAST *ast = _translationUnit->ast()->asTranslationUnit())
         semantic(ast, _globalNamespace);
+    else if (StatementAST *ast = _translationUnit->ast()->asStatement())
+        semantic(ast, _globalNamespace);
     else if (ExpressionAST *ast = _translationUnit->ast()->asExpression())
         semantic(ast, _globalNamespace);
     else if (DeclarationAST *ast = translationUnit()->ast()->asDeclaration())

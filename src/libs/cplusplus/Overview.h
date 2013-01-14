@@ -49,9 +49,6 @@ namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT Overview
 {
-    Overview(const Overview &other);
-    void operator =(const Overview &other);
-
 public:
     Overview();
 
