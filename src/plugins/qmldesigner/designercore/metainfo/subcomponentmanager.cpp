@@ -221,7 +221,7 @@ void SubComponentManager::parseDirectories()
         if (import.isFileImport()) {
             QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.file()).toLocalFile());
             if (dirInfo.exists() && dirInfo.isDir())
-                parseDirectory(dirInfo.canonicalFilePath());
+                parseDirectory(dirInfo.canonicalFilePath(), true, dirInfo.baseName());
         } else {
             QString url = import.url();
             foreach (const QString &path, importPaths()) {
@@ -250,6 +250,7 @@ void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool a
         foreach (const QFileInfo &metaInfoFile, designerDir.entryInfoList(QDir::Files)) {
             if (model() && model()->metaInfo().itemLibraryInfo()) {
                 Internal::MetaInfoReader reader(model()->metaInfo());
+                reader.setQualifcation(qualification);
                 try {
                     reader.readMetaInfoFile(metaInfoFile.absoluteFilePath(), true);
                 } catch (InvalidMetaInfoException &e) {
@@ -389,7 +390,15 @@ void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QStri
         return;
 
     QString componentName = fileInfo.baseName();
+    const QString baseComponentName = componentName;
 
+    QString fixedQualifier = qualifier;
+    if (!qualifier.isEmpty()) {
+        fixedQualifier = qualifier;
+        if (qualifier.right(1) == QLatin1String("."))
+            fixedQualifier.chop(1); //remove last char if it is a dot
+        componentName = fixedQualifier + '.' + componentName;
+    }
 
     if (debug)
         qDebug() << "SubComponentManager" << __FUNCTION__ << componentName;
@@ -398,11 +407,11 @@ void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QStri
         // Add file components to the library
         ItemLibraryEntry itemLibraryEntry;
         itemLibraryEntry.setType(componentName, -1, -1);
-        itemLibraryEntry.setName(componentName);
+        itemLibraryEntry.setName(baseComponentName);
         itemLibraryEntry.setCategory("QML Components");
         if (!qualifier.isEmpty()) {
             itemLibraryEntry.setForceImport(true);
-            itemLibraryEntry.setRequiredImport(qualifier);
+            itemLibraryEntry.setRequiredImport(fixedQualifier);
         }
 
 

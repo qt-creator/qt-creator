@@ -58,6 +58,8 @@ public:
 
     QStringList errors();
 
+    void setQualifcation(const QString &qualification);
+
 protected:
     virtual void elementStart(const QString &name);
     virtual void elementEnd();
@@ -114,6 +116,8 @@ private:
     QVariant m_currentPropertyValue;
 
     bool m_overwriteDuplicates;
+
+    QString m_qualication;
 };
 
 }

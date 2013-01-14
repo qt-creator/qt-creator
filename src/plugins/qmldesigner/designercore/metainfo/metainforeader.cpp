@@ -83,6 +83,11 @@ QStringList MetaInfoReader::errors()
     return QmlJS::SimpleAbstractStreamReader::errors();
 }
 
+void MetaInfoReader::setQualifcation(const QString &qualification)
+{
+    m_qualication = qualification;
+}
+
 void MetaInfoReader::elementStart(const QString &name)
 {
     switch (parserState()) {
@@ -203,6 +208,8 @@ void MetaInfoReader::readTypeProperty(const QString &name, const QVariant &value
 {
     if (name == QLatin1String("name")) {
         m_currentClassName = value.toString();
+        if (!m_qualication.isEmpty()) //prepend qualification
+            m_currentClassName = m_qualication + QLatin1String(".") + m_currentClassName;
     } else if (name == QLatin1String("icon")) {
         m_currentIcon = absoluteFilePathForDocument(value.toString());
     } else {
