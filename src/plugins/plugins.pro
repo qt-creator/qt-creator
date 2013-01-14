@@ -32,6 +32,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_genericprojectmanager \
             plugin_qmljseditor \
             plugin_glsleditor \
+            plugin_pythoneditor \
             plugin_mercurial \
             plugin_bazaar \
             plugin_classview \
@@ -350,3 +351,8 @@ plugin_clearcase.subdir = clearcase
 plugin_clearcase.depends = plugin_vcsbase
 plugin_clearcase.depends += plugin_projectexplorer
 plugin_clearcase.depends += plugin_coreplugin
+
+plugin_pythoneditor.subdir = pythoneditor
+plugin_pythoneditor.depends = plugin_coreplugin
+plugin_pythoneditor.depends += plugin_cpptools
+plugin_pythoneditor.depends += plugin_texteditor

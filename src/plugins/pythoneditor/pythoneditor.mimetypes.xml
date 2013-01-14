@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+    <mime-type type="text/x-python">
+        <sub-class-of type="text/plain"/>
+        <comment>Python Source File</comment>
+        <glob pattern="*.py"/>
+        <glob pattern="*.pyw"/>
+        <glob pattern="*.wsgi"/>
+    </mime-type>
+</mime-info>
