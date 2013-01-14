@@ -322,12 +322,12 @@ public:
     DNSServiceErrorType createConnection(MainConnection *mainConnection, ConnectionRef *sdRef) {
         if (!m_simplePollNew || !m_clientNew || !m_simplePollSetFunc)
             return kDNSServiceErr_Unknown;
-        MyAvahiConnection *connection = new MyAvahiConnection;
-        connection->lib = this;
         if (sdRef == 0) {
             qDebug() << "Error: sdRef is null in createConnection";
             return kDNSServiceErr_Unknown;
         }
+        MyAvahiConnection *connection = new MyAvahiConnection;
+        connection->lib = this;
         /* Allocate main loop object */
         connection->simple_poll = m_simplePollNew();
         if (!connection->simple_poll) {
