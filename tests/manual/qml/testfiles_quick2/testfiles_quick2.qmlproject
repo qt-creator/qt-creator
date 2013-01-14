@@ -1,0 +1,14 @@
+import QmlProject 1.1
+
+Project {
+    // Scan current directory for .qml, .js, and image files
+    QmlFiles {
+        directory: "."
+    }
+    JavaScriptFiles {
+        directory: "."
+    }
+    ImageFiles {
+        directory: "."
+    }
+}
