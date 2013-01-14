@@ -51,6 +51,9 @@ public:
     bool namespacesEnabled() const;
     void setNamespacesEnabled(bool b);
 
+    QString namespaceDelimiter();
+    void setNamespaceDelimiter(const QString &delimiter);
+
     bool lowerCaseFileName() const;
     void setLowerCaseFileName(bool v);
 
@@ -71,6 +74,8 @@ protected:
     virtual QString fixInputString(const QString &string);
 
 private:
+    void updateRegExp() const;
+
     ClassNameValidatingLineEditPrivate *d;
 };
 

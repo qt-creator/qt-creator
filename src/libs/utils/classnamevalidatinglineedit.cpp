@@ -46,8 +46,8 @@ namespace Utils {
 struct ClassNameValidatingLineEditPrivate {
     ClassNameValidatingLineEditPrivate();
 
-    const QRegExp m_nameRegexp;
-    const QString m_namespaceDelimiter;
+    QRegExp m_nameRegexp;
+    QString m_namespaceDelimiter;
     bool m_namespacesEnabled;
     bool m_lowerCaseFileName;
     bool m_forceFirstCapitalLetter;
@@ -67,6 +67,7 @@ ClassNameValidatingLineEdit::ClassNameValidatingLineEdit(QWidget *parent) :
     Utils::BaseValidatingLineEdit(parent),
     d(new ClassNameValidatingLineEditPrivate)
 {
+    updateRegExp();
 }
 
 ClassNameValidatingLineEdit::~ClassNameValidatingLineEdit()
@@ -84,11 +85,28 @@ void ClassNameValidatingLineEdit::setNamespacesEnabled(bool b)
     d->m_namespacesEnabled = b;
 }
 
+/**
+ * @return Language-specific namespace delimiter, e.g. '::' or '.'
+ */
+QString ClassNameValidatingLineEdit::namespaceDelimiter()
+{
+    return d->m_namespaceDelimiter;
+}
+
+/**
+ * @brief Sets language-specific namespace delimiter, e.g. '::' or '.'
+ * Do not use identifier characters in delimiter
+ */
+void ClassNameValidatingLineEdit::setNamespaceDelimiter(const QString &delimiter)
+{
+    d->m_namespaceDelimiter = delimiter;
+}
+
 bool ClassNameValidatingLineEdit::validate(const QString &value, QString *errorMessage) const
 {
-    static QRegExp nameRegexp(QLatin1String("[a-zA-Z_][a-zA-Z0-9_]*(::[a-zA-Z_][a-zA-Z0-9_]*)*"));
-    QTC_ASSERT(nameRegexp.isValid(), return false);
-    if (!d->m_namespacesEnabled && value.contains(QLatin1Char(':'))) {
+    QTC_ASSERT(d->m_nameRegexp.isValid(), return false);
+
+    if (!d->m_namespacesEnabled && value.contains(d->m_namespaceDelimiter)) {
         if (errorMessage)
             *errorMessage = tr("The class name must not contain namespace delimiters.");
         return false;
@@ -96,7 +114,7 @@ bool ClassNameValidatingLineEdit::validate(const QString &value, QString *errorM
         if (errorMessage)
             *errorMessage = tr("Please enter a class name.");
         return false;
-    } else if (!nameRegexp.exactMatch(value)) {
+    } else if (!d->m_nameRegexp.exactMatch(value)) {
         if (errorMessage)
             *errorMessage = tr("The class name contains invalid characters.");
         return false;
@@ -129,6 +147,13 @@ QString ClassNameValidatingLineEdit::fixInputString(const QString &string)
         fixedString[0] = string.at(0).toUpper();
 
     return fixedString;
+}
+
+void ClassNameValidatingLineEdit::updateRegExp() const
+{
+    QString identifierPatter(QLatin1String("[a-zA-Z_][a-zA-Z0-9_]*"));
+    QString pattern(QLatin1String("%1(%2%1)*"));
+    d->m_nameRegexp.setPattern(pattern.arg(identifierPatter).arg(d->m_namespaceDelimiter));
 }
 
 QString ClassNameValidatingLineEdit::createClassName(const QString &name)
