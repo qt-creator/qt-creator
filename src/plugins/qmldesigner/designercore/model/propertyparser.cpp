@@ -234,6 +234,7 @@ QVariant read(int variantType, const QString &str)
         break;
     case QMetaType::QVector3D:
         value = vector3DFromString(str, &conversionOk);
+        break;
     default: {
         value = QVariant(str);
         value.convert(static_cast<QVariant::Type>(variantType));
