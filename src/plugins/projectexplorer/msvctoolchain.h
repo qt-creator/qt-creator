@@ -106,6 +106,8 @@ public:
         { return MsvcToolChain::readFromMap(data); }
 
     ToolChainConfigWidget *configurationWidget(ToolChain *);
+private:
+    static bool checkForVisualStudioInstallation(const QString &vsName);
 };
 
 // --------------------------------------------------------------------------
