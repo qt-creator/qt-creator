@@ -38,11 +38,6 @@
 #include <QSet>
 #include <QStringList>
 
-
-namespace Utils {
-class AbstractMacroExpander;
-}
-
 namespace Core {
 
 class CORE_EXPORT FeatureSet;
@@ -61,10 +56,8 @@ public:
 
 class CORE_EXPORT Feature : public Id
 {
-friend class FeatureSet;
 public:
-    Feature(const char *name) : Id(QByteArray(name)) {}
-    explicit Feature(const QString &name) : Id(name) {}
+    Feature(Id id) : Id(id) {}
 };
 
 class CORE_EXPORT FeatureSet : private QSet<Feature>
@@ -72,12 +65,10 @@ class CORE_EXPORT FeatureSet : private QSet<Feature>
 public:
     FeatureSet() {}
 
-    FeatureSet(const Feature &feature)
+    FeatureSet(Core::Id id)
     {
-        if (feature.toString().isEmpty())
-            return;
-
-        insert(feature);
+        if (id.isValid())
+            insert(id);
     }
 
     FeatureSet(const FeatureSet &other) : QSet<Feature>(other) {}

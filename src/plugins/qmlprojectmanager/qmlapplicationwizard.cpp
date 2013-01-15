@@ -49,12 +49,12 @@
 #include "qmlproject.h"
 
 #include <QCoreApplication>
-#include <QFileInfo>
 #include <QDirIterator>
-#include <QUrl>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QIcon>
 #include <QMessageBox>
+#include <QUrl>
 
 using namespace Core;
 using namespace ExtensionSystem;
@@ -99,9 +99,9 @@ void QmlApplicationWizard::createInstances(ExtensionSystem::IPlugin *plugin)
 
         QStringList stringList =
                 templateInfo.featuresRequired.split(QLatin1Char(','), QString::SkipEmptyParts);;
-        Core::FeatureSet features;
+        FeatureSet features;
         foreach (const QString &string, stringList) {
-            Core::Feature feature(string.trimmed());
+            Feature feature(Id::fromString(string.trimmed()));
             features |= feature;
         }
 
@@ -126,8 +126,7 @@ BaseFileWizardParameters QmlApplicationWizard::parameters()
 }
 
 QWizard *QmlApplicationWizard::createWizardDialog(QWidget *parent,
-                                                  const Core::WizardDialogParameters &wizardDialogParameters
-                                                  ) const
+    const WizardDialogParameters &wizardDialogParameters) const
 {
     QmlApplicationWizardDialog *wizardDialog = new QmlApplicationWizardDialog(m_qmlApp,
                                                                               parent, wizardDialogParameters);

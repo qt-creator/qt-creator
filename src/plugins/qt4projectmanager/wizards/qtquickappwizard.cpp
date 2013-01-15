@@ -166,7 +166,7 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
                                                     "platform.\n\nRequires <b>Qt 4.7.4</b> or newer, and the "
                                                     "component set installed for your Qt version."));
     parameter.setRequiredFeatures(basicFeatures | Core::Feature(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_MEEGO)
-                                  | QtSupport::Constants::FEATURE_QT_QUICK_1_1);
+                                  | Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1_1));
     list << parameter;
 
     parameter = base;
