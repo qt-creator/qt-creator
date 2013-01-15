@@ -88,9 +88,7 @@ MacroEvent& MacroEvent::operator=(const MacroEvent &other)
 
 QVariant MacroEvent::value(quint8 id) const
 {
-    if (d->values.contains(id))
-        return d->values.value(id);
-    return QVariant();
+    return d->values.value(id);
 }
 
 void MacroEvent::setValue(quint8 id, const QVariant &value)
@@ -131,9 +129,4 @@ const QByteArray & MacroEvent::id() const
 void MacroEvent::setId(const char *id)
 {
     d->id = id;
-}
-
-QMap<quint8, QVariant> MacroEvent::values() const
-{
-    return d->values;
 }

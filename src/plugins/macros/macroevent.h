@@ -56,8 +56,6 @@ public:
     QVariant value(quint8 id) const;
     void setValue(quint8 id, const QVariant &value);
 
-    QMap<quint8, QVariant> values() const;
-
     void load(QDataStream &stream);
     void save(QDataStream &stream) const;
 
