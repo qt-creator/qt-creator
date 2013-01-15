@@ -131,6 +131,7 @@ public:
     bool isReadOnly() const;
     void setReadOnly(bool b);
 
+    void triggerChanged();
 private:
     // Returns overridden title or the one from <title>
     QString makeDialogTitle(const QString &title);

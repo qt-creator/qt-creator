@@ -426,6 +426,11 @@ QString PathChooser::errorMessage() const
     return d->m_lineEdit->errorMessage();
 }
 
+void PathChooser::triggerChanged()
+{
+    d->m_lineEdit->triggerChanged();
+}
+
 bool PathChooser::validatePath(const QString &path, QString *errorMessage)
 {
     QString expandedPath = d->expandedPath(path);
