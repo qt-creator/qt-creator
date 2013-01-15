@@ -32,10 +32,12 @@
 
 #include "imacrohandler.h"
 
+#include <coreplugin/id.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+
 #include <QSet>
 
 QT_BEGIN_NAMESPACE
-class QAction;
 class QSignalMapper;
 QT_END_NAMESPACE
 
@@ -53,14 +55,15 @@ public:
     bool executeEvent(const MacroEvent &macroEvent);
 
 private:
-    void registerCommand(const QString &id);
+    void registerCommand(Core::Id id);
+    Core::Command *command(const QString &id);
 
 private slots:
     void addCommand(const QString &id);
     void addActionEvent(const QString &id);
 
 private:
-    QSet<QString> m_commandIds;
+    QSet<Core::Id> m_commandIds;
     QSignalMapper *m_mapper;
 };
 

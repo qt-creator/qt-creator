@@ -31,26 +31,27 @@
 #include "macroevent.h"
 #include "macro.h"
 
-#include <texteditor/texteditorconstants.h>
-
-#include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/id.h>
 #include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/id.h>
 
-#include <QObject>
-#include <QEvent>
-#include <QSignalMapper>
-#include <QtAlgorithms>
-#include <QStringList>
+#include <texteditor/texteditorconstants.h>
 
 #include <QAction>
+#include <QEvent>
+#include <QObject>
 #include <QShortcut>
+#include <QSignalMapper>
+#include <QStringList>
+#include <QtAlgorithms>
 
-using namespace Macros;
-using namespace Macros::Internal;
+using namespace Core;
+
+namespace Macros {
+namespace Internal {
 
 static const char EVENTNAME[] = "Action";
 static quint8 ACTIONNAME = 0;
@@ -61,27 +62,25 @@ ActionMacroHandler::ActionMacroHandler():
     connect(m_mapper, SIGNAL(mapped(QString)),
             this, SLOT(addActionEvent(QString)));
 
-    connect(Core::ActionManager::instance(), SIGNAL(commandAdded(QString)),
+    connect(ActionManager::instance(), SIGNAL(commandAdded(QString)),
             this, SLOT(addCommand(QString)));
 
     // Register all existing scriptable actions
-    QList<Core::Command *> commands = Core::ActionManager::commands();
-    foreach (Core::Command *command, commands) {
-        if (command->isScriptable()) {
-            QString id = command->id().toString();
-            registerCommand(id);
-        }
+    QList<Command *> commands = ActionManager::commands();
+    foreach (Command *command, commands) {
+        if (command->isScriptable())
+            registerCommand(command->id());
     }
 }
 
 bool ActionMacroHandler::canExecuteEvent(const MacroEvent &macroEvent)
 {
-    return (macroEvent.id() == EVENTNAME);
+    return macroEvent.id() == EVENTNAME;
 }
 
 bool ActionMacroHandler::executeEvent(const MacroEvent &macroEvent)
 {
-    QAction *action = Core::ActionManager::command(Core::Id(macroEvent.value(ACTIONNAME).toString()))->action();
+    QAction *action = ActionManager::command(Id::fromSetting(macroEvent.value(ACTIONNAME)))->action();
     if (!action)
         return false;
 
@@ -89,40 +88,45 @@ bool ActionMacroHandler::executeEvent(const MacroEvent &macroEvent)
     return true;
 }
 
-void ActionMacroHandler::addActionEvent(const QString &id)
+void ActionMacroHandler::addActionEvent(const QString &name)
 {
     if (!isRecording())
         return;
 
-    const Core::Command *cmd = Core::ActionManager::command(Core::Id(id));
-    if (cmd->isScriptable(cmd->context())) {
+    const Id id = Id::fromString(name);
+    const Command *command = ActionManager::command(id);
+    if (command->isScriptable(command->context())) {
         MacroEvent e;
         e.setId(EVENTNAME);
-        e.setValue(ACTIONNAME, id);
+        e.setValue(ACTIONNAME, id.toSetting());
         addMacroEvent(e);
     }
 }
 
-void ActionMacroHandler::registerCommand(const QString &id)
+void ActionMacroHandler::registerCommand(Id id)
 {
     if (!m_commandIds.contains(id)) {
         m_commandIds.insert(id);
-        QAction* action = Core::ActionManager::command(Core::Id(id))->action();
-        if (action) {
+        const Command *command = ActionManager::command(id);
+        if (QAction *action = command->action()) {
             connect(action, SIGNAL(triggered()), m_mapper, SLOT(map()));
-            m_mapper->setMapping(action, id);
+            m_mapper->setMapping(action, id.toString());
             return;
         }
-        QShortcut* shortcut = Core::ActionManager::command(Core::Id(id))->shortcut();
-        if (shortcut) {
+        if (QShortcut *shortcut = command->shortcut()) {
             connect(shortcut, SIGNAL(activated()), m_mapper, SLOT(map()));
-            m_mapper->setMapping(shortcut, id);
+            m_mapper->setMapping(shortcut, id.toString());
         }
     }
 }
 
-void ActionMacroHandler::addCommand(const QString &id)
+void ActionMacroHandler::addCommand(const QString &name)
 {
-    if (Core::ActionManager::command(Core::Id(id))->isScriptable())
+    const Id id = Id::fromString(name);
+    const Command *command = ActionManager::command(id);
+    if (command->isScriptable())
         registerCommand(id);
 }
+
+} // namespace Internal
+} // namespace Macros

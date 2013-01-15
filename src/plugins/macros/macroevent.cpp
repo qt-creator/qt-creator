@@ -53,7 +53,7 @@ using namespace Macros;
 class MacroEvent::MacroEventPrivate
 {
 public:
-    QByteArray id;
+    Core::Id id;
     QMap<quint8, QVariant> values;
 };
 
@@ -98,7 +98,9 @@ void MacroEvent::setValue(quint8 id, const QVariant &value)
 
 void MacroEvent::load(QDataStream &stream)
 {
-    stream >> d->id;
+    QByteArray ba;
+    stream >> ba;
+    d->id = Core::Id(ba);
     int count;
     stream >> count;
     quint8 id;
@@ -112,7 +114,7 @@ void MacroEvent::load(QDataStream &stream)
 
 void MacroEvent::save(QDataStream &stream) const
 {
-    stream << d->id;
+    stream << d->id.name();
     stream << d->values.count();
     QMapIterator<quint8, QVariant> i(d->values);
     while (i.hasNext()) {
@@ -121,12 +123,12 @@ void MacroEvent::save(QDataStream &stream) const
     }
 }
 
-const QByteArray & MacroEvent::id() const
+Core::Id MacroEvent::id() const
 {
     return d->id;
 }
 
-void MacroEvent::setId(const char *id)
+void MacroEvent::setId(Core::Id id)
 {
     d->id = id;
 }

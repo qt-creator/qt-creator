@@ -32,6 +32,8 @@
 
 #include "macros_global.h"
 
+#include <coreplugin/id.h>
+
 #include <QMap>
 
 QT_BEGIN_NAMESPACE
@@ -50,8 +52,8 @@ public:
     virtual ~MacroEvent();
     MacroEvent& operator=(const MacroEvent &other);
 
-    const QByteArray &id() const;
-    void setId(const char *id);
+    Core::Id id() const;
+    void setId(Core::Id id);
 
     QVariant value(quint8 id) const;
     void setValue(quint8 id, const QVariant &value);
