@@ -55,6 +55,7 @@
 #include <cplusplus/TypeOfExpression.h>
 #include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/CppRewriter.h>
+#include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/insertionpointlocator.h>
@@ -1665,7 +1666,8 @@ public:
                         }
 
                         if (! decl) {
-                            result.append(QuickFixOperation::Ptr(new Operation(interface, index, binary)));
+                            result.append(QuickFixOperation::Ptr(
+                                new Operation(interface, index, binary, nameAST)));
                             return;
                         }
                     }
@@ -1678,9 +1680,13 @@ private:
     class Operation: public CppQuickFixOperation
     {
     public:
-        Operation(const CppQuickFixInterface &interface, int priority, BinaryExpressionAST *binaryAST)
+        Operation(const CppQuickFixInterface &interface,
+                  int priority,
+                  const BinaryExpressionAST *binaryAST,
+                  const SimpleNameAST *simpleNameAST)
             : CppQuickFixOperation(interface, priority)
             , binaryAST(binaryAST)
+            , simpleNameAST(simpleNameAST)
         {
             setDescription(QApplication::translate("CppTools::QuickFix", "Add Local Declaration"));
         }
@@ -1700,7 +1706,6 @@ private:
                                      TypeOfExpression::Preprocess);
 
             if (! result.isEmpty()) {
-
                 SubstitutionEnvironment env;
                 env.setContext(assistInterface()->context());
                 env.switchScope(result.first().scope());
@@ -1713,16 +1718,13 @@ private:
                 Control *control = assistInterface()->context().control().data();
                 FullySpecifiedType tn = rewriteType(result.first().type(), &env, control);
 
-                Overview oo;
-                QString ty = oo.prettyType(tn);
+                Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
+                QString ty = oo.prettyType(tn, simpleNameAST->name);
                 if (! ty.isEmpty()) {
-                    const QChar ch = ty.at(ty.size() - 1);
-
-                    if (ch.isLetterOrNumber() || ch == QLatin1Char(' ') || ch == QLatin1Char('>'))
-                        ty += QLatin1Char(' ');
-
                     Utils::ChangeSet changes;
-                    changes.insert(currentFile->startOf(binaryAST), ty);
+                    changes.replace(currentFile->startOf(binaryAST),
+                                    currentFile->endOf(simpleNameAST),
+                                    ty);
                     currentFile->setChangeSet(changes);
                     currentFile->apply();
                 }
@@ -1730,7 +1732,8 @@ private:
         }
 
     private:
-        BinaryExpressionAST *binaryAST;
+        const BinaryExpressionAST *binaryAST;
+        const SimpleNameAST *simpleNameAST;
     };
 };
 

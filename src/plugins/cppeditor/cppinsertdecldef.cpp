@@ -37,6 +37,7 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/ASTVisitor.h>
 #include <cpptools/insertionpointlocator.h>
+#include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/cpptoolsreuse.h>
 
@@ -202,7 +203,7 @@ void DeclFromDef::match(const CppQuickFixInterface &interface, QuickFixOperation
 
 QString InsertDeclOperation::generateDeclaration(Function *function)
 {
-    Overview oo;
+    Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
     oo.showFunctionSignatures = true;
     oo.showReturnTypes = true;
     oo.showArgumentNames = true;
@@ -238,7 +239,7 @@ public:
         CppRefactoringChanges refactoring(snapshot());
         CppRefactoringFilePtr targetFile = refactoring.file(m_loc.fileName());
 
-        Overview oo;
+        Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
         oo.showFunctionSignatures = true;
         oo.showReturnTypes = true;
         oo.showArgumentNames = true;
@@ -361,7 +362,7 @@ public:
         UseMinimalNames subs(targetCoN);
         env.enter(&subs);
 
-        Overview printer;
+        Overview printer = CppCodeStyleSettings::currentProjectCodeStyleOverview();
         Control *control = assistInterface()->context().control().data();
         QString funcDef;
         QString funcDecl; // We generate a declaration only in the case of a member function.

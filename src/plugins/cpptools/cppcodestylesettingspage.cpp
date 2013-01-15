@@ -27,21 +27,27 @@
 **
 ****************************************************************************/
 
-#include "cppcodestylesettingspage.h"
 #include "cppcodestylepreferences.h"
-#include "ui_cppcodestylesettingspage.h"
+#include "cppcodestylesettingspage.h"
+#include "cpppointerdeclarationformatter.h"
+#include "cppqtstyleindenter.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolssettings.h"
-#include "cppqtstyleindenter.h"
-#include <texteditor/snippets/isnippetprovider.h>
-#include <texteditor/fontsettings.h>
-#include <texteditor/displaysettings.h>
-#include <texteditor/texteditorsettings.h>
-#include <texteditor/tabsettings.h>
-#include <texteditor/codestyleeditor.h>
-#include <extensionsystem/pluginmanager.h>
-#include <cppeditor/cppeditorconstants.h>
+#include "ui_cppcodestylesettingspage.h"
+
+#include <Overview.h>
+#include <pp.h>
+
 #include <coreplugin/icore.h>
+#include <cppeditor/cppeditorconstants.h>
+#include <extensionsystem/pluginmanager.h>
+#include <texteditor/codestyleeditor.h>
+#include <texteditor/displaysettings.h>
+#include <texteditor/fontsettings.h>
+#include <texteditor/snippets/isnippetprovider.h>
+#include <texteditor/tabsettings.h>
+#include <texteditor/texteditorsettings.h>
+
 #include <QTextBlock>
 #include <QTextStream>
 
@@ -194,6 +200,19 @@ static const char *defaultCodeStyleSnippets[] = {
     "    myInstance.longMemberName += bar +\n"
     "                                 foo;\n"
     "}\n"
+    ,
+    "int *foo(const Bar &b1, Bar &&b2, int*, int *&rpi)\n"
+    "{\n"
+    "    int*pi = 0;\n"
+    "    int*const*const cpcpi = &pi;\n"
+    "    int*const*pcpi = &pi;\n"
+    "    int**const cppi = &pi;\n"
+    "\n"
+    "    void (*foo)(char *s) = 0;\n"
+    "    int (*bar)[] = 0;\n"
+    "\n"
+    "    return pi;\n"
+    "}\n"
 };
 
 using namespace TextEditor;
@@ -201,6 +220,44 @@ using namespace TextEditor;
 namespace CppTools {
 
 namespace Internal {
+
+static void applyRefactorings(QTextDocument *textDocument, TextEditor::BaseTextEditorWidget *editor,
+                              const CppCodeStyleSettings &settings)
+{
+    // Preprocess source
+    Environment env;
+    Preprocessor preprocess(0, &env);
+    const QByteArray preprocessedSource
+        = preprocess.run(QLatin1String("<no-file>"), textDocument->toPlainText());
+
+    Document::Ptr cppDocument = Document::create(QLatin1String("<no-file>"));
+    cppDocument->setUtf8Source(preprocessedSource);
+    cppDocument->parse(Document::ParseTranlationUnit);
+    cppDocument->check();
+
+    CppRefactoringFilePtr cppRefactoringFile = CppRefactoringChanges::file(editor, cppDocument);
+
+    // Run the formatter
+    Overview overview;
+    overview.showReturnTypes = true;
+    overview.starBindFlags = Overview::StarBindFlags(0);
+
+    if (settings.bindStarToIdentifier)
+        overview.starBindFlags |= Overview::BindToIdentifier;
+    if (settings.bindStarToTypeName)
+        overview.starBindFlags |= Overview::BindToTypeName;
+    if (settings.bindStarToLeftSpecifier)
+        overview.starBindFlags |= Overview::BindToLeftSpecifier;
+    if (settings.bindStarToRightSpecifier)
+        overview.starBindFlags |= Overview::BindToRightSpecifier;
+
+    PointerDeclarationFormatter formatter(cppRefactoringFile, overview);
+    Utils::ChangeSet change = formatter.format(cppDocument->translationUnit()->ast());
+
+    // Apply change
+    QTextCursor cursor(textDocument);
+    change.apply(&cursor);
+}
 
 // ------------------ CppCodeStyleSettingsWidget
 
@@ -215,7 +272,7 @@ CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
 
     m_previews << m_ui->previewTextEditGeneral << m_ui->previewTextEditContent
                << m_ui->previewTextEditBraces << m_ui->previewTextEditSwitch
-               << m_ui->previewTextEditPadding;
+               << m_ui->previewTextEditPadding << m_ui->previewTextEditPointerReferences;
     for (int i = 0; i < m_previews.size(); ++i)
         m_previews[i]->setPlainText(QLatin1String(defaultCodeStyleSnippets[i]));
 
@@ -259,6 +316,14 @@ CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
     connect(m_ui->extraPaddingConditions, SIGNAL(toggled(bool)),
        this, SLOT(slotCodeStyleSettingsChanged()));
     connect(m_ui->alignAssignments, SIGNAL(toggled(bool)),
+       this, SLOT(slotCodeStyleSettingsChanged()));
+    connect(m_ui->bindStarToIdentifier, SIGNAL(toggled(bool)),
+       this, SLOT(slotCodeStyleSettingsChanged()));
+    connect(m_ui->bindStarToTypeName, SIGNAL(toggled(bool)),
+       this, SLOT(slotCodeStyleSettingsChanged()));
+    connect(m_ui->bindStarToLeftSpecifier, SIGNAL(toggled(bool)),
+       this, SLOT(slotCodeStyleSettingsChanged()));
+    connect(m_ui->bindStarToRightSpecifier, SIGNAL(toggled(bool)),
        this, SLOT(slotCodeStyleSettingsChanged()));
 
     m_ui->categoryTab->setCurrentIndex(0);
@@ -308,6 +373,10 @@ CppCodeStyleSettings CppCodeStylePreferencesWidget::cppCodeStyleSettings() const
     set.indentStatementsRelativeToSwitchLabels = m_ui->indentCaseStatements->isChecked();
     set.indentBlocksRelativeToSwitchLabels = m_ui->indentCaseBlocks->isChecked();
     set.indentControlFlowRelativeToSwitchLabels = m_ui->indentCaseBreak->isChecked();
+    set.bindStarToIdentifier = m_ui->bindStarToIdentifier->isChecked();
+    set.bindStarToTypeName = m_ui->bindStarToTypeName->isChecked();
+    set.bindStarToLeftSpecifier = m_ui->bindStarToLeftSpecifier->isChecked();
+    set.bindStarToRightSpecifier = m_ui->bindStarToRightSpecifier->isChecked();
     set.extraPaddingForConditionsIfConfusingAlign = m_ui->extraPaddingConditions->isChecked();
     set.alignAssignments = m_ui->alignAssignments->isChecked();
 
@@ -337,6 +406,10 @@ void CppCodeStylePreferencesWidget::setCodeStyleSettings(const CppCodeStyleSetti
     m_ui->indentCaseStatements->setChecked(s.indentStatementsRelativeToSwitchLabels);
     m_ui->indentCaseBlocks->setChecked(s.indentBlocksRelativeToSwitchLabels);
     m_ui->indentCaseBreak->setChecked(s.indentControlFlowRelativeToSwitchLabels);
+    m_ui->bindStarToIdentifier->setChecked(s.bindStarToIdentifier);
+    m_ui->bindStarToTypeName->setChecked(s.bindStarToTypeName);
+    m_ui->bindStarToLeftSpecifier->setChecked(s.bindStarToLeftSpecifier);
+    m_ui->bindStarToRightSpecifier->setChecked(s.bindStarToRightSpecifier);
     m_ui->extraPaddingConditions->setChecked(s.extraPaddingForConditionsIfConfusingAlign);
     m_ui->alignAssignments->setChecked(s.alignAssignments);
     m_blockUpdates = wasBlocked;
@@ -352,6 +425,7 @@ void CppCodeStylePreferencesWidget::slotCurrentPreferencesChanged(TextEditor::IC
     m_ui->bracesGroupBox->setEnabled(enable);
     m_ui->switchGroupBox->setEnabled(enable);
     m_ui->alignmentGroupBox->setEnabled(enable);
+    m_ui->pointerReferencesGroupBox->setEnabled(enable);
     if (preview)
         updatePreview();
 }
@@ -376,10 +450,15 @@ QString CppCodeStylePreferencesWidget::searchKeywords() const
        << sep << m_ui->indentCaseStatements->text()
        << sep << m_ui->indentCaseBlocks->text()
        << sep << m_ui->indentCaseBreak->text()
+       << sep << m_ui->bindStarToIdentifier->text()
+       << sep << m_ui->bindStarToTypeName->text()
+       << sep << m_ui->bindStarToLeftSpecifier->text()
+       << sep << m_ui->bindStarToRightSpecifier->text()
        << sep << m_ui->contentGroupBox->title()
        << sep << m_ui->bracesGroupBox->title()
        << sep << m_ui->switchGroupBox->title()
        << sep << m_ui->alignmentGroupBox->title()
+       << sep << m_ui->pointerReferencesGroupBox->title()
        << sep << m_ui->extraPaddingConditions->text()
        << sep << m_ui->alignAssignments->text()
           ;
@@ -440,6 +519,7 @@ void CppCodeStylePreferencesWidget::updatePreview()
 
             block = block.next();
         }
+        applyRefactorings(doc, preview, ccss);
         tc.endEditBlock();
     }
 }

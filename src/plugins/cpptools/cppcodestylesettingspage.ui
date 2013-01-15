@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="categoryTab">
      <property name="currentIndex">
-      <number>0</number>
+      <number>5</number>
      </property>
      <widget class="QWidget" name="generalTab">
       <attribute name="title">
@@ -397,6 +397,86 @@ if they would align to the next line</string>
        </item>
        <item>
         <widget class="TextEditor::SnippetEditorWidget" name="previewTextEditPadding">
+         <property name="plainText">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="typesTab">
+      <attribute name="title">
+       <string>Pointers and References</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QGroupBox" name="pointerReferencesGroupBox">
+         <property name="title">
+          <string>Bind '*' and '&amp;&amp;' in types/declarations to</string>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <widget class="QCheckBox" name="bindStarToIdentifier">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;This does not apply to the star and reference symbol in pointer/reference to functions and arrays, e.g.:
+&lt;pre&gt;   int (&amp;rf)() = ...;
+   int (*pf)() = ...;
+
+   int (&amp;ra)[2] = ...;
+   int (*pa)[2] = ...;
+
+&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Identifier</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="bindStarToTypeName">
+            <property name="text">
+             <string>Type name</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="bindStarToLeftSpecifier">
+            <property name="text">
+             <string>Left const/volatile</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="bindStarToRightSpecifier">
+            <property name="toolTip">
+             <string>This does not apply to references.</string>
+            </property>
+            <property name="text">
+             <string>Right const/volatile</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_6">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="TextEditor::SnippetEditorWidget" name="previewTextEditPointerReferences">
          <property name="plainText">
           <string/>
          </property>

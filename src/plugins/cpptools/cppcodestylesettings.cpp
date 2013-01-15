@@ -29,6 +29,19 @@
 
 #include "cppcodestylesettings.h"
 
+#include <cpptools/cppcodestylepreferences.h>
+#include <cpptools/cppcodestylesettings.h>
+#include <cpptools/cpptoolsconstants.h>
+#include <cpptools/cpptoolssettings.h>
+
+#include <projectexplorer/editorconfiguration.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
+
+#include <cppcodestylepreferencesfactory.h>
+
+#include <utils/qtcassert.h>
+
 #include <utils/settingsutils.h>
 
 static const char groupPostfix[] = "IndentSettings";
@@ -46,6 +59,10 @@ static const char indentSwitchLabelsKey[] = "IndentSwitchLabels";
 static const char indentStatementsRelativeToSwitchLabelsKey[] = "IndentStatementsRelativeToSwitchLabels";
 static const char indentBlocksRelativeToSwitchLabelsKey[] = "IndentBlocksRelativeToSwitchLabels";
 static const char indentControlFlowRelativeToSwitchLabelsKey[] = "IndentControlFlowRelativeToSwitchLabels";
+static const char bindStarToIdentifierKey[] = "BindStarToIdentifier";
+static const char bindStarToTypeNameKey[] = "BindStarToTypeName";
+static const char bindStarToLeftSpecifierKey[] = "BindStarToLeftSpecifier";
+static const char bindStarToRightSpecifierKey[] = "BindStarToRightSpecifier";
 static const char extraPaddingForConditionsIfConfusingAlignKey[] = "ExtraPaddingForConditionsIfConfusingAlign";
 static const char alignAssignmentsKey[] = "AlignAssignments";
 
@@ -68,6 +85,10 @@ CppCodeStyleSettings::CppCodeStyleSettings() :
   , indentStatementsRelativeToSwitchLabels(true)
   , indentBlocksRelativeToSwitchLabels(false)
   , indentControlFlowRelativeToSwitchLabels(true)
+  , bindStarToIdentifier(true)
+  , bindStarToTypeName(false)
+  , bindStarToLeftSpecifier(false)
+  , bindStarToRightSpecifier(false)
   , extraPaddingForConditionsIfConfusingAlign(true)
   , alignAssignments(false)
 {
@@ -100,6 +121,10 @@ void CppCodeStyleSettings::toMap(const QString &prefix, QVariantMap *map) const
     map->insert(prefix + QLatin1String(indentStatementsRelativeToSwitchLabelsKey), indentStatementsRelativeToSwitchLabels);
     map->insert(prefix + QLatin1String(indentBlocksRelativeToSwitchLabelsKey), indentBlocksRelativeToSwitchLabels);
     map->insert(prefix + QLatin1String(indentControlFlowRelativeToSwitchLabelsKey), indentControlFlowRelativeToSwitchLabels);
+    map->insert(prefix + QLatin1String(bindStarToIdentifierKey), bindStarToIdentifier);
+    map->insert(prefix + QLatin1String(bindStarToTypeNameKey), bindStarToTypeName);
+    map->insert(prefix + QLatin1String(bindStarToLeftSpecifierKey), bindStarToLeftSpecifier);
+    map->insert(prefix + QLatin1String(bindStarToRightSpecifierKey), bindStarToRightSpecifier);
     map->insert(prefix + QLatin1String(extraPaddingForConditionsIfConfusingAlignKey), extraPaddingForConditionsIfConfusingAlign);
     map->insert(prefix + QLatin1String(alignAssignmentsKey), alignAssignments);
 }
@@ -134,6 +159,14 @@ void CppCodeStyleSettings::fromMap(const QString &prefix, const QVariantMap &map
                                 indentBlocksRelativeToSwitchLabels).toBool();
     indentControlFlowRelativeToSwitchLabels = map.value(prefix + QLatin1String(indentControlFlowRelativeToSwitchLabelsKey),
                                 indentControlFlowRelativeToSwitchLabels).toBool();
+    bindStarToIdentifier = map.value(prefix + QLatin1String(bindStarToIdentifierKey),
+                                bindStarToIdentifier).toBool();
+    bindStarToTypeName = map.value(prefix + QLatin1String(bindStarToTypeNameKey),
+                                bindStarToTypeName).toBool();
+    bindStarToLeftSpecifier = map.value(prefix + QLatin1String(bindStarToLeftSpecifierKey),
+                                bindStarToLeftSpecifier).toBool();
+    bindStarToRightSpecifier = map.value(prefix + QLatin1String(bindStarToRightSpecifierKey),
+                                bindStarToRightSpecifier).toBool();
     extraPaddingForConditionsIfConfusingAlign = map.value(prefix + QLatin1String(extraPaddingForConditionsIfConfusingAlignKey),
                                 extraPaddingForConditionsIfConfusingAlign).toBool();
     alignAssignments = map.value(prefix + QLatin1String(alignAssignmentsKey),
@@ -156,7 +189,61 @@ bool CppCodeStyleSettings::equals(const CppCodeStyleSettings &rhs) const
            && indentStatementsRelativeToSwitchLabels == rhs.indentStatementsRelativeToSwitchLabels
            && indentBlocksRelativeToSwitchLabels == rhs.indentBlocksRelativeToSwitchLabels
            && indentControlFlowRelativeToSwitchLabels == rhs.indentControlFlowRelativeToSwitchLabels
+           && bindStarToIdentifier == rhs.bindStarToIdentifier
+           && bindStarToTypeName == rhs.bindStarToTypeName
+           && bindStarToLeftSpecifier == rhs.bindStarToLeftSpecifier
+           && bindStarToRightSpecifier == rhs.bindStarToRightSpecifier
            && extraPaddingForConditionsIfConfusingAlign == rhs.extraPaddingForConditionsIfConfusingAlign
-           && alignAssignments == rhs.alignAssignments;
+            && alignAssignments == rhs.alignAssignments;
 }
 
+static void configureOverviewWithCodeStyleSettings(CPlusPlus::Overview &overview,
+                                                   const CppCodeStyleSettings &settings)
+{
+    overview.starBindFlags = CPlusPlus::Overview::StarBindFlags(0);
+    if (settings.bindStarToIdentifier)
+        overview.starBindFlags |= CPlusPlus::Overview::BindToIdentifier;
+    if (settings.bindStarToTypeName)
+        overview.starBindFlags |= CPlusPlus::Overview::BindToTypeName;
+    if (settings.bindStarToLeftSpecifier)
+        overview.starBindFlags |= CPlusPlus::Overview::BindToLeftSpecifier;
+    if (settings.bindStarToRightSpecifier)
+        overview.starBindFlags |= CPlusPlus::Overview::BindToRightSpecifier;
+}
+
+CPlusPlus::Overview CppCodeStyleSettings::currentProjectCodeStyleOverview()
+{
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
+    if (! project)
+        return currentGlobalCodeStyleOverview();
+
+    ProjectExplorer::EditorConfiguration *editorConfiguration = project->editorConfiguration();
+    QTC_ASSERT(editorConfiguration, return currentGlobalCodeStyleOverview());
+
+    TextEditor::ICodeStylePreferences *codeStylePreferences
+        = editorConfiguration->codeStyle(Constants::CPP_SETTINGS_ID);
+    QTC_ASSERT(codeStylePreferences, return currentGlobalCodeStyleOverview());
+
+    CppCodeStylePreferences *cppCodeStylePreferences
+        = dynamic_cast<CppCodeStylePreferences *>(codeStylePreferences);
+    QTC_ASSERT(cppCodeStylePreferences, return currentGlobalCodeStyleOverview());
+
+    CppCodeStyleSettings settings = cppCodeStylePreferences->currentCodeStyleSettings();
+
+    CPlusPlus::Overview overview;
+    configureOverviewWithCodeStyleSettings(overview, settings);
+    return overview;
+}
+
+CPlusPlus::Overview CppCodeStyleSettings::currentGlobalCodeStyleOverview()
+{
+    CPlusPlus::Overview overview;
+
+    CppCodeStylePreferences *cppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStyle();
+    QTC_ASSERT(cppCodeStylePreferences, return overview);
+
+    CppCodeStyleSettings settings = cppCodeStylePreferences->currentCodeStyleSettings();
+
+    configureOverviewWithCodeStyleSettings(overview, settings);
+    return overview;
+}

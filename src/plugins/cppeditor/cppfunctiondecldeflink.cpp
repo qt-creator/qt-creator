@@ -40,6 +40,7 @@
 #include <cplusplus/TranslationUnit.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
+#include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpplocalsymbols.h>
 #include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/symbolfinder.h>
@@ -590,7 +591,10 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
     if (!newFunction)
         return changes;
 
-    Overview overview;
+    const Overview overviewFromCurrentProjectStyle
+        = CppCodeStyleSettings::currentProjectCodeStyleOverview();
+
+    Overview overview = overviewFromCurrentProjectStyle;
     overview.showReturnTypes = true;
     overview.showTemplateParameters = true;
     overview.showArgumentNames = true;
@@ -664,7 +668,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
         UseMinimalNames q(targetCoN);
         env.enter(&q);
         Control *control = sourceContext.control().data();
-        Overview overview;
+        Overview overview = overviewFromCurrentProjectStyle;
 
         // make a easy to access list of the target parameter declarations
         QVarLengthArray<ParameterDeclarationAST *, 10> targetParameterDecls;

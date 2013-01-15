@@ -32,6 +32,8 @@
 
 #include "cpptools_global.h"
 
+#include <cplusplus/Overview.h>
+
 #include <QMetaType>
 #include <QVariant>
 
@@ -61,6 +63,12 @@ public:
     bool indentBlocksRelativeToSwitchLabels;
     bool indentControlFlowRelativeToSwitchLabels;
 
+    // Formatting of pointer and reference declarations, see Overview::StarBindFlag.
+    bool bindStarToIdentifier;
+    bool bindStarToTypeName;
+    bool bindStarToLeftSpecifier;
+    bool bindStarToRightSpecifier;
+
     // false: if (a &&
     //            b)
     //            c;
@@ -87,6 +95,21 @@ public:
     bool equals(const CppCodeStyleSettings &rhs) const;
     bool operator==(const CppCodeStyleSettings &s) const { return equals(s); }
     bool operator!=(const CppCodeStyleSettings &s) const { return !equals(s); }
+
+    /*! Returns an Overview configured by the current project's code style.
+
+        If no current project is available or an error occurs when getting the
+        current project's code style, the current global code style settings
+        are applied.
+        */
+    static CPlusPlus::Overview currentProjectCodeStyleOverview();
+
+    /*! Returns an Overview configured by the current global code style.
+
+        If there occurred an error getting the current global code style, a
+        default constructed Overview is returned.
+        */
+    static CPlusPlus::Overview currentGlobalCodeStyleOverview();
 };
 
 } // namespace CppTools
