@@ -34,6 +34,7 @@
 #include "utils/persistentsettings.h"
 
 #include <QDir>
+#include <QFile>
 
 #include <iostream>
 
@@ -124,5 +125,8 @@ bool Operation::save(const QVariantMap &map, const QString &file) const
         QDir(dir.toString()).mkpath(dir.toString());
 
     Utils::PersistentSettingsWriter writer(path, QLatin1String("unknown"));
-    return writer.save(map, 0);
+    return writer.save(map, 0)
+            && QFile::setPermissions(path.toString(),
+                                     QFile::ReadOwner | QFile::WriteOwner
+                                     | QFile::ReadGroup | QFile::ReadOther);
 }
