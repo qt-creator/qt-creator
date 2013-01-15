@@ -99,24 +99,6 @@ Qt4BuildConfiguration *enableActiveQt4BuildConfiguration(ProjectExplorer::Target
     return bc;
 }
 
-QString sanitize(const QString &input)
-{
-    QString result;
-    result.reserve(input.size());
-    foreach (const QChar &qc, input) {
-        const char c = qc.toLatin1();
-        if ((c >= 'a' && c <='z')
-                || (c >= 'A' && c <= 'Z')
-                || (c >= '0' && c <= '9')
-                || c == '-'
-                || c == '_')
-            result.append(qc);
-        else
-            result.append(QLatin1Char('_'));
-    }
-    return result;
-}
-
 class Qt4ProjectExpander : public Utils::AbstractQtcMacroExpander
 {
 public:
@@ -161,7 +143,6 @@ private:
     QFileInfo m_proFile;
     const Kit *m_kit;
     QString m_bcName;
-    Utils::AbstractMacroExpander *m_expander;
 };
 
 } // namespace
