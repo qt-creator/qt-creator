@@ -49,7 +49,7 @@ public:
     { return m_name; }
 
     virtual Core::Id id() const
-    { return Core::Id(m_name); }
+    { return Core::Id::fromString(m_name); }
 
     virtual Core::IDocument *document() const
     { return 0; }

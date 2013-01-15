@@ -28,14 +28,3 @@
 ****************************************************************************/
 
 #include "icontext.h"
-
-#include <QString>
-
-namespace Core {
-
-Context::Context(const char *id, int offset)
-{
-    d.append(Id(QLatin1String(id) + QString::number(offset)).uniqueIdentifier());
-}
-
-} // namespace Core

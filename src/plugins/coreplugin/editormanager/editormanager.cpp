@@ -1232,14 +1232,14 @@ Core::Id EditorManager::getOpenWithEditorId(const QString &fileName,
     //Unable to determine mime type of fileName. Falling back to text/plain",
     if (!mt)
         mt = ICore::mimeDatabase()->findByType(QLatin1String("text/plain"));
-    QStringList allEditorIds;
+    QList<Id> allEditorIds;
     QStringList allEditorDisplayNames;
     QList<Id> externalEditorIds;
     // Built-in
     const EditorFactoryList editors = editorFactories(mt, false);
     const int size = editors.size();
     for (int i = 0; i < size; i++) {
-        allEditorIds.push_back(editors.at(i)->id().toString());
+        allEditorIds.push_back(editors.at(i)->id());
         allEditorDisplayNames.push_back(editors.at(i)->displayName());
     }
     // External editors
@@ -1247,7 +1247,7 @@ Core::Id EditorManager::getOpenWithEditorId(const QString &fileName,
     const int esize = exEditors.size();
     for (int i = 0; i < esize; i++) {
         externalEditorIds.push_back(exEditors.at(i)->id());
-        allEditorIds.push_back(exEditors.at(i)->id().toString());
+        allEditorIds.push_back(exEditors.at(i)->id());
         allEditorDisplayNames.push_back(exEditors.at(i)->displayName());
     }
     if (allEditorIds.empty())
@@ -1259,7 +1259,7 @@ Core::Id EditorManager::getOpenWithEditorId(const QString &fileName,
     dialog.setCurrentEditor(0);
     if (dialog.exec() != QDialog::Accepted)
         return Id();
-    const Id selectedId = Id(allEditorIds.at(dialog.editor()));
+    const Id selectedId = allEditorIds.at(dialog.editor());
     if (isExternalEditor)
         *isExternalEditor = externalEditorIds.contains(selectedId);
     return selectedId;
@@ -2019,9 +2019,9 @@ bool EditorManager::restoreState(const QByteArray &state)
                 continue;
             QFileInfo rfi(autoSaveName(fileName));
             if (rfi.exists() && fi.lastModified() < rfi.lastModified())
-                openEditor(fileName, Id(QString::fromUtf8(id)));
+                openEditor(fileName, Id::fromName(id));
             else
-                d->m_editorModel->addRestoredEditor(fileName, displayName, Id(QString::fromUtf8(id)));
+                d->m_editorModel->addRestoredEditor(fileName, displayName, Id::fromName(id));
         }
     }
 

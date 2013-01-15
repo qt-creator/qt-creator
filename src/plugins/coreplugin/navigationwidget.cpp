@@ -195,7 +195,7 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> fact
         d->m_shortcutMap.insert(shortcut, id);
 
         Command *cmd = ActionManager::registerShortcut(shortcut,
-            Id(QLatin1String("QtCreator.Sidebar.") + QLatin1String(id.name())), navicontext);
+            id.withPrefix("QtCreator.Sidebar."), navicontext);
         cmd->setDefaultKeySequence(factory->activationSequence());
         d->m_commandMap.insert(id, cmd);
 

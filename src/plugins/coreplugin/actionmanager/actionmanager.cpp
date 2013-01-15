@@ -566,7 +566,7 @@ void ActionManagerPrivate::initialize()
     for (int i = 0; i < shortcuts; ++i) {
         settings->setArrayIndex(i);
         const QKeySequence key(settings->value(QLatin1String(sequenceKey)).toString());
-        const Id id = Id(settings->value(QLatin1String(idKey)).toString());
+        const Id id = Id::fromSetting(settings->value(QLatin1String(idKey)));
 
         Command *cmd = ActionManager::command(id);
         if (cmd)

@@ -143,7 +143,7 @@ void InfoBar::initializeGloballySuppressed()
 {
     QStringList list = ICore::settings()->value(QLatin1String(C_SUPPRESSED_WARNINGS)).toStringList();
     foreach (const QString &id, list)
-        globallySuppressed.insert(Id(id.toLatin1()));
+        globallySuppressed.insert(Id::fromString(id));
 }
 
 void InfoBar::clearGloballySuppressed()

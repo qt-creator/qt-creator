@@ -1183,7 +1183,7 @@ void readSettings()
             editorId = ids.next();
         if (QFileInfo(fileName).isFile())
             d->m_recentFiles.append(DocumentManager::RecentFile(QDir::fromNativeSeparators(fileName), // from native to guard against old settings
-                                               Id(editorId)));
+                                               Id::fromString(editorId)));
     }
 
     s->beginGroup(QLatin1String(directoryGroupC));

@@ -48,7 +48,6 @@ public:
     explicit Context(Id c1) { add(c1); }
     Context(Id c1, Id c2) { add(c1); add(c2); }
     Context(Id c1, Id c2, Id c3) { add(c1); add(c2); add(c3); }
-    Context(const char *base, int offset);
     bool contains(Id c) const { return d.contains(c); }
     int size() const { return d.size(); }
     bool isEmpty() const { return d.isEmpty(); }

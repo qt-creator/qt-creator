@@ -334,7 +334,7 @@ void SettingsDialog::showPage(Id categoryId, Id pageId)
     QString initialPage = pageId.toString();
     if (!initialCategory.isValid() && initialPage.isEmpty()) {
         QSettings *settings = ICore::settings();
-        initialCategory = Id(settings->value(QLatin1String(categoryKeyC), QVariant(QString())).toString());
+        initialCategory = Id::fromSetting(settings->value(QLatin1String(categoryKeyC)));
         initialPage = settings->value(QLatin1String(pageKeyC), QVariant(QString())).toString();
     }
 
