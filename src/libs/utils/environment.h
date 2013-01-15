@@ -34,6 +34,7 @@
 
 #include <QList>
 #include <QMap>
+#include <QProcessEnvironment>
 #include <QString>
 #include <QStringList>
 
@@ -70,6 +71,7 @@ public:
     static Environment systemEnvironment();
 
     QStringList toStringList() const;
+    QProcessEnvironment toProcessEnvironment() const;
     QString value(const QString &key) const;
     void set(const QString &key, const QString &value);
     void unset(const QString &key);

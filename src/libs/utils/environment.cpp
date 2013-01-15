@@ -127,6 +127,15 @@ QStringList Environment::toStringList() const
     return result;
 }
 
+QProcessEnvironment Environment::toProcessEnvironment() const
+{
+    QProcessEnvironment result;
+    const QMap<QString, QString>::const_iterator end = m_values.constEnd();
+    for (QMap<QString, QString>::const_iterator it = m_values.constBegin(); it != end; ++it)
+        result.insert(it.key(), it.value());
+    return result;
+}
+
 void Environment::set(const QString &key, const QString &value)
 {
     m_values.insert(HostOsInfo::isWindowsHost() ? key.toUpper() : key, value);
