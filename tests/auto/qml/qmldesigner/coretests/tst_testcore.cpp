@@ -32,6 +32,8 @@
 #include <QScopedPointer>
 #include <QLatin1String>
 #include <QGraphicsObject>
+#include <QTest>
+#include <QVariant>
 
 #include <metainfo.h>
 #include <model.h>
@@ -63,6 +65,14 @@
 #include <qmljs/qmljsinterpreter.h>
 
 #include <QPlainTextEdit>
+
+#if  QT_VERSION >= 0x050000
+#define MSKIP_SINGLE(x) QSKIP(x)
+#define MSKIP_ALL(x) QSKIP(x);
+#else
+#define MSKIP_SINGLE(x) QSKIP(x, SkipSingle)
+#define MSKIP_ALL(x) QSKIP(x, SkipAll)
+#endif
 
 //TESTED_COMPONENT=src/plugins/qmldesigner/designercore
 
@@ -1372,7 +1382,7 @@ void tst_TestCore::testBasicStatesQtQuick20()
     qDebug() << rootModelNode.nodeListProperty("states").toModelNodeList().first().metaInfo().majorVersion();
     qDebug() << rootModelNode.nodeListProperty("states").toModelNodeList().first().metaInfo().typeName();
 
-    QSKIP("No qml2puppet", SkipAll);
+    MSKIP_ALL("No qml2puppet");
 
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
@@ -3980,7 +3990,7 @@ void tst_TestCore::testMetaInfoInterface()
     // Test type registered with qmlRegisterInterface
     //
 
-    QSKIP("TODO: Test not implemented yet", SkipAll);
+    MSKIP_ALL("TODO: Test not implemented yet");
 }
 
 void tst_TestCore::testMetaInfoCustomType()
@@ -6400,7 +6410,7 @@ void tst_TestCore::testModelBindings()
 
 void tst_TestCore::testModelDynamicProperties()
 {
-    QSKIP("Fix rewriter dynamic properties writing", SkipAll);
+    MSKIP_ALL("Fix rewriter dynamic properties writing");
     QScopedPointer<Model> model(createModel("QtQuick.Item", 1, 1));
     QVERIFY(model.data());
 
@@ -6411,7 +6421,7 @@ void tst_TestCore::testModelDynamicProperties()
     ModelNode rootModelNode = rootQmlItemNode.modelNode();
 
     rootModelNode.variantProperty("x") = 10;
-    rootModelNode.variantProperty("myColor").setDynamicTypeNameAndValue("color", Qt::red);
+    rootModelNode.variantProperty("myColor").setDynamicTypeNameAndValue("color", QVariant(QColor(Qt::red)));
     rootModelNode.variantProperty("myDouble").setDynamicTypeNameAndValue("real", 10);
 
     QVERIFY(!rootModelNode.property("x").isDynamic());
@@ -6419,7 +6429,7 @@ void tst_TestCore::testModelDynamicProperties()
     QVERIFY(rootModelNode.property("myDouble").isDynamic());
 
     QCOMPARE(rootModelNode.property("myColor").dynamicTypeName(), QString("color"));
-    QCOMPARE(rootModelNode.variantProperty("myColor").value(), QVariant(Qt::red));
+    QCOMPARE(rootModelNode.variantProperty("myColor").value(), QVariant(QColor(Qt::red)));
     //QCOMPARE(rootQmlItemNode.instanceValue("myColor"), QVariant(Qt::red)); //not working yet
     QCOMPARE(rootModelNode.property("myDouble").dynamicTypeName(), QString("real"));
     QCOMPARE(rootModelNode.variantProperty("myDouble").value(), QVariant(10));
@@ -6791,7 +6801,7 @@ void tst_TestCore::testRewriterPropertyChanges()
 
 void tst_TestCore::testRewriterListModel()
 {
-    QSKIP("See BAUHAUS-157", SkipAll);
+    MSKIP_ALL("See BAUHAUS-157");
 
     try {
         // ListModel uses a custom parser
@@ -7760,7 +7770,7 @@ void tst_TestCore::loadTestFiles()
         QCOMPARE(rootModelNode.nodeListProperty("states").toModelNodeList().count(), 2);
     }
 
-    QSKIP("Fails because the text editor model doesn't know about components", SkipAll);
+    MSKIP_ALL("Fails because the text editor model doesn't know about components");
     { //usingbutton.qml
         QFile file(":/fx/usingbutton.qml");
         QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));

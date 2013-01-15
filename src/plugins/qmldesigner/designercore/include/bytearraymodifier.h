@@ -36,7 +36,7 @@
 
 namespace QmlDesigner {
 
-class CORESHARED_EXPORT ByteArrayModifier: public PlainTextEditModifier
+class QMLDESIGNERCORE_EXPORT ByteArrayModifier: public PlainTextEditModifier
 {
 public:
     static ByteArrayModifier* create(const QString& data);

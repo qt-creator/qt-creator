@@ -34,7 +34,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <pluginmanager.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QWeakPointer>
 #include <QStringList>
@@ -89,7 +89,7 @@ private:
     QStringList m_mimeTypes;
     DesignModeWidget *m_mainWidget;
 
-    QmlDesigner::PluginManager m_pluginManager;
+    ExtensionSystem::PluginManager m_pluginManager;
     static BauhausPlugin *m_pluginInstance;
     DesignerSettings m_settings;
     DesignModeContext *m_context;

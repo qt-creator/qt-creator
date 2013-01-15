@@ -49,15 +49,23 @@ void QmlWarningDialog::okButtonPressed()
 
 bool QmlWarningDialog::warningsEnabled() const
 {
+#ifndef QMLDESIGNER_TEST
     DesignerSettings settings = BauhausPlugin::pluginInstance()->settings();
     return settings.warningsInDesigner;
+#else
+    return false;
+#endif
 }
 
 void QmlWarningDialog::checkBoxToggled(bool b)
 {
+#ifndef QMLDESIGNER_TEST
     DesignerSettings settings = BauhausPlugin::pluginInstance()->settings();
     settings.warningsInDesigner = b;
     BauhausPlugin::pluginInstance()->setSettings(settings);
+#else
+    Q_UNUSED(b);
+#endif
 }
 
 void QmlWarningDialog::linkClicked(const QString &link)
