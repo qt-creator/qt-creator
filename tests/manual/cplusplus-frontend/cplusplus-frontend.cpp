@@ -72,11 +72,11 @@ int main(int argc, char *argv[])
     bool optionVerbose = false;
 
     // Process options & arguments
-    if (args.contains("-v")) {
+    if (args.contains(QLatin1String("-v"))) {
         optionVerbose = true;
-        args.removeOne("-v");
+        args.removeOne(QLatin1String("-v"));
     }
-    const bool helpRequested = args.contains("-h") || args.contains("-help");
+    const bool helpRequested = args.contains(QLatin1String("-h")) || args.contains(QLatin1String("-help"));
     if (args.isEmpty() || helpRequested) {
         printUsage();
         return helpRequested ? EXIT_SUCCESS : EXIT_FAILURE;
