@@ -1709,7 +1709,7 @@ bool Model::hasImport(const Import &import, bool ignoreAlias, bool allowHigherVe
 
     foreach (const Import &existingImport, imports()) {
         if (existingImport.isFileImport() && import.isFileImport())
-            if (existingImport.file() == import.file() && compareVersions(existingImport.version(), import.version(), allowHigherVersion))
+            if (existingImport.file() == import.file())
                 return true;
         if (existingImport.isLibraryImport() && import.isLibraryImport())
             if (existingImport.url() == import.url()  && compareVersions(existingImport.version(), import.version(), allowHigherVersion))
