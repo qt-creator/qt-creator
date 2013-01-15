@@ -767,13 +767,23 @@ namespace qdir {
 
     void testQDir()
     {
+#ifdef Q_OS_WIN
+        QDir dir("C:\\Program Files");
+        dir.absolutePath(); // Keep in to facilitate stepping
+        BREAK_HERE;
+        // Check dir "C:/Program Files" QDir.
+        // Check dir.absolutePath "C:/Program Files" QString.
+        // Check dir.canonicalPath "C:/Program Files" QString.
+        // Continue.
+#else
         QDir dir("/tmp");
-        dir.absolutePath();
+        dir.absolutePath(); // Keep in to facilitate stepping
         BREAK_HERE;
         // Check dir "/tmp" QDir.
         // Check dir.absolutePath "/tmp" QString.
         // Check dir.canonicalPath "/tmp" QString.
         // Continue.
+#endif
         dummyStatement(&dir);
     }
 
@@ -784,6 +794,18 @@ namespace qfileinfo {
 
     void testQFileInfo()
     {
+#ifdef Q_OS_WIN
+        QFile file("C:\\Program Files\\t");
+        file.setObjectName("A QFile instance");
+        QFileInfo fi("C:\\Program Files\\tt");
+        QString s = fi.absoluteFilePath();
+        BREAK_HERE;
+        // Check fi "C:/Program Files/tt" QFileInfo.
+        // Check file "C:\Program Files\t" QFile.
+        // Check s "C:/Program Files/tt" QString.
+        // Continue.
+        dummyStatement(&file, &s);
+#else
         QFile file("/tmp/t");
         file.setObjectName("A QFile instance");
         QFileInfo fi("/tmp/tt");
@@ -794,6 +816,7 @@ namespace qfileinfo {
         // Check s "/tmp/tt" QString.
         // Continue.
         dummyStatement(&file, &s);
+#endif
     }
 
 } // namespace qfileinfo
@@ -3451,7 +3474,11 @@ namespace stdstream {
         BREAK_HERE;
         // CheckType is std::ifstream.
         // Continue.
+#ifdef Q_OS_WIN
+        is.open("C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe");
+#else
         is.open("/etc/passwd");
+#endif
         BREAK_HERE;
         // Continue.
         bool ok = is.good();
