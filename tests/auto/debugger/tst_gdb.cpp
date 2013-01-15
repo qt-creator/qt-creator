@@ -97,6 +97,14 @@ QString gdbBinary = "c:\\MinGw\\bin\\gdb.exe";
 QString gdbBinary = "gdb";
 #endif
 
+#if  QT_VERSION >= 0x050000
+#define MSKIP_SINGLE(x) QSKIP(x)
+#define MSKIP_ALL(x) QSKIP(x);
+#else
+#define MSKIP_SINGLE(x) QSKIP(x, SkipSingle)
+#define MSKIP_ALL(x) QSKIP(x, SkipAll)
+#endif
+
 void nothing() {}
 
 template <typename T> QByteArray N(T v) { return QByteArray::number(v); }
@@ -329,11 +337,13 @@ QByteArray str(const void *p)
 
 void tst_Gdb::dumperCompatibility()
 {
+#ifdef Q_OS_MACX
     // Ensure that no arbitrary padding is introduced by QVectorTypedData.
     const size_t qVectorDataSize = 16;
     QCOMPARE(sizeof(QVectorData), qVectorDataSize);
     QVectorTypedData<int> *v = 0;
     QCOMPARE(size_t(&v->array), qVectorDataSize);
+#endif
 }
 
 static const QByteArray utfToHex(const QString &string)
@@ -369,7 +379,7 @@ GdbWrapper::GdbWrapper(tst_Gdb *test) : m_test(test)
 {
     qWarning() << "SETUP START\n\n";
 #ifndef Q_CC_GNU
-    QSKIP("gdb test not applicable for compiler", SkipAll);
+    MSKIP_ALL("gdb test not applicable for compiler");
 #endif
     //qDebug() << "\nRUN" << getpid() << gettid();
     QStringList args;
@@ -381,7 +391,7 @@ GdbWrapper::GdbWrapper(tst_Gdb *test) : m_test(test)
     if (!m_proc.waitForStarted()) {
         const QString msg = QString::fromLatin1("Unable to run %1: %2")
             .arg(gdbBinary, m_proc.errorString());
-        QSKIP(msg.toLatin1().constData(), SkipAll);
+        MSKIP_ALL(msg.toLatin1().constData());
     }
 
     connect(&m_proc, SIGNAL(error(QProcess::ProcessError)),
@@ -540,7 +550,7 @@ void tst_Gdb::initTestCase()
     if (!file.open(QIODevice::ReadOnly)) {
         const QString msg = QString::fromLatin1("Unable to open %1: %2")
             .arg(fileName, file.errorString());
-        QSKIP(msg.toLatin1().constData(), SkipAll);
+        MSKIP_ALL(msg.toLatin1().constData());
     }
 
     QByteArray funcName;
