@@ -80,6 +80,7 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/bracematcher.cpp \
     $$PWD/proxyaction.cpp \
     $$PWD/elidinglabel.cpp \
+    $$PWD/hostosinfo.cpp \
     $$PWD/tooltip/tooltip.cpp \
     $$PWD/tooltip/tips.cpp \
     $$PWD/tooltip/tipcontents.cpp \
