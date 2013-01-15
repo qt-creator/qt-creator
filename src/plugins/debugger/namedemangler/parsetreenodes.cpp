@@ -230,7 +230,7 @@ BuiltinTypeNode::BuiltinTypeNode(const BuiltinTypeNode &other)
 
 bool BuiltinTypeNode::mangledRepresentationStartsWith(char c)
 {
-    return strchr("vwbcahstijlmxynofgedzDu", c);
+    return std::strchr("vwbcahstijlmxynofgedzDu", c);
 }
 
 /*
@@ -2101,15 +2101,6 @@ QByteArray NumberNode::toByteArray() const
 template<int base> NonNegativeNumberNode<base>::NonNegativeNumberNode(const NonNegativeNumberNode<base> &other)
         : ParseTreeNode(other), m_number(other.m_number)
 {
-}
-
-template<int base> bool NonNegativeNumberNode<base>::mangledRepresentationStartsWith(char c)
-{
-    // Base can only be 10 or 36.
-    if (base == 10)
-        return strchr("0123456789", c);
-    else
-        return strchr("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", c);
 }
 
 template<int base> void NonNegativeNumberNode<base>::parse()

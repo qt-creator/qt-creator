@@ -552,7 +552,10 @@ template<int base> class NonNegativeNumberNode : public ParseTreeNode
 public:
     typedef QSharedPointer<NonNegativeNumberNode<base> > Ptr;
     NonNegativeNumberNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
-    static bool mangledRepresentationStartsWith(char c);
+    static bool mangledRepresentationStartsWith(char c) {
+        // Base can only be 10 or 36.
+        return (c >= '0' && c <= '9') || (base == 36 && c >= 'A' && c <= 'Z');
+    }
     quint64 number() const { return m_number; }
     QByteArray toByteArray() const;
 
