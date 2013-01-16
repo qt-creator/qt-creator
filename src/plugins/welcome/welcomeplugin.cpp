@@ -136,7 +136,11 @@ WelcomeMode::WelcomeMode() :
     , m_networkAccessManagerFactory(new NetworkAccessManagerFactory)
 {
     setDisplayName(tr("Welcome"));
-    setIcon(QIcon(QLatin1String(Core::Constants::ICON_QTLOGO_32)));
+    QIcon qtLogo;
+    qtLogo.addFile(QLatin1String(Core::Constants::ICON_QTLOGO_32));
+    qtLogo.addFile(QLatin1String(Core::Constants::ICON_QTLOGO_64));
+    qtLogo.addFile(QLatin1String(Core::Constants::ICON_QTLOGO_128));
+    setIcon(qtLogo);
     setPriority(Core::Constants::P_MODE_WELCOME);
     setId(Core::Constants::MODE_WELCOME);
     setType(Core::Constants::MODE_WELCOME_TYPE);

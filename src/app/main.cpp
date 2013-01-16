@@ -307,6 +307,10 @@ int main(int argc, char **argv)
     QtSystemExceptionHandler systemExceptionHandler;
 #endif
 
+#if QT_VERSION >= 0x050100
+    app.setAttribute(Qt::AA_UseHighDpiPixmaps);
+#endif
+
     // Manually determine -settingspath command line option
     // We can't use the regular way of the plugin manager, because that needs to parse pluginspecs
     // but the settings path can influence which plugins are enabled

@@ -204,6 +204,7 @@ const char ICON_CLOSE_SPLIT_RIGHT[]  = ":/core/images/splitbutton_closeright.png
 const char ICON_FILTER[]             = ":/core/images/filtericon.png";
 const char ICON_LINK[]               = ":/core/images/linkicon.png";
 const char ICON_QTLOGO_32[]          = ":/core/images/logo/32/QtProject-qtcreator.png";
+const char ICON_QTLOGO_64[]          = ":/core/images/logo/64/QtProject-qtcreator.png";
 const char ICON_QTLOGO_128[]         = ":/core/images/logo/128/QtProject-qtcreator.png";
 
 const char WIZARD_CATEGORY_QT[] = "R.Qt";
