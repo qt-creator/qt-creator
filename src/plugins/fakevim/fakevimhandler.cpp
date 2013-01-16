@@ -4253,9 +4253,10 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         insert = _("<BS>");
         endEditBlock();
     } else if (input.isKey(Key_Delete)) {
-        setAnchor();
+        joinPreviousEditBlock();
         cursor().deleteChar();
         insert = _("<DELETE>");
+        endEditBlock();
     } else if (input.isKey(Key_PageDown) || input.isControl('f')) {
         removeAutomaticIndentation();
         moveDown(count() * (linesOnScreen() - 2));

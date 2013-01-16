@@ -536,6 +536,14 @@ void FakeVimPlugin::test_vim_insert()
     KEYS("2iX<delete>Y<esc>", "XYX" X "Yc" N "def");
     KEYS("0j.", "XYXYc" N "XYX" X "Yf");
 
+    data.setText("abc" N "def");
+    KEYS("i<delete>XY", "XY" X "bc" N "def");
+    KEYS("0j.", "XYbc" N "X" X "Yef");
+
+    data.setText("ab" X "c" N "def");
+    KEYS("i<bs>XY", "aXY" X "c" N "def");
+    KEYS("j.", "aXYc" N "dX" X "Yf");
+
     // insert in visual block mode
     data.setText("abc" N "d" X "ef" N "jkl" N "mno" N "pqr");
     KEYS("<c-v>2j" "2I" "XYZ<esc>", "abc" N "d" X "XYZXYZef" N "jXYZXYZkl" N "mXYZXYZno" N "pqr");
