@@ -93,6 +93,8 @@ private slots:
     void filesAboutToBeRemoved(FolderNode *folder, const QList<FileNode*> &staleFiles);
     void filesRemoved();
 
+    void nodeUpdated(ProjectExplorer::Node *node);
+
 private:
     void added(FolderNode* folderNode, const QList<Node*> &newNodeList);
     void removed(FolderNode* parentNode, const QList<Node*> &newNodeList);

@@ -63,7 +63,8 @@ public:
     // Roles to be implemented by all models that are exported via model()
     enum ModelRoles {
         // Absolute file path
-        FilePathRole = QFileSystemModel::FilePathRole
+        FilePathRole = QFileSystemModel::FilePathRole,
+        EnabledRole
     };
 
     Project();

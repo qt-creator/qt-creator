@@ -88,6 +88,7 @@ public:
     virtual QString displayName() const;
     virtual QString vcsTopic() const;
     virtual QString tooltip() const;
+    virtual bool isEnabled() const;
 
 protected:
     Node(NodeType nodeType, const QString &path);
@@ -95,6 +96,8 @@ protected:
     void setNodeType(NodeType type);
     void setProjectNode(ProjectNode *project);
     void setParentFolderNode(FolderNode *parentFolder);
+
+    void emitNodeUpdated();
 
 private:
     NodeType m_nodeType;
@@ -228,6 +231,8 @@ public:
 
     void accept(NodesVisitor *visitor);
 
+    bool isEnabled() const { return true; }
+
 protected:
     // this is just the in-memory representation, a subclass
     // will add the persistent stuff
@@ -270,6 +275,8 @@ public:
 
     void accept(NodesVisitor *visitor);
 
+    bool isEnabled() const { return true; }
+
 protected:
     void addProjectNodes(const QList<ProjectNode*> &projectNodes);
     void removeProjectNodes(const QList<ProjectNode*> &projectNodes);
@@ -289,6 +296,11 @@ public:
     explicit NodesWatcher(QObject *parent = 0);
 
 signals:
+    // everything
+
+    // Emited whenever the model needs to send a update signal.
+    void nodeUpdated(ProjectExplorer::Node *node);
+
     // projects
     void aboutToChangeHasBuildTargets(ProjectExplorer::ProjectNode*);
     void hasBuildTargetsChanged(ProjectExplorer::ProjectNode *node);
@@ -316,6 +328,7 @@ private:
     // let project & session emit signals
     friend class ProjectNode;
     friend class SessionNode;
+    friend class Node;
 };
 
 

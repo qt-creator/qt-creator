@@ -49,6 +49,7 @@
 #include <QSettings>
 
 #include <QHeaderView>
+#include <QStyledItemDelegate>
 #include <QTreeView>
 #include <QVBoxLayout>
 #include <QToolButton>
@@ -62,7 +63,23 @@ using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
 namespace {
-    bool debug = false;
+
+class ProjectTreeItemDelegate : public QStyledItemDelegate
+{
+public:
+    ProjectTreeItemDelegate(QObject *parent) : QStyledItemDelegate(parent)
+    { }
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+    {
+        QStyleOptionViewItem opt = option;
+        if (!index.data(ProjectExplorer::Project::EnabledRole).toBool())
+            opt.state &= ~QStyle::State_Enabled;
+        QStyledItemDelegate::paint(painter, opt, index);
+    }
+};
+
+bool debug = false;
 }
 
 class ProjectTreeView : public Utils::NavigationTreeView
@@ -115,6 +132,7 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
 
     m_view = new ProjectTreeView;
     m_view->setModel(m_model);
+    m_view->setItemDelegate(new ProjectTreeItemDelegate(this));
     setFocusProxy(m_view);
     initView();
 

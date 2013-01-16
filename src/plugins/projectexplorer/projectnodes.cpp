@@ -117,6 +117,11 @@ QString Node::tooltip() const
     return QDir::toNativeSeparators(path());
 }
 
+bool Node::isEnabled() const
+{
+    return parentFolderNode()->isEnabled();
+}
+
 void Node::setNodeType(NodeType type)
 {
     m_nodeType = type;
@@ -125,6 +130,12 @@ void Node::setNodeType(NodeType type)
 void Node::setProjectNode(ProjectNode *project)
 {
     m_projectNode = project;
+}
+
+void Node::emitNodeUpdated()
+{
+    foreach (NodesWatcher *watcher, projectNode()->watchers())
+        emit watcher->nodeUpdated(this);
 }
 
 void Node::setParentFolderNode(FolderNode *parentFolder)

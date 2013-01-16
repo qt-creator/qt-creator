@@ -197,6 +197,9 @@ FlatModel::FlatModel(SessionNode *rootNode, QObject *parent)
             this, SLOT(filesAboutToBeRemoved(FolderNode*,QList<FileNode*>)));
     connect(watcher, SIGNAL(filesRemoved()),
             this, SLOT(filesRemoved()));
+
+    connect(watcher, SIGNAL(nodeUpdated(ProjectExplorer::Node*)),
+            this, SLOT(nodeUpdated(ProjectExplorer::Node*)));
 }
 
 QModelIndex FlatModel::index(int row, int column, const QModelIndex &parent) const
@@ -294,6 +297,10 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         }
         case ProjectExplorer::Project::FilePathRole: {
             result = node->path();
+            break;
+        }
+        case ProjectExplorer::Project::EnabledRole: {
+            result = node->isEnabled();
             break;
         }
         }
@@ -845,6 +852,12 @@ void FlatModel::filesAboutToBeRemoved(FolderNode *folder, const QList<FileNode*>
 void FlatModel::filesRemoved()
 {
     // Do nothing
+}
+
+void FlatModel::nodeUpdated(Node *node)
+{
+    QModelIndex idx = indexForNode(node);
+    emit dataChanged(idx, idx);
 }
 
 namespace ProjectExplorer {
