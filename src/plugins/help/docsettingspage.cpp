@@ -42,7 +42,7 @@ using namespace Help::Internal;
 
 DocSettingsPage::DocSettingsPage()
 {
-    setId(QLatin1String("B.Documentation"));
+    setId("B.Documentation");
     setDisplayName(tr("Documentation"));
     setCategory(Help::Constants::HELP_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY));

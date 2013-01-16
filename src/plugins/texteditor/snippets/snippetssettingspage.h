@@ -42,7 +42,7 @@ class SnippetsSettingsPage : public TextEditorOptionsPage
     Q_OBJECT
 
 public:
-    SnippetsSettingsPage(const QString &id, QObject *parent);
+    SnippetsSettingsPage(Core::Id id, QObject *parent);
     ~SnippetsSettingsPage();
 
     bool matches(const QString &s) const;

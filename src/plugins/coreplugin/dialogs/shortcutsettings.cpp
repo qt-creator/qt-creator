@@ -60,7 +60,7 @@ ShortcutSettings::ShortcutSettings(QObject *parent)
 {
     connect(ActionManager::instance(), SIGNAL(commandListChanged()), this, SLOT(initialize()));
 
-    setId(QLatin1String(Core::Constants::SETTINGS_ID_SHORTCUTS));
+    setId(Core::Constants::SETTINGS_ID_SHORTCUTS);
     setDisplayName(tr("Keyboard"));
     setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
     setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE));

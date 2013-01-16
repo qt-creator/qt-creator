@@ -127,7 +127,7 @@ QString SettingsPageWidget::searchKeywords() const
 SettingsPage::SettingsPage() :
     m_widget(0)
 {
-    setId(QLatin1String(ClearCase::Constants::VCS_ID_CLEARCASE));
+    setId(ClearCase::Constants::VCS_ID_CLEARCASE);
     setDisplayName(tr("ClearCase"));
 }
 

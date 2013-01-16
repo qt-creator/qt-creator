@@ -48,7 +48,7 @@ using namespace Locator::Internal;
 SettingsPage::SettingsPage(LocatorPlugin *plugin)
     : m_plugin(plugin), m_page(0)
 {
-    setId(QLatin1String(Constants::FILTER_OPTIONS_PAGE));
+    setId(Constants::FILTER_OPTIONS_PAGE);
     setDisplayName(QCoreApplication::translate("Locator", Locator::Constants::FILTER_OPTIONS_PAGE));
     setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
     setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE));

@@ -109,7 +109,7 @@ CommonOptionsPage::CommonOptionsPage(QObject *parent) :
 {
     m_settings.fromSettings(Core::ICore::settings());
 
-    setId(QLatin1String(Constants::VCS_COMMON_SETTINGS_ID));
+    setId(Constants::VCS_COMMON_SETTINGS_ID);
     setDisplayName(QCoreApplication::translate("VcsBase", Constants::VCS_COMMON_SETTINGS_NAME));
 }
 

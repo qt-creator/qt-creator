@@ -380,7 +380,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
 
 GdbOptionsPage::GdbOptionsPage()
 {
-    setId(QLatin1String("M.Gdb"));
+    setId("M.Gdb");
     setDisplayName(tr("GDB"));
     setCategory(Constants::DEBUGGER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Debugger", Constants::DEBUGGER_SETTINGS_TR_CATEGORY));

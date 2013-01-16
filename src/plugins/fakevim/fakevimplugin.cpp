@@ -238,7 +238,7 @@ class FakeVimOptionPage : public IOptionsPage
 public:
     FakeVimOptionPage()
     {
-        setId(_(SETTINGS_ID));
+        setId(SETTINGS_ID);
         setDisplayName(tr("General"));
         setCategory(SETTINGS_CATEGORY);
         setDisplayCategory(tr("FakeVim"));
@@ -405,7 +405,7 @@ public:
     FakeVimExCommandsPage(FakeVimPluginPrivate *q)
         : m_q(q)
     {
-        setId(_(SETTINGS_EX_CMDS_ID));
+        setId(SETTINGS_EX_CMDS_ID);
         setDisplayName(tr("Ex Command Mapping"));
         setCategory(SETTINGS_CATEGORY);
         setDisplayCategory(tr("FakeVim"));
@@ -627,7 +627,7 @@ public:
     FakeVimUserCommandsPage(FakeVimPluginPrivate *q)
         : m_q(q)
     {
-        setId(_(SETTINGS_USER_CMDS_ID));
+        setId(SETTINGS_USER_CMDS_ID);
         setDisplayName(tr("User Command Mapping"));
         setCategory(SETTINGS_CATEGORY);
         setDisplayCategory(tr("FakeVim"));

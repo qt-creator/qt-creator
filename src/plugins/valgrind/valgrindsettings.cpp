@@ -172,9 +172,9 @@ QString ValgrindBaseSettings::valgrindExecutable() const
     return m_valgrindExecutable;
 }
 
-QString ValgrindBaseSettings::id() const
+Core::Id ValgrindBaseSettings::id() const
 {
-    return QLatin1String("Analyzer.Valgrind.Settings");
+    return "Analyzer.Valgrind.Settings";
 }
 
 QString ValgrindBaseSettings::displayName() const

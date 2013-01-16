@@ -71,7 +71,7 @@ using namespace Utils;
 QtOptionsPage::QtOptionsPage()
     : m_widget(0)
 {
-    setId(QLatin1String(Constants::QTVERSION_SETTINGS_PAGE_ID));
+    setId(Constants::QTVERSION_SETTINGS_PAGE_ID);
     setDisplayName(QCoreApplication::translate("Qt4ProjectManager", Constants::QTVERSION_SETTINGS_PAGE_NAME));
     setCategory(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",

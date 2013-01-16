@@ -479,7 +479,7 @@ CppCodeStyleSettingsPage::CppCodeStyleSettingsPage(QWidget *parent) :
     Core::IOptionsPage(parent),
     m_pageCppCodeStylePreferences(0)
 {
-    setId(QLatin1String(Constants::CPP_CODE_STYLE_SETTINGS_ID));
+    setId(Constants::CPP_CODE_STYLE_SETTINGS_ID);
     setDisplayName(QCoreApplication::translate("CppTools", Constants::CPP_CODE_STYLE_SETTINGS_NAME));
     setCategory(Constants::CPP_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("CppTools", Constants::CPP_SETTINGS_TR_CATEGORY));

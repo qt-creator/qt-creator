@@ -55,7 +55,7 @@ public:
     virtual QVariantMap defaults() const;
     virtual void fromMap(const QVariantMap &map);
 
-    virtual QString id() const;
+    virtual Core::Id id() const;
     virtual QString displayName() const;
 
 signals:

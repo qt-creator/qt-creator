@@ -55,7 +55,7 @@ using namespace Core::Internal;
 GeneralSettings::GeneralSettings():
     m_page(0), m_dialog(0)
 {
-    setId(QLatin1String(Core::Constants::SETTINGS_ID_ENVIRONMENT));
+    setId(Core::Constants::SETTINGS_ID_ENVIRONMENT);
     setDisplayName(tr("General"));
     setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
     setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE));

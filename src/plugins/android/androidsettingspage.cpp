@@ -40,7 +40,7 @@ namespace Internal {
 AndroidSettingsPage::AndroidSettingsPage(QObject *parent)
     : Core::IOptionsPage(parent)
 {
-    setId(QLatin1String(Constants::ANDROID_SETTINGS_ID));
+    setId(Constants::ANDROID_SETTINGS_ID);
     setDisplayName(tr("Android Configurations"));
     setCategory(Constants::ANDROID_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Android",

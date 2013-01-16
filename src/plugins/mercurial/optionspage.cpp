@@ -91,7 +91,7 @@ QString OptionsPageWidget::searchKeywords() const
 
 OptionsPage::OptionsPage()
 {
-    setId(QLatin1String(VcsBase::Constants::VCS_ID_MERCURIAL));
+    setId(VcsBase::Constants::VCS_ID_MERCURIAL);
     setDisplayName(tr("Mercurial"));
 }
 

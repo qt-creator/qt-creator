@@ -94,7 +94,7 @@ QString SettingsPageWidget::searchKeywords() const
 
 SettingsPage::SettingsPage()
 {
-    setId(QLatin1String(VcsBase::Constants::VCS_ID_CVS));
+    setId(VcsBase::Constants::VCS_ID_CVS);
     setDisplayName(tr("CVS"));
 }
 

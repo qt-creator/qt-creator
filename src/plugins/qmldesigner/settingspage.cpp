@@ -84,7 +84,7 @@ QString SettingsPageWidget::searchKeywords() const
 SettingsPage::SettingsPage() :
     m_widget(0)
 {
-    setId(QLatin1String("B.QmlDesigner"));
+    setId("B.QmlDesigner");
     setDisplayName(tr("Qt Quick Designer"));
     setCategory(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
     setDisplayCategory(QCoreApplication::translate("QmlJSEditor",

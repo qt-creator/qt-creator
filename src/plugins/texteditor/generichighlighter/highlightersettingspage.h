@@ -49,7 +49,7 @@ class HighlighterSettingsPage : public TextEditorOptionsPage
     Q_OBJECT
 
 public:
-    HighlighterSettingsPage(const QString &id, QObject *parent);
+    HighlighterSettingsPage(Core::Id id, QObject *parent);
     ~HighlighterSettingsPage();
 
     QWidget *createPage(QWidget *parent);

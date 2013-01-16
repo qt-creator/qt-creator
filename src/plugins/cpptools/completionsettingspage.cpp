@@ -48,7 +48,7 @@ CompletionSettingsPage::CompletionSettingsPage(QObject *parent)
 {
     m_commentsSettings.fromSettings(QLatin1String(CPPTOOLS_SETTINGSGROUP), Core::ICore::settings());
 
-    setId(QLatin1String("P.Completion"));
+    setId("P.Completion");
     setDisplayName(tr("Completion"));
 }
 

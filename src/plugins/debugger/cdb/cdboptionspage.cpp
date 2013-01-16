@@ -322,17 +322,12 @@ CdbOptionsPage::CdbOptionsPage() :
     CdbOptionsPage::m_instance = this;
     m_options->fromSettings(Core::ICore::settings());
 
-    setId(CdbOptionsPage::settingsId());
+    setId("F.Cda");
     setDisplayName(tr("CDB"));
     setCategory(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Debugger",
         Constants::DEBUGGER_SETTINGS_TR_CATEGORY));
     setCategoryIcon(QLatin1String(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
-}
-
-QString CdbOptionsPage::settingsId()
-{
-    return QLatin1String("F.Cda");
 }
 
 CdbOptionsPage::~CdbOptionsPage()

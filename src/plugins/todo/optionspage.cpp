@@ -49,7 +49,7 @@ OptionsPage::OptionsPage(const Settings &settings, QObject *parent) :
 {
     setSettings(settings);
 
-    setId(QLatin1String("TodoSettings"));
+    setId("TodoSettings");
     setDisplayName(tr("To-Do"));
     setCategory("To-Do");
     setDisplayCategory(tr("To-Do"));

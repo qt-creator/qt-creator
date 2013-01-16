@@ -547,7 +547,7 @@ void MimeTypeSettingsPrivate::resetMimeTypes()
 void MimeTypeSettingsPrivate::updateMagicHeaderButtons()
 {
     const QModelIndex &modelIndex = m_ui.magicHeadersTableWidget->selectionModel()->currentIndex();
-    const bool enabled(modelIndex.isValid());
+    const bool enabled = modelIndex.isValid();
 
     m_ui.removeMagicButton->setEnabled(enabled);
     m_ui.editMagicButton->setEnabled(enabled);
@@ -558,7 +558,7 @@ MimeTypeSettings::MimeTypeSettings(QObject *parent)
     : IOptionsPage(parent)
     , d(new MimeTypeSettingsPrivate)
 {
-    setId(QLatin1String(Core::Constants::SETTINGS_ID_MIMETYPES));
+    setId(Core::Constants::SETTINGS_ID_MIMETYPES);
     setDisplayName(tr("MIME Types"));
     setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
     setDisplayCategory(QCoreApplication::translate("Core",

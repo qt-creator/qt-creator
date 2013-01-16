@@ -43,7 +43,7 @@ using namespace Help::Internal;
 
 FilterSettingsPage::FilterSettingsPage()
 {
-    setId(QLatin1String("D.Filters"));
+    setId("D.Filters");
     setDisplayName(tr("Filters"));
     setCategory(Help::Constants::HELP_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY));

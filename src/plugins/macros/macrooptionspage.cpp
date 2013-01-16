@@ -46,7 +46,7 @@ using namespace Macros::Internal;
 MacroOptionsPage::MacroOptionsPage(QObject *parent)
     : Core::IOptionsPage(parent)
 {
-    setId(QLatin1String(Constants::M_OPTIONS_PAGE));
+    setId(Constants::M_OPTIONS_PAGE);
     setDisplayName(QCoreApplication::translate("Macros", Constants::M_OPTIONS_TR_PAGE));
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("TextEditor",

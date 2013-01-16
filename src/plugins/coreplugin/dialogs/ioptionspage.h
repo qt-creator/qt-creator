@@ -44,9 +44,9 @@ class CORE_EXPORT IOptionsPage : public QObject
 public:
     IOptionsPage(QObject *parent = 0) : QObject(parent) {}
 
-    QString id() const { return m_id; }
+    Id id() const { return m_id; }
     QString displayName() const { return m_displayName; }
-    Core::Id category() const { return m_category; }
+    Id category() const { return m_category; }
     QString displayCategory() const { return m_displayCategory; }
     QIcon categoryIcon() const { return QIcon(m_categoryIcon); }
 
@@ -56,15 +56,15 @@ public:
     virtual void finish() = 0;
 
 protected:
-    void setId(const QString &id) { m_id = id; }
+    void setId(Id id) { m_id = id; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
     void setCategory(Id category) { m_category = category; }
     void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
     void setCategoryIcon(const QString &categoryIcon) { m_categoryIcon = categoryIcon; }
 
-    QString m_id;
+    Id m_id;
     QString m_displayName;
-    Core::Id m_category;
+    Id m_category;
     QString m_displayCategory;
     QString m_categoryIcon;
 };

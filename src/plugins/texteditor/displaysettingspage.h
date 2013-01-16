@@ -41,7 +41,7 @@ class DisplaySettings;
 class DisplaySettingsPageParameters
 {
 public:
-    QString id;
+    Core::Id id;
     QString displayName;
     QString settingsPrefix;
 };

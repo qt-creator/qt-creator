@@ -91,7 +91,7 @@ QString OptionsPageWidget::searchKeywords() const
 
 OptionsPage::OptionsPage()
 {
-    setId(QLatin1String(VcsBase::Constants::VCS_ID_BAZAAR));
+    setId(VcsBase::Constants::VCS_ID_BAZAAR);
     setDisplayName(tr("Bazaar"));
 }
 

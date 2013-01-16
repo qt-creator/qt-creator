@@ -47,7 +47,7 @@ class CodeStylePool;
 class BehaviorSettingsPageParameters
 {
 public:
-    QString id;
+    Core::Id id;
     QString displayName;
     QString settingsPrefix;
 };

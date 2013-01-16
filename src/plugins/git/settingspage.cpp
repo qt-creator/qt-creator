@@ -119,7 +119,7 @@ QString SettingsPageWidget::searchKeywords() const
 SettingsPage::SettingsPage() :
     m_widget(0)
 {
-    setId(QLatin1String(VcsBase::Constants::VCS_ID_GIT));
+    setId(VcsBase::Constants::VCS_ID_GIT);
     setDisplayName(tr("Git"));
 }
 

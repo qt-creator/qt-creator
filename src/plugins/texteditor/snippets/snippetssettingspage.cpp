@@ -268,10 +268,10 @@ class SnippetsSettingsPagePrivate : public QObject
 {
     Q_OBJECT
 public:
-    SnippetsSettingsPagePrivate(const QString &id);
+    SnippetsSettingsPagePrivate(Core::Id id);
     ~SnippetsSettingsPagePrivate() { delete m_model; }
 
-    const QString &id() const { return m_id; }
+    Core::Id id() const { return m_id; }
     const QString &displayName() const { return m_displayName; }
     bool isKeyword(const QString &s) const { return m_keywords.contains(s, Qt::CaseInsensitive); }
     void configureUi(QWidget *parent);
@@ -301,7 +301,7 @@ private:
     bool settingsChanged() const;
     void writeSettings();
 
-    const QString m_id;
+    const Core::Id m_id;
     const QString m_displayName;
     const QString m_settingsPrefix;
     SnippetsTableModel *m_model;
@@ -311,7 +311,7 @@ private:
     Ui::SnippetsSettingsPage m_ui;
 };
 
-SnippetsSettingsPagePrivate::SnippetsSettingsPagePrivate(const QString &id) :
+SnippetsSettingsPagePrivate::SnippetsSettingsPagePrivate(Core::Id id) :
     m_id(id),
     m_displayName(tr("Snippets")),
     m_settingsPrefix(QLatin1String("Text")),
@@ -557,7 +557,7 @@ void SnippetsSettingsPagePrivate::decorateEditors(const TextEditor::FontSettings
 }
 
 // SnippetsSettingsPage
-SnippetsSettingsPage::SnippetsSettingsPage(const QString &id, QObject *parent) :
+SnippetsSettingsPage::SnippetsSettingsPage(Core::Id id, QObject *parent) :
     TextEditorOptionsPage(parent),
     d(new SnippetsSettingsPagePrivate(id))
 {

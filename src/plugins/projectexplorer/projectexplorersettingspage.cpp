@@ -175,7 +175,7 @@ QString ProjectExplorerSettingsWidget::searchKeywords() const
 // ------------------ ProjectExplorerSettingsPage
 ProjectExplorerSettingsPage::ProjectExplorerSettingsPage()
 {
-    setId(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_ID));
+    setId(Constants::PROJECTEXPLORER_SETTINGS_ID);
     setDisplayName(tr("General"));
     setCategory(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",

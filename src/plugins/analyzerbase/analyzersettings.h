@@ -36,6 +36,7 @@
 
 #include "analyzerbase_global.h"
 
+#include <coreplugin/id.h>
 #include <projectexplorer/runconfiguration.h>
 
 namespace Analyzer {
@@ -73,7 +74,7 @@ public:
     virtual void fromMap(const QVariantMap &map) = 0;
 
     /// unique ID for this configuration
-    virtual QString id() const = 0;
+    virtual Core::Id id() const = 0;
     /// user readable display name for this configuration
     virtual QString displayName() const = 0;
     /// create a configuration widget for this configuration

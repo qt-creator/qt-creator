@@ -138,7 +138,7 @@ QString SettingsPageWidget::searchKeywords() const
 
 SettingsPage::SettingsPage()
 {
-    setId(QLatin1String(VcsBase::Constants::VCS_ID_PERFORCE));
+    setId(VcsBase::Constants::VCS_ID_PERFORCE);
     setDisplayName(tr("Perforce"));
 }
 

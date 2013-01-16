@@ -51,7 +51,7 @@ namespace CodePaster {
 
 CodePasterSettingsPage::CodePasterSettingsPage()
 {
-    setId(QLatin1String("C.CodePaster"));
+    setId("C.CodePaster");
     setDisplayName(tr("CodePaster"));
     setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("CodePaster",

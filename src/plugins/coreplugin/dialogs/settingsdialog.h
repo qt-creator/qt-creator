@@ -93,13 +93,13 @@ private:
     void ensureCategoryWidget(Category *category);
     void disconnectTabWidgets();
 
-    const QList<Core::IOptionsPage*> m_pages;
+    const QList<IOptionsPage *> m_pages;
 
-    QSet<Core::IOptionsPage*> m_visitedPages;
+    QSet<IOptionsPage *> m_visitedPages;
     QSortFilterProxyModel *m_proxyModel;
     CategoryModel *m_model;
-    Core::Id m_currentCategory;
-    QString m_currentPage;
+    Id m_currentCategory;
+    Id m_currentPage;
     QStackedLayout *m_stackedLayout;
     Utils::FilterLineEdit *m_filterLineEdit;
     QListView *m_categoryList;

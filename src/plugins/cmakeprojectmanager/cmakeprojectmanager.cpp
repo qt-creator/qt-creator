@@ -243,7 +243,7 @@ QString CMakeManager::qtVersionForQMake(const QString &qmakePath)
 CMakeSettingsPage::CMakeSettingsPage()
     :  m_pathchooser(0)
 {
-    setId(QLatin1String("Z.CMake"));
+    setId("Z.CMake");
     setDisplayName(tr("CMake"));
     setCategory(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",

@@ -236,7 +236,7 @@ void CommonOptionsPageWidget::setGlobalOptions(const GlobalDebuggerOptions &go)
 CommonOptionsPage::CommonOptionsPage(const QSharedPointer<GlobalDebuggerOptions> &go) :
     m_options(go)
 {
-    setId(QLatin1String(DEBUGGER_COMMON_SETTINGS_ID));
+    setId(DEBUGGER_COMMON_SETTINGS_ID);
     setDisplayName(QCoreApplication::translate("Debugger", "General"));
     setCategory(DEBUGGER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Debugger", DEBUGGER_SETTINGS_TR_CATEGORY));
@@ -309,7 +309,7 @@ QString CommonOptionsPage::msgSetBreakpointAtFunctionToolTip(const char *functio
 
 LocalsAndExpressionsOptionsPage::LocalsAndExpressionsOptionsPage()
 {
-    setId(QLatin1String("Z.LocalsAndExpressions"));
+    setId("Z.LocalsAndExpressions");
     //: '&&' will appear as one (one is marking keyboard shortcut)
     setDisplayName(QCoreApplication::translate("Debugger", "Locals && Expressions"));
     setCategory(DEBUGGER_SETTINGS_CATEGORY);

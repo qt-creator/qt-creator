@@ -256,31 +256,31 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
                                             "(in diff editor)."), Qt::blue));
 
     m_d->m_fontSettingsPage = new FontSettingsPage(formatDescr,
-                                                   QLatin1String(Constants::TEXT_EDITOR_FONT_SETTINGS),
+                                                   Constants::TEXT_EDITOR_FONT_SETTINGS,
                                                    this);
     ExtensionSystem::PluginManager::addObject(m_d->m_fontSettingsPage);
 
     // Add the GUI used to configure the tab, storage and interaction settings
     TextEditor::BehaviorSettingsPageParameters behaviorSettingsPageParameters;
-    behaviorSettingsPageParameters.id = QLatin1String(Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS);
+    behaviorSettingsPageParameters.id = Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS;
     behaviorSettingsPageParameters.displayName = tr("Behavior");
     behaviorSettingsPageParameters.settingsPrefix = QLatin1String("text");
     m_d->m_behaviorSettingsPage = new BehaviorSettingsPage(behaviorSettingsPageParameters, this);
     ExtensionSystem::PluginManager::addObject(m_d->m_behaviorSettingsPage);
 
     TextEditor::DisplaySettingsPageParameters displaySettingsPageParameters;
-    displaySettingsPageParameters.id = QLatin1String(Constants::TEXT_EDITOR_DISPLAY_SETTINGS),
+    displaySettingsPageParameters.id = Constants::TEXT_EDITOR_DISPLAY_SETTINGS;
     displaySettingsPageParameters.displayName = tr("Display");
     displaySettingsPageParameters.settingsPrefix = QLatin1String("text");
     m_d->m_displaySettingsPage = new DisplaySettingsPage(displaySettingsPageParameters, this);
     ExtensionSystem::PluginManager::addObject(m_d->m_displaySettingsPage);
 
     m_d->m_highlighterSettingsPage =
-        new HighlighterSettingsPage(QLatin1String(Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS), this);
+        new HighlighterSettingsPage(Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS, this);
     ExtensionSystem::PluginManager::addObject(m_d->m_highlighterSettingsPage);
 
     m_d->m_snippetsSettingsPage =
-        new SnippetsSettingsPage(QLatin1String(Constants::TEXT_EDITOR_SNIPPETS_SETTINGS), this);
+        new SnippetsSettingsPage(Constants::TEXT_EDITOR_SNIPPETS_SETTINGS, this);
     ExtensionSystem::PluginManager::addObject(m_d->m_snippetsSettingsPage);
 
     connect(m_d->m_fontSettingsPage, SIGNAL(changed(TextEditor::FontSettings)),

@@ -42,7 +42,7 @@ namespace Internal {
 DeviceSettingsPage::DeviceSettingsPage(QObject *parent)
     : Core::IOptionsPage(parent)
 {
-    setId(QLatin1String(Constants::DEVICE_SETTINGS_PAGE_ID));
+    setId(Constants::DEVICE_SETTINGS_PAGE_ID);
     setDisplayName(tr("Devices"));
     setCategory(Constants::DEVICE_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer", "Devices"));

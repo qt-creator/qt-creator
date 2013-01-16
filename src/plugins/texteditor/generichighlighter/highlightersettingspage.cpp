@@ -43,11 +43,11 @@ using namespace Internal;
 
 struct HighlighterSettingsPage::HighlighterSettingsPagePrivate
 {
-    explicit HighlighterSettingsPagePrivate(const QString &id);
+    explicit HighlighterSettingsPagePrivate(Core::Id id);
     void ensureInitialized();
 
     bool m_initialized;
-    const QString m_id;
+    const Core::Id m_id;
     const QString m_displayName;
     const QString m_settingsPrefix;
 
@@ -59,7 +59,7 @@ struct HighlighterSettingsPage::HighlighterSettingsPagePrivate
 };
 
 HighlighterSettingsPage::HighlighterSettingsPagePrivate::
-HighlighterSettingsPagePrivate(const QString &id) :
+HighlighterSettingsPagePrivate(Core::Id id) :
     m_initialized(false),
     m_id(id),
     m_displayName(tr("Generic Highlighter")),
@@ -75,7 +75,7 @@ void HighlighterSettingsPage::HighlighterSettingsPagePrivate::ensureInitialized(
     m_settings.fromSettings(m_settingsPrefix, Core::ICore::settings());
 }
 
-HighlighterSettingsPage::HighlighterSettingsPage(const QString &id, QObject *parent) :
+HighlighterSettingsPage::HighlighterSettingsPage(Core::Id id, QObject *parent) :
     TextEditorOptionsPage(parent),
     m_requestMimeTypeRegistration(false),
     m_d(new HighlighterSettingsPagePrivate(id))

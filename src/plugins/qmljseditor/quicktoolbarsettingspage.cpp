@@ -121,7 +121,7 @@ QuickToolBarSettings QuickToolBarSettings::get()
 QuickToolBarSettingsPage::QuickToolBarSettingsPage() :
     m_widget(0)
 {
-    setId(QLatin1String("C.QmlToolbar"));
+    setId("C.QmlToolbar");
     setDisplayName(tr("Qt Quick ToolBar"));
     setCategory(Constants::SETTINGS_CATEGORY_QML);
     setDisplayCategory(QCoreApplication::translate("QmlJSEditor",

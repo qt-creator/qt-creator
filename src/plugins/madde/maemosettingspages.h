@@ -50,7 +50,7 @@ public:
     void finish();
 
     static void showQemuCrashDialog();
-    static QString pageId();
+    static Core::Id pageId();
     static Core::Id pageCategory();
 
 private:

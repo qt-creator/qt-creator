@@ -43,7 +43,7 @@ namespace Internal {
 BlackBerrySettingsPage::BlackBerrySettingsPage(QObject *parent) :
     Core::IOptionsPage(parent)
 {
-    setId(QLatin1String(Constants::QNX_SETTINGS_ID));
+    setId(Constants::QNX_SETTINGS_ID);
     setDisplayName(tr("BlackBerry"));
     setCategory(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("BlackBerry",

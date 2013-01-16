@@ -445,7 +445,7 @@ ToolChainOptionsPage::ToolChainOptionsPage() :
     m_model(0), m_selectionModel(0), m_toolChainView(0), m_container(0),
     m_addButton(0), m_cloneButton(0), m_delButton(0)
 {
-    setId(QLatin1String(Constants::TOOLCHAIN_SETTINGS_PAGE_ID));
+    setId(Constants::TOOLCHAIN_SETTINGS_PAGE_ID);
     setDisplayName(tr("Compilers"));
     setCategory(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
