@@ -97,14 +97,16 @@ public:
 #endif
     }
 
-    virtual void passedMacroDefinitionCheck(unsigned, const Macro &)
+    virtual void passedMacroDefinitionCheck(unsigned, unsigned, const Macro &)
     { }
 
     virtual void failedMacroDefinitionCheck(unsigned, const ByteArrayRef &)
     { }
 
-    virtual void startExpandingMacro(unsigned, const Macro &,
-                                     const ByteArrayRef &,
+    virtual void notifyMacroReference(unsigned, unsigned, const Macro &)
+    { }
+
+    virtual void startExpandingMacro(unsigned, unsigned, const Macro &,
                                      const QVector<MacroArgumentReference> &)
     { }
 
@@ -115,6 +117,9 @@ public:
     { }
 
     virtual void stopSkippingBlocks(unsigned)
+    { }
+
+    virtual void sourceNeeded(unsigned, QString &, IncludeType)
     { }
 };
 
