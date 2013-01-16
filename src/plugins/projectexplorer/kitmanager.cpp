@@ -446,12 +446,14 @@ void KitManager::addKit(Kit *k)
     if (!k)
         return;
 
-    KitGuard g(k);
-    foreach (KitInformation *ki, d->m_informationList) {
-        if (!k->hasValue(ki->dataId()))
-            k->setValue(ki->dataId(), ki->defaultValue(k));
-        else
-            ki->fix(k);
+    {
+        KitGuard g(k);
+        foreach (KitInformation *ki, d->m_informationList) {
+            if (!k->hasValue(ki->dataId()))
+                k->setValue(ki->dataId(), ki->defaultValue(k));
+            else
+                ki->fix(k);
+        }
     }
 
     d->m_kitList.append(k);
