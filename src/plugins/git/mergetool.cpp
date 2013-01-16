@@ -95,8 +95,9 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
     }
     m_process = new MergeToolProcess(this);
     m_process->setWorkingDirectory(workingDirectory);
-    VcsBase::VcsBaseOutputWindow::instance()->appendCommand(workingDirectory, QLatin1String("git"), arguments);
-    m_process->start(QLatin1String("git"), arguments);
+    const QString binary = client->gitBinaryPath();
+    VcsBase::VcsBaseOutputWindow::instance()->appendCommand(workingDirectory, binary, arguments);
+    m_process->start(binary, arguments);
     if (m_process->waitForStarted()) {
         connect(m_process, SIGNAL(finished(int)), this, SLOT(done()));
         connect(m_process, SIGNAL(readyRead()), this, SLOT(readData()));
