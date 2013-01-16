@@ -4220,6 +4220,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         moveBehindEndOfLine();
         move = true;
         setTargetColumn();
+        m_targetColumn = -1;
     } else if (input.isReturn() || input.isControl('j') || input.isControl('m')) {
         joinPreviousEditBlock();
         m_submode = NoSubMode;
@@ -6686,7 +6687,12 @@ void FakeVimHandler::Private::enterInsertMode()
     m_subsubmode = NoSubSubMode;
     m_lastInsertion.clear();
     m_oldPosition = position();
-    g.returnToMode = InsertMode;
+    if (g.returnToMode != InsertMode) {
+        g.returnToMode = InsertMode;
+        // If entering insert mode from command mode, m_targetColumn shouldn't be -1 (end of line).
+        if (m_targetColumn == -1)
+            setTargetColumn();
+    }
 }
 
 void FakeVimHandler::Private::initVisualBlockInsertMode(QChar command)
