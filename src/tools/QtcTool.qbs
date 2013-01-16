@@ -9,5 +9,9 @@ Application {
             return ["-Wl,-s"]
     }
 
-    destination: "bin"
+    Group {
+        fileTagsFilter: product.type
+        qbs.install: true
+        qbs.installDir: "bin"
+    }
 }

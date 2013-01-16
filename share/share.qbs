@@ -1,31 +1,32 @@
 import qbs.base 1.0
 
 Product {
-    type: ["installed_content"]
     name: "SharedContent"
 
     Group {
-        qbs.installDir: "share"
-        fileTags: ["install"]
-        files: "qtcreator"
-        recursive: true
-        excludeFiles: [
-            "qtcreator/translations",
-            "qtcreator/scripts",
-            "share.pro",
-            "share.qbs",
-            "static.pro",
+        qbs.install: true
+        qbs.installDir: "share/qtcreator"
+        prefix: "qtcreator/"
+        files: [
+            "designer",
+            "dumper",
+            "generic-highlighter",
+            "glsl",
+            "qml",
+            "qmldesigner",
+            "qmlicons",
+            "qml-type-descriptions",
+            "schemes",
+            "snippets",
+            "styles",
+            "templates",
+            "welcomescreen"
         ]
     }
 
     Group {
-        fileTags: ["install"]
-        files: "qtcreator/scripts/openTerminal.command"
-    }
-
-    Group {
+        qbs.install: true
         qbs.installDir: "share/qtcreator/externaltools"
-        fileTags: ["install"]
         prefix: "../src/share/qtcreator/externaltools/"
         files: {
             var list = [

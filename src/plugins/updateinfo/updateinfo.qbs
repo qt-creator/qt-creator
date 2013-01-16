@@ -11,7 +11,7 @@ QtcPlugin {
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
 
     property bool enable: false
-    property var pluginspecreplacements: ({"UPDATEINFO_EXPERIMENTAL_STR": (enable ? "false": "true")})
+    pluginspecreplacements: ({"UPDATEINFO_EXPERIMENTAL_STR": (enable ? "false": "true")})
 
     cpp.includePaths: [
         "..",

@@ -9,27 +9,14 @@ Module {
     property int ide_version_minor: project.ide_version_minor
     property int ide_version_release: project.ide_version_release
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.' + ide_version_release
-    property string destdir: product.destination
-
     property var pluginspecreplacements: product.pluginspecreplacements
-
-
-    FileTagger {
-        pattern: "*.in"
-        fileTags: ["pluginSpecIn"]
-    }
 
     Rule {
         inputs: ["pluginSpecIn"]
 
         Artifact {
             fileTags: ["pluginSpec"]
-            fileName: {
-                var destdir = input.modules.pluginspec.destdir;
-                if (!destdir.match(/\/$/))
-                    destdir += "/";
-                return destdir + input.fileName.replace(/\.[^\.]*$/,'');
-            }
+            fileName: input.fileName.replace(/\.[^\.]*$/,'')
         }
 
         prepare: {

@@ -3,7 +3,6 @@ import "../../../../qbs/defaults.js" as Defaults
 
 DynamicLibrary {
     name: "styleplugin"
-    destination: "lib/qtcreator/qtcomponents/plugin"
 
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["core", "widgets", "declarative", "script"] }
@@ -29,5 +28,10 @@ DynamicLibrary {
         "qwheelarea.cpp",
         "qwheelarea.h",
     ]
-}
 
+    Group {
+        fileTagsFilter: product.type
+        qbs.install: true
+        qbs.installDir: "lib/qtcreator/qtcomponents/plugin"
+    }
+}

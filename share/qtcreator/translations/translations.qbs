@@ -4,6 +4,11 @@ Product {
     type: "qm"
     name: "translations"
     Depends { name: "Qt.core" }
-    destination: "share/qtcreator/translations"
     files: "*.ts"
+
+    Group {
+        fileTagsFilter: product.type
+        qbs.install: true
+        qbs.installDir: "share/qtcreator/translations"
+    }
 }

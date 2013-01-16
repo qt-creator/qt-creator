@@ -15,15 +15,19 @@ DynamicLibrary {
     }
     cpp.includePaths: [ "." ]
 
-    destination: {
-        if (qbs.targetOS == "windows")
-            return "bin"
-        else
-            return "lib/qtcreator"
-    }
-
     ProductModule {
         Depends { name: "cpp" }
         cpp.includePaths: [ "." ]
+    }
+
+    Group {
+        fileTagsFilter: product.type
+        qbs.install: true
+        qbs.installDir: {
+            if (qbs.targetOS == "windows")
+                return "bin"
+            else
+                return "lib/qtcreator"
+        }
     }
 }
