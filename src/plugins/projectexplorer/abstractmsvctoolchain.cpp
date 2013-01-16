@@ -152,7 +152,7 @@ QString AbstractMsvcToolChain::makeCommand(const Utils::Environment &environment
 
 Utils::FileName AbstractMsvcToolChain::compilerCommand() const
 {
-    Utils::Environment env;
+    Utils::Environment env = Utils::Environment::systemEnvironment();
     addToEnvironment(env);
     return Utils::FileName::fromString(env.searchInPath("cl.exe"));
 }
