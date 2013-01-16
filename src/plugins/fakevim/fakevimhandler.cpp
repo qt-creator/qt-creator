@@ -7035,8 +7035,8 @@ bool FakeVimHandler::Private::changeNumberTextObject(int count)
     // parse value
     bool ok;
     int base = hex ? 16 : octal ? 8 : 10;
-    qlonglong value;  // decimal value
-    qlonglong uvalue; // hexadecimal or octal value (only unsigned)
+    qlonglong value = 0;  // decimal value
+    qlonglong uvalue = 0; // hexadecimal or octal value (only unsigned)
     if (hex || octal)
         uvalue = num.toULongLong(&ok, base);
     else
