@@ -563,7 +563,7 @@ QSize QStyleItem::sizeFromContents(int width, int height)
     case Header:
         size = qApp->style()->sizeFromContents(QStyle::CT_HeaderSection, m_styleoption, QSize(width,height), widget());
 #ifdef Q_OS_MAC
-        if (style() =="mac")
+        if (style() == QLatin1String("mac"))
             size.setHeight(15);
 #endif
         break;
