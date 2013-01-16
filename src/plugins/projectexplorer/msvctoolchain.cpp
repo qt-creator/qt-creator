@@ -439,6 +439,19 @@ QString MsvcToolChainFactory::id() const
     return QLatin1String(Constants::MSVC_TOOLCHAIN_ID);
 }
 
+bool MsvcToolChainFactory::checkForVisualStudioInstallation(const QString &vsName)
+{
+    const QSettings vsRegistry(
+#ifdef Q_OS_WIN64
+                QLatin1String("HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\VisualStudio\\SxS\\VS7"),
+#else
+                QLatin1String("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7"),
+#endif
+                QSettings::NativeFormat);
+
+    return vsRegistry.contains(vsName);
+}
+
 QList<ToolChain *> MsvcToolChainFactory::autoDetect()
 {
     QList<ToolChain *> results;
@@ -499,6 +512,8 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
         // Scan for version major.minor
         const int dotPos = vsName.indexOf(QLatin1Char('.'));
         if (dotPos == -1)
+            continue;
+        if (!checkForVisualStudioInstallation(vsName))
             continue;
 
         const QString path = vsRegistry.value(vsName).toString();

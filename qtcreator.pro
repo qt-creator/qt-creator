@@ -19,9 +19,12 @@ OTHER_FILES += dist/copyright_template.txt \
     qtcreator.qbp \
     qbs/pluginspec/pluginspec.qbs
 
+contains(QT_ARCH, i386): ARCHITECTURE = x86
+else: ARCHITECTURE = $$QT_ARCH
+
 macx: PLATFORM = "mac"
 else:win32: PLATFORM = "windows"
-else:linux-*: PLATFORM = "linux-$${QT_ARCH}"
+else:linux-*: PLATFORM = "linux-$${ARCHITECTURE}"
 else: PLATFORM = "unknown"
 
 PATTERN = $${PLATFORM}$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX)

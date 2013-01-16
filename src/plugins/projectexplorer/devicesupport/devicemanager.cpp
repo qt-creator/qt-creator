@@ -135,6 +135,8 @@ void DeviceManager::copy(const DeviceManager *source, DeviceManager *target, boo
 
 void DeviceManager::save()
 {
+    if (d->clonedInstance == this)
+        return;
     QVariantMap data;
     data.insert(QLatin1String(DeviceManagerKey), toMap());
     d->writer->save(data, Core::ICore::mainWindow());
@@ -341,7 +343,8 @@ DeviceManager::DeviceManager(bool isInstance) : d(new DeviceManagerPrivate)
 
 DeviceManager::~DeviceManager()
 {
-    delete d->writer;
+    if (d->clonedInstance != this)
+        delete d->writer;
     delete d;
 }
 

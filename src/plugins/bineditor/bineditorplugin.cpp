@@ -218,7 +218,7 @@ public:
     bool open(QString *errorString, const QString &fileName, quint64 offset = 0) {
         QFile file(fileName);
         quint64 size = static_cast<quint64>(file.size());
-        if (size == 0) {
+        if (size == 0 && !fileName.isEmpty()) {
             QString msg = tr("The Binary Editor cannot open empty files.");
             if (errorString)
                 *errorString = msg;

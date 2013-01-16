@@ -1276,6 +1276,9 @@ static void showQtDumperLibraryWarning(const QString &details)
         "expand the Details section and click Build All."));
     if (!details.isEmpty())
         dialog.setDetailedText(details);
+#if defined(Q_OS_MAC) && QT_VERSION >= 0x050000
+    dialog.setWindowModality(Qt::WindowModal);
+#endif
     dialog.exec();
     if (dialog.clickedButton() == qtPref) {
         Core::ICore::showOptionsDialog(

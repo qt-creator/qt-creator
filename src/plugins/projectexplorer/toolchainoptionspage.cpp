@@ -573,6 +573,8 @@ bool ToolChainOptionsPage::matches(const QString &s) const
 
 void ToolChainOptionsPage::toolChainSelectionChanged()
 {
+    if (!m_container)
+        return;
     QModelIndex current = currentIndex();
     (void)m_container->takeWidget(); // Prevent deletion.
     QWidget *currentTcWidget = current.isValid() ? m_model->widget(current) : 0;

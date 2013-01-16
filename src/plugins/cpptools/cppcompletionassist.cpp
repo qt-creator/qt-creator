@@ -343,7 +343,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
     if (!inEditor.isEmpty()) {
         preserveLength = toInsert.length() - (editor->position() - basePosition);
         const int inEditorLength = inEditor.length();
-        while (preserveLength) {
+        while (preserveLength > 0) {
             if (inEditor.startsWith(toInsert.right(preserveLength))
                     && (inEditorLength == preserveLength
                         || (!inEditor.at(preserveLength).isLetterOrNumber()

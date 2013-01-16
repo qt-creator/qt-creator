@@ -1,0 +1,166 @@
+Qt Creator version 2.6.1 is a bugfix release.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline v2.6.0..v2.6.1
+
+General
+   * Fixed opening files ending in "++" (QTCREATORBUG-8272)
+
+Editing
+   * Fixed freeze when searching for certain regular expressions in a selected
+     block (QTCREATORBUG-8159)
+
+Managing Projects
+   * Fixed setting the default kit (QTCREATORBUG-8205)
+   * Fixed several crashes when managing kits
+   * Fixed cloning of auto-detected kits (QTCREATORBUG-8231)
+
+QMake Projects
+
+CMake Projects
+   * Fixed a crash when selecting kit without tool chain when opening project
+
+Debugging
+   * Fixed connection problems when remotely attaching to a running application
+
+Debugging QML/JS
+   * Fixed remote QML debugging which ignored the kit settings
+   * Fixed that locals and expressions could become disabled (QTCREATORBUG-8167)
+
+Analyzing Code
+
+C++ Support
+   * Fixed code completion for Qt containers (QTCREATORBUG-8228)
+
+QML/JS Support
+   * Fixed the warning about missing QmlViewer in Qt 5 (QTCREATORBUG-8187)
+   * Split up Qt Quick wizards into Qt Quick 1 and Qt Quick 2 versions
+     (QTCREATORBUG-8236, QTCREATORBUG-8269)
+
+GLSL Support
+
+Qt Quick Designer
+   * Removed a confusing warning about qml2puppet not being found (QTCREATORBUG-7858)
+
+Help
+
+Qt Designer
+
+Version control plugins
+
+Git
+   * Fixed detection of Git version with 2-digit patch number
+SVN
+
+FakeVim
+
+Platform Specific
+
+Mac
+   * Fixed missing interface languages (QTCREATORBUG-8244)
+   * Added missing QWebView and other widgets to Qt Designer (QTCREATORBUG-8256)
+   * Fixed layout issues in preferences (QTCREATORBUG-8345)
+
+Linux (GNOME and KDE)
+
+Windows
+   * Fixed Windows SDK 7.1 compiler detection
+   * Fixed empty welcome screen when running from incorrectly capitalized
+     application directory (QTCREATORBUG-6126)
+
+Symbian Target
+
+Remote Linux Support
+
+Madde
+
+Credits go to:
+    Aleksey Sidorov
+    Alessandro Portale
+    Andreas Holzammer
+    Andre Hartmann
+    André Pönitz
+    Aurélien Gâteau
+    Aurindam Jana
+    axasia
+    Bill King
+    BogDan Vatra
+    Bojan Petrovic
+    Bradley T. Hughes
+    Campbell Barton
+    Casper van Donderen
+    Christiaan Janssen
+    Christian Kamm
+    Christian Kandeler
+    Christian Stenger
+    cnavarro
+    Daniel Molkentin
+    Daniel Teske
+    David Schulz
+    Dmitry Savchenko
+    Eike Ziller
+    Erik Verbruggen
+    Fawzi Mohamed
+    Flex Ferrum
+    Francois Ferrand
+    Franklin Weng
+    Friedemann Kleint
+    hluk
+    Hugues Delorme
+    Jarek Kobus
+    Jędrzej Nowacki
+    Jörg Bornemann
+    Jonathan Liu
+    Juei-ray Tseng
+    Juhapekka Piiroinen
+    Kaffeine
+    Kai Köhne
+    Kevin Krammer
+    Karsten Heimrich
+    Knut Petter Svendsen
+    Konstantin Ritt
+    Konstantin Tokarev
+    Leandro Melo
+    Leena Miettinen
+    Lukas Geyer
+    Lukas Holecek
+    Marc Mutz
+    Marco Bubke
+    Marius Storm-Olsen
+    Martin Aumüller
+    Mathias Hasselmann
+    Mehdi Fekari
+    Montel Laurent
+    Morten Johan Sorvig
+    Nicolas Arnaud-Cormos
+    Nikolai Kosjar
+    Orgad Shaneh
+    Oswald Buddenhagen
+    Oto Magaldadze
+    Peter Kümmel
+    Pierre Rossi
+    Przemyslaw Gorszkowski
+    raidsan
+    Robert Löhning
+    Ryan May
+    Sergey Belyashov
+    Sergey Shambir
+    Sergio Ahumada
+    Simjees Abraham
+    Stephen Kelly
+    Takumi Asaki
+    Theo J.A. de Vries
+    Thiago Macieira
+    Thomas Hartmann
+    Thorbjørn Lindeijer
+    Tim Jenssen
+    Tobias Hunger
+    Tobias Nätterlund
+    Tommi Asp
+    Tyler Mandry
+    Vladislav Navrocky
+    Yuchen Deng
