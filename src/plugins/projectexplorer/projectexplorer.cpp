@@ -737,16 +737,19 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // build action (context menu)
     d->m_buildActionContextMenu = new QAction(tr("Build"), this);
     cmd = Core::ActionManager::registerAction(d->m_buildActionContextMenu, Constants::BUILDCM, projecTreeContext);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_BUILD);
 
     // rebuild action (context menu)
     d->m_rebuildActionContextMenu = new QAction(tr("Rebuild"), this);
     cmd = Core::ActionManager::registerAction(d->m_rebuildActionContextMenu, Constants::REBUILDCM, projecTreeContext);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_REBUILD);
 
     // clean action (context menu)
     d->m_cleanActionContextMenu = new QAction(tr("Clean"), this);
     cmd = Core::ActionManager::registerAction(d->m_cleanActionContextMenu, Constants::CLEANCM, projecTreeContext);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_REBUILD);
 
     // build without dependencies action
@@ -1823,6 +1826,17 @@ void ProjectExplorerPlugin::updateActions()
 
     // Context menu actions
     d->m_setStartupProjectAction->setParameter(projectNameContextMenu);
+
+    bool hasDependencies = session()->projectOrder(d->m_currentProject).size() > 1;
+    if (hasDependencies) {
+        d->m_buildActionContextMenu->setText(tr("Build Without Dependencies"));
+        d->m_rebuildActionContextMenu->setText(tr("Rebuild Without Dependencies"));
+        d->m_cleanActionContextMenu->setText(tr("Clean Without Dependencies"));
+    } else {
+        d->m_buildActionContextMenu->setText(tr("Build"));
+        d->m_rebuildActionContextMenu->setText(tr("Rebuild"));
+        d->m_cleanActionContextMenu->setText(tr("Clean"));
+    }
 
     d->m_buildActionContextMenu->setEnabled(buildActionContextState.first);
     d->m_rebuildActionContextMenu->setEnabled(buildActionContextState.first);
