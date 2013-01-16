@@ -43,6 +43,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <string>
 #ifdef __GNUC__
 #  include <cxxabi.h>
 #endif
@@ -83,7 +84,7 @@ protected:
     void alignTerminals() {
         out<<"{ rank=same;" << endl;
         foreach (const QByteArray &terminalShape, _terminalShapes) {
-            out << "  " << string(terminalShape) << ";" << endl;
+            out << "  " << string(terminalShape.constData(), terminalShape.size()).c_str() << ";" << endl;
         }
         out<<"}"<<endl;
     }
