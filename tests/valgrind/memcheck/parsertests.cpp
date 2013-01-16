@@ -282,9 +282,9 @@ void ParserTests::testMemcheckSample1()
     expectedErrorCounts.push_back(QPair<qint64,qint64>(9, 2));
 
     QVector<QPair<QString,qint64> > expectedSuppCounts;
-    expectedSuppCounts.push_back(qMakePair(QLatin1String("X on SUSE11 writev uninit padding"), static_cast<qint64>(12)));
-    expectedSuppCounts.push_back(qMakePair(QLatin1String("dl-hack3-cond-1"), static_cast<qint64>(2)));
-    expectedSuppCounts.push_back(qMakePair(QLatin1String("glibc-2.5.x-on-SUSE-10.2-(PPC)-2a"), static_cast<qint64>(2)));
+    expectedSuppCounts.push_back(qMakePair(QString::fromLatin1("X on SUSE11 writev uninit padding"), static_cast<qint64>(12)));
+    expectedSuppCounts.push_back(qMakePair(QString::fromLatin1("dl-hack3-cond-1"), static_cast<qint64>(2)));
+    expectedSuppCounts.push_back(qMakePair(QString::fromLatin1("glibc-2.5.x-on-SUSE-10.2-(PPC)-2a"), static_cast<qint64>(2)));
 
     Valgrind::XmlProtocol::Parser parser;
     Recorder rec(&parser);
@@ -472,13 +472,14 @@ void ParserTests::testValgrindStartError_data()
     QTest::addColumn<QString>("debuggee");
     QTest::addColumn<QString>("debuggeeArgs");
 
-    QTest::newRow("invalid_client") << QLatin1String("valgrind") << QStringList()
-                                    << QLatin1String("please-dont-let-this-app-exist") << QString();
+    QTest::newRow("invalid_client") << QString::fromLatin1("valgrind") << QStringList()
+                                    << QString::fromLatin1("please-dont-let-this-app-exist") << QString();
 
-    QTest::newRow("invalid_valgrind") << QLatin1String("valgrind-that-does-not-exist") << QStringList()
+    QTest::newRow("invalid_valgrind") << QString::fromLatin1("valgrind-that-does-not-exist") << QStringList()
                                     << fakeValgrindExecutable() << QString();
 
-    QTest::newRow("invalid_valgrind_args") << QLatin1String("valgrind") << (QStringList() << "--foobar-fail")
+    QTest::newRow("invalid_valgrind_args") << QString::fromLatin1("valgrind")
+                                           << (QStringList() << QString::fromLatin1("--foobar-fail"))
                                            << fakeValgrindExecutable() << QString();
 }
 
