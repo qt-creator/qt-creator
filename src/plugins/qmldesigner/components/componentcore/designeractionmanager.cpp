@@ -224,45 +224,39 @@ QmlModelView *DesignerActionManager::view()
     return instance()->m_view.data();
 }
 
-template <class ACTION,
-          class ENABLED = SelectionContextFunctors::Always,
-          class VISIBILITY = SelectionContextFunctors::Always>
-class VisiblityModelNodeActionFactory : public ModelNodeActionFactory<ACTION, ENABLED, VISIBILITY>
+class VisiblityModelNodeAction : public ModelNodeAction
 {
 public:
-    VisiblityModelNodeActionFactory(const QString &description, const QString &category, int priority) :
-        ModelNodeActionFactory<ACTION, ENABLED, VISIBILITY>(description, category, priority)
+    VisiblityModelNodeAction(const QString &description, const QString &category, int priority,
+            ModelNodeOperations::SelectionAction action,
+            SelectionContextFunction enabled = &SelectionContextFunctors::always,
+            SelectionContextFunction visibility = &SelectionContextFunctors::always) :
+        ModelNodeAction(description, category, priority, action, enabled, visibility)
     {}
     virtual void updateContext()
     {
-        this->m_action->setSelectionContext(this->m_selectionContext);
-        if (this->m_selectionContext.isValid()) {
-            this->m_action->setEnabled(this->isEnabled(this->m_selectionContext));
-            this->m_action->setVisible(this->isVisible(this->m_selectionContext));
+        m_action->setSelectionContext(m_selectionContext);
+        if (m_selectionContext.isValid()) {
+            m_action->setEnabled(isEnabled(m_selectionContext));
+            m_action->setVisible(isVisible(m_selectionContext));
 
-            this->m_action->setCheckable(true);
-            QmlItemNode itemNode = QmlItemNode(this->m_selectionContext.currentSingleSelectedNode());
+            m_action->setCheckable(true);
+            QmlItemNode itemNode = QmlItemNode(m_selectionContext.currentSingleSelectedNode());
             if (itemNode.isValid())
-                this->m_action->setChecked(itemNode.instanceValue("visible").toBool());
+                m_action->setChecked(itemNode.instanceValue("visible").toBool());
             else
-                this->m_action->setEnabled(false);
+                m_action->setEnabled(false);
         }
     }
 };
 
-template <void (*T)(const SelectionContext &)>
-struct Functor {
-    void operator() (const SelectionContext &selectionState) { T(selectionState); }
-};
-
-class SelectionModelNodeAction : public MenuDesignerAction<SelectionContextFunctors::Always, SelectionContextFunctors::SelectionEnabled>
+class SelectionModelNodeAction : public MenuDesignerAction
 {
-typedef ActionTemplate<Functor<ModelNodeOperations::select> > SelectionAction;
-typedef QSharedPointer<SelectionAction> SelectionActionPtr;
-
 public:
     SelectionModelNodeAction(const QString &displayName, const QString &menuId, int priority) :
-       MenuDesignerAction<SelectionContextFunctors::Always, SelectionContextFunctors::SelectionEnabled>(displayName, menuId, priority)
+        MenuDesignerAction(displayName, menuId, priority,
+                           &SelectionContextFunctors::always, &SelectionContextFunctors::selectionEnabled)
+
     {}
 
     virtual void updateContext()
@@ -277,7 +271,7 @@ public:
         if (m_action->isEnabled()) {
             ModelNode parentNode;
             if (m_selectionContext.singleSelected() && !m_selectionContext.currentSingleSelectedNode().isRootNode()) {
-                SelectionAction* selectionAction = new SelectionAction(QString());
+                ActionTemplate *selectionAction = new ActionTemplate(QString(), &ModelNodeOperations::select);
                 selectionAction->setParent(m_menu.data());
 
                 parentNode = m_selectionContext.currentSingleSelectedNode().parentProperty().parentModelNode();
@@ -294,8 +288,8 @@ public:
                         && contains(node, m_selectionContext.scenePos())
                         && !node.isRootNode()) {
                     m_selectionContext.setTargetNode(node);
-                    SelectionAction* selectionAction =
-                            new SelectionAction(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select: %1")).arg(captionForModelNode(node)));
+                    QString what = QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select: %1")).arg(captionForModelNode(node));
+                    ActionTemplate *selectionAction = new ActionTemplate(what, &ModelNodeOperations::select);
                     selectionAction->setSelectionContext(m_selectionContext);
 
                     m_menu->addAction(selectionAction);
@@ -311,68 +305,105 @@ char zProperty[] = "z";
 char widthProperty[] = "width";
 char heightProperty[] = "height";
 
+using namespace SelectionContextFunctors;
+
+bool multiSelection(const SelectionContext &context)
+{
+    return !singleSelection(context);
+}
+
+bool singleSelectionAndInBaseState(const SelectionContext &context)
+{
+    return singleSelection(context) && inBaseState(context);
+}
+
+bool multiSelectionAndInBaseState(const SelectionContext &context)
+{
+    return multiSelection(context) && inBaseState(context);
+}
+
+bool selectionHasProperty1or2(const SelectionContext &context, const char *x, const char *y)
+{
+    return selectionHasProperty(context, x) || selectionHasProperty(context, y);
+}
+
+bool selectionHasSameParentAndInBaseState(const SelectionContext &context)
+{
+    return selectionHasSameParent(context) && inBaseState(context);
+}
+
+bool selectionCanBeLayouted(const SelectionContext &context)
+{
+    return selectionHasSameParentAndInBaseState(context) && inBaseState(context);
+}
+
+bool selectionNotEmptyAndHasZProperty(const SelectionContext &context)
+{
+    return selectionNotEmpty(context) && selectionHasProperty(context, zProperty);
+}
+
+bool selectionNotEmptyAndHasWidthOrHeightProperty(const SelectionContext &context)
+{
+    return selectionNotEmpty(context)
+        && selectionHasProperty1or2(context, widthProperty, heightProperty);
+}
+
+bool selectionNotEmptyAndHasXorYProperty(const SelectionContext &context)
+{
+    return selectionNotEmpty(context)
+        && selectionHasProperty1or2(context, xProperty, yProperty);
+}
+
 void DesignerActionManager::createDefaultDesignerActions()
 {
-    typedef Functor<ModelNodeOperations::resetPosition>  resetPositionFunctor;
-
     using namespace SelectionContextFunctors;
     using namespace ComponentCoreConstants;
-
-    typedef Not<SingleSelection> MultiSelection;
-    typedef And<SingleSelection, InBaseState> SingleSelection_And_InBaseState;
-    typedef And<MultiSelection, InBaseState> MultiSelection_And_InBaseState;
-    typedef Or<SelectionHasProperty<xProperty>, SelectionHasProperty<yProperty> >
-            SelectionHasPropertyX_Or_SelectionHasPropertyY;
-    typedef Or<SelectionHasProperty<widthProperty>, SelectionHasProperty<heightProperty> >
-            SelectionHasPropertyWidth_Or_SelectionHasPropertyHeight;
-    typedef And<SelectionHasSameParent, InBaseState> SelectionHasSameParent_And_InBaseState;
-    typedef And<SelectionHasSameParent_And_InBaseState, MultiSelection> SelectionCanBeLayouted;
+    using namespace ModelNodeOperations;
 
     addDesignerAction(new SelectionModelNodeAction(selectionCategoryDisplayName, selectionCategory, prioritySelectionCategory));
 
-    addDesignerAction(new MenuDesignerAction<Always>(stackCategoryDisplayName, stackCategory, priorityStackCategory));
-        addDesignerAction(new ModelNodeActionFactory<Functor<ModelNodeOperations::toFront>, SingleSelection>
-                   (toFrontDisplayName, stackCategory, 200));
-        addDesignerAction(new ModelNodeActionFactory<Functor<ModelNodeOperations::toBack>, SingleSelection>
-                   (toBackDisplayName, stackCategory, 180));
-        addDesignerAction(new ModelNodeActionFactory<Functor<ModelNodeOperations::raise>, SelectionNotEmpty>
-                   (raiseDisplayName, stackCategory, 160));
-        addDesignerAction(new ModelNodeActionFactory<Functor<ModelNodeOperations::lower>, SelectionNotEmpty>
-                   (lowerDisplayName, stackCategory, 140));
-        addDesignerAction(new SeperatorDesignerAction<>(stackCategory, 120));
-        addDesignerAction(new ModelNodeActionFactory<Functor<ModelNodeOperations::resetZ>,
-                   And<SelectionNotEmpty, SelectionHasProperty<zProperty> > >
-                   (resetZDisplayName, stackCategory, 100));
+    addDesignerAction(new MenuDesignerAction(stackCategoryDisplayName, stackCategory, priorityStackCategory, &always));
+        addDesignerAction(new ModelNodeAction
+                   (toFrontDisplayName, stackCategory, 200, &toFront, &singleSelection));
+        addDesignerAction(new ModelNodeAction
+                   (toBackDisplayName, stackCategory, 180, &toBack, &singleSelection));
+        addDesignerAction(new ModelNodeAction
+                   (raiseDisplayName, stackCategory, 160, &raise, &selectionNotEmpty));
+        addDesignerAction(new ModelNodeAction
+                   (lowerDisplayName, stackCategory, 140, &lower, &selectionNotEmpty));
+        addDesignerAction(new SeperatorDesignerAction(stackCategory, 120));
+        addDesignerAction(new ModelNodeAction
+                   (resetZDisplayName, stackCategory, 100, &resetZ, &selectionNotEmptyAndHasZProperty));
 
-    addDesignerAction(new MenuDesignerAction<SelectionNotEmpty>(editCategoryDisplayName, editCategory, priorityEditCategory));
-        addDesignerAction(new ModelNodeActionFactory<Functor<ModelNodeOperations::resetPosition>,
-                   And<SelectionNotEmpty, SelectionHasPropertyWidth_Or_SelectionHasPropertyHeight> >
-                   (resetPositionDisplayName, editCategory, 200));
-        addDesignerAction(new ModelNodeActionFactory<Functor<ModelNodeOperations::resetSize>,
-                   And<SelectionNotEmpty, SelectionHasPropertyX_Or_SelectionHasPropertyY> >
-                   (resetSizeDisplayName, editCategory, 180));
-        addDesignerAction(new VisiblityModelNodeActionFactory<Functor<ModelNodeOperations::setVisible>, SingleSelectedItem>
-                   (visibilityDisplayName, editCategory, 160));
+    addDesignerAction(new MenuDesignerAction(editCategoryDisplayName, editCategory, priorityEditCategory, &selectionNotEmpty));
+        addDesignerAction(new ModelNodeAction
+                   (resetPositionDisplayName, editCategory, 200, &resetPosition, &selectionNotEmptyAndHasXorYProperty));
+        addDesignerAction(new ModelNodeAction
+                   (resetSizeDisplayName, editCategory, 180, &resetSize, &selectionNotEmptyAndHasWidthOrHeightProperty));
+        addDesignerAction(new VisiblityModelNodeAction
+                   (visibilityDisplayName, editCategory, 160, &setVisible, &singleSelectedItem));
 
-    addDesignerAction(new MenuDesignerAction<SingleSelection_And_InBaseState>(anchorsCategoryDisplayName, anchorsCategory, priorityAnchorsCategory));
-        addDesignerAction(new ModelNodeActionFactory<Functor<ModelNodeOperations::anchorsFill>, SingleSelectionItemNotAnchored>
-                   (anchorsFillDisplayName, anchorsCategory, 200));
-        addDesignerAction(new ModelNodeActionFactory<Functor<ModelNodeOperations::anchorsReset>,
-                   SingleSelectionItemIsAnchored>(anchorsResetDisplayName, anchorsCategory, 180));
+    addDesignerAction(new MenuDesignerAction(anchorsCategoryDisplayName, anchorsCategory,
+                    priorityAnchorsCategory, &singleSelectionAndInBaseState));
+        addDesignerAction(new ModelNodeAction
+                   (anchorsFillDisplayName, anchorsCategory, 200, &anchorsFill, &singleSelectionItemIsNotAnchored));
+        addDesignerAction(new ModelNodeAction
+                   (anchorsResetDisplayName, anchorsCategory, 180, &anchorsReset, &singleSelectionItemIsAnchored));
 
-    addDesignerAction(new MenuDesignerAction<MultiSelection_And_InBaseState>(layoutCategoryDisplayName, layoutCategory, priorityLayoutCategory));
-        addDesignerAction(new ModelNodeActionFactory<Functor<ModelNodeOperations::layoutRow>, SelectionCanBeLayouted>
-                   (layoutRowDisplayName, layoutCategory, 200));
-        addDesignerAction(new ModelNodeActionFactory<Functor<ModelNodeOperations::layoutColumn>, SelectionCanBeLayouted>
-                   (layoutColumnDisplayName, layoutCategory, 180));
-        addDesignerAction(new ModelNodeActionFactory<Functor<ModelNodeOperations::layoutColumn>, SelectionCanBeLayouted>
-                   (layoutGridDisplayName, layoutCategory, 160));
-        addDesignerAction(new ModelNodeActionFactory<Functor<ModelNodeOperations::layoutFlow>, SelectionCanBeLayouted>
-                   (layoutFlowDisplayName, layoutCategory, 140));
+    addDesignerAction(new MenuDesignerAction(layoutCategoryDisplayName, layoutCategory,
+                    priorityLayoutCategory, &multiSelectionAndInBaseState));
+        addDesignerAction(new ModelNodeAction
+                   (layoutRowDisplayName, layoutCategory, 200, &layoutRow, &selectionCanBeLayouted));
+        addDesignerAction(new ModelNodeAction
+                   (layoutColumnDisplayName, layoutCategory, 180, &layoutColumn, &selectionCanBeLayouted));
+        addDesignerAction(new ModelNodeAction
+                   (layoutGridDisplayName, layoutCategory, 160, &layoutGrid, &selectionCanBeLayouted));
+        addDesignerAction(new ModelNodeAction
+                   (layoutFlowDisplayName, layoutCategory, 140, &layoutFlow, &selectionCanBeLayouted));
 
-    addDesignerAction(new SeperatorDesignerAction<>(rootCategory, priorityTopLevelSeperator));
-    addDesignerAction(new ModelNodeActionFactory<Functor<ModelNodeOperations::goIntoComponent>,
-               SelectionIsComponent>(goIntoComponentDisplayName, rootCategory, priorityGoIntoComponent));
+    addDesignerAction(new SeperatorDesignerAction(rootCategory, priorityTopLevelSeperator));
+    addDesignerAction(new ModelNodeAction
+               (goIntoComponentDisplayName, rootCategory, priorityGoIntoComponent, &goIntoComponent, &selectionIsComponent));
 }
 
 DesignerActionManager *DesignerActionManager::instance()

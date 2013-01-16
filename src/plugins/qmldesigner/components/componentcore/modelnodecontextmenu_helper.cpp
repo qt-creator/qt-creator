@@ -219,9 +219,10 @@ static inline void openInlineComponent(const ModelNode &node)
     //rootModelNode.setAuxiliaryData("height", height);
 }
 
-void ComponentUtils::goIntoComponent(const ModelNode &modelNode)
-{
+namespace ComponentUtils {
 
+void goIntoComponent(const ModelNode &modelNode)
+{
     if (modelNode.isValid() && modelNodeIsComponent(modelNode)) {
         if (isFileComponent(modelNode))
             openFileForComponent(modelNode);
@@ -230,9 +231,12 @@ void ComponentUtils::goIntoComponent(const ModelNode &modelNode)
     }
 }
 
+} // namespace ComponentUtils
+
 namespace SelectionContextFunctors {
 
-bool SingleSelectionItemIsAnchored::operator() (const SelectionContext &selectionState) {
+bool singleSelectionItemIsAnchored(const SelectionContext &selectionState)
+{
     QmlItemNode itemNode(selectionState.currentSingleSelectedNode());
     if (selectionState.isInBaseState() && itemNode.isValid()) {
         bool anchored = itemNode.instanceHasAnchors();
@@ -241,7 +245,8 @@ bool SingleSelectionItemIsAnchored::operator() (const SelectionContext &selectio
     return false;
 }
 
-bool SingleSelectionItemNotAnchored::operator() (const SelectionContext &selectionState) {
+bool singleSelectionItemIsNotAnchored(const SelectionContext &selectionState)
+{
     QmlItemNode itemNode(selectionState.currentSingleSelectedNode());
     if (selectionState.isInBaseState() && itemNode.isValid()) {
         bool anchored = itemNode.instanceHasAnchors();
@@ -250,12 +255,12 @@ bool SingleSelectionItemNotAnchored::operator() (const SelectionContext &selecti
     return false;
 }
 
-bool SelectionHasSameParent::operator() (const SelectionContext &selectionState)
+bool selectionHasSameParent(const SelectionContext &selectionState)
 {
     return !selectionState.selectedModelNodes().isEmpty() && itemsHaveSameParent(selectionState.selectedModelNodes());
 }
 
-bool SelectionIsComponent::operator() (const SelectionContext &selectionState)
+bool selectionIsComponent(const SelectionContext &selectionState)
 {
     return modelNodeIsComponent(selectionState.currentSingleSelectedNode());
 }

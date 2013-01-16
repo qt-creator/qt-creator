@@ -31,6 +31,7 @@
 #define MODELNODECONTEXTMENU_HELPER_H
 
 #include "modelnodecontextmenu.h"
+#include "modelnodeoperations.h"
 #include "designeractionmanager.h"
 
 #include <QAction>
@@ -38,114 +39,70 @@
 
 namespace QmlDesigner {
 
+typedef  bool (*SelectionContextFunction)(const SelectionContext &);
+
 namespace SelectionContextFunctors {
 
-struct Always {
-    bool operator() (const SelectionContext &) {
-        return true;
-    }
-};
+inline bool always(const SelectionContext &)
+{
+    return true;
+}
 
-struct InBaseState {
-    bool operator() (const SelectionContext &selectionState) {
-        return selectionState.isInBaseState();
-    }
-};
+inline bool inBaseState(const SelectionContext &selectionState)
+{
+    return selectionState.isInBaseState();
+}
 
-struct SingleSelection {
-    bool operator() (const SelectionContext &selectionState) {
-        return selectionState.singleSelected();
-    }
-};
+inline bool singleSelection(const SelectionContext &selectionState)
+{
+    return selectionState.singleSelected();
+}
 
-struct SelectionEnabled {
-    bool operator() (const SelectionContext &selectionState) {
-        return selectionState.showSelectionTools();
-    }
-};
+inline bool selectionEnabled(const SelectionContext &selectionState)
+{
+    return selectionState.showSelectionTools();
+}
 
-struct SelectionNotEmpty {
-    bool operator() (const SelectionContext &selectionState) {
-        return !selectionState.selectedModelNodes().isEmpty();
-    }
-};
+inline bool selectionNotEmpty(const SelectionContext &selectionState)
+{
+    return !selectionState.selectedModelNodes().isEmpty();
+}
 
-struct SingleSelectionNotRoot {
-    bool operator() (const SelectionContext &selectionState) {
-        return selectionState.singleSelected()
-                && !selectionState.currentSingleSelectedNode().isRootNode();
-    }
-};
+inline bool singleSelectionNotRoot(const SelectionContext &selectionState)
+{
+    return selectionState.singleSelected()
+        && !selectionState.currentSingleSelectedNode().isRootNode();
+}
 
-template <class T1, class T2>
-struct And {
-    bool operator() (const SelectionContext &selectionState) {
-        T1 t1;
-        T2 t2;
-        return t1(selectionState) && t2(selectionState);
-    }
-};
+inline bool selectionHasProperty(const SelectionContext &selectionState, const char *property)
+{
+    foreach (const ModelNode &modelNode, selectionState.selectedModelNodes())
+        if (modelNode.hasProperty(QLatin1String(property)))
+            return true;
+    return false;
+}
 
-template <class T1, class T2>
-struct Or {
-    bool operator() (const SelectionContext &selectionState) {
-        T1 t1;
-        T2 t2;
-        return t1(selectionState) || t2(selectionState);
-    }
-};
+inline bool singleSelectedItem(const SelectionContext &selectionState)
+{
+    QmlItemNode itemNode(selectionState.currentSingleSelectedNode());
+    return itemNode.isValid();
+}
 
-template <class T1>
-struct Not {
-    bool operator() (const SelectionContext &selectionState) {
-        T1 t1;
-        return !t1(selectionState);
-    }
-};
+bool selectionHasSameParent(const SelectionContext &selectionState);
+bool selectionIsComponent(const SelectionContext &selectionState);
+bool selectionIsComponent(const SelectionContext &selectionState);
+bool singleSelectionItemIsAnchored(const SelectionContext &selectionState);
+bool singleSelectionItemIsNotAnchored(const SelectionContext &selectionState);
 
-template <char* PROPERTYNAME>
-struct SelectionHasProperty {
-    bool operator() (const SelectionContext &selectionState) {
-        foreach (const ModelNode &modelNode, selectionState.selectedModelNodes())
-            if (modelNode.hasProperty(QLatin1String(PROPERTYNAME)))
-                return true;
-        return false;
-    }
-};
-
-struct SelectionHasSameParent {
-    bool operator() (const SelectionContext &selectionState);
-};
-
-struct SelectionIsComponent {
-    bool operator() (const SelectionContext &selectionState);
-};
-
-struct SingleSelectionItemIsAnchored {
-    bool operator() (const SelectionContext &selectionState);
-};
-
-struct SingleSelectionItemNotAnchored {
-    bool operator() (const SelectionContext &selectionState);
-};
-
-struct SingleSelectedItem {
-    bool operator() (const SelectionContext &selectionState) {
-        QmlItemNode itemNode(selectionState.currentSingleSelectedNode());
-        return itemNode.isValid();
-    }
-};
-
-} //SelectionStateFunctors
+} // namespace SelectionStateFunctors
 
 
-class ComponentUtils {
-public:
-    static void goIntoComponent(const ModelNode &modelNode);
-};
+namespace ComponentUtils {
+    void goIntoComponent(const ModelNode &modelNode);
+}
 
-class DefaultAction : public QAction {
-
+class DefaultAction : public QAction
+{
     Q_OBJECT
 
 public:
@@ -155,7 +112,7 @@ public:
     }
 
 public slots: //virtual method instead of slot
-    virtual void actionTriggered(bool )
+    virtual void actionTriggered(bool)
     { }
 
     void setSelectionContext(const SelectionContext &selectionContext)
@@ -167,19 +124,36 @@ protected:
     SelectionContext m_selectionContext;
 };
 
+class ActionTemplate : public DefaultAction
+{
+
+public:
+    ActionTemplate(const QString &description, ModelNodeOperations::SelectionAction action)
+        : DefaultAction(description), m_action(action)
+    { }
+
+public /*slots*/:
+    virtual void actionTriggered(bool b)
+    {
+        m_selectionContext.setToggled(b);
+        return m_action(m_selectionContext);
+    }
+    ModelNodeOperations::SelectionAction m_action;
+};
+
+
 class DefaultDesignerAction : public AbstractDesignerAction
 {
 public:
-    DefaultDesignerAction(const QString &description) : m_action(new DefaultAction(description))
+    DefaultDesignerAction() : m_action(new DefaultAction(QString()))
     {}
 
     DefaultDesignerAction(DefaultAction *action) : m_action(action)
     {}
 
-    virtual QAction *action() const
-    { return m_action; }
+    QAction *action() const { return m_action; }
 
-    virtual void setCurrentContext(const SelectionContext &selectionContext)
+    void setCurrentContext(const SelectionContext &selectionContext)
     {
         m_selectionContext = selectionContext;
         updateContext();
@@ -199,41 +173,30 @@ protected:
     SelectionContext m_selectionContext;
 };
 
-template <class ENABLED = SelectionContextFunctors::Always,
-          class VISIBILITY = SelectionContextFunctors::Always>
 class MenuDesignerAction : public AbstractDesignerAction
 {
 public:
-    MenuDesignerAction(const QString &displayName, const QString &menuId, int priority) :
+    MenuDesignerAction(const QString &displayName, const QString &menuId, int priority,
+            SelectionContextFunction enabled = &SelectionContextFunctors::always,
+            SelectionContextFunction visibility = &SelectionContextFunctors::always) :
         m_displayName(displayName),
         m_menuId(menuId),
         m_priority(priority),
-        m_menu(new QMenu)
+        m_menu(new QMenu),
+        m_enabled(enabled),
+        m_visibility(visibility)
     {
         m_menu->setTitle(displayName);
         m_action = m_menu->menuAction();
     }
 
-    virtual bool isVisible(const SelectionContext &m_selectionState) const
-    { VISIBILITY visibility; return visibility(m_selectionState); }
-
-    virtual bool isEnabled(const SelectionContext &m_selectionState) const
-    { ENABLED enabled; return enabled(m_selectionState); }
-
-    virtual QString category() const
-    { return QString(""); }
-
-    virtual QString menuId() const
-    { return m_menuId; }
-
-    virtual int priority() const
-    { return m_priority; }
-
-    virtual AbstractDesignerAction::Type type() const
-    { return AbstractDesignerAction::Menu; }
-
-    virtual QAction *action() const
-    { return m_action; }
+    bool isVisible(const SelectionContext &m_selectionState) const { return m_visibility(m_selectionState); }
+    bool isEnabled(const SelectionContext &m_selectionState) const { return m_enabled(m_selectionState); }
+    QString category() const { return QString(); }
+    QString menuId() const { return m_menuId; }
+    int priority() const { return m_priority; }
+    AbstractDesignerAction::Type type() const { return AbstractDesignerAction::Menu; }
+    QAction *action() const { return m_action; }
 
     virtual void setCurrentContext(const SelectionContext &selectionContext)
     {
@@ -256,91 +219,59 @@ protected:
     SelectionContext m_selectionContext;
     QScopedPointer<QMenu> m_menu;
     QAction *m_action;
+    SelectionContextFunction m_enabled;
+    SelectionContextFunction m_visibility;
 };
 
-template <class VISIBILITY = SelectionContextFunctors::Always>
 class SeperatorDesignerAction : public DefaultDesignerAction
 {
 public:
     SeperatorDesignerAction(const QString &category, int priority) :
-        DefaultDesignerAction(QString()),
-        m_category(category), m_priority(priority)
+        m_category(category),
+        m_priority(priority),
+        m_visibility(&SelectionContextFunctors::always)
     { m_action->setSeparator(true); }
 
-    virtual bool isVisible(const SelectionContext &m_selectionState) const
-    { VISIBILITY visibility; return visibility(m_selectionState); }
+    bool isVisible(const SelectionContext &m_selectionState) const { return m_visibility(m_selectionState); }
+    bool isEnabled(const SelectionContext &) const { return true; }
+    QString category() const { return m_category; }
+    QString menuId() const { return QString(); }
+    int priority() const { return m_priority; }
+    Type type() const { return Action; }
+    void setCurrentContext(const SelectionContext &) {}
 
-    virtual bool isEnabled(const SelectionContext &) const
-    { return true; }
-
-    virtual QString category() const
-    { return m_category; }
-
-    virtual QString menuId() const
-    { return QString(); }
-
-    virtual int priority() const
-    { return m_priority; }
-
-    virtual Type type() const
-    { return Action; }
-
-    virtual void setCurrentContext(const SelectionContext &)
-    {}
 private:
     const QString m_category;
     const int m_priority;
+    SelectionContextFunction m_visibility;
 };
 
-template <class ACTION>
-class ActionTemplate : public DefaultAction {
-
-public:
-    ActionTemplate(const QString &description) : DefaultAction(description)
-    { }
-
-public /*slots*/:
-    virtual void actionTriggered(bool b)
-    {
-        m_selectionContext.setToggled(b);
-        ACTION action;
-        return action(m_selectionContext);
-    }
-};
-
-template <class ACTION,
-          class ENABLED = SelectionContextFunctors::Always,
-          class VISIBILITY = SelectionContextFunctors::Always>
-class ModelNodeActionFactory : public DefaultDesignerAction
+class ModelNodeAction : public DefaultDesignerAction
 {
 public:
-    ModelNodeActionFactory(const QString &description,  const QString &category, int priority) :
-        DefaultDesignerAction(new ActionTemplate<ACTION>(description)),
+    ModelNodeAction(const QString &description,  const QString &category, int priority,
+            ModelNodeOperations::SelectionAction selectionAction,
+            SelectionContextFunction enabled = &SelectionContextFunctors::always,
+            SelectionContextFunction visibility = &SelectionContextFunctors::always) :
+        DefaultDesignerAction(new ActionTemplate(description, selectionAction)),
         m_category(category),
-        m_priority(priority)
+        m_priority(priority),
+        m_enabled(enabled),
+        m_visibility(visibility)
     {}
 
-    virtual bool isVisible(const SelectionContext &selectionState) const
-    { VISIBILITY visibility; return visibility(selectionState); }
-
-    virtual bool isEnabled(const SelectionContext &selectionState) const
-    { ENABLED enabled; return enabled(selectionState); }
-
-    virtual QString category() const
-    { return m_category; }
-
-    virtual QString menuId() const
-    { return QString(); }
-
-    virtual int priority() const
-    { return m_priority; }
-
-    virtual Type type() const
-    { return Action; }
+    bool isVisible(const SelectionContext &selectionState) const { return m_visibility(selectionState); }
+    bool isEnabled(const SelectionContext &selectionState) const { return m_enabled(selectionState); }
+    QString category() const { return m_category; }
+    QString menuId() const { return QString(); }
+    int priority() const { return m_priority; }
+    Type type() const { return Action; }
 
 private:
- const QString m_category;
- const int m_priority;
+    const QString m_category;
+    const int m_priority;
+    const SelectionContextFunction m_enabled;
+    const SelectionContextFunction m_visibility;
 };
 
 

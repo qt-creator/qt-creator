@@ -112,18 +112,21 @@ static inline bool modelNodesHaveProperty(const QList<ModelNode> &modelNodeList,
     return false;
 }
 
-void ModelNodeOperations::goIntoComponent(const ModelNode &modelNode)
+
+namespace ModelNodeOperations {
+
+void goIntoComponent(const ModelNode &modelNode)
 {
     ComponentUtils::goIntoComponent(modelNode);
 }
 
-void ModelNodeOperations::select(const SelectionContext &selectionState)
+void select(const SelectionContext &selectionState)
 {
     if (selectionState.view())
         selectionState.view()->setSelectedModelNodes(QList<ModelNode>() << selectionState.targetNode());
 }
 
-void ModelNodeOperations::deSelect(const SelectionContext &selectionState)
+void deSelect(const SelectionContext &selectionState)
 {
     if (selectionState.view()) {
         QList<ModelNode> selectedNodes = selectionState.view()->selectedModelNodes();
@@ -135,20 +138,20 @@ void ModelNodeOperations::deSelect(const SelectionContext &selectionState)
     }
 }
 
-void ModelNodeOperations::cut(const SelectionContext &)
+void cut(const SelectionContext &)
 {
 }
 
 
-void ModelNodeOperations::copy(const SelectionContext &)
+void copy(const SelectionContext &)
 {
 }
 
-void ModelNodeOperations::deleteSelection(const SelectionContext &)
+void deleteSelection(const SelectionContext &)
 {
 }
 
-void ModelNodeOperations::toFront(const SelectionContext &selectionState)
+void toFront(const SelectionContext &selectionState)
 {
     if (!selectionState.view())
         return;
@@ -166,7 +169,7 @@ void ModelNodeOperations::toFront(const SelectionContext &selectionState)
 }
 
 
-void ModelNodeOperations::toBack(const SelectionContext &selectionState)
+void toBack(const SelectionContext &selectionState)
 {
     if (!selectionState.view())
         return;
@@ -183,7 +186,7 @@ void ModelNodeOperations::toBack(const SelectionContext &selectionState)
     }
 }
 
-void ModelNodeOperations::raise(const SelectionContext &selectionState)
+void raise(const SelectionContext &selectionState)
 {
     if (!selectionState.view())
         return;
@@ -203,7 +206,7 @@ void ModelNodeOperations::raise(const SelectionContext &selectionState)
     }
 }
 
-void ModelNodeOperations::lower(const SelectionContext &selectionState)
+void lower(const SelectionContext &selectionState)
 {
 
     if (!selectionState.view())
@@ -224,19 +227,19 @@ void ModelNodeOperations::lower(const SelectionContext &selectionState)
     }
 }
 
-void ModelNodeOperations::paste(const SelectionContext &)
+void paste(const SelectionContext &)
 {
 }
 
-void ModelNodeOperations::undo(const SelectionContext &)
+void undo(const SelectionContext &)
 {
 }
 
-void ModelNodeOperations::redo(const SelectionContext &)
+void redo(const SelectionContext &)
 {
 }
 
-void ModelNodeOperations::setVisible(const SelectionContext &selectionState)
+void setVisible(const SelectionContext &selectionState)
 {
     if (!selectionState.view())
         return;
@@ -249,7 +252,7 @@ void ModelNodeOperations::setVisible(const SelectionContext &selectionState)
 }
 
 
-void ModelNodeOperations::resetSize(const SelectionContext &selectionState)
+void resetSize(const SelectionContext &selectionState)
 {
     if (!selectionState.view())
         return;
@@ -265,7 +268,7 @@ void ModelNodeOperations::resetSize(const SelectionContext &selectionState)
     }
 }
 
-void ModelNodeOperations::resetPosition(const SelectionContext &selectionState)
+void resetPosition(const SelectionContext &selectionState)
 {
     if (!selectionState.view())
         return;
@@ -281,16 +284,16 @@ void ModelNodeOperations::resetPosition(const SelectionContext &selectionState)
     }
 }
 
-void ModelNodeOperations::goIntoComponent(const SelectionContext &selectionState)
+void goIntoComponent(const SelectionContext &selectionState)
 {
     goIntoComponent(selectionState.currentSingleSelectedNode());
 }
 
-void ModelNodeOperations::setId(const SelectionContext &)
+void setId(const SelectionContext &)
 {
 }
 
-void ModelNodeOperations::resetZ(const SelectionContext &selectionState)
+void resetZ(const SelectionContext &selectionState)
 {
     if (!selectionState.view())
         return;
@@ -321,7 +324,7 @@ static inline void restoreProperty(ModelNode node, const QString &propertyName)
         node.variantProperty(propertyName) = node.auxiliaryData(auxDataString + propertyName);
 }
 
-void ModelNodeOperations::anchorsFill(const SelectionContext &selectionState)
+void anchorsFill(const SelectionContext &selectionState)
 {
     if (!selectionState.view())
         return;
@@ -340,7 +343,7 @@ void ModelNodeOperations::anchorsFill(const SelectionContext &selectionState)
     }
 }
 
-void ModelNodeOperations::anchorsReset(const SelectionContext &selectionState)
+void anchorsReset(const SelectionContext &selectionState)
 {
     if (!selectionState.view())
         return;
@@ -423,7 +426,7 @@ static inline QPoint getUpperLeftPosition(const QList<ModelNode> &modelNodeList)
     return p;
 }
 
-void ModelNodeOperations::layoutRow(const SelectionContext &selectionState)
+void layoutRow(const SelectionContext &selectionState)
 {
     if (!selectionState.view())
         return;
@@ -468,7 +471,7 @@ void ModelNodeOperations::layoutRow(const SelectionContext &selectionState)
     }
 }
 
-void ModelNodeOperations::layoutColumn(const SelectionContext &selectionState)
+void layoutColumn(const SelectionContext &selectionState)
 {
     if (!selectionState.view())
         return;
@@ -511,7 +514,7 @@ void ModelNodeOperations::layoutColumn(const SelectionContext &selectionState)
     }
 }
 
-void ModelNodeOperations::layoutGrid(const SelectionContext &selectionState)
+void layoutGrid(const SelectionContext &selectionState)
 {
     if (!selectionState.view())
         return;
@@ -555,7 +558,7 @@ void ModelNodeOperations::layoutGrid(const SelectionContext &selectionState)
     }
 }
 
-void ModelNodeOperations::layoutFlow(const SelectionContext &selectionState)
+void layoutFlow(const SelectionContext &selectionState)
 {
     if (!selectionState.view())
         return;
@@ -597,5 +600,7 @@ void ModelNodeOperations::layoutFlow(const SelectionContext &selectionState)
         }
     }
 }
+
+} // namespace Mode
 
 } //QmlDesigner

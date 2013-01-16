@@ -33,38 +33,38 @@
 #include "selectioncontext.h"
 
 namespace QmlDesigner {
+namespace ModelNodeOperations {
 
-class ModelNodeOperations
-{
-public:
-    static void goIntoComponent(const ModelNode &modelNode);
+void goIntoComponent(const ModelNode &modelNode);
 
-    static void select(const SelectionContext &selectionState);
-    static void deSelect(const SelectionContext &selectionState);
-    static void cut(const SelectionContext &selectionState);
-    static void copy(const SelectionContext &selectionState);
-    static void deleteSelection(const SelectionContext &selectionState);
-    static void toFront(const SelectionContext &selectionState);
-    static void toBack(const SelectionContext &selectionState);
-    static void raise(const SelectionContext &selectionState);
-    static void lower(const SelectionContext &selectionState);
-    static void paste(const SelectionContext &selectionState);
-    static void undo(const SelectionContext &selectionState);
-    static void redo(const SelectionContext &selectionState);
-    static void setVisible(const SelectionContext &selectionState);
-    static void resetSize(const SelectionContext &selectionState);
-    static void resetPosition(const SelectionContext &selectionState);
-    static void goIntoComponent(const SelectionContext &selectionState);
-    static void setId(const SelectionContext &selectionState);
-    static void resetZ(const SelectionContext &selectionState);
-    static void anchorsFill(const SelectionContext &selectionState);
-    static void anchorsReset(const SelectionContext &selectionState);
-    static void layoutRow(const SelectionContext &selectionState);
-    static void layoutColumn(const SelectionContext &selectionState);
-    static void layoutGrid(const SelectionContext &selectionState);
-    static void layoutFlow(const SelectionContext &selectionState);
-};
+typedef void (*SelectionAction)(const SelectionContext &);
 
+void select(const SelectionContext &selectionState);
+void deSelect(const SelectionContext &selectionState);
+void cut(const SelectionContext &selectionState);
+void copy(const SelectionContext &selectionState);
+void deleteSelection(const SelectionContext &selectionState);
+void toFront(const SelectionContext &selectionState);
+void toBack(const SelectionContext &selectionState);
+void raise(const SelectionContext &selectionState);
+void lower(const SelectionContext &selectionState);
+void paste(const SelectionContext &selectionState);
+void undo(const SelectionContext &selectionState);
+void redo(const SelectionContext &selectionState);
+void setVisible(const SelectionContext &selectionState);
+void resetSize(const SelectionContext &selectionState);
+void resetPosition(const SelectionContext &selectionState);
+void goIntoComponent(const SelectionContext &selectionState);
+void setId(const SelectionContext &selectionState);
+void resetZ(const SelectionContext &selectionState);
+void anchorsFill(const SelectionContext &selectionState);
+void anchorsReset(const SelectionContext &selectionState);
+void layoutRow(const SelectionContext &selectionState);
+void layoutColumn(const SelectionContext &selectionState);
+void layoutGrid(const SelectionContext &selectionState);
+void layoutFlow(const SelectionContext &selectionState);
+
+} // namespace ModelNodeOperationso
 } //QmlDesigner
 
 #endif //MODELNODEOPERATIONS_H
