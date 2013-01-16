@@ -6,6 +6,7 @@ QT += testlib
 CONFIG += qt warn_on console depend_includepath testcase
 CONFIG -= app_bundle
 
+DEFINES -= QT_NO_CAST_FROM_ASCII
 # prefix test binary with tst_
 !contains(TARGET, ^tst_.*):TARGET = $$join(TARGET,,"tst_")
 
