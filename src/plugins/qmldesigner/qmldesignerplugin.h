@@ -31,10 +31,9 @@
 #define QMLDESIGNERPLUGIN_H
 
 #include <qmldesigner/designersettings.h>
+#include <qmldesigner/components/pluginmanager/pluginmanager.h>
 
 #include <extensionsystem/iplugin.h>
-
-#include <extensionsystem/pluginmanager.h>
 
 #include <QWeakPointer>
 #include <QStringList>
@@ -89,7 +88,7 @@ private:
     QStringList m_mimeTypes;
     DesignModeWidget *m_mainWidget;
 
-    ExtensionSystem::PluginManager m_pluginManager;
+    QmlDesigner::PluginManager m_pluginManager;
     static BauhausPlugin *m_pluginInstance;
     DesignerSettings m_settings;
     DesignModeContext *m_context;
