@@ -51,7 +51,7 @@
 #include <QScrollArea>
 #include <QDesktopServices>
 #include <QPainter>
-#include <QHBoxLayout>
+#include <QVBoxLayout>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -125,7 +125,6 @@ private:
 
     QWidget *m_modeWidget;
     QDeclarativeView *m_welcomePage;
-    QHBoxLayout * buttonLayout;
     QList<QObject*> m_pluginList;
     int m_activePlugin;
     NetworkAccessManagerFactory *m_networkAccessManagerFactory;
