@@ -34,7 +34,7 @@
 
 #define TEST_CORRECTLY_MANGLED_NAME(mangled, expectedDemangled) \
     do { \
-        QVERIFY2(demangler.demangle(mangled), qPrintable(demangler.errorString())); \
+        QVERIFY2(demangler.demangle(QLatin1String(mangled)), qPrintable(demangler.errorString())); \
         QCOMPARE(demangler.demangledName(), QLatin1String(expectedDemangled)); \
     } while (0)
 
@@ -58,7 +58,8 @@ private:
 
 void NameDemanglerAutoTest::testUnmangledName()
 {
-    QVERIFY(demangler.demangle("f") && demangler.demangledName() == "f");
+    QVERIFY(demangler.demangle(QLatin1String("f"))
+            && demangler.demangledName() == QLatin1String("f"));
 }
 
 void NameDemanglerAutoTest::testCorrectlyMangledNames()
