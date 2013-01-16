@@ -275,7 +275,7 @@ void OutputPaneManager::init()
 
         QString actionId = QLatin1String("QtCreator.Pane.") + outPane->displayName().simplified();
         actionId.remove(QLatin1Char(' '));
-        Id id(actionId);
+        Id id = Id::fromString(actionId);
         QAction *action = new QAction(outPane->displayName(), this);
         Command *cmd = ActionManager::registerAction(action, id, globalContext);
 

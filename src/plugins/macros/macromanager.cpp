@@ -155,14 +155,18 @@ void MacroManager::MacroManagerPrivate::initialize()
     }
 }
 
+static Core::Id makeId(const QString &name)
+{
+    return Core::Id::fromString(QLatin1String(Constants::PREFIX_MACRO) + name);
+}
+
 void MacroManager::MacroManagerPrivate::addMacro(Macro *macro)
 {
     // Add sortcut
     Core::Context context(TextEditor::Constants::C_TEXTEDITOR);
     QShortcut *shortcut = new QShortcut(Core::ICore::mainWindow());
     shortcut->setWhatsThis(macro->description());
-    const Core::Id macroId(QLatin1String(Constants::PREFIX_MACRO) + macro->displayName());
-    Core::ActionManager::registerShortcut(shortcut, macroId, context);
+    Core::ActionManager::registerShortcut(shortcut, makeId(macro->displayName()), context);
     connect(shortcut, SIGNAL(activated()), mapper, SLOT(map()));
     mapper->setMapping(shortcut, macro->displayName());
 
@@ -175,7 +179,7 @@ void MacroManager::MacroManagerPrivate::removeMacro(const QString &name)
     if (!macros.contains(name))
         return;
     // Remove shortcut
-    Core::ActionManager::unregisterShortcut(Core::Id(QLatin1String(Constants::PREFIX_MACRO) + name));
+    Core::ActionManager::unregisterShortcut(makeId(name));
 
     // Remove macro from the map
     Macro *macro = macros.take(name);
@@ -190,8 +194,7 @@ void MacroManager::MacroManagerPrivate::changeMacroDescription(Macro *macro, con
     macro->save(macro->fileName(), Core::ICore::mainWindow());
 
     // Change shortcut what's this
-    Core::Command *command = Core::ActionManager::command(
-                Core::Id(QLatin1String(Constants::PREFIX_MACRO)+macro->displayName()));
+    Core::Command *command = Core::ActionManager::command(makeId(macro->displayName()));
     if (command && command->shortcut())
         command->shortcut()->setWhatsThis(description);
 }

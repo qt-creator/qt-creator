@@ -111,7 +111,7 @@ void MacroOptionsWidget::createTable()
             macroItem->setData(0, WRITE_ROLE, it.value()->isWritable());
 
             Core::Command *command =
-                    Core::ActionManager::command(Core::Id(QLatin1String(Constants::PREFIX_MACRO)
+                    Core::ActionManager::command(Core::Id::fromString(QLatin1String(Constants::PREFIX_MACRO)
                                                           + it.value()->displayName()));
             if (command && command->shortcut())
                 macroItem->setText(2, command->shortcut()->key().toString());

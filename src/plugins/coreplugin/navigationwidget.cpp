@@ -339,7 +339,7 @@ void NavigationWidget::restoreSettings(QSettings *settings)
 
     int position = 0;
     foreach (const QString &id, viewIds) {
-        int index = factoryIndex(Id(id));
+        int index = factoryIndex(Id::fromString(id));
         if (index >= 0) {
             // Only add if the id was actually found!
             insertSubItem(position, index);
