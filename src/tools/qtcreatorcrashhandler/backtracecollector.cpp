@@ -122,7 +122,7 @@ QString BacktraceCollector::createTemporaryCommandFile()
 
 void BacktraceCollector::onDebuggerOutputAvailable()
 {
-    const QString newChunk = d->debugger.readAll();
+    const QString newChunk = QString::fromLocal8Bit(d->debugger.readAll());
     d->output.append(newChunk);
     emit backtraceChunk(newChunk);
 }

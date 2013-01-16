@@ -115,7 +115,7 @@ bool RmKitOperation::test() const
 
     QVariantMap result = rmKit(map, QLatin1String("testId"));
     if (result.count() != 4
-            || !result.contains("Profile.0")
+            || !result.contains(QLatin1String("Profile.0"))
             || !result.contains(QLatin1String(COUNT))
             || result.value(QLatin1String(COUNT)).toInt() != 1
             || !result.contains(QLatin1String(DEFAULT))
@@ -130,7 +130,7 @@ bool RmKitOperation::test() const
 
     result = rmKit(map, QLatin1String("testId2"));
     if (result.count() != 4
-            || !result.contains("Profile.0")
+            || !result.contains(QLatin1String("Profile.0"))
             || !result.contains(QLatin1String(COUNT))
             || result.value(QLatin1String(COUNT)).toInt() != 1
             || !result.contains(QLatin1String(DEFAULT))

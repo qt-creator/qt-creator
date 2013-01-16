@@ -113,7 +113,7 @@ bool RmKeysOperation::test() const
         return false;
 
     data.clear();
-    data.append("subkeys/subsubkeys");
+    data.append(QLatin1String("subkeys/subsubkeys"));
     result = rmKeys(testMap, data);
 
     if (result.count() != 3
@@ -131,7 +131,7 @@ bool RmKeysOperation::test() const
         return false;
 
     data.clear();
-    data.append("subkeys/testbool");
+    data.append(QLatin1String("subkeys/testbool"));
     result = rmKeys(testMap, data);
 
     if (result.count() != 3

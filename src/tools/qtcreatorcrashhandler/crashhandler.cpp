@@ -90,7 +90,7 @@ class CrashHandlerPrivate
 public:
     CrashHandlerPrivate(pid_t pid, const QString &signalName, CrashHandler *crashHandler)
         : pid(pid),
-          creatorInPath(Utils::Environment::systemEnvironment().searchInPath(QtCreatorExecutable)),
+          creatorInPath(Utils::Environment::systemEnvironment().searchInPath(QLatin1String(QtCreatorExecutable))),
           dialog(crashHandler, signalName) {}
 
     const pid_t pid;
@@ -161,7 +161,7 @@ void CrashHandler::onBacktraceFinished(const QString &backtrace)
     // ...
     // Thread 1 (Thread 0x7f1c33c79780 (LWP 975)):
     // ...
-    QRegExp rx("\\[Current thread is (\\d+)");
+    QRegExp rx(QLatin1String("\\[Current thread is (\\d+)"));
     const int pos = rx.indexIn(backtrace);
     if (pos == -1)
         return;
@@ -172,7 +172,7 @@ void CrashHandler::onBacktraceFinished(const QString &backtrace)
 
 void CrashHandler::openBugTracker()
 {
-    QDesktopServices::openUrl(QUrl(URL_BUGTRACKER));
+    QDesktopServices::openUrl(QUrl(QLatin1String(URL_BUGTRACKER)));
 }
 
 bool CrashHandler::collectRestartAppData()
