@@ -59,6 +59,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmacroexpander.h>
 #include <utils/qtcassert.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/qmldumptool.h>
@@ -98,52 +99,6 @@ Qt4BuildConfiguration *enableActiveQt4BuildConfiguration(ProjectExplorer::Target
     bc->setEnabled(enabled);
     return bc;
 }
-
-class Qt4ProjectExpander : public Utils::AbstractQtcMacroExpander
-{
-public:
-    Qt4ProjectExpander(const QString &proFilePath, const Kit *k, const QString &bcName) :
-        m_proFile(proFilePath), m_kit(k), m_bcName(bcName)
-    { }
-
-    bool resolveMacro(const QString &name, QString *ret)
-    {
-        QString result;
-        bool found = false;
-        if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTPROJECT_NAME)) {
-            result = m_proFile.baseName();
-            found = true;
-        } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTPROJECT_PATH)) {
-            result = m_proFile.absolutePath();
-            found = true;
-        } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTPROJECT_FILEPATH)) {
-            result = m_proFile.absoluteFilePath();
-            found = true;
-        } else if (m_kit && name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTKIT_NAME)) {
-            result = m_kit->displayName();
-            found = true;
-        } else if (m_kit && name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTKIT_FILESYSTEMNAME)) {
-            result = m_kit->fileSystemFriendlyName();
-            found = true;
-        } else if (m_kit && name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTKIT_ID)) {
-            result = m_kit->id().toString();
-            found = true;
-        } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTBUILD_NAME)) {
-            result = m_bcName;
-            found = true;
-        } else {
-            result = Core::VariableManager::instance()->value(name.toUtf8(), &found);
-        }
-        if (ret)
-            *ret = result;
-        return found;
-    }
-
-private:
-    QFileInfo m_proFile;
-    const Kit *m_kit;
-    QString m_bcName;
-};
 
 } // namespace
 
@@ -1450,7 +1405,8 @@ QString Qt4Project::shadowBuildDirectory(const QString &proFilePath, const Kit *
     if (version && !version->supportsShadowBuilds())
         return info.absolutePath();
 
-    Qt4ProjectExpander expander(proFilePath, k, suffix);
+    const QString projectName = QFileInfo(proFilePath).completeBaseName();
+    ProjectExplorer::ProjectExpander expander(proFilePath, projectName, k, suffix);
     QDir projectDir = QDir(projectDirectory(proFilePath));
     QString buildPath = Utils::expandMacros(Core::DocumentManager::buildDirectory(), &expander);
     return QDir::cleanPath(projectDir.absoluteFilePath(buildPath));
