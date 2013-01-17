@@ -50,7 +50,7 @@ HostOsInfo::HostArchitecture HostOsInfo::hostArchitecture()
     case PROCESSOR_ARCHITECTURE_ARM:
         return HostOsInfo::HostArchitectureArm;
     default:
-        return HostOsInfo::HostArchitectureOther;
+        return HostOsInfo::HostArchitectureUnknown;
     }
 #else
     return HostOsInfo::HostArchitectureUnknown;
