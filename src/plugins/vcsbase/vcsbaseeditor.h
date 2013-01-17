@@ -240,7 +240,7 @@ private:
     // Implement to identify a change number at the cursor position
     virtual QString changeUnderCursor(const QTextCursor &) const = 0;
     // Factory functions for highlighters
-    virtual DiffHighlighter *createDiffHighlighter() const = 0;
+    virtual QRegExp diffFilePattern() const = 0;
     virtual BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes,
                                                                    const QColor &bg) const = 0;
     // Implement to return a local file name from the diff file specification

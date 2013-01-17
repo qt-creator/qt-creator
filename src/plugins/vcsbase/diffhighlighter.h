@@ -51,8 +51,7 @@ class VCSBASE_EXPORT DiffHighlighter : public TextEditor::SyntaxHighlighter
     Q_OBJECT
 
 public:
-    explicit DiffHighlighter(const QRegExp &filePattern,
-                             QTextDocument *document = 0);
+    explicit DiffHighlighter(const QRegExp &filePattern);
     ~DiffHighlighter();
 
     void highlightBlock(const QString &text);

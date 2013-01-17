@@ -106,12 +106,9 @@ QString SubversionEditor::changeUnderCursor(const QTextCursor &c) const
 @@ -6,6 +6,5 @@
 \endcode
 */
-
-VcsBase::DiffHighlighter *SubversionEditor::createDiffHighlighter() const
+QRegExp SubversionEditor::diffFilePattern() const
 {
-    const QRegExp filePattern(QLatin1String("^[-+][-+][-+] .*|^Index: .*|^==*$"));
-    QTC_CHECK(filePattern.isValid());
-    return new VcsBase::DiffHighlighter(filePattern);
+    return QRegExp(QLatin1String("^[-+][-+][-+] .*|^Index: .*|^==*$"));
 }
 
 VcsBase::BaseAnnotationHighlighter *SubversionEditor::createAnnotationHighlighter(const QSet<QString> &changes,

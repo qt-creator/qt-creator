@@ -120,12 +120,9 @@ cvs diff -d -u -r1.1 -r1.2:
 @@ -6,6 +6,5 @@
 \endcode
 */
-
-VcsBase::DiffHighlighter *CvsEditor::createDiffHighlighter() const
+QRegExp CvsEditor::diffFilePattern() const
 {
-    const QRegExp filePattern(QLatin1String("^[-+][-+][-+] .*1\\.[\\d\\.]+$"));
-    QTC_CHECK(filePattern.isValid());
-    return new VcsBase::DiffHighlighter(filePattern);
+    return QRegExp(QLatin1String("^[-+][-+][-+] .*1\\.[\\d\\.]+$"));
 }
 
 VcsBase::BaseAnnotationHighlighter *CvsEditor::createAnnotationHighlighter(const QSet<QString> &changes,

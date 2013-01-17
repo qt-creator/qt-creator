@@ -48,7 +48,7 @@ public:
 private:
     QSet<QString> annotationChanges() const;
     QString changeUnderCursor(const QTextCursor &) const;
-    VcsBase::DiffHighlighter *createDiffHighlighter() const;
+    QRegExp diffFilePattern() const;
     VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes, const QColor &bg) const;
     QString fileNameFromDiffSpecification(const QTextBlock &diffFileName) const;
     QStringList annotationPreviousVersions(const QString &revision) const;

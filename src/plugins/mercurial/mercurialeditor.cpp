@@ -88,9 +88,9 @@ QString MercurialEditor::changeUnderCursor(const QTextCursor &cursorIn) const
     return QString();
 }
 
-VcsBase::DiffHighlighter *MercurialEditor::createDiffHighlighter() const
+QRegExp MercurialEditor::diffFilePattern() const
 {
-    return new VcsBase::DiffHighlighter(diffIdentifier);
+    return diffIdentifier;
 }
 
 VcsBase::BaseAnnotationHighlighter *MercurialEditor::createAnnotationHighlighter(const QSet<QString> &changes,

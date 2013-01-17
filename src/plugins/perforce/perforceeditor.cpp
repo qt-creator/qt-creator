@@ -103,10 +103,9 @@ QString PerforceEditor::changeUnderCursor(const QTextCursor &c) const
     return m_changeNumberPattern.exactMatch(change) ? change : QString();
 }
 
-VcsBase::DiffHighlighter *PerforceEditor::createDiffHighlighter() const
+QRegExp PerforceEditor::diffFilePattern() const
 {
-    const QRegExp filePattern(QLatin1String("^====.*"));
-    return new VcsBase::DiffHighlighter(filePattern);
+    return QRegExp(QLatin1String("^====.*"));
 }
 
 VcsBase::BaseAnnotationHighlighter *PerforceEditor::createAnnotationHighlighter(const QSet<QString> &changes,

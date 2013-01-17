@@ -678,10 +678,10 @@ void VcsBaseEditorWidget::init()
         connect(this, SIGNAL(textChanged()), this, SLOT(slotActivateAnnotation()));
         break;
     case DiffOutput: {
-        DiffHighlighter *dh = createDiffHighlighter();
+        d->m_diffFilePattern = diffFilePattern();
+        DiffHighlighter *dh = new DiffHighlighter(d->m_diffFilePattern);
         setCodeFoldingSupported(true);
         baseTextDocument()->setSyntaxHighlighter(dh);
-        d->m_diffFilePattern = dh->filePattern();
         connect(this, SIGNAL(textChanged()), this, SLOT(slotPopulateDiffBrowser()));
         connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(slotDiffCursorPositionChanged()));
     }

@@ -111,9 +111,9 @@ QString BazaarEditor::changeUnderCursor(const QTextCursor &cursorIn) const
     return QString();
 }
 
-VcsBase::DiffHighlighter *BazaarEditor::createDiffHighlighter() const
+QRegExp BazaarEditor::diffFilePattern() const
 {
-    return new VcsBase::DiffHighlighter(m_diffFileId);
+    return m_diffFileId;
 }
 
 VcsBase::BaseAnnotationHighlighter *BazaarEditor::createAnnotationHighlighter(const QSet<QString> &changes,

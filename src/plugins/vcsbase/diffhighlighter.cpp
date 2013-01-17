@@ -130,9 +130,8 @@ DiffFormats DiffHighlighterPrivate::analyzeLine(const QString &text) const
 } // namespace Internal
 
 // --- DiffHighlighter
-DiffHighlighter::DiffHighlighter(const QRegExp &filePattern,
-                                 QTextDocument *document) :
-    TextEditor::SyntaxHighlighter(document),
+DiffHighlighter::DiffHighlighter(const QRegExp &filePattern) :
+    TextEditor::SyntaxHighlighter(static_cast<QTextDocument *>(0)),
     d(new Internal::DiffHighlighterPrivate(filePattern))
 {
 }

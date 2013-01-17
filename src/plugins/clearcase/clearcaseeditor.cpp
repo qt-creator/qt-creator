@@ -93,11 +93,9 @@ QString ClearCaseEditor::changeUnderCursor(const QTextCursor &c) const
 +++ main.cpp@@\main\1
 @@ -6,6 +6,5 @@
 */
-VcsBase::DiffHighlighter *ClearCaseEditor::createDiffHighlighter() const
+QRegExp ClearCaseEditor::diffFilePattern() const
 {
-    const QRegExp filePattern(QLatin1String("^[-+][-+][-+] "));
-    QTC_CHECK(filePattern.isValid());
-    return new VcsBase::DiffHighlighter(filePattern);
+    return QRegExp(QLatin1String("^[-+][-+][-+] "));
 }
 
 VcsBase::BaseAnnotationHighlighter *ClearCaseEditor::createAnnotationHighlighter(const QSet<QString> &changes,
