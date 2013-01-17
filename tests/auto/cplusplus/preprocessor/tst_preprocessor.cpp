@@ -329,6 +329,7 @@ private slots:
     void dont_eagerly_expand_data();
     void comparisons_data();
     void comparisons();
+    void comments_before_args();
     void comments_within();
     void comments_within_data();
     void comments_within2();
@@ -1237,6 +1238,28 @@ void tst_Preprocessor::comments_within_data()
             "           ) {}\n"
             "}\n";
     QTest::newRow("case 7") << original << expected;
+}
+
+void tst_Preprocessor::comments_before_args()
+{
+    Client *client = 0; // no client.
+    Environment env;
+
+    Preprocessor preprocess(client, &env);
+    preprocess.setKeepComments(true);
+    QByteArray preprocessed = preprocess.run(QLatin1String("<stdin>"),
+                                                "\n#define foo(a,b) int a = b;"
+                                                "\nfoo/*C comment*/(a,1)\n"
+                                                "\nfoo/**Doxygen comment*/(b,2)\n"
+                                                "\nfoo//C++ comment\n(c,3)\n"
+                                                "\nfoo///Doxygen C++ comment\n(d,4)\n"
+                                                "\nfoo/*multiple*///comments\n/**as well*/(e,5)\n",
+                                             true, false);
+
+    preprocessed = preprocessed.simplified();
+//    DUMP_OUTPUT(preprocessed);
+    QCOMPARE(simplified(preprocessed),
+             QString("int a=1;int b=2;int c=3;int d=4;int e=5;"));
 }
 
 void tst_Preprocessor::comments_within2()
