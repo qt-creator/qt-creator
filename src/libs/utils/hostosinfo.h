@@ -49,11 +49,9 @@ public:
     enum HostOs { HostOsWindows, HostOsLinux, HostOsMac, HostOsOtherUnix, HostOsOther };
     static inline HostOs hostOs();
 
-#ifdef Q_OS_WIN
     enum HostArchitecture { HostArchitectureX86, HostArchitectureAMD64, HostArchitectureItanium,
-                            HostArchitectureArm, HostArchitectureOther };
+                            HostArchitectureArm, HostArchitectureUnknown };
     static HostArchitecture hostArchitecture();
-#endif
 
     static bool isWindowsHost() { return hostOs() == HostOsWindows; }
     static bool isLinuxHost() { return hostOs() == HostOsLinux; }

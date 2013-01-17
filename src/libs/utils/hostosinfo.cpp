@@ -31,11 +31,13 @@
 
 #ifdef Q_OS_WIN
 #include <windows.h>
+#endif
 
 using namespace Utils;
 
 HostOsInfo::HostArchitecture HostOsInfo::hostArchitecture()
 {
+#ifdef Q_OS_WIN
     SYSTEM_INFO info;
     GetNativeSystemInfo(&info);
     switch (info.wProcessorArchitecture) {
@@ -50,5 +52,7 @@ HostOsInfo::HostArchitecture HostOsInfo::hostArchitecture()
     default:
         return HostOsInfo::HostArchitectureOther;
     }
-}
+#else
+    return HostOsInfo::HostArchitectureUnknown;
 #endif
+}
