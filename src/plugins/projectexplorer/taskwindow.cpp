@@ -840,7 +840,8 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
 
         const QString directory = QDir::toNativeSeparators(index.data(TaskModel::File).toString());
         int secondBaseLine = positions.top() + fm.ascent() + height + leading;
-        if (index.data(TaskModel::FileNotFound).toBool()) {
+        if (index.data(TaskModel::FileNotFound).toBool()
+                && !directory.isEmpty()) {
             QString fileNotFound = tr("File not found: %1").arg(directory);
             painter->setPen(Qt::red);
             painter->drawText(positions.textAreaLeft(), secondBaseLine, fileNotFound);
