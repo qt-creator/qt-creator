@@ -833,19 +833,55 @@ void CPPEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &inf
     if (! info.doc)
         return;
 
-    CanonicalSymbol cs(this, info);
-    QString expression;
-    if (Scope *scope = cs.getScopeAndExpression(this, info, tc, &expression)) {
-        m_references.cancel();
-        m_referencesRevision = info.revision;
-        m_referencesCursorPosition = position();
-        m_references = QtConcurrent::run(&lazyFindReferences, scope, expression, info.doc, info.snapshot);
-        m_referencesWatcher.setFuture(m_references);
-    } else {
-        const QList<QTextEdit::ExtraSelection> selections = extraSelections(CodeSemanticsSelection);
+    if (const Macro *macro = findCanonicalMacro(textCursor(), info.doc)) {
+        QList<QTextEdit::ExtraSelection> selections;
 
-        if (! selections.isEmpty())
-            setExtraSelections(CodeSemanticsSelection, QList<QTextEdit::ExtraSelection>());
+        //Macro definition
+        if (macro->fileName() == info.doc->fileName()) {
+            QTextCursor cursor(document());
+            cursor.setPosition(macro->offset());
+            cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, macro->name().length());
+
+            QTextEdit::ExtraSelection sel;
+            sel.format = m_occurrencesFormat;
+            sel.cursor = cursor;
+            selections.append(sel);
+        }
+
+        //Other macro uses
+        foreach (Document::MacroUse use, info.doc->macroUses()) {
+            if (use.macro().line() != macro->line()
+                    || use.macro().offset() != macro->offset()
+                    || use.macro().length() != macro->length()
+                    || use.macro().fileName() != macro->fileName())
+                continue;
+
+            QTextCursor cursor(document());
+            cursor.setPosition(use.begin());
+            cursor.setPosition(use.end(), QTextCursor::KeepAnchor);
+
+            QTextEdit::ExtraSelection sel;
+            sel.format = m_occurrencesFormat;
+            sel.cursor = cursor;
+            selections.append(sel);
+        }
+
+        setExtraSelections(CodeSemanticsSelection, selections);
+    } else {
+        CanonicalSymbol cs(this, info);
+        QString expression;
+        if (Scope *scope = cs.getScopeAndExpression(this, info, tc, &expression)) {
+            m_references.cancel();
+            m_referencesRevision = info.revision;
+            m_referencesCursorPosition = position();
+            m_references = QtConcurrent::run(&lazyFindReferences, scope, expression, info.doc, info.snapshot);
+            m_referencesWatcher.setFuture(m_references);
+        } else {
+            const QList<QTextEdit::ExtraSelection> selections = extraSelections(CodeSemanticsSelection);
+
+            if (! selections.isEmpty())
+                setExtraSelections(CodeSemanticsSelection, QList<QTextEdit::ExtraSelection>());
+        }
     }
 }
 
