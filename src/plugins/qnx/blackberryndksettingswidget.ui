@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Qnx::Internal::BlackBerrySettingsWidget</class>
- <widget class="QWidget" name="Qnx::Internal::BlackBerrySettingsWidget">
+ <class>Qnx::Internal::BlackBerryNDKSettingsWidget</class>
+ <widget class="QWidget" name="Qnx::Internal::BlackBerryNDKSettingsWidget">
   <property name="geometry">
    <rect>
     <x>0</x>

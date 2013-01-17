@@ -29,8 +29,8 @@
 **
 ****************************************************************************/
 
-#include "blackberrysettingspage.h"
-#include "blackberrysettingswidget.h"
+#include "blackberryndksettingspage.h"
+#include "blackberryndksettingswidget.h"
 #include "qnxconstants.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -40,27 +40,28 @@
 namespace Qnx {
 namespace Internal {
 
-BlackBerrySettingsPage::BlackBerrySettingsPage(QObject *parent) :
+BlackBerryNDKSettingsPage::BlackBerryNDKSettingsPage(QObject *parent) :
     Core::IOptionsPage(parent)
 {
-    setId(Constants::QNX_SETTINGS_ID);
-    setDisplayName(tr("BlackBerry"));
-    setCategory(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
+    setId(Core::Id(Constants::QNX_BB_NDK_SETTINGS_ID));
+    setDisplayName(tr("NDK"));
+    setCategory(Constants::QNX_BB_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("BlackBerry",
-                                                   Constants::QNX_SETTINGS_TR_CATEGORY));
+                Constants::QNX_BB_CATEGORY_TR));
+    setCategoryIcon(QLatin1String(Constants::QNX_BB_CATEGORY_ICON));
 }
 
-QWidget *BlackBerrySettingsPage::createPage(QWidget *parent)
+QWidget *BlackBerryNDKSettingsPage::createPage(QWidget *parent)
 {
-    m_widget = new BlackBerrySettingsWidget(parent);
+    m_widget = new BlackBerryNDKSettingsWidget(parent);
     return m_widget;
 }
 
-void BlackBerrySettingsPage::apply()
+void BlackBerryNDKSettingsPage::apply()
 {
 }
 
-void BlackBerrySettingsPage::finish()
+void BlackBerryNDKSettingsPage::finish()
 {
 }
 

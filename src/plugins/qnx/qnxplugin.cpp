@@ -46,7 +46,7 @@
 #include "qnxrunconfigurationfactory.h"
 #include "qnxqtversionfactory.h"
 #include "blackberrywizardextension.h"
-#include "blackberrysettingspage.h"
+#include "blackberryndksettingspage.h"
 
 #include <QtPlugin>
 
@@ -74,7 +74,7 @@ bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
     addAutoReleasedObject(new BlackBerryRunConfigurationFactory);
     addAutoReleasedObject(new BlackBerryRunControlFactory);
     addAutoReleasedObject(new BlackBerryWizardExtension);
-    addAutoReleasedObject(new BlackBerrySettingsPage);
+    addAutoReleasedObject(new BlackBerryNDKSettingsPage);
 
     // Handles QNX
     addAutoReleasedObject(new QnxQtVersionFactory);

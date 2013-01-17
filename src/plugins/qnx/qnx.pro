@@ -53,8 +53,8 @@ SOURCES += qnxplugin.cpp \
     blackberrydeployinformation.cpp \
     pathchooserdelegate.cpp \
     blackberryabstractdeploystep.cpp \
-    blackberrysettingswidget.cpp \
-    blackberrysettingspage.cpp \
+    blackberryndksettingswidget.cpp \
+    blackberryndksettingspage.cpp \
     blackberryconfiguration.cpp
 
 HEADERS += qnxplugin.h\
@@ -105,8 +105,8 @@ HEADERS += qnxplugin.h\
     blackberrydeployinformation.h \
     pathchooserdelegate.h \
     blackberryabstractdeploystep.h \
-    blackberrysettingswidget.h \
-    blackberrysettingspage.h \
+    blackberryndksettingswidget.h \
+    blackberryndksettingspage.h \
     blackberryconfiguration.h
 
 FORMS += \
@@ -117,7 +117,7 @@ FORMS += \
     blackberrydeviceconfigurationwidget.ui \
     qnxbaseqtconfigwidget.ui \
     bardescriptorfileimagewizardpage.ui \
-    blackberrysettingswidget.ui
+    blackberryndksettingswidget.ui
 
 RESOURCES += \
     qnx.qrc

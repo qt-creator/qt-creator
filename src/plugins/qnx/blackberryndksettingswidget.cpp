@@ -29,8 +29,8 @@
 **
 ****************************************************************************/
 
-#include "blackberrysettingswidget.h"
-#include "ui_blackberrysettingswidget.h"
+#include "blackberryndksettingswidget.h"
+#include "ui_blackberryndksettingswidget.h"
 #include "qnxutils.h"
 
 #include <utils/pathchooser.h>
@@ -42,9 +42,9 @@
 namespace Qnx {
 namespace Internal {
 
-BlackBerrySettingsWidget::BlackBerrySettingsWidget(QWidget *parent) :
+BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
     QWidget(parent),
-    m_ui(new Ui_BlackBerrySettingsWidget)
+    m_ui(new Ui_BlackBerryNDKSettingsWidget)
 {
     m_bbConfig = &BlackBerryConfiguration::instance();
     m_ui->setupUi(this);
@@ -58,14 +58,14 @@ BlackBerrySettingsWidget::BlackBerrySettingsWidget(QWidget *parent) :
     connect(m_bbConfig, SIGNAL(updated()), this, SLOT(updateInfoTable()));
 }
 
-void BlackBerrySettingsWidget::checkSdkPath()
+void BlackBerryNDKSettingsWidget::checkSdkPath()
 {
     if (!m_ui->sdkPath->path().isEmpty() &&
             QnxUtils::isValidNdkPath(m_ui->sdkPath->path()))
         m_bbConfig->setupConfiguration(m_ui->sdkPath->path());
 }
 
-void BlackBerrySettingsWidget::updateInfoTable()
+void BlackBerryNDKSettingsWidget::updateInfoTable()
 {
     QMultiMap<QString, QString> env = m_bbConfig->qnxEnv();
 
@@ -98,14 +98,14 @@ void BlackBerrySettingsWidget::updateInfoTable()
     m_ui->removeButton->setEnabled(true);
 }
 
-void BlackBerrySettingsWidget::clearInfoTable()
+void BlackBerryNDKSettingsWidget::clearInfoTable()
 {
     m_infoModel->clear();
     m_ui->sdkPath->setPath(QString());
     m_ui->removeButton->setEnabled(false);
 }
 
-void BlackBerrySettingsWidget::cleanConfiguration()
+void BlackBerryNDKSettingsWidget::cleanConfiguration()
 {
     QMessageBox::StandardButton button =
             QMessageBox::question(Core::ICore::mainWindow(),
@@ -117,7 +117,7 @@ void BlackBerrySettingsWidget::cleanConfiguration()
         m_bbConfig->cleanConfiguration();
 }
 
-void BlackBerrySettingsWidget::initInfoTable()
+void BlackBerryNDKSettingsWidget::initInfoTable()
 {
     m_infoModel = new QStandardItemModel(this);
 

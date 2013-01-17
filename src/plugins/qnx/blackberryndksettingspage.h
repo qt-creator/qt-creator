@@ -29,46 +29,30 @@
 **
 ****************************************************************************/
 
-#ifndef BLACKBERRYSETTINGSWIDGET_H
-#define BLACKBERRYSETTINGSWIDGET_H
+#ifndef BLACKBERRYNDKSETTINGSPAGE_H
+#define BLACKBERRYNDKSETTINGSPAGE_H
 
-#include "blackberryconfiguration.h"
-
-#include <QWidget>
-#include <QStandardItemModel>
-
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace Qnx {
 namespace Internal {
 
-class Ui_BlackBerrySettingsWidget;
+class BlackBerryNDKSettingsWidget;
 
-
-class BlackBerrySettingsWidget : public QWidget
+class BlackBerryNDKSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 public:
-   explicit BlackBerrySettingsWidget(QWidget *parent = 0);
-
-signals:
-    void sdkPathChanged();
-
-public slots:
-    void checkSdkPath();
-    void updateInfoTable();
-    void clearInfoTable();
-    void cleanConfiguration();
+    explicit BlackBerryNDKSettingsPage(QObject *parent = 0);
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish();
 
 private:
-    void initInfoTable();
-    QString m_sdkPath;
-    Ui_BlackBerrySettingsWidget *m_ui;
-    BlackBerryConfiguration *m_bbConfig;
-    QStandardItemModel *m_infoModel;
-
+    BlackBerryNDKSettingsWidget *m_widget;
 };
 
 } // namespace Internal
-} // namespeace Qnx
+} // namespace Qnx
 
-#endif // BLACKBERRYSETTINGSWIDGET_H
+#endif // BLACKBERRYNDKSETTINGSPAGE_H
