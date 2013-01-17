@@ -57,7 +57,10 @@ const char USE_NINJA_KEY[] = "CMakeProjectManager.CMakeBuildConfiguration.UseNin
 CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent) :
     BuildConfiguration(parent, Core::Id(Constants::CMAKE_BC_ID)), m_useNinja(false)
 {
-    m_buildDirectory = static_cast<CMakeProject *>(parent->project())->defaultBuildDirectory();
+    CMakeProject *project = static_cast<CMakeProject *>(parent->project());
+    m_buildDirectory = project->shadowBuildDirectory(project->document()->fileName(),
+                                                     parent->kit(),
+                                                     displayName());
 }
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent,
@@ -184,7 +187,9 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
     info.sourceDirectory = project->projectDirectory();
     info.environment = Utils::Environment::systemEnvironment();
     parent->kit()->addToEnvironment(info.environment);
-    info.buildDirectory = project->defaultBuildDirectory();
+    info.buildDirectory = project->shadowBuildDirectory(project->document()->fileName(),
+                                                        parent->kit(),
+                                                        buildConfigurationName);
     info.kit = parent->kit();
     info.useNinja = false; // This is ignored anyway
 

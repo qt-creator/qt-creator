@@ -48,7 +48,10 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/projectmacroexpander.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
 #include <cpptools/ModelManagerInterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
@@ -196,10 +199,21 @@ void CMakeProject::changeBuildDirectory(CMakeBuildConfiguration *bc, const QStri
     parseCMakeLists();
 }
 
-QString CMakeProject::defaultBuildDirectory() const
+QString CMakeProject::shadowBuildDirectory(const QString &projectFilePath, const Kit *k, const QString &bcName)
 {
-    return Utils::expandMacros(Core::DocumentManager::instance()->buildDirectory(),
-                               Core::VariableManager::instance()->macroExpander());
+    if (projectFilePath.isEmpty())
+        return QString();
+    QFileInfo info(projectFilePath);
+
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
+    if (version && !version->supportsShadowBuilds())
+        return info.absolutePath();
+
+    const QString projectName = QFileInfo(info.absolutePath()).fileName();
+    ProjectExplorer::ProjectExpander expander(projectFilePath, projectName, k, bcName);
+    QDir projectDir = QDir(projectDirectory(projectFilePath));
+    QString buildPath = Utils::expandMacros(Core::DocumentManager::buildDirectory(), &expander);
+    return QDir::cleanPath(projectDir.absoluteFilePath(buildPath));
 }
 
 bool CMakeProject::parseCMakeLists()

@@ -94,8 +94,8 @@ public:
 
     CMakeBuildTarget buildTargetForTitle(const QString &title);
 
-    QString defaultBuildDirectory() const;
-
+    QString shadowBuildDirectory(const QString &projectFilePath, const ProjectExplorer::Kit *k,
+                                 const QString &bcName);
 
     QString uicCommand() const;
 
