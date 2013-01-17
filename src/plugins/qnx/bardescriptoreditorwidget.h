@@ -137,6 +137,8 @@ signals:
     void changed();
 
 private slots:
+    void setAuthorFromDebugToken();
+
     void addNewAsset();
     void removeSelectedAsset();
     void updateEntryCheckState(QStandardItem *item);

@@ -35,13 +35,18 @@
 #include "qnxconstants.h"
 #include "bardescriptoreditor.h"
 #include "bardescriptorpermissionsmodel.h"
+#include "blackberrydeviceconfiguration.h"
+#include "blackberrydebugtokenreader.h"
 
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <qtsupport/qtversionmanager.h>
 #include <texteditor/plaintexteditor.h>
 #include <utils/qtcassert.h>
 
 #include <QFileDialog>
+#include <QInputDialog>
 #include <QItemSelection>
+#include <QMessageBox>
 #include <QStandardItemModel>
 #include <QStringListModel>
 
@@ -103,6 +108,8 @@ BarDescriptorEditorWidget::~BarDescriptorEditorWidget()
 
 void BarDescriptorEditorWidget::initGeneralPage()
 {
+    m_ui->setFromDebugToken->setVisible(BlackBerryDebugTokenReader::isSupported());
+
     QRegExp versionNumberRegExp(QLatin1String("(\\d{1,3}\\.)?(\\d{1,3}\\.)?(\\d{1,3})"));
     QRegExpValidator *versionNumberValidator = new QRegExpValidator(versionNumberRegExp, this);
     m_ui->packageVersion->setValidator(versionNumberValidator);
@@ -113,6 +120,7 @@ void BarDescriptorEditorWidget::initGeneralPage()
 
     connect(m_ui->author, SIGNAL(textChanged(QString)), this, SLOT(setDirty()));
     connect(m_ui->authorId, SIGNAL(textChanged(QString)), this, SLOT(setDirty()));
+    connect(m_ui->setFromDebugToken, SIGNAL(clicked()), this, SLOT(setAuthorFromDebugToken()));
 }
 
 void BarDescriptorEditorWidget::clearGeneralPage()
@@ -690,4 +698,36 @@ void BarDescriptorEditorWidget::addImageAsAsset(const QString &path)
     asset.destination = QFileInfo(path).fileName();
     asset.entry = false;
     addAssetInternal(asset);
+}
+
+void BarDescriptorEditorWidget::setAuthorFromDebugToken()
+{
+    // To select debug token, make it fancier once the debug token management is done in
+    // Qt Creator
+    QStringList debugTokens;
+    ProjectExplorer::DeviceManager *deviceManager = ProjectExplorer::DeviceManager::instance();
+    for (int i = 0; i < deviceManager->deviceCount(); ++i) {
+        ProjectExplorer::IDevice::ConstPtr device = deviceManager->deviceAt(i);
+        if (device->type() == Core::Id(Constants::QNX_BB_OS_TYPE)) {
+            BlackBerryDeviceConfiguration::ConstPtr bbDevice = device.dynamicCast<const BlackBerryDeviceConfiguration>();
+            QTC_ASSERT(bbDevice, continue);
+
+            debugTokens << bbDevice->debugToken();
+        }
+    }
+    debugTokens.removeDuplicates();
+
+    bool ok;
+    QString debugToken = QInputDialog::getItem(this, tr("Select Debug Token"), tr("Debug token:"), debugTokens, 0, false, &ok);
+    if (!ok || debugToken.isEmpty())
+        return;
+
+    BlackBerryDebugTokenReader debugTokenReader(debugToken);
+    if (!debugTokenReader.isValid()) {
+        QMessageBox::warning(this, tr("Error Reading Debug Token"), tr("There was a problem reading debug token"));
+        return;
+    }
+
+    m_ui->author->setText(debugTokenReader.author());
+    m_ui->authorId->setText(debugTokenReader.authorId());
 }

@@ -62,6 +62,8 @@ QtcPlugin {
         "blackberrydeploystepconfigwidget.h",
         "blackberrydeploystepfactory.cpp",
         "blackberrydeploystepfactory.h",
+        "blackberrydebugtokenreader.cpp",
+        "blackberrydebugtokenreader.h",
         "blackberrydeviceconfiguration.cpp",
         "blackberrydeviceconfiguration.h",
         "blackberrydeviceconfigurationfactory.cpp",
