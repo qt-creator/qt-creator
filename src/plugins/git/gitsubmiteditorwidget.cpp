@@ -61,7 +61,7 @@ static QTextCharFormat commentFormat()
 class GitSubmitHighlighter : QSyntaxHighlighter {
 public:
     explicit GitSubmitHighlighter(QTextEdit *parent);
-    virtual void highlightBlock(const QString &text);
+    void highlightBlock(const QString &text);
 
 private:
     enum State { Header, Comment, Other };

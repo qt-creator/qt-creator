@@ -91,7 +91,7 @@ public:
 
     static GitPlugin *instance();
 
-    virtual bool initialize(const QStringList &arguments, QString *errorMessage);
+    bool initialize(const QStringList &arguments, QString *errorMessage);
 
     GitVersionControl *gitVersionControl() const;
 
@@ -141,8 +141,8 @@ private slots:
     void testStatusParsing();
 #endif
 protected:
-    virtual void updateActions(VcsBase::VcsBasePlugin::ActionState);
-    virtual bool submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor);
+    void updateActions(VcsBase::VcsBasePlugin::ActionState);
+    bool submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor);
 
 private:
     inline ParameterActionCommandPair

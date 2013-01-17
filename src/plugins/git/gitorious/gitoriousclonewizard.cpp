@@ -53,7 +53,7 @@ namespace Internal {
 class GitoriousCloneWizardPage : public Git::CloneWizardPage {
 public:
     explicit GitoriousCloneWizardPage(const GitoriousRepositoryWizardPage *rp, QWidget *parent = 0);
-    virtual void initializePage();
+    void initializePage();
 
 private:
     const GitoriousRepositoryWizardPage *m_repositoryPage;

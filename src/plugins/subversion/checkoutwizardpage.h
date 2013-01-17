@@ -41,7 +41,7 @@ public:
     CheckoutWizardPage(QWidget *parent = 0);
 
 protected:
-    virtual QString directoryFromRepository(const QString &r) const;
+    QString directoryFromRepository(const QString &r) const;
 };
 
 } // namespace Internal

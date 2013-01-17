@@ -61,8 +61,8 @@ public:
     explicit GitoriousProjectWizardPage(const GitoriousHostWizardPage *hostPage,
                                         QWidget *parent = 0);
 
-    virtual void initializePage();
-    virtual bool isComplete() const;
+    void initializePage();
+    bool isComplete() const;
 
     QSharedPointer<GitoriousProject> project() const;
     int selectedHostIndex() const;

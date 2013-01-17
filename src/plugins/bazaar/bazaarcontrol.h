@@ -66,7 +66,7 @@ public:
     QStringList vcsSnapshots(const QString &topLevel);
     bool vcsRestoreSnapshot(const QString &topLevel, const QString &name);
     bool vcsRemoveSnapshot(const QString &topLevel, const QString &name);
-    virtual bool vcsAnnotate(const QString &file, int line);
+    bool vcsAnnotate(const QString &file, int line);
 
 public slots:
     // To be connected to the VCSTask's success signal to emit the repository/

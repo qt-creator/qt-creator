@@ -77,7 +77,7 @@ public:
     CvsPlugin();
     ~CvsPlugin();
 
-    virtual bool initialize(const QStringList &arguments, QString *errorMessage);
+    bool initialize(const QStringList &arguments, QString *errorMessage);
 
     void cvsDiff(const QString &workingDir, const QStringList &files);
 
@@ -125,8 +125,8 @@ private slots:
     void cvsDiff(const Cvs::Internal::CvsDiffParameters &p);
 
 protected:
-    virtual void updateActions(VcsBase::VcsBasePlugin::ActionState);
-    virtual bool submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor);
+    void updateActions(VcsBase::VcsBasePlugin::ActionState);
+    bool submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor);
 
 private:
     bool isCommitEditorOpen() const;

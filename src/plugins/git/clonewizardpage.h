@@ -49,13 +49,13 @@ class CloneWizardPage : public VcsBase::BaseCheckoutWizardPage
     Q_PROPERTY(bool deleteMasterBranch READ deleteMasterBranch WRITE setDeleteMasterBranch)
 public:
     explicit CloneWizardPage(QWidget *parent = 0);
-    virtual ~CloneWizardPage();
+    ~CloneWizardPage();
 
     QSharedPointer<VcsBase::AbstractCheckoutJob> createCheckoutJob(QString *checkoutPath) const;
 
 protected:
-    virtual QString directoryFromRepository(const QString &r) const;
-    virtual QStringList branches(const QString &repository, int *current);
+    QString directoryFromRepository(const QString &r) const;
+    QStringList branches(const QString &repository, int *current);
 
     bool deleteMasterBranch() const;
     void setDeleteMasterBranch(bool v);

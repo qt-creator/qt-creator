@@ -61,7 +61,7 @@ class MercurialSubmitHighlighter : QSyntaxHighlighter
 {
 public:
     explicit MercurialSubmitHighlighter(QTextEdit *parent);
-    virtual void highlightBlock(const QString &text);
+    void highlightBlock(const QString &text);
 
 private:
     enum State { Header, Comment, Other };

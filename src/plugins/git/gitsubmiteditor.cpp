@@ -51,7 +51,7 @@ public:
     GitSubmitFileModel(QObject *parent = 0) : VcsBase::SubmitFileModel(parent)
     { }
 
-    virtual void updateSelections(SubmitFileModel *source)
+    void updateSelections(SubmitFileModel *source)
     {
         int j = 0;
         for (int i = 0; i < rowCount() && j < source->rowCount(); ++i) {

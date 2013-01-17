@@ -42,15 +42,15 @@ public:
     explicit CheckoutWizard(QObject *parent = 0);
 
     // IWizard
-    virtual QIcon icon() const;
-    virtual QString description() const;
-    virtual QString displayName() const;
+    QIcon icon() const;
+    QString description() const;
+    QString displayName() const;
 
 protected:
     // BaseCheckoutWizard
-    virtual QList<QWizardPage*> createParameterPages(const QString &path);
-    virtual QSharedPointer<VcsBase::AbstractCheckoutJob> createJob(const QList<QWizardPage*> &parameterPage,
-                                                                   QString *checkoutPath);
+    QList<QWizardPage*> createParameterPages(const QString &path);
+    QSharedPointer<VcsBase::AbstractCheckoutJob> createJob(const QList<QWizardPage*> &parameterPage,
+                                                           QString *checkoutPath);
 };
 
 } // namespace Internal

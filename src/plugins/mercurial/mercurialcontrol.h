@@ -67,7 +67,7 @@ public:
     bool vcsRestoreSnapshot(const QString &topLevel, const QString &name);
     bool vcsRemoveSnapshot(const QString &topLevel, const QString &name);
     bool sccManaged(const QString &filename);
-    virtual bool vcsAnnotate(const QString &file, int line);
+    bool vcsAnnotate(const QString &file, int line);
 
 public slots:
     // To be connected to the HgTask's success signal to emit the repository/

@@ -68,7 +68,7 @@ class MercurialPlugin : public VcsBase::VcsBasePlugin
 
 public:
     MercurialPlugin();
-    virtual ~MercurialPlugin();
+    ~MercurialPlugin();
     bool initialize(const QStringList &arguments, QString *errorMessage);
 
     static MercurialPlugin *instance() { return m_instance; }
@@ -119,8 +119,8 @@ private slots:
     void serve();*/
 
 protected:
-    virtual void updateActions(VcsBase::VcsBasePlugin::ActionState);
-    virtual bool submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor);
+    void updateActions(VcsBase::VcsBasePlugin::ActionState);
+    bool submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor);
 
 private:
     void createMenu();

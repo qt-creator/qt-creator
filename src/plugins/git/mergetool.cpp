@@ -59,7 +59,7 @@ protected:
         return res;
     }
 
-    virtual qint64 writeData(const char *data, qint64 len)
+    qint64 writeData(const char *data, qint64 len)
     {
         if (len > 0)
             m_window->append(QString::fromLocal8Bit(data, len));

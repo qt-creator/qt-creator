@@ -80,7 +80,7 @@ class BazaarPlugin : public VcsBase::VcsBasePlugin
 
 public:
     BazaarPlugin();
-    virtual ~BazaarPlugin();
+    ~BazaarPlugin();
     bool initialize(const QStringList &arguments, QString *errorMessage);
 
     static BazaarPlugin *instance();

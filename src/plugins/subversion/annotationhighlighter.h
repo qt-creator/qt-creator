@@ -44,7 +44,7 @@ public:
                                              QTextDocument *document = 0);
 
 private:
-    virtual QString changeNumber(const QString &block) const;
+    QString changeNumber(const QString &block) const;
 
     const QChar m_blank;
 };

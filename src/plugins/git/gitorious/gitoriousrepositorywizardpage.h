@@ -58,8 +58,8 @@ public:
                                            QWidget *parent = 0);
     ~GitoriousRepositoryWizardPage();
 
-    virtual void initializePage();
-    virtual bool isComplete() const;
+    void initializePage();
+    bool isComplete() const;
 
     QString repositoryName() const;
     QUrl repositoryURL() const;

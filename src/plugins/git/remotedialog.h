@@ -89,7 +89,7 @@ public slots:
 private slots:
 
 protected:
-    virtual void changeEvent(QEvent *e);
+    void changeEvent(QEvent *e);
 
 private:
     Ui::RemoteDialog *m_ui;

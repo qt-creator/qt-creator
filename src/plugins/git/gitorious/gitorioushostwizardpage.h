@@ -43,9 +43,9 @@ class GitoriousHostWizardPage : public QWizardPage {
     Q_OBJECT
 public:
     GitoriousHostWizardPage(QWidget *parent = 0);
-    virtual ~GitoriousHostWizardPage();
+    ~GitoriousHostWizardPage();
 
-    virtual bool isComplete() const;
+    bool isComplete() const;
 
     int selectedHostIndex() const;
 

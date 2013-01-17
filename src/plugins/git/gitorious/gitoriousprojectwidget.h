@@ -63,7 +63,7 @@ public:
                                     QWidget *parent = 0);
     ~GitoriousProjectWidget();
 
-    virtual bool isValid() const;
+    bool isValid() const;
 
     QSharedPointer<GitoriousProject> project() const;
 

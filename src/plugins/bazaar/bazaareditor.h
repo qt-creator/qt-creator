@@ -44,11 +44,11 @@ public:
     explicit BazaarEditor(const VcsBase::VcsBaseEditorParameters *type, QWidget *parent);
 
 private:
-    virtual QSet<QString> annotationChanges() const;
-    virtual QString changeUnderCursor(const QTextCursor &cursor) const;
-    virtual VcsBase::DiffHighlighter *createDiffHighlighter() const;
-    virtual VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes, const QColor &bg) const;
-    virtual QString fileNameFromDiffSpecification(const QTextBlock &diffFileSpec) const;
+    QSet<QString> annotationChanges() const;
+    QString changeUnderCursor(const QTextCursor &cursor) const;
+    VcsBase::DiffHighlighter *createDiffHighlighter() const;
+    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes, const QColor &bg) const;
+    QString fileNameFromDiffSpecification(const QTextBlock &diffFileSpec) const;
 
     mutable QRegExp m_changesetId;
     mutable QRegExp m_exactChangesetId;

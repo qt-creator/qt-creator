@@ -45,10 +45,10 @@ public:
 
     MercurialSettings *settings() const;
 
-    virtual bool synchronousClone(const QString &workingDir,
-                                  const QString &srcLocation,
-                                  const QString &dstLocation,
-                                  const QStringList &extraOptions = QStringList());
+    bool synchronousClone(const QString &workingDir,
+                          const QString &srcLocation,
+                          const QString &dstLocation,
+                          const QStringList &extraOptions = QStringList());
     bool manifestSync(const QString &repository, const QString &filename);
     QString branchQuerySync(const QString &repositoryRoot);
     QStringList parentRevisionsSync(const QString &workingDirectory,
