@@ -4440,8 +4440,8 @@ void GdbEngine::fetchDisassemblerByCliPointPlain(const DisassemblerAgentCookie &
     //    postCommand(disassemblerCommand(ac.agent->location(), false), Discardable,
     //        CB(handleFetchDisassemblerByCliPointPlain),
     //        QVariant::fromValue(ac));
-    // takes far to long if function boundaries are not hit.
-    // Skip this feature and immediately fall back to the 'range' verion:
+    // takes far too long if function boundaries are not hit.
+    // Skip this feature and immediately fall back to the 'range' version:
     fetchDisassemblerByCliRangePlain(ac0);
 }
 
