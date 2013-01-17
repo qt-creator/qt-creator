@@ -28,18 +28,18 @@
 ****************************************************************************/
 
 #include "cppcompleteswitch.h"
+#include "cppcompleteswitch.h"
 #include "cppeditor.h"
-#include "cppquickfix.h"
+#include "cppfunctiondecldeflink.h"
 #include "cppinsertdecldef.h"
 #include "cppinsertqtpropertymembers.h"
 #include "cppquickfixassistant.h"
-#include "cppcompleteswitch.h"
-#include "cppfunctiondecldeflink.h"
+#include "cppquickfix.h"
 
-#include <ASTVisitor.h>
 #include <AST.h>
 #include <ASTMatcher.h>
 #include <ASTPatternBuilder.h>
+#include <ASTVisitor.h>
 #include <CoreTypes.h>
 #include <Literals.h>
 #include <Name.h>
@@ -50,29 +50,29 @@
 #include <TranslationUnit.h>
 #include <Type.h>
 
+#include <cplusplus/CppRewriter.h>
 #include <cplusplus/DependencyTable.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
-#include <cpptools/ModelManagerInterface.h>
-#include <cplusplus/CppRewriter.h>
-#include <cpptools/cppcodestylesettings.h>
-#include <cpptools/cpptoolsconstants.h>
-#include <cpptools/cpprefactoringchanges.h>
-#include <cpptools/insertionpointlocator.h>
-#include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cppclassesfilter.h>
+#include <cpptools/cppcodestylesettings.h>
+#include <cpptools/cpppointerdeclarationformatter.h>
+#include <cpptools/cpprefactoringchanges.h>
+#include <cpptools/cpptoolsconstants.h>
+#include <cpptools/cpptoolsreuse.h>
+#include <cpptools/insertionpointlocator.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <cpptools/searchsymbols.h>
 #include <cpptools/symbolfinder.h>
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
-
 #include <utils/qtcassert.h>
 
-#include <QFileInfo>
+#include <cctype>
 #include <QApplication>
+#include <QFileInfo>
 #include <QTextBlock>
 #include <QTextCursor>
-#include <cctype>
 
 using namespace CppEditor;
 using namespace CppEditor::Internal;
@@ -2067,6 +2067,87 @@ private:
     };
 };
 
+/**
+ * Reformats a pointer, reference or rvalue reference type/declaration.
+ *
+ * Works also with selections (except when the cursor is not on any AST).
+ *
+ * Activates on: simple declarations, parameters and return types of function
+ *               declarations and definitions, control flow statements (if,
+ *               while, for, foreach) with declarations.
+ */
+class PointerDeclarationFormatterOp : public CppQuickFixFactory
+{
+public:
+    typedef Utils::ChangeSet ChangeSet;
+
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result)
+    {
+        const QList<AST *> &path = interface->path();
+        CppRefactoringFilePtr file = interface->currentFile();
+
+        Overview overview = CppCodeStyleSettings::currentProjectCodeStyleOverview();
+        overview.showArgumentNames = true;
+        overview.showReturnTypes = true;
+
+        const QTextCursor cursor = file->cursor();
+        ChangeSet change;
+        PointerDeclarationFormatter formatter(file, overview,
+            PointerDeclarationFormatter::RespectCursor);
+
+        if (cursor.hasSelection()) {
+            // This will no work always as expected since this method is only called if
+            // interface-path() is not empty. If the user selects the whole document via
+            // ctrl-a and there is an empty line in the end, then the cursor is not on
+            // any AST and therefore no quick fix will be triggered.
+            change = formatter.format(file->cppDocument()->translationUnit()->ast());
+            if (! change.isEmpty())
+                result.append(QuickFixOperation::Ptr(new Operation(interface, change)));
+        } else {
+            for (int index = path.size() - 1; index >= 0; --index) {
+                AST *ast = path.at(index);
+
+                change = formatter.format(ast);
+                if (! change.isEmpty()) {
+                    result.append(QuickFixOperation::Ptr(new Operation(interface, change)));
+                    return;
+                }
+            }
+        }
+    }
+
+private:
+    class Operation: public CppQuickFixOperation
+    {
+    public:
+        Operation(const CppQuickFixInterface &interface, const ChangeSet change)
+            : CppQuickFixOperation(interface)
+            , m_change(change)
+        {
+            QString description;
+            if (m_change.operationList().size() == 1) {
+                description = QApplication::translate("CppTools::QuickFix",
+                    "Reformat to \"%1\"").arg(m_change.operationList().first().text);
+            } else { // > 1
+                description = QApplication::translate("CppTools::QuickFix",
+                    "Reformat pointers/references");
+            }
+            setDescription(description);
+        }
+
+        void perform()
+        {
+            CppRefactoringChanges refactoring(snapshot());
+            CppRefactoringFilePtr currentFile = refactoring.file(fileName());
+            currentFile->setChangeSet(m_change);
+            currentFile->apply();
+        }
+
+    private:
+        ChangeSet m_change;
+    };
+};
+
 } // end of anonymous namespace
 
 void registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
@@ -2094,4 +2175,5 @@ void registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
     plugIn->addAutoReleasedObject(new IncludeAdder);
     plugIn->addAutoReleasedObject(new ExtractFunction);
     plugIn->addAutoReleasedObject(new RearrangeParamDeclList);
+    plugIn->addAutoReleasedObject(new PointerDeclarationFormatterOp);
 }
