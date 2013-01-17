@@ -53,11 +53,7 @@ class QWidget;
 QT_END_NAMESPACE
 
 namespace Utils {
-
-namespace Internal {
-class TipFactory;
-class QTipLabel;
-}
+namespace Internal { class QTipLabel; }
 
 class TipContent;
 
@@ -95,7 +91,6 @@ private:
     void showTip();
     void hideTipWithDelay();
 
-    Internal::TipFactory *m_tipFactory;
     Internal::QTipLabel *m_tip;
     QWidget *m_widget;
     QRect m_rect;

@@ -84,7 +84,6 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/tooltip/tooltip.cpp \
     $$PWD/tooltip/tips.cpp \
     $$PWD/tooltip/tipcontents.cpp \
-    $$PWD/tooltip/tipfactory.cpp \
     $$PWD/unixutils.cpp
 
 win32 {
@@ -174,7 +173,6 @@ HEADERS += \
     $$PWD/tooltip/tipcontents.h \
     $$PWD/tooltip/reuse.h \
     $$PWD/tooltip/effects.h \
-    $$PWD/tooltip/tipfactory.h \
     $$PWD/unixutils.h
 
 FORMS += $$PWD/filewizardpage.ui \

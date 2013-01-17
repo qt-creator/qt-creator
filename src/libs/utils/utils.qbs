@@ -188,8 +188,6 @@ QtcLibrary {
             "reuse.h",
             "tipcontents.cpp",
             "tipcontents.h",
-            "tipfactory.cpp",
-            "tipfactory.h",
             "tips.cpp",
             "tips.h",
             "tooltip.cpp",

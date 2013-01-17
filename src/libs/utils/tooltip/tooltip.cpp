@@ -30,7 +30,6 @@
 #include "tooltip.h"
 #include "tips.h"
 #include "tipcontents.h"
-#include "tipfactory.h"
 #include "effects.h"
 #include "reuse.h"
 
@@ -41,6 +40,7 @@
 #include <QApplication>
 #include <QKeyEvent>
 #include <QMouseEvent>
+#include <QWidget>
 #include <QMenu>
 
 #include <QDebug>
@@ -48,7 +48,7 @@
 using namespace Utils;
 using namespace Internal;
 
-ToolTip::ToolTip() : m_tipFactory(new TipFactory), m_tip(0), m_widget(0)
+ToolTip::ToolTip() : m_tip(0), m_widget(0)
 {
     connect(&m_showTimer, SIGNAL(timeout()), this, SLOT(hideTipImmediately()));
     connect(&m_hideDelayTimer, SIGNAL(timeout()), this, SLOT(hideTipImmediately()));
@@ -57,7 +57,6 @@ ToolTip::ToolTip() : m_tipFactory(new TipFactory), m_tip(0), m_widget(0)
 ToolTip::~ToolTip()
 {
     m_tip = 0;
-    delete m_tipFactory;
 }
 
 ToolTip *ToolTip::instance()
@@ -69,12 +68,23 @@ ToolTip *ToolTip::instance()
 void ToolTip::show(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect)
 {
     if (acceptShow(content, pos, w, rect)) {
-#ifndef Q_OS_WIN
-        m_tip = m_tipFactory->createTip(content, w);
-#else
-        m_tip = m_tipFactory->createTip(
-            content, QApplication::desktop()->screen(Internal::screenNumber(pos, w)));
-#endif
+        QWidget *target = 0;
+        if (HostOsInfo::isWindowsHost())
+            target = QApplication::desktop()->screen(Internal::screenNumber(pos, w));
+        else
+            target = w;
+
+        switch (content.typeId()) {
+            case TextContent::TEXT_CONTENT_ID:
+                m_tip = new TextTip(target);
+                break;
+            case ColorContent::COLOR_CONTENT_ID:
+                m_tip = new ColorTip(target);
+                break;
+            case WidgetContent::WIDGET_CONTENT_ID:
+                m_tip = new WidgetTip(target);
+                break;
+        }
         setUp(pos, content, w, rect);
         qApp->installEventFilter(this);
         showTip();
