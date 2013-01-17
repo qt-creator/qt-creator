@@ -419,6 +419,8 @@ static inline NewClassWidget::ClassType classTypeForBaseClass(const QString &bas
     // Declarative Items
     if (baseClass == QLatin1String("QDeclarativeItem"))
         return NewClassWidget::ClassInheritsQDeclarativeItem;
+    if (baseClass == QLatin1String("QQuickItem"))
+        return NewClassWidget::ClassInheritsQQuickItem;
     return NewClassWidget::NoClassType;
 }
 

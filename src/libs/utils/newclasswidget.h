@@ -71,9 +71,13 @@ class QTCREATOR_UTILS_EXPORT NewClassWidget : public QWidget
     Q_ENUMS(ClassType)
 
 public:
-    enum ClassType { NoClassType, ClassInheritsQObject, ClassInheritsQWidget,
+    enum ClassType { NoClassType,
+                     ClassInheritsQObject,
+                     ClassInheritsQWidget,
                      ClassInheritsQDeclarativeItem,
-                     SharedDataClass };
+                     ClassInheritsQQuickItem,
+                     SharedDataClass
+                   };
 
     explicit NewClassWidget(QWidget *parent = 0);
     ~NewClassWidget();

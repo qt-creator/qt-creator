@@ -71,7 +71,12 @@
      </item>
      <item>
       <property name="text">
-       <string>Inherits QDeclarativeItem</string>
+       <string>Inherits QDeclarativeItem - Qt Quick 1</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Inherits QQuickItem - Qt Quick 2</string>
       </property>
      </item>
      <item>

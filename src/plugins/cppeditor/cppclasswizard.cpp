@@ -70,7 +70,8 @@ ClassNamePage::ClassNamePage(QWidget *parent) :
             << QLatin1String("QObject")
             << QLatin1String("QWidget")
             << QLatin1String("QMainWindow")
-            << QLatin1String("QDeclarativeItem"));
+            << QLatin1String("QDeclarativeItem")
+            << QLatin1String("QQuickItem"));
     m_newClassWidget->setBaseClassEditable(true);
     m_newClassWidget->setFormInputVisible(false);
     m_newClassWidget->setNamespacesEnabled(true);
@@ -248,6 +249,10 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
         break;
     case Utils::NewClassWidget::ClassInheritsQDeclarativeItem:
         parentQObjectClass = QLatin1String("QDeclarativeItem");
+        defineQObjectMacro = true;
+        break;
+    case Utils::NewClassWidget::ClassInheritsQQuickItem:
+        parentQObjectClass = QLatin1String("QQuickItem");
         defineQObjectMacro = true;
         break;
     case Utils::NewClassWidget::NoClassType:
