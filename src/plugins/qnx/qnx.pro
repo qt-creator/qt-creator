@@ -60,7 +60,15 @@ SOURCES += qnxplugin.cpp \
     bardescriptoreditorwidget.cpp \
     bardescriptordocument.cpp \
     bardescriptordocumentnodehandlers.cpp \
-    bardescriptorpermissionsmodel.cpp
+    bardescriptorpermissionsmodel.cpp \
+    blackberrykeyswidget.cpp \
+    blackberrykeyspage.cpp \
+    blackberrycsjregistrar.cpp \
+    blackberrycertificate.cpp \
+    blackberrycertificatemodel.cpp \
+    blackberryregisterkeydialog.cpp \
+    blackberryimportcertificatedialog.cpp \
+    blackberrycreatecertificatedialog.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -117,7 +125,15 @@ HEADERS += qnxplugin.h\
     bardescriptoreditorwidget.h \
     bardescriptordocument.h \
     bardescriptordocumentnodehandlers.h \
-    bardescriptorpermissionsmodel.h
+    bardescriptorpermissionsmodel.h \
+    blackberrykeyswidget.h \
+    blackberrykeyspage.h \
+    blackberrycsjregistrar.h \
+    blackberrycertificate.h \
+    blackberrycertificatemodel.h \
+    blackberryregisterkeydialog.h \
+    blackberryimportcertificatedialog.h \
+    blackberrycreatecertificatedialog.h
 
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \
@@ -127,7 +143,11 @@ FORMS += \
     blackberrydeviceconfigurationwidget.ui \
     qnxbaseqtconfigwidget.ui \
     blackberryndksettingswidget.ui \
-    bardescriptoreditorwidget.ui
+    bardescriptoreditorwidget.ui \
+    blackberrykeyswidget.ui \
+    blackberryregisterkeydialog.ui \
+    blackberryimportcertificatedialog.ui \
+    blackberrycreatecertificatedialog.ui
 
 DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII
 
