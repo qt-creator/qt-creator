@@ -67,6 +67,17 @@ def testModify():
     pseudoTree = buildTreeFromOutline()
     # __writeOutlineFile__(pseudoTree, "focus.qml_mod2_outline.tsv")
     verifyOutline(pseudoTree, "focus.qml_mod2_outline.tsv")
+    test.log("Modification: add special elements")
+    placeCursorToLine(qmlEditor, 'id: window')
+    typeLines(qmlEditor, ['', '', 'property string txtCnt: "Property"', 'signal clicked', '',
+                          'function clicked() {','console.log("click")'])
+    performModification('onClicked: contextMenu.focus = true', None, 24, "Left", '{')
+    performModification('onClicked: {contextMenu.focus = true}', "<Left>", 0, None,
+                        ';window.clicked()')
+    snooze(1) # no way to wait for a private signal
+    pseudoTree = buildTreeFromOutline()
+    # __writeOutlineFile__(pseudoTree, "focus.qml_mod3_outline.tsv")
+    verifyOutline(pseudoTree, "focus.qml_mod3_outline.tsv")
 
 def performModification(afterLine, typing, markCount, markDirection, newText):
     global qmlEditor
