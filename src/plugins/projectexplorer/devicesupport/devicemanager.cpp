@@ -382,15 +382,13 @@ IDevice::ConstPtr DeviceManager::findInactiveAutoDetectedDevice(Core::Id type, C
 
 IDevice::ConstPtr DeviceManager::defaultDevice(Core::Id deviceType) const
 {
-    const Core::Id id = d->defaultDevices.value(deviceType, IDevice::invalidId());
-    if (id == IDevice::invalidId())
-        return IDevice::ConstPtr();
-    return find(id);
+    const Core::Id id = d->defaultDevices.value(deviceType);
+    return id.isValid() ? find(id) : IDevice::ConstPtr();
 }
 
 Core::Id DeviceManager::deviceId(const IDevice::ConstPtr &device) const
 {
-    return device ? device->id() : IDevice::invalidId();
+    return device ? device->id() : Core::Id();
 }
 
 void DeviceManager::ensureOneDefaultDevicePerType()

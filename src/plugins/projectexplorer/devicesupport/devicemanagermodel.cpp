@@ -93,9 +93,7 @@ IDevice::ConstPtr DeviceManagerModel::device(int pos) const
 Core::Id DeviceManagerModel::deviceId(int pos) const
 {
     IDevice::ConstPtr dev = device(pos);
-    if (dev.isNull())
-        return IDevice::invalidId();
-    return dev->id();
+    return dev ? dev->id() : Core::Id();
 }
 
 int DeviceManagerModel::indexOf(IDevice::ConstPtr dev) const

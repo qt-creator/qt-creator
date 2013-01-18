@@ -308,14 +308,15 @@ KitInformation::ItemList DeviceTypeKitInformation::toUserOutput(Kit *k) const
 
 const Core::Id DeviceTypeKitInformation::deviceTypeId(const Kit *k)
 {
+    // FIXME: This should be fromSetting/toSetting instead.
     if (!k)
         return Core::Id();
-    return Core::Id(k->value(Core::Id(DEVICETYPE_INFORMATION)).toByteArray());
+    return Core::Id::fromName(k->value(DEVICETYPE_INFORMATION).toByteArray());
 }
 
 void DeviceTypeKitInformation::setDeviceTypeId(Kit *k, Core::Id type)
 {
-    k->setValue(Core::Id(DEVICETYPE_INFORMATION), type.name());
+    k->setValue(DEVICETYPE_INFORMATION, type.name());
 }
 
 // --------------------------------------------------------------------------
@@ -401,21 +402,17 @@ IDevice::ConstPtr DeviceKitInformation::device(const Kit *k)
 
 Core::Id DeviceKitInformation::deviceId(const Kit *k)
 {
-    if (k) {
-        QString idname = k->value(Core::Id(DEVICE_INFORMATION)).toString();
-        return idname.isEmpty() ? IDevice::invalidId() : Core::Id(idname);
-    }
-    return IDevice::invalidId();
+    return k ? Core::Id::fromSetting(k->value(DEVICE_INFORMATION)) : Core::Id();
 }
 
 void DeviceKitInformation::setDevice(Kit *k, IDevice::ConstPtr dev)
 {
-    setDeviceId(k, dev ? dev->id() : IDevice::invalidId());
+    setDeviceId(k, dev ? dev->id() : Core::Id());
 }
 
 void DeviceKitInformation::setDeviceId(Kit *k, const Core::Id id)
 {
-    k->setValue(Core::Id(DEVICE_INFORMATION), id.toString());
+    k->setValue(DEVICE_INFORMATION, id.toSetting());
 }
 
 void DeviceKitInformation::deviceUpdated(const Core::Id &id)

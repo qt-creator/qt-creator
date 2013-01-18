@@ -141,7 +141,7 @@
 
 static Core::Id newId()
 {
-    return Core::Id(QUuid::createUuid().toString());
+    return Core::Id::fromString(QUuid::createUuid().toString());
 }
 
 namespace ProjectExplorer {
@@ -278,22 +278,14 @@ void IDevice::setDeviceState(const IDevice::DeviceState state)
     d->deviceState = state;
 }
 
-Core::Id IDevice::invalidId()
-{
-    return Core::Id();
-}
-
 Core::Id IDevice::typeFromMap(const QVariantMap &map)
 {
-    const QString idStr = map.value(QLatin1String(TypeKey)).toString();
-    if (idStr.isEmpty())
-        return Core::Id();
-    return Core::Id(idStr);
+    return Core::Id::fromSetting(map.value(QLatin1String(TypeKey)));
 }
 
 Core::Id IDevice::idFromMap(const QVariantMap &map)
 {
-    return Core::Id(map.value(QLatin1String(IdKey)).toString());
+    return Core::Id::fromSetting(map.value(QLatin1String(IdKey)));
 }
 
 void IDevice::fromMap(const QVariantMap &map)

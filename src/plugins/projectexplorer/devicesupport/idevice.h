@@ -125,8 +125,6 @@ public:
     virtual QVariantMap toMap() const;
     virtual Ptr clone() const = 0;
 
-    static Core::Id invalidId();
-
     static Core::Id typeFromMap(const QVariantMap &map);
     static Core::Id idFromMap(const QVariantMap &map);
 
