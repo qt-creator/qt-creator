@@ -30,6 +30,10 @@
 // std::copy is perfectly fine, don't let MSVC complain about it being deprecated
 #pragma warning (disable: 4996)
 
+#ifndef NOMINMAX
+#  define NOMINMAX
+#endif
+
 #include "symbolgroupvalue.h"
 #include "symbolgroup.h"
 #include "stringutils.h"
@@ -38,6 +42,7 @@
 
 #include <iomanip>
 #include <algorithm>
+#include <limits>
 #include <ctype.h>
 
 typedef std::vector<int>::size_type VectorIndexType;
@@ -1263,6 +1268,8 @@ static KnownType knownClassTypeHelper(const std::string &type,
             return KT_QTransform;
         if (!type.compare(qPos, 10, "QFixedSize"))
             return KT_QFixedSize;
+        if (!type.compare(qPos, 10, "QStringRef"))
+            return KT_QStringRef;
         break;
     case 11:
         if (!type.compare(qPos, 11, "QStringList"))
@@ -1517,36 +1524,40 @@ QtStringAddressData readQtStringAddressData(const SymbolGroupValue &dV,
 
 // Retrieve data from a QByteArrayData(char)/QStringData(wchar_t)
 // in desired type. For empty arrays, no data are allocated.
+// All sizes are in CharType units. zeroTerminated means data are 0-terminated
+// in the data type, but "size" does not contain it.
 template <typename CharType>
 bool readQt5StringData(const SymbolGroupValue &dV, int qtMajorVersion,
-                       bool zeroTerminated, unsigned sizeLimit,
+                       bool zeroTerminated, unsigned position, unsigned sizeLimit,
                        unsigned *fullSize, unsigned *arraySize,
                        CharType **array)
 {
     *array = 0;
-    QtStringAddressData data = readQtStringAddressData(dV, qtMajorVersion);
-    *arraySize = *fullSize = data.size;
-    if (!data.address)
+    const QtStringAddressData data = readQtStringAddressData(dV, qtMajorVersion);
+    if (!data.address || position > data.size)
         return false;
+    const ULONG64 address = data.address + sizeof(CharType) * position;
+    *fullSize = data.size - position;
+    *arraySize = std::min(*fullSize, sizeLimit);
     if (!*fullSize)
         return true;
-    const bool truncated = *fullSize > sizeLimit;
-    *arraySize = truncated ?  sizeLimit : *fullSize;
     const unsigned memorySize =
             sizeof(CharType) * (*arraySize + (zeroTerminated ? 1 : 0));
     unsigned char *memory =
             SymbolGroupValue::readMemory(dV.context().dataspaces,
-                                         data.address, memorySize);
+                                         address, memorySize);
     if (!memory)
         return false;
     *array = reinterpret_cast<CharType *>(memory);
-    if (truncated && zeroTerminated)
+    if ((*arraySize < *fullSize) && zeroTerminated)
         *(*array + *arraySize) = CharType(0);
     return true;
 }
 
 static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str,
-                               MemoryHandle **memoryHandle = 0)
+                               MemoryHandle **memoryHandle = 0,
+                               unsigned position = 0,
+                               unsigned length = std::numeric_limits<unsigned>::max())
 {
     const QtInfo &qtInfo = QtInfo::get(v.context());
     const SymbolGroupValue dV = v["d"];
@@ -1557,7 +1568,11 @@ static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str,
         if (const SymbolGroupValue sizeValue = dV["size"]) {
             const int size = sizeValue.intValue();
             if (size >= 0) {
-                const std::wstring stringData = dV["data"].wcharPointerData(size);
+                std::wstring stringData = dV["data"].wcharPointerData(size);
+                if (position && position < stringData.size())
+                    stringData.erase(0, position);
+                if (length < stringData.size())
+                    stringData.erase(length, stringData.size() - length);
                 str << L'"' << stringData << L'"';
                 if (memoryHandle)
                     *memoryHandle = MemoryHandle::fromStdWString(stringData);
@@ -1574,11 +1589,13 @@ static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str,
     const SymbolGroupValue typeArrayV = dV[unsigned(0)];
     if (!typeArrayV)
         return false;
-    if (!readQt5StringData(typeArrayV, qtInfo.version, true, 10240, &fullSize, &size, &memory))
+    if (!readQt5StringData(typeArrayV, qtInfo.version, true, position,
+                           std::min(length, unsigned(10240)),
+                           &fullSize, &size, &memory))
         return false;
     if (size) {
         str << L'"' << memory;
-        if (fullSize > size)
+        if (std::min(fullSize, length) > size)
             str << L"...";
         str << L'"';
     } else {
@@ -1588,6 +1605,20 @@ static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str,
         *memoryHandle = new MemoryHandle(memory, size);
     else
         delete [] memory;
+    return true;
+}
+
+static inline bool dumpQStringRef(const SymbolGroupValue &v, std::wostream &str,
+                                  MemoryHandle **memoryHandle = 0)
+{
+    const int position = v["m_position"].intValue();
+    const int size = v["m_size"].intValue();
+    if (position < 0 || size < 0)
+        return false;
+    const SymbolGroupValue string = v["m_string"];
+    if (!string || !dumpQString(string, str, memoryHandle, position, size))
+        return false;
+    str << L" (" << position << ',' << size << L')';
     return true;
 }
 
@@ -1670,7 +1701,7 @@ static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str,
     const SymbolGroupValue typeArrayV = dV[unsigned(0)];
     if (!typeArrayV)
         return false;
-    if (!readQt5StringData(typeArrayV, qtInfo.version, false, 10240, &fullSize, &size, &memory))
+    if (!readQt5StringData(typeArrayV, qtInfo.version, false, 0, 10240, &fullSize, &size, &memory))
         return false;
     if (size) {
         // Emulate CDB's behavior of replacing unprintable characters
@@ -2592,6 +2623,9 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
         break;
     case KT_QString:
         rc = dumpQString(v, str, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        break;
+    case KT_QStringRef:
+        rc = dumpQStringRef(v, str, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QColor:
         rc = dumpQColor(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
