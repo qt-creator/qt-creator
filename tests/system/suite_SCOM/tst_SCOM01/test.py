@@ -5,13 +5,13 @@ source("../../shared/suites_qtta.py")
 def main():
     startApplication("qtcreator" + SettingsPath)
     # create qt quick application
-    createNewQtQuickApplication(tempDir(), "SampleApp")
+    checkedTargets, projectName = createNewQtQuickApplication(tempDir(), "SampleApp")
     # build it - on all build configurations
-    availableConfigs = iterateBuildConfigs(1)
+    availableConfigs = iterateBuildConfigs(len(checkedTargets))
     if not availableConfigs:
         test.fatal("Haven't found a suitable Qt version - leaving without building.")
     for kit, config in availableConfigs:
-        selectBuildConfig(1, kit, config)
+        selectBuildConfig(len(checkedTargets), kit, config)
         # try to compile
         test.log("Testing build configuration: " + config)
         clickButton(waitForObject(":*Qt Creator.Build Project_Core::Internal::FancyToolButton"))

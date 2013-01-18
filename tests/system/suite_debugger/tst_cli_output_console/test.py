@@ -17,7 +17,7 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     installLazySignalHandler("{type='ProjectExplorer::Internal::ProjectExplorerPlugin' unnamed='1'}",
                              "runControlFinished(ProjectExplorer::RunControl*)", "__handlerunControlFinished__")
-    createProject_Qt_Console(tempDir(), project)
+    checkedTargets = createProject_Qt_Console(tempDir(), project)
 
     mainEditor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
     replaceEditorContent(mainEditor, "")
@@ -33,16 +33,16 @@ def main():
     selectFromLocator(project + ".pro")
     proEditor = waitForObject(":Qt Creator_ProFileEditorWidget")
     test.verify("CONFIG   += console" in str(proEditor.plainText), "Verifying that program is configured with console")
-    setRunInTerminal(1, 0, False)
 
-    availableConfigs = iterateBuildConfigs(1)
+    availableConfigs = iterateBuildConfigs(len(checkedTargets))
     if not availableConfigs:
         test.fatal("Haven't found a suitable Qt version - leaving without building.")
     for kit, config in availableConfigs:
-        selectBuildConfig(1, kit, config)
+        selectBuildConfig(len(checkedTargets), kit, config)
         test.log("Testing build configuration: " + config)
 
         test.log("Running application")
+        setRunInTerminal(len(checkedTargets), kit, False)
         runControlFinished = False
         clickButton(waitForObject("{type='Core::Internal::FancyToolButton' text='Run' visible='1'}"))
         waitFor("runControlFinished==True", 20000)
@@ -55,16 +55,17 @@ def main():
         clickButton(waitForObject(":Qt Creator_CloseButton"))
 
         test.log("Debugging application")
+        isMsvc = isMsvcConfig(len(checkedTargets), kit)
         runControlFinished = False
         invokeMenuItem("Debug", "Start Debugging", "Start Debugging")
         JIRA.performWorkaroundIfStillOpen(6853, JIRA.Bug.CREATOR, config)
-        handleDebuggerWarnings(config)
+        handleDebuggerWarnings(config, isMsvc)
         waitFor("runControlFinished==True", 20000)
         if not runControlFinished:
             test.warning("Waiting for runControlFinished timed out")
         try:
             debuggerLog = takeDebuggerLog()
-            if not "MSVC" in config:
+            if not isMsvc:
                 # cout works with MSVC, too, but we don't check it since it's not supported
                 verifyOutput(debuggerLog, outputStdOut, "std::cout", "Debugger Log")
                 verifyOutput(debuggerLog, outputStdErr, "std::cerr", "Debugger Log")
@@ -79,7 +80,7 @@ def main():
                 test.fatal("Debugger log did not behave as expected. Please check manually.")
         switchViewTo(ViewConstants.EDIT)
         appOutput = str(waitForObject("{type='Core::OutputWindow' unnamed='1' visible='1'}").plainText)
-        if not "MSVC" in config:
+        if not isMsvc:
             verifyOutput(appOutput, outputStdOut, "std::cout", "Application Output")
             verifyOutput(appOutput, outputStdErr, "std::cerr", "Application Output")
             verifyOutput(appOutput, outputQDebug, "qDebug()", "Application Output")
