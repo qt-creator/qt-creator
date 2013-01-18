@@ -80,15 +80,11 @@ bool BlackBerryConfiguration::setConfig(const QString &ndkPath)
     m_config.qnxEnv = QnxUtils::parseEnvironmentFile(QnxUtils::envFilePath(ndkPath));
 
     QString ndkTarget = m_config.qnxEnv.value(QLatin1String("QNX_TARGET"));
-    QString cpuDir = m_config.qnxEnv.value(QLatin1String("CPUVARDIR"));
-
     QString sep = QString::fromLatin1("%1qnx6").arg(QDir::separator());
     m_config.targetName = ndkTarget.split(sep).first().split(QDir::separator()).last();
 
-    QString sRootDir = QString::fromLatin1("%1%2%3").arg(ndkTarget, QDir::separator(), cpuDir);
-
-    if (QDir(sRootDir).exists())
-        m_config.sysRoot = Utils::FileName::fromString(sRootDir);
+    if (QDir(ndkTarget).exists())
+        m_config.sysRoot = Utils::FileName::fromString(ndkTarget);
 
     QString qnxHost = m_config.qnxEnv.value(QLatin1String("QNX_HOST"));
     Utils::FileName qmakePath = QnxUtils::executableWithExtension(Utils::FileName::fromString(qnxHost + QLatin1String("/usr/bin/qmake")));
