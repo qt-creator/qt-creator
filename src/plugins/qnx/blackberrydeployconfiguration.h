@@ -62,8 +62,12 @@ public:
     QString password() const;
     QString deviceName() const;
 
+    QVariantMap toMap() const;
+
 protected:
     BlackBerryDeployConfiguration(ProjectExplorer::Target *parent, BlackBerryDeployConfiguration *source);
+
+    bool fromMap(const QVariantMap &map);
 
 private:
     void ctor();

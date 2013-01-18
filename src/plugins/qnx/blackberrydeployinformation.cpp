@@ -41,11 +41,21 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 
+namespace {
+const char COUNT_KEY[]      = "Qnx.BlackBerry.DeployInformationCount";
+const char DEPLOYINFO_KEY[] = "Qnx.BlackBerry.DeployInformation.%1";
+
+const char ENABLED_KEY[]        = "Qnx.BlackBerry.DeployInformation.Enabled";
+const char APPDESCRIPTOR_KEY[]  = "Qnx.BlackBerry.DeployInformation.AppDescriptor";
+const char PACKAGE_KEY[]        = "Qnx.BlackBerry.DeployInformation.Package";
+const char PROFILE_KEY[]        = "Qnx.BlackBerry.DeployInformation.ProFile";
+}
+
 BlackBerryDeployInformation::BlackBerryDeployInformation(Qt4ProjectManager::Qt4Project *project)
     : QAbstractTableModel(project)
     , m_project(project)
 {
-    connect(m_project, SIGNAL(proFilesEvaluated()), this, SLOT(initModel()));
+    connect(m_project, SIGNAL(proFilesEvaluated()), this, SLOT(updateModel()));
 }
 
 int BlackBerryDeployInformation::rowCount(const QModelIndex &parent) const
@@ -152,8 +162,78 @@ QList<BarPackageDeployInformation> BlackBerryDeployInformation::enabledPackages(
     return result;
 }
 
+QVariantMap BlackBerryDeployInformation::toMap() const
+{
+    QVariantMap outerMap;
+    outerMap[QLatin1String(COUNT_KEY)] = m_deployInformation.size();
+
+    for (int i = 0; i < m_deployInformation.size(); ++i) {
+        const BarPackageDeployInformation &deployInfo = m_deployInformation[i];
+
+        QVariantMap deployInfoMap;
+        deployInfoMap[QLatin1String(ENABLED_KEY)] = deployInfo.enabled;
+        deployInfoMap[QLatin1String(APPDESCRIPTOR_KEY)] = deployInfo.appDescriptorPath;
+        deployInfoMap[QLatin1String(PACKAGE_KEY)] = deployInfo.packagePath;
+        deployInfoMap[QLatin1String(PROFILE_KEY)] = deployInfo.proFilePath;
+
+        outerMap[QString::fromLatin1(DEPLOYINFO_KEY).arg(i)] = deployInfoMap;
+    }
+
+    return outerMap;
+}
+
+void BlackBerryDeployInformation::fromMap(const QVariantMap &map)
+{
+    beginResetModel();
+    m_deployInformation.clear();
+
+    int count = map.value(QLatin1String(COUNT_KEY)).toInt();
+    for (int i = 0; i < count; ++i) {
+        QVariantMap innerMap = map.value(QString::fromLatin1(DEPLOYINFO_KEY).arg(i)).toMap();
+
+        const bool enabled = innerMap.value(QLatin1String(ENABLED_KEY)).toBool();
+        const QString appDescriptorPath = innerMap.value(QLatin1String(APPDESCRIPTOR_KEY)).toString();
+        const QString packagePath = innerMap.value(QLatin1String(PACKAGE_KEY)).toString();
+        const QString proFilePath = innerMap.value(QLatin1String(PROFILE_KEY)).toString();
+
+        m_deployInformation << BarPackageDeployInformation(enabled, appDescriptorPath, packagePath, proFilePath);
+    }
+
+    endResetModel();
+}
+
+void BlackBerryDeployInformation::updateModel()
+{
+    if (m_deployInformation.isEmpty()) {
+        initModel();
+        return;
+    }
+
+    beginResetModel();
+    QList<BarPackageDeployInformation> keep;
+    QList<Qt4ProjectManager::Qt4ProFileNode *> appNodes = m_project->applicationProFiles();
+    foreach (Qt4ProjectManager::Qt4ProFileNode *node, appNodes) {
+        bool nodeFound = false;
+        for (int i = 0; i < m_deployInformation.size(); ++i) {
+            if (m_deployInformation[i].proFilePath == node->path()) {
+                keep << m_deployInformation[i];
+                nodeFound = true;
+                break;
+            }
+        }
+
+        if (!nodeFound)
+            keep << deployInformationFromNode(node);
+    }
+    m_deployInformation = keep;
+    endResetModel();
+}
+
 void BlackBerryDeployInformation::initModel()
 {
+    if (!m_deployInformation.isEmpty())
+        return;
+
     ProjectExplorer::Target *target = m_project->activeTarget();
     if (!target
             || !target->activeDeployConfiguration()
@@ -172,23 +252,28 @@ void BlackBerryDeployInformation::initModel()
     if (!rootNode || rootNode->parseInProgress()) // Can be null right after project creation by wizard.
         return;
 
-    disconnect(m_project, SIGNAL(proFilesEvaluated()), this, SLOT(initModel()));
+    disconnect(m_project, SIGNAL(proFilesEvaluated()), this, SLOT(updateModel()));
+
     beginResetModel();
     m_deployInformation.clear();
 
     QList<Qt4ProjectManager::Qt4ProFileNode *> appNodes = m_project->applicationProFiles();
-    foreach (Qt4ProjectManager::Qt4ProFileNode *node, appNodes) {
-        Qt4ProjectManager::TargetInformation ti = node->targetInformation();
-
-        QFileInfo fi(node->path());
-        const QString appDescriptorPath = QDir::toNativeSeparators(fi.absolutePath() + QLatin1String("/bar-descriptor.xml"));
-        QString barPackagePath;
-        if (!ti.buildDir.isEmpty())
-            barPackagePath = QDir::toNativeSeparators(ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String(".bar"));
-
-        m_deployInformation << BarPackageDeployInformation(true, appDescriptorPath, barPackagePath, node->path());
-    }
+    foreach (Qt4ProjectManager::Qt4ProFileNode *node, appNodes)
+        m_deployInformation << deployInformationFromNode(node);
 
     endResetModel();
-    connect(m_project, SIGNAL(proFilesEvaluated()), SLOT(initModel()));
+    connect(m_project, SIGNAL(proFilesEvaluated()), this, SLOT(updateModel()));
+}
+
+BarPackageDeployInformation BlackBerryDeployInformation::deployInformationFromNode(Qt4ProjectManager::Qt4ProFileNode *node) const
+{
+    Qt4ProjectManager::TargetInformation ti = node->targetInformation();
+
+    QFileInfo fi(node->path());
+    const QString appDescriptorPath = QDir::toNativeSeparators(fi.absolutePath() + QLatin1String("/bar-descriptor.xml"));
+    QString barPackagePath;
+    if (!ti.buildDir.isEmpty())
+        barPackagePath = QDir::toNativeSeparators(ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String(".bar"));
+
+    return BarPackageDeployInformation(true, appDescriptorPath, barPackagePath, node->path());
 }
