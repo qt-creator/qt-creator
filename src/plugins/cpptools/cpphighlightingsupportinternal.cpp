@@ -53,8 +53,18 @@ QFuture<CppHighlightingSupport::Use> CppHighlightingSupportInternal::highlightin
         const Document::Ptr &doc,
         const Snapshot &snapshot) const
 {
-    //Get macro uses
     QList<CheckSymbols::Use> macroUses;
+
+    //Get macro definitions
+    foreach (const CPlusPlus::Macro& macro, doc->definedMacros()) {
+        int line, column;
+        editor()->convertPosition(macro.offset(), &line, &column);
+        ++column; //Highlighting starts at (column-1) --> compensate here
+        CheckSymbols::Use use(line, column, macro.name().size(), SemanticInfo::MacroUse);
+        macroUses.append(use);
+    }
+
+    //Get macro uses
     foreach (Document::MacroUse macro, doc->macroUses()) {
         const QString name = QString::fromUtf8(macro.macro().name());
 
