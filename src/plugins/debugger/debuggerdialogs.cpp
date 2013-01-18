@@ -207,7 +207,7 @@ QString StartApplicationParameters::displayName() const
 
 void StartApplicationParameters::toSettings(QSettings *settings) const
 {
-    settings->setValue(_("LastKitId"), kitId.toString());
+    settings->setValue(_("LastKitId"), kitId.toSetting());
     settings->setValue(_("LastServerPort"), serverPort);
     settings->setValue(_("LastExternalExecutable"), localExecutable);
     settings->setValue(_("LastExternalExecutableArguments"), processArgs);
@@ -220,8 +220,7 @@ void StartApplicationParameters::toSettings(QSettings *settings) const
 
 void StartApplicationParameters::fromSettings(const QSettings *settings)
 {
-    const QString kitIdString = settings->value(_("LastKitId")).toString();
-    kitId = kitIdString.isEmpty() ? Id() : Id(kitIdString);
+    kitId = Id::fromSetting(settings->value(_("LastKitId")));
     serverPort = settings->value(_("LastServerPort")).toUInt();
     localExecutable = settings->value(_("LastExternalExecutable")).toString();
     processArgs = settings->value(_("LastExternalExecutableArguments")).toString();
