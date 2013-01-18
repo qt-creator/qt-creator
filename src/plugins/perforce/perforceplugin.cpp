@@ -239,7 +239,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
         addAutoReleasedObject(new PerforceEditorFactory(editorParameters + i, this, describeSlot));
 
     const QString prefix = QLatin1String("p4");
-    m_commandLocator = new Locator::CommandLocator(QLatin1String("Perforce"), prefix, prefix);
+    m_commandLocator = new Locator::CommandLocator("Perforce", prefix, prefix);
     addAutoReleasedObject(m_commandLocator);
 
     Core::ActionContainer *mtools =

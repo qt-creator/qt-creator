@@ -31,7 +31,6 @@
 
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 
 #include <utils/qtcassert.h>
 
@@ -44,14 +43,14 @@ struct CommandLocatorPrivate
     QList<Core::Command *> commands;
 };
 
-CommandLocator::CommandLocator(const QString &prefix,
+CommandLocator::CommandLocator(Core::Id id,
                                const QString &displayName,
                                const QString &shortCutString,
                                QObject *parent) :
     Locator::ILocatorFilter(parent),
     d(new CommandLocatorPrivate)
 {
-    setId(Core::Id::fromString(prefix));
+    setId(id);
     setDisplayName(displayName);
     setShortcutString(shortCutString);
 }

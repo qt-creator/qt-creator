@@ -249,7 +249,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     addAutoReleasedObject(new CheckoutWizard);
 
     const QString prefix = QLatin1String("cvs");
-    m_commandLocator = new Locator::CommandLocator(QLatin1String("CVS"), prefix, prefix);
+    m_commandLocator = new Locator::CommandLocator("CVS", prefix, prefix);
     addAutoReleasedObject(m_commandLocator);
 
     // Register actions

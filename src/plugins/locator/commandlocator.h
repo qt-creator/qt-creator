@@ -46,10 +46,8 @@ class LOCATOR_EXPORT CommandLocator : public Locator::ILocatorFilter
     Q_OBJECT
 
 public:
-    explicit CommandLocator(const QString &prefix,
-                            const QString &displayName,
-                            const QString &shortCutString,
-                            QObject *parent = 0);
+    CommandLocator(Core::Id id, const QString &displayName,
+                   const QString &shortCutString, QObject *parent = 0);
     ~CommandLocator();
 
     void appendCommand(Core::Command *cmd);

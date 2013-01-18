@@ -164,7 +164,7 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
     addAutoReleasedObject(new CloneWizard);
 
     const QString prefix = QLatin1String("bzr");
-    m_commandLocator = new Locator::CommandLocator(QLatin1String("Bazaar"), prefix, prefix);
+    m_commandLocator = new Locator::CommandLocator("Bazaar", prefix, prefix);
     addAutoReleasedObject(m_commandLocator);
 
     createMenu();

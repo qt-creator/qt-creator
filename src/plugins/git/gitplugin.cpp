@@ -294,9 +294,8 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     addAutoReleasedObject(new CloneWizard);
     addAutoReleasedObject(new Gitorious::Internal::GitoriousCloneWizard);
 
-    const QString description = QLatin1String("Git");
     const QString prefix = QLatin1String("git");
-    m_commandLocator = new Locator::CommandLocator(description, prefix, prefix);
+    m_commandLocator = new Locator::CommandLocator("Git", prefix, prefix);
     addAutoReleasedObject(m_commandLocator);
 
     //register actions

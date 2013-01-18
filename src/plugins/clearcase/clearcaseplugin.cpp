@@ -301,7 +301,7 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     const QString description = QLatin1String("ClearCase");
     const QString prefix = QLatin1String("cc");
     // register cc prefix in Locator
-    m_commandLocator = new Locator::CommandLocator(prefix, description, prefix);
+    m_commandLocator = new Locator::CommandLocator("cc", description, prefix);
     addAutoReleasedObject(m_commandLocator);
 
     //register actions
