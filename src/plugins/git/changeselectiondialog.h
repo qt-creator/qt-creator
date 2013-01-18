@@ -55,8 +55,8 @@ public slots:
     void selectWorkingDirectory();
 
 private slots:
-    void setToolTip(int exitCode);
-    void recalculateToolTip(const QString &ref);
+    void setDetails(int exitCode);
+    void recalculateDetails(const QString &ref);
 
 private:
     Ui_ChangeSelectionDialog m_ui;

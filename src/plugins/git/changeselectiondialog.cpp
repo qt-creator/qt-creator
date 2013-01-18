@@ -59,7 +59,8 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, QW
 
     m_gitEnvironment = GitPlugin::instance()->gitClient()->processEnvironment();
     connect(m_ui.changeNumberEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(recalculateToolTip(QString)));
+            this, SLOT(recalculateDetails(QString)));
+    recalculateDetails(m_ui.changeNumberEdit->text());
 }
 
 ChangeSelectionDialog::~ChangeSelectionDialog()
@@ -103,16 +104,16 @@ void ChangeSelectionDialog::selectWorkingDirectory()
                               tr("Selected directory is not a Git repository"));
 }
 
-//! Set commit message as toolTip
-void ChangeSelectionDialog::setToolTip(int exitCode)
+//! Set commit message in details
+void ChangeSelectionDialog::setDetails(int exitCode)
 {
     if (exitCode == 0)
-        m_ui.changeNumberEdit->setToolTip(QString::fromUtf8(m_process->readAllStandardOutput()));
+        m_ui.detailsText->setPlainText(QString::fromUtf8(m_process->readAllStandardOutput()));
     else
-        m_ui.changeNumberEdit->setToolTip(tr("Error: unknown reference"));
+        m_ui.detailsText->setPlainText(tr("Error: unknown reference"));
 }
 
-void ChangeSelectionDialog::recalculateToolTip(const QString &ref)
+void ChangeSelectionDialog::recalculateDetails(const QString &ref)
 {
     if (m_process) {
         m_process->kill();
@@ -127,14 +128,14 @@ void ChangeSelectionDialog::recalculateToolTip(const QString &ref)
     m_process->setWorkingDirectory(workingDirectory());
     m_process->setProcessEnvironment(m_gitEnvironment);
 
-    connect(m_process, SIGNAL(finished(int)), this, SLOT(setToolTip(int)));
+    connect(m_process, SIGNAL(finished(int)), this, SLOT(setDetails(int)));
 
     m_process->start(m_gitBinaryPath, args);
     m_process->closeWriteChannel();
     if (!m_process->waitForStarted())
-        m_ui.changeNumberEdit->setToolTip(tr("Error: could not start git"));
+        m_ui.detailsText->setPlainText(tr("Error: could not start git"));
     else
-        m_ui.changeNumberEdit->setToolTip(tr("Fetching commit data..."));
+        m_ui.detailsText->setPlainText(tr("Fetching commit data..."));
 }
 
 } // Internal
