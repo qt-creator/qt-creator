@@ -91,6 +91,7 @@ QtcLibrary {
         "historycompleter.cpp",
         "historycompleter.h",
         "hostosinfo.h",
+        "hostosinfo.cpp",
         "htmldocextractor.cpp",
         "htmldocextractor.h",
         "ipaddresslineedit.cpp",
