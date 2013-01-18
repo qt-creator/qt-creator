@@ -167,6 +167,8 @@ QtcPlugin {
         "projectexplorersettingspage.ui",
         "projectfilewizardextension.cpp",
         "projectfilewizardextension.h",
+        "projectmacroexpander.cpp",
+        "projectmacroexpander.h",
         "projectmodels.cpp",
         "projectmodels.h",
         "projectnodes.cpp",
