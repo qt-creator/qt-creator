@@ -42,10 +42,6 @@ class CppFunctionsFilter : public CppLocatorFilter
 public:
     CppFunctionsFilter(CppModelManager *manager);
     ~CppFunctionsFilter();
-
-    QString displayName() const { return tr("C++ Methods and Functions"); }
-    QString id() const { return QLatin1String("Methods"); }
-    Priority priority() const { return Medium; }
 };
 
 } // namespace Internal

@@ -43,6 +43,8 @@ using namespace Macros::Internal;
 MacroLocatorFilter::MacroLocatorFilter():
     m_icon(QPixmap(QLatin1String(":/macros/images/macro.png")))
 {
+    setId("Macros");
+    setDisplayName(tr("Macros"));
     setShortcutString(QLatin1String("rm"));
 }
 

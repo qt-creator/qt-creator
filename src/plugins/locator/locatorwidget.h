@@ -95,7 +95,7 @@ private:
     Utils::FilterLineEdit *m_fileLineEdit;
     QTimer *m_showPopupTimer;
     QFutureWatcher<FilterEntry> *m_entriesWatcher;
-    QMap<QString, QAction *> m_filterActionMap;
+    QMap<Core::Id, QAction *> m_filterActionMap;
     bool m_updateRequested;
     bool m_acceptRequested;
     bool m_possibleToolTipRequest;

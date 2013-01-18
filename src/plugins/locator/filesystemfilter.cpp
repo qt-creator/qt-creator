@@ -41,6 +41,8 @@ using namespace Locator::Internal;
 FileSystemFilter::FileSystemFilter(EditorManager *editorManager, LocatorWidget *locatorWidget)
         : m_editorManager(editorManager), m_locatorWidget(locatorWidget), m_includeHidden(true)
 {
+    setId("Files in file system");
+    setDisplayName(tr("Files in File System"));
     setShortcutString(QString(QLatin1Char('f')));
     setIncludedByDefault(false);
 }

@@ -317,37 +317,36 @@ void LocatorWidget::updateFilterList()
     m_filterMenu->clear();
 
     // update actions and menu
-    QMap<QString, QAction *> actionCopy = m_filterActionMap;
+    QMap<Id, QAction *> actionCopy = m_filterActionMap;
     m_filterActionMap.clear();
     // register new actions, update existent
     foreach (ILocatorFilter *filter, m_locatorPlugin->filters()) {
         if (filter->shortcutString().isEmpty() || filter->isHidden())
             continue;
-        Core::Id locatorId = Core::Id::fromString(QLatin1String("Locator.") + filter->id());
+        Id filterId = filter->id();
+        Id locatorId = filterId.withPrefix("Locator.");
         QAction *action = 0;
-        Core::Command *cmd = 0;
-        if (!actionCopy.contains(filter->id())) {
+        Command *cmd = 0;
+        if (!actionCopy.contains(filterId)) {
             // register new action
             action = new QAction(filter->displayName(), this);
-            cmd = Core::ActionManager::registerAction(action, locatorId,
-                               Core::Context(Core::Constants::C_GLOBAL));
-            cmd->setAttribute(Core::Command::CA_UpdateText);
+            cmd = ActionManager::registerAction(action, locatorId,
+                               Context(Core::Constants::C_GLOBAL));
+            cmd->setAttribute(Command::CA_UpdateText);
             connect(action, SIGNAL(triggered()), this, SLOT(filterSelected()));
             action->setData(qVariantFromValue(filter));
         } else {
-            action = actionCopy.take(filter->id());
-            action->setText(filter->displayName());
-            cmd = Core::ActionManager::command(locatorId);
+            action = actionCopy.take(filterId);
+            action->setText(filterId.toString());
+            cmd = ActionManager::command(locatorId);
         }
-        m_filterActionMap.insert(filter->id(), action);
+        m_filterActionMap.insert(filterId, action);
         m_filterMenu->addAction(cmd->action());
     }
 
     // unregister actions that are deleted now
-    foreach (const QString &id, actionCopy.keys()) {
-        Core::ActionManager::unregisterAction(actionCopy.value(id),
-            Core::Id::fromString(QLatin1String("Locator.") + id));
-    }
+    foreach (const Id id, actionCopy.keys())
+        ActionManager::unregisterAction(actionCopy.value(id), id.withPrefix("Locator."));
     qDeleteAll(actionCopy);
 
     m_filterMenu->addSeparator();

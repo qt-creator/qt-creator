@@ -41,6 +41,8 @@ using namespace Locator::Internal;
 
 ExecuteFilter::ExecuteFilter()
 {
+    setId("Execute custom commands");
+    setDisplayName(tr("Execute Custom Commands"));
     setShortcutString(QString(QLatin1Char('!')));
     setIncludedByDefault(false);
 

@@ -34,6 +34,8 @@ using namespace CppTools::Internal;
 CppFunctionsFilter::CppFunctionsFilter(CppModelManager *manager)
     : CppLocatorFilter(manager)
 {
+    setId("Methods");
+    setDisplayName(tr("C++ Methods and Functions"));
     setShortcutString(QString(QLatin1Char('m')));
     setIncludedByDefault(false);
 

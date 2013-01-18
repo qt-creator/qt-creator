@@ -42,10 +42,14 @@ using namespace ProjectExplorer::Internal;
 AllProjectsFilter::AllProjectsFilter(ProjectExplorerPlugin *pe)
     : m_projectExplorer(pe), m_filesUpToDate(false)
 {
+    setId("Files in any project");
+    setDisplayName(tr("Files in Any Project"));
+    setShortcutString(QString(QLatin1Char('a')));
+    setPriority(Low);
+    setIncludedByDefault(true);
+
     connect(m_projectExplorer, SIGNAL(fileListChanged()),
             this, SLOT(markFilesAsOutOfDate()));
-    setShortcutString(QString(QLatin1Char('a')));
-    setIncludedByDefault(true);
 }
 
 void AllProjectsFilter::markFilesAsOutOfDate()

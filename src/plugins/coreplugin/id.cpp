@@ -323,4 +323,9 @@ CORE_EXPORT const char *nameForId(int id)
     return stringFromId.value(id).str;
 }
 
+bool Id::alphabeticallyBefore(Id other) const
+{
+    return toString().compare(other.toString(), Qt::CaseInsensitive) < 0;
+}
+
 } // namespace Core

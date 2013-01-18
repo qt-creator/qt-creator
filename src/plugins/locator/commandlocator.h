@@ -32,15 +32,8 @@
 
 #include "locator_global.h"
 #include "ilocatorfilter.h"
-#include <QList>
 
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
-
-namespace Core {
-    class Command;
-}
+namespace Core { class Command; }
 
 namespace Locator {
 /* Command locators: Provides completion for a set of
@@ -57,26 +50,17 @@ public:
                             const QString &displayName,
                             const QString &shortCutString,
                             QObject *parent = 0);
-    virtual ~CommandLocator();
+    ~CommandLocator();
 
     void appendCommand(Core::Command *cmd);
 
-    virtual QString displayName() const;
-    virtual QString id() const;
-    virtual Priority priority() const;
-    virtual QList<FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
-    virtual void accept(FilterEntry selection) const;
-    virtual void refresh(QFutureInterface<void> &future);
+    QList<FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
+    void accept(FilterEntry selection) const;
+    void refresh(QFutureInterface<void> &future);
 
 private:
     CommandLocatorPrivate *d;
 };
-
-inline CommandLocator &operator<<(CommandLocator &locator, Core::Command *cmd)
-{
-    locator.appendCommand(cmd);
-    return locator;
-}
 
 } // namespace Locator
 

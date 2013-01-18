@@ -43,6 +43,8 @@ CppLocatorFilter::CppLocatorFilter(CppModelManager *manager)
     : m_manager(manager),
     m_forceNewSearchList(true)
 {
+    setId("Classes and Methods");
+    setDisplayName(tr("C++ Classes and Methods"));
     setShortcutString(QString(QLatin1Char(':')));
     setIncludedByDefault(false);
 

@@ -64,6 +64,7 @@ public:
     bool operator!=(const char *name) const { return !operator==(name); }
     bool operator<(Id id) const { return m_id < id.m_id; }
     bool operator>(Id id) const { return m_id > id.m_id; }
+    bool alphabeticallyBefore(Id other) const;
     int uniqueIdentifier() const { return m_id; }
     static Id fromUniqueIdentifier(int uid) { return Id(uid); }
     static Id fromString(const QString &str); // FIXME: avoid.

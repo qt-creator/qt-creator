@@ -46,28 +46,16 @@ Q_DECLARE_METATYPE(ILocatorFilter*)
 
 HelpIndexFilter::HelpIndexFilter()
 {
+    setId("HelpIndexFilter");
+    setDisplayName(tr("Help Index"));
     setIncludedByDefault(false);
     setShortcutString(QString(QLatin1Char('?')));
+
     m_icon = QIcon(QLatin1String(":/help/images/bookmark.png"));
 }
 
 HelpIndexFilter::~HelpIndexFilter()
 {
-}
-
-QString HelpIndexFilter::displayName() const
-{
-    return tr("Help Index");
-}
-
-QString HelpIndexFilter::id() const
-{
-    return QLatin1String("HelpIndexFilter");
-}
-
-ILocatorFilter::Priority HelpIndexFilter::priority() const
-{
-    return Medium;
 }
 
 QList<FilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry)

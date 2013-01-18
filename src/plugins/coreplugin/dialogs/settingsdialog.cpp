@@ -270,9 +270,9 @@ public:
 // Helpers to sort by category. id
 bool optionsPageLessThan(const IOptionsPage *p1, const IOptionsPage *p2)
 {
-    if (const int cc = p1->category().toString().compare(p2->category().toString()))
-        return cc < 0;
-    return p1->id().toString().compare(p2->id().toString()) < 0;
+    if (p1->category() != p2->category())
+        return p1->category().alphabeticallyBefore(p2->category());
+    return p1->id().alphabeticallyBefore(p2->id());
 }
 
 static inline QList<Core::IOptionsPage*> sortedOptionsPages()

@@ -40,9 +40,11 @@ using namespace Locator;
 
 ILocatorFilter::ILocatorFilter(QObject *parent):
     QObject(parent),
+    m_priority(Medium),
     m_includedByDefault(false),
     m_hidden(false),
-    m_enabled(true)
+    m_enabled(true),
+    m_isConfigurable(true)
 {
 }
 
@@ -114,9 +116,25 @@ bool ILocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     return false;
 }
 
+QString ILocatorFilter::trimWildcards(const QString &str)
+{
+    if (str.isEmpty())
+        return str;
+    int first = 0, last = str.size()-1;
+    const QChar asterisk = QLatin1Char('*');
+    const QChar question = QLatin1Char('?');
+    while (first < str.size() && (str.at(first) == asterisk || str.at(first) == question))
+        ++first;
+    while (last >= 0 && (str.at(last) == asterisk || str.at(last) == question))
+        --last;
+    if (first > last)
+        return QString();
+    return str.mid(first, last-first+1);
+}
+
 bool ILocatorFilter::isConfigurable() const
 {
-    return true;
+    return m_isConfigurable;
 }
 
 bool ILocatorFilter::isIncludedByDefault() const
@@ -144,7 +162,42 @@ bool ILocatorFilter::isEnabled() const
     return m_enabled;
 }
 
+Core::Id ILocatorFilter::id() const
+{
+    return m_id;
+}
+
+QString ILocatorFilter::displayName() const
+{
+    return m_displayName;
+}
+
+ILocatorFilter::Priority ILocatorFilter::priority() const
+{
+    return m_priority;
+}
+
 void ILocatorFilter::setEnabled(bool enabled)
 {
     m_enabled = enabled;
+}
+
+void ILocatorFilter::setId(Core::Id id)
+{
+    m_id = id;
+}
+
+void ILocatorFilter::setPriority(Priority priority)
+{
+    m_priority = priority;
+}
+
+void ILocatorFilter::setDisplayName(const QString &displayString)
+{
+    m_displayName = displayString;
+}
+
+void ILocatorFilter::setConfigurable(bool configurable)
+{
+    m_isConfigurable = configurable;
 }

@@ -44,6 +44,9 @@ using namespace TextEditor::Internal;
 LineNumberFilter::LineNumberFilter(QObject *parent)
   : ILocatorFilter(parent)
 {
+    setId("Line in current document");
+    setDisplayName(tr("Line in Current Document"));
+    setPriority(High);
     setShortcutString(QString(QLatin1Char('l')));
     setIncludedByDefault(true);
 }

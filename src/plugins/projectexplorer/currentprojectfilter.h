@@ -47,9 +47,6 @@ class CurrentProjectFilter : public Locator::BaseFileFilter
 
 public:
     CurrentProjectFilter(ProjectExplorerPlugin *pe);
-    QString displayName() const { return tr("Files in Current Project"); }
-    QString id() const { return QLatin1String("Files in current project"); }
-    Locator::ILocatorFilter::Priority priority() const { return Locator::ILocatorFilter::Low; }
     void refresh(QFutureInterface<void> &future);
 
 protected:
@@ -60,7 +57,6 @@ private slots:
     void markFilesAsOutOfDate();
 
 private:
-
     ProjectExplorerPlugin *m_projectExplorer;
     Project *m_project;
     bool m_filesUpToDate;

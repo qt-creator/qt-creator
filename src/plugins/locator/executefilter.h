@@ -53,9 +53,6 @@ class ExecuteFilter : public Locator::ILocatorFilter
 
 public:
     ExecuteFilter();
-    QString displayName() const { return tr("Execute Custom Commands"); }
-    QString id() const { return QLatin1String("Execute custom commands"); }
-    Locator::ILocatorFilter::Priority priority() const { return Locator::ILocatorFilter::Medium; }
     QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future,
                                            const QString &entry);
     void accept(Locator::FilterEntry selection) const;

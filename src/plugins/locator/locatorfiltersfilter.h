@@ -53,13 +53,9 @@ public:
                          LocatorWidget *locatorWidget);
 
     // ILocatorFilter
-    QString displayName() const;
-    QString id() const;
-    Priority priority() const;
     QList<FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
     void accept(FilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
-    bool isConfigurable() const;
 
 private:
     LocatorPlugin *m_plugin;

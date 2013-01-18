@@ -44,23 +44,12 @@ LocatorFiltersFilter::LocatorFiltersFilter(LocatorPlugin *plugin,
     m_locatorWidget(locatorWidget),
     m_icon(QIcon(QLatin1String(Core::Constants::ICON_NEXT)))
 {
+    setId("FiltersFilter");
+    setDisplayName(tr("Available filters"));
     setIncludedByDefault(true);
     setHidden(true);
-}
-
-QString LocatorFiltersFilter::displayName() const
-{
-    return tr("Available filters");
-}
-
-QString LocatorFiltersFilter::id() const
-{
-    return QLatin1String("FiltersFilter");
-}
-
-ILocatorFilter::Priority LocatorFiltersFilter::priority() const
-{
-    return High;
+    setPriority(High);
+    setConfigurable(false);
 }
 
 QList<FilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry)
@@ -103,9 +92,4 @@ void LocatorFiltersFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future)
     // Nothing to refresh
-}
-
-bool LocatorFiltersFilter::isConfigurable() const
-{
-    return false;
 }

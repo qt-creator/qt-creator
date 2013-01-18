@@ -40,6 +40,8 @@ using namespace CPlusPlus;
 CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager, Core::EditorManager *editorManager)
     : m_modelManager(manager)
 {
+    setId("Methods in current Document");
+    setDisplayName(tr("C++ Methods in Current Document"));
     setShortcutString(QString(QLatin1Char('.')));
     setIncludedByDefault(false);
 

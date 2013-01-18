@@ -31,6 +31,7 @@
 
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/id.h>
 
 #include <utils/qtcassert.h>
 
@@ -38,14 +39,8 @@
 
 namespace Locator {
 
-struct CommandLocatorPrivate {
-    CommandLocatorPrivate(const QString &prefix,
-                          const QString &displayName) :
-        m_prefix(prefix), m_displayName(displayName) {}
-
-    const QString m_prefix;
-    const QString m_displayName;
-
+struct CommandLocatorPrivate
+{
     QList<Core::Command *> commands;
 };
 
@@ -54,8 +49,10 @@ CommandLocator::CommandLocator(const QString &prefix,
                                const QString &shortCutString,
                                QObject *parent) :
     Locator::ILocatorFilter(parent),
-    d(new CommandLocatorPrivate(prefix, displayName))
+    d(new CommandLocatorPrivate)
 {
+    setId(Core::Id::fromString(prefix));
+    setDisplayName(displayName);
     setShortcutString(shortCutString);
 }
 
@@ -67,21 +64,6 @@ CommandLocator::~CommandLocator()
 void CommandLocator::appendCommand(Core::Command *cmd)
 {
     d->commands.push_back(cmd);
-}
-
-QString CommandLocator::displayName() const
-{
-    return d->m_displayName;
-}
-
-QString CommandLocator::id() const
-{
-    return d->m_prefix;
-}
-
-ILocatorFilter::Priority CommandLocator::priority() const
-{
-    return Medium;
 }
 
 QList<Locator::FilterEntry> CommandLocator::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry)

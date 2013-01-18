@@ -44,12 +44,15 @@ using namespace Utils;
 OpenDocumentsFilter::OpenDocumentsFilter(EditorManager *editorManager) :
     m_editorManager(editorManager)
 {
+    setId("Open documents");
+    setDisplayName(tr("Open Documents"));
+    setShortcutString(QString(QLatin1Char('o')));
+    setIncludedByDefault(true);
+
     connect(m_editorManager, SIGNAL(editorOpened(Core::IEditor*)),
             this, SLOT(refreshInternally()));
     connect(m_editorManager, SIGNAL(editorsClosed(QList<Core::IEditor*>)),
             this, SLOT(refreshInternally()));
-    setShortcutString(QString(QLatin1Char('o')));
-    setIncludedByDefault(true);
 }
 
 QList<FilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry_)

@@ -74,9 +74,7 @@ namespace {
             return true;
         if (first->priority() > second->priority())
             return false;
-        if (first->id().compare(second->id(), Qt::CaseInsensitive) < 0)
-            return true;
-        return false;
+        return first->id().alphabeticallyBefore(second->id());
     }
 }
 
@@ -200,7 +198,7 @@ void LocatorPlugin::saveSettings()
         s->setValue(QLatin1String("RefreshInterval"), refreshInterval());
         foreach (ILocatorFilter *filter, m_filters) {
             if (!m_customFilters.contains(filter))
-                s->setValue(filter->id(), filter->saveState());
+                s->setValue(filter->id().toString(), filter->saveState());
         }
         s->beginGroup(QLatin1String("CustomFilters"));
         int i = 0;

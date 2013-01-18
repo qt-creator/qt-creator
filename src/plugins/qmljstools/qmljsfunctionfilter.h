@@ -40,13 +40,11 @@ class LocatorData;
 class FunctionFilter : public Locator::ILocatorFilter
 {
     Q_OBJECT
+
 public:
     explicit FunctionFilter(LocatorData *data, QObject *parent = 0);
     ~FunctionFilter();
 
-    QString displayName() const { return tr("QML Methods and Functions"); }
-    QString id() const { return QLatin1String("Functions"); }
-    Priority priority() const { return Medium; }
     QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
     void accept(Locator::FilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);

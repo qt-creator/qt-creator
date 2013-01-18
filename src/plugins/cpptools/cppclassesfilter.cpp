@@ -35,8 +35,10 @@ using namespace CppTools::Internal;
 CppClassesFilter::CppClassesFilter(CppModelManager *manager)
     : CppLocatorFilter(manager)
 {
+    setId("Classes");
     setShortcutString(QLatin1String("c"));
     setIncludedByDefault(false);
+    setDisplayName(tr("C++ Classes"));
 
     search.setSymbolsToSearchFor(SymbolSearcher::Classes);
     search.setSeparateScope(true);

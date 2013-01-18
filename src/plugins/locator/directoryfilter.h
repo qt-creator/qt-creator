@@ -48,9 +48,6 @@ class DirectoryFilter : public BaseFileFilter
 
 public:
     DirectoryFilter();
-    QString displayName() const { return m_name; }
-    QString id() const { return m_name; }
-    Locator::ILocatorFilter::Priority priority() const { return Locator::ILocatorFilter::Medium; }
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
     bool openConfigDialog(QWidget *parent, bool &needsRefresh);

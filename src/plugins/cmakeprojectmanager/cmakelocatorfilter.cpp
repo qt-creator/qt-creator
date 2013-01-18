@@ -45,6 +45,8 @@ using namespace Utils;
 
 CMakeLocatorFilter::CMakeLocatorFilter()
 {
+    setId("Build CMake target");
+    setDisplayName(tr("Build CMake target"));
     setShortcutString(QLatin1String("cm"));
 
     ProjectExplorer::SessionManager *sm = ProjectExplorer::ProjectExplorerPlugin::instance()->session();

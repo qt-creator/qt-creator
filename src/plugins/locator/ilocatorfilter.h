@@ -32,6 +32,8 @@
 
 #include "locator_global.h"
 
+#include <coreplugin/id.h>
+
 #include <QVariant>
 #include <QFutureInterface>
 #include <QIcon>
@@ -88,14 +90,14 @@ public:
     ILocatorFilter(QObject *parent = 0);
     virtual ~ILocatorFilter() {}
 
-    /* Visible name. */
-    virtual QString displayName() const = 0;
+    /* Internal Id. */
+    Core::Id id() const;
 
-    /* Internal name. */
-    virtual QString id() const = 0;
+    /* Visible name. */
+    QString displayName() const;
 
     /* Selection list order in case of multiple active filters (high goes on top). */
-    virtual Priority priority() const = 0;
+    Priority priority() const;
 
     /* String to type to use this filter exclusively. */
     QString shortcutString() const;
@@ -124,7 +126,7 @@ public:
 
     /* If there is a configure dialog available for this filter. The default
      * implementation returns true. */
-    virtual bool isConfigurable() const;
+    bool isConfigurable() const;
 
     /* Is this filter used also when the shortcutString is not used? */
     bool isIncludedByDefault() const;
@@ -135,20 +137,7 @@ public:
     /* Returns whether the filter should be enabled and used in menus. */
     bool isEnabled() const;
 
-    static QString trimWildcards(const QString &str) {
-        if (str.isEmpty())
-            return str;
-        int first = 0, last = str.size()-1;
-        const QChar asterisk = QLatin1Char('*');
-        const QChar question = QLatin1Char('?');
-        while (first < str.size() && (str.at(first) == asterisk || str.at(first) == question))
-            ++first;
-        while (last >= 0 && (str.at(last) == asterisk || str.at(last) == question))
-            --last;
-        if (first > last)
-            return QString();
-        return str.mid(first, last-first+1);
-    }
+    static QString trimWildcards(const QString &str);
 
 public slots:
     /* Enable or disable the filter. */
@@ -158,12 +147,20 @@ protected:
     void setShortcutString(const QString &shortcut);
     void setIncludedByDefault(bool includedByDefault);
     void setHidden(bool hidden);
+    void setId(Core::Id id);
+    void setPriority(Priority priority);
+    void setDisplayName(const QString &displayString);
+    void setConfigurable(bool configurable);
 
 private:
+    Core::Id m_id;
     QString m_shortcut;
+    Priority m_priority;
+    QString m_displayName;
     bool m_includedByDefault;
     bool m_hidden;
     bool m_enabled;
+    bool m_isConfigurable;
 };
 
 } // namespace Locator

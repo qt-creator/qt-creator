@@ -108,8 +108,8 @@ void LocatorPlugin::loadSettingsHelper(S *settings)
     m_refreshTimer.setInterval(settings->value(QLatin1String("RefreshInterval"), 60).toInt() * 60000);
 
     foreach (ILocatorFilter *filter, m_filters) {
-        if (settings->contains(filter->id())) {
-            const QByteArray state = settings->value(filter->id()).toByteArray();
+        if (settings->contains(filter->id().toString())) {
+            const QByteArray state = settings->value(filter->id().toString()).toByteArray();
             if (!state.isEmpty())
                 filter->restoreState(state);
         }

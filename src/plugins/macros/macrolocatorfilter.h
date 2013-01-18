@@ -48,10 +48,6 @@ public:
     MacroLocatorFilter();
     ~MacroLocatorFilter();
 
-    QString displayName() const { return tr("Macros"); }
-    QString id() const { return QLatin1String("Macros"); }
-    Priority priority() const { return Medium; }
-
     QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
     void accept(Locator::FilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);

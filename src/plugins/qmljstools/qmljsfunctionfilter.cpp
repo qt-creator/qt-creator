@@ -43,6 +43,8 @@ FunctionFilter::FunctionFilter(LocatorData *data, QObject *parent)
     : Locator::ILocatorFilter(parent)
     , m_data(data)
 {
+    setId("Functions");
+    setDisplayName(tr("QML Methods and Functions"));
     setShortcutString(QString(QLatin1Char('m')));
     setIncludedByDefault(false);
 }

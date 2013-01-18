@@ -46,9 +46,6 @@ public:
     ~HelpIndexFilter();
 
     // ILocatorFilter
-    QString displayName() const;
-    QString id() const;
-    Priority priority() const;
     QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
     void accept(Locator::FilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
