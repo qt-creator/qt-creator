@@ -27,8 +27,7 @@ def testRenameMacroAfterSourceModification():
             type(cppEditorStr, "<Command+Left>")
         else:
             type(cppEditorStr, "<Home>")
-        for i in range(5):
-            type(cppEditorStr, "<Shift+Down>")
+        markText(cppEditorStr, "Down", 5)
         type(cppEditorStr, "<Delete>")
 
     test.log("Testing rename macro after modifying source.")
@@ -54,8 +53,7 @@ def testRenameMacroAfterSourceMoving():
             type(cppEditorStr, "<Command+Left>")
         else:
             type(cppEditorStr, "<Home>")
-        for i in range(4):
-            type(cppEditorStr, "<Shift+Down>")
+        markText(cppEditorStr, "Down", 4)
         invokeMenuItem("Edit", "Cut")
 
     def __paste__():

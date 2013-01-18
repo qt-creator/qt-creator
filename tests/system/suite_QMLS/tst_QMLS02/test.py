@@ -18,7 +18,7 @@ def main():
     placeCursorToLine(editorArea, testingCodeLine)
     for i in range(14):
         type(editorArea, "<Left>")
-    type(editorArea, "<Shift+Right>")
+    markText(editorArea, "Right")
     type(editorArea, "c")
     # invoke QML parsing
     invokeMenuItem("Tools", "QML/JS", "Run Checks")

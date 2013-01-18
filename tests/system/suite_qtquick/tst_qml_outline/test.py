@@ -85,12 +85,8 @@ def performModification(afterLine, typing, markCount, markDirection, newText):
         return
     if typing:
         type(qmlEditor, typing)
-    markText(qmlEditor, markCount, markDirection)
+    markText(qmlEditor, markDirection, markCount)
     type(qmlEditor, newText)
-
-def markText(editor, charCount, direction):
-    for i in range(charCount):
-        type(editor, "<Shift+%s>" % direction)
 
 # used to create the tsv file(s)
 def __writeOutlineFile__(outlinePseudoTree, filename):

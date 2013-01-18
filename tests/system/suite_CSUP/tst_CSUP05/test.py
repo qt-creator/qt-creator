@@ -28,8 +28,7 @@ def main():
         invokeMenuItem("File", "Exit")
         return
     type(editorWidget, "<Left>")
-    for i in range(6):
-        type(editorWidget, "<Shift+Left>")
+    markText(editorWidget, "Left", 6)
     type(editorWidget, "<Ctrl+F>")
     # verify if find toolbar exists and if search text contains selected word
     test.verify(checkIfObjectExists(":*Qt Creator.Find_Find::Internal::FindToolBar"),
@@ -49,8 +48,7 @@ def main():
     placeCursorToLine(editorWidget, "find.setOrientation(QmlApplicationfind::ScreenOrientationAuto);")
     for i in range(25):
         type(editorWidget, "<Left>")
-    for i in range(18):
-        type(editorWidget, "<Shift+Left>")
+    markText(editorWidget, "Left", 18)
     invokeMenuItem("Edit", "Find/Replace", "Find/Replace")
     replaceEditorContent(waitForObject(":Qt Creator.replaceEdit_Utils::FilterLineEdit"), "QmlApplicationViewer")
     oldCodeText = str(editorWidget.plainText)
