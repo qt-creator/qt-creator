@@ -373,8 +373,7 @@ void DeviceKitInformation::fix(Kit *k)
     if (!dev.isNull() && dev->type() == DeviceTypeKitInformation::deviceTypeId(k))
         return;
 
-    const QString id = defaultValue(k).toString();
-    setDeviceId(k, id.isEmpty() ? Core::Id() : Core::Id(id));
+    setDeviceId(k, Core::Id::fromSetting(defaultValue(k)));
 }
 
 KitConfigWidget *DeviceKitInformation::createConfigWidget(Kit *k) const

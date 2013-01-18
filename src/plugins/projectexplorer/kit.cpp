@@ -44,6 +44,8 @@
 #include <QTextStream>
 #include <QUuid>
 
+using namespace Core;
+
 namespace {
 
 const char ID_KEY[] = "PE.Profile.Id";
@@ -81,7 +83,7 @@ namespace Internal {
 class KitPrivate
 {
 public:
-    KitPrivate(Core::Id id) :
+    KitPrivate(Id id) :
         m_id(id),
         m_autodetected(false),
         m_isValid(true),
@@ -89,11 +91,11 @@ public:
         m_mustNotify(false)
     {
         if (!id.isValid())
-            m_id = Core::Id(QUuid::createUuid().toString().toLatin1());
+            m_id = Id::fromString(QUuid::createUuid().toString());
     }
 
     QString m_displayName;
-    Core::Id m_id;
+    Id m_id;
     bool m_autodetected;
     bool m_isValid;
     QIcon m_icon;
@@ -279,7 +281,7 @@ bool Kit::isAutoDetected() const
     return d->m_autodetected;
 }
 
-Core::Id Kit::id() const
+Id Kit::id() const
 {
     return d->m_id;
 }
@@ -308,17 +310,17 @@ void Kit::setIconPath(const QString &path)
     kitUpdated();
 }
 
-QVariant Kit::value(const Core::Id &key, const QVariant &unset) const
+QVariant Kit::value(Id key, const QVariant &unset) const
 {
     return d->m_data.value(key, unset);
 }
 
-bool Kit::hasValue(const Core::Id &key) const
+bool Kit::hasValue(Id key) const
 {
     return d->m_data.contains(key);
 }
 
-void Kit::setValue(const Core::Id &key, const QVariant &value)
+void Kit::setValue(Id key, const QVariant &value)
 {
     if (d->m_data.value(key) == value)
         return;
@@ -326,7 +328,7 @@ void Kit::setValue(const Core::Id &key, const QVariant &value)
     kitUpdated();
 }
 
-void Kit::removeKey(const Core::Id &key)
+void Kit::removeKey(Id key)
 {
     if (!d->m_data.contains(key))
         return;
@@ -355,7 +357,7 @@ QVariantMap Kit::toMap() const
     data.insert(QLatin1String(ICON_KEY), d->m_iconPath);
 
     QVariantMap extra;
-    foreach (const Core::Id &key, d->m_data.keys())
+    foreach (const Id key, d->m_data.keys())
         extra.insert(QString::fromLatin1(key.name().constData()), d->m_data.value(key));
     data.insert(QLatin1String(DATA_KEY), extra);
 
@@ -428,17 +430,17 @@ QString Kit::toHtml()
 bool Kit::fromMap(const QVariantMap &data)
 {
     KitGuard g(this);
-    const QString id = data.value(QLatin1String(ID_KEY)).toString();
-    if (id.isEmpty())
+    Id id = Id::fromSetting(data.value(QLatin1String(ID_KEY)));
+    if (!id.isValid())
         return false;
-    d->m_id = Core::Id(id);
+    d->m_id = id;
     d->m_autodetected = data.value(QLatin1String(AUTODETECTED_KEY)).toBool();
     setDisplayName(data.value(QLatin1String(DISPLAYNAME_KEY)).toString());
     setIconPath(data.value(QLatin1String(ICON_KEY)).toString());
 
     QVariantMap extra = data.value(QLatin1String(DATA_KEY)).toMap();
     foreach (const QString &key, extra.keys())
-        setValue(Core::Id(key), extra.value(key));
+        setValue(Id(key), extra.value(key));
 
     return true;
 }

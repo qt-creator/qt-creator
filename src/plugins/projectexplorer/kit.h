@@ -81,10 +81,10 @@ public:
     QString iconPath() const;
     void setIconPath(const QString &path);
 
-    QVariant value(const Core::Id &key, const QVariant &unset = QVariant()) const;
-    bool hasValue(const Core::Id &key) const;
-    void setValue(const Core::Id &key, const QVariant &value);
-    void removeKey(const Core::Id &key);
+    QVariant value(Core::Id key, const QVariant &unset = QVariant()) const;
+    bool hasValue(Core::Id key) const;
+    void setValue(Core::Id key, const QVariant &value);
+    void removeKey(Core::Id key);
 
     bool isDataEqual(const Kit *other) const;
     bool isEqual(const Kit *other) const;
