@@ -66,6 +66,13 @@ GitEditor::GitEditor(const VcsBase::VcsBaseEditorParameters *type,
 {
     QTC_ASSERT(m_changeNumberPattern8.isValid(), return);
     QTC_ASSERT(m_changeNumberPattern40.isValid(), return);
+    /* Diff format:
+        diff --git a/src/plugins/git/giteditor.cpp b/src/plugins/git/giteditor.cpp
+        index 40997ff..4e49337 100644
+        --- a/src/plugins/git/giteditor.cpp
+        +++ b/src/plugins/git/giteditor.cpp
+    */
+    setDiffFilePattern(QRegExp(QLatin1String("^(?:diff --git a/|index |[+-]{3} (?:/dev/null|[ab]/(.+$)))")));
     setAnnotateRevisionTextFormat(tr("Blame %1"));
     setAnnotatePreviousRevisionTextFormat(tr("Blame Parent Revision %1"));
 }
@@ -107,44 +114,10 @@ QString GitEditor::changeUnderCursor(const QTextCursor &c) const
     return QString();
 }
 
-QRegExp GitEditor::diffFilePattern() const
-{
-    return QRegExp(QLatin1String("^(diff --git a/|index |[+-][+-][+-] [ab/]).*$"));
-}
-
 VcsBase::BaseAnnotationHighlighter *GitEditor::createAnnotationHighlighter(const QSet<QString> &changes,
                                                                            const QColor &bg) const
 {
     return new GitAnnotationHighlighter(changes, bg);
-}
-
-QString GitEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) const
-{
-    // Check for "+++ b/src/plugins/git/giteditor.cpp" (blame and diff)
-    // as well as "--- a/src/plugins/git/giteditor.cpp".
-    // Go back chunks.
-    bool checkForOld = false;
-
-    const QString oldFileIndicator = QLatin1String("--- a/");
-    const QString newFileIndicator = QLatin1String("+++ ");
-    for (QTextBlock block = inBlock; block.isValid(); block = block.previous()) {
-        QString diffFileName = block.text();
-        if (diffFileName.startsWith(oldFileIndicator) && checkForOld) {
-            diffFileName.remove(0, oldFileIndicator.size());
-            checkForOld = false;
-            return diffFileName;
-        } else if (diffFileName.startsWith(newFileIndicator)) {
-            diffFileName.remove(0, newFileIndicator.size());
-            if (diffFileName == QLatin1String("/dev/null")) {
-                checkForOld = true;
-                continue;
-            }
-            diffFileName.remove(0, 2); // remove "b/"
-            return findDiffFile(diffFileName);
-        }
-        checkForOld = false;
-    }
-    return QString();
 }
 
 /* Remove the date specification from annotation, which is tabular:

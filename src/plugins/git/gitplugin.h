@@ -144,6 +144,8 @@ private slots:
 #ifdef WITH_TESTS
     void testStatusParsing_data();
     void testStatusParsing();
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
 #endif
 protected:
     void updateActions(VcsBase::VcsBasePlugin::ActionState);

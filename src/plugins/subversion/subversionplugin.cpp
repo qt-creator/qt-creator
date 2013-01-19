@@ -77,6 +77,10 @@
 #include <QInputDialog>
 #include <limits.h>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
 namespace Subversion {
 namespace Internal {
 
@@ -1388,6 +1392,42 @@ SubversionControl *SubversionPlugin::subVersionControl() const
 {
     return static_cast<SubversionControl *>(versionControl());
 }
+
+#ifdef WITH_TESTS
+void SubversionPlugin::testDiffFileResolving_data()
+{
+    QTest::addColumn<QByteArray>("header");
+    QTest::addColumn<QByteArray>("fileName");
+
+    QTest::newRow("New") << QByteArray(
+            "Index: src/plugins/subversion/subversioneditor.cpp\n"
+            "===================================================================\n"
+            "--- src/plugins/subversion/subversioneditor.cpp\t(revision 0)\n"
+            "+++ src/plugins/subversion/subversioneditor.cpp\t(revision 0)\n"
+            "@@ -0,0 +125 @@\n\n")
+        << QByteArray("src/plugins/subversion/subversioneditor.cpp");
+    QTest::newRow("Deleted") << QByteArray(
+            "Index: src/plugins/subversion/subversioneditor.cpp\n"
+            "===================================================================\n"
+            "--- src/plugins/subversion/subversioneditor.cpp\t(revision 42)\n"
+            "+++ src/plugins/subversion/subversioneditor.cpp\t(working copy)\n"
+            "@@ -1,125 +0,0 @@\n\n")
+        << QByteArray("src/plugins/subversion/subversioneditor.cpp");
+    QTest::newRow("Normal") << QByteArray(
+            "Index: src/plugins/subversion/subversioneditor.cpp\n"
+            "===================================================================\n"
+            "--- src/plugins/subversion/subversioneditor.cpp\t(revision 42)\n"
+            "+++ src/plugins/subversion/subversioneditor.cpp\t(working copy)\n"
+            "@@ -120,7 +120,7 @@\n\n")
+        << QByteArray("src/plugins/subversion/subversioneditor.cpp");
+}
+
+void SubversionPlugin::testDiffFileResolving()
+{
+    SubversionEditor editor(editorParameters + 3, 0);
+    VcsBase::VcsBaseEditorWidget::testDiffFileResolving(&editor);
+}
+#endif
 
 } // Internal
 } // Subversion

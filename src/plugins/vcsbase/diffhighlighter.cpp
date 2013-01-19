@@ -116,7 +116,7 @@ DiffFormats DiffHighlighterPrivate::analyzeLine(const QString &text) const
 {
     // Do not match on git "--- a/" as a deleted line, check
     // file first
-    if (m_filePattern.exactMatch(text))
+    if (m_filePattern.indexIn(text) == 0)
         return DiffFileFormat;
     if (text.startsWith(m_diffInIndicator))
         return DiffInFormat;

@@ -192,6 +192,10 @@ private slots:
     void syncSlot();
     void closing();
     void updateStatusActions();
+#ifdef WITH_TESTS
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+#endif
 
 protected:
     void updateActions(VcsBase::VcsBasePlugin::ActionState);

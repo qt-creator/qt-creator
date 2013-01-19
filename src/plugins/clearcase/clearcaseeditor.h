@@ -49,11 +49,9 @@ public:
 private:
     QSet<QString> annotationChanges() const;
     QString changeUnderCursor(const QTextCursor &) const;
-    QRegExp diffFilePattern() const;
     VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes, const QColor &bg) const;
-    QString fileNameFromDiffSpecification(const QTextBlock &diffFileName) const;
 
-    mutable QRegExp m_versionNumberPattern;
+    QRegExp m_versionNumberPattern;
 };
 
 } // namespace Internal

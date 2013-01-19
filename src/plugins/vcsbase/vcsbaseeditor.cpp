@@ -668,17 +668,23 @@ VcsBaseEditorWidget::VcsBaseEditorWidget(const VcsBaseEditorParameters *type, QW
     setMimeType(QLatin1String(d->m_parameters->mimeType));
 }
 
+void VcsBaseEditorWidget::setDiffFilePattern(const QRegExp &pattern)
+{
+    QTC_ASSERT(pattern.isValid() && pattern.captureCount() >= 1, return);
+    d->m_diffFilePattern = pattern;
+}
+
 void VcsBaseEditorWidget::init()
 {
     switch (d->m_parameters->type) {
     case RegularCommandOutput:
     case LogOutput:
+        break;
     case AnnotateOutput:
         // Annotation highlighting depends on contents, which is set later on
         connect(this, SIGNAL(textChanged()), this, SLOT(slotActivateAnnotation()));
         break;
     case DiffOutput: {
-        d->m_diffFilePattern = diffFilePattern();
         DiffHighlighter *dh = new DiffHighlighter(d->m_diffFilePattern);
         setCodeFoldingSupported(true);
         baseTextDocument()->setSyntaxHighlighter(dh);
@@ -1429,6 +1435,20 @@ bool VcsBaseEditorWidget::applyDiffChunk(const DiffChunk &dc, bool revert) const
     return VcsBasePlugin::runPatch(dc.asPatch(), QString(), 0, revert);
 }
 
+QString VcsBaseEditorWidget::fileNameFromDiffSpecification(const QTextBlock &inBlock) const
+{
+    // Go back chunks
+    for (QTextBlock block = inBlock; block.isValid(); block = block.previous()) {
+        const QString line = block.text();
+        if (d->m_diffFilePattern.indexIn(line) != -1) {
+            QString cap = d->m_diffFilePattern.cap(1);
+            if (!cap.isEmpty())
+                return findDiffFile(cap);
+        }
+    }
+    return QString();
+}
+
 QString VcsBaseEditorWidget::decorateVersion(const QString &revision) const
 {
     return revision;
@@ -1501,5 +1521,19 @@ Core::IEditor* VcsBaseEditorWidget::locateEditorByTag(const QString &tag)
 }
 
 } // namespace VcsBase
+
+#if WITH_TESTS
+#include <QTest>
+
+void VcsBase::VcsBaseEditorWidget::testDiffFileResolving(VcsBaseEditorWidget *editor)
+{
+    QFETCH(QByteArray, header);
+    QFETCH(QByteArray, fileName);
+    QTextDocument doc(QString::fromLatin1(header));
+    editor->init();
+    QTextBlock block = doc.lastBlock();
+    QVERIFY(editor->fileNameFromDiffSpecification(block).endsWith(QString::fromLatin1(fileName)));
+}
+#endif
 
 #include "vcsbaseeditor.moc"

@@ -591,6 +591,41 @@ void BazaarPlugin::diffFromEditorSelected(const QStringList &files)
     m_client->diff(m_submitRepository, files);
 }
 
+#ifdef WITH_TESTS
+#include <QTest>
+
+void BazaarPlugin::testDiffFileResolving_data()
+{
+    QTest::addColumn<QByteArray>("header");
+    QTest::addColumn<QByteArray>("fileName");
+
+    QTest::newRow("New") << QByteArray(
+            "=== added file 'src/plugins/bazaar/bazaareditor.cpp'\n"
+            "--- src/plugins/bazaar/bazaareditor.cpp\t1970-01-01 00:00:00 +0000\n"
+            "+++ src/plugins/bazaar/bazaareditor.cpp\t2013-01-20 21:39:47 +0000\n"
+            "@@ -0,0 +1,121 @@\n\n")
+        << QByteArray("src/plugins/bazaar/bazaareditor.cpp");
+    QTest::newRow("Deleted") << QByteArray(
+            "=== removed file 'src/plugins/bazaar/bazaareditor.cpp'\n"
+            "--- src/plugins/bazaar/bazaareditor.cpp\t2013-01-20 21:39:47 +0000\n"
+            "+++ src/plugins/bazaar/bazaareditor.cpp\t1970-01-01 00:00:00 +0000\n"
+            "@@ -1,121 +0,0 @@\n\n")
+        << QByteArray("src/plugins/bazaar/bazaareditor.cpp");
+    QTest::newRow("Modified") << QByteArray(
+            "=== modified file 'src/plugins/bazaar/bazaareditor.cpp'\n"
+            "--- src/plugins/bazaar/bazaareditor.cpp\t2010-08-27 14:12:44 +0000\n"
+            "+++ src/plugins/bazaar/bazaareditor.cpp\t2011-02-28 21:24:19 +0000\n"
+            "@@ -727,6 +727,9 @@\n\n")
+        << QByteArray("src/plugins/bazaar/bazaareditor.cpp");
+}
+
+void BazaarPlugin::testDiffFileResolving()
+{
+    BazaarEditor editor(editorParameters + 3, 0);
+    VcsBase::VcsBaseEditorWidget::testDiffFileResolving(&editor);
+}
+#endif
+
 void BazaarPlugin::commitFromEditor()
 {
     // Close the submit editor

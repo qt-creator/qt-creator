@@ -63,6 +63,10 @@ PerforceEditor::PerforceEditor(const VcsBase::VcsBaseEditorParameters *type,
     m_plugin(PerforcePlugin::perforcePluginInstance())
 {
     QTC_CHECK(m_changeNumberPattern.isValid());
+    // Diff format:
+    // 1) "==== //depot/.../mainwindow.cpp#2 - /depot/.../mainwindow.cpp ====" (created by p4 diff)
+    // 2) "==== //depot/.../mainwindow.cpp#15 (text) ====" (created by p4 describe)
+    setDiffFilePattern(QRegExp(QLatin1String("^==== (.+)#\\d")));
     setAnnotateRevisionTextFormat(tr("Annotate change list \"%1\""));
     if (Perforce::Constants::debug)
         qDebug() << "PerforceEditor::PerforceEditor" << type->type << type->id;
@@ -103,57 +107,19 @@ QString PerforceEditor::changeUnderCursor(const QTextCursor &c) const
     return m_changeNumberPattern.exactMatch(change) ? change : QString();
 }
 
-QRegExp PerforceEditor::diffFilePattern() const
-{
-    return QRegExp(QLatin1String("^====.*"));
-}
-
 VcsBase::BaseAnnotationHighlighter *PerforceEditor::createAnnotationHighlighter(const QSet<QString> &changes,
                                                                                 const QColor &bg) const
 {
     return new PerforceAnnotationHighlighter(changes, bg);
 }
 
-QString PerforceEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) const
+QString PerforceEditor::findDiffFile(const QString &f) const
 {
     QString errorMessage;
-    const QString diffIndicator = QLatin1String("==== ");
-    const QString diffEndIndicator = QLatin1String(" ====");
-    // Go back chunks. Note that for 'describe', an extra, empty line
-    // occurs.
-    for (QTextBlock  block = inBlock; block.isValid(); block = block.previous()) {
-        QString diffFileName = block.text();
-        if (diffFileName.startsWith(diffIndicator) && diffFileName.endsWith(diffEndIndicator)) {
-            // Split:
-            // 1) "==== //depot/.../mainwindow.cpp#2 - /depot/.../mainwindow.cpp ===="
-            // (as created by p4 diff) or
-            // 2) "==== //depot/.../mainwindow.cpp#15 (text) ===="
-            // (as created by p4 describe).
-            diffFileName.remove(0, diffIndicator.size());
-            diffFileName.truncate(diffFileName.size() - diffEndIndicator.size());
-            const int separatorPos = diffFileName.indexOf(QLatin1String(" - "));
-            if (separatorPos == -1) {
-                // ==== depot path (text) ==== (p4 describe)
-                const int blankPos = diffFileName.indexOf(QLatin1Char(' '));
-                if (blankPos == -1)
-                    return QString();
-                diffFileName.truncate(blankPos);
-            } else {
-                // ==== depot path - local path ==== (p4 diff)
-                diffFileName.truncate(separatorPos);
-            }
-            // Split off revision "#4"
-            const int revisionPos = diffFileName.lastIndexOf(QLatin1Char('#'));
-            if (revisionPos != -1 && revisionPos < diffFileName.length() - 1)
-                diffFileName.truncate(revisionPos);
-            // Ask plugin to map back
-            const QString fileName = m_plugin->fileNameFromPerforceName(diffFileName.trimmed(), false, &errorMessage);
-            if (fileName.isEmpty())
-                qWarning("%s", qPrintable(errorMessage));
-            return fileName;
-        }
-    }
-    return QString();
+    const QString fileName = m_plugin->fileNameFromPerforceName(f.trimmed(), false, &errorMessage);
+    if (fileName.isEmpty())
+        qWarning("%s", qPrintable(errorMessage));
+    return fileName;
 }
 
 QStringList PerforceEditor::annotationPreviousVersions(const QString &v) const

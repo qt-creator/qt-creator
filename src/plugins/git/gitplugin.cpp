@@ -1253,8 +1253,14 @@ GitClient *GitPlugin::gitClient() const
 }
 
 #ifdef WITH_TESTS
+#include "giteditor.h"
+
 #include <QTest>
+#include <QTextBlock>
+#include <QTextDocument>
+
 Q_DECLARE_METATYPE(FileStates)
+
 void GitPlugin::testStatusParsing_data()
 {
     QTest::addColumn<FileStates>("first");
@@ -1300,6 +1306,42 @@ void GitPlugin::testStatusParsing()
         QCOMPARE(data.files.size(), 1);
     else
         QCOMPARE(data.files.at(1).first, second);
+}
+
+void GitPlugin::testDiffFileResolving_data()
+{
+    QTest::addColumn<QByteArray>("header");
+    QTest::addColumn<QByteArray>("fileName");
+
+    QTest::newRow("New") << QByteArray(
+            "diff --git a/src/plugins/git/giteditor.cpp b/src/plugins/git/giteditor.cpp\n"
+            "new file mode 100644\n"
+            "index 0000000..40997ff\n"
+            "--- /dev/null\n"
+            "+++ b/src/plugins/git/giteditor.cpp\n"
+            "@@ -0,0 +1,281 @@\n\n")
+        << QByteArray("src/plugins/git/giteditor.cpp");
+    QTest::newRow("Deleted") << QByteArray(
+            "diff --git a/src/plugins/git/giteditor.cpp b/src/plugins/git/giteditor.cpp\n"
+            "deleted file mode 100644\n"
+            "index 40997ff..0000000\n"
+            "--- a/src/plugins/git/giteditor.cpp\n"
+            "+++ /dev/null\n"
+            "@@ -1,281 +0,0 @@\n\n")
+        << QByteArray("src/plugins/git/giteditor.cpp");
+    QTest::newRow("Normal") << QByteArray(
+            "diff --git a/src/plugins/git/giteditor.cpp b/src/plugins/git/giteditor.cpp\n"
+            "index 69e0b52..8fc974d 100644\n"
+            "--- a/src/plugins/git/giteditor.cpp\n"
+            "+++ b/src/plugins/git/giteditor.cpp\n"
+            "@@ -49,6 +49,8 @@\n\n")
+        << QByteArray("src/plugins/git/giteditor.cpp");
+}
+
+void GitPlugin::testDiffFileResolving()
+{
+    GitEditor editor(editorParameters + 3, 0);
+    VcsBase::VcsBaseEditorWidget::testDiffFileResolving(&editor);
 }
 #endif
 

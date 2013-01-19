@@ -52,6 +52,16 @@ SubversionEditor::SubversionEditor(const VcsBase::VcsBaseEditorParameters *type,
 {
     QTC_ASSERT(m_changeNumberPattern.isValid(), return);
     QTC_ASSERT(m_revisionNumberPattern.isValid(), return);
+    /* Diff pattern:
+    \code
+        Index: main.cpp
+    ===================================================================
+    --- main.cpp<tab>(revision 2)
+    +++ main.cpp<tab>(working copy)
+    @@ -6,6 +6,5 @@
+    \endcode
+    */
+    setDiffFilePattern(QRegExp(QLatin1String("^[-+]{3} ([^\\t]+)|^Index: .*|^=+$")));
     setAnnotateRevisionTextFormat(tr("Annotate revision \"%1\""));
 }
 
@@ -98,44 +108,10 @@ QString SubversionEditor::changeUnderCursor(const QTextCursor &c) const
     return QString();
 }
 
-/* code:
-    Index: main.cpp
-===================================================================
---- main.cpp    (revision 2)
-+++ main.cpp    (working copy)
-@@ -6,6 +6,5 @@
-\endcode
-*/
-QRegExp SubversionEditor::diffFilePattern() const
-{
-    return QRegExp(QLatin1String("^[-+][-+][-+] .*|^Index: .*|^==*$"));
-}
-
 VcsBase::BaseAnnotationHighlighter *SubversionEditor::createAnnotationHighlighter(const QSet<QString> &changes,
                                                                                   const QColor &bg) const
 {
     return new SubversionAnnotationHighlighter(changes, bg);
-}
-
-QString SubversionEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) const
-{
-    // "+++ /depot/.../mainwindow.cpp<tab>(revision 3)"
-    // Go back chunks
-    const QString diffIndicator = QLatin1String("+++ ");
-    for (QTextBlock  block = inBlock; block.isValid() ; block = block.previous()) {
-        QString diffFileName = block.text();
-        if (diffFileName.startsWith(diffIndicator)) {
-            diffFileName.remove(0, diffIndicator.size());
-            const int tabIndex = diffFileName.lastIndexOf(QLatin1Char('\t'));
-            if (tabIndex != -1)
-                diffFileName.truncate(tabIndex);
-            const QString rc = findDiffFile(diffFileName);
-            if (Subversion::Constants::debug)
-                qDebug() << Q_FUNC_INFO << diffFileName << rc << source();
-            return rc;
-        }
-    }
-    return QString();
 }
 
 QStringList SubversionEditor::annotationPreviousVersions(const QString &v) const

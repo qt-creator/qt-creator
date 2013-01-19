@@ -52,11 +52,13 @@ using namespace Bazaar;
 BazaarEditor::BazaarEditor(const VcsBase::VcsBaseEditorParameters *type, QWidget *parent)
     : VcsBase::VcsBaseEditorWidget(type, parent),
       m_changesetId(QLatin1String(Constants::CHANGESET_ID)),
-      m_exactChangesetId(QLatin1String(Constants::CHANGESET_ID_EXACT)),
-      m_diffFileId(QLatin1String("^=== [a-z]+ [a-z]+ '(.*)'\\s*"))
+      m_exactChangesetId(QLatin1String(Constants::CHANGESET_ID_EXACT))
 {
     setAnnotateRevisionTextFormat(tr("Annotate %1"));
     setAnnotatePreviousRevisionTextFormat(tr("Annotate parent revision %1"));
+    // Diff format:
+    // === <change> <file|dir> 'mainwindow.cpp'
+    setDiffFilePattern(QRegExp(QLatin1String("^=== [a-z]+ [a-z]+ '(.+)'\\s*")));
 }
 
 QSet<QString> BazaarEditor::annotationChanges() const
@@ -111,25 +113,8 @@ QString BazaarEditor::changeUnderCursor(const QTextCursor &cursorIn) const
     return QString();
 }
 
-QRegExp BazaarEditor::diffFilePattern() const
-{
-    return m_diffFileId;
-}
-
 VcsBase::BaseAnnotationHighlighter *BazaarEditor::createAnnotationHighlighter(const QSet<QString> &changes,
                                                                               const QColor &bg) const
 {
     return new BazaarAnnotationHighlighter(changes, bg);
-}
-
-QString BazaarEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) const
-{
-    // Check for:
-    // === <change> <file|dir> 'mainwindow.cpp'
-    for (QTextBlock  block = inBlock; block.isValid(); block = block.previous()) {
-        const QString line = block.text();
-        if (m_diffFileId.indexIn(line) != -1)
-            return findDiffFile(m_diffFileId.cap(1));
-    }
-    return QString();
 }

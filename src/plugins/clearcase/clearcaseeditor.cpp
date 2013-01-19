@@ -51,6 +51,12 @@ ClearCaseEditor::ClearCaseEditor(const VcsBase::VcsBaseEditorParameters *type,
     m_versionNumberPattern(QLatin1String("[\\\\/]main[\\\\/][^ \t\n\"]*"))
 {
     QTC_ASSERT(m_versionNumberPattern.isValid(), return);
+    // Diff formats:
+    // "+++ D:\depot\...\mainwindow.cpp@@\main\3" (versioned)
+    // "+++ D:\depot\...\mainwindow.cpp[TAB]Sun May 01 14:22:37 2011" (local)
+    QRegExp diffFilePattern(QLatin1String("^[-+]{3} ([^\\t]+)(?:@@|\\t)"));
+    diffFilePattern.setMinimal(true);
+    setDiffFilePattern(diffFilePattern);
     setAnnotateRevisionTextFormat(tr("Annotate version \"%1\""));
 }
 
@@ -87,41 +93,8 @@ QString ClearCaseEditor::changeUnderCursor(const QTextCursor &c) const
     return QString();
 }
 
-/*
- Diff header format (on Windows, native separators are used after the @@)
---- main.cpp@@\main\2
-+++ main.cpp@@\main\1
-@@ -6,6 +6,5 @@
-*/
-QRegExp ClearCaseEditor::diffFilePattern() const
-{
-    return QRegExp(QLatin1String("^[-+][-+][-+] "));
-}
-
 VcsBase::BaseAnnotationHighlighter *ClearCaseEditor::createAnnotationHighlighter(const QSet<QString> &changes,
                                                                                  const QColor &bg) const
 {
     return new ClearCaseAnnotationHighlighter(changes, bg);
-}
-
-QString ClearCaseEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) const
-{
-    // "+++ D:\depot\...\mainwindow.cpp@@\main\3"
-    // "+++ D:\depot\...\mainwindow.cpp[TAB]Sun May 01 14:22:37 2011"
-    // Go back chunks
-    const QString diffIndicator = QLatin1String("+++ ");
-    for (QTextBlock  block = inBlock; block.isValid() ; block = block.previous()) {
-        QString diffFileName = block.text();
-        if (diffFileName.startsWith(diffIndicator)) {
-            diffFileName.remove(0, diffIndicator.size());
-            const int tabIndex = diffFileName.indexOf(QRegExp(QLatin1String("@@|\t")));
-            if (tabIndex != -1)
-                diffFileName.truncate(tabIndex);
-            const QString rc = findDiffFile(diffFileName);
-            if (ClearCase::Constants::debug)
-                qDebug() << Q_FUNC_INFO << diffFileName << rc << source();
-            return rc;
-        }
-    }
-    return QString();
 }

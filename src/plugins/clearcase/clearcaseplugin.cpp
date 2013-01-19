@@ -96,7 +96,9 @@
 #include <QVariant>
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
-
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
 
 namespace ClearCase {
 namespace Internal {
@@ -1942,6 +1944,26 @@ void ClearCasePlugin::sync(QFutureInterface<void> &future, QString topLevel, QSt
     connect(&ccSync, SIGNAL(updateStreamAndView()), plugin, SLOT(updateStreamAndView()));
     ccSync.run(future, topLevel, files);
 }
+
+#ifdef WITH_TESTS
+void ClearCasePlugin::testDiffFileResolving_data()
+{
+    QTest::addColumn<QByteArray>("header");
+    QTest::addColumn<QByteArray>("fileName");
+
+    QTest::newRow("Modified") << QByteArray(
+            "--- src/plugins/clearcase/clearcaseeditor.cpp@@/main/1\t2013-01-20 23:45:48.549615210 +0200\n"
+            "+++ src/plugins/clearcase/clearcaseeditor.cpp@@/main/2\t2013-01-20 23:45:53.217604679 +0200\n"
+            "@@ -58,6 +58,10 @@\n\n")
+        << QByteArray("src/plugins/clearcase/clearcaseeditor.cpp");
+}
+
+void ClearCasePlugin::testDiffFileResolving()
+{
+    ClearCaseEditor editor(editorParameters + 3, 0);
+    VcsBase::VcsBaseEditorWidget::testDiffFileResolving(&editor);
+}
+#endif
 
 } // namespace Internal
 } // namespace ClearCase

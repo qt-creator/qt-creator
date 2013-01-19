@@ -51,9 +51,9 @@ MercurialEditor::MercurialEditor(const VcsBase::VcsBaseEditorParameters *type, Q
         exactIdentifier12(QLatin1String(Constants::CHANGEIDEXACT12)),
         exactIdentifier40(QLatin1String(Constants::CHANGEIDEXACT40)),
         changesetIdentifier12(QLatin1String(Constants::CHANGESETID12)),
-        changesetIdentifier40(QLatin1String(Constants::CHANGESETID40)),
-        diffIdentifier(QLatin1String(Constants::DIFFIDENTIFIER))
+        changesetIdentifier40(QLatin1String(Constants::CHANGESETID40))
 {
+    setDiffFilePattern(QRegExp(QLatin1String(Constants::DIFFIDENTIFIER)));
     setAnnotateRevisionTextFormat(tr("Annotate %1"));
     setAnnotatePreviousRevisionTextFormat(tr("Annotate parent revision %1"));
 }
@@ -88,31 +88,10 @@ QString MercurialEditor::changeUnderCursor(const QTextCursor &cursorIn) const
     return QString();
 }
 
-QRegExp MercurialEditor::diffFilePattern() const
-{
-    return diffIdentifier;
-}
-
 VcsBase::BaseAnnotationHighlighter *MercurialEditor::createAnnotationHighlighter(const QSet<QString> &changes,
                                                                                  const QColor &bg) const
 {
     return new MercurialAnnotationHighlighter(changes, bg);
-}
-
-QString MercurialEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) const
-{
-    // git-compatible format: check for "+++ b/src/plugins/git/giteditor.cpp" (blame and diff)
-    // Go back chunks.
-    const QString newFileIndicator = QLatin1String("+++ b/");
-    for (QTextBlock  block = inBlock; block.isValid(); block = block.previous()) {
-        QString diffFileName = block.text();
-        if (diffFileName.startsWith(newFileIndicator)) {
-            diffFileName.remove(0, newFileIndicator.size());
-            return findDiffFile(diffFileName);
-        }
-
-    }
-    return QString();
 }
 
 QString MercurialEditor::decorateVersion(const QString &revision) const
