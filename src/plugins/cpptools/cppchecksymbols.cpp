@@ -324,6 +324,8 @@ CheckSymbols::CheckSymbols(Document::Ptr doc, const LookupContext &context, cons
     _potentialStatics = collectTypes.statics();
 
     typeOfExpression.init(_doc, _context.snapshot(), _context.bindings());
+    // make possible to instantiate templates
+    typeOfExpression.setExpandTemplates(true);
 }
 
 CheckSymbols::~CheckSymbols()

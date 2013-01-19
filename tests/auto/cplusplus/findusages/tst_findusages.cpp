@@ -90,6 +90,9 @@ private Q_SLOTS:
 //    void objc_methods();
 //    void objc_fields();
 //    void objc_classes();
+
+    // templates
+    void instantiateTemplateWithNestedClass();
 };
 
 void tst_FindUsages::inlineMethod()
@@ -349,6 +352,49 @@ void tst_FindUsages::qproperty_1()
     findUsages(setX_method);
     QCOMPARE(findUsages.usages().size(), 2);
     QCOMPARE(findUsages.references().size(), 2);
+}
+
+void tst_FindUsages::instantiateTemplateWithNestedClass()
+{
+    const QByteArray src = "\n"
+            "struct Foo\n"
+            "{ int bar; };\n"
+            "template <typename T>\n"
+            "struct Template\n"
+            "{\n"
+            "   struct Nested\n"
+            "   {\n"
+            "       T t;\n"
+            "   }nested;\n"
+            "};\n"
+            "void f()\n"
+            "{\n"
+            "   Template<Foo> templateFoo;\n"
+            "   templateFoo.nested.t.bar;\n"
+            "}\n"
+            ;
+
+    Document::Ptr doc = Document::create("simpleTemplate");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 3U);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Class *classFoo = doc->globalSymbolAt(0)->asClass();
+    QVERIFY(classFoo);
+    QCOMPARE(classFoo->memberCount(), 1U);
+    Declaration *barDeclaration = classFoo->memberAt(0)->asDeclaration();
+    QVERIFY(barDeclaration);
+    QCOMPARE(barDeclaration->name()->identifier()->chars(), "bar");
+
+    FindUsages findUsages(src, doc, snapshot);
+    findUsages(barDeclaration);
+    QCOMPARE(findUsages.usages().size(), 2);
 }
 
 QTEST_APPLESS_MAIN(tst_FindUsages)

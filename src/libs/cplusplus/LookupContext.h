@@ -281,7 +281,11 @@ public:
     static const Name *minimalName(Symbol *symbol, ClassOrNamespace *target, Control *control);
 
     void setExpandTemplates(bool expandTemplates)
-    { m_expandTemplates = expandTemplates; }
+    {
+        if (_bindings)
+            _bindings->setExpandTemplates(expandTemplates);
+        m_expandTemplates = expandTemplates;
+    }
 
 private:
     // The current expression.

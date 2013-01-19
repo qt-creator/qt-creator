@@ -819,6 +819,8 @@ static QList<int> lazyFindReferences(Scope *scope, QString code, Document::Ptr d
     TypeOfExpression typeOfExpression;
     snapshot.insert(doc);
     typeOfExpression.init(doc, snapshot);
+    // make possible to instantiate templates
+    typeOfExpression.setExpandTemplates(true);
     if (Symbol *canonicalSymbol = CanonicalSymbol::canonicalSymbol(scope, code, typeOfExpression))
         return CppModelManagerInterface::instance()->references(canonicalSymbol, typeOfExpression.context());
     return QList<int>();
@@ -1522,6 +1524,8 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     TypeOfExpression typeOfExpression;
     typeOfExpression.init(doc, snapshot);
+    // make possible to instantiate templates
+    typeOfExpression.setExpandTemplates(true);
     const QList<LookupItem> resolvedSymbols =
             typeOfExpression.reference(expression.toUtf8(), scope, TypeOfExpression::Preprocess);
 

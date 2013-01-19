@@ -118,6 +118,8 @@ void CppElementEvaluator::execute()
 
         TypeOfExpression typeOfExpression;
         typeOfExpression.init(doc, snapshot);
+        // make possible to instantiate templates
+        typeOfExpression.setExpandTemplates(true);
         const QList<LookupItem> &lookupItems = typeOfExpression(expression.toUtf8(), scope);
         if (lookupItems.isEmpty())
             return;
