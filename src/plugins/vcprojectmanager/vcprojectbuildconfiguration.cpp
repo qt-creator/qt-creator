@@ -34,7 +34,7 @@ ProjectExplorer::BuildConfigWidget *VcProjectBuildConfiguration::createConfigWid
 
 QString VcProjectBuildConfiguration::buildDirectory() const
 {
-    return QString();
+    return m_buildDirectory;
 }
 
 ProjectExplorer::IOutputParser *VcProjectBuildConfiguration::createOutputParser() const

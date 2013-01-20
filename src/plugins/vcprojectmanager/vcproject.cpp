@@ -85,7 +85,8 @@ QList<BuildConfigWidget *> VcProject::subConfigWidgets()
 
 QString VcProject::defaultBuildDirectory() const
 {
-    return projectDirectory() + QLatin1String("-build");
+    VcProjectFile* vcFile = static_cast<VcProjectFile *>(document());
+    return vcFile->path() + QLatin1String("-build");
 }
 
 void VcProject::reparse()
@@ -120,9 +121,19 @@ bool VcProject::fromMap(const QVariantMap &map)
         Target *target = new Target(this, defaultKit);
         VcProjectBuildConfiguration *bc = new VcProjectBuildConfiguration(target);
         bc->setDefaultDisplayName(tr("vcproj"));
+
+        // build step
         ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
         VcMakeStep *makeStep = new VcMakeStep(buildSteps);
         buildSteps->insertStep(0, makeStep);
+
+        //clean step
+        ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+        VcMakeStep *cleanStep = new VcMakeStep(cleanSteps);
+        QString cleanArgument("/t:Clean");
+        cleanStep->addBuildArgument(cleanArgument);
+        cleanSteps->insertStep(0, cleanStep);
+
         target->addBuildConfiguration(bc);
         addTarget(target);
     }

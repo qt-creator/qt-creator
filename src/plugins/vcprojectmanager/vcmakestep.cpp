@@ -56,6 +56,19 @@ bool VcMakeStep::init()
     VcProjectFile* document = static_cast<VcProjectFile *>(project->document());
     m_processParams->setArguments(document->filePath());
 
+    if (!m_buildArguments.isEmpty()) {
+        QStringListIterator it(m_buildArguments);
+        QString arguments(document->filePath());
+        arguments += QLatin1Char(' ');
+
+        while (it.hasNext()) {
+            arguments += it.next();
+            arguments += QLatin1Char(' ');
+        }
+
+        m_processParams->setArguments(arguments);
+    }
+
     return AbstractProcessStep::init();
 }
 
@@ -106,6 +119,22 @@ void VcMakeStep::setMsBuildCommand(const QString &msBuild)
 {
     m_msBuildCommand = msBuild;
 }
+
+QStringList VcMakeStep::buildArguments() const
+{
+    return m_buildArguments;
+}
+
+void VcMakeStep::addBuildArgument(const QString &argument)
+{
+    m_buildArguments.append(argument);
+}
+
+void VcMakeStep::removeBuildArgument(const QString &buildArgument)
+{
+    m_buildArguments.removeAll(buildArgument);
+}
+
 
 QVariantMap VcMakeStep::toMap() const
 {
