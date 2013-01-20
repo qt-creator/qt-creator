@@ -134,6 +134,20 @@ QStringList VcMakeStep::buildArguments() const
     return m_buildArguments;
 }
 
+QString VcMakeStep::buildArgumentsToString() const
+{
+    QStringListIterator it(m_buildArguments);
+    QString buildArguments;
+
+    if (it.hasNext())
+        buildArguments += it.next();
+
+    while (it.hasNext())
+        buildArguments += QLatin1Char(' ') + it.next();
+
+    return buildArguments;
+}
+
 void VcMakeStep::addBuildArgument(const QString &argument)
 {
     m_buildArguments.append(argument);
@@ -143,7 +157,6 @@ void VcMakeStep::removeBuildArgument(const QString &buildArgument)
 {
     m_buildArguments.removeAll(buildArgument);
 }
-
 
 QVariantMap VcMakeStep::toMap() const
 {
@@ -224,7 +237,13 @@ QString VcMakeStepConfigWidget::displayName() const
 
 QString VcMakeStepConfigWidget::summaryText() const
 {
-    return tr("This is Vc Project's build step configuration widget.");
+    VcProjectBuildConfiguration *bc = m_makeStep->vcProjectBuildConfiguration();
+    ProjectExplorer::Project *project = bc->target()->project();
+    VcProjectFile* document = static_cast<VcProjectFile *>(project->document());
+    QFileInfo fileInfo(m_makeStep->msBuildCommand());
+    return QString("<b>MsBuild:</b> %1 %2 %3").arg(fileInfo.fileName())
+            .arg(document->filePath())
+            .arg(m_makeStep->buildArgumentsToString());
 }
 
 void VcMakeStepConfigWidget::onMsBuildSelectionChanged(int index)

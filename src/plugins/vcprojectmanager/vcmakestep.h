@@ -30,6 +30,7 @@ public:
     QString msBuildVersion() const;
     void setMsBuildCommand(const QString &msBuild, const QString &version);
     QStringList buildArguments() const;
+    QString buildArgumentsToString() const;
     void addBuildArgument(const QString &argument);
     void removeBuildArgument(const QString &buildArgument);
 
