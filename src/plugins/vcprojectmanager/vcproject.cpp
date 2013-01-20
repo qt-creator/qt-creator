@@ -115,6 +115,12 @@ void VcProject::reparse()
 
 bool VcProject::fromMap(const QVariantMap &map)
 {
+    loadBuildConfigurations();
+    return Project::fromMap(map);
+}
+
+void VcProject::loadBuildConfigurations()
+{
     Kit *defaultKit = KitManager::instance()->defaultKit();
     if (defaultKit) {
 
@@ -163,8 +169,6 @@ bool VcProject::fromMap(const QVariantMap &map)
 
         target->addBuildConfiguration(bc);
         addTarget(target);    }
-
-    return Project::fromMap(map);
 }
 
 bool VcProject::setupTarget(ProjectExplorer::Target *t)

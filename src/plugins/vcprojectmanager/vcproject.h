@@ -47,6 +47,8 @@ protected:
     bool setupTarget(ProjectExplorer::Target *t);
 
 private:
+    void loadBuildConfigurations();
+
     VcManager *m_projectManager;
     VcProjectFile *m_projectFile;
     VcProjectNode *m_rootNode;
