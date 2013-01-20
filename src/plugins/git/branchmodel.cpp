@@ -48,16 +48,20 @@ class BranchNode
 {
 public:
     BranchNode() :
-        parent(0), current(false)
+        parent(0),
+        name(QLatin1String("<ROOT>"))
     { }
 
-    BranchNode(const QString &n, const QString &s = QString(), bool c = false) :
-        parent(0), current(c), name(n), sha(s)
+    BranchNode(const QString &n, const QString &s = QString()) :
+        parent(0), name(n), sha(s)
     { }
 
     ~BranchNode()
     {
-        qDeleteAll(children);
+        while (!children.isEmpty())
+            delete children.first();
+        if (parent)
+            parent->children.removeAll(this);
     }
 
     BranchNode *rootNode() const
@@ -152,10 +156,14 @@ public:
         return QStringList(fullName().join(QString(QLatin1Char('/'))));
     }
 
+    int rowOf(BranchNode *node)
+    {
+        return children.indexOf(node);
+    }
+
     BranchNode *parent;
     QList<BranchNode *> children;
 
-    bool current;
     QString name;
     QString sha;
     mutable QString toolTip;
@@ -168,7 +176,8 @@ public:
 BranchModel::BranchModel(GitClient *client, QObject *parent) :
     QAbstractItemModel(parent),
     m_client(client),
-    m_rootNode(new BranchNode)
+    m_rootNode(new BranchNode),
+    m_currentBranch(0)
 {
     QTC_CHECK(m_client);
     m_rootNode->append(new BranchNode(tr("Local Branches")));
@@ -179,32 +188,34 @@ BranchModel::~BranchModel()
     delete m_rootNode;
 }
 
-QModelIndex BranchModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex BranchModel::index(int row, int column, const QModelIndex &parentIdx) const
 {
-    BranchNode *node = m_rootNode;
-    if (parent.isValid())
-        node = static_cast<BranchNode *>(parent.internalPointer());
-    if (row >= node->count())
+    if (column != 0)
         return QModelIndex();
-    return createIndex(row, column, static_cast<void *>(node->children.at(row)));
+    BranchNode *parentNode = indexToNode(parentIdx);
+
+    if (row >= parentNode->count())
+        return QModelIndex();
+    return nodeToIndex(parentNode->children.at(row));
 }
 
 QModelIndex BranchModel::parent(const QModelIndex &index) const
 {
-    BranchNode *node = static_cast<BranchNode *>(index.internalPointer());
+    if (!index.isValid())
+        return QModelIndex();
+
+    BranchNode *node = indexToNode(index);
     if (node->parent == m_rootNode)
         return QModelIndex();
-    int row = node->parent->children.indexOf(node);
-    return createIndex(row, 0, static_cast<void *>(node->parent));
+    return nodeToIndex(node->parent);
 }
 
-int BranchModel::rowCount(const QModelIndex &parent) const
+int BranchModel::rowCount(const QModelIndex &parentIdx) const
 {
-    if (!parent.isValid())
-        return m_rootNode->count();
-    if (parent.column() != 0)
+    if (parentIdx.column() > 0)
         return 0;
-    return static_cast<BranchNode *>(parent.internalPointer())->count();
+
+    return indexToNode(parentIdx)->count();
 }
 
 int BranchModel::columnCount(const QModelIndex &parent) const
@@ -215,7 +226,9 @@ int BranchModel::columnCount(const QModelIndex &parent) const
 
 QVariant BranchModel::data(const QModelIndex &index, int role) const
 {
-    BranchNode *node = static_cast<BranchNode *>(index.internalPointer());
+    BranchNode *node = indexToNode(index);
+    if (!node)
+        return QVariant();
 
     switch (role) {
     case Qt::DisplayRole:
@@ -232,7 +245,7 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
         QFont font;
         if (!node->isLeaf()) {
             font.setBold(true);
-        } else if (node->current) {
+        } else if (node == m_currentBranch) {
             font.setBold(true);
             font.setUnderline(true);
         }
@@ -247,7 +260,9 @@ bool BranchModel::setData(const QModelIndex &index, const QVariant &value, int r
 {
     if (role != Qt::EditRole)
         return false;
-    BranchNode *node = static_cast<BranchNode *>(index.internalPointer());
+    BranchNode *node = indexToNode(index);
+    if (!node)
+        return false;
 
     const QString newName = value.toString();
     if (newName.isEmpty())
@@ -278,7 +293,9 @@ bool BranchModel::setData(const QModelIndex &index, const QVariant &value, int r
 
 Qt::ItemFlags BranchModel::flags(const QModelIndex &index) const
 {
-    BranchNode *node = static_cast<BranchNode *>(index.internalPointer());
+    BranchNode *node = indexToNode(index);
+    if (!node)
+        return Qt::NoItemFlags;
     if (node->isLeaf() && node->isLocal())
         return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
     else
@@ -287,15 +304,13 @@ Qt::ItemFlags BranchModel::flags(const QModelIndex &index) const
 
 void BranchModel::clear()
 {
-    while (m_rootNode->count() > 1) {
-        BranchNode *n = m_rootNode->children.takeLast();
-        delete n;
-    }
+    while (m_rootNode->count() > 1)
+        delete m_rootNode->children.takeLast();
     BranchNode *locals = m_rootNode->children.at(0);
-    while (locals->count()) {
-        BranchNode *n = locals->children.takeLast();
-        delete n;
-    }
+    while (locals->count())
+        delete locals->children.takeLast();
+
+    m_currentBranch = 0;
 }
 
 bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage)
@@ -311,7 +326,6 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
         VcsBase::VcsBaseOutputWindow::instance()->appendError(*errorMessage);
 
     beginResetModel();
-
     clear();
 
     m_workingDirectory = workingDirectory;
@@ -320,6 +334,7 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
         parseOutputLine(l);
 
     endResetModel();
+
     return true;
 }
 
@@ -347,23 +362,17 @@ GitClient *BranchModel::client() const
 
 QModelIndex BranchModel::currentBranch() const
 {
-    if (!m_rootNode || !m_rootNode->count())
+    if (!m_currentBranch)
         return QModelIndex();
-    BranchNode *localBranches = m_rootNode->children.at(0);
-    QModelIndex localIdx = index(0, 0, QModelIndex());
-    for (int i = 0; i < localBranches->count(); ++i) {
-        if (localBranches->children.at(i)->current)
-            return index(i, 0, localIdx);
-    }
-    return QModelIndex();
+    return nodeToIndex(m_currentBranch);
 }
 
 QString BranchModel::branchName(const QModelIndex &idx) const
 {
     if (!idx.isValid())
         return QString();
-    BranchNode *node = static_cast<BranchNode *>(idx.internalPointer());
-    if (!node->isLeaf())
+    BranchNode *node = indexToNode(idx);
+    if (!node || !node->isLeaf())
         return QString();
     QStringList path = node->fullName();
     return path.join(QString(QLatin1Char('/')));
@@ -381,7 +390,7 @@ QString BranchModel::sha(const QModelIndex &idx) const
 {
     if (!idx.isValid())
         return QString();
-    BranchNode *node = static_cast<BranchNode *>(idx.internalPointer());
+    BranchNode *node = indexToNode(idx);
     return node->sha;
 }
 
@@ -389,7 +398,7 @@ bool BranchModel::isLocal(const QModelIndex &idx) const
 {
     if (!idx.isValid())
         return false;
-    BranchNode *node = static_cast<BranchNode *>(idx.internalPointer());
+    BranchNode *node = indexToNode(idx);
     return node->isLocal();
 }
 
@@ -397,7 +406,7 @@ bool BranchModel::isLeaf(const QModelIndex &idx) const
 {
     if (!idx.isValid())
         return false;
-    BranchNode *node = static_cast<BranchNode *>(idx.internalPointer());
+    BranchNode *node = indexToNode(idx);
     return node->isLeaf();
 }
 
@@ -417,11 +426,15 @@ void BranchModel::removeBranch(const QModelIndex &idx)
         return;
     }
 
-    QModelIndex parentIdx = parent(idx);
-    beginRemoveRows(parentIdx, idx.row(), idx.row());
-    static_cast<BranchNode *>(parentIdx.internalPointer())->children.removeAt(parentIdx.row());
-    delete static_cast<BranchNode *>(idx.internalPointer());
-    endRemoveRows();
+    QModelIndex tmp = idx; // tmp is a leaf, so count must be 0.
+    while (indexToNode(tmp)->count() == 0) {
+        QModelIndex tmpParent = parent(tmp);
+        beginRemoveRows(tmpParent, tmp.row(), tmp.row());
+        indexToNode(tmpParent)->children.removeAt(tmp.row());
+        delete indexToNode(tmp);
+        endRemoveRows();
+        tmp = tmpParent;
+    }
 }
 
 void BranchModel::checkoutBranch(const QModelIndex &idx)
@@ -446,10 +459,10 @@ void BranchModel::checkoutBranch(const QModelIndex &idx)
         if (errorMessage.isEmpty()) {
             QModelIndex currentIdx = currentBranch();
             if (currentIdx.isValid()) {
-                static_cast<BranchNode *>(currentIdx.internalPointer())->current = false;
-                emit dataChanged(currentBranch(), currentBranch());
+                m_currentBranch = 0;
+                emit dataChanged(currentIdx, currentIdx);
             }
-            static_cast<BranchNode *>(idx.internalPointer())->current = true;
+            m_currentBranch = indexToNode(idx);
             emit dataChanged(idx, idx);
         } else {
             refresh(m_workingDirectory, &errorMessage); // not sure all went well... better refresh!
@@ -551,21 +564,38 @@ void BranchModel::parseOutputLine(const QString &line)
     if (nameParts.count() < 1)
         return;
 
+    if (nameParts.isEmpty() || nameParts.at(0) != QLatin1String("remotes"))
+        nameParts.prepend(m_rootNode->children.at(0)->name); // Insert the local designator
+    else
+        nameParts.removeFirst(); // remove "remotes"
+    while (nameParts.count() > 3) {
+        nameParts[2] = nameParts.at(2) + QLatin1Char('/') + nameParts.at(3);
+        nameParts.removeAt(3);
+    }
+
     QString name = nameParts.last();
     nameParts.removeLast();
 
-    if (nameParts.isEmpty() || nameParts.at(0) != QLatin1String("remotes")) {
-        // local branch:
-        while (nameParts.count() > 2)
-            nameParts[1] = nameParts.at(1) + QLatin1Char('/') + nameParts.at(2);
-        m_rootNode->children.at(0)->insert(nameParts, new BranchNode(name, sha, current));
-    } else {
-        // remote branch:
-        nameParts.removeFirst(); // remove "remotes"
-        while (nameParts.count() > 2)
-            nameParts[1] = nameParts.at(1) + QLatin1Char('/') + nameParts.at(2);
-        m_rootNode->insert(nameParts, new BranchNode(name, sha, current));
-    }
+    BranchNode *newNode = new BranchNode(name, sha);
+    m_rootNode->insert(nameParts, newNode);
+    if (current)
+        m_currentBranch = newNode;
+}
+
+BranchNode *BranchModel::indexToNode(const QModelIndex &index) const
+{
+    if (index.column() > 0)
+        return 0;
+    if (!index.isValid())
+        return m_rootNode;
+    return static_cast<BranchNode *>(index.internalPointer());
+}
+
+QModelIndex BranchModel::nodeToIndex(BranchNode *node) const
+{
+    if (node == m_rootNode)
+        return QModelIndex();
+    return createIndex(node->parent->rowOf(node), 0, static_cast<void *>(node));
 }
 
 QString BranchModel::toolTip(const QString &sha) const

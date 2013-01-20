@@ -82,8 +82,6 @@ BranchDialog::BranchDialog(QWidget *parent) :
 BranchDialog::~BranchDialog()
 {
     delete m_ui;
-    delete m_model;
-    m_model = 0;
 }
 
 void BranchDialog::refresh(const QString &repository, bool force)
@@ -160,7 +158,6 @@ void BranchDialog::add()
 void BranchDialog::checkout()
 {
     QModelIndex idx = selectedIndex();
-    QTC_CHECK(m_model->isLocal(idx));
 
     const QString currentBranch = m_model->branchName(m_model->currentBranch());
     const QString nextBranch = m_model->branchName(idx);
