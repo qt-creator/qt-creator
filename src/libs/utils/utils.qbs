@@ -165,6 +165,8 @@ QtcLibrary {
         "treewidgetcolumnstretcher.h",
         "uncommentselection.cpp",
         "uncommentselection.h",
+        "unixutils.cpp",
+        "unixutils.h",
         "utils.qrc",
         "utils_global.h",
         "wizard.cpp",
@@ -208,14 +210,6 @@ QtcLibrary {
         condition: qbs.targetOS == "linux" || qbs.targetOS == "mac"
         files: [
             "consoleprocess_unix.cpp",
-        ]
-    }
-
-    Group {
-        condition: qbs.targetOS == "linux"
-        files: [
-            "unixutils.cpp",
-            "unixutils.h",
         ]
     }
 
