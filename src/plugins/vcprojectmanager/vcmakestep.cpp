@@ -1,5 +1,6 @@
 #include "vcmakestep.h"
 
+#include "msbuildparser.h"
 #include "vcprojectbuildconfiguration.h"
 #include "vcprojectbuildoptionspage.h"
 #include "vcprojectfile.h"
@@ -69,6 +70,8 @@ bool VcMakeStep::init()
         m_processParams->setArguments(arguments);
     }
 
+    setOutputParser(new MsBuildParser);
+
     return AbstractProcessStep::init();
 }
 
@@ -115,9 +118,15 @@ QString VcMakeStep::msBuildCommand() const
     return m_msBuildCommand;
 }
 
-void VcMakeStep::setMsBuildCommand(const QString &msBuild)
+QString VcMakeStep::msBuildVersion() const
+{
+    return m_msBuildVersion;
+}
+
+void VcMakeStep::setMsBuildCommand(const QString &msBuild, const QString &version)
 {
     m_msBuildCommand = msBuild;
+    m_msBuildVersion = version;
 }
 
 QStringList VcMakeStep::buildArguments() const
@@ -144,6 +153,11 @@ QVariantMap VcMakeStep::toMap() const
 bool VcMakeStep::fromMap(const QVariantMap &map)
 {
     return BuildStep::fromMap(map);
+}
+
+void VcMakeStep::stdOutput(const QString &line)
+{
+    AbstractProcessStep::stdOutput(line);
 }
 
 VcMakeStep::VcMakeStep(ProjectExplorer::BuildStepList *parent, VcMakeStep *vcMakeStep) :
@@ -178,7 +192,8 @@ VcMakeStepConfigWidget::VcMakeStepConfigWidget(VcMakeStep *makeStep) :
                 if (!msBuild->m_executable.isEmpty()) {
                     QFileInfo fileInfo(msBuild->m_executable);
                     QString buildName = fileInfo.fileName() + QLatin1Char(' ') + msBuild->m_version;
-                    m_msBuildComboBox->addItem(buildName, msBuild->m_executable);
+                    QVariant msBuildFullPath(msBuild->m_executable + QLatin1Char(';') + msBuild->m_version);
+                    m_msBuildComboBox->addItem(buildName, msBuildFullPath);
                 }
             }
         }
@@ -215,7 +230,9 @@ QString VcMakeStepConfigWidget::summaryText() const
 void VcMakeStepConfigWidget::onMsBuildSelectionChanged(int index)
 {
     if (m_makeStep && m_msBuildComboBox && 0 <= index && index < m_msBuildComboBox->count()) {
-        m_makeStep->setMsBuildCommand(m_msBuildComboBox->itemData(index).toString());
+        QStringList data = m_msBuildComboBox->itemData(index).toString().split(QLatin1Char(';'));
+        m_makeStep->setMsBuildCommand(data.at(0),  // ms build full path
+                                      data.at(1)); // ms build version
         m_msBuildPath->setText(m_makeStep->msBuildCommand());
     }
 }
@@ -236,10 +253,10 @@ void VcMakeStepConfigWidget::onMsBuildInformationsUpdated()
         if (!msBuild->m_executable.isEmpty()) {
             QFileInfo fileInfo(msBuild->m_executable);
             QString buildName = fileInfo.fileName() + QLatin1Char(' ') + msBuild->m_version;
-            QVariant msBuildFullPath(msBuild->m_executable);
+            QVariant msBuildFullPath(msBuild->m_executable + QLatin1Char(';') + msBuild->m_version);
             m_msBuildComboBox->addItem(buildName, msBuildFullPath);
 
-            if (!m_makeStep->msBuildCommand().isEmpty() && msBuildFullPath == m_makeStep->msBuildCommand()) {
+            if (!m_makeStep->msBuildCommand().isEmpty() && msBuild->m_executable == m_makeStep->msBuildCommand()) {
                 m_msBuildComboBox->setCurrentIndex(m_msBuildComboBox->count() - 1);
                 msBuildExists = true;
             }
@@ -255,8 +272,7 @@ void VcMakeStepConfigWidget::onMsBuildInformationsUpdated()
         }
 
         else {
-            QString msBuildCommand;
-            m_makeStep->setMsBuildCommand(msBuildCommand);
+            m_makeStep->setMsBuildCommand(QString(), QString());
             m_msBuildPath->setText(tr("No Ms Build tools found."));
             m_msBuildComboBox->setEnabled(false);
         }

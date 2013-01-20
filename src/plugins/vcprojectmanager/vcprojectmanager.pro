@@ -10,7 +10,8 @@ HEADERS = vcprojectmanagerplugin.h \
     vcproject.h \
     vcprojectbuildconfiguration.h \
     vcmakestep.h \
-    vcprojectbuildoptionspage.h
+    vcprojectbuildoptionspage.h \
+    msbuildparser.h
 SOURCES = vcprojectmanagerplugin.cpp \
     vcprojectreader.cpp \
     vcprojectnodes.cpp \
@@ -19,7 +20,8 @@ SOURCES = vcprojectmanagerplugin.cpp \
     vcproject.cpp \
     vcprojectbuildconfiguration.cpp \
     vcmakestep.cpp \
-    vcprojectbuildoptionspage.cpp
+    vcprojectbuildoptionspage.cpp \
+    msbuildparser.cpp
 
 OTHER_FILES += \
     VcProject.mimetypes.xml

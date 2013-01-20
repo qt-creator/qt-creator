@@ -27,13 +27,17 @@ public:
 
     VcProjectBuildConfiguration *vcProjectBuildConfiguration() const;
     QString msBuildCommand() const;
-    void setMsBuildCommand(const QString &msBuild);
+    QString msBuildVersion() const;
+    void setMsBuildCommand(const QString &msBuild, const QString &version);
     QStringList buildArguments() const;
     void addBuildArgument(const QString &argument);
     void removeBuildArgument(const QString &buildArgument);
 
     QVariantMap toMap() const;
     bool fromMap(const QVariantMap &map);
+
+protected:
+    void stdOutput(const QString &line);
 
 private:
     explicit VcMakeStep(ProjectExplorer::BuildStepList *parent, VcMakeStep *vcMakeStep);
@@ -42,6 +46,7 @@ private:
     QFutureInterface<bool> *m_futureInterface;
     ProjectExplorer::ProcessParameters *m_processParams;
     QString m_msBuildCommand;
+    QString m_msBuildVersion;
     QStringList m_buildArguments;
 };
 
