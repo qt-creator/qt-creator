@@ -117,26 +117,52 @@ bool VcProject::fromMap(const QVariantMap &map)
 {
     Kit *defaultKit = KitManager::instance()->defaultKit();
     if (defaultKit) {
-        qDebug() << "VcProject::fromMap() defaultKit:" << defaultKit->displayName();
+
+        // Note(Radovan): When targets are available from .vcproj or .vcproj.user
+        // file create Target object for each of them
+
         Target *target = new Target(this, defaultKit);
+
+        // Debug build configuration
         VcProjectBuildConfiguration *bc = new VcProjectBuildConfiguration(target);
-        bc->setDefaultDisplayName(tr("vcproj"));
+        bc->setDefaultDisplayName(tr("Debug"));
 
         // build step
         ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
         VcMakeStep *makeStep = new VcMakeStep(buildSteps);
+        QLatin1String argument("/p:configuration=\"Debug\"");
+        makeStep->addBuildArgument(argument);
         buildSteps->insertStep(0, makeStep);
 
         //clean step
         ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-        VcMakeStep *cleanStep = new VcMakeStep(cleanSteps);
-        QString cleanArgument("/t:Clean");
-        cleanStep->addBuildArgument(cleanArgument);
-        cleanSteps->insertStep(0, cleanStep);
+        makeStep = new VcMakeStep(cleanSteps);
+        argument = QLatin1String("/p:configuration=\"Debug\" /t:Clean");
+        makeStep->addBuildArgument(argument);
+        cleanSteps->insertStep(0, makeStep);
 
         target->addBuildConfiguration(bc);
-        addTarget(target);
-    }
+
+        // Release build configuration
+        bc = new VcProjectBuildConfiguration(target);
+        bc->setDefaultDisplayName("Release");
+
+        // build step
+        buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+        makeStep = new VcMakeStep(buildSteps);
+        argument = QLatin1String("/p:configuration=\"Release\"");
+        makeStep->addBuildArgument(argument);
+        buildSteps->insertStep(0, makeStep);
+
+        //clean step
+        cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+        makeStep = new VcMakeStep(cleanSteps);
+        argument = QLatin1String("/p:configuration=\"Release\" /t:Clean");
+        makeStep->addBuildArgument(argument);
+        cleanSteps->insertStep(0, makeStep);
+
+        target->addBuildConfiguration(bc);
+        addTarget(target);    }
 
     return Project::fromMap(map);
 }
