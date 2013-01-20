@@ -354,6 +354,13 @@ protected:
     bool canInsertFromMimeData(const QMimeData *source) const;
     void insertFromMimeData(const QMimeData *source);
 
+    virtual QString plainTextFromSelection() const;
+    static QString convertToPlainText(const QString &txt);
+
+    virtual QString lineNumber(int blockNumber) const;
+    virtual int lineNumberTopPositionOffset(int blockNumber) const;
+    virtual int lineNumberDigits() const;
+
     static QString msgTextTooLarge(quint64 size);
 
 private:

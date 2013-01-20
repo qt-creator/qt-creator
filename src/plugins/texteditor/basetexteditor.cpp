@@ -181,10 +181,20 @@ Core::IEditor *BaseTextEditorWidget::openEditorAt(const QString &fileName, int l
     return editor;
 }
 
-static void convertToPlainText(QString &txt)
+QString BaseTextEditorWidget::plainTextFromSelection() const
 {
-    QChar *uc = txt.data();
-    QChar *e = uc + txt.size();
+    QTextCursor cursor = textCursor();
+
+    // Copy the selected text as plain text
+    QString text = cursor.selectedText();
+    return convertToPlainText(text);
+}
+
+QString BaseTextEditorWidget::convertToPlainText(const QString &txt)
+{
+    QString ret = txt;
+    QChar *uc = ret.data();
+    QChar *e = uc + ret.size();
 
     for (; uc != e; ++uc) {
         switch (uc->unicode()) {
@@ -201,6 +211,7 @@ static void convertToPlainText(QString &txt)
             ;
         }
     }
+    return ret;
 }
 
 static const char kTextBlockMimeType[] = "application/vnd.nokia.qtcreator.blocktext";
@@ -3701,13 +3712,7 @@ int BaseTextEditorWidget::extraAreaWidth(int *markWidthPtr) const
         fnt.setItalic(d->m_currentLineNumberFormat.font().italic());
         const QFontMetrics linefm(fnt);
 
-        int digits = 2;
-        int max = qMax(1, blockCount());
-        while (max >= 100) {
-            max /= 10;
-            ++digits;
-        }
-        space += linefm.width(QLatin1Char('9')) * digits;
+        space += linefm.width(QLatin1Char('9')) * lineNumberDigits();
     }
     int markWidth = 0;
 
@@ -3918,7 +3923,7 @@ void BaseTextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
         }
 
         if (d->m_lineNumbersVisible) {
-            const QString &number = QString::number(blockNumber + 1);
+            const QString &number = lineNumber(blockNumber);
             bool selected = (
                     (selStart < block.position() + block.length()
 
@@ -3933,7 +3938,7 @@ void BaseTextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
                 painter.setFont(f);
                 painter.setPen(d->m_currentLineNumberFormat.foreground().color());
             }
-            painter.drawText(QRectF(markWidth, top, extraAreaWidth - markWidth - 4, height), Qt::AlignRight, number);
+            painter.drawText(QRectF(markWidth, top + lineNumberTopPositionOffset(blockNumber), extraAreaWidth - markWidth - 4, height), Qt::AlignRight, number);
             if (selected)
                 painter.restore();
         }
@@ -5966,9 +5971,7 @@ QMimeData *BaseTextEditorWidget::createMimeDataFromSelection() const
         QTextCursor cursor = textCursor();
         QMimeData *mimeData = new QMimeData;
 
-        // Copy the selected text as plain text
-        QString text = cursor.selectedText();
-        convertToPlainText(text);
+        QString text = plainTextFromSelection();
         mimeData->setText(text);
 
         // Copy the selected text as HTML
@@ -6184,6 +6187,28 @@ QMimeData *BaseTextEditorWidget::duplicateMimeData(const QMimeData *source) cons
     }
 
     return mimeData;
+}
+
+QString BaseTextEditorWidget::lineNumber(int blockNumber) const
+{
+    return QString::number(blockNumber + 1);
+}
+
+int BaseTextEditorWidget::lineNumberTopPositionOffset(int blockNumber) const
+{
+    Q_UNUSED(blockNumber)
+    return 0;
+}
+
+int BaseTextEditorWidget::lineNumberDigits() const
+{
+    int digits = 2;
+    int max = qMax(1, blockCount());
+    while (max >= 100) {
+        max /= 10;
+        ++digits;
+    }
+    return digits;
 }
 
 void BaseTextEditorWidget::appendMenuActionsFromContext(QMenu *menu, const Core::Id menuContextId)
