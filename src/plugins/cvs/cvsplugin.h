@@ -123,6 +123,10 @@ private slots:
     void uneditCurrentFile();
     void uneditCurrentRepository();
     void cvsDiff(const Cvs::Internal::CvsDiffParameters &p);
+#ifdef WITH_TESTS
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+#endif
 
 protected:
     void updateActions(VcsBase::VcsBasePlugin::ActionState);

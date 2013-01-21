@@ -685,4 +685,41 @@ void MercurialPlugin::updateActions(VcsBasePlugin::ActionState as)
         repoAction->setEnabled(repoEnabled);
 }
 
+#ifdef WITH_TESTS
+#include <QTest>
+
+void MercurialPlugin::testDiffFileResolving_data()
+{
+    QTest::addColumn<QByteArray>("header");
+    QTest::addColumn<QByteArray>("fileName");
+
+    QTest::newRow("New") << QByteArray(
+            "diff --git a/src/plugins/mercurial/mercurialeditor.cpp b/src/plugins/mercurial/mercurialeditor.cpp\n"
+            "new file mode 100644\n"
+            "--- /dev/null\n"
+            "+++ b/src/plugins/mercurial/mercurialeditor.cpp\n"
+            "@@ -0,0 +1,112 @@\n\n")
+        << QByteArray("src/plugins/mercurial/mercurialeditor.cpp");
+    QTest::newRow("Deleted") << QByteArray(
+            "diff --git a/src/plugins/mercurial/mercurialeditor.cpp b/src/plugins/mercurial/mercurialeditor.cpp\n"
+            "deleted file mode 100644\n"
+            "--- a/src/plugins/mercurial/mercurialeditor.cpp\n"
+            "+++ /dev/null\n"
+            "@@ -1,112 +0,0 @@\n\n")
+        << QByteArray("src/plugins/mercurial/mercurialeditor.cpp");
+    QTest::newRow("Normal") << QByteArray(
+            "diff --git a/src/plugins/mercurial/mercurialeditor.cpp b/src/plugins/mercurial/mercurialeditor.cpp\n"
+            "--- a/src/plugins/mercurial/mercurialeditor.cpp\n"
+            "+++ b/src/plugins/mercurial/mercurialeditor.cpp\n"
+            "@@ -49,6 +49,8 @@\n\n")
+        << QByteArray("src/plugins/mercurial/mercurialeditor.cpp");
+}
+
+void MercurialPlugin::testDiffFileResolving()
+{
+    MercurialEditor editor(editorParameters + 3, 0);
+    VcsBase::VcsBaseEditorWidget::testDiffFileResolving(&editor);
+}
+#endif
+
 Q_EXPORT_PLUGIN(MercurialPlugin)

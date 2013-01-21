@@ -255,9 +255,4 @@ void DiffHighlighter::setFormats(const QVector<QTextCharFormat> &s)
     }
 }
 
-QRegExp DiffHighlighter::filePattern() const
-{
-    return d->m_filePattern;
-}
-
 } // namespace VcsBase

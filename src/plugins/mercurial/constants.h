@@ -42,7 +42,8 @@ const char CHANGESETID12[] = " ([a-f0-9]{12,12}) "; //match 12 hex chars and cap
 const char CHANGESETID40[] = " ([a-f0-9]{40,40}) ";
 const char CHANGEIDEXACT12[] = "[a-f0-9]{12,12}"; //match 12 hex chars a
 const char CHANGEIDEXACT40[] = "[a-f0-9]{40,40}";
-const char DIFFIDENTIFIER[] = "^[-+]{3} [ab]/(.+)$"; // match e.g. +++ b/filename
+// match diff header. e.g. +++ b/filename
+const char DIFFIDENTIFIER[] = "^(?:diff --git a/|[+-]{3} (?:/dev/null|[ab]/(.+$)))";
 
 // Base editor parameters
 const char COMMANDLOG_ID[] = "Mercurial Command Log Editor";

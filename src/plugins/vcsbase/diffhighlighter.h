@@ -59,8 +59,6 @@ public:
     // Set formats from a sequence of type QTextCharFormat
     void setFormats(const QVector<QTextCharFormat> &s);
 
-    QRegExp filePattern() const;
-
 private:
     Internal::DiffHighlighterPrivate *const d;
 };

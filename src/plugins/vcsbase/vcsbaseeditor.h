@@ -184,10 +184,6 @@ public:
     bool setConfigurationWidget(QWidget *w);
     QWidget *configurationWidget() const;
 
-    // Returns a local file name from the diff file specification
-    // (text cursor at position above change hunk)
-    QString fileNameFromDiffSpecification(const QTextBlock &inBlock) const;
-
     /* Tagging editors: Sometimes, an editor should be re-used, for example, when showing
      * a diff of the same file with different diff-options. In order to be able to find
      * the editor, they get a 'tag' containing type and parameters (dynamic property string). */
@@ -248,6 +244,10 @@ protected:
     // Factory functions for highlighters
     virtual BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes,
                                                                    const QColor &bg) const = 0;
+    // Returns a local file name from the diff file specification
+    // (text cursor at position above change hunk)
+    QString fileNameFromDiffSpecification(const QTextBlock &inBlock) const;
+
     // Implement to return decorated annotation change for "Annotate version"
     virtual QString decorateVersion(const QString &revision) const;
     // Implement to return the previous version[s] of an annotation change

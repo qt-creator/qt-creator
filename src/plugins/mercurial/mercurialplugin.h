@@ -103,6 +103,10 @@ private slots:
     void showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusItem> &status);
     void commitFromEditor();
     void diffFromEditorSelected(const QStringList &files);
+#ifdef WITH_TESTS
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+#endif
 
     //TODO implement
    /* //repository management action slots

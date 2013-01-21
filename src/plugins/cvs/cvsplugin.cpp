@@ -71,6 +71,10 @@
 #include <QMenu>
 #include <QMessageBox>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
 using namespace VcsBase;
 using namespace Core;
 
@@ -1375,6 +1379,28 @@ CvsControl *CvsPlugin::cvsVersionControl() const
 {
     return static_cast<CvsControl *>(versionControl());
 }
+
+#ifdef WITH_TESTS
+void CvsPlugin::testDiffFileResolving_data()
+{
+    QTest::addColumn<QByteArray>("header");
+    QTest::addColumn<QByteArray>("fileName");
+
+    QTest::newRow("Modified") << QByteArray(
+            "Index: src/plugins/cvs/cvseditor.cpp\n"
+            "===================================================================\n"
+            "--- src/plugins/cvs/cvseditor.cpp\t21 Jan 2013 20:34:20 -0000\t1.1\n"
+            "+++ src/plugins/cvs/cvseditor.cpp\t21 Jan 2013 20:34:28 -0000\n"
+            "@@ -120,7 +120,7 @@\n\n")
+        << QByteArray("src/plugins/cvs/cvseditor.cpp");
+}
+
+void CvsPlugin::testDiffFileResolving()
+{
+    CvsEditor editor(editorParameters + 3, 0);
+    VcsBase::VcsBaseEditorWidget::testDiffFileResolving(&editor);
+}
+#endif
 
 } // namespace Internal
 } // namespace Cvs
