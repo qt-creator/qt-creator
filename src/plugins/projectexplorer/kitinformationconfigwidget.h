@@ -71,6 +71,7 @@ private slots:
 private:
     Kit *m_kit;
     Utils::PathChooser *m_chooser;
+    bool m_ignoreChange;
 };
 
 // --------------------------------------------------------------------------

@@ -44,7 +44,8 @@ namespace Internal {
 QmakeKitConfigWidget::QmakeKitConfigWidget(ProjectExplorer::Kit *k, QWidget *parent) :
     ProjectExplorer::KitConfigWidget(parent),
     m_kit(k),
-    m_lineEdit(new QLineEdit)
+    m_lineEdit(new QLineEdit),
+    m_ignoreChange(false)
 {
     setToolTip(tr("The mkspec to use when building the project with qmake.<br>"
                   "This setting is ignored when using other build systems."));
@@ -70,12 +71,15 @@ void QmakeKitConfigWidget::makeReadOnly()
 
 void QmakeKitConfigWidget::refresh()
 {
-    m_lineEdit->setText(QmakeKitInformation::mkspec(m_kit).toString());
+    if (!m_ignoreChange)
+        m_lineEdit->setText(QmakeKitInformation::mkspec(m_kit).toUserOutput());
 }
 
 void QmakeKitConfigWidget::mkspecWasChanged(const QString &text)
 {
+    m_ignoreChange = true;
     QmakeKitInformation::setMkspec(m_kit, Utils::FileName::fromString(text));
+    m_ignoreChange = false;
 }
 
 } // namespace Internal

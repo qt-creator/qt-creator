@@ -62,6 +62,7 @@ private:
 
     ProjectExplorer::Kit *m_kit;
     QLineEdit *m_lineEdit;
+    bool m_ignoreChange;
 };
 
 } // namespace Internal

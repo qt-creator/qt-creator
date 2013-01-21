@@ -56,7 +56,8 @@ namespace Internal {
 
 SysRootInformationConfigWidget::SysRootInformationConfigWidget(Kit *k, QWidget *parent) :
     KitConfigWidget(parent),
-    m_kit(k)
+    m_kit(k),
+    m_ignoreChange(false)
 {
     setToolTip(tr("The root directory of the system image to use.<br>"
                   "Leave empty when building for the desktop."));
@@ -79,7 +80,8 @@ QString SysRootInformationConfigWidget::displayName() const
 
 void SysRootInformationConfigWidget::refresh()
 {
-    m_chooser->setFileName(SysRootKitInformation::sysRoot(m_kit));
+    if (!m_ignoreChange)
+        m_chooser->setFileName(SysRootKitInformation::sysRoot(m_kit));
 }
 
 void SysRootInformationConfigWidget::makeReadOnly()
@@ -94,7 +96,9 @@ QWidget *SysRootInformationConfigWidget::buttonWidget() const
 
 void SysRootInformationConfigWidget::pathWasChanged()
 {
+    m_ignoreChange = true;
     SysRootKitInformation::setSysRoot(m_kit, m_chooser->fileName());
+    m_ignoreChange = false;
 }
 
 // --------------------------------------------------------------------------
