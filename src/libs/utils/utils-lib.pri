@@ -84,7 +84,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/tooltip/tooltip.cpp \
     $$PWD/tooltip/tips.cpp \
     $$PWD/tooltip/tipcontents.cpp \
-    $$PWD/tooltip/tipfactory.cpp
+    $$PWD/tooltip/tipfactory.cpp \
+    $$PWD/unixutils.cpp
 
 win32 {
     SOURCES += \
@@ -93,10 +94,6 @@ win32 {
     HEADERS += $$PWD/winutils.h
 }
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
-
-
-    HEADERS += $$PWD/unixutils.h
-    SOURCES += $$PWD/unixutils.cpp
 
 HEADERS += \
     $$PWD/environment.h \
@@ -177,7 +174,8 @@ HEADERS += \
     $$PWD/tooltip/tipcontents.h \
     $$PWD/tooltip/reuse.h \
     $$PWD/tooltip/effects.h \
-    $$PWD/tooltip/tipfactory.h
+    $$PWD/tooltip/tipfactory.h \
+    $$PWD/unixutils.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
