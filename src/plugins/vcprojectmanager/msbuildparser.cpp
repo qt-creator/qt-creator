@@ -15,7 +15,7 @@ MsBuildParser::MsBuildParser()
     m_doneTargetBuildRegExp = QRegExp("Done\\sbuilding\\starget\\s\"(.*)\"\\sin\\sproject\\s\"(.*)\"(\\s--\\sFAILED)?\\.");
     m_doneProjectBuildRegExp = QRegExp("Done\\sbuilding\\sproject\\s\"(.*)\"((?:\\s--\\s)FAILED)?\\.");
     m_buildSucceededRegExp = QRegExp("Build succeeded\\.");
-    m_buildFailedRegExp = QRegExp("(Build FAILED\\.)");
+    m_buildFailedRegExp = QRegExp("Build FAILED\\.");
     m_buildTimeElapsedRegExp = QRegExp("Time\\sElapsed\\s(\\d+:\\d+:\\d+(?:\\.\\d+)?)");
     m_msBuildErrorRegExp = QRegExp("MSBUILD\\s:\\s(error\\s(?:[A-Z]|[a-z]|\\d)+):\\s(.*)");
 }

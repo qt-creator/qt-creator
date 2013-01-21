@@ -164,9 +164,11 @@ bool VcProjectBuildOptionsWidget::exists(const QString &exePath)
 void VcProjectBuildOptionsWidget::insertMSBuild(const MsBuildInformation &info)
 {
     QTableWidgetItem *exeTableItem = new QTableWidgetItem();
+    exeTableItem->setFlags(exeTableItem->flags() ^ Qt::ItemIsEditable);
     exeTableItem->setText(info.m_executable);
 
     QTableWidgetItem *versionTableItem = new QTableWidgetItem();
+    versionTableItem->setFlags(versionTableItem->flags() ^ Qt::ItemIsEditable);
     versionTableItem->setText(info.m_version);
 
     m_buildTableWidget->insertRow(m_buildTableWidget->rowCount());
