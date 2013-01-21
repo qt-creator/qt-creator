@@ -11,7 +11,7 @@ HEADERS = vcprojectmanagerplugin.h \
     vcprojectbuildconfiguration.h \
     vcmakestep.h \
     vcprojectbuildoptionspage.h \
-    msbuildparser.h
+    msbuildoutputparser.h
 SOURCES = vcprojectmanagerplugin.cpp \
     vcprojectreader.cpp \
     vcprojectnodes.cpp \
@@ -21,7 +21,7 @@ SOURCES = vcprojectmanagerplugin.cpp \
     vcprojectbuildconfiguration.cpp \
     vcmakestep.cpp \
     vcprojectbuildoptionspage.cpp \
-    msbuildparser.cpp
+    msbuildoutputparser.cpp
 
 OTHER_FILES += \
     VcProject.mimetypes.xml

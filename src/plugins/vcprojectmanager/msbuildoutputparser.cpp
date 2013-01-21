@@ -1,10 +1,10 @@
-#include "msbuildparser.h"
+#include "msbuildoutputparser.h"
 #include <projectexplorer/projectexplorerconstants.h>
 
 namespace VcProjectManager {
 namespace Internal {
 
-MsBuildParser::MsBuildParser()
+MsBuildOutputParser::MsBuildOutputParser()
     : m_counter(0),
       m_buildAttempFinished(false)
 {
@@ -20,7 +20,7 @@ MsBuildParser::MsBuildParser()
     m_msBuildErrorRegExp = QRegExp("MSBUILD\\s:\\s(error\\s(?:[A-Z]|[a-z]|\\d)+):\\s(.*)");
 }
 
-void MsBuildParser::stdOutput(const QString &line)
+void MsBuildOutputParser::stdOutput(const QString &line)
 {
     if (m_buildStartTimeRegExp.indexIn(line) != -1) {
         emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Unknown,

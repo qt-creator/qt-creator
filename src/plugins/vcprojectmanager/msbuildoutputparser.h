@@ -8,10 +8,10 @@
 namespace VcProjectManager {
 namespace Internal {
 
-class MsBuildParser : public ProjectExplorer::IOutputParser
+class MsBuildOutputParser : public ProjectExplorer::IOutputParser
 {
 public:
-    MsBuildParser();
+    MsBuildOutputParser();
     void stdOutput(const QString &line);
 
 private:

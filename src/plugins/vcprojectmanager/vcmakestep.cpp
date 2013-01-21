@@ -1,6 +1,6 @@
 #include "vcmakestep.h"
 
-#include "msbuildparser.h"
+#include "msbuildoutputparser.h"
 #include "vcprojectbuildconfiguration.h"
 #include "vcprojectbuildoptionspage.h"
 #include "vcprojectfile.h"
@@ -70,7 +70,7 @@ bool VcMakeStep::init()
         m_processParams->setArguments(arguments);
     }
 
-    setOutputParser(new MsBuildParser);
+    setOutputParser(new MsBuildOutputParser);
 
     return AbstractProcessStep::init();
 }
