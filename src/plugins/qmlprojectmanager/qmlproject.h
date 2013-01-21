@@ -92,6 +92,9 @@ public:
 
     void refreshProjectFile();
 
+    enum QmlImport { UnknownImport, QtQuick1Import, QtQuick2Import };
+    QmlImport defaultImport() const;
+
 private slots:
     void refreshFiles(const QSet<QString> &added, const QSet<QString> &removed);
     void addedTarget(ProjectExplorer::Target *target);
@@ -109,6 +112,7 @@ private:
     QString m_fileName;
     Internal::QmlProjectFile *m_file;
     QString m_projectName;
+    QmlImport m_defaultImport;
     QmlJS::ModelManagerInterface *m_modelManager;
 
     // plain format

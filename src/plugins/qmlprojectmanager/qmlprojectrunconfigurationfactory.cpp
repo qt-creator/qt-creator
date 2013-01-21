@@ -59,12 +59,26 @@ QList<Core::Id> QmlProjectRunConfigurationFactory::availableCreationIds(ProjectE
     QtSupport::BaseQtVersion *version
             = QtSupport::QtKitInformation::qtVersion(parent->kit());
 
-    // put qmlscene first (so that it is the default) for Qt 5.0.0
+    // First id will be the default run configuration
     QList<Core::Id> list;
-    if (version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0))
-        list << Core::Id(Constants::QML_SCENE_RC_ID);
-
-    list << Core::Id(Constants::QML_VIEWER_RC_ID);
+    if (version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0)) {
+        QmlProject *project = static_cast<QmlProject*>(parent->project());
+        switch (project->defaultImport()) {
+        case QmlProject::QtQuick1Import:
+            list << Core::Id(Constants::QML_VIEWER_RC_ID);
+            break;
+        case QmlProject::QtQuick2Import:
+            list << Core::Id(Constants::QML_SCENE_RC_ID);
+            break;
+        case QmlProject::UnknownImport:
+        default:
+            list << Core::Id(Constants::QML_SCENE_RC_ID);
+            list << Core::Id(Constants::QML_VIEWER_RC_ID);
+            break;
+        }
+    } else {
+        list << Core::Id(Constants::QML_VIEWER_RC_ID);
+    }
 
     return list;
 }
