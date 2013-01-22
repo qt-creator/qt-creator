@@ -221,7 +221,7 @@ bool QMakeParser::read(ProFile *pro)
     }
 
     QByteArray bcont = file.readAll();
-    if (bcont.startsWith(QByteArray("\xef\xbb\xbf"))) {
+    if (bcont.startsWith("\xef\xbb\xbf")) {
         // UTF-8 BOM will cause subtle errors
         m_handler->message(QMakeParserHandler::ParserIoError,
                            fL1S("Unexpected UTF-8 BOM in %1").arg(pro->fileName()));
