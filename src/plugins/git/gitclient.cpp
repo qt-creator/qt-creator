@@ -2128,7 +2128,7 @@ bool GitClient::executeAndHandleConflicts(const QString &workingDirectory, const
 bool GitClient::synchronousPull(const QString &workingDirectory, bool rebase)
 {
     QString abortCommand;
-    QStringList arguments;
+    QStringList arguments(QLatin1String("pull"));
     if (rebase) {
         arguments << QLatin1String("--rebase");
         abortCommand = QLatin1String("rebase");
