@@ -88,7 +88,7 @@ public:
     class StashGuard
     {
     public:
-        StashGuard(const QString &workingDirectory, const QString &keyword);
+        StashGuard(const QString &workingDirectory, const QString &keyword, bool askUser = true);
         ~StashGuard();
 
         void preventPop();

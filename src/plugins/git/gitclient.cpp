@@ -2530,13 +2530,13 @@ unsigned GitClient::synchronousGitVersion(QString *errorMessage) const
     return version(major, minor, patch);
 }
 
-GitClient::StashGuard::StashGuard(const QString &workingDirectory, const QString &keyword) :
+GitClient::StashGuard::StashGuard(const QString &workingDirectory, const QString &keyword, bool askUser) :
     pop(true),
     workingDir(workingDirectory)
 {
     client = GitPlugin::instance()->gitClient();
     QString errorMessage;
-    stashResult = client->ensureStash(workingDir, keyword, true, &message, &errorMessage);
+    stashResult = client->ensureStash(workingDir, keyword, askUser, &message, &errorMessage);
     if (stashResult == GitClient::StashFailed)
         VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
 }

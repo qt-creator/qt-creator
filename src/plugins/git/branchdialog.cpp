@@ -255,14 +255,9 @@ void BranchDialog::merge()
     QTC_CHECK(idx != m_model->currentBranch());            // otherwise the button would not be enabled!
 
     const QString branch = m_model->branchName(idx);
-    GitClient *gitClient = GitPlugin::instance()->gitClient();
-    QString stashMessage;
-
-    if (gitClient->gitStatus(m_repository, StatusMode(NoUntracked | NoSubmodules)) == GitClient::StatusChanged)
-        gitClient->ensureStash(m_repository, QLatin1String("merge"), false, &stashMessage);
-
-    if (gitClient->synchronousMerge(m_repository, branch) && !stashMessage.isEmpty())
-        gitClient->stashPop(m_repository, stashMessage);
+    GitClient::StashGuard stashGuard(m_repository, QLatin1String("merge"), false);
+    if (!GitPlugin::instance()->gitClient()->synchronousMerge(m_repository, branch))
+        stashGuard.preventPop();
 }
 
 void BranchDialog::rebase()
@@ -272,14 +267,9 @@ void BranchDialog::rebase()
     QTC_CHECK(idx != m_model->currentBranch());            // otherwise the button would not be enabled!
 
     const QString baseBranch = m_model->branchName(idx);
-    GitClient *gitClient = GitPlugin::instance()->gitClient();
-    QString stashMessage;
-
-    if (gitClient->gitStatus(m_repository, StatusMode(NoUntracked | NoSubmodules)) == GitClient::StatusChanged)
-        gitClient->ensureStash(m_repository, QLatin1String("rebase"), false, &stashMessage);
-
-    if (gitClient->synchronousRebase(m_repository, baseBranch) && !stashMessage.isEmpty())
-        gitClient->stashPop(m_repository, stashMessage);
+    GitClient::StashGuard stashGuard(m_repository, QLatin1String("rebase"), false);
+    if (!GitPlugin::instance()->gitClient()->synchronousRebase(m_repository, baseBranch))
+        stashGuard.preventPop();
 }
 
 void BranchDialog::changeEvent(QEvent *e)
