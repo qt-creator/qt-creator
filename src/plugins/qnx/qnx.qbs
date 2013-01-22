@@ -12,6 +12,7 @@ QtcPlugin {
     Depends { name: "QtSupport" }
     Depends { name: "Qt4ProjectManager" }
     Depends { name: "RemoteLinux" }
+    Depends { name: "TextEditor" }
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
 
     cpp.includePaths: base.concat("../../shared")

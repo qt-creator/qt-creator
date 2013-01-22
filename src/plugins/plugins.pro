@@ -330,6 +330,7 @@ plugin_qnx.subdir = qnx
 plugin_qnx.depends = plugin_remotelinux
 plugin_qnx.depends += plugin_qt4projectmanager
 plugin_qnx.depends += plugin_coreplugin
+plugin_qnx.depends += plugin_texteditor
 
 plugin_clearcase.subdir = clearcase
 plugin_clearcase.depends = plugin_vcsbase
