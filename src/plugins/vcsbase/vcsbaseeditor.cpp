@@ -831,7 +831,7 @@ void VcsBaseEditorWidget::slotPopulateDiffBrowser()
     for (QTextBlock it = document()->begin(); it != cend; it = it.next(), lineNumber++) {
         const QString text = it.text();
         // Check for a new diff section (not repeating the last filename)
-        if (d->m_diffFilePattern.exactMatch(text)) {
+        if (d->m_diffFilePattern.indexIn(text) == 0) {
             const QString file = fileNameFromDiffSpecification(it);
             if (!file.isEmpty() && lastFileName != file) {
                 lastFileName = file;
