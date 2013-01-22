@@ -1327,7 +1327,7 @@ bool GitClient::executeSynchronousStash(const QString &workingDirectory,
         if (errorMessage)
             *errorMessage = msg;
         else
-            outputWindow()->append(msg);
+            outputWindow()->appendError(msg);
         return false;
     }
     return true;
