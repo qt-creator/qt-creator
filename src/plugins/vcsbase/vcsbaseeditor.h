@@ -257,6 +257,11 @@ protected:
     virtual bool isValidRevision(const QString &revision) const;
 
 private:
+    // Indicates if the editor has diff contents. If true, an appropriate
+    // highlighter is used and double-click inside a diff chunk jumps to
+    // the relevant file and line
+    bool hasDiff() const;
+
     // cut out chunk and determine file name.
     DiffChunk diffChunk(QTextCursor cursor) const;
 

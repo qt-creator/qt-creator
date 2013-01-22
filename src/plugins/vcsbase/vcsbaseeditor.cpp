@@ -684,14 +684,15 @@ void VcsBaseEditorWidget::init()
         // Annotation highlighting depends on contents, which is set later on
         connect(this, SIGNAL(textChanged()), this, SLOT(slotActivateAnnotation()));
         break;
-    case DiffOutput: {
+    case DiffOutput:
+        connect(this, SIGNAL(textChanged()), this, SLOT(slotPopulateDiffBrowser()));
+        connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(slotDiffCursorPositionChanged()));
+        break;
+    }
+    if (hasDiff()) {
         DiffHighlighter *dh = new DiffHighlighter(d->m_diffFilePattern);
         setCodeFoldingSupported(true);
         baseTextDocument()->setSyntaxHighlighter(dh);
-        connect(this, SIGNAL(textChanged()), this, SLOT(slotPopulateDiffBrowser()));
-        connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(slotDiffCursorPositionChanged()));
-    }
-        break;
     }
     TextEditor::TextEditorSettings::instance()->initializeEditor(this);
     // override revisions display (green or red bar on the left, marking changes):
@@ -905,7 +906,9 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor);
         if (handler != 0)
             handler->fillContextMenu(menu, d->m_parameters->type);
-        break;
+        // Fall-through for log (might have diff)
+        if (d->m_parameters->type != LogOutput)
+            break;
     }
     case DiffOutput: {
         menu->addSeparator();
@@ -989,11 +992,9 @@ void VcsBaseEditorWidget::mouseReleaseEvent(QMouseEvent *e)
 
 void VcsBaseEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    if (d->m_parameters->type == DiffOutput) {
-        if (e->button() == Qt::LeftButton &&!(e->modifiers() & Qt::ShiftModifier)) {
-            QTextCursor cursor = cursorForPosition(e->pos());
-            jumpToChangeFromDiff(cursor);
-        }
+    if (hasDiff() && e->button() == Qt::LeftButton && !(e->modifiers() & Qt::ShiftModifier)) {
+        QTextCursor cursor = cursorForPosition(e->pos());
+        jumpToChangeFromDiff(cursor);
     }
     TextEditor::BaseTextEditorWidget::mouseDoubleClickEvent(e);
 }
@@ -1001,8 +1002,7 @@ void VcsBaseEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
 void VcsBaseEditorWidget::keyPressEvent(QKeyEvent *e)
 {
     // Do not intercept return in editable patches.
-    if (d->m_parameters->type == DiffOutput && isReadOnly()
-        && (e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return)) {
+    if (hasDiff() && isReadOnly() && (e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return)) {
         jumpToChangeFromDiff(textCursor());
         return;
     }
@@ -1109,7 +1109,7 @@ void VcsBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
 DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
 {
     DiffChunk rc;
-    QTC_ASSERT(d->m_parameters->type == DiffOutput, return rc);
+    QTC_ASSERT(hasDiff(), return rc);
     // Search back for start of chunk.
     QTextBlock block = cursor.block();
     if (block.isValid() && TextEditor::BaseTextDocumentLayout::foldingIndent(block) <= 1)
@@ -1158,7 +1158,12 @@ void VcsBaseEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
     d->m_backgroundColor = fs.toTextCharFormat(TextEditor::C_TEXT)
             .brushProperty(QTextFormat::BackgroundBrush).color();
 
-    if (d->m_parameters->type == DiffOutput) {
+    if (d->m_parameters->type == AnnotateOutput) {
+        if (BaseAnnotationHighlighter *highlighter = qobject_cast<BaseAnnotationHighlighter *>(baseTextDocument()->syntaxHighlighter())) {
+            highlighter->setBackgroundColor(d->m_backgroundColor);
+            highlighter->rehighlight();
+        }
+    } else if (hasDiff()) {
         if (DiffHighlighter *highlighter = qobject_cast<DiffHighlighter*>(baseTextDocument()->syntaxHighlighter())) {
             static QVector<TextEditor::TextStyle> categories;
             if (categories.isEmpty()) {
@@ -1169,11 +1174,6 @@ void VcsBaseEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
                            << TextEditor::C_DIFF_LOCATION;
             }
             highlighter->setFormats(fs.toTextCharFormats(categories));
-            highlighter->rehighlight();
-        }
-    } else if (d->m_parameters->type == AnnotateOutput) {
-        if (BaseAnnotationHighlighter *highlighter = qobject_cast<BaseAnnotationHighlighter *>(baseTextDocument()->syntaxHighlighter())) {
-            highlighter->setBackgroundColor(d->m_backgroundColor);
             highlighter->rehighlight();
         }
     }
@@ -1458,6 +1458,17 @@ bool VcsBaseEditorWidget::isValidRevision(const QString &revision) const
 {
     Q_UNUSED(revision);
     return true;
+}
+
+bool VcsBaseEditorWidget::hasDiff() const
+{
+    switch (d->m_parameters->type) {
+    case DiffOutput:
+    case LogOutput:
+        return true;
+    default:
+        return false;
+    }
 }
 
 void VcsBaseEditorWidget::slotApplyDiffChunk()
