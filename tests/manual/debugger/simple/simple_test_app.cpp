@@ -3708,7 +3708,7 @@ namespace qstring  {
         QString str = "Hello";
         QStringRef ref(&str, 1, 2);
         BREAK_HERE;
-        // Check ref "el" QString.
+        // Check ref "el" QStringRef.
         // Continue.
         dummyStatement(&str, &ref);
     }
@@ -5712,15 +5712,15 @@ namespace boost {
         using namespace posix_time;
         time_duration d1(1, 0, 0);
         BREAK_HERE;
-        // Check d1 01:00:00  boost::posix_time::time_duration.
+        // Check d1 01:00:00 boost::posix_time::time_duration.
         // Continue.
         time_duration d2(0, 1, 0);
         BREAK_HERE;
-        // Check d2 00:01:00  boost::posix_time::time_duration.
+        // Check d2 00:01:00 boost::posix_time::time_duration.
         // Continue.
         time_duration d3(0, 0, 1);
         BREAK_HERE;
-        // Check d3 00:00:01  boost::posix_time::time_duration.
+        // Check d3 00:00:01 boost::posix_time::time_duration.
         // Continue.
         dummyStatement(&d1, &d2, &d3);
     }
@@ -5750,15 +5750,15 @@ namespace boost {
         using namespace posix_time;
         ptime p1(date(2002, 1, 10), time_duration(1, 0, 0));
         BREAK_HERE;
-        // Check p1 Thu Jan 10 01:00:00 2002  boost::posix_time::ptime.
+        // Check p1 Thu Jan 10 01:00:00 2002 boost::posix_time::ptime.
         // Continue.
         ptime p2(date(2002, 1, 10), time_duration(0, 0, 0));
         BREAK_HERE;
-        // Check p2 Thu Jan 10 00:00:00 2002  boost::posix_time::ptime.
+        // Check p2 Thu Jan 10 00:00:00 2002 boost::posix_time::ptime.
         // Continue.
         ptime p3(date(1970, 1, 1), time_duration(0, 0, 0));
         BREAK_HERE;
-        // Check p3 Thu Jan 1 00:00:00 1970  boost::posix_time::ptime.
+        // Check p3 Thu Jan 1 00:00:00 1970 boost::posix_time::ptime.
         // Continue.
         dummyStatement(&p1, &p2, &p3);
     }
@@ -5977,14 +5977,14 @@ namespace bug3611 {
         byte f = '2';
         int *x = (int*)&f;
         BREAK_HERE;
-        // Check f 50 bug3611::byte.
+        // Check f 50 '2' bug3611::byte.
         // Continue.
         // Step.
         f += 1;
         f += 1;
         f += 1;
         BREAK_HERE;
-        // Check f 53 bug3611::byte.
+        // Check f 53 '5' bug3611::byte.
         // Continue.
         dummyStatement(&f, &x);
     }
