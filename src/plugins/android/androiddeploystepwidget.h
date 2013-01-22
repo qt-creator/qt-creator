@@ -54,6 +54,7 @@ private slots:
     void setQASIPackagePath();
     void useLocalQtLibsStateChanged(int);
     void editRulesFile();
+    void cleanLibsOnDevice();
 
 private:
     virtual QString summaryText() const;

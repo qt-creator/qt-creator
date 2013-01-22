@@ -36,6 +36,7 @@
 #include "androidrunconfiguration.h"
 #include "androidmanager.h"
 
+#include <coreplugin/messagemanager.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -56,6 +57,7 @@ namespace Android {
 namespace Internal {
 
 static const char USE_LOCAL_QT_KEY[] = "Qt4ProjectManager.AndroidDeployStep.UseLocalQtLibs";
+static const char DEPLOY_ACTION_KEY[] = "Qt4ProjectManager.AndroidDeployStep.DeployAction";
 
 const Core::Id AndroidDeployStep::Id("Qt4ProjectManager.AndroidDeployStep");
 
@@ -138,6 +140,9 @@ bool AndroidDeployStep::useLocalQtLibs()
 bool AndroidDeployStep::fromMap(const QVariantMap &map)
 {
     m_useLocalQtLibs = map.value(QLatin1String(USE_LOCAL_QT_KEY), false).toBool();
+    m_deployAction = AndroidDeployAction(map.value(QLatin1String(DEPLOY_ACTION_KEY), NoDeploy).toInt());
+    if (m_deployAction == InstallQASI)
+        m_deployAction = NoDeploy;
     return ProjectExplorer::BuildStep::fromMap(map);
 }
 
@@ -145,7 +150,38 @@ QVariantMap AndroidDeployStep::toMap() const
 {
     QVariantMap map = ProjectExplorer::BuildStep::toMap();
     map.insert(QLatin1String(USE_LOCAL_QT_KEY), m_useLocalQtLibs);
+    map.insert(QLatin1String(DEPLOY_ACTION_KEY), m_deployAction);
     return map;
+}
+
+void AndroidDeployStep::cleanLibsOnDevice()
+{
+    const QString targetSDK = AndroidManager::targetSDK(target());
+
+    int deviceAPILevel = targetSDK.mid(targetSDK.indexOf(QLatin1Char('-')) + 1).toInt();
+    QString deviceSerialNumber = AndroidConfigurations::instance().getDeployDeviceSerialNumber(&deviceAPILevel);
+    if (!deviceSerialNumber.length()) {
+        Core::MessageManager::instance()->printToOutputPanePopup(tr("Could not run adb. No device found."));
+        return;
+    }
+    QProcess *process = new QProcess(this);
+    QStringList arguments;
+    arguments << QLatin1String("-s") << deviceSerialNumber
+              << QLatin1String("shell") << QLatin1String("rm") << QLatin1String("-r") << QLatin1String("/data/local/tmp/qt");
+    connect(process, SIGNAL(finished(int)), this, SLOT(cleanLibsFinished()));
+    const QString adb = AndroidConfigurations::instance().adbToolPath().toString();
+    Core::MessageManager::instance()->printToOutputPanePopup(adb + QLatin1String(" ")
+                                                             + arguments.join(QLatin1String(" ")));
+    process->start(adb, arguments);
+}
+
+void AndroidDeployStep::cleanLibsFinished()
+{
+    QProcess *process = qobject_cast<QProcess *>(sender());
+    if (!process)
+        return;
+    Core::MessageManager::instance()->printToOutputPanePopup(QString::fromLocal8Bit(process->readAll()));
+    Core::MessageManager::instance()->printToOutputPane(tr("adb finished with exit code %1.").arg(process->exitCode()));
 }
 
 void AndroidDeployStep::setDeployAction(AndroidDeployStep::AndroidDeployAction deploy)
@@ -222,21 +258,119 @@ Utils::FileName AndroidDeployStep::localLibsRulesFilePath()
     return AndroidManager::localLibsRulesFilePath(target());
 }
 
-void AndroidDeployStep::copyLibs(const QString &srcPath, const QString &destPath, QStringList &copiedLibs, const QStringList &filter)
+unsigned int AndroidDeployStep::remoteModificationTime(const QString &fullDestination, QHash<QString, unsigned int> *cache)
 {
-    QDir dir;
-    dir.mkpath(destPath);
-    QDirIterator libsIt(srcPath, filter, QDir::NoFilter, QDirIterator::Subdirectories);
-    int pos = srcPath.size();
+    QString destination = QFileInfo(fullDestination).absolutePath();
+    QProcess process;
+    QHash<QString, unsigned int>::const_iterator it = cache->find(fullDestination);
+    if (it != cache->constEnd())
+        return *it;
+    QStringList arguments;
+    arguments << QLatin1String("-s") << m_deviceSerialNumber
+              << QLatin1String("ls") << destination;
+    process.start(AndroidConfigurations::instance().adbToolPath().toString(), arguments);
+    process.waitForFinished(-1);
+    if (process.error() != QProcess::UnknownError
+            || process.exitCode() != 0)
+        return -1;
+    QByteArray output = process.readAll();
+    output.replace("\r\n", "\n");
+    QList<QByteArray> lines = output.split('\n');
+    foreach (const QByteArray &line, lines) {
+        // do some checks if we got what we expected..
+        if (line.count() < (3 * 8 + 3))
+            continue;
+        if (line.at(8) != ' '
+                || line.at(17) != ' '
+                || line.at(26) != ' ')
+            continue;
+        bool ok;
+        int time = line.mid(18, 8).toUInt(&ok, 16);
+        if (!ok)
+            continue;
+        QString fileName = QString::fromLocal8Bit(line.mid(27));
+        cache->insert(destination + QLatin1Char('/') + fileName, time);
+    }
+    it = cache->find(fullDestination);
+    if (it != cache->constEnd())
+        return *it;
+    return 0;
+}
+
+void AndroidDeployStep::collectFiles(QList<DeployItem> *deployList, const QString &localPath, const QString &remotePath,
+                  bool strip, const QStringList &filter)
+{
+    QDirIterator libsIt(localPath, filter, QDir::NoFilter, QDirIterator::Subdirectories);
+    int pos = localPath.size();
     while (libsIt.hasNext()) {
         libsIt.next();
-        const QString destFile(destPath + libsIt.filePath().mid(pos));
-        if (libsIt.fileInfo().isDir()) {
-            dir.mkpath(destFile);
-        } else {
-            QFile::copy(libsIt.filePath(), destFile);
-            copiedLibs.append(destFile);
+        const QString destFile(remotePath + libsIt.filePath().mid(pos));
+        if (!libsIt.fileInfo().isDir()) {
+            deployList->append(DeployItem(libsIt.filePath(),
+                                          libsIt.fileInfo().lastModified().toTime_t(),
+                                          destFile, strip));
         }
+    }
+}
+
+void AndroidDeployStep::fetchRemoteModificationTimes(QList<DeployItem> *deployList)
+{
+    QHash<QString, unsigned int> cache;
+    for (int i = 0; i < deployList->count(); ++i) {
+        DeployItem &item = (*deployList)[i];
+        item.remoteTimeStamp
+                = remoteModificationTime(item.remoteFileName, &cache);
+    }
+}
+
+void AndroidDeployStep::filterModificationTimes(QList<DeployItem> *deployList)
+{
+    QList<DeployItem>::iterator it = deployList->begin();
+    while (it != deployList->end()) {
+        int index = it - deployList->begin();
+        Q_UNUSED(index);
+        if ((*it).localTimeStamp <= (*it).remoteTimeStamp)
+            it = deployList->erase(it);
+        else
+            ++it;
+    }
+}
+
+void AndroidDeployStep::copyFilesToTemp(QList<DeployItem> *deployList, const QString &tempDirectory, const QString &sourcePrefix)
+{
+    QDir dir;
+
+    int pos = sourcePrefix.size();
+    for (int i = 0; i < deployList->count(); ++i) {
+        DeployItem &item = (*deployList)[i];
+        if (!item.needsStrip)
+            continue;
+        const QString destFile(tempDirectory + item.localFileName.mid(pos));
+        dir.mkpath(QFileInfo(destFile).absolutePath());
+        QFile::copy(item.localFileName, destFile);
+        item.localFileName = destFile;
+    }
+}
+
+void AndroidDeployStep::stripFiles(const QList<DeployItem> &deployList, Abi::Architecture architecture)
+{
+    QProcess stripProcess;
+    foreach (const DeployItem &item, deployList) {
+        stripProcess.start(AndroidConfigurations::instance().stripPath(architecture).toString(),
+                           QStringList()<<QLatin1String("--strip-unneeded") << item.localFileName);
+        stripProcess.waitForStarted();
+        if (!stripProcess.waitForFinished())
+            stripProcess.kill();
+    }
+}
+
+void AndroidDeployStep::deployFiles(QProcess *process, const QList<DeployItem> &deployList)
+{
+    foreach (const DeployItem &item, deployList) {
+        runCommand(process, AndroidConfigurations::instance().adbToolPath().toString(),
+                   QStringList() << QLatin1String("-s") << m_deviceSerialNumber
+                   << QLatin1String("push") << item.localFileName
+                   << item.remoteFileName);
     }
 }
 
@@ -249,31 +383,41 @@ bool AndroidDeployStep::deployPackage()
         SLOT(handleBuildError()));
 
     if (m_runDeployAction == DeployLocal) {
-        writeOutput(tr("Clean old Qt libraries"));
-        runCommand(deployProc, AndroidConfigurations::instance().adbToolPath().toString(),
-                   QStringList() << QLatin1String("-s") << m_deviceSerialNumber
-                   << QLatin1String("shell") << QLatin1String("rm") << QLatin1String("-r") << QLatin1String("/data/local/tmp/qt"));
-
         writeOutput(tr("Deploy Qt libraries. This may take some time, please wait."));
         const QString tempPath = QDir::tempPath() + QLatin1String("/android_qt_libs_") + m_packageName;
         AndroidPackageCreationStep::removeDirectory(tempPath);
-        QStringList stripFiles;
-        copyLibs(m_qtVersionSourcePath + QLatin1String("/lib"),
-                 tempPath + QLatin1String("/lib"), stripFiles, QStringList() << QLatin1String("*.so"));
-        copyLibs(m_qtVersionSourcePath + QLatin1String("/plugins"),
-                 tempPath + QLatin1String("/plugins"), stripFiles);
-        copyLibs(m_qtVersionSourcePath + QLatin1String("/imports"),
-                 tempPath + QLatin1String("/imports"), stripFiles);
-        copyLibs(m_qtVersionSourcePath + QLatin1String("/qml"),
-                 tempPath + QLatin1String("/qml"), stripFiles);
-        copyLibs(m_qtVersionSourcePath + QLatin1String("/jar"),
-                 tempPath + QLatin1String("/jar"), stripFiles);
-        AndroidPackageCreationStep::stripAndroidLibs(stripFiles, target()->activeRunConfiguration()->abi().architecture());
-        runCommand(deployProc, AndroidConfigurations::instance().adbToolPath().toString(),
-                   QStringList() << QLatin1String("-s") << m_deviceSerialNumber
-                   << QLatin1String("push") << tempPath << QLatin1String("/data/local/tmp/qt"));
+
+        const QString remoteRoot = QLatin1String("/data/local/tmp/qt");
+        QList<DeployItem> deployList;
+        collectFiles(&deployList,
+                     m_qtVersionSourcePath + QLatin1String("/lib"),
+                     remoteRoot + QLatin1String("/lib"),
+                     true,
+                     QStringList() << QLatin1String("*.so"));
+        collectFiles(&deployList,
+                     m_qtVersionSourcePath + QLatin1String("/plugins"),
+                     remoteRoot + QLatin1String("/plugins"),
+                     true);
+        collectFiles(&deployList,
+                     m_qtVersionSourcePath + QLatin1String("/imports"),
+                     remoteRoot + QLatin1String("/imports"),
+                     true);
+        collectFiles(&deployList,
+                     m_qtVersionSourcePath + QLatin1String("/qml"),
+                     remoteRoot + QLatin1String("/qml"),
+                     true);
+        collectFiles(&deployList,
+                     m_qtVersionSourcePath + QLatin1String("/jar"),
+                     remoteRoot + QLatin1String("/jar"),
+                     true);
+
+        fetchRemoteModificationTimes(&deployList);
+        filterModificationTimes(&deployList);
+        copyFilesToTemp(&deployList, tempPath, m_qtVersionSourcePath);
+        stripFiles(deployList, target()->activeRunConfiguration()->abi().architecture());
+        deployFiles(deployProc, deployList);
+
         AndroidPackageCreationStep::removeDirectory(tempPath);
-        emit (resetDelopyAction());
     }
 
     if (m_runDeployAction == InstallQASI) {

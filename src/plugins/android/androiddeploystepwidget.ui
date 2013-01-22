@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>560</width>
-    <height>136</height>
+    <height>145</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -53,6 +53,13 @@ You must have Qt libraries compiled for that platform</string>
        </property>
        <property name="text">
         <string>Use local Qt libraries</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cleanLibsPushButton">
+       <property name="text">
+        <string>Clean libs on device</string>
        </property>
       </widget>
      </item>

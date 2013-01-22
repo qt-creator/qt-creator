@@ -47,6 +47,26 @@ namespace Internal {
 class AndroidDeviceConfigListModel;
 class AndroidPackageCreationStep;
 
+class DeployItem
+{
+public:
+    DeployItem(const QString &_localFileName,
+               unsigned int _localTimeStamp,
+               const QString &_remoteFileName,
+               bool _needsStrip)
+        : localFileName(_localFileName),
+          remoteFileName(_remoteFileName),
+          localTimeStamp(_localTimeStamp),
+          remoteTimeStamp(0),
+          needsStrip(_needsStrip)
+    {}
+    QString localFileName;
+    QString remoteFileName;
+    unsigned int localTimeStamp;
+    unsigned int remoteTimeStamp;
+    bool needsStrip;
+};
+
 class AndroidDeployStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
@@ -75,6 +95,8 @@ public:
     bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
 
+    void cleanLibsOnDevice();
+
 public slots:
     void setDeployAction(AndroidDeployAction deploy);
     void setDeployQASIPackagePath(const QString &package);
@@ -89,6 +111,7 @@ private slots:
     bool deployPackage();
     void handleBuildOutput();
     void handleBuildError();
+    void cleanLibsFinished();
 
 private:
     AndroidDeployStep(ProjectExplorer::BuildStepList *bc,
@@ -98,11 +121,19 @@ private:
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const { return true; }
 
-    void copyLibs(const QString &srcPath, const QString &destPath, QStringList &copiedLibs, const QStringList &filter = QStringList());
     void ctor();
     void raiseError(const QString &error);
     void writeOutput(const QString &text, OutputFormat = MessageOutput);
     bool runCommand(QProcess *buildProc, const QString &program, const QStringList &arguments);
+    unsigned int remoteModificationTime(const QString &fullDestination,
+                               QHash<QString, unsigned int> *cache);
+    void collectFiles(QList<DeployItem> *deployList, const QString &localPath,
+                      const QString &remotePath, bool strip, const QStringList &filter = QStringList());
+    void filterModificationTimes(QList<DeployItem> *deployList);
+    void copyFilesToTemp(QList<DeployItem> *deployList, const QString &tempDirectory, const QString &sourcePrefix);
+    void fetchRemoteModificationTimes(QList<DeployItem> *deployList);
+    void stripFiles(const QList<DeployItem> &deployList, ProjectExplorer::Abi::Architecture architecture);
+    void deployFiles(QProcess *process, const QList<DeployItem> &deployList);
 
 private:
     QString m_deviceSerialNumber;
