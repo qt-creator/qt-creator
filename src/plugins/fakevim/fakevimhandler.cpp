@@ -5028,7 +5028,7 @@ bool FakeVimHandler::Private::handleExMoveCommand(const ExCommand &cmd)
     setMark(QLatin1Char('>'), lastPosition);
 
     if (lines > 2)
-        showMessage(MessageInfo, FakeVimHandler::tr("%1 lines moved").arg(lines));
+        showMessage(MessageInfo, FakeVimHandler::tr("%n lines moved", 0, lines));
 
     return true;
 }
@@ -6087,7 +6087,7 @@ void FakeVimHandler::Private::yankText(const Range &range, int reg)
     const int lines = document()->findBlock(range.endPos).blockNumber()
         - document()->findBlock(range.beginPos).blockNumber() + 1;
     if (lines > 2)
-        showMessage(MessageInfo, FakeVimHandler::tr("%1 lines yanked").arg(lines));
+        showMessage(MessageInfo, FakeVimHandler::tr("%n lines yanked", 0, lines));
 }
 
 void FakeVimHandler::Private::transformText(const Range &range,
