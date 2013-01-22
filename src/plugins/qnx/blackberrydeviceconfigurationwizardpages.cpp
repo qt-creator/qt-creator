@@ -121,7 +121,8 @@ IDevice::MachineType BlackBerryDeviceConfigurationWizardSetupPage::machineType()
 
 void BlackBerryDeviceConfigurationWizardSetupPage::handleMachineTypeChanged()
 {
-    m_ui->deviceHostIp->setText(defaultDeviceHostIp(machineType()));
+    if (m_ui->deviceHostIp->text().isEmpty())
+        m_ui->deviceHostIp->setText(defaultDeviceHostIp(machineType()));
 }
 
 
