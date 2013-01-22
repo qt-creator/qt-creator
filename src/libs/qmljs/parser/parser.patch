@@ -1,8 +1,8 @@
-diff --git a/src/libs/qmljs/parser/qmljs.g b/src/libs/qmljs/parser/qmljs.g
-index 069be3c..9cbdc23 100644
---- a/src/libs/qmljs/parser/qmljs.g
-+++ b/src/libs/qmljs/parser/qmljs.g
-@@ -111,7 +111,7 @@ double integerFromString(const QString &str, int radix)
+diff --git a/src/libs/qmljs/parser/qmljsengine_p.cpp b/src/libs/qmljs/parser/qmljsengine_p.cpp
+index 73850bb..d7d2189 100644
+--- a/src/libs/qmljs/parser/qmljsengine_p.cpp
++++ b/src/libs/qmljs/parser/qmljsengine_p.cpp
+@@ -110,7 +110,7 @@ double integerFromString(const QString &str, int radix)
  
  
  Engine::Engine()
@@ -11,7 +11,7 @@ index 069be3c..9cbdc23 100644
  { }
  
  Engine::~Engine()
-@@ -132,6 +132,12 @@ Lexer *Engine::lexer() const
+@@ -131,6 +131,12 @@ Lexer *Engine::lexer() const
  void Engine::setLexer(Lexer *lexer)
  { _lexer = lexer; }
  
@@ -24,11 +24,11 @@ index 069be3c..9cbdc23 100644
  MemoryPool *Engine::pool()
  { return &_pool; }
  
-diff --git b/src/libs/qmljs/parser/qmljsengine_p.h a/src/libs/qmljs/parser/qmljsengine_p.h
-index 5057ea0..487619e 100644
---- b/src/libs/qmljs/parser/qmljsengine_p.h
-+++ a/src/libs/qmljs/parser/qmljsengine_p.h
-@@ -54,6 +54,7 @@ QT_QML_BEGIN_NAMESPACE
+diff --git a/src/libs/qmljs/parser/qmljsengine_p.h b/src/libs/qmljs/parser/qmljsengine_p.h
+index d4ed4b37..4908e02 100644
+--- a/src/libs/qmljs/parser/qmljsengine_p.h
++++ b/src/libs/qmljs/parser/qmljsengine_p.h
+@@ -53,6 +53,7 @@ QT_QML_BEGIN_NAMESPACE
  namespace QmlJS {
  
  class Lexer;
@@ -36,7 +36,7 @@ index 5057ea0..487619e 100644
  class MemoryPool;
  
  class QML_PARSER_EXPORT DiagnosticMessage
-@@ -81,6 +82,7 @@ public:
+@@ -80,6 +81,7 @@ public:
  class QML_PARSER_EXPORT Engine
  {
      Lexer *_lexer;
@@ -44,7 +44,7 @@ index 5057ea0..487619e 100644
      MemoryPool _pool;
      QList<AST::SourceLocation> _comments;
      QString _extraCode;
-@@ -98,6 +100,9 @@ public:
+@@ -97,6 +99,9 @@ public:
      Lexer *lexer() const;
      void setLexer(Lexer *lexer);
  
@@ -54,11 +54,11 @@ index 5057ea0..487619e 100644
      MemoryPool *pool();
  
      inline QStringRef midRef(int position, int size) { return _code.midRef(position, size); }
-diff --git b/src/libs/qmljs/parser/qmljsparser.cpp a/src/libs/qmljs/parser/qmljsparser.cpp
-index a731c1a..e986534 100644
---- b/src/libs/qmljs/parser/qmljsparser.cpp
-+++ a/src/libs/qmljs/parser/qmljsparser.cpp
-@@ -137,7 +137,20 @@ bool Parser::parse(int startToken)
+diff --git a/src/libs/qmljs/parser/qmljsparser.cpp b/src/libs/qmljs/parser/qmljsparser.cpp
+index d53960b..71e994f 100644
+--- a/src/libs/qmljs/parser/qmljsparser.cpp
++++ b/src/libs/qmljs/parser/qmljsparser.cpp
+@@ -143,7 +143,20 @@ bool Parser::parse(int startToken)
  
      token_buffer[0].token = startToken;
      first_token = &token_buffer[0];
@@ -80,3 +80,244 @@ index a731c1a..e986534 100644
  
      tos = -1;
      program = 0;
+diff --git a/src/libs/qmljs/parser/qmlerror.cpp b/src/libs/qmljs/parser/qmlerror.cpp
+index a244235..e334ae9 100644
+--- a/src/libs/qmljs/parser/qmlerror.cpp
++++ b/src/libs/qmljs/parser/qmlerror.cpp
+@@ -63,6 +63,12 @@ QT_BEGIN_NAMESPACE
+ 
+     \sa QQuickView::errors(), QmlComponent::errors()
+ */
++
++static quint16 qmlSourceCoordinate(int n)
++{
++    return (n > 0 && n <= static_cast<int>(USHRT_MAX)) ? static_cast<quint16>(n) : 0;
++}
++
+ class QmlErrorPrivate
+ {
+ public:
+diff --git a/src/libs/qmljs/parser/qmljskeywords_p.h b/src/libs/qmljs/parser/qmljskeywords_p.h
+index 3c827da..e981040 100644
+--- a/src/libs/qmljs/parser/qmljskeywords_p.h
++++ b/src/libs/qmljs/parser/qmljskeywords_p.h
+@@ -41,6 +41,12 @@
+ // We mean it.
+ //
+ 
++// Note on the int() casts in the following code:
++// they casts values from Lexer's anonymous enum (aliasing some of the inherited
++// QmlJSGrammar::VariousConstants) to int when used with inherited values of the
++// enum QmlJSGrammar::VariousConstants in a ?: expression to suppress gcc
++// "enumeral mismatch" warning
++
+ static inline int classify2(const QChar *s, bool qmlMode) {
+   if (s[0].unicode() == 'a') {
+     if (s[1].unicode() == 's') {
+@@ -79,7 +85,7 @@ static inline int classify3(const QChar *s, bool qmlMode) {
+   else if (s[0].unicode() == 'i') {
+     if (s[1].unicode() == 'n') {
+       if (s[2].unicode() == 't') {
+-        return qmlMode ? Lexer::T_INT : Lexer::T_IDENTIFIER;
++        return qmlMode ? int(Lexer::T_INT) : Lexer::T_IDENTIFIER;
+       }
+     }
+   }
+@@ -112,7 +118,7 @@ static inline int classify4(const QChar *s, bool qmlMode) {
+     if (s[1].unicode() == 'y') {
+       if (s[2].unicode() == 't') {
+         if (s[3].unicode() == 'e') {
+-          return qmlMode ? Lexer::T_BYTE : Lexer::T_IDENTIFIER;
++          return qmlMode ? int(Lexer::T_BYTE) : Lexer::T_IDENTIFIER;
+         }
+       }
+     }
+@@ -128,7 +134,7 @@ static inline int classify4(const QChar *s, bool qmlMode) {
+     else if (s[1].unicode() == 'h') {
+       if (s[2].unicode() == 'a') {
+         if (s[3].unicode() == 'r') {
+-          return qmlMode ? Lexer::T_CHAR : Lexer::T_IDENTIFIER;
++          return qmlMode ? int(Lexer::T_CHAR) : Lexer::T_IDENTIFIER;
+         }
+       }
+     }
+@@ -153,7 +159,7 @@ static inline int classify4(const QChar *s, bool qmlMode) {
+     if (s[1].unicode() == 'o') {
+       if (s[2].unicode() == 't') {
+         if (s[3].unicode() == 'o') {
+-          return qmlMode ? Lexer::T_GOTO : Lexer::T_IDENTIFIER;
++          return qmlMode ? int(Lexer::T_GOTO) : Lexer::T_IDENTIFIER;
+         }
+       }
+     }
+@@ -162,7 +168,7 @@ static inline int classify4(const QChar *s, bool qmlMode) {
+     if (s[1].unicode() == 'o') {
+       if (s[2].unicode() == 'n') {
+         if (s[3].unicode() == 'g') {
+-          return qmlMode ? Lexer::T_LONG : Lexer::T_IDENTIFIER;
++          return qmlMode ? int(Lexer::T_LONG) : Lexer::T_IDENTIFIER;
+         }
+       }
+     }
+@@ -268,7 +274,7 @@ static inline int classify5(const QChar *s, bool qmlMode) {
+       if (s[2].unicode() == 'n') {
+         if (s[3].unicode() == 'a') {
+           if (s[4].unicode() == 'l') {
+-            return qmlMode ? Lexer::T_FINAL : Lexer::T_IDENTIFIER;
++            return qmlMode ? int(Lexer::T_FINAL) : Lexer::T_IDENTIFIER;
+           }
+         }
+       }
+@@ -277,7 +283,7 @@ static inline int classify5(const QChar *s, bool qmlMode) {
+       if (s[2].unicode() == 'o') {
+         if (s[3].unicode() == 'a') {
+           if (s[4].unicode() == 't') {
+-            return qmlMode ? Lexer::T_FLOAT : Lexer::T_IDENTIFIER;
++            return qmlMode ? int(Lexer::T_FLOAT) : Lexer::T_IDENTIFIER;
+           }
+         }
+       }
+@@ -288,7 +294,7 @@ static inline int classify5(const QChar *s, bool qmlMode) {
+       if (s[2].unicode() == 'o') {
+         if (s[3].unicode() == 'r') {
+           if (s[4].unicode() == 't') {
+-            return qmlMode ? Lexer::T_SHORT : Lexer::T_IDENTIFIER;
++            return qmlMode ? int(Lexer::T_SHORT) : Lexer::T_IDENTIFIER;
+           }
+         }
+       }
+@@ -297,7 +303,7 @@ static inline int classify5(const QChar *s, bool qmlMode) {
+       if (s[2].unicode() == 'p') {
+         if (s[3].unicode() == 'e') {
+           if (s[4].unicode() == 'r') {
+-            return qmlMode ? Lexer::T_SUPER : Lexer::T_IDENTIFIER;
++            return qmlMode ? int(Lexer::T_SUPER) : Lexer::T_IDENTIFIER;
+           }
+         }
+       }
+@@ -346,7 +352,7 @@ static inline int classify6(const QChar *s, bool qmlMode) {
+         if (s[3].unicode() == 'b') {
+           if (s[4].unicode() == 'l') {
+             if (s[5].unicode() == 'e') {
+-              return qmlMode ? Lexer::T_DOUBLE : Lexer::T_IDENTIFIER;
++              return qmlMode ? int(Lexer::T_DOUBLE) : Lexer::T_IDENTIFIER;
+             }
+           }
+         }
+@@ -385,7 +391,7 @@ static inline int classify6(const QChar *s, bool qmlMode) {
+         if (s[3].unicode() == 'i') {
+           if (s[4].unicode() == 'v') {
+             if (s[5].unicode() == 'e') {
+-              return qmlMode ? Lexer::T_NATIVE : Lexer::T_IDENTIFIER;
++              return qmlMode ? int(Lexer::T_NATIVE) : Lexer::T_IDENTIFIER;
+             }
+           }
+         }
+@@ -435,7 +441,7 @@ static inline int classify6(const QChar *s, bool qmlMode) {
+         if (s[3].unicode() == 't') {
+           if (s[4].unicode() == 'i') {
+             if (s[5].unicode() == 'c') {
+-              return qmlMode ? Lexer::T_STATIC : Lexer::T_IDENTIFIER;
++              return qmlMode ? int(Lexer::T_STATIC) : Lexer::T_IDENTIFIER;
+             }
+           }
+         }
+@@ -459,7 +465,7 @@ static inline int classify6(const QChar *s, bool qmlMode) {
+         if (s[3].unicode() == 'o') {
+           if (s[4].unicode() == 'w') {
+             if (s[5].unicode() == 's') {
+-              return qmlMode ? Lexer::T_THROWS : Lexer::T_IDENTIFIER;
++              return qmlMode ? int(Lexer::T_THROWS) : Lexer::T_IDENTIFIER;
+             }
+           }
+         }
+@@ -488,7 +494,7 @@ static inline int classify7(const QChar *s, bool qmlMode) {
+           if (s[4].unicode() == 'e') {
+             if (s[5].unicode() == 'a') {
+               if (s[6].unicode() == 'n') {
+-                return qmlMode ? Lexer::T_BOOLEAN : Lexer::T_IDENTIFIER;
++                return qmlMode ? int(Lexer::T_BOOLEAN) : Lexer::T_IDENTIFIER;
+               }
+             }
+           }
+@@ -548,7 +554,7 @@ static inline int classify7(const QChar *s, bool qmlMode) {
+           if (s[4].unicode() == 'a') {
+             if (s[5].unicode() == 'g') {
+               if (s[6].unicode() == 'e') {
+-                return qmlMode ? Lexer::T_PACKAGE : Lexer::T_IDENTIFIER;
++                return qmlMode ? int(Lexer::T_PACKAGE) : Lexer::T_IDENTIFIER;
+               }
+             }
+           }
+@@ -561,7 +567,7 @@ static inline int classify7(const QChar *s, bool qmlMode) {
+           if (s[4].unicode() == 'a') {
+             if (s[5].unicode() == 't') {
+               if (s[6].unicode() == 'e') {
+-                return qmlMode ? Lexer::T_PRIVATE : Lexer::T_IDENTIFIER;
++                return qmlMode ? int(Lexer::T_PRIVATE) : Lexer::T_IDENTIFIER;
+               }
+             }
+           }
+@@ -581,7 +587,7 @@ static inline int classify8(const QChar *s, bool qmlMode) {
+             if (s[5].unicode() == 'a') {
+               if (s[6].unicode() == 'c') {
+                 if (s[7].unicode() == 't') {
+-                  return qmlMode ? Lexer::T_ABSTRACT : Lexer::T_IDENTIFIER;
++                    return qmlMode ? int(Lexer::T_ABSTRACT) : Lexer::T_IDENTIFIER;
+                 }
+               }
+             }
+@@ -683,7 +689,7 @@ static inline int classify8(const QChar *s, bool qmlMode) {
+             if (s[5].unicode() == 'i') {
+               if (s[6].unicode() == 'l') {
+                 if (s[7].unicode() == 'e') {
+-                  return qmlMode ? Lexer::T_VOLATILE : Lexer::T_IDENTIFIER;
++                  return qmlMode ? int(Lexer::T_VOLATILE) : Lexer::T_IDENTIFIER;
+                 }
+               }
+             }
+@@ -705,7 +711,7 @@ static inline int classify9(const QChar *s, bool qmlMode) {
+               if (s[6].unicode() == 'a') {
+                 if (s[7].unicode() == 'c') {
+                   if (s[8].unicode() == 'e') {
+-                    return qmlMode ? Lexer::T_INTERFACE : Lexer::T_IDENTIFIER;
++                    return qmlMode ? int(Lexer::T_INTERFACE) : Lexer::T_IDENTIFIER;
+                   }
+                 }
+               }
+@@ -724,7 +730,7 @@ static inline int classify9(const QChar *s, bool qmlMode) {
+               if (s[6].unicode() == 't') {
+                 if (s[7].unicode() == 'e') {
+                   if (s[8].unicode() == 'd') {
+-                    return qmlMode ? Lexer::T_PROTECTED : Lexer::T_IDENTIFIER;
++                    return qmlMode ? int(Lexer::T_PROTECTED) : Lexer::T_IDENTIFIER;
+                   }
+                 }
+               }
+@@ -743,7 +749,7 @@ static inline int classify9(const QChar *s, bool qmlMode) {
+               if (s[6].unicode() == 'e') {
+                 if (s[7].unicode() == 'n') {
+                   if (s[8].unicode() == 't') {
+-                    return qmlMode ? Lexer::T_TRANSIENT : Lexer::T_IDENTIFIER;
++                    return qmlMode ? int(Lexer::T_TRANSIENT) : Lexer::T_IDENTIFIER;
+                   }
+                 }
+               }
+@@ -767,7 +773,7 @@ static inline int classify10(const QChar *s, bool qmlMode) {
+                 if (s[7].unicode() == 'n') {
+                   if (s[8].unicode() == 't') {
+                     if (s[9].unicode() == 's') {
+-                      return qmlMode ? Lexer::T_IMPLEMENTS : Lexer::T_IDENTIFIER;
++                      return qmlMode ? int(Lexer::T_IMPLEMENTS) : Lexer::T_IDENTIFIER;
+                     }
+                   }
+                 }
+@@ -813,7 +819,7 @@ static inline int classify12(const QChar *s, bool qmlMode) {
+                     if (s[9].unicode() == 'z') {
+                       if (s[10].unicode() == 'e') {
+                         if (s[11].unicode() == 'd') {
+-                          return qmlMode ? Lexer::T_SYNCHRONIZED : Lexer::T_IDENTIFIER;
++                          return qmlMode ? int(Lexer::T_SYNCHRONIZED) : Lexer::T_IDENTIFIER;
+                         }
+                       }
+                     }

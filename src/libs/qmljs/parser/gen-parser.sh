@@ -27,6 +27,8 @@ perl -p -0777 -i -e 's/#include <QtCore\/qglobal.h>\n\nQT_BEGIN_NAMESPACE\n\ncla
 # remove qmlglobal_p.h include
 perl -p -0777 -i -e 's/#include \"qmlglobal_p.h\"//' qmldirparser.cpp
 # remove qmlglobal_p.h include
+perl -p -0777 -i -e 's/#include \"qmlglobal_p.h\"//' qmlerror.cpp
+# remove qmlglobal_p.h include
 perl -p -0777 -i -e 's/#include \<QtQml\/qmlfile.h\>//' qmldirparser.cpp
 # remove QtQml/qtqmlglobal.h include
 perl -p -0777 -i -e 's/#include \<QtQml\/qtqmlglobal.h\>//' qmlerror.h

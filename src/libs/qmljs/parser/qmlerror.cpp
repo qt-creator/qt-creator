@@ -29,6 +29,7 @@
 
 #include "qmlerror.h"
 
+
 #include <QtCore/qdebug.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qstringlist.h>
@@ -62,6 +63,12 @@ QT_BEGIN_NAMESPACE
 
     \sa QQuickView::errors(), QmlComponent::errors()
 */
+
+static quint16 qmlSourceCoordinate(int n)
+{
+    return (n > 0 && n <= static_cast<int>(USHRT_MAX)) ? static_cast<quint16>(n) : 0;
+}
+
 class QmlErrorPrivate
 {
 public:
@@ -69,12 +76,12 @@ public:
 
     QUrl url;
     QString description;
-    int line;
-    int column;
+    quint16 line;
+    quint16 column;
 };
 
 QmlErrorPrivate::QmlErrorPrivate()
-: line(-1), column(-1)
+: line(0), column(0)
 {
 }
 
@@ -114,7 +121,7 @@ QmlError &QmlError::operator=(const QmlError &other)
 }
 
 /*!
-    \internal
+    \internal 
 */
 QmlError::~QmlError()
 {
@@ -170,7 +177,7 @@ void QmlError::setDescription(const QString &description)
 */
 int QmlError::line() const
 {
-    if (d) return d->line;
+    if (d) return qmlSourceCoordinate(d->line);
     else return -1;
 }
 
@@ -180,7 +187,7 @@ int QmlError::line() const
 void QmlError::setLine(int line)
 {
     if (!d) d = new QmlErrorPrivate;
-    d->line = line;
+    d->line = qmlSourceCoordinate(line);
 }
 
 /*!
@@ -188,7 +195,7 @@ void QmlError::setLine(int line)
 */
 int QmlError::column() const
 {
-    if (d) return d->column;
+    if (d) return qmlSourceCoordinate(d->column);
     else return -1;
 }
 
@@ -198,7 +205,7 @@ int QmlError::column() const
 void QmlError::setColumn(int column)
 {
     if (!d) d = new QmlErrorPrivate;
-    d->column = column;
+    d->column = qmlSourceCoordinate(column);
 }
 
 /*!
@@ -207,14 +214,20 @@ void QmlError::setColumn(int column)
 QString QmlError::toString() const
 {
     QString rv;
-    if (url().isEmpty()) {
+
+    QUrl u(url());
+    int l(line());
+
+    if (u.isEmpty()) {
         rv = QLatin1String("<Unknown File>");
-    } else if (line() != -1) {
-        rv = url().toString() + QLatin1Char(':') + QString::number(line());
-        if (column() != -1)
-            rv += QLatin1Char(':') + QString::number(column());
+    } else if (l != -1) {
+        rv = u.toString() + QLatin1Char(':') + QString::number(l);
+
+        int c(column());
+        if (c != -1)
+            rv += QLatin1Char(':') + QString::number(c);
     } else {
-        rv = url().toString();
+        rv = u.toString();
     }
 
     rv += QLatin1String(": ") + description();
@@ -251,9 +264,9 @@ QDebug operator<<(QDebug debug, const QmlError &error)
                 const QString &line = lines.at(error.line() - 1);
                 debug << "\n    " << qPrintable(line);
 
-                if (error.column() > 0) {
+                if(error.column() > 0) {
                     int column = qMax(0, error.column() - 1);
-                    column = qMin(column, line.length());
+                    column = qMin(column, line.length()); 
 
                     QByteArray ind;
                     ind.reserve(column);

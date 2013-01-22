@@ -32,7 +32,7 @@
 
 
 
-#include <QtCore/QDebug>
+#include <QtCore/QtDebug>
 
 QT_BEGIN_NAMESPACE
 
@@ -86,7 +86,7 @@ bool QmlDirParser::parse(const QString &source)
     _components.clear();
     _scripts.clear();
 
-    int lineNumber = 0;
+    quint16 lineNumber = 0;
     bool firstLine = true;
 
     const QChar *ch = source.constData();
@@ -129,7 +129,7 @@ bool QmlDirParser::parse(const QString &source)
             ++ch;
 
         if (invalidLine) {
-            reportError(lineNumber, -1,
+            reportError(lineNumber, 0,
                         QString::fromUtf8("invalid qmldir directive contains too many tokens"));
             continue;
         } else if (sectionCount == 0) {
@@ -137,18 +137,18 @@ bool QmlDirParser::parse(const QString &source)
 
         } else if (sections[0] == QLatin1String("module")) {
             if (sectionCount != 2) {
-                reportError(lineNumber, -1,
-                            QString::fromUtf8("module directive requires one argument, but %1 were provided").arg(sectionCount - 1));
+                reportError(lineNumber, 0,
+                            QString::fromUtf8("module identifier directive requires one argument, but %1 were provided").arg(sectionCount - 1));
                 continue;
             }
             if (!_typeNamespace.isEmpty()) {
-                reportError(lineNumber, -1,
-                            QString::fromUtf8("only one module directive may be defined in a qmldir file"));
+                reportError(lineNumber, 0,
+                            QString::fromUtf8("only one module identifier directive may be defined in a qmldir file"));
                 continue;
             }
             if (!firstLine) {
-                reportError(lineNumber, -1,
-                            QString::fromUtf8("module directive must be the first directive in a qmldir file"));
+                reportError(lineNumber, 0,
+                            QString::fromUtf8("module identifier directive must be the first command in a qmldir file"));
                 continue;
             }
 
@@ -156,7 +156,7 @@ bool QmlDirParser::parse(const QString &source)
 
         } else if (sections[0] == QLatin1String("plugin")) {
             if (sectionCount < 2) {
-                reportError(lineNumber, -1,
+                reportError(lineNumber, 0,
                             QString::fromUtf8("plugin directive requires one or two arguments, but %1 were provided").arg(sectionCount - 1));
 
                 continue;
@@ -168,7 +168,7 @@ bool QmlDirParser::parse(const QString &source)
 
         } else if (sections[0] == QLatin1String("internal")) {
             if (sectionCount != 3) {
-                reportError(lineNumber, -1,
+                reportError(lineNumber, 0,
                             QString::fromUtf8("internal types require 2 arguments, but %1 were provided").arg(sectionCount - 1));
                 continue;
             }
@@ -177,7 +177,7 @@ bool QmlDirParser::parse(const QString &source)
             _components.insertMulti(entry.typeName, entry);
         } else if (sections[0] == QLatin1String("typeinfo")) {
             if (sectionCount != 2) {
-                reportError(lineNumber, -1,
+                reportError(lineNumber, 0,
                             QString::fromUtf8("typeinfo requires 1 argument, but %1 were provided").arg(sectionCount - 1));
                 continue;
             }
@@ -195,9 +195,9 @@ bool QmlDirParser::parse(const QString &source)
             const int dotIndex = version.indexOf(QLatin1Char('.'));
 
             if (dotIndex == -1) {
-                reportError(lineNumber, -1, QLatin1String("expected '.'"));
+                reportError(lineNumber, 0, QLatin1String("expected '.'"));
             } else if (version.indexOf(QLatin1Char('.'), dotIndex + 1) != -1) {
-                reportError(lineNumber, -1, QLatin1String("unexpected '.'"));
+                reportError(lineNumber, 0, QLatin1String("unexpected '.'"));
             } else {
                 bool validVersionNumber = false;
                 const int majorVersion = parseInt(QStringRef(&version, 0, dotIndex), &validVersionNumber);
@@ -220,7 +220,7 @@ bool QmlDirParser::parse(const QString &source)
                 }
             }
         } else {
-            reportError(lineNumber, -1,
+            reportError(lineNumber, 0,
                         QString::fromUtf8("a component declaration requires two or three arguments, but %1 were provided").arg(sectionCount));
         }
 
@@ -230,7 +230,7 @@ bool QmlDirParser::parse(const QString &source)
     return hasError();
 }
 
-void QmlDirParser::reportError(int line, int column, const QString &description)
+void QmlDirParser::reportError(quint16 line, quint16 column, const QString &description)
 {
     QmlError error;
     error.setLine(line);
