@@ -1278,22 +1278,22 @@ QString GitClient::synchronousStash(const QString &workingDirectory, const QStri
     QString errorMessage;
     switch (gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules), 0, &errorMessage)) {
     case  StatusChanged: {
-            message = creatorStashMessage(messageKeyword);
-            do {
-                if ((flags & StashPromptDescription)) {
-                    if (!inputText(Core::ICore::mainWindow(),
-                                   tr("Stash Description"), tr("Description:"), &message))
-                        break;
-                }
-                if (!executeSynchronousStash(workingDirectory, message))
+        message = creatorStashMessage(messageKeyword);
+        do {
+            if ((flags & StashPromptDescription)) {
+                if (!inputText(Core::ICore::mainWindow(),
+                               tr("Stash Description"), tr("Description:"), &message))
                     break;
-                if ((flags & StashImmediateRestore)
-                    && !synchronousStashRestore(workingDirectory, QLatin1String("stash@{0}")))
-                    break;
-                success = true;
-            } while (false);
-        }
+            }
+            if (!executeSynchronousStash(workingDirectory, message))
+                break;
+            if ((flags & StashImmediateRestore)
+                && !synchronousStashRestore(workingDirectory, QLatin1String("stash@{0}")))
+                break;
+            success = true;
+        } while (false);
         break;
+    }
     case StatusUnchanged:
         if (unchanged)
             *unchanged = true;
@@ -1583,11 +1583,11 @@ GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory, c
     QString statusOutput;
     switch (gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules),
                       &statusOutput, errorMessage)) {
-        case StatusChanged:
+    case StatusChanged:
         break;
-        case StatusUnchanged:
+    case StatusUnchanged:
         return StashUnchanged;
-        case StatusFailed:
+    case StatusFailed:
         return StashFailed;
     }
 
@@ -1595,19 +1595,19 @@ GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory, c
                              tr("Would you like to stash your changes?"),
                              statusOutput, QMessageBox::Yes, QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
     switch (answer) {
-        case QMessageBox::Cancel:
-            return StashCanceled;
-        case QMessageBox::Yes: {
-            const QString stashMessage = creatorStashMessage(keyword);
-            if (!executeSynchronousStash(workingDirectory, stashMessage, errorMessage))
-                return StashFailed;
-            if (message)
-                *message = stashMessage;
-            break;
-        }
-        case QMessageBox::No: // At your own risk, so.
-            return NotStashed;
-        }
+    case QMessageBox::Cancel:
+        return StashCanceled;
+    case QMessageBox::Yes: {
+        const QString stashMessage = creatorStashMessage(keyword);
+        if (!executeSynchronousStash(workingDirectory, stashMessage, errorMessage))
+            return StashFailed;
+        if (message)
+            *message = stashMessage;
+        break;
+    }
+    case QMessageBox::No: // At your own risk, so.
+        return NotStashed;
+    }
     return Stashed;
  }
 
