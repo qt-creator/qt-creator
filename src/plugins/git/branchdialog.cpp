@@ -261,8 +261,8 @@ void BranchDialog::merge()
     if (gitClient->gitStatus(m_repository, StatusMode(NoUntracked | NoSubmodules)) == GitClient::StatusChanged)
         gitClient->ensureStash(m_repository, QLatin1String("merge"), false, &stashMessage);
 
-    if (gitClient->synchronousMerge(m_repository, branch) && (!stashMessage.isEmpty()))
-        gitClient->stashPop(m_repository);
+    if (gitClient->synchronousMerge(m_repository, branch) && !stashMessage.isEmpty())
+        gitClient->stashPop(m_repository, stashMessage);
 }
 
 void BranchDialog::rebase()
@@ -278,8 +278,8 @@ void BranchDialog::rebase()
     if (gitClient->gitStatus(m_repository, StatusMode(NoUntracked | NoSubmodules)) == GitClient::StatusChanged)
         gitClient->ensureStash(m_repository, QLatin1String("rebase"), false, &stashMessage);
 
-    if (gitClient->synchronousRebase(m_repository, baseBranch) && (!stashMessage.isEmpty()))
-        gitClient->stashPop(m_repository);
+    if (gitClient->synchronousRebase(m_repository, baseBranch) && !stashMessage.isEmpty())
+        gitClient->stashPop(m_repository, stashMessage);
 }
 
 void BranchDialog::changeEvent(QEvent *e)

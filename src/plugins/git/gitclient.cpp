@@ -2277,12 +2277,19 @@ QString GitClient::msgNoChangedFiles()
     return tr("There are no modified files.");
 }
 
-void GitClient::stashPop(const QString &workingDirectory)
+void GitClient::stashPop(const QString &workingDirectory, const QString &stash)
 {
     QStringList arguments(QLatin1String("stash"));
     arguments << QLatin1String("pop");
+    if (!stash.isEmpty())
+        arguments << stash;
     VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
     connectRepositoryChanged(workingDirectory, cmd);
+}
+
+void GitClient::stashPop(const QString &workingDirectory)
+{
+    stashPop(workingDirectory, QString());
 }
 
 bool GitClient::synchronousStashRestore(const QString &workingDirectory,
