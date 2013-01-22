@@ -265,7 +265,7 @@ private:
     friend class Internal::ChangeTextCursorHandler;
     Internal::VcsBaseEditorWidgetPrivate *const d;
 
-#if WITH_TESTS
+#ifdef WITH_TESTS
 public:
     static void testDiffFileResolving(VcsBaseEditorWidget *editor);
 #endif

@@ -1522,7 +1522,7 @@ Core::IEditor* VcsBaseEditorWidget::locateEditorByTag(const QString &tag)
 
 } // namespace VcsBase
 
-#if WITH_TESTS
+#ifdef WITH_TESTS
 #include <QTest>
 
 void VcsBase::VcsBaseEditorWidget::testDiffFileResolving(VcsBaseEditorWidget *editor)
