@@ -199,6 +199,11 @@ DebuggerKitInformation::DebuggerItem DebuggerKitInformation::autoDetectItem(cons
     return result;
 }
 
+void DebuggerKitInformation::setup(Kit *k)
+{
+    setDebuggerItem(k, autoDetectItem(k));
+}
+
 // Check the configuration errors and return a flag mask. Provide a quick check and
 // a verbose one with a list of errors.
 

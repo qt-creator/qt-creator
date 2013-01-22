@@ -322,12 +322,14 @@ Kit *KitModel::markForAddition(Kit *baseKit)
     beginInsertRows(index(m_manualRoot), pos, pos);
 
     KitNode *node = createNode(m_manualRoot, 0);
+    Kit *k = node->widget->workingCopy();
+    KitGuard g(k);
     if (baseKit) {
-        Kit *k = node->widget->workingCopy();
-        KitGuard g(k);
         k->copyFrom(baseKit);
         k->setAutoDetected(false); // Make sure we have a manual kit!
         k->setDisplayName(tr("Clone of %1").arg(k->displayName()));
+    } else {
+        k->setup();
     }
 
     if (!m_defaultNode)
@@ -335,7 +337,7 @@ Kit *KitModel::markForAddition(Kit *baseKit)
 
     endInsertRows();
 
-    return node->widget->workingCopy();
+    return k;
 }
 
 QModelIndex KitModel::index(KitNode *node, int column) const

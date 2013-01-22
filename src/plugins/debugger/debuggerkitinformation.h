@@ -65,6 +65,8 @@ public:
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const
         { return DebuggerKitInformation::validateDebugger(k); }
 
+    void setup(ProjectExplorer::Kit *k);
+
     static QList<ProjectExplorer::Task> validateDebugger(const ProjectExplorer::Kit *k);
     static bool isValidDebugger(const ProjectExplorer::Kit *k);
 

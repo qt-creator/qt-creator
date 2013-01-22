@@ -104,6 +104,7 @@ public:
 
     QList<Task> validate(const Kit *k) const;
     void fix(Kit *k);
+    void setup(Kit *k);
 
     KitConfigWidget *createConfigWidget(Kit *k) const;
 

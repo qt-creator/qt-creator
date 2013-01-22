@@ -181,6 +181,23 @@ void ToolChainKitInformation::fix(Kit *k)
     setToolChain(k, 0); // make sure to clear out no longer known tool chains
 }
 
+void ToolChainKitInformation::setup(Kit *k)
+{
+    const QString id = k->value(Core::Id(TOOLCHAIN_INFORMATION)).toString();
+    if (id.isEmpty())
+        return;
+
+    ToolChain *tc = ToolChainManager::instance()->findToolChain(id);
+    if (tc)
+        return;
+
+    // ID is not found: Might be an ABI string...
+    foreach (ToolChain *current, ToolChainManager::instance()->toolChains()) {
+        if (current->targetAbi().toString() == id)
+            return setToolChain(k, current);
+    }
+}
+
 KitConfigWidget *ToolChainKitInformation::createConfigWidget(Kit *k) const
 {
     return new Internal::ToolChainInformationConfigWidget(k);
@@ -209,20 +226,8 @@ ToolChain *ToolChainKitInformation::toolChain(const Kit *k)
 {
     if (!k)
         return 0;
-    const QString id = k->value(Core::Id(TOOLCHAIN_INFORMATION)).toString();
-    if (id.isEmpty())
-        return 0;
-
-    ToolChain *tc = ToolChainManager::instance()->findToolChain(id);
-    if (tc)
-        return tc;
-
-    // ID is not found: Might be an ABI string...
-    foreach (ToolChain *current, ToolChainManager::instance()->toolChains()) {
-        if (current->targetAbi().toString() == id)
-            return current;
-    }
-    return 0;
+    return ToolChainManager::instance()
+            ->findToolChain(k->value(Core::Id(TOOLCHAIN_INFORMATION)).toString());
 }
 
 void ToolChainKitInformation::setToolChain(Kit *k, ToolChain *tc)
