@@ -55,6 +55,7 @@ class GlobalDebuggerOptions;
 
 class CommonOptionsPageWidget : public QWidget
 {
+    Q_OBJECT
 public:
     explicit CommonOptionsPageWidget(const QSharedPointer<Utils::SavedActionSet> &group, QWidget *parent = 0);
 

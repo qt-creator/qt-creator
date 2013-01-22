@@ -365,6 +365,7 @@ CustomToolChain *CustomToolChainFactory::createToolChain(bool autoDetect)
 
 class TextEditDetailsWidget : public DetailsWidget
 {
+    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::TextEditDetailsWidget)
 public:
     TextEditDetailsWidget(QPlainTextEdit *textEdit)
     {
