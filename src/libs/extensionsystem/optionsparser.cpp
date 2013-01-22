@@ -107,8 +107,8 @@ bool OptionsParser::checkForTestOption()
     if (nextToken(RequiredToken)) {
         if (m_currentArg == QLatin1String("all")) {
             foreach (PluginSpec *spec, m_pmPrivate->pluginSpecs) {
-                if (spec && !m_pmPrivate->testSpecs.contains(spec))
-                    m_pmPrivate->testSpecs.append(spec);
+                if (spec && !m_pmPrivate->containsTestSpec(spec))
+                    m_pmPrivate->testSpecs.append(PluginManagerPrivate::TestSpec(spec));
             }
         } else {
             PluginSpec *spec = m_pmPrivate->pluginByName(m_currentArg);
@@ -117,8 +117,20 @@ bool OptionsParser::checkForTestOption()
                     *m_errorString = QCoreApplication::translate("PluginManager",
                                                                  "The plugin '%1' does not exist.").arg(m_currentArg);
                 m_hasError = true;
-            } else if (!m_pmPrivate->testSpecs.contains(spec)) {
-                m_pmPrivate->testSpecs.append(spec);
+            } else if (!m_pmPrivate->containsTestSpec(spec)) {
+                    // Collect optional test functions. Everything following the plugin
+                    // name until the next option is interpreted as a test function. E.g.
+                    // in './qtcreator -test Git myFile' the argument 'myFile' will be
+                    // be interpreted as an function name and not a file to open.
+                    const QStringList::const_iterator current(m_it);
+                    QStringList testFunctions;
+                    while (nextToken() && !m_currentArg.startsWith(QLatin1Char('-')))
+                           testFunctions.append(m_currentArg);
+                    // Make sure a following nextToken() call will get the current/next option.
+                    if (current != m_it && m_it != m_end)
+                        --m_it;
+                    m_pmPrivate->testSpecs.append(
+                        PluginManagerPrivate::TestSpec(spec, testFunctions));
             }
         }
     }

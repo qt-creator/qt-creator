@@ -616,8 +616,11 @@ void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int d
                  QString(), QLatin1String("Profile plugin loading"),
                  optionIndentation, descriptionIndentation);
 #ifdef WITH_TESTS
-    formatOption(str, QLatin1String(OptionsParser::TEST_OPTION),
-                 QLatin1String("plugin|all"), QLatin1String("Run plugin's tests"),
+    formatOption(str, QString::fromLatin1(OptionsParser::TEST_OPTION)
+                 + QLatin1String(" <plugin> [testfunction[:testdata]]..."), QString(),
+                 QLatin1String("Run plugin's tests"), optionIndentation, descriptionIndentation);
+    formatOption(str, QString::fromLatin1(OptionsParser::TEST_OPTION) + QLatin1String(" all"),
+                 QString(), QLatin1String("Run tests from all plugins"),
                  optionIndentation, descriptionIndentation);
 #endif
 }
@@ -662,13 +665,15 @@ void PluginManager::formatPluginVersions(QTextStream &str)
 void PluginManager::startTests()
 {
 #ifdef WITH_TESTS
-    foreach (PluginSpec *pluginSpec, d->testSpecs) {
+    foreach (const PluginManagerPrivate::TestSpec &testSpec, d->testSpecs) {
+        const PluginSpec * const pluginSpec = testSpec.pluginSpec;
         if (!pluginSpec->plugin())
             continue;
+
+        // Collect all test functions/methods of the plugin.
+        QStringList allTestFunctions;
         const QMetaObject *mo = pluginSpec->plugin()->metaObject();
-        QStringList methods;
-        methods.append(QLatin1String("arg0"));
-        // We only want slots starting with "test"
+
         for (int i = mo->methodOffset(); i < mo->methodCount(); ++i) {
 #if QT_VERSION >= 0x050000
             const QByteArray signature = mo->method(i).methodSignature();
@@ -677,13 +682,49 @@ void PluginManager::startTests()
 #endif
             if (signature.startsWith("test") && !signature.endsWith("_data()")) {
                 const QString method = QString::fromLatin1(signature);
-                methods.append(method.left(method.size()-2));
+                allTestFunctions.append(method.left(method.size()-2));
             }
         }
+
+        QStringList testFunctionsToExecute;
+
+        // User did not specify any test functions, so add every test function.
+        if (testSpec.testFunctions.isEmpty()) {
+            testFunctionsToExecute = allTestFunctions;
+
+        // User specified test functions. Add them if they are valid.
+        } else {
+            foreach (const QString &userTestFunction, testSpec.testFunctions) {
+                // There might be a test data suffix like in "testfunction:testdata1".
+                QString testFunctionName = userTestFunction;
+                const int index = testFunctionName.indexOf(QLatin1Char(':'));
+                if (index != -1)
+                    testFunctionName = testFunctionName.left(index);
+
+                if (allTestFunctions.contains(testFunctionName)) {
+                    // If the specified test data is invalid, the QTest framework will
+                    // print a reasonable error message for us.
+                    testFunctionsToExecute.append(userTestFunction);
+                } else {
+                    QTextStream out(stdout);
+                    out << "Unknown test function \"" << testFunctionName
+                        << "\" for plugin \"" << pluginSpec->name() << "\"." << endl
+                        << "  Available test functions for plugin \"" << pluginSpec->name()
+                        << "\" are:" << endl;
+                    foreach (const QString &testFunction, allTestFunctions)
+                        out << "    " << testFunction << endl;
+                }
+            }
+        }
+
+        // QTest::qExec() expects basically QCoreApplication::arguments(),
+        // so prepend a fake argument for the application name.
+        testFunctionsToExecute.prepend(QLatin1String("arg0"));
+
         // Don't run QTest::qExec with only one argument, that'd run
         // *all* slots as tests.
-        if (methods.size() > 1)
-            QTest::qExec(pluginSpec->plugin(), methods);
+        if (testFunctionsToExecute.size() > 1)
+            QTest::qExec(pluginSpec->plugin(), testFunctionsToExecute);
     }
     if (!d->testSpecs.isEmpty())
         QTimer::singleShot(1, QCoreApplication::instance(), SLOT(quit()));

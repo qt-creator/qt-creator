@@ -79,9 +79,26 @@ public:
     void writeSettings();
     void disablePluginIndirectly(PluginSpec *spec);
 
+    class TestSpec {
+    public:
+        TestSpec(PluginSpec *pluginSpec, const QStringList &testFunctions = QStringList())
+            : pluginSpec(pluginSpec), testFunctions(testFunctions) {}
+        PluginSpec *pluginSpec;
+        QStringList testFunctions;
+    };
+
+    bool containsTestSpec(PluginSpec *pluginSpec) const
+    {
+        foreach (const TestSpec &testSpec, testSpecs) {
+            if (testSpec.pluginSpec == pluginSpec)
+                return true;
+        }
+        return false;
+    }
+
     QHash<QString, PluginCollection *> pluginCategories;
     QList<PluginSpec *> pluginSpecs;
-    QList<PluginSpec *> testSpecs;
+    QList<TestSpec> testSpecs;
     QStringList pluginPaths;
     QString extension;
     QList<QObject *> allObjects; // ### make this a QList<QPointer<QObject> > > ?
