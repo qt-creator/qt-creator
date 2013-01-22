@@ -92,7 +92,6 @@ public:
         T_IMPLEMENTS = T_RESERVED_WORD,
         T_INT = T_RESERVED_WORD,
         T_INTERFACE = T_RESERVED_WORD,
-        T_LET = T_RESERVED_WORD,
         T_LONG = T_RESERVED_WORD,
         T_NATIVE = T_RESERVED_WORD,
         T_PACKAGE = T_RESERVED_WORD,
@@ -104,8 +103,7 @@ public:
         T_SYNCHRONIZED = T_RESERVED_WORD,
         T_THROWS = T_RESERVED_WORD,
         T_TRANSIENT = T_RESERVED_WORD,
-        T_VOLATILE = T_RESERVED_WORD,
-        T_YIELD = T_RESERVED_WORD
+        T_VOLATILE = T_RESERVED_WORD
     };
 
     enum Error {
@@ -182,6 +180,7 @@ private:
     int scanNumber(QChar ch);
 
     bool isLineTerminator() const;
+    unsigned isLineTerminatorSequence() const;
     static bool isIdentLetter(QChar c);
     static bool isDecimalDigit(ushort c);
     static bool isHexDigit(QChar c);
