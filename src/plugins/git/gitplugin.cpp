@@ -1125,7 +1125,8 @@ void GitPlugin::stash()
     // Simple stash without prompt, reset repo.
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    const QString id = m_gitClient->synchronousStash(state.topLevel(), QString(), 0);
+    QString id;
+    gitClient()->ensureStash(state.topLevel(), QString(), false, &id);
     if (!id.isEmpty() && m_stashDialog)
         m_stashDialog->refresh(state.topLevel(), true);
 }
@@ -1135,7 +1136,8 @@ void GitPlugin::stashSnapshot()
     // Prompt for description, restore immediately and keep on working.
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    const QString id = m_gitClient->synchronousStash(state.topLevel(), QString(), GitClient::StashImmediateRestore|GitClient::StashPromptDescription);
+    const QString id = m_gitClient->synchronousStash(state.topLevel(), QString(),
+                GitClient::StashImmediateRestore|GitClient::StashPromptDescription);
     if (!id.isEmpty() && m_stashDialog)
         m_stashDialog->refresh(state.topLevel(), true);
 }

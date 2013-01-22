@@ -188,7 +188,7 @@ void BranchDialog::checkout()
         QString stashMessage;
         if (branchCheckoutDialog.makeStashOfCurrentBranch()
             || branchCheckoutDialog.moveLocalChangesToNextBranch()) {
-            stashMessage = gitClient->synchronousStash(m_repository, currentBranch + QLatin1String("-AutoStash"));
+            gitClient->ensureStash(m_repository, currentBranch + QLatin1String("-AutoStash"), false, &stashMessage);
         } else if (branchCheckoutDialog.discardLocalChanges()) {
             gitClient->synchronousReset(m_repository);
         }
@@ -259,7 +259,7 @@ void BranchDialog::merge()
     QString stashMessage;
 
     if (gitClient->gitStatus(m_repository, StatusMode(NoUntracked | NoSubmodules)) == GitClient::StatusChanged)
-        stashMessage = gitClient->synchronousStash(m_repository, QLatin1String("merge"));
+        gitClient->ensureStash(m_repository, QLatin1String("merge"), false, &stashMessage);
 
     if (gitClient->synchronousMerge(m_repository, branch) && (!stashMessage.isEmpty()))
         gitClient->stashPop(m_repository);
@@ -276,7 +276,7 @@ void BranchDialog::rebase()
     QString stashMessage;
 
     if (gitClient->gitStatus(m_repository, StatusMode(NoUntracked | NoSubmodules)) == GitClient::StatusChanged)
-        stashMessage = gitClient->synchronousStash(m_repository, QLatin1String("rebase"));
+        gitClient->ensureStash(m_repository, QLatin1String("rebase"), false, &stashMessage);
 
     if (gitClient->synchronousRebase(m_repository, baseBranch) && (!stashMessage.isEmpty()))
         gitClient->stashPop(m_repository);

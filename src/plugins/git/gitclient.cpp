@@ -1578,7 +1578,11 @@ GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory, c
 }
 
 // Ensure that changed files are stashed before a pull or similar
-GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory, const QString &keyword, QString *message, QString *errorMessage)
+GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory,
+                                              const QString &keyword,
+                                              bool askUser,
+                                              QString *message,
+                                              QString *errorMessage)
 {
     QString statusOutput;
     switch (gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules),
@@ -1591,23 +1595,24 @@ GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory, c
         return StashFailed;
     }
 
-    const int answer = askWithDetailedText(Core::ICore::mainWindow(), tr("Changes"),
-                             tr("Would you like to stash your changes?"),
-                             statusOutput, QMessageBox::Yes, QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
-    switch (answer) {
-    case QMessageBox::Cancel:
-        return StashCanceled;
-    case QMessageBox::Yes: {
-        const QString stashMessage = creatorStashMessage(keyword);
-        if (!executeSynchronousStash(workingDirectory, stashMessage, errorMessage))
-            return StashFailed;
-        if (message)
-            *message = stashMessage;
-        break;
+    if (askUser) {
+        const int answer = askWithDetailedText(Core::ICore::mainWindow(), tr("Changes"),
+                                 tr("Would you like to stash your changes?"),
+                                 statusOutput, QMessageBox::Yes, QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
+        switch (answer) {
+        case QMessageBox::Cancel:
+            return StashCanceled;
+        case QMessageBox::No: // At your own risk, so.
+            return NotStashed;
+        default:
+            break;
+        }
     }
-    case QMessageBox::No: // At your own risk, so.
-        return NotStashed;
-    }
+    const QString stashMessage = creatorStashMessage(keyword);
+    if (!executeSynchronousStash(workingDirectory, stashMessage, errorMessage))
+        return StashFailed;
+    if (message)
+        *message = stashMessage;
     return Stashed;
  }
 

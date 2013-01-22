@@ -243,6 +243,9 @@ public:
 
     bool isValidRevision(const QString &revision) const;
 
+    StashResult ensureStash(const QString &workingDirectory, const QString &keyword, bool askUser,
+                            QString *message, QString *errorMessage = 0);
+
     static QString msgNoChangedFiles();
 
     static const char *noColorOption;
