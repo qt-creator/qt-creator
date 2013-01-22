@@ -2282,12 +2282,13 @@ void GitClient::stashPop(const QString &workingDirectory)
 
 bool GitClient::synchronousStashRestore(const QString &workingDirectory,
                                         const QString &stash,
+                                        bool pop,
                                         const QString &branch /* = QString()*/,
                                         QString *errorMessage)
 {
     QStringList arguments(QLatin1String("stash"));
     if (branch.isEmpty())
-        arguments << QLatin1String("apply") << stash;
+        arguments << QLatin1String(pop ? "pop" : "apply") << stash;
     else
         arguments << QLatin1String("branch") << branch << stash;
     QByteArray outputText;

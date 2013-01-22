@@ -338,7 +338,7 @@ void StashDialog::restoreCurrent()
     // Make sure repository is not modified, restore. The command will
     // output to window on success.
     const bool success = promptForRestore(&name, 0, &errorMessage)
-                         && gitClient()->synchronousStashRestore(m_repository, name, QString(), &errorMessage);
+                         && gitClient()->synchronousStashRestore(m_repository, name, false, QString(), &errorMessage);
     if (success) {
         refresh(m_repository, true); // Might have stashed away local changes.
     } else {
@@ -355,7 +355,7 @@ void StashDialog::restoreCurrentInBranch()
     QString branch;
     QString name = m_model->at(index).name;
     const bool success = promptForRestore(&name, &branch, &errorMessage)
-                         && gitClient()->synchronousStashRestore(m_repository, name, branch, &errorMessage);
+                         && gitClient()->synchronousStashRestore(m_repository, name, false, branch, &errorMessage);
     if (success) {
         refresh(m_repository, true); // git deletes the stash, unfortunately.
     } else {

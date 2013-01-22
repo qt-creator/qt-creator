@@ -150,6 +150,7 @@ public:
                                  QString *errorMessage = 0);
     bool synchronousStashRestore(const QString &workingDirectory,
                                  const QString &stash,
+                                 bool pop = false,
                                  const QString &branch = QString(),
                                  QString *errorMessage = 0);
     bool synchronousStashRemove(const QString &workingDirectory,

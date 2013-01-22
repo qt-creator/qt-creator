@@ -218,7 +218,7 @@ bool GitVersionControl::vcsRestoreSnapshot(const QString &topLevel, const QStrin
             QString stashName;
             success = m_client->stashNameFromMessage(topLevel, name, &stashName)
                       && m_client->synchronousReset(topLevel)
-                      && m_client->synchronousStashRestore(topLevel, stashName);
+                      && m_client->synchronousStashRestore(topLevel, stashName, true);
         }
     }  while (false);
     return success;
