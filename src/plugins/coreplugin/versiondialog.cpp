@@ -86,7 +86,7 @@ VersionDialog::VersionDialog(QWidget *parent)
         "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A "
         "PARTICULAR PURPOSE.<br/>")
         .arg(version, 
-             QLatin1String(QT_VERSION_STR), QString::number(QSysInfo::WordSize),
+             QLatin1String(qVersion()), QString::number(QSysInfo::WordSize),
              QLatin1String(__DATE__), QLatin1String(__TIME__), QLatin1String(Constants::IDE_YEAR),
              (QLatin1String(Constants::IDE_AUTHOR)), ideVersionDescription,
              ideRev);
