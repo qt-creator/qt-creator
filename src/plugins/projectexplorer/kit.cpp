@@ -403,10 +403,10 @@ QString Kit::toHtml()
             str << "<b>";
             switch (t.type) {
             case Task::Error:
-                str << QCoreApplication::translate("ProjectExplorer::Kit", "Error:");
+                str << QCoreApplication::translate("ProjectExplorer::Kit", "Error:") << " ";
                 break;
             case Task::Warning:
-                str << QCoreApplication::translate("ProjectExplorer::Kit", "Warning:");
+                str << QCoreApplication::translate("ProjectExplorer::Kit", "Warning:") << " ";
                 break;
             case Task::Unknown:
             default:
