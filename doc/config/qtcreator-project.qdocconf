@@ -5,7 +5,8 @@ headerdirs =
 sourcedirs = $SRCDIR/src
 imagedirs = $SRCDIR/images $SRCDIR/templates/images
 outputdir = $OUTDIR
-exampledirs = $SRCDIR/examples
+exampledirs = $SRCDIR/examples \
+              $SRCDIR/snippets
 indexes                 = qt.index
 
 include(compat.qdocconf)
