@@ -212,7 +212,8 @@ public:
     enum StashResult { StashUnchanged, StashCanceled, StashFailed,
                        Stashed, NotStashed /* User did not want it */ };
     StashResult ensureStash(const QString &workingDirectory, const QString &keyword, QString *message = 0);
-    StashResult ensureStash(const QString &workingDirectory, const QString &keyword, QString *message, QString *errorMessage);
+    StashResult ensureStash(const QString &workingDirectory, const QString &keyword, bool askUser,
+                            QString *message, QString *errorMessage = 0);
 
     bool getCommitData(const QString &workingDirectory, bool amend,
                        QString *commitTemplate, CommitData *commitData,
@@ -242,9 +243,6 @@ public:
     QProcessEnvironment processEnvironment() const;
 
     bool isValidRevision(const QString &revision) const;
-
-    StashResult ensureStash(const QString &workingDirectory, const QString &keyword, bool askUser,
-                            QString *message, QString *errorMessage = 0);
 
     static QString msgNoChangedFiles();
 
