@@ -1,17 +1,17 @@
-diff --git a/src/libs/qmljs/parser/qmljsengine_p.cpp b/src/libs/qmljs/parser/qmljsengine_p.cpp
-index 73850bb..d7d2189 100644
---- a/src/libs/qmljs/parser/qmljsengine_p.cpp
-+++ b/src/libs/qmljs/parser/qmljsengine_p.cpp
-@@ -110,7 +110,7 @@ double integerFromString(const QString &str, int radix)
+diff --git a/src/libs/qmljs/parser/qmljs.g b/src/libs/qmljs/parser/qmljs.g
+index 069be3c..9cbdc23 100644
+--- a/src/libs/qmljs/parser/qmljs.g
++++ b/src/libs/qmljs/parser/qmljs.g
+@@ -111,7 +111,7 @@ double integerFromString(const QString &str, int radix)
  
  
  Engine::Engine()
 -    : _lexer(0)
-+    : _lexer(0), directives(0)
++    : _lexer(0), _directives(0)
  { }
  
  Engine::~Engine()
-@@ -131,6 +131,12 @@ Lexer *Engine::lexer() const
+@@ -132,6 +132,12 @@ Lexer *Engine::lexer() const
  void Engine::setLexer(Lexer *lexer)
  { _lexer = lexer; }
  
@@ -24,11 +24,11 @@ index 73850bb..d7d2189 100644
  MemoryPool *Engine::pool()
  { return &_pool; }
  
-diff --git a/src/libs/qmljs/parser/qmljsengine_p.h b/src/libs/qmljs/parser/qmljsengine_p.h
-index d4ed4b37..4908e02 100644
---- a/src/libs/qmljs/parser/qmljsengine_p.h
-+++ b/src/libs/qmljs/parser/qmljsengine_p.h
-@@ -53,6 +53,7 @@ QT_QML_BEGIN_NAMESPACE
+diff --git b/src/libs/qmljs/parser/qmljsengine_p.h a/src/libs/qmljs/parser/qmljsengine_p.h
+index 5057ea0..487619e 100644
+--- b/src/libs/qmljs/parser/qmljsengine_p.h
++++ a/src/libs/qmljs/parser/qmljsengine_p.h
+@@ -54,6 +54,7 @@ QT_QML_BEGIN_NAMESPACE
  namespace QmlJS {
  
  class Lexer;
@@ -36,7 +36,7 @@ index d4ed4b37..4908e02 100644
  class MemoryPool;
  
  class QML_PARSER_EXPORT DiagnosticMessage
-@@ -80,6 +81,7 @@ public:
+@@ -81,6 +82,7 @@ public:
  class QML_PARSER_EXPORT Engine
  {
      Lexer *_lexer;
@@ -44,7 +44,7 @@ index d4ed4b37..4908e02 100644
      MemoryPool _pool;
      QList<AST::SourceLocation> _comments;
      QString _extraCode;
-@@ -97,6 +99,9 @@ public:
+@@ -98,6 +100,9 @@ public:
      Lexer *lexer() const;
      void setLexer(Lexer *lexer);
  
@@ -54,11 +54,11 @@ index d4ed4b37..4908e02 100644
      MemoryPool *pool();
  
      inline QStringRef midRef(int position, int size) { return _code.midRef(position, size); }
-diff --git a/src/libs/qmljs/parser/qmljsparser.cpp b/src/libs/qmljs/parser/qmljsparser.cpp
-index d53960b..71e994f 100644
---- a/src/libs/qmljs/parser/qmljsparser.cpp
-+++ b/src/libs/qmljs/parser/qmljsparser.cpp
-@@ -143,7 +143,20 @@ bool Parser::parse(int startToken)
+diff --git b/src/libs/qmljs/parser/qmljsparser.cpp a/src/libs/qmljs/parser/qmljsparser.cpp
+index a731c1a..e986534 100644
+--- b/src/libs/qmljs/parser/qmljsparser.cpp
++++ a/src/libs/qmljs/parser/qmljsparser.cpp
+@@ -137,7 +137,20 @@ bool Parser::parse(int startToken)
  
      token_buffer[0].token = startToken;
      first_token = &token_buffer[0];

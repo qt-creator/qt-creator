@@ -154,13 +154,10 @@ void Lexer::setCode(const QString &code, int lineno, bool qmlMode)
 
 void Lexer::scanChar()
 {
-    unsigned sequenceLength = isLineTerminatorSequence();
     _char = *_codePtr++;
-    if (sequenceLength == 2)
-        _char = *_codePtr++;
 
-    if (unsigned sequenceLength = isLineTerminatorSequence()) {
-        _lastLinePtr = _codePtr + sequenceLength - 1; // points to the first character after the newline
+    if (_char == QLatin1Char('\n')) {
+        _lastLinePtr = _codePtr; // points to the first character after the newline
         ++_currentLineNumber;
     }
 }
@@ -278,13 +275,13 @@ again:
     _tokenLinePtr = _lastLinePtr;
 
     while (_char.isSpace()) {
-        if (unsigned sequenceLength = isLineTerminatorSequence()) {
-            _tokenLinePtr = _codePtr + sequenceLength - 1;
+        if (_char == QLatin1Char('\n')) {
+            _tokenLinePtr = _codePtr;
 
             if (_restrictedKeyword) {
                 // automatic semicolon insertion
                 _tokenLine = _currentLineNumber;
-                _tokenStartPtr = _codePtr - 1;
+                _tokenStartPtr = _codePtr - 1; // ### TODO: insert it before the optional \r sequence.
                 return T_SEMICOLON;
             } else {
                 _terminator = true;
@@ -401,7 +398,7 @@ again:
                 }
             }
         } else if (_char == QLatin1Char('/')) {
-            while (!_char.isNull() && !isLineTerminator()) {
+            while (!_char.isNull() && _char != QLatin1Char('\n')) {
                 scanChar();
             }
             if (_engine) {
@@ -544,7 +541,7 @@ again:
 
         if (_engine) {
             while (!_char.isNull()) {
-                if (isLineTerminator() || _char == QLatin1Char('\\')) {
+                if (_char == QLatin1Char('\n') || _char == QLatin1Char('\\')) {
                     break;
                 } else if (_char == quote) {
                     _tokenSpell = _engine->midRef(startCode - _code.unicode() - 1, _codePtr - startCode);
@@ -559,15 +556,13 @@ again:
         _validTokenText = true;
         _tokenText.resize(0);
         startCode--;
-        while (startCode != _codePtr - 1) 
+        while (startCode != _codePtr - 1)
             _tokenText += *startCode++;
 
         while (! _char.isNull()) {
-            if (unsigned sequenceLength = isLineTerminatorSequence()) {
+            if (_char == QLatin1Char('\n')) {
                 multilineStringLiteral = true;
                 _tokenText += _char;
-                if (sequenceLength == 2)
-                    _tokenText += *_codePtr;
                 scanChar();
             } else if (_char == quote) {
                 scanChar();
@@ -592,6 +587,7 @@ again:
 
                 // hex escape sequence
                 case 'x':
+                case 'X':
                     if (isHexDigit(_codePtr[0]) && isHexDigit(_codePtr[1])) {
                         scanChar();
 
@@ -629,22 +625,22 @@ again:
                     break;
 
                 case '\r':
-                    if (isLineTerminatorSequence() == 2) {
-                        _tokenText += QLatin1Char('\r');
-                        u = QLatin1Char('\n');
+                    while (_char == QLatin1Char('\r'))
+                        scanChar();
+
+                    if (_char == QLatin1Char('\n')) {
+                        u = _char;
+                        scanChar();
                     } else {
-                        u = QLatin1Char('\r');
+                        u = QLatin1Char('\n');
                     }
-                    scanChar();
+
                     break;
 
                 case '\n':
-                case 0x2028u:
-                case 0x2029u:
                     u = _char;
                     scanChar();
                     break;
-
 
                 default:
                     // non escape character
@@ -864,6 +860,11 @@ bool Lexer::scanRegExp(RegExpBodyPrefix prefix)
 
     while (true) {
         switch (_char.unicode()) {
+        case 0: // eof
+        case '\n': case '\r': // line terminator
+            _errorMessage = QCoreApplication::translate("QmlParser", "Unterminated regular expression literal");
+            return false;
+
         case '/':
             scanChar();
 
@@ -933,13 +934,8 @@ bool Lexer::scanRegExp(RegExpBodyPrefix prefix)
             break;
 
         default:
-            if (_char.isNull() || isLineTerminator()) {
-                _errorMessage = QCoreApplication::translate("QmlParser", "Unterminated regular expression literal");
-                return false;
-            } else {
-                _tokenText += _char;
-                scanChar();
-            }
+            _tokenText += _char;
+            scanChar();
         } // switch
     } // while
 
@@ -948,28 +944,7 @@ bool Lexer::scanRegExp(RegExpBodyPrefix prefix)
 
 bool Lexer::isLineTerminator() const
 {
-    const ushort unicode = _char.unicode();
-    return unicode == 0x000Au
-            || unicode == 0x000Du
-            || unicode == 0x2028u
-            || unicode == 0x2029u;
-}
-
-unsigned Lexer::isLineTerminatorSequence() const
-{
-    switch (_char.unicode()) {
-    case 0x000Au:
-    case 0x2028u:
-    case 0x2029u:
-        return 1;
-    case 0x000Du:
-        if (_codePtr->unicode() == 0x000Au)
-            return 2;
-        else
-            return 1;
-    default:
-        return 0;
-    }
+    return (_char == QLatin1Char('\n') || _char == QLatin1Char('\r'));
 }
 
 bool Lexer::isIdentLetter(QChar ch)
@@ -1137,7 +1112,7 @@ bool Lexer::scanDirectives(Directives *directives)
             //
             // recognize the mandatory `as' followed by the module name
             //
-            if (! (lex() == T_IDENTIFIER && tokenText() == QLatin1String("as")))
+            if (! (lex() == T_RESERVED_WORD && tokenText() == QLatin1String("as")))
                 return false; // expected `as'
 
             if (lex() != T_IDENTIFIER)
