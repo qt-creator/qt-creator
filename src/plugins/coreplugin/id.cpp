@@ -89,7 +89,7 @@ public:
 static bool operator==(const StringHolder &sh1, const StringHolder &sh2)
 {
     // sh.n is unlikely to discriminate better than the hash.
-    return sh1.h == sh2.h && strcmp(sh1.str, sh1.str) == 0;
+    return sh1.h == sh2.h && sh1.str && sh2.str && strcmp(sh1.str, sh2.str) == 0;
 }
 
 
@@ -314,7 +314,11 @@ void Id::registerId(int uid, const char *name)
 
 bool Id::operator==(const char *name) const
 {
-    return strcmp(stringFromId.value(m_id).str, name) == 0;
+    const char *string = stringFromId.value(m_id).str;
+    if (string && name)
+        return strcmp(string, name) == 0;
+    else
+        return false;
 }
 
 // For debugging purposes
