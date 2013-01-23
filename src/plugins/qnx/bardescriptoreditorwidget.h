@@ -36,7 +36,7 @@
 
 #include <utils/environment.h>
 
-#include <QtGui/QStackedWidget>
+#include <QStackedWidget>
 
 QT_BEGIN_NAMESPACE
 class QItemSelection;

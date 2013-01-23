@@ -41,8 +41,8 @@
 #include <projectexplorer/taskhub.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QAction>
-#include <QtGui/QToolBar>
+#include <QAction>
+#include <QToolBar>
 
 using namespace Qnx;
 using namespace Qnx::Internal;

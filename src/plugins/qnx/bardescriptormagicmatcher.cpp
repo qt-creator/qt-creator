@@ -31,7 +31,7 @@
 
 #include "bardescriptormagicmatcher.h"
 
-#include <QtXml/QXmlStreamReader>
+#include <QXmlStreamReader>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
