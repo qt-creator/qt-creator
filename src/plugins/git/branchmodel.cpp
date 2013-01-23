@@ -444,7 +444,7 @@ void BranchModel::checkoutBranch(const QModelIndex &idx)
         return;
 
     QString errorMessage;
-    switch (m_client->ensureStash(m_workingDirectory, QLatin1String("Branch-Checkout"), 0, &errorMessage)) {
+    switch (m_client->ensureStash(m_workingDirectory, QLatin1String("Branch-Checkout"), true, 0, &errorMessage)) {
     case GitClient::StashUnchanged:
     case GitClient::Stashed:
     case GitClient::NotStashed:

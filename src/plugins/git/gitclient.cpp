@@ -1571,7 +1571,7 @@ static inline int askWithDetailedText(QWidget *parent,
 GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory, const QString &keyword, QString *message)
 {
     QString errorMessage;
-    const StashResult sr = ensureStash(workingDirectory, keyword, message, &errorMessage);
+    const StashResult sr = ensureStash(workingDirectory, keyword, true, message, &errorMessage);
     if (sr == StashFailed)
         outputWindow()->appendError(errorMessage);
     return sr;
