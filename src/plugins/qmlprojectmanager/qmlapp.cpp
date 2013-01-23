@@ -42,11 +42,13 @@
 namespace QmlProjectManager {
 namespace Internal {
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(QStringList, binaryFiles, {
-    x->append(QLatin1String("png"));
-    x->append(QLatin1String("jpg"));
-    x->append(QLatin1String("jpeg"));
-})
+static QStringList binaryFiles()
+{
+    static QStringList result;
+    if (result.isEmpty())
+        result << QLatin1String("png") << QLatin1String("jpg") << QLatin1String("jpeg");
+    return result;
+}
 
 QString QmlApp::templateRootDirectory()
 {
@@ -393,7 +395,7 @@ Core::GeneratedFiles QmlApp::generateFiles(QString *errorMessage)
             targetFileName = renameQmlFile(templateFile.fileName());
         }
 
-        if (binaryFiles()->contains(templateFile.suffix())) {
+        if (binaryFiles().contains(templateFile.suffix())) {
             bool canAddBinaryFile = addBinaryFile(templateFile.absolutePath(),
                                                   templateFile.fileName(),
                                                   targetDirectory,
