@@ -182,7 +182,7 @@ const char TOOLCHAIN_SETTINGS_PAGE_ID[] = "M.ProjectExplorer.ToolChainOptions";
 const char KITS_SETTINGS_PAGE_ID[] = "D.ProjectExplorer.KitsOptions";
 
 // Device settings page
-const char DEVICE_SETTINGS_CATEGORY[] = "X.Devices";
+const char DEVICE_SETTINGS_CATEGORY[] = "XW.Devices";
 const char DEVICE_SETTINGS_PAGE_ID[] = "AA.Device Settings";
 
 // Task categories

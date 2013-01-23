@@ -89,7 +89,7 @@ const char QNX_BB_PLATFORM_NAME[]  = "BlackBerry";
 const char QNX_DEBUG_EXECUTABLE[] = "pdebug";
 
 // BlackBerry settings constants
-const char QNX_BB_CATEGORY[] = "BlackBerry";
+const char QNX_BB_CATEGORY[] = "XF.BlackBerry";
 const char QNX_BB_CATEGORY_TR[] = QT_TRANSLATE_NOOP("BlackBerry", "BlackBerry");
 const char QNX_BB_CATEGORY_ICON[] = ":/qnx/images/target.png";
 const char QNX_BB_NDK_SETTINGS_ID[] = "ZZ.BlackBerry NDK Configuration";
