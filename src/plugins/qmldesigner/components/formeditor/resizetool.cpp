@@ -77,8 +77,8 @@ void ResizeTool::mouseMoveEvent(const QList<QGraphicsItem*> &,
                                            QGraphicsSceneMouseEvent *event)
 {
     if (m_resizeManipulator.isActive()) {
-        bool shouldSnapping = view()->widget()->snappingAction()->isChecked();
-        bool shouldSnappingAndAnchoring = view()->widget()->snappingAndAnchoringAction()->isChecked();
+        bool shouldSnapping = view()->formEditorWidget()->snappingAction()->isChecked();
+        bool shouldSnappingAndAnchoring = view()->formEditorWidget()->snappingAndAnchoringAction()->isChecked();
 
         ResizeManipulator::Snapping useSnapping = ResizeManipulator::NoSnapping;
         if (event->modifiers().testFlag(Qt::ControlModifier) != (shouldSnapping || shouldSnappingAndAnchoring)) {

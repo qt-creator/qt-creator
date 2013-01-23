@@ -56,7 +56,7 @@ public:
     NavigatorView(QObject* parent = 0);
     ~NavigatorView();
 
-    NavigatorWidget *widget();
+    QWidget *widget();
 
     // AbstractView
     void modelAttached(Model *model);

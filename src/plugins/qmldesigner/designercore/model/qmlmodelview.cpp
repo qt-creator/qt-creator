@@ -229,7 +229,7 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
             QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, 0));
             rewriterView->setCheckSemanticErrors(false);
             rewriterView->setTextModifier(&modifier);
-            inputModel->attachView(rewriterView.data());
+            inputModel->setRewriterView(rewriterView.data());
 
             if (rewriterView->errors().isEmpty() && rewriterView->rootModelNode().isValid()) {
                 ModelNode rootModelNode = rewriterView->rootModelNode();

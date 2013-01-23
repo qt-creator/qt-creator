@@ -32,6 +32,8 @@
 
 #include <QWidget>
 
+#include "formeditorcrumblebar.h"
+
 QT_BEGIN_NAMESPACE
 class QActionGroup;
 QT_END_NAMESPACE
@@ -77,6 +79,8 @@ public:
     void centerScene();
 
     void setFocus();
+
+    FormEditorCrumbleBar *formEditorCrumbleBar() const;
 
 protected:
     void wheelEvent(QWheelEvent *event);

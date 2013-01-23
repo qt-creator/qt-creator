@@ -212,6 +212,8 @@ public:
 
     void setRewriterView(RewriterView *rewriterView);
     RewriterView *rewriterView() const;
+
+
     void setNodeInstanceView(NodeInstanceView *nodeInstanceView);
     NodeInstanceView *nodeInstanceView() const;
 
@@ -229,7 +231,6 @@ private: //functions
 private:
     Model *m_q;
     MetaInfo m_metaInfo;
-
     QList<Import> m_imports;
     QList<QWeakPointer<AbstractView> > m_viewList;
     QList<InternalNodePointer> m_selectedNodeList;
@@ -237,17 +238,11 @@ private:
     QHash<qint32, InternalNodePointer> m_internalIdNodeHash;
     QSet<InternalNodePointer> m_nodeSet;
     InternalNodePointer m_acutalStateNode;
-
-
     InternalNodePointer m_rootInternalNode;
-
     QUrl m_fileUrl;
-
-    QWeakPointer<Model> m_masterModel;
     QWeakPointer<RewriterView> m_rewriterView;
     QWeakPointer<NodeInstanceView> m_nodeInstanceView;
     QWeakPointer<Model> m_metaInfoProxyModel;
-
     bool m_writeLock;
     qint32 m_internalIdCounter;
 };

@@ -34,7 +34,7 @@
 
 namespace QmlDesigner {
 
-class DesignDocumentController;
+class DesignDocument;
 
 class StackedUtilityPanelController : public UtilityPanelController
 {
@@ -44,12 +44,12 @@ public:
     StackedUtilityPanelController(QObject* parent = 0);
 
 public slots:
-    void show(DesignDocumentController* designDocumentController);
-    void close(DesignDocumentController* designDocumentController);
+    void show(DesignDocument* DesignDocument);
+    void close(DesignDocument* DesignDocument);
 
 protected:
     virtual QWidget* contentWidget() const;
-    virtual QWidget* stackedPageWidget(DesignDocumentController* designDocumentController) const = 0;
+    virtual QWidget* stackedPageWidget(DesignDocument* DesignDocument) const = 0;
 
 private:
     class QStackedWidget* m_stackedWidget;

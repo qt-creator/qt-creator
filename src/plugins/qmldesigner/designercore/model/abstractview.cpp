@@ -132,6 +132,11 @@ Model* AbstractView::model() const
     return m_model.data();
 }
 
+bool AbstractView::isAttached() const
+{
+    return model();
+}
+
 /*!
 \brief is called if a view is being attached to a model
 \param model which is being attached
@@ -362,7 +367,7 @@ void AbstractView::resetView()
     currentModel->attachView(this);
 }
 
-QList<ModelNode> AbstractView::allModelNodes()
+QList<ModelNode> AbstractView::allModelNodes() const
 {
    return toModelNodeList(model()->d->allNodes());
 }

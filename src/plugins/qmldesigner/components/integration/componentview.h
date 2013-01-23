@@ -37,6 +37,7 @@
 
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;
+class QComboBox;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -53,7 +54,7 @@ public:
         ModelNodeRole = Qt::UserRole
     };
 
-    ComponentView(QObject *parent);
+    ComponentView(QObject *parent = 0);
 
     void modelAttached(Model *model);
     void modelAboutToBeDetached(Model *model);
@@ -106,6 +107,8 @@ public:
 
     void setComponentNode(const ModelNode &node);
 
+    QWidget *widget();
+
 signals:
     void componentListChanged(const QStringList &componentList);
 
@@ -118,6 +121,7 @@ private: //functions
     int indexForNode(const ModelNode &node);
 
 private:
+    QList<QComboBox*> m_comboBoxList;
     QStandardItemModel *m_standardItemModel;
     ComponentAction *m_componentAction;
 };

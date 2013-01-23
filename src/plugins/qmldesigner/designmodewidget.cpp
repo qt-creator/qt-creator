@@ -31,14 +31,13 @@
 #include "qmldesignerconstants.h"
 #include "styledoutputpaneplaceholder.h"
 #include "designmodecontext.h"
+#include "qmldesignerplugin.h"
 
 #include <model.h>
 #include <rewriterview.h>
-#include <formeditorwidget.h>
-#include <stateseditorwidget.h>
-#include <itemlibrarywidget.h>
 #include <componentaction.h>
 #include <toolbox.h>
+#include <itemlibrarywidget.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
@@ -93,8 +92,6 @@ const char SB_OPENDOCUMENTS[] = "OpenDocuments";
 namespace QmlDesigner {
 namespace Internal {
 
-DesignModeWidget *DesignModeWidget::s_instance = 0;
-
 DocumentWarningWidget::DocumentWarningWidget(DesignModeWidget *parent) :
         Utils::FakeToolTip(parent),
         m_errorMessage(new QLabel(tr("Placeholder"), this)),
@@ -137,13 +134,13 @@ void DocumentWarningWidget::setError(const RewriterView::Error &error)
 class ItemLibrarySideBarItem : public Core::SideBarItem
 {
 public:
-    explicit ItemLibrarySideBarItem(ItemLibraryWidget *widget, const QString &id);
+    explicit ItemLibrarySideBarItem(QWidget *widget, const QString &id);
     virtual ~ItemLibrarySideBarItem();
 
     virtual QList<QToolButton *> createToolBarWidgets();
 };
 
-ItemLibrarySideBarItem::ItemLibrarySideBarItem(ItemLibraryWidget *widget, const QString &id) : Core::SideBarItem(widget, id) {}
+ItemLibrarySideBarItem::ItemLibrarySideBarItem(QWidget *widget, const QString &id) : Core::SideBarItem(widget, id) {}
 
 ItemLibrarySideBarItem::~ItemLibrarySideBarItem()
 {
@@ -158,13 +155,13 @@ QList<QToolButton *> ItemLibrarySideBarItem::createToolBarWidgets()
 class NavigatorSideBarItem : public Core::SideBarItem
 {
 public:
-    explicit NavigatorSideBarItem(NavigatorWidget *widget, const QString &id);
+    explicit NavigatorSideBarItem(QWidget *widget, const QString &id);
     virtual ~NavigatorSideBarItem();
 
     virtual QList<QToolButton *> createToolBarWidgets();
 };
 
-NavigatorSideBarItem::NavigatorSideBarItem(NavigatorWidget *widget, const QString &id) : Core::SideBarItem(widget, id) {}
+NavigatorSideBarItem::NavigatorSideBarItem(QWidget *widget, const QString &id) : Core::SideBarItem(widget, id) {}
 
 NavigatorSideBarItem::~NavigatorSideBarItem()
 {
@@ -185,7 +182,6 @@ void DocumentWarningWidget::goToError()
 // ---------- DesignModeWidget
 DesignModeWidget::DesignModeWidget(QWidget *parent) :
     QWidget(parent),
-    m_syncWithTextEdit(false),
     m_mainSplitter(0),
     m_leftSideBar(0),
     m_rightSideBar(0),
@@ -196,39 +192,8 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
     m_navigatorHistoryCounter(-1),
     m_keepNavigatorHistory(false)
 {
-    s_instance = this;
-    m_undoAction = new QAction(tr("&Undo"), this);
-    connect(m_undoAction, SIGNAL(triggered()), this, SLOT(undo()));
-    m_redoAction = new QAction(tr("&Redo"), this);
-    connect(m_redoAction, SIGNAL(triggered()), this, SLOT(redo()));
-    m_deleteAction = new Utils::ParameterAction(tr("Delete"), tr("Delete \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(deleteSelected()));
-    m_cutAction = new Utils::ParameterAction(tr("Cu&t"), tr("Cut \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    connect(m_cutAction, SIGNAL(triggered()), this, SLOT(cutSelected()));
-    m_copyAction = new Utils::ParameterAction(tr("&Copy"), tr("Copy \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    connect(m_copyAction, SIGNAL(triggered()), this, SLOT(copySelected()));
-    m_pasteAction = new Utils::ParameterAction(tr("&Paste"), tr("Paste \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    connect(m_pasteAction, SIGNAL(triggered()), this, SLOT(paste()));
-    m_selectAllAction = new Utils::ParameterAction(tr("Select &All"), tr("Select All \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    connect(m_selectAllAction, SIGNAL(triggered()), this, SLOT(selectAll()));
-    m_hideSidebarsAction = new QAction(tr("Toggle Full Screen"), this);
-    connect(m_hideSidebarsAction, SIGNAL(triggered()), this, SLOT(toggleSidebars()));
-    m_restoreDefaultViewAction = new QAction(tr("&Restore Default View"), this);
-    m_goIntoComponentAction  = new QAction(tr("&Go into Component"), this);
-    connect(m_restoreDefaultViewAction, SIGNAL(triggered()), SLOT(restoreDefaultView()));
-    connect(m_goIntoComponentAction, SIGNAL(triggered()), SLOT(goIntoComponent()));
-    m_toggleLeftSidebarAction = new QAction(tr("Toggle &Left Sidebar"), this);
-    connect(m_toggleLeftSidebarAction, SIGNAL(triggered()), SLOT(toggleLeftSidebar()));
-    m_toggleRightSidebarAction = new QAction(tr("Toggle &Right Sidebar"), this);
-    connect(m_toggleRightSidebarAction, SIGNAL(triggered()), SLOT(toggleRightSidebar()));
-
     m_outputPlaceholderSplitter = new Core::MiniSplitter;
     m_outputPanePlaceholder = new StyledOutputpanePlaceHolder(Core::DesignMode::instance(), m_outputPlaceholderSplitter);
-}
-
-DesignModeWidget::~DesignModeWidget()
-{
-    s_instance = 0;
 }
 
 void DesignModeWidget::restoreDefaultView()
@@ -265,19 +230,17 @@ void DesignModeWidget::toggleSidebars()
         m_leftSideBar->setVisible(m_showSidebars);
     if (m_rightSideBar)
         m_rightSideBar->setVisible(m_showSidebars);
-    if (!m_statesEditorView.isNull())
-        m_statesEditorView->widget()->setVisible(m_showSidebars);
+
+    viewManager().statesEditorWidget()->setVisible(m_showSidebars);
 
 }
 
 void DesignModeWidget::showEditor(Core::IEditor *editor)
 {
-    if (m_textEditor && editor)
-        if (m_textEditor->document()->fileName() != editor->document()->fileName()) {
-            if (!m_keepNavigatorHistory)
-                addNavigatorHistoryEntry(editor->document()->fileName());
-            setupNavigatorHistory();
-        }
+    if (textEditor()
+            && editor
+            && textEditor()->document()->fileName() != editor->document()->fileName())
+        setupNavigatorHistory(editor);
 
     //
     // Prevent recursive calls to function by explicitly managing initialization status
@@ -291,130 +254,14 @@ void DesignModeWidget::showEditor(Core::IEditor *editor)
         setup();
     }
 
-    QString fileName;
-    QPlainTextEdit *textEdit = 0;
-    TextEditor::ITextEditor *textEditor = 0;
 
-    if (editor) {
-        fileName = editor->document()->fileName();
-        textEdit = qobject_cast<QPlainTextEdit*>(editor->widget());
-        textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
-        if (textEditor)
-            m_fakeToolBar->addEditor(textEditor);
-    }
-
-    if (debug)
-        qDebug() << Q_FUNC_INFO << fileName;
-
-    if (textEdit)
-        m_currentTextEdit = textEdit;
-
-    if (textEditor)
-        m_textEditor = textEditor;
-    DesignDocumentController *document = 0;
-
-    if (textEdit && textEditor && fileName.endsWith(QLatin1String(".qml"))) {
-        if (m_documentHash.contains(textEdit)) {
-            document = m_documentHash.value(textEdit).data();
-        } else {
-            DesignDocumentController *newDocument = new DesignDocumentController(this);
-
-            newDocument->setNodeInstanceView(m_nodeInstanceView.data());
-            newDocument->setPropertyEditorView(m_propertyEditorView.data());
-            newDocument->setNavigator(m_navigatorView.data());
-            newDocument->setStatesEditorView(m_statesEditorView.data());
-            newDocument->setItemLibraryView(m_itemLibraryView.data());
-            newDocument->setFormEditorView(m_formEditorView.data());
-            newDocument->setComponentView(m_componentView.data());
+    if (textEditor())
+        m_fakeToolBar->addEditor(textEditor());
 
 
-            newDocument->setFileName(fileName);
-
-            document = newDocument;
-
-            m_documentHash.insert(textEdit, document);
-        }
-    }
-    setCurrentDocument(document);
+    setCurrentDesignDocument(currentDesignDocument());
 
     m_initStatus = Initialized;
-}
-
-void DesignModeWidget::closeEditors(QList<Core::IEditor*> editors)
-{
-    foreach (Core::IEditor* editor, editors) {
-        if (QPlainTextEdit *textEdit = qobject_cast<QPlainTextEdit*>(editor->widget())) {
-            if (m_currentTextEdit.data() == textEdit)
-                setCurrentDocument(0);
-            if (m_documentHash.contains(textEdit)) {
-                if (debug)
-                    qDebug() << Q_FUNC_INFO << editor->document()->fileName();
-                DesignDocumentController *document = m_documentHash.take(textEdit).data();
-                delete document;
-            }
-        }
-    }
-}
-
-QAction *DesignModeWidget::undoAction() const
-{
-    return m_undoAction;
-}
-
-QAction *DesignModeWidget::redoAction() const
-{
-    return m_redoAction;
-}
-
-QAction *DesignModeWidget::deleteAction() const
-{
-    return m_deleteAction;
-}
-
-QAction *DesignModeWidget::cutAction() const
-{
-    return m_cutAction;
-}
-
-QAction *DesignModeWidget::copyAction() const
-{
-    return m_copyAction;
-}
-
-QAction *DesignModeWidget::pasteAction() const
-{
-    return m_pasteAction;
-}
-
-QAction *DesignModeWidget::selectAllAction() const
-{
-    return m_selectAllAction;
-}
-
-QAction *DesignModeWidget::hideSidebarsAction() const
-{
-    return m_hideSidebarsAction;
-}
-
-QAction *DesignModeWidget::toggleLeftSidebarAction() const
-{
-    return m_toggleLeftSidebarAction;
-}
-
-QAction *DesignModeWidget::toggleRightSidebarAction() const
-{
-    return m_toggleRightSidebarAction;
-}
-
-
-QAction *DesignModeWidget::restoreDefaultViewAction() const
-{
-    return m_restoreDefaultViewAction;
-}
-
-QAction *DesignModeWidget::goIntoComponentAction() const
-{
-    return m_goIntoComponentAction;
 }
 
 void DesignModeWidget::readSettings()
@@ -443,98 +290,25 @@ void DesignModeWidget::saveSettings()
     settings->endGroup();
 }
 
-void DesignModeWidget::undo()
-{
-    if (m_currentDesignDocumentController)
-        m_currentDesignDocumentController->undo();
-}
-
-void DesignModeWidget::redo()
-{
-    if (m_currentDesignDocumentController)
-        m_currentDesignDocumentController->redo();
-}
-
-void DesignModeWidget::deleteSelected()
-{
-    if (m_currentDesignDocumentController)
-        m_currentDesignDocumentController->deleteSelected();
-}
-
-void DesignModeWidget::cutSelected()
-{
-    if (m_currentDesignDocumentController)
-        m_currentDesignDocumentController->cutSelected();
-}
-
-void DesignModeWidget::copySelected()
-{
-    if (m_currentDesignDocumentController)
-        m_currentDesignDocumentController->copySelected();
-}
-
-void DesignModeWidget::paste()
-{
-    if (m_currentDesignDocumentController)
-        m_currentDesignDocumentController->paste();
-}
-
-void DesignModeWidget::selectAll()
-{
-    if (m_currentDesignDocumentController)
-        m_currentDesignDocumentController->selectAll();
-}
-
-void DesignModeWidget::closeCurrentEditor()
-{
-}
-
-void DesignModeWidget::undoAvailable(bool isAvailable)
-{
-    DesignDocumentController *documentController = qobject_cast<DesignDocumentController*>(sender());
-    if (m_currentDesignDocumentController &&
-        m_currentDesignDocumentController.data() == documentController) {
-        m_undoAction->setEnabled(isAvailable);
-    }
-}
-
-void DesignModeWidget::redoAvailable(bool isAvailable)
-{
-    DesignDocumentController *documentController = qobject_cast<DesignDocumentController*>(sender());
-    if (m_currentDesignDocumentController &&
-        m_currentDesignDocumentController.data() == documentController) {
-        m_redoAction->setEnabled(isAvailable);
-    }
-}
-
-void DesignModeWidget::goIntoComponent()
-{
-    if (m_currentDesignDocumentController)
-        m_currentDesignDocumentController->goIntoComponent();
-}
-
-void DesignModeWidget::enable()
+void DesignModeWidget::enableWidgets()
 {
     if (debug)
         qDebug() << Q_FUNC_INFO;
     m_warningWidget->setVisible(false);
-    m_formEditorView->widget()->setEnabled(true);
-    m_statesEditorView->widget()->setEnabled(true);
+    viewManager().formEditorWidget()->setEnabled(true);
+    viewManager().statesEditorWidget()->setEnabled(true);
     m_leftSideBar->setEnabled(true);
     m_rightSideBar->setEnabled(true);
     m_isDisabled = false;
 }
 
-void DesignModeWidget::disable(const QList<RewriterView::Error> &errors)
+void DesignModeWidget::disableWidgets()
 {
     if (debug)
         qDebug() << Q_FUNC_INFO;
-    Q_ASSERT(!errors.isEmpty());
-    m_warningWidget->setError(errors.first());
-    m_warningWidget->setVisible(true);
-    m_warningWidget->move(width() / 2, height() / 2);
-    m_formEditorView->widget()->setEnabled(false);
-    m_statesEditorView->widget()->setEnabled(false);
+
+    viewManager().formEditorWidget()->setEnabled(false);
+    viewManager().statesEditorWidget()->setEnabled(false);
     m_leftSideBar->setEnabled(false);
     m_rightSideBar->setEnabled(false);
     m_isDisabled = true;
@@ -545,112 +319,27 @@ void DesignModeWidget::updateErrorStatus(const QList<RewriterView::Error> &error
     if (debug)
         qDebug() << Q_FUNC_INFO << errors.count();
 
-    if (m_isDisabled && errors.isEmpty())
-        enable();
-    else if (!errors.isEmpty())
-        disable(errors);
-}
-
-void DesignModeWidget::setAutoSynchronization(bool sync)
-{
-    if (debug)
-        qDebug() << Q_FUNC_INFO << sync;
-
-    RewriterView *rewriter = m_currentDesignDocumentController->rewriterView();
-
-    m_currentDesignDocumentController->blockModelSync(!sync);
-
-    if (sync) {
-        if (rewriter && m_currentDesignDocumentController->model())
-            rewriter->setSelectedModelNodes(QList<ModelNode>());
-        // text editor -> visual editor
-        if (!m_currentDesignDocumentController->model()) {
-            m_currentDesignDocumentController->loadMaster(m_currentTextEdit.data());
-        } else {
-            m_currentDesignDocumentController->loadCurrentModel();
-            m_componentView->resetView();
-        }
-
-        QList<RewriterView::Error> errors = m_currentDesignDocumentController->qmlErrors();
-        if (errors.isEmpty()) {
-            // set selection to text cursor
-            const int cursorPos = m_currentTextEdit->textCursor().position();
-            ModelNode node = nodeForPosition(cursorPos);
-            if (rewriter && node.isValid())
-                rewriter->setSelectedModelNodes(QList<ModelNode>() << node);
-            enable();
-        } else {
-            disable(errors);
-        }
-
-        connect(m_currentDesignDocumentController.data(), SIGNAL(qmlErrorsChanged(QList<RewriterView::Error>)),
-                this, SLOT(updateErrorStatus(QList<RewriterView::Error>)));
-
-    } else {
-        if (m_currentDesignDocumentController->model() && m_currentDesignDocumentController->qmlErrors().isEmpty()) {
-            RewriterView *rewriter = m_currentDesignDocumentController->rewriterView();
-            // visual editor -> text editor
-            ModelNode selectedNode;
-            if (!rewriter->selectedModelNodes().isEmpty())
-                selectedNode = rewriter->selectedModelNodes().first();
-
-            if (selectedNode.isValid()) {
-                const int nodeOffset = rewriter->nodeOffset(selectedNode);
-                if (nodeOffset > 0) {
-                    const ModelNode currentSelectedNode
-                            = nodeForPosition(m_currentTextEdit->textCursor().position());
-                    if (currentSelectedNode != selectedNode) {
-                        int line, column;
-                        m_textEditor->convertPosition(nodeOffset, &line, &column);
-                        m_textEditor->gotoLine(line, column);
-                    }
-                }
-            }
-        }
-
-        disconnect(m_currentDesignDocumentController.data(), SIGNAL(qmlErrorsChanged(QList<RewriterView::Error>)),
-                this, SLOT(updateErrorStatus(QList<RewriterView::Error>)));
+    if (m_isDisabled && errors.isEmpty()) {
+        enableWidgets();
+     } else if (!errors.isEmpty()) {
+        disableWidgets();
+        showErrorMessage(errors);
     }
 }
 
-void DesignModeWidget::setCurrentDocument(DesignDocumentController *newDesignDocumentController)
+TextEditor::ITextEditor *DesignModeWidget::textEditor() const
+{
+    return currentDesignDocument()->textEditor();
+}
+
+void DesignModeWidget::setCurrentDesignDocument(DesignDocument *newDesignDocument)
 {
     if (debug)
-        qDebug() << Q_FUNC_INFO << newDesignDocumentController;
+        qDebug() << Q_FUNC_INFO << newDesignDocument;
 
-    if (m_currentDesignDocumentController.data() == newDesignDocumentController)
-        return;
-    if (m_currentDesignDocumentController) {
-        setAutoSynchronization(false);
-        saveSettings();
-    }
+    //viewManager().setDesignDocument(newDesignDocument);
 
-    if (currentDesignDocumentController()) {
-        disconnect(currentDesignDocumentController(), SIGNAL(undoAvailable(bool)),
-            this, SLOT(undoAvailable(bool)));
-        disconnect(currentDesignDocumentController(), SIGNAL(redoAvailable(bool)),
-            this, SLOT(redoAvailable(bool)));
-    }
 
-    m_currentDesignDocumentController = newDesignDocumentController;
-
-    if (currentDesignDocumentController()) {
-        connect(currentDesignDocumentController(), SIGNAL(undoAvailable(bool)),
-            this, SLOT(undoAvailable(bool)));
-        connect(currentDesignDocumentController(), SIGNAL(redoAvailable(bool)),
-            this, SLOT(redoAvailable(bool)));
-    }
-
-    if (m_currentDesignDocumentController) {
-
-        setAutoSynchronization(true);
-        m_undoAction->setEnabled(m_currentDesignDocumentController->isUndoAvailable());
-        m_redoAction->setEnabled(m_currentDesignDocumentController->isRedoAvailable());
-    } else {
-        //detach all views
-        m_undoAction->setEnabled(false);
-        m_redoAction->setEnabled(false);
-    }
 }
 
 void DesignModeWidget::setup()
@@ -687,20 +376,6 @@ void DesignModeWidget::setup()
         }
     }
 
-    m_nodeInstanceView = new NodeInstanceView(this);
-    connect(m_nodeInstanceView.data(), SIGNAL(qmlPuppetCrashed()), this, SLOT(qmlPuppetCrashed()));
-     // Sidebar takes ownership
-    m_navigatorView = new NavigatorView;
-    m_propertyEditorView = new PropertyEditor(this);
-    m_itemLibraryView = new ItemLibraryView(this);
-
-    m_statesEditorView = new StatesEditorView(this);
-
-    m_formEditorView = new FormEditorView(this);
-    connect(m_formEditorView->crumblePath(), SIGNAL(elementClicked(QVariant)), this, SLOT(onCrumblePathElementClicked(QVariant)));
-
-    m_componentView = new ComponentView(this);
-    m_formEditorView->widget()->toolBox()->addLeftSideAction(m_componentView->action());
     m_fakeToolBar = Core::EditorManager::createToolBar(this);
 
     m_mainSplitter = new MiniSplitter(this);
@@ -710,9 +385,9 @@ void DesignModeWidget::setup()
     m_warningWidget = new DocumentWarningWidget(this);
     m_warningWidget->setVisible(false);
 
-    Core::SideBarItem *navigatorItem = new NavigatorSideBarItem(m_navigatorView->widget(), QLatin1String(SB_NAVIGATOR));
-    Core::SideBarItem *libraryItem = new ItemLibrarySideBarItem(m_itemLibraryView->widget(), QLatin1String(SB_LIBRARY));
-    Core::SideBarItem *propertiesItem = new Core::SideBarItem(m_propertyEditorView->widget(), QLatin1String(SB_PROPERTIES));
+    Core::SideBarItem *navigatorItem = new NavigatorSideBarItem(viewManager().navigatorWidget(), QLatin1String(SB_NAVIGATOR));
+    Core::SideBarItem *libraryItem = new ItemLibrarySideBarItem(viewManager().itemLibraryWidget(), QLatin1String(SB_LIBRARY));
+    Core::SideBarItem *propertiesItem = new Core::SideBarItem(viewManager().propertyEditorWidget(), QLatin1String(SB_PROPERTIES));
 
     // default items
     m_sideBarItems << navigatorItem << libraryItem << propertiesItem;
@@ -748,7 +423,9 @@ void DesignModeWidget::setup()
     connect(m_fakeToolBar, SIGNAL(closeClicked()), this, SLOT(closeCurrentEditor()));
     connect(m_fakeToolBar, SIGNAL(goForwardClicked()), this, SLOT(onGoForwardClicked()));
     connect(m_fakeToolBar, SIGNAL(goBackClicked()), this, SLOT(onGoBackClicked()));
-    setupNavigatorHistory();
+
+    if (currentDesignDocument())
+        setupNavigatorHistory(currentDesignDocument()->textEditor());
 
     // right area:
     QWidget *centerWidget = new QWidget;
@@ -758,16 +435,16 @@ void DesignModeWidget::setup()
         rightLayout->setSpacing(0);
         rightLayout->addWidget(m_fakeToolBar);
         //### we now own these here
-        rightLayout->addWidget(m_statesEditorView->widget());
+        rightLayout->addWidget(viewManager().statesEditorWidget());
 
-        FormEditorContext *formEditorContext = new FormEditorContext(m_formEditorView->widget());
+        FormEditorContext *formEditorContext = new FormEditorContext(viewManager().formEditorWidget());
         Core::ICore::addContextObject(formEditorContext);
 
-        NavigatorContext *navigatorContext = new NavigatorContext(m_navigatorView->widget());
+        NavigatorContext *navigatorContext = new NavigatorContext(viewManager().navigatorWidget());
         Core::ICore::addContextObject(navigatorContext);
 
         // editor and output panes
-        m_outputPlaceholderSplitter->addWidget(m_formEditorView->widget());
+        m_outputPlaceholderSplitter->addWidget(viewManager().formEditorWidget());
         m_outputPlaceholderSplitter->addWidget(m_outputPanePlaceholder);
         m_outputPlaceholderSplitter->setStretchFactor(0, 10);
         m_outputPlaceholderSplitter->setStretchFactor(1, 0);
@@ -791,7 +468,7 @@ void DesignModeWidget::setup()
     mainLayout->addWidget(m_mainSplitter);
 
     m_warningWidget->setVisible(false);
-    m_statesEditorView->widget()->setEnabled(true);
+    viewManager().statesEditorWidget()->setEnabled(true);
     m_leftSideBar->setEnabled(true);
     m_rightSideBar->setEnabled(true);
     m_leftSideBar->setCloseWhenEmpty(true);
@@ -800,7 +477,6 @@ void DesignModeWidget::setup()
     readSettings();
 
     show();
-    QApplication::processEvents();
 }
 
 void DesignModeWidget::updateAvailableSidebarItemsRight()
@@ -827,8 +503,10 @@ void DesignModeWidget::qmlPuppetCrashed()
 {
     QList<RewriterView::Error> errorList;
     RewriterView::Error error(tr("Qt Quick emulation layer crashed"));
-    errorList << error;
-    disable(errorList);
+    errorList.append(error);
+
+    disableWidgets();
+    showErrorMessage(errorList);
 }
 
 void DesignModeWidget::onGoBackClicked()
@@ -851,16 +529,15 @@ void DesignModeWidget::onGoForwardClicked()
     }
 }
 
-void DesignModeWidget::onCrumblePathElementClicked(const QVariant &data)
+DesignDocument *DesignModeWidget::currentDesignDocument() const
 {
-    currentDesignDocumentController()->setCrumbleBarInfo(data.value<CrumbleBarInfo>());
+    return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument();
 }
 
-DesignModeWidget *DesignModeWidget::instance()
+ViewManager &DesignModeWidget::viewManager()
 {
-    return s_instance;
+    return QmlDesignerPlugin::instance()->viewManager();
 }
-
 
 void DesignModeWidget::resizeEvent(QResizeEvent *event)
 {
@@ -869,35 +546,11 @@ void DesignModeWidget::resizeEvent(QResizeEvent *event)
     QWidget::resizeEvent(event);
 }
 
-
-bool DesignModeWidget::isInNodeDefinition(int nodeOffset, int nodeLength, int cursorPos) const {
-    return (nodeOffset <= cursorPos) && (nodeOffset + nodeLength > cursorPos);
-}
-
-
-ModelNode DesignModeWidget::nodeForPosition(int cursorPos) const
+void DesignModeWidget::setupNavigatorHistory(Core::IEditor *editor)
 {
-    RewriterView *rewriter = m_currentDesignDocumentController->rewriterView();
-    QList<ModelNode> nodes = rewriter->allModelNodes();
+    if (!m_keepNavigatorHistory)
+        addNavigatorHistoryEntry(editor->document()->fileName());
 
-    ModelNode bestNode;
-    int bestNodeOffset = -1;
-
-    foreach (const ModelNode &node, nodes) {
-        const int nodeOffset = rewriter->nodeOffset(node);
-        const int nodeLength = rewriter->nodeLength(node);
-        if (isInNodeDefinition(nodeOffset, nodeLength, cursorPos)
-            && (nodeOffset > bestNodeOffset)) {
-            bestNode = node;
-            bestNodeOffset = nodeOffset;
-        }
-    }
-
-    return bestNode;
-}
-
-void DesignModeWidget::setupNavigatorHistory()
-{
     const bool canGoBack = m_navigatorHistoryCounter > 0;
     const bool canGoForward = m_navigatorHistoryCounter < (m_navigatorHistory.size() - 1);
     m_fakeToolBar->setCanGoBack(canGoBack);
@@ -914,12 +567,29 @@ void DesignModeWidget::addNavigatorHistoryEntry(const QString &fileName)
     ++m_navigatorHistoryCounter;
 }
 
+void DesignModeWidget::showErrorMessage(const QList<RewriterView::Error> &errors)
+{
+    Q_ASSERT(!errors.isEmpty());
+    m_warningWidget->setError(errors.first());
+    m_warningWidget->setVisible(true);
+    m_warningWidget->move(width() / 2, height() / 2);
+}
 
 QString DesignModeWidget::contextHelpId() const
 {
-    if (m_currentDesignDocumentController)
-        return m_currentDesignDocumentController->contextHelpId();
+    if (currentDesignDocument())
+        return currentDesignDocument()->contextHelpId();
     return QString();
+}
+
+void DesignModeWidget::initialize()
+{
+    if (m_initStatus == NotInitialized) {
+        m_initStatus = Initializing;
+        setup();
+    }
+
+    m_initStatus = Initialized;
 }
 
 } // namespace Internal

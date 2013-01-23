@@ -42,7 +42,7 @@ class ViewLogger : public QmlDesigner::AbstractView
 {
     Q_OBJECT
 public:
-    ViewLogger(QObject *parent);
+    ViewLogger(QObject *parent = 0);
 
     void modelAttached(Model *model);
     void modelAboutToBeDetached(Model *model);
@@ -86,6 +86,8 @@ public:
     void rewriterEndTransaction();
 
     void actualStateChanged(const ModelNode &node);
+
+    QWidget *widget();
 
 protected:
     QString time() const;

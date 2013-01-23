@@ -991,7 +991,6 @@ void PropertyEditor::select(const ModelNode &node)
 
 QWidget *PropertyEditor::widget()
 {
-    delayedResetView();
     return m_stackedWidget;
 }
 

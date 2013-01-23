@@ -68,9 +68,9 @@ FormEditorView::FormEditorView(QObject *parent)
       m_currentTool(m_selectionTool),
       m_transactionCounter(0)
 {
-    connect(widget()->zoomAction(), SIGNAL(zoomLevelChanged(double)), SLOT(updateGraphicsIndicators()));
-    connect(widget()->showBoundingRectAction(), SIGNAL(toggled(bool)), scene(), SLOT(setShowBoundingRects(bool)));
-    connect(widget()->selectOnlyContentItemsAction(), SIGNAL(toggled(bool)), this, SLOT(setSelectOnlyContentItemsAction(bool)));
+    connect(formEditorWidget()->zoomAction(), SIGNAL(zoomLevelChanged(double)), SLOT(updateGraphicsIndicators()));
+    connect(formEditorWidget()->showBoundingRectAction(), SIGNAL(toggled(bool)), scene(), SLOT(setShowBoundingRects(bool)));
+    connect(formEditorWidget()->selectOnlyContentItemsAction(), SIGNAL(toggled(bool)), this, SLOT(setSelectOnlyContentItemsAction(bool)));
 
 }
 
@@ -267,9 +267,13 @@ void FormEditorView::bindingPropertiesChanged(const QList<BindingProperty>& prop
     QmlModelView::bindingPropertiesChanged(propertyList, propertyChange);
 }
 
-FormEditorWidget *FormEditorView::widget() const
+QWidget *FormEditorView::widget()
 {
-    Q_ASSERT(!m_formEditorWidget.isNull());
+    return m_formEditorWidget.data();
+}
+
+FormEditorWidget *FormEditorView::formEditorWidget()
+{
     return m_formEditorWidget.data();
 }
 
@@ -453,8 +457,8 @@ void FormEditorView::instanceInformationsChange(const QMultiHash<ModelNode, Info
         if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
             scene()->synchronizeTransformation(qmlItemNode);
             if (qmlItemNode.isRootModelNode() && informationChangeHash.values(node).contains(Size)) {
-                widget()->setRootItemRect(qmlItemNode.instanceBoundingRect());
-                widget()->centerScene();
+                formEditorWidget()->setRootItemRect(qmlItemNode.instanceBoundingRect());
+                formEditorWidget()->centerScene();
             }
 
             itemNodeList.append(scene()->itemForQmlItemNode(qmlItemNode));
@@ -586,13 +590,6 @@ void FormEditorView::actualStateChanged(const ModelNode &node)
     QmlModelView::actualStateChanged(node);
 
     QmlModelState newQmlModelState(node);
-}
-
-Utils::CrumblePath *FormEditorView::crumblePath() const
-{
-    if (widget() && widget()->toolBox())
-        return widget()->toolBox()->crumblePath();
-    return 0;
 }
 
 void FormEditorView::reset()

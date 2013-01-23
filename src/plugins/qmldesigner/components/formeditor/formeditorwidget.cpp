@@ -241,6 +241,11 @@ void FormEditorWidget::setFocus()
     m_graphicsView->setFocus(Qt::OtherFocusReason);
 }
 
+FormEditorCrumbleBar *FormEditorWidget::formEditorCrumbleBar() const
+{
+    return toolBox()->formEditorCrumbleBar();
+}
+
 ZoomAction *FormEditorWidget::zoomAction() const
 {
     return m_zoomAction.data();
@@ -295,13 +300,13 @@ ToolBox *FormEditorWidget::toolBox() const
 
 double FormEditorWidget::spacing() const
 {
-    DesignerSettings settings = Internal::BauhausPlugin::pluginInstance()->settings();
+    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
     return settings.itemSpacing;
 }
 
 double FormEditorWidget::margins() const
 {
-    DesignerSettings settings = Internal::BauhausPlugin::pluginInstance()->settings();
+    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
     return settings.snapMargin;
 }
 

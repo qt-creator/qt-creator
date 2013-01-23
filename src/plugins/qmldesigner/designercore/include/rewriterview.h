@@ -163,6 +163,9 @@ public:
     void setTextModifier(TextModifier *textModifier);
     QString textModifierContent() const;
 
+    void reactivateTextMofifierChangeSignals();
+    void deactivateTextMofifierChangeSignals();
+
     Internal::ModelNodePositionStorage *positionStorage() const
     { return m_positionStorage; }
 
@@ -182,6 +185,7 @@ public:
     int firstDefinitionInsideOffset(const ModelNode &node) const;
     int firstDefinitionInsideLength(const ModelNode &node) const;
     bool modificationGroupActive();
+    ModelNode nodeAtTextCursorPosition(int cursorPosition) const;
 
     bool renameId(const QString& oldId, const QString& newId);
 
@@ -197,6 +201,8 @@ public:
     { m_checkErrors = b; }
 
     QString pathForImport(const Import &import);
+
+    QWidget *widget();
 
 signals:
     void errorsChanged(const QList<RewriterView::Error> &errors);

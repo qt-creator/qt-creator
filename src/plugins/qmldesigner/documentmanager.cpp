@@ -27,50 +27,54 @@
 **
 ****************************************************************************/
 
-#include <QStackedWidget>
+#include "documentmanager.h"
 
-#include "designdocument.h"
-#include "stackedutilitypanelcontroller.h"
+#include <coreplugin/designmode.h>
+#include <coreplugin/modemanager.h>
+#include <qmljseditor/qmljseditorconstants.h>
 
 namespace QmlDesigner {
 
-StackedUtilityPanelController::StackedUtilityPanelController(QObject* parent):
-        UtilityPanelController(parent),
-        m_stackedWidget(new QStackedWidget)
+DocumentManager::DocumentManager()
+    : QObject()
 {
-    m_stackedWidget->setLineWidth(0);
-    m_stackedWidget->setMidLineWidth(0);
-    m_stackedWidget->setFrameStyle(QFrame::NoFrame);
 }
 
-void StackedUtilityPanelController::show(DesignDocument* DesignDocument)
+DocumentManager::~DocumentManager()
 {
-    if (!DesignDocument)
-        return;
-
-    QWidget* page = stackedPageWidget(DesignDocument);
-
-    if (!m_stackedWidget->children().contains(page))
-        m_stackedWidget->addWidget(page);
-
-    m_stackedWidget->setCurrentWidget(page);
-    page->show();
+    foreach (const QWeakPointer<DesignDocument> &designDocument, m_designDocumentHash)
+        delete designDocument.data();
 }
 
-void StackedUtilityPanelController::close(DesignDocument* DesignDocument)
+void DocumentManager::setCurrentDesignDocument(Core::IEditor *editor)
 {
-    QWidget* page = stackedPageWidget(DesignDocument);
-
-    if (m_stackedWidget->children().contains(page)) {
-        page->hide();
-        m_stackedWidget->removeWidget(page);
+    if (editor) {
+        m_currentDesignDocument = m_designDocumentHash.value(editor);
+        if (m_currentDesignDocument == 0) {
+            m_currentDesignDocument = new DesignDocument;
+            m_designDocumentHash.insert(editor, m_currentDesignDocument);
+            m_currentDesignDocument->setEditor(editor);
+        }
+    } else {
+        m_currentDesignDocument->resetToDocumentModel();
+        m_currentDesignDocument.clear();
     }
 }
 
-QWidget* StackedUtilityPanelController::contentWidget() const
+DesignDocument *DocumentManager::currentDesignDocument() const
 {
-    return m_stackedWidget;
+    return m_currentDesignDocument.data();
 }
 
-}  // namespace QmlDesigner
+bool DocumentManager::hasCurrentDesignDocument() const
+{
+    return m_currentDesignDocument.data();
+}
 
+void DocumentManager::removeEditors(QList<Core::IEditor *> editors)
+{
+    foreach (Core::IEditor *editor, editors)
+        delete m_designDocumentHash.take(editor).data();
+}
+
+} // namespace QmlDesigner

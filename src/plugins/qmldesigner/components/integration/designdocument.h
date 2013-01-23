@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef DesignDocumentController_h
-#define DesignDocumentController_h
+#ifndef DesignDocument_h
+#define DesignDocument_h
 
 #include "rewriterview.h"
 
@@ -44,6 +44,7 @@
 #include <componenttextmodifier.h>
 #include <subcomponentmanager.h>
 #include <model/viewlogger.h>
+#include <viewmanager.h>
 
 #include <QObject>
 #include <QString>
@@ -66,49 +67,44 @@ class TextModifier;
 class QmlObjectNode;
 struct CrumbleBarInfo;
 
-class DesignDocumentController: public QObject
+class DesignDocument: public QObject
 {
     Q_OBJECT
 public:
-    DesignDocumentController(QObject *parent);
-    ~DesignDocumentController();
+    DesignDocument(QObject *parent = 0);
+    ~DesignDocument();
 
     QString displayName() const;
     QString simplfiedDisplayName() const;
 
-    QString fileName() const;
-    void setFileName(const QString &m_fileName);
-
-    QList<RewriterView::Error> loadMaster(QPlainTextEdit *edit);
-    QList<RewriterView::Error> loadMaster(const QByteArray &qml);
-    void loadCurrentModel();
+    QList<RewriterView::Error> loadDocument(QPlainTextEdit *edit);
+    void activateCurrentModel(TextModifier *textModifier);
+    void activateCurrentModel();
+    void activateDocumentModel();
     void close();
 
-    bool isDirty() const;
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;
 
-    Model *model() const;
-    Model *masterModel() const;
+    Model *currentModel() const;
+    Model *documentModel() const;
+
+    QString contextHelpId() const;
+    QList<RewriterView::Error> qmlSyntaxErrors() const;
+    bool hasQmlSyntaxErrors() const;
 
     RewriterView *rewriterView() const;
 
-    bool isModelSyncBlocked() const;
-    void blockModelSync(bool block);
+    void setEditor(Core::IEditor *editor);
+    Core::IEditor *editor() const;
 
-    QString contextHelpId() const;
-    QList<RewriterView::Error> qmlErrors() const;
+    TextEditor::ITextEditor *textEditor() const;
+    QPlainTextEdit *plainTextEdit() const;
+    QString fileName() const;
+    int qtVersionId() const; // maybe that is not working, because the id should be not cached!!!
+    bool isDocumentLoaded() const;
 
-    void setItemLibraryView(ItemLibraryView* m_itemLibraryView);
-    void setNavigator(NavigatorView* navigatorView);
-    void setPropertyEditorView(PropertyEditor *propertyEditor);
-    void setStatesEditorView(StatesEditorView* m_statesEditorView);
-    void setFormEditorView(FormEditorView *m_formEditorView);
-    void setNodeInstanceView(NodeInstanceView *m_nodeInstanceView);
-    void setComponentView(ComponentView *m_componentView);
-
-    void setCrumbleBarInfo(const CrumbleBarInfo &crumbleBarInfo);
-    static void setBlockCrumbleBar(bool);
+    void resetToDocumentModel();
 
 signals:
     void displayNameChanged(const QString &newFileName);
@@ -122,8 +118,6 @@ signals:
     void fileToOpen(const QString &path);
 
 public slots:
-    bool save(QWidget *parent = 0);
-    void saveAs(QWidget *parent = 0);
     void deleteSelected();
     void copySelected();
     void cutSelected();
@@ -131,68 +125,46 @@ public slots:
     void selectAll();
     void undo();
     void redo();
-    void activeQtVersionChanged();
+    void updateActiveQtVersion();
     void changeCurrentModelTo(const ModelNode &node);
     void changeToSubComponent(const ModelNode &node);
-    void changeToExternalSubComponent(const QString &m_fileName);
+    void changeToExternalSubComponent(const QString &m_oldFileName);
     void goIntoComponent();
 
-#ifdef ENABLE_TEXT_VIEW
-    void showText();
-    void showForm();
-#endif // ENABLE_TEXT_VIEW
-
 private slots:
-    void doRealSaveAs(const QString &m_fileName);
+    void updateFileName(const QString &oldFileName, const QString &newFileName);
 
 private: // functions
-    void detachNodeInstanceView();
-    void attachNodeInstanceView();
-    void changeToMasterModel();
-    QVariant createCrumbleBarInfo();
+    void changeToDocumentModel();
+    void changeToInFileComponentModel();
 
     QWidget *centralWidget() const;
     QString pathToQt() const;
 
+    const ViewManager &viewManager() const;
+    ViewManager &viewManager();
+
+    ModelNode rootModelNode() const;
+
+    bool loadSubComponent(const ModelNode &componentNode);
+
 private: // variables
-    QWeakPointer<FormEditorView> m_formEditorView;
-
-    QWeakPointer<ItemLibraryView> m_itemLibraryView;
-    QWeakPointer<NavigatorView> m_navigator;
-    QWeakPointer<PropertyEditor> m_propertyEditorView;
-    QWeakPointer<StatesEditorView> m_statesEditorView;
     QWeakPointer<QStackedWidget> m_stackedWidget;
-    QWeakPointer<NodeInstanceView> m_nodeInstanceView;
-    QWeakPointer<ComponentView> m_componentView;
-
-    QWeakPointer<Model> m_model;
-    QWeakPointer<Model> m_subComponentModel;
-    QWeakPointer<Model> m_masterModel;
-    QWeakPointer<QPlainTextEdit> m_textEdit;
-    QWeakPointer<RewriterView> m_rewriterView;
-    BaseTextEditModifier *m_textModifier;
-    ComponentTextModifier *m_componentTextModifier;
+    QWeakPointer<Model> m_documentModel;
+    QWeakPointer<Model> m_inFileComponentModel;
+    QWeakPointer<Model> m_currentModel;
+    QWeakPointer<Core::IEditor> m_textEditor;
+    QWeakPointer<BaseTextEditModifier> m_documentTextModifier;
+    QWeakPointer<ComponentTextModifier> m_inFileComponentTextModifier;
     QWeakPointer<SubComponentManager> m_subComponentManager;
-    QWeakPointer<Internal::ViewLogger> m_viewLogger;
-    ModelNode m_componentNode;
 
-    QString m_fileName;
-    QUrl m_searchPath;
+    QWeakPointer<RewriterView> m_rewriterView;
+
     bool m_documentLoaded;
-    bool m_syncBlocked;
-    int m_qt_versionId;
-    static bool s_clearCrumblePath;
-    static bool s_pushCrumblePath;
-};
-
-
-struct CrumbleBarInfo {
-    ModelNode modelNode;
-    QString fileName;
+    int m_qtVersionId;
 };
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::CrumbleBarInfo)
 
-#endif // DesignDocumentController_h
+#endif // DesignDocument_h

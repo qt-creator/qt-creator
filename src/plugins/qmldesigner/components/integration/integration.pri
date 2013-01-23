@@ -1,8 +1,8 @@
 VPATH += $$PWD
 INCLUDEPATH += $$PWD
 SOURCES += \
-    designdocumentcontroller.cpp \
-    designdocumentcontrollerview.cpp \
+    designdocument.cpp \
+    designdocumentview.cpp \
     utilitypanelcontroller.cpp \
     stackedutilitypanelcontroller.cpp \
     componentaction.cpp \
@@ -10,8 +10,8 @@ SOURCES += \
     xuifiledialog.cpp
 
 HEADERS += \
-    designdocumentcontrollerview.h \
-    designdocumentcontroller.h \
+    designdocumentview.h \
+    designdocument.h \
     utilitypanelcontroller.h \
     stackedutilitypanelcontroller.h \
     componentaction.h \

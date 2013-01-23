@@ -317,6 +317,9 @@ void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
 
 void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
+    if (!painter->isActive())
+        return;
+
     if (!qmlItemNode().isValid())
         return;
 

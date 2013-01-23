@@ -53,17 +53,15 @@ namespace QmlDesigner {
 StatesEditorView::StatesEditorView(QObject *parent) :
         QmlModelView(parent),
         m_statesEditorModel(new StatesEditorModel(this)),
+        m_statesEditorWidget(new StatesEditorWidget(this, m_statesEditorModel.data())),
         m_lastIndex(-1)
 {
     Q_ASSERT(m_statesEditorModel);
     // base state
 }
 
-StatesEditorWidget *StatesEditorView::widget()
+QWidget *StatesEditorView::widget()
 {
-    if (m_statesEditorWidget.isNull())
-        m_statesEditorWidget = new StatesEditorWidget(this, m_statesEditorModel.data());
-
     return m_statesEditorWidget.data();
 }
 

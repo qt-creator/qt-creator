@@ -32,7 +32,8 @@ SOURCES += formeditoritem.cpp \
     zoomaction.cpp \
     formeditorgraphicsview.cpp \
     numberseriesaction.cpp \
-    lineeditaction.cpp
+    lineeditaction.cpp \
+    formeditorcrumblebar.cpp
 HEADERS += formeditorscene.h \
     formeditorwidget.h \
     formeditoritem.h \
@@ -63,5 +64,6 @@ HEADERS += formeditorscene.h \
     zoomaction.h \
     formeditorgraphicsview.h \
     numberseriesaction.h \
-    lineeditaction.h
+    lineeditaction.h \
+    formeditorcrumblebar.h
 RESOURCES += formeditor.qrc

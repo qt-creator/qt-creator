@@ -77,6 +77,7 @@ public:
     virtual ~AbstractView();
 
     Model* model() const;
+    bool isAttached() const;
 
     RewriterTransaction beginRewriterTransaction();
 
@@ -104,7 +105,7 @@ public:
     ModelNode modelNodeForInternalId(qint32 internalId);
     bool hasModelNodeForInternalId(qint32 internalId) const;
 
-    QList<ModelNode> allModelNodes();
+    QList<ModelNode> allModelNodes() const;
 
     void emitCustomNotification(const QString &identifier);
     void emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList);
@@ -178,6 +179,8 @@ public:
     ModelNode actualStateNode() const;
 
     void resetView();
+
+    virtual QWidget *widget() = 0;
 
 protected:
     void setModel(Model * model);

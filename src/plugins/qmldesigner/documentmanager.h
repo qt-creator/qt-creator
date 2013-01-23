@@ -27,50 +27,39 @@
 **
 ****************************************************************************/
 
-#include <QStackedWidget>
 
-#include "designdocument.h"
-#include "stackedutilitypanelcontroller.h"
+#ifndef QMLDESIGNER_DOCUMENTMANAGER_H
+#define QMLDESIGNER_DOCUMENTMANAGER_H
+
+#include <QObject>
+#include <QList>
+
+#include <designdocument.h>
+
+namespace Core {
+class IEditor;
+}
 
 namespace QmlDesigner {
 
-StackedUtilityPanelController::StackedUtilityPanelController(QObject* parent):
-        UtilityPanelController(parent),
-        m_stackedWidget(new QStackedWidget)
+class DocumentManager : public QObject
 {
-    m_stackedWidget->setLineWidth(0);
-    m_stackedWidget->setMidLineWidth(0);
-    m_stackedWidget->setFrameStyle(QFrame::NoFrame);
-}
+    Q_OBJECT
+public:
+    DocumentManager();
+    ~DocumentManager();
 
-void StackedUtilityPanelController::show(DesignDocument* DesignDocument)
-{
-    if (!DesignDocument)
-        return;
+    void setCurrentDesignDocument(Core::IEditor*editor);
+    DesignDocument *currentDesignDocument() const;
+    bool hasCurrentDesignDocument() const;
 
-    QWidget* page = stackedPageWidget(DesignDocument);
+    void removeEditors(QList<Core::IEditor*> editors);
 
-    if (!m_stackedWidget->children().contains(page))
-        m_stackedWidget->addWidget(page);
+private:
+    QHash<Core::IEditor *,QWeakPointer<DesignDocument> > m_designDocumentHash;
+    QWeakPointer<DesignDocument> m_currentDesignDocument;
+};
 
-    m_stackedWidget->setCurrentWidget(page);
-    page->show();
-}
+} // namespace QmlDesigner
 
-void StackedUtilityPanelController::close(DesignDocument* DesignDocument)
-{
-    QWidget* page = stackedPageWidget(DesignDocument);
-
-    if (m_stackedWidget->children().contains(page)) {
-        page->hide();
-        m_stackedWidget->removeWidget(page);
-    }
-}
-
-QWidget* StackedUtilityPanelController::contentWidget() const
-{
-    return m_stackedWidget;
-}
-
-}  // namespace QmlDesigner
-
+#endif // QMLDESIGNER_DOCUMENTMANAGER_H

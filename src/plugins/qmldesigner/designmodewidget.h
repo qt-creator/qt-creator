@@ -35,7 +35,7 @@
 #include <utils/faketooltip.h>
 #include <texteditor/itexteditor.h>
 
-#include <designdocumentcontroller.h>
+#include <designdocument.h>
 #include <itemlibraryview.h>
 #include <navigatorwidget.h>
 #include <navigatorview.h>
@@ -103,54 +103,34 @@ class DesignModeWidget : public QWidget
 
 public:
     explicit DesignModeWidget(QWidget *parent = 0);
-    ~DesignModeWidget();
 
     void showEditor(Core::IEditor *editor);
     void closeEditors(const QList<Core::IEditor*> editors);
     QString contextHelpId() const;
 
-    QAction *undoAction() const;
-    QAction *redoAction() const;
-    QAction *deleteAction() const;
-    QAction *cutAction() const;
-    QAction *copyAction() const;
-    QAction *pasteAction() const;
-    QAction *selectAllAction() const;
-    QAction *hideSidebarsAction() const;
-    QAction *toggleLeftSidebarAction() const;
-    QAction *toggleRightSidebarAction() const;
-    QAction *restoreDefaultViewAction() const;
-    QAction *goIntoComponentAction() const;
+    void initialize();
+
 
     void readSettings();
     void saveSettings();
-    void setAutoSynchronization(bool sync);
 
-    TextEditor::ITextEditor *textEditor() const {return m_textEditor.data(); }
+    TextEditor::ITextEditor *textEditor() const;
 
-    static DesignModeWidget *instance();
-    DesignDocumentController *currentDesignDocumentController() const {return m_currentDesignDocumentController.data(); }
+    DesignDocument *currentDesignDocument() const;
+    ViewManager &viewManager();
 
-private slots:
-    void undo();
-    void redo();
-    void deleteSelected();
-    void cutSelected();
-    void copySelected();
-    void paste();
-    void selectAll();
-    void closeCurrentEditor();
+    void enableWidgets();
+    void disableWidgets();
+    void showErrorMessage(const QList<RewriterView::Error> &errors);
+
+public slots:
+    void updateErrorStatus(const QList<RewriterView::Error> &errors);
+    void restoreDefaultView();
     void toggleSidebars();
     void toggleLeftSidebar();
     void toggleRightSidebar();
-    void restoreDefaultView();
-    void undoAvailable(bool isAvailable);
-    void redoAvailable(bool isAvailable);
-    void goIntoComponent();
 
-    void enable();
-    void disable(const QList<RewriterView::Error> &errors);
-    void updateErrorStatus(const QList<RewriterView::Error> &errors);
+private slots:
     void updateAvailableSidebarItemsLeft();
     void updateAvailableSidebarItemsRight();
 
@@ -160,49 +140,20 @@ private slots:
     void onGoBackClicked();
     void onGoForwardClicked();
 
-    void onCrumblePathElementClicked(const QVariant &data);
-
 protected:
     void resizeEvent(QResizeEvent *event);
 
-private:
-    void setCurrentDocument(DesignDocumentController *newDesignDocumentController);
-    //QStackedWidget *m_documentWidgetStack;
-    QHash<QPlainTextEdit*,QWeakPointer<DesignDocumentController> > m_documentHash;
-    QWeakPointer<DesignDocumentController> m_currentDesignDocumentController;
-    QWeakPointer<QPlainTextEdit> m_currentTextEdit;
+private: // functions
+    enum InitializeStatus { NotInitialized, Initializing, Initialized };
 
-    QAction *m_undoAction;
-    QAction *m_redoAction;
-    QAction *m_deleteAction;
-    QAction *m_cutAction;
-    QAction *m_copyAction;
-    QAction *m_pasteAction;
-    QAction *m_selectAllAction;
-    QAction *m_hideSidebarsAction;
-    QAction *m_restoreDefaultViewAction;
-    QAction *m_toggleLeftSidebarAction;
-    QAction *m_toggleRightSidebarAction;
-    QAction *m_goIntoComponentAction;
-
-    QWeakPointer<ItemLibraryView> m_itemLibraryView;
-    QWeakPointer<NavigatorView> m_navigatorView;
-    QWeakPointer<PropertyEditor> m_propertyEditorView;
-    QWeakPointer<StatesEditorView> m_statesEditorView;
-    QWeakPointer<FormEditorView> m_formEditorView;
-    QWeakPointer<ComponentView> m_componentView;
-    QWeakPointer<NodeInstanceView> m_nodeInstanceView;
-
-    bool m_syncWithTextEdit;
-
+    void setCurrentDesignDocument(DesignDocument *newDesignDocument);
     void setup();
     bool isInNodeDefinition(int nodeOffset, int nodeLength, int cursorPos) const;
     QmlDesigner::ModelNode nodeForPosition(int cursorPos) const;
-    void setupNavigatorHistory();
+    void setupNavigatorHistory(Core::IEditor *editor);
     void addNavigatorHistoryEntry(const QString &fileName);
 
-    QWeakPointer<TextEditor::ITextEditor> m_textEditor;
-
+private: // variables
     QSplitter *m_mainSplitter;
     Core::SideBar *m_leftSideBar;
     Core::SideBar *m_rightSideBar;
@@ -213,15 +164,12 @@ private:
     bool m_isDisabled;
     bool m_showSidebars;
 
-    enum InitializeStatus { NotInitialized, Initializing, Initialized };
     InitializeStatus m_initStatus;
 
     DocumentWarningWidget *m_warningWidget;
     QStringList m_navigatorHistory;
     int m_navigatorHistoryCounter;
     bool m_keepNavigatorHistory;
-
-    static DesignModeWidget *s_instance;
 };
 
 } // namespace Internal

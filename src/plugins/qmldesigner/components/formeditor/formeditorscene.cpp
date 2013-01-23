@@ -65,7 +65,6 @@ FormEditorScene::FormEditorScene(FormEditorWidget *view, FormEditorView *editorV
     setupScene();
     view->setScene(this);
     setItemIndexMethod(QGraphicsScene::NoIndex);
-    setSceneRect(-canvasWidth()/2., -canvasHeight()/2., canvasWidth(), canvasHeight());
 }
 
 FormEditorScene::~FormEditorScene()
@@ -100,13 +99,13 @@ FormEditorItem* FormEditorScene::itemForQmlItemNode(const QmlItemNode &qmlItemNo
 
 double FormEditorScene::canvasWidth() const
 {
-    DesignerSettings settings = Internal::BauhausPlugin::pluginInstance()->settings();
+    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
     return settings.canvasWidth;
 }
 
 double FormEditorScene::canvasHeight() const
 {
-    DesignerSettings settings = Internal::BauhausPlugin::pluginInstance()->settings();
+    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
     return settings.canvasHeight;
 }
 
@@ -217,6 +216,7 @@ FormEditorItem *FormEditorScene::addFormEditorItem(const QmlItemNode &qmlItemNod
 
     m_qmlItemNodeItemHash.insert(qmlItemNode, formEditorItem);
     if (qmlItemNode.isRootNode()) {
+        setSceneRect(-canvasWidth()/2., -canvasHeight()/2., canvasWidth(), canvasHeight());
         formLayerItem()->update();
         manipulatorLayerItem()->update();
     }

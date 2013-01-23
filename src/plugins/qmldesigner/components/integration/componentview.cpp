@@ -34,6 +34,7 @@
 #include <nodemetainfo.h>
 #include <nodeabstractproperty.h>
 #include <QStandardItemModel>
+#include <QAbstractItemView>
 
 // silence gcc warnings about unused parameters
 
@@ -45,8 +46,6 @@ ComponentView::ComponentView(QObject *parent)
     m_componentAction(new ComponentAction(this))
 {
 }
-
-
 
 void ComponentView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
@@ -72,6 +71,11 @@ ModelNode ComponentView::modelNode(int index) const
 void ComponentView::setComponentNode(const ModelNode &node)
 {
     m_componentAction->setCurrentIndex(indexForNode(node));
+}
+
+QWidget *ComponentView::widget()
+{
+    return 0;
 }
 
 void ComponentView::appendWholeDocumentAsComponent()
@@ -110,7 +114,6 @@ void ComponentView::modelAttached(Model *model)
 
     AbstractView::modelAttached(model);
 
-    Q_ASSERT(model->masterModel());
     appendWholeDocumentAsComponent();
     searchForComponentAndAddToList(rootModelNode());
 

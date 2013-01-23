@@ -33,7 +33,7 @@
 
 namespace QmlDesigner {
 
-ItemLibraryView::ItemLibraryView(QObject* parent) : AbstractView(parent), m_widget(new ItemLibraryWidget)
+ItemLibraryView::ItemLibraryView(QObject* parent) : AbstractView(parent)
 {
 
 }
@@ -43,8 +43,11 @@ ItemLibraryView::~ItemLibraryView()
 
 }
 
-ItemLibraryWidget *ItemLibraryView::widget()
+QWidget *ItemLibraryView::widget()
 {
+    if (m_widget.isNull())
+        m_widget = new ItemLibraryWidget;
+
     return m_widget.data();
 }
 
@@ -189,6 +192,14 @@ void ItemLibraryView::rewriterEndTransaction()
 
 void ItemLibraryView::actualStateChanged(const ModelNode &/*node*/)
 {
+}
+
+void ItemLibraryView::setResourcePath(const QString &resourcePath)
+{
+    if (m_widget.isNull())
+        m_widget = new ItemLibraryWidget;
+
+    m_widget->setResourcePath(resourcePath);
 }
 
 void ItemLibraryView::updateImports()

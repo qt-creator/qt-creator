@@ -106,8 +106,8 @@ void MoveTool::mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
             }
         }
 
-        bool shouldSnapping = view()->widget()->snappingAction()->isChecked();
-        bool shouldSnappingAndAnchoring = view()->widget()->snappingAndAnchoringAction()->isChecked();
+        bool shouldSnapping = view()->formEditorWidget()->snappingAction()->isChecked();
+        bool shouldSnappingAndAnchoring = view()->formEditorWidget()->snappingAndAnchoringAction()->isChecked();
 
         MoveManipulator::Snapping useSnapping = MoveManipulator::NoSnapping;
         if (event->modifiers().testFlag(Qt::ControlModifier) != (shouldSnapping || shouldSnappingAndAnchoring)) {

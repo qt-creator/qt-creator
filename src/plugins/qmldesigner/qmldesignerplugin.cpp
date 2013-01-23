@@ -52,6 +52,8 @@
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/modemanager.h>
 
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/hostosinfo.h>
@@ -66,9 +68,18 @@
 #include <QProcessEnvironment>
 
 namespace QmlDesigner {
-namespace Internal {
 
-BauhausPlugin *BauhausPlugin::m_pluginInstance = 0;
+QmlDesignerPlugin *QmlDesignerPlugin::m_instance = 0;
+
+static bool isQmlFile(Core::IEditor *editor)
+{
+    return editor && editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID;
+}
+
+static bool isInDesignerMode()
+{
+    return Core::ModeManager::currentMode() == Core::DesignMode::instance();
+}
 
 bool shouldAssertInException()
 {
@@ -76,15 +87,8 @@ bool shouldAssertInException()
     return !processEnvironment.value("QMLDESIGNER_ASSERT_ON_EXCEPTION").isEmpty();
 }
 
-BauhausPlugin::BauhausPlugin() :
-    m_designMode(0),
-    m_isActive(false),
-    m_revertToSavedAction(new QAction(this)),
-    m_saveAction(new QAction(this)),
-    m_saveAsAction(new QAction(this)),
-    m_closeCurrentEditorAction(new QAction(this)),
-    m_closeAllEditorsAction(new QAction(this)),
-    m_closeOtherEditorsAction(new QAction(this))
+QmlDesignerPlugin::QmlDesignerPlugin() :
+    m_isActive(false)
 {
 
     // Exceptions should never ever assert: they are handled in a number of
@@ -101,9 +105,11 @@ BauhausPlugin::BauhausPlugin() :
     Exception::setShouldAssert(shouldAssertInException());
 }
 
-BauhausPlugin::~BauhausPlugin()
+QmlDesignerPlugin::~QmlDesignerPlugin()
 {
     Core::ICore::removeContextObject(m_context);
+    m_context = 0;
+    m_instance = 0;
 }
 
 ////////////////////////////////////////////////////
@@ -111,7 +117,7 @@ BauhausPlugin::~BauhausPlugin()
 // INHERITED FROM ExtensionSystem::Plugin
 //
 ////////////////////////////////////////////////////
-bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage/* = 0*/) // =0;
+bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage/* = 0*/) // =0;
 {
     const Core::Context switchContext(QmlDesigner::Constants::C_QMLDESIGNER,
         QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
@@ -121,7 +127,7 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
                 switchAction, QmlDesigner::Constants::SWITCH_TEXT_DESIGN, switchContext);
     command->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
 
-    m_pluginInstance = this;
+    m_instance = this;
 
     const QString pluginPath = Utils::HostOsInfo::isMacHost()
             ? QString(QCoreApplication::applicationDirPath() + "/../PlugIns/QmlDesigner")
@@ -132,7 +138,7 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
     createDesignModeWidget();
     connect(switchAction, SIGNAL(triggered()), this, SLOT(switchTextDesign()));
 
-    addAutoReleasedObject(new SettingsPage);
+    addAutoReleasedObject(new Internal::SettingsPage);
 
 
     m_settings.fromSettings(Core::ICore::settings());
@@ -142,240 +148,295 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
     return true;
 }
 
-void BauhausPlugin::createDesignModeWidget()
+void QmlDesignerPlugin::createDesignModeWidget()
 {
-    m_editorManager = Core::ICore::editorManager();
-    Core::ActionContainer *editMenu = Core::ActionManager::actionContainer(Core::Constants::M_EDIT);
+    m_mainWidget = new Internal::DesignModeWidget;
 
-    m_mainWidget = new DesignModeWidget;
-
-    m_context = new DesignModeContext(m_mainWidget);
+    m_context = new Internal::DesignModeContext(m_mainWidget);
     Core::ICore::addContextObject(m_context);
     Core::Context qmlDesignerMainContext(Constants::C_QMLDESIGNER);
     Core::Context qmlDesignerFormEditorContext(Constants::C_QMLFORMEDITOR);
     Core::Context qmlDesignerNavigatorContext(Constants::C_QMLNAVIGATOR);
 
-    // Revert to saved
-    Core::ActionManager::registerAction(m_revertToSavedAction,
-                                      Core::Constants::REVERTTOSAVED, qmlDesignerMainContext);
-    connect(m_revertToSavedAction, SIGNAL(triggered()), m_editorManager, SLOT(revertToSaved()));
+    m_context->context().add(qmlDesignerMainContext);
+    m_context->context().add(qmlDesignerFormEditorContext);
+    m_context->context().add(qmlDesignerNavigatorContext);
+    m_context->context().add(ProjectExplorer::Constants::LANG_QMLJS);
 
-    //Save
-    Core::ActionManager::registerAction(m_saveAction, Core::Constants::SAVE, qmlDesignerMainContext);
-    connect(m_saveAction, SIGNAL(triggered()), m_editorManager, SLOT(saveDocument()));
+    m_shortCutManager.registerActions();
 
-    //Save As
-    Core::ActionManager::registerAction(m_saveAsAction, Core::Constants::SAVEAS, qmlDesignerMainContext);
-    connect(m_saveAsAction, SIGNAL(triggered()), m_editorManager, SLOT(saveDocumentAs()));
+    connect(Core::ICore::editorManager(),
+            SIGNAL(currentEditorChanged(Core::IEditor*)),
+            this,
+            SLOT(onCurrentEditorChanged(Core::IEditor*)));
 
-    //Close Editor
-    Core::ActionManager::registerAction(m_closeCurrentEditorAction, Core::Constants::CLOSE, qmlDesignerMainContext);
-    connect(m_closeCurrentEditorAction, SIGNAL(triggered()), m_editorManager, SLOT(closeEditor()));
+    connect(Core::ICore::editorManager(),
+            SIGNAL(editorsClosed(QList<Core::IEditor*>)),
+            this,
+            SLOT(onTextEditorsClosed(QList<Core::IEditor*>)));
 
-    //Close All
-    Core::ActionManager::registerAction(m_closeAllEditorsAction, Core::Constants::CLOSEALL, qmlDesignerMainContext);
-    connect(m_closeAllEditorsAction, SIGNAL(triggered()), m_editorManager, SLOT(closeAllEditors()));
+//    connect(Core::ICore::editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+//            &m_documentManager, SLOT(currentTextEditorChanged(Core::IEditor*)));
 
-    //Close All Others Action
-    Core::ActionManager::registerAction(m_closeOtherEditorsAction, Core::Constants::CLOSEOTHERS, qmlDesignerMainContext);
-    connect(m_closeOtherEditorsAction, SIGNAL(triggered()), m_editorManager, SLOT(closeOtherEditors()));
+//    connect(Core::ICore::instance(), SIGNAL(contextChanged(Core::IContext*,Core::Context)),
+//            this, SLOT(contextChanged(Core::IContext*,Core::Context)));
 
-    // Undo / Redo
-    Core::ActionManager::registerAction(m_mainWidget->undoAction(), Core::Constants::UNDO, qmlDesignerMainContext);
-    Core::ActionManager::registerAction(m_mainWidget->redoAction(), Core::Constants::REDO, qmlDesignerMainContext);
-
-    Core::Command *command;
-
-    //GoIntoComponent
-    command = Core::ActionManager::registerAction(m_mainWidget->goIntoComponentAction(),
-                                            Constants::GO_INTO_COMPONENT, qmlDesignerMainContext);
-    command->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
-
-    //Edit Menu
-
-    command = Core::ActionManager::registerAction(m_mainWidget->deleteAction(),
-                                            QmlDesigner::Constants::DELETE, qmlDesignerFormEditorContext);
-    command = Core::ActionManager::registerAction(m_mainWidget->deleteAction(),
-                                            QmlDesigner::Constants::DELETE, qmlDesignerNavigatorContext);
-    command->setDefaultKeySequence(QKeySequence::Delete);
-    command->setAttribute(Core::Command::CA_Hide); // don't show delete in other modes
-    editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
-
-    command = Core::ActionManager::registerAction(m_mainWidget->cutAction(),
-                                            Core::Constants::CUT, qmlDesignerFormEditorContext);
-    command = Core::ActionManager::registerAction(m_mainWidget->cutAction(),
-                                            Core::Constants::CUT, qmlDesignerNavigatorContext);
-    command->setDefaultKeySequence(QKeySequence::Cut);
-    editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
-
-    command = Core::ActionManager::registerAction(m_mainWidget->copyAction(),
-                                            Core::Constants::COPY, qmlDesignerFormEditorContext);
-    command = Core::ActionManager::registerAction(m_mainWidget->copyAction(),
-                                            Core::Constants::COPY, qmlDesignerNavigatorContext);
-    command->setDefaultKeySequence(QKeySequence::Copy);
-    editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
-
-    command = Core::ActionManager::registerAction(m_mainWidget->pasteAction(),
-                                            Core::Constants::PASTE, qmlDesignerFormEditorContext);
-    command = Core::ActionManager::registerAction(m_mainWidget->pasteAction(),
-                                            Core::Constants::PASTE, qmlDesignerNavigatorContext);
-    command->setDefaultKeySequence(QKeySequence::Paste);
-    editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
-
-    command = Core::ActionManager::registerAction(m_mainWidget->selectAllAction(),
-                                            Core::Constants::SELECTALL, qmlDesignerFormEditorContext);
-    command = Core::ActionManager::registerAction(m_mainWidget->selectAllAction(),
-                                            Core::Constants::SELECTALL, qmlDesignerNavigatorContext);
-
-    command->setDefaultKeySequence(QKeySequence::SelectAll);
-    editMenu->addAction(command, Core::Constants::G_EDIT_SELECTALL);
-
-    Core::ActionContainer *viewsMenu = Core::ActionManager::actionContainer(Core::Constants::M_WINDOW_VIEWS);
-
-    command = Core::ActionManager::registerAction(m_mainWidget->toggleLeftSidebarAction(),
-                                            Constants::TOGGLE_LEFT_SIDEBAR, qmlDesignerMainContext);
-    command->setAttribute(Core::Command::CA_Hide);
-    command->setDefaultKeySequence(QKeySequence("Ctrl+Alt+0"));
-    viewsMenu->addAction(command);
-
-    command = Core::ActionManager::registerAction(m_mainWidget->toggleRightSidebarAction(),
-                                            Constants::TOGGLE_RIGHT_SIDEBAR, qmlDesignerMainContext);
-    command->setAttribute(Core::Command::CA_Hide);
-    command->setDefaultKeySequence(QKeySequence("Ctrl+Alt+Shift+0"));
-    viewsMenu->addAction(command);
-
-    command = Core::ActionManager::registerAction(m_mainWidget->restoreDefaultViewAction(),
-                                            Constants::RESTORE_DEFAULT_VIEW, qmlDesignerMainContext);
-    command->setAttribute(Core::Command::CA_Hide);
-    viewsMenu->addAction(command);
-
-    command = Core::ActionManager::registerAction(m_mainWidget->hideSidebarsAction(),
-                                            Core::Constants::TOGGLE_SIDEBAR, qmlDesignerMainContext);
-
-    if (Utils::HostOsInfo::isMacHost()) {
-        // add second shortcut to trigger delete
-        QAction *deleteAction = new QAction(m_mainWidget);
-        deleteAction->setShortcut(QKeySequence(QLatin1String("Backspace")));
-        connect(deleteAction, SIGNAL(triggered()), m_mainWidget->deleteAction(),
-                SIGNAL(triggered()));
-        m_mainWidget->addAction(deleteAction);
-    }
-
-    connect(m_editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(updateEditor(Core::IEditor*)));
-
-    connect(m_editorManager, SIGNAL(editorsClosed(QList<Core::IEditor*>)),
-            this, SLOT(textEditorsClosed(QList<Core::IEditor*>)));
-
-    connect(Core::ICore::instance(), SIGNAL(contextChanged(Core::IContext*,Core::Context)),
-            this, SLOT(contextChanged(Core::IContext*,Core::Context)));
+    connect(Core::ModeManager::instance(),
+            SIGNAL(currentModeChanged(Core::IMode*,Core::IMode*)),
+            SLOT(onCurrentModeChanged(Core::IMode*,Core::IMode*)));
 
 }
 
-void BauhausPlugin::updateEditor(Core::IEditor *editor)
+void QmlDesignerPlugin::showDesigner()
 {
-    if (editor && editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID
-        && Core::ModeManager::currentMode() == m_designMode)
+    Q_ASSERT(!m_documentManager.hasCurrentDesignDocument());
+
+    m_shortCutManager.disconnectUndoActions(currentDesignDocument());
+
+    m_documentManager.setCurrentDesignDocument(Core::EditorManager::currentEditor());
+
+    m_shortCutManager.connectUndoActions(currentDesignDocument());
+
+    m_mainWidget->initialize();
+
+    if (m_documentManager.hasCurrentDesignDocument()) {
+        activateAutoSynchronization();
+        m_viewManager.pushFileOnCrambleBar(m_documentManager.currentDesignDocument()->fileName());
+    }
+
+    m_shortCutManager.updateUndoActions(currentDesignDocument());
+}
+
+void QmlDesignerPlugin::hideDesigner()
+{
+    if (currentDesignDocument()->currentModel()
+            && !currentDesignDocument()->hasQmlSyntaxErrors())
+        jumpTextCursorToSelectedModelNode();
+
+
+    if (m_documentManager.hasCurrentDesignDocument()) {
+        deactivateAutoSynchronization();
+        m_mainWidget->saveSettings();
+    }
+
+    m_shortCutManager.disconnectUndoActions(currentDesignDocument());
+
+    m_documentManager.setCurrentDesignDocument(0);
+
+    m_shortCutManager.updateUndoActions(0);
+}
+
+void QmlDesignerPlugin::changeEditor()
+{
+    if (m_documentManager.hasCurrentDesignDocument()) {
+        deactivateAutoSynchronization();
+        m_mainWidget->saveSettings();
+    }
+
+    m_shortCutManager.disconnectUndoActions(currentDesignDocument());
+
+    m_documentManager.setCurrentDesignDocument(Core::EditorManager::currentEditor());
+
+    m_mainWidget->initialize();
+
+    m_shortCutManager.connectUndoActions(currentDesignDocument());
+
+    if (m_documentManager.hasCurrentDesignDocument()) {
+        m_viewManager.pushFileOnCrambleBar(m_documentManager.currentDesignDocument()->fileName());
+        activateAutoSynchronization();
+    }
+
+    m_shortCutManager.updateUndoActions(currentDesignDocument());
+}
+
+void QmlDesignerPlugin::jumpTextCursorToSelectedModelNode()
+{
+    // visual editor -> text editor
+    ModelNode selectedNode;
+    if (!currentDesignDocument()->rewriterView()->selectedModelNodes().isEmpty())
+        selectedNode = currentDesignDocument()->rewriterView()->selectedModelNodes().first();
+
+    if (selectedNode.isValid()) {
+        const int nodeOffset = currentDesignDocument()->rewriterView()->nodeOffset(selectedNode);
+        if (nodeOffset > 0) {
+            const ModelNode currentSelectedNode
+                    = currentDesignDocument()->rewriterView()->nodeAtTextCursorPosition(currentDesignDocument()->plainTextEdit()->textCursor().position());
+            if (currentSelectedNode != selectedNode) {
+                int line, column;
+                currentDesignDocument()->textEditor()->convertPosition(nodeOffset, &line, &column);
+                currentDesignDocument()->textEditor()->gotoLine(line, column);
+            }
+        }
+    }
+}
+
+void QmlDesignerPlugin::selectModelNodeUnderTextCursor()
+{
+    const int cursorPos = currentDesignDocument()->plainTextEdit()->textCursor().position();
+    ModelNode node = currentDesignDocument()->rewriterView()->nodeAtTextCursorPosition(cursorPos);
+    if (currentDesignDocument()->rewriterView() && node.isValid()) {
+        currentDesignDocument()->rewriterView()->setSelectedModelNodes(QList<ModelNode>() << node);
+    }
+}
+
+void QmlDesignerPlugin::activateAutoSynchronization()
+{
+    // text editor -> visual editor
+    if (!currentDesignDocument()->isDocumentLoaded()) {
+        currentDesignDocument()->loadDocument(currentDesignDocument()->plainTextEdit());
+    } else {
+        currentDesignDocument()->activateCurrentModel();
+    }
+
+    resetModelSelection();
+
+
+    QList<RewriterView::Error> errors = currentDesignDocument()->qmlSyntaxErrors();
+    if (errors.isEmpty()) {
+        viewManager().attachComponentView();
+        viewManager().attachViewsExceptRewriterAndComponetView();
+        selectModelNodeUnderTextCursor();
+        m_mainWidget->enableWidgets();
+    } else {
+        m_mainWidget->disableWidgets();
+        m_mainWidget->showErrorMessage(errors);
+    }
+
+
+    connect(currentDesignDocument()->rewriterView(),
+            SIGNAL(errorsChanged(QList<RewriterView::Error>)),
+            m_mainWidget,
+            SLOT(updateErrorStatus(QList<RewriterView::Error>)));
+}
+
+void QmlDesignerPlugin::deactivateAutoSynchronization()
+{
+    viewManager().detachViewsExceptRewriterAndComponetView();
+    viewManager().detachComponentView();
+
+    disconnect(currentDesignDocument()->rewriterView(),
+               SIGNAL(errorsChanged(QList<RewriterView::Error>)),
+               m_mainWidget,
+               SLOT(updateErrorStatus(QList<RewriterView::Error>)));
+
+}
+
+void QmlDesignerPlugin::resetModelSelection()
+{
+    if (currentDesignDocument()->rewriterView() && currentDesignDocument()->currentModel())
+        currentDesignDocument()->rewriterView()->setSelectedModelNodes(QList<ModelNode>());
+}
+
+
+
+void QmlDesignerPlugin::onCurrentEditorChanged(Core::IEditor *editor)
+{
+    if (editor
+            && editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID
+            && isInDesignerMode())
     {
-        m_mainWidget->showEditor(editor);
+        m_shortCutManager.updateActions(editor);
+        changeEditor();
     }
 }
 
-void BauhausPlugin::contextChanged(Core::IContext *context, const Core::Context &additionalContexts)
+static bool isDesignerMode(Core::IMode *mode)
 {
-    Q_UNUSED(context)
-
-    foreach (Core::Id id, additionalContexts) {
-        if (m_context->context().contains(id)) {
-            m_isActive = true;
-            m_mainWidget->showEditor(Core::EditorManager::currentEditor());
-            return;
-        }
-    }
-
-    if (m_isActive) {
-        m_isActive = false;
-        m_mainWidget->showEditor(0);
-    }
+    return mode == Core::DesignMode::instance();
 }
 
-void BauhausPlugin::textEditorsClosed(QList<Core::IEditor*> editors)
+void QmlDesignerPlugin::onCurrentModeChanged(Core::IMode *newMode, Core::IMode *oldMode)
 {
-    m_mainWidget->closeEditors(editors);
+    if ((currentDesignDocument()
+         && Core::EditorManager::currentEditor() == currentDesignDocument()->editor())
+            && isDesignerMode(newMode))
+        return;
+
+    if (!isDesignerMode(newMode) && isDesignerMode(oldMode))
+        hideDesigner();
+    else  if (Core::EditorManager::currentEditor()
+              && isDesignerMode(newMode)
+              && isQmlFile(Core::EditorManager::currentEditor()))
+        showDesigner();
+    else if (currentDesignDocument())
+        hideDesigner();
+
 }
 
-// copied from EditorManager::updateActions
-void BauhausPlugin::updateActions(Core::IEditor* editor)
+DesignDocument *QmlDesignerPlugin::currentDesignDocument() const
 {
-    Core::IEditor *curEditor = editor;
-    int openedCount = m_editorManager->openedEditors().count()
-                      + m_editorManager->openedEditorsModel()->restoredEditors().count();
-
-    QString fName;
-    if (curEditor) {
-        if (!curEditor->document()->fileName().isEmpty()) {
-            QFileInfo fi(curEditor->document()->fileName());
-            fName = fi.fileName();
-        } else {
-            fName = curEditor->displayName();
-        }
-    }
-
-    m_saveAction->setEnabled(curEditor != 0 && curEditor->document()->isModified());
-    m_saveAsAction->setEnabled(curEditor != 0 && curEditor->document()->isSaveAsAllowed());
-    m_revertToSavedAction->setEnabled(curEditor != 0
-                                      && !curEditor->document()->fileName().isEmpty()
-                                      && curEditor->document()->isModified());
-
-    QString quotedName;
-    if (!fName.isEmpty())
-        quotedName = '"' + fName + '"';
-    m_saveAsAction->setText(tr("Save %1 As...").arg(quotedName));
-    m_saveAction->setText(tr("&Save %1").arg(quotedName));
-    m_revertToSavedAction->setText(tr("Revert %1 to Saved").arg(quotedName));
-
-    m_closeCurrentEditorAction->setEnabled(curEditor != 0);
-    m_closeCurrentEditorAction->setText(tr("Close %1").arg(quotedName));
-    m_closeAllEditorsAction->setEnabled(openedCount > 0);
-    m_closeOtherEditorsAction->setEnabled(openedCount > 1);
-    m_closeOtherEditorsAction->setText((openedCount > 1 ? tr("Close All Except %1").arg(quotedName) : tr("Close Others")));
+    return m_documentManager.currentDesignDocument();
 }
 
-void BauhausPlugin::extensionsInitialized()
+Internal::DesignModeWidget *QmlDesignerPlugin::mainWidget() const
 {
-    m_designMode = Core::DesignMode::instance();
-
-    m_mimeTypes << "application/x-qml";
-
-    m_designMode->registerDesignWidget(m_mainWidget, m_mimeTypes, m_context->context());
-    connect(m_designMode, SIGNAL(actionsUpdated(Core::IEditor*)), SLOT(updateActions(Core::IEditor*)));
+    return m_mainWidget;
 }
 
-BauhausPlugin *BauhausPlugin::pluginInstance()
+void QmlDesignerPlugin::onTextEditorsClosed(QList<Core::IEditor*> editors)
 {
-    return m_pluginInstance;
+    if (m_documentManager.hasCurrentDesignDocument()
+            && editors.contains(m_documentManager.currentDesignDocument()->textEditor()))
+        hideDesigner();
+
+    m_documentManager.removeEditors(editors);
 }
 
-void BauhausPlugin::switchTextDesign()
+void QmlDesignerPlugin::extensionsInitialized()
+{
+    QStringList mimeTypes;
+    mimeTypes.append("application/x-qml");
+
+    Core::DesignMode::instance()->registerDesignWidget(m_mainWidget, mimeTypes, m_context->context());
+    connect(Core::DesignMode::instance(),
+            SIGNAL(actionsUpdated(Core::IEditor*)),
+            &m_shortCutManager,
+            SLOT(updateActions(Core::IEditor*)));
+}
+
+QmlDesignerPlugin *QmlDesignerPlugin::instance()
+{
+    return m_instance;
+}
+
+DocumentManager &QmlDesignerPlugin::documentManager()
+{
+    return m_documentManager;
+}
+
+const DocumentManager &QmlDesignerPlugin::documentManager() const
+{
+    return m_documentManager;
+}
+
+ViewManager &QmlDesignerPlugin::viewManager()
+{
+    return m_viewManager;
+}
+
+const ViewManager &QmlDesignerPlugin::viewManager() const
+{
+    return m_viewManager;
+}
+
+void QmlDesignerPlugin::switchTextDesign()
 {
     if (Core::ModeManager::currentMode()->id() == Core::Constants::MODE_EDIT) {
         Core::IEditor *editor = Core::EditorManager::currentEditor();
-        if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
+        if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
             Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
-            m_mainWidget->setFocus();
-        }
     } else if (Core::ModeManager::currentMode()->id() == Core::Constants::MODE_DESIGN) {
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
     }
 }
 
-DesignerSettings BauhausPlugin::settings()
+DesignerSettings QmlDesignerPlugin::settings()
 {
     m_settings.fromSettings(Core::ICore::settings());
     return m_settings;
 }
 
-void BauhausPlugin::setSettings(const DesignerSettings &s)
+void QmlDesignerPlugin::setSettings(const DesignerSettings &s)
 {
     if (s != m_settings) {
         m_settings = s;
@@ -384,6 +445,5 @@ void BauhausPlugin::setSettings(const DesignerSettings &s)
 }
 
 }
-}
 
-Q_EXPORT_PLUGIN(QmlDesigner::Internal::BauhausPlugin)
+Q_EXPORT_PLUGIN(QmlDesigner::QmlDesignerPlugin)

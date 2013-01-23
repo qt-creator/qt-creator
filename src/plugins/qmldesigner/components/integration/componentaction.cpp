@@ -32,7 +32,8 @@
 #include <QComboBox>
 #include "componentview.h"
 #include <QStandardItemModel>
-#include <QDebug>
+#include <qmldesignerplugin.h>
+#include <modelnode.h>
 
 namespace QmlDesigner {
 
@@ -42,9 +43,9 @@ ComponentAction::ComponentAction(ComponentView  *componentView)
 {
 }
 
-void ComponentAction::setCurrentIndex(int i)
+void ComponentAction::setCurrentIndex(int index)
 {
-    emit currentIndexChanged(i);
+    emit currentIndexChanged(index);
 }
 
 QWidget  *ComponentAction::createWidget(QWidget *parent)
@@ -59,9 +60,21 @@ QWidget  *ComponentAction::createWidget(QWidget *parent)
     return comboBox;
 }
 
+static const QString fileNameOfCurrentDocument()
+{
+    return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->textEditor()->document()->fileName();
+}
+
 void ComponentAction::emitCurrentComponentChanged(int index)
 {
-    emit currentComponentChanged(m_componentView->modelNode(index));
+    ModelNode componentNode = m_componentView->modelNode(index);
+
+    if ( index > 0)
+        QmlDesignerPlugin::instance()->viewManager().pushInFileComponentOnCrambleBar(componentNode.id());
+    else
+         QmlDesignerPlugin::instance()->viewManager().pushFileOnCrambleBar(fileNameOfCurrentDocument());
+
+    emit currentComponentChanged(componentNode);
 }
 
 } // namespace QmlDesigner

@@ -1525,12 +1525,13 @@ void  ModelPrivate::setRewriterView(RewriterView *rewriterView)
 
     Q_ASSERT(!(rewriterView && m_rewriterView));
 
+    if (m_rewriterView)
+            m_rewriterView->modelAboutToBeDetached(model());
+
     m_rewriterView = rewriterView;
 
     if (rewriterView)
         rewriterView->modelAttached(model());
-    else if (m_rewriterView)
-        m_rewriterView->modelAboutToBeDetached(model());
 }
 
 RewriterView  *ModelPrivate::rewriterView() const
@@ -1730,6 +1731,21 @@ RewriterView *Model::rewriterView() const
     return d->rewriterView();
 }
 
+void Model::setRewriterView(RewriterView *rewriterView)
+{
+    d->setRewriterView(rewriterView);
+}
+
+NodeInstanceView *Model::nodeInstanceView() const
+{
+    return d->nodeInstanceView();
+}
+
+void Model::setNodeInstanceView(NodeInstanceView *nodeInstanceView)
+{
+    d->setNodeInstanceView(nodeInstanceView);
+}
+
 /*!
  \brief Returns the model that is used for metainfo
  \return Return itself if not other metaInfoProxyModel does exist
@@ -1754,16 +1770,6 @@ Model *Model::create(const QString &rootType)
     return Internal::ModelPrivate::create(rootType);
 }
 #endif
-
-Model *Model::masterModel() const
-{
-    return d->m_masterModel.data();
-}
-
-void Model::setMasterModel(Model *model)
-{
-    d->m_masterModel = model;
-}
 
 /*!
   \brief Returns the URL against which relative URLs within the model should be resolved.
@@ -1834,13 +1840,11 @@ void Model::attachView(AbstractView *view)
 //    Internal::WriteLocker locker(d);
     RewriterView *rewriterView = qobject_cast<RewriterView*>(view);
     if (rewriterView) {
-        d->setRewriterView(rewriterView);
         return;
     }
 
     NodeInstanceView *nodeInstanceView = qobject_cast<NodeInstanceView*>(view);
     if (nodeInstanceView) {
-        d->setNodeInstanceView(nodeInstanceView);
         return;
     }
 
@@ -1862,13 +1866,11 @@ void Model::detachView(AbstractView *view, ViewNotification emitDetachNotify)
 
     RewriterView *rewriterView = qobject_cast<RewriterView*>(view);
     if (rewriterView) {
-        d->setRewriterView(0);
         return;
     }
 
     NodeInstanceView *nodeInstanceView = qobject_cast<NodeInstanceView*>(view);
     if (nodeInstanceView) {
-        d->setNodeInstanceView(0);
         return;
     }
 

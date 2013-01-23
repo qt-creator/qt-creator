@@ -27,20 +27,20 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNDOCUMENTCONTROLLERVIEW_H
-#define DESIGNDOCUMENTCONTROLLERVIEW_H
+#ifndef DesignDocumentVIEW_H
+#define DesignDocumentVIEW_H
 
 #include <abstractview.h>
 #include <modelmerger.h>
 
 namespace QmlDesigner {
 
-class DesignDocumentControllerView : public AbstractView
+class DesignDocumentView : public AbstractView
 {
         Q_OBJECT
 public:
-    DesignDocumentControllerView(QObject *parent = 0)
-            : AbstractView(parent), m_modelMerger(this) {}
+    DesignDocumentView(QObject *parent = 0);
+    ~DesignDocumentView();
 
     virtual void nodeCreated(const ModelNode &createdNode);
     virtual void nodeAboutToBeRemoved(const ModelNode &removedNode);
@@ -87,10 +87,12 @@ public:
     QString toText() const;
     void fromText(QString text);
 
+    QWidget *widget();
+
 private:
     ModelMerger m_modelMerger;
 };
 
 }// namespace QmlDesigner
 
-#endif // DESIGNDOCUMENTCONTROLLERVIEW_H
+#endif // DesignDocumentVIEW_H

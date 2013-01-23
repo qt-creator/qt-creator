@@ -50,7 +50,7 @@ void QmlWarningDialog::okButtonPressed()
 bool QmlWarningDialog::warningsEnabled() const
 {
 #ifndef QMLDESIGNER_TEST
-    DesignerSettings settings = BauhausPlugin::pluginInstance()->settings();
+    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
     return settings.warningsInDesigner;
 #else
     return false;
@@ -60,9 +60,9 @@ bool QmlWarningDialog::warningsEnabled() const
 void QmlWarningDialog::checkBoxToggled(bool b)
 {
 #ifndef QMLDESIGNER_TEST
-    DesignerSettings settings = BauhausPlugin::pluginInstance()->settings();
+    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
     settings.warningsInDesigner = b;
-    BauhausPlugin::pluginInstance()->setSettings(settings);
+    QmlDesignerPlugin::instance()->setSettings(settings);
 #else
     Q_UNUSED(b);
 #endif

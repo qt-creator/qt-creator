@@ -68,7 +68,7 @@ public:
     NodeMetaInfo &operator=(const NodeMetaInfo &other);
 
     bool isValid() const;
-    bool isComponent() const;
+    bool isFileComponent() const;
     bool hasProperty(const QString &propertyName) const;
     QStringList propertyNames() const;
     QStringList directPropertyNames() const;

@@ -35,6 +35,10 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include "documentmanager.h"
+#include "viewmanager.h"
+#include "shortcutmanager.h"
+
 #include <QWeakPointer>
 #include <QStringList>
 
@@ -51,60 +55,70 @@ namespace Core {
 }
 
 namespace QmlDesigner {
-namespace Internal {
 
+namespace Internal {
 class DesignModeWidget;
 class DesignModeContext;
+}
 
-class BauhausPlugin : public ExtensionSystem::IPlugin
+class QmlDesignerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlDesigner.json")
 
 public:
-    BauhausPlugin();
-    virtual ~BauhausPlugin();
+    QmlDesignerPlugin();
+    virtual ~QmlDesignerPlugin();
 
     //Plugin
     virtual bool initialize(const QStringList &arguments, QString *errorMessage = 0);
     virtual void extensionsInitialized();
 
-    static BauhausPlugin *pluginInstance();
+    static QmlDesignerPlugin *instance();
+
+    DocumentManager &documentManager();
+    const DocumentManager &documentManager() const;
+
+    ViewManager &viewManager();
+    const ViewManager &viewManager() const;
 
     DesignerSettings settings();
     void setSettings(const DesignerSettings &s);
 
+    DesignDocument *currentDesignDocument() const;
+    Internal::DesignModeWidget *mainWidget() const;
+
 private slots:
-
     void switchTextDesign();
-    void textEditorsClosed(QList<Core::IEditor *> editors);
-    void updateActions(Core::IEditor* editor);
-    void updateEditor(Core::IEditor *editor);
-    void contextChanged(Core::IContext *context, const Core::Context &additionalContexts);
+    void onTextEditorsClosed(QList<Core::IEditor *> editors);
+    void onCurrentEditorChanged(Core::IEditor *editor);
+    void onCurrentModeChanged(Core::IMode *mode, Core::IMode *oldMode);
 
-private:
+private: // functions
     void createDesignModeWidget();
+    void showDesigner();
+    void hideDesigner();
+    void changeEditor();
+    void jumpTextCursorToSelectedModelNode();
+    void selectModelNodeUnderTextCursor();
+    void activateAutoSynchronization();
+    void deactivateAutoSynchronization();
+    void resetModelSelection();
 
-    QStringList m_mimeTypes;
-    DesignModeWidget *m_mainWidget;
+private: // variables
+    ViewManager m_viewManager;
+    DocumentManager m_documentManager;
+    ShortCutManager m_shortCutManager;
+
+    Internal::DesignModeWidget *m_mainWidget;
 
     QmlDesigner::PluginManager m_pluginManager;
-    static BauhausPlugin *m_pluginInstance;
+    static QmlDesignerPlugin *m_instance;
     DesignerSettings m_settings;
-    DesignModeContext *m_context;
-    Core::DesignMode *m_designMode;
-    Core::EditorManager *m_editorManager;
+    Internal::DesignModeContext *m_context;
     bool m_isActive;
-
-    QAction *m_revertToSavedAction;
-    QAction *m_saveAction;
-    QAction *m_saveAsAction;
-    QAction *m_closeCurrentEditorAction;
-    QAction *m_closeAllEditorsAction;
-    QAction *m_closeOtherEditorsAction;
 };
 
-} // namespace Internal
 } // namespace QmlDesigner
 
 #endif // QMLDESIGNERPLUGIN_H

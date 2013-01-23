@@ -472,6 +472,16 @@ QString RewriterView::textModifierContent() const
     return QString();
 }
 
+void RewriterView::reactivateTextMofifierChangeSignals()
+{
+    textModifier()->reactivateChangeSignals();
+}
+
+void RewriterView::deactivateTextMofifierChangeSignals()
+{
+    textModifier()->deactivateChangeSignals();
+}
+
 void RewriterView::applyModificationGroupChanges()
 {
     Q_ASSERT(transactionLevel == 0);
@@ -615,6 +625,31 @@ bool RewriterView::modificationGroupActive()
     return m_modificationGroupActive;
 }
 
+static bool isInNodeDefinition(int nodeTextOffset, int nodeTextLength, int cursorPosition)
+{
+    return (nodeTextOffset <= cursorPosition) && (nodeTextOffset + nodeTextLength > cursorPosition);
+}
+
+ModelNode RewriterView::nodeAtTextCursorPosition(int cursorPosition) const
+{
+    const QList<ModelNode> allNodes = allModelNodes();
+
+    ModelNode nearestNode;
+    int nearestNodeTextOffset = -1;
+
+    foreach (const ModelNode &currentNode, allNodes) {
+        const int nodeTextOffset = nodeOffset(currentNode);
+        const int nodeTextLength = nodeLength(currentNode);
+        if (isInNodeDefinition(nodeTextOffset, nodeTextLength, cursorPosition)
+            && (nodeTextOffset > nearestNodeTextOffset)) {
+            nearestNode = currentNode;
+            nearestNodeTextOffset = nodeTextOffset;
+        }
+    }
+
+    return nearestNode;
+}
+
 bool RewriterView::renameId(const QString& oldId, const QString& newId)
 {
     if (textModifier())
@@ -698,6 +733,10 @@ QString RewriterView::pathForImport(const Import &import)
     return QString();
 }
 
+QWidget *RewriterView::widget()
+{
+    return 0;
+}
 
 void RewriterView::qmlTextChanged()
 {

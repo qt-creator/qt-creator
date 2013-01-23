@@ -76,7 +76,7 @@ public:
 
     void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList);
 
-    StatesEditorWidget *widget();
+    QWidget *widget();
 
 public slots:
     void synchonizeCurrentStateFromWidget();
@@ -84,6 +84,7 @@ public slots:
     void removeState(int nodeId);
 
 private:
+    StatesEditorWidget *statesEditorWidget() const;
     void resetModel();
     void addState();
     void duplicateCurrentState();

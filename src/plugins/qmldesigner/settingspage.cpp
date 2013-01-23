@@ -95,7 +95,7 @@ SettingsPage::SettingsPage() :
 QWidget *SettingsPage::createPage(QWidget *parent)
 {
     m_widget = new SettingsPageWidget(parent);
-    m_widget->setSettings(BauhausPlugin::pluginInstance()->settings());
+    m_widget->setSettings(QmlDesignerPlugin::instance()->settings());
     if (m_searchKeywords.isEmpty())
         m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
@@ -105,7 +105,7 @@ void SettingsPage::apply()
 {
     if (!m_widget) // page was never shown
         return;
-    BauhausPlugin::pluginInstance()->setSettings(m_widget->settings());
+    QmlDesignerPlugin::instance()->setSettings(m_widget->settings());
 }
 
 bool SettingsPage::matches(const QString &s) const

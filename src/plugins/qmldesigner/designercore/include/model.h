@@ -58,6 +58,7 @@ class ModelState;
 class NodeAnchors;
 class AbstractProperty;
 class RewriterView;
+class NodeInstanceView;
 
 typedef QList<QPair<QString, QVariant> > PropertyListType;
 
@@ -80,9 +81,6 @@ public:
 
     static Model *create(QString type, int major = 1, int minor = 1, Model *metaInfoPropxyModel = 0);
 
-    Model *masterModel() const;
-    void setMasterModel(Model *model);
-
     QUrl fileUrl() const;
     void setFileUrl(const QUrl &url);
 
@@ -103,6 +101,10 @@ public:
     QString pathForImport(const Import &import);
 
     RewriterView *rewriterView() const;
+    void setRewriterView(RewriterView *rewriterView);
+
+    NodeInstanceView *nodeInstanceView() const;
+    void setNodeInstanceView(NodeInstanceView *nodeInstanceView);
 
     Model *metaInfoProxyModel();
 

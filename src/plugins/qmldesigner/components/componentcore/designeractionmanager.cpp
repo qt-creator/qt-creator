@@ -186,6 +186,11 @@ public:
         m_designerActionList = designerActionList;
     }
 
+    QWidget *widget()
+    {
+        return 0;
+    }
+
 protected:
     void setupContext()
     {

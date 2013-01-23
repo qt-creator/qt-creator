@@ -27,50 +27,47 @@
 **
 ****************************************************************************/
 
-#include <QStackedWidget>
+#ifndef QMLDESIGNER_FORMEDITORCRUMBLEBAR_H
+#define QMLDESIGNER_FORMEDITORCRUMBLEBAR_H
 
-#include "designdocument.h"
-#include "stackedutilitypanelcontroller.h"
+#include <QObject>
+#include <utils/crumblepath.h>
 
 namespace QmlDesigner {
 
-StackedUtilityPanelController::StackedUtilityPanelController(QObject* parent):
-        UtilityPanelController(parent),
-        m_stackedWidget(new QStackedWidget)
+
+
+class FormEditorCrumbleBar : public QObject
 {
-    m_stackedWidget->setLineWidth(0);
-    m_stackedWidget->setMidLineWidth(0);
-    m_stackedWidget->setFrameStyle(QFrame::NoFrame);
-}
+    Q_OBJECT
+public:
+    explicit FormEditorCrumbleBar(QObject *parent = 0);
 
-void StackedUtilityPanelController::show(DesignDocument* DesignDocument)
-{
-    if (!DesignDocument)
-        return;
+    void pushFile(const QString &fileName);
+    void pushInFileComponent(const QString &componentId);
 
-    QWidget* page = stackedPageWidget(DesignDocument);
+    void nextFileIsCalledInternally();
 
-    if (!m_stackedWidget->children().contains(page))
-        m_stackedWidget->addWidget(page);
+    Utils::CrumblePath *crumblePath();
 
-    m_stackedWidget->setCurrentWidget(page);
-    page->show();
-}
+private slots:
+    void onCrumblePathElementClicked(const QVariant &data);
 
-void StackedUtilityPanelController::close(DesignDocument* DesignDocument)
-{
-    QWidget* page = stackedPageWidget(DesignDocument);
+private:
+    bool m_isInternalCalled;
+    Utils::CrumblePath *m_crumblePath;
+};
 
-    if (m_stackedWidget->children().contains(page)) {
-        page->hide();
-        m_stackedWidget->removeWidget(page);
-    }
-}
+class CrumbleBarInfo {
+public:
+    QString fileName;
+    QString componentId;
+};
 
-QWidget* StackedUtilityPanelController::contentWidget() const
-{
-    return m_stackedWidget;
-}
+bool operator ==(const CrumbleBarInfo &first, const CrumbleBarInfo &second);
+bool operator !=(const CrumbleBarInfo &first, const CrumbleBarInfo &second);
+} // namespace QmlDesigner
 
-}  // namespace QmlDesigner
+Q_DECLARE_METATYPE(QmlDesigner::CrumbleBarInfo)
 
+#endif // QMLDESIGNER_FORMEDITORCRUMBLEBAR_H
