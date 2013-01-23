@@ -395,7 +395,7 @@ CustomExecutableRunConfigurationFactory::~CustomExecutableRunConfigurationFactor
 bool CustomExecutableRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent,
                                                         const Core::Id id) const
 {
-    if (!canHandle(parent))
+    if (!canHandle(parent) || !id.isValid())
         return false;
     return id == CUSTOM_EXECUTABLE_ID;
 }
