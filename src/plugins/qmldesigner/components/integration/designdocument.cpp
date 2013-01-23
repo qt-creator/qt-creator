@@ -367,8 +367,6 @@ void DesignDocument::goIntoComponent()
         selectedNodes = rewriterView()->selectedModelNodes();
 
     if (selectedNodes.count() == 1) {
-        qDebug() << __FUNCTION__ << selectedNodes.first();
-
         viewManager().setComponentNode(selectedNodes.first());
         ModelNodeOperations::goIntoComponent(selectedNodes.first());
     }
