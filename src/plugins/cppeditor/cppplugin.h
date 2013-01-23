@@ -87,6 +87,11 @@ private slots:
     void currentEditorChanged(Core::IEditor *editor);
     void openTypeHierarchy();
 
+#ifdef WITH_TESTS
+private slots: // quickfix tests
+    void test_quickfix_GetterSetter();
+#endif // WITH_TESTS
+
 private:
     Core::IEditor *createEditor(QWidget *parent);
     void writeSettings();

@@ -158,6 +158,8 @@ bool ChangeSet::move_helper(int pos, int length, int to)
 
 bool ChangeSet::insert(int pos, const QString &text)
 {
+    Q_ASSERT(pos >= 0);
+
     if (hasOverlap(pos, 0))
         m_error = true;
 

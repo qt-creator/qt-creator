@@ -46,4 +46,9 @@ SOURCES += cppplugin.cpp \
 RESOURCES += cppeditor.qrc
 OTHER_FILES += CppEditor.mimetypes.xml
 
+equals(TEST, 1) {
+    SOURCES += \
+        cppquickfix_test.cpp
 
+    DEFINES += SRCDIR=\\\"$$PWD\\\"
+}

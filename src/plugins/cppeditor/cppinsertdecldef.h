@@ -49,6 +49,13 @@ public:
 
 class ExtractFunction : public CppQuickFixFactory
 {
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+};
+
+class GetterSetter : public CppQuickFixFactory
+{
+public:
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
 };
 

@@ -95,18 +95,27 @@ struct AccessRange
     unsigned start;
     unsigned end;
     InsertionPointLocator::AccessSpec xsSpec;
+    unsigned colonToken;
 
     AccessRange()
         : start(0)
         , end(0)
         , xsSpec(InsertionPointLocator::Invalid)
+        , colonToken(0)
     {}
 
-    AccessRange(unsigned start, unsigned end, InsertionPointLocator::AccessSpec xsSpec)
+    AccessRange(unsigned start, unsigned end, InsertionPointLocator::AccessSpec xsSpec, unsigned colonToken)
         : start(start)
         , end(end)
         , xsSpec(xsSpec)
+        , colonToken(colonToken)
     {}
+
+    bool isEmpty() const
+    {
+        unsigned contentStart = 1 + (colonToken ? colonToken : start);
+        return contentStart == end;
+    }
 };
 
 class FindInClass: public ASTVisitor
@@ -146,16 +155,19 @@ protected:
                     ast->rbrace_token);
 
         unsigned beforeToken = 0;
+        bool needsLeadingEmptyLine = false;
         bool needsPrefix = false;
         bool needsSuffix = false;
-        findMatch(ranges, _xsSpec, beforeToken, needsPrefix, needsSuffix);
+        findMatch(ranges, _xsSpec, beforeToken, needsLeadingEmptyLine, needsPrefix, needsSuffix);
 
         unsigned line = 0, column = 0;
         getTokenStartPosition(beforeToken, &line, &column);
 
         QString prefix;
+        if (needsLeadingEmptyLine)
+            prefix += QLatin1String("\n");
         if (needsPrefix)
-            prefix = generate(_xsSpec);
+            prefix += generate(_xsSpec);
 
         QString suffix;
         if (needsSuffix)
@@ -169,11 +181,14 @@ protected:
     static void findMatch(const QList<AccessRange> &ranges,
                           InsertionPointLocator::AccessSpec xsSpec,
                           unsigned &beforeToken,
+                          bool &needsLeadingEmptyLine,
                           bool &needsPrefix,
                           bool &needsSuffix)
     {
         QTC_ASSERT(!ranges.isEmpty(), return);
         const int lastIndex = ranges.size() - 1;
+
+        needsLeadingEmptyLine = false;
 
         // try an exact match, and ignore the first (default) access spec:
         for (int i = lastIndex; i > 0; --i) {
@@ -200,6 +215,7 @@ protected:
 
         // otherwise:
         beforeToken = ranges.first().end;
+        needsLeadingEmptyLine = !ranges.first().isEmpty();
         needsPrefix = true;
         needsSuffix = (ranges.size() != 1);
     }
@@ -210,14 +226,14 @@ protected:
                                            int lastRangeEnd) const
     {
         QList<AccessRange> ranges;
-        ranges.append(AccessRange(firstRangeStart, lastRangeEnd, initialXs));
+        ranges.append(AccessRange(firstRangeStart, lastRangeEnd, initialXs, 0));
 
         for (DeclarationListAST *iter = decls; iter; iter = iter->next) {
             DeclarationAST *decl = iter->value;
 
             if (AccessDeclarationAST *xsDecl = decl->asAccessDeclaration()) {
                 const unsigned token = xsDecl->access_specifier_token;
-                int newXsSpec = initialXs;
+                InsertionPointLocator::AccessSpec newXsSpec = initialXs;
                 bool isSlot = xsDecl->slots_token
                         && tokenKind(xsDecl->slots_token) == T_Q_SLOTS;
 
@@ -242,7 +258,8 @@ protected:
                     break;
 
                 case T_Q_SLOTS: {
-                    newXsSpec = ranges.last().xsSpec | InsertionPointLocator::SlotBit;
+                    newXsSpec = (InsertionPointLocator::AccessSpec)
+                            (ranges.last().xsSpec | InsertionPointLocator::SlotBit);
                     break;
                 }
 
@@ -250,9 +267,10 @@ protected:
                     break;
                 }
 
-                if (newXsSpec != ranges.last().xsSpec) {
+                if (newXsSpec != ranges.last().xsSpec || ranges.size() == 1) {
                     ranges.last().end = token;
-                    ranges.append(AccessRange(token, lastRangeEnd, (InsertionPointLocator::AccessSpec) newXsSpec));
+                    AccessRange r(token, lastRangeEnd, newXsSpec, xsDecl->colon_token);
+                    ranges.append(r);
                 }
             }
         }

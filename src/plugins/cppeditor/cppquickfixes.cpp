@@ -2174,6 +2174,7 @@ void registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
     plugIn->addAutoReleasedObject(new ApplyDeclDefLinkChanges);
     plugIn->addAutoReleasedObject(new IncludeAdder);
     plugIn->addAutoReleasedObject(new ExtractFunction);
+    plugIn->addAutoReleasedObject(new GetterSetter);
     plugIn->addAutoReleasedObject(new RearrangeParamDeclList);
     plugIn->addAutoReleasedObject(new PointerDeclarationFormatterOp);
 }
