@@ -254,16 +254,11 @@ void AndroidRunner::startLogcat()
 void AndroidRunner::stop()
 {
     QMutexLocker locker(&m_mutex);
-    m_adbLogcatProcess.kill();
     m_checkPIDTimer.stop();
     if (m_processPID == -1) {
         m_adbLogcatProcess.kill();
         return; // don't emit another signal
     }
-}
-
-void AndroidRunner::asyncStop()
-{
     killPID();
     m_adbLogcatProcess.kill();
     m_adbLogcatProcess.waitForFinished(-1);
