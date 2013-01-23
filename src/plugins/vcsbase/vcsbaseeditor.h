@@ -220,8 +220,8 @@ public slots:
 private slots:
     void slotActivateAnnotation();
     void slotPopulateDiffBrowser();
-    void slotDiffBrowse(int);
-    void slotDiffCursorPositionChanged();
+    void slotJumpToEntry(int);
+    void slotCursorPositionChanged();
     void slotAnnotateRevision();
     void slotApplyDiffChunk();
     void slotPaste();

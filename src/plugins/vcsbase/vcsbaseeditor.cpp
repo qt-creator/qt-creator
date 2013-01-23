@@ -184,31 +184,6 @@ VcsBaseEditor::VcsBaseEditor(VcsBaseEditorWidget *widget,
     setContext(Core::Context(type->context, TextEditor::Constants::C_TEXTEDITOR));
 }
 
-// Diff editor: creates a browse combo in the toolbar for diff output.
-class VcsBaseDiffEditor : public VcsBaseEditor
-{
-public:
-    VcsBaseDiffEditor(VcsBaseEditorWidget *, const VcsBaseEditorParameters *type);
-
-    QComboBox *diffFileBrowseComboBox() const { return m_diffFileBrowseComboBox; }
-
-private:
-    QComboBox *m_diffFileBrowseComboBox;
-};
-
-VcsBaseDiffEditor::VcsBaseDiffEditor(VcsBaseEditorWidget *w, const VcsBaseEditorParameters *type) :
-    VcsBaseEditor(w, type),
-    m_diffFileBrowseComboBox(new QComboBox)
-{
-    m_diffFileBrowseComboBox->setMinimumContentsLength(20);
-    // Make the combo box prefer to expand
-    QSizePolicy policy = m_diffFileBrowseComboBox->sizePolicy();
-    policy.setHorizontalPolicy(QSizePolicy::Expanding);
-    m_diffFileBrowseComboBox->setSizePolicy(policy);
-
-    insertExtraToolBarWidget(Left, m_diffFileBrowseComboBox);
-}
-
 // ----------- VcsBaseEditorPrivate
 
 namespace Internal {
@@ -590,6 +565,9 @@ public:
     VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget* editorWidget, const VcsBaseEditorParameters *type);
 
     AbstractTextCursorHandler *findTextCursorHandler(const QTextCursor &cursor);
+    // creates a browse combo in the toolbar for quick access to entries.
+    // Can be used for diff and log. Combo created on first call.
+    QComboBox *entriesComboBox();
 
     const VcsBaseEditorParameters *m_parameters;
 
@@ -609,6 +587,9 @@ public:
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
 
     QColor m_backgroundColor;
+
+private:
+    QComboBox *m_entriesComboBox;
 };
 
 VcsBaseEditorWidgetPrivate::VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget *editorWidget,
@@ -620,7 +601,8 @@ VcsBaseEditorWidgetPrivate::VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget *edit
     m_fileLogAnnotateEnabled(false),
     m_editor(0),
     m_configurationWidget(0),
-    m_mouseDragging(false)
+    m_mouseDragging(false),
+    m_entriesComboBox(0)
 {
     m_textCursorHandlers.append(new ChangeTextCursorHandler(editorWidget));
     m_textCursorHandlers.append(new UrlTextCursorHandler(editorWidget));
@@ -634,6 +616,21 @@ AbstractTextCursorHandler *VcsBaseEditorWidgetPrivate::findTextCursorHandler(con
             return handler;
     }
     return 0;
+}
+
+QComboBox *VcsBaseEditorWidgetPrivate::entriesComboBox()
+{
+    if (m_entriesComboBox)
+        return m_entriesComboBox;
+    m_entriesComboBox = new QComboBox;
+    m_entriesComboBox->setMinimumContentsLength(20);
+    // Make the combo box prefer to expand
+    QSizePolicy policy = m_entriesComboBox->sizePolicy();
+    policy.setHorizontalPolicy(QSizePolicy::Expanding);
+    m_entriesComboBox->setSizePolicy(policy);
+
+    m_editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_entriesComboBox);
+    return m_entriesComboBox;
 }
 
 } // namespace Internal
@@ -677,6 +674,7 @@ void VcsBaseEditorWidget::setDiffFilePattern(const QRegExp &pattern)
 
 void VcsBaseEditorWidget::init()
 {
+    d->m_editor = editor();
     switch (d->m_parameters->type) {
     case RegularCommandOutput:
     case LogOutput:
@@ -686,8 +684,10 @@ void VcsBaseEditorWidget::init()
         connect(this, SIGNAL(textChanged()), this, SLOT(slotActivateAnnotation()));
         break;
     case DiffOutput:
+        // Diff: set up diff file browsing
+        connect(d->entriesComboBox(), SIGNAL(activated(int)), this, SLOT(slotJumpToEntry(int)));
         connect(this, SIGNAL(textChanged()), this, SLOT(slotPopulateDiffBrowser()));
-        connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(slotDiffCursorPositionChanged()));
+        connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(slotCursorPositionChanged()));
         break;
     }
     if (hasDiff()) {
@@ -798,17 +798,7 @@ bool VcsBaseEditorWidget::isModified() const
 
 TextEditor::BaseTextEditor *VcsBaseEditorWidget::createEditor()
 {
-    TextEditor::BaseTextEditor *editor = 0;
-    if (d->m_parameters->type == DiffOutput) {
-        // Diff: set up diff file browsing
-        VcsBaseDiffEditor *de = new VcsBaseDiffEditor(this, d->m_parameters);
-        QComboBox *diffBrowseComboBox = de->diffFileBrowseComboBox();
-        connect(diffBrowseComboBox, SIGNAL(activated(int)), this, SLOT(slotDiffBrowse(int)));
-        editor = de;
-    } else {
-        editor = new VcsBaseEditor(this, d->m_parameters);
-    }
-    d->m_editor = editor;
+    TextEditor::BaseTextEditor *editor = new VcsBaseEditor(this, d->m_parameters);
 
     // Pass on signals.
     connect(this, SIGNAL(describeRequested(QString,QString)),
@@ -820,9 +810,8 @@ TextEditor::BaseTextEditor *VcsBaseEditorWidget::createEditor()
 
 void VcsBaseEditorWidget::slotPopulateDiffBrowser()
 {
-    VcsBaseDiffEditor *de = static_cast<VcsBaseDiffEditor*>(editor());
-    QComboBox *diffBrowseComboBox = de->diffFileBrowseComboBox();
-    diffBrowseComboBox->clear();
+    QComboBox *entriesComboBox = d->entriesComboBox();
+    entriesComboBox->clear();
     d->m_diffSections.clear();
     // Create a list of section line numbers (diffed files)
     // and populate combo with filenames.
@@ -838,15 +827,15 @@ void VcsBaseEditorWidget::slotPopulateDiffBrowser()
                 lastFileName = file;
                 // ignore any headers
                 d->m_diffSections.push_back(d->m_diffSections.empty() ? 0 : lineNumber);
-                diffBrowseComboBox->addItem(QFileInfo(file).fileName());
+                entriesComboBox->addItem(QFileInfo(file).fileName());
             }
         }
     }
 }
 
-void VcsBaseEditorWidget::slotDiffBrowse(int index)
+void VcsBaseEditorWidget::slotJumpToEntry(int index)
 {
-    // goto diffed file as indicated by index/line number
+    // goto diff/log entry as indicated by index/line number
     if (index < 0 || index >= d->m_diffSections.size())
         return;
     const int lineNumber = d->m_diffSections.at(index) + 1; // TextEdit uses 1..n convention
@@ -874,11 +863,10 @@ static int sectionOfLine(int line, const QList<int> &sections)
     return sectionCount - 1;
 }
 
-void VcsBaseEditorWidget::slotDiffCursorPositionChanged()
+void VcsBaseEditorWidget::slotCursorPositionChanged()
 {
-    // Adapt diff file browse combo to new position
+    // Adapt entries combo to new position
     // if the cursor goes across a file line.
-    QTC_ASSERT(d->m_parameters->type == DiffOutput, return);
     const int newCursorLine = textCursor().blockNumber();
     if (newCursorLine == d->m_cursorLine)
         return;
@@ -886,12 +874,11 @@ void VcsBaseEditorWidget::slotDiffCursorPositionChanged()
     d->m_cursorLine = newCursorLine;
     const int section = sectionOfLine(d->m_cursorLine, d->m_diffSections);
     if (section != -1) {
-        VcsBaseDiffEditor *de = static_cast<VcsBaseDiffEditor*>(editor());
-        QComboBox *diffBrowseComboBox = de->diffFileBrowseComboBox();
-        if (diffBrowseComboBox->currentIndex() != section) {
-            const bool blocked = diffBrowseComboBox->blockSignals(true);
-            diffBrowseComboBox->setCurrentIndex(section);
-            diffBrowseComboBox->blockSignals(blocked);
+        QComboBox *entriesComboBox = d->entriesComboBox();
+        if (entriesComboBox->currentIndex() != section) {
+            const bool blocked = entriesComboBox->blockSignals(true);
+            entriesComboBox->setCurrentIndex(section);
+            entriesComboBox->blockSignals(blocked);
         }
     }
 }
