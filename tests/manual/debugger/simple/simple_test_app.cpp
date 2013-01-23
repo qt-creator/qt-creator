@@ -4604,12 +4604,12 @@ namespace basic {
 
     void testInt()
     {
-        quint64 u64 = ULONG_LONG_MAX;
-        qint64 s64 = LONG_LONG_MAX;
+        quint64 u64 = ULLONG_MAX;
+        qint64 s64 = LLONG_MAX;
         quint32 u32 = ULONG_MAX;
         qint32 s32 = LONG_MAX;
         quint64 u64s = 0;
-        qint64 s64s = LONG_LONG_MIN;
+        qint64 s64s = LLONG_MIN;
         quint32 u32s = 0;
         qint32 s32s = LONG_MIN;
 
