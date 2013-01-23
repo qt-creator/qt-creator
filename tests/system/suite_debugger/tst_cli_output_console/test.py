@@ -48,11 +48,16 @@ def main():
         waitFor("runControlFinished==True", 20000)
         if not runControlFinished:
             test.warning("Waiting for runControlFinished timed out")
-        appOutput = str(waitForObject("{type='Core::OutputWindow' unnamed='1' visible='1'}").plainText)
-        verifyOutput(appOutput, outputStdOut, "std::cout", "Application Output")
-        verifyOutput(appOutput, outputStdErr, "std::cerr", "Application Output")
-        verifyOutput(appOutput, outputQDebug, "qDebug()", "Application Output")
-        clickButton(waitForObject(":Qt Creator_CloseButton"))
+        ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
+        try:
+            appOutput = str(waitForObject("{type='Core::OutputWindow' unnamed='1' visible='1'}").plainText)
+            verifyOutput(appOutput, outputStdOut, "std::cout", "Application Output")
+            verifyOutput(appOutput, outputStdErr, "std::cerr", "Application Output")
+            verifyOutput(appOutput, outputQDebug, "qDebug()", "Application Output")
+            clickButton(waitForObject(":Qt Creator_CloseButton"))
+        except:
+            test.fatal("Could not find Application Output Window",
+                       "Did the application run at all?")
 
         test.log("Debugging application")
         isMsvc = isMsvcConfig(len(checkedTargets), kit)
@@ -79,11 +84,16 @@ def main():
             else:
                 test.fatal("Debugger log did not behave as expected. Please check manually.")
         switchViewTo(ViewConstants.EDIT)
-        appOutput = str(waitForObject("{type='Core::OutputWindow' unnamed='1' visible='1'}").plainText)
-        if not isMsvc:
-            verifyOutput(appOutput, outputStdOut, "std::cout", "Application Output")
-            verifyOutput(appOutput, outputStdErr, "std::cerr", "Application Output")
-            verifyOutput(appOutput, outputQDebug, "qDebug()", "Application Output")
-        clickButton(waitForObject(":Qt Creator_CloseButton"))
+        ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
+        try:
+            appOutput = str(waitForObject("{type='Core::OutputWindow' unnamed='1' visible='1'}").plainText)
+            if not isMsvc:
+                verifyOutput(appOutput, outputStdOut, "std::cout", "Application Output")
+                verifyOutput(appOutput, outputStdErr, "std::cerr", "Application Output")
+                verifyOutput(appOutput, outputQDebug, "qDebug()", "Application Output")
+            clickButton(waitForObject(":Qt Creator_CloseButton"))
+        except:
+            test.fatal("Could not find Application Output Window",
+                       "Did the application run at all?")
 
     invokeMenuItem("File", "Exit")
