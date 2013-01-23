@@ -86,10 +86,6 @@ enum {
 namespace QmlDesigner {
 
 
-bool DesignDocument::s_clearCrumblePath = true;
-bool DesignDocument::s_pushCrumblePath = true;
-
-
 /**
   \class QmlDesigner::DesignDocument
 
@@ -370,15 +366,12 @@ void DesignDocument::goIntoComponent()
     if (rewriterView())
         selectedNodes = rewriterView()->selectedModelNodes();
 
-    s_clearCrumblePath = false;
     if (selectedNodes.count() == 1) {
         qDebug() << __FUNCTION__ << selectedNodes.first();
 
         viewManager().setComponentNode(selectedNodes.first());
         ModelNodeOperations::goIntoComponent(selectedNodes.first());
     }
-
-    s_clearCrumblePath = true;
 }
 
 void DesignDocument::activateCurrentModel(TextModifier *textModifier)
