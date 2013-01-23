@@ -1,7 +1,10 @@
 
 TEMPLATE = subdirs
 
-SUBDIRS = dumpers.pro version.pro namedemangler.pro
+SUBDIRS += version.pro
+SUBDIRS += dumpers.pro
+#SUBDIRS += olddumpers.pro
+SUBDIRS += namedemangler.pro
 
 !win32-msvc*: SUBDIRS += gdb.pro
 
