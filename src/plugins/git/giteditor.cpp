@@ -219,6 +219,20 @@ void GitEditor::commandFinishedGotoLine(bool ok, int /* exitCode */, const QVari
     }
 }
 
+void GitEditor::cherryPickChange()
+{
+    const QFileInfo fi(source());
+    const QString workingDirectory = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
+    GitPlugin::instance()->gitClient()->cherryPickCommit(workingDirectory, m_currentChange);
+}
+
+void GitEditor::revertChange()
+{
+    const QFileInfo fi(source());
+    const QString workingDirectory = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
+    GitPlugin::instance()->gitClient()->revertCommit(workingDirectory, m_currentChange);
+}
+
 QString GitEditor::decorateVersion(const QString &revision) const
 {
     const QFileInfo fi(source());
@@ -249,6 +263,12 @@ bool GitEditor::isValidRevision(const QString &revision) const
     return GitPlugin::instance()->gitClient()->isValidRevision(revision);
 }
 
+void GitEditor::addChangeActions(QMenu *menu, const QString &change)
+{
+    m_currentChange = change;
+    menu->addAction(tr("Cherry-pick Change %1").arg(change), this, SLOT(cherryPickChange()));
+    menu->addAction(tr("Revert Change %1").arg(change), this, SLOT(revertChange()));
+}
+
 } // namespace Internal
 } // namespace Git
-

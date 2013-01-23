@@ -365,6 +365,7 @@ void ChangeTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType typ
     default:
         break;
     }
+    widget->addChangeActions(menu, m_currentChange);
 }
 
 QString ChangeTextCursorHandler::currentContents() const
@@ -1447,6 +1448,10 @@ QString VcsBaseEditorWidget::fileNameFromDiffSpecification(const QTextBlock &inB
         }
     }
     return QString();
+}
+
+void VcsBaseEditorWidget::addChangeActions(QMenu *, const QString &)
+{
 }
 
 QString VcsBaseEditorWidget::decorateVersion(const QString &revision) const

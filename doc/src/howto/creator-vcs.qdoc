@@ -199,6 +199,7 @@
     display a description of the change including the diff.
     Right-clicking on an identifier brings up a context menu that lets you
     show annotation views of previous versions (see \l{Annotating Files}).
+    With Git you can also choose to cherry-pick or revert a change.
 
     \image qtcreator-vcs-log.png
 

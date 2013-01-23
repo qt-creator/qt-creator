@@ -236,6 +236,9 @@ protected:
     // Revert a patch chunk. Default implementation uses patch.exe
     virtual bool applyDiffChunk(const DiffChunk &dc, bool revert = false) const;
 
+    virtual void addChangeActions(QMenu *menu, const QString &change);
+
+private:
     // Implement to return a set of change identifiers in
     // annotation mode
     virtual QSet<QString> annotationChanges() const = 0;

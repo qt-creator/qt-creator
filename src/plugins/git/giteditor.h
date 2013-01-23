@@ -54,6 +54,10 @@ public slots:
     // Matches  the signature of the finished signal of GitCommand
     void commandFinishedGotoLine(bool ok, int exitCode, const QVariant &v);
 
+private slots:
+    void cherryPickChange();
+    void revertChange();
+
 private:
     QSet<QString> annotationChanges() const;
     QString changeUnderCursor(const QTextCursor &) const;
@@ -61,9 +65,11 @@ private:
     QString decorateVersion(const QString &revision) const;
     QStringList annotationPreviousVersions(const QString &revision) const;
     bool isValidRevision(const QString &revision) const;
+    void addChangeActions(QMenu *menu, const QString &change);
 
     mutable QRegExp m_changeNumberPattern8;
     mutable QRegExp m_changeNumberPattern40;
+    QString m_currentChange;
 };
 
 } // namespace Git
