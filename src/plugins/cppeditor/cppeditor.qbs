@@ -1,6 +1,8 @@
 import qbs.base 1.0
+import qbs.fileinfo as FileInfo
 
 import "../QtcPlugin.qbs" as QtcPlugin
+import "../../../qbs/defaults.js" as Defaults
 
 QtcPlugin {
     name: "CppEditor"
@@ -57,4 +59,13 @@ QtcPlugin {
         "cpptypehierarchy.cpp",
         "cpptypehierarchy.h",
     ]
+
+    Group {
+        condition: Defaults.testsEnabled(qbs)
+        files: [
+            "cppquickfix_test.cpp"
+        ]
+
+        cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])
+    }
 }
