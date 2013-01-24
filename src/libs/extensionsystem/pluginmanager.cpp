@@ -672,17 +672,18 @@ void PluginManager::startTests()
 
         // Collect all test functions/methods of the plugin.
         QStringList allTestFunctions;
-        const QMetaObject *mo = pluginSpec->plugin()->metaObject();
+        const QMetaObject *metaObject = pluginSpec->plugin()->metaObject();
 
-        for (int i = mo->methodOffset(); i < mo->methodCount(); ++i) {
+        for (int i = metaObject->methodOffset(); i < metaObject->methodCount(); ++i) {
 #if QT_VERSION >= 0x050000
-            const QByteArray signature = mo->method(i).methodSignature();
+            const QByteArray signature = metaObject->method(i).methodSignature();
 #else
-            const QByteArray signature = mo->method(i).signature();
+            const QByteArray signature = metaObject->method(i).signature();
 #endif
             if (signature.startsWith("test") && !signature.endsWith("_data()")) {
                 const QString method = QString::fromLatin1(signature);
-                allTestFunctions.append(method.left(method.size()-2));
+                const QString methodName = method.left(method.size() - 2);
+                allTestFunctions.append(methodName);
             }
         }
 
