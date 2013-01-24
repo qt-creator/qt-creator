@@ -1,17 +1,11 @@
     \section2 Specifying Run Settings for Linux-Based Devices
 
-    To run an application on a Linux-based device (embedded Linux, MeeGo
-    Harmattan, or Maemo), create and select a device configuration in the
-    \l{glossary-buildandrun-kit}{kit} that is used for building and running the project and set its
-    device type correspondingly.
-    You can also pass command line arguments to your application.
-
-    \image qtcreator-screenshot-run-settings-maemo.png "Run settings for Linux-based devices"
-
-    To run and debug applications on Linux-based devices, you must
-    create connections from the development PC to the devices. Click
-    \gui {Manage device configurations} to create connections. For more
-    information, see \l{Configuring Connections to Maemo Devices},
+    To run and debug an application on a Linux-based device (embedded Linux,
+    MeeGo Harmattan, or Maemo), you must create connections from the development
+    host to the device and add the device configurations to
+    \l{glossary-buildandrun-kit}{kits}. Click \gui {Manage Kits} to add devices
+    to kits. For more information, see
+    \l{Configuring Connections to Maemo Devices},
     \l{Configuring Connections to Harmattan Devices}, and
     \l {Connecting Embedded Linux Devices}.
 
@@ -23,3 +17,14 @@
     on devices that are of the same type and run the same firmware as the
     connected device. For more information, see
     \l{Deploying Applications to Linux-Based Devices}.
+
+    For generic embedded Linux devices, the run settings display the path to the
+    executable file on the development host and on the device. To specify that
+    another application launches your application, for example, enter the
+    command in the \gui {Alternate executable on device} field and select the
+    \gui {Use this command instead} check box.
+
+    \image qtcreator-run-settings-linux.png "Run settings for Linux-based devices"
+
+    You can specify command line arguments to pass to your application in the
+    \gui Arguments field.
