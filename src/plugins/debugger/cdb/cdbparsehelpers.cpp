@@ -28,13 +28,14 @@
 ****************************************************************************/
 
 #include "cdbparsehelpers.h"
+
 #include "breakpoint.h"
-#include "threadshandler.h"
-#include "registerhandler.h"
 #include "bytearrayinputstream.h"
-#include "gdb/gdbmi.h"
+#include "debuggerprotocol.h"
 #include "disassemblerlines.h"
+#include "registerhandler.h"
 #include "shared/hostutils.h"
+#include "threadshandler.h"
 
 #include <utils/qtcassert.h>
 

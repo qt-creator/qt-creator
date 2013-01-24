@@ -28,11 +28,11 @@
 ****************************************************************************/
 
 #include "threadshandler.h"
-#include "gdb/gdbmi.h"
-#include "watchutils.h"
 
 #include "debuggerconstants.h"
 #include "debuggercore.h"
+#include "debuggerprotocol.h"
+#include "watchutils.h"
 
 #include <utils/qtcassert.h>
 

@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "gdbmi.h"
+#include "debuggerprotocol.h"
 
 #include <utils/qtcassert.h>
 

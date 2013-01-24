@@ -8,5 +8,5 @@ INCLUDEPATH += $$DEBUGGERDIR $$UTILSDIR
 
 SOURCES += \
     tst_version.cpp \
-    $$DEBUGGERDIR/gdb/gdbmi.cpp \
+    $$DEBUGGERDIR/debuggerprotocol.cpp \
 

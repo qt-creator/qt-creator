@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "gdb/gdbmi.h"
+#include "debuggerprotocol.h"
 
 #include <QtTest>
 

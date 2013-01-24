@@ -27,8 +27,10 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_GDBMI_H
-#define DEBUGGER_GDBMI_H
+#ifndef DEBUGGER_PROTOCOL_H
+#define DEBUGGER_PROTOCOL_H
+
+#include "debugger_global.h"
 
 #include <QByteArray>
 #include <QList>
@@ -175,6 +177,5 @@ void extractGdbVersion(const QString &msg,
 } // namespace Internal
 } // namespace Debugger
 
-//Q_DECLARE_METATYPE(GdbDebugger::Internal::GdbMi)
 
-#endif // DEBUGGER_GDBMI_H
+#endif // DEBUGGER_PROTOCOL_H

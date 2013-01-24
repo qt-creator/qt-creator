@@ -29,12 +29,11 @@
 
 #include "termgdbadapter.h"
 
-#include "debuggerstartparameters.h"
-#include "gdbmi.h"
-#include "gdbengine.h"
-#include "procinterrupt.h"
-#include "debuggerstringutils.h"
 #include "debuggercore.h"
+#include "debuggerprotocol.h"
+#include "debuggerstartparameters.h"
+#include "debuggerstringutils.h"
+#include "procinterrupt.h"
 #include "shared/hostutils.h"
 
 #include <utils/hostosinfo.h>

@@ -34,6 +34,7 @@ HEADERS += \
     debuggerengine.h \
     debuggermainwindow.h \
     debuggerplugin.h \
+    debuggerprotocol.h \
     debuggerrunner.h \
     debuggerstartparameters.h \
     debuggerstreamops.h \
@@ -85,6 +86,7 @@ SOURCES += \
     debuggerengine.cpp \
     debuggermainwindow.cpp \
     debuggerplugin.cpp \
+    debuggerprotocol.cpp \
     debuggerrunner.cpp \
     debuggerstreamops.cpp \
     debuggerkitconfigwidget.cpp \

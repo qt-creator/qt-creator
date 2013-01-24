@@ -28,7 +28,8 @@
 ****************************************************************************/
 
 #include "gdbengine.h"
-#include "gdbmi.h"
+
+#include "debuggerprotocol.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerstringutils.h"

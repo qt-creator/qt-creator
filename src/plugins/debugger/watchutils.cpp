@@ -29,8 +29,8 @@
 
 #include "watchutils.h"
 #include "watchdata.h"
+#include "debuggerprotocol.h"
 #include "debuggerstringutils.h"
-#include "gdb/gdbmi.h"
 
 #include <utils/qtcassert.h>
 

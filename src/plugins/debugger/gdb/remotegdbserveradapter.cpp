@@ -30,17 +30,16 @@
 #include "remotegdbserveradapter.h"
 
 #include "debuggeractions.h"
-#include "debuggerstartparameters.h"
 #include "debuggercore.h"
+#include "debuggerprotocol.h"
+#include "debuggerstartparameters.h"
 #include "debuggerstringutils.h"
-#include "gdbengine.h"
-#include "gdbmi.h"
 
+#include <projectexplorer/abi.h>
+#include <utils/fancymainwindow.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
-#include <utils/fancymainwindow.h>
 #include <utils/qtcprocess.h>
-#include <projectexplorer/abi.h>
 
 #include <QFileInfo>
 #include <QMessageBox>

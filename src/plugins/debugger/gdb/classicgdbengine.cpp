@@ -28,13 +28,12 @@
 ****************************************************************************/
 
 #include "gdbengine.h"
-#include "gdbmi.h"
 
-#include "debuggerstartparameters.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
+#include "debuggerprotocol.h"
+#include "debuggerstartparameters.h"
 #include "debuggerstringutils.h"
-
 #include "stackhandler.h"
 #include "watchhandler.h"
 

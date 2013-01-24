@@ -29,11 +29,12 @@
 
 #include "pdbengine.h"
 
-#include "debuggerstartparameters.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerdialogs.h"
 #include "debuggerplugin.h"
+#include "debuggerprotocol.h"
+#include "debuggerstartparameters.h"
 #include "debuggerstringutils.h"
 #include "debuggertooltipmanager.h"
 
@@ -43,8 +44,6 @@
 #include "stackhandler.h"
 #include "watchhandler.h"
 #include "watchutils.h"
-
-#include "../gdb/gdbmi.h"
 
 #include <utils/qtcassert.h>
 

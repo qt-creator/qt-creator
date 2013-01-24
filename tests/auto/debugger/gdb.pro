@@ -9,4 +9,4 @@ INCLUDEPATH += $$DEBUGGERDIR $$UTILSDIR
 
 SOURCES += \
     tst_gdb.cpp \
-    $$DEBUGGERDIR/gdb/gdbmi.cpp \
+    $$DEBUGGERDIR/debuggerprotocol.cpp \

@@ -28,11 +28,11 @@
 ****************************************************************************/
 
 #include "abstractplaingdbadapter.h"
-#include "gdbmi.h"
-#include "gdbengine.h"
-#include "debuggerstartparameters.h"
+
 #include "debuggeractions.h"
 #include "debuggercore.h"
+#include "debuggerprotocol.h"
+#include "debuggerstartparameters.h"
 #include "debuggerstringutils.h"
 
 #include <QDir>

@@ -7,8 +7,8 @@ UTILSDIR    = $$IDE_SOURCE_TREE/src/libs/utils
 MACROSDIR   = $$IDE_SOURCE_TREE/share/qtcreator/dumper
 
 SOURCES += \
-    $$DEBUGGERDIR/gdb/gdbmi.cpp \
-    $$MACROSDIR/dumper.cpp \
+    #$$DUMPERDIR/dumper.cpp \
+    $$DEBUGGERDIR/debuggerprotocol.cpp \
     tst_dumpers.cpp
 
 exists($$QMAKE_INCDIR_QT/QtCore/private/qobject_p.h):DEFINES += USE_PRIVATE

@@ -29,12 +29,11 @@
 
 #include "coregdbadapter.h"
 
-#include "debuggerstartparameters.h"
-#include "debuggercore.h"
 #include "debuggeractions.h"
+#include "debuggercore.h"
+#include "debuggerprotocol.h"
+#include "debuggerstartparameters.h"
 #include "debuggerstringutils.h"
-#include "gdbmi.h"
-#include "gdbengine.h"
 
 #include <utils/consoleprocess.h>
 #include <utils/elfreader.h>

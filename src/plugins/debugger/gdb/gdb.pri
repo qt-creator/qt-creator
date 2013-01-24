@@ -1,5 +1,4 @@
 HEADERS += \
-    $$PWD/gdbmi.h \
     $$PWD/gdbengine.h \
     $$PWD/gdboptionspage.h \
     $$PWD/attachgdbadapter.h \
@@ -15,7 +14,6 @@ HEADERS += \
     $$PWD/startgdbserverdialog.h
 
 SOURCES += \
-    $$PWD/gdbmi.cpp \
     $$PWD/gdbengine.cpp \
     $$PWD/classicgdbengine.cpp \
     $$PWD/pythongdbengine.cpp \

@@ -28,12 +28,11 @@
 ****************************************************************************/
 
 #include "attachgdbadapter.h"
-#include "gdbmi.h"
-#include "debuggerstartparameters.h"
 
-#include "gdbengine.h"
-#include "procinterrupt.h"
+#include "debuggerprotocol.h"
 #include "debuggerstringutils.h"
+#include "debuggerstartparameters.h"
+#include "procinterrupt.h"
 
 #include <utils/qtcassert.h>
 
