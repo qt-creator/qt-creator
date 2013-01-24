@@ -56,7 +56,6 @@ ToolBox::ToolBox(QWidget *parentWidget)
     layout->setMargin(0);
     layout->setSpacing(0);
     frame->setLayout(layout);
-    qDebug() << __FUNCTION__;
     layout->addWidget(m_formEditorCrumbleBar->crumblePath());
     frame->setProperty("panelwidget", true);
     frame->setProperty("panelwidget_singlerow", false);

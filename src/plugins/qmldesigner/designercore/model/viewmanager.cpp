@@ -131,7 +131,6 @@ void ViewManager::setItemLibraryViewResourcePath(const QString &resourcePath)
 
 void ViewManager::setComponentNode(const ModelNode &componentNode)
 {
-    qDebug() << __FUNCTION__ << componentNode;
     m_componentView.setComponentNode(componentNode);
 }
 
