@@ -631,7 +631,7 @@ void QtOptionsPageWidget::addQtDir()
 {
     Utils::FileName qtVersion = Utils::FileName::fromString(
                 QFileDialog::getOpenFileName(this,
-                                             tr("Select a qmake executable"),
+                                             tr("Select a qmake Executable"),
                                              QString(),
                                              filterForQmakeFileDialog(),
                                              0,
@@ -647,7 +647,7 @@ void QtOptionsPageWidget::addQtDir()
     }
     if (version) {
         // Already exist
-        QMessageBox::warning(this, tr("Qt known"),
+        QMessageBox::warning(this, tr("Qt Version Already Known"),
                              tr("This Qt version was already registered as \"%1\".")
                              .arg(version->displayName()));
         return;
@@ -668,8 +668,8 @@ void QtOptionsPageWidget::addQtDir()
         m_versionUi->nameEdit->setFocus();
         m_versionUi->nameEdit->selectAll();
     } else {
-        QMessageBox::warning(this, tr("Qmake not executable"),
-                             tr("The qmake %1 could not be added: %2").arg(qtVersion.toUserOutput()).arg(error));
+        QMessageBox::warning(this, tr("Qmake not Executable"),
+                             tr("The qmake executable %1 could not be added: %2").arg(qtVersion.toUserOutput()).arg(error));
         return;
     }
     updateCleanUpButton();
@@ -710,7 +710,7 @@ void QtOptionsPageWidget::editPath()
     if (current->type() != version->type()) {
         // not the same type, error out
         QMessageBox::critical(this, tr("Incompatible Qt Versions"),
-                              tr("The Qt version selected must be for the same device type."),
+                              tr("The Qt version selected must match the device type."),
                               QMessageBox::Ok);
         delete version;
         return;
