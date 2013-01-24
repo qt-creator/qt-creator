@@ -347,6 +347,10 @@ static bool isDesignerMode(Core::IMode *mode)
 
 void QmlDesignerPlugin::onCurrentModeChanged(Core::IMode *newMode, Core::IMode *oldMode)
 {
+    if (Core::EditorManager::currentEditor()
+            && Core::EditorManager::currentEditor()->id() != QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
+        return;
+
     if ((currentDesignDocument()
          && Core::EditorManager::currentEditor() == currentDesignDocument()->editor())
             && isDesignerMode(newMode))
