@@ -137,7 +137,7 @@ QmlJS::SimpleReaderNode::Ptr templateConfiguration()
         s_templateConfiguration = reader.readFile(fileName);
 
         if (!s_templateConfiguration)
-            qWarning() << PropertyEditor::tr("template defitions:") << reader.errors();
+            qWarning().nospace() << "template definitions:" << reader.errors();
     }
 
     return s_templateConfiguration;
@@ -712,7 +712,7 @@ QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType, const QmlO
                         qmlTemplate += source.arg(name).arg(properName);
                         emptyTemplate = false;
                     } else {
-                        qWarning() << PropertyEditor::tr("template defition source file not found:") << fileName;
+                        qWarning().nospace() << "template definition source file not found:" << fileName;
                     }
                 }
         }
