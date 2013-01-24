@@ -196,6 +196,12 @@ ITextMarkable *BaseTextDocument::documentMarker() const
     return documentLayout->markableInterface();
 }
 
+/*!
+ * \brief Saves the document to the specified file.
+ * \param errorString output parameter, contains error reason.
+ * \param autoSave signalise that this function was called by the automatic save routine.
+ * If autosave is true, the cursor will be restored and some signals suppressed.
+ */
 bool BaseTextDocument::save(QString *errorString, const QString &fileName, bool autoSave)
 {
     QTextCursor cursor(d->m_document);
@@ -247,6 +253,7 @@ bool BaseTextDocument::save(QString *errorString, const QString &fileName, bool 
 
     const bool ok = write(fName, saveFormat, d->m_document->toPlainText(), errorString);
 
+    // restore text cursor
     if (autoSave && undos < d->m_document->availableUndoSteps()) {
         d->m_document->undo();
         if (editorWidget) {
@@ -263,6 +270,7 @@ bool BaseTextDocument::save(QString *errorString, const QString &fileName, bool 
     if (autoSave)
         return true;
 
+    // inform about the new filename
     const QFileInfo fi(fName);
     const QString oldFileName = d->m_fileName;
     d->m_fileName = QDir::cleanPath(fi.absoluteFilePath());
