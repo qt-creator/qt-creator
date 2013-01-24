@@ -582,10 +582,10 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     // --------------
     gitContainer->addSeparator(globalcontext);
 
-    m_showAction = new QAction(tr("Show..."), this);
-    Core::Command *showCommitCommand = Core::ActionManager::registerAction(m_showAction, "Git.ShowCommit", globalcontext);
-    connect(m_showAction, SIGNAL(triggered()), this, SLOT(showCommit()));
-    gitContainer->addAction(showCommitCommand);
+    m_showAction
+            = createRepositoryAction(gitContainer,
+                                     tr("Show..."), Core::Id("Git.ShowCommit"),
+                                     globalcontext, true, SLOT(showCommit())).first;
 
     m_createRepositoryAction = new QAction(tr("Create Repository..."), this);
     Core::Command *createRepositoryCommand = Core::ActionManager::registerAction(m_createRepositoryAction, "Git.CreateRepository", globalcontext);
