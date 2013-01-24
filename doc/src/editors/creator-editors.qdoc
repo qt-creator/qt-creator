@@ -1735,6 +1735,33 @@
             \li Adds an #include directive to the current file to make the
                 declaration of a symbol available.
             \li Undeclared identifier
+        \row
+            \li Reformat Pointers or References
+            \li Reformats declarations with pointers or references according
+            to the code style settings for the current project. In case no
+            project is open, the current global code style settings are used.
+            For example, rewrites:
+
+    \code
+    char*s;
+    \endcode
+
+    as
+
+    \code
+    char *s;
+    \endcode
+
+    When applied to selections, all suitable declarations in the selection are
+    rewritten.
+
+            \li Declarations with pointers or references and selections
+            containing such declarations
+        \row
+            \li  Create Getter and Setter Member Functions
+            \li  Creates getter and setter member functions for member variables.
+            \li  Member variable in class definition
+
     \endtable
 
    \section2 Refactoring QML Code
