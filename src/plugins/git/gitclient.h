@@ -82,6 +82,27 @@ class GitClient : public QObject
     Q_OBJECT
 
 public:
+    enum StashResult { StashUnchanged, StashCanceled, StashFailed,
+                       Stashed, NotStashed /* User did not want it */ };
+
+    class StashGuard
+    {
+    public:
+        StashGuard(const QString &workingDirectory, const QString &keyword);
+        ~StashGuard();
+
+        void preventPop();
+        bool stashingFailed(bool includeNotStashed) const;
+        StashResult result() const { return stashResult; }
+
+    private:
+        bool pop;
+        StashResult stashResult;
+        QString message;
+        QString workingDir;
+        GitClient *client;
+    };
+
     static const char *stashNamePrefix;
 
     explicit GitClient(GitSettings *settings);
@@ -210,9 +231,6 @@ public:
 
     QString readConfigValue(const QString &workingDirectory, const QString &configVar) const;
 
-    enum StashResult { StashUnchanged, StashCanceled, StashFailed,
-                       Stashed, NotStashed /* User did not want it */ };
-    StashResult ensureStash(const QString &workingDirectory, const QString &keyword, QString *message = 0);
     StashResult ensureStash(const QString &workingDirectory, const QString &keyword, bool askUser,
                             QString *message, QString *errorMessage = 0);
 

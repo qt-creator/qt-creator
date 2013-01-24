@@ -118,7 +118,6 @@ private slots:
     void resetRepository();
     void startRevertCommit();
     void startCherryPickCommit();
-    void startRevertOrCherryPick(bool isRevert);
     void stageFile();
     void unstageFile();
     void gitkForCurrentFile();

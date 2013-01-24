@@ -443,18 +443,11 @@ void BranchModel::checkoutBranch(const QModelIndex &idx)
     if (branch.isEmpty())
         return;
 
+    GitClient::StashGuard stashGuard(m_workingDirectory, QLatin1String("Branch-Checkout"));
+    if (stashGuard.stashingFailed(false))
+        return;
+    stashGuard.preventPop();
     QString errorMessage;
-    switch (m_client->ensureStash(m_workingDirectory, QLatin1String("Branch-Checkout"), true, 0, &errorMessage)) {
-    case GitClient::StashUnchanged:
-    case GitClient::Stashed:
-    case GitClient::NotStashed:
-        break;
-    case GitClient::StashCanceled:
-        return;
-    case GitClient::StashFailed:
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
-        return;
-    }
     if (m_client->synchronousCheckoutBranch(m_workingDirectory, branch, &errorMessage)) {
         if (errorMessage.isEmpty()) {
             QModelIndex currentIdx = currentBranch();

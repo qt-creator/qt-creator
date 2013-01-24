@@ -99,6 +99,7 @@ public:
     // the file one.
     QString topLevel() const;
 
+    QString currentDirectoryOrTopLevel() const;
     bool equals(const VcsBasePluginState &rhs) const;
 
     friend VCSBASE_EXPORT QDebug operator<<(QDebug in, const VcsBasePluginState &state);

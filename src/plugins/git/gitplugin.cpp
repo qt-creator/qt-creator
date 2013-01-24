@@ -714,54 +714,40 @@ void GitPlugin::resetRepository()
         }
 }
 
-
 void GitPlugin::startRevertCommit()
 {
-    startRevertOrCherryPick(true);
-}
-
-void GitPlugin::startCherryPickCommit()
-{
-    startRevertOrCherryPick(false);
-}
-
-void GitPlugin::startRevertOrCherryPick(bool isRevert)
-{
     const VcsBase::VcsBasePluginState state = currentState();
-
-    QString stashKeyword = (isRevert ? QLatin1String("Revert") : QLatin1String("Cherry-pick"));
-
-    GitClient::StashResult stashResult =
-            m_gitClient->ensureStash(state.topLevel(), stashKeyword);
-    switch (stashResult) {
-    case GitClient::StashUnchanged:
-    case GitClient::Stashed:
-        break;
-    default:
+    QString workingDirectory = state.currentDirectoryOrTopLevel();
+    if (workingDirectory.isEmpty())
         return;
-    }
-
-    QString workingDirectory;
-    if (state.hasFile())
-        workingDirectory = state.currentFileDirectory();
-    else if (state.hasTopLevel())
-        workingDirectory = state.topLevel();
-    else
+    GitClient::StashGuard stashGuard(workingDirectory, QLatin1String("Revert"));
+    if (stashGuard.stashingFailed(true))
         return;
-
     ChangeSelectionDialog changeSelectionDialog(workingDirectory);
 
     if (changeSelectionDialog.exec() != QDialog::Accepted)
         return;
     const QString change = changeSelectionDialog.change();
-    if (change.isEmpty())
+    if (!change.isEmpty() && !m_gitClient->revertCommit(workingDirectory, change))
+        stashGuard.preventPop();
+}
+
+void GitPlugin::startCherryPickCommit()
+{
+    const VcsBase::VcsBasePluginState state = currentState();
+    QString workingDirectory = state.currentDirectoryOrTopLevel();
+    if (workingDirectory.isEmpty())
         return;
+    GitClient::StashGuard stashGuard(state.topLevel(), QLatin1String("Cherry-pick"));
+    if (stashGuard.stashingFailed(true))
+        return;
+    ChangeSelectionDialog changeSelectionDialog(workingDirectory);
 
-    bool success = (isRevert ? m_gitClient->revertCommit(workingDirectory, change) :
-                               m_gitClient->cherryPickCommit(workingDirectory, change));
-
-    if (success && (stashResult == GitClient::Stashed))
-        m_gitClient->stashPop(workingDirectory);
+    if (changeSelectionDialog.exec() != QDialog::Accepted)
+        return;
+    const QString change = changeSelectionDialog.change();
+    if (!change.isEmpty() && !m_gitClient->cherryPickCommit(workingDirectory, change))
+        stashGuard.preventPop();
 }
 
 void GitPlugin::stageFile()
@@ -960,20 +946,11 @@ void GitPlugin::pull()
         }
     }
 
-    GitClient::StashResult stashResult = m_gitClient->ensureStash(state.topLevel(), QLatin1String("Pull"));
-    switch (stashResult) {
-    case GitClient::StashUnchanged:
-    case GitClient::Stashed:
-        if (m_gitClient->synchronousPull(state.topLevel(), rebase) && (stashResult == GitClient::Stashed))
-            m_gitClient->stashPop(state.topLevel());
-        break;
-    case GitClient::NotStashed:
-        if (!rebase)
-            m_gitClient->synchronousPull(state.topLevel(), false);
-        break;
-    default:
-        break;
-    }
+    GitClient::StashGuard stashGuard(state.topLevel(), QLatin1String("Pull"));
+    if (stashGuard.stashingFailed(false) || (rebase && (stashGuard.result() == GitClient::NotStashed)))
+        return;
+    if (!m_gitClient->synchronousPull(state.topLevel(), false))
+        stashGuard.preventPop();
 }
 
 void GitPlugin::push()
@@ -1090,14 +1067,9 @@ void GitPlugin::promptApplyPatch()
 void GitPlugin::applyPatch(const QString &workingDirectory, QString file)
 {
     // Ensure user has been notified about pending changes
-    switch (m_gitClient->ensureStash(workingDirectory, QLatin1String("Apply-Patch"))) {
-    case GitClient::StashUnchanged:
-    case GitClient::Stashed:
-    case GitClient::NotStashed:
-        break;
-    default:
+    GitClient::StashGuard stashGuard(workingDirectory, QLatin1String("Apply-Patch"));
+    if (stashGuard.stashingFailed(false))
         return;
-    }
     // Prompt for file
     if (file.isEmpty()) {
         const QString filter = tr("Patches (*.patch *.diff)");
@@ -1219,10 +1191,7 @@ void GitPlugin::showCommit()
     if (!m_changeSelectionDialog)
         m_changeSelectionDialog = new ChangeSelectionDialog();
 
-    if (state.hasFile())
-        m_changeSelectionDialog->setWorkingDirectory(state.currentFileDirectory());
-    else if (state.hasTopLevel())
-        m_changeSelectionDialog->setWorkingDirectory(state.topLevel());
+    m_changeSelectionDialog->setWorkingDirectory(state.currentDirectoryOrTopLevel());
 
     if (m_changeSelectionDialog->exec() != QDialog::Accepted)
         return;

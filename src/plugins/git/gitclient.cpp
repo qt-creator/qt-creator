@@ -1567,16 +1567,6 @@ static inline int askWithDetailedText(QWidget *parent,
     return msgBox.exec();
 }
 
-// Convenience that pops up an msg box.
-GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory, const QString &keyword, QString *message)
-{
-    QString errorMessage;
-    const StashResult sr = ensureStash(workingDirectory, keyword, true, message, &errorMessage);
-    if (sr == StashFailed)
-        outputWindow()->appendError(errorMessage);
-    return sr;
-}
-
 // Ensure that changed files are stashed before a pull or similar
 GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory,
                                               const QString &keyword,
@@ -2538,6 +2528,41 @@ unsigned GitClient::synchronousGitVersion(QString *errorMessage) const
     const unsigned minor = versionPattern.cap(2).toUInt(0, 16);
     const unsigned patch = versionPattern.cap(3).toUInt(0, 16);
     return version(major, minor, patch);
+}
+
+GitClient::StashGuard::StashGuard(const QString &workingDirectory, const QString &keyword) :
+    pop(true),
+    workingDir(workingDirectory)
+{
+    client = GitPlugin::instance()->gitClient();
+    QString errorMessage;
+    stashResult = client->ensureStash(workingDir, keyword, true, &message, &errorMessage);
+    if (stashResult == GitClient::StashFailed)
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+}
+
+GitClient::StashGuard::~StashGuard()
+{
+    if (pop && stashResult == GitClient::Stashed)
+        client->stashPop(workingDir, message);
+}
+
+void GitClient::StashGuard::preventPop()
+{
+    pop = false;
+}
+
+bool GitClient::StashGuard::stashingFailed(bool includeNotStashed) const
+{
+    switch (stashResult) {
+    case GitClient::StashCanceled:
+    case GitClient::StashFailed:
+        return true;
+    case GitClient::NotStashed:
+        return includeNotStashed;
+    default:
+        return false;
+    }
 }
 
 } // namespace Internal

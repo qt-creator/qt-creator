@@ -80,6 +80,8 @@ QString ChangeSelectionDialog::workingDirectory() const
 
 void ChangeSelectionDialog::setWorkingDirectory(const QString &s)
 {
+    if (s.isEmpty())
+        return;
     m_ui.workingDirectoryEdit->setText(QDir::toNativeSeparators(s));
     m_ui.changeNumberEdit->setFocus(Qt::ActiveWindowFocusReason);
     m_ui.changeNumberEdit->setText(QLatin1String("HEAD"));

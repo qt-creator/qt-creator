@@ -409,6 +409,15 @@ QString VcsBasePluginState::topLevel() const
     return hasFile() ? data->m_state.currentFileTopLevel : data->m_state.currentProjectTopLevel;
 }
 
+QString VcsBasePluginState::currentDirectoryOrTopLevel() const
+{
+    if (hasFile())
+        return data->m_state.currentFileDirectory;
+    else if (data->m_state.hasProject())
+        return data->m_state.currentProjectTopLevel;
+    return QString();
+}
+
 bool VcsBasePluginState::equals(const Internal::State &rhs) const
 {
     return data->m_state.equals(rhs);
