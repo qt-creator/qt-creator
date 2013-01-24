@@ -45,17 +45,18 @@ def openCmakeProject(projectPath, buildDir):
     mkspec = __getMkspecFromQmake__("qmake")
     test.log("Using mkspec '%s'" % mkspec)
 
+    generatorText = "Unix Generator (Desktop 474 GCC)"
     if "win32-" in mkspec:
-        generatorName = {"win32-g++" : "MinGW Generator (MinGW from SDK)",
-                         "win32-msvc2008" : "NMake Generator (Microsoft Visual C++ Compiler 9.0 (x86))",
-                         "win32-msvc2010" : "NMake Generator (Microsoft Visual C++ Compiler 10.0 (x86))"}
-        index = -1
+        generatorName = {"win32-g++" : "MinGW Generator (Desktop 474 GCC)",
+                         "win32-msvc2008" : "NMake Generator (Desktop 474 MSVC2008)",
+                         "win32-msvc2010" : "NMake Generator (Desktop 474 MSVC2010)"}
         if mkspec in generatorName:
-            index = generatorCombo.findText(generatorName[mkspec])
-        if index == -1:
-            test.warning("No matching CMake generator for mkspec '%s' found." % mkspec)
-        else:
-            generatorCombo.setCurrentIndex(index)
+            generatorText = generatorName[mkspec]
+    index = generatorCombo.findText(generatorText)
+    if index == -1:
+        test.warning("No matching CMake generator for mkspec '%s' found." % mkspec)
+    else:
+        generatorCombo.setCurrentIndex(index)
 
     clickButton(waitForObject(":CMake Wizard.Run CMake_QPushButton"))
     try:
