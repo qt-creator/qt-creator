@@ -237,8 +237,9 @@ bool BaseTextDocument::save(QString *errorString, const QString &fileName, bool 
     if (!fileName.isEmpty())
         fName = fileName;
 
+    // check if UTF8-BOM has to be added or removed
     Utils::TextFileFormat saveFormat = format();
-    if (saveFormat.codec->name() == "UTF-8") {
+    if (saveFormat.codec->name() == "UTF-8" && supportsUtf8Bom()) {
         switch (d->m_extraEncodingSettings.m_utf8BomSetting) {
         case TextEditor::ExtraEncodingSettings::AlwaysAdd:
             saveFormat.hasUtf8Bom = true;
@@ -249,7 +250,7 @@ bool BaseTextDocument::save(QString *errorString, const QString &fileName, bool 
             saveFormat.hasUtf8Bom = false;
             break;
         }
-    } // "UTF-8"
+    }
 
     const bool ok = write(fName, saveFormat, d->m_document->toPlainText(), errorString);
 

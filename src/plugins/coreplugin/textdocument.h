@@ -53,6 +53,7 @@ public:
     const QTextCodec *codec() const;
     void setCodec(const QTextCodec *);
     void switchUtf8Bom();
+    virtual bool supportsUtf8Bom() { return true; }
 
     ReadResult read(const QString &fileName, QStringList *plainTextList, QString *errorString);
     ReadResult read(const QString &fileName, QString *plainText, QString *errorString);

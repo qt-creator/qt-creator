@@ -95,6 +95,10 @@ public:
     ProFileDocument();
     QString defaultPath() const;
     QString suggestedFileName() const;
+
+    // qmake project files doesn't support UTF8-BOM
+    // If the BOM would be added qmake would fail and QtCreator couldn't parse the project file
+    bool supportsUtf8Bom() { return false; }
 };
 
 } // namespace Internal
