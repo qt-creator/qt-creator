@@ -62,6 +62,7 @@
 #include "localsandexpressionswindow.h"
 #include "loadcoredialog.h"
 #include "hostutils.h"
+#include "sourceutils.h"
 
 #include "snapshothandler.h"
 #include "threadshandler.h"

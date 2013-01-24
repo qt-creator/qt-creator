@@ -117,6 +117,8 @@ QtcPlugin {
         "sourcefileshandler.h",
         "sourcefileswindow.cpp",
         "sourcefileswindow.h",
+        "sourceutils.cpp",
+        "sourceutils.h",
         "stackframe.cpp",
         "stackframe.h",
         "stackhandler.cpp",

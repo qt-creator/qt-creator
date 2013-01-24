@@ -27,11 +27,14 @@
 **
 ****************************************************************************/
 
+// NOTE: Don't add dependencies to other files.
+// This is used in the debugger auto-tests.
+
 #include "watchdata.h"
 #include "watchutils.h"
 
-#include <QTextStream>
 #include <QTextDocument>
+#include <QTextStream>
 #include <QDebug>
 
 ////////////////////////////////////////////////////////////////////

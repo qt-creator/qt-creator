@@ -30,20 +30,11 @@
 #ifndef WATCHUTILS_H
 #define WATCHUTILS_H
 
+// NOTE: Don't add dependencies to other files.
+// This is used in the debugger auto-tests.
+
 #include <QSet>
 #include <QString>
-
-namespace TextEditor {
-    class ITextEditor;
-}
-
-namespace Core {
-    class IEditor;
-}
-
-namespace CPlusPlus {
-    class Snapshot;
-}
 
 namespace Debugger {
 namespace Internal {
@@ -51,8 +42,6 @@ namespace Internal {
 class WatchData;
 class GdbMi;
 
-QByteArray dotEscape(QByteArray str);
-QString currentTime();
 bool isSkippableFunction(const QString &funcName, const QString &fileName);
 bool isLeavableFunction(const QString &funcName, const QString &fileName);
 
@@ -69,24 +58,11 @@ bool isIntOrFloatType(const QByteArray &type);
 bool isIntType(const QByteArray &type);
 
 QString formatToolTipAddress(quint64 a);
-
-// Editor tooltip support
-bool isCppEditor(Core::IEditor *editor);
-QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
-                        int *line, int *column, QString *function = 0);
 QString removeObviousSideEffects(const QString &exp);
-QString fixCppExpression(const QString &exp);
-QString cppFunctionAt(const QString &fileName, int line);
+
 // Decode string data as returned by the dumper helpers.
 void decodeArray(WatchData *list, const WatchData &tmplate,
     const QByteArray &rawData, int encoding);
-
-// Get variables that are not initialized at a certain line
-// of a function from the code model. Shadowed variables will
-// be reported using the debugger naming conventions '<shadowed n>'
-bool getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
-   const QString &function, const QString &file, int line,
-   QStringList *uninitializedVariables);
 
 
 //

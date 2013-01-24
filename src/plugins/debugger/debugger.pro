@@ -57,6 +57,7 @@ HEADERS += \
     sourceagent.h \
     sourcefileshandler.h \
     sourcefileswindow.h \
+    sourceutils.h \
     stackframe.h \
     stackhandler.h \
     stackwindow.h \
@@ -107,6 +108,7 @@ SOURCES += \
     sourceagent.cpp \
     sourcefileshandler.cpp \
     sourcefileswindow.cpp \
+    sourceutils.cpp \
     stackhandler.cpp \
     stackwindow.cpp \
     threadshandler.cpp \

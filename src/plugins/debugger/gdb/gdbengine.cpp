@@ -51,6 +51,7 @@
 #include "disassembleragent.h"
 #include "gdboptionspage.h"
 #include "memoryagent.h"
+#include "sourceutils.h"
 #include "watchutils.h"
 
 #include "breakhandler.h"
@@ -5446,6 +5447,14 @@ void GdbEngine::interruptLocalInferior(qint64 pid)
         showMessage(errorMessage, LogError);
         notifyInferiorStopFailed();
     }
+}
+
+QByteArray GdbEngine::dotEscape(QByteArray str)
+{
+    str.replace(' ', '.');
+    str.replace('\\', '.');
+    str.replace('/', '.');
+    return str;
 }
 
 //

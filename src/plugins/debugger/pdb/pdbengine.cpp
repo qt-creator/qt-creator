@@ -42,6 +42,7 @@
 #include "moduleshandler.h"
 #include "registerhandler.h"
 #include "stackhandler.h"
+#include "sourceutils.h"
 #include "watchhandler.h"
 #include "watchutils.h"
 

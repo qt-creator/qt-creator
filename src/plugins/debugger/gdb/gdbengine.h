@@ -720,6 +720,7 @@ protected:
     static QString msgInferiorSetupOk();
     static QString msgInferiorRunOk();
     static QString msgConnectRemoteServerFailed(const QString &why);
+    static QByteArray dotEscape(QByteArray str);
 
 protected:
     enum DumperHandling

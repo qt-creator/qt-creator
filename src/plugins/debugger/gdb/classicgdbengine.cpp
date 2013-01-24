@@ -34,6 +34,7 @@
 #include "debuggerprotocol.h"
 #include "debuggerstartparameters.h"
 #include "debuggerstringutils.h"
+#include "sourceutils.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
 

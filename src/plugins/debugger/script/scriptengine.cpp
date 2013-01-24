@@ -37,6 +37,7 @@
 #include "debuggerstringutils.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
+#include "sourceutils.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
 #include "watchutils.h"

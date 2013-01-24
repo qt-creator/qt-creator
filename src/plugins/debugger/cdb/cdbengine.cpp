@@ -55,6 +55,7 @@
 #include "shared/cdbsymbolpathlisteditor.h"
 #include "shared/hostutils.h"
 #include "procinterrupt.h"
+#include "sourceutils.h"
 
 #include <TranslationUnit.h>
 
