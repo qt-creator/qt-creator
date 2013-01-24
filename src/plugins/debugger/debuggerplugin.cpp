@@ -1821,8 +1821,6 @@ void DebuggerPluginPrivate::runScheduled()
 
 void DebuggerPluginPrivate::editorOpened(IEditor *editor)
 {
-    if (!isEditorDebuggable(editor))
-        return;
     ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
     if (!textEditor)
         return;
@@ -1843,9 +1841,6 @@ void DebuggerPluginPrivate::updateBreakMenuItem(IEditor *editor)
 void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
     int lineNumber, QMenu *menu)
 {
-    if (!isEditorDebuggable(editor))
-        return;
-
     BreakpointMenuContextData args;
     args.lineNumber = lineNumber;
     bool contextUsable = true;

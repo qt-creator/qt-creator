@@ -220,7 +220,7 @@ public:
 DebuggerToolTipEditor::DebuggerToolTipEditor(IEditor *ie) :
     textEditor(0), baseTextEditor(0), document(0)
 {
-    if (ie && ie->document() && isEditorDebuggable(ie)) {
+    if (ie && ie->document()) {
         if (ITextEditor *te = qobject_cast<ITextEditor *>(ie)) {
             if (BaseTextEditorWidget *pe = qobject_cast<BaseTextEditorWidget *>(ie->widget())) {
                 textEditor = te;
@@ -1435,7 +1435,7 @@ void DebuggerToolTipManager::slotTooltipOverrideRequested(ITextEditor *editor,
             break; // Avoid flicker.
 
         DebuggerCore  *core = debuggerCore();
-        if (!isEditorDebuggable(editor) || !core->boolSetting(UseToolTipsInMainEditor))
+        if (!core->boolSetting(UseToolTipsInMainEditor))
             break;
 
         currentEngine = core->currentEngine();
