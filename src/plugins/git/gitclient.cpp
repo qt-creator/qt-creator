@@ -778,14 +778,6 @@ void GitClient::blame(const QString &workingDirectory,
     executeGit(workingDirectory, arguments, editor, false, VcsBase::Command::NoReport, lineNumber);
 }
 
-void GitClient::checkoutBranch(const QString &workingDirectory, const QString &branch)
-{
-    QStringList arguments(QLatin1String("checkout"));
-    arguments <<  branch;
-    VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
-    connectRepositoryChanged(workingDirectory, cmd);
-}
-
 bool GitClient::synchronousCheckoutBranch(const QString &workingDirectory,
                                           const QString &branch,
                                           QString *errorMessage /* = 0 */)
@@ -808,20 +800,6 @@ bool GitClient::synchronousCheckoutBranch(const QString &workingDirectory,
         return false;
     }
     return true;
-}
-
-void GitClient::checkout(const QString &workingDirectory, const QString &fileName)
-{
-    // Passing an empty argument as the file name is very dangereous, since this makes
-    // git checkout apply to all files. Almost looks like a bug in git.
-    if (fileName.isEmpty())
-        return;
-
-    QStringList arguments;
-    arguments << QLatin1String("checkout") << QLatin1String("HEAD") << QLatin1String("--")
-            << fileName;
-
-    executeGit(workingDirectory, arguments, 0, true);
 }
 
 void GitClient::hardReset(const QString &workingDirectory, const QString &commit)
