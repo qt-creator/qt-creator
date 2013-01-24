@@ -30,13 +30,14 @@
 #include "watchhandler.h"
 
 #include "breakhandler.h"
-#include "debuggerinternalconstants.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
-#include "debuggerengine.h"
 #include "debuggerdialogs.h"
-#include "watchutils.h"
+#include "debuggerengine.h"
+#include "debuggerinternalconstants.h"
+#include "debuggerprotocol.h"
 #include "imageviewer.h"
+#include "watchutils.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>

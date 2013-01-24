@@ -174,6 +174,51 @@ public:
 void extractGdbVersion(const QString &msg,
     int *gdbVersion, int *gdbBuildVersion, bool *isMacGdb, bool *isQnxGdb);
 
+// Keep in sync with dumper.py
+enum DebuggerEncoding
+{
+    Unencoded8Bit                          =  0,
+    Base64Encoded8BitWithQuotes            =  1,
+    Base64Encoded16BitWithQuotes           =  2,
+    Base64Encoded32BitWithQuotes           =  3,
+    Base64Encoded16Bit                     =  4,
+    Base64Encoded8Bit                      =  5,
+    Hex2EncodedLatin1WithQuotes            =  6,
+    Hex4EncodedLittleEndianWithQuotes      =  7,
+    Hex8EncodedLittleEndianWithQuotes      =  8,
+    Hex2EncodedUtf8WithQuotes              =  9,
+    Hex8EncodedBigEndian                   = 10,
+    Hex4EncodedBigEndianWithQuotes         = 11,
+    Hex4EncodedLittleEndianWithoutQuotes   = 12,
+    Hex2EncodedLocal8BitWithQuotes         = 13,
+    JulianDate                             = 14,
+    MillisecondsSinceMidnight              = 15,
+    JulianDateAndMillisecondsSinceMidnight = 16,
+    Hex2EncodedInt1                        = 17,
+    Hex2EncodedInt2                        = 18,
+    Hex2EncodedInt4                        = 19,
+    Hex2EncodedInt8                        = 20,
+    Hex2EncodedUInt1                       = 21,
+    Hex2EncodedUInt2                       = 22,
+    Hex2EncodedUInt4                       = 23,
+    Hex2EncodedUInt8                       = 24,
+    Hex2EncodedFloat4                      = 25,
+    Hex2EncodedFloat8                      = 26
+};
+
+// Keep in sync with dumper.py, symbolgroupvalue.cpp of CDB
+enum DebuggerDisplay {
+    StopDisplay                            = 0,
+    DisplayImageData                       = 1,
+    DisplayUtf16String                     = 2,
+    DisplayImageFile                       = 3,
+    DisplayProcess                         = 4,
+    DisplayLatin1String                    = 5,
+    DisplayUtf8String                      = 6
+};
+// Decode string data as returned by the dumper helpers.
+QString decodeData(const QByteArray &baIn, int encoding);
+
 } // namespace Internal
 } // namespace Debugger
 
