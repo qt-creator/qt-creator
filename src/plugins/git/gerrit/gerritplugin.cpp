@@ -108,16 +108,13 @@ private:
     {
         FetchState, // Fetch patch
         WritePatchFileState, // Write patch to a file
-        CherryPickState, // Cherry-pick (apply) fetch-head
-        CheckoutState, // Check out fetch-head
         DoneState,
         ErrorState
     };
 
     void handleError(const QString &message);
     void startWritePatchFile();
-    void startCherryPick();
-    void startCheckout();
+    void cherryPick();
 
     const QSharedPointer<GerritChange> m_change;
     const QString m_repository;
@@ -199,12 +196,16 @@ void FetchContext::processFinished(int exitCode, QProcess::ExitStatus es)
             startWritePatchFile();
             break;
         case FetchApply:
-            m_state = CherryPickState;
-            startCherryPick();
-            break;
         case FetchCheckout:
-            m_state = CheckoutState;
-            startCheckout();
+            if (m_fetchMode == FetchApply) {
+                cherryPick();
+            } else {
+                Git::Internal::GitPlugin::instance()->gitClient()->synchronousCheckout(
+                            m_repository, QLatin1String("FETCH_HEAD"));
+            }
+            m_progress.reportFinished();
+            m_state = DoneState;
+            deleteLater();
             break;
         } // switch (m_fetchMode)
         break;
@@ -231,11 +232,6 @@ void FetchContext::processFinished(int exitCode, QProcess::ExitStatus es)
             break;
         }
         break;
-    case CherryPickState:
-    case CheckoutState:
-        m_progress.reportFinished();
-        m_state = DoneState;
-        deleteLater();
     }
 }
 
@@ -243,7 +239,7 @@ void FetchContext::processReadyReadStandardError()
 {
     // Note: fetch displays progress on stderr.
     const QString errorOutput = QString::fromLocal8Bit(m_process.readAllStandardError());
-    if (m_state == FetchState || m_state == CheckoutState)
+    if (m_state == FetchState)
         VcsBase::VcsBaseOutputWindow::instance()->append(errorOutput);
     else
         VcsBase::VcsBaseOutputWindow::instance()->appendError(errorOutput);
@@ -303,27 +299,13 @@ void FetchContext::startWritePatchFile()
     m_process.closeWriteChannel();
 }
 
-void FetchContext::startCherryPick()
+void FetchContext::cherryPick()
 {
     // Point user to errors.
     VcsBase::VcsBaseOutputWindow::instance()->popup(Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus);
     VcsBase::VcsBaseOutputWindow::instance()->append(tr("Cherry-picking %1...").arg(m_patchFileName));
-    QStringList args;
-    args << QLatin1String("cherry-pick") <<  QLatin1String("FETCH_HEAD");
-    VcsBase::VcsBaseOutputWindow::instance()->appendCommand(m_repository, m_git, args);
-    if (debug)
-        qDebug() << m_git << args;
-    m_process.start(m_git, args);
-    m_process.closeWriteChannel();
-}
-
-void FetchContext::startCheckout()
-{
-    QStringList args;
-    args << QLatin1String("checkout") << QLatin1String("FETCH_HEAD");
-    VcsBase::VcsBaseOutputWindow::instance()->appendCommand(m_repository, m_git, args);
-    m_process.start(m_git, args);
-    m_process.closeWriteChannel();
+    Git::Internal::GitPlugin::instance()->gitClient()->cherryPickCommit(
+                m_repository, QLatin1String("FETCH_HEAD"));
 }
 
 GerritPlugin::GerritPlugin(QObject *parent)
