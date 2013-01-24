@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "cppcodestylesettings.h"
+#include "cppcodestylepreferencesfactory.h"
 
 #include <cpptools/cppcodestylepreferences.h>
 #include <cpptools/cppcodestylesettings.h>
@@ -37,8 +38,6 @@
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-
-#include <cppcodestylepreferencesfactory.h>
 
 #include <utils/qtcassert.h>
 
