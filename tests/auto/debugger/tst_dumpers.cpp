@@ -28,6 +28,8 @@
 ****************************************************************************/
 
 #include "debuggerprotocol.h"
+#include "watchdata.h"
+#include "watchutils.h"
 
 #include <QtTest>
 #include <QTemporaryFile>
@@ -36,26 +38,54 @@
 using namespace Debugger;
 using namespace Internal;
 
+static QByteArray noValue = "\001";
+
+class Check
+{
+public:
+    Check() {}
+
+    Check(const QByteArray &iname, const QByteArray &name,
+         const QByteArray &value, const QByteArray &type)
+        : iname(iname), expectedName(name),
+          expectedValue(value), expectedType(type)
+    {}
+
+    QByteArray iname;
+    QByteArray expectedName;
+    QByteArray expectedValue;
+    QByteArray expectedType;
+};
+
+class CheckType : public Check
+{
+public:
+    CheckType(const QByteArray &iname, const QByteArray &name,
+         const QByteArray &type)
+        : Check(iname, name, noValue, type)
+    {}
+};
+
 class Data
 {
 public:
     Data() {}
+    Data(const QByteArray &code) : code(code) {}
 
-    Data(const QByteArray &includes, const QByteArray &code,
-        const QByteArray &iname, const QByteArray &name,
-        const QByteArray &value, const QByteArray &type)
-        : includes(includes), code(code), iname(iname),
-          expectedName(name), expectedValue(value), expectedType(type)
+    Data(const QByteArray &includes, const QByteArray &code)
+        : includes(includes), code(code)
     {}
+
+    const Data &operator%(const Check &check) const
+    {
+        checks.insert("local." + check.iname, check);
+        return *this;
+    }
 
 public:
     QByteArray includes;
     QByteArray code;
-    QByteArray iname;
-
-    QByteArray expectedName;
-    QByteArray expectedValue;
-    QByteArray expectedType;
+    mutable QMap<QByteArray, Check> checks;
 };
 
 Q_DECLARE_METATYPE(Data)
@@ -131,6 +161,21 @@ void tst_Dumpers::dumper()
 
     QByteArray dumperDir = DUMPERDIR;
 
+    QSet<QByteArray> expandedINames;
+    expandedINames.insert("local");
+    foreach (const Check &check, data.checks) {
+        int pos = check.iname.lastIndexOf('.');
+        if (pos != -1)
+            expandedINames.insert("local." + check.iname.left(pos));
+    }
+
+    QByteArray expanded;
+    foreach (const QByteArray &iname, expandedINames) {
+        if (!expanded.isEmpty())
+            expanded.append(',');
+        expanded += iname;
+    }
+
     QByteArray cmds =
         "set confirm off\n"
         "file doit\n"
@@ -143,7 +188,7 @@ void tst_Dumpers::dumper()
         "run\n"
         "up\n"
         "python print('@%sS@%s@' % ('N', qtNamespace()))\n"
-        "bb options:fancy,autoderef,dyntype vars: expanded:local typeformats:\n"
+        "bb options:fancy,autoderef,dyntype vars: expanded:" + expanded + " typeformats:\n"
         "quit\n";
 
     if (keepTemp) {
@@ -190,52 +235,72 @@ void tst_Dumpers::dumper()
     //qDebug() << "FOUND NS: " << nameSpace;
     if (nameSpace == "::")
         nameSpace.clear();
-    data.expectedType.replace("@NS@", nameSpace);
 
     GdbMi actual;
     actual.fromString(contents);
     ok = false;
-    QList<QByteArray> inames;
+    WatchData local;
+    local.iname = "local";
+
+    QList<WatchData> list;
     foreach (const GdbMi &child, actual.children()) {
-        QByteArray iname = child.findChild("iname").data();
-        inames.append(child.name());
-        if (iname == data.iname) {
-            QByteArray name = child.findChild("name").data();
-            QByteArray encvalue = child.findChild("value").data();
-            int encoding = child.findChild("valueencoded").data().toInt();
-            QByteArray value = decodeData(encvalue, encoding).toLatin1();
-            QByteArray type = child.findChild("type").data();
-            if (name != data.expectedName) {
-                qDebug() << "NAME ACTUAL  : " << name;
-                qDebug() << "NAME EXPECTED: " << data.expectedName;
+        WatchData dummy;
+        dummy.iname = child.findChild("iname").data();
+        dummy.name = QLatin1String(child.findChild("name").data());
+        parseWatchData(expandedINames, dummy, child, &list);
+    }
+
+    foreach (const WatchData &item, list) {
+        if (data.checks.contains(item.iname)) {
+            Check check = data.checks.take(item.iname);
+            check.expectedType.replace("@NS@", nameSpace);
+            if (item.name.toLatin1() != check.expectedName) {
+                qDebug() << "NAME ACTUAL  : " << item.name;
+                qDebug() << "NAME EXPECTED: " << check.expectedName;
                 QVERIFY(false);
             }
-            if (value != data.expectedValue) {
-                qDebug() << "VALUE ACTUAL  : " << value;
-                qDebug() << "VALUE EXPECTED: " << data.expectedValue;
+            if (check.expectedValue != noValue && item.value.toLatin1() != check.expectedValue) {
+                qDebug() << "VALUE ACTUAL  : " << item.value;
+                qDebug() << "VALUE EXPECTED: " << check.expectedValue;
                 QVERIFY(false);
             }
-            if (type != data.expectedType) {
-                qDebug() << "TYPE ACTUAL  : " << type;
-                qDebug() << "TYPE EXPECTED: " << data.expectedType;
+            if (check.expectedType != noValue && item.type != check.expectedType) {
+                qDebug() << "TYPE ACTUAL  : " << item.type;
+                qDebug() << "TYPE EXPECTED: " << check.expectedType;
                 QVERIFY(false);
             }
-            ok = true;
-            break;
         }
     }
-    if (!ok) { qDebug() << "NAMES: " << inames; QVERIFY(false); }
+
+    if (!data.checks.isEmpty()) {
+        qDebug() << "SOME TESTS NOT EXECUTED: ";
+        foreach (const Check &check, data.checks)
+            qDebug() << "  TEST NOT FOUND FOR INAME: " << check.iname;
+        QVERIFY(false);
+    }
 }
 
 void tst_Dumpers::dumper_data()
 {
     QTest::addColumn<Data>("data");
 
-    QTest::newRow("QStringRef1") << Data(
-        "#include <QString>",
-        "QString str = \"Hello\";\nQStringRef ref(&str, 1, 2);",
-        "local.ref", "ref", "\"el\"", "@NS@QStringRef");
+    QTest::newRow("QStringRef1")
+        << Data("#include <QString>",
+                "QString str = \"Hello\";\n"
+                "QStringRef ref(&str, 1, 2);")
+        % Check("ref", "ref", "\"el\"", "@NS@QStringRef");
 
+    QTest::newRow("AnonymousStruct")
+        << Data("union {\n"
+                "     struct { int i; int b; };\n"
+                "     struct { float f; };\n"
+                "     double d;\n"
+                " } a = { { 42, 43 } };\n (void)a;")
+        % CheckType("a", "a", "union {...}")
+        % Check("a.b", "b", "43", "int")
+        % Check("a.d", "d", "9.1245819032257467e-313", "double")
+        % Check("a.f", "f", "5.88545355e-44", "float")
+        % Check("a.i", "i", "42", "int");
 }
 
 int main(int argc, char *argv[])
