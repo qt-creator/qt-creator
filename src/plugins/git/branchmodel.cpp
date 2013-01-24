@@ -448,7 +448,7 @@ void BranchModel::checkoutBranch(const QModelIndex &idx)
         return;
     stashGuard.preventPop();
     QString errorMessage;
-    if (m_client->synchronousCheckoutBranch(m_workingDirectory, branch, &errorMessage)) {
+    if (m_client->synchronousCheckout(m_workingDirectory, branch, &errorMessage)) {
         if (errorMessage.isEmpty()) {
             QModelIndex currentIdx = currentBranch();
             if (currentIdx.isValid()) {

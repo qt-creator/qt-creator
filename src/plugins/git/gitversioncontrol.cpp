@@ -208,10 +208,10 @@ bool GitVersionControl::vcsRestoreSnapshot(const QString &topLevel, const QStrin
             const QString revision = tokens.at(2);
             success = m_client->synchronousReset(topLevel);
             if (success && !branch.isEmpty()) {
-                success = m_client->synchronousCheckoutBranch(topLevel, branch) &&
+                success = m_client->synchronousCheckout(topLevel, branch) &&
                         m_client->synchronousCheckoutFiles(topLevel, QStringList(), revision);
             } else {
-                success = m_client->synchronousCheckoutBranch(topLevel, revision);
+                success = m_client->synchronousCheckout(topLevel, revision);
             }
         } else {
             // Restore stash if it can be resolved.

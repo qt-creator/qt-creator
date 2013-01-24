@@ -778,21 +778,21 @@ void GitClient::blame(const QString &workingDirectory,
     executeGit(workingDirectory, arguments, editor, false, VcsBase::Command::NoReport, lineNumber);
 }
 
-bool GitClient::synchronousCheckoutBranch(const QString &workingDirectory,
-                                          const QString &branch,
+bool GitClient::synchronousCheckout(const QString &workingDirectory,
+                                          const QString &ref,
                                           QString *errorMessage /* = 0 */)
 {
     QByteArray outputText;
     QByteArray errorText;
     QStringList arguments;
-    arguments << QLatin1String("checkout") << branch;
+    arguments << QLatin1String("checkout") << ref;
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     const QString output = commandOutputFromLocal8Bit(outputText);
     outputWindow()->append(output);
     if (!rc) {
         const QString stdErr = commandOutputFromLocal8Bit(errorText);
         //: Meaning of the arguments: %1: Branch, %2: Repository, %3: Error message
-        const QString msg = tr("Cannot checkout \"%1\" of \"%2\": %3").arg(branch, workingDirectory, stdErr);
+        const QString msg = tr("Cannot checkout \"%1\" of \"%2\": %3").arg(ref, workingDirectory, stdErr);
         if (errorMessage)
             *errorMessage = msg;
         else
