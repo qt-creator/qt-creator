@@ -13,20 +13,13 @@ VERSION_TAG = $$replace(QTCREATOR_VERSION, "[-.]", )
 # of URLs for the links to the Qt documentation
 QMAKE_DOCS_INSTALLDIR =
 
+defineReplace(cmdEnv) {
+    !equals(QMAKE_DIR_SEP, /): 1 ~= s,^(.*)$,(set \\1) &&,g
+    return("$$1")
+}
+
 defineReplace(qdoc) {
-    equals(QMAKE_DIR_SEP, /) {   # unix, mingw+msys
-        QDOC = SRCDIR=$$PWD OUTDIR=$$1 QTC_VERSION=$$QTCREATOR_VERSION QTC_VERSION_TAG=$$VERSION_TAG $$QDOC_BIN
-    } else:win32-g++* {   # just mingw
-        # The lack of spaces in front of the && is necessary!
-        QDOC = set SRCDIR=$$PWD&& set OUTDIR=$$1&& set QTC_VERSION=$$QTCREATOR_VERSION&& set QTC_VERSION_TAG=$$VERSION_TAG&& $$QDOC_BIN
-    } else {   # nmake
-        QDOC = set SRCDIR=$$PWD $$escape_expand(\\n\\t) \
-               set OUTDIR=$$1 $$escape_expand(\\n\\t) \
-               set QTC_VERSION=$$QTCREATOR_VERSION $$escape_expand(\\n\\t) \
-               set QTC_VERSION_TAG=$$VERSION_TAG $$escape_expand(\\n\\t) \
-               $$QDOC_BIN
-    }
-    return($$QDOC)
+    return("$$cmdEnv(SRCDIR=$$PWD OUTDIR=$$1 QTC_VERSION=$$QTCREATOR_VERSION QTC_VERSION_TAG=$$VERSION_TAG) $$QDOC_BIN")
 }
 
 QHP_FILE = $$OUT_PWD/doc/html/qtcreator.qhp
