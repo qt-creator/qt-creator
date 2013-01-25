@@ -254,6 +254,8 @@ QVariant Id::toSetting() const
 Id Id::fromSetting(const QVariant &variant)
 {
     const QByteArray ba = variant.toString().toUtf8();
+    if (ba.isEmpty())
+        return Id();
     return Id(theId(ba));
 }
 
