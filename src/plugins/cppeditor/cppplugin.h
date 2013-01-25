@@ -89,7 +89,18 @@ private slots:
 
 #ifdef WITH_TESTS
 private slots: // quickfix tests
-    void test_quickfix_GetterSetter();
+    void test_quickfix_GetterSetter_basicGetterWithPrefix();
+    void test_quickfix_GetterSetter_basicGetterWithoutPrefix();
+    void test_quickfix_GetterSetter_customType();
+    void test_quickfix_GetterSetter_constMember();
+    void test_quickfix_GetterSetter_pointerToNonConst();
+    void test_quickfix_GetterSetter_pointerToConst();
+    void test_quickfix_GetterSetter_staticMember();
+    void test_quickfix_GetterSetter_secondDeclarator();
+    void test_quickfix_GetterSetter_triggeringRightAfterPointerSign();
+    void test_quickfix_GetterSetter_notTriggeringOnMemberFunction();
+    void test_quickfix_GetterSetter_notTriggeringOnMemberArray();
+    void test_quickfix_GetterSetter_notTriggeringWhenGetterOrSetterExist();
 #endif // WITH_TESTS
 
 private:

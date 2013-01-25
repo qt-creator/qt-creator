@@ -28,33 +28,35 @@
 ****************************************************************************/
 
 #include <AST.h>
+#include <Bind.h>
 #include <Control.h>
 #include <CppDocument.h>
 #include <DiagnosticClient.h>
-#include <Scope.h>
-#include <TranslationUnit.h>
 #include <Literals.h>
-#include <Bind.h>
+#include <Scope.h>
 #include <Symbols.h>
-#include <utils/changeset.h>
-#include <texteditor/basetextdocument.h>
-#include <texteditor/plaintexteditor.h>
-#include <texteditor/codeassist/iassistproposal.h>
-#include <texteditor/codeassist/iassistproposalmodel.h>
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
+#include <TranslationUnit.h>
+
 #include <coreplugin/editormanager/editormanager.h>
 #include <cppeditor/cppeditor.h>
-#include <cppeditor/cppplugin.h>
-#include <cppeditor/cppquickfix.h>
-#include <cppeditor/cppquickfixassistant.h>
 #include <cppeditor/cppinsertdecldef.h>
+#include <cppeditor/cppplugin.h>
+#include <cppeditor/cppquickfixassistant.h>
+#include <cppeditor/cppquickfix.h>
 #include <extensionsystem/pluginmanager.h>
+#include <texteditor/basetextdocument.h>
+#include <texteditor/codeassist/basicproposalitemlistmodel.h>
+#include <texteditor/codeassist/iassistproposal.h>
+#include <texteditor/codeassist/iassistproposalmodel.h>
+#include <texteditor/plaintexteditor.h>
+#include <utils/changeset.h>
 #include <utils/fileutils.h>
 
-#include <QtTest>
 #include <QDebug>
-#include <QTextDocument>
 #include <QDir>
+#include <QTextDocument>
+#include <QtTest>
+
 
 /*!
     Tests for quick-fixes.
@@ -83,21 +85,21 @@ struct TestCase
 
     QuickFixOperation::Ptr getFix(CppQuickFixFactory *factory);
 
-    void run(CppQuickFixFactory *factory, const QByteArray &expected, int undoCount = 1);
+    void run(CppQuickFixFactory *factory, const QByteArray &expected, bool changesExpected = true,
+             int undoCount = 1);
 
 private:
     TestCase(const TestCase &);
     TestCase &operator=(const TestCase &);
 };
 
-/// apply the factory on the source, and get back the first result.
+/// Apply the factory on the source and get back the first result or a null pointer.
 QuickFixOperation::Ptr TestCase::getFix(CppQuickFixFactory *factory)
 {
     CppQuickFixInterface qfi(new CppQuickFixAssistInterface(editorWidget, ExplicitlyInvoked));
     TextEditor::QuickFixOperations results;
     factory->match(qfi, results);
-    Q_ASSERT(!results.isEmpty());
-    return results.first();
+    return results.isEmpty() ? QuickFixOperation::Ptr() : results.first();
 }
 
 /// The '@' in the input is the position from where the quick-fix discovery is triggered.
@@ -165,14 +167,20 @@ QByteArray &removeTrailingWhitespace(QByteArray &input)
     return input;
 }
 
-void TestCase::run(CppQuickFixFactory *factory, const QByteArray &expected, int undoCount)
+void TestCase::run(CppQuickFixFactory *factory, const QByteArray &expected,
+                   bool changesExpected, int undoCount)
 {
     QuickFixOperation::Ptr fix = getFix(factory);
+    if (!fix) {
+        QVERIFY2(!changesExpected, "No QuickFixOperation");
+        return;
+    }
+
     fix->perform();
     QByteArray result = editorWidget->document()->toPlainText().toUtf8();
     removeTrailingWhitespace(result);
 
-    QCOMPARE(result, expected);
+    QCOMPARE(QLatin1String(result), QLatin1String(expected));
 
     for (int i = 0; i < undoCount; ++i)
         editorWidget->undo();
@@ -182,7 +190,11 @@ void TestCase::run(CppQuickFixFactory *factory, const QByteArray &expected, int 
 }
 } // anonymous namespace
 
-void CppPlugin::test_quickfix_GetterSetter()
+/// Checks:
+/// 1. If the name does not start with ("m_" or "_") and does not
+///    end with "_", we are forced to prefix the getter with "get".
+/// 2. Setter: Use pass by value on integer/float and pointer types.
+void CppPlugin::test_quickfix_GetterSetter_basicGetterWithPrefix()
 {
     TestCase data("\n"
                   "class Something\n"
@@ -196,11 +208,11 @@ void CppPlugin::test_quickfix_GetterSetter()
             "    int it;\n"
             "\n"
             "public:\n"
-            "    int it() const;\n"
+            "    int getIt() const;\n"
             "    void setIt(int value);\n"
             "};\n"
             "\n"
-            "int Something::it() const\n"
+            "int Something::getIt() const\n"
             "{\n"
             "    return it;\n"
             "}\n"
@@ -212,6 +224,322 @@ void CppPlugin::test_quickfix_GetterSetter()
             "\n"
             ;
 
-    GetterSetter factory;
+    GetterSetter factory(/*testMode=*/ true);
     data.run(&factory, expected);
+}
+
+/// Checks:
+/// 1. Getter: "get" prefix is not necessary.
+/// 2. Setter: Parameter name is base name.
+void CppPlugin::test_quickfix_GetterSetter_basicGetterWithoutPrefix()
+{
+    TestCase data("\n"
+                  "class Something\n"
+                  "{\n"
+                  "    int @m_it;\n"
+                  "};\n"
+                  );
+    QByteArray expected = "\n"
+            "class Something\n"
+            "{\n"
+            "    int m_it;\n"
+            "\n"
+            "public:\n"
+            "    int it() const;\n"
+            "    void setIt(int it);\n"
+            "};\n"
+            "\n"
+            "int Something::it() const\n"
+            "{\n"
+            "    return m_it;\n"
+            "}\n"
+            "\n"
+            "void Something::setIt(int it)\n"
+            "{\n"
+            "    m_it = it;\n"
+            "}\n"
+            "\n"
+            ;
+
+    GetterSetter factory(/*testMode=*/ true);
+    data.run(&factory, expected);
+}
+
+/// Check: Setter: Use pass by reference for parameters which
+/// are not integer, float or pointers.
+void CppPlugin::test_quickfix_GetterSetter_customType()
+{
+    TestCase data("\n"
+                  "class Something\n"
+                  "{\n"
+                  "    MyType @it;\n"
+                  "};\n"
+                  );
+    QByteArray expected = "\n"
+            "class Something\n"
+            "{\n"
+            "    MyType it;\n"
+            "\n"
+            "public:\n"
+            "    MyType getIt() const;\n"
+            "    void setIt(const MyType &value);\n"
+            "};\n"
+            "\n"
+            "MyType Something::getIt() const\n"
+            "{\n"
+            "    return it;\n"
+            "}\n"
+            "\n"
+            "void Something::setIt(const MyType &value)\n"
+            "{\n"
+            "    it = value;\n"
+            "}\n"
+            "\n"
+            ;
+
+    GetterSetter factory(/*testMode=*/ true);
+    data.run(&factory, expected);
+}
+
+/// Checks:
+/// 1. Setter: No setter is generated for const members.
+/// 2. Getter: Return a non-const type since it pass by value anyway.
+void CppPlugin::test_quickfix_GetterSetter_constMember()
+{
+    TestCase data("\n"
+                  "class Something\n"
+                  "{\n"
+                  "    const int @it;\n"
+                  "};\n"
+                  );
+    QByteArray expected = "\n"
+            "class Something\n"
+            "{\n"
+            "    const int it;\n"
+            "\n"
+            "public:\n"
+            "    int getIt() const;\n"
+            "};\n"
+            "\n"
+            "int Something::getIt() const\n"
+            "{\n"
+            "    return it;\n"
+            "}\n"
+            "\n"
+            ;
+
+    GetterSetter factory(/*testMode=*/ true);
+    data.run(&factory, expected);
+}
+
+/// Checks: No special treatment for pointer to non const.
+void CppPlugin::test_quickfix_GetterSetter_pointerToNonConst()
+{
+    TestCase data("\n"
+                  "class Something\n"
+                  "{\n"
+                  "    int *it@;\n"
+                  "};\n"
+                  );
+    QByteArray expected = "\n"
+            "class Something\n"
+            "{\n"
+            "    int *it;\n"
+            "\n"
+            "public:\n"
+            "    int *getIt() const;\n"
+            "    void setIt(int *value);\n"
+            "};\n"
+            "\n"
+            "int *Something::getIt() const\n"
+            "{\n"
+            "    return it;\n"
+            "}\n"
+            "\n"
+            "void Something::setIt(int *value)\n"
+            "{\n"
+            "    it = value;\n"
+            "}\n"
+            "\n"
+            ;
+
+    GetterSetter factory(/*testMode=*/ true);
+    data.run(&factory, expected);
+}
+
+/// Checks: No special treatment for pointer to const.
+void CppPlugin::test_quickfix_GetterSetter_pointerToConst()
+{
+    TestCase data("\n"
+                  "class Something\n"
+                  "{\n"
+                  "    const int *it@;\n"
+                  "};\n"
+                  );
+    QByteArray expected = "\n"
+            "class Something\n"
+            "{\n"
+            "    const int *it;\n"
+            "\n"
+            "public:\n"
+            "    const int *getIt() const;\n"
+            "    void setIt(const int *value);\n"
+            "};\n"
+            "\n"
+            "const int *Something::getIt() const\n"
+            "{\n"
+            "    return it;\n"
+            "}\n"
+            "\n"
+            "void Something::setIt(const int *value)\n"
+            "{\n"
+            "    it = value;\n"
+            "}\n"
+            "\n"
+            ;
+
+    GetterSetter factory(/*testMode=*/ true);
+    data.run(&factory, expected);
+}
+
+/// Checks:
+/// 1. Setter: Setter is a static function.
+/// 2. Getter: Getter is a static, non const function.
+void CppPlugin::test_quickfix_GetterSetter_staticMember()
+{
+    TestCase data("\n"
+                  "class Something\n"
+                  "{\n"
+                  "    static int @m_member;\n"
+                  "};\n"
+                  );
+    QByteArray expected = "\n"
+            "class Something\n"
+            "{\n"
+            "    static int m_member;\n"
+            "\n"
+            "public:\n"
+            "    static int member();\n"
+            "    static void setMember(int member);\n"
+            "};\n"
+            "\n"
+            "int Something::member()\n"
+            "{\n"
+            "    return m_member;\n"
+            "}\n"
+            "\n"
+            "void Something::setMember(int member)\n"
+            "{\n"
+            "    m_member = member;\n"
+            "}\n"
+            "\n"
+            ;
+
+    GetterSetter factory(/*testMode=*/ true);
+    data.run(&factory, expected);
+}
+
+/// Check: Check if it works on the second declarator
+void CppPlugin::test_quickfix_GetterSetter_secondDeclarator()
+{
+    TestCase data("\n"
+                  "class Something\n"
+                  "{\n"
+                  "    int *foo, @it;\n"
+                  "};\n"
+                  );
+    QByteArray expected = "\n"
+            "class Something\n"
+            "{\n"
+            "    int *foo, it;\n"
+            "\n"
+            "public:\n"
+            "    int getIt() const;\n"
+            "    void setIt(int value);\n"
+            "};\n"
+            "\n"
+            "int Something::getIt() const\n"
+            "{\n"
+            "    return it;\n"
+            "}\n"
+            "\n"
+            "void Something::setIt(int value)\n"
+            "{\n"
+            "    it = value;\n"
+            "}\n"
+            "\n"
+            ;
+
+    GetterSetter factory(/*testMode=*/ true);
+    data.run(&factory, expected);
+}
+
+/// Check: Quick fix is offered for "int *@it;" ('@' denotes the text cursor position)
+void CppPlugin::test_quickfix_GetterSetter_triggeringRightAfterPointerSign()
+{
+    TestCase data("\n"
+                  "class Something\n"
+                  "{\n"
+                  "    int *@it;\n"
+                  "};\n"
+                  );
+    QByteArray expected = "\n"
+            "class Something\n"
+            "{\n"
+            "    int *it;\n"
+            "\n"
+            "public:\n"
+            "    int *getIt() const;\n"
+            "    void setIt(int *value);\n"
+            "};\n"
+            "\n"
+            "int *Something::getIt() const\n"
+            "{\n"
+            "    return it;\n"
+            "}\n"
+            "\n"
+            "void Something::setIt(int *value)\n"
+            "{\n"
+            "    it = value;\n"
+            "}\n"
+            "\n"
+            ;
+
+    GetterSetter factory(/*testMode=*/ true);
+    data.run(&factory, expected);
+}
+
+/// Check: Quick fix is not triggered on a member function.
+void CppPlugin::test_quickfix_GetterSetter_notTriggeringOnMemberFunction()
+{
+    TestCase data("class Something { void @f(); };");
+    QByteArray expected = data.originalText;
+
+    GetterSetter factory(/*testMode=*/ true);
+    data.run(&factory, expected, /*changesExpected=*/ false);
+}
+
+/// Check: Quick fix is not triggered on an member array;
+void CppPlugin::test_quickfix_GetterSetter_notTriggeringOnMemberArray()
+{
+    TestCase data("class Something { void @a[10]; };");
+    QByteArray expected = data.originalText;
+
+    GetterSetter factory(/*testMode=*/ true);
+    data.run(&factory, expected, /*changesExpected=*/ false);
+}
+
+/// Check: Do not offer the quick fix if there is already a member with the
+/// getter or setter name we would generate.
+void CppPlugin::test_quickfix_GetterSetter_notTriggeringWhenGetterOrSetterExist()
+{
+    TestCase data("\n"
+                  "class Something {\n"
+                  "     int @it;\n"
+                  "     void setIt();\n"
+                  "};\n");
+    QByteArray expected = data.originalText;
+
+    GetterSetter factory(/*testMode=*/ true);
+    data.run(&factory, expected, /*changesExpected=*/ false);
 }
