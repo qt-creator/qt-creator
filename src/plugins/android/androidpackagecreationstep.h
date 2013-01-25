@@ -53,7 +53,7 @@ public:
     AndroidPackageCreationStep(ProjectExplorer::BuildStepList *bsl);
 
     static bool removeDirectory(const QString &dirPath);
-    static void stripAndroidLibs(const QStringList &files, ProjectExplorer::Abi::Architecture architecture);
+    static void stripAndroidLibs(const QStringList &files, ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolchainVersion);
 
     static const QLatin1String DefaultVersionNumber;
 

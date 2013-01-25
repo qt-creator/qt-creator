@@ -34,6 +34,7 @@
 #include "androiddeploystep.h"
 #include "androidglobal.h"
 #include "androidpackagecreationstep.h"
+#include "androidtoolchain.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
@@ -581,7 +582,13 @@ QStringList AndroidManager::availableQtLibs(ProjectExplorer::Target *target)
     if (!target->activeRunConfiguration())
         return QStringList();
 
-    Utils::FileName readelfPath = AndroidConfigurations::instance().readelfPath(target->activeRunConfiguration()->abi().architecture());
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target->kit());
+    if (tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
+        return QStringList();
+    AndroidToolChain *atc = static_cast<AndroidToolChain *>(tc);
+
+    Utils::FileName readelfPath = AndroidConfigurations::instance().readelfPath(target->activeRunConfiguration()->abi().architecture(),
+                                                                                atc->ndkToolChainVersion());
     QStringList libs;
     const Qt4ProjectManager::Qt4Project *const qt4Project
             = qobject_cast<const Qt4ProjectManager::Qt4Project *>(target->project());

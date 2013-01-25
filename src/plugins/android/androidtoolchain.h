@@ -51,23 +51,25 @@ public:
     bool operator ==(const ProjectExplorer::ToolChain &) const;
 
     ProjectExplorer::ToolChainConfigWidget *configurationWidget();
+    virtual Utils::FileName suggestedDebugger() const;
+    Utils::FileName suggestedGdbServer() const;
 
     QVariantMap toMap() const;
     bool fromMap(const QVariantMap &data);
     QList<Utils::FileName> suggestedMkspecList() const;
     QString makeCommand(const Utils::Environment &environment) const;
 
-    void setQtVersionId(int);
-    int qtVersionId() const;
+    QString ndkToolChainVersion();
 
 protected:
     QList<ProjectExplorer::Abi> detectSupportedAbis() const;
 
 private:
-    explicit AndroidToolChain(bool);
+    AndroidToolChain(ProjectExplorer::Abi::Architecture arch, const QString &ndkToolChainVersion, bool autodetected);
+    AndroidToolChain();
     AndroidToolChain(const AndroidToolChain &);
 
-    int m_qtVersionId;
+    QString m_ndkToolChainVersion;
     friend class AndroidToolChainFactory;
 };
 
@@ -101,9 +103,7 @@ public:
     bool canRestore(const QVariantMap &data);
     ProjectExplorer::ToolChain *restore(const QVariantMap &data);
 
-private slots:
-    void handleQtVersionChanges(const QList<int> &added, const QList<int> &removed, const QList<int> &changed);
-    QList<ProjectExplorer::ToolChain *> createToolChainList(const QList<int> &);
+    static QList<ProjectExplorer::ToolChain *> createToolChainsForNdk(const Utils::FileName &ndkPath);
 };
 
 } // namespace Internal

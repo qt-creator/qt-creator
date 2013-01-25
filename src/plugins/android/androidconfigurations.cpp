@@ -73,7 +73,6 @@ namespace {
     const QLatin1String OpenJDKLocationKey("OpenJDKLocation");
     const QLatin1String KeystoreLocationKey("KeystoreLocation");
     const QLatin1String PartitionSizeKey("PartitionSize");
-    const QLatin1String NDKGccVersionRegExp("-\\d[\\.\\d]+");
     const QLatin1String ArmToolchainPrefix("arm-linux-androideabi");
     const QLatin1String X86ToolchainPrefix("x86");
     const QLatin1String ArmToolsPrefix("arm-linux-androideabi");
@@ -93,6 +92,15 @@ namespace {
     {
         return dev1.sdk < dev2.sdk;
     }
+}
+
+Abi::Architecture AndroidConfigurations::architectureForToolChainPrefix(const QString& toolchainprefix)
+{
+    if (toolchainprefix == ArmToolchainPrefix)
+        return Abi::ArmArchitecture;
+    if (toolchainprefix == X86ToolchainPrefix)
+        return Abi::X86Architecture;
+    return Abi::UnknownArchitecture;
 }
 
 QLatin1String AndroidConfigurations::toolchainPrefix(Abi::Architecture architecture)
@@ -122,24 +130,12 @@ QLatin1String AndroidConfigurations::toolsPrefix(Abi::Architecture architecture)
 AndroidConfig::AndroidConfig(const QSettings &settings)
 {
     // user settings
-    armGdbLocation = FileName::fromString(settings.value(ArmGdbLocationKey).toString());
-    armGdbserverLocation = FileName::fromString(settings.value(ArmGdbserverLocationKey).toString());
-    x86GdbLocation = FileName::fromString(settings.value(X86GdbLocationKey).toString());
-    x86GdbserverLocation = FileName::fromString(settings.value(X86GdbserverLocationKey).toString());
     partitionSize = settings.value(PartitionSizeKey, 1024).toInt();
     sdkLocation = FileName::fromString(settings.value(SDKLocationKey).toString());
     ndkLocation = FileName::fromString(settings.value(NDKLocationKey).toString());
     antLocation = FileName::fromString(settings.value(AntLocationKey).toString());
     openJDKLocation = FileName::fromString(settings.value(OpenJDKLocationKey).toString());
     keystoreLocation = FileName::fromString(settings.value(KeystoreLocationKey).toString());
-
-    QRegExp versionRegExp(NDKGccVersionRegExp);
-    const QString &value = settings.value(NDKToolchainVersionKey).toString();
-    if (versionRegExp.exactMatch(value))
-        ndkToolchainVersion = value;
-    else
-        ndkToolchainVersion = value.mid(versionRegExp.indexIn(value)+1);
-    // user settings
 
     PersistentSettingsReader reader;
     if (reader.load(FileName::fromString(sdkSettingsFileName()))
@@ -150,25 +146,6 @@ AndroidConfig::AndroidConfig(const QSettings &settings)
         antLocation = FileName::fromString(reader.restoreValue(AntLocationKey).toString());
         openJDKLocation = FileName::fromString(reader.restoreValue(OpenJDKLocationKey).toString());
         keystoreLocation = FileName::fromString(reader.restoreValue(KeystoreLocationKey).toString());
-
-        QRegExp versionRegExp(NDKGccVersionRegExp);
-        const QString &value = reader.restoreValue(NDKToolchainVersionKey).toString();
-        if (versionRegExp.exactMatch(value))
-            ndkToolchainVersion = value;
-        else
-            ndkToolchainVersion = value.mid(versionRegExp.indexIn(value)+1);
-
-        if (armGdbLocation.isEmpty())
-            armGdbLocation = FileName::fromString(reader.restoreValue(ArmGdbLocationKey).toString());
-
-        if (armGdbserverLocation.isEmpty())
-            armGdbserverLocation = FileName::fromString(reader.restoreValue(ArmGdbserverLocationKey).toString());
-
-        if (x86GdbLocation.isEmpty())
-            x86GdbLocation = FileName::fromString(reader.restoreValue(X86GdbLocationKey).toString());
-
-        if (x86GdbserverLocation.isEmpty())
-            x86GdbserverLocation = FileName::fromString(reader.restoreValue(X86GdbserverLocationKey).toString());
         // persistent settings
     }
 
@@ -188,14 +165,9 @@ void AndroidConfig::save(QSettings &settings) const
     // user settings
     settings.setValue(SDKLocationKey, sdkLocation.toString());
     settings.setValue(NDKLocationKey, ndkLocation.toString());
-    settings.setValue(NDKToolchainVersionKey, ndkToolchainVersion);
     settings.setValue(AntLocationKey, antLocation.toString());
     settings.setValue(OpenJDKLocationKey, openJDKLocation.toString());
     settings.setValue(KeystoreLocationKey, keystoreLocation.toString());
-    settings.setValue(ArmGdbLocationKey, armGdbLocation.toString());
-    settings.setValue(ArmGdbserverLocationKey, armGdbserverLocation.toString());
-    settings.setValue(X86GdbLocationKey, x86GdbLocation.toString());
-    settings.setValue(X86GdbserverLocationKey, x86GdbserverLocation.toString());
     settings.setValue(PartitionSizeKey, partitionSize);
 }
 
@@ -240,25 +212,6 @@ QStringList AndroidConfigurations::sdkTargets(int minApiLevel) const
     return targets;
 }
 
-QStringList AndroidConfigurations::ndkToolchainVersions() const
-{
-    QRegExp versionRegExp(NDKGccVersionRegExp);
-    QStringList result;
-    FileName path = m_config.ndkLocation;
-    QDirIterator it(path.appendPath(QLatin1String("toolchains")).toString(),
-                    QStringList() << QLatin1String("*"), QDir::Dirs);
-    while (it.hasNext()) {
-        const QString &fileName = it.next();
-        int idx = versionRegExp.indexIn(fileName);
-        if (idx == -1)
-            continue;
-        QString version = fileName.mid(idx+1);
-        if (!result.contains(version))
-            result.append(version);
-    }
-    return result;
-}
-
 FileName AndroidConfigurations::adbToolPath() const
 {
     FileName path = m_config.sdkLocation;
@@ -296,71 +249,29 @@ FileName AndroidConfigurations::emulatorToolPath() const
     return path.appendPath(QLatin1String("tools/emulator" QTC_HOST_EXE_SUFFIX));
 }
 
-FileName AndroidConfigurations::toolPath(Abi::Architecture architecture) const
+FileName AndroidConfigurations::toolPath(Abi::Architecture architecture, const QString &ndkToolChainVersion) const
 {
     FileName path = m_config.ndkLocation;
     return path.appendPath(QString::fromLatin1("toolchains/%1-%2/prebuilt/%3/bin/%4")
             .arg(toolchainPrefix(architecture))
-            .arg(m_config.ndkToolchainVersion)
+            .arg(ndkToolChainVersion)
             .arg(ToolchainHost)
             .arg(toolsPrefix(architecture)));
 }
 
-FileName AndroidConfigurations::stripPath(Abi::Architecture architecture) const
+FileName AndroidConfigurations::stripPath(Abi::Architecture architecture, const QString &ndkToolChainVersion) const
 {
-    return toolPath(architecture).append(QLatin1String("-strip" QTC_HOST_EXE_SUFFIX));
+    return toolPath(architecture, ndkToolChainVersion).append(QLatin1String("-strip" QTC_HOST_EXE_SUFFIX));
 }
 
-FileName AndroidConfigurations::readelfPath(Abi::Architecture architecture) const
+FileName AndroidConfigurations::readelfPath(Abi::Architecture architecture, const QString &ndkToolChainVersion) const
 {
-    return toolPath(architecture).append(QLatin1String("-readelf" QTC_HOST_EXE_SUFFIX));
+    return toolPath(architecture, ndkToolChainVersion).append(QLatin1String("-readelf" QTC_HOST_EXE_SUFFIX));
 }
 
-FileName AndroidConfigurations::gccPath(Abi::Architecture architecture) const
+FileName AndroidConfigurations::gdbPath(Abi::Architecture architecture, const QString &ndkToolChainVersion) const
 {
-    return toolPath(architecture).append(QLatin1String("-gcc" QTC_HOST_EXE_SUFFIX));
-}
-
-FileName AndroidConfigurations::gdbServerPath(Abi::Architecture architecture) const
-{
-    FileName gdbServerPath;
-    switch (architecture) {
-    case Abi::ArmArchitecture:
-        gdbServerPath = m_config.armGdbserverLocation;
-        break;
-    case Abi::X86Architecture:
-        gdbServerPath = m_config.x86GdbserverLocation;
-        break;
-    default:
-        gdbServerPath = FileName::fromString(Unknown);
-        break;
-    }
-
-    if (!gdbServerPath.isEmpty())
-        return gdbServerPath;
-    FileName path = m_config.ndkLocation;
-    return path.appendPath(QString::fromLatin1("toolchains/%1-%2/prebuilt/gdbserver")
-                           .arg(toolchainPrefix(architecture))
-                           .arg(m_config.ndkToolchainVersion));
-}
-
-FileName AndroidConfigurations::gdbPath(Abi::Architecture architecture) const
-{
-    FileName gdbPath;
-    switch (architecture) {
-    case Abi::ArmArchitecture:
-        gdbPath = m_config.armGdbLocation;
-        break;
-    case Abi::X86Architecture:
-        gdbPath = m_config.x86GdbLocation;
-        break;
-    default:
-        gdbPath = FileName::fromString(Unknown);
-        break;
-    }
-    if (!gdbPath.isEmpty())
-        return gdbPath;
-    return toolPath(architecture).append(QLatin1String("-gdb" QTC_HOST_EXE_SUFFIX));
+    return toolPath(architecture, ndkToolChainVersion).append(QLatin1String("-gdb" QTC_HOST_EXE_SUFFIX));
 }
 
 FileName AndroidConfigurations::openJDKPath() const

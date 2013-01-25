@@ -66,12 +66,7 @@ public:
 
     Utils::FileName sdkLocation;
     Utils::FileName ndkLocation;
-    QString ndkToolchainVersion;
     Utils::FileName antLocation;
-    Utils::FileName armGdbLocation;
-    Utils::FileName armGdbserverLocation;
-    Utils::FileName x86GdbLocation;
-    Utils::FileName x86GdbserverLocation;
     Utils::FileName openJDKLocation;
     Utils::FileName keystoreLocation;
     unsigned partitionSize;
@@ -93,20 +88,17 @@ public:
     AndroidConfig config() const { return m_config; }
     void setConfig(const AndroidConfig &config);
     QStringList sdkTargets(int minApiLevel = 0) const;
-    QStringList ndkToolchainVersions() const;
     Utils::FileName adbToolPath() const;
     Utils::FileName androidToolPath() const;
     Utils::FileName antToolPath() const;
     Utils::FileName emulatorToolPath() const;
-    Utils::FileName gccPath(ProjectExplorer::Abi::Architecture architecture) const;
-    Utils::FileName gdbServerPath(ProjectExplorer::Abi::Architecture architecture) const;
-    Utils::FileName gdbPath(ProjectExplorer::Abi::Architecture architecture) const;
+    Utils::FileName gdbPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
     Utils::FileName openJDKPath() const;
     Utils::FileName keytoolPath() const;
     Utils::FileName jarsignerPath() const;
     Utils::FileName zipalignPath() const;
-    Utils::FileName stripPath(ProjectExplorer::Abi::Architecture architecture) const;
-    Utils::FileName readelfPath(ProjectExplorer::Abi::Architecture architecture) const;
+    Utils::FileName stripPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
+    Utils::FileName readelfPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
     QString getDeployDeviceSerialNumber(int *apiLevel) const;
     bool createAVD(const QString &target, const QString &name, int sdcardSize) const;
     bool removeAVD(const QString &name) const;
@@ -115,6 +107,7 @@ public:
     QString startAVD(int *apiLevel, const QString &name = QString()) const;
     QString bestMatch(const QString &targetAPI) const;
 
+    static ProjectExplorer::Abi::Architecture architectureForToolChainPrefix(const QString &toolchainprefix);
     static QLatin1String toolchainPrefix(ProjectExplorer::Abi::Architecture architecture);
     static QLatin1String toolsPrefix(ProjectExplorer::Abi::Architecture architecture);
 
@@ -125,7 +118,7 @@ public slots:
     bool createAVD(int minApiLevel = 0) const;
 
 private:
-    Utils::FileName toolPath(ProjectExplorer::Abi::Architecture architecture) const;
+    Utils::FileName toolPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
     Utils::FileName openJDKBinPath() const;
 
     AndroidConfigurations(QObject *parent);

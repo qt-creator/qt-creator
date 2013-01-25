@@ -35,6 +35,7 @@
 #include "androidpackagecreationstep.h"
 #include "androidrunconfiguration.h"
 #include "androidmanager.h"
+#include "androidtoolchain.h"
 
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -114,6 +115,12 @@ bool AndroidDeployStep::init()
     m_buildDirectory = static_cast<Qt4Project *>(target()->project())->rootQt4ProjectNode()->buildDir();
     m_runQASIPackagePath = m_QASIPackagePath;
     m_runDeployAction = m_deployAction;
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
+    if (!tc || tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE)) {
+        raiseError(tr("No android toolchain selected"));
+        return false;
+    }
+    m_ndkToolChainVersion = static_cast<AndroidToolChain *>(tc)->ndkToolChainVersion();
     return true;
 }
 
@@ -352,11 +359,11 @@ void AndroidDeployStep::copyFilesToTemp(QList<DeployItem> *deployList, const QSt
     }
 }
 
-void AndroidDeployStep::stripFiles(const QList<DeployItem> &deployList, Abi::Architecture architecture)
+void AndroidDeployStep::stripFiles(const QList<DeployItem> &deployList, Abi::Architecture architecture, const QString &ndkToolchainVersion)
 {
     QProcess stripProcess;
     foreach (const DeployItem &item, deployList) {
-        stripProcess.start(AndroidConfigurations::instance().stripPath(architecture).toString(),
+        stripProcess.start(AndroidConfigurations::instance().stripPath(architecture, ndkToolchainVersion).toString(),
                            QStringList()<<QLatin1String("--strip-unneeded") << item.localFileName);
         stripProcess.waitForStarted();
         if (!stripProcess.waitForFinished())
@@ -414,7 +421,7 @@ bool AndroidDeployStep::deployPackage()
         fetchRemoteModificationTimes(&deployList);
         filterModificationTimes(&deployList);
         copyFilesToTemp(&deployList, tempPath, m_qtVersionSourcePath);
-        stripFiles(deployList, target()->activeRunConfiguration()->abi().architecture());
+        stripFiles(deployList, target()->activeRunConfiguration()->abi().architecture(), m_ndkToolChainVersion);
         deployFiles(deployProc, deployList);
 
         AndroidPackageCreationStep::removeDirectory(tempPath);
