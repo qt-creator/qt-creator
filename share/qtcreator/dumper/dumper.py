@@ -979,7 +979,7 @@ registerCommand("p2", p2)
 
 
 class Dumper:
-    def __init__(self, args):
+    def defaultInit(self):
         self.output = []
         self.currentIName = ""
         self.currentPrintsAddress = True
@@ -994,15 +994,17 @@ class Dumper:
         self.currentTypePriority = -100
         self.typeformats = {}
         self.formats = {}
-        self.expandedINames = ""
-
-        self.output.append('data=[')
-
+        self.useDynamicType = True
+        self.expandedINames = {}
         options = []
         varList = []
         watchers = ""
-
         resultVarName = ""
+
+    def __init__(self, args):
+        self.defaultInit()
+        self.output.append('data=[')
+
         for arg in args.split(' '):
             pos = arg.find(":") + 1
             if arg.startswith("options:"):
