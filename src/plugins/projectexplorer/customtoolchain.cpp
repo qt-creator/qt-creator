@@ -460,7 +460,7 @@ void CustomToolChainConfigWidget::applyImpl()
     Q_ASSERT(tc);
     QString displayName = tc->displayName();
     tc->setCompilerCommand(m_compilerCommand->fileName());
-    tc->setMakeCommand(m_compilerCommand->fileName());
+    tc->setMakeCommand(m_makeCommand->fileName());
     tc->setTargetAbi(m_abiWidget->currentAbi());
     tc->setPredefinedMacros(m_predefinedDetails->entries());
     tc->setHeaderPaths(m_headerDetails->entries());
