@@ -1,6 +1,7 @@
 #include "vcprojectnodes.h"
 
 #include "vcprojectreader.h"
+#include "vcprojectmanagerconstants.h"
 
 // TODO: temp - just for VcProjectReader::typeForFileName()
 #include <coreplugin/icore.h>
@@ -163,6 +164,8 @@ FileType VcProjectNode::typeForFileName(const Core::MimeDatabase *db, const QFil
         return UnknownFileType;
 
     const QString typeName = mt.type();
+    if (typeName == QLatin1String(Constants::VCPROJ_MIMETYPE))
+        return ProjectFileType;
     if (typeName == QLatin1String(ProjectExplorer::Constants::CPP_SOURCE_MIMETYPE)
         || typeName == QLatin1String(ProjectExplorer::Constants::C_SOURCE_MIMETYPE))
         return SourceType;
