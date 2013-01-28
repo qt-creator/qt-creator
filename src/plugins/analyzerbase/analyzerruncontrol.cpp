@@ -35,7 +35,7 @@
 #include "analyzermanager.h"
 #include "analyzerstartparameters.h"
 
-#include <projectexplorer/applicationrunconfiguration.h>
+#include <projectexplorer/localapplicationrunconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>

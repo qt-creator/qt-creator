@@ -92,7 +92,7 @@
 #include <extensionsystem/invoker.h>
 
 #include <projectexplorer/abi.h>
-#include <projectexplorer/applicationrunconfiguration.h>
+#include <projectexplorer/localapplicationrunconfiguration.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>

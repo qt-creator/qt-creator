@@ -32,7 +32,7 @@
 
 #include "qmakerunconfigurationfactory.h"
 
-#include <projectexplorer/applicationrunconfiguration.h>
+#include <projectexplorer/localapplicationrunconfiguration.h>
 
 #include <utils/environment.h>
 

@@ -52,7 +52,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
-#include <projectexplorer/applicationrunconfiguration.h>
+#include <projectexplorer/localapplicationrunconfiguration.h>
 
 #include <remotelinux/remotelinuxrunconfiguration.h>
 #include <remotelinux/linuxdevice.h>

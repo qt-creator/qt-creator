@@ -27,7 +27,8 @@
 **
 ****************************************************************************/
 
-#include "applicationrunconfiguration.h"
+#include "localapplicationrunconfiguration.h"
+
 #include "buildconfiguration.h"
 
 #include <coreplugin/variablemanager.h>

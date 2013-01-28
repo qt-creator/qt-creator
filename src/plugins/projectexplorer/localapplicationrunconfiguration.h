@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef APPLICATIONRUNCONFIGURATION_H
-#define APPLICATIONRUNCONFIGURATION_H
+#ifndef LOCALAPPLICATIONRUNCONFIGURATION_H
+#define LOCALAPPLICATIONRUNCONFIGURATION_H
 
 #include "runconfiguration.h"
 #include "applicationlauncher.h"
@@ -67,4 +67,4 @@ protected:
 
 } // namespace ProjectExplorer
 
-#endif // APPLICATIONRUNCONFIGURATION_H
+#endif // LOCALAPPLICATIONRUNCONFIGURATION_H

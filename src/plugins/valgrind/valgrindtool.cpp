@@ -31,7 +31,7 @@
 
 #include <remotelinux/remotelinuxrunconfiguration.h>
 
-#include <projectexplorer/applicationrunconfiguration.h>
+#include <projectexplorer/localapplicationrunconfiguration.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>

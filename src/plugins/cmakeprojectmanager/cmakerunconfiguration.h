@@ -30,7 +30,7 @@
 #ifndef CMAKERUNCONFIGURATION_H
 #define CMAKERUNCONFIGURATION_H
 
-#include <projectexplorer/applicationrunconfiguration.h>
+#include <projectexplorer/localapplicationrunconfiguration.h>
 #include <utils/environment.h>
 
 QT_BEGIN_NAMESPACE

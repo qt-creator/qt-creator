@@ -48,7 +48,7 @@
 #endif
 
 #include <projectexplorer/abi.h>
-#include <projectexplorer/applicationrunconfiguration.h> // For LocalApplication*
+#include <projectexplorer/localapplicationrunconfiguration.h> // For LocalApplication*
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>

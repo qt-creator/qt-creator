@@ -13,6 +13,7 @@ HEADERS += projectexplorer.h \
     abiwidget.h \
     clangparser.h \
     gcctoolchain.h \
+    localapplicationrunconfiguration.h \
     projectexplorer_export.h \
     projectwindow.h \
     removetaskhandler.h \
@@ -66,7 +67,6 @@ HEADERS += projectexplorer.h \
     editorsettingspropertiespage.h \
     runconfiguration.h \
     applicationlauncher.h \
-    applicationrunconfiguration.h \
     runsettingspropertiespage.h \
     projecttreewidget.h \
     foldernavigationwidget.h \
@@ -136,6 +136,7 @@ SOURCES += projectexplorer.cpp \
     abiwidget.cpp \
     clangparser.cpp \
     gcctoolchain.cpp \
+    localapplicationrunconfiguration.cpp \
     projectwindow.cpp \
     removetaskhandler.cpp \
     kit.cpp \
@@ -182,7 +183,6 @@ SOURCES += projectexplorer.cpp \
     editorsettingspropertiespage.cpp \
     runconfiguration.cpp \
     applicationlauncher.cpp \
-    applicationrunconfiguration.cpp \
     runsettingspropertiespage.cpp \
     projecttreewidget.cpp \
     foldernavigationwidget.cpp \

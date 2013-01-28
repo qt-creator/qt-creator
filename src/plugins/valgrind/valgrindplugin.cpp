@@ -40,7 +40,7 @@
 #include <analyzerbase/analyzerstartparameters.h>
 #include <analyzerbase/startremotedialog.h>
 
-#include <projectexplorer/applicationrunconfiguration.h>
+#include <projectexplorer/localapplicationrunconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/hostosinfo.h>

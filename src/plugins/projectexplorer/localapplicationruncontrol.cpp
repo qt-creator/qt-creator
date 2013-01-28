@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "localapplicationruncontrol.h"
-#include "applicationrunconfiguration.h"
+#include "localapplicationrunconfiguration.h"
 #include "projectexplorerconstants.h"
 
 #include <utils/outputformat.h>

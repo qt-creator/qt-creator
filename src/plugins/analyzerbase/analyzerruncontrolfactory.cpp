@@ -35,7 +35,7 @@
 #include "ianalyzertool.h"
 #include "analyzerstartparameters.h"
 
-#include <projectexplorer/applicationrunconfiguration.h>
+#include <projectexplorer/localapplicationrunconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/qtcassert.h>

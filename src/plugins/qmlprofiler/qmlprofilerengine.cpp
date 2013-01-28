@@ -39,7 +39,7 @@
 #include <qmlprojectmanager/qmlprojectrunconfiguration.h>
 #include <qmlprojectmanager/qmlprojectplugin.h>
 #include <projectexplorer/localapplicationruncontrol.h>
-#include <projectexplorer/applicationrunconfiguration.h>
+#include <projectexplorer/localapplicationrunconfiguration.h>
 #include <qmldebug/qmloutputparser.h>
 #include <remotelinux/remotelinuxrunconfiguration.h>
 
