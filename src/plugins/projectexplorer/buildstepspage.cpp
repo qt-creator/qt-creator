@@ -57,7 +57,7 @@ using namespace ProjectExplorer::Internal;
 using namespace Utils;
 
 ToolWidget::ToolWidget(QWidget *parent)
-    : Utils::FadingPanel(parent), m_buildStepEnabled(true)
+    : Utils::FadingPanel(parent), m_buildStepEnabled(true), m_targetOpacity(1.0f)
 {
     QHBoxLayout *layout = new QHBoxLayout;
     layout->setMargin(4);
