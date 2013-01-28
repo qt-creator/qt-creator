@@ -10,14 +10,18 @@
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
-#include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/buildenvironmentwidget.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/kit.h>
-#include <projectexplorer/kitmanager.h>
-#include <projectexplorer/target.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/buildenvironmentwidget.h>
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 #include <utils/filesystemwatcher.h>
+#include <utils/qtcassert.h>
 
 #include <QFileInfo>
 #include <QFileSystemWatcher>
@@ -42,6 +46,11 @@ VcProject::VcProject(VcManager *projectManager, const QString &projectFilePath)
 
     m_projectFileWatcher->addPath(projectFilePath);
     connect(m_projectFileWatcher, SIGNAL(fileChanged(QString)), this, SLOT(reparse()));
+}
+
+VcProject::~VcProject()
+{
+    m_codeModelFuture.cancel();
 }
 
 QString VcProject::displayName() const
@@ -109,6 +118,7 @@ void VcProject::reparse()
 
     delete projInfo;
 
+    updateCodeModels();
     // TODO: can we (and is is important to) detect when the list really changed?
     emit fileListChanged();
 }
@@ -116,7 +126,70 @@ void VcProject::reparse()
 bool VcProject::fromMap(const QVariantMap &map)
 {
     loadBuildConfigurations();
+    updateCodeModels();
     return Project::fromMap(map);
+}
+
+bool VcProject::setupTarget(ProjectExplorer::Target *t)
+{
+    VcProjectBuildConfigurationFactory *factory
+            = ExtensionSystem::PluginManager::instance()->getObject<VcProjectBuildConfigurationFactory>();
+    VcProjectBuildConfiguration *bc = factory->create(t, Constants::VC_PROJECT_BC_ID, QLatin1String("vcproj"));
+    if (!bc)
+        return false;
+
+    t->addBuildConfiguration(bc);
+    return true;
+}
+
+/**
+ * @brief Visit folder node recursive and accumulate Source and Header files
+ */
+void VcProject::addCxxModelFiles(const FolderNode *node, QStringList &sourceFiles)
+{
+    foreach (const FileNode *file, node->fileNodes())
+        if (file->fileType() == HeaderType || file->fileType() == SourceType)
+            sourceFiles += file->path();
+    foreach (const FolderNode *subfolder, node->subFolderNodes())
+        addCxxModelFiles(subfolder, sourceFiles);
+}
+
+/**
+ * @brief Update editor Code Models
+ *
+ * Because only language with Code Model in QtCreator and support in VS is C++,
+ * this method updates C++ code model.
+ * VCProj doesn't support Qt, ObjectiveC and always uses c++11.
+ *
+ * @note Method should pass some flags for ClangCodeModel plugin: "-fms-extensions"
+ * and "-fdelayed-template-parsing", but no interface exists at this moment.
+ */
+void VcProject::updateCodeModels()
+{
+    typedef CPlusPlus::CppModelManagerInterface::ProjectPart ProjectPart;
+
+    Kit *k = activeTarget() ? activeTarget()->kit() : KitManager::instance()->defaultKit();
+    QTC_ASSERT(k, return);
+    ToolChain *tc = ToolChainKitInformation::toolChain(k);
+    CPlusPlus::CppModelManagerInterface *modelmanager = CPlusPlus::CppModelManagerInterface::instance();
+    QTC_ASSERT(modelmanager, return);
+    CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
+
+    pinfo.clearProjectParts();
+    ProjectPart::Ptr pPart(new ProjectPart());
+    // VS 2005-2008 has poor c++11 support, see http://wiki.apache.org/stdcxx/C%2B%2B0xCompilerSupport
+    pPart->cxx11Enabled = false;
+    pPart->qtVersion = ProjectPart::NoQt;
+    pPart->defines += tc->predefinedMacros(QStringList()); // TODO: extract proper CXX flags and project defines
+    foreach (const HeaderPath &path, tc->systemHeaderPaths(Utils::FileName()))
+        if (path.kind() != HeaderPath::FrameworkHeaderPath)
+            pPart->includePaths += path.path();
+    addCxxModelFiles(m_rootNode, pPart->sourceFiles);
+    if (!pPart->sourceFiles.isEmpty())
+        pinfo.appendProjectPart(pPart);
+
+    modelmanager->updateProjectInfo(pinfo);
+    m_codeModelFuture = modelmanager->updateSourceFiles(pPart->sourceFiles);
 }
 
 void VcProject::loadBuildConfigurations()
@@ -169,18 +242,6 @@ void VcProject::loadBuildConfigurations()
 
         target->addBuildConfiguration(bc);
         addTarget(target);    }
-}
-
-bool VcProject::setupTarget(ProjectExplorer::Target *t)
-{
-    VcProjectBuildConfigurationFactory *factory
-            = ExtensionSystem::PluginManager::instance()->getObject<VcProjectBuildConfigurationFactory>();
-    VcProjectBuildConfiguration *bc = factory->create(t, Constants::VC_PROJECT_BC_ID, QLatin1String("vcproj"));
-    if (!bc)
-        return false;
-
-    t->addBuildConfiguration(bc);
-    return true;
 }
 
 VcProjectBuildSettingsWidget::VcProjectBuildSettingsWidget()

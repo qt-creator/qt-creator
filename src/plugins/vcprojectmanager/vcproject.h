@@ -5,6 +5,7 @@
 
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/project.h>
+#include <QFuture>
 
 class QFileSystemWatcher;
 
@@ -21,6 +22,7 @@ class VcProject : public ProjectExplorer::Project
 
 public:
     VcProject(VcManager *projectManager, const QString &projectFilePath);
+    ~VcProject();
 
     QString displayName() const;
     Core::Id id() const;
@@ -47,6 +49,8 @@ protected:
     bool setupTarget(ProjectExplorer::Target *t);
 
 private:
+    void addCxxModelFiles(const ProjectExplorer::FolderNode *node, QStringList &sourceFiles);
+    void updateCodeModels();
     void loadBuildConfigurations();
 
     VcManager *m_projectManager;
@@ -55,6 +59,7 @@ private:
     VcProjectReader reader;
     QString m_name;
     QFileSystemWatcher *m_projectFileWatcher;
+    QFuture<void> m_codeModelFuture;
 };
 
 class VcProjectBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget
