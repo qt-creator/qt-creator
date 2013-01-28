@@ -35,6 +35,7 @@
 #include <QFile>
 #include <QObject>
 #include <QTimer>
+#include <QCoreApplication>
 
 #include <cstdio>
 #include <cstdlib>

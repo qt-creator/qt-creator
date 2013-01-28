@@ -30,6 +30,7 @@
 #include "argumentscollector.h"
 
 #include <QFileInfo>
+#include <QCoreApplication>
 
 static QString pasteRequestString() { return QLatin1String("paste"); }
 static QString listProtocolsRequestString() { return QLatin1String("list-protocols"); }
@@ -69,25 +70,20 @@ bool ArgumentsCollector::collect(const QStringList &args)
 
 QString ArgumentsCollector::usageString() const
 {
-    QString usage = tr("Usage:");
-    usage += QLatin1String("\n\t");
-    usage += tr("%1 <request> [ <request options>]")
+    QString usage = QString::fromLatin1("Usage:\n\t%1 <request> [ <request options>]\n\t")
             .arg(QFileInfo(QCoreApplication::applicationFilePath()).fileName());
-    usage += QLatin1String("\n\t");
-    usage += tr("Possible requests: \"%1\", \"%2\", \"%3\"")
+    usage += QString::fromLatin1("Possible requests: \"%1\", \"%2\", \"%3\"\n\t")
             .arg(pasteRequestString(), listProtocolsRequestString(), helpRequestString());
-    usage += QLatin1String("\n\t");
-    usage += tr("Possible options for request \"%1\": \"%2 <file>\" (default: stdin), "
-                "\"%3 <protocol>\"")
+    usage += QString::fromLatin1("Possible options for request \"%1\": \"%2 <file>\" (default: stdin), "
+                "\"%3 <protocol>\"\n")
             .arg(pasteRequestString(), pasteFileOptionString(), pasteProtocolOptionString());
-    usage += QLatin1Char('\n');
     return usage;
 }
 
 void ArgumentsCollector::setRequest()
 {
     if (m_arguments.isEmpty())
-        throw ArgumentErrorException(tr("No request given"));
+        throw ArgumentErrorException(QLatin1String("No request given"));
     const QString requestString = m_arguments.takeFirst();
     if (requestString == pasteRequestString())
         m_requestType = RequestTypePaste;
@@ -96,7 +92,7 @@ void ArgumentsCollector::setRequest()
     else if (requestString == helpRequestString())
         m_requestType = RequestTypeHelp;
     else
-        throw ArgumentErrorException(tr("Unknown request \"%1\"").arg(requestString));
+        throw ArgumentErrorException(QString::fromLatin1("Unknown request \"%1\"").arg(requestString));
 }
 
 void ArgumentsCollector::setPasteOptions()
@@ -106,15 +102,15 @@ void ArgumentsCollector::setPasteOptions()
             continue;
         if (checkAndSetOption(pasteProtocolOptionString(), m_protocol)) {
             if (!m_availableProtocols.contains(m_protocol))
-                throw ArgumentErrorException(tr("Unknown protocol \"%1\"").arg(m_protocol));
+                throw ArgumentErrorException(QString::fromLatin1("Unknown protocol \"%1\"").arg(m_protocol));
             continue;
         }
-        throw ArgumentErrorException(tr("Invalid option \"%1\" for request \"%2\"")
+        throw ArgumentErrorException(QString::fromLatin1("Invalid option \"%1\" for request \"%2\"")
                 .arg(m_arguments.first(), pasteRequestString()));
     }
 
     if (m_protocol.isEmpty())
-        throw ArgumentErrorException(tr("No protocol given"));
+        throw ArgumentErrorException(QLatin1String("No protocol given"));
 }
 
 bool ArgumentsCollector::checkAndSetOption(const QString &optionString, QString &optionValue)
@@ -123,10 +119,10 @@ bool ArgumentsCollector::checkAndSetOption(const QString &optionString, QString 
         return false;
 
     if (!optionValue.isEmpty())
-        throw ArgumentErrorException(tr("option \"%1\" was given twice").arg(optionString));
+        throw ArgumentErrorException(QString::fromLatin1("option \"%1\" was given twice").arg(optionString));
     m_arguments.removeFirst();
     if (m_arguments.isEmpty()) {
-        throw ArgumentErrorException(tr("Option \"%1\" requires an argument")
+        throw ArgumentErrorException(QString::fromLatin1("Option \"%1\" requires an argument")
                 .arg(optionString));
     }
     optionValue = m_arguments.takeFirst();

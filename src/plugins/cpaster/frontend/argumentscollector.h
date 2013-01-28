@@ -30,12 +30,10 @@
 #ifndef ARGUMENTSCOLLECTOR_H
 #define ARGUMENTSCOLLECTOR_H
 
-#include <QCoreApplication>
 #include <QStringList>
 
 class ArgumentsCollector
 {
-    Q_DECLARE_TR_FUNCTIONS(ArgumentsCollector)
 public:
     ArgumentsCollector(const QStringList &availableProtocols);
     bool collect(const QStringList &args); // Application is already removed.
