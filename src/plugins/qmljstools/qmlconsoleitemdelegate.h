@@ -31,6 +31,7 @@
 #define QMLCONSOLEITEMDELEGATE_H
 
 #include "qmlconsoleitemmodel.h"
+#include "qmlconsolemodel.h"
 #include "qmlconsolemanager.h"
 
 #include <QStyledItemDelegate>

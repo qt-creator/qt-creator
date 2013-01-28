@@ -27,48 +27,24 @@
 **
 ****************************************************************************/
 
-#ifndef QMLCONSOLEMANAGER_H
-#define QMLCONSOLEMANAGER_H
+#ifndef QMLCONSOLEMODEL_H
+#define QMLCONSOLEMODEL_H
 
-#include "qmljstools_global.h"
+#include <QString>
 
-#include <qmljs/consolemanagerinterface.h>
-
-#include <QObject>
-
-namespace QmlJS {
-class IScriptEvaluator;
-}
 namespace QmlJSTools {
-
 namespace Internal {
-class QmlConsoleModel;
-}
 
-class QmlConsoleManagerPrivate;
-class QMLJSTOOLS_EXPORT QmlConsoleManager : public QmlJS::ConsoleManagerInterface
+class QmlConsoleItemModel;
+
+class QmlConsoleModel
 {
-    Q_OBJECT
 public:
-    QmlConsoleManager(QObject *parent);
-    ~QmlConsoleManager();
-
-    void showConsolePane();
-
-    QmlJS::ConsoleItem *rootItem() const;
-
-    void setScriptEvaluator(QmlJS::IScriptEvaluator *scriptEvaluator);
-    void setContext(const QString &context);
-
-    void printToConsolePane(QmlJS::ConsoleItem::ItemType itemType, const QString &text,
-                            bool bringToForeground = false);
-    void printToConsolePane(QmlJS::ConsoleItem *item, bool bringToForeground = false);
-
-private:
-    QmlConsoleManagerPrivate *d;
-    friend class Internal::QmlConsoleModel;
+    static QmlConsoleItemModel *qmlConsoleItemModel();
+    static void evaluate(const QString &expression);
 };
 
+} // namespace Internal
 } // namespace QmlJSTools
 
-#endif // QMLCONSOLEMANAGER_H
+#endif // QMLCONSOLEMODEL_H

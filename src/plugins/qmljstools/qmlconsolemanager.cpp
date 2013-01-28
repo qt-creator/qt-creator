@@ -30,6 +30,7 @@
 #include "qmlconsolemanager.h"
 #include "qmlconsolepane.h"
 #include "qmlconsoleitemmodel.h"
+#include "qmlconsolemodel.h"
 
 #include <extensionsystem/pluginmanager.h>
 

@@ -29,6 +29,7 @@
 
 #include "qmlconsoleedit.h"
 #include "qmlconsoleitemmodel.h"
+#include "qmlconsolemodel.h"
 #include "qmlconsolemanager.h"
 
 #include <utils/qtcassert.h>
