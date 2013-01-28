@@ -1314,6 +1314,32 @@ void GitPlugin::testDiffFileResolving()
     GitEditor editor(editorParameters + 3, 0);
     editor.testDiffFileResolving();
 }
+
+void GitPlugin::testLogResolving()
+{
+    QByteArray data(
+                "commit 50a6b54c03219ad74b9f3f839e0321be18daeaf6\n"
+                "Merge: 3587b51 bc93ceb\n"
+                "Author: Junio C Hamano <gitster@pobox.com>\n"
+                "Date:   Fri Jan 25 12:53:31 2013 -0800\n"
+                "\n"
+                "   Merge branch 'for-junio' of git://bogomips.org/git-svn\n"
+                "    \n"
+                "    * 'for-junio' of git://bogomips.org/git-svn:\n"
+                "      git-svn: Simplify calculation of GIT_DIR\n"
+                "      git-svn: cleanup sprintf usage for uppercasing hex\n"
+                "\n"
+                "commit 3587b513bafd7a83d8c816ac1deed72b5e3a27e9\n"
+                "Author: Junio C Hamano <gitster@pobox.com>\n"
+                "Date:   Fri Jan 25 12:52:55 2013 -0800\n"
+                "\n"
+                "    Update draft release notes to 1.8.2\n"
+                "    \n"
+                "    Signed-off-by: Junio C Hamano <gitster@pobox.com>\n"
+                );
+    GitEditor editor(editorParameters + 1, 0);
+    editor.testLogResolving(data, "50a6b54c", "3587b513");
+}
 #endif
 
 Q_EXPORT_PLUGIN(GitPlugin)

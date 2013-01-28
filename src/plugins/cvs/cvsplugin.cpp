@@ -1400,6 +1400,33 @@ void CvsPlugin::testDiffFileResolving()
     CvsEditor editor(editorParameters + 3, 0);
     editor.testDiffFileResolving();
 }
+
+void CvsPlugin::testLogResolving()
+{
+    QByteArray data(
+                "RCS file: /sources/cvs/ccvs/Attic/FIXED-BUGS,v\n"
+                "Working file: FIXED-BUGS\n"
+                "head: 1.3\n"
+                "branch:\n"
+                "locks: strict\n"
+                "access list:\n"
+                "symbolic names:\n"
+                "keyword substitution: kv\n"
+                "total revisions: 3;     selected revisions: 3\n"
+                "description:\n"
+                "----------------------------\n"
+                "revision 1.3\n"
+                "date: 1995-04-29 06:22:41 +0300;  author: jimb;  state: dead;  lines: +0 -0;\n"
+                "*** empty log message ***\n"
+                "----------------------------\n"
+                "revision 1.2\n"
+                "date: 1995-04-28 18:52:24 +0300;  author: noel;  state: Exp;  lines: +6 -0;\n"
+                "added latest commentary\n"
+                "----------------------------\n"
+                );
+    CvsEditor editor(editorParameters + 1, 0);
+    editor.testLogResolving(data, "1.3", "1.2");
+}
 #endif
 
 } // namespace Internal

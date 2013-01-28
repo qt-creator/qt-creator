@@ -73,6 +73,7 @@ GitEditor::GitEditor(const VcsBase::VcsBaseEditorParameters *type,
         +++ b/src/plugins/git/giteditor.cpp
     */
     setDiffFilePattern(QRegExp(QLatin1String("^(?:diff --git a/|index |[+-]{3} (?:/dev/null|[ab]/(.+$)))")));
+    setLogEntryPattern(QRegExp(QLatin1String("^commit ([0-9a-f]{8})[0-9a-f]{32}")));
     setAnnotateRevisionTextFormat(tr("Blame %1"));
     setAnnotatePreviousRevisionTextFormat(tr("Blame Parent Revision %1"));
 }

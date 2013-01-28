@@ -137,6 +137,9 @@ private slots:
     void slotTopLevelFound(const QString &);
     void slotTopLevelFailed(const QString &);
 
+#ifdef WITH_TESTS
+    void testLogResolving();
+#endif
 protected:
     void updateActions(VcsBase::VcsBasePlugin::ActionState);
     bool submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor);

@@ -624,6 +624,30 @@ void BazaarPlugin::testDiffFileResolving()
     BazaarEditor editor(editorParameters + 3, 0);
     editor.testDiffFileResolving();
 }
+
+void BazaarPlugin::testLogResolving()
+{
+    QByteArray data(
+                "------------------------------------------------------------\n"
+                "revno: 6572 [merge]\n"
+                "committer: Patch Queue Manager <pqm@pqm.ubuntu.com>\n"
+                "branch nick: +trunk\n"
+                "timestamp: Mon 2012-12-10 10:18:33 +0000\n"
+                "message:\n"
+                "  (vila) Fix LC_ALL=C test failures related to utf8 stderr encoding (Vincent\n"
+                "   Ladeuil)\n"
+                "------------------------------------------------------------\n"
+                "revno: 6571 [merge]\n"
+                "committer: Patch Queue Manager <pqm@pqm.ubuntu.com>\n"
+                "branch nick: +trunk\n"
+                "timestamp: Thu 2012-10-25 11:13:27 +0000\n"
+                "message:\n"
+                "  (gz) Set approved revision and vote \"Approve\" when using lp-propose\n"
+                "   --approve (Jonathan Lange)\n"
+                );
+    BazaarEditor editor(editorParameters + 1, 0);
+    editor.testLogResolving(data, "6572", "6571");
+}
 #endif
 
 void BazaarPlugin::commitFromEditor()

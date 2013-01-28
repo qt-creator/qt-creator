@@ -59,6 +59,7 @@ BazaarEditor::BazaarEditor(const VcsBase::VcsBaseEditorParameters *type, QWidget
     // Diff format:
     // === <change> <file|dir> 'mainwindow.cpp'
     setDiffFilePattern(QRegExp(QLatin1String("^=== [a-z]+ [a-z]+ '(.+)'\\s*")));
+    setLogEntryPattern(QRegExp(QLatin1String("^revno: (\\d+)")));
 }
 
 QSet<QString> BazaarEditor::annotationChanges() const

@@ -575,6 +575,7 @@ public:
     QString m_diffBaseDirectory;
 
     QRegExp m_diffFilePattern;
+    QRegExp m_logEntryPattern;
     QList<int> m_entrySections; // line number where this section starts
     int m_cursorLine;
     QString m_annotateRevisionTextFormat;
@@ -672,12 +673,21 @@ void VcsBaseEditorWidget::setDiffFilePattern(const QRegExp &pattern)
     d->m_diffFilePattern = pattern;
 }
 
+void VcsBaseEditorWidget::setLogEntryPattern(const QRegExp &pattern)
+{
+    QTC_ASSERT(pattern.isValid() && pattern.captureCount() >= 1, return);
+    d->m_logEntryPattern = pattern;
+}
+
 void VcsBaseEditorWidget::init()
 {
     d->m_editor = editor();
     switch (d->m_parameters->type) {
     case RegularCommandOutput:
     case LogOutput:
+        connect(d->entriesComboBox(), SIGNAL(activated(int)), this, SLOT(slotJumpToEntry(int)));
+        connect(this, SIGNAL(textChanged()), this, SLOT(slotPopulateLogBrowser()));
+        connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(slotCursorPositionChanged()));
         break;
     case AnnotateOutput:
         // Annotation highlighting depends on contents, which is set later on
@@ -829,6 +839,25 @@ void VcsBaseEditorWidget::slotPopulateDiffBrowser()
                 d->m_entrySections.push_back(d->m_entrySections.empty() ? 0 : lineNumber);
                 entriesComboBox->addItem(QFileInfo(file).fileName());
             }
+        }
+    }
+}
+
+void VcsBaseEditorWidget::slotPopulateLogBrowser()
+{
+    QComboBox *entriesComboBox = d->entriesComboBox();
+    entriesComboBox->clear();
+    d->m_entrySections.clear();
+    // Create a list of section line numbers (log entries)
+    // and populate combo with subjects (if any).
+    const QTextBlock cend = document()->end();
+    int lineNumber = 0;
+    for (QTextBlock it = document()->begin(); it != cend; it = it.next(), lineNumber++) {
+        const QString text = it.text();
+        // Check for a new log section (not repeating the last filename)
+        if (d->m_logEntryPattern.indexIn(text) != -1) {
+            d->m_entrySections.push_back(d->m_entrySections.empty() ? 0 : lineNumber);
+            entriesComboBox->addItem(d->m_logEntryPattern.cap(1));
         }
     }
 }
@@ -1536,6 +1565,16 @@ void VcsBase::VcsBaseEditorWidget::testDiffFileResolving()
     init();
     QTextBlock block = doc.lastBlock();
     QVERIFY(fileNameFromDiffSpecification(block).endsWith(QString::fromLatin1(fileName)));
+}
+
+void VcsBase::VcsBaseEditorWidget::testLogResolving(QByteArray &data,
+                                                    const QByteArray &entry1,
+                                                    const QByteArray &entry2)
+{
+    init();
+    setPlainText(QLatin1String(data));
+    QCOMPARE(d->entriesComboBox()->itemText(0), QString::fromLatin1(entry1));
+    QCOMPARE(d->entriesComboBox()->itemText(1), QString::fromLatin1(entry2));
 }
 #endif
 

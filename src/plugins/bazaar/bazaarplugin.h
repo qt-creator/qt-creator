@@ -115,6 +115,7 @@ private slots:
 #ifdef WITH_TESTS
     void testDiffFileResolving_data();
     void testDiffFileResolving();
+    void testLogResolving();
 #endif
 
 protected:

@@ -57,6 +57,7 @@ ClearCaseEditor::ClearCaseEditor(const VcsBase::VcsBaseEditorParameters *type,
     QRegExp diffFilePattern(QLatin1String("^[-+]{3} ([^\\t]+)(?:@@|\\t)"));
     diffFilePattern.setMinimal(true);
     setDiffFilePattern(diffFilePattern);
+    setLogEntryPattern(QRegExp(QLatin1String("version \"([^\"]+)\"")));
     setAnnotateRevisionTextFormat(tr("Annotate version \"%1\""));
 }
 

@@ -64,6 +64,7 @@ CvsEditor::CvsEditor(const VcsBase::VcsBaseEditorParameters *type,
     \endcode
     */
     setDiffFilePattern(QRegExp(QLatin1String("^[-+]{3} ([^\\t]+)")));
+    setLogEntryPattern(QRegExp(QLatin1String("^revision (.+)$")));
     setAnnotateRevisionTextFormat(tr("Annotate revision \"%1\""));
 }
 

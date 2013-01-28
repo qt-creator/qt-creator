@@ -102,6 +102,8 @@ protected:
                                  QWidget *parent);
     // Pattern for diff header. File name must be in the first capture group
     void setDiffFilePattern(const QRegExp &pattern);
+    // Pattern for log entry. hash/revision number must be in the first capture group
+    void setLogEntryPattern(const QRegExp &pattern);
 
 public:
     void init();
@@ -220,6 +222,7 @@ public slots:
 private slots:
     void slotActivateAnnotation();
     void slotPopulateDiffBrowser();
+    void slotPopulateLogBrowser();
     void slotJumpToEntry(int);
     void slotCursorPositionChanged();
     void slotAnnotateRevision();
@@ -276,6 +279,7 @@ private:
 #ifdef WITH_TESTS
 public:
     void testDiffFileResolving();
+    void testLogResolving(QByteArray &data, const QByteArray &entry1, const QByteArray &entry2);
 #endif
 };
 

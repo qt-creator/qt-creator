@@ -1526,6 +1526,23 @@ void PerforcePlugin::getTopLevel()
     checker->start(m_settings.p4BinaryPath(), m_settings.commonP4Arguments(QString()), 30000);
 }
 
+#ifdef WITH_TESTS
+void PerforcePlugin::testLogResolving()
+{
+    // Source: http://mail.opensolaris.org/pipermail/opengrok-discuss/2008-October/001668.html
+    QByteArray data(
+                "... #4 change 12345 edit on 2013/01/28 by User at UserWorkspaceName(text)\n"
+                "\n"
+                "        Comment\n"
+                "... #3 change 12344 edit on 2013/01/27 by User at UserWorkspaceName(text)\n"
+                "\n"
+                "        Comment\n"
+                );
+    PerforceEditor editor(editorParameters + 1, 0);
+    editor.testLogResolving(data, "12345", "12344");
+}
+#endif
+
 }
 }
 

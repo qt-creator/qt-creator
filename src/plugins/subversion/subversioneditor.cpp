@@ -62,6 +62,7 @@ SubversionEditor::SubversionEditor(const VcsBase::VcsBaseEditorParameters *type,
     \endcode
     */
     setDiffFilePattern(QRegExp(QLatin1String("^[-+]{3} ([^\\t]+)|^Index: .*|^=+$")));
+    setLogEntryPattern(QRegExp(QLatin1String("^(r\\d+) \\|")));
     setAnnotateRevisionTextFormat(tr("Annotate revision \"%1\""));
 }
 

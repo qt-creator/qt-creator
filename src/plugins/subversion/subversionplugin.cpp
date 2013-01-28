@@ -1427,6 +1427,28 @@ void SubversionPlugin::testDiffFileResolving()
     SubversionEditor editor(editorParameters + 3, 0);
     editor.testDiffFileResolving();
 }
+
+void SubversionPlugin::testLogResolving()
+{
+    QByteArray data(
+                "------------------------------------------------------------------------\n"
+                "r1439551 | philip | 2013-01-28 20:19:55 +0200 (Mon, 28 Jan 2013) | 4 lines\n"
+                "\n"
+                "* subversion/tests/cmdline/update_tests.py\n"
+                "  (update_moved_dir_file_move): Resolve conflict, adjust expectations,\n"
+                "   remove XFail.\n"
+                "\n"
+                "------------------------------------------------------------------------\n"
+                "r1439540 | philip | 2013-01-28 20:06:36 +0200 (Mon, 28 Jan 2013) | 4 lines\n"
+                "\n"
+                "* subversion/tests/cmdline/update_tests.py\n"
+                "  (update_moved_dir_edited_leaf_del): Do non-recursive resolution, adjust\n"
+                "   expectations, remove XFail.\n"
+                "\n"
+                );
+    SubversionEditor editor(editorParameters + 1, 0);
+    editor.testLogResolving(data, "r1439551", "r1439540");
+}
 #endif
 
 } // Internal

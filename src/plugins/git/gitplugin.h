@@ -145,6 +145,7 @@ private slots:
     void testStatusParsing();
     void testDiffFileResolving_data();
     void testDiffFileResolving();
+    void testLogResolving();
 #endif
 protected:
     void updateActions(VcsBase::VcsBasePlugin::ActionState);
