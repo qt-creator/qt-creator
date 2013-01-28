@@ -1425,7 +1425,7 @@ void SubversionPlugin::testDiffFileResolving_data()
 void SubversionPlugin::testDiffFileResolving()
 {
     SubversionEditor editor(editorParameters + 3, 0);
-    VcsBase::VcsBaseEditorWidget::testDiffFileResolving(&editor);
+    editor.testDiffFileResolving();
 }
 #endif
 

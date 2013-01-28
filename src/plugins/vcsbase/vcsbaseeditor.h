@@ -275,7 +275,7 @@ private:
 
 #ifdef WITH_TESTS
 public:
-    static void testDiffFileResolving(VcsBaseEditorWidget *editor);
+    void testDiffFileResolving();
 #endif
 };
 

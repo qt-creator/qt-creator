@@ -1312,7 +1312,7 @@ void GitPlugin::testDiffFileResolving_data()
 void GitPlugin::testDiffFileResolving()
 {
     GitEditor editor(editorParameters + 3, 0);
-    VcsBase::VcsBaseEditorWidget::testDiffFileResolving(&editor);
+    editor.testDiffFileResolving();
 }
 #endif
 

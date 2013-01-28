@@ -718,7 +718,7 @@ void MercurialPlugin::testDiffFileResolving_data()
 void MercurialPlugin::testDiffFileResolving()
 {
     MercurialEditor editor(editorParameters + 3, 0);
-    VcsBase::VcsBaseEditorWidget::testDiffFileResolving(&editor);
+    editor.testDiffFileResolving();
 }
 #endif
 

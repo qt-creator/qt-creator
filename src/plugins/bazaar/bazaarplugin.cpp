@@ -622,7 +622,7 @@ void BazaarPlugin::testDiffFileResolving_data()
 void BazaarPlugin::testDiffFileResolving()
 {
     BazaarEditor editor(editorParameters + 3, 0);
-    VcsBase::VcsBaseEditorWidget::testDiffFileResolving(&editor);
+    editor.testDiffFileResolving();
 }
 #endif
 

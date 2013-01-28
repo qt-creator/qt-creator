@@ -1398,7 +1398,7 @@ void CvsPlugin::testDiffFileResolving_data()
 void CvsPlugin::testDiffFileResolving()
 {
     CvsEditor editor(editorParameters + 3, 0);
-    VcsBase::VcsBaseEditorWidget::testDiffFileResolving(&editor);
+    editor.testDiffFileResolving();
 }
 #endif
 

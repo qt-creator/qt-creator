@@ -1528,14 +1528,14 @@ Core::IEditor* VcsBaseEditorWidget::locateEditorByTag(const QString &tag)
 #ifdef WITH_TESTS
 #include <QTest>
 
-void VcsBase::VcsBaseEditorWidget::testDiffFileResolving(VcsBaseEditorWidget *editor)
+void VcsBase::VcsBaseEditorWidget::testDiffFileResolving()
 {
     QFETCH(QByteArray, header);
     QFETCH(QByteArray, fileName);
     QTextDocument doc(QString::fromLatin1(header));
-    editor->init();
+    init();
     QTextBlock block = doc.lastBlock();
-    QVERIFY(editor->fileNameFromDiffSpecification(block).endsWith(QString::fromLatin1(fileName)));
+    QVERIFY(fileNameFromDiffSpecification(block).endsWith(QString::fromLatin1(fileName)));
 }
 #endif
 

@@ -1961,7 +1961,7 @@ void ClearCasePlugin::testDiffFileResolving_data()
 void ClearCasePlugin::testDiffFileResolving()
 {
     ClearCaseEditor editor(editorParameters + 3, 0);
-    VcsBase::VcsBaseEditorWidget::testDiffFileResolving(&editor);
+    editor.testDiffFileResolving();
 }
 #endif
 
