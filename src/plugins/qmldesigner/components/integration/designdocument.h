@@ -65,7 +65,7 @@ namespace QmlDesigner {
 class ModelNode;
 class TextModifier;
 class QmlObjectNode;
-struct CrumbleBarInfo;
+class CrumbleBarInfo;
 
 class DesignDocument: public QObject
 {
