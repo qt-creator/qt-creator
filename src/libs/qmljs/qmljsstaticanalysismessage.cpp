@@ -40,7 +40,7 @@ namespace {
 
 class StaticAnalysisMessages
 {
-    Q_DECLARE_TR_FUNCTIONS(StaticAnalysisMessages)
+    Q_DECLARE_TR_FUNCTIONS(QmlJS::StaticAnalysisMessages)
 
 public:
     class PrototypeMessageData {

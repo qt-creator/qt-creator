@@ -70,6 +70,7 @@ namespace CMakeProjectManager {
 namespace Internal {
     class GeneratorInfo
     {
+        Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::GeneratorInfo)
     public:
         enum Ninja { NoNinja, OfferNinja, ForceNinja };
         static QList<GeneratorInfo> generatorInfosFor(ProjectExplorer::Kit *k, Ninja n, bool hasCodeBlocks);
@@ -148,7 +149,7 @@ QString GeneratorInfo::displayName() const
     if (!m_kit)
         return QString();
     if (m_isNinja)
-        return QApplication::tr("Ninja (%1)").arg(m_kit->displayName());
+        return tr("Ninja (%1)").arg(m_kit->displayName());
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(m_kit);
     ProjectExplorer::Abi targetAbi = tc->targetAbi();
     if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
@@ -156,16 +157,16 @@ QString GeneratorInfo::displayName() const
                 || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
                 || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor
                 || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2012Flavor) {
-            return QApplication::tr("NMake Generator (%1)").arg(m_kit->displayName());
+            return tr("NMake Generator (%1)").arg(m_kit->displayName());
         } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
             if (Utils::HostOsInfo::isWindowsHost())
-                return QApplication::tr("MinGW Generator (%1)").arg(m_kit->displayName());
+                return tr("MinGW Generator (%1)").arg(m_kit->displayName());
             else
-                return QApplication::tr("Unix Generator (%1)").arg(m_kit->displayName());
+                return tr("Unix Generator (%1)").arg(m_kit->displayName());
         }
     } else {
         // Non windows
-        return QApplication::tr("Unix Generator (%1)").arg(m_kit->displayName());
+        return tr("Unix Generator (%1)").arg(m_kit->displayName());
     }
     return QString();
 }

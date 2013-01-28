@@ -36,6 +36,7 @@
 #include <qmljs/iscriptevaluator.h>
 
 #include <QVariant>
+#include <QCoreApplication>
 
 using namespace QmlJS;
 
@@ -174,7 +175,8 @@ void QmlConsoleModel::evaluate(const QString &expression)
         } else {
             ConsoleItem *root = manager->rootItem();
             ConsoleItem *item = constructLogItemTree(
-                        root, QObject::tr("Can only evaluate during a QML debug session."));
+                        root, QCoreApplication::translate("QmlJSTools::Internal::QmlConsoleModel",
+                                                          "Can only evaluate during a QML debug session."));
             if (item) {
                 QmlConsoleModel::qmlConsoleItemModel()->appendEditableRow();
                 manager->printToConsolePane(item);
