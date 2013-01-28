@@ -39,6 +39,7 @@
 
 #include <QObject>
 #include <QProcess>
+#include <QDateTime>
 
 namespace QSsh {
 class SshRemoteProcessRunner;
@@ -89,6 +90,7 @@ private slots:
     void readRunningStateStandardOutput();
 
     void handleSlog2InfoFound();
+    void readLaunchTime();
 
 private:
     void reset();
@@ -96,6 +98,8 @@ private:
 
     bool m_debugMode;
     bool m_slog2infoFound;
+
+    QDateTime m_launchDateTime;
 
     qint64 m_pid;
     QString m_appId;
@@ -114,6 +118,7 @@ private:
     QProcess *m_stopProcess;
     QSsh::SshRemoteProcessRunner *m_tailProcess;
     QSsh::SshRemoteProcessRunner *m_testSlog2Process;
+    QSsh::SshRemoteProcessRunner *m_launchDateTimeProcess;
     QTimer *m_runningStateTimer;
     QProcess *m_runningStateProcess;
 };
