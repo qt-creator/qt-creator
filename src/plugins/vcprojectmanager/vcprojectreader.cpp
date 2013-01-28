@@ -6,6 +6,8 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QObject>
+#include <QDir>
+#include <QDebug>
 
 using namespace ProjectExplorer;
 
@@ -210,6 +212,9 @@ void VcProjectReader::readFile()
 {
     File *file = new File;
     file->relativePath = attrStr(strRelativePath);
+#if !defined(Q_OS_WIN)
+    file->relativePath.replace(QLatin1Char('\\'), QDir::separator());
+#endif
     m_currentFilter->files.append(file);
 
     readNextNonSpace();

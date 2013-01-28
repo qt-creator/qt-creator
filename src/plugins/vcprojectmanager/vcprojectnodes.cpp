@@ -9,6 +9,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <QFileInfo>
+#include <QDir>
 
 using namespace ProjectExplorer;
 
@@ -112,7 +113,7 @@ void VcProjectNode::refresh(VcProjectInfo::Filter *files)
     if (!files)
         return;
 
-    QString projectPath = QFileInfo(path()).path();
+    QString projectPath = QFileInfo(path()).path() + QDir::separator();
     QList<VcProjectInfo::Filter *> filterQueue;
     QList<FolderNode *> parentQueue;
     filterQueue.prepend(files);
