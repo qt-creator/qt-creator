@@ -258,6 +258,7 @@ Command *ActionManager::registerAction(QAction *action, const Id &id, const Cont
 */
 Command *ActionManager::registerShortcut(QShortcut *shortcut, const Id &id, const Context &context, bool scriptable)
 {
+    QTC_CHECK(!context.isEmpty());
     Shortcut *sc = 0;
     if (CommandPrivate *c = m_instance->d->m_idCmdMap.value(id, 0)) {
         sc = qobject_cast<Shortcut *>(c);
@@ -282,11 +283,7 @@ Command *ActionManager::registerShortcut(QShortcut *shortcut, const Id &id, cons
     shortcut->setParent(ICore::mainWindow());
     sc->setShortcut(shortcut);
     sc->setScriptable(scriptable);
-
-    if (context.isEmpty())
-        sc->setContext(Context(0));
-    else
-        sc->setContext(context);
+    sc->setContext(context);
 
     emit m_instance->commandListChanged();
     emit m_instance->commandAdded(id.toString());
