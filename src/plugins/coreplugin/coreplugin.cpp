@@ -40,6 +40,7 @@
 #include "infobar.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include <utils/savefile.h>
 
 #include <QtPlugin>
 #include <QDebug>
@@ -95,6 +96,10 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
         m_designMode = new DesignMode;
         InfoBar::initializeGloballySuppressed();
     }
+
+    // Make sure we respect the process's umask when creating new files
+    Utils::SaveFile::initializeUmask();
+
     return success;
 }
 
