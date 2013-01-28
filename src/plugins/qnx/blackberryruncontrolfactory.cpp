@@ -120,13 +120,6 @@ QString BlackBerryRunControlFactory::displayName() const
     return tr("Run on BlackBerry Device");
 }
 
-ProjectExplorer::RunConfigWidget *BlackBerryRunControlFactory::createConfigurationWidget(
-        ProjectExplorer::RunConfiguration *runConfiguration)
-{
-    Q_UNUSED(runConfiguration);
-    return 0;
-}
-
 Debugger::DebuggerStartParameters BlackBerryRunControlFactory::startParameters(
         const BlackBerryRunConfiguration *runConfig)
 {

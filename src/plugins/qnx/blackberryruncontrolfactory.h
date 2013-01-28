@@ -60,9 +60,6 @@ public:
 
     QString displayName() const;
 
-    ProjectExplorer::RunConfigWidget *createConfigurationWidget(
-            ProjectExplorer::RunConfiguration *runConfiguration);
-
 private:
     static Debugger::DebuggerStartParameters startParameters( const BlackBerryRunConfiguration *runConfig);
 
