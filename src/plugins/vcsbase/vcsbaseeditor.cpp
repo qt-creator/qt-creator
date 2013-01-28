@@ -575,7 +575,7 @@ public:
     QString m_diffBaseDirectory;
 
     QRegExp m_diffFilePattern;
-    QList<int> m_diffSections; // line number where this section starts
+    QList<int> m_entrySections; // line number where this section starts
     int m_cursorLine;
     QString m_annotateRevisionTextFormat;
     QString m_annotatePreviousRevisionTextFormat;
@@ -812,7 +812,7 @@ void VcsBaseEditorWidget::slotPopulateDiffBrowser()
 {
     QComboBox *entriesComboBox = d->entriesComboBox();
     entriesComboBox->clear();
-    d->m_diffSections.clear();
+    d->m_entrySections.clear();
     // Create a list of section line numbers (diffed files)
     // and populate combo with filenames.
     const QTextBlock cend = document()->end();
@@ -826,7 +826,7 @@ void VcsBaseEditorWidget::slotPopulateDiffBrowser()
             if (!file.isEmpty() && lastFileName != file) {
                 lastFileName = file;
                 // ignore any headers
-                d->m_diffSections.push_back(d->m_diffSections.empty() ? 0 : lineNumber);
+                d->m_entrySections.push_back(d->m_entrySections.empty() ? 0 : lineNumber);
                 entriesComboBox->addItem(QFileInfo(file).fileName());
             }
         }
@@ -836,9 +836,9 @@ void VcsBaseEditorWidget::slotPopulateDiffBrowser()
 void VcsBaseEditorWidget::slotJumpToEntry(int index)
 {
     // goto diff/log entry as indicated by index/line number
-    if (index < 0 || index >= d->m_diffSections.size())
+    if (index < 0 || index >= d->m_entrySections.size())
         return;
-    const int lineNumber = d->m_diffSections.at(index) + 1; // TextEdit uses 1..n convention
+    const int lineNumber = d->m_entrySections.at(index) + 1; // TextEdit uses 1..n convention
     // check if we need to do something, especially to avoid messing up navigation history
     int currentLine, currentColumn;
     convertPosition(position(), &currentLine, &currentColumn);
@@ -872,7 +872,7 @@ void VcsBaseEditorWidget::slotCursorPositionChanged()
         return;
     // Which section does it belong to?
     d->m_cursorLine = newCursorLine;
-    const int section = sectionOfLine(d->m_cursorLine, d->m_diffSections);
+    const int section = sectionOfLine(d->m_cursorLine, d->m_entrySections);
     if (section != -1) {
         QComboBox *entriesComboBox = d->entriesComboBox();
         if (entriesComboBox->currentIndex() != section) {
