@@ -11,4 +11,5 @@ SUBDIRS = \
     typeprettyprinter \
     simplifytypes \
     misc \
-    cxx11
+    cxx11 \
+    checksymbols

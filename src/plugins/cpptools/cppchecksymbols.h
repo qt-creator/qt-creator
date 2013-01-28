@@ -30,6 +30,8 @@
 #ifndef CPLUSPLUS_CHECKSYMBOLS_H
 #define CPLUSPLUS_CHECKSYMBOLS_H
 
+#include "cpptools_global.h"
+
 #include "cppsemanticinfo.h"
 
 #include <cplusplus/CppDocument.h>
@@ -45,7 +47,7 @@
 
 namespace CPlusPlus {
 
-class CheckSymbols:
+class CPPTOOLS_EXPORT CheckSymbols:
         protected ASTVisitor,
         public QRunnable,
         public QFutureInterface<TextEditor::SemanticHighlighter::Result>
