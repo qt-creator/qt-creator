@@ -425,7 +425,8 @@ QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
 ToolChain::CompilerFlags GccToolChain::compilerFlags(const QStringList &cxxflags) const
 {
     if (cxxflags.contains(QLatin1String("-std=c++0x")) || cxxflags.contains(QLatin1String("-std=gnu++0x")) ||
-        cxxflags.contains(QLatin1String("-std=c++11")) || cxxflags.contains(QLatin1String("-std=gnu++11")))
+        cxxflags.contains(QLatin1String("-std=c++11")) || cxxflags.contains(QLatin1String("-std=gnu++11")) ||
+        cxxflags.contains(QLatin1String("-std=c++1y")) || cxxflags.contains(QLatin1String("-std=gnu++1y")))
         return STD_CXX11;
     return NO_FLAGS;
 }
