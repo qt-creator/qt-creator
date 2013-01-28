@@ -119,7 +119,9 @@ void GenericProjectNode::refresh(QSet<QString> oldFileList)
     QString baseDir = QFileInfo(path()).absolutePath();
     QHash<QString, QStringList> filesInPaths = sortFilesIntoPaths(baseDir, added);
     foreach (const QString &filePath, filesInPaths.keys()) {
-        QStringList components = filePath.split(QLatin1Char('/'));
+        QStringList components;
+        if (!filePath.isEmpty())
+            components = filePath.split(QLatin1Char('/'));
         FolderNode *folder = findFolderByName(components, components.size());
         if (!folder)
             folder = createFolderByName(components, components.size());
@@ -136,7 +138,9 @@ void GenericProjectNode::refresh(QSet<QString> oldFileList)
 
     filesInPaths = sortFilesIntoPaths(baseDir, removed);
     foreach (const QString &filePath, filesInPaths.keys()) {
-        QStringList components = filePath.split(QLatin1Char('/'));
+        QStringList components;
+        if (!filePath.isEmpty())
+            components = filePath.split(QLatin1Char('/'));
         FolderNode *folder = findFolderByName(components, components.size());
 
         QList<FileNode *> fileNodes;
@@ -175,9 +179,6 @@ FolderNode *GenericProjectNode::createFolderByName(const QStringList &components
     }
 
     const QString component = components.at(end - 1);
-
-    if (component.isEmpty())
-        return this;
 
     const QString baseDir = QFileInfo(path()).path();
     FolderNode *folder = new FolderNode(baseDir + QLatin1Char('/') + folderName);
