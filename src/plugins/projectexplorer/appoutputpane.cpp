@@ -326,7 +326,8 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     }
     // Create new
     static uint counter = 0;
-    Core::Context context(Constants::C_APP_OUTPUT, counter++);
+    Core::Id contextId = Core::Id(Constants::C_APP_OUTPUT).withSuffix(counter++);
+    Core::Context context(contextId);
     Core::OutputWindow *ow = new Core::OutputWindow(context, m_tabWidget);
     ow->setWindowTitle(tr("Application Output Window"));
     ow->setWindowIcon(QIcon(QLatin1String(Constants::ICON_WINDOW)));
