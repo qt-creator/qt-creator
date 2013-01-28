@@ -1,6 +1,6 @@
 <plugin name=\"Macros\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\">
     <vendor>Digia Plc</vendor>
-    <copyright>(C) 2012 Nicolas Arnaud-Cormos</copyright>
+    <copyright>(C) 2013 Nicolas Arnaud-Cormos</copyright>
     <license>
 Commercial Usage
 

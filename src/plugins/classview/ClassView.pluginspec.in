@@ -1,6 +1,6 @@
 <plugin name=\"ClassView\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\">
     <vendor>Digia Plc</vendor>
-    <copyright>(C) 2012 Denis Mingulov</copyright>
+    <copyright>(C) 2013 Denis Mingulov</copyright>
     <license>
 Commercial Usage
 

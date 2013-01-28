@@ -1,6 +1,6 @@
 <plugin name=\"AutotoolsProjectManager\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\" experimental=\"true\">
     <vendor>Openismus GmbH</vendor>
-    <copyright>(C) 2012 Openismus GmbH</copyright>
+    <copyright>(C) 2013 Openismus GmbH</copyright>
     <license>GNU Lesser General Public License Usage
     This file may be used under the terms of the GNU Lesser General Public
     License version 2.1 as published by the Free Software Foundation and

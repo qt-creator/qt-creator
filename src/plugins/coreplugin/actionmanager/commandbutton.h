@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2012 Konstantin Tokarev.
+** Copyright (c) 2013 Konstantin Tokarev.
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.

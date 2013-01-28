@@ -1,6 +1,6 @@
 <plugin name=\"Android\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\" experimental=\"$$ANDROID_EXPERIMENTAL_STR\">
     <vendor>KDE Necessitas</vendor>
-    <copyright>(C) 2012 BogDan Vatra</copyright>
+    <copyright>(C) 2013 BogDan Vatra</copyright>
     <license>
 Commercial Usage
 

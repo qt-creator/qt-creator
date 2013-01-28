@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -70,7 +70,7 @@ void tst_PluginSpec::read()
     QCOMPARE(spec.experimental, false);
     QCOMPARE(spec.enabled, true);
     QCOMPARE(spec.vendor, QString("Digia Plc"));
-    QCOMPARE(spec.copyright, QString("(C) 2012 Digia Plc"));
+    QCOMPARE(spec.copyright, QString("(C) 2013 Digia Plc"));
     QCOMPARE(spec.license, QString("This is a default license bla\nblubbblubb\nend of terms"));
     QCOMPARE(spec.description, QString("This plugin is just a test.\n    it demonstrates the great use of the plugin spec."));
     QCOMPARE(spec.url, QString("http://qt.digi.com"));

@@ -1,6 +1,6 @@
 <plugin name=\"FakeVim\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\">
     <vendor>Digia Plc</vendor>
-    <copyright>(C) 2012 Digia Plc</copyright>
+    <copyright>(C) 2013 Digia Plc</copyright>
     <license>
 Commercial Usage
 

@@ -1,6 +1,6 @@
 <plugin name=\"Bazaar\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\">
     <vendor>Hugues Delorme</vendor>
-    <copyright>(C) 2012 Hugues Delorme</copyright>
+    <copyright>(C) 2013 Hugues Delorme</copyright>
     <license>
 Commercial Usage
 

@@ -24,7 +24,7 @@ HTML.footer = \
     "</div> \n" \
     "<div class=\"footer\">\n" \
     "    <p>\n" \
-    "      <acronym title=\"Copyright\">&copy;</acronym> 2012 Digia Plc and/or its\n" \
+    "      <acronym title=\"Copyright\">&copy;</acronym> 2013 Digia Plc and/or its\n" \
     "      subsidiaries. Documentation contributions included herein are the copyrights of\n" \
     "      their respective owners.</p>\n" \
     "    <br />\n" \

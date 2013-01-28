@@ -1,6 +1,6 @@
 /**************************************************************************
 **
-** Copyright (C) 2012 Openismus GmbH.
+** Copyright (C) 2013 Openismus GmbH.
 ** Authors: Peter Penz (ppenz@openismus.com)
 **          Patricia Santana Cruz (patriciasantanacruz@gmail.com)
 ** Contact: http://www.qt-project.org/legal

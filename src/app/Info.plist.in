@@ -202,7 +202,7 @@
 		</dict>
 	</array>
         <key>NSHumanReadableCopyright</key>
-        <string>(C) 2012 Digia Plc</string>
+        <string>(C) 2013 Digia Plc</string>
 	<key>CFBundleIconFile</key>
 	<string>$$ICON</string>
 	<key>CFBundlePackageType</key>

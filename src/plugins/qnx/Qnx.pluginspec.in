@@ -1,6 +1,6 @@
 <plugin name=\"Qnx\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\">
     <vendor>Research In Motion</vendor>
-    <copyright>(C) 2012 Research In Motion</copyright>
+    <copyright>(C) 2013 Research In Motion</copyright>
     <license>
 Commercial Usage
 
