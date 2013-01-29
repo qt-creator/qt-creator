@@ -72,7 +72,7 @@ QTipLabel::QTipLabel(QWidget *parent) :
 
 QTipLabel::~QTipLabel()
 {
-    Utils::TipContent *tmpTipContent = m_tipContent;
+    TextEditor::TipContent *tmpTipContent = m_tipContent;
     m_tipContent = 0;
     delete tmpTipContent;
 }
