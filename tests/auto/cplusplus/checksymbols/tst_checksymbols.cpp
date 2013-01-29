@@ -184,6 +184,7 @@ private slots:
     void test_checksymbols_PseudoKeywordUse();
     void test_checksymbols_StaticUse();
     void test_checksymbols_VariableHasTheSameNameAsEnumUse();
+    void test_checksymbols_NestedClassOfEnclosingTemplateUse();
 };
 
 void tst_CheckSymbols::test_checksymbols_TypeUse()
@@ -407,6 +408,45 @@ void tst_CheckSymbols::test_checksymbols_VariableHasTheSameNameAsEnumUse()
     TestData::check(source, expectedUses);
 }
 
+void tst_CheckSymbols::test_checksymbols_NestedClassOfEnclosingTemplateUse()
+{
+    const QByteArray source =
+            "struct Foo { int bar; };\n"
+            "\n"
+            "template<typename T>\n"
+            "struct Outer\n"
+            "{\n"
+            "    struct Nested { T nt; } nested;\n"
+            "};\n"
+            "\n"
+            "void fun()\n"
+            "{\n"
+            "    Outer<Foo> list;\n"
+            "    list.nested.nt.bar;\n"
+            "}\n"
+            ;
+
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 8, 3, SemanticInfo::TypeUse)
+            << Use(1, 18, 3, SemanticInfo::FieldUse)
+            << Use(3, 19, 1, SemanticInfo::TypeUse)
+            << Use(4, 8, 5, SemanticInfo::TypeUse)
+            << Use(6, 23, 2, SemanticInfo::FieldUse)
+            << Use(6, 12, 6, SemanticInfo::TypeUse)
+            << Use(6, 29, 6, SemanticInfo::FieldUse)
+            << Use(6, 21, 1, SemanticInfo::TypeUse)
+            << Use(9, 6, 3, SemanticInfo::FunctionUse)
+            << Use(11, 11, 3, SemanticInfo::TypeUse)
+            << Use(11, 16, 4, SemanticInfo::LocalUse)
+            << Use(11, 5, 5, SemanticInfo::TypeUse)
+            << Use(12, 20, 3, SemanticInfo::FieldUse)
+            << Use(12, 17, 2, SemanticInfo::FieldUse)
+            << Use(12, 10, 6, SemanticInfo::FieldUse)
+            << Use(12, 5, 4, SemanticInfo::LocalUse)
+            ;
+
+    TestData::check(source, expectedUses);
+}
 
 QTEST_APPLESS_MAIN(tst_CheckSymbols)
 #include "tst_checksymbols.moc"
