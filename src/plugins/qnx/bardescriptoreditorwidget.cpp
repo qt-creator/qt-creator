@@ -472,7 +472,7 @@ void BarDescriptorEditorWidget::appendSplashScreenDelayed(const QString &splashS
 
 void BarDescriptorEditorWidget::browseForSplashScreen()
 {
-    const QString fileName = QFileDialog::getOpenFileName(this, tr("Select splash screen"), QString(), tr("Images (*.jpg *.png)"));
+    const QString fileName = QFileDialog::getOpenFileName(this, tr("Select Splash Screen"), QString(), tr("Images (*.jpg *.png)"));
     if (fileName.isEmpty())
         return;
 
@@ -622,7 +622,7 @@ BarDescriptorEditor *BarDescriptorEditorWidget::createEditor()
 
 void BarDescriptorEditorWidget::addNewAsset()
 {
-    const QString fileName = QFileDialog::getOpenFileName(this, tr("Select file to add"));
+    const QString fileName = QFileDialog::getOpenFileName(this, tr("Select File to Add"));
     if (fileName.isEmpty())
         return;
 

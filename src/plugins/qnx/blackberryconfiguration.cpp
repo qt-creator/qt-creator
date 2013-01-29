@@ -107,7 +107,7 @@ bool BlackBerryConfiguration::setConfig(const QString &ndkPath)
         if (!simulatorGdbPath.toFileInfo().exists())
             errorMessage += tr("- No Gdb debugger found for BB10 Simulator");
 
-        QMessageBox::warning(0, tr("Cannot setup BB10 Configuartion"),
+        QMessageBox::warning(0, tr("Cannot Setup BB10 Configuration"),
                              errorMessage, QMessageBox::Ok);
         return false;
     }
@@ -175,14 +175,14 @@ QtSupport::BaseQtVersion *BlackBerryConfiguration::createQtVersion()
     QString cpuDir = m_config.qnxEnv.value(QLatin1String("CPUVARDIR"));
     QtSupport::BaseQtVersion *version = QtSupport::QtVersionManager::instance()->qtVersionForQMakeBinary(m_config.qmakeBinaryFile);
     if (version) {
-        QMessageBox::warning(0, tr("Qt known"),
+        QMessageBox::warning(0, tr("Qt Version Already Known"),
                              tr("This Qt version was already registered"), QMessageBox::Ok);
         return version;
     }
 
     version = new BlackBerryQtVersion(QnxUtils::cpudirToArch(cpuDir), m_config.qmakeBinaryFile, false, QString(), m_config.ndkPath);
     if (!version) {
-        QMessageBox::warning(0, tr("Qt not valid"),
+        QMessageBox::warning(0, tr("Invalid Qt version"),
                              tr("Unable to add BlackBerry Qt version"), QMessageBox::Ok);
         return 0;
     }
@@ -199,7 +199,7 @@ ProjectExplorer::GccToolChain *BlackBerryConfiguration::createGccToolChain()
 
     foreach (ProjectExplorer::ToolChain* tc, ProjectExplorer::ToolChainManager::instance()->toolChains()) {
         if (tc->compilerCommand() == m_config.gccCompiler) {
-            QMessageBox::warning(0, tr("Compiler known"),
+            QMessageBox::warning(0, tr("Compiler Already Known"),
                                  tr("This Compiler was already registered"), QMessageBox::Ok);
             return dynamic_cast<ProjectExplorer::GccToolChain*>(tc);
         }
@@ -226,7 +226,7 @@ ProjectExplorer::Kit *BlackBerryConfiguration::createKit(QnxArchitecture arch, Q
             if ((arch == X86 && Qt4ProjectManager::QmakeKitInformation::mkspec(kit).toString() == QString::fromLatin1("blackberry-x86-qcc")
                  && Debugger::DebuggerKitInformation::debuggerCommand(kit) == m_config.simulatorDebuger)
                     || (arch == ArmLeV7 && Debugger::DebuggerKitInformation::debuggerCommand(kit) == m_config.deviceDebuger)) {
-                QMessageBox::warning(0, tr("Kit Known"),
+                QMessageBox::warning(0, tr("Kit Already Known"),
                                      tr("This Kit was already registered"), QMessageBox::Ok);
                 return kit;
             }

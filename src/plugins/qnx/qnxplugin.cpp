@@ -93,7 +93,7 @@ bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
     Core::MimeGlobPattern barDescriptorGlobPattern(QRegExp(QLatin1String("*.xml"), Qt::CaseInsensitive, QRegExp::Wildcard), Core::MimeGlobPattern::MinWeight + 1);
     Core::MimeType barDescriptorMimeType;
     barDescriptorMimeType.setType(QLatin1String(Constants::QNX_BAR_DESCRIPTOR_MIME_TYPE));
-    barDescriptorMimeType.setComment(tr("Bar descriptor file (BlackBerry"));
+    barDescriptorMimeType.setComment(tr("Bar descriptor file (BlackBerry)"));
     barDescriptorMimeType.setGlobPatterns(QList<Core::MimeGlobPattern>() << barDescriptorGlobPattern);
     barDescriptorMimeType.addMagicMatcher(QSharedPointer<Core::IMagicMatcher>(new BarDescriptorMagicMatcher));
     barDescriptorMimeType.setSubClassesOf(QStringList() << QLatin1String("application/xml"));
