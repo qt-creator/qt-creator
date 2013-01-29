@@ -341,7 +341,7 @@ public:
     QVariantMap update(Project *project, const QVariantMap &map);
 };
 
-// Version 10 introduces disabling buildsteps, and handles upgrading custom process steps
+// Version 11 introduces kits
 class Version11Handler : public UserFileVersionHandler
 {
 public:
@@ -384,6 +384,24 @@ private:
     QHash<int, QString> m_qtVersionExtras;
 
     QHash<Kit *, QVariantMap> m_targets;
+};
+
+// Version 12 reflects the move of environment settings from CMake/Qt4/Custom into
+// LocalApplicationRunConfiguration
+class Version12Handler : public UserFileVersionHandler
+{
+public:
+    int userFileVersion() const
+    {
+         return 12;
+    }
+
+    QString displayUserFileVersion() const
+    {
+        return QLatin1String("2.7pre1");
+    }
+
+    QVariantMap update(Project *project, const QVariantMap &map);
 };
 
 } // namespace
@@ -2686,4 +2704,28 @@ void Version11Handler::parseToolChainFile()
 
         m_toolChainExtras.insert(id, ToolChainExtraData(mkspec, debugger));
     }
+}
+
+QVariantMap Version12Handler::update(Project *project, const QVariantMap &map)
+{
+    QVariantMap result;
+    QMapIterator<QString, QVariant> it(map);
+    while (it.hasNext()) {
+        it.next();
+        if (it.value().type() == QVariant::Map)
+            result.insert(it.key(), update(project, it.value().toMap()));
+        else if (it.key() == QLatin1String("CMakeProjectManager.CMakeRunConfiguration.UserEnvironmentChanges")
+                 || it.key() == QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration.UserEnvironmentChanges")
+                 || it.key() == QLatin1String("Qt4ProjectManager.Qt4RunConfiguration.UserEnvironmentChanges")
+                 || it.key() == QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.UserEnvironmentChanges"))
+            result.insert(QLatin1String("PE.UserEnvironmentChanges"), it.value());
+        else if (it.key() == QLatin1String("CMakeProjectManager.BaseEnvironmentBase")
+                 || it.key() == QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration.BaseEnvironmentBase")
+                 || it.key() == QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration.BaseEnvironmentBase")
+                 || it.key() == QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.BaseEnvironmentBase"))
+            result.insert(QLatin1String("PE.BaseEnvironmentBase"), it.value());
+        else
+            result.insert(it.key(), it.value());
+    }
+    return result;
 }
