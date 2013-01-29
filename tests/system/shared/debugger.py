@@ -1,7 +1,7 @@
 import re
 
-def handleDebuggerWarnings(config):
-    if "MSVC" in config:
+def handleDebuggerWarnings(config, isMsvcBuild=False):
+    if isMsvcBuild:
         try:
             popup = waitForObject("{text?='<html><head/><body>*' type='QLabel' unnamed='1' visible='1' window=':Symbol Server_Utils::CheckableMessageBox'}", 10000)
             symServerNotConfiged = ("<html><head/><body><p>The debugger is not configured to use the public "
@@ -99,16 +99,19 @@ def removeOldBreakpoints():
     return test.compare(model.rowCount(), 0, "Check if all breakpoints have been removed.")
 
 # function to do simple debugging of the current (configured) project
+# param kitCount specifies the number of kits currently defined (must be correct!)
+# param currentKit specifies the target to use (zero based index)
+# param currentConfigName is the name of the configuration that should be used
 # param pressContinueCount defines how often it is expected to press
 #       the 'Continue' button while debugging
 # param expectedBPOrder holds a list of dicts where the dicts contain always
 #       only 1 key:value pair - the key is the name of the file, the value is
 #       line number where the debugger should stop
-def doSimpleDebugging(currentConfigName, pressContinueCount=1, expectedBPOrder=[]):
+def doSimpleDebugging(kitCount, currentKit, currentConfigName, pressContinueCount=1, expectedBPOrder=[]):
     expectedLabelTexts = ['Stopped\.', 'Stopped at breakpoint \d+ \(\d+\) in thread \d+\.']
     if len(expectedBPOrder) == 0:
         expectedLabelTexts.append("Running\.")
-    if not __startDebugger__(currentConfigName):
+    if not __startDebugger__(kitCount, currentKit, currentConfigName):
         return False
     statusLabel = findObject(":Debugger Toolbar.StatusText_Utils::StatusLabel")
     test.log("Continuing debugging %d times..." % pressContinueCount)
@@ -139,9 +142,22 @@ def doSimpleDebugging(currentConfigName, pressContinueCount=1, expectedBPOrder=[
             # if stopping failed - debugger had already stopped
             return True
 
-def __startDebugger__(config):
+# param kitCount specifies the number of kits currently defined (must be correct!)
+# param currentKit specifies the target to use (zero based index)
+def isMsvcConfig(kitCount, currentKit):
+    switchViewTo(ViewConstants.PROJECTS)
+    switchToBuildOrRunSettingsFor(kitCount, currentKit, ProjectSettings.BUILD)
+    isMsvc = " -spec win32-msvc" in str(waitForObject(":qmakeCallEdit").text)
+    switchViewTo(ViewConstants.EDIT)
+    return isMsvc
+
+# param kitCount specifies the number of kits currently defined (must be correct!)
+# param currentKit specifies the target to use (zero based index)
+# param config is the name of the configuration that should be used
+def __startDebugger__(kitCount, currentKit, config):
+    isMsvcBuild = isMsvcConfig(kitCount, currentKit)
     clickButton(waitForObject(":*Qt Creator.Start Debugging_Core::Internal::FancyToolButton"))
-    handleDebuggerWarnings(config)
+    handleDebuggerWarnings(config, isMsvcBuild)
     hasNotTimedOut = waitFor("object.exists(':Debugger Toolbar.Continue_QToolButton')", 60000)
     try:
         mBox = findObject(":Failed to start application_QMessageBox")

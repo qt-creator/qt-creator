@@ -293,7 +293,7 @@
             expressions for the x and y properties, as illustrated by the
             following code snippet:
 
-            \snippet snippets/qml/states-properties.qml states
+            \snippet qml/states-properties.qml states
 
             \image qmldesigner-tutorial-state1.png "States"
 
@@ -319,7 +319,7 @@
             moving to State1, the x and y coordinates of the Qt logo change
             linearly over a duration of 1 second:
 
-            \snippet snippets/qml/list-of-transitions.qml first transition
+            \snippet qml/list-of-transitions.qml first transition
 
         \o  You can use the Qt Quick toolbar for animation to change the easing
             curve type from linear to OutBounce:
@@ -342,13 +342,13 @@
             and y coordinates of the Qt logo change over a duration of 2
             seconds, and an InOutQuad easing function is used:
 
-            \snippet snippets/qml/list-of-transitions.qml second transition
+            \snippet qml/list-of-transitions.qml second transition
 
         \o  Add the following code to specify that for any other state changes,
             the x and y coordinates of the Qt logo change linearly over a
             duration of 200 milliseconds:
 
-            \snippet snippets/qml/list-of-transitions.qml default transition
+            \snippet qml/list-of-transitions.qml default transition
 
         \o  Press \key {Ctrl+R} to run the application.
 

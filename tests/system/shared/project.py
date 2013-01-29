@@ -12,7 +12,7 @@ def __handleProcessExited__(object, exitCode):
     global processExited
     processExited = True
 
-def openQmakeProject(projectPath, targets = QtQuickConstants.Targets.DESKTOP_474_GCC, fromWelcome = False):
+def openQmakeProject(projectPath, targets=QtQuickConstants.desktopTargetClasses(), fromWelcome=False):
     cleanUpUserFiles(projectPath)
     if fromWelcome:
         mouseClick(waitForObject(":OpenProject_QStyleItem"), 5, 5, 0, Qt.LeftButton)
@@ -29,10 +29,11 @@ def openQmakeProject(projectPath, targets = QtQuickConstants.Targets.DESKTOP_474
         clickButton(waitForObject("{text='Yes' type='QPushButton' unnamed='1' visible='1'}"))
     except:
         pass
-    __chooseTargets__(targets)
+    checkedTargets = __chooseTargets__(targets)
     configureButton = waitForObject("{text='Configure Project' type='QPushButton' unnamed='1' visible='1'"
                                     "window=':Qt Creator_Core::Internal::MainWindow'}")
     clickButton(configureButton)
+    return checkedTargets
 
 def openCmakeProject(projectPath, buildDir):
     invokeMenuItem("File", "Open File or Project...")
@@ -44,17 +45,18 @@ def openCmakeProject(projectPath, buildDir):
     mkspec = __getMkspecFromQmake__("qmake")
     test.log("Using mkspec '%s'" % mkspec)
 
+    generatorText = "Unix Generator (Desktop 474 GCC)"
     if "win32-" in mkspec:
-        generatorName = {"win32-g++" : "MinGW Generator (MinGW from SDK)",
-                         "win32-msvc2008" : "NMake Generator (Microsoft Visual C++ Compiler 9.0 (x86))",
-                         "win32-msvc2010" : "NMake Generator (Microsoft Visual C++ Compiler 10.0 (x86))"}
-        index = -1
+        generatorName = {"win32-g++" : "MinGW Generator (Desktop 474 GCC)",
+                         "win32-msvc2008" : "NMake Generator (Desktop 474 MSVC2008)",
+                         "win32-msvc2010" : "NMake Generator (Desktop 474 MSVC2010)"}
         if mkspec in generatorName:
-            index = generatorCombo.findText(generatorName[mkspec])
-        if index == -1:
-            test.warning("No matching CMake generator for mkspec '%s' found." % mkspec)
-        else:
-            generatorCombo.setCurrentIndex(index)
+            generatorText = generatorName[mkspec]
+    index = generatorCombo.findText(generatorText)
+    if index == -1:
+        test.warning("No matching CMake generator for mkspec '%s' found." % mkspec)
+    else:
+        generatorCombo.setCurrentIndex(index)
 
     clickButton(waitForObject(":CMake Wizard.Run CMake_QPushButton"))
     try:
@@ -110,13 +112,14 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
 # param checks turns tests in the function on if set to True
 # param available a list holding the available targets
 def __selectQtVersionDesktop__(checks, available=None):
-    __chooseTargets__(QtQuickConstants.Targets.DESKTOP_474_GCC, available)
+    checkedTargets = __chooseTargets__(QtQuickConstants.desktopTargetClasses(), available)
     if checks:
         cbObject = ("{type='QCheckBox' text='%s' unnamed='1' visible='1' "
                     "container={type='Utils::DetailsWidget' visible='1' unnamed='1'}}")
         verifyChecked(cbObject % "Debug")
         verifyChecked(cbObject % "Release")
     clickButton(waitForObject(":Next_QPushButton"))
+    return checkedTargets
 
 def __createProjectHandleLastPage__(expectedFiles = None):
     if expectedFiles != None:
@@ -144,7 +147,7 @@ def createProject_Qt_GUI(path, projectName, checks = True):
     template = "Qt Gui Application"
     available = __createProjectOrFileSelectType__("  Applications", template)
     __createProjectSetNameAndPath__(path, projectName, checks)
-    __selectQtVersionDesktop__(checks, available)
+    checkedTargets = __selectQtVersionDesktop__(checks, available)
 
     if checks:
         exp_filename = "mainwindow"
@@ -174,6 +177,7 @@ def createProject_Qt_GUI(path, projectName, checks = True):
 
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 20000)
     __verifyFileCreation__(path, expectedFiles)
+    return checkedTargets
 
 # Creates a Qt Console project
 # param path specifies where to create the project
@@ -182,7 +186,7 @@ def createProject_Qt_GUI(path, projectName, checks = True):
 def createProject_Qt_Console(path, projectName, checks = True):
     available = __createProjectOrFileSelectType__("  Applications", "Qt Console Application")
     __createProjectSetNameAndPath__(path, projectName, checks)
-    __selectQtVersionDesktop__(checks, available)
+    checkedTargets = __selectQtVersionDesktop__(checks, available)
 
     expectedFiles = None
     if checks:
@@ -197,9 +201,10 @@ def createProject_Qt_Console(path, projectName, checks = True):
 
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 10000)
     __verifyFileCreation__(path, expectedFiles)
+    return checkedTargets
 
 def createNewQtQuickApplication(workingDir, projectName = None, templateFile = None,
-                                targets = QtQuickConstants.Targets.DESKTOP_474_GCC, qtQuickVersion=1,
+                                targets=QtQuickConstants.desktopTargetClasses(), qtQuickVersion=1,
                                 fromWelcome=False):
     if templateFile:
         if qtQuickVersion == 2:
@@ -215,12 +220,12 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
         type(baseLineEd, templateFile)
         nextButton = waitForObject(":Next_QPushButton")
         clickButton(nextButton)
-    __chooseTargets__(targets, available)
+    checkedTargets = __chooseTargets__(targets, available)
     snooze(1)
     nextButton = waitForObject(":Next_QPushButton")
     clickButton(nextButton)
     __createProjectHandleLastPage__()
-    return projectName
+    return checkedTargets, projectName
 
 def createNewQtQuickUI(workingDir):
     __createProjectOrFileSelectType__("  Applications", "Qt Quick 1 UI")
@@ -235,7 +240,7 @@ def createNewQmlExtension(workingDir):
     if workingDir == None:
         workingDir = tempDir()
     __createProjectSetNameAndPath__(workingDir)
-    __chooseTargets__(QtQuickConstants.Targets.DESKTOP_474_GCC, available)
+    checkedTargets = __chooseTargets__(QtQuickConstants.Targets.DESKTOP_474_GCC, available)
     nextButton = waitForObject(":Next_QPushButton")
     clickButton(nextButton)
     nameLineEd = waitForObject("{buddy={type='QLabel' text='Object Class-name:' unnamed='1' visible='1'} "
@@ -246,6 +251,7 @@ def createNewQmlExtension(workingDir):
     replaceEditorContent(uriLineEd, "org.qt-project.test.qmlcomponents")
     clickButton(nextButton)
     __createProjectHandleLastPage__()
+    return checkedTargets
 
 # parameter components can only be one of the Constants defined in QtQuickConstants.Components
 def __chooseComponents__(components=QtQuickConstants.Components.BUILTIN):
@@ -272,11 +278,14 @@ def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP_474_GCC, availabl
         if platform.system() in ('Windows', 'Microsoft'):
             available.remove(QtQuickConstants.Targets.EMBEDDED_LINUX)
             available.append(QtQuickConstants.Targets.DESKTOP_474_MSVC2008)
+    checkedTargets = []
     for current in available:
         mustCheck = targets & current == current
         try:
             ensureChecked("{type='QCheckBox' text='%s' visible='1'}" % QtQuickConstants.getStringForTarget(current),
                           mustCheck, 3000)
+            if (mustCheck):
+                checkedTargets.append(current)
         except LookupError:
             if mustCheck:
                 test.fail("Failed to check target '%s'." % QtQuickConstants.getStringForTarget(current))
@@ -284,6 +293,7 @@ def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP_474_GCC, availabl
                 # Simulator has been added without knowing whether configured or not - so skip warning here?
                 if current != QtQuickConstants.Targets.SIMULATOR:
                     test.warning("Target '%s' is not set up correctly." % QtQuickConstants.getStringForTarget(current))
+    return checkedTargets
 
 # run and close an application
 # withHookInto - if set to True the function tries to attach to the sub-process instead of simply pressing Stop inside Creator

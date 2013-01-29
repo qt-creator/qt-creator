@@ -50,7 +50,8 @@ using namespace Qnx;
 using namespace Qnx::Internal;
 
 namespace {
-const char DEPLOYMENT_INFO_SETTING[] = "QNX.BlackBerry.DeploymentInfo";
+const char DEPLOYMENT_INFO_SETTING[] = "Qnx.BlackBerry.DeploymentInfo";
+const char DEPLOYMENT_INFO_KEY[]     = "Qnx.BlackBerry.DeployInformation";
 }
 
 BlackBerryDeployConfiguration::BlackBerryDeployConfiguration(ProjectExplorer::Target *parent)
@@ -164,4 +165,21 @@ BlackBerryDeployInformation *BlackBerryDeployConfiguration::deploymentInfo() con
 ProjectExplorer::NamedWidget *BlackBerryDeployConfiguration::createConfigWidget()
 {
     return new BlackBerryDeployConfigurationWidget(this);
+}
+
+QVariantMap BlackBerryDeployConfiguration::toMap() const
+{
+    QVariantMap map(ProjectExplorer::DeployConfiguration::toMap());
+    map.insert(QLatin1String(DEPLOYMENT_INFO_KEY), deploymentInfo()->toMap());
+    return map;
+}
+
+bool BlackBerryDeployConfiguration::fromMap(const QVariantMap &map)
+{
+    if (!ProjectExplorer::DeployConfiguration::fromMap(map))
+        return false;
+
+    QVariantMap deployInfoMap = map.value(QLatin1String(DEPLOYMENT_INFO_KEY)).toMap();
+    deploymentInfo()->fromMap(deployInfoMap);
+    return true;
 }

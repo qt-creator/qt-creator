@@ -4484,11 +4484,15 @@ void GdbEngine::fetchDisassemblerByCliPointMixed(const DisassemblerAgentCookie &
 
 void GdbEngine::fetchDisassemblerByCliPointPlain(const DisassemblerAgentCookie &ac0)
 {
-    DisassemblerAgentCookie ac = ac0;
-    QTC_ASSERT(ac.agent, return);
-    postCommand(disassemblerCommand(ac.agent->location(), false), Discardable,
-        CB(handleFetchDisassemblerByCliPointPlain),
-        QVariant::fromValue(ac));
+    // This here
+    //    DisassemblerAgentCookie ac = ac0;
+    //    QTC_ASSERT(ac.agent, return);
+    //    postCommand(disassemblerCommand(ac.agent->location(), false), Discardable,
+    //        CB(handleFetchDisassemblerByCliPointPlain),
+    //        QVariant::fromValue(ac));
+    // takes far too long if function boundaries are not hit.
+    // Skip this feature and immediately fall back to the 'range' version:
+    fetchDisassemblerByCliRangePlain(ac0);
 }
 
 void GdbEngine::fetchDisassemblerByCliRangeMixed(const DisassemblerAgentCookie &ac0)

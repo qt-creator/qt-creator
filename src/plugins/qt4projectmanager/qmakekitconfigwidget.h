@@ -60,6 +60,7 @@ private:
     int findQtVersion(const int id) const;
 
     QLineEdit *m_lineEdit;
+    bool m_ignoreChange;
 };
 
 } // namespace Internal

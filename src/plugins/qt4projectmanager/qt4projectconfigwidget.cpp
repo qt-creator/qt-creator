@@ -274,12 +274,12 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
     } else if (targetMismatch) {
         setProblemLabel(shadowBuildWarning + tr("A build for a different project exists in %1, which will be overwritten.",
                                                 "%1 build directory")
-                        .arg(m_ui->shadowBuildDirEdit->path()));
+                        .arg(m_buildConfiguration->buildDirectory()));
         return;
     } else if (incompatibleBuild) {
         setProblemLabel(shadowBuildWarning +tr("An incompatible build exists in %1, which will be overwritten.",
                                                "%1 build directory")
-                        .arg(m_ui->shadowBuildDirEdit->path()));
+                        .arg(m_buildConfiguration->buildDirectory()));
         return;
     } else if (!shadowBuildWarning.isEmpty()) {
         setProblemLabel(shadowBuildWarning);

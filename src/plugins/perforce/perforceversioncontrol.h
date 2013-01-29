@@ -71,7 +71,6 @@ public:
     void emitConfigurationChanged();
 
 private:
-    bool m_enabled;
     PerforcePlugin *m_plugin;
 };
 

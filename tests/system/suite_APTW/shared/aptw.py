@@ -14,16 +14,17 @@ def verifyBuildAndRun():
                     "Verifying if built app started and closed successfully.")
 
 # run project for debug and release
-def runVerify():
-    availableConfigs = iterateBuildConfigs(1)
+def runVerify(checkedTargets):
+    availableConfigs = iterateBuildConfigs(len(checkedTargets))
     if not availableConfigs:
         test.fatal("Haven't found build configurations, quitting")
         invokeMenuItem("File", "Save All")
         invokeMenuItem("File", "Exit")
     # select debug configuration
     for kit, config in availableConfigs:
-        selectBuildConfig(1, kit, config)
+        selectBuildConfig(len(checkedTargets), kit, config)
         test.log("Using build config '%s'" % config)
-        runAndCloseApp()
+        if not runAndCloseApp():
+            return
         verifyBuildAndRun()
         mouseClick(waitForObject(":*Qt Creator.Clear_QToolButton"))

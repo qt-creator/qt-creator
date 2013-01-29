@@ -5,13 +5,16 @@ workingDir = None
 def main():
     global workingDir
     startApplication("qtcreator" + SettingsPath)
-    if not checkDebuggingLibrary([QtQuickConstants.Targets.DESKTOP_474_GCC]):
+    targets = [QtQuickConstants.Targets.DESKTOP_474_GCC]
+    if platform.system() in ('Windows', 'Microsoft'):
+        targets.append(QtQuickConstants.Targets.DESKTOP_474_MSVC2008)
+    if not checkDebuggingLibrary(targets):
         test.fatal("Error while checking debugging libraries - leaving this test.")
         invokeMenuItem("File", "Exit")
         return
     # using a temporary directory won't mess up a potentially existing
     workingDir = tempDir()
-    projectName = createNewQtQuickApplication(workingDir, targets = QtQuickConstants.Targets.DESKTOP_474_GCC)
+    checkedTargets, projectName = createNewQtQuickApplication(workingDir)
     # wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}",
                   "sourceFilesRefreshed(QStringList)")
@@ -33,13 +36,13 @@ def main():
         if result:
             expectedBreakpointsOrder = [{"main.cpp":10}, {"main.qml":13}]
             # Only use 4.7.4 to work around QTBUG-25187
-            availableConfigs = iterateBuildConfigs(1, "Debug")
+            availableConfigs = iterateBuildConfigs(len(checkedTargets), "Debug")
             if not availableConfigs:
                 test.fatal("Haven't found a suitable Qt version (need Qt 4.7.4) - leaving without debugging.")
             for kit, config in availableConfigs:
                 test.log("Selecting '%s' as build config" % config)
-                selectBuildConfig(1, kit, config)
-                verifyBuildConfig(1, kit, True, enableQmlDebug=True)
+                selectBuildConfig(len(checkedTargets), kit, config)
+                verifyBuildConfig(len(checkedTargets), kit, True, enableQmlDebug=True)
                 # explicitly build before start debugging for adding the executable as allowed program to WinFW
                 invokeMenuItem("Build", "Rebuild All")
                 waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}",
@@ -48,7 +51,8 @@ def main():
                     test.fatal("Compile had errors... Skipping current build config")
                     continue
                 allowAppThroughWinFW(workingDir, projectName, False)
-                if not doSimpleDebugging(config, 2, expectedBreakpointsOrder):
+                if not doSimpleDebugging(len(checkedTargets), kit, config,
+                                         2, expectedBreakpointsOrder):
                     try:
                         stopB = findObject(':Qt Creator.Stop_QToolButton')
                         if stopB.enabled:

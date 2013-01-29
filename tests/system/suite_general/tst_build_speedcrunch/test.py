@@ -15,16 +15,16 @@ def main():
     if not neededFilePresent(SpeedCrunchPath):
         return
     startApplication("qtcreator" + SettingsPath)
-    openQmakeProject(SpeedCrunchPath)
+    checkedTargets = openQmakeProject(SpeedCrunchPath)
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
 
     fancyToolButton = waitForObject(":*Qt Creator_Core::Internal::FancyToolButton")
 
-    availableConfigs = iterateBuildConfigs(1, "Release")
+    availableConfigs = iterateBuildConfigs(len(checkedTargets), "Release")
     if not availableConfigs:
         test.fatal("Haven't found a suitable Qt version (need Release build) - leaving without building.")
     for kit, config in availableConfigs:
-        selectBuildConfig(1, kit, config)
+        selectBuildConfig(len(checkedTargets), kit, config)
         buildConfig = buildConfigFromFancyToolButton(fancyToolButton)
         if buildConfig != config:
             test.fatal("Build configuration %s is selected instead of %s" % (buildConfig, config))

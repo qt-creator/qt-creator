@@ -195,7 +195,7 @@ bool AddQtOperation::test() const
             || !version0.contains(QLatin1String(AUTODETECTED))
             || version0.value(QLatin1String(AUTODETECTED)).toBool() != true
             || !version0.contains(QLatin1String(AUTODETECTION_SOURCE))
-            || version0.value(QLatin1String(AUTODETECTION_SOURCE)).toString() != QLatin1String("testId")
+            || version0.value(QLatin1String(AUTODETECTION_SOURCE)).toString() != QLatin1String("SDK.testId")
             || !version0.contains(QLatin1String(TYPE))
             || version0.value(QLatin1String(TYPE)).toString() != QLatin1String("testType")
             || !version0.contains(QLatin1String(QMAKE))
@@ -234,7 +234,7 @@ bool AddQtOperation::test() const
             || !version1.contains(QLatin1String(AUTODETECTED))
             || version1.value(QLatin1String(AUTODETECTED)).toBool() != true
             || !version1.contains(QLatin1String(AUTODETECTION_SOURCE))
-            || version1.value(QLatin1String(AUTODETECTION_SOURCE)).toString() != QLatin1String("testId2")
+            || version1.value(QLatin1String(AUTODETECTION_SOURCE)).toString() != QLatin1String("SDK.testId2")
             || !version1.contains(QLatin1String(TYPE))
             || version1.value(QLatin1String(TYPE)).toString() != QLatin1String("testType3")
             || !version1.contains(QLatin1String(QMAKE))

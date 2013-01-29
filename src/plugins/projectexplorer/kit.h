@@ -67,7 +67,8 @@ public:
 
     bool isValid() const;
     QList<Task> validate() const;
-    void fix();
+    void fix(); // Fix the individual kit information.
+    void setup(); // Apply advanced magic(TM). Used only once on each kit during initial setup.
 
     QString displayName() const;
     void setDisplayName(const QString &name);

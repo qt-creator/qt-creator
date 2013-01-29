@@ -576,7 +576,9 @@ void ToolChainOptionsPage::toolChainSelectionChanged()
     if (!m_container)
         return;
     QModelIndex current = currentIndex();
-    (void)m_container->takeWidget(); // Prevent deletion.
+    QWidget *oldWidget = m_container->takeWidget(); // Prevent deletion.
+    if (oldWidget)
+        oldWidget->setVisible(false);
     QWidget *currentTcWidget = current.isValid() ? m_model->widget(current) : 0;
     m_container->setWidget(currentTcWidget);
     m_container->setVisible(currentTcWidget != 0);

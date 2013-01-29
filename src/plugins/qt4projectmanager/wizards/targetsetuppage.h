@@ -111,7 +111,6 @@ private:
     ProjectExplorer::KitMatcher *m_preferredMatcher;
     QLayout *m_baseLayout;
     bool m_importSearch;
-    bool m_useScrollArea;
     bool m_ignoreUpdates;
     QString m_proFilePath;
     QString m_defaultShadowBuildLocation;

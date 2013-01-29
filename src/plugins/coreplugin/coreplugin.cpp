@@ -49,7 +49,7 @@ using namespace Core;
 using namespace Core::Internal;
 
 CorePlugin::CorePlugin() :
-    m_mainWindow(new MainWindow), m_editMode(0)
+    m_mainWindow(new MainWindow), m_editMode(0), m_designMode(0)
 {
 }
 

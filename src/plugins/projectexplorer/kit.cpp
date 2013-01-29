@@ -200,6 +200,21 @@ void Kit::fix()
         i->fix(this);
 }
 
+void Kit::setup()
+{
+    KitGuard g(this);
+    QHash<Core::Id, QVariant> data = d->m_data;
+    for (int i = 0; i < 5; ++i) {
+        // Allow for some retries to settle down in a good configuration
+        // This is necessary for the Qt version to pick its preferred tool chain
+        // and that to pick a working debugger afterwards.
+        foreach (KitInformation *i, KitManager::instance()->kitInformation())
+            i->setup(this);
+        if (d->m_data == data)
+            break;
+    }
+}
+
 QString Kit::displayName() const
 {
     return d->m_displayName;

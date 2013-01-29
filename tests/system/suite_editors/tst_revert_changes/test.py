@@ -62,8 +62,7 @@ def __modifyHeader__():
     global cppEditorStr, homeShortCut, endShortCut
     if placeCursorToLine(cppEditorStr, "class.+", True):
         type(cppEditorStr, homeShortCut)
-        for i in range(5):
-            type(cppEditorStr, "<Shift+Down>")
+        markText(cppEditorStr, "Down", 5)
         invokeMenuItem("Edit", "Cut")
         type(cppEditorStr, endShortCut)
         type(cppEditorStr, "<Return>")
@@ -74,12 +73,11 @@ def __modifySource__():
     global cppEditorStr, homeShortCut
     if placeCursorToLine(cppEditorStr, "void function1(int a);"):
         type(cppEditorStr, homeShortCut)
-        type(cppEditorStr, "<Shift+Down>")
+        markText(cppEditorStr, "Down")
         type(cppEditorStr, "<Delete>")
     if placeCursorToLine(cppEditorStr, "bool function1(int a) {"):
         type(cppEditorStr, homeShortCut)
-        for i in range(4):
-            type(cppEditorStr, "<Shift+Down>")
+        markText(cppEditorStr, "Down", 4)
         type(cppEditorStr, "<Delete>")
 
 def revertChanges(files):

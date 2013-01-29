@@ -56,7 +56,8 @@ namespace Internal {
 // --------------------------------------------------------------------------
 
 SysRootInformationConfigWidget::SysRootInformationConfigWidget(Kit *k) :
-    KitConfigWidget(k)
+    KitConfigWidget(k),
+    m_ignoreChange(false)
 {
     m_chooser = new Utils::PathChooser;
     m_chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
@@ -77,7 +78,8 @@ QString SysRootInformationConfigWidget::toolTip() const
 
 void SysRootInformationConfigWidget::refresh()
 {
-    m_chooser->setFileName(SysRootKitInformation::sysRoot(m_kit));
+    if (!m_ignoreChange)
+        m_chooser->setFileName(SysRootKitInformation::sysRoot(m_kit));
 }
 
 void SysRootInformationConfigWidget::makeReadOnly()
@@ -97,7 +99,9 @@ QWidget *SysRootInformationConfigWidget::buttonWidget() const
 
 void SysRootInformationConfigWidget::pathWasChanged()
 {
+    m_ignoreChange = true;
     SysRootKitInformation::setSysRoot(m_kit, m_chooser->fileName());
+    m_ignoreChange = false;
 }
 
 // --------------------------------------------------------------------------

@@ -85,12 +85,14 @@
 :Qt Creator.Search for:_QLabel	{text='Search for:' type='QLabel' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Stop_QToolButton	{text='Stop' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.replaceEdit_Utils::FilterLineEdit	{name='replaceEdit' type='Utils::FilterLineEdit' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.scrollArea_QScrollArea	{name='scrollArea' type='QScrollArea' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton	{occurrence='3' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Bookmarks_TreeView	{type='TreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_CloseButton	{type='CloseButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_CompileOutput_Core::Internal::OutputPaneToggleButton	{occurrence='4' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Core::Internal::CommandComboBox	{type='Core::Internal::CommandComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Core::Internal::MainWindow	{type='Core::Internal::MainWindow' visible='1' windowTitle?='*Qt Creator'}
+:Qt Creator_Core::Internal::NavComboBox	{type='Core::Internal::NavComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_CppEditor::Internal::CPPEditorWidget	{type='CppEditor::Internal::CPPEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_FilenameQComboBox	{type='QComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Find::Internal::SearchResultTreeView	{type='Find::Internal::SearchResultTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -101,6 +103,7 @@
 :Qt Creator_QDeclarativeView	{type='QDeclarativeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QHelpContentWidget	{type='QHelpContentWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QTableView	{type='QTableView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_QmlJSEditor::Internal::QmlJSOutlineTreeView	{type='QmlJSEditor::Internal::QmlJSOutlineTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QmlJSEditor::QmlJSTextEditorWidget	{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_SearchResult_Core::Internal::OutputPaneToggleButton	{occurrence='2' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_SystemSettings.Details_Utils::DetailsButton	{occurrence='4' text='Details' type='Utils::DetailsButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -126,6 +129,7 @@
 :headerFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Header file:_QLabel' name='headerFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
 :popupFrame_Proposal_QListView	{container=':popupFrame_TextEditor::GenericProposalWidget' type='QListView' unnamed='1' visible='1'}
 :popupFrame_TextEditor::GenericProposalWidget	{name='m_popupFrame' type='TextEditor::GenericProposalWidget' visible='1'}
+:qmakeCallEdit	{container=':Qt Creator.scrollArea_QScrollArea' text?='<b>qmake:</b> qmake*' type='QLabel' unnamed='1' visible='1'}
 :qt_tabwidget_stackedwidget.Core__Internal__GeneralSettings_QWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='Core__Internal__GeneralSettings' type='QWidget' visible='1'}
 :qt_tabwidget_stackedwidget.CppTools__Internal__CompletionSettingsPage_QWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='CppTools__Internal__CompletionSettingsPage' type='QWidget' visible='1'}
 :qt_tabwidget_stackedwidget.Form_QWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='Help__Internal__GeneralSettingsPage' type='QWidget' visible='1' windowTitle='Form'}

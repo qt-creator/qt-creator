@@ -119,7 +119,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
 {
     QWidget *versionInfoWidget = new QWidget();
     m_versionUi->setupUi(versionInfoWidget);
-    m_versionUi->editPathPushButton->setText(tr(Utils::PathChooser::browseButtonLabel));
+    m_versionUi->editPathPushButton->setText(QCoreApplication::translate("Utils::PathChooser", Utils::PathChooser::browseButtonLabel));
 
     QWidget *debuggingHelperDetailsWidget = new QWidget();
     m_debuggingHelperUi->setupUi(debuggingHelperDetailsWidget);

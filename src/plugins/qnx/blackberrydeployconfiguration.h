@@ -58,8 +58,12 @@ public:
 
     BlackBerryDeployInformation *deploymentInfo() const;
 
+    QVariantMap toMap() const;
+
 protected:
     BlackBerryDeployConfiguration(ProjectExplorer::Target *parent, BlackBerryDeployConfiguration *source);
+
+    bool fromMap(const QVariantMap &map);
 
 private slots:
     void setupBarDescriptor();

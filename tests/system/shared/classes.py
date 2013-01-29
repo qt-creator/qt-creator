@@ -14,6 +14,13 @@ class QtQuickConstants:
         DESKTOP_474_MSVC2008 = 32
 
     @staticmethod
+    def desktopTargetClasses():
+        desktopTargets = QtQuickConstants.Targets.DESKTOP_474_GCC
+        if platform.system() in ('Windows', 'Microsoft'):
+            desktopTargets |= QtQuickConstants.Targets.DESKTOP_474_MSVC2008
+        return desktopTargets
+
+    @staticmethod
     def getStringForComponents(components):
             if components==QtQuickConstants.Components.BUILTIN:
                 return "Built-in elements only (for all platforms)"

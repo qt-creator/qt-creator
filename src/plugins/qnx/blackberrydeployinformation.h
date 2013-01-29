@@ -34,6 +34,7 @@
 #include <QAbstractTableModel>
 
 namespace Qt4ProjectManager {
+class Qt4ProFileNode;
 class Qt4Project;
 }
 
@@ -74,8 +75,11 @@ public:
 
     QList<BarPackageDeployInformation> enabledPackages() const;
 
+    QVariantMap toMap() const;
+    void fromMap(const QVariantMap &map);
+
 private slots:
-    void initModel();
+    void updateModel();
 
 private:
     enum Columns {
@@ -84,6 +88,9 @@ private:
         PackageColumn,
         ColumnCount // Always have last
     };
+
+    void initModel();
+    BarPackageDeployInformation deployInformationFromNode(Qt4ProjectManager::Qt4ProFileNode *node) const;
 
     Qt4ProjectManager::Qt4Project *m_project;
 

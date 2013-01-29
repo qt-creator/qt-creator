@@ -42,7 +42,8 @@ namespace Internal {
 
 QmakeKitConfigWidget::QmakeKitConfigWidget(ProjectExplorer::Kit *k) :
     ProjectExplorer::KitConfigWidget(k),
-    m_lineEdit(new QLineEdit)
+    m_lineEdit(new QLineEdit),
+    m_ignoreChange(false)
 {
     refresh(); // set up everything according to kit
     connect(m_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(mkspecWasChanged(QString)));
@@ -71,12 +72,15 @@ void QmakeKitConfigWidget::makeReadOnly()
 
 void QmakeKitConfigWidget::refresh()
 {
-    m_lineEdit->setText(QmakeKitInformation::mkspec(m_kit).toString());
+    if (!m_ignoreChange)
+        m_lineEdit->setText(QmakeKitInformation::mkspec(m_kit).toUserOutput());
 }
 
 void QmakeKitConfigWidget::mkspecWasChanged(const QString &text)
 {
+    m_ignoreChange = true;
     QmakeKitInformation::setMkspec(m_kit, Utils::FileName::fromString(text));
+    m_ignoreChange = false;
 }
 
 } // namespace Internal

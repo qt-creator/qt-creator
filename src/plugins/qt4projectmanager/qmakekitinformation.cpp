@@ -84,7 +84,7 @@ QList<ProjectExplorer::Task> QmakeKitInformation::validate(const ProjectExplorer
     return result;
 }
 
-void QmakeKitInformation::fix(ProjectExplorer::Kit *k)
+void QmakeKitInformation::setup(ProjectExplorer::Kit *k)
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
     if (!version)

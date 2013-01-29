@@ -148,9 +148,11 @@ void KitManager::restoreKits()
     QFileInfo kitFile(systemSettingsFile.absolutePath() + QLatin1String(KIT_FILENAME));
     if (kitFile.exists()) {
         KitList system = restoreKits(Utils::FileName(kitFile));
-        // make sure we mark these as autodetected!
-        foreach (Kit *k, system.kits)
+        // make sure we mark these as autodetected and run additional setup logic
+        foreach (Kit *k, system.kits) {
             k->setAutoDetected(true);
+            k->setup();
+        }
 
         // SDK kits are always considered to be up for validation since they might have been
         // extended with additional information by creator in the meantime:
@@ -201,6 +203,8 @@ void KitManager::restoreKits()
         defaultKit->setDisplayName(tr("Desktop"));
         defaultKit->setAutoDetected(false);
         defaultKit->setIconPath(QLatin1String(":///DESKTOP///"));
+
+        defaultKit->setup();
 
         addKit(defaultKit);
     }

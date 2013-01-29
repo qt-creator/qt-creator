@@ -337,7 +337,7 @@ static void parseCommandLineOptions(const QStringList &arguments)
             if (lastArg) usage();
             qApp->setStartDragDistance(arguments.at(++i).toInt());
         } else if (arg == QLatin1String("-v") || arg == QLatin1String("-version")) {
-            qWarning("Qt QML Viewer version %s", QT_VERSION_STR);
+            qWarning("Qt QML Viewer version %s", qVersion());
             exitApp(0);
         } else if (arg == "-translation") {
             if (lastArg) usage();
