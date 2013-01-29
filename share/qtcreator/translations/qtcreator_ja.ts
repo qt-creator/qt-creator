@@ -18729,8 +18729,8 @@ to project &apos;%2&apos;.</source>
         <translation>セッション名の変更</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;セッションて何？&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;セッションて何？&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Automatically restore the last session when Qt Creator is started.</source>
@@ -30707,8 +30707,8 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation type="obsolete">デバッグポート:</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;前提条件は？&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
+        <translation type="obsolete">&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;前提条件は？&lt;/a&gt;</translation>
     </message>
 </context>
 <context>
@@ -39114,8 +39114,8 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>デバッグポート:</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;前提条件は？&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;前提条件は？&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Enable Debugging of Subprocesses</source>

@@ -11668,8 +11668,8 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation type="obsolete">Smazat sezení</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;Co je to sezení?&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
+        <translation type="obsolete">&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;Co je to sezení?&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Switch to session</source>
@@ -11696,8 +11696,8 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation>&amp;Přepnout na sezení</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Co je sezení?&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Co je sezení?&lt;/a&gt;</translation>
     </message>
     <message>
         <source>New session name</source>
@@ -17692,12 +17692,12 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation type="obsolete">Pokud do svého projektu přidáte vnější knihovny, Qt Creator automaticky nabídné zvýrazňování skladby a doplňování kódu.</translation>
     </message>
     <message>
-        <source>You can add custom build steps in the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt;build settings&lt;/a&gt;.</source>
-        <translation type="obsolete">Můžete přidat vlastní kroky při vytváření programu v &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt;Nastavení sestavování&lt;/a&gt;.</translation>
+        <source>You can add custom build steps in the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-settings.html&quot;&gt;build settings&lt;/a&gt;.</source>
+        <translation type="obsolete">Můžete přidat vlastní kroky při vytváření programu v &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-settings.html&quot;&gt;Nastavení sestavování&lt;/a&gt;.</translation>
     </message>
     <message>
-        <source>Within a session, you can add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-dependencies.html&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
-        <translation type="obsolete">Do jednoho sezení můžete přidat &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-dependencies.html&quot;&gt;závislosti&lt;/a&gt; mezi projekty.</translation>
+        <source>Within a session, you can add &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-dependencies.html&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
+        <translation type="obsolete">Do jednoho sezení můžete přidat &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-dependencies.html&quot;&gt;závislosti&lt;/a&gt; mezi projekty.</translation>
     </message>
     <message>
         <source>You can switch between Qt Creator&apos;s modes using &lt;tt&gt;Ctrl+number&lt;/tt&gt;:&lt;ul&gt;&lt;li&gt;1 - Welcome&lt;/li&gt;&lt;li&gt;2 - Edit&lt;/li&gt;&lt;li&gt;3 - Debug&lt;/li&gt;&lt;li&gt;4 - Projects&lt;/li&gt;&lt;li&gt;5 - Help&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;6 - Output&lt;/li&gt;&lt;/ul&gt;</source>
@@ -17712,8 +17712,8 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation type="obsolete">Funkci &lt;tt&gt;Najít&lt;/tt&gt; si můžete pěkně vyladit tím, že vyberete &amp;quot;Celá slova&amp;quot; nebo &amp;quot;Rozlišující velká a malá písmena&amp;quot;. Jednoduše klepněte na ikony po pravé straně zadávacího pole.</translation>
     </message>
     <message>
-        <source>If you add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
-        <translation type="obsolete">Pokud přidáte&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;vnější knihovny&lt;/a&gt;, Qt Creator automaticky nabídne zvýrazňování skladby a doplnění kódu.</translation>
+        <source>If you add &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
+        <translation type="obsolete">Pokud přidáte&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-external-library-handling.html&quot;&gt;vnější knihovny&lt;/a&gt;, Qt Creator automaticky nabídne zvýrazňování skladby a doplnění kódu.</translation>
     </message>
     <message>
         <source>The code completion is CamelCase-aware. For example, to complete &lt;tt&gt;namespaceUri&lt;/tt&gt; you can just type &lt;tt&gt;nU&lt;/tt&gt; and hit &lt;tt&gt;Ctrl+Space&lt;/tt&gt;.</source>
@@ -17736,24 +17736,24 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation type="obsolete">Můžete přepínat mezi výstupními tabulkami stisknutím &lt;tt&gt;%1+n&lt;/tt&gt;, přičemž n je číslem, které se nalézá na tlačítkách při dolním okraji okna: &lt;ul&gt;&lt;li&gt;1 - Potíže se sestavováním&lt;/li&gt;&lt;li&gt;2 - Výsledky hledání&lt;/li&gt;&lt;li&gt;3 - Výstup aplikace&lt;/li&gt;&lt;li&gt;4 - Výstup sestavení&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
-        <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</source>
-        <translation type="obsolete">Pomocí &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;pruhu s vyhledávačem&lt;/a&gt; (&lt;tt&gt;Ctrl+K&lt;/tt&gt;) můžete rychle vyhledávat postupy, třídy, nápovědu a další věci.</translation>
+        <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</source>
+        <translation type="obsolete">Pomocí &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-navigation.html&quot;&gt;pruhu s vyhledávačem&lt;/a&gt; (&lt;tt&gt;Ctrl+K&lt;/tt&gt;) můžete rychle vyhledávat postupy, třídy, nápovědu a další věci.</translation>
     </message>
     <message>
-        <source>You can add custom build steps in the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-pane.html#build-settings&quot;&gt;build settings&lt;/a&gt;.</source>
-        <translation type="obsolete">Můžete přidat vlastní kroky při vytvoření v &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-pane.html#build-settings&quot;&gt;Nastavení sestavování&lt;/a&gt;.</translation>
+        <source>You can add custom build steps in the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-pane.html#build-settings&quot;&gt;build settings&lt;/a&gt;.</source>
+        <translation type="obsolete">Můžete přidat vlastní kroky při vytvoření v &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-pane.html#build-settings&quot;&gt;Nastavení sestavování&lt;/a&gt;.</translation>
     </message>
     <message>
-        <source>Within a session, you can add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-pane.html#dependencies&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
-        <translation type="obsolete">Do jednoho sezení můžete přidat &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-pane.html#dependencies&quot;&gt;závislosti&lt;/a&gt; mezi projekty.</translation>
+        <source>Within a session, you can add &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-pane.html#dependencies&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
+        <translation type="obsolete">Do jednoho sezení můžete přidat &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-pane.html#dependencies&quot;&gt;závislosti&lt;/a&gt; mezi projekty.</translation>
     </message>
     <message>
         <source>You can set the preferred editor encoding for every project in &lt;tt&gt;Projects -&gt; Editor Settings -&gt; Default Encoding&lt;/tt&gt;.</source>
         <translation type="obsolete">Můžete nastavit upřednostňované kódování editoru u každého projektu v &lt;tt&gt;Projekty -&gt; Nastavení editoru -&gt; Výchozí kódování&lt;/tt&gt;.</translation>
     </message>
     <message>
-        <source>You can use Qt Creator with a number of &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;revision control systems&lt;/a&gt; such as Subversion, Perforce, CVS and Git.</source>
-        <translation type="obsolete">Qt Creator můžete používat s celou řadou &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;systémů určených pro správu verzí&lt;/a&gt;, jakými jsou Subversion, Perforce, CVS a Git.</translation>
+        <source>You can use Qt Creator with a number of &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-version-control.html&quot;&gt;revision control systems&lt;/a&gt; such as Subversion, Perforce, CVS and Git.</source>
+        <translation type="obsolete">Qt Creator můžete používat s celou řadou &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-version-control.html&quot;&gt;systémů určených pro správu verzí&lt;/a&gt;, jakými jsou Subversion, Perforce, CVS a Git.</translation>
     </message>
     <message>
         <source>In the editor, &lt;tt&gt;F2&lt;/tt&gt; follows symbol definition, &lt;tt&gt;Shift+F2&lt;/tt&gt; toggles declaration and definition while &lt;tt&gt;F4&lt;/tt&gt; toggles header file and source file.</source>
@@ -32493,8 +32493,8 @@ Při plné simulaci mezipaměti budou zapnuta další počítadla událostí:
         <translation type="obsolete">Přípojka pro ladič:</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;Jaké jsou předpoklady?&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
+        <translation type="obsolete">&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;Jaké jsou předpoklady?&lt;/a&gt;</translation>
     </message>
 </context>
 <context>
@@ -49452,8 +49452,8 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <translation>Port pro ladič:</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;Jaké jsou předpoklady?&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;Jaké jsou předpoklady?&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Enable Debugging of Subprocesses</source>

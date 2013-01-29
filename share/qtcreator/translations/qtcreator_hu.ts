@@ -2426,16 +2426,16 @@ Felül szeretné írni azokat?</translation>
         <translation type="obsolete">Válthat a kimeneti panelok között a(z) &lt;tt&gt;%1+n&lt;/tt&gt; lenyomásával, ahol az n az ablak alján található gombokon levő számot jelenti: &lt;ul&gt;&lt;li&gt;1 - Építési probléma&lt;/li&gt;&lt;li&gt;2 - Keresési eredmények&lt;/li&gt;&lt;li&gt;3 - Alkalmazás kimenet&lt;/li&gt;&lt;li&gt;4 - Fordítási kimenet&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
-        <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;Ctrl+K&lt;/tt&gt;).</source>
-        <translation type="obsolete">Gyorsan rákereshet eljárások, osztályok, segítség és még több dologra a &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Lokátor bar&lt;/a&gt; (&lt;tt&gt;Ctrl+K&lt;/tt&gt;) használatával.</translation>
+        <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;Ctrl+K&lt;/tt&gt;).</source>
+        <translation type="obsolete">Gyorsan rákereshet eljárások, osztályok, segítség és még több dologra a &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-navigation.html&quot;&gt;Lokátor bar&lt;/a&gt; (&lt;tt&gt;Ctrl+K&lt;/tt&gt;) használatával.</translation>
     </message>
     <message>
-        <source>You can add custom build steps in the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt;build settings&lt;/a&gt;.</source>
-        <translation type="obsolete">Hozzáadhatja a szokásos építési lépéseket az &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt; építési beállításokban&lt;/a&gt;.</translation>
+        <source>You can add custom build steps in the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-settings.html&quot;&gt;build settings&lt;/a&gt;.</source>
+        <translation type="obsolete">Hozzáadhatja a szokásos építési lépéseket az &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-settings.html&quot;&gt; építési beállításokban&lt;/a&gt;.</translation>
     </message>
     <message>
-        <source>Within a session, you can add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
-        <translation type="obsolete">Egy szakaszon belül, hozzáadhatja a &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;függőségeket&lt;/a&gt; a projektek között.</translation>
+        <source>Within a session, you can add &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
+        <translation type="obsolete">Egy szakaszon belül, hozzáadhatja a &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;függőségeket&lt;/a&gt; a projektek között.</translation>
     </message>
     <message>
         <source>You can set the preferred editor encoding for every project in &lt;tt&gt;Projects -&gt; Editor Settings -&gt; Default Encoding&lt;/tt&gt;.</source>
@@ -2446,8 +2446,8 @@ Felül szeretné írni azokat?</translation>
         <translation type="obsolete">Módosíthatja a binárist, amelyik a &lt;tt&gt;Futtatás&lt;/tt&gt; gomb lenyomásakor lesz végrehajtva: Hozzáadhat egy &lt;/tt&gt;Szokásos futtatható fájlt&lt;tt&gt; a &lt;tt&gt;+&lt;/tt&gt; gombra kattintással a &lt;tt&gt;Projektek -&gt; Beállítások futtatása -&gt; Konfiguráció futtatása&lt;/tt&gt; menüben és aztán válassza ki az új célt a combo boxban.</translation>
     </message>
     <message>
-        <source>You can use Qt Creator with a number of &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;revision control systems&lt;/a&gt; such as Subversion, Perforce and Git.</source>
-        <translation type="obsolete">A Qt Creator-t használhatja számos &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;Verzió követő rendszerrel együtt&lt;/a&gt;, úgy mint a Subversion, Perforce és a GIT.</translation>
+        <source>You can use Qt Creator with a number of &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-version-control.html&quot;&gt;revision control systems&lt;/a&gt; such as Subversion, Perforce and Git.</source>
+        <translation type="obsolete">A Qt Creator-t használhatja számos &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-version-control.html&quot;&gt;Verzió követő rendszerrel együtt&lt;/a&gt;, úgy mint a Subversion, Perforce és a GIT.</translation>
     </message>
     <message>
         <source>In the editor, &lt;tt&gt;F2&lt;/tt&gt; toggles declaration and definition while &lt;tt&gt;F4&lt;/tt&gt; toggles header file and source file.</source>
@@ -2466,12 +2466,12 @@ Felül szeretné írni azokat?</translation>
         <translation type="obsolete">Behangolhatja a &lt;tt&gt;Keresés&lt;/tt&gt; funkciót a &amp;quot;Egész Szavak&amp;quot; vagy &amp;quot;Kis és nagybetűérzékenya&amp;quot; kiválasztásával. Egyszerűen csak kattintson az ikonra sor szerkesztésének jobb végén.</translation>
     </message>
     <message>
-        <source>If you add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
-        <translation type="obsolete">Ha hozzáad egy &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;külső könyvtárat&lt;/a&gt;, a Qt Creator automatikusan felkínálja a szintaksz kihangsúlyozást és a kód kiegészítést.</translation>
+        <source>If you add &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
+        <translation type="obsolete">Ha hozzáad egy &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-external-library-handling.html&quot;&gt;külső könyvtárat&lt;/a&gt;, a Qt Creator automatikusan felkínálja a szintaksz kihangsúlyozást és a kód kiegészítést.</translation>
     </message>
     <message>
-        <source>If you add a &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
-        <translation type="obsolete">Ha hozzáad egy &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;külső könyvtárat&lt;/a&gt;, a Qt Creator automatikusan felkínálja a szintaksz kihangsúlyozást és a kód kiegészítést.</translation>
+        <source>If you add a &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
+        <translation type="obsolete">Ha hozzáad egy &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-external-library-handling.html&quot;&gt;külső könyvtárat&lt;/a&gt;, a Qt Creator automatikusan felkínálja a szintaksz kihangsúlyozást és a kód kiegészítést.</translation>
     </message>
     <message>
         <source>&lt;style&gt;
@@ -13194,8 +13194,8 @@ Ok: %2</translation>
         <translation type="obsolete">Szakasz törlése</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;Mi az a szakasz?&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
+        <translation type="obsolete">&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;Mi az a szakasz?&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Session</source>
@@ -13893,8 +13893,8 @@ Ok: %2</translation>
         <translation>Szakasz törlése</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;Mi az a szakasz?&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;Mi az a szakasz?&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Switch to session</source>
@@ -15715,8 +15715,8 @@ p, li { white-space: pre-wrap; }
         <translation>Behangolhatja a &lt;tt&gt;Keresés&lt;/tt&gt; funkciót a &amp;quot;Egész Szavak&amp;quot; vagy &amp;quot;Kis és nagybetűérzékenya&amp;quot; kiválasztásával. Egyszerűen csak kattintson az ikonra sor szerkesztésének jobb végén.</translation>
     </message>
     <message>
-        <source>If you add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
-        <translation>Ha hozzáad egy &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;külső könyvtárat&lt;/a&gt;, a Qt Creator automatikusan felkínálja a szintaksz kihangsúlyozást és a kód kiegészítést.</translation>
+        <source>If you add &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
+        <translation>Ha hozzáad egy &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-external-library-handling.html&quot;&gt;külső könyvtárat&lt;/a&gt;, a Qt Creator automatikusan felkínálja a szintaksz kihangsúlyozást és a kód kiegészítést.</translation>
     </message>
     <message>
         <source>The code completion is CamelCase-aware. For example, to complete &lt;tt&gt;namespaceUri&lt;/tt&gt; you can just type &lt;tt&gt;nU&lt;/tt&gt; and hit &lt;tt&gt;Ctrl+Space&lt;/tt&gt;.</source>
@@ -15739,24 +15739,24 @@ p, li { white-space: pre-wrap; }
         <translation>Válthat a kimeneti panelok között a(z) &lt;tt&gt;%1+n&lt;/tt&gt; lenyomásával, ahol az n az ablak alján található gombokon levő számot jelenti: &lt;ul&gt;&lt;li&gt;1 - Építési probléma&lt;/li&gt;&lt;li&gt;2 - Keresési eredmények&lt;/li&gt;&lt;li&gt;3 - Alkalmazás kimenet&lt;/li&gt;&lt;li&gt;4 - Fordítási kimenet&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
-        <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</source>
-        <translation>Gyorsan rákereshet eljárásokra, osztályokra, segítségre és még több mindenre a &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Lokátor bar&lt;/a&gt; használatával (&lt;tt&gt;%1+K&lt;/tt&gt;).</translation>
+        <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</source>
+        <translation>Gyorsan rákereshet eljárásokra, osztályokra, segítségre és még több mindenre a &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-navigation.html&quot;&gt;Lokátor bar&lt;/a&gt; használatával (&lt;tt&gt;%1+K&lt;/tt&gt;).</translation>
     </message>
     <message>
-        <source>You can add custom build steps in the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-pane.html#build-settings&quot;&gt;build settings&lt;/a&gt;.</source>
-        <translation>Hozzáadhat szokásos építési lépéseket az &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-pane.html#build-settings&quot;&gt;építési beállításokban&lt;/a&gt;.</translation>
+        <source>You can add custom build steps in the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-pane.html#build-settings&quot;&gt;build settings&lt;/a&gt;.</source>
+        <translation>Hozzáadhat szokásos építési lépéseket az &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-pane.html#build-settings&quot;&gt;építési beállításokban&lt;/a&gt;.</translation>
     </message>
     <message>
-        <source>Within a session, you can add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-pane.html#dependencies&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
-        <translation>Egy szakaszon belül, hozzáadhat &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-pane.html#dependencies&quot;&gt;függőségeket&lt;/a&gt;projektek között.</translation>
+        <source>Within a session, you can add &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-pane.html#dependencies&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
+        <translation>Egy szakaszon belül, hozzáadhat &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-pane.html#dependencies&quot;&gt;függőségeket&lt;/a&gt;projektek között.</translation>
     </message>
     <message>
         <source>You can set the preferred editor encoding for every project in &lt;tt&gt;Projects -&gt; Editor Settings -&gt; Default Encoding&lt;/tt&gt;.</source>
         <translation>Beállíthatja a kedvenc szerkesztő kódolását az összes Projektre a &lt;tt&gt;Projektek -&gt; Szerkesztő Beállítások -&gt; Alapértelmezett kódolás&lt;/tt&gt; menüpontban.</translation>
     </message>
     <message>
-        <source>You can use Qt Creator with a number of &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;revision control systems&lt;/a&gt; such as Subversion, Perforce, CVS and Git.</source>
-        <translation>A Qt Creator-t használhatja számos &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;verzió követő rendszerrel&lt;/a&gt;, úgy mint Subversion, Perforce, CVS és Git. </translation>
+        <source>You can use Qt Creator with a number of &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-version-control.html&quot;&gt;revision control systems&lt;/a&gt; such as Subversion, Perforce, CVS and Git.</source>
+        <translation>A Qt Creator-t használhatja számos &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-version-control.html&quot;&gt;verzió követő rendszerrel&lt;/a&gt;, úgy mint Subversion, Perforce, CVS és Git. </translation>
     </message>
     <message>
         <source>In the editor, &lt;tt&gt;F2&lt;/tt&gt; follows symbol definition, &lt;tt&gt;Shift+F2&lt;/tt&gt; toggles declaration and definition while &lt;tt&gt;F4&lt;/tt&gt; toggles header file and source file.</source>

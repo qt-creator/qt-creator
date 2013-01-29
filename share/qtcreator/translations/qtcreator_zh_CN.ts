@@ -12372,8 +12372,8 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp
         <translation type="obsolete">删除会话</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;什么是会话?&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
+        <translation type="obsolete">&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;什么是会话?&lt;/a&gt;</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -12404,8 +12404,8 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp
         <translation>重命名会话</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;什么是会话?&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;什么是会话?&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Automatically restore the last session when Qt Creator is started.</source>
@@ -30687,8 +30687,8 @@ Id必须以小写字母开头。</translation>
         <translation type="obsolete">调试端口:</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;先决条件是什么?&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
+        <translation type="obsolete">&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;先决条件是什么?&lt;/a&gt;</translation>
     </message>
 </context>
 <context>
@@ -33548,8 +33548,8 @@ stderr was: %1</source>
         <translation type="obsolete">串行:</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-developing-symbian.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-developing-symbian.html&quot;&gt;先决条件是什么?&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-developing-symbian.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
+        <translation type="obsolete">&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-developing-symbian.html&quot;&gt;先决条件是什么?&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Installation file:</source>
@@ -53804,8 +53804,8 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <translation>调试端口:</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;先决条件是什么?&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;先决条件是什么?&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Enable Debugging of Subprocesses</source>

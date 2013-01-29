@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <instructionals module="Qt">
   <tutorials>
-    <tutorial imageUrl="images/icons/buildrun.png" difficulty="" docUrl="qthelp://com.nokia.qtcreator/doc/creator-build-example-application.html" projectPath="" name="Building and Running an Example Application">
+    <tutorial imageUrl="images/icons/buildrun.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-build-example-application.html" projectPath="" name="Building and Running an Example Application">
       <description><![CDATA[You can test that your installation is successful by opening an existing example application project.]]></description>
       <tags>qt creator,build,compile</tags>
     </tutorial>
-    <tutorial imageUrl="images/icons/qwidget.png" difficulty="" docUrl="qthelp://com.nokia.qtcreator/doc/creator-writing-program.html" projectPath="" name="Creating a Qt Widget Based Application">
+    <tutorial imageUrl="images/icons/qwidget.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-writing-program.html" projectPath="" name="Creating a Qt Widget Based Application">
       <description><![CDATA[This tutorial describes how to use Qt Creator to create a small Qt application, Text Finder.]]></description>
       <tags>qt,c++,text,qt designer,qt creator</tags>
     </tutorial>
-    <tutorial imageUrl="images/icons/qtquick.png" difficulty="" docUrl="qthelp://com.nokia.qtcreator/doc/creator-qml-application.html" projectPath="" name="Creating a Qt Quick Application">
+    <tutorial imageUrl="images/icons/qtquick.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-qml-application.html" projectPath="" name="Creating a Qt Quick Application">
       <description><![CDATA[This tutorial uses basic elements and illustrates basic concepts of Qt Quick.]]></description>
       <tags>qt quick,qml,states,transitions,visual designer,qt creator</tags>
     </tutorial>

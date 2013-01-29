@@ -7773,8 +7773,8 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
         <translation>Sitzung umbenennen</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Was ist eine Sitzung?&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Was ist eine Sitzung?&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Automatically restore the last session when Qt Creator is started.</source>
@@ -27524,8 +27524,8 @@ references to elements in other files, loops, etc.)</source>
         <translation>Port für Debugger:</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;Was sind die Voraussetzungen?&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;Was sind die Voraussetzungen?&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Enable Debugging of Subprocesses</source>

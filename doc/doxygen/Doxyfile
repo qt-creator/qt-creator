@@ -843,7 +843,7 @@ DOCSET_FEEDNAME        = "Qt Creator API"
 # reverse domain-name style string, e.g. com.mycompany.MyDocSet. Doxygen
 # will append .docset to the name.
 
-DOCSET_BUNDLE_ID       = com.nokia.qt-creator
+DOCSET_BUNDLE_ID       = org.qt-project.qt-creator
 
 # If the GENERATE_HTMLHELP tag is set to YES, additional index files
 # will be generated that can be used as input for tools like the
@@ -906,7 +906,7 @@ QCH_FILE               = ../qch/qt-creator-api.qch
 # Qt Help Project output. For more information please see
 # http://doc.trolltech.com/qthelpproject.html#namespace
 
-QHP_NAMESPACE          = com.nokia.qtcreator.1382
+QHP_NAMESPACE          = org.qt-project.qtcreator.1382
 
 # The QHP_VIRTUAL_FOLDER tag specifies the namespace to use when generating
 # Qt Help Project output. For more information please see

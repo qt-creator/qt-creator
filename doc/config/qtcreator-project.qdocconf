@@ -17,7 +17,7 @@ sources.fileextensions         = "*.qdoc"
 
 qhp.projects            = QtCreator
 qhp.QtCreator.file             = qtcreator.qhp
-qhp.QtCreator.namespace        = com.nokia.qtcreator.$QTC_VERSION_TAG
+qhp.QtCreator.namespace        = org.qt-project.qtcreator.$QTC_VERSION_TAG
 qhp.QtCreator.virtualFolder    = doc
 qhp.QtCreator.indexTitle       = Qt Creator Manual $QTC_VERSION
 qhp.QtCreator.filterAttributes = qtcreator $QTC_VERSION

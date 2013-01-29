@@ -52,7 +52,7 @@ include(qt-defines.qdocconf)
 
 qhp.projects            = QtCreatorDev
 qhp.QtCreatorDev.file             = qtcreator-dev.qhp
-qhp.QtCreatorDev.namespace        = com.nokia.qtcreator.developer.$QTC_VERSION_TAG
+qhp.QtCreatorDev.namespace        = org.qt-project.qtcreator.developer.$QTC_VERSION_TAG
 qhp.QtCreatorDev.virtualFolder    = doc
 qhp.QtCreatorDev.indexTitle       = Extending Qt Creator Manual
 qhp.QtCreatorDev.filterAttributes = qtcreator $QTC_VERSION

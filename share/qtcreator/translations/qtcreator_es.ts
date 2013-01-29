@@ -2121,16 +2121,16 @@ Would you like to overwrite them?</source>
         <translation type="obsolete">Puede alternar entre paneles de salida tecleando &lt;tt&gt;%1+n&lt;/tt&gt;, donde n es el número indicado en los botones situados en la parte inferior de la ventana:&lt;ul&gt;&lt;li&gt;1 - Construcción&lt;/li&gt;&lt;li&gt;2 - Resultado de búsquedas&lt;/li&gt;&lt;li&gt;3 - Salida de aplicación&lt;/li&gt;&lt;li&gt;4 - Salida del compilador&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
-        <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;Ctrl+K&lt;/tt&gt;).</source>
-        <translation type="obsolete">Puede buscar fácilmente métodos, clases, ayuda y más usando la  &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Barra Localizadora&lt;/a&gt; (&lt;tt&gt;Ctrl+K&lt;/tt&gt;).</translation>
+        <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;Ctrl+K&lt;/tt&gt;).</source>
+        <translation type="obsolete">Puede buscar fácilmente métodos, clases, ayuda y más usando la  &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-navigation.html&quot;&gt;Barra Localizadora&lt;/a&gt; (&lt;tt&gt;Ctrl+K&lt;/tt&gt;).</translation>
     </message>
     <message>
-        <source>You can add custom build steps in the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt;build settings&lt;/a&gt;.</source>
-        <translation type="obsolete">Puede añadir etapas de construcción personalizadas en los &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt;Ajustes de construcción&lt;/a&gt;.</translation>
+        <source>You can add custom build steps in the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-settings.html&quot;&gt;build settings&lt;/a&gt;.</source>
+        <translation type="obsolete">Puede añadir etapas de construcción personalizadas en los &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-settings.html&quot;&gt;Ajustes de construcción&lt;/a&gt;.</translation>
     </message>
     <message>
-        <source>Within a session, you can add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
-        <translation type="obsolete">Durante una sesión, puede añadir &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;dependencias&lt;/a&gt; entre proyectos.</translation>
+        <source>Within a session, you can add &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
+        <translation type="obsolete">Durante una sesión, puede añadir &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;dependencias&lt;/a&gt; entre proyectos.</translation>
     </message>
     <message>
         <source>You can set the preferred editor encoding for every project in &lt;tt&gt;Projects -&gt; Editor Settings -&gt; Default Encoding&lt;/tt&gt;.</source>
@@ -2141,8 +2141,8 @@ Would you like to overwrite them?</source>
         <translation type="obsolete">Puede modificar el binario a ser ejecutado cuando se presione el botón &lt;tt&gt;Ejecutar&lt;/tt&gt;: Añada &lt;tt&gt;Ejecutable personalizado&lt;/tt&gt; con un click en el botón &lt;tt&gt;+&lt;/tt&gt; en &lt;tt&gt;Proyectos -&gt; Ajustes de ejecución -&gt; Ajuste de ejecución&lt;/tt&gt; y luego seleccionando el nuevo objetivo en el combo box.</translation>
     </message>
     <message>
-        <source>You can use Qt Creator with a number of &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;revision control systems&lt;/a&gt; such as Subversion, Perforce and Git.</source>
-        <translation type="obsolete">Puede usar Qt Creator con varios &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;sistemas de control de versiones/revisiones&lt;/a&gt; como Subversion, Perforce y Git.</translation>
+        <source>You can use Qt Creator with a number of &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-version-control.html&quot;&gt;revision control systems&lt;/a&gt; such as Subversion, Perforce and Git.</source>
+        <translation type="obsolete">Puede usar Qt Creator con varios &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-version-control.html&quot;&gt;sistemas de control de versiones/revisiones&lt;/a&gt; como Subversion, Perforce y Git.</translation>
     </message>
     <message>
         <source>In the editor, &lt;tt&gt;F2&lt;/tt&gt; toggles declaration and definition while &lt;tt&gt;F4&lt;/tt&gt; toggles header file and source file.</source>
@@ -2161,8 +2161,8 @@ Would you like to overwrite them?</source>
         <translation type="obsolete">Puede personalizar la función &lt;tt&gt;Buscar&lt;/tt&gt; seleccionando  &amp;quot;Palabras completas solamente&amp;quot; o &amp;quot;Distinguir MAYÚS/minús&amp;quot;. Solo tiene que hacer clic en los íconos situados a la derecha del componente de edición de texto.</translation>
     </message>
     <message>
-        <source>If you add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
-        <translation type="obsolete">Si agrega &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;librerías externas&lt;/a&gt;, Qt Creator le ofrecerá automáticamente realce de sintaxis y autocompletado de código.</translation>
+        <source>If you add &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
+        <translation type="obsolete">Si agrega &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-external-library-handling.html&quot;&gt;librerías externas&lt;/a&gt;, Qt Creator le ofrecerá automáticamente realce de sintaxis y autocompletado de código.</translation>
     </message>
 </context>
 <context>
@@ -9243,8 +9243,8 @@ Nombre base de librería: %1</translation>
     </message>
     <message>
         <location/>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;¿Qué es una sesión?&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;¿Qué es una sesión?&lt;/a&gt;</translation>
     </message>
 </context>
 <context>
@@ -14565,8 +14565,8 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location line="+2"/>
-        <source>If you add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
-        <translation type="unfinished">Si agrega &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;librerías externas&lt;/a&gt;, Qt Creator le ofrecerá automáticamente realce de sintaxis y autocompletado de código.</translation>
+        <source>If you add &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
+        <translation type="unfinished">Si agrega &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-external-library-handling.html&quot;&gt;librerías externas&lt;/a&gt;, Qt Creator le ofrecerá automáticamente realce de sintaxis y autocompletado de código.</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -14596,18 +14596,18 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location line="+4"/>
-        <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</source>
+        <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>You can add custom build steps in the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt;build settings&lt;/a&gt;.</source>
-        <translation type="unfinished">Puede añadir etapas de construcción personalizadas en los &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt;Ajustes de construcción&lt;/a&gt;.</translation>
+        <source>You can add custom build steps in the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-settings.html&quot;&gt;build settings&lt;/a&gt;.</source>
+        <translation type="unfinished">Puede añadir etapas de construcción personalizadas en los &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-settings.html&quot;&gt;Ajustes de construcción&lt;/a&gt;.</translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>Within a session, you can add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
-        <translation type="unfinished">Durante una sesión, puede añadir &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;dependencias&lt;/a&gt; entre proyectos.</translation>
+        <source>Within a session, you can add &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
+        <translation type="unfinished">Durante una sesión, puede añadir &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;dependencias&lt;/a&gt; entre proyectos.</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -14621,7 +14621,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location line="+3"/>
-        <source>You can use Qt Creator with a number of &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;revision control systems&lt;/a&gt; such as Subversion, Perforce, CVS and Git.</source>
+        <source>You can use Qt Creator with a number of &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-version-control.html&quot;&gt;revision control systems&lt;/a&gt; such as Subversion, Perforce, CVS and Git.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
