@@ -208,7 +208,7 @@ QList<TemplateInfo> QmlApp::templateInfos()
         const QString templatePath = templateRootDirectory() + templateName;
         QFile xmlFile(templatePath + QLatin1String("/template.xml"));
         if (!xmlFile.open(QIODevice::ReadOnly)) {
-            qDebug() << "Cannot open" << QFileInfo(xmlFile.fileName()).absoluteFilePath();
+            qWarning().nospace() << QString::fromLatin1("Cannot open %1").arg(QDir::toNativeSeparators(QFileInfo(xmlFile.fileName()).absoluteFilePath());
             continue;
         }
         TemplateInfo info;
@@ -271,7 +271,7 @@ QString QmlApp::readAndAdaptTemplateFile(const QString &filePath, bool &ok) cons
                 replaceXWithYString.replace(QRegExp(QLatin1String(" -->$")), QString());
             const QStringList replaceXWithY = replaceXWithYString.split(markerWith);
             if (replaceXWithY.count() != 2) {
-                qWarning() << QCoreApplication::translate("QmlApplicationWizard", "Error in %1:%2. Invalid %3 options.")
+                qWarning().nospace() << QString::fromLatin1("QmlApplicationWizard", "Error in %1:%2. Invalid %3 options.")
                               .arg(QDir::toNativeSeparators(filePath)).arg(lineNr).arg(markerQtcReplace);
                 ok = false;
                 return QString();
@@ -279,7 +279,7 @@ QString QmlApp::readAndAdaptTemplateFile(const QString &filePath, bool &ok) cons
             const QString replaceWhat = replaceXWithY.at(0).trimmed();
             const QString replaceWith = replaceXWithY.at(1).trimmed();
             if (!m_replacementVariables.contains(replaceWith)) {
-                qWarning() << QCoreApplication::translate("QmlApplicationWizard", "Error in %1:%2. Unknown %3 option '%4'.")
+                qWarning().nospace() << QString::fromLatin1("QmlApplicationWizard", "Error in %1:%2. Unknown %3 option '%4'.")
                               .arg(QDir::toNativeSeparators(filePath)).arg(lineNr).arg(markerQtcReplace).arg(replaceWith);
                 ok = false;
                 return QString();
@@ -287,7 +287,7 @@ QString QmlApp::readAndAdaptTemplateFile(const QString &filePath, bool &ok) cons
             line = tsIn.readLine(); // Following line which is to be patched.
             lineNr++;
             if (line.indexOf(replaceWhat) < 0) {
-                qWarning() << QCoreApplication::translate("QmlApplicationWizard", "Error in %1:%2. Replacement '%3' not found.")
+                qWarning().nospace() << QString::fromLatin1("QmlApplicationWizard", "Error in %1:%2. Replacement '%3' not found.")
                               .arg(QDir::toNativeSeparators(filePath)).arg(lineNr).arg(replaceWhat);
                 ok = false;
                 return QString();
@@ -343,7 +343,7 @@ bool QmlApp::addBinaryFile(const QString &sourceDirectory,
 
     if (!fileIsReadable) {
         if (errorMessage)
-            *errorMessage = QCoreApplication::translate("QmlApplicationWizard", "Failed to file %1.").arg(templateFileName);
+            *errorMessage = QCoreApplication::translate("QmlApplicationWizard", "Failed to read file %1.").arg(templateFileName);
         return false;
     }
 
