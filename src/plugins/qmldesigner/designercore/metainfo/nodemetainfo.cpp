@@ -495,6 +495,12 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, in
                     }
                 } else {
                     m_isFileComponent = true;
+                    const Imports *imports = context()->imports(document());
+                    ImportInfo importInfo = imports->info(lookupNameComponent().last(), context().data());
+                    if (importInfo.isValid() && importInfo.type() == ImportInfo::LibraryImport) {
+                        m_majorVersion = importInfo.version().majorVersion();
+                        m_minorVersion = importInfo.version().minorVersion();
+                    }
                 }
                 setupPropertyInfo(getTypes(objectValue, context()));
                 setupLocalPropertyInfo(getTypes(objectValue, context(), true));
