@@ -62,10 +62,8 @@ static const char debuggingToolsWikiLinkC[] = "http://qt-project.org/wiki/Qt_Cre
 // DebuggerKitConfigWidget:
 // -----------------------------------------------------------------------
 
-DebuggerKitConfigWidget::DebuggerKitConfigWidget(ProjectExplorer::Kit *workingCopy,
-                                                 const DebuggerKitInformation *ki)
+DebuggerKitConfigWidget::DebuggerKitConfigWidget(ProjectExplorer::Kit *workingCopy)
   : KitConfigWidget(workingCopy),
-    m_info(ki),
     m_label(new QLabel),
     m_button(new QPushButton(tr("Manage...")))
 {
