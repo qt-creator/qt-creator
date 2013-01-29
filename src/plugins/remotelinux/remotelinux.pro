@@ -5,6 +5,8 @@ include(../../qtcreatorplugin.pri)
 HEADERS += \
     embeddedlinuxqtversion.h \
     embeddedlinuxqtversionfactory.h \
+    remotelinuxenvironmentaspect.h \
+    remotelinuxenvironmentaspectwidget.h \
     remotelinuxplugin.h \
     remotelinux_export.h \
     linuxdevice.h \
@@ -49,6 +51,8 @@ HEADERS += \
 SOURCES += \
     embeddedlinuxqtversion.cpp \
     embeddedlinuxqtversionfactory.cpp \
+    remotelinuxenvironmentaspect.cpp \
+    remotelinuxenvironmentaspectwidget.cpp \
     remotelinuxplugin.cpp \
     linuxdevice.cpp \
     remotelinuxrunconfiguration.cpp \

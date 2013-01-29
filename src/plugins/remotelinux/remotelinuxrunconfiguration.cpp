@@ -29,6 +29,7 @@
 
 #include "remotelinuxrunconfiguration.h"
 
+#include "remotelinuxenvironmentaspect.h"
 #include "remotelinuxrunconfigurationwidget.h"
 
 #include <debugger/debuggerrunconfigurationaspect.h>
@@ -118,6 +119,8 @@ RemoteLinuxRunConfiguration::~RemoteLinuxRunConfiguration()
 void RemoteLinuxRunConfiguration::init()
 {
     setDefaultDisplayName(defaultDisplayName());
+
+    addExtraAspect(new RemoteLinuxEnvironmentAspect(this));
 
     connect(target(), SIGNAL(deploymentDataChanged()), SLOT(handleBuildSystemDataUpdated()));
     connect(target(), SIGNAL(applicationTargetsChanged()), SLOT(handleBuildSystemDataUpdated()));
