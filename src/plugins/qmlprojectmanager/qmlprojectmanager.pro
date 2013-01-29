@@ -5,6 +5,7 @@ include(fileformat/fileformat.pri)
 
 DEFINES += QMLPROJECTMANAGER_LIBRARY
 HEADERS += qmlproject.h \
+    qmlprojectenvironmentaspect.h \
     qmlprojectplugin.h \
     qmlprojectmanager.h \
     qmlprojectconstants.h \
@@ -20,6 +21,7 @@ HEADERS += qmlproject.h \
     qmlapplicationwizard.h
 
 SOURCES += qmlproject.cpp \
+    qmlprojectenvironmentaspect.cpp \
     qmlprojectplugin.cpp \
     qmlprojectmanager.cpp \
     qmlprojectnodes.cpp \

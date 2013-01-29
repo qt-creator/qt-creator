@@ -33,6 +33,7 @@
 #include "qmlprojectmanager_global.h"
 
 #include <projectexplorer/runconfiguration.h>
+#include <utils/environment.h>
 
 #include <QPointer>
 
@@ -66,7 +67,6 @@ class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplor
 
 public:
     QmlProjectRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
-    virtual ~QmlProjectRunConfiguration();
 
     QString viewerPath() const;
     QString observerPath() const;

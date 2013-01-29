@@ -31,6 +31,7 @@
 #include "qmlproject.h"
 #include "qmlprojectmanagerconstants.h"
 #include "qmlprojectrunconfigurationwidget.h"
+#include "qmlprojectenvironmentaspect.h"
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -101,10 +102,8 @@ void QmlProjectRunConfiguration::ctor()
         setDisplayName(tr("QML Scene", "QMLRunConfiguration display name."));
     else
         setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
-}
 
-QmlProjectRunConfiguration::~QmlProjectRunConfiguration()
-{
+    addExtraAspect(new QmlProjectEnvironmentAspect(this));
 }
 
 QString QmlProjectRunConfiguration::viewerPath() const
