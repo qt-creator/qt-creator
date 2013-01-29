@@ -215,7 +215,7 @@ bool AndroidSettingsWidget::checkNDK(const Utils::FileName &location)
     if (!platformPath.appendPath(QLatin1String("platforms")).toFileInfo().exists()
             || !toolChainPath.appendPath(QLatin1String("toolchains")).toFileInfo().exists()
             || !sourcesPath.appendPath(QLatin1String("sources/cxx-stl")).toFileInfo().exists()) {
-        QMessageBox::critical(this, tr("Android SDK Folder"), tr("\"%1\" does not seem to be an Android NDK top folder.").arg(location.toUserOutput()));
+        QMessageBox::critical(this, tr("Android NDK Folder"), tr("\"%1\" does not seem to be an Android NDK top folder.").arg(location.toUserOutput()));
         return false;
     }
     m_androidConfig.ndkLocation = location;
