@@ -34,8 +34,6 @@
 
 #include <projectexplorer/localapplicationrunconfiguration.h>
 
-#include <utils/environment.h>
-
 #include <QVariantMap>
 
 namespace ProjectExplorer { class Target; }
@@ -69,7 +67,6 @@ public:
     RunMode runMode() const;
     QString workingDirectory() const;
     QString commandLineArguments() const;
-    Utils::Environment environment() const;
 
     QWidget *createConfigurationWidget();
     QString dumperLibrary() const;
@@ -84,9 +81,6 @@ public:
 signals:
     void changed();
 
-    void baseEnvironmentChanged();
-    void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &diff);
-
 protected:
     CustomExecutableRunConfiguration(ProjectExplorer::Target *parent,
                                      CustomExecutableRunConfiguration *source);
@@ -95,16 +89,6 @@ protected:
 
 private:
     void ctor();
-
-    enum BaseEnvironmentBase { CleanEnvironmentBase = 0,
-                               SystemEnvironmentBase = 1,
-                               BuildEnvironmentBase = 2};
-    void setBaseEnvironmentBase(BaseEnvironmentBase env);
-    BaseEnvironmentBase baseEnvironmentBase() const;
-    Utils::Environment baseEnvironment() const;
-    QString baseEnvironmentText() const;
-    void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
-    QList<Utils::EnvironmentItem> userEnvironmentChanges() const;
 
     void setExecutable(const QString &executable);
     QString rawExecutable() const;
@@ -122,8 +106,6 @@ private:
     RunMode m_runMode;
     bool m_userSetName;
     QString m_userName;
-    QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
-    BaseEnvironmentBase m_baseEnvironmentBase;
 };
 
 class CustomExecutableRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory

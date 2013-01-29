@@ -29,9 +29,7 @@
 #include "remotelinuxrunconfigurationwidget.h"
 
 #include "remotelinuxrunconfiguration.h"
-#include "remotelinuxenvironmentreader.h"
 
-#include <projectexplorer/environmentwidget.h>
 #include <utils/detailswidget.h>
 
 #include <QCoreApplication>
@@ -47,22 +45,16 @@
 
 namespace RemoteLinux {
 namespace Internal {
-namespace {
-const QString FetchEnvButtonText
-    = QCoreApplication::translate("RemoteLinux::RemoteLinuxRunConfigurationWidget",
-          "Fetch Device Environment");
-} // anonymous namespace
 
 class RemoteLinuxRunConfigurationWidgetPrivate
 {
 public:
     RemoteLinuxRunConfigurationWidgetPrivate(RemoteLinuxRunConfiguration *runConfig)
-        : runConfiguration(runConfig), deviceEnvReader(runConfiguration), ignoreChange(false)
+        : runConfiguration(runConfig), ignoreChange(false)
     {
     }
 
     RemoteLinuxRunConfiguration * const runConfiguration;
-    RemoteLinuxEnvironmentReader deviceEnvReader;
     bool ignoreChange;
 
     QWidget topWidget;
@@ -75,9 +67,6 @@ public:
     QCheckBox useAlternateCommandBox;
     QLineEdit alternateCommand;
     QLabel devConfLabel;
-    QPushButton fetchEnvButton;
-    QComboBox baseEnvironmentComboBox;
-    ProjectExplorer::EnvironmentWidget *environmentWidget;
     QFormLayout genericWidgetsLayout;
 };
 
@@ -96,7 +85,6 @@ RemoteLinuxRunConfigurationWidget::RemoteLinuxRunConfigurationWidget(RemoteLinux
     QVBoxLayout *mainLayout = new QVBoxLayout(&d->topWidget);
     mainLayout->setMargin(0);
     addGenericWidgets(mainLayout);
-    addEnvironmentWidgets(mainLayout);
 
     connect(d->runConfiguration, SIGNAL(enabledChanged()),
         SLOT(runConfigurationEnabledChange()));
@@ -181,43 +169,6 @@ void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayou
     handleUseAlternateCommandChanged();
 }
 
-void RemoteLinuxRunConfigurationWidget::addEnvironmentWidgets(QVBoxLayout *mainLayout)
-{
-    QWidget * const baseEnvironmentWidget = new QWidget;
-    QHBoxLayout * const baseEnvironmentLayout = new QHBoxLayout(baseEnvironmentWidget);
-    baseEnvironmentLayout->setMargin(0);
-    QLabel * const label = new QLabel(tr("Base environment for this run configuration:"), this);
-    baseEnvironmentLayout->addWidget(label);
-    d->baseEnvironmentComboBox.addItems(QStringList() << tr("Clean Environment")
-        << tr("System Environment"));
-    d->baseEnvironmentComboBox.setCurrentIndex(d->runConfiguration->baseEnvironmentType());
-    baseEnvironmentLayout->addWidget(&d->baseEnvironmentComboBox);
-
-    d->fetchEnvButton.setText(FetchEnvButtonText);
-    baseEnvironmentLayout->addWidget(&d->fetchEnvButton);
-    baseEnvironmentLayout->addStretch(10);
-
-    d->environmentWidget = new ProjectExplorer::EnvironmentWidget(this, baseEnvironmentWidget);
-    d->environmentWidget->setBaseEnvironment(d->deviceEnvReader.remoteEnvironment());
-    d->environmentWidget->setBaseEnvironmentText(d->runConfiguration->baseEnvironmentText());
-    d->environmentWidget->setUserChanges(d->runConfiguration->userEnvironmentChanges());
-    mainLayout->addWidget(d->environmentWidget);
-
-    connect(d->environmentWidget, SIGNAL(userChangesChanged()), SLOT(userChangesEdited()));
-    connect(&d->baseEnvironmentComboBox, SIGNAL(currentIndexChanged(int)),
-        this, SLOT(baseEnvironmentSelected(int)));
-    connect(d->runConfiguration, SIGNAL(baseEnvironmentChanged()),
-        this, SLOT(baseEnvironmentChanged()));
-    connect(d->runConfiguration, SIGNAL(remoteEnvironmentChanged()),
-        this, SLOT(remoteEnvironmentChanged()));
-    connect(d->runConfiguration,
-        SIGNAL(userEnvironmentChangesChanged(QList<Utils::EnvironmentItem>)),
-        SLOT(userEnvironmentChangesChanged(QList<Utils::EnvironmentItem>)));
-    connect(&d->fetchEnvButton, SIGNAL(clicked()), this, SLOT(fetchEnvironment()));
-    connect(&d->deviceEnvReader, SIGNAL(finished()), this, SLOT(fetchEnvironmentFinished()));
-    connect(&d->deviceEnvReader, SIGNAL(error(QString)), SLOT(fetchEnvironmentError(QString)));
-}
-
 void RemoteLinuxRunConfigurationWidget::argumentsEdited(const QString &text)
 {
     d->runConfiguration->setArguments(text);
@@ -260,72 +211,6 @@ void RemoteLinuxRunConfigurationWidget::handleAlternateCommandChanged()
 void RemoteLinuxRunConfigurationWidget::handleWorkingDirectoryChanged()
 {
     d->runConfiguration->setWorkingDirectory(d->workingDirLineEdit.text().trimmed());
-}
-
-void RemoteLinuxRunConfigurationWidget::fetchEnvironment()
-{
-    disconnect(&d->fetchEnvButton, SIGNAL(clicked()), this, SLOT(fetchEnvironment()));
-    connect(&d->fetchEnvButton, SIGNAL(clicked()), this, SLOT(stopFetchEnvironment()));
-    d->fetchEnvButton.setText(tr("Cancel Fetch Operation"));
-    d->deviceEnvReader.start(d->runConfiguration->environmentPreparationCommand());
-}
-
-void RemoteLinuxRunConfigurationWidget::stopFetchEnvironment()
-{
-    d->deviceEnvReader.stop();
-    fetchEnvironmentFinished();
-}
-
-void RemoteLinuxRunConfigurationWidget::fetchEnvironmentFinished()
-{
-    disconnect(&d->fetchEnvButton, SIGNAL(clicked()), this, SLOT(stopFetchEnvironment()));
-    connect(&d->fetchEnvButton, SIGNAL(clicked()), this, SLOT(fetchEnvironment()));
-    d->fetchEnvButton.setText(FetchEnvButtonText);
-    d->runConfiguration->setRemoteEnvironment(d->deviceEnvReader.remoteEnvironment());
-}
-
-void RemoteLinuxRunConfigurationWidget::fetchEnvironmentError(const QString &error)
-{
-    QMessageBox::warning(this, tr("Device Error"),
-        tr("Fetching environment failed: %1").arg(error));
-}
-
-void RemoteLinuxRunConfigurationWidget::userChangesEdited()
-{
-    d->ignoreChange = true;
-    d->runConfiguration->setUserEnvironmentChanges(d->environmentWidget->userChanges());
-    d->ignoreChange = false;
-}
-
-void RemoteLinuxRunConfigurationWidget::baseEnvironmentSelected(int index)
-{
-    d->ignoreChange = true;
-    d->runConfiguration->setBaseEnvironmentType(RemoteLinuxRunConfiguration::BaseEnvironmentType(index));
-    d->environmentWidget->setBaseEnvironment(d->runConfiguration->baseEnvironment());
-    d->environmentWidget->setBaseEnvironmentText(d->runConfiguration->baseEnvironmentText());
-    d->ignoreChange = false;
-}
-
-void RemoteLinuxRunConfigurationWidget::baseEnvironmentChanged()
-{
-    if (d->ignoreChange)
-        return;
-
-    d->baseEnvironmentComboBox.setCurrentIndex(d->runConfiguration->baseEnvironmentType());
-    d->environmentWidget->setBaseEnvironment(d->runConfiguration->baseEnvironment());
-    d->environmentWidget->setBaseEnvironmentText(d->runConfiguration->baseEnvironmentText());
-}
-
-void RemoteLinuxRunConfigurationWidget::remoteEnvironmentChanged()
-{
-    d->environmentWidget->setBaseEnvironment(d->runConfiguration->remoteEnvironment());
-}
-
-void RemoteLinuxRunConfigurationWidget::userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &userChanges)
-{
-    if (d->ignoreChange)
-        return;
-    d->environmentWidget->setUserChanges(userChanges);
 }
 
 } // namespace RemoteLinux

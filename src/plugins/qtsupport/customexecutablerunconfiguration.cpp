@@ -60,23 +60,17 @@ const char EXECUTABLE_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.
 const char ARGUMENTS_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.Arguments";
 const char WORKING_DIRECTORY_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory";
 const char USE_TERMINAL_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal";
-const char USER_ENVIRONMENT_CHANGES_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.UserEnvironmentChanges";
-const char BASE_ENVIRONMENT_BASE_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.BaseEnvironmentBase";
 }
 
 void CustomExecutableRunConfiguration::ctor()
 {
     setDefaultDisplayName(defaultDisplayName());
-
-    connect(target(), SIGNAL(environmentChanged()),
-            this, SIGNAL(baseEnvironmentChanged()));
 }
 
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(ProjectExplorer::Target *parent) :
     ProjectExplorer::LocalApplicationRunConfiguration(parent, Core::Id(CUSTOM_EXECUTABLE_ID)),
     m_workingDirectory(QLatin1String(ProjectExplorer::Constants::DEFAULT_WORKING_DIR)),
-    m_runMode(Gui),
-    m_baseEnvironmentBase(CustomExecutableRunConfiguration::BuildEnvironmentBase)
+    m_runMode(Gui)
 {
     ctor();
 }
@@ -87,9 +81,7 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(ProjectExplor
     m_executable(source->m_executable),
     m_workingDirectory(source->m_workingDirectory),
     m_cmdArguments(source->m_cmdArguments),
-    m_runMode(source->m_runMode),
-    m_userEnvironmentChanges(source->m_userEnvironmentChanges),
-    m_baseEnvironmentBase(source->m_baseEnvironmentBase)
+    m_runMode(source->m_runMode)
 {
     ctor();
 }
@@ -243,67 +235,6 @@ QString CustomExecutableRunConfiguration::rawCommandLineArguments() const
     return m_cmdArguments;
 }
 
-QString CustomExecutableRunConfiguration::baseEnvironmentText() const
-{
-    if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::CleanEnvironmentBase) {
-        return tr("Clean Environment");
-    } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::SystemEnvironmentBase) {
-        return tr("System Environment");
-    } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::BuildEnvironmentBase) {
-        return tr("Build Environment");
-    }
-    return QString();
-}
-
-Utils::Environment CustomExecutableRunConfiguration::baseEnvironment() const
-{
-    Utils::Environment env;
-    if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::CleanEnvironmentBase) {
-        // Nothing
-    } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::SystemEnvironmentBase) {
-        env = Utils::Environment::systemEnvironment();
-    } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::BuildEnvironmentBase) {
-        if (activeBuildConfiguration())
-            env = activeBuildConfiguration()->environment();
-        else
-            env = Utils::Environment::systemEnvironment(); // fall back
-    }
-    return env;
-}
-
-void CustomExecutableRunConfiguration::setBaseEnvironmentBase(BaseEnvironmentBase env)
-{
-    if (m_baseEnvironmentBase == env)
-        return;
-    m_baseEnvironmentBase = env;
-    emit baseEnvironmentChanged();
-}
-
-CustomExecutableRunConfiguration::BaseEnvironmentBase CustomExecutableRunConfiguration::baseEnvironmentBase() const
-{
-    return m_baseEnvironmentBase;
-}
-
-Utils::Environment CustomExecutableRunConfiguration::environment() const
-{
-    Utils::Environment env = baseEnvironment();
-    env.modify(userEnvironmentChanges());
-    return env;
-}
-
-QList<Utils::EnvironmentItem> CustomExecutableRunConfiguration::userEnvironmentChanges() const
-{
-    return m_userEnvironmentChanges;
-}
-
-void CustomExecutableRunConfiguration::setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff)
-{
-    if (m_userEnvironmentChanges != diff) {
-        m_userEnvironmentChanges = diff;
-        emit userEnvironmentChangesChanged(diff);
-    }
-}
-
 QString CustomExecutableRunConfiguration::defaultDisplayName() const
 {
     if (m_executable.isEmpty())
@@ -319,8 +250,6 @@ QVariantMap CustomExecutableRunConfiguration::toMap() const
     map.insert(QLatin1String(ARGUMENTS_KEY), m_cmdArguments);
     map.insert(QLatin1String(WORKING_DIRECTORY_KEY), m_workingDirectory);
     map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == Console);
-    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_userEnvironmentChanges));
-    map.insert(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), static_cast<int>(m_baseEnvironmentBase));
     return map;
 }
 
@@ -330,8 +259,6 @@ bool CustomExecutableRunConfiguration::fromMap(const QVariantMap &map)
     m_cmdArguments = map.value(QLatin1String(ARGUMENTS_KEY)).toString();
     m_workingDirectory = map.value(QLatin1String(WORKING_DIRECTORY_KEY)).toString();
     m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY)).toBool() ? Console : Gui;
-    m_userEnvironmentChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
-    m_baseEnvironmentBase = static_cast<BaseEnvironmentBase>(map.value(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), static_cast<int>(CustomExecutableRunConfiguration::BuildEnvironmentBase)).toInt());
 
     setDefaultDisplayName(defaultDisplayName());
     return LocalApplicationRunConfiguration::fromMap(map);

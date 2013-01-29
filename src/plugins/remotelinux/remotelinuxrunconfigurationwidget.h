@@ -38,8 +38,6 @@ class QLabel;
 class QVBoxLayout;
 QT_END_NAMESPACE
 
-namespace Utils { class EnvironmentItem; }
-
 namespace RemoteLinux {
 class RemoteLinuxRunConfiguration;
 
@@ -63,15 +61,6 @@ public:
 private slots:
     void argumentsEdited(const QString &args);
     void updateTargetInformation();
-    void fetchEnvironment();
-    void fetchEnvironmentFinished();
-    void fetchEnvironmentError(const QString &error);
-    void stopFetchEnvironment();
-    void userChangesEdited();
-    void baseEnvironmentSelected(int index);
-    void baseEnvironmentChanged();
-    void remoteEnvironmentChanged();
-    void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &userChanges);
     void handleDeploySpecsChanged();
     void handleUseAlternateCommandChanged();
     void handleAlternateCommandChanged();
@@ -79,7 +68,6 @@ private slots:
 
 private:
     void addGenericWidgets(QVBoxLayout *mainLayout);
-    void addEnvironmentWidgets(QVBoxLayout *mainLayout);
     void setLabelText(QLabel &label, const QString &regularText, const QString &errorText);
 
     Internal::RemoteLinuxRunConfigurationWidgetPrivate * const d;

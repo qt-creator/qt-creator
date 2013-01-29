@@ -45,7 +45,6 @@ class DetailsWidget;
 class PathChooser;
 }
 
-namespace ProjectExplorer { class EnvironmentWidget; }
 namespace QtSupport {
 class CustomExecutableRunConfiguration;
 
@@ -65,11 +64,6 @@ private slots:
     void argumentsEdited(const QString &arguments);
     void workingDirectoryEdited();
     void termToggled(bool);
-
-    void userChangesChanged();
-    void baseEnvironmentChanged();
-    void userEnvironmentChangesChanged();
-    void baseEnvironmentSelected(int index);
     void environmentWasChanged();
 
 private:
@@ -79,8 +73,6 @@ private:
     QLineEdit *m_commandLineArgumentsLineEdit;
     Utils::PathChooser *m_workingDirectory;
     QCheckBox *m_useTerminalCheck;
-    ProjectExplorer::EnvironmentWidget *m_environmentWidget;
-    QComboBox *m_baseEnvironmentComboBox;
     Utils::DetailsWidget *m_detailsContainer;
 };
 

@@ -42,10 +42,6 @@ class PathChooser;
 class DetailsWidget;
 }
 
-namespace ProjectExplorer {
-class EnvironmentWidget;
-}
-
 namespace CMakeProjectManager {
 namespace Internal {
 
@@ -67,7 +63,6 @@ public:
     void setRunMode(RunMode runMode);
     QString workingDirectory() const;
     QString commandLineArguments() const;
-    Utils::Environment environment() const;
     QWidget *createConfigurationWidget();
 
     void setExecutable(const QString &executable);
@@ -86,8 +81,6 @@ public:
     QString disabledReason() const;
 
 signals:
-    void baseEnvironmentChanged();
-    void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &diff);
     void baseWorkingDirectoryChanged(const QString&);
 
 private slots:
@@ -103,25 +96,12 @@ private:
     QString baseWorkingDirectory() const;
     void ctor();
 
-    enum BaseEnvironmentBase { CleanEnvironmentBase = 0,
-                               SystemEnvironmentBase = 1,
-                               BuildEnvironmentBase = 2};
-    void setBaseEnvironmentBase(BaseEnvironmentBase env);
-    BaseEnvironmentBase baseEnvironmentBase() const;
-    Utils::Environment baseEnvironment() const;
-    QString baseEnvironmentText() const;
-
-    void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
-    QList<Utils::EnvironmentItem> userEnvironmentChanges() const;
-
     RunMode m_runMode;
     QString m_buildTarget;
     QString m_workingDirectory;
     QString m_userWorkingDirectory;
     QString m_title;
     QString m_arguments;
-    QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
-    BaseEnvironmentBase m_baseEnvironmentBase;
     bool m_enabled;
 };
 
@@ -133,15 +113,11 @@ public:
 
 private slots:
     void setArguments(const QString &args);
-    void baseEnvironmentChanged();
-    void userEnvironmentChangesChanged();
-    void userChangesChanged();
     void setWorkingDirectory();
     void resetWorkingDirectory();
     void runInTerminalToggled(bool toggled);
     void environmentWasChanged();
 
-    void baseEnvironmentComboBoxChanged(int index);
     void workingDirectoryChanged(const QString &workingDirectory);
 
 private:
@@ -149,8 +125,6 @@ private:
     bool m_ignoreChange;
     CMakeRunConfiguration *m_cmakeRunConfiguration;
     Utils::PathChooser *m_workingDirectoryEdit;
-    QComboBox *m_baseEnvironmentComboBox;
-    ProjectExplorer::EnvironmentWidget *m_environmentWidget;
     Utils::DetailsWidget *m_detailsContainer;
 };
 

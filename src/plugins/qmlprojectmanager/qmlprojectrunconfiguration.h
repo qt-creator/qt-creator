@@ -33,7 +33,6 @@
 #include "qmlprojectmanager_global.h"
 
 #include <projectexplorer/runconfiguration.h>
-#include <utils/environment.h>
 
 #include <QPointer>
 
@@ -41,11 +40,6 @@ QT_FORWARD_DECLARE_CLASS(QStringListModel)
 
 namespace Core {
     class IEditor;
-}
-
-namespace Utils {
-    class Environment;
-    class EnvironmentItem;
 }
 
 namespace QtSupport { class BaseQtVersion; }
@@ -84,8 +78,6 @@ public:
 
     QString mainScript() const;
 
-    Utils::Environment environment() const;
-
     // RunConfiguration
     bool isEnabled() const;
     QString disabledReason() const;
@@ -111,10 +103,6 @@ private:
 
     static QString canonicalCapsPath(const QString &filePath);
 
-    Utils::Environment baseEnvironment() const;
-    void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
-    QList<Utils::EnvironmentItem> userEnvironmentChanges() const;
-
     // absolute path to current file (if being used)
     QString m_currentFileFilename;
     // absolute path to selected main script (if being used)
@@ -127,8 +115,6 @@ private:
     QPointer<Internal::QmlProjectRunConfigurationWidget> m_configurationWidget;
 
     bool m_isEnabled;
-
-    QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
 };
 
 } // namespace QmlProjectManager

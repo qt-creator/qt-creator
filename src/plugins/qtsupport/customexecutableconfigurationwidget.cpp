@@ -33,7 +33,6 @@
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/environmentwidget.h>
 #include <utils/detailswidget.h>
 #include <utils/pathchooser.h>
 
@@ -83,36 +82,6 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     m_detailsContainer->setWidget(detailsWidget);
     detailsWidget->setLayout(layout);
 
-    QLabel *environmentLabel = new QLabel(this);
-    environmentLabel->setText(tr("Run Environment"));
-    QFont f = environmentLabel->font();
-    f.setBold(true);
-    f.setPointSizeF(f.pointSizeF() *1.2);
-    environmentLabel->setFont(f);
-    vbox->addWidget(environmentLabel);
-
-    QWidget *baseEnvironmentWidget = new QWidget;
-    QHBoxLayout *baseEnvironmentLayout = new QHBoxLayout(baseEnvironmentWidget);
-    baseEnvironmentLayout->setMargin(0);
-    QLabel *label = new QLabel(tr("Base environment for this run configuration:"), this);
-    baseEnvironmentLayout->addWidget(label);
-    m_baseEnvironmentComboBox = new QComboBox(this);
-    m_baseEnvironmentComboBox->addItems(QStringList()
-                                        << tr("Clean Environment")
-                                        << tr("System Environment")
-                                        << tr("Build Environment"));
-    m_baseEnvironmentComboBox->setCurrentIndex(rc->baseEnvironmentBase());
-    connect(m_baseEnvironmentComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(baseEnvironmentSelected(int)));
-    baseEnvironmentLayout->addWidget(m_baseEnvironmentComboBox);
-    baseEnvironmentLayout->addStretch(10);
-
-    m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this, baseEnvironmentWidget);
-    m_environmentWidget->setBaseEnvironment(rc->baseEnvironment());
-    m_environmentWidget->setBaseEnvironmentText(rc->baseEnvironmentText());
-    m_environmentWidget->setUserChanges(rc->userEnvironmentChanges());
-    vbox->addWidget(m_environmentWidget);
-
     changed();
 
     connect(m_executableChooser, SIGNAL(changed(QString)),
@@ -131,29 +100,6 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     }
 
     connect(m_runConfiguration, SIGNAL(changed()), this, SLOT(changed()));
-
-    connect(m_environmentWidget, SIGNAL(userChangesChanged()),
-            this, SLOT(userChangesChanged()));
-
-    connect(m_runConfiguration, SIGNAL(baseEnvironmentChanged()),
-            this, SLOT(baseEnvironmentChanged()));
-    connect(m_runConfiguration, SIGNAL(userEnvironmentChangesChanged(QList<Utils::EnvironmentItem>)),
-            this, SLOT(userEnvironmentChangesChanged()));
-}
-
-void CustomExecutableConfigurationWidget::userChangesChanged()
-{
-    m_runConfiguration->setUserEnvironmentChanges(m_environmentWidget->userChanges());
-}
-
-void CustomExecutableConfigurationWidget::baseEnvironmentSelected(int index)
-{
-    m_ignoreChange = true;
-    m_runConfiguration->setBaseEnvironmentBase(CustomExecutableRunConfiguration::BaseEnvironmentBase(index));
-
-    m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
-    m_environmentWidget->setBaseEnvironmentText(m_runConfiguration->baseEnvironmentText());
-    m_ignoreChange = false;
 }
 
 void CustomExecutableConfigurationWidget::environmentWasChanged()
@@ -164,24 +110,6 @@ void CustomExecutableConfigurationWidget::environmentWasChanged()
     m_workingDirectory->setEnvironment(aspect->environment());
     m_executableChooser->setEnvironment(aspect->environment());
 }
-
-void CustomExecutableConfigurationWidget::baseEnvironmentChanged()
-{
-    if (m_ignoreChange)
-        return;
-
-    int index = CustomExecutableRunConfiguration::BaseEnvironmentBase(
-            m_runConfiguration->baseEnvironmentBase());
-    m_baseEnvironmentComboBox->setCurrentIndex(index);
-    m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
-    m_environmentWidget->setBaseEnvironmentText(m_runConfiguration->baseEnvironmentText());
-}
-
-void CustomExecutableConfigurationWidget::userEnvironmentChangesChanged()
-{
-    m_environmentWidget->setUserChanges(m_runConfiguration->userEnvironmentChanges());
-}
-
 
 void CustomExecutableConfigurationWidget::executableEdited()
 {

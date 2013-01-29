@@ -33,7 +33,6 @@
 #include "remotelinux_export.h"
 
 #include <projectexplorer/runconfiguration.h>
-#include <utils/environment.h>
 
 namespace Utils { class PortList; }
 
@@ -54,11 +53,6 @@ class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public ProjectExplorer::R
     friend class RemoteLinuxRunConfigurationWidget;
 
 public:
-    enum BaseEnvironmentType {
-        CleanBaseEnvironment = 0,
-        RemoteBaseEnvironment = 1
-    };
-
     enum DebuggingType { DebugCppOnly, DebugQmlOnly, DebugCppAndQml };
 
     RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent, const Core::Id id,
@@ -87,13 +81,6 @@ public:
 
     QVariantMap toMap() const;
 
-    QString baseEnvironmentText() const;
-    BaseEnvironmentType baseEnvironmentType() const;
-    Utils::Environment environment() const;
-    Utils::Environment baseEnvironment() const;
-    QList<Utils::EnvironmentItem> userEnvironmentChanges() const;
-    Utils::Environment remoteEnvironment() const;
-
     int portsUsedByDebuggers() const;
 
     QString projectFilePath() const;
@@ -103,9 +90,6 @@ public:
 signals:
     void deploySpecsChanged();
     void targetInformationChanged() const;
-    void baseEnvironmentChanged();
-    void remoteEnvironmentChanged();
-    void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &diff);
 
 protected:
     RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent,
@@ -113,7 +97,6 @@ protected:
     bool fromMap(const QVariantMap &map);
     QString defaultDisplayName();
     void setDisabledReason(const QString &reason) const;
-    QString userEnvironmentChangesAsString() const;
 
 protected slots:
     void updateEnabledState() { emit enabledChanged(); }
@@ -123,10 +106,6 @@ private slots:
 
 private:
     void init();
-
-    void setBaseEnvironmentType(BaseEnvironmentType env);
-    void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
-    void setRemoteEnvironment(const Utils::Environment &environment);
 
     Internal::RemoteLinuxRunConfigurationPrivate * const d;
 };

@@ -32,11 +32,9 @@
 #include "qmlproject.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 #include <utils/detailswidget.h>
-#include <utils/environment.h>
 
 #include <QLineEdit>
 #include <QComboBox>
@@ -84,33 +82,6 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
     form->addRow(tr("Main QML file:"), m_fileListCombo);
 
     layout->addWidget(detailsWidget);
-
-    //
-    // Environment
-    //
-
-    QLabel *environmentLabel = new QLabel(this);
-    environmentLabel->setText(tr("Run Environment"));
-    QFont f = environmentLabel->font();
-    f.setBold(true);
-    f.setPointSizeF(f.pointSizeF() *1.2);
-    environmentLabel->setFont(f);
-
-    layout->addWidget(environmentLabel);
-
-    QWidget *baseEnvironmentWidget = new QWidget;
-    QHBoxLayout *baseEnvironmentLayout = new QHBoxLayout(baseEnvironmentWidget);
-    baseEnvironmentLayout->setMargin(0);
-    m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this, baseEnvironmentWidget);
-    m_environmentWidget->setBaseEnvironment(rc->baseEnvironment());
-    m_environmentWidget->setBaseEnvironmentText(tr("System Environment"));
-    m_environmentWidget->setUserChanges(rc->userEnvironmentChanges());
-
-    connect(m_environmentWidget, SIGNAL(userChangesChanged()),
-            this, SLOT(userChangesChanged()));
-
-
-    layout->addWidget(m_environmentWidget);
 
     updateFileComboBox();
 }
@@ -186,16 +157,6 @@ void QmlProjectRunConfigurationWidget::onViewerArgsChanged()
 {
     if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(sender()))
         m_runConfiguration->m_qmlViewerArgs = lineEdit->text();
-}
-
-void QmlProjectRunConfigurationWidget::userChangesChanged()
-{
-    m_runConfiguration->setUserEnvironmentChanges(m_environmentWidget->userChanges());
-}
-
-void QmlProjectRunConfigurationWidget::userEnvironmentChangesChanged()
-{
-    m_environmentWidget->setUserChanges(m_runConfiguration->userEnvironmentChanges());
 }
 
 } // namespace Internal

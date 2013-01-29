@@ -35,12 +35,6 @@
 QT_FORWARD_DECLARE_CLASS(QComboBox)
 QT_FORWARD_DECLARE_CLASS(QStandardItemModel)
 
-namespace ProjectExplorer {
-
-class EnvironmentWidget;
-
-} // namespace Qt4ProjectManager
-
 namespace QmlProjectManager {
 
 class QmlProjectRunConfiguration;
@@ -56,21 +50,17 @@ public:
     explicit QmlProjectRunConfigurationWidget(QmlProjectRunConfiguration *rc);
 
 public slots:
-    void userEnvironmentChangesChanged();
     void updateFileComboBox();
 
 private slots:
     void setMainScript(int index);
     void onViewerArgsChanged();
-    void userChangesChanged();
 
 private:
     QmlProjectRunConfiguration *m_runConfiguration;
 
     QComboBox *m_fileListCombo;
     QStandardItemModel *m_fileListModel;
-
-    ProjectExplorer::EnvironmentWidget *m_environmentWidget;
 };
 
 } // namespace Internal
