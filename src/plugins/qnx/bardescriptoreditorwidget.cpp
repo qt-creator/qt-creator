@@ -226,15 +226,15 @@ void BarDescriptorEditorWidget::clearAssetsPage()
 
 void BarDescriptorEditorWidget::initSourcePage()
 {
-    connect(m_ui->xmlSourceView, SIGNAL(changed()), this, SLOT(setDirty()));
     m_ui->xmlSourceView->configure(QLatin1String(Constants::QNX_BAR_DESCRIPTOR_MIME_TYPE));
+    connect(m_ui->xmlSourceView, SIGNAL(textChanged()), this, SLOT(setDirty()));
 }
 
 void BarDescriptorEditorWidget::clearSourcePage()
 {
-    disconnect(m_ui->xmlSourceView, SIGNAL(changed()), this, SLOT(setDirty()));
+    disconnect(m_ui->xmlSourceView, SIGNAL(textChanged()), this, SLOT(setDirty()));
     m_ui->xmlSourceView->clear();
-    connect(m_ui->xmlSourceView, SIGNAL(changed()), this, SLOT(setDirty()));
+    connect(m_ui->xmlSourceView, SIGNAL(textChanged()), this, SLOT(setDirty()));
 }
 
 Core::IEditor *BarDescriptorEditorWidget::editor() const
@@ -591,9 +591,9 @@ QString BarDescriptorEditorWidget::xmlSource() const
 
 void BarDescriptorEditorWidget::setXmlSource(const QString &xmlSource)
 {
-    disconnect(m_ui->xmlSourceView, SIGNAL(changed()), this, SLOT(setDirty()));
+    disconnect(m_ui->xmlSourceView, SIGNAL(textChanged()), this, SLOT(setDirty()));
     m_ui->xmlSourceView->setPlainText(xmlSource);
-    connect(m_ui->xmlSourceView, SIGNAL(changed()), this, SLOT(setDirty()));
+    connect(m_ui->xmlSourceView, SIGNAL(textChanged()), this, SLOT(setDirty()));
 }
 
 bool BarDescriptorEditorWidget::isDirty() const
