@@ -235,13 +235,8 @@ protected:
      * source and version control. */
     virtual QString findDiffFile(const QString &f) const;
 
-    virtual bool canApplyDiffChunk(const DiffChunk &dc) const;
-    // Revert a patch chunk. Default implementation uses patch.exe
-    virtual bool applyDiffChunk(const DiffChunk &dc, bool revert = false) const;
-
     virtual void addChangeActions(QMenu *menu, const QString &change);
 
-private:
     // Implement to return a set of change identifiers in
     // annotation mode
     virtual QSet<QString> annotationChanges() const = 0;
@@ -263,6 +258,10 @@ private:
     virtual bool isValidRevision(const QString &revision) const;
 
 private:
+    bool canApplyDiffChunk(const DiffChunk &dc) const;
+    // Revert a patch chunk. Default implementation uses patch.exe
+    bool applyDiffChunk(const DiffChunk &dc, bool revert = false) const;
+
     // Indicates if the editor has diff contents. If true, an appropriate
     // highlighter is used and double-click inside a diff chunk jumps to
     // the relevant file and line
