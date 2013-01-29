@@ -906,6 +906,8 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
     TypedefsResolver typedefsResolver(_context);
 
     foreach (const LookupItem &r, baseResults) {
+        if (!r.type().type())
+            continue;
         FullySpecifiedType ty = r.type().simplified();
         FullySpecifiedType originalType = ty;
         Scope *scope = r.scope();

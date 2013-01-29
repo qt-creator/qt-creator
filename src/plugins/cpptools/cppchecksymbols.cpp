@@ -1211,7 +1211,7 @@ bool CheckSymbols::maybeAddField(const QList<LookupItem> &candidates, NameAST *a
             return false;
         else if (! (c->enclosingScope() && c->enclosingScope()->isClass()))
             return false; // shadowed
-        else if (c->isTypedef() || c->type()->isFunctionType())
+        else if (c->isTypedef() || (c->type() && c->type()->isFunctionType()))
             return false; // shadowed
 
         unsigned line, column;
