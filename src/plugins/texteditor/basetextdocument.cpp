@@ -38,15 +38,16 @@
 #include "syntaxhighlighter.h"
 #include "texteditorconstants.h"
 
-#include <QStringList>
-#include <QFile>
-#include <QDir>
-#include <QFileInfo>
-#include <QTextStream>
-#include <QTextCodec>
-#include <QFutureInterface>
-#include <QSyntaxHighlighter>
 #include <QApplication>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QFutureInterface>
+#include <QScrollBar>
+#include <QStringList>
+#include <QSyntaxHighlighter>
+#include <QTextCodec>
+#include <QTextStream>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -210,9 +211,12 @@ bool BaseTextDocument::save(QString *errorString, const QString &fileName, bool 
     BaseTextEditorWidget *editorWidget = 0;
     int savedPosition = 0;
     int savedAnchor = 0;
+    int savedVScrollBarValue = 0;
+    int savedHScrollBarValue = 0;
     int undos = d->m_document->availableUndoSteps();
 
-    // When saving the current editor, make sure to maintain the cursor position for undo
+    // When saving the current editor, make sure to maintain the cursor and scroll bar
+    // positions for undo
     Core::IEditor *currentEditor = Core::EditorManager::currentEditor();
     if (BaseTextEditor *editable = qobject_cast<BaseTextEditor*>(currentEditor)) {
         if (editable->document() == this) {
@@ -220,6 +224,8 @@ bool BaseTextDocument::save(QString *errorString, const QString &fileName, bool 
             QTextCursor cur = editorWidget->textCursor();
             savedPosition = cur.position();
             savedAnchor = cur.anchor();
+            savedVScrollBarValue = editorWidget->verticalScrollBar()->value();
+            savedHScrollBarValue = editorWidget->horizontalScrollBar()->value();
             cursor.setPosition(cur.position());
         }
     }
@@ -254,13 +260,15 @@ bool BaseTextDocument::save(QString *errorString, const QString &fileName, bool 
 
     const bool ok = write(fName, saveFormat, d->m_document->toPlainText(), errorString);
 
-    // restore text cursor
+    // restore text cursor and scroll bar positions
     if (autoSave && undos < d->m_document->availableUndoSteps()) {
         d->m_document->undo();
         if (editorWidget) {
             QTextCursor cur = editorWidget->textCursor();
             cur.setPosition(savedAnchor);
             cur.setPosition(savedPosition, QTextCursor::KeepAnchor);
+            editorWidget->verticalScrollBar()->setValue(savedVScrollBarValue);
+            editorWidget->horizontalScrollBar()->setValue(savedHScrollBarValue);
             editorWidget->setTextCursor(cur);
         }
     }
