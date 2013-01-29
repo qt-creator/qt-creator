@@ -754,14 +754,14 @@ void PropertyEditor::resetView()
         hierarchy << m_selectedNode.metaInfo().superClasses();
 
         foreach (const NodeMetaInfo &info, hierarchy) {
-            if (QFileInfo(qmlSpecificsFile.toLocalFile()).exists())
+            if (QFileInfo(fileFromUrl(qmlSpecificsFile)).exists())
                 break;
             qmlSpecificsFile = fileToUrl(locateQmlFile(info, fixTypeNameForPanes(info.typeName()) + "Specifics.qml"));
             diffClassName = info.typeName();
         }
     }
 
-    if (!QFileInfo(qmlSpecificsFile.toLocalFile()).exists())
+    if (!QFileInfo(fileFromUrl(qmlSpecificsFile)).exists())
         diffClassName = specificsClassName;
 
     QString specificQmlData;
@@ -1048,6 +1048,16 @@ QUrl PropertyEditor::fileToUrl(const QString &filePath) const {
     }
 
     return fileUrl;
+}
+
+QString PropertyEditor::fileFromUrl(const QUrl &url) const
+{
+    if (url.scheme() == QLatin1String("qrc")) {
+        const QString &path = url.path();
+        return QLatin1String(":") + path;
+    }
+
+    return url.toLocalFile();
 }
 
 QUrl PropertyEditor::qmlForNode(const ModelNode &modelNode, QString &className) const
