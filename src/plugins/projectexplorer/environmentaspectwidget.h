@@ -27,11 +27,12 @@
 **
 ****************************************************************************/
 
-#ifndef ENVIRONMENTASPECT_H
-#define ENVIRONMENTASPECT_H
+#ifndef ENVIRONMENTASPECTWIDGET_H
+#define ENVIRONMENTASPECTWIDGET_H
 
 #include "projectexplorer_export.h"
 
+#include "environmentaspect.h"
 #include "runconfiguration.h"
 
 #include <utils/environment.h>
@@ -39,49 +40,44 @@
 #include <QList>
 #include <QVariantMap>
 
+QT_BEGIN_NAMESPACE
+class QComboBox;
+QT_END_NAMESPACE
+
+namespace Utils { class DetailsWidget; }
+
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT EnvironmentAspect : public QObject, public IRunConfigurationAspect
+class EnvironmentWidget;
+
+class PROJECTEXPLORER_EXPORT EnvironmentAspectWidget : public RunConfigWidget
 {
     Q_OBJECT
 
 public:
-    // from IRunConfigurationAspect:
-    QVariantMap toMap() const;
+    EnvironmentAspectWidget(EnvironmentAspect *aspect, QWidget *additionalWidget = 0);
+
     QString displayName() const;
+    virtual EnvironmentAspect *aspect() const;
 
-    RunConfigWidget *createConfigurationWidget();
+    QWidget *additionalWidget() const;
 
-    virtual RunConfiguration *runConfiguration() const { return m_runConfiguration; }
-
-    virtual QList<int> possibleBaseEnvironments() const = 0;
-    virtual QString baseEnvironmentDisplayName(int base) const = 0;
-
-    int baseEnvironmentBase() const;
-    void setBaseEnvironmentBase(int base);
-
-    QList<Utils::EnvironmentItem> userEnvironmentChanges() const { return m_changes; }
-    void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
-
-    virtual Utils::Environment baseEnvironment() const = 0;
-    virtual Utils::Environment environment() const;
-
-signals:
-    void baseEnvironmentChanged();
-    void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &diff);
-    void environmentChanged();
-
-protected:
-    EnvironmentAspect(const EnvironmentAspect *other, RunConfiguration *parent);
-    EnvironmentAspect(RunConfiguration *rc);
-    void fromMap(const QVariantMap &map);
+private slots:
+    void baseEnvironmentSelected(int idx);
+    void changeBaseEnvironment();
+    void userChangesEdited();
+    void changeUserChanges(QList<Utils::EnvironmentItem> changes);
 
 private:
-    mutable int m_base;
-    QList<Utils::EnvironmentItem> m_changes;
-    RunConfiguration *m_runConfiguration;
+    EnvironmentAspect *m_aspect;
+    bool m_ignoreChange;
+
+    QWidget *m_additionalWidget;
+    QComboBox *m_baseEnvironmentComboBox;
+    Utils::DetailsWidget *m_detailsContainer;
+    ProjectExplorer::EnvironmentWidget *m_environmentWidget;
 };
 
 } // namespace ProjectExplorer
 
-#endif // ENVIRONMENTASPECT_H
+#endif // ENVIRONMENTASPECTWIDGET_H

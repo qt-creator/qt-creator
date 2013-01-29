@@ -29,6 +29,7 @@
 
 #include "environmentaspect.h"
 
+#include "environmentaspectwidget.h"
 #include "target.h"
 
 #include <utils/qtcassert.h>
@@ -66,6 +67,11 @@ QVariantMap EnvironmentAspect::toMap() const
 QString EnvironmentAspect::displayName() const
 {
     return tr("Run Environment");
+}
+
+RunConfigWidget *EnvironmentAspect::createConfigurationWidget()
+{
+    return new EnvironmentAspectWidget(this);
 }
 
 int EnvironmentAspect::baseEnvironmentBase() const

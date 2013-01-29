@@ -8,6 +8,7 @@ HEADERS += projectexplorer.h \
     ansifilterparser.h \
     clangparser.h \
     environmentaspect.h \
+    environmentaspectwidget.h \
     gcctoolchain.h \
     localapplicationrunconfiguration.h \
     projectexplorer_export.h \
@@ -134,6 +135,7 @@ SOURCES += projectexplorer.cpp \
     ansifilterparser.cpp \
     clangparser.cpp \
     environmentaspect.cpp \
+    environmentaspectwidget.cpp \
     gcctoolchain.cpp \
     localapplicationrunconfiguration.cpp \
     projectwindow.cpp \
