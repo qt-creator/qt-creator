@@ -1,0 +1,129 @@
+
+Qt Creator version 2.6.2 is a bugfix release.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline v2.6.1..v2.6.2
+
+General
+   * Fixed Qt version in VersionDialog
+   * Improved kits set up (QTCREATORBUG-8576, QTCREATORBUG-8081)
+   * Fixed editing of kits sysroot and mkspec (QTCREATORBUG-8586)
+   * Fixed excessive emission of change signals from KitManager
+   * Fixed display of Visual Studio compiler installations
+     (QTCREATORBUG-8487)
+   * Fixed integrity of device settings when closing option page
+   * Fixed update of examples when default kit changes
+
+Editing
+   * Fixed crash when closing some editors while tooltip is active
+     (QTCREATORBUG-8630)
+   * Fixed warning about empty file in memory editor
+
+Managing Projects
+   * Added check if file is readable when determining its ABI
+   * Fixed warning about running processes with empty environment
+
+QMake Projects
+   * Fixed display of directories in warnings (QTCREATORBUG-8585)
+   * Added QMAKE_INCDIR to headers search paths
+
+CMake Projects
+
+Debugging
+   * Sped up disassembly retrieval
+   * Updated documentation of command-line arguments
+   * Fixed visibility of Debugging Helper Dialog (QTCREATORBUG-8440)
+
+Analyzer
+
+C++ Support
+   * Fixed invalid common prefix calculation which led to freezes
+     (QTCREATORBUG-8472, QTCREATORBUG-8532)
+
+QML/JS Support
+   * Fixed Qt version in qmlobserver
+
+GLSL Support
+
+Help
+
+Qt Designer
+
+Qt Quick Designer
+   * Fixed some parts of the tutorial
+
+Version control plugins
+
+Git
+
+SVN
+
+ClearCase
+    * Fixed focus on Check Out dialog
+
+FakeVim
+
+Platform Specific
+
+Mac
+
+Linux
+
+Windows
+
+Remote Linux Support
+    * Documented deployment settings for generic Linux devices
+
+QNX
+    * Fixed log output
+    * Fixed update of path chooser model when browsing finishes
+    * Fixed saving of changes to BlackBerry deploy information
+    * Fixed QML_IMPORT_PATH setting in shipped bar-descriptor.xml files
+
+Android
+    * Fixed crash when pressing stop button
+
+Madde
+
+Pastebin:
+    * Fixed pasting of .cpp files
+
+Testing
+    * Enabled squish tests with MSVC again
+    * Fixed some squish tests
+    * Added test for QML outline
+
+Tools
+    * Fixed addQt test in SDKTool
+    * Fixed creation of group/world readable files in SDKTool
+      (QTCREATORBUG-8458)
+    * Fixed leak in zeroconf
+
+Packaging
+    * Use x86 instead of i386 for file names
+
+
+
+Credits for these changes go to:
+
+Aurindam Jana
+BogDan Vatra
+Christian Stenger
+Daniel Teske
+David Schulz
+Eike Ziller
+Erik Verbruggen
+Friedemann Kleint
+André Pönitz
+Leena Miettinen
+Mehdi Fekari
+Montel Laurent
+Orgad Shaneh
+Robert Loehning
+Sergey Belyashov
+Tobias Hunger
+Tobias Nätterlund
