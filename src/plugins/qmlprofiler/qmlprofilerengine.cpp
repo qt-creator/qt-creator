@@ -39,6 +39,7 @@
 #include <coreplugin/helpmanager.h>
 #include <qmlprojectmanager/qmlprojectrunconfiguration.h>
 #include <qmlprojectmanager/qmlprojectplugin.h>
+#include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/localapplicationruncontrol.h>
 #include <projectexplorer/localapplicationrunconfiguration.h>
 #include <qmldebug/qmloutputparser.h>
@@ -84,8 +85,12 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
     AbstractQmlProfilerRunner *runner = 0;
     if (!runConfiguration) // attaching
         return 0;
-    Debugger::DebuggerRunConfigurationAspect *aspect
+    Debugger::DebuggerRunConfigurationAspect *debugger
             = runConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+    QTC_ASSERT(debugger, return 0);
+    ProjectExplorer::EnvironmentAspect *environment
+            = runConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
+    QTC_ASSERT(environment, return 0);
     if (QmlProjectManager::QmlProjectRunConfiguration *rc1 =
             qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration)) {
         // This is a "plain" .qmlproject.
@@ -93,8 +98,8 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
         conf.executable = rc1->observerPath();
         conf.executableArguments = rc1->viewerArguments();
         conf.workingDirectory = rc1->workingDirectory();
-        conf.environment = rc1->environment();
-        conf.port = aspect->qmlDebugServerPort();
+        conf.environment = environment->environment();
+        conf.port = debugger->qmlDebugServerPort();
         runner = new LocalQmlProfilerRunner(conf, parent);
     } else if (LocalApplicationRunConfiguration *rc2 =
             qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
@@ -103,8 +108,8 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
         conf.executable = rc2->executable();
         conf.executableArguments = rc2->commandLineArguments();
         conf.workingDirectory = rc2->workingDirectory();
-        conf.environment = rc2->environment();
-        conf.port = aspect->qmlDebugServerPort();
+        conf.environment = environment->environment();
+        conf.port = debugger->qmlDebugServerPort();
         runner = new LocalQmlProfilerRunner(conf, parent);
     } else if (RemoteLinux::RemoteLinuxRunConfiguration *rmConfig =
             qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {

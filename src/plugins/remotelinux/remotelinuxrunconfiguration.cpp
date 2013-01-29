@@ -221,8 +221,10 @@ QString RemoteLinuxRunConfiguration::environmentPreparationCommand() const
 
 QString RemoteLinuxRunConfiguration::commandPrefix() const
 {
+    RemoteLinuxEnvironmentAspect *aspect = extraAspect<RemoteLinuxEnvironmentAspect>();
+    QTC_ASSERT(aspect, return QString());
     return QString::fromLatin1("%1; DISPLAY=:0.0 %2")
-        .arg(environmentPreparationCommand(), userEnvironmentChangesAsString());
+            .arg(environmentPreparationCommand(), aspect->userEnvironmentChangesAsString());
 }
 
 QString RemoteLinuxRunConfiguration::localExecutableFilePath() const

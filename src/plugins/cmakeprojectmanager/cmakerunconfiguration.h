@@ -139,6 +139,7 @@ private slots:
     void setWorkingDirectory();
     void resetWorkingDirectory();
     void runInTerminalToggled(bool toggled);
+    void environmentWasChanged();
 
     void baseEnvironmentComboBoxChanged(int index);
     void workingDirectoryChanged(const QString &workingDirectory);

@@ -32,6 +32,7 @@
 #include <remotelinux/remotelinuxrunconfiguration.h>
 
 #include <debugger/debuggerrunconfigurationaspect.h>
+#include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/localapplicationrunconfiguration.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
@@ -62,8 +63,11 @@ Analyzer::AnalyzerStartParameters ValgrindTool::createStartParameters(
     sp.displayName = runConfiguration->displayName();
     if (LocalApplicationRunConfiguration *rc1 =
             qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
+        ProjectExplorer::EnvironmentAspect *aspect
+                = runConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
         sp.startMode = Analyzer::StartLocal;
-        sp.environment = rc1->environment();
+        if (aspect)
+            sp.environment = aspect->environment();
         sp.workingDirectory = rc1->workingDirectory();
         sp.debuggee = rc1->executable();
         sp.debuggeeArgs = rc1->commandLineArguments();

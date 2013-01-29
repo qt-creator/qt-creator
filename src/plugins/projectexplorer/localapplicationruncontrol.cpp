@@ -30,6 +30,7 @@
 #include "localapplicationruncontrol.h"
 #include "localapplicationrunconfiguration.h"
 
+#include <projectexplorer/environmentaspect.h>
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
 
@@ -72,7 +73,10 @@ RunControl *LocalApplicationRunControlFactory::create(RunConfiguration *runConfi
 LocalApplicationRunControl::LocalApplicationRunControl(LocalApplicationRunConfiguration *rc, RunMode mode)
     : RunControl(rc, mode), m_running(false)
 {
-    Utils::Environment env = rc->environment();
+    EnvironmentAspect *environment = rc->extraAspect<EnvironmentAspect>();
+    Utils::Environment env;
+    if (environment)
+        env = environment->environment();
     QString dir = rc->workingDirectory();
     m_applicationLauncher.setEnvironment(env);
     m_applicationLauncher.setWorkingDirectory(dir);

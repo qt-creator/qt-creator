@@ -70,6 +70,7 @@ private slots:
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged();
     void baseEnvironmentSelected(int index);
+    void environmentWasChanged();
 
 private:
     bool m_ignoreChange;

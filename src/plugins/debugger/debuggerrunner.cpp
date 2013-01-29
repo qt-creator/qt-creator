@@ -47,6 +47,7 @@
 #endif
 
 #include <projectexplorer/localapplicationrunconfiguration.h> // For LocalApplication*
+#include <projectexplorer/environmentaspect.h> // For the environment
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -337,6 +338,8 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     LocalApplicationRunConfiguration *rc =
             qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
     QTC_ASSERT(rc, return sp);
+    EnvironmentAspect *environment = rc->extraAspect<ProjectExplorer::EnvironmentAspect>();
+    QTC_ASSERT(environment, return sp);
     if (!rc->ensureConfigured(errorMessage))
         return sp;
 
@@ -344,7 +347,7 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     Kit *kit = target ? target->kit() : KitManager::instance()->defaultKit();
     if (!fillParameters(&sp, kit, errorMessage))
         return sp;
-    sp.environment = rc->environment();
+    sp.environment = environment->environment();
     sp.workingDirectory = rc->workingDirectory();
 
 #if defined(Q_OS_WIN)
@@ -370,14 +373,14 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
         }
     }
 
-    DebuggerRunConfigurationAspect *aspect
+    DebuggerRunConfigurationAspect *debugger
             = runConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    sp.multiProcess = aspect->useMultiProcess();
+    sp.multiProcess = debugger->useMultiProcess();
 
-    if (aspect->useCppDebugger())
+    if (debugger->useCppDebugger())
         sp.languages |= CppLanguage;
 
-    if (aspect->useQmlDebugger()) {
+    if (debugger->useQmlDebugger()) {
         const ProjectExplorer::IDevice::ConstPtr device =
                 DeviceKitInformation::device(runConfiguration->target()->kit());
         sp.qmlServerAddress = _("127.0.0.1");

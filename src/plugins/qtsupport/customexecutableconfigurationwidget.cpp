@@ -30,6 +30,7 @@
 #include "customexecutableconfigurationwidget.h"
 #include "customexecutablerunconfiguration.h"
 
+#include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/environmentwidget.h>
@@ -56,7 +57,6 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
 
     m_executableChooser = new Utils::PathChooser(this);
     m_executableChooser->setExpectedKind(Utils::PathChooser::Command);
-    m_executableChooser->setEnvironment(rc->environment());
     layout->addRow(tr("Command:"), m_executableChooser);
 
     m_commandLineArgumentsLineEdit = new QLineEdit(this);
@@ -66,7 +66,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     m_workingDirectory = new Utils::PathChooser(this);
     m_workingDirectory->setExpectedKind(Utils::PathChooser::Directory);
     m_workingDirectory->setBaseDirectory(rc->target()->project()->projectDirectory());
-    m_workingDirectory->setEnvironment(rc->environment());
+
     layout->addRow(tr("Working directory:"), m_workingDirectory);
 
     m_useTerminalCheck = new QCheckBox(tr("Run in &terminal"), this);
@@ -124,6 +124,12 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
             this, SLOT(termToggled(bool)));
 
+    ProjectExplorer::EnvironmentAspect *aspect = rc->extraAspect<ProjectExplorer::EnvironmentAspect>();
+    if (aspect) {
+        connect(aspect, SIGNAL(environmentChanged()), this, SLOT(environmentWasChanged()));
+        environmentWasChanged();
+    }
+
     connect(m_runConfiguration, SIGNAL(changed()), this, SLOT(changed()));
 
     connect(m_environmentWidget, SIGNAL(userChangesChanged()),
@@ -148,6 +154,15 @@ void CustomExecutableConfigurationWidget::baseEnvironmentSelected(int index)
     m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
     m_environmentWidget->setBaseEnvironmentText(m_runConfiguration->baseEnvironmentText());
     m_ignoreChange = false;
+}
+
+void CustomExecutableConfigurationWidget::environmentWasChanged()
+{
+    ProjectExplorer::EnvironmentAspect *aspect
+            = m_runConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
+    QTC_ASSERT(aspect, return);
+    m_workingDirectory->setEnvironment(aspect->environment());
+    m_executableChooser->setEnvironment(aspect->environment());
 }
 
 void CustomExecutableConfigurationWidget::baseEnvironmentChanged()

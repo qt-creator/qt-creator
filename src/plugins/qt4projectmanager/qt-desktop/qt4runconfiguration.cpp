@@ -34,6 +34,7 @@
 #include "../qt4buildconfiguration.h"
 
 #include <coreplugin/coreconstants.h>
+#include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/target.h>
 #include <utils/qtcprocess.h>
@@ -134,11 +135,15 @@ QString Qt4RunConfiguration::disabledReason() const
 
 void Qt4RunConfiguration::proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress)
 {
+    ProjectExplorer::LocalEnvironmentAspect *aspect
+            = extraAspect<ProjectExplorer::LocalEnvironmentAspect>();
+    QTC_ASSERT(aspect, return);
+
     if (m_proFilePath != pro->path()) {
         if (!parseInProgress) {
             // We depend on all .pro files for the LD_LIBRARY_PATH so we emit a signal for all .pro files
             // This can be optimized by checking whether LD_LIBRARY_PATH changed
-            emit baseEnvironmentChanged();
+            aspect->buildEnvironmentHasChanged();
         }
         return;
     }
@@ -152,7 +157,7 @@ void Qt4RunConfiguration::proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro,
 
     if (!parseInProgress) {
         emit effectiveTargetInformationChanged();
-        emit baseEnvironmentChanged();
+        aspect->buildEnvironmentHasChanged();
     }
 }
 
@@ -225,7 +230,12 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_workingDirectoryEdit->setExpectedKind(Utils::PathChooser::Directory);
     m_workingDirectoryEdit->setPath(m_qt4RunConfiguration->baseWorkingDirectory());
     m_workingDirectoryEdit->setBaseDirectory(m_qt4RunConfiguration->target()->project()->projectDirectory());
-    m_workingDirectoryEdit->setEnvironment(m_qt4RunConfiguration->environment());
+    ProjectExplorer::EnvironmentAspect *aspect
+            = qt4RunConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
+    if (aspect) {
+        connect(aspect, SIGNAL(environmentChanged()), this, SLOT(environmenWasChanged()));
+        environmentWasChanged();
+    }
     m_workingDirectoryEdit->setPromptDialogTitle(tr("Select Working Directory"));
 
     QToolButton *resetButton = new QToolButton(this);
@@ -367,6 +377,14 @@ void Qt4RunConfigurationWidget::userChangesEdited()
     m_ignoreChange = true;
     m_qt4RunConfiguration->setUserEnvironmentChanges(m_environmentWidget->userChanges());
     m_ignoreChange = false;
+}
+
+void Qt4RunConfigurationWidget::environmentWasChanged()
+{
+    ProjectExplorer::EnvironmentAspect *aspect
+            = m_qt4RunConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
+    QTC_ASSERT(aspect, return);
+    m_workingDirectoryEdit->setEnvironment(aspect->environment());
 }
 
 void Qt4RunConfigurationWidget::runConfigurationEnabledChange()
@@ -546,7 +564,10 @@ void Qt4RunConfiguration::setUsingDyldImageSuffix(bool state)
 
 QString Qt4RunConfiguration::workingDirectory() const
 {
-    return QDir::cleanPath(environment().expandVariables(
+    ProjectExplorer::EnvironmentAspect *aspect
+            = extraAspect<ProjectExplorer::EnvironmentAspect>();
+    QTC_ASSERT(aspect, baseWorkingDirectory());
+    return QDir::cleanPath(aspect->environment().expandVariables(
                 Utils::expandMacros(baseWorkingDirectory(), macroExpander())));
 }
 

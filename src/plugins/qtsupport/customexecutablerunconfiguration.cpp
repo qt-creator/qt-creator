@@ -32,6 +32,7 @@
 #include "qtkitinformation.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/abi.h>
@@ -179,7 +180,10 @@ bool CustomExecutableRunConfiguration::validateExecutable(QString *executable, Q
             *errorMessage = tr("No executable.");
         return false;
     }
-    const Utils::Environment env = environment();
+    Utils::Environment env;
+    ProjectExplorer::EnvironmentAspect *aspect = extraAspect<ProjectExplorer::EnvironmentAspect>();
+    if (aspect)
+        env = aspect->environment();
     const QString exec = env.searchInPath(Utils::expandMacros(m_executable, macroExpander()),
                                           QStringList(workingDirectory()));
     if (exec.isEmpty()) {
@@ -217,7 +221,9 @@ ProjectExplorer::LocalApplicationRunConfiguration::RunMode CustomExecutableRunCo
 
 QString CustomExecutableRunConfiguration::workingDirectory() const
 {
-    return QDir::cleanPath(environment().expandVariables(
+    ProjectExplorer::EnvironmentAspect *aspect = extraAspect<ProjectExplorer::EnvironmentAspect>();
+    QTC_ASSERT(aspect, return baseWorkingDirectory());
+    return QDir::cleanPath(aspect->environment().expandVariables(
                 Utils::expandMacros(baseWorkingDirectory(), macroExpander())));
 }
 

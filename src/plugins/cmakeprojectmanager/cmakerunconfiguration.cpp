@@ -36,6 +36,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/helpmanager.h>
 #include <qtsupport/qtkitinformation.h>
+#include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/target.h>
 
@@ -124,8 +125,10 @@ void CMakeRunConfiguration::setRunMode(RunMode runMode)
 
 QString CMakeRunConfiguration::workingDirectory() const
 {
-    return QDir::cleanPath(environment().expandVariables(
-                Utils::expandMacros(baseWorkingDirectory(), macroExpander())));
+    ProjectExplorer::EnvironmentAspect *aspect = extraAspect<ProjectExplorer::EnvironmentAspect>();
+    QTC_ASSERT(aspect, return QString());
+    return QDir::cleanPath(aspect->environment().expandVariables(
+                               Utils::expandMacros(baseWorkingDirectory(), macroExpander())));
 }
 
 QString CMakeRunConfiguration::baseWorkingDirectory() const
@@ -321,6 +324,12 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     m_workingDirectoryEdit->setExpectedKind(Utils::PathChooser::Directory);
     m_workingDirectoryEdit->setBaseDirectory(m_cmakeRunConfiguration->target()->project()->projectDirectory());
     m_workingDirectoryEdit->setPath(m_cmakeRunConfiguration->baseWorkingDirectory());
+    ProjectExplorer::EnvironmentAspect *aspect
+            = m_cmakeRunConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
+    if (aspect) {
+        connect(aspect, SIGNAL(environmentChanged()), this, SLOT(environmentWasChanged()));
+        environmentWasChanged();
+    }
     m_workingDirectoryEdit->setPromptDialogTitle(tr("Select Working Directory"));
 
     QToolButton *resetButton = new QToolButton();
@@ -429,6 +438,14 @@ void CMakeRunConfigurationWidget::runInTerminalToggled(bool toggled)
 {
     m_cmakeRunConfiguration->setRunMode(toggled ? ProjectExplorer::LocalApplicationRunConfiguration::Console
                                                 : ProjectExplorer::LocalApplicationRunConfiguration::Gui);
+}
+
+void CMakeRunConfigurationWidget::environmentWasChanged()
+{
+    ProjectExplorer::EnvironmentAspect *aspect
+            = m_cmakeRunConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
+    QTC_ASSERT(aspect, return);
+    m_workingDirectoryEdit->setEnvironment(aspect->environment());
 }
 
 void CMakeRunConfigurationWidget::userChangesChanged()

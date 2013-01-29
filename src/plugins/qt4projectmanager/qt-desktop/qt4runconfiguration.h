@@ -174,6 +174,7 @@ private slots:
     void workingDirectoryReseted();
     void argumentsEdited(const QString &arguments);
     void userChangesEdited();
+    void environmentWasChanged();
 
     void workingDirectoryChanged(const QString &workingDirectory);
     void commandLineArgumentsChanged(const QString &args);

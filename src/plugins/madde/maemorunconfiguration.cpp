@@ -41,7 +41,9 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <remotelinux/remotelinuxenvironmentaspect.h>
 #include <utils/portlist.h>
+#include <utils/qtcassert.h>
 #include <ssh/sshconnection.h>
 
 #include <QDir>
@@ -123,7 +125,9 @@ QString MaemoRunConfiguration::commandPrefix() const
 
     const QString prefix = environmentPreparationCommand() + QLatin1Char(';');
 
-    return QString::fromLatin1("%1 %2").arg(prefix, userEnvironmentChangesAsString());
+    RemoteLinuxEnvironmentAspect *aspect = extraAspect<RemoteLinuxEnvironmentAspect>();
+    QTC_ASSERT(aspect, return QString());
+    return QString::fromLatin1("%1 %2").arg(prefix, aspect->userEnvironmentChangesAsString());
 }
 
 Utils::PortList MaemoRunConfiguration::freePorts() const
