@@ -934,23 +934,22 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         menu->addSeparator();
         // Apply/revert diff chunk.
         const DiffChunk chunk = diffChunk(cursorForPosition(e->pos()));
-        const bool canApply = canApplyDiffChunk(chunk);
+        if (!canApplyDiffChunk(chunk))
+            break;
         // Apply a chunk from a diff loaded into the editor. This typically will
         // not have the 'source' property set and thus will only work if the working
         // directory matches that of the patch (see findDiffFile()). In addition,
         // the user has "Open With" and choose the right diff editor so that
         // fileNameFromDiffSpecification() works.
         QAction *applyAction = menu->addAction(tr("Apply Chunk..."));
-        applyAction->setEnabled(canApply);
         applyAction->setData(qVariantFromValue(Internal::DiffChunkAction(chunk, false)));
         connect(applyAction, SIGNAL(triggered()), this, SLOT(slotApplyDiffChunk()));
         // Revert a chunk from a VCS diff, which might be linked to reloading the diff.
         QAction *revertAction = menu->addAction(tr("Revert Chunk..."));
-        revertAction->setEnabled(canApply);
         revertAction->setData(qVariantFromValue(Internal::DiffChunkAction(chunk, true)));
         connect(revertAction, SIGNAL(triggered()), this, SLOT(slotApplyDiffChunk()));
-    }
         break;
+    }
     default:
         break;
     }
