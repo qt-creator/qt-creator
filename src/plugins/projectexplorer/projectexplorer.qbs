@@ -94,6 +94,8 @@ QtcPlugin {
         "editorsettingspropertiespage.cpp",
         "editorsettingspropertiespage.h",
         "editorsettingspropertiespage.ui",
+        "environmentaspect.cpp",
+        "environmentaspect.h",
         "environmentitemswidget.cpp",
         "environmentitemswidget.h",
         "environmentwidget.cpp",
