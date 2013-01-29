@@ -183,6 +183,7 @@ private slots:
     void test_checksymbols_FunctionUse();
     void test_checksymbols_PseudoKeywordUse();
     void test_checksymbols_StaticUse();
+    void test_checksymbols_VariableHasTheSameNameAsEnumUse();
 };
 
 void tst_CheckSymbols::test_checksymbols_TypeUse()
@@ -376,6 +377,36 @@ void tst_CheckSymbols::test_checksymbols_StaticUse()
 
     TestData::check(source, expectedUses);
 }
+
+void tst_CheckSymbols::test_checksymbols_VariableHasTheSameNameAsEnumUse()
+{
+    const QByteArray source =
+            "struct Foo\n"
+            "{\n"
+            "    enum E { bar, baz };\n"
+            "};\n"
+            "\n"
+            "struct Boo\n"
+            "{\n"
+            "    int foo;\n"
+            "    int bar;\n"
+            "    int baz;\n"
+            "};\n"
+            ;
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 8, 3, SemanticInfo::TypeUse)
+            << Use(3, 19, 3, SemanticInfo::EnumerationUse)
+            << Use(3, 14, 3, SemanticInfo::EnumerationUse)
+            << Use(3, 10, 1, SemanticInfo::TypeUse)
+            << Use(6, 8, 3, SemanticInfo::TypeUse)
+            << Use(8, 9, 3, SemanticInfo::FieldUse)
+            << Use(9, 9, 3, SemanticInfo::FieldUse)
+            << Use(10, 9, 3, SemanticInfo::FieldUse)
+               ;
+
+    TestData::check(source, expectedUses);
+}
+
 
 QTEST_APPLESS_MAIN(tst_CheckSymbols)
 #include "tst_checksymbols.moc"

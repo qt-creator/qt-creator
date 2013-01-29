@@ -787,7 +787,11 @@ void CheckSymbols::checkName(NameAST *ast, Scope *scope)
                 }
             }
         } else if (maybeType(ast->name) || maybeStatic(ast->name)) {
-            maybeAddTypeOrStatic(_context.lookup(ast->name, scope), ast);
+            if (! maybeAddTypeOrStatic(_context.lookup(ast->name, scope), ast)) {
+                // it can be a local variable
+                if (maybeField(ast->name))
+                    maybeAddField(_context.lookup(ast->name, scope), ast);
+            }
         } else if (maybeField(ast->name)) {
             maybeAddField(_context.lookup(ast->name, scope), ast);
         }
