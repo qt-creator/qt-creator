@@ -81,6 +81,7 @@ private Q_SLOTS:
     void lambdaCaptureByReference();
     void shadowedNames_1();
     void shadowedNames_2();
+    void staticVariables();
 
     // Qt keywords
     void qproperty_1();
@@ -255,6 +256,52 @@ void tst_FindUsages::shadowedNames_2()
     FindUsages findUsages(src, doc, snapshot);
     findUsages(d);
     QCOMPARE(findUsages.usages().size(), 3);
+}
+
+void tst_FindUsages::staticVariables()
+{
+    const QByteArray src = "\n"
+            "struct Outer\n"
+            "{\n"
+            "    static int Foo;\n"
+            "    struct Inner\n"
+            "    {\n"
+            "        Outer *outer;\n"
+            "        void foo();\n"
+            "    };\n"
+            "};\n"
+            "\n"
+            "int Outer::Foo = 42;\n"
+            "\n"
+            "void Outer::Inner::foo()\n"
+            "{\n"
+            "    Foo  = 7;\n"
+            "    Outer::Foo = 7;\n"
+            "    outer->Foo = 7;\n"
+            "}\n"
+            ;
+    Document::Ptr doc = Document::create("staticVariables");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 3U);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Class *c = doc->globalSymbolAt(0)->asClass();
+    QVERIFY(c);
+    QCOMPARE(c->name()->identifier()->chars(), "Outer");
+    QCOMPARE(c->memberCount(), 2U);
+    Declaration *d = c->memberAt(0)->asDeclaration();
+    QVERIFY(d);
+    QCOMPARE(d->name()->identifier()->chars(), "Foo");
+
+    FindUsages findUsages(src, doc, snapshot);
+    findUsages(d);
+    QCOMPARE(findUsages.usages().size(), 5);
 }
 
 #if 0

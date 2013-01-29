@@ -335,6 +335,10 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
                 if (ClassOrNamespace *binding = bindings()->lookupType(fun)) {
                     candidates = binding->find(name);
 
+                    // try find this name in parent class
+                    while (candidates.isEmpty() && (binding = binding->parent()))
+                        candidates = binding->find(name);
+
                     if (! candidates.isEmpty())
                         return candidates;
                 }

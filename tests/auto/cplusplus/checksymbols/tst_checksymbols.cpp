@@ -182,6 +182,7 @@ private slots:
     void test_checksymbols_MacroUse();
     void test_checksymbols_FunctionUse();
     void test_checksymbols_PseudoKeywordUse();
+    void test_checksymbols_StaticUse();
 };
 
 void tst_CheckSymbols::test_checksymbols_TypeUse()
@@ -327,6 +328,51 @@ void tst_CheckSymbols::test_checksymbols_PseudoKeywordUse()
         << Use(1, 41, 8, SemanticInfo::PseudoKeywordUse)
         << Use(2, 17, 1, SemanticInfo::VirtualMethodUse)
         << Use(2, 21, 5, SemanticInfo::PseudoKeywordUse);
+
+    TestData::check(source, expectedUses);
+}
+
+void tst_CheckSymbols::test_checksymbols_StaticUse()
+{
+    const QByteArray source =
+            "struct Outer\n"
+            "{\n"
+            "    static int Foo;\n"
+            "    struct Inner\n"
+            "    {\n"
+            "        Outer *outer;\n"
+            "        void foo();\n"
+            "    };\n"
+            "};\n"
+            "\n"
+            "int Outer::Foo = 42;\n"
+            "\n"
+            "void Outer::Inner::foo()\n"
+            "{\n"
+            "    Foo  = 7;\n"
+            "    Outer::Foo = 7;\n"
+            "    outer->Foo = 7;\n"
+            "}\n"
+            ;
+
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 8, 5, SemanticInfo::TypeUse)
+            << Use(3, 16, 3, SemanticInfo::FieldUse)
+            << Use(4, 12, 5, SemanticInfo::TypeUse)
+            << Use(6, 16, 5, SemanticInfo::FieldUse)
+            << Use(6, 9, 5, SemanticInfo::TypeUse)
+            << Use(7, 14, 3, SemanticInfo::FunctionUse)
+            << Use(11, 12, 3, SemanticInfo::FieldUse)
+            << Use(11, 5, 5, SemanticInfo::TypeUse)
+            << Use(13, 20, 3, SemanticInfo::FunctionUse)
+            << Use(13, 6, 5, SemanticInfo::TypeUse)
+            << Use(13, 13, 5, SemanticInfo::TypeUse)
+            << Use(15, 5, 3, SemanticInfo::FieldUse)
+            << Use(16, 12, 3, SemanticInfo::FieldUse)
+            << Use(16, 5, 5, SemanticInfo::TypeUse)
+            << Use(17, 5, 5, SemanticInfo::FieldUse)
+            << Use(17, 12, 3, SemanticInfo::FieldUse)
+               ;
 
     TestData::check(source, expectedUses);
 }
