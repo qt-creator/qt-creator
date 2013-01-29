@@ -392,7 +392,6 @@ void DesignDocument::activateCurrentModel(TextModifier *textModifier)
 //        m_formEditorView->crumblePath()->pushElement(simplfiedDisplayName(), createCrumbleBarInfo());
 
     m_documentLoaded = true;
-    m_subComponentManager->update(QUrl::fromLocalFile(fileName()), m_currentModel->imports());
     Q_ASSERT(m_documentModel);
     QApplication::restoreOverrideCursor();
 }
@@ -407,6 +406,7 @@ void DesignDocument::activateCurrentModel()
 
 void DesignDocument::activateDocumentModel()
 {
+    //this function seems to be unused!
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
     Q_ASSERT(m_documentModel);
@@ -417,7 +417,9 @@ void DesignDocument::activateDocumentModel()
 
     m_currentModel = m_documentModel;
     m_documentLoaded = true;
-    m_subComponentManager->update(QUrl::fromLocalFile(fileName()), m_currentModel->imports());
+
+    updateSubcomponentManager();
+
     Q_ASSERT(m_documentModel);
     QApplication::restoreOverrideCursor();
 }
@@ -441,6 +443,12 @@ void DesignDocument::close()
 {
     m_documentLoaded = false;
     emit designDocumentClosed();
+}
+
+void DesignDocument::updateSubcomponentManager()
+{
+    Q_ASSERT(m_subComponentManager);
+    m_subComponentManager->update(QUrl::fromLocalFile(fileName()), m_currentModel->imports());
 }
 
 void DesignDocument::deleteSelected()

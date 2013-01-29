@@ -82,6 +82,7 @@ public:
     void activateCurrentModel();
     void activateDocumentModel();
     void close();
+    void updateSubcomponentManager();
 
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;

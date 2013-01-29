@@ -302,6 +302,7 @@ void QmlDesignerPlugin::activateAutoSynchronization()
         m_mainWidget->showErrorMessage(errors);
     }
 
+    currentDesignDocument()->updateSubcomponentManager();
 
     connect(currentDesignDocument()->rewriterView(),
             SIGNAL(errorsChanged(QList<RewriterView::Error>)),
