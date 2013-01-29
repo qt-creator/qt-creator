@@ -221,7 +221,7 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(WarnReferenceToParentItemNotSupportedByVisualDesigner, Warning,
             tr("Reference to parent item cannot be resolved correctly by the Qt Quick Designer"));
     newMsg(WarnUndefinedValueForVisualDesigner, Warning,
-            tr("This visual property binding cannot be evaluted in the local context "
+            tr("This visual property binding cannot be evaluated in the local context "
                "and might not show up in Qt Quick Designer as expected"));
     newMsg(WarnStatesOnlyInRootItemForVisualDesigner, Warning,
             tr("Qt Quick Designer only supports states in the root item "));

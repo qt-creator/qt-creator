@@ -194,7 +194,7 @@ ElfReader::Result ElfReader::readIt()
     // Read Endianess.
     m_elfData.endian = ElfEndian(mapper.ustart[5]);
     if (m_elfData.endian != Elf_ELFDATA2LSB && m_elfData.endian != Elf_ELFDATA2MSB) {
-        m_errorString = msgInvalidElfObject(m_binary, tr("odd endianess"));
+        m_errorString = msgInvalidElfObject(m_binary, tr("odd endianness"));
         return Corrupt;
     }
 

@@ -94,7 +94,7 @@ bool BlackBerryConfiguration::setConfig(const QString &ndkPath)
 
     if (!qmakePath.toFileInfo().exists() || !gccPath.toFileInfo().exists()
             || !deviceGdbPath.toFileInfo().exists() || !simulatorGdbPath.toFileInfo().exists() ) {
-        QString errorMessage = tr("The following errors occurred while setting up BB10 Configuration: \n");
+        QString errorMessage = tr("The following errors occurred while setting up BB10 Configuration:\n");
         if (!qmakePath.toFileInfo().exists())
             errorMessage += tr("- No Qt version found\n");
 
