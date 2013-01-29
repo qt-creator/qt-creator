@@ -27,44 +27,39 @@
 **
 ****************************************************************************/
 
-#include "localapplicationrunconfiguration.h"
+#ifndef LOCALENVIRONMENTASPECT_H
+#define LOCALENVIRONMENTASPECT_H
 
-#include "buildconfiguration.h"
-#include "localenvironmentaspect.h"
-
-#include <coreplugin/variablemanager.h>
+#include "environmentaspect.h"
 
 namespace ProjectExplorer {
 
-/// LocalApplicationRunConfiguration
-
-LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *target, const Core::Id id) :
-    RunConfiguration(target, id)
+class LocalEnvironmentAspect : public EnvironmentAspect
 {
-    ctor();
-}
+    Q_OBJECT
 
-LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *target, LocalApplicationRunConfiguration *rc) :
-    RunConfiguration(target, rc)
-{
-    ctor();
-}
+public:
+    LocalEnvironmentAspect(RunConfiguration *rc);
 
-void LocalApplicationRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
-{
-    Q_UNUSED(env);
-}
+    LocalEnvironmentAspect *clone(RunConfiguration *parent) const;
 
-Utils::AbstractMacroExpander *LocalApplicationRunConfiguration::macroExpander() const
-{
-    if (BuildConfiguration *bc = activeBuildConfiguration())
-        return bc->macroExpander();
-    return Core::VariableManager::macroExpander();
-}
+    QList<int> possibleBaseEnvironments() const;
+    QString baseEnvironmentDisplayName(int base) const;
+    Utils::Environment baseEnvironment() const;
 
-void LocalApplicationRunConfiguration::ctor()
-{
-    addExtraAspect(new LocalEnvironmentAspect(this));
-}
+public slots:
+    void buildEnvironmentHasChanged();
+
+private:
+    enum BaseEnvironmentBase {
+        CleanEnvironmentBase = 0,
+        SystemEnvironmentBase,
+        BuildEnvironmentBase
+    };
+
+    LocalEnvironmentAspect(const LocalEnvironmentAspect *other, RunConfiguration *parent);
+};
 
 } // namespace ProjectExplorer
+
+#endif // LOCALENVIRONMENTASPECT_H

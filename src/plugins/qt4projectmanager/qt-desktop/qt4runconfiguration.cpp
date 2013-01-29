@@ -666,6 +666,34 @@ void Qt4RunConfiguration::setRunMode(RunMode runMode)
     emit runModeChanged(runMode);
 }
 
+void Qt4RunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
+{
+    if (m_isUsingDyldImageSuffix)
+        env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
+
+    // The user could be linking to a library found via a -L/some/dir switch
+    // to find those libraries while actually running we explicitly prepend those
+    // dirs to the library search path
+    const Qt4ProFileNode *node = static_cast<Qt4Project *>(target()->project())->rootQt4ProjectNode()->findProFileFor(m_proFilePath);
+    if (node) {
+        const QStringList libDirectories = node->variableValue(LibDirectoriesVar);
+        if (!libDirectories.isEmpty()) {
+            const QString proDirectory = node->buildDir();
+            foreach (QString dir, libDirectories) {
+                // Fix up relative entries like "LIBS+=-L.."
+                const QFileInfo fi(dir);
+                if (!fi.isAbsolute())
+                    dir = QDir::cleanPath(proDirectory + QLatin1Char('/') + dir);
+                env.prependOrSetLibrarySearchPath(dir);
+            } // foreach
+        } // libDirectories
+    } // node
+
+    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
+    if (qtVersion)
+        env.prependOrSetLibrarySearchPath(qtVersion->qmakeProperty("QT_INSTALL_LIBS"));
+}
+
 QString Qt4RunConfiguration::proFilePath() const
 {
     return m_proFilePath;

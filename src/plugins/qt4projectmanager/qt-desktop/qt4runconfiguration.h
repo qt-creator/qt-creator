@@ -99,6 +99,9 @@ public:
     Utils::OutputFormatter *createOutputFormatter() const;
 
     void setRunMode(RunMode runMode);
+
+    void addToBaseEnvironment(Utils::Environment &env) const;
+
 signals:
     void commandLineArgumentsChanged(const QString&);
     void baseWorkingDirectoryChanged(const QString&);

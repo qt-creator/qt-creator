@@ -11,6 +11,7 @@ HEADERS += projectexplorer.h \
     environmentaspectwidget.h \
     gcctoolchain.h \
     localapplicationrunconfiguration.h \
+    localenvironmentaspect.h \
     projectexplorer_export.h \
     projectwindow.h \
     removetaskhandler.h \
@@ -138,6 +139,7 @@ SOURCES += projectexplorer.cpp \
     environmentaspectwidget.cpp \
     gcctoolchain.cpp \
     localapplicationrunconfiguration.cpp \
+    localenvironmentaspect.cpp \
     projectwindow.cpp \
     removetaskhandler.cpp \
     kit.cpp \

@@ -142,6 +142,8 @@ QtcPlugin {
         "localapplicationrunconfiguration.h",
         "localapplicationruncontrol.cpp",
         "localapplicationruncontrol.h",
+        "localenvironmentaspect.cpp",
+        "localenvironmentaspect.h",
         "metatypedeclarations.h",
         "miniprojecttargetselector.cpp",
         "miniprojecttargetselector.h",
