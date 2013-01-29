@@ -271,5 +271,17 @@ void GitEditor::addChangeActions(QMenu *menu, const QString &change)
     menu->addAction(tr("Revert Change %1").arg(change), this, SLOT(revertChange()));
 }
 
+QString GitEditor::revisionSubject(const QTextBlock &inBlock) const
+{
+    for (QTextBlock block = inBlock.next(); block.isValid(); block = block.next()) {
+        const QString line = block.text().trimmed();
+        if (line.isEmpty()) {
+            block = block.next();
+            return block.text().trimmed();
+        }
+    }
+    return QString();
+}
+
 } // namespace Internal
 } // namespace Git

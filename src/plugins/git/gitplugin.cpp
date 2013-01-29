@@ -1318,7 +1318,7 @@ void GitPlugin::testDiffFileResolving()
 void GitPlugin::testLogResolving()
 {
     QByteArray data(
-                "commit 50a6b54c03219ad74b9f3f839e0321be18daeaf6\n"
+                "commit 50a6b54c03219ad74b9f3f839e0321be18daeaf6 (HEAD, origin/master)\n"
                 "Merge: 3587b51 bc93ceb\n"
                 "Author: Junio C Hamano <gitster@pobox.com>\n"
                 "Date:   Fri Jan 25 12:53:31 2013 -0800\n"
@@ -1338,7 +1338,9 @@ void GitPlugin::testLogResolving()
                 "    Signed-off-by: Junio C Hamano <gitster@pobox.com>\n"
                 );
     GitEditor editor(editorParameters + 1, 0);
-    editor.testLogResolving(data, "50a6b54c", "3587b513");
+    editor.testLogResolving(data,
+                            "50a6b54c - Merge branch 'for-junio' of git://bogomips.org/git-svn",
+                            "3587b513 - Update draft release notes to 1.8.2");
 }
 #endif
 

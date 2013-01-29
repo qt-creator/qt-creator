@@ -857,7 +857,16 @@ void VcsBaseEditorWidget::slotPopulateLogBrowser()
         // Check for a new log section (not repeating the last filename)
         if (d->m_logEntryPattern.indexIn(text) != -1) {
             d->m_entrySections.push_back(d->m_entrySections.empty() ? 0 : lineNumber);
-            entriesComboBox->addItem(d->m_logEntryPattern.cap(1));
+            QString entry = d->m_logEntryPattern.cap(1);
+            QString subject = revisionSubject(it);
+            if (!subject.isEmpty()) {
+                if (subject.length() > 100) {
+                    subject.truncate(97);
+                    subject.append(QLatin1String("..."));
+                }
+                entry.append(QLatin1String(" - ")).append(subject);
+            }
+            entriesComboBox->addItem(entry);
         }
     }
 }
@@ -1478,6 +1487,12 @@ bool VcsBaseEditorWidget::isValidRevision(const QString &revision) const
 {
     Q_UNUSED(revision);
     return true;
+}
+
+QString VcsBaseEditorWidget::revisionSubject(const QTextBlock &inBlock) const
+{
+    Q_UNUSED(inBlock);
+    return QString();
 }
 
 bool VcsBaseEditorWidget::hasDiff() const

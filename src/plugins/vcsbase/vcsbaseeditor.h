@@ -256,6 +256,8 @@ protected:
     virtual QStringList annotationPreviousVersions(const QString &revision) const;
     // Implement to validate revisions
     virtual bool isValidRevision(const QString &revision) const;
+    // Implement to return subject for a change line in log
+    virtual QString revisionSubject(const QTextBlock &inBlock) const;
 
 private:
     bool canApplyDiffChunk(const DiffChunk &dc) const;

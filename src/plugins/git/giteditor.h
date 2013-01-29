@@ -66,6 +66,7 @@ private:
     QStringList annotationPreviousVersions(const QString &revision) const;
     bool isValidRevision(const QString &revision) const;
     void addChangeActions(QMenu *menu, const QString &change);
+    QString revisionSubject(const QTextBlock &inBlock) const;
 
     mutable QRegExp m_changeNumberPattern8;
     mutable QRegExp m_changeNumberPattern40;
