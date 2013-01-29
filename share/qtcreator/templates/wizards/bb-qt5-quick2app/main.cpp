@@ -1,18 +1,13 @@
 #include <QGuiApplication>
-#include <QQuickView>
-#include <QQmlEngine>
+#include "qtquick2applicationviewer.h"
 
-int main( int argc, char** argv )
+int main(int argc, char *argv[])
 {
-    QGuiApplication app( argc, argv );
+    QGuiApplication app(argc, argv);
 
-    QQuickView view;
-    view.setResizeMode( QQuickView::SizeRootObjectToView );
-    view.setSource( QUrl( "app/native/qml/main.qml" ) );
-
-    QObject::connect( view.engine(), SIGNAL( quit() ),
-                      QCoreApplication::instance(), SLOT( quit() ) );
-    view.show();
+    QtQuick2ApplicationViewer viewer;
+    viewer.setMainQmlFile(QLatin1String("qml/main.qml")); // MAINQML
+    viewer.showExpanded();
 
     return app.exec();
 }

@@ -1,5 +1,8 @@
 TEMPLATE = app
 
+# Please do not modify the following line.
+include(qtquick2applicationviewer/qtquick2applicationviewer.pri)
+
 QT += qml quick
 
 # Additional import path used to resolve QML modules in Creator's code model
