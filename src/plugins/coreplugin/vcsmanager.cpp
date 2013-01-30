@@ -207,8 +207,8 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     if (inputDirectory.isEmpty())
         return 0;
 
-    // Make sure we a clean absolute path:
-    const QString directory = QDir(inputDirectory).canonicalPath();
+    // Make sure we an absolute path:
+    const QString directory = QDir(inputDirectory).absolutePath();
 
     VcsManagerPrivate::VcsInfo *cachedData = d->findInCache(directory);
     if (cachedData) {
