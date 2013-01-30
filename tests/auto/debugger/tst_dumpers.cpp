@@ -64,10 +64,13 @@ struct Value
         : value(ba), hasPtrSuffix(false)
     {}
 
-    bool matches(const QString &actualValue) const
+    bool matches(const QString &actualValue0) const
     {
         if (value == noValue)
             return true;
+        QString actualValue = actualValue0;
+        if (actualValue == QLatin1String(" "))
+            actualValue.clear(); // FIXME: Remove later.
         QString self = QString::fromLatin1(value.data(), value.size());
         if (hasPtrSuffix)
             return actualValue.startsWith(self + QLatin1String(" @0x"))
@@ -85,18 +88,47 @@ struct Pointer : Value
     Pointer(const QByteArray &value) : Value(value) { hasPtrSuffix = true; }
 };
 
+struct Type
+{
+    Type()
+    {}
+    Type(const char *str)
+        : type(str)
+    {}
+    Type(const QByteArray &ba)
+        : type(ba)
+    {}
+    bool matches(const QByteArray &actualType0, const QByteArray &nameSpace) const
+    {
+        QByteArray actualType = actualType0;
+        actualType.replace(' ', "");
+        QByteArray expectedType = type;
+        expectedType.replace(' ', "");
+        expectedType.replace('@', nameSpace);
+        return actualType == expectedType;
+    }
+    QByteArray type;
+};
+
+struct Deque : Type
+{
+    Deque(const QByteArray &inner)
+        : Type("std::deque<" + inner + ", std::allocator<" + inner + ">>")
+    {}
+};
+
 struct Check
 {
     Check() {}
 
     Check(const QByteArray &iname, const Value &value,
-          const QByteArray &type)
+          const Type &type)
         : iname(iname), expectedName(nameFromIName(iname)),
           expectedValue(value), expectedType(type)
     {}
 
     Check(const QByteArray &iname, const QByteArray &name,
-         const Value &value, const QByteArray &type)
+         const Value &value, const Type &type)
         : iname(iname), expectedName(name),
           expectedValue(value), expectedType(type)
     {}
@@ -104,17 +136,17 @@ struct Check
     QByteArray iname;
     QByteArray expectedName;
     Value expectedValue;
-    QByteArray expectedType;
+    Type expectedType;
 };
 
 struct CheckType : public Check
 {
     CheckType(const QByteArray &iname, const QByteArray &name,
-         const QByteArray &type)
+         const Type &type)
         : Check(iname, name, noValue, type)
     {}
 
-    CheckType(const QByteArray &iname, const QByteArray &type)
+    CheckType(const QByteArray &iname, const Type &type)
         : Check(iname, noValue, type)
     {}
 };
@@ -137,14 +169,16 @@ struct Cxx11Profile : public Profile
     Cxx11Profile() : Profile("QMAKE_CXXFLAGS += -std=c++0x") {}
 };
 
+struct ForceC {};
+
 class Data
 {
 public:
     Data() {}
-    Data(const QByteArray &code) : code(code) {}
+    Data(const QByteArray &code) : code(code), forceC(false) {}
 
     Data(const QByteArray &includes, const QByteArray &code)
-        : includes(includes), code(code)
+        : includes(includes), code(code), forceC(false)
     {}
 
     const Data &operator%(const Check &check) const
@@ -159,10 +193,17 @@ public:
         return *this;
     }
 
+    const Data &operator%(const ForceC &) const
+    {
+        forceC = true;
+        return *this;
+    }
+
 public:
     mutable QByteArray profileExtra;
     QByteArray includes;
     QByteArray code;
+    mutable bool forceC;
     mutable QMap<QByteArray, Check> checks;
 };
 
@@ -195,19 +236,23 @@ void tst_Dumpers::dumper()
     //qDebug() << "Temp dir: " << buildDir.path();
     QVERIFY(!buildDir.path().isEmpty());
 
+    const char *mainFile = data.forceC ? "main.c" : "main.cpp";
+
     QFile proFile(buildDir.path() + QLatin1String("/doit.pro"));
     ok = proFile.open(QIODevice::ReadWrite);
     QVERIFY(ok);
-    proFile.write("SOURCES = main.cpp\nTARGET = doit\n");
+    proFile.write("SOURCES = ");
+    proFile.write(mainFile);
+    proFile.write("\nTARGET = doit\n");
     proFile.write("QT -= widgets gui\n");
     proFile.write(data.profileExtra);
     proFile.close();
 
-    QFile source(buildDir.path() + QLatin1String("/main.cpp"));
+    QFile source(buildDir.path() + QLatin1Char('/') + QLatin1String(mainFile));
     ok = source.open(QIODevice::ReadWrite);
     QVERIFY(ok);
     source.write(
-            "\n\nvoid dummyStatement(...) {}"
+            "\n\nvoid dummyStatement(void *first,...) { (void) first; }"
             "\n\n" + data.includes +
             "\n\nvoid stopper() {}"
             "\n\nint main(int argc, char *argv[])"
@@ -215,6 +260,7 @@ void tst_Dumpers::dumper()
             "\n    dummyStatement(&argc, &argv);\n"
             "\n    " + data.code +
             "\n    stopper();"
+            "\n    return 0;"
             "\n}\n");
     source.close();
 
@@ -342,13 +388,6 @@ void tst_Dumpers::dumper()
     foreach (const WatchData &item, list) {
         if (data.checks.contains(item.iname)) {
             Check check = data.checks.take(item.iname);
-            check.expectedType.replace('@', nameSpace);
-            check.expectedType.replace(' ', "");
-            QString actualValue = item.value;
-            if (actualValue == QLatin1String(" "))
-                actualValue.clear(); // FIXME: Remove later.
-            QByteArray actualType = item.type;
-            actualType.replace(' ', "");
             if (item.name.toLatin1() != check.expectedName) {
                 qDebug() << "INAME        : " << item.iname;
                 qDebug() << "NAME ACTUAL  : " << item.name;
@@ -356,17 +395,17 @@ void tst_Dumpers::dumper()
                 qDebug() << "CONTENTS     : " << contents;
                 QVERIFY(false);
             }
-            if (!check.expectedValue.matches(actualValue)) {
+            if (!check.expectedValue.matches(item.value)) {
                 qDebug() << "INAME         : " << item.iname;
-                qDebug() << "VALUE ACTUAL  : " << item.value << actualValue.toLatin1().toHex();
+                qDebug() << "VALUE ACTUAL  : " << item.value << item.value.toLatin1().toHex();
                 qDebug() << "VALUE EXPECTED: " << check.expectedValue.value << check.expectedValue.value.toHex();
                 qDebug() << "CONTENTS      : " << contents;
                 QVERIFY(false);
             }
-            if (check.expectedType != noValue && actualType != check.expectedType) {
+            if (!check.expectedType.matches(item.type, nameSpace)) {
                 qDebug() << "INAME        : " << item.iname;
                 qDebug() << "TYPE ACTUAL  : " << item.type;
-                qDebug() << "TYPE EXPECTED: " << check.expectedType;
+                qDebug() << "TYPE EXPECTED: " << check.expectedType.type;
                 qDebug() << "CONTENTS     : " << contents;
                 QVERIFY(false);
             }
@@ -1575,14 +1614,24 @@ void tst_Dumpers::dumper_data()
                     "std::complex<double> c(1, 2);\n")
                % Check("c", "(1.000000, 2.000000)", "std::complex<double>");
 
+    QTest::newRow("CComplex")
+            << Data("#include <complex.h>\n",
+                    "// Doesn't work when compiled as C++.\n"
+                    "double complex a = 0;\n"
+                    "double _Complex b = 0;\n"
+                    "dummyStatement(&a, &b);\n")
+               % ForceC()
+               % Check("a", "0 + 0 * I", "complex double")
+               % Check("b", "0 + 0 * I", "complex double");
+
     QTest::newRow("StdDequeInt")
             << Data("#include <deque>\n",
                     "std::deque<int> deque;\n"
                     "deque.push_back(1);\n"
                     "deque.push_back(2);\n")
-               % Check("deque", "<2 items>", "std::deque<int>")
-               % Check("deque.0", "1", "int")
-               % Check("deque.1", "2", "int");
+               % Check("deque", "<2 items>", Deque("int"))
+               % Check("deque.0", "[0]", "1", "int")
+               % Check("deque.1", "[1]", "2", "int");
 
     QTest::newRow("StdDequeIntStar")
             << Data("#include <deque>\n",
@@ -1590,21 +1639,22 @@ void tst_Dumpers::dumper_data()
                     "deque.push_back(new int(1));\n"
                     "deque.push_back(0);\n"
                     "deque.push_back(new int(2));\n"
+                    "deque.push_back(new int(3));\n"
                     "deque.pop_back();\n"
                     "deque.pop_front();\n")
-               % Check("deque", "<3 items>", "std::deque<int*>")
-               % Check("deque.0", "", "int")
-               % Check("deque.1", "0x0", "int *");
+               % Check("deque", "<2 items>", Deque("int *"))
+               % Check("deque.0", "[0]", "0x0", "int *")
+               % Check("deque.1", "[1]", "2", "int");
 
     QTest::newRow("StdDequeFoo")
             << Data("#include <deque>\n" + fooData,
                     "std::deque<Foo> deque;\n"
                     "deque.push_back(1);\n"
                     "deque.push_front(2);\n")
-               % Check("deque", "<2 items>", "std::deque<Foo>")
-               % Check("deque.0", "", "Foo")
+               % Check("deque", "<2 items>", Deque("Foo"))
+               % Check("deque.0", "[0]", "", "Foo")
                % Check("deque.0.a", "2", "int")
-               % Check("deque.1", "", "Foo")
+               % Check("deque.1", "[1]", "", "Foo")
                % Check("deque.1.a", "1", "int");
 
     QTest::newRow("StdDequeFooStar")
@@ -1612,10 +1662,10 @@ void tst_Dumpers::dumper_data()
                     "std::deque<Foo *> deque;\n"
                     "deque.push_back(new Foo(1));\n"
                     "deque.push_back(new Foo(2));\n")
-               % Check("deque", "<2 items>", "std::deque<Foo*>")
-               % Check("deque.0", "", "Foo")
+               % Check("deque", "<2 items>", Deque("Foo*"))
+               % Check("deque.0", "[0]", "", "Foo")
                % Check("deque.0.a", "1", "int")
-               % Check("deque.1", "", "Foo")
+               % Check("deque.1", "[1]", "", "Foo")
                % Check("deque.1.a", "2", "int");
 
     QTest::newRow("StdHashSet")
