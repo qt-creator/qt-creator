@@ -52,25 +52,58 @@ static QByteArray parentIName(const QByteArray &iname)
     return pos == -1 ? QByteArray() : iname.left(pos);
 }
 
+struct Value
+{
+    Value()
+        : value(noValue), hasPtrSuffix(false)
+    {}
+    Value(const char *str)
+        : value(str), hasPtrSuffix(false)
+    {}
+    Value(const QByteArray &ba)
+        : value(ba), hasPtrSuffix(false)
+    {}
+
+    bool matches(const QString &actualValue) const
+    {
+        if (value == noValue)
+            return true;
+        QString self = QString::fromLatin1(value.data(), value.size());
+        if (hasPtrSuffix)
+            return actualValue.startsWith(self + QLatin1String(" @0x"))
+                || actualValue.startsWith(self + QLatin1String("@0x"));
+        return actualValue == self;
+    }
+
+    QByteArray value;
+    bool hasPtrSuffix;
+};
+
+struct Pointer : Value
+{
+    Pointer() { hasPtrSuffix = true; }
+    Pointer(const QByteArray &value) : Value(value) { hasPtrSuffix = true; }
+};
+
 struct Check
 {
     Check() {}
 
-    Check(const QByteArray &iname, const QByteArray &value,
+    Check(const QByteArray &iname, const Value &value,
           const QByteArray &type)
         : iname(iname), expectedName(nameFromIName(iname)),
           expectedValue(value), expectedType(type)
     {}
 
     Check(const QByteArray &iname, const QByteArray &name,
-         const QByteArray &value, const QByteArray &type)
+         const Value &value, const QByteArray &type)
         : iname(iname), expectedName(name),
           expectedValue(value), expectedType(type)
     {}
 
     QByteArray iname;
     QByteArray expectedName;
-    QByteArray expectedValue;
+    Value expectedValue;
     QByteArray expectedType;
 };
 
@@ -100,7 +133,8 @@ struct GuiProfile : public Profile
 
 struct Cxx11Profile : public Profile
 {
-    Cxx11Profile() : Profile("CONFIG += c++11") {}
+    //Cxx11Profile() : Profile("CONFIG += c++11") {}
+    Cxx11Profile() : Profile("QMAKE_CXXFLAGS += -std=c++0x") {}
 };
 
 class Data
@@ -313,7 +347,6 @@ void tst_Dumpers::dumper()
             QString actualValue = item.value;
             if (actualValue == QLatin1String(" "))
                 actualValue.clear(); // FIXME: Remove later.
-            QString expectedValue = QString::fromUtf8(check.expectedValue.data(), check.expectedValue.size());
             QByteArray actualType = item.type;
             actualType.replace(' ', "");
             if (item.name.toLatin1() != check.expectedName) {
@@ -323,10 +356,10 @@ void tst_Dumpers::dumper()
                 qDebug() << "CONTENTS     : " << contents;
                 QVERIFY(false);
             }
-            if (expectedValue != QString::fromLatin1(noValue) && actualValue != expectedValue) {
+            if (!check.expectedValue.matches(actualValue)) {
                 qDebug() << "INAME         : " << item.iname;
                 qDebug() << "VALUE ACTUAL  : " << item.value << actualValue.toLatin1().toHex();
-                qDebug() << "VALUE EXPECTED: " << expectedValue << expectedValue.toLatin1().toHex();
+                qDebug() << "VALUE EXPECTED: " << check.expectedValue.value << check.expectedValue.value.toHex();
                 qDebug() << "CONTENTS      : " << contents;
                 QVERIFY(false);
             }
@@ -1804,20 +1837,20 @@ void tst_Dumpers::dumper_data()
                % Check("map.2.first", "\"Welt\"", "@QString");
 
     QTest::newRow("StdUniquePtr")
-            << Data("#include <memory>\n",
+            << Data("#include <memory>\n" + fooData,
                     "std::unique_ptr<int> pi(new int(32));\n"
                     "std::unique_ptr<Foo> pf(new Foo);\n")
                % Cxx11Profile()
-               % Check("pi", "32", "std::unique_ptr<int, std::default_delete<int> >")
-               % Check("pf", "32", "std::unique_ptr<Foo, std::default_delete<Foo> >");
+               % Check("pi", Pointer("32"), "std::unique_ptr<int, std::default_delete<int> >")
+               % Check("pf", Pointer(), "std::unique_ptr<Foo, std::default_delete<Foo> >");
 
     QTest::newRow("StdSharedPtr")
-            << Data("#include <memory>\n",
+            << Data("#include <memory>\n" + fooData,
                     "std::shared_ptr<int> pi(new int(32));\n"
                     "std::shared_ptr<Foo> pf(new Foo);\n")
                % Cxx11Profile()
-               % Check("pi", "32", "std::shared_ptr<int, std::default_delete<int> >")
-               % Check("pf", "32", "std::shared_ptr<Foo, std::default_delete<int> >");
+               % Check("pi", Pointer("32"), "std::shared_ptr<int, std::default_delete<int> >")
+               % Check("pf", Pointer(), "std::shared_ptr<Foo, std::default_delete<int> >");
 
     QTest::newRow("StdSetInt")
             << Data("#include <set>\n",
