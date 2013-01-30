@@ -274,7 +274,7 @@ public:
     { return m_modelManager.data(); }
 
 public: // attributes
-    CPlusPlus::Snapshot snapshot;
+    CPlusPlus::Snapshot m_snapshot;
 
 protected:
     CPlusPlus::Document::Ptr switchDocument(CPlusPlus::Document::Ptr doc);
@@ -304,8 +304,8 @@ protected:
 private:
     QPointer<CppModelManager> m_modelManager;
     bool m_dumpFileNameWhileParsing;
-    CPlusPlus::Environment env;
-    CPlusPlus::Preprocessor preprocess;
+    CPlusPlus::Environment m_env;
+    CPlusPlus::Preprocessor m_preprocess;
     QStringList m_includePaths;
     CPlusPlus::CppModelManagerInterface::WorkingCopy m_workingCopy;
     QStringList m_projectFiles;

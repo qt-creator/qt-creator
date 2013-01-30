@@ -196,13 +196,13 @@ static const char pp_configuration[] =
     "#define __forceinline inline\n";
 
 CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager, bool dumpFileNameWhileParsing)
-    : snapshot(modelManager->snapshot()),
+    : m_snapshot(modelManager->snapshot()),
       m_modelManager(modelManager),
       m_dumpFileNameWhileParsing(dumpFileNameWhileParsing),
-      preprocess(this, &env),
+      m_preprocess(this, &m_env),
       m_revision(0)
 {
-    preprocess.setKeepComments(true);
+    m_preprocess.setKeepComments(true);
 }
 
 CppPreprocessor::~CppPreprocessor()
@@ -324,7 +324,7 @@ void CppPreprocessor::run(const QString &fileName)
 
 void CppPreprocessor::resetEnvironment()
 {
-    env.reset();
+    m_env.reset();
     m_processed.clear();
 }
 
@@ -522,13 +522,13 @@ void CppPreprocessor::mergeEnvironment(Document::Ptr doc)
     foreach (const Document::Include &incl, doc->includes()) {
         QString includedFile = incl.fileName();
 
-        if (Document::Ptr includedDoc = snapshot.document(includedFile))
+        if (Document::Ptr includedDoc = m_snapshot.document(includedFile))
             mergeEnvironment(includedDoc);
         else
             run(includedFile);
     }
 
-    env.addMacros(doc->definedMacros());
+    m_env.addMacros(doc->definedMacros());
 }
 
 void CppPreprocessor::startSkippingBlocks(unsigned offset)
@@ -577,7 +577,7 @@ void CppPreprocessor::sourceNeeded(unsigned line, QString &fileName, IncludeType
                     ;
     }
 
-    Document::Ptr doc = snapshot.document(fileName);
+    Document::Ptr doc = m_snapshot.document(fileName);
     if (doc) {
         mergeEnvironment(doc);
         return;
@@ -593,7 +593,7 @@ void CppPreprocessor::sourceNeeded(unsigned line, QString &fileName, IncludeType
 
     Document::Ptr previousDoc = switchDocument(doc);
 
-    const QByteArray preprocessedCode = preprocess.run(fileName, contents);
+    const QByteArray preprocessedCode = m_preprocess.run(fileName, contents);
 
 //    { QByteArray b(preprocessedCode); b.replace("\n", "<<<\n"); qDebug("Preprocessed code for \"%s\": [[%s]]", fileName.toUtf8().constData(), b.constData()); }
 
@@ -601,10 +601,10 @@ void CppPreprocessor::sourceNeeded(unsigned line, QString &fileName, IncludeType
     doc->keepSourceAndAST();
     doc->tokenize();
 
-    snapshot.insert(doc);
+    m_snapshot.insert(doc);
     m_todo.remove(fileName);
 
-    Process process(m_modelManager, doc, snapshot, m_workingCopy);
+    Process process(m_modelManager, doc, m_snapshot, m_workingCopy);
 
     process();
 
