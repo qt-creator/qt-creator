@@ -801,20 +801,27 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
 
         // It gets a bit complicated if the reference is actually a class template because we
         // now must worry about dependent names in base classes.
-        if (Template *templ = referenceClass->enclosingTemplate()) {
-            const unsigned argumentCount = templId->templateArgumentCount();
+        if (Template *templateSpecialization = referenceClass->enclosingTemplate()) {
+            const unsigned argumentCountOfInitialization = templId->templateArgumentCount();
+            const unsigned argumentCountOfSpecialization
+                    = templateSpecialization->templateParameterCount();
 
             if (_factory->expandTemplates()) {
                 Clone cloner(_control.data());
                 Subst subst(_control.data());
-                for (unsigned i = 0, ei = std::min(argumentCount, templ->templateParameterCount()); i < ei; ++i) {
-                    const TypenameArgument *tParam = templ->templateParameterAt(i)->asTypenameArgument();
+                for (unsigned i = 0; i < argumentCountOfSpecialization; ++i) {
+                    const TypenameArgument *tParam
+                            = templateSpecialization->templateParameterAt(i)->asTypenameArgument();
                     if (!tParam)
                         continue;
                     const Name *name = tParam->name();
                     if (!name)
                         continue;
-                    const FullySpecifiedType &ty = templId->templateArgumentAt(i);
+
+                    FullySpecifiedType ty = (i < argumentCountOfInitialization) ?
+                                templId->templateArgumentAt(i):
+                                cloner.type(tParam->type(), &subst);
+
                     subst.bind(cloner.name(name, &subst), ty);
                 }
 
@@ -822,7 +829,9 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                     Symbol *clone = cloner.symbol(s, &subst);
                     instantiation->_symbols.append(clone);
 #ifdef DEBUG_LOOKUP
-                    Overview oo;oo.showFunctionSignatures = true;oo.showReturnTypes = true; oo.showTemplateParameters = true;
+                    Overview oo;oo.showFunctionSignatures = true;
+                    oo.showReturnTypes = true;
+                    oo.showTemplateParameters = true;
                     qDebug()<<"cloned"<<oo(clone->type());
 #endif // DEBUG_LOOKUP
                 }
@@ -832,8 +841,8 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
             }
 
             QHash<const Name*, unsigned> templParams;
-            for (unsigned i = 0; i < templ->templateParameterCount(); ++i)
-                templParams.insert(templ->templateParameterAt(i)->name(), i);
+            for (unsigned i = 0; i < argumentCountOfSpecialization; ++i)
+                templParams.insert(templateSpecialization->templateParameterAt(i)->name(), i);
 
             foreach (const Name *baseName, allBases) {
                 ClassOrNamespace *baseBinding = 0;
@@ -843,7 +852,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                     // Ex.: template <class T> class A : public T {};
                     if (templParams.contains(nameId)) {
                         const unsigned parameterIndex = templParams.value(nameId);
-                        if (parameterIndex < argumentCount) {
+                        if (parameterIndex < argumentCountOfInitialization) {
                             const FullySpecifiedType &fullType =
                                     templId->templateArgumentAt(parameterIndex);
                             if (fullType.isValid()) {
@@ -855,9 +864,9 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                 } else {
                     SubstitutionMap map;
                     for (unsigned i = 0;
-                         i < templ->templateParameterCount() && i < argumentCount;
+                         i < argumentCountOfSpecialization && i < argumentCountOfInitialization;
                          ++i) {
-                        map.bind(templ->templateParameterAt(i)->name(),
+                        map.bind(templateSpecialization->templateParameterAt(i)->name(),
                                  templId->templateArgumentAt(i));
                     }
                     SubstitutionEnvironment env;
@@ -876,7 +885,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                         ClassOrNamespace *binding = this;
                         if (const Name *qualification = qBaseName->base()) {
                             const TemplateNameId *baseTemplName = qualification->asTemplateNameId();
-                            if (!baseTemplName || !compareName(baseTemplName, templ->name()))
+                            if (!baseTemplName || !compareName(baseTemplName, templateSpecialization->name()))
                                 binding = lookupType(qualification);
                         }
                         baseName = qBaseName->name();

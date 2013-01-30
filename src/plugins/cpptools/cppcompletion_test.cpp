@@ -1328,6 +1328,79 @@ void CppToolsPlugin::test_completion_instantiate_nested_of_nested_class_when_enc
     QVERIFY(completions.contains(QLatin1String("foo_i")));
 }
 
+void CppToolsPlugin::test_completion_instantiate_template_with_default_argument_type()
+{
+    TestData data;
+    data.srcText = "\n"
+            "struct Foo\n"
+            "{\n"
+            "    int bar;\n"
+            "};\n"
+            "\n"
+            "template <typename T = Foo>\n"
+            "struct Template\n"
+            "{\n"
+            "    T t;\n"
+            "};\n"
+            "\n"
+            "Template<> templateWithDefaultTypeOfArgument;\n"
+            "@\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("templateWithDefaultTypeOfArgument.t.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("Foo")));
+    QVERIFY(completions.contains(QLatin1String("bar")));
+}
+
+void CppToolsPlugin::test_completion_instantiate_template_with_default_argument_type_as_template()
+{
+    TestData data;
+    data.srcText = "\n"
+            "struct Foo\n"
+            "{\n"
+            "    int bar;\n"
+            "};\n"
+            "\n"
+            "template <typename T>\n"
+            "struct TemplateArg\n"
+            "{\n"
+            "    T t;\n"
+            "};\n"
+            "template <typename T, typename S = TemplateArg<T> >\n"
+            "struct Template\n"
+            "{\n"
+            "    S s;\n"
+            "};\n"
+            "\n"
+            "Template<Foo> templateWithDefaultTypeOfArgument;\n"
+            "@\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("templateWithDefaultTypeOfArgument.s.t.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("Foo")));
+    QVERIFY(completions.contains(QLatin1String("bar")));
+}
+
 void CppToolsPlugin::test_completion_member_access_operator_1()
 {
     TestData data;
