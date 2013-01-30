@@ -87,6 +87,8 @@ public:
     QString pwd;
     QStringList precmds, preconfigs, postcmds, postconfigs;
     bool after;
+
+    void flush() { after = false; }
 };
 
 class QMAKE_EXPORT QMakeGlobals
