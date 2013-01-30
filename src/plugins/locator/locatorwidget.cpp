@@ -249,7 +249,8 @@ LocatorWidget::LocatorWidget(LocatorPlugin *qop) :
     m_configureAction(new QAction(tr("Configure..."), this)),
     m_fileLineEdit(new Utils::FilterLineEdit),
     m_updateRequested(false),
-    m_acceptRequested(false)
+    m_acceptRequested(false),
+    m_possibleToolTipRequest(false)
 {
     // Explicitly hide the completion list popup.
     m_completionList->hide();
