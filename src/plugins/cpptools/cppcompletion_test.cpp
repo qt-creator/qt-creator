@@ -72,7 +72,7 @@ struct TestCase
     QTextDocument *doc;
 };
 
-static QStringList getCompletions(TestCase &data)
+static QStringList getCompletions(TestCase &data, bool *replaceAccessOperator = 0)
 {
     QStringList completions;
 
@@ -86,12 +86,15 @@ static QStringList getCompletions(TestCase &data)
     IAssistProposalModel *model = proposal->model();
     if (!model)
         return completions;
-    BasicProposalItemListModel *listmodel = dynamic_cast<BasicProposalItemListModel *>(model);
+    CppAssistProposalModel *listmodel = dynamic_cast<CppAssistProposalModel *>(model);
     if (!listmodel)
         return completions;
 
     for (int i = 0; i < listmodel->size(); ++i)
         completions << listmodel->text(i);
+
+    if (replaceAccessOperator)
+        *replaceAccessOperator = listmodel->m_replaceDotForArrow;
 
     return completions;
 }
@@ -1287,4 +1290,31 @@ void CppToolsPlugin::test_completion_instantiate_nested_of_nested_class_when_enc
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("Foo")));
     QVERIFY(completions.contains(QLatin1String("foo_i")));
+}
+
+void CppToolsPlugin::test_completion_member_access_operator_1()
+{
+    TestCase data;
+    data.srcText = "\n"
+            "struct S { void t(); };\n"
+            "void f() { S *s;\n"
+            "@\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("s.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    bool replaceAccessOperator = false;
+    QStringList completions = getCompletions(data, &replaceAccessOperator);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("S")));
+    QVERIFY(completions.contains(QLatin1String("t")));
+    QVERIFY(replaceAccessOperator);
 }

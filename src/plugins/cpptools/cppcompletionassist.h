@@ -41,10 +41,12 @@
 #  include <cplusplus/Symbol.h>
 #endif
 
+#include <texteditor/codeassist/basicproposalitemlistmodel.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/snippets/snippetassistcollector.h>
 #include <texteditor/codeassist/defaultassistinterface.h>
+#include <texteditor/codeassist/basicproposalitem.h>
 
 #include <QStringList>
 #include <QVariant>
@@ -64,7 +66,26 @@ namespace CppTools {
 namespace Internal {
 
 class CppCompletionAssistInterface;
-class CppAssistProposalModel;
+
+class CppAssistProposalModel : public TextEditor::BasicProposalItemListModel
+{
+public:
+    CppAssistProposalModel()
+        : TextEditor::BasicProposalItemListModel()
+        , m_completionOperator(CPlusPlus::T_EOF_SYMBOL)
+        , m_replaceDotForArrow(false)
+        , m_typeOfExpression(new CPlusPlus::TypeOfExpression)
+    {
+        m_typeOfExpression->setExpandTemplates(true);
+    }
+
+    virtual bool isSortable(const QString &prefix) const;
+    virtual TextEditor::IAssistProposalItem *proposalItem(int index) const;
+
+    unsigned m_completionOperator;
+    bool m_replaceDotForArrow;
+    QSharedPointer<CPlusPlus::TypeOfExpression> m_typeOfExpression;
+};
 
 class InternalCompletionAssistProvider : public CppCompletionAssistProvider
 {

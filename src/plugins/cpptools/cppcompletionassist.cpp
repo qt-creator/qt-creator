@@ -58,7 +58,6 @@
 #include <coreplugin/mimedatabase.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <texteditor/codeassist/basicproposalitem.h>
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 #include <texteditor/codeassist/functionhintproposal.h>
@@ -89,29 +88,6 @@ struct CompleteFunctionDeclaration
     {}
 
     Function *function;
-};
-
-// ----------------------
-// CppAssistProposalModel
-// ----------------------
-class CppAssistProposalModel : public TextEditor::BasicProposalItemListModel
-{
-public:
-    CppAssistProposalModel()
-        : TextEditor::BasicProposalItemListModel()
-        , m_completionOperator(T_EOF_SYMBOL)
-        , m_replaceDotForArrow(false)
-        , m_typeOfExpression(new TypeOfExpression)
-    {
-        m_typeOfExpression->setExpandTemplates(true);
-    }
-
-    virtual bool isSortable(const QString &prefix) const;
-    virtual IAssistProposalItem *proposalItem(int index) const;
-
-    unsigned m_completionOperator;
-    bool m_replaceDotForArrow;
-    QSharedPointer<TypeOfExpression> m_typeOfExpression;
 };
 
 // ---------------------
