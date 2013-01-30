@@ -155,7 +155,7 @@ BuildConfiguration *GenericBuildConfigurationFactory::create(Target *parent, con
     // wizards will show up, that incorporate choosing the nam
     bool ok = true;
     QString buildConfigurationName = name;
-    if (buildConfigurationName.isEmpty())
+    if (buildConfigurationName.isNull())
         buildConfigurationName = QInputDialog::getText(0,
                                                        tr("New Configuration"),
                                                        tr("New configuration name:"),

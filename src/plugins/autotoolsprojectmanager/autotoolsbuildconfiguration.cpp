@@ -150,7 +150,7 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::create(Target *
 
     bool ok = true;
     QString buildConfigurationName = name;
-    if (buildConfigurationName.isEmpty())
+    if (buildConfigurationName.isNull())
         buildConfigurationName = QInputDialog::getText(0,
                                                        tr("New Configuration"),
                                                        tr("New configuration name:"),

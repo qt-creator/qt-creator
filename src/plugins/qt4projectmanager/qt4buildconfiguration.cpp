@@ -607,7 +607,7 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(Target *parent, const C
 
     bool ok = true;
     QString buildConfigurationName = name;
-    if (buildConfigurationName.isEmpty())
+    if (buildConfigurationName.isNull())
         buildConfigurationName = QInputDialog::getText(0,
                                                        tr("New Configuration"),
                                                        tr("New configuration name:"),
@@ -618,16 +618,16 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(Target *parent, const C
         return 0;
 
     //: Debug build configuration. We recommend not translating it.
-    QString defaultFirstName = tr("%1 Debug").arg(version->displayName());
+    QString defaultFirstName = tr("%1 Debug").arg(version->displayName()).trimmed();
     QString customFirstName;
     if (buildConfigurationName != version->displayName())
-        customFirstName = tr("%1 Debug").arg(buildConfigurationName);
+        customFirstName = tr("%1 Debug").arg(buildConfigurationName).trimmed();
 
     //: Release build configuration. We recommend not translating it.
-    QString defaultSecondName = tr("%1 Release").arg(version->displayName());
+    QString defaultSecondName = tr("%1 Release").arg(version->displayName()).trimmed();
     QString customSecondName;
     if (buildConfigurationName != version->displayName())
-        customSecondName = tr("%1 Release").arg(buildConfigurationName);
+        customSecondName = tr("%1 Release").arg(buildConfigurationName).trimmed();
 
     BuildConfiguration *bc
             = Qt4BuildConfiguration::setup(parent, defaultFirstName, customFirstName,
