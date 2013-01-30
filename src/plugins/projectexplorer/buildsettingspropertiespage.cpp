@@ -240,7 +240,8 @@ void BuildSettingsWidget::updateBuildSettings()
 
     // Add pages
     NamedWidget *generalConfigWidget = m_buildConfiguration->createConfigWidget();
-    addSubWidget(generalConfigWidget);
+    if (generalConfigWidget)
+        addSubWidget(generalConfigWidget);
 
     addSubWidget(new BuildStepsPage(m_buildConfiguration, Core::Id(Constants::BUILDSTEPS_BUILD)));
     addSubWidget(new BuildStepsPage(m_buildConfiguration, Core::Id(Constants::BUILDSTEPS_CLEAN)));
