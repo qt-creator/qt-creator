@@ -114,6 +114,8 @@ private slots:
     void test_completion_instantiate_nested_class_when_enclosing_is_template();
     void test_completion_instantiate_nested_of_nested_class_when_enclosing_is_template();
     void test_completion_member_access_operator_1();
+    void test_completion_typedef_of_type_and_replace_access_operator();
+    void test_completion_typedef_of_pointer_of_type_and_replace_access_operator();
 
     void test_format_pointerdeclaration_in_simpledeclarations();
     void test_format_pointerdeclaration_in_simpledeclarations_data();
