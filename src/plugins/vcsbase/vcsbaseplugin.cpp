@@ -981,10 +981,8 @@ bool VcsBasePlugin::runFullySynchronous(const QString &workingDirectory,
     if (binary.isEmpty())
         return false;
 
-    VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
-
     if (logCommandToWindow)
-        outputWindow->appendCommand(workingDirectory, binary, arguments);
+        VcsBase::VcsBaseOutputWindow::instance()->appendCommand(workingDirectory, binary, arguments);
 
     QProcess process;
     process.setWorkingDirectory(workingDirectory);
