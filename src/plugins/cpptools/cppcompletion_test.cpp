@@ -63,7 +63,7 @@ using namespace CppTools::Internal;
 using namespace TextEditor;
 using namespace Core;
 
-struct TestCase
+struct TestData
 {
     QByteArray srcText;
     int pos;
@@ -72,7 +72,7 @@ struct TestCase
     QTextDocument *doc;
 };
 
-static QStringList getCompletions(TestCase &data, bool *replaceAccessOperator = 0)
+static QStringList getCompletions(TestData &data, bool *replaceAccessOperator = 0)
 {
     QStringList completions;
 
@@ -99,7 +99,7 @@ static QStringList getCompletions(TestCase &data, bool *replaceAccessOperator = 
     return completions;
 }
 
-static void setup(TestCase *data)
+static void setup(TestData *data)
 {
     data->pos = data->srcText.indexOf('@');
     QVERIFY(data->pos != -1);
@@ -123,7 +123,7 @@ static void setup(TestCase *data)
 
 void CppToolsPlugin::test_completion_forward_declarations_present()
 {
-    TestCase data;
+    TestData data;
     data.srcText = "\n"
             "class Foo\n"
             "{\n"
@@ -157,7 +157,7 @@ void CppToolsPlugin::test_completion_forward_declarations_present()
 
 void CppToolsPlugin::test_completion_inside_parentheses_c_style_conversion()
 {
-    TestCase data;
+    TestData data;
     data.srcText = "\n"
             "class Base\n"
             "{\n"
@@ -198,7 +198,7 @@ void CppToolsPlugin::test_completion_inside_parentheses_c_style_conversion()
 
 void CppToolsPlugin::test_completion_inside_parentheses_cast_operator_conversion()
 {
-    TestCase data;
+    TestData data;
     data.srcText = "\n"
             "class Base\n"
             "{\n"
@@ -238,7 +238,7 @@ void CppToolsPlugin::test_completion_inside_parentheses_cast_operator_conversion
 
 void CppToolsPlugin::test_completion_basic_1()
 {
-    TestCase data;
+    TestData data;
     data.srcText = "\n"
             "class Foo\n"
             "{\n"
@@ -278,7 +278,7 @@ void CppToolsPlugin::test_completion_basic_1()
 
 void CppToolsPlugin::test_completion_template_1()
 {
-    TestCase data;
+    TestData data;
     data.srcText = "\n"
             "template <class T>\n"
             "class Foo\n"
@@ -314,7 +314,7 @@ void CppToolsPlugin::test_completion_template_1()
 
 void CppToolsPlugin::test_completion_template_2()
 {
-    TestCase data;
+    TestData data;
     data.srcText = "\n"
             "template <class T>\n"
             "struct List\n"
@@ -349,7 +349,7 @@ void CppToolsPlugin::test_completion_template_2()
 
 void CppToolsPlugin::test_completion_template_3()
 {
-    TestCase data;
+    TestData data;
     data.srcText = "\n"
             "template <class T>\n"
             "struct List\n"
@@ -384,7 +384,7 @@ void CppToolsPlugin::test_completion_template_3()
 
 void CppToolsPlugin::test_completion_template_4()
 {
-    TestCase data;
+    TestData data;
     data.srcText = "\n"
             "template <class T>\n"
             "struct List\n"
@@ -420,7 +420,7 @@ void CppToolsPlugin::test_completion_template_4()
 
 void CppToolsPlugin::test_completion_template_5()
 {
-    TestCase data;
+    TestData data;
     data.srcText = "\n"
             "template <class T>\n"
             "struct List\n"
@@ -456,7 +456,7 @@ void CppToolsPlugin::test_completion_template_5()
 
 void CppToolsPlugin::test_completion_template_6()
 {
-    TestCase data;
+    TestData data;
     data.srcText = "\n"
             "class Item\n"
             "{\n"
@@ -496,7 +496,7 @@ void CppToolsPlugin::test_completion_template_6()
 
 void CppToolsPlugin::test_completion_template_7()
 {
-    TestCase data;
+    TestData data;
     data.srcText = "\n"
             "struct Test\n"
             "{\n"
@@ -538,7 +538,7 @@ void CppToolsPlugin::test_completion_template_7()
 
 void CppToolsPlugin::test_completion_type_of_pointer_is_typedef()
 {
-    TestCase data;
+    TestData data;
     data.srcText = "\n"
             "typedef struct Foo\n"
             "{\n"
@@ -569,7 +569,7 @@ void CppToolsPlugin::test_completion()
     QFETCH(QByteArray, code);
     QFETCH(QStringList, expectedCompletions);
 
-    TestCase data;
+    TestData data;
     data.srcText = code;
     setup(&data);
 
@@ -1210,7 +1210,7 @@ void CppToolsPlugin::test_completion_enclosing_template_class_data()
 
 void CppToolsPlugin::test_completion_instantiate_nested_class_when_enclosing_is_template()
 {
-    TestCase data;
+    TestData data;
     data.srcText = "\n"
             "struct Foo \n"
             "{\n"
@@ -1250,7 +1250,7 @@ void CppToolsPlugin::test_completion_instantiate_nested_class_when_enclosing_is_
 
 void CppToolsPlugin::test_completion_instantiate_nested_of_nested_class_when_enclosing_is_template()
 {
-    TestCase data;
+    TestData data;
     data.srcText = "\n"
             "struct Foo \n"
             "{\n"
@@ -1294,7 +1294,7 @@ void CppToolsPlugin::test_completion_instantiate_nested_of_nested_class_when_enc
 
 void CppToolsPlugin::test_completion_member_access_operator_1()
 {
-    TestCase data;
+    TestData data;
     data.srcText = "\n"
             "struct S { void t(); };\n"
             "void f() { S *s;\n"
