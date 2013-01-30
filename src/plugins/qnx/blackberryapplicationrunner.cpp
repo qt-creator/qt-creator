@@ -148,7 +148,7 @@ void BlackBerryApplicationRunner::start()
 void BlackBerryApplicationRunner::checkSlog2Info()
 {
     if (m_slog2infoFound) {
-        tailApplicationLog();
+        readLaunchTime();
     } else if (!m_testSlog2Process) {
         m_testSlog2Process = new QSsh::SshRemoteProcessRunner(this);
         connect(m_testSlog2Process, SIGNAL(processClosed(int)),
