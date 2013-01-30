@@ -323,6 +323,41 @@ QList<ProjectExplorer::Task> BaseQtVersion::validateKit(const ProjectExplorer::K
     return result;
 }
 
+FileName BaseQtVersion::headerPath() const
+{
+    return Utils::FileName::fromUserInput(qmakeProperty("QT_INSTALL_HEADERS"));
+}
+
+FileName BaseQtVersion::libraryPath() const
+{
+    return Utils::FileName::fromUserInput(qmakeProperty("QT_INSTALL_LIBS"));
+}
+
+FileName BaseQtVersion::binPath() const
+{
+    return Utils::FileName::fromUserInput(qmakeProperty("QT_HOST_BINS"));
+}
+
+Utils::FileName QtSupport::BaseQtVersion::mkspecsPath() const
+{
+    Utils::FileName result = Utils::FileName::fromUserInput(qmakeProperty("QT_HOST_DATA"));
+    if (result.isEmpty())
+        result = Utils::FileName::fromUserInput(qmakeProperty("QMAKE_MKSPECS"));
+    else
+        result.appendPath(QLatin1String("mkspecs"));
+    return result;
+}
+
+QString QtSupport::BaseQtVersion::qtNamespace() const
+{
+    return qmakeProperty("QT_NAMESPACE");
+}
+
+QString QtSupport::BaseQtVersion::qtLibInfix() const
+{
+    return qmakeProperty("QT_LIBINFIX");
+}
+
 void BaseQtVersion::setId(int id)
 {
     m_id = id;

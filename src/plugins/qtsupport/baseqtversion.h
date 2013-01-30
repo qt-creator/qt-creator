@@ -191,7 +191,6 @@ public:
     static Utils::FileName mkspecDirectoryFromVersionInfo(const QHash<QString, QString> &versionInfo);
     static Utils::FileName mkspecFromVersionInfo(const QHash<QString, QString> &versionInfo);
 
-
     virtual bool supportsBinaryDebuggingHelper() const;
     virtual QString gdbDebuggingHelperLibrary() const;
     virtual QString qmlDebuggingHelperLibrary(bool debugVersion) const;
@@ -219,6 +218,14 @@ public:
     virtual bool supportsPlatform(const QString &platformName) const;
 
     virtual QList<ProjectExplorer::Task> validateKit(const ProjectExplorer::Kit *k);
+
+    Utils::FileName headerPath() const;
+    Utils::FileName libraryPath() const;
+    Utils::FileName binPath() const;
+    Utils::FileName mkspecsPath() const;
+
+    QString qtNamespace() const;
+    QString qtLibInfix() const;
 
 protected:
     BaseQtVersion();
