@@ -287,14 +287,22 @@ def invokeFindUsage(editor, line, typeOperation, n=1):
     invokeContextMenuItem(editor, "Find Usages")
     return True
 
+def addBranchWildcardToRoot(rootNode):
+    pos = rootNode.find(".")
+    return rootNode[:pos] + " (*)" + rootNode[pos:]
+
 def openDocument(treeElement):
     try:
         selectFromCombo(":Qt Creator_Core::Internal::NavComboBox", "Open Documents")
         navigator = waitForObject(":Qt Creator_Utils::NavigationTreeView")
-        fileName = waitForObjectItem(navigator, treeElement).text
+        try:
+            item = waitForObjectItem(navigator, treeElement, 3000)
+        except:
+            treeElement = addBranchWildcardToRoot(treeElement)
+            item = waitForObjectItem(navigator, treeElement)
         doubleClickItem(navigator, treeElement, 5, 5, 0, Qt.LeftButton)
         mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
-        waitFor("fileName in str(mainWindow.windowTitle)")
+        waitFor("item.text in str(mainWindow.windowTitle)")
         return True
     except:
         return False

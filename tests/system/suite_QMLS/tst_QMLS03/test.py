@@ -50,7 +50,7 @@ def main():
     # open example project
     openQmakeProject(examplePath)
     # open qml file
-    doubleClickItem(":Qt Creator_Utils::NavigationTreeView", "propertyanimation.QML.qml.color-animation\\.qml", 5, 5, 0, Qt.LeftButton)
+    openDocument("propertyanimation.QML.qml.color-animation\\.qml")
     # get editor
     editorArea = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     # 1. check usages using context menu

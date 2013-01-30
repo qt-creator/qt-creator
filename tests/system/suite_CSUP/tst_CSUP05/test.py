@@ -19,7 +19,7 @@ def main():
     test.verify(waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", "propertyanimation"),
                 "Verifying if: Project is opened.")
     # open .cpp file in editor
-    doubleClickItem(":Qt Creator_Utils::NavigationTreeView", "propertyanimation.Sources.main\\.cpp", 5, 5, 0, Qt.LeftButton)
+    openDocument("propertyanimation.Sources.main\\.cpp")
     test.verify(checkIfObjectExists(":Qt Creator_CppEditor::Internal::CPPEditorWidget"),
                 "Verifying if: .cpp file is opened in Edit mode.")
     # select some word for example "viewer" and press Ctrl+F.

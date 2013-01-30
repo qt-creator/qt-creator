@@ -10,7 +10,7 @@ def main():
     # create qt quick application
     checkedTargets, projectName = createNewQtQuickApplication(tempDir(), "SampleApp")
     # create syntax error in cpp file
-    doubleClickItem(":Qt Creator_Utils::NavigationTreeView", "SampleApp.Sources.main\\.cpp", 5, 5, 0, Qt.LeftButton)
+    openDocument("SampleApp.Sources.main\\.cpp")
     if not appendToLine(waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget"), "viewer.showExpanded();", "SyntaxError"):
         invokeMenuItem("File", "Exit")
         return

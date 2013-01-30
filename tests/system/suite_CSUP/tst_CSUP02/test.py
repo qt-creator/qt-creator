@@ -11,7 +11,7 @@ def main():
     test.verify(waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", "SampleApp"),
                 "Step 1: Verifying if: Project is opened.")
 # Step 2: Open .cpp file in Edit mode.
-    doubleClickItem(":Qt Creator_Utils::NavigationTreeView", "SampleApp.Sources.main\\.cpp", 5, 5, 0, Qt.LeftButton)
+    openDocument("SampleApp.Sources.main\\.cpp")
     test.verify(checkIfObjectExists(":Qt Creator_CppEditor::Internal::CPPEditorWidget"),
                 "Step 2: Verifying if: .cpp file is opened in Edit mode.")
 # Steps 3&4: Insert text "class" to new line in Editor mode and press Ctrl+Space.

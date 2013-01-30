@@ -15,7 +15,7 @@ def main():
     # open example project
     openQmakeProject(examplePath)
     # create syntax error
-    doubleClickItem(":Qt Creator_Utils::NavigationTreeView", "propertyanimation.QML.qml.property-animation\\.qml", 5, 5, 0, Qt.LeftButton)
+    openDocument("propertyanimation.QML.qml.property-animation\\.qml")
     if not appendToLine(waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget"), "Image {", "SyntaxError"):
         invokeMenuItem("File", "Exit")
         return

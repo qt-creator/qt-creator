@@ -6,8 +6,11 @@ def startQtCreatorWithNewAppAtQMLEditor(projectDir, projectName, line = None):
     # create qt quick application
     createNewQtQuickApplication(projectDir, projectName)
     # open qml file
-    doubleClickItem(":Qt Creator_Utils::NavigationTreeView", projectName + ".QML.qml/" +
-                    projectName + ".main\\.qml", 5, 5, 0, Qt.LeftButton)
+    qmlFile = projectName + ".QML.qml/" + projectName + ".main\\.qml"
+    if not openDocument(qmlFile):
+        test.fatal("Could not open %s" % qmlFile)
+        invokeMenuItem("File", "Exit")
+        return None
     # get editor
     editorArea = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     # place to line if needed
