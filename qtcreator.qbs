@@ -59,6 +59,7 @@ Project {
         "src/plugins/mercurial/mercurial.qbs",
         "src/plugins/perforce/perforce.qbs",
         "src/plugins/projectexplorer/projectexplorer.qbs",
+        "src/plugins/qbsprojectmanager/qbsprojectmanager.qbs",
 //        "src/plugins/qmldesigner/qmldesigner.qbs",
         "src/plugins/qmljseditor/qmljseditor.qbs",
         "src/plugins/qmljstools/qmljstools.qbs",
