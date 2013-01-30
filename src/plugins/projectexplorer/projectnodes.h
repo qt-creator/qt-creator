@@ -85,10 +85,14 @@ public:
     ProjectNode *projectNode() const;     // managing project
     FolderNode *parentFolderNode() const; // parent folder or project
     QString path() const;                 // file system path
+    virtual int line() const;
     virtual QString displayName() const;
     virtual QString vcsTopic() const;
     virtual QString tooltip() const;
     virtual bool isEnabled() const;
+
+    void setPath(const QString &path); // this does not call emitNodeUpdated!
+    void emitNodeUpdated();
 
 protected:
     Node(NodeType nodeType, const QString &path);
@@ -96,8 +100,6 @@ protected:
     void setNodeType(NodeType type);
     void setProjectNode(ProjectNode *project);
     void setParentFolderNode(FolderNode *parentFolder);
-
-    void emitNodeUpdated();
 
 private:
     NodeType m_nodeType;
@@ -139,6 +141,9 @@ public:
 
     void setDisplayName(const QString &name);
     void setIcon(const QIcon &icon);
+
+    FileNode *findFile(const QString &path);
+    FolderNode *findSubFolder(const QString &path);
 
 protected:
     QList<FolderNode*> m_subFolderNodes;
@@ -330,7 +335,6 @@ private:
     friend class SessionNode;
     friend class Node;
 };
-
 
 } // namespace ProjectExplorer
 

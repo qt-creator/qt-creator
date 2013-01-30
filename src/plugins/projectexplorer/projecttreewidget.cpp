@@ -40,6 +40,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icontext.h>
 
 #include <utils/qtcassert.h>
@@ -374,8 +375,11 @@ void ProjectTreeWidget::initView()
 void ProjectTreeWidget::openItem(const QModelIndex &mainIndex)
 {
     Node *node = m_model->nodeForIndex(mainIndex);
-    if (node->nodeType() == FileNodeType)
-        EditorManager::openEditor(node->path(), Id(), EditorManager::ModeSwitch);
+    if (node->nodeType() != FileNodeType)
+        return;
+    IEditor *editor = EditorManager::openEditor(node->path(), Id(), EditorManager::ModeSwitch);
+    if (node->line() >= 0)
+        editor->gotoLine(node->line());
 }
 
 void ProjectTreeWidget::setProjectFilter(bool filter)

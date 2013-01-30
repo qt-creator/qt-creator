@@ -73,6 +73,16 @@ Node::Node(NodeType nodeType,
 
 }
 
+/*!
+ * \brief The path of the file representing this node.
+ *
+ * This method does not emit any signals, that has to be done by the calling class!
+ */
+void Node::setPath(const QString &path)
+{
+    m_path = path;
+}
+
 NodeType Node::nodeType() const
 {
     return m_nodeType;
@@ -100,6 +110,11 @@ FolderNode *Node::parentFolderNode() const
 QString Node::path() const
 {
     return m_path;
+}
+
+int Node::line() const
+{
+    return -1;
 }
 
 QString Node::displayName() const
@@ -239,6 +254,24 @@ void FolderNode::setDisplayName(const QString &name)
 void FolderNode::setIcon(const QIcon &icon)
 {
     m_icon = icon;
+}
+
+FileNode *FolderNode::findFile(const QString &path)
+{
+    foreach (FileNode *n, fileNodes()) {
+        if (n->path() == path)
+            return n;
+    }
+    return 0;
+}
+
+FolderNode *FolderNode::findSubFolder(const QString &path)
+{
+    foreach (FolderNode *n, subFolderNodes()) {
+        if (n->path() == path)
+            return n;
+    }
+    return 0;
 }
 
 /*!
