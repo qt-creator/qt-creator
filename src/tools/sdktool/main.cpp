@@ -144,7 +144,7 @@ int parseArguments(const QStringList &args, Settings *s, const QList<Operation *
         return -1;
     }
 
-    return 1;
+    return 0;
 }
 
 int main(int argc, char *argv[])
