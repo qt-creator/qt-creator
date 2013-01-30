@@ -30,3 +30,7 @@ QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)
         }
     }
 }
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+    SUBDIRS += qml2puppet
+}
