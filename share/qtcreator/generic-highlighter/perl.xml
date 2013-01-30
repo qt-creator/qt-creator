@@ -39,7 +39,7 @@
 
    Enhance tr/// and y/// support.
 -->
-<language name="Perl" version="1.23" kateversion="2.4" section="Scripts" extensions="*.pl;*.pm" mimetype="application/x-perl;text/x-perl" author="Anders Lund (anders@alweb.dk)" license="LGPL">
+<language name="Perl" version="1.26" kateversion="2.4" section="Scripts" extensions="*.pl;*.pm" mimetype="application/x-perl;text/x-perl" author="Anders Lund (anders@alweb.dk)" license="LGPL">
   <highlighting>
     <list name="keywords">
       <item> if </item>
@@ -56,18 +56,18 @@
       <item> break </item>
       <item> continue </item>
       <item> return </item>
-      <item> use </item>
-      <item> no </item>
-      <item> require </item>
       <item> my </item>
       <item> our </item>
       <item> local </item>
+      <item> state </item>
       <item> BEGIN </item>
       <item> END </item>
-      <item>require</item>
       <item> package </item>
       <item> sub </item>
       <item> do </item>
+      <item> given  </item>
+      <item> when  </item>
+      <item> default </item>
       <item> __END__ </item>
       <item> __DATA__ </item>
       <item> __FILE__ </item>
@@ -85,6 +85,7 @@
       <item> **= </item>
       <item> |= </item>
       <item> ||= </item>
+      <item> //= </item>
       <item> &amp;= </item>
       <item> &amp;&amp;= </item>
       <item> ?= </item>
@@ -94,6 +95,7 @@
      <!-- <item> / </item>//-->
       <item> % </item>
       <item> || </item>
+      <item> // </item>
       <item> &amp;&amp; </item>
       <item> | </item>
       <item> &amp; </item>
@@ -219,6 +221,7 @@
       <item>msgget</item>
       <item>msgrcv</item>
       <item>msgsnd</item>
+      <item>no</item>
       <item>oct</item>
       <item>open</item>
       <item>opendir</item>
@@ -242,6 +245,7 @@
       <item>redo</item>
       <item>ref</item>
       <item>rename</item>
+      <item>require</item>
       <item>reset</item>
       <item>return</item>
       <item>reverse</item>
@@ -305,6 +309,7 @@
       <item>unpack</item>
       <item>unshift</item>
       <item>untie</item>
+      <item>use</item>
       <item>utime</item>
       <item>values</item>
       <item>vec</item>
@@ -362,8 +367,9 @@
 
         <RegExpr attribute="Operator" context="find_here_document" String="\s*&lt;&lt;(?=\w+|\s*[&quot;'])" beginRegion="HereDocument" />
 
-        <RegExpr attribute="Normal Text" context="#stay" String="\s*\}\s*/" endRegion="Block"/>
-        <RegExpr attribute="Normal Text" context="#stay" String="\s*[)]\s*/" />
+        <RegExpr attribute="Normal Text" context="#stay" String="\s*\}\s*/{1,2}" endRegion="Block"/>
+        <RegExpr attribute="Normal Text" context="#stay" String="\s*[)\]]\s*/{1,2}" />
+
         <RegExpr attribute="Function" context="sub_name_def" String="\w+::" />
         <RegExpr attribute="Normal Text" context="#stay" String="\w+[=]" />
 
@@ -567,9 +573,9 @@
       </context>
 
       <context name="tr" attribute="Pattern" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop" >
-        <RegExpr attribute="Pattern" context="#pop" String="([^)]*\)\s*\(?:[^)]*\)" />
-        <RegExpr attribute="Pattern" context="#pop" String="{[^}]*\}\s*\{[^}]*\}" />
-        <RegExpr attribute="Pattern" context="#pop" String="\[[^}]*\]\s*\[[^\]]*\]" />
+        <RegExpr attribute="Pattern" context="#pop" String="\([^)]*\)\s*\(?:[^)]*\)" />
+        <RegExpr attribute="Pattern" context="#pop" String="\{[^}]*\}\s*\{[^}]*\}" />
+        <RegExpr attribute="Pattern" context="#pop" String="\[[^]]*\]\s*\[[^\]]*\]" />
         <RegExpr attribute="Pattern" context="#pop" String="([^a-zA-Z0-9_\s[\]{}()]).*\1.*\1" minimal="true"/>
       </context>
 
@@ -661,7 +667,7 @@
         <RegExpr attribute="Data Type" context="var_detect" String="\$\$[\$\w_]" />
         <RegExpr attribute="Data Type" context="var_detect" String="\$[#_][\w_]" />
         <RegExpr attribute="Data Type" context="var_detect" String="\$+::" />
-        <RegExpr attribute="Special Variable" context="#stay" String="\$[^a-zA-Z0-9\s{][A-Z]?" />
+        <RegExpr attribute="Special Variable" context="var_detect" String="\$[^a-zA-Z0-9\s{][A-Z]?" />
         <RegExpr attribute="Data Type" context="var_detect" String="[\$@%]\{[\w_]+\}" />
         <AnyChar attribute="Data Type" context="var_detect" String="$@%" />
         <RegExpr attribute="Data Type" context="var_detect" String="\*[a-zA-Z_]+" />
@@ -679,7 +685,7 @@
         <RegExpr attribute="Data Type" context="var_detect_unsafe" String="\$+::" />
         <RegExpr attribute="Special Variable" context="#stay" String="\$[^a-zA-Z0-9\s{][A-Z]?" />
         <RegExpr attribute="Data Type" context="var_detect_unsafe" String="[\$@%]\{[\w_]+\}" />
-        <RegExpr attribute="Data Type" context="var_detect_unsafe" String="[\$@%]" />
+        <RegExpr attribute="Data Type" context="var_detect_unsafe" String="[\$@%]" /><!-- AnyChar! -->
         <RegExpr attribute="Data Type" context="var_detect_unsafe" String="\*\w+" />
         <AnyChar attribute="Operator" context="#pop" String="$@%*" />
       </context>
@@ -762,10 +768,9 @@
       </context>
 
       <context name="slash_safe_escape" attribute="Normal Text" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
-        <RegExpr attribute="Normal Text" context="#pop" String="\s*\]?\s*/" />
-        <RegExpr attribute="Normal Text" context="#pop" String="\s*\}?\s*/" endRegion="Block" />
-        <RegExpr attribute="Normal Text" context="#pop" String="\s*\)?\s*/" />
-        <keyword attribute="Keyword" context="#pop" String="keywords" />
+        <RegExpr attribute="Normal Text" context="#pop" String="\s*\}\s*/{1,2}" endRegion="Block"/>
+        <RegExpr attribute="Normal Text" context="#pop" String="\s*[)\]]?\s*/{1,2}" />
+        <keyword attribute="Keyword" context="#pop" String="keywords" /><!-- wonder why??? -->
       </context>
 
       <context name="package_qualified_blank" attribute="Normal Text" lineEndContext="#stay">

@@ -49,11 +49,11 @@
         <DetectIdentifier />
       </context>
 
-      <context name="PI" attribute="Normal" lineEndContext="#stay">
+      <context name="PI" attribute="Other" lineEndContext="#stay">
         <Detect2Chars attribute="Processing Instruction" context="#pop" char="?" char1="&gt;" endRegion="pi" />
       </context>
 
-      <context name="Declaration" attribute="Normal" lineEndContext="#stay">
+      <context name="Declaration" attribute="Other" lineEndContext="#stay">
         <StringDetect attribute="Comment" context="Comment" String="&lt;!--" beginRegion="comment" />
         <Detect2Chars attribute="Comment" context="InlineComment" char="-" char1="-" />
         <DetectChar attribute="Declaration" context="#pop" char="&gt;" endRegion="declaration" />
@@ -85,16 +85,17 @@
 
     <itemDatas>
       <itemData name="Normal" defStyleNum="dsNormal" />
+      <itemData name="Other" defStyleNum="dsNormal" />
       <itemData name="Comment" defStyleNum="dsComment" />
-      <itemData name="Processing Instruction" defStyleNum="dsKeyword" />
-      <itemData name="Declaration" defStyleNum="dsDataType" bold="1" />
-      <itemData name="Name" defStyleNum="dsFunction" />
-      <itemData name="Delimiter" defStyleNum="dsDecVal" />
-      <itemData name="Symbol" defStyleNum="dsFloat" bold="1" />
-      <itemData name="Keyword" defStyleNum="dsKeyword" />
-      <itemData name="String" defStyleNum="dsString" />
-      <itemData name="Entity" defStyleNum="dsDecVal" />
-      <itemData name="Local" defStyleNum="dsDecVal" bold="1" />
+      <itemData name="Processing Instruction" defStyleNum="dsKeyword" spellChecking="false" />
+      <itemData name="Declaration" defStyleNum="dsDataType" bold="1" spellChecking="false" />
+      <itemData name="Name" defStyleNum="dsFunction" spellChecking="false" />
+      <itemData name="Delimiter" defStyleNum="dsDecVal" spellChecking="false" />
+      <itemData name="Symbol" defStyleNum="dsFloat" bold="1" spellChecking="false" />
+      <itemData name="Keyword" defStyleNum="dsKeyword" spellChecking="false" />
+      <itemData name="String" defStyleNum="dsString" spellChecking="false" />
+      <itemData name="Entity" defStyleNum="dsDecVal" spellChecking="false" />
+      <itemData name="Local" defStyleNum="dsDecVal" bold="1" spellChecking="false" />
     </itemDatas>
   </highlighting>
 

@@ -78,12 +78,12 @@
 				<RegExpr attribute="JavadocParam" context="#pop#pop" String="\S*(?=\*/)" />
 				<RegExpr attribute="JavadocParam" context="#pop" String="\S*(\s|$)" />
 			</context>
-			<context attribute="InlineTag" lineEndContext="#pop" name="InlineTagar">
+			<context attribute="InlineTag" name="InlineTagar">
 				<DetectChar attribute="InlineTag" context="#pop" char="}" />
 				<Detect2Chars attribute="JavadocFS" context="#pop#pop#pop" char="*" char1="/" />
 				<IncludeRules context="##HTML"/>
 			</context>
-			<context attribute="InlineTag" lineEndContext="#pop" name="LiteralTagar">
+			<context attribute="InlineTag" name="LiteralTagar">
 				<DetectChar attribute="InlineTag" context="#pop" char="}" />
 				<Detect2Chars attribute="JavadocFS" context="#pop#pop#pop" char="*" char1="/" />
 			</context>

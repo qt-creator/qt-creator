@@ -3,10 +3,11 @@
 
 <!--
   Ruby syntax highlighting definition for Kate.
-  
+
   Copyright (C) 2004  by Sebastian Vuorinen (sebastian dot vuorinen at helsinki dot fi)
   Copyright (C) 2004  by Stefan Lang (langstefan@gmx.at)
   Copyright (C) 2008  by Robin Pedersen (robinpeder@gmail.com)
+  Copyright (C) 2011  by Miquel Sabaté (mikisabate@gmail.com)
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Library General Public
@@ -25,17 +26,16 @@
 -->
 
 <!--
-	TODO:	* "Nested" HERE documents aren't recognized.
-			* Division after gdl contexts is interpreted as regexp
+    TODO: Division after gdl contexts is interpreted as regexp
 -->
 
 <!-- Hold the "language" opening tag on a single line, as mentioned in "language.dtd". -->
 <language name="Ruby" section="Scripts"
-          version="1.18" kateversion="2.4" 
-	  extensions="*.rb;*.rjs;*.rxml;*.xml.erb;*.js.erb"
+	  version="1.25" kateversion="2.4"
+	  extensions="*.rb;*.rjs;*.rxml;*.xml.erb;*.js.erb;*.rake;Rakefile;Gemfile;*.gemspec"
 	  mimetype="application/x-ruby"
 	  style="ruby" indenter="ruby"
-	  author="Stefan Lang (langstefan@gmx.at), Sebastian Vuorinen (sebastian.vuorinen@helsinki.fi), Robin Pedersen (robinpeder@gmail.com)" license="LGPL">
+	  author="Stefan Lang (langstefan@gmx.at), Sebastian Vuorinen (sebastian.vuorinen@helsinki.fi), Robin Pedersen (robinpeder@gmail.com), Miquel Sabaté (mikisabate@gmail.com)" license="LGPL">
 	
 	<highlighting>
 	
@@ -67,7 +67,6 @@
 			<item> unless </item>
 			<item> until </item>
 			<item> when </item>
-			<item> while </item>
 			<item> yield </item>
 		</list>
 		
@@ -161,6 +160,7 @@
 			<item> readline </item>
 			<item> readlines </item>
 			<item> require </item>
+			<item> require_relative </item>
 			<item> scan </item>
 			<item> select </item>
 			<item> set_trace_func </item>
@@ -179,13 +179,7 @@
 			<item> untrace_var </item>
 			<item> warn </item>
 		</list>
-		
-		<list name="attention">
-			<item> TODO </item>
-			<item> FIXME </item>
-			<item> NOTE </item>
-		</list>
-		
+
 		<contexts>
 			<context name="Normal" attribute="Normal Text" lineEndContext="#stay">
 				<!-- ruby ignores newline after \ -->
@@ -201,7 +195,7 @@
 				<!-- check for statement modifiers with regexes -->
 				<DetectChar attribute="Operator" char="{" context="Find closing block brace" beginRegion="def block"/>
 				<RegExpr attribute="Keyword" String="(\=|\(|\[|\{)\s*(if|unless|while|until)\b" context="#stay" beginRegion="def block"/>
-				<RegExpr attribute="Keyword" String="(while|until)\b(?!.*\bdo\b)" context="#stay" beginRegion="def block" firstNonSpace="true"/>
+				<RegExpr attribute="Keyword" String="(while|until)\b(?!.*\bdo\b)" context="#stay" beginRegion="def block" />
 				<RegExpr attribute="Keyword" String="\;\s*(while|until)\b(?!.*\bdo\b)" context="#stay" beginRegion="def block"/>
 				<RegExpr attribute="Keyword" String="(if|unless)\b" context="#stay" beginRegion="def block" firstNonSpace="true"/>
 				<RegExpr attribute="Keyword" String="\;\s*(if|unless)\b" context="#stay" beginRegion="def block"/>
@@ -239,7 +233,7 @@
 				<RegExpr attribute="Global Variable" String="\$[a-zA-Z_0-9]+" context="check_div_1"/>
 				<RegExpr attribute="Global Variable" String="\$\-[a-zA-z_]\b" context="check_div_1"/>
 				<!-- special-character globals -->
-				<RegExpr attribute="Default globals" String="\$[\d_*`\!:?'/\\\-\&amp;&quot;]" context="check_div_1"/>
+				<RegExpr attribute="Default globals" String="\$[\d_*`+@;,.~=\!\$:?'/\\\-\&amp;&quot;&gt;&lt;]" context="check_div_1"/>
 				<RegExpr attribute="Global Constant" String="\b[_A-Z]+[A-Z_0-9]+\b" context="check_div_2"/>
 				<!-- Generally a module or class name like "File", "MyModule_1", .. -->
 				<RegExpr attribute="Constant" String="\b[A-Z]+_*([0-9]|[a-z])[_a-zA-Z0-9]*\b" context="check_div_2"/>
@@ -302,7 +296,7 @@
 				
 				<!-- recognize the beginning of a general delimited input format -->
 				<!-- this moves to the next context to separate out the exact nature of the GDL input -->
-				<RegExpr attribute="GDL input" context="find_gdl_input" String="\s*[%](?=[Qqxw]?[^\s])" beginRegion="GdlInput" />
+				<RegExpr attribute="GDL input" context="find_gdl_input" String="\s*[%](?=[QqxwW]?[^\s])" beginRegion="GdlInput" />
 				
 				<DetectChar attribute="Normal Text" char=")" context="check_div_1"/>
 				<DetectIdentifier attribute="Normal Text" context="check_div_2"/>
@@ -383,6 +377,7 @@
 			
 			<context name="Embedded documentation" attribute="Blockcomment" lineEndContext="#stay">
 				<RegExpr attribute="Comment" String="^=end(?:\s.*|$)" context="#pop" endRegion="comment block" column="0"/>
+				<IncludeRules context="##Alerts" />
 			</context>
 			
 			<context name="RegEx 1" attribute="Regular Expression" lineEndContext="#stay">
@@ -425,11 +420,11 @@
 			
 			<context name="Comment Line" attribute="Comment" lineEndContext="#pop">
 				<RegExpr attribute="Comment" String="\w\:\:\s" context="RDoc Label"/>
-				<keyword attribute="Alert" String="attention" context="#stay"/>
+				<IncludeRules context="##Alerts" />
 			</context>
 			
 			<context name="General Comment" attribute="Comment" lineEndContext="#pop">
-				<keyword attribute="Dec" String="attention" context="#stay"/>
+				<IncludeRules context="##Alerts" />
 			</context>
 			
 			<context name="RDoc Label" attribute="RDoc Value" lineEndContext="#pop"/>
@@ -448,22 +443,18 @@
 			</context>
 			<!-- these are the real heredoc contexts -->
 			<context name="indented_heredoc" attribute="Here Document" lineEndContext="#stay" dynamic="true">
-<!--				<RegExpr attribute="Keyword" context="#pop#pop" String="^\s*%1$" dynamic="true" endRegion="HereDocument"/>-->
 				<RegExpr attribute="Keyword" context="#pop#pop" String="%1$" dynamic="true" endRegion="HereDocument" firstNonSpace="true"/>
 				<IncludeRules context="heredoc_rules" />
 			</context>
 			<context name="apostrophed_indented_heredoc" attribute="Here Document" lineEndContext="#stay" dynamic="true">
-<!--				<RegExpr attribute="Keyword" context="#pop#pop" String="^\s*%1$" dynamic="true" endRegion="HereDocument"/>-->
 				<RegExpr attribute="Keyword" context="#pop#pop" String="%1$" dynamic="true" endRegion="HereDocument" firstNonSpace="true"/>
 			</context>
 			
 			<context name="normal_heredoc" attribute="Here Document" lineEndContext="#stay" dynamic="true">
-<!--				<RegExpr attribute="Keyword" context="#pop#pop" String="^%1$" dynamic="true" endRegion="HereDocument"/>-->
 				<RegExpr attribute="Keyword" context="#pop#pop" String="%1$" dynamic="true" endRegion="HereDocument" column="0"/>
 				<IncludeRules context="heredoc_rules" />
 			</context>
 			<context name="apostrophed_normal_heredoc" attribute="Here Document" lineEndContext="#stay" dynamic="true">
-<!--				<RegExpr attribute="Keyword" context="#pop#pop" String="^%1$" dynamic="true" endRegion="HereDocument"/>-->
 				<RegExpr attribute="Keyword" context="#pop#pop" String="%1$" dynamic="true" endRegion="HereDocument" column="0"/>
 			</context>
 			
@@ -485,7 +476,15 @@
 				<RegExpr attribute="GDL input" context="gdl_token_array_4" String="w&lt;" />
 				<!-- then we handle the 'any char' format -->
 				<RegExpr attribute="GDL input" context="gdl_token_array_5" String="w([^\s\w])" />
-				
+
+				<!-- handle token arrays -->
+				<RegExpr attribute="GDL input" context="gdl_token_array_1" String="W\(" />
+				<RegExpr attribute="GDL input" context="gdl_token_array_2" String="W\{" />
+				<RegExpr attribute="GDL input" context="gdl_token_array_3" String="W\[" />
+				<RegExpr attribute="GDL input" context="gdl_token_array_4" String="W&lt;" />
+				<!-- then we handle the 'any char' format -->
+				<RegExpr attribute="GDL input" context="gdl_token_array_5" String="W([^\s\w])" />
+
 				<!-- handle apostrophed strings -->
 				<RegExpr attribute="GDL input" context="gdl_apostrophed_1" String="q\(" />
 				<RegExpr attribute="GDL input" context="gdl_apostrophed_2" String="q\{" />
@@ -899,7 +898,6 @@
 			
 			<!-- use these to mark errors and alerts things -->
 			<itemData name="Error" defStyleNum="dsError" />
-			<itemData name="Alert" defStyleNum="dsAlert" />
 			
 			<itemData name="Delimiter" defStyleNum="dsNormal" color="#FF9FEC"/>
 			<itemData name="Expression" defStyleNum="dsOthers"/>

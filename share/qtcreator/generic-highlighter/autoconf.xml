@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE language SYSTEM "language.dtd">
-<!-- (c) 2008-2013 by Jürgen Heinemann http://www.hjcms.de
+<!DOCTYPE language SYSTEM "/opt/kde3/share/apps/katepart/syntax/language.dtd">
+<!-- (c) 2008-2011 by Jürgen Heinemann http://www.hjcms.de 
   @see http://www.gnu.org/software/automake/manual/autoconf/
 -->
-<language name="Autoconf Language" version="1.10" kateversion="2.4" section="Other" extensions="configure.ac;configure.in;configure.in.in;*.m4;*.M4" mimetype="text/x-m4;text/x-autoconf" author="Juergen Heinemann (nospam@hjcms.de)" license="LGPL">
+<language name="Autoconf Language" version="1.11" kateversion="2.4" section="Other"
+  extensions="configure.ac;configure.in;configure.in.in;*.m4;*.M4"
+  mimetype="text/x-m4;text/x-autoconf"
+  author="Juergen Heinemann (nospam@hjcms.de)" license="LGPL">
   <highlighting>
     <!-- http://www.gnu.org/software/automake/manual/autoconf/Program-_0026-Function-Index.html -->
     <list name="keywords">
@@ -85,7 +88,7 @@
       <item> true </item>
     </list>
 
-    <!--
+    <!-- 
       This is an alphabetical list of the M4, M4sugar, and M4sh macros.
       http://www.gnu.org/software/automake/manual/autoconf/M4-Macro-Index.html
     -->
@@ -327,31 +330,33 @@
     <contexts>
       <context attribute="Normal Text" lineEndContext="#stay" name="Default">
         <!-- <IncludeRules context="##Bash" /> -->
-        <keyword attribute="Keyword" context="#stay" String="keywords"/>
-        <RegExpr attribute="Builtin" context="#stay" String="\.(?=\s)"/>
-        <keyword attribute="Builtin" context="#stay" String="builtins"/>
-        <keyword attribute="Boolean" context="#stay" String="bools"/>
+        <keyword attribute="Keyword" context="#stay" String="keywords" />
+        <RegExpr attribute="Builtin" context="#stay" String="\.(?=\s)" />
+        <keyword attribute="Builtin" context="#stay" String="builtins" />
+        <keyword attribute="Boolean" context="#stay" String="bools" />
         <!-- Autoconf Macros -->
-        <keyword attribute="M4 Sugar Macros" context="#stay" String="m4sugar"/>
+        <keyword attribute="M4 Sugar Macros" context="#stay" String="m4sugar" />
         <!-- Autotest Macro Index -->
-        <keyword attribute="Autotest Macros" context="#stay" String="autotest_macro"/>
+        <keyword attribute="Autotest Macros" context="#stay" String="autotest_macro" />
         <!-- Other Macros -->
-        <keyword attribute="pkg-config Macros" context="#stay" String="pkgconfig"/>
+        <keyword attribute="pkg-config Macros" context="#stay" String="pkgconfig" />
         <!-- libtool Macros -->
-        <keyword attribute="Libtool Macros" context="#stay" String="libtool"/>
+        <keyword attribute="Libtool Macros" context="#stay" String="libtool" />
         <!-- Autoconf Macros -->
-        <RegExpr attribute="Autoconf Macros" context="#stay" String="\bAC_[A-Z0-9_]+\b" insensitive="false" endRegion="BeginRegion"/>
+        <RegExpr attribute="Autoconf Macros" context="#stay" String="\bAC_[A-Z0-9_]+\b" insensitive="false" endRegion="BeginRegion" />
         <!-- Automake Macros -->
-        <RegExpr attribute="Automake Macros" context="#stay" String="\bAM_[A-Z0-9_]+\b" insensitive="false" endRegion="BeginRegion"/>
+        <RegExpr attribute="Automake Macros" context="#stay" String="\bAM_[A-Z0-9_]+\b" insensitive="false" endRegion="BeginRegion" />
         <!-- Script temp Defined Macros -->
-        <RegExpr attribute="Inline Macros" context="#stay" String="\bac_[a-z_]+\b" insensitive="false" endRegion="BeginRegion"/>
+        <RegExpr attribute="Inline Macros" context="#stay" String="\bac_[a-z_]+\b" insensitive="false" endRegion="BeginRegion" />
         <RegExpr attribute="Char" context="#stay" String="'.'"/>
         <DetectChar attribute="String" context="String" char="&quot;"/>
         <AnyChar attribute="Symbol" context="#stay" String=":!%&amp;()+,-/.*&lt;=&gt;|"/>
-        <RegExpr attribute="Variable" context="#stay" String="\$[a-z_]+" insensitive="true" endRegion="BeginRegion"/>
+        <RegExpr attribute="Variable" context="#stay" String="\$[a-z_]+" insensitive="true" endRegion="BeginRegion" />
         <Float attribute="Float" context="#stay"/>
         <Int attribute="Decimal" context="#stay"/>
-        <RegExpr attribute="Comment" context="#stay" String="(\bdnl|^#).*$" insensitive="true" endRegion="BeginRegion"/>
+        <RegExpr attribute="Pragmas" context="#stay" String="([\s\t]+#).*$" insensitive="true" endRegion="BeginRegion" />
+        <RegExpr attribute="Comment" context="#stay" String="(^#).*$" insensitive="true" endRegion="BeginRegion" />
+        <RegExpr attribute="Comment" context="#stay" String="(\bdnl\s).*$" insensitive="true" endRegion="BeginRegion" />
       </context>
       <context attribute="Region Marker" lineEndContext="#pop" name="Region Marker"/>
       <context attribute="String" lineEndContext="#pop" name="String">
@@ -359,32 +364,33 @@
       </context>
     </contexts>
     <itemDatas>
-      <itemData name="Normal Text" defStyleNum="dsNormal"/>
-      <itemData name="Keyword" defStyleNum="dsKeyword"/>
-      <itemData name="Builtin" defStyleNum="dsKeyword" color="#808"/>
-      <itemData name="M4 Sugar Macros" defStyleNum="dsKeyword"/>
-      <itemData name="Autotest Macros" defStyleNum="dsKeyword"/>
-      <itemData name="Autoconf Macros" defStyleNum="dsKeyword" color="#0095ff" selColor="#ffffff" bold="1"/>
-      <itemData name="Automake Macros" defStyleNum="dsKeyword" color="#6666cc" selColor="#ffffff" bold="1"/>
-      <itemData name="Libtool Macros" defStyleNum="dsKeyword" color="#6666cc" selColor="#ffffff" bold="1"/>
-      <itemData name="Inline Macros" defStyleNum="dsKeyword" color="#6666cc" selColor="#ffffff"/>
-      <itemData name="pkg-config Macros" defStyleNum="dsKeyword"/>
-      <itemData name="Boolean" defStyleNum="dsOthers"/>
-      <itemData name="Variable" defStyleNum="dsOthers"/>
-      <itemData name="Decimal" defStyleNum="dsDecVal"/>
-      <itemData name="Float" defStyleNum="dsFloat"/>
-      <itemData name="Char" defStyleNum="dsChar"/>
-      <itemData name="String" defStyleNum="dsString"/>
-      <itemData name="Comment" defStyleNum="dsComment"/>
-      <itemData name="Symbol" defStyleNum="dsNormal"/>
-      <itemData name="Region Marker" defStyleNum="dsRegionMarker"/>
+      <itemData name="Normal Text"       defStyleNum="dsNormal" />
+      <itemData name="Keyword"           defStyleNum="dsKeyword" />
+      <itemData name="Builtin"           defStyleNum="dsKeyword" color="#808" />
+      <itemData name="M4 Sugar Macros"   defStyleNum="dsKeyword" />
+      <itemData name="Autotest Macros"   defStyleNum="dsKeyword" />
+      <itemData name="Autoconf Macros"   defStyleNum="dsKeyword" color="#0095ff" selColor="#ffffff" bold="1" />
+      <itemData name="Automake Macros"   defStyleNum="dsKeyword" color="#6666cc" selColor="#ffffff" bold="1" />
+      <itemData name="Libtool Macros"    defStyleNum="dsKeyword" color="#6666cc" selColor="#ffffff" bold="1" />
+      <itemData name="Inline Macros"     defStyleNum="dsKeyword" color="#6666cc" selColor="#ffffff" />
+      <itemData name="pkg-config Macros" defStyleNum="dsKeyword" />
+      <itemData name="Boolean"           defStyleNum="dsOthers" />
+      <itemData name="Variable"          defStyleNum="dsOthers" />
+      <itemData name="Decimal"           defStyleNum="dsDecVal" />
+      <itemData name="Float"             defStyleNum="dsFloat" />
+      <itemData name="Char"              defStyleNum="dsChar" />
+      <itemData name="String"            defStyleNum="dsString" />
+      <itemData name="Pragmas"           defStyleNum="dsOthers" color="#00C000" />
+      <itemData name="Comment"           defStyleNum="dsComment" />
+      <itemData name="Symbol"            defStyleNum="dsNormal"/>
+      <itemData name="Region Marker"     defStyleNum="dsRegionMarker" />
     </itemDatas>
   </highlighting>
   <general>
     <comments>
-      <comment name="singleLine" start="dnl"/>
-      <comment name="multiLine" start="/*" end="*/"/>
+      <comment name="singleLine" start="dnl" />
+      <comment name="multiLine" start="/*" end="*/" />
     </comments>
-    <keywords casesensitive="0"/>
+    <keywords casesensitive="0" />
   </general>
 </language>
