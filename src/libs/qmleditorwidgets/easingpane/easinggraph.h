@@ -34,8 +34,6 @@
 #include <QEasingCurve>
 #include <QHash>
 
-QT_BEGIN_HEADER
-
 QT_BEGIN_NAMESPACE
 
 QT_MODULE(Declarative)
@@ -111,7 +109,5 @@ private:
 QT_END_NAMESPACE
 
 //QML_DECLARE_TYPE(EasingGraph)
-
-QT_END_HEADER
 
 #endif // EASINGGRAPH_H

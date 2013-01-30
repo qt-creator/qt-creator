@@ -33,9 +33,6 @@
 #include <qlayoutobject.h>
 #include <QHBoxLayout>
 
-
-QT_BEGIN_HEADER
-
 QT_BEGIN_NAMESPACE
 
 QT_MODULE(Declarative)
@@ -177,7 +174,5 @@ class BasicLayouts {
 public:
     static void registerDeclarativeTypes();
 };
-
-QT_END_HEADER
 
 #endif // BASICLAYOUTS_H

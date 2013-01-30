@@ -37,8 +37,6 @@
 
 #ifndef QT_NO_DIRMODEL
 
-QT_BEGIN_HEADER
-
 QT_BEGIN_NAMESPACE
 
 QT_MODULE(Declarative)
@@ -140,8 +138,6 @@ QT_END_NAMESPACE
 //![qml decl]
 QML_DECLARE_TYPE(QDeclarativeFolderListModel)
 //![qml decl]
-
-QT_END_HEADER
 
 #endif // QT_NO_DIRMODEL
 
