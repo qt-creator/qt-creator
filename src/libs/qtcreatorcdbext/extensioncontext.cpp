@@ -203,7 +203,8 @@ void ExtensionContext::notifyIdleCommand(CIDebugClient *client)
         else
             str << ",threads=" << threadInfo;
         const std::string stackInfo = gdbmiStack(exc.control(), exc.symbols(),
-                                                 maxStackFrames, false, &errorMessage);
+                                                 ExtensionContext::instance().parameters().maxStackDepth,
+                                                 false, &errorMessage);
         if (stackInfo.empty())
             str << ",stackerror=" << gdbmiStringFormat(errorMessage);
         else

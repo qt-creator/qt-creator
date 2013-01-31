@@ -1449,7 +1449,10 @@ void CdbEngine::activateFrame(int index)
     if (index < 0)
         return;
     const StackFrames &frames = stackHandler()->frames();
-    QTC_ASSERT(index < frames.size(), return);
+    if (index >= frames.size()) {
+        reloadFullStack(); // Clicked on "More...".
+        return;
+    }
 
     const StackFrame frame = frames.at(index);
     if (debug || debugLocals)
@@ -2840,13 +2843,20 @@ CdbEngine::NormalizedSourceFileName CdbEngine::sourceMapNormalizeFileNameFromDeb
 
 // Parse frame from GDBMI. Duplicate of the gdb code, but that
 // has more processing.
-static StackFrames parseFrames(const GdbMi &gdbmi)
+static StackFrames parseFrames(const GdbMi &gdbmi, bool *incomplete = 0)
 {
+    if (incomplete)
+        *incomplete = false;
     StackFrames rc;
     const int count = gdbmi.childCount();
     rc.reserve(count);
     for (int i = 0; i  < count; i++) {
         const GdbMi &frameMi = gdbmi.childAt(i);
+        if (!frameMi.childCount()) { // Empty item indicates "More...".
+            if (incomplete)
+                *incomplete = true;
+            break;
+        }
         StackFrame frame;
         frame.level = i;
         const GdbMi fullName = frameMi.findChild("fullname");
@@ -2871,7 +2881,8 @@ unsigned CdbEngine::parseStackTrace(const GdbMi &data, bool sourceStepInto)
     // 'ILT+'). If that is the case, execute another 't' to step into the actual function.    .
     // Note that executing 't 2' does not work since it steps 2 instructions on a non-call code line.
     int current = -1;
-    StackFrames frames = parseFrames(data);
+    bool incomplete;
+    StackFrames frames = parseFrames(data, &incomplete);
     const int count = frames.size();
     for (int i = 0; i < count; i++) {
         const bool hasFile = !frames.at(i).file.isEmpty();
@@ -2891,7 +2902,7 @@ unsigned CdbEngine::parseStackTrace(const GdbMi &data, bool sourceStepInto)
     if (count && current == -1) // No usable frame, use assembly.
         current = 0;
     // Set
-    stackHandler()->setFrames(frames);
+    stackHandler()->setFrames(frames, incomplete);
     activateFrame(current);
     return 0;
 }
@@ -2959,7 +2970,7 @@ void CdbEngine::postCommandSequence(unsigned mask)
         return;
     }
     if (mask & CommandListStack) {
-        postExtensionCommand("stack", QByteArray(), 0, &CdbEngine::handleStackTrace, mask & ~CommandListStack);
+        postExtensionCommand("stack", "unlimited", 0, &CdbEngine::handleStackTrace, mask & ~CommandListStack);
         return;
     }
     if (mask & CommandListRegisters) {

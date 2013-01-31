@@ -168,7 +168,7 @@ static const CommandDescription commandDescriptions[] = {
 {"help","Prints help.",""},
 {"memory","Prints memory contents in Base64 encoding.","[-t token] <address> <length>"},
 {"expression","Prints expression value.","[-t token] <expression>"},
-{"stack","Prints stack in GDBMI format.","[-t token] [max-frames]"},
+{"stack","Prints stack in GDBMI format.","[-t token] [<max-frames>|unlimited]"},
 {"shutdownex","Unhooks output callbacks.\nNeeds to be called explicitly only in case of remote debugging.",""},
 {"addwatch","Add watch expression","<iname> <expression>"},
 {"widgetat","Return address of widget at position","<x> <y>"},
@@ -1005,15 +1005,20 @@ extern "C" HRESULT CALLBACK stack(CIDebugClient *Client, PCSTR argsIn)
 
     int token;
     bool humanReadable = false;
-    unsigned maxFrames = ExtensionContext::maxStackFrames;
+    unsigned maxFrames = ExtensionContext::instance().parameters().maxStackDepth;
 
     StringList tokens = commandTokens<StringList>(argsIn, &token);
     if (!tokens.empty() && tokens.front() == "-h") {
          humanReadable = true;
          tokens.pop_front();
     }
-    if (!tokens.empty())
-        integerFromString(tokens.front(), &maxFrames);
+    if (!tokens.empty()) {
+        if (tokens.front() == "unlimited") {
+            maxFrames = 1000;
+        } else {
+            integerFromString(tokens.front(), &maxFrames);
+        }
+    }
 
     const std::string stack = gdbmiStack(exc.control(), exc.symbols(),
                                          maxFrames, humanReadable, &errorMessage);

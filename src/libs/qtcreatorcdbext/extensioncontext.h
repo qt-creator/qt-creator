@@ -58,8 +58,6 @@ class ExtensionContext {
 
     ExtensionContext();
 public:
-    enum { maxStackFrames = 200 };
-
     // Key used to report stop reason in StopReasonMap
     static const char *stopReasonKeyC;
     static const char *breakPointStopReasonC;  // pre-defined stop reasons
