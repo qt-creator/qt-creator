@@ -59,7 +59,7 @@
 :Next_QPushButton	{text~='(Next.*|Continue)' type='QPushButton' visible='1'}
 :Open File.File name:_QLabel	{name='fileNameLabel' text='File name:' type='QLabel' visible='1' window=':Open File_QFileDialog'}
 :Open File_QFileDialog	{name='QFileDialog' type='QFileDialog' visible='1' windowTitle='Open File'}
-:OpenDocuments_QTreeView	{name='editorList' type='QTreeView' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:OpenDocuments_Widget	{type='Core::Internal::OpenEditorsWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Open Documents'}
 :OpenProject_QStyleItem	{clip='false' container=':Qt Creator_QDeclarativeView' enabled='true' text='Open Project' type='LinkedText' unnamed='1' visible='true'}
 :Options.Cancel_QPushButton	{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':Options_Core::Internal::SettingsDialog'}
 :Options.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Options_Core::Internal::SettingsDialog'}

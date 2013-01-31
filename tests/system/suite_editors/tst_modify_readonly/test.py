@@ -112,7 +112,7 @@ def testSaveChangesAndMakeWritable(modifiedFiles, readOnlyFiles):
             pass
 
 def checkOpenDocumentsContains(itemName):
-    openDocsTreeViewModel = waitForObject(":OpenDocuments_QTreeView").model()
+    openDocsTreeViewModel = waitForObject(":OpenDocuments_Widget").model()
     result = None
     found = False
     for index in dumpIndices(openDocsTreeViewModel):
