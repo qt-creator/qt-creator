@@ -291,7 +291,7 @@ def getConfiguredKits():
         return treeWidget.currentItem().text(0)
     # end of internal function for iterateQtVersions
     def __setQtVersionForKit__(kit, kitName, kitsQtVersionName):
-        treeView = waitForObject(":Kits_QTreeView")
+        treeView = waitForObject(":Kits_Or_Compilers_QTreeView")
         clickItem(treeView, kit, 5, 5, 0, Qt.LeftButton)
         qtVersionStr = str(waitForObject(":Kits_QtVersion_QComboBox").currentText)
         kitsQtVersionName[kitName] = qtVersionStr
@@ -343,7 +343,7 @@ def regexVerify(text, expectedTexts):
 
 def checkDebuggingLibrary(kitIDs):
     def __getQtVersionForKit__(kit, kitName):
-        treeView = waitForObject(":Kits_QTreeView")
+        treeView = waitForObject(":Kits_Or_Compilers_QTreeView")
         clickItem(treeView, kit, 5, 5, 0, Qt.LeftButton)
         return str(waitForObject(":Kits_QtVersion_QComboBox").currentText)
     # end of internal function for iterate kits
@@ -490,7 +490,7 @@ def iterateKits(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
     waitForObjectItem(":Options_QListView", "Build & Run")
     clickItem(":Options_QListView", "Build & Run", 14, 15, 0, Qt.LeftButton)
     clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Kits")
-    treeView = waitForObject(":Kits_QTreeView")
+    treeView = waitForObject(":Kits_Or_Compilers_QTreeView")
     model = treeView.model()
     test.compare(model.rowCount(), 2, "Verifying expected target section count")
     autoDetected = model.index(0, 0)

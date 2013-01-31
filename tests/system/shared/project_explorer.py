@@ -155,7 +155,7 @@ def getQtInformationForQmlProject():
     waitForObjectItem(":Options_QListView", "Build & Run")
     clickItem(":Options_QListView", "Build & Run", 14, 15, 0, Qt.LeftButton)
     clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Kits")
-    targetsTreeView = waitForObject(":Kits_QTreeView")
+    targetsTreeView = waitForObject(":Kits_Or_Compilers_QTreeView")
     if not __selectTreeItemOnBuildAndRun__(targetsTreeView, "%s(\s\(default\))?" % kit, True):
         test.fatal("Found no matching kit - this shouldn't happen.")
         clickButton(waitForObject(":Options.Cancel_QPushButton"))
