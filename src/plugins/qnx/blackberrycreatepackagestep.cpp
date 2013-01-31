@@ -1,6 +1,6 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2011 - 2012 Research In Motion
 **
 ** Contact: Research In Motion (blackberry-qt@qnx.com)
 ** Contact: KDAB (info@kdab.com)
@@ -62,6 +62,8 @@ const char QT_INSTALL_PLUGINS[]     = "QT_INSTALL_PLUGINS";
 const char QT_INSTALL_PLUGINS_VAR[] = "%QT_INSTALL_PLUGINS%";
 const char QT_INSTALL_IMPORTS[]     = "QT_INSTALL_IMPORTS";
 const char QT_INSTALL_IMPORTS_VAR[] = "%QT_INSTALL_IMPORTS%";
+const char QT_INSTALL_QML[]         = "QT_INSTALL_QML";
+const char QT_INSTALL_QML_VAR[]     = "%QT_INSTALL_QML%";
 const char SRC_DIR_VAR[]            = "%SRC_DIR%";
 }
 
@@ -192,6 +194,8 @@ bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDes
         fileContent.replace(QT_INSTALL_PLUGINS_VAR, qtVersion->versionInfo().value(QLatin1String(QT_INSTALL_PLUGINS)).toLatin1());
     if (fileContent.contains(QT_INSTALL_IMPORTS_VAR))
         fileContent.replace(QT_INSTALL_IMPORTS_VAR, qtVersion->versionInfo().value(QLatin1String(QT_INSTALL_IMPORTS)).toLatin1());
+    if (fileContent.contains(QT_INSTALL_QML_VAR))
+        fileContent.replace(QT_INSTALL_QML_VAR, qtVersion->versionInfo().value(QLatin1String(QT_INSTALL_QML)).toLatin1());
 
     //Replace Source path placeholder
     if (fileContent.contains(SRC_DIR_VAR))

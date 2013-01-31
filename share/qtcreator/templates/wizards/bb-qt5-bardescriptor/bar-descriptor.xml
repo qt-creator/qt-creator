@@ -14,7 +14,7 @@
     <publisher>PUBLISHER</publisher>
     <copyright>COPYRIGHT</copyright>
 
-    <env var="QML_IMPORT_PATH" value="app/native/imports"/>
+    <env var="QML2_IMPORT_PATH" value="app/native/imports"/>
     <env var="QT_PLUGIN_PATH" value="app/native/plugins"/>
     <env var="LD_LIBRARY_PATH" value="app/native/lib"/>
     <arg>-style</arg>
@@ -28,5 +28,5 @@
     <!-- These values will be replaced when deploying in Qt Creator -->
     <asset path="%QT_INSTALL_LIBS%">lib</asset>
     <asset path="%QT_INSTALL_PLUGINS%">plugins</asset>
-    <asset path="%QT_INSTALL_IMPORTS%">imports</asset>
+    <asset path="%QT_INSTALL_QML%">imports</asset>
 </qnx>
