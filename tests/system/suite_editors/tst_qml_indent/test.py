@@ -15,12 +15,9 @@ def main():
     invokeMenuItem("File", "Exit")
 
 def prepareQmlFile():
-    # make sure the QML file is opened
-    navTree = waitForObject("{type='Utils::NavigationTreeView' unnamed='1' visible='1' "
-                            "window=':Qt Creator_Core::Internal::MainWindow'}")
-    model = navTree.model()
-    waitForObjectItem(navTree, "untitled.QML.qml/untitled.main\\.qml")
-    doubleClickItem(navTree, "untitled.QML.qml/untitled.main\\.qml", 5, 5, 0, Qt.LeftButton)
+    if not openDocument("untitled.QML.qml/untitled.main\\.qml"):
+        test.fatal("Could not open main.qml")
+        return False
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     for i in range(3):
         content = "%s" % editor.plainText
