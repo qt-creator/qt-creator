@@ -29,7 +29,7 @@ def main():
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}",
                   "sourceFilesRefreshed(QStringList)")
     test.verify(checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
-                                    " text='SampleApp' type='QModelIndex'}"),
+                                    " text~='SampleApp( \(.*\))?' type='QModelIndex'}"),
                 "Verifying: The project is opened in 'Edit' mode after configuring.")
     # go to "Welcome page" -> "Develop" topic again.
     switchViewTo(ViewConstants.WELCOME)
@@ -43,7 +43,7 @@ def main():
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}",
                   "sourceFilesRefreshed(QStringList)")
     test.verify(checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
-                                    " text='propertyanimation' type='QModelIndex'}"),
+                                    " text~='propertyanimation( \(.*\))?' type='QModelIndex'}"),
                 "Verifying: The project is opened in 'Edit' mode after configuring.")
     # go to "Welcome page" -> "Develop" again and check if there is an information about
     # recent projects in "Recent Projects".
