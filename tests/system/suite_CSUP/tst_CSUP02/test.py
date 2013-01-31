@@ -8,10 +8,11 @@ def main():
 # Step 1: Open test .pro project.
     createNewQtQuickApplication(tempDir(), "SampleApp")
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
-    test.verify(waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", "SampleApp"),
-                "Step 1: Verifying if: Project is opened.")
 # Step 2: Open .cpp file in Edit mode.
-    openDocument("SampleApp.Sources.main\\.cpp")
+    if not openDocument("SampleApp.Sources.main\\.cpp"):
+        test.fatal("Could not open main.cpp")
+        invokeMenuItem("File", "Exit")
+        return
     test.verify(checkIfObjectExists(":Qt Creator_CppEditor::Internal::CPPEditorWidget"),
                 "Step 2: Verifying if: .cpp file is opened in Edit mode.")
 # Steps 3&4: Insert text "class" to new line in Editor mode and press Ctrl+Space.
