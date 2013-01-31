@@ -36,6 +36,7 @@
 
 QT_BEGIN_NAMESPACE
 class QGridLayout;
+class QLabel;
 class QLineEdit;
 class QToolButton;
 QT_END_NAMESPACE
@@ -68,6 +69,7 @@ public:
     void setIsDefaultKit(bool d);
     bool isDefaultKit() const;
     void removeKit();
+    void updateVisibility();
 
 signals:
     void dirty();
@@ -85,13 +87,14 @@ private:
         ButtonColumn
     };
 
-    void setLabel(const QString &name, const QString &toolTip, int row);
+    QLabel *createLabel(const QString &name, const QString &toolTip);
     void paintEvent(QPaintEvent *ev);
 
     QGridLayout *m_layout;
     QToolButton *m_iconButton;
     QLineEdit *m_nameEdit;
     QList<KitConfigWidget *> m_widgets;
+    QList<QLabel *> m_labels;
     Kit *m_kit;
     Kit *m_modifiedKit;
     bool m_isDefaultKit;

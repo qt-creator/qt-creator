@@ -379,6 +379,8 @@ Internal::KitManagerConfigWidget *KitManager::createConfigWidget(Kit *k) const
     foreach (KitInformation *ki, d->m_informationList)
         result->addConfigWidget(ki->createConfigWidget(result->workingCopy()));
 
+    result->updateVisibility();
+
     return result;
 }
 

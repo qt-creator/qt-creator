@@ -53,6 +53,7 @@ public:
     virtual QString toolTip() const { return QString(); }
     virtual void makeReadOnly() = 0;
     virtual void refresh() = 0;
+    virtual bool visibleInKit() { return true; }
 
     virtual QWidget *mainWidget() const = 0;
     virtual QWidget *buttonWidget() const { return 0; }

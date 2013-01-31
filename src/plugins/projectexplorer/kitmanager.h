@@ -72,7 +72,6 @@ public:
 
     virtual unsigned int priority() const = 0; // the higher the closer to the top.
 
-    virtual bool visibleIn(Kit *) { return true; }
     virtual QVariant defaultValue(Kit *) const = 0;
 
     // called to find issues with the kit

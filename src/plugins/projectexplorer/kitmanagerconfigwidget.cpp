@@ -75,8 +75,11 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     mainLayout->setMargin(1);
     mainLayout->addWidget(scroll, 0, 0);
 
+    static const Qt::Alignment alignment
+            = static_cast<Qt::Alignment>(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
     QString toolTip = tr("Kit name and icon.");
-    setLabel(tr("Name:"), toolTip, 0);
+    QLabel *label = createLabel(tr("Name:"), toolTip);
+    m_layout->addWidget(label, 0, LabelColumn, alignment);
     m_iconButton->setToolTip(toolTip);
 
     discard();
@@ -171,9 +174,26 @@ void KitManagerConfigWidget::addConfigWidget(ProjectExplorer::KitConfigWidget *w
     m_layout->addWidget(widget->mainWidget(), row, WidgetColumn);
     if (QWidget *button = widget->buttonWidget())
         m_layout->addWidget(button, row, ButtonColumn);
-    setLabel(name, toolTip, row);
 
+    static const Qt::Alignment alignment
+        = static_cast<Qt::Alignment>(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
+    QLabel *label = createLabel(name, toolTip);
+    m_layout->addWidget(label, row, LabelColumn, alignment);
     m_widgets.append(widget);
+    m_labels.append(label);
+}
+
+void KitManagerConfigWidget::updateVisibility()
+{
+    int count = m_widgets.count();
+    for (int i = 0; i < count; ++i) {
+        KitConfigWidget *widget = m_widgets.at(i);
+        bool visible = widget->visibleInKit();
+        widget->mainWidget()->setVisible(visible);
+        if (widget->buttonWidget())
+            widget->buttonWidget()->setVisible(visible);
+        m_labels.at(i)->setVisible(visible);
+    }
 }
 
 void KitManagerConfigWidget::makeReadOnly()
@@ -249,6 +269,7 @@ void KitManagerConfigWidget::workingCopyWasUpdated(Kit *k)
         w->refresh();
     m_nameEdit->setText(k->displayName());
     m_iconButton->setIcon(k->icon());
+    updateVisibility();
     emit dirty();
 }
 
@@ -256,15 +277,14 @@ void KitManagerConfigWidget::kitWasUpdated(Kit *k)
 {
     if (m_kit == k)
         discard();
+    updateVisibility();
 }
 
-void KitManagerConfigWidget::setLabel(const QString &name, const QString &toolTip, int row)
+QLabel *KitManagerConfigWidget::createLabel(const QString &name, const QString &toolTip)
 {
-    static const Qt::Alignment alignment
-        = static_cast<Qt::Alignment>(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
     QLabel *label = new QLabel(name);
     label->setToolTip(toolTip);
-    m_layout->addWidget(label, row, LabelColumn, alignment);
+    return label;
 }
 
 void KitManagerConfigWidget::paintEvent(QPaintEvent *)
