@@ -1439,8 +1439,13 @@ bool BreakHandler::BreakpointItem::needsChange() const
         return true;
     if (data.command != response.command)
         return true;
-    if (data.lineNumber != response.lineNumber)
+    if (data.type == BreakpointByFileAndLine && data.lineNumber != response.lineNumber)
         return true;
+    // FIXME: Too strict, functions may have parameter lists, or not.
+    // if (data.type == BreakpointByFunction && data.functionName != response.functionName)
+    //     return true;
+    // if (data.type == BreakpointByAddress && data.address != response.address)
+    //     return true;
     return false;
 }
 
