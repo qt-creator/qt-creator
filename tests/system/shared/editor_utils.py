@@ -289,6 +289,8 @@ def invokeFindUsage(editor, line, typeOperation, n=1):
 
 def addBranchWildcardToRoot(rootNode):
     pos = rootNode.find(".")
+    if pos == -1:
+        return rootNode + " (*)"
     return rootNode[:pos] + " (*)" + rootNode[pos:]
 
 def openDocument(treeElement):

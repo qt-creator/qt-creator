@@ -3,8 +3,17 @@ source("../../shared/suites_qtta.py")
 
 def verifyChangeProject(projectName):
     # select project
-    projItem = waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", projectName)
-    openItemContextMenu(waitForObject(":Qt Creator_Utils::NavigationTreeView"), projectName, 5, 5, 0)
+    try:
+        projItem = waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", projectName, 3000)
+    except:
+        try:
+            projItem = waitForObjectItem(":Qt Creator_Utils::NavigationTreeView",
+                                         addBranchWildcardToRoot(projectName), 1000)
+        except:
+            test.fatal("Failed to find root node of the project '%s'." % projectName)
+            return
+    openItemContextMenu(waitForObject(":Qt Creator_Utils::NavigationTreeView"),
+                        str(projItem.text), 5, 5, 0)
     activateItem(waitForObjectItem("{name='Project.Menu.Project' type='QMenu' visible='1' "
                                    "window=':Qt Creator_Core::Internal::MainWindow'}",
                                    'Set "%s" as Active Project' % projectName))
