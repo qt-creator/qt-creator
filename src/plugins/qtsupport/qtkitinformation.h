@@ -58,7 +58,7 @@ public:
 
     QString displayNamePostfix(const ProjectExplorer::Kit *k) const;
 
-    ItemList toUserOutput(ProjectExplorer::Kit *k) const;
+    ItemList toUserOutput(const ProjectExplorer::Kit *k) const;
 
     void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
     ProjectExplorer::IOutputParser *createOutputParser(const ProjectExplorer::Kit *k) const;

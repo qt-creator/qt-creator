@@ -54,7 +54,7 @@ public:
 
     ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const;
 
-    ItemList toUserOutput(ProjectExplorer::Kit *k) const;
+    ItemList toUserOutput(const ProjectExplorer::Kit *k) const;
 
     static void setMkspec(ProjectExplorer::Kit *k, const Utils::FileName &fn);
     static Utils::FileName mkspec(const ProjectExplorer::Kit *k);

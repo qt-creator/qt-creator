@@ -64,7 +64,7 @@ public:
 
     KitConfigWidget *createConfigWidget(Kit *k) const;
 
-    ItemList toUserOutput(Kit *k) const;
+    ItemList toUserOutput(const Kit *k) const;
 
     static bool hasSysRoot(const Kit *k);
     static Utils::FileName sysRoot(const Kit *k);
@@ -110,7 +110,7 @@ public:
 
     QString displayNamePostfix(const Kit *k) const;
 
-    ItemList toUserOutput(Kit *k) const;
+    ItemList toUserOutput(const Kit *k) const;
 
     void addToEnvironment(const Kit *k, Utils::Environment &env) const;
     IOutputParser *createOutputParser(const Kit *k) const;
@@ -158,7 +158,7 @@ public:
 
     KitConfigWidget *createConfigWidget(Kit *k) const;
 
-    ItemList toUserOutput(Kit *k) const;
+    ItemList toUserOutput(const Kit *k) const;
 
     static const Core::Id deviceTypeId(const Kit *k);
     static void setDeviceTypeId(Kit *k, Core::Id type);
@@ -205,7 +205,7 @@ public:
 
     QString displayNamePostfix(const Kit *k) const;
 
-    ItemList toUserOutput(Kit *k) const;
+    ItemList toUserOutput(const Kit *k) const;
 
     static IDevice::ConstPtr device(const Kit *k);
     static Core::Id deviceId(const Kit *k);

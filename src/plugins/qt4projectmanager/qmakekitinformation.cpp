@@ -114,7 +114,7 @@ QmakeKitInformation::createConfigWidget(ProjectExplorer::Kit *k) const
     return new Internal::QmakeKitConfigWidget(k);
 }
 
-ProjectExplorer::KitInformation::ItemList QmakeKitInformation::toUserOutput(ProjectExplorer::Kit *k) const
+ProjectExplorer::KitInformation::ItemList QmakeKitInformation::toUserOutput(const ProjectExplorer::Kit *k) const
 {
     return ItemList() << qMakePair(tr("mkspec"), mkspec(k).toUserOutput());
 }

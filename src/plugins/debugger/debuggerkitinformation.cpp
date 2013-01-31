@@ -280,7 +280,7 @@ QString DebuggerKitInformation::userOutput(const DebuggerItem &item)
     return binary.isEmpty() ? tr("%1 <None>").arg(name) : tr("%1 using \"%2\"").arg(name, binary);
 }
 
-KitInformation::ItemList DebuggerKitInformation::toUserOutput(Kit *k) const
+KitInformation::ItemList DebuggerKitInformation::toUserOutput(const Kit *k) const
 {
     return ItemList() << qMakePair(tr("Debugger"), DebuggerKitInformation::userOutput(DebuggerKitInformation::debuggerItem(k)));
 }

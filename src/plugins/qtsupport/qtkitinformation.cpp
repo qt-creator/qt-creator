@@ -114,7 +114,7 @@ QString QtKitInformation::displayNamePostfix(const ProjectExplorer::Kit *k) cons
 }
 
 ProjectExplorer::KitInformation::ItemList
-QtKitInformation::toUserOutput(ProjectExplorer::Kit *k) const
+QtKitInformation::toUserOutput(const ProjectExplorer::Kit *k) const
 {
     BaseQtVersion *version = qtVersion(k);
     return ItemList() << qMakePair(tr("Qt version"), version ? version->displayName() : tr("None"));

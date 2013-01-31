@@ -403,7 +403,7 @@ IOutputParser *Kit::createOutputParser() const
     return first;
 }
 
-QString Kit::toHtml()
+QString Kit::toHtml() const
 {
     QString rc;
     QTextStream str(&rc);

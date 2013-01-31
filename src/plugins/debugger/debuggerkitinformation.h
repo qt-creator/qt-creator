@@ -72,7 +72,7 @@ public:
 
     ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const;
 
-    ItemList toUserOutput(ProjectExplorer::Kit *k) const;
+    ItemList toUserOutput(const ProjectExplorer::Kit *k) const;
     static QString userOutput(const DebuggerItem &item);
 
     static DebuggerItem debuggerItem(const ProjectExplorer::Kit *k);

@@ -81,7 +81,7 @@ public:
     // called on initial setup of a kit.
     virtual void setup(Kit *) { return; }
 
-    virtual ItemList toUserOutput(Kit *) const = 0;
+    virtual ItemList toUserOutput(const Kit *) const = 0;
 
     virtual KitConfigWidget *createConfigWidget(Kit *) const = 0;
 

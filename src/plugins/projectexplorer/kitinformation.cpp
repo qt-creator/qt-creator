@@ -92,7 +92,7 @@ KitConfigWidget *SysRootKitInformation::createConfigWidget(Kit *k) const
     return new Internal::SysRootInformationConfigWidget(k);
 }
 
-KitInformation::ItemList SysRootKitInformation::toUserOutput(Kit *k) const
+KitInformation::ItemList SysRootKitInformation::toUserOutput(const Kit *k) const
 {
     return ItemList() << qMakePair(tr("Sys Root"), sysRoot(k).toUserOutput());
 }
@@ -209,7 +209,7 @@ QString ToolChainKitInformation::displayNamePostfix(const Kit *k) const
     return tc ? tc->displayName() : QString();
 }
 
-KitInformation::ItemList ToolChainKitInformation::toUserOutput(Kit *k) const
+KitInformation::ItemList ToolChainKitInformation::toUserOutput(const Kit *k) const
 {
     ToolChain *tc = toolChain(k);
     return ItemList() << qMakePair(tr("Compiler"), tc ? tc->displayName() : tr("None"));
@@ -294,7 +294,7 @@ KitConfigWidget *DeviceTypeKitInformation::createConfigWidget(Kit *k) const
     return new Internal::DeviceTypeInformationConfigWidget(k);
 }
 
-KitInformation::ItemList DeviceTypeKitInformation::toUserOutput(Kit *k) const
+KitInformation::ItemList DeviceTypeKitInformation::toUserOutput(const Kit *k) const
 {
     Core::Id type = deviceTypeId(k);
     QString typeDisplayName = tr("Unknown device type");
@@ -392,7 +392,7 @@ QString DeviceKitInformation::displayNamePostfix(const Kit *k) const
     return dev.isNull() ? QString() : dev->displayName();
 }
 
-KitInformation::ItemList DeviceKitInformation::toUserOutput(Kit *k) const
+KitInformation::ItemList DeviceKitInformation::toUserOutput(const Kit *k) const
 {
     IDevice::ConstPtr dev = device(k);
     return ItemList() << qMakePair(tr("Device"), dev.isNull() ? tr("Unconfigured") : dev->displayName());
