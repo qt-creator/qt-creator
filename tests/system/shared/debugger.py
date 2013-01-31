@@ -40,18 +40,6 @@ def takeDebuggerLog():
 # on the given file,line pairs inside the given list of dicts
 # the lines are treated as regular expression
 def setBreakpointsForCurrentProject(filesAndLines):
-    # internal helper for setBreakpointsForCurrentProject
-    # double clicks the treeElement inside the given navTree
-    # TODO: merge with doubleClickFile() from tst_qml_editor & move to utils(?)
-    def __doubleClickFile__(navTree, treeElement):
-        waitForObjectItem(navTree, treeElement)
-        fileNamePattern = re.compile(".*\.(?P<file>(.*\\\..*)?)$")
-        fileName = fileNamePattern.search(treeElement).group("file").replace("\\.", ".")
-        doubleClickItem(navTree, treeElement, 5, 5, 0, Qt.LeftButton)
-        mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
-        waitFor('fileName in str(mainWindow.windowTitle)', 5000)
-        return fileName
-
     switchViewTo(ViewConstants.DEBUG)
     removeOldBreakpoints()
     if not filesAndLines or not isinstance(filesAndLines, (list,tuple)):
@@ -61,12 +49,13 @@ def setBreakpointsForCurrentProject(filesAndLines):
                             "window=':Qt Creator_Core::Internal::MainWindow'}")
     for current in filesAndLines:
         for curFile,curLine in current.iteritems():
-            fName = __doubleClickFile__(navTree, curFile)
+            if not openDocument(curFile):
+                return False
             editor = getEditorForFileSuffix(curFile)
             if not placeCursorToLine(editor, curLine, True):
                 return False
             invokeMenuItem("Debug", "Toggle Breakpoint")
-            test.log('Set breakpoint in %s' % fName, curLine)
+            test.log('Set breakpoint in %s' % curFile, curLine)
     try:
         breakPointTreeView = waitForObject(":Breakpoints_Debugger::Internal::BreakTreeView")
         waitFor("breakPointTreeView.model().rowCount() == len(filesAndLines)", 2000)
