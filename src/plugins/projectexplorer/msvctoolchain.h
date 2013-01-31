@@ -57,6 +57,7 @@ public:
 
     MsvcToolChain(const QString &name, const Abi &abi,
                   const QString &varsBat, const QString &varsBatArg, bool autodetect = false);
+    bool isValid() const;
     QList<Utils::FileName> suggestedMkspecList() const;
 
     static MsvcToolChain *readFromMap(const QVariantMap &data);
@@ -105,6 +106,7 @@ public:
         { return MsvcToolChain::readFromMap(data); }
 
     ToolChainConfigWidget *configurationWidget(ToolChain *);
+    static QString vcVarsBatFor(const QString &basePath, const QString &toolchainName);
 private:
     static bool checkForVisualStudioInstallation(const QString &vsName);
 };

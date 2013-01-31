@@ -381,7 +381,11 @@ QList<Abi> GccToolChain::supportedAbis() const
 
 bool GccToolChain::isValid() const
 {
-    return !m_compilerCommand.isNull();
+    if (m_compilerCommand.isNull())
+        return false;
+
+    QFileInfo fi = compilerCommand().toFileInfo();
+    return fi.isExecutable();
 }
 
 /**

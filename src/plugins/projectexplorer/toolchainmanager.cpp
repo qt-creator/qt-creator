@@ -190,9 +190,8 @@ void ToolChainManager::restoreToolChains()
 
     // Keep toolchains that were not rediscovered but are still executable and delete the rest
     foreach (ToolChain *tc, tcsToCheck) {
-        QFileInfo fi = tc->compilerCommand().toFileInfo();
-        if (!fi.isExecutable()) {
-            qWarning() << QString::fromLatin1("ToolChain \"%1\" (%2) dropped since it is not executable")
+        if (!tc->isValid()) {
+            qWarning() << QString::fromLatin1("ToolChain \"%1\" (%2) dropped since it is not valid")
                           .arg(tc->displayName()).arg(tc->id());
             delete tc;
         } else {
