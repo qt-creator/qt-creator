@@ -996,15 +996,16 @@ class Dumper:
         self.formats = {}
         self.useDynamicType = True
         self.expandedINames = {}
-        options = []
-        varList = []
-        watchers = ""
-        resultVarName = ""
 
     def __init__(self, args):
         self.defaultInit()
-        self.output.append('data=[')
 
+        watchers = ""
+        resultVarName = ""
+        options = []
+        varList = []
+
+        self.output.append('data=[')
         for arg in args.split(' '):
             pos = arg.find(":") + 1
             if arg.startswith("options:"):
