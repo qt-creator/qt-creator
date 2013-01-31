@@ -477,8 +477,8 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, in
             setupPropertyInfo(getTypes(objectValue, context()));
             setupLocalPropertyInfo(getTypes(objectValue, context(), true));
             m_defaultPropertyName = objectValue->defaultPropertyName();
-            setupPrototypes();
             m_isValid = true;
+            setupPrototypes();
         } else {
             const ObjectValue *objectValue = getObjectValue();
             if (objectValue) {
@@ -499,8 +499,8 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, in
                 setupPropertyInfo(getTypes(objectValue, context()));
                 setupLocalPropertyInfo(getTypes(objectValue, context(), true));
                 m_defaultPropertyName = context()->defaultPropertyName(objectValue);
-                setupPrototypes();
                 m_isValid = true;
+                setupPrototypes();
             }
         }
     }
@@ -911,10 +911,22 @@ QString NodeMetaInfoPrivate::propertyType(const QString &propertyName) const
 void NodeMetaInfoPrivate::setupPrototypes()
 {
     QList<const ObjectValue *> objects;
+
+    const ObjectValue *ov;
+
     if (m_isFileComponent)
-        objects = PrototypeIterator(getObjectValue(), context()).all();
+        ov = getObjectValue();
     else
-        objects = PrototypeIterator(getCppComponentValue(), context()).all();
+        ov = getCppComponentValue();
+
+    PrototypeIterator prototypeIterator(ov, context());
+
+    objects = prototypeIterator.all();
+
+    if (prototypeIterator.error() != PrototypeIterator::NoError) {
+        m_isValid = false;
+        return;
+    }
 
     foreach (const ObjectValue *ov, objects) {
         TypeDescription description;
