@@ -1,6 +1,6 @@
 <plugin name=\"Mercurial\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\">
     <vendor>Brian McGillion</vendor>
-    <copyright>(C) 2012 Brian McGillion</copyright>
+    <copyright>(C) 2013 Brian McGillion</copyright>
     <license>
 Commercial Usage
 

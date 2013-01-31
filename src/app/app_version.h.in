@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -45,7 +45,7 @@ namespace Constants {
 
 const char * const IDE_VERSION_LONG      = IDE_VERSION_STR;
 const char * const IDE_AUTHOR            = \"Digia Plc\";
-const char * const IDE_YEAR              = \"2012\";
+const char * const IDE_YEAR              = \"2013\";
 
 #ifdef IDE_VERSION_DESCRIPTION
 const char * const IDE_VERSION_DESCRIPTION_STR = STRINGIFY(IDE_VERSION_DESCRIPTION);

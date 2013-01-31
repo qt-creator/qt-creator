@@ -63,7 +63,7 @@ while (1) {
             last if ($linecount > 50);
 
             $hasCopyright = 1 if $_ =~ /Copyright/i;
-            $hasCurrent = 1 if $_ =~ /\(c\).*\s2012/i;
+            $hasCurrent = 1 if $_ =~ /\(c\).*\s2013/i;
 
             $hasContact = 1 if $_ =~ /Contact: http:\/\/www.qt-project.org\/legal/;
             $hasCommercial = 1 if $_ =~ /Commercial (License )?Usage/;

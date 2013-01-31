@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 ################################################################################
-# Copyright (C) 2012 Digia Plc
+# Copyright (C) 2013 Digia Plc
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without

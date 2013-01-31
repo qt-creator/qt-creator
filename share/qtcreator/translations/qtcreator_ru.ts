@@ -21,7 +21,7 @@
     </message>
     <message>
         <source>Kit:</source>
-        <translation>Инструментарий:</translation>
+        <translation>Набор:</translation>
     </message>
 </context>
 <context>
@@ -163,7 +163,7 @@
     </message>
     <message>
         <source>Kit:</source>
-        <translation>Инструментарий:</translation>
+        <translation>Набор:</translation>
     </message>
     <message>
         <source>Executable:</source>
@@ -1258,7 +1258,7 @@ This option is useful when you want to try your application on devices which don
     </message>
     <message>
         <source>Qt Creator needs a compiler set up to build. Configure a compiler in the kit options.</source>
-        <translation>Необходимо задать компилятор для сборки. Сделать это можно в настройках инструментария.</translation>
+        <translation>Необходимо задать компилятор для сборки. Сделать это можно в настройках набора.</translation>
     </message>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
@@ -2315,7 +2315,7 @@ Local pulls are not applied to the master branch.</source>
     <name>CMakeProjectManager::Internal::CMakeRunConfiguration</name>
     <message>
         <source>Run CMake kit</source>
-        <translation>Запуск инструментария CMake</translation>
+        <translation>Запуск набора CMake</translation>
     </message>
     <message>
         <source>Clean Environment</source>
@@ -2502,7 +2502,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Qt Creator needs a compiler set up to build. Configure a compiler in the kit options.</source>
-        <translation>Необходимо задать компилятор для сборки. Сделать это можно в настройках инструментария.</translation>
+        <translation>Необходимо задать компилятор для сборки. Сделать это можно в настройках набора.</translation>
     </message>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
@@ -2517,11 +2517,11 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Kits:</source>
-        <translation>Инструментарии:</translation>
+        <translation>Наборы:</translation>
     </message>
     <message>
         <source>&lt;b&gt;No build configuration found on this kit.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Для этого инструментария отсутствует конфигурация сборки.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Для этого набора отсутствует конфигурация сборки.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Make</source>
@@ -4211,16 +4211,28 @@ p, li { white-space: pre-wrap; }
         <translation>Текст</translation>
     </message>
     <message>
+        <source>Runs the current QML file with qmlscene. This requires Qt 5.</source>
+        <translation>Запуск текущего файла QML с помощью qmlscene. Требуется Qt 5.</translation>
+    </message>
+    <message>
+        <source>Qt Quick 2 Preview (qmlscene)</source>
+        <translation>Предпросмотр Qt Quick 2 (qmlscene)</translation>
+    </message>
+    <message>
         <source>Runs the current QML file with qmlviewer</source>
         <translation>Запуск текущего файла QML с помощью qmlviewer</translation>
     </message>
     <message>
         <source>Preview (qmlviewer)</source>
-        <translation>Предпросмотр (qmlviewer)</translation>
+        <translation type="obsolete">Предпросмотр (qmlviewer)</translation>
     </message>
     <message>
         <source>Qt Quick</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Qt Quick 1 Preview (qmlviewer)</source>
+        <translation>Предпросмотр Qt Quick 1 (qmlviewer)</translation>
     </message>
     <message>
         <source>Sorts the selected text</source>
@@ -6736,7 +6748,7 @@ Flags: %3</source>
     </message>
     <message>
         <source>No kit found.</source>
-        <translation>Инструментарий не найден.</translation>
+        <translation>Набор не найден.</translation>
     </message>
 </context>
 <context>
@@ -6860,7 +6872,7 @@ Flags: %3</source>
     </message>
     <message>
         <source>Kit:</source>
-        <translation>Инструментарий:</translation>
+        <translation>Набор:</translation>
     </message>
     <message>
         <source>&amp;Executable:</source>
@@ -6879,7 +6891,7 @@ Flags: %3</source>
     </message>
     <message>
         <source>Kit:</source>
-        <translation>Инструментарий:</translation>
+        <translation>Набор:</translation>
     </message>
     <message>
         <source>&amp;Port:</source>
@@ -7672,7 +7684,7 @@ This feature is only available for GDB.</source>
     </message>
     <message>
         <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. In the Qt Creator Build and Run preferences page, select a Qt version, expand the Details section and click Build All.</source>
-        <translation>Помощник отладчика используется для преобразования значений к наглядному виду некоторых типов данных Qt и стандартной библиотеки. Он должен быть собран отдельно для каждого профиля Qt. Это можно сделать в настройках сборки и запуска, выбрав профиль Qt, развернув раздер «Подробнее» и нажав на «Пересобрать всё».</translation>
+        <translation>Помощник отладчика используется для отображения значений некоторых типов данных Qt и стандартной библиотеки. Он должен быть собран отдельно для каждого профиля Qt. Это можно сделать в настройках сборки и запуска, выбрав профиль Qt, развернув раздел «Подробнее» и нажав на «Собрать всё».</translation>
     </message>
 </context>
 <context>
@@ -7707,7 +7719,7 @@ This feature is only available for GDB.</source>
     </message>
     <message>
         <source>The debugger to use for this kit.</source>
-        <translation>Отладчик, используемый с этим инструментарием.</translation>
+        <translation>Отладчик, используемый с этим набором.</translation>
     </message>
     <message>
         <source>Auto-detect</source>
@@ -8019,6 +8031,14 @@ Qt Creator не может подключиться к нему.</translation>
         <translation>Добавить вычисляемое выражение</translation>
     </message>
     <message>
+        <source>Apply Changes on Save</source>
+        <translation>Применять изменения при сохранении</translation>
+    </message>
+    <message>
+        <source>Show Application On Top</source>
+        <translation>Показывать приложение поверх всех</translation>
+    </message>
+    <message>
         <source>Select</source>
         <translation>Выбрать</translation>
     </message>
@@ -8258,14 +8278,6 @@ Qt Creator не может подключиться к нему.</translation>
     <message>
         <source>Automatically Quit Debugger</source>
         <translation>Автоматически закрывать отладчик</translation>
-    </message>
-    <message>
-        <source>Show Application On Top</source>
-        <translation>Показывать приложение поверх всех</translation>
-    </message>
-    <message>
-        <source>Apply Changes on Save</source>
-        <translation>Применять изменения при сохранении</translation>
     </message>
     <message>
         <source>List Source Files</source>
@@ -10166,7 +10178,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>&amp;Kit:</source>
-        <translation>&amp;Инструментарий:</translation>
+        <translation>На&amp;бор:</translation>
     </message>
     <message>
         <source>Local &amp;executable:</source>
@@ -12293,7 +12305,7 @@ Reason: %3</source>
     </message>
     <message>
         <source>Qt Creator needs a compiler set up to build. Configure a compiler in the kit options.</source>
-        <translation>Необходимо задать компилятор для сборки. Сделать это можно в настройках инструментария.</translation>
+        <translation>Необходимо задать компилятор для сборки. Сделать это можно в настройках набора.</translation>
     </message>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
@@ -14300,11 +14312,11 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Use &amp;Current Page</source>
-        <translation>&amp;Текущая страница</translation>
+        <translation>&amp;Текущая</translation>
     </message>
     <message>
         <source>Use &amp;Blank Page</source>
-        <translation>&amp;Пустая страница</translation>
+        <translation>&amp;Пустая</translation>
     </message>
     <message>
         <source>Reset to default</source>
@@ -14313,18 +14325,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Reset</source>
         <translation>Сбросить</translation>
-    </message>
-    <message>
-        <source>Help Bookmarks</source>
-        <translation>Закладки справки</translation>
-    </message>
-    <message>
-        <source>Import...</source>
-        <translation>Импорт...</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <translation>Экспорт...</translation>
     </message>
     <message>
         <source>Behaviour</source>
@@ -14341,6 +14341,14 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Note: This setting takes effect only if the HTML file does not use a style sheet.</source>
         <translation>Эта настройка действует, если файл HTML не использует таблицу стилей.</translation>
+    </message>
+    <message>
+        <source>Import Bookmarks...</source>
+        <translation>Импортировать закладки...</translation>
+    </message>
+    <message>
+        <source>Export Bookmarks...</source>
+        <translation>Экспортировать закладки...</translation>
     </message>
 </context>
 <context>
@@ -15565,17 +15573,20 @@ Do you want to kill it?</source>
     <message>
         <source>SSH connection error: %1
 </source>
-        <translation>Ошибка SSH подключения: %1</translation>
+        <translation>Ошибка SSH подключения: %1
+</translation>
     </message>
     <message>
         <source>Error checking for Qt libraries: %1
 </source>
-        <translation>Ошибка проверки библиотек Qt: %1</translation>
+        <translation>Ошибка проверки библиотек Qt: %1
+</translation>
     </message>
     <message>
         <source>Error checking for Qt libraries.
 </source>
-        <translation>Ошибка проверки библиотек Qt.</translation>
+        <translation>Ошибка проверки библиотек Qt.
+</translation>
     </message>
     <message>
         <source>Checking for connectivity support...</source>
@@ -15584,12 +15595,14 @@ Do you want to kill it?</source>
     <message>
         <source>Error checking for connectivity tool: %1
 </source>
-        <translation>Ошибка проверки наличия программы connectivity: %1</translation>
+        <translation>Ошибка проверки наличия программы connectivity: %1
+</translation>
     </message>
     <message>
         <source>Error checking for connectivity tool.
 </source>
-        <translation>Ошибка проверки наличия программы connectivity.</translation>
+        <translation>Ошибка проверки наличия программы connectivity.
+</translation>
     </message>
     <message>
         <source>Connectivity tool not installed on device. Deployment currently not possible.</source>
@@ -15602,7 +15615,8 @@ Do you want to kill it?</source>
     <message>
         <source>Connectivity tool present.
 </source>
-        <translation>Программа connectivity обнаружена.</translation>
+        <translation>Программа connectivity обнаружена.
+</translation>
     </message>
     <message>
         <source>Checking for QML tooling support...</source>
@@ -15611,22 +15625,26 @@ Do you want to kill it?</source>
     <message>
         <source>Error checking for QML tooling support: %1
 </source>
-        <translation>Ошибка проверки поддержки инструментария QML: %1</translation>
+        <translation>Ошибка проверки поддержки инструментария QML: %1
+</translation>
     </message>
     <message>
         <source>Error checking for QML tooling support.
 </source>
-        <translation>Ошибка проверки поддержки инструментария QML.</translation>
+        <translation>Ошибка проверки поддержки инструментария QML.
+</translation>
     </message>
     <message>
         <source>Missing directory &apos;%1&apos;. You will not be able to do QML debugging on this device.
 </source>
-        <translation>Отсутствует каталог «%1». Невозможно отлаживать QML на этом устройстве.</translation>
+        <translation>Отсутствует каталог «%1». Невозможно отлаживать QML на этом устройстве.
+</translation>
     </message>
     <message>
         <source>QML tooling support present.
 </source>
-        <translation>Поддержка инструментария QML обнаружена.</translation>
+        <translation>Поддержка инструментария QML обнаружена.
+</translation>
     </message>
     <message>
         <source>No Qt packages installed.</source>
@@ -18375,7 +18393,7 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
     <message>
         <source>Error while building/deploying project %1 (kit: %2)</source>
-        <translation>Ошибка при сборке/установке проекта %1 (инструментарий: %2)</translation>
+        <translation>Ошибка при сборке/установке проекта %1 (набор: %2)</translation>
     </message>
     <message>
         <source>When executing step &apos;%1&apos;</source>
@@ -18789,7 +18807,7 @@ Reason: %2</source>
     </message>
     <message>
         <source>Kit:</source>
-        <translation>Инструментарий:</translation>
+        <translation>Набор:</translation>
     </message>
     <message>
         <source>&amp;Filter:</source>
@@ -19396,7 +19414,7 @@ Remote error output was: %1</source>
     </message>
     <message>
         <source>Kit name and icon.</source>
-        <translation>Название и значок инструментария.</translation>
+        <translation>Название и значок набора.</translation>
     </message>
     <message>
         <source>Select Icon</source>
@@ -19496,7 +19514,7 @@ Remote error output was: %1</source>
     </message>
     <message>
         <source>Kit</source>
-        <translation>Инструментарий</translation>
+        <translation>Набор</translation>
     </message>
     <message>
         <source>Deploy</source>
@@ -19516,7 +19534,7 @@ Remote error output was: %1</source>
     </message>
     <message>
         <source>&lt;b&gt;Kit:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Инструментарий:&lt;/b&gt; %1</translation>
+        <translation>&lt;b&gt;Набор:&lt;/b&gt; %1</translation>
     </message>
     <message>
         <source>&lt;b&gt;Build:&lt;/b&gt; %1</source>
@@ -19544,7 +19562,7 @@ Remote error output was: %1</source>
     </message>
     <message>
         <source>Kit: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
-        <translation>Инструментарий: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</translation>
+        <translation>Набор: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</translation>
     </message>
     <message>
         <source>Build: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
@@ -20038,11 +20056,11 @@ to project &apos;%2&apos;.</source>
     <name>ProjectExplorer::Internal::TargetSettingsPanelWidget</name>
     <message>
         <source>No kit defined in this project.</source>
-        <translation>Для данного проекта не задан инструментарий.</translation>
+        <translation>Для данного проекта не задан набор.</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Kit</source>
-        <translation>Отменить сборку и удалить инструментарий</translation>
+        <translation>Отменить сборку и удалить набор</translation>
     </message>
     <message>
         <source>Do Not Remove</source>
@@ -20050,25 +20068,24 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Remove Kit %1?</source>
-        <translation>Удаление инструментария %1</translation>
+        <translation>Удаление набора %1</translation>
     </message>
     <message>
         <source>The kit &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
-        <translation>В данный момент идёт сборка с использованием инструментария &lt;b&gt;%1&lt;/b&gt;.</translation>
+        <translation>В данный момент идёт сборка с использованием набора &lt;b&gt;%1&lt;/b&gt;.</translation>
     </message>
     <message>
         <source>Do you want to cancel the build process and remove the Kit anyway?</source>
-        <translation>Остановить процесс сборки и удалить инструментарий?</translation>
+        <translation>Остановить процесс сборки и удалить набор?</translation>
     </message>
     <message>
         <source>Do you really want to remove the
 &quot;%1&quot; kit?</source>
-        <translation>Действительно желаете удалить
-инструментарий «%1»?</translation>
+        <translation>Удалить набор «%1»?</translation>
     </message>
     <message>
         <source>Qt Creator</source>
-        <translation></translation>
+        <translation>Qt Creator</translation>
     </message>
 </context>
 <context>
@@ -20279,7 +20296,7 @@ to project &apos;%2&apos;.</source>
     <name>ProjectExplorer::KitOptionsPage</name>
     <message>
         <source>Kits</source>
-        <translation>Инструментарии</translation>
+        <translation>Наборы</translation>
     </message>
     <message>
         <source>Add</source>
@@ -20544,11 +20561,11 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>The project &apos;%1&apos; has no active kit.</source>
-        <translation>У проекта «%1» нет активного инструментария.</translation>
+        <translation>У проекта «%1» нет активного набора.</translation>
     </message>
     <message>
         <source>The kit &apos;%1&apos; for the project &apos;%2&apos; has no active run configuration.</source>
-        <translation>Для инструментария «%1» проекта «%2» нет активной конфигурации запуска.</translation>
+        <translation>Для набора «%1» проекта «%2» нет активной конфигурации запуска.</translation>
     </message>
     <message>
         <source>A build is still in progress.</source>
@@ -20636,11 +20653,11 @@ Do you want to ignore them?</source>
     </message>
     <message>
         <source>Open Build and Run Kit Selector...</source>
-        <translation>Открыть выбор инструментария для сборки и запуска...</translation>
+        <translation>Открыть выбор набора для сборки и запуска...</translation>
     </message>
     <message>
         <source>Quick Switch Kit Selector</source>
-        <translation>Выбор быстрого переключения инструментариев</translation>
+        <translation>Выбор быстрого переключения наборов</translation>
     </message>
     <message>
         <source>Full build path of the current project&apos;s active build configuration.</source>
@@ -20657,6 +20674,11 @@ Do you want to ignore them?</source>
     <message>
         <source>Could Not Run</source>
         <translation>Невозможно запустить</translation>
+    </message>
+    <message>
+        <source>Build</source>
+        <comment>Build step</comment>
+        <translation>Сборка</translation>
     </message>
     <message>
         <source>The project %1 is not configured, skipping it.
@@ -20950,11 +20972,11 @@ Remote stderr was: %1</source>
     <name>ProjectExplorer::SysRootKitInformation</name>
     <message>
         <source>Sys Root &quot;%1&quot; is not a directory.</source>
-        <translation>Sys Root «%1» не является каталогом.</translation>
+        <translation>Sysroot «%1» не является каталогом.</translation>
     </message>
     <message>
         <source>Sys Root</source>
-        <translation>Sys Root</translation>
+        <translation>Sysroot</translation>
     </message>
 </context>
 <context>
@@ -20990,7 +21012,7 @@ Remote stderr was: %1</source>
     </message>
     <message>
         <source>No compiler set in kit.</source>
-        <translation>Для инструментария компилятор не задан.</translation>
+        <translation>Не задан компилятор для набора.</translation>
     </message>
 </context>
 <context>
@@ -22930,20 +22952,36 @@ Please use the stop button instead.</source>
 <context>
     <name>QmlProjectManager::Internal::QmlProjectApplicationWizard</name>
     <message>
-        <source>Qt Quick UI</source>
-        <translation>Интерфейс пользователя на Qt Quick</translation>
+        <source>Qt Quick 2 UI</source>
+        <translation>Интерфейс пользователя Qt Quick 2</translation>
     </message>
     <message>
-        <source>Creates a Qt Quick UI project with a single QML file that contains the main view.
+        <source>Creates a Qt Quick UI 2 project with a single QML file that contains the main view.
 
-You can review Qt Quick UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.
+You can review Qt Quick UI 2 projects in the QML Scene and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.
 
 Requires &lt;b&gt;Qt 5.0&lt;/b&gt; or newer.</source>
-        <translation>Создание проекта приложения Qt Quick с одним QML файлом, содержащим главный вид.
+        <translation>Создание проекта приложения Qt Quick 2 с одним QML файлом, содержащим главный вид.
 &lt;br/&gt;
-Проекты Qt Quick можно просматривать в QML Viewer и они не требуют сборки. Для создания и запуска проектов данного типа не требуется установка на компьютер среды разработки.
+Проекты Qt Quick 2 можно просматривать в QML Scene и они не требуют сборки. Для создания и запуска проектов данного типа не требуется установка на компьютер среды разработки.
 &lt;br/&gt;
 Требуется &lt;b&gt;Qt&lt;/b&gt; версии не ниже &lt;b&gt;5.0&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Qt Quick 1 UI</source>
+        <translation>Интерфейс пользователя Qt Quick 1</translation>
+    </message>
+    <message>
+        <source>Creates a Qt Quick UI 1 project with a single QML file that contains the main view.
+
+You can review Qt Quick UI 1 projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.
+
+Requires &lt;b&gt;Qt 4.8&lt;/b&gt; or newer.</source>
+        <translation>Создание проекта приложения Qt Quick 1 с одним QML файлом, содержащим главный вид.
+&lt;br/&gt;
+Проекты Qt Quick 1 можно просматривать в QML Viewer и они не требуют сборки. Для создания и запуска проектов данного типа не требуется установка на компьютер среды разработки.
+&lt;br/&gt;
+Требуется &lt;b&gt;Qt&lt;/b&gt; версии не ниже &lt;b&gt;4.8&lt;/b&gt;.</translation>
     </message>
 </context>
 <context>
@@ -23033,7 +23071,7 @@ Requires &lt;b&gt;Qt 5.0&lt;/b&gt; or newer.</source>
     </message>
     <message>
         <source>No Qt version set in kit.</source>
-        <translation>Профиль Qt не задан.</translation>
+        <translation>Для набора не задан профиль Qt.</translation>
     </message>
 </context>
 <context>
@@ -23670,7 +23708,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
     <message>
         <source>Kits</source>
-        <translation>Инструментарии</translation>
+        <translation>Наборы</translation>
     </message>
 </context>
 <context>
@@ -24482,7 +24520,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
     <message>
         <source>This kit cannot build this project since it does not define a Qt version.</source>
-        <translation>Невозможно собрать проект данным инструментарием, так как он не определяет профиль Qt.</translation>
+        <translation>Невозможно собрать проект данным набором, так как для него не задан профиль Qt.</translation>
     </message>
     <message>
         <source>The Qt version %1 does not support shadow builds, building might fail.</source>
@@ -24832,15 +24870,15 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
     </message>
     <message>
         <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator cannot parse the project, because no kit has been set up.</source>
-        <translation>Проект &lt;b&gt;%1&lt;/b&gt; ещё не настроен.&lt;br/&gt;Qt Creator не может обработать проект, так как инструментарий не указан.</translation>
+        <translation>Проект &lt;b&gt;%1&lt;/b&gt; ещё не настроен.&lt;br/&gt;Qt Creator не может обработать проект, так как набор не задан.</translation>
     </message>
     <message>
         <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator uses the kit &lt;b&gt;%2&lt;/b&gt; to parse the project.</source>
-        <translation>Проект &lt;b&gt;%1&lt;/b&gt; ещё не настроен.&lt;br/&gt;Для обработки проекта Qt Creator использует инструментарий &lt;b&gt;%2&lt;/b&gt;.</translation>
+        <translation>Проект &lt;b&gt;%1&lt;/b&gt; ещё не настроен.&lt;br/&gt;Для обработки проекта Qt Creator использует набор &lt;b&gt;%2&lt;/b&gt;.</translation>
     </message>
     <message>
         <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator uses the &lt;b&gt;invalid&lt;/b&gt; kit &lt;b&gt;%2&lt;/b&gt; to parse the project.</source>
-        <translation>Проект &lt;b&gt;%1&lt;/b&gt; ещё не настроен.&lt;br/&gt;Для обработки проекта Qt Creator использует &lt;b&gt;неверный&lt;/b&gt; инструментарий &lt;b&gt;%2&lt;/b&gt;.</translation>
+        <translation>Проект &lt;b&gt;%1&lt;/b&gt; ещё не настроен.&lt;br/&gt;Для обработки проекта Qt Creator использует &lt;b&gt;неверный&lt;/b&gt; набор &lt;b&gt;%2&lt;/b&gt;.</translation>
     </message>
 </context>
 <context>
@@ -24932,7 +24970,7 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
     </message>
     <message>
         <source>Qt Creator needs a compiler set up to build. Configure a compiler in the kit options.</source>
-        <translation>Необходимо задать компилятор для сборки. Сделать это можно в настройках инструментария.</translation>
+        <translation>Необходимо задать компилятор для сборки. Сделать это можно в настройках набора.</translation>
     </message>
     <message>
         <source>Cannot find Makefile. Check your build settings.</source>
@@ -25270,7 +25308,7 @@ Reason: %2</source>
     </message>
     <message>
         <source>No Qt version set in kit.</source>
-        <translation>Профиль Qt не задан.</translation>
+        <translation>Для набора не задан профиль Qt.</translation>
     </message>
     <message>
         <source>The .pro file &apos;%1&apos; does not exist.</source>
@@ -25335,19 +25373,19 @@ Reason: %2</source>
     <name>Qt4ProjectManager::TargetSetupPage</name>
     <message>
         <source>&lt;span style=&quot; font-weight:600;&quot;&gt;No valid kits found.&lt;/span&gt;</source>
-        <translation>&lt;b&gt;Отсутствуют подходящие инструментарии.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Отсутствуют подходящие наборы.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Please add a kit in the &lt;a href=&quot;buildandrun&quot;&gt;options&lt;/a&gt; or via the maintenance tool of the SDK.</source>
-        <translation>Добавьте инструментарий в &lt;a href=&quot;buildandrun&quot;&gt;настройках&lt;/a&gt; или через инструмент обслуживания SDK.</translation>
+        <translation>Добавьте набор в &lt;a href=&quot;buildandrun&quot;&gt;настройках&lt;/a&gt; или через инструмент обслуживания SDK.</translation>
     </message>
     <message>
         <source>Select Kits for Your Project</source>
-        <translation>Выбор инструментариев для проекта</translation>
+        <translation>Выбор наборов для проекта</translation>
     </message>
     <message>
         <source>Kit Selection</source>
-        <translation>Выбор инструментария</translation>
+        <translation>Выбор набора</translation>
     </message>
     <message>
         <source>%1 - temporary</source>
@@ -25356,7 +25394,7 @@ Reason: %2</source>
     <message>
         <source>Qt Creator can use the following kits for project &lt;b&gt;%1&lt;/b&gt;:</source>
         <comment>%1: Project name</comment>
-        <translation>Qt Creator может использовать для проекта &lt;b&gt;%1&lt;/b&gt; следующие инструментарии:</translation>
+        <translation>Qt Creator может использовать для проекта &lt;b&gt;%1&lt;/b&gt; следующие наборы:</translation>
     </message>
     <message>
         <source>No Build Found</source>
@@ -25702,7 +25740,7 @@ cannot be found in the path.</source>
     <name>QtSupport::Internal::QtKitConfigWidget</name>
     <message>
         <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
-        <translation>Библиотека Qt для всех проектов, использующих этот инструментарий.&lt;br&gt;Профиль Qt необходим для qmake-проектов, но не обязателен для других систем сборки.</translation>
+        <translation>Библиотека Qt для всех проектов, использующих этот набор.&lt;br&gt;Профиль Qt необходим для qmake-проектов, но необязателен для других систем сборки.</translation>
     </message>
     <message>
         <source>Manage...</source>

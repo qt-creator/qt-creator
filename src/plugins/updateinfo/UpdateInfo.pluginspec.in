@@ -1,6 +1,6 @@
 <plugin name=\"UpdateInfo\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\" experimental=\"$$UPDATEINFO_EXPERIMENTAL_STR\">
     <vendor>Digia Plc</vendor>
-    <copyright>(C) 2012 Digia Plc</copyright>
+    <copyright>(C) 2013 Digia Plc</copyright>
     <license>
 Commercial Usage
 

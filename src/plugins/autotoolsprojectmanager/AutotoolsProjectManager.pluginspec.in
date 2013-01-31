@@ -1,6 +1,6 @@
 <plugin name=\"AutotoolsProjectManager\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\" experimental=\"true\">
     <vendor>Openismus GmbH</vendor>
-    <copyright>(C) 2012 Openismus GmbH</copyright>
+    <copyright>(C) 2013 Openismus GmbH</copyright>
     <license>
 Commercial Usage
 

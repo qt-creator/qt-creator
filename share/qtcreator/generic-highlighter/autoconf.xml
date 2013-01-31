@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<!-- (c) 2008-2011 by Jürgen Heinemann http://www.hjcms.de
+<!-- (c) 2008-2013 by Jürgen Heinemann http://www.hjcms.de
   @see http://www.gnu.org/software/automake/manual/autoconf/
 -->
 <language name="Autoconf Language" version="1.10" kateversion="2.4" section="Other" extensions="configure.ac;configure.in;configure.in.in;*.m4;*.M4" mimetype="text/x-m4;text/x-autoconf" author="Juergen Heinemann (nospam@hjcms.de)" license="LGPL">
