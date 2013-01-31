@@ -52,6 +52,7 @@ class ScopeChain;
 class Context;
 typedef QSharedPointer<const Context> ContextPtr;
 class Value;
+class ObjectValue;
 }
 
 namespace QmlJSEditor {
@@ -85,9 +86,11 @@ private:
     void prettyPrintTooltip(const QmlJS::Value *value,
                             const QmlJS::ContextPtr &context);
 
-    TextEditor::HelpItem qmlHelpItem(const QmlJS::ScopeChain &lookupContext,
-                                     const QmlJS::Document::Ptr &qmlDocument,
-                                     QmlJS::AST::Node *node) const;
+    bool setQmlTypeHelp(const QmlJS::ScopeChain &scopeChain, const QmlJS::Document::Ptr &qmlDocument,
+                        const QmlJS::ObjectValue *value, const QStringList &qName);
+    bool setQmlHelpItem(const QmlJS::ScopeChain &lookupContext,
+                        const QmlJS::Document::Ptr &qmlDocument,
+                        QmlJS::AST::Node *node);
 
     QmlJS::ModelManagerInterface *m_modelManager;
     QColor m_colorTip;
