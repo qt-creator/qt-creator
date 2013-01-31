@@ -1,6 +1,6 @@
 /**************************************************************************
 **
-** Copyright (C) 2012 Lukas Holecek <hluk@email.cz>
+** Copyright (C) 2013 Lukas Holecek <hluk@email.cz>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
