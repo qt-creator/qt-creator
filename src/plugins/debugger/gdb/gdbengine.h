@@ -391,6 +391,7 @@ protected:
     void handleShowVersion(const GdbResponse &response);
     void handleListFeatures(const GdbResponse &response);
     void handleHasPython(const GdbResponse &response);
+    void handlePythonSetup(const GdbResponse &response);
 
     int m_gdbVersion; // 6.8.0 is 60800
     int m_gdbBuildVersion; // MAC only?

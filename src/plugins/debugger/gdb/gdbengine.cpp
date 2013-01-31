@@ -1842,6 +1842,14 @@ void GdbEngine::handleListFeatures(const GdbResponse &response)
 
 void GdbEngine::handleHasPython(const GdbResponse &response)
 {
+    if (response.resultClass == GdbResultDone)
+        m_hasPython = true;
+    else
+        pythonDumpersFailed();
+}
+
+void GdbEngine::handlePythonSetup(const GdbResponse &response)
+{
     if (response.resultClass == GdbResultDone) {
         m_hasPython = true;
         GdbMi data;
@@ -1863,8 +1871,6 @@ void GdbEngine::handleHasPython(const GdbResponse &response)
         }
         const GdbMi hasInferiorThreadList = data.findChild("hasInferiorThreadList");
         m_hasInferiorThreadList = (hasInferiorThreadList.data().toInt() != 0);
-    } else {
-        pythonDumpersFailed();
     }
 }
 
@@ -4924,7 +4930,7 @@ void GdbEngine::tryLoadPythonDumpers()
 
     loadInitScript();
 
-    postCommand("bbsetup", ConsoleCommand);
+    postCommand("bbsetup", ConsoleCommand, CB(handlePythonSetup));
 }
 
 void GdbEngine::reloadDebuggingHelpers()
