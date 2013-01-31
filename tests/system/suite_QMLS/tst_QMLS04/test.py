@@ -29,17 +29,26 @@ def main():
         test.passes("Refactoring was properly applied in source file")
     else:
         test.fail("Refactoring of Text to MyComponent failed in source file. Content of editor:\n%s" % codeText)
+    myCompTE = "SampleApp.QML.qml/SampleApp.MyComponent\\.qml"
+    appeared = False
     # there should be new QML file generated with name "MyComponent.qml"
     try:
-        waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", "SampleApp.QML.qml/SampleApp.MyComponent\\.qml", 3000)
-        test.passes("Refactoring - file MyComponent.qml was generated properly in project explorer")
+        waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", myCompTE, 3000)
     except:
-        test.fail("Refactoring failed - file MyComponent.qml was not generated properly in project explorer")
-        #save and exit
+        try:
+            waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", addBranchWildcardToRoot(myCompTE), 1000)
+        except:
+            test.fail("Refactoring failed - file MyComponent.qml was not generated properly in project explorer")
+            #save and exit
+            invokeMenuItem("File", "Save All")
+            invokeMenuItem("File", "Exit")
+    test.passes("Refactoring - file MyComponent.qml was generated properly in project explorer")
+    # open MyComponent.qml file for verification
+    if not openDocument(myCompTE):
+        test.fatal("Could not open MyComponent.qml.")
         invokeMenuItem("File", "Save All")
         invokeMenuItem("File", "Exit")
-    # select MyComponent.qml file
-    doubleClickItem(":Qt Creator_Utils::NavigationTreeView", "SampleApp.QML.qml/SampleApp.MyComponent\\.qml", 5, 5, 0, Qt.LeftButton)
+        return
     editorArea = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     codeText = str(editorArea.plainText)
     # there should be Text item in new file
