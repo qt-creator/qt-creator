@@ -176,8 +176,8 @@ std::string wStringToString(const std::wstring &w);
 std::wstring stringToWString(const std::string &w);
 
 // Strings from raw data.
-std::wstring quotedWStringFromCharData(const unsigned char *data, size_t size);
-std::wstring quotedWStringFromWCharData(const unsigned char *data, size_t size);
+std::wstring quotedWStringFromCharData(const unsigned char *data, size_t size, bool truncated = false);
+std::wstring quotedWStringFromWCharData(const unsigned char *data, size_t size, bool truncated = false);
 
 // Helper for dumping memory
 std::string dumpMemory(const unsigned char *data, size_t size, bool wantQuotes = true);

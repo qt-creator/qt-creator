@@ -1590,7 +1590,7 @@ static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str,
     if (!typeArrayV)
         return false;
     if (!readQt5StringData(typeArrayV, qtInfo.version, true, position,
-                           std::min(length, unsigned(10240)),
+                           std::min(length, ExtensionContext::instance().parameters().maxStringLength),
                            &fullSize, &size, &memory))
         return false;
     if (size) {
@@ -2302,9 +2302,12 @@ static bool dumpStd_W_String(const SymbolGroupValue &v, int type, std::wostream 
     // and MSVC2008 none
     const SymbolGroupValue bx = SymbolGroupValue::findMember(v, "_Bx");
     const int reserved = bx.parent()["_Myres"].intValue();
-    const int size = bx.parent()["_Mysize"].intValue();
+    int size = bx.parent()["_Mysize"].intValue();
     if (!bx || reserved < 0 || size < 0)
         return false;
+    const bool truncated = unsigned(size) > ExtensionContext::instance().parameters().maxStringLength;
+    if (truncated)
+        size = ExtensionContext::instance().parameters().maxStringLength;
     // 'Buf' array for small strings, else pointer 'Ptr'.
     const int bufSize = type == KT_StdString ? 16 : 8; // see basic_string.
     const unsigned long memSize = type == KT_StdString ? size : 2 * size;
@@ -2315,8 +2318,8 @@ static bool dumpStd_W_String(const SymbolGroupValue &v, int type, std::wostream 
     if (!memory)
         return false;
     str << (type == KT_StdString ?
-        quotedWStringFromCharData(memory, memSize) :
-        quotedWStringFromWCharData(memory, memSize));
+        quotedWStringFromCharData(memory, memSize, truncated) :
+        quotedWStringFromWCharData(memory, memSize, truncated));
     if (memoryHandle)
         *memoryHandle = new MemoryHandle(memory, memSize);
     else
