@@ -110,7 +110,8 @@ enum Command {
     CmdAddWatch,
     CmdWidgetAt,
     CmdBreakPoints,
-    CmdTest
+    CmdTest,
+    CmdSetParameter
 };
 
 static const CommandDescription commandDescriptions[] = {
@@ -172,7 +173,8 @@ static const CommandDescription commandDescriptions[] = {
 {"addwatch","Add watch expression","<iname> <expression>"},
 {"widgetat","Return address of widget at position","<x> <y>"},
 {"breakpoints","List breakpoints with modules","[-h] [-v]"},
-{"test","Testing command","-T type | -w watch-expression"}
+{"test","Testing command","-T type | -w watch-expression"},
+{"setparameter","Set parameter","maxStringLength=value maxStackDepth=value"}
 };
 
 typedef std::vector<std::string> StringVector;
@@ -890,6 +892,34 @@ extern "C" HRESULT CALLBACK modules(CIDebugClient *Client, PCSTR argsIn)
 extern "C" HRESULT CALLBACK idle(CIDebugClient *client, PCSTR)
 {
     ExtensionContext::instance().notifyIdleCommand(client);
+    return S_OK;
+}
+
+// Extension command 'setparameter':
+// Parse a list of parameters: 'key=value'
+
+extern "C" HRESULT CALLBACK setparameter(CIDebugClient *, PCSTR args)
+{
+    int token;
+    StringVector tokens = commandTokens<StringVector>(args, &token);
+    const size_t count = tokens.size();
+    size_t success = 0;
+    for (size_t i = 0; i < count; ++i) {
+        const std::string &token = tokens.at(i);
+        const std::string::size_type equalsPos = token.find('=');
+        if (equalsPos != std::string::npos) {
+            const std::string value = token.substr(equalsPos + 1, token.size() - 1 - equalsPos);
+            if (!token.compare(0, equalsPos, "maxStringLength")) {
+                if (integerFromString(value, &ExtensionContext::instance().parameters().maxStringLength))
+                    ++success;
+            } else if (!token.compare(0, equalsPos, "maxStackDepth")) {
+                if (integerFromString(value, &ExtensionContext::instance().parameters().maxStackDepth))
+                    ++success;
+            }
+        }
+    }
+    if (success != count)
+        DebugPrint() << "Errors parsing setparameters command '" << args << '\'';
     return S_OK;
 }
 

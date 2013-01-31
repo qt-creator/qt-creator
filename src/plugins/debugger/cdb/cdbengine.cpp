@@ -783,6 +783,11 @@ void CdbEngine::setupInferior()
     }
     postCommand("sxn 0x4000001f", 0); // Do not break on WowX86 exceptions.
     postCommand(".asm source_line", 0); // Source line in assembly
+    postCommand(m_extensionCommandPrefixBA + "setparameter maxStringLength="
+                + debuggerCore()->action(MaximalStringLength)->value().toByteArray()
+                + " maxStackDepth="
+                + debuggerCore()->action(MaximalStackDepth)->value().toByteArray()
+                , 0);
     postExtensionCommand("pid", QByteArray(), 0, &CdbEngine::handlePid);
 }
 
