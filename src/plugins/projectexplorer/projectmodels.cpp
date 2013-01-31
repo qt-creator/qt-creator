@@ -318,6 +318,8 @@ Qt::ItemFlags FlatModel::flags(const QModelIndex &index) const
     // We control the only view, and that one does the checks
     Qt::ItemFlags f = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
     if (Node *node = nodeForIndex(index)) {
+        if (node == m_rootNode)
+            return 0; // no flags for session node...
         if (!qobject_cast<ProjectNode *>(node)) {
             // either folder or file node
             if (node->projectNode()->supportedActions(node).contains(ProjectNode::Rename))
