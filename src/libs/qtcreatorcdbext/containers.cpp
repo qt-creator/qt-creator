@@ -410,66 +410,70 @@ static inline AbstractSymbolGroupNodePtrVector
     return rc;
 }
 
-/* Helper class for std::map<>,std::set<> based on std::__Tree:
- * We locally rebuild the structure in using instances of below class 'StdMapNode'
+/* Helper class for red-black trees (std::map<>,std::set<> based on std::__Tree:
+ * or Qt 5 maps).
+ * We locally rebuild the structure in using instances of below class 'RedBlackTreeNode'
  * with 'left' and 'right' pointers and the values. Reason being that while it is
  * possible to write the iteration in terms of class SymbolGroupValue, it involves
  * going back up the tree over the flat node->parent pointers. Doing that in the debugger
  * sometimes ends up in nirvana, apparently due to it not being able to properly expand it.
- * StdMapNode has a buildMap() to build a hierarchy from a __Tree value,
- * begin() to return the first node and next() to iterate. The latter are modeled
- * after the _Tree::iterator base classes. (_Tree::begin, _Tree::iterator::operator++() */
+ * RedBlackTreeNode has a buildMapRecursion() to build a hierarchy from a STL __Tree or
+ * Qt 5 map header value, taking a helper providing node creation and left/right symbol names.
+ * Use begin() to return the first node and next() to iterate. The latter are modeled
+ * after the _Tree::iterator base classes. (_Tree::begin, _Tree::iterator::operator++()
+ * STL tree nodes have a "value" member which is the pair of map data.
+ * In Qt 5, the node is a QMapNodeBase which needs to be casted to a QMapNode<K, V>. */
 
-class StdMapNode
+class RedBlackTreeNode
 {
 private:
-    StdMapNode(const StdMapNode &);
-    StdMapNode &operator=(const StdMapNode &);
+    RedBlackTreeNode(const RedBlackTreeNode &);
+    RedBlackTreeNode &operator=(const RedBlackTreeNode &);
 
 public:
-    explicit StdMapNode(StdMapNode *p, const SymbolGroupValue &node, const SymbolGroupValue &value);
-    ~StdMapNode() { delete m_left; delete m_right; }
+    explicit RedBlackTreeNode(RedBlackTreeNode *p, const SymbolGroupValue &nodeValue);
+    ~RedBlackTreeNode() { delete m_left; delete m_right; }
+
+    const SymbolGroupValue &nodeValue() const { return m_node; }
 
     // Iterator helpers: Return first and move to next
-    const StdMapNode *begin() const { return StdMapNode::leftMost(this); }
-    static const StdMapNode *next(const StdMapNode *s);
-
-    const SymbolGroupValue &value() const { return m_value; }
-
-    // Build the hierarchy
-    static StdMapNode *buildMap(const SymbolGroupValue &n);
+    const RedBlackTreeNode *begin() const { return RedBlackTreeNode::leftMost(this); }
+    static const RedBlackTreeNode *next(const RedBlackTreeNode *s);
 
     // Debug helpers
-    void debug(std::ostream &os, unsigned depth = 0) const;
+    template <class DebugFunction>
+    void debug(std::ostream &os, DebugFunction df, unsigned depth = 0) const;
+
+    static RedBlackTreeNode *buildMapRecursion(const SymbolGroupValue &n, ULONG64 headAddress,
+                                               RedBlackTreeNode *parent,
+                                               const char *leftSymbol, const char *rightSymbol);
+
+    static const RedBlackTreeNode *leftMost(const RedBlackTreeNode *n);
 
 private:
-    static StdMapNode *buildMapRecursion(const SymbolGroupValue &n, ULONG64 headAddress, StdMapNode *parent);
-    static const StdMapNode *leftMost(const StdMapNode *n);
-
-    StdMapNode *const m_parent;
-    StdMapNode *m_left;
-    StdMapNode *m_right;
+    RedBlackTreeNode *const m_parent;
+    RedBlackTreeNode *m_left;
+    RedBlackTreeNode *m_right;
     const SymbolGroupValue m_node;
-    const SymbolGroupValue m_value;
 };
 
-StdMapNode::StdMapNode(StdMapNode *p, const SymbolGroupValue &n, const SymbolGroupValue &v) :
-    m_parent(p), m_left(0), m_right(0), m_node(n), m_value(v)
+RedBlackTreeNode::RedBlackTreeNode(RedBlackTreeNode *p, const SymbolGroupValue &node)
+    : m_parent(p), m_left(0), m_right(0), m_node(node)
 {
 }
 
-const StdMapNode *StdMapNode::leftMost(const StdMapNode *n)
+const RedBlackTreeNode *RedBlackTreeNode::leftMost(const RedBlackTreeNode *n)
 {
     for ( ; n->m_left ; n = n->m_left ) ;
     return n;
 }
 
-const StdMapNode *StdMapNode::next(const StdMapNode *s)
+const RedBlackTreeNode *RedBlackTreeNode::next(const RedBlackTreeNode *s)
 {
     if (s->m_right) // If we have a right node, return its left-most
-        return StdMapNode::leftMost(s->m_right);
+        return RedBlackTreeNode::leftMost(s->m_right);
     do { // Climb looking for 'right' subtree, that is, we are left of it
-        StdMapNode *parent = s->m_parent;
+        RedBlackTreeNode *parent = s->m_parent;
         if (!parent || parent->m_right != s)
             return parent;
         s = parent;
@@ -477,31 +481,33 @@ const StdMapNode *StdMapNode::next(const StdMapNode *s)
     return 0;
 }
 
-StdMapNode *StdMapNode::buildMapRecursion(const SymbolGroupValue &n, ULONG64 headAddress, StdMapNode *parent)
+/* Build the tree using the helper which is asked to create the node
+ * and provide the names of the "left" and "right" nodes. */
+RedBlackTreeNode *RedBlackTreeNode::buildMapRecursion(const SymbolGroupValue &n, ULONG64 headAddress,
+                                                      RedBlackTreeNode *parent,
+                                                      const char *leftSymbol, const char *rightSymbol)
 {
-    const SymbolGroupValue value = n["_Myval"];
-    if (!value)
-        return 0;
-    StdMapNode *node = new StdMapNode(parent, n, value);
-    // Get left and right nodes. A node pointing to head terminates the recursion
-    if (const SymbolGroupValue left = n["_Left"])
+    RedBlackTreeNode *node = new RedBlackTreeNode(parent, n);
+    // Get left and right nodes. A node pointing to 0 (Qt) or 'head' (STL) terminates the recursion
+    if (const SymbolGroupValue left = n[leftSymbol])
         if (const ULONG64 leftAddr = left.pointerValue())
-            if (leftAddr != headAddress)
-                node->m_left = buildMapRecursion(left, headAddress, node);
-    if (const SymbolGroupValue right = n["_Right"])
+            if (leftAddr && leftAddr != headAddress)
+                node->m_left = buildMapRecursion(left, headAddress, node, leftSymbol, rightSymbol);
+    if (const SymbolGroupValue right = n[rightSymbol])
         if (const ULONG64 rightAddr = right.pointerValue())
-            if (rightAddr != headAddress)
-                node->m_right = buildMapRecursion(right, headAddress, node);
+            if (rightAddr && rightAddr != headAddress)
+                node->m_right = buildMapRecursion(right, headAddress, node, leftSymbol, rightSymbol);
     return node;
 }
 
-StdMapNode *StdMapNode::buildMap(const SymbolGroupValue &n)
+template <class DebugFunction>
+void RedBlackTreeNode::debug(std::ostream &os, DebugFunction df, unsigned depth) const
 {
-    // Goto root of tree (see _Tree::_Root())
-    if (const SymbolGroupValue head = n["_Myhead"])
-        if (const ULONG64 headAddress = head.pointerValue())
-            return buildMapRecursion(head["_Parent"], headAddress, 0);
-    return 0;
+    df(m_node, os, 2 * depth);
+    if (m_left)
+        m_left->debug(os, df, depth + 1);
+    if (m_right)
+        m_right->debug(os, df, depth + 1);
 }
 
 static inline void indentStream(std::ostream &os, unsigned indent)
@@ -512,7 +518,7 @@ static inline void indentStream(std::ostream &os, unsigned indent)
 
 // Debugging helper for a SymbolGroupValue containing a __Tree::node of
 // a map (assuming a std::pair inside).
-static inline void debugMSVC2010MapNode(const SymbolGroupValue &n, std::ostream &os, unsigned indent = 0)
+static void debugMSVC2010MapNode(const SymbolGroupValue &n, std::ostream &os, unsigned indent = 0)
 {
     indentStream(os, indent);
     os << "Node at " << std::hex << std::showbase << n.address()
@@ -531,17 +537,6 @@ static inline void debugMSVC2010MapNode(const SymbolGroupValue &n, std::ostream 
     os << '\n';
 }
 
-void StdMapNode::debug(std::ostream &os, unsigned depth) const
-{
-    indentStream(os, 2 * depth);
-    os << "StdNode=" << this << " Left=" << m_left  << " Right=" << m_right << '\n';
-    debugMSVC2010MapNode(m_node, os, 2 * depth);
-    if (m_left)
-        m_left->debug(os, depth + 1);
-    if (m_right)
-        m_right->debug(os, depth + 1);
-}
-
 // Helper for std::map<>,std::set<> based on std::__Tree:
 // Return the list of children (pair for maps, direct children for set)
 static inline SymbolGroupValueVector
@@ -558,14 +553,26 @@ static inline SymbolGroupValueVector
     if (!tree|| size <= 0)
         return SymbolGroupValueVector();
     // Build the tree and iterate it.
-    const StdMapNode *nodeTree = StdMapNode::buildMap(tree);
+    // Goto root of tree (see _Tree::_Root())
+    RedBlackTreeNode *nodeTree = 0;
+    if (const SymbolGroupValue head = tree["_Myhead"])
+        if (const ULONG64 headAddress = head.pointerValue())
+            nodeTree = RedBlackTreeNode::buildMapRecursion(head["_Parent"], headAddress, 0, "_Left", "_Right");
     if (!nodeTree)
         return SymbolGroupValueVector();
+    if (SymbolGroupValue::verbose > 1)
+        nodeTree->debug(DebugPrint(), debugMSVC2010MapNode);
     SymbolGroupValueVector rc;
     rc.reserve(count);
     int i = 0;
-    for (const StdMapNode *n = nodeTree->begin() ; n && i < count; n = StdMapNode::next(n), i++)
-        rc.push_back(n->value());
+    for (const RedBlackTreeNode *n = nodeTree->begin() ; n && i < count; n = RedBlackTreeNode::next(n), i++) {
+        const SymbolGroupValue value = n->nodeValue()["_Myval"];
+        if (!value) {
+            delete nodeTree;
+            return SymbolGroupValueVector();
+        }
+        rc.push_back(value);
+    }
     delete nodeTree;
     if (rc.size() != count)
         return SymbolGroupValueVector();
@@ -894,8 +901,8 @@ static inline AbstractSymbolGroupNodePtrVector
     return rc;
 }
 
-// QMap<>: Return the list of QMapData::Node
-static inline SymbolGroupValueVector qMapNodes(const SymbolGroupValue &v, VectorIndexType count)
+// Qt 4: QMap<>: Return the list of QMapData::Node
+static inline SymbolGroupValueVector qMap4Nodes(const SymbolGroupValue &v, VectorIndexType count)
 {
     const SymbolGroupValue e = v["e"];
     const ULONG64 ePtr = e.pointerValue();
@@ -915,6 +922,51 @@ static inline SymbolGroupValueVector qMapNodes(const SymbolGroupValue &v, Vector
     return rc;
 }
 
+static void debugQMap5Node(const SymbolGroupValue &n, std::ostream &os, unsigned indent = 0)
+{
+    const char *color = (n["p"].intValue() & 1) ? "black" : "red";
+    indentStream(os, indent);
+    os << n.address() << ' ' <<color << " left: " << n["left"] << " right: " << n["right"];
+}
+
+// Qt 5: QMap<>: Return the list of QMapNode<K, V>
+static inline AbstractSymbolGroupNodePtrVector qMap5Nodes(const SymbolGroupValue &v, VectorIndexType count)
+{
+    const SymbolGroupValue head = SymbolGroupValue::findMember(v["d"], "header");
+    SymbolGroupValue root = head["left"];
+    if (!root)
+        return AbstractSymbolGroupNodePtrVector();
+    RedBlackTreeNode *nodeTree =
+        RedBlackTreeNode::buildMapRecursion(root, head.address(), 0, "left", "right");
+    if (!nodeTree)
+        return AbstractSymbolGroupNodePtrVector();
+    if (SymbolGroupValue::verbose > 1)
+        nodeTree->debug(DebugPrint(), debugQMap5Node);
+    int i = 0;
+    // Finally convert them into real nodes 'QHashNode<K,V> (potentially expensive)
+    const std::string nodeType = qHashNodeType(v, "Node");
+    const std::string nodePtrType = nodeType +  " *";
+    if (SymbolGroupValue::verbose)
+        DebugPrint() << v.type() << "," << nodeType;
+    AbstractSymbolGroupNodePtrVector result;
+    result.reserve(count);
+    for (const RedBlackTreeNode *n = nodeTree->begin() ; n && i < count; n = RedBlackTreeNode::next(n), i++) {
+        if (const SymbolGroupValue qmapNode = n->nodeValue().pointerTypeCast(nodePtrType.c_str())) {
+            const SymbolGroupValue key = qmapNode["key"];
+            const SymbolGroupValue value = qmapNode["value"];
+            if (!key || !value) {
+                delete nodeTree;
+                return AbstractSymbolGroupNodePtrVector();
+            }
+            result.push_back(MapNodeSymbolGroupNode::create(i, key.address(),
+                                                            nodeType,
+                                                            key.node(), value.node()));
+        }
+    }
+    delete nodeTree;
+    return result;
+}
+
 // QMap<>: Add with fake map nodes.
 static inline AbstractSymbolGroupNodePtrVector
     qMapChildList(const SymbolGroupValue &v, VectorIndexType count)
@@ -924,8 +976,8 @@ static inline AbstractSymbolGroupNodePtrVector
 
     if (!count)
         return AbstractSymbolGroupNodePtrVector();
-    if (QtInfo::get(v.context()).version >= 5) // ### fixme: Qt 5 map is a rb tree.
-        return AbstractSymbolGroupNodePtrVector();
+    if (QtInfo::get(v.context()).version >= 5)
+        return qMap5Nodes(v, count);
     // Get node type: 'class namespace::QMap<K,T>'
     // ->'QtCored4!namespace::QMapNode<K,T>'
     // Note: Any types QMapNode<> will not be found without modules!
@@ -957,7 +1009,7 @@ static inline AbstractSymbolGroupNodePtrVector
     if (!valueOffset || !valueSize)
         return AbstractSymbolGroupNodePtrVector();
     // Get the children.
-    const SymbolGroupValueVector childNodes = qMapNodes(v, count);
+    const SymbolGroupValueVector childNodes = qMap4Nodes(v, count);
     if (SymbolGroupValue::verbose)
         DebugPrint() << "children: " << childNodes.size() << " of " << count;
     // Deep  expansion of the forward[0] sometimes fails. In that case,
