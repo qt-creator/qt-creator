@@ -520,8 +520,8 @@ void tst_Dumpers::dumper_data()
                     "QByteArray buf2(str2);\n"
                     "QByteArray buf3(str3);\n"
                     "dummyStatement(&buf1, &buf2, &buf3);\n")
-               % Check("buf1", "\"î\"", "@QByteArray")
-               % Check("buf2", "\"î\"", "@QByteArray")
+               % Check("buf1", "\"" + QByteArray(1, 0xee) + "\"", "@QByteArray")
+               % Check("buf2", "\"" + QByteArray(1, 0xee) + "\"", "@QByteArray")
                % Check("buf3", "\"\ee\"", "@QByteArray")
                % CheckType("str1", "char *");
 
