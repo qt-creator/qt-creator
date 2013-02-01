@@ -1840,7 +1840,8 @@ def qdump__QWeakPointer(d, value):
     d.putNumChild(3)
     if d.isExpanded():
         with Children(d):
-            d.putSubItem("data", val.dereference())
+            innerType = templateArgument(value.type, 0)
+            d.putSubItem("data", val.dereference().cast(innerType))
             d.putIntItem("weakref", weakref)
             d.putIntItem("strongref", strongref)
 

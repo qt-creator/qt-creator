@@ -1371,7 +1371,9 @@ class Dumper:
         if not hasPlot():
             return
         if not isSimpleType(type):
-            self.putValue(self.currentValue + " (not plottable)")
+            #self.putValue(self.currentValue + " (not plottable)")
+            self.putValue(self.currentValue)
+            self.putField("plottable", "0")
             return
         global gnuplotPipe
         global gnuplotPid
