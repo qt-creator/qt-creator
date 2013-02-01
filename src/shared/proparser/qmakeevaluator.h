@@ -205,7 +205,7 @@ public:
     bool isActiveConfig(const QString &config, bool regex = false);
 
     void populateDeps(
-            const ProStringList &deps, const ProString &prefix,
+            const ProStringList &deps, const ProString &prefix, const ProStringList &suffixes,
             QHash<ProKey, QSet<ProKey> > &dependencies,
             ProValueMap &dependees, ProStringList &rootSet) const;
 
