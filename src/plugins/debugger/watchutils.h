@@ -39,9 +39,6 @@
 namespace Debugger {
 namespace Internal {
 
-class WatchData;
-class GdbMi;
-
 bool isSkippableFunction(const QString &funcName, const QString &fileName);
 bool isLeavableFunction(const QString &funcName, const QString &fileName);
 
@@ -59,28 +56,6 @@ bool isIntType(const QByteArray &type);
 
 QString formatToolTipAddress(quint64 a);
 QString removeObviousSideEffects(const QString &exp);
-
-// Decode string data as returned by the dumper helpers.
-void decodeArray(WatchData *list, const WatchData &tmplate,
-    const QByteArray &rawData, int encoding);
-
-
-//
-// GdbMi interaction
-//
-
-void setWatchDataValue(WatchData &data, const GdbMi &item);
-void setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
-    int encoding);
-void setWatchDataChildCount(WatchData &data, const GdbMi &mi);
-void setWatchDataValueEnabled(WatchData &data, const GdbMi &mi);
-void setWatchDataAddress(WatchData &data, const GdbMi &addressMi, const GdbMi &origAddressMi);
-void setWatchDataType(WatchData &data, const GdbMi &mi);
-void setWatchDataDisplayedType(WatchData &data, const GdbMi &mi);
-
-void parseWatchData(const QSet<QByteArray> &expandedINames,
-    const WatchData &parent, const GdbMi &child,
-    QList<WatchData> *insertions);
 
 } // namespace Internal
 } // namespace Debugger

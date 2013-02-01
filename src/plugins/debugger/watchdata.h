@@ -37,6 +37,8 @@
 namespace Debugger {
 namespace Internal {
 
+class GdbMi;
+
 class WatchData
 {
 public:
@@ -99,7 +101,7 @@ public:
     void setValue(const QString &);
     void setValueToolTip(const QString &);
     void setType(const QByteArray &, bool guessChildrenFromType = true);
-    void setAddress(const quint64 &);
+    void updateAddress(const quint64 &);
     void setHexAddress(const QByteArray &a);
 
     QString toString()  const;
@@ -112,6 +114,13 @@ public:
     quint64    coreAddress() const;
     QByteArray hexAddress()  const;
     QByteArray hexReferencingAddress()  const;
+
+    // Protocol interaction.
+    void updateValue(const GdbMi &item);
+    void updateChildCount(const GdbMi &mi);
+    void updateAddress(const GdbMi &addressMi, const GdbMi &origAddressMi);
+    void updateType(const GdbMi &item);
+    void updateDisplayedType(const GdbMi &item);
 
 public:
     quint64    id;           // Token for the engine for internal mapping
@@ -145,6 +154,10 @@ public:
     QByteArray variable;  // Name of internal Gdb variable if created
     qint32 source;  // Originated from dumper or symbol evaluation? (CDB only)
 };
+
+void parseWatchData(const QSet<QByteArray> &expandedINames,
+    const WatchData &parent, const GdbMi &child,
+    QList<WatchData> *insertions);
 
 } // namespace Internal
 } // namespace Debugger

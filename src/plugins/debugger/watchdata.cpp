@@ -32,6 +32,7 @@
 
 #include "watchdata.h"
 #include "watchutils.h"
+#include "debuggerprotocol.h"
 
 #include <QTextDocument>
 #include <QTextStream>
@@ -270,7 +271,7 @@ void WatchData::setType(const QByteArray &str, bool guessChildrenFromType)
     }
 }
 
-void WatchData::setAddress(const quint64 &a)
+void WatchData::updateAddress(const quint64 &a)
 {
     address = a;
 }
@@ -427,6 +428,276 @@ QByteArray WatchData::hexReferencingAddress() const
     if (referencingAddress)
         return QByteArray("0x") + QByteArray::number(referencingAddress, 16);
     return QByteArray();
+}
+
+
+////////////////////////////////////////////////////
+//
+// Protocol convienience
+//
+////////////////////////////////////////////////////
+
+void WatchData::updateValue(const GdbMi &item)
+{
+    GdbMi value = item.findChild("value");
+    if (value.isValid()) {
+        int encoding = item.findChild("valueencoded").data().toInt();
+        setValue(decodeData(value.data(), encoding));
+    } else {
+        setValueNeeded();
+    }
+}
+
+void setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
+    int encoding)
+{
+    if (mi.isValid())
+        data.setValueToolTip(decodeData(mi.data(), encoding));
+}
+
+void WatchData::updateChildCount(const GdbMi &mi)
+{
+    if (mi.isValid())
+        setHasChildren(mi.data().toInt() > 0);
+}
+
+static void setWatchDataValueEnabled(WatchData &data, const GdbMi &mi)
+{
+    if (mi.data() == "true")
+        data.valueEnabled = true;
+    else if (mi.data() == "false")
+        data.valueEnabled = false;
+}
+
+static void setWatchDataValueEditable(WatchData &data, const GdbMi &mi)
+{
+    if (mi.data() == "true")
+        data.valueEditable = true;
+    else if (mi.data() == "false")
+        data.valueEditable = false;
+}
+
+static void setWatchDataExpression(WatchData &data, const GdbMi &mi)
+{
+    if (mi.isValid())
+        data.exp = mi.data();
+}
+
+static void setWatchDataAddress(WatchData &data, quint64 address, quint64 origAddress = 0)
+{
+    if (origAddress) { // Gdb dumpers reports the dereferenced address as origAddress
+        data.address = origAddress;
+        data.referencingAddress = address;
+    } else {
+        data.address = address;
+    }
+    if (data.exp.isEmpty() && !data.dumperFlags.startsWith('$')) {
+        if (data.iname.startsWith("local.") && data.iname.count('.') == 1)
+            // Solve one common case of adding 'class' in
+            // *(class X*)0xdeadbeef for gdb.
+            data.exp = data.name.toLatin1();
+        else
+            data.exp = "*(" + gdbQuoteTypes(data.type) + "*)" + data.hexAddress();
+    }
+}
+
+void WatchData::updateAddress(const GdbMi &addressMi, const GdbMi &origAddressMi)
+{
+    if (!addressMi.isValid())
+        return;
+    const QByteArray addressBA = addressMi.data();
+    if (!addressBA.startsWith("0x")) { // Item model dumpers pull tricks.
+        dumperFlags = addressBA;
+        return;
+    }
+    const quint64 address = addressMi.toAddress();
+    const quint64 origAddress = origAddressMi.toAddress();
+    setWatchDataAddress(*this, address, origAddress);
+}
+
+static void setWatchDataSize(WatchData &data, const GdbMi &mi)
+{
+    if (mi.isValid()) {
+        bool ok = false;
+        const unsigned size = mi.data().toUInt(&ok);
+        if (ok)
+            data.size = size;
+    }
+}
+
+// Find the "type" and "displayedtype" children of root and set up type.
+void WatchData::updateType(const GdbMi &item)
+{
+    if (item.isValid())
+        setType(item.data());
+    else if (type.isEmpty())
+        setTypeNeeded();
+}
+
+void WatchData::updateDisplayedType(const GdbMi &item)
+{
+    if (item.isValid())
+        displayedType = QString::fromLatin1(item.data());
+}
+
+// Utilities to decode string data returned by the dumper helpers.
+
+
+template <class T>
+void decodeArrayHelper(QList<WatchData> *list, const WatchData &tmplate,
+    const QByteArray &rawData)
+{
+    const QByteArray ba = QByteArray::fromHex(rawData);
+    const T *p = (const T *) ba.data();
+    WatchData data;
+    const QByteArray exp = "*(" + gdbQuoteTypes(tmplate.type) + "*)0x";
+    for (int i = 0, n = ba.size() / sizeof(T); i < n; ++i) {
+        data = tmplate;
+        data.sortId = i;
+        data.iname += QByteArray::number(i);
+        data.name = QString::fromLatin1("[%1]").arg(i);
+        data.value = QString::number(p[i]);
+        data.address += i * sizeof(T);
+        data.exp = exp + QByteArray::number(data.address, 16);
+        data.setAllUnneeded();
+        list->append(data);
+    }
+}
+
+static void decodeArray(QList<WatchData> *list, const WatchData &tmplate,
+    const QByteArray &rawData, int encoding)
+{
+    switch (encoding) {
+        case Hex2EncodedInt1:
+            decodeArrayHelper<signed char>(list, tmplate, rawData);
+            break;
+        case Hex2EncodedInt2:
+            decodeArrayHelper<short>(list, tmplate, rawData);
+            break;
+        case Hex2EncodedInt4:
+            decodeArrayHelper<int>(list, tmplate, rawData);
+            break;
+        case Hex2EncodedInt8:
+            decodeArrayHelper<qint64>(list, tmplate, rawData);
+            break;
+        case Hex2EncodedUInt1:
+            decodeArrayHelper<uchar>(list, tmplate, rawData);
+            break;
+        case Hex2EncodedUInt2:
+            decodeArrayHelper<ushort>(list, tmplate, rawData);
+            break;
+        case Hex2EncodedUInt4:
+            decodeArrayHelper<uint>(list, tmplate, rawData);
+            break;
+        case Hex2EncodedUInt8:
+            decodeArrayHelper<quint64>(list, tmplate, rawData);
+            break;
+        case Hex2EncodedFloat4:
+            decodeArrayHelper<float>(list, tmplate, rawData);
+            break;
+        case Hex2EncodedFloat8:
+            decodeArrayHelper<double>(list, tmplate, rawData);
+            break;
+        default:
+            qDebug() << "ENCODING ERROR: " << encoding;
+    }
+}
+
+void parseWatchData(const QSet<QByteArray> &expandedINames,
+    const WatchData &data0, const GdbMi &item,
+    QList<WatchData> *list)
+{
+    //qDebug() << "HANDLE CHILDREN: " << data0.toString() << item.toString();
+    WatchData data = data0;
+    bool isExpanded = expandedINames.contains(data.iname);
+    if (!isExpanded)
+        data.setChildrenUnneeded();
+
+    GdbMi children = item.findChild("children");
+    if (children.isValid() || !isExpanded)
+        data.setChildrenUnneeded();
+
+    data.updateType(item.findChild("type"));
+    GdbMi mi = item.findChild("editvalue");
+    if (mi.isValid())
+        data.editvalue = mi.data();
+    mi = item.findChild("editformat");
+    if (mi.isValid())
+        data.editformat = mi.data().toInt();
+    mi = item.findChild("typeformats");
+    if (mi.isValid())
+        data.typeFormats = QString::fromUtf8(mi.data());
+    mi = item.findChild("bitpos");
+    if (mi.isValid())
+        data.bitpos = mi.data().toInt();
+    mi = item.findChild("bitsize");
+    if (mi.isValid())
+        data.bitsize = mi.data().toInt();
+
+    data.updateValue(item);
+    data.updateAddress(item.findChild("addr"), item.findChild("origaddr"));
+    setWatchDataSize(data, item.findChild("size"));
+    setWatchDataExpression(data, item.findChild("exp"));
+    setWatchDataValueEnabled(data, item.findChild("valueenabled"));
+    setWatchDataValueEditable(data, item.findChild("valueeditable"));
+    data.updateChildCount(item.findChild("numchild"));
+    //qDebug() << "\nAPPEND TO LIST: " << data.toString() << "\n";
+    list->append(data);
+
+    bool ok = false;
+    qulonglong addressBase = item.findChild("addrbase").data().toULongLong(&ok, 0);
+    qulonglong addressStep = item.findChild("addrstep").data().toULongLong(&ok, 0);
+
+    // Try not to repeat data too often.
+    WatchData childtemplate;
+    childtemplate.updateType(item.findChild("childtype"));
+    childtemplate.updateChildCount(item.findChild("childnumchild"));
+    //qDebug() << "CHILD TEMPLATE:" << childtemplate.toString();
+
+    mi = item.findChild("arraydata");
+    if (mi.isValid()) {
+        int encoding = item.findChild("arrayencoding").data().toInt();
+        childtemplate.iname = data.iname + '.';
+        childtemplate.address = addressBase;
+        decodeArray(list, childtemplate, mi.data(), encoding);
+    } else {
+        for (int i = 0, n = children.children().size(); i != n; ++i) {
+            const GdbMi &child = children.children().at(i);
+            WatchData data1 = childtemplate;
+            data1.sortId = i;
+            GdbMi name = child.findChild("name");
+            if (name.isValid())
+                data1.name = QString::fromLatin1(name.data());
+            else
+                data1.name = QString::number(i);
+            GdbMi iname = child.findChild("iname");
+            if (iname.isValid()) {
+                data1.iname = iname.data();
+            } else {
+                data1.iname = data.iname;
+                data1.iname += '.';
+                data1.iname += data1.name.toLatin1();
+            }
+            if (!data1.name.isEmpty() && data1.name.at(0).isDigit())
+                data1.name = QLatin1Char('[') + data1.name + QLatin1Char(']');
+            if (addressStep) {
+                setWatchDataAddress(data1, addressBase);
+                addressBase += addressStep;
+            }
+            QByteArray key = child.findChild("key").data();
+            if (!key.isEmpty()) {
+                int encoding = child.findChild("keyencoded").data().toInt();
+                QString skey = decodeData(key, encoding);
+                if (skey.size() > 13) {
+                    skey = skey.left(12);
+                    skey += QLatin1String("...");
+                }
+                //data1.name += " (" + skey + ")";
+                data1.name = skey;
+            }
+            parseWatchData(expandedINames, data1, child, list);
+        }
+    }
 }
 
 } // namespace Internal

@@ -4137,13 +4137,13 @@ void GdbEngine::handleVarCreate(const GdbResponse &response)
     //qDebug() << "HANDLE VARIABLE CREATION:" << data.toString();
     if (response.resultClass == GdbResultDone) {
         data.variable = data.iname;
-        setWatchDataType(data, response.data.findChild("type"));
+        data.updateType(response.data.findChild("type"));
         if (watchHandler()->isExpandedIName(data.iname)
                 && !response.data.findChild("children").isValid())
             data.setChildrenNeeded();
         else
             data.setChildrenUnneeded();
-        setWatchDataChildCount(data, response.data.findChild("numchild"));
+        data.updateChildCount(response.data.findChild("numchild"));
         insertData(data);
     } else {
         data.setError(QString::fromLocal8Bit(response.data.findChild("msg").data()));
@@ -4210,7 +4210,7 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
             data.setError(WatchData::msgNotInScope());
             return data;
         }
-        setWatchDataValue(data, item);
+        data.updateValue(item);
         //: Type of local variable or parameter shadowed by another
         //: variable of the same name in a nested block.
         data.setType(GdbEngine::tr("<shadowed>").toUtf8());
@@ -4223,13 +4223,13 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
     data.iname = "local." + name;
     data.name = nam;
     data.exp = name;
-    setWatchDataType(data, item.findChild("type"));
+    data.updateType(item.findChild("type"));
     if (uninitializedVariables.contains(data.name)) {
         data.setError(WatchData::msgNotInScope());
         return data;
     }
     if (isSynchronous()) {
-        setWatchDataValue(data, item);
+        data.updateValue(item);
         // We know that the complete list of children is
         // somewhere in the response.
         data.setChildrenUnneeded();
@@ -4237,7 +4237,7 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
         // Set value only directly if it is simple enough, otherwise
         // pass through the insertData() machinery.
         if (isIntOrFloatType(data.type) || isPointerType(data.type))
-            setWatchDataValue(data, item);
+            data.updateValue(item);
     }
 
     if (!watchHandler()->isExpandedIName(data.iname))

@@ -1014,8 +1014,8 @@ void GdbEngine::handleDebuggingHelperValue2Classic(const GdbResponse &response)
         return;
     }
 
-    setWatchDataType(data, response.data.findChild("type"));
-    setWatchDataDisplayedType(data, response.data.findChild("displaytype"));
+    data.updateType(response.data.findChild("type"));
+    data.updateDisplayedType(response.data.findChild("displaytype"));
     QList<WatchData> list;
     parseWatchData(watchHandler()->expandedINames(), data, contents, &list);
     //for (int i = 0; i != list.size(); ++i)
@@ -1402,9 +1402,9 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
         data.name = _(exp);
         data.iname = parent.iname + '.' + data.name.toLatin1();
         data.variable = name;
-        setWatchDataType(data, item.findChild("type"));
-        setWatchDataValue(data, item);
-        setWatchDataAddress(data, item.findChild("addr"), GdbMi());
+        data.updateType(item.findChild("type"));
+        data.updateValue(item);
+        data.updateAddress(item.findChild("addr"), GdbMi());
         data.setHasChildren(false);
         insertData(data);
     } else if (parent.iname.endsWith('.')) {
@@ -1426,10 +1426,10 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
         data.iname = parent.iname + '.' + exp;
         data.variable = name;
         data.sortId = sortId;
-        setWatchDataType(data, item.findChild("type"));
-        setWatchDataValue(data, item);
-        setWatchDataAddress(data, item.findChild("addr"), GdbMi());
-        setWatchDataChildCount(data, item.findChild("numchild"));
+        data.updateType(item.findChild("type"));
+        data.updateValue(item);
+        data.updateAddress(item.findChild("addr"), GdbMi());
+        data.updateChildCount(item.findChild("numchild"));
         if (!watchHandler()->isExpandedIName(data.iname))
             data.setChildrenUnneeded();
 
@@ -1524,7 +1524,7 @@ void GdbEngine::handleEvaluateExpressionClassic(const GdbResponse &response)
         //if (col == 0)
         //    data.name = response.data.findChild("value").data();
         //else
-            setWatchDataValue(data, response.data);
+            data.updateValue(response.data);
     } else {
         data.setError(QString::fromLocal8Bit(response.data.findChild("msg").data()));
     }
