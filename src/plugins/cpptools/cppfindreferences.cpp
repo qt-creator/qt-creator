@@ -562,7 +562,7 @@ public:
         Document::Ptr doc = snapshot.document(fileName);
         QString source;
 
-_Lrestart:
+restart_search:
         if (future->isPaused())
             future->waitForResume();
         if (future->isCanceled())
@@ -579,7 +579,8 @@ _Lrestart:
                 if (macro.fileRevision() > useMacro.fileRevision()) {
                     // yes, it is outdated, so re-preprocess and start from scratch for this file.
                     doc = snapshot.preprocessedDocument(source, fileName);
-                    goto _Lrestart;
+                    usages.clear();
+                    goto restart_search;
                 }
 
                 if (macro.name() == useMacro.name()) {
@@ -655,8 +656,8 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
                 QLatin1String("CppEditor"));
 
     search->setTextToReplace(replacement);
-    connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
-            SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
+    connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>,bool)),
+            SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>,bool)));
 
     Find::SearchResultWindow::instance()->popup(Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus);
 
