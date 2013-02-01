@@ -2003,7 +2003,7 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
         m_highlighter.cancel();
 
         if (! semanticHighlighterDisabled && semanticInfo.doc) {
-            if (Core::EditorManager::currentEditor() == editor()) {
+            if (isVisible()) {
                 if (m_highlightingSupport) {
                     m_highlighter = m_highlightingSupport->highlightingFuture(semanticInfo.doc, semanticInfo.snapshot);
                     m_highlightRevision = semanticInfo.revision;
