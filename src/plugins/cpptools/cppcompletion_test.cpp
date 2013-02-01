@@ -1483,3 +1483,90 @@ void CppToolsPlugin::test_completion_typedef_of_pointer_of_type_and_replace_acce
     QVERIFY(completions.contains(QLatin1String("m")));
     QVERIFY(replaceAccessOperator);
 }
+
+void CppToolsPlugin::test_completion_typedef_of_pointer()
+{
+    TestData data;
+    data.srcText = "\n"
+            "struct Foo { int bar; };\n"
+            "typedef Foo *FooPtr;\n"
+            "void main()\n"
+            "{\n"
+            "   FooPtr ptr;\n"
+            "   @\n"
+            "    // padding so we get the scope right\n"
+            "}";
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("ptr->");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("Foo")));
+    QVERIFY(completions.contains(QLatin1String("bar")));
+}
+
+void CppToolsPlugin::test_completion_typedef_of_pointer_inside_function()
+{
+    TestData data;
+    data.srcText = "\n"
+            "struct Foo { int bar; };\n"
+            "void f()\n"
+            "{\n"
+            "   typedef Foo *FooPtr;\n"
+            "   FooPtr ptr;\n"
+            "   @\n"
+            "    // padding so we get the scope right\n"
+            "}";
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("ptr->");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("Foo")));
+    QVERIFY(completions.contains(QLatin1String("bar")));
+}
+
+void CppToolsPlugin::test_completion_typedef_is_inside_function_before_declaration_block()
+{
+    TestData data;
+    data.srcText = "\n"
+            "struct Foo { int bar; };\n"
+            "void f()\n"
+            "{\n"
+            "   typedef Foo *FooPtr;\n"
+            "   if (true) {\n"
+            "       FooPtr ptr;\n"
+            "       @\n"
+            "       // padding so we get the scope right\n"
+            "   }"
+            "}"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("ptr->");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("Foo")));
+    QVERIFY(completions.contains(QLatin1String("bar")));
+}

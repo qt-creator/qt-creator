@@ -118,6 +118,9 @@ private slots:
     void test_completion_member_access_operator_1();
     void test_completion_typedef_of_type_and_replace_access_operator();
     void test_completion_typedef_of_pointer_of_type_and_replace_access_operator();
+    void test_completion_typedef_of_pointer();
+    void test_completion_typedef_of_pointer_inside_function();
+    void test_completion_typedef_is_inside_function_before_declaration_block();
 
     void test_format_pointerdeclaration_in_simpledeclarations();
     void test_format_pointerdeclaration_in_simpledeclarations_data();
