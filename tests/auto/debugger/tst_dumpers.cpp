@@ -537,18 +537,14 @@ void tst_Dumpers::dumper_data()
             << Data("#include <QDate>\n",
                     "QDate date;\n"
                     "dummyStatement(&date);\n")
-               % CheckType("date", "@QDate")
-               % Check("date.(ISO)", "", "@QString")
-               % Check("date.(Locale)", "", "@QString")
-               % Check("date.(SystemLocale)", "", "@QString")
-               % Check("date.toString", "", "@QString");
+               % Check("date", "(invalid)", "@QDate");
 
     QTest::newRow("QDate1")
             << Data("#include <QDate>\n",
                     "QDate date;\n"
                     "date.setDate(1980, 1, 1);\n"
                     "dummyStatement(&date);\n")
-               % CheckType("date", "@QDate")
+               % Check("date", "Tue Jan 1 1980", "@QDate")
                % Check("date.(ISO)", "\"1980-01-01\"", "@QString")
                % CheckType("date.(Locale)", "@QString")
                % CheckType("date.(SystemLocale)", "@QString")
@@ -557,11 +553,7 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("QTime0")
             << Data("#include <QTime>\n",
                     "QTime time;\n")
-               % CheckType("time", "@QTime")
-               % Check("time.(ISO)", "", "@QString")
-               % CheckType("time.(Locale)", "@QString")
-               % CheckType("time.(SystemLocale)", "@QString")
-               % Check("time.toString", "", "@QString");
+               % Check("time", "(invalid)", "@QTime");
 
     QTest::newRow("QTime1")
             << Data("#include <QTime>\n",

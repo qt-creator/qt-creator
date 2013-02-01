@@ -173,32 +173,42 @@ def qdump__QModelIndex(d, value):
 
 
 def qdump__QDate(d, value):
-    d.putValue(value["jd"], JulianDate)
-    d.putNumChild(1)
-    if d.isExpanded():
-        qt = d.ns + "Qt::"
-        # FIXME: This improperly uses complex return values.
-        with Children(d):
-            d.putCallItem("toString", value, "toString", qt + "TextDate")
-            d.putCallItem("(ISO)", value, "toString", qt + "ISODate")
-            d.putCallItem("(SystemLocale)", value, "toString",
-                qt + "SystemLocaleDate")
-            d.putCallItem("(Locale)", value, "toString", qt + "LocaleDate")
+    jd = value["jd"]
+    if int(jd):
+        d.putValue(jd, JulianDate)
+        d.putNumChild(1)
+        if d.isExpanded():
+            qt = d.ns + "Qt::"
+            # FIXME: This improperly uses complex return values.
+            with Children(d):
+                d.putCallItem("toString", value, "toString", qt + "TextDate")
+                d.putCallItem("(ISO)", value, "toString", qt + "ISODate")
+                d.putCallItem("(SystemLocale)", value, "toString",
+                    qt + "SystemLocaleDate")
+                d.putCallItem("(Locale)", value, "toString", qt + "LocaleDate")
+    else:
+        d.putValue("(invalid)")
+        d.putNumChild(0)
 
 
 def qdump__QTime(d, value):
-    d.putValue(value["mds"], MillisecondsSinceMidnight)
-    d.putNumChild(1)
-    if d.isExpanded():
-        qt = d.ns + "Qt::"
-        # FIXME: This improperly uses complex return values.
-        with Children(d):
-            d.putCallItem("toString", value, "toString", qt + "TextDate")
-            d.putCallItem("(ISO)", value, "toString", qt + "ISODate")
-            d.putCallItem("(SystemLocale)", value, "toString",
-                 qt + "SystemLocaleDate")
-            d.putCallItem("(Locale)", value, "toString", qt + "LocaleDate")
-            d.putCallItem("toUTC", value, "toTimeSpec", qt + "UTC")
+    mds = value["mds"]
+    if int(mds) >= 0:
+        d.putValue(value["mds"], MillisecondsSinceMidnight)
+        d.putNumChild(1)
+        if d.isExpanded():
+            qt = d.ns + "Qt::"
+            # FIXME: This improperly uses complex return values.
+            with Children(d):
+                d.putCallItem("toString", value, "toString", qt + "TextDate")
+                d.putCallItem("(ISO)", value, "toString", qt + "ISODate")
+                d.putCallItem("(SystemLocale)", value, "toString",
+                     qt + "SystemLocaleDate")
+                d.putCallItem("(Locale)", value, "toString", qt + "LocaleDate")
+                d.putCallItem("toUTC", value, "toTimeSpec", qt + "UTC")
+    else:
+        d.putValue("(invalid)")
+        d.putNumChild(0)
 
 
 def qdump__QDateTime(d, value):
