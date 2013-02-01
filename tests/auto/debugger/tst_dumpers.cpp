@@ -31,6 +31,8 @@
 #include "watchdata.h"
 #include "watchutils.h"
 
+#include <CppRewriter.h>
+
 #include <QtTest>
 #include <QTemporaryFile>
 #include <QTemporaryDir>
@@ -100,7 +102,8 @@ struct Type
     {}
     bool matches(const QByteArray &actualType0, const QByteArray &nameSpace) const
     {
-        QByteArray actualType = actualType0;
+        QByteArray actualType =
+            CPlusPlus::simplifySTLType(QString::fromLatin1(actualType0)).toLatin1();
         actualType.replace(' ', "");
         QByteArray expectedType = type;
         expectedType.replace(' ', "");
