@@ -73,6 +73,22 @@ Node::Node(NodeType nodeType,
 
 }
 
+void Node::emitNodeSortKeyAboutToChange()
+{
+    if (ProjectNode *project = projectNode()) {
+        foreach (NodesWatcher *watcher, project->watchers())
+            emit watcher->nodeSortKeyAboutToChange(this);
+    }
+}
+
+void Node::emitNodeSortKeyChanged()
+{
+    if (ProjectNode *project = projectNode()) {
+        foreach (NodesWatcher *watcher, project->watchers())
+            emit watcher->nodeSortKeyChanged();
+    }
+}
+
 /*!
  * \brief The path of the file representing this node.
  *
@@ -80,7 +96,13 @@ Node::Node(NodeType nodeType,
  */
 void Node::setPath(const QString &path)
 {
+    if (m_path == path)
+        return;
+
+    emitNodeSortKeyAboutToChange();
     m_path = path;
+    emitNodeSortKeyChanged();
+    emitNodeUpdated();
 }
 
 NodeType Node::nodeType() const
@@ -149,8 +171,9 @@ void Node::setProjectNode(ProjectNode *project)
 
 void Node::emitNodeUpdated()
 {
-    foreach (NodesWatcher *watcher, projectNode()->watchers())
-        emit watcher->nodeUpdated(this);
+    if (ProjectNode *node = projectNode())
+        foreach (NodesWatcher *watcher, node->watchers())
+            emit watcher->nodeUpdated(this);
 }
 
 void Node::setParentFolderNode(FolderNode *parentFolder)
@@ -248,7 +271,12 @@ void FolderNode::accept(NodesVisitor *visitor)
 
 void FolderNode::setDisplayName(const QString &name)
 {
+    if (m_displayName == name)
+        return;
+    emitNodeSortKeyAboutToChange();
     m_displayName = name;
+    emitNodeSortKeyChanged();
+    emitNodeUpdated();
 }
 
 void FolderNode::setIcon(const QIcon &icon)

@@ -198,6 +198,11 @@ FlatModel::FlatModel(SessionNode *rootNode, QObject *parent)
     connect(watcher, SIGNAL(filesRemoved()),
             this, SLOT(filesRemoved()));
 
+    connect(watcher, SIGNAL(nodeSortKeyAboutToChange(Node*)),
+            this, SLOT(nodeSortKeyAboutToChange(Node*)));
+    connect(watcher, SIGNAL(nodeSortKeyChanged()),
+            this, SLOT(nodeSortKeyChanged()));
+
     connect(watcher, SIGNAL(nodeUpdated(ProjectExplorer::Node*)),
             this, SLOT(nodeUpdated(ProjectExplorer::Node*)));
 }
@@ -816,6 +821,28 @@ void FlatModel::removeFromCache(QList<FolderNode *> list)
     }
 }
 
+void FlatModel::changedSortKey(FolderNode *folderNode, Node *node)
+{
+    QList<Node *> nodes = m_childNodes.value(folderNode);
+    int oldIndex = nodes.indexOf(node);
+
+    nodes.removeAt(oldIndex);
+    QList<Node *>::iterator newPosIt = qLowerBound(nodes.begin(), nodes.end(), node, sortNodes);
+    int newIndex = newPosIt - nodes.begin();
+
+    if (newIndex == oldIndex)
+        return;
+
+    nodes.insert(newPosIt, node);
+
+    QModelIndex parentIndex = indexForNode(folderNode);
+    if (newIndex > oldIndex)
+        ++newIndex; // see QAbstractItemModel::beginMoveRows
+    beginMoveRows(parentIndex, oldIndex, oldIndex, parentIndex, newIndex);
+    m_childNodes[folderNode] = nodes;
+    endMoveRows();
+}
+
 void FlatModel::foldersRemoved()
 {
     // Do nothing
@@ -854,6 +881,17 @@ void FlatModel::filesAboutToBeRemoved(FolderNode *folder, const QList<FileNode*>
 void FlatModel::filesRemoved()
 {
     // Do nothing
+}
+
+void FlatModel::nodeSortKeyAboutToChange(Node *node)
+{
+    m_nodeForSortKeyChange = node;
+}
+
+void FlatModel::nodeSortKeyChanged()
+{
+    FolderNode *folderNode = visibleFolderNode(m_nodeForSortKeyChange->parentFolderNode());
+    changedSortKey(folderNode, m_nodeForSortKeyChange);
 }
 
 void FlatModel::nodeUpdated(Node *node)

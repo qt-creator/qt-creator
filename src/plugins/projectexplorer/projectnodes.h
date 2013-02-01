@@ -91,7 +91,7 @@ public:
     virtual QString tooltip() const;
     virtual bool isEnabled() const;
 
-    void setPath(const QString &path); // this does not call emitNodeUpdated!
+    void setPath(const QString &path);
     void emitNodeUpdated();
 
 protected:
@@ -100,6 +100,9 @@ protected:
     void setNodeType(NodeType type);
     void setProjectNode(ProjectNode *project);
     void setParentFolderNode(FolderNode *parentFolder);
+
+    void emitNodeSortKeyAboutToChange();
+    void emitNodeSortKeyChanged();
 
 private:
     NodeType m_nodeType;
@@ -327,6 +330,8 @@ signals:
     void filesAboutToBeRemoved(FolderNode *folder,
                                const QList<FileNode*> &staleFiles);
     void filesRemoved();
+    void nodeSortKeyAboutToChange(Node *node);
+    void nodeSortKeyChanged();
 
 private:
 
