@@ -4,7 +4,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 
 QtcPlugin {
     name: "Qnx"
-    provider: "RIM"
+    provider: "BlackBerry"
 
     Depends { name: "Core" }
     Depends { name: "Debugger" }

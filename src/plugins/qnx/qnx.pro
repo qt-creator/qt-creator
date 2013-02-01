@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = Qnx
 QT += network xml
-PROVIDER = RIM
+PROVIDER = BlackBerry
 
 include(../../qtcreatorplugin.pri)
 include(qnx_dependencies.pri)
