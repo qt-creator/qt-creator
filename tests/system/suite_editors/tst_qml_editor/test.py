@@ -163,11 +163,7 @@ def doubleClickFile(navTree, file):
     global templateDir
     treeElement = ("untitled.QML.%s/qml.%s" %
                    (maskSpecialCharsForProjectTree(templateDir),file))
-    waitForObjectItem(navTree, treeElement)
-    doubleClickItem(navTree, treeElement, 5, 5, 0, Qt.LeftButton)
-    mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
-    name = __getUnmaskedFilename__(file)
-    waitFor("name in str(mainWindow.windowTitle)")
+    openDocument(treeElement)
 
 def __getUnmaskedFilename__(maskedFilename):
     name = maskedFilename.split("\\.")
