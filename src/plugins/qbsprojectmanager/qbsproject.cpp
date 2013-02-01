@@ -382,9 +382,14 @@ void QbsProject::parse(const QVariantMap &config, const QString &dir)
     m_qbsBuildRoot = dir;
 
     QTC_ASSERT(!m_qbsSetupProjectJob, return);
+    qbs::SetupProjectParameters params;
+    params.buildConfiguration = m_qbsBuildConfig;
+    params.buildRoot = m_qbsBuildRoot;
+    params.projectFilePath = m_fileName;
+    params.ignoreDifferentProjectFilePath = false;
+
     m_qbsSetupProjectJob
-            = qbs::Project::setupProject(m_fileName, m_qbsBuildConfig, m_qbsBuildRoot,
-                                         m_manager->settings(), 0);
+            = qbs::Project::setupProject(params, m_manager->settings(), 0);
 
     connect(m_qbsSetupProjectJob, SIGNAL(finished(bool,qbs::AbstractJob*)),
             this, SLOT(handleQbsParsingDone(bool)));
