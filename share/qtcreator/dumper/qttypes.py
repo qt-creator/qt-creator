@@ -218,20 +218,25 @@ def qdump__QDateTime(d, value):
     except:
         d.putPlainChildren(value)
         return
-    d.putValue("%s/%s" % (p["date"]["jd"], p["time"]["mds"]),
-        JulianDateAndMillisecondsSinceMidnight)
-    d.putNumChild(1)
-    if d.isExpanded():
-        # FIXME: This improperly uses complex return values.
-        with Children(d):
-            qt = d.ns + "Qt::"
-            d.putCallItem("toTime_t", value, "toTime_t")
-            d.putCallItem("toString", value, "toString", qt + "TextDate")
-            d.putCallItem("(ISO)", value, "toString", qt + "ISODate")
-            d.putCallItem("(SystemLocale)", value, "toString", qt + "SystemLocaleDate")
-            d.putCallItem("(Locale)", value, "toString", qt + "LocaleDate")
-            d.putCallItem("toUTC", value, "toTimeSpec", qt + "UTC")
-            d.putCallItem("toLocalTime", value, "toTimeSpec", qt + "LocalTime")
+    mds = p["time"]["mds"]
+    if int(mds) >= 0:
+        d.putValue("%s/%s" % (p["date"]["jd"], mds),
+            JulianDateAndMillisecondsSinceMidnight)
+        d.putNumChild(1)
+        if d.isExpanded():
+            # FIXME: This improperly uses complex return values.
+            with Children(d):
+                qt = d.ns + "Qt::"
+                d.putCallItem("toTime_t", value, "toTime_t")
+                d.putCallItem("toString", value, "toString", qt + "TextDate")
+                d.putCallItem("(ISO)", value, "toString", qt + "ISODate")
+                d.putCallItem("(SystemLocale)", value, "toString", qt + "SystemLocaleDate")
+                d.putCallItem("(Locale)", value, "toString", qt + "LocaleDate")
+                d.putCallItem("toUTC", value, "toTimeSpec", qt + "UTC")
+                d.putCallItem("toLocalTime", value, "toTimeSpec", qt + "LocalTime")
+    else:
+        d.putValue("(invalid)")
+        d.putNumChild(0)
 
 
 def qdump__QDir(d, value):

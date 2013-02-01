@@ -567,15 +567,20 @@ void tst_Dumpers::dumper_data()
                % CheckType("time.(SystemLocale)", "@QString")
                % Check("time.toString", "\"13:15:32\"", "@QString");
 
-    QTest::newRow("QDateTime")
+    QTest::newRow("QDateTime0")
             << Data("#include <QDateTime>\n",
                     "QDateTime date;\n")
-               % CheckType("date", "@QDateTime")
-               % Check("date.(ISO)", "", "@QString")
-               % Check("date.(Locale)", "", "@QString")
-               % Check("date.(SystemLocale)", "", "@QString")
-               % Check("date.toString", "\"\"", "@QString")
-               % Check("date.toUTC", "", "@QDateTime");
+               % Check("date", "(invalid)", "@QDateTime");
+
+    QTest::newRow("QDateTime1")
+            << Data("#include <QDateTime>\n",
+                    "QDateTime date(QDate(1980, 1, 1), QTime(13, 15, 32), Qt::UTC);\n")
+               % Check("date", "Tue Jan 1 13:15:32 1980", "@QDateTime")
+               % Check("date.(ISO)", "\"1980-01-01T13:15:32Z\"", "@QString")
+               % CheckType("date.(Locale)", "@QString")
+               % CheckType("date.(SystemLocale)", "@QString")
+               % Check("date.toString", "\"Tue Jan 1 13:15:32 1980\"", "@QString")
+               % Check("date.toUTC", "Tue Jan 1 13:15:32 1980", "@QDateTime");
 
     QTest::newRow("QDir")
 #ifdef Q_OS_WIN
