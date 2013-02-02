@@ -110,7 +110,7 @@
       <item row="3" column="0">
        <widget class="QPushButton" name="resetWarningsButton">
         <property name="text">
-         <string>Reset warnings</string>
+         <string comment="Button text">Reset warnings</string>
         </property>
        </widget>
       </item>
