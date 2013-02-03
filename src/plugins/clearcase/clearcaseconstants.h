@@ -37,7 +37,6 @@ namespace ClearCase {
 namespace Constants {
 
 const char VCS_ID_CLEARCASE[] = "E.ClearCase";
-const char CLEARCASE_ROOT_FILE[] = "view.dat";
 const char CLEARCASE_SUBMIT_MIMETYPE[] = "application/vnd.audc.text.clearcase.submit";
 const char CLEARCASECHECKINEDITOR[] = "ClearCase Check In Editor";
 const char CLEARCASECHECKINEDITOR_ID[] = "ClearCase Check In Editor";
