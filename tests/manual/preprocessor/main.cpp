@@ -113,6 +113,9 @@ public:
     virtual void stopExpandingMacro(unsigned, const Macro &)
     { }
 
+    virtual void markAsIncludeGuard(const QByteArray &)
+    { }
+
     virtual void startSkippingBlocks(unsigned)
     { }
 

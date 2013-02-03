@@ -6,8 +6,7 @@ fakevim \
 debugger \
 preprocessor \
 subdir_proparser \
-utils \
-devices
+utils
 
 unix {
 #   Uses popen
