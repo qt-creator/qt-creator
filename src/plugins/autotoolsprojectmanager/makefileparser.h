@@ -205,6 +205,12 @@ private:
      */
     static void appendHeader(QStringList &list, const QDir &dir, const QString &fileName);
 
+    /**
+     * If line starts with identifier and = goes next, return identifier.
+     * Identifier is valid target name and it matches regexp [a-zA-Z1-9_]+
+     */
+    static QString parseIdentifierBeforeAssign(const QString &line);
+
 private:
     bool m_success;             ///< Return value for MakefileParser::parse().
 

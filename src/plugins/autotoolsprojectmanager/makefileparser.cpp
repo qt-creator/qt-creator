@@ -137,26 +137,27 @@ bool MakefileParser::isCanceled() const
 
 MakefileParser::TopTarget MakefileParser::topTarget() const
 {
-    TopTarget topTarget = Undefined;
-
     const QString line = m_line.simplified();
-    if (!line.isEmpty() && !line.startsWith(QLatin1Char('#'))) {
-        // TODO: Check how many fixed strings like AM_DEFAULT_SOURCE_EXT will
-        // be needed vs. variable strings like _SOURCES. Dependent on this a
-        // more clever way than this (expensive) if-cascading might be done.
-        if (line.startsWith(QLatin1String("AM_DEFAULT_SOURCE_EXT =")))
-            topTarget = AmDefaultSourceExt;
-        else if (line.startsWith(QLatin1String("bin_PROGRAMS =")))
-            topTarget = BinPrograms;
-        else if (line.startsWith(QLatin1String("BUILT_SOURCES =")))
-            topTarget = BuiltSources;
-        else if (line.contains(QLatin1String("SUBDIRS =")))
-            topTarget = SubDirs;
-        else if (line.contains(QLatin1String("_SOURCES =")))
-            topTarget = Sources;
-    }
 
-    return topTarget;
+    if (line.isEmpty() || line.startsWith(QLatin1Char('#')))
+        return Undefined;
+
+    const QString id = parseIdentifierBeforeAssign(line);
+    if (id.isEmpty())
+        return Undefined;
+
+    if (id == QLatin1String("AM_DEFAULT_SOURCE_EXT"))
+        return AmDefaultSourceExt;
+    if (id == QLatin1String("bin_PROGRAMS"))
+        return BinPrograms;
+    if (id == QLatin1String("BUILT_SOURCES"))
+        return BuiltSources;
+    if (id == QLatin1String("SUBDIRS") || id == QLatin1String("DIST_SUBDIRS"))
+        return SubDirs;
+    if (id.endsWith(QLatin1String("_SOURCES")))
+        return Sources;
+
+    return Undefined;
 }
 
 void MakefileParser::parseBinPrograms()
@@ -408,6 +409,19 @@ void MakefileParser::appendHeader(QStringList &list,  const QDir &dir, const QSt
             list.append(headerFile);
         ++i;
     }
+}
+
+QString MakefileParser::parseIdentifierBeforeAssign(const QString &line)
+{
+    int end = 0;
+    for (; end < line.size(); ++end)
+        if (!line[end].isLetterOrNumber() && line[end] != QLatin1Char('_'))
+            break;
+
+    QString ret = line.left(end);
+    while (end < line.size() && line[end].isSpace())
+        ++end;
+    return (line[end] == QLatin1Char('=')) ? ret : QString();
 }
 
 void MakefileParser::addAllSources()
