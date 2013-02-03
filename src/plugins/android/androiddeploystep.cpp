@@ -457,10 +457,6 @@ bool AndroidDeployStep::deployPackage()
                << QString::fromLatin1("%1/app_process").arg(m_buildDirectory));
     runCommand(deployProc, AndroidConfigurations::instance().adbToolPath().toString(),
                QStringList() << QLatin1String("-s") << m_deviceSerialNumber << QLatin1String("pull")
-               << QLatin1String("/system/bin/linker")
-               << QString::fromLatin1("%1/linker").arg(m_buildDirectory));
-    runCommand(deployProc, AndroidConfigurations::instance().adbToolPath().toString(),
-               QStringList() << QLatin1String("-s") << m_deviceSerialNumber << QLatin1String("pull")
                << QLatin1String("/system/lib/libc.so")
                << QString::fromLatin1("%1/libc.so").arg(m_buildDirectory));
     disconnect(deployProc, 0, this, 0);
