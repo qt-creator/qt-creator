@@ -253,12 +253,8 @@ def qdump__QDir(d, value):
             qdir = d.ns + "QDir::"
             d.putCallItem("absolutePath", value, "absolutePath")
             d.putCallItem("canonicalPath", value, "canonicalPath")
-            d.putSubItem("entryList", parseAndEvaluate(
-                "'%sentryList'(%s, %sNoFilter, %sNoSort)"
-                % (qdir, value.address, qdir, qdir)), False)
-            d.putSubItem("entryInfoList", parseAndEvaluate(
-                "'%sentryInfoList'(%s, %sNoFilter, %sNoSort)"
-                % (qdir, value.address, qdir, qdir)), False)
+            d.putSubItem("entryList", data["files"])
+            d.putSubItem("entryInfoList", data["fileInfos"])
 
 
 def qdump__QFile(d, value):

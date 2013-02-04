@@ -610,20 +610,19 @@ void tst_Dumpers::dumper_data()
                % Check("date.toString", "\"Tue Jan 1 13:15:32 1980\"", "@QString")
                % Check("date.toUTC", "Tue Jan 1 13:15:32 1980", "@QDateTime");
 
-    QTest::newRow("QDir")
 #ifdef Q_OS_WIN
-            << Data("#include <QDir>\n",
-                    "QDir dir(\"C:\\\\Program Files\");")
-               % Check("dir", "C:/Program Files", "@QDir")
-               % Check("dir.absolutePath", "C:/Program Files", "@QString")
-               % Check("dir.canonicalPath", "C:/Program Files", "@QString");
+    QByteArray tempDir = "\"C:/Program Files\"";
 #else
-            << Data("#include <QDir>\n",
-                    "QDir dir(\"/tmp\"); QString s = dir.absolutePath();")
-               % Check("dir", "/tmp", "@QDir")
-               % Check("dir.absolutePath", "\"/tmp\"", "@QString")
-               % Check("dir.canonicalPath", "\"/tmp\"", "@QString");
+    QByteArray tempDir = "\"/tmp\"";
 #endif
+    QTest::newRow("QDir")
+            << Data("#include <QDir>\n",
+                    "QDir dir(" + tempDir + ");\n"
+                    "QString s = dir.absolutePath();\n"
+                    "unused(&dir, &s);\n")
+               % Check("dir", tempDir, "@QDir")
+               % Check("dir.absolutePath", tempDir, "@QString")
+               % Check("dir.canonicalPath", tempDir, "@QString");
 
     QTest::newRow("QFileInfo")
 #ifdef Q_OS_WIN
