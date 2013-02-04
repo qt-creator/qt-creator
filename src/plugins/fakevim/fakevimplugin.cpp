@@ -1224,9 +1224,9 @@ void FakeVimPluginPrivate::setActionChecked(const Id &id, bool check)
 
 static int moveRightWeight(const QRect &cursor, const QRect &other)
 {
-    const int dx = other.left() - cursor.right();
-    if (dx < 0)
+    if (!cursor.adjusted(other.right(), 0, 0, 0).intersects(other))
         return -1;
+    const int dx = other.left() - cursor.right();
     const int dy = qAbs(cursor.center().y() - other.center().y());
     const int w = 10000 * dx + dy;
     return w;
@@ -1234,9 +1234,9 @@ static int moveRightWeight(const QRect &cursor, const QRect &other)
 
 static int moveLeftWeight(const QRect &cursor, const QRect &other)
 {
-    const int dx = cursor.left() - other.right();
-    if (dx < 0)
+    if (!cursor.adjusted(-other.right(), 0, 0, 0).intersects(other))
         return -1;
+    const int dx = cursor.left() - other.right();
     const int dy = qAbs(cursor.center().y() -other.center().y());
     const int w = 10000 * dx + dy;
     return w;
@@ -1244,9 +1244,9 @@ static int moveLeftWeight(const QRect &cursor, const QRect &other)
 
 static int moveUpWeight(const QRect &cursor, const QRect &other)
 {
-    const int dy = cursor.top() - other.bottom();
-    if (dy < 0)
+    if (!cursor.adjusted(0, 0, 0, -other.bottom()).intersects(other))
         return -1;
+    const int dy = cursor.top() - other.bottom();
     const int dx = qAbs(cursor.center().x() - other.center().x());
     const int w = 10000 * dy + dx;
     return w;
@@ -1254,9 +1254,9 @@ static int moveUpWeight(const QRect &cursor, const QRect &other)
 
 static int moveDownWeight(const QRect &cursor, const QRect &other)
 {
-    const int dy = other.top() - cursor.bottom();
-    if (dy < 0)
+    if (!cursor.adjusted(0, 0, 0, other.bottom()).intersects(other))
         return -1;
+    const int dy = other.top() - cursor.bottom();
     const int dx = qAbs(cursor.center().x() - other.center().x());
     const int w = 10000 * dy + dx;
     return w;
@@ -1306,8 +1306,8 @@ void FakeVimPluginPrivate::windowCommand(int key)
 
 void FakeVimPluginPrivate::moveSomewhere(DistFunction f)
 {
-    IEditor *editor = EditorManager::currentEditor();
-    QWidget *w = editor->widget();
+    IEditor *currentEditor = EditorManager::currentEditor();
+    QWidget *w = currentEditor->widget();
     QPlainTextEdit *pe = qobject_cast<QPlainTextEdit *>(w);
     QTC_ASSERT(pe, return);
     QRect rc = pe->cursorRect();
@@ -1319,6 +1319,8 @@ void FakeVimPluginPrivate::moveSomewhere(DistFunction f)
     int bestValue = 1 << 30;
 
     foreach (IEditor *editor, EditorManager::instance()->visibleEditors()) {
+        if (editor == currentEditor)
+            continue;
         QWidget *w = editor->widget();
         QRect editorRect(w->mapToGlobal(w->geometry().topLeft()),
                 w->mapToGlobal(w->geometry().bottomRight()));
