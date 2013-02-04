@@ -1488,7 +1488,7 @@ void tst_Dumpers::dumper_data()
                     "region += QRect(300, 300, 400, 500);\n"
                     "region2 = region;\n"
                     "unused(&region0, &region1, &region2);\n")
-               % Profile("QT += gui\n")
+               % GuiProfile()
                % Check("region0", "<empty>", "@QRegion")
                % Check("region1", "<1 items>", "@QRegion")
                % Check("region1.extents", "200x200+100+100", "@QRect")
@@ -2226,13 +2226,18 @@ void tst_Dumpers::dumper_data()
                     "QStandardItemModel m;\n"
                     "QStandardItem *i1, *i2, *i11;\n"
                     "m.appendRow(QList<QStandardItem *>()\n"
-                    "     << (i1 = new QStandardItem(\"1\")) << (new QStandardItem(\"a\")) << (new QStandardItem(\"a2\")));\n"
+                    "     << (i1 = new QStandardItem(\"1\")) "
+                    "       << (new QStandardItem(\"a\")) "
+                    "       << (new QStandardItem(\"a2\")));\n"
                     "QModelIndex mi = i1->index();\n"
                     "m.appendRow(QList<QStandardItem *>()\n"
-                    "     << (i2 = new QStandardItem(\"2\")) << (new QStandardItem(\"b\")));\n"
+                    "     << (i2 = new QStandardItem(\"2\")) "
+                    "       << (new QStandardItem(\"b\")));\n"
                     "i1->appendRow(QList<QStandardItem *>()\n"
-                    "     << (i11 = new QStandardItem(\"11\")) << (new QStandardItem(\"aa\")));\n")
-               % Profile("QT += gui")
+                    "     << (i11 = new QStandardItem(\"11\")) "
+                    "       << (new QStandardItem(\"aa\")));\n"
+                    "unused(&i1, &i2, &i11, &m, &mi);\n")
+               % GuiProfile()
                % Check("i1", "", "@QStandardItem")
                % Check("i11", "", "@QStandardItem")
                % Check("i2", "", "@QStandardItem")
@@ -2425,7 +2430,7 @@ void tst_Dumpers::dumper_data()
                     "int pos = tc.position();\n"
                     "int anc = tc.anchor();\n"
                     "unused(&pos, &anc);\n")
-               % Profile("QT += gui")
+               % GuiProfile()
                % CheckType("doc", "@QTextDocument")
                % Check("tc", "4", "@QTextCursor")
                % Check("pos", "4", "int")
