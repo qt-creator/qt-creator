@@ -185,6 +185,11 @@ HistoryCompleter::HistoryCompleter(QLineEdit *lineEdit, const QString &historyKe
     connect(lineEdit, SIGNAL(editingFinished()), this, SLOT(saveHistory()));
 }
 
+bool HistoryCompleter::removeHistoryItem(int index)
+{
+    return d->removeRow(index);
+}
+
 HistoryCompleter::~HistoryCompleter()
 {
     delete d;
