@@ -420,7 +420,6 @@ void DesignModeWidget::setup()
     //m_fakeToolBar->addEditor(textEditor()); ### what does this mean?
     m_fakeToolBar->setNavigationVisible(true);
 
-    connect(m_fakeToolBar, SIGNAL(closeClicked()), this, SLOT(closeCurrentEditor()));
     connect(m_fakeToolBar, SIGNAL(goForwardClicked()), this, SLOT(onGoForwardClicked()));
     connect(m_fakeToolBar, SIGNAL(goBackClicked()), this, SLOT(onGoBackClicked()));
 
