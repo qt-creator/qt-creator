@@ -65,7 +65,7 @@ DisplaySettings::DisplaySettings() :
     m_markTextChanges(true),
     m_autoFoldFirstComment(true),
     m_centerCursorOnScroll(false),
-    m_openLinksInNextSplit(true),
+    m_openLinksInNextSplit(false),
     m_forceOpenLinksInNextSplit(false)
 {
 }
