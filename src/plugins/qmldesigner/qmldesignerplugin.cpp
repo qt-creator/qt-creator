@@ -284,9 +284,9 @@ void QmlDesignerPlugin::activateAutoSynchronization()
     // text editor -> visual editor
     if (!currentDesignDocument()->isDocumentLoaded()) {
         currentDesignDocument()->loadDocument(currentDesignDocument()->plainTextEdit());
-    } else {
-        currentDesignDocument()->activateCurrentModel();
     }
+
+    currentDesignDocument()->activateDocumentModel();
 
     resetModelSelection();
 
@@ -298,6 +298,7 @@ void QmlDesignerPlugin::activateAutoSynchronization()
         selectModelNodeUnderTextCursor();
         m_mainWidget->enableWidgets();
     } else {
+        viewManager().detachRewriterView();
         m_mainWidget->disableWidgets();
         m_mainWidget->showErrorMessage(errors);
     }
@@ -314,6 +315,8 @@ void QmlDesignerPlugin::deactivateAutoSynchronization()
 {
     viewManager().detachViewsExceptRewriterAndComponetView();
     viewManager().detachComponentView();
+    viewManager().detachRewriterView();
+    documentManager().currentDesignDocument()->resetToDocumentModel();
 
     disconnect(currentDesignDocument()->rewriterView(),
                SIGNAL(errorsChanged(QList<RewriterView::Error>)),

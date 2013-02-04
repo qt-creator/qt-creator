@@ -77,9 +77,8 @@ public:
     QString displayName() const;
     QString simplfiedDisplayName() const;
 
-    QList<RewriterView::Error> loadDocument(QPlainTextEdit *edit);
+    void loadDocument(QPlainTextEdit *edit);
     void activateCurrentModel(TextModifier *textModifier);
-    void activateCurrentModel();
     void activateDocumentModel();
     void close();
     void updateSubcomponentManager();
