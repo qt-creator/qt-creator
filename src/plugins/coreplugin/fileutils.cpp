@@ -57,7 +57,6 @@ using namespace Utils;
 
 namespace Core {
 
-#ifndef Q_OS_MAC
 // Show error with option to open settings.
 static void showGraphicalShellError(QWidget *parent, const QString &app, const QString &error)
 {
@@ -75,7 +74,6 @@ static void showGraphicalShellError(QWidget *parent, const QString &app, const Q
     if (mbox.clickedButton() == settingsButton)
         ICore::showOptionsDialog(Constants::SETTINGS_CATEGORY_CORE, Constants::SETTINGS_ID_ENVIRONMENT);
 }
-#endif
 
 void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)
 {
@@ -106,7 +104,6 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)
                    << QLatin1String("tell application \"Finder\" to activate");
         QProcess::execute(QLatin1String("/usr/bin/osascript"), scriptArgs);
     } else {
-#ifndef Q_OS_MAC
         // we cannot select a file here, because no file browser really supports it...
         const QFileInfo fileInfo(pathIn);
         const QString folder = fileInfo.isDir() ? fileInfo.absoluteFilePath() : fileInfo.filePath();
@@ -118,7 +115,6 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)
         success = success && error.isEmpty();
         if (!success)
             showGraphicalShellError(parent, app, error);
-#endif
     }
 }
 
