@@ -527,6 +527,14 @@ CPLUSPLUS_EXPORT QString simplifySTLType(const QString &typeIn)
     type.replace(QLatin1Char('*'), QLatin1Char('@'));
 
     for (int i = 0; i < 10; ++i) {
+        // std::ifstream
+        QRegExp ifstreamRE(QLatin1String("std::basic_ifstream<char,\\s*std::char_traits<char>\\s*>"));
+        ifstreamRE.setMinimal(true);
+        QTC_ASSERT(ifstreamRE.isValid(), return typeIn);
+        if (ifstreamRE.indexIn(type) != -1)
+            type.replace(ifstreamRE.cap(0), QLatin1String("std::ifstream"));
+
+        // Anything with a std::allocator
         int start = type.indexOf(QLatin1String("std::allocator<"));
         if (start == -1)
             break;
