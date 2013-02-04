@@ -27,7 +27,7 @@ def main():
         # verify build successful
         ensureChecked(waitForObject(":Qt Creator_CompileOutput_Core::Internal::OutputPaneToggleButton"))
         compileOutput = waitForObject(":Qt Creator.Compile Output_Core::OutputWindow")
-        if not test.verify(str(compileOutput.plainText).endswith("exited normally."),
+        if not test.verify(compileSucceeded(compileOutput.plainText),
                            "Verifying building of existing complex qt application."):
             test.log(compileOutput.plainText)
     # exit

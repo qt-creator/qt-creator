@@ -80,15 +80,18 @@ def checkCompile():
     ensureChecked(":Qt Creator_CompileOutput_Core::Internal::OutputPaneToggleButton")
     output = waitForObject(":Qt Creator.Compile Output_Core::OutputWindow")
     waitFor("len(str(output.plainText))>0",5000)
-    success = str(output.plainText).endswith("exited normally.")
-    if success:
+    if compileSucceeded(output.plainText):
         if os.getenv("SYSTEST_DEBUG") == "1":
             test.log("Compile Output:\n%s" % output.plainText)
-        else:
-            test.passes("Compile successful")
+        test.passes("Compile successful")
+        return True
     else:
         test.fail("Compile Output:\n%s" % output.plainText)
-    return success
+        return False
+
+def compileSucceeded(compileOutput):
+    return None != re.match(".*exited normally\.\n\d\d:\d\d:\d\d: Elapsed time: "
+                            "(\d:)?\d{2}:\d\d\.$", str(compileOutput), re.S)
 
 # helper method that parses the Issues output and writes a tasks file
 def createTasksFile(list):

@@ -44,7 +44,7 @@ def main():
     ensureChecked(waitForObject(":Qt Creator_CompileOutput_Core::Internal::OutputPaneToggleButton"))
     outputLog = str(waitForObject(":Qt Creator.Compile Output_Core::OutputWindow").plainText)
     # verify that project was built successfully
-    test.verify(outputLog.endswith("exited normally."),
+    test.verify(compileSucceeded(outputLog),
                 "Verifying building of simple qt quick application while multiple projects are open.")
     # verify that proper project (project 2) was build
     test.verify(projectName2 in outputLog and projectName1 not in outputLog,
