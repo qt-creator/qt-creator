@@ -608,13 +608,17 @@ static DNSServiceErrorType ConnectToServer(DNSServiceRef *ref, DNSServiceFlags f
 
 static DNSServiceErrorType deliver_request(ipc_msg_hdr *hdr, DNSServiceOp *sdr)
         {
-        uint32_t datalen = hdr->datalen;    // We take a copy here because we're going to convert hdr->datalen to network byte order
+        uint32_t datalen;
         #if defined(USE_TCP_LOOPBACK) || defined(USE_NAMED_ERROR_RETURN_SOCKET)
         char *const data = (char *)hdr + sizeof(ipc_msg_hdr);
         #endif
         dnssd_sock_t listenfd = dnssd_InvalidSocket, errsd = dnssd_InvalidSocket;
         DNSServiceErrorType err = kDNSServiceErr_Unknown;    // Default for the "goto cleanup" cases
         int MakeSeparateReturnSocket = 0;
+
+        if (!hdr) { syslog(LOG_WARNING, "dnssd_clientstub deliver_request: !hdr"); return kDNSServiceErr_Unknown; }
+
+        datalen = hdr->datalen;    // We take a copy here because we're going to convert hdr->datalen to network byte order
 
         // Note: need to check hdr->op, not sdr->op.
         // hdr->op contains the code for the specific operation we're currently doing, whereas sdr->op
@@ -629,8 +633,6 @@ static DNSServiceErrorType deliver_request(ipc_msg_hdr *hdr, DNSServiceOp *sdr)
                 syslog(LOG_WARNING, "dnssd_clientstub deliver_request: invalid DNSServiceRef %p %08X %08X", sdr, sdr->sockfd, sdr->validator);
                 return kDNSServiceErr_BadReference;
                 }
-
-        if (!hdr) { syslog(LOG_WARNING, "dnssd_clientstub deliver_request: !hdr"); return kDNSServiceErr_Unknown; }
 
         if (MakeSeparateReturnSocket)
                 {
