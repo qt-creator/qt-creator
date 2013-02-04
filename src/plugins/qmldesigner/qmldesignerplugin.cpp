@@ -201,6 +201,7 @@ void QmlDesignerPlugin::showDesigner()
 
     if (m_documentManager.hasCurrentDesignDocument()) {
         activateAutoSynchronization();
+        m_shortCutManager.updateActions(currentDesignDocument()->textEditor());
         m_viewManager.pushFileOnCrambleBar(m_documentManager.currentDesignDocument()->fileName());
     }
 
