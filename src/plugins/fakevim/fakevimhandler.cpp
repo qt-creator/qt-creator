@@ -1416,6 +1416,7 @@ public:
     bool handleZSubMode(const Input &);
     bool handleCapitalZSubMode(const Input &);
 
+    bool handleCount(const Input &); // Handle count for commands (return false if input isn't count).
     bool handleMovement(const Input &);
 
     EventResult handleExMode(const Input &);
@@ -3037,22 +3038,27 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
     return handled;
 }
 
+bool FakeVimHandler::Private::handleCount(const Input &input)
+{
+    if (!input.isDigit() || (input.is('0') && m_mvcount.isEmpty()))
+        return false;
+    m_mvcount.append(input.text());
+    return true;
+}
+
 bool FakeVimHandler::Private::handleMovement(const Input &input)
 {
     bool handled = true;
     QString movement;
     int count = this->count();
 
-    if (input.isDigit()) {
-        if (input.is('0') && m_mvcount.isEmpty()) {
-            m_movetype = MoveExclusive;
-            moveToStartOfLine();
-            setTargetColumn();
-            count = 1;
-        } else {
-            m_mvcount.append(input.text());
-            return true;
-        }
+    if (handleCount(input)) {
+        return true;
+    } else if (input.is('0')) {
+        m_movetype = MoveExclusive;
+        moveToStartOfLine();
+        setTargetColumn();
+        count = 1;
     } else if (input.is('a') || input.is('i')) {
         m_subsubmode = TextObjectSubSubMode;
         m_subsubdata = input;
@@ -3970,9 +3976,14 @@ bool FakeVimHandler::Private::handleChangeCaseSubMode(const Input &input)
 
 bool FakeVimHandler::Private::handleWindowSubMode(const Input &input)
 {
-    emit q->windowCommandRequested(input.key());
+    if (handleCount(input))
+        return true;
+
+    for (int i = 0, repeat = count(); i < repeat; ++i)
+        emit q->windowCommandRequested(input.key());
+
     m_submode = NoSubMode;
-    return EventHandled;
+    return true;
 }
 
 bool FakeVimHandler::Private::handleYankSubMode(const Input &input)
