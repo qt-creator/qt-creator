@@ -1224,54 +1224,41 @@ void FakeVimPluginPrivate::setActionChecked(const Id &id, bool check)
 
 static int moveRightWeight(const QRect &cursor, const QRect &other)
 {
-    int dx = other.left() - cursor.right();
+    const int dx = other.left() - cursor.right();
     if (dx < 0)
         return -1;
-    int w = 10000 * dx;
-    int dy1 = cursor.top() - other.bottom();
-    int dy2 = cursor.bottom() - other.top();
-    w += dy1 * (dy1 > 0);
-    w += dy2 * (dy2 > 0);
-    qDebug() << "      DX: " << dx << dy1 << dy2 << w;
+    const int dy = qAbs(cursor.center().y() - other.center().y());
+    const int w = 10000 * dx + dy;
     return w;
 }
 
 static int moveLeftWeight(const QRect &cursor, const QRect &other)
 {
-    int dx = other.right() - cursor.left();
+    const int dx = cursor.left() - other.right();
     if (dx < 0)
         return -1;
-    int w = 10000 * dx;
-    int dy1 = cursor.top() - other.bottom();
-    int dy2 = cursor.bottom() - other.top();
-    w += dy1 * (dy1 > 0);
-    w += dy2 * (dy2 > 0);
+    const int dy = qAbs(cursor.center().y() -other.center().y());
+    const int w = 10000 * dx + dy;
     return w;
 }
 
 static int moveUpWeight(const QRect &cursor, const QRect &other)
 {
-    int dy = other.bottom() - cursor.top();
+    const int dy = cursor.top() - other.bottom();
     if (dy < 0)
         return -1;
-    int w = 10000 * dy;
-    int dx1 = cursor.left() - other.right();
-    int dx2 = cursor.right() - other.left();
-    w += dx1 * (dx1 > 0);
-    w += dx2 * (dx2 > 0);
+    const int dx = qAbs(cursor.center().x() - other.center().x());
+    const int w = 10000 * dy + dx;
     return w;
 }
 
 static int moveDownWeight(const QRect &cursor, const QRect &other)
 {
-    int dy = other.top() - cursor.bottom();
+    const int dy = other.top() - cursor.bottom();
     if (dy < 0)
         return -1;
-    int w = 10000 * dy;
-    int dx1 = cursor.left() - other.right();
-    int dx2 = cursor.right() - other.left();
-    w += dx1 * (dx1 > 0);
-    w += dx2 * (dx2 > 0);
+    const int dx = qAbs(cursor.center().x() - other.center().x());
+    const int w = 10000 * dy + dx;
     return w;
 }
 
