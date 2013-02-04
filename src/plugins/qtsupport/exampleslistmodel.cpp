@@ -167,6 +167,7 @@ ExamplesListModel::ExamplesListModel(QObject *parent) :
     roleNames[VideoUrl] = "videoUrl";
     roleNames[VideoLength] = "videoLength";
     roleNames[Platforms] = "platforms";
+    roleNames[IsHighlighted] = "isHighlighted";
     setRoleNames(roleNames);
 
     connect(Core::HelpManager::instance(), SIGNAL(setupFinished()),
@@ -261,6 +262,10 @@ void ExamplesListModel::parseExamples(QXmlStreamReader *reader,
                 item.projectPath = relativeOrInstallPath(item.projectPath, projectsOffset, examplesInstallPath);
                 item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
                 item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
+
+                if (attributes.hasAttribute(QLatin1String("isHighlighted")))
+                    item.isHighlighted = attributes.value(QLatin1String("isHighlighted")).toString() == QLatin1String("true");
+
             } else if (reader->name() == QLatin1String("fileToOpen")) {
                 item.filesToOpen.append(relativeOrInstallPath(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement),
                                                               projectsOffset, examplesInstallPath));
@@ -307,6 +312,10 @@ void ExamplesListModel::parseDemos(QXmlStreamReader *reader,
                 item.projectPath = relativeOrInstallPath(item.projectPath, projectsOffset, demosInstallPath);
                 item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
                 item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
+
+                if (attributes.hasAttribute(QLatin1String("isHighlighted")))
+                    item.isHighlighted = attributes.value(QLatin1String("isHighlighted")).toString() == QLatin1String("true");
+
             } else if (reader->name() == QLatin1String("fileToOpen")) {
                 item.filesToOpen.append(relativeOrInstallPath(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement),
                                                               projectsOffset, demosInstallPath));
@@ -578,6 +587,13 @@ int ExamplesListModel::rowCount(const QModelIndex &) const
     return m_exampleItems.size();
 }
 
+QString prefixForItem(const ExampleItem &item)
+{
+    if (item.isHighlighted)
+        return QLatin1String("0000 ");
+    return QString();
+}
+
 QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
 {
     ensureInitialized();
@@ -590,7 +606,7 @@ QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
     switch (role)
     {
     case Qt::DisplayRole: // for search only
-        return QString(item.name + QLatin1Char(' ') + item.tags.join(QLatin1String(" ")));
+        return QString(prefixForItem(item) + item.name + QLatin1Char(' ') + item.tags.join(QLatin1String(" ")));
     case Name:
         return item.name;
     case ProjectPath:
@@ -621,6 +637,8 @@ QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
         return item.videoLength;
     case Platforms:
         return item.platforms;
+    case IsHighlighted:
+        return item.isHighlighted;
     default:
         qDebug() << Q_FUNC_INFO << "role type not supported";
         return QVariant();
