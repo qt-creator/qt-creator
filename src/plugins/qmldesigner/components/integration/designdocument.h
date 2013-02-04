@@ -106,6 +106,8 @@ public:
 
     void resetToDocumentModel();
 
+    void goIntoComponent();
+
 signals:
     void displayNameChanged(const QString &newFileName);
     void dirtyStateChanged(bool newState);
@@ -114,8 +116,6 @@ signals:
     void redoAvailable(bool isAvailable);
     void designDocumentClosed();
     void qmlErrorsChanged(const QList<RewriterView::Error> &errors);
-
-    void fileToOpen(const QString &path);
 
 public slots:
     void deleteSelected();
@@ -129,7 +129,6 @@ public slots:
     void changeCurrentModelTo(const ModelNode &node);
     void changeToSubComponent(const ModelNode &node);
     void changeToExternalSubComponent(const QString &m_oldFileName);
-    void goIntoComponent();
 
 private slots:
     void updateFileName(const QString &oldFileName, const QString &newFileName);
@@ -146,7 +145,7 @@ private: // functions
 
     ModelNode rootModelNode() const;
 
-    bool loadSubComponent(const ModelNode &componentNode);
+    bool loadInFileComponent(const ModelNode &componentNode);
 
 private: // variables
     QWeakPointer<QStackedWidget> m_stackedWidget;

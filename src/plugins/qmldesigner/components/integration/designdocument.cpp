@@ -199,7 +199,7 @@ static ComponentTextModifier *createComponentTextModifier(TextModifier *original
     return new ComponentTextModifier (originalModifier, componentStartOffset, componentEndOffset, rootStartOffset);
 }
 
-bool DesignDocument::loadSubComponent(const ModelNode &componentNode)
+bool DesignDocument::loadInFileComponent(const ModelNode &componentNode)
 {
     QString componentText = rewriterView()->extractText(QList<ModelNode>() << componentNode).value(componentNode);
 
@@ -340,7 +340,7 @@ void DesignDocument::changeToSubComponent(const ModelNode &componentNode)
         changeToDocumentModel();
     }
 
-    bool subComponentLoaded = loadSubComponent(componentNode);
+    bool subComponentLoaded = loadInFileComponent(componentNode);
 
     if (subComponentLoaded) {
         Q_ASSERT(m_documentModel);
