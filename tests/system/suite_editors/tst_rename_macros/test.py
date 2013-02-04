@@ -128,7 +128,7 @@ def verifyChangedContent(origTexts, replacedSymbol, replacement):
     if successfullyCompared.count(True) == len(origTexts):
         test.passes("Successfully compared %d changed files" % len(origTexts))
     else:
-        test.fail("Verifyied %d files - %d have been successfully changed and %d failed to "
+        test.fail("Verified %d files - %d have been successfully changed and %d failed to "
                   "change correctly." % (len(origTexts), successfullyCompared.count(True),
                                          successfullyCompared.count(False)))
 
@@ -136,9 +136,13 @@ def revertChanges(files):
     for f in files:
         simpleName = simpleFileName(f)
         if openDocument(f):
-            invokeMenuItem('File', 'Revert "%s" to Saved' % simpleName)
-            clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
-            test.log("Reverted changes inside %s" % simpleName)
+            try:
+                invokeMenuItem('File', 'Revert "%s" to Saved' % simpleName)
+                clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
+                test.log("Reverted changes inside %s" % simpleName)
+            except:
+                test.warning("File '%s' cannot be reverted." % simpleName,
+                             "Maybe it has not been changed at all.")
         else:
             test.fail("Could not open %s for reverting changes" % simpleName)
 
