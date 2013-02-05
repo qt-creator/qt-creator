@@ -30,21 +30,12 @@
 #ifndef DesignDocument_h
 #define DesignDocument_h
 
-#include "rewriterview.h"
-
 #include <model.h>
 #include <rewriterview.h>
-#include <itemlibraryview.h>
-#include <navigatorview.h>
-#include <stateseditorview.h>
-#include <formeditorview.h>
-#include <propertyeditor.h>
-#include <componentview.h>
 #include <basetexteditmodifier.h>
 #include <componenttextmodifier.h>
 #include <subcomponentmanager.h>
 #include <model/viewlogger.h>
-#include <viewmanager.h>
 
 #include <QObject>
 #include <QString>
@@ -66,6 +57,8 @@ class ModelNode;
 class TextModifier;
 class QmlObjectNode;
 class CrumbleBarInfo;
+class ViewManager;
+class QmlModelView;
 
 class DesignDocument: public QObject
 {
@@ -146,6 +139,8 @@ private: // functions
     ModelNode rootModelNode() const;
 
     bool loadInFileComponent(const ModelNode &componentNode);
+
+    QmlModelView *qmlModelView();
 
 private: // variables
     QWeakPointer<QStackedWidget> m_stackedWidget;

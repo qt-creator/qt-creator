@@ -46,6 +46,7 @@
 #include <rewritingexception.h>
 #include <modelnodeoperations.h>
 #include <qmldesignerplugin.h>
+#include <viewmanager.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -220,6 +221,11 @@ bool DesignDocument::loadInFileComponent(const ModelNode &componentNode)
     return true;
 }
 
+QmlModelView *DesignDocument::qmlModelView()
+{
+    return viewManager().qmlModelView();
+}
+
 /*!
   Returns any errors that happened when parsing the latest qml file.
   */
@@ -362,7 +368,7 @@ void DesignDocument::goIntoComponent()
 
     QList<ModelNode> selectedNodes;
     if (rewriterView())
-        selectedNodes = rewriterView()->selectedModelNodes();
+        selectedNodes = qmlModelView()->selectedModelNodes();
 
     if (selectedNodes.count() == 1) {
         viewManager().setComponentNode(selectedNodes.first());
@@ -433,7 +439,7 @@ void DesignDocument::deleteSelected()
 
     try {
         RewriterTransaction transaction(rewriterView());
-        QList<ModelNode> toDelete = rewriterView()->selectedModelNodes();
+        QList<ModelNode> toDelete = qmlModelView()->selectedModelNodes();
         foreach (ModelNode node, toDelete) {
             if (node.isValid() && !node.isRootNode() && QmlObjectNode(node).isValid())
                 QmlObjectNode(node).destroy();
@@ -562,8 +568,6 @@ void DesignDocument::paste()
 
     if (rootNode.id() == "designer__Selection") {
         QList<ModelNode> selectedNodes = rootNode.allDirectSubModelNodes();
-        qDebug() << rootNode;
-        qDebug() << selectedNodes;
         pasteModel->detachView(&view);
         m_currentModel->attachView(&view);
 
