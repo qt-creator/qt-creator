@@ -55,6 +55,7 @@ using namespace Utils;
 // Qt's various build paths for unpatched versions.
 #if defined(Q_OS_WIN)
 static const char* qtBuildPaths[] = {
+    "Q:/qt5_workdir/w/s",
     "C:/iwmake/build_mingw_opensource",
     "C:/ndk_buildrepos/qt-desktop/src"};
 #elif defined(Q_OS_MAC)
