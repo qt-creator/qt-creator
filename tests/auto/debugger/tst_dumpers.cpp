@@ -42,22 +42,26 @@ using namespace Internal;
 
 static QByteArray noValue = "\001";
 
+
+struct Context
+{
+    Context() : qtVersion(0) {}
+
+    QByteArray nameSpace;
+    int qtVersion;
+};
+
 struct Name
 {
-    Name()
-        : name(noValue)
-    {}
-    Name(const char *str)
-        : name(str)
-    {}
-    Name(const QByteArray &ba)
-        : name(ba)
-    {}
-    bool matches(const QByteArray &actualName0, const QByteArray &nameSpace) const
+    Name() : name(noValue) {}
+    Name(const char *str) : name(str) {}
+    Name(const QByteArray &ba) : name(ba) {}
+
+    bool matches(const QByteArray &actualName0, const Context &context) const
     {
         QByteArray actualName = actualName0;
         QByteArray expectedName = name;
-        expectedName.replace("@Q", nameSpace + 'Q');
+        expectedName.replace("@Q", context.nameSpace + 'Q');
         return actualName == expectedName;
     }
 
@@ -76,28 +80,45 @@ static QByteArray parentIName(const QByteArray &iname)
     return pos == -1 ? QByteArray() : iname.left(pos);
 }
 
-struct Value
+struct ValueBase
 {
-    Value()
-        : value(noValue), hasPtrSuffix(false)
-    {}
-    Value(const char *str)
-        : value(str), hasPtrSuffix(false)
-    {}
-    Value(const QByteArray &ba)
-        : value(ba), hasPtrSuffix(false)
-    {}
+    ValueBase() : hasPtrSuffix(false), version(0) {}
 
-    bool matches(const QString &actualValue0, const QByteArray &nameSpace) const
+    bool hasPtrSuffix;
+    int version;
+};
+
+struct Value : public ValueBase
+{
+    Value() : value(noValue) {}
+    Value(const char *str) : value(str) {}
+    Value(const QByteArray &ba) : value(ba) {}
+
+    bool matches(const QString &actualValue0, const Context &context) const
     {
         if (value == noValue)
             return true;
+
+        if (context.qtVersion) {
+            if (version == 4) {
+                if (context.qtVersion < 0x40000 || context.qtVersion >= 0x50000) {
+                    //QWARN("Qt 4 specific case skipped");
+                    return true;
+                }
+            } else if (version == 5) {
+                if (context.qtVersion < 0x50000 || context.qtVersion >= 0x60000) {
+                    //QWARN("Qt 5 specific case skipped");
+                    return true;
+                }
+            }
+        }
         QString actualValue = actualValue0;
         if (actualValue == QLatin1String(" "))
             actualValue.clear(); // FIXME: Remove later.
         QByteArray expectedValue = value;
-        expectedValue.replace('@', nameSpace);
+        expectedValue.replace('@', context.nameSpace);
         QString self = QString::fromLatin1(expectedValue);
+
         if (hasPtrSuffix)
             return actualValue.startsWith(self + QLatin1String(" @0x"))
                 || actualValue.startsWith(self + QLatin1String("@0x"));
@@ -105,7 +126,6 @@ struct Value
     }
 
     QByteArray value;
-    bool hasPtrSuffix;
 };
 
 struct Pointer : Value
@@ -114,24 +134,30 @@ struct Pointer : Value
     Pointer(const QByteArray &value) : Value(value) { hasPtrSuffix = true; }
 };
 
+struct Value4 : Value
+{
+    Value4(const QByteArray &value) : Value(value) { version = 4; }
+};
+
+struct Value5 : Value
+{
+    Value5(const QByteArray &value) : Value(value) { version = 5; }
+};
+
 struct Type
 {
-    Type()
-    {}
-    Type(const char *str)
-        : type(str)
-    {}
-    Type(const QByteArray &ba)
-        : type(ba)
-    {}
-    bool matches(const QByteArray &actualType0, const QByteArray &nameSpace) const
+    Type() {}
+    Type(const char *str) : type(str) {}
+    Type(const QByteArray &ba) : type(ba) {}
+
+    bool matches(const QByteArray &actualType0, const Context &context) const
     {
         QByteArray actualType =
             CPlusPlus::simplifySTLType(QString::fromLatin1(actualType0)).toLatin1();
         actualType.replace(' ', "");
         QByteArray expectedType = type;
         expectedType.replace(' ', "");
-        expectedType.replace('@', nameSpace);
+        expectedType.replace('@', context.nameSpace);
         return actualType == expectedType;
     }
     QByteArray type;
@@ -177,10 +203,6 @@ struct Profile
     QByteArray contents;
 };
 
-struct GuiProfile : public Profile
-{
-    GuiProfile() : Profile("QT+=gui\ngreaterThan(QT_MAJOR_VERSION, 4):QT *= widgets\n") {}
-};
 
 struct Cxx11Profile : public Profile
 {
@@ -190,14 +212,26 @@ struct Cxx11Profile : public Profile
 
 struct ForceC {};
 
-class Data
+struct CoreProfile {};
+struct CorePrivateProfile {};
+struct GuiProfile {};
+
+struct DataBase
+{
+    DataBase() : useQt(false), forceC(false) {}
+
+    mutable bool useQt;
+    mutable bool forceC;
+};
+
+class Data : public DataBase
 {
 public:
     Data() {}
-    Data(const QByteArray &code) : code(code), forceC(false) {}
+    Data(const QByteArray &code) : code(code) {}
 
     Data(const QByteArray &includes, const QByteArray &code)
-        : includes(includes), code(code), forceC(false)
+        : includes(includes), code(code)
     {}
 
     const Data &operator%(const Check &check) const
@@ -212,6 +246,41 @@ public:
         return *this;
     }
 
+    const Data &operator%(const CoreProfile &) const
+    {
+        profileExtra +=
+            "CONFIG += QT\n"
+            "QT += gui\n"
+            "greaterThan(QT_MAJOR_VERSION, 4):QT *= widgets\n";
+
+        useQt = true;
+        return *this;
+    }
+
+    const Data &operator%(const GuiProfile &) const
+    {
+        profileExtra +=
+            "CONFIG += QT\n"
+            "QT += gui\n"
+            "greaterThan(QT_MAJOR_VERSION, 4):QT *= widgets\n";
+
+        useQt = true;
+        return *this;
+    }
+
+    const Data &operator%(const CorePrivateProfile &) const
+    {
+        profileExtra +=
+            "CONFIG += QT\n"
+            "greaterThan(QT_MAJOR_VERSION, 4) {\n"
+            "  QT += core core-private\n"
+            "  CONFIG += no_private_qt_headers_warning\n"
+            "}";
+
+        useQt = true;
+        return *this;
+    }
+
     const Data &operator%(const ForceC &) const
     {
         forceC = true;
@@ -222,7 +291,6 @@ public:
     mutable QByteArray profileExtra;
     QByteArray includes;
     QByteArray code;
-    mutable bool forceC;
     mutable QMap<QByteArray, Check> checks;
 };
 
@@ -263,7 +331,10 @@ void tst_Dumpers::dumper()
     proFile.write("SOURCES = ");
     proFile.write(mainFile);
     proFile.write("\nTARGET = doit\n");
-    proFile.write("QT -= widgets gui\n");
+    if (data.useQt)
+        proFile.write("QT -= widgets gui\n");
+    else
+        proFile.write("CONFIG -= QT\n");
     proFile.write(data.profileExtra);
     proFile.close();
 
@@ -275,7 +346,8 @@ void tst_Dumpers::dumper()
             "\n\n" + data.includes +
             "\n\nint main(int argc, char *argv[])"
             "\n{"
-            "\n    unused(&argc, &argv);\n"
+            "\n    int qtversion = " + (data.useQt ? "QT_VERSION" : "0") + ";\n"
+            "\n    unused(&argc, &argv, &qtversion);\n"
             "\n" + data.code +
             "\n    breakHere();"
             "\n    return 0;"
@@ -360,10 +432,16 @@ void tst_Dumpers::dumper()
         logger.write(cmds);
     }
 
+    QByteArray debuggerBinary = qgetenv("QTC_DEBUGGER_PATH");
+    if (debuggerBinary.isEmpty())
+        debuggerBinary = "gdb";
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert(QLatin1String("QT_HASH_SEED"), QLatin1String("0"));
     QProcess debugger;
+    debugger.setProcessEnvironment(env);
     debugger.setWorkingDirectory(buildDir.path());
-    //qDebug() << "Starting debugger ";
-    debugger.start(QLatin1String("gdb -i mi -quiet -nx"));
+    debugger.start(QString::fromLatin1(debuggerBinary)
+                   + QLatin1String(" -i mi -quiet -nx"));
     ok = debugger.waitForStarted();
     debugger.write(cmds);
     ok = debugger.waitForFinished();
@@ -382,6 +460,7 @@ void tst_Dumpers::dumper()
         logger.write(error);
     }
 
+    Context context;
     int pos1 = output.indexOf("data=");
     QVERIFY(pos1 != -1);
     int pos2 = output.indexOf(",typeinfo", pos1);
@@ -394,10 +473,10 @@ void tst_Dumpers::dumper()
     pos3 += sizeof("@NS@") - 1;
     int pos4 = output.indexOf("@", pos3);
     QVERIFY(pos4 != -1);
-    QByteArray nameSpace = output.mid(pos3, pos4 - pos3);
-    //qDebug() << "FOUND NS: " << nameSpace;
-    if (nameSpace == "::")
-        nameSpace.clear();
+    context.nameSpace = output.mid(pos3, pos4 - pos3);
+    //qDebug() << "FOUND NS: " << context.nameSpace;
+    if (context.nameSpace == "::")
+        context.nameSpace.clear();
 
     GdbMi actual;
     actual.fromString(contents);
@@ -410,29 +489,33 @@ void tst_Dumpers::dumper()
         WatchData dummy;
         dummy.iname = child.findChild("iname").data();
         dummy.name = QLatin1String(child.findChild("name").data());
-        parseWatchData(expandedINames, dummy, child, &list);
+        if (dummy.iname == "local.qtversion")
+            context.qtVersion = child.findChild("value").data().toInt();
+        else
+            parseWatchData(expandedINames, dummy, child, &list);
     }
 
+    //qDebug() << "QT VERSION " << QByteArray::number(context.qtVersion, 16);
     QSet<QByteArray> seenINames;
     foreach (const WatchData &item, list) {
         seenINames.insert(item.iname);
         if (data.checks.contains(item.iname)) {
             Check check = data.checks.take(item.iname);
-            if (!check.expectedName.matches(item.name.toLatin1(), nameSpace)) {
+            if (!check.expectedName.matches(item.name.toLatin1(), context)) {
                 qDebug() << "INAME        : " << item.iname;
                 qDebug() << "NAME ACTUAL  : " << item.name.toLatin1();
                 qDebug() << "NAME EXPECTED: " << check.expectedName.name;
                 qDebug() << "CONTENTS     : " << contents;
                 QVERIFY(false);
             }
-            if (!check.expectedValue.matches(item.value, nameSpace)) {
+            if (!check.expectedValue.matches(item.value, context)) {
                 qDebug() << "INAME         : " << item.iname;
                 qDebug() << "VALUE ACTUAL  : " << item.value << item.value.toLatin1().toHex();
                 qDebug() << "VALUE EXPECTED: " << check.expectedValue.value << check.expectedValue.value.toHex();
                 qDebug() << "CONTENTS      : " << contents;
                 QVERIFY(false);
             }
-            if (!check.expectedType.matches(item.type, nameSpace)) {
+            if (!check.expectedType.matches(item.type, context)) {
                 qDebug() << "INAME        : " << item.iname;
                 qDebug() << "TYPE ACTUAL  : " << item.type;
                 qDebug() << "TYPE EXPECTED: " << check.expectedType.type;
@@ -443,9 +526,13 @@ void tst_Dumpers::dumper()
     }
 
     if (!data.checks.isEmpty()) {
+        bool fail = false;
         qDebug() << "SOME TESTS NOT EXECUTED: ";
-        foreach (const Check &check, data.checks)
+        foreach (const Check &check, data.checks) {
             qDebug() << "  TEST NOT FOUND FOR INAME: " << check.iname;
+            if (!fail && check.expectedValue.version != 0)
+                fail = true;
+        }
         qDebug() << "SEEN INAMES " << seenINames;
         qDebug() << "CONTENTS     : " << contents;
         qDebug() << "EXPANDED     : " << expanded;
@@ -514,6 +601,7 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("QByteArray0")
             << Data("#include <QByteArray>\n",
                     "QByteArray ba;")
+               % CoreProfile()
                % Check("ba", "ba", "\"\"", "@QByteArray");
 
     QTest::newRow("QByteArray1")
@@ -522,6 +610,7 @@ void tst_Dumpers::dumper_data()
                     "ba += char(0);\n"
                     "ba += 1;\n"
                     "ba += 2;\n")
+               % CoreProfile()
                % Check("ba", "\"Hello\"World\"", "@QByteArray")
                % Check("ba.0", "[0]", "72", "char")
                % Check("ba.11", "[11]", "0", "char")
@@ -538,6 +627,7 @@ void tst_Dumpers::dumper_data()
                     "QString s(10000, 'x');\n"
                     "std::string ss(10000, 'c');\n"
                     "unused(&ba, &s, &ss);\n")
+               % CoreProfile()
                % CheckType("ba", "@QByteArray")
                % Check("s", '"' + QByteArray(10000, 'x') + '"', "@QString")
                % Check("ss", '"' + QByteArray(10000, 'c') + '"', "std::string");
@@ -551,6 +641,7 @@ void tst_Dumpers::dumper_data()
                     "QByteArray buf2(str2);\n"
                     "QByteArray buf3(str3);\n"
                     "unused(&buf1, &buf2, &buf3);\n")
+               % CoreProfile()
                % Check("buf1", "\"" + QByteArray(1, 0xee) + "\"", "@QByteArray")
                % Check("buf2", "\"" + QByteArray(1, 0xee) + "\"", "@QByteArray")
                % Check("buf3", "\"\ee\"", "@QByteArray")
@@ -561,6 +652,7 @@ void tst_Dumpers::dumper_data()
                     "char data[] = { 'H', 'e', 'l', 'l', 'o' };\n"
                     "QByteArray ba1 = QByteArray::fromRawData(data, 4);\n"
                     "QByteArray ba2 = QByteArray::fromRawData(data + 1, 4);\n")
+               % CoreProfile()
                % Check("ba1", "\"Hell\"", "@QByteArray")
                % Check("ba2", "\"ello\"", "@QByteArray");
 
@@ -568,13 +660,16 @@ void tst_Dumpers::dumper_data()
             << Data("#include <QDate>\n",
                     "QDate date;\n"
                     "unused(&date);\n")
-               % Check("date", "(invalid)", "@QDate");
+               % CoreProfile()
+               % Check("date", Value4("(invalid)"), "@QDate")
+               % Check("date", Value5(""), "@QDate");
 
     QTest::newRow("QDate1")
             << Data("#include <QDate>\n",
                     "QDate date;\n"
                     "date.setDate(1980, 1, 1);\n"
                     "unused(&date);\n")
+               % CoreProfile()
                % Check("date", "Tue Jan 1 1980", "@QDate")
                % Check("date.(ISO)", "\"1980-01-01\"", "@QString")
                % CheckType("date.(Locale)", "@QString")
@@ -584,11 +679,13 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("QTime0")
             << Data("#include <QTime>\n",
                     "QTime time;\n")
+               % CoreProfile()
                % Check("time", "(invalid)", "@QTime");
 
     QTest::newRow("QTime1")
             << Data("#include <QTime>\n",
                     "QTime time(13, 15, 32);")
+               % CoreProfile()
                % Check("time", "13:15:32", "@QTime")
                % Check("time.(ISO)", "\"13:15:32\"", "@QString")
                % CheckType("time.(Locale)", "@QString")
@@ -598,11 +695,13 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("QDateTime0")
             << Data("#include <QDateTime>\n",
                     "QDateTime date;\n")
+               % CoreProfile()
                % Check("date", "(invalid)", "@QDateTime");
 
     QTest::newRow("QDateTime1")
             << Data("#include <QDateTime>\n",
                     "QDateTime date(QDate(1980, 1, 1), QTime(13, 15, 32), Qt::UTC);\n")
+               % CoreProfile()
                % Check("date", "Tue Jan 1 13:15:32 1980", "@QDateTime")
                % Check("date.(ISO)", "\"1980-01-01T13:15:32Z\"", "@QString")
                % CheckType("date.(Locale)", "@QString")
@@ -620,6 +719,7 @@ void tst_Dumpers::dumper_data()
                     "QDir dir(" + tempDir + ");\n"
                     "QString s = dir.absolutePath();\n"
                     "unused(&dir, &s);\n")
+               % CoreProfile()
                % Check("dir", tempDir, "@QDir")
                % Check("dir.absolutePath", tempDir, "@QString")
                % Check("dir.canonicalPath", tempDir, "@QString");
@@ -642,25 +742,32 @@ void tst_Dumpers::dumper_data()
                     "file.setObjectName(\"A QFile instance\");\n"
                     "QFileInfo fi(\"/tmp/tt\");\n"
                     "QString s = fi.absoluteFilePath();\n")
+               % CoreProfile()
                % Check("fi", "\"/tmp/tt\"", "@QFileInfo")
                % Check("file", "\"/tmp/t\"", "@QFile")
                % Check("s", "\"/tmp/tt\"", "@QString");
 #endif
 
     QTest::newRow("QHash1")
-            << Data("#include <QHash>\n",
+            << Data("#include <QHash>\n"
+                    "#include <QString>\n"
+                    "#include <QList>\n",
                     "QHash<QString, QList<int> > hash;\n"
                     "hash.insert(\"Hallo\", QList<int>());\n"
                     "hash.insert(\"Welt\", QList<int>() << 1);\n"
                     "hash.insert(\"!\", QList<int>() << 1 << 2);\n")
+               % CoreProfile()
                % Check("hash", "<3 items>", "@QHash<@QString, @QList<int> >")
                % Check("hash.0", "[0]", "", "@QHashNode<@QString, @QList<int>>")
-               % Check("hash.0.key", "\"Hallo\"", "@QString")
-               % Check("hash.0.value", "<0 items>", "@QList<int>")
+               % Check("hash.0.key", Value4("\"Hallo\""), "@QString")
+               % Check("hash.0.key", Value5("\"Welt\""), "@QString")
+               % Check("hash.0.value", Value4("<0 items>"), "@QList<int>")
+               % Check("hash.0.value", Value5("<1 items>"), "@QList<int>")
                % Check("hash.1", "[1]", "", "@QHashNode<@QString, @QList<int>>")
-               % Check("hash.1.key", "key", "\"Welt\"", "@QString")
-               % Check("hash.1.value", "value", "<1 items>", "@QList<int>")
-               % Check("hash.1.value.0", "[0]", "1", "int")
+               % Check("hash.1.key", "key", Value4("\"Welt\""), "@QString")
+               % Check("hash.1.key", "key", Value5("\"Hallo\""), "@QString")
+               % Check("hash.1.value", "value", Value4("<1 items>"), "@QList<int>")
+               % Check("hash.1.value", "value", Value5("<0 items>"), "@QList<int>")
                % Check("hash.2", "[2]", "", "@QHashNode<@QString, @QList<int>>")
                % Check("hash.2.key", "key", "\"!\"", "@QString")
                % Check("hash.2.value", "value", "<2 items>", "@QList<int>")
@@ -672,12 +779,14 @@ void tst_Dumpers::dumper_data()
                     "QHash<int, float> hash;\n"
                     "hash[11] = 11.0;\n"
                     "hash[22] = 22.0;\n")
+               % CoreProfile()
                % Check("hash", "hash", "<2 items>", "@QHash<int, float>")
                % Check("hash.22", "[22]", "22", "float")
                % Check("hash.11", "[11]", "11", "float");
 
     QTest::newRow("QHash3")
-            << Data("#include <QHash>\n",
+            << Data("#include <QString>\n"
+                    "#include <QHash>\n",
                     "QHash<QString, int> hash;\n"
                     "hash[\"22.0\"] = 22.0;\n"
                     "hash[\"123.0\"] = 22.0;\n"
@@ -688,16 +797,22 @@ void tst_Dumpers::dumper_data()
                     "hash[\"111111127.0\"] = 27.0;\n"
                     "hash[\"111111111128.0\"] = 28.0;\n"
                     "hash[\"111111111111111111129.0\"] = 29.0;\n")
+               % CoreProfile()
                % Check("hash", "hash", "<9 items>", "@QHash<@QString, int>")
                % Check("hash.0", "[0]", "", "@QHashNode<@QString, int>")
-               % Check("hash.0.key", "key", "\"123.0\"", "@QString")
-               % Check("hash.0.value", "22", "int")
+               % Check("hash.0.key", "key", Value4("\"123.0\""), "@QString")
+               % Check("hash.0.key", "key", Value5("\"111111111128.0\""), "@QString")
+               % Check("hash.0.value", Value4("22"), "int")
+               % Check("hash.0.value", Value5("28"), "int")
                % Check("hash.8", "[8]", "", "@QHashNode<@QString, int>")
-               % Check("hash.8.key", "key", "\"11124.0\"", "@QString")
-               % Check("hash.8.value", "value", "22", "int");
+               % Check("hash.8.key", "key", Value4("\"11124.0\""), "@QString")
+               % Check("hash.8.key", "key", Value5("\"123.0\""), "@QString")
+               % Check("hash.8.value", "value", Value4("22"), "int")
+               % Check("hash.8.value", "value", Value5("22"), "int");
 
     QTest::newRow("QHash4")
-            << Data("#include <QHash>\n",
+            << Data("#include <QByteArray>\n"
+                    "#include <QHash>\n",
                     "QHash<QByteArray, float> hash;\n"
                     "hash[\"22.0\"] = 22.0;\n"
                     "hash[\"123.0\"] = 22.0;\n"
@@ -708,18 +823,25 @@ void tst_Dumpers::dumper_data()
                     "hash[\"111111127.0\"] = 27.0;\n"
                     "hash[\"111111111128.0\"] = 28.0;\n"
                     "hash[\"111111111111111111129.0\"] = 29.0;\n")
+               % CoreProfile()
                % Check("hash", "<9 items>", "@QHash<@QByteArray, float>")
                % Check("hash.0", "[0]", "", "@QHashNode<@QByteArray, float>")
-               % Check("hash.0.key", "\"123.0\"", "@QByteArray")
-               % Check("hash.0.value", "22", "float")
+               % Check("hash.0.key", Value4("\"123.0\""), "@QByteArray")
+               % Check("hash.0.key", Value5("\"111111111128.0\""), "@QByteArray")
+               % Check("hash.0.value", Value4("22"), "float")
+               % Check("hash.0.value", Value5("28"), "float")
                % Check("hash.8", "[8]", "", "@QHashNode<@QByteArray, float>")
-               % Check("hash.8.key", "\"11124.0\"", "@QByteArray")
-               % Check("hash.8.value", "22", "float");
+               % Check("hash.8.key", Value4("\"11124.0\""), "@QByteArray")
+               % Check("hash.8.key", Value5("\"123.0\""), "@QByteArray")
+               % Check("hash.8.value", Value4("22"), "float")
+               % Check("hash.8.value", Value5("22"), "float");
 
     QTest::newRow("QHash5")
-            << Data("#include <QHash>\n",
+            << Data("#include <QString>\n"
+                    "#include <QHash>\n",
                     "QHash<int, QString> hash;\n"
                     "hash[22] = \"22.0\";\n")
+               % CoreProfile()
                % Check("hash", "<1 items>", "@QHash<int, @QString>")
                % Check("hash.0", "[0]", "", "@QHashNode<int, @QString>")
                % Check("hash.0.key", "22", "int")
@@ -730,13 +852,17 @@ void tst_Dumpers::dumper_data()
                     "QHash<QString, Foo> hash;\n"
                     "hash[\"22.0\"] = Foo(22);\n"
                     "hash[\"33.0\"] = Foo(33);\n")
+               % CoreProfile()
                % Check("hash", "<2 items>", "@QHash<@QString, Foo>")
                % Check("hash.0", "[0]", "", "@QHashNode<@QString, Foo>")
-               % Check("hash.0.key", "\"22.0\"", "@QString")
+               % Check("hash.0.key", Value4("\"22.0\""), "@QString")
+               % Check("hash.0.key", Value5("\"33.0\""), "@QString")
                % CheckType("hash.0.value", "Foo")
-               % Check("hash.0.value.a", "22", "int")
+               % Check("hash.0.value.a", Value4("22"), "int")
+               % Check("hash.0.value.a", Value5("33"), "int")
                % Check("hash.1", "[1]", "", "@QHashNode<@QString, Foo>")
-               % Check("hash.1.key", "\"33.0\"", "@QString")
+               % Check("hash.1.key", Value4("\"33.0\""), "@QString")
+               % Check("hash.1.key", Value4("\"22.0\""), "@QString")
                % CheckType("hash.1.value", "Foo");
 
     QTest::newRow("QHash7")
@@ -747,11 +873,13 @@ void tst_Dumpers::dumper_data()
                     "hash.insert(\"Hallo\", QPointer<QObject>(&ob));\n"
                     "hash.insert(\"Welt\", QPointer<QObject>(&ob));\n"
                     "hash.insert(\".\", QPointer<QObject>(&ob));\n")
+               % CoreProfile()
                % Check("hash", "<3 items>", "@QHash<@QString, @QPointer<@QObject>>")
                % Check("hash.0", "[0]", "", "@QHashNode<@QString, @QPointer<@QObject>>")
-               % Check("hash.0.key", "\"Hallo\"", "@QString")
+               % Check("hash.0.key", Value4("\"Hallo\""), "@QString")
+               % Check("hash.0.key", Value4("\"Welt\""), "@QString")
                % CheckType("hash.0.value", "@QPointer<@QObject>")
-               % CheckType("hash.0.value.o", "@QObject")
+               //% CheckType("hash.0.value.o", "@QObject")
                % Check("hash.2", "[2]", "", "@QHashNode<@QString, @QPointer<@QObject>>")
                % Check("hash.2.key", "\".\"", "@QString")
                % CheckType("hash.2.value", "@QPointer<@QObject>");
@@ -772,6 +900,7 @@ void tst_Dumpers::dumper_data()
                     "Hash::iterator it4 = it3; ++it4;\n"
                     "Hash::iterator it5 = it4; ++it5;\n"
                     "Hash::iterator it6 = it5; ++it6;\n")
+               % CoreProfile()
                % Check("hash", "<6 items>", "Hash")
                % Check("hash.11", "[11]", "11", "float")
                % Check("it1.key", "55", "int")
@@ -783,6 +912,7 @@ void tst_Dumpers::dumper_data()
             << Data("#include <QHostAddress>\n",
                     "QHostAddress ha1(129u * 256u * 256u * 256u + 130u);\n"
                     "QHostAddress ha2(\"127.0.0.1\");\n")
+               % CoreProfile()
                % Profile("QT += network\n")
                % Check("ha1", "129.0.0.130", "@QHostAddress")
                % Check("ha2", "\"127.0.0.1\"", "@QHostAddress");
@@ -793,7 +923,8 @@ void tst_Dumpers::dumper_data()
                     "QImage im(QSize(200, 200), QImage::Format_RGB32);\n"
                     "im.fill(QColor(200, 100, 130).rgba());\n"
                     "QPainter pain;\n"
-                    "pain.begin(&im);\n")
+                    "pain.begin(&im);\n"
+                    "unused(&pain, &im);\n")
                % GuiProfile()
                % Check("im", "(200x200)", "@QImage")
                % CheckType("pain", "@QPainter");
@@ -821,6 +952,7 @@ void tst_Dumpers::dumper_data()
                     "QLinkedList<int> list;\n"
                     "list.append(101);\n"
                     "list.append(102);\n")
+               % CoreProfile()
                % Check("list", "<2 items>", "@QLinkedList<int>")
                % Check("list.0", "[0]", "101", "int")
                % Check("list.1", "[1]", "102", "int");
@@ -830,6 +962,7 @@ void tst_Dumpers::dumper_data()
                     "QLinkedList<uint> list;\n"
                     "list.append(103);\n"
                     "list.append(104);\n")
+               % CoreProfile()
                % Check("list", "<2 items>", "@QLinkedList<unsigned int>")
                % Check("list.0", "[0]", "103", "unsigned int")
                % Check("list.1", "[1]", "104", "unsigned int");
@@ -840,6 +973,7 @@ void tst_Dumpers::dumper_data()
                     "list.append(new Foo(1));\n"
                     "list.append(0);\n"
                     "list.append(new Foo(3));\n")
+               % CoreProfile()
                % Check("list", "<3 items>", "@QLinkedList<Foo*>")
                % CheckType("list.0", "[0]", "Foo")
                % Check("list.0.a", "1", "int")
@@ -852,6 +986,7 @@ void tst_Dumpers::dumper_data()
                     "QLinkedList<qulonglong> list;\n"
                     "list.append(42);\n"
                     "list.append(43);\n")
+               % CoreProfile()
                % Check("list", "<2 items>", "@QLinkedList<unsigned long long>")
                % Check("list.0", "[0]", "42", "unsigned long long")
                % Check("list.1", "[1]", "43", "unsigned long long");
@@ -861,6 +996,7 @@ void tst_Dumpers::dumper_data()
                     "QLinkedList<Foo> list;\n"
                     "list.append(Foo(1));\n"
                     "list.append(Foo(2));\n")
+               % CoreProfile()
                % Check("list", "<2 items>", "@QLinkedList<Foo>")
                % CheckType("list.0", "[0]", "Foo")
                % Check("list.0.a", "1", "int")
@@ -873,6 +1009,7 @@ void tst_Dumpers::dumper_data()
                     "QLinkedList<std::string> list;\n"
                     "list.push_back(\"aa\");\n"
                     "list.push_back(\"bb\");\n")
+               % CoreProfile()
                % Check("list", "<2 items>", "@QLinkedList<std::string>")
                % Check("list.0", "[0]", "\"aa\"", "std::string")
                % Check("list.1", "[1]", "\"bb\"", "std::string");
@@ -882,6 +1019,7 @@ void tst_Dumpers::dumper_data()
                     "QList<int> big;\n"
                     "for (int i = 0; i < 10000; ++i)\n"
                     "    big.push_back(i);\n")
+               % CoreProfile()
                % Check("big", "<10000 items>", "@QList<int>")
                % Check("big.0", "[0]", "0", "int")
                % Check("big.1999", "[1999]", "1999", "int");
@@ -893,6 +1031,7 @@ void tst_Dumpers::dumper_data()
                     "l.append(1);\n"
                     "l.append(2);\n"
                     "l.takeFirst();\n")
+               % CoreProfile()
                % Check("l", "<2 items>", "@QList<int>")
                % Check("l.0", "[0]", "1", "int");
 
@@ -904,6 +1043,7 @@ void tst_Dumpers::dumper_data()
                     "l.append(\"1\");\n"
                     "l.append(\"2\");\n"
                     "l.takeFirst();\n")
+               % CoreProfile()
                % Check("l", "<2 items>", "@QList<@QString>")
                % Check("l.0", "[0]", "\"1\"", "@QString");
 
@@ -914,6 +1054,7 @@ void tst_Dumpers::dumper_data()
                     "l.append(\"1\");\n"
                     "l.append(\"2\");\n"
                     "l.takeFirst();\n")
+               % CoreProfile()
                % Check("l", "<2 items>", "@QStringList")
                % Check("l.0", "[0]", "\"1\"", "@QString");
 
@@ -923,6 +1064,7 @@ void tst_Dumpers::dumper_data()
                     "l.append(new int(1));\n"
                     "l.append(new int(2));\n"
                     "l.append(new int(3));\n")
+               % CoreProfile()
                % Check("l0", "<0 items>", "@QList<int*>")
                % Check("l", "<3 items>", "@QList<int*>")
                % CheckType("l.0", "[0]", "int")
@@ -934,6 +1076,7 @@ void tst_Dumpers::dumper_data()
                     "l.append(101);\n"
                     "l.append(102);\n"
                     "l.append(102);\n")
+               % CoreProfile()
                % Check("l0", "<0 items>", "@QList<unsigned int>")
                % Check("l", "<3 items>", "@QList<unsigned int>")
                % Check("l.0", "[0]", "101", "unsigned int")
@@ -945,6 +1088,7 @@ void tst_Dumpers::dumper_data()
                     "l.append(101);\n"
                     "l.append(102);\n"
                     "l.append(102);\n")
+               % CoreProfile()
                % Check("l0", "<0 items>", "@QList<unsigned short>")
                % Check("l", "<3 items>", "@QList<unsigned short>")
                % Check("l.0", "[0]", "101", "unsigned short")
@@ -957,6 +1101,7 @@ void tst_Dumpers::dumper_data()
                     "l.append(QChar('a'));\n"
                     "l.append(QChar('b'));\n"
                     "l.append(QChar('c'));\n")
+               % CoreProfile()
                % Check("l0", "<0 items>", "@QList<@QChar>")
                % Check("l", "<3 items>", "@QList<@QChar>")
                % Check("l.0", "[0]", "'a' (97)", "@QChar")
@@ -968,6 +1113,7 @@ void tst_Dumpers::dumper_data()
                     "l.append(101);\n"
                     "l.append(102);\n"
                     "l.append(102);\n")
+               % CoreProfile()
                % Check("l0", "<0 items>", "@QList<unsigned long long>")
                % Check("l", "<3 items>", "@QList<unsigned long long>")
                % Check("l.0", "[0]", "101", "unsigned long long")
@@ -981,6 +1127,7 @@ void tst_Dumpers::dumper_data()
                     "l.push_back(\"bb\");\n"
                     "l.push_back(\"cc\");\n"
                     "l.push_back(\"dd\");")
+               % CoreProfile()
                % Check("l0", "<0 items>", "@QList<std::string>")
                % Check("l", "<4 items>", "@QList<std::string>")
                % CheckType("l.0", "[0]", "std::string")
@@ -991,6 +1138,7 @@ void tst_Dumpers::dumper_data()
                     "QList<Foo> l0, l;\n"
                     "for (int i = 0; i < 100; ++i)\n"
                     "    l.push_back(i + 15);\n")
+               % CoreProfile()
                % Check("l0", "<0 items>", "@QList<Foo>")
                % Check("l", "<100 items>", "@QList<Foo>")
                % Check("l.0", "[0]", "", "Foo")
@@ -1005,6 +1153,7 @@ void tst_Dumpers::dumper_data()
                    "QList<int> r;\n"
                    "while (rit != rend)\n"
                    "    r.append(*rit++);\n")
+              % CoreProfile()
               % Check("l", "<3 items>", "@QList<int>")
               % Check("l.0", "[0]", "1", "int")
               % Check("l.1", "[1]", "2", "int")
@@ -1021,6 +1170,7 @@ void tst_Dumpers::dumper_data()
                    "QLocale loc = QLocale::system();\n"
                    "QLocale::MeasurementSystem m = loc.measurementSystem();\n"
                    "unused(&m);\n")
+              % CoreProfile()
               % Check("loc", "", "@QLocale")
               % Check("m", "", "@QLocale::MeasurementSystem");
 
@@ -1031,6 +1181,7 @@ void tst_Dumpers::dumper_data()
                    "QMap<uint, QStringList> map;\n"
                    "map[11] = QStringList() << \"11\";\n"
                    "map[22] = QStringList() << \"22\";\n")
+              % CoreProfile()
               % Check("map", "<2 items>", "@QMap<unsigned int, @QStringList>")
               % Check("map.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>")
               % Check("map.0.key", "11", "unsigned int")
@@ -1048,6 +1199,7 @@ void tst_Dumpers::dumper_data()
                    "T map;\n"
                    "map[11] = QStringList() << \"11\";\n"
                    "map[22] = QStringList() << \"22\";\n")
+              % CoreProfile()
               % Check("map", "<2 items>", "T")
               % Check("map.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>");
 
@@ -1056,6 +1208,7 @@ void tst_Dumpers::dumper_data()
                    "QMap<uint, float> map;\n"
                    "map[11] = 11.0;\n"
                    "map[22] = 22.0;\n")
+              % CoreProfile()
               % Check("map", "<2 items>", "@QMap<unsigned int, float>")
               % Check("map.11", "[11]", "11", "float")
               % Check("map.22", "[22]", "22", "float");
@@ -1065,6 +1218,7 @@ void tst_Dumpers::dumper_data()
                    "#include <QString>\n",
                    "QMap<QString, float> map;\n"
                    "map[\"22.0\"] = 22.0;\n")
+              % CoreProfile()
               % Check("map", "<1 items>", "@QMap<@QString, float>")
               % Check("map.0", "[0]", "", "@QMapNode<@QString, float>")
               % Check("map.0.key", "\"22.0\"", "@QString")
@@ -1075,6 +1229,7 @@ void tst_Dumpers::dumper_data()
                    "#include <QString>\n",
                    "QMap<int, QString> map;\n"
                    "map[22] = \"22.0\";\n")
+              % CoreProfile()
               % Check("map", "<1 items>", "@QMap<int, @QString>")
               % Check("map.0", "[0]", "", "@QMapNode<int, @QString>")
               % Check("map.0.key", "22", "int")
@@ -1086,6 +1241,7 @@ void tst_Dumpers::dumper_data()
                    "QMap<QString, Foo> map;\n"
                    "map[\"22.0\"] = Foo(22);\n"
                    "map[\"33.0\"] = Foo(33);\n")
+              % CoreProfile()
               % Check("map", "<2 items>", "@QMap<@QString, Foo>")
               % Check("map.0", "[0]", "", "@QMapNode<@QString, Foo>")
               % Check("map.0.key", "\"22.0\"", "@QString")
@@ -1106,6 +1262,7 @@ void tst_Dumpers::dumper_data()
                    "map.insert(\"Hallo\", QPointer<QObject>(&ob));\n"
                    "map.insert(\"Welt\", QPointer<QObject>(&ob));\n"
                    "map.insert(\".\", QPointer<QObject>(&ob));\n")
+              % CoreProfile()
               % Check("map", "<3 items>", "@QMap<@QString, @QPointer<@QObject>>")
               % Check("map.0", "[0]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
               % Check("map.0.key", "\".\"", "@QString")
@@ -1129,6 +1286,7 @@ void tst_Dumpers::dumper_data()
                    "map[\"bar\"] = x;\n"
                    "map[\"1\"] = x;\n"
                    "map[\"2\"] = x;\n")
+              % CoreProfile()
               % Check("map", "<4 items>", "@QMap<@QString, @QList<nsA::nsB::SomeType*>>")
               % Check("map.0", "[0]", "", "@QMapNode<@QString, @QList<nsA::nsB::SomeType*>>")
               % Check("map.0.key", "\"1\"", "@QString")
@@ -1165,6 +1323,7 @@ void tst_Dumpers::dumper_data()
                    "#include <QString>\n",
                    "QMultiMap<QString, float> map;\n"
                    "map.insert(\"22.0\", 22.0);\n")
+              % CoreProfile()
               % Check("map", "<1 items>", "@QMultiMap<@QString, float>")
               % Check("map.0", "[0]", "", "@QMapNode<@QString, float>")
               % Check("map.0.key", "\"22.0\"", "@QString")
@@ -1175,6 +1334,7 @@ void tst_Dumpers::dumper_data()
                    "#include <QString>\n",
                    "QMultiMap<int, QString> map;\n"
                    "map.insert(22, \"22.0\");\n")
+              % CoreProfile()
               % Check("map", "<1 items>", "@QMultiMap<int, @QString>")
               % Check("map.0", "[0]", "", "@QMapNode<int, @QString>")
               % Check("map.0.key", "22", "int")
@@ -1186,6 +1346,7 @@ void tst_Dumpers::dumper_data()
                    "map.insert(\"22.0\", Foo(22));\n"
                    "map.insert(\"33.0\", Foo(33));\n"
                    "map.insert(\"22.0\", Foo(22));\n")
+              % CoreProfile()
               % Check("map", "<3 items>", "@QMultiMap<@QString, Foo>")
               % Check("map.0", "[0]", "", "@QMapNode<@QString, Foo>")
               % Check("map.0.key", "\"22.0\"", "@QString")
@@ -1204,6 +1365,7 @@ void tst_Dumpers::dumper_data()
                    "map.insert(\"Welt\", QPointer<QObject>(&ob));\n"
                    "map.insert(\".\", QPointer<QObject>(&ob));\n"
                    "map.insert(\".\", QPointer<QObject>(&ob));\n")
+              % CoreProfile()
               % Check("map", "<4 items>", "@QMultiMap<@QString, @QPointer<@QObject>>")
               % Check("map.0", "[0]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
               % Check("map.0.key", "\".\"", "@QString")
@@ -1225,6 +1387,7 @@ void tst_Dumpers::dumper_data()
                    "QObject::connect(&child, SIGNAL(destroyed()), &parent, SLOT(deleteLater()));\n"
                    "QObject::disconnect(&child, SIGNAL(destroyed()), &parent, SLOT(deleteLater()));\n"
                    "child.setObjectName(\"A renamed Child\");\n")
+              % CoreProfile()
               % Check("child", "\"A renamed Child\"", "@QObject")
               % Check("parent", "\"A Parent\"", "@QObject");
 
@@ -1405,7 +1568,9 @@ void tst_Dumpers::dumper_data()
                     "#include \"main.moc\"\n",
                     "DerivedObject ob;\n"
                     "ob.setX(26);\n")
-               % Check("ob.properties.x", "26", "@QVariant (int)");
+              % CoreProfile()
+              % CorePrivateProfile()
+              % Check("ob.properties.x", "26", "@QVariant (int)");
 
 
     QTest::newRow("QRegExp")
@@ -1416,6 +1581,7 @@ void tst_Dumpers::dumper_data()
                     "int pos2 = re.indexIn(str2);\n"
                     "int pos1 = re.indexIn(str1);\n"
                     "unused(&pos1, &pos2);\n")
+               % CoreProfile()
                % Check("re", "\"a(.*)b(.*)c\"", "@QRegExp")
                % Check("str1", "\"a1121b344c\"", "@QString")
                % Check("str2", "\"Xa1121b344c\"", "@QString")
@@ -1429,6 +1595,7 @@ void tst_Dumpers::dumper_data()
                     "QPoint s0, s;\n"
                     "s = QPoint(100, 200);\n"
                     "unused(&s0, &s);\n")
+               % CoreProfile()
                % Check("s0", "(0, 0)", "@QPoint")
                % Check("s", "(100, 200)", "@QPoint");
 
@@ -1438,6 +1605,7 @@ void tst_Dumpers::dumper_data()
                     "QString dummy;\n"
                     "QPointF s0, s;\n"
                     "s = QPointF(100, 200);\n")
+               % CoreProfile()
                % Check("s0", "(0, 0)", "@QPointF")
                % Check("s", "(100, 200)", "@QPointF");
 
@@ -1465,6 +1633,7 @@ void tst_Dumpers::dumper_data()
                     "QString dummy;\n"
                     "QSize s0, s;\n"
                     "s = QSize(100, 200);\n")
+               % CoreProfile()
                % Check("s0", "(-1, -1)", "@QSize")
                % Check("s", "(100, 200)", "@QSize");
 
@@ -1474,6 +1643,7 @@ void tst_Dumpers::dumper_data()
                     "QString dummy;\n"
                     "QSizeF s0, s;\n"
                     "s = QSizeF(100, 200);\n")
+               % CoreProfile()
                % Check("s0", "(-1, -1)", "@QSizeF")
                % Check("s", "(100, 200)", "@QSizeF");
 
@@ -1489,7 +1659,8 @@ void tst_Dumpers::dumper_data()
                     "region2 = region;\n"
                     "unused(&region0, &region1, &region2);\n")
                % GuiProfile()
-               % Check("region0", "<empty>", "@QRegion")
+               % Check("region0", Value4("<empty>"), "@QRegion")
+               % Check("region0", Value5("<0 items>"), "@QRegion")
                % Check("region1", "<1 items>", "@QRegion")
                % Check("region1.extents", "200x200+100+100", "@QRect")
                % Check("region1.innerArea", "40000", "int")
@@ -1510,6 +1681,7 @@ void tst_Dumpers::dumper_data()
                     "QCoreApplication app(argc, argv);\n"
                     "QSettings settings(\"/tmp/test.ini\", QSettings::IniFormat);\n"
                     "QVariant value = settings.value(\"item1\", \"\").toString();\n")
+               % CoreProfile()
                % Check("settings", "", "@QSettings")
                // FIXME
                //% Check("settings.[@QObject]", "", "@QObject")
@@ -1521,6 +1693,7 @@ void tst_Dumpers::dumper_data()
                     "QSet<int> s;\n"
                     "s.insert(11);\n"
                     "s.insert(22);\n")
+               % CoreProfile()
                % Check("s", "<2 items>", "@QSet<int>")
                % Check("s.22", "[22]", "22", "int")
                % Check("s.11", "[11]", "11", "int");
@@ -1531,6 +1704,7 @@ void tst_Dumpers::dumper_data()
                     "QSet<QString> s;\n"
                     "s.insert(\"11.0\");\n"
                     "s.insert(\"22.0\");\n")
+               % CoreProfile()
                % Check("s", "<2 items>", "@QSet<@QString>")
                % Check("s.0", "[0]", "\"11.0\"", "@QString")
                % Check("s.1", "[1]", "\"22.0\"", "@QString");
@@ -1550,6 +1724,7 @@ void tst_Dumpers::dumper_data()
                     "s.insert(ptr);\n"
                     "s.insert(ptr);\n"
                     "s.insert(ptr);\n")
+               % CoreProfile()
                % Check("s", "<1 items>", "@QSet<@QPointer<@QObject>>")
                % Check("s.0", "[0]", "", "@QPointer<@QObject>");
 
@@ -1596,6 +1771,7 @@ void tst_Dumpers::dumper_data()
                     "QSharedPointer<int> ptr2 = ptr;\n"
                     "QSharedPointer<int> ptr3 = ptr;\n"
                     "unused(&ptr, &ptr2, &ptr3);\n")
+               % CoreProfile()
                % Check("ptr", "(null)", "@QSharedPointer<int>")
                % Check("ptr2", "(null)", "@QSharedPointer<int>")
                % Check("ptr3", "(null)", "@QSharedPointer<int>");
@@ -1606,6 +1782,7 @@ void tst_Dumpers::dumper_data()
                     "QSharedPointer<QString> ptr2 = ptr;\n"
                     "QSharedPointer<QString> ptr3 = ptr;\n"
                     "unused(&ptr, &ptr2, &ptr3);\n")
+               % CoreProfile()
                % Check("ptr", "", "@QSharedPointer<@QString>")
                % Check("ptr.data", "\"hallo\"", "@QString")
                % Check("ptr.weakref", "3", "int")
@@ -1620,6 +1797,7 @@ void tst_Dumpers::dumper_data()
                     "QWeakPointer<int> ptr2 = ptr;\n"
                     "QWeakPointer<int> ptr3 = ptr;\n"
                     "unused(&ptr, &ptr2, &ptr3);\n")
+               % CoreProfile()
                % Check("iptr", "", "@QSharedPointer<int>")
                % Check("iptr.data", "43", "int")
                % Check("iptr.weakref", "4", "int")
@@ -1635,6 +1813,7 @@ void tst_Dumpers::dumper_data()
                     "QWeakPointer<QString> ptr2 = ptr;\n"
                     "QWeakPointer<QString> ptr3 = ptr;\n"
                     "unused(&ptr, &ptr2, &ptr3);\n")
+               % CoreProfile()
                % Check("sptr", "", "@QSharedPointer<@QString>")
                % Check("sptr.data", "\"hallo\"", "@QString")
                % Check("ptr3", "", "@QWeakPointer<@QString>");
@@ -1646,6 +1825,7 @@ void tst_Dumpers::dumper_data()
                     "QWeakPointer<Foo> ptr2 = ptr;\n"
                     "QWeakPointer<Foo> ptr3 = ptr;\n"
                     "unused(&ptr, &ptr2, &ptr3);\n")
+               % CoreProfile()
                % Check("fptr", "", "@QSharedPointer<Foo>")
                % Check("fptr.data", "", "Foo")
                % Check("ptr3", "", "@QWeakPointer<Foo>");
@@ -1656,6 +1836,7 @@ void tst_Dumpers::dumper_data()
                     "atts.append(\"name1\", \"uri1\", \"localPart1\", \"value1\");\n"
                     "atts.append(\"name2\", \"uri2\", \"localPart2\", \"value2\");\n"
                     "atts.append(\"name3\", \"uri3\", \"localPart3\", \"value3\");\n")
+               % CoreProfile()
                % Profile("QT += xml\n")
                % Check("atts", "", "@QXmlAttributes")
                % CheckType("atts.[vptr]", "")
@@ -1683,6 +1864,7 @@ void tst_Dumpers::dumper_data()
                     "std::array<int, 4> a = { { 1, 2, 3, 4} };\n"
                     "std::array<QString, 4> b = { { \"1\", \"2\", \"3\", \"4\"} };\n"
                     "unused(&a, &b);\n")
+               % CoreProfile()
                % Cxx11Profile()
                % Check("a", "<4 items>", "std::array<int, 4u>")
                % Check("b", "<4 items>", "std::array<@QString, 4u>");
@@ -2059,6 +2241,7 @@ void tst_Dumpers::dumper_data()
                     "std::stack<Foo *> s, s0;\n"
                     "s.push(new Foo(1));\n"
                     "s.push(new Foo(2));\n")
+               % CoreProfile()
                % Check("s", "<2 items>", "std::stack<Foo*>")
                % Check("s.0", "[0]", "", "Foo")
                % Check("s.0.a", "1", "int")
@@ -2070,6 +2253,7 @@ void tst_Dumpers::dumper_data()
                     "std::stack<Foo> s0, s;\n"
                     "s.push(1);\n"
                     "s.push(2);\n")
+               % CoreProfile()
                % Check("s0", "<0 items>", "std::stack<Foo>")
                % Check("s", "<2 items>", "std::stack<Foo>")
                % Check("s.0", "[0]", "", "Foo")
@@ -2143,6 +2327,7 @@ void tst_Dumpers::dumper_data()
                     "v.push_back(new Foo(1));\n"
                     "v.push_back(0);\n"
                     "v.push_back(new Foo(2));\n")
+               % CoreProfile()
                % Check("v", "<3 items>", "std::vector<Foo*>")
                % Check("v.0", "[0]", "", "Foo")
                % Check("v.0.a", "1", "int")
@@ -2157,6 +2342,7 @@ void tst_Dumpers::dumper_data()
                     "v.push_back(2);\n"
                     "v.push_back(3);\n"
                     "v.push_back(4);\n")
+               % CoreProfile()
                % Check("v", "<4 items>", "std::vector<Foo>")
                % Check("v.0", "[0]", "", "Foo")
                % Check("v.1.a", "2", "int")
@@ -2258,6 +2444,7 @@ void tst_Dumpers::dumper_data()
                     "QStack<int> s;\n"
                     "for (int i = 0; i != 10000; ++i)\n"
                     "    s.append(i);\n")
+               % CoreProfile()
                % Check("s", "<10000 items>", "@QStack<int>")
                % Check("s.0", "[0]", "0", "int")
                % Check("s.1999", "[1999]", "1999", "int");
@@ -2268,6 +2455,7 @@ void tst_Dumpers::dumper_data()
                     "s.append(new Foo(1));\n"
                     "s.append(0);\n"
                     "s.append(new Foo(2));\n")
+               % CoreProfile()
                % Check("s", "<3 items>", "@QStack<Foo*>")
                % Check("s.0", "[0]", "", "Foo")
                % Check("s.0.a", "1", "int")
@@ -2282,6 +2470,7 @@ void tst_Dumpers::dumper_data()
                     "s.append(2);\n"
                     "s.append(3);\n"
                     "s.append(4);\n")
+               % CoreProfile()
                % Check("s", "<4 items>", "@QStack<Foo>")
                % Check("s.0", "[0]", "", "Foo")
                % Check("s.0.a", "1", "int")
@@ -2293,6 +2482,7 @@ void tst_Dumpers::dumper_data()
                     "QStack<bool> s;\n"
                     "s.append(true);\n"
                     "s.append(false);\n")
+               % CoreProfile()
                % Check("s", "<2 items>", "@QStack<bool>")
                % Check("s.0", "[0]", "1", "bool")  // 1 -> true is done on display
                % Check("s.1", "[1]", "0", "bool");
@@ -2313,6 +2503,7 @@ void tst_Dumpers::dumper_data()
                     "QString str4(\"Hello\\tQt\");\n"
                     "unused(&str1, &str2, &str3, &str3);\n")
                // --> Value: "Hello\9Qt" (expected \t instead of \9)
+               % CoreProfile()
                % Check("str1", "\"Hello Qt\"", "@QString")
                % Check("str2", "\"Hello\nQt\"", "@QString")
                % Check("str3", "\"Hello\rQt\"", "@QString")
@@ -2329,6 +2520,7 @@ void tst_Dumpers::dumper_data()
                     "str += \" World\";\n"
                     "str.prepend(\"Prefix: \");\n"
                     "unused(&str);\n")
+               % CoreProfile()
                % Check("str", "\"Prefix: Hello  big, \\t\\r\\n\\000\\001 World\"", "@QByteArray");
 
     QTest::newRow("QString2")
@@ -2337,6 +2529,7 @@ void tst_Dumpers::dumper_data()
                     "QString str1 = QString::fromRawData(data, 4);\n"
                     "QString str2 = QString::fromRawData(data + 1, 4);\n"
                     "unused(&data, &str1, &str2);\n")
+               % CoreProfile()
                % Check("str1", "\"Hell\"", "@QString")
                % Check("str2", "\"ello\"", "@QString");
 
@@ -2344,6 +2537,7 @@ void tst_Dumpers::dumper_data()
             << Data("#include <QString>\n"
                     "void stringRefTest(const QString &refstring) { breakHere(); unused(&refstring); }\n",
                     "stringRefTest(QString(\"Ref String Test\"));\n")
+               % CoreProfile()
                % Check("refstring", "\"Ref String Test\"", "@QString &");
 
     QTest::newRow("QString4")
@@ -2352,6 +2546,7 @@ void tst_Dumpers::dumper_data()
                     "QString string(\"String Test\");\n"
                     "QString *pstring = new QString(\"Pointer String Test\");\n"
                     "unused(&str, &string, &pstring);\n")
+               % CoreProfile()
                % Check("pstring", "\"Pointer String Test\"", "@QString")
                % Check("str", "\"Hello \"", "@QString")
                % Check("string", "\"String Test\"", "@QString");
@@ -2360,6 +2555,7 @@ void tst_Dumpers::dumper_data()
             << Data("#include <QStringRef>\n",
                     "QString str = \"Hello\";\n"
                     "QStringRef ref(&str, 1, 2);")
+               % CoreProfile()
                % Check("ref", "\"el\"", "@QStringRef");
 
     QTest::newRow("QStringList")
@@ -2369,6 +2565,7 @@ void tst_Dumpers::dumper_data()
                     "l << \" big, \";\n"
                     "l.takeFirst();\n"
                     "l << \" World \";\n")
+               % CoreProfile()
                % Check("l", "<2 items>", "@QStringList")
                % Check("l.0", "[0]", "\" big, \"", "@QString")
                % Check("l.1", "[1]", "\" World \"", "@QString");
@@ -2382,6 +2579,7 @@ void tst_Dumpers::dumper_data()
                     "else\n"
                     "    u = QString::fromUtf16((ushort *)w);\n"
                     "unused(&w, &u);\n")
+               % CoreProfile()
                % Check("u", "u", "\"aöa\"", "@QString")
                % CheckType("w", "w", "wchar_t *");
 
@@ -2464,6 +2662,7 @@ void tst_Dumpers::dumper_data()
                     "QVariant::Type t = QVariant::String;\n"
                     "value = QVariant(t, (void*)0);\n"
                     "*(QString*)value.data() = QString(\"Some string\");\n")
+               % CoreProfile()
                % Check("t", "@QVariant::String (10)", "@QVariant::Type")
                % Check("value", "\"Some string\"", "@QVariant (QString)");
 
@@ -2488,6 +2687,7 @@ void tst_Dumpers::dumper_data()
                     "QVariant var19(QRect(100, 200, 300, 400));  // 19 QRect\n"
                     "QVariant var20(QRectF(100, 200, 300, 400)); // 20 QRectF\n"
                     )
+               % CoreProfile()
                % Check("var", "(invalid)", "@QVariant (invalid)")
                % Check("var1", "true", "@QVariant (bool)")
                % Check("var2", "2", "@QVariant (int)")
@@ -2525,6 +2725,7 @@ void tst_Dumpers::dumper_data()
             << Data("#include <QVariant>\n",
                     "QVariant var;\n"
                     "unused(&var);\n")
+               % CoreProfile()
                % Check("var", "(invalid)", "@QVariant (invalid)");
 
     QTest::newRow("QVariant4")
@@ -2535,6 +2736,7 @@ void tst_Dumpers::dumper_data()
                     "QHostAddress ha(\"127.0.0.1\");\n"
                     "var.setValue(ha);\n"
                     "QHostAddress ha1 = var.value<QHostAddress>();\n")
+               % CoreProfile()
                % Profile("QT += network\n")
                % Check("ha", "\"127.0.0.1\"", "@QHostAddress")
                % Check("ha.a", "0", "@quint32")
@@ -2599,6 +2801,7 @@ void tst_Dumpers::dumper_data()
                     "list << 1 << 2 << 3;\n"
                     "QVariant variant = qVariantFromValue(list);\n"
                     "unused(&list, &variant);\n")
+               % CoreProfile()
                % Check("list", "<3 items>", "@QList<int>")
                % Check("list.0", "[0]", "1", "int")
                % Check("list.1", "[1]", "2", "int")
@@ -2894,19 +3097,19 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("GccExtensions")
             << Data(
-                "char v[8] = { 1, 2 };\n"
-                "char w __attribute__ ((vector_size (8))) = { 1, 2 };\n"
-                "int y[2] = { 1, 2 };\n"
-                "int z __attribute__ ((vector_size (8))) = { 1, 2 };\n"
-                "unused(&v, &w, &y, &z);\n")
-         % Check("v.0", "[0]", "1", "char")
-         % Check("v.1", "[1]", "2", "char")
-         % Check("w.0", "[0]", "1", "char")
-         % Check("w.1", "[1]", "2", "char")
-         % Check("y.0", "[0]", "1", "int")
-         % Check("y.1", "[1]", "2", "int")
-         % Check("z.0", "[0]", "1", "int")
-         % Check("z.1", "[1]", "2", "int");
+                   "char v[8] = { 1, 2 };\n"
+                   "char w __attribute__ ((vector_size (8))) = { 1, 2 };\n"
+                   "int y[2] = { 1, 2 };\n"
+                   "int z __attribute__ ((vector_size (8))) = { 1, 2 };\n"
+                   "unused(&v, &w, &y, &z);\n")
+               % Check("v.0", "[0]", "1", "char")
+               % Check("v.1", "[1]", "2", "char")
+               % Check("w.0", "[0]", "1", "char")
+               % Check("w.1", "[1]", "2", "char")
+               % Check("y.0", "[0]", "1", "int")
+               % Check("y.1", "[1]", "2", "int")
+               % Check("z.0", "[0]", "1", "int")
+               % Check("z.1", "[1]", "2", "int");
 
 
     QTest::newRow("Int")
@@ -2923,6 +3126,7 @@ void tst_Dumpers::dumper_data()
                     "qint32 s32s = LONG_MIN;\n"
                     "QString dummy; // needed to get namespace\n"
                     "unused(&u64, &s64, &u32, &s32, &u64s, &s64s, &u32s, &s32s, &dummy);\n")
+               % CoreProfile()
                % Check("u64", "18446744073709551615", "@quint64")
                % Check("s64", "9223372036854775807", "@qint64")
                % Check("u32", "4294967295", "@quint32")
@@ -3034,6 +3238,7 @@ void tst_Dumpers::dumper_data()
                     "func.max = 5;\n"
                     "func.max = 6;\n"
                     "func.max = 7;\n")
+               % CoreProfile()
                % Check("func", "", "Function")
                % Check("func.f", "sin(x)", "@QByteArray")
                % Check("func.max", "1", "double")
@@ -3162,6 +3367,7 @@ void tst_Dumpers::dumper_data()
                     "const QString c = \"world\";\n"
                     "const Ref d = a;\n"
                     "unused(&a, &b, &c, &d);\n")
+               % CoreProfile()
                % Check("a", "\"hello\"", "@QString")
                % Check("b", "\"bababa\"", "@QString &")
                % Check("c", "\"world\"", "@QString")
@@ -3174,6 +3380,7 @@ void tst_Dumpers::dumper_data()
                     "typedef QString &Ref;\n"
                     "const Ref d = const_cast<Ref>(a);\n"
                     "unused(&a, &b, &d);\n")
+               % CoreProfile()
                % Check("a", "\"hello\"", "@QString")
                % Check("b", "\"hello\"", "@QString &")
                % Check("d", "\"hello\"", "Ref");
@@ -3300,6 +3507,7 @@ void tst_Dumpers::dumper_data()
                     "    unused(&n);\n"
                     "}\n"
                     "unused(&n);\n")
+               % CoreProfile()
                % Check("n", "3.5", "double")
                % Check("n@1", "\"2\"", "@QString")
                % Check("n@2", "1", "int");
