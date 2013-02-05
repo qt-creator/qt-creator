@@ -1,0 +1,313 @@
+Qt Creator version 2.7 contains bug fixes and new features.
+
+There is a total of about 1350 changes by 63 individual contributors.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline v2.6.2..origin/2.7
+
+General
+   * Fixed Qt version in About Qt Creator dialog
+   * Replaced deprecated Qt 4 functions with cross-version alternatives
+   * Improved kits setup (QTCREATORBUG-8576, QTCREATORBUG-8081)
+   * Implemented hiding of Mode tab icons when they become too small
+     (QTCREATORBUG-7879)
+   * Introduced general suppression mechanism for repeating messages
+
+Editing
+   * Fixed visual whitespace highlighting
+   * Implemented closing files with middle click in Open Documents view
+   * Improved painting performance after changing marks
+   * Fixed handling of invisible marks (QTCREATORBUG-7884)
+   * Added editing for bookmark notes (QTCREATORBUG-5572)
+   * Fixed bookmarks ordering (QTCREATORBUG-7923)
+   * Fixed re-opening of nested folds
+   * Fixed finding of block parentheses (QTCREATORBUG-8031)
+   * Fixed Replace All with regular expressions (QTCREATORBUG-8317)
+   * Added support to preserve casing in case-insensitive searches
+   * Added Save as to editors context menu
+   * Added ability to open links in new split (QTCREATORBUG-8117)
+
+Managing Projects
+   * Improved opening projects from command line: "qtcreator ." opens a
+     project found in the directory without explicitly naming it
+   * Made DeployConfigurations clonable
+   * Implemented cloning Kits in Build and Run options
+   * Added display of VCS topic (branch names) in project tree
+   * Added configuration option for default build directory,
+     can be set to '.' to force in-source builds by default
+   * Added option to show hidden files
+
+Toolchains
+   * Introduced custom compiler settings
+   * Simplified MSVC setup logic (QTCREATORBUG-8292)
+   * Added display of elapsed time after building
+
+QMake Projects
+   * Make command line parser grok more options: -spec/-platform,
+     -xspec/-xplatform, -t/-template, -tp/-template_prefix, -cache & -nocache
+   * Improved performance in the .pro parser
+   * Improved parsing of qdoc errors
+   * Aligned VPATH handling to actual qmake behavior
+     (QTCREATORBUG-8348)
+   * Fixed MinGW-w64 cross-compilation
+
+CMake Projects
+   * Added Ninja support
+   * Added code completion for cmake editor
+   * Fixed .ui code completion for some CMake projects
+   * Fixed build directory when adding build configurations
+     (QTCREATORBUG-8425)
+
+QBS Projects
+   * Implemented initial support for QBS projects
+   * Made Qt Creator itself compilable with QBS
+
+Generic Projects
+   * Use MIME types to recognize source files (QTCREATORBUG-5451)
+
+Debugging
+   * Completed support for basic Qt 5 data types
+   * Created new suite of auto tests
+   * Fixed or improved display for several dozen data types in several
+     combinations of libraries (Qt, Standard Library, Boost, Eigen,
+     gcc built-in vector types) and debuggers (GDB, CDB)
+   * Added dumpers for QStringRef, C99 complex/_Complex
+   * Implemented gnuplot based display for QVector
+   * Implemented display in separate window for string-like data
+     types (QByteArray, std::string, char[], char* etc)
+   * Adjusted to GDB 7.5 changes
+   * Removed dependency on QmlJSToolsA
+   * Added shortcut to add breakpoint by double click on break view
+   * Made breakpoint markers draggable
+   * Added logging of exceptions (QTCREATORBUG-8141)
+   * Added option to use Intel-style disassembly
+   * Improved color highlighting of locals in memory view
+   * Made string cutoff value configurable
+   * Put separate string displays in tab widget (QTCREATORBUG-8344)
+   * Implemented basic value editing for CDB (QTCREATORBUG-8344)
+   * Implemented support for displaying images in CDB
+   * Added framework to wrap plain GDB pretty printers for use in Creator
+   * Implemented display format changes for multi-selection
+     (QTCREATORBUG-7577)
+
+Analyzer
+
+C++ Support
+   * Added GetterSetter quick fix
+   * Fixed semantic highlighting when multiple editors are visible
+   * Fixed Find/Rename Macro usage
+   * Added code completion for instantiation of templates with default argument
+   * Added C++11 alignof and alignas tokens
+   * Added support for C++11 brace initializers (QTCREATORBUG-7919 et al)
+   * Fixed parsing of C++11 noexcept(constant-expression_
+   * Added support for C++11 ref-qualifiers in function declarators: void
+     foo() const &; void bar() && and related pointer-to-member declarators
+   * Added parsing of alias declarations: using Foo = std::vector<int>::iterator
+   * Added support for C++11 enum classes and opaque enum declarations
+   * Fixed use of >> in C++11 template arguments
+   * Added hook for user specified commands after attaching to target
+   * Added CDB setting to ignore first-chance exceptions (QTCREATORBUG-8141)
+   * Improved handling of lambda captures (QTCREATORBUG-7968,
+     QTCREATORBUG-7949)
+   * Improved code completion for Qt containers (QTCREATORBUG-8228)
+   * Added support for -stdlib=.. variants
+   * Fixed code completion in nested classes when enclosing class is template
+   * Fixed code completion for operator-> (QTCREATORBUG-629)
+   * Fixed code completion when casting inside parentheses
+     (QTCREATORBUG-8368)
+   * Switched to C++11 parsing in cases of doubt (CMake/Autotools/Generic)
+   * Fixed constructor parsing in cases with unnamed parameters
+   * Introduced formatting options for pointers and references
+     (QTCREATORBUG-6169)
+
+QML/JS Support
+   * Improved JS Console
+   * Fixed indentation in if condition and lambda expressions
+     (QTCREATORBUG-7243)
+   * Added persistent trie to store imports
+   * Improved initial kit selection (QTCREATORBUG-8424)
+   * Added detection of import type from main file (QTCREATORBUG-8358)
+   * Fixed QmlProjectManager (QTCREATORBUG-8679, QTCREATORBUG-8680)
+
+GLSL Support
+
+Help
+   * Used zoom factor instead of text size multiplier (QTCREATORBUG-7199)
+   * Corrected setup of HelpNetworkReply for offline resources
+     (QTCREATORBUG-8211)
+
+Qt Designer
+
+Qt Quick Designer
+   * Provided initial support for QML 2
+   * Fixed imports
+   * Fixed crash (QTCREATORBUG-8399)
+   * Built qml2puppet by default for Qt 5
+   * Added manual test files for Qt Quick 2
+   * Added QQuickItem to New Class wizard
+
+Version control plugins
+
+Git
+   * Introduced MergeTool support
+   * Added timeout to the gerrit query process
+   * Added support for merge status
+   * Fixed log encoding
+   * Reorganized menu (QTCREATORBUG-8363)
+   * Added gitk launch for current file (QTCREATORBUG-8327)
+   * Added branch name validation (QTCREATORBUG-8370)
+   * Added Merge and Rebase (QTCREATORBUG-8367)
+   * Added auto stash when switching branches (QTCREATORBUG-8417)
+   * Added Soft Reset to Reset dialog
+   * Added context actions for cherry-pick and revert
+
+SVN
+
+ClearCase
+   * Marked the plugin as non-experimental
+
+FakeVim
+   * Created new suite of auto tests
+   * Improved word movement, jump list, undo/redo
+   * Improved searching (QTCREATORBUG-7251 et al), including
+     correct cursor positioning, support for g*, g# commands
+   * Implemented handling of special key names (<left>, <leader>, ...)
+   * Improved appearance of command line widget
+   * Improved display of block text cursor on extra selections
+   * Fixed map handling in ex mode
+   * Implemented indentation commands with movement
+   * Implemented repeat commands in visual mode
+   * Implemented basic code folding
+   * Implemented global file marks
+   * Improved code completion in insert and replace modes
+   * ... and _a lot_ more. Special thanks to Lukas here.
+
+BinEditor:
+   * Fixed selection edge cases (QTCREATORBUG-5209)
+   * Fixed Ctrl+Home/End navigation
+   * Added selection using Shift+LeftClick
+
+WelcomePage:
+   * Added combobox to filter examples by Qt version (QTCREATORBUG-8377)
+   * Added highlighting of examples (QTCREATORBUG-8459)
+
+Platform Specific
+
+Mac
+
+Linux
+   * Added crash handler providing a backtrace for debug builds
+
+Windows
+   * Improved UI to handle x64 and amd64 etc toolchains
+
+Remote Linux Support
+   * Removed dependency on Qt4ProjectManager
+   * Implemented SSH tunneling as specified in RFC 4254
+
+QNX
+   * Used QtQuick2ApplicationViewer for BB Quick 2 app templates
+   * Used QML_INSTALL_QML variable for BB Qt 5 app templates
+   * Added bar-descriptor.xml to new project
+   * Added templates for Cascades Applications
+   * Added BlackBerry settings page
+   * Fixes sysroot path valus on BB10 generated kits
+   * Set default device host IP for physical device
+   * Added editor for Bar descriptor file
+
+Android
+   * Fixed ps output processing for busybox
+   * Improved local deployment (QTCREATORBUG-8538)
+
+Madde
+
+Task List
+   * Implemented removal of single tasks from task list
+   * Added keyboard shortcuts for actions
+
+
+Code Paster
+   * Added command-line frontend
+
+Testing
+   * Updated Squish tests
+
+Tools
+   * Improved ast2png when parsing declarators
+   * Created group/world files in SDKtool (QTCREATORBUG-8458)
+
+Packaging
+
+
+Madde
+   * Plugin is now disabled by default
+
+Credits for these changes go to:
+
+Aaron McCarthy
+Aleksey Sidorov
+Alessandro Portale
+André Pönitz
+André Hartmann
+Andreas Holzammer
+Aurindam Jana
+BogDan Vatra
+Caroline Chao
+Christian A. Reiter
+Christian Kamm
+Christian Kandeler
+Christian Stenger
+Daniel Teske
+David Schulz
+Debao Zhang
+Eike Ziller
+El Mehdi Fekari
+Erik Verbruggen
+Eskil Abrahamsen
+Fawzi Mohamed
+Francois Ferrand
+Friedemann Kleint
+Hüseyin Kozan
+Jarek Kobus
+Jens Bache-Wiig
+Jörg Bornemann
+J-P Nurmi
+Kai Köhne
+Knut Petter Svendsen
+Lukas Holecek
+Marcel Krems
+Marco Bubke
+Marcus Folkesson
+Mathias Hasselmann
+Mehdi Fekari
+Michael Brüning
+Mitch Curtis
+Montel Laurent
+Nikolai Kosjar
+Orgad Shaneh
+Oswald Buddenhagen
+Petar Perisin
+Peter Kümmel
+Przemyslaw Gorszkowski
+Rafael Roquetto
+Ray Donnelly
+Robert Loehning
+Ryan May
+Sergey Belyashov
+Sergey Shambir
+Shawn Rutledge
+Steven Ceuppens
+Tasuku Suzuki
+Theo J.A. de Vries
+Thiago Macieira
+Thomas Hartmann
+Thorbjørn Lindeijer
+Tobias Hunger
+Tobias Nätterlund
+Tom DeBlauwe
+Vasiliy Sorokin
+Yuchen Deng
