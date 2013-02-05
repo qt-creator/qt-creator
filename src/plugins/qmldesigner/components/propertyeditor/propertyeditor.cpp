@@ -283,6 +283,17 @@ void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QS
         m_contextObject->setSelectionChanged(false);
 
         m_contextObject->setSelectionChanged(false);
+
+        NodeMetaInfo metaInfo = fxObjectNode.modelNode().metaInfo();
+
+        if (metaInfo.isValid()) {
+            m_contextObject->setMajorVersion(metaInfo.majorVersion());
+            m_contextObject->setMinorVersion(metaInfo.minorVersion());
+        } else {
+            m_contextObject->setMajorVersion(-1);
+            m_contextObject->setMinorVersion(-1);
+        }
+
     } else {
         qWarning() << "PropertyEditor: invalid node for setup";
     }

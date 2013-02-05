@@ -50,6 +50,9 @@ class PropertyEditorContextObject : public QObject
     Q_PROPERTY(bool isBaseState READ isBaseState WRITE setIsBaseState NOTIFY isBaseStateChanged)
     Q_PROPERTY(bool selectionChanged READ selectionChanged WRITE setSelectionChanged NOTIFY selectionChangedChanged)
 
+    Q_PROPERTY(int majorVersion READ majorVersion WRITE setMajorVersion NOTIFY majorVersionChanged)
+    Q_PROPERTY(int minorVersion READ minorVersion WRITE setMinorVersion NOTIFY minorVersionChanged)
+
     Q_PROPERTY(QDeclarativePropertyMap* backendValues READ backendValues WRITE setBackendValues NOTIFY backendValuesChanged)
 
 public:
@@ -67,6 +70,11 @@ public:
 
     Q_INVOKABLE QString convertColorToString(const QColor &color) { return color.name(); }
 
+    int majorVersion() const;
+    void setMajorVersion(int majorVersion);
+    int minorVersion() const;
+    void setMinorVersion(int minorVersion);
+
 signals:
     void globalBaseUrlChanged();
     void specificsUrlChanged();
@@ -75,6 +83,8 @@ signals:
     void isBaseStateChanged();
     void selectionChangedChanged();
     void backendValuesChanged();
+    void majorVersionChanged();
+    void minorVersionChanged();
 
 public slots:
      void setGlobalBaseUrl(const QUrl &newBaseUrl)
@@ -157,6 +167,8 @@ private:
 
     QDeclarativePropertyMap* m_backendValues;
 
+    int m_majorVersion;
+    int m_minorVersion;
 };
 
 } //QmlDesigner {
