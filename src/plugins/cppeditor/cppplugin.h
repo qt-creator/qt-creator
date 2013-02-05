@@ -80,6 +80,7 @@ public slots:
 
 private slots:
     void switchDeclarationDefinition();
+    void openDeclarationDefinitionInNextSplit();
     void renameSymbolUnderCursor();
     void onTaskStarted(const QString &type);
     void onAllTasksFinished(const QString &type);

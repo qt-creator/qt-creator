@@ -1127,7 +1127,7 @@ void CPPEditorWidget::finishHighlightSymbolUsages()
 }
 
 
-void CPPEditorWidget::switchDeclarationDefinition()
+void CPPEditorWidget::switchDeclarationDefinition(bool inNextSplit)
 {
     if (! m_modelManager)
         return;
@@ -1146,7 +1146,7 @@ void CPPEditorWidget::switchDeclarationDefinition()
         if (! function)
             function = lastVisibleSymbol->enclosingFunction();
 
-        Core::EditorManager* editorManager = Core::EditorManager::instance();
+        CPPEditorWidget::Link symbolLink;
 
         if (function) {
             LookupContext context(thisDocument, snapshot);
@@ -1168,62 +1168,18 @@ void CPPEditorWidget::switchDeclarationDefinition()
                     }
                 }
             }
-            if (! best.isEmpty()) {
-                Core::IEditor *editor = editorManager->currentEditor();
-                CPPEditorWidget::Link symbolLink = linkToSymbol(best.first());
-                if (editorManager->hasSplitter()) {
-                    if (forceOpenLinksInNextSplit()) {
-                        editorManager->gotoOtherSplit();
-                    } else if (openLinksInNextSplit()) {
-                        bool isVisible = false;
-                        foreach (Core::IEditor *visEditor, editorManager->visibleEditors()) {
-                            if (visEditor->document() &&
-                                    (symbolLink.targetFileName == visEditor->document()->fileName()) &&
-                                    (visEditor != editor)) {
-                                isVisible = true;
-                                editorManager->activateEditor(visEditor);
-                                break;
-                            }
-                        }
+            if (best.isEmpty())
+                return;
 
-                        if (!isVisible)
-                            editorManager->gotoOtherSplit();
-                    } else {
-                        editorManager->addCurrentPositionToNavigationHistory();
-                    }
-                }
-                openCppEditorAt(symbolLink);
-            }
-
-        } else if (lastVisibleSymbol && lastVisibleSymbol->isDeclaration() && lastVisibleSymbol->type()->isFunctionType()) {
-            if (Symbol *def = symbolFinder()->findMatchingDefinition(lastVisibleSymbol, snapshot)) {
-                Core::IEditor *editor = editorManager->currentEditor();
-                CPPEditorWidget::Link symbolLink = linkToSymbol(def);
-                if (editorManager->hasSplitter() && (editor->document()->fileName() != symbolLink.targetFileName)) {
-                    if (forceOpenLinksInNextSplit()) {
-                        editorManager->gotoOtherSplit();
-                    } else if (openLinksInNextSplit()) {
-                        bool isVisible = false;
-                        foreach (Core::IEditor *visEditor, editorManager->visibleEditors()) {
-                            if (visEditor->document()
-                                    && (symbolLink.targetFileName == visEditor->document()->fileName())
-                                    && (visEditor != editor)) {
-                                isVisible = true;
-                                editorManager->activateEditor(visEditor);
-                                break;
-                            }
-                        }
-
-                        if (!isVisible)
-                            editorManager->gotoOtherSplit();
-                    } else {
-                        editorManager->addCurrentPositionToNavigationHistory();
-                    }
-                }
-
-                openCppEditorAt(symbolLink);
-            }
+            symbolLink = linkToSymbol(best.first());
+        } else if (lastVisibleSymbol
+                   && lastVisibleSymbol->isDeclaration()
+                   && lastVisibleSymbol->type()->isFunctionType()) {
+            symbolLink = linkToSymbol(symbolFinder()->findMatchingDefinition(lastVisibleSymbol, snapshot));
         }
+
+        if (symbolLink.hasValidTarget())
+            openCppEditorAt(symbolLink, inNextSplit != alwaysOpenLinksInNextSplit());
     }
 }
 
@@ -1937,10 +1893,22 @@ CPPEditorWidget::Link CPPEditorWidget::linkToSymbol(CPlusPlus::Symbol *symbol)
     return Link(filename, line, column);
 }
 
-bool CPPEditorWidget::openCppEditorAt(const Link &link)
+bool CPPEditorWidget::openCppEditorAt(const Link &link, bool inNextSplit)
 {
-    if (link.targetFileName.isEmpty())
+    if (!link.hasValidTarget())
         return false;
+
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    if (inNextSplit) {
+        if (!editorManager->hasSplitter())
+            editorManager->splitSideBySide();
+        editorManager->gotoOtherSplit();
+    } else if (baseTextDocument()->fileName() == link.targetFileName) {
+        editorManager->addCurrentPositionToNavigationHistory();
+        gotoLine(link.targetLine, link.targetColumn);
+        setFocus();
+        return true;
+    }
 
     return TextEditor::BaseTextEditorWidget::openEditorAt(link.targetFileName,
                                                           link.targetLine,

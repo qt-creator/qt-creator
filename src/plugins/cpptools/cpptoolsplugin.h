@@ -74,6 +74,7 @@ public:
 
 private slots:
     void switchHeaderSource();
+    void switchHeaderSourceInNextSplit();
 
 #ifdef WITH_TESTS
     void test_codegen_public_in_empty_class();

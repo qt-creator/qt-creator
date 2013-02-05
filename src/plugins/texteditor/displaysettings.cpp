@@ -46,7 +46,6 @@ static const char markTextChangesKey[] = "MarkTextChanges";
 static const char autoFoldFirstCommentKey[] = "AutoFoldFirstComment";
 static const char centerCursorOnScrollKey[] = "CenterCursorOnScroll";
 static const char openLinksInNextSplitKey[] = "OpenLinksInNextSplitKey";
-static const char forceOpenLinksInNextSplitKey[] = "ForceOpenLinksInNextSplitKey";
 static const char groupPostfix[] = "DisplaySettings";
 
 namespace TextEditor {
@@ -90,7 +89,6 @@ void DisplaySettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(autoFoldFirstCommentKey), m_autoFoldFirstComment);
     s->setValue(QLatin1String(centerCursorOnScrollKey), m_centerCursorOnScroll);
     s->setValue(QLatin1String(openLinksInNextSplitKey), m_openLinksInNextSplit);
-    s->setValue(QLatin1String(forceOpenLinksInNextSplitKey), m_forceOpenLinksInNextSplit);
     s->endGroup();
 }
 
@@ -117,7 +115,6 @@ void DisplaySettings::fromSettings(const QString &category, const QSettings *s)
     m_autoFoldFirstComment = s->value(group + QLatin1String(autoFoldFirstCommentKey), m_autoFoldFirstComment).toBool();
     m_centerCursorOnScroll = s->value(group + QLatin1String(centerCursorOnScrollKey), m_centerCursorOnScroll).toBool();
     m_openLinksInNextSplit = s->value(group + QLatin1String(openLinksInNextSplitKey), m_openLinksInNextSplit).toBool();
-    m_forceOpenLinksInNextSplit = s->value(group + QLatin1String(forceOpenLinksInNextSplitKey), m_forceOpenLinksInNextSplit).toBool();
 }
 
 bool DisplaySettings::equals(const DisplaySettings &ds) const

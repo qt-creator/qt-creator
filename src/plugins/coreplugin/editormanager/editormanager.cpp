@@ -1268,7 +1268,18 @@ Core::Id EditorManager::getOpenWithEditorId(const QString &fileName,
 IEditor *EditorManager::openEditor(const QString &fileName, const Id &editorId,
                                    OpenEditorFlags flags, bool *newEditor)
 {
-    return m_instance->openEditor(m_instance->currentEditorView(), fileName, editorId, flags, newEditor);
+    return m_instance->openEditor(m_instance->currentEditorView(),
+                                  fileName, editorId, flags, newEditor);
+}
+
+IEditor *EditorManager::openEditorInNextSplit(const QString &fileName, const Id &editorId, OpenEditorFlags flags, bool *newEditor)
+{
+    if (!m_instance->hasSplitter())
+        m_instance->splitSideBySide();
+
+    m_instance->gotoOtherSplit();
+    return m_instance->openEditor(m_instance->currentEditorView(),
+                                  fileName, editorId, flags, newEditor);
 }
 
 static int extractLineNumber(QString *fileName)
@@ -2237,22 +2248,23 @@ void EditorManager::removeAllSplits()
 
 void EditorManager::gotoOtherSplit()
 {
-    if (d->m_splitter->isSplitter()) {
-        SplitterOrView *currentView = d->m_currentView;
-        if (!currentView && d->m_currentEditor)
-            currentView = d->m_splitter->findView(d->m_currentEditor);
-        if (!currentView)
-            currentView = d->m_splitter->findFirstView();
-        SplitterOrView *view = d->m_splitter->findNextView(currentView);
-        if (!view)
-            view = d->m_splitter->findFirstView();
-        if (view) {
-            if (IEditor *editor = view->editor()) {
-                setCurrentEditor(editor, true);
-                editor->widget()->setFocus();
-            } else {
-                setCurrentView(view);
-            }
+    if (!d->m_splitter->isSplitter())
+        splitSideBySide();
+
+    SplitterOrView *currentView = d->m_currentView;
+    if (!currentView && d->m_currentEditor)
+        currentView = d->m_splitter->findView(d->m_currentEditor);
+    if (!currentView)
+        currentView = d->m_splitter->findFirstView();
+    SplitterOrView *view = d->m_splitter->findNextView(currentView);
+    if (!view)
+        view = d->m_splitter->findFirstView();
+    if (view) {
+        if (IEditor *editor = view->editor()) {
+            setCurrentEditor(editor, true);
+            editor->widget()->setFocus();
+        } else {
+            setCurrentView(view);
         }
     }
 }

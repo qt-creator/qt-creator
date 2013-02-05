@@ -156,36 +156,9 @@
       <item row="5" column="1">
        <widget class="QCheckBox" name="openLinksInNextSplit">
         <property name="text">
-         <string>Open links in another split</string>
+         <string>Always open links in another split</string>
         </property>
        </widget>
-      </item>
-      <item row="6" column="1">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Fixed</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="forceOpenLinksInNextSplit">
-          <property name="text">
-           <string>Force open links in next split</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
       </item>
      </layout>
     </widget>

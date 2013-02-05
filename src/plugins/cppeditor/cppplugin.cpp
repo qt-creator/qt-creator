@@ -235,6 +235,18 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
+    cmd = Core::ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT);
+    cppToolsMenu->addAction(cmd);
+
+    QAction *openDeclarationDefinitionInNextSplit =
+            new QAction(tr("Open Method Declaration/Definition In Next Split"), this);
+    cmd = Core::ActionManager::registerAction(openDeclarationDefinitionInNextSplit,
+        Constants::OPEN_DECLARATION_DEFINITION_IN_NEXT_SPLIT, context, true);
+    cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_Shift + Qt::Key_F2));
+    connect(openDeclarationDefinitionInNextSplit, SIGNAL(triggered()),
+            this, SLOT(openDeclarationDefinitionInNextSplit()));
+    cppToolsMenu->addAction(cmd);
+
     m_findUsagesAction = new QAction(tr("Find Usages"), this);
     cmd = Core::ActionManager::registerAction(m_findUsagesAction, Constants::FIND_USAGES, context);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+U")));
@@ -324,7 +336,14 @@ void CppPlugin::switchDeclarationDefinition()
 {
     CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(Core::EditorManager::currentEditor()->widget());
     if (editor)
-        editor->switchDeclarationDefinition();
+        editor->switchDeclarationDefinition(/*inNextSplit*/ false);
+}
+
+void CppPlugin::openDeclarationDefinitionInNextSplit()
+{
+    CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(Core::EditorManager::currentEditor()->widget());
+    if (editor)
+        editor->switchDeclarationDefinition(/*inNextSplit*/ true);
 }
 
 void CppPlugin::renameSymbolUnderCursor()

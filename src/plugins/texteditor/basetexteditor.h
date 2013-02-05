@@ -181,11 +181,8 @@ public:
     void setLineNumbersVisible(bool b);
     bool lineNumbersVisible() const;
 
-    void setOpenLinksInNextSplit(bool b);
-    bool openLinksInNextSplit() const;
-
-    void setForceOpenLinksInNextSplit(bool b);
-    bool forceOpenLinksInNextSplit() const;
+    void setAlwaysOpenLinksInNextSplit(bool b);
+    bool alwaysOpenLinksInNextSplit() const;
 
     void setMarksVisible(bool b);
     bool marksVisible() const;
@@ -333,6 +330,7 @@ public slots:
     void unindent();
 
     void openLinkUnderCursor();
+    void openLinkUnderCursorInNextSplit();
 
 signals:
     void changed();
@@ -530,7 +528,7 @@ protected:
        Reimplement this function if you want to customize the way a link is
        opened. Returns whether the link was opened successfully.
      */
-    virtual bool openLink(const Link &link);
+    virtual bool openLink(const Link &link, bool inNextSplit = false);
 
     void maybeClearSomeExtraSelections(const QTextCursor &cursor);
 

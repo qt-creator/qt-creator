@@ -141,6 +141,7 @@ private slots:
     void indent();
     void unindent();
     void openLinkUnderCursor();
+    void openLinkUnderCursorInNextSplit();
 
     void gotoLineStart();
     void gotoLineStartWithSelection();
@@ -213,7 +214,9 @@ private:
     QAction *m_indentAction;
     QAction *m_unindentAction;
     QAction *m_followSymbolAction;
+    QAction *m_followSymbolInNextSplitAction;
     QAction *m_jumpToFileAction;
+    QAction *m_jumpToFileInNextSplitAction;
     QList<QAction *> m_modifyingActions;
 
     uint m_optionalActions;

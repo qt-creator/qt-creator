@@ -186,7 +186,7 @@ public:
     void setObjCEnabled(bool onoff);
     bool isObjCEnabled() const;
 
-    bool openLink(const Link &link) { return openCppEditorAt(link); }
+    bool openLink(const Link &link, bool inNextSplit) { return openCppEditorAt(link, inNextSplit); }
 
     static Link linkToSymbol(CPlusPlus::Symbol *symbol);
 
@@ -205,7 +205,7 @@ public Q_SLOTS:
     virtual void setFontSettings(const TextEditor::FontSettings &);
     virtual void setTabSettings(const TextEditor::TabSettings &);
     void setSortedOutline(bool sort);
-    void switchDeclarationDefinition();
+    void switchDeclarationDefinition(bool inNextSplit);
     void renameSymbolUnderCursor();
     void renameUsages();
     void findUsages();
@@ -281,7 +281,7 @@ private:
     Link findMacroLink(const QByteArray &name, CPlusPlus::Document::Ptr doc, const CPlusPlus::Snapshot &snapshot,
                        QSet<QString> *processed) const;
     QString identifierUnderCursor(QTextCursor *macroCursor) const;
-    bool openCppEditorAt(const Link &);
+    bool openCppEditorAt(const Link &, bool inNextSplit = false);
 
     QModelIndex indexForPosition(int line, int column, const QModelIndex &rootIndex = QModelIndex()) const;
 

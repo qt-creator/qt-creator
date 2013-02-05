@@ -1079,35 +1079,16 @@ void BaseTextEditorWidget::unindent()
 
 void BaseTextEditorWidget::openLinkUnderCursor()
 {
-    Core::EditorManager* editorManager = Core::EditorManager::instance();
     Link symbolLink = findLinkAt(textCursor());
 
-    if (!openLinksInNextSplit() || !editorManager->hasSplitter()) {
-        openLink(symbolLink);
-        return;
-    }
+    openLink(symbolLink, alwaysOpenLinksInNextSplit());
+}
 
-    Core::IEditor *editor = Core::EditorManager::currentEditor();
+void BaseTextEditorWidget::openLinkUnderCursorInNextSplit()
+{
+    Link symbolLink = findLinkAt(textCursor());
 
-    if (forceOpenLinksInNextSplit()) {
-        editorManager->gotoOtherSplit();
-    } else {
-        bool isVisible = false;
-        foreach (Core::IEditor *visEditor, editorManager->visibleEditors()) {
-            if (visEditor->document() &&
-                    (symbolLink.targetFileName == visEditor->document()->fileName()) &&
-                    (visEditor != editor)) {
-                isVisible = true;
-                editorManager->activateEditor(visEditor);
-                break;
-            }
-        }
-
-        if (!isVisible)
-            editorManager->gotoOtherSplit();
-    }
-    openLink(symbolLink);
-    editorManager->activateEditor(editor);
+    openLink(symbolLink, !alwaysOpenLinksInNextSplit());
 }
 
 void BaseTextEditorWidget::moveLineUpDown(bool up)
@@ -2336,25 +2317,16 @@ bool BaseTextEditorWidget::lineNumbersVisible() const
     return d->m_lineNumbersVisible;
 }
 
-void BaseTextEditorWidget::setOpenLinksInNextSplit(bool b)
+void BaseTextEditorWidget::setAlwaysOpenLinksInNextSplit(bool b)
 {
     d->m_displaySettings.m_openLinksInNextSplit = b;
 }
 
-bool BaseTextEditorWidget::openLinksInNextSplit() const
+bool BaseTextEditorWidget::alwaysOpenLinksInNextSplit() const
 {
     return d->m_displaySettings.m_openLinksInNextSplit;
 }
 
-void BaseTextEditorWidget::setForceOpenLinksInNextSplit(bool b)
-{
-    d->m_displaySettings.m_forceOpenLinksInNextSplit = b;
-}
-
-bool BaseTextEditorWidget::forceOpenLinksInNextSplit() const
-{
-    return d->m_displaySettings.m_forceOpenLinksInNextSplit;
-}
 
 void BaseTextEditorWidget::setMarksVisible(bool b)
 {
@@ -4315,32 +4287,10 @@ void BaseTextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
             && e->button() == Qt::LeftButton
             ) {
 
-        Core::EditorManager* editorManager = Core::EditorManager::instance();
-        editorManager->addCurrentPositionToNavigationHistory();
-        Core::IEditor *editor = Core::EditorManager::currentEditor();
-        const QTextCursor cursor = cursorForPosition(e->pos());
-        Link symbolLink = findLinkAt(cursor);
-        if (((!(e->modifiers() & Qt::AltModifier)) == openLinksInNextSplit()) &&
-                (editorManager->hasSplitter())) {
-            if (forceOpenLinksInNextSplit()) {
-                editorManager->gotoOtherSplit();
-            } else {
-                bool isVisible = false;
-                foreach (Core::IEditor *visEditor, editorManager->visibleEditors())
-                    if (visEditor->document() &&
-                            (symbolLink.targetFileName == visEditor->document()->fileName()) &&
-                            (editor != visEditor)) {
-                        isVisible = true;
-                        editorManager->activateEditor(visEditor);
-                        break;
-                    }
-
-                if (!isVisible)
-                    editorManager->gotoOtherSplit();
-            }
-        }
-
-        if (openLink(symbolLink)) {
+        Core::EditorManager::instance()->addCurrentPositionToNavigationHistory();
+        bool inNextSplit = ((e->modifiers() & Qt::AltModifier) && !alwaysOpenLinksInNextSplit())
+                || (alwaysOpenLinksInNextSplit() && !(e->modifiers() & Qt::AltModifier));
+        if (openLink(findLinkAt(cursorForPosition(e->pos())), inNextSplit)) {
             clearLink();
             return;
         }
@@ -4909,13 +4859,18 @@ BaseTextEditorWidget::Link BaseTextEditorWidget::findLinkAt(const QTextCursor &,
     return Link();
 }
 
-bool BaseTextEditorWidget::openLink(const Link &link)
+bool BaseTextEditorWidget::openLink(const Link &link, bool inNextSplit)
 {
     if (!link.hasValidTarget())
         return false;
 
-    if (baseTextDocument()->fileName() == link.targetFileName) {
-        Core::EditorManager::instance()->addCurrentPositionToNavigationHistory();
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    if (inNextSplit) {
+        if (!editorManager->hasSplitter())
+            editorManager->splitSideBySide();
+        editorManager->gotoOtherSplit();
+    } else if (baseTextDocument()->fileName() == link.targetFileName) {
+        editorManager->addCurrentPositionToNavigationHistory();
         gotoLine(link.targetLine, link.targetColumn);
         setFocus();
         return true;
