@@ -78,6 +78,24 @@
 #include <QMessageBox>
 
 namespace {
+#ifdef Q_OS_MAC
+#  define SHARE_PATH "/../Resources/qmldesigner"
+#else
+#  define SHARE_PATH "/../share/qtcreator/qmldesigner"
+#endif
+
+static QString applicationDirPath()
+{
+    return QCoreApplication::applicationDirPath();
+}
+
+static inline QString sharedDirPath()
+{
+    QString appPath = applicationDirPath();
+
+    return QFileInfo(appPath + SHARE_PATH).absoluteFilePath();
+}
+
 static QLatin1String qmlPuppetApplicationDirectoryForTests()
 {
     if (Utils::HostOsInfo::isWindowsHost())
@@ -209,21 +227,13 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
            }
 
        } else {
-               QMessageBox::warning(0, tr("Cannot Start QML Puppet Executable"),
-                                    tr("The executable of the QML Puppet process (%1) cannot be started. "
-                                       "Please check your installation. "
-                                       "QML Puppet is a process which runs in the background to render the items.").
-                                    arg(applicationPath));
+               QMessageBox::warning(0, tr("Cannot Start QML Puppet Executable"), missingQmlPuppetErrorMessage(applicationPath));
        }
 
        m_localServer->close();
 
    } else {
-           QMessageBox::warning(0, tr("Cannot Find QML Puppet Executable"),
-                                tr("The executable of the QML Puppet process (%1) cannot be found. "
-                                   "Please check your installation. "
-                                   "QML Puppet is a process which runs in the background to render the items.").
-                                arg(applicationPath));
+           QMessageBox::warning(0, tr("Cannot Find QML Puppet Executable"), missingQmlPuppetErrorMessage(applicationPath));
    }
 }
 
@@ -291,6 +301,24 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
 NodeInstanceClientInterface *NodeInstanceServerProxy::nodeInstanceClient() const
 {
     return m_nodeInstanceView.data();
+}
+
+QString NodeInstanceServerProxy::missingQmlPuppetErrorMessage(const QString &applicationPath) const
+{
+    QString message = tr("The executable of the QML Puppet process (%1) cannot be found."
+       "Check your installation."
+       "QML Puppet is a process which runs in the background to render the items.").
+    arg(applicationPath);
+    if (hasQtQuick2(m_nodeInstanceView.data())) {
+        message += tr("You can build qml2puppet yourself with Qt 5.0.1 or higher"
+                      "The source can be found in %1/qml/qmlpuppet/qml2puppet/").arg(sharedDirPath());
+        message += tr("The qml2puppet will get installed to the bin directory of your Qt."
+                      "Qt Quick Designer will check the bin direcotry of the Qt currently active"
+                      "for your project.");
+
+    }
+
+    return message;
 }
 
 static void writeCommandToSocket(const QVariant &command, QLocalSocket *socket, unsigned int commandCounter)

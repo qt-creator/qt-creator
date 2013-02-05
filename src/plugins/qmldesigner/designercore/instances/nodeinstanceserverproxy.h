@@ -75,6 +75,7 @@ protected:
     void writeCommand(const QVariant &command);
     void dispatchCommand(const QVariant &command);
     NodeInstanceClientInterface *nodeInstanceClient() const;
+    QString missingQmlPuppetErrorMessage(const QString &applicationPath) const;
 
 signals:
     void processCrashed();
