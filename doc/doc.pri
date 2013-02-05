@@ -1,9 +1,11 @@
 greaterThan(QT_MAJOR_VERSION, 4) {
     HELPGENERATOR = $$targetPath($$[QT_INSTALL_BINS]/qhelpgenerator) -platform minimal
     QDOC_BIN = $$targetPath($$[QT_INSTALL_BINS]/qdoc)
+    COMPAT =
 } else {
     HELPGENERATOR = $$targetPath($$[QT_INSTALL_BINS]/qhelpgenerator)
     QDOC_BIN = $$targetPath($$[QT_INSTALL_BINS]/qdoc3)
+    COMPAT = -qt4
 }
 
 
@@ -33,13 +35,13 @@ HELP_DEP_FILES = $$PWD/src/qtcreator.qdoc \
                  $$PWD/config/qt-defines.qdocconf \
                  $$PWD/config/qt-html-templates.qdocconf \
                  $$PWD/config/qt-html-default-styles.qdocconf \
-                 $$PWD/qtcreator.qdocconf
+                 $$PWD/qtcreator$${COMPAT}.qdocconf
 
-html_docs.commands = $$qdoc($$OUT_PWD/doc/html) $$PWD/qtcreator.qdocconf
+html_docs.commands = $$qdoc($$OUT_PWD/doc/html) $$PWD/qtcreator$${COMPAT}.qdocconf
 html_docs.depends += $$HELP_DEP_FILES
 html_docs.files = $$QHP_FILE
 
-html_docs_online.commands = $$qdoc($$OUT_PWD/doc/html) $$PWD/qtcreator-online.qdocconf
+html_docs_online.commands = $$qdoc($$OUT_PWD/doc/html) $$PWD/qtcreator-online$${COMPAT}.qdocconf
 html_docs_online.depends += $$HELP_DEP_FILES
 
 qch_docs.commands = $$HELPGENERATOR -o \"$$QCH_FILE\" $$QHP_FILE
@@ -59,12 +61,12 @@ DEV_HELP_DEP_FILES = \
     $$PWD/api/first-plugin.qdoc \
     $$PWD/api/plugin-specifications.qdoc \
     $$PWD/api/plugin-lifecycle.qdoc \
-    $$PWD/api/qtcreator-dev.qdocconf
+    $$PWD/api/qtcreator-dev$${COMPAT}.qdocconf
 
-dev_html_docs.commands = $$qdoc($$OUT_PWD/doc/html-dev) $$PWD/api/qtcreator-dev.qdocconf
+dev_html_docs.commands = $$qdoc($$OUT_PWD/doc/html-dev) $$PWD/api/qtcreator-dev$${COMPAT}.qdocconf
 dev_html_docs.depends += $$DEV_HELP_DEP_FILES
 
-dev_html_docs_online.commands = $$qdoc($$OUT_PWD/doc/html-dev) $$PWD/api/qtcreator-dev-online.qdocconf
+dev_html_docs_online.commands = $$qdoc($$OUT_PWD/doc/html-dev) $$PWD/api/qtcreator-dev-online$${COMPAT}.qdocconf
 dev_html_docs_online.depends += $$DEV_HELP_DEP_FILES
 
 dev_qch_docs.commands = $$HELPGENERATOR -o \"$$DEV_QCH_FILE\" $$DEV_QHP_FILE
