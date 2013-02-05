@@ -544,7 +544,7 @@ void DesignModeWidget::addNavigatorHistoryEntry(const QString &fileName)
     ++m_navigatorHistoryCounter;
 }
 
-QWidget *DesignModeWidget::createCenterWidget() const
+QWidget *DesignModeWidget::createCenterWidget()
 {
     QWidget *centerWidget = new QWidget;
 
