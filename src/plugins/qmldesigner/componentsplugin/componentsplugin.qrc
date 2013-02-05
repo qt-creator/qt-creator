@@ -1,0 +1,47 @@
+<RCC>
+    <qresource prefix="/componentsplugin">
+        <file>components.metainfo</file>
+        <file>images/button.png</file>
+        <file>images/button16.png</file>
+        <file>images/buttoncolumn.png</file>
+        <file>images/buttoncolumn16.png</file>
+        <file>images/buttonrow.png</file>
+        <file>images/buttonrow16.png</file>
+        <file>images/checkbox.png</file>
+        <file>images/checkbox16.png</file>
+        <file>images/combobox.png</file>
+        <file>images/combobox16.png</file>
+        <file>images/item-icon.png</file>
+        <file>images/item-icon16.png</file>
+        <file>images/progressbar.png</file>
+        <file>images/progressbar16.png</file>
+        <file>images/radiobutton.png</file>
+        <file>images/radiobutton16.png</file>
+        <file>images/slider.png</file>
+        <file>images/slider16.png</file>
+        <file>images/sliderh.png</file>
+        <file>images/sliderh16.png</file>
+        <file>images/label.png</file>
+        <file>images/label16.png</file>
+        <file>images/tabbar.png</file>
+        <file>images/tabbar16.png</file>
+        <file>images/tabbutton.png</file>
+        <file>images/tabbutton16.png</file>
+        <file>images/textarea.png</file>
+        <file>images/textarea16.png</file>
+        <file>images/textfield.png</file>
+        <file>images/textfield16.png</file>
+        <file>images/toolbar.png</file>
+        <file>images/toolbar16.png</file>
+        <file>images/window.png</file>
+        <file>images/window16.png</file>
+    </qresource>
+    <qresource prefix="/propertyeditor">
+        <file>QtDesktop/ButtonSpecifics.qml</file>
+        <file>QtDesktop/TextFieldSpecifics.qml</file>
+        <file>QtDesktop/TextAreaSpecifics.qml</file>
+        <file>QtDesktop/ComboBoxSpecifics.qml</file>
+        <file>QtDesktop/CheckBoxSpecifics.qml</file>
+        <file>QtDesktop/RadioButtonSpecifics.qml</file>
+    </qresource>
+</RCC>
