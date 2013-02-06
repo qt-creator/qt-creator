@@ -188,8 +188,14 @@ void ResourceItemDelegate::paint(QPainter *painter,
 QSize ResourceItemDelegate::sizeHint(const QStyleOptionViewItem &/*option*/,
                                      const QModelIndex &index) const
 {
-    QIcon icon(m_model->fileIcon(index));
-    return icon.availableSizes().front() + QSize(25, 4);
+    QSize result = QSize(25, 4);
+    const QIcon icon(m_model->fileIcon(index));
+    if (!icon.isNull()) {
+        const QList<QSize> sizes = icon.availableSizes();
+        if (!sizes.isEmpty())
+            result += sizes.front();
+    }
+    return result;
 }
 
 void ResourceItemDelegate::setModel(QFileSystemModel *model)
