@@ -78,14 +78,6 @@ QWidget *ComponentView::widget()
     return 0;
 }
 
-void ComponentView::appendWholeDocumentAsComponent()
-{
-    QStandardItem *item = new QStandardItem(tr("whole document"));
-    item->setData(QVariant::fromValue(rootModelNode()), ModelNodeRole);
-    item->setEditable(false);
-    m_standardItemModel->appendRow(item);
-}
-
 void ComponentView::removeSingleNodeFromList(const ModelNode &node)
 {
     for (int row = 0; row < m_standardItemModel->rowCount(); row++) {
@@ -114,7 +106,6 @@ void ComponentView::modelAttached(Model *model)
 
     AbstractView::modelAttached(model);
 
-    appendWholeDocumentAsComponent();
     searchForComponentAndAddToList(rootModelNode());
 
     m_componentAction->blockSignals(block);

@@ -242,8 +242,8 @@ void QmlDesignerPlugin::changeEditor()
     m_shortCutManager.connectUndoActions(currentDesignDocument());
 
     if (m_documentManager.hasCurrentDesignDocument()) {
-        m_viewManager.pushFileOnCrambleBar(m_documentManager.currentDesignDocument()->fileName());
         activateAutoSynchronization();
+        m_viewManager.pushFileOnCrambleBar(m_documentManager.currentDesignDocument()->fileName());
     }
 
     m_shortCutManager.updateUndoActions(currentDesignDocument());

@@ -236,7 +236,7 @@ QList<RewriterView::Error> DesignDocument::qmlSyntaxErrors() const
 
 bool DesignDocument::hasQmlSyntaxErrors() const
 {
-    return !m_currentModel->rewriterView()->errors().isEmpty();
+    return m_currentModel->rewriterView() && !m_currentModel->rewriterView()->errors().isEmpty();
 }
 
 QString DesignDocument::displayName() const
@@ -314,26 +314,18 @@ void DesignDocument::loadDocument(QPlainTextEdit *edit)
     m_documentLoaded = true;
 }
 
+static const QString fileNameOfCurrentDocument()
+{
+    return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->textEditor()->document()->fileName();
+}
+
 void DesignDocument::changeCurrentModelTo(const ModelNode &node)
 {
     if (QmlDesignerPlugin::instance()->currentDesignDocument() != this)
         return;
 
-    if (rootModelNode() == node) {
-        changeToDocumentModel();
-    } else {
-        changeToSubComponent(node);
-    }
 
-
-
-//    s_clearCrumblePath = false;
-//    while (m_formEditorView->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>().modelNode.isValid() &&
-//        !m_formEditorView->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>().modelNode.isRootNode())
-//        m_formEditorView->crumblePath()->popElement();
-//    if (node.isRootNode() && m_formEditorView->crumblePath()->dataForLastIndex().isValid())
-//        m_formEditorView->crumblePath()->popElement();
-//    s_clearCrumblePath = true;
+    changeToSubComponent(node);
 }
 
 void DesignDocument::changeToSubComponent(const ModelNode &componentNode)
@@ -354,6 +346,8 @@ void DesignDocument::changeToSubComponent(const ModelNode &componentNode)
 
         activateCurrentModel(m_inFileComponentTextModifier.data());
     }
+    if (!componentNode.id().isEmpty())
+        QmlDesignerPlugin::instance()->viewManager().pushInFileComponentOnCrambleBar(componentNode.id());
 }
 
 void DesignDocument::changeToExternalSubComponent(const QString &fileName)

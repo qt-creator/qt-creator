@@ -39,13 +39,16 @@ namespace QmlDesigner {
 
 ComponentAction::ComponentAction(ComponentView  *componentView)
   :  QWidgetAction(componentView),
-     m_componentView(componentView)
+     m_componentView(componentView),
+     dontEmitCurrentComponentChanged(false)
 {
 }
 
 void ComponentAction::setCurrentIndex(int index)
 {
+    dontEmitCurrentComponentChanged = true;
     emit currentIndexChanged(index);
+    dontEmitCurrentComponentChanged = false;
 }
 
 QWidget  *ComponentAction::createWidget(QWidget *parent)
@@ -54,25 +57,19 @@ QWidget  *ComponentAction::createWidget(QWidget *parent)
     comboBox->setMinimumWidth(120);
     comboBox->setToolTip(tr("Edit sub components defined in this file"));
     comboBox->setModel(m_componentView->standardItemModel());
-    connect(comboBox, SIGNAL(currentIndexChanged(int)), SLOT(emitCurrentComponentChanged(int)));
+    comboBox->setCurrentIndex(-1);
+    connect(comboBox, SIGNAL(activated(int)), SLOT(emitCurrentComponentChanged(int)));
     connect(this, SIGNAL(currentIndexChanged(int)), comboBox, SLOT(setCurrentIndex(int)));
 
     return comboBox;
 }
 
-static const QString fileNameOfCurrentDocument()
-{
-    return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->textEditor()->document()->fileName();
-}
-
 void ComponentAction::emitCurrentComponentChanged(int index)
 {
-    ModelNode componentNode = m_componentView->modelNode(index);
+    if (dontEmitCurrentComponentChanged)
+        return;
 
-    if ( index > 0)
-        QmlDesignerPlugin::instance()->viewManager().pushInFileComponentOnCrambleBar(componentNode.id());
-    else
-         QmlDesignerPlugin::instance()->viewManager().pushFileOnCrambleBar(fileNameOfCurrentDocument());
+    ModelNode componentNode = m_componentView->modelNode(index);
 
     emit currentComponentChanged(componentNode);
 }

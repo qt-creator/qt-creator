@@ -116,7 +116,6 @@ private: //functions
     void updateModel();
     void searchForComponentAndAddToList(const ModelNode &node);
     void searchForComponentAndRemoveFromList(const ModelNode &node);
-    void appendWholeDocumentAsComponent();
     void removeSingleNodeFromList(const ModelNode &node);
     int indexForNode(const ModelNode &node);
 

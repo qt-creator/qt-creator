@@ -101,6 +101,8 @@ public:
 
     void goIntoComponent();
 
+    void changeToDocumentModel();
+
 signals:
     void displayNameChanged(const QString &newFileName);
     void dirtyStateChanged(bool newState);
@@ -127,7 +129,6 @@ private slots:
     void updateFileName(const QString &oldFileName, const QString &newFileName);
 
 private: // functions
-    void changeToDocumentModel();
     void changeToInFileComponentModel();
 
     QWidget *centralWidget() const;
