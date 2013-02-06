@@ -30,6 +30,7 @@
 #include "qbsproject.h"
 
 #include "qbsbuildconfiguration.h"
+#include "qbslogsink.h"
 #include "qbsprojectfile.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsnodes.h"
@@ -389,7 +390,7 @@ void QbsProject::parse(const QVariantMap &config, const QString &dir)
     params.ignoreDifferentProjectFilePath = false;
 
     m_qbsSetupProjectJob
-            = qbs::Project::setupProject(params, m_manager->settings(), 0);
+            = qbs::Project::setupProject(params, m_manager->settings(), m_manager->logSink(), 0);
 
     connect(m_qbsSetupProjectJob, SIGNAL(finished(bool,qbs::AbstractJob*)),
             this, SLOT(handleQbsParsingDone(bool)));

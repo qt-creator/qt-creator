@@ -44,6 +44,10 @@ namespace Internal {
 // QbsLogSink:
 // --------------------------------------------------------------------
 
+QbsLogSink::QbsLogSink(QObject *parent) : QObject(parent)
+{
+}
+
 void QbsLogSink::sendMessages()
 {
     QStringList toSend;
@@ -55,76 +59,19 @@ void QbsLogSink::sendMessages()
 
     Core::MessageManager *mm = Core::MessageManager::instance();
     foreach (const QString &msg, toSend)
-        mm->printToOutputPanePopup(msg);
+        mm->printToOutputPane(msg);
 }
 
-void QbsLogSink::outputLogMessage(qbs::LoggerLevel level, const qbs::LogMessage &logMessage)
+void QbsLogSink::doPrintMessage(qbs::LoggerLevel level, const QString &message, const QString &tag)
 {
-    QString msg;
-    if (logMessage.printLogLevel) {
-        QByteArray levelTag = qbs::Logger::logLevelTag(level);
-        qbs::Internal::TextColor color = qbs::Internal::TextColorDefault;
-        switch (level) {
-        case qbs::LoggerError:
-            color = qbs::Internal::TextColorRed;
-            break;
-        case qbs::LoggerWarning:
-            color = qbs::Internal::TextColorYellow;
-            break;
-        default:
-            break;
-        }
-        msg = colorize(color, levelTag);
-    }
-
-    msg.append(colorize(logMessage.textColor, logMessage.data));
+    Q_UNUSED(tag);
+    const QString fullMessage = QString::fromLocal8Bit(qbs::logLevelTag(level)) + message;
 
     {
         QMutexLocker l(&m_mutex);
-        m_messages.append(msg);
+        m_messages.append(fullMessage);
     }
     QMetaObject::invokeMethod(this, "sendMessages", Qt::QueuedConnection);
-}
-
-QString QbsLogSink::colorize(qbs::Internal::TextColor color, const QByteArray &text)
-{
-    switch (color) {
-    case qbs::Internal::TextColorBlack:
-        return QString::fromLatin1("<font color=\"rgb(0,0, 0)\">%1</font>").arg(QString::fromLocal8Bit(text));
-    case qbs::Internal::TextColorDarkRed:
-        return QString::fromLatin1("<font color=\"rgb(170,0,0)\">%1</font>").arg(QString::fromLocal8Bit(text));
-    case qbs::Internal::TextColorDarkGreen:
-        return QString::fromLatin1("<font color=\"rgb(0,170,0)\">%1</font>").arg(QString::fromLocal8Bit(text));
-    case qbs::Internal::TextColorDarkBlue:
-        return QString::fromLatin1("<font color=\"rgb(0,0,170)\">%1</font>").arg(QString::fromLocal8Bit(text));
-    case qbs::Internal::TextColorDarkCyan:
-        return QString::fromLatin1("<font color=\"rgb(0,170,170)\">%1</font>").arg(QString::fromLocal8Bit(text));
-    case qbs::Internal::TextColorDarkMagenta:
-        return QString::fromLatin1("<font color=\"rgb(170,0,170)\">%1</font>").arg(QString::fromLocal8Bit(text));
-    case qbs::Internal::TextColorDarkYellow:
-        return QString::fromLatin1("<font color=\"rgb(170,85,0)\">%1</font>").arg(QString::fromLocal8Bit(text));
-    case qbs::Internal::TextColorGray:
-        return QString::fromLatin1("<font color=\"rgb(170,170,170)\">%1</font>").arg(QString::fromLocal8Bit(text));
-    case qbs::Internal::TextColorRed:
-        return QString::fromLatin1("<font color=\"rgb(255,85,85)\">%1</font>").arg(QString::fromLocal8Bit(text));
-    case qbs::Internal::TextColorGreen:
-        return QString::fromLatin1("<font color=\"rgb(85,255,85)\">%1</font>").arg(QString::fromLocal8Bit(text));
-    case qbs::Internal::TextColorBlue:
-        return QString::fromLatin1("<font color=\"rgb(85,85,255)\">%1</font>").arg(QString::fromLocal8Bit(text));
-    case qbs::Internal::TextColorCyan:
-        return QString::fromLatin1("<font color=\"rgb(85,255,255)\">%1</font>").arg(QString::fromLocal8Bit(text));
-    case qbs::Internal::TextColorMagenta:
-        return QString::fromLatin1("<font color=\"rgb(255,85,255)\">%1</font>").arg(QString::fromLocal8Bit(text));
-    case qbs::Internal::TextColorYellow:
-        return QString::fromLatin1("<font color=\"rgb(255,255,85)\">%1</font>").arg(QString::fromLocal8Bit(text));
-    case qbs::Internal::TextColorWhite:
-        return QString::fromLatin1("<font color=\"rgb(255,255,255)\">%1</font>").arg(QString::fromLocal8Bit(text));
-    case qbs::Internal::TextColorBright:
-    case qbs::Internal::TextColorDefault:
-        // fallthrough:
-    default:
-        return QString::fromLocal8Bit(text);
-    }
 }
 
 } // namespace Internal

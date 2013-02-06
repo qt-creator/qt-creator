@@ -42,14 +42,14 @@ namespace Internal {
 class QbsLogSink : public QObject, public qbs::ILogSink
 {
     Q_OBJECT
+public:
+    QbsLogSink(QObject *parent = 0);
 
 private slots:
     void sendMessages();
 
 private:
-    void outputLogMessage(qbs::LoggerLevel level, const qbs::LogMessage &logMessage);
-
-    QString colorize(qbs::TextColor color, const QByteArray &text);
+    void doPrintMessage(qbs::LoggerLevel level, const QString &message, const QString &tag);
 
     QStringList m_messages;
     QMutex m_mutex;

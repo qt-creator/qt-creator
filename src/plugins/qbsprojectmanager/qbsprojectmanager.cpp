@@ -82,7 +82,7 @@ QbsManager::QbsManager(Internal::QbsProjectManagerPlugin *plugin) :
     setObjectName(QLatin1String("QbsProjectManager"));
     connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsChanged()), this, SLOT(pushKitsToQbs()));
 
-    qbs::Logger::instance().setLogSink(new Internal::QbsLogSink);
+    m_logSink = new Internal::QbsLogSink(this);
     int level = qbs::LoggerWarning;
     const QString levelEnv = QString::fromLocal8Bit(qgetenv("QBS_LOG_LEVEL"));
     if (!levelEnv.isEmpty()) {
@@ -93,7 +93,7 @@ QbsManager::QbsManager(Internal::QbsProjectManagerPlugin *plugin) :
             tmp = static_cast<int>(qbs::LoggerMaxLevel);
         level = tmp;
     }
-    qbs::Logger::instance().setLevel(level);
+    m_logSink->setLogLevel(static_cast<qbs::LoggerLevel>(level));
 }
 
 QbsManager::~QbsManager()
