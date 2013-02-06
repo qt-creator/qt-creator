@@ -4,19 +4,19 @@ fireWallState = None
 
 # this function modifies all necessary run settings to make it possible to hook into
 # the application compiled by Creator
-def modifyRunSettingsForHookInto(projectName, port):
-    prepareBuildSettings(1, 0)
+def modifyRunSettingsForHookInto(projectName, kitCount, port):
+    prepareBuildSettings(kitCount, 0)
     # this uses the defaultQtVersion currently
     switchViewTo(ViewConstants.PROJECTS)
-    switchToBuildOrRunSettingsFor(1, 0, ProjectSettings.BUILD)
-    qtVersion, mkspec, qtBinPath, qtLibPath = getQtInformationForBuildSettings(True)
+    switchToBuildOrRunSettingsFor(kitCount, 0, ProjectSettings.BUILD)
+    qtVersion, mkspec, qtBinPath, qtLibPath = getQtInformationForBuildSettings(kitCount, True)
     if None in (qtVersion, mkspec, qtBinPath, qtLibPath):
         test.fatal("At least one of the Qt information returned None - leaving...",
                    "Qt version: %s, mkspec: %s, Qt BinPath: %s, Qt LibPath: %s" %
                    (qtVersion, mkspec, qtBinPath, qtLibPath))
         return False
     qtVersion = ".".join(qtVersion.split(".")[:2])
-    switchToBuildOrRunSettingsFor(1, 0, ProjectSettings.RUN)
+    switchToBuildOrRunSettingsFor(kitCount, 0, ProjectSettings.RUN)
     result = __configureCustomExecutable__(projectName, port, mkspec, qtVersion)
     if result:
         clickButton(waitForObject("{window=':Qt Creator_Core::Internal::MainWindow' text='Details' "
@@ -54,9 +54,9 @@ def modifyRunSettingsForHookInto(projectName, port):
     switchViewTo(ViewConstants.EDIT)
     return result
 
-def modifyRunSettingsForHookIntoQtQuickUI(workingDir, projectName, port):
+def modifyRunSettingsForHookIntoQtQuickUI(kitCount, workingDir, projectName, port):
     switchViewTo(ViewConstants.PROJECTS)
-    switchToBuildOrRunSettingsFor(1, 0, ProjectSettings.RUN, True)
+    switchToBuildOrRunSettingsFor(kitCount, 0, ProjectSettings.RUN, True)
 
     qtVersion, mkspec, qtLibPath, qmake = getQtInformationForQmlProject()
     if None in (qtVersion, mkspec, qtLibPath, qmake):
