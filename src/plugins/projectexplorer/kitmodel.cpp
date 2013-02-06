@@ -154,6 +154,7 @@ int KitModel::columnCount(const QModelIndex &parent) const
 QVariant KitModel::data(const QModelIndex &index, int role) const
 {
     static QIcon warningIcon(QLatin1String(":/projectexplorer/images/compile_warning.png"));
+    static QIcon errorIcon(QLatin1String(":/projectexplorer/images/compile_error.png"));
 
     if (!index.isValid() || index.column() != 0)
         return QVariant();
@@ -179,7 +180,11 @@ QVariant KitModel::data(const QModelIndex &index, int role) const
                 baseName = tr("%1 (default)").arg(baseName);
             return baseName;
         } else if (role == Qt::DecorationRole) {
-            return node->widget->isValid() ? QIcon() : warningIcon;
+            if (!node->widget->isValid())
+                return errorIcon;
+            if (node->widget->hasWarning())
+                return warningIcon;
+            return QIcon();
         } else if (role == Qt::ToolTipRole) {
             return node->widget->validityMessage();
         }

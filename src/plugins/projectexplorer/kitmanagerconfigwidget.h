@@ -60,6 +60,7 @@ public:
     void discard();
     bool isDirty() const;
     bool isValid() const;
+    bool hasWarning() const;
     QString validityMessage() const;
     void addConfigWidget(ProjectExplorer::KitConfigWidget *widget);
     void makeReadOnly();

@@ -157,6 +157,11 @@ bool KitManagerConfigWidget::isValid() const
     return m_modifiedKit->isValid();
 }
 
+bool KitManagerConfigWidget::hasWarning() const
+{
+    return m_modifiedKit->hasWarning();
+}
+
 QString KitManagerConfigWidget::validityMessage() const
 {
     return m_modifiedKit->toHtml();

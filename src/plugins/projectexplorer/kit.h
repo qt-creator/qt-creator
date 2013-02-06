@@ -64,6 +64,7 @@ public:
     void unblockNotification();
 
     bool isValid() const;
+    bool hasWarning() const;
     QList<Task> validate() const;
     void fix(); // Fix the individual kit information.
     void setup(); // Apply advanced magic(TM). Used only once on each kit during initial setup.
