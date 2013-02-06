@@ -58,14 +58,14 @@
 
     \list 1
 
-        \o  Select \gui {Tools > Options > Text Editor > Fonts & Color > Copy}.
+        \li Select \gui {Tools > Options > Text Editor > Fonts & Color > Copy}.
 
-        \o  Enter a name for the color scheme and click \gui OK.
+        \li Enter a name for the color scheme and click \gui OK.
 
-        \o  In the \gui Foreground field, specify the color of the selected
+        \li In the \gui Foreground field, specify the color of the selected
             code element.
 
-        \o  In the \gui Background field, select the background
+        \li In the \gui Background field, select the background
             color for the code element.
 
         The backgound of the \gui Text element determines the background of the

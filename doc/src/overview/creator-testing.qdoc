@@ -34,7 +34,7 @@
 
     \list
 
-        \o  \l{Debugging}
+        \li \l{Debugging}
 
             If you install \QC as part of \QSDK, the GNU Symbolic Debugger
             is installed automatically and you should be ready to start
@@ -43,7 +43,7 @@
             example. You can connect mobile devices to your development PC
             and debug processes running on the devices.
 
-        \o  \l{Analyzing Code}
+        \li \l{Analyzing Code}
 
             \QC integrates Valgrind code analysis tools for detecting memory
             leaks and profiling function execution. You must download and

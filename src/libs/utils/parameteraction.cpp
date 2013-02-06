@@ -37,8 +37,8 @@
 
     The action has 2 states:
     \list
-    \o <no current parameter> displaying "Do XX" (empty text)
-    \o <parameter present> displaying "Do XX with %1".
+    \li <no current parameter> displaying "Do XX" (empty text)
+    \li <parameter present> displaying "Do XX with %1".
     \endlist
 
     Provides a slot to set the parameter, changing display

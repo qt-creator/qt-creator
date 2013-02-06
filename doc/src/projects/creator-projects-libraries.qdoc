@@ -81,11 +81,11 @@
 
     \list 1
 
-        \o  In the \gui Projects pane, right-click the project name to open the
+        \li In the \gui Projects pane, right-click the project name to open the
             context menu and select
             \gui {Add Library}.
 
-        \o  Follow the instructions of the wizard.
+        \li Follow the instructions of the wizard.
 
     \endlist
 
@@ -100,29 +100,29 @@
 
     \list 1
 
-        \o  Choose \gui {File > New File or Project > Libraries >
+        \li Choose \gui {File > New File or Project > Libraries >
             C++ Library} to create the library.
 
             The \gui {Introduction and Product Location} dialog opens.
 
             \image qtcreator-add-library-wizard-ex-1.png "Introduction and Product Location dialog"
 
-        \o  In the \gui Type field, select \gui {Statically Linked Library}.
+        \li In the \gui Type field, select \gui {Statically Linked Library}.
 
-        \o  In the \gui Name field, give a name for the library. For example,
-            \bold mylib.
+        \li In the \gui Name field, give a name for the library. For example,
+            \b mylib.
 
-        \o  Follow the instructions of the wizard until you get to the
+        \li Follow the instructions of the wizard until you get to the
             \gui {Project Management} dialog. In the \gui {Add to project}
-            list, select a project. For example, \bold myapp.
+            list, select a project. For example, \b myapp.
 
-        \o  In the \gui Projects pane, right-click the project name to open the
+        \li In the \gui Projects pane, right-click the project name to open the
             context menu and select
             \gui {Add Library > Internal Library > Next}.
 
-        \o  In the \gui Library field, select \bold mylib and click \gui Next.
+        \li In the \gui Library field, select \b mylib and click \gui Next.
 
-        \o  Click \gui Finish to add the following library declaration to the
+        \li Click \gui Finish to add the following library declaration to the
             project file:
 
             \code

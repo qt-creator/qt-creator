@@ -37,12 +37,12 @@
 
     \list
 
-        \o  \l{Deploying Applications to Android Devices}
+        \li \l{Deploying Applications to Android Devices}
 
             When you deploy the application on an Android device, \QC copies
             the application files to the device. In addition, you can determine
             the Qt libraries to use.
-        \o  \l{Deploying Applications to Linux-Based Devices}
+        \li \l{Deploying Applications to Linux-Based Devices}
 
             When you deploy the application on a Linux-based device, such
             as embedded Linux, MeeGo 1.2 Harmattan, or Maemo 5/Fremantle, \QC
@@ -50,7 +50,7 @@
             can test and debug the application on the device.
             You can create Debian installation packages for MeeGo Harmattan and
             Maemo 5/Fremantle devices.
-        \o \l{Deploying Applications to QNX Devices}
+        \li  \l{Deploying Applications to QNX Devices}
 
             When you deploy the application on a BlackBerry, \QC  generates a
             BAR package in the build directory and deploys it to the connected
@@ -62,7 +62,7 @@
     \section1 Related Topics
 
     \list
-        \o  \l{Publishing}
+        \li \l{Publishing}
 
             When you are ready to publish the application on a publishing
             channel, you must make sure that the installation file meets the

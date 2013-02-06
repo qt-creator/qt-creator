@@ -48,8 +48,8 @@ namespace Utils {
 
   E.g. following file paths:
   \list
-  \i C:/app-build-desktop/qml/app/main.qml (shadow build directory)
-  \i /Users/x/app-build-desktop/App.app/Contents/Resources/qml/App/main.qml (folder on Mac OS X)
+  \li C:/app-build-desktop/qml/app/main.qml (shadow build directory)
+  \li /Users/x/app-build-desktop/App.app/Contents/Resources/qml/App/main.qml (folder on Mac OS X)
   \endlist
 
  should all be mapped to $PROJECTDIR/qml/app/main.qml

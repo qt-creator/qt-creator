@@ -41,10 +41,10 @@ using namespace Macros;
 
     An event stores information so it can be replayed. An event can be:
     \list
-    \o menu action
-    \o key event on an editor
-    \o find/replace usage
-    \o ...
+    \li menu action
+    \li key event on an editor
+    \li find/replace usage
+    \li ...
     \endlist
 
     The information are stored in a map of QVariants (using quint8 for keys).

@@ -56,13 +56,13 @@
 
     \list
 
-        \o  \l{Adding Kits}{Build & Run}
+        \li \l{Adding Kits}{Build & Run}
 
             \list
 
-                \o  \l{Specifying Build Settings}{Build Settings}
+                \li \l{Specifying Build Settings}{Build Settings}
 
-                \o  \l{Specifying Run Settings}{Run Settings}
+                \li \l{Specifying Run Settings}{Run Settings}
 
             \endlist
 
@@ -70,11 +70,11 @@
                     \gui {Build & Run} tab is replaced by the \l{Opening Projects}
                     {Configure Projects} tab.
 
-        \o  \l{Specifying Editor Settings}{Editor Settings}
+        \li \l{Specifying Editor Settings}{Editor Settings}
 
-        \o  \l{Specifying Code Style Settings}{Code Style Settings}
+        \li \l{Specifying Code Style Settings}{Code Style Settings}
 
-        \o  \l{Specifying Dependencies}{Dependencies}
+        \li \l{Specifying Dependencies}{Dependencies}
 
     \endlist
 

@@ -40,11 +40,11 @@
 
     \table
         \row
-            \o  \inlineimage creator_managingprojects.png
-            \o  \inlineimage creator_designinguserinterface.png
-            \o  \inlineimage creator_coding.png
+            \li \inlineimage creator_managingprojects.png
+            \li \inlineimage creator_designinguserinterface.png
+            \li \inlineimage creator_coding.png
         \row
-            \o  \bold {\l{Managing Projects}}
+            \li \b {\l{Managing Projects}}
 
                 To be able to build and run applications, \QC needs the same
                 information as a compiler would need. This information is
@@ -55,7 +55,7 @@
                 the necessary files, and specifies settings depending on the
                 choices you make. For more information, see
                 \l{Managing Projects}.
-            \o  \bold {\l{Designing User Interfaces}}
+            \li \b {\l{Designing User Interfaces}}
 
                 \QC provides two integrated visual editors, \QMLD and \QD.
                 To create intuitive, modern-looking, fluid user interfaces, you
@@ -65,7 +65,7 @@
                 structured and enforces a platform look and feel, you can use
                 the integrated \QD. For more information, see
                 \l{Designing User Interfaces}.
-            \o  \bold {\l{Coding}}
+            \li \b {\l{Coding}}
 
                 As an IDE, \QC differs from a text editor in that it knows how
                 to build and run applications. It understands the C++ and QML
@@ -74,11 +74,11 @@
                 checking code syntax, code completion, and refactoring actions.
                 For more information, see \l{Coding}.
         \row
-            \o  \inlineimage creator_buildingrunning.png
-            \o  \inlineimage creator_testing.png
-            \o  \inlineimage creator_publishing.png
+            \li \inlineimage creator_buildingrunning.png
+            \li \inlineimage creator_testing.png
+            \li \inlineimage creator_publishing.png
         \row
-            \o  \bold {\l{Building and Running}}
+            \li \b {\l{Building and Running}}
 
                 \QC is integrated with cross-platform systems for build
                 automation: qmake and CMake. In addition, you can import
@@ -92,7 +92,7 @@
                 different setups and target platforms.
 
                 For more information, see \l{Building and Running}.
-            \o  \bold {\l{Debugging and Analyzing}}
+            \li \b {\l{Debugging and Analyzing}}
 
                 \QC is integrated to several external native debuggers: GNU
                 Symbolic Debugger (GDB), Microsoft Console Debugger (CDB), and
@@ -106,7 +106,7 @@
                 Qt Quick applications.
 
                 For more information, see \l{Debugging and Analyzing}.
-            \o  \bold {\l{Publishing}}
+            \li \b {\l{Publishing}}
 
                 \QC allows you to create installation packages for mobile
                 devices that are suitable for publishing to application stores

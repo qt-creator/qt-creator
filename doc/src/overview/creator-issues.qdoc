@@ -42,11 +42,11 @@
 
     \list
 
-        \o  If you change the Input Languages in Windows, \QC might not
+        \li  If you change the Input Languages in Windows, \QC might not
             respond for 30 seconds. This is a known issue in the Advanced Text
             Service of Microsoft Windows.
 
-        \o  \QC uses SQLite for storing some of its settings. SQLite is
+        \li  \QC uses SQLite for storing some of its settings. SQLite is
             known to have problems with certain NFS servers (most notably the
             nfs-user-server 2.2beta), since they can lock up the application
             when it tries to lock the database. If your home directory is on an
@@ -54,20 +54,20 @@
             switch to the nfs-kernel-server, or create a symlink so that the
             settings are stored locally.
 
-        \o  Qt 4.7.4 is known to contain a bug exposed by g++ 4.6 which triggers
+        \li  Qt 4.7.4 is known to contain a bug exposed by g++ 4.6 which triggers
             a crash in \QC. For more information, see
             \l{https://bugreports.qt-project.org/browse/QTBUG-21265}{QTBUG-21265}
 
-        \o  The Okteta KDE custom widget plugin might be installed as part of
+        \li  The Okteta KDE custom widget plugin might be installed as part of
             some Linux distributions. It can cause Qt Designer to crash. For
             more information, see:
 
             \list
 
-                \o  \l{https://bugs.launchpad.net/ubuntu/+source/kdeutils/+bug/662005}
+                \li  \l{https://bugs.launchpad.net/ubuntu/+source/kdeutils/+bug/662005}
                     {Ubuntu bug 662005}
 
-                \o  \l{https://bugreports.qt-project.org/browse/QTBUG-12025}
+                \li  \l{https://bugreports.qt-project.org/browse/QTBUG-12025}
                     {QTBUG-12025}
 
            \endlist
@@ -86,7 +86,7 @@
 
     \list
 
-        \o Code completion does not support typedefs for nested classes.
+        \li Code completion does not support typedefs for nested classes.
 
     \endlist
 
@@ -94,7 +94,7 @@
 
     \list
 
-        \o  Paths or file names containing spaces or special characters
+        \li  Paths or file names containing spaces or special characters
             (such as colons, dollar signs, and hash marks) may cause problems.
             This is because some of the tools \QC uses in the background have
             restrictions on the characters allowed in file and directory names.
@@ -102,15 +102,15 @@
             items with names consisting of plain characters, numbers,
             underscores, and hyphens.
 
-        \o  Creating new CMake projects with \QC is not supported.
+        \li  Creating new CMake projects with \QC is not supported.
 
         \if defined(qcmanual)
-        \o  On Windows, you must create projects for Maemo 5 and Harmattan
+        \li  On Windows, you must create projects for Maemo 5 and Harmattan
             device types on the same partition where you installed Qt 4 SDK, \QC, and
             MADDE.
         \endif
 
-        \o  If error messages displayed in the \gui {Compile Output} pane contain
+        \li  If error messages displayed in the \gui {Compile Output} pane contain
             paths where slashes are missing (for example, C:QtSDK),
             check your PATH variable. For more information, see
             \l{Troubleshooting MinGW Compilation Errors}.
@@ -121,29 +121,29 @@
 
     \list
 
-        \o  When debugging executables created by the GNU Compiler version 4.5.0
+        \li  When debugging executables created by the GNU Compiler version 4.5.0
             (all platforms), some data types will not be displayed in the
             \gui{Locals and Expressions} view due to missing debug information.
 
-        \o  GDB on Windows may not work if the 'Embassy \reg Security Center'
+        \li  GDB on Windows may not work if the 'Embassy \reg Security Center'
             software by 'Wave \reg Systems' is installed and active (causing
             crashes in \c{vxvault.dll)}).
 
-        \o  GDB may take long to load debugging symbols, especially from large
+        \li  GDB may take long to load debugging symbols, especially from large
             libraries.
 
-        \o  Setting breakpoints in code that is compiled into the binary more
+        \li  Setting breakpoints in code that is compiled into the binary more
             than once does not work.
 
-        \o  Setting breakpoints in files that do not have unique absolute
+        \li  Setting breakpoints in files that do not have unique absolute
             paths may fail. For example, remounting parts of a file system
             using the --bind mount option.
 
-        \o  A regression in GCC 4.5.0 causes return value optimization to
+        \li  A regression in GCC 4.5.0 causes return value optimization to
             produce inaccurate debug info that GCC applies also to
             non-optimized builds. For more information, see
             \l{http://gcc.gnu.org/bugzilla/show_bug.cgi?id=44731}
-            {GCC Bugzilla – Bug 44731}.
+            {GCC Bugzilla ï¿½ Bug 44731}.
 
     \endlist
 
@@ -151,7 +151,7 @@
 
     \list
 
-        \o  \QMLD uses external processes (QML Puppet) to render and preview
+        \li  \QMLD uses external processes (QML Puppet) to render and preview
             images and to collect data. Executing C++ code might cause the QML
             Puppet to crash. If it crashes, an error message is displayed and
             you can continue editing the QML file in the code editor.

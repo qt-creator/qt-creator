@@ -1191,21 +1191,21 @@ MimeMapEntry::MimeMapEntry(const MimeType &t, int aLevel) :
 
     Storage requirements:
     \list
-    \o Must be robust in case of incomplete hierarchies, dangling entries
-    \o Plugins will not load and register their mime types in order of inheritance.
-    \o Multiple inheritance (several subClassesOf) can occur
-    \o Provide quick lookup by name
-    \o Provide quick lookup by file type.
+    \li Must be robust in case of incomplete hierarchies, dangling entries
+    \li Plugins will not load and register their mime types in order of inheritance.
+    \li Multiple inheritance (several subClassesOf) can occur
+    \li Provide quick lookup by name
+    \li Provide quick lookup by file type.
     \endlist
 
     This basically rules out some pointer-based tree, so the structure chosen is:
     \list
-    \o An alias map QString->QString for mapping aliases to types
-    \o A Map QString->MimeMapEntry for the types (MimeMapEntry being a pair of
+    \li An alias map QString->QString for mapping aliases to types
+    \li A Map QString->MimeMapEntry for the types (MimeMapEntry being a pair of
        MimeType and (hierarchy) level.
-    \o A map  QString->QString representing parent->child relations (enabling
+    \li A map  QString->QString representing parent->child relations (enabling
        recursing over children)
-    \o Using strings avoids dangling pointers.
+    \li Using strings avoids dangling pointers.
     \endlist
 
     The hierarchy level is used for mapping by file types. When findByFile()

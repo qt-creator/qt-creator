@@ -37,13 +37,13 @@
 
     \list
 
-        \o  Types (such as classes, structs, and type definitions)
+        \li Types (such as classes, structs, and type definitions)
 
-        \o  Local variables
+        \li Local variables
 
-        \o  Class fields
+        \li Class fields
 
-        \o  Virtual methods
+        \li Virtual methods
 
     \endlist
 
@@ -79,35 +79,35 @@
 
     \list 1
 
-        \o  Select \gui {Tools > Options > Text Editor > Generic
+        \li Select \gui {Tools > Options > Text Editor > Generic
             Highlighter}.
 
             \image qtcreator-generic-highlighter.png "Generic Highlighter options"
 
-        \o  In the \gui Location field, specify the path to the primary
+        \li In the \gui Location field, specify the path to the primary
             location for highlight definition files.
 
-        \o  Click \gui {Download Definitions} to open a list of highlight
+        \li Click \gui {Download Definitions} to open a list of highlight
             definition files available for download.
 
             \image qtcreator-manage-definitions.png "Download Definitions dialog"
 
-        \o  Select highlight definition files in the list and click
+        \li Select highlight definition files in the list and click
             \gui {Download Selected Definitions}.
 
-        \o  Select the \gui {Use fallback location} check box to specify the
+        \li Select the \gui {Use fallback location} check box to specify the
             secondary location where the editor will look for highlight
             definition files.
 
-        \o  Click \gui Autodetect to allow \QC to look for highlight
+        \li Click \gui Autodetect to allow \QC to look for highlight
             definition files on your system, or click \gui Browse to locate
             them in the file system yourself.
 
-        \o  In the \gui {Ignored file patterns} field, specify file patterns.
+        \li In the \gui {Ignored file patterns} field, specify file patterns.
             You will not receive alerts if the highlight definitions for the
             specified files are not found.
 
-        \o  Click \gui OK to save your changes.
+        \li Click \gui OK to save your changes.
 
     \endlist
 
@@ -155,14 +155,14 @@
 
     \list
 
-        \o  Syntax errors are underlined in red.
+        \li Syntax errors are underlined in red.
 
             In the following figure, a semicolon is missing at the end of the
             line.
 
             \image qtcreator-syntaxerror.png
 
-        \o  Semantic errors and warnings are underlined in olive.
+        \li Semantic errors and warnings are underlined in olive.
 
             In the following figure, the variable is not used.
 
@@ -208,366 +208,366 @@
 
     \table
     \header
-        \o Id
-        \o Severity
-        \o Message
-        \o Description
+        \li  Id
+        \li  Severity
+        \li  Message
+        \li  Description
 
     \row
-        \o M1
-        \o Error
-        \o Invalid value for enum
-        \o
+        \li  M1
+        \li  Error
+        \li  Invalid value for enum
+        \li
 
     \row
-        \o M2
-        \o Error
-        \o Enum value must be a string or a number
-        \o
+        \li  M2
+        \li  Error
+        \li  Enum value must be a string or a number
+        \li
 
     \row
-        \o M3
-        \o Error
-        \o Number value expected
-        \o
+        \li  M3
+        \li  Error
+        \li  Number value expected
+        \li
 
     \row
-        \o M4
-        \o Error
-        \o Boolean value expected
-        \o
+        \li  M4
+        \li  Error
+        \li  Boolean value expected
+        \li
 
     \row
-        \o M5
-        \o Error
-        \o String value expected
-        \o
+        \li  M5
+        \li  Error
+        \li  String value expected
+        \li
 
     \row
-        \o M6
-        \o Error
-        \o Invalid URL
-        \o
+        \li  M6
+        \li  Error
+        \li  Invalid URL
+        \li
 
     \row
-        \o M7
-        \o Warning
-        \o File or directory does not exist
-        \o
+        \li  M7
+        \li  Warning
+        \li  File or directory does not exist
+        \li
 
     \row
-        \o M8
-        \o Error
-        \o Invalid color
-        \o
+        \li  M8
+        \li  Error
+        \li  Invalid color
+        \li
 
     \row
-        \o M9
-        \o Error
-        \o Anchor line expected
-        \o
+        \li  M9
+        \li  Error
+        \li  Anchor line expected
+        \li
 
     \row
-        \o M10
-        \o Error
-        \o Duplicate property binding
-        \o
+        \li  M10
+        \li  Error
+        \li  Duplicate property binding
+        \li
 
     \row
-        \o M11
-        \o Error
-        \o Id expected
-        \o
+        \li  M11
+        \li  Error
+        \li  Id expected
+        \li
 
     \row
-        \o M14
-        \o Error
-        \o Invalid id
-        \o
+        \li  M14
+        \li  Error
+        \li  Invalid id
+        \li
 
     \row
-        \o M15
-        \o Error
-        \o Duplicate id
-        \o Ids in a file must be unique.
+        \li  M15
+        \li  Error
+        \li  Duplicate id
+        \li  Ids in a file must be unique.
 
     \row
-        \o M16
-        \o Error
-        \o Invalid property name 'name'
-        \o
+        \li  M16
+        \li  Error
+        \li  Invalid property name 'name'
+        \li
 
     \row
-        \o M17
-        \o Error
-        \o 'Name' does not have members
-        \o
+        \li  M17
+        \li  Error
+        \li  'Name' does not have members
+        \li
 
     \row
-        \o M18
-        \o Error
-        \o 'Field' is not a member of 'object'
-        \o
+        \li  M18
+        \li  Error
+        \li  'Field' is not a member of 'object'
+        \li
 
     \row
-        \o M19
-        \o Warning
-        \o Assignment in condition
-        \o It could be a typing error. If it is intentional, wrap the
+        \li  M19
+        \li  Warning
+        \li  Assignment in condition
+        \li  It could be a typing error. If it is intentional, wrap the
            assignment in parentheses.
 
     \row
-        \o M20
-        \o Warning
-        \o Unterminated non-empty case block
-        \o Case blocks should either be empty or end in a flow control
+        \li  M20
+        \li  Warning
+        \li  Unterminated non-empty case block
+        \li  Case blocks should either be empty or end in a flow control
            statement such as 'break', 'return' or 'continue'.
            Alternatively you can indicate intentional fall through by
            ending with a '// fall through' comment.
 
     \row
-        \o M23
-        \o Warning
-        \o Do not use 'eval'
-        \o
+        \li  M23
+        \li  Warning
+        \li  Do not use 'eval'
+        \li
 
     \row
-        \o M28
-        \o Warning
-        \o Unreachable
-        \o Indicates that the underlined statement will never be
+        \li  M28
+        \li  Warning
+        \li  Unreachable
+        \li  Indicates that the underlined statement will never be
            executed.
 
     \row
-        \o M29
-        \o Warning
-        \o Do not use 'with'
-        \o
+        \li  M29
+        \li  Warning
+        \li  Do not use 'with'
+        \li
 
     \row
-        \o M30
-        \o Warning
-        \o Do not use comma expressions
-        \o
+        \li  M30
+        \li  Warning
+        \li  Do not use comma expressions
+        \li
 
     \row
-        \o M31
-        \o Warning
-        \o Unnecessary message suppression
-        \o
+        \li  M31
+        \li  Warning
+        \li  Unnecessary message suppression
+        \li
 
     \row
-        \o M103
-        \o Warning
-        \o 'Name' is already a formal parameter
-        \o
+        \li  M103
+        \li  Warning
+        \li  'Name' is already a formal parameter
+        \li
 
     \row
-        \o M104
-        \o Warning
-        \o 'Name' is already a function
-        \o
+        \li  M104
+        \li  Warning
+        \li  'Name' is already a function
+        \li
 
     \row
-        \o M105
-        \o Warning
-        \o Var 'name' is used before its declaration
-        \o
+        \li  M105
+        \li  Warning
+        \li  Var 'name' is used before its declaration
+        \li
 
     \row
-        \o M106
-        \o Warning
-        \o 'Name' is already a var
-        \o
+        \li  M106
+        \li  Warning
+        \li  'Name' is already a var
+        \li
 
     \row
-        \o M107
-        \o Warning
-        \o 'Name' is declared more than once
-        \o Variables declared in a function are always visible everywhere
+        \li  M107
+        \li  Warning
+        \li  'Name' is declared more than once
+        \li  Variables declared in a function are always visible everywhere
            in the function, even when declared in nested blocks or
            'for' statement conditions. Redeclaring a variable has no
            effect.
 
     \row
-        \o M108
-        \o Warning
-        \o Function 'name' is used before its declaration
-        \o
+        \li  M108
+        \li  Warning
+        \li  Function 'name' is used before its declaration
+        \li
 
     \row
-        \o M109
-        \o Warning
-        \o Do not use 'Boolean' as a constructor
-        \o
+        \li  M109
+        \li  Warning
+        \li  Do not use 'Boolean' as a constructor
+        \li
 
     \row
-        \o M110
-        \o Warning
-        \o Do not use 'String' as a constructor
-        \o
+        \li  M110
+        \li  Warning
+        \li  Do not use 'String' as a constructor
+        \li
 
     \row
-        \o M111
-        \o Warning
-        \o Do not use 'Object' as a constructor
-        \o
+        \li  M111
+        \li  Warning
+        \li  Do not use 'Object' as a constructor
+        \li
 
     \row
-        \o M112
-        \o Warning
-        \o Do not use 'Array' as a constructor
-        \o
+        \li  M112
+        \li  Warning
+        \li  Do not use 'Array' as a constructor
+        \li
 
     \row
-        \o M113
-        \o Warning
-        \o Do not use 'Function' as a constructor
-        \o
+        \li  M113
+        \li  Warning
+        \li  Do not use 'Function' as a constructor
+        \li
 
     \row
-        \o M114
-        \o Hint
-        \o The 'function' keyword and the opening parenthesis should be separated by a single space
-        \o
+        \li  M114
+        \li  Hint
+        \li  The 'function' keyword and the opening parenthesis should be separated by a single space
+        \li
 
     \row
-        \o M115
-        \o Warning
-        \o Do not use stand-alone blocks
-        \o Blocks do not affect variable scoping. Thus blocks that are
+        \li  M115
+        \li  Warning
+        \li  Do not use stand-alone blocks
+        \li  Blocks do not affect variable scoping. Thus blocks that are
            not associated to 'if', 'while', etc. have no effect and
            should be avoided.
 
     \row
-        \o M116
-        \o Warning
-        \o Do not use void expressions
-        \o
+        \li  M116
+        \li  Warning
+        \li  Do not use void expressions
+        \li
 
     \row
-        \o M117
-        \o Warning
-        \o Confusing pluses
-        \o
+        \li  M117
+        \li  Warning
+        \li  Confusing pluses
+        \li
 
     \row
-        \o M119
-        \o Warning
-        \o Confusing minuses
-        \o
+        \li  M119
+        \li  Warning
+        \li  Confusing minuses
+        \li
 
     \row
-        \o M121
-        \o Hint
-        \o Declare all function vars on a single line
-        \o
+        \li  M121
+        \li  Hint
+        \li  Declare all function vars on a single line
+        \li
 
     \row
-        \o M123
-        \o Hint
-        \o Unnecessary parentheses
-        \o
+        \li  M123
+        \li  Hint
+        \li  Unnecessary parentheses
+        \li
 
     \row
-        \o M126
-        \o Warning
-        \o == and != may perform type coercion, use === or !== to avoid
-        \o The non-strict equality comparison is allowed to convert its
+        \li  M126
+        \li  Warning
+        \li  == and != may perform type coercion, use === or !== to avoid
+        \li  The non-strict equality comparison is allowed to convert its
            arguments to a common type. That can lead to unexpected
            results such as \c {' \t\r\n' == 0} being true. Prefer to use the
            strict equality operators === and !== and be explicit about
            conversions you require.
     \row
-        \o M305
-        \o Warning
-        \o == and != perform type coercion, use === or !== to avoid
-        \o (see above)
+        \li  M305
+        \li  Warning
+        \li  == and != perform type coercion, use === or !== to avoid
+        \li  (see above)
 
     \row
-        \o M127
-        \o Warning
-        \o Expression statements should be assignments, calls or delete expressions only
-        \o
+        \li  M127
+        \li  Warning
+        \li  Expression statements should be assignments, calls or delete expressions only
+        \li
 
     \row
-        \o M201
-        \o Hint
-        \o Var declarations should be at the start of a function
-        \o
+        \li  M201
+        \li  Hint
+        \li  Var declarations should be at the start of a function
+        \li
 
     \row
-        \o M202
-        \o Hint
-        \o Only use one statement per line
-        \o
+        \li  M202
+        \li  Hint
+        \li  Only use one statement per line
+        \li
 
     \row
-        \o M300
-        \o Error
-        \o Unknown component
-        \o
+        \li  M300
+        \li  Error
+        \li  Unknown component
+        \li
 
     \row
-        \o M301
-        \o Error
-        \o Could not resolve the prototype 'name' of 'object'
-        \o
+        \li  M301
+        \li  Error
+        \li  Could not resolve the prototype 'name' of 'object'
+        \li
 
     \row
-        \o M302
-        \o Error
-        \o Could not resolve the prototype 'name'
-        \o
+        \li  M302
+        \li  Error
+        \li  Could not resolve the prototype 'name'
+        \li
 
     \row
-        \o M303
-        \o Error
-        \o Prototype cycle, the last non-repeated component is 'name'
-        \o
+        \li  M303
+        \li  Error
+        \li  Prototype cycle, the last non-repeated component is 'name'
+        \li
 
     \row
-        \o M304
-        \o Error
-        \o Invalid property type 'name'
-        \o
+        \li  M304
+        \li  Error
+        \li  Invalid property type 'name'
+        \li
 
     \row
-        \o M306
-        \o Warning
-        \o Calls of functions that start with an uppercase letter should use 'new'
-        \o By convention, functions that start with an uppercase letter
+        \li  M306
+        \li  Warning
+        \li  Calls of functions that start with an uppercase letter should use 'new'
+        \li  By convention, functions that start with an uppercase letter
            are constructor functions that should only be used with 'new'.
 
     \row
-        \o M307
-        \o Warning
-        \o 'new' should only be used with functions that start with an uppercase letter
-        \o
+        \li  M307
+        \li  Warning
+        \li  'new' should only be used with functions that start with an uppercase letter
+        \li
 
     \row
-        \o M308
-        \o Warning
-        \o Do not use 'Number' as a constructor
-        \o
+        \li  M308
+        \li  Warning
+        \li  Do not use 'Number' as a constructor
+        \li
 
     \row
-        \o M309
-        \o Hint
-        \o Use spaces around binary operators
-        \o
+        \li  M309
+        \li  Hint
+        \li  Use spaces around binary operators
+        \li
 
     \row
-        \o M310
-        \o Warning
-        \o Unintentional empty block, use ({}) for empty object literal
-        \o
+        \li  M310
+        \li  Warning
+        \li  Unintentional empty block, use ({}) for empty object literal
+        \li
 
     \row
-        \o M311
-        \o Hint
-        \o Use 'type' instead of 'var' or 'variant' to improve performance
-        \o
+        \li  M311
+        \li  Hint
+        \li  Use 'type' instead of 'var' or 'variant' to improve performance
+        \li
 
     \endtable
 
@@ -609,65 +609,65 @@
 
     \table
         \header
-            \o Icon
-            \o Description
+            \li  Icon
+            \li  Description
         \row
-            \o  \inlineimage completion/class.png
-            \o  A class
+            \li \inlineimage completion/class.png
+            \li A class
         \row
-            \o  \inlineimage completion/enum.png
-            \o  An enum
+            \li \inlineimage completion/enum.png
+            \li An enum
         \row
-            \o  \inlineimage completion/enumerator.png
-            \o  An enumerator (value of an enum)
+            \li \inlineimage completion/enumerator.png
+            \li An enumerator (value of an enum)
         \row
-            \o  \inlineimage completion/func.png
-            \o  A function
+            \li \inlineimage completion/func.png
+            \li A function
         \row
-            \o  \inlineimage completion/func_priv.png
-            \o  A private function
+            \li \inlineimage completion/func_priv.png
+            \li A private function
         \row
-            \o  \inlineimage completion/func_prot.png
-            \o  A protected function
+            \li \inlineimage completion/func_prot.png
+            \li A protected function
         \row
-            \o  \inlineimage completion/var.png
-            \o  A variable
+            \li \inlineimage completion/var.png
+            \li A variable
         \row
-            \o  \inlineimage completion/var_priv.png
-            \o  A private variable
+            \li \inlineimage completion/var_priv.png
+            \li A private variable
         \row
-            \o  \inlineimage completion/var_prot.png
-            \o  A protected variable
+            \li \inlineimage completion/var_prot.png
+            \li A protected variable
         \row
-            \o  \inlineimage completion/signal.png
-            \o  A signal
+            \li \inlineimage completion/signal.png
+            \li A signal
         \row
-            \o  \inlineimage completion/slot.png
-            \o  A slot
+            \li \inlineimage completion/slot.png
+            \li A slot
         \row
-            \o  \inlineimage completion/slot_priv.png
-            \o  A private slot
+            \li \inlineimage completion/slot_priv.png
+            \li A private slot
         \row
-            \o  \inlineimage completion/slot_prot.png
-            \o  A protected slot
+            \li \inlineimage completion/slot_prot.png
+            \li A protected slot
         \row
-            \o  \inlineimage completion/keyword.png
-            \o  A C++ keyword
+            \li \inlineimage completion/keyword.png
+            \li A C++ keyword
         \row
-            \o  \inlineimage completion/snippet.png
-            \o  A C++ code snippet
+            \li \inlineimage completion/snippet.png
+            \li A C++ code snippet
         \row
-            \o  \inlineimage completion/element.png
-            \o  A QML element
+            \li \inlineimage completion/element.png
+            \li A QML element
         \row
-            \o  \inlineimage completion/qmlsnippet.png
-            \o  A QML code snippet
+            \li \inlineimage completion/qmlsnippet.png
+            \li A QML code snippet
         \row
-            \o  \inlineimage completion/macro.png
-            \o  A macro
+            \li \inlineimage completion/macro.png
+            \li A macro
         \row
-            \o  \inlineimage completion/namespace.png
-            \o  A namespace
+            \li \inlineimage completion/namespace.png
+            \li A namespace
     \endtable
 
     \section2 Completing Code Snippets
@@ -693,12 +693,12 @@
 
     \list
 
-        \o  Text snippets, which can contain any text string. For example, code
+        \li Text snippets, which can contain any text string. For example, code
             comments
 
-        \o  C++ code snippets, which specify C++ code constructs
+        \li C++ code snippets, which specify C++ code constructs
 
-        \o  QML code snippets, which specify QML code constructs
+        \li QML code snippets, which specify QML code constructs
 
     \endlist
 
@@ -714,13 +714,13 @@
 
     \list
 
-        \o  Highlighting
+        \li Highlighting
 
-        \o  Indentation
+        \li Indentation
 
-        \o  Parentheses matching
+        \li Parentheses matching
 
-        \o  Basic code completion
+        \li Basic code completion
 
     \endlist
 
@@ -774,15 +774,15 @@
 
     \list
 
-        \o  \gui{CodePaster}
+        \li \gui{CodePaster}
 
-        \o  \gui{Pastebin.Com}
+        \li \gui{Pastebin.Com}
 
-        \o  \gui{Pastebin.Ca}
+        \li \gui{Pastebin.Ca}
 
-        \o  \gui{Paste.KDE.Org}
+        \li \gui{Paste.KDE.Org}
 
-        \o  \gui{Shared network drives}
+        \li \gui{Shared network drives}
 
     \endlist
 
@@ -913,11 +913,11 @@
 
     \list
 
-        \o  Text files
+        \li Text files
 
-        \o  C++ files
+        \li C++ files
 
-        \o  QML files
+        \li QML files
 
     \endlist
 
@@ -945,16 +945,16 @@
 
     \list 1
 
-        \o  Select \gui {Tools > Options > C++}.
+        \li Select \gui {Tools > Options > C++}.
 
-        \o  In the \gui {Current settings} field, select the settings to modify
+        \li In the \gui {Current settings} field, select the settings to modify
             and click \gui Copy.
 
             \image qtcreator-options-code-style-cpp.png "C++ Code Style options"
 
-        \o  Give a name to the settings and click \gui OK.
+        \li Give a name to the settings and click \gui OK.
 
-        \o  Click \gui Edit to specify code style settings for the project.
+        \li Click \gui Edit to specify code style settings for the project.
 
             \image qtcreator-code-style-settings-edit-cpp.png "Edit Code Style Settings dialog"
 
@@ -965,15 +965,15 @@
 
     \list
 
-        \o  Interpret the \key Tab and \key Backspace key presses.
+        \li Interpret the \key Tab and \key Backspace key presses.
 
-        \o  Indent the contents of classes, methods, blocks, and namespaces.
+        \li Indent the contents of classes, methods, blocks, and namespaces.
 
-        \o  Indent braces in classes, namespaces, enums, methods, and blocks.
+        \li Indent braces in classes, namespaces, enums, methods, and blocks.
 
-        \o  Control switch statements and their contents.
+        \li Control switch statements and their contents.
 
-        \o  Align continuation lines.
+        \li Align continuation lines.
 
     \endlist
 
@@ -988,16 +988,16 @@
 
     \list 1
 
-        \o  Select \gui {Tools > Options >Qt Quick}.
+        \li Select \gui {Tools > Options >Qt Quick}.
 
-        \o  In the \gui {Current settings} field, select the settings to modify
+        \li In the \gui {Current settings} field, select the settings to modify
             and click \gui Copy.
 
             \image qtcreator-options-code-style-qml.png "QML Code Style options"
 
-        \o  Give a name to the settings and click \gui OK.
+        \li Give a name to the settings and click \gui OK.
 
-        \o  Click \gui Edit to specify code style settings for the project.
+        \li Click \gui Edit to specify code style settings for the project.
 
             \image qtcreator-code-style-settings-edit-qtquick.png "Edit Code Style Settings dialog"
 
@@ -1015,17 +1015,17 @@
 
     \list
 
-        \o  Global settings for all files
+        \li Global settings for all files
 
-        \o  Global C++ settings for C++ files
+        \li Global C++ settings for C++ files
 
-        \o  Global Qt Quick settings for QML files
+        \li Global Qt Quick settings for QML files
 
-        \o  Project specific settings for all editors of files in the project
+        \li Project specific settings for all editors of files in the project
 
-        \o  Project specific settings for C++ files in the project
+        \li Project specific settings for C++ files in the project
 
-        \o  Project specific settings for QML files in the project
+        \li Project specific settings for QML files in the project
 
     \endlist
 
@@ -1117,14 +1117,14 @@
 
     \list 1
 
-        \o  Press \key Ctrl+F or select \gui Edit > \gui Find/Replace >
+        \li Press \key Ctrl+F or select \gui Edit > \gui Find/Replace >
             \gui{Find/Replace}.
 
-        \o  Enter the text you are looking for.
+        \li Enter the text you are looking for.
 
             If the text is found, all occurrences are highlighted as you type.
 
-        \o  To go to the next occurrence, click \inlineimage qtcreator-next.png
+        \li To go to the next occurrence, click \inlineimage qtcreator-next.png
             (\gui {Find Next}), or press \key F3. To go to the previous
             occurrence click
             \inlineimage qtcreator-previous.png
@@ -1137,13 +1137,13 @@
 
     \list
 
-        \o  To make your search case sensitive, select
+        \li To make your search case sensitive, select
             \gui {Case Sensitive}.
 
-        \o  To search only whole words, select
+        \li To search only whole words, select
             \gui {Whole Words Only}.
 
-        \o  To search using regular expressions, select
+        \li To search using regular expressions, select
             \gui {Regular Expressions}.
             Regular expressions used in \QC are modeled on Perl regular
             expressions. For more information on using regular expressions, see
@@ -1160,15 +1160,15 @@
 
     \list
 
-        \o  To replace the selected occurrence and move to the next one,
+        \li To replace the selected occurrence and move to the next one,
             click \gui {Find Next}
             or press \key Ctrl+=.
 
-        \o  To replace the selected occurrence and move to the previous one,
+        \li To replace the selected occurrence and move to the previous one,
             click \gui {Find Previous}
             .
 
-        \o  To replace all occurrences in the file, click \gui{Replace All}.
+        \li To replace all occurrences in the file, click \gui{Replace All}.
 
     \endlist
 
@@ -1180,15 +1180,15 @@
 
     \list
 
-        \o All upper-case occurrences are replaced with the upper-case new text.
+        \li  All upper-case occurrences are replaced with the upper-case new text.
 
-        \o All lower-case occurrences are replaced with the lower-case new text.
+        \li  All lower-case occurrences are replaced with the lower-case new text.
 
-        \o Capitalized occurrences are replaced with the capitalized new text.
+        \li  Capitalized occurrences are replaced with the capitalized new text.
 
-        \o Other occurrences are replaced with the new text as entered.
+        \li  Other occurrences are replaced with the new text as entered.
 
-        \o If an occurrence and the new text have the same prefix or suffix,
+        \li  If an occurrence and the new text have the same prefix or suffix,
            then the case of the prefix and/or suffix are preserved, and the
            other rules are applied on the rest of the occurrence only.
 
@@ -1201,14 +1201,14 @@
 
     \list 1
 
-        \o  Press \key Ctrl+Shift+F or select \gui Edit > \gui Find/Replace >
+        \li Press \key Ctrl+Shift+F or select \gui Edit > \gui Find/Replace >
             \gui{Advanced Find} > \gui{Open Advanced Find}.
 
-        \o  Select the scope of your search:
+        \li Select the scope of your search:
 
             \list
 
-                \o  \gui{All Projects} searches files matching the defined file
+                \li \gui{All Projects} searches files matching the defined file
                     pattern in all currently open projects.
 
                     For example, to search for \tt previewer only in \tt .cpp
@@ -1217,17 +1217,17 @@
 
                     \image qtcreator-search-allprojects.png
 
-                \o  \gui{Current Project} searches files matching the defined
+                \li \gui{Current Project} searches files matching the defined
                     file pattern only in the project you are currently editing.
 
-                \o  \gui{Files on File System} recursively searches files
+                \li \gui{Files on File System} recursively searches files
                     matching the defined file pattern in the selected directory.
 
-                \o  \gui{Current File} searches only the current file.
+                \li \gui{Current File} searches only the current file.
 
             \endlist
 
-        \o  Enter the text you are looking for and click \gui Search.
+        \li Enter the text you are looking for and click \gui Search.
 
             \image qtcreator-searchresults.png
 
@@ -1236,12 +1236,12 @@
 
             \list
 
-                \o  To see all occurrences in a file, double-click the file name
+                \li To see all occurrences in a file, double-click the file name
                     in the list.
 
-                \o  To go to an occurrence, double-click it.
+                \li To go to an occurrence, double-click it.
 
-                \o  To repeat the search after you have made changes to the
+                \li To repeat the search after you have made changes to the
                     listed files, for example, select \gui {Search Again}.
 
             \endlist
@@ -1269,13 +1269,13 @@
 
     \list
 
-        \o  Improve internal quality of your application
+        \li Improve internal quality of your application
 
-        \o  Improve performance and extensibility
+        \li Improve performance and extensibility
 
-        \o  Improve code readability and maintainability
+        \li Improve code readability and maintainability
 
-        \o  Simplify code structure
+        \li Simplify code structure
 
     \endlist
 
@@ -1286,16 +1286,16 @@
 
     \list 1
 
-        \o  In the editor, place the cursor on the symbol or component, and
+        \li In the editor, place the cursor on the symbol or component, and
             select:
 
         \list
 
-            \o  \gui {Tools > C++ > Find Usages}
+            \li \gui {Tools > C++ > Find Usages}
 
-            \o  \gui {Tools > QML/JS > Find Usages}
+            \li \gui {Tools > QML/JS > Find Usages}
 
-            \o  \key Ctrl+Shift+U
+            \li \key Ctrl+Shift+U
 
         \endlist
 
@@ -1303,12 +1303,12 @@
 
         \list
 
-            \o  Files listed as a part of the project
+            \li Files listed as a part of the project
 
-            \o  Files directly used by the project files (for example, generated
+            \li Files directly used by the project files (for example, generated
                 files)
 
-            \o  Header files of used frameworks and libraries
+            \li Header files of used frameworks and libraries
 
         \endlist
 
@@ -1319,7 +1319,7 @@
 
         \image qtcreator-search-cpp-symbols.png
 
-        \o  The \gui{Search Results} pane opens and shows the location and
+        \li The \gui{Search Results} pane opens and shows the location and
             number of instances of the symbol in the current project.
 
             \image qtcreator-refactoring-find.png
@@ -1330,20 +1330,20 @@
 
     \list
 
-        \o  To go directly to an instance, double-click the instance in the
+        \li To go directly to an instance, double-click the instance in the
             \gui{Search Results} pane.
 
-        \o  To move between instances, click
+        \li To move between instances, click
             \inlineimage qtcreator-forward.png
             and
             \inlineimage qtcreator-back.png
             in the \gui{Search Results} pane.
 
-        \o  To expand and collapse the list of all instances, click
+        \li To expand and collapse the list of all instances, click
             \inlineimage qtcreator-expand.png
             .
 
-        \o  To clear the search results, click \inlineimage qtcreator-clear.png
+        \li To clear the search results, click \inlineimage qtcreator-clear.png
             .
 
     \endlist
@@ -1354,7 +1354,7 @@
 
     \list 1
 
-        \o  In the editor, place the cursor on the symbol you would like to
+        \li In the editor, place the cursor on the symbol you would like to
             change and select \gui Tools > \gui C++ >
             \gui{Rename Symbol Under Cursor} or \gui Tools > \gui QML/JS >
             \gui{Rename Symbol Under Cursor}. Alternatively, press
@@ -1365,7 +1365,7 @@
 
             \image qtcreator-refactoring-replace.png
 
-        \o  To replace all selected instances, enter the name of the new symbol
+        \li To replace all selected instances, enter the name of the new symbol
             in the \gui{Replace with} text box and click \gui Replace.
 
             To omit an instance, uncheck the check-box next to the instance.
@@ -1403,18 +1403,18 @@
 
    \list
 
-        \o  Change binary operands
+        \li Change binary operands
 
-        \o  Simplify if and while conditions (for example, move declarations out
+        \li Simplify if and while conditions (for example, move declarations out
             of if conditions)
 
-        \o  Modify strings (for example, set the encoding for a string to
+        \li Modify strings (for example, set the encoding for a string to
             Latin-1, mark strings translatable, and convert symbol names to
             camel case)
 
-        \o  Create variable declarations
+        \li Create variable declarations
 
-        \o  Create method declarations and definitions
+        \li Create method declarations and definitions
 
    \endlist
 
@@ -1424,12 +1424,12 @@
 
     \table
         \header
-            \o Refactoring Action
-            \o Description
-            \o Activation
+            \li  Refactoring Action
+            \li  Description
+            \li  Activation
         \row
-            \o Add Curly Braces
-            \o Adds curly braces to an if statement that does not contain a
+            \li  Add Curly Braces
+            \li  Adds curly braces to an if statement that does not contain a
             compound statement. For example, rewrites
 
     \code
@@ -1444,10 +1444,10 @@
         b;
     }
     \endcode
-            \o if
+            \li  if
         \row
-            \o Move Declaration out of Condition
-            \o Moves a declaration out of an if or while condition to simplify the
+            \li  Move Declaration out of Condition
+            \li  Moves a declaration out of an if or while condition to simplify the
             condition. For example, rewrites
 
     \code
@@ -1460,10 +1460,10 @@
     Type name = foo;
     if (name) {}
     \endcode
-            \o Name of the introduced variable
+            \li  Name of the introduced variable
         \row
-            \o Rewrite Condition Using ||
-            \o Rewrites the expression according to De Morgan's laws. For example,
+            \li  Rewrite Condition Using ||
+            \li  Rewrites the expression according to De Morgan's laws. For example,
              rewrites:
     \code
     !a && !b
@@ -1474,15 +1474,15 @@
     \code
     !(a || b)
     \endcode
-            \o &&
+            \li  &&
         \row
-            \o Rewrite Using \e operator
-            \o Rewrites an expression negating it and using the inverse operator. For
+            \li  Rewrite Using \e operator
+            \li  Rewrites an expression negating it and using the inverse operator. For
             example, rewrites:
 
             \list
 
-    \o     \code
+    \li    \code
     a op b
     \endcode
 
@@ -1492,7 +1492,7 @@
     !(a invop b)
     \endcode
 
-    \o     \code
+    \li    \code
     (a op b)
     \endcode
 
@@ -1502,7 +1502,7 @@
     !(a invop b)
     \endcode
 
-    \o    \code
+    \li   \code
     !(a op b)
     \endcode
 
@@ -1514,10 +1514,10 @@
 
     \endlist
 
-            \o <= < > >= == !=
+            \li  <= < > >= == !=
         \row
-            \o Split Declaration
-            \o Splits a simple declaration into several declarations. For example,
+            \li  Split Declaration
+            \li  Splits a simple declaration into several declarations. For example,
             rewrites:
     \code
     int *a, b;
@@ -1529,10 +1529,10 @@
     int *a;
     int b;
     \endcode
-            \o Type name or variable name
+            \li  Type name or variable name
         \row
-            \o Split if Statement
-            \o Splits an if statement into several statements. For example, rewrites:
+            \li  Split if Statement
+            \li  Splits an if statement into several statements. For example, rewrites:
     \code
     if (something && something_else) {
     }
@@ -1563,10 +1563,10 @@
         x;
     \endcode
 
-            \o && ||
+            \li  && ||
         \row
-            \o Swap Operands
-            \o Rewrites an expression in the inverse order using the inverse operator.
+            \li  Swap Operands
+            \li  Rewrites an expression in the inverse order using the inverse operator.
             For example, rewrites:
     \code
     a op b
@@ -1576,22 +1576,22 @@
     \code
     b flipop a
     \endcode
-            \o <= < > >= == != && ||
+            \li  <= < > >= == != && ||
         \row
-            \o Convert to Decimal
-            \o Converts an integer literal to decimal representation
-            \o Numeric literal
+            \li  Convert to Decimal
+            \li  Converts an integer literal to decimal representation
+            \li  Numeric literal
         \row
-            \o Convert to Hexadecimal
-            \o Converts an integer literal to hexadecimal representation
-            \o Numeric literal
+            \li  Convert to Hexadecimal
+            \li  Converts an integer literal to hexadecimal representation
+            \li  Numeric literal
         \row
-            \o Convert to Octal
-            \o Converts an integer literal to octal representation
-            \o Numeric literal
+            \li  Convert to Octal
+            \li  Converts an integer literal to octal representation
+            \li  Numeric literal
         \row
-            \o Convert to Objective-C String Literal
-            \o Converts a string literal to an Objective-C string literal
+            \li  Convert to Objective-C String Literal
+            \li  Converts a string literal to an Objective-C string literal
             if the file type is Objective-C(++). For example, rewrites the following strings
 
     \code
@@ -1605,10 +1605,10 @@
     \code
     @"abcd"
     \endcode
-            \o String literal
+            \li  String literal
         \row
-            \o Enclose in QLatin1Char()
-            \o Sets the encoding for a character to Latin-1, unless the character is
+            \li  Enclose in QLatin1Char()
+            \li  Sets the encoding for a character to Latin-1, unless the character is
             already enclosed in QLatin1Char, QT_TRANSLATE_NOOP, tr, trUtf8,
             QLatin1Literal, or QLatin1String. For example, rewrites
 
@@ -1621,10 +1621,10 @@
     \code
     QLatin1Char('a')
     \endcode
-            \o String literal
+            \li  String literal
         \row
-            \o Enclose in QLatin1String()
-            \o Sets the encoding for a string to Latin-1, unless the string is
+            \li  Enclose in QLatin1String()
+            \li  Sets the encoding for a string to Latin-1, unless the string is
             already enclosed in QLatin1Char, QT_TRANSLATE_NOOP, tr, trUtf8,
             QLatin1Literal, or QLatin1String. For example, rewrites
     \code
@@ -1637,11 +1637,11 @@
     QLatin1String("abcd")
     \endcode
 
-            \o String literal
+            \li  String literal
 
         \row
-            \o Mark as Translatable
-            \o Marks a string translatable. For example, rewrites \c "abcd" with
+            \li  Mark as Translatable
+            \li  Marks a string translatable. For example, rewrites \c "abcd" with
             one of the following options, depending on which of them is available:
 
     \code
@@ -1650,39 +1650,39 @@
     QT_TRANSLATE_NOOP("GLOBAL", "abcd")
     \endcode
 
-            \o String literal
+            \li  String literal
 
         \row
-            \o #include Header File
-            \o Adds the matching #include statement for a forward-declared class or struct
-            \o Forward-declared class or struct
+            \li  #include Header File
+            \li  Adds the matching #include statement for a forward-declared class or struct
+            \li  Forward-declared class or struct
         \row
-            \o Add Definition in 'filename'
-            \o Inserts a definition stub for a member function declaration in the
+            \li  Add Definition in 'filename'
+            \li  Inserts a definition stub for a member function declaration in the
             implementation file. The definition is placed after that of the
             preceding declaration. Qualified names are minimized when possible,
             instead of always being fully expanded.
 
-            \o Method name
+            \li  Method name
         \row
-            \o Add 'Function' Declaration
-            \o Inserts the member function declaration that matches the member function
+            \li  Add 'Function' Declaration
+            \li  Inserts the member function declaration that matches the member function
             definition into the class declaration. The function can be public,
             protected, private, public slot, protected slot, or private slot.
-            \o Method name
+            \li  Method name
         \row
-            \o Switch with Next/Previous Parameter
-            \o Moves a parameter down or up one position in a parameter list.
-            \o Parameter in the declaration or definition of a function or method
+            \li  Switch with Next/Previous Parameter
+            \li  Moves a parameter down or up one position in a parameter list.
+            \li  Parameter in the declaration or definition of a function or method
         \row
-            \o Extract Method
-            \o Moves the selected code to a new method and replaces the block of
+            \li  Extract Method
+            \li  Moves the selected code to a new method and replaces the block of
             code with a call to the new method. Enter a name for the method in
             the \gui {Extract Function Refactoring} dialog.
-            \o Block of code selected
+            \li  Block of code selected
         \row
-            \o Add Local Declaration
-            \i
+            \li  Add Local Declaration
+            \li
             Adds the type of an assignee, if the type of the right-hand side of the assignment
             is known. For example, rewrites
 
@@ -1698,43 +1698,43 @@
 
     where Type is the return type of \c {foo()}
 
-            \o Assignee
+            \li  Assignee
 
         \row
-            \o Convert to Camel Case
-            \o Converts a symbol name to camel case, where elements of the name are joined
+            \li  Convert to Camel Case
+            \li  Converts a symbol name to camel case, where elements of the name are joined
             without delimiter characters and the initial character of each element is
             capitalized. For example, rewrites \c an_example_symbol
             as \c anExampleSymbol and \c AN_EXAMPLE_SYMBOL as \c AnExampleSymbol
-            \o Identifier
+            \li  Identifier
         \row
-            \o Complete Switch Statement
-            \o Adds all possible cases to a switch statement of the type \c enum
-            \o Switch
+            \li  Complete Switch Statement
+            \li  Adds all possible cases to a switch statement of the type \c enum
+            \li  Switch
         \row
-            \o Generate Missing Q_PROPERTY Members
-            \o Adds missing members to a Q_PROPERTY:
+            \li  Generate Missing Q_PROPERTY Members
+            \li  Adds missing members to a Q_PROPERTY:
             \list
-                \o \c read method
-                \o \c write method, if there is a WRITE
-                \o \c {onChanged} signal, if there is a NOTIFY
-                \o data member with the name \c {m_<propertyName>}
+                \li  \c read method
+                \li  \c write method, if there is a WRITE
+                \li  \c {onChanged} signal, if there is a NOTIFY
+                \li  data member with the name \c {m_<propertyName>}
             \endlist
-            \o Q_PROPERTY
+            \li  Q_PROPERTY
         \row
-            \o  Apply Changes
-            \o  Keeps function declarations and definitions synchronized by
+            \li Apply Changes
+            \li Keeps function declarations and definitions synchronized by
                 checking for the matching declaration or definition when you
                 edit a function signature and by applying the changes to the
                 matching code.
-            \o  Function signature. When this action is available, a light bulb
+            \li Function signature. When this action is available, a light bulb
                 icon appears:
                 \inlineimage qml-toolbar-indicator.png
         \row
-            \o  Add #include for undeclared identifier
-            \o  Adds an #include directive to the current file to make the
+            \li Add #include for undeclared identifier
+            \li Adds an #include directive to the current file to make the
                 declaration of a symbol available.
-            \o  Undeclared identifier
+            \li Undeclared identifier
     \endtable
 
    \section2 Refactoring QML Code
@@ -1743,11 +1743,11 @@
 
    \list
 
-        \o Rename IDs
+        \li  Rename IDs
 
-        \o Split initializers
+        \li  Split initializers
 
-        \o Move a QML element into a separate file to reuse it in other
+        \li  Move a QML element into a separate file to reuse it in other
         .qml files
 
    \endlist
@@ -1758,17 +1758,17 @@
 
     \table
         \header
-            \o Refactoring Action
-            \o Description
-            \o Activation
+            \li  Refactoring Action
+            \li  Description
+            \li  Activation
 
         \row
-            \o Move Component into 'filename.qml'
-            \o Moves a QML element into a separate file
-            \o Element name
+            \li  Move Component into 'filename.qml'
+            \li  Moves a QML element into a separate file
+            \li  Element name
         \row
-            \o Split Initializer
-            \o Reformats a one-line element into a multi-line element. For example,
+            \li  Split Initializer
+            \li  Reformats a one-line element into a multi-line element. For example,
             rewrites
     \code
     Item { x: 10; y: 20; width: 10 }
@@ -1783,17 +1783,17 @@
         width: 10
     }
     \endcode
-            \o Element property
+            \li  Element property
         \row
-            \o Wrap in Loader
-            \o Wraps the element in a Component element and loads it dynamically in
+            \li  Wrap in Loader
+            \li  Wraps the element in a Component element and loads it dynamically in
                a Loader element. This is usually done to improve startup time.
-            \o Element name
+            \li  Element name
         \row
-            \o Add a message suppression comment
-            \o Prepends the line with an annotation comment that stops the message
+            \li  Add a message suppression comment
+            \li  Prepends the line with an annotation comment that stops the message
                from being generated.
-            \o Error, warning or hint from static analysis
+            \li  Error, warning or hint from static analysis
 
     \endtable
    */
@@ -1817,17 +1817,17 @@
 
     \list 1
 
-        \o  Activate the locator by pressing \key Ctrl+K.
+        \li Activate the locator by pressing \key Ctrl+K.
 
-        \o  Enter \tt{main.cpp}.
+        \li Enter \tt{main.cpp}.
 
             \image qtcreator-locator-open.png
 
-        \o  Press \key Enter.
+        \li Press \key Enter.
 
             The main.cpp file opens in the editor.
 
-        \o  To move to a line in the file, enter the line number in the locator.
+        \li To move to a line in the file, enter the line number in the locator.
 
     \endlist
 
@@ -1847,43 +1847,43 @@
 
     \list
 
-        \o  To match any number of any or no characters, enter \bold{*}.
+        \li To match any number of any or no characters, enter \b{*}.
 
-        \o  To match a single instance of any character, enter \bold{?}.
+        \li To match a single instance of any character, enter \b{?}.
 
     \endlist
 
     \section1 Using Locator Filters
 
     The locator enables you to browse not only files, but any items defined by
-    \bold{locator filters}. By default, the locator contains filters for:
+    \b{locator filters}. By default, the locator contains filters for:
 
     \list
 
-        \o  Locating any open document
+        \li Locating any open document
 
-        \o  Locating files anywhere on your file system
+        \li Locating files anywhere on your file system
 
-        \o  Locating files belonging to your project, such as source, header
+        \li Locating files belonging to your project, such as source, header
             resource, and .ui files
 
-        \o  Locating class and method definitions in your project or anywhere
+        \li Locating class and method definitions in your project or anywhere
             referenced from your project
 
-        \o  Locating class and method definitions in the current document
+        \li Locating class and method definitions in the current document
 
-        \o  Locating a specific line in the document displayed in your editor
+        \li Locating a specific line in the document displayed in your editor
 
-        \o  Opening help topics, including Qt documentation
+        \li Opening help topics, including Qt documentation
 
-        \o  Performing web searches
+        \li Performing web searches
 
-        \o  Running text editing macros that you record and save. For more
+        \li Running text editing macros that you record and save. For more
             information, see \l{Using Text Editing Macros}
 
-        \o  Executing shell commands
+        \li Executing shell commands
 
-        \o  Executing version control system commands. For more information, see
+        \li Executing version control system commands. For more information, see
             \l{Using Version Control Systems}
 
     \endlist
@@ -1896,9 +1896,9 @@
 
     \list 1
 
-        \o  Activate the locator.
+        \li Activate the locator.
 
-        \o  Enter \tt{\bold{: QDataStream}} (: (colon) followed by a
+        \li Enter \tt{\b{: QDataStream}} (: (colon) followed by a
             \key Space and the symbol name (QDataStream)).
 
             The locator lists the results.
@@ -1912,11 +1912,11 @@
 
     \list
 
-        \o  Going to a line in the current file (l).
+        \li Going to a line in the current file (l).
 
-        \o  Going to an open file (o).
+        \li Going to an open file (o).
 
-        \o  Going to a file in any open project (a).
+        \li Going to a file in any open project (a).
 
     \endlist
 
@@ -1930,18 +1930,18 @@
 
     \list 1
 
-        \o  In the locator, click \inlineimage qtcreator-locator-magnify.png
+        \li In the locator, click \inlineimage qtcreator-locator-magnify.png
             (\gui {Options}) and select \gui Configure to open the \gui Locator
             options.
 
-        \o  Select a filter, and then select \gui Edit.
+        \li Select a filter, and then select \gui Edit.
 
-        \o  Specify the prefix string.
+        \li Specify the prefix string.
 
-        \o  To show only results matching this filter, select
+        \li To show only results matching this filter, select
             \gui{Limit to prefix}.
 
-        \o  Specify other available options. For more information, see
+        \li Specify other available options. For more information, see
             \l{Adding Web Search Engines}.
 
     \endlist
@@ -1961,18 +1961,18 @@
 
     \list 1
 
-        \o  Select \gui {Tools > Options > Environment > Locator >
+        \li Select \gui {Tools > Options > Environment > Locator >
             Web Search (prefix: r) >
             Edit}.
 
-        \o  Select \gui Add to add a new entry to the list.
+        \li Select \gui Add to add a new entry to the list.
 
             \image qtcreator-add-online-doc.png "Filter Configuration dialog"
 
-        \o  Double-click the new entry to specify a URL and a search command.
+        \li Double-click the new entry to specify a URL and a search command.
             For example, http://www.google.com/search?q=%1.
 
-        \o  Click \gui OK.
+        \li Click \gui OK.
 
     \endlist
 
@@ -1986,26 +1986,26 @@
 
     \list 1
 
-        \o  In the locator, select \gui {Options > Configure} to open the
+        \li In the locator, select \gui {Options > Configure} to open the
             \gui Locator options.
 
             \image qtcreator-locator-customize.png
 
-        \o  Click \gui Add.
+        \li Click \gui Add.
 
-        \o  In the \gui{Filter Configuration} dialog:
+        \li In the \gui{Filter Configuration} dialog:
 
         \list
 
-            \o  Name your filter.
+            \li Name your filter.
 
-            \o  Select at least one directory. The locator searches directories
+            \li Select at least one directory. The locator searches directories
                 recursively.
 
-            \o  Define the file pattern as a comma separated list. For example,
-                to search all .h and .cpp files, enter \bold{*.h,*.cpp}
+            \li Define the file pattern as a comma separated list. For example,
+                to search all .h and .cpp files, enter \b{*.h,*.cpp}
 
-            \o  Specify the prefix string.
+            \li Specify the prefix string.
 
                 To show only results matching this filter, select
                 \gui{Limit to prefix}.
@@ -2014,7 +2014,7 @@
 
         \endlist
 
-        \o Click OK.
+        \li  Click OK.
 
     \endlist
 
@@ -2032,9 +2032,9 @@
 
     \list 1
 
-        \o  Select \gui {Tools > Options > Environment > Locator}.
+        \li Select \gui {Tools > Options > Environment > Locator}.
 
-        \o  In \gui{Refresh interval}, define new time in minutes.
+        \li In \gui{Refresh interval}, define new time in minutes.
 
     \endlist
 

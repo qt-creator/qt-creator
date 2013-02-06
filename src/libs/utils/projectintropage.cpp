@@ -45,8 +45,8 @@
     Looks similar to FileWizardPage, but provides additional
     functionality:
     \list
-    \o Description label at the top for displaying introductory text
-    \o It does on the fly validation (connected to changed()) and displays
+    \li Description label at the top for displaying introductory text
+    \li It does on the fly validation (connected to changed()) and displays
        warnings/errors in a status label at the bottom (the page is complete
        when fully validated, validatePage() is thus not implemented).
     \endlist

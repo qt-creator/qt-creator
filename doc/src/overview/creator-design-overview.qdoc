@@ -37,7 +37,7 @@
 
     \list
 
-        \o  \l{Developing Qt Quick Applications}
+        \li \l{Developing Qt Quick Applications}
 
             You can either create Qt Quick projects from scratch or import
             existing projects to \QC. You can use the code editor (Edit mode)
@@ -45,7 +45,7 @@
             However, the visual editor only supports Qt Quick 1, which is
             offered in Qt 5 only for compatibility with Qt 4. We recommend that
             you use Qt Quick 2 for new Qt 5 applications.
-        \o  \l{Developing Widget Based Applications}
+        \li \l{Developing Widget Based Applications}
 
             Widgets and forms created with \QD are integrated seamlessly with
             programmed code by using the Qt signals and slots mechanism that
@@ -53,7 +53,7 @@
             properties set in \QD can be changed dynamically within the code.
             Furthermore, features such as widget promotion and custom
             plugins allow you to use your own widgets with \QD.
-        \o  \l{Optimizing Applications for Mobile Devices}
+        \li \l{Optimizing Applications for Mobile Devices}
 
             Mobile devices have been designed for use when mobile. Keep the
             characteristics of mobile devices in mind when you create
@@ -65,7 +65,7 @@
 
     \list
 
-        \o  \l{Adding Qt Designer Plugins}
+        \li \l{Adding Qt Designer Plugins}
 
             You can use Qt APIs to create plugins that extend Qt applications.
             This enables you to add your own widgets to \QD.

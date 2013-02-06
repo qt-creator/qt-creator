@@ -908,12 +908,12 @@ bool replaceFieldHelper(ValueStringTransformation transform,
 
     Replace field values delimited by '%' with special modifiers:
     \list
-    \o %Field% -> simple replacement
-    \o %Field:l% -> replace with everything changed to lower case
-    \o %Field:u% -> replace with everything changed to upper case
-    \o %Field:c% -> replace with first character capitalized
-    \o  %Field:h% -> replace with something usable as header guard
-    \o %Field:s% -> replace with something usable as structure or class name
+    \li %Field% -> simple replacement
+    \li %Field:l% -> replace with everything changed to lower case
+    \li %Field:u% -> replace with everything changed to upper case
+    \li %Field:c% -> replace with first character capitalized
+    \li  %Field:h% -> replace with something usable as header guard
+    \li %Field:s% -> replace with something usable as structure or class name
     \endlist
 
     The return value indicates whether non-empty replacements were encountered.

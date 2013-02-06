@@ -35,30 +35,30 @@
 
     \list
 
-        \o  \bold{Open Source front-end for C++ (license MIT)}, enhanced for use
+        \li \b{Open Source front-end for C++ (license MIT)}, enhanced for use
             in \QC.\br
             Roberto Raggi <roberto.raggi@gmail.com>\br
             QtCreator/src/shared/cplusplus\br\br
 
-        \o  \bold{Botan, a C++ crypto library. Version 1.8.8}\br
+        \li \b{Botan, a C++ crypto library. Version 1.8.8}\br
 
             \list
-                \o  Copyright (C) 1999-2004 The Botan Project. All rights
+                \li Copyright (C) 1999-2004 The Botan Project. All rights
                     reserved.
-                \o  Copyright (C) 1999-2009 Jack Lloyd
-                \o  2001 Peter J Jones
-                \o  2004-2007 Justin Karneges
-                \o  2005 Matthew Gregan
-                \o  2005-2006 Matt Johnston
-                \o  2006 Luca Piccarreta
-                \o  2007 Yves Jerschow
-                \o  2007-2008 FlexSecure GmbH
-                \o  2007-2008 Technische Universitat Darmstadt
-                \o  2007-2008 Falko Strenzke
-                \o  2007-2008 Martin Doering
-                \o  2007 Manuel Hartl
-                \o  2007 Christoph Ludwig
-                \o  2007 Patrick Sona
+                \li Copyright (C) 1999-2009 Jack Lloyd
+                \li 2001 Peter J Jones
+                \li 2004-2007 Justin Karneges
+                \li 2005 Matthew Gregan
+                \li 2005-2006 Matt Johnston
+                \li 2006 Luca Piccarreta
+                \li 2007 Yves Jerschow
+                \li 2007-2008 FlexSecure GmbH
+                \li 2007-2008 Technische Universitat Darmstadt
+                \li 2007-2008 Falko Strenzke
+                \li 2007-2008 Martin Doering
+                \li 2007 Manuel Hartl
+                \li 2007 Christoph Ludwig
+                \li 2007 Patrick Sona
             \endlist
 
         All rights reserved.\br\br
@@ -89,8 +89,8 @@
         The source code of Botan C++ crypto library can be found
         here:
         \list
-        \o QtCreator/src/libs/3rdparty
-        \o \l{http://qt.gitorious.org/qt-creator/qt-creator/trees/master/src/libs/3rdparty}
+        \li  QtCreator/src/libs/3rdparty
+        \li  \l{http://qt.gitorious.org/qt-creator/qt-creator/trees/master/src/libs/3rdparty}
         \endlist
         \br\br
 

@@ -45,10 +45,10 @@
 
     \list 1
 
-        \o  Select \gui File > \gui{New File or Project} > \gui{Other Project}
+        \li Select \gui File > \gui{New File or Project} > \gui{Other Project}
             > \gui{Import Existing Project}.
 
-        \o  In \gui{Import Existing Project}, enter the project name
+        \li In \gui{Import Existing Project}, enter the project name
             and select the location of the project file you want to import.
 
            \QC automatically generates the following files in the
@@ -56,13 +56,13 @@
 
            \list
 
-               \o   \l{Specifying Files}{.files}
+               \li  \l{Specifying Files}{.files}
 
-               \o   \l{Specifying Include Paths}{.includes}
+               \li  \l{Specifying Include Paths}{.includes}
 
-               \o   \l{Specifying Defines}{.config}
+               \li  \l{Specifying Defines}{.config}
 
-               \o   .creator
+               \li  .creator
 
            \endlist
 
@@ -128,9 +128,9 @@
 
     \list 1
 
-        \o  Click \gui Add and select \gui{Custom Executable}.
+        \li Click \gui Add and select \gui{Custom Executable}.
 
-        \o  Define the configuration name, the location of the executable, any
+        \li Define the configuration name, the location of the executable, any
             additional arguments and the working directory.
 
     \endlist

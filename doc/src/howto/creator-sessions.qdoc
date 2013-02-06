@@ -38,13 +38,13 @@
 
     \list
 
-        \o  Open projects with their dependencies (including SUBDIRS projects)
+        \li Open projects with their dependencies (including SUBDIRS projects)
 
-        \o  Open editors
+        \li Open editors
 
-        \o  Breakpoints and expressions
+        \li Breakpoints and expressions
 
-        \o  Bookmarks
+        \li Bookmarks
 
     \endlist
 

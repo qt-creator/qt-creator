@@ -50,15 +50,15 @@
     It provides
 
     \list
-    \o Notification about the state of the debugging session:
+    \li Notification about the state of the debugging session:
     \list
-        \o idle: (hooked with .idle_cmd) debuggee stopped
-        \o accessible: Debuggee stopped, cdb.exe accepts commands
-        \o inaccessible: Debuggee runs, no way to post commands
-        \o session active/inactive: Lost debuggee, terminating.
+        \li idle: (hooked with .idle_cmd) debuggee stopped
+        \li accessible: Debuggee stopped, cdb.exe accepts commands
+        \li inaccessible: Debuggee runs, no way to post commands
+        \li session active/inactive: Lost debuggee, terminating.
     \endlist
-    \o Hook up with output/event callbacks and produce formatted output
-    \o Provide some extension commands that produce output in a standardized (GDBMI)
+    \li Hook up with output/event callbacks and produce formatted output
+    \li Provide some extension commands that produce output in a standardized (GDBMI)
        format that ends up in handleExtensionMessage().
     \endlist
 */

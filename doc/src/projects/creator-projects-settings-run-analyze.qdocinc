@@ -11,9 +11,9 @@
 
     \list 1
 
-        \o  In the \gui {Analyzer Settings} section, select \gui Custom.
+        \li In the \gui {Analyzer Settings} section, select \gui Custom.
 
-        \o  Specify analyzer settings for the project.
+        \li Specify analyzer settings for the project.
 
             \image qtcreator-analyzer-settings.png "Analyzer Settings"
 
@@ -23,9 +23,9 @@
 
     \list
 
-        \o  \l{Selecting Options for Memory Analysis}
+        \li \l{Selecting Options for Memory Analysis}
 
-        \o  \l{Selecting Profiling Options}
+        \li \l{Selecting Profiling Options}
 
     \endlist
 

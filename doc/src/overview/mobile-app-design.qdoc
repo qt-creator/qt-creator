@@ -41,13 +41,13 @@
 
     \list
 
-        \o  Know your users
+        \li Know your users
 
             Find out who will use the application, what they will use it for,
             and which mobile devices they have. Then design the application to
             fit a specific context of use.
 
-        \o  Design for small screens
+        \li Design for small screens
 
             The screen size of mobile devices is significantly smaller than that
             available on desktop devices. Carefully consider what is the most
@@ -55,21 +55,21 @@
             be reasonable to try and fit as much content into the screen as you
             might have in a desktop application.
 
-        \o  Design for multiple screen sizes
+        \li Design for multiple screen sizes
 
             Relate the position and size of each control to the dimensions of
             the display. This enables the same set of information to be
             presented on the screen in all resolutions; higher resolution
             devices just display finer graphics.
 
-        \o  Design for changing screen orientation
+        \li Design for changing screen orientation
 
             Some devices support screen rotation. On these devices, applications
             can be displayed in portrait or landscape orientation. Account for
             orientation and dynamically adjust the display when the screen is
             rotated.
 
-        \o  Design intuitive ways of moving within applications
+        \li Design intuitive ways of moving within applications
 
             Mobile devices lack a mouse and full-size keyboard, so users must
             use the touch screen or five way navigation pad to move within
@@ -77,7 +77,7 @@
             hand. To create an optimized user experience, allow users to access
             information with one click; do not make them scroll and type.
 
-        \o  Design for limited input methods
+        \li Design for limited input methods
 
             Applications collect information from users on the task at hand. In
             addition to touch screen input, some devices contain physical keys
@@ -85,27 +85,27 @@
             enter information by using screen controls, such as lists, check
             boxes, radio buttons, and text fields.
 
-        \o  Keep response times short
+        \li Keep response times short
 
             Latency can cause delays in user interaction. If users perceive
             an application as being slow, they are likely to get frustrated and
             stop using it.
 
-        \o  Save battery time
+        \li Save battery time
 
             Mobile devices are not constantly connected to a power source but
             run on battery power. Optimize power consumption to keep the total
             consumption at an acceptable level and to prevent users from running
             out of battery time.
 
-        \o  Consider network issues
+        \li Consider network issues
 
             If users do not have a flat-rate data plan or WLAN support, mobile
             network connections cost them money. Also, when users move around
             with the devices, the networks available for connections constantly
             change.
 
-        \o  Remember the processing limits of the device
+        \li Remember the processing limits of the device
 
             The memory available on devices is limited and you should use it
             carefully. Although all mobile devices have common functionality,

@@ -32,27 +32,27 @@
 
     \table
         \row
-            \o  \inlineimage creator-gs-01.png
-            \o  \inlineimage creator-gs-02.png
-            \o  \inlineimage creator-gs-03.png
-            \o  \inlineimage creator-gs-04.png
+            \li \inlineimage creator-gs-01.png
+            \li \inlineimage creator-gs-02.png
+            \li \inlineimage creator-gs-03.png
+            \li \inlineimage creator-gs-04.png
         \row
-            \o  \bold {\l{IDE Overview}}
+            \li \b {\l{IDE Overview}}
 
                 If you have not used an integrated development environment (IDE)
                 before, or want to know what kind of IDE \QC is, go to
                 \l{IDE Overview}.
-            \o  \bold {\l{User Interface}}
+            \li \b {\l{User Interface}}
 
                 If you have not used \QC before, and want to become familiar
                 with the parts of the user interface, go to \l{User Interface}.
-            \o  \bold {\l{Building and Running an Example}}
+            \li \b {\l{Building and Running an Example}}
 
                 To check that \l{glossary-buildandrun-kit}{kits} for building and running were
                 successfully installed as part of the \QSDK installation, open
                 an example application and run it. If you have not done so
                 before, go to \l{Building and Running an Example}.
-            \o  \bold {\l{Tutorials}}
+            \li \b {\l{Tutorials}}
 
                 Now you are ready to start developing your own applications.
                 Pick a tutorial to follow in \l{Tutorials}

@@ -42,22 +42,22 @@
 
     \table
         \row
-            \o  \inlineimage creator_createproject.png
-            \o  \inlineimage creator_createcomponents.png
-            \o  \inlineimage creator_createscreen.png
+            \li \inlineimage creator_createproject.png
+            \li \inlineimage creator_createcomponents.png
+            \li \inlineimage creator_createscreen.png
         \row
-            \o  \l {Creating Qt Quick Projects}{Create or import projects.}
-            \o  \l {Creating Components}{Create components.}
-            \o  \l {Creating Screens}{Create screens.}
+            \li \l {Creating Qt Quick Projects}{Create or import projects.}
+            \li \l {Creating Components}{Create components.}
+            \li \l {Creating Screens}{Create screens.}
         \row
-            \o  \inlineimage creator_createanimation.png
-            \o  \inlineimage creator_createuserinter.png
-            \o  \inlineimage creator_createcode.png
+            \li \inlineimage creator_createanimation.png
+            \li \inlineimage creator_createuserinter.png
+            \li \inlineimage creator_createcode.png
         \row
-            \o  \l {Animating Screens}{Add animation to screens.}
-            \o  \l {Adding User Interaction Methods}
+            \li \l {Animating Screens}{Add animation to screens.}
+            \li \l {Adding User Interaction Methods}
                 {Add user interaction methods.}
-            \o  \l {Implementing Application Logic}
+            \li \l {Implementing Application Logic}
                 {Implement the application logic.}
     \endtable
 
@@ -65,12 +65,12 @@
 
     \list
         \if defined(qcmanual)
-        \o  \l {Using Qt Quick Designer}
-        \o  \l {Creating Buttons}
-        \o  \l {Creating Scalable Buttons and Borders}
+        \li \l {Using Qt Quick Designer}
+        \li \l {Creating Buttons}
+        \li \l {Creating Scalable Buttons and Borders}
         \endif
-        \o  \l {Exporting Designs from Graphics Software}
-        \o  \l {Using QML Modules with Plugins}
+        \li \l {Exporting Designs from Graphics Software}
+        \li \l {Using QML Modules with Plugins}
 
     \endlist
 

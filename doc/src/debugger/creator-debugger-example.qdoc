@@ -40,23 +40,23 @@
 
     \list 1
 
-        \o  Click in between the line number and the window border on the line
+        \li Click in between the line number and the window border on the line
             where we change the cursor position to set a breakpoint.
 
             \image qtcreator-setting-breakpoint1.png
 
-        \o  Select \gui{Debug > Start Debugging > Start Debugging} or press
+        \li Select \gui{Debug > Start Debugging > Start Debugging} or press
             \key{F5}.
 
-        \o  To view the breakpoint, click the \gui{Breakpoints} tab.
+        \li To view the breakpoint, click the \gui{Breakpoints} tab.
 
             \image qtcreator-setting-breakpoint2.png
 
-        \o  To remove a breakpoint, right-click it and select
+        \li To remove a breakpoint, right-click it and select
             \gui{Delete Breakpoint}.
 
 
-        \o  To view the base classes and data members of the TextFinder class,
+        \li To view the base classes and data members of the TextFinder class,
             go to the \gui{Locals and Expressions} view.
 
             \image qtcreator-watcher.png

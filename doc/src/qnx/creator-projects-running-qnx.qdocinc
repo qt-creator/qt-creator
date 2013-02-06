@@ -2,15 +2,15 @@
 
     \list 1
 
-        \o  Connect the device to the development PC or to the Wi-Fi network.
+        \li Connect the device to the development PC or to the Wi-Fi network.
 
-        \o  Configure the device and specify a connection to it. For more
+        \li Configure the device and specify a connection to it. For more
             information, see \l{Connecting QNX Devices}.
 
-        \o  If you are running on a BlackBerry device, create an Application
+        \li If you are running on a BlackBerry device, create an Application
             Descriptor File if it does not already exist. For more information, see \l{Deploying Applications to QNX Devices}.
 
-        \o  Click the \gui Run button.
+        \li Click the \gui Run button.
 
     \endlist
 

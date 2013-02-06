@@ -1,8 +1,8 @@
 alias.i				= e
-alias.include			= input
 
+macro.li                        = "\\o"
 macro.0                         = "\\\\0"
-macro.b                         = "\\\\b"
+macro.b                         = "\\bold"
 macro.n                         = "\\\\n"
 macro.r                         = "\\\\r"
 macro.i                         = "\\o"

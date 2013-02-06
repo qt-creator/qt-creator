@@ -50,11 +50,11 @@
 
     \list
 
-        \o  \l{Detecting Memory Leaks}
+        \li \l{Detecting Memory Leaks}
 
-        \o  \l{Profiling Function Execution}
+        \li \l{Profiling Function Execution}
 
-        \o  \l{Running Valgrind Tools Remotely}
+        \li \l{Running Valgrind Tools Remotely}
 
     \endlist
 

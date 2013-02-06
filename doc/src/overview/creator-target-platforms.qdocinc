@@ -4,19 +4,19 @@
 
     \list
 
-        \o  Desktop
+        \li Desktop
 
-        \o  \QS
+        \li \QS
 
-        \o  Maemo 5
+        \li Maemo 5
 
-        \o  MeeGo Harmattan
+        \li MeeGo Harmattan
 
-        \o  Generic remote Linux
+        \li Generic remote Linux
 
-        \o  QNX
+        \li QNX
 
-        \o  Android
+        \li Android
 
     \endlist
 
@@ -25,45 +25,45 @@
 
     \table
         \header
-            \o  {1,8} Operating system
-            \o  {8,1} Platform
+            \li {1,8} Operating system
+            \li {8,1} Platform
         \header
-            \o  Desktop
-            \o  \QS
-            \o  Maemo 5
-            \o  MeeGo Harmattan
-            \o  Generic Remote Linux
-            \o  QNX
-            \o  Android
+            \li Desktop
+            \li \QS
+            \li Maemo 5
+            \li MeeGo Harmattan
+            \li Generic Remote Linux
+            \li QNX
+            \li Android
 
         \row
-            \o  Windows
-            \o  Yes
-            \o  Yes
-            \o  Yes
-            \o  Yes
-            \o  Yes
-            \o  Yes (see \l{Running on QNX Devices} for limitations)
-            \o  Yes
+            \li Windows
+            \li Yes
+            \li Yes
+            \li Yes
+            \li Yes
+            \li Yes
+            \li Yes (see \l{Running on QNX Devices} for limitations)
+            \li Yes
 
         \row
-            \o  Linux
-            \o  Yes
-            \o  Yes
-            \o  Yes
-            \o  Yes
-            \o  Yes
-            \o  Yes
-            \o  Yes
+            \li Linux
+            \li Yes
+            \li Yes
+            \li Yes
+            \li Yes
+            \li Yes
+            \li Yes
+            \li Yes
         \row
-            \o  Mac OS X
-            \o  Yes
-            \o  Yes
-            \o  Yes
-            \o  Yes
-            \o  Yes
-            \o  Yes
-            \o  Yes
+            \li Mac OS X
+            \li Yes
+            \li Yes
+            \li Yes
+            \li Yes
+            \li Yes
+            \li Yes
+            \li Yes
     \endtable
 
     \note Symbian support has been removed from \QC 2.6. To develop for Symbian,

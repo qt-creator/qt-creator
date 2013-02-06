@@ -31,8 +31,8 @@
     \title Specifying Build Settings
 
     Different build configurations allow you to quickly switch between
-    different build settings. By default, \QC creates \bold debug
-    and \bold release build configurations. A debug build contains additional
+    different build settings. By default, \QC creates \b debug
+    and \b release build configurations. A debug build contains additional
     debug symbols that you need for debugging the application but that you
     can leave out from the release version. Generally, you use the debug
     configuration for testing and the release configuration for creating
@@ -64,9 +64,9 @@
 
     \list
 
-        \o  Maemo5
+        \li Maemo5
 
-        \o  MeeGo Harmattan
+        \li MeeGo Harmattan
 
     \endlist
 
@@ -109,9 +109,9 @@
 
     \list
 
-        \o %{buildDir}
+        \li  %{buildDir}
 
-        \o %{sourceDir}
+        \li  %{sourceDir}
 
     \endlist
 
@@ -150,15 +150,15 @@
 
     \list
 
-        \o  To add a clean step using make or a custom process, click
+        \li To add a clean step using make or a custom process, click
             \gui{Add Clean Step} and select the type of step you want to add.
 
             By default, custom steps are enabled. To disable a custom step,
             select the \gui Disable button.
 
-        \o  To remove a clean step, click \gui{Remove Item}.
+        \li To remove a clean step, click \gui{Remove Item}.
 
-        \o  To change the order of steps, click
+        \li To change the order of steps, click
             \inlineimage qtcreator-movestep.png
             (\gui {Move Up} and \gui {Move Down}).
     \endlist
@@ -166,7 +166,7 @@
     \section1 Build Environment
 
     You can specify the environment you want to use for building in the
-    \bold{Build Environment} section. By default, the environment in which \QC
+    \b{Build Environment} section. By default, the environment in which \QC
     was started is used and modified to include the Qt version.
     Depending on the selected Qt version, \QC automatically sets the
     necessary environment variables. You can edit existing environment
@@ -192,9 +192,9 @@
 
     \list
 
-        \o  \l{Adding Kits}
-        \o  \l{Adding Qt Versions}
-        \o  \l{Adding Compilers}
+        \li \l{Adding Kits}
+        \li \l{Adding Qt Versions}
+        \li \l{Adding Compilers}
 
     \endlist
 

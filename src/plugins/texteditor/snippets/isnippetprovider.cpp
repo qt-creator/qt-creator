@@ -42,21 +42,21 @@ using namespace TextEditor;
 
     In order to create a new group of snippets two steps are necessary:
     \list
-        \o Implement the TextEditor::ISnippetProvider interface and register it in
+        \li Implement the TextEditor::ISnippetProvider interface and register it in
         the extension system.
-        \o Create an XML configuration file and place it in the
+        \li Create an XML configuration file and place it in the
         /share/qtcreator/snippets directory. As an example of the file format
         please take a look at the already available ones. The meaning and consistency rules
         of the fields are described below:
         \list
-            \o group - This is the group in which the snippet belongs in the user interface.
+            \li group - This is the group in which the snippet belongs in the user interface.
             It must match TextEditor::ISnippetProvider::groupId().
-            \o id - A unique string that identifies this snippet among all others available.
+            \li id - A unique string that identifies this snippet among all others available.
             The recommended practice is to prefix it with the group so it is easier to have
             such control on a file level.
-            \o trigger - The sequence of characters to be compared by the completion engine
+            \li trigger - The sequence of characters to be compared by the completion engine
             in order to display this snippet as a code assist proposal.
-            \o complement - Additional information that is displayed in the code assist
+            \li complement - Additional information that is displayed in the code assist
             proposal so it is possible to disambiguate similar snippets that have the
             same trigger.
         \endlist

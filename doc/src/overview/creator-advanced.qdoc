@@ -45,30 +45,30 @@
 
     \list
 
-        \o  \l{Supported Platforms}
+        \li \l{Supported Platforms}
 
             You can install and run \QC on several operating systems to create
             applications for multiple desktop and mobile device platforms.
 
-        \o  \l{Using Other Build Systems}
+        \li \l{Using Other Build Systems}
 
             \QC is integrated with cross-platform systems for build automation:
             qmake and CMake. In addition, you can import generic projects that
             do not use qmake or CMake, and specify that \QC ignores your build
             system.
 
-        \o  \l{Using Command Line Options}
+        \li \l{Using Command Line Options}
 
             You can start \QC and specify some options for running it from the
             command line.
 
-        \o  \l{Keyboard Shortcuts}
+        \li \l{Keyboard Shortcuts}
 
             \QC provides various keyboard shortcuts to speed up your development
             process. You can change the keyboard shortcuts, as well as import
             and export keyboard shortcut mapping schemes.
 
-        \o  \l{Using External Tools}
+        \li \l{Using External Tools}
 
             You can use external tools directly from \QC. Qt Linguist,
             QML preview tools (QML Viewer and QML Scene), the default text
@@ -82,7 +82,7 @@
 
     \list
 
-        \o  \l{Showing Task List Files in Issues Pane}
+        \li \l{Showing Task List Files in Issues Pane}
 
             You can load report files created by code scanning and analysis
             tools to the \gui Issues output pane. You can navigate to the

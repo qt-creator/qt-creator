@@ -43,22 +43,22 @@
 
     \list
 
-        \o  \gui {Navigator} pane (1) displays the QML elements in the current QML
+        \li \gui {Navigator} pane (1) displays the QML elements in the current QML
             file as tree structure.
 
-        \o  \gui {Library} pane (2) displays the building blocks that you can use to
+        \li \gui {Library} pane (2) displays the building blocks that you can use to
             design applications: predefined QML elements, your own QML
             components, Qt Quick components that you import to the project, and
             other resources.
 
-        \o  \gui Canvas (3) is the working area where you create QML components and
+        \li \gui Canvas (3) is the working area where you create QML components and
             design applications.
 
-        \o  \gui {Properties} pane (4) organizes the properties of the selected QML
+        \li \gui {Properties} pane (4) organizes the properties of the selected QML
             element or QML component. You can change the properties also in the
             code editor.
 
-        \o  \gui {State} pane (5) displays the different states of the component.
+        \li \gui {State} pane (5) displays the different states of the component.
             QML states typically describe user interface configurations, such as
             the UI  elements, their properties and behavior and the available
             actions.
@@ -152,7 +152,7 @@
 
     \list
 
-        \o  \c {import com.nokia.meego 1.0} for MeeGo
+        \li \c {import com.nokia.meego 1.0} for MeeGo
 
     \endlist
 
@@ -216,23 +216,23 @@
 
     \table
         \row
-            \o  \image qmldesigner-boolean-true.png
-            \o  TRUE
-            \o  The element is visible by default. The visibility might be
+            \li \image qmldesigner-boolean-true.png
+            \li TRUE
+            \li The element is visible by default. The visibility might be
                 overridden by the visibility set in the base state.
         \row
-            \o  \image qmldesigner-boolean-true-blue.png
-            \o  TRUE (highlighted)
-            \o  The element is explicitly set to visible.
+            \li \image qmldesigner-boolean-true-blue.png
+            \li TRUE (highlighted)
+            \li The element is explicitly set to visible.
         \row
-            \o  \image qmldesigner-boolean-false.png
-            \o  FALSE
-            \o  The element is hidden by default. The visibility might be
+            \li \image qmldesigner-boolean-false.png
+            \li FALSE
+            \li The element is hidden by default. The visibility might be
                 overridden by the visibility set in the base state.
         \row
-            \o  \image qmldesigner-boolean-false-blue.png
-            \o  FALSE (hightlighted)
-            \o  The item is explicitly set to hidden.
+            \li \image qmldesigner-boolean-false-blue.png
+            \li FALSE (hightlighted)
+            \li The item is explicitly set to hidden.
     \endtable
 
     \section2 Setting Expressions
@@ -409,17 +409,17 @@
 
     \list
 
-        \o  Show some UI elements and hide others.
+        \li Show some UI elements and hide others.
 
-        \o  Present different available actions to the user.
+        \li Present different available actions to the user.
 
-        \o  Start, stop or pause animations.
+        \li Start, stop or pause animations.
 
-        \o  Execute some script required in the new state.
+        \li Execute some script required in the new state.
 
-        \o  Change a property value for a particular item.
+        \li Change a property value for a particular item.
 
-        \o  Show a different view or screen.
+        \li Show a different view or screen.
 
     \endlist
 

@@ -86,24 +86,24 @@
     \image qtcreator-qnx-device-configurations-wizard-1.png "Connection details"
 
     \list
-        \o In the \gui{The name to identify this configuration} field, enter a
+        \li  In the \gui{The name to identify this configuration} field, enter a
         name for the device.
-        \o In the \gui{The device's host name or IP address} field, enter the
+        \li  In the \gui{The device's host name or IP address} field, enter the
         host name or IP address of the device.
-        \o In the \gui{Device password} field, enter the password for the device.
-        \o In the \gui{Device type} field, select whether it is a \gui{Physical
+        \li  In the \gui{Device password} field, enter the password for the device.
+        \li  In the \gui{Device type} field, select whether it is a \gui{Physical
         device} or a \gui{Simulator} you are connecting to.
-        \o In the \gui{Debug token} field, enter the path to the debug token
+        \li  In the \gui{Debug token} field, enter the path to the debug token
         that is also installed on the device. This is only necessary if you are
         connecting to a \gui{Physical device}.
-        \o Click \gui{Next} to continue.
+        \li  Click \gui{Next} to continue.
     \endlist
 
     \image qtcreator-qnx-device-configurations-wizard-2.png "SSH Key Setup"
 
-    For the \gui{SSH Key Setup}, you can either select an existing \bold{4096}-bit
+    For the \gui{SSH Key Setup}, you can either select an existing \b{4096}-bit
     key, or click \gui{Generate} to create a new key. The generated key will be
-    stored next to the \QC settings, in a \bold{qnx} sub-directory.
+    stored next to the \QC settings, in a \b{qnx} sub-directory.
 
     Click \gui{Next} and then \gui{Finish} to complete setting up the device
     connection.

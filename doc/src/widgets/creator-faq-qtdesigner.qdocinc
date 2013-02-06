@@ -1,6 +1,6 @@
     \section1 Qt Designer Integration Questions
 
-    \bold {Why are custom widgets not loaded in Design mode even though it
+    \b {Why are custom widgets not loaded in Design mode even though it
     works in standalone Qt Designer?}
 
     Qt Designer fetches plugins from standard locations and loads the plugins

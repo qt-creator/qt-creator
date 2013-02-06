@@ -4,10 +4,10 @@
 
     \list
 
-        \o  In the \gui Arguments field, you can specify command line arguments
+        \li In the \gui Arguments field, you can specify command line arguments
             to be passed to the executable.
 
-        \o  In the \gui {Main QML file}, select the file that \QQV will be
+        \li In the \gui {Main QML file}, select the file that \QQV will be
             started with.
 
     \endlist

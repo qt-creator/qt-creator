@@ -109,33 +109,33 @@
 
     \table
         \header
-            \o  Platform
-            \o  Compiler
-            \o  Native Debugger
+            \li Platform
+            \li Compiler
+            \li Native Debugger
         \row
-            \o  Linux
-            \o  GCC, ICC
-            \o  GDB
+            \li Linux
+            \li GCC, ICC
+            \li GDB
         \row
-            \o  Unix
-            \o  GCC, ICC
-            \o  GDB
+            \li Unix
+            \li GCC, ICC
+            \li GDB
         \row
-            \o  Mac OS X
-            \o  GCC
-            \o  Apple GDB, FSF GDB (experimental)
+            \li Mac OS X
+            \li GCC
+            \li Apple GDB, FSF GDB (experimental)
         \row
-            \o  Windows/MinGW
-            \o  GCC
-            \o  GDB
+            \li Windows/MinGW
+            \li GCC
+            \li GDB
         \row
-            \o  Windows/MSVC
-            \o  Microsoft Visual C++ Compiler
-            \o  Debugging Tools for Windows/CDB
+            \li Windows/MSVC
+            \li Microsoft Visual C++ Compiler
+            \li Debugging Tools for Windows/CDB
         \row
-            \o  Maemo, MeeGo
-            \o  GCC
-            \o  GDB
+            \li Maemo, MeeGo
+            \li GCC
+            \li GDB
     \endtable
 
     For more information on the debugger modes, see
@@ -153,19 +153,19 @@
 
     \list
 
-        \o  PlainGdbAdapter debugs locally started GUI processes. It is
+        \li PlainGdbAdapter debugs locally started GUI processes. It is
             physically split into parts that are relevant only when Python is
             available, parts relevant only when Python is not available, and
             mixed code.
 
-        \o  TermGdbAdapter debugs locally started processes that need a
+        \li TermGdbAdapter debugs locally started processes that need a
             console.
 
-        \o  AttachGdbAdapter debugs local processes started outside \QC.
+        \li AttachGdbAdapter debugs local processes started outside \QC.
 
-        \o  CoreGdbAdapter debugs core files generated from crashes.
+        \li CoreGdbAdapter debugs core files generated from crashes.
 
-        \o  RemoteGdbAdapter interacts with the GDB server running on Linux.
+        \li RemoteGdbAdapter interacts with the GDB server running on Linux.
 
     \endlist
 
@@ -178,11 +178,11 @@
 
     \table
         \header
-            \o  Native Debugger
-            \o  Notes
+            \li Native Debugger
+            \li Notes
         \row
-            \o  GDB
-            \o  On Linux and Windows, use the Python-enabled GDB versions that
+            \li GDB
+            \li On Linux and Windows, use the Python-enabled GDB versions that
                 are installed when you install \QC and Qt SDK. On Mac OS X,
                 use the GDB provided with Xcode.
                 You can also build your own Python-enabled GDB. Follow the instructions in
@@ -190,8 +190,8 @@
                 {Building GDB}.
 
         \row
-            \o  Debugging tools for Windows
-            \o  To use this engine, you must install the
+            \li Debugging tools for Windows
+            \li To use this engine, you must install the
                 \e{Debugging tools for Windows}. You can download them from
                 \l{http://msdn.microsoft.com/en-us/windows/hardware/gg463009/}
                 {Download and Install Debugging Tools for Windows}.
@@ -213,8 +213,8 @@
                 \l{Setting the Symbol Server in Windows}.
 
        \row
-            \o  Debugging tools for Mac OS X
-            \o  The Qt binary distribution contains both debug and release
+            \li Debugging tools for Mac OS X
+            \li The Qt binary distribution contains both debug and release
                 variants of the libraries. But you have to explicitly tell the
                 runtime linker that you want to use the debug libraries even if
                 your application is compiled as debug, as release is the default
@@ -250,12 +250,12 @@
 
     \list 1
 
-        \o  Select \gui Tools > \gui Options > \gui Debugger > \gui CDB.
+        \li Select \gui Tools > \gui Options > \gui Debugger > \gui CDB.
 
-        \o  In the \gui {Symbol paths} field, open the \gui Insert menu
+        \li In the \gui {Symbol paths} field, open the \gui Insert menu
             and select \gui{Symbol Server}.
 
-        \o  Select a directory where you want to store the cached information
+        \li Select a directory where you want to store the cached information
             and click \gui OK.
 
             Use a subfolder in a temporary directory, such as
@@ -276,50 +276,50 @@
 
     \list 1
 
-        \o  To create a key for signing FSF GDB, select \gui {Keychain Access >
+        \li To create a key for signing FSF GDB, select \gui {Keychain Access >
             Certificate Assistant > Create a Certificate}:
 
         \list 1
 
-            \o  In the \gui {Name} field, input \gui {fsfgdb} to replace
+            \li In the \gui {Name} field, input \gui {fsfgdb} to replace
                 the existing content.
 
-            \o  In the \gui {Certificate Type} field, select
+            \li In the \gui {Certificate Type} field, select
                 \gui {Code Signing}.
 
-            \o  Select the \gui {Let me override defaults} check box.
+            \li Select the \gui {Let me override defaults} check box.
 
-            \o  Select \gui Continue, and follow the instructions of the
+            \li Select \gui Continue, and follow the instructions of the
                 wizard (use the default settings), until the \gui {Specify a
                 Location For The Certificate} dialog opens.
 
-            \o  In the \gui Keychain field, select \gui System.
+            \li In the \gui Keychain field, select \gui System.
 
-            \o  Select \gui {Keychain Access > System}, and locate the
+            \li Select \gui {Keychain Access > System}, and locate the
                 certificate.
 
-            \o  Double click the certificate to view certificate information.
+            \li Double click the certificate to view certificate information.
 
-            \o  In the \gui Trust section, select \gui {Always Trust} in the
+            \li In the \gui Trust section, select \gui {Always Trust} in the
                 \gui {When using this certificate} field, and then close
                 the dialog.
 
         \endlist
 
-        \o  To sign the binary, enter the following command in the terminal:
+        \li To sign the binary, enter the following command in the terminal:
 
             \code
             codesign -f -s "fsfgdb" $INSTALL_LOCATION/fsfgdb
             \endcode
 
-        \o  In \QC, select \gui {Qt Creator > Preferences > Build & Run >
+        \li In \QC, select \gui {Qt Creator > Preferences > Build & Run >
             Kits} > \gui Add to create a kit that uses FSF GDB.
 
-            \o  In the \gui Debugger field, specify the path to FSF GDB
+            \li In the \gui Debugger field, specify the path to FSF GDB
                 (\c $HOME/gdb72/bin/fsfgdb, but with an explicit value for
                 \c $HOME).
 
-        \o  To use the debugger, add the kit in the \gui {Build Settings}
+        \li To use the debugger, add the kit in the \gui {Build Settings}
             of the project.
 
     \endlist

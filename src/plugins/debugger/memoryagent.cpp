@@ -70,9 +70,9 @@ namespace Internal {
 
     Memory can be shown as
     \list
-    \o Editor: Create an IEditor using the normal editor factory
+    \li Editor: Create an IEditor using the normal editor factory
        interface (m_editors)
-    \o View: Separate top-level view consisting of a Bin Editor widget
+    \li View: Separate top-level view consisting of a Bin Editor widget
        (m_view).
     \endlist
 

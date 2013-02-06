@@ -46,11 +46,11 @@
 
     \list
 
-        \o  \c {C:\qtcreator\bin>qtcreator -help}
+        \li \c {C:\qtcreator\bin>qtcreator -help}
 
-        \o  \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp:100}
+        \li \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp:100}
 
-        \o  \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp +100}
+        \li \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp +100}
 
     \endlist
 
@@ -64,55 +64,55 @@
 
     \table
         \header
-            \o Option
-            \o Description
+            \li  Option
+            \li  Description
 
         \row
-            \o -help
-            \o Display help on command line options.
+            \li  -help
+            \li  Display help on command line options.
 
         \row
-            \o -version
-            \o Display \QC version.
+            \li  -version
+            \li  Display \QC version.
 
         \row
-            \o -client
-            \o Attempt to connect to an already running instance of \QC.
+            \li  -client
+            \li  Attempt to connect to an already running instance of \QC.
 
         \row
-            \o -noload <plugin>
-            \o Do not load the specified plugin.
+            \li  -noload <plugin>
+            \li  Do not load the specified plugin.
 
         \row
-            \o -profile
-            \o Output plugin start up and shut down profiling data.
+            \li  -profile
+            \li  Output plugin start up and shut down profiling data.
 
         \row
-            \o -settingspath <path>
-            \o Override the default path where user settings are stored.
+            \li  -settingspath <path>
+            \li  Override the default path where user settings are stored.
 
         \row
-            \o -color <color>
-            \o Core plugin: override the selected UI color.
+            \li  -color <color>
+            \li  Core plugin: override the selected UI color.
 
         \row
-            \o -debug <PID-or-corefile>
-            \o Debugger plugin: attach to process ID or core file.
+            \li  -debug <PID-or-corefile>
+            \li  Debugger plugin: attach to process ID or core file.
 
         \row
-            \o -wincrashevent <event-handle>
-            \o Debugger plugin: Attach to crashed processes by using the specified
+            \li  -wincrashevent <event-handle>
+            \li  Debugger plugin: Attach to crashed processes by using the specified
             event handle.
 
         \row
-            \o -customwizard-verbose
-            \o ProjectExplorer plugin: display additional information when loading
+            \li  -customwizard-verbose
+            \li  ProjectExplorer plugin: display additional information when loading
             custom wizards. For more information about custom wizards, see
             \l{Adding New Custom Wizards}
 
         \row
-            \o -lastsession
-            \o ProjectExplorer plugin: load the last session when \QC starts.
+            \li  -lastsession
+            \li  ProjectExplorer plugin: load the last session when \QC starts.
             Open the projects and files that were open when you last exited \QC.
             For more information about managing sessions, see \l{Managing Sessions}.
 

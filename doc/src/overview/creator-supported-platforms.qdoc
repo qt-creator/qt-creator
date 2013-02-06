@@ -40,54 +40,54 @@
 
     \list
 
-        \o  Windows 7
+        \li Windows 7
 
-        \o  Windows XP Service Pack 2
+        \li Windows XP Service Pack 2
 
-        \o  Windows Vista
+        \li Windows Vista
 
-        \o  (K)Ubuntu Linux 10.04 (32-bit and 64-bit) or later, with the
+        \li (K)Ubuntu Linux 10.04 (32-bit and 64-bit) or later, with the
             following:
 
             \list
 
-                \o  g++
+                \li g++
 
-                \o  make
+                \li make
 
-                \o  libglib2.0-dev
+                \li libglib2.0-dev
 
-                \o  libSM-dev
+                \li libSM-dev
 
-                \o  libxrender-dev
+                \li libxrender-dev
 
-                \o  libfontconfig1-dev
+                \li libfontconfig1-dev
 
-                \o  libxext-dev
+                \li libxext-dev
 
-                \o  libfreetype6-dev
+                \li libfreetype6-dev
 
-                \o  libx11-dev
+                \li libx11-dev
 
-                \o  libxcursor-dev
+                \li libxcursor-dev
 
-                \o  libxfixes-dev
+                \li libxfixes-dev
 
-                \o  libxft-dev
+                \li libxft-dev
 
-                \o  libxi-dev
+                \li libxi-dev
 
-                \o  libxrandr-dev
+                \li libxrandr-dev
 
-                \o  If you are using QtOpenGL, libgl-dev and libglu-dev
+                \li If you are using QtOpenGL, libgl-dev and libglu-dev
 
             \endlist
 
-        \o  Mac OS 10.5 or later with the following:
+        \li Mac OS 10.5 or later with the following:
 
             \list
 
-                \o  Xcode tools for your Mac OS X version available from your
+                \li Xcode tools for your Mac OS X version available from your
                     Mac OS X installation DVDs or at
                     \l http://developer.apple.com.
 
@@ -100,5 +100,5 @@
     To build \QC from the source, see the requirements and instructions in the
     readme file that is located in the source repository.
 
-    \input overview/creator-target-platforms.qdocinc
+    \include overview/creator-target-platforms.qdocinc
 */

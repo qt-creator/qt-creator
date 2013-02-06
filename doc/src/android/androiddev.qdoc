@@ -40,7 +40,7 @@
 
     \list
 
-        \o  OpenJDK Java Development Kit
+        \li OpenJDK Java Development Kit
 
             To check whether you have OpenJDK installed, enter the following
             command:
@@ -51,7 +51,7 @@
 
             \c {sudo apt-get install openjdk-6-jdk}
 
-        \o  \l{http://ant.apache.org/bindownload.cgi}{Apache Ant} 1.8.0, or
+        \li \l{http://ant.apache.org/bindownload.cgi}{Apache Ant} 1.8.0, or
             later
 
             To check the Ant version, enter the following command on the command
@@ -59,7 +59,7 @@
 
             \c {ant -version}
 
-        \o  \l{http://necessitas.kde.org/necessitas/necessitas_sdk_installer.php}
+        \li \l{http://necessitas.kde.org/necessitas/necessitas_sdk_installer.php}
             {Necessitas SDK}
 
     \endlist
@@ -73,37 +73,37 @@
 
     \list 1
 
-        \o  Select \gui Tools > \gui Options > \gui {Build & Run} >
+        \li Select \gui Tools > \gui Options > \gui {Build & Run} >
             \gui {Qt Versions} > \gui Add to add Qt for Android.
 
-        \o  In the \gui {qmake location} field, add the \c qmake path from the
+        \li In the \gui {qmake location} field, add the \c qmake path from the
             Qt for Android SDK
             (\c {/opt/necessitas/Android/<qtversion>/bin/qmake} by default).
 
-        \o  Select \gui Tools > \gui Options > \gui Android to view and edit
+        \li Select \gui Tools > \gui Options > \gui Android to view and edit
             paths to the required software.
 
             \image qtcreator-options-android.png "Android options"
 
-        \o  Select \gui Tools > \gui Options > \gui {Build & Run} >
+        \li Select \gui Tools > \gui Options > \gui {Build & Run} >
             \gui {Qt Versions} and build the GDB Helper to make the debugging
             output for Qt specific constructs clean and easy to read.
 
-        \o  To build the GDB Helper, select Qt for Android, select \gui Details
+        \li To build the GDB Helper, select Qt for Android, select \gui Details
             in the \gui Helpers section, and then select \gui Build in the
             \gui {GDB Helper} field.
 
-        \o  Select \gui {Start Android AVD Manager} to create Android virtual
+        \li Select \gui {Start Android AVD Manager} to create Android virtual
             devices (AVD) that enable you emulate device hardware and software
             on the Android Emulator.
 
-        \o  To specify information for the Android manifest file, select
+        \li To specify information for the Android manifest file, select
             \gui Projects > \gui Run, and then select \gui Details to view the
             \gui {Package configurations}. For more information about the
             options you have, see
             \l{Specifying Run Settings for Android Devices}.
 
-        \o  To specify settings for deploying applications to Android, select
+        \li To specify settings for deploying applications to Android, select
             \gui Details to view the \gui {Deploy configurations}. For more
             information about the options you have, see
             \l{Deploying Applications to Android Devices}.

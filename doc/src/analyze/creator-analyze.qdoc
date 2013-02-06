@@ -49,14 +49,14 @@
 
     \list
 
-        \o  \l{Profiling QML Applications}{QML Profiler}
+        \li \l{Profiling QML Applications}{QML Profiler}
 
             You can inspect binding evaluations, signal handling, and
             painting operations when running QML code. This is useful for
             identifying potential bottlenecks, especially in the evaluation
             of bindings.
 
-        \o  \l{Using Valgrind Code Analysis Tools}{Valgrind Code Analysis Tools}
+        \li \l{Using Valgrind Code Analysis Tools}{Valgrind Code Analysis Tools}
 
             You can detect problems in memory management by using the Memcheck
             tool and find cache misses in the code by using the Callgrind tool.

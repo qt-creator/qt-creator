@@ -35,17 +35,17 @@
 
     \list
 
-        \o  \l{Setting Up a CMake Project}
+        \li \l{Setting Up a CMake Project}
 
             CMake is an alternative to qmake for automating the generation of
             build configurations.
 
-        \o  \l{Setting Up an Autotools Project}
+        \li \l{Setting Up an Autotools Project}
 
             \QC can open projects that use the Autotools build system. You can
             build and run the projects directly from \QC.
 
-        \o  \l{Setting Up a Generic Project}
+        \li \l{Setting Up a Generic Project}
 
             \QC supports generic projects, so you can import existing projects
             that do not use qmake or CMake. This enables you to use \QC as a

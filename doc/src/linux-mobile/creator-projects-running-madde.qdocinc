@@ -2,24 +2,24 @@
 
     \list 1
 
-        \o  Build and run the application for \l{Running on Qt Simulator}
+        \li Build and run the application for \l{Running on Qt Simulator}
             {\QS}.
 
-        \o  Build and run the application for
+        \li Build and run the application for
             \l{Using Maemo or MeeGo Harmattan Emulator}
             {the Maemo or MeeGo Harmattan emulator}.
 
-        \o  Alternatively, you can build and run the application for a device:
+        \li Alternatively, you can build and run the application for a device:
 
         \list 1
 
-            \o  Configure the device and specify a connection to it. For more
+            \li Configure the device and specify a connection to it. For more
                 information, see \l{Connecting Maemo Devices} and
                 \l{Connecting MeeGo Harmattan Devices}.
 
-            \o  Connect the device to the development PC.
+            \li Connect the device to the development PC.
 
-            \o  Click the \gui Run button.
+            \li Click the \gui Run button.
 
         \endlist
 

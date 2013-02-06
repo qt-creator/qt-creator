@@ -54,28 +54,28 @@
 
     \list 1
 
-        \o  Select \gui{File > New File or Project > Applications >
+        \li Select \gui{File > New File or Project > Applications >
             Qt Quick 1 Application (Built-in Elements) > Choose}.
 
-        \o  In the \gui{Name} field, type \bold {Transitions}.
+        \li In the \gui{Name} field, type \b {Transitions}.
 
-        \o  In the \gui {Create in} field, enter the path for the project files.
+        \li In the \gui {Create in} field, enter the path for the project files.
             For example, \c {C:\Qt\examples}, and then click \gui{Next} (on
             Windows and Linux) or \gui Continue (on Mac OS).
 
-        \o  Select \l{glossary-buildandrun-kit}{kits} for running and building your project,
+        \li Select \l{glossary-buildandrun-kit}{kits} for running and building your project,
             and then click \gui{Next}.
 
             \note Kits are listed if they have been specified in \gui Tools >
             \gui Options > \gui {Build & Run} > \gui Kits.
 
-        \o  Select \gui Next in the following dialogs to use the default
+        \li Select \gui Next in the following dialogs to use the default
             settings.
 
-        \o  Review the project settings, and click \gui{Finish} (on Windows and
+        \li Review the project settings, and click \gui{Finish} (on Windows and
             Linux) or \gui Done (on Mac OS) to create the project.
 
-        \o  Press \key {Ctrl+R} (or \key {Cmd+R})to run the application.
+        \li Press \key {Ctrl+R} (or \key {Cmd+R})to run the application.
 
     \endlist
 
@@ -98,62 +98,62 @@
 
     \list 1
 
-        \o  In the \gui Projects view, double-click the main.qml file
+        \li In the \gui Projects view, double-click the main.qml file
             to open it in the code editor.
 
-        \o  Click \gui Design to open the file in \QMLD.
+        \li Click \gui Design to open the file in \QMLD.
 
             \image qmldesigner-tutorial-desing-mode.png "Transitions project in Design Mode"
 
-        \o  In the \gui Navigator pane, select \gui Text and press \key Delete to
+        \li In the \gui Navigator pane, select \gui Text and press \key Delete to
             delete it.
 
-        \o  Select \gui Rectangle to edit its properties.
+        \li Select \gui Rectangle to edit its properties.
 
             \image qmldesigner-tutorial-page.png "Page properties"
 
         \list a
 
-            \o  In the \gui Id field, enter \e page, to be able to reference the
+            \li In the \gui Id field, enter \e page, to be able to reference the
                 rectangle from other places.
 
-            \o  In the \gui Colors group, \gui Rectangle field, set the color to
+            \li In the \gui Colors group, \gui Rectangle field, set the color to
                 #343434.
 
         \endlist
 
-        \o  In the \gui Library view, \gui Resources tab, select states.png and
+        \li In the \gui Library view, \gui Resources tab, select states.png and
             drag and drop it to the canvas.
 
             \image qmldesigner-tutorial-user-icon.png "Image properties"
 
         \list a
 
-            \o  In the \gui Id field, enter \e icon.
+            \li In the \gui Id field, enter \e icon.
 
-            \o  In the \gui Position field, set \gui X to 10 and \gui Y to 20.
+            \li In the \gui Position field, set \gui X to 10 and \gui Y to 20.
 
         \endlist
 
-        \o  In the \gui Library view, \gui Items tab, select \gui Rectangle,
+        \li In the \gui Library view, \gui Items tab, select \gui Rectangle,
             drag and drop it to the canvas, and edit its properties.
 
             \image qmldesigner-tutorial-topleftrect.png "Rectangle properties"
 
         \list a
 
-            \o  In the \gui Id field, enter \e topLeftRect.
+            \li In the \gui Id field, enter \e topLeftRect.
 
-            \o  In the \gui Size field, set \gui W and \gui H to 64, for the
+            \li In the \gui Size field, set \gui W and \gui H to 64, for the
                 rectangle size to match the image size.
 
-            \o  In the \gui Colors group, \gui Rectangle field, click the
+            \li In the \gui Colors group, \gui Rectangle field, click the
                 \inlineimage qmldesigner-transparent-button.png
                 (\gui Transparent) button to make the rectangle transparent.
 
-            \o  In the \gui Border field, set the border color to #808080.
+            \li In the \gui Border field, set the border color to #808080.
 
-            \o  In the \gui Rectangle group, \gui Border field, set the border
+            \li In the \gui Rectangle group, \gui Border field, set the border
                 width to 1.
 
                 \note If the \gui Border field does not appear after you set the
@@ -162,34 +162,34 @@
                 \inlineimage qmldesigner-solid-color-button.png
                 (\gui {Solid Color}) button.
 
-            \o  In the \gui Radius field, select 6 to create rounded corners for
+            \li In the \gui Radius field, select 6 to create rounded corners for
                 the rectangle.
 
-            \o  Click \gui {Layout}, and then click the top and left anchor
+            \li Click \gui {Layout}, and then click the top and left anchor
                 buttons to anchor the rectangle to the top left corner of the
                 page.
 
                 \image qmldesigner-tutorial-topleftrect-layout.png "Layout tab"
 
-            \o  In the \gui Margin field, select 20 for the top anchor and 10
+            \li In the \gui Margin field, select 20 for the top anchor and 10
                 for the left anchor.
 
         \endlist
 
-        \o  In the \gui Navigator pane, drag and drop the \gui {Mouse Area}
+        \li In the \gui Navigator pane, drag and drop the \gui {Mouse Area}
             element from \e page to \e topLeftRect to make it apply only to the
             rectangle and not to the whole page.
 
-        \o Edit \gui {Mouse Area} properties:
+        \li  Edit \gui {Mouse Area} properties:
 
         \list a
 
-            \o  Click \gui {Layout}, and then click the
+            \li Click \gui {Layout}, and then click the
                 \inlineimage qmldesigner-anchor-fill-screen.png
                 (\gui {Fill to Parent}) button to anchor the mouse area to the
                 rectangle.
 
-            \o  In the code editor, edit the pointer to the clicked expression
+            \li In the code editor, edit the pointer to the clicked expression
                 in the mouse area element, as illustrated by the following code
                 snippet:
 
@@ -209,25 +209,25 @@
 
             \snippet transitions/qml/Transitions/main.qml 0
 
-        \o  In the \gui Navigator pane, copy topLeftRect (by pressing
+        \li In the \gui Navigator pane, copy topLeftRect (by pressing
             \key {Ctrl+C}) and paste it to the canvas twice (by pressing
             \key {Ctrl+V}). \QC renames the new instances of the element
             topLeftRect1 and topLeftRect2.
 
-        \o Select topLeftRect1 and edit its properties:
+        \li  Select topLeftRect1 and edit its properties:
 
         \list a
 
-            \o  In the \gui Id field, enter \e middleRightRect.
+            \li In the \gui Id field, enter \e middleRightRect.
 
-            \o  In \gui {Layout}, select the vertical center anchor button and
+            \li In \gui {Layout}, select the vertical center anchor button and
                 then the right anchor button to
                 anchor the rectangle to the middle right margin of the screen.
 
-            \o  In the \gui Margin field, select 10 for the right anchor and 0
+            \li In the \gui Margin field, select 10 for the right anchor and 0
                 for the vertical center anchor.
 
-            \o  In the code editor,add a pointer to a clicked expression to the
+            \li In the code editor,add a pointer to a clicked expression to the
                 mouse area element. The following expression sets the state to
                 \e State1:
 
@@ -237,19 +237,19 @@
 
         \endlist
 
-        \o  Select topLeftRect2 and edit its properties:
+        \li Select topLeftRect2 and edit its properties:
 
         \list a
 
-            \o  In the \gui Id field, enter \e bottomLeftRect.
+            \li In the \gui Id field, enter \e bottomLeftRect.
 
-            \o  In \gui {Layout}, select the bottom and left anchor buttons to
+            \li In \gui {Layout}, select the bottom and left anchor buttons to
                 anchor the rectangle to the bottom left margin of the screen.
 
-            \o  In the \gui Margin field, select 20 for the bottom anchor and 10
+            \li In the \gui Margin field, select 20 for the bottom anchor and 10
                 for the left anchor.
 
-            \o  In the code editor, add a pointer to a clicked expression to the
+            \li In the code editor, add a pointer to a clicked expression to the
                 mouse area element. The following expression sets the state to
                 \e State2:
 
@@ -263,9 +263,9 @@
 
         \endlist
 
-        \o  Press \key {Ctrl+S} to save the changes.
+        \li Press \key {Ctrl+S} to save the changes.
 
-        \o  Press \key {Ctrl+R} to run the application.
+        \li Press \key {Ctrl+R} to run the application.
 
     \endlist
 
@@ -283,11 +283,11 @@
 
     \list 1
 
-        \o  Click the empty slot in the \gui States pane to create State1.
+        \li Click the empty slot in the \gui States pane to create State1.
 
-        \o  Click the empty slot in the \gui States pane to create State2.
+        \li Click the empty slot in the \gui States pane to create State2.
 
-        \o  In the code editor, bind the position of the Qt logo to the
+        \li In the code editor, bind the position of the Qt logo to the
             rectangle to make sure that the logo is displayed within the
             rectangle when the view is scaled on different sizes of screens. Set
             expressions for the x and y properties, as illustrated by the
@@ -300,7 +300,7 @@
             \note When you set the expressions, drag and drop is disabled for
             the icon in \QMLD.
 
-        \o  Press \key {Ctrl+R} to run the application.
+        \li Press \key {Ctrl+R} to run the application.
 
     \endlist
 
@@ -315,42 +315,42 @@
 
     \list 1
 
-        \o  In the code editor, add the following code to specify that when
+        \li In the code editor, add the following code to specify that when
             moving to State1, the x and y coordinates of the Qt logo change
             linearly over a duration of 1 second:
 
             \snippet qml/list-of-transitions.qml first transition
 
-        \o  You can use the Qt Quick toolbar for animation to change the easing
+        \li You can use the Qt Quick toolbar for animation to change the easing
             curve type from linear to OutBounce:
 
         \list a
 
-            \o  Click \gui NumberAnimation in the code editor to display the
+            \li Click \gui NumberAnimation in the code editor to display the
                 \inlineimage qml-toolbar-indicator.png
                 icon, and then click the icon to open the toolbar:
 
                 \image qmldesigner-tutorial-quick-toolbar.png "Qt Quick toolbar for animation"
 
-            \o  In the \gui Easing field, select \gui Bounce.
+            \li In the \gui Easing field, select \gui Bounce.
 
-            \o  In the \gui Subtype field, select \gui Out.
+            \li In the \gui Subtype field, select \gui Out.
 
         \endlist
 
-        \o  Add the following code to specify that when moving to State2, the x
+        \li Add the following code to specify that when moving to State2, the x
             and y coordinates of the Qt logo change over a duration of 2
             seconds, and an InOutQuad easing function is used:
 
             \snippet qml/list-of-transitions.qml second transition
 
-        \o  Add the following code to specify that for any other state changes,
+        \li Add the following code to specify that for any other state changes,
             the x and y coordinates of the Qt logo change linearly over a
             duration of 200 milliseconds:
 
             \snippet qml/list-of-transitions.qml default transition
 
-        \o  Press \key {Ctrl+R} to run the application.
+        \li Press \key {Ctrl+R} to run the application.
 
     \endlist
 

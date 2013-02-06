@@ -46,12 +46,12 @@
     see \l{Starting External Processes}.
 
     \if defined(qcmanual)
-    \input projects/creator-projects-settings-run-desktop.qdocinc
-    \input projects/creator-projects-settings-run-analyze.qdocinc
-    \input projects/creator-projects-settings-run-debug.qdocinc
-    \input linux-mobile/creator-projects-settings-run-linux.qdocinc
-    \input qnx/creator-projects-settings-run-qnx.qdocinc
-    \input android/creator-projects-settings-run-android.qdocinc
+    \include projects/creator-projects-settings-run-desktop.qdocinc
+    \include projects/creator-projects-settings-run-analyze.qdocinc
+    \include projects/creator-projects-settings-run-debug.qdocinc
+    \include linux-mobile/creator-projects-settings-run-linux.qdocinc
+    \include qnx/creator-projects-settings-run-qnx.qdocinc
+    \include android/creator-projects-settings-run-android.qdocinc
     \endif
 
     \section1 Specifying a Custom Executable to Run
@@ -66,5 +66,5 @@
 
     \image qmldesigner-run-custom-exe.png "Run settings for custom executables"
 
-    \input qtquick/creator-projects-settings-run-qtquick.qdocinc
+    \include qtquick/creator-projects-settings-run-qtquick.qdocinc
 */

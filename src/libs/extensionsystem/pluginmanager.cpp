@@ -80,8 +80,8 @@ enum { debugLeaks = 0 };
 
     The plugin manager is used for the following tasks:
     \list
-    \o Manage plugins and their state
-    \o Manipulate a 'common object pool'
+    \li Manage plugins and their state
+    \li Manipulate a 'common object pool'
     \endlist
 
     \section1 Plugins
@@ -186,13 +186,13 @@ enum { debugLeaks = 0 };
         };
     \endcode
 
-    \bold Note: The type of the parameters passed to the \c{invoke()} calls
+    \note The type of the parameters passed to the \c{invoke()} calls
     is deduced from the parameters themselves and must match the type of
     the arguments of the called functions \e{exactly}. No conversion or even
     integer promotions are applicable, so to invoke a function with a \c{long}
     parameter explicitly use \c{long(43)} or such.
 
-    \bold Note: The object pool manipulating functions are thread-safe.
+    \note The object pool manipulating functions are thread-safe.
 */
 
 /*!

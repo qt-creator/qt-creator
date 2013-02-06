@@ -92,15 +92,15 @@ public:
     \e{Elements in the Qt.labs module are not guaranteed to remain compatible
     in future versions.}
 
-    \bold{import Qt.labs.folderlistmodel 1.0}
+    \b {import Qt.labs.folderlistmodel 1.0}
 
     The \l folder property specifies the folder to access. Information about the
     files and directories in the folder is supplied via the model's interface.
     Components access names and paths via the following roles:
 
     \list
-    \o fileName
-    \o filePath
+    \li fileName
+    \li filePath
     \endlist
 
     Additionally a file entry can be differentiated from a folder entry via the
@@ -289,11 +289,11 @@ void QDeclarativeFolderListModel::componentComplete()
     The \a sortField property contains field to use for sorting.  sortField
     may be one of:
     \list
-    \o Unsorted - no sorting is applied.  The order is system default.
-    \o Name - sort by filename
-    \o Time - sort by time modified
-    \o Size - sort by file size
-    \o Type - sort by file type (extension)
+    \li Unsorted - no sorting is applied.  The order is system default.
+    \li Name - sort by filename
+    \li Time - sort by time modified
+    \li Size - sort by file size
+    \li Type - sort by file type (extension)
     \endlist
 
     \sa sortReversed

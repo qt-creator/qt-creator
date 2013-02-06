@@ -50,11 +50,11 @@
 
     \list 1
 
-        \o  In \gui Projects mode \gui {Run Settings}, select the
+        \li In \gui Projects mode \gui {Run Settings}, select the
             \gui {Enable QML} check box in the \gui {Debugger Settings} to
             enable QML debugging.
 
-        \o  For Qt 4.7, compile the QML Inspector debugging helper. For more information,
+        \li For Qt 4.7, compile the QML Inspector debugging helper. For more information,
             see \l{Debugging Helpers for QML}.
 
     \endlist
@@ -63,7 +63,7 @@
 
         \list 1
 
-        \o  Debugging is enabled by default for Qt 4.8, or later. For Qt 4.7,
+        \li Debugging is enabled by default for Qt 4.8, or later. For Qt 4.7,
             select \gui Projects, and then select the
             \gui {Enable QML debugging} check box in the \gui qmake section
             in \gui {Build Steps}.
@@ -79,14 +79,14 @@
             functions. Therefore, you must make sure that the port is properly
             protected by a firewall.
 
-        \o  In the \gui {Run Settings}, \gui {Debugger Settings} section, select
+        \li In the \gui {Run Settings}, \gui {Debugger Settings} section, select
             the \gui {Enable QML} check box to enable
             QML debugging.
 
-        \o  Select \gui {Build > Rebuild Project} to clean and rebuild the
+        \li Select \gui {Build > Rebuild Project} to clean and rebuild the
             project.
 
-        \o  To debug applications on devices, check that Qt 4.7.4, or later,
+        \li To debug applications on devices, check that Qt 4.7.4, or later,
             libraries are installed on the device and
             \l{Running on Multiple Platforms}{select the corresponding kit for the device}
             before you start debugging.
@@ -110,14 +110,14 @@
 
     \list
 
-        \o  Debug JavaScript functions
+        \li Debug JavaScript functions
 
-        \o  Execute JavaScript expressions to get information about the state of
+        \li Execute JavaScript expressions to get information about the state of
             the application
 
-        \o  Change QML code and immediately see the changes at runtime
+        \li Change QML code and immediately see the changes at runtime
 
-        \o  Inspect QML code and change it temporarily at runtime
+        \li Inspect QML code and change it temporarily at runtime
 
     \endlist
 
@@ -125,9 +125,9 @@
 
     \list 1
 
-        \o  Start the application.
+        \li Start the application.
 
-        \o  Select \gui {Debug > Start Debugging > Attach to QML Port}.
+        \li Select \gui {Debug > Start Debugging > Attach to QML Port}.
 
             When debugging on the desktop, you can use the default values for
             the connection. When debugging on devices, enter the device IP
@@ -142,11 +142,11 @@
 
     \list
 
-        \o  \l{Setting Breakpoints}{Setting breakpoints}
+        \li \l{Setting Breakpoints}{Setting breakpoints}
 
-        \o  \l{Viewing Call Stack Trace}{Viewing call stack trace}
+        \li \l{Viewing Call Stack Trace}{Viewing call stack trace}
 
-        \o  \l{Locals and Expressions}{Viewing locals and expressions}
+        \li \l{Locals and Expressions}{Viewing locals and expressions}
 
     \endlist
 
@@ -192,11 +192,11 @@
 
     \list
 
-        \o  Expand the element in the object tree.
+        \li Expand the element in the object tree.
 
-        \o  Select the element in the code editor.
+        \li Select the element in the code editor.
 
-        \o  Click
+        \li Click
             \inlineimage qml-inspector-select-button.png
             (\gui Select) to activate selection mode and then click an element
             in the running application.

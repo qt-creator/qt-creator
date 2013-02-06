@@ -203,11 +203,11 @@ static QStringList doSplitArgs(const QString &args, QtcProcess::SplitError *err)
 
     The behavior is based on the POSIX shell and bash:
     \list
-    \i Whitespace splits tokens
-    \i The backslash quotes the following character
-    \i A string enclosed in single quotes is not split. No shell meta
+    \li Whitespace splits tokens
+    \li The backslash quotes the following character
+    \li A string enclosed in single quotes is not split. No shell meta
         characters are interpreted.
-    \i A string enclosed in double quotes is not split. Within the string,
+    \li A string enclosed in double quotes is not split. Within the string,
         the backslash quotes shell meta characters - if it is followed
         by a "meaningless" character, the backslash is output verbatim.
     \endlist
@@ -220,16 +220,16 @@ static QStringList doSplitArgs(const QString &args, QtcProcess::SplitError *err)
 
     The behavior is defined by the Microsoft C runtime:
     \list
-    \i Whitespace splits tokens
-    \i A string enclosed in double quotes is not split
+    \li Whitespace splits tokens
+    \li A string enclosed in double quotes is not split
     \list
-        \i 3N double quotes within a quoted string yield N literal quotes.
+        \li 3N double quotes within a quoted string yield N literal quotes.
            This is not documented on MSDN.
     \endlist
-    \i Backslashes have special semantics iff they are followed by a double quote:
+    \li Backslashes have special semantics iff they are followed by a double quote:
     \list
-        \i 2N backslashes + double quote => N backslashes and begin/end quoting
-        \i 2N+1 backslashes + double quote => N backslashes + literal quote
+        \li 2N backslashes + double quote => N backslashes and begin/end quoting
+        \li 2N+1 backslashes + double quote => N backslashes + literal quote
     \endlist
     \endlist
     Qt and many other implementations comply with this standard, but many do not.
@@ -237,10 +237,10 @@ static QStringList doSplitArgs(const QString &args, QtcProcess::SplitError *err)
     If \a abortOnMeta is \c true, cmd shell semantics are applied before
     proceeding with word splitting:
     \list
-    \i Cmd ignores \e all special chars between double quotes.
+    \li Cmd ignores \e all special chars between double quotes.
         Note that the quotes are \e not removed at this stage - the
         tokenization rules described above still apply.
-    \i The \c circumflex is the escape char for everything including itself.
+    \li The \c circumflex is the escape char for everything including itself.
     \endlist
     As the quoting levels are independent from each other and have different
     semantics, you need a command line like \c{"foo "\^"" bar"} to get

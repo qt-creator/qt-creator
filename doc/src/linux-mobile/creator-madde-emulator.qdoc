@@ -92,81 +92,81 @@
 
     \table
         \header
-            \o Device Key
-            \o Keyboard Shortcut
+            \li  Device Key
+            \li  Keyboard Shortcut
         \row
-            \o \list
-                \o Alphabet keys
-                \o Comma (,)
-                \o Period (.)
-                \o Space
-                \o Arrow keys
-                \o Enter
-                \o Backspace
+            \li  \list
+                \li  Alphabet keys
+                \li  Comma (,)
+                \li  Period (.)
+                \li  Space
+                \li  Arrow keys
+                \li  Enter
+                \li  Backspace
                \endlist
-            \o Respective keys on the development PC keyboard.
+            \li  Respective keys on the development PC keyboard.
         \row
-            \o Shift
-            \o Left Shift key (Maemo 5)
+            \li  Shift
+            \li  Left Shift key (Maemo 5)
 
                Shift (Harmattan)
         \row
-            \o Ctrl
-            \o Left Ctrl key (Maemo 5)
+            \li  Ctrl
+            \li  Left Ctrl key (Maemo 5)
 
                Ctrl (Harmattan)
         \row
-            \o Mode
-            \o Left Alt key (Maemo 5)
+            \li  Mode
+            \li  Left Alt key (Maemo 5)
 
                Alt (Harmattan)
         \row
-            \o Power
-            \o Esc
+            \li  Power
+            \li  Esc
         \row
-            \o Keypad slider open and close
-            \o F1
+            \li  Keypad slider open and close
+            \li  F1
         \row
-            \o Keypad lock (Maemo 5 only)
-            \o F2
+            \li  Keypad lock (Maemo 5 only)
+            \li  F2
         \row
-            \o Camera lens open and close (Maemo 5 only)
-            \o F3
+            \li  Camera lens open and close (Maemo 5 only)
+            \li  F3
         \row
-            \o Camera focus
-            \o F4
+            \li  Camera focus
+            \li  F4
         \row
-            \o Camera take picture
-            \o F5
+            \li  Camera take picture
+            \li  F5
 
             \note The actual camera functionality is not emulated.
         \row
-            \o Stereo headphones connect and disconnect (Maemo 5 only)
-            \o F6
+            \li  Stereo headphones connect and disconnect (Maemo 5 only)
+            \li  F6
         \row
-            \o Volume down
-            \o F7
+            \li  Volume down
+            \li  F7
         \row
-            \o Volume up
-            \o F8
+            \li  Volume up
+            \li  F8
         \row
-            \o Accelerometer x axis, negative
-            \o 1
+            \li  Accelerometer x axis, negative
+            \li  1
         \row
-            \o Accelerometer x axis, positive
-            \o 2
+            \li  Accelerometer x axis, positive
+            \li  2
         \row
-            \o Accelerometer z axis, negative
-            \o 4
+            \li  Accelerometer z axis, negative
+            \li  4
         \row
-            \o Accelerometer z axis, positive
-            \o 5
+            \li  Accelerometer z axis, positive
+            \li  5
         \row
-            \o Accelerometer y axis, negative
-            \o 7
+            \li  Accelerometer y axis, negative
+            \li  7
         \row
-            \o Accelerometer y axis, positive
-            \o 8
+            \li  Accelerometer y axis, positive
+            \li  8
 
     \endtable
 

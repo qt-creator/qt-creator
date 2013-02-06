@@ -66,9 +66,9 @@
 
     \list 1
 
-        \o  Select \gui{File} > \gui{Open File or Project}.
+        \li Select \gui{File} > \gui{Open File or Project}.
 
-        \o  Select the \c{CMakeLists.txt} file from your \c CMake project.
+        \li Select the \c{CMakeLists.txt} file from your \c CMake project.
 
     \endlist
 
@@ -94,7 +94,7 @@
     \c nmake depending on your platform. The build errors and warnings are
     parsed and displayed in the \gui{Issues} output pane.
 
-    By default, \QC builds the \bold{all} target. You can specify which
+    By default, \QC builds the \b{all} target. You can specify which
     targets to build in \gui{Project} mode, under \gui{Build Settings}.
 
     \image qtcreator-cmake-build-settings.png

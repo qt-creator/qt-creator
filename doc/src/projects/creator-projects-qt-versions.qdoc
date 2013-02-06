@@ -51,20 +51,20 @@
 
         \list 1
 
-            \o  Select \gui {Tools > Options > Build & Run > Qt Versions > Add}.
+            \li Select \gui {Tools > Options > Build & Run > Qt Versions > Add}.
 
                 \image qtcreator-qt4-qtversions-add.png
 
-            \o  In the \gui{Version name} field, edit the name that \QC
+            \li In the \gui{Version name} field, edit the name that \QC
                 suggests for the Qt version.
 
-            \o  In the \gui{qmake location} field, enter the path to the
+            \li In the \gui{qmake location} field, enter the path to the
                 directory where the qmake executable is located.
 
                 \QC automatically determines the path to the binaries in
                 the Qt installation and displays it in the dialog.
 
-            \o  In the \gui Helpers section, you can build the debugging
+            \li In the \gui Helpers section, you can build the debugging
                 helpers that are available for the Qt version. This is
                 necessary, because the internal data structures of Qt can
                 change between versions. For more information, see
@@ -73,7 +73,7 @@
         \endlist
 
     \if defined(qcmanual)
-    \input qnx/creator-projects-qt-version-qnx.qdocinc
+    \include qnx/creator-projects-qt-version-qnx.qdocinc
     \endif
 
 */

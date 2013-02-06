@@ -40,17 +40,17 @@
 
     \list
 
-        \o  Package filename must include the application name and version
+        \li Package filename must include the application name and version
             number using three digits. For example: myapplication_1_0_1.deb
 
-        \o  Application files must be installed to the opt folder on the ext3
+        \li Application files must be installed to the opt folder on the ext3
             partition.
 
-        \o  Debian packages must be given the category user/hidden.
+        \li Debian packages must be given the category user/hidden.
 
-        \o  Application cannot crash or hang during use.
+        \li Application cannot crash or hang during use.
 
-        \o  The application must handle different memory situations correctly.
+        \li The application must handle different memory situations correctly.
 
     \endlist
 

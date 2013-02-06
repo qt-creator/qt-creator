@@ -52,14 +52,14 @@
     To build and run Qt applications for Maemo 5, you need the following:
     \list
 
-        \o  Maemo 5 device: Nokia N900 with software update release 1.3
+        \li Maemo 5 device: Nokia N900 with software update release 1.3
                     (V20.2010.36-2) or later installed.
        \if defined(qcmanual)
-       \o  MADDE cross-platform Maemo development
+       \li MADDE cross-platform Maemo development
            tool (installed as part of the Qt 4 SDK).
        \endif
 
-       \o Nokia USB drivers.
+       \li  Nokia USB drivers.
 
        Only needed if you develop on Windows and if you use a USB connection
        to run applications on the device. The drivers are
@@ -106,23 +106,23 @@
     To install and configure Mad Developer:
 
      \list 1
-         \o On the Nokia N900, select \gui{App Manager > Download} > \gui{Development} > \gui{mad-developer}
+         \li  On the Nokia N900, select \gui{App Manager > Download} > \gui{Development} > \gui{mad-developer}
          to install the Mad Developer software package.
-         \o Click \gui {Mad Developer} to start the Mad Developer application.
+         \li  Click \gui {Mad Developer} to start the Mad Developer application.
 
-         \o To use a WLAN connection, activate WLAN on the device and connect
+         \li  To use a WLAN connection, activate WLAN on the device and connect
          to the same network as the development PC. You can see the network
          address in the \gui wlan0 field.
 
-         \o To use a USB connection:
+         \li  To use a USB connection:
 
          \list a
 
-         \o If you are using Microsoft Windows as development host, you must
+         \li  If you are using Microsoft Windows as development host, you must
          change the driver loaded for instantiating the connection.
          In the Mad Developer, select \gui{Manage USB} and select \gui{Load g_ether}.
 
-         \o To set up the USB settings, click \gui Edit on the \gui usb0 row and
+         \li  To set up the USB settings, click \gui Edit on the \gui usb0 row and
          confirm by clicking \gui Configure.
 
           \note By default, you do not need to make changes. The \gui usb0 row
@@ -130,8 +130,8 @@
 
           \endlist
 
-       \o Select \gui{Developer Password} to generate a password for a freshly
-          created user called \bold developer. The password stays valid for as long
+       \li  Select \gui{Developer Password} to generate a password for a freshly
+          created user called \b developer. The password stays valid for as long
           as the password generation dialog is open. You enter the password when
           you configure the connection in \QC.
 
@@ -149,15 +149,15 @@
 
     \list 1
 
-        \o On the device, in \gui Programs, select \c {X Terminal} to open a
+        \li  On the device, in \gui Programs, select \c {X Terminal} to open a
         terminal window.
 
-        \o To install Qt Mobility libraries, enter the following command:
+        \li  To install Qt Mobility libraries, enter the following command:
         \c{/usr/lib/mad-developer/devrootsh apt-get install libqtm-*}
 
-        \o To confirm the installation, enter: \c Y
+        \li  To confirm the installation, enter: \c Y
 
-        \o Close the terminal.
+        \li  Close the terminal.
 
     \endlist
 
@@ -192,18 +192,18 @@
 
     \list 1
 
-    \o Open the Network Connections window.
+    \li  Open the Network Connections window.
 
-    \o Select the Linux USB Ethernet
+    \li  Select the Linux USB Ethernet
     connection that is displayed as a new Local Area Connection.
 
-    \o Edit the \gui {Internet Protocol Version 4 (TCP/IPv4)} properties
+    \li  Edit the \gui {Internet Protocol Version 4 (TCP/IPv4)} properties
     to specify the IP address for the connection.
     In the \gui {Use the following IP address} field, enter the following values:
     \list
-       \o  \gui {IP Address}: \bold {192.168.2.14}
-       \o  \gui SubnetMask: \bold {255.255.255.0}
-       \o  \gui {Default gateway}: leave this field empty
+       \li \gui {IP Address}: \b {192.168.2.14}
+       \li \gui SubnetMask: \b {255.255.255.0}
+       \li \gui {Default gateway}: leave this field empty
     \endlist
 
     \endlist
@@ -269,94 +269,94 @@
 
     \list 1
 
-        \o  To deploy applications and run them remotely on devices,
+        \li To deploy applications and run them remotely on devices,
             specify parameters for accessing devices:
 
             \list a
 
-            \o Connect your device to the development PC via a USB cable or
+            \li  Connect your device to the development PC via a USB cable or
             a WLAN. For a USB connection, you are prompted to select the mode
             to use. Choose \gui{PC suite mode}.
 
             \note If you experience connection problems due to a USB port issue,
             switch to a different port or use WLAN to connect to the device.
 
-            \o  Select \gui Tools > \gui Options > \gui Devices > \gui Add.
+            \li Select \gui Tools > \gui Options > \gui Devices > \gui Add.
 
-            \o  Select \gui {Maemo5/Fremantle} > \gui {Start Wizard}.
+            \li Select \gui {Maemo5/Fremantle} > \gui {Start Wizard}.
 
             \image qtcreator-dev-conf-maemo.png "Maemo device"
 
-            \o In the \gui {The name to identify this configuration} field,
+            \li  In the \gui {The name to identify this configuration} field,
             enter a name for the connection.
 
-            \o In the \gui {The kind of device} field, select
+            \li  In the \gui {The kind of device} field, select
             \gui {Hardware device}.
 
-            \o In the \gui {The device's host name or IP address} field, enter
+            \li  In the \gui {The device's host name or IP address} field, enter
             the IP address from the connectivity tool on the device.
 
-            \o In the \gui {The SSH server port} field, enter the port number to
+            \li  In the \gui {The SSH server port} field, enter the port number to
             use for SSH connections.
 
-            \o Click \gui Next.
+            \li  Click \gui Next.
 
-            \o Follow the instructions of the wizard to create the connection.
+            \li  Follow the instructions of the wizard to create the connection.
 
             \endlist
 
         \if defined(qcmanual)
 
-        \o To test applications on the emulator (QEMU) separately, you must
+        \li  To test applications on the emulator (QEMU) separately, you must
            create a connection to it from the development PC. If you installed
            Qt 4 SDK, the connection is created automatically and you can omit this
            step.
 
             \list a
 
-                \o  In \QC, select \gui Tools > \gui Options > \gui Devices >
+                \li In \QC, select \gui Tools > \gui Options > \gui Devices >
                     \gui Add to add a new configuration.
 
-                \o In the \gui {The kind of device} field, select
+                \li  In the \gui {The kind of device} field, select
                 \gui Emulator.
 
-                \o Click \gui Next.
+                \li  Click \gui Next.
 
-                \o Follow the instructions of the wizard to create and test the
+                \li  Follow the instructions of the wizard to create and test the
                 connection.
 
             \endlist
     \endif
 
-            \o  Select \gui Tools > \gui Options > \gui {Build & Run} >
+            \li Select \gui Tools > \gui Options > \gui {Build & Run} >
                 \gui Kits > \gui Add to add a kit for building for the device:
 
             \list a
 
-                \o  In the \gui {Device type} field, select
+                \li In the \gui {Device type} field, select
                     \gui {Maemo5/Fremantle}.
 
-                \o  In the \gui Device field, select the device that you added
+                \li In the \gui Device field, select the device that you added
                     above.
 
-                \o  In the \gui Sysroot field, specify the path to the sysroot.
+                \li In the \gui Sysroot field, specify the path to the sysroot.
                     By default, the Qt 4 SDK installer places sysroot in the
                     following folder:
                     \c{QtSDK\Maemo\4.6.2\sysroots\fremantle-arm-sysroot-20.2010.36-2-slim}.
 
-                \o  In the \gui {Compiler type} field, select GCC.
+                \li In the \gui {Compiler type} field, select GCC.
 
-                \o  In the \gui Compiler field, specify the path to the GCC
+                \li In the \gui Compiler field, specify the path to the GCC
                     compiler. By default, the Qt 4 SDK installer places the
                     compiler in the following folder:
                     \c{QtSDK\Maemo\4.6.2\targets\fremantle-pr13\bin\}.
 
-                \o  In the \gui Debugger field, specify the path to GDB. By
+                \li In the \gui Debugger field, specify the path to GDB. By
                     default, the Qt 4 SDK installer places the debugger
                     in the following folder:
                     \c{QtSDK\Maemo\4.6.2\targets\fremantle-pr13\bin\}.
 
-                \o  In the \gui {Qt version} field, choose the MADDE Qt version
+                \li In the \gui {Qt version} field, choose the MADDE Qt version
                     for Maemo5/Fremantle. By default, the Qt 4 SDK installer
                     places qmake in the following folder:
                     \c{QtSDK\Maemo\4.6.2\targets\fremantle-pr13\bin\}.
@@ -365,15 +365,15 @@
 
                 You can leave the \gui {Qt mkspec} field empty.
 
-            \o  Open a project for an application you want to develop for your
+            \li Open a project for an application you want to develop for your
                 device.
 
-            \o  Select \gui Projects > \gui {Build & Run} > \gui {Add Kit} to
+            \li Select \gui Projects > \gui {Build & Run} > \gui {Add Kit} to
                 add the kit that you specified above.
 
-            \o  Select \gui Run to specify run settings for the project.
+            \li Select \gui Run to specify run settings for the project.
 
-            \o  The mobile application wizard automatically sets the folder
+            \li The mobile application wizard automatically sets the folder
                 where the file is installed on the device in the \gui {Remote
                 Directory} field. For example, \c {/opt/usr/bin}. If the text
                 \gui {<no target path set>} is displayed, click it to specify a
@@ -389,15 +389,15 @@
 
     \list 1
 
-        \o  On the device, in \gui Programs, select \c {X Terminal} to open a
+        \li On the device, in \gui Programs, select \c {X Terminal} to open a
             terminal window.
 
-        \o  To specify the password, enter the following command:
+        \li To specify the password, enter the following command:
             \c{/usr/lib/mad-developer/devrootsh passwd user}
 
-        \o  In \QC, select \gui Tools > \gui Options > \gui Devices.
+        \li In \QC, select \gui Tools > \gui Options > \gui Devices.
 
-        \o  Specify the username \c user and the password in the device
+        \li Specify the username \c user and the password in the device
             configuration.
 
     \endlist
@@ -411,24 +411,24 @@
     \table
 
         \header
-            \o IP Address and Network on Device
-            \o USB Network on Development PC
-            \o Host Name in \QC Build Settings
+            \li  IP Address and Network on Device
+            \li  USB Network on Development PC
+            \li  Host Name in \QC Build Settings
 
         \row
-            \o 172.30.7.15 255.255.255.0
-            \o 172.30.7.14 255.255.255.0
-            \o 172.30.7.15
+            \li  172.30.7.15 255.255.255.0
+            \li  172.30.7.14 255.255.255.0
+            \li  172.30.7.15
 
         \row
-            \o 10.133.133.15
-            \o 10.133.133.14
-            \o 10.133.133.15
+            \li  10.133.133.15
+            \li  10.133.133.14
+            \li  10.133.133.15
 
         \row
-            \o 192.168.133.15
-            \o 192.168.133.14
-            \o 192.168.133.15
+            \li  192.168.133.15
+            \li  192.168.133.14
+            \li  192.168.133.15
 
             \note You cannot use the value localhost for connections to a device.
 

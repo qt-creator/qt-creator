@@ -35,19 +35,19 @@
 
     \list
 
-        \o  To view documentation, switch to \gui Help mode.
+        \li To view documentation, switch to \gui Help mode.
 
-        \o  To view context sensitive help on a Qt class or function as a
+        \li To view context sensitive help on a Qt class or function as a
             tooltip, move the mouse cursor over the class or function. If help
             is not available, the tooltip displays type information for the
             symbol.
 
-        \o  To display the full help on a Qt class or function, press \key F1.
+        \li To display the full help on a Qt class or function, press \key F1.
             The documentation is displayed in a
             pane next to the code editor, or, if there is not enough vertical
             space, in the fullscreen \gui Help mode.
 
-        \o  To select and configure how the documentation is displayed in the
+        \li To select and configure how the documentation is displayed in the
             \gui Help mode, select \gui Tools > \gui Options > \gui Help.
 
     \endlist
@@ -75,19 +75,19 @@
 
     \list
 
-        \o  \gui Bookmarks to view a list of pages on which you have added
+        \li \gui Bookmarks to view a list of pages on which you have added
             bookmarks.
 
-        \o  \gui Contents to see all the documentation installed on the
+        \li \gui Contents to see all the documentation installed on the
             development PC and to browse the documentation contents.
 
-        \o  \gui Index to find information based on a list of keywords in all
+        \li \gui Index to find information based on a list of keywords in all
             the installed documents.
 
-        \o  \gui {Open Pages} to view a list of currently open documentation
+        \li \gui {Open Pages} to view a list of currently open documentation
             pages.
 
-        \o  \gui Search to search from all the installed documents.
+        \li \gui Search to search from all the installed documents.
 
     \endlist
 
@@ -104,11 +104,11 @@
 
     \list 1
 
-        \o  Click the
+        \li Click the
             \inlineimage qtcreator-help-add-bookmark.png
             (\gui {Add Bookmark}) button on the toolbar.
 
-        \o  In the \gui {Add Bookmark} dialog, click \gui OK to save the
+        \li In the \gui {Add Bookmark} dialog, click \gui OK to save the
             page title as a bookmark in the \gui Bookmarks folder.
 
     \endlist
@@ -131,16 +131,16 @@
 
     \list
 
-        \o  \c deep lists all the documents that contain the word \c deep.
+        \li \c deep lists all the documents that contain the word \c deep.
             The search is not case sensitive.
 
-        \o  \c{deep*} lists all the documents that contain a word beginning
+        \li \c{deep*} lists all the documents that contain a word beginning
             with \c deep
 
-        \o  \c{deep copy} lists all documents that contain both \c deep and
+        \li \c{deep copy} lists all documents that contain both \c deep and
             \c copy
 
-        \o  \c{"deep copy"} lists all documents that contain the phrase
+        \li \c{"deep copy"} lists all documents that contain the phrase
             \c{deep copy}
 
     \endlist
@@ -172,14 +172,14 @@
 
     \list 1
 
-        \o  Create a .qch file from your documentation.
+        \li Create a .qch file from your documentation.
 
             For information on how to prepare your documentation and create a
             .qch file, see
             \l{http://qt-project.org/doc/qt-4.8/qthelp-framework.html}
             {The Qt Help Framework}.
 
-        \o  To add the .qch file to \QC, select \gui Tools > \gui Options >
+        \li To add the .qch file to \QC, select \gui Tools > \gui Options >
             \gui Help > \gui Documentation > \gui Add.
 
     \endlist
@@ -232,18 +232,18 @@
 
     \list 1
 
-        \o  Select \gui {Tools > Options > Help > Filters > Add}.
+        \li Select \gui {Tools > Options > Help > Filters > Add}.
 
-        \o  Enter a name for the filter and press \gui {OK}.
+        \li Enter a name for the filter and press \gui {OK}.
 
-        \o  In \gui Attributes, select the documents that you want to include
+        \li In \gui Attributes, select the documents that you want to include
             in the filter.
 
             \image qtcreator-help-filter-attributes.png "Help filter attributes"
 
-        \o  Click \gui OK.
+        \li Click \gui OK.
 
-        \o  In the \gui Help mode, select the filter in the \gui {Filtered by}
+        \li In the \gui Help mode, select the filter in the \gui {Filtered by}
             field to see the filtered documentation in the sidebar.
 
     \endlist

@@ -2,17 +2,17 @@
 
     \list 1
 
-        \o  Build and run the application for \l{Running on Qt Simulator}
+        \li Build and run the application for \l{Running on Qt Simulator}
             {\QS}.
 
-        \o  Build and run the application for a device:
+        \li Build and run the application for a device:
 
         \list 1
 
-            \o  Specify a connection to the device. For more information, see
+            \li Specify a connection to the device. For more information, see
                 \l{Connecting Embedded Linux Devices}.
 
-            \o  Click the \gui Run button.
+            \li Click the \gui Run button.
 
         \endlist
 

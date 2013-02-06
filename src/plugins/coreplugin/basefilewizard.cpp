@@ -351,8 +351,8 @@ void WizardEventLoop::rejected()
 
     The abstract methods:
     \list
-    \o createWizardDialog(): Called to create the QWizard dialog to be shown
-    \o generateFiles(): Generate file content
+    \li createWizardDialog(): Called to create the QWizard dialog to be shown
+    \li generateFiles(): Generate file content
     \endlist
 
     must be implemented.

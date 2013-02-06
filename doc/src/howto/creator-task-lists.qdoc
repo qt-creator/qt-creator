@@ -61,13 +61,13 @@
 
     \list
 
-        \o  \c description
+        \li \c description
 
-        \o  \c{type\tdescription}
+        \li \c{type\tdescription}
 
-        \o  \c{file\ttype\tdescription}
+        \li \c{file\ttype\tdescription}
 
-        \o  \c{file\tline\ttype\tdescription}
+        \li \c{file\tline\ttype\tdescription}
 
     \endlist
 
@@ -75,12 +75,12 @@
 
     \list
 
-        \o  A string starting with \c err, which displays the error icon in the
+        \li A string starting with \c err, which displays the error icon in the
             beginning of the line
 
-        \o  A string starting with \c warn, which displays the warning icon
+        \li A string starting with \c warn, which displays the warning icon
 
-        \o  Any other value, which sets the task type to Unknown and does not
+        \li Any other value, which sets the task type to Unknown and does not
             display an icon
 
     \endlist

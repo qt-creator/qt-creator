@@ -51,16 +51,16 @@
 
     \list 1
 
-        \o  Select \gui {Projects > Code Style Settings}.
+        \li Select \gui {Projects > Code Style Settings}.
 
-        \o  In the \gui Language field, select \gui C++ or \gui {Qt Quick}.
+        \li In the \gui Language field, select \gui C++ or \gui {Qt Quick}.
 
-        \o  In the \gui {Current settings} field, select the settings to modify
+        \li In the \gui {Current settings} field, select the settings to modify
             and click \gui Copy.
 
-        \o  Give a name to the settings and click \gui OK.
+        \li Give a name to the settings and click \gui OK.
 
-        \o  Click \gui Edit to specify code style settings for the project.
+        \li Click \gui Edit to specify code style settings for the project.
 
             \image qtcreator-code-style-settings-edit-cpp.png "Edit Code Style Settings dialog"
 

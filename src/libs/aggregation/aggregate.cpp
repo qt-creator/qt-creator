@@ -55,8 +55,8 @@
     other components in the Aggregate to the outside.
     Specifically that means:
     \list
-    \o They can be "cast" to each other (using query and query_all methods).
-    \o Their life cycle is coupled, i.e. whenever one is deleted all of them are.
+    \li They can be "cast" to each other (using query and query_all methods).
+    \li Their life cycle is coupled, i.e. whenever one is deleted all of them are.
     \endlist
     Components can be of any QObject derived type.
 

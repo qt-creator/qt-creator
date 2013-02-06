@@ -56,28 +56,28 @@
 
     \list 1
 
-        \o  Select \gui {Tools > Options > Environment > MIME Types}.
+        \li Select \gui {Tools > Options > Environment > MIME Types}.
 
             \image qtcreator-mime-types.png "MIME Types"
 
-        \o  In \gui {MIME Type}, select a MIME type.
+        \li In \gui {MIME Type}, select a MIME type.
 
-        \o  In \gui Patterns, add the filename extension for the type of files
+        \li In \gui Patterns, add the filename extension for the type of files
             that you want to identify as having this MIME type.
 
-        \o  Click \gui Add to add \gui {Magic Headers}.
+        \li Click \gui Add to add \gui {Magic Headers}.
 
             \image qtcreator-mime-types-magic-header.png "Magic Header"
 
-        \o  In the \gui Value field, specify a text string or bytes that
+        \li In the \gui Value field, specify a text string or bytes that
             appear in the files.
 
-        \o  In the \gui Type field, select the type of the value.
+        \li In the \gui Type field, select the type of the value.
 
             \note You are recommended not to change the range and priority,
             because it might cause problems when opening files in \QC.
 
-        \o  Click \gui OK.
+        \li Click \gui OK.
 
     \endlist
 

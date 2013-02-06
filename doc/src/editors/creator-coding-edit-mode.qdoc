@@ -68,14 +68,14 @@
 
     \list
 
-        \o  To split the editor view into a top and bottom view, select
+        \li To split the editor view into a top and bottom view, select
             \gui Window > \gui Split, press \key{Ctrl+E, 2}, or select the
             \inlineimage qtcreator-split-button.png
             (\gui Split) button and then select \gui Split.
 
             Split command creates views below the currently active editor view.
 
-        \o  To split the editor view into adjacent views, select
+        \li To split the editor view into adjacent views, select
             \gui Window > \gui{Split Side by Side}, press \key{Ctrl+E, 3}, or
             select \gui {Split > Split Side by Side}.
 
@@ -101,11 +101,11 @@
 
     \list
 
-        \o  Right-click the line number and select \gui{Toggle Bookmark}.
+        \li Right-click the line number and select \gui{Toggle Bookmark}.
 
-        \o  Press \key Shift and click the left margin at a line.
+        \li Press \key Shift and click the left margin at a line.
 
-        \o  Press \key{Ctrl+M} when the cursor is on a line.
+        \li Press \key{Ctrl+M} when the cursor is on a line.
 
     \endlist
 

@@ -55,9 +55,9 @@ typedef Utils::ChangeSet::Range Range;
 
     The following constructs are supported:
     \list
-     \o Simple declarations
-     \o Parameters and return types of function declarations and definitions
-     \o Control flow statements like if, while, for, foreach
+     \li Simple declarations
+     \li Parameters and return types of function declarations and definitions
+     \li Control flow statements like if, while, for, foreach
     \endlist
 */
 

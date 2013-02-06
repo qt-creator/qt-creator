@@ -36,13 +36,13 @@
 
     \list
 
-        \o  \l{Setting Up Debugger}
+        \li \l{Setting Up Debugger}
 
             The debugger plugin automatically selects a suitable
             native debugger for your projects from the ones found
             on your system. Manual overriding of this choice is possible.
 
-        \o  \l{Launching the Debugger}
+        \li \l{Launching the Debugger}
 
             To start an application from an open project under the control
             of a debugger, press the Debug button in the lower left corner
@@ -50,12 +50,12 @@
             options are available in the \gui{Debug} > \gui{Start Debugging}
             menu.
 
-        \o  \l{Interacting with the Debugger}
+        \li \l{Interacting with the Debugger}
 
             You can use the tool views in the \gui Debug mode to inspect the
             state of your application while debugging.
 
-        \o  \l{Using Debugging Helpers}
+        \li \l{Using Debugging Helpers}
 
             \QC is able to show complex data types in a customized,
             user-extensible manner. For this purpose, it takes advantage of
@@ -64,7 +64,7 @@
             debugging with \QC, but they provide you with a powerful
             tool to quickly examine complex data.
 
-        \o  \l{Debugging Qt Quick Projects}
+        \li \l{Debugging Qt Quick Projects}
 
             When debugging a Qt Quick application, you can inspect the state
             of the application while debugging JavaScript functions. You can set
@@ -73,15 +73,15 @@
             objects and user interfaces, as well as execute JavaScript
             expressions.
 
-        \o  \l{Debugging a C++ Example Application}
+        \li \l{Debugging a C++ Example Application}
 
             Illustrates how to debug C++ applications in \QC.
 
-        \o  \l{Debugging a Qt Quick Example Application}
+        \li \l{Debugging a Qt Quick Example Application}
 
             Illustrates how to debug Qt Quick applications in \QC.
 
-        \o  \l{Troubleshooting Debugger}
+        \li \l{Troubleshooting Debugger}
 
             If you encounter problems while debugging, check for possible
             solutions to them.
@@ -140,20 +140,20 @@
 
     \list
 
-       \o  \bold{Start Internal} to debug applications developed inside
+       \li \b{Start Internal} to debug applications developed inside
             \QC such as a Qt based GUI application.
 
-       \o  \bold{Start External} to start and debug processes
+       \li \b{Start External} to start and debug processes
             without a proper \QC project setup, either locally or
             on a remote machine.
 
-       \o  \bold{Attach} to debug processes already started and
+       \li \b{Attach} to debug processes already started and
             running outside \QC, either locally or on a
             remote machine.
 
-       \o  \bold{Core} to debug crashed processes on Unix.
+       \li \b{Core} to debug crashed processes on Unix.
 
-       \o  \bold{Post-mortem} to debug crashed processes on Windows.
+       \li \b{Post-mortem} to debug crashed processes on Windows.
 
     \endlist
 
@@ -276,13 +276,13 @@
 
     \list 1
 
-        \o  Select \gui {Debug > Start Debugging > Attach to Remote
+        \li Select \gui {Debug > Start Debugging > Attach to Remote
             Debug Server}.
 
-        \o  In the \gui {Host and port} field, enter the name of the remote
+        \li In the \gui {Host and port} field, enter the name of the remote
             machine and the port number to use.
 
-        \o  Select \gui{OK} to start debugging.
+        \li Select \gui{OK} to start debugging.
 
     \endlist
 
@@ -296,11 +296,11 @@
 
     \list 1
 
-        \o  Install the \e{Debugging Tools for Windows} on the remote machine.
+        \li Install the \e{Debugging Tools for Windows} on the remote machine.
             The installation folder contains the CDB command line executable
             (cdb.exe).
 
-        \o  Copy the \QC CDB extension library from the Qt installation
+        \li Copy the \QC CDB extension library from the Qt installation
             directory to the a new folder on the remote machine
             (32 or 64 bit version depending on the version of the Debugging
             Tools for Windows
@@ -308,27 +308,27 @@
 
         \list
 
-            \o  \c {\lib\qtcreatorcdbext32\qtcreatorcdbext.dll} (32 bit)
+            \li \c {\lib\qtcreatorcdbext32\qtcreatorcdbext.dll} (32 bit)
 
-            \o  \c {\lib\qtcreatorcdbext64\qtcreatorcdbext.dll} (64 bit)
+            \li \c {\lib\qtcreatorcdbext64\qtcreatorcdbext.dll} (64 bit)
 
         \endlist
 
-        \o  Set the _NT_DEBUGGER_EXTENSION_PATH environment variable to point
+        \li Set the _NT_DEBUGGER_EXTENSION_PATH environment variable to point
             to that folder.
 
-        \o  To use TCP/IP as communication protocol, launch remote CDB as
+        \li To use TCP/IP as communication protocol, launch remote CDB as
             follows:
 
             \code
             cdb.exe -server tcp:port=1234 <executable>
             \endcode
 
-        \o  On the local machine running \QC, select
+        \li On the local machine running \QC, select
             \gui {Debug > Start Debugging > Attach to Remote CDB Session}
 
 
-        \o  In the \gui Connection field enter the connection parameters.
+        \li In the \gui Connection field enter the connection parameters.
             For example, for TCP/IP:
 
             \code
@@ -348,7 +348,7 @@
             ssl:proto=Protocol,{certuser=Cert|machuser=Cert},clicon=Server,port=Socket[,password=Password]
             \endcode
 
-            \o Click \gui{OK} to start debugging.
+            \li  Click \gui{OK} to start debugging.
 
     \endlist
 */
@@ -368,24 +368,24 @@
 
     \list
 
-        \o  Go through a program line-by-line or instruction-by-instruction.
+        \li Go through a program line-by-line or instruction-by-instruction.
 
-        \o  Interrupt running programs.
+        \li Interrupt running programs.
 
-        \o  Set breakpoints.
+        \li Set breakpoints.
 
-        \o  Examine the contents of the call stack.
+        \li Examine the contents of the call stack.
 
-        \o  Examine and modify contents of local and global variables.
+        \li Examine and modify contents of local and global variables.
 
-        \o  Examine and modify registers and memory contents of
+        \li Examine and modify registers and memory contents of
             the debugged program.
 
-        \o  Examine the list of loaded shared libraries.
+        \li Examine the list of loaded shared libraries.
 
-        \o  Disassemble sections of code.
+        \li Disassemble sections of code.
 
-        \o  Create snapshots of the current state of the debugged program
+        \li Create snapshots of the current state of the debugged program
             and re-examine them later.
 
     \endlist
@@ -431,14 +431,14 @@
 
     \list
 
-        \o  Retrieves data representing the call stack at the program's current
+        \li Retrieves data representing the call stack at the program's current
             position.
 
-        \o  Retrieves the contents of local variables.
+        \li Retrieves the contents of local variables.
 
-        \o  Examines \gui Expressions.
+        \li Examines \gui Expressions.
 
-        \o  Updates the \gui Registers, \gui Modules, and \gui Disassembler
+        \li Updates the \gui Registers, \gui Modules, and \gui Disassembler
             views if you are debugging the C++ based applications.
 
     \endlist
@@ -449,15 +449,15 @@
 
     \list
 
-       \o  To finish debugging, press \key{Shift+F5}.
+       \li To finish debugging, press \key{Shift+F5}.
 
-       \o  To execute a line of code as a whole, press \key{F10}.
+       \li To execute a line of code as a whole, press \key{F10}.
 
-       \o  To step into a function or a subfunction, press \key{F11}.
+       \li To step into a function or a subfunction, press \key{F11}.
 
-       \o  To continue running the program, press \key{F5}.
+       \li To continue running the program, press \key{F5}.
 
-       \o  To run to the selected function when you are stepping into a nested
+       \li To run to the selected function when you are stepping into a nested
            function, press \key{Ctrl+F6}.
 
     \endlist
@@ -482,19 +482,19 @@
 
     \list
 
-        \o  Source code files and lines
+        \li Source code files and lines
 
-        \o  Functions
+        \li Functions
 
-        \o  Addresses
+        \li Addresses
 
-        \o  Throwing and catching exceptions
+        \li Throwing and catching exceptions
 
-        \o  Executing and forking processes
+        \li Executing and forking processes
 
-        \o  Executing some system calls
+        \li Executing some system calls
 
-        \o  Changes in a block of memory at a particular address when a
+        \li Changes in a block of memory at a particular address when a
             program is running
 
     \endlist
@@ -514,12 +514,12 @@
 
     \list
 
-        \o  By clicking the breakpoint marker in the text editor.
+        \li By clicking the breakpoint marker in the text editor.
 
-        \o  By selecting the breakpoint in the breakpoint view and pressing
+        \li By selecting the breakpoint in the breakpoint view and pressing
             \key{Delete}.
 
-        \o  By selecting \gui{Delete Breakpoint} from the context
+        \li By selecting \gui{Delete Breakpoint} from the context
             menu in the \gui Breakpoints view.
 
     \endlist
@@ -534,15 +534,15 @@
 
     \list 1
 
-        \o  Right-click in the \gui Breakpoints view to open the context menu,
+        \li Right-click in the \gui Breakpoints view to open the context menu,
             and select \gui {Add Breakpoint}.
 
-        \o  In the \gui {Breakpoint type} field, select \gui {Break on data
+        \li In the \gui {Breakpoint type} field, select \gui {Break on data
             access at fixed address}.
 
-        \o  In the \gui Address field, specify the address of the memory block.
+        \li In the \gui Address field, specify the address of the memory block.
 
-        \o  Select \gui OK.
+        \li Select \gui OK.
 
     \endlist
 
@@ -589,16 +589,16 @@
 
     \table
         \row
-            \o  \bold{Note:}
+            \li \b{Note:}
 
         \row
-            \o  GDB, and therefore \QC's debugger works for optimized
+            \li GDB, and therefore \QC's debugger works for optimized
                 builds on Linux and Mac OS X. Optimization can lead to
                 re-ordering of instructions or removal of some local variables,
                 causing the \gui{Locals and Expressions} view to show unexpected
                 data.
         \row
-            \o  The debug information provided by GCC does not include enough
+            \li The debug information provided by GCC does not include enough
                 information about the time when a variable is initialized.
                 Therefore, \QC can not tell whether the contents of a
                 local variable contains "real data", or "initial noise". If a
@@ -616,11 +616,11 @@
 
     \list
 
-        \o  Select \gui Tools > \gui {Options} > \gui Debugger >
+        \li Select \gui Tools > \gui {Options} > \gui Debugger >
             \gui{Debugging Helper} and check the \gui{Use Debugging Helper}
             checkbox.
 
-        \o  The \gui{Locals and Expressions} view is reorganized to provide a
+        \li The \gui{Locals and Expressions} view is reorganized to provide a
             high-level view of the objects.
 
     \endlist
@@ -686,9 +686,9 @@
 
     \list
 
-        \o \c {C:\qtcreator\bin>qtcreator -debug 2000}
+        \li  \c {C:\qtcreator\bin>qtcreator -debug 2000}
 
-        \o \c {C:\qtcreator\bin>qtcreator -debug core.2000}
+        \li  \c {C:\qtcreator\bin>qtcreator -debug core.2000}
 
     \endlist
 
@@ -723,17 +723,17 @@
 
     \list
 
-        \o  Updating the module list
+        \li Updating the module list
 
-        \o  Loading symbols for modules
+        \li Loading symbols for modules
 
-        \o  Examining modules
+        \li Examining modules
 
-        \o  Editing module files
+        \li Editing module files
 
-        \o  Showing symbols in modules
+        \li Showing symbols in modules
 
-        \o  Showing dependencies between modules (Windows only)
+        \li Showing dependencies between modules (Windows only)
 
     \endlist
 
@@ -863,10 +863,10 @@
 
     \list
 
-        \o  There is no Python-enabled GDB for Mac OS. Mac OS continues
+        \li There is no Python-enabled GDB for Mac OS. Mac OS continues
             injection with C++ based debugging helpers.
 
-        \o  There is no GDB to communicate with MSVC compiled applications on
+        \li There is no GDB to communicate with MSVC compiled applications on
             Windows. So information can be displayed nicely only in a limited
             fashion by using a cdb extension DLL.
 
@@ -898,9 +898,9 @@
 
     \list
 
-       \o  \c d of type \c Dumper
+       \li \c d of type \c Dumper
 
-       \o  \c value of type \c gdb.Value
+       \li \c value of type \c gdb.Value
 
     \endlist
 
@@ -974,40 +974,40 @@
 
     \list
 
-        \o  \gui{__init__(self)} - Initializes the output to an empty string and
+        \li \gui{__init__(self)} - Initializes the output to an empty string and
             empties the child stack. This should not be used in user code.
 
-        \o  \gui{put(self, value)} - Low level method to directly append to the
+        \li \gui{put(self, value)} - Low level method to directly append to the
             output string. That is also the fastest way to append output.
 
-        \o  \gui{putField(self, name, value)} - Appends a name='value' field.
+        \li \gui{putField(self, name, value)} - Appends a name='value' field.
 
-        \o  \gui{childRange(self)} - Returns the range of children specified in
+        \li \gui{childRange(self)} - Returns the range of children specified in
             the current \c Children scope.
 
-        \o  \gui{putItemCount(self, count)} - Appends a field
+        \li \gui{putItemCount(self, count)} - Appends a field
             \c {value='<%d items'} to the output.
 
-        \o  \gui{putEllipsis(self)} - Appends fields
+        \li \gui{putEllipsis(self)} - Appends fields
             \c {'{name="<incomplete>",value="",type="",numchild="0"}'}. This is
             automatically done by \c endChildren if the number of children to
             print is smaller than the number of actual children.
 
-        \o  \gui{putName(self, name)} - Appends a \c {name=''} field.
+        \li \gui{putName(self, name)} - Appends a \c {name=''} field.
 
-        \o  \gui{putType(self, type, priority=0)} - Appends a field \c {type=''}
+        \li \gui{putType(self, type, priority=0)} - Appends a field \c {type=''}
             unless the \a type coincides with the parent's default child type or
             \c putType was already called for the current item with a higher
             value of \c priority.
 
-        \o  \gui{putBetterType(self, type)} - Overrides the last recorded
+        \li \gui{putBetterType(self, type)} - Overrides the last recorded
             \c type.
 
-        \o  \gui{putNumChild(self, numchild)} - Appends a field \c {numchild=''}
+        \li \gui{putNumChild(self, numchild)} - Appends a field \c {numchild=''}
             unless the \c numchild coincides with the parent's default child
             numchild value.
 
-        \o  \gui{putValue(self, value, encoding = None)} - Append a file \c {value=''},
+        \li \gui{putValue(self, value, encoding = None)} - Append a file \c {value=''},
             optionally followed by a field \c {valueencoding=''}. The \c value
             needs to be convertible to a string entirely consisting of
             alphanumerical values. The \c encoding parameter can be used to
@@ -1017,38 +1017,38 @@
 
         \list
 
-            \o  0: unencoded 8 bit data, interpreted as Latin1.
+            \li 0: unencoded 8 bit data, interpreted as Latin1.
 
-            \o  1: base64 encoded 8 bit data, used for QByteArray,
+            \li 1: base64 encoded 8 bit data, used for QByteArray,
                 double quotes are added.
 
-            \o  2: base64 encoded 16 bit data, used for QString,
+            \li 2: base64 encoded 16 bit data, used for QString,
                 double quotes are added.
 
-            \o  3: base64 encoded 32 bit data,
+            \li 3: base64 encoded 32 bit data,
                 double quotes are added.
 
-            \o  4: base64 encoded 16 bit data, without quotes (see 2)
+            \li 4: base64 encoded 16 bit data, without quotes (see 2)
 
-            \o  5: base64 encoded 8 bit data, without quotes (see 1)
+            \li 5: base64 encoded 8 bit data, without quotes (see 1)
 
-            \o  6: %02x encoded 8 bit data (as with \c QByteArray::toHex),
+            \li 6: %02x encoded 8 bit data (as with \c QByteArray::toHex),
                 double quotes are added.
 
-            \o  7: %04x encoded 16 bit data (as with \c QByteArray::toHex),
+            \li 7: %04x encoded 16 bit data (as with \c QByteArray::toHex),
                 double quotes are added.
         \endlist
 
-        \o  \gui{putStringValue(self, value)} - Encodes a QString and calls
+        \li \gui{putStringValue(self, value)} - Encodes a QString and calls
             \c putValue with the correct \c encoding setting.
 
-        \o  \gui{putByteArrayValue(self, value)} - Encodes a QByteArray and calls
+        \li \gui{putByteArrayValue(self, value)} - Encodes a QByteArray and calls
             \c putValue with the correct \c encoding setting.
 
-        \o  \gui{isExpanded()} - Checks whether the current item
+        \li \gui{isExpanded()} - Checks whether the current item
             is expanded in the view.
 
-        \o  \gui{putIntItem(self, name, value)} - Equivalent to:
+        \li \gui{putIntItem(self, name, value)} - Equivalent to:
             \code
             with SubItem(self, name):
                 self.putValue(value)
@@ -1057,7 +1057,7 @@
                 self.putNumChild(0)
             \endcode
 
-        \o  \gui{putBoolItem(self, name, value)} - Equivalent to:
+        \li \gui{putBoolItem(self, name, value)} - Equivalent to:
             \code
             with SubItem(self, name):
                 self.putValue(value)
@@ -1065,7 +1065,7 @@
                 self.putNumChild(0)
             \endcode
 
-        \o  \gui{putCallItem(self, name, value, func, *args)} -
+        \li \gui{putCallItem(self, name, value, func, *args)} -
             Uses GDB to call the function \c func on the value specified by
             \a {value} and output the resulting item. Use \c{putCallItem}
             only if there is no other way to access the data.
@@ -1074,12 +1074,12 @@
             and have the potential to change the state of the debugged
             program.
 
-        \o  \gui{putItem(self, value)} - The "master function", handling
+        \li \gui{putItem(self, value)} - The "master function", handling
             basic types, references, pointers and enums directly, iterates
             over base classes and class members of compound types and calls
             \c qdump__* functions whenever appropriate.
 
-        \o  \gui{putSubItem(self, component, value)} - Equivalent to:
+        \li \gui{putSubItem(self, component, value)} - Equivalent to:
             \code
             with SubItem(self, component):
                 self.putItem(value)
@@ -1203,12 +1203,12 @@
 
     \list 1
 
-        \o  Make sure you use at least \QC 2.1.
+        \li Make sure you use at least \QC 2.1.
 
-        \o  Make sure the debugger is set up properly. For more information,
+        \li Make sure the debugger is set up properly. For more information,
             see \l{Setting Up Debugger}.
 
-        \o  In the \gui Debug mode, select \gui {Windows > Views > Debugger
+        \li In the \gui Debug mode, select \gui {Windows > Views > Debugger
             Log} to open the \gui {Debugger Log} view. Browse the contents of
             the pane on the right hand side to find out what went wrong.
             Always attach the contents of the pane to debugger-related

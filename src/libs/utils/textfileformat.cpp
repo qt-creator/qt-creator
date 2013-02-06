@@ -65,9 +65,9 @@ QDebug operator<<(QDebug d, const TextFileFormat &format)
 
     The format comprises
     \list
-    \o Encoding represented by a pointer to a QTextCodec
-    \o Presence of an UTF8 Byte Order Marker (BOM)
-    \o Line feed storage convention
+    \li Encoding represented by a pointer to a QTextCodec
+    \li Presence of an UTF8 Byte Order Marker (BOM)
+    \li Line feed storage convention
     \endlist
 
     The class also provides convenience functions to read text files and return them

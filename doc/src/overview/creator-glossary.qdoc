@@ -32,13 +32,13 @@
 
     \table
         \header
-            \o  Term
-            \o  Meaning
+            \li Term
+            \li Meaning
 
         \row
-            \o  Build configuration
+            \li Build configuration
                 \target glossary-build-config
-            \o  Contains all the information you need to compile the sources
+            \li Contains all the information you need to compile the sources
                 into binaries. Different build configurations allow you to
                 quickly build the project for different purposes.
                 By default, \QC creates \e {debug build} and \e {release build}
@@ -50,9 +50,9 @@
                 release configuration for creating the final installation file.
 
         \row
-            \o  Build step
+            \li Build step
                 \target glossary-build-step
-            \o  A command that \QC executes to accomplish a basic step in a
+            \li A command that \QC executes to accomplish a basic step in a
                 complex task such as cleaning, building, or deploying a project.
                 \QC executes build steps in sequence to complete the task.
                 The number and type of necessary build steps depends on the
@@ -61,9 +61,9 @@
                 and \c make.
 
         \row
-            \o  Component
+            \li Component
                 \target glossary-component
-            \o  An instantiable QML definition, typically
+            \li An instantiable QML definition, typically
                 contained in a .qml file. For instance, a Button component may
                 be defined in Button.qml. The QML runtime may instantiate this
                 Button component to create Button objects. Alternatively, a
@@ -72,26 +72,26 @@
                 {Component} element.
 
         \row
-            \o  Deploy configuration
+            \li Deploy configuration
                 \target glossary-deploy-config
-            \o  Handles the packaging and copying of the necessary files to a
+            \li Handles the packaging and copying of the necessary files to a
                 location you want to run the executable at. The files can be
                 copied to a location in the file system of the development PC or
                 a mobile device.
 
         \row
-            \o  Kit
+            \li Kit
                 \target glossary-buildandrun-kit
-            \o  \QC groups build and run specific settings as kits to make
+            \li \QC groups build and run specific settings as kits to make
                 cross-platform development easier. Each kit consists of a set
                 of values that define one environment, such as a device,
                 tool chain, Qt version, and debugger command to use. Configure kits at
                 \gui {Tools > Options > Build & Run > Kits}.
 
         \row
-            \o  Mode
+            \li Mode
                 \target glossary-mode
-            \o  Adapts the \QC user interface to the different application
+            \li Adapts the \QC user interface to the different application
                 development tasks at hand. Each mode has its own view that shows
                 only the information required for performing a particular task,
                 and provides only the most relevant features and functions
@@ -99,25 +99,25 @@
                 is always dedicated to actual application development tasks.
 
         \row
-            \o  Project
+            \li Project
                 \target glossary-project
-            \o  Groups together a set of source files, forms, and resource files
+            \li Groups together a set of source files, forms, and resource files
                 that you can build, deploy, and run for different desktop and
                 mobile device platforms, as
                 specified by a \e {build configuration}, \e {deploy
                 configuration}, and \e {run configuration}.
 
         \row
-            \o  Qt version
+            \li Qt version
                 \target glossary-project-qt
-            \o  \QC allows you to have multiple versions of Qt installed on your
+            \li \QC allows you to have multiple versions of Qt installed on your
                 development PC and use different versions to build your projects
                 for different purposes.
 
         \row
-            \o  Run configuration
+            \li Run configuration
                 \target glossary-run-config
-            \o  Starts the application in the location where it was copied by
+            \li Starts the application in the location where it was copied by
                 the \e {deploy configuration}. By default, when you run a
                 project, \QC builds it, deploys it to the device specified in the selected
                 \l{glossary-buildandrun-kit}{kit},
@@ -126,9 +126,9 @@
                 runs it again.
 
         \row
-            \o  Shadow build
+            \li Shadow build
                 \target glossary-shadow-build
-            \o  Shadow building means building a project in a separate
+            \li Shadow building means building a project in a separate
                 directory, the \e{build directory}. The build directory is
                 different from the \e {source directory}. One of the benefits of
                 shadow building is that it keeps your source directory clean,
