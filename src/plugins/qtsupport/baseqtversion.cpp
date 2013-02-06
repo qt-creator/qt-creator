@@ -301,25 +301,39 @@ QList<ProjectExplorer::Task> BaseQtVersion::validateKit(const ProjectExplorer::K
     Q_ASSERT(version == this);
 
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
+    if (tc) {
+        const QList<ProjectExplorer::Abi> qtAbis = version->qtAbis();
+        ProjectExplorer::Abi targetAbi = tc->targetAbi();
+        bool fuzzyMatch = false;
+        bool fullMatch = false;
 
-    const QList<ProjectExplorer::Abi> qtAbis = version->qtAbis();
-    if (tc && !qtAbis.contains(tc->targetAbi())) {
         QString qtAbiString;
         foreach (const ProjectExplorer::Abi &qtAbi, qtAbis) {
             if (!qtAbiString.isEmpty())
                 qtAbiString.append(QLatin1Char(' '));
             qtAbiString.append(qtAbi.toString());
+
+            if (!fullMatch)
+                fullMatch = (targetAbi == qtAbi);
+            if (!fuzzyMatch)
+                fuzzyMatch = targetAbi.isCompatibleWith(qtAbi);
         }
-        const QString message = QCoreApplication::translate("BaseQtVersion",
-                                                            "The compiler '%1' (%2) cannot produce code for the Qt version '%3' (%4).").
-                                                            arg(tc->displayName(),
-                                                                tc->targetAbi().toString(),
-                                                                version->displayName(),
-                                                                qtAbiString);
-        result << ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                        message, FileName(), -1,
-                                        Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-    } // Abi mismatch
+
+        QString message;
+        if (!fullMatch) {
+            if (!fuzzyMatch)
+                message = QCoreApplication::translate("BaseQtVersion",
+                                                      "The compiler '%1' (%2) cannot produce code for the Qt version '%3' (%4).");
+            else
+                message = QCoreApplication::translate("BaseQtVersion",
+                                                      "The compiler '%1' (%2) may not produce code compatible with the Qt version '%3' (%4).");
+            message = message.arg(tc->displayName(), targetAbi.toString(),
+                                  version->displayName(), qtAbiString);
+            result << ProjectExplorer::Task(fuzzyMatch ? ProjectExplorer::Task::Warning : ProjectExplorer::Task::Error,
+                                            message, FileName(), -1,
+                                            Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        }
+    }
     return result;
 }
 
