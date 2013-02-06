@@ -1,4 +1,4 @@
-import qbs.base 1.0
+Import qbs.base 1.0
 import qbs.fileinfo 1.0 as FileInfo
 import "qbs/defaults.js" as Defaults
 

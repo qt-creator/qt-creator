@@ -48,13 +48,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_todo \
             plugin_qnx
 
-# Look for qbs in the environment...
-isEmpty(QBS_SOURCE_DIR): QBS_SOURCE_DIR = $$(QBS_SOURCE_DIR)
-isEmpty(QBS_BUILD_DIR): QBS_BUILD_DIR = $$(QBS_BUILD_DIR)
-
-!isEmpty(QBS_SOURCE_DIR):!isEmpty(QBS_BUILD_DIR) {
-    SUBDIRS += plugin_qbsprojectmanager
-}
+exists(../shared/qbs/qbs.pro):SUBDIRS += plugin_qbsprojectmanager
 
 isEmpty(IDE_PACKAGE_MODE) {
     SUBDIRS += plugin_helloworld \

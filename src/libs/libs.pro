@@ -16,6 +16,12 @@ SUBDIRS   = \
     qtcomponents/styleitem \
     ssh \
     zeroconf
+
+exists(../shared/qbs/qbs.pro):SUBDIRS += \
+    ../shared/qbs/src/lib \
+    ../shared/qbs/src/plugins \
+    ../shared/qbs/static.pro
+
 win32:SUBDIRS += utils/process_ctrlc_stub.pro
 
 # Windows: Compile Qt Creator CDB extension if Debugging tools can be detected.    
