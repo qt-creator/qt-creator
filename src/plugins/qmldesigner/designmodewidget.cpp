@@ -183,8 +183,6 @@ void DocumentWarningWidget::goToError()
 DesignModeWidget::DesignModeWidget(QWidget *parent) :
     QWidget(parent),
     m_mainSplitter(0),
-    m_leftSideBar(0),
-    m_rightSideBar(0),
     m_isDisabled(false),
     m_showSidebars(true),
     m_initStatus(NotInitialized),
@@ -194,6 +192,10 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
 {
     m_outputPlaceholderSplitter = new Core::MiniSplitter;
     m_outputPanePlaceholder = new StyledOutputpanePlaceHolder(Core::DesignMode::instance(), m_outputPlaceholderSplitter);
+}
+
+DesignModeWidget::~DesignModeWidget()
+{
 }
 
 void DesignModeWidget::restoreDefaultView()
@@ -407,11 +409,11 @@ void DesignModeWidget::setup()
         m_sideBarItems << openDocumentsItem;
     }
 
-    m_leftSideBar = new Core::SideBar(m_sideBarItems, QList<Core::SideBarItem*>() << navigatorItem << libraryItem);
-    m_rightSideBar = new Core::SideBar(m_sideBarItems, QList<Core::SideBarItem*>() << propertiesItem);
+    m_leftSideBar.reset(new Core::SideBar(m_sideBarItems, QList<Core::SideBarItem*>() << navigatorItem << libraryItem));
+    m_rightSideBar.reset(new Core::SideBar(m_sideBarItems, QList<Core::SideBarItem*>() << propertiesItem));
 
-    connect(m_leftSideBar, SIGNAL(availableItemsChanged()), SLOT(updateAvailableSidebarItemsRight()));
-    connect(m_rightSideBar, SIGNAL(availableItemsChanged()), SLOT(updateAvailableSidebarItemsLeft()));
+    connect(m_leftSideBar.data(), SIGNAL(availableItemsChanged()), SLOT(updateAvailableSidebarItemsRight()));
+    connect(m_rightSideBar.data(), SIGNAL(availableItemsChanged()), SLOT(updateAvailableSidebarItemsLeft()));
 
     connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),
             this, SLOT(deleteSidebarWidgets()));
@@ -429,9 +431,9 @@ void DesignModeWidget::setup()
     QWidget *centerWidget = createCenterWidget();
 
     // m_mainSplitter area:
-    m_mainSplitter->addWidget(m_leftSideBar);
+    m_mainSplitter->addWidget(m_leftSideBar.data());
     m_mainSplitter->addWidget(centerWidget);
-    m_mainSplitter->addWidget(m_rightSideBar);
+    m_mainSplitter->addWidget(m_rightSideBar.data());
 
     // Finishing touches:
     m_mainSplitter->setStretchFactor(1, 1);
@@ -468,10 +470,8 @@ void DesignModeWidget::updateAvailableSidebarItemsLeft()
 
 void DesignModeWidget::deleteSidebarWidgets()
 {
-    delete m_leftSideBar;
-    delete m_rightSideBar;
-    m_leftSideBar = 0;
-    m_rightSideBar = 0;
+    m_leftSideBar.reset();
+    m_rightSideBar.reset();
 }
 
 void DesignModeWidget::qmlPuppetCrashed()

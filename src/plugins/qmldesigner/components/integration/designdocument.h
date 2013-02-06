@@ -144,16 +144,16 @@ private: // functions
     QmlModelView *qmlModelView();
 
 private: // variables
-    QWeakPointer<QStackedWidget> m_stackedWidget;
-    QWeakPointer<Model> m_documentModel;
-    QWeakPointer<Model> m_inFileComponentModel;
+    QScopedPointer<QStackedWidget> m_stackedWidget;
+    QScopedPointer<Model> m_documentModel;
+    QScopedPointer<Model> m_inFileComponentModel;
     QWeakPointer<Model> m_currentModel;
     QWeakPointer<Core::IEditor> m_textEditor;
-    QWeakPointer<BaseTextEditModifier> m_documentTextModifier;
-    QWeakPointer<ComponentTextModifier> m_inFileComponentTextModifier;
-    QWeakPointer<SubComponentManager> m_subComponentManager;
+    QScopedPointer<BaseTextEditModifier> m_documentTextModifier;
+    QScopedPointer<ComponentTextModifier> m_inFileComponentTextModifier;
+    QScopedPointer<SubComponentManager> m_subComponentManager;
 
-    QWeakPointer<RewriterView> m_rewriterView;
+    QScopedPointer<RewriterView> m_rewriterView;
 
     bool m_documentLoaded;
     int m_qtVersionId;

@@ -52,6 +52,7 @@
 #include <QToolBar>
 #include <QComboBox>
 #include <QLabel>
+#include <QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 class QStackedWidget;
@@ -104,6 +105,7 @@ class DesignModeWidget : public QWidget
 public:
     explicit DesignModeWidget(QWidget *parent = 0);
 
+    ~DesignModeWidget();
     void showEditor(Core::IEditor *editor);
     void closeEditors(const QList<Core::IEditor*> editors);
     QString contextHelpId() const;
@@ -157,8 +159,8 @@ private: // functions
 
 private: // variables
     QSplitter *m_mainSplitter;
-    Core::SideBar *m_leftSideBar;
-    Core::SideBar *m_rightSideBar;
+    QScopedPointer<Core::SideBar> m_leftSideBar;
+    QScopedPointer<Core::SideBar> m_rightSideBar;
     Core::EditorToolBar *m_toolBar;
     Core::OutputPanePlaceHolder *m_outputPanePlaceholder;
     Core::MiniSplitter *m_outputPlaceholderSplitter;

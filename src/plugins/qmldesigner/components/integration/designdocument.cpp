@@ -97,7 +97,7 @@ DesignDocument::DesignDocument(QObject *parent) :
         QObject(parent),
         m_documentModel(Model::create("QtQuick.Item", 1, 0)),
         m_inFileComponentModel(Model::create("QtQuick.Item", 1, 0)),
-        m_currentModel(m_documentModel),
+        m_currentModel(m_documentModel.data()),
         m_subComponentManager(new SubComponentManager(m_documentModel.data(), this)),
         m_rewriterView (new RewriterView(RewriterView::Amend, m_documentModel.data())),
         m_documentLoaded(false),
@@ -108,13 +108,6 @@ DesignDocument::DesignDocument(QObject *parent) :
 
 DesignDocument::~DesignDocument()
 {
-    delete m_documentModel.data();
-    delete m_inFileComponentModel.data();
-
-    delete rewriterView();
-
-    delete m_inFileComponentTextModifier.data();
-    delete m_documentTextModifier.data();
 }
 
 Model *DesignDocument::currentModel() const
@@ -132,7 +125,7 @@ void DesignDocument::changeToDocumentModel()
     viewManager().detachRewriterView();
     viewManager().detachViewsExceptRewriterAndComponetView();
 
-    m_currentModel = m_documentModel;
+    m_currentModel = m_documentModel.data();
 
     viewManager().attachRewriterView(m_documentTextModifier.data());
     viewManager().attachViewsExceptRewriterAndComponetView();
@@ -143,7 +136,7 @@ void DesignDocument::changeToInFileComponentModel()
     viewManager().detachRewriterView();
     viewManager().detachViewsExceptRewriterAndComponetView();
 
-    m_currentModel = m_inFileComponentModel;
+    m_currentModel = m_inFileComponentModel.data();
 
     viewManager().attachRewriterView(m_inFileComponentTextModifier.data());
     viewManager().attachViewsExceptRewriterAndComponetView();
@@ -208,12 +201,11 @@ bool DesignDocument::loadInFileComponent(const ModelNode &componentNode)
         return false;
 
     if (!componentNode.isRootNode()) {
-        Q_ASSERT(m_currentModel == m_documentModel);
         //change to subcomponent model
         if (m_inFileComponentTextModifier)
             delete m_inFileComponentTextModifier.data();
 
-        m_inFileComponentTextModifier = createComponentTextModifier(m_documentTextModifier.data(), rewriterView(), componentText, componentNode);
+        m_inFileComponentTextModifier.reset(createComponentTextModifier(m_documentTextModifier.data(), rewriterView(), componentText, componentNode));
 
         changeToInFileComponentModel();
     }
@@ -286,7 +278,7 @@ bool DesignDocument::isDocumentLoaded() const
 
 void DesignDocument::resetToDocumentModel()
 {
-    m_currentModel = m_documentModel;
+    m_currentModel = m_documentModel.data();
     m_rewriterView->setTextModifier(m_documentTextModifier.data());
 }
 
@@ -301,9 +293,9 @@ void DesignDocument::loadDocument(QPlainTextEdit *edit)
     connect(edit, SIGNAL(modificationChanged(bool)),
             this, SIGNAL(dirtyStateChanged(bool)));
 
-    m_documentTextModifier = new BaseTextEditModifier(dynamic_cast<TextEditor::BaseTextEditorWidget*>(plainTextEdit()));
+    m_documentTextModifier.reset(new BaseTextEditModifier(dynamic_cast<TextEditor::BaseTextEditorWidget*>(plainTextEdit())));
 
-    m_inFileComponentTextModifier.clear();
+    m_inFileComponentTextModifier.reset();
 
     //masterModel = Model::create(textModifier, searchPath, errors);
 
@@ -312,11 +304,6 @@ void DesignDocument::loadDocument(QPlainTextEdit *edit)
     m_subComponentManager->update(QUrl::fromLocalFile(fileName()), m_currentModel->imports());
 
     m_documentLoaded = true;
-}
-
-static const QString fileNameOfCurrentDocument()
-{
-    return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->textEditor()->document()->fileName();
 }
 
 void DesignDocument::changeCurrentModelTo(const ModelNode &node)
@@ -334,18 +321,15 @@ void DesignDocument::changeToSubComponent(const ModelNode &componentNode)
     QWeakPointer<Model> oldModel = m_currentModel;
     Q_ASSERT(oldModel.data());
 
-    if (m_currentModel == m_inFileComponentModel) {
+    if (m_currentModel.data() == m_inFileComponentModel.data()) {
         changeToDocumentModel();
     }
 
     bool subComponentLoaded = loadInFileComponent(componentNode);
 
-    if (subComponentLoaded) {
-        Q_ASSERT(m_documentModel);
-        Q_ASSERT(m_currentModel);
-
+    if (subComponentLoaded)
         activateCurrentModel(m_inFileComponentTextModifier.data());
-    }
+
     if (!componentNode.id().isEmpty())
         QmlDesignerPlugin::instance()->viewManager().pushInFileComponentOnCrambleBar(componentNode.id());
 }
