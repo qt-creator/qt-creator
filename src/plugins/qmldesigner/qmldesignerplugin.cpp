@@ -290,15 +290,14 @@ void QmlDesignerPlugin::activateAutoSynchronization()
 
     resetModelSelection();
 
+    viewManager().attachComponentView();
+    viewManager().attachViewsExceptRewriterAndComponetView();
 
     QList<RewriterView::Error> errors = currentDesignDocument()->qmlSyntaxErrors();
     if (errors.isEmpty()) {
-        viewManager().attachComponentView();
-        viewManager().attachViewsExceptRewriterAndComponetView();
         selectModelNodeUnderTextCursor();
         m_mainWidget->enableWidgets();
     } else {
-        viewManager().detachRewriterView();
         m_mainWidget->disableWidgets();
         m_mainWidget->showErrorMessage(errors);
     }
