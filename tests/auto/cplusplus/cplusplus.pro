@@ -12,4 +12,5 @@ SUBDIRS = \
     simplifytypes \
     misc \
     cxx11 \
-    checksymbols
+    checksymbols \
+    lexer
