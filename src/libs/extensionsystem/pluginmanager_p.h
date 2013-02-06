@@ -72,6 +72,7 @@ public:
     void loadPlugin(PluginSpec *spec, PluginSpec::State destState);
     void resolveDependencies();
     void initProfiling();
+    void profilingSummary() const;
     void profilingReport(const char *what, const PluginSpec *spec = 0);
     void setSettings(QSettings *settings);
     void setGlobalSettings(QSettings *settings);
@@ -114,6 +115,7 @@ public:
 
     QStringList arguments;
     QScopedPointer<QTime> m_profileTimer;
+    QHash<const PluginSpec *, int> m_profileTotal;
     int m_profileElapsedMS;
     unsigned m_profilingVerbosity;
     QSettings *settings;
