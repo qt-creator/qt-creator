@@ -35,7 +35,9 @@
 #include <QCoreApplication>
 #include <QUuid>
 #include <QFileInfo>
+#include <QDir>
 #include <QTimer>
+#include <QTextStream>
 
 #include "propertyabstractcontainer.h"
 #include "propertyvaluecontainer.h"
@@ -305,19 +307,26 @@ NodeInstanceClientInterface *NodeInstanceServerProxy::nodeInstanceClient() const
 
 QString NodeInstanceServerProxy::missingQmlPuppetErrorMessage(const QString &applicationPath) const
 {
-    QString message = tr("The executable of the QML Puppet process (%1) cannot be found."
-       "Check your installation."
-       "QML Puppet is a process which runs in the background to render the items.").
-    arg(applicationPath);
+    QString message;
+    QTextStream str(&message);
+    str << "<html><head/><body><p>"
+        << tr("The executable of the QML Puppet process (<code>%1</code>) cannot be found. "
+              "Check your installation. "
+              "QML Puppet is a process which runs in the background to render the items.").
+           arg(QDir::toNativeSeparators(applicationPath))
+        << "</p>";
     if (hasQtQuick2(m_nodeInstanceView.data())) {
-        message += tr("You can build qml2puppet yourself with Qt 5.0.1 or higher"
-                      "The source can be found in %1/qml/qmlpuppet/qml2puppet/").arg(sharedDirPath());
-        message += tr("The qml2puppet will get installed to the bin directory of your Qt."
-                      "Qt Quick Designer will check the bin direcotry of the Qt currently active"
-                      "for your project.");
-
+        str << "<p>"
+            << tr("You can build <code>qml2puppet</code> yourself with Qt 5.0.1 or higher. "
+                 "The source can be found in <code>%1</code>.").
+               arg(QDir::toNativeSeparators(sharedDirPath() + QLatin1String("/qml/qmlpuppet/qml2puppet/")))
+            << "</p><p>"
+            << tr("<code>qml2puppet</code> will be installed to the <code>bin</code> directory of your Qt version. "
+                  "Qt Quick Designer will check the <code>bin</code> directory of the currently active Qt version "
+                  "of your project.")
+            << "</p>";
     }
-
+    str << "</p></body></html>";
     return message;
 }
 
