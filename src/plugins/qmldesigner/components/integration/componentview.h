@@ -120,7 +120,6 @@ private: //functions
     int indexForNode(const ModelNode &node);
 
 private:
-    QList<QComboBox*> m_comboBoxList;
     QStandardItemModel *m_standardItemModel;
     ComponentAction *m_componentAction;
 };
