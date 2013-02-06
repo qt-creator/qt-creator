@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "abstractprocessstep.h"
+#include "ansifilterparser.h"
 #include "buildconfiguration.h"
 #include "buildstep.h"
 #include "ioutputparser.h"
@@ -120,12 +121,13 @@ AbstractProcessStep::~AbstractProcessStep()
 void AbstractProcessStep::setOutputParser(ProjectExplorer::IOutputParser *parser)
 {
     delete m_outputParserChain;
-    m_outputParserChain = parser;
+    m_outputParserChain = new AnsiFilterParser;
+    m_outputParserChain->appendOutputParser(parser);
 
     if (m_outputParserChain) {
-        connect(parser, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
+        connect(m_outputParserChain, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
                 this, SLOT(outputAdded(QString,ProjectExplorer::BuildStep::OutputFormat)));
-        connect(parser, SIGNAL(addTask(ProjectExplorer::Task)),
+        connect(m_outputParserChain, SIGNAL(addTask(ProjectExplorer::Task)),
                 this, SLOT(taskAdded(ProjectExplorer::Task)));
     }
 }
