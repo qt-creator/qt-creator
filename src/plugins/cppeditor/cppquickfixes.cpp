@@ -2130,7 +2130,7 @@ private:
                     "Reformat to \"%1\"").arg(m_change.operationList().first().text);
             } else { // > 1
                 description = QApplication::translate("CppTools::QuickFix",
-                    "Reformat pointers/references");
+                    "Reformat Pointers or References");
             }
             setDescription(description);
         }
