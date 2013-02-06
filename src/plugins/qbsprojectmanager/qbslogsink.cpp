@@ -65,11 +65,10 @@ void QbsLogSink::sendMessages()
 void QbsLogSink::doPrintMessage(qbs::LoggerLevel level, const QString &message, const QString &tag)
 {
     Q_UNUSED(tag);
-    const QString fullMessage = QString::fromLocal8Bit(qbs::logLevelTag(level)) + message;
 
     {
         QMutexLocker l(&m_mutex);
-        m_messages.append(fullMessage);
+        m_messages.append(qbs::logLevelTag(level) + message);
     }
     QMetaObject::invokeMethod(this, "sendMessages", Qt::QueuedConnection);
 }
