@@ -170,7 +170,7 @@ QWidget {
                     layout: HorizontalLayout {
                         Label {
                             text: qsTr("Focus on press")
-                            toolTip: qsTr("Determines whether the check box gets focus if pressed.")
+                            toolTip: qsTr("Determines whether the text area gets focus if pressed.")
                         }
                         CheckBox {
                             text: backendValues.activeFocusOnPress.value
