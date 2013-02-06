@@ -214,7 +214,7 @@
         <item>
          <widget class="QLabel" name="buildDirLabel">
           <property name="text">
-           <string>Default Build Directory:</string>
+           <string>Default build directory:</string>
           </property>
          </widget>
         </item>
