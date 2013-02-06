@@ -243,6 +243,7 @@ private:
     int elapsedLogTime() const;
     void addLocalsOptions(ByteArrayInputStream &s) const;
     unsigned parseStackTrace(const GdbMi &data, bool sourceStepInto);
+    void mergeStartParametersSourcePathMap();
 
     const QByteArray m_creatorExtPrefix;
     const QByteArray m_tokenPrefix;

@@ -431,6 +431,8 @@ void CdbEngine::init()
                                                              QDir::toNativeSeparators(it.value())));
         }
     }
+    // update source path maps from debugger start params
+    mergeStartParametersSourcePathMap();
     QTC_ASSERT(m_process.state() != QProcess::Running, Utils::SynchronousProcess::stopProcess(m_process));
 }
 
@@ -2905,6 +2907,17 @@ unsigned CdbEngine::parseStackTrace(const GdbMi &data, bool sourceStepInto)
     stackHandler()->setFrames(frames, incomplete);
     activateFrame(current);
     return 0;
+}
+
+void CdbEngine::mergeStartParametersSourcePathMap()
+{
+    const DebuggerStartParameters &sp = startParameters();
+    QMap<QString, QString>::const_iterator end = sp.sourcePathMap.end();
+    for (QMap<QString, QString>::const_iterator it = sp.sourcePathMap.begin(); it != end; ++it) {
+        SourcePathMapping spm(QDir::toNativeSeparators(it.key()), QDir::toNativeSeparators(it.value()));
+        if (!m_sourcePathMappings.contains(spm))
+            m_sourcePathMappings.push_back(spm);
+    }
 }
 
 void CdbEngine::handleStackTrace(const CdbExtensionCommandPtr &command)

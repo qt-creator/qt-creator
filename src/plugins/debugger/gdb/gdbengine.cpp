@@ -4691,6 +4691,17 @@ static QString gdbBinary(const DebuggerStartParameters &sp)
     return sp.debuggerCommand;
 }
 
+static GlobalDebuggerOptions::SourcePathMap mergeStartParametersSourcePathMap(
+        const DebuggerStartParameters &sp, const GlobalDebuggerOptions::SourcePathMap &in)
+{
+    // Do not overwrite user settings.
+    GlobalDebuggerOptions::SourcePathMap rc = sp.sourcePathMap;
+    QMap<QString, QString>::const_iterator end = in.end();
+    for (QMap<QString, QString>::const_iterator it = in.begin(); it != end; ++it)
+        rc.insert(it.key(), it.value());
+    return rc;
+}
+
 //
 // Starting up & shutting down
 //
@@ -4829,8 +4840,10 @@ void GdbEngine::startGdb(const QStringList &args)
     const SourcePathMap sourcePathMap =
         DebuggerSourcePathMappingWidget::mergePlatformQtPath(sp,
                 debuggerCore()->globalDebuggerOptions()->sourcePathMap);
-    const SourcePathMapIterator cend = sourcePathMap.constEnd();
-    SourcePathMapIterator it = sourcePathMap.constBegin();
+    const SourcePathMap completeSourcePathMap =
+            mergeStartParametersSourcePathMap(sp, sourcePathMap);
+    const SourcePathMapIterator cend = completeSourcePathMap.constEnd();
+    SourcePathMapIterator it = completeSourcePathMap.constBegin();
     for ( ; it != cend; ++it)
         postCommand("set substitute-path " + it.key().toLocal8Bit()
             + " " + it.value().toLocal8Bit());
