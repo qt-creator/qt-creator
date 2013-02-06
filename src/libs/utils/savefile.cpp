@@ -102,10 +102,10 @@ bool SaveFile::commit()
     }
 #ifdef Q_OS_WIN
     FlushFileBuffers(reinterpret_cast<HANDLE>(handle()));
-#elif defined(Q_OS_MAC)
-    fsync(handle());
-#else
+#elif _POSIX_SYNCHRONIZED_IO > 0
     fdatasync(handle());
+#else
+    fsync(handle());
 #endif
     close();
     if (error() != NoError) {
