@@ -58,8 +58,9 @@ Using QT_SQUISH_MAPFILE variable
 
     * create a simple text file (UTF-8 encoded) that follows this scheme:
 
-     QtVersion mkspec Path
+     SquishVersion QtVersion mkspec Path
 
+    * SquishVersion: only major and minor number will be used (e.g. 4.1, 4.2)
     * QtVersion: only major and minor number will be used (e.g. 4.7, 4.8, 5.0)
     * mkspec: a string holding the mkspec as it appears inside QTSDK/mkspec (or inside Qt Creator)
     * Path: the path to the Squish directory that can be used with this combination of QtVersion and mkspec
@@ -71,23 +72,23 @@ Using QT_SQUISH_MAPFILE variable
 
 Example 1: (using single space, no quoting)
 
-#qtversion mkspec path
-4.7<SP>win32-g++<SP>C:\Tools\Squish_MinGW
-4.7<SP>win32-msvc2008<SP>C:\Tools\Squish_MSVC9
-4.7<SP>win32-msvc2010<SP>C:\Tools\Squish_MSVC10
-4.8<SP>win32-g++<SP>C:\Tools\Squish_MinGW
-4.8<SP>win32-msvc2008<SP>C:\Tools\Squish_MSVC9
-4.8<SP>win32-msvc2010<SP>C:\Tools\Squish_MSVC10
+#squishversion qtversion mkspec path
+4.1<SP>4.7<SP>win32-g++<SP>C:\Tools\Squish_MinGW
+4.1<SP>4.7<SP>win32-msvc2008<SP>C:\Tools\Squish_MSVC9
+4.1<SP>4.7<SP>win32-msvc2010<SP>C:\Tools\Squish_MSVC10
+4.2<SP>4.8<SP>win32-g++<SP>C:\Tools\Squish_MinGW
+4.2<SP>4.8<SP>win32-msvc2008<SP>C:\Tools\Squish_MSVC9
+4.2<SP>4.8<SP>win32-msvc2010<SP>C:\Tools\Squish_MSVC10
 
 Example 2: (using mixed whitespaces, some quoting)
 
-#qtversion<TAB>mkspec<TAB><TAB><SP>path
-"4.7"<SP><TAB>win32-g++<TAB><TAB>'C:\Tools\Squish_MinGW'
-'4.7'<SP><TAB>'win32-msvc2008'<TAB>"C:\Tools\Squish_MSVC9"
-4.7<SP><SP><TAB>win32-msvc2010<TAB>C:\Tools\Squish_MSVC10
-"4.8"<SP><TAB>"win32-g++"<SP><SP><TAB>"C:\Tools\Squish_MinGW"
-'4.8'<SP><TAB>win32-msvc2008<SP><TAB>'C:\Tools\Squish_MSVC9'
-'4.8'<SP><TAB>win32-msvc2010<SP><TAB>C:\Tools\Squish_MSVC10
+#squishversion<SP>qtversion<TAB>mkspec<TAB><TAB><SP>path
+4.1<SP>"4.7"<SP><TAB>win32-g++<TAB><TAB>'C:\Tools\Squish_MinGW'
+4.1<SP>'4.7'<SP><TAB>'win32-msvc2008'<TAB>"C:\Tools\Squish_MSVC9"
+4.1<SP>4.7<SP><SP><TAB>win32-msvc2010<TAB>C:\Tools\Squish_MSVC10
+4.2<SP>"4.8"<SP><TAB>"win32-g++"<SP><SP><TAB>"C:\Tools\Squish_MinGW"
+4.2<SP>'4.8'<SP><TAB>win32-msvc2008<SP><TAB>'C:\Tools\Squish_MSVC9'
+4.2<SP>'4.8'<SP><TAB>win32-msvc2010<SP><TAB>C:\Tools\Squish_MSVC10
 
 Explanation: <SP> = space, <TAB> = tabulator
 
