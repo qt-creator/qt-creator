@@ -281,6 +281,7 @@ private:
     QPair<bool, QString> buildSettingsEnabled(Project *pro);
     bool hasDeploySettings(Project *pro);
 
+    void showExternalFileWarning();
     void setCurrent(Project *project, QString filePath, Node *node);
 
     QStringList allFilesWithDependencies(Project *pro);
