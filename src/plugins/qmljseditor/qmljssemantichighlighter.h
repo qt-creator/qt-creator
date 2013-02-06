@@ -32,6 +32,8 @@
 
 #include <texteditor/semantichighlighter.h>
 #include <QFutureWatcher>
+#include <QTextLayout>
+#include <QVector>
 
 namespace QmlJS {
 class ScopeChain;
@@ -42,6 +44,10 @@ class SourceLocation;
 
 namespace TextEditor {
 class FontSettings;
+}
+
+namespace QmlJSTools {
+class SemanticInfo;
 }
 
 namespace QmlJSEditor {
@@ -68,19 +74,22 @@ public:
         JsGlobalType, // in global scope
         LocalStateNameType, // name of a state in the current file
         BindingNameType, // name on the left hand side of a binding
-        FieldType // member of an object
+        FieldType, // member of an object
+        Max // number of the last used value (to generate the warning formats)
     };
 
     typedef TextEditor::SemanticHighlighter::Result Use;
 
     SemanticHighlighter(QmlJSTextEditorWidget *editor);
 
-    void rerun(const QmlJS::ScopeChain &scopeChain);
+    void rerun(const QmlJSTools::SemanticInfo &scopeChain);
     void cancel();
 
     int startRevision() const;
 
     void updateFontSettings(const TextEditor::FontSettings &fontSettings);
+    void reportMessagesInfo(const QVector<QTextLayout::FormatRange> &diagnosticMessages,
+                            const QHash<int,QTextCharFormat> &formats);
 
 private slots:
     void applyResults(int from, int to);
@@ -91,6 +100,8 @@ private:
     QmlJSTextEditorWidget *m_editor;
     int m_startRevision;
     QHash<int, QTextCharFormat> m_formats;
+    QHash<int, QTextCharFormat> m_extraFormats;
+    QVector<QTextLayout::FormatRange> m_diagnosticRanges;
 };
 
 } // namespace Internal

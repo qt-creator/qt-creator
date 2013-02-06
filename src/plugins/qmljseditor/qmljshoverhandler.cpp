@@ -258,6 +258,12 @@ bool HoverHandler::matchDiagnosticMessage(QmlJSEditor::QmlJSTextEditorWidget *qm
             return true;
         }
     }
+    foreach (const QTextLayout::FormatRange &range, qmlEditor->diagnosticRanges()) {
+        if (pos >= range.start && pos < range.start+range.length) {
+            setToolTip(range.format.toolTip());
+            return true;
+        }
+    }
     return false;
 }
 

@@ -546,6 +546,15 @@ int QmlJSTextEditorWidget::editorRevision() const
     return document()->revision();
 }
 
+QVector<QTextLayout::FormatRange> QmlJSTextEditorWidget::diagnosticRanges() const
+{
+    // this exist mainly because getting the tooltip from the additional formats
+    // requires the use of private api (you have to extract it from
+    // cursor.block().layout()->specialInfo.addFormatIndex (for the .format through .formats.at()),
+    // and use .addFormat to get the range). So a separate bookkeeping is used.
+    return m_diagnosticRanges;
+}
+
 bool QmlJSTextEditorWidget::isSemanticInfoOutdated() const
 {
     if (m_semanticInfo.revision() != editorRevision())
@@ -637,44 +646,6 @@ static void appendExtraSelectionsForMessages(
     }
 }
 
-static void appendExtraSelectionsForMessages(
-        QList<QTextEdit::ExtraSelection> *selections,
-        const QList<StaticAnalysis::Message> &messages,
-        const QTextDocument *document)
-{
-    foreach (const StaticAnalysis::Message &d, messages) {
-        const int line = d.location.startLine;
-        const int column = qMax(1U, d.location.startColumn);
-
-        QTextEdit::ExtraSelection sel;
-        QTextCursor c(document->findBlockByNumber(line - 1));
-        sel.cursor = c;
-
-        sel.cursor.setPosition(c.position() + column - 1);
-
-        if (d.location.length == 0) {
-            if (sel.cursor.atBlockEnd())
-                sel.cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
-            else
-                sel.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
-        } else {
-            sel.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, d.location.length);
-        }
-
-        if (d.severity == StaticAnalysis::Warning || d.severity == StaticAnalysis::MaybeWarning)
-            sel.format.setUnderlineColor(Qt::darkYellow);
-        else if (d.severity == StaticAnalysis::Error || d.severity == StaticAnalysis::MaybeError)
-            sel.format.setUnderlineColor(Qt::red);
-        else if (d.severity == StaticAnalysis::Hint)
-            sel.format.setUnderlineColor(Qt::darkGreen);
-
-        sel.format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
-        sel.format.setToolTip(d.message);
-
-        selections->append(sel);
-    }
-}
-
 void QmlJSTextEditorWidget::onDocumentUpdated(QmlJS::Document::Ptr doc)
 {
     if (editorDocument()->fileName() != doc->fileName())
@@ -695,6 +666,7 @@ void QmlJSTextEditorWidget::onDocumentUpdated(QmlJS::Document::Ptr doc)
         // got a correctly parsed (or recovered) file.
         m_futureSemanticInfoRevision = doc->editorRevision();
         m_semanticInfoUpdater->update(doc, m_modelManager->snapshot());
+        setExtraSelections(CodeWarningsSelection, QList<QTextEdit::ExtraSelection>());
     } else {
         // show parsing errors
         QList<QTextEdit::ExtraSelection> selections;
@@ -1368,15 +1340,8 @@ void QmlJSTextEditorWidget::acceptNewSemanticInfo(const SemanticInfo &semanticIn
     // update outline
     m_updateOutlineTimer->start();
 
-    // update warning/error extra selections
-    QList<QTextEdit::ExtraSelection> selections;
-    appendExtraSelectionsForMessages(&selections, doc->diagnosticMessages(), document());
-    appendExtraSelectionsForMessages(&selections, m_semanticInfo.semanticMessages, document());
-    appendExtraSelectionsForMessages(&selections, m_semanticInfo.staticAnalysisMessages, document());
-    setExtraSelections(CodeWarningsSelection, selections);
-
     if (Core::EditorManager::currentEditor() == editor())
-        m_semanticHighlighter->rerun(m_semanticInfo.scopeChain());
+        m_semanticHighlighter->rerun(m_semanticInfo);
 
     emit semanticInfoUpdated();
 }

@@ -40,6 +40,7 @@
 #include <qmljs/qmljsutils.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
+#include <qmljs/qmljsstaticanalysismessage.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/texteditorconstants.h>
@@ -189,10 +190,15 @@ class CollectionTask :
         protected Visitor
 {
 public:
-    CollectionTask(const ScopeChain &scopeChain)
-        : m_scopeChain(scopeChain)
+    CollectionTask(const QmlJSTools::SemanticInfo &semanticInfo,
+                   SemanticHighlighter &semanticHighlighter)
+        : m_semanticInfo(semanticInfo)
+        , m_semanticHighlighter(semanticHighlighter)
+        , m_scopeChain(semanticInfo.scopeChain())
         , m_scopeBuilder(&m_scopeChain)
         , m_lineOfLastUse(0)
+        , m_nextExtraFormat(SemanticHighlighter::Max)
+        , m_currentDelayedUse(0)
     {}
 
 protected:
@@ -347,12 +353,102 @@ protected:
         return false;
     }
 
+    void addMessages(QList<QmlJS::DiagnosticMessage> messages,
+            const Document::Ptr &doc)
+    {
+        foreach (const DiagnosticMessage &d, messages) {
+            int line = d.loc.startLine;
+            int column = qMax(1U, d.loc.startColumn);
+            int length = d.loc.length;
+            int begin = d.loc.begin();
+
+            if (d.loc.length == 0) {
+                QString source(doc->source());
+                int end = begin;
+                if (begin == source.size() || source.at(begin) == QLatin1Char('\n')
+                        || source.at(begin) == QLatin1Char('\r')) {
+                    while (begin > end - column && !source.at(--begin).isSpace()) { }
+                } else {
+                    while (end < source.size() && source.at(++end).isLetterOrNumber()) { }
+                }
+                column += begin - d.loc.begin();
+                length = end-begin;
+            }
+
+            QTextCharFormat format;
+            if (d.isWarning())
+                format.setUnderlineColor(Qt::darkYellow);
+            else
+                format.setUnderlineColor(Qt::red);
+
+            format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+            format.setToolTip(d.message);
+
+            collectRanges(begin, length, format);
+            addDelayedUse(SemanticHighlighter::Use(line, column, length, addFormat(format)));
+        }
+    }
+
+    void addMessages(const QList<QmlJS::StaticAnalysis::Message> &messages,
+                     const Document::Ptr &doc)
+    {
+        foreach (const QmlJS::StaticAnalysis::Message &d, messages) {
+            int line = d.location.startLine;
+            int column = qMax(1U, d.location.startColumn);
+            int length = d.location.length;
+            int begin = d.location.begin();
+
+            if (d.location.length == 0) {
+                QString source(doc->source());
+                int end = begin;
+                if (begin == source.size() || source.at(begin) == QLatin1Char('\n')
+                        || source.at(begin) == QLatin1Char('\r')) {
+                    while (begin > end - column && !source.at(--begin).isSpace()) { }
+                } else {
+                    while (end < source.size() && source.at(++end).isLetterOrNumber()) { }
+                }
+                column += begin - d.location.begin();
+                length = end-begin;
+            }
+            QTextCharFormat format;
+            if (d.severity == StaticAnalysis::Warning || d.severity == StaticAnalysis::MaybeWarning)
+                format.setUnderlineColor(Qt::darkYellow);
+            else if (d.severity == StaticAnalysis::Error || d.severity == StaticAnalysis::MaybeError)
+                format.setUnderlineColor(Qt::red);
+            else if (d.severity == StaticAnalysis::Hint)
+                format.setUnderlineColor(Qt::darkGreen);
+
+            format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+            format.setToolTip(d.message);
+
+            collectRanges(begin, length, format);
+            addDelayedUse(SemanticHighlighter::Use(line, column, length, addFormat(format)));
+        }
+    }
+
 private:
     void run()
     {
+        int nMessages = m_scopeChain.document()->diagnosticMessages().size()
+                + m_semanticInfo.semanticMessages.size()
+                + m_semanticInfo.staticAnalysisMessages.size();
+        m_delayedUses.reserve(nMessages);
+        m_diagnosticRanges.reserve(nMessages);
+        m_extraFormats.reserve(nMessages);
+        addMessages(m_scopeChain.document()->diagnosticMessages(), m_scopeChain.document());
+        addMessages(m_semanticInfo.semanticMessages, m_semanticInfo.document);
+        addMessages(m_semanticInfo.staticAnalysisMessages, m_semanticInfo.document);
+
+        qSort(m_delayedUses.begin(), m_delayedUses.end(), sortByLinePredicate);
+        m_currentDelayedUse = 0;
+
+        m_semanticHighlighter.reportMessagesInfo(m_diagnosticRanges, m_extraFormats);
+
         Node *root = m_scopeChain.document()->ast();
         m_stateNames = CollectStateNames(m_scopeChain)(root);
         accept(root);
+        while (m_currentDelayedUse < m_delayedUses.size())
+            m_uses.append(m_delayedUses.value(m_currentDelayedUse++));
         flush();
         reportFinished();
     }
@@ -366,6 +462,10 @@ private:
 
     void addUse(const SemanticHighlighter::Use &use)
     {
+        while (m_currentDelayedUse < m_delayedUses.size()
+               && m_delayedUses.value(m_currentDelayedUse).line < use.line)
+            m_uses.append(m_delayedUses.value(m_currentDelayedUse++));
+
         if (m_uses.size() >= chunkSize) {
             if (use.line > m_lineOfLastUse)
                 flush();
@@ -373,6 +473,26 @@ private:
 
         m_lineOfLastUse = qMax(m_lineOfLastUse, use.line);
         m_uses.append(use);
+    }
+
+    void addDelayedUse(const SemanticHighlighter::Use &use)
+    {
+        m_delayedUses.append(use);
+    }
+
+    int addFormat(const QTextCharFormat &format)
+    {
+        int res = m_nextExtraFormat++;
+        m_extraFormats.insert(res, format);
+        return res;
+    }
+
+    void collectRanges(int start, int length, const QTextCharFormat &format) {
+        QTextLayout::FormatRange range;
+        range.start = start;
+        range.length = length;
+        range.format = format;
+        m_diagnosticRanges.append(range);
     }
 
     static bool sortByLinePredicate(const SemanticHighlighter::Use &lhs, const SemanticHighlighter::Use &rhs)
@@ -393,11 +513,18 @@ private:
         m_uses.reserve(chunkSize);
     }
 
+    const QmlJSTools::SemanticInfo &m_semanticInfo;
+    SemanticHighlighter &m_semanticHighlighter;
     ScopeChain m_scopeChain;
     ScopeBuilder m_scopeBuilder;
     QStringList m_stateNames;
     QVector<SemanticHighlighter::Use> m_uses;
     unsigned m_lineOfLastUse;
+    QVector<SemanticHighlighter::Use> m_delayedUses;
+    int m_nextExtraFormat;
+    int m_currentDelayedUse;
+    QHash<int, QTextCharFormat> m_extraFormats;
+    QVector<QTextLayout::FormatRange> m_diagnosticRanges;
 };
 
 } // anonymous namespace
@@ -413,13 +540,13 @@ SemanticHighlighter::SemanticHighlighter(QmlJSTextEditorWidget *editor)
             this, SLOT(finished()));
 }
 
-void SemanticHighlighter::rerun(const ScopeChain &scopeChain)
+void SemanticHighlighter::rerun(const QmlJSTools::SemanticInfo &semanticInfo)
 {
     m_watcher.cancel();
 
     // this does not simply use QtConcurrentRun because we want a low-priority future
     // the thread pool deletes the task when it is done
-    CollectionTask::Future f = (new CollectionTask(scopeChain))->start(QThread::LowestPriority);
+    CollectionTask::Future f = (new CollectionTask(semanticInfo, *this))->start(QThread::LowestPriority);
     m_startRevision = m_editor->editorRevision();
     m_watcher.setFuture(f);
 }
@@ -442,7 +569,7 @@ void SemanticHighlighter::applyResults(int from, int to)
     QTC_ASSERT(highlighter, return);
 
     TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
-                highlighter, m_watcher.future(), from, to, m_formats);
+                highlighter, m_watcher.future(), from, to, m_extraFormats);
 }
 
 void SemanticHighlighter::finished()
@@ -456,6 +583,7 @@ void SemanticHighlighter::finished()
     QTC_ASSERT(baseTextDocument, return);
     TextEditor::SyntaxHighlighter *highlighter = qobject_cast<TextEditor::SyntaxHighlighter *>(baseTextDocument->syntaxHighlighter());
     QTC_ASSERT(highlighter, return);
+    m_editor->m_diagnosticRanges = m_diagnosticRanges;
 
     TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
                 highlighter, m_watcher.future());
@@ -475,6 +603,18 @@ void SemanticHighlighter::updateFontSettings(const TextEditor::FontSettings &fon
     m_formats[LocalStateNameType] = fontSettings.toTextCharFormat(TextEditor::C_QML_STATE_NAME);
     m_formats[BindingNameType] = fontSettings.toTextCharFormat(TextEditor::C_BINDING);
     m_formats[FieldType] = fontSettings.toTextCharFormat(TextEditor::C_FIELD);
+}
+
+void SemanticHighlighter::reportMessagesInfo(const QVector<QTextLayout::FormatRange> &diagnosticRanges,
+                                             const QHash<int,QTextCharFormat> &formats)
+
+{
+    // tricky usage of m_extraFormats and diagnosticMessages we call this in another thread...
+    // but will use them only after a signal sent by that same thread, maybe we should transfer
+    // them more explicitly
+    m_extraFormats = formats;
+    m_extraFormats.unite(m_formats);
+    m_diagnosticRanges = diagnosticRanges;
 }
 
 int SemanticHighlighter::startRevision() const
