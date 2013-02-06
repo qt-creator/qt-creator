@@ -11,6 +11,7 @@ INCLUDEPATH += $$PWD/../../libs/utils
 HEADERS += projectexplorer.h \
     abi.h \
     abiwidget.h \
+    ansifilterparser.h \
     clangparser.h \
     gcctoolchain.h \
     localapplicationrunconfiguration.h \
@@ -134,6 +135,7 @@ HEADERS += projectexplorer.h \
 SOURCES += projectexplorer.cpp \
     abi.cpp \
     abiwidget.cpp \
+    ansifilterparser.cpp \
     clangparser.cpp \
     gcctoolchain.cpp \
     localapplicationrunconfiguration.cpp \

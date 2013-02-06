@@ -31,6 +31,8 @@ QtcPlugin {
         "allprojectsfilter.h",
         "allprojectsfind.cpp",
         "allprojectsfind.h",
+        "ansifilterparser.cpp",
+        "ansifilterparser.h",
         "applicationlauncher.cpp",
         "applicationlauncher.h",
         "appoutputpane.cpp",

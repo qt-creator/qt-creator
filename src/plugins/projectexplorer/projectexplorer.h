@@ -238,6 +238,9 @@ private slots:
     void updateWelcomePage();
 
 #ifdef WITH_TESTS
+    void testAnsiFilterOutputParser_data();
+    void testAnsiFilterOutputParser();
+
     void testGccOutputParsers_data();
     void testGccOutputParsers();
 
