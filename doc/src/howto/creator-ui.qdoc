@@ -197,6 +197,10 @@
     If you cannot see a file in the \gui Projects view, switch to the
     \gui {File System} view, which shows all the files in the file system.
 
+    To also show hidden files, click
+    \inlineimage qtcreator-filter.png
+    and select \gui {Filter Files} > \gui {Show Hidden Files}.
+
     To keep the position in the tree synchronized with the file
     opened in the editor, select \gui {Synchronize with Editor}.
 
