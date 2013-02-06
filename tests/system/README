@@ -110,12 +110,17 @@ To make the hook-into sub-process really work you have to provide a modified Squ
 Steps to set up the Squish directories on Windows:
     * get the Squish version you need from froglogic.com
     * extract the archive to place of your choice
-    * go to the bin directory of Squish and remove the following dll's:
+    * go to the bin directory of Squish and remove the following dll's (Windows-only):
         * Qt3Support.dll
         * QtCore4.dll
         * QtGui4.dll
         * QtNetwork4.dll
         * QtSql4.dll
         * QtXml4.dll
+    * remove all folders from the Squish root folder except bin, etc, lib and python - and on
+      Windows you have to keep the VC runtime folder (Microsoft.VC??.CRT)
+      (if you're using other script languages you have to keep them as well)
+    * you can remove regular files from Squish root as well
+      (but it's recommended to keep the buildinfo.txt for later verifications)
 
 You can additionally remove the complete ide folder as well as squishclassicide.exe and squishide.exe (to safe disk space).
