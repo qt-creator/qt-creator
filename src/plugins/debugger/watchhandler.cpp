@@ -1688,7 +1688,7 @@ void WatchHandler::showEditValue(const WatchData &data)
             showSeparateWidget(l);
             m_model->m_editHandlers[key] = l;
         }
-        int width, height, format;
+        int width = 0, height = 0, format = 0;
         QByteArray ba;
         uchar *bits = 0;
         if (data.editformat == DisplayImageData) {
