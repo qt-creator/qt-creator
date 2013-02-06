@@ -1106,8 +1106,8 @@ TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const Q
         foreach (const ImportInfo &import, semanticInfo.document->bind()->imports()) {
             if (import.ast() == importAst && import.type() == ImportInfo::FileImport) {
                 BaseTextEditorWidget::Link link(import.path());
-                link.begin = importAst->firstSourceLocation().begin();
-                link.end = importAst->lastSourceLocation().end();
+                link.linkTextStart = importAst->firstSourceLocation().begin();
+                link.linkTextEnd = importAst->lastSourceLocation().end();
                 return link;
             }
         }
@@ -1118,17 +1118,17 @@ TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const Q
     if (StringLiteral *literal = cast<StringLiteral *>(node)) {
         const QString &text = literal->value.toString();
         BaseTextEditorWidget::Link link;
-        link.begin = literal->literalToken.begin();
-        link.end = literal->literalToken.end();
+        link.linkTextStart = literal->literalToken.begin();
+        link.linkTextEnd = literal->literalToken.end();
         if (semanticInfo.snapshot.document(text)) {
-            link.fileName = text;
+            link.targetFileName = text;
             return link;
         }
         const QString relative = QString::fromLatin1("%1/%2").arg(
                     semanticInfo.document->path(),
                     text);
         if (semanticInfo.snapshot.document(relative)) {
-            link.fileName = relative;
+            link.targetFileName = relative;
             return link;
         }
     }
@@ -1144,27 +1144,27 @@ TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const Q
         return Link();
 
     BaseTextEditorWidget::Link link;
-    link.fileName = fileName;
-    link.line = line;
-    link.column = column - 1; // adjust the column
+    link.targetFileName = fileName;
+    link.targetLine = line;
+    link.targetColumn = column - 1; // adjust the column
 
     if (AST::UiQualifiedId *q = AST::cast<AST::UiQualifiedId *>(node)) {
         for (AST::UiQualifiedId *tail = q; tail; tail = tail->next) {
             if (! tail->next && cursorPosition <= tail->identifierToken.end()) {
-                link.begin = tail->identifierToken.begin();
-                link.end = tail->identifierToken.end();
+                link.linkTextStart = tail->identifierToken.begin();
+                link.linkTextEnd = tail->identifierToken.end();
                 return link;
             }
         }
 
     } else if (AST::IdentifierExpression *id = AST::cast<AST::IdentifierExpression *>(node)) {
-        link.begin = id->firstSourceLocation().begin();
-        link.end = id->lastSourceLocation().end();
+        link.linkTextStart = id->firstSourceLocation().begin();
+        link.linkTextEnd = id->lastSourceLocation().end();
         return link;
 
     } else if (AST::FieldMemberExpression *mem = AST::cast<AST::FieldMemberExpression *>(node)) {
-        link.begin = mem->lastSourceLocation().begin();
-        link.end = mem->lastSourceLocation().end();
+        link.linkTextStart = mem->lastSourceLocation().begin();
+        link.linkTextEnd = mem->lastSourceLocation().end();
         return link;
     }
 

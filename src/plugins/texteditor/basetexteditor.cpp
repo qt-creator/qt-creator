@@ -1095,7 +1095,7 @@ void BaseTextEditorWidget::openLinkUnderCursor()
         bool isVisible = false;
         foreach (Core::IEditor *visEditor, editorManager->visibleEditors()) {
             if (visEditor->document() &&
-                    (symbolLink.fileName == visEditor->document()->fileName()) &&
+                    (symbolLink.targetFileName == visEditor->document()->fileName()) &&
                     (visEditor != editor)) {
                 isVisible = true;
                 editorManager->activateEditor(visEditor);
@@ -4289,7 +4289,7 @@ void BaseTextEditorWidget::mousePressEvent(QMouseEvent *e)
         } else {
             updateLink(e);
 
-            if (d->m_currentLink.isValid())
+            if (d->m_currentLink.hasValidLinkText())
                 d->m_linkPressed = true;
         }
     } else if (e->button() == Qt::RightButton) {
@@ -4328,7 +4328,7 @@ void BaseTextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
                 bool isVisible = false;
                 foreach (Core::IEditor *visEditor, editorManager->visibleEditors())
                     if (visEditor->document() &&
-                            (symbolLink.fileName == visEditor->document()->fileName()) &&
+                            (symbolLink.targetFileName == visEditor->document()->fileName()) &&
                             (editor != visEditor)) {
                         isVisible = true;
                         editorManager->activateEditor(visEditor);
@@ -4911,18 +4911,17 @@ BaseTextEditorWidget::Link BaseTextEditorWidget::findLinkAt(const QTextCursor &,
 
 bool BaseTextEditorWidget::openLink(const Link &link)
 {
-    if (link.fileName.isEmpty())
+    if (!link.hasValidTarget())
         return false;
 
-    if (baseTextDocument()->fileName() == link.fileName) {
-        Core::EditorManager *editorManager = Core::EditorManager::instance();
-        editorManager->addCurrentPositionToNavigationHistory();
-        gotoLine(link.line, link.column);
+    if (baseTextDocument()->fileName() == link.targetFileName) {
+        Core::EditorManager::instance()->addCurrentPositionToNavigationHistory();
+        gotoLine(link.targetLine, link.targetColumn);
         setFocus();
         return true;
     }
 
-    return openEditorAt(link.fileName, link.line, link.column, Core::Id(),
+    return openEditorAt(link.targetFileName, link.targetLine, link.targetColumn, Core::Id(),
                           Core::EditorManager::IgnoreNavigationHistory
                         | Core::EditorManager::ModeSwitch);
 }
@@ -4945,7 +4944,7 @@ void BaseTextEditorWidget::updateLink(QMouseEvent *e)
 
         const Link link = findLinkAt(cursor, false);
 
-        if (onText && link.isValid()) {
+        if (onText && link.hasValidLinkText()) {
             showLink(link);
             linkFound = true;
         }
@@ -4962,8 +4961,8 @@ void BaseTextEditorWidget::showLink(const Link &link)
 
     QTextEdit::ExtraSelection sel;
     sel.cursor = textCursor();
-    sel.cursor.setPosition(link.begin);
-    sel.cursor.setPosition(link.end, QTextCursor::KeepAnchor);
+    sel.cursor.setPosition(link.linkTextStart);
+    sel.cursor.setPosition(link.linkTextEnd, QTextCursor::KeepAnchor);
     sel.format = d->m_linkFormat;
     sel.format.setFontUnderline(true);
     setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>() << sel);
@@ -4974,7 +4973,7 @@ void BaseTextEditorWidget::showLink(const Link &link)
 
 void BaseTextEditorWidget::clearLink()
 {
-    if (!d->m_currentLink.isValid())
+    if (!d->m_currentLink.hasValidLinkText())
         return;
 
     setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());

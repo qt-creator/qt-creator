@@ -105,12 +105,12 @@ public:
 private:
     void mousePressEvent(QMouseEvent *)
     {
-        if (m_link.fileName.isEmpty())
+        if (!m_link.hasValidTarget())
             return;
 
-        TextEditor::BaseTextEditorWidget::openEditorAt(m_link.fileName,
-                                                       m_link.line,
-                                                       m_link.column,
+        TextEditor::BaseTextEditorWidget::openEditorAt(m_link.targetFileName,
+                                                       m_link.targetLine,
+                                                       m_link.targetColumn,
                                                        Constants::CPPEDITOR_ID);
     }
 
@@ -207,10 +207,10 @@ void CppTypeHierarchyWidget::onItemClicked(const QModelIndex &index)
 {
     const TextEditor::BaseTextEditorWidget::Link link
             = index.data(LinkRole).value<TextEditor::BaseTextEditorWidget::Link>();
-    if (!link.fileName.isEmpty())
-        TextEditor::BaseTextEditorWidget::openEditorAt(link.fileName,
-                                                       link.line,
-                                                       link.column,
+    if (link.hasValidTarget())
+        TextEditor::BaseTextEditorWidget::openEditorAt(link.targetFileName,
+                                                       link.targetLine,
+                                                       link.targetColumn,
                                                        Constants::CPPEDITOR_ID);
 }
 

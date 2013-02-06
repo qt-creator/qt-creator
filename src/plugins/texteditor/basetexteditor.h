@@ -492,28 +492,29 @@ public:
 
     struct Link
     {
-        Link(const QString &fileName = QString(),
-             int line = 0,
-             int column = 0)
-            : begin(-1)
-            , end(-1)
-            , fileName(fileName)
-            , line(line)
-            , column(column)
+        Link(const QString &fileName = QString(), int line = 0, int column = 0)
+            : linkTextStart(-1)
+            , linkTextEnd(-1)
+            , targetFileName(fileName)
+            , targetLine(line)
+            , targetColumn(column)
         {}
 
-        bool isValid() const
-        { return begin != end; }
+        bool hasValidTarget() const
+        { return !targetFileName.isEmpty(); }
+
+        bool hasValidLinkText() const
+        { return linkTextStart != linkTextEnd; }
 
         bool operator==(const Link &other) const
-        { return begin == other.begin && end == other.end; }
+        { return linkTextStart == other.linkTextStart && linkTextEnd == other.linkTextEnd; }
 
-        int begin;           // Link position
-        int end;           // Link end position
+        int linkTextStart;
+        int linkTextEnd;
 
-        QString fileName;  // Target file
-        int line;          // Target line
-        int column;        // Target column
+        QString targetFileName;
+        int targetLine;
+        int targetColumn;
     };
 
 protected:

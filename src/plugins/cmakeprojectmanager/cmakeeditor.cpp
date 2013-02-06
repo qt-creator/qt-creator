@@ -231,9 +231,9 @@ CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
             else
                 return link;
         }
-        link.fileName = fileName;
-        link.begin = cursor.position() - positionInBlock + beginPos + 1;
-        link.end = cursor.position() - positionInBlock + endPos;
+        link.targetFileName = fileName;
+        link.linkTextStart = cursor.position() - positionInBlock + beginPos + 1;
+        link.linkTextEnd = cursor.position() - positionInBlock + endPos;
     }
     return link;
 }
