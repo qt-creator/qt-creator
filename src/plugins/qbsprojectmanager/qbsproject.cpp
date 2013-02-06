@@ -388,6 +388,9 @@ void QbsProject::parse(const QVariantMap &config, const QString &dir)
     params.buildRoot = m_qbsBuildRoot;
     params.projectFilePath = m_fileName;
     params.ignoreDifferentProjectFilePath = false;
+    const qbs::Preferences prefs(m_manager->settings());
+    params.searchPaths = prefs.searchPaths(QLatin1String(QBS_BUILD_DIR));
+    params.pluginPaths = prefs.pluginPaths(QLatin1String(QBS_BUILD_DIR));
 
     m_qbsSetupProjectJob
             = qbs::Project::setupProject(params, m_manager->settings(), m_manager->logSink(), 0);
