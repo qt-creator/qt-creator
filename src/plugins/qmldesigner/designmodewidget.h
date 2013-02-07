@@ -106,12 +106,9 @@ public:
     explicit DesignModeWidget(QWidget *parent = 0);
 
     ~DesignModeWidget();
-    void showEditor(Core::IEditor *editor);
-    void closeEditors(const QList<Core::IEditor*> editors);
     QString contextHelpId() const;
 
     void initialize();
-
 
     void readSettings();
     void saveSettings();

@@ -237,35 +237,6 @@ void DesignModeWidget::toggleSidebars()
 
 }
 
-void DesignModeWidget::showEditor(Core::IEditor *editor)
-{
-    if (textEditor()
-            && editor
-            && textEditor()->document()->fileName() != editor->document()->fileName())
-        setupNavigatorHistory(editor);
-
-    //
-    // Prevent recursive calls to function by explicitly managing initialization status
-    // (QApplication::processEvents is called explicitly at a number of places)
-    //
-    if (m_initStatus == Initializing)
-        return;
-
-    if (m_initStatus == NotInitialized) {
-        m_initStatus = Initializing;
-        setup();
-    }
-
-
-    if (textEditor())
-        m_toolBar->addEditor(textEditor());
-
-
-    setCurrentDesignDocument(currentDesignDocument());
-
-    m_initStatus = Initialized;
-}
-
 void DesignModeWidget::readSettings()
 {
     QSettings *settings = Core::ICore::settings();
