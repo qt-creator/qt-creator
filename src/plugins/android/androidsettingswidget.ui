@@ -476,9 +476,6 @@
   <slot>dataPartitionSizeEditingFinished()</slot>
   <slot>openJDKLocationEditingFinished()</slot>
   <slot>browseOpenJDKLocation()</slot>
-  <slot>KeystoreLocationEditingFinished()</slot>
-  <slot>browseKeystoreLocation()</slot>
-  <slot>createKeystore()</slot>
   <slot>manageAVD()</slot>
  </slots>
 </ui>
