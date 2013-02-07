@@ -21,12 +21,19 @@ def main():
     catModel = categoriesView.model()
     projects = catModel.index(0, 0)
     test.compare("Projects", str(projects.data()))
-    comboBox = waitForObject("{name='comboBox' type='QComboBox' visible='1' "
-                             "window=':New_Core::Internal::NewDialog'}")
-    test.compare(comboBox.currentText, "All Templates")
+    comboBox = findObject("{name='comboBox' type='QComboBox' visible='1' "
+                          "window=':New_Core::Internal::NewDialog'}")
+    targets = zip(*kits.values())[0]
+    if (QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.MAEMO5) not in targets
+        and QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.HARMATTAN) not in targets):
+        test.compare(comboBox.currentText, "Desktop Templates")
+        test.verify(not comboBox.enabled, "Verifying whether combobox is disabled.")
+    else:
+        test.compare(comboBox.currentText, "All Templates")
+        test.verify(comboBox.enabled, "Verifying whether combobox is enabled.")
     for category in [item.replace(".", "\\.") for item in dumpItems(catModel, projects)]:
         # skip non-configurable
-        if "Import" in category or "Non-Qt" in category:
+        if "Import" in category:
             continue
         clickItem(categoriesView, "Projects." + category, 5, 5, 0, Qt.LeftButton)
         templatesView = waitForObject("{name='templatesView' type='QListView' visible='1'}")
@@ -34,7 +41,7 @@ def main():
         for template in dumpItems(templatesView.model(), templatesView.rootIndex()):
             template = template.replace(".", "\\.")
             # skip non-configurable
-            if "Qt Quick 1 UI" in template or "Plain C" in template:
+            if template in ("Qt Quick 1 UI", "Qt Quick 2 UI") or "(CMake Build)" in template:
                 continue
             availableProjectTypes.append({category:template})
     clickButton(waitForObject("{text='Cancel' type='QPushButton' unnamed='1' visible='1'}"))

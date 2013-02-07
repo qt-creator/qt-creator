@@ -441,7 +441,6 @@ def __getSupportedPlatforms__(text, getAsStrings=False):
     if 'Supported Platforms' in text:
         supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split(" ")
         result = []
-        addSimulator = False
         if 'Desktop' in supports:
             result.append(QtQuickConstants.Targets.DESKTOP_474_GCC)
             if platform.system() in ("Linux", "Darwin"):
@@ -450,13 +449,12 @@ def __getSupportedPlatforms__(text, getAsStrings=False):
                 result.append(QtQuickConstants.Targets.DESKTOP_474_MSVC2008)
         if 'MeeGo/Harmattan' in supports:
             result.append(QtQuickConstants.Targets.HARMATTAN)
-            addSimulator = True
         if 'Maemo/Fremantle' in supports:
             result.append(QtQuickConstants.Targets.MAEMO5)
-            addSimulator = True
-        if len(result) == 0 or addSimulator:
+        if not re.search("custom Qt Creator plugin", text):
             result.append(QtQuickConstants.Targets.SIMULATOR)
     elif 'Platform independent' in text:
+        # MAEMO5 and HARMATTAN could be wrong here - depends on having Madde plugin enabled or not
         result = [QtQuickConstants.Targets.DESKTOP_474_GCC, QtQuickConstants.Targets.MAEMO5,
                   QtQuickConstants.Targets.SIMULATOR, QtQuickConstants.Targets.HARMATTAN]
         if platform.system() in ('Windows', 'Microsoft'):
