@@ -130,6 +130,8 @@ private slots:
     void test_format_pointerdeclaration_multiple_declarators_data();
     void test_format_pointerdeclaration_multiple_matches();
     void test_format_pointerdeclaration_multiple_matches_data();
+    void test_format_pointerdeclaration_macros();
+    void test_format_pointerdeclaration_macros_data();
 
     void test_modelmanager_paths();
     void test_modelmanager_framework_headers();
