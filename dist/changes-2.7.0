@@ -34,17 +34,20 @@ Editing
 Managing Projects
    * Improved opening projects from command line: "qtcreator ." opens a
      project found in the directory without explicitly naming it
-   * Made DeployConfigurations clonable
-   * Implemented cloning Kits in Build and Run options
-   * Added display of VCS topic (branch names) in project tree
-   * Added configuration option for default build directory,
-     can be set to '.' to force in-source builds by default
-   * Added option to show hidden files
+   * Implemented copying build and run settings for a kit to another kit
+     (Copy to Kit) and changing the kit while preserving the build and
+     run settings (Change Kit) in Projects mode
+   * Added displaying version control system information (branch name) in
+     the Projects view in the sidebar
+   * Added a configuration option in Build and Run options for the default
+     build directory. It can be set to '.' to force in-source builds by default
+   * Added an option to show hidden files in the File System view in the
+     sidebar
 
-Toolchains
-   * Introduced custom compiler settings
+Compilers
+   * Introduced adding custom compilers in the Build and Run options
    * Simplified MSVC setup logic (QTCREATORBUG-8292)
-   * Added display of elapsed time after building
+   * Added displaying elapsed time after building in the Compile Output pane
 
 QMake Projects
    * Make command line parser grok more options: -spec/-platform,
@@ -57,17 +60,17 @@ QMake Projects
 
 CMake Projects
    * Added Ninja support
-   * Added code completion for cmake editor
+   * Added code completion for CMake editor
    * Fixed .ui code completion for some CMake projects
    * Fixed build directory when adding build configurations
      (QTCREATORBUG-8425)
 
 QBS Projects
-   * Implemented initial support for QBS projects
+   * Implemented initial support for Qt Build Suite (QBS) projects
    * Made Qt Creator itself compilable with QBS
 
 Generic Projects
-   * Use MIME types to recognize source files (QTCREATORBUG-5451)
+   * Implemented using MIME types to recognize source files (QTCREATORBUG-5451)
 
 Debugging
    * Completed support for basic Qt 5 data types
