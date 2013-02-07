@@ -50,7 +50,7 @@ Compilers
    * Added displaying elapsed time after building in the Compile Output pane
 
 QMake Projects
-   * Make command line parser grok more options: -spec/-platform,
+   * Made command line parser understand more options: -spec/-platform,
      -xspec/-xplatform, -t/-template, -tp/-template_prefix, -cache & -nocache
    * Improved performance in the .pro parser
    * Improved parsing of qdoc errors
