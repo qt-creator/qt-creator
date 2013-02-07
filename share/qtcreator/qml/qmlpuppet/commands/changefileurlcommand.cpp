@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "changefileurlcommand.h"
+#include <QDataStream>
 
 namespace QmlDesigner {
 
