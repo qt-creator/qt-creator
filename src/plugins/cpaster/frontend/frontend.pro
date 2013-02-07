@@ -6,6 +6,7 @@ include(../../../rpath.pri)
 include(../../../plugins/coreplugin/coreplugin.pri)
 
 CONFIG += console
+CONFIG -= app_bundle
 QT += network
 
 LIBS *= -L$$IDE_PLUGIN_PATH/QtProject
