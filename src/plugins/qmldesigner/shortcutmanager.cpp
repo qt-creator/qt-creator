@@ -318,7 +318,7 @@ void ShortCutManager::redoAvailable(bool isAvailable)
 void ShortCutManager::goIntoComponent()
 {
     if (currentDesignDocument())
-        currentDesignDocument()->goIntoComponent();
+        currentDesignDocument()->goIntoSelectedComponent();
 }
 
 } // namespace QmlDesigner

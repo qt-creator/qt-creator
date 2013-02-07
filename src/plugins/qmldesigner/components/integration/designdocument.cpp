@@ -120,28 +120,6 @@ Model *DesignDocument::documentModel() const
     return m_documentModel.data();
 }
 
-void DesignDocument::changeToDocumentModel()
-{
-    viewManager().detachRewriterView();
-    viewManager().detachViewsExceptRewriterAndComponetView();
-
-    m_currentModel = m_documentModel.data();
-
-    viewManager().attachRewriterView(m_documentTextModifier.data());
-    viewManager().attachViewsExceptRewriterAndComponetView();
-}
-
-void DesignDocument::changeToInFileComponentModel()
-{
-    viewManager().detachRewriterView();
-    viewManager().detachViewsExceptRewriterAndComponetView();
-
-    m_currentModel = m_inFileComponentModel.data();
-
-    viewManager().attachRewriterView(m_inFileComponentTextModifier.data());
-    viewManager().attachViewsExceptRewriterAndComponetView();
-}
-
 QWidget *DesignDocument::centralWidget() const
 {
     return qobject_cast<QWidget*>(parent());
@@ -306,13 +284,36 @@ void DesignDocument::loadDocument(QPlainTextEdit *edit)
     m_documentLoaded = true;
 }
 
-void DesignDocument::changeCurrentModelTo(const ModelNode &node)
+void DesignDocument::changeToDocumentModel()
+{
+    viewManager().detachRewriterView();
+    viewManager().detachViewsExceptRewriterAndComponetView();
+
+    m_currentModel = m_documentModel.data();
+
+    viewManager().attachRewriterView(m_documentTextModifier.data());
+    viewManager().attachViewsExceptRewriterAndComponetView();
+}
+
+void DesignDocument::changeToInFileComponentModel()
+{
+    viewManager().detachRewriterView();
+    viewManager().detachViewsExceptRewriterAndComponetView();
+
+    m_currentModel = m_inFileComponentModel.data();
+
+    viewManager().attachRewriterView(m_inFileComponentTextModifier.data());
+    viewManager().attachViewsExceptRewriterAndComponetView();
+}
+
+void DesignDocument::changeToSubComponentAndPushOnCrumblePath(const ModelNode &componentNode)
 {
     if (QmlDesignerPlugin::instance()->currentDesignDocument() != this)
         return;
 
+    changeToSubComponent(componentNode);
 
-    changeToSubComponent(node);
+    QmlDesignerPlugin::instance()->viewManager().pushInFileComponentOnCrambleBar(componentNode.id());
 }
 
 void DesignDocument::changeToSubComponent(const ModelNode &componentNode)
@@ -321,9 +322,8 @@ void DesignDocument::changeToSubComponent(const ModelNode &componentNode)
     QWeakPointer<Model> oldModel = m_currentModel;
     Q_ASSERT(oldModel.data());
 
-    if (m_currentModel.data() == m_inFileComponentModel.data()) {
+    if (m_currentModel.data() == m_inFileComponentModel.data())
         changeToDocumentModel();
-    }
 
     bool subComponentLoaded = loadInFileComponent(componentNode);
 
@@ -339,7 +339,7 @@ void DesignDocument::changeToExternalSubComponent(const QString &fileName)
     Core::EditorManager::openEditor(fileName);
 }
 
-void DesignDocument::goIntoComponent()
+void DesignDocument::goIntoSelectedComponent()
 {
     if (!m_currentModel)
         return;
@@ -365,14 +365,6 @@ void DesignDocument::activateCurrentModel(TextModifier *textModifier)
         m_stackedWidget->addWidget(plainTextEdit());
 
     viewManager().attachRewriterView(textModifier);
-
-//    if (s_clearCrumblePath)
-//        m_formEditorView->crumblePath()->clear();
-
-//    if (s_pushCrumblePath &&
-//            !differentCrumbleBarOnTop(m_formEditorView.data(), createCrumbleBarInfo().value<CrumbleBarInfo>()))
-//        m_formEditorView->crumblePath()->pushElement(simplfiedDisplayName(), createCrumbleBarInfo());
-
 
     Q_ASSERT(m_documentModel);
     QApplication::restoreOverrideCursor();

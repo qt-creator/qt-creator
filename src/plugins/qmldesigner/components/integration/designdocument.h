@@ -71,7 +71,6 @@ public:
     QString simplfiedDisplayName() const;
 
     void loadDocument(QPlainTextEdit *edit);
-    void activateCurrentModel(TextModifier *textModifier);
     void activateDocumentModel();
     void close();
     void updateSubcomponentManager();
@@ -99,7 +98,7 @@ public:
 
     void resetToDocumentModel();
 
-    void goIntoComponent();
+    void goIntoSelectedComponent();
 
     void changeToDocumentModel();
 
@@ -121,8 +120,8 @@ public slots:
     void undo();
     void redo();
     void updateActiveQtVersion();
-    void changeCurrentModelTo(const ModelNode &node);
-    void changeToSubComponent(const ModelNode &node);
+    void changeToSubComponentAndPushOnCrumblePath(const ModelNode &componentNode);
+    void changeToSubComponent(const ModelNode &componentNode);
     void changeToExternalSubComponent(const QString &m_oldFileName);
 
 private slots:
@@ -130,6 +129,7 @@ private slots:
 
 private: // functions
     void changeToInFileComponentModel();
+    void activateCurrentModel(TextModifier *textModifier);
 
     QWidget *centralWidget() const;
     QString pathToQt() const;
