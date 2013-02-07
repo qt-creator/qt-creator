@@ -68,6 +68,8 @@ QmlApplicationWizardDialog::QmlApplicationWizardDialog(QmlApp *qmlApp, QWidget *
     : BaseProjectWizardDialog(parent, parameters),
       m_qmlApp(qmlApp)
 {
+    setWindowTitle(tr("New Qt Quick UI Project"));
+    setIntroDescription(tr("This wizard generates a Qt Quick UI project."));
 }
 
 QmlApp *QmlApplicationWizardDialog::qmlApp() const
@@ -135,6 +137,8 @@ QWizard *QmlApplicationWizard::createWizardDialog(QWidget *parent,
         SLOT(setProjectNameAndBaseDirectory(QString,QString)));
 
     wizardDialog->setPath(wizardDialogParameters.defaultPath());
+
+    wizardDialog->setProjectName(QmlApplicationWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
 
     foreach (QWizardPage *page, wizardDialogParameters.extensionPages())
         applyExtensionPageShortTitle(wizardDialog, wizardDialog->addPage(page));

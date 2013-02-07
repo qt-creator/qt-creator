@@ -239,7 +239,7 @@ void BookmarkView::contextMenuEvent(QContextMenuEvent *event)
     QAction *moveDown = menu.addAction(tr("Move Down"));
     QAction *remove = menu.addAction(tr("&Remove"));
     QAction *removeAll = menu.addAction(tr("Remove All"));
-    QAction *editNote = menu.addAction(tr("Edit note"));
+    QAction *editNote = menu.addAction(tr("Edit Note"));
 
     m_contextMenuIndex = indexAt(event->pos());
     if (!m_contextMenuIndex.isValid()) {
@@ -703,7 +703,7 @@ void BookmarkManager::editNote()
     Bookmark *b = m_bookmarksList.at(current.row());
 
     bool inputOk = false;
-    QString noteText = QInputDialog::getText(0, tr("Edit note"),
+    QString noteText = QInputDialog::getText(0, tr("Edit Note"),
                                              tr("Note text:"), QLineEdit::Normal,
                                              b->note(), &inputOk);
     if (inputOk) {

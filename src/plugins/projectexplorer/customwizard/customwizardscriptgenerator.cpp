@@ -226,12 +226,12 @@ Core::GeneratedFiles
     As Qt Creator needs to know the file names before actually creates them to
     do overwrite checking etc., this is  2-step process:
     \list
-    \o Determine file names and attributes: The script is called with the
+    \li Determine file names and attributes: The script is called with the
       \c --dry-run option and the field values. It then prints the relative path
       names it intends to create followed by comma-separated attributes
      matching those of the \c <file> element, for example:
      \c myclass.cpp,openeditor
-    \o The script is called with the parameters only in the working directory
+    \li The script is called with the parameters only in the working directory
     and then actually creates the files. If that involves directories, the script
     should create those, too.
     \endlist

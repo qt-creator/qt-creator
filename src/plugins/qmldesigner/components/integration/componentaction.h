@@ -63,6 +63,7 @@ public slots:
 
 private:
     QWeakPointer<ComponentView> m_componentView;
+    bool dontEmitCurrentComponentChanged;
 };
 
 } // namespace QmlDesigner

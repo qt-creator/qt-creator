@@ -299,9 +299,9 @@ DeviceProcess DeviceProcessesDialogPrivate::selectedProcess() const
 
      The dialog can be used as a
      \list
-     \o Non-modal dialog showing a list of processes: Call addCloseButton()
+     \li Non-modal dialog showing a list of processes: Call addCloseButton()
         to add a 'Close' button.
-     \o Modal dialog with an 'Accept' button to select a process: Call
+     \li Modal dialog with an 'Accept' button to select a process: Call
         addAcceptButton() passing the label text. This will create a
         'Cancel' button as well.
      \endlist

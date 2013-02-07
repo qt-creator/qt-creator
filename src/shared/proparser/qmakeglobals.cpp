@@ -304,8 +304,8 @@ bool QMakeGlobals::initProperties()
         return false;
     data = proc.readAll();
 #else
-    if (FILE *proc = QT_POPEN(QString(IoUtils::shellQuote(qmake_abslocation) + QLatin1String(" -query"))
-                              .toLocal8Bit(), "r")) {
+    if (FILE *proc = QT_POPEN(QString(QMakeInternal::IoUtils::shellQuote(qmake_abslocation)
+                                      + QLatin1String(" -query")).toLocal8Bit(), "r")) {
         char buff[1024];
         while (!feof(proc))
             data.append(buff, int(fread(buff, 1, 1023, proc)));

@@ -35,11 +35,11 @@
 
     \list 1
 
-        \o  On the \gui Welcome page, select \gui Examples (1).
+        \li On the \gui Welcome page, select \gui Examples (1).
 
             \image qtcreator-gs-build-example-open.png "Selecting an example"
 
-        \o  Select an example in the list of examples. You can also search for
+        \li Select an example in the list of examples. You can also search for
             examples (2).
 
             \note The project opens in the \gui Edit mode, and the documentation
@@ -47,17 +47,17 @@
             instructions, select \gui {Previous Page} on the toolbar or
             press \key {Alt+Left}.
 
-        \o  To check that the application code can be compiled and linked for a
+        \li To check that the application code can be compiled and linked for a
             device, click the \gui {Kit Selector} and select a kit for the
             device.
 
             \image qtcreator-gs-build-example-kit-selector.png "Selecting a kit to build with"
 
-        \o  Click
+        \li Click
             \inlineimage qtcreator-run.png
             (\gui Run) to build and run the application.
 
-        \o  To see the compilation progress, press \key{Alt+4} to open the
+        \li To see the compilation progress, press \key{Alt+4} to open the
             \gui {Compile Output} pane.
 
             The \gui Build progress bar on the toolbar turns green when the

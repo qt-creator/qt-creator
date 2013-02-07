@@ -54,21 +54,21 @@
 
     \list
 
-        \o  Layer names are used as element names. Spaces and hash marks (#) are
+        \li Layer names are used as element names. Spaces and hash marks (#) are
             replaced with underscore characters to create valid ids for the
             elements.
 
-        \o  Layer styles, such as drop shadows, are converted to images.
+        \li Layer styles, such as drop shadows, are converted to images.
 
-        \o  Offset, size, ordering and opacity are preserved.
+        \li Offset, size, ordering and opacity are preserved.
 
-        \o  Text layers are converted to Text elements, unless you specify that
+        \li Text layers are converted to Text elements, unless you specify that
             they be converted to Image elements.
 
-        \o  Hidden layers can be exported, and their visibility is set to
+        \li Hidden layers can be exported, and their visibility is set to
             hidden.
 
-        \o  PNG images are copied to the images subirectory.
+        \li PNG images are copied to the images subirectory.
 
     \endlist
 
@@ -79,28 +79,28 @@
 
     \list
 
-        \o  To minimize the number of elements, minimize the number of layers or
+        \li To minimize the number of elements, minimize the number of layers or
             use top-level layer groups, because each layer or layer group is
             exported as a Text or Image element.
 
-        \o  To make sure that all related elements are exported to the same
+        \li To make sure that all related elements are exported to the same
             element, use top-level layer groups.
 
-        \o  To determine that some layers are not exported, hide them, and
+        \li To determine that some layers are not exported, hide them, and
             deselect the \gui {Export hidden} check box during exporting.
 
-        \o  To make it easier to find the layers and layer groups after
+        \li To make it easier to find the layers and layer groups after
             exporting them, use descriptive names for them.
 
-        \o  To make sure that image dimensions are preserved during export,
+        \li To make sure that image dimensions are preserved during export,
             create at least one fully filled layer (which can be hidden), such
             as a background layer. If the export script does not find a fully
             filled layer, it resizes all images to the size of the canvas.
 
-        \o  To prevent errors during export, make sure that the layers are not
+        \li To prevent errors during export, make sure that the layers are not
             locked. Locked layers cannot be exported.
 
-        \o  To avoid unexpected results, do not use Blending Mode effects. They
+        \li To avoid unexpected results, do not use Blending Mode effects. They
             are not exported.
 
     \endlist
@@ -114,37 +114,37 @@
 
     \list 1
 
-        \o  Download the export script, \e{Export QML.jx}, from
+        \li Download the export script, \e{Export QML.jx}, from
             \l{http://qt.gitorious.org/qt-labs/photoshop-qmlexporter/trees/master}
             {Gitorious}.
 
             \note Read the README.txt file in the repository for latest
             information about the script.
 
-        \o  Double-click the export script to add the export command to the
+        \li Double-click the export script to add the export command to the
             \gui Scripts menu. You can also copy the script file to the Adobe
             Photoshop scripts directory (typically, \c{\Presets\Scripts} in the
             Photoshop installation directory).
 
-        \o  In Adobe Photoshop, choose \gui {File > Scripts > Export to QML} to
+        \li In Adobe Photoshop, choose \gui {File > Scripts > Export to QML} to
             export the scene to a QML file.
 
-        \o  In the \gui {Export Document to QML} dialog, enter a name and
+        \li In the \gui {Export Document to QML} dialog, enter a name and
             location for the QML file.
 
-        \o  Select the \gui {Rasterize text} check box to export text layers as
+        \li Select the \gui {Rasterize text} check box to export text layers as
             images, not as Text elements.
 
-        \o  Select the \gui {Group layers} check box to export each top-level
+        \li Select the \gui {Group layers} check box to export each top-level
             group as a merged QML Image element.
 
-        \o  Select the \gui {Export hidden} check box to export hidden layers
+        \li Select the \gui {Export hidden} check box to export hidden layers
             and to set their visibility property to hidden.
 
-        \o  Deselect the \gui {Export QML} check box if you have modified the
+        \li Deselect the \gui {Export QML} check box if you have modified the
             QML document in \QC, but still want to re-export graphical assets.
 
-        \o  Click \gui Export.
+        \li Click \gui Export.
 
     \endlist
 
@@ -167,31 +167,31 @@
 
     \list 1
 
-        \o  On Microsoft Windows, you must first add Python support to your GIMP
+        \li On Microsoft Windows, you must first add Python support to your GIMP
             installation, as instructed in
             \l {http://www.gimpusers.com/tutorials/install-python-for-gimp-2-6-windows}
             {Tutorial: Installing Python for GIMP 2.6 (Windows)}.
 
-        \o  Download the export script, \e qmlexporter.py, from
+        \li Download the export script, \e qmlexporter.py, from
             \l{http://qt.gitorious.org/qt-labs/gimp-qmlexporter/trees/master}
             {Gitorious}.
 
             \note Read the INSTALL.txt in the repository for latest information
             about the script.
 
-        \o  Copy the export script to the plug-ins directory in the GIMP
+        \li Copy the export script to the plug-ins directory in the GIMP
             installation directory.
 
-        \o  Check the properties of the file to make sure that it is executable.
+        \li Check the properties of the file to make sure that it is executable.
 
             On Linux, run the following command: \c {chmod u+rx}
 
-        \o  Restart GIMP to have the export command added to the \gui File menu.
+        \li Restart GIMP to have the export command added to the \gui File menu.
 
-        \o  Choose \gui {File > Export to QML} to export the design to a QML
+        \li Choose \gui {File > Export to QML} to export the design to a QML
             file.
 
-        \o  In the \gui {Export Layers to a QML Document} dialog, enter a name
+        \li In the \gui {Export Layers to a QML Document} dialog, enter a name
             and location for the QML file, and click \gui Export.
 
     \endlist

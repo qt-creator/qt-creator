@@ -66,11 +66,11 @@
 
     \list 1
 
-        \o  Select \gui Tools > \gui{Form Editor} > \gui Views > \gui Locked.
+        \li Select \gui Tools > \gui{Form Editor} > \gui Views > \gui Locked.
 
             When this option is not checked, you can change the layout.
 
-        \o  Click the header of an element and drag the element to a new
+        \li Click the header of an element and drag the element to a new
             position.
 
     \endlist
@@ -79,17 +79,17 @@
 
     \list
 
-        \o  Select \gui Tools > \gui Options > \gui Designer.
+        \li Select \gui Tools > \gui Options > \gui Designer.
 
-        \o  Specify settins for generating classes and code in \gui {Class
+        \li Specify settins for generating classes and code in \gui {Class
             Generation}.
 
-        \o  Specify embedded device profiles, that determine style, font, and
+        \li Specify embedded device profiles, that determine style, font, and
             screen resolution, for example, in \gui{Embedded Design}.
 
-        \o  Specify settings for the grid and previewing forms in \gui Forms.
+        \li Specify settings for the grid and previewing forms in \gui Forms.
 
-        \o  Specify an additional folder for saving templates in \gui{Template
+        \li Specify an additional folder for saving templates in \gui{Template
             Paths}.
 
     \endlist
@@ -107,15 +107,15 @@
 
     \list 1
 
-        \o  Select \gui Tools > \gui Options > \gui Designer.
+        \li Select \gui Tools > \gui Options > \gui Designer.
 
-        \o  Select the \gui{Print/Preview Configuration} check box.
+        \li Select the \gui{Print/Preview Configuration} check box.
 
-        \o  In the \gui {Device skin} field, select a device skin.
+        \li In the \gui {Device skin} field, select a device skin.
 
-        \o  When the form is open in \gui Design mode, press \key Alt+Shift+R.
+        \li When the form is open in \gui Design mode, press \key Alt+Shift+R.
 
-        \o  To end the preview, right-click the skin and select \gui Close in
+        \li To end the preview, right-click the skin and select \gui Close in
             the context menu.
 
     \endlist

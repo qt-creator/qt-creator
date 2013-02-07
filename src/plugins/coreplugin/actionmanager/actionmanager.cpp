@@ -127,14 +127,14 @@ using namespace Core::Internal;
 
     \section1 Important Guidelines:
     \list
-    \o Always register your actions and shortcuts!
-    \o Register your actions and shortcuts during your plugin's \l{ExtensionSystem::IPlugin::initialize()}
+    \li Always register your actions and shortcuts!
+    \li Register your actions and shortcuts during your plugin's \l{ExtensionSystem::IPlugin::initialize()}
        or \l{ExtensionSystem::IPlugin::extensionsInitialized()} methods, otherwise the shortcuts won't appear
        in the keyboard settings dialog from the beginning.
-    \o When registering an action with \c{cmd=registerAction(action, id, contexts)} be sure to connect
+    \li When registering an action with \c{cmd=registerAction(action, id, contexts)} be sure to connect
        your own action \c{connect(action, SIGNAL...)} but make \c{cmd->action()} visible to the user, i.e.
        \c{widget->addAction(cmd->action())}.
-    \o Use this class to add actions to the applications menus
+    \li Use this class to add actions to the applications menus
     \endlist
 
     \sa Core::ICore

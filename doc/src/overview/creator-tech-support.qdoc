@@ -36,37 +36,37 @@
 
     \table
         \header
-            \o  What Do You Want to Do
-            \o  Where to Go
+            \li What Do You Want to Do
+            \li Where to Go
 
         \row
-            \o  Learn more about Qt
-            \o  \l{http://qt.digia.com/product/learning/}{Learning}
+            \li Learn more about Qt
+            \li \l{http://qt.digia.com/product/learning/}{Learning}
                 from Digia
 
                 \l{http://qt-project.org/wiki/developer-guides}
                 {Qt Developer Guides} from Qt Project
 
         \row
-            \o  Develop Qt applications for desktop and mobile devices
-            \o  \l{http://qt-project.org}{Qt Developer Network}
+            \li Develop Qt applications for desktop and mobile devices
+            \li \l{http://qt-project.org}{Qt Developer Network}
 
         \row
-            \o  Develop Qt applications for Nokia mobile devices
-            \o  \l{http://www.developer.nokia.com/Develop/Qt/}
+            \li Develop Qt applications for Nokia mobile devices
+            \li \l{http://www.developer.nokia.com/Develop/Qt/}
                 {Nokia Developer - Qt}
 
         \row
-            \o  Participate in Qt development
-            \o  \l{http://qt-project.org/contribute}{Contribute to Qt}
+            \li Participate in Qt development
+            \li \l{http://qt-project.org/contribute}{Contribute to Qt}
 
         \row
-            \o  Find free Qt-based applications
-            \o  \l{http://qt-apps.org/}{Qt Apps}
+            \li Find free Qt-based applications
+            \li \l{http://qt-apps.org/}{Qt Apps}
 
         \row
-            \o  Develop with a commercial Qt license and support - Qt by Digia
-            \o  \l{http://qt.digia.com/Product/Licensing/}{Qt Licensing}
+            \li Develop with a commercial Qt license and support - Qt by Digia
+            \li \l{http://qt.digia.com/Product/Licensing/}{Qt Licensing}
     \endtable
 
 */

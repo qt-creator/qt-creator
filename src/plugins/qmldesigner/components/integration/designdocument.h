@@ -30,21 +30,12 @@
 #ifndef DesignDocument_h
 #define DesignDocument_h
 
-#include "rewriterview.h"
-
 #include <model.h>
 #include <rewriterview.h>
-#include <itemlibraryview.h>
-#include <navigatorview.h>
-#include <stateseditorview.h>
-#include <formeditorview.h>
-#include <propertyeditor.h>
-#include <componentview.h>
 #include <basetexteditmodifier.h>
 #include <componenttextmodifier.h>
 #include <subcomponentmanager.h>
 #include <model/viewlogger.h>
-#include <viewmanager.h>
 
 #include <QObject>
 #include <QString>
@@ -66,6 +57,8 @@ class ModelNode;
 class TextModifier;
 class QmlObjectNode;
 class CrumbleBarInfo;
+class ViewManager;
+class QmlModelView;
 
 class DesignDocument: public QObject
 {
@@ -77,9 +70,8 @@ public:
     QString displayName() const;
     QString simplfiedDisplayName() const;
 
-    QList<RewriterView::Error> loadDocument(QPlainTextEdit *edit);
+    void loadDocument(QPlainTextEdit *edit);
     void activateCurrentModel(TextModifier *textModifier);
-    void activateCurrentModel();
     void activateDocumentModel();
     void close();
     void updateSubcomponentManager();
@@ -107,6 +99,10 @@ public:
 
     void resetToDocumentModel();
 
+    void goIntoComponent();
+
+    void changeToDocumentModel();
+
 signals:
     void displayNameChanged(const QString &newFileName);
     void dirtyStateChanged(bool newState);
@@ -115,8 +111,6 @@ signals:
     void redoAvailable(bool isAvailable);
     void designDocumentClosed();
     void qmlErrorsChanged(const QList<RewriterView::Error> &errors);
-
-    void fileToOpen(const QString &path);
 
 public slots:
     void deleteSelected();
@@ -130,13 +124,11 @@ public slots:
     void changeCurrentModelTo(const ModelNode &node);
     void changeToSubComponent(const ModelNode &node);
     void changeToExternalSubComponent(const QString &m_oldFileName);
-    void goIntoComponent();
 
 private slots:
     void updateFileName(const QString &oldFileName, const QString &newFileName);
 
 private: // functions
-    void changeToDocumentModel();
     void changeToInFileComponentModel();
 
     QWidget *centralWidget() const;
@@ -147,7 +139,9 @@ private: // functions
 
     ModelNode rootModelNode() const;
 
-    bool loadSubComponent(const ModelNode &componentNode);
+    bool loadInFileComponent(const ModelNode &componentNode);
+
+    QmlModelView *qmlModelView();
 
 private: // variables
     QWeakPointer<QStackedWidget> m_stackedWidget;

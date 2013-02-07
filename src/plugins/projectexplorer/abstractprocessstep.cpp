@@ -53,12 +53,12 @@ using namespace ProjectExplorer;
 
     Usage:
     \list
-    \o Use processParameters() to configure the process you want to run
+    \li Use processParameters() to configure the process you want to run
     (you need to do that before calling AbstractProcessStep::init()).
-    \o Inside YourBuildStep::init() call AbstractProcessStep::init().
-    \o Inside YourBuildStep::run() call AbstractProcessStep::run(), which automatically starts the proces
+    \li Inside YourBuildStep::init() call AbstractProcessStep::init().
+    \li Inside YourBuildStep::run() call AbstractProcessStep::run(), which automatically starts the process
     and by default adds the output on stdOut and stdErr to the OutputWindow.
-    \o If you need to process the process output override stdOut() and/or stdErr.
+    \li If you need to process the process output override stdOut() and/or stdErr.
     \endlist
 
     The two functions processStarted() and processFinished() are called after starting/finishing the process.

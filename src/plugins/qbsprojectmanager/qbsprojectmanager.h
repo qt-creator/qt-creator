@@ -47,6 +47,7 @@ class ProjectExplorerPlugin;
 namespace QbsProjectManager {
 
 namespace Internal {
+class QbsLogSink;
 class QbsProject;
 class QbsProjectManagerPlugin;
 } // namespace Internal
@@ -68,6 +69,7 @@ public:
     QStringList profileNames() const;
 
     static qbs::Settings *settings();
+    Internal::QbsLogSink *logSink() { return m_logSink; }
 
 private slots:
     void pushKitsToQbs();
@@ -79,6 +81,7 @@ private:
     void addProfileFromKit(const ProjectExplorer::Kit *k);
 
     Internal::QbsProjectManagerPlugin *m_plugin;
+    Internal::QbsLogSink *m_logSink;
     static qbs::Settings *m_settings;
 };
 

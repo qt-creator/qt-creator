@@ -59,14 +59,14 @@
 
     \list 1
 
-        \o  Select \gui Tools > \gui Options > \gui Environment > \gui Keyboard.
+        \li Select \gui Tools > \gui Options > \gui Environment > \gui Keyboard.
 
-        \o  Select a command from the list.
+        \li Select a command from the list.
 
-        \o  In \gui{Key Sequence} enter the shortcut key you want to associate
+        \li In \gui{Key Sequence} enter the shortcut key you want to associate
             with the selected command.
 
-        \o  To revert to the default shortcut, select \gui Reset.
+        \li To revert to the default shortcut, select \gui Reset.
 
     \endlist
 
@@ -74,11 +74,11 @@
 
     \list
 
-        \o  To import a keyboard shortcut mapping scheme, click \gui Import
+        \li To import a keyboard shortcut mapping scheme, click \gui Import
             and select the .kms file containing the keyboard shortcut mapping scheme
             you want to import.
 
-        \o  To export the current keyboard shortcut mapping scheme, click
+        \li To export the current keyboard shortcut mapping scheme, click
             \gui Export and select the location where you want to save the
             exported .kms file.
 
@@ -93,599 +93,599 @@
 
     \table
         \header
-            \o Action
-            \o Keyboard shortcut
+            \li  Action
+            \li  Keyboard shortcut
         \row
-            \o Open file or project
-            \o Ctrl+O
+            \li  Open file or project
+            \li  Ctrl+O
         \row
-            \o New file or project
-            \o Ctrl+N
+            \li  New file or project
+            \li  Ctrl+N
         \row
-            \o Open in external editor
-            \o Alt+V, Alt+I
+            \li  Open in external editor
+            \li  Alt+V, Alt+I
         \row
-            \o Select all
-            \o Ctrl+A
+            \li  Select all
+            \li  Ctrl+A
         \row
-            \o Delete
-            \o Del
+            \li  Delete
+            \li  Del
         \row
-            \o Cut
-            \o Ctrl+X
+            \li  Cut
+            \li  Ctrl+X
         \row
-            \o Copy
-            \o Ctrl+C
+            \li  Copy
+            \li  Ctrl+C
         \row
-            \o Paste
-            \o Ctrl+V
+            \li  Paste
+            \li  Ctrl+V
         \row
-            \o Redo
-            \o Ctrl+Y
+            \li  Redo
+            \li  Ctrl+Y
         \row
-            \o Print
-            \o Ctrl+P
+            \li  Print
+            \li  Ctrl+P
         \row
-            \o Save
-            \o Ctrl+S
+            \li  Save
+            \li  Ctrl+S
         \row
-            \o Save all
-            \o Ctrl+Shift+S
+            \li  Save all
+            \li  Ctrl+Shift+S
         \row
-            \o Close window
-            \o Ctrl+W
+            \li  Close window
+            \li  Ctrl+W
         \row
-            \o Close all
-            \o Ctrl+Shift+W
+            \li  Close all
+            \li  Ctrl+Shift+W
         \row
-            \o Close current file
-            \o Ctrl+F4
+            \li  Close current file
+            \li  Ctrl+F4
         \row
-            \o Go back
-            \o Alt+Left
+            \li  Go back
+            \li  Alt+Left
         \row
-            \o Go forward
-            \o Alt+Right
+            \li  Go forward
+            \li  Alt+Right
         \row
-            \o Go to line
-            \o Ctrl+L
+            \li  Go to line
+            \li  Ctrl+L
         \row
-            \o Next open document in history
-            \o Ctrl+Shift+Tab
+            \li  Next open document in history
+            \li  Ctrl+Shift+Tab
         \row
-            \o Go to other split
-            \o Ctrl+E, O
+            \li  Go to other split
+            \li  Ctrl+E, O
         \row
-            \o Previous open document in history
-            \o Ctrl+Tab
+            \li  Previous open document in history
+            \li  Ctrl+Tab
         \row
-            \o Activate \gui Locator
-            \o Ctrl+K
+            \li  Activate \gui Locator
+            \li  Ctrl+K
         \row
-            \o Switch to \gui Welcome mode
-            \o Ctrl+1
+            \li  Switch to \gui Welcome mode
+            \li  Ctrl+1
         \row
-            \o Switch to \gui Edit mode
-            \o Ctrl+2
+            \li  Switch to \gui Edit mode
+            \li  Ctrl+2
         \row
-            \o Switch to \gui Design mode
-            \o Ctrl+3
+            \li  Switch to \gui Design mode
+            \li  Ctrl+3
         \row
-            \o Switch to \gui Debug mode
-            \o Ctrl+4
+            \li  Switch to \gui Debug mode
+            \li  Ctrl+4
         \row
-            \o Switch to \gui Projects mode
-            \o Ctrl+5
+            \li  Switch to \gui Projects mode
+            \li  Ctrl+5
         \row
-            \o Switch to \gui Analyze mode
-            \o Ctrl+6
+            \li  Switch to \gui Analyze mode
+            \li  Ctrl+6
         \row
-            \o Switch to \gui Help mode
-            \o Ctrl+7
+            \li  Switch to \gui Help mode
+            \li  Ctrl+7
         \row
-            \o Toggle \gui{Issues} pane
-            \o Alt+1 (Cmd+1 on Mac OS X)
+            \li  Toggle \gui{Issues} pane
+            \li  Alt+1 (Cmd+1 on Mac OS X)
         \row
-            \o Toggle \gui{Search Results} pane
-            \o Alt+2 (Cmd+2 on Mac OS X)
+            \li  Toggle \gui{Search Results} pane
+            \li  Alt+2 (Cmd+2 on Mac OS X)
         \row
-            \o Toggle \gui{Application Output} pane
-            \o Alt+3 (Cmd+3 on Mac OS X)
+            \li  Toggle \gui{Application Output} pane
+            \li  Alt+3 (Cmd+3 on Mac OS X)
         \row
-            \o Toggle \gui{Compile Output} pane
-            \o Alt+4 (Cmd+4 on Mac OS X)
+            \li  Toggle \gui{Compile Output} pane
+            \li  Alt+4 (Cmd+4 on Mac OS X)
         \row
-            \o Toggle other output panes
-            \o Alt+number (Cmd+number on Mac OS X)
+            \li  Toggle other output panes
+            \li  Alt+number (Cmd+number on Mac OS X)
 
             Where the number is the number of the output pane.
         \row
-            \o Activate \gui Bookmarks pane
-            \o Alt+M
+            \li  Activate \gui Bookmarks pane
+            \li  Alt+M
         \row
-            \o Activate \gui{File System} pane
-            \o Alt+Y
+            \li  Activate \gui{File System} pane
+            \li  Alt+Y
         \row
-            \o Activate \gui{Open Documents} pane
-            \o Alt+O
+            \li  Activate \gui{Open Documents} pane
+            \li  Alt+O
         \row
-            \o Maximize output panes
-            \o Alt+9
+            \li  Maximize output panes
+            \li  Alt+9
         \row
-            \o Move to next item in output panes
-            \o F6
+            \li  Move to next item in output panes
+            \li  F6
         \row
-            \o Move to previous item in output panes
-            \o Shift+F6
+            \li  Move to previous item in output panes
+            \li  Shift+F6
         \row
-            \o Activate \gui Projects pane
-            \o Alt+X
+            \li  Activate \gui Projects pane
+            \li  Alt+X
         \row
-            \o Full screen
-            \o Ctrl+Shift+F11
+            \li  Full screen
+            \li  Ctrl+Shift+F11
         \row
-            \o Toggle the sidebar
-            \o Alt+0 (Cmd+0 on Mac OS X)
+            \li  Toggle the sidebar
+            \li  Alt+0 (Cmd+0 on Mac OS X)
         \row
-            \o Undo
-            \o Ctrl+Z
+            \li  Undo
+            \li  Ctrl+Z
         \row
-            \o Move to \gui Edit mode
+            \li  Move to \gui Edit mode
 
                In \gui Edit mode:
                \list
-                \o The first press moves focus to the editor
-                \o The second press closes secondary windows
+                \li  The first press moves focus to the editor
+                \li  The second press closes secondary windows
                \endlist
-            \o Esc
+            \li  Esc
         \row
-            \o Exit \QC
-            \o Ctrl+Q
+            \li  Exit \QC
+            \li  Ctrl+Q
     \endtable
 
     \section2 Editing Keyboard Shortcuts
 
     \table
         \header
-            \o Action
-            \o Keyboard shortcut
+            \li  Action
+            \li  Keyboard shortcut
         \row
-            \o Auto-indent selection
-            \o Ctrl+I
+            \li  Auto-indent selection
+            \li  Ctrl+I
         \row
-            \o Collapse
-            \o Ctrl+<
+            \li  Collapse
+            \li  Ctrl+<
         \row
-            \o Expand
-            \o Ctrl+>
+            \li  Expand
+            \li  Ctrl+>
         \row
-            \o Trigger a completion in this scope
-            \o Ctrl+Space
+            \li  Trigger a completion in this scope
+            \li  Ctrl+Space
         \row
-            \o Copy line
-            \o Ctrl+Ins
+            \li  Copy line
+            \li  Ctrl+Ins
         \row
-            \o Copy line down
-            \o Ctrl+Alt+Down
+            \li  Copy line down
+            \li  Ctrl+Alt+Down
         \row
-            \o Copy line up
-            \o Ctrl+Alt+Up
+            \li  Copy line up
+            \li  Ctrl+Alt+Up
         \row
-            \o Paste from the clipboard history
-            \o Ctrl+Shift+V
+            \li  Paste from the clipboard history
+            \li  Ctrl+Shift+V
 
                Subsequent presses move you back in the history
         \row
-            \o Cut line
-            \o Shift+Del
+            \li  Cut line
+            \li  Shift+Del
         \row
-            \o Join lines
-            \o Ctrl+J
+            \li  Join lines
+            \li  Ctrl+J
         \row
-            \o Insert line above current line
-            \o Ctrl+Shift+Enter
+            \li  Insert line above current line
+            \li  Ctrl+Shift+Enter
         \row
-            \o Insert line below current line
-            \o Ctrl+Enter
+            \li  Insert line below current line
+            \li  Ctrl+Enter
         \row
-            \o Decrease font size
-            \o Ctrl+- (Ctrl+Roll mouse wheel down)
+            \li  Decrease font size
+            \li  Ctrl+- (Ctrl+Roll mouse wheel down)
         \row
-            \o Increase font size
-            \o Ctrl++ (Ctrl+Roll mouse wheel up)
+            \li  Increase font size
+            \li  Ctrl++ (Ctrl+Roll mouse wheel up)
         \row
-            \o Reset font size
-            \o Ctrl+0
+            \li  Reset font size
+            \li  Ctrl+0
         \row
-            \o Toggle Vim-style editing
-            \o Alt+V, Alt+V
+            \li  Toggle Vim-style editing
+            \li  Alt+V, Alt+V
         \row
-            \o Split
-            \o Ctrl+E, 2
+            \li  Split
+            \li  Ctrl+E, 2
         \row
-            \o Split side by side
-            \o Ctrl+E, 3
+            \li  Split side by side
+            \li  Ctrl+E, 3
         \row
-            \o Remove all splits
-            \o Ctrl+E, 1
+            \li  Remove all splits
+            \li  Ctrl+E, 1
         \row
-            \o Remove current split
-            \o Ctrl+E, 0
+            \li  Remove current split
+            \li  Ctrl+E, 0
         \row
-            \o Select all
-            \o Ctrl+A
+            \li  Select all
+            \li  Ctrl+A
         \row
-            \o Go to block end
-            \o Ctrl+]
+            \li  Go to block end
+            \li  Ctrl+]
         \row
-            \o Go to block start
-            \o Ctrl+[
+            \li  Go to block start
+            \li  Ctrl+[
         \row
-            \o Go to block end with selection
-            \o Ctrl+}
+            \li  Go to block end with selection
+            \li  Ctrl+}
         \row
-            \o Go to block start with selection
-            \o Ctrl+{
+            \li  Go to block start with selection
+            \li  Ctrl+{
         \row
-            \o Move current line down
-            \o Ctrl+Shift+Down
+            \li  Move current line down
+            \li  Ctrl+Shift+Down
         \row
-            \o Move current line up
-            \o Ctrl+Shift+Up
+            \li  Move current line up
+            \li  Ctrl+Shift+Up
         \row
-            \o Trigger a refactoring action in this scope
-            \o Alt+Enter
+            \li  Trigger a refactoring action in this scope
+            \li  Alt+Enter
         \row
-            \o Rewrap paragraph
-            \o Ctrl+E, R
+            \li  Rewrap paragraph
+            \li  Ctrl+E, R
         \row
-            \o Select the current block
+            \li  Select the current block
 
                The second press extends the selection to the parent block
-            \o Ctrl+U
+            \li  Ctrl+U
         \row
-            \o Enable text wrapping
-            \o Ctrl+E, Ctrl+W
+            \li  Enable text wrapping
+            \li  Ctrl+E, Ctrl+W
         \row
-            \o Toggle comment for selection
-            \o Ctrl+/
+            \li  Toggle comment for selection
+            \li  Ctrl+/
         \row
-            \o Visualize whitespace
-            \o Ctrl+E, Ctrl+V
+            \li  Visualize whitespace
+            \li  Ctrl+E, Ctrl+V
         \row
-            \o Adjust size
-            \o Ctrl+J
+            \li  Adjust size
+            \li  Ctrl+J
         \row
-            \o Lay out in a grid
-            \o Ctrl+G
+            \li  Lay out in a grid
+            \li  Ctrl+G
         \row
-            \o Lay out horizontally
-            \o Ctrl+H
+            \li  Lay out horizontally
+            \li  Ctrl+H
         \row
-            \o Lay out vertically
-            \o Ctrl+L
+            \li  Lay out vertically
+            \li  Ctrl+L
         \row
-            \o Preview
-            \o Alt+Shift+R
+            \li  Preview
+            \li  Alt+Shift+R
         \row
-            \o Edit signals and slots
-            \o F4
+            \li  Edit signals and slots
+            \li  F4
         \row
-            \o Toggle bookmark
-            \o Ctrl+M
+            \li  Toggle bookmark
+            \li  Ctrl+M
         \row
-            \o Go to next bookmark
-            \o Ctrl+.
+            \li  Go to next bookmark
+            \li  Ctrl+.
         \row
-            \o Go to previous bookmark
-            \o Ctrl+,
+            \li  Go to previous bookmark
+            \li  Ctrl+,
         \row
-            \o Fetch snippet
-            \o Alt+C, Alt+F
+            \li  Fetch snippet
+            \li  Alt+C, Alt+F
         \row
-            \o Paste snippet
-            \o Alt+C, Alt+P
+            \li  Paste snippet
+            \li  Alt+C, Alt+P
         \row
-            \o Find usages
-            \o Ctrl+Shift+U
+            \li  Find usages
+            \li  Ctrl+Shift+U
         \row
-            \o Follow symbol under cursor
+            \li  Follow symbol under cursor
 
                Works with namespaces, classes, methods, variables, include
                statements and macros
-            \o F2
+            \li  F2
         \row
-            \o Rename symbol under cursor
-            \o Ctrl+Shift+R
+            \li  Rename symbol under cursor
+            \li  Ctrl+Shift+R
         \row
-            \o Switch between method declaration and definition
-            \o Shift+F2
+            \li  Switch between method declaration and definition
+            \li  Shift+F2
         \row
-            \o Open type hierarchy
-            \o Ctrl+Shift+T
+            \li  Open type hierarchy
+            \li  Ctrl+Shift+T
         \row
-            \o Switch between header and source file
-            \o F4
+            \li  Switch between header and source file
+            \li  F4
         \row
-            \o Turn selected text into lowercase
-            \o Alt+U
+            \li  Turn selected text into lowercase
+            \li  Alt+U
         \row
-            \o Turn selected text into uppercase
-            \o Alt+Shift+U
+            \li  Turn selected text into uppercase
+            \li  Alt+Shift+U
         \row
-            \o Run static checks on JavaScript code to find common problems
-            \o Ctrl+Shift+C
+            \li  Run static checks on JavaScript code to find common problems
+            \li  Ctrl+Shift+C
         \row
-            \o Find and replace
-            \o Ctrl+F
+            \li  Find and replace
+            \li  Ctrl+F
         \row
-            \o Find next
-            \o F3
+            \li  Find next
+            \li  F3
         \row
-            \o Find previous
-            \o Shift+F3
+            \li  Find previous
+            \li  Shift+F3
         \row
-            \o Find next occurrence of selected text
-            \o Ctrl+F3
+            \li  Find next occurrence of selected text
+            \li  Ctrl+F3
         \row
-            \o Find previous occurrence of selected text
-            \o Ctrl+Shift+F3
+            \li  Find previous occurrence of selected text
+            \li  Ctrl+Shift+F3
         \row
-            \o Replace next
-            \o Ctrl+=
+            \li  Replace next
+            \li  Ctrl+=
         \row
-            \o Open advanced find
-            \o Ctrl+Shift+F
+            \li  Open advanced find
+            \li  Ctrl+Shift+F
         \row
-            \o Record a text-editing macro
-            \o Alt+(
+            \li  Record a text-editing macro
+            \li  Alt+(
         \row
-            \o Stop recording a macro
-            \o Alt+)
+            \li  Stop recording a macro
+            \li  Alt+)
         \row
-            \o Play last macro
-            \o Alt+R
+            \li  Play last macro
+            \li  Alt+R
         \row
-            \o Show Qt Quick toolbars
-            \o Ctrl+Alt+Space
+            \li  Show Qt Quick toolbars
+            \li  Ctrl+Alt+Space
         \row
-            \o Execute user actions in FakeVim mode
-            \o Alt+V, n, where n is the number of the user action, from 1 to 9
+            \li  Execute user actions in FakeVim mode
+            \li  Alt+V, n, where n is the number of the user action, from 1 to 9
     \endtable
 
     \section2 Image Viewer Shortcuts
 
     \table
         \header
-            \o Action
-            \o Keyboard shortcut
+            \li  Action
+            \li  Keyboard shortcut
         \row
-            \o Switch to background
-            \o Ctrl+[
+            \li  Switch to background
+            \li  Ctrl+[
         \row
-            \o Switch to outline
-            \o Ctrl+]
+            \li  Switch to outline
+            \li  Ctrl+]
         \row
-            \o Zoom in
-            \o Ctrl++
+            \li  Zoom in
+            \li  Ctrl++
         \row
-            \o Zoom out
-            \o Ctrl+-
+            \li  Zoom out
+            \li  Ctrl+-
         \row
-            \o Fit to screen
-            \o Ctrl+=
+            \li  Fit to screen
+            \li  Ctrl+=
         \row
-            \o Original size
-            \o Ctrl+0
+            \li  Original size
+            \li  Ctrl+0
     \endtable
 
     \section2 Qt Quick Designer Keyboard Shortcuts
 
     \table
         \header
-            \o Action
-            \o Keyboard shortcut
+            \li  Action
+            \li  Keyboard shortcut
         \row
-            \o Open the QML file that defines the selected component
-            \o F2
+            \li  Open the QML file that defines the selected component
+            \li  F2
         \row
-            \o Move between code editor and visual editor
-            \o F4
+            \li  Move between code editor and visual editor
+            \li  F4
         \row
-            \o Toggle left sidebar
-            \o Ctrl+Alt+0
+            \li  Toggle left sidebar
+            \li  Ctrl+Alt+0
         \row
-            \o Toggle right sidebar
-            \o Ctrl+Alt+Shift+0
+            \li  Toggle right sidebar
+            \li  Ctrl+Alt+Shift+0
     \endtable
 
     \section2 Debugging Keyboard Shortcuts
 
     \table
         \header
-            \o Action
-            \o Keyboard shortcut
+            \li  Action
+            \li  Keyboard shortcut
         \row
-            \o Start or continue debugging
-            \o F5
+            \li  Start or continue debugging
+            \li  F5
         \row
-            \o Exit debugger
-            \o Shift+F5
+            \li  Exit debugger
+            \li  Shift+F5
         \row
-            \o Step over
-            \o F10
+            \li  Step over
+            \li  F10
         \row
-            \o Step into
-            \o F11
+            \li  Step into
+            \li  F11
         \row
-            \o Step out
-            \o Shift+F11
+            \li  Step out
+            \li  Shift+F11
         \row
-            \o Toggle breakpoint
-            \o F9
+            \li  Toggle breakpoint
+            \li  F9
         \row
-            \o Run to selected function
-            \o Ctrl+F6
+            \li  Run to selected function
+            \li  Ctrl+F6
         \row
-            \o Run to line
-            \o Ctrl+F10
+            \li  Run to line
+            \li  Ctrl+F10
         \row
-            \o Reverse direction
-            \o F12
+            \li  Reverse direction
+            \li  F12
     \endtable
 
     \section2 Project Keyboard Shortcuts
 
     \table
         \header
-            \o Action
-            \o Keyboard shortcut
+            \li  Action
+            \li  Keyboard shortcut
         \row
-            \o Build project
-            \o Ctrl+B
+            \li  Build project
+            \li  Ctrl+B
         \row
-            \o Build all
-            \o Ctrl+Shift+B
+            \li  Build all
+            \li  Ctrl+Shift+B
         \row
-            \o New project
-            \o Ctrl+Shift+N
+            \li  New project
+            \li  Ctrl+Shift+N
         \row
-            \o Open project
-            \o Ctrl+Shift+O
+            \li  Open project
+            \li  Ctrl+Shift+O
         \row
-            \o Select the \l{glossary-buildandrun-kit}{kit} to build and run your project with
-            \o Ctrl+T
+            \li  Select the \l{glossary-buildandrun-kit}{kit} to build and run your project with
+            \li  Ctrl+T
         \row
-            \o Run
-            \o Ctrl+R
+            \li  Run
+            \li  Ctrl+R
     \endtable
 
     \section2 Help Keyboard Shortcuts
 
     \table
         \header
-            \o Action
-            \o Keyboard shortcut
+            \li  Action
+            \li  Keyboard shortcut
         \row
-            \o View context-sensitive help
-            \o F1
+            \li  View context-sensitive help
+            \li  F1
         \row
-            \o Activate contents in \gui Help mode
-            \o Ctrl+T
+            \li  Activate contents in \gui Help mode
+            \li  Ctrl+T
         \row
-            \o Add bookmark in \gui Help mode
-            \o Ctrl+M
+            \li  Add bookmark in \gui Help mode
+            \li  Ctrl+M
         \row
-            \o Activate index in \gui Help mode
-            \o Ctrl+I
+            \li  Activate index in \gui Help mode
+            \li  Ctrl+I
         \row
-            \o Reset font size
-            \o Ctrl+0
+            \li  Reset font size
+            \li  Ctrl+0
         \row
-            \o Activate search in \gui Help mode
-            \o Ctrl+S
+            \li  Activate search in \gui Help mode
+            \li  Ctrl+S
     \endtable
 
     \section2 Version Control Keyboard Shortcuts
 
     \table
         \header
-            \o {1,2} Action
-            \o {6,1} Version control system
+            \li  {1,2} Action
+            \li  {6,1} Version control system
         \header
-            \o Bazaar
-            \o CVS
-            \o Git
-            \o Mercurial
-            \o Perforce
-            \o Subversion
+            \li  Bazaar
+            \li  CVS
+            \li  Git
+            \li  Mercurial
+            \li  Perforce
+            \li  Subversion
         \row
-            \o Add
-            \o
-            \o Alt+C, Alt+A
-            \o Alt+G, Alt+A
-            \o
-            \o Alt+P, Alt+A
-            \o Alt+S, Alt+A
+            \li  Add
+            \li
+            \li  Alt+C, Alt+A
+            \li  Alt+G, Alt+A
+            \li
+            \li  Alt+P, Alt+A
+            \li  Alt+S, Alt+A
         \row
-            \o Commit/Submit
-            \o Alt+Z, Alt+C
-            \o Alt+C, Alt+C
-            \o Alt+G, Alt+C
-            \o Alt+H, Alt+C
-            \o Alt+P, Alt+S
-            \o Alt+S, Alt+C
+            \li  Commit/Submit
+            \li  Alt+Z, Alt+C
+            \li  Alt+C, Alt+C
+            \li  Alt+G, Alt+C
+            \li  Alt+H, Alt+C
+            \li  Alt+P, Alt+S
+            \li  Alt+S, Alt+C
         \row
-            \o Diff
-            \o Alt+Z, Alt+D
-            \o Alt+C, Alt+D
-            \o Alt+G, Alt+D
-            \o Alt+H, Alt+D
-            \o
-            \o Alt+S, Alt+D
+            \li  Diff
+            \li  Alt+Z, Alt+D
+            \li  Alt+C, Alt+D
+            \li  Alt+G, Alt+D
+            \li  Alt+H, Alt+D
+            \li
+            \li  Alt+S, Alt+D
         \row
-            \o Diff project
-            \o
-            \o
-            \o Alt+G, Alt+Shift+D
-            \o
-            \o Alt+P, Alt+D
-            \o
+            \li  Diff project
+            \li
+            \li
+            \li  Alt+G, Alt+Shift+D
+            \li
+            \li  Alt+P, Alt+D
+            \li
         \row
-            \o Blame/Annotate
-            \o
-            \o
-            \o Alt+G, Alt+B
-            \o
-            \o
-            \o
+            \li  Blame/Annotate
+            \li
+            \li
+            \li  Alt+G, Alt+B
+            \li
+            \li
+            \li
         \row
-            \o Log/Filelog
-            \o Alt+Z, Alt+L
-            \o
-            \o Alt+G, Alt+L
-            \o Alt+H, Alt+L
-            \o Alt+P, Alt+F
-            \o
+            \li  Log/Filelog
+            \li  Alt+Z, Alt+L
+            \li
+            \li  Alt+G, Alt+L
+            \li  Alt+H, Alt+L
+            \li  Alt+P, Alt+F
+            \li
         \row
-            \o Log project
-            \o
-            \o
-            \o Alt+G, Alt+K
-            \o
-            \o
-            \o
+            \li  Log project
+            \li
+            \li
+            \li  Alt+G, Alt+K
+            \li
+            \li
+            \li
         \row
-            \o Status
-            \o Alt+Z, Alt+S
-            \o
-            \o
-            \o Alt+H, Alt+S
-            \o
-            \o
+            \li  Status
+            \li  Alt+Z, Alt+S
+            \li
+            \li
+            \li  Alt+H, Alt+S
+            \li
+            \li
         \row
-            \o Undo changes/Revert
-            \o
-            \o
-            \o Alt+G, Alt+U
-            \o
-            \o Alt+P, Alt+R
-            \o
+            \li  Undo changes/Revert
+            \li
+            \li
+            \li  Alt+G, Alt+U
+            \li
+            \li  Alt+P, Alt+R
+            \li
         \row
-            \o Edit
-            \o
-            \o
-            \o
-            \o
-            \o Alt+P, Alt+E
-            \o
+            \li  Edit
+            \li
+            \li
+            \li
+            \li
+            \li  Alt+P, Alt+E
+            \li
         \row
-            \o Opened
-            \o
-            \o
-            \o
-            \o
-            \o Alt+P, Alt+O
-            \o
+            \li  Opened
+            \li
+            \li
+            \li
+            \li
+            \li  Alt+P, Alt+O
+            \li
     \endtable
 */

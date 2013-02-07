@@ -582,12 +582,12 @@ void ErrorSymbolGroupNode::debug(std::ostream &os, const std::string &visitingFu
  Provides accessors for fixed-up symbol group value and a dumping facility
  consisting of:
  \list
- \o 'Simple' dumping done when running the DumpVisitor. This produces one
+ \li 'Simple' dumping done when running the DumpVisitor. This produces one
     line of formatted output shown for the class. These values
     values are always displayed, while still allowing for expansion of the structure
     in the debugger.
     It also pre-determines some information for complex dumping (type, container).
- \o 'Complex' dumping: Obscures the symbol group children by fake children, for
+ \li 'Complex' dumping: Obscures the symbol group children by fake children, for
     example container children, to be run when calling SymbolGroup::dump with an iname.
     The fake children are appended to the child list (other children are just marked as
     obscured for GDBMI dumping so that SymbolGroupValue expressions still work as before).

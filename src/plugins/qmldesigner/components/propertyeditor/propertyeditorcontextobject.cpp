@@ -28,13 +28,51 @@
 ****************************************************************************/
 
 #include "propertyeditorcontextobject.h"
+#include <nodemetainfo.h>
 
 namespace QmlDesigner {
 
 PropertyEditorContextObject::PropertyEditorContextObject(QObject *parent) :
-    QObject(parent), m_isBaseState(false), m_selectionChanged(false), m_backendValues(0)
+    QObject(parent),
+    m_isBaseState(false),
+    m_selectionChanged(false),
+    m_backendValues(0),
+    m_majorVersion(-1),
+    m_minorVersion(-1)
 {
 
+}
+
+
+int PropertyEditorContextObject::majorVersion() const
+{
+    return m_majorVersion;
+
+}
+
+void PropertyEditorContextObject::setMajorVersion(int majorVersion)
+{
+    if (m_majorVersion == majorVersion)
+        return;
+
+    m_majorVersion = majorVersion;
+
+    emit majorVersionChanged();
+}
+
+int PropertyEditorContextObject::minorVersion() const
+{
+    return m_minorVersion;
+}
+
+void PropertyEditorContextObject::setMinorVersion(int minorVersion)
+{
+    if (m_minorVersion == minorVersion)
+        return;
+
+    m_minorVersion = minorVersion;
+
+    emit minorVersionChanged();
 }
 
 } //QmlDesigner

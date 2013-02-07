@@ -34,28 +34,28 @@
 
     \list
 
-        \o  \l{Writing Code}
+        \li \l{Writing Code}
 
             Writing, editing, and navigating in source code are core tasks in
             application development. Therefore, the code editor is one of the
             key components of \QC. You can use the code editor in the \gui Edit
             mode.
 
-        \o  \l{Finding}
+        \li \l{Finding}
 
             Use the incremental and advanced search to search from currently
             open projects or files on the file system or use the locator to
             browse through projects, files, classes, methods, documentation and
             file systems.
 
-        \o  \l{Refactoring}
+        \li \l{Refactoring}
 
             Code refactoring is the process of improving and simplifying code
             without modifying the existing functionality of an application. You
             can easily find and rename symbols and apply predefined actions to
             refactor code.
 
-        \o  \l{Configuring the Editor}
+        \li \l{Configuring the Editor}
 
             You can change the fonts, colors, highlighting, and indentation.
             If you are used to the the Vim editor, you can even run the main
@@ -67,7 +67,7 @@
 
     \list
 
-        \o  \l{Editing MIME Types}
+        \li \l{Editing MIME Types}
 
             \QC uses the MIME type of a file to determine which mode and editor
             to use for opening the file. If your files do not match the

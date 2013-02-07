@@ -44,11 +44,11 @@
 
     \list 1
 
-        \o  In \gui Projects, select a project.
+        \li In \gui Projects, select a project.
 
-        \o  Click \gui Dependencies.
+        \li Click \gui Dependencies.
 
-        \o  Select projects that must be built before the current project is
+        \li Select projects that must be built before the current project is
             built.
 
     \endlist

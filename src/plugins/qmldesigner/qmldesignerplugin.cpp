@@ -242,8 +242,8 @@ void QmlDesignerPlugin::changeEditor()
     m_shortCutManager.connectUndoActions(currentDesignDocument());
 
     if (m_documentManager.hasCurrentDesignDocument()) {
-        m_viewManager.pushFileOnCrambleBar(m_documentManager.currentDesignDocument()->fileName());
         activateAutoSynchronization();
+        m_viewManager.pushFileOnCrambleBar(m_documentManager.currentDesignDocument()->fileName());
     }
 
     m_shortCutManager.updateUndoActions(currentDesignDocument());
@@ -284,17 +284,17 @@ void QmlDesignerPlugin::activateAutoSynchronization()
     // text editor -> visual editor
     if (!currentDesignDocument()->isDocumentLoaded()) {
         currentDesignDocument()->loadDocument(currentDesignDocument()->plainTextEdit());
-    } else {
-        currentDesignDocument()->activateCurrentModel();
     }
+
+    currentDesignDocument()->activateDocumentModel();
 
     resetModelSelection();
 
+    viewManager().attachComponentView();
+    viewManager().attachViewsExceptRewriterAndComponetView();
 
     QList<RewriterView::Error> errors = currentDesignDocument()->qmlSyntaxErrors();
     if (errors.isEmpty()) {
-        viewManager().attachComponentView();
-        viewManager().attachViewsExceptRewriterAndComponetView();
         selectModelNodeUnderTextCursor();
         m_mainWidget->enableWidgets();
     } else {
@@ -314,6 +314,8 @@ void QmlDesignerPlugin::deactivateAutoSynchronization()
 {
     viewManager().detachViewsExceptRewriterAndComponetView();
     viewManager().detachComponentView();
+    viewManager().detachRewriterView();
+    documentManager().currentDesignDocument()->resetToDocumentModel();
 
     disconnect(currentDesignDocument()->rewriterView(),
                SIGNAL(errorsChanged(QList<RewriterView::Error>)),

@@ -45,26 +45,26 @@
 
         \list 1
 
-            \o Select \gui{File > Open File or Project}.
-            \o Select the Makefile.am file from your project. This is the only
+            \li  Select \gui{File > Open File or Project}.
+            \li  Select the Makefile.am file from your project. This is the only
                way you can use the autotools plugin.
-            \o Select the build directory. Only in-source building is currently
+            \li  Select the build directory. Only in-source building is currently
                supported.
-            \o Select \gui Finish.
+            \li  Select \gui Finish.
                \QC displays the project tree structure. The root node displays
                the project name. All project files are listed below it and you
                can open them from the list.
 
                \image qtcreator-autotools-buildrun.png
 
-            \o Select \gui Run to build and run the application. The predefined
+            \li  Select \gui Run to build and run the application. The predefined
                build steps (autogen.sh or autoreconf, configure, and make) are
                executed.
 
                The first time you run the application you must choose the
                executable.
 
-            \o To check and edit autotools build steps, select
+            \li  To check and edit autotools build steps, select
                \gui{Projects > Build Settings}.
 
                You can add parameters to the predefined autotools build steps.

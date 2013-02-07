@@ -46,6 +46,7 @@
 #include <rewritingexception.h>
 #include <modelnodeoperations.h>
 #include <qmldesignerplugin.h>
+#include <viewmanager.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -199,7 +200,7 @@ static ComponentTextModifier *createComponentTextModifier(TextModifier *original
     return new ComponentTextModifier (originalModifier, componentStartOffset, componentEndOffset, rootStartOffset);
 }
 
-bool DesignDocument::loadSubComponent(const ModelNode &componentNode)
+bool DesignDocument::loadInFileComponent(const ModelNode &componentNode)
 {
     QString componentText = rewriterView()->extractText(QList<ModelNode>() << componentNode).value(componentNode);
 
@@ -220,6 +221,11 @@ bool DesignDocument::loadSubComponent(const ModelNode &componentNode)
     return true;
 }
 
+QmlModelView *DesignDocument::qmlModelView()
+{
+    return viewManager().qmlModelView();
+}
+
 /*!
   Returns any errors that happened when parsing the latest qml file.
   */
@@ -230,7 +236,7 @@ QList<RewriterView::Error> DesignDocument::qmlSyntaxErrors() const
 
 bool DesignDocument::hasQmlSyntaxErrors() const
 {
-    return !m_currentModel->rewriterView()->errors().isEmpty();
+    return m_currentModel->rewriterView() && !m_currentModel->rewriterView()->errors().isEmpty();
 }
 
 QString DesignDocument::displayName() const
@@ -284,7 +290,7 @@ void DesignDocument::resetToDocumentModel()
     m_rewriterView->setTextModifier(m_documentTextModifier.data());
 }
 
-QList<RewriterView::Error> DesignDocument::loadDocument(QPlainTextEdit *edit)
+void DesignDocument::loadDocument(QPlainTextEdit *edit)
 {
     Q_CHECK_PTR(edit);
 
@@ -305,9 +311,12 @@ QList<RewriterView::Error> DesignDocument::loadDocument(QPlainTextEdit *edit)
 
     m_subComponentManager->update(QUrl::fromLocalFile(fileName()), m_currentModel->imports());
 
-    activateCurrentModel(m_documentTextModifier.data());
+    m_documentLoaded = true;
+}
 
-    return rewriterView()->errors();
+static const QString fileNameOfCurrentDocument()
+{
+    return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->textEditor()->document()->fileName();
 }
 
 void DesignDocument::changeCurrentModelTo(const ModelNode &node)
@@ -315,21 +324,8 @@ void DesignDocument::changeCurrentModelTo(const ModelNode &node)
     if (QmlDesignerPlugin::instance()->currentDesignDocument() != this)
         return;
 
-    if (rootModelNode() == node) {
-        changeToDocumentModel();
-    } else {
-        changeToSubComponent(node);
-    }
 
-
-
-//    s_clearCrumblePath = false;
-//    while (m_formEditorView->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>().modelNode.isValid() &&
-//        !m_formEditorView->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>().modelNode.isRootNode())
-//        m_formEditorView->crumblePath()->popElement();
-//    if (node.isRootNode() && m_formEditorView->crumblePath()->dataForLastIndex().isValid())
-//        m_formEditorView->crumblePath()->popElement();
-//    s_clearCrumblePath = true;
+    changeToSubComponent(node);
 }
 
 void DesignDocument::changeToSubComponent(const ModelNode &componentNode)
@@ -342,7 +338,7 @@ void DesignDocument::changeToSubComponent(const ModelNode &componentNode)
         changeToDocumentModel();
     }
 
-    bool subComponentLoaded = loadSubComponent(componentNode);
+    bool subComponentLoaded = loadInFileComponent(componentNode);
 
     if (subComponentLoaded) {
         Q_ASSERT(m_documentModel);
@@ -350,6 +346,8 @@ void DesignDocument::changeToSubComponent(const ModelNode &componentNode)
 
         activateCurrentModel(m_inFileComponentTextModifier.data());
     }
+    if (!componentNode.id().isEmpty())
+        QmlDesignerPlugin::instance()->viewManager().pushInFileComponentOnCrambleBar(componentNode.id());
 }
 
 void DesignDocument::changeToExternalSubComponent(const QString &fileName)
@@ -364,7 +362,7 @@ void DesignDocument::goIntoComponent()
 
     QList<ModelNode> selectedNodes;
     if (rewriterView())
-        selectedNodes = rewriterView()->selectedModelNodes();
+        selectedNodes = qmlModelView()->selectedModelNodes();
 
     if (selectedNodes.count() == 1) {
         viewManager().setComponentNode(selectedNodes.first());
@@ -391,37 +389,14 @@ void DesignDocument::activateCurrentModel(TextModifier *textModifier)
 //            !differentCrumbleBarOnTop(m_formEditorView.data(), createCrumbleBarInfo().value<CrumbleBarInfo>()))
 //        m_formEditorView->crumblePath()->pushElement(simplfiedDisplayName(), createCrumbleBarInfo());
 
-    m_documentLoaded = true;
+
     Q_ASSERT(m_documentModel);
     QApplication::restoreOverrideCursor();
-}
-
-void DesignDocument::activateCurrentModel()
-{
-    if (currentModel() == documentModel())
-        activateCurrentModel(m_documentTextModifier.data());
-    else
-        activateCurrentModel(m_inFileComponentTextModifier.data());
 }
 
 void DesignDocument::activateDocumentModel()
 {
-    //this function seems to be unused!
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-    Q_ASSERT(m_documentModel);
-    Q_ASSERT(m_currentModel);
-
-    if (!plainTextEdit()->parent()) // hack to prevent changing owner of external text edit
-        m_stackedWidget->addWidget(plainTextEdit());
-
-    m_currentModel = m_documentModel;
-    m_documentLoaded = true;
-
-    updateSubcomponentManager();
-
-    Q_ASSERT(m_documentModel);
-    QApplication::restoreOverrideCursor();
+    activateCurrentModel(m_documentTextModifier.data());
 }
 
 bool DesignDocument::isUndoAvailable() const
@@ -458,7 +433,7 @@ void DesignDocument::deleteSelected()
 
     try {
         RewriterTransaction transaction(rewriterView());
-        QList<ModelNode> toDelete = rewriterView()->selectedModelNodes();
+        QList<ModelNode> toDelete = qmlModelView()->selectedModelNodes();
         foreach (ModelNode node, toDelete) {
             if (node.isValid() && !node.isRootNode() && QmlObjectNode(node).isValid())
                 QmlObjectNode(node).destroy();
@@ -587,8 +562,6 @@ void DesignDocument::paste()
 
     if (rootNode.id() == "designer__Selection") {
         QList<ModelNode> selectedNodes = rootNode.allDirectSubModelNodes();
-        qDebug() << rootNode;
-        qDebug() << selectedNodes;
         pasteModel->detachView(&view);
         m_currentModel->attachView(&view);
 

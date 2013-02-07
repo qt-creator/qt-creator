@@ -118,6 +118,7 @@ static const char CMD_ID_UPDATEINDEX[]        = "ClearCase.UpdateIndex";
 static const char CMD_ID_UPDATE_VIEW[]        = "ClearCase.UpdateView";
 static const char CMD_ID_CHECKIN_ALL[]        = "ClearCase.CheckInAll";
 static const char CMD_ID_STATUS[]             = "ClearCase.Status";
+static const char *CLEARCASE_ROOT_FILES[] = { "view.dat", ".view.dat" };
 
 static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
 {
@@ -219,10 +220,27 @@ bool ClearCasePlugin::isCheckInEditorOpen() const
     return !m_checkInMessageFileName.isEmpty();
 }
 
+static QString ccFindRepositoryForDirectory(const QString &dirS)
+{
+    const QString home = QDir::homePath();
+
+    QDir directory(dirS);
+    do {
+        const QString absDirPath = directory.absolutePath();
+        if (directory.isRoot() || absDirPath == home)
+            break;
+
+        for (uint i = 0; i < sizeof(CLEARCASE_ROOT_FILES) / sizeof(*CLEARCASE_ROOT_FILES); ++i)
+            if (QFileInfo(directory, QLatin1String(CLEARCASE_ROOT_FILES[i])).isFile())
+                return absDirPath;
+    } while (directory.cdUp());
+    return QString();
+}
+
 /*! Find top level for view that contains \a directory
  *
- * - Snapshot Views will have the CLEARCASE_ROOT_FILE (view.dat) in its top dir
- * - Dynamic views can either be
+ * - Snapshot view has one of CLEARCASE_ROOT_FILES (view.dat or .view.dat) in its top dir
+ * - Dynamic view can either be
  *      - M:/view_name,
  *      - or mapped to a drive letter, like Z:/
  *    (drive letters are just examples)
@@ -235,7 +253,7 @@ QString ClearCasePlugin::findTopLevel(const QString &directory) const
 
     // Snapshot view
     QString topLevel =
-            findRepositoryForDirectory(directory, QLatin1String(ClearCase::Constants::CLEARCASE_ROOT_FILE));
+            ccFindRepositoryForDirectory(directory);
     if (!topLevel.isEmpty() || !clearCaseControl()->isConfigured())
         return topLevel;
 

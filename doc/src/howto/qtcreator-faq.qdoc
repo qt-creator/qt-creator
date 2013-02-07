@@ -32,29 +32,29 @@
 
     \section1 General Questions
 
-    \bold {How do I reset all \QC settings?}
+    \b {How do I reset all \QC settings?}
 
     \QC creates the following files and directories:
 
     \list
 
-        \o  QtCreator.db
+        \li QtCreator.db
 
-        \o  QtCreator.ini
+        \li QtCreator.ini
 
-        \o  qtversion.xml
+        \li qtversion.xml
 
-        \o  toolChains.xml
+        \li toolChains.xml
 
-        \o  qtcreator
+        \li qtcreator
 
-        \o  qtc-debugging-helper
+        \li qtc-debugging-helper
 
-        \o  qtc-qmldbg
+        \li qtc-qmldbg
 
-        \o  qtc-qmldump
+        \li qtc-qmldump
 
-        \o  qtc-qmlobserver
+        \li qtc-qmlobserver
 
     \endlist
 
@@ -72,11 +72,11 @@
     \c {<drive>:\Users\<username>\AppData\Roaming\QtProject} and
     \c {<drive>:\Users\<username>\AppData\Local\QtProject}.
 
-    \bold {\QC comes with MinGW, should I use this version with Qt?}
+    \b {\QC comes with MinGW, should I use this version with Qt?}
 
     Use the version that was built against the Qt version.
 
-    \bold {\QC does not find a helper application, such as Git or a
+    \b {\QC does not find a helper application, such as Git or a
     compiler. What should I do?}
 
     Make sure that the application is in your system PATH when starting \QC.
@@ -87,7 +87,7 @@
     This is especially relevant for the Mac OS where \c {/usr/local/bin} might
     not be in the path when \QC is started.
 
-    \bold {How do I change the interface language for \QC?}
+    \b {How do I change the interface language for \QC?}
 
     \QC has been localized into several languages. If the system
     language is one of the supported languages, it is automatically selected.
@@ -95,18 +95,18 @@
     select a language in the \gui Language field. The change takes effect after
     you restart \QC.
 
-    \bold {Has a reported issue been addressed?}
+    \b {Has a reported issue been addressed?}
 
     You can look up any issue in the
     \l{https://bugreports.qt-project.org/}{Qt bug tracker}.
 
     \if defined(qcmanual)
-    \input widgets/creator-faq-qtdesigner.qdocinc
+    \include widgets/creator-faq-qtdesigner.qdocinc
     \endif
 
     \section1 Help Questions
 
-    \bold {The Qt API Reference Documentation is missing and context help does
+    \b {The Qt API Reference Documentation is missing and context help does
     not find topics. What can I do?}
 
     \QC comes fully integrated with Qt documentation and examples using
@@ -124,7 +124,7 @@
     For information on troubleshooting debugger, see
     \l{Troubleshooting Debugger}.
 
-    \bold {If I have a choice of GDB versions, which should I use?}
+    \b {If I have a choice of GDB versions, which should I use?}
 
     On Linux and Windows, use the Python-enabled GDB versions that are
     installed when you install \QC and Qt SDK. On Mac OS X, use the GDB
@@ -136,7 +136,7 @@
 
     For more information on setting up debugger, see \l{Setting Up Debugger}.
 
-    \bold {How do I generate a core file in \QC?}
+    \b {How do I generate a core file in \QC?}
 
     To trigger the GDB command that generates a core file while debugging,
     select \gui {Window > Views > Debugger Log}. In the \gui Command field,
@@ -150,7 +150,7 @@
 
     \section1 Compiler Questions
 
-    \bold {How can I make use of my multi-core CPU with \QC?}
+    \b {How can I make use of my multi-core CPU with \QC?}
 
     On Linux and Mac OS X, go to \gui Project mode, select your configuration
     in the \gui {Build Settings}, locate the \gui {Build Steps}, and add the
@@ -169,13 +169,13 @@
 
     \section1 Qt SDK Questions
 
-    \bold {I cannot use QSslSocket with the SDK. What should I do?}
+    \b {I cannot use QSslSocket with the SDK. What should I do?}
 
     The Qt build in the SDK is built with QT_NO_OPENSSL defined. Rebuilding it
      is possible. For more information, see
      \l{http://www.qtcentre.org/threads/19222-Qssl}.
 
-    \bold {Which development packages from the distribution are needed on
+    \b {Which development packages from the distribution are needed on
     Ubuntu or Debian?}
 
     \code
@@ -190,16 +190,16 @@
 
     \section1 Platform Related Questions
 
-    \bold {Where is application output shown in \QC?}
+    \b {Where is application output shown in \QC?}
 
-    \bold {On Unix (Linux and Mac OS):} \c qDebug() and related functions use
+    \b {On Unix (Linux and Mac OS):} \c qDebug() and related functions use
     the standard output and error output. When you run or debug the
     application, you can view the output in the \gui{Application Output} pane.
 
     For console applications that require input, select \gui {Projects > Run
     Settings > Run in terminal}.
 
-    \bold {On Windows:} Output is displayed differently for \e{console
+    \b {On Windows:} Output is displayed differently for \e{console
     applications} and \e{GUI applications}.
 
     The setting \c {CONFIG += console} in the .pro file specifies that the
@@ -224,30 +224,30 @@
 
     \section1 Questions about New Features
 
-    \bold {Will a requested feature be implemented?}
+    \b {Will a requested feature be implemented?}
 
     If it is a scheduled feature, you can see this in the task tracker. If a
     feature already has been implemented, it is mentioned in the
     \l{http://qt.gitorious.org/qt-creator/qt-creator/trees/master/dist}{changes file}
     for the upcoming release.
 
-    \bold {Why does \QC not use tabs for editors?}
+    \b {Why does \QC not use tabs for editors?}
 
     This question comes up from time to time, so we have considered it
     carefully. Here are our main reasons for not using tabs:
 
     \list
 
-        \o  Tabs do not scale. They work fine if you have 5 to 6 editors open,
+        \li Tabs do not scale. They work fine if you have 5 to 6 editors open,
             they become cumbersome with 10, and if you need more horizontal
             space than the tab bar, the interface does not work at all.
 
-        \o  Tabs do not adapt to your working set.
+        \li Tabs do not adapt to your working set.
 
-        \o  The common solution is to give the user the ability to reorder
+        \li The common solution is to give the user the ability to reorder
             tabs. Now user has to manage tabs instead of writing code.
 
-        \o  Tabs force you to limit the amount of open editors, because
+        \li Tabs force you to limit the amount of open editors, because
             otherwise you get confused.
 
     \endlist
@@ -273,11 +273,11 @@
 
     \list
 
-        \o  Press \key F4 to switch between header and source.
+        \li Press \key F4 to switch between header and source.
 
-        \o  Press \key Alt+Left to move backwards in the navigation history.
+        \li Press \key Alt+Left to move backwards in the navigation history.
 
-        \o  Use the locator (Ctrl+K) to simply tell \QC where to go.
+        \li Use the locator (Ctrl+K) to simply tell \QC where to go.
 
     \endlist
 

@@ -51,63 +51,63 @@
 
     \list 1
 
-        \o  Make sure that your device can be reached via an IP address.
+        \li Make sure that your device can be reached via an IP address.
 
-        \o  Select \gui {Tools > Options > Build & Run > Qt Versions > Add} to
+        \li Select \gui {Tools > Options > Build & Run > Qt Versions > Add} to
             add the Qt version
             for the embedded Linux.
 
-        \o  Select \gui {Tools > Options > Build & Run > Compilers > Add} to
+        \li Select \gui {Tools > Options > Build & Run > Compilers > Add} to
             add the compiler
             for building the applications.
 
-        \o  To deploy applications and run them remotely on devices, specify
+        \li To deploy applications and run them remotely on devices, specify
             parameters for accessing the devices:
 
             \list 1
 
-                \o  Select \gui Tools > \gui Options > \gui Devices > \gui Add
+                \li Select \gui Tools > \gui Options > \gui Devices > \gui Add
                     > \gui {Generic Linux Device} > \gui {Start Wizard}.
 
                     \image qtcreator-screenshot-devconf-linux.png "Connection Data wizard"
 
-                \o  In the \gui {The name to identify this configuration} field,
+                \li In the \gui {The name to identify this configuration} field,
                     enter a name for the connection.
 
-                \o  In the \gui {The device's host name or IP address} field,
+                \li In the \gui {The device's host name or IP address} field,
                     enter the host name or IP address of the device.
 
-                \o  In the \gui {The user name to log into the device} field,
+                \li In the \gui {The user name to log into the device} field,
                     enter the user name to log into the device and run the
                     application as.
 
-                \o  In the \gui {The authentication type} field, select whether
+                \li In the \gui {The authentication type} field, select whether
                     to use \gui Password or \gui Key authentication, and enter
                     the user's password or the file that contains the user's
                     private key.
 
-                \o Click \gui {Next} to create the connection.
+                \li  Click \gui {Next} to create the connection.
 
             \endlist
 
-        \o  Select \gui Tools > \gui Options > \gui {Build & Run} > \gui Kits
+        \li Select \gui Tools > \gui Options > \gui {Build & Run} > \gui Kits
             > \gui Add to add a kit for building for the device. Select the
             Qt version, compiler, and device that you added above, and choose
             \gui {Generic Linux Device} for the device type.
 
-        \o  To specify build settings:
+        \li To specify build settings:
 
         \list 1
 
-            \o  Open a project for an application you want to develop for the
+            \li Open a project for an application you want to develop for the
                 device.
 
-            \o  Select \gui Projects > \gui {Build & Run} > \gui {Add Kit} to
+            \li Select \gui Projects > \gui {Build & Run} > \gui {Add Kit} to
                 add the kit that you specified above.
 
         \endlist
 
-        \o  Select \gui Run to specify run settings.
+        \li Select \gui Run to specify run settings.
 
                 \image qtcreator-run-settings-linux-devices.png "Run settings for embedded Linux devices"
 

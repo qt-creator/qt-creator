@@ -37,13 +37,13 @@
 
     \list
 
-        \o  \gui Welcome mode \key Ctrl+1
-        \o  \gui Edit mode \key Ctrl+2
-        \o  \gui Design mode \key Ctrl+3
-        \o  \gui Debug mode \key Ctrl+4
-        \o  \gui Projects mode \key Ctrl+5
-        \o  \gui Analyze mode \key Ctrl+6
-        \o  \gui Help mode \key Ctrl+7
+        \li \gui Welcome mode \key Ctrl+1
+        \li \gui Edit mode \key Ctrl+2
+        \li \gui Design mode \key Ctrl+3
+        \li \gui Debug mode \key Ctrl+4
+        \li \gui Projects mode \key Ctrl+5
+        \li \gui Analyze mode \key Ctrl+6
+        \li \gui Help mode \key Ctrl+7
 
     \endlist
 
@@ -69,9 +69,9 @@
 
     \list
 
-        \o  The first press moves focus to the editor
+        \li The first press moves focus to the editor
 
-        \o  The second press closes secondary windows
+        \li The second press closes secondary windows
 
     \endlist
 
@@ -90,13 +90,13 @@
 
     \list
 
-        \o  \gui{Issues} pane Alt+1 (Cmd+1 on Mac OS X)
+        \li \gui{Issues} pane Alt+1 (Cmd+1 on Mac OS X)
 
-        \o  \gui{Search Results} pane Alt+2 (Cmd+2 on Mac OS X)
+        \li \gui{Search Results} pane Alt+2 (Cmd+2 on Mac OS X)
 
-        \o  \gui{Application Output} pane Alt+3 (Cmd+3 on Mac OS X)
+        \li \gui{Application Output} pane Alt+3 (Cmd+3 on Mac OS X)
 
-        \o  \gui{Compile Output} pane Alt+4 (Cmd+4 on Mac OS X)
+        \li \gui{Compile Output} pane Alt+4 (Cmd+4 on Mac OS X)
 
     \endlist
 
@@ -178,10 +178,10 @@
     To switch off the debugging helpers:
     \list 1
 
-        \o  Select \gui Tools > \gui Options > \gui Debugger >
+        \li Select \gui Tools > \gui Options > \gui Debugger >
             \gui{Debugging Helper}.
 
-        \o  Uncheck the \gui{Use Debugging Helper} checkbox.
+        \li Uncheck the \gui{Use Debugging Helper} checkbox.
 
     \endlist
 
@@ -192,9 +192,9 @@
 
     \list 1
 
-        \o  Select \gui Tools > \gui Options > \gui Debugger > \gui General.
+        \li Select \gui Tools > \gui Options > \gui Debugger > \gui General.
 
-        \o  Select the \gui {Use tooltips in main editor while debugging} check
+        \li Select the \gui {Use tooltips in main editor while debugging} check
             box.
 
     \endlist
@@ -230,14 +230,14 @@
 
     \list 1
 
-        \o  \c %YEAR%: Year
-        \o  \c %MONTH%: Month
-        \o  \c %DAY%: Day of the month
-        \o  \c %DATE%: Date
-        \o  \c %USER%: User name
-        \o  \c %FILENAME%: File name
-        \o  \c %CLASS%: Class name (if applicable)
-        \o  \c %$VARIABLE%: Contents of environment variable \c{VARIABLE}.
+        \li \c %YEAR%: Year
+        \li \c %MONTH%: Month
+        \li \c %DAY%: Day of the month
+        \li \c %DATE%: Date
+        \li \c %USER%: User name
+        \li \c %FILENAME%: File name
+        \li \c %CLASS%: Class name (if applicable)
+        \li \c %$VARIABLE%: Contents of environment variable \c{VARIABLE}.
 
     \endlist
 

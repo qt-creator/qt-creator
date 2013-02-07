@@ -34,7 +34,7 @@
 
     \list
 
-        \o  \l{Using the Help Mode}
+        \li \l{Using the Help Mode}
 
             \QC comes fully integrated with Qt documentation and examples using
             the Qt Help plugin. You can add external documentation to the
@@ -42,21 +42,21 @@
             information faster. In addition, you can add bookmarks to help
             pages.
 
-        \o  \l{FAQ}
+        \li \l{FAQ}
 
             Contains answers to some frequently asked questions about \QC.
 
-        \o  \l{Tips and Tricks}
+        \li \l{Tips and Tricks}
 
             Lists useful \QC features.
 
-        \o  \l{Known Issues}
+        \li \l{Known Issues}
 
             Lists known issues in \QC version \qtcversion. The development team
             is aware of them, and therefore, you do not need to report them as
             bugs.
 
-        \o  \l{Glossary}
+        \li \l{Glossary}
 
             Lists special terms used in \QC.
 
@@ -66,11 +66,11 @@
 
     \list
 
-        \o  \l{Technical Support}
+        \li \l{Technical Support}
 
             Lists Qt support sites and other useful sites.
 
-        \o  \l{Acknowledgements}
+        \li \l{Acknowledgements}
 
             Lists the third-party components in \QC.
 

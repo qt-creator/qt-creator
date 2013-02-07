@@ -49,8 +49,15 @@ FormEditorCrumbleBar::FormEditorCrumbleBar(QObject *parent) :
 
 void FormEditorCrumbleBar::pushFile(const QString &fileName)
 {
-    if (m_isInternalCalled == false)
+    if (m_isInternalCalled == false) {
         crumblePath()->clear();
+    } else {
+        CrumbleBarInfo lastElementCrumbleBarInfo = crumblePath()->dataForLastIndex().value<CrumbleBarInfo>();
+
+        if (!lastElementCrumbleBarInfo.componentId.isEmpty()
+                && lastElementCrumbleBarInfo.fileName == fileName)
+            crumblePath()->popElement();
+    }
 
     CrumbleBarInfo crumbleBarInfo;
     crumbleBarInfo.fileName = fileName;
@@ -77,6 +84,8 @@ void FormEditorCrumbleBar::pushInFileComponent(const QString &componentId)
         crumblePath()->popElement();
 
     crumblePath()->pushElement(componentId, QVariant::fromValue(crumbleBarInfo));
+
+    m_isInternalCalled = false;
 }
 
 void FormEditorCrumbleBar::nextFileIsCalledInternally()
@@ -91,23 +100,33 @@ Utils::CrumblePath *FormEditorCrumbleBar::crumblePath()
 
 void FormEditorCrumbleBar::onCrumblePathElementClicked(const QVariant &data)
 {
-    CrumbleBarInfo crumbleBarInfo = data.value<CrumbleBarInfo>();
+    CrumbleBarInfo clickedCrumbleBarInfo = data.value<CrumbleBarInfo>();
 
-    if (crumbleBarInfo == crumblePath()->dataForLastIndex().value<CrumbleBarInfo>())
+    if (clickedCrumbleBarInfo ==  crumblePath()->dataForLastIndex().value<CrumbleBarInfo>())
         return;
 
-    while (crumbleBarInfo != crumblePath()->dataForLastIndex().value<CrumbleBarInfo>())
+    while (clickedCrumbleBarInfo != crumblePath()->dataForLastIndex().value<CrumbleBarInfo>())
         crumblePath()->popElement();
 
-    if (!crumbleBarInfo.componentId.isEmpty())
+    if (!crumblePath()->dataForLastIndex().value<CrumbleBarInfo>().componentId.isEmpty())
         crumblePath()->popElement();
 
-    crumblePath()->popElement();
 
     m_isInternalCalled = true;
-    Core::EditorManager::openEditor(crumbleBarInfo.fileName);
-    if (!crumbleBarInfo.componentId.isEmpty())
-        currentDesignDocument()->changeToSubComponent(currentDesignDocument()->rewriterView()->modelNodeForId(crumbleBarInfo.componentId));
+    if (clickedCrumbleBarInfo.componentId.isEmpty()
+            && clickedCrumbleBarInfo.fileName == currentDesignDocument()->fileName()) {
+        nextFileIsCalledInternally();
+        currentDesignDocument()->changeToDocumentModel();
+    } else {
+        crumblePath()->popElement();
+        nextFileIsCalledInternally();
+        Core::EditorManager::openEditor(clickedCrumbleBarInfo.fileName);
+        if (!clickedCrumbleBarInfo.componentId.isEmpty()) {
+            currentDesignDocument()->changeToSubComponent(
+                        currentDesignDocument()->rewriterView()->modelNodeForId(clickedCrumbleBarInfo.componentId));
+            pushInFileComponent(clickedCrumbleBarInfo.componentId);
+        }
+    }
 }
 
 bool operator ==(const CrumbleBarInfo &first, const CrumbleBarInfo &second)

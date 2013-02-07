@@ -247,17 +247,11 @@ void BuildManager::updateTaskCount()
 
 void BuildManager::finish()
 {
-    const int seconds = d->m_elapsed.elapsed() / 1000;
-    const int minutes = seconds / 60;
-    const int hours = minutes / 60;
-    QString maybeHours;
-    if (hours) {
-        maybeHours.setNum(hours);
-        maybeHours.append(QLatin1Char(':'));
-    }
-    addToOutputWindow(tr("Elapsed time: %1%2:%3.") .arg(maybeHours)
-                      .arg(minutes % 60, 2, 10, QLatin1Char('0'))
-                      .arg(seconds % 60, 2, 10, QLatin1Char('0')), BuildStep::MessageOutput);
+    const QTime format = QTime(0, 0, 0, 0).addMSecs(d->m_elapsed.elapsed() + 500);
+    QString time = format.toString(QLatin1String("h:mm:ss"));
+    if (time.startsWith(QLatin1String("0:")))
+        time.remove(0, 2); // Don't display zero hours
+    addToOutputWindow(tr("Elapsed time: %1.") .arg(time), BuildStep::MessageOutput);
 
     QApplication::alert(Core::ICore::mainWindow(), 3000);
 }

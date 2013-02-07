@@ -56,8 +56,8 @@ using namespace QmlJS;
 
     Example: In a scope where "var a = 1"
     \list
-    \o value(Identifier-a) will return NumberValue
-    \o reference(Identifier-a) will return the ASTVariableReference for the declaration of "a"
+    \li value(Identifier-a) will return NumberValue
+    \li reference(Identifier-a) will return the ASTVariableReference for the declaration of "a"
     \endlist
 */
 

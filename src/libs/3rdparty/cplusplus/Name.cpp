@@ -79,5 +79,11 @@ bool Name::Compare::operator()(const Name *name, const Name *other) const
 
     const Identifier *id = name->identifier();
     const Identifier *otherId = other->identifier();
+
+    if (id == 0)
+        return otherId != 0;
+    if (otherId == 0)
+        return false;
+
     return std::strcmp(id->chars(), otherId->chars()) < 0;
 }

@@ -36,20 +36,20 @@
 
     \list
 
-        \o  \l{Working in Edit Mode}
+        \li \l{Working in Edit Mode}
 
             You can use the editor toolbar to navigate between open files
             and symbols in use. You can also split the view to work on
             several files simultaneously, add bookmarks, and move between
             symbol definitions and declarations.
 
-        \o  \l{Semantic Highlighting}
+        \li \l{Semantic Highlighting}
 
             \QC enables you to write well formatted code by highlighting
             code elements and blocks. You can use syntax highlighting
             also for other types of files than C++ or QML.
 
-        \o  \l{Checking Code Syntax}
+        \li \l{Checking Code Syntax}
 
             \QC checks for errors when you write code and displays inline
             error and warning messages.
@@ -58,17 +58,17 @@
             static checks on the QML and JavaScript code in your project to find
             common problems.
 
-        \o  \l{Completing Code}
+        \li \l{Completing Code}
 
             \QC anticipates what you are going to write and completes code
             and code snippets for elements, properties, and IDs.
 
-        \o  \l{Indenting Code}
+        \li \l{Indenting Code}
 
             \QC indents code according to rules that you specify either
             globally for all files or separately for text, C++, or QML files.
 
-        \o  \l{Using Qt Quick Toolbars}
+        \li \l{Using Qt Quick Toolbars}
 
             When you edit QML code in the code editor, you specify the
             properties of QML components. For some properties, such as
@@ -76,14 +76,14 @@
             few people can visualize the color #18793f. To easily edit these
             properties, you can use the Qt Quick Toolbars.
 
-        \o  \l{Pasting and Fetching Code Snippets}
+        \li \l{Pasting and Fetching Code Snippets}
 
             You can cooperate with other developers by pasting and fetching
             snippets of code from a server. For example, you might ask
             colleagues to review a change that you plan to submit to a
             version control system.
 
-        \o  \l{Using Text Editing Macros}
+        \li \l{Using Text Editing Macros}
 
             When you have a file open in the code editor, you can record a
             keyboard sequence as a macro. You can then play the macro to

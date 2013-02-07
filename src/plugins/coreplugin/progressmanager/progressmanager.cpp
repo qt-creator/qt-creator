@@ -57,32 +57,32 @@ using namespace Core::Internal;
 
     \table
     \header
-        \o Property
-        \o Type
-        \o Description
+        \li Property
+        \li Type
+        \li Description
     \row
-        \o Task abstraction
-        \o \c QFuture<void>
-        \o A \c QFuture object that represents the task which is
+        \li Task abstraction
+        \li \c QFuture<void>
+        \li A \c QFuture object that represents the task which is
            responsible for reporting the state of the task. See below
            for coding patterns how to create this object for your
            specific task.
     \row
-        \o Title
-        \o \c QString
-        \o A very short title describing your task. This is shown
+        \li Title
+        \li \c QString
+        \li A very short title describing your task. This is shown
            as a title over the progress bar.
     \row
-        \o Type
-        \o \c QString
-        \o A string identifier that is used to group different tasks that
+        \li Type
+        \li \c QString
+        \li A string identifier that is used to group different tasks that
            belong together.
            For example, all the search operations use the same type
            identifier.
     \row
-        \o Flags
-        \o \l ProgressManager::ProgressFlags
-        \o Additional flags that specify how the progress bar should
+        \li Flags
+        \li \l ProgressManager::ProgressFlags
+        \li Additional flags that specify how the progress bar should
            be presented to the user.
     \endtable
 

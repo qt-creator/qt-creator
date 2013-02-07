@@ -60,22 +60,22 @@
 
     \list 1
 
-        \o  Select the \l{glossary-buildandrun-kit}{kit} with \gui {Maemo5} device type
+        \li Select the \l{glossary-buildandrun-kit}{kit} with \gui {Maemo5} device type
             for your project.
 
-        \o  Choose \gui {Build > Publish Project}.
+        \li Choose \gui {Build > Publish Project}.
 
-        \o  Select \gui {Publish for Fremantle Extras-devel Free Repository},
+        \li Select \gui {Publish for Fremantle Extras-devel Free Repository},
             and then select \gui {Start Wizard}.
 
-        \o  Select the Qt version and device type to build against and click
+        \li Select the Qt version and device type to build against and click
             \gui Next.
 
             To create a source archive without uploading it to the build
             server, select the \gui {Only create source package, do not upload}
             check box.
 
-        \o  In the \gui {Garage account name} field, enter your login name, or
+        \li In the \gui {Garage account name} field, enter your login name, or
             select \gui {Get an account} to create a new account.
 
             \image qtcreator-publish-maemo-extras.png "Upload Settings dialog"
@@ -83,10 +83,10 @@
             You can also select \gui {Request upload rights} to use the Maemo
             Extras Assistant to validate your Garage account.
 
-        \o  Select \gui Commit to select the files to include in the source
+        \li Select \gui Commit to select the files to include in the source
             package.
 
-        \o  Select \gui OK to build the source package, and optionally, publish
+        \li Select \gui OK to build the source package, and optionally, publish
             the application.
 
     \endlist

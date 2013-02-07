@@ -49,9 +49,9 @@
 
     \list 1
 
-        \o  Drag and drop components from the \gui Library pane to the editor.
+        \li Drag and drop components from the \gui Library pane to the editor.
 
-        \o  Select components in the \gui Navigator pane to edit their
+        \li Select components in the \gui Navigator pane to edit their
             properties in the \gui Properties pane.
 
             For example, you can anchor components to a position on the screen.
@@ -67,13 +67,13 @@
 
     \list
 
-        \o  \l{http://qt-project.org/doc/qt-4.8/qml-gridview.html}{Grid View}
+        \li \l{http://qt-project.org/doc/qt-4.8/qml-gridview.html}{Grid View}
             provides a grid vizualization of a model.
 
-        \o  \l{http://qt-project.org/doc/qt-4.8/qml-listview.html}{List View}
+        \li \l{http://qt-project.org/doc/qt-4.8/qml-listview.html}{List View}
             provides a list vizualization of a model.
 
-        \o  \l{http://qt-project.org/doc/qt-4.8/qml-pathview.html}{Path View}
+        \li \l{http://qt-project.org/doc/qt-4.8/qml-pathview.html}{Path View}
             visualizes the contents of a model along a path.
 
     \endlist
@@ -94,17 +94,17 @@
 
     \list
 
-        \o  \l{http://qt-project.org/doc/qt-4.8-snapshot/qml-column.html}{Column}
+        \li \l{http://qt-project.org/doc/qt-4.8-snapshot/qml-column.html}{Column}
             arranges its child items vertically.
 
-        \o  \l{http://qt-project.org/doc/qt-4.8-snapshot/qml-row.html}{Row}
+        \li \l{http://qt-project.org/doc/qt-4.8-snapshot/qml-row.html}{Row}
             arranges its child items horizontally.
 
-        \o  \l{http://qt-project.org/doc/qt-4.8-snapshot/qml-grid.html}{Grid}
+        \li \l{http://qt-project.org/doc/qt-4.8-snapshot/qml-grid.html}{Grid}
             arranges its child items so that they are aligned in a grid and
             are not overlapping.
 
-        \o  \l{http://qt-project.org/doc/qt-4.8-snapshot/qml-flow.html}{Flow}
+        \li \l{http://qt-project.org/doc/qt-4.8-snapshot/qml-flow.html}{Flow}
             arranges its child items side by side, wrapping as necessary.
 
     \endlist
@@ -143,16 +143,16 @@
 
     \list
 
-        \o  Align items on different screens with each other.
+        \li Align items on different screens with each other.
 
-        \o  Avoid excessive property changes. If an item is invisible in the
+        \li Avoid excessive property changes. If an item is invisible in the
             base state, you must define all changes to its child elements as
             property changes, which leads to complicated QML code.
 
-        \o  Minimize the differences between the base state and the other states
+        \li Minimize the differences between the base state and the other states
             to keep the QML code short and readable and to improve performance.
 
-        \o  Avoid problems when using transitions and animation when changing
+        \li Avoid problems when using transitions and animation when changing
             states.
 
     \endlist
@@ -162,26 +162,26 @@
 
     \list 1
 
-        \o  In the base state, add all elements you will need in the
+        \li In the base state, add all elements you will need in the
             application (1).
             While you work on one screen, you can click the
             \inlineimage qmldesigner-show-hide-icon.png
             icon to hide elements on the canvas that are not part of a screen.
 
-        \o  In the \gui States pane, click the empty slot to create a new state
+        \li In the \gui States pane, click the empty slot to create a new state
             and give it a name. For example, \c Normal.
 
-        \o  In the \gui Properties pane (2), deselect the \gui Visibility check box
+        \li In the \gui Properties pane (2), deselect the \gui Visibility check box
             or set \gui Opacity to 0 for each element that is not needed in this
             view. If you specify the setting for the parent element, all child
             elements inherit it and are also hidden.
 
             \image qmldesigner-screen-design.png "Designing screens"
 
-        \o  Create additional states for each screen and set the visibility
+        \li Create additional states for each screen and set the visibility
             or opacity of the elements in the screen.
 
-        \o  To determine which view opens when the application starts, use the
+        \li To determine which view opens when the application starts, use the
             code editor to set the state of the root item of the .qml file, as
             specified by the following code snippet:
 
@@ -237,18 +237,18 @@
 
     \list
 
-        \o  \l{http://qt-project.org/doc/qt-4.8/qml-flickable.html}{Flickable}
+        \li \l{http://qt-project.org/doc/qt-4.8/qml-flickable.html}{Flickable}
             items can be flicked horizontally or vertically.
 
-        \o  \l{http://qt-project.org/doc/qt-4.8/qml-flipable.html}{Flipable}
+        \li \l{http://qt-project.org/doc/qt-4.8/qml-flipable.html}{Flipable}
             items can be flipped between their front and back sides by using
             rotation, state, and transition.
 
-        \o  \l{http://qt-project.org/doc/qt-4.8/qml-focusscope.html}{Focus Scope}
+        \li \l{http://qt-project.org/doc/qt-4.8/qml-focusscope.html}{Focus Scope}
             assists in keyboard focus handling when building reusable QML
             components.
 
-        \o  \l{http://qt-project.org/doc/qt-4.8/qml-mousearea.html}{Mouse Area}
+        \li \l{http://qt-project.org/doc/qt-4.8/qml-mousearea.html}{Mouse Area}
             enables simple mouse handling.
 
     \endlist

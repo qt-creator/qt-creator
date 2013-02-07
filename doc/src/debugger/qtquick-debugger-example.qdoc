@@ -43,7 +43,7 @@
 
     \list 1
 
-        \o  To look at the code that starts a new game, place a breakpoint in
+        \li To look at the code that starts a new game, place a breakpoint in
             samegame.qml by clicking between the line number and the window
             border on the line where where the \c startNewGame() function is
             called (1).
@@ -53,19 +53,19 @@
             The red circle indicates that a breakpoint is now set on that line
             number.
 
-        \o  Select \gui {Debug > Start Debugging > Start Debugging} or press
+        \li Select \gui {Debug > Start Debugging > Start Debugging} or press
             \key{F5}.
 
-        \o  Once the Same Game application starts, click the \gui {New Game}
+        \li Once the Same Game application starts, click the \gui {New Game}
             button to start a new game.
 
-        \o  When the debugger hits the breakpoint, it interrupts the
+        \li When the debugger hits the breakpoint, it interrupts the
             application. \QC displays the nested function calls leading to the
             current position as a call stack trace (1).
 
             \image qtquick-example-setting-breakpoint2.png
 
-        \o  Click the
+        \li Click the
             \inlineimage qtcreator-debug-button-step-into.png
             (\gui {Step Into}) button on the toolbar or press \key F11 to step
             into the code in the stack. The samegame.js file opens in the code
@@ -73,38 +73,38 @@
 
             \image qtquick-example-stack.png
 
-        \o  Examine the local variables in the \gui {Locals and Expressions}
+        \li Examine the local variables in the \gui {Locals and Expressions}
             view. Step through the code to see how the information changes in
             the view.
 
-        \o  Add a breakpoint at the end of the \c {startNewGame()} function, and
+        \li Add a breakpoint at the end of the \c {startNewGame()} function, and
             click \inlineimage qtcreator-debugging-continue.png
             (\gui Continue) to hit the breakpoint.
 
             \image qtquick-example-setting-breakpoint3.png
 
-        \o  To execute JavaScript commands in the current context, select the
+        \li To execute JavaScript commands in the current context, select the
             \gui {Console} tab.
 
-        \o  To change the score to 1000, enter \c{gameCanvas.score = 1000}
+        \li To change the score to 1000, enter \c{gameCanvas.score = 1000}
             in the console.
 
             \image qtquick-example-script-console.png
 
-        \o  To remove a breakpoint, right-click it and select
+        \li To remove a breakpoint, right-click it and select
             \gui {Delete Breakpoint}.
 
-        \o  Select the \gui {Locals and Expressions} tab to explore the object
+        \li Select the \gui {Locals and Expressions} tab to explore the object
             structure at runtime:
 
             \image qtquick-example-qml-inspector.png
 
-        \o  Click
+        \li Click
             \inlineimage qml-inspector-app-on-top.png
             (\gui {Show Application on Top}) to keep the application visible
             while you interact with the debugger.
 
-        \o  Click
+        \li Click
             \inlineimage qml-inspector-select-button.png
             (\gui Select) to activate selection mode and then click the
             \gui {Quit} button to move into the \gui ButtonLabel component
@@ -112,7 +112,7 @@
 
             \image qtquick-example-property-values.png
 
-        \o  In the \gui {Locals and Expressions} view, double-click the value of
+        \li In the \gui {Locals and Expressions} view, double-click the value of
             the \c text property to change it temporarily from \gui {Quit} to
             \gui {End Game}.
 

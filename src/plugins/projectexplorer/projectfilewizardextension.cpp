@@ -69,8 +69,8 @@
 
     Offers:
     \list
-    \o Add to a project file (*.pri/ *.pro)
-    \o Initialize a version control repository (unless the path is already
+    \li Add to a project file (*.pri/ *.pro)
+    \li Initialize a version control repository (unless the path is already
         managed) and do 'add' if the VCS supports it.
     \endlist
 

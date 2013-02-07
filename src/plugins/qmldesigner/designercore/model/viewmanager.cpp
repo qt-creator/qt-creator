@@ -188,6 +188,11 @@ void ViewManager::nextFileIsCalledInternally()
     m_formEditorView.formEditorWidget()->formEditorCrumbleBar()->nextFileIsCalledInternally();
 }
 
+ QmlModelView *ViewManager::qmlModelView()
+ {
+     return &m_formEditorView;
+ }
+
 Model *ViewManager::currentModel() const
 {
     return currentDesignDocument()->currentModel();

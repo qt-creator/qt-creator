@@ -49,6 +49,7 @@ class QTCREATOR_UTILS_EXPORT HistoryCompleter : public QCompleter
 public:
     static void setSettings(QSettings *settings);
     HistoryCompleter(QLineEdit *lineEdit, const QString &historyKey, QObject *parent = 0);
+    bool removeHistoryItem(int index);
 
 private:
     ~HistoryCompleter();

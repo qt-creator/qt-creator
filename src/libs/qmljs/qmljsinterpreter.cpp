@@ -80,10 +80,10 @@ using namespace QmlJS::AST;
 
     Values are the result of many operations in the QmlJS code model:
     \list
-    \o \l{Evaluate}
-    \o Context::lookupType() and Context::lookupReference()
-    \o ScopeChain::lookup()
-    \o ObjectValue::lookupMember()
+    \li \l{Evaluate}
+    \li Context::lookupType() and Context::lookupReference()
+    \li ScopeChain::lookup()
+    \li ObjectValue::lookupMember()
     \endlist
 */
 

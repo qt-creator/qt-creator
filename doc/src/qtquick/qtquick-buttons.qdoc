@@ -34,57 +34,57 @@
 
     \list 1
 
-        \o  Select \gui {File > New File or Project > Qt > QML File > Choose}
+        \li Select \gui {File > New File or Project > Qt > QML File > Choose}
             to create a QML file called Button.qml (for example).
 
             \note Components are listed in the \gui Library pane only if the
             filename begins with a capital letter.
 
-        \o  Click \gui {Design} to edit the file in the visual editor.
+        \li Click \gui {Design} to edit the file in the visual editor.
 
-        \o  In the \gui Navigator pane, click \gui Rectangle to set properties
+        \li In the \gui Navigator pane, click \gui Rectangle to set properties
             for it.
 
-        \o  In the \gui Properties pane, modify the appearance of the button.
+        \li In the \gui Properties pane, modify the appearance of the button.
 
         \list a
 
-            \o  In the \gui Size field, set the width (\gui W) and height
+            \li In the \gui Size field, set the width (\gui W) and height
                 (\gui H) of the button.
 
-            \o  In the \gui Color field, select the button color.
+            \li In the \gui Color field, select the button color.
 
-            \o  In the \gui Radius field, use the slider to set the radius of
+            \li In the \gui Radius field, use the slider to set the radius of
                 the rectangle and produce rounded corners for the button.
 
         \endlist
 
-        \o  Drag and drop a \gui {Text} item on top of the \gui Rectangle. This
+        \li Drag and drop a \gui {Text} item on top of the \gui Rectangle. This
             creates a nested element where \gui Rectangle is the parent element
             of \gui Text. Elements are positioned relative to their parents.
 
-        \o  In the \gui Properties pane, edit the properties of the \gui Text
+        \li In the \gui Properties pane, edit the properties of the \gui Text
             item.
 
         \list a
 
-            \o  In the \gui Text field, type \bold Button.
+            \li In the \gui Text field, type \b Button.
 
                 You can select the text color in the \gui Color section and the
                 font, size, and style in the
                 \gui Font section.
 
-            \o  In the \gui Alignment field, select the center buttons to align
+            \li In the \gui Alignment field, select the center buttons to align
                 the text to the center of the button.
 
-            \o  Click \gui {Layout}, and then click the
+            \li Click \gui {Layout}, and then click the
                 \inlineimage qmldesigner-anchor-fill-screen.png
                 (\gui {Fill to Parent}) button to anchor the text to the whole
                 button area.
 
         \endlist
 
-        \o  Press \key {Ctrl+S} to save the button.
+        \li Press \key {Ctrl+S} to save the button.
 
             \image qmldesigner-button.png "Button component"
 
@@ -131,12 +131,12 @@
 
     \list 1
 
-        \o  Select \gui {File > New File or Project > Qt > QML File > Choose}
+        \li Select \gui {File > New File or Project > Qt > QML File > Choose}
             to create a QML file called Button.qml (for example).
 
-        \o  Double-click the file to open it in the code editor.
+        \li Double-click the file to open it in the code editor.
 
-        \o  Replace the \gui Rectangle with an \gui Item, as illustrated by the
+        \li Replace the \gui Rectangle with an \gui Item, as illustrated by the
             following code snippet:
 
             \qml
@@ -145,93 +145,93 @@
             }
             \endqml
 
-        \o  Specify properties and set expressions for the \gui Item, as
+        \li Specify properties and set expressions for the \gui Item, as
             illustrated by the following code snippet:
 
             \snippet snippets/qml/quick-scalable-image.qml properties and signal definitions
 
             You will point to the properties and expression later.
 
-        \o  Click \gui {Design} to edit the file in the visual editor.
+        \li Click \gui {Design} to edit the file in the visual editor.
 
-        \o  Drag and drop two \gui {Border Image} items from the \gui Library pane
+        \li Drag and drop two \gui {Border Image} items from the \gui Library pane
             to the scene.
 
-        \o  Drag and drop a \gui Text item to the scene.
+        \li Drag and drop a \gui Text item to the scene.
 
-        \o  Drag and drop a \gui {Mouse Area} to the screen.
+        \li Drag and drop a \gui {Mouse Area} to the screen.
 
-        \o  In the \gui Navigator pane, select \gui border_image1 to specify
+        \li In the \gui Navigator pane, select \gui border_image1 to specify
             settings for it in the \gui Properties pane:
 
         \list a
 
-            \o  Select \gui {Set Expression} in the menu next to the
+            \li Select \gui {Set Expression} in the menu next to the
                 \gui Visibility check box.
 
-            \o  Enter the following expression to specify that the image is
+            \li Enter the following expression to specify that the image is
                 visible when the mouse is not pressed down:
                 \c {!mouse_area1.pressed}.
 
-            \o  In the \gui Source field, select the image file for the button,
+            \li In the \gui Source field, select the image file for the button,
                 for example button_up.png.
 
-            \o   Click \gui {Layout}, and then click the
+            \li  Click \gui {Layout}, and then click the
                 \inlineimage qmldesigner-anchor-fill-screen.png
                 (\gui {Fill to Parent}) button to anchor the border image to the
                 \gui Item.
 
         \endlist
 
-        \o  Select \gui border_image2 to specify similar settings for it:
+        \li Select \gui border_image2 to specify similar settings for it:
 
         \list a
 
-            \o  Set the following epression for \gui Visibility, to specify that
+            \li Set the following epression for \gui Visibility, to specify that
                 the image is visible when the mouse is pressed down:
                 \c {mouse_area1.pressed}.
 
-            \o  In the \gui Source field, select the image file for the button
+            \li In the \gui Source field, select the image file for the button
                 when it is clicked, for example button_down.png.
 
-            \o  Click \gui {Layout}, and then click the
+            \li Click \gui {Layout}, and then click the
                 \gui {Fill to Parent}
                 button to anchor the border image to the \gui Item.
 
         \endlist
 
-        \o  Select \gui text1 to specify font size and color, and text
+        \li Select \gui text1 to specify font size and color, and text
             scaling and rendering:
 
         \list a
 
-            \o  In the \gui Color field, use the color picker to select
+            \li In the \gui Color field, use the color picker to select
                 the font color, or enter a value in the field.
 
-            \o  In the \gui Text field, select \gui {Set Expression} and
+            \li In the \gui Text field, select \gui {Set Expression} and
                 enter a pointer to the \c {text} property that you specified
                 earlier: \c {parent.txt}.
 
-            \o  Select the \gui Smooth check box to enable smooth text
+            \li Select the \gui Smooth check box to enable smooth text
                 rendering.
 
-            \o  In the \gui Size field, select \gui {Pixels} to specify the font
+            \li In the \gui Size field, select \gui {Pixels} to specify the font
                 size in pixels. By default, the size is specified in points.
 
-            \o  In the \gui Size field, select \gui {Set Expression} and enter a
+            \li In the \gui Size field, select \gui {Set Expression} and enter a
                 pointer to the \c {fontSize} property that you specified
                 earlier.
 
-            \o  Click \gui {Layout}, and then click the
+            \li Click \gui {Layout}, and then click the
                 \inlineimage qmldesigner-center-in.png "Anchor buttons"
                 (\gui {Set Vertical Anchor} and \gui {Set Horizontal Anchor})
                 buttons to inherit the vertical and horizontal centering from
                 the parent.
 
-            \o  Click \gui Advanced to specify scaling for the text in the
+            \li Click \gui Advanced to specify scaling for the text in the
                 \gui Scale field.
 
-            \o  Select \gui {Set Expression} and enter the following expression:
+            \li Select \gui {Set Expression} and enter the following expression:
                 \c {if (!mousearea1.pressed) { 1 } else { 0.95 }}.
 
                 \note You can enter long and complicated expressions also in the
@@ -239,7 +239,7 @@
 
         \endlist
 
-        \o  In the code editor, add to the \c MouseArea item a pointer to the
+        \li In the code editor, add to the \c MouseArea item a pointer to the
             \c clicked expression that you added earlier:
             \c {onClicked: parent.clicked()}.
 

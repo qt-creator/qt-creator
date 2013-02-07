@@ -609,17 +609,17 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
     QList<OSFlavor> result;
     switch (o) {
     case BsdOS:
-        return result << FreeBsdFlavor << OpenBsdFlavor << NetBsdFlavor;
+        return result << FreeBsdFlavor << OpenBsdFlavor << NetBsdFlavor << UnknownFlavor;
     case LinuxOS:
         return result << GenericLinuxFlavor << HarmattanLinuxFlavor << MaemoLinuxFlavor
-                      << AndroidLinuxFlavor;;
+                      << AndroidLinuxFlavor << UnknownFlavor;
     case MacOS:
-        return result << GenericMacFlavor;
+        return result << GenericMacFlavor << UnknownFlavor;
     case UnixOS:
-        return result << GenericUnixFlavor << SolarisUnixFlavor;
+        return result << GenericUnixFlavor << SolarisUnixFlavor << UnknownFlavor;
     case WindowsOS:
         return result << WindowsMsvc2005Flavor << WindowsMsvc2008Flavor << WindowsMsvc2010Flavor
-                      << WindowsMsvc2012Flavor << WindowsMSysFlavor << WindowsCEFlavor;
+                      << WindowsMsvc2012Flavor << WindowsMSysFlavor << WindowsCEFlavor << UnknownFlavor;
     case UnknownOS:
         return result << UnknownFlavor;
     default:

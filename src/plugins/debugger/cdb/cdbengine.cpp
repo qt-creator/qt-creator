@@ -119,22 +119,22 @@ enum HandleLocalsFlags
     library (32/64bit), which is loaded into cdb.exe. It serves to:
 
     \list
-    \o Notify the engine about the state of the debugging session:
+    \li Notify the engine about the state of the debugging session:
         \list
-        \o idle: (hooked up with .idle_cmd) debuggee stopped
-        \o accessible: Debuggee stopped, cdb.exe accepts commands
-        \o inaccessible: Debuggee runs, no way to post commands
-        \o session active/inactive: Lost debuggee, terminating.
+        \li idle: (hooked up with .idle_cmd) debuggee stopped
+        \li accessible: Debuggee stopped, cdb.exe accepts commands
+        \li inaccessible: Debuggee runs, no way to post commands
+        \li session active/inactive: Lost debuggee, terminating.
         \endlist
-    \o Hook up with output/event callbacks and produce formatted output to be able
+    \li Hook up with output/event callbacks and produce formatted output to be able
        to catch application output and exceptions.
-    \o Provide some extension commands that produce output in a standardized (GDBMI)
+    \li Provide some extension commands that produce output in a standardized (GDBMI)
       format that ends up in handleExtensionMessage(), for example:
       \list
-      \o pid     Return debuggee pid for interrupting.
-      \o locals  Print locals from SymbolGroup
-      \o expandLocals Expand locals in symbol group
-      \o registers, modules, threads
+      \li pid     Return debuggee pid for interrupting.
+      \li locals  Print locals from SymbolGroup
+      \li expandLocals Expand locals in symbol group
+      \li registers, modules, threads
       \endlist
    \endlist
 
@@ -142,11 +142,11 @@ enum HandleLocalsFlags
 
    \list
 
-    \o postCommand(): Does not expect a reply
-    \o postBuiltinCommand(): Run a builtin-command producing free-format, multiline output
+    \li postCommand(): Does not expect a reply
+    \li postBuiltinCommand(): Run a builtin-command producing free-format, multiline output
        that is captured by enclosing it in special tokens using the 'echo' command and
        then invokes a callback with a CdbBuiltinCommand structure.
-    \o postExtensionCommand(): Run a command provided by the extension producing
+    \li postExtensionCommand(): Run a command provided by the extension producing
        one-line output and invoke a callback with a CdbExtensionCommand structure
        (output is potentially split up in chunks).
     \endlist

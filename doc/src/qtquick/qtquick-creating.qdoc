@@ -38,7 +38,7 @@
 
     \list
 
-        \o  \gui {Qt Quick Application} creates a Qt Quick application project
+        \li \gui {Qt Quick Application} creates a Qt Quick application project
             that can contain both QML and C++ code. The project includes a
             QDeclarativeView. You can build the application and deploy it on
             desktop and mobile target platforms.
@@ -57,19 +57,19 @@
 
             The Qt Quick 2 Application wizard imports Qt Quick 2.0. Use it to
             develop for platforms that run Qt 5.
-        \o  \gui {Qt Quick UI} creates a Qt Quick UI project with a single QML
+        \li \gui {Qt Quick UI} creates a Qt Quick UI project with a single QML
             file that contains the main view. You can review Qt Quick UI
             projects in a \l{Previewing QML Files}{preview tool} and you need
             not build them. You do not
             need to have the development environment installed on your
             computer to create and run this type of project.
 
-        \o  \gui {Qt Quick 1 Application (from Existing QML File)} converts
+        \li \gui {Qt Quick 1 Application (from Existing QML File)} converts
             existing Qt Quick 1 applications to Qt Quick application projects.
             This enables you to run them from \QC and to deploy them to mobile
             devices.
 
-        \o  \gui {Qt Quick Extension Plugins} (in the \gui Libraries category)
+        \li \gui {Qt Quick Extension Plugins} (in the \gui Libraries category)
             create C++ plugins that make it possible to offer extensions that
             can be loaded dynamically into Qt Quick applications. Select
             \gui {Qt Quick 1 Extension Plugin} to create extensions for
@@ -87,11 +87,11 @@
 
     \list
 
-        \o  .qmlproject project file defines that all QML, JavaScript, and image
+        \li .qmlproject project file defines that all QML, JavaScript, and image
             files in the project folder belong to the project. Therefore, you do
             not need to individually list all the files in the project.
 
-        \o  .qml file defines an element, such as a component, screen, or the
+        \li .qml file defines an element, such as a component, screen, or the
             whole application UI.
 
     \endlist

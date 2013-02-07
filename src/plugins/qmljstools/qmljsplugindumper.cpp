@@ -489,12 +489,12 @@ QString PluginDumper::resolvePlugin(const QDir &qmldirPath, const QString &qmldi
   Adapted from QDeclarativeImportDatabase::resolvePlugin.
 
   \table
-  \header \i Platform \i Valid suffixes
-  \row \i Windows     \i \c .dll
-  \row \i Unix/Linux  \i \c .so
-  \row \i AIX  \i \c .a
-  \row \i HP-UX       \i \c .sl, \c .so (HP-UXi)
-  \row \i Mac OS X    \i \c .dylib, \c .bundle, \c .so
+  \header \li Platform \li Valid suffixes
+  \row \li Windows     \li \c .dll
+  \row \li Unix/Linux  \li \c .so
+  \row \li AIX  \li \c .a
+  \row \li HP-UX       \li \c .sl, \c .so (HP-UXi)
+  \row \li Mac OS X    \li \c .dylib, \c .bundle, \c .so
   \endtable
 
   Version number on unix are ignored.

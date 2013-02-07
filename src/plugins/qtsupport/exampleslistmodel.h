@@ -38,11 +38,14 @@
 namespace QtSupport {
 namespace Internal {
 
+class QtVersionsModel;
+
 enum ExampleRoles
 {
     Name = Qt::UserRole, ProjectPath, Description, ImageUrl,
     DocUrl, FilesToOpen, Tags, Difficulty, HasSourceCode,
-    Type, Dependencies, IsVideo, VideoUrl, VideoLength, Platforms
+    Type, Dependencies, IsVideo, VideoUrl, VideoLength, Platforms,
+    IsHighlighted
 };
 
 enum InstructionalType
@@ -52,7 +55,7 @@ enum InstructionalType
 
 struct ExampleItem
 {
-    ExampleItem(): difficulty(0), isVideo(false) {}
+    ExampleItem(): difficulty(0), isVideo(false), isHighlighted(false) {}
     InstructionalType type;
     QString name;
     QString projectPath;
@@ -68,6 +71,7 @@ struct ExampleItem
     QString videoUrl;
     QString videoLength;
     QStringList platforms;
+    bool isHighlighted;
 };
 
 class ExamplesListModel : public QAbstractListModel
@@ -86,8 +90,11 @@ public:
     void beginReset() { beginResetModel(); }
     void endReset() { endResetModel(); }
 
+    void filterForQtById(int id);
+
 signals:
     void tagsUpdated();
+    void qtVersionsChanged();
 
 public slots:
     void handleQtVersionsChanged();
@@ -109,6 +116,7 @@ private:
     bool m_updateOnQtVersionsChanged;
     bool m_initialized;
     bool m_helpInitialized;
+    int m_uniqueQtId;
 };
 
 class ExamplesListModelFilter : public QSortFilterProxyModel
@@ -120,6 +128,9 @@ public:
     Q_PROPERTY(QStringList filterTags READ filterTags WRITE setFilterTags NOTIFY filterTagsChanged)
     Q_PROPERTY(QStringList searchStrings READ searchStrings WRITE setSearchStrings NOTIFY searchStrings)
 
+    Q_PROPERTY(QAbstractItemModel* qtVersionModel READ qtVersionModel)
+    Q_PROPERTY(int qtVersionIndex READ qtVersionIndex NOTIFY qtVersionIndexChanged)
+
     explicit ExamplesListModelFilter(ExamplesListModel *sourceModel, QObject *parent);
 
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
@@ -130,6 +141,15 @@ public:
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QAbstractItemModel* qtVersionModel();
+
+    Q_INVOKABLE void filterForQtById(int id)
+    {
+        if (m_blockIndexUpdate)
+            return;
+
+        m_sourceModel->filterForQtById(id);
+    }
 
 public slots:
     void setFilterTags(const QStringList &arg)
@@ -152,21 +172,26 @@ public slots:
 
     void parseSearchString(const QString &arg);
     void setShowTutorialsOnly(bool showTutorialsOnly);
+    void handleQtVersionsChanged();
 
 signals:
     void showTutorialsOnlyChanged();
     void filterTagsChanged(const QStringList &arg);
     void searchStrings(const QStringList &arg);
+    void qtVersionIndexChanged();
 
 private:
     void timerEvent(QTimerEvent *event);
     void delayedUpdateFilter();
+    int qtVersionIndex() const;
 
     bool m_showTutorialsOnly;
     QStringList m_filterTags;
     QStringList m_searchString;
     ExamplesListModel *m_sourceModel;
     int m_timerId;
+    QtVersionsModel* m_qtVersionModel;
+    bool m_blockIndexUpdate;
 };
 
 } // namespace Internal

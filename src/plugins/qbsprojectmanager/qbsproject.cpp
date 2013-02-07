@@ -30,6 +30,7 @@
 #include "qbsproject.h"
 
 #include "qbsbuildconfiguration.h"
+#include "qbslogsink.h"
 #include "qbsprojectfile.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsnodes.h"
@@ -387,9 +388,12 @@ void QbsProject::parse(const QVariantMap &config, const QString &dir)
     params.buildRoot = m_qbsBuildRoot;
     params.projectFilePath = m_fileName;
     params.ignoreDifferentProjectFilePath = false;
+    const qbs::Preferences prefs(m_manager->settings());
+    params.searchPaths = prefs.searchPaths(QLatin1String(QBS_BUILD_DIR));
+    params.pluginPaths = prefs.pluginPaths(QLatin1String(QBS_BUILD_DIR));
 
     m_qbsSetupProjectJob
-            = qbs::Project::setupProject(params, m_manager->settings(), 0);
+            = qbs::Project::setupProject(params, m_manager->settings(), m_manager->logSink(), 0);
 
     connect(m_qbsSetupProjectJob, SIGNAL(finished(bool,qbs::AbstractJob*)),
             this, SLOT(handleQbsParsingDone(bool)));

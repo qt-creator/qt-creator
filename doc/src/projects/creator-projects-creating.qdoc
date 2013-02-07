@@ -34,13 +34,13 @@
 
     \list
 
-        \o  Group files together
+        \li Group files together
 
-        \o  Add custom build steps
+        \li Add custom build steps
 
-        \o  Include forms and resource files
+        \li Include forms and resource files
 
-        \o  Specify settings for running applications
+        \li Specify settings for running applications
 
     \endlist
 
@@ -95,17 +95,17 @@
 
     \list
 
-        \o  Applications
+        \li Applications
 
         \list
 
             \if defined(qcmanual)
-            \o  Qt GUI Application
+            \li Qt GUI Application
 
                 Use \QD forms to design a Qt widget based user interface for the
                 desktop and C++ to implement the application logic
 
-            \o  Mobile Qt Application
+            \li Mobile Qt Application
 
                 Use \QD forms to design a Qt widget based user interface for
                 mobile devices and C++ to implement the application logic.
@@ -113,33 +113,33 @@
                 Qt 4.6.x
             \endif
 
-            \o  Qt Quick Application (Built-in Elements)
+            \li Qt Quick Application (Built-in Elements)
 
                 Use built-in QML elements to design user interfaces based on
                 Qt Quick 1 (Qt 4.7.1, or later) or Qt Quick 2 (Qt 5) with a
                 custom look and feel and QML and C++ code to implement the
                 application logic
 
-            \o  Qt Quick 1 Application for MeeGo Harmattan
+            \li Qt Quick 1 Application for MeeGo Harmattan
 
                 Use Qt Quick Components for MeeGo Harmattan to design a user
                 interface with the platform look and feel
 
-            \o  Qt Quick 1 Application (from Existing QML File)
+            \li Qt Quick 1 Application (from Existing QML File)
 
                 Convert existing Qt Quick 1 applications to projects that you
                 can run in \QC or deploy to mobile devices
 
-            \o  Qt Console Application
+            \li Qt Console Application
 
                 Use a single main.cpp file
 
-            \o  HTML5 Application
+            \li HTML5 Application
 
                 Use a QtWebKit view to design the user interface and HTML5 and
                 C++ code to implement the application logic
 
-            \o  Qt Quick UI
+            \li Qt Quick UI
 
                 Use a single QML file that contains the main view. You can
                 review Qt Quick UI projects in a \l{Previewing QML Files}
@@ -150,82 +150,82 @@
 
         \endlist
 
-        \o  Libraries
+        \li Libraries
 
         \list
 
-            \o  C++ Library
+            \li C++ Library
 
                 Shared or static C++ library based on qmake
 
-            \o  Qt Quick 1 Extension Plugin
+            \li Qt Quick 1 Extension Plugin
 
                 C++ plugin that makes it possible to offer extensions that can
                 be loaded dynamically into Qt Quick 1 applications by using the
                 QDeclarativeEngine class
 
-            \o  Qt Quick 2 Extension Plugin
+            \li Qt Quick 2 Extension Plugin
 
                 C++ plugin that makes it possible to offer extensions that can
                 be loaded dynamically into Qt Quick 2 applications by using the
                 QQmlEngine class
 
-            \o  \QC Plugin
+            \li \QC Plugin
 
 
         \endlist
 
-        \o  Other Projects
+        \li Other Projects
 
         \list
 
-            \o  Qt Unit Test
+            \li Qt Unit Test
 
                 Qt unit tests for features or classes
 
-            \o  Qt Custom Designer Widgets
+            \li Qt Custom Designer Widgets
 
                 Custom \QD widget or widget collection
 
-            \o  Empty Qt Project
+            \li Empty Qt Project
 
                 Empty Qt project that is based on qmake but does not use any
                 default classes
 
-            \o  Subdirs Project
+            \li Subdirs Project
 
                 Subprojects that enable you to structure your qmake projects as
                 a tree hierarchy
 
         \endlist
 
-        \o  Non-Qt Projects
+        \li Non-Qt Projects
 
         \list
 
-            \o  Plain C or C++ Project
+            \li Plain C or C++ Project
 
                 Plain C or C++ project that uses qmake but does not use the Qt
                 library
 
-            \o  Plain C or C++ Project (CMake Build)
+            \li Plain C or C++ Project (CMake Build)
 
                 Plain C or C++ project that uses CMake but does not use the Qt
                 library
 
         \endlist
 
-        \o  Import Project
+        \li Import Project
 
         \list
 
-        \o  Project from version control
+        \li Project from version control
 
             Import a project from a supported version control system. For more
             information on how version control systems are integrated in
             \QC, see \l{Using Version Control Systems}
 
-        \o  Import Existing Project
+        \li Import Existing Project
 
             Import an existing project that does not use any of the supported
             build systems: qmake, CMake, or Autotools. This enables you to use
@@ -260,7 +260,7 @@
 
     \list
 
-        \o  C++
+        \li C++
 
             C++ class, source, or header files that you can use to write the
             application logic in both Qt Quick projects and
@@ -268,41 +268,41 @@
             Qt widget based projects
             \endif
 
-        \o  Qt
+        \li Qt
 
         \list
 
             \if defined(qcmanual)
-            \o  \QD forms and \QD form classes, which specify parts of user
+            \li \QD forms and \QD form classes, which specify parts of user
                 interfaces in Qt widget based projects
             \endif
 
-        \o  Qt resource files, which allow you to store binary files in the
+        \li Qt resource files, which allow you to store binary files in the
             application executable
 
-        \o  QML files, which specify elements in Qt Quick projects.
+        \li QML files, which specify elements in Qt Quick projects.
             \gui {Qt Quick 1} creates a QML file that imports Qt Quick 1.1 and
             \gui {Qt Quick 2} creates a QML file that imports Qt Quick 2.0.
             Select \gui {Qt Quick 1} to add files to a Qt Quick 1 application
             and \gui {Qt Quick 2} to add files to a Qt Quick 2 application.
 
-        \o  JavaScript files that you can use to write the application logic in
+        \li JavaScript files that you can use to write the application logic in
             Qt Quick projects
 
         \endlist
 
-        \o  GLSL
+        \li GLSL
 
             GLSL files that define fragment and vertex shaders in both Qt Quick
             projects and Qt widget based projects
 
-        \o  General
+        \li General
 
         \list
 
-            \o  Text files
+            \li Text files
 
-            \o  Scratch buffers that use temporary files. You can create this
+            \li Scratch buffers that use temporary files. You can create this
                 type of files for temporarily storing information that you do
                 not intend to save
 
@@ -403,11 +403,11 @@
     \section1 Related Topics
 
     \list
-        \o \l{Opening Projects}
-        \o \l{Adding Libraries to Projects}
-        \o \l{Adding New Custom Wizards}
-        \o \l{Setting Up a CMake Project}
-        \o \l{Setting Up a Generic Project}
+        \li  \l{Opening Projects}
+        \li  \l{Adding Libraries to Projects}
+        \li  \l{Adding New Custom Wizards}
+        \li  \l{Setting Up a CMake Project}
+        \li  \l{Setting Up a Generic Project}
     \endlist
 
 */

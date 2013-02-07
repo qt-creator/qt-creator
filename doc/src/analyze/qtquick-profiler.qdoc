@@ -34,20 +34,20 @@
 
     \list 1
 
-        \o  To be able to profile an application, you must set up QML debugging
+        \li To be able to profile an application, you must set up QML debugging
             for the project. For more information, see
             \l{Setting Up QML Debugging}.
 
-        \o  In the \gui Projects mode, select Qt 4.7.4 in the \gui {Qt version}
+        \li In the \gui Projects mode, select Qt 4.7.4 in the \gui {Qt version}
             field.
 
             \note To profile applications on devices, you must install Qt 4.7.4
             or later libraries on them.
 
-        \o  Select \gui {Analyze > QML Profiler} to profile the current
+        \li Select \gui {Analyze > QML Profiler} to profile the current
             application.
 
-        \o  Select the
+        \li Select the
             \inlineimage qtcreator-analyze-start-button.png
             (\gui Start) button to start the application from the
             QML Profiler.
@@ -99,17 +99,17 @@
 
     \list
 
-        \o  Painting operations
+        \li Painting operations
 
-        \o  Compiling the QML sources
+        \li Compiling the QML sources
 
-        \o  Creating elements
+        \li Creating elements
 
-        \o  Binding evaluations
+        \li Binding evaluations
 
-        \o  Signal handling
+        \li Signal handling
 
-        \o  Summary of the recorded period
+        \li Summary of the recorded period
 
     \endlist
 
@@ -205,11 +205,11 @@
 
     \list 1
 
-        \o  Select \gui {Projects > Run}.
+        \li Select \gui {Projects > Run}.
 
-        \o  In \gui {Run Environment}, click \gui Add.
+        \li In \gui {Run Environment}, click \gui Add.
 
-        \o  Add the QML_DISABLE_OPTIMIZER variable and set its value to 1.
+        \li Add the QML_DISABLE_OPTIMIZER variable and set its value to 1.
 
     \endlist
 

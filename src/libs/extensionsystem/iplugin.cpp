@@ -62,12 +62,12 @@
     After the plugins' XML files have been read, and dependencies have been
     found, the plugin loading is done in three phases:
     \list 1
-    \o All plugin libraries are loaded in \e{root-to-leaf} order of the
+    \li All plugin libraries are loaded in \e{root-to-leaf} order of the
        dependency tree.
-    \o All plugins' initialize methods are called in \e{root-to-leaf} order
+    \li All plugins' initialize methods are called in \e{root-to-leaf} order
        of the dependency tree. This is a good place to put
        objects in the plugin manager's object pool.
-    \o All plugins' extensionsInitialized methods are called in \e{leaf-to-root}
+    \li All plugins' extensionsInitialized methods are called in \e{leaf-to-root}
        order of the dependency tree. At this point, plugins can
        be sure that all plugins that depend on this plugin have
        been initialized completely (implying that they have put

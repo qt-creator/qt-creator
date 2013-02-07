@@ -103,6 +103,7 @@ def setRunInTerminal(targetCount, currentTarget, runInTerminal=True):
     switchViewTo(ViewConstants.EDIT)
 
 # helper function to get some Qt information for the current (already configured) project
+# param kitCount is the number of kits cofigured for the current project
 # param alreadyOnProjectsBuildSettings if set to True you have to make sure that you're
 #       on the Projects view on the Build settings page (otherwise this function will end
 #       up in a ScriptError)
@@ -114,10 +115,10 @@ def setRunInTerminal(targetCount, currentTarget, runInTerminal=True):
 #       * the third element holds the Qt bin path
 #       * the fourth element holds the Qt lib path
 #       of the current active project
-def getQtInformationForBuildSettings(alreadyOnProjectsBuildSettings=False, afterSwitchTo=None):
+def getQtInformationForBuildSettings(kitCount, alreadyOnProjectsBuildSettings=False, afterSwitchTo=None):
     if not alreadyOnProjectsBuildSettings:
         switchViewTo(ViewConstants.PROJECTS)
-        switchToBuildOrRunSettingsFor(1, 0, ProjectSettings.BUILD)
+        switchToBuildOrRunSettingsFor(kitCount, 0, ProjectSettings.BUILD)
     clickButton(waitForObject(":Qt Creator_SystemSettings.Details_Utils::DetailsButton"))
     model = waitForObject(":scrollArea_QTableView").model()
     qtDir = None

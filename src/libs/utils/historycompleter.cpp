@@ -129,8 +129,12 @@ QVariant HistoryCompleterPrivate::data(const QModelIndex &index, int role) const
 
 bool HistoryCompleterPrivate::removeRows(int row, int count, const QModelIndex &parent)
 {
-    beginRemoveRows (parent, row, row + count);
-    list.removeAt(row);
+    QTC_ASSERT(theSettings, return false);
+    if (row + count > list.count())
+        return false;
+    beginRemoveRows(parent, row, row + count -1);
+    for (int i = 0; i < count; ++i)
+        list.removeAt(row);
     theSettings->setValue(historyKey, list);
     endRemoveRows();
     return true;
@@ -146,14 +150,12 @@ void HistoryCompleterPrivate::clearHistory()
 void HistoryCompleterPrivate::saveEntry(const QString &str)
 {
     QTC_ASSERT(theSettings, return);
-    int removeIndex = list.indexOf(str);
-    if (removeIndex != -1) {
-        beginRemoveRows(QModelIndex(), removeIndex, removeIndex);
-        list.removeAt(removeIndex);
-        endRemoveRows();
-    }
+    const QString &entry = str.trimmed();
+    int removeIndex = list.indexOf(entry);
+    if (removeIndex != -1)
+        removeRow(removeIndex);
     beginInsertRows (QModelIndex(), list.count(), list.count());
-    list.prepend(str);
+    list.prepend(entry);
     list = list.mid(0, maxLines);
     endInsertRows();
     theSettings->setValue(historyKey, list);
@@ -178,6 +180,11 @@ HistoryCompleter::HistoryCompleter(QLineEdit *lineEdit, const QString &historyKe
     lineEdit->installEventFilter(this);
 
     connect(lineEdit, SIGNAL(editingFinished()), this, SLOT(saveHistory()));
+}
+
+bool HistoryCompleter::removeHistoryItem(int index)
+{
+    return d->removeRow(index);
 }
 
 HistoryCompleter::~HistoryCompleter()

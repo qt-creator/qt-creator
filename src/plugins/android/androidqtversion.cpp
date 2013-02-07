@@ -33,6 +33,7 @@
 #include "androidmanager.h"
 
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
@@ -96,14 +97,9 @@ QList<ProjectExplorer::Abi> AndroidQtVersion::detectQtAbis() const
 void AndroidQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const
 {
     QString ndk_host = QLatin1String(
-#if defined(Q_OS_LINUX)
-        "linux-x86"
-#elif defined(Q_OS_WIN)
-        "windows"
-#elif defined(Q_OS_MAC)
-        "darwin-x86"
-#endif
-    );
+                Utils::HostOsInfo::isLinuxHost() ? "linux-x86" :
+                Utils::HostOsInfo::isWindowsHost() ? "windows" :
+                Utils::HostOsInfo::isMacHost() ? "darwin-x86" : "");
 
     // this env vars are used by qmake mkspecs to generate makefiles (check QTDIR/mkspecs/android-g++/qmake.conf for more info)
     env.set(QLatin1String("ANDROID_NDK_HOST"), ndk_host);

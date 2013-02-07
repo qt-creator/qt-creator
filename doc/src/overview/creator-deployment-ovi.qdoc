@@ -44,19 +44,19 @@
 
     \list
 
-        \o  \l{Publishing Qt Content for MeeGo Harmattan Devices}
+        \li \l{Publishing Qt Content for MeeGo Harmattan Devices}
 
             \QC generates installation packages that you can publish to
             Nokia Store. However, you must make sure that the packages meet
             the requirements of the Nokia Store.
 
-        \o  \l{Publishing Qt Content for Maemo Devices}
+        \li \l{Publishing Qt Content for Maemo Devices}
 
             \QC generates installation packages that you can publish to
             Nokia Store. However, you must make sure that the packages meet
             the requirements of the Nokia Store.
 
-        \o  \l{Publishing Maemo Applications to Extras-devel}
+        \li \l{Publishing Maemo Applications to Extras-devel}
 
             You can use the \gui {Publish for Fremantle Extras-devel Free
             Repository} wizard to create a source archive and, optionally,

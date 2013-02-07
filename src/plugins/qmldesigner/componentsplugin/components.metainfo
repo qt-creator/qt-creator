@@ -1,0 +1,257 @@
+MetaInfo {
+
+    Type {
+        name: "QtDesktop.Button"
+        icon: ":/componentsplugin/images/button16.png"
+
+        ItemLibraryEntry {
+            name: "Button"
+            category: "Qt Quick - Components"
+            libraryIcon: ":/componentsplugin/images/button.png"
+            version: "1.0"
+            requiredImport: "QtDesktop"
+
+            Property { name: "text"; type: "QString"; value: "Button"; }
+        }
+    }
+
+    Type {
+        name: "QtDesktop.CheckBox"
+        icon: ":/componentsplugin/images/checkbox16.png"
+
+        ItemLibraryEntry {
+            name: "Check Box"
+            category: "Qt Quick - Components"
+            libraryIcon: ":/componentsplugin/images/checkbox.png"
+            version: "1.0"
+            requiredImport: "QtDesktop"
+
+            Property { name: "text"; type: "QString"; value: "Check Box"; }
+        }
+    }
+
+    Type {
+        name: "QtDesktop.RadioButton"
+        icon: ":/componentsplugin/images/radiobutton16.png"
+
+        ItemLibraryEntry {
+            name: "Radio Button"
+            category: "Qt Quick - Components"
+            libraryIcon: ":/componentsplugin/images/radiobutton.png"
+            version: "1.0"
+            requiredImport: "QtDesktop"
+
+            Property { name: "text"; type: "QString"; value: "Radio Button"; }
+        }
+    }
+
+    Type {
+        name: "QtDesktop.ComboBox"
+        icon: ":/componentsplugin/images/combobox16.png"
+
+        ItemLibraryEntry {
+            name: "Combo Box"
+            category: "Qt Quick - Components"
+            libraryIcon: ":/componentsplugin/images/combobox.png"
+            version: "1.0"
+            requiredImport: "QtDesktop"
+        }
+    }
+
+    Type {
+        name: "QtDesktop.ButtonRow"
+        icon: ":/componentsplugin/images/buttonrow16.png"
+
+        ItemLibraryEntry {
+            name: "Button Row"
+            category: "Qt Quick - Components"
+            libraryIcon: ":/componentsplugin/images/buttonrow.png"
+            version: "1.0"
+        }
+    }
+
+    Type {
+        name: "QtDesktop.ButtonColumn"
+        icon: ":/componentsplugin/images/buttoncolumn16.png"
+
+        ItemLibraryEntry {
+            name: "Button Column"
+            category: "Qt Quick - Components"
+            libraryIcon: ":/componentsplugin/images/buttoncolumn.png"
+            version: "1.0"
+        }
+    }
+
+    Type {
+        name: "QtDesktop.Label"
+        icon: ":/componentsplugin/images/label16.png"
+
+        ItemLibraryEntry {
+            name: "Label"
+            category: "Qt Quick - Components"
+            libraryIcon: ":/componentsplugin/images/label.png"
+            version: "1.0"
+
+            Property { name: "text"; type: "QString"; value: "Label"; }
+        }
+    }
+
+    Type {
+        name: "QtDesktop.TextField"
+        icon: ":/componentsplugin/images/textfield16.png"
+
+        ItemLibraryEntry {
+            name: "Text Field"
+            category: "Qt Quick - Components"
+            libraryIcon: ":/componentsplugin/images/textfield.png"
+            version: "1.0"
+
+            Property { name: "placeholderText"; type: "QString"; value: "Text Field"; }
+        }
+    }
+
+    Type {
+        name: "QtDesktop.TextArea"
+        icon: ":/componentsplugin/images/textarea16.png"
+
+        ItemLibraryEntry {
+            name: "Text Area"
+            category: "Qt Quick - Components"
+            libraryIcon: ":/componentsplugin/images/textarea.png"
+            version: "1.0"
+        }
+    }
+
+    Type {
+        name: "QtDesktop.ProgressBar"
+        icon: ":/componentsplugin/images/progressbar16.png"
+
+        ItemLibraryEntry {
+            name: "Progress Bar"
+            category: "Qt Quick - Components"
+            libraryIcon: ":/componentsplugin/images/progressbar.png"
+            version: "1.0"
+        }
+    }
+
+    Type {
+        name: "QtDesktop.Slider"
+        icon: ":/componentsplugin/images/sliderh16.png"
+
+        ItemLibraryEntry {
+            name: "Slider (Horizontal)"
+            category: "Qt Quick - Components"
+            libraryIcon: ":/componentsplugin/images/sliderh.png"
+            version: "1.0"
+        }
+
+        ItemLibraryEntry {
+           name: "Slider (Vertical)"
+            category: "Qt Quick - Components"
+            libraryIcon: ":/componentsplugin/images/sliderh.png"
+            version: "1.0"
+            Property { name: "orientation"; type: "int"; value: "0"; }
+        }
+    }
+
+    Type {
+        name: "QtDesktop.ScrollBar"
+        icon: ":/componentsplugin/images/scrollbar16.png"
+
+        ItemLibraryEntry {
+            name: "Scroll Bar (Horizontal)"
+            category: "Qt Quick - Components"
+            libraryIcon: ":/componentsplugin/images/scrollbarh.png"
+            version: "1.0"
+        }
+
+        ItemLibraryEntry {
+           name: "Scroll Bar (Vertical)"
+            category: "Qt Quick - Components"
+            libraryIcon: ":/componentsplugin/images/scrollbarv.png"
+            version: "1.0"
+            Property { name: "orientation"; type: "int"; value: "0"; }
+        }
+    }
+
+    Type {
+        name: "QtDesktop.ScrollArea"
+        icon: ":/desktopplugin//images/window16.png"
+
+        ItemLibraryEntry {
+            name: "Scroll Area"
+            category: "Qt Quick - Components"
+            libraryIcon: ":/desktopplugin/images/window.png"
+            version: "1.0"
+            requiredImport: "QtDesktop"
+
+            Property { name: "width"; type: "int"; value: 360; }
+            Property { name: "height"; type: "int"; value: 300; }
+        }
+    }
+
+ Type {
+        name: "QtDesktop.GroupBox"
+        icon: ":/desktopplugin//images/window16.png"
+
+        ItemLibraryEntry {
+            name: "Group Box"
+            category: "Qt Quick - Components"
+            libraryIcon: ":/desktopplugin/images/window.png"
+            version: "1.0"
+            requiredImport: "QtDesktop"
+
+            Property { name: "width"; type: "int"; value: 360; }
+            Property { name: "height"; type: "int"; value: 300; }
+        }
+    }
+
+    Type {
+        name: "QtDesktop.Frame"
+        icon: ":/desktopplugin//images/window16.png"
+
+        ItemLibraryEntry {
+            name: "Frame"
+            category: "Qt Quick - Components"
+            libraryIcon: ":/desktopplugin/images/window.png"
+            version: "1.0"
+            requiredImport: "QtDesktop"
+
+            Property { name: "width"; type: "int"; value: 360; }
+            Property { name: "height"; type: "int"; value: 300; }
+        }
+    }
+
+    Type {
+        name: "QtDesktop.ToolBar"
+        icon: ":/desktopplugin/images/toolbar16.png"
+
+        ItemLibraryEntry {
+            name: "Tool Bar"
+            category: "Qt Quick - Components"
+            libraryIcon: ":/desktopplugin/images/toolbar.png"
+            version: "1.0"
+            requiredImport: "QtDesktop"
+
+            Property { name: "width"; type: "int"; value: 360; }
+            Property { name: "height"; type: "int"; value: 50; }
+        }
+    }
+
+    Type {
+        name: "QtDesktop.Dial"
+        //icon: ":/desktopplugin/images/progressbar16.png"
+
+        ItemLibraryEntry {
+            name: "Dial"
+            category: "Qt Quick - Components"
+            //libraryIcon: ":/desktopplugin/images/progressbar.png"
+            version: "1.0"
+            requiredImport: "QtDesktop"
+
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+        }
+    }
+
+}

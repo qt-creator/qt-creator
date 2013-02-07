@@ -1,9 +1,7 @@
-/**************************************************************************
+/****************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
-**
-** Contact: Research In Motion (blackberry-qt@qnx.com)
-** Contact: KDAB (info@kdab.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
 **
@@ -29,37 +27,34 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYWIZARDEXTENSION_H
-#define QNX_INTERNAL_BLACKBERRYWIZARDEXTENSION_H
+#ifndef COMPONENTSPLUGIN_H
+#define COMPONENTSPLUGIN_H
 
-#include <coreplugin/ifilewizardextension.h>
+#include <iwidgetplugin.h>
 
-namespace Qnx {
-namespace Internal {
+QT_BEGIN_NAMESPACE
+QT_END_NAMESPACE
 
-class BarDescriptorFileImageWizardPage;
+namespace QmlDesigner {
 
-class BlackBerryWizardExtension : public Core::IFileWizardExtension
+class ComponentsPlugin : public QObject, QmlDesigner::IWidgetPlugin
 {
     Q_OBJECT
+#if QT_VERSION >= 0x050000
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QmlDesignerPlugin" FILE "componentsplugin.json")
+#endif
+    Q_DISABLE_COPY(ComponentsPlugin)
+    Q_INTERFACES(QmlDesigner::IWidgetPlugin)
 public:
-    explicit BlackBerryWizardExtension();
+    ComponentsPlugin();
+    ~ComponentsPlugin() {}
 
-    QList<QWizardPage *> extensionPages(const Core::IWizard *wizard);
+    QString metaInfo() const;
+    QString pluginName() const;
 
-    bool processFiles(const QList<Core::GeneratedFile> &files,
-                         bool *removeOpenProjectAttribute,
-                         QString *errorMessage);
-
-    void applyCodeStyle(Core::GeneratedFile *file) const;
-
-private:
-    void addImagesToBarDescriptor(Core::GeneratedFile *file) const;
-
-    BarDescriptorFileImageWizardPage *m_imageWizardPage;
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // namespace QmlDesigner
 
-#endif // QNX_INTERNAL_BLACKBERRYWIZARDEXTENSION_H
+
+#endif //COMPONENTSPLUGIN_H

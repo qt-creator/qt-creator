@@ -65,12 +65,42 @@ Rectangle {
         y: 60
 
         anchors.right: parent.right
-        anchors.rightMargin: 60
+        anchors.rightMargin: 240
         anchors.left: parent.left
         anchors.leftMargin: 60
 
         placeholderText: qsTr("Search in Examples...")
         onTextChanged: examplesModel.parseSearchString(text)
+    }
+
+    ComboBox {
+        id: comboBox
+
+        anchors.verticalCenter: searchBar.verticalCenter
+
+        anchors.left: searchBar.right
+        anchors.rightMargin: 80
+        anchors.right: parent.right
+        anchors.leftMargin: 20
+        model: examplesModel.qtVersionModel
+
+        onCurrentIndexChanged: {
+            print("currentIndex" + currentIndex);
+
+            if (comboBox.model === undefined)
+                return;
+
+            examplesModel.filterForQtById(comboBox.model.getId(currentIndex))
+        }
+
+        property int qtIndex: examplesModel.qtVersionIndex
+
+        onQtIndexChanged: {
+            if (comboBox.model === undefined)
+                return;
+            if (qtIndex != currentIndex)
+                currentIndex = qtIndex;
+        }
     }
 
 }

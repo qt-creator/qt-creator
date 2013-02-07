@@ -42,15 +42,15 @@
 
     \list
 
-        \o  Android Device
+        \li Android Device
 
-        \o  Generic Linux Device
+        \li Generic Linux Device
 
-        \o  Maemo5/Fremantle Device
+        \li Maemo5/Fremantle Device
 
-        \o  MeeGo 1.2 Harmattan Device
+        \li MeeGo 1.2 Harmattan Device
 
-        \o  QNX Device
+        \li QNX Device
 
     \endlist
 
@@ -58,16 +58,16 @@
 
     \list 1
 
-        \o  Select \gui Tools > \gui Options > \gui {Build & Run} > \gui Kits
+        \li Select \gui Tools > \gui Options > \gui {Build & Run} > \gui Kits
             > \gui Add.
 
             \image qtcreator-targets.png
 
             To clone the selected kit, select \gui Clone.
 
-        \o  In the \gui Name column, double-click the kit name to change it.
+        \li In the \gui Name column, double-click the kit name to change it.
 
-        \o  In the \gui{Device type} field, select the type of the device.
+        \li In the \gui{Device type} field, select the type of the device.
 
             Double-click the icon next to the field to select the image that is
             displayed in the kit selector for this kit. You can use any
@@ -76,32 +76,32 @@
             logo as an icon allows you to easily see, which compiler is used to
             build the project for the selected kit.
 
-        \o  In the \gui Device field, select a device.
+        \li In the \gui Device field, select a device.
 
-        \o  In the \gui Sysroot field, specify the directory where the device
+        \li In the \gui Sysroot field, specify the directory where the device
             image is located. If you are not cross-compiling, leave this field
             empty.
 
-        \o  In the \gui {Compiler} field, select the compiler required
+        \li In the \gui {Compiler} field, select the compiler required
             to build the project. You can add compilers to the list
             if they are installed on the development PC, but were not detected
             automatically. For more information, see \l{Adding Compilers}.
 
-        \o  In the \gui Debugger field, select \gui Manage to automatically
+        \li In the \gui Debugger field, select \gui Manage to automatically
             detect a suitable debugger or to edit the currently selected
             debugger. For more information, see \l{Selecting the Debugger}.
 
-        \o  In the \gui {Qt version} field, select the Qt version to use for
+        \li In the \gui {Qt version} field, select the Qt version to use for
             building the project. You can add Qt versions to the list if they
             are installed on the development PC, but were not detected
             automatically. For more information, see \l{Adding Qt Versions}.
 
             \QC checks the directories listed in the \c{PATH} environment
             variable for the qmake executable. If a qmake executable is found,
-            it is referred to as \bold{Qt in PATH} and selected as the Qt
+            it is referred to as \b{Qt in PATH} and selected as the Qt
             version to use for the \gui Desktop kit that is created by default.
 
-        \o  In the \gui {Qt mkspec} field, specify build instructions for qmake.
+        \li In the \gui {Qt mkspec} field, specify build instructions for qmake.
             If you leave this field empty, the default value is used.
 
     \endlist
@@ -127,10 +127,10 @@
 
     \list
 
-        \o  For debugging on embedded devices using a different ABI, you must
+        \li For debugging on embedded devices using a different ABI, you must
             provide a special executable.
 
-        \o  For debugging on Windows using MinGW, select a Windows executable of
+        \li For debugging on Windows using MinGW, select a Windows executable of
             GDB with Python scripting enabled. You can download it from
             \l{http://builds.qt-project.org/job/gdb-windows}.
 

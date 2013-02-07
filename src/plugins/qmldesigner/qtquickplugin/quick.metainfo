@@ -356,7 +356,6 @@ MetaInfo {
             libraryIcon: ":/qtquickplugin/webview-icon.png"
             version: "1.0"
             requiredImport: "QtWebKit"
-            forceImport: "true"
 
             Property { name: "width"; type: "int"; value: 300; }
             Property { name: "height"; type: "int"; value: 300; }
@@ -369,7 +368,6 @@ MetaInfo {
             libraryIcon: ":/qtquickplugin/images/webview-icon.png"
             version: "2.0"
             requiredImport: "QtWebKit"
-            forceImport: "true"
 
             Property { name: "width"; type: "int"; value: 300; }
             Property { name: "height"; type: "int"; value: 300; }

@@ -34,15 +34,15 @@
 
     \list
 
-        \o  Open recent sessions and projects
+        \li Open recent sessions and projects
 
-        \o  Create and open projects
+        \li Create and open projects
 
-        \o  Open tutorials and example projects
+        \li Open tutorials and example projects
 
-        \o  Read news from the online community and Qt labs
+        \li Read news from the online community and Qt labs
 
-        \o  Send feedback to the development team
+        \li Send feedback to the development team
 
     \endlist
 
@@ -75,26 +75,26 @@
 
     \list
 
-        \o  \gui Welcome mode for opening projects.
+        \li \gui Welcome mode for opening projects.
 
-        \o  \gui{\l{Coding}{Edit}} mode for editing project and source
+        \li \gui{\l{Coding}{Edit}} mode for editing project and source
             files.
 
-        \o  \gui{\l{Designing User Interfaces}{Design}} mode for designing and
+        \li \gui{\l{Designing User Interfaces}{Design}} mode for designing and
             developing application user interfaces. This mode is available for
             UI files.
 
-        \o  \gui{\l{Debugging}{Debug}} mode for inspecting the state of your
+        \li \gui{\l{Debugging}{Debug}} mode for inspecting the state of your
             application while debugging.
 
-        \o  \gui{\l{Specifying Build Settings}{Projects}} mode for configuring
+        \li \gui{\l{Specifying Build Settings}{Projects}} mode for configuring
             project building and execution. This mode is available when a
             project is open.
 
-        \o  \gui{\l{Analyzing Code}{Analyze}} mode for using code analysis tools
+        \li \gui{\l{Analyzing Code}{Analyze}} mode for using code analysis tools
             to detect memory leaks and profile C++ or QML code.
 
-        \o  \gui{\l{Getting Help}{Help}} mode for viewing Qt documentation.
+        \li \gui{\l{Getting Help}{Help}} mode for viewing Qt documentation.
 
     \endlist
 
@@ -114,23 +114,23 @@
 
     \list
 
-        \o  \gui Projects shows a list of projects open in the current
+        \li \gui Projects shows a list of projects open in the current
             session.
 
-        \o  \gui{Open Documents} shows currently open files.
+        \li \gui{Open Documents} shows currently open files.
 
-        \o  \gui Bookmarks shows all bookmarks for the current session.
+        \li \gui Bookmarks shows all bookmarks for the current session.
 
-        \o  \gui{File System} shows all files in the currently selected
+        \li \gui{File System} shows all files in the currently selected
              directory.
 
-        \o  \gui {Class View} shows the class hierarchy of the currently
+        \li \gui {Class View} shows the class hierarchy of the currently
             open projects.
 
-        \o  \gui Outline shows the symbol hierachy of a C++ file and the element
+        \li \gui Outline shows the symbol hierarchy of a C++ file and the element
             hierarchy of a QML file.
 
-        \o  \gui {Type Hierarchy} shows the base classes of a class.
+        \li \gui {Type Hierarchy} shows the base classes of a class.
 
     \endlist
 
@@ -138,14 +138,14 @@
 
     \list
 
-        \o  To toggle the sidebar, click \inlineimage qtcreator-togglebutton.png
+        \li To toggle the sidebar, click \inlineimage qtcreator-togglebutton.png
             (\gui {Hide Sidebar/Show Sidebar}) or press \key Alt+0
             (\key Cmd+0 on Mac OS X).
 
-        \o  To split the sidebar, click \inlineimage qtcreator-splitbar.png
+        \li To split the sidebar, click \inlineimage qtcreator-splitbar.png
             (\gui {Split}). Select new content to view in the split view.
 
-        \o  To close a sidebar view, click
+        \li To close a sidebar view, click
             \inlineimage qtcreator-closesidebar.png
             (\gui {Close}).
 
@@ -165,29 +165,29 @@
 
     \list
 
-        \o  To open files that belong to a project, double-click them in the
+        \li To open files that belong to a project, double-click them in the
             project tree. Files open in the appropriate editor, according to the
             file type. For example, code source files open in the code editor
             and image files in the \l{Viewing Images}{image viewer}.
 
-        \o  To bring up a context menu containing the actions most commonly
+        \li To bring up a context menu containing the actions most commonly
             needed right-click an item in the project tree. For example, through
             the menu of the project root directory you can, among other actions,
             build, re-build, clean and run the project.
 
-        \o  To hide the categories and sort project files alphabetically, click
+        \li To hide the categories and sort project files alphabetically, click
             \inlineimage qtcreator-filter.png
             (\gui {Filter Tree}) and select \gui{Simplify Tree}.
 
-        \o  To hide source files which are automatically generated by the build
+        \li To hide source files which are automatically generated by the build
             system, select \gui {Filter Tree > Hide Generated Files}.
 
-        \o  To keep the position in the project tree synchronized with the file
+        \li To keep the position in the project tree synchronized with the file
             currently opened in the editor, click
             \inlineimage qtcreator-synchronizefocus.png
             (\gui {Synchronize with Editor}).
 
-        \o  To see the absolute path of a file, move the mouse pointer over the
+        \li To see the absolute path of a file, move the mouse pointer over the
             file name.
 
     \endlist
@@ -213,10 +213,10 @@
 
     \list
 
-        \o  To see a complete list of all bindings, select \gui {Filter Tree >
+        \li To see a complete list of all bindings, select \gui {Filter Tree >
             Show All Bindings}.
 
-        \o  To keep the position in the view synchronized with the element
+        \li To keep the position in the view synchronized with the element
             selected in the editor, select \gui {Synchronize with Editor}.
 
     \endlist
@@ -232,19 +232,19 @@
 
     \list
 
-       \o  \gui{Issues}
+       \li \gui{Issues}
 
-       \o  \gui{Search Results}
+       \li \gui{Search Results}
 
-       \o  \gui{Application Output}
+       \li \gui{Application Output}
 
-       \o  \gui{Compile Output}
+       \li \gui{Compile Output}
 
-       \o  \gui {To-Do Entries}
+       \li \gui {To-Do Entries}
 
-       \o  \gui{Version Control}
+       \li \gui{Version Control}
 
-       \o  \gui{General Messages}
+       \li \gui{General Messages}
 
     \endlist
 
@@ -268,22 +268,22 @@
 
     \list
 
-        \o  \gui Analyzer - Errors encountered while running the
+        \li \gui Analyzer - Errors encountered while running the
             \l{Analyzing Code}{Valgrind code analysis tools}.
 
-        \o  \gui {Build System} - Errors and warnings encountered during a
+        \li \gui {Build System} - Errors and warnings encountered during a
             build.
 
-        \o  \gui Compile - Selected output from the compiler. Open the
+        \li \gui Compile - Selected output from the compiler. Open the
             \gui {Compile Output} pane for more detailed information.
 
-        \o  \gui {My Tasks} - Entries from a task list file (.tasks) generated
+        \li \gui {My Tasks} - Entries from a task list file (.tasks) generated
             by \l{Showing Task List Files in Issues Pane}
             {code scanning and analysis tools}.
 
-        \o  \gui QML - Errors in QML syntax.
+        \li \gui QML - Errors in QML syntax.
 
-        \o  \gui {QML Analysis} - Results of the JavaScript
+        \li \gui {QML Analysis} - Results of the JavaScript
             \l{Checking JavaScript and QML Syntax}
             {code syntax and validation checks}
 
@@ -382,15 +382,15 @@
 
     \list
 
-        \o  Switch between background and outline modes
+        \li Switch between background and outline modes
 
-        \o  Zoom in and out
+        \li Zoom in and out
 
-        \o  Fit images to screen
+        \li Fit images to screen
 
-        \o  Return to original size
+        \li Return to original size
 
-        \o  Play and pause animated GIF and MNG images
+        \li Play and pause animated GIF and MNG images
 
     \endlist
 

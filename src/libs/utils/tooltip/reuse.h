@@ -30,6 +30,8 @@
 #ifndef TOOLTIPREUSE_H
 #define TOOLTIPREUSE_H
 
+#include <utils/hostosinfo.h>
+
 #include <QPoint>
 #include <QRect>
 #include <QWidget>
@@ -49,11 +51,9 @@ inline int screenNumber(const QPoint &pos, QWidget *w)
 
 inline QRect screenGeometry(const QPoint &pos, QWidget *w)
 {
-#ifdef Q_OS_MAC
-    return QApplication::desktop()->availableGeometry(screenNumber(pos, w));
-#else
+    if (Utils::HostOsInfo::isMacHost())
+        return QApplication::desktop()->availableGeometry(screenNumber(pos, w));
     return QApplication::desktop()->screenGeometry(screenNumber(pos, w));
-#endif
 }
 
 } // namespace Internal

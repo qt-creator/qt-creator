@@ -33,37 +33,37 @@
     Version control systems supported by \QC are:
     \table
         \header
-            \o Version Control System
-            \o Address
-            \o Notes
+            \li  Version Control System
+            \li  Address
+            \li  Notes
         \row
-            \o  Bazaar
-            \o  \l{http://bazaar.canonical.com/}
-            \o  \QC 2.2 and later
+            \li Bazaar
+            \li \l{http://bazaar.canonical.com/}
+            \li \QC 2.2 and later
         \row
-            \o  ClearCase
-            \o  \l{http://www-01.ibm.com/software/awdtools/clearcase/}
-            \i  Experimental plugin in \QC 2.6
+            \li ClearCase
+            \li \l{http://www-01.ibm.com/software/awdtools/clearcase/}
+            \li  Experimental plugin in \QC 2.6
         \row
-            \o  CVS
-            \o  \l{http://www.cvshome.org}
-            \i
+            \li CVS
+            \li \l{http://www.cvshome.org}
+            \li
         \row
-            \o  Git
-            \o  \l{http://git-scm.com/}
-            \i
+            \li Git
+            \li \l{http://git-scm.com/}
+            \li
         \row
-            \o  Mercurial
-            \o  \l{http://mercurial.selenic.com/}
-            \o  \QC 2.0 and later
+            \li Mercurial
+            \li \l{http://mercurial.selenic.com/}
+            \li \QC 2.0 and later
         \row
-            \o  Perforce
-            \o  \l{http://www.perforce.com}
-            \o  Server version 2006.1 and later
+            \li Perforce
+            \li \l{http://www.perforce.com}
+            \li Server version 2006.1 and later
         \row
-            \o  Subversion
-            \o  \l{http://subversion.apache.org/}
-            \i
+            \li Subversion
+            \li \l{http://subversion.apache.org/}
+            \li
     \endtable
 
     \section1 Setting Up Version Control Systems
@@ -101,13 +101,13 @@
 
     \list
 
-        \o  \gui{Submit message check script} is a script or program that
+        \li \gui{Submit message check script} is a script or program that
             can be used to perform checks on the submit message before
             submitting. The submit message is passed in as the script's first
             parameter. If there is an error, the script should output a
             message on standard error and return a non-zero exit code.
 
-        \o  \gui{User/alias configuration file} takes a file in mailmap format
+        \li \gui{User/alias configuration file} takes a file in mailmap format
             that lists user names and aliases. For example:
 
             \code
@@ -121,7 +121,7 @@
             displays a context menu with \gui{Insert name} that pops up a
             dialog letting the user select a name.
 
-        \o  \gui{User fields configuration file} is a simple text file
+        \li \gui{User fields configuration file} is a simple text file
             consisting of lines specifying submit message fields that take
             user names, for example:
 
@@ -135,7 +135,7 @@
             \e{User/alias configuration file} as well as a button that opens the
             aforementioned user name dialog.
 
-        \o  \gui{SSH prompt command} specifies an ssh-askpass command that you
+        \li \gui{SSH prompt command} specifies an ssh-askpass command that you
             can use (on Linux) to prompt the user for a password when using SSH.
             For example, \c ssh-askpass or \c x11-ssh-askpass, depending on the
             ssh-askpass implementation that you use.
@@ -255,14 +255,14 @@
 
     \list
 
-        \o  \gui{Undo Unstaged Changes} reverts all changes and resets the
+        \li \gui{Undo Unstaged Changes} reverts all changes and resets the
             working directory to the state of the index.
 
-        \o  \gui{Undo Uncommitted Changes} reverts all changes, discarding the
+        \li \gui{Undo Uncommitted Changes} reverts all changes, discarding the
             index. This returns your working copy to the state it was in right
             after the last commit.
 
-        \o  \gui{Reset...} opens a dialog where you can select the SHA1 to reset
+        \li \gui{Reset...} opens a dialog where you can select the SHA1 to reset
             the working directory to. This is useful after applying patches for
             review, for example.
 
@@ -297,14 +297,14 @@
 
     \table
         \header
-            \o  Menu Item
-            \o  Description
+            \li Menu Item
+            \li Description
         \row
-            \o  \gui{Pull}
-            \o  Turn the branch into a mirror of another branch.
+            \li \gui{Pull}
+            \li Turn the branch into a mirror of another branch.
         \row
-            \o  \gui{Push}
-            \o  Update a mirror of the branch.
+            \li \gui{Push}
+            \li Update a mirror of the branch.
 
     \endtable
 
@@ -321,27 +321,27 @@
 
     \table
         \header
-            \o  Menu Item
-            \o  Description
+            \li Menu Item
+            \li Description
         \row
-            \o  \gui{Check In}
-            \o  Create a permanent new version of the current file or all files
+            \li \gui{Check In}
+            \li Create a permanent new version of the current file or all files
                 in the versioned object base (VOB).
         \row
-            \o  \gui{Check In Activity}
-            \o  Check in checked-out versions in the change set of the current
+            \li \gui{Check In Activity}
+            \li Check in checked-out versions in the change set of the current
                 Unified Change Management (UCM) activity.
         \row
-            \o  \gui{Check Out}
-            \o  Create a writable copy of a branch. If you check out files in a
+            \li \gui{Check Out}
+            \li Create a writable copy of a branch. If you check out files in a
                 UCM view, they are added to the change set of the UCM activity.
         \row
-            \o  \gui{Undo Check Out}
-            \o  Cancel the checkout for a file and delete the checked-out
+            \li \gui{Undo Check Out}
+            \li Cancel the checkout for a file and delete the checked-out
                 version.
         \row
-            \o  \gui{Undo Hijack}
-            \o  Resolve hijacked files. If you change the read-only attribute of
+            \li \gui{Undo Hijack}
+            \li Resolve hijacked files. If you change the read-only attribute of
                 a file that is loaded into a snapshot view and modify the file
                 without checking it out, you \e hijack the file.
     \endtable
@@ -354,14 +354,14 @@
 
     \table
         \header
-            \o  Menu Item
-            \o  Description
+            \li Menu Item
+            \li Description
         \row
-            \o  \gui{Edit}
-            \o  Open a file for editing.
+            \li \gui{Edit}
+            \li Open a file for editing.
         \row
-            \o  \gui{Unedit}
-            \o  Discard the changes that you made in a file.
+            \li \gui{Unedit}
+            \li Discard the changes that you made in a file.
 
     \endtable
 
@@ -378,53 +378,53 @@
 
     \table
         \header
-            \o  Menu Item
-            \o  Description
+            \li Menu Item
+            \li Description
         \row
-            \o  \gui {Patch > Apply from Editor/Apply from File}
-            \o  Patches are rewriting instructions that can be applied to a set
+            \li \gui {Patch > Apply from Editor/Apply from File}
+            \li Patches are rewriting instructions that can be applied to a set
                 of files. You can either apply a patch file that is open in \QC
                 or select the patch file to apply from the file system.
         \row
-            \o  \gui{Pull}
-            \o  Pull changes from the remote repository. If there are locally
+            \li \gui{Pull}
+            \li Pull changes from the remote repository. If there are locally
                 modified files, you are prompted to stash those changes. Select
                 \gui{Tools > Options > Version Control > Git} and select the
                 \gui {Pull with rebase} check box to perform a rebase operation
                 while pulling.
 
         \row
-            \o  \gui{Clean/Clean Project}
-            \o  All files that are not under version control (with the exception
+            \li \gui{Clean/Clean Project}
+            \li All files that are not under version control (with the exception
                 of patches and project files) are displayed in the \gui {Clean
                 Repository} dialog. Select the files to delete and click
                 \gui Delete. This allows you to clean a build completely.
         \row
-            \o  \gui{Launch gitk}
-            \o  Start the commit viewer for Git, gitk.
+            \li \gui{Launch gitk}
+            \li Start the commit viewer for Git, gitk.
         \row
-            \o  \gui{Branches}
-            \o  Manage local and remote branches.
+            \li \gui{Branches}
+            \li Manage local and remote branches.
         \row
-            \o  \gui Remotes
-            \o  Manage remote repositories available in Git.
+            \li \gui Remotes
+            \li Manage remote repositories available in Git.
         \row
-            \o  \gui {Stage File for Commit}
-            \o  Mark new or modified files for committing to the repository.
+            \li \gui {Stage File for Commit}
+            \li Mark new or modified files for committing to the repository.
                 To undo this function, select \gui {Unstage File from Commit}.
         \row
-            \o  \gui{Show Commit}
-            \o  Select a commit to view. Enter the SHA of the commit
+            \li \gui{Show Commit}
+            \li Select a commit to view. Enter the SHA of the commit
                 in the \gui Change field.
         \row
-            \o  \gui Stash
-            \o  Store local changes temporarily.
+            \li \gui Stash
+            \li Store local changes temporarily.
         \row
-            \o  \gui{Amend Last Commit}
-            \o  Revert the last commit.
+            \li \gui{Amend Last Commit}
+            \li Revert the last commit.
         \row
-            \o  \gui Gerrit
-            \o  View, apply, and check out changes from Gerrit.
+            \li \gui Gerrit
+            \li View, apply, and check out changes from Gerrit.
 
     \endtable
 
@@ -440,27 +440,27 @@
 
     \table
         \header
-            \o  Menu Item
-            \o  Description
+            \li Menu Item
+            \li Description
         \row
-            \o  \gui{Add}
-            \o  Create new tracking and non-tracking branches.
+            \li \gui{Add}
+            \li Create new tracking and non-tracking branches.
         \row
-            \o  \gui{Checkout}
-            \o  Check out the selected branch and make it current.
+            \li \gui{Checkout}
+            \li Check out the selected branch and make it current.
         \row
-            \o  \gui{Remove}
-            \o  Remove a local branch. You cannot delete remote branches.
+            \li \gui{Remove}
+            \li Remove a local branch. You cannot delete remote branches.
         \row
-            \o  \gui{Diff}
-            \o  Show the differences between the selected and the current
+            \li \gui{Diff}
+            \li Show the differences between the selected and the current
                 branch.
         \row
-            \o  \gui{Log}
-            \o  Show the changes in a branch.
+            \li \gui{Log}
+            \li Show the changes in a branch.
         \row
-            \o  \gui{Refresh}
-            \o  Refresh the list of branches.
+            \li \gui{Refresh}
+            \li Refresh the list of branches.
     \endtable
 
     \section3 Working with Remote Repositories
@@ -472,21 +472,21 @@
 
     \table
         \header
-            \o  Menu Item
-            \o  Description
+            \li Menu Item
+            \li Description
         \row
-            \o  \gui{Add}
-            \o  Add a new remote repository.
+            \li \gui{Add}
+            \li Add a new remote repository.
         \row
-            \o  \gui{Fetch}
-            \o  Fetch all the branches and change information from a remote
+            \li \gui{Fetch}
+            \li Fetch all the branches and change information from a remote
                 repository.
         \row
-            \o  \gui{Remove}
-            \o  Remove a remote repository.
+            \li \gui{Remove}
+            \li Remove a remote repository.
         \row
-            \o  \gui{Refresh}
-            \o  Refresh the list of remote repositories.
+            \li \gui{Refresh}
+            \li Refresh the list of remote repositories.
     \endtable
 
 
@@ -501,27 +501,27 @@
 
     \table
         \header
-            \o  Menu Item
-            \o  Description
+            \li Menu Item
+            \li Description
         \row
-            \o  \gui{Stashes}
-            \o  Display a dialog that shows all known stashes with options to
+            \li \gui{Stashes}
+            \li Display a dialog that shows all known stashes with options to
                 restore, display or delete them.
         \row
-            \o  \gui{Stash}
-            \o  Stash all local changes. The working copy is then reset to
+            \li \gui{Stash}
+            \li Stash all local changes. The working copy is then reset to
                 the state it had right after the last commit.
         \row
-            \o  \gui{Stash Snapshot}
-            \o  Save a snapshot of your current work under a name for later
+            \li \gui{Stash Snapshot}
+            \li Save a snapshot of your current work under a name for later
                 reference. The working copy is unchanged.
 
                 For example, if you want to try something and find out later
                 that it does not work, you can discard it and return to the
                 state of the snapshot.
         \row
-            \o  \gui{Stash Pop}
-            \o  Remove a single stashed state from the stash list and apply it
+            \li \gui{Stash Pop}
+            \li Remove a single stashed state from the stash list and apply it
                 on top of the current working tree state.
     \endtable
 
@@ -559,25 +559,25 @@
 
     \table
         \header
-            \o  Menu Item
-            \o  Description
+            \li Menu Item
+            \li Description
         \row
-            \o  \gui{Import}
-            \o  Apply changes from a patch file.
+            \li \gui{Import}
+            \li Apply changes from a patch file.
         \row
-            \o  \gui{Incoming}
-            \o  Monitor the status of a remote repository by listing
+            \li \gui{Incoming}
+            \li Monitor the status of a remote repository by listing
                 the changes that will be pulled.
         \row
-            \o  \gui{Outgoing}
-            \o  Monitor the status of a remote repository by listing
+            \li \gui{Outgoing}
+            \li Monitor the status of a remote repository by listing
                 the changes that will be pushed.
         \row
-            \o  \gui{Pull}
-            \o  Pull changes from the remote repository.
+            \li \gui{Pull}
+            \li Pull changes from the remote repository.
         \row
-            \o  \gui{Push}
-            \o  Push changes to the remote repository.
+            \li \gui{Push}
+            \li Push changes to the remote repository.
      \endtable
 
     \section2 Using Additional Perforce Functions
@@ -603,20 +603,20 @@
 
     \table
         \header
-            \o  Menu Item
-            \o  Description
+            \li Menu Item
+            \li Description
         \row
-            \o  \gui{Describe}
-            \o  View information about changelists and the files in them.
+            \li \gui{Describe}
+            \li View information about changelists and the files in them.
         \row
-            \o  \gui{Edit File}
-            \o  Open a file for editing.
+            \li \gui{Edit File}
+            \li Open a file for editing.
         \row
-            \o  \gui{Opened}
-            \o  List files that are open for editing.
+            \li \gui{Opened}
+            \li List files that are open for editing.
         \row
-            \o  \gui{Pending Changes}
-            \o  Group files for commit.
+            \li \gui{Pending Changes}
+            \li Group files for commit.
     \endtable
 
     \section2 Using Additional Subversion Functions
@@ -627,11 +627,11 @@
 
     \table
         \header
-            \o  Menu Item
-            \o  Description
+            \li Menu Item
+            \li Description
         \row
-            \o  \gui{Describe}
-            \o  Display commit log messages for a revision.
+            \li \gui{Describe}
+            \li Display commit log messages for a revision.
     \endtable
 
 */

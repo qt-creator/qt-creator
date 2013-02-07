@@ -80,6 +80,9 @@ public:
     void pushInFileComponentOnCrambleBar(const QString &componentId);
     void nextFileIsCalledInternally();
 
+    //used by DesignDocument ### find a better solution
+    QmlModelView *qmlModelView();
+
 private: // functions
     Q_DISABLE_COPY(ViewManager)
 

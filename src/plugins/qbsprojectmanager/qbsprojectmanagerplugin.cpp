@@ -63,6 +63,7 @@ QbsProjectManagerPlugin::QbsProjectManagerPlugin() :
 
 bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
+    Q_UNUSED(errorMessage);
     m_manager = new QbsManager(this);
     m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     const Core::Context projectContext(::QbsProjectManager::Constants::PROJECT_ID);

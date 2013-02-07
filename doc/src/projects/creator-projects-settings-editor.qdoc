@@ -43,11 +43,11 @@
 
     \list 1
 
-        \o  Select \gui {Projects > Editor Settings}.
+        \li Select \gui {Projects > Editor Settings}.
 
-        \o  In the \gui {Editor Settings} field, select \gui {Custom}.
+        \li In the \gui {Editor Settings} field, select \gui {Custom}.
 
-        \o  Specify text editor settings for the project.
+        \li Specify text editor settings for the project.
 
     \endlist
 
@@ -59,13 +59,13 @@
 
     \list
 
-        \o  \l{Indenting Code}
+        \li \l{Indenting Code}
 
-        \o  \l{File Encoding}
+        \li \l{File Encoding}
 
-        \o  \l{Moving to Symbol Definition or Declaration}
+        \li \l{Moving to Symbol Definition or Declaration}
 
-        \o  \l{Configuring Fonts}
+        \li \l{Configuring Fonts}
 
     \endlist
 

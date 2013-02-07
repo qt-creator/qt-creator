@@ -42,7 +42,7 @@
 
     \list 1
 
-        \o  Select \gui{File > New File or Project > Applications > Qt Gui
+        \li Select \gui{File > New File or Project > Applications > Qt Gui
             Application > Choose}.
 
             \image qtcreator-new-qt-gui-application.png "New File or Project dialog"
@@ -51,9 +51,9 @@
 
             \image qtcreator-intro-and-location-qt-gui.png "Introduction and Project Location dialog"
 
-        \o  In the \gui{Name} field, type \bold {TextFinder}.
+        \li In the \gui{Name} field, type \b {TextFinder}.
 
-        \o  In the \gui {Create in} field, enter the path for the project files.
+        \li In the \gui {Create in} field, enter the path for the project files.
             For example, \c {C:\Qt\examples}, and then click \gui{Next} (on
             Windows and Linux) or \gui Continue (on Mac OS).
 
@@ -61,7 +61,7 @@
 
             \image qtcreator-new-project-qt-versions-qt-gui.png "Kit Selection dialog"
 
-        \o  Select build and run \l{glossary-buildandrun-kit}{kits} for your project,
+        \li Select build and run \l{glossary-buildandrun-kit}{kits} for your project,
             and click \gui Next or \gui Continue.
 
             \note If only one kit is specified in \gui Tools > \gui Options >
@@ -72,22 +72,22 @@
 
             \image qtcreator-class-info-qt-gui.png "Class Information dialog"
 
-        \o  In the \gui{Class name} field, type \bold {TextFinder} as the class
+        \li In the \gui{Class name} field, type \b {TextFinder} as the class
             name.
 
-        \o  In the \gui{Base class} list, select \bold {QWidget} as the base
+        \li In the \gui{Base class} list, select \b {QWidget} as the base
             class type.
 
            \note The \gui{Header file}, \gui{Source file} and \gui{Form file}
             fields are automatically updated to match the name of the class.
 
-        \o  Click \gui Next or \gui Continue.
+        \li Click \gui Next or \gui Continue.
 
             The \gui{Project Management} dialog opens.
 
             \image qtcreator-new-project-summary-qt-gui.png "Project Management dialog"
 
-        \o  Review the project settings, and click \gui{Finish} (on Windows and
+        \li Review the project settings, and click \gui{Finish} (on Windows and
             Linux) or \gui Done (on Mac OS) to create the project.
 
     \endlist
@@ -99,11 +99,11 @@
 
     \list
 
-        \o  textfinder.h
-        \o  textfinder.cpp
-        \o  main.cpp
-        \o  textfinder.ui
-        \o  textfinder.pro
+        \li textfinder.h
+        \li textfinder.cpp
+        \li main.cpp
+        \li textfinder.ui
+        \li textfinder.pro
 
     \endlist
 
@@ -123,16 +123,16 @@
 
     \list 1
 
-        \o  In the \gui{Editor} mode, double-click the textfinder.ui file in the
+        \li In the \gui{Editor} mode, double-click the textfinder.ui file in the
             \gui{Projects} view to launch the integrated \QD.
 
-        \o  Drag and drop the following widgets to the form:
+        \li Drag and drop the following widgets to the form:
 
         \list
 
-            \o  \gui{Label} (QLabel)
-            \o  \gui{Line Edit} (QLineEdit)
-            \o  \gui{Push Button} (QPushButton)
+            \li \gui{Label} (QLabel)
+            \li \gui{Line Edit} (QLineEdit)
+            \li \gui{Push Button} (QPushButton)
 
         \endlist
 
@@ -140,31 +140,31 @@
 
         \note To easily locate the widgets, use the search box at the top of the
         \gui Sidebar. For example, to find the \gui Label widget, start typing
-        the word \bold label.
+        the word \b label.
 
         \image qtcreator-texfinder-filter.png "Filter field"
 
-        \o  Double-click the \gui{Label} widget and enter the text
-            \bold{Keyword}.
+        \li Double-click the \gui{Label} widget and enter the text
+            \b{Keyword}.
 
-        \o  Double-click the \gui{Push Button} widget and enter the text
-            \bold{Find}.
+        \li Double-click the \gui{Push Button} widget and enter the text
+            \b{Find}.
 
-        \o  In the \gui Properties pane, change the \gui objectName to
-            \bold findButton.
+        \li In the \gui Properties pane, change the \gui objectName to
+            \b findButton.
 
             \image qtcreator-textfinder-objectname.png "Changing object names"
 
-        \o  Press \key {Ctrl+A} (or \key {Cmd+A}) to select the widgets and
+        \li Press \key {Ctrl+A} (or \key {Cmd+A}) to select the widgets and
             click \gui{Lay out Horizontally} (or press \gui{Ctrl+H} on Linux or
             Windows or \key {Ctrl+Shift+H} on Mac OS) to apply a horizontal
             layout (QHBoxLayout).
 
             \image qtcreator-texfinder-ui-horizontal-layout.png "Applying horizontal layout"
 
-        \o  Drag and drop a \gui{Text Edit} widget (QTextEdit) to the form.
+        \li Drag and drop a \gui{Text Edit} widget (QTextEdit) to the form.
 
-        \o  Select the screen area and click \gui{Lay out Vertically} (or press
+        \li Select the screen area and click \gui{Lay out Vertically} (or press
             \gui{Ctrl+L}) to apply a vertical layout (QVBoxLayout).
 
             \image qtcreator-textfinder-ui.png "Text Finder UI"
@@ -172,7 +172,7 @@
             Applying the horizontal and vertical layouts ensures that the
             application UI scales to different screen sizes.
 
-        \o  To call a find function when users press the \gui Find button, you
+        \li To call a find function when users press the \gui Find button, you
             use the Qt signals and slots mechanism. A signal is emitted when a
             particular event occurs and a slot is a function that is called in
             response to a particular signal. Qt widgets have predefined signals
@@ -181,9 +181,9 @@
 
             \list
 
-                \o  Right-click the \gui Find button to open a context-menu.
+                \li Right-click the \gui Find button to open a context-menu.
 
-                \o  Select \gui {Go to Slot > clicked()}, and then select
+                \li Select \gui {Go to Slot > clicked()}, and then select
                     \gui OK.
 
                     A private slot, \c{on_findButton_clicked()}, is added to the
@@ -193,7 +193,7 @@
 
             \endlist
 
-        \o  Press \gui{Ctrl+S} (or \key {Cmd+S}) to save your changes.
+        \li Press \gui{Ctrl+S} (or \key {Cmd+S}) to save your changes.
 
     \endlist
 
@@ -209,10 +209,10 @@
 
     \list 1
 
-        \o  In the \gui{Projects} pane in the \gui {Edit view}, double-click the
+        \li In the \gui{Projects} pane in the \gui {Edit view}, double-click the
             \c{textfinder.h} file to open it for editing.
 
-        \o  Add a private function to the \c{private} section, after the
+        \li Add a private function to the \c{private} section, after the
             \c{Ui::TextFinder} pointer, as illustrated by the following code
             snippet:
 
@@ -227,10 +227,10 @@
 
     \list 1
 
-        \o  In the \gui{Projects} pane in the \gui Edit view, double-click the
+        \li In the \gui{Projects} pane in the \gui Edit view, double-click the
             textfinder.cpp file to open it for editing.
 
-        \o  Add code to load a text file using QFile, read it with QTextStream,
+        \li Add code to load a text file using QFile, read it with QTextStream,
             and then display it on \c{textEdit} with
             \l{http://qt-project.org/doc/qt-4.8/qtextedit.html#plainText-prop}
             {setPlainText()}.
@@ -238,12 +238,12 @@
 
             \snippet textfinder/textfinder.cpp 0
 
-        \o  To use QFile and QTextStream, add the following #includes to
+        \li To use QFile and QTextStream, add the following #includes to
             textfinder.cpp:
 
             \snippet textfinder/textfinder.cpp 1
 
-        \o  For the \c{on_findButton_clicked()} slot, add code to extract the
+        \li For the \c{on_findButton_clicked()} slot, add code to extract the
             search string and use the
             \l{http://qt-project.org/doc/qt-4.8/qtextedit.html#find}{find()}
             function
@@ -252,7 +252,7 @@
 
             \snippet textfinder/textfinder.cpp 2
 
-        \o  Once both of these functions are complete, add a line to call
+        \li Once both of these functions are complete, add a line to call
             \c{loadTextFile()} in the constructor, as illustrated by the
             following code snippet:
 
@@ -278,7 +278,7 @@
 
     \list 1
 
-        \o  Select \gui{File > New File or Project > Qt > Qt Resource File >
+        \li Select \gui{File > New File or Project > Qt > Qt Resource File >
             Choose}.
 
             \image qtcreator-add-resource-wizard.png "New File or Project dialog"
@@ -287,9 +287,9 @@
 
             \image qtcreator-add-resource-wizard2.png "Choose the Location dialog"
 
-        \o  In the \gui{Name} field, enter \bold{textfinder}.
+        \li In the \gui{Name} field, enter \b{textfinder}.
 
-        \o  In the \gui{Path} field, enter \c{C:\Qt\examples\TextFinder},
+        \li In the \gui{Path} field, enter \c{C:\Qt\examples\TextFinder},
             and click \gui Next or \gui Continue.
 
             The \gui{Project Management} dialog opens.
@@ -297,16 +297,16 @@
             \image qtcreator-add-resource-wizard3.png "Project Management dialog"
 
 
-        \o  In the \gui{Add to project} field, select \bold{TextFinder.pro}
+        \li In the \gui{Add to project} field, select \b{TextFinder.pro}
             and click \gui{Finish} or \gui Done to open the file in the code
             editor.
 
-        \o  Select \gui{Add > Add Prefix}.
+        \li Select \gui{Add > Add Prefix}.
 
-        \o  In the \gui{Prefix} field, replace the default prefix with a slash
+        \li In the \gui{Prefix} field, replace the default prefix with a slash
             (/).
 
-        \o  Select \gui{Add > Add Files}, to locate and add input.txt.
+        \li Select \gui{Add > Add Files}, to locate and add input.txt.
 
             \image qtcreator-add-resource.png "Editing resource files"
 

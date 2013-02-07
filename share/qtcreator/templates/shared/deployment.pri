@@ -113,7 +113,11 @@ android {
             QMAKE_EXTRA_TARGETS += first copydeploymentfolders
         }
     }
-    installPrefix = /opt/$${TARGET}
+    !isEmpty(target.path) {
+        installPrefix = $${target.path}
+    } else {
+        installPrefix = /opt/$${TARGET}
+    }
     for(deploymentfolder, DEPLOYMENTFOLDERS) {
         item = item$${deploymentfolder}
         itemfiles = $${item}.files
@@ -133,8 +137,10 @@ android {
         INSTALLS += icon desktopfile
     }
 
-    target.path = $${installPrefix}/bin
-    export(target.path)
+    isEmpty(target.path) {
+        target.path = $${installPrefix}/bin
+        export(target.path)
+    }
     INSTALLS += target
 }
 

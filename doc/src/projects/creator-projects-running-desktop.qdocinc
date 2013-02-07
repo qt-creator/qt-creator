@@ -2,10 +2,10 @@
 
     \list 1
 
-        \o  Select \gui Desktop as the build and run \l{glossary-buildandrun-kit}{kit}.
+        \li Select \gui Desktop as the build and run \l{glossary-buildandrun-kit}{kit}.
 
             \image qtcreator-kit-selector.png "Kit selector"
 
-        \o  Click the \gui Run button.
+        \li Click the \gui Run button.
 
     \endlist

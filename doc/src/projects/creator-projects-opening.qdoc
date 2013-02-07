@@ -68,10 +68,10 @@
 
     \list 1
 
-        \o  Select \gui File > \gui{Open File or Project} and select the project
+        \li Select \gui File > \gui{Open File or Project} and select the project
             to open.
 
-        \o  In the \gui {Configure Project} tab, select kits for building and running your
+        \li In the \gui {Configure Project} tab, select kits for building and running your
             project, and click \gui {Configure Project}.
 
     \endlist

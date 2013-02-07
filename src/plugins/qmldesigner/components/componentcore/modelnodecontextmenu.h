@@ -49,11 +49,10 @@ public:
     static void showContextMenu(QmlModelView *view, const QPoint &globalPosition, const QPoint &scenePosition, bool showSelection);
 
 private:
-    QmlModelView *m_view;
     QPoint m_scenePos;
     SelectionContext m_selectionContext;
 };
 
-}; //QmlDesigner
+} // namespace QmlDesigner
 
 #endif // MODELNODECONTEXTMENU_H

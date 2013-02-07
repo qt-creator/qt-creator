@@ -274,7 +274,7 @@ static inline bool parseThread(QByteArray line, ThreadData *thread, bool *curren
     if (line.size() < 5)
         return false;
     *current = line.at(0) == '.';
-    if (current)
+    if (*current)
         line[0] = ' ';
     const QList<QByteArray> tokens = simplify(line).split(' ');
     if (tokens.size() < 8 || tokens.at(1) != "Id:")

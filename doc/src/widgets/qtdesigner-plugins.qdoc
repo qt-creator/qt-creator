@@ -84,7 +84,7 @@
 
     \list 1
 
-        \o  To check the paths used in the Qwt library, enter the following
+        \li To check the paths used in the Qwt library, enter the following
             \c otool command:
 
             \snippet doc_src_plugins.qdoc 0
@@ -96,15 +96,15 @@
             \snippet doc_src_plugins.qdoc 1
 
 
-        \o  You must copy the \QD plugin and the Qwt library files to the
+        \li You must copy the \QD plugin and the Qwt library files to the
             following locations:
 
             \list
 
-                \o  \c {libqwt_designer_plugin.dylib} to
+                \li \c {libqwt_designer_plugin.dylib} to
                     \c {QtCreator.app/Contents/MacOS/designer}
 
-                \o \c {libqwt.*.dylib} to \c {QtCreator.app/Contents/Frameworks}
+                \li  \c {libqwt.*.dylib} to \c {QtCreator.app/Contents/Frameworks}
 
             \endlist
 
@@ -112,7 +112,7 @@
 
             \snippet doc_src_plugins.qdoc 4
 
-        \o  Enter the following \c otool command to check the libraries that are
+        \li Enter the following \c otool command to check the libraries that are
             used by the Qwt library:
 
             \snippet doc_src_plugins.qdoc 2
@@ -121,7 +121,7 @@
 
             \snippet doc_src_plugins.qdoc 3
 
-        \o  Enter the following \c install_name_tool command to fix the
+        \li Enter the following \c install_name_tool command to fix the
             references of the libraries:
 
             \snippet doc_src_plugins.qdoc 5

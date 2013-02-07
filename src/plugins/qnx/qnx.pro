@@ -45,8 +45,6 @@ SOURCES += qnxplugin.cpp \
     qnxqtversionfactory.cpp \
     qnxqtversion.cpp \
     qnxabstractqtversion.cpp \
-    bardescriptorfileimagewizardpage.cpp \
-    blackberrywizardextension.cpp \
     blackberrydeviceconfiguration.cpp \
     qnxdeployconfiguration.cpp \
     qnxdeviceconfiguration.cpp \
@@ -104,8 +102,6 @@ HEADERS += qnxplugin.h\
     qnxqtversionfactory.h \
     qnxqtversion.h \
     qnxabstractqtversion.h \
-    bardescriptorfileimagewizardpage.h \
-    blackberrywizardextension.h \
     blackberrydeviceconfiguration.h \
     qnxdeployconfiguration.h \
     qnxdeviceconfiguration.h \
@@ -130,7 +126,6 @@ FORMS += \
     blackberrydeployconfigurationwidget.ui \
     blackberrydeviceconfigurationwidget.ui \
     qnxbaseqtconfigwidget.ui \
-    bardescriptorfileimagewizardpage.ui \
     blackberryndksettingswidget.ui \
     bardescriptoreditorwidget.ui
 

@@ -103,31 +103,31 @@
 
     \list 1
 
-        \o  Select \gui {Tools > External > Configure}.
+        \li Select \gui {Tools > External > Configure}.
 
-        \o  Select \gui {Add > Add Tool}
+        \li Select \gui {Add > Add Tool}
             to add a new tool. You can also select \gui {Add Category} to add a
             new category.
 
-        \o  In the \gui Executable field, specify the executable to run. If the
+        \li In the \gui Executable field, specify the executable to run. If the
             executable is found in your system PATH variable, do not specify
             the path to it.
 
-        \o  In the \gui Arguments field, specify optional arguments for running
+        \li In the \gui Arguments field, specify optional arguments for running
             the executable.
 
-        \o  In the \gui {Working directory} field, specify the path to the
+        \li In the \gui {Working directory} field, specify the path to the
             working directory.
 
-        \o  In the \gui {Output pane}, select how to handle output from the
+        \li In the \gui {Output pane}, select how to handle output from the
             tool. You can ignore the output, view it in the \gui {General
             Messages} output pane, or replace the selected text with the
             output in the code editor.
 
-        \o  In the \gui {Error output pane}, select how to handle error messages
+        \li In the \gui {Error output pane}, select how to handle error messages
             from the tool.
 
-        \o  In the \gui Input field, specify text that is passed as standard
+        \li In the \gui Input field, specify text that is passed as standard
             input to the tool.
 
     \endlist

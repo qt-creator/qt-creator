@@ -41,34 +41,34 @@
 
     \list
 
-        \o  \l{http://qt-project.org/doc/qt-4.8/qml-borderimage.html}
+        \li \l{http://qt-project.org/doc/qt-4.8/qml-borderimage.html}
             {Border Image}
             uses an image as a border or background.
 
-        \o  \l{http://qt-project.org/doc/qt-4.8/qml-image.html}{Image}
+        \li \l{http://qt-project.org/doc/qt-4.8/qml-image.html}{Image}
             adds a bitmap to the scene. You can stretch and tile images.
 
-        \o  \l{http://qt-project.org/doc/qt-4.8/qml-item.html}{Item}
+        \li \l{http://qt-project.org/doc/qt-4.8/qml-item.html}{Item}
             is the most basic of all visual items in QML. Even though it has no
             visual appearance, it defines all the properties that are common
             across visual items, such as the x and y position, width and height,
             anchoring, and key handling.
 
-        \o  \l{http://qt-project.org/doc/qt-4.8/qml-rectangle.html}{Rectangle}
+        \li \l{http://qt-project.org/doc/qt-4.8/qml-rectangle.html}{Rectangle}
             adds a rectangle that is painted with a solid fill color and an
             optional border. You can also use the radius property to create
             rounded rectangles.
 
-        \o  \l{http://qt-project.org/doc/qt-4.8/qml-text.html}{Text}
+        \li \l{http://qt-project.org/doc/qt-4.8/qml-text.html}{Text}
             adds formatted read-only text.
 
-        \o  \l{http://qt-project.org/doc/qt-4.8/qml-textedit.html}{Text Edit}
+        \li \l{http://qt-project.org/doc/qt-4.8/qml-textedit.html}{Text Edit}
             adds a single line of editable formatted text that can be validated.
 
-        \o  \l{http://qt-project.org/doc/qt-4.8/qml-textinput.html}{Text Input}
+        \li \l{http://qt-project.org/doc/qt-4.8/qml-textinput.html}{Text Input}
             adds a single line of editable plain text that can be validated.
 
-        \o  \l{http://qt-project.org/doc/qt-4.8/qml-webview.html}{Web View}
+        \li \l{http://qt-project.org/doc/qt-4.8/qml-webview.html}{Web View}
             adds web content to a canvas.
 
     \endlist
@@ -88,18 +88,18 @@
 
     \list 1
 
-        \o  Select \gui {File > New File or Project > Files and Classes > QML
+        \li Select \gui {File > New File or Project > Files and Classes > QML
             > Choose} to create a new .qml file.
 
             \note Components are listed in the \gui {QML Components} section of
             the \gui Library pane only if the filename begins with a capital
             letter.
 
-        \o  Click \gui Design to open the .qml file in \QMLD.
+        \li Click \gui Design to open the .qml file in \QMLD.
 
-        \o  Drag and drop an item from the \gui Library pane to the editor.
+        \li Drag and drop an item from the \gui Library pane to the editor.
 
-        \o  Edit item properties in the \gui Properties pane.
+        \li Edit item properties in the \gui Properties pane.
 
             The available properties depend on the item.
 
@@ -111,9 +111,9 @@
 
     \list
 
-        \o  \l{Creating Buttons}
+        \li \l{Creating Buttons}
 
-        \o  \l{Creating Scalable Buttons and Borders}
+        \li \l{Creating Scalable Buttons and Borders}
 
     \endlist
 

@@ -114,14 +114,14 @@ public:
     int compare(const ProString &sub, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return toQStringRef().compare(sub.toQStringRef(), cs); }
     int compare(const QString &sub, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return toQStringRef().compare(sub, cs); }
     int compare(const char *sub, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return toQStringRef().compare(QLatin1String(sub), cs); }
-    bool startsWith(const ProString &sub) const { return toQStringRef().startsWith(sub.toQStringRef()); }
-    bool startsWith(const QString &sub) const { return toQStringRef().startsWith(sub); }
-    bool startsWith(const char *sub) const { return toQStringRef().startsWith(QLatin1String(sub)); }
-    bool startsWith(QChar c) const { return toQStringRef().startsWith(c); }
-    bool endsWith(const ProString &sub) const { return toQStringRef().endsWith(sub.toQStringRef()); }
-    bool endsWith(const QString &sub) const { return toQStringRef().endsWith(sub); }
-    bool endsWith(const char *sub) const { return toQStringRef().endsWith(QLatin1String(sub)); }
-    bool endsWith(QChar c) const { return toQStringRef().endsWith(c); }
+    bool startsWith(const ProString &sub, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return toQStringRef().startsWith(sub.toQStringRef(), cs); }
+    bool startsWith(const QString &sub, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return toQStringRef().startsWith(sub, cs); }
+    bool startsWith(const char *sub, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return toQStringRef().startsWith(QLatin1String(sub), cs); }
+    bool startsWith(QChar c, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return toQStringRef().startsWith(c, cs); }
+    bool endsWith(const ProString &sub, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return toQStringRef().endsWith(sub.toQStringRef(), cs); }
+    bool endsWith(const QString &sub, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return toQStringRef().endsWith(sub, cs); }
+    bool endsWith(const char *sub, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return toQStringRef().endsWith(QLatin1String(sub), cs); }
+    bool endsWith(QChar c, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return toQStringRef().endsWith(c, cs); }
     int indexOf(const QString &s, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return toQStringRef().indexOf(s, from, cs); }
     int indexOf(const char *s, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return toQStringRef().indexOf(QLatin1String(s), from, cs); }
     int indexOf(QChar c, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return toQStringRef().indexOf(c, from, cs); }
@@ -131,8 +131,8 @@ public:
     bool contains(const QString &s, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return indexOf(s, 0, cs) >= 0; }
     bool contains(const char *s, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return indexOf(QLatin1String(s), 0, cs) >= 0; }
     bool contains(QChar c, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return indexOf(c, 0, cs) >= 0; }
-    int toInt(bool *ok = 0) const { return toQString().toInt(ok); } // XXX optimize
-    short toShort(bool *ok = 0) const { return toQString().toShort(ok); } // XXX optimize
+    int toInt(bool *ok = 0, int base = 10) const { return toQString().toInt(ok, base); } // XXX optimize
+    short toShort(bool *ok = 0, int base = 10) const { return toQString().toShort(ok, base); } // XXX optimize
 
     static uint hash(const QChar *p, int n);
 

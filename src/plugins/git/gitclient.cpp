@@ -843,7 +843,14 @@ bool GitClient::synchronousLog(const QString &workingDirectory, const QStringLis
     allArguments.append(arguments);
     const bool rc = fullySynchronousGit(workingDirectory, allArguments, &outputText, &errorText);
     if (rc) {
-        *output = commandOutputFromLocal8Bit(outputText);
+        QString encodingName = readConfigValue(workingDirectory, QLatin1String("i18n.logOutputEncoding"));
+        if (encodingName.isEmpty())
+            encodingName = QLatin1String("utf-8");
+        QTextCodec *codec = QTextCodec::codecForName(encodingName.toLocal8Bit());
+        if (codec)
+            *output = codec->toUnicode(outputText);
+        else
+            *output = commandOutputFromLocal8Bit(outputText);
     } else {
         const QString errorMessage = tr("Cannot obtain log of \"%1\": %2").
                                      arg(QDir::toNativeSeparators(workingDirectory),

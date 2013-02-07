@@ -43,18 +43,18 @@
 
     \list
 
-        \o  GNU Compiler Collection (GCC) is a compiler for Linux and
+        \li GNU Compiler Collection (GCC) is a compiler for Linux and
             Mac OS X.
 
-        \o  MinGW (Minimalist GNU for Windows) is a native software port of GCC
+        \li MinGW (Minimalist GNU for Windows) is a native software port of GCC
             and GNU Binutils for use in the development of native Microsoft
             Windows applications on Windows. MinGW is
             distributed together with \QC and Qt SDK for Windows.
 
-        \o  Linux ICC (Intel C++ Compiler) is a group of C and C++ compilers
+        \li Linux ICC (Intel C++ Compiler) is a group of C and C++ compilers
             for Linux.
 
-        \o  Clang is a C, C++, Objective C, and Objective C++ front-end for the
+        \li Clang is a C, C++, Objective C, and Objective C++ front-end for the
             LLVM compiler for Windows, Linux, and Mac OS X.
     \endlist
 
@@ -70,16 +70,16 @@
 
     \list 1
 
-        \o  Select \gui {Tools > Options > Build & Run > Compilers > Add} and
+        \li Select \gui {Tools > Options > Build & Run > Compilers > Add} and
             select a compiler in the list.
 
             \image qtcreator-toolchains.png
 
             To clone the selected compiler, select \gui {Clone}.
 
-        \o  In the \gui Name column, double-click the name to change it.
+        \li In the \gui Name column, double-click the name to change it.
 
-        \o  In the \gui{Compiler path} field, enter the path to the directory
+        \li In the \gui{Compiler path} field, enter the path to the directory
             where the compiler is located.
 
             The other settings to specify depend on the compiler.

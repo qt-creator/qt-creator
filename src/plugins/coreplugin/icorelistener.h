@@ -53,10 +53,10 @@ the core plugin.
 
   Guidelines for implementing:
   \list
-  \o Return false from the implemented method if you want to prevent the event.
-  \o You need to add your implementing object to the plugin managers objects:
+  \li Return false from the implemented method if you want to prevent the event.
+  \li You need to add your implementing object to the plugin managers objects:
      ExtensionSystem::PluginManager::instance()->addObject(yourImplementingObject);
-  \o Don't forget to remove the object again at deconstruction (e.g. in the destructor of
+  \li Don't forget to remove the object again at deconstruction (e.g. in the destructor of
      your plugin).
 */
 class CORE_EXPORT ICoreListener : public QObject

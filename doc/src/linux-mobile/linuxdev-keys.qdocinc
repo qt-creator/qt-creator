@@ -10,17 +10,17 @@
 
     \list 1
 
-        \o  Select \gui Tools > \gui Options > \gui Devices > \gui {Create New}.
+        \li Select \gui Tools > \gui Options > \gui Devices > \gui {Create New}.
 
             \image qtcreator-ssh-key-configuration.png "SSH Key Configuration dialog"
 
-        \o  In the \gui {Private key file} field, select the location to save
+        \li In the \gui {Private key file} field, select the location to save
             the private key.
 
             The \gui {Public key file} field displays the location to save the
             corresponding public key.
 
-        \o  Select \gui {Generate And Save Key Pair} to generate and save the
+        \li Select \gui {Generate And Save Key Pair} to generate and save the
             keys at the specified locations.
 
     \endlist

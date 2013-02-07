@@ -310,7 +310,10 @@ TaskWindow::~TaskWindow()
 
 static ITaskHandler *handler(QAction *action)
 {
-    return qobject_cast<ITaskHandler *>(action->data().value<QObject *>());
+    QVariant prop = action->property("ITaskHandler");
+    ITaskHandler *handler = qobject_cast<ITaskHandler *>(prop.value<QObject *>());
+    QTC_CHECK(handler);
+    return handler;
 }
 
 void TaskWindow::delayedInitialization()
@@ -328,7 +331,7 @@ void TaskWindow::delayedInitialization()
 
         QAction *action = h->createAction(this);
         QTC_ASSERT(action, continue);
-        action->setData(qVariantFromValue(qobject_cast<QObject*>(h)));
+        action->setProperty("ITaskHandler", qVariantFromValue(qobject_cast<QObject*>(h)));
         connect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
         d->m_actions << action;
 

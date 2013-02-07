@@ -80,8 +80,8 @@ enum { debugLeaks = 0 };
 
     The plugin manager is used for the following tasks:
     \list
-    \o Manage plugins and their state
-    \o Manipulate a 'common object pool'
+    \li Manage plugins and their state
+    \li Manipulate a 'common object pool'
     \endlist
 
     \section1 Plugins
@@ -186,13 +186,13 @@ enum { debugLeaks = 0 };
         };
     \endcode
 
-    \bold Note: The type of the parameters passed to the \c{invoke()} calls
+    \note The type of the parameters passed to the \c{invoke()} calls
     is deduced from the parameters themselves and must match the type of
     the arguments of the called functions \e{exactly}. No conversion or even
     integer promotions are applicable, so to invoke a function with a \c{long}
     parameter explicitly use \c{long(43)} or such.
 
-    \bold Note: The object pool manipulating functions are thread-safe.
+    \note The object pool manipulating functions are thread-safe.
 */
 
 /*!
@@ -837,6 +837,7 @@ void PluginManagerPrivate::nextDelayedInitialize()
     if (delayedInitializeQueue.isEmpty()) {
         delete delayedInitializeTimer;
         delayedInitializeTimer = 0;
+        profilingSummary();
         emit q->initializationDone();
     } else {
         delayedInitializeTimer->start();
@@ -1308,10 +1309,29 @@ void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *s
         const int absoluteElapsedMS = m_profileTimer->elapsed();
         const int elapsedMS = absoluteElapsedMS - m_profileElapsedMS;
         m_profileElapsedMS = absoluteElapsedMS;
+        m_profileTotal[spec] += elapsedMS;
         if (spec)
             qDebug("%-22s %-22s %8dms (%8dms)", what, qPrintable(spec->name()), absoluteElapsedMS, elapsedMS);
         else
             qDebug("%-45s %8dms (%8dms)", what, absoluteElapsedMS, elapsedMS);
+    }
+}
+
+void PluginManagerPrivate::profilingSummary() const
+{
+    if (!m_profileTimer.isNull()) {
+        typedef QMultiMap<int, const PluginSpec *> Sorter;
+        Sorter sorter;
+
+        QHash<const PluginSpec *, int>::ConstIterator it1 = m_profileTotal.constBegin();
+        QHash<const PluginSpec *, int>::ConstIterator et1 = m_profileTotal.constEnd();
+        for (; it1 != et1; ++it1)
+            sorter.insert(it1.value(), it1.key());
+
+        Sorter::ConstIterator it2 = sorter.begin();
+        Sorter::ConstIterator et2 = sorter.end();
+        for (; it2 != et2; ++it2)
+            qDebug("%-22s %8dms", qPrintable(it2.value()->name()), it2.key());
     }
 }
 

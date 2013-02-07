@@ -32,7 +32,7 @@
 
     \list
 
-        \o  \l{Finding and Replacing}
+        \li \l{Finding and Replacing}
 
             The incremental search highlights the matching strings in the
             window while typing and the advanced search enables you to
@@ -42,7 +42,7 @@
             In addition, you can search for symbols when you want to
             refactor code.
 
-        \o  \l{Searching with the Locator}
+        \li \l{Searching with the Locator}
 
             The locator provides one of the easiest ways in \QC to browse
             through projects, files, classes, methods, documentation and

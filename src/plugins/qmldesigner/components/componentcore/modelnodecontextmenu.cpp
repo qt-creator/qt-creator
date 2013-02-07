@@ -53,7 +53,6 @@
 namespace QmlDesigner {
 
 ModelNodeContextMenu::ModelNodeContextMenu(QmlModelView *view) :
-    m_view(view),
     m_selectionContext(view)
 {
 }

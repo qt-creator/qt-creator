@@ -116,12 +116,10 @@ private: //functions
     void updateModel();
     void searchForComponentAndAddToList(const ModelNode &node);
     void searchForComponentAndRemoveFromList(const ModelNode &node);
-    void appendWholeDocumentAsComponent();
     void removeSingleNodeFromList(const ModelNode &node);
     int indexForNode(const ModelNode &node);
 
 private:
-    QList<QComboBox*> m_comboBoxList;
     QStandardItemModel *m_standardItemModel;
     ComponentAction *m_componentAction;
 };

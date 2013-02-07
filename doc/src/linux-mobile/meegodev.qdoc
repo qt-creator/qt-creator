@@ -82,16 +82,16 @@
 
     \list
 
-        \o  On the device, select \gui {Settings > Security > Developer
+        \li On the device, select \gui {Settings > Security > Developer
             mode} to turn on developer mode.
 
-        \o  Select \gui {Applications > SDK Connectivity} to start the SDK
+        \li Select \gui {Applications > SDK Connectivity} to start the SDK
             Connectivity application.
 
-        \o  Select \gui {Select Connection} and then select the type of the
+        \li Select \gui {Select Connection} and then select the type of the
             connection to create: \gui WLAN or \gui USB.
 
-        \o  For a USB connection, select the operating system of the
+        \li For a USB connection, select the operating system of the
             development PC in \gui {Select Module}.
 
     \endlist
@@ -130,16 +130,16 @@
 
     \list
 
-        \o  Open the network settings.
+        \li Open the network settings.
 
-        \o  Click the + button on the network settings panel.
+        \li Click the + button on the network settings panel.
 
-        \o  When the interface is available, select \gui {Configure IPv4 > Using
+        \li When the interface is available, select \gui {Configure IPv4 > Using
             DHCP with manual address}.
 
-        \o Enter the address 192.168.2.14 into the IP address field.
+        \li  Enter the address 192.168.2.14 into the IP address field.
 
-        \o Click \gui Apply.
+        \li  Click \gui Apply.
 
         The network connection between your device and workstation is now
         configured.
@@ -160,7 +160,7 @@
 
     \list 1
 
-        \o  Open the \gui {Network and Sharing Center} and select \gui {Change
+        \li Open the \gui {Network and Sharing Center} and select \gui {Change
             adapter settings}.
 
             The Linux USB Ethernet connection you just installed is displayed
@@ -170,18 +170,18 @@
             \note If you cannot see \gui {Linux USB Ethernet/RNDIS gadget}, try
             to unplug and replug the USB cable.
 
-        \o  Right-click \gui {Linux USB Ethernet/RNDIS gadget} and select
+        \li Right-click \gui {Linux USB Ethernet/RNDIS gadget} and select
             \gui Properties.
 
-    \o  Edit the \gui {Internet Protocol Version 4 (TCP/IPv4)} properties
+    \li Edit the \gui {Internet Protocol Version 4 (TCP/IPv4)} properties
         to specify the IP address for the connection. In the \gui {Use the
         following IP address} field, enter the following values:
 
         \list
 
-           \o  \gui {IP Address}: \bold {192.168.2.14}
-           \o  \gui SubnetMask: \bold {255.255.255.0}
-           \o  \gui {Default gateway}: leave this field empty
+           \li \gui {IP Address}: \b {192.168.2.14}
+           \li \gui SubnetMask: \b {255.255.255.0}
+           \li \gui {Default gateway}: leave this field empty
 
         \endlist
 
@@ -203,20 +203,20 @@
 
     \list 1
 
-    \o  Open the Network Connections window.
+    \li Open the Network Connections window.
 
-    \o  Select the Linux USB Ethernet connection that is displayed as a new
+    \li Select the Linux USB Ethernet connection that is displayed as a new
         Local Area Connection.
 
-    \o  Edit the \gui {Internet Protocol Version 4 (TCP/IPv4)} properties
+    \li Edit the \gui {Internet Protocol Version 4 (TCP/IPv4)} properties
         to specify the IP address for the connection. In the \gui {Use the
         following IP address} field, enter the following values:
 
         \list
 
-           \o  \gui {IP Address}: \bold {192.168.2.14}
-           \o  \gui SubnetMask: \bold {255.255.255.0}
-           \o  \gui {Default gateway}: leave this field empty
+           \li \gui {IP Address}: \b {192.168.2.14}
+           \li \gui SubnetMask: \b {255.255.255.0}
+           \li \gui {Default gateway}: leave this field empty
 
         \endlist
 
@@ -280,12 +280,12 @@
 
     \list 1
 
-        \o  To deploy applications and run them remotely on devices,
+        \li To deploy applications and run them remotely on devices,
             specify parameters for accessing devices:
 
             \list a
 
-                \o  Connect your device to the development PC via a USB cable or
+                \li Connect your device to the development PC via a USB cable or
                     a WLAN. For a USB connection, you are prompted to select the
                     mode to use. Choose \gui{PC suite mode}.
 
@@ -293,56 +293,56 @@
                     port issue, switch to a different port or use WLAN to
                     connect to the device.
 
-                \o  Select \gui Tools > \gui Options > \gui Devices > \gui Add.
+                \li Select \gui Tools > \gui Options > \gui Devices > \gui Add.
 
-                \o  Select \gui {MeeGo 1.2 Harmattan} > \gui {Start Wizard} to
+                \li Select \gui {MeeGo 1.2 Harmattan} > \gui {Start Wizard} to
                     add a new configuration for a device.
 
                     \image qtcreator-screenshot-devconf.png
 
-                \o  In the \gui {The name to identify this configuration} field,
+                \li In the \gui {The name to identify this configuration} field,
                     enter a name for the connection.
 
-                \o  In the \gui {The kind of device} field, select
+                \li In the \gui {The kind of device} field, select
                     \gui {Hardware device}.
 
-                \o  In the \gui {The device's host name or IP address} field,
+                \li In the \gui {The device's host name or IP address} field,
                     enter the IP address from the connectivity tool on the
                     device.
 
-                \o  In the \gui {The SSH server port} field, enter the port
+                \li In the \gui {The SSH server port} field, enter the port
                     number to use for SSH connections.
 
-                \o  Click \gui Next.
+                \li Click \gui Next.
 
-                \o  Follow the instructions of the wizard to create the
+                \li Follow the instructions of the wizard to create the
                     configuration.
 
             \endlist
 
         \if defined(qcmanual)
 
-        \o  To test applications on the emulator (QEMU), you must
+        \li To test applications on the emulator (QEMU), you must
             create a connection to it from the development PC. If you installed
             Qt 4 SDK, the connection is created automatically and you can omit this
             step.
 
             \list a
 
-                \o  In \QC, select \gui Tools > \gui Options > \gui Devices >
+                \li In \QC, select \gui Tools > \gui Options > \gui Devices >
                     \gui Add to add a new configuration.
 
-                \o  Select \gui {MeeGo 1.2 Harmattan} > \gui {Start Wizard}.
+                \li Select \gui {MeeGo 1.2 Harmattan} > \gui {Start Wizard}.
 
-                \o  In the \gui {The name to identify this configuration} field,
+                \li In the \gui {The name to identify this configuration} field,
                     enter a name for the connection.
 
-                \o  In the \gui {The kind of device} field, select
+                \li In the \gui {The kind of device} field, select
                     \gui Emulator.
 
-                \o  Click \gui Next.
+                \li Click \gui Next.
 
-                \o  Follow the instructions of the wizard to create the
+                \li Follow the instructions of the wizard to create the
                     connection.
 
                     SDK Connectivity is not needed for emulator connections, and
@@ -353,35 +353,35 @@
 
         \endif
 
-            \o  Select \gui Tools > \gui Options > \gui {Build & Run} >
+            \li Select \gui Tools > \gui Options > \gui {Build & Run} >
                 \gui Kits > \gui Add to add a kit for building for the device:
 
             \list a
 
-                \o  In the \gui {Device type} field, select
+                \li In the \gui {Device type} field, select
                     \gui {MeeGo 1.2 Harmattan}.
 
-                \o  In the \gui Device field, select the device that you added
+                \li In the \gui Device field, select the device that you added
                     above.
 
-                \o  In the \gui Sysroot field, specify the path to the sysroot.
+                \li In the \gui Sysroot field, specify the path to the sysroot.
                     By default, the Qt 4 SDK installer places sysroot in the
                     following folder:
                     \c{QtSDK\Madde\bin\sysroots\harmattan_sysroot_10.2011.34-1_slim}.
 
-                \o  In the \gui {Compiler type} field, select GCC.
+                \li In the \gui {Compiler type} field, select GCC.
 
-                \o  In the \gui Compiler field, specify the path to the GCC
+                \li In the \gui Compiler field, specify the path to the GCC
                     compiler. By default, the Qt 4 SDK installer places the
                     compiler in the following folder:
                     \c{QtSDK\Madde\targets\harmattan_10.2011.34-1_rt1.2\bin\}.
 
-                \o  In the \gui Debugger field, specify the path to GDB. By
+                \li In the \gui Debugger field, specify the path to GDB. By
                     default, the Qt 4 SDK installer places the debugger
                     in the following folder:
                     \c{QtSDK\Madde\targets\harmattan_10.2011.34-1_rt1.2\bin\}.
 
-                \o  In the \gui {Qt version} field, choose the MADDE Qt version
+                \li In the \gui {Qt version} field, choose the MADDE Qt version
                     for MeeGo 1.2 Harmattan. By default, the Qt 4 SDK installer
                     places qmake in the following folder:
                     \c{QtSDK\Madde\targets\harmattan_10.2011.34-1_rt1.2\bin\}.
@@ -390,15 +390,15 @@
 
                 You can leave the \gui {Qt mkspec} field empty.
 
-                    \o  Open a project for an application you want to develop
+                    \li Open a project for an application you want to develop
                         for your device.
 
-            \o  Select \gui Projects > \gui {Build & Run} > \gui {Add Kit} to
+            \li Select \gui Projects > \gui {Build & Run} > \gui {Add Kit} to
                 add the kit that you specified above.
 
-                \o  Select \gui Run to specify run settings for the project.
+                \li Select \gui Run to specify run settings for the project.
 
-            \o  The Qt Quick project wizards automatically set the folder
+            \li The Qt Quick project wizards automatically set the folder
                 where the file is installed on the device in the \gui {Remote
                 Directory} field. For example, \c {/opt/usr/bin}. If the text
                 \gui {<no target path set>} is displayed, click it to specify a
@@ -416,21 +416,21 @@
 
     \list 1
 
-        \o  On the device, select \gui Terminal to open a
+        \li On the device, select \gui Terminal to open a
             terminal window.
 
-        \o  To specify the password, enter the following command:
+        \li To specify the password, enter the following command:
             \c{/usr/lib/mad-developer/devrootsh passwd user}
 
-        \o  In \QC, select \gui Tools > \gui Options > \gui Devices.
+        \li In \QC, select \gui Tools > \gui Options > \gui Devices.
 
-        \o  Specify the username \c user and the password in the device
+        \li Specify the username \c user and the password in the device
             configuration.
 
     \endlist
 
-    \input linux-mobile/linuxdev-keys.qdocinc
-    \input linux-mobile/linuxdev-processes.qdocinc
+    \include linux-mobile/linuxdev-keys.qdocinc
+    \include linux-mobile/linuxdev-processes.qdocinc
 
     \endif
 
@@ -443,24 +443,24 @@
     \table
 
         \header
-            \o IP Address and Network on Device
-            \o USB Network on Development PC
-            \o Host Name in \QC Build Settings
+            \li  IP Address and Network on Device
+            \li  USB Network on Development PC
+            \li  Host Name in \QC Build Settings
 
         \row
-            \o 172.30.7.15 255.255.255.0
-            \o 172.30.7.14 255.255.255.0
-            \o 172.30.7.15
+            \li  172.30.7.15 255.255.255.0
+            \li  172.30.7.14 255.255.255.0
+            \li  172.30.7.15
 
         \row
-            \o 10.133.133.15
-            \o 10.133.133.14
-            \o 10.133.133.15
+            \li  10.133.133.15
+            \li  10.133.133.14
+            \li  10.133.133.15
 
         \row
-            \o 192.168.133.15
-            \o 192.168.133.14
-            \o 192.168.133.15
+            \li  192.168.133.15
+            \li  192.168.133.14
+            \li  192.168.133.15
 
             \note You cannot use the value localhost for connections to a
             device.

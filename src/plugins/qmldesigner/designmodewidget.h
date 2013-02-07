@@ -152,6 +152,7 @@ private: // functions
     QmlDesigner::ModelNode nodeForPosition(int cursorPos) const;
     void setupNavigatorHistory(Core::IEditor *editor);
     void addNavigatorHistoryEntry(const QString &fileName);
+    QWidget *createCenterWidget();
 
 private: // variables
     QSplitter *m_mainSplitter;

@@ -420,7 +420,6 @@ void DesignModeWidget::setup()
     //m_fakeToolBar->addEditor(textEditor()); ### what does this mean?
     m_fakeToolBar->setNavigationVisible(true);
 
-    connect(m_fakeToolBar, SIGNAL(closeClicked()), this, SLOT(closeCurrentEditor()));
     connect(m_fakeToolBar, SIGNAL(goForwardClicked()), this, SLOT(onGoForwardClicked()));
     connect(m_fakeToolBar, SIGNAL(goBackClicked()), this, SLOT(onGoBackClicked()));
 
@@ -428,30 +427,7 @@ void DesignModeWidget::setup()
         setupNavigatorHistory(currentDesignDocument()->textEditor());
 
     // right area:
-    QWidget *centerWidget = new QWidget;
-    {
-        QVBoxLayout *rightLayout = new QVBoxLayout(centerWidget);
-        rightLayout->setMargin(0);
-        rightLayout->setSpacing(0);
-        rightLayout->addWidget(m_fakeToolBar);
-        //### we now own these here
-        rightLayout->addWidget(viewManager().statesEditorWidget());
-
-        FormEditorContext *formEditorContext = new FormEditorContext(viewManager().formEditorWidget());
-        Core::ICore::addContextObject(formEditorContext);
-
-        NavigatorContext *navigatorContext = new NavigatorContext(viewManager().navigatorWidget());
-        Core::ICore::addContextObject(navigatorContext);
-
-        // editor and output panes
-        m_outputPlaceholderSplitter->addWidget(viewManager().formEditorWidget());
-        m_outputPlaceholderSplitter->addWidget(m_outputPanePlaceholder);
-        m_outputPlaceholderSplitter->setStretchFactor(0, 10);
-        m_outputPlaceholderSplitter->setStretchFactor(1, 0);
-        m_outputPlaceholderSplitter->setOrientation(Qt::Vertical);
-
-        rightLayout->addWidget(m_outputPlaceholderSplitter);
-    }
+    QWidget *centerWidget = createCenterWidget();
 
     // m_mainSplitter area:
     m_mainSplitter->addWidget(m_leftSideBar);
@@ -565,6 +541,35 @@ void DesignModeWidget::addNavigatorHistoryEntry(const QString &fileName)
         m_navigatorHistory.append(fileName);
 
     ++m_navigatorHistoryCounter;
+}
+
+QWidget *DesignModeWidget::createCenterWidget()
+{
+    QWidget *centerWidget = new QWidget;
+
+    QVBoxLayout *rightLayout = new QVBoxLayout(centerWidget);
+    rightLayout->setMargin(0);
+    rightLayout->setSpacing(0);
+    rightLayout->addWidget(m_fakeToolBar);
+    //### we now own these here
+    rightLayout->addWidget(viewManager().statesEditorWidget());
+
+    FormEditorContext *formEditorContext = new FormEditorContext(viewManager().formEditorWidget());
+    Core::ICore::addContextObject(formEditorContext);
+
+    NavigatorContext *navigatorContext = new NavigatorContext(viewManager().navigatorWidget());
+    Core::ICore::addContextObject(navigatorContext);
+
+    // editor and output panes
+    m_outputPlaceholderSplitter->addWidget(viewManager().formEditorWidget());
+    m_outputPlaceholderSplitter->addWidget(m_outputPanePlaceholder);
+    m_outputPlaceholderSplitter->setStretchFactor(0, 10);
+    m_outputPlaceholderSplitter->setStretchFactor(1, 0);
+    m_outputPlaceholderSplitter->setOrientation(Qt::Vertical);
+
+    rightLayout->addWidget(m_outputPlaceholderSplitter);
+
+    return centerWidget;
 }
 
 void DesignModeWidget::showErrorMessage(const QList<RewriterView::Error> &errors)
