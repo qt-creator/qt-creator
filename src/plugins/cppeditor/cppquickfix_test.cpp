@@ -194,7 +194,7 @@ void TestCase::run(CppQuickFixFactory *factory, const QByteArray &expected,
 /// 1. If the name does not start with ("m_" or "_") and does not
 ///    end with "_", we are forced to prefix the getter with "get".
 /// 2. Setter: Use pass by value on integer/float and pointer types.
-void CppPlugin::test_quickfix_GetterSetter_basicGetterWithPrefix()
+void CppPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefix()
 {
     TestCase data("\n"
                   "class Something\n"
@@ -224,14 +224,14 @@ void CppPlugin::test_quickfix_GetterSetter_basicGetterWithPrefix()
             "\n"
             ;
 
-    GetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory(/*testMode=*/ true);
     data.run(&factory, expected);
 }
 
 /// Checks:
 /// 1. Getter: "get" prefix is not necessary.
 /// 2. Setter: Parameter name is base name.
-void CppPlugin::test_quickfix_GetterSetter_basicGetterWithoutPrefix()
+void CppPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithoutPrefix()
 {
     TestCase data("\n"
                   "class Something\n"
@@ -261,13 +261,13 @@ void CppPlugin::test_quickfix_GetterSetter_basicGetterWithoutPrefix()
             "\n"
             ;
 
-    GetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory(/*testMode=*/ true);
     data.run(&factory, expected);
 }
 
 /// Check: Setter: Use pass by reference for parameters which
 /// are not integer, float or pointers.
-void CppPlugin::test_quickfix_GetterSetter_customType()
+void CppPlugin::test_quickfix_GenerateGetterSetter_customType()
 {
     TestCase data("\n"
                   "class Something\n"
@@ -297,14 +297,14 @@ void CppPlugin::test_quickfix_GetterSetter_customType()
             "\n"
             ;
 
-    GetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory(/*testMode=*/ true);
     data.run(&factory, expected);
 }
 
 /// Checks:
 /// 1. Setter: No setter is generated for const members.
 /// 2. Getter: Return a non-const type since it pass by value anyway.
-void CppPlugin::test_quickfix_GetterSetter_constMember()
+void CppPlugin::test_quickfix_GenerateGetterSetter_constMember()
 {
     TestCase data("\n"
                   "class Something\n"
@@ -328,12 +328,12 @@ void CppPlugin::test_quickfix_GetterSetter_constMember()
             "\n"
             ;
 
-    GetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory(/*testMode=*/ true);
     data.run(&factory, expected);
 }
 
 /// Checks: No special treatment for pointer to non const.
-void CppPlugin::test_quickfix_GetterSetter_pointerToNonConst()
+void CppPlugin::test_quickfix_GenerateGetterSetter_pointerToNonConst()
 {
     TestCase data("\n"
                   "class Something\n"
@@ -363,12 +363,12 @@ void CppPlugin::test_quickfix_GetterSetter_pointerToNonConst()
             "\n"
             ;
 
-    GetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory(/*testMode=*/ true);
     data.run(&factory, expected);
 }
 
 /// Checks: No special treatment for pointer to const.
-void CppPlugin::test_quickfix_GetterSetter_pointerToConst()
+void CppPlugin::test_quickfix_GenerateGetterSetter_pointerToConst()
 {
     TestCase data("\n"
                   "class Something\n"
@@ -398,14 +398,14 @@ void CppPlugin::test_quickfix_GetterSetter_pointerToConst()
             "\n"
             ;
 
-    GetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory(/*testMode=*/ true);
     data.run(&factory, expected);
 }
 
 /// Checks:
 /// 1. Setter: Setter is a static function.
 /// 2. Getter: Getter is a static, non const function.
-void CppPlugin::test_quickfix_GetterSetter_staticMember()
+void CppPlugin::test_quickfix_GenerateGetterSetter_staticMember()
 {
     TestCase data("\n"
                   "class Something\n"
@@ -435,12 +435,12 @@ void CppPlugin::test_quickfix_GetterSetter_staticMember()
             "\n"
             ;
 
-    GetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory(/*testMode=*/ true);
     data.run(&factory, expected);
 }
 
 /// Check: Check if it works on the second declarator
-void CppPlugin::test_quickfix_GetterSetter_secondDeclarator()
+void CppPlugin::test_quickfix_GenerateGetterSetter_secondDeclarator()
 {
     TestCase data("\n"
                   "class Something\n"
@@ -470,12 +470,12 @@ void CppPlugin::test_quickfix_GetterSetter_secondDeclarator()
             "\n"
             ;
 
-    GetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory(/*testMode=*/ true);
     data.run(&factory, expected);
 }
 
 /// Check: Quick fix is offered for "int *@it;" ('@' denotes the text cursor position)
-void CppPlugin::test_quickfix_GetterSetter_triggeringRightAfterPointerSign()
+void CppPlugin::test_quickfix_GenerateGetterSetter_triggeringRightAfterPointerSign()
 {
     TestCase data("\n"
                   "class Something\n"
@@ -505,33 +505,33 @@ void CppPlugin::test_quickfix_GetterSetter_triggeringRightAfterPointerSign()
             "\n"
             ;
 
-    GetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory(/*testMode=*/ true);
     data.run(&factory, expected);
 }
 
 /// Check: Quick fix is not triggered on a member function.
-void CppPlugin::test_quickfix_GetterSetter_notTriggeringOnMemberFunction()
+void CppPlugin::test_quickfix_GenerateGetterSetter_notTriggeringOnMemberFunction()
 {
     TestCase data("class Something { void @f(); };");
     QByteArray expected = data.originalText;
 
-    GetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory(/*testMode=*/ true);
     data.run(&factory, expected, /*changesExpected=*/ false);
 }
 
 /// Check: Quick fix is not triggered on an member array;
-void CppPlugin::test_quickfix_GetterSetter_notTriggeringOnMemberArray()
+void CppPlugin::test_quickfix_GenerateGetterSetter_notTriggeringOnMemberArray()
 {
     TestCase data("class Something { void @a[10]; };");
     QByteArray expected = data.originalText;
 
-    GetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory(/*testMode=*/ true);
     data.run(&factory, expected, /*changesExpected=*/ false);
 }
 
 /// Check: Do not offer the quick fix if there is already a member with the
 /// getter or setter name we would generate.
-void CppPlugin::test_quickfix_GetterSetter_notTriggeringWhenGetterOrSetterExist()
+void CppPlugin::test_quickfix_GenerateGetterSetter_notTriggeringWhenGetterOrSetterExist()
 {
     TestCase data("\n"
                   "class Something {\n"
@@ -540,6 +540,6 @@ void CppPlugin::test_quickfix_GetterSetter_notTriggeringWhenGetterOrSetterExist(
                   "};\n");
     QByteArray expected = data.originalText;
 
-    GetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory(/*testMode=*/ true);
     data.run(&factory, expected, /*changesExpected=*/ false);
 }

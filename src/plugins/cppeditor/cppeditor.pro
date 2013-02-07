@@ -22,6 +22,7 @@ HEADERS += cppplugin.h \
     cppinsertqtpropertymembers.h \
     cppquickfixassistant.h \
     cppquickfix.h \
+    cppquickfixes.h \
     cppfunctiondecldeflink.h
 
 SOURCES += cppplugin.cpp \

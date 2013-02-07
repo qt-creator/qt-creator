@@ -38,6 +38,7 @@
 #include "cpptypehierarchy.h"
 #include "cppsnippetprovider.h"
 #include "cppquickfixassistant.h"
+#include "cppquickfixes.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -187,7 +188,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     m_quickFixProvider = new CppQuickFixAssistProvider;
     addAutoReleasedObject(m_quickFixProvider);
-    registerQuickFixes(this);
+    CppEditor::Internal::registerQuickFixes(this);
 
     QObject *core = Core::ICore::instance();
     CppFileWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
