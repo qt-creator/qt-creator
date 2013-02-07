@@ -269,7 +269,8 @@ def __chooseComponents__(components=QtQuickConstants.Components.BUILTIN):
 # parameter target can be an OR'd value of QtQuickConstants.Targets
 # parameter availableTargets should be the result of __createProjectSelectType__()
 #           or use None as a fallback
-def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP_474_GCC, availableTargets=None):
+def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP_474_GCC, availableTargets=None,
+                      isMaddeDisabled=True):
     if availableTargets != None:
         available = availableTargets
     else:
@@ -280,6 +281,10 @@ def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP_474_GCC, availabl
         if platform.system() in ('Windows', 'Microsoft'):
             available.remove(QtQuickConstants.Targets.EMBEDDED_LINUX)
             available.append(QtQuickConstants.Targets.DESKTOP_474_MSVC2008)
+    if isMaddeDisabled:
+        for target in filter(lambda x: x in available,
+                             (QtQuickConstants.Targets.MAEMO5, QtQuickConstants.Targets.HARMATTAN)):
+            available.remove(target)
     checkedTargets = []
     for current in available:
         mustCheck = targets & current == current
