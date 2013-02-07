@@ -225,6 +225,8 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
     nextButton = waitForObject(":Next_QPushButton")
     clickButton(nextButton)
     __createProjectHandleLastPage__()
+
+    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 10000)
     return checkedTargets, projectName
 
 def createNewQtQuickUI(workingDir):

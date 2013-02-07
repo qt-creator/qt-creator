@@ -28,10 +28,8 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     # create qt quick application 1
     createNewQtQuickApplication(tempDir(), projectName1)
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 5000)
     # create qt quick application 2
     createNewQtQuickApplication(tempDir(), projectName2)
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 5000)
     # change to project 1
     verifyChangeProject(projectName1)
     # change to project 2

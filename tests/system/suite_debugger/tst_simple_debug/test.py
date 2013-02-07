@@ -15,9 +15,6 @@ def main():
     # using a temporary directory won't mess up a potentially existing
     workingDir = tempDir()
     checkedTargets, projectName = createNewQtQuickApplication(workingDir)
-    # wait for parsing to complete
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}",
-                  "sourceFilesRefreshed(QStringList)")
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     if placeCursorToLine(editor, "MouseArea.*", True):
         type(editor, '<Up>')
