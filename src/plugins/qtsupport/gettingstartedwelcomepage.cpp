@@ -440,7 +440,8 @@ void ExamplesWelcomePage::openProject(const QString &projectFile, const QStringL
         if (project->needsConfiguration())
             project->configureAsExampleProject(platforms);
         Core::ModeManager::activateModeType(Core::Constants::MODE_EDIT_TYPE);
-        Core::ICore::helpManager()->handleHelpRequest(help.toString()+QLatin1String("?view=split"));
+        if (help.isValid())
+            Core::ICore::helpManager()->handleHelpRequest(help.toString() + QLatin1String("?view=split"));
     }
     if (!errorMessage.isEmpty())
         QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to Open Project"), errorMessage);

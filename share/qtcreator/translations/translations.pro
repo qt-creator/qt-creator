@@ -70,6 +70,7 @@ QMAKE_EXTRA_TARGETS += check-ts
 isEqual(QMAKE_DIR_SEP, /) {
     commit-ts.commands = \
         cd $$wd; \
+        git add -N share/qtcreator/translations/*_??.ts && \
         for f in `git diff-files --name-only share/qtcreator/translations/*_??.ts`; do \
             $$LCONVERT -locations none -i \$\$f -o \$\$f; \
         done; \
@@ -77,6 +78,7 @@ isEqual(QMAKE_DIR_SEP, /) {
 } else {
     commit-ts.commands = \
         cd $$wd && \
+        git add -N share/qtcreator/translations/*_??.ts && \
         for /f usebackq %%f in (`git diff-files --name-only share/qtcreator/translations/*_??.ts`) do \
             $$LCONVERT -locations none -i %%f -o %%f $$escape_expand(\\n\\t) \
         cd $$wd && git add share/qtcreator/translations/*_??.ts && git commit

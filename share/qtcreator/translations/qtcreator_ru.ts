@@ -25181,22 +25181,22 @@ Reason: %2</source>
     <message>
         <source>%1 Debug</source>
         <extracomment>Debug build configuration. We recommend not translating it.</extracomment>
-        <translation>%1 Отладка</translation>
+        <translation>%1 Debug</translation>
     </message>
     <message>
         <source>%1 Release</source>
         <extracomment>Release build configuration. We recommend not translating it.</extracomment>
-        <translation>%1 Выпуск</translation>
+        <translation>%1 Release</translation>
     </message>
     <message>
         <source>Debug</source>
         <extracomment>Name of a debug build configuration to created by a project wizard. We recommend not translating it.</extracomment>
-        <translation>Отладка</translation>
+        <translation>Debug</translation>
     </message>
     <message>
         <source>Release</source>
         <extracomment>Name of a release build configuration to be created by a project wizard. We recommend not translating it.</extracomment>
-        <translation>Выпуск</translation>
+        <translation>Release</translation>
     </message>
 </context>
 <context>
