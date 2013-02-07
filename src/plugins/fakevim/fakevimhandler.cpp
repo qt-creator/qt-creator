@@ -1082,7 +1082,8 @@ const QString &History::move(const QStringRef &prefix, int skip)
 
     int i = m_index + skip;
     if (!prefix.isEmpty())
-        for (; i >= 0 && i < m_items.size() && !m_items[i].startsWith(prefix); i += skip);
+        for (; i >= 0 && i < m_items.size() && !m_items[i].startsWith(prefix); i += skip)
+            ;
     if (i >= 0 && i < m_items.size())
         m_index = i;
 
