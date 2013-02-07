@@ -116,6 +116,12 @@ static QList<Abi> parseCoffHeader(const QByteArray &data)
     // Get machine field from COFF file header
     quint16 machine = getLEUint16(data, 0);
     switch (machine) {
+    case 0x01c0: // ARM LE
+    case 0x01c2: // ARM or thumb
+    case 0x01c4: // ARMv7 thumb
+        arch = Abi::ArmArchitecture;
+        width = 32;
+        break;
     case 0x8664: // x86_64
         arch = Abi::X86Architecture;
         width = 64;
@@ -810,9 +816,13 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
     QTest::newRow("dynamic QtCore: win mingw 64bit")
             << QString::fromLatin1("%1/dynamic/win-mingw-64bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msys-pe-64bit"));
-    QTest::newRow("dynamic QtCore: wince msvc2005 32bit")
+    QTest::newRow("dynamic QtCore: wince mips msvc2005 32bit")
             << QString::fromLatin1("%1/dynamic/wince-32bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("mips-windows-msvc2005-pe-32bit"));
+    QTest::newRow("dynamic QtCore: wince arm msvc2008 32bit")
+            << QString::fromLatin1("%1/dynamic/arm-win-ce-pe-32bit").arg(prefix)
+            << (QStringList() << QString::fromLatin1("arm-windows-msvc2008-pe-32bit"));
+
     QTest::newRow("dynamic stdc++: mac fat")
             << QString::fromLatin1("%1/dynamic/mac-fat.dylib").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-macos-generic-mach_o-32bit")
