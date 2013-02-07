@@ -108,6 +108,11 @@ int parseArguments(const QStringList &args, Settings *s, const QList<Operation *
                 continue;
             }
             if (current == QLatin1String("-s")) {
+                if (next.isNull()) {
+                    std::cerr << "Missing argument to '-s'." << std::endl << std::endl;
+                    printHelp(operations);
+                    return -1;
+                }
                 s->sdkPath = Utils::FileName::fromString(next);
                 ++i; // skip next;
                 continue;
@@ -141,6 +146,7 @@ int parseArguments(const QStringList &args, Settings *s, const QList<Operation *
     if (!s->operation->setArguments(opArgs)) {
         std::cerr << "Argument parsing failed." << std::endl << std::endl;
         printHelp(s->operation);
+        s->operation = 0;
         return -1;
     }
 
@@ -175,11 +181,8 @@ int main(int argc, char *argv[])
 #endif
 
     int result = parseArguments(a.arguments(), &settings, operations);
-    if (result <= 0)
-        return result;
+    if (!settings.operation)
+        return result; // nothing to do:-)
 
-    Q_ASSERT(settings.operation);
-    settings.operation->execute();
-
-    return result;
+    return settings.operation->execute();
 }

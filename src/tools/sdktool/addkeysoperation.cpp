@@ -59,8 +59,10 @@ bool AddKeysOperation::setArguments(const QStringList &args)
             continue;
         }
 
-        if (next.isNull())
+        if (next.isNull()) {
+            std::cerr << "Missing value for key '" << qPrintable(current) << "'." << std::endl << std::endl;
             return false;
+        }
 
         ++i;
         KeyValuePair pair(current, next);
@@ -81,10 +83,10 @@ int AddKeysOperation::execute() const
 
     map = addKeys(map, m_data);
     if (map.isEmpty())
-        return 1;
+        return -4;
 
     // Write data again:
-    return save(map, m_file) ? 0 : 2;
+    return save(map, m_file) ? 0 : -5;
 }
 
 #ifdef WITH_TESTS

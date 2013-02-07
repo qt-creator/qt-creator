@@ -59,6 +59,11 @@ bool FindKeyOperation::setArguments(const QStringList &args)
         m_keys.append(current);
     }
 
+    if (m_file.isEmpty())
+        std::cerr << "No file given." << std::endl << std::endl;
+    if (m_keys.isEmpty())
+        std::cerr << "No keys given." << std::endl << std::endl;
+
     return (!m_file.isEmpty() && !m_keys.isEmpty());
 }
 

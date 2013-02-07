@@ -80,12 +80,12 @@ QString AddKitOperation::helpText() const
 
 QString AddKitOperation::argumentsHelpText() const
 {
-    return QLatin1String("    --id <ID>                                  id of the new kit.\n"
-                         "    --name <NAME>                              display name of the new kit.\n"
+    return QLatin1String("    --id <ID>                                  id of the new kit (required).\n"
+                         "    --name <NAME>                              display name of the new kit (required).\n"
                          "    --icon <PATH>                              icon of the new kit.\n"
                          "    --debuggerengine <ENGINE>                  debuggerengine of the new kit.\n"
                          "    --debugger <PATH>                          debugger of the new kit.\n"
-                         "    --devicetype <TYPE>                        device type of the new kit.\n"
+                         "    --devicetype <TYPE>                        device type of the new kit (required).\n"
                          "    --sysroot <PATH>                           sysroot of the new kit.\n"
                          "    --toolchain <ID>                           tool chain of the new kit.\n"
                          "    --qt <ID>                                  Qt of the new kit.\n"
@@ -197,6 +197,13 @@ bool AddKitOperation::setArguments(const QStringList &args)
 
     if (m_icon.isEmpty())
         m_icon = QLatin1String(":///DESKTOP///");
+
+    if (m_id.isEmpty())
+        std::cerr << "No id given for kit." << std::endl << std::endl;
+    if (m_displayName.isEmpty())
+        std::cerr << "No name given for kit." << std::endl << std::endl;
+    if (m_deviceType.isEmpty())
+        std::cerr << "No devicetype given for kit." << std::endl << std::endl;
 
     return !m_id.isEmpty() && !m_displayName.isEmpty() && !m_deviceType.isEmpty();
 }
