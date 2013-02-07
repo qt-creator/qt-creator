@@ -5,7 +5,7 @@ import "qbs/defaults.js" as Defaults
 Project {
     property string ide_version_major: '2'
     property string ide_version_minor: '6'
-    property string ide_version_release: '82'
+    property string ide_version_release: '83'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.' + ide_version_release
     moduleSearchPaths: "qbs"
 
