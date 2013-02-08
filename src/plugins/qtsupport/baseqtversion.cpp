@@ -1249,7 +1249,7 @@ static QByteArray runQmakeQuery(const FileName &binary, const Environment &env,
     }
     if (!process.waitForFinished(timeOutMS)) {
         SynchronousProcess::stopProcess(process);
-        *error = QCoreApplication::translate("QtVersion", "Timeout running '%1' (%2ms).").arg(binary.toUserOutput()).arg(timeOutMS);
+        *error = QCoreApplication::translate("QtVersion", "Timeout running '%1' (%2 ms).").arg(binary.toUserOutput()).arg(timeOutMS);
         return QByteArray();
     }
     if (process.exitStatus() != QProcess::NormalExit) {
@@ -1270,7 +1270,7 @@ bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Environmen
 
     const QFileInfo qmake = binary.toFileInfo();
     if (!qmake.exists() || !qmake.isExecutable() || qmake.isDir()) {
-        *error = QCoreApplication::translate("QtVersion", "qmake '%1' is not a executable").arg(binary.toUserOutput());
+        *error = QCoreApplication::translate("QtVersion", "qmake '%1' is not an executable").arg(binary.toUserOutput());
         return false;
     }
 
