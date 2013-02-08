@@ -668,7 +668,7 @@ void QtOptionsPageWidget::addQtDir()
         m_versionUi->nameEdit->setFocus();
         m_versionUi->nameEdit->selectAll();
     } else {
-        QMessageBox::warning(this, tr("Qmake not Executable"),
+        QMessageBox::warning(this, tr("Qmake Not Executable"),
                              tr("The qmake executable %1 could not be added: %2").arg(qtVersion.toUserOutput()).arg(error));
         return;
     }
