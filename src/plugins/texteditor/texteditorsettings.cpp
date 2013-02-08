@@ -162,7 +162,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescr.append(FormatDescription(C_FIELD, tr("Field"),
                                          tr("Class' data members."), Qt::darkRed));
     formatDescr.append(FormatDescription(C_ENUMERATION, tr("Enumeration"),
-                                         tr("Applied to Enumeration Items."), Qt::darkMagenta));
+                                         tr("Applied to enumeration items."), Qt::darkMagenta));
 
     Format functionFormat;
     formatDescr.append(FormatDescription(C_FUNCTION, tr("Function"), tr("Name of a function."),
@@ -182,10 +182,10 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescr.append(FormatDescription(C_QML_LOCAL_ID, tr("QML Local Id"),
                                          tr("QML item id within a QML file."), qmlLocalNameFormat));
     formatDescr.append(FormatDescription(C_QML_ROOT_OBJECT_PROPERTY,
-                                         tr("QML root Object Property"),
+                                         tr("QML Root Object Property"),
                                          tr("QML property of a parent item."), qmlLocalNameFormat));
     formatDescr.append(FormatDescription(C_QML_SCOPE_OBJECT_PROPERTY,
-                                         tr("QML scope Object Property"),
+                                         tr("QML Scope Object Property"),
                                          tr("Property of the same QML item."), qmlLocalNameFormat));
     formatDescr.append(FormatDescription(C_QML_STATE_NAME, tr("QML State Name"),
                                          tr("Name of a QML state."), qmlLocalNameFormat));
@@ -224,7 +224,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
                                          tr("Reserved keywords of the programming language."),
                                          Qt::darkYellow));
     formatDescr.append(FormatDescription(C_OPERATOR, tr("Operator"),
-                                         tr("Operators. (for example operator++ operator-=)")));
+                                         tr("Operators. (For example operator++ operator-=)")));
     formatDescr.append(FormatDescription(C_PREPROCESSOR, tr("Preprocessor"),
                                          tr("Preprocessor directives."), Qt::darkBlue));
     formatDescr.append(FormatDescription(C_LABEL, tr("Label"), tr("Labels for goto statements."),
@@ -234,7 +234,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
                                          Qt::darkGreen));
     formatDescr.append(FormatDescription(C_DOXYGEN_COMMENT, tr("Doxygen Comment"),
                                          tr("Doxygen comments."), Qt::darkBlue));
-    formatDescr.append(FormatDescription(C_DOXYGEN_TAG, tr("Doxygen Tag"), tr("Doxygen tags"),
+    formatDescr.append(FormatDescription(C_DOXYGEN_TAG, tr("Doxygen Tag"), tr("Doxygen tags."),
                                          Qt::blue));
     formatDescr.append(FormatDescription(C_VISUAL_WHITESPACE, tr("Visual Whitespace"),
                                          tr("Whitespace\nWill not be applied to whitespace "
