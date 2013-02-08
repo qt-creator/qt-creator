@@ -2147,7 +2147,7 @@ void GitClient::synchronousAbortCommand(const QString &workingDir, const QString
 
 void GitClient::handleMergeConflicts(const QString &workingDir, const QString &abortCommand)
 {
-    QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts detected"),
+    QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts Detected"),
                              tr("Conflicts detected"), QMessageBox::Ignore | QMessageBox::Abort);
     mergeOrAbort.addButton(tr("Run Merge Tool"), QMessageBox::ActionRole);
     switch (mergeOrAbort.exec()) {
