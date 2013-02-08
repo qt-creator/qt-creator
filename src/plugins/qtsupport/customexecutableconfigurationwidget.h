@@ -75,7 +75,6 @@ private:
     bool m_ignoreChange;
     CustomExecutableRunConfiguration *m_runConfiguration;
     Utils::PathChooser *m_executableChooser;
-    QLineEdit *m_userName;
     QLineEdit *m_commandLineArgumentsLineEdit;
     Utils::PathChooser *m_workingDirectory;
     QCheckBox *m_useTerminalCheck;
