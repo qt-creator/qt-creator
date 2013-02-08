@@ -35,6 +35,7 @@
 
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/elidinglabel.h>
 
 #ifdef Q_OS_WIN
 #include <utils/winutils.h>
@@ -64,7 +65,7 @@ static const char debuggingToolsWikiLinkC[] = "http://qt-project.org/wiki/Qt_Cre
 
 DebuggerKitConfigWidget::DebuggerKitConfigWidget(ProjectExplorer::Kit *workingCopy)
   : KitConfigWidget(workingCopy),
-    m_label(new QLabel),
+    m_label(new Utils::ElidingLabel),
     m_button(new QPushButton(tr("Manage...")))
 {
     // ToolButton with Menu, defaulting to 'Autodetect'.

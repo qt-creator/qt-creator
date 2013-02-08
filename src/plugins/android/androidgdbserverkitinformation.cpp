@@ -32,6 +32,7 @@
 #include "androidtoolchain.h"
 
 #include <utils/pathchooser.h>
+#include <utils/elidinglabel.h>
 
 #include <QDialogButtonBox>
 #include <QLabel>
@@ -110,7 +111,7 @@ Utils::FileName AndroidGdbServerKitInformation::autoDetect(ProjectExplorer::Kit 
 
 AndroidGdbServerKitInformationWidget::AndroidGdbServerKitInformationWidget(ProjectExplorer::Kit *kit)
     : ProjectExplorer::KitConfigWidget(kit),
-      m_label(new QLabel),
+      m_label(new Utils::ElidingLabel),
       m_button(new QPushButton(tr("Manage...")))
 {
     // ToolButton with Menu, defaulting to 'Autodetect'.
