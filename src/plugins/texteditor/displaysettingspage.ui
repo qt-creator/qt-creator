@@ -156,7 +156,7 @@
       <item row="5" column="1">
        <widget class="QCheckBox" name="openLinksInNextSplit">
         <property name="text">
-         <string>Open Links in Another Split</string>
+         <string>Open links in another split</string>
         </property>
        </widget>
       </item>
@@ -181,7 +181,7 @@
         <item>
          <widget class="QCheckBox" name="forceOpenLinksInNextSplit">
           <property name="text">
-           <string>Force Open Links in Next Split</string>
+           <string>Force open links in next split</string>
           </property>
          </widget>
         </item>
