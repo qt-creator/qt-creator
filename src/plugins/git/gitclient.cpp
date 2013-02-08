@@ -73,6 +73,7 @@
 
 #include <QComboBox>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QToolButton>
 #include <QTextCodec>
 
@@ -2163,16 +2164,23 @@ void GitClient::handleMergeConflicts(const QString &workingDir, const QString &c
                                        : tr("Conflicts detected with commit %1").arg(commit);
     QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts Detected"),
                              message, QMessageBox::Ignore | QMessageBox::Abort);
-    mergeOrAbort.addButton(tr("Run Merge Tool"), QMessageBox::ActionRole);
+    QPushButton *mergeToolButton = mergeOrAbort.addButton(tr("Run &Merge Tool"),
+                                                          QMessageBox::ActionRole);
+    if (abortCommand == QLatin1String("rebase"))
+        mergeOrAbort.addButton(tr("&Skip"), QMessageBox::ActionRole);
     switch (mergeOrAbort.exec()) {
-    case QMessageBox::Abort: {
+    case QMessageBox::Abort:
         synchronousAbortCommand(workingDir, abortCommand);
         break;
-    }
     case QMessageBox::Ignore:
         break;
-    default: // Merge
-        merge(workingDir);
+    default: // Merge or Skip
+        if (mergeOrAbort.clickedButton() == mergeToolButton) {
+            merge(workingDir);
+        } else {
+            QStringList arguments = QStringList() << abortCommand << QLatin1String("--skip");
+            executeAndHandleConflicts(workingDir, arguments, abortCommand);
+        }
     }
 }
 
