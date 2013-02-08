@@ -51,7 +51,7 @@ namespace Core {
     \c QByteArray would provide.
 
     An id is internally represented as a 32 bit integer (its \c UID)
-    and associated with a be plain 7-bit-clean ASCII name used
+    and associated with a plain 7-bit-clean ASCII name used
     for display and persistency.
 
     Each plugin that is distributed as part of Qt Creator has a
