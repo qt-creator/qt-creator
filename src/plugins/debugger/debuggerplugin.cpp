@@ -3112,7 +3112,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
                                         globalcontext);
     debugMenu->addAction(cmd);
 
-    QAction *qmlShowAppOnTopDummyAction = new QAction(tr("Show Application On Top"), this);
+    QAction *qmlShowAppOnTopDummyAction = new QAction(tr("Show Application on Top"), this);
     qmlShowAppOnTopDummyAction->setCheckable(true);
     qmlShowAppOnTopDummyAction->setIcon(QIcon(_(":/debugger/images/qml/app-on-top.png")));
     qmlShowAppOnTopDummyAction->setEnabled(false);
