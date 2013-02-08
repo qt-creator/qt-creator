@@ -83,7 +83,7 @@ Debugging
    * Implemented display in separate window for string-like data
      types (QByteArray, std::string, char[], char* etc)
    * Adjusted to GDB 7.5 changes
-   * Removed dependency on QmlJSToolsA
+   * Removed dependency on QmlJSTools
    * Added shortcut to add breakpoint by double click on break view
    * Made breakpoint markers draggable
    * Added logging of exceptions (QTCREATORBUG-8141)
