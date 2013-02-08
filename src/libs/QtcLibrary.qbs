@@ -13,7 +13,7 @@ DynamicLibrary {
         if (qbs.buildVariant == "release" && (qbs.toolchain == "gcc" || qbs.toolchain == "mingw"))
             return ["-Wl,-s"]
     }
-    cpp.includePaths: [ "." ]
+    cpp.includePaths: [ ".", ".." ]
 
     ProductModule {
         Depends { name: "cpp" }

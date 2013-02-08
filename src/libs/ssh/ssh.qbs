@@ -45,7 +45,17 @@ QtcLibrary {
     ].concat(botanFiles)
 
     property var botanIncludes: ["../3rdparty"]
-    property var botanLibs: qbs.targetOS === "windows" ? ["advapi32", "user32"] : ["rt", "dl"]
+    property var botanLibs: {
+        var result = [];
+        if (qbs.targetOS === "windows")
+            result.push("advapi32", "user32")
+        else {
+            result.push("rt")
+            if (qbs.targetOS === "linux" || qbs.targetOS === "mac")
+                result.push("dl")
+        }
+        return result
+    }
     property var botanDefines: {
             var result = ['BOTAN_DLL=']
             if (qbs.toolchain === "msvc")

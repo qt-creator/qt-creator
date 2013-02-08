@@ -242,7 +242,7 @@ QtcPlugin {
     }
 
     Group {
-        condition: qbs.targetOS == "linux"
+        condition: qbs.targetPlatform.indexOf("unix") != -1 && qbs.targetOS != "mac"
         files: [
             "progressmanager/progressmanager_x11.cpp",
         ]

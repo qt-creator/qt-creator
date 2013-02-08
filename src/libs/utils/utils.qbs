@@ -15,7 +15,7 @@ QtcLibrary {
         ]
     }
     Properties {
-        condition: qbs.targetOS == "linux"
+        condition: qbs.targetPlatform.indexOf("unix") != -1 && qbs.targetOS != "mac"
         cpp.dynamicLibraries: ["X11"]
     }
 
@@ -205,7 +205,7 @@ QtcLibrary {
     }
 
     Group {
-        condition: qbs.targetOS == "linux" || qbs.targetOS == "mac"
+        condition: qbs.targetPlatform.indexOf("unix") != -1
         files: [
             "consoleprocess_unix.cpp",
         ]
