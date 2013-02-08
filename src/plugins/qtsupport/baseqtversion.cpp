@@ -1270,7 +1270,7 @@ bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Environmen
 
     const QFileInfo qmake = binary.toFileInfo();
     if (!qmake.exists() || !qmake.isExecutable() || qmake.isDir()) {
-        *error = QCoreApplication::translate("QtVersion", "qmake '%1' is not an executable").arg(binary.toUserOutput());
+        *error = QCoreApplication::translate("QtVersion", "qmake '%1' is not an executable.").arg(binary.toUserOutput());
         return false;
     }
 

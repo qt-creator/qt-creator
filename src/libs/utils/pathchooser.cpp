@@ -521,7 +521,7 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
     case PathChooser::ExistingCommand:
         if (!fi.isFile() || !fi.isExecutable()) {
             if (errorMessage)
-                *errorMessage = tr("The path <b>%1</b> is not a executable file.").arg(QDir::toNativeSeparators(expandedPath));
+                *errorMessage = tr("The path <b>%1</b> is not an executable file.").arg(QDir::toNativeSeparators(expandedPath));
             return false;
         }
 
