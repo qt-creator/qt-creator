@@ -69,8 +69,12 @@ void ElidingLabel::paintEvent(QPaintEvent *)
     QRect contents = contentsRect().adjusted(m, m, -m, -m);
     QFontMetrics fm = fontMetrics();
     QString txt = text();
-    if (txt.length() > 4 && fm.width(txt) > contents.width())
+    if (txt.length() > 4 && fm.width(txt) > contents.width()) {
+        setToolTip(txt);
         txt = fm.elidedText(txt, m_elideMode, contents.width());
+    } else {
+        setToolTip(QString());
+    }
     int flags = QStyle::visualAlignment(layoutDirection(), alignment()) | Qt::TextSingleLine;
 
     QPainter painter(this);
