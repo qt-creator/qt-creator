@@ -48,7 +48,7 @@ class QMLEDITORWIDGETS_EXPORT ColorBox : public QWidget
     Q_PROPERTY(int alpha READ alpha WRITE setAlpha NOTIFY alphaChanged)
 
 public:
-    ColorBox(QWidget *parent = 0) : QWidget(parent), m_color(Qt::white), m_saturatedColor(Qt::white), m_lastHue(0)
+    ColorBox(QWidget *parent = 0) : QWidget(parent), m_color(Qt::white), m_saturatedColor(Qt::white), m_mousePressed(false), m_lastHue(0)
     {
         setFixedWidth(130);
         setFixedHeight(130);
