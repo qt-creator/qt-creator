@@ -154,7 +154,7 @@ void Html5ApplicationViewer::setOrientation(ScreenOrientation orientation)
     case ScreenOrientationAuto:
         attribute = static_cast<Qt::WidgetAttribute>(130);
         break;
-#else // QT_VERSION < 0x040702
+#elif QT_VERSION < 0x050000
     case ScreenOrientationLockPortrait:
         attribute = Qt::WA_LockPortraitOrientation;
         break;
@@ -165,7 +165,10 @@ void Html5ApplicationViewer::setOrientation(ScreenOrientation orientation)
     case ScreenOrientationAuto:
         attribute = Qt::WA_AutoOrientation;
         break;
-#endif // QT_VERSION < 0x040702
+#else
+    default:
+        attribute = Qt::WidgetAttribute();
+#endif
     };
     setAttribute(attribute, true);
 }
