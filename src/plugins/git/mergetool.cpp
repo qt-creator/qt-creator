@@ -294,8 +294,8 @@ void MergeTool::done()
                     tr("You need to commit changes to finish revert.\nCommit now?"),
                     tr("Commit"), QLatin1String("revert"));
         } else if (QFile::exists(gitDir + QLatin1String("/CHERRY_PICK_HEAD"))) {
-            continuePreviousGitCommand(tr("Continue Cherry-Pick"),
-                    tr("You need to commit changes to finish cherry-pick.\nCommit now?"),
+            continuePreviousGitCommand(tr("Continue Cherry-Picking"),
+                    tr("You need to commit changes to finish cherry-picking.\nCommit now?"),
                     tr("Commit"), QLatin1String("cherry-pick"));
         }
     } else {

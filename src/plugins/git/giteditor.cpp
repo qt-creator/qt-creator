@@ -267,7 +267,7 @@ bool GitEditor::isValidRevision(const QString &revision) const
 void GitEditor::addChangeActions(QMenu *menu, const QString &change)
 {
     m_currentChange = change;
-    menu->addAction(tr("Cherry-pick Change %1").arg(change), this, SLOT(cherryPickChange()));
+    menu->addAction(tr("Cherry-Pick Change %1").arg(change), this, SLOT(cherryPickChange()));
     menu->addAction(tr("Revert Change %1").arg(change), this, SLOT(revertChange()));
 }
 
