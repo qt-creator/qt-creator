@@ -629,12 +629,15 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(Target *parent, const C
     if (buildConfigurationName != version->displayName())
         customSecondName = tr("%1 Release").arg(buildConfigurationName).trimmed();
 
+    BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig() | QtSupport::BaseQtVersion::DebugBuild;
     BuildConfiguration *bc
             = Qt4BuildConfiguration::setup(parent, defaultFirstName, customFirstName,
-                                           version->defaultBuildConfig(), QString(), QString(), false);
+                                           config, QString(), QString(), false);
+
+    config = config ^ BaseQtVersion::DebugBuild;
     parent->addBuildConfiguration(
                 Qt4BuildConfiguration::setup(parent, defaultSecondName, customSecondName,
-                                             (version->defaultBuildConfig() ^ BaseQtVersion::DebugBuild),
+                                             config,
                                              QString(), QString(), false));
     return bc;
 }
