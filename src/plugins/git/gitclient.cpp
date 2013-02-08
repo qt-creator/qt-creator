@@ -2091,18 +2091,29 @@ bool GitClient::synchronousFetch(const QString &workingDirectory, const QString 
     return resp.result == Utils::SynchronousProcessResponse::Finished;
 }
 
-bool GitClient::executeAndHandleConflicts(const QString &workingDirectory, const QStringList &arguments, const QString &abortCommand)
+bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
+                                          const QStringList &arguments,
+                                          const QString &abortCommand)
 {
     // Disable UNIX terminals to suppress SSH prompting.
     const unsigned flags = VcsBase::VcsBasePlugin::SshPasswordPrompt|VcsBase::VcsBasePlugin::ShowStdOutInLogWindow;
     const Utils::SynchronousProcessResponse resp = synchronousGit(workingDirectory, arguments, flags);
     // Notify about changed files or abort the rebase.
     const bool ok = resp.result == Utils::SynchronousProcessResponse::Finished;
-    if (ok)
+    if (ok) {
         GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(workingDirectory);
-    else if (resp.stdOut.contains(QLatin1String("CONFLICT"))
-             || resp.stdErr.contains(QLatin1String("conflict")))
-        handleMergeConflicts(workingDirectory, abortCommand);
+    } else if (resp.stdOut.contains(QLatin1String("CONFLICT"))) {
+        // rebase conflict is output to stdOut
+        QRegExp conflictedCommit(QLatin1String("Patch failed at ([^\\n]*)\\n"));
+        conflictedCommit.indexIn(resp.stdOut);
+        qDebug() << conflictedCommit.cap(1);
+        handleMergeConflicts(workingDirectory, conflictedCommit.cap(1), abortCommand);
+    } else if (resp.stdErr.contains(QLatin1String("conflict"))) {
+        // cherry-pick/revert conflict is output to stdErr
+        QRegExp conflictedCommit(QLatin1String("could not (?:apply|revert) (.*)$"));
+        conflictedCommit.indexIn(resp.stdErr);
+        handleMergeConflicts(workingDirectory, conflictedCommit.cap(1), abortCommand);
+    }
     return ok;
 }
 
@@ -2146,10 +2157,12 @@ void GitClient::synchronousAbortCommand(const QString &workingDir, const QString
         outwin->appendError(commandOutputFromLocal8Bit(stdErr));
 }
 
-void GitClient::handleMergeConflicts(const QString &workingDir, const QString &abortCommand)
+void GitClient::handleMergeConflicts(const QString &workingDir, const QString &commit, const QString &abortCommand)
 {
+    QString message = commit.isEmpty() ? tr("Conflicts detected")
+                                       : tr("Conflicts detected with commit %1").arg(commit);
     QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts Detected"),
-                             tr("Conflicts detected"), QMessageBox::Ignore | QMessageBox::Abort);
+                             message, QMessageBox::Ignore | QMessageBox::Abort);
     mergeOrAbort.addButton(tr("Run Merge Tool"), QMessageBox::ActionRole);
     switch (mergeOrAbort.exec()) {
     case QMessageBox::Abort: {
