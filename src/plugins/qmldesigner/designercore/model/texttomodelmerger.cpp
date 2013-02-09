@@ -749,14 +749,14 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         setupImports(doc, differenceHandler);
 
         if (m_rewriterView->model()->imports().isEmpty()) {
-            const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::DiagnosticMessage::Error, AST::SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger error message", "No import statements found"));
+            const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::DiagnosticMessage::Error, AST::SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found"));
             errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
         }
 
         foreach (const QmlDesigner::Import &import, m_rewriterView->model()->imports()) {
             if (import.isLibraryImport() && import.url() == QLatin1String("QtQuick") && !supportedQtQuickVersion(import.version())) {
                 const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::DiagnosticMessage::Error, AST::SourceLocation(0, 0, 0, 0),
-                                                                 QCoreApplication::translate("QmlDesigner::TextToModelMerger error message", "Unsupported QtQuick version"));
+                                                                 QCoreApplication::translate("QmlDesigner::TextToModelMerger", "Unsupported QtQuick version"));
                 errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
             }
         }
@@ -797,7 +797,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
             if (!warnings.isEmpty() && differenceHandler.isValidator()) {
 
-                QString title = QCoreApplication::translate("QmlDesigner::TextToModelMerger warning message", "This .qml file contains features "
+                QString title = QCoreApplication::translate("QmlDesigner::TextToModelMerger", "This .qml file contains features "
                                                             "which are not supported by Qt Quick Designer");
 
                 QStringList message;
