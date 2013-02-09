@@ -330,7 +330,8 @@ void PluginView::updatePluginSettings(QTreeWidgetItem *item, int column)
             }
         }
         updatePluginDependencies();
-        emit pluginSettingsChanged(collection->plugins().first());
+        if (!collection->plugins().isEmpty())
+            emit pluginSettingsChanged(collection->plugins().first());
     }
 
     m_allowCheckStateUpdate = true;
