@@ -2132,10 +2132,10 @@ bool GitClient::synchronousPull(const QString &workingDirectory, bool rebase)
     return executeAndHandleConflicts(workingDirectory, arguments, abortCommand);
 }
 
-bool GitClient::synchronousCommandContinue(const QString &workingDirectory, const QString &command)
+bool GitClient::synchronousCommandContinue(const QString &workingDirectory, const QString &command, bool hasChanges)
 {
     QStringList arguments;
-    arguments << command << QLatin1String("--continue");
+    arguments << command << QLatin1String(hasChanges ? "--continue" : "--skip");
     return executeAndHandleConflicts(workingDirectory, arguments, command);
 }
 

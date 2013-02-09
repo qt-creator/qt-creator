@@ -255,26 +255,31 @@ void MergeTool::readData()
     }
 }
 
-void MergeTool::continuePreviousGitCommand(const QString &msgBoxTitle, const QString &msgBoxText,
+void MergeTool::continuePreviousGitCommand(const QString &msgBoxTitle, QString msgBoxText,
                                            const QString &buttonName, const QString &gitCommand)
 {
     QString workingDirectory = m_process->workingDirectory();
-    QMessageBox msgBox;
-    QPushButton *commandButton = msgBox.addButton(buttonName,  QMessageBox::AcceptRole);
-    QPushButton *abortButton = msgBox.addButton(QMessageBox::Abort);
+    bool isRebase = gitCommand == QLatin1String("rebase");
+    bool hasChanges = m_gitClient->gitStatus(m_process->workingDirectory(),
+            StatusMode(NoUntracked | NoSubmodules)) == GitClient::StatusChanged;
+    if (!hasChanges)
+        msgBoxText.prepend(tr("No changes found. "));
+    QMessageBox msgBox(QMessageBox::Question, msgBoxTitle, msgBoxText);
+    if (hasChanges || isRebase)
+        msgBox.addButton(hasChanges ? buttonName : tr("Skip"), QMessageBox::AcceptRole);
+    msgBox.addButton(QMessageBox::Abort);
     msgBox.addButton(QMessageBox::Ignore);
-    msgBox.setIcon(QMessageBox::Question);
-    msgBox.setWindowTitle(msgBoxTitle);
-    msgBox.setText(msgBoxText);
-    msgBox.exec();
-
-    if (msgBox.clickedButton() == commandButton) {      // Continue
-        if (gitCommand == QLatin1String("rebase"))
-            m_gitClient->synchronousCommandContinue(workingDirectory, gitCommand);
+    switch (msgBox.exec()) {
+    case QMessageBox::Ignore:
+        break;
+    case QMessageBox::Abort:
+        m_gitClient->synchronousAbortCommand(workingDirectory, gitCommand);
+        break;
+    default: // Continue/Skip
+        if (isRebase)
+            m_gitClient->synchronousCommandContinue(workingDirectory, gitCommand, hasChanges);
         else
             GitPlugin::instance()->startCommit();
-    } else if (msgBox.clickedButton() == abortButton) { // Abort
-        m_gitClient->synchronousAbortCommand(workingDirectory, gitCommand);
     }
 }
 
