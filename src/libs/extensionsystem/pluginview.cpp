@@ -232,15 +232,14 @@ int PluginView::parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &gr
             parentItem->addChild(pluginItem);
         else
             m_items.append(pluginItem);
-
     }
 
-    if (checkedCount == plugins.length()) {
-        groupState = Qt::Checked;
-        ret |= ParsedAll;
-    } else if (checkedCount == 0) {
+    if (checkedCount == 0) {
         groupState = Qt::Unchecked;
         ret |= ParsedNone;
+    } else if (checkedCount == plugins.length()) {
+        groupState = Qt::Checked;
+        ret |= ParsedAll;
     } else {
         groupState = Qt::PartiallyChecked;
         ret = ret | ParsedPartial;
