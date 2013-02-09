@@ -133,7 +133,7 @@ void PluginView::updateList()
 
     PluginCollection *defaultCollection = 0;
     foreach (PluginCollection *collection, PluginManager::pluginCollections()) {
-        if (collection->name().isEmpty()) {
+        if (collection->name().isEmpty() || collection->plugins().isEmpty()) {
             defaultCollection = collection;
             continue;
         }
@@ -155,23 +155,26 @@ void PluginView::updateList()
         collectionItem->setData(0, Qt::UserRole, qVariantFromValue(collection));
     }
 
-    // add all non-categorized plugins into utilities. could also be added as root items
-    // but that makes the tree ugly.
-    QTreeWidgetItem *defaultCollectionItem = new QTreeWidgetItem(QStringList()
-        << QString(tr("Utilities"))
-        << QString()
-        << QString()
-        << QString()
-        << QString());
+    QList<PluginSpec *> plugins = defaultCollection ? defaultCollection->plugins() : QList<PluginSpec *>();
+    if (!plugins.isEmpty()) {
+        // add all non-categorized plugins into utilities. could also be added as root items
+        // but that makes the tree ugly.
+        QTreeWidgetItem *defaultCollectionItem = new QTreeWidgetItem(QStringList()
+            << QString(tr("Utilities"))
+            << QString()
+            << QString()
+            << QString()
+            << QString());
 
-    m_items.append(defaultCollectionItem);
-    Qt::CheckState groupState = Qt::Unchecked;
-    int state = parsePluginSpecs(defaultCollectionItem, groupState, defaultCollection ? defaultCollection->plugins() : QList<PluginSpec *>());
+        m_items.append(defaultCollectionItem);
+        Qt::CheckState groupState = Qt::Unchecked;
+        int state = parsePluginSpecs(defaultCollectionItem, groupState, plugins);
 
-    defaultCollectionItem->setIcon(0, iconForState(state));
-    defaultCollectionItem->setData(C_LOAD, Qt::CheckStateRole, QVariant(groupState));
-    defaultCollectionItem->setToolTip(C_LOAD, tr("Load on Startup"));
-    defaultCollectionItem->setData(0, Qt::UserRole, qVariantFromValue(defaultCollection));
+        defaultCollectionItem->setIcon(0, iconForState(state));
+        defaultCollectionItem->setData(C_LOAD, Qt::CheckStateRole, QVariant(groupState));
+        defaultCollectionItem->setToolTip(C_LOAD, tr("Load on Startup"));
+        defaultCollectionItem->setData(0, Qt::UserRole, qVariantFromValue(defaultCollection));
+    }
 
     updatePluginDependencies();
 
