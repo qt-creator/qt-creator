@@ -2399,9 +2399,11 @@ QString GitClient::readConfig(const QString &workingDirectory, const QStringList
 
     QByteArray outputText;
     QByteArray errorText;
-    if (fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText, false))
-        return commandOutputFromLocal8Bit(outputText);
-    return QString();
+    if (!fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText, false))
+        return QString();
+    if (Utils::HostOsInfo::isWindowsHost())
+        return QString::fromUtf8(outputText).remove(QLatin1Char('\r'));
+    return commandOutputFromLocal8Bit(outputText);
 }
 
 // Read a single-line config value, return trimmed
