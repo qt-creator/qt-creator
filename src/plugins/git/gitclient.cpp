@@ -1804,7 +1804,8 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     //    MM filename
     //     A new_unstaged_file
     //    R  old -> new
-    //    ?? missing_file
+    //     D deleted_file
+    //    ?? untracked_file
     if (status != StatusUnchanged) {
         if (!commitData->parseFilesFromStatus(output)) {
             *errorMessage = msgParseFilesFailed();
