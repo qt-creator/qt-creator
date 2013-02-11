@@ -797,7 +797,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
             if (!warnings.isEmpty() && differenceHandler.isValidator()) {
 
-                QString title = QCoreApplication::translate("QmlDesigner::TextToModelMerger warning message", "This .qml file contains features"
+                QString title = QCoreApplication::translate("QmlDesigner::TextToModelMerger warning message", "This .qml file contains features "
                                                             "which are not supported by Qt Quick Designer");
 
                 QStringList message;
