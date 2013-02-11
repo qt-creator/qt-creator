@@ -98,7 +98,6 @@ void BlackBerryAbstractDeployStep::run(QFutureInterface<bool> &fi)
 
     // Finished
     m_params.clear();
-    cleanup();
     m_processCounter = -1;
 
     m_timer->stop();
