@@ -163,7 +163,7 @@ void QmlDesignerPlugin::createDesignModeWidget()
     m_context->context().add(qmlDesignerNavigatorContext);
     m_context->context().add(ProjectExplorer::Constants::LANG_QMLJS);
 
-    m_shortCutManager.registerActions();
+    m_shortCutManager.registerActions(qmlDesignerMainContext, qmlDesignerFormEditorContext, qmlDesignerNavigatorContext);
 
     connect(Core::ICore::editorManager(),
             SIGNAL(currentEditorChanged(Core::IEditor*)),
