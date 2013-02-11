@@ -78,12 +78,17 @@ void QtProjectParameters::writeProFile(QTextStream &str) const
         (flags & WidgetsRequiredFlag) && qtVersionSupport != SupportQt4Only
         && !allSelectedModules.contains(QLatin1String("widgets"));
 
+    const bool addConditionalPrintSupport = qtVersionSupport == SupportQt4And5
+        && allSelectedModules.removeAll(QLatin1String("printsupport")) > 0;
+
     if (addWidgetsModule && qtVersionSupport == SupportQt5Only)
         allSelectedModules.append(QLatin1String("widgets"));
     writeQtModulesList(str, allSelectedModules, '+');
     writeQtModulesList(str, deselectedModules, '-');
     if (addWidgetsModule && qtVersionSupport == SupportQt4And5)
         str << "greaterThan(QT_MAJOR_VERSION, 4): QT += widgets\n\n";
+    if (addConditionalPrintSupport)
+        str << "greaterThan(QT_MAJOR_VERSION, 4): QT += printsupport\n\n";
 
     const QString &effectiveTarget = target.isEmpty() ? fileName : target;
     if (!effectiveTarget.isEmpty())
