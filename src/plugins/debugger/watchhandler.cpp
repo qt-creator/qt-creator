@@ -1460,6 +1460,7 @@ void WatchModel::setCurrentItem(const QByteArray &iname)
 
 WatchHandler::WatchHandler(DebuggerEngine *engine)
 {
+    m_separateWindow = 0;
     m_engine = engine;
     m_watcherCounter = debuggerCore()->sessionValue(QLatin1String("Watchers"))
             .toStringList().count();
@@ -1471,6 +1472,12 @@ WatchHandler::WatchHandler(DebuggerEngine *engine)
 
 WatchHandler::~WatchHandler()
 {
+    if (m_separateWindow) {
+        debuggerCore()->setSessionValue(QLatin1String("DebuggerSeparateWidgetGeometry"),
+                m_separateWindow->geometry());
+        delete m_separateWindow;
+        m_separateWindow = 0;
+    }
     // Do it manually to prevent calling back in model destructors
     // after m_cache is destroyed.
     delete m_model;
@@ -1651,8 +1658,13 @@ void WatchHandler::removeSeparateWidget(QObject *o)
 
 void WatchHandler::showSeparateWidget(QWidget *w)
 {
-    if (m_separateWindow.isNull())
+    if (m_separateWindow.isNull()) {
         m_separateWindow = new SeparateViewWidget(debuggerCore()->mainWindow());
+        QVariant geometry = debuggerCore()->
+                sessionValue(QLatin1String("DebuggerSeparateWidgetGeometry"));
+        if (geometry.isValid())
+            m_separateWindow->setGeometry(geometry.toRect());
+    }
 
     int index = indexOf(m_separateWindow, w);
     if (index != -1)

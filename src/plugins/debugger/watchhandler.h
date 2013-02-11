@@ -150,9 +150,9 @@ private:
 
     void setFormat(const QByteArray &type, int format);
 
-    WatchModel *m_model;
-    DebuggerEngine *m_engine;
-    QPointer<QTabWidget> m_separateWindow;
+    WatchModel *m_model; // Owned.
+    DebuggerEngine *m_engine; // Not owned.
+    QPointer<QTabWidget> m_separateWindow; // Owned.
 
     int m_watcherCounter;
 
