@@ -121,7 +121,7 @@ LibraryIntroPage::LibraryIntroPage(QWidget *parent) :
                          QVariant(QtProjectParameters::SharedLibrary));
     m_typeCombo->addItem(LibraryWizardDialog::tr("Statically Linked Library"),
                          QVariant(QtProjectParameters::StaticLibrary));
-    m_typeCombo->addItem(LibraryWizardDialog::tr("Qt 4 Plugin"),
+    m_typeCombo->addItem(LibraryWizardDialog::tr("Qt Plugin"),
                          QVariant(QtProjectParameters::Qt4Plugin));
     insertControl(0, new QLabel(LibraryWizardDialog::tr("Type")), m_typeCombo);
 }
