@@ -1244,12 +1244,19 @@ void tst_Dumpers::dumper_data()
 
    QTest::newRow("QLocale")
            << Data("#include <QLocale>\n",
+                   "QLocale loc0;\n"
                    "QLocale loc = QLocale::system();\n"
                    "QLocale::MeasurementSystem m = loc.measurementSystem();\n"
-                   "unused(&m);\n")
+                   "QLocale loc1(\"en_US\");\n"
+                   "QLocale::MeasurementSystem m1 = loc1.measurementSystem();\n"
+                   "unused(&loc0, &loc, &m, &loc1, &m1);\n")
               % CoreProfile()
-              % Check("loc", "", "@QLocale")
-              % Check("m", "", "@QLocale::MeasurementSystem");
+              % Check("loc0", "\"en_US\"", "@QLocale")
+              % CheckType("loc", "@QLocale")
+              % CheckType("m", "@QLocale::MeasurementSystem")
+              % Check("loc1", "\"en_US\"", "@QLocale")
+              % Check("m1", Value5("@QLocale::ImperialUSSystem (1)"), "@QLocale::MeasurementSystem")
+              % Check("m1", Value4("@QLocale::ImperialSystem (1)"), "@QLocale::MeasurementSystem");
 
 
    QTest::newRow("QMapUIntStringList")

@@ -636,16 +636,22 @@ def qdump__QLinkedList(d, value):
 qqLocalesCount = None
 
 def qdump__QLocale(d, value):
-    # Check for uninitialized 'index' variable. Retrieve size of QLocale data array
-    # from variable in qlocale.cpp (default: 368/Qt 4.8), 368 being 'System'.
+    # Check for uninitialized 'index' variable. Retrieve size of
+    # QLocale data array from variable in qlocale.cpp.
+    # Default is 368 in Qt 4.8, 438 in Qt 5.0.1, the last one
+    # being 'System'.
     global qqLocalesCount
     if qqLocalesCount is None:
         try:
-            qqLocalesCount = int(value(qtNamespace() + 'locale_data_size'))
+            qqLocalesCount = int(value(d.ns + 'locale_data_size'))
         except:
-            qqLocalesCount = 368
-    index = int(value["p"]["index"])
-    check(index >= 0 and index <= qqLocalesCount)
+            qqLocalesCount = 438
+    try:
+        index = int(value["p"]["index"])
+    except:
+        index = int(value["d"]["d"]["m_index"])
+    check(index >= 0)
+    check(index <= qqLocalesCount)
     d.putStringValue(call(value, "name"))
     d.putNumChild(0)
     return
