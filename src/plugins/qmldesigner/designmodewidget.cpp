@@ -256,7 +256,7 @@ void DesignModeWidget::showEditor(Core::IEditor *editor)
 
 
     if (textEditor())
-        m_fakeToolBar->addEditor(textEditor());
+        m_toolBar->addEditor(textEditor());
 
 
     setCurrentDesignDocument(currentDesignDocument());
@@ -376,7 +376,7 @@ void DesignModeWidget::setup()
         }
     }
 
-    m_fakeToolBar = Core::EditorManager::createToolBar(this);
+    m_toolBar = Core::EditorManager::createToolBar(this);
 
     m_mainSplitter = new MiniSplitter(this);
     m_mainSplitter->setObjectName("mainSplitter");
@@ -416,12 +416,11 @@ void DesignModeWidget::setup()
     connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),
             this, SLOT(deleteSidebarWidgets()));
 
-    m_fakeToolBar->setToolbarCreationFlags(Core::EditorToolBar::FlagsStandalone);
-    //m_fakeToolBar->addEditor(textEditor()); ### what does this mean?
-    m_fakeToolBar->setNavigationVisible(true);
+    m_toolBar->setToolbarCreationFlags(Core::EditorToolBar::FlagsStandalone);
+    m_toolBar->setNavigationVisible(true);
 
-    connect(m_fakeToolBar, SIGNAL(goForwardClicked()), this, SLOT(onGoForwardClicked()));
-    connect(m_fakeToolBar, SIGNAL(goBackClicked()), this, SLOT(onGoBackClicked()));
+    connect(m_toolBar, SIGNAL(goForwardClicked()), this, SLOT(toolBarOnGoForwardClicked()));
+    connect(m_toolBar, SIGNAL(goBackClicked()), this, SLOT(toolBarOnGoBackClicked()));
 
     if (currentDesignDocument())
         setupNavigatorHistory(currentDesignDocument()->textEditor());
@@ -485,7 +484,7 @@ void DesignModeWidget::qmlPuppetCrashed()
     showErrorMessage(errorList);
 }
 
-void DesignModeWidget::onGoBackClicked()
+void DesignModeWidget::toolBarOnGoBackClicked()
 {
     if (m_navigatorHistoryCounter > 0) {
         --m_navigatorHistoryCounter;
@@ -495,7 +494,7 @@ void DesignModeWidget::onGoBackClicked()
     }
 }
 
-void DesignModeWidget::onGoForwardClicked()
+void DesignModeWidget::toolBarOnGoForwardClicked()
 {
     if (m_navigatorHistoryCounter < (m_navigatorHistory.size() - 1)) {
         ++m_navigatorHistoryCounter;
@@ -529,8 +528,9 @@ void DesignModeWidget::setupNavigatorHistory(Core::IEditor *editor)
 
     const bool canGoBack = m_navigatorHistoryCounter > 0;
     const bool canGoForward = m_navigatorHistoryCounter < (m_navigatorHistory.size() - 1);
-    m_fakeToolBar->setCanGoBack(canGoBack);
-    m_fakeToolBar->setCanGoForward(canGoForward);
+    m_toolBar->setCanGoBack(canGoBack);
+    m_toolBar->setCanGoForward(canGoForward);
+    m_toolBar->setCurrentEditor(editor);
 }
 
 void DesignModeWidget::addNavigatorHistoryEntry(const QString &fileName)
@@ -550,7 +550,7 @@ QWidget *DesignModeWidget::createCenterWidget()
     QVBoxLayout *rightLayout = new QVBoxLayout(centerWidget);
     rightLayout->setMargin(0);
     rightLayout->setSpacing(0);
-    rightLayout->addWidget(m_fakeToolBar);
+    rightLayout->addWidget(m_toolBar);
     //### we now own these here
     rightLayout->addWidget(viewManager().statesEditorWidget());
 

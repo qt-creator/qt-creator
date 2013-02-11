@@ -119,6 +119,8 @@ public:
     DesignDocument *currentDesignDocument() const;
     ViewManager &viewManager();
 
+    void setupNavigatorHistory(Core::IEditor *editor);
+
     void enableWidgets();
     void disableWidgets();
     void showErrorMessage(const QList<RewriterView::Error> &errors);
@@ -137,8 +139,8 @@ private slots:
     void deleteSidebarWidgets();
     void qmlPuppetCrashed();
 
-    void onGoBackClicked();
-    void onGoForwardClicked();
+    void toolBarOnGoBackClicked();
+    void toolBarOnGoForwardClicked();
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -150,7 +152,6 @@ private: // functions
     void setup();
     bool isInNodeDefinition(int nodeOffset, int nodeLength, int cursorPos) const;
     QmlDesigner::ModelNode nodeForPosition(int cursorPos) const;
-    void setupNavigatorHistory(Core::IEditor *editor);
     void addNavigatorHistoryEntry(const QString &fileName);
     QWidget *createCenterWidget();
 
@@ -158,7 +159,7 @@ private: // variables
     QSplitter *m_mainSplitter;
     Core::SideBar *m_leftSideBar;
     Core::SideBar *m_rightSideBar;
-    Core::EditorToolBar *m_fakeToolBar;
+    Core::EditorToolBar *m_toolBar;
     Core::OutputPanePlaceHolder *m_outputPanePlaceholder;
     Core::MiniSplitter *m_outputPlaceholderSplitter;
     QList<Core::SideBarItem*> m_sideBarItems;

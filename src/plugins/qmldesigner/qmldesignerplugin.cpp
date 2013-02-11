@@ -298,6 +298,7 @@ void QmlDesignerPlugin::activateAutoSynchronization()
     if (errors.isEmpty()) {
         selectModelNodeUnderTextCursor();
         m_mainWidget->enableWidgets();
+        m_mainWidget->setupNavigatorHistory(currentDesignDocument()->textEditor());
     } else {
         m_mainWidget->disableWidgets();
         m_mainWidget->showErrorMessage(errors);
