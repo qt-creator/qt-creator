@@ -53,7 +53,7 @@ static inline QVector<const item*> itemVector()
             true},
         {"gui",
             QLatin1String("QtGui"),
-            QCoreApplication::translate("QtModulesInfo", "Base classes for graphical user interface (GUI) components. (Qt 4: Includes widgets. Qt 5:  Includes OpenGL.)"),
+            QCoreApplication::translate("QtModulesInfo", "Base classes for graphical user interface (GUI) components. (Qt 4: Includes widgets. Qt 5: Includes OpenGL.)"),
             true},
         {"widgets",
             QLatin1String("QtWidgets"),
