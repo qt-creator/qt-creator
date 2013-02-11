@@ -341,7 +341,7 @@ bool MaemoMakeInstallToSysrootStep::init()
     const Qt4BuildConfiguration * const bc
         = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
     if (!bc) {
-        addOutput(tr("Cannot deploy: No active build dconfiguration."),
+        addOutput(tr("Cannot deploy: No active build configuration."),
             ErrorMessageOutput);
         return false;
     }
