@@ -42,6 +42,16 @@ using namespace Internal;
 
 static QByteArray noValue = "\001";
 
+static QString toHex(const QString &str)
+{
+    QString encoded;
+    foreach (const QChar c, str) {
+        encoded += QString::fromLatin1("%1")
+            .arg(c.unicode(), 2, 16, QLatin1Char('0'));
+    }
+    return encoded;
+}
+
 
 struct Context
 {
@@ -90,13 +100,14 @@ struct ValueBase
 
 struct Value : public ValueBase
 {
-    Value() : value(noValue) {}
-    Value(const char *str) : value(str) {}
-    Value(const QByteArray &ba) : value(ba) {}
+    Value() : value(QString::fromLatin1(noValue)) {}
+    Value(const char *str) : value(QLatin1String(str)) {}
+    Value(const QByteArray &ba) : value(QString::fromLatin1(ba.data(), ba.size())) {}
+    Value(const QString &str) : value(str) {}
 
     bool matches(const QString &actualValue0, const Context &context) const
     {
-        if (value == noValue)
+        if (value == QString::fromLatin1(noValue))
             return true;
 
         if (context.qtVersion) {
@@ -115,17 +126,16 @@ struct Value : public ValueBase
         QString actualValue = actualValue0;
         if (actualValue == QLatin1String(" "))
             actualValue.clear(); // FIXME: Remove later.
-        QByteArray expectedValue = value;
-        expectedValue.replace('@', context.nameSpace);
-        QString self = QString::fromLatin1(expectedValue);
+        QString expectedValue = value;
+        expectedValue.replace(QLatin1Char('@'), QString::fromLatin1(context.nameSpace));
 
         if (hasPtrSuffix)
-            return actualValue.startsWith(self + QLatin1String(" @0x"))
-                || actualValue.startsWith(self + QLatin1String("@0x"));
-        return actualValue == self;
+            return actualValue.startsWith(expectedValue + QLatin1String(" @0x"))
+                || actualValue.startsWith(expectedValue + QLatin1String("@0x"));
+        return actualValue == expectedValue;
     }
 
-    QByteArray value;
+    QString value;
 };
 
 struct Pointer : Value
@@ -587,8 +597,8 @@ void tst_Dumpers::dumper()
             }
             if (!check.expectedValue.matches(item.value, context)) {
                 qDebug() << "INAME         : " << item.iname;
-                qDebug() << "VALUE ACTUAL  : " << item.value << item.value.toLatin1().toHex();
-                qDebug() << "VALUE EXPECTED: " << check.expectedValue.value << check.expectedValue.value.toHex();
+                qDebug() << "VALUE ACTUAL  : " << item.value << toHex(item.value);
+                qDebug() << "VALUE EXPECTED: " << check.expectedValue.value << toHex(check.expectedValue.value);
                 qDebug() << "CONTENTS      : " << contents;
                 t.verify(false, __LINE__);
             }
@@ -1257,7 +1267,6 @@ void tst_Dumpers::dumper_data()
               % Check("loc1", "\"en_US\"", "@QLocale")
               % Check("m1", Value5("@QLocale::ImperialUSSystem (1)"), "@QLocale::MeasurementSystem")
               % Check("m1", Value4("@QLocale::ImperialSystem (1)"), "@QLocale::MeasurementSystem");
-
 
    QTest::newRow("QMapUIntStringList")
            << Data("#include <QMap>\n"
@@ -2594,19 +2603,34 @@ void tst_Dumpers::dumper_data()
                % Check("str3", "\"Hello\rQt\"", "@QString")
                % Check("str4", "\"Hello\tQt\"", "@QString");
 
+    QTest::newRow("QString0")
+            << Data("#include <QByteArray>\n",
+                    "QByteArray str = \"Hello\";\n"
+                    "str.prepend(\"Prefix: \");\n"
+                    "unused(&str);\n")
+               % CoreProfile()
+               % Check("str", "\"Prefix: Hello\"", "@QByteArray");
+
+    QByteArray expected1 = "\"AAA";
+    expected1.append(char('\t'));
+    expected1.append(char('\r'));
+    expected1.append(char('\n'));
+    expected1.append(char(0));
+    expected1.append(char(1));
+    expected1.append("BBB\"");
+
     QTest::newRow("QString1")
             << Data("#include <QByteArray>\n",
-                    "QByteArray str = \"Hello \";\n"
+                    "QByteArray str = \"AAA\";\n"
                     "str += '\\t';\n"
                     "str += '\\r';\n"
                     "str += '\\n';\n"
                     "str += char(0);\n"
                     "str += char(1);\n"
-                    "str += \" World\";\n"
-                    "str.prepend(\"Prefix: \");\n"
+                    "str += \"BBB\";\n"
                     "unused(&str);\n")
                % CoreProfile()
-               % Check("str", "\"Prefix: Hello  big, \\t\\r\\n\\000\\001 World\"", "@QByteArray");
+               % Check("str", expected1, "@QByteArray");
 
     QTest::newRow("QString2")
             << Data("#include <QString>\n",
@@ -2655,6 +2679,7 @@ void tst_Dumpers::dumper_data()
                % Check("l.0", "[0]", "\" big, \"", "@QString")
                % Check("l.1", "[1]", "\" World \"", "@QString");
 
+    QChar oUmlaut = QLatin1Char(0xf6);
     QTest::newRow("String")
             << Data("#include <QString>",
                     "const wchar_t *w = L\"aöa\";\n"
@@ -2665,7 +2690,7 @@ void tst_Dumpers::dumper_data()
                     "    u = QString::fromUtf16((ushort *)w);\n"
                     "unused(&w, &u);\n")
                % CoreProfile()
-               % Check("u", "u", "\"aöa\"", "@QString")
+               % Check("u", QString::fromLatin1("\"a%1a\"").arg(oUmlaut), "@QString")
                % CheckType("w", "w", "wchar_t *");
 
         // All: Select UTF-8 in "Change Format for Type" in L&W context menu");
