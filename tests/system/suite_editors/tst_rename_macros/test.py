@@ -24,7 +24,7 @@ def testRenameMacroAfterSourceModification():
     def __deleteAnyClass__():
         global cppEditorStr
         if platform.system() == 'Darwin':
-            type(cppEditorStr, "<Command+Left>")
+            type(cppEditorStr, "<Meta+Left>")
         else:
             type(cppEditorStr, "<Home>")
         markText(cppEditorStr, "Down", 5)
@@ -50,7 +50,7 @@ def testRenameMacroAfterSourceMoving():
     def __cut__():
         global cppEditorStr
         if platform.system() == 'Darwin':
-            type(cppEditorStr, "<Command+Left>")
+            type(cppEditorStr, "<Meta+Left>")
         else:
             type(cppEditorStr, "<Home>")
         markText(cppEditorStr, "Down", 4)

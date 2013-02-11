@@ -46,7 +46,7 @@ def placeCursorToLine(editor, line, isRegex=False):
 def menuVisibleAtEditor(editor, menuInList):
     menuInList[0] = None
     try:
-        menu = waitForObject("{type='QMenu' unnamed='1' visible='1'}", 200)
+        menu = waitForObject("{type='QMenu' unnamed='1' visible='1'}", 500)
         success = menu.visible and widgetContainsPoint(editor, menu.mapToGlobal(QPoint(0, 0)))
         if success:
             menuInList[0] = menu
@@ -63,6 +63,8 @@ def widgetContainsPoint(widget, point):
 # at the same position where the text cursor is located at
 def openContextMenuOnTextCursorPosition(editor):
     rect = editor.cursorRect(editor.textCursor())
+    if platform.system() == 'Darwin':
+        JIRA.performWorkaroundIfStillOpen(6918, JIRA.Bug.CREATOR, editor)
     openContextMenu(editor, rect.x+rect.width/2, rect.y+rect.height/2, 0)
     menuInList = [None]
     waitFor("menuVisibleAtEditor(editor, menuInList)", 5000)
@@ -270,9 +272,9 @@ def validateSearchResult(expectedCount):
 # this function invokes context menu and command from it
 def invokeContextMenuItem(editorArea, command1, command2 = None):
     ctxtMenu = openContextMenuOnTextCursorPosition(editorArea)
-    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), command1, 1000))
+    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), command1, 2000))
     if command2:
-        activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), command2, 1000))
+        activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), command2, 2000))
 
 # this function invokes the "Find Usages" item from context menu
 # param editor an editor object

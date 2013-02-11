@@ -27,7 +27,8 @@ def main():
             test.fatal("Could not get the editor for '%s'" % currentFile,
                        "Skipping this file for now.")
             continue
-        JIRA.performWorkaroundIfStillOpen(6918, JIRA.Bug.CREATOR, editor)
+        if platform.system() == 'Darwin':
+            JIRA.performWorkaroundIfStillOpen(6918, JIRA.Bug.CREATOR, editor)
         for key in ["<Up>", "<Down>", "<Left>", "<Right>"]:
             test.log("Selecting everything")
             invokeMenuItem("Edit", "Select All")
