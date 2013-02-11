@@ -35,7 +35,7 @@
       </font>
      </property>
      <property name="text">
-      <string>This QML file contains features  which are not supported by Qt Quick Designer</string>
+      <string>This QML file contains features which are not supported by Qt Quick Designer</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
