@@ -2352,7 +2352,8 @@ void tst_Dumpers::dumper_data()
                     "str += \"e\";\n"
                     "wstr += wchar_t('e');\n"
                     "wstr += wchar_t('e');\n"
-                    "str += \"e\";\n")
+                    "str += \"e\";\n"
+                    "unused(&str0, &str, &wstr0, &wstr);\n")
                % Check("str0", "\"\"", "std::string")
                % Check("wstr0", "\"\"", "std::wstring")
                % Check("str", "\"bdebdee\"", "std::string")

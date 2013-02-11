@@ -2138,10 +2138,10 @@ def qdump__std__string(d, value):
         encodingType = Hex2EncodedLatin1
         displayType = DisplayLatin1String
     elif charType.sizeof == 2:
-        encodingType = Hex4EncodedLatin1
+        encodingType = Hex4EncodedLittleEndian
         displayType = DisplayUtf16String
     else:
-        encodinfType = Hex8EncodedLatin1
+        encodingType = Hex8EncodedLittleEndian
         displayType = DisplayUtf16String
 
     d.putAddress(value.address)
