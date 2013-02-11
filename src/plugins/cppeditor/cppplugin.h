@@ -89,7 +89,12 @@ private slots:
     void openTypeHierarchy();
 
 #ifdef WITH_TESTS
-private slots: // quickfix tests
+private slots:
+    void test_doxygen_comments_qt_style();
+    void test_doxygen_comments_qt_style_continuation();
+    void test_doxygen_comments_java_style();
+    void test_doxygen_comments_java_style_continuation();
+
     void test_quickfix_GenerateGetterSetter_basicGetterWithPrefix();
     void test_quickfix_GenerateGetterSetter_basicGetterWithoutPrefix();
     void test_quickfix_GenerateGetterSetter_customType();

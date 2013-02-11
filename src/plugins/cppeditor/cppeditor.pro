@@ -42,7 +42,8 @@ SOURCES += cppplugin.cpp \
     cppinsertqtpropertymembers.cpp \
     cppquickfixassistant.cpp \
     cppquickfix.cpp \
-    cppfunctiondecldeflink.cpp
+    cppfunctiondecldeflink.cpp \
+    cppdoxygen_test.cpp
 
 RESOURCES += cppeditor.qrc
 OTHER_FILES += CppEditor.mimetypes.xml

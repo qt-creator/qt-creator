@@ -64,7 +64,8 @@ QtcPlugin {
     Group {
         condition: Defaults.testsEnabled(qbs)
         files: [
-            "cppquickfix_test.cpp"
+            "cppquickfix_test.cpp",
+            "cppdoxygen_test.cpp"
         ]
 
         cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])
