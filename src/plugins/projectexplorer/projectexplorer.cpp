@@ -1755,7 +1755,7 @@ void ProjectExplorerPlugin::showExternalFileWarning()
     if (d->m_currentNode || !d->m_currentProject)
         return;
     Core::IEditor *editor = Core::EditorManager::currentEditor();
-    if (!editor)
+    if (!editor || editor->isTemporary())
         return;
     Core::IDocument *document = editor->document();
     if (!document)
@@ -1765,8 +1765,10 @@ void ProjectExplorerPlugin::showExternalFileWarning()
     if (!infoBar->canInfoBeAdded(externalFileId))
         return;
     Utils::FileName fileName = Utils::FileName::fromString(document->fileName());
+    if (fileName.isEmpty())
+        return;
     Utils::FileName projectDir = Utils::FileName::fromString(d->m_currentProject->projectDirectory());
-    if (fileName.isChildOf(projectDir))
+    if (projectDir.isEmpty() || fileName.isChildOf(projectDir))
         return;
     // External file. Test if it under the same VCS
     QString topLevel;
