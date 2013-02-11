@@ -3,6 +3,7 @@ source("../../shared/qtcreator.py")
 import re
 
 def main():
+    global tmpSettingsDir
     sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/text/textselection")
     qmlFile = os.path.join("qml", "textselection.qml")
     if not neededFilePresent(os.path.join(sourceExample, qmlFile)):
@@ -18,7 +19,7 @@ def main():
     enableMaddePlugin()
     invokeMenuItem("File", "Exit")
     waitForCleanShutdown()
-    __copyOriginalSettings__()
+    copySettingsToTmpDir(tmpSettingsDir, ['QtCreator.ini'])
     overrideStartApplication()
     startApplication("qtcreator" + SettingsPath)
     performTest(templateDir, qmlFile, False)
@@ -130,20 +131,6 @@ def enableMaddePlugin():
     mouseClick(waitForObject("{column='1' container=%s text='' type='QModelIndex' "
                              "occurrence='%d'}" % (devSupport, maddePos)), 5, 5, 0, Qt.LeftButton)
     clickButton(":Installed Plugins.Close_QPushButton")
-
-# copy original settings (except ini file)
-def __copyOriginalSettings__():
-    global tmpSettingsDir
-    origSettingsDir = os.path.abspath(os.path.join(os.getcwd(), "..", "..", "settings"))
-    if platform.system() in ('Microsoft', 'Windows'):
-        origSettingsDir = os.path.join(origSettingsDir, "windows", "QtProject", "qtcreator")
-    else:
-        origSettingsDir = os.path.join(origSettingsDir, "unix", "QtProject", "qtcreator")
-    for fileName in glob.glob(os.path.join(origSettingsDir, "*.xml")):
-        shutil.copy(fileName, os.path.join(tmpSettingsDir, "QtProject", "qtcreator"))
-    if platform.system() in ('Linux', 'Darwin'):
-        substituteTildeWithinToolchains(tmpSettingsDir)
-    substituteUnchosenTargetABIs(tmpSettingsDir)
 
 def __handleTextChanged__(object):
     global textChanged
