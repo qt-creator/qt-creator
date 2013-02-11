@@ -196,6 +196,15 @@ struct CheckType : public Check
     {}
 };
 
+struct CheckPlain : public Check
+{
+    CheckPlain(const QByteArray &iname, const Name &name,
+         const Type &type)
+        : Check(iname, name, noValue, type)
+    {}
+
+};
+
 struct Profile
 {
     Profile(const QByteArray &contents) : contents(contents) {}
@@ -291,7 +300,7 @@ public:
     mutable QByteArray profileExtra;
     QByteArray includes;
     QByteArray code;
-    mutable QMap<QByteArray, Check> checks;
+    mutable QMap<QByteArray, Check> checks; // IName -> Action
 };
 
 Q_DECLARE_METATYPE(Data)
@@ -304,8 +313,74 @@ public:
     tst_Dumpers() {}
 
 private slots:
+    void initTestCase();
     void dumper();
     void dumper_data();
+    void cleanupTestCase();
+
+private:
+    QByteArray m_debuggerBinary;
+    QByteArray m_qmakeBinary;
+    bool m_usePython;
+    bool m_keepTemp;
+};
+
+void tst_Dumpers::initTestCase()
+{
+    m_debuggerBinary = qgetenv("QTC_DEBUGGER_PATH");
+    if (m_debuggerBinary.isEmpty())
+        m_debuggerBinary = "gdb";
+
+    m_qmakeBinary = qgetenv("QTC_QMAKE_PATH");
+    if (m_qmakeBinary.isEmpty())
+        m_qmakeBinary = "qmake";
+
+    QProcess debugger;
+    debugger.start(QString::fromLatin1(m_debuggerBinary)
+                   + QLatin1String(" -i mi -quiet -nx"));
+    bool ok = debugger.waitForStarted();
+    debugger.write("set confirm off\npython print 43\nquit\n");
+    ok = debugger.waitForFinished();
+    QVERIFY(ok);
+    QByteArray output = debugger.readAllStandardOutput();
+    //qDebug() << "stdout: " << output;
+    m_usePython = !output.contains("Python scripting is not supported in this copy of GDB");
+    qDebug() << (m_usePython ? "Python is available" : "Python is not available");
+}
+
+void tst_Dumpers::cleanupTestCase()
+{
+//    if (m_keepTemp)
+//        logInput();
+}
+
+struct TempStuff
+{
+    TempStuff() : buildTemp(QLatin1String("qt_tst_dumpers_"))
+    {
+        buildPath = buildTemp.path();
+        QVERIFY(!buildPath.isEmpty());
+    }
+
+    void verify(bool ok, int line)
+    {
+        if (ok)
+            return;
+        buildTemp.setAutoRemove(false);
+        logInput();
+        QTest::qVerify(false, "error", "", __FILE__, line);
+    }
+
+    void logInput()
+    {
+        QFile logger(buildPath + QLatin1String("/input.txt"));
+        logger.open(QIODevice::ReadWrite);
+        logger.write(input);
+    }
+
+    QByteArray input;
+    QTemporaryDir buildTemp;
+    QString buildPath;
 };
 
 void tst_Dumpers::dumper()
@@ -317,17 +392,14 @@ void tst_Dumpers::dumper()
     QByteArray output;
     QByteArray error;
 
-    QTemporaryDir buildDir(QLatin1String("qt_tst_dumpers_"));
-    const bool keepTemp = qgetenv("QTC_KEEP_TEMP").toInt();
-    buildDir.setAutoRemove(!keepTemp);
-    //qDebug() << "Temp dir: " << buildDir.path();
-    QVERIFY(!buildDir.path().isEmpty());
+    TempStuff t;
+    t.buildTemp.setAutoRemove(m_keepTemp);
 
     const char *mainFile = data.forceC ? "main.c" : "main.cpp";
 
-    QFile proFile(buildDir.path() + QLatin1String("/doit.pro"));
+    QFile proFile(t.buildPath + QLatin1String("/doit.pro"));
     ok = proFile.open(QIODevice::ReadWrite);
-    QVERIFY(ok);
+    t.verify(ok, __LINE__);
     proFile.write("SOURCES = ");
     proFile.write(mainFile);
     proFile.write("\nTARGET = doit\n");
@@ -338,7 +410,7 @@ void tst_Dumpers::dumper()
     proFile.write(data.profileExtra);
     proFile.close();
 
-    QFile source(buildDir.path() + QLatin1Char('/') + QLatin1String(mainFile));
+    QFile source(t.buildPath + QLatin1Char('/') + QLatin1String(mainFile));
     ok = source.open(QIODevice::ReadWrite);
     QByteArray fullCode =
             "\n\nvoid unused(const void *first,...) { (void) first; }"
@@ -352,29 +424,29 @@ void tst_Dumpers::dumper()
             "\n    breakHere();"
             "\n    return 0;"
             "\n}\n";
-    QVERIFY(ok);
+    t.verify(ok, __LINE__);
     source.write(fullCode);
     source.close();
 
     QProcess qmake;
-    qmake.setWorkingDirectory(buildDir.path());
-    cmd = QString::fromLatin1("qmake");
+    qmake.setWorkingDirectory(t.buildPath);
+    cmd = QString::fromLatin1(m_qmakeBinary);
     //qDebug() << "Starting qmake: " << cmd;
     qmake.start(cmd);
     ok = qmake.waitForFinished();
-    QVERIFY(ok);
+    t.verify(ok, __LINE__);
     output = qmake.readAllStandardOutput();
     error = qmake.readAllStandardError();
     //qDebug() << "stdout: " << output;
-    if (!error.isEmpty()) { qDebug() << error; QVERIFY(false); }
+    if (!error.isEmpty()) { qDebug() << error; t.verify(false, __LINE__); }
 
     QProcess make;
-    make.setWorkingDirectory(buildDir.path());
+    make.setWorkingDirectory(t.buildPath);
     cmd = QString::fromLatin1("make");
     //qDebug() << "Starting make: " << cmd;
     make.start(cmd);
     ok = make.waitForFinished();
-    QVERIFY(ok);
+    t.verify(ok, __LINE__);
     output = make.readAllStandardOutput();
     error = make.readAllStandardError();
     //qDebug() << "stdout: " << output;
@@ -384,7 +456,6 @@ void tst_Dumpers::dumper()
         qDebug() << fullCode;
         qDebug() << "\n------------------ CODE --------------------";
         qDebug() << ".pro: " << qPrintable(proFile.fileName());
-        QVERIFY(false);
     }
 
     QByteArray dumperDir = DUMPERDIR;
@@ -415,7 +486,10 @@ void tst_Dumpers::dumper()
         "file doit\n"
         "break breakHere\n"
         "set print object on\n"
-        "set auto-load python-scripts off\n"
+        "set auto-load python-scripts no\n";
+
+    if (m_usePython) {
+        cmds +=
         "python execfile('" + dumperDir + "/bridge.py')\n"
         "python execfile('" + dumperDir + "/dumper.py')\n"
         "python execfile('" + dumperDir + "/qttypes.py')\n"
@@ -423,36 +497,39 @@ void tst_Dumpers::dumper()
         "run " + nograb + "\n"
         "up\n"
         "python print('@%sS@%s@' % ('N', qtNamespace()))\n"
-        "bb options:fancy,autoderef,dyntype vars: expanded:" + expanded + " typeformats:\n"
-        "quit\n";
-
-    if (keepTemp) {
-        QFile logger(buildDir.path() + QLatin1String("/input.txt"));
-        ok = logger.open(QIODevice::ReadWrite);
-        logger.write(cmds);
+        "bb options:fancy,autoderef,dyntype vars: expanded:" + expanded + " typeformats:\n";
+    } else {
+        cmds += "run\n";
+        foreach (const Check &check, data.checks) {
+            QByteArray iname = check.iname;
+            //qDebug() << "INAME: " << iname;
+            cmds += "-var-create " + iname + " * "
+                    + check.expectedName.name + "\n";
+        }
     }
 
-    QByteArray debuggerBinary = qgetenv("QTC_DEBUGGER_PATH");
-    if (debuggerBinary.isEmpty())
-        debuggerBinary = "gdb";
+    cmds += "quit\n";
+
+    t.input = cmds;
+
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     env.insert(QLatin1String("QT_HASH_SEED"), QLatin1String("0"));
     QProcess debugger;
     debugger.setProcessEnvironment(env);
-    debugger.setWorkingDirectory(buildDir.path());
-    debugger.start(QString::fromLatin1(debuggerBinary)
+    debugger.setWorkingDirectory(t.buildPath);
+    debugger.start(QString::fromLatin1(m_debuggerBinary)
                    + QLatin1String(" -i mi -quiet -nx"));
     ok = debugger.waitForStarted();
     debugger.write(cmds);
     ok = debugger.waitForFinished();
-    QVERIFY(ok);
+    t.verify(ok, __LINE__);
     output = debugger.readAllStandardOutput();
     //qDebug() << "stdout: " << output;
     error = debugger.readAllStandardError();
     if (!error.isEmpty()) { qDebug() << error; }
 
-    if (keepTemp) {
-        QFile logger(buildDir.path() + QLatin1String("/output.txt"));
+    if (m_keepTemp) {
+        QFile logger(t.buildPath + QLatin1String("/output.txt"));
         ok = logger.open(QIODevice::ReadWrite);
         logger.write("=== STDOUT ===\n");
         logger.write(output);
@@ -462,17 +539,17 @@ void tst_Dumpers::dumper()
 
     Context context;
     int pos1 = output.indexOf("data=");
-    QVERIFY(pos1 != -1);
+    t.verify(pos1 != -1, __LINE__);
     int pos2 = output.indexOf(",typeinfo", pos1);
-    QVERIFY(pos2 != -1);
+    t.verify(pos2 != -1, __LINE__);
     QByteArray contents = output.mid(pos1, pos2 - pos1);
     contents.replace("\\\"", "\"");
 
     int pos3 = output.indexOf("@NS@");
-    QVERIFY(pos3 != -1);
+    t.verify(pos3 != -1, __LINE__);
     pos3 += sizeof("@NS@") - 1;
     int pos4 = output.indexOf("@", pos3);
-    QVERIFY(pos4 != -1);
+    t.verify(pos4 != -1, __LINE__);
     context.nameSpace = output.mid(pos3, pos4 - pos3);
     //qDebug() << "FOUND NS: " << context.nameSpace;
     if (context.nameSpace == "::")
@@ -506,21 +583,21 @@ void tst_Dumpers::dumper()
                 qDebug() << "NAME ACTUAL  : " << item.name.toLatin1();
                 qDebug() << "NAME EXPECTED: " << check.expectedName.name;
                 qDebug() << "CONTENTS     : " << contents;
-                QVERIFY(false);
+                t.verify(false, __LINE__);
             }
             if (!check.expectedValue.matches(item.value, context)) {
                 qDebug() << "INAME         : " << item.iname;
                 qDebug() << "VALUE ACTUAL  : " << item.value << item.value.toLatin1().toHex();
                 qDebug() << "VALUE EXPECTED: " << check.expectedValue.value << check.expectedValue.value.toHex();
                 qDebug() << "CONTENTS      : " << contents;
-                QVERIFY(false);
+                t.verify(false, __LINE__);
             }
             if (!check.expectedType.matches(item.type, context)) {
                 qDebug() << "INAME        : " << item.iname;
                 qDebug() << "TYPE ACTUAL  : " << item.type;
                 qDebug() << "TYPE EXPECTED: " << check.expectedType.type;
                 qDebug() << "CONTENTS     : " << contents;
-                QVERIFY(false);
+                t.verify(false, __LINE__);
             }
         }
     }
@@ -536,7 +613,7 @@ void tst_Dumpers::dumper()
         qDebug() << "SEEN INAMES " << seenINames;
         qDebug() << "CONTENTS     : " << contents;
         qDebug() << "EXPANDED     : " << expanded;
-        QVERIFY(false);
+        t.verify(false, __LINE__);
     }
 }
 
