@@ -1749,12 +1749,9 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
     d->m_runMode = NoRunMode;
 }
 
-void ProjectExplorerPlugin::showExternalFileWarning()
+void ProjectExplorerPlugin::updateExternalFileWarning()
 {
-    // If m_currentNode is not NULL, the file belongs to (any) project. Do not show the warning
-    if (d->m_currentNode || !d->m_currentProject)
-        return;
-    Core::IEditor *editor = Core::EditorManager::currentEditor();
+    Core::IEditor *editor = qobject_cast<Core::IEditor *>(sender());
     if (!editor || editor->isTemporary())
         return;
     Core::IDocument *document = editor->document();
@@ -1762,7 +1759,11 @@ void ProjectExplorerPlugin::showExternalFileWarning()
         return;
     Core::InfoBar *infoBar = document->infoBar();
     Core::Id externalFileId(EXTERNAL_FILE_WARNING);
-    if (!infoBar->canInfoBeAdded(externalFileId))
+    if (!document->isModified()) {
+        infoBar->removeInfo(externalFileId);
+        return;
+    }
+    if (!d->m_currentProject || !infoBar->canInfoBeAdded(externalFileId))
         return;
     Utils::FileName fileName = Utils::FileName::fromString(document->fileName());
     if (fileName.isEmpty())
@@ -1813,12 +1814,15 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
         projectChanged = true;
     }
 
+    if (!node && Core::EditorManager::currentEditor()) {
+        connect(Core::EditorManager::currentEditor(), SIGNAL(changed()),
+                this, SLOT(updateExternalFileWarning()));
+    }
     if (projectChanged || d->m_currentNode != node) {
         d->m_currentNode = node;
         if (debug)
             qDebug() << "ProjectExplorer - currentNodeChanged(" << (node ? node->path() : QLatin1String("0")) << ", " << (project ? project->displayName() : QLatin1String("0")) << ')';
         emit currentNodeChanged(d->m_currentNode, project);
-        showExternalFileWarning();
         updateContextMenuActions();
     }
     if (projectChanged) {

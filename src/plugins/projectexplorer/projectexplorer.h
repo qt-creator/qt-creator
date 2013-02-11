@@ -236,6 +236,7 @@ private slots:
 
     void publishProject();
     void updateWelcomePage();
+    void updateExternalFileWarning();
 
 #ifdef WITH_TESTS
     void testAnsiFilterOutputParser_data();
@@ -284,7 +285,6 @@ private:
     QPair<bool, QString> buildSettingsEnabled(Project *pro);
     bool hasDeploySettings(Project *pro);
 
-    void showExternalFileWarning();
     void setCurrent(Project *project, QString filePath, Node *node);
 
     QStringList allFilesWithDependencies(Project *pro);
