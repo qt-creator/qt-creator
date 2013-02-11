@@ -3524,7 +3524,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         finishMovement();
     } else if (input.isControl('c')) {
         if (isNoVisualMode())
-            showMessage(MessageInfo, tr("Type Alt-v,Alt-v  to quit FakeVim mode."));
+            showMessage(MessageInfo, tr("Type Alt-V, Alt-V to quit FakeVim mode."));
         else
             leaveVisualMode();
     } else if ((input.is('d') || input.is('x') || input.isKey(Key_Delete))
