@@ -69,6 +69,7 @@ public:
         : TextEditor::BasicProposalItemListModel(items)
     {}
 
+    virtual void filter(const QString &prefix);
     virtual void sort();
     virtual bool keepPerfectMatch(TextEditor::AssistReason reason) const;
 };

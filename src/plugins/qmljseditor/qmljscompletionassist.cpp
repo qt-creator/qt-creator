@@ -974,6 +974,19 @@ struct QmlJSLessThan
 // -------------------------
 // QmlJSAssistProposalModel
 // -------------------------
+void QmlJSAssistProposalModel::filter(const QString &prefix)
+{
+    BasicProposalItemListModel::filter(prefix);
+    if (prefix.startsWith(QLatin1String("__")))
+        return;
+    QList<BasicProposalItem *> newCurrentItems;
+    newCurrentItems.reserve(m_currentItems.size());
+    foreach (BasicProposalItem *item, m_currentItems)
+        if (!item->text().startsWith(QLatin1String("__")))
+            newCurrentItems << item;
+    m_currentItems = newCurrentItems;
+}
+
 void QmlJSAssistProposalModel::sort()
 {
     qSort(currentItems().first, currentItems().second, QmlJSLessThan());
