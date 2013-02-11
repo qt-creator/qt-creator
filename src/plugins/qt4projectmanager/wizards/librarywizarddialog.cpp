@@ -354,9 +354,6 @@ LibraryParameters LibraryWizardDialog::libraryParameters() const
     rc.baseClassName = m_filesPage->baseClassName();
     rc.sourceFileName = m_filesPage->sourceFileName();
     rc.headerFileName = m_filesPage->headerFileName();
-    if (!rc.baseClassName.isEmpty())
-        if (const PluginBaseClasses *plb = findPluginBaseClass(rc.baseClassName))
-            rc.baseClassModule = QLatin1String(plb->module);
     return rc;
 }
 

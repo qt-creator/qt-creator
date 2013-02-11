@@ -87,13 +87,7 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
 
     // include base class header
     if (!baseClassName.isEmpty()) {
-        QString include;
-        if (!baseClassModule.isEmpty()) {
-            include += baseClassModule;
-            include += QLatin1Char('/');
-        }
-        include += baseClassName;
-        Utils::writeIncludeFileDirective(include, true, headerStr);
+        Utils::writeIncludeFileDirective(baseClassName, true, headerStr);
         headerStr  << '\n';
     }
 

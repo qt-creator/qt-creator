@@ -60,7 +60,6 @@ struct LibraryParameters {
     QString baseClassName;
     QString sourceFileName;
     QString headerFileName;
-    QString baseClassModule;
 };
 
 } // namespace Internal
