@@ -121,15 +121,15 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(WarnComma, Warning,
            tr("do not use comma expressions"));
     newMsg(WarnAlreadyFormalParameter, Warning,
-           tr("'%1' is already a formal parameter"), 1);
+           tr("'%1' already is a formal parameter"), 1);
     newMsg(WarnUnnecessaryMessageSuppression, Warning,
            tr("unnecessary message suppression"));
     newMsg(WarnAlreadyFunction, Warning,
-           tr("'%1' is already a function"), 1);
+           tr("'%1' already is a function"), 1);
     newMsg(WarnVarUsedBeforeDeclaration, Warning,
            tr("var '%1' is used before its declaration"), 1);
     newMsg(WarnAlreadyVar, Warning,
-           tr("'%1' is already a var"), 1);
+           tr("'%1' already is a var"), 1);
     newMsg(WarnDuplicateDeclaration, Warning,
            tr("'%1' is declared more than once"), 1);
     newMsg(WarnFunctionUsedBeforeDeclaration, Warning,
