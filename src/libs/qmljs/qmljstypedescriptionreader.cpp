@@ -369,7 +369,7 @@ void TypeDescriptionReader::readEnum(UiObjectDefinition *ast, FakeMetaObject::Pt
         else if (name == QLatin1String("values"))
             readEnumValues(script, &fme);
         else
-            addWarning(script->firstSourceLocation(), tr("Expected only name and values script bindings".));
+            addWarning(script->firstSourceLocation(), tr("Expected only name and values script bindings."));
     }
 
     fmo->addEnum(fme);
