@@ -417,7 +417,7 @@ void ChooseCMakePage::updateErrorText()
             if (!fi.exists())
                 text += tr(" The cmake executable (%1) does not exist.").arg(cmakeExecutable);
             else if (!fi.isExecutable())
-                text += tr(" The path %1 is not a executable.").arg(cmakeExecutable);
+                text += tr(" The path %1 is not an executable.").arg(cmakeExecutable);
             else
                 text += tr(" The path %1 is not a valid cmake.").arg(cmakeExecutable);
         }
