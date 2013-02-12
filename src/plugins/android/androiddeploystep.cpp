@@ -117,7 +117,7 @@ bool AndroidDeployStep::init()
     m_runDeployAction = m_deployAction;
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
     if (!tc || tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE)) {
-        raiseError(tr("No android toolchain selected"));
+        raiseError(tr("No Android toolchain selected."));
         return false;
     }
     m_ndkToolChainVersion = static_cast<AndroidToolChain *>(tc)->ndkToolChainVersion();

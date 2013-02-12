@@ -59,7 +59,7 @@ You must have Qt libraries compiled for that platform</string>
      <item>
       <widget class="QPushButton" name="cleanLibsPushButton">
        <property name="text">
-        <string>Clean libs on device</string>
+        <string>Clean Libs on Device</string>
        </property>
       </widget>
      </item>

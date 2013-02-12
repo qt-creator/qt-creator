@@ -76,7 +76,7 @@ QList<ProjectExplorer::Task> AndroidGdbServerKitInformation::validate(const Proj
 ProjectExplorer::KitInformation::ItemList AndroidGdbServerKitInformation::toUserOutput(ProjectExplorer::Kit *kit) const
 {
     return ProjectExplorer::KitInformation::ItemList()
-            << qMakePair(tr("GDBserver"), AndroidGdbServerKitInformation::gdbServer(kit).toUserOutput());
+            << qMakePair(tr("GDB server"), AndroidGdbServerKitInformation::gdbServer(kit).toUserOutput());
 }
 
 ProjectExplorer::KitConfigWidget *AndroidGdbServerKitInformation::createConfigWidget(ProjectExplorer::Kit *kit) const
@@ -127,12 +127,12 @@ AndroidGdbServerKitInformationWidget::AndroidGdbServerKitInformationWidget(Proje
 
 QString AndroidGdbServerKitInformationWidget::displayName() const
 {
-    return tr("Android GDBserver");
+    return tr("Android GDB server");
 }
 
 QString AndroidGdbServerKitInformationWidget::toolTip() const
 {
-    return tr("The GDBserver to use for this kit.");
+    return tr("The GDB server to use for this kit.");
 }
 
 void AndroidGdbServerKitInformationWidget::makeReadOnly()
@@ -185,7 +185,7 @@ void AndroidGdbServerKitInformationWidget::showDialog()
     connect(buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
     layout->addWidget(buttonBox);
 
-    dialog.setWindowTitle(tr("GDBserver for \"%1\"").arg(m_kit->displayName()));
+    dialog.setWindowTitle(tr("GDB Server for \"%1\"").arg(m_kit->displayName()));
 
     if (dialog.exec() == QDialog::Accepted)
         AndroidGdbServerKitInformation::setGdbSever(m_kit, chooser->fileName());
