@@ -38,7 +38,6 @@
 
 namespace Core {
 
-// FIXME: Make this a wrapper around an int, not around a QByteArray.
 class CORE_EXPORT Id
 {
 public:
