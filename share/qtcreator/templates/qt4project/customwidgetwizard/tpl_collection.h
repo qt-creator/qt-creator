@@ -8,6 +8,7 @@ class @COLLECTION_PLUGIN_CLASS@ : public QObject, public QDesignerCustomWidgetCo
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetCollectionInterface)
+    @COLLECTION_PLUGIN_METADATA@
 
 public:
     explicit @COLLECTION_PLUGIN_CLASS@(QObject *parent = 0);

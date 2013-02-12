@@ -68,6 +68,19 @@ static inline Core::GeneratedFile  generateIconFile(const QString &source, const
     return rc;
 }
 
+static QString qt4PluginExport(const QString &pluginName, const QString &pluginClassName)
+{
+    return QLatin1String("#if QT_VERSION < 0x050000\nQ_EXPORT_PLUGIN2(")
+        + pluginName + QLatin1String(", ") + pluginClassName
+        + QLatin1String(")\n#endif // QT_VERSION < 0x050000");
+}
+
+static QString qt5PluginMetaData(const QString &interfaceName)
+{
+    return QLatin1String("#if QT_VERSION >= 0x050000\n    Q_PLUGIN_METADATA(IID \"org.qt-project.Qt.")
+        + interfaceName + QLatin1String("\")\n#endif // QT_VERSION >= 0x050000");
+}
+
 QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationParameters& p, const PluginOptions &options,
                                                             QString *errorMessage)
 {
@@ -100,6 +113,9 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
         sm.clear();
         sm.insert(QLatin1String("SINGLE_INCLUDE_GUARD"), headerGuard(wo.pluginHeaderFile));
         sm.insert(QLatin1String("PLUGIN_CLASS"), wo.pluginClassName);
+        sm.insert(QLatin1String("SINGLE_PLUGIN_METADATA"),
+            options.widgetOptions.count() == 1 ?
+                qt5PluginMetaData(QLatin1String("QDesignerCustomWidgetInterface")) : QString());
         const QString pluginHeaderContents = processTemplate(p.templatePath + QLatin1String("/tpl_single.h"), sm, errorMessage);
         if (pluginHeaderContents.isEmpty())
             return QList<Core::GeneratedFile>();
@@ -126,12 +142,8 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
         sm.insert(QLatin1String("WIDGET_DOMXML"), cStringQuote(wo.domXml));
         sm.insert(QLatin1String("SINGLE_PLUGIN_EXPORT"),
             options.widgetOptions.count() == 1 ?
-                QLatin1String("\nQ_EXPORT_PLUGIN2(") +
-                    options.pluginName +
-                    QLatin1String(", ") +
-                    wo.pluginClassName +
-                    QLatin1Char(')') :
-                QString());
+                qt4PluginExport(options.pluginName, wo.pluginClassName) : QString());
+
         const QString pluginSourceContents = processTemplate(p.templatePath + QLatin1String("/tpl_single.cpp"), sm, errorMessage);
         if (pluginSourceContents.isEmpty())
             return QList<Core::GeneratedFile>();
@@ -222,6 +234,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
         sm.clear();
         sm.insert(QLatin1String("COLLECTION_INCLUDE_GUARD"), headerGuard(options.collectionHeaderFile));
         sm.insert(QLatin1String("COLLECTION_PLUGIN_CLASS"), options.collectionClassName);
+        sm.insert(QLatin1String("COLLECTION_PLUGIN_METADATA"), qt5PluginMetaData(QLatin1String("QDesignerCustomWidgetCollectionInterface")));
         const QString collectionHeaderContents = processTemplate(p.templatePath + QLatin1String("/tpl_collection.h"), sm, errorMessage);
         if (collectionHeaderContents.isEmpty())
             return QList<Core::GeneratedFile>();
@@ -237,12 +250,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
                 options.collectionHeaderFile +
                 QLatin1String("\""));
         sm.insert(QLatin1String("PLUGIN_ADDITIONS"), pluginAdditions);
-        sm.insert(QLatin1String("COLLECTION_PLUGIN_EXPORT"),
-            QLatin1String("Q_EXPORT_PLUGIN2(") +
-                options.pluginName +
-                QLatin1String(", ") +
-                options.collectionClassName +
-                QLatin1Char(')'));
+        sm.insert(QLatin1String("COLLECTION_PLUGIN_EXPORT"), qt4PluginExport(options.pluginName, options.collectionClassName));
         const QString collectionSourceFileContents = processTemplate(p.templatePath + QLatin1String("/tpl_collection.cpp"), sm, errorMessage);
         if (collectionSourceFileContents.isEmpty())
             return QList<Core::GeneratedFile>();

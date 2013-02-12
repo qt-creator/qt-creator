@@ -7,6 +7,7 @@ class @PLUGIN_CLASS@ : public QObject, public QDesignerCustomWidgetInterface
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
+    @SINGLE_PLUGIN_METADATA@
 
 public:
     @PLUGIN_CLASS@(QObject *parent = 0);
