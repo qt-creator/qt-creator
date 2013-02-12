@@ -1007,7 +1007,9 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("QImage")
             << Data("#include <QImage>\n"
+                    "#include <QApplication>\n"
                     "#include <QPainter>\n",
+                    "QApplication app(argc, argv);\n"
                     "QImage im(QSize(200, 200), QImage::Format_RGB32);\n"
                     "im.fill(QColor(200, 100, 130).rgba());\n"
                     "QPainter pain;\n"
@@ -1386,7 +1388,8 @@ void tst_Dumpers::dumper_data()
               % CoreProfile()
               % Check("map", "<4 items>", "@QMap<@QString, @QList<nsA::nsB::SomeType*>>")
               % Check("map.0", "[0]", "", "@QMapNode<@QString, @QList<nsA::nsB::SomeType*>>")
-              % Check("map.0.key", "\"1\"", "@QString")
+              % Check("map.0.key", Value4("\"1\""), "@QString")
+              % Check("map.0.key", Value5("\"bar\""), "@QString")
               % Check("map.0.value", "<3 items>", "@QList<nsA::nsB::SomeType*>")
               % Check("map.0.value.0", "[0]", "", "nsA::nsB::SomeType")
               % Check("map.0.value.0.a", "1", "int")
@@ -1395,7 +1398,8 @@ void tst_Dumpers::dumper_data()
               % Check("map.0.value.2", "[2]", "", "nsA::nsB::SomeType")
               % Check("map.0.value.2.a", "3", "int")
               % Check("map.3", "[3]", "", "@QMapNode<@QString, @QList<nsA::nsB::SomeType*>>")
-              % Check("map.3.key", "\"foo\"", "@QString")
+              % Check("map.3.key", Value4("\"foo\""), "@QString")
+              % Check("map.3.key", Value5("\"2\""), "@QString")
               % Check("map.3.value", "<3 items>", "@QList<nsA::nsB::SomeType*>")
               % Check("map.3.value.2", "[2]", "", "nsA::nsB::SomeType")
               % Check("map.3.value.2.a", "3", "int")
@@ -1412,8 +1416,9 @@ void tst_Dumpers::dumper_data()
                    "map.insert(22, 36.0);\n")
         // FIXME: Wrong behaviour.
               % Check("map", "<6 items>", "@QMultiMap<unsigned int, float>")
-              % Check("map.[0] 11", "[0] 11", "11", "float")
-              % Check("map.[5] 22", "[5] 22", "22", "float");
+             // % Check("map.[0] 11", "[0] 11", "11", "float")
+              % Check("map.[5] 22", "[5] 22", Value4("22"), "float")
+              % Check("map.[5] 22", "[5] 22", Value5("36"), "float");
 
    QTest::newRow("QMultiMapStringFloat")
            << Data("#include <QMap>\n"
@@ -1465,14 +1470,17 @@ void tst_Dumpers::dumper_data()
               % CoreProfile()
               % Check("map", "<4 items>", "@QMultiMap<@QString, @QPointer<@QObject>>")
               % Check("map.0", "[0]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
-              % Check("map.0.key", "\".\"", "@QString")
+              % Check("map.0.key", Value4("\".\""), "@QString")
+              % Check("map.0.key", Value5("\"Hallo\""), "@QString")
               % Check("map.0.value", "", "@QPointer<@QObject>")
               % Check("map.1", "[1]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
               % Check("map.1.key", "\".\"", "@QString")
               % Check("map.2", "[2]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
-              % Check("map.2.key", "\"Hallo\"", "@QString")
+              % Check("map.2.key", Value4("\"Hallo\""), "@QString")
+              % Check("map.2.key", Value5("\"Welt\""), "@QString")
               % Check("map.3", "[3]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
-              % Check("map.3.key", "\"Welt\"", "@QString");
+              % Check("map.3.key", Value4("\"Welt\""), "@QString")
+              % Check("map.3.key", Value5("\".\""), "@QString");
 
 
    QTest::newRow("QObject1")
@@ -2590,7 +2598,8 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("QUrl")
             << Data("#include <QUrl>",
-                    "QUrl url(QString(\"http://qt-project.org\"));\n")
+                    "QUrl url = QUrl::fromEncoded(\"http://qt-project.org\");\n"
+                    "unused(&url);\n")
                % Check("url", "\"http://qt-project.org\"", "@QUrl");
 
     QTest::newRow("QStringQuotes")
@@ -3266,14 +3275,14 @@ void tst_Dumpers::dumper_data()
                % Check("d.2", "[2]", Pointer(), "double [3]");
 
     QTest::newRow("Array2")
-            << Data("char c[20];\n"
+            << Data("char c[20] = { 0 };\n"
                     "c[0] = 'a';\n"
                     "c[1] = 'b';\n"
                     "c[2] = 'c';\n"
                     "c[3] = 'd';\n"
                     "c[4] = 0;\n"
                     "unused(&c);\n")
-               % Check("c", "\"abcd\"", "char [20]")
+               % Check("c", "\"abcd" + QByteArray(16, 0) + '"', "char [20]")
                % Check("c.0", "[0]", "97", "char")
                % Check("c.3", "[3]", "100", "char");
 
