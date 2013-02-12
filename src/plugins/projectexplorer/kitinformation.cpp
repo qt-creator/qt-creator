@@ -367,7 +367,7 @@ QList<Task> DeviceKitInformation::validate(const Kit *k) const
         result.append(Task(Task::Error, tr("Device does not match device type."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
     if (dev.isNull())
-        result.append(Task(Task::Warning, tr("No Device set."),
+        result.append(Task(Task::Warning, tr("No device set."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
     return result;
 }
