@@ -151,13 +151,13 @@ bool HoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Document::
         QStringList helpIdPieces(qName);
         helpIdPieces.prepend(moduleName);
         helpIdPieces.prepend(QLatin1String("QML"));
-        helpId = helpIdPieces.join(QLatin1Char('.'));
+        helpId = helpIdPieces.join(QLatin1String("."));
         if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty())
             break;
         if (helpIdPieces.size() > 3) {
             QString lm = helpIdPieces.value(2);
             helpIdPieces.removeAt(2);
-            helpId = helpIdPieces.join(QLatin1Char('.'));
+            helpId = helpIdPieces.join(QLatin1String("."));
             if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty())
                 break;
             helpIdPieces.replace(1, lm);
@@ -165,12 +165,12 @@ bool HoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Document::
                 break;
         }
         helpIdPieces.removeAt(1);
-        helpId = helpIdPieces.join(QLatin1Char('.'));
+        helpId = helpIdPieces.join(QLatin1String("."));
         if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty())
             break;
         return false;
     } while (0);
-    setLastHelpItemIdentified(TextEditor::HelpItem(helpId, qName.join(QLatin1Char('.')),
+    setLastHelpItemIdentified(TextEditor::HelpItem(helpId, qName.join(QLatin1String(".")),
                                                    TextEditor::HelpItem::QmlComponent));
     return true;
 }
