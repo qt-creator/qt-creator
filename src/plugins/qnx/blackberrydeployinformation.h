@@ -33,6 +33,10 @@
 
 #include <QAbstractTableModel>
 
+namespace ProjectExplorer {
+class Target;
+}
+
 namespace Qt4ProjectManager {
 class Qt4ProFileNode;
 class Qt4Project;
@@ -61,7 +65,7 @@ class BlackBerryDeployInformation : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit BlackBerryDeployInformation(Qt4ProjectManager::Qt4Project *project);
+    explicit BlackBerryDeployInformation(ProjectExplorer::Target *target);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -89,10 +93,12 @@ private:
         ColumnCount // Always have last
     };
 
+    Qt4ProjectManager::Qt4Project *project() const;
+
     void initModel();
     BarPackageDeployInformation deployInformationFromNode(Qt4ProjectManager::Qt4ProFileNode *node) const;
 
-    Qt4ProjectManager::Qt4Project *m_project;
+    ProjectExplorer::Target *m_target;
 
     QList<BarPackageDeployInformation> m_deployInformation;
 };

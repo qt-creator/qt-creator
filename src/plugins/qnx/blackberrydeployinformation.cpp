@@ -32,6 +32,7 @@
 
 #include "blackberrydeployconfiguration.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4nodes.h>
@@ -51,11 +52,11 @@ const char PACKAGE_KEY[]        = "Qnx.BlackBerry.DeployInformation.Package";
 const char PROFILE_KEY[]        = "Qnx.BlackBerry.DeployInformation.ProFile";
 }
 
-BlackBerryDeployInformation::BlackBerryDeployInformation(Qt4ProjectManager::Qt4Project *project)
-    : QAbstractTableModel(project)
-    , m_project(project)
+BlackBerryDeployInformation::BlackBerryDeployInformation(ProjectExplorer::Target *target)
+    : QAbstractTableModel(target)
+    , m_target(target)
 {
-    connect(m_project, SIGNAL(proFilesEvaluated()), this, SLOT(updateModel()));
+    connect(project(), SIGNAL(proFilesEvaluated()), this, SLOT(updateModel()));
 }
 
 int BlackBerryDeployInformation::rowCount(const QModelIndex &parent) const
@@ -211,7 +212,7 @@ void BlackBerryDeployInformation::updateModel()
 
     beginResetModel();
     QList<BarPackageDeployInformation> keep;
-    QList<Qt4ProjectManager::Qt4ProFileNode *> appNodes = m_project->applicationProFiles();
+    QList<Qt4ProjectManager::Qt4ProFileNode *> appNodes = project()->applicationProFiles();
     foreach (Qt4ProjectManager::Qt4ProFileNode *node, appNodes) {
         bool nodeFound = false;
         for (int i = 0; i < m_deployInformation.size(); ++i) {
@@ -229,18 +230,17 @@ void BlackBerryDeployInformation::updateModel()
     endResetModel();
 }
 
+Qt4ProjectManager::Qt4Project *BlackBerryDeployInformation::project() const
+{
+    return static_cast<Qt4ProjectManager::Qt4Project *>(m_target->project());
+}
+
 void BlackBerryDeployInformation::initModel()
 {
     if (!m_deployInformation.isEmpty())
         return;
 
-    ProjectExplorer::Target *target = m_project->activeTarget();
-    if (!target
-            || !target->activeDeployConfiguration()
-            || !qobject_cast<BlackBerryDeployConfiguration *>(target->activeDeployConfiguration()))
-        return;
-
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(m_target->kit());
     if (!version || !version->isValid()) {
         beginResetModel();
         m_deployInformation.clear();
@@ -248,21 +248,21 @@ void BlackBerryDeployInformation::initModel()
         return;
     }
 
-    const Qt4ProjectManager::Qt4ProFileNode *const rootNode = m_project->rootQt4ProjectNode();
+    const Qt4ProjectManager::Qt4ProFileNode *const rootNode = project()->rootQt4ProjectNode();
     if (!rootNode || rootNode->parseInProgress()) // Can be null right after project creation by wizard.
         return;
 
-    disconnect(m_project, SIGNAL(proFilesEvaluated()), this, SLOT(updateModel()));
+    disconnect(project(), SIGNAL(proFilesEvaluated()), this, SLOT(updateModel()));
 
     beginResetModel();
     m_deployInformation.clear();
 
-    QList<Qt4ProjectManager::Qt4ProFileNode *> appNodes = m_project->applicationProFiles();
+    QList<Qt4ProjectManager::Qt4ProFileNode *> appNodes = project()->applicationProFiles();
     foreach (Qt4ProjectManager::Qt4ProFileNode *node, appNodes)
         m_deployInformation << deployInformationFromNode(node);
 
     endResetModel();
-    connect(m_project, SIGNAL(proFilesEvaluated()), this, SLOT(updateModel()));
+    connect(project(), SIGNAL(proFilesEvaluated()), this, SLOT(updateModel()));
 }
 
 BarPackageDeployInformation BlackBerryDeployInformation::deployInformationFromNode(Qt4ProjectManager::Qt4ProFileNode *node) const
@@ -271,9 +271,8 @@ BarPackageDeployInformation BlackBerryDeployInformation::deployInformationFromNo
 
     QFileInfo fi(node->path());
     const QString appDescriptorPath = QDir::toNativeSeparators(fi.absolutePath() + QLatin1String("/bar-descriptor.xml"));
-    QString barPackagePath;
-    if (!ti.buildDir.isEmpty())
-        barPackagePath = QDir::toNativeSeparators(ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String(".bar"));
+    QString buildDir = m_target->activeBuildConfiguration()->buildDirectory();
+    QString barPackagePath = QDir::toNativeSeparators(buildDir + QLatin1Char('/') + ti.target + QLatin1String(".bar"));
 
     return BarPackageDeployInformation(true, appDescriptorPath, barPackagePath, node->path());
 }

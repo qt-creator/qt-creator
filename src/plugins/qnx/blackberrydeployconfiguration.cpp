@@ -70,13 +70,7 @@ BlackBerryDeployConfiguration::BlackBerryDeployConfiguration(ProjectExplorer::Ta
 
 void BlackBerryDeployConfiguration::ctor()
 {
-    BlackBerryDeployInformation *info
-            = qobject_cast<BlackBerryDeployInformation *>(target()->project()->namedSettings(QLatin1String(DEPLOYMENT_INFO_SETTING)).value<QObject *>());
-    if (!info) {
-        info = new BlackBerryDeployInformation(static_cast<Qt4ProjectManager::Qt4Project *>(target()->project()));
-        QVariant data = QVariant::fromValue(static_cast<QObject *>(info));
-        target()->project()->setNamedSettings(QLatin1String(DEPLOYMENT_INFO_SETTING), data);
-    }
+    m_deployInformation = new BlackBerryDeployInformation(target());
 
     connect(target()->project(), SIGNAL(proFilesEvaluated()), this, SLOT(setupBarDescriptor()), Qt::UniqueConnection);
 
@@ -157,9 +151,7 @@ BlackBerryDeployConfiguration::~BlackBerryDeployConfiguration()
 
 BlackBerryDeployInformation *BlackBerryDeployConfiguration::deploymentInfo() const
 {
-    BlackBerryDeployInformation *info
-            = qobject_cast<BlackBerryDeployInformation *>(target()->project()->namedSettings(QLatin1String(DEPLOYMENT_INFO_SETTING)).value<QObject *>());
-    return info;
+    return m_deployInformation;
 }
 
 ProjectExplorer::NamedWidget *BlackBerryDeployConfiguration::createConfigWidget()

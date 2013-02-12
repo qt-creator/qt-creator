@@ -71,6 +71,8 @@ private slots:
 private:
     void ctor();
     void addBarDescriptorToProject(const QString& barDescriptorPath);
+
+    BlackBerryDeployInformation *m_deployInformation;
 };
 
 } // namespace Internal
