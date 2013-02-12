@@ -198,6 +198,7 @@ void GenericMakeStep::run(QFutureInterface<bool> &fi)
     if (!canContinue) {
         emit addOutput(tr("Configuration is faulty. Check the Issues view for details."), BuildStep::MessageOutput);
         fi.reportResult(false);
+        emit finished();
         return;
     }
 

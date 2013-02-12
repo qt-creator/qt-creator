@@ -265,11 +265,13 @@ void MakeStep::run(QFutureInterface<bool> & fi)
     if (!canContinue) {
         emit addOutput(tr("Configuration is faulty. Check the Issues view for details."), BuildStep::MessageOutput);
         fi.reportResult(false);
+        emit finished();
         return;
     }
 
     if (m_scriptTarget) {
         fi.reportResult(true);
+        emit finished();
         return;
     }
 
@@ -277,6 +279,7 @@ void MakeStep::run(QFutureInterface<bool> & fi)
         if (!ignoreReturnValue())
             emit addOutput(tr("Cannot find Makefile. Check your build settings."), BuildStep::MessageOutput);
         fi.reportResult(ignoreReturnValue());
+        emit finished();
         return;
     }
 

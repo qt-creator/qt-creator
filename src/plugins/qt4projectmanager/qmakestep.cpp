@@ -322,12 +322,14 @@ void QMakeStep::run(QFutureInterface<bool> &fi)
     if (!canContinue) {
         emit addOutput(tr("Configuration is faulty, please check the Issues view for details."), BuildStep::MessageOutput);
         fi.reportResult(false);
+        emit finished();
         return;
     }
 
     if (!m_needToRunQMake) {
         emit addOutput(tr("Configuration unchanged, skipping qmake step."), BuildStep::MessageOutput);
         fi.reportResult(true);
+        emit finished();
         return;
     }
 
