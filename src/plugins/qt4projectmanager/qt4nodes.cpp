@@ -1087,7 +1087,9 @@ QStringList Qt4PriFileNode::formResources(const QString &formFile) const
 {
     QStringList resourceFiles;
     QFile file(formFile);
-    file.open(QIODevice::ReadOnly);
+    if (!file.open(QIODevice::ReadOnly))
+        return resourceFiles;
+
     QXmlStreamReader reader(&file);
 
     QFileInfo fi(formFile);
