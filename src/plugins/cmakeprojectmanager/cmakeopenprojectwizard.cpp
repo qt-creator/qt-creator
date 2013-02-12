@@ -395,31 +395,31 @@ ChooseCMakePage::ChooseCMakePage(CMakeOpenProjectWizard *cmakeWizard)
     // Show a field for the user to enter
     m_cmakeExecutable = new Utils::PathChooser(this);
     m_cmakeExecutable->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    fl->addRow(tr("cmake Executable:"), m_cmakeExecutable);
+    fl->addRow(tr("CMake Executable:"), m_cmakeExecutable);
 
     connect(m_cmakeExecutable, SIGNAL(editingFinished()),
             this, SLOT(cmakeExecutableChanged()));
     connect(m_cmakeExecutable, SIGNAL(browsingFinished()),
             this, SLOT(cmakeExecutableChanged()));
 
-    setTitle(tr("Choose Cmake Executable"));
+    setTitle(tr("Choose CMake Executable"));
 }
 
 void ChooseCMakePage::updateErrorText()
 {
     QString cmakeExecutable = m_cmakeWizard->cmakeManager()->cmakeExecutable();
     if (m_cmakeWizard->cmakeManager()->isCMakeExecutableValid()) {
-        m_cmakeLabel->setText(tr("The cmake executable is valid."));
+        m_cmakeLabel->setText(tr("The CMake executable is valid."));
     } else {
-        QString text = tr("Please specify the path to the cmake executable. No cmake executable was found in the path.");
+        QString text = tr("Specify the path to the CMake executable. No CMake executable was found in the path.");
         if (!cmakeExecutable.isEmpty()) {
             QFileInfo fi(cmakeExecutable);
             if (!fi.exists())
-                text += tr(" The cmake executable (%1) does not exist.").arg(cmakeExecutable);
+                text += tr(" The CMake executable (%1) does not exist.").arg(cmakeExecutable);
             else if (!fi.isExecutable())
                 text += tr(" The path %1 is not an executable.").arg(cmakeExecutable);
             else
-                text += tr(" The path %1 is not a valid cmake.").arg(cmakeExecutable);
+                text += tr(" The path %1 is not a valid CMake executable.").arg(cmakeExecutable);
         }
         m_cmakeLabel->setText(text);
     }
@@ -659,7 +659,7 @@ void CMakeRunPage::runCMake()
         m_runCMake->setEnabled(true);
         m_argumentsLineEdit->setEnabled(true);
         m_generatorComboBox->setEnabled(true);
-        m_output->appendPlainText(tr("No valid cmake executable specified."));
+        m_output->appendPlainText(tr("No valid CMake executable specified."));
     }
 }
 
