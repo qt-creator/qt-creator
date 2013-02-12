@@ -1322,16 +1322,21 @@ void PluginManagerPrivate::profilingSummary() const
     if (!m_profileTimer.isNull()) {
         typedef QMultiMap<int, const PluginSpec *> Sorter;
         Sorter sorter;
+        int total = 0;
 
         QHash<const PluginSpec *, int>::ConstIterator it1 = m_profileTotal.constBegin();
         QHash<const PluginSpec *, int>::ConstIterator et1 = m_profileTotal.constEnd();
-        for (; it1 != et1; ++it1)
+        for (; it1 != et1; ++it1) {
             sorter.insert(it1.value(), it1.key());
+            total += it1.value();
+        }
 
         Sorter::ConstIterator it2 = sorter.begin();
         Sorter::ConstIterator et2 = sorter.end();
         for (; it2 != et2; ++it2)
-            qDebug("%-22s %8dms", qPrintable(it2.value()->name()), it2.key());
+            qDebug("%-22s %8dms   ( %5.2f%% )", qPrintable(it2.value()->name()),
+                it2.key(), 100.0 * it2.key() / total);
+         qDebug("Total: %8dms", total);
     }
 }
 
