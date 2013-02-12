@@ -1359,11 +1359,14 @@ void tst_Dumpers::dumper_data()
               % CoreProfile()
               % Check("map", "<3 items>", "@QMap<@QString, @QPointer<@QObject>>")
               % Check("map.0", "[0]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
-              % Check("map.0.key", "\".\"", "@QString")
+              % Check("map.0.key", Value4("\".\""), "@QString")
+              % Check("map.0.key", Value5("\"Hallo\""), "@QString")
               % Check("map.0.value", "", "@QPointer<@QObject>")
-              % Check("map.0.value.o", "\"\"", "@QObject")
+              //% Check("map.0.value.o", Pointer(), "@QObject")
+              // FIXME: it's '.wp' in Qt 5
               % Check("map.1", "[1]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
-              % Check("map.1.key", "\"Hallo\"", "@QString")
+              % Check("map.1.key", Value4("\"Hallo\""), "@QString")
+              % Check("map.1.key", Value5("\".\""), "@QString")
               % Check("map.2", "[2]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
               % Check("map.2.key", "\"Welt\"", "@QString");
 
@@ -1539,7 +1542,7 @@ void tst_Dumpers::dumper_data()
                     "ob.setProperty(\"USER DEFINED 1\", 44);\n"
                     "ob.setProperty(\"USER DEFINED 2\", QStringList() << \"FOO\" << \"BAR\");\n"
                     ""
-                    "QObject ob1;\n"
+                    "QObject ob1, ob2;\n"
                     "ob1.setObjectName(\"Another Object\");\n"
                     "QObject::connect(&ob, SIGNAL(destroyed()), &ob1, SLOT(deleteLater()));\n"
                     "QObject::connect(&ob, SIGNAL(destroyed()), &ob1, SLOT(deleteLater()));\n"
@@ -1550,9 +1553,12 @@ void tst_Dumpers::dumper_data()
                     "obs.append(&ob1);\n"
                     "obs.append(0);\n"
                     "obs.append(&app);\n"
-                    "ob1.setObjectName(\"A Subobject\");\n")
+                    "ob2.setObjectName(\"A Subobject\");\n"
+                    "unused(&ob, &ob1, &ob2);\n")
                % GuiProfile()
-               % Check("ob", "An Object", "@QObject");
+               % Check("ob", "\"An Object\"", "@QWidget")
+               % Check("ob1", "\"Another Object\"", "@QObject")
+               % Check("ob2", "\"A Subobject\"", "@QObject");
 
     QByteArray senderData =
             "    class Sender : public QObject\n"
@@ -2305,7 +2311,7 @@ void tst_Dumpers::dumper_data()
                     "std::set<QPointer<QObject> > hash;\n"
                     "QPointer<QObject> ptr(&ob);\n")
                % Check("hash", "<0 items>", "std::set<@QPointer<@QObject>, std::less<@QPointer<@QObject>>, std::allocator<@QPointer<@QObject>>>")
-               % Check("ob", "\"\"", "@QObject")
+               % Check("ob", "", "@QObject")
                % Check("ptr", "", "@QPointer<@QObject>");
 
     QTest::newRow("StdStack1")
@@ -2764,7 +2770,7 @@ void tst_Dumpers::dumper_data()
                     "    thread[i].start();\n"
                     "}\n")
                     % CheckType("this", "Thread")
-                    % Check("this.@1", "[@QThread]", "", "@QThread")
+                    % Check("this.@1", "[@QThread]", "\"This is thread #3\"", "@QThread")
                     % Check("this.@1.@1", "[@QObject]", "\"This is thread #3\"", "@QObject");
 
     QTest::newRow("QVariant1")

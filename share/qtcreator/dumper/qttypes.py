@@ -818,21 +818,12 @@ def extractCString(table, offset):
 
 def qdump__QObject(d, value):
     #warn("OBJECT: %s " % value)
+    d.tryPutObjectNameValue(value)
+
     try:
-        privateTypeName = d.ns + "QObjectPrivate"
+        privateTypeName = self.ns + "QObjectPrivate"
         privateType = lookupType(privateTypeName)
         staticMetaObject = value["staticMetaObject"]
-        d_ptr = value["d_ptr"]["d"].cast(privateType.pointer()).dereference()
-        #warn("D_PTR: %s " % d_ptr)
-        objectName = None
-        try:
-            objectName = d_ptr["objectName"]
-        except: # Qt 5
-            p = d_ptr["extraData"]
-            if not isNull(p):
-                objectName = p.dereference()["objectName"]
-        if not objectName is None:
-            d.putStringValue(objectName)
     except:
         d.putPlainChildren(value)
         return
