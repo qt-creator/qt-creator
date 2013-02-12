@@ -36,6 +36,7 @@
 #include <utils/codegeneration.h>
 #include <cpptools/abstracteditorsupport.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -142,7 +143,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
 
 Core::FeatureSet LibraryWizard::requiredFeatures() const
 {
-    return Core::FeatureSet();
+    return Core::Feature(QtSupport::Constants::FEATURE_QT);
 }
 
 } // namespace Internal
