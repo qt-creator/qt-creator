@@ -189,7 +189,7 @@ void PluginView::updateList()
 int PluginView::parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &groupState, QList<PluginSpec*> plugins)
 {
     int ret = 0;
-    int loadCount = 0;
+    int checkedCount = 0;
 
     for (int i = 0; i < plugins.length(); ++i) {
         PluginSpec *spec = plugins[i];
@@ -212,9 +212,9 @@ int PluginView::parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &gr
         pluginItem->setData(0, Qt::UserRole, qVariantFromValue(spec));
 
         Qt::CheckState state = Qt::Unchecked;
-        if (spec->isEnabled()) {
+        if (spec->isEnabledInSettings()) {
             state = Qt::Checked;
-            ++loadCount;
+            ++checkedCount;
         }
 
         if (!m_whitelist.contains(spec->name())) {
@@ -235,10 +235,10 @@ int PluginView::parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &gr
 
     }
 
-    if (loadCount == plugins.length()) {
+    if (checkedCount == plugins.length()) {
         groupState = Qt::Checked;
         ret |= ParsedAll;
-    } else if (loadCount == 0) {
+    } else if (checkedCount == 0) {
         groupState = Qt::Unchecked;
         ret |= ParsedNone;
     } else {
@@ -300,7 +300,7 @@ void PluginView::updatePluginSettings(QTreeWidgetItem *item, int column)
                 Qt::CheckState state = Qt::PartiallyChecked;
                 int loadCount = 0;
                 for (int i = 0; i < collection->plugins().length(); ++i) {
-                    if (collection->plugins().at(i)->isEnabled())
+                    if (collection->plugins().at(i)->isEnabledInSettings())
                         ++loadCount;
                 }
                 if (loadCount == collection->plugins().length())
@@ -349,7 +349,7 @@ void PluginView::updatePluginDependencies()
             if (it.key().type == PluginDependency::Optional)
                 continue;
             PluginSpec *depSpec = it.value();
-            if (!depSpec->isEnabled() || depSpec->isDisabledIndirectly()) {
+            if (!depSpec->isEnabledInSettings() || depSpec->isDisabledIndirectly()) {
                 disableIndirectly = true;
                 break;
             }

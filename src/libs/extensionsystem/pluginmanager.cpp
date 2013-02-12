@@ -335,7 +335,7 @@ bool PluginManager::hasError()
 {
     foreach (PluginSpec *spec, plugins()) {
         // only show errors on startup if plugin is enabled.
-        if (spec->hasError() && spec->isEnabled() && !spec->isDisabledIndirectly())
+        if (spec->hasError() && spec->isEnabledInSettings() && !spec->isDisabledIndirectly())
             return true;
     }
     return false;
@@ -882,9 +882,9 @@ void PluginManagerPrivate::writeSettings()
     QStringList tempDisabledPlugins;
     QStringList tempForceEnabledPlugins;
     foreach (PluginSpec *spec, pluginSpecs) {
-        if (!spec->isDisabledByDefault() && !spec->isEnabled())
+        if (!spec->isDisabledByDefault() && !spec->isEnabledInSettings())
             tempDisabledPlugins.append(spec->name());
-        if (spec->isDisabledByDefault() && spec->isEnabled())
+        if (spec->isDisabledByDefault() && spec->isEnabledInSettings())
             tempForceEnabledPlugins.append(spec->name());
     }
 
@@ -1120,7 +1120,7 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
         return;
 
     // don't load disabled plugins.
-    if ((spec->isDisabledIndirectly() || !spec->isEnabled()) && destState == PluginSpec::Loaded)
+    if ((spec->isDisabledIndirectly() || !spec->isEnabledInSettings()) && destState == PluginSpec::Loaded)
         return;
 
     switch (destState) {

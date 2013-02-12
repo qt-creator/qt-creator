@@ -92,7 +92,7 @@ public:
     QString category() const;
     bool isExperimental() const;
     bool isDisabledByDefault() const;
-    bool isEnabled() const;
+    bool isEnabledInSettings() const;
     bool isDisabledIndirectly() const;
     QList<PluginDependency> dependencies() const;
 
