@@ -1859,6 +1859,64 @@ private:
     Utils::ChangeSet m_change;
 };
 
+/// Filter the results of ASTPath.
+/// The resulting list contains the supported AST types only once.
+/// For this, the results of ASTPath are iterated in reverse order.
+class ReformatPointerDeclarationASTPathResultsFilter
+{
+public:
+    ReformatPointerDeclarationASTPathResultsFilter()
+        : m_hasSimpleDeclaration(false)
+        , m_hasFunctionDefinition(false)
+        , m_hasParameterDeclaration(false)
+        , m_hasIfStatement(false)
+        , m_hasWhileStatement(false)
+        , m_hasForStatement(false)
+        , m_hasForeachStatement(false) {}
+
+    QList<AST*> filter(const QList<AST*> &astPathList)
+    {
+        QList<AST*> filtered;
+
+        for (int i = astPathList.size() - 1; i >= 0; --i) {
+            AST *ast = astPathList.at(i);
+
+            if (! m_hasSimpleDeclaration && ast->asSimpleDeclaration()) {
+                m_hasSimpleDeclaration = true;
+                filtered.append(ast);
+            } else if (! m_hasFunctionDefinition && ast->asFunctionDefinition()) {
+                m_hasFunctionDefinition = true;
+                filtered.append(ast);
+            } else if (! m_hasParameterDeclaration && ast->asParameterDeclaration()) {
+                m_hasParameterDeclaration = true;
+                filtered.append(ast);
+            } else if (! m_hasIfStatement && ast->asIfStatement()) {
+                m_hasIfStatement = true;
+                filtered.append(ast);
+            } else if (! m_hasWhileStatement && ast->asWhileStatement()) {
+                m_hasWhileStatement = true;
+                filtered.append(ast);
+            } else if (! m_hasForStatement && ast->asForStatement()) {
+                m_hasForStatement = true;
+                filtered.append(ast);
+            } else if (! m_hasForeachStatement && ast->asForeachStatement()) {
+                m_hasForeachStatement = true;
+                filtered.append(ast);
+            }
+        }
+
+        return filtered;
+    }
+private:
+    bool m_hasSimpleDeclaration;
+    bool m_hasFunctionDefinition;
+    bool m_hasParameterDeclaration;
+    bool m_hasIfStatement;
+    bool m_hasWhileStatement;
+    bool m_hasForStatement;
+    bool m_hasForeachStatement;
+};
+
 void ReformatPointerDeclaration::match(const CppQuickFixInterface &interface,
                                        QuickFixOperations &result)
 {
@@ -1885,9 +1943,9 @@ void ReformatPointerDeclaration::match(const CppQuickFixInterface &interface,
                 new ReformatPointerDeclarationOp(interface, change)));
         }
     } else {
-        for (int index = path.size() - 1; index >= 0; --index) {
-            AST *ast = path.at(index);
-
+        const QList<AST *> suitableASTs
+            = ReformatPointerDeclarationASTPathResultsFilter().filter(path);
+        foreach (AST *ast, suitableASTs) {
             change = formatter.format(ast);
             if (! change.isEmpty()) {
                 result.append(QuickFixOperation::Ptr(

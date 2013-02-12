@@ -102,6 +102,7 @@ private slots: // quickfix tests
     void test_quickfix_GenerateGetterSetter_notTriggeringOnMemberFunction();
     void test_quickfix_GenerateGetterSetter_notTriggeringOnMemberArray();
     void test_quickfix_GenerateGetterSetter_notTriggeringWhenGetterOrSetterExist();
+    void test_quickfix_ReformatPointerDeclaration();
 #endif // WITH_TESTS
 
 private:

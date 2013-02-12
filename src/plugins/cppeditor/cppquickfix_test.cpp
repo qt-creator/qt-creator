@@ -43,6 +43,7 @@
 #include <cppeditor/cppplugin.h>
 #include <cppeditor/cppquickfixassistant.h>
 #include <cppeditor/cppquickfix.h>
+#include <cppeditor/cppquickfixes.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/codeassist/basicproposalitemlistmodel.h>
@@ -542,4 +543,15 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_notTriggeringWhenGetterOrSett
 
     GenerateGetterSetter factory(/*testMode=*/ true);
     data.run(&factory, expected, /*changesExpected=*/ false);
+}
+
+/// Check: Just a basic test since the main functionality is tested in
+/// cpppointerdeclarationformatter_test.cpp
+void CppPlugin::test_quickfix_ReformatPointerDeclaration()
+{
+    TestCase data("char@*s;");
+    QByteArray expected = "char *s;\n";
+
+    ReformatPointerDeclaration factory;
+    data.run(&factory, expected);
 }
