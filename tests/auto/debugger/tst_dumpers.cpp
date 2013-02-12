@@ -3504,12 +3504,12 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("DynamicReference")
             << Data("struct BaseClass { virtual ~BaseClass() {} };\n"
-                    "struct DerivedClass : BaseClass {};\n"
+                    "struct DerivedClass : BaseClass {};\n",
                     "DerivedClass d;\n"
                     "BaseClass *b1 = &d;\n"
                     "BaseClass &b2 = d;\n"
-                    "unused(&b1, &b2);\n")
-               % CheckType("b1", "DerivedClass *")
+                    "unused(&d, &b1, &b2);\n")
+               % CheckType("b1", "DerivedClass") // autoderef
                % CheckType("b2", "DerivedClass &");
 
 //    QTest::newRow("LongEvaluation1")
@@ -4135,13 +4135,12 @@ void tst_Dumpers::dumper_data()
                     "{\n"
                     "    Derived() : b(42) {}\n"
                     "    int b;\n"
-                    "};\n"
+                    "};\n",
                     "Derived d;\n"
                     "Base *b = &d;\n"
                     "unused(&d, &b);\n")
-               % CheckType("b.[vptr]", "")
-               % Check("b.a", "21", "int")
-               % Check("b.b", "42", "int");
+               % Check("b.@1.a", "a", "21", "int")
+               % Check("b.b", "b", "42", "int");
 
 
     QTest::newRow("valist")
