@@ -52,6 +52,10 @@ CurrentProjectFind::CurrentProjectFind(ProjectExplorerPlugin *plugin)
 {
     connect(m_plugin, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(handleProjectChanged()));
+    connect(m_plugin->session(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+            this, SLOT(handleProjectChanged()));
+    connect(m_plugin->session(), SIGNAL(projectAdded(ProjectExplorer::Project*)),
+            this, SLOT(handleProjectChanged()));
 }
 
 QString CurrentProjectFind::id() const
@@ -99,6 +103,22 @@ QString CurrentProjectFind::label() const
 void CurrentProjectFind::handleProjectChanged()
 {
     emit enabledChanged(isEnabled());
+}
+
+void CurrentProjectFind::recheckEnabled()
+{
+    SearchResult *search = qobject_cast<SearchResult *>(sender());
+    if (!search)
+        return;
+    QString projectFile = getAdditionalParameters(search).toString();
+    QList<Project *> allProjects = m_plugin->session()->projects();
+    foreach (Project *project, allProjects) {
+        if (project->document() && projectFile == project->document()->fileName()) {
+            search->setSearchAgainEnabled(true);
+            return;
+        }
+    }
+    search->setSearchAgainEnabled(false);
 }
 
 void CurrentProjectFind::writeSettings(QSettings *settings)

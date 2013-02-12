@@ -78,6 +78,7 @@ protected:
     virtual Utils::FileIterator *files(const QStringList &nameFilters,
                                        const QVariant &additionalParameters) const = 0;
     virtual QVariant additionalParameters() const = 0;
+    QVariant getAdditionalParameters(Find::SearchResult *search);
     virtual QString label() const = 0; // see Find::SearchResultWindow::startNewSearch
     virtual QString toolTip() const = 0; // see Find::SearchResultWindow::startNewSearch,
                                          // add %1 placeholder where the find flags should be put
@@ -100,6 +101,7 @@ private slots:
                    bool preserveCase);
     void hideHighlightAll(bool visible);
     void searchAgain();
+    void recheckEnabled();
 
 private:
     void runNewSearch(const QString &txt, Find::FindFlags findFlags,

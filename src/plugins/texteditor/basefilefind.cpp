@@ -137,7 +137,9 @@ void BaseFileFind::runNewSearch(const QString &txt, Find::FindFlags findFlags,
     connect(search, SIGNAL(cancelled()), this, SLOT(cancel()));
     connect(search, SIGNAL(paused(bool)), this, SLOT(setPaused(bool)));
     connect(search, SIGNAL(searchAgainRequested()), this, SLOT(searchAgain()));
-    connect(this, SIGNAL(enabledChanged(bool)), search, SLOT(setSearchAgainEnabled(bool)));
+    connect(this, SIGNAL(enabledChanged(bool)), search, SIGNAL(requestEnabledCheck()));
+    connect(search, SIGNAL(requestEnabledCheck()), this, SLOT(recheckEnabled()));
+
     runSearch(search);
 }
 
@@ -329,6 +331,14 @@ void BaseFileFind::searchAgain()
     runSearch(search);
 }
 
+void BaseFileFind::recheckEnabled()
+{
+    SearchResult *search = qobject_cast<SearchResult *>(sender());
+    if (!search)
+        return;
+    search->setSearchAgainEnabled(isEnabled());
+}
+
 QStringList BaseFileFind::replaceAll(const QString &text,
                                      const QList<Find::SearchResultItem> &items,
                                      bool preserveCase)
@@ -378,6 +388,11 @@ QStringList BaseFileFind::replaceAll(const QString &text,
     }
 
     return changes.keys();
+}
+
+QVariant BaseFileFind::getAdditionalParameters(SearchResult *search)
+{
+    return search->userData().value<FileFindParameters>().additionalParameters;
 }
 
 CountingLabel::CountingLabel()

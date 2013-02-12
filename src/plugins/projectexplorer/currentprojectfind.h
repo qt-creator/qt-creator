@@ -66,6 +66,7 @@ protected:
 
 private slots:
     void handleProjectChanged();
+    void recheckEnabled();
 
 private:
     ProjectExplorerPlugin *m_plugin;
