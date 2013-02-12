@@ -6,5 +6,5 @@ SUBDIRS += dumpers.pro
 #SUBDIRS += olddumpers.pro
 SUBDIRS += namedemangler.pro
 
-!win32-msvc*: SUBDIRS += gdb.pro
+#!win32-msvc*: SUBDIRS += gdb.pro
 

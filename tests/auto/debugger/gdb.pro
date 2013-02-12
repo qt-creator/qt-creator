@@ -1,3 +1,7 @@
+
+
+# These tests should be merged into tst_dumpers.cpp
+
 include(../qttest.pri)
 include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
 

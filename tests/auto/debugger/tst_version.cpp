@@ -56,7 +56,7 @@ void tst_Version::version()
     bool mac = true;
     bool qnx = true;
     Debugger::Internal::extractGdbVersion(msg, &v, &bv, &mac, &qnx);
-    qDebug() << msg << " -> " << v << bv << mac << qnx;
+    //qDebug() << msg << " -> " << v << bv << mac << qnx;
     QCOMPARE(v, gdbVersion);
     QCOMPARE(bv, gdbBuildVersion);
     QCOMPARE(mac, isMacGdb);

@@ -1,3 +1,7 @@
+
+
+# These tests should mostly be merged into tst_dumpers.cpp
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += core-private
 include(../qttest.pri)
 include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
