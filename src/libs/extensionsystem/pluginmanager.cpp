@@ -609,6 +609,9 @@ static inline void formatOption(QTextStream &str,
 
 void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int descriptionIndentation)
 {
+    formatOption(str, QLatin1String(OptionsParser::LOAD_OPTION),
+                 QLatin1String("plugin"), QLatin1String("Load <plugin>"),
+                 optionIndentation, descriptionIndentation);
     formatOption(str, QLatin1String(OptionsParser::NO_LOAD_OPTION),
                  QLatin1String("plugin"), QLatin1String("Do not load <plugin>"),
                  optionIndentation, descriptionIndentation);
@@ -1120,7 +1123,7 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
         return;
 
     // don't load disabled plugins.
-    if ((spec->isDisabledIndirectly() || !spec->isEnabledInSettings()) && destState == PluginSpec::Loaded)
+    if (!spec->isEffectivelyEnabled() && destState == PluginSpec::Loaded)
         return;
 
     switch (destState) {
@@ -1249,6 +1252,11 @@ void PluginManagerPrivate::resolveDependencies()
     foreach (PluginSpec *spec, pluginSpecs) {
         spec->d->resolveDependencies(pluginSpecs);
     }
+
+    // Reset disabledIndirectly flag
+    foreach (PluginSpec *spec, loadQueue())
+        spec->d->disabledIndirectly = false;
+
     foreach (PluginSpec *spec, loadQueue()) {
         spec->d->disableIndirectlyIfDependencyDisabled();
     }

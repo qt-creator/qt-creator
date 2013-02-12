@@ -93,7 +93,10 @@ public:
     bool isExperimental() const;
     bool isDisabledByDefault() const;
     bool isEnabledInSettings() const;
+    bool isEffectivelyEnabled() const;
     bool isDisabledIndirectly() const;
+    bool isForceEnabled() const;
+    bool isForceDisabled() const;
     QList<PluginDependency> dependencies() const;
 
     typedef QList<PluginArgumentDescription> PluginArgumentDescriptions;
@@ -106,6 +109,8 @@ public:
     void setEnabled(bool value);
     void setDisabledByDefault(bool value);
     void setDisabledIndirectly(bool value);
+    void setForceEnabled(bool value);
+    void setForceDisabled(bool value);
 
     QStringList arguments() const;
     void setArguments(const QStringList &arguments);

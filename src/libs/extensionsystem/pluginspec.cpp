@@ -295,13 +295,42 @@ bool PluginSpec::isEnabledInSettings() const
 }
 
 /*!
+    \fn bool PluginSpec::isEffectivelyEnabled() const
+    Returns if the plugin is loaded at startup.
+    \see PluginSpec::isEnabled
+*/
+bool PluginSpec::isEffectivelyEnabled() const
+{
+    return !d->disabledIndirectly
+            && (d->enabledInSettings || d->forceEnabled)
+            && !d->forceDisabled;
+}
+
+/*!
     \fn bool PluginSpec::isDisabledIndirectly() const
-    Returns true if loading was not done due to user unselecting this plugin or its dependencies,
-    or if command-line parameter -noload was used.
+    Returns true if loading was not done due to user unselecting this plugin or its dependencies.
 */
 bool PluginSpec::isDisabledIndirectly() const
 {
     return d->disabledIndirectly;
+}
+
+/*!
+    \fn bool PluginSpec::isForceEnabled() const
+    Returns if the plugin is enabled via the -load option on the command line.
+*/
+bool PluginSpec::isForceEnabled() const
+{
+    return d->forceEnabled;
+}
+
+/*!
+    \fn bool PluginSpec::isForceDisabled() const
+    Returns if the plugin is disabled via the -noload option on the command line.
+*/
+bool PluginSpec::isForceDisabled() const
+{
+    return d->forceDisabled;
 }
 
 /*!
@@ -473,6 +502,8 @@ PluginSpecPrivate::PluginSpecPrivate(PluginSpec *spec)
     disabledByDefault(false),
     enabledInSettings(true),
     disabledIndirectly(false),
+    forceEnabled(false),
+    forceDisabled(false),
     plugin(0),
     state(PluginSpec::Invalid),
     hasError(false),
@@ -542,6 +573,20 @@ void PluginSpec::setDisabledByDefault(bool value)
 void PluginSpec::setDisabledIndirectly(bool value)
 {
     d->disabledIndirectly = value;
+}
+
+void PluginSpec::setForceEnabled(bool value)
+{
+    d->forceEnabled = value;
+    if (value)
+        d->forceDisabled = false;
+}
+
+void PluginSpec::setForceDisabled(bool value)
+{
+    if (value)
+        d->forceEnabled = false;
+    d->forceDisabled = value;
 }
 
 /*!
@@ -903,7 +948,7 @@ void PluginSpecPrivate::disableIndirectlyIfDependencyDisabled()
         if (it.key().type == PluginDependency::Optional)
             continue;
         PluginSpec *dependencySpec = it.value();
-        if (dependencySpec->isDisabledIndirectly() || !dependencySpec->isEnabledInSettings()) {
+        if (!dependencySpec->isEffectivelyEnabled()) {
             disabledIndirectly = true;
             break;
         }

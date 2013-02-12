@@ -75,6 +75,8 @@ public:
     QList<PluginDependency> dependencies;
     bool enabledInSettings;
     bool disabledIndirectly;
+    bool forceEnabled;
+    bool forceDisabled;
 
     QString location;
     QString filePath;

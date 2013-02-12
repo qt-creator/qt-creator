@@ -36,6 +36,7 @@ using namespace ExtensionSystem::Internal;
 
 static const char END_OF_OPTIONS[] = "--";
 const char *OptionsParser::NO_LOAD_OPTION = "-noload";
+const char *OptionsParser::LOAD_OPTION = "-load";
 const char *OptionsParser::TEST_OPTION = "-test";
 const char *OptionsParser::PROFILE_OPTION = "-profile";
 
@@ -68,6 +69,8 @@ bool OptionsParser::parse()
             break;
         if (checkForEndOfOptions())
             break;
+        if (checkForLoadOption())
+            continue;
         if (checkForNoLoadOption())
             continue;
         if (checkForProfilingOption())
@@ -137,6 +140,26 @@ bool OptionsParser::checkForTestOption()
     return true;
 }
 
+bool OptionsParser::checkForLoadOption()
+{
+    if (m_currentArg != QLatin1String(LOAD_OPTION))
+        return false;
+    if (nextToken(RequiredToken)) {
+        PluginSpec *spec = m_pmPrivate->pluginByName(m_currentArg);
+        if (!spec) {
+            if (m_errorString)
+                *m_errorString = QCoreApplication::translate("PluginManager",
+                                                             "The plugin '%1' does not exist.")
+                    .arg(m_currentArg);
+            m_hasError = true;
+        } else {
+            spec->setForceEnabled(true);
+            m_isDependencyRefreshNeeded = true;
+        }
+    }
+    return true;
+}
+
 bool OptionsParser::checkForNoLoadOption()
 {
     if (m_currentArg != QLatin1String(NO_LOAD_OPTION))
@@ -149,7 +172,7 @@ bool OptionsParser::checkForNoLoadOption()
                                                              "The plugin '%1' does not exist.").arg(m_currentArg);
             m_hasError = true;
         } else {
-            m_pmPrivate->disablePluginIndirectly(spec);
+            spec->setForceDisabled(true);
             m_isDependencyRefreshNeeded = true;
         }
     }
