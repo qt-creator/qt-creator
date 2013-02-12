@@ -47,6 +47,7 @@ struct LibraryParameters {
                       const QString &headerName,
                       const QString &sharedHeader,
                       const QString &exportMacro,
+                      const QString &pluginJsonFileName,
                       int indentation,
                       QString *header,
                       QString *source) const;

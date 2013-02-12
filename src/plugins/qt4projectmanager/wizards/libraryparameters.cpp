@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "libraryparameters.h"
+#include "librarywizarddialog.h"
 
 #include <utils/codegeneration.h>
 
@@ -61,6 +62,7 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
                                      const QString &headerName,
                                      const QString &sharedHeader,
                                      const QString &exportMacro,
+                                     const QString &pluginJsonFileName,
                                      int indentation,
                                      QString *header,
                                      QString *source) const
@@ -107,7 +109,19 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
     const bool inheritsQObject = t == QtProjectParameters::Qt4Plugin;
     if (inheritsQObject)
         headerStr << namespaceIndent << indent << "Q_OBJECT\n";
-    headerStr << namespaceIndent << "public:\n";
+    if (t == QtProjectParameters::Qt4Plugin) { // Write Qt 5 plugin meta data.
+        const QString qt5InterfaceName = LibraryWizardDialog::pluginInterface(baseClassName);
+        if (!qt5InterfaceName.isEmpty()) {
+            headerStr << "#if QT_VERSION >= 0x050000\n"
+                      << namespaceIndent << indent << "Q_PLUGIN_METADATA(IID \""
+                      << qt5InterfaceName << '"';
+            if (!pluginJsonFileName.isEmpty())
+                headerStr << " FILE \"" << pluginJsonFileName << '"';
+            headerStr << ")\n#endif // QT_VERSION >= 0x050000\n";
+        }
+    }
+
+    headerStr << namespaceIndent << "\npublic:\n";
     if (inheritsQObject)
         headerStr << namespaceIndent << indent << unqualifiedClassName << "(QObject *parent = 0);\n";
     else
@@ -134,8 +148,11 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
 
     Utils::writeClosingNameSpaces(namespaceList, indent, sourceStr);
 
-    if (t == QtProjectParameters::Qt4Plugin)
-        sourceStr << '\n' << "Q_EXPORT_PLUGIN2(" << projectTarget << ", " << className << ")\n";
+    if (t == QtProjectParameters::Qt4Plugin) { // Qt 4 plugin export
+        sourceStr << "\n#if QT_VERSION < 0x050000\n"
+                  << "Q_EXPORT_PLUGIN2(" << projectTarget << ", " << className << ")\n"
+                  << "#endif // QT_VERSION < 0x050000\n";
+    }
 }
 
 QString  LibraryParameters::generateSharedHeader(const QString &globalHeaderFileName,

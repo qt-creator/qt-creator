@@ -61,6 +61,8 @@ public:
     LibraryParameters libraryParameters() const;
     MobileLibraryParameters mobileLibraryParameters() const;
 
+    static QString pluginInterface(const QString &baseClass);
+
     virtual int nextId() const;
 
 protected:
