@@ -88,7 +88,7 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
     arguments << QLatin1String("mergetool") << QLatin1String("-y");
     if (!files.isEmpty()) {
         if (m_gitClient->gitVersion() < 0x010708) {
-            QMessageBox::warning(0, tr("Error"), tr("Files input for mergetool requires git >= 1.7.8"));
+            QMessageBox::warning(0, tr("Error"), tr("File input for the merge tool requires Git 1.7.8, or later."));
             return false;
         }
         arguments << files;
@@ -283,7 +283,7 @@ void MergeTool::done()
     VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
     int exitCode = m_process->exitCode();
     if (!exitCode) {
-        outputWindow->append(tr("Merge tool process finished successully"));
+        outputWindow->append(tr("Merge tool process finished successully."));
         QString gitDir = m_gitClient->findGitDirForRepository(m_process->workingDirectory());
 
         if (QFile::exists(gitDir + QLatin1String("/rebase-apply/rebasing"))) {
