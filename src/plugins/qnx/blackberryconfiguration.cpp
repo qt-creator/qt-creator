@@ -94,18 +94,18 @@ bool BlackBerryConfiguration::setConfig(const QString &ndkPath)
 
     if (!qmakePath.toFileInfo().exists() || !gccPath.toFileInfo().exists()
             || !deviceGdbPath.toFileInfo().exists() || !simulatorGdbPath.toFileInfo().exists() ) {
-        QString errorMessage = tr("The following errors occurred while setting up BB10 Configuration:\n");
+        QString errorMessage = tr("The following errors occurred while setting up BB10 Configuration:");
         if (!qmakePath.toFileInfo().exists())
-            errorMessage += tr("- No Qt version found\n");
+            errorMessage += QLatin1Char('\n') + tr("- No Qt version found.");
 
         if (!gccPath.toFileInfo().exists())
-            errorMessage += tr("- No GCC compiler found\n");
+            errorMessage += QLatin1Char('\n') + tr("- No GCC compiler found.");
 
         if (!deviceGdbPath.toFileInfo().exists())
-            errorMessage += tr("- No Gdb debugger found for BB10 Device\n");
+            errorMessage += QLatin1Char('\n') + tr("- No GDB debugger found for BB10 Device.");
 
         if (!simulatorGdbPath.toFileInfo().exists())
-            errorMessage += tr("- No Gdb debugger found for BB10 Simulator");
+            errorMessage += QLatin1Char('\n') + tr("- No GDB debugger found for BB10 Simulator.");
 
         QMessageBox::warning(0, tr("Cannot Setup BB10 Configuration"),
                              errorMessage, QMessageBox::Ok);
