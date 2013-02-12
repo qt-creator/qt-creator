@@ -86,8 +86,8 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     checkBoxShowQmlObjectTree->setText(tr("Show QML object tree"));
 
     checkBoxBreakpointsFullPath = new QCheckBox(behaviorBox);
-    checkBoxBreakpointsFullPath->setToolTip(tr("Enable a full file path in breakpoints by default also for the GDB"));
-    checkBoxBreakpointsFullPath->setText(tr("Breakpoints full path by default"));
+    checkBoxBreakpointsFullPath->setToolTip(tr("Enable a full file path in breakpoints by default also for GDB."));
+    checkBoxBreakpointsFullPath->setText(tr("Set breakpoints using a full absolute path"));
 
     checkBoxRegisterForPostMortem = new QCheckBox(behaviorBox);
     checkBoxRegisterForPostMortem->setToolTip(tr("Register Qt Creator for debugging crashed applications."));
