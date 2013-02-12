@@ -65,7 +65,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     m_toolActionGroup = new QActionGroup(this);
 
-    m_transformToolAction = m_toolActionGroup->addAction(tr("Transform Tool (Q)"));
+    m_transformToolAction = m_toolActionGroup->addAction(tr("Transform Tool (Q)."));
     m_transformToolAction->setShortcut(Qt::Key_Q);
     m_transformToolAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_transformToolAction->setCheckable(true);
