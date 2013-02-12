@@ -65,4 +65,5 @@ case $value$:
 default:
     break;
 }</snippet>
+<snippet group="C++" trigger="Q_PROPERTY" id="cpp_q_property">Q_PROPERTY($name$ READ $name$ WRITE set$name$ NOTIFY $name$Changed);</snippet>
 </snippets>
