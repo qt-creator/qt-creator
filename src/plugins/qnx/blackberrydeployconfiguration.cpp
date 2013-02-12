@@ -111,8 +111,8 @@ void BlackBerryDeployConfiguration::setupBarDescriptor()
 
         if (!reader.fetch(barDescriptorTemplate)) {
             QMessageBox::warning(Core::ICore::mainWindow(),
-                                 tr("Error while setting up bar descriptor"),
-                                 tr("Reading bar descriptor template failed"),
+                                 tr("Cannot Set up Application Descriptor File"),
+                                 tr("Reading the bar descriptor template failed."),
                                  QMessageBox::Ok);
             return;
         }
@@ -123,8 +123,8 @@ void BlackBerryDeployConfiguration::setupBarDescriptor()
         writer.write(content.toUtf8());
         if (!writer.finalize()) {
             QMessageBox::warning(Core::ICore::mainWindow(),
-                                 tr("Error while setting up bar descriptor"),
-                                 tr("Failure writing bar descriptor file."),
+                                 tr("Cannot Set up Application Descriptor File"),
+                                 tr("Writing the bar descriptor file failed."),
                                  QMessageBox::Ok);
             return;
         }
@@ -142,7 +142,7 @@ void BlackBerryDeployConfiguration::addBarDescriptorToProject(const QString &bar
 
     QMessageBox::StandardButton button =
             QMessageBox::question(Core::ICore::mainWindow(),
-                                  tr("Add bar-descriptor.xml file to project"),
+                                  tr("Add bar-descriptor.xml File to Project"),
                                   tr("Qt Creator has set up a bar descriptor file to enable "
                                      "packaging.\nDo you want to add it to the project?"),
                                   QMessageBox::Yes | QMessageBox::No);
