@@ -2107,7 +2107,6 @@ bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
         // rebase conflict is output to stdOut
         QRegExp conflictedCommit(QLatin1String("Patch failed at ([^\\n]*)\\n"));
         conflictedCommit.indexIn(resp.stdOut);
-        qDebug() << conflictedCommit.cap(1);
         handleMergeConflicts(workingDirectory, conflictedCommit.cap(1), abortCommand);
     } else if (resp.stdErr.contains(QLatin1String("conflict"))) {
         // cherry-pick/revert conflict is output to stdErr
