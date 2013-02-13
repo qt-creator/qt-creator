@@ -41,6 +41,8 @@ QtcPlugin {
         "androiddevice.h",
         "androiddevicefactory.cpp",
         "androiddevicefactory.h",
+        "androidgdbserverkitinformation.cpp",
+        "androidgdbserverkitinformation.h",
         "androidglobal.h",
         "androidmanager.cpp",
         "androidmanager.h",
