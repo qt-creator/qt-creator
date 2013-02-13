@@ -39,6 +39,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/abi.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <texteditor/fontsettings.h>
 
 #include <QVBoxLayout>
@@ -89,7 +90,6 @@ namespace Internal {
         ProjectExplorer::Kit *m_kit;
         bool m_isNinja;
     };
-
 }
 }
 
@@ -210,6 +210,9 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
       m_useNinja(false),
       m_kit(0)
 {
+    if (!compatibleKitExist())
+        addPage(new NoKitPage(this));
+
     if (hasInSourceBuild()) {
         m_buildDirectory = m_sourceDirectory;
         addPage(new InSourceBuildPage(this));
@@ -271,6 +274,27 @@ bool CMakeOpenProjectWizard::hasInSourceBuild() const
     QFileInfo fi(m_sourceDirectory + QLatin1String("/CMakeCache.txt"));
     if (fi.exists())
         return true;
+    return false;
+}
+
+bool CMakeOpenProjectWizard::compatibleKitExist() const
+{
+    bool hasCodeBlocksGenerator = m_cmakeManager->hasCodeBlocksMsvcGenerator();
+    bool hasNinjaGenerator = m_cmakeManager->hasCodeBlocksNinjaGenerator();
+
+    QList<ProjectExplorer::Kit *> kitList =
+            ProjectExplorer::KitManager::instance()->kits();
+
+    foreach (ProjectExplorer::Kit *k, kitList) {
+        // OfferNinja and ForceNinja differ in what they return
+        // but not whether the list is empty or not, which is what we
+        // are interested in here
+        QList<GeneratorInfo> infos = GeneratorInfo::generatorInfosFor(k,
+                                                                      hasNinjaGenerator ? GeneratorInfo::OfferNinja : GeneratorInfo::NoNinja,
+                                                                      hasCodeBlocksGenerator);
+        if (!infos.isEmpty())
+            return true;
+    }
     return false;
 }
 
@@ -336,6 +360,63 @@ ProjectExplorer::Kit *CMakeOpenProjectWizard::kit() const
 void CMakeOpenProjectWizard::setKit(ProjectExplorer::Kit *kit)
 {
     m_kit = kit;
+}
+
+//////
+// NoKitPage
+/////
+
+NoKitPage::NoKitPage(CMakeOpenProjectWizard *cmakeWizard)
+    : QWizardPage(cmakeWizard), m_cmakeWizard(cmakeWizard)
+{
+    QVBoxLayout *layout = new QVBoxLayout;
+    setLayout(layout);
+
+    m_descriptionLabel = new QLabel(this);
+    m_descriptionLabel->setWordWrap(true);
+    layout->addWidget(m_descriptionLabel);
+
+    m_optionsButton = new QPushButton;
+    m_optionsButton->setText(tr("Show Options"));
+
+    connect(m_optionsButton, SIGNAL(clicked()),
+            this, SLOT(showOptions()));
+
+    QHBoxLayout *hbox = new QHBoxLayout;
+    hbox->addWidget(m_optionsButton);
+    hbox->addStretch();
+
+    layout->addLayout(hbox);
+
+    setTitle(tr("Check Kits"));
+
+    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsChanged()),
+            this, SLOT(kitsChanged()));
+
+    kitsChanged();
+}
+
+void NoKitPage::kitsChanged()
+{
+    if (isComplete()) {
+        m_descriptionLabel->setText(tr("There are compatible kits."));
+        m_optionsButton->setVisible(false);
+    } else {
+        m_descriptionLabel->setText(tr("Qt Creator has no kits that are suitable for CMake projects. Please configure a kit."));
+        m_optionsButton->setVisible(true);
+    }
+    emit completeChanged();
+}
+
+bool NoKitPage::isComplete() const
+{
+    return m_cmakeWizard->compatibleKitExist();
+}
+
+void NoKitPage::showOptions()
+{
+    Core::ICore::showOptionsDialog(Core::Id(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
+                                   Core::Id(ProjectExplorer::Constants::KITS_SETTINGS_PAGE_ID), this);
 }
 
 InSourceBuildPage::InSourceBuildPage(CMakeOpenProjectWizard *cmakeWizard)

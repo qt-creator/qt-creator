@@ -111,6 +111,7 @@ public:
     ProjectExplorer::Kit *kit() const;
     void setKit(ProjectExplorer::Kit *kit);
     bool existsUpToDateXmlFile() const;
+    bool compatibleKitExist() const;
 
 private:
     void init();
@@ -122,6 +123,21 @@ private:
     Utils::Environment m_environment;
     bool m_useNinja;
     ProjectExplorer::Kit *m_kit;
+};
+
+class NoKitPage : public QWizardPage
+{
+    Q_OBJECT
+public:
+    NoKitPage(CMakeOpenProjectWizard *cmakeWizard);
+    bool isComplete() const;
+private slots:
+    void kitsChanged();
+    void showOptions();
+private:
+    QLabel *m_descriptionLabel;
+    QPushButton *m_optionsButton;
+    CMakeOpenProjectWizard *m_cmakeWizard;
 };
 
 class InSourceBuildPage : public QWizardPage
