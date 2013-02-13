@@ -395,7 +395,7 @@ public:
     void updateSummaryText()
     {
         int count = entryCount();
-        setSummaryText(count ? tr("%n entries)", "", count) : tr("Empty"));
+        setSummaryText(count ? tr("%n entries", "", count) : tr("Empty"));
     }
 };
 
