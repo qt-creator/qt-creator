@@ -34,8 +34,7 @@
 #include <CppRewriter.h>
 
 #include <QtTest>
-#include <QTemporaryFile>
-#include <QTemporaryDir>
+#include "temporarydir.h"
 
 using namespace Debugger;
 using namespace Internal;
