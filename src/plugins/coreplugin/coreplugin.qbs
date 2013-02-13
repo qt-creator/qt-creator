@@ -11,7 +11,6 @@ QtcPlugin {
         ]
     }
     Depends { name: "Utils" }
-    Depends { name: "ExtensionSystem" }
     Depends { name: "Aggregation" }
     Depends { name: "app_version_header" }
 
@@ -251,7 +250,6 @@ QtcPlugin {
     ProductModule {
         Depends { name: "cpp" }
         Depends { name: "Aggregation" }
-        Depends { name: "ExtensionSystem" }
         Depends { name: "Utils" }
     }
 }

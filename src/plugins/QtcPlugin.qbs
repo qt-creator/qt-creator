@@ -19,6 +19,7 @@ Product {
         return name;
     }
 
+    Depends { name: "ExtensionSystem" }
     Depends { name: "pluginspec" }
     Depends { name: "cpp" }
     Depends {
