@@ -2421,7 +2421,7 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
             const Utils::FileName fileName = exception.file.isEmpty() ?
                         Utils::FileName() :
                         Utils::FileName::fromUserInput(QString::fromLocal8Bit(exception.file));
-            const Task task(type, exception.toString(false),
+            const Task task(type, exception.toString(false).trimmed(),
                             fileName, exception.lineNumber,
                             Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME));
             taskHub()->addTask(task);
