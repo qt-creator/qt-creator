@@ -31,22 +31,20 @@ QtcPlugin {
         'QML_BUILD_STATIC_LIB'
     ])
 
-    cpp.staticLibraries: {
-        if (qbs.targetOS === "windows") {
-            if (qbs.enableDebugCode) {
-                return qbs_build_dir + "/lib/qbscored.lib"
-            } else {
-                return qbs_build_dir + "/lib/qbscore.lib"
-            }
-        } else {
-            return qbs_build_dir + "/lib/libqbscore.a"
-        }
-    }
-
+    cpp.libraryPaths: base.concat([qbs_build_dir + "/lib"])
+    cpp.rpaths: cpp.libraryPaths
     cpp.dynamicLibraries: {
+        var libs = []
         if (qbs.targetOS === "windows") {
-            return "shell32"
+            libs.push("shell32")
+            if (qbs.enableDebugCode)
+                libs.push("qbscored")
+            else
+                libs.push("qbscore")
+        } else {
+            libs.push("qbscore")
         }
+        return libs
     }
 
     files: [

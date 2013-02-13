@@ -11,6 +11,8 @@ isEmpty(QBS_BUILD_DIR): QBS_BUILD_DIR = $$(QBS_BUILD_DIR)
 
 QBSLIBDIR = $$QBS_BUILD_DIR/lib
 include($$QBS_SOURCE_DIR/src/lib/use.pri)
+linux-*:QMAKE_LFLAGS += -Wl,-z,origin \'-Wl,-rpath,$$QBSLIBDIR\'
+macx:QMAKE_LFLAGS += -Wl,-rpath,$$QBSLIBDIR
 
 QBS_SOURCE_DIR_FWD_SLASHES = $$replace(QBS_SOURCE_DIR, \\\\, /)
 DEFINES += QBS_SOURCE_DIR=\\\"$$QBS_SOURCE_DIR_FWD_SLASHES\\\"
