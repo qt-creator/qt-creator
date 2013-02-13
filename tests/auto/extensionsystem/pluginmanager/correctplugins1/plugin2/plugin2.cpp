@@ -45,7 +45,7 @@ bool MyPlugin2::initialize(const QStringList &, QString *)
 {
     initializeCalled = true;
     QObject *obj = new QObject;
-    obj->setObjectName("MyPlugin2");
+    obj->setObjectName(QLatin1String("MyPlugin2"));
     addAutoReleasedObject(obj);
 
     return true;
@@ -57,7 +57,7 @@ void MyPlugin2::extensionsInitialized()
         return;
     // don't do this at home, it's just done here for the test
     QObject *obj = new QObject;
-    obj->setObjectName("MyPlugin2_running");
+    obj->setObjectName(QLatin1String("MyPlugin2_running"));
     addAutoReleasedObject(obj);
 }
 
