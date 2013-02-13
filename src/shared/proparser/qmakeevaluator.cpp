@@ -441,9 +441,9 @@ void QMakeEvaluator::evaluateExpression(
             break; }
         case TokEnvVar: {
             const ProString &var = getStr(tokPtr);
-            const ProStringList &val = split_value_list(m_option->getEnv(var.toQString(m_tmp1)));
-            debugMsg(2, "env var %s => %s", dbgStr(var), dbgStrList(val));
-            addStrList(val, tok, ret, pending, joined);
+            const ProString &val = ProString(m_option->getEnv(var.toQString(m_tmp1)));
+            debugMsg(2, "env var %s => %s", dbgStr(var), dbgStr(val));
+            addStr(val, ret, pending, joined);
             break; }
         case TokFuncName: {
             const ProKey &func = getHashStr(tokPtr);
