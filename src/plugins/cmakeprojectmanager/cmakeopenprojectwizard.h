@@ -188,7 +188,7 @@ private:
     QComboBox *m_generatorComboBox;
     QLabel *m_descriptionLabel;
     QLabel *m_exitCodeLabel;
-    bool m_complete;
+    bool m_haveCbpFile;
     bool m_optionalCMake;
     Mode m_mode;
     QString m_buildDirectory;

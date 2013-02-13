@@ -440,7 +440,7 @@ bool ChooseCMakePage::isComplete() const
 CMakeRunPage::CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, Mode mode, const QString &buildDirectory)
     : QWizardPage(cmakeWizard),
       m_cmakeWizard(cmakeWizard),
-      m_complete(false),
+      m_haveCbpFile(false),
       m_optionalCMake(false),
       m_mode(mode),
       m_buildDirectory(buildDirectory)
@@ -535,7 +535,7 @@ void CMakeRunPage::initializePage()
                        "You can pass special arguments and rerun CMake. "
                        "Or simply finish the wizard directly.").arg(m_buildDirectory));
             m_optionalCMake = true;
-            m_complete = true;
+            m_haveCbpFile = true;
         } else {
             m_descriptionLabel->setText(
                     tr("The directory %1 does not contain a cbp file. Qt Creator needs to create this file by running CMake. "
@@ -623,7 +623,7 @@ bool CMakeRunPage::validatePage()
 void CMakeRunPage::runCMake()
 {
     m_optionalCMake = false;
-    m_complete = false;
+    m_haveCbpFile = false;
 
     Utils::Environment env = m_cmakeWizard->environment();
     int index = m_generatorComboBox->currentIndex();
@@ -705,10 +705,10 @@ void CMakeRunPage::cmakeFinished()
     if (m_cmakeProcess->exitCode() != 0) {
         m_exitCodeLabel->setVisible(true);
         m_exitCodeLabel->setText(tr("CMake exited with errors. Please check CMake output."));
-        m_complete = false;
+        m_haveCbpFile = false;
     } else {
         m_exitCodeLabel->setVisible(false);
-        m_complete = true;
+        m_haveCbpFile = true;
     }
     m_cmakeProcess->deleteLater();
     m_cmakeProcess = 0;
@@ -719,12 +719,12 @@ void CMakeRunPage::cmakeFinished()
 void CMakeRunPage::cleanupPage()
 {
     m_output->clear();
-    m_complete = false;
+    m_haveCbpFile = false;
     m_exitCodeLabel->setVisible(false);
     emit completeChanged();
 }
 
 bool CMakeRunPage::isComplete() const
 {
-    return m_complete;
+    return m_haveCbpFile;
 }
