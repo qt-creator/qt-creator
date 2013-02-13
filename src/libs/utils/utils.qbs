@@ -212,6 +212,10 @@ QtcLibrary {
     }
 
     ProductModule {
+        // ### [ remove, once qbs supports merging of ProductModule items in derived products
+        Depends { name: "cpp" }
+        cpp.includePaths: [ ".." ]
+        // ### ]
         Depends { name: "Qt"; submodules: ["concurrent", "widgets" ] }
     }
 }
