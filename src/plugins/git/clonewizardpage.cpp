@@ -46,15 +46,12 @@ struct CloneWizardPagePrivate {
     const QString mainLinePostfix;
     const QString gitPostFix;
     const QString protocolDelimiter;
-    QCheckBox *deleteMasterCheckBox;
-    QString headBranch;
 };
 
 CloneWizardPagePrivate::CloneWizardPagePrivate() :
     mainLinePostfix(QLatin1String("/mainline.git")),
     gitPostFix(QLatin1String(".git")),
-    protocolDelimiter(QLatin1String("://")),
-    deleteMasterCheckBox(0)
+    protocolDelimiter(QLatin1String("://"))
 {
 }
 
@@ -74,25 +71,11 @@ CloneWizardPage::CloneWizardPage(QWidget *parent) :
     setTitle(tr("Location"));
     setSubTitle(tr("Specify repository URL, checkout directory and path."));
     setRepositoryLabel(tr("Clone URL:"));
-    d->deleteMasterCheckBox = new QCheckBox(tr("Delete master branch"));
-    d->deleteMasterCheckBox->setToolTip(tr("Delete the master branch after checking out the repository."));
-    addLocalControl(d->deleteMasterCheckBox);
-    setDeleteMasterBranch(true);
 }
 
 CloneWizardPage::~CloneWizardPage()
 {
     delete d;
-}
-
-bool CloneWizardPage::deleteMasterBranch() const
-{
-    return d->deleteMasterCheckBox->isChecked();
-}
-
-void CloneWizardPage::setDeleteMasterBranch(bool v)
-{
-    d->deleteMasterCheckBox->setChecked(v);
 }
 
 QString CloneWizardPage::directoryFromRepository(const QString &urlIn) const
@@ -143,34 +126,13 @@ QSharedPointer<VcsBase::AbstractCheckoutJob> CloneWizardPage::createCheckoutJob(
 
      VcsBase::ProcessCheckoutJob *job = new VcsBase::ProcessCheckoutJob;
      const QProcessEnvironment env = client->processEnvironment();
-
-     // 1) Basic checkout step
-     QStringList args;
-     args << QLatin1String("clone") << repository() << checkoutDir;
-     job->addStep(binary, args, workingDirectory, env);
      const QString checkoutBranch = branch();
 
-     // 2) Checkout branch, change to checkoutDir
-     if (!checkoutBranch.isEmpty() && checkoutBranch != d->headBranch) {
-         // Create branch
-         if (!d->urlIsLocal(repository())) {
-             args.clear();
-             args << QLatin1String("branch") << QLatin1String("--track")
-                  << checkoutBranch << (QLatin1String("origin/")  + checkoutBranch);
-             job->addStep(binary, args, *checkoutPath, env);
-         }
-         // Checkout branch
-         args.clear();
-         args << QLatin1String("checkout") << checkoutBranch;
-         job->addStep(binary, args, *checkoutPath, env);
-         if (deleteMasterBranch() && d->headBranch != QLatin1String("<detached HEAD>")) {
-             // Make sure we only have the requested branch:
-             args.clear();
-             args << QLatin1String("branch") << QLatin1String("-D") << d->headBranch;
-         }
-         job->addStep(binary, args, *checkoutPath, env);
-     }
-
+     QStringList args(QLatin1String("clone"));
+     if (!checkoutBranch.isEmpty())
+         args << QLatin1String("--branch") << checkoutBranch;
+     args << repository() << checkoutDir;
+     job->addStep(binary, args, workingDirectory, env);
      return QSharedPointer<VcsBase::AbstractCheckoutJob>(job);
 }
 
@@ -178,15 +140,12 @@ QStringList CloneWizardPage::branches(const QString &repository, int *current)
 {
     // Run git on remote repository if an URL was specified.
     *current = -1;
-    d->headBranch.clear();
 
     if (repository.isEmpty())
         return QStringList();
      const QStringList branches = Internal::GitPlugin::instance()->gitClient()->synchronousRepositoryBranches(repository);
-     if (!branches.isEmpty()) {
+     if (!branches.isEmpty())
          *current = 0; // default branch is always returned first!
-         d->headBranch = branches.at(0);
-     }
      return branches;
 }
 
