@@ -5,6 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "Madde"
 
+    Depends { name: "Utils" }
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "Qt4ProjectManager" }
