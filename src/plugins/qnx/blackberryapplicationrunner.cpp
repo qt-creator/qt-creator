@@ -309,7 +309,7 @@ void BlackBerryApplicationRunner::handleSlog2InfoFound()
 
     m_slog2infoFound = (process->processExitCode() == 0);
 
-    tailApplicationLog();
+    readLaunchTime();
 }
 
 void BlackBerryApplicationRunner::readLaunchTime()
