@@ -1015,8 +1015,10 @@ void CPPEditorWidget::highlightUses(const QList<SemanticInfo::Use> &uses,
         isUnused = true;
 
     foreach (const SemanticInfo::Use &use, uses) {
-        QTextEdit::ExtraSelection sel;
+        if (use.isInvalid())
+            continue;
 
+        QTextEdit::ExtraSelection sel;
         if (isUnused)
             sel.format = m_occurrencesUnusedFormat;
         else
