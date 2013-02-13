@@ -153,7 +153,9 @@ void VcsBaseClientPrivate::commandFinishedGotoLine(QObject *editorObject)
     VcsBase::VcsBaseEditorWidget *editor = qobject_cast<VcsBase::VcsBaseEditorWidget *>(editorObject);
     Command *cmd = qobject_cast<Command *>(m_cmdFinishedMapper->mapping(editor));
     if (editor && cmd) {
-        if (cmd->lastExecutionSuccess() && cmd->cookie().type() == QVariant::Int) {
+        if (!cmd->lastExecutionSuccess()) {
+            editor->reportCommandFinished(false, cmd->lastExecutionExitCode(), cmd->cookie());
+        } else if (cmd->cookie().type() == QVariant::Int) {
             const int line = cmd->cookie().toInt();
             if (line >= 0)
                 editor->gotoLine(line);

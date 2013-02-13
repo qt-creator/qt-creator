@@ -1177,6 +1177,15 @@ void VcsBaseEditorWidget::setPlainTextData(const QByteArray &data)
         setPlainText(codec()->toUnicode(data));
 }
 
+void VcsBaseEditorWidget::reportCommandFinished(bool ok, int exitCode, const QVariant &data)
+{
+    Q_UNUSED(exitCode);
+    Q_UNUSED(data);
+
+    if (!ok)
+        setPlainText(tr("Failed to retrieve data."));
+}
+
 void VcsBaseEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
 {
     TextEditor::BaseTextEditorWidget::setFontSettings(fs);

@@ -206,6 +206,7 @@ public slots:
     // Convenience slot to set data read from stdout, will use the
     // documents' codec to decode
     void setPlainTextData(const QByteArray &data);
+    void reportCommandFinished(bool ok, int exitCode, const QVariant &data);
 
 protected:
     virtual TextEditor::BaseTextEditor *createEditor();
