@@ -876,7 +876,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testFlavorForOs()
         foundCounter = 0;
         // make sure i is in exactly on of the flavor lists!
         foreach (const QList<Abi::OSFlavor> &l, flavorLists) {
-            QVERIFY(!l.contains(Abi::UnknownFlavor));
+            QVERIFY(l.contains(Abi::UnknownFlavor));
             if (l.contains(static_cast<Abi::OSFlavor>(i)))
                 ++foundCounter;
         }
