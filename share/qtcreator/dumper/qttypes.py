@@ -720,6 +720,7 @@ def qdumpHelper__Qt4_QMap(d, value, forceLong):
                 base = it.cast(charPtr) - payloadSize
                 node = base.cast(nodeType.pointer()).dereference()
                 with SubItem(d, i):
+                    d.putField("iname", d.currentIName)
                     if isCompact:
                         #d.putType(valueType)
                         if forceLong:
@@ -776,6 +777,7 @@ def qdumpHelper__Qt5_QMap(d, value, forceLong):
                 i += 1
 
                 with SubItem(d, i):
+                    d.putField("iname", d.currentIName)
                     if isCompact:
                         if forceLong:
                             d.putName("[%s] %s" % (i, node["key"]))
@@ -1571,11 +1573,21 @@ def qdump__QTextDocument(d, value):
 
 def qdump__QUrl(d, value):
     try:
+        # Qt 4
         data = value["d"].dereference()
         d.putByteArrayValue(data["encodedOriginal"])
     except:
-        d.putPlainChildren(value)
-        return
+        try:
+            # Qt 5
+            data = value["d"].dereference()
+            str = encodeString(data["scheme"])
+            str += "3a002f002f00"
+            str += encodeString(data["host"])
+            str += encodeString(data["path"])
+            d.putValue(str, Hex4EncodedLittleEndian)
+        except:
+            d.putPlainChildren(value)
+            return
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
