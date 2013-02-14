@@ -44,7 +44,8 @@ public:
         QtQuick1_1 = 0,
         QtQuick2_0 = 1,
         MeegoComponents = 2,
-        ImportQml = 3
+        ImportQml = 3,
+        ImportQml2 = 4
     };
 
     QtQuickAppWizard();
