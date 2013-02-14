@@ -1,3 +1,4 @@
 # Run qdoc from the directory that contains this file.
 include(config/compat.qdocconf)
-include(qtcreator-online.qdocconf)
+include(config/qtcreator-project.qdocconf)
+include(config/qt-html-templates-online.qdocconf)

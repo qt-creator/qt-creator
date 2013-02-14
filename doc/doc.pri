@@ -21,7 +21,7 @@ defineReplace(cmdEnv) {
 }
 
 defineReplace(qdoc) {
-    return("$$cmdEnv(SRCDIR=$$PWD OUTDIR=$$1 QTC_VERSION=$$QTCREATOR_VERSION QTC_VERSION_TAG=$$VERSION_TAG) $$QDOC_BIN")
+    return("$$cmdEnv(SRCDIR=$$PWD OUTDIR=$$1 QTC_VERSION=$$QTCREATOR_VERSION QTC_VERSION_TAG=$$VERSION_TAG QT_INSTALL_DOCS=$$[QT_INSTALL_DOCS]) $$QDOC_BIN")
 }
 
 QHP_FILE = $$OUT_PWD/doc/html/qtcreator.qhp
