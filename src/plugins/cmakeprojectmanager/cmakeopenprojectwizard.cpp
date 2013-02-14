@@ -441,7 +441,6 @@ CMakeRunPage::CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, Mode mode, const
     : QWizardPage(cmakeWizard),
       m_cmakeWizard(cmakeWizard),
       m_haveCbpFile(false),
-      m_optionalCMake(false),
       m_mode(mode),
       m_buildDirectory(buildDirectory)
 {
@@ -534,7 +533,6 @@ void CMakeRunPage::initializePage()
                     tr("The directory %1 already contains a cbp file, which is recent enough. "
                        "You can pass special arguments and rerun CMake. "
                        "Or simply finish the wizard directly.").arg(m_buildDirectory));
-            m_optionalCMake = true;
             m_haveCbpFile = true;
         } else {
             m_descriptionLabel->setText(
@@ -609,20 +607,17 @@ void CMakeRunPage::initializePage()
 
 bool CMakeRunPage::validatePage()
 {
-    if (m_optionalCMake) {
-        int index = m_generatorComboBox->currentIndex();
-        if (index == -1)
-            return false;
-        GeneratorInfo generatorInfo = m_generatorComboBox->itemData(index).value<GeneratorInfo>();
-        m_cmakeWizard->setKit(generatorInfo.kit());
-        m_cmakeWizard->setUseNinja(generatorInfo.isNinja());
-    }
+    int index = m_generatorComboBox->currentIndex();
+    if (index == -1)
+        return false;
+    GeneratorInfo generatorInfo = m_generatorComboBox->itemData(index).value<GeneratorInfo>();
+    m_cmakeWizard->setKit(generatorInfo.kit());
+    m_cmakeWizard->setUseNinja(generatorInfo.isNinja());
     return QWizardPage::validatePage();
 }
 
 void CMakeRunPage::runCMake()
 {
-    m_optionalCMake = false;
     m_haveCbpFile = false;
 
     Utils::Environment env = m_cmakeWizard->environment();
@@ -726,5 +721,6 @@ void CMakeRunPage::cleanupPage()
 
 bool CMakeRunPage::isComplete() const
 {
-    return m_haveCbpFile;
+    int index = m_generatorComboBox->currentIndex();
+    return index != -1 && m_haveCbpFile;
 }
