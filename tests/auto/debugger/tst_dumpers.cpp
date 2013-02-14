@@ -413,6 +413,8 @@ void tst_Dumpers::dumper()
     proFile.write("SOURCES = ");
     proFile.write(mainFile);
     proFile.write("\nTARGET = doit\n");
+    proFile.write("\nCONFIG -= release\n");
+    proFile.write("\nCONFIG += debug\n");
     if (data.useQt)
         proFile.write("QT -= widgets gui\n");
     else
