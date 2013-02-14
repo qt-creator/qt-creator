@@ -253,8 +253,8 @@ QString RefactoringFile::fileName() const
 
 int RefactoringFile::position(unsigned line, unsigned column) const
 {
-    Q_ASSERT(line != 0);
-    Q_ASSERT(column != 0);
+    QTC_ASSERT(line != 0, return -1);
+    QTC_ASSERT(column != 0, return -1);
     if (const QTextDocument *doc = document())
         return doc->findBlockByNumber(line - 1).position() + column - 1;
     return -1;
@@ -262,9 +262,9 @@ int RefactoringFile::position(unsigned line, unsigned column) const
 
 void RefactoringFile::lineAndColumn(int offset, unsigned *line, unsigned *column) const
 {
-    Q_ASSERT(line);
-    Q_ASSERT(column);
-    Q_ASSERT(offset >= 0);
+    QTC_ASSERT(line, return);
+    QTC_ASSERT(column, return);
+    QTC_ASSERT(offset >= 0, return);
     QTextCursor c(cursor());
     c.setPosition(offset);
     *line = c.blockNumber() + 1;
