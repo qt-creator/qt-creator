@@ -36,6 +36,7 @@
 #include <rewriterview.h>
 #include <propertyparser.h>
 
+#include <QDir>
 #include <QSharedData>
 #include <QDebug>
 #include <QIcon>
@@ -45,6 +46,7 @@
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsscopechain.h>
 #include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <languageutils/fakemetaobject.h>
 
 namespace QmlDesigner {
@@ -869,11 +871,24 @@ QString NodeMetaInfoPrivate::componentFileName() const
 
 QString NodeMetaInfoPrivate::importDirectoryPath() const
 {
+    ModelManagerInterface *modelManager = ModelManagerInterface::instance();
+
     if (isValid()) {
         const Imports *imports = context()->imports(document());
-        ImportInfo importInfo = imports->info(qualfiedTypeName(), context().data());
+        ImportInfo importInfo = imports->info(lookupNameComponent().last(), context().data());
 
-        return importInfo.path();
+        if (importInfo.type() == ImportInfo::DirectoryImport) {
+            return importInfo.path();
+        } else if (importInfo.type() == ImportInfo::LibraryImport) {
+            if (modelManager) {
+                foreach (const QString &importPath, modelManager->importPaths()) {
+                    const QString targetPath = QDir(importPath).filePath(importInfo.path());
+                    if (QDir(targetPath).exists()) {
+                        return targetPath;
+                    }
+                }
+            }
+        }
     }
     return QString();
 }
