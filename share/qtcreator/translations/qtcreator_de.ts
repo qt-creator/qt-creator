@@ -19167,7 +19167,7 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
     </message>
     <message>
         <source>Meta+Z,Meta+S</source>
-        <translation></translation>
+        <translation>Meta+Z,Meta+S</translation>
     </message>
     <message>
         <source>Add</source>
@@ -25405,7 +25405,7 @@ Die Ausgabe-Hilfsbibliothek dient lediglich zur formatierten Ausgabe von Objekte
     <name>Madde::Internal::MaemoQemuSettingsWidget</name>
     <message>
         <source>Form</source>
-        <translation></translation>
+        <translation>Form</translation>
     </message>
     <message>
         <source>OpenGL Mode</source>
