@@ -493,13 +493,44 @@
     \row
         \li  M201
         \li  Hint
-        \li  Var declarations should be at the start of a function
+        \li  Place var declarations at the start of a function
         \li
 
     \row
         \li  M202
         \li  Hint
-        \li  Only use one statement per line
+        \li  Use only one statement per line
+        \li
+
+    \row
+        \li  M203
+        \li  Warning
+        \li  Imperative code is not supported in the Qt Quick Designer
+        \li
+
+    \row
+        \li  M204
+        \li  Warning
+        \li  This type is not supported in the Qt Quick Designer
+        \li
+    \row
+        \li  M205
+        \li  Warning
+        \li  Reference to parent item cannot be resolved correctly by the
+             Qt Quick Designer
+        \li
+
+    \row
+        \li  M206
+        \li  Warning
+        \li  This visual property binding cannot be evaluated in the local
+             context and might not show up in Qt Quick Designer as expected
+        \li
+
+    \row
+        \li  M207
+        \li  Warning
+        \li  Qt Quick Designer only supports states in the root item
         \li
 
     \row
@@ -542,7 +573,7 @@
     \row
         \li  M307
         \li  Warning
-        \li  'new' should only be used with functions that start with an uppercase letter
+        \li  Use 'new' only with functions that start with an uppercase letter
         \li
 
     \row
@@ -567,6 +598,78 @@
         \li  M311
         \li  Hint
         \li  Use 'type' instead of 'var' or 'variant' to improve performance
+        \li
+
+    \row
+        \li  M312
+        \li  Error
+        \li  Missing property 'number'
+        \li
+
+    \row
+        \li  M313
+        \li  Error
+        \li  Object value expected
+        \li
+
+    \row
+        \li  M314
+        \li  Error
+        \li  Array value expected
+        \li
+
+    \row
+        \li  M315
+        \li  Error
+        \li  'Value' value expected
+        \li
+
+    \row
+        \li  M316
+        \li  Error
+        \li  Maximum number value is 'number'
+        \li
+
+    \row
+        \li  M317
+        \li  Error
+        \li  Minimum number value is 'number'
+        \li
+
+    \row
+        \li  M318
+        \li  Error
+        \li  Maximum number value is exclusive
+        \li
+
+    \row
+        \li  M319
+        \li  Error
+        \li  Minimum number value is exclusive
+        \li
+
+    \row
+        \li  M320
+        \li  Error
+        \li  String value does not match required pattern
+        \li
+
+    \row
+        \li  M321
+        \li  Error
+        \li  Minimum string value length is 'number'
+        \li
+
+    \row
+        \li  M322
+        \li  Error
+        \li  Maximum string value length is 'number'
+        \li
+
+    \row
+        \li  M323
+        \li  Error
+        \li  'Number' elements expected in array value
         \li
 
     \endtable
