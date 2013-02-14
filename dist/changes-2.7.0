@@ -167,6 +167,8 @@ Git
    * Added auto stash when switching branches (QTCREATORBUG-8417)
    * Added Soft Reset to Reset dialog
    * Added context actions for cherry-pick and revert
+   * Implemented refreshing file list on commit page every time
+     it becomes visible (QTCREATORBUG-5645)
 
 SVN
 
