@@ -71,6 +71,7 @@
 #include <find/textfindconstants.h>
 #include <find/ifindsupport.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 #include <utils/treewidgetcolumnstretcher.h>
@@ -83,6 +84,7 @@
 #include <QAbstractTableModel>
 #include <QDebug>
 #include <QFile>
+#include <QFileDialog>
 #include <QtPlugin>
 #include <QObject>
 #include <QSettings>
@@ -254,6 +256,8 @@ private slots:
     void copyTextEditorSettings();
     void setQtStyle();
     void setPlainStyle();
+    void openVimRc();
+    void updateVimRcWidgets();
 
 private:
     friend class DebuggerPlugin;
@@ -272,6 +276,8 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
         m_ui.checkBoxUseFakeVim);
     m_group.insert(theFakeVimSetting(ConfigReadVimRc),
         m_ui.checkBoxReadVimRc);
+    m_group.insert(theFakeVimSetting(ConfigVimRcPath),
+        m_ui.lineEditVimRcPath);
 
     m_group.insert(theFakeVimSetting(ConfigExpandTab),
         m_ui.checkBoxExpandTab);
@@ -318,6 +324,11 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
         SLOT(setQtStyle()));
     connect(m_ui.pushButtonSetPlainStyle, SIGNAL(clicked()),
         SLOT(setPlainStyle()));
+    connect(m_ui.pushButtonVimRcPath, SIGNAL(clicked()),
+        SLOT(openVimRc()));
+    connect(m_ui.checkBoxReadVimRc, SIGNAL(stateChanged(int)),
+        SLOT(updateVimRcWidgets()));
+    updateVimRcWidgets();
 
     if (m_searchKeywords.isEmpty()) {
         QLatin1Char sep(' ');
@@ -380,6 +391,21 @@ void FakeVimOptionPage::setPlainStyle()
     m_ui.checkBoxSmartIndent->setChecked(false);
     m_ui.checkBoxIncSearch->setChecked(false);
     m_ui.lineEditBackspace->setText(QString());
+}
+
+void FakeVimOptionPage::openVimRc()
+{
+    const QString fileName = QFileDialog::getOpenFileName();
+    if (!fileName.isNull())
+        m_ui.lineEditVimRcPath->setText(fileName);
+}
+
+void FakeVimOptionPage::updateVimRcWidgets()
+{
+    bool enabled = m_ui.checkBoxReadVimRc->isChecked();
+    m_ui.labelVimRcPath->setEnabled(enabled);
+    m_ui.lineEditVimRcPath->setEnabled(enabled);
+    m_ui.pushButtonVimRcPath->setEnabled(enabled);
 }
 
 bool FakeVimOptionPage::matches(const QString &s) const
@@ -1066,6 +1092,8 @@ bool FakeVimPluginPrivate::initialize()
         this, SLOT(setUseFakeVim(QVariant)));
     connect(theFakeVimSetting(ConfigReadVimRc), SIGNAL(valueChanged(QVariant)),
         this, SLOT(maybeReadVimRc()));
+    connect(theFakeVimSetting(ConfigVimRcPath), SIGNAL(valueChanged(QVariant)),
+        this, SLOT(maybeReadVimRc()));
 
     // Delayed operations.
     connect(this, SIGNAL(delayedQuitRequested(bool,Core::IEditor*)),
@@ -1185,9 +1213,11 @@ void FakeVimPluginPrivate::maybeReadVimRc()
     //qDebug() << theFakeVimSetting(ConfigShiftWidth)->value();
     if (!theFakeVimSetting(ConfigReadVimRc)->value().toBool())
         return;
-    QString fileName =
-        QDesktopServices::storageLocation(QDesktopServices::HomeLocation)
-            + _("/.vimrc");
+    QString fileName = theFakeVimSetting(ConfigVimRcPath)->value().toString();
+    if (fileName.isEmpty()) {
+        fileName = QDesktopServices::storageLocation(QDesktopServices::HomeLocation)
+            + (Utils::HostOsInfo::isWindowsHost() ? _("/_vimrc") : _("/.vimrc"));
+    }
     //qDebug() << "READING VIMRC: " << fileName;
     // Read it into a temporary handler for effects modifying global state.
     QPlainTextEdit editor;

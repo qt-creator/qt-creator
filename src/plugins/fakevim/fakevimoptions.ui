@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>513</width>
-    <height>464</height>
+    <height>468</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -24,164 +24,6 @@
       <string>Vim Behavior</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="5" column="2">
-       <widget class="QCheckBox" name="checkBoxPassControlKey">
-        <property name="toolTip">
-         <string>Pass key sequences like Ctrl-S to Qt Creator core instead of interpreting them in FakeVim. This gives easier access to Qt Creator core functionality at the price of losing some features of FakeVim.</string>
-        </property>
-        <property name="text">
-         <string>Pass control key</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBoxHlSearch">
-        <property name="text">
-         <string>Highlight search results</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBoxIncSearch">
-        <property name="text">
-         <string>Incremental search</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QCheckBox" name="checkBoxStartOfLine">
-        <property name="text">
-         <string>Start of line</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBoxSmartIndent">
-        <property name="text">
-         <string>Smart indentation</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBoxAutoIndent">
-        <property name="text">
-         <string>Automatic indentation</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="1" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QSpinBox" name="spinBoxTabStop">
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>80</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item row="9" column="0">
-       <widget class="QLabel" name="labelBackspace">
-        <property name="text">
-         <string>Backspace:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="1" colspan="2">
-       <widget class="QLineEdit" name="lineEditBackspace"/>
-      </item>
-      <item row="10" column="0">
-       <widget class="QLabel" name="labelIsKeyword">
-        <property name="text">
-         <string>Keyword characters:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="0">
-       <widget class="QLabel" name="labelTabulator">
-        <property name="toolTip">
-         <string>Vim tabstop option</string>
-        </property>
-        <property name="text">
-         <string>Tabulator size:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="12" column="0" colspan="3">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QPushButton" name="pushButtonCopyTextEditorSettings">
-          <property name="text">
-           <string>Copy Text Editor Settings</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButtonSetQtStyle">
-          <property name="text">
-           <string>Set Qt Style</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButtonSetPlainStyle">
-          <property name="text">
-           <string>Set Plain Style</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="labelShiftWidth">
-        <property name="text">
-         <string>Shift width:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBoxExpandTab">
-        <property name="text">
-         <string>Expand tabulators</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="2">
-       <widget class="QCheckBox" name="checkBoxShowMarks">
-        <property name="text">
-         <string>Show position of text marks</string>
-        </property>
-       </widget>
-      </item>
       <item row="3" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxSmartTab">
         <property name="text">
@@ -192,7 +34,7 @@
       <item row="10" column="1" colspan="2">
        <widget class="QLineEdit" name="lineEditIsKeyword"/>
       </item>
-      <item row="11" column="0">
+      <item row="12" column="0">
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -215,17 +57,48 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
-       <widget class="QCheckBox" name="checkBoxSmartCase">
+      <item row="0" column="2">
+       <widget class="QCheckBox" name="checkBoxStartOfLine">
         <property name="text">
-         <string>Use smartcase</string>
+         <string>Start of line</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="2">
-       <widget class="QCheckBox" name="checkBoxWrapScan">
+      <item row="1" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxSmartIndent">
         <property name="text">
-         <string>Use wrapscan</string>
+         <string>Smart indentation</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxExpandTab">
+        <property name="text">
+         <string>Expand tabulators</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxAutoIndent">
+        <property name="text">
+         <string>Automatic indentation</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QCheckBox" name="checkBoxPassControlKey">
+        <property name="toolTip">
+         <string>Pass key sequences like Ctrl-S to Qt Creator core instead of interpreting them in FakeVim. This gives easier access to Qt Creator core functionality at the price of losing some features of FakeVim.</string>
+        </property>
+        <property name="text">
+         <string>Pass control key</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxHlSearch">
+        <property name="text">
+         <string>Highlight search results</string>
         </property>
        </widget>
       </item>
@@ -263,12 +136,164 @@
         </property>
        </widget>
       </item>
+      <item row="9" column="0">
+       <widget class="QLabel" name="labelBackspace">
+        <property name="text">
+         <string>Backspace:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0">
+       <widget class="QLabel" name="labelTabulator">
+        <property name="toolTip">
+         <string>Vim tabstop option</string>
+        </property>
+        <property name="text">
+         <string>Tabulator size:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="1" colspan="2">
+       <widget class="QLineEdit" name="lineEditBackspace"/>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="labelShiftWidth">
+        <property name="text">
+         <string>Shift width:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxIncSearch">
+        <property name="text">
+         <string>Incremental search</string>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="0" colspan="3">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QPushButton" name="pushButtonCopyTextEditorSettings">
+          <property name="text">
+           <string>Copy Text Editor Settings</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButtonSetQtStyle">
+          <property name="text">
+           <string>Set Qt Style</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButtonSetPlainStyle">
+          <property name="text">
+           <string>Set Plain Style</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item row="4" column="2">
+       <widget class="QCheckBox" name="checkBoxShowMarks">
+        <property name="text">
+         <string>Show position of text marks</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QCheckBox" name="checkBoxSmartCase">
+        <property name="text">
+         <string>Use smartcase</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QCheckBox" name="checkBoxWrapScan">
+        <property name="text">
+         <string>Use wrapscan</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1" colspan="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QSpinBox" name="spinBoxTabStop">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>80</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item row="10" column="0">
+       <widget class="QLabel" name="labelIsKeyword">
+        <property name="text">
+         <string>Keyword characters:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="0">
+       <widget class="QLabel" name="labelVimRcPath">
+        <property name="text">
+         <string>Location of .vimrc:</string>
+        </property>
+       </widget>
+      </item>
       <item row="6" column="2">
        <widget class="QCheckBox" name="checkBoxReadVimRc">
         <property name="text">
          <string>Read .vimrc</string>
         </property>
        </widget>
+      </item>
+      <item row="11" column="1" colspan="2">
+       <layout class="QHBoxLayout" name="horizontalLayoutVimRcPath">
+        <item>
+         <widget class="QLineEdit" name="lineEditVimRcPath">
+          <property name="toolTip">
+           <string>Keep empty to use the default path, i.e. %USERPROFILE%\_vimrc on Windows, ~/.vimrc otherwise.</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButtonVimRcPath">
+          <property name="text">
+           <string>Browse...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -303,10 +328,13 @@
   <tabstop>checkBoxWrapScan</tabstop>
   <tabstop>checkBoxShowMarks</tabstop>
   <tabstop>checkBoxPassControlKey</tabstop>
+  <tabstop>checkBoxReadVimRc</tabstop>
   <tabstop>spinBoxShiftWidth</tabstop>
   <tabstop>spinBoxTabStop</tabstop>
   <tabstop>lineEditBackspace</tabstop>
   <tabstop>lineEditIsKeyword</tabstop>
+  <tabstop>lineEditVimRcPath</tabstop>
+  <tabstop>pushButtonVimRcPath</tabstop>
   <tabstop>pushButtonCopyTextEditorSettings</tabstop>
   <tabstop>pushButtonSetQtStyle</tabstop>
   <tabstop>pushButtonSetPlainStyle</tabstop>

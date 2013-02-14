@@ -143,6 +143,13 @@ FakeVimSettings *theFakeVimSettings()
     instance->insertItem(ConfigReadVimRc, item);
 
     item = new SavedAction(instance);
+    item->setText(QCoreApplication::translate("FakeVim::Internal",
+        "Path to .vimrc"));
+    item->setDefaultValue(QString());
+    item->setSettingsKey(group, _("VimRcPath"));
+    instance->insertItem(ConfigVimRcPath, item);
+
+    item = new SavedAction(instance);
     item->setValue(true);
     item->setDefaultValue(true);
     item->setSettingsKey(group, _("StartOfLine"));
