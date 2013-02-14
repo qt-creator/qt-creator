@@ -226,8 +226,6 @@ Android
    * Fixed ps output processing for busybox
    * Improved local deployment (QTCREATORBUG-8538)
 
-Madde
-
 Task List
    * Implemented removal of single tasks from task list
    * Added keyboard shortcuts for actions
@@ -244,7 +242,6 @@ Tools
    * Created group/world files in SDKtool (QTCREATORBUG-8458)
 
 Packaging
-
 
 Madde
    * Plugin is now disabled by default
