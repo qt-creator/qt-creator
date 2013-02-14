@@ -32,6 +32,6 @@
 using namespace CppTools;
 
 SemanticInfo::SemanticInfo()
-    : revision(0), hasQ(false), hasD(false), forced(false)
+    : revision(0), forced(false)
 {
 }

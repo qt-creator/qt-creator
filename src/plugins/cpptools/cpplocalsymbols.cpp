@@ -51,13 +51,11 @@ class FindLocalSymbols: protected ASTVisitor
 
 public:
     FindLocalSymbols(Document::Ptr doc)
-        : ASTVisitor(doc->translationUnit()), _doc(doc), hasD(false), hasQ(false)
+        : ASTVisitor(doc->translationUnit()), _doc(doc)
     { }
 
     // local and external uses.
     SemanticInfo::LocalUseMap localUses;
-    bool hasD;
-    bool hasQ;
 
     void operator()(DeclarationAST *ast)
     {
@@ -165,16 +163,6 @@ protected:
                 }
             }
         }
-
-        return true;
-    }
-
-    virtual bool visit(QtMemberDeclarationAST *ast)
-    {
-        if (tokenKind(ast->q_token) == T_Q_D)
-            hasD = true;
-        else
-            hasQ = true;
 
         return true;
     }
@@ -313,7 +301,5 @@ LocalSymbols::LocalSymbols(CPlusPlus::Document::Ptr doc, CPlusPlus::DeclarationA
 {
     FindLocalSymbols findLocalSymbols(doc);
     findLocalSymbols(ast);
-    hasD = findLocalSymbols.hasD;
-    hasQ = findLocalSymbols.hasQ;
     uses = findLocalSymbols.localUses;
 }

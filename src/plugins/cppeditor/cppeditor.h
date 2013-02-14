@@ -262,7 +262,6 @@ private:
     SemanticHighlighter::Source currentSource(bool force = false);
 
     void highlightUses(const QList<TextEditor::SemanticHighlighter::Result> &uses,
-                       const CppTools::SemanticInfo &semanticInfo,
                        QList<QTextEdit::ExtraSelection> *selections);
 
     void createToolBar(CPPEditor *editable);

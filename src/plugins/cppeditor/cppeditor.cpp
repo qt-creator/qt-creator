@@ -1006,8 +1006,7 @@ void CPPEditorWidget::updateOutlineIndex()
 }
 
 void CPPEditorWidget::highlightUses(const QList<SemanticInfo::Use> &uses,
-                              const SemanticInfo &semanticInfo,
-                              QList<QTextEdit::ExtraSelection> *selections)
+                                    QList<QTextEdit::ExtraSelection> *selections)
 {
     bool isUnused = false;
 
@@ -1030,14 +1029,6 @@ void CPPEditorWidget::highlightUses(const QList<SemanticInfo::Use> &uses,
         sel.cursor = QTextCursor(document());
         sel.cursor.setPosition(anchor);
         sel.cursor.setPosition(position, QTextCursor::KeepAnchor);
-
-        if (isUnused) {
-            if (semanticInfo.hasQ && sel.cursor.selectedText() == QLatin1String("q"))
-                continue; // skip q
-
-            else if (semanticInfo.hasD && sel.cursor.selectedText() == QLatin1String("d"))
-                continue; // skip d
-        }
 
         selections->append(sel);
     }
@@ -1965,10 +1956,10 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
         if (uses.size() == 1) {
             if (!CppTools::isOwnershipRAIIType(it.key(), context)) {
                 // it's an unused declaration
-                highlightUses(uses, semanticInfo, &unusedSelections);
+                highlightUses(uses, &unusedSelections);
             }
         } else if (good && m_renameSelections.isEmpty()) {
-            highlightUses(uses, semanticInfo, &m_renameSelections);
+            highlightUses(uses, &m_renameSelections);
         }
     }
 
@@ -2228,8 +2219,6 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
         const LocalSymbols useTable(semanticInfo.doc, currentFunctionDefinition);
         semanticInfo.revision = source.revision;
         semanticInfo.localUses = useTable.uses;
-        semanticInfo.hasQ = useTable.hasQ;
-        semanticInfo.hasD = useTable.hasD;
     }
 
     return semanticInfo;

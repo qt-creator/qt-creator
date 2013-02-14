@@ -45,8 +45,6 @@ class CPPTOOLS_EXPORT LocalSymbols
 public:
     LocalSymbols(CPlusPlus::Document::Ptr doc, CPlusPlus::DeclarationAST *ast);
 
-    bool hasD;
-    bool hasQ;
     SemanticInfo::LocalUseMap uses;
 };
 
