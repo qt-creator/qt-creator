@@ -184,9 +184,10 @@ static void updateBoilerPlateCodeFiles(const AbstractMobileApp *app, const QStri
         foreach (const AbstractGeneratedFileInfo &info, updates)
             fileNames.append(QDir::toNativeSeparators(info.fileInfo.fileName()));
         const QString message =
-                Qt4Manager::tr("The following files are either outdated or have been modified:<br><br>%1"
-                               "<br><br>Do you want Qt Creator to update the files? Any changes will be lost.")
-                .arg(fileNames.join(QLatin1String(", ")));
+                Qt4Manager::tr("In project<br><br>%1<br><br>The following files are either "
+                               "outdated or have been modified:<br><br>%2<br><br>Do you want "
+                               "Qt Creator to update the files? Any changes will be lost.")
+                .arg(proFile, fileNames.join(QLatin1String(", ")));
         if (QMessageBox::question(0, title, message, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
             QString error;
             if (!app->updateFiles(updates, error))
@@ -217,14 +218,24 @@ ProjectExplorer::Project *Qt4Manager::openProject(const QString &fileName, QStri
         }
     }
 
-    QtQuickApp qtQuickApp;
-    updateBoilerPlateCodeFiles(&qtQuickApp, canonicalFilePath);
-    qtQuickApp.setComponentSet(QtQuickApp::QtQuick20Components);
-    updateBoilerPlateCodeFiles(&qtQuickApp, canonicalFilePath);
-    const Html5App html5App;
-    updateBoilerPlateCodeFiles(&html5App, canonicalFilePath);
-
     Qt4Project *pro = new Qt4Project(this, canonicalFilePath);
+
+    // Update boiler plate code for subprojects.
+    if (pro->restoreSettings()) {
+        QtQuickApp qtQuickApp;
+        const Html5App html5App;
+
+        foreach (Qt4ProFileNode *node, pro->applicationProFiles()) {
+            const QString path = node->path();
+
+            qtQuickApp.setComponentSet(QtQuickApp::QtQuick10Components);
+            updateBoilerPlateCodeFiles(&qtQuickApp, path);
+            qtQuickApp.setComponentSet(QtQuickApp::QtQuick20Components);
+            updateBoilerPlateCodeFiles(&qtQuickApp, path);
+            updateBoilerPlateCodeFiles(&html5App, path);
+        }
+    }
+
     return pro;
 }
 
