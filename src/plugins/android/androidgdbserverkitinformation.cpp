@@ -98,7 +98,7 @@ void AndroidGdbServerKitInformation::setGdbSever(ProjectExplorer::Kit *kit, cons
 Utils::FileName AndroidGdbServerKitInformation::autoDetect(ProjectExplorer::Kit *kit)
 {
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(kit);
-    if (tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
+    if (!tc || tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
         return Utils::FileName();
     AndroidToolChain *atc = static_cast<AndroidToolChain *>(tc);
     return atc->suggestedGdbServer();
