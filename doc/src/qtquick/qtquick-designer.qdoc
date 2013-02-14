@@ -289,7 +289,14 @@
     For example, the following code snippet describes the file example.qml that
     contains a ListView that in turn specifies a C++ model:
 
-    \snippet snippets/qml/dummydata.qml 0
+    \qml
+        ListView {
+            model: dataModel
+            delegate: ContactDelegate {
+                name: name
+            }
+        }
+    \endqml
 
     Create a directory named \e dummydata in the root directory of the project,
     so that it is not deployed to the device. In the \c dummydata directory,
@@ -302,18 +309,32 @@
 
     Then create the dataModel.qml file that contains the dummy data:
 
-    \snippet snippets/qml/datamodel.qml 0
+    \qml
+        import QtQuick 1.0
+
+        ListModel {
+             ListElement {
+                 name: "Ariane"
+             }
+             ListElement {
+                 name: "Bella"
+             }
+             ListElement {
+                 name: "Corinna"
+             }
+        }
+    \endqml
 
     \section3 Creating Dummy Context
 
     The following example presents a common pattern in QML:
 
-    \code
+    \qml
         Item {
             width: parent.width
             height: parent.height
         }
-    \endcode
+    \endqml
 
     This works nicely for applications but \QMLD displays a zero-sized item.
     A parent for the opened file does not exist, because the context is
@@ -322,7 +343,17 @@
     application (here, example.qml) in the \c {dummydata/context} directory,
     you can fake a parent context:
 
-    \snippet snippets/qml/dummydatacontext.qml 0
+    \qml
+        import QtQuick 1.0
+        import QmlDesigner 1.0
+
+        DummyContextObject {
+            parent: Item {
+                width: 640
+                height: 300
+            }
+        }
+    \endqml
 
     \section2 Setting Anchors and Margins
 
