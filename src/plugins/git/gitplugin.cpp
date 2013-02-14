@@ -949,7 +949,7 @@ void GitPlugin::pull()
     GitClient::StashGuard stashGuard(state.topLevel(), QLatin1String("Pull"));
     if (stashGuard.stashingFailed(false) || (rebase && (stashGuard.result() == GitClient::NotStashed)))
         return;
-    if (!m_gitClient->synchronousPull(state.topLevel(), false))
+    if (!m_gitClient->synchronousPull(state.topLevel(), rebase))
         stashGuard.preventPop();
 }
 
