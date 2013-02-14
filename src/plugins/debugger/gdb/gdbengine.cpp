@@ -3146,7 +3146,7 @@ void GdbEngine::insertBreakpoint(BreakpointModelId id)
         return;
     }
 
-    QByteArray cmd = "xxx";
+    QByteArray cmd;
     if (handler->isTracepoint(id)) {
         cmd = "-break-insert -a -f ";
     } else if (m_isMacGdb) {
@@ -3167,8 +3167,10 @@ void GdbEngine::insertBreakpoint(BreakpointModelId id)
     if (handler->isOneShot(id))
         cmd += "-t ";
 
-    //if (!data->condition.isEmpty())
-    //    cmd += "-c " + data->condition + ' ';
+    QByteArray condition = handler->condition(id);
+    if (!condition.isEmpty())
+        cmd += " -c \"" + condition + "\" ";
+
     cmd += breakpointLocation(id);
     postCommand(cmd, NeedsStop | RebuildBreakpointModel,
         CB(handleBreakInsert1), vid);
