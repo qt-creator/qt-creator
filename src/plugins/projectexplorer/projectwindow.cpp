@@ -134,10 +134,17 @@ PanelsWidget::PanelsWidget(QWidget *parent) :
     setPalette(pal);
     pal.setColor(QPalette::All, QPalette::Window, background);
     m_root->setPalette(pal);
+
     // The layout holding the individual panels:
-    m_layout = new QGridLayout(m_root);
+    QVBoxLayout *topLayout = new QVBoxLayout(m_root);
+    topLayout->setMargin(0);
+    topLayout->setSpacing(0);
+
+    m_layout = new QGridLayout;
     m_layout->setColumnMinimumWidth(0, ICON_SIZE + 4);
     m_layout->setSpacing(0);
+    topLayout->addLayout(m_layout);
+    topLayout->addStretch(100);
 
     setWidget(m_root);
     setFrameStyle(QFrame::NoFrame);
