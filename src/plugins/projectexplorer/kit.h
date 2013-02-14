@@ -75,6 +75,7 @@ public:
     QString fileSystemFriendlyName() const;
 
     bool isAutoDetected() const;
+    bool isSdkProvided() const;
     Core::Id id() const;
 
     QIcon icon() const;
@@ -96,6 +97,7 @@ public:
     Kit *clone(bool keepName = false) const;
     void copyFrom(const Kit *k);
 
+    void setAutoDetected(bool detected);
 private:
     void setSdkProvided(bool sdkProvided);
     ~Kit();
@@ -104,7 +106,6 @@ private:
     Kit(const Kit &other);
     void operator=(const Kit &other);
 
-    void setAutoDetected(bool detected);
 
     void kitUpdated();
 

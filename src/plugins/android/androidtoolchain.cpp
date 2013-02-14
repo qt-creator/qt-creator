@@ -280,6 +280,39 @@ ToolChain *AndroidToolChainFactory::restore(const QVariantMap &data)
     return 0;
 }
 
+QList<AndroidToolChainFactory::AndroidToolChainInformation> AndroidToolChainFactory::toolchainPathsForNdk(const Utils::FileName &ndkPath)
+{
+    QList<AndroidToolChainInformation> result;
+    if (ndkPath.isEmpty())
+        return result;
+    QRegExp versionRegExp(NDKGccVersionRegExp);
+    FileName path = ndkPath;
+    QDirIterator it(path.appendPath(QLatin1String("toolchains")).toString(),
+                    QStringList() << QLatin1String("*"), QDir::Dirs);
+    while (it.hasNext()) {
+        const QString &fileName = QFileInfo(it.next()).fileName();
+        int idx = versionRegExp.indexIn(fileName);
+        if (idx == -1)
+            continue;
+        AndroidToolChainInformation ati;
+        ati.version = fileName.mid(idx + 1);
+        QString platform = fileName.left(idx);
+        ati.architecture = AndroidConfigurations::architectureForToolChainPrefix(platform);
+        if (ati.architecture == Abi::UnknownArchitecture) // e.g. mipsel which is not yet supported
+            continue;
+        // AndroidToolChain *tc = new AndroidToolChain(arch, version, true);
+        ati.compilerCommand  = ndkPath;
+        ati.compilerCommand.appendPath(QString::fromLatin1("toolchains/%1/prebuilt/%3/bin/%4")
+                                       .arg(fileName)
+                                       .arg(ToolchainHost)
+                                       .arg(AndroidConfigurations::toolsPrefix(ati.architecture)));
+        ati.compilerCommand.append(QLatin1String("-gcc" QTC_HOST_EXE_SUFFIX));
+        // tc->setCompilerCommand(compilerPath);
+        result.append(ati);
+    }
+    return result;
+}
+
 QList<ToolChain *> AndroidToolChainFactory::createToolChainsForNdk(const Utils::FileName &ndkPath)
 {
     QList<ToolChain *> result;

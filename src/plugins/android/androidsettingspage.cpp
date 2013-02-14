@@ -82,6 +82,10 @@ void AndroidSettingsPage::apply()
         else
             ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
     }
+
+    // TODO deregister old automatic toolchains?
+
+    AndroidConfigurations::instance().updateAutomaticKitList();
 }
 
 void AndroidSettingsPage::finish()

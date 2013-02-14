@@ -87,6 +87,7 @@ private slots:
     void avdActivated(QModelIndex);
     void dataPartitionSizeEditingFinished();
     void manageAVD();
+    void createKitToggled();
 
 private:
     void initGui();

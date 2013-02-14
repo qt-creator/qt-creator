@@ -29,11 +29,22 @@
 
 #include "androidconfigurations.h"
 #include "androidconstants.h"
+#include "androidtoolchain.h"
+#include "androiddevice.h"
+#include "androidgdbserverkitinformation.h"
 #include "ui_addnewavddialog.h"
 
 #include <coreplugin/icore.h>
 #include <utils/hostosinfo.h>
 #include <utils/persistentsettings.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/toolchainmanager.h>
+#include <debugger/debuggerkitinformation.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtversionmanager.h>
 
 #include <QDateTime>
 #include <QSettings>
@@ -68,6 +79,7 @@ namespace {
     const QLatin1String AntLocationKey("AntLocation");
     const QLatin1String OpenJDKLocationKey("OpenJDKLocation");
     const QLatin1String KeystoreLocationKey("KeystoreLocation");
+    const QLatin1String AutomaticKitCreationKey("AutomatiKitCreation");
     const QLatin1String PartitionSizeKey("PartitionSize");
     const QLatin1String ArmToolchainPrefix("arm-linux-androideabi");
     const QLatin1String X86ToolchainPrefix("x86");
@@ -140,6 +152,7 @@ AndroidConfig::AndroidConfig(const QSettings &settings)
     antLocation = FileName::fromString(settings.value(AntLocationKey).toString());
     openJDKLocation = FileName::fromString(settings.value(OpenJDKLocationKey).toString());
     keystoreLocation = FileName::fromString(settings.value(KeystoreLocationKey).toString());
+    automaticKitCreation = settings.value(AutomaticKitCreationKey, true).toBool();
 
     PersistentSettingsReader reader;
     if (reader.load(FileName::fromString(sdkSettingsFileName()))
@@ -150,6 +163,9 @@ AndroidConfig::AndroidConfig(const QSettings &settings)
         antLocation = FileName::fromString(reader.restoreValue(AntLocationKey).toString());
         openJDKLocation = FileName::fromString(reader.restoreValue(OpenJDKLocationKey).toString());
         keystoreLocation = FileName::fromString(reader.restoreValue(KeystoreLocationKey).toString());
+        QVariant v = reader.restoreValue(AutomaticKitCreationKey);
+        if (v.isValid())
+            automaticKitCreation = v.toBool();
         // persistent settings
     }
 
@@ -173,6 +189,7 @@ void AndroidConfig::save(QSettings &settings) const
     settings.setValue(OpenJDKLocationKey, openJDKLocation.toString());
     settings.setValue(KeystoreLocationKey, keystoreLocation.toString());
     settings.setValue(PartitionSizeKey, partitionSize);
+    settings.setValue(AutomaticKitCreationKey, automaticKitCreation);
 }
 
 void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
@@ -180,6 +197,7 @@ void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
     m_config = devConfigs;
     save();
     updateAvailablePlatforms();
+    updateAutomaticKitList();
     emit updated();
 }
 
@@ -525,6 +543,99 @@ QString AndroidConfigurations::bestMatch(const QString &targetAPI) const
             return QString::fromLatin1("android-%1").arg(apiLevel);
     }
     return QLatin1String("android-8");
+}
+
+bool equalKits(Kit *a, Kit *b)
+{
+    return ToolChainKitInformation::toolChain(a) == ToolChainKitInformation::toolChain(b)
+            && QtSupport::QtKitInformation::qtVersion(a) == QtSupport::QtKitInformation::qtVersion(b);
+}
+
+void AndroidConfigurations::updateAutomaticKitList()
+{
+    QList<AndroidToolChain *> toolchains;
+    if (AndroidConfigurations::instance().config().automaticKitCreation) {
+        // having a empty toolchains list will remove all autodetected kits for android
+        // exactly what we want in that case
+        foreach (ProjectExplorer::ToolChain *tc, ProjectExplorer::ToolChainManager::instance()->toolChains()) {
+            if (!tc->isAutoDetected())
+                continue;
+            if (tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
+                continue;
+            toolchains << static_cast<AndroidToolChain *>(tc);
+        }
+    }
+
+    QList<Kit *> existingKits;
+
+    foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::instance()->kits()) {
+        if (ProjectExplorer::DeviceKitInformation::deviceId(k) != Core::Id(Constants::ANDROID_DEVICE_ID))
+            continue;
+        if (!k->isAutoDetected())
+            continue;
+        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain((k));
+        if (!tc)
+            continue;
+        if (tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
+            continue;
+
+        existingKits << k;
+    }
+
+    QMap<ProjectExplorer::Abi::Architecture, QList<QtSupport::BaseQtVersion *> > qtVersionsForArch;
+    foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::instance()->versions()) {
+        if (qtVersion->type() != QLatin1String(Constants::ANDROIDQT))
+            continue;
+        qtVersionsForArch[qtVersion->qtAbis().first().architecture()].append(qtVersion);
+    }
+
+    ProjectExplorer::DeviceManager *dm = ProjectExplorer::DeviceManager::instance();
+    IDevice::ConstPtr device = dm->find(Core::Id(Constants::ANDROID_DEVICE_ID)); // should always exist
+
+    // register new kits
+    QList<Kit *> newKits;
+    foreach (AndroidToolChain *tc, toolchains) {
+        QList<QtSupport::BaseQtVersion *> qtVersions = qtVersionsForArch.value(tc->targetAbi().architecture());
+        foreach (QtSupport::BaseQtVersion *qt, qtVersions) {
+            Kit *newKit = new Kit;
+            newKit->setAutoDetected(true);
+            QString arch = ProjectExplorer::Abi::toString(tc->targetAbi().architecture());
+            newKit->setDisplayName(tr("Android for %1 (gcc %2, qt %3) ")
+                                   .arg(arch)
+                                   .arg(tc->ndkToolChainVersion())
+                                   .arg(qt->qtVersionString()));
+            DeviceTypeKitInformation::setDeviceTypeId(newKit, Core::Id(Constants::ANDROID_DEVICE_TYPE));
+            ToolChainKitInformation::setToolChain(newKit, tc);
+            QtSupport::QtKitInformation::setQtVersion(newKit, qt);
+            DeviceKitInformation::setDevice(newKit, device);
+            Debugger::DebuggerKitInformation::DebuggerItem item;
+            item.engineType = Debugger::GdbEngineType;
+            item.binary = tc->suggestedDebugger();
+            Debugger::DebuggerKitInformation::setDebuggerItem(newKit, item);
+            AndroidGdbServerKitInformation::setGdbSever(newKit, tc->suggestedGdbServer());
+            newKits << newKit;
+        }
+    }
+
+    for (int i = existingKits.count() - 1; i >= 0; --i) {
+        Kit *existingKit = existingKits.at(i);
+        for (int j = 0; j < newKits.count(); ++j) {
+            Kit *newKit = newKits.at(j);
+            if (equalKits(existingKit, newKit)) {
+                // Kit is already registered, nothing to do
+                newKits.removeAt(j);
+                existingKits.removeAt(i);
+                KitManager::deleteKit(newKit);
+                j = newKits.count();
+            }
+        }
+    }
+
+    foreach (Kit *k, existingKits)
+        KitManager::instance()->deregisterKit(k);
+
+    foreach (Kit *kit, newKits)
+        KitManager::instance()->registerKit(kit);
 }
 
 AndroidConfigurations &AndroidConfigurations::instance(QObject *parent)

@@ -16,8 +16,46 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="SDKLocationLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Android SDK location:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="SDKLocationLineEdit"/>
+     </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="SDKLocationPushButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Browse</string>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="0">
       <widget class="QLabel" name="NDKLocationLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Android NDK location:</string>
        </property>
@@ -37,17 +75,101 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="AntLocationLineEdit"/>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <property name="spacing">
+        <number>2</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="ndkWarningIconLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_error.png</pixmap>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="toolchainFoundLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
-     <item row="2" column="2">
-      <widget class="QPushButton" name="AntLocationPushButton">
+     <item row="3" column="1">
+      <widget class="QCheckBox" name="CreateKitCheckBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
-        <string>Browse</string>
+        <string>Automatically create kits for Android tool chains</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
+     <item row="4" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <property name="spacing">
+        <number>2</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="kitWarningIconLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_warning.png</pixmap>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="kitWarningLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="5" column="0">
       <widget class="QLabel" name="AntLocationLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Ant location:</string>
        </property>
@@ -56,8 +178,24 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
+     <item row="5" column="1">
+      <widget class="QLineEdit" name="AntLocationLineEdit"/>
+     </item>
+     <item row="5" column="2">
+      <widget class="QPushButton" name="AntLocationPushButton">
+       <property name="text">
+        <string>Browse</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
       <widget class="QLabel" name="OpenJDKLocationLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>OpenJDK location:</string>
        </property>
@@ -66,31 +204,11 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="6" column="1">
       <widget class="QLineEdit" name="OpenJDKLocationLineEdit"/>
      </item>
-     <item row="3" column="2">
+     <item row="6" column="2">
       <widget class="QPushButton" name="OpenJDKLocationPushButton">
-       <property name="text">
-        <string>Browse</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="SDKLocationLabel">
-       <property name="text">
-        <string>Android SDK location:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="SDKLocationLineEdit"/>
-     </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="SDKLocationPushButton">
        <property name="text">
         <string>Browse</string>
        </property>
@@ -107,22 +225,6 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="1" column="0" rowspan="4">
-       <widget class="QTableView" name="AVDTableView">
-        <property name="selectionMode">
-         <enum>QAbstractItemView::SingleSelection</enum>
-        </property>
-        <property name="selectionBehavior">
-         <enum>QAbstractItemView::SelectRows</enum>
-        </property>
-        <property name="textElideMode">
-         <enum>Qt::ElideMiddle</enum>
-        </property>
-        <attribute name="verticalHeaderVisible">
-         <bool>false</bool>
-        </attribute>
-       </widget>
-      </item>
       <item row="3" column="1">
        <widget class="QPushButton" name="AVDStartPushButton">
         <property name="enabled">
@@ -132,19 +234,6 @@
          <string>Start</string>
         </property>
        </widget>
-      </item>
-      <item row="4" column="1">
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>129</height>
-         </size>
-        </property>
-       </spacer>
       </item>
       <item row="0" column="0" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout">
@@ -197,13 +286,6 @@
         </item>
        </layout>
       </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="AVDAddPushButton">
-        <property name="text">
-         <string>Add</string>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="1">
        <widget class="QPushButton" name="AVDRemovePushButton">
         <property name="enabled">
@@ -214,12 +296,50 @@
         </property>
        </widget>
       </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="AVDAddPushButton">
+        <property name="text">
+         <string>Add</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" rowspan="4">
+       <widget class="QTableView" name="AVDTableView">
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SingleSelection</enum>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <property name="textElideMode">
+         <enum>Qt::ElideMiddle</enum>
+        </property>
+        <attribute name="verticalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>129</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
      </layout>
     </widget>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../projectexplorer/projectexplorer.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>NDKLocationLineEdit</sender>
@@ -461,6 +581,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>CreateKitCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>createKitToggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>358</x>
+     <y>99</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>339</x>
+     <y>220</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>sdkLocationEditingFinished()</slot>
@@ -477,5 +613,6 @@
   <slot>openJDKLocationEditingFinished()</slot>
   <slot>browseOpenJDKLocation()</slot>
   <slot>manageAVD()</slot>
+  <slot>createKitToggled()</slot>
  </slots>
 </ui>

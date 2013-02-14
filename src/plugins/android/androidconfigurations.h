@@ -70,6 +70,7 @@ public:
     Utils::FileName openJDKLocation;
     Utils::FileName keystoreLocation;
     unsigned partitionSize;
+    bool automaticKitCreation;
 };
 
 struct AndroidDeviceInfo
@@ -116,6 +117,7 @@ signals:
 
 public slots:
     bool createAVD(int minApiLevel = 0) const;
+    void updateAutomaticKitList();
 
 private:
     Utils::FileName toolPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;

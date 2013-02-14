@@ -103,7 +103,16 @@ public:
     bool canRestore(const QVariantMap &data);
     ProjectExplorer::ToolChain *restore(const QVariantMap &data);
 
+    class AndroidToolChainInformation
+    {
+    public:
+        Utils::FileName compilerCommand;
+        ProjectExplorer::Abi::Architecture architecture;
+        QString version;
+    };
+
     static QList<ProjectExplorer::ToolChain *> createToolChainsForNdk(const Utils::FileName &ndkPath);
+    static QList<AndroidToolChainInformation> toolchainPathsForNdk(const Utils::FileName &ndkPath);
 };
 
 } // namespace Internal
