@@ -5,11 +5,11 @@ DEFINES += %PluginName:u%_LIBRARY
 
 # %PluginName% files
 
-SOURCES += %PluginName:l%plugin.cpp
+SOURCES += %PluginName:l%plugin.%CppSourceSuffix%
 
-HEADERS += %PluginName:l%plugin.h\
-        %PluginName:l%_global.h\
-        %PluginName:l%constants.h
+HEADERS += %PluginName:l%plugin.%CppHeaderSuffix% \
+        %PluginName:l%_global.%CppHeaderSuffix% \
+        %PluginName:l%constants.%CppHeaderSuffix%
 
 # Qt Creator linking
 
