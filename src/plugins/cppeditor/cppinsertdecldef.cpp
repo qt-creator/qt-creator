@@ -1096,6 +1096,9 @@ void ExtractFunction::match(const CppQuickFixInterface &interface, QuickFixOpera
         bool usedInsideExtraction = false;
         const QList<SemanticInfo::Use> &uses = it.value();
         foreach (const SemanticInfo::Use &use, uses) {
+            if (use.isInvalid())
+                continue;
+
             const int position = file->position(use.line, use.column);
             if (position < analyser.m_extractionStart)
                 usedBeforeExtraction = true;

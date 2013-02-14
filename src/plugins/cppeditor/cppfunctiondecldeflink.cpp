@@ -913,6 +913,8 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
                 it.next();
                 const QList<SemanticInfo::Use> &uses = localSymbols.uses.value(it.key());
                 foreach (const SemanticInfo::Use &use, uses) {
+                    if (use.isInvalid())
+                        continue;
                     const int useStart = targetFile->position(use.line, use.column);
                     if (useStart <= endOfArguments)
                         continue;

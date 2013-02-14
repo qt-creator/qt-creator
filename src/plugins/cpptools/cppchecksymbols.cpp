@@ -1104,7 +1104,7 @@ static const int chunkSize = 50;
 
 void CheckSymbols::addUse(const Use &use)
 {
-    if (!use.line)
+    if (use.isInvalid())
         return;
 
     if (! enclosingFunctionDefinition()) {

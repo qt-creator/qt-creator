@@ -79,8 +79,8 @@ public:
 
         for (int i = from; i < to; ++i) {
             const Use use = future.resultAt(i);
-            if (! use.line)
-                continue; // skip it, it's an invalid use.
+            if (use.isInvalid())
+                continue;
 
             const int blockNumber = use.line - 1;
             chunks[blockNumber].append(use);
