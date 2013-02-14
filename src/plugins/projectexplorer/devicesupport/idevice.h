@@ -150,7 +150,10 @@ protected:
 private:
     IDevice &operator=(const IDevice &); // Unimplemented.
 
+    int version() const;
+
     Internal::IDevicePrivate *d;
+    friend class DeviceManager;
 };
 
 } // namespace ProjectExplorer
