@@ -611,7 +611,7 @@ QVariantMap SettingsAccessor::restoreSettings() const
             QMessageBox::information(
                 Core::ICore::mainWindow(),
                 QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                        "Using Old Project Settings File"),
+                                        "Using Old Settings File for '%1'").arg(project()->displayName()),
                 QApplication::translate("ProjectExplorer::SettingsAccessor",
                                         "<html><head/><body><p>A versioned backup of the .user "
                                         "settings file will be used, because the non-versioned "
@@ -636,7 +636,7 @@ QVariantMap SettingsAccessor::restoreSettings() const
                 QMessageBox msgBox(
                     QMessageBox::Question,
                     QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                            "Project Settings File from a different Environment?"),
+                                            "Settings File for '%1' from a different Environment?").arg(project()->displayName()),
                     QApplication::translate("ProjectExplorer::SettingsAccessor",
                                             "Qt Creator has found a .user settings file which was "
                                             "created for another development setup, maybe "
