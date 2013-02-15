@@ -84,7 +84,6 @@ private:
     DeviceManager(bool isInstance = false);
 
     void load();
-    QList<IDevice::Ptr> loadPre2_6();
     static const IDeviceFactory *restoreFactory(const QVariantMap &map);
     QList<IDevice::Ptr> fromMap(const QVariantMap &map);
     QVariantMap toMap() const;

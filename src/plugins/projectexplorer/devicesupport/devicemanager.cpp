@@ -153,10 +153,6 @@ void DeviceManager::load()
     QList<IDevice::Ptr> userDevices;
     if (reader.load(settingsFilePath(QLatin1String("/qtcreator/devices.xml"))))
         userDevices = fromMap(reader.restoreValues().value(QLatin1String(DeviceManagerKey)).toMap());
-    else if (reader.load(settingsFilePath(QLatin1String("/devices.xml"))))
-        userDevices = fromMap(reader.restoreValues().value(QLatin1String(DeviceManagerKey)).toMap());
-    else
-        userDevices = loadPre2_6();
     // Insert devices into the model. Prefer the higher device version when there are multiple
     // devices with the same id.
     foreach (IDevice::Ptr device, userDevices) {
@@ -174,35 +170,6 @@ void DeviceManager::load()
     d->devices << sdkDevices;
 
     ensureOneDefaultDevicePerType();
-}
-
-// TODO: Remove in 2.8
-QList<IDevice::Ptr> DeviceManager::loadPre2_6()
-{
-    QList<IDevice::Ptr> devices;
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String("MaemoDeviceConfigs"));
-    const QVariantHash defaultDevsHash = settings->value(QLatin1String("DefaultConfigs")).toHash();
-    for (QVariantHash::ConstIterator it = defaultDevsHash.constBegin();
-            it != defaultDevsHash.constEnd(); ++it) {
-        d->defaultDevices.insert(Core::Id(it.key()), Core::Id(it.value().toString()));
-    }
-    int count = settings->beginReadArray(QLatin1String("ConfigList"));
-    for (int i = 0; i < count; ++i) {
-        settings->setArrayIndex(i);
-        QVariantMap map;
-        foreach (const QString &key, settings->childKeys())
-            map.insert(key, settings->value(key));
-        const IDeviceFactory * const factory = restoreFactory(map);
-        if (!factory)
-            continue;
-        IDevice::Ptr device = factory->restore(map);
-        QTC_ASSERT(device, continue);
-        devices << device;
-    }
-    settings->endArray();
-    settings->endGroup();
-    return devices;
 }
 
 QList<IDevice::Ptr> DeviceManager::fromMap(const QVariantMap &map)
