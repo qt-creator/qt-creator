@@ -372,7 +372,6 @@ PropertyEditor::PropertyEditor(QWidget *parent) :
         QLayoutObject::registerDeclarativeType();
         QmlEditorWidgets::ColorWidgets::registerDeclarativeTypes();
         BehaviorDialog::registerDeclarativeType();
-        QProxyLayoutItem::registerDeclarativeTypes();
         PropertyEditorValue::registerDeclarativeTypes();
         FontWidget::registerDeclarativeTypes();
         SiblingComboBox::registerDeclarativeTypes();
