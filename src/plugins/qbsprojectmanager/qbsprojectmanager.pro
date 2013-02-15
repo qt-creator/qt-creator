@@ -35,7 +35,8 @@ HEADERS = \
     qbsprojectmanager.h \
     qbsprojectmanager_global.h \
     qbsprojectmanagerconstants.h \
-    qbsprojectmanagerplugin.h
+    qbsprojectmanagerplugin.h \
+    qbsstep.h
 
 SOURCES = \
     qbsbuildconfiguration.cpp \
@@ -48,9 +49,11 @@ SOURCES = \
     qbsproject.cpp \
     qbsprojectfile.cpp \
     qbsprojectmanager.cpp \
-    qbsprojectmanagerplugin.cpp
+    qbsprojectmanagerplugin.cpp \
+    qbsstep.cpp
 
 FORMS = \
     qbsbuildstepconfigwidget.ui \
-    qbscleanstepconfigwidget.ui
+    qbscleanstepconfigwidget.ui \
+    qbsstepconfigwidget.ui
 
