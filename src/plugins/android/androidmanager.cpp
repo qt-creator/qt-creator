@@ -558,7 +558,7 @@ Utils::FileName AndroidManager::localLibsRulesFilePath(ProjectExplorer::Target *
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
     if (!version)
         return Utils::FileName();
-    return Utils::FileName::fromString(version->qmakeProperty("QT_INSTALL_LIBS") + QLatin1String("/rules.xml"));
+    return Utils::FileName::fromString(version->qmakeProperty("QT_INSTALL_LIBS"));
 }
 
 QString AndroidManager::loadLocalLibs(ProjectExplorer::Target *target, int apiLevel)
@@ -708,41 +708,79 @@ QString AndroidManager::loadLocal(ProjectExplorer::Target *target, int apiLevel,
 
     QString localLibs;
 
-    QDomDocument doc;
-    if (!openXmlFile(doc, localLibsRulesFilePath(target)))
+    QDir rulesFilesDir(localLibsRulesFilePath(target).toString());
+    if (!rulesFilesDir.exists())
         return localLibs;
 
     QStringList libs;
     libs << qtLibs(target) << prebundledLibs(target);
-    QDomElement element = doc.documentElement().firstChildElement(QLatin1String("platforms")).firstChildElement(itemType + QLatin1Char('s')).firstChildElement(QLatin1String("version"));
-    while (!element.isNull()) {
-        if (element.attribute(QLatin1String("value")).toInt() == apiLevel) {
-            if (element.hasAttribute(QLatin1String("symlink")))
-                apiLevel = element.attribute(QLatin1String("symlink")).toInt();
-            break;
+
+    QFileInfoList rulesFiles = rulesFilesDir.entryInfoList(QStringList() << QLatin1String("*.xml"),
+                                                           QDir::Files | QDir::Readable);
+
+    QStringList dependencyLibs;
+    QStringList replacedLibs;
+    foreach (QFileInfo rulesFile, rulesFiles) {
+        if (rulesFile.baseName() != QLatin1String("rules")
+                && !rulesFile.baseName().endsWith(QLatin1String("-android-dependencies"))) {
+            continue;
         }
-        element = element.nextSiblingElement(QLatin1String("version"));
+
+        QDomDocument doc;
+        if (!openXmlFile(doc, Utils::FileName::fromString(rulesFile.absoluteFilePath())))
+            return localLibs;
+
+        QDomElement element = doc.documentElement().firstChildElement(QLatin1String("platforms")).firstChildElement(itemType + QLatin1Char('s')).firstChildElement(QLatin1String("version"));
+        while (!element.isNull()) {
+            if (element.attribute(QLatin1String("value")).toInt() == apiLevel) {
+                if (element.hasAttribute(QLatin1String("symlink")))
+                    apiLevel = element.attribute(QLatin1String("symlink")).toInt();
+                break;
+            }
+            element = element.nextSiblingElement(QLatin1String("version"));
+        }
+
+        element = doc.documentElement().firstChildElement(QLatin1String("dependencies")).firstChildElement(QLatin1String("lib"));
+        while (!element.isNull()) {
+            if (libs.contains(element.attribute(QLatin1String("name")))) {
+                QDomElement libElement = element.firstChildElement(QLatin1String("depends")).firstChildElement(itemType);
+                while (!libElement.isNull()) {
+                    if (libElement.hasAttribute(attribute)) {
+                        QString dependencyLib = libElement.attribute(attribute).arg(apiLevel);
+                        if (!dependencyLibs.contains(dependencyLib))
+                            dependencyLibs << dependencyLib;
+                    }
+
+                    if (libElement.hasAttribute(QLatin1String("replaces"))) {
+                        QString replacedLib = libElement.attribute(QLatin1String("replaces")).arg(apiLevel);
+                        if (!replacedLibs.contains(replacedLib))
+                            replacedLibs << replacedLib;
+                    }
+
+                    libElement = libElement.nextSiblingElement(itemType);
+                }
+
+                libElement = element.firstChildElement(QLatin1String("replaces")).firstChildElement(itemType);
+                while (!libElement.isNull()) {
+                    if (libElement.hasAttribute(attribute)) {
+                        QString replacedLib = libElement.attribute(attribute).arg(apiLevel);
+                        if (!replacedLibs.contains(replacedLib))
+                            replacedLibs << replacedLib;
+                    }
+
+                    libElement = libElement.nextSiblingElement(itemType);
+                }
+            }
+            element = element.nextSiblingElement(QLatin1String("lib"));
+        }
     }
 
-    element = doc.documentElement().firstChildElement(QLatin1String("dependencies")).firstChildElement(QLatin1String("lib"));
-    while (!element.isNull()) {
-        if (libs.contains(element.attribute(QLatin1String("name")))) {
-            QDomElement libElement = element.firstChildElement(QLatin1String("depends")).firstChildElement(itemType);
-            while (!libElement.isNull()) {
-                if (libElement.hasAttribute(attribute))
-                    localLibs += libElement.attribute(attribute).arg(apiLevel) + QLatin1Char(':');
-                libElement = libElement.nextSiblingElement(itemType);
-            }
+    // The next loop requires all library names to end with a ":" so we append one
+    // to the end after joining.
+    localLibs = dependencyLibs.join(QLatin1Char(':')) + QLatin1Char(':');
+    foreach (QString replacedLib, replacedLibs)
+        localLibs.remove(replacedLib + QLatin1Char(':'));
 
-            libElement = element.firstChildElement(QLatin1String("replaces")).firstChildElement(itemType);
-            while (!libElement.isNull()) {
-                if (libElement.hasAttribute(attribute))
-                    localLibs.replace(libElement.attribute(attribute).arg(apiLevel) + QLatin1Char(':'), QString());
-                libElement = libElement.nextSiblingElement(itemType);
-            }
-        }
-        element = element.nextSiblingElement(QLatin1String("lib"));
-    }
     return localLibs;
 }
 

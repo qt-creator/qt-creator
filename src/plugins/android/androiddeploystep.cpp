@@ -262,7 +262,10 @@ int AndroidDeployStep::deviceAPILevel()
 
 Utils::FileName AndroidDeployStep::localLibsRulesFilePath()
 {
-    return AndroidManager::localLibsRulesFilePath(target());
+    Utils::FileName fileName = AndroidManager::localLibsRulesFilePath(target());
+    fileName.append(QLatin1String("/rules.xml"));
+
+    return fileName;
 }
 
 unsigned int AndroidDeployStep::remoteModificationTime(const QString &fullDestination, QHash<QString, unsigned int> *cache)
