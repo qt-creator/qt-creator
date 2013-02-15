@@ -333,7 +333,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     m_buildTargetsList = new QListWidget;
     m_buildTargetsList->setMinimumHeight(200);
-    fl->addRow(tr("Kits:"), m_buildTargetsList);
+    fl->addRow(tr("Targets:"), m_buildTargetsList);
 
     // TODO update this list also on rescans of the CMakeLists.txt
     CMakeProject *pro = static_cast<CMakeProject *>(m_makeStep->target()->project());
