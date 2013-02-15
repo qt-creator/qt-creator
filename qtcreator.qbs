@@ -45,6 +45,7 @@ Project {
         "src/plugins/debugger/debugger.qbs",
         "src/plugins/debugger/ptracepreload.qbs",
         "src/plugins/designer/designer.qbs",
+        "src/plugins/diffeditor/diffeditor.qbs",
         "src/plugins/fakevim/fakevim.qbs",
         "src/plugins/find/find.qbs",
         "src/plugins/genericprojectmanager/genericprojectmanager.qbs",

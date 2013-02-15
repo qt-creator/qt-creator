@@ -1,0 +1,98 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+****************************************************************************/
+
+#ifndef DIFFER_H
+#define DIFFER_H
+
+#include "diffeditor_global.h"
+#include <QString>
+
+QT_BEGIN_NAMESPACE
+template <class K, class T>
+class QMap;
+QT_END_NAMESPACE
+
+namespace DIFFEditor {
+
+class DIFFEDITOR_EXPORT Diff
+{
+public:
+    enum Command {
+        Delete,
+        Insert,
+        Equal
+    };
+    Command command;
+    QString text;
+    Diff(Command com, const QString &txt);
+    Diff();
+};
+
+class DIFFEDITOR_EXPORT Differ
+{
+public:
+    enum DiffMode
+    {
+        CharMode,
+        WordMode,
+        LineMode
+    };
+    Differ();
+    QList<Diff> diff(const QString &text1, const QString &text2);
+    void setDiffMode(DiffMode mode);
+    bool diffMode() const;
+private:
+    QList<Diff> preprocess1AndDiff(const QString &text1, const QString &text2);
+    QList<Diff> preprocess2AndDiff(const QString &text1, const QString &text2);
+    QList<Diff> diffMyers(const QString &text1, const QString &text2);
+    QList<Diff> diffMyersSplit(const QString &text1, int x,
+                               const QString &text2, int y);
+    QList<Diff> merge(const QList<Diff> &diffList);
+    QList<Diff> squashEqualities(const QList<Diff> &diffList);
+    QList<Diff> diffNonCharMode(const QString text1, const QString text2);
+    QStringList encode(const QString &text1,
+                       const QString &text2,
+                       QString *encodedText1,
+                       QString *encodedText2);
+    QString encode(const QString &text,
+                   QStringList *lines,
+                   QMap<QString, int> *lineToCode);
+    QList<Diff> decode(const QList<Diff> &diffList,
+                       const QStringList &lines);
+    int findSubtextEnd(const QString &text,
+                       int subTextStart);
+    int commonPrefix(const QString &text1, const QString &text2) const;
+    int commonSuffix(const QString &text1, const QString &text2) const;
+    DiffMode m_diffMode;
+    DiffMode m_currentDiffMode;
+};
+
+} // namespace DIFFEditor
+
+#endif // DIFF_H
