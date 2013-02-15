@@ -44,6 +44,8 @@
 #include <cppeditor/cppquickfixassistant.h>
 #include <cppeditor/cppquickfix.h>
 #include <cppeditor/cppquickfixes.h>
+#include <cpptools/cppcodestylepreferences.h>
+#include <cpptools/cpptoolssettings.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/codeassist/basicproposalitemlistmodel.h>
@@ -80,6 +82,8 @@ struct TestCase
     int pos;
     CPPEditor *editor;
     CPPEditorWidget *editorWidget;
+    CppCodeStylePreferences *cppCodeStylePreferences;
+    QString cppCodeStylePreferencesOriginalDelegateId;
 
     TestCase(const QByteArray &input);
     ~TestCase();
@@ -105,7 +109,7 @@ QuickFixOperation::Ptr TestCase::getFix(CppQuickFixFactory *factory)
 
 /// The '@' in the input is the position from where the quick-fix discovery is triggered.
 TestCase::TestCase(const QByteArray &input)
-    : originalText(input)
+    : originalText(input), cppCodeStylePreferences(0)
 {
     pos = originalText.indexOf('@');
     QVERIFY(pos != -1);
@@ -134,12 +138,20 @@ TestCase::TestCase(const QByteArray &input)
     // wait for the semantic info from the future:
     while (editorWidget->semanticInfo().doc.isNull())
         QCoreApplication::processEvents();
+
+    // Enforce the default cpp code style, so we are independent of config file settings.
+    // This is needed by e.g. the GenerateGetterSetter quick fix.
+    cppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStyle();
+    QVERIFY(cppCodeStylePreferences);
+    cppCodeStylePreferencesOriginalDelegateId = cppCodeStylePreferences->currentDelegateId();
+    cppCodeStylePreferences->setCurrentDelegate(QLatin1String("qt"));
 }
 
 TestCase::~TestCase()
 {
-    EditorManager::instance()->closeEditors(QList<Core::IEditor *>() << editor,
-                                            false);
+    cppCodeStylePreferences->setCurrentDelegate(cppCodeStylePreferencesOriginalDelegateId);
+
+    EditorManager::instance()->closeEditors(QList<Core::IEditor *>() << editor, false);
     QCoreApplication::processEvents(); // process any pending events
 
     // Remove the test file from the code-model:
@@ -225,7 +237,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefix()
             "\n"
             ;
 
-    GenerateGetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory;
     data.run(&factory, expected);
 }
 
@@ -262,7 +274,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithoutPrefix()
             "\n"
             ;
 
-    GenerateGetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory;
     data.run(&factory, expected);
 }
 
@@ -298,7 +310,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_customType()
             "\n"
             ;
 
-    GenerateGetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory;
     data.run(&factory, expected);
 }
 
@@ -329,7 +341,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_constMember()
             "\n"
             ;
 
-    GenerateGetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory;
     data.run(&factory, expected);
 }
 
@@ -364,7 +376,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_pointerToNonConst()
             "\n"
             ;
 
-    GenerateGetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory;
     data.run(&factory, expected);
 }
 
@@ -399,7 +411,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_pointerToConst()
             "\n"
             ;
 
-    GenerateGetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory;
     data.run(&factory, expected);
 }
 
@@ -436,7 +448,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_staticMember()
             "\n"
             ;
 
-    GenerateGetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory;
     data.run(&factory, expected);
 }
 
@@ -471,7 +483,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_secondDeclarator()
             "\n"
             ;
 
-    GenerateGetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory;
     data.run(&factory, expected);
 }
 
@@ -506,7 +518,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_triggeringRightAfterPointerSi
             "\n"
             ;
 
-    GenerateGetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory;
     data.run(&factory, expected);
 }
 
@@ -516,7 +528,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_notTriggeringOnMemberFunction
     TestCase data("class Something { void @f(); };");
     QByteArray expected = data.originalText;
 
-    GenerateGetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory;
     data.run(&factory, expected, /*changesExpected=*/ false);
 }
 
@@ -526,7 +538,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_notTriggeringOnMemberArray()
     TestCase data("class Something { void @a[10]; };");
     QByteArray expected = data.originalText;
 
-    GenerateGetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory;
     data.run(&factory, expected, /*changesExpected=*/ false);
 }
 
@@ -541,7 +553,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_notTriggeringWhenGetterOrSett
                   "};\n");
     QByteArray expected = data.originalText;
 
-    GenerateGetterSetter factory(/*testMode=*/ true);
+    GenerateGetterSetter factory;
     data.run(&factory, expected, /*changesExpected=*/ false);
 }
 
