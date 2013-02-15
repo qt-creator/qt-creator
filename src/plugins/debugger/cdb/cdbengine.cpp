@@ -1461,18 +1461,8 @@ void CdbEngine::activateFrame(int index)
         qDebug("activateFrame idx=%d '%s' %d", index,
                qPrintable(frame.file), frame.line);
     stackHandler()->setCurrentIndex(index);
-    const bool showAssembler = !frames.at(index).isUsable();
-    if (showAssembler) { // Assembly code: Clean out model and force instruction mode.
-        watchHandler()->removeAllData();
-        QAction *assemblerAction = theAssemblerAction();
-        if (assemblerAction->isChecked())
-            gotoLocation(frame);
-        else
-            assemblerAction->trigger(); // Seems to trigger update
-    } else {
-        gotoLocation(frame);
-        updateLocals(true);
-    }
+    gotoLocation(frame);
+    updateLocals(true);
 }
 
 void CdbEngine::updateLocals(bool forNewStackFrame)
