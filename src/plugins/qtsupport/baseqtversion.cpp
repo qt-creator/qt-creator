@@ -300,9 +300,12 @@ QList<ProjectExplorer::Task> BaseQtVersion::validateKit(const ProjectExplorer::K
     BaseQtVersion *version = QtKitInformation::qtVersion(k);
     Q_ASSERT(version == this);
 
+    const QList<ProjectExplorer::Abi> qtAbis = version->qtAbis();
+    if (qtAbis.count() == 1 && qtAbis.at(0).isNull()) // No need to test if Qt does not know anyway...
+        return result;
+
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
     if (tc) {
-        const QList<ProjectExplorer::Abi> qtAbis = version->qtAbis();
         ProjectExplorer::Abi targetAbi = tc->targetAbi();
         bool fuzzyMatch = false;
         bool fullMatch = false;
