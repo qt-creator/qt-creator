@@ -34,6 +34,12 @@
     with the Android device type, the tool chain, and the Qt version for Android,
     to build and run applications on Android devices.
 
+    The Android Debug Bridge (adb) command line tool is integrated to \QC to
+    enable you to deploy applications to connected Android devices, to run
+    the applications on them, and to read logs from them. It includes a client
+    and server that run on the development host and a daemon that runs on the
+    emulator or device.
+
     \section1 Requirements
 
     To use \QC to develop Qt applications for Android, you need the following:
@@ -111,6 +117,10 @@
     \endlist
 
     \section1 Debugging on Android Devices
+
+    \QC is integrated with the GDB and GDB server that are delivered with the
+    Necessitas SDK. It provides GDB with Python support that enables \QC to
+    display custom Qt types, such as QString, QObject, and so on.
 
     Android devices support debugging multi-thread applications in version
     2.2.1 and later. If you use AVD, select Android 2.3, or later. For more
