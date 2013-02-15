@@ -32,7 +32,15 @@
 
     You can edit .qml files in the \QMLD visual editor or in the code editor.
 
-    \note \QMLD only supports Qt Quick 1.
+    \note In \QC 2.7, \QMLD supports both Qt Quick 1 and Qt Quick 2. However,
+    the \QC packages that are not delivered with Qt 5 are still built with
+    Qt 4.8, and therefore do not contain qml2puppet, which is the external
+    process that is responsible for rendering Qt Quick 2. To develop Qt Quick 2
+    applications using \QMLD, download the Qt 5.0.1 packages and build
+    qml2puppet yourself. The sources for qml2puppet are located in
+    \c{qt-creator\share\qtcreator\qml\qmlpuppet\qml2puppet}. The qml2puppet is
+    installed to \c{qtbase\bin}. If you then configure Qt 5.0.1 for your
+    project, \QMLD picks up the qml2puppet and supports Qt Quick 2.0.
 
     In \gui Projects, double-click a .qml file to open it in the code editor.
     Then select the \gui {Design} mode to edit the file in the visual editor.

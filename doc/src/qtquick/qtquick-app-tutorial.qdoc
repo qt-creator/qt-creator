@@ -30,11 +30,8 @@
 
     \title Creating a Qt Quick 1 Application
 
-    \note \QMLD only supports Qt Quick 1, which is offered in Qt 5 only for
-    compatibility with Qt 4. We recommend that you use Qt Quick 2 for new
-    Qt 5 applications. You can use the code editor in the \gui Design mode to
-    develop Qt Quick 2 applications. For more information, see the Qt 5
-    documentation.
+    \note We recommend that you use Qt Quick 2 to develop new applications for
+    platforms that run Qt 5.
 
     This tutorial uses built-in QML elements and illustrates basic concepts of
     \l {http://qt-project.org/doc/qt-4.8/qtquick.html}{Qt Quick 1}.
