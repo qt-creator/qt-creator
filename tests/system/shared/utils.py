@@ -24,6 +24,8 @@ def verifyChecked(objectName):
 
 def ensureChecked(objectName, shouldBeChecked = True, timeout=20000):
     object = waitForObject(objectName, timeout)
+    # synchronize to avoid false positives
+    waitFor('object.checked == shouldBeChecked', 1000)
     if object.checked ^ shouldBeChecked:
         clickButton(object)
     if shouldBeChecked:
