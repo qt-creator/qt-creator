@@ -35,6 +35,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/fancylineedit.h>
+#include <utils/historycompleter.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/toolchain.h>
@@ -790,6 +791,7 @@ void CMakeRunPage::cmakeFinished()
     if (m_cmakeProcess->exitCode() != 0) {
         m_exitCodeLabel->setVisible(true);
         m_exitCodeLabel->setText(tr("CMake exited with errors. Please check CMake output."));
+        static_cast<Utils::HistoryCompleter *>(m_argumentsLineEdit->completer())->removeHistoryItem(0);
         m_haveCbpFile = false;
     } else {
         m_exitCodeLabel->setVisible(false);
