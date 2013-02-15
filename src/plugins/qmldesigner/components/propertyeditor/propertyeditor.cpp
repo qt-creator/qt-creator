@@ -51,7 +51,6 @@
 #include <qmleditorwidgets/colorwidgets.h>
 #include "gradientlineqmladaptor.h"
 #include "behaviordialog.h"
-#include "qproxylayoutitem.h"
 #include "fontwidget.h"
 #include "siblingcombobox.h"
 #include "propertyeditortransaction.h"
