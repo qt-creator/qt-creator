@@ -398,17 +398,14 @@ void Kit::addToEnvironment(Utils::Environment &env) const
 
 IOutputParser *Kit::createOutputParser() const
 {
-    IOutputParser *last = 0;
     IOutputParser *first = 0;
     QList<KitInformation *> infoList = KitManager::instance()->kitInformation();
     foreach (KitInformation *ki, infoList) {
         IOutputParser *next = ki->createOutputParser(this);
         if (!first)
             first = next;
-        if (last && next)
-            last->appendOutputParser(next);
-        if (next)
-            last = next;
+        else
+            first->appendOutputParser(next);
     }
     return first;
 }
