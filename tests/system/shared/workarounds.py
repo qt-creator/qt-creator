@@ -84,14 +84,6 @@ class JIRA:
             self._fetchResults_ = {}
             self.__fetchStatusAndResolutionFromJira__()
 
-        # function to retrieve the status of the current bug
-        def getStatus(self):
-            return self._status
-
-        # function to retrieve the resolution of the current bug
-        def getResolution(self):
-            return self._resolution
-
         # this function checks the resolution of the given bug
         # and returns True if the bug can still be assumed as 'Open' and False otherwise
         def isOpen(self):
