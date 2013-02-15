@@ -138,7 +138,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     mcpptools->addAction(command);
     connect(switchAction, SIGNAL(triggered()), this, SLOT(switchHeaderSource()));
 
-    QAction *openInNextSplitAction = new QAction(tr("Open corresponding Header/Source in Next Split"), this);
+    QAction *openInNextSplitAction = new QAction(tr("Open Corresponding Header/Source in Next Split"), this);
     command = Core::ActionManager::registerAction(openInNextSplitAction, Constants::OPEN_HEADER_SOURCE_IN_NEXT_SPLIT, context, true);
     command->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_F4));
     mcpptools->addAction(command);

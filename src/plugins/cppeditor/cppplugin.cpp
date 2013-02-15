@@ -240,7 +240,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     cppToolsMenu->addAction(cmd);
 
     QAction *openDeclarationDefinitionInNextSplit =
-            new QAction(tr("Open Method Declaration/Definition In Next Split"), this);
+            new QAction(tr("Open Method Declaration/Definition in Next Split"), this);
     cmd = Core::ActionManager::registerAction(openDeclarationDefinitionInNextSplit,
         Constants::OPEN_DECLARATION_DEFINITION_IN_NEXT_SPLIT, context, true);
     cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_Shift + Qt::Key_F2));

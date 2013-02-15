@@ -391,7 +391,7 @@ void TextEditorActionHandler::createActions()
     command->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
     connect(m_followSymbolAction, SIGNAL(triggered()), this, SLOT(openLinkUnderCursor()));
 
-    m_followSymbolInNextSplitAction = new QAction(tr("Follow Symbol Under Cursor In Next Split"), this);
+    m_followSymbolInNextSplitAction = new QAction(tr("Follow Symbol Under Cursor in Next Split"), this);
     command = Core::ActionManager::registerAction(m_followSymbolInNextSplitAction, Constants::FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_F2));
     connect(m_followSymbolInNextSplitAction, SIGNAL(triggered()), this, SLOT(openLinkUnderCursorInNextSplit()));
@@ -401,7 +401,7 @@ void TextEditorActionHandler::createActions()
     command->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
     connect(m_jumpToFileAction, SIGNAL(triggered()), this, SLOT(openLinkUnderCursor()));
 
-    m_jumpToFileInNextSplitAction = new QAction(tr("Jump To File Under Cursor In Next Split"), this);
+    m_jumpToFileInNextSplitAction = new QAction(tr("Jump to File Under Cursor in Next Split"), this);
     command = Core::ActionManager::registerAction(m_jumpToFileInNextSplitAction, Constants::JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_F2));
     connect(m_jumpToFileInNextSplitAction, SIGNAL(triggered()), this, SLOT(openLinkUnderCursorInNextSplit()));
