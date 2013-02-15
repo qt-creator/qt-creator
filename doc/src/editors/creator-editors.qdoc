@@ -469,20 +469,16 @@
         \li  Unnecessary parentheses
         \li
 
+    \target m126
     \row
         \li  M126
         \li  Warning
-        \li  == and != may perform type coercion, use === or !== to avoid
+        \li  == and != may perform type coercion, use === or !== to avoid it
         \li  The non-strict equality comparison is allowed to convert its
            arguments to a common type. That can lead to unexpected
-           results such as \c {' \t\r\n' == 0} being true. Prefer to use the
+           results such as \c {' \t\r\n' == 0} being true. Use the
            strict equality operators === and !== and be explicit about
            conversions you require.
-    \row
-        \li  M305
-        \li  Warning
-        \li  == and != perform type coercion, use === or !== to avoid
-        \li  (see above)
 
     \row
         \li  M127
@@ -562,7 +558,11 @@
         \li  Error
         \li  Invalid property type 'name'
         \li
-
+    \row
+        \li  M305
+        \li  Warning
+        \li  == and != perform type coercion, use === or !== to avoid it
+        \li  See \l{m126}{M126}.
     \row
         \li  M306
         \li  Warning
