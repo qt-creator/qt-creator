@@ -105,7 +105,6 @@ private:
     QRegExp m_percentProgress;
     QRegExp m_ninjaProgress;
     QString m_ninjaProgressString;
-    QFutureInterface<bool> *m_futureInterface;
     QStringList m_buildTargets;
     QString m_additionalArguments;
     QList<ProjectExplorer::Task> m_tasks;

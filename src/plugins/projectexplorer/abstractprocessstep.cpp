@@ -344,6 +344,11 @@ void AbstractProcessStep::stdError(const QString &line)
     emit addOutput(line, BuildStep::ErrorOutput, BuildStep::DontAppendNewline);
 }
 
+QFutureInterface<bool> *AbstractProcessStep::futureInterface() const
+{
+    return m_futureInterface;
+}
+
 void AbstractProcessStep::checkForCancel()
 {
     if (m_futureInterface->isCanceled() && m_timer->isActive()) {

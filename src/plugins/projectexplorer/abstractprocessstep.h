@@ -78,6 +78,8 @@ protected:
     virtual void stdOutput(const QString &line);
     virtual void stdError(const QString &line);
 
+    QFutureInterface<bool> *futureInterface() const;
+
 private slots:
     void processReadyReadStdOutput();
     void processReadyReadStdError();
