@@ -77,6 +77,7 @@ struct QMakeStatics {
     QString strforever;
     QString strhost_build;
     ProKey strTEMPLATE;
+    ProKey strQMAKE_PLATFORM;
 #ifdef PROEVALUATOR_FULL
     ProKey strREQUIRES;
 #endif
