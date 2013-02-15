@@ -63,6 +63,8 @@
 #include <QTextBlock>
 #include <QTextCursor>
 
+#include <cctype>
+
 using namespace CppEditor;
 using namespace CppEditor::Internal;
 
