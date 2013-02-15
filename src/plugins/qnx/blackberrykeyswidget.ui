@@ -17,7 +17,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>RIM Signing Authority</string>
+      <string>BlackBerry Signing Authority</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
