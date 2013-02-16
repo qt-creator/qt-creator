@@ -71,8 +71,10 @@ namespace {
     const QLatin1String PartitionSizeKey("PartitionSize");
     const QLatin1String ArmToolchainPrefix("arm-linux-androideabi");
     const QLatin1String X86ToolchainPrefix("x86");
+    const QLatin1String MipsToolchainPrefix("mipsel-linux-android");
     const QLatin1String ArmToolsPrefix("arm-linux-androideabi");
     const QLatin1String X86ToolsPrefix("i686-linux-android");
+    const QLatin1String MipsToolsPrefix("mipsel-linux-android");
     const QLatin1String Unknown("unknown");
     const QLatin1String keytoolName("keytool");
     const QLatin1String jarsignerName("jarsigner");
@@ -96,6 +98,8 @@ Abi::Architecture AndroidConfigurations::architectureForToolChainPrefix(const QS
         return Abi::ArmArchitecture;
     if (toolchainprefix == X86ToolchainPrefix)
         return Abi::X86Architecture;
+    if (toolchainprefix == MipsToolchainPrefix)
+        return Abi::MipsArchitecture;
     return Abi::UnknownArchitecture;
 }
 
@@ -106,6 +110,8 @@ QLatin1String AndroidConfigurations::toolchainPrefix(Abi::Architecture architect
         return ArmToolchainPrefix;
     case Abi::X86Architecture:
         return X86ToolchainPrefix;
+    case Abi::MipsArchitecture:
+        return MipsToolchainPrefix;
     default:
         return Unknown;
     }
@@ -118,6 +124,8 @@ QLatin1String AndroidConfigurations::toolsPrefix(Abi::Architecture architecture)
         return ArmToolsPrefix;
     case Abi::X86Architecture:
         return X86ToolsPrefix;
+    case Abi::MipsArchitecture:
+        return MipsToolsPrefix;
     default:
         return Unknown;
     }

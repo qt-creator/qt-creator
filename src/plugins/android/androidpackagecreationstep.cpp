@@ -146,10 +146,12 @@ bool AndroidPackageCreationStep::init()
     m_androidDir = AndroidManager::dirPath(target());
     Utils::FileName path = m_androidDir;
     Utils::FileName androidLibPath;
-    if (project->rootQt4ProjectNode()->variableValue(Qt4ProjectManager::ConfigVar).contains(QLatin1String("x86")))
+    QStringList configs = project->rootQt4ProjectNode()->variableValue(Qt4ProjectManager::ConfigVar);
+    if (configs.contains(QLatin1String("x86")))
         androidLibPath = path.appendPath(QLatin1String("libs/x86"));
-    else if (project->rootQt4ProjectNode()
-             ->variableValue(Qt4ProjectManager::ConfigVar).contains(QLatin1String("armeabi-v7a")))
+    else if (configs.contains(QLatin1String("mips")))
+        androidLibPath = path.appendPath(QLatin1String("libs/mips"));
+    else if (configs.contains(QLatin1String("armeabi-v7a")))
         androidLibPath = path.appendPath(QLatin1String("libs/armeabi-v7a"));
     else
         androidLibPath = path.appendPath(QLatin1String("libs/armeabi"));
