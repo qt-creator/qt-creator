@@ -833,6 +833,17 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                     oo.showReturnTypes = true;
                     oo.showTemplateParameters = true;
                     qDebug()<<"cloned"<<oo(clone->type());
+                    if (Class *klass = s->asClass()) {
+                        const unsigned klassMemberCount = klass->memberCount();
+                        for (unsigned i = 0; i < klassMemberCount; ++i){
+                            Symbol *klassMemberAsSymbol = klass->memberAt(i);
+                            if (klassMemberAsSymbol->isTypedef()) {
+                                if (Declaration *declaration = klassMemberAsSymbol->asDeclaration()) {
+                                    qDebug() << "Member: " << oo(declaration->type(), declaration->name());
+                                }
+                            }
+                        }
+                    }
 #endif // DEBUG_LOOKUP
                 }
                 instantiateNestedClasses(reference, cloner, subst, instantiation);

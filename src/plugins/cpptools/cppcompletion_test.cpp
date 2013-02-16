@@ -1570,3 +1570,46 @@ void CppToolsPlugin::test_completion_typedef_is_inside_function_before_declarati
     QVERIFY(completions.contains(QLatin1String("Foo")));
     QVERIFY(completions.contains(QLatin1String("bar")));
 }
+
+void CppToolsPlugin::test_completion_resolve_complex_typedef_with_template()
+{
+    TestData data;
+    data.srcText = "\n"
+            "template <typename T>\n"
+            "struct Template2\n"
+            "{\n"
+            "    typedef typename T::template Template1<T>::TT TemplateTypedef;\n"
+            "    TemplateTypedef templateTypedef;\n"
+            "};\n"
+            "struct Foo\n"
+            "{\n"
+            "    int bar;\n"
+            "    template <typename T>\n"
+            "    struct Template1\n"
+            "    {\n"
+            "        typedef T TT;\n"
+            "    };\n"
+            "};\n"
+            "void fun()\n"
+            "{\n"
+            "    Template2<Foo> template2;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("template2.templateTypedef.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 3);
+    QVERIFY(completions.contains(QLatin1String("Foo")));
+    QVERIFY(completions.contains(QLatin1String("bar")));
+    QVERIFY(completions.contains(QLatin1String("Template1")));
+}
