@@ -76,7 +76,7 @@ namespace {
     const QLatin1String ArmToolchainPrefix("arm-linux-androideabi");
     const QLatin1String X86ToolchainPrefix("x86");
     const QLatin1String ArmToolsPrefix("arm-linux-androideabi");
-    const QLatin1String X86ToolsPrefix("i686-android-linux");
+    const QLatin1String X86ToolsPrefix("i686-linux-android");
     const QLatin1String Unknown("unknown");
     const QLatin1String keytoolName("keytool");
     const QLatin1String jarsignerName("jarsigner");
