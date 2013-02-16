@@ -74,7 +74,7 @@ namespace Internal {
         Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::GeneratorInfo)
     public:
         enum Ninja { NoNinja, OfferNinja, ForceNinja };
-        static QList<GeneratorInfo> generatorInfosFor(ProjectExplorer::Kit *k, Ninja n, bool hasCodeBlocks);
+        static QList<GeneratorInfo> generatorInfosFor(ProjectExplorer::Kit *k, Ninja n, bool preferNinja, bool hasCodeBlocks);
 
         GeneratorInfo();
         explicit GeneratorInfo(ProjectExplorer::Kit *kit, bool ninja = false);
@@ -171,7 +171,7 @@ QString GeneratorInfo::displayName() const
     return QString();
 }
 
-QList<GeneratorInfo> GeneratorInfo::generatorInfosFor(ProjectExplorer::Kit *k, Ninja n, bool hasCodeBlocks)
+QList<GeneratorInfo> GeneratorInfo::generatorInfosFor(ProjectExplorer::Kit *k, Ninja n, bool preferNinja, bool hasCodeBlocks)
 {
     QList<GeneratorInfo> results;
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
@@ -194,8 +194,12 @@ QList<GeneratorInfo> GeneratorInfo::generatorInfosFor(ProjectExplorer::Kit *k, N
             results << GeneratorInfo(k);
         }
     }
-    if (n != NoNinja)
-        results << GeneratorInfo(k, true);
+    if (n != NoNinja) {
+        if (preferNinja)
+            results.prepend(GeneratorInfo(k, true));
+        else
+            results.append(GeneratorInfo(k, true));
+    }
     return results;
 }
 
@@ -281,6 +285,7 @@ bool CMakeOpenProjectWizard::compatibleKitExist() const
 {
     bool hasCodeBlocksGenerator = m_cmakeManager->hasCodeBlocksMsvcGenerator();
     bool hasNinjaGenerator = m_cmakeManager->hasCodeBlocksNinjaGenerator();
+    bool preferNinja = m_cmakeManager->preferNinja();
 
     QList<ProjectExplorer::Kit *> kitList =
             ProjectExplorer::KitManager::instance()->kits();
@@ -291,6 +296,7 @@ bool CMakeOpenProjectWizard::compatibleKitExist() const
         // are interested in here
         QList<GeneratorInfo> infos = GeneratorInfo::generatorInfosFor(k,
                                                                       hasNinjaGenerator ? GeneratorInfo::OfferNinja : GeneratorInfo::NoNinja,
+                                                                      preferNinja,
                                                                       hasCodeBlocksGenerator);
         if (!infos.isEmpty())
             return true;
@@ -647,6 +653,7 @@ void CMakeRunPage::initializePage()
 
     bool hasCodeBlocksGenerator = m_cmakeWizard->cmakeManager()->hasCodeBlocksMsvcGenerator();
     bool hasNinjaGenerator = m_cmakeWizard->cmakeManager()->hasCodeBlocksNinjaGenerator();
+    bool preferNinja = m_cmakeWizard->cmakeManager()->preferNinja();
 
     if (m_mode == Initial) {
         // Try figuring out generator and toolchain from CMakeCache.txt
@@ -659,6 +666,7 @@ void CMakeRunPage::initializePage()
         foreach (ProjectExplorer::Kit *k, kitList) {
             QList<GeneratorInfo> infos = GeneratorInfo::generatorInfosFor(k,
                                                                           hasNinjaGenerator ? GeneratorInfo::OfferNinja : GeneratorInfo::NoNinja,
+                                                                          preferNinja,
                                                                           hasCodeBlocksGenerator);
 
             foreach (const GeneratorInfo &info, infos)
@@ -680,6 +688,7 @@ void CMakeRunPage::initializePage()
 
         QList<GeneratorInfo> infos = GeneratorInfo::generatorInfosFor(m_cmakeWizard->kit(),
                                                                       ninja,
+                                                                      preferNinja,
                                                                       true);
         foreach (const GeneratorInfo &info, infos)
             m_generatorComboBox->addItem(info.displayName(), qVariantFromValue(info));
