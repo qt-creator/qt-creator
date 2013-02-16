@@ -66,10 +66,6 @@ namespace {
     const QLatin1String NDKLocationKey("NDKLocation");
     const QLatin1String NDKToolchainVersionKey("NDKToolchainVersion");
     const QLatin1String AntLocationKey("AntLocation");
-    const QLatin1String ArmGdbLocationKey("GdbLocation");
-    const QLatin1String ArmGdbserverLocationKey("GdbserverLocation");
-    const QLatin1String X86GdbLocationKey("X86GdbLocation");
-    const QLatin1String X86GdbserverLocationKey("X86GdbserverLocation");
     const QLatin1String OpenJDKLocationKey("OpenJDKLocation");
     const QLatin1String KeystoreLocationKey("KeystoreLocation");
     const QLatin1String PartitionSizeKey("PartitionSize");
