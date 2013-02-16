@@ -101,13 +101,13 @@ void CMakeValidator::finished(int exitCode)
         } else {
             m_state = CMakeValidator::RunningFunctionList;
             if (!startProcess(QStringList(QLatin1String("--help-command-list"))))
-                finished(0); // shoud never happen, just continue
+                finished(0); // should never happen, just continue
         }
     } else if (m_state == CMakeValidator::RunningFunctionList) {
         parseFunctionOutput(m_process->readAll());
         m_state = CMakeValidator::RunningFunctionDetails;
         if (!startProcess(QStringList(QLatin1String("--help-commands"))))
-            finished(0); // shoud never happen, just continue
+            finished(0); // should never happen, just continue
     } else if (m_state == CMakeValidator::RunningFunctionDetails) {
         parseFunctionDetailsOutput(m_process->readAll());
         m_state = CMakeValidator::ValidFunctionDetails;
