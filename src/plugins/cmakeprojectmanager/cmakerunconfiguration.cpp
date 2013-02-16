@@ -487,7 +487,7 @@ QList<Core::Id> CMakeRunConfigurationFactory::availableCreationIds(ProjectExplor
         return QList<Core::Id>();
     CMakeProject *project = static_cast<CMakeProject *>(parent->project());
     QList<Core::Id> allIds;
-    foreach (const QString &buildTarget, project->buildTargetTitles())
+    foreach (const QString &buildTarget, project->buildTargetTitles(true))
         allIds << idFromBuildTarget(buildTarget);
     return allIds;
 }

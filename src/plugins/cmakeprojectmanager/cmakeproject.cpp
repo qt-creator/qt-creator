@@ -410,11 +410,11 @@ QList<CMakeBuildTarget> CMakeProject::buildTargets() const
     return m_buildTargets;
 }
 
-QStringList CMakeProject::buildTargetTitles() const
+QStringList CMakeProject::buildTargetTitles(bool runnable) const
 {
     QStringList results;
     foreach (const CMakeBuildTarget &ct, m_buildTargets) {
-        if (ct.executable.isEmpty())
+        if (runnable && (ct.executable.isEmpty() || ct.library))
             continue;
         if (ct.title.endsWith(QLatin1String("/fast")))
             continue;
@@ -426,8 +426,6 @@ QStringList CMakeProject::buildTargetTitles() const
 bool CMakeProject::hasBuildTarget(const QString &title) const
 {
     foreach (const CMakeBuildTarget &ct, m_buildTargets) {
-        if (ct.executable.isEmpty())
-            continue;
         if (ct.title.endsWith(QLatin1String("/fast")))
             continue;
         if (ct.title == title)
@@ -1103,8 +1101,7 @@ void CMakeCbpParser::parseBuildTarget()
     while (!atEnd()) {
         readNext();
         if (isEndElement()) {
-            if (m_buildTargetType || m_buildTarget.title == QLatin1String("all") || m_buildTarget.title == QLatin1String("install"))
-                m_buildTargets.append(m_buildTarget);
+            m_buildTargets.append(m_buildTarget);
             return;
         } else if (name() == QLatin1String("Compiler")) {
             parseCompiler();

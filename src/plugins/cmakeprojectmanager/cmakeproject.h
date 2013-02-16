@@ -88,7 +88,7 @@ public:
     ProjectExplorer::ProjectNode *rootProjectNode() const;
 
     QStringList files(FilesMode fileMode) const;
-    QStringList buildTargetTitles() const;
+    QStringList buildTargetTitles(bool runnable = false) const;
     QList<CMakeBuildTarget> buildTargets() const;
     bool hasBuildTarget(const QString &title) const;
 
