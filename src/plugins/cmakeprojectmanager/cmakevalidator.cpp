@@ -89,7 +89,6 @@ void CMakeValidator::finished(int exitCode)
         QRegExp versionRegexp(QLatin1String("^cmake version ([\\d\\.]*)"));
         versionRegexp.indexIn(QString::fromLocal8Bit(response));
 
-        //m_supportsQtCreator = response.contains(QLatin1String("QtCreator"));
         m_hasCodeBlocksMsvcGenerator = response.contains("CodeBlocks - NMake Makefiles");
         m_hasCodeBlocksNinjaGenerator = response.contains("CodeBlocks - Ninja");
         m_version = versionRegexp.cap(1);
@@ -110,7 +109,18 @@ void CMakeValidator::finished(int exitCode)
             finished(0); // should never happen, just continue
     } else if (m_state == CMakeValidator::RunningFunctionDetails) {
         parseFunctionDetailsOutput(m_process->readAll());
-        m_state = CMakeValidator::ValidFunctionDetails;
+        m_state = CMakeValidator::RunningPropertyList;
+        if (!startProcess(QStringList(QLatin1String("--help-property-list"))))
+            finished(0); // should never happen, just continue
+    } else if (m_state == CMakeValidator::RunningPropertyList) {
+        parseVariableOutput(m_process->readAll());
+        m_state = CMakeValidator::RunningVariableList;
+        if (!startProcess(QStringList(QLatin1String("--help-variable-list"))))
+            finished(0); // should never happen, just continue
+    } else if (m_state == CMakeValidator::RunningVariableList) {
+        parseVariableOutput(m_process->readAll());
+        parseDone();
+        m_state = CMakeValidator::RunningDone;
     }
 }
 
@@ -148,10 +158,9 @@ bool CMakeValidator::hasCodeBlocksNinjaGenerator() const
     return m_hasCodeBlocksNinjaGenerator;
 }
 
-
 TextEditor::Keywords CMakeValidator::keywords()
 {
-    while (m_state != ValidFunctionDetails && m_state != CMakeValidator::Invalid) {
+    while (m_state != RunningDone && m_state != CMakeValidator::Invalid) {
         m_process->waitForFinished();
     }
 
@@ -253,6 +262,31 @@ void CMakeValidator::parseFunctionDetailsOutput(const QByteArray &output)
         }
     }
     m_functions = m_functionArgs.keys();
+}
+
+void CMakeValidator::parseVariableOutput(const QByteArray &output)
+{
+    QList<QByteArray> variableList = output.split('\n');
+    if (!variableList.isEmpty()) {
+        variableList.removeFirst(); //remove version string
+        foreach (const QByteArray &variable, variableList) {
+            if (variable.contains("_<CONFIG>")) {
+                m_variables << QString::fromLocal8Bit(variable).replace(QLatin1String("_<CONFIG>"), QLatin1String("_DEBUG"));
+                m_variables << QString::fromLocal8Bit(variable).replace(QLatin1String("_<CONFIG>"), QLatin1String("_RELEASE"));
+                m_variables << QString::fromLocal8Bit(variable).replace(QLatin1String("_<CONFIG>"), QLatin1String("_MINSIZEREL"));
+                m_variables << QString::fromLocal8Bit(variable).replace(QLatin1String("_<CONFIG>"), QLatin1String("_RELWITHDEBINFO"));
+            } else if (variable.contains("_<LANG>")) {
+                m_variables << QString::fromLocal8Bit(variable).replace(QLatin1String("_<LANG>"), QLatin1String("_C"));
+                m_variables << QString::fromLocal8Bit(variable).replace(QLatin1String("_<LANG>"), QLatin1String("_CXX"));
+            } else if (!variable.contains("_<") && !variable.contains('[')) {
+                m_variables << QString::fromLocal8Bit(variable);
+            }
+        }
+    }
+}
+
+void CMakeValidator::parseDone()
+{
     m_variables.sort();
     m_variables.removeDuplicates();
 }

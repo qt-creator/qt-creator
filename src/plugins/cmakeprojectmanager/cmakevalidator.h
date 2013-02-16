@@ -47,7 +47,8 @@ public:
     CMakeValidator();
     ~CMakeValidator();
 
-    enum State { Invalid, RunningBasic, RunningFunctionList, RunningFunctionDetails, ValidFunctionDetails };
+    enum State { Invalid, RunningBasic, RunningFunctionList, RunningFunctionDetails,
+                 RunningPropertyList, RunningVariableList, RunningDone };
     void cancel();
     bool isValid() const;
 
@@ -65,6 +66,8 @@ private:
     bool startProcess(const QStringList &args);
     void parseFunctionOutput(const QByteArray &output);
     void parseFunctionDetailsOutput(const QByteArray &output);
+    void parseVariableOutput(const QByteArray &output);
+    void parseDone();
     QString formatFunctionDetails(const QString &command, const QString &args);
 
     State m_state;
