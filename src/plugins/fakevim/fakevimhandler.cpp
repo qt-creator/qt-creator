@@ -1434,6 +1434,7 @@ public:
     void stopIncrementalFind();
     void updateFind(bool isComplete);
 
+    bool isInputCount(const Input &) const; // Return true if input can be used as count for commands.
     int mvCount() const { return m_mvcount.isEmpty() ? 1 : m_mvcount.toInt(); }
     int opCount() const { return m_opcount.isEmpty() ? 1 : m_opcount.toInt(); }
     int count() const { return mvCount() * opCount(); }
@@ -2449,6 +2450,11 @@ void FakeVimHandler::Private::updateFind(bool isComplete)
     search(sd, isComplete);
 }
 
+bool FakeVimHandler::Private::isInputCount(const Input &input) const
+{
+    return input.isDigit() && (!input.is('0') || !m_mvcount.isEmpty());
+}
+
 bool FakeVimHandler::Private::atEmptyLine(const QTextCursor &tc) const
 {
     if (tc.isNull())
@@ -3040,7 +3046,7 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
 
 bool FakeVimHandler::Private::handleCount(const Input &input)
 {
-    if (!input.isDigit() || (input.is('0') && m_mvcount.isEmpty()))
+    if (!isInputCount(input))
         return false;
     m_mvcount.append(input.text());
     return true;
@@ -3350,7 +3356,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
 
     bool clearGflag = m_gflag;
     bool clearRegister = m_submode != RegisterSubMode;
-    bool clearCount = m_submode != RegisterSubMode && !input.isDigit();
+    bool clearCount = m_submode != RegisterSubMode && !isInputCount(input);
 
     // Process input for a sub-mode.
     if (input.isEscape()) {
