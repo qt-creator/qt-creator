@@ -2659,7 +2659,7 @@ void FakeVimHandler::Private::fixSelection()
                 }
                 m_movetype = MoveLineWise;
             }
-        } else {
+        } else if (!m_anchorPastEnd) {
             setAnchorAndPosition(anchor() + 1, position());
         }
     }
@@ -3426,7 +3426,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
 
     updateMiniBuffer();
 
-    m_positionPastEnd = (m_visualTargetColumn == -1) && isVisualMode();
+    m_positionPastEnd = (m_visualTargetColumn == -1) && isVisualMode() && !atEmptyLine();
 
     return handled ? EventHandled : EventCancelled;
 }

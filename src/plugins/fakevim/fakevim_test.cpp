@@ -2790,12 +2790,11 @@ void FakeVimPlugin::test_vim_visual_d()
     KEYS("u",   lmid(0, 1)+"\n" + "|" + lmid(1));
 
     KEYS("v$d",     lmid(0, 1)+"\n" + "|" + lmid(2));
-    NOT_IMPLEMENTED
     KEYS("v$od",    lmid(0, 1)+"\n" + "|" + lmid(3));
     KEYS("$v$x",    lmid(0, 1)+"\n" + lmid(3,1) + "|" + lmid(4));
     KEYS("0v$d",    lmid(0, 1)+"\n" + "|" + lmid(5));
     KEYS("$v0d",    lmid(0, 1)+"\n" + "|\n" + lmid(6));
-    KEYS("v$o0k$d", lmid(0, 1)+"\n" + "|" + lmid(6).mid(1));
+    KEYS("v$o0k$d", "|" + lmid(6));
 }
 
 void FakeVimPlugin::test_vim_Visual_d()
