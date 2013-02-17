@@ -323,8 +323,6 @@ bool CMakeProject::parseCMakeLists()
 
     QStringList cxxflags;
     foreach (const CMakeBuildTarget &buildTarget, m_buildTargets) {
-        if (buildTarget.title.endsWith(QLatin1String("/fast")))
-            continue;
         QString makeCommand = QDir::fromNativeSeparators(buildTarget.makeCommand);
         int startIndex = makeCommand.indexOf(QLatin1Char('\"'));
         int endIndex = makeCommand.indexOf(QLatin1Char('\"'), startIndex + 1);
@@ -416,8 +414,6 @@ QStringList CMakeProject::buildTargetTitles(bool runnable) const
     foreach (const CMakeBuildTarget &ct, m_buildTargets) {
         if (runnable && (ct.executable.isEmpty() || ct.library))
             continue;
-        if (ct.title.endsWith(QLatin1String("/fast")))
-            continue;
         results << ct.title;
     }
     return results;
@@ -426,8 +422,6 @@ QStringList CMakeProject::buildTargetTitles(bool runnable) const
 bool CMakeProject::hasBuildTarget(const QString &title) const
 {
     foreach (const CMakeBuildTarget &ct, m_buildTargets) {
-        if (ct.title.endsWith(QLatin1String("/fast")))
-            continue;
         if (ct.title == title)
             return true;
     }
@@ -748,8 +742,6 @@ void CMakeProject::updateRunConfigurations(Target *t)
         if (ct.library)
             continue;
         if (ct.executable.isEmpty())
-            continue;
-        if (ct.title.endsWith(QLatin1String("/fast")))
             continue;
         QList<CMakeRunConfiguration *> list = existingRunConfigurations.values(ct.title);
         if (!list.isEmpty()) {
@@ -1100,7 +1092,8 @@ void CMakeCbpParser::parseBuildTarget()
     while (!atEnd()) {
         readNext();
         if (isEndElement()) {
-            m_buildTargets.append(m_buildTarget);
+            if (!m_buildTarget.title.endsWith(QLatin1String("/fast")))
+                m_buildTargets.append(m_buildTarget);
             return;
         } else if (name() == QLatin1String("Compiler")) {
             parseCompiler();
