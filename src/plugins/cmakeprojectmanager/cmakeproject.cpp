@@ -1093,7 +1093,6 @@ void CMakeCbpParser::parseBuild()
 
 void CMakeCbpParser::parseBuildTarget()
 {
-    m_buildTargetType = false;
     m_buildTarget.clear();
 
     if (attributes().hasAttribute(QLatin1String("title")))
@@ -1119,15 +1118,10 @@ void CMakeCbpParser::parseBuildTargetOption()
 {
     if (attributes().hasAttribute(QLatin1String("output"))) {
         m_buildTarget.executable = attributes().value(QLatin1String("output")).toString();
-    } else if (attributes().hasAttribute(QLatin1String("type"))
-               && (attributes().value(QLatin1String("type")) == QLatin1String("1")
-                   || attributes().value(QLatin1String("type")) == QLatin1String("0"))) {
-        m_buildTargetType = true;
-    } else if (attributes().hasAttribute(QLatin1String("type"))
-               && (attributes().value(QLatin1String("type")) == QLatin1String("3")
-                   || attributes().value(QLatin1String("type")) == QLatin1String("2"))) {
-        m_buildTargetType = true;
-        m_buildTarget.library = true;
+    } else if (attributes().hasAttribute(QLatin1String("type"))) {
+        const QString value = attributes().value(QLatin1String("type")).toString();
+        if (value == QLatin1String("2") || value == QLatin1String("3"))
+            m_buildTarget.library = true;
     } else if (attributes().hasAttribute(QLatin1String("working_dir"))) {
         m_buildTarget.workingDirectory = attributes().value(QLatin1String("working_dir")).toString();
     }
