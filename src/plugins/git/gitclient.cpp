@@ -2551,8 +2551,11 @@ GitClient::StashGuard::StashGuard(const QString &workingDirectory, const QString
 
 GitClient::StashGuard::~StashGuard()
 {
-    if (pop && stashResult == GitClient::Stashed)
-        client->stashPop(workingDir, message);
+    if (pop && stashResult == GitClient::Stashed) {
+        QString stashName;
+        if (client->stashNameFromMessage(workingDir, message, &stashName))
+            client->stashPop(workingDir, stashName);
+    }
 }
 
 void GitClient::StashGuard::preventPop()
