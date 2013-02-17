@@ -1623,7 +1623,8 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, St
         statusArgs << QLatin1String("--ignore-submodules=all");
     statusArgs << QLatin1String("-s") << QLatin1String("-b");
 
-    const bool statusRc = fullySynchronousGit(workingDirectory, statusArgs, &outputText, &errorText);
+    const bool statusRc = fullySynchronousGit(workingDirectory, statusArgs,
+                                              &outputText, &errorText, false);
     if (output)
         *output = commandOutputFromLocal8Bit(outputText);
 
