@@ -660,7 +660,7 @@ void GitClient::log(const QString &workingDirectory, const QStringList &fileName
     arguments.append(userArgs);
 
     if (!fileNames.isEmpty())
-        arguments.append(fileNames);
+        arguments << QLatin1String("--") << fileNames;
 
     executeGit(workingDirectory, arguments, editor);
 }
