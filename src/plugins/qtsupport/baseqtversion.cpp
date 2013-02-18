@@ -183,6 +183,7 @@ BaseQtVersion::BaseQtVersion(const FileName &qmakeCommand, bool isAutodetected, 
       m_hasDemos(false),
       m_hasDocumentation(false),
       m_qmakeIsExecutable(true),
+      m_hasQtAbis(false),
       m_autodetectionSource(autodetectionSource)
 {
     ctor(qmakeCommand);
@@ -203,7 +204,8 @@ BaseQtVersion::BaseQtVersion()
     m_hasExamples(false),
     m_hasDemos(false),
     m_hasDocumentation(false),
-    m_qmakeIsExecutable(true)
+    m_qmakeIsExecutable(true),
+    m_hasQtAbis(false)
 {
     ctor(FileName());
 }
@@ -218,6 +220,7 @@ void BaseQtVersion::ctor(const FileName &qmakePath)
     m_mkspecUpToDate = false;
     m_mkspecReadUpToDate = false;
     m_versionInfoUpToDate = false;
+    m_hasQtAbis = false;
     m_qtVersionString.clear();
     m_sourcePath.clear();
 }
@@ -301,7 +304,7 @@ QList<ProjectExplorer::Task> BaseQtVersion::validateKit(const ProjectExplorer::K
     Q_ASSERT(version == this);
 
     const QList<ProjectExplorer::Abi> qtAbis = version->qtAbis();
-    if (qtAbis.count() == 1 && qtAbis.at(0).isNull()) // No need to test if Qt does not know anyway...
+    if (qtAbis.isEmpty()) // No need to test if Qt does not know anyway...
         return result;
 
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
@@ -442,7 +445,7 @@ QString BaseQtVersion::invalidReason() const
 QStringList BaseQtVersion::warningReason() const
 {
     QStringList ret;
-    if (qtAbis().count() == 1 && qtAbis().first().isNull())
+    if (qtAbis().isEmpty())
         ret << QCoreApplication::translate("QtVersion", "ABI detection failed: Make sure to use a matching compiler when building.");
     if (m_versionInfo.value(QLatin1String("QT_INSTALL_PREFIX/get"))
         != m_versionInfo.value(QLatin1String("QT_INSTALL_PREFIX"))) {
@@ -474,10 +477,10 @@ FileName BaseQtVersion::qmakeCommand() const
 
 QList<ProjectExplorer::Abi> BaseQtVersion::qtAbis() const
 {
-    if (m_qtAbis.isEmpty())
+    if (!m_hasQtAbis) {
         m_qtAbis = detectQtAbis();
-    if (m_qtAbis.isEmpty())
-        m_qtAbis.append(ProjectExplorer::Abi()); // add empty ABI by default: This is compatible with all TCs.
+        m_hasQtAbis = true;
+    }
     return m_qtAbis;
 }
 
@@ -538,10 +541,14 @@ QString BaseQtVersion::toHtml(bool verbose) const
         str << "<tr><td><b>" << QCoreApplication::translate("BaseQtVersion", "ABI:")
             << "</b></td>";
         const QList<ProjectExplorer::Abi> abis = qtAbis();
-        for (int i = 0; i < abis.size(); ++i) {
-            if (i)
-                str << "<tr><td></td>";
-            str << "<td>" << abis.at(i).toString() << "</td></tr>";
+        if (abis.isEmpty()) {
+            str << "<td>" << ProjectExplorer::Abi().toString() << "</td></tr>";
+        } else {
+            for (int i = 0; i < abis.size(); ++i) {
+                if (i)
+                    str << "<tr><td></td>";
+                str << "<td>" << abis.at(i).toString() << "</td></tr>";
+            }
         }
         str << "<tr><td><b>" << QCoreApplication::translate("BaseQtVersion", "Source:")
             << "</b></td><td>" << sourcePath().toUserOutput() << "</td></tr>";

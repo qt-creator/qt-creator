@@ -268,6 +268,7 @@ private:
     mutable bool m_hasDemos;
     mutable bool m_hasDocumentation;
     mutable bool m_qmakeIsExecutable;
+    mutable bool m_hasQtAbis;
 
     QString m_displayName;
     QString m_autodetectionSource;
