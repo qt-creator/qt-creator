@@ -320,7 +320,7 @@ void QmlProfilerDataModel::addRangedEvent(int type, int bindingType, qint64 star
 
     // backwards compatibility: "compiling" events don't have a proper location in older
     // version of the protocol, but the filename is passed in the details string
-    if (type == QmlDebug::Compiling && eventLocation.filename.isEmpty()) {
+    if ((type == QmlDebug::Creating || type == QmlDebug::Compiling) && eventLocation.filename.isEmpty()) {
         eventLocation.filename = details;
         eventLocation.line = 1;
         eventLocation.column = 1;
