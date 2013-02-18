@@ -494,3 +494,15 @@ QString MakeStepFactory::displayNameForId(const Core::Id id) const
         return tr("Make", "Display name for CMakeProjectManager::MakeStep id.");
     return QString();
 }
+
+void MakeStep::processStarted()
+{
+    futureInterface()->setProgressRange(0, 100);
+    AbstractProcessStep::processStarted();
+}
+
+void MakeStep::processFinished(int exitCode, QProcess::ExitStatus status)
+{
+    processFinished(exitCode, status);
+    futureInterface()->setProgressValue(100);
+}

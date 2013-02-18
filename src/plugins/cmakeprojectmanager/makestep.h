@@ -89,6 +89,9 @@ signals:
     void makeCommandChanged();
 
 protected:
+    void processStarted();
+    void processFinished(int exitCode, QProcess::ExitStatus status);
+
     MakeStep(ProjectExplorer::BuildStepList *bsl, MakeStep *bs);
     MakeStep(ProjectExplorer::BuildStepList *bsl, const Core::Id id);
 
