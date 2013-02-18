@@ -29,61 +29,40 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
-#define QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
+#include "blackberrydebugtokenuploader.h"
 
-#include <projectexplorer/devicesupport/idevicewidget.h>
-
-#include "blackberrydeviceconfiguration.h"
-
-QT_BEGIN_NAMESPACE
-class QProgressDialog;
-QT_END_NAMESPACE
+namespace {
+static const char PROCESS_NAME[] = "blackberry-deploy";
+static const char ERR_NO_ROUTE_HOST[] = "Cannot connect";
+static const char ERR_AUTH_FAILED[] = "Authentication failed";
+static const char ERR_DEVELOPMENT_MODE_DISABLED[] = "Device is not in the Development Mode";
+}
 
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryDebugTokenUploader;
-
-namespace Ui {
-class BlackBerryDeviceConfigurationWidget;
+BlackBerryDebugTokenUploader::BlackBerryDebugTokenUploader(QObject *parent) :
+    BlackBerryNdkProcess(QLatin1String(PROCESS_NAME), parent)
+{
+    addErrorStringMapping(QLatin1String(ERR_NO_ROUTE_HOST), NoRouteToHost);
+    addErrorStringMapping(QLatin1String(ERR_AUTH_FAILED), AuthenticationFailed);
+    addErrorStringMapping(QLatin1String(ERR_DEVELOPMENT_MODE_DISABLED), DevelopmentModeDisabled);
 }
 
-class BlackBerryDeviceConfigurationWidget : public ProjectExplorer::IDeviceWidget
+void BlackBerryDebugTokenUploader::uploadDebugToken(const QString &path,
+        const QString &deviceIp, const QString &devicePassword)
 {
-    Q_OBJECT
+    QStringList arguments;
 
-public:
-    explicit BlackBerryDeviceConfigurationWidget(const ProjectExplorer::IDevice::Ptr &device,
-                                          QWidget *parent = 0);
-    ~BlackBerryDeviceConfigurationWidget();
+    arguments << QLatin1String("-installDebugToken")
+              << path
+              << QLatin1String("-device")
+              << deviceIp
+              << QLatin1String("-password")
+              << devicePassword;
 
-private slots:
-    void hostNameEditingFinished();
-    void passwordEditingFinished();
-    void keyFileEditingFinished();
-    void showPassword(bool showClearText);
-    void debugTokenEditingFinished();
-    void requestDebugToken();
-    void uploadDebugToken();
-    void updateUploadButton();
-    void uploadFinished(int status);
-
-private:
-    void updateDeviceFromUi();
-    void initGui();
-
-    BlackBerryDeviceConfiguration::Ptr deviceConfiguration() const;
-
-    Ui::BlackBerryDeviceConfigurationWidget *ui;
-
-    QProgressDialog *progressDialog;
-
-    BlackBerryDebugTokenUploader *uploader;
-};
-
+    start(arguments);
+}
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H

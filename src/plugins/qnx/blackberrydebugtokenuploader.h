@@ -29,61 +29,38 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
-#define QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
+#ifndef QNX_INTERNAL_BLACKBERRYDEBUGTOKENUPLOADER_H
+#define QNX_INTERNAL_BLACKBERRYDEBUGTOKENUPLOADER_H
 
-#include <projectexplorer/devicesupport/idevicewidget.h>
-
-#include "blackberrydeviceconfiguration.h"
-
-QT_BEGIN_NAMESPACE
-class QProgressDialog;
-QT_END_NAMESPACE
+#include "blackberryndkprocess.h"
 
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryDebugTokenUploader;
-
-namespace Ui {
-class BlackBerryDeviceConfigurationWidget;
-}
-
-class BlackBerryDeviceConfigurationWidget : public ProjectExplorer::IDeviceWidget
+class BlackBerryDebugTokenUploader : public BlackBerryNdkProcess
 {
     Q_OBJECT
 
 public:
-    explicit BlackBerryDeviceConfigurationWidget(const ProjectExplorer::IDevice::Ptr &device,
-                                          QWidget *parent = 0);
-    ~BlackBerryDeviceConfigurationWidget();
+    enum ReturnStatus
+    {
+        NoRouteToHost = UserStatus,
+        AuthenticationFailed,
+        DevelopmentModeDisabled,
+        FailedToStartInferiorProcess,
+        InferiorProcessTimedOut,
+        InferiorProcessCrashed,
+        InferiorProcessWriteError,
+        InferiorProcessReadError
+    };
 
-private slots:
-    void hostNameEditingFinished();
-    void passwordEditingFinished();
-    void keyFileEditingFinished();
-    void showPassword(bool showClearText);
-    void debugTokenEditingFinished();
-    void requestDebugToken();
-    void uploadDebugToken();
-    void updateUploadButton();
-    void uploadFinished(int status);
+    explicit BlackBerryDebugTokenUploader(QObject *parent = 0);
 
-private:
-    void updateDeviceFromUi();
-    void initGui();
-
-    BlackBerryDeviceConfiguration::Ptr deviceConfiguration() const;
-
-    Ui::BlackBerryDeviceConfigurationWidget *ui;
-
-    QProgressDialog *progressDialog;
-
-    BlackBerryDebugTokenUploader *uploader;
+    void uploadDebugToken(const QString &path, const QString &deviceIp,
+            const QString &devicePassword);
 };
 
+}
+}
 
-} // namespace Internal
-} // namespace Qnx
-
-#endif // QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
+#endif // QNX_INTERNAL_BLACKBERRYDEBUGTOKENUPLOADER_H

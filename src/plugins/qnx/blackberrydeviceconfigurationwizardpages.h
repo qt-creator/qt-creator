@@ -65,6 +65,7 @@ public:
 
 private slots:
     void handleMachineTypeChanged();
+    void requestDebugToken();
 
 private:
     Ui::BlackBerryDeviceConfigurationWizardSetupPage *m_ui;

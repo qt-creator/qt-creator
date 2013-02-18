@@ -29,61 +29,51 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
-#define QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
+#ifndef QNX_INTERNAL_BLACKBERRYDEBUGTOKENREQUESTDIALOG_H
+#define QNX_INTERNAL_BLACKBERRYDEBUGTOKENREQUESTDIALOG_H
 
-#include <projectexplorer/devicesupport/idevicewidget.h>
-
-#include "blackberrydeviceconfiguration.h"
+#include <QDialog>
 
 QT_BEGIN_NAMESPACE
-class QProgressDialog;
+class QPushButton;
 QT_END_NAMESPACE
 
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryDebugTokenUploader;
+class Ui_BlackBerryDebugTokenRequestDialog;
+class BlackBerryDebugTokenRequester;
 
-namespace Ui {
-class BlackBerryDeviceConfigurationWidget;
-}
-
-class BlackBerryDeviceConfigurationWidget : public ProjectExplorer::IDeviceWidget
+class BlackBerryDebugTokenRequestDialog : public QDialog
 {
-    Q_OBJECT
+Q_OBJECT
 
 public:
-    explicit BlackBerryDeviceConfigurationWidget(const ProjectExplorer::IDevice::Ptr &device,
-                                          QWidget *parent = 0);
-    ~BlackBerryDeviceConfigurationWidget();
+    explicit BlackBerryDebugTokenRequestDialog(QWidget *parent = 0,
+            Qt::WindowFlags f = 0);
+
+    QString debugToken() const;
 
 private slots:
-    void hostNameEditingFinished();
-    void passwordEditingFinished();
-    void keyFileEditingFinished();
-    void showPassword(bool showClearText);
-    void debugTokenEditingFinished();
+    void validate();
     void requestDebugToken();
-    void uploadDebugToken();
-    void updateUploadButton();
-    void uploadFinished(int status);
+    void appendExtension();
+    void checkBoxChanged(int state);
+    void debugTokenArrived(int status);
 
 private:
-    void updateDeviceFromUi();
-    void initGui();
+    void setBusy(bool busy);
+    void populateComboBox();
 
-    BlackBerryDeviceConfiguration::Ptr deviceConfiguration() const;
+    Ui_BlackBerryDebugTokenRequestDialog *m_ui;
 
-    Ui::BlackBerryDeviceConfigurationWidget *ui;
+    BlackBerryDebugTokenRequester *m_requester;
 
-    QProgressDialog *progressDialog;
-
-    BlackBerryDebugTokenUploader *uploader;
+    QPushButton *m_cancelButton;
+    QPushButton *m_okButton;
 };
 
-
-} // namespace Internal
+}
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
+#endif // QNX_INTERNAL_BLACKBERRYDEBUGTOKENREQUESTDIALOG_H

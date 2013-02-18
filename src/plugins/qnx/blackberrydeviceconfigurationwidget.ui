@@ -11,9 +11,6 @@
    </rect>
   </property>
   <layout class="QFormLayout" name="formLayout">
-   <property name="fieldGrowthPolicy">
-    <enum>QFormLayout::FieldsStayAtSizeHint</enum>
-   </property>
    <item row="0" column="0">
     <widget class="QLabel" name="hostNameLabel">
      <property name="text">
@@ -70,7 +67,25 @@
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="Utils::PathChooser" name="debugToken" native="true"/>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="Utils::PathChooser" name="debugToken" native="true"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="requestButton">
+       <property name="text">
+        <string>Request</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="uploadButton">
+       <property name="text">
+        <string>Upload</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item row="3" column="0">
     <widget class="QLabel" name="keyLabel">
@@ -83,12 +98,12 @@
     <widget class="Utils::PathChooser" name="keyFileLineEdit" native="true"/>
    </item>
   </layout>
+  <zorder>keyFileLineEdit</zorder>
   <zorder>hostNameLabel</zorder>
   <zorder>hostLineEdit</zorder>
   <zorder>passwordLabel</zorder>
   <zorder>keyLabel</zorder>
   <zorder>debugTokenLabel</zorder>
-  <zorder>debugToken</zorder>
  </widget>
  <customwidgets>
   <customwidget>

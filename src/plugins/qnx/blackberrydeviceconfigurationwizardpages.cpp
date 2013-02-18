@@ -29,6 +29,7 @@
 **
 ****************************************************************************/
 
+#include "blackberrydebugtokenrequestdialog.h"
 #include "blackberrydeviceconfigurationwizardpages.h"
 #include "ui_blackberrydeviceconfigurationwizardsetuppage.h"
 #include "ui_blackberrydeviceconfigurationwizardsshkeypage.h"
@@ -67,6 +68,7 @@ BlackBerryDeviceConfigurationWizardSetupPage::BlackBerryDeviceConfigurationWizar
     connect(m_ui->physicalDevice, SIGNAL(toggled(bool)), this, SLOT(handleMachineTypeChanged()));
     connect(m_ui->physicalDevice, SIGNAL(toggled(bool)), this, SIGNAL(completeChanged()));
     connect(m_ui->debugToken, SIGNAL(changed(QString)), this, SIGNAL(completeChanged()));
+    connect(m_ui->requestButton, SIGNAL(clicked()), this, SLOT(requestDebugToken()));
 
     registerField(QLatin1String(DEVICENAME_FIELD_ID), m_ui->deviceName);
 }
@@ -126,6 +128,17 @@ void BlackBerryDeviceConfigurationWizardSetupPage::handleMachineTypeChanged()
         m_ui->deviceHostIp->setText(defaultDeviceHostIp(machineType()));
 }
 
+void BlackBerryDeviceConfigurationWizardSetupPage::requestDebugToken()
+{
+    BlackBerryDebugTokenRequestDialog dialog;
+
+    const int result = dialog.exec();
+
+    if (result != QDialog::Accepted)
+        return;
+
+    m_ui->debugToken->setPath(dialog.debugToken());
+}
 
 // ----------------------------------------------------------------------------
 

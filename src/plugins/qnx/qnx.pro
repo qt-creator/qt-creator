@@ -68,7 +68,11 @@ SOURCES += qnxplugin.cpp \
     blackberrycertificatemodel.cpp \
     blackberryregisterkeydialog.cpp \
     blackberryimportcertificatedialog.cpp \
-    blackberrycreatecertificatedialog.cpp
+    blackberrycreatecertificatedialog.cpp \
+    blackberrydebugtokenrequester.cpp \
+    blackberrydebugtokenrequestdialog.cpp \
+    blackberrydebugtokenuploader.cpp \
+    blackberryndkprocess.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -133,7 +137,11 @@ HEADERS += qnxplugin.h\
     blackberrycertificatemodel.h \
     blackberryregisterkeydialog.h \
     blackberryimportcertificatedialog.h \
-    blackberrycreatecertificatedialog.h
+    blackberrycreatecertificatedialog.h \
+    blackberrydebugtokenrequester.h \
+    blackberrydebugtokenrequestdialog.h \
+    blackberrydebugtokenuploader.h \
+    blackberryndkprocess.h
 
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \
@@ -147,7 +155,8 @@ FORMS += \
     blackberrykeyswidget.ui \
     blackberryregisterkeydialog.ui \
     blackberryimportcertificatedialog.ui \
-    blackberrycreatecertificatedialog.ui
+    blackberrycreatecertificatedialog.ui \
+    blackberrydebugtokenrequestdialog.ui
 
 DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII
 

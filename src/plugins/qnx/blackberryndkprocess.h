@@ -29,61 +29,59 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
-#define QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
+#ifndef QNX_INTERNAL_BLACKBERRYNDKPROCESS_H
+#define QNX_INTERNAL_BLACKBERRYNDKPROCESS_H
 
-#include <projectexplorer/devicesupport/idevicewidget.h>
-
-#include "blackberrydeviceconfiguration.h"
-
-QT_BEGIN_NAMESPACE
-class QProgressDialog;
-QT_END_NAMESPACE
+#include <QObject>
+#include <QProcess>
+#include <QMap>
 
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryDebugTokenUploader;
-
-namespace Ui {
-class BlackBerryDeviceConfigurationWidget;
-}
-
-class BlackBerryDeviceConfigurationWidget : public ProjectExplorer::IDeviceWidget
+class BlackBerryNdkProcess : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit BlackBerryDeviceConfigurationWidget(const ProjectExplorer::IDevice::Ptr &device,
-                                          QWidget *parent = 0);
-    ~BlackBerryDeviceConfigurationWidget();
+    enum ProcessStatus
+    {
+        Success,
+        FailedToStartInferiorProcess,
+        InferiorProcessTimedOut,
+        InferiorProcessCrashed,
+        InferiorProcessWriteError,
+        InferiorProcessReadError,
+        UnknownError,
+        UserStatus
+    };
+
+signals:
+    void finished(int status);
+
+protected:
+    explicit BlackBerryNdkProcess(const QString &command, QObject *parent = 0);
+
+    void start(const QStringList &arguments);
+    void addErrorStringMapping(const QString &message, int errorCode);
+
+    QString command() const;
 
 private slots:
-    void hostNameEditingFinished();
-    void passwordEditingFinished();
-    void keyFileEditingFinished();
-    void showPassword(bool showClearText);
-    void debugTokenEditingFinished();
-    void requestDebugToken();
-    void uploadDebugToken();
-    void updateUploadButton();
-    void uploadFinished(int status);
+    void processFinished();
+    void processError(QProcess::ProcessError error);
 
 private:
-    void updateDeviceFromUi();
-    void initGui();
+    int errorLineToReturnStatus(const QString &line) const;
 
-    BlackBerryDeviceConfiguration::Ptr deviceConfiguration() const;
+    QProcess *m_process;
 
-    Ui::BlackBerryDeviceConfigurationWidget *ui;
+    QString m_command;
 
-    QProgressDialog *progressDialog;
-
-    BlackBerryDebugTokenUploader *uploader;
+    QMap<QString, int> m_errorStringMap;
 };
 
+}
+}
 
-} // namespace Internal
-} // namespace Qnx
-
-#endif // QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
+#endif // QNX_INTERNAL_BLACKBERRYNDKPROCESS_H

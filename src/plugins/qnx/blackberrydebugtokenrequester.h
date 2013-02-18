@@ -29,61 +29,35 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
-#define QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
+#ifndef QNX_INTERNAL_BLACKBERRYDEBUGTOKENREQUESTER_H
+#define QNX_INTERNAL_BLACKBERRYDEBUGTOKENREQUESTER_H
 
-#include <projectexplorer/devicesupport/idevicewidget.h>
-
-#include "blackberrydeviceconfiguration.h"
-
-QT_BEGIN_NAMESPACE
-class QProgressDialog;
-QT_END_NAMESPACE
+#include "blackberryndkprocess.h"
 
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryDebugTokenUploader;
-
-namespace Ui {
-class BlackBerryDeviceConfigurationWidget;
-}
-
-class BlackBerryDeviceConfigurationWidget : public ProjectExplorer::IDeviceWidget
+class BlackBerryDebugTokenRequester : public BlackBerryNdkProcess
 {
     Q_OBJECT
 
 public:
-    explicit BlackBerryDeviceConfigurationWidget(const ProjectExplorer::IDevice::Ptr &device,
-                                          QWidget *parent = 0);
-    ~BlackBerryDeviceConfigurationWidget();
+    enum ReturnStatus
+    {
+        WrongCskPassword = UserStatus,
+        WrongKeystorePassword,
+        NetworkUnreachable,
+        IllegalPin
+    };
 
-private slots:
-    void hostNameEditingFinished();
-    void passwordEditingFinished();
-    void keyFileEditingFinished();
-    void showPassword(bool showClearText);
-    void debugTokenEditingFinished();
-    void requestDebugToken();
-    void uploadDebugToken();
-    void updateUploadButton();
-    void uploadFinished(int status);
+    explicit BlackBerryDebugTokenRequester(QObject *parent = 0);
 
-private:
-    void updateDeviceFromUi();
-    void initGui();
-
-    BlackBerryDeviceConfiguration::Ptr deviceConfiguration() const;
-
-    Ui::BlackBerryDeviceConfigurationWidget *ui;
-
-    QProgressDialog *progressDialog;
-
-    BlackBerryDebugTokenUploader *uploader;
+    void requestDebugToken(const QString &path, const QString &cskPassword,
+            const QString &keyStore, const QString &keyStorePassword,
+            const QString &devicePin);
 };
 
+}
+}
 
-} // namespace Internal
-} // namespace Qnx
-
-#endif // QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
+#endif // QNX_INTERNAL_BLACKBERRYDEBUGTOKENREQUESTER_H

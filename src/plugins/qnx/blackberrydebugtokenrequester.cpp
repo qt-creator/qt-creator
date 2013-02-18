@@ -29,61 +29,47 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
-#define QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
+#include "blackberrydebugtokenrequester.h"
 
-#include <projectexplorer/devicesupport/idevicewidget.h>
-
-#include "blackberrydeviceconfiguration.h"
-
-QT_BEGIN_NAMESPACE
-class QProgressDialog;
-QT_END_NAMESPACE
+namespace {
+static const char PROCESS_NAME[] = "blackberry-debugtokenrequest";
+static const char ERR_WRONG_CSK_PASS[] = "The signature on the code signing request didn't verify.";
+static const char ERR_WRONG_KEYSTORE_PASS[] = "Failed to decrypt keystore, invalid password";
+static const char ERR_ILLEGAL_DEVICE_PIN[] = "Illegal device PIN";
+static const char ERR_NETWORK_UNREACHABLE[] = "Network is unreachable";
+}
 
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryDebugTokenUploader;
-
-namespace Ui {
-class BlackBerryDeviceConfigurationWidget;
+BlackBerryDebugTokenRequester::BlackBerryDebugTokenRequester(QObject *parent) :
+    BlackBerryNdkProcess(QLatin1String(PROCESS_NAME), parent)
+{
+    addErrorStringMapping(QLatin1String(ERR_WRONG_CSK_PASS), WrongCskPassword);
+    addErrorStringMapping(QLatin1String(ERR_WRONG_KEYSTORE_PASS), WrongKeystorePassword);
+    addErrorStringMapping(QLatin1String(ERR_WRONG_KEYSTORE_PASS), WrongKeystorePassword);
+    addErrorStringMapping(QLatin1String(ERR_NETWORK_UNREACHABLE), NetworkUnreachable);
 }
 
-class BlackBerryDeviceConfigurationWidget : public ProjectExplorer::IDeviceWidget
+void BlackBerryDebugTokenRequester::requestDebugToken(const QString &path,
+        const QString &cskPassword, const QString &keyStore,
+        const QString &keyStorePassword, const QString &devicePin)
 {
-    Q_OBJECT
+    QStringList arguments;
 
-public:
-    explicit BlackBerryDeviceConfigurationWidget(const ProjectExplorer::IDevice::Ptr &device,
-                                          QWidget *parent = 0);
-    ~BlackBerryDeviceConfigurationWidget();
+    arguments << QLatin1String("-keystore")
+              << keyStore
+              << QLatin1String("-storepass")
+              << keyStorePassword
+              << QLatin1String("-cskpass")
+              << cskPassword
+              << QLatin1String("-devicepin")
+              << devicePin
+              << path;
 
-private slots:
-    void hostNameEditingFinished();
-    void passwordEditingFinished();
-    void keyFileEditingFinished();
-    void showPassword(bool showClearText);
-    void debugTokenEditingFinished();
-    void requestDebugToken();
-    void uploadDebugToken();
-    void updateUploadButton();
-    void uploadFinished(int status);
+    start(arguments);
 
-private:
-    void updateDeviceFromUi();
-    void initGui();
-
-    BlackBerryDeviceConfiguration::Ptr deviceConfiguration() const;
-
-    Ui::BlackBerryDeviceConfigurationWidget *ui;
-
-    QProgressDialog *progressDialog;
-
-    BlackBerryDebugTokenUploader *uploader;
-};
-
+}
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
