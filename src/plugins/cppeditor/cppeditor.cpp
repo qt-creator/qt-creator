@@ -97,6 +97,7 @@
 #include <QDebug>
 #include <QTime>
 #include <QTimer>
+#include <QPointer>
 #include <QStack>
 #include <QSettings>
 #include <QSignalMapper>
@@ -1642,7 +1643,7 @@ void CPPEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     // ### enable
     // updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
 
-    QMenu *menu = new QMenu;
+    QPointer<QMenu> menu(new QMenu(this));
 
     Core::ActionContainer *mcontext = Core::ActionManager::actionContainer(Constants::M_CONTEXT);
     QMenu *contextMenu = mcontext->menu();
@@ -1686,6 +1687,8 @@ void CPPEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     appendStandardContextMenuActions(menu);
 
     menu->exec(e->globalPos());
+    if (!menu)
+        return;
     m_quickFixes.clear();
     delete menu;
 }
