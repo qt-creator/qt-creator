@@ -56,7 +56,6 @@ enum InstructionalType
 struct ExampleItem
 {
     ExampleItem(): difficulty(0), isVideo(false), isHighlighted(false) {}
-    InstructionalType type;
     QString name;
     QString projectPath;
     QString description;
@@ -65,13 +64,14 @@ struct ExampleItem
     QStringList filesToOpen;
     QStringList tags;
     QStringList dependencies;
+    InstructionalType type;
     int difficulty;
     bool hasSourceCode;
     bool isVideo;
+    bool isHighlighted;
     QString videoUrl;
     QString videoLength;
     QStringList platforms;
-    bool isHighlighted;
 };
 
 class ExamplesListModel : public QAbstractListModel

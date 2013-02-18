@@ -46,12 +46,12 @@ struct Tree
 {
     QString name;
     Qt::CheckState checked;
+    bool isDir;
     QList<Tree *> childDirectories;
     QList<Tree *> files;
     QList<Tree *> visibleFiles;
     QIcon icon;
     QString fullPath;
-    bool isDir;
     Tree *parent;
 };
 

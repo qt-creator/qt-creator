@@ -143,9 +143,7 @@ public:
 private:
     friend class Environment;
     Macro *_next;
-    unsigned _hashcode;
 
-private:
     QString decoratedName() const;
 
     struct Flags
@@ -160,6 +158,7 @@ private:
     QVector<PPToken> _definitionTokens;
     QVector<QByteArray> _formals;
     QString _fileName;
+    unsigned _hashcode;
     unsigned _fileRevision;
     unsigned _line;
     unsigned _offset;

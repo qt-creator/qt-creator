@@ -287,9 +287,9 @@ struct InternalNode
     QMap<QString, InternalNode *> subnodes;
     QStringList files;
     ProjectExplorer::FileType type;
+    int priority;
     QString displayName;
     QString typeName;
-    int priority;
     QString fullPath;
     QIcon icon;
 
@@ -305,7 +305,7 @@ struct InternalNode
         qDeleteAll(subnodes);
     }
 
-    // Creates a tree structure from a list of absolute file paths.
+    // Creates: a tree structure from a list of absolute file paths.
     // Empty directories are compressed into a single entry with a longer path.
     // * project
     //    * /absolute/path
@@ -1435,9 +1435,9 @@ Qt4ProFileNode::Qt4ProFileNode(Qt4Project *project,
                                const QString &filePath,
                                QObject *parent)
         : Qt4PriFileNode(project, this, filePath),
-          m_projectType(InvalidProject),
           m_validParse(false),
           m_parseInProgress(true),
+          m_projectType(InvalidProject),
           m_readerExact(0),
           m_readerCumulative(0)
 {

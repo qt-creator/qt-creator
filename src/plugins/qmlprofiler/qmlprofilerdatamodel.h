@@ -56,6 +56,8 @@ struct QmlRangeEventData
     QmlDebug::QmlEventLocation location;
     QmlDebug::QmlEventType eventType;
 
+    bool isBindingLoop;
+
     QHash <QString, QmlRangeEventRelative *> parentHash;
     QHash <QString, QmlRangeEventRelative *> childrenHash;
 
@@ -66,8 +68,6 @@ struct QmlRangeEventData
     double timePerCall;
     double percentOfTime;
     qint64 medianTime;
-
-    bool isBindingLoop;
 
     QmlRangeEventData &operator=(const QmlRangeEventData &ref);
 };

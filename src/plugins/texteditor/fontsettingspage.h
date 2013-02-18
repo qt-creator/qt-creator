@@ -76,8 +76,8 @@ public:
 
 private:
     TextStyle m_id;            // Name of the category
-    QString m_displayName;      // Displayed name of the category
     Format m_format;            // Default format
+    QString m_displayName;      // Displayed name of the category
     QString m_tooltipText;      // Description text for category
 };
 

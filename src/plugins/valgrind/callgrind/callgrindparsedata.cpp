@@ -49,8 +49,8 @@ class ParseData::Private {
     Q_DECLARE_TR_FUNCTIONS(Valgrind::Callgrind::ParseData)
 public:
     Private(ParseData *q)
-    : m_lineNumberPositionIndex(-1)
-    , m_pid(0)
+    : m_pid(0)
+    , m_lineNumberPositionIndex(-1)
     , m_part(0)
     , m_version(0)
     , m_cycleCacheValid(false)
@@ -62,14 +62,15 @@ public:
 
     QStringList m_events;
     QStringList m_positions;
-    int m_lineNumberPositionIndex;
     QVector<quint64> m_totalCosts;
     QVector<const Function *> m_functions;
     QString m_command;
     quint64 m_pid;
+    int m_lineNumberPositionIndex;
     uint m_part;
-    QStringList m_descriptions;
     int m_version;
+    bool m_cycleCacheValid;
+    QStringList m_descriptions;
     QString m_creator;
 
     QHash<qint64, QHash<qint64, QVector<Function *> > > functionLookup;
@@ -84,7 +85,6 @@ public:
 
     void cycleDetection();
     void cleanupFunctionCycles();
-    bool m_cycleCacheValid;
     QVector<const Function *> m_cycleCache;
 
     ParseData *m_q;

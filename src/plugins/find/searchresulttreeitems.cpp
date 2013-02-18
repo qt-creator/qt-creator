@@ -36,8 +36,8 @@ SearchResultTreeItem::SearchResultTreeItem(const Find::SearchResultItem &item,
   : item(item),
   m_parent(parent),
   m_isUserCheckable(false),
-  m_checkState(Qt::Unchecked),
-  m_isGenerated(false)
+  m_isGenerated(false),
+  m_checkState(Qt::Unchecked)
 {
 }
 

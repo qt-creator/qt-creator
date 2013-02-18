@@ -118,17 +118,17 @@ private:
         QBitArray m_skipping;
         QBitArray m_trueTest;
         int m_ifLevel;
-        Internal::TokenBuffer *m_tokenBuffer;
         unsigned m_tokenBufferDepth;
+        Internal::TokenBuffer *m_tokenBuffer;
         bool m_inPreprocessorDirective;
 
-        QByteArray *m_result;
         bool m_markExpandedTokens;
 
         bool m_noLines;
         bool m_inCondition;
 
         unsigned m_offsetRef;
+        QByteArray *m_result;
         unsigned m_lineRef;
 
         ExpansionStatus m_expansionStatus;

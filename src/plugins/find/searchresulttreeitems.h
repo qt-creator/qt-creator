@@ -74,8 +74,8 @@ private:
     SearchResultTreeItem *m_parent;
     QList<SearchResultTreeItem *> m_children;
     bool m_isUserCheckable;
-    Qt::CheckState m_checkState;
     bool m_isGenerated;
+    Qt::CheckState m_checkState;
 };
 
 } // namespace Internal

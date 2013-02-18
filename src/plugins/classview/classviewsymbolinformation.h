@@ -70,10 +70,10 @@ public:
 
 private:
     int m_iconType; //!< icon type
+    uint m_hash;    //!< precalculated hash value - to speed up qHash
     QString m_name; //!< symbol name (e.g. SymbolInformation)
     QString m_type; //!< symbol type (e.g. (int char))
 
-    uint m_hash;    //!< precalculated hash value - to speed up qHash
 };
 
 //! qHash overload for QHash/QSet
