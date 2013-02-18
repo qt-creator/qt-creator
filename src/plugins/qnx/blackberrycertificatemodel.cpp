@@ -142,9 +142,8 @@ bool BlackBerryCertificateModel::removeRows(int row, int count,
     beginRemoveRows(parent, row, row + count - 1);
 
     for (int i = 0; i < count; i++) {
-        BlackBerryCertificate *cert = m_certificates.takeAt(row);
+        m_certificates.removeAt(row);
         //XXX shall we also delete from disk?
-        delete cert;
     }
 
     endRemoveRows();
