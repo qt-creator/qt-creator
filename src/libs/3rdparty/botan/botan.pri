@@ -1,5 +1,12 @@
 INCLUDEPATH *= $$PWD/..
 HEADERS += $$PWD/botan.h
+
+equals(USE_SYSTEM_BOTAN, 1) {
+    DEFINES += USE_SYSTEM_BOTAN
+    CONFIG += link_pkgconfig
+    PKGCONFIG += botan-1.10
+} else {
+
 SOURCES += $$PWD/botan.cpp
 
 CONFIG += exceptions
@@ -45,4 +52,5 @@ unix:*-g++* {
 
 linux*|freebsd* {
     LIBS += -lrt
+}
 }

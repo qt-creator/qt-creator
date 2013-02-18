@@ -44,9 +44,17 @@ QtcLibrary {
         "sshsendfacility.cpp", "sshsendfacility_p.h",
     ].concat(botanFiles)
 
-    property var botanIncludes: ["../3rdparty"]
+    property var useSystemBotan: qbs.getenv("USE_SYSTEM_BOTAN") === "1"
+    property var botanIncludes: {
+        var result = ["../3rdparty"];
+        if (useSystemBotan)
+            result.push("/usr/include/botan-1.10")
+        return result
+    }
     property var botanLibs: {
         var result = [];
+        if (useSystemBotan)
+            result.push("botan-1.10")
         if (qbs.targetOS === "windows")
             result.push("advapi32", "user32")
         else {
@@ -57,7 +65,11 @@ QtcLibrary {
         return result
     }
     property var botanDefines: {
-            var result = ['BOTAN_DLL=']
+        var result = [];
+        if (useSystemBotan)
+            result.push("USE_SYSTEM_BOTAN")
+        else {
+            result.push("BOTAN_DLL=")
             if (qbs.toolchain === "msvc")
                 result.push("BOTAN_BUILD_COMPILER_IS_MSVC", "BOTAN_TARGET_OS_HAS_GMTIME_S")
             if (qbs.toolchain === "gcc" || qbs.toolchain === "mingw")
@@ -81,9 +93,15 @@ QtcLibrary {
                             "BOTAN_TARGET_OS_HAS_WIN32_VIRTUAL_LOCK", "BOTAN_HAS_DYNAMICALLY_LOADED_ENGINE",
                             "BOTAN_HAS_DYNAMIC_LOADER", "BOTAN_HAS_ENTROPY_SRC_CAPI",
                             "BOTAN_HAS_ENTROPY_SRC_WIN32", "BOTAN_HAS_MUTEX_WIN32")
-            return result
         }
-    property var botanFiles: [ "../3rdparty/botan/botan.h", "../3rdparty/botan/botan.cpp" ]
+        return result
+    }
+    property var botanFiles: {
+        var result = ["../3rdparty/botan/botan.h"];
+        if (!useSystemBotan)
+            result.push("../3rdparty/botan/botan.cpp")
+        return result
+    }
 
     // For Botan.
     Properties {
