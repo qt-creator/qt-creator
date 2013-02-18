@@ -36,6 +36,8 @@
 #include <QTextStream>
 #include <QCoreApplication>
 
+#include <utils/hostosinfo.h>
+
 namespace Debugger {
 namespace Internal {
 
@@ -103,6 +105,7 @@ QString StackFrame::toToolTip() const
     str << "</table>";
 
     str <<"<br> <br><i>" << tr("Note:") << " </i> ";
+    bool showDistributionNote = false;
     if (isUsable()) {
         str << tr("Sources for this frame are available.<br>Double-click on "
             "the file name to open an editor.");
@@ -110,13 +113,17 @@ QString StackFrame::toToolTip() const
         str << tr("Binary debug information is not accessible for this "
             "frame. This either means the core was not compiled "
             "with debug information, or the debug information is not "
-            "accessible. Note that most distributions ship debug information "
-            "in separate packages.");
+            "accessible.");
+        showDistributionNote = true;
     } else {
         str << tr("Binary debug information is accessible for this "
-            "frame. However, matching sources have not been found. "
-            "Note that some distributions ship debug sources "
-            "in separate packages.");
+            "frame. However, matching sources have not been found.");
+        showDistributionNote = true;
+    }
+    if (!Utils::HostOsInfo::isWindowsHost() && showDistributionNote) {
+        str << QLatin1String(" ") <<
+               tr("Note that most distributions ship debug information "
+                  "in separate packages.");
     }
 
     str << "</body></html>";
