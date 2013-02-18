@@ -169,7 +169,6 @@ int BaseQtVersion::getUniqueId()
 BaseQtVersion::BaseQtVersion(const FileName &qmakeCommand, bool isAutodetected, const QString &autodetectionSource)
     : m_id(getUniqueId()),
       m_isAutodetected(isAutodetected),
-      m_autodetectionSource(autodetectionSource),
       m_hasDebuggingHelper(false),
       m_hasQmlDump(false),
       m_hasQmlDebuggingLibrary(false),
@@ -183,7 +182,8 @@ BaseQtVersion::BaseQtVersion(const FileName &qmakeCommand, bool isAutodetected, 
       m_hasExamples(false),
       m_hasDemos(false),
       m_hasDocumentation(false),
-      m_qmakeIsExecutable(true)
+      m_qmakeIsExecutable(true),
+      m_autodetectionSource(autodetectionSource)
 {
     ctor(qmakeCommand);
 }

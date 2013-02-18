@@ -250,32 +250,35 @@ private:
     void updateMkspec() const;
     void setId(int id); // used by the qtversionmanager for legacy restore
                         // and by the qtoptionspage to replace Qt versions
-    QString m_displayName;
-    int m_id;
-    bool m_isAutodetected;
-    QString m_autodetectionSource;
 
-    mutable Utils::FileName m_sourcePath;
+    int m_id;
+
+    bool m_isAutodetected;
     mutable bool m_hasDebuggingHelper; // controlled by m_versionInfoUpToDate
     mutable bool m_hasQmlDump;         // controlled by m_versionInfoUpToDate
     mutable bool m_hasQmlDebuggingLibrary; // controlled by m_versionInfoUpdate
     mutable bool m_hasQmlObserver;     // controlled by m_versionInfoUpToDate
-
     mutable bool m_mkspecUpToDate;
-    mutable Utils::FileName m_mkspec;
-    mutable Utils::FileName m_mkspecFullPath;
-
     mutable bool m_mkspecReadUpToDate;
     mutable bool m_defaultConfigIsDebug;
     mutable bool m_defaultConfigIsDebugAndRelease;
-    mutable QHash<QString, QString> m_mkspecValues;
-
     mutable bool m_versionInfoUpToDate;
-    mutable QHash<QString,QString> m_versionInfo;
     mutable bool m_installed;
     mutable bool m_hasExamples;
     mutable bool m_hasDemos;
     mutable bool m_hasDocumentation;
+    mutable bool m_qmakeIsExecutable;
+
+    QString m_displayName;
+    QString m_autodetectionSource;
+    mutable Utils::FileName m_sourcePath;
+
+    mutable Utils::FileName m_mkspec;
+    mutable Utils::FileName m_mkspecFullPath;
+
+    mutable QHash<QString, QString> m_mkspecValues;
+
+    mutable QHash<QString,QString> m_versionInfo;
 
     mutable Utils::FileName m_qmakeCommand;
     mutable QString m_qtVersionString;
@@ -285,7 +288,6 @@ private:
     mutable QString m_qmlsceneCommand;
     mutable QString m_qmlviewerCommand;
 
-    mutable bool m_qmakeIsExecutable;
     mutable QList<ProjectExplorer::Abi> m_qtAbis;
 };
 }
