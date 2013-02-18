@@ -777,7 +777,7 @@ QString AndroidManager::loadLocal(ProjectExplorer::Target *target, int apiLevel,
 
     // The next loop requires all library names to end with a ":" so we append one
     // to the end after joining.
-    localLibs = dependencyLibs.join(QLatin1Char(':')) + QLatin1Char(':');
+    localLibs = dependencyLibs.join(QLatin1String(":")) + QLatin1Char(':');
     foreach (QString replacedLib, replacedLibs)
         localLibs.remove(replacedLib + QLatin1Char(':'));
 
