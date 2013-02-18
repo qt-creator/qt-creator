@@ -65,7 +65,9 @@
 #define LINE_START "\t\t<"
 #define LINE_END ">\n"
 
-typedef QLatin1String _;
+QString _(const char *c) { return QLatin1String(c); }
+QString _(const QByteArray &c) { return QLatin1String(c); }
+QString _(const QString &c) { return c; }
 
 // Format of message after comparison fails (used by KEYS, COMMAND).
 static const QString helpFormat = _(
@@ -217,8 +219,10 @@ struct FakeVimPlugin::TestData
 
     QByteArray text() const { return editor()->toPlainText().toUtf8(); }
 
-    void doCommand(const char *cmd) { handler->handleCommand(_(cmd)); }
-    void doKeys(const char *keys) { handler->handleInput(_(keys)); }
+    void doCommand(const QString &cmd) { handler->handleCommand(cmd); }
+    void doCommand(const char *cmd) { doCommand(_(cmd)); }
+    void doKeys(const QString &keys) { handler->handleInput(keys); }
+    void doKeys(const char *keys) { doKeys(_(keys)); }
 
     void setText(const char *text)
     {
@@ -227,8 +231,11 @@ struct FakeVimPlugin::TestData
         int i = str.indexOf(X);
         if (i != -1)
             str.remove(i, 1);
+        else
+            i = 0;
         editor()->document()->setPlainText(_(str));
         setPosition(i);
+        QCOMPARE(position(), i);
     }
 
     // Simulate text completion by inserting text directly to editor widget (bypassing FakeVim).
@@ -1151,6 +1158,9 @@ void FakeVimPlugin::test_vim_search()
     KEYS("?x<CR>", X "abc" N "def" N "ghi");
     KEYS("?x<ESC>", X "abc" N "def" N "ghi");
 
+    // set wrapscan (search wraps at end of file)
+    data.doCommand("set ws");
+
     // search [count] times
     data.setText("abc" N "def" N "ghi");
     KEYS("/\\w\\{3}<CR>", "abc" N X "def" N "ghi");
@@ -1158,8 +1168,6 @@ void FakeVimPlugin::test_vim_search()
     KEYS("2N", "abc" N X "def" N "ghi");
     KEYS("2/\\w\\{3}<CR>", X "abc" N "def" N "ghi");
 
-    // set wrapscan (search wraps at end of file)
-    data.doCommand("set ws");
     data.setText("abc" N "def" N "abc" N "ghi abc jkl");
     KEYS("*", "abc" N "def" N X "abc" N "ghi abc jkl");
     KEYS("*", "abc" N "def" N "abc" N "ghi " X "abc jkl");
@@ -2215,6 +2223,18 @@ void FakeVimPlugin::test_map()
     data.setText("abc def");
     data.doCommand("imap X <c-o>:%s/def/xxx/<cr>");
     KEYS("iX", "abc xxx");
+    data.doCommand("iunmap X");
+
+    // Test mappings in UTF-8 encoding.
+    data.setText("abc" N "def");
+    data.doKeys(QString::fromUtf8(":no \xc5\xaf xiX<cr>"));
+    KEYS("oxyz<esc>", "abc" N "xy" X "z" N "def");
+    KEYS(QString::fromUtf8("\xc5\xaf<esc>"), "abc" N "x" X "Xy" N "def");
+
+    /* QTCREATORBUG-8774 */
+    data.setText("abc" N "def");
+    data.doCommand(QString::fromUtf8("no \xc3\xb8 l|no l k|no k j|no j h"));
+    KEYS(QString::fromUtf8("\xc3\xb8"), "a" X "bc" N "def");
 }
 
 void FakeVimPlugin::test_vim_command_cc()
