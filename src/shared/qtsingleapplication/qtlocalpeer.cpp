@@ -139,8 +139,11 @@ void QtLocalPeer::receiveConnection()
         return;
 
     // Why doesn't Qt have a blocking stream that takes care of this shait???
-    while (socket->bytesAvailable() < static_cast<int>(sizeof(quint32)))
-        socket->waitForReadyRead();
+    while (socket->bytesAvailable() < static_cast<int>(sizeof(quint32))) {
+        if (!socket->isValid()) // stale request
+            return;
+        socket->waitForReadyRead(1000);
+    }
     QDataStream ds(socket);
     QByteArray uMsg;
     quint32 remaining;
