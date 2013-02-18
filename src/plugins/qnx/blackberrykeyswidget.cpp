@@ -92,7 +92,7 @@ void BlackBerryKeysWidget::registerKey()
 
     if (cert) {
         if (!m_model->insertCertificate(cert))
-            QMessageBox::information(this, tr("Error"), tr("Could not insert default certificate"));
+            QMessageBox::information(this, tr("Error"), tr("Could not insert default certificate."));
     }
 
     updateRegisterSection();
@@ -102,7 +102,7 @@ void BlackBerryKeysWidget::unregisterKey()
 {
     const QMessageBox::StandardButton answer =
         QMessageBox::question(this, tr("Unregister Key"),
-        tr("Do you really want to unregister your key? This action cannot be undone!"),
+        tr("Do you really want to unregister your key? This action cannot be undone."),
         QMessageBox::Yes | QMessageBox::No);
 
     if (answer & QMessageBox::No)
@@ -132,7 +132,7 @@ void BlackBerryKeysWidget::createCertificate()
 
     if (cert) {
         if (!m_model->insertCertificate(cert))
-            QMessageBox::information(this, tr("Error"), tr("Error storing certificate"));
+            QMessageBox::information(this, tr("Error"), tr("Error storing certificate."));
     }
 }
 
@@ -149,13 +149,13 @@ void BlackBerryKeysWidget::importCertificate()
 
     if (cert) {
         if (!m_model->insertCertificate(cert))
-            QMessageBox::information(this, tr("Error"), tr("This certificate already exists"));
+            QMessageBox::information(this, tr("Error"), tr("This certificate already exists."));
     }
 }
 
 void BlackBerryKeysWidget::deleteCertificate()
 {
-    const int result = QMessageBox::question(this, tr("Delete certificate"),
+    const int result = QMessageBox::question(this, tr("Delete Certificate"),
             tr("Are you sure you want to delete this certificate?"),
             QMessageBox::Yes | QMessageBox::No);
 

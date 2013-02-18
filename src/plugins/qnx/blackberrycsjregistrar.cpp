@@ -92,19 +92,19 @@ void BlackBerryCsjRegistrar::processError(QProcess::ProcessError error)
 
     switch (error) {
     case QProcess::FailedToStart:
-        errorMessage = tr("Failed to start blackberry-signer process");
+        errorMessage = tr("Failed to start blackberry-signer process.");
         break;
     case QProcess::Timedout:
-        errorMessage = tr("Process timed out");
+        errorMessage = tr("Process timed out.");
     case QProcess::Crashed:
-        errorMessage = tr("Child process has crashed");
+        errorMessage = tr("Child process has crashed.");
         break;
     case QProcess::WriteError:
     case QProcess::ReadError:
-        errorMessage = tr("Process I/O error");
+        errorMessage = tr("Process I/O error.");
         break;
     case QProcess::UnknownError:
-        errorMessage = tr("Unknown process error");
+        errorMessage = tr("Unknown process error.");
         break;
     }
 

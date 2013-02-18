@@ -119,10 +119,10 @@ void BlackBerryImportCertificateDialog::certificateLoaded(int status)
 
         if (status == BlackBerryCertificate::WrongPassword) {
             QMessageBox::information(this, tr("Error"),
-                    tr("Invalid keystore password"));
+                    tr("The keystore password is invalid."));
         } else {
             QMessageBox::information(this, tr("Error"),
-                    tr("An unknown error has happened"));
+                    tr("An unknown error has occurred."));
         }
     } else {
         m_author = m_certificate->author();

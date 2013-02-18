@@ -147,7 +147,7 @@ void BlackBerryRegisterKeyDialog::validate()
 
     if (m_ui->cskPin->text() != m_ui->cskPin2->text()) {
         m_okButton->setEnabled(false);
-        m_ui->statusLabel->setText(tr("CSK PINs do not match"));
+        m_ui->statusLabel->setText(tr("CSK PINs do not match."));
         return;
     }
 
@@ -161,7 +161,7 @@ void BlackBerryRegisterKeyDialog::validate()
 
         if (m_ui->keystorePassword->text()
                 != m_ui->keystorePassword2->text()) {
-            m_ui->statusLabel->setText(tr("Keystore password does not match"));
+            m_ui->statusLabel->setText(tr("Keystore password does not match."));
             m_okButton->setEnabled(false);
             return;
         }
@@ -225,7 +225,7 @@ void BlackBerryRegisterKeyDialog::registrarFinished(int status,
 void BlackBerryRegisterKeyDialog::certificateCreated(int status)
 {
     if (status == BlackBerryCertificate::Error) {
-        QMessageBox::critical(this, tr("Error"), tr("Error creating developer certificate"));
+        QMessageBox::critical(this, tr("Error"), tr("Error creating developer certificate."));
         cleanup();
         m_certificate->deleteLater();
         m_certificate = 0;
@@ -344,7 +344,7 @@ QString BlackBerryRegisterKeyDialog::getCsjAuthor(const QString &fileName) const
 void BlackBerryRegisterKeyDialog::setupCsjPathChooser(Utils::PathChooser *chooser)
 {
     chooser->setExpectedKind(Utils::PathChooser::File);
-    chooser->setPromptDialogTitle(tr("Browse CSJ file"));
+    chooser->setPromptDialogTitle(tr("Browse CSJ File"));
     chooser->setPromptDialogFilter(tr("CSJ files (*.csj)"));
 }
 

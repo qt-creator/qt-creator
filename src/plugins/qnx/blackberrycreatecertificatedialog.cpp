@@ -50,7 +50,7 @@ BlackBerryCreateCertificateDialog::BlackBerryCreateCertificateDialog(
     m_ui->setupUi(this);
     m_ui->progressBar->hide();
     m_ui->certPath->setExpectedKind(Utils::PathChooser::Any);
-    m_ui->certPath->setPromptDialogTitle(tr("Create certificate"));
+    m_ui->certPath->setPromptDialogTitle(tr("Create Certificate"));
     m_ui->certPath->setPromptDialogFilter(tr("PKCS 12 archives (*.p12)"));
     m_ui->status->clear();
 
@@ -112,13 +112,13 @@ void BlackBerryCreateCertificateDialog::validate()
     QFileInfo fileInfo(m_ui->certPath->path());
 
     if (!fileInfo.dir().exists()) {
-        m_ui->status->setText(tr("Base directory does not exist"));
+        m_ui->status->setText(tr("Base directory does not exist."));
         m_okButton->setEnabled(false);
         return;
     }
 
     if (m_ui->password->text() != m_ui->password2->text()) {
-        m_ui->status->setText(tr("The entered passwords do not match"));
+        m_ui->status->setText(tr("The entered passwords do not match."));
         m_okButton->setEnabled(false);
         return;
     }
@@ -182,7 +182,7 @@ void BlackBerryCreateCertificateDialog::certificateCreated(int status)
         m_certificate->deleteLater();
         m_certificate = 0;
         QMessageBox::critical(this, tr("Error"),
-                tr("An unknown error happened while creating the certificate"));
+                tr("An unknown error occurred while creating the certificate."));
         reject();
     }
 }
