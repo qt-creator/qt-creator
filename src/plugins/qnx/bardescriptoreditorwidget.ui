@@ -65,7 +65,7 @@
            <item row="1" column="0">
             <widget class="QLabel" name="label_2">
              <property name="text">
-              <string>Package Version:</string>
+              <string>Package version:</string>
              </property>
             </widget>
            </item>
@@ -75,7 +75,7 @@
            <item row="2" column="0">
             <widget class="QLabel" name="label_3">
              <property name="text">
-              <string>Package Build ID:</string>
+              <string>Package build ID:</string>
              </property>
             </widget>
            </item>

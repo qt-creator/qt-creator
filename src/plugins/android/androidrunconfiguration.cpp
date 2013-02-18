@@ -84,14 +84,6 @@ AndroidConfig AndroidRunConfiguration::config() const
     return AndroidConfigurations::instance().config();
 }
 
-const Utils::FileName AndroidRunConfiguration::gdbCmd() const
-{
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
-    if (!tc)
-        return Utils::FileName();
-    return AndroidConfigurations::instance().gdbPath(tc->targetAbi().architecture());
-}
-
 AndroidDeployStep *AndroidRunConfiguration::deployStep() const
 {
     AndroidDeployStep * const step

@@ -808,7 +808,7 @@ static bool startsWithWhitespace(const QString &str, int col)
 
 inline QString msgMarkNotSet(const QString &text)
 {
-    return FakeVimHandler::tr("Mark '%1' not set").arg(text);
+    return FakeVimHandler::tr("Mark '%1' not set.").arg(text);
 }
 
 class Input
@@ -1082,7 +1082,8 @@ const QString &History::move(const QStringRef &prefix, int skip)
 
     int i = m_index + skip;
     if (!prefix.isEmpty())
-        for (; i >= 0 && i < m_items.size() && !m_items[i].startsWith(prefix); i += skip);
+        for (; i >= 0 && i < m_items.size() && !m_items[i].startsWith(prefix); i += skip)
+            ;
     if (i >= 0 && i < m_items.size())
         m_index = i;
 
@@ -2382,7 +2383,7 @@ void FakeVimHandler::Private::handleMappedKeys()
     }
 
     if (maxMapDepth <= 0) {
-        showMessage(MessageError, tr("recursive mapping"));
+        showMessage(MessageError, tr("Recursive mapping"));
         g.pendingInput.remove(0, g.currentMap.mapLength() + invalidCount);
     } else {
         const Inputs &inputs = g.currentMap.inputs();
@@ -2931,7 +2932,7 @@ void FakeVimHandler::Private::showMessage(MessageLevel level, const QString &msg
 void FakeVimHandler::Private::notImplementedYet()
 {
     qDebug() << "Not implemented in FakeVim";
-    showMessage(MessageError, FakeVimHandler::tr("Not implemented in FakeVim"));
+    showMessage(MessageError, FakeVimHandler::tr("Not implemented in FakeVim."));
 }
 
 void FakeVimHandler::Private::passShortcuts(bool enable)
@@ -3535,7 +3536,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         finishMovement();
     } else if (input.isControl('c')) {
         if (isNoVisualMode())
-            showMessage(MessageInfo, tr("Type Alt-v,Alt-v  to quit FakeVim mode"));
+            showMessage(MessageInfo, tr("Type Alt-V, Alt-V to quit FakeVim mode."));
         else
             leaveVisualMode();
     } else if ((input.is('d') || input.is('x') || input.isKey(Key_Delete))
@@ -5001,7 +5002,7 @@ bool FakeVimHandler::Private::handleExMoveCommand(const ExCommand &cmd)
 
     int targetLine = lineCode == _("0") ? -1 : parseLineAddress(&lineCode);
     if (targetLine >= startLine && targetLine < endLine) {
-        showMessage(MessageError, FakeVimHandler::tr("Move lines into themselves"));
+        showMessage(MessageError, FakeVimHandler::tr("Move lines into themselves."));
         return true;
     }
 
@@ -5045,7 +5046,7 @@ bool FakeVimHandler::Private::handleExMoveCommand(const ExCommand &cmd)
     setMark(QLatin1Char('>'), lastPosition);
 
     if (lines > 2)
-        showMessage(MessageInfo, FakeVimHandler::tr("%n lines moved", 0, lines));
+        showMessage(MessageInfo, FakeVimHandler::tr("%n lines moved.", 0, lines));
 
     return true;
 }
@@ -5125,7 +5126,7 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
         QFile file3(fileName);
         file3.open(QIODevice::ReadOnly);
         QByteArray ba = file3.readAll();
-        showMessage(MessageInfo, FakeVimHandler::tr("\"%1\" %2 %3L, %4C written")
+        showMessage(MessageInfo, FakeVimHandler::tr("\"%1\" %2 %3L, %4C written.")
             .arg(fileName).arg(exists ? _(" ") : tr(" [New] "))
             .arg(ba.count('\n')).arg(ba.size()));
         //if (quitAll)
@@ -5189,7 +5190,7 @@ bool FakeVimHandler::Private::handleExBangCommand(const ExCommand &cmd) // :!
         endEditBlock();
         leaveVisualMode();
         //qDebug() << "FILTER: " << command;
-        showMessage(MessageInfo, FakeVimHandler::tr("%n lines filtered", 0,
+        showMessage(MessageInfo, FakeVimHandler::tr("%n lines filtered.", 0,
             text.count(QLatin1Char('\n'))));
     }
     return true;
@@ -5466,14 +5467,14 @@ QTextCursor FakeVimHandler::Private::search(const SearchData &sd, int startPos, 
                 }
             } else if (showMessages) {
                 QString msg = sd.forward
-                    ? FakeVimHandler::tr("search hit BOTTOM, continuing at TOP")
-                    : FakeVimHandler::tr("search hit TOP, continuing at BOTTOM");
+                    ? FakeVimHandler::tr("Search hit BOTTOM, continuing at TOP.")
+                    : FakeVimHandler::tr("Search hit TOP, continuing at BOTTOM.");
                 showMessage(MessageWarning, msg);
             }
         } else if (showMessages) {
             QString msg = sd.forward
-                ? FakeVimHandler::tr("search hit BOTTOM without match for: %1")
-                : FakeVimHandler::tr("search hit TOP without match for: %1");
+                ? FakeVimHandler::tr("Search hit BOTTOM without match for: %1")
+                : FakeVimHandler::tr("Search hit TOP without match for: %1");
             showMessage(MessageError, msg.arg(sd.needle));
         }
     }
@@ -5571,7 +5572,7 @@ void FakeVimHandler::Private::indentSelectedText(QChar typedChar)
 
     const int lines = endLine - beginLine + 1;
     if (lines > 2)
-        showMessage(MessageInfo, FakeVimHandler::tr("%n lines indented", 0, lines));
+        showMessage(MessageInfo, FakeVimHandler::tr("%n lines indented.", 0, lines));
 }
 
 void FakeVimHandler::Private::indentText(const Range &range, QChar typedChar)
@@ -5624,7 +5625,7 @@ void FakeVimHandler::Private::shiftRegionRight(int repeat)
     const int lines = endLine - beginLine + 1;
     if (lines > 2) {
         showMessage(MessageInfo,
-            FakeVimHandler::tr("%n lines %1ed %2 time", 0, lines)
+            FakeVimHandler::tr("%n lines %1ed %2 time.", 0, lines)
             .arg(repeat > 0 ? '>' : '<').arg(qAbs(repeat)));
     }
 }
@@ -6104,7 +6105,7 @@ void FakeVimHandler::Private::yankText(const Range &range, int reg)
     const int lines = document()->findBlock(range.endPos).blockNumber()
         - document()->findBlock(range.beginPos).blockNumber() + 1;
     if (lines > 2)
-        showMessage(MessageInfo, FakeVimHandler::tr("%n lines yanked", 0, lines));
+        showMessage(MessageInfo, FakeVimHandler::tr("%n lines yanked.", 0, lines));
 }
 
 void FakeVimHandler::Private::transformText(const Range &range,
@@ -6638,8 +6639,8 @@ void FakeVimHandler::Private::undoRedo(bool undo)
         stack.pop();
 
     if (current == rev) {
-        const QString msg = undo ? FakeVimHandler::tr("Already at oldest change")
-            : FakeVimHandler::tr("Already at newest change");
+        const QString msg = undo ? FakeVimHandler::tr("Already at oldest change.")
+            : FakeVimHandler::tr("Already at newest change.");
         showMessage(MessageInfo, msg);
         return;
     }

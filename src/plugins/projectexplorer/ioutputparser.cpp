@@ -123,7 +123,8 @@ IOutputParser::~IOutputParser()
 
 void IOutputParser::appendOutputParser(IOutputParser *parser)
 {
-    QTC_ASSERT(parser, return);
+    if (!parser)
+        return;
     if (m_parser) {
         m_parser->appendOutputParser(parser);
         return;

@@ -198,7 +198,7 @@ public:
     QString vcsGetRepositoryURL(const QString &directory);
     bool synchronousFetch(const QString &workingDirectory, const QString &remote);
     bool synchronousPull(const QString &workingDirectory, bool rebase);
-    bool synchronousCommandContinue(const QString &workingDirectory, const QString &command);
+    bool synchronousCommandContinue(const QString &workingDirectory, const QString &command, bool hasChanges);
     bool synchronousPush(const QString &workingDirectory, const QString &remote = QString());
     bool synchronousMerge(const QString &workingDirectory, const QString &branch);
     bool synchronousRebase(const QString &workingDirectory,
@@ -325,7 +325,7 @@ private:
     void connectRepositoryChanged(const QString & repository, VcsBase::Command *cmd);
     bool executeAndHandleConflicts(const QString &workingDirectory, const QStringList &arguments,
                                    const QString &abortCommand = QString());
-    void handleMergeConflicts(const QString &workingDir, const QString &abortCommand);
+    void handleMergeConflicts(const QString &workingDir, const QString &commit, const QString &abortCommand);
     bool tryLauchingGitK(const QProcessEnvironment &env,
                          const QString &workingDirectory,
                          const QString &fileName,

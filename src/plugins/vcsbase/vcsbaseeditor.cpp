@@ -923,7 +923,7 @@ void VcsBaseEditorWidget::slotCursorPositionChanged()
 
 void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
-    QMenu *menu = createStandardContextMenu();
+    QPointer<QMenu> menu = createStandardContextMenu();
     // 'click on change-interaction'
     switch (d->m_parameters->type) {
     case LogOutput:
@@ -962,6 +962,7 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     default:
         break;
     }
+    connect(this, SIGNAL(destroyed()), menu, SLOT(deleteLater()));
     menu->exec(e->globalPos());
     delete menu;
 }
@@ -1175,6 +1176,15 @@ void VcsBaseEditorWidget::setPlainTextData(const QByteArray &data)
         setPlainText(msgTextTooLarge(data.size()));
     else
         setPlainText(codec()->toUnicode(data));
+}
+
+void VcsBaseEditorWidget::reportCommandFinished(bool ok, int exitCode, const QVariant &data)
+{
+    Q_UNUSED(exitCode);
+    Q_UNUSED(data);
+
+    if (!ok)
+        setPlainText(tr("Failed to retrieve data."));
 }
 
 void VcsBaseEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)

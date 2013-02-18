@@ -88,7 +88,7 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
     arguments << QLatin1String("mergetool") << QLatin1String("-y");
     if (!files.isEmpty()) {
         if (m_gitClient->gitVersion() < 0x010708) {
-            QMessageBox::warning(0, tr("Error"), tr("Files input for mergetool requires git >= 1.7.8"));
+            QMessageBox::warning(0, tr("Error"), tr("File input for the merge tool requires Git 1.7.8, or later."));
             return false;
         }
         arguments << files;
@@ -255,26 +255,31 @@ void MergeTool::readData()
     }
 }
 
-void MergeTool::continuePreviousGitCommand(const QString &msgBoxTitle, const QString &msgBoxText,
+void MergeTool::continuePreviousGitCommand(const QString &msgBoxTitle, QString msgBoxText,
                                            const QString &buttonName, const QString &gitCommand)
 {
     QString workingDirectory = m_process->workingDirectory();
-    QMessageBox msgBox;
-    QPushButton *commandButton = msgBox.addButton(buttonName,  QMessageBox::AcceptRole);
-    QPushButton *abortButton = msgBox.addButton(QMessageBox::Abort);
+    bool isRebase = gitCommand == QLatin1String("rebase");
+    bool hasChanges = m_gitClient->gitStatus(m_process->workingDirectory(),
+            StatusMode(NoUntracked | NoSubmodules)) == GitClient::StatusChanged;
+    if (!hasChanges)
+        msgBoxText.prepend(tr("No changes found. "));
+    QMessageBox msgBox(QMessageBox::Question, msgBoxTitle, msgBoxText);
+    if (hasChanges || isRebase)
+        msgBox.addButton(hasChanges ? buttonName : tr("Skip"), QMessageBox::AcceptRole);
+    msgBox.addButton(QMessageBox::Abort);
     msgBox.addButton(QMessageBox::Ignore);
-    msgBox.setIcon(QMessageBox::Question);
-    msgBox.setWindowTitle(msgBoxTitle);
-    msgBox.setText(msgBoxText);
-    msgBox.exec();
-
-    if (msgBox.clickedButton() == commandButton) {      // Continue
-        if (gitCommand == QLatin1String("rebase"))
-            m_gitClient->synchronousCommandContinue(workingDirectory, gitCommand);
+    switch (msgBox.exec()) {
+    case QMessageBox::Ignore:
+        break;
+    case QMessageBox::Abort:
+        m_gitClient->synchronousAbortCommand(workingDirectory, gitCommand);
+        break;
+    default: // Continue/Skip
+        if (isRebase)
+            m_gitClient->synchronousCommandContinue(workingDirectory, gitCommand, hasChanges);
         else
             GitPlugin::instance()->startCommit();
-    } else if (msgBox.clickedButton() == abortButton) { // Abort
-        m_gitClient->synchronousAbortCommand(workingDirectory, gitCommand);
     }
 }
 
@@ -283,7 +288,7 @@ void MergeTool::done()
     VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
     int exitCode = m_process->exitCode();
     if (!exitCode) {
-        outputWindow->append(tr("Merge tool process finished successully"));
+        outputWindow->append(tr("Merge tool process finished successully."));
         QString gitDir = m_gitClient->findGitDirForRepository(m_process->workingDirectory());
 
         if (QFile::exists(gitDir + QLatin1String("/rebase-apply/rebasing"))) {
@@ -294,8 +299,8 @@ void MergeTool::done()
                     tr("You need to commit changes to finish revert.\nCommit now?"),
                     tr("Commit"), QLatin1String("revert"));
         } else if (QFile::exists(gitDir + QLatin1String("/CHERRY_PICK_HEAD"))) {
-            continuePreviousGitCommand(tr("Continue Cherry-Pick"),
-                    tr("You need to commit changes to finish cherry-pick.\nCommit now?"),
+            continuePreviousGitCommand(tr("Continue Cherry-Picking"),
+                    tr("You need to commit changes to finish cherry-picking.\nCommit now?"),
                     tr("Commit"), QLatin1String("cherry-pick"));
         }
     } else {

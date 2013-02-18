@@ -322,7 +322,7 @@ void QmlProfilerClientManager::retryMessageBoxFinished(int result)
         break;
     }
     case QMessageBox::Help: {
-        QmlProfilerTool::handleHelpRequest(QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html"));
+        QmlProfilerTool::handleHelpRequest(QLatin1String("qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html"));
         // fall through
     }
     default: {

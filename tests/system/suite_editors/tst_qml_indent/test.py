@@ -4,8 +4,6 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     # using a temporary directory won't mess up a potentially exisiting
     createNewQtQuickApplication(tempDir(), "untitled")
-    # wait for parsing to complete
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 5000)
     if not prepareQmlFile():
         invokeMenuItem("File", "Save All")
         invokeMenuItem("File", "Exit")

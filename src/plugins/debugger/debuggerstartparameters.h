@@ -123,6 +123,7 @@ public:
     QString localMountDir;
     QSsh::SshConnectionParameters connParams;
     bool remoteSetupNeeded;
+    QMap<QString, QString> sourcePathMap;
 
     QString dumperLibrary;
     QStringList solibSearchPath;

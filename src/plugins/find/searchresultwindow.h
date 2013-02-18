@@ -116,6 +116,7 @@ signals:
     void visibilityChanged(bool visible);
     void countChanged(int count);
     void searchAgainRequested();
+    void requestEnabledCheck();
 
 private:
     SearchResult(Internal::SearchResultWidget *widget);

@@ -11,7 +11,6 @@ QtcPlugin {
         ]
     }
     Depends { name: "Utils" }
-    Depends { name: "ExtensionSystem" }
     Depends { name: "Aggregation" }
     Depends { name: "app_version_header" }
 
@@ -242,7 +241,7 @@ QtcPlugin {
     }
 
     Group {
-        condition: qbs.targetOS == "linux"
+        condition: qbs.targetPlatform.indexOf("unix") != -1 && qbs.targetOS != "mac"
         files: [
             "progressmanager/progressmanager_x11.cpp",
         ]
@@ -251,7 +250,6 @@ QtcPlugin {
     ProductModule {
         Depends { name: "cpp" }
         Depends { name: "Aggregation" }
-        Depends { name: "ExtensionSystem" }
         Depends { name: "Utils" }
     }
 }

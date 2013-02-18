@@ -107,12 +107,12 @@ void ViewManager::attachItemLibraryView()
 void ViewManager::attachComponentView()
 {
     documentModel()->attachView(&m_componentView);
-    QObject::connect(m_componentView.action(), SIGNAL(currentComponentChanged(ModelNode)), currentDesignDocument(), SLOT(changeCurrentModelTo(ModelNode)));
+    QObject::connect(m_componentView.action(), SIGNAL(currentComponentChanged(ModelNode)), currentDesignDocument(), SLOT(changeToSubComponent(ModelNode)));
 }
 
 void ViewManager::detachComponentView()
 {
-    QObject::disconnect(m_componentView.action(), SIGNAL(currentComponentChanged(ModelNode)), currentDesignDocument(), SLOT(changeCurrentModelTo(ModelNode)));
+    QObject::disconnect(m_componentView.action(), SIGNAL(currentComponentChanged(ModelNode)), currentDesignDocument(), SLOT(changeToSubComponent(ModelNode)));
     documentModel()->detachView(&m_componentView);
 }
 

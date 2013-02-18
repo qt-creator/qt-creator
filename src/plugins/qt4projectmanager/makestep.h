@@ -109,6 +109,7 @@ protected:
 private:
     void ctor();
     void setMakeCommand(const QString &make);
+    QStringList automaticallyAddedArguments() const;
     bool m_clean;
     bool m_scriptTarget;
     QString m_makeFileToCheck;

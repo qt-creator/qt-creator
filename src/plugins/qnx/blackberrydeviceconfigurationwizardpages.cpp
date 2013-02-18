@@ -65,6 +65,7 @@ BlackBerryDeviceConfigurationWizardSetupPage::BlackBerryDeviceConfigurationWizar
     connect(m_ui->deviceName, SIGNAL(textChanged(QString)), this, SIGNAL(completeChanged()));
     connect(m_ui->deviceHostIp, SIGNAL(textChanged(QString)), this, SIGNAL(completeChanged()));
     connect(m_ui->physicalDevice, SIGNAL(toggled(bool)), this, SLOT(handleMachineTypeChanged()));
+    connect(m_ui->physicalDevice, SIGNAL(toggled(bool)), this, SIGNAL(completeChanged()));
     connect(m_ui->debugToken, SIGNAL(changed(QString)), this, SIGNAL(completeChanged()));
 
     registerField(QLatin1String(DEVICENAME_FIELD_ID), m_ui->deviceName);

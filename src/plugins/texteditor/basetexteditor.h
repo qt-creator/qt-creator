@@ -181,11 +181,8 @@ public:
     void setLineNumbersVisible(bool b);
     bool lineNumbersVisible() const;
 
-    void setOpenLinksInNextSplit(bool b);
-    bool openLinksInNextSplit() const;
-
-    void setForceOpenLinksInNextSplit(bool b);
-    bool forceOpenLinksInNextSplit() const;
+    void setAlwaysOpenLinksInNextSplit(bool b);
+    bool alwaysOpenLinksInNextSplit() const;
 
     void setMarksVisible(bool b);
     bool marksVisible() const;
@@ -333,6 +330,7 @@ public slots:
     void unindent();
 
     void openLinkUnderCursor();
+    void openLinkUnderCursorInNextSplit();
 
 signals:
     void changed();
@@ -492,28 +490,29 @@ public:
 
     struct Link
     {
-        Link(const QString &fileName = QString(),
-             int line = 0,
-             int column = 0)
-            : begin(-1)
-            , end(-1)
-            , fileName(fileName)
-            , line(line)
-            , column(column)
+        Link(const QString &fileName = QString(), int line = 0, int column = 0)
+            : linkTextStart(-1)
+            , linkTextEnd(-1)
+            , targetFileName(fileName)
+            , targetLine(line)
+            , targetColumn(column)
         {}
 
-        bool isValid() const
-        { return begin != end; }
+        bool hasValidTarget() const
+        { return !targetFileName.isEmpty(); }
+
+        bool hasValidLinkText() const
+        { return linkTextStart != linkTextEnd; }
 
         bool operator==(const Link &other) const
-        { return begin == other.begin && end == other.end; }
+        { return linkTextStart == other.linkTextStart && linkTextEnd == other.linkTextEnd; }
 
-        int begin;           // Link position
-        int end;           // Link end position
+        int linkTextStart;
+        int linkTextEnd;
 
-        QString fileName;  // Target file
-        int line;          // Target line
-        int column;        // Target column
+        QString targetFileName;
+        int targetLine;
+        int targetColumn;
     };
 
 protected:
@@ -529,7 +528,7 @@ protected:
        Reimplement this function if you want to customize the way a link is
        opened. Returns whether the link was opened successfully.
      */
-    virtual bool openLink(const Link &link);
+    virtual bool openLink(const Link &link, bool inNextSplit = false);
 
     void maybeClearSomeExtraSelections(const QTextCursor &cursor);
 

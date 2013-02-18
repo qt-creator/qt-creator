@@ -9560,8 +9560,8 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <location/>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Kaj je seja?&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Kaj je seja?&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/projectexplorer/sessiondialog.cpp" line="+213"/>
@@ -26619,8 +26619,8 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
     <message>
         <location line="+7"/>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;Kaj je potrebno?&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;Kaj je potrebno?&lt;/a&gt;</translation>
     </message>
 </context>
 <context>
@@ -38411,12 +38411,12 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
         <translation type="obsolete">Če v svoj projekt dodate zunanje knjižnice, bo Qt Creator zanje samodejno ponudil poudarjanje skladnje in dokončevanje kode.</translation>
     </message>
     <message>
-        <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-editor-locator.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</source>
-        <translation type="obsolete">Metode, razrede, pomoč in ostalo lahko hitro najdete z uporabo &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-editor-locator.html&quot;&gt;Lokatorja&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</translation>
+        <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-editor-locator.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</source>
+        <translation type="obsolete">Metode, razrede, pomoč in ostalo lahko hitro najdete z uporabo &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-editor-locator.html&quot;&gt;Lokatorja&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</translation>
     </message>
     <message>
-        <source>Within a session, you can add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-dependencies.html&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
-        <translation type="obsolete">Znotraj seje lahko dodate &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-dependencies.html&quot;&gt;odvisnosti&lt;/a&gt; med projekti.</translation>
+        <source>Within a session, you can add &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-dependencies.html&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
+        <translation type="obsolete">Znotraj seje lahko dodate &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-dependencies.html&quot;&gt;odvisnosti&lt;/a&gt; med projekti.</translation>
     </message>
     <message>
         <source>In the editor, &lt;tt&gt;F2&lt;/tt&gt; follows symbol definition, &lt;tt&gt;Shift+F2&lt;/tt&gt; toggles declaration and definition while &lt;tt&gt;F4&lt;/tt&gt; toggles header file and source file.</source>
@@ -38451,16 +38451,16 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
         <translation type="obsolete">Med podokni z izhodom lahko preklapljate z uporabo &lt;tt&gt;%1+n&lt;/tt&gt;, kjer je n številka, ki je napisana na gumbih na dnu okna:&lt;ul&gt;&lt;li&gt;1 - Težave pri gradnji&lt;/li&gt;&lt;li&gt;2 - Rezultati iskanja&lt;/li&gt;&lt;li&gt;3 - Izhod programa&lt;/li&gt;&lt;li&gt;4 - Izhod prevajanja&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
-        <source>You can add custom build steps in the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt;build settings&lt;/a&gt;.</source>
-        <translation type="obsolete">Korake gradnje po meri lahko dodate v &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt;nastavitvah gradnje&lt;/a&gt;.</translation>
+        <source>You can add custom build steps in the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-settings.html&quot;&gt;build settings&lt;/a&gt;.</source>
+        <translation type="obsolete">Korake gradnje po meri lahko dodate v &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-build-settings.html&quot;&gt;nastavitvah gradnje&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>You can set the preferred editor encoding for every project in &lt;tt&gt;Projects -&gt; Editor Settings -&gt; Default Encoding&lt;/tt&gt;.</source>
         <translation type="obsolete">Želeni nabor znakov za urejevalnik lahko za vsak projekt nastavite v &lt;tt&gt;Projekti → Nastavitve urejevalnika → Privzeti nabor znakov&lt;/tt&gt;.</translation>
     </message>
     <message>
-        <source>You can use Qt Creator with a number of &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;revision control systems&lt;/a&gt; such as Subversion, Perforce, CVS and Git.</source>
-        <translation type="obsolete">Qt Creator lahko uporabljate z več &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;sistemi za nadzor različic&lt;/a&gt;, kot so na primer Git, Subversion, CVS in Perforce.</translation>
+        <source>You can use Qt Creator with a number of &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-version-control.html&quot;&gt;revision control systems&lt;/a&gt; such as Subversion, Perforce, CVS and Git.</source>
+        <translation type="obsolete">Qt Creator lahko uporabljate z več &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-version-control.html&quot;&gt;sistemi za nadzor različic&lt;/a&gt;, kot so na primer Git, Subversion, CVS in Perforce.</translation>
     </message>
     <message>
         <source>Explore Qt C++ Examples</source>
@@ -38483,8 +38483,8 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
         <translation type="obsolete">Ustvari projekt …</translation>
     </message>
     <message>
-        <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</source>
-        <translation type="obsolete">Metode, razrede, pomoč in ostalo lahko hitro najdete z uporabo &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Lokatorja&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</translation>
+        <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</source>
+        <translation type="obsolete">Metode, razrede, pomoč in ostalo lahko hitro najdete z uporabo &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-navigation.html&quot;&gt;Lokatorja&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</translation>
     </message>
 </context>
 <context>

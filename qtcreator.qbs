@@ -161,6 +161,7 @@ Project {
         Depends { name: "Qt"; submodules: ["widgets", "network"] }
         Depends { name: "Utils" }
         Depends { name: "ExtensionSystem" }
+        Depends { name: "Core" }
 
         files: [
             "src/app/main.cpp",
@@ -175,14 +176,14 @@ Project {
         ]
 
         Group {
-            condition: qbs.targetOS == "linux" || qbs.targetOS == "macx"
+            condition: qbs.targetPlatform.indexOf("unix") != -1
             files: "bin/qtcreator.sh"
             qbs.install: true
             qbs.installDir: "bin"
         }
 
         Group {
-           condition: qbs.targetOS == "linux" || qbs.targetOS == "macx"
+           condition: qbs.targetPlatform.indexOf("unix") != -1
            files: [
                "src/shared/qtlockedfile/qtlockedfile_unix.cpp"
            ]

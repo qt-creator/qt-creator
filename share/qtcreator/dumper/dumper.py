@@ -1750,16 +1750,6 @@ class Dumper:
                     dumper(self, value)
                 return
 
-            # Is this derived from QObject?
-            #try:
-            #    # If this access fails, it's not a QObject.
-            #    d = value["d_ptr"]["d"]
-            #    privateType = lookupType(self.ns + "QObjectPrivate").pointer()
-            #    objectName = d.cast(privateType).dereference()["objectName"]
-            #    self.putStringValue(objectName, 1)
-            #except:
-            #    pass
-
         # D arrays, gdc compiled.
         if typeName.endswith("[]"):
             n = value["length"]
@@ -1777,6 +1767,8 @@ class Dumper:
         #warn("EXPANDED: %s " % (self.currentIName in self.expandedINames))
         fields = extractFields(type)
         #fields = type.fields()
+
+        self.tryPutObjectNameValue(value)  # Is this too expensive?
 
         self.putType(typeName)
         self.putAddress(value.address)
@@ -1806,6 +1798,29 @@ class Dumper:
         if self.currentIName in self.expandedINames:
             with Children(self):
                self.putFields(value)
+
+    def tryPutObjectNameValue(self, value):
+        try:
+            # Is this derived from QObject?
+            dd = value["d_ptr"]["d"]
+            privateTypeName = self.ns + "QObjectPrivate"
+            privateType = lookupType(privateTypeName)
+            staticMetaObject = value["staticMetaObject"]
+            d_ptr = dd.cast(privateType.pointer()).dereference()
+            objectName = None
+            try:
+                objectName = d_ptr["objectName"]
+            except: # Qt 5
+                p = d_ptr["extraData"]
+                if not isNull(p):
+                    objectName = p.dereference()["objectName"]
+            if not objectName is None:
+                data, size, alloc = qStringData(objectName)
+                if size > 0:
+                    str = readRawMemory(data, 2 * size)
+                    self.putValue(str, Hex4EncodedLittleEndian, 1)
+        except:
+            pass
 
     def putFields(self, value, dumpBase = True):
             type = stripTypedefs(value.type)

@@ -161,7 +161,7 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(RunConfiguration *runConfigurat
     m_debugServerPortLabel->setBuddy(m_debugServerPort);
 
     m_qmlDebuggerInfoLabel = new QLabel(tr("<a href=\""
-        "qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html"
+        "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html"
         "\">What are the prerequisites?</a>"));
 
     m_useCppDebugger->setChecked(m_aspect->useCppDebugger());

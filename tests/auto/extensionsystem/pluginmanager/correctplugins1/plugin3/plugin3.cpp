@@ -45,18 +45,18 @@ bool MyPlugin3::initialize(const QStringList & /*arguments*/, QString *errorStri
 {
     initializeCalled = true;
     QObject *obj = new QObject;
-    obj->setObjectName("MyPlugin3");
+    obj->setObjectName(QLatin1String("MyPlugin3"));
     addAutoReleasedObject(obj);
 
     bool found2 = false;
     foreach (QObject *object, ExtensionSystem::PluginManager::instance()->allObjects()) {
-        if (object->objectName() == "MyPlugin2")
+        if (object->objectName() == QLatin1String("MyPlugin2"))
             found2 = true;
     }
     if (found2)
         return true;
     if (errorString)
-        *errorString = "object from plugin2 could not be found";
+        *errorString = QLatin1String("object from plugin2 could not be found");
     return false;
 }
 
@@ -66,7 +66,7 @@ void MyPlugin3::extensionsInitialized()
         return;
     // don't do this at home, it's just done here for the test
     QObject *obj = new QObject;
-    obj->setObjectName("MyPlugin3_running");
+    obj->setObjectName(QLatin1String("MyPlugin3_running"));
     addAutoReleasedObject(obj);
 }
 

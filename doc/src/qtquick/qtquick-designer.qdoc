@@ -32,7 +32,15 @@
 
     You can edit .qml files in the \QMLD visual editor or in the code editor.
 
-    \note \QMLD only supports Qt Quick 1.
+    \note In \QC 2.7, \QMLD supports both Qt Quick 1 and Qt Quick 2. However,
+    the \QC packages that are not delivered with Qt 5 are still built with
+    Qt 4.8, and therefore do not contain qml2puppet, which is the external
+    process that is responsible for rendering Qt Quick 2. To develop Qt Quick 2
+    applications using \QMLD, download the Qt 5.0.1 packages and build
+    qml2puppet yourself. The sources for qml2puppet are located in
+    \c{qt-creator\share\qtcreator\qml\qmlpuppet\qml2puppet}. The qml2puppet is
+    installed to \c{qtbase\bin}. If you then configure Qt 5.0.1 for your
+    project, \QMLD picks up the qml2puppet and supports Qt Quick 2.0.
 
     In \gui Projects, double-click a .qml file to open it in the code editor.
     Then select the \gui {Design} mode to edit the file in the visual editor.
@@ -289,7 +297,14 @@
     For example, the following code snippet describes the file example.qml that
     contains a ListView that in turn specifies a C++ model:
 
-    \snippet snippets/qml/dummydata.qml 0
+    \qml
+        ListView {
+            model: dataModel
+            delegate: ContactDelegate {
+                name: name
+            }
+        }
+    \endqml
 
     Create a directory named \e dummydata in the root directory of the project,
     so that it is not deployed to the device. In the \c dummydata directory,
@@ -302,18 +317,32 @@
 
     Then create the dataModel.qml file that contains the dummy data:
 
-    \snippet snippets/qml/datamodel.qml 0
+    \qml
+        import QtQuick 1.0
+
+        ListModel {
+             ListElement {
+                 name: "Ariane"
+             }
+             ListElement {
+                 name: "Bella"
+             }
+             ListElement {
+                 name: "Corinna"
+             }
+        }
+    \endqml
 
     \section3 Creating Dummy Context
 
     The following example presents a common pattern in QML:
 
-    \code
+    \qml
         Item {
             width: parent.width
             height: parent.height
         }
-    \endcode
+    \endqml
 
     This works nicely for applications but \QMLD displays a zero-sized item.
     A parent for the opened file does not exist, because the context is
@@ -322,7 +351,17 @@
     application (here, example.qml) in the \c {dummydata/context} directory,
     you can fake a parent context:
 
-    \snippet snippets/qml/dummydatacontext.qml 0
+    \qml
+        import QtQuick 1.0
+        import QmlDesigner 1.0
+
+        DummyContextObject {
+            parent: Item {
+                width: 640
+                height: 300
+            }
+        }
+    \endqml
 
     \section2 Setting Anchors and Margins
 

@@ -7,7 +7,6 @@ SOURCES += propertyeditor.cpp \
     basiclayouts.cpp \
     basicwidgets.cpp \
     behaviordialog.cpp \
-    qproxylayoutitem.cpp \
     layoutwidget.cpp \
     filewidget.cpp \
     propertyeditorvalue.cpp \
@@ -26,7 +25,6 @@ HEADERS += propertyeditor.h \
     basiclayouts.h \
     basicwidgets.h \
     behaviordialog.h \
-    qproxylayoutitem.h \
     layoutwidget.h \
     filewidget.h \
     propertyeditorvalue.h \

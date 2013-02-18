@@ -1015,8 +1015,10 @@ void CPPEditorWidget::highlightUses(const QList<SemanticInfo::Use> &uses,
         isUnused = true;
 
     foreach (const SemanticInfo::Use &use, uses) {
-        QTextEdit::ExtraSelection sel;
+        if (use.isInvalid())
+            continue;
 
+        QTextEdit::ExtraSelection sel;
         if (isUnused)
             sel.format = m_occurrencesUnusedFormat;
         else
@@ -1127,7 +1129,7 @@ void CPPEditorWidget::finishHighlightSymbolUsages()
 }
 
 
-void CPPEditorWidget::switchDeclarationDefinition()
+void CPPEditorWidget::switchDeclarationDefinition(bool inNextSplit)
 {
     if (! m_modelManager)
         return;
@@ -1146,7 +1148,7 @@ void CPPEditorWidget::switchDeclarationDefinition()
         if (! function)
             function = lastVisibleSymbol->enclosingFunction();
 
-        Core::EditorManager* editorManager = Core::EditorManager::instance();
+        CPPEditorWidget::Link symbolLink;
 
         if (function) {
             LookupContext context(thisDocument, snapshot);
@@ -1168,62 +1170,18 @@ void CPPEditorWidget::switchDeclarationDefinition()
                     }
                 }
             }
-            if (! best.isEmpty()) {
-                Core::IEditor *editor = editorManager->currentEditor();
-                CPPEditorWidget::Link symbolLink = linkToSymbol(best.first());
-                if (editorManager->hasSplitter()) {
-                    if (forceOpenLinksInNextSplit()) {
-                        editorManager->gotoOtherSplit();
-                    } else if (openLinksInNextSplit()) {
-                        bool isVisible = false;
-                        foreach (Core::IEditor *visEditor, editorManager->visibleEditors()) {
-                            if (visEditor->document() &&
-                                    (symbolLink.fileName == visEditor->document()->fileName()) &&
-                                    (visEditor != editor)) {
-                                isVisible = true;
-                                editorManager->activateEditor(visEditor);
-                                break;
-                            }
-                        }
+            if (best.isEmpty())
+                return;
 
-                        if (!isVisible)
-                            editorManager->gotoOtherSplit();
-                    } else {
-                        editorManager->addCurrentPositionToNavigationHistory();
-                    }
-                }
-                openCppEditorAt(symbolLink);
-            }
-
-        } else if (lastVisibleSymbol && lastVisibleSymbol->isDeclaration() && lastVisibleSymbol->type()->isFunctionType()) {
-            if (Symbol *def = symbolFinder()->findMatchingDefinition(lastVisibleSymbol, snapshot)) {
-                Core::IEditor *editor = editorManager->currentEditor();
-                CPPEditorWidget::Link symbolLink = linkToSymbol(def);
-                if (editorManager->hasSplitter() && (editor->document()->fileName() != symbolLink.fileName)) {
-                    if (forceOpenLinksInNextSplit()) {
-                        editorManager->gotoOtherSplit();
-                    } else if (openLinksInNextSplit()) {
-                        bool isVisible = false;
-                        foreach (Core::IEditor *visEditor, editorManager->visibleEditors()) {
-                            if (visEditor->document() &&
-                                    (symbolLink.fileName == visEditor->document()->fileName()) &&
-                                    (visEditor != editor)) {
-                                isVisible = true;
-                                editorManager->activateEditor(visEditor);
-                                break;
-                            }
-                        }
-
-                        if (!isVisible)
-                            editorManager->gotoOtherSplit();
-                    } else {
-                        editorManager->addCurrentPositionToNavigationHistory();
-                    }
-                }
-
-                openCppEditorAt(symbolLink);
-            }
+            symbolLink = linkToSymbol(best.first());
+        } else if (lastVisibleSymbol
+                   && lastVisibleSymbol->isDeclaration()
+                   && lastVisibleSymbol->type()->isFunctionType()) {
+            symbolLink = linkToSymbol(symbolFinder()->findMatchingDefinition(lastVisibleSymbol, snapshot));
         }
+
+        if (symbolLink.hasValidTarget())
+            openCppEditorAt(symbolLink, inNextSplit != alwaysOpenLinksInNextSplit());
     }
 }
 
@@ -1333,8 +1291,10 @@ CPPEditorWidget::Link CPPEditorWidget::attemptFuncDeclDef(const QTextCursor &cur
         doc->translationUnit()->getTokenEndPosition(name->lastToken() - 1, &endLine, &endColumn);
 
         QTextDocument *textDocument = cursor.document();
-        result.begin = textDocument->findBlockByNumber(startLine - 1).position() + startColumn - 1;
-        result.end = textDocument->findBlockByNumber(endLine - 1).position() + endColumn - 1;
+        result.linkTextStart =
+                textDocument->findBlockByNumber(startLine - 1).position() + startColumn - 1;
+        result.linkTextEnd =
+                textDocument->findBlockByNumber(endLine - 1).position() + endColumn - 1;
     }
 
     return result;
@@ -1364,8 +1324,8 @@ CPPEditorWidget::Link CPPEditorWidget::findMacroLink(const QByteArray &name,
         foreach (const Macro &macro, doc->definedMacros()) {
             if (macro.name() == name) {
                 Link link;
-                link.fileName = macro.fileName();
-                link.line = macro.line();
+                link.targetFileName = macro.fileName();
+                link.targetLine = macro.line();
                 return link;
             }
         }
@@ -1374,7 +1334,7 @@ CPPEditorWidget::Link CPPEditorWidget::findMacroLink(const QByteArray &name,
         for (int index = includes.size() - 1; index != -1; --index) {
             const Document::Include &i = includes.at(index);
             Link link = findMacroLink(name, snapshot.document(i.fileName()), snapshot, processed);
-            if (! link.fileName.isEmpty())
+            if (link.hasValidTarget())
                 return link;
         }
     }
@@ -1415,7 +1375,7 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
             ++pos;
         if (characterAt(pos) == QLatin1Char('(')) {
             link = attemptFuncDeclDef(cursor, m_lastSemanticInfo.doc, snapshot);
-            if (link.isValid())
+            if (link.hasValidLinkText())
                 return link;
         }
     }
@@ -1501,9 +1461,9 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
             const unsigned lineno = cursor.blockNumber() + 1;
             foreach (const Document::Include &incl, doc->includes()) {
                 if (incl.line() == lineno && incl.resolved()) {
-                    link.fileName = incl.fileName();
-                    link.begin = beginOfToken + 1;
-                    link.end = endOfToken - 1;
+                    link.targetFileName = incl.fileName();
+                    link.linkTextStart = beginOfToken + 1;
+                    link.linkTextEnd = endOfToken - 1;
                     return link;
                 }
             }
@@ -1526,10 +1486,10 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
         const Document::MacroUse *use = doc->findMacroUseAt(endOfToken - 1);
         if (use && use->macro().fileName() != CppModelManagerInterface::configurationFileName()) {
             const Macro &macro = use->macro();
-            link.fileName = macro.fileName();
-            link.line = macro.line();
-            link.begin = use->begin();
-            link.end = use->end();
+            link.targetFileName = macro.fileName();
+            link.targetLine = macro.line();
+            link.linkTextStart = use->begin();
+            link.linkTextEnd = use->end();
             return link;
         }
     }
@@ -1597,8 +1557,8 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
             }
 
             link = linkToSymbol(def ? def : symbol);
-            link.begin = beginOfToken;
-            link.end = endOfToken;
+            link.linkTextStart = beginOfToken;
+            link.linkTextEnd = endOfToken;
             return link;
         }
     }
@@ -1607,9 +1567,9 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
     QTextCursor macroCursor = cursor;
     const QByteArray name = identifierUnderCursor(&macroCursor).toLatin1();
     link = findMacroLink(name);
-    if (! link.fileName.isEmpty()) {
-        link.begin = macroCursor.selectionStart();
-        link.end = macroCursor.selectionEnd();
+    if (link.hasValidTarget()) {
+        link.linkTextStart = macroCursor.selectionStart();
+        link.linkTextEnd = macroCursor.selectionEnd();
         return link;
     }
 
@@ -1920,8 +1880,9 @@ CPPEditorWidget::Link CPPEditorWidget::linkToSymbol(CPlusPlus::Symbol *symbol)
     if (!symbol)
         return Link();
 
-    const QString fileName = QString::fromUtf8(symbol->fileName(),
+    const QString filename = QString::fromUtf8(symbol->fileName(),
                                                symbol->fileNameLength());
+
     unsigned line = symbol->line();
     unsigned column = symbol->column();
 
@@ -1931,18 +1892,30 @@ CPPEditorWidget::Link CPPEditorWidget::linkToSymbol(CPlusPlus::Symbol *symbol)
     if (symbol->isGenerated())
         column = 0;
 
-    return Link(fileName, line, column);
+    return Link(filename, line, column);
 }
 
-bool CPPEditorWidget::openCppEditorAt(const Link &link)
+bool CPPEditorWidget::openCppEditorAt(const Link &link, bool inNextSplit)
 {
-    if (link.fileName.isEmpty())
+    if (!link.hasValidTarget())
         return false;
 
-    return TextEditor::BaseTextEditorWidget::openEditorAt(link.fileName,
-                                                    link.line,
-                                                    link.column,
-                                                    Constants::CPPEDITOR_ID);
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    if (inNextSplit) {
+        if (!editorManager->hasSplitter())
+            editorManager->splitSideBySide();
+        editorManager->gotoOtherSplit();
+    } else if (baseTextDocument()->fileName() == link.targetFileName) {
+        editorManager->addCurrentPositionToNavigationHistory();
+        gotoLine(link.targetLine, link.targetColumn);
+        setFocus();
+        return true;
+    }
+
+    return TextEditor::BaseTextEditorWidget::openEditorAt(link.targetFileName,
+                                                          link.targetLine,
+                                                          link.targetColumn,
+                                                          Constants::CPPEDITOR_ID);
 }
 
 void CPPEditorWidget::semanticRehighlight(bool force)

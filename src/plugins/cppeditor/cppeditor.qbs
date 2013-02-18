@@ -54,6 +54,7 @@ QtcPlugin {
         "cppquickfixassistant.cpp",
         "cppquickfixassistant.h",
         "cppquickfixes.cpp",
+        "cppquickfixes.h",
         "cppsnippetprovider.cpp",
         "cppsnippetprovider.h",
         "cpptypehierarchy.cpp",

@@ -76,20 +76,11 @@ private slots:
     void sdkLocationEditingFinished();
     void ndkLocationEditingFinished();
     void antLocationEditingFinished();
-    void gdbLocationEditingFinished();
-    void gdbserverLocationEditingFinished();
-    void gdbLocationX86EditingFinished();
-    void gdbserverLocationX86EditingFinished();
     void openJDKLocationEditingFinished();
     void browseSDKLocation();
     void browseNDKLocation();
     void browseAntLocation();
-    void browseGdbLocation();
-    void browseGdbserverLocation();
-    void browseGdbLocationX86();
-    void browseGdbserverLocationX86();
     void browseOpenJDKLocation();
-    void toolchainVersionIndexChanged(QString);
     void addAVD();
     void removeAVD();
     void startAVD();
@@ -101,7 +92,6 @@ private:
     void initGui();
     bool checkSDK(const Utils::FileName &location);
     bool checkNDK(const Utils::FileName &location);
-    void fillToolchainVersions();
 
     Ui_AndroidSettingsWidget *m_ui;
     AndroidConfig m_androidConfig;

@@ -106,7 +106,6 @@ QWidget *HighlighterSettingsPage::createPage(QWidget *parent)
     if (m_d->m_searchKeywords.isEmpty()) {
         QTextStream(&m_d->m_searchKeywords) << m_d->m_page->definitionFilesGroupBox->title()
             << m_d->m_page->locationLabel->text()
-            << m_d->m_page->alertWhenNoDefinition->text()
             << m_d->m_page->useFallbackLocation->text()
             << m_d->m_page->ignoreLabel->text();
     }
@@ -165,7 +164,6 @@ void HighlighterSettingsPage::settingsFromUI()
 
     m_d->m_settings.setDefinitionFilesPath(m_d->m_page->definitionFilesPath->path());
     m_d->m_settings.setFallbackDefinitionFilesPath(m_d->m_page->fallbackDefinitionFilesPath->path());
-    m_d->m_settings.setAlertWhenNoDefinition(m_d->m_page->alertWhenNoDefinition->isChecked());
     m_d->m_settings.setUseFallbackLocation(m_d->m_page->useFallbackLocation->isChecked());
     m_d->m_settings.setIgnoredFilesPatterns(m_d->m_page->ignoreEdit->text());
     m_d->m_settings.toSettings(m_d->m_settingsPrefix, Core::ICore::settings());
@@ -176,7 +174,6 @@ void HighlighterSettingsPage::settingsToUI()
     m_d->ensureInitialized();
     m_d->m_page->definitionFilesPath->setPath(m_d->m_settings.definitionFilesPath());
     m_d->m_page->fallbackDefinitionFilesPath->setPath(m_d->m_settings.fallbackDefinitionFilesPath());
-    m_d->m_page->alertWhenNoDefinition->setChecked(m_d->m_settings.alertWhenNoDefinition());
     m_d->m_page->useFallbackLocation->setChecked(m_d->m_settings.useFallbackLocation());
     m_d->m_page->ignoreEdit->setText(m_d->m_settings.ignoredFilesPatterns());
 
@@ -253,8 +250,6 @@ bool HighlighterSettingsPage::settingsChanged() const
         return true;
     if (m_d->m_settings.fallbackDefinitionFilesPath() !=
             m_d->m_page->fallbackDefinitionFilesPath->path())
-        return true;
-    if (m_d->m_settings.alertWhenNoDefinition() != m_d->m_page->alertWhenNoDefinition->isChecked())
         return true;
     if (m_d->m_settings.useFallbackLocation() != m_d->m_page->useFallbackLocation->isChecked())
         return true;

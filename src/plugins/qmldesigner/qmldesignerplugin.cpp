@@ -163,7 +163,7 @@ void QmlDesignerPlugin::createDesignModeWidget()
     m_context->context().add(qmlDesignerNavigatorContext);
     m_context->context().add(ProjectExplorer::Constants::LANG_QMLJS);
 
-    m_shortCutManager.registerActions();
+    m_shortCutManager.registerActions(qmlDesignerMainContext, qmlDesignerFormEditorContext, qmlDesignerNavigatorContext);
 
     connect(Core::ICore::editorManager(),
             SIGNAL(currentEditorChanged(Core::IEditor*)),
@@ -201,6 +201,7 @@ void QmlDesignerPlugin::showDesigner()
 
     if (m_documentManager.hasCurrentDesignDocument()) {
         activateAutoSynchronization();
+        m_shortCutManager.updateActions(currentDesignDocument()->textEditor());
         m_viewManager.pushFileOnCrambleBar(m_documentManager.currentDesignDocument()->fileName());
     }
 
@@ -297,6 +298,7 @@ void QmlDesignerPlugin::activateAutoSynchronization()
     if (errors.isEmpty()) {
         selectModelNodeUnderTextCursor();
         m_mainWidget->enableWidgets();
+        m_mainWidget->setupNavigatorHistory(currentDesignDocument()->textEditor());
     } else {
         m_mainWidget->disableWidgets();
         m_mainWidget->showErrorMessage(errors);

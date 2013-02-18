@@ -62,7 +62,7 @@ public:
      */
     QString executable() const;
 
-    /** Returns whether this runconfiguration ever was configured with a executable
+    /** Returns whether this runconfiguration ever was configured with an executable
      */
     bool isConfigured() const;
 

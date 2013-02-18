@@ -425,7 +425,7 @@ QList<HighlightDefinitionMetaData> Manager::parseAvailableDefinitionsList(QIODev
 
 void Manager::downloadAvailableDefinitionsMetaData()
 {
-    QUrl url(QLatin1String("http://www.kate-editor.org/syntax/update-3.2.xml"));
+    QUrl url(QLatin1String("http://www.kate-editor.org/syntax/update-3.9.xml"));
     QNetworkRequest request(url);
     // Currently this takes a couple of seconds on Windows 7: QTBUG-10106.
     QNetworkReply *reply = m_networkManager.get(request);

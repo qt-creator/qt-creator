@@ -51,7 +51,6 @@
 #include <qmleditorwidgets/colorwidgets.h>
 #include "gradientlineqmladaptor.h"
 #include "behaviordialog.h"
-#include "qproxylayoutitem.h"
 #include "fontwidget.h"
 #include "siblingcombobox.h"
 #include "propertyeditortransaction.h"
@@ -372,7 +371,6 @@ PropertyEditor::PropertyEditor(QWidget *parent) :
         QLayoutObject::registerDeclarativeType();
         QmlEditorWidgets::ColorWidgets::registerDeclarativeTypes();
         BehaviorDialog::registerDeclarativeType();
-        QProxyLayoutItem::registerDeclarativeTypes();
         PropertyEditorValue::registerDeclarativeTypes();
         FontWidget::registerDeclarativeTypes();
         SiblingComboBox::registerDeclarativeTypes();

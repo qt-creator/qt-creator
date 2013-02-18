@@ -1,5 +1,5 @@
 
-QT += core gui qml quick network v8
+QT += core gui widgets qml quick network v8
 contains (QT_CONFIG, webkit) {
     QT += webkit
 }

@@ -90,7 +90,7 @@ static FileStates stateFor(const QChar &c)
 {
     switch (c.unicode()) {
     case ' ':
-        return UntrackedFile;
+        return EmptyFileState;
     case 'M':
         return ModifiedFile;
     case 'A':
@@ -103,6 +103,8 @@ static FileStates stateFor(const QChar &c)
         return CopiedFile;
     case 'U':
         return UnmergedFile;
+    case '?':
+        return UntrackedFile;
     default:
         return UnknownFileState;
     }
@@ -144,11 +146,10 @@ bool CommitData::checkLine(const QString &stateInfo, const QString &file)
             files.append(qMakePair(xState | UnmergedFile | UnmergedUs, file));
         }
     } else {
-        xState |= StagedFile;
-        if (xState != StagedFile)
-            files.append(qMakePair(xState, file));
+        if (xState != EmptyFileState)
+            files.append(qMakePair(xState | StagedFile, file));
 
-        if (yState != UntrackedFile) {
+        if (yState != EmptyFileState) {
             QString newFile = file;
             if (xState & (RenamedFile | CopiedFile))
                 newFile = file.mid(file.indexOf(QLatin1String(" -> ")) + 4);

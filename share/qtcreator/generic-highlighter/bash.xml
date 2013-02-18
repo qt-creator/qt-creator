@@ -8,11 +8,12 @@
         <!ENTITY noword   "(?![\w$+-])">                <!-- no word, $, + or - following -->
         <!ENTITY pathpart "([\w_@.&#37;*?+-]|\\ )">     <!-- valid character in a file name -->
 ]>
-<language name="Bash" version="2.12" kateversion="2.4" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;.bashrc;.bash_profile;.bash_login;.profile" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
+<language name="Bash" version="2.16" kateversion="2.4" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;.bashrc;.bash_profile;.bash_login;.profile" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
 
 <!-- (c) 2004 by Wilbert Berendsen (wilbert@kde.nl)
     Changes by Matthew Woehlke (mw_triad@users.sourceforge.net)
     Changes by Sebastian Pipping (webmaster@hartwork.org)
+    Changes by Luiz Angelo Daros de Luca (luizluca@gmail.com)
     Released under the LGPL, part of kdelibs/kate -->
 
   <highlighting>
@@ -502,6 +503,10 @@
 
       <!-- FindCommands matches many items that can be expected outside strings, substitutions etc. -->
       <context attribute="Normal Text" lineEndContext="#stay" name="FindCommands">
+        <IncludeRules context="FindSpecialCommands" />
+        <IncludeRules context="FindNormalCommands" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="FindSpecialCommands">
         <!-- start expression in double parentheses -->
         <Detect2Chars attribute="Keyword" context="ExprDblParen" char="(" char1="(" beginRegion="expression" />
         <!-- start expression in double brackets -->
@@ -517,24 +522,21 @@
         <!-- match do and if blocks -->
         <RegExpr attribute="Keyword" context="#stay" String="\bdo&noword;" beginRegion="do" />
         <RegExpr attribute="Keyword" context="#stay" String="\bdone&noword;" endRegion="do" />
-        <RegExpr attribute="Keyword" context="#stay" String="\bif&noword;" beginRegion="if" />
+        <RegExpr attribute="Keyword" context="#stay" String="\bif&eos;" beginRegion="if" />
         <RegExpr attribute="Keyword" context="#stay" String="\bfi&noword;" endRegion="if" />
         <!-- handle case as a special case -->
         <RegExpr attribute="Keyword" context="Case" String="\bcase&noword;" beginRegion="case" />
-        <!-- handle command line options -->
-        <RegExpr attribute="Option" context="#stay" String="-[A-Za-z0-9][A-Za-z0-9_]*" />
-        <RegExpr attribute="Option" context="#stay" String="--[a-z][A-Za-z0-9_-]*" />
         <!-- handle variable assignments -->
         <RegExpr attribute="Variable" context="Assign" String="\b&varname;\+?=" />
         <RegExpr attribute="Variable" context="AssignSubscr" String="\b&varname;(?=\[.+\]\+?=)" />
         <!-- handle functions with function keyword before keywords -->
         <StringDetect attribute="Function" context="#stay" String=":()" />
         <RegExpr attribute="Keyword" context="FunctionDef" String="\bfunction\b" />
+        <!-- mark function definitions without function keyword -->
+        <RegExpr attribute="Function" context="#stay" String="&funcname;\s*\(\)" />
         <!-- handle keywords -->
         <keyword attribute="Keyword" context="#stay" String="keywords" />
         <RegExpr attribute="Builtin" context="#stay" String="\.(?=\s)" />
-        <keyword attribute="Builtin" context="#stay" String="builtins" />
-        <keyword attribute="Command" context="#stay" String="unixcommands" />
         <!-- handle commands that have variable names as argument -->
         <keyword attribute="Builtin" context="VarName" String="builtins_var" />
         <!-- handle here-string -->
@@ -547,10 +549,60 @@
         <RegExpr attribute="Redirection" context="#stay" String="([0-9]*(&gt;{1,2}|&lt;)(&amp;[0-9]+-?)?|&amp;&gt;|&gt;&amp;|[0-9]*&lt;&gt;)" />
         <!-- handle &, &&, | and || -->
         <RegExpr attribute="Control" context="#stay" String="([|&amp;])\1?" />
-        <!-- mark function definitions without function keyword -->
-        <RegExpr attribute="Function" context="#stay" String="&funcname;\s*\(\)" />
+      </context>      
+      <context attribute="Normal Text" lineEndContext="#stay" name="FindNormalCommands">
+        <keyword attribute="Builtin" context="CommandArgs" String="builtins" />
+        <keyword attribute="Command" context="CommandArgs" String="unixcommands" />
+        <RegExpr attribute="OtherCommand" context="#stay" String="&pathpart;*(?=/)" />
+        <RegExpr attribute="OtherCommand" context="#stay" String="~\w*" />
+        <RegExpr attribute="OtherCommand" context="#stay" String="/&pathpart;*(?=([/);$`'&quot;]|$))" />
+        <RegExpr attribute="OtherCommand" context="CommandArgs" String="/&pathpart;*(?=([\s);$`'&quot;]|$))" />
+        <!-- This list is not complete. ie, ":" is missing but as it is in bash completition. -->
+        <RegExpr attribute="OtherCommand" context="CommandArgs" String="&pathpart;*" />        
       </context>
-
+      
+      <!-- CommandArgs matches the items after a command -->
+      <context attribute="Normal Text" lineEndContext="#pop" name="CommandArgs">  
+        <LineContinue />
+        <IncludeRules context="FindMost" />
+        <RegExpr attribute="Keyword" context="#stay" String="\\$" />
+        <!-- handle keywords -->
+        <RegExpr attribute="Option" context="#stay" String="\.(?=\s)" />
+        <!-- handle here-string -->
+        <RegExpr attribute="Redirection" context="#stay" String="\d*&lt;&lt;&lt;" />
+        <!-- handle here document -->
+        <StringDetect attribute="Redirection" context="HereDoc" String="&lt;&lt;" lookAhead="true" />
+        <!-- handle process subst -->
+        <RegExpr attribute="Redirection" context="ProcessSubst" String="[&lt;&gt;]\(" />
+        <!-- handle redirection -->
+        <RegExpr attribute="Redirection" context="#stay" String="([0-9]*(&gt;{1,2}|&lt;)(&amp;[0-9]+-?)?|&amp;&gt;|&gt;&amp;|[0-9]*&lt;&gt;)" />
+        <!-- handle &, &&, | and || -->
+        <RegExpr attribute="Control" context="#pop" String="([|&amp;;])\1?" />        
+        <RegExpr attribute="Option" context="#stay" String="-?-[a-z][A-Za-z0-9_-]*" />
+        <keyword attribute="Option" context="#stay" String="keywords" />
+        <AnyChar String=")}" context="#pop" lookAhead="true"/>
+      </context>
+      
+      <!-- FindCommands matches many items that can be expected outside strings, substitutions etc, when inside a Backquote -->
+      <context attribute="Normal Text" lineEndContext="#stay" name="FindCommandsBackq">
+        <IncludeRules context="FindSpecialCommands" />
+        <IncludeRules context="FindNormalCommandsBackq" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="FindNormalCommandsBackq">
+        <keyword attribute="Builtin" context="CommandArgsBackq" String="builtins" />
+        <keyword attribute="Command" context="CommandArgsBackq" String="unixcommands" />
+        <RegExpr attribute="OtherCommand" context="#stay" String="&pathpart;*(?=/)" />
+        <RegExpr attribute="OtherCommand" context="#stay" String="~\w*" />
+        <RegExpr attribute="OtherCommand" context="#stay" String="/&pathpart;*(?=([/);$`'&quot;]|$))" />
+        <RegExpr attribute="OtherCommand" context="CommandArgsBackq" String="/&pathpart;*(?=([\s);$`'&quot;]|$))" />
+        <RegExpr attribute="OtherCommand" context="CommandArgsBackq" String="&pathpart;*" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#pop" name="CommandArgsBackq"> 
+        <LineContinue />
+        <DetectChar attribute="Keyword" context="#pop" char="`" lookAhead="true"/>
+        <IncludeRules context="CommandArgs" />
+      </context>
+          
       <!-- FindOthers contains various rules to mark different shell input -->
       <context attribute="Normal Text" lineEndContext="#stay" name="FindOthers">
         <RegExpr attribute="Escape" context="#stay" String="\\[][;\\$`{}()|&amp;&lt;&gt;* ]" />
@@ -801,7 +853,7 @@
       <context attribute="Normal Text" lineEndContext="#stay" name="SubstBackq">
         <DetectChar attribute="Backquote" context="#pop" char="`" />
         <IncludeRules context="FindCommentsBackq" />
-        <IncludeRules context="FindCommands" />
+        <IncludeRules context="FindCommandsBackq" />
         <IncludeRules context="FindStrings" />
         <IncludeRules context="FindSubstitutions" />
         <IncludeRules context="FindOthers" />
@@ -873,23 +925,24 @@
     <itemDatas>
       <itemData name="Normal Text"	defStyleNum="dsNormal" />
       <itemData name="Comment"		defStyleNum="dsComment" />
-      <itemData name="Keyword" 		defStyleNum="dsKeyword" />
-      <itemData name="Control" 		defStyleNum="dsKeyword" />
-      <itemData name="Builtin" 		defStyleNum="dsKeyword" color="#808" />
-      <itemData name="Command" 		defStyleNum="dsKeyword" color="#c0c" />
-      <itemData name="Redirection" 	defStyleNum="dsKeyword" color="#238" />
-      <itemData name="Escape" 		defStyleNum="dsDataType" />
-      <itemData name="String SingleQ" 	defStyleNum="dsString" />
-      <itemData name="String DoubleQ" 	defStyleNum="dsString" />
-      <itemData name="Backquote" 	defStyleNum="dsKeyword" />
-      <itemData name="String Transl." 	defStyleNum="dsString" />
-      <itemData name="String Escape" 	defStyleNum="dsDataType" />
+      <itemData name="Keyword"		defStyleNum="dsKeyword" />
+      <itemData name="Control"		defStyleNum="dsKeyword" />
+      <itemData name="Builtin"		defStyleNum="dsKeyword" color="#808" />
+      <itemData name="Command"		defStyleNum="dsKeyword" color="#c0c" />
+      <itemData name="OtherCommand"	defStyleNum="dsKeyword" color="#303" />
+      <itemData name="Redirection"	defStyleNum="dsKeyword" color="#238" />
+      <itemData name="Escape"		defStyleNum="dsDataType" />
+      <itemData name="String SingleQ"	defStyleNum="dsString" />
+      <itemData name="String DoubleQ"	defStyleNum="dsString" />
+      <itemData name="Backquote"	defStyleNum="dsKeyword" />
+      <itemData name="String Transl."	defStyleNum="dsString" />
+      <itemData name="String Escape"	defStyleNum="dsDataType" />
       <itemData name="Variable" 	defStyleNum="dsOthers" />
-      <itemData name="Expression" 	defStyleNum="dsOthers" />
+      <itemData name="Expression"	defStyleNum="dsOthers" />
       <itemData name="Function" 	defStyleNum="dsFunction" />
-      <itemData name="Path" 		defStyleNum="dsNormal" />
-      <itemData name="Option" 		defStyleNum="dsNormal" />
-      <itemData name="Error"            defStyleNum="dsError" />
+      <itemData name="Path"		defStyleNum="dsNormal" />
+      <itemData name="Option"		defStyleNum="dsNormal" />
+      <itemData name="Error"		defStyleNum="dsError" />
     </itemDatas>
   </highlighting>
   <general>

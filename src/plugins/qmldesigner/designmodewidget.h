@@ -52,6 +52,7 @@
 #include <QToolBar>
 #include <QComboBox>
 #include <QLabel>
+#include <QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 class QStackedWidget;
@@ -104,12 +105,10 @@ class DesignModeWidget : public QWidget
 public:
     explicit DesignModeWidget(QWidget *parent = 0);
 
-    void showEditor(Core::IEditor *editor);
-    void closeEditors(const QList<Core::IEditor*> editors);
+    ~DesignModeWidget();
     QString contextHelpId() const;
 
     void initialize();
-
 
     void readSettings();
     void saveSettings();
@@ -118,6 +117,8 @@ public:
 
     DesignDocument *currentDesignDocument() const;
     ViewManager &viewManager();
+
+    void setupNavigatorHistory(Core::IEditor *editor);
 
     void enableWidgets();
     void disableWidgets();
@@ -137,8 +138,8 @@ private slots:
     void deleteSidebarWidgets();
     void qmlPuppetCrashed();
 
-    void onGoBackClicked();
-    void onGoForwardClicked();
+    void toolBarOnGoBackClicked();
+    void toolBarOnGoForwardClicked();
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -150,15 +151,14 @@ private: // functions
     void setup();
     bool isInNodeDefinition(int nodeOffset, int nodeLength, int cursorPos) const;
     QmlDesigner::ModelNode nodeForPosition(int cursorPos) const;
-    void setupNavigatorHistory(Core::IEditor *editor);
     void addNavigatorHistoryEntry(const QString &fileName);
     QWidget *createCenterWidget();
 
 private: // variables
     QSplitter *m_mainSplitter;
-    Core::SideBar *m_leftSideBar;
-    Core::SideBar *m_rightSideBar;
-    Core::EditorToolBar *m_fakeToolBar;
+    QScopedPointer<Core::SideBar> m_leftSideBar;
+    QScopedPointer<Core::SideBar> m_rightSideBar;
+    Core::EditorToolBar *m_toolBar;
     Core::OutputPanePlaceHolder *m_outputPanePlaceholder;
     Core::MiniSplitter *m_outputPlaceholderSplitter;
     QList<Core::SideBarItem*> m_sideBarItems;

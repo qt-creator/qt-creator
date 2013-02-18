@@ -3,6 +3,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/editormanager/openeditorsmodel.h>
 #include <coreplugin/coreconstants.h>
 #include <utils/hostosinfo.h>
@@ -39,13 +40,11 @@ ShortCutManager::ShortCutManager()
 
 }
 
-void ShortCutManager::registerActions()
+void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContext,
+                                      const Core::Context &qmlDesignerFormEditorContext,
+                                      const Core::Context &qmlDesignerNavigatorContext)
 {
     Core::ActionContainer *editMenu = Core::ActionManager::actionContainer(Core::Constants::M_EDIT);
-
-    Core::Context qmlDesignerMainContext(Constants::C_QMLDESIGNER);
-    Core::Context qmlDesignerFormEditorContext(Constants::C_QMLFORMEDITOR);
-    Core::Context qmlDesignerNavigatorContext(Constants::C_QMLNAVIGATOR);
 
     connect(&m_undoAction, SIGNAL(triggered()), this, SLOT(undo()));
 
@@ -173,9 +172,8 @@ void ShortCutManager::registerActions()
     }
 }
 
-void ShortCutManager::updateActions(Core::IEditor* editor)
+void ShortCutManager::updateActions(Core::IEditor* currentEditor)
 {
-    Core::IEditor *currentEditor = editor;
     int openedCount = Core::ICore::editorManager()->openedEditors().count()
                       + Core::ICore::editorManager()->openedEditorsModel()->restoredEditors().count();
 
@@ -320,7 +318,7 @@ void ShortCutManager::redoAvailable(bool isAvailable)
 void ShortCutManager::goIntoComponent()
 {
     if (currentDesignDocument())
-        currentDesignDocument()->goIntoComponent();
+        currentDesignDocument()->goIntoSelectedComponent();
 }
 
 } // namespace QmlDesigner

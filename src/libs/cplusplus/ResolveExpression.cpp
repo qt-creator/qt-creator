@@ -848,7 +848,7 @@ public:
     }
 
 private:
-    NamedType *getNamedType(FullySpecifiedType& type)
+    NamedType *getNamedType(FullySpecifiedType& type) const
     {
         NamedType *namedTy = type->asNamedType();
         if (! namedTy) {
@@ -858,19 +858,57 @@ private:
         return namedTy;
     }
 
-    QList<LookupItem> getNamedTypeItems(const Name *name, Scope *scope, ClassOrNamespace *binding)
+    QList<LookupItem> getNamedTypeItems(const Name *name, Scope *scope,
+                                        ClassOrNamespace *binding) const
     {
-        QList<LookupItem> namedTypeItems;
-        if (binding)
-            namedTypeItems = binding->lookup(name);
-        if (ClassOrNamespace *scopeCon = _context.lookupType(scope))
-            namedTypeItems += scopeCon->lookup(name);
+        QList<LookupItem> namedTypeItems = typedefsFromScopeUpToFunctionScope(name, scope);
+        if (namedTypeItems.isEmpty()) {
+            if (binding)
+                namedTypeItems = binding->lookup(name);
+            if (ClassOrNamespace *scopeCon = _context.lookupType(scope))
+                namedTypeItems += scopeCon->lookup(name);
+        }
 
         return namedTypeItems;
     }
 
+    /// Return all typedefs with given name from given scope up to function scope.
+    static QList<LookupItem> typedefsFromScopeUpToFunctionScope(const Name *name, Scope *scope)
+    {
+        QList<LookupItem> results;
+        Scope *enclosingBlockScope = 0;
+        for (Block *block = scope->asBlock(); block;
+             block = enclosingBlockScope ? enclosingBlockScope->asBlock() : 0) {
+            const unsigned memberCount = block->memberCount();
+            for (unsigned i = 0; i < memberCount; ++i) {
+                Symbol *symbol = block->memberAt(i);
+                if (Declaration *declaration = symbol->asDeclaration()) {
+                    if (isTypedefWithName(declaration, name)) {
+                        LookupItem item;
+                        item.setDeclaration(declaration);
+                        item.setScope(block);
+                        item.setType(declaration->type());
+                        results.append(item);
+                    }
+                }
+            }
+            enclosingBlockScope = block->enclosingScope();
+        }
+        return results;
+    }
+
+    static bool isTypedefWithName(const Declaration *declaration, const Name *name)
+    {
+        if (declaration->isTypedef()) {
+            const Identifier *identifier = declaration->name()->identifier();
+            if (name->identifier()->isEqualTo(identifier))
+                return true;
+        }
+        return false;
+    }
+
     bool findTypedef(const QList<LookupItem>& namedTypeItems, FullySpecifiedType *type,
-                     Scope **scope, QSet<Symbol *>& visited)
+                     Scope **scope, QSet<Symbol *>& visited) const
     {
         bool foundTypedef = false;
         foreach (const LookupItem &it, namedTypeItems) {
@@ -928,6 +966,11 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                 FullySpecifiedType type = ptrTy->elementType();
                 if (! ty->isPointerType())
                     type = ty;
+                if (ClassOrNamespace *binding = findClass(type, scope))
+                    return binding;
+
+            } else if (PointerType *ptrTy = ty->asPointerType()) {
+                FullySpecifiedType type = ptrTy->elementType();
                 if (ClassOrNamespace *binding = findClass(type, scope))
                     return binding;
 

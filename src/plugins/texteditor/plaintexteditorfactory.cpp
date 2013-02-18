@@ -83,6 +83,10 @@ Core::IEditor *PlainTextEditorFactory::createEditor(QWidget *parent)
     return rc->editor();
 }
 
+/*!
+ * Test if syntax highlighter is available (or unneeded) for \a editor.
+ * If not found, show a warning with a link to the relevant settings page.
+ */
 void PlainTextEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
 {
     PlainTextEditor *editorEditable = qobject_cast<PlainTextEditor *>(editor);
@@ -92,25 +96,18 @@ void PlainTextEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
             return;
         PlainTextEditorWidget *textEditor = static_cast<PlainTextEditorWidget *>(editorEditable->editorWidget());
         Core::Id infoSyntaxDefinition(Constants::INFO_SYNTAX_DEFINITION);
-        if (textEditor->isMissingSyntaxDefinition() &&
-            !textEditor->ignoreMissingSyntaxDefinition() &&
-            TextEditorSettings::instance()->highlighterSettings().alertWhenNoDefinition()) {
-            if (file->hasHighlightWarning())
-                return;
+        Core::InfoBar *infoBar = file->infoBar();
+        if (!textEditor->isMissingSyntaxDefinition()) {
+            infoBar->removeInfo(infoSyntaxDefinition);
+        } else if (infoBar->canInfoBeAdded(infoSyntaxDefinition)) {
             Core::InfoBarEntry info(infoSyntaxDefinition,
                                     tr("A highlight definition was not found for this file. "
-                                       "Would you like to try to find one?"));
+                                       "Would you like to try to find one?"),
+                                    Core::InfoBarEntry::GlobalSuppressionEnabled);
             info.setCustomButtonInfo(tr("Show highlighter options..."),
                                      textEditor, SLOT(acceptMissingSyntaxDefinitionInfo()));
-            info.setCancelButtonInfo(textEditor, SLOT(ignoreMissingSyntaxDefinitionInfo()));
-            file->infoBar()->addInfo(info);
-            file->setHighlightWarning(true);
-            return;
+            infoBar->addInfo(info);
         }
-        if (!file->hasHighlightWarning())
-            return;
-        file->infoBar()->removeInfo(infoSyntaxDefinition);
-        file->setHighlightWarning(false);
     }
 }
 

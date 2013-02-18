@@ -105,7 +105,7 @@
    <item row="3" column="0">
     <widget class="QLabel" name="whatsASessionLabel">
      <property name="text">
-      <string>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</string>
+      <string>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</string>
      </property>
     </widget>
    </item>

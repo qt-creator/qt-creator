@@ -228,8 +228,8 @@ void TypePrettyPrinter::visitIndirectionType(
 
     _needsParens = true;
     acceptType(elementType);
-    (bool) switchIsIndirectionToArrayOrFunction(prevIsIndirectionToArrayOrFunction);
-    (bool) switchIsIndirectionType(prevIsIndirectionType);
+    switchIsIndirectionToArrayOrFunction(prevIsIndirectionToArrayOrFunction);
+    switchIsIndirectionType(prevIsIndirectionType);
 }
 
 void TypePrettyPrinter::visit(IntegerType *type)

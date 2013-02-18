@@ -225,6 +225,8 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
     nextButton = waitForObject(":Next_QPushButton")
     clickButton(nextButton)
     __createProjectHandleLastPage__()
+
+    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 10000)
     return checkedTargets, projectName
 
 def createNewQtQuickUI(workingDir):
@@ -267,7 +269,8 @@ def __chooseComponents__(components=QtQuickConstants.Components.BUILTIN):
 # parameter target can be an OR'd value of QtQuickConstants.Targets
 # parameter availableTargets should be the result of __createProjectSelectType__()
 #           or use None as a fallback
-def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP_474_GCC, availableTargets=None):
+def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP_474_GCC, availableTargets=None,
+                      isMaddeDisabled=True):
     if availableTargets != None:
         available = availableTargets
     else:
@@ -278,6 +281,10 @@ def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP_474_GCC, availabl
         if platform.system() in ('Windows', 'Microsoft'):
             available.remove(QtQuickConstants.Targets.EMBEDDED_LINUX)
             available.append(QtQuickConstants.Targets.DESKTOP_474_MSVC2008)
+    if isMaddeDisabled:
+        for target in filter(lambda x: x in available,
+                             (QtQuickConstants.Targets.MAEMO5, QtQuickConstants.Targets.HARMATTAN)):
+            available.remove(target)
     checkedTargets = []
     for current in available:
         mustCheck = targets & current == current
@@ -434,7 +441,6 @@ def __getSupportedPlatforms__(text, getAsStrings=False):
     if 'Supported Platforms' in text:
         supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split(" ")
         result = []
-        addSimulator = False
         if 'Desktop' in supports:
             result.append(QtQuickConstants.Targets.DESKTOP_474_GCC)
             if platform.system() in ("Linux", "Darwin"):
@@ -443,13 +449,12 @@ def __getSupportedPlatforms__(text, getAsStrings=False):
                 result.append(QtQuickConstants.Targets.DESKTOP_474_MSVC2008)
         if 'MeeGo/Harmattan' in supports:
             result.append(QtQuickConstants.Targets.HARMATTAN)
-            addSimulator = True
         if 'Maemo/Fremantle' in supports:
             result.append(QtQuickConstants.Targets.MAEMO5)
-            addSimulator = True
-        if len(result) == 0 or addSimulator:
+        if not re.search("custom Qt Creator plugin", text):
             result.append(QtQuickConstants.Targets.SIMULATOR)
     elif 'Platform independent' in text:
+        # MAEMO5 and HARMATTAN could be wrong here - depends on having Madde plugin enabled or not
         result = [QtQuickConstants.Targets.DESKTOP_474_GCC, QtQuickConstants.Targets.MAEMO5,
                   QtQuickConstants.Targets.SIMULATOR, QtQuickConstants.Targets.HARMATTAN]
         if platform.system() in ('Windows', 'Microsoft'):

@@ -110,7 +110,7 @@ public:
         // dynamic linking
         if (!dnsSdLib.load()) {
             m_isOk = false;
-            m_errorMsg = tr("could not load native library");
+            m_errorMsg = tr("Could not load native library.");
         }
         m_refDeallocate = reinterpret_cast<RefDeallocatePtr>(dnsSdLib.resolve("DNSServiceRefDeallocate"));
         m_resolve = reinterpret_cast<ResolvePtr>(dnsSdLib.resolve("DNSServiceResolve"));
@@ -138,9 +138,9 @@ public:
         if (m_isOk && m_getAddrInfo == 0) {
             m_isOk = false;
 #ifdef Q_OS_LINUX
-            m_errorMsg = tr("skipping over avahi compatibility lib (or obsolete mdnsd)");
+            m_errorMsg = tr("Skipping over Avahi compatibility lib (or obsolete mdnsd).");
 #else
-            m_errorMsg = tr("*WARNING* detected an obsolete version of Apple Bonjour, either disable/uninstall it or upgrade it, otherwise zeroconf will fail");
+            m_errorMsg = tr("Warning: Detected an obsolete version of Apple Bonjour. Disable, uninstall, or upgrade it, or zeroconf will fail.");
 #endif
         }
         if (DEBUG_ZEROCONF){

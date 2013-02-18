@@ -58,7 +58,6 @@ public:
     AndroidConfig config() const;
     QString proFilePath() const;
 
-    const Utils::FileName gdbCmd() const;
     const QString remoteChannel() const;
     const QString dumperLib() const;
 

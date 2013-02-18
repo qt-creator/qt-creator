@@ -7,7 +7,6 @@ QtcPlugin {
 
     Depends { name: "cpp" }
     Depends { name: "Core" }
-    Depends { name: "ExtensionSystem" }
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
 
     property bool enable: false

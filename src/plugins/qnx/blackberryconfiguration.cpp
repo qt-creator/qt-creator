@@ -31,6 +31,7 @@
 
 #include "blackberryconfiguration.h"
 #include "blackberryqtversion.h"
+#include "blackberrycertificate.h"
 #include "qnxutils.h"
 
 #include <coreplugin/icore.h>
@@ -62,22 +63,29 @@ namespace Internal {
 namespace {
 const QLatin1String SettingsGroup("BlackBerryConfiguration");
 const QLatin1String NDKLocationKey("NDKLocation");
+const QLatin1String CertificateGroup("Certificates");
 }
 
 BlackBerryConfiguration::BlackBerryConfiguration(QObject *parent)
     :QObject(parent)
 {
-    loadSetting();
-    connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSetting()));
+    loadSettings();
+    connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
 }
 
-bool BlackBerryConfiguration::setConfig(const QString &ndkPath)
+bool BlackBerryConfiguration::setNdkPath(const QString &ndkPath)
 {
     if (ndkPath.isEmpty())
         return false;
 
     m_config.ndkPath = ndkPath;
-    m_config.qnxEnv = QnxUtils::parseEnvironmentFile(QnxUtils::envFilePath(ndkPath));
+
+    return refresh();
+}
+
+bool BlackBerryConfiguration::refresh()
+{
+    m_config.qnxEnv = QnxUtils::parseEnvironmentFile(QnxUtils::envFilePath(m_config.ndkPath));
 
     QString ndkTarget = m_config.qnxEnv.value(QLatin1String("QNX_TARGET"));
     QString sep = QString::fromLatin1("%1qnx6").arg(QDir::separator());
@@ -94,18 +102,18 @@ bool BlackBerryConfiguration::setConfig(const QString &ndkPath)
 
     if (!qmakePath.toFileInfo().exists() || !gccPath.toFileInfo().exists()
             || !deviceGdbPath.toFileInfo().exists() || !simulatorGdbPath.toFileInfo().exists() ) {
-        QString errorMessage = tr("The following errors occurred while setting up BB10 Configuration:\n");
+        QString errorMessage = tr("The following errors occurred while setting up BB10 Configuration:");
         if (!qmakePath.toFileInfo().exists())
-            errorMessage += tr("- No Qt version found\n");
+            errorMessage += QLatin1Char('\n') + tr("- No Qt version found.");
 
         if (!gccPath.toFileInfo().exists())
-            errorMessage += tr("- No GCC compiler found\n");
+            errorMessage += QLatin1Char('\n') + tr("- No GCC compiler found.");
 
         if (!deviceGdbPath.toFileInfo().exists())
-            errorMessage += tr("- No Gdb debugger found for BB10 Device\n");
+            errorMessage += QLatin1Char('\n') + tr("- No GDB debugger found for BB10 Device.");
 
         if (!simulatorGdbPath.toFileInfo().exists())
-            errorMessage += tr("- No Gdb debugger found for BB10 Simulator");
+            errorMessage += QLatin1Char('\n') + tr("- No GDB debugger found for BB10 Simulator.");
 
         QMessageBox::warning(0, tr("Cannot Setup BB10 Configuration"),
                              errorMessage, QMessageBox::Ok);
@@ -120,12 +128,83 @@ bool BlackBerryConfiguration::setConfig(const QString &ndkPath)
     return true;
 }
 
-void BlackBerryConfiguration::setupConfiguration(const QString &ndkPath)
+void BlackBerryConfiguration::loadCertificates()
+{
+    QSettings *settings = Core::ICore::instance()->settings();
+
+    settings->beginGroup(SettingsGroup);
+    settings->beginGroup(CertificateGroup);
+
+    foreach (QString certificateId, settings->childGroups()) {
+        settings->beginGroup(certificateId);
+
+        BlackBerryCertificate *cert =
+            new BlackBerryCertificate(settings->value(QLatin1String(Qnx::Constants::QNX_KEY_PATH)).toString(),
+                    settings->value(QLatin1String(Qnx::Constants::QNX_KEY_AUTHOR)).toString());
+        cert->setParent(this);
+
+        if (settings->value(QLatin1String(Qnx::Constants::QNX_KEY_ACTIVE)).toBool())
+            m_config.activeCertificate = cert;
+
+        m_config.certificates << cert;
+
+        settings->endGroup();
+    }
+
+    settings->endGroup();
+    settings->endGroup();
+}
+
+void BlackBerryConfiguration::loadNdkSettings()
+{
+    QSettings *settings = Core::ICore::instance()->settings();
+
+    settings->beginGroup(SettingsGroup);
+    setNdkPath(settings->value(NDKLocationKey).toString());
+    settings->endGroup();
+}
+
+void BlackBerryConfiguration::saveCertificates()
+{
+    QSettings *settings = Core::ICore::instance()->settings();
+
+    settings->beginGroup(SettingsGroup);
+    settings->beginGroup(CertificateGroup);
+
+    settings->remove(QString());
+
+    foreach (const BlackBerryCertificate *cert, m_config.certificates) {
+        settings->beginGroup(cert->id());
+        settings->setValue(QLatin1String(Qnx::Constants::QNX_KEY_PATH), cert->fileName());
+        settings->setValue(QLatin1String(Qnx::Constants::QNX_KEY_AUTHOR), cert->author());
+
+        if (cert == m_config.activeCertificate)
+            settings->setValue(QLatin1String(Qnx::Constants::QNX_KEY_ACTIVE), true);
+
+        settings->endGroup();
+    }
+
+    settings->endGroup();
+    settings->endGroup();
+}
+
+void BlackBerryConfiguration::saveNdkSettings()
+{
+    if (m_config.ndkPath.isEmpty())
+        return;
+
+    QSettings *settings = Core::ICore::instance()->settings();
+    settings->beginGroup(SettingsGroup);
+    settings->setValue(NDKLocationKey, m_config.ndkPath);
+    settings->endGroup();
+}
+
+void BlackBerryConfiguration::setupNdkConfiguration(const QString &ndkPath)
 {
     if (ndkPath.isEmpty())
         return;
 
-    if (setConfig(ndkPath)) {
+    if (setNdkPath(ndkPath)) {
         QtSupport::BaseQtVersion *qtVersion = createQtVersion();
         ProjectExplorer::GccToolChain *tc = createGccToolChain();
         ProjectExplorer::Kit *deviceKit = createKit(ArmLeV7, qtVersion, tc);
@@ -143,7 +222,7 @@ void BlackBerryConfiguration::setupConfiguration(const QString &ndkPath)
     }
 }
 
-void BlackBerryConfiguration::cleanConfiguration()
+void BlackBerryConfiguration::cleanNdkConfiguration()
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtVersionManager::instance()->qtVersionForQMakeBinary(m_config.qmakeBinaryFile);
     if (version) {
@@ -161,10 +240,42 @@ void BlackBerryConfiguration::cleanConfiguration()
     }
 
     BlackBerryConfig conf;
+    conf.activeCertificate = m_config.activeCertificate;
+    conf.certificates = m_config.certificates;
     m_config = conf;
     emit updated();
 
-    clearSetting();
+    clearNdkSettings();
+}
+
+void BlackBerryConfiguration::syncCertificates(QList<BlackBerryCertificate*> certificates,
+        BlackBerryCertificate *activeCertificate)
+{
+    m_config.activeCertificate = activeCertificate;
+
+    foreach (BlackBerryCertificate *cert, m_config.certificates) {
+        if (!certificates.contains(cert)) {
+            m_config.certificates.removeAll(cert);
+            delete cert;
+        }
+    }
+
+    foreach (BlackBerryCertificate *cert, certificates) {
+        if (!m_config.certificates.contains(cert)) {
+            cert->setParent(this);
+            m_config.certificates << cert;
+        }
+    }
+}
+
+QList<BlackBerryCertificate*> BlackBerryConfiguration::certificates() const
+{
+    return m_config.certificates;
+}
+
+BlackBerryCertificate * BlackBerryConfiguration::activeCertificate()
+{
+    return m_config.activeCertificate;
 }
 
 QtSupport::BaseQtVersion *BlackBerryConfiguration::createQtVersion()
@@ -252,26 +363,19 @@ ProjectExplorer::Kit *BlackBerryConfiguration::createKit(QnxArchitecture arch, Q
     return kit;
 }
 
-void BlackBerryConfiguration::loadSetting()
+void BlackBerryConfiguration::loadSettings()
 {
-    QSettings *settings = Core::ICore::instance()->settings();
-    settings->beginGroup(SettingsGroup);
-    setConfig(settings->value(NDKLocationKey).toString());
-    settings->endGroup();
+    loadNdkSettings();
+    loadCertificates();
 }
 
-void BlackBerryConfiguration::saveSetting()
+void BlackBerryConfiguration::saveSettings()
 {
-    if (m_config.ndkPath.isEmpty())
-        return;
-
-    QSettings *settings = Core::ICore::instance()->settings();
-    settings->beginGroup(SettingsGroup);
-    settings->setValue(NDKLocationKey, m_config.ndkPath);
-    settings->endGroup();
+    saveNdkSettings();
+    saveCertificates();
 }
 
-void BlackBerryConfiguration::clearSetting()
+void BlackBerryConfiguration::clearNdkSettings()
 {
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(SettingsGroup);
@@ -324,6 +428,45 @@ Utils::FileName BlackBerryConfiguration::simulatorGdbPath() const
 Utils::FileName BlackBerryConfiguration::sysRoot() const
 {
     return m_config.sysRoot;
+}
+
+QString BlackBerryConfiguration::dataDirPath() const
+{
+    const QString homeDir = QDir::homePath();
+
+    if (Utils::HostOsInfo::isMacHost())
+        return homeDir + QLatin1String("/Library/Research in Motion");
+
+    if (Utils::HostOsInfo::isAnyUnixHost())
+        return homeDir + QLatin1String("/.rim");
+
+#if defined(Q_OS_WIN)
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        // needed because QSysInfo::windowsVersion() is not available on other
+        // platforms.
+        if (QSysInfo::windowsVersion() == QSysInfo::WV_XP)
+            return homeDir
+                + QLatin1String("/Local Settings/Application Data/Research In Motion");
+        return homeDir + QLatin1String("/AppData/Local/Research in Motion");
+    }
+#endif
+
+    return QString();
+}
+
+QString BlackBerryConfiguration::barsignerCskPath() const
+{
+    return dataDirPath() + QLatin1String("/barsigner.csk");
+}
+
+QString BlackBerryConfiguration::barsignerDbPath() const
+{
+    return dataDirPath() + QLatin1String("/barsigner.db");
+}
+
+QString BlackBerryConfiguration::defaultKeystorePath() const
+{
+    return dataDirPath() + QLatin1String("/author.p12");
 }
 
 // TODO: QnxUtils::parseEnvFile() and qnxEnv() to return Util::Enviroment instead(?)

@@ -58,6 +58,7 @@ QbsBuildConfigurationWidget::QbsBuildConfigurationWidget(QbsProjectManager::Inte
     container->setWidget(details);
 
     QGridLayout *layout = new QGridLayout(details);
+    layout->setMargin(0);
     layout->addWidget(new QLabel(tr("Build directory:"), 0, 0));
 
     m_buildDirChooser = new Utils::PathChooser;

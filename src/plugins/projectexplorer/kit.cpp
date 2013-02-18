@@ -87,6 +87,7 @@ public:
         m_id(id),
         m_autodetected(false),
         m_isValid(true),
+        m_hasWarning(false),
         m_nestedBlockingLevel(0),
         m_mustNotify(false)
     {
@@ -98,6 +99,7 @@ public:
     Id m_id;
     bool m_autodetected;
     bool m_isValid;
+    bool m_hasWarning;
     QIcon m_icon;
     QString m_iconPath;
     int m_nestedBlockingLevel;
@@ -176,16 +178,24 @@ bool Kit::isValid() const
     return d->m_id.isValid() && d->m_isValid;
 }
 
+bool Kit::hasWarning() const
+{
+    return d->m_hasWarning;
+}
+
 QList<Task> Kit::validate() const
 {
     QList<Task> result;
     QList<KitInformation *> infoList = KitManager::instance()->kitInformation();
     d->m_isValid = true;
+    d->m_hasWarning = false;
     foreach (KitInformation *i, infoList) {
         QList<Task> tmp = i->validate(this);
         foreach (const Task &t, tmp) {
             if (t.type == Task::Error)
                 d->m_isValid = false;
+            if (t.type == Task::Warning)
+                d->m_hasWarning = true;
         }
         result.append(tmp);
     }
@@ -388,17 +398,14 @@ void Kit::addToEnvironment(Utils::Environment &env) const
 
 IOutputParser *Kit::createOutputParser() const
 {
-    IOutputParser *last = 0;
     IOutputParser *first = 0;
     QList<KitInformation *> infoList = KitManager::instance()->kitInformation();
     foreach (KitInformation *ki, infoList) {
         IOutputParser *next = ki->createOutputParser(this);
         if (!first)
             first = next;
-        if (last && next)
-            last->appendOutputParser(next);
-        if (next)
-            last = next;
+        else
+            first->appendOutputParser(next);
     }
     return first;
 }
@@ -411,7 +418,7 @@ QString Kit::toHtml() const
     str << "<h3>" << displayName() << "</h3>";
     str << "<table>";
 
-    if (!isValid()) {
+    if (!isValid() || hasWarning()) {
         QList<Task> issues = validate();
         str << "<p>";
         foreach (const Task &t, issues) {

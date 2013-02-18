@@ -32,12 +32,24 @@
 
 #include <AST.h>
 
+#include <QtGlobal>
 #include <QTextCursor>
 
 #define DEBUG_OUTPUT 0
-#define CHECK_RV(cond, err, r) if (!(cond)) { if (DEBUG_OUTPUT) qDebug() << (err); return r; }
-#define CHECK_R(cond, err) if (!(cond)) { if (DEBUG_OUTPUT) qDebug() << (err); return; }
-#define CHECK_C(cond, err) if (!(cond)) { if (DEBUG_OUTPUT) qDebug() << (err); continue; }
+
+#if DEBUG_OUTPUT
+#  include <typeinfo>
+#  ifdef __GNUC__
+#    include <cxxabi.h>
+#  endif
+#endif
+
+#define CHECK_RV(cond, err, r) \
+    if (!(cond)) { if (DEBUG_OUTPUT) qDebug() << "Discarded:" << (err); return r; }
+#define CHECK_R(cond, err) \
+    if (!(cond)) { if (DEBUG_OUTPUT) qDebug() << "Discarded:" << (err); return; }
+#define CHECK_C(cond, err) \
+    if (!(cond)) { if (DEBUG_OUTPUT) qDebug() << "Discarded:" << (err); continue; }
 
 using namespace CppTools;
 
@@ -122,6 +134,11 @@ PointerDeclarationFormatter::PointerDeclarationFormatter(
 bool PointerDeclarationFormatter::visit(SimpleDeclarationAST *ast)
 {
     CHECK_RV(ast, "Invalid AST", true);
+    printCandidate(ast);
+
+    const unsigned tokenKind = tokenAt(ast->firstToken()).kind();
+    const bool astIsOk = tokenKind != T_CLASS && tokenKind != T_STRUCT && tokenKind != T_ENUM;
+    CHECK_RV(astIsOk, "Nothing to do for class/struct/enum", true);
 
     DeclaratorListAST *declaratorList = ast->declarator_list;
     CHECK_RV(declaratorList, "No declarator list", true);
@@ -151,7 +168,7 @@ bool PointerDeclarationFormatter::visit(SimpleDeclarationAST *ast)
 
         // Specify activation range
         int lastActivationToken = 0;
-        Range range;
+        TokenRange range;
         // (2) Handle function declaration's return type
         if (symbol->type()->asFunctionType()) {
             PostfixDeclaratorListAST *pfDeclaratorList = declarator->postfix_declarator_list;
@@ -179,7 +196,7 @@ bool PointerDeclarationFormatter::visit(SimpleDeclarationAST *ast)
                 firstActivationToken = declarator->firstToken();
             }
 
-            range.start = m_cppRefactoringFile->startOf(firstActivationToken);
+            range.start = firstActivationToken;
 
         // (1) Handle 'normal' declarations.
         } else {
@@ -191,15 +208,16 @@ bool PointerDeclarationFormatter::visit(SimpleDeclarationAST *ast)
                             declarator->firstToken(),
                             &foundBegin);
                 CHECK_RV(foundBegin, "Declaration without attributes not supported", true);
-                range.start = m_cppRefactoringFile->startOf(firstActivationToken);
+                range.start = firstActivationToken;
             } else {
-                range.start = m_cppRefactoringFile->startOf(declarator);
+                range.start = declarator->firstToken();
             }
             lastActivationToken = declarator->equal_token
                 ? declarator->equal_token - 1
                 : declarator->lastToken() - 1;
         }
-        range.end = m_cppRefactoringFile->endOf(lastActivationToken);
+
+        range.end = lastActivationToken;
 
         checkAndRewrite(symbol, range, charactersToRemove);
     }
@@ -209,6 +227,9 @@ bool PointerDeclarationFormatter::visit(SimpleDeclarationAST *ast)
 /*! Handle return types of function definitions */
 bool PointerDeclarationFormatter::visit(FunctionDefinitionAST *ast)
 {
+    CHECK_RV(ast, "Invalid AST", true);
+    printCandidate(ast);
+
     DeclaratorAST *declarator = ast->declarator;
     CHECK_RV(declarator, "No declarator", true);
     CHECK_RV(declarator->ptr_operator_list, "No Pointer or references", true);
@@ -230,8 +251,7 @@ bool PointerDeclarationFormatter::visit(FunctionDefinitionAST *ast)
         lastActivationToken,
         &foundBegin);
     CHECK_RV(foundBegin, "Declaration without attributes not supported", true);
-    Range range(m_cppRefactoringFile->startOf(firstActivationToken),
-                m_cppRefactoringFile->endOf(lastActivationToken));
+    TokenRange range(firstActivationToken, lastActivationToken);
 
     checkAndRewrite(symbol, range);
     return true;
@@ -240,6 +260,9 @@ bool PointerDeclarationFormatter::visit(FunctionDefinitionAST *ast)
 /*! Handle parameters in function declarations and definitions */
 bool PointerDeclarationFormatter::visit(ParameterDeclarationAST *ast)
 {
+    CHECK_RV(ast, "Invalid AST", true);
+    printCandidate(ast);
+
     DeclaratorAST *declarator = ast->declarator;
     CHECK_RV(declarator, "No declarator", true);
     CHECK_RV(declarator->ptr_operator_list, "No Pointer or references", true);
@@ -249,8 +272,7 @@ bool PointerDeclarationFormatter::visit(ParameterDeclarationAST *ast)
     const int lastActivationToken = ast->equal_token
         ? ast->equal_token - 1
         : ast->lastToken() - 1;
-    Range range(m_cppRefactoringFile->startOf(ast),
-                m_cppRefactoringFile->endOf(lastActivationToken));
+    TokenRange range(ast->firstToken(), lastActivationToken);
 
     checkAndRewrite(symbol, range);
     return true;
@@ -259,6 +281,9 @@ bool PointerDeclarationFormatter::visit(ParameterDeclarationAST *ast)
 /*! Handle declaration in foreach statement */
 bool PointerDeclarationFormatter::visit(ForeachStatementAST *ast)
 {
+    CHECK_RV(ast, "Invalid AST", true);
+    printCandidate(ast);
+
     DeclaratorAST *declarator = ast->declarator;
     CHECK_RV(declarator, "No declarator", true);
     CHECK_RV(declarator->ptr_operator_list, "No Pointer or references", true);
@@ -272,8 +297,7 @@ bool PointerDeclarationFormatter::visit(ForeachStatementAST *ast)
     const int lastActivationToken = declarator->equal_token
         ? declarator->equal_token - 1
         : declarator->lastToken() - 1;
-    Range range(m_cppRefactoringFile->startOf(firstSpecifier),
-                m_cppRefactoringFile->endOf(lastActivationToken));
+    TokenRange range(firstSpecifier->firstToken(), lastActivationToken);
 
     checkAndRewrite(symbol, range);
     return true;
@@ -281,18 +305,24 @@ bool PointerDeclarationFormatter::visit(ForeachStatementAST *ast)
 
 bool PointerDeclarationFormatter::visit(IfStatementAST *ast)
 {
+    CHECK_RV(ast, "Invalid AST", true);
+    printCandidate(ast);
     processIfWhileForStatement(ast->condition, ast->symbol);
     return true;
 }
 
 bool PointerDeclarationFormatter::visit(WhileStatementAST *ast)
 {
+    CHECK_RV(ast, "Invalid AST", true);
+    printCandidate(ast);
     processIfWhileForStatement(ast->condition, ast->symbol);
     return true;
 }
 
 bool PointerDeclarationFormatter::visit(ForStatementAST *ast)
 {
+    CHECK_RV(ast, "Invalid AST", true);
+    printCandidate(ast);
     processIfWhileForStatement(ast->condition, ast->symbol);
     return true;
 }
@@ -330,8 +360,7 @@ void PointerDeclarationFormatter::processIfWhileForStatement(ExpressionAST *expr
     }
 
     // Specify activation range
-    Range range(m_cppRefactoringFile->startOf(condition),
-                m_cppRefactoringFile->endOf(declarator->equal_token - 1));
+    TokenRange range(condition->firstToken(), declarator->equal_token - 1);
 
     checkAndRewrite(symbol, range);
 }
@@ -343,12 +372,22 @@ void PointerDeclarationFormatter::processIfWhileForStatement(ExpressionAST *expr
    \param symbol the symbol to be rewritten
    \param range the substitution range in the file
  */
-void PointerDeclarationFormatter::checkAndRewrite(Symbol *symbol, Range range,
+void PointerDeclarationFormatter::checkAndRewrite(Symbol *symbol, TokenRange tokenRange,
                                                   unsigned charactersToRemove)
 {
-    CHECK_R(range.start >= 0 && range.end > 0, "Range invalid");
-    CHECK_R(range.start < range.end, "Range invalid");
+    CHECK_R(tokenRange.end > 0, "TokenRange invalid1");
+    CHECK_R(tokenRange.start < tokenRange.end, "TokenRange invalid2");
     CHECK_R(symbol, "No symbol");
+
+    // Check for expanded tokens
+    for (unsigned token = tokenRange.start; token <= tokenRange.end; ++token)
+        CHECK_R(! tokenAt(token).expanded(), "Token is expanded");
+
+    Range range(m_cppRefactoringFile->startOf(tokenRange.start),
+                m_cppRefactoringFile->endOf(tokenRange.end));
+
+    CHECK_R(range.start >= 0 && range.end > 0, "ChangeRange invalid1");
+    CHECK_R(range.start < range.end, "ChangeRange invalid2");
 
     // Check range with respect to cursor position / selection
     if (m_cursorHandling == RespectCursor) {
@@ -374,10 +413,14 @@ void PointerDeclarationFormatter::checkAndRewrite(Symbol *symbol, Range range,
     // Does the rewritten declaration (part) differs from the original source (part)?
     QString rewrittenDeclaration = rewriteDeclaration(type, symbol->name());
     rewrittenDeclaration.remove(0, charactersToRemove);
+
     CHECK_R(originalDeclaration != rewrittenDeclaration, "Rewritten is same as original");
+    CHECK_R(rewrittenDeclaration.contains(QLatin1Char('&'))
+            || rewrittenDeclaration.contains(QLatin1Char('*')),
+            "No pointer or references in rewritten declaration");
 
     if (DEBUG_OUTPUT) {
-        qDebug("Rewritten: \"%s\" --> \"%s\"", originalDeclaration.toLatin1().constData(),
+        qDebug("==> Rewritten: \"%s\" --> \"%s\"", originalDeclaration.toLatin1().constData(),
                rewrittenDeclaration.toLatin1().constData());
     }
 
@@ -414,4 +457,23 @@ QString PointerDeclarationFormatter::rewriteDeclaration(FullySpecifiedType type,
     }
 
     return m_overview.prettyType(type, QLatin1String(identifier));
+}
+
+void PointerDeclarationFormatter::printCandidate(AST *ast)
+{
+#if DEBUG_OUTPUT
+    QString tokens;
+    for (unsigned token = ast->firstToken(); token < ast->lastToken(); token++)
+        tokens += QString::fromLatin1(tokenAt(token).spell()) + QLatin1Char(' ');
+
+#  ifdef __GNUC__
+    QByteArray name = abi::__cxa_demangle(typeid(*ast).name(), 0, 0, 0) + 11;
+    name.truncate(name.length() - 3);
+#  else
+    QByteArray name = typeid(*ast).name();
+#  endif
+    qDebug("--> Candidate: %s: %s", name.constData(), qPrintable(tokens));
+#else
+    Q_UNUSED(ast)
+#endif // DEBUG_OUTPUT
 }

@@ -62,7 +62,7 @@ void BlackBerryNDKSettingsWidget::checkSdkPath()
 {
     if (!m_ui->sdkPath->path().isEmpty() &&
             QnxUtils::isValidNdkPath(m_ui->sdkPath->path()))
-        m_bbConfig->setupConfiguration(m_ui->sdkPath->path());
+        m_bbConfig->setupNdkConfiguration(m_ui->sdkPath->path());
 }
 
 void BlackBerryNDKSettingsWidget::updateInfoTable()
@@ -114,7 +114,7 @@ void BlackBerryNDKSettingsWidget::cleanConfiguration()
                                   QMessageBox::Yes | QMessageBox::No);
 
     if (button == QMessageBox::Yes)
-        m_bbConfig->cleanConfiguration();
+        m_bbConfig->cleanNdkConfiguration();
 }
 
 void BlackBerryNDKSettingsWidget::initInfoTable()

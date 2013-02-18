@@ -307,7 +307,7 @@ void QmlProfilerDataModel::addRangedEvent(int type, int bindingType, qint64 star
 
     // generate details string
     if (data.isEmpty())
-        details = tr("Source code not available");
+        details = tr("Source code not available.");
     else {
         details = data.join(QLatin1String(" ")).replace(QLatin1Char('\n'),QLatin1Char(' ')).simplified();
         QRegExp rewrite(QLatin1String("\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)"));
@@ -685,7 +685,7 @@ QString QmlProfilerDataModel::getDetails(int index) const
     // special: animations
     if (d->startInstanceList[index].statsInfo->eventType == QmlDebug::Painting &&
             d->startInstanceList[index].animationCount >= 0)
-        return tr("%1 animations at %2 FPS").arg(
+        return tr("%1 animations at %2 FPS.").arg(
                     QString::number(d->startInstanceList[index].animationCount),
                     QString::number(d->startInstanceList[index].frameRate));
     return d->startInstanceList[index].statsInfo->details;
@@ -804,7 +804,7 @@ void QmlProfilerDataModel::complete()
         compileStatistics(traceStartTime(), traceEndTime());
         setState(Done);
     } else {
-        emit error(tr("Unexpected complete signal in data model"));
+        emit error(tr("Unexpected complete signal in data model."));
     }
 }
 
@@ -1344,13 +1344,13 @@ void QmlProfilerDataModel::finishedRewritingDetails()
 bool QmlProfilerDataModel::save(const QString &filename)
 {
     if (isEmpty()) {
-        emit error(tr("No data to save"));
+        emit error(tr("No data to save."));
         return false;
     }
 
     QFile file(filename);
     if (!file.open(QIODevice::WriteOnly)) {
-        emit error(tr("Could not open %1 for writing").arg(filename));
+        emit error(tr("Could not open %1 for writing.").arg(filename));
         return false;
     }
 
@@ -1427,7 +1427,7 @@ void QmlProfilerDataModel::load()
     QFile file(filename);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        emit error(tr("Could not open %1 for reading").arg(filename));
+        emit error(tr("Could not open %1 for reading.").arg(filename));
         return;
     }
 
@@ -1589,7 +1589,7 @@ void QmlProfilerDataModel::load()
     file.close();
 
     if (stream.hasError()) {
-        emit error(tr("Error while parsing %1").arg(filename));
+        emit error(tr("Error while parsing %1.").arg(filename));
         clear();
         return;
     }
@@ -1660,7 +1660,7 @@ void QmlProfilerDataModel::setState(QmlProfilerDataModel::State state)
             QTC_ASSERT(d->listState == ProcessingData || d->listState == Empty, return);
         break;
         default:
-            emit error(tr("Trying to set unknown state in events list"));
+            emit error(tr("Trying to set unknown state in events list."));
         break;
     }
 

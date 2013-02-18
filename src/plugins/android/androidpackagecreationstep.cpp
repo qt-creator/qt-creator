@@ -34,6 +34,8 @@
 #include "androidglobal.h"
 #include "androidpackagecreationwidget.h"
 #include "androidmanager.h"
+#include "androidgdbserverkitinformation.h"
+#include "androidtoolchain.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -152,7 +154,7 @@ bool AndroidPackageCreationStep::init()
     else
         androidLibPath = path.appendPath(QLatin1String("libs/armeabi"));
     m_gdbServerDestination = androidLibPath.appendPath(QLatin1String("gdbserver"));
-    m_gdbServerSource = AndroidConfigurations::instance().gdbServerPath(target()->activeRunConfiguration()->abi().architecture());
+    m_gdbServerSource = AndroidGdbServerKitInformation::gdbServer(target()->kit());
     m_debugBuild = bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild;
 
     if (!AndroidManager::createAndroidTemplatesIfNecessary(target()))
@@ -166,6 +168,11 @@ bool AndroidPackageCreationStep::init()
     m_certificatePasswdForRun = m_certificatePasswd;
     m_jarSigner = AndroidConfigurations::instance().jarsignerPath();
     m_zipAligner = AndroidConfigurations::instance().zipalignPath();
+
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
+    if (tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
+        return false;
+
     initCheckRequiredLibrariesForRun();
     return true;
 }
@@ -215,7 +222,13 @@ void AndroidPackageCreationStep::checkRequiredLibraries()
         raiseError(msgCannotFindElfInformation(), msgCannotFindExecutable(appPath));
         return;
     }
-    readelfProc.start(AndroidConfigurations::instance().readelfPath(target()->activeRunConfiguration()->abi().architecture()).toString(),
+
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
+    if (tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
+        return;
+    AndroidToolChain *atc = static_cast<AndroidToolChain *>(tc);
+
+    readelfProc.start(AndroidConfigurations::instance().readelfPath(target()->activeRunConfiguration()->abi().architecture(), atc->ndkToolChainVersion()).toString(),
                       QStringList() << QLatin1String("-d") << QLatin1String("-W") << appPath);
     if (!readelfProc.waitForFinished(-1)) {
         readelfProc.kill();
@@ -243,8 +256,14 @@ void AndroidPackageCreationStep::checkRequiredLibraries()
 
 void AndroidPackageCreationStep::initCheckRequiredLibrariesForRun()
 {
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
+    if (tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
+        return;
+    AndroidToolChain *atc = static_cast<AndroidToolChain *>(tc);
+
     m_appPath = Utils::FileName::fromString(AndroidManager::targetApplicationPath(target()));
-    m_readElf = AndroidConfigurations::instance().readelfPath(target()->activeRunConfiguration()->abi().architecture());
+    m_readElf = AndroidConfigurations::instance().readelfPath(target()->activeRunConfiguration()->abi().architecture(),
+                                                              atc->ndkToolChainVersion());
     m_qtLibs = AndroidManager::qtLibs(target());
     m_availableQtLibs = AndroidManager::availableQtLibs(target());
     m_prebundledLibs = AndroidManager::prebundledLibs(target());
@@ -461,11 +480,11 @@ bool AndroidPackageCreationStep::createPackage()
     return true;
 }
 
-void AndroidPackageCreationStep::stripAndroidLibs(const QStringList & files, Abi::Architecture architecture)
+void AndroidPackageCreationStep::stripAndroidLibs(const QStringList & files, Abi::Architecture architecture, const QString &ndkToolchainVersion)
 {
     QProcess stripProcess;
     foreach (const QString &file, files) {
-        stripProcess.start(AndroidConfigurations::instance().stripPath(architecture).toString(),
+        stripProcess.start(AndroidConfigurations::instance().stripPath(architecture, ndkToolchainVersion).toString(),
                            QStringList()<<QLatin1String("--strip-unneeded") << file);
         stripProcess.waitForStarted();
         if (!stripProcess.waitForFinished())

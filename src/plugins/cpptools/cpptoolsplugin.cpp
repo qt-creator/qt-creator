@@ -138,6 +138,12 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     mcpptools->addAction(command);
     connect(switchAction, SIGNAL(triggered()), this, SLOT(switchHeaderSource()));
 
+    QAction *openInNextSplitAction = new QAction(tr("Open Corresponding Header/Source in Next Split"), this);
+    command = Core::ActionManager::registerAction(openInNextSplitAction, Constants::OPEN_HEADER_SOURCE_IN_NEXT_SPLIT, context, true);
+    command->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_F4));
+    mcpptools->addAction(command);
+    connect(openInNextSplitAction, SIGNAL(triggered()), this, SLOT(switchHeaderSourceInNextSplit()));
+
     return true;
 }
 
@@ -157,33 +163,18 @@ ExtensionSystem::IPlugin::ShutdownFlag CppToolsPlugin::aboutToShutdown()
 
 void CppToolsPlugin::switchHeaderSource()
 {
-    Core::IEditor *editor = Core::EditorManager::currentEditor();
-    QString otherFile = correspondingHeaderOrSource(editor->document()->fileName());
-    if (otherFile.isEmpty())
-        return;
+    QString otherFile = correspondingHeaderOrSource(
+                Core::EditorManager::currentEditor()->document()->fileName());
+    if (!otherFile.isEmpty())
+        Core::EditorManager::openEditor(otherFile);
+}
 
-    Core::EditorManager* editorManager = Core::EditorManager::instance();
-    editorManager->addCurrentPositionToNavigationHistory();
-    TextEditor::BaseTextEditorWidget *ed = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
-    if (editorManager->hasSplitter()) {
-        if (ed->forceOpenLinksInNextSplit()) {
-            editorManager->gotoOtherSplit();
-        } else if (ed->openLinksInNextSplit()) {
-            bool isVisible = false;
-            foreach (Core::IEditor *visEditor, editorManager->visibleEditors()) {
-                if (visEditor->document() &&
-                        (otherFile == visEditor->document()->fileName())) {
-                    isVisible = true;
-                    editorManager->activateEditor(visEditor);
-                    break;
-                }
-            }
-
-            if (!isVisible)
-                editorManager->gotoOtherSplit();
-        }
-    }
-    Core::EditorManager::openEditor(otherFile);
+void CppToolsPlugin::switchHeaderSourceInNextSplit()
+{
+    QString otherFile = correspondingHeaderOrSource(
+                Core::EditorManager::currentEditor()->document()->fileName());
+    if (!otherFile.isEmpty())
+        Core::EditorManager::openEditorInNextSplit(otherFile);
 }
 
 static QStringList findFilesInProject(const QString &name,

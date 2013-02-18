@@ -636,16 +636,22 @@ def qdump__QLinkedList(d, value):
 qqLocalesCount = None
 
 def qdump__QLocale(d, value):
-    # Check for uninitialized 'index' variable. Retrieve size of QLocale data array
-    # from variable in qlocale.cpp (default: 368/Qt 4.8), 368 being 'System'.
+    # Check for uninitialized 'index' variable. Retrieve size of
+    # QLocale data array from variable in qlocale.cpp.
+    # Default is 368 in Qt 4.8, 438 in Qt 5.0.1, the last one
+    # being 'System'.
     global qqLocalesCount
     if qqLocalesCount is None:
         try:
-            qqLocalesCount = int(value(qtNamespace() + 'locale_data_size'))
+            qqLocalesCount = int(value(d.ns + 'locale_data_size'))
         except:
-            qqLocalesCount = 368
-    index = int(value["p"]["index"])
-    check(index >= 0 and index <= qqLocalesCount)
+            qqLocalesCount = 438
+    try:
+        index = int(value["p"]["index"])
+    except:
+        index = int(value["d"]["d"]["m_index"])
+    check(index >= 0)
+    check(index <= qqLocalesCount)
     d.putStringValue(call(value, "name"))
     d.putNumChild(0)
     return
@@ -714,6 +720,7 @@ def qdumpHelper__Qt4_QMap(d, value, forceLong):
                 base = it.cast(charPtr) - payloadSize
                 node = base.cast(nodeType.pointer()).dereference()
                 with SubItem(d, i):
+                    d.putField("iname", d.currentIName)
                     if isCompact:
                         #d.putType(valueType)
                         if forceLong:
@@ -770,6 +777,7 @@ def qdumpHelper__Qt5_QMap(d, value, forceLong):
                 i += 1
 
                 with SubItem(d, i):
+                    d.putField("iname", d.currentIName)
                     if isCompact:
                         if forceLong:
                             d.putName("[%s] %s" % (i, node["key"]))
@@ -812,21 +820,12 @@ def extractCString(table, offset):
 
 def qdump__QObject(d, value):
     #warn("OBJECT: %s " % value)
+    d.tryPutObjectNameValue(value)
+
     try:
-        privateTypeName = d.ns + "QObjectPrivate"
+        privateTypeName = self.ns + "QObjectPrivate"
         privateType = lookupType(privateTypeName)
         staticMetaObject = value["staticMetaObject"]
-        d_ptr = value["d_ptr"]["d"].cast(privateType.pointer()).dereference()
-        #warn("D_PTR: %s " % d_ptr)
-        objectName = None
-        try:
-            objectName = d_ptr["objectName"]
-        except: # Qt 5
-            p = d_ptr["extraData"]
-            if not isNull(p):
-                objectName = p.dereference()["objectName"]
-        if not objectName is None:
-            d.putStringValue(objectName)
     except:
         d.putPlainChildren(value)
         return
@@ -1574,11 +1573,21 @@ def qdump__QTextDocument(d, value):
 
 def qdump__QUrl(d, value):
     try:
+        # Qt 4
         data = value["d"].dereference()
         d.putByteArrayValue(data["encodedOriginal"])
     except:
-        d.putPlainChildren(value)
-        return
+        try:
+            # Qt 5
+            data = value["d"].dereference()
+            str = encodeString(data["scheme"])
+            str += "3a002f002f00"
+            str += encodeString(data["host"])
+            str += encodeString(data["path"])
+            d.putValue(str, Hex4EncodedLittleEndian)
+        except:
+            d.putPlainChildren(value)
+            return
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
@@ -2138,10 +2147,10 @@ def qdump__std__string(d, value):
         encodingType = Hex2EncodedLatin1
         displayType = DisplayLatin1String
     elif charType.sizeof == 2:
-        encodingType = Hex4EncodedLatin1
+        encodingType = Hex4EncodedLittleEndian
         displayType = DisplayUtf16String
     else:
-        encodinfType = Hex8EncodedLatin1
+        encodingType = Hex8EncodedLittleEndian
         displayType = DisplayUtf16String
 
     d.putAddress(value.address)

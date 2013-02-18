@@ -101,7 +101,7 @@ BookmarkManager& LocalHelpManager::bookmarkManager()
         if (!m_bookmarkManager) {
             m_bookmarkManager = new BookmarkManager;
             m_bookmarkManager->setupBookmarkModels();
-            const QString &url = QString::fromLatin1("qthelp://com.nokia.qtcreator."
+            const QString &url = QString::fromLatin1("qthelp://org.qt-project.qtcreator."
                 "%1%2%3/doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR)
                 .arg(IDE_VERSION_RELEASE);
             helpEngine().setCustomValue(QLatin1String("DefaultHomePage"), url);

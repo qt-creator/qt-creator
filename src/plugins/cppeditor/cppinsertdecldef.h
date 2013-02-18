@@ -35,13 +35,13 @@
 namespace CppEditor {
 namespace Internal {
 
-class DeclFromDef: public CppQuickFixFactory
+class InsertDeclFromDef: public CppQuickFixFactory
 {
 public:
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
 };
 
-class DefFromDecl: public CppQuickFixFactory
+class InsertDefFromDecl: public CppQuickFixFactory
 {
 public:
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
@@ -53,10 +53,10 @@ public:
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
 };
 
-class GetterSetter : public CppQuickFixFactory
+class GenerateGetterSetter : public CppQuickFixFactory
 {
 public:
-    GetterSetter(const bool testMode = false) : m_testMode(testMode) {}
+    GenerateGetterSetter(const bool testMode = false) : m_testMode(testMode) {}
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
 private:
     const bool m_testMode;

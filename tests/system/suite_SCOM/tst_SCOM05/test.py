@@ -13,7 +13,7 @@ def verifyChangeProject(projectName):
             test.fatal("Failed to find root node of the project '%s'." % projectName)
             return
     openItemContextMenu(waitForObject(":Qt Creator_Utils::NavigationTreeView"),
-                        str(projItem.text), 5, 5, 0)
+                        str(projItem.text).replace("_", "\\_").replace(".", "\\."), 5, 5, 0)
     activateItem(waitForObjectItem("{name='Project.Menu.Project' type='QMenu' visible='1' "
                                    "window=':Qt Creator_Core::Internal::MainWindow'}",
                                    'Set "%s" as Active Project' % projectName))
@@ -28,10 +28,8 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     # create qt quick application 1
     createNewQtQuickApplication(tempDir(), projectName1)
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 5000)
     # create qt quick application 2
     createNewQtQuickApplication(tempDir(), projectName2)
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 5000)
     # change to project 1
     verifyChangeProject(projectName1)
     # change to project 2

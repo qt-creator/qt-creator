@@ -65,7 +65,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     m_toolActionGroup = new QActionGroup(this);
 
-    m_transformToolAction = m_toolActionGroup->addAction(tr("Transform Tool (Press Key Q)"));
+    m_transformToolAction = m_toolActionGroup->addAction(tr("Transform Tool (Q)."));
     m_transformToolAction->setShortcut(Qt::Key_Q);
     m_transformToolAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_transformToolAction->setCheckable(true);
@@ -76,14 +76,14 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     QActionGroup *layoutActionGroup = new QActionGroup(this);
     layoutActionGroup->setExclusive(false);
-    m_snappingAction = layoutActionGroup->addAction(tr("Snap to guides (E)"));
+    m_snappingAction = layoutActionGroup->addAction(tr("Snap to guides (E)."));
     m_snappingAction->setShortcut(Qt::Key_E);
     m_snappingAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_snappingAction->setCheckable(true);
     m_snappingAction->setChecked(true);
     m_snappingAction->setIcon(QPixmap(":/icon/layout/snapping.png"));
 
-    m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Toogle Snapping And Anchoring (Press Key R)"));
+    m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Toggle snapping and anchoring (R)."));
     m_snappingAndAnchoringAction->setShortcut(Qt::Key_R);
     m_snappingAndAnchoringAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_snappingAndAnchoringAction->setCheckable(true);
@@ -100,7 +100,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     addAction(separatorAction);
     upperActions.append(separatorAction);
 
-    m_showBoundingRectAction = new QAction(tr("Show bounding rectangles and stripes for empty items (Press Key A)"), this);
+    m_showBoundingRectAction = new QAction(tr("Show bounding rectangles and stripes for empty items (A)."), this);
     m_showBoundingRectAction->setShortcut(Qt::Key_A);
     m_showBoundingRectAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_showBoundingRectAction->setCheckable(true);
@@ -110,7 +110,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     addAction(m_showBoundingRectAction.data());
     upperActions.append(m_showBoundingRectAction.data());
 
-    m_selectOnlyContentItemsAction = new QAction(tr("Only select items with content (S)"), this);
+    m_selectOnlyContentItemsAction = new QAction(tr("Only select items with content (S)."), this);
     m_selectOnlyContentItemsAction->setShortcut(Qt::Key_S);
     m_selectOnlyContentItemsAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_selectOnlyContentItemsAction->setCheckable(true);
@@ -120,17 +120,17 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     addAction(m_selectOnlyContentItemsAction.data());
     upperActions.append(m_selectOnlyContentItemsAction.data());
 
-    m_rootWidthAction = new LineEditAction(tr("width"), this);
+    m_rootWidthAction = new LineEditAction(tr("Width"), this);
     connect(m_rootWidthAction.data(), SIGNAL(textChanged(QString)), this, SLOT(changeRootItemWidth(QString)));
     addAction(m_rootWidthAction.data());
     upperActions.append(m_rootWidthAction.data());
 
-    m_rootHeightAction =  new LineEditAction(tr("height"), this);
+    m_rootHeightAction =  new LineEditAction(tr("Height"), this);
     connect(m_rootHeightAction.data(), SIGNAL(textChanged(QString)), this, SLOT(changeRootItemHeight(QString)));
     addAction(m_rootHeightAction.data());
     upperActions.append(m_rootHeightAction.data());
 
-    m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Toogle Snapping And Anchoring (Press Key R)"));
+    m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Toggle snapping and anchoring (R)."));
 
     m_toolBox = new ToolBox(this);
     fillLayout->addWidget(m_toolBox.data());
@@ -150,7 +150,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     upperActions.append(m_zoomAction.data());
     m_toolBox->addRightSideAction(m_zoomAction.data());
 
-    m_resetAction = new QAction(tr("Reset view (R)"), this);
+    m_resetAction = new QAction(tr("Reset view (R)."), this);
     m_resetAction->setShortcut(Qt::Key_R);
     m_resetAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_resetAction->setIcon(QPixmap(":/icon/reset.png"));

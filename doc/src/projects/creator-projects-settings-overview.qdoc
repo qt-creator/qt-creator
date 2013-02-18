@@ -37,20 +37,9 @@
     To view and modify the settings for currently open projects, switch to the
     \gui Projects mode by pressing \key Ctrl+5.
 
-    \image qtcreator-project-targets.png
-
-    To add build and run \l{glossary-buildandrun-kit}{kits} for the project,
-    select \gui {Add Kit}. The list
-    displays kits that are configured in \gui Tools > \gui Options >
-    \gui {Build & Run} > \gui Kits. To add kits to the list, select
-    \gui {Manage Kits}.
-
-    To remove a kit, hover the cursor over it (1) and click
-    \inlineimage qtcreator-target-remove.png "Remove Kit button"
-    .
-
-    You can select the kits and use the \gui Build menu commands to build,
-    deploy, and run projects.
+    You can select build and run \l{glossary-buildandrun-kit}{kits} for the
+    open projects and use the \gui Build menu commands to build, deploy, and
+    run projects.
 
     The project pane consists of the following tabs:
 
@@ -83,5 +72,21 @@
 
     If you have multiple projects open in \QC, use the tabs at the top of the
     window to navigate between their settings.
+
+    \section1 Selecting Kits
+
+    \image qtcreator-project-targets.png
+
+    To add kits for the project, select \gui {Add Kit}. The list displays kits
+    that are configured in \gui Tools > \gui Options > \gui {Build & Run} >
+    \gui Kits. To add kits to the list, select \gui {Manage Kits}.
+
+    To copy the build and run settings for a kit to another kit, select
+    \gui {Copy to Kit} in the kit menu.
+
+    To change the kit, while preserving the build and run settings, select
+    \gui {Change Kit}.
+
+    To remove a kit, select \gui {Remove Kit}
 
 */

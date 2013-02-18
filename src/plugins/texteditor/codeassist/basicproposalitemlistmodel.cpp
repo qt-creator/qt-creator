@@ -121,8 +121,8 @@ BasicProposalItemListModel::BasicProposalItemListModel()
 {}
 
 BasicProposalItemListModel::BasicProposalItemListModel(const QList<BasicProposalItem *> &items)
-    : m_originalItems(items)
-    , m_currentItems(items)
+    : m_currentItems(items)
+    , m_originalItems(items)
 {
     mapPersistentIds();
 }

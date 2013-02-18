@@ -95,7 +95,6 @@ KitManagerPrivate::KitManagerPrivate()
 KitManagerPrivate::~KitManagerPrivate()
 {
     qDeleteAll(m_informationList);
-    qDeleteAll(m_kitList);
     delete m_writer;
 }
 
@@ -192,7 +191,9 @@ void KitManager::restoreKits()
     }
 
     // Delete all loaded autodetected kits that were not rediscovered:
-    qDeleteAll(kitsToCheck);
+    foreach (Kit *k, kitsToCheck)
+        delete k;
+    kitsToCheck.clear();
 
     // Store manual kits
     foreach (Kit *k, kitsToRegister)
@@ -221,7 +222,10 @@ void KitManager::restoreKits()
 KitManager::~KitManager()
 {
     saveKits(); // Make sure we save the current state on exit!
-    // Clean out kit information to avoid calling them during deregistration:
+
+    foreach (Kit *k, d->m_kitList)
+        delete k;
+    d->m_kitList.clear();
     delete d;
     m_instance = 0;
 }
@@ -382,6 +386,12 @@ Internal::KitManagerConfigWidget *KitManager::createConfigWidget(Kit *k) const
     result->updateVisibility();
 
     return result;
+}
+
+void KitManager::deleteKit(Kit *k)
+{
+    QTC_ASSERT(!KitManager::instance()->kits().contains(k), return);
+    delete k;
 }
 
 void KitManager::notifyAboutUpdate(ProjectExplorer::Kit *k)

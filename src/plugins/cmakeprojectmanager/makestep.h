@@ -89,6 +89,9 @@ signals:
     void makeCommandChanged();
 
 protected:
+    void processStarted();
+    void processFinished(int exitCode, QProcess::ExitStatus status);
+
     MakeStep(ProjectExplorer::BuildStepList *bsl, MakeStep *bs);
     MakeStep(ProjectExplorer::BuildStepList *bsl, const Core::Id id);
 
@@ -105,7 +108,6 @@ private:
     QRegExp m_percentProgress;
     QRegExp m_ninjaProgress;
     QString m_ninjaProgressString;
-    QFutureInterface<bool> *m_futureInterface;
     QStringList m_buildTargets;
     QString m_additionalArguments;
     QList<ProjectExplorer::Task> m_tasks;

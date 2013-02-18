@@ -69,6 +69,7 @@ public:
     QStringList profileNames() const;
 
     static qbs::Settings *settings();
+    static qbs::Preferences *preferences();
     Internal::QbsLogSink *logSink() { return m_logSink; }
 
 private slots:
@@ -83,6 +84,7 @@ private:
     Internal::QbsProjectManagerPlugin *m_plugin;
     Internal::QbsLogSink *m_logSink;
     static qbs::Settings *m_settings;
+    static qbs::Preferences *m_preferences;
 };
 
 } // namespace QbsProjectManager

@@ -158,7 +158,7 @@ bool BuildStepList::fromMap(const QVariantMap &map)
         }
         IBuildStepFactory *factory = findRestoreFactory(this, bsData);
         if (!factory) {
-            qWarning() << "No factory for step" << i << "found (continuing).";
+            qWarning() << "No factory for step" << i << "in list" << displayName() << "found (continuing).";
             continue;
         }
         BuildStep *bs(factory->restore(this, bsData));

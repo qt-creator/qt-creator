@@ -5,9 +5,9 @@
 #include <QAction>
 #include <utils/parameteraction.h>
 
-
 namespace Core {
     class IEditor;
+    class Context;
 }
 
 namespace QmlDesigner {
@@ -21,7 +21,9 @@ class ShortCutManager : public QObject
 public:
     ShortCutManager();
 
-    void registerActions();
+    void registerActions(const Core::Context &qmlDesignerMainContext,
+                         const Core::Context &qmlDesignerFormEditorContext,
+                         const Core::Context &qmlDesignerNavigatorContext);
 
     void connectUndoActions(DesignDocument *designDocument);
     void disconnectUndoActions(DesignDocument *designDocument);

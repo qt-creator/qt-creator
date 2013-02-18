@@ -71,7 +71,6 @@ public:
     QString simplfiedDisplayName() const;
 
     void loadDocument(QPlainTextEdit *edit);
-    void activateCurrentModel(TextModifier *textModifier);
     void activateDocumentModel();
     void close();
     void updateSubcomponentManager();
@@ -99,7 +98,7 @@ public:
 
     void resetToDocumentModel();
 
-    void goIntoComponent();
+    void goIntoSelectedComponent();
 
     void changeToDocumentModel();
 
@@ -121,8 +120,8 @@ public slots:
     void undo();
     void redo();
     void updateActiveQtVersion();
-    void changeCurrentModelTo(const ModelNode &node);
-    void changeToSubComponent(const ModelNode &node);
+    void changeToSubComponentAndPushOnCrumblePath(const ModelNode &componentNode);
+    void changeToSubComponent(const ModelNode &componentNode);
     void changeToExternalSubComponent(const QString &m_oldFileName);
 
 private slots:
@@ -130,6 +129,7 @@ private slots:
 
 private: // functions
     void changeToInFileComponentModel();
+    void activateCurrentModel(TextModifier *textModifier);
 
     QWidget *centralWidget() const;
     QString pathToQt() const;
@@ -144,16 +144,16 @@ private: // functions
     QmlModelView *qmlModelView();
 
 private: // variables
-    QWeakPointer<QStackedWidget> m_stackedWidget;
-    QWeakPointer<Model> m_documentModel;
-    QWeakPointer<Model> m_inFileComponentModel;
+    QScopedPointer<QStackedWidget> m_stackedWidget;
+    QScopedPointer<Model> m_documentModel;
+    QScopedPointer<Model> m_inFileComponentModel;
     QWeakPointer<Model> m_currentModel;
     QWeakPointer<Core::IEditor> m_textEditor;
-    QWeakPointer<BaseTextEditModifier> m_documentTextModifier;
-    QWeakPointer<ComponentTextModifier> m_inFileComponentTextModifier;
-    QWeakPointer<SubComponentManager> m_subComponentManager;
+    QScopedPointer<BaseTextEditModifier> m_documentTextModifier;
+    QScopedPointer<ComponentTextModifier> m_inFileComponentTextModifier;
+    QScopedPointer<SubComponentManager> m_subComponentManager;
 
-    QWeakPointer<RewriterView> m_rewriterView;
+    QScopedPointer<RewriterView> m_rewriterView;
 
     bool m_documentLoaded;
     int m_qtVersionId;

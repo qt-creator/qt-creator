@@ -74,11 +74,17 @@ const QChar sep = QChar(QLatin1Char('.'));
 
 namespace QbsProjectManager {
 
-qbs::Settings *QbsManager::m_settings = new qbs::Settings(QLatin1String("QtProject"), QLatin1String("qbs"));
+qbs::Settings *QbsManager::m_settings = 0;
+qbs::Preferences *QbsManager::m_preferences = 0;
 
 QbsManager::QbsManager(Internal::QbsProjectManagerPlugin *plugin) :
     m_plugin(plugin)
 {
+    if (!m_settings)
+        m_settings = new qbs::Settings(QLatin1String("QtProject"), QLatin1String("qbs"));
+    if (!m_preferences)
+        m_preferences = new qbs::Preferences(m_settings);
+
     setObjectName(QLatin1String("QbsProjectManager"));
     connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsChanged()), this, SLOT(pushKitsToQbs()));
 
@@ -146,6 +152,11 @@ QStringList QbsManager::profileNames() const
 qbs::Settings *QbsManager::settings()
 {
     return m_settings;
+}
+
+qbs::Preferences *QbsManager::preferences()
+{
+    return m_preferences;
 }
 
 void QbsManager::addProfile(const QString &name, const QVariantMap &data)

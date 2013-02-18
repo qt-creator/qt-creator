@@ -129,7 +129,7 @@ bool SimpleAbstractStreamReader::readFile(const QString &fileName)
         file.close();
         return readFromSource(QString::fromLocal8Bit(source));
     }
-    addError(tr("Cannot find file %1").arg(fileName));
+    addError(tr("Cannot find file %1.").arg(fileName));
     return false;
 }
 
@@ -176,13 +176,13 @@ AST::SourceLocation SimpleAbstractStreamReader::currentSourceLocation() const
 bool SimpleAbstractStreamReader::readDocument(AST::UiProgram *ast)
 {
     if (!ast) {
-        addError(tr("Could not parse document"));
+        addError(tr("Could not parse document."));
         return false;
     }
 
     AST::UiObjectDefinition *uiObjectDefinition = AST::cast<AST::UiObjectDefinition *>(ast->members->member);
     if (!uiObjectDefinition) {
-        addError(tr("Expected document to contain a single object definition"));
+        addError(tr("Expected document to contain a single object definition."));
         return false;
     }
     readChild(uiObjectDefinition);
@@ -246,7 +246,7 @@ QVariant SimpleAbstractStreamReader::parsePropertyScriptBinding(AST::UiScriptBin
 
     AST::ExpressionStatement *expStmt = AST::cast<AST::ExpressionStatement *>(uiScriptBinding->statement);
     if (!expStmt) {
-        addError(tr("Expected expression statement after colon"), uiScriptBinding->statement->firstSourceLocation());
+        addError(tr("Expected expression statement after colon."), uiScriptBinding->statement->firstSourceLocation());
         return QVariant();
     }
 
@@ -282,7 +282,7 @@ QVariant SimpleAbstractStreamReader::parsePropertyExpression(AST::ExpressionNode
     if (numericLiteral)
         return numericLiteral->value;
 
-    addError(tr("Expected expression statement to be a literal"), expressionNode->firstSourceLocation());
+    addError(tr("Expected expression statement to be a literal."), expressionNode->firstSourceLocation());
     return QVariant();
 }
 
@@ -340,7 +340,7 @@ void SimpleReader::propertyDefinition(const QString &name, const QVariant &value
         qDebug() << "SimpleReader::propertyDefinition()" << m_currentNode.data()->name() << name << value;
 
     if (m_currentNode.data()->propertyNames().contains(name))
-        addError(tr("Property is defined twice"), currentSourceLocation());
+        addError(tr("Property is defined twice."), currentSourceLocation());
 
     m_currentNode.data()->setProperty(name, value);
 }

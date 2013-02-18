@@ -151,7 +151,7 @@ Class *isMemberFunction(const LookupContext &context, Function *function)
 
 } // anonymous namespace
 
-void DeclFromDef::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
+void InsertDeclFromDef::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
     const QList<AST *> &path = interface->path();
     CppRefactoringFilePtr file = interface->currentFile();
@@ -287,7 +287,7 @@ private:
 
 } // anonymous namespace
 
-void DefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
+void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
     const QList<AST *> &path = interface->path();
 
@@ -319,11 +319,11 @@ void DefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOperation
 
 namespace {
 
-class GetterSetterOperation : public CppQuickFixOperation
+class GenerateGetterSetterOperation : public CppQuickFixOperation
 {
 public:
-    GetterSetterOperation(const QSharedPointer<const CppQuickFixAssistInterface> &interface,
-                          bool testMode = false)
+    GenerateGetterSetterOperation(const QSharedPointer<const CppQuickFixAssistInterface> &interface,
+                                  bool testMode = false)
         : CppQuickFixOperation(interface)
         , m_variableName(0)
         , m_declaratorId(0)
@@ -602,9 +602,9 @@ public:
 
 } // namespace
 
-void GetterSetter::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
+void GenerateGetterSetter::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
-    GetterSetterOperation *op = new GetterSetterOperation(interface, m_testMode);
+    GenerateGetterSetterOperation *op = new GenerateGetterSetterOperation(interface, m_testMode);
     if (op->isValid())
         result.append(CppQuickFixOperation::Ptr(op));
     else

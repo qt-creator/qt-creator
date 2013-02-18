@@ -7,7 +7,6 @@ def main():
     # create qt quick application
 # Step 1: Open test .pro project.
     createNewQtQuickApplication(tempDir(), "SampleApp")
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
 # Step 2: Open .cpp file in Edit mode.
     if not openDocument("SampleApp.Sources.main\\.cpp"):
         test.fatal("Could not open main.cpp")

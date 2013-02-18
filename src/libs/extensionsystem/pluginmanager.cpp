@@ -1309,7 +1309,8 @@ void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *s
         const int absoluteElapsedMS = m_profileTimer->elapsed();
         const int elapsedMS = absoluteElapsedMS - m_profileElapsedMS;
         m_profileElapsedMS = absoluteElapsedMS;
-        m_profileTotal[spec] += elapsedMS;
+        if (spec)
+            m_profileTotal[spec] += elapsedMS;
         if (spec)
             qDebug("%-22s %-22s %8dms (%8dms)", what, qPrintable(spec->name()), absoluteElapsedMS, elapsedMS);
         else

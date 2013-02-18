@@ -25,37 +25,53 @@
 
  This file is included in every file that highlights the "alerts" keywords.
  That's why extensions and mimetype are empty.
+
+ Changes by Alex Turbov:
+  Introduce 3 alert levels and sort keywords according importance.
+  Few more keywords has been added.
 -->
 <language version="1.08" kateversion="2.3" name="Alerts" section="Other" extensions="" mimetype="" author="Dominik Haumann (dhdev@gmx.de)" license="LGPL" hidden="true">
   <highlighting>
-    <list name="alerts">
-      <item> ### </item>
+    <list name="alerts_hi">
       <item> ALERT </item>
-      <item> BUG </item>
+      <item> ATTENTION </item>
       <item> DANGER </item>
-      <item> DEPRECATED </item>
-      <item> FIXME </item>
       <item> HACK </item>
+      <item> SECURITY </item>
+    </list>
+    <list name="alerts_mid">
+      <item> BUG </item>
+      <item> FIXME </item>
+      <item> DEPRECATED </item>
+      <item> TASK </item>
+      <item> TODO </item>
+      <item> TBD </item>
+      <item> WARNING </item>
+      <item> NOLINT </item>
+    </list>
+    <list name="alerts_lo">
+      <item> ### </item>
       <item> NOTE </item>
       <item> NOTICE </item>
-      <item> SECURITY </item>
-      <item> TASK </item>
       <item> TEST </item>
       <item> TESTING </item>
-      <item> TODO </item>
-      <item> WARNING </item>
     </list>
     <contexts>
       <context attribute="Normal Text" lineEndContext="#pop" name="Normal Text" >
-        <keyword attribute="Alert" context="#stay" String="alerts" />
+        <keyword attribute="Alert Level 1" context="#stay" String="alerts_hi" />
+        <keyword attribute="Alert Level 2" context="#stay" String="alerts_mid" />
+        <keyword attribute="Alert Level 3" context="#stay" String="alerts_lo" />
       </context>
     </contexts>
     <itemDatas>
-      <itemData name="Normal Text" defStyleNum="dsNormal"/>
-      <itemData name="Alert" defStyleNum="dsAlert"/>
+      <itemData name="Normal Text"   defStyleNum="dsNormal"/>
+      <itemData name="Alert Level 1" defStyleNum="dsAlert" color="#e85848" selColor="#e85848" backgroundColor="#451e1a" />
+      <itemData name="Alert Level 2" defStyleNum="dsAlert" color="#ca9219" selColor="#ca9219" backgroundColor="#451e1a" />
+      <itemData name="Alert Level 3" defStyleNum="dsAlert" color="#81ca2d" selColor="#81ca2d" />
     </itemDatas>
   </highlighting>
   <general>
     <keywords casesensitive="1"/>
   </general>
 </language>
+<!-- kate: indent-width 2; -->

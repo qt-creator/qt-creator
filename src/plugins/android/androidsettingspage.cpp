@@ -31,6 +31,8 @@
 
 #include "androidsettingswidget.h"
 #include "androidconstants.h"
+#include "androidtoolchain.h"
+#include <projectexplorer/toolchainmanager.h>
 
 #include <QCoreApplication>
 
@@ -64,6 +66,22 @@ QWidget *AndroidSettingsPage::createPage(QWidget *parent)
 void AndroidSettingsPage::apply()
 {
     m_widget->saveSettings();
+
+    QList<ProjectExplorer::ToolChain *> existingToolChains = ProjectExplorer::ToolChainManager::instance()->toolChains();
+    QList<ProjectExplorer::ToolChain *> toolchains = AndroidToolChainFactory::createToolChainsForNdk(AndroidConfigurations::instance().config().ndkLocation);
+    foreach (ProjectExplorer::ToolChain *tc, toolchains) {
+        bool found = false;
+        for (int i = 0; i < existingToolChains.count(); ++i) {
+            if (*(existingToolChains.at(i)) == *tc) {
+                found = true;
+                break;
+            }
+        }
+        if (found)
+            delete tc;
+        else
+            ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
+    }
 }
 
 void AndroidSettingsPage::finish()

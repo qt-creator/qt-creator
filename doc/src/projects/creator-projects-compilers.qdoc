@@ -56,6 +56,7 @@
 
         \li Clang is a C, C++, Objective C, and Objective C++ front-end for the
             LLVM compiler for Windows, Linux, and Mac OS X.
+
     \endlist
 
     To build an application using GCC, MinGW, or Clang, specify the path
@@ -86,7 +87,49 @@
 
     \endlist
 
-    \section2 Troubleshooting MinGW Compilation Errors
+    \section1 Adding Custom Compilers
+
+    To add a compiler that is not listed above or a remote compiler, use the
+    \gui Custom option and specify the paths to the directories where the
+    compiler and make tool are located and options for the compiler.
+
+    \image creator-compilers-custom.png
+
+    To add other compilers:
+
+    \list 1
+
+        \li Select \gui Tools > \gui Options > \gui {Build & Run} >
+            \gui Compilers > \gui Add > \gui Custom.
+
+        \li In the \gui Name field, enter a name for the compiler.
+
+        \li In the \gui {Compiler path} field, enter the path to the directory
+            where the compiler is located.
+
+        \li In the \gui {Make path} field, enter the path to the directory where
+            the make tool is located.
+
+       \li  In the \gui ABI field, specify the ABI version.
+
+        \li In the \gui {Predefined macros} field, specify the macros that the
+            compiler enables by default. Specify each macro on a separate line,
+            in the following format: MACRO[=value].
+
+        \li In the \gui {Header paths} field, specify the paths to directories
+            that the compiler checks for headers. Specify each path on a
+            separate line.
+
+        \li In the \gui {C++11 flags} field, specify the flags that turn on
+            C++11 support in the compiler.
+
+        \li In the \gui {Qt mkspecs} field, specify the path to the directory
+            where mkspecs are located. Usually, the path is specified relative
+            to the Qt mkspecs directory.
+
+    \endlist
+
+    \section1 Troubleshooting MinGW Compilation Errors
 
     If error messages displayed in the \gui {Compile Output} pane contain
     paths where slashes are missing (for example, C:QtSDK),

@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "abstractprocessstep.h"
+#include "ansifilterparser.h"
 #include "buildconfiguration.h"
 #include "buildstep.h"
 #include "ioutputparser.h"
@@ -90,7 +91,7 @@ using namespace ProjectExplorer;
 AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, const Core::Id id) :
     BuildStep(bsl, id), m_timer(0), m_futureInterface(0),
     m_ignoreReturnValue(false), m_process(0),
-    m_eventLoop(0), m_outputParserChain(0)
+    m_outputParserChain(0)
 {
 }
 
@@ -98,7 +99,7 @@ AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl,
                                          AbstractProcessStep *bs) :
     BuildStep(bsl, bs), m_timer(0), m_futureInterface(0),
     m_ignoreReturnValue(bs->m_ignoreReturnValue),
-    m_process(0), m_eventLoop(0), m_outputParserChain(0)
+    m_process(0), m_outputParserChain(0)
 {
 }
 
@@ -120,12 +121,13 @@ AbstractProcessStep::~AbstractProcessStep()
 void AbstractProcessStep::setOutputParser(ProjectExplorer::IOutputParser *parser)
 {
     delete m_outputParserChain;
-    m_outputParserChain = parser;
+    m_outputParserChain = new AnsiFilterParser;
+    m_outputParserChain->appendOutputParser(parser);
 
     if (m_outputParserChain) {
-        connect(parser, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
+        connect(m_outputParserChain, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
                 this, SLOT(outputAdded(QString,ProjectExplorer::BuildStep::OutputFormat)));
-        connect(parser, SIGNAL(addTask(ProjectExplorer::Task)),
+        connect(m_outputParserChain, SIGNAL(addTask(ProjectExplorer::Task)),
                 this, SLOT(taskAdded(ProjectExplorer::Task)));
     }
 }
@@ -195,15 +197,12 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
     m_process->setEnvironment(m_param.environment());
 
     connect(m_process, SIGNAL(readyReadStandardOutput()),
-            this, SLOT(processReadyReadStdOutput()),
-            Qt::DirectConnection);
+            this, SLOT(processReadyReadStdOutput()));
     connect(m_process, SIGNAL(readyReadStandardError()),
-            this, SLOT(processReadyReadStdError()),
-            Qt::DirectConnection);
+            this, SLOT(processReadyReadStdError()));
 
     connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
-            this, SLOT(slotProcessFinished(int,QProcess::ExitStatus)),
-            Qt::DirectConnection);
+            this, SLOT(slotProcessFinished(int,QProcess::ExitStatus)));
 
     m_process->setCommand(m_param.effectiveCommand(), m_param.effectiveArguments());
     m_process->start();
@@ -212,19 +211,19 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
         delete m_process;
         m_process = 0;
         fi.reportResult(false);
+        emit finished();
         return;
     }
     processStarted();
 
     m_timer = new QTimer();
-    connect(m_timer, SIGNAL(timeout()), this, SLOT(checkForCancel()), Qt::DirectConnection);
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(checkForCancel()));
     m_timer->start(500);
-    m_eventLoop = new QEventLoop;
-    m_eventLoop->exec();
-    m_timer->stop();
-    delete m_timer;
-    m_timer = 0;
+    m_killProcess = false;
+}
 
+void AbstractProcessStep::cleanUp()
+{
     // The process has finished, leftover data is read in processFinished
     processFinished(m_process->exitCode(), m_process->exitStatus());
     bool returnValue = processSucceeded(m_process->exitCode(), m_process->exitStatus()) || m_ignoreReturnValue;
@@ -237,11 +236,10 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
 
     delete m_process;
     m_process = 0;
-    delete m_eventLoop;
-    m_eventLoop = 0;
-    fi.reportResult(returnValue);
+    m_futureInterface->reportResult(returnValue);
     m_futureInterface = 0;
-    return;
+
+    emit finished();
 }
 
 /*!
@@ -346,13 +344,22 @@ void AbstractProcessStep::stdError(const QString &line)
     emit addOutput(line, BuildStep::ErrorOutput, BuildStep::DontAppendNewline);
 }
 
+QFutureInterface<bool> *AbstractProcessStep::futureInterface() const
+{
+    return m_futureInterface;
+}
+
 void AbstractProcessStep::checkForCancel()
 {
     if (m_futureInterface->isCanceled() && m_timer->isActive()) {
-        m_timer->stop();
-        m_process->terminate();
-        m_process->waitForFinished(5000);
-        m_process->kill();
+        if (!m_killProcess) {
+            m_process->terminate();
+            m_timer->start(5000);
+            m_killProcess = true;
+        } else {
+            m_process->kill();
+            m_timer->stop();
+        }
     }
 }
 
@@ -411,6 +418,10 @@ void AbstractProcessStep::outputAdded(const QString &string, ProjectExplorer::Bu
 
 void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
 {
+    m_timer->stop();
+    delete m_timer;
+    m_timer = 0;
+
     QString line = QString::fromLocal8Bit(m_process->readAllStandardError());
     if (!line.isEmpty())
         stdError(line);
@@ -419,5 +430,5 @@ void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
     if (!line.isEmpty())
         stdOutput(line);
 
-    m_eventLoop->exit(0);
+    cleanUp();
 }

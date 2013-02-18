@@ -198,6 +198,8 @@ static QList<DeviceProcess> getLocalProcessesUsingProc(const QDir &procDir)
             QFile statFile(root + QLatin1String("/stat"));
             if (!statFile.open(QIODevice::ReadOnly)) {
                 const QStringList data = QString::fromLocal8Bit(statFile.readAll()).split(QLatin1Char(' '));
+                if (data.size() < 2)
+                    continue;
                 proc.exe = data.at(1);
                 proc.cmdLine = data.at(1); // PPID is element 3
                 if (proc.exe.startsWith(QLatin1Char('(')) && proc.exe.endsWith(QLatin1Char(')'))) {

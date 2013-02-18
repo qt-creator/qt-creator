@@ -103,7 +103,6 @@ namespace {
 
 static const QLatin1String kDefinitionFilesPath("UserDefinitionFilesPath");
 static const QLatin1String kFallbackDefinitionFilesPath("FallbackDefinitionFilesPath");
-static const QLatin1String kAlertWhenDefinitionIsNotFound("AlertWhenDefinitionsIsNotFound");
 static const QLatin1String kUseFallbackLocation("UseFallbackLocation");
 static const QLatin1String kIgnoredFilesPatterns("IgnoredFilesPatterns");
 static const QLatin1String kGroupPostfix("HighlighterSettings");
@@ -121,7 +120,7 @@ using namespace TextEditor;
 using namespace Internal;
 
 HighlighterSettings::HighlighterSettings() :
-    m_alertWhenNoDefinition(true), m_useFallbackLocation(true)
+    m_useFallbackLocation(true)
 {}
 
 void HighlighterSettings::toSettings(const QString &category, QSettings *s) const
@@ -130,7 +129,6 @@ void HighlighterSettings::toSettings(const QString &category, QSettings *s) cons
     s->beginGroup(group);
     s->setValue(kDefinitionFilesPath, m_definitionFilesPath);
     s->setValue(kFallbackDefinitionFilesPath, m_fallbackDefinitionFilesPath);
-    s->setValue(kAlertWhenDefinitionIsNotFound, m_alertWhenNoDefinition);
     s->setValue(kUseFallbackLocation, m_useFallbackLocation);
     s->setValue(kIgnoredFilesPatterns, ignoredFilesPatterns());
     s->endGroup();
@@ -155,7 +153,6 @@ void HighlighterSettings::fromSettings(const QString &category, QSettings *s)
         m_fallbackDefinitionFilesPath = s->value(kFallbackDefinitionFilesPath).toString();
         m_useFallbackLocation = s->value(kUseFallbackLocation, true).toBool();
     }
-    m_alertWhenNoDefinition = s->value(kAlertWhenDefinitionIsNotFound, true).toBool();
     if (!s->contains(kIgnoredFilesPatterns))
         assignDefaultIgnoredPatterns();
     else
@@ -207,7 +204,6 @@ bool HighlighterSettings::equals(const HighlighterSettings &highlighterSettings)
 {
     return m_definitionFilesPath == highlighterSettings.m_definitionFilesPath &&
            m_fallbackDefinitionFilesPath == highlighterSettings.m_fallbackDefinitionFilesPath &&
-           m_alertWhenNoDefinition == highlighterSettings.m_alertWhenNoDefinition &&
            m_useFallbackLocation == highlighterSettings.m_useFallbackLocation &&
            m_ignoredFiles == highlighterSettings.m_ignoredFiles;
 }

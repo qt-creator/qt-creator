@@ -35,7 +35,7 @@
       </font>
      </property>
      <property name="text">
-      <string>This QML file contains features  which are not supported by Qt Quick Designer</string>
+      <string>This QML file contains features which are not supported by Qt Quick Designer</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -67,43 +67,16 @@
    <item>
     <widget class="QCheckBox" name="checkBox">
      <property name="text">
-      <string>Warn about QML features which are not properly supported by the Qt Quick Designer</string>
+      <string>Warn about unsupported features</string>
      </property>
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>88</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="ignoreButton">
-       <property name="toolTip">
-        <string>Ignore this warning and open the file</string>
-       </property>
-       <property name="text">
-        <string>Ignore</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="okButton">
-       <property name="text">
-        <string>Ok</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Ignore|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

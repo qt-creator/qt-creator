@@ -32,6 +32,6 @@ import QtQuick 1.0
 TextInput {
     width: 80
     height: 20
-    text: qsTr("text")
+    text: qsTr("Text")
     font.pixelSize: 12
 }

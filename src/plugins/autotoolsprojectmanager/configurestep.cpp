@@ -182,6 +182,7 @@ void ConfigureStep::run(QFutureInterface<bool>& interface)
     if (!m_runConfigure) {
         emit addOutput(tr("Configuration unchanged, skipping configure step."), BuildStep::MessageOutput);
         interface.reportResult(true);
+        emit finished();
         return;
     }
 

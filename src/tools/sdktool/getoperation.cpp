@@ -53,7 +53,13 @@ bool GetOperation::setArguments(const QStringList &args)
 
     m_keys = args;
     m_file = m_keys.takeFirst();
-    return true;
+
+    if (m_file.isEmpty())
+        std::cerr << "No file given." << std::endl << std::endl;
+    if (m_keys.isEmpty())
+        std::cerr << "No keys given." << std::endl << std::endl;
+
+    return !m_file.isEmpty() && !m_keys.isEmpty();
 }
 
 int GetOperation::execute() const

@@ -43,6 +43,7 @@
 #include "androidtoolchain.h"
 #include "androidqtversionfactory.h"
 #include "androiddeployconfiguration.h"
+#include "androidgdbserverkitinformation.h"
 
 #include <QtPlugin>
 
@@ -70,6 +71,7 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     addAutoReleasedObject(new Internal::AndroidToolChainFactory);
     addAutoReleasedObject(new Internal::AndroidDeployConfigurationFactory);
     addAutoReleasedObject(new Internal::AndroidDeviceFactory);
+    ProjectExplorer::KitManager::instance()->registerKitInformation(new Internal::AndroidGdbServerKitInformation);
     return true;
 }
 

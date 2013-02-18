@@ -82,7 +82,7 @@ Rectangle {
             title: qsTr("Building and Running an Example Application")
             number: 3
             imageUrl: "widgets/images/gettingStarted03.png"
-            onClicked: gettingStarted.openSplitHelp("qthelp://com.nokia.qtcreator/doc/creator-build-example-application.html")
+            onClicked: gettingStarted.openSplitHelp("qthelp://org.qt-project.qtcreator/doc/creator-build-example-application.html")
         }
 
         GettingStartedItem {
@@ -96,7 +96,7 @@ Rectangle {
             description: qsTr("To find out what kind of integrated environment (IDE) Qt Creator is.")
             number: 1
 
-            onClicked: gettingStarted.openHelp("qthelp://com.nokia.qtcreator/doc/creator-overview.html")
+            onClicked: gettingStarted.openHelp("qthelp://org.qt-project.qtcreator/doc/creator-overview.html")
         }
 
         GettingStartedItem {
@@ -107,7 +107,7 @@ Rectangle {
             title: qsTr("User Interface")
             imageUrl: "widgets/images/gettingStarted02.png"
             number: 2
-            onClicked: gettingStarted.openHelp("qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html")
+            onClicked: gettingStarted.openHelp("qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html")
         }
 
         Grid {
@@ -123,7 +123,7 @@ Rectangle {
             IconAndLink {
                 iconName: "userguideIcon"
                 linkText: qsTr("User Guide")
-                onClicked: gettingStarted.openHelp("qthelp://com.nokia.qtcreator/doc/index.html")
+                onClicked: gettingStarted.openHelp("qthelp://org.qt-project.qtcreator/doc/index.html")
             }
 
             IconAndLink {

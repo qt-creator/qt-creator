@@ -53,11 +53,13 @@ public:
 
     void updateSelections(SubmitFileModel *source)
     {
+        QTC_ASSERT(source, return);
+        GitSubmitFileModel *gitSource = static_cast<GitSubmitFileModel *>(source);
         int j = 0;
         for (int i = 0; i < rowCount() && j < source->rowCount(); ++i) {
             CommitData::StateFilePair stateFile = stateFilePair(i);
             for (; j < source->rowCount(); ++j) {
-                CommitData::StateFilePair sourceStateFile = stateFilePair(j);
+                CommitData::StateFilePair sourceStateFile = gitSource->stateFilePair(j);
                 if (stateFile == sourceStateFile) {
                     setChecked(i, source->checked(j));
                     break;
@@ -69,7 +71,7 @@ public:
     }
 
 private:
-    CommitData::StateFilePair stateFilePair(int row)
+    CommitData::StateFilePair stateFilePair(int row) const
     {
         return CommitData::StateFilePair(static_cast<FileStates>(extraData(row).toInt()), file(row));
     }

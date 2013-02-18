@@ -178,6 +178,7 @@ void AutoreconfStep::run(QFutureInterface<bool> &interface)
     if (!m_runAutoreconf) {
         emit addOutput(tr("Configuration unchanged, skipping autoreconf step."), BuildStep::MessageOutput);
         interface.reportResult(true);
+        emit finished();
         return;
     }
 

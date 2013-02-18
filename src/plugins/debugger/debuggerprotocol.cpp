@@ -501,7 +501,7 @@ QString decodeData(const QByteArray &ba, int encoding)
         case Hex2EncodedLatin1WithQuotes: { // 6, %02x encoded 8 bit Latin1 data
             const QChar doubleQuote(QLatin1Char('"'));
             const QByteArray decodedBa = QByteArray::fromHex(ba);
-            return doubleQuote + QString::fromLatin1(decodedBa) + doubleQuote;
+            return doubleQuote + QString::fromLatin1(decodedBa, decodedBa.size()) + doubleQuote;
         }
         case Hex4EncodedLittleEndianWithQuotes: { // 7, %04x encoded 16 bit data
             const QChar doubleQuote(QLatin1Char('"'));

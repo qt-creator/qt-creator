@@ -308,9 +308,11 @@ void ProjectTreeWidget::setCurrentItem(Node *node, Project *project)
 
     const QModelIndex mainIndex = m_model->indexForNode(node);
 
-    if (mainIndex.isValid() && mainIndex != m_view->selectionModel()->currentIndex()) {
-        m_view->setCurrentIndex(mainIndex);
-        m_view->scrollTo(mainIndex);
+    if (mainIndex.isValid()) {
+        if (mainIndex != m_view->selectionModel()->currentIndex()) {
+            m_view->setCurrentIndex(mainIndex);
+            m_view->scrollTo(mainIndex);
+        }
     } else {
         if (debug)
             qDebug() << "clear selection";

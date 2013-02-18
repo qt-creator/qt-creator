@@ -395,7 +395,7 @@ public:
     void updateSummaryText()
     {
         int count = entryCount();
-        setSummaryText(count ? tr("%n entry(ies)", "", count) : tr("Empty"));
+        setSummaryText(count ? tr("%n entries", "", count) : tr("Empty"));
     }
 };
 
@@ -420,9 +420,9 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     m_predefinedMacros->setTabChangesFocus(true);
     m_predefinedMacros->setToolTip(tr("Each line defines a macro. Format is MACRO[=VALUE]"));
     m_headerPaths->setTabChangesFocus(true);
-    m_headerPaths->setToolTip(tr("Each line adds a global header lookup path"));
-    m_cxx11Flags->setToolTip(tr("Comma-separated list of flags that turn on C++11 support"));
-    m_mkspecs->setToolTip(tr("Comma-separated list of mkspecs"));
+    m_headerPaths->setToolTip(tr("Each line adds a global header lookup path."));
+    m_cxx11Flags->setToolTip(tr("Comma-separated list of flags that turn on C++11 support."));
+    m_mkspecs->setToolTip(tr("Comma-separated list of mkspecs."));
     m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
     m_makeCommand->setExpectedKind(PathChooser::ExistingCommand);
     m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);

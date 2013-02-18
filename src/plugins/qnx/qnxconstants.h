@@ -93,11 +93,16 @@ const char QNX_BB_CATEGORY[] = "XF.BlackBerry";
 const char QNX_BB_CATEGORY_TR[] = QT_TRANSLATE_NOOP("BlackBerry", "BlackBerry");
 const char QNX_BB_CATEGORY_ICON[] = ":/qnx/images/target.png";
 const char QNX_BB_NDK_SETTINGS_ID[] = "ZZ.BlackBerry NDK Configuration";
+const char QNX_BB_SIGNING_ID[] = "ZZ.BlackBerry Signing Infrastructure Configuration";
 
 const char QNX_BAR_DESCRIPTOR_MIME_TYPE[] = "application/vnd.rim.qnx.bar_descriptor";
 const char QNX_BAR_DESCRIPTOR_EDITOR_ID[] = "Qnx.BarDescriptorEditor";
 
 const char QNX_TASK_CATEGORY_BARDESCRIPTOR[] = "Task.Category.BarDescriptor";
+
+const char QNX_KEY_AUTHOR[] = "author";
+const char QNX_KEY_PATH[] = "path";
+const char QNX_KEY_ACTIVE[] = "active";
 } // namespace Constants
 } // namespace Qnx
 

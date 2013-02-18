@@ -38,6 +38,7 @@
 #include "cpptypehierarchy.h"
 #include "cppsnippetprovider.h"
 #include "cppquickfixassistant.h"
+#include "cppquickfixes.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -187,7 +188,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     m_quickFixProvider = new CppQuickFixAssistProvider;
     addAutoReleasedObject(m_quickFixProvider);
-    registerQuickFixes(this);
+    CppEditor::Internal::registerQuickFixes(this);
 
     QObject *core = Core::ICore::instance();
     CppFileWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
@@ -233,6 +234,18 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     connect(switchDeclarationDefinition, SIGNAL(triggered()),
             this, SLOT(switchDeclarationDefinition()));
     contextMenu->addAction(cmd);
+    cppToolsMenu->addAction(cmd);
+
+    cmd = Core::ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT);
+    cppToolsMenu->addAction(cmd);
+
+    QAction *openDeclarationDefinitionInNextSplit =
+            new QAction(tr("Open Method Declaration/Definition in Next Split"), this);
+    cmd = Core::ActionManager::registerAction(openDeclarationDefinitionInNextSplit,
+        Constants::OPEN_DECLARATION_DEFINITION_IN_NEXT_SPLIT, context, true);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E, Shift+F2")));
+    connect(openDeclarationDefinitionInNextSplit, SIGNAL(triggered()),
+            this, SLOT(openDeclarationDefinitionInNextSplit()));
     cppToolsMenu->addAction(cmd);
 
     m_findUsagesAction = new QAction(tr("Find Usages"), this);
@@ -324,7 +337,14 @@ void CppPlugin::switchDeclarationDefinition()
 {
     CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(Core::EditorManager::currentEditor()->widget());
     if (editor)
-        editor->switchDeclarationDefinition();
+        editor->switchDeclarationDefinition(/*inNextSplit*/ false);
+}
+
+void CppPlugin::openDeclarationDefinitionInNextSplit()
+{
+    CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(Core::EditorManager::currentEditor()->widget());
+    if (editor)
+        editor->switchDeclarationDefinition(/*inNextSplit*/ true);
 }
 
 void CppPlugin::renameSymbolUnderCursor()

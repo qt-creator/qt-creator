@@ -57,10 +57,17 @@ bool FindValueOperation::setArguments(const QStringList &args)
         }
 
         QVariant v = Operation::valueFromString(current);
-        if (!v.isValid())
+        if (!v.isValid()) {
+            std::cerr << "Value for key '" << qPrintable(current) << "' is not valid." << std::endl << std::endl;
             return false;
+        }
         m_values << v;
     }
+
+    if (m_file.isEmpty())
+        std::cerr << "No file given." << std::endl << std::endl;
+    if (m_values.isEmpty())
+        std::cerr << "No values given." << std::endl << std::endl;
 
     return (!m_file.isEmpty() && !m_values.isEmpty());
 }

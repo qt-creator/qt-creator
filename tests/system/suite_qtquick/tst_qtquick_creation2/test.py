@@ -11,8 +11,6 @@ def main():
     checkedTargets, projectName = createNewQtQuickApplication(workingDir, None,
                                                               os.path.join(prepareTemplate(sourceExample), qmlFile),
                                                               QtQuickConstants.Targets.DESKTOP_474_GCC)
-    # wait for parsing to complete
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     test.log("Building project")
     result = modifyRunSettingsForHookInto(projectName, len(checkedTargets), 11223)
     invokeMenuItem("Build","Build All")

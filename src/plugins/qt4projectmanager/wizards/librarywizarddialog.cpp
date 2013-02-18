@@ -58,18 +58,20 @@ struct PluginBaseClasses {
     // blank separated list or 0
     const char *dependentModules;
     const char *targetDirectory;
+    const char *pluginInterface;
 };
 
 static const PluginBaseClasses pluginBaseClasses[] =
 {
-    { "QAccessiblePlugin", "QtGui", "QtCore", "accessible" },
-    { "QDecorationPlugin", "QtGui", "QtCore", 0},
-    { "QIconEnginePluginV2", "QtGui", "QtCore", "imageformats" },
-    { "QImageIOPlugin", "QtGui", "QtCore", "imageformats" },
-    { "QScriptExtensionPlugin", "QtScript", "QtCore", 0 },
-    { "QSqlDriverPlugin", "QtSql", "QtCore", "sqldrivers" },
-    { "QStylePlugin", "QtGui", "QtCore", "styles" },
-    { "QTextCodecPlugin", "QtCore", 0, "codecs" }
+    { "QAccessiblePlugin", "QtGui", "QtCore", "accessible", "QAccessibleFactoryInterface" },
+    { "QDecorationPlugin", "QtGui", "QtCore", 0, 0 }, // Qt 4 only.
+    { "QIconEnginePluginV2", "QtGui", "QtCore", "imageformats", 0 }, // Qt 4 only.
+    { "QIconEnginePlugin", "QtGui", "QtCore", "imageformats", "QIconEngineFactoryInterface" },
+    { "QImageIOPlugin", "QtGui", "QtCore", "imageformats",  "QImageIOHandlerFactoryInterface" },
+    { "QScriptExtensionPlugin", "QtScript", "QtCore", 0, "QScriptExtensionInterface" },
+    { "QSqlDriverPlugin", "QtSql", "QtCore", "sqldrivers", "QSqlDriverFactoryInterface" },
+    { "QStylePlugin", "QtGui", "QtCore", "styles", "QStyleFactoryInterface" },
+    { "QTextCodecPlugin", "QtCore", 0, "codecs", 0 } // Qt 4 only.
 };
 
 enum { defaultPluginBaseClass = 6 };
@@ -121,7 +123,7 @@ LibraryIntroPage::LibraryIntroPage(QWidget *parent) :
                          QVariant(QtProjectParameters::SharedLibrary));
     m_typeCombo->addItem(LibraryWizardDialog::tr("Statically Linked Library"),
                          QVariant(QtProjectParameters::StaticLibrary));
-    m_typeCombo->addItem(LibraryWizardDialog::tr("Qt 4 Plugin"),
+    m_typeCombo->addItem(LibraryWizardDialog::tr("Qt Plugin"),
                          QVariant(QtProjectParameters::Qt4Plugin));
     insertControl(0, new QLabel(LibraryWizardDialog::tr("Type")), m_typeCombo);
 }
@@ -354,10 +356,15 @@ LibraryParameters LibraryWizardDialog::libraryParameters() const
     rc.baseClassName = m_filesPage->baseClassName();
     rc.sourceFileName = m_filesPage->sourceFileName();
     rc.headerFileName = m_filesPage->headerFileName();
-    if (!rc.baseClassName.isEmpty())
-        if (const PluginBaseClasses *plb = findPluginBaseClass(rc.baseClassName))
-            rc.baseClassModule = QLatin1String(plb->module);
     return rc;
+}
+
+QString LibraryWizardDialog::pluginInterface(const QString &baseClass)
+{
+    if (const PluginBaseClasses *plb = findPluginBaseClass(baseClass))
+        if (plb->pluginInterface)
+            return QLatin1String("org.qt-project.Qt.") + QLatin1String(plb->pluginInterface);
+    return QString();
 }
 
 MobileLibraryParameters LibraryWizardDialog::mobileLibraryParameters() const

@@ -66,15 +66,13 @@ const char USE_NINJA_KEY[] = "CMakeProjectManager.MakeStep.UseNinja";
 }
 
 MakeStep::MakeStep(BuildStepList *bsl) :
-    AbstractProcessStep(bsl, Core::Id(MS_ID)), m_clean(false),
-    m_futureInterface(0)
+    AbstractProcessStep(bsl, Core::Id(MS_ID)), m_clean(false)
 {
     ctor();
 }
 
 MakeStep::MakeStep(BuildStepList *bsl, const Core::Id id) :
-    AbstractProcessStep(bsl, id), m_clean(false),
-    m_futureInterface(0)
+    AbstractProcessStep(bsl, id), m_clean(false)
 {
     ctor();
 }
@@ -82,7 +80,6 @@ MakeStep::MakeStep(BuildStepList *bsl, const Core::Id id) :
 MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) :
     AbstractProcessStep(bsl, bs),
     m_clean(bs->m_clean),
-    m_futureInterface(0),
     m_buildTargets(bs->m_buildTargets),
     m_additionalArguments(Utils::QtcProcess::joinArgs(bs->m_buildTargets))
 {
@@ -219,15 +216,11 @@ void MakeStep::run(QFutureInterface<bool> &fi)
     if (!canContinue) {
         emit addOutput(tr("Configuration is faulty. Check the Issues view for details."), BuildStep::MessageOutput);
         fi.reportResult(false);
+        emit finished();
         return;
     }
 
-    m_futureInterface = &fi;
-    m_futureInterface->setProgressRange(0, 100);
     AbstractProcessStep::run(fi);
-    m_futureInterface->setProgressValue(100);
-    m_futureInterface->reportFinished();
-    m_futureInterface = 0;
 }
 
 BuildStepConfigWidget *MakeStep::createConfigWidget()
@@ -246,7 +239,7 @@ void MakeStep::stdOutput(const QString &line)
         bool ok = false;
         int percent = m_percentProgress.cap(1).toInt(&ok);;
         if (ok)
-            m_futureInterface->setProgressValue(percent);
+            futureInterface()->setProgressValue(percent);
     } else if (m_ninjaProgress.indexIn(line) != -1) {
         bool ok = false;
         int done = m_ninjaProgress.cap(1).toInt(&ok);
@@ -254,7 +247,7 @@ void MakeStep::stdOutput(const QString &line)
             int all = m_ninjaProgress.cap(2).toInt(&ok);
             if (ok && all != 0) {
                 int percent = 100.0 * done/all;
-                m_futureInterface->setProgressValue(percent);
+                futureInterface()->setProgressValue(percent);
             }
         }
     }
@@ -340,7 +333,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     m_buildTargetsList = new QListWidget;
     m_buildTargetsList->setMinimumHeight(200);
-    fl->addRow(tr("Kits:"), m_buildTargetsList);
+    fl->addRow(tr("Targets:"), m_buildTargetsList);
 
     // TODO update this list also on rescans of the CMakeLists.txt
     CMakeProject *pro = static_cast<CMakeProject *>(m_makeStep->target()->project());
@@ -500,4 +493,16 @@ QString MakeStepFactory::displayNameForId(const Core::Id id) const
     if (id == MS_ID)
         return tr("Make", "Display name for CMakeProjectManager::MakeStep id.");
     return QString();
+}
+
+void MakeStep::processStarted()
+{
+    futureInterface()->setProgressRange(0, 100);
+    AbstractProcessStep::processStarted();
+}
+
+void MakeStep::processFinished(int exitCode, QProcess::ExitStatus status)
+{
+    processFinished(exitCode, status);
+    futureInterface()->setProgressValue(100);
 }

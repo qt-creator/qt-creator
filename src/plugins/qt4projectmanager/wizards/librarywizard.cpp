@@ -36,6 +36,7 @@
 #include <utils/codegeneration.h>
 #include <cpptools/abstracteditorsupport.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -94,6 +95,13 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
 
     const QString headerFileFullName = buildFileName(projectPath, params.headerFileName, headerSuffix());
     const QString headerFileName = QFileInfo(headerFileFullName).fileName();
+    QString pluginJsonFileFullName;
+    QString pluginJsonFileName;
+    if (projectParams.type == QtProjectParameters::Qt4Plugin) {
+        pluginJsonFileFullName = buildFileName(projectPath, projectParams.fileName, QLatin1String("json"));
+        pluginJsonFileName = QFileInfo(pluginJsonFileFullName).fileName();
+    }
+
     Core::GeneratedFile header(headerFileFullName);
 
     // Create files: global header for shared libs
@@ -110,7 +118,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
     // Generate code
     QString headerContents, sourceContents;
     params.generateCode(projectParams.type, projectParams.fileName,  headerFileName,
-                        globalHeaderFileName, sharedLibExportMacro,
+                        globalHeaderFileName, sharedLibExportMacro, pluginJsonFileName,
                         /* indentation*/ 4, &headerContents, &sourceContents);
 
     source.setContents(CppTools::AbstractEditorSupport::licenseTemplate(sourceFileName, params.className)
@@ -132,17 +140,25 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
                << "\n\nHEADERS += " << headerFileName;
         if (!globalHeaderFileName.isEmpty())
             proStr << "\\\n        " << globalHeaderFileName << '\n';
+        if (!pluginJsonFileName.isEmpty())
+            proStr << "\nOTHER_FILES += " << pluginJsonFileName << '\n';
         if (mobileParams.type)
             mobileParams.writeProFile(proStr);
     }
     profile.setContents(profileContents);
     rc.push_back(profile);
+
+    if (!pluginJsonFileName.isEmpty()) {
+        Core::GeneratedFile jsonFile(pluginJsonFileFullName);
+        jsonFile.setContents(QLatin1String("{\n    \"Keys\" : [ ]\n}\n"));
+        rc.push_back(jsonFile);
+    }
     return rc;
 }
 
 Core::FeatureSet LibraryWizard::requiredFeatures() const
 {
-    return Core::FeatureSet();
+    return Core::Feature(QtSupport::Constants::FEATURE_QT);
 }
 
 } // namespace Internal

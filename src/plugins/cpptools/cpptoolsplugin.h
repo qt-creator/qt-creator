@@ -74,6 +74,7 @@ public:
 
 private slots:
     void switchHeaderSource();
+    void switchHeaderSourceInNextSplit();
 
 #ifdef WITH_TESTS
     void test_codegen_public_in_empty_class();
@@ -118,6 +119,9 @@ private slots:
     void test_completion_member_access_operator_1();
     void test_completion_typedef_of_type_and_replace_access_operator();
     void test_completion_typedef_of_pointer_of_type_and_replace_access_operator();
+    void test_completion_typedef_of_pointer();
+    void test_completion_typedef_of_pointer_inside_function();
+    void test_completion_typedef_is_inside_function_before_declaration_block();
 
     void test_format_pointerdeclaration_in_simpledeclarations();
     void test_format_pointerdeclaration_in_simpledeclarations_data();
@@ -127,6 +131,8 @@ private slots:
     void test_format_pointerdeclaration_multiple_declarators_data();
     void test_format_pointerdeclaration_multiple_matches();
     void test_format_pointerdeclaration_multiple_matches_data();
+    void test_format_pointerdeclaration_macros();
+    void test_format_pointerdeclaration_macros_data();
 
     void test_modelmanager_paths();
     void test_modelmanager_framework_headers();

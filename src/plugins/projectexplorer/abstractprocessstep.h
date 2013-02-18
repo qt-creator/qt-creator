@@ -57,6 +57,7 @@ public:
 
     virtual bool init();
     virtual void run(QFutureInterface<bool> &);
+    bool runInGuiThread() const { return true; }
 
     ProcessParameters *processParameters() { return &m_param; }
 
@@ -77,11 +78,15 @@ protected:
     virtual void stdOutput(const QString &line);
     virtual void stdError(const QString &line);
 
+    QFutureInterface<bool> *futureInterface() const;
+
 private slots:
     void processReadyReadStdOutput();
     void processReadyReadStdError();
     void slotProcessFinished(int, QProcess::ExitStatus);
     void checkForCancel();
+
+    void cleanUp();
 
     void taskAdded(const ProjectExplorer::Task &task);
 
@@ -95,6 +100,7 @@ private:
     Utils::QtcProcess *m_process;
     QEventLoop *m_eventLoop;
     ProjectExplorer::IOutputParser *m_outputParserChain;
+    bool m_killProcess;
 };
 
 } // namespace ProjectExplorer

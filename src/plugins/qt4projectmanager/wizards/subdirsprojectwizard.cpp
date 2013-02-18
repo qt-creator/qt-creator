@@ -33,6 +33,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <coreplugin/icore.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include <QIcon>
 
@@ -98,7 +99,7 @@ bool SubdirsProjectWizard::postGenerateFiles(const QWizard *w, const Core::Gener
 
 Core::FeatureSet SubdirsProjectWizard::requiredFeatures() const
 {
-    return Core::FeatureSet();
+    return Core::Feature(QtSupport::Constants::FEATURE_QT);
 }
 
 } // namespace Internal

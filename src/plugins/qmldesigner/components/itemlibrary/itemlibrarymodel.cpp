@@ -392,6 +392,9 @@ Import entryToImport(const ItemLibraryEntry &entry)
 
 void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 {
+    if (!model)
+        return;
+
     QMap<QString, int> sections;
 
     clearElements();

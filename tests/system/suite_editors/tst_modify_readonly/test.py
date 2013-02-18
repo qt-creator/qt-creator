@@ -82,16 +82,14 @@ def testSaveChangesAndMakeWritable(modifiedFiles, readOnlyFiles):
             clickButton(waitForObject("{text='Make Writable' type='QPushButton' unnamed='1' "
                                       "visible='1' window=%s}" % readOnlyMBoxStr))
             try:
-                # avoid an AUT crash that happens frequently on the testing machines
-                if currentApplicationContext().isRunning:
-                    waitForObject(cannotResetStr, 3000)
-                    # should not be possible
-                    test.fail("Could not reset file '%s' to writable state." % currentFile)
-                    clickButton("{text='OK' type='QPushButton' window=%s}" % cannotResetStr)
+                waitForObject(cannotResetStr, 3000)
+                # should not be possible
+                test.fail("Could not reset file '%s' to writable state." % currentFile)
+                clickButton("{text='OK' type='QPushButton' window=%s}" % cannotResetStr)
             except:
                 if isWritable(currentFile):
-                    test.passes("File '%s' resetted to writable state and saved." % currentFile)
                     if currentFile in readOnlyFiles:
+                        test.passes("File '%s' reset to writable state and saved." % currentFile)
                         readOnlyFiles.remove(currentFile)
                     else:
                         test.fatal("Creator states file '%s' is read-only - but supposed to be "

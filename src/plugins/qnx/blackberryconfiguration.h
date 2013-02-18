@@ -48,6 +48,8 @@
 namespace Qnx {
 namespace Internal {
 
+class BlackBerryCertificate;
+
 class BlackBerryConfig
 {
     QString ndkPath;
@@ -58,6 +60,8 @@ class BlackBerryConfig
     Utils::FileName simulatorDebuger;
     Utils::FileName sysRoot;
     QMultiMap<QString, QString> qnxEnv;
+    QList<BlackBerryCertificate*> certificates;
+    BlackBerryCertificate *activeCertificate;
 
     friend class BlackBerryConfiguration;
 };
@@ -74,22 +78,36 @@ public:
     Utils::FileName simulatorGdbPath() const;
     Utils::FileName sysRoot() const;
     QMultiMap<QString, QString> qnxEnv() const;
-    void setupConfiguration(const QString &ndkPath);
+    void setupNdkConfiguration(const QString &ndkPath);
     QString ndkPath() const;
     QString targetName() const;
-    void loadSetting();
-    void clearSetting();
-    void cleanConfiguration();
+    QString barsignerCskPath() const;
+    QString barsignerDbPath() const;
+    QString dataDirPath() const;
+    QString defaultKeystorePath() const;
+    void loadSettings();
+    void clearNdkSettings();
+    void cleanNdkConfiguration();
+    void syncCertificates(QList<BlackBerryCertificate*> certificates,
+            BlackBerryCertificate *activeCertificate);
+
+    QList<BlackBerryCertificate*> certificates() const;
+    BlackBerryCertificate *activeCertificate();
 
 public slots:
-    void saveSetting();
+    void saveSettings();
 
 private:
     BlackBerryConfiguration(QObject *parent = 0);
     static BlackBerryConfiguration *m_instance;
     BlackBerryConfig m_config;
 
-    bool setConfig(const QString &ndkPath);
+    void loadCertificates();
+    void loadNdkSettings();
+    void saveCertificates();
+    void saveNdkSettings();
+    bool refresh();
+    bool setNdkPath(const QString &ndkPath);
     QtSupport::BaseQtVersion* createQtVersion();
     ProjectExplorer::GccToolChain* createGccToolChain();
     ProjectExplorer::Kit* createKit(QnxArchitecture arch, QtSupport::BaseQtVersion* qtVersion, ProjectExplorer::GccToolChain* tc);

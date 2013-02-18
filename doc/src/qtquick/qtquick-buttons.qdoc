@@ -148,7 +148,17 @@
         \li Specify properties and set expressions for the \gui Item, as
             illustrated by the following code snippet:
 
-            \snippet snippets/qml/quick-scalable-image.qml properties and signal definitions
+            \qml
+            Item {
+                property string text: ""
+                property int fontSize: 10
+
+                signal clicked
+
+                width: 60
+                height: 40
+            }
+            \endqml
 
             You will point to the properties and expression later.
 

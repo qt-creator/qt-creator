@@ -1,3 +1,5 @@
+greaterThan(QT_MAJOR_VERSION, 4):QT += widgets webkitwidgets
+
 # Add more folders to ship with the application, here
 # DEPLOYMENTFOLDERS #
 folder_01.source = html

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<language name="Java" version="1.19" kateversion="2.4" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
+<language name="Java" version="1.21" kateversion="2.4" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
 	<highlighting>
 		<list name="java15">
 			<item> ACTIVE </item>
@@ -141,7 +141,6 @@
 			<item> AncestorEvent </item>
 			<item> AncestorListener </item>
 			<item> AnnotatedElement </item>
-			<item> Annotation </item>
 			<item> Annotation </item>
 			<item> AnnotationFormatError </item>
 			<item> AnnotationTypeMismatchException </item>
@@ -3767,13 +3766,6 @@
 				<HlCOct attribute="Octal" context="#stay"/>
 				<HlCHex attribute="Hex" context="#stay"/>
 				<Int attribute="Decimal" context="#stay">
-					<StringDetect attribute="Decimal" context="#stay" String="ULL" insensitive="TRUE"/>
-					<StringDetect attribute="Decimal" context="#stay" String="LUL" insensitive="TRUE"/>
-					<StringDetect attribute="Decimal" context="#stay" String="LLU" insensitive="TRUE"/>
-					<StringDetect attribute="Decimal" context="#stay" String="UL" insensitive="TRUE"/>
-					<StringDetect attribute="Decimal" context="#stay" String="LU" insensitive="TRUE"/>
-					<StringDetect attribute="Decimal" context="#stay" String="LL" insensitive="TRUE"/>
-					<StringDetect attribute="Decimal" context="#stay" String="U" insensitive="TRUE"/>
 					<StringDetect attribute="Decimal" context="#stay" String="L" insensitive="TRUE"/>
 				</Int>
 				<HlCChar attribute="Char" context="#stay"/>
@@ -3790,6 +3782,7 @@
 				<RegExpr attribute="Keyword" context="StaticImports" String="\b(import\s+static)\b" />
 				<RegExpr attribute="Keyword" context="Imports" String="\b(package|import)\b" />
 				<RegExpr attribute="Function" context="#stay" String="\b[_\w][_\w\d]*(?=[\s]*(/\*\s*\d+\s*\*/\s*)?[(])" />
+				<RegExpr attribute="Annotation" context="#stay" String="@[_\w][_\w\d]*" />
 				<RegExpr attribute="Symbol" context="Member" String="[.]{1,1}" />
 				<DetectChar attribute="Symbol" context="InFunctionCall" char="("/>
 				<AnyChar attribute="Symbol" context="#stay" String=":!%&amp;+,-/.*&lt;=&gt;?[]|~^&#59;"/>
@@ -3837,6 +3830,7 @@
 		<itemDatas>
 			<itemData name="Normal Text"  defStyleNum="dsNormal"/>
 			<itemData name="Keyword"      defStyleNum="dsKeyword"/>
+			<itemData name="Annotation"   defStyleNum="dsFunction"/>
 			<itemData name="Function"     defStyleNum="dsFunction"/>
 			<itemData name="StaticImports"      defStyleNum="dsKeyword" color="#800080" selColor="#FFFFFF" bold="0" italic="0"/>
 			<itemData name="Imports"      defStyleNum="dsKeyword" color="#808000" selColor="#FFFFFF" bold="0" italic="0"/>

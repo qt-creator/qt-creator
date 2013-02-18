@@ -169,7 +169,6 @@ int BaseQtVersion::getUniqueId()
 BaseQtVersion::BaseQtVersion(const FileName &qmakeCommand, bool isAutodetected, const QString &autodetectionSource)
     : m_id(getUniqueId()),
       m_isAutodetected(isAutodetected),
-      m_autodetectionSource(autodetectionSource),
       m_hasDebuggingHelper(false),
       m_hasQmlDump(false),
       m_hasQmlDebuggingLibrary(false),
@@ -183,7 +182,9 @@ BaseQtVersion::BaseQtVersion(const FileName &qmakeCommand, bool isAutodetected, 
       m_hasExamples(false),
       m_hasDemos(false),
       m_hasDocumentation(false),
-      m_qmakeIsExecutable(true)
+      m_qmakeIsExecutable(true),
+      m_hasQtAbis(false),
+      m_autodetectionSource(autodetectionSource)
 {
     ctor(qmakeCommand);
 }
@@ -203,7 +204,8 @@ BaseQtVersion::BaseQtVersion()
     m_hasExamples(false),
     m_hasDemos(false),
     m_hasDocumentation(false),
-    m_qmakeIsExecutable(true)
+    m_qmakeIsExecutable(true),
+    m_hasQtAbis(false)
 {
     ctor(FileName());
 }
@@ -218,6 +220,7 @@ void BaseQtVersion::ctor(const FileName &qmakePath)
     m_mkspecUpToDate = false;
     m_mkspecReadUpToDate = false;
     m_versionInfoUpToDate = false;
+    m_hasQtAbis = false;
     m_qtVersionString.clear();
     m_sourcePath.clear();
 }
@@ -300,26 +303,43 @@ QList<ProjectExplorer::Task> BaseQtVersion::validateKit(const ProjectExplorer::K
     BaseQtVersion *version = QtKitInformation::qtVersion(k);
     Q_ASSERT(version == this);
 
-    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
-
     const QList<ProjectExplorer::Abi> qtAbis = version->qtAbis();
-    if (tc && !qtAbis.contains(tc->targetAbi())) {
+    if (qtAbis.isEmpty()) // No need to test if Qt does not know anyway...
+        return result;
+
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
+    if (tc) {
+        ProjectExplorer::Abi targetAbi = tc->targetAbi();
+        bool fuzzyMatch = false;
+        bool fullMatch = false;
+
         QString qtAbiString;
         foreach (const ProjectExplorer::Abi &qtAbi, qtAbis) {
             if (!qtAbiString.isEmpty())
                 qtAbiString.append(QLatin1Char(' '));
             qtAbiString.append(qtAbi.toString());
+
+            if (!fullMatch)
+                fullMatch = (targetAbi == qtAbi);
+            if (!fuzzyMatch)
+                fuzzyMatch = targetAbi.isCompatibleWith(qtAbi);
         }
-        const QString message = QCoreApplication::translate("BaseQtVersion",
-                                                            "The compiler '%1' (%2) cannot produce code for the Qt version '%3' (%4).").
-                                                            arg(tc->displayName(),
-                                                                tc->targetAbi().toString(),
-                                                                version->displayName(),
-                                                                qtAbiString);
-        result << ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                        message, FileName(), -1,
-                                        Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-    } // Abi mismatch
+
+        QString message;
+        if (!fullMatch) {
+            if (!fuzzyMatch)
+                message = QCoreApplication::translate("BaseQtVersion",
+                                                      "The compiler '%1' (%2) cannot produce code for the Qt version '%3' (%4).");
+            else
+                message = QCoreApplication::translate("BaseQtVersion",
+                                                      "The compiler '%1' (%2) may not produce code compatible with the Qt version '%3' (%4).");
+            message = message.arg(tc->displayName(), targetAbi.toString(),
+                                  version->displayName(), qtAbiString);
+            result << ProjectExplorer::Task(fuzzyMatch ? ProjectExplorer::Task::Warning : ProjectExplorer::Task::Error,
+                                            message, FileName(), -1,
+                                            Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        }
+    }
     return result;
 }
 
@@ -425,7 +445,7 @@ QString BaseQtVersion::invalidReason() const
 QStringList BaseQtVersion::warningReason() const
 {
     QStringList ret;
-    if (qtAbis().count() == 1 && qtAbis().first().isNull())
+    if (qtAbis().isEmpty())
         ret << QCoreApplication::translate("QtVersion", "ABI detection failed: Make sure to use a matching compiler when building.");
     if (m_versionInfo.value(QLatin1String("QT_INSTALL_PREFIX/get"))
         != m_versionInfo.value(QLatin1String("QT_INSTALL_PREFIX"))) {
@@ -457,10 +477,10 @@ FileName BaseQtVersion::qmakeCommand() const
 
 QList<ProjectExplorer::Abi> BaseQtVersion::qtAbis() const
 {
-    if (m_qtAbis.isEmpty())
+    if (!m_hasQtAbis) {
         m_qtAbis = detectQtAbis();
-    if (m_qtAbis.isEmpty())
-        m_qtAbis.append(ProjectExplorer::Abi()); // add empty ABI by default: This is compatible with all TCs.
+        m_hasQtAbis = true;
+    }
     return m_qtAbis;
 }
 
@@ -521,10 +541,14 @@ QString BaseQtVersion::toHtml(bool verbose) const
         str << "<tr><td><b>" << QCoreApplication::translate("BaseQtVersion", "ABI:")
             << "</b></td>";
         const QList<ProjectExplorer::Abi> abis = qtAbis();
-        for (int i = 0; i < abis.size(); ++i) {
-            if (i)
-                str << "<tr><td></td>";
-            str << "<td>" << abis.at(i).toString() << "</td></tr>";
+        if (abis.isEmpty()) {
+            str << "<td>" << ProjectExplorer::Abi().toString() << "</td></tr>";
+        } else {
+            for (int i = 0; i < abis.size(); ++i) {
+                if (i)
+                    str << "<tr><td></td>";
+                str << "<td>" << abis.at(i).toString() << "</td></tr>";
+            }
         }
         str << "<tr><td><b>" << QCoreApplication::translate("BaseQtVersion", "Source:")
             << "</b></td><td>" << sourcePath().toUserOutput() << "</td></tr>";
@@ -1235,7 +1259,7 @@ static QByteArray runQmakeQuery(const FileName &binary, const Environment &env,
     }
     if (!process.waitForFinished(timeOutMS)) {
         SynchronousProcess::stopProcess(process);
-        *error = QCoreApplication::translate("QtVersion", "Timeout running '%1' (%2ms).").arg(binary.toUserOutput()).arg(timeOutMS);
+        *error = QCoreApplication::translate("QtVersion", "Timeout running '%1' (%2 ms).").arg(binary.toUserOutput()).arg(timeOutMS);
         return QByteArray();
     }
     if (process.exitStatus() != QProcess::NormalExit) {
@@ -1256,7 +1280,7 @@ bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Environmen
 
     const QFileInfo qmake = binary.toFileInfo();
     if (!qmake.exists() || !qmake.isExecutable() || qmake.isDir()) {
-        *error = QCoreApplication::translate("QtVersion", "qmake '%1' is not a executable").arg(binary.toUserOutput());
+        *error = QCoreApplication::translate("QtVersion", "qmake '%1' is not an executable.").arg(binary.toUserOutput());
         return false;
     }
 

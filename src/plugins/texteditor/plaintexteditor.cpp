@@ -65,8 +65,7 @@ PlainTextEditor::PlainTextEditor(PlainTextEditorWidget *editor)
 
 PlainTextEditorWidget::PlainTextEditorWidget(QWidget *parent)
   : BaseTextEditorWidget(parent),
-  m_isMissingSyntaxDefinition(false),
-  m_ignoreMissingSyntaxDefinition(false)
+  m_isMissingSyntaxDefinition(false)
 {
     setRevisionsVisible(true);
     setMarksVisible(true);
@@ -196,11 +195,6 @@ bool PlainTextEditorWidget::isMissingSyntaxDefinition() const
     return m_isMissingSyntaxDefinition;
 }
 
-bool PlainTextEditorWidget::ignoreMissingSyntaxDefinition() const
-{
-    return m_ignoreMissingSyntaxDefinition;
-}
-
 QString PlainTextEditorWidget::findDefinitionId(const Core::MimeType &mimeType,
                                           bool considerParents) const
 {
@@ -222,11 +216,6 @@ void PlainTextEditorWidget::acceptMissingSyntaxDefinitionInfo()
 {
     ICore::showOptionsDialog(Constants::TEXT_EDITOR_SETTINGS_CATEGORY,
                              Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS);
-}
-
-void PlainTextEditorWidget::ignoreMissingSyntaxDefinitionInfo()
-{
-    m_ignoreMissingSyntaxDefinition = true;
 }
 
 } // namespace TextEditor

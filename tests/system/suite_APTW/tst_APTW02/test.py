@@ -6,7 +6,6 @@ source("../shared/aptw.py")
 def main():
     startApplication("qtcreator" + SettingsPath)
     checkedTargets, projectName = createNewQtQuickApplication(tempDir(), "SampleApp")
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     # run project for debug and release and verify results
     runVerify(checkedTargets)
     #close Qt Creator

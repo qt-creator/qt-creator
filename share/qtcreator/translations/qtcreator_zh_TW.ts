@@ -9376,8 +9376,8 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <location filename="../../../src/plugins/projectexplorer/sessiondialog.ui"/>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;什麼是工作階段？&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;什麼是工作階段？&lt;/a&gt;</translation>
     </message>
     <message>
         <location/>
@@ -37920,8 +37920,8 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <location line="+3"/>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;先決條件是什麼？&lt;/a&gt;</translation>
+        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;先決條件是什麼？&lt;/a&gt;</translation>
     </message>
     <message>
         <location line="+11"/>

@@ -394,7 +394,7 @@ Target *TargetSettingsPanelWidget::cloneTarget(Target *sourceTarget, Kit *k)
         // That could be a more granular error message
         QMessageBox::critical(Core::ICore::mainWindow(),
                               tr("Incompatible Kit"),
-                              tr("The Kit %1 is incompatible with Kit %2.")
+                              tr("Kit %1 is incompatible with kit %2.")
                               .arg(sourceTarget->kit()->displayName())
                               .arg(k->displayName()));
 
@@ -425,7 +425,7 @@ Target *TargetSettingsPanelWidget::cloneTarget(Target *sourceTarget, Kit *k)
 
         QMessageBox msgBox(Core::ICore::mainWindow());
         msgBox.setIcon(QMessageBox::Warning);
-        msgBox.setWindowTitle(tr("Partial Incompatible Kit"));
+        msgBox.setWindowTitle(tr("Partially Incompatible Kit"));
         msgBox.setText(tr("Some configurations could not be copied."));
         msgBox.setDetailedText(error);
         msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
@@ -454,7 +454,7 @@ void TargetSettingsPanelWidget::removeTarget(Target *t)
         box.setDefaultButton(cancelClose);
         box.setWindowTitle(tr("Remove Kit %1?").arg(t->displayName()));
         box.setText(tr("The kit <b>%1</b> is currently being built.").arg(t->displayName()));
-        box.setInformativeText(tr("Do you want to cancel the build process and remove the Kit anyway?"));
+        box.setInformativeText(tr("Do you want to cancel the build process and remove the kit anyway?"));
         box.exec();
         if (box.clickedButton() != closeAnyway)
             return;

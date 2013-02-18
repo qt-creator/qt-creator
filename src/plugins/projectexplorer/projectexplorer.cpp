@@ -97,6 +97,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/modemanager.h>
@@ -104,6 +105,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/id.h>
+#include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/findplaceholder.h>
@@ -154,6 +156,7 @@
 
 namespace {
 bool debug = false;
+const char EXTERNAL_FILE_WARNING[] = "ExternalFile";
 }
 
 namespace ProjectExplorer {
@@ -1746,6 +1749,39 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
     d->m_runMode = NoRunMode;
 }
 
+void ProjectExplorerPlugin::updateExternalFileWarning()
+{
+    Core::IEditor *editor = qobject_cast<Core::IEditor *>(sender());
+    if (!editor || editor->isTemporary())
+        return;
+    Core::IDocument *document = editor->document();
+    if (!document)
+        return;
+    Core::InfoBar *infoBar = document->infoBar();
+    Core::Id externalFileId(EXTERNAL_FILE_WARNING);
+    if (!document->isModified()) {
+        infoBar->removeInfo(externalFileId);
+        return;
+    }
+    if (!d->m_currentProject || !infoBar->canInfoBeAdded(externalFileId))
+        return;
+    Utils::FileName fileName = Utils::FileName::fromString(document->fileName());
+    if (fileName.isEmpty())
+        return;
+    Utils::FileName projectDir = Utils::FileName::fromString(d->m_currentProject->projectDirectory());
+    if (projectDir.isEmpty() || fileName.isChildOf(projectDir))
+        return;
+    // External file. Test if it under the same VCS
+    QString topLevel;
+    if (Core::ICore::vcsManager()->findVersionControlForDirectory(projectDir.toString(), &topLevel)
+            && fileName.isChildOf(Utils::FileName::fromString(topLevel))) {
+        return;
+    }
+    infoBar->addInfo(Core::InfoBarEntry(externalFileId,
+                             tr("<b>Warning:</b> This file is outside the project directory."),
+                             Core::InfoBarEntry::GlobalSuppressionEnabled));
+}
+
 void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node *node)
 {
     if (debug)
@@ -1778,6 +1814,10 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
         projectChanged = true;
     }
 
+    if (!node && Core::EditorManager::currentEditor()) {
+        connect(Core::EditorManager::currentEditor(), SIGNAL(changed()),
+                this, SLOT(updateExternalFileWarning()));
+    }
     if (projectChanged || d->m_currentNode != node) {
         d->m_currentNode = node;
         if (debug)

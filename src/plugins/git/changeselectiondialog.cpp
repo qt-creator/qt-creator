@@ -103,7 +103,7 @@ void ChangeSelectionDialog::selectWorkingDirectory()
         m_ui.workingDirectoryEdit->setText(location);
     else // Did not find a repo
         QMessageBox::critical(this, tr("Error"),
-                              tr("Selected directory is not a Git repository"));
+                              tr("Selected directory is not a Git repository."));
 }
 
 //! Set commit message in details
@@ -112,7 +112,7 @@ void ChangeSelectionDialog::setDetails(int exitCode)
     if (exitCode == 0)
         m_ui.detailsText->setPlainText(QString::fromUtf8(m_process->readAllStandardOutput()));
     else
-        m_ui.detailsText->setPlainText(tr("Error: unknown reference"));
+        m_ui.detailsText->setPlainText(tr("Error: Unknown reference"));
 }
 
 void ChangeSelectionDialog::recalculateDetails(const QString &ref)
@@ -135,7 +135,7 @@ void ChangeSelectionDialog::recalculateDetails(const QString &ref)
     m_process->start(m_gitBinaryPath, args);
     m_process->closeWriteChannel();
     if (!m_process->waitForStarted())
-        m_ui.detailsText->setPlainText(tr("Error: could not start git"));
+        m_ui.detailsText->setPlainText(tr("Error: Could not start Git."));
     else
         m_ui.detailsText->setPlainText(tr("Fetching commit data..."));
 }

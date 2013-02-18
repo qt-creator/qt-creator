@@ -106,9 +106,18 @@ protected:
     bool visit(ForeachStatementAST *ast);
 
 private:
+    class TokenRange {
+    public:
+        TokenRange() : start(0), end(0) {}
+        TokenRange(unsigned start, unsigned end) : start(start), end(end) {}
+        unsigned start;
+        unsigned end;
+    };
+
     void processIfWhileForStatement(ExpressionAST *expression, Symbol *symbol);
-    void checkAndRewrite(Symbol *symbol, Range range, unsigned charactersToRemove = 0);
+    void checkAndRewrite(Symbol *symbol, TokenRange range, unsigned charactersToRemove = 0);
     QString rewriteDeclaration(FullySpecifiedType type, const Name *name) const;
+    void printCandidate(AST *ast);
 
     const CppRefactoringFilePtr m_cppRefactoringFile;
     const Overview &m_overview;

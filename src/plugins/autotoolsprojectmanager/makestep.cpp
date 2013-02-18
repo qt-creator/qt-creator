@@ -211,6 +211,7 @@ void MakeStep::run(QFutureInterface<bool> &interface)
     if (!canContinue) {
         emit addOutput(tr("Configuration is faulty. Check the Issues view for details."), BuildStep::MessageOutput);
         interface.reportResult(false);
+        emit finished();
         return;
     }
 

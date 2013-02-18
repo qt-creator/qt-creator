@@ -258,7 +258,7 @@ bool SnippetsTableModel::isValidTrigger(const QString &s)
     if (s.isEmpty())
         return false;
     for (int i = 0; i < s.length(); ++i)
-        if (!s.at(i).isLetter())
+        if (!s.at(i).isLetter() && s.at(i) != QLatin1Char('_') && (!s.at(i).isDigit() || i == 0))
             return false;
     return true;
 }

@@ -78,7 +78,7 @@ private:
     QString stateName(FileState state, const QString &extraInfo);
     void chooseAction();
     void addButton(QMessageBox *msgBox, const QString &text, char key);
-    void continuePreviousGitCommand(const QString &msgBoxTitle, const QString &msgBoxText,
+    void continuePreviousGitCommand(const QString &msgBoxTitle, QString msgBoxText,
                                     const QString &buttonName, const QString &gitCommand);
 
     MergeToolProcess *m_process;

@@ -75,6 +75,9 @@ bool RmKitOperation::setArguments(const QStringList &args)
 
     m_id = args.at(1);
 
+    if (m_id.isEmpty())
+        std::cerr << "No id given." << std::endl << std::endl;
+
     return !m_id.isEmpty();
 }
 

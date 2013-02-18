@@ -73,6 +73,7 @@
 
 #include <QComboBox>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QToolButton>
 #include <QTextCodec>
 
@@ -659,7 +660,7 @@ void GitClient::log(const QString &workingDirectory, const QStringList &fileName
     arguments.append(userArgs);
 
     if (!fileNames.isEmpty())
-        arguments.append(fileNames);
+        arguments << QLatin1String("--") << fileNames;
 
     executeGit(workingDirectory, arguments, editor);
 }
@@ -1622,7 +1623,8 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, St
         statusArgs << QLatin1String("--ignore-submodules=all");
     statusArgs << QLatin1String("-s") << QLatin1String("-b");
 
-    const bool statusRc = fullySynchronousGit(workingDirectory, statusArgs, &outputText, &errorText);
+    const bool statusRc = fullySynchronousGit(workingDirectory, statusArgs,
+                                              &outputText, &errorText, false);
     if (output)
         *output = commandOutputFromLocal8Bit(outputText);
 
@@ -1672,10 +1674,12 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
 
         const QString pattern = QLatin1String("\trefs/heads/");
         const int pos = line.lastIndexOf(pattern);
+        bool headFound = false;
         if (pos != -1) {
             const QString branchName = line.mid(pos + pattern.count());
-            if (line.startsWith(headSha)) {
+            if (!headFound && line.startsWith(headSha)) {
                 branches[0] = branchName;
+                headFound = true;
                 if (isDetached)
                     *isDetached = false;
             } else {
@@ -1804,7 +1808,8 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     //    MM filename
     //     A new_unstaged_file
     //    R  old -> new
-    //    ?? missing_file
+    //     D deleted_file
+    //    ?? untracked_file
     if (status != StatusUnchanged) {
         if (!commitData->parseFilesFromStatus(output)) {
             *errorMessage = msgParseFilesFailed();
@@ -2090,18 +2095,28 @@ bool GitClient::synchronousFetch(const QString &workingDirectory, const QString 
     return resp.result == Utils::SynchronousProcessResponse::Finished;
 }
 
-bool GitClient::executeAndHandleConflicts(const QString &workingDirectory, const QStringList &arguments, const QString &abortCommand)
+bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
+                                          const QStringList &arguments,
+                                          const QString &abortCommand)
 {
     // Disable UNIX terminals to suppress SSH prompting.
     const unsigned flags = VcsBase::VcsBasePlugin::SshPasswordPrompt|VcsBase::VcsBasePlugin::ShowStdOutInLogWindow;
     const Utils::SynchronousProcessResponse resp = synchronousGit(workingDirectory, arguments, flags);
     // Notify about changed files or abort the rebase.
     const bool ok = resp.result == Utils::SynchronousProcessResponse::Finished;
-    if (ok)
+    if (ok) {
         GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(workingDirectory);
-    else if (resp.stdOut.contains(QLatin1String("CONFLICT"))
-             || resp.stdErr.contains(QLatin1String("conflict")))
-        handleMergeConflicts(workingDirectory, abortCommand);
+    } else if (resp.stdOut.contains(QLatin1String("CONFLICT"))) {
+        // rebase conflict is output to stdOut
+        QRegExp conflictedCommit(QLatin1String("Patch failed at ([^\\n]*)"));
+        conflictedCommit.indexIn(resp.stdOut);
+        handleMergeConflicts(workingDirectory, conflictedCommit.cap(1), abortCommand);
+    } else if (resp.stdErr.contains(QLatin1String("conflict"))) {
+        // cherry-pick/revert conflict is output to stdErr
+        QRegExp conflictedCommit(QLatin1String("could not (?:apply|revert) ([^\\n]*)$"));
+        conflictedCommit.indexIn(resp.stdErr);
+        handleMergeConflicts(workingDirectory, conflictedCommit.cap(1), abortCommand);
+    }
     return ok;
 }
 
@@ -2119,10 +2134,10 @@ bool GitClient::synchronousPull(const QString &workingDirectory, bool rebase)
     return executeAndHandleConflicts(workingDirectory, arguments, abortCommand);
 }
 
-bool GitClient::synchronousCommandContinue(const QString &workingDirectory, const QString &command)
+bool GitClient::synchronousCommandContinue(const QString &workingDirectory, const QString &command, bool hasChanges)
 {
     QStringList arguments;
-    arguments << command << QLatin1String("--continue");
+    arguments << command << QLatin1String(hasChanges ? "--continue" : "--skip");
     return executeAndHandleConflicts(workingDirectory, arguments, command);
 }
 
@@ -2145,20 +2160,29 @@ void GitClient::synchronousAbortCommand(const QString &workingDir, const QString
         outwin->appendError(commandOutputFromLocal8Bit(stdErr));
 }
 
-void GitClient::handleMergeConflicts(const QString &workingDir, const QString &abortCommand)
+void GitClient::handleMergeConflicts(const QString &workingDir, const QString &commit, const QString &abortCommand)
 {
-    QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts detected"),
-                             tr("Conflicts detected"), QMessageBox::Ignore | QMessageBox::Abort);
-    mergeOrAbort.addButton(tr("Run Merge Tool"), QMessageBox::ActionRole);
+    QString message = commit.isEmpty() ? tr("Conflicts detected")
+                                       : tr("Conflicts detected with commit %1").arg(commit);
+    QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts Detected"),
+                             message, QMessageBox::Ignore | QMessageBox::Abort);
+    QPushButton *mergeToolButton = mergeOrAbort.addButton(tr("Run &Merge Tool"),
+                                                          QMessageBox::ActionRole);
+    if (abortCommand == QLatin1String("rebase"))
+        mergeOrAbort.addButton(tr("&Skip"), QMessageBox::ActionRole);
     switch (mergeOrAbort.exec()) {
-    case QMessageBox::Abort: {
+    case QMessageBox::Abort:
         synchronousAbortCommand(workingDir, abortCommand);
         break;
-    }
     case QMessageBox::Ignore:
         break;
-    default: // Merge
-        merge(workingDir);
+    default: // Merge or Skip
+        if (mergeOrAbort.clickedButton() == mergeToolButton) {
+            merge(workingDir);
+        } else {
+            QStringList arguments = QStringList() << abortCommand << QLatin1String("--skip");
+            executeAndHandleConflicts(workingDir, arguments, abortCommand);
+        }
     }
 }
 
@@ -2528,8 +2552,11 @@ GitClient::StashGuard::StashGuard(const QString &workingDirectory, const QString
 
 GitClient::StashGuard::~StashGuard()
 {
-    if (pop && stashResult == GitClient::Stashed)
-        client->stashPop(workingDir, message);
+    if (pop && stashResult == GitClient::Stashed) {
+        QString stashName;
+        if (client->stashNameFromMessage(workingDir, message, &stashName))
+            client->stashPop(workingDir, stashName);
+    }
 }
 
 void GitClient::StashGuard::preventPop()

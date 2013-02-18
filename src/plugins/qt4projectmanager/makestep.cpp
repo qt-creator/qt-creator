@@ -58,6 +58,7 @@ using namespace Qt4ProjectManager::Internal;
 namespace {
 const char MAKESTEP_BS_ID[] = "Qt4ProjectManager.MakeStep";
 const char MAKE_ARGUMENTS_KEY[] = "Qt4ProjectManager.MakeStep.MakeArguments";
+const char AUTOMATICLY_ADDED_MAKE_ARGUMENTS_KEY[] = "Qt4ProjectManager.MakeStep.AutomaticallyAddedMakeArguments";
 const char MAKE_COMMAND_KEY[] = "Qt4ProjectManager.MakeStep.MakeCommand";
 const char CLEAN_KEY[] = "Qt4ProjectManager.MakeStep.Clean";
 }
@@ -125,7 +126,16 @@ QVariantMap MakeStep::toMap() const
     map.insert(QLatin1String(MAKE_ARGUMENTS_KEY), m_userArgs);
     map.insert(QLatin1String(MAKE_COMMAND_KEY), m_makeCmd);
     map.insert(QLatin1String(CLEAN_KEY), m_clean);
+    map.insert(QLatin1String(AUTOMATICLY_ADDED_MAKE_ARGUMENTS_KEY), automaticallyAddedArguments());
     return map;
+}
+
+QStringList MakeStep::automaticallyAddedArguments() const
+{
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
+    if (!tc || tc->targetAbi().binaryFormat() == Abi::PEFormat)
+        return QStringList();
+    return QStringList() << QLatin1String("-w") << QLatin1String("-r");
 }
 
 bool MakeStep::fromMap(const QVariantMap &map)
@@ -133,6 +143,13 @@ bool MakeStep::fromMap(const QVariantMap &map)
     m_makeCmd = map.value(QLatin1String(MAKE_COMMAND_KEY)).toString();
     m_userArgs = map.value(QLatin1String(MAKE_ARGUMENTS_KEY)).toString();
     m_clean = map.value(QLatin1String(CLEAN_KEY)).toBool();
+    QStringList oldAddedArgs
+            = map.value(QLatin1String(AUTOMATICLY_ADDED_MAKE_ARGUMENTS_KEY)).toStringList();
+    foreach (const QString &newArg, automaticallyAddedArguments()) {
+        if (oldAddedArgs.contains(newArg))
+            continue;
+        m_userArgs.prepend(newArg + QLatin1Char(' '));
+    }
 
     return AbstractProcessStep::fromMap(map);
 }
@@ -224,15 +241,8 @@ bool MakeStep::init()
     // Force output to english for the parsers. Do this here and not in the toolchain's
     // addToEnvironment() to not screw up the users run environment.
     env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
-    // -w option enables "Enter"/"Leaving directory" messages, which we need for detecting the
-    // absolute file path
-    // doing this without the user having a way to override this is rather bad
-    // so we only do it for unix and if the user didn't override the make command
-    // but for now this is the least invasive change
     // We also prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
     if (tc && m_makeCmd.isEmpty()) {
-        if (tc->targetAbi().binaryFormat() != Abi::PEFormat )
-            Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
         if (tc->targetAbi().os() == Abi::WindowsOS
                 && tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor) {
             const QString makeFlags = QLatin1String("MAKEFLAGS");
@@ -265,11 +275,13 @@ void MakeStep::run(QFutureInterface<bool> & fi)
     if (!canContinue) {
         emit addOutput(tr("Configuration is faulty. Check the Issues view for details."), BuildStep::MessageOutput);
         fi.reportResult(false);
+        emit finished();
         return;
     }
 
     if (m_scriptTarget) {
         fi.reportResult(true);
+        emit finished();
         return;
     }
 
@@ -277,6 +289,7 @@ void MakeStep::run(QFutureInterface<bool> & fi)
         if (!ignoreReturnValue())
             emit addOutput(tr("Cannot find Makefile. Check your build settings."), BuildStep::MessageOutput);
         fi.reportResult(ignoreReturnValue());
+        emit finished();
         return;
     }
 
@@ -421,15 +434,9 @@ void MakeStepConfigWidget::updateDetails()
     // Force output to english for the parsers. Do this here and not in the toolchain's
     // addToEnvironment() to not screw up the users run environment.
     env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
-    // -w option enables "Enter"/"Leaving directory" messages, which we need for detecting the
-    // absolute file path
+    // We prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
     // FIXME doing this without the user having a way to override this is rather bad
-    // so we only do it for unix and if the user didn't override the make command
-    // but for now this is the least invasive change
-    // We also prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
     if (tc && m_makeStep->makeCommand().isEmpty()) {
-        if (tc->targetAbi().binaryFormat() != Abi::PEFormat )
-            Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
         if (tc->targetAbi().os() == Abi::WindowsOS
                 && tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor) {
             const QString makeFlags = QLatin1String("MAKEFLAGS");

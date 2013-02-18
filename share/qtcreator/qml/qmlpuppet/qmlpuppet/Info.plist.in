@@ -18,7 +18,7 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
 	<key>CFBundleExecutable</key>
 	<string>@EXECUTABLE@</string>
 	<key>CFBundleIdentifier</key>
-    <string>com.nokia.qtcreator.qmlpuppet</string>
+        <string>org.qt-project.qtcreator.qmlpuppet</string>
 	<key>CFBundleVersion</key>
 	<string>$$QTCREATOR_VERSION</string>
 	<key>CFBundleShortVersionString</key>

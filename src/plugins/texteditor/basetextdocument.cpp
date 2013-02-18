@@ -74,8 +74,6 @@ public:
     SyntaxHighlighter *m_highlighter;
 
     bool m_fileIsReadOnly;
-    bool m_hasHighlightWarning;
-
     int m_autoSaveRevision;
 };
 
@@ -83,7 +81,6 @@ BaseTextDocumentPrivate::BaseTextDocumentPrivate(BaseTextDocument *q) :
     m_document(new QTextDocument(q)),
     m_highlighter(0),
     m_fileIsReadOnly(false),
-    m_hasHighlightWarning(false),
     m_autoSaveRevision(-1)
 {
 }
@@ -201,7 +198,8 @@ ITextMarkable *BaseTextDocument::documentMarker() const
  * \brief Saves the document to the specified file.
  * \param errorString output parameter, contains error reason.
  * \param autoSave signalise that this function was called by the automatic save routine.
- * If autosave is true, the cursor will be restored and some signals suppressed.
+ * If autosave is true, the cursor will be restored and some signals suppressed
+ * and we do not clean up the text file (cleanWhitespace(), ensureFinalNewLine()).
  */
 bool BaseTextDocument::save(QString *errorString, const QString &fileName, bool autoSave)
 {
@@ -230,14 +228,16 @@ bool BaseTextDocument::save(QString *errorString, const QString &fileName, bool 
         }
     }
 
-    cursor.beginEditBlock();
-    cursor.movePosition(QTextCursor::Start);
+    if (!autoSave) {
+        cursor.beginEditBlock();
+        cursor.movePosition(QTextCursor::Start);
 
-    if (d->m_storageSettings.m_cleanWhitespace)
-        cleanWhitespace(cursor, d->m_storageSettings.m_cleanIndentation, d->m_storageSettings.m_inEntireDocument);
-    if (d->m_storageSettings.m_addFinalNewLine)
-        ensureFinalNewLine(cursor);
-    cursor.endEditBlock();
+        if (d->m_storageSettings.m_cleanWhitespace)
+          cleanWhitespace(cursor, d->m_storageSettings.m_cleanIndentation, d->m_storageSettings.m_inEntireDocument);
+        if (d->m_storageSettings.m_addFinalNewLine)
+          ensureFinalNewLine(cursor);
+        cursor.endEditBlock();
+      }
 
     QString fName = d->m_fileName;
     if (!fileName.isEmpty())
@@ -491,16 +491,6 @@ void BaseTextDocument::ensureFinalNewLine(QTextCursor& cursor)
         cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
         cursor.insertText(QLatin1String("\n"));
     }
-}
-
-bool BaseTextDocument::hasHighlightWarning() const
-{
-    return d->m_hasHighlightWarning;
-}
-
-void BaseTextDocument::setHighlightWarning(bool has)
-{
-    d->m_hasHighlightWarning = has;
 }
 
 } // namespace TextEditor

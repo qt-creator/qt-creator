@@ -132,7 +132,7 @@ private:
     void filterModificationTimes(QList<DeployItem> *deployList);
     void copyFilesToTemp(QList<DeployItem> *deployList, const QString &tempDirectory, const QString &sourcePrefix);
     void fetchRemoteModificationTimes(QList<DeployItem> *deployList);
-    void stripFiles(const QList<DeployItem> &deployList, ProjectExplorer::Abi::Architecture architecture);
+    void stripFiles(const QList<DeployItem> &deployList, ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolchainVersion);
     void deployFiles(QProcess *process, const QList<DeployItem> &deployList);
 
 private:
@@ -153,6 +153,7 @@ private:
     QString m_buildDirectory;
     QString m_runQASIPackagePath;
     AndroidDeployAction m_runDeployAction;
+    QString m_ndkToolChainVersion;
 
     static const Core::Id Id;
 };

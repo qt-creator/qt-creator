@@ -37,7 +37,7 @@ GroupBox {
 
         ColorGroupBox {
             text:  qsTr("Text")
-            toolTip:  qsTr("The text shown on the button")
+            toolTip:  qsTr("The text shown on the combobox")
             finished: finishedNotify
             backendColor: backendValues.textColor
         }
@@ -46,7 +46,7 @@ GroupBox {
             layout: HorizontalLayout {
                 Label {
                     text: qsTr("Tool tip")
-                    toolTip: qsTr("The tool tip shown for the button.")
+                    toolTip: qsTr("The tool tip shown for the combobox.")
                 }
                 LineEdit {
                     backendValue: backendValues.tooltip
@@ -59,7 +59,7 @@ GroupBox {
             layout: HorizontalLayout {
                 Label {
                     text: qsTr("Focus on press")
-                    toolTip: "Determines whether the check box gets focus if pressed."
+                    toolTip: "Determines whether the combobox gets focus if pressed."
                 }
                 CheckBox {
                     text: backendValues.activeFocusOnPress.value

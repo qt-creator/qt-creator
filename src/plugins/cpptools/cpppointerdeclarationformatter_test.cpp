@@ -575,3 +575,113 @@ void CppToolsPlugin::test_format_pointerdeclaration_multiple_matches_data()
            "    return 0;\n"
            "}\n";
 }
+
+void CppToolsPlugin::test_format_pointerdeclaration_macros()
+{
+    QFETCH(QString, source);
+    QFETCH(QString, reformattedSource);
+
+    TestEnvironment env(source.toLatin1(), Document::ParseTranlationUnit);
+    AST *ast = env.translationUnit->ast();
+    QVERIFY(ast);
+
+    env.applyFormatting(ast, PointerDeclarationFormatter::RespectCursor);
+
+    QCOMPARE(env.textDocument->toPlainText(), reformattedSource);
+}
+
+void CppToolsPlugin::test_format_pointerdeclaration_macros_data()
+{
+    QTest::addColumn<QString>("source");
+    QTest::addColumn<QString>("reformattedSource");
+
+    QString source;
+
+    source = QLatin1String(
+        "#define FOO int*\n"
+        "FOO @bla;\n");
+    QTest::newRow("macro-in-simple-declaration")
+        << source << stripCursor(source);
+
+    source = QLatin1String(
+        "#define FOO int*\n"
+        "FOO @f();\n");
+    QTest::newRow("macro-in-function-declaration-returntype")
+        << source << stripCursor(source);
+
+    source = QLatin1String(
+        "#define FOO int*\n"
+        "int f(@FOO a);\n");
+    QTest::newRow("macro-in-function-declaration-param")
+        << source << stripCursor(source);
+
+    source = QLatin1String(
+        "#define FOO int*\n"
+        "FOO @f() {};\n");
+    QTest::newRow("macro-in-function-definition-returntype")
+        << source << stripCursor(source);
+
+    source = QLatin1String(
+        "#define FOO int*\n"
+        "int f(FOO @a) {};\n");
+    QTest::newRow("macro-in-function-definition-param")
+        << source << stripCursor(source);
+
+    source = QLatin1String(
+        "#define FOO int*\n"
+        "while (FOO @s = 0);\n");
+    QTest::newRow("macro-in-if-while-for")
+        << source << stripCursor(source);
+
+    source = QLatin1String(
+        "#define FOO int*\n"
+        "foreach (FOO @s, list);\n");
+    QTest::newRow("macro-in-foreach")
+        << source << stripCursor(source);
+
+    // The bug was that we got "Reformat to 'QMetaObject staticMetaObject'"
+    // at the cursor position below, which was completelty wrong.
+    QTest::newRow("wrong-reformat-suggestion")
+        <<
+           "#define Q_OBJECT \\\n"
+           "public: \\\n"
+           "    template <typename T> inline void qt_check_for_QOBJECT_macro(T &_q_argument) \\\n"
+           "        { int i = qYouForgotTheQ_OBJECT_Macro(this, &_q_argument); i = i; } \\\n"
+           "    QMetaObject staticMetaObject; \\\n"
+           "    void *qt_metacast(const char *); \\\n"
+           "    static inline QString tr(const char *s, const char *f = 0); \\\n"
+           " \n"
+           "class KitInformation\n"
+           "{\n"
+           "    Q_OBJECT\n"
+           "public:\n"
+           "    typedef QPair<QString, QString> Item;\n"
+           " \n"
+           "    Core::Id dataId(); // the higher the closer to top.\n"
+           " \n"
+           "    unsigned int priority() = 0;\n"
+           " \n"
+           "    QVariant defaultValue(Kit@*) = 0;\n"
+           "};\n"
+        <<
+           "#define Q_OBJECT \\\n"
+           "public: \\\n"
+           "    template <typename T> inline void qt_check_for_QOBJECT_macro(T &_q_argument) \\\n"
+           "        { int i = qYouForgotTheQ_OBJECT_Macro(this, &_q_argument); i = i; } \\\n"
+           "    QMetaObject staticMetaObject; \\\n"
+           "    void *qt_metacast(const char *); \\\n"
+           "    static inline QString tr(const char *s, const char *f = 0); \\\n"
+           " \n"
+           "class KitInformation\n"
+           "{\n"
+           "    Q_OBJECT\n"
+           "public:\n"
+           "    typedef QPair<QString, QString> Item;\n"
+           " \n"
+           "    Core::Id dataId(); // the higher the closer to top.\n"
+           " \n"
+           "    unsigned int priority() = 0;\n"
+           " \n"
+           "    QVariant defaultValue(Kit *) = 0;\n"
+           "};\n";
+}

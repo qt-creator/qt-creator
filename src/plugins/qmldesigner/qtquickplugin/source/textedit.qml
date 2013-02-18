@@ -32,6 +32,6 @@ import QtQuick 1.0
 TextEdit {
     width: 80
     height: 20
-    text: qsTr("text edit")
+    text: qsTr("Text Edit")
     font.pixelSize: 12
 }

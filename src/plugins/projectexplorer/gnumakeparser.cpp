@@ -103,8 +103,14 @@ void GnuMakeParser::stdError(const QString &line)
             ++m_fatalErrorCount;
         if (!m_suppressIssues) {
             m_suppressIssues = true;
-            addTask(Task(Task::Error,
-                         m_makeLine.cap(8),
+            QString description = m_makeLine.cap(8);
+            Task::TaskType type = Task::Error;
+            if (description.startsWith(QLatin1String("warning: "))) {
+                description = description.mid(9);
+                type = Task::Warning;
+            }
+
+            addTask(Task(type, description,
                          Utils::FileName() /* filename */,
                          -1, /* line */
                          Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
@@ -309,6 +315,18 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << (QList<Task>()
                 << Task(Task::Error,
                         QString::fromLatin1("[dynlib.inst] Error -1073741819"),
+                        Utils::FileName(), -1,
+                        Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)))
+            << QString()
+            << QStringList();
+    QTest::newRow("make warning")
+            << QStringList()
+            << QString::fromLatin1("make[2]: warning: jobserver unavailable: using -j1. Add `+' to parent make rule.")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<Task>()
+                << Task(Task::Warning,
+                        QString::fromLatin1("jobserver unavailable: using -j1. Add `+' to parent make rule."),
                         Utils::FileName(), -1,
                         Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)))
             << QString()

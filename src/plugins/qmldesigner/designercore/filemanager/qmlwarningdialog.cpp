@@ -3,6 +3,8 @@
 
 #include <qmldesignerplugin.h>
 
+#include <QPushButton>
+
 namespace QmlDesigner {
 
 namespace Internal {
@@ -16,8 +18,10 @@ QmlWarningDialog::QmlWarningDialog(QWidget *parent, const QStringList &warnings)
     setResult (0);
 
     ui->checkBox->setChecked(true);
-    connect(ui->ignoreButton, SIGNAL(clicked()), this, SLOT(ignoreButtonPressed()));
-    connect(ui->okButton, SIGNAL(clicked()), this, SLOT(okButtonPressed()));
+    connect(ui->buttonBox->button(QDialogButtonBox::Ignore),
+            SIGNAL(clicked()), this, SLOT(ignoreButtonPressed()));
+    connect(ui->buttonBox->button(QDialogButtonBox::Ok),
+            SIGNAL(clicked()), this, SLOT(okButtonPressed()));
     connect(ui->checkBox, SIGNAL(toggled(bool)), this, SLOT(checkBoxToggled(bool)));
 
     connect(ui->warnings, SIGNAL(linkActivated(QString)), this, SLOT(linkClicked(QString)));

@@ -30,6 +30,6 @@
 import QtQuick 2.0
 
 Text {
-    text: qsTr("text")
+    text: qsTr("Text")
     font.pixelSize: 12
 }

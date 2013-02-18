@@ -47,6 +47,7 @@ struct LibraryParameters {
                       const QString &headerName,
                       const QString &sharedHeader,
                       const QString &exportMacro,
+                      const QString &pluginJsonFileName,
                       int indentation,
                       QString *header,
                       QString *source) const;
@@ -60,7 +61,6 @@ struct LibraryParameters {
     QString baseClassName;
     QString sourceFileName;
     QString headerFileName;
-    QString baseClassModule;
 };
 
 } // namespace Internal

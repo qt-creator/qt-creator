@@ -70,6 +70,10 @@
 
     \endlist
 
+    To make in-source builds the default option for all projects, select
+    \gui Tools > \gui Options > \gui {Build & Run} > \gui General, and enter a
+    period (.) in the \gui {Default build directory} field.
+
     \section1 Starting External Processes
 
     \QC executes external processes to accomplish tasks such as building

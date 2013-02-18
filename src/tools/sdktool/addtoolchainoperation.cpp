@@ -66,10 +66,10 @@ QString AddToolChainOperation::helpText() const
 
 QString AddToolChainOperation::argumentsHelpText() const
 {
-    return QLatin1String("    --id <ID>                                  id of the new tool chain.\n"
-                         "    --name <NAME>                              display name of the new tool chain.\n"
-                         "    --path <PATH>                              path to the compiler.\n"
-                         "    --abi <ABI STRING>                         ABI of the compiler.\n"
+    return QLatin1String("    --id <ID>                                  id of the new tool chain (required).\n"
+                         "    --name <NAME>                              display name of the new tool chain (required).\n"
+                         "    --path <PATH>                              path to the compiler (required).\n"
+                         "    --abi <ABI STRING>                         ABI of the compiler (required).\n"
                          "    --supportedAbis <ABI STRING>,<ABI STRING>  list of ABIs supported by the compiler.\n"
                          "    <KEY> <TYPE:VALUE>                         extra key value pairs\n");
 }
@@ -80,57 +80,65 @@ bool AddToolChainOperation::setArguments(const QStringList &args)
         const QString current = args.at(i);
         const QString next = ((i + 1) < args.count()) ? args.at(i + 1) : QString();
 
+        if (next.isNull() && current.startsWith(QLatin1String("--"))) {
+            std::cerr << "No parameter for option '" << qPrintable(current) << "' given." << std::endl << std::endl;
+            return false;
+        }
+
         if (current == QLatin1String("--id")) {
-            if (next.isNull())
-                return false;
             ++i; // skip next;
             m_id = next;
             continue;
         }
 
         if (current == QLatin1String("--name")) {
-            if (next.isNull())
-                return false;
             ++i; // skip next;
             m_displayName = next;
             continue;
         }
 
         if (current == QLatin1String("--path")) {
-            if (next.isNull())
-                return false;
             ++i; // skip next;
             m_path = next;
             continue;
         }
 
         if (current == QLatin1String("--abi")) {
-            if (next.isNull())
-                return false;
             ++i; // skip next;
             m_targetAbi = next;
             continue;
         }
 
         if (current == QLatin1String("--supportedAbis")) {
-            if (next.isNull())
-                return false;
             ++i; // skip next;
             m_supportedAbis = next;
             continue;
         }
 
-        if (next.isNull())
+        if (next.isNull()) {
+            std::cerr << "No value given for key '" << qPrintable(current) << "'.";
             return false;
+        }
         ++i; // skip next;
         KeyValuePair pair(current, next);
-        if (!pair.value.isValid())
+        if (!pair.value.isValid()) {
+            std::cerr << "Value for key '" << qPrintable(current) << "' is not valid.";
             return false;
+        }
         m_extra << pair;
     }
 
     if (m_supportedAbis.isEmpty())
         m_supportedAbis = m_targetAbi;
+
+    if (m_id.isEmpty())
+        std::cerr << "No id given for tool chain." << std::endl;
+    if (m_displayName.isEmpty())
+        std::cerr << "No name given for tool chain." << std::endl;
+    if (m_path.isEmpty())
+        std::cerr << "No path given for tool chain." << std::endl;
+    if (m_targetAbi.isEmpty())
+        std::cerr << "No target abi given for tool chain." << std::endl;
 
     return !m_id.isEmpty() && !m_displayName.isEmpty() && !m_path.isEmpty() && !m_targetAbi.isEmpty();
 }

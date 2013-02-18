@@ -58,8 +58,9 @@ Using QT_SQUISH_MAPFILE variable
 
     * create a simple text file (UTF-8 encoded) that follows this scheme:
 
-     QtVersion mkspec Path
+     SquishVersion QtVersion mkspec Path
 
+    * SquishVersion: only major and minor number will be used (e.g. 4.1, 4.2)
     * QtVersion: only major and minor number will be used (e.g. 4.7, 4.8, 5.0)
     * mkspec: a string holding the mkspec as it appears inside QTSDK/mkspec (or inside Qt Creator)
     * Path: the path to the Squish directory that can be used with this combination of QtVersion and mkspec
@@ -71,23 +72,23 @@ Using QT_SQUISH_MAPFILE variable
 
 Example 1: (using single space, no quoting)
 
-#qtversion mkspec path
-4.7<SP>win32-g++<SP>C:\Tools\Squish_MinGW
-4.7<SP>win32-msvc2008<SP>C:\Tools\Squish_MSVC9
-4.7<SP>win32-msvc2010<SP>C:\Tools\Squish_MSVC10
-4.8<SP>win32-g++<SP>C:\Tools\Squish_MinGW
-4.8<SP>win32-msvc2008<SP>C:\Tools\Squish_MSVC9
-4.8<SP>win32-msvc2010<SP>C:\Tools\Squish_MSVC10
+#squishversion qtversion mkspec path
+4.1<SP>4.7<SP>win32-g++<SP>C:\Tools\Squish_MinGW
+4.1<SP>4.7<SP>win32-msvc2008<SP>C:\Tools\Squish_MSVC9
+4.1<SP>4.7<SP>win32-msvc2010<SP>C:\Tools\Squish_MSVC10
+4.2<SP>4.8<SP>win32-g++<SP>C:\Tools\Squish_MinGW
+4.2<SP>4.8<SP>win32-msvc2008<SP>C:\Tools\Squish_MSVC9
+4.2<SP>4.8<SP>win32-msvc2010<SP>C:\Tools\Squish_MSVC10
 
 Example 2: (using mixed whitespaces, some quoting)
 
-#qtversion<TAB>mkspec<TAB><TAB><SP>path
-"4.7"<SP><TAB>win32-g++<TAB><TAB>'C:\Tools\Squish_MinGW'
-'4.7'<SP><TAB>'win32-msvc2008'<TAB>"C:\Tools\Squish_MSVC9"
-4.7<SP><SP><TAB>win32-msvc2010<TAB>C:\Tools\Squish_MSVC10
-"4.8"<SP><TAB>"win32-g++"<SP><SP><TAB>"C:\Tools\Squish_MinGW"
-'4.8'<SP><TAB>win32-msvc2008<SP><TAB>'C:\Tools\Squish_MSVC9'
-'4.8'<SP><TAB>win32-msvc2010<SP><TAB>C:\Tools\Squish_MSVC10
+#squishversion<SP>qtversion<TAB>mkspec<TAB><TAB><SP>path
+4.1<SP>"4.7"<SP><TAB>win32-g++<TAB><TAB>'C:\Tools\Squish_MinGW'
+4.1<SP>'4.7'<SP><TAB>'win32-msvc2008'<TAB>"C:\Tools\Squish_MSVC9"
+4.1<SP>4.7<SP><SP><TAB>win32-msvc2010<TAB>C:\Tools\Squish_MSVC10
+4.2<SP>"4.8"<SP><TAB>"win32-g++"<SP><SP><TAB>"C:\Tools\Squish_MinGW"
+4.2<SP>'4.8'<SP><TAB>win32-msvc2008<SP><TAB>'C:\Tools\Squish_MSVC9'
+4.2<SP>'4.8'<SP><TAB>win32-msvc2010<SP><TAB>C:\Tools\Squish_MSVC10
 
 Explanation: <SP> = space, <TAB> = tabulator
 
@@ -109,12 +110,17 @@ To make the hook-into sub-process really work you have to provide a modified Squ
 Steps to set up the Squish directories on Windows:
     * get the Squish version you need from froglogic.com
     * extract the archive to place of your choice
-    * go to the bin directory of Squish and remove the following dll's:
+    * go to the bin directory of Squish and remove the following dll's (Windows-only):
         * Qt3Support.dll
         * QtCore4.dll
         * QtGui4.dll
         * QtNetwork4.dll
         * QtSql4.dll
         * QtXml4.dll
+    * remove all folders from the Squish root folder except bin, etc, lib and python - and on
+      Windows you have to keep the VC runtime folder (Microsoft.VC??.CRT)
+      (if you're using other script languages you have to keep them as well)
+    * you can remove regular files from Squish root as well
+      (but it's recommended to keep the buildinfo.txt for later verifications)
 
 You can additionally remove the complete ide folder as well as squishclassicide.exe and squishide.exe (to safe disk space).

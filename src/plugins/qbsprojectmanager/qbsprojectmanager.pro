@@ -11,13 +11,16 @@ isEmpty(QBS_BUILD_DIR): QBS_BUILD_DIR = $$(QBS_BUILD_DIR)
 
 QBSLIBDIR = $$QBS_BUILD_DIR/lib
 include($$QBS_SOURCE_DIR/src/lib/use.pri)
+linux-*:QMAKE_LFLAGS += -Wl,-z,origin \'-Wl,-rpath,$$QBSLIBDIR\'
+macx:QMAKE_LFLAGS += -Wl,-rpath,$$QBSLIBDIR
 
-DEFINES += QBS_SOURCE_DIR=\\\"$$QBS_SOURCE_DIR\\\"
-DEFINES += QBS_BUILD_DIR=\\\"$$QBS_BUILD_DIR\\\"
+QBS_SOURCE_DIR_FWD_SLASHES = $$replace(QBS_SOURCE_DIR, \\\\, /)
+DEFINES += QBS_SOURCE_DIR=\\\"$$QBS_SOURCE_DIR_FWD_SLASHES\\\"
+QBS_BUILD_DIR_FWD_SLASHES = $$replace(QBS_BUILD_DIR, \\\\, /)
+DEFINES += QBS_BUILD_DIR=\\\"$$QBS_BUILD_DIR_FWD_SLASHES\\\"
 DEFINES += \
     QT_CREATOR \
-    QBSPROJECTMANAGER_LIBRARY \
-    QT_NO_CAST_FROM_ASCII
+    QBSPROJECTMANAGER_LIBRARY
 
 HEADERS = \
     qbsbuildconfiguration.h \
@@ -32,7 +35,8 @@ HEADERS = \
     qbsprojectmanager.h \
     qbsprojectmanager_global.h \
     qbsprojectmanagerconstants.h \
-    qbsprojectmanagerplugin.h
+    qbsprojectmanagerplugin.h \
+    qbsstep.h
 
 SOURCES = \
     qbsbuildconfiguration.cpp \
@@ -45,9 +49,11 @@ SOURCES = \
     qbsproject.cpp \
     qbsprojectfile.cpp \
     qbsprojectmanager.cpp \
-    qbsprojectmanagerplugin.cpp
+    qbsprojectmanagerplugin.cpp \
+    qbsstep.cpp
 
 FORMS = \
     qbsbuildstepconfigwidget.ui \
-    qbscleanstepconfigwidget.ui
+    qbscleanstepconfigwidget.ui \
+    qbsstepconfigwidget.ui
 

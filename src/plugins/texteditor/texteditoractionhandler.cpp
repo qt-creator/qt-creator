@@ -103,7 +103,9 @@ TextEditorActionHandler::TextEditorActionHandler(const char *context,
     m_indentAction(0),
     m_unindentAction(0),
     m_followSymbolAction(0),
+    m_followSymbolInNextSplitAction(0),
     m_jumpToFileAction(0),
+    m_jumpToFileInNextSplitAction(0),
     m_optionalActions(optionalActions),
     m_currentEditor(0),
     m_contextId(context),
@@ -389,10 +391,20 @@ void TextEditorActionHandler::createActions()
     command->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
     connect(m_followSymbolAction, SIGNAL(triggered()), this, SLOT(openLinkUnderCursor()));
 
+    m_followSymbolInNextSplitAction = new QAction(tr("Follow Symbol Under Cursor in Next Split"), this);
+    command = Core::ActionManager::registerAction(m_followSymbolInNextSplitAction, Constants::FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT, m_contextId, true);
+    command->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_F2));
+    connect(m_followSymbolInNextSplitAction, SIGNAL(triggered()), this, SLOT(openLinkUnderCursorInNextSplit()));
+
     m_jumpToFileAction = new QAction(tr("Jump To File Under Cursor"), this);
     command = Core::ActionManager::registerAction(m_jumpToFileAction, Constants::JUMP_TO_FILE_UNDER_CURSOR, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
     connect(m_jumpToFileAction, SIGNAL(triggered()), this, SLOT(openLinkUnderCursor()));
+
+    m_jumpToFileInNextSplitAction = new QAction(tr("Jump to File Under Cursor in Next Split"), this);
+    command = Core::ActionManager::registerAction(m_jumpToFileInNextSplitAction, Constants::JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT, m_contextId, true);
+    command->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_E, Qt::Key_F2));
+    connect(m_jumpToFileInNextSplitAction, SIGNAL(triggered()), this, SLOT(openLinkUnderCursorInNextSplit()));
 
     QAction *a = 0;
     a = new QAction(tr("Go to Line Start"), this);
@@ -508,7 +520,9 @@ void TextEditorActionHandler::updateActions(UpdateMode um)
     m_formatAction->setEnabled((m_optionalActions & Format) && um != ReadOnlyMode);
     m_unCommentSelectionAction->setEnabled((m_optionalActions & UnCommentSelection) && um != ReadOnlyMode);
     m_followSymbolAction->setEnabled(m_optionalActions & FollowSymbolUnderCursor);
+    m_followSymbolInNextSplitAction->setEnabled(m_optionalActions & FollowSymbolUnderCursor);
     m_jumpToFileAction->setEnabled(m_optionalActions & JumpToFileUnderCursor);
+    m_jumpToFileInNextSplitAction->setEnabled(m_optionalActions & JumpToFileUnderCursor);
 
     m_unfoldAllAction->setEnabled((m_optionalActions & UnCollapseAll));
     m_visualizeWhitespaceAction->setChecked(m_currentEditor->displaySettings().m_visualizeWhitespace);
@@ -632,6 +646,7 @@ FUNCTION(insertLineBelow)
 FUNCTION(indent)
 FUNCTION(unindent)
 FUNCTION(openLinkUnderCursor)
+FUNCTION(openLinkUnderCursorInNextSplit)
 
 FUNCTION(gotoLineStart)
 FUNCTION(gotoLineStartWithSelection)

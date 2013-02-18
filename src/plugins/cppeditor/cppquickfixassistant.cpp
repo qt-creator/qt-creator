@@ -50,6 +50,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/qtcassert.h>
+
 #include <QFileInfo>
 #include <QTextBlock>
 
@@ -104,7 +106,7 @@ CppQuickFixAssistInterface::CppQuickFixAssistInterface(CPPEditorWidget *editor,
     , m_currentFile(CppRefactoringChanges::file(editor, m_semanticInfo.doc))
     , m_context(m_semanticInfo.doc, m_snapshot)
 {
-    Q_ASSERT(!m_semanticInfo.doc.isNull());
+    QTC_CHECK(!m_semanticInfo.doc.isNull());
     CPlusPlus::ASTPath astPath(m_semanticInfo.doc);
     m_path = astPath(editor->textCursor());
 }

@@ -57,7 +57,7 @@ bool QmlModelStateOperation::isValid() const
 {
     return QmlModelNodeFacade::isValid() && (
                 modelNode().metaInfo().isSubclassOf("<cpp>.QDeclarative1StateOperation", -1, -1)
-                || modelNode().metaInfo().isSubclassOf("<cpp>.QDeclarativeStateOperation", -1, -1));
+                || modelNode().metaInfo().isSubclassOf("<cpp>.QQuickStateOperation", -1, -1));
 }
 
 void QmlPropertyChanges::removeProperty(const QString &name)

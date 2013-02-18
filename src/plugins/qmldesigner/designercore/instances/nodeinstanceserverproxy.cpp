@@ -229,7 +229,11 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
            }
 
        } else {
-               QMessageBox::warning(0, tr("Cannot Start QML Puppet Executable"), missingQmlPuppetErrorMessage(applicationPath));
+           QMessageBox::warning(0, tr("Cannot Start QML Puppet Executable"),
+                                tr("The executable of the QML Puppet process (%1) cannot be started. "
+                                   "Please check your installation. "
+                                   "QML Puppet is a process which runs in the background to render the items.").
+                                arg(applicationPath));
        }
 
        m_localServer->close();

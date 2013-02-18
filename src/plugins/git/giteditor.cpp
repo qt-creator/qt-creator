@@ -211,8 +211,9 @@ void GitEditor::setPlainTextDataFiltered(const QByteArray &a)
     setPlainTextData(array);
 }
 
-void GitEditor::commandFinishedGotoLine(bool ok, int /* exitCode */, const QVariant &v)
+void GitEditor::commandFinishedGotoLine(bool ok, int exitCode, const QVariant &v)
 {
+    reportCommandFinished(ok, exitCode, v);
     if (ok && v.type() == QVariant::Int) {
         const int line = v.toInt();
         if (line >= 0)
@@ -267,7 +268,7 @@ bool GitEditor::isValidRevision(const QString &revision) const
 void GitEditor::addChangeActions(QMenu *menu, const QString &change)
 {
     m_currentChange = change;
-    menu->addAction(tr("Cherry-pick Change %1").arg(change), this, SLOT(cherryPickChange()));
+    menu->addAction(tr("Cherry-Pick Change %1").arg(change), this, SLOT(cherryPickChange()));
     menu->addAction(tr("Revert Change %1").arg(change), this, SLOT(revertChange()));
 }
 

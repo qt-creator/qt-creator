@@ -69,7 +69,7 @@ public:
 
 static inline QString msgInvalidConstructor(const char *what)
 {
-    return StaticAnalysisMessages::tr("do not use '%1' as a constructor").arg(QLatin1String(what));
+    return StaticAnalysisMessages::tr("Do not use '%1' as a constructor.").arg(QLatin1String(what));
 }
 
 StaticAnalysisMessages::StaticAnalysisMessages()
@@ -77,63 +77,63 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     // When changing a message or severity, update the documentation, currently
     // in creator-editors.qdoc, accordingly.
     newMsg(ErrInvalidEnumValue, Error,
-           tr("invalid value for enum"));
+           tr("Invalid value for enum."));
     newMsg(ErrEnumValueMustBeStringOrNumber, Error,
-           tr("enum value must be a string or a number"));
+           tr("Enum value must be a string or a number."));
     newMsg(ErrNumberValueExpected, Error,
-           tr("number value expected"));
+           tr("Number value expected."));
     newMsg(ErrBooleanValueExpected, Error,
-           tr("boolean value expected"));
+           tr("Boolean value expected."));
     newMsg(ErrStringValueExpected, Error,
-           tr("string value expected"));
+           tr("String value expected."));
     newMsg(ErrInvalidUrl, Error,
-           tr("invalid URL"));
+           tr("Invalid URL."));
     newMsg(WarnFileOrDirectoryDoesNotExist, Warning,
-           tr("file or directory does not exist"));
+           tr("File or directory does not exist."));
     newMsg(ErrInvalidColor, Error,
-           tr("invalid color"));
+           tr("Invalid color."));
     newMsg(ErrAnchorLineExpected, Error,
-           tr("anchor line expected"));
+           tr("Anchor line expected."));
     newMsg(ErrPropertiesCanOnlyHaveOneBinding, Error,
-           tr("duplicate property binding"));
+           tr("Duplicate property binding."));
     newMsg(ErrIdExpected, Error,
-           tr("id expected"));
+           tr("Id expected."));
     newMsg(ErrInvalidId, Error,
-           tr("invalid id"));
+           tr("Invalid id."));
     newMsg(ErrDuplicateId, Error,
-           tr("duplicate id"));
+           tr("Duplicate id."));
     newMsg(ErrInvalidPropertyName, Error,
-           tr("invalid property name '%1'"), 1);
+           tr("Invalid property name '%1'."), 1);
     newMsg(ErrDoesNotHaveMembers, Error,
-           tr("'%1' does not have members"), 1);
+           tr("'%1' does not have members."), 1);
     newMsg(ErrInvalidMember, Error,
-           tr("'%1' is not a member of '%2'"), 2);
+           tr("'%1' is not a member of '%2'."), 2);
     newMsg(WarnAssignmentInCondition, Warning,
-           tr("assignment in condition"));
+           tr("Assignment in condition."));
     newMsg(WarnCaseWithoutFlowControl, Warning,
-           tr("unterminated non-empty case block"));
+           tr("Unterminated non-empty case block."));
     newMsg(WarnEval, Warning,
-           tr("do not use 'eval'"));
+           tr("Do not use 'eval'."));
     newMsg(WarnUnreachable, Warning,
-           tr("unreachable"));
+           tr("Unreachable."));
     newMsg(WarnWith, Warning,
-           tr("do not use 'with'"));
+           tr("Do not use 'with'."));
     newMsg(WarnComma, Warning,
-           tr("do not use comma expressions"));
+           tr("Do not use comma expressions."));
     newMsg(WarnAlreadyFormalParameter, Warning,
-           tr("'%1' is already a formal parameter"), 1);
+           tr("'%1' already is a formal parameter."), 1);
     newMsg(WarnUnnecessaryMessageSuppression, Warning,
-           tr("unnecessary message suppression"));
+           tr("Unnecessary message suppression."));
     newMsg(WarnAlreadyFunction, Warning,
-           tr("'%1' is already a function"), 1);
+           tr("'%1' already is a function."), 1);
     newMsg(WarnVarUsedBeforeDeclaration, Warning,
-           tr("var '%1' is used before its declaration"), 1);
+           tr("var '%1' is used before its declaration."), 1);
     newMsg(WarnAlreadyVar, Warning,
-           tr("'%1' is already a var"), 1);
+           tr("'%1' already is a var."), 1);
     newMsg(WarnDuplicateDeclaration, Warning,
-           tr("'%1' is declared more than once"), 1);
+           tr("'%1' is declared more than once."), 1);
     newMsg(WarnFunctionUsedBeforeDeclaration, Warning,
-           tr("function '%1' is used before its declaration"), 1);
+           tr("Function '%1' is used before its declaration."), 1);
     newMsg(WarnBooleanConstructor, Warning,
            msgInvalidConstructor("Boolean"));
     newMsg(WarnStringConstructor, Warning,
@@ -145,86 +145,86 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(WarnFunctionConstructor, Warning,
            msgInvalidConstructor("Function"));
     newMsg(HintAnonymousFunctionSpacing, Hint,
-           tr("the 'function' keyword and the opening parenthesis should be separated by a single space"));
+           tr("The 'function' keyword and the opening parenthesis should be separated by a single space."));
     newMsg(WarnBlock, Warning,
-           tr("do not use stand-alone blocks"));
+           tr("Do not use stand-alone blocks."));
     newMsg(WarnVoid, Warning,
-           tr("do not use void expressions"));
+           tr("Do not use void expressions."));
     newMsg(WarnConfusingPluses, Warning,
-           tr("confusing pluses"));
+           tr("Confusing pluses."));
     newMsg(WarnConfusingMinuses, Warning,
-           tr("confusing minuses"));
+           tr("Confusing minuses."));
     newMsg(HintDeclareVarsInOneLine, Hint,
-           tr("declare all function vars on a single line"));
+           tr("Declare all function vars on a single line."));
     newMsg(HintExtraParentheses, Hint,
-           tr("unnecessary parentheses"));
+           tr("Unnecessary parentheses."));
     newMsg(MaybeWarnEqualityTypeCoercion, MaybeWarning,
-           tr("== and != may perform type coercion, use === or !== to avoid"));
+           tr("== and != may perform type coercion, use === or !== to avoid it."));
     newMsg(WarnConfusingExpressionStatement, Warning,
-           tr("expression statements should be assignments, calls or delete expressions only"));
+           tr("Expression statements should be assignments, calls or delete expressions only."));
     newMsg(HintDeclarationsShouldBeAtStartOfFunction, Hint,
-           tr("var declarations should be at the start of a function"));
+           tr("Place var declarations at the start of a function."));
     newMsg(HintOneStatementPerLine, Hint,
-           tr("only use one statement per line"));
+           tr("Use only one statement per line."));
     newMsg(ErrUnknownComponent, Error,
-           tr("unknown component"));
+           tr("Unknown component."));
     newMsg(ErrCouldNotResolvePrototypeOf, Error,
-           tr("could not resolve the prototype '%1' of '%2'"), 2);
+           tr("Could not resolve the prototype '%1' of '%2'."), 2);
     newMsg(ErrCouldNotResolvePrototype, Error,
-           tr("could not resolve the prototype '%1'"), 1);
+           tr("Could not resolve the prototype '%1'."), 1);
     newMsg(ErrPrototypeCycle, Error,
-           tr("prototype cycle, the last non-repeated component is '%1'"), 1);
+           tr("Prototype cycle, the last non-repeated component is '%1'."), 1);
     newMsg(ErrInvalidPropertyType, Error,
-           tr("invalid property type '%1'"), 1);
+           tr("Invalid property type '%1'."), 1);
     newMsg(WarnEqualityTypeCoercion, Warning,
-           tr("== and != perform type coercion, use === or !== to avoid"));
+           tr("== and != perform type coercion, use === or !== to avoid it."));
     newMsg(WarnExpectedNewWithUppercaseFunction, Warning,
-           tr("calls of functions that start with an uppercase letter should use 'new'"));
+           tr("Calls of functions that start with an uppercase letter should use 'new'."));
     newMsg(WarnNewWithLowercaseFunction, Warning,
-           tr("'new' should only be used with functions that start with an uppercase letter"));
+           tr("Use 'new' only with functions that start with an uppercase letter."));
     newMsg(WarnNumberConstructor, Warning,
            msgInvalidConstructor("Function"));
     newMsg(HintBinaryOperatorSpacing, Hint,
-           tr("use spaces around binary operators"));
+           tr("Use spaces around binary operators."));
     newMsg(WarnUnintentinalEmptyBlock, Warning,
-           tr("unintentional empty block, use ({}) for empty object literal"));
+           tr("Unintentional empty block, use ({}) for empty object literal."));
     newMsg(HintPreferNonVarPropertyType, Hint,
-           tr("use %1 instead of 'var' or 'variant' to improve performance"), 1);
+           tr("Use %1 instead of 'var' or 'variant' to improve performance."), 1);
     newMsg(ErrMissingRequiredProperty, Error,
-           tr("missing property '%1'"), 1);
+           tr("Missing property '%1'."), 1);
     newMsg(ErrObjectValueExpected, Error,
-           tr("object value expected"));
+           tr("Object value expected."));
     newMsg(ErrArrayValueExpected, Error,
-           tr("array value expected"));
+           tr("Array value expected."));
     newMsg(ErrDifferentValueExpected, Error,
-           tr("%1 value expected"), 1);
+           tr("%1 value expected."), 1);
     newMsg(ErrSmallerNumberValueExpected, Error,
-           tr("maximum number value is %1"), 1);
+           tr("Maximum number value is %1."), 1);
     newMsg(ErrLargerNumberValueExpected, Error,
-           tr("minimum number value is %1"), 1);
+           tr("Minimum number value is %1."), 1);
     newMsg(ErrMaximumNumberValueIsExclusive, Error,
-           tr("maximum number value is exclusive"));
+           tr("Maximum number value is exclusive."));
     newMsg(ErrMinimumNumberValueIsExclusive, Error,
-           tr("minimum number value is exclusive"));
+           tr("Minimum number value is exclusive."));
     newMsg(ErrInvalidStringValuePattern, Error,
-           tr("string value does not match required pattern"));
+           tr("String value does not match required pattern."));
     newMsg(ErrLongerStringValueExpected, Error,
-           tr("minimum string value length is %1"), 1);
+           tr("Minimum string value length is %1."), 1);
     newMsg(ErrShorterStringValueExpected, Error,
-           tr("maximum string value length is %1"), 1);
+           tr("Maximum string value length is %1."), 1);
     newMsg(ErrInvalidArrayValueLength, Error,
-           tr("%1 elements expected in array value"), 1);
+           tr("%1 elements expected in array value."), 1);
     newMsg(WarnImperativeCodeNotEditableInVisualDesigner, Warning,
-            tr("Imperative code is not supported in the Qt Quick Designer"));
+            tr("Imperative code is not supported in the Qt Quick Designer."));
     newMsg(WarnUnsupportedTypeInVisualDesigner, Warning,
-            tr("This type is not supported in the Qt Quick Designer"));
+            tr("This type is not supported in the Qt Quick Designer."));
     newMsg(WarnReferenceToParentItemNotSupportedByVisualDesigner, Warning,
-            tr("Reference to parent item cannot be resolved correctly by the Qt Quick Designer"));
+            tr("Reference to parent item cannot be resolved correctly by the Qt Quick Designer."));
     newMsg(WarnUndefinedValueForVisualDesigner, Warning,
             tr("This visual property binding cannot be evaluated in the local context "
-               "and might not show up in Qt Quick Designer as expected"));
+               "and might not show up in Qt Quick Designer as expected."));
     newMsg(WarnStatesOnlyInRootItemForVisualDesigner, Warning,
-            tr("Qt Quick Designer only supports states in the root item "));
+            tr("Qt Quick Designer only supports states in the root item."));
 }
 
 } // anonymous namespace

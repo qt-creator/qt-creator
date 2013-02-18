@@ -40,6 +40,8 @@
 
 #include <QSharedPointer>
 #include <QModelIndex>
+#include <QTextLayout>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -105,6 +107,7 @@ public:
     QmlJSTools::SemanticInfo semanticInfo() const;
     bool isSemanticInfoOutdated() const;
     int editorRevision() const;
+    QVector<QTextLayout::FormatRange> diagnosticRanges() const;
 
     Internal::QmlOutlineModel *outlineModel() const;
     QModelIndex outlineModelIndex();
@@ -113,7 +116,6 @@ public:
 
     TextEditor::IAssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
                                                         TextEditor::AssistReason reason) const;
-
 public slots:
     virtual void setTabSettings(const TextEditor::TabSettings &ts);
     void reparseDocument();
@@ -192,6 +194,7 @@ private:
     int m_futureSemanticInfoRevision;
 
     QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
+    QVector<QTextLayout::FormatRange> m_diagnosticRanges;
 
     QmlJS::IContextPane *m_contextPane;
     int m_oldCursorPosition;

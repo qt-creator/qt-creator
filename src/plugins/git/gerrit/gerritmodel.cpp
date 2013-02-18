@@ -403,11 +403,11 @@ void QueryContext::timeout()
         parent = QApplication::activeWindow();
     QMessageBox box(QMessageBox::Question, tr("Timeout"),
                     tr("The gerrit process has not responded within %1s.\n"
-                       "Most likely this is caused by problems with SSH-authentication.\n"
+                       "Most likely this is caused by problems with SSH authentication.\n"
                        "Would you like to terminate it?").
                     arg(timeOutMS / 1000), QMessageBox::NoButton, parent);
     QPushButton *terminateButton = box.addButton(tr("Terminate"), QMessageBox::YesRole);
-    box.addButton(tr("Keep running"), QMessageBox::NoRole);
+    box.addButton(tr("Keep Running"), QMessageBox::NoRole);
     connect(&m_process, SIGNAL(finished(int)), &box, SLOT(reject()));
     box.exec();
     if (m_process.state() != QProcess::Running)

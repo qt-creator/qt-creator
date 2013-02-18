@@ -57,7 +57,6 @@ public:
 
     bool init();
     void run(QFutureInterface<bool> &fi);
-    virtual void cleanup() = 0;
 
 protected:
     BlackBerryAbstractDeployStep(ProjectExplorer::BuildStepList *bsl, BlackBerryAbstractDeployStep *bs);
