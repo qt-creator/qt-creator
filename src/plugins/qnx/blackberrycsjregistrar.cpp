@@ -96,6 +96,7 @@ void BlackBerryCsjRegistrar::processError(QProcess::ProcessError error)
         break;
     case QProcess::Timedout:
         errorMessage = tr("Process timed out.");
+        break;
     case QProcess::Crashed:
         errorMessage = tr("Child process has crashed.");
         break;
