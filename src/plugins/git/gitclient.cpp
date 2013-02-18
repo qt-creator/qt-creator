@@ -365,31 +365,25 @@ const char *GitClient::decorateOption = "--decorate";
 
 QString GitClient::findRepositoryForDirectory(const QString &dir)
 {
-    if (gitVersion() >= 0x010700) {
-        // Find a directory to run git in:
-        const QString root = QDir::rootPath();
-        const QString home = QDir::homePath();
+    // Find a directory to run git in:
+    const QString root = QDir::rootPath();
+    const QString home = QDir::homePath();
 
-        QDir directory(dir);
-        do {
-            const QString absDirPath = directory.absolutePath();
-            if (absDirPath == root || absDirPath == home)
-                break;
+    QDir directory(dir);
+    do {
+        const QString absDirPath = directory.absolutePath();
+        if (absDirPath == root || absDirPath == home)
+            break;
 
-            if (directory.exists())
-                break;
-        } while (directory.cdUp());
+        if (directory.exists())
+            break;
+    } while (directory.cdUp());
 
-        QByteArray outputText;
-        QStringList arguments;
-        arguments << QLatin1String("rev-parse") << QLatin1String("--show-toplevel");
-        fullySynchronousGit(directory.absolutePath(), arguments, &outputText, 0, false);
-        return QString::fromLocal8Bit(outputText.trimmed());
-    } else {
-        // Check for ".git/config"
-        const QString checkFile = QLatin1String(GIT_DIRECTORY) + QLatin1String("/config");
-        return VcsBase::VcsBasePlugin::findRepositoryForDirectory(dir, checkFile);
-    }
+    QByteArray outputText;
+    QStringList arguments;
+    arguments << QLatin1String("rev-parse") << QLatin1String("--show-toplevel");
+    fullySynchronousGit(directory.absolutePath(), arguments, &outputText, 0, false);
+    return QString::fromLocal8Bit(outputText.trimmed());
 }
 
 QString GitClient::findGitDirForRepository(const QString &repositoryDir)
@@ -1841,9 +1835,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     if (amend) {
         // Amend: get last commit data as "SHA1<tab>author<tab>email<tab>message".
         QStringList args(QLatin1String("log"));
-        const QString msgFormat = QLatin1String((gitVersion() > 0x010701) ? "%B" : "%s%n%n%b");
-        const QString format = QLatin1String("%h\t%an\t%ae\t") + msgFormat;
-        args << QLatin1String("--max-count=1") << QLatin1String("--pretty=format:") + format;
+        args << QLatin1String("--max-count=1") << QLatin1String("--pretty=format:%h\t%an\t%ae\t%B");
         QTextCodec *codec = QTextCodec::codecForName(commitData->commitEncoding.toLocal8Bit());
         const Utils::SynchronousProcessResponse sp = synchronousGit(repoDirectory, args, 0, codec);
         if (sp.result != Utils::SynchronousProcessResponse::Finished) {

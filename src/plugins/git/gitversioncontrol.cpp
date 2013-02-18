@@ -35,7 +35,6 @@
 #include <utils/qtcassert.h>
 #include <vcsbase/vcsbaseconstants.h>
 
-#include <QDebug>
 #include <QFileInfo>
 
 static const char stashMessageKeywordC[] = "IVersionControl@";
@@ -71,32 +70,20 @@ bool GitVersionControl::supportsOperation(Operation operation) const
     if (!isConfigured())
         return false;
 
-    bool rc = false;
     switch (operation) {
     case AddOperation:
-        rc = m_client->gitVersion() >= version(1, 6, 1);;
-        break;
     case DeleteOperation:
-        rc = true;
-        break;
     case MoveOperation:
-        rc = true;
-        break;
-    case OpenOperation:
-        break;
     case CreateRepositoryOperation:
     case SnapshotOperations:
-        rc = true;
-        break;
     case AnnotateOperation:
-        rc = true;
-        break;
     case CheckoutOperation:
     case GetRepositoryRootOperation:
-        rc = true;
+        return true;
+    case OpenOperation:
         break;
     }
-    return rc;
+    return false;
 }
 
 bool GitVersionControl::vcsOpen(const QString & /*fileName*/)
@@ -107,7 +94,6 @@ bool GitVersionControl::vcsOpen(const QString & /*fileName*/)
 bool GitVersionControl::vcsAdd(const QString & fileName)
 {
     // Implement in terms of using "--intent-to-add"
-    QTC_ASSERT(m_client->gitVersion() >= version(1, 6, 1), return false);
     const QFileInfo fi(fileName);
     return m_client->synchronousAdd(fi.absolutePath(), true, QStringList(fi.fileName()));
 }

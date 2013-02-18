@@ -156,6 +156,7 @@ Qt Quick Designer
 Version control plugins
 
 Git
+   * Dropped support for Git versions earlier than 1.7.2
    * Introduced MergeTool support
    * Added timeout to the gerrit query process
    * Added support for merge status

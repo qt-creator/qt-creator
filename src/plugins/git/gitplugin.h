@@ -194,6 +194,7 @@ private:
     void cleanRepository(const QString &directory);
     void applyPatch(const QString &workingDirectory, QString file = QString());
     void startCommit(bool amend);
+    void updateVersionWarning();
 
     static GitPlugin *m_instance;
     Locator::CommandLocator *m_commandLocator;
