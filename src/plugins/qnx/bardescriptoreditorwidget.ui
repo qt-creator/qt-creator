@@ -162,7 +162,7 @@
          <x>0</x>
          <y>0</y>
          <width>1014</width>
-         <height>810</height>
+         <height>854</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -231,14 +231,14 @@
              </item>
             </layout>
            </item>
-           <item row="6" column="0">
+           <item row="7" column="0">
             <widget class="QLabel" name="label_8">
              <property name="text">
               <string>Splash screens:</string>
              </property>
             </widget>
            </item>
-           <item row="7" column="0" colspan="2">
+           <item row="9" column="0" colspan="2">
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
               <widget class="QListView" name="splashScreensView"/>
@@ -322,6 +322,40 @@
             <widget class="QLabel" name="label_6">
              <property name="text">
               <string>Name:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QLabel" name="iconWarningLabel">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="iconWarningPixmap">
+             <property name="text">
+              <string/>
+             </property>
+             <property name="pixmap">
+              <pixmap resource="../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_warning.png</pixmap>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="0">
+            <widget class="QLabel" name="splashScreenWarningPixmap">
+             <property name="text">
+              <string/>
+             </property>
+             <property name="pixmap">
+              <pixmap resource="../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_warning.png</pixmap>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="1">
+            <widget class="QLabel" name="splashScreenWarningLabel">
+             <property name="text">
+              <string/>
              </property>
             </widget>
            </item>
@@ -542,6 +576,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../projectexplorer/projectexplorer.qrc"/>
+ </resources>
  <connections/>
 </ui>
