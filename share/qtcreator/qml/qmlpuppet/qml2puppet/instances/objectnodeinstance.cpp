@@ -58,11 +58,11 @@ namespace QmlDesigner {
 namespace Internal {
 
 ObjectNodeInstance::ObjectNodeInstance(QObject *object)
-    : m_instanceId(-1),
-    m_deleteHeldInstance(true),
-    m_object(object),
-    m_metaObject(0),
-    m_isInPositioner(false)
+    : m_object(object),
+      m_metaObject(0),
+      m_instanceId(-1),
+      m_deleteHeldInstance(true),
+      m_isInPositioner(false)
 {
 
 }

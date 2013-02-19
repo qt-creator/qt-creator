@@ -193,15 +193,15 @@ private:
     QHash<PropertyName, QWeakPointer<QDeclarativeAbstractBinding> > m_resetBindingHash;
     QHash<PropertyName, ServerNodeInstance> m_modelAbstractPropertyHash;
     mutable QHash<PropertyName, bool> m_hasBindingHash;
-    qint32 m_instanceId;
     QString m_id;
 
     QWeakPointer<NodeInstanceServer> m_nodeInstanceServer;
     PropertyName m_parentProperty;
-    bool m_deleteHeldInstance;
     QWeakPointer<QObject> m_object;
     NodeInstanceMetaObject *m_metaObject;
     NodeInstanceSignalSpy m_signalSpy;
+    qint32 m_instanceId;
+    bool m_deleteHeldInstance;
     bool m_isInPositioner;
 };
 
