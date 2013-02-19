@@ -703,6 +703,40 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
     return 0;
 }
 
+ClassOrNamespace *ClassOrNamespace::findSpecializationWithPointer(const TemplateNameId *templId,
+                                                         const TemplateNameIdTable &specializations)
+{
+    // we go through all specialization and try to find that one with template argument as pointer
+    for (TemplateNameIdTable::const_iterator cit = specializations.begin();
+         cit != specializations.end(); ++cit) {
+        const TemplateNameId *specializationNameId = cit->first;
+        const unsigned specializationTemplateArgumentCount
+                = specializationNameId->templateArgumentCount();
+        const unsigned initializationTemplateArgumentCount
+                = templId->templateArgumentCount();
+        // for now it works only when we have the same number of arguments in specialization
+        // and initialization(in future it should be more clever)
+        if (specializationTemplateArgumentCount == initializationTemplateArgumentCount) {
+            for (unsigned i = 0; i < initializationTemplateArgumentCount; ++i) {
+                const FullySpecifiedType &specializationTemplateArgument
+                        = specializationNameId->templateArgumentAt(i);
+                const FullySpecifiedType &initializationTemplateArgument
+                        = templId->templateArgumentAt(i);
+                PointerType *specPointer
+                        = specializationTemplateArgument.type()->asPointerType();
+                // specialization and initialization argument have to be a pointer
+                // additionally type of pointer argument of specialization has to be namedType
+                if (specPointer && initializationTemplateArgument.type()->isPointerType()
+                        && specPointer->elementType().type()->isNamedType()) {
+                    return cit->second;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
 ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespace *origin)
 {
     Q_ASSERT(name != 0);
@@ -740,11 +774,16 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
             // make this instantiation looks like specialization which help to find
             // full specialization for this instantiation
             nonConstTemplId->setIsSpecialization(true);
-            TemplateNameIdTable::const_iterator cit = reference->_specializations.find(templId);
-            if (cit != reference->_specializations.end()) {
+            const TemplateNameIdTable &specializations = reference->_specializations;
+            TemplateNameIdTable::const_iterator cit = specializations.find(templId);
+            if (cit != specializations.end()) {
                 // we found full specialization
                 reference = cit->second;
             } else {
+                ClassOrNamespace *specializationWithPointer
+                        = findSpecializationWithPointer(templId, specializations);
+                if (specializationWithPointer)
+                    reference = specializationWithPointer;
                 // TODO: find the best specialization(probably partial) for this instantiation
             }
             // let's instantiation be instantiation

@@ -69,6 +69,9 @@ public:
     ClassOrNamespace *findType(const Name *name);
 
 private:
+    typedef std::map<const Name *, ClassOrNamespace *, Name::Compare> Table;
+    typedef std::map<const TemplateNameId *, ClassOrNamespace *, TemplateNameId::Compare> TemplateNameIdTable;
+
     /// \internal
     void flush();
 
@@ -98,10 +101,8 @@ private:
                                   Subst &subst,
                                   ClassOrNamespace *enclosingTemplateClassInstantiation);
     bool isInstantiateNestedClassNeeded(const QList<Symbol *>& symbols, const Subst &subst) const;
-
-private:
-    typedef std::map<const Name *, ClassOrNamespace *, Name::Compare> Table;
-    typedef std::map<const TemplateNameId *, ClassOrNamespace *, TemplateNameId::Compare> TemplateNameIdTable;
+    ClassOrNamespace *findSpecializationWithPointer(const TemplateNameId *templId,
+                                           const TemplateNameIdTable &specializations);
 
     CreateBindings *_factory;
     ClassOrNamespace *_parent;

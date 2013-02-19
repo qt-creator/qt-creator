@@ -1613,3 +1613,36 @@ void CppToolsPlugin::test_completion_resolve_complex_typedef_with_template()
     QVERIFY(completions.contains(QLatin1String("bar")));
     QVERIFY(completions.contains(QLatin1String("Template1")));
 }
+
+void CppToolsPlugin::test_completion_template_specialization_with_pointer()
+{
+    TestData data;
+    data.srcText = "\n"
+            "template <typename T>\n"
+            "struct Template\n"
+            "{\n"
+            "    T variable;\n"
+            "};\n"
+            "template <typename T>\n"
+            "struct Template<T *>\n"
+            "{\n"
+            "    T *pointer;\n"
+            "};\n"
+            "Template<int*> templ;\n"
+            "@\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("templ.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("Template")));
+    QVERIFY(completions.contains(QLatin1String("pointer")));
+}
