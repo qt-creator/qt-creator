@@ -377,7 +377,6 @@ public:
 
     bool contains(const QString &fileName) const;
     Document::Ptr document(const QString &fileName) const;
-    Document::Ptr operator[](const QString &fileName) const;
 
     const_iterator find(const QString &fileName) const;
 

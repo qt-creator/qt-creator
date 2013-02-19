@@ -275,9 +275,6 @@ void CppPreprocessor::addFrameworkPath(const QString &frameworkPath)
     }
 }
 
-void CppPreprocessor::setProjectFiles(const QStringList &files)
-{ m_projectFiles = files; }
-
 void CppPreprocessor::setTodo(const QStringList &files)
 { m_todo = QSet<QString>::fromList(files); }
 

@@ -308,7 +308,6 @@ private:
     CPlusPlus::Preprocessor m_preprocess;
     QStringList m_includePaths;
     CPlusPlus::CppModelManagerInterface::WorkingCopy m_workingCopy;
-    QStringList m_projectFiles;
     QStringList m_frameworkPaths;
     QSet<QString> m_included;
     CPlusPlus::Document::Ptr m_currentDoc;

@@ -178,7 +178,6 @@ QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(const QStringList &sour
 
     CppPreprocessor *preproc = new CppPreprocessor(mgr, m_dumpFileNameWhileParsing);
     preproc->setRevision(++m_revision);
-    preproc->setProjectFiles(mgr->projectFiles());
     preproc->setIncludePaths(mgr->includePaths());
     preproc->setFrameworkPaths(mgr->frameworkPaths());
     preproc->setWorkingCopy(workingCopy);
