@@ -42,15 +42,15 @@ SOURCES += cppplugin.cpp \
     cppinsertqtpropertymembers.cpp \
     cppquickfixassistant.cpp \
     cppquickfix.cpp \
-    cppfunctiondecldeflink.cpp \
-    cppdoxygen_test.cpp
+    cppfunctiondecldeflink.cpp
 
 RESOURCES += cppeditor.qrc
 OTHER_FILES += CppEditor.mimetypes.xml
 
 equals(TEST, 1) {
     SOURCES += \
-        cppquickfix_test.cpp
+        cppquickfix_test.cpp \
+        cppdoxygen_test.cpp
 
     DEFINES += SRCDIR=\\\"$$PWD\\\"
 }
