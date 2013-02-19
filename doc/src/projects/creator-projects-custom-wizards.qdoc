@@ -431,12 +431,30 @@
 
     \code
     <field mandatory="true" name="QtCreatorSources">
-        <fieldcontrol class="Utils::PathChooser" defaulttext="" />
+        <fieldcontrol class="Utils::PathChooser" defaulttext="" expectedkind="existingdirectory"/>
             <fielddescription>Qt Creator sources:</fielddescription>
     </field>
     \endcode
 
     The \c defaulttext attribute specifies text that appears in the field by default.
+
+    The text attribute \c expectedkind specifies which type of path is expected:
+
+    \list
+
+        \li \c any accepts any kind of path.
+
+        \li \c file expects a file.
+
+        \li \c directory expects a directory.
+
+        \li \c existingdirectory expects an existing directory.
+
+        \li \c command expects an executable file.
+
+        \li \c existingcommand expects an existing, executable file.
+
+    \endlist
 
     \section2 Check Boxes
 

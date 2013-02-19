@@ -315,6 +315,20 @@ QWidget *CustomWizardFieldPage::registerPathChooser(const QString &fieldName,
                                                  const CustomWizardField &field)
 {
     Utils::PathChooser *pathChooser = new Utils::PathChooser;
+    const QString expectedKind = field.controlAttributes.value(QLatin1String("expectedkind")).toLower();
+    if (expectedKind == QLatin1String("existingdirectory"))
+        pathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    else if (expectedKind == QLatin1String("directory"))
+        pathChooser->setExpectedKind(Utils::PathChooser::Directory);
+    else if (expectedKind == QLatin1String("file"))
+        pathChooser->setExpectedKind(Utils::PathChooser::File);
+    else if (expectedKind == QLatin1String("existingcommand"))
+        pathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    else if (expectedKind == QLatin1String("command"))
+        pathChooser->setExpectedKind(Utils::PathChooser::Command);
+    else if (expectedKind == QLatin1String("any"))
+        pathChooser->setExpectedKind(Utils::PathChooser::Any);
+
     registerField(fieldName, pathChooser, "path", SIGNAL(changed(QString)));
     const QString defaultText = field.controlAttributes.value(QLatin1String("defaulttext"));
     m_pathChoosers.push_back(PathChooserData(pathChooser, defaultText));
