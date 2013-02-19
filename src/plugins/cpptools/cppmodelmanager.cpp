@@ -722,13 +722,35 @@ CppModelManager::~CppModelManager()
 
 Snapshot CppModelManager::snapshot() const
 {
-    QMutexLocker locker(&protectSnapshot);
+    QMutexLocker locker(&m_protectSnapshot);
     return m_snapshot;
+}
+
+Document::Ptr CppModelManager::document(const QString &fileName) const
+{
+    QMutexLocker locker(&m_protectSnapshot);
+    return m_snapshot.document(fileName);
+}
+
+/// Replace the document in the snapshot.
+///
+/// \returns true if successful, false if the new document is out-dated.
+bool CppModelManager::replaceDocument(Document::Ptr newDoc)
+{
+    QMutexLocker locker(&m_protectSnapshot);
+
+    Document::Ptr previous = m_snapshot.document(newDoc->fileName());
+    if (previous && (newDoc->revision() != 0 && newDoc->revision() < previous->revision()))
+        // the new document is outdated
+        return false;
+
+    m_snapshot.insert(newDoc);
+    return true;
 }
 
 void CppModelManager::ensureUpdated()
 {
-    QMutexLocker locker(&mutex);
+    QMutexLocker locker(&m_mutex);
     if (! m_dirty)
         return;
 
@@ -889,6 +911,12 @@ void CppModelManager::renameMacroUsages(const CPlusPlus::Macro &macro, const QSt
     m_findReferences->renameMacroUses(macro, replacement);
 }
 
+void CppModelManager::replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot)
+{
+    QMutexLocker snapshotLocker(&m_protectSnapshot);
+    m_snapshot = newSnapshot;
+}
+
 CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
 {
     WorkingCopy workingCopy;
@@ -932,14 +960,14 @@ QFuture<void> CppModelManager::updateSourceFiles(const QStringList &sourceFiles)
 
 QList<CppModelManager::ProjectInfo> CppModelManager::projectInfos() const
 {
-    QMutexLocker locker(&mutex);
+    QMutexLocker locker(&m_mutex);
 
     return m_projects.values();
 }
 
 CppModelManager::ProjectInfo CppModelManager::projectInfo(ProjectExplorer::Project *project) const
 {
-    QMutexLocker locker(&mutex);
+    QMutexLocker locker(&m_mutex);
 
     return m_projects.value(project, ProjectInfo(project));
 }
@@ -947,7 +975,7 @@ CppModelManager::ProjectInfo CppModelManager::projectInfo(ProjectExplorer::Proje
 void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 {
     { // only hold the mutex for a limited scope, so the dumping afterwards can aquire it without deadlocking.
-        QMutexLocker locker(&mutex);
+        QMutexLocker locker(&m_mutex);
 
         if (! pinfo.isValid())
             return;
@@ -1038,33 +1066,13 @@ void CppModelManager::emitDocumentUpdated(Document::Ptr doc)
 
 void CppModelManager::onDocumentUpdated(Document::Ptr doc)
 {
-    const QString fileName = doc->fileName();
-
-    bool outdated = false;
-
-    protectSnapshot.lock();
-
-    Document::Ptr previous = m_snapshot.document(fileName);
-
-    if (previous && (doc->revision() != 0 && doc->revision() < previous->revision()))
-        outdated = true;
-    else
-        m_snapshot.insert(doc);
-
-    protectSnapshot.unlock();
-
-    if (outdated)
-        return;
-
-    updateEditor(doc);
+    if (replaceDocument(doc))
+        updateEditor(doc);
 }
 
 void CppModelManager::onExtraDiagnosticsUpdated(const QString &fileName)
 {
-    protectSnapshot.lock();
-    Document::Ptr doc = m_snapshot.document(fileName);
-    protectSnapshot.unlock();
-    if (doc)
+    if (Document::Ptr doc = document(fileName))
         updateEditor(doc);
 }
 
@@ -1191,14 +1199,14 @@ void CppModelManager::updateEditorSelections()
 
 void CppModelManager::onProjectAdded(ProjectExplorer::Project *)
 {
-    QMutexLocker locker(&mutex);
+    QMutexLocker locker(&m_mutex);
     m_dirty = true;
 }
 
 void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
 {
     do {
-        QMutexLocker locker(&mutex);
+        QMutexLocker locker(&m_mutex);
         m_dirty = true;
         m_projects.remove(project);
     } while (0);
@@ -1211,7 +1219,7 @@ void CppModelManager::onAboutToUnloadSession()
     if (Core::ProgressManager *pm = Core::ICore::progressManager())
         pm->cancelTasks(QLatin1String(CppTools::Constants::TASK_INDEX));
     do {
-        QMutexLocker locker(&mutex);
+        QMutexLocker locker(&m_mutex);
         m_projects.clear();
         m_dirty = true;
     } while (0);
@@ -1221,10 +1229,7 @@ void CppModelManager::onAboutToUnloadSession()
 
 void CppModelManager::GC()
 {
-    protectSnapshot.lock();
-    Snapshot currentSnapshot = m_snapshot;
-    protectSnapshot.unlock();
-
+    Snapshot currentSnapshot = snapshot();
     QSet<QString> processed;
     QStringList todo = projectFiles();
 
@@ -1255,9 +1260,7 @@ void CppModelManager::GC()
 
     emit aboutToRemoveFiles(removedFiles);
 
-    protectSnapshot.lock();
-    m_snapshot = newSnapshot;
-    protectSnapshot.unlock();
+    replaceSnapshot(newSnapshot);
 }
 
 void CppModelManager::finishedRefreshingSourceFiles(const QStringList &files)
@@ -1314,7 +1317,7 @@ void CppModelManager::setExtraDiagnostics(const QString &fileName, int kind,
                                           const QList<Document::DiagnosticMessage> &diagnostics)
 {
     {
-        QMutexLocker locker(&protectExtraDiagnostics);
+        QMutexLocker locker(&m_protectExtraDiagnostics);
         if (m_extraDiagnostics[fileName][kind] == diagnostics)
             return;
         m_extraDiagnostics[fileName].insert(kind, diagnostics);
@@ -1324,7 +1327,7 @@ void CppModelManager::setExtraDiagnostics(const QString &fileName, int kind,
 
 QList<Document::DiagnosticMessage> CppModelManager::extraDiagnostics(const QString &fileName, int kind) const
 {
-    QMutexLocker locker(&protectExtraDiagnostics);
+    QMutexLocker locker(&m_protectExtraDiagnostics);
     if (kind == -1) {
         QList<Document::DiagnosticMessage> messages;
         foreach (const QList<Document::DiagnosticMessage> &list, m_extraDiagnostics.value(fileName))
