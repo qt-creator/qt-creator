@@ -174,7 +174,6 @@ public:
     void prepareForDisplay();
     void linkStartsToEnds();
     void linkEndsToStarts();
-    bool checkBindingLoop(QmlRangeEventData *from, QmlRangeEventData *current, QList<QmlRangeEventData *>visited);
 
 
     // stats
@@ -1246,7 +1245,8 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::findBindingLoops(qint64 
         stack << inTimeEvent;
         stackRefs << currentEvent;
 
-        if (loopDetected) {
+        // skip loops if bindings are anonymous
+        if (loopDetected && !currentEvent->location.filename.isEmpty()) {
             if (i >= fromIndex && i <= toIndex) {
                 // for the statistics
                 currentEvent->isBindingLoop = true;
