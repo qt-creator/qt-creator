@@ -72,34 +72,96 @@ using namespace TextEditor;
 using namespace Core;
 
 namespace {
+
+class TestDocument;
+typedef QSharedPointer<TestDocument> TestDocumentPtr;
+
+/**
+ * Represents a test document before and after applying the quick fix.
+ *
+ * A TestDocument's originalSource may contain an '@' character to denote
+ * the cursor position. This marker is removed before the Editor reads
+ * the document.
+ */
+class TestDocument
+{
+public:
+    TestDocument(const QByteArray &theOriginalSource, const QByteArray &theExpectedSource,
+                 const QString &fileName)
+        : originalSource(theOriginalSource)
+        , expectedSource(theExpectedSource)
+        , fileName(fileName)
+        , cursorMarkerPosition(theOriginalSource.indexOf('@'))
+        , editor(0)
+        , editorWidget(0)
+    {
+        originalSource.remove(cursorMarkerPosition, 1);
+        expectedSource.remove(theExpectedSource.indexOf('@'), 1);
+    }
+
+    static TestDocumentPtr create(const QByteArray &theOriginalSource,
+        const QByteArray &theExpectedSource,const QString &fileName)
+    {
+        return TestDocumentPtr(new TestDocument(theOriginalSource, theExpectedSource, fileName));
+    }
+
+    bool hasCursorMarkerPosition() const { return cursorMarkerPosition != -1; }
+    bool changesExpected() const { return originalSource != expectedSource; }
+
+    QString filePath() const
+    {
+        if (directoryPath.isEmpty())
+            qDebug() << "Warning: No directoryPath set!";
+        return directoryPath + QLatin1Char('/') + fileName;
+    }
+
+    void writeToDisk() const
+    {
+        Utils::FileSaver srcSaver(filePath());
+        srcSaver.write(originalSource);
+        srcSaver.finalize();
+    }
+
+    QByteArray originalSource;
+    QByteArray expectedSource;
+
+    const QString fileName;
+    QString directoryPath;
+    const int cursorMarkerPosition;
+
+    CPPEditor *editor;
+    CPPEditorWidget *editorWidget;
+};
+
 /**
  * Encapsulates the whole process of setting up an editor, getting the
  * quick-fix, applying it, and checking the result.
  */
 struct TestCase
 {
-    QByteArray originalText;
-    int pos;
-    CPPEditor *editor;
-    CPPEditorWidget *editorWidget;
+    QList<TestDocumentPtr> testFiles;
+
     CppCodeStylePreferences *cppCodeStylePreferences;
     QString cppCodeStylePreferencesOriginalDelegateId;
 
-    TestCase(const QByteArray &input);
+    TestCase(const QByteArray &originalSource, const QByteArray &expectedSource);
+    TestCase(const QList<TestDocumentPtr> theTestFiles);
     ~TestCase();
 
-    QuickFixOperation::Ptr getFix(CppQuickFixFactory *factory);
+    QuickFixOperation::Ptr getFix(CppQuickFixFactory *factory, CPPEditorWidget *editorWidget);
+    TestDocumentPtr testFileWithCursorMarker() const;
 
-    void run(CppQuickFixFactory *factory, const QByteArray &expected, bool changesExpected = true,
-             int undoCount = 1);
+    void run(CppQuickFixFactory *factory);
 
 private:
     TestCase(const TestCase &);
     TestCase &operator=(const TestCase &);
+
+    void init();
 };
 
 /// Apply the factory on the source and get back the first result or a null pointer.
-QuickFixOperation::Ptr TestCase::getFix(CppQuickFixFactory *factory)
+QuickFixOperation::Ptr TestCase::getFix(CppQuickFixFactory *factory, CPPEditorWidget *editorWidget)
 {
     CppQuickFixInterface qfi(new CppQuickFixAssistInterface(editorWidget, ExplicitlyInvoked));
     TextEditor::QuickFixOperations results;
@@ -107,37 +169,77 @@ QuickFixOperation::Ptr TestCase::getFix(CppQuickFixFactory *factory)
     return results.isEmpty() ? QuickFixOperation::Ptr() : results.first();
 }
 
-/// The '@' in the input is the position from where the quick-fix discovery is triggered.
-TestCase::TestCase(const QByteArray &input)
-    : originalText(input), cppCodeStylePreferences(0)
+/// The '@' in the originalSource is the position from where the quick-fix discovery is triggered.
+TestCase::TestCase(const QByteArray &originalSource, const QByteArray &expectedSource)
+    : cppCodeStylePreferences(0)
 {
-    pos = originalText.indexOf('@');
-    QVERIFY(pos != -1);
-    originalText.remove(pos, 1);
-    QString fileName(QDir::tempPath() + QLatin1String("/file.cpp"));
-    Utils::FileSaver srcSaver(fileName);
-    srcSaver.write(originalText);
-    srcSaver.finalize();
-    CPlusPlus::CppModelManagerInterface::instance()->updateSourceFiles(QStringList()<<fileName);
+    testFiles << TestDocument::create(originalSource, expectedSource, QLatin1String("file.cpp"));
+    init();
+}
 
-    // wait for the parser in the future to give us the document:
-    while (true) {
-        Snapshot s = CPlusPlus::CppModelManagerInterface::instance()->snapshot();
-        if (s.contains(fileName))
+/// Exactly one TestFile must contain the cursor position marker '@' in the originalSource.
+TestCase::TestCase(const QList<TestDocumentPtr> theTestFiles)
+    : testFiles(theTestFiles), cppCodeStylePreferences(0)
+{
+    init();
+}
+
+void TestCase::init()
+{
+    // Check if there is exactly one cursor marker
+    unsigned cursorMarkersCount = 0;
+    foreach (const TestDocumentPtr testFile, testFiles) {
+        if (testFile->hasCursorMarkerPosition())
+            ++cursorMarkersCount;
+    }
+    QVERIFY2(cursorMarkersCount == 1, "Exactly one cursor marker is allowed.");
+
+    // Write files to disk
+    const QString directoryPath = QDir::tempPath();
+    foreach (TestDocumentPtr testFile, testFiles) {
+        testFile->directoryPath = directoryPath;
+        testFile->writeToDisk();
+    }
+
+    // Update Code Model
+    QStringList filePaths;
+    foreach (const TestDocumentPtr &testFile, testFiles)
+        filePaths << testFile->filePath();
+    CPlusPlus::CppModelManagerInterface::instance()->updateSourceFiles(filePaths);
+
+    // Wait for the parser in the future to give us the document
+    QStringList filePathsNotYetInSnapshot(filePaths);
+    forever {
+        Snapshot snapshot = CPlusPlus::CppModelManagerInterface::instance()->snapshot();
+        foreach (const QString &filePath, filePathsNotYetInSnapshot) {
+            if (snapshot.contains(filePath))
+                filePathsNotYetInSnapshot.removeOne(filePath);
+        }
+        if (filePathsNotYetInSnapshot.isEmpty())
             break;
         QCoreApplication::processEvents();
     }
 
-    editor = dynamic_cast<CPPEditor *>(EditorManager::openEditor(fileName));
-    QVERIFY(editor);
-    editor->setCursorPosition(pos);
-    editorWidget = dynamic_cast<CPPEditorWidget *>(editor->editorWidget());
-    QVERIFY(editorWidget);
-    editorWidget->semanticRehighlight(true);
+    // Open Files
+    foreach (TestDocumentPtr testFile, testFiles) {
+        testFile->editor
+            = dynamic_cast<CPPEditor *>(EditorManager::openEditor(testFile->filePath()));
+        QVERIFY(testFile->editor);
 
-    // wait for the semantic info from the future:
-    while (editorWidget->semanticInfo().doc.isNull())
-        QCoreApplication::processEvents();
+        // Set cursor position
+        const int cursorPosition = testFile->hasCursorMarkerPosition()
+                ? testFile->cursorMarkerPosition : 0;
+        testFile->editor->setCursorPosition(cursorPosition);
+
+        testFile->editorWidget = dynamic_cast<CPPEditorWidget *>(testFile->editor->editorWidget());
+        QVERIFY(testFile->editorWidget);
+
+        // Rehighlight
+        testFile->editorWidget->semanticRehighlight(true);
+        // Wait for the semantic info from the future
+        while (testFile->editorWidget->semanticInfo().doc.isNull())
+            QCoreApplication::processEvents();
+    }
 
     // Enforce the default cpp code style, so we are independent of config file settings.
     // This is needed by e.g. the GenerateGetterSetter quick fix.
@@ -149,12 +251,20 @@ TestCase::TestCase(const QByteArray &input)
 
 TestCase::~TestCase()
 {
-    cppCodeStylePreferences->setCurrentDelegate(cppCodeStylePreferencesOriginalDelegateId);
+    // Restore default cpp code style
+    if (cppCodeStylePreferences)
+        cppCodeStylePreferences->setCurrentDelegate(cppCodeStylePreferencesOriginalDelegateId);
 
-    EditorManager::instance()->closeEditors(QList<Core::IEditor *>() << editor, false);
+    // Close editors
+    QList<Core::IEditor *> editorsToClose;
+    foreach (const TestDocumentPtr testFile, testFiles) {
+        if (testFile->editor)
+            editorsToClose << testFile->editor;
+    }
+    EditorManager::instance()->closeEditors(editorsToClose, false);
     QCoreApplication::processEvents(); // process any pending events
 
-    // Remove the test file from the code-model:
+    // Remove the test files from the code-model
     CppModelManagerInterface *mmi = CPlusPlus::CppModelManagerInterface::instance();
     mmi->GC();
     QCOMPARE(mmi->snapshot().size(), 0);
@@ -180,27 +290,40 @@ QByteArray &removeTrailingWhitespace(QByteArray &input)
     return input;
 }
 
-void TestCase::run(CppQuickFixFactory *factory, const QByteArray &expected,
-                   bool changesExpected, int undoCount)
+void TestCase::run(CppQuickFixFactory *factory)
 {
-    QuickFixOperation::Ptr fix = getFix(factory);
-    if (!fix) {
-        QVERIFY2(!changesExpected, "No QuickFixOperation");
-        return;
+    // Run the fix in the file having the cursor marker
+    TestDocumentPtr testFile;
+    foreach (const TestDocumentPtr file, testFiles) {
+        if (file->hasCursorMarkerPosition())
+            testFile = file;
     }
+    QVERIFY2(testFile, "No test file with cursor marker found");
 
-    fix->perform();
-    QByteArray result = editorWidget->document()->toPlainText().toUtf8();
-    removeTrailingWhitespace(result);
+    if (QuickFixOperation::Ptr fix = getFix(factory, testFile->editorWidget))
+        fix->perform();
+    else
+        qDebug() << "Quickfix was not triggered";
 
-    QCOMPARE(QLatin1String(result), QLatin1String(expected));
+    // Compare all files
+    const int testFilesCount = testFiles.size();
+    foreach (const TestDocumentPtr testFile, testFiles) {
+        if (testFilesCount >= 2)
+            qDebug() << "Checking" << testFile->filePath();
 
-    for (int i = 0; i < undoCount; ++i)
-        editorWidget->undo();
+        // Check
+        QByteArray result = testFile->editorWidget->document()->toPlainText().toUtf8();
+        removeTrailingWhitespace(result);
+        QCOMPARE(QLatin1String(result), QLatin1String(testFile->expectedSource));
 
-    result = editorWidget->document()->toPlainText().toUtf8();
-    QCOMPARE(result, originalText);
+        // Undo the change
+        for (int i = 0; i < 100; ++i)
+            testFile->editorWidget->undo();
+        result = testFile->editorWidget->document()->toPlainText().toUtf8();
+        QCOMPARE(result, testFile->originalSource);
+    }
 }
+
 } // anonymous namespace
 
 /// Checks:
@@ -209,36 +332,39 @@ void TestCase::run(CppQuickFixFactory *factory, const QByteArray &expected,
 /// 2. Setter: Use pass by value on integer/float and pointer types.
 void CppPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefix()
 {
-    TestCase data("\n"
-                  "class Something\n"
-                  "{\n"
-                  "    int @it;\n"
-                  "};\n"
-                  );
-    QByteArray expected = "\n"
-            "class Something\n"
-            "{\n"
-            "    int it;\n"
-            "\n"
-            "public:\n"
-            "    int getIt() const;\n"
-            "    void setIt(int value);\n"
-            "};\n"
-            "\n"
-            "int Something::getIt() const\n"
-            "{\n"
-            "    return it;\n"
-            "}\n"
-            "\n"
-            "void Something::setIt(int value)\n"
-            "{\n"
-            "    it = value;\n"
-            "}\n"
-            "\n"
-            ;
+    const QByteArray original =
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    int @it;\n"
+        "};\n"
+        ;
+    const QByteArray expected =
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    int it;\n"
+        "\n"
+        "public:\n"
+        "    int getIt() const;\n"
+        "    void setIt(int value);\n"
+        "};\n"
+        "\n"
+        "int Something::getIt() const\n"
+        "{\n"
+        "    return it;\n"
+        "}\n"
+        "\n"
+        "void Something::setIt(int value)\n"
+        "{\n"
+        "    it = value;\n"
+        "}\n"
+        "\n"
+        ;
 
     GenerateGetterSetter factory;
-    data.run(&factory, expected);
+    TestCase data(original, expected);
+    data.run(&factory);
 }
 
 /// Checks:
@@ -246,72 +372,78 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefix()
 /// 2. Setter: Parameter name is base name.
 void CppPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithoutPrefix()
 {
-    TestCase data("\n"
-                  "class Something\n"
-                  "{\n"
-                  "    int @m_it;\n"
-                  "};\n"
-                  );
-    QByteArray expected = "\n"
-            "class Something\n"
-            "{\n"
-            "    int m_it;\n"
-            "\n"
-            "public:\n"
-            "    int it() const;\n"
-            "    void setIt(int it);\n"
-            "};\n"
-            "\n"
-            "int Something::it() const\n"
-            "{\n"
-            "    return m_it;\n"
-            "}\n"
-            "\n"
-            "void Something::setIt(int it)\n"
-            "{\n"
-            "    m_it = it;\n"
-            "}\n"
-            "\n"
-            ;
+    const QByteArray original =
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    int @m_it;\n"
+        "};\n"
+        ;
+    const QByteArray expected =
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    int m_it;\n"
+        "\n"
+        "public:\n"
+        "    int it() const;\n"
+        "    void setIt(int it);\n"
+        "};\n"
+        "\n"
+        "int Something::it() const\n"
+        "{\n"
+        "    return m_it;\n"
+        "}\n"
+        "\n"
+        "void Something::setIt(int it)\n"
+        "{\n"
+        "    m_it = it;\n"
+        "}\n"
+        "\n"
+        ;
 
     GenerateGetterSetter factory;
-    data.run(&factory, expected);
+    TestCase data(original, expected);
+    data.run(&factory);
 }
 
 /// Check: Setter: Use pass by reference for parameters which
 /// are not integer, float or pointers.
 void CppPlugin::test_quickfix_GenerateGetterSetter_customType()
 {
-    TestCase data("\n"
-                  "class Something\n"
-                  "{\n"
-                  "    MyType @it;\n"
-                  "};\n"
-                  );
-    QByteArray expected = "\n"
-            "class Something\n"
-            "{\n"
-            "    MyType it;\n"
-            "\n"
-            "public:\n"
-            "    MyType getIt() const;\n"
-            "    void setIt(const MyType &value);\n"
-            "};\n"
-            "\n"
-            "MyType Something::getIt() const\n"
-            "{\n"
-            "    return it;\n"
-            "}\n"
-            "\n"
-            "void Something::setIt(const MyType &value)\n"
-            "{\n"
-            "    it = value;\n"
-            "}\n"
-            "\n"
-            ;
+    const QByteArray original =
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    MyType @it;\n"
+        "};\n"
+        ;
+    const QByteArray expected =
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    MyType it;\n"
+        "\n"
+        "public:\n"
+        "    MyType getIt() const;\n"
+        "    void setIt(const MyType &value);\n"
+        "};\n"
+        "\n"
+        "MyType Something::getIt() const\n"
+        "{\n"
+        "    return it;\n"
+        "}\n"
+        "\n"
+        "void Something::setIt(const MyType &value)\n"
+        "{\n"
+        "    it = value;\n"
+        "}\n"
+        "\n"
+        ;
 
     GenerateGetterSetter factory;
-    data.run(&factory, expected);
+    TestCase data(original, expected);
+    data.run(&factory);
 }
 
 /// Checks:
@@ -319,100 +451,109 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_customType()
 /// 2. Getter: Return a non-const type since it pass by value anyway.
 void CppPlugin::test_quickfix_GenerateGetterSetter_constMember()
 {
-    TestCase data("\n"
-                  "class Something\n"
-                  "{\n"
-                  "    const int @it;\n"
-                  "};\n"
-                  );
-    QByteArray expected = "\n"
-            "class Something\n"
-            "{\n"
-            "    const int it;\n"
-            "\n"
-            "public:\n"
-            "    int getIt() const;\n"
-            "};\n"
-            "\n"
-            "int Something::getIt() const\n"
-            "{\n"
-            "    return it;\n"
-            "}\n"
-            "\n"
-            ;
+    const QByteArray original =
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    const int @it;\n"
+        "};\n"
+        ;
+    const QByteArray expected =
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    const int it;\n"
+        "\n"
+        "public:\n"
+        "    int getIt() const;\n"
+        "};\n"
+        "\n"
+        "int Something::getIt() const\n"
+        "{\n"
+        "    return it;\n"
+        "}\n"
+        "\n"
+        ;
 
     GenerateGetterSetter factory;
-    data.run(&factory, expected);
+    TestCase data(original, expected);
+    data.run(&factory);
 }
 
 /// Checks: No special treatment for pointer to non const.
 void CppPlugin::test_quickfix_GenerateGetterSetter_pointerToNonConst()
 {
-    TestCase data("\n"
-                  "class Something\n"
-                  "{\n"
-                  "    int *it@;\n"
-                  "};\n"
-                  );
-    QByteArray expected = "\n"
-            "class Something\n"
-            "{\n"
-            "    int *it;\n"
-            "\n"
-            "public:\n"
-            "    int *getIt() const;\n"
-            "    void setIt(int *value);\n"
-            "};\n"
-            "\n"
-            "int *Something::getIt() const\n"
-            "{\n"
-            "    return it;\n"
-            "}\n"
-            "\n"
-            "void Something::setIt(int *value)\n"
-            "{\n"
-            "    it = value;\n"
-            "}\n"
-            "\n"
-            ;
+    const QByteArray original =
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    int *it@;\n"
+        "};\n"
+        ;
+    const QByteArray expected =
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    int *it;\n"
+        "\n"
+        "public:\n"
+        "    int *getIt() const;\n"
+        "    void setIt(int *value);\n"
+        "};\n"
+        "\n"
+        "int *Something::getIt() const\n"
+        "{\n"
+        "    return it;\n"
+        "}\n"
+        "\n"
+        "void Something::setIt(int *value)\n"
+        "{\n"
+        "    it = value;\n"
+        "}\n"
+        "\n"
+        ;
 
     GenerateGetterSetter factory;
-    data.run(&factory, expected);
+    TestCase data(original, expected);
+    data.run(&factory);
 }
 
 /// Checks: No special treatment for pointer to const.
 void CppPlugin::test_quickfix_GenerateGetterSetter_pointerToConst()
 {
-    TestCase data("\n"
-                  "class Something\n"
-                  "{\n"
-                  "    const int *it@;\n"
-                  "};\n"
-                  );
-    QByteArray expected = "\n"
-            "class Something\n"
-            "{\n"
-            "    const int *it;\n"
-            "\n"
-            "public:\n"
-            "    const int *getIt() const;\n"
-            "    void setIt(const int *value);\n"
-            "};\n"
-            "\n"
-            "const int *Something::getIt() const\n"
-            "{\n"
-            "    return it;\n"
-            "}\n"
-            "\n"
-            "void Something::setIt(const int *value)\n"
-            "{\n"
-            "    it = value;\n"
-            "}\n"
-            "\n"
-            ;
+    const QByteArray original =
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    const int *it@;\n"
+        "};\n"
+        ;
+    const QByteArray expected =
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    const int *it;\n"
+        "\n"
+        "public:\n"
+        "    const int *getIt() const;\n"
+        "    void setIt(const int *value);\n"
+        "};\n"
+        "\n"
+        "const int *Something::getIt() const\n"
+        "{\n"
+        "    return it;\n"
+        "}\n"
+        "\n"
+        "void Something::setIt(const int *value)\n"
+        "{\n"
+        "    it = value;\n"
+        "}\n"
+        "\n"
+        ;
 
     GenerateGetterSetter factory;
-    data.run(&factory, expected);
+    TestCase data(original, expected);
+    data.run(&factory);
 }
 
 /// Checks:
@@ -420,150 +561,160 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_pointerToConst()
 /// 2. Getter: Getter is a static, non const function.
 void CppPlugin::test_quickfix_GenerateGetterSetter_staticMember()
 {
-    TestCase data("\n"
-                  "class Something\n"
-                  "{\n"
-                  "    static int @m_member;\n"
-                  "};\n"
-                  );
-    QByteArray expected = "\n"
-            "class Something\n"
-            "{\n"
-            "    static int m_member;\n"
-            "\n"
-            "public:\n"
-            "    static int member();\n"
-            "    static void setMember(int member);\n"
-            "};\n"
-            "\n"
-            "int Something::member()\n"
-            "{\n"
-            "    return m_member;\n"
-            "}\n"
-            "\n"
-            "void Something::setMember(int member)\n"
-            "{\n"
-            "    m_member = member;\n"
-            "}\n"
-            "\n"
-            ;
+    const QByteArray original =
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    static int @m_member;\n"
+        "};\n"
+        ;
+    const QByteArray expected =
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    static int m_member;\n"
+        "\n"
+        "public:\n"
+        "    static int member();\n"
+        "    static void setMember(int member);\n"
+        "};\n"
+        "\n"
+        "int Something::member()\n"
+        "{\n"
+        "    return m_member;\n"
+        "}\n"
+        "\n"
+        "void Something::setMember(int member)\n"
+        "{\n"
+        "    m_member = member;\n"
+        "}\n"
+        "\n"
+        ;
 
     GenerateGetterSetter factory;
-    data.run(&factory, expected);
+    TestCase data(original, expected);
+    data.run(&factory);
 }
 
 /// Check: Check if it works on the second declarator
 void CppPlugin::test_quickfix_GenerateGetterSetter_secondDeclarator()
 {
-    TestCase data("\n"
-                  "class Something\n"
-                  "{\n"
-                  "    int *foo, @it;\n"
-                  "};\n"
-                  );
-    QByteArray expected = "\n"
-            "class Something\n"
-            "{\n"
-            "    int *foo, it;\n"
-            "\n"
-            "public:\n"
-            "    int getIt() const;\n"
-            "    void setIt(int value);\n"
-            "};\n"
-            "\n"
-            "int Something::getIt() const\n"
-            "{\n"
-            "    return it;\n"
-            "}\n"
-            "\n"
-            "void Something::setIt(int value)\n"
-            "{\n"
-            "    it = value;\n"
-            "}\n"
-            "\n"
-            ;
+    const QByteArray original =
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    int *foo, @it;\n"
+        "};\n"
+        ;
+    const QByteArray expected =
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    int *foo, it;\n"
+        "\n"
+        "public:\n"
+        "    int getIt() const;\n"
+        "    void setIt(int value);\n"
+        "};\n"
+        "\n"
+        "int Something::getIt() const\n"
+        "{\n"
+        "    return it;\n"
+        "}\n"
+        "\n"
+        "void Something::setIt(int value)\n"
+        "{\n"
+        "    it = value;\n"
+        "}\n"
+        "\n"
+        ;
 
     GenerateGetterSetter factory;
-    data.run(&factory, expected);
+    TestCase data(original, expected);
+    data.run(&factory);
 }
 
 /// Check: Quick fix is offered for "int *@it;" ('@' denotes the text cursor position)
 void CppPlugin::test_quickfix_GenerateGetterSetter_triggeringRightAfterPointerSign()
 {
-    TestCase data("\n"
-                  "class Something\n"
-                  "{\n"
-                  "    int *@it;\n"
-                  "};\n"
-                  );
-    QByteArray expected = "\n"
-            "class Something\n"
-            "{\n"
-            "    int *it;\n"
-            "\n"
-            "public:\n"
-            "    int *getIt() const;\n"
-            "    void setIt(int *value);\n"
-            "};\n"
-            "\n"
-            "int *Something::getIt() const\n"
-            "{\n"
-            "    return it;\n"
-            "}\n"
-            "\n"
-            "void Something::setIt(int *value)\n"
-            "{\n"
-            "    it = value;\n"
-            "}\n"
-            "\n"
-            ;
+    const QByteArray original =
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    int *@it;\n"
+        "};\n"
+        ;
+    const QByteArray expected =
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    int *it;\n"
+        "\n"
+        "public:\n"
+        "    int *getIt() const;\n"
+        "    void setIt(int *value);\n"
+        "};\n"
+        "\n"
+        "int *Something::getIt() const\n"
+        "{\n"
+        "    return it;\n"
+        "}\n"
+        "\n"
+        "void Something::setIt(int *value)\n"
+        "{\n"
+        "    it = value;\n"
+        "}\n"
+        "\n"
+        ;
 
     GenerateGetterSetter factory;
-    data.run(&factory, expected);
+    TestCase data(original, expected);
+    data.run(&factory);
 }
 
 /// Check: Quick fix is not triggered on a member function.
 void CppPlugin::test_quickfix_GenerateGetterSetter_notTriggeringOnMemberFunction()
 {
-    TestCase data("class Something { void @f(); };");
-    QByteArray expected = data.originalText;
+    const QByteArray original = "class Something { void @f(); };";
 
     GenerateGetterSetter factory;
-    data.run(&factory, expected, /*changesExpected=*/ false);
+    TestCase data(original, original + "\n");
+    data.run(&factory);
 }
 
 /// Check: Quick fix is not triggered on an member array;
 void CppPlugin::test_quickfix_GenerateGetterSetter_notTriggeringOnMemberArray()
 {
-    TestCase data("class Something { void @a[10]; };");
-    QByteArray expected = data.originalText;
+    const QByteArray original = "class Something { void @a[10]; };";
 
     GenerateGetterSetter factory;
-    data.run(&factory, expected, /*changesExpected=*/ false);
+    TestCase data(original, original + "\n");
+    data.run(&factory);
 }
 
 /// Check: Do not offer the quick fix if there is already a member with the
 /// getter or setter name we would generate.
 void CppPlugin::test_quickfix_GenerateGetterSetter_notTriggeringWhenGetterOrSetterExist()
 {
-    TestCase data("\n"
-                  "class Something {\n"
-                  "     int @it;\n"
-                  "     void setIt();\n"
-                  "};\n");
-    QByteArray expected = data.originalText;
+    const QByteArray original =
+        "class Something {\n"
+        "     int @it;\n"
+        "     void setIt();\n"
+        "};\n";
 
     GenerateGetterSetter factory;
-    data.run(&factory, expected, /*changesExpected=*/ false);
+    TestCase data(original, original + "\n");
+    data.run(&factory);
 }
 
 /// Check: Just a basic test since the main functionality is tested in
 /// cpppointerdeclarationformatter_test.cpp
 void CppPlugin::test_quickfix_ReformatPointerDeclaration()
 {
-    TestCase data("char@*s;");
-    QByteArray expected = "char *s;\n";
+    const QByteArray original = "char@*s;";
+    const QByteArray expected = "char *s;\n";
 
     ReformatPointerDeclaration factory;
-    data.run(&factory, expected);
+    TestCase data(original, expected);
+    data.run(&factory);
 }
