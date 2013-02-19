@@ -27,7 +27,7 @@ HEADERS += gitplugin.h \
     remotemodel.h \
     remotedialog.h \
     branchadddialog.h \
-    resetdialog.h \
+    logchangedialog.h \
     mergetool.h \
     branchcheckoutdialog.h
 
@@ -51,7 +51,7 @@ SOURCES += gitplugin.cpp \
     remotemodel.cpp \
     remotedialog.cpp \
     branchadddialog.cpp \
-    resetdialog.cpp \
+    logchangedialog.cpp \
     mergetool.cpp \
     branchcheckoutdialog.cpp
 

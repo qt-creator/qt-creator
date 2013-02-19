@@ -51,11 +51,11 @@ enum ResetType {
     SoftReset
 };
 
-class ResetDialog : public QDialog
+class LogChangeDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit ResetDialog(QWidget *parent = 0);
+    explicit LogChangeDialog(bool isReset, QWidget *parent = 0);
 
     bool runDialog(const QString &repository);
 

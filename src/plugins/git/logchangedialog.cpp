@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "resetdialog.h"
+#include "logchangedialog.h"
 #include "gitplugin.h"
 #include "gitclient.h"
 
@@ -51,12 +51,12 @@ enum Columns
     ColumnCount
 };
 
-ResetDialog::ResetDialog(QWidget *parent)
+LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent)
     : QDialog(parent)
     , m_treeView(new QTreeView(this))
     , m_model(new QStandardItemModel(0, ColumnCount, this))
     , m_dialogButtonBox(new QDialogButtonBox(this))
-    , m_resetTypeComboBox(new QComboBox(this))
+    , m_resetTypeComboBox(0)
 {
     QStringList headers;
     headers << tr("Sha1")<< tr("Subject");
@@ -69,12 +69,15 @@ ResetDialog::ResetDialog(QWidget *parent)
     m_treeView->setRootIsDecorated(false);
     m_treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     layout->addWidget(m_treeView);
-    QHBoxLayout *popUpLayout = new QHBoxLayout();
-    popUpLayout->addWidget(new QLabel(tr("Reset type:"), this));
-    m_resetTypeComboBox->addItem(tr("Hard Reset"), HardReset);
-    m_resetTypeComboBox->addItem(tr("Soft Reset"), SoftReset);
-    popUpLayout->addWidget(m_resetTypeComboBox);
-    popUpLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
+    QHBoxLayout *popUpLayout = new QHBoxLayout;
+    if (isReset) {
+        popUpLayout->addWidget(new QLabel(tr("Reset type:"), this));
+        m_resetTypeComboBox = new QComboBox(this);
+        m_resetTypeComboBox->addItem(tr("Hard Reset"), HardReset);
+        m_resetTypeComboBox->addItem(tr("Soft Reset"), SoftReset);
+        popUpLayout->addWidget(m_resetTypeComboBox);
+        popUpLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
+    }
 
     popUpLayout->addWidget(m_dialogButtonBox);
     m_dialogButtonBox->addButton(QDialogButtonBox::Cancel);
@@ -91,7 +94,7 @@ ResetDialog::ResetDialog(QWidget *parent)
     resize(600, 400);
 }
 
-bool ResetDialog::runDialog(const QString &repository)
+bool LogChangeDialog::runDialog(const QString &repository)
 {
     setWindowTitle(tr("Undo Changes to %1").arg(QDir::toNativeSeparators(repository)));
 
@@ -104,7 +107,7 @@ bool ResetDialog::runDialog(const QString &repository)
     return exec() == QDialog::Accepted;
 }
 
-QString ResetDialog::commit() const
+QString LogChangeDialog::commit() const
 {
     // Return Sha1, or empty for top commit.
     if (const QStandardItem *sha1Item = currentItem(Sha1Column))
@@ -112,12 +115,14 @@ QString ResetDialog::commit() const
     return QString();
 }
 
-ResetType ResetDialog::resetType() const
+ResetType LogChangeDialog::resetType() const
 {
+    if (!m_resetTypeComboBox)
+        return HardReset;
     return static_cast<ResetType>(m_resetTypeComboBox->itemData(m_resetTypeComboBox->currentIndex()).toInt());
 }
 
-bool ResetDialog::populateLog(const QString &repository)
+bool LogChangeDialog::populateLog(const QString &repository)
 {
     if (const int rowCount = m_model->rowCount())
         m_model->removeRows(0, rowCount);
@@ -151,7 +156,7 @@ bool ResetDialog::populateLog(const QString &repository)
     return true;
 }
 
-const QStandardItem *ResetDialog::currentItem(int column) const
+const QStandardItem *LogChangeDialog::currentItem(int column) const
 {
     const QModelIndex currentIndex = m_treeView->selectionModel()->currentIndex();
     if (currentIndex.isValid())

@@ -42,7 +42,7 @@
 #include "gitorious/gitoriousclonewizard.h"
 #include "stashdialog.h"
 #include "settingspage.h"
-#include "resetdialog.h"
+#include "logchangedialog.h"
 #include "mergetool.h"
 #include "gitutils.h"
 
@@ -706,7 +706,7 @@ void GitPlugin::resetRepository()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    ResetDialog dialog;
+    LogChangeDialog dialog(true);
     if (dialog.runDialog(state.topLevel()))
         switch (dialog.resetType()) {
         case HardReset:
