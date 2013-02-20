@@ -65,9 +65,9 @@ CMake Projects
    * Fixed build directory when adding build configurations
      (QTCREATORBUG-8425)
 
-QBS Projects
-   * Implemented initial support for Qt Build Suite (QBS) projects
-   * Made Qt Creator itself compilable with QBS
+Qbs Projects
+   * Implemented initial support for Qt Build Suite (Qbs) projects
+   * Made Qt Creator itself compilable with Qbs
 
 Generic Projects
    * Implemented using MIME types to recognize source files (QTCREATORBUG-5451)

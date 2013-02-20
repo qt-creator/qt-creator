@@ -26,7 +26,7 @@
     \contentspage index.html
     \previouspage creator-project-other.html
     \page creator-project-cmake.html
-    \nextpage creator-projects-autotools.html
+    \nextpage creator-project-qbs.html
 
     \title Setting Up a CMake Project
 
