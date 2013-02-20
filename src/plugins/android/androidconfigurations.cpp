@@ -82,8 +82,8 @@ namespace {
 
     static QString sdkSettingsFileName()
     {
-        return QString::fromLatin1("%1/android.xml")
-                                           .arg(QFileInfo(Core::ICore::settings(QSettings::SystemScope)->fileName()).absolutePath());
+        return QFileInfo(Core::ICore::settings(QSettings::SystemScope)->fileName()).absolutePath()
+                + QLatin1String("/qtcreator/android.xml");
     }
 
     bool androidDevicesLessThan(const AndroidDeviceInfo &dev1, const AndroidDeviceInfo &dev2)
