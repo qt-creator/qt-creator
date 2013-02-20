@@ -609,6 +609,7 @@ void Qt4Project::updateQmlJSCodeModel()
             hasQmlLib = qtLibs.contains(QLatin1String("declarative")) ||
                     qtLibs.contains(QLatin1String("qml")) ||
                     qtLibs.contains(QLatin1String("quick"));
+            break;
         }
     }
 
@@ -617,7 +618,7 @@ void Qt4Project::updateQmlJSCodeModel()
     // This assumption fails when there are no QDeclarativeEngine/QDeclarativeView (QtQuick 1)
     // or QQmlEngine/QQuickView (QtQuick 2) instances.
     Core::Context pl(ProjectExplorer::Constants::LANG_CXX);
-    if (m_projectFiles->files[QMLType].count() && hasQmlLib)
+    if (hasQmlLib)
         pl.add(ProjectExplorer::Constants::LANG_QMLJS);
     setProjectLanguages(pl);
 
