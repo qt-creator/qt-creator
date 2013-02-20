@@ -60,8 +60,7 @@ def main():
         return
     for i in range(5):
         type(editorArea, "<Left>")
-    ctxtMenu = openContextMenuOnTextCursorPosition(editorArea)
-    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), "Find Usages"))
+    invokeContextMenuItem(editorArea, "Find Usages")
     # check if usage was properly found
     expectedResults = [ExpectedResult("color-animation.qml", 49, "Rectangle {"),
                        ExpectedResult("color-animation.qml", 96, "Rectangle {"),
