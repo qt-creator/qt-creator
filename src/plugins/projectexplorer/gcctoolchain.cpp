@@ -205,7 +205,7 @@ QList<HeaderPath> GccToolChain::gccHeaderPaths(const FileName &gcc, const QStrin
     return systemHeaderPaths;
 }
 
-static QList<Abi> guessGccAbi(const QString &m)
+static QList<Abi> guessGccAbi(const QString &m, const QByteArray &macros)
 {
     QList<Abi> abiList;
 
@@ -224,13 +224,13 @@ static QList<Abi> guessGccAbi(const QString &m)
 
     foreach (const QString &p, parts) {
         if (p == QLatin1String("unknown") || p == QLatin1String("pc") || p == QLatin1String("none")
-            || p == QLatin1String("gnu") || p == QLatin1String("uclibc")
-            || p == QLatin1String("86_64") || p == QLatin1String("redhat") || p == QLatin1String("gnueabi")) {
+                || p == QLatin1String("gnu") || p == QLatin1String("uclibc")
+                || p == QLatin1String("86_64") || p == QLatin1String("redhat")
+                || p == QLatin1String("gnueabi") || p == QLatin1String("w64")) {
             continue;
         } else if (p == QLatin1String("i386") || p == QLatin1String("i486") || p == QLatin1String("i586")
                    || p == QLatin1String("i686") || p == QLatin1String("x86")) {
             arch = Abi::X86Architecture;
-            width = 32;
         } else if (p.startsWith(QLatin1String("arm"))) {
             arch = Abi::ArmArchitecture;
             width = 32;
@@ -242,8 +242,6 @@ static QList<Abi> guessGccAbi(const QString &m)
             width = 64;
         } else if (p == QLatin1String("powerpc")) {
             arch = Abi::PowerPCArchitecture;
-        } else if (p == QLatin1String("w64")) {
-            width = 64;
         } else if (p == QLatin1String("linux") || p == QLatin1String("linux6e")) {
             os = Abi::LinuxOS;
             if (flavor == Abi::UnknownFlavor)
@@ -259,8 +257,6 @@ static QList<Abi> guessGccAbi(const QString &m)
             os = Abi::WindowsOS;
             flavor = Abi::WindowsMSysFlavor;
             format = Abi::PEFormat;
-            if (width == 0)
-                width = 32;
         } else if (p == QLatin1String("apple")) {
             os = Abi::MacOS;
             flavor = Abi::GenericMacFlavor;
@@ -285,8 +281,9 @@ static QList<Abi> guessGccAbi(const QString &m)
         abiList << Abi(arch, os, flavor, format, width == 64 ? 32 : 64);
         abiList << Abi(arch == Abi::X86Architecture ? Abi::PowerPCArchitecture : Abi::X86Architecture, os, flavor, format, width);
         abiList << Abi(arch == Abi::X86Architecture ? Abi::PowerPCArchitecture : Abi::X86Architecture, os, flavor, format, width == 64 ? 32 : 64);
-    } else if (width == 64) {
-        abiList << Abi(arch, os, flavor, format, width);
+    } else if (width == 0 || width == 64) {
+        if (macros.contains("#define __x86_64 1"))
+            abiList << Abi(arch, os, flavor, format, 64);
         abiList << Abi(arch, os, flavor, format, 32);
     } else {
         abiList << Abi(arch, os, flavor, format, width);
@@ -301,7 +298,8 @@ static QList<Abi> guessGccAbi(const FileName &path, const QStringList &env)
 
     QStringList arguments(QLatin1String("-dumpmachine"));
     QString machine = QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
-    return guessGccAbi(machine);
+    QByteArray macros = gccPredefinedMacros(path, QStringList(), env);
+    return guessGccAbi(machine, macros);
 }
 
 static QString gccVersion(const FileName &path, const QStringList &env)
@@ -1102,113 +1100,153 @@ namespace ProjectExplorer {
 void ProjectExplorerPlugin::testGccAbiGuessing_data()
 {
     QTest::addColumn<QString>("input");
+    QTest::addColumn<QByteArray>("macros");
     QTest::addColumn<QStringList>("abiList");
 
     QTest::newRow("invalid input")
             << QString::fromLatin1("Some text")
+            << QByteArray("")
             << (QStringList());
     QTest::newRow("empty input")
             << QString::fromLatin1("")
+            << QByteArray("")
+            << (QStringList());
+    QTest::newRow("empty input (with macros)")
+            << QString::fromLatin1("")
+            << QByteArray("#define __x86_64 1\n#define __Something\n")
             << (QStringList());
     QTest::newRow("broken input")
             << QString::fromLatin1("arm-none-foo-gnueabi")
+            << QByteArray("#define __ARM_64 1\n#define __Something\n")
             << (QStringList() << QLatin1String("arm-unknown-unknown-unknown-32bit"));
     QTest::newRow("totally broken input")
             << QString::fromLatin1("foo-bar-foo")
+            << QByteArray("#define __ARM_64 1\n#define __Something\n")
             << (QStringList());
 
     QTest::newRow("Maemo 1")
             << QString::fromLatin1("arm-none-linux-gnueabi")
+            << QByteArray("")
             << (QStringList() << QLatin1String("arm-linux-generic-elf-32bit"));
-    QTest::newRow("Linux 1")
+    QTest::newRow("Linux 1 (32bit intel)")
             << QString::fromLatin1("i686-linux-gnu")
+            << QByteArray("")
             << (QStringList() << QLatin1String("x86-linux-generic-elf-32bit"));
-    QTest::newRow("Linux 2")
+    QTest::newRow("Linux 2 (32bit intel)")
             << QString::fromLatin1("i486-linux-gnu")
+            << QByteArray("")
             << (QStringList() << QLatin1String("x86-linux-generic-elf-32bit"));
-    QTest::newRow("Linux 3")
+    QTest::newRow("Linux 3 (64bit intel)")
             << QString::fromLatin1("x86_64-linux-gnu")
+            << QByteArray("#define __x86_64 1\n")
             << (QStringList() << QLatin1String("x86-linux-generic-elf-64bit")
                               << QLatin1String("x86-linux-generic-elf-32bit"));
-    QTest::newRow("Linux 4")
+    QTest::newRow("Linux 3 (64bit intel -- non 64bit)")
+            << QString::fromLatin1("x86_64-linux-gnu")
+            << QByteArray()
+            << (QStringList() << QLatin1String("x86-linux-generic-elf-32bit"));
+    QTest::newRow("Linux 4 (32bit mips)")
             << QString::fromLatin1("mipsel-linux-uclibc")
+            << QByteArray()
             << (QStringList() << QLatin1String("mips-linux-generic-elf-32bit"));
-    QTest::newRow("Linux 5") // from QTCREATORBUG-4690
+    QTest::newRow("Linux 5 (QTCREATORBUG-4690)") // from QTCREATORBUG-4690
             << QString::fromLatin1("x86_64-redhat-linux6E")
+            << QByteArray("#define __x86_64 1\n")
             << (QStringList() << QLatin1String("x86-linux-generic-elf-64bit")
                               << QLatin1String("x86-linux-generic-elf-32bit"));
-    QTest::newRow("Linux 6") // from QTCREATORBUG-4690
+    QTest::newRow("Linux 6 (QTCREATORBUG-4690)") // from QTCREATORBUG-4690
             << QString::fromLatin1("x86_64-redhat-linux")
+            << QByteArray("#define __x86_64 1\n")
             << (QStringList() << QLatin1String("x86-linux-generic-elf-64bit")
                               << QLatin1String("x86-linux-generic-elf-32bit"));
-    QTest::newRow("Linux 7")
+    QTest::newRow("Linux 7 (arm)")
                 << QString::fromLatin1("armv5tl-montavista-linux-gnueabi")
+                << QByteArray()
                 << (QStringList() << QLatin1String("arm-linux-generic-elf-32bit"));
-    QTest::newRow("Linux 8")
+    QTest::newRow("Linux 8 (arm)")
                 << QString::fromLatin1("arm-angstrom-linux-gnueabi")
+                << QByteArray()
                 << (QStringList() << QLatin1String("arm-linux-generic-elf-32bit"));
 
-    QTest::newRow("Mingw 1")
+    QTest::newRow("Mingw 1 (32bit)")
             << QString::fromLatin1("i686-w64-mingw32")
-            << (QStringList() << QLatin1String("x86-windows-msys-pe-64bit")
-                              << QLatin1String("x86-windows-msys-pe-32bit"));
-    QTest::newRow("Mingw 2")
-            << QString::fromLatin1("mingw32")
+            << QByteArray()
             << (QStringList() << QLatin1String("x86-windows-msys-pe-32bit"));
-    QTest::newRow("Cross Mingw 1")
-            << QString::fromLatin1("amd64-mingw32msvc")
+    QTest::newRow("Mingw 2 (64bit)")
+            << QString::fromLatin1("i686-w64-mingw32")
+            << QByteArray("#define __x86_64 1\r\n")
             << (QStringList() << QLatin1String("x86-windows-msys-pe-64bit")
                               << QLatin1String("x86-windows-msys-pe-32bit"));
-    QTest::newRow("Cross Mingw 2")
+    QTest::newRow("Mingw 3 (32 bit)")
+            << QString::fromLatin1("mingw32")
+            << QByteArray()
+            << (QStringList() << QLatin1String("x86-windows-msys-pe-32bit"));
+    QTest::newRow("Cross Mingw 1 (64bit)")
+            << QString::fromLatin1("amd64-mingw32msvc")
+            << QByteArray("#define __x86_64 1\r\n")
+            << (QStringList() << QLatin1String("x86-windows-msys-pe-64bit")
+                              << QLatin1String("x86-windows-msys-pe-32bit"));
+    QTest::newRow("Cross Mingw 2 (32bit)")
             << QString::fromLatin1("i586-mingw32msvc")
+            << QByteArray()
             << (QStringList() << QLatin1String("x86-windows-msys-pe-32bit"));
     QTest::newRow("Clang 1: windows")
             << QString::fromLatin1("x86_64-pc-win32")
+            << QByteArray("#define __x86_64 1\r\n")
             << (QStringList() << QLatin1String("x86-windows-msys-pe-64bit")
                               << QLatin1String("x86-windows-msys-pe-32bit"));
     QTest::newRow("Clang 1: linux")
             << QString::fromLatin1("x86_64-unknown-linux-gnu")
+            << QByteArray("#define __x86_64 1\n")
             << (QStringList() << QLatin1String("x86-linux-generic-elf-64bit")
                               << QLatin1String("x86-linux-generic-elf-32bit"));
     QTest::newRow("Mac 1")
             << QString::fromLatin1("i686-apple-darwin10")
+            << QByteArray("#define __x86_64 1\n")
             << (QStringList() << QLatin1String("x86-macos-generic-mach_o-64bit")
                               << QLatin1String("x86-macos-generic-mach_o-32bit")
                               << QLatin1String("ppc-macos-generic-mach_o-64bit")
                               << QLatin1String("ppc-macos-generic-mach_o-32bit"));
     QTest::newRow("Mac 2")
             << QString::fromLatin1("powerpc-apple-darwin10")
+            << QByteArray("#define __x86_64 1\n")
             << (QStringList() << QLatin1String("ppc-macos-generic-mach_o-64bit")
                               << QLatin1String("ppc-macos-generic-mach_o-32bit")
                               << QLatin1String("x86-macos-generic-mach_o-64bit")
                               << QLatin1String("x86-macos-generic-mach_o-32bit"));
     QTest::newRow("Mac 3")
             << QString::fromLatin1("i686-apple-darwin9")
+            << QByteArray("#define __x86_64 1\n")
             << (QStringList() << QLatin1String("x86-macos-generic-mach_o-32bit")
                               << QLatin1String("x86-macos-generic-mach_o-64bit")
                               << QLatin1String("ppc-macos-generic-mach_o-32bit")
                               << QLatin1String("ppc-macos-generic-mach_o-64bit"));
     QTest::newRow("Mac IOS")
             << QString::fromLatin1("arm-apple-darwin9")
+            << QByteArray()
             << (QStringList() << QLatin1String("arm-macos-generic-mach_o-32bit"));
     QTest::newRow("Intel 1")
             << QString::fromLatin1("86_64 x86_64 GNU/Linux")
+            << QByteArray("#define __x86_64 1\n")
             << (QStringList() << QLatin1String("x86-linux-generic-elf-64bit")
                               << QLatin1String("x86-linux-generic-elf-32bit"));
     QTest::newRow("FreeBSD 1")
             << QString::fromLatin1("i386-portbld-freebsd9.0")
+            << QByteArray()
             << (QStringList() << QLatin1String("x86-bsd-freebsd-elf-32bit"));
     QTest::newRow("FreeBSD 2")
             << QString::fromLatin1("i386-undermydesk-freebsd")
+            << QByteArray()
             << (QStringList() << QLatin1String("x86-bsd-freebsd-elf-32bit"));
 }
 
 void ProjectExplorerPlugin::testGccAbiGuessing()
 {
     QFETCH(QString, input);
+    QFETCH(QByteArray, macros);
     QFETCH(QStringList, abiList);
 
-    QList<Abi> al = guessGccAbi(input);
+    QList<Abi> al = guessGccAbi(input, macros);
     QCOMPARE(al.count(), abiList.count());
     for (int i = 0; i < al.count(); ++i) {
         QCOMPARE(al.at(i).toString(), abiList.at(i));
