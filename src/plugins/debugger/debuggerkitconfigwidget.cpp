@@ -74,9 +74,9 @@ DebuggerKitConfigWidget::DebuggerKitConfigWidget(ProjectExplorer::Kit *workingCo
 {
     QHBoxLayout *mainLayout = new QHBoxLayout(m_main);
     mainLayout->addWidget(m_label);
-    mainLayout->addStretch();
+    mainLayout->setMargin(0);
     mainLayout->addWidget(m_autoDetectButton);
-    m_label->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+    m_autoDetectButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
     connect(m_autoDetectButton, SIGNAL(pressed()), SLOT(autoDetectDebugger()));
     connect(m_editButton, SIGNAL(pressed()), SLOT(showDialog()));
