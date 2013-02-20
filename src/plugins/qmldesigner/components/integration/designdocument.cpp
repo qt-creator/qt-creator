@@ -103,7 +103,6 @@ DesignDocument::DesignDocument(QObject *parent) :
         m_documentLoaded(false),
         m_qtVersionId(-1)
 {
-    updateActiveQtVersion();
 }
 
 DesignDocument::~DesignDocument()
@@ -642,6 +641,8 @@ void DesignDocument::setEditor(Core::IEditor *editor)
     connect(editor->document(),
             SIGNAL(fileNameChanged(QString,QString)),
             SLOT(updateFileName(QString,QString)));
+
+    updateActiveQtVersion();
 }
 
 Core::IEditor *DesignDocument::editor() const
@@ -683,7 +684,18 @@ void DesignDocument::redo()
     viewManager().resetPropertyEditorView();
 }
 
-static inline QtSupport::BaseQtVersion *getActiveQtVersion(DesignDocument *controller)
+static bool isFileInProject(DesignDocument *designDocument, ProjectExplorer::Project *project)
+{
+    foreach (const QString &fileNameInProject, project->files(ProjectExplorer::Project::ExcludeGeneratedFiles)) {
+        if (designDocument->fileName() == fileNameInProject) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static inline QtSupport::BaseQtVersion *getActiveQtVersion(DesignDocument *designDocument)
 {
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     ProjectExplorer::Project *currentProject = projectExplorer->currentProject();
@@ -691,10 +703,13 @@ static inline QtSupport::BaseQtVersion *getActiveQtVersion(DesignDocument *contr
     if (!currentProject)
         return 0;
 
-    controller->disconnect(controller,  SLOT(updateActiveQtVersion()));
-    controller->connect(projectExplorer, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)), controller, SLOT(updateActiveQtVersion()));
+    if (!isFileInProject(designDocument, currentProject))
+        return 0;
 
-    controller->connect(currentProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)), controller, SLOT(updateActiveQtVersion()));
+    designDocument->disconnect(designDocument,  SLOT(updateActiveQtVersion()));
+    designDocument->connect(projectExplorer, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)), designDocument, SLOT(updateActiveQtVersion()));
+
+    designDocument->connect(currentProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)), designDocument, SLOT(updateActiveQtVersion()));
 
 
     ProjectExplorer::Target *target = currentProject->activeTarget();
@@ -702,7 +717,7 @@ static inline QtSupport::BaseQtVersion *getActiveQtVersion(DesignDocument *contr
     if (!target)
         return 0;
 
-    controller->connect(target, SIGNAL(kitChanged()), controller, SLOT(updateActiveQtVersion()));
+    designDocument->connect(target, SIGNAL(kitChanged()), designDocument, SLOT(updateActiveQtVersion()));
     return QtSupport::QtKitInformation::qtVersion(target->kit());
 }
 
