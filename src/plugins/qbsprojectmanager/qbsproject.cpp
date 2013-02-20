@@ -67,11 +67,12 @@
 // Constants:
 // --------------------------------------------------------------------
 
-static const char CONFIG_CXXFLAGS[] = "cpp.cxxflags";
-static const char CONFIG_DEFINES[] = "cpp.defines";
-static const char CONFIG_INCLUDEPATHS[] = "cpp.includePaths";
-static const char CONFIG_FRAMEWORKPATHS[] = "cpp.frameworkPaths";
-static const char CONFIG_PRECOMPILEDHEADER[] = "modules.cpp.precompiledHeader";
+static const char CONFIG_CPP_MODULE[] = "cpp";
+static const char CONFIG_CXXFLAGS[] = "cxxflags";
+static const char CONFIG_DEFINES[] = "defines";
+static const char CONFIG_INCLUDEPATHS[] = "includePaths";
+static const char CONFIG_FRAMEWORKPATHS[] = "frameworkPaths";
+static const char CONFIG_PRECOMPILEDHEADER[] = "precompiledHeader";
 
 static const char CONFIGURATION_PATH[] = "<configuration>";
 
@@ -79,70 +80,11 @@ static const char CONFIGURATION_PATH[] = "<configuration>";
 // HELPERS:
 // --------------------------------------------------------------------
 
-// FIXME: All this should be in QBS! They do the same thing in JS.
-
-static const char MODULES_KEY[] = "modules";
-
 ProjectExplorer::TaskHub *taskHub()
 {
     return ProjectExplorer::ProjectExplorerPlugin::instance()->taskHub();
 }
 
-
-static QVariant extract(const QVariantMap &data, const QString &key)
-{
-    QStringList keyParts = key.split(QLatin1Char('.'), QString::SkipEmptyParts);
-    return qbs::Internal::getConfigProperty(data, keyParts);
-}
-
-static void expand(const QVariant &v, QStringList &partial, QSet<QString> &seenSet)
-{
-    if (v.isNull())
-        return;
-
-    QStringList tokenList;
-    if (v.type() == QVariant::StringList)
-        tokenList = v.toStringList();
-    else
-        tokenList << v.toString();
-
-    foreach (const QString &token, tokenList) {
-        if (!seenSet.contains(token)) {
-            partial << token;
-            seenSet.insert(token);
-        }
-    }
-}
-
-static QVariantList modules(const QVariantMap &root)
-{
-    QVariantList result;
-    if (!root.contains(QLatin1String(MODULES_KEY)))
-        return result;
-    const QVariantMap &moduleRoot = root.value(QLatin1String(MODULES_KEY)).toMap();
-    QVariantMap::const_iterator end = moduleRoot.end();
-    for (QVariantMap::const_iterator i = moduleRoot.begin(); i != end; ++i)
-        result << i.value();
-    return result;
-}
-
-static void recursiveAppendAll(const QString &key, const QVariantMap &root,
-                               QStringList &partial, QSet<QString> &seenSet)
-{
-    if (root.isEmpty())
-        return;
-    expand(extract(root, key), partial, seenSet);
-    foreach (const QVariant &v, modules(root))
-        recursiveAppendAll(key, v.toMap(), partial, seenSet);
-}
-
-static QStringList appendAll(const QVariantMap &data, const QString &key)
-{
-    QStringList result;
-    QSet<QString> seenSet;
-    recursiveAppendAll(key, data, result, seenSet);
-    return result;
-}
 
 namespace QbsProjectManager {
 namespace Internal {
@@ -494,13 +436,15 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
     QStringList allFiles;
     foreach (const qbs::ProductData &prd, prj->products()) {
         foreach (const qbs::GroupData &grp, prd.groups()) {
-            QVariantMap props = grp.properties();
+            const qbs::PropertyMap &props = grp.properties();
 
             QStringList grpIncludePaths;
             QStringList grpFrameworkPaths;
             QByteArray grpDefines;
             bool isCxx11;
-            const QStringList cxxFlags = appendAll(props, QLatin1String(CONFIG_CXXFLAGS));
+            const QStringList cxxFlags = props.getModulePropertiesAsStringList(
+                        QLatin1String(CONFIG_CPP_MODULE),
+                        QLatin1String(CONFIG_CXXFLAGS));
 
             // Toolchain specific stuff:
             QList<ProjectExplorer::HeaderPath> includePaths;
@@ -517,23 +461,28 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
                     grpIncludePaths.append(headerPath.path());
             }
 
-            QStringList list = appendAll(props, QLatin1String(CONFIG_DEFINES));
+            QStringList list = props.getModulePropertiesAsStringList(
+                        QLatin1String(CONFIG_CPP_MODULE),
+                        QLatin1String(CONFIG_DEFINES));
             foreach (const QString &def, list)
                 grpDefines += (QByteArray("#define ") + def.toUtf8() + '\n');
 
-            list = appendAll(props, QLatin1String(CONFIG_INCLUDEPATHS));
+            list = props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
+                                                         QLatin1String(CONFIG_INCLUDEPATHS));
             foreach (const QString &p, list) {
                 const QString cp = Utils::FileName::fromUserInput(p).toString();
                 grpIncludePaths.append(cp);
             }
 
-            list = appendAll(props, QLatin1String(CONFIG_FRAMEWORKPATHS));
+            list = props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
+                                                         QLatin1String(CONFIG_FRAMEWORKPATHS));
             foreach (const QString &p, list) {
                 const QString cp = Utils::FileName::fromUserInput(p).toString();
                 grpFrameworkPaths.append(cp);
             }
 
-            const QString pch = extract(props, QLatin1String(CONFIG_PRECOMPILEDHEADER)).toString();
+            const QString pch = props.getModuleProperty(QLatin1String(CONFIG_CPP_MODULE),
+                    QLatin1String(CONFIG_PRECOMPILEDHEADER)).toString();
 
             QStringList cxxSources;
             QStringList cSources;
