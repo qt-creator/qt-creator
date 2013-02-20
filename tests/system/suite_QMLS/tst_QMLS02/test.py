@@ -12,7 +12,7 @@ def main():
     invokeMenuItem("Tools", "QML/JS", "Run Checks")
     # verify that error properly reported
     issuesView = waitForObject(":Qt Creator.Issues_QListView")
-    test.verify(checkSyntaxError(issuesView, ["invalid property name 'Color'"], True),
+    test.verify(checkSyntaxError(issuesView, ["Invalid property name 'Color'. (M16)"], True),
                 "Verifying if error is properly reported")
     # repair error - go to written line
     placeCursorToLine(editorArea, testingCodeLine)
