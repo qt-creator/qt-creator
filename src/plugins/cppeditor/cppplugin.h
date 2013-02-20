@@ -113,7 +113,14 @@ private slots:
     void test_quickfix_GenerateGetterSetter_notTriggeringOnMemberFunction();
     void test_quickfix_GenerateGetterSetter_notTriggeringOnMemberArray();
     void test_quickfix_GenerateGetterSetter_notTriggeringWhenGetterOrSetterExist();
+
     void test_quickfix_ReformatPointerDeclaration();
+
+    void test_quickfix_InsertDefFromDecl_basic();
+    void test_quickfix_InsertDefFromDecl_headerSource_basic1();
+    void test_quickfix_InsertDefFromDecl_headerSource_basic2();
+    void test_quickfix_InsertDefFromDecl_headerSource_namespace1();
+    void test_quickfix_InsertDefFromDecl_headerSource_namespace2();
 #endif // WITH_TESTS
 
 private:

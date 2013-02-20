@@ -718,3 +718,167 @@ void CppPlugin::test_quickfix_ReformatPointerDeclaration()
     TestCase data(original, expected);
     data.run(&factory);
 }
+
+/// Check from source file: If there is no header file, insert the definition after the class.
+void CppPlugin::test_quickfix_InsertDefFromDecl_basic()
+{
+    const QByteArray original =
+        "struct Foo\n"
+        "{\n"
+        "    Foo();@\n"
+        "};\n"
+        "\n"
+        ;
+    const QByteArray expected = original +
+        "\n"
+        "Foo::Foo()\n"
+        "{\n"
+        "}\n"
+        "\n"
+        ;
+
+    InsertDefFromDecl factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check from header file: If there is a source file, insert the definition in the source file.
+void CppPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic1()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "struct Foo\n"
+        "{\n"
+        "    Foo()@;\n"
+        "};\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original.resize(0);
+    expected =
+        "\n"
+        "Foo::Foo()\n"
+        "{\n"
+        "}\n"
+        "\n"
+        ;
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    InsertDefFromDecl factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check from source file: Insert in source file, not header file.
+void CppPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic2()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Empty Header File
+    testFiles << TestDocument::create("", "\n", QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "struct Foo\n"
+        "{\n"
+        "    Foo()@;\n"
+        "};\n";
+    expected = original +
+        "\n"
+        "\n"
+        "Foo::Foo()\n"
+        "{\n"
+        "}\n"
+        "\n"
+        ;
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    InsertDefFromDecl factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check from header file: If the class is in a namespace, the added function definition
+/// name must be qualified accordingly.
+void CppPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace1()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "namespace N {\n"
+        "struct Foo\n"
+        "{\n"
+        "    Foo()@;\n"
+        "};\n"
+        "}\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original.resize(0);
+    expected =
+        "\n"
+        "N::Foo::Foo()\n"
+        "{\n"
+        "}\n"
+        "\n"
+        ;
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    InsertDefFromDecl factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check from header file: If the class is in namespace N and the source file has a
+/// "using namespace N" line, the function definition name must be qualified accordingly.
+void CppPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace2()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "namespace N {\n"
+        "struct Foo\n"
+        "{\n"
+        "    Foo()@;\n"
+        "};\n"
+        "}\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "using namespace N;\n"
+        "\n"
+        ;
+    expected = original +
+        "\n"
+        "Foo::Foo()\n"
+        "{\n"
+        "}\n"
+        "\n"
+        ;
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    InsertDefFromDecl factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
