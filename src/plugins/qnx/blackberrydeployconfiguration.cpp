@@ -35,6 +35,8 @@
 #include "blackberrydeployconfigurationwidget.h"
 #include "blackberrydeployinformation.h"
 
+#include "utils/checkablemessagebox.h"
+
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorer.h>
@@ -52,6 +54,7 @@ using namespace Qnx::Internal;
 namespace {
 const char DEPLOYMENT_INFO_SETTING[] = "Qnx.BlackBerry.DeploymentInfo";
 const char DEPLOYMENT_INFO_KEY[]     = "Qnx.BlackBerry.DeployInformation";
+const char BAR_DESC_SETUP[]          = "Qnx.BlackBerry.DeployInformation.BarDescriptorSetup";
 }
 
 BlackBerryDeployConfiguration::BlackBerryDeployConfiguration(ProjectExplorer::Target *parent)
@@ -71,6 +74,7 @@ BlackBerryDeployConfiguration::BlackBerryDeployConfiguration(ProjectExplorer::Ta
 void BlackBerryDeployConfiguration::ctor()
 {
     m_deployInformation = new BlackBerryDeployInformation(target());
+    m_appBarDesciptorSetup = false;
 
     connect(target()->project(), SIGNAL(proFilesEvaluated()), this, SLOT(setupBarDescriptor()), Qt::UniqueConnection);
 
@@ -91,6 +95,18 @@ void BlackBerryDeployConfiguration::setupBarDescriptor()
         Utils::FileName barDescriptorPath = Utils::FileName::fromString(target()->project()->projectDirectory()).appendPath(barDescriptorFileName);
         const QFile barDescriptorFile(barDescriptorPath.toString());
         if (barDescriptorFile.exists())
+            return;
+
+        if (m_appBarDesciptorSetup)
+            return;
+
+        QDialogButtonBox::StandardButton button = Utils::CheckableMessageBox::question(Core::ICore::mainWindow(),
+                                             tr("Setup Application Descriptor File"),
+                                             tr("You need to set up a bar descriptor file to enable "
+                                                "packaging.\nDo you want Qt Creator to generate it for your project?"),
+                                             tr("Don't ask again for this project"), &m_appBarDesciptorSetup);
+
+        if (button == QDialogButtonBox::No)
             return;
 
         Utils::FileReader reader;
@@ -134,15 +150,8 @@ void BlackBerryDeployConfiguration::addBarDescriptorToProject(const QString &bar
     if (barDesciptorPath.isEmpty())
         return;
 
-    QMessageBox::StandardButton button =
-            QMessageBox::question(Core::ICore::mainWindow(),
-                                  tr("Add bar-descriptor.xml File to Project"),
-                                  tr("Qt Creator has set up a bar descriptor file to enable "
-                                     "packaging.\nDo you want to add it to the project?"),
-                                  QMessageBox::Yes | QMessageBox::No);
-    if (button == QMessageBox::Yes)
-        ProjectExplorer::ProjectExplorerPlugin::instance()
-                ->addExistingFiles(target()->project()->rootProjectNode(), QStringList() << barDesciptorPath);
+    ProjectExplorer::ProjectExplorerPlugin::instance()
+            ->addExistingFiles(target()->project()->rootProjectNode(), QStringList() << barDesciptorPath);
 }
 
 BlackBerryDeployConfiguration::~BlackBerryDeployConfiguration()
@@ -163,6 +172,7 @@ QVariantMap BlackBerryDeployConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::DeployConfiguration::toMap());
     map.insert(QLatin1String(DEPLOYMENT_INFO_KEY), deploymentInfo()->toMap());
+    map.insert(QLatin1String(BAR_DESC_SETUP), m_appBarDesciptorSetup);
     return map;
 }
 
@@ -171,6 +181,7 @@ bool BlackBerryDeployConfiguration::fromMap(const QVariantMap &map)
     if (!ProjectExplorer::DeployConfiguration::fromMap(map))
         return false;
 
+    m_appBarDesciptorSetup = map.value(QLatin1String(BAR_DESC_SETUP)).toBool();
     QVariantMap deployInfoMap = map.value(QLatin1String(DEPLOYMENT_INFO_KEY)).toMap();
     deploymentInfo()->fromMap(deployInfoMap);
     return true;

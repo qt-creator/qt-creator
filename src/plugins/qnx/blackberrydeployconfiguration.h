@@ -73,6 +73,7 @@ private:
     void addBarDescriptorToProject(const QString& barDescriptorPath);
 
     BlackBerryDeployInformation *m_deployInformation;
+    bool m_appBarDesciptorSetup;
 };
 
 } // namespace Internal
