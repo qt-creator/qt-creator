@@ -580,7 +580,11 @@ bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeOutMS,
         // Prompt user, pretend we have data if says 'No'.
         const bool hang = !hasData && !finished;
         if (hang && showTimeOutMessageBox) {
-            if (!askToKill())
+            QString binary;
+#if QT_VERSION >= 0x050000
+            binary = p.program();
+#endif
+            if (!askToKill(binary))
                 hasData = true;
         }
     } while (hasData && !finished);
