@@ -30,6 +30,8 @@
 #include "debuggerkitconfigwidget.h"
 #include "debuggerkitinformation.h"
 
+#include <coreplugin/icore.h>
+
 #include <projectexplorer/abi.h>
 #include <projectexplorer/kitinformation.h>
 
@@ -65,17 +67,19 @@ static const char debuggingToolsWikiLinkC[] = "http://qt-project.org/wiki/Qt_Cre
 
 DebuggerKitConfigWidget::DebuggerKitConfigWidget(ProjectExplorer::Kit *workingCopy)
   : KitConfigWidget(workingCopy),
-    m_label(new Utils::ElidingLabel),
-    m_button(new QPushButton(tr("Manage...")))
+    m_main(new QWidget),
+    m_label(new Utils::ElidingLabel(m_main)),
+    m_autoDetectButton(new QPushButton(tr("Auto-detect"))),
+    m_editButton(new QPushButton(tr("Edit...")))
 {
-    // ToolButton with Menu, defaulting to 'Autodetect'.
-    QMenu *buttonMenu = new QMenu(m_button);
-    QAction *autoDetectAction = buttonMenu->addAction(tr("Auto-detect"));
-    connect(autoDetectAction, SIGNAL(triggered()), this, SLOT(autoDetectDebugger()));
-    QAction *changeAction = buttonMenu->addAction(tr("Edit..."));
-    connect(changeAction, SIGNAL(triggered()), this, SLOT(showDialog()));
-    m_button->setMenu(buttonMenu);
+    QHBoxLayout *mainLayout = new QHBoxLayout(m_main);
+    mainLayout->addWidget(m_label);
+    mainLayout->addStretch();
+    mainLayout->addWidget(m_autoDetectButton);
+    m_label->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 
+    connect(m_autoDetectButton, SIGNAL(pressed()), SLOT(autoDetectDebugger()));
+    connect(m_editButton, SIGNAL(pressed()), SLOT(showDialog()));
     refresh();
 }
 
@@ -86,12 +90,12 @@ QString DebuggerKitConfigWidget::toolTip() const
 
 QWidget *DebuggerKitConfigWidget::mainWidget() const
 {
-       return m_label;
+    return m_main;
 }
 
 QWidget *DebuggerKitConfigWidget::buttonWidget() const
 {
-       return m_button;
+    return m_editButton;
 }
 
 QString DebuggerKitConfigWidget::displayName() const
@@ -101,7 +105,7 @@ QString DebuggerKitConfigWidget::displayName() const
 
 void DebuggerKitConfigWidget::makeReadOnly()
 {
-    m_button->setEnabled(false);
+    m_editButton->setEnabled(false);
 }
 
 void DebuggerKitConfigWidget::refresh()
@@ -116,7 +120,7 @@ void DebuggerKitConfigWidget::autoDetectDebugger()
 
 void DebuggerKitConfigWidget::showDialog()
 {
-    DebuggerKitConfigDialog dialog;
+    DebuggerKitConfigDialog dialog(Core::ICore::mainWindow());
     dialog.setWindowTitle(tr("Debugger for \"%1\"").arg(m_kit->displayName()));
     dialog.setDebuggerItem(DebuggerKitInformation::debuggerItem(m_kit));
     if (dialog.exec() == QDialog::Accepted)
