@@ -503,6 +503,6 @@ void MakeStep::processStarted()
 
 void MakeStep::processFinished(int exitCode, QProcess::ExitStatus status)
 {
-    processFinished(exitCode, status);
+    AbstractProcessStep::processFinished(exitCode, status);
     futureInterface()->setProgressValue(100);
 }
