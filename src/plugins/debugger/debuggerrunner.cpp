@@ -39,7 +39,7 @@
 #include "debuggerstringutils.h"
 #include "debuggerstartparameters.h"
 #include "debuggerkitinformation.h"
-#include "lldb/lldbenginehost.h"
+#include "lldblib/lldbenginehost.h"
 #include "debuggertooltipmanager.h"
 
 #ifdef Q_OS_WIN
