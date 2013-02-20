@@ -254,13 +254,13 @@ bool AndroidSettingsWidget::checkNDK(const Utils::FileName &location)
         m_ui->kitWarningIconLabel->setVisible(true);
         m_ui->kitWarningLabel->setVisible(true);
         if (missingQtArchs.count() == 1) {
-            m_ui->kitWarningLabel->setText(tr("Qt version for architecture %1 is missing. To add the Qt version, select Options > Build & Run > Qt Versions.")
+            m_ui->kitWarningLabel->setText(tr("Qt version for architecture %1 is missing.\n To add the Qt version, select Options > Build & Run > Qt Versions.")
                                            .arg(ProjectExplorer::Abi::toString((*missingQtArchs.constBegin()))));
         } else {
             QStringList missingArchs;
             foreach (ProjectExplorer::Abi::Architecture arch, missingQtArchs)
                 missingArchs.append(ProjectExplorer::Abi::toString(arch));
-            m_ui->kitWarningLabel->setText(tr("Qt versions for architectures %1 are missing. To add the Qt versions, select Options > Build & Run > Qt Versions.")
+            m_ui->kitWarningLabel->setText(tr("Qt versions for architectures %1 are missing.\n To add the Qt versions, select Options > Build & Run > Qt Versions.")
                                            .arg(missingArchs.join(QLatin1String(", "))));
         }
     }

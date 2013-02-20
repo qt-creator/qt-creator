@@ -573,6 +573,8 @@ void AndroidConfigurations::updateAutomaticKitList()
             continue;
         if (!k->isAutoDetected())
             continue;
+        if (k->isSdkProvided())
+            continue;
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain((k));
         if (!tc)
             continue;
@@ -604,6 +606,7 @@ void AndroidConfigurations::updateAutomaticKitList()
                                    .arg(arch)
                                    .arg(tc->ndkToolChainVersion())
                                    .arg(qt->qtVersionString()));
+            newKit->setIconPath(QLatin1String(Constants::ANDROID_SETTINGS_CATEGORY_ICON));
             DeviceTypeKitInformation::setDeviceTypeId(newKit, Core::Id(Constants::ANDROID_DEVICE_TYPE));
             ToolChainKitInformation::setToolChain(newKit, tc);
             QtSupport::QtKitInformation::setQtVersion(newKit, qt);
