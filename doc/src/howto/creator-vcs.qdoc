@@ -43,7 +43,7 @@
         \row
             \li ClearCase
             \li \l{http://www-01.ibm.com/software/awdtools/clearcase/}
-            \li  Experimental plugin in \QC 2.6
+            \li  \QC 2.6 and later
         \row
             \li CVS
             \li \l{http://www.cvshome.org}
@@ -312,10 +312,8 @@
 
     IBM Rational ClearCase is a version control, workspace management, parallel
     development support, and build automation solution developed by IBM. The
-    ClearCase client plugin is an experimental plugin that you can enable by
-    selecting \gui Help > \gui {About Plugins} > \gui {Version Control} >
-    \gui ClearCase. The ClearCase client plugin is available on Linux and
-    Windows for accessing a ClearCase server.
+    ClearCase client plugin is available on Linux and Windows for accessing a
+    ClearCase server.
 
     The \gui ClearCase submenu contains the following additional items:
 
