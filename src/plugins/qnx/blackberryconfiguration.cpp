@@ -210,7 +210,8 @@ void BlackBerryConfiguration::setupNdkConfiguration(const QString &ndkPath)
         ProjectExplorer::Kit *deviceKit = createKit(ArmLeV7, qtVersion, tc);
         ProjectExplorer::Kit *simulatorKit = createKit(X86, qtVersion, tc);
         if (qtVersion && tc && deviceKit && simulatorKit) {
-            tc->setTargetAbi(qtVersion->qtAbis().first());
+            if (!qtVersion->qtAbis().isEmpty())
+                tc->setTargetAbi(qtVersion->qtAbis().first());
             // register
             QtSupport::QtVersionManager::instance()->addVersion(qtVersion);
             ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
