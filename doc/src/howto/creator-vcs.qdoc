@@ -51,7 +51,7 @@
         \row
             \li Git
             \li \l{http://git-scm.com/}
-            \li
+            \li Git version 1.7.2, or later
         \row
             \li Mercurial
             \li \l{http://mercurial.selenic.com/}
