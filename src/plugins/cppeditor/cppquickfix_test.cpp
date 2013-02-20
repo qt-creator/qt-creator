@@ -882,3 +882,20 @@ void CppPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace2()
     TestCase data(testFiles);
     data.run(&factory);
 }
+
+void CppPlugin::test_quickfix_InsertDefFromDecl_freeFunction()
+{
+    const QByteArray original = "void free()@;\n";
+    const QByteArray expected = original +
+        "\n"
+        "\n"
+        "void free()\n"
+        "{\n"
+        "}\n"
+        "\n"
+        ;
+
+    InsertDefFromDecl factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
