@@ -306,19 +306,20 @@ void DiffEditorPlugin::extensionsInitialized()
 void DiffEditorPlugin::diff()
 {
     QString fileName1 = QFileDialog::getOpenFileName(0,
-                                                     tr("Select the first file for diff"),
+                                                     tr("Select First File for Diff"),
                                                      QString());
     if (fileName1.isNull())
         return;
 
     QString fileName2 = QFileDialog::getOpenFileName(0,
-                                                     tr("Select the second file for diff"),
+                                                     tr("Select Second File for Diff"),
                                                      QString());
     if (fileName2.isNull())
         return;
 
 
     const Core::Id editorId = Constants::DIFF_EDITOR_ID;
+    //: Editor title
     QString title = tr("Diff \"%1\", \"%2\"").arg(fileName1).arg(fileName2);
     Core::IEditor *outputEditor = Core::EditorManager::openEditorWithContents(editorId, &title, QString());
     Core::EditorManager::activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
