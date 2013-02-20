@@ -560,7 +560,7 @@ bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeOutMS,
     bool finished = false;
     bool hasData = false;
     do {
-        finished = p.waitForFinished(timeOutMS);
+        finished = p.state() == QProcess::NotRunning || p.waitForFinished(timeOutMS);
         hasData = false;
         // First check 'stdout'
         if (p.bytesAvailable()) { // applies to readChannel() only
