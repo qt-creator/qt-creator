@@ -802,6 +802,9 @@ void QmlProfilerDataModel::complete()
         d->v8DataModel->collectV8Statistics();
         compileStatistics(traceStartTime(), traceEndTime());
         setState(Done);
+    } else
+    if (currentState() == Done) {
+        // ignore duplicated complete signals
     } else {
         emit error(tr("Unexpected complete signal in data model."));
     }
