@@ -1646,3 +1646,108 @@ void CppToolsPlugin::test_completion_template_specialization_with_pointer()
     QVERIFY(completions.contains(QLatin1String("Template")));
     QVERIFY(completions.contains(QLatin1String("pointer")));
 }
+
+void CppToolsPlugin::test_completion_typedef_using_templates1()
+{
+    TestData data;
+    data.srcText = "\n"
+            "namespace NS1\n"
+            "{\n"
+            "template<typename T>\n"
+            "struct NS1Struct\n"
+            "{\n"
+            "    typedef T *pointer;\n"
+            "    pointer bar;\n"
+            "};\n"
+            "}\n"
+            "namespace NS2\n"
+            "{\n"
+            "using NS1::NS1Struct;\n"
+            "\n"
+            "template <typename T>\n"
+            "struct NS2Struct\n"
+            "{\n"
+            "    typedef NS1Struct<T> NS1StructTypedef;\n"
+            "    typedef typename NS1StructTypedef::pointer pointer;\n"
+            "    pointer p;\n"
+            "};\n"
+            "}\n"
+            "struct Foo\n"
+            "{\n"
+            "    int bar;\n"
+            "};\n"
+            "void fun()\n"
+            "{\n"
+            "    NS2::NS2Struct<Foo> s;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("s.p->");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("Foo")));
+    QVERIFY(completions.contains(QLatin1String("bar")));
+}
+
+
+void CppToolsPlugin::test_completion_typedef_using_templates2()
+{
+    TestData data;
+    data.srcText = "\n"
+            "namespace NS1\n"
+            "{\n"
+            "template<typename T>\n"
+            "struct NS1Struct\n"
+            "{\n"
+            "    typedef T *pointer;\n"
+            "    pointer bar;\n"
+            "};\n"
+            "}\n"
+            "namespace NS2\n"
+            "{\n"
+            "using NS1::NS1Struct;\n"
+            "\n"
+            "template <typename T>\n"
+            "struct NS2Struct\n"
+            "{\n"
+            "    typedef NS1Struct<T> NS1StructTypedef;\n"
+            "    typedef typename NS1StructTypedef::pointer pointer;\n"
+            "    pointer p;\n"
+            "};\n"
+            "}\n"
+            "struct Foo\n"
+            "{\n"
+            "    int bar;\n"
+            "};\n"
+            "void fun()\n"
+            "{\n"
+            "    NS2::NS2Struct<Foo>::pointer p;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("p->");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("Foo")));
+    QVERIFY(completions.contains(QLatin1String("bar")));
+}

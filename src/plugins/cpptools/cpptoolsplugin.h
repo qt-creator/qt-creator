@@ -124,6 +124,8 @@ private slots:
     void test_completion_typedef_is_inside_function_before_declaration_block();
     void test_completion_resolve_complex_typedef_with_template();
     void test_completion_template_specialization_with_pointer();
+    void test_completion_typedef_using_templates1();
+    void test_completion_typedef_using_templates2();
 
     void test_format_pointerdeclaration_in_simpledeclarations();
     void test_format_pointerdeclaration_in_simpledeclarations_data();
