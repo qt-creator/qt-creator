@@ -117,6 +117,7 @@ private:
     void updateDocuments(const qbs::ProjectData *prj);
     void updateCppCodeModel(const qbs::ProjectData *prj);
     void updateQmlJsCodeModel(const qbs::ProjectData *prj);
+    QString qbsBuildDir() const;
 
     QbsManager *const m_manager;
     const QString m_projectName;

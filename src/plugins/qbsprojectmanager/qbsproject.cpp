@@ -332,8 +332,9 @@ void QbsProject::parse(const QVariantMap &config, const QString &dir)
     params.projectFilePath = m_fileName;
     params.ignoreDifferentProjectFilePath = false;
     qbs::Preferences *prefs = QbsManager::preferences();
-    params.searchPaths = prefs->searchPaths(QLatin1String(QBS_BUILD_DIR));
-    params.pluginPaths = prefs->pluginPaths(QLatin1String(QBS_BUILD_DIR));
+    const QString buildDir = qbsBuildDir();
+    params.searchPaths = prefs->searchPaths(buildDir);
+    params.pluginPaths = prefs->pluginPaths(buildDir);
 
     m_qbsSetupProjectJob
             = qbs::Project::setupProject(params, m_manager->settings(), m_manager->logSink(), 0);
@@ -561,6 +562,15 @@ void QbsProject::updateQmlJsCodeModel(const qbs::ProjectData *prj)
     QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
             QmlJSTools::defaultProjectInfoForProject(this);
     modelManager->updateProjectInfo(projectInfo);
+}
+
+QString QbsProject::qbsBuildDir() const
+{
+    QString buildDir = Utils::Environment::systemEnvironment()
+            .value(QLatin1String("QBS_BUILD_DIR"));
+    if (buildDir.isEmpty())
+        buildDir = QLatin1String(QBS_BUILD_DIR);
+    return buildDir;
 }
 
 } // namespace Internal
