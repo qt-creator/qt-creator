@@ -49,7 +49,7 @@ QT_END_NAMESPACE
 
 
 
-namespace DIFFEditor {
+namespace DiffEditor {
 
 class DiffViewEditorWidget;
 
@@ -154,6 +154,6 @@ private:
     int m_rightSafePosHack;
 };
 
-} // namespace DIFFEditor
+} // namespace DiffEditor
 
 #endif // DIFFEDITORWIDGET_H

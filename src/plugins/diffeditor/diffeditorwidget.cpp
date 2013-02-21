@@ -49,7 +49,7 @@
 
 using namespace TextEditor;
 
-namespace DIFFEditor {
+namespace DiffEditor {
 
 //////////////////////
 
@@ -1022,6 +1022,6 @@ void DiffEditorWidget::rightSliderChanged()
 
 
 
-} // namespace DIFFEditor
+} // namespace DiffEditor
 
 #include "diffeditorwidget.moc"

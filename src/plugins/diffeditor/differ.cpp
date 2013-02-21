@@ -33,7 +33,7 @@
 #include <QStringList>
 #include <QMap>
 
-namespace DIFFEditor {
+namespace DiffEditor {
 
 Diff::Diff() :
     command(Diff::Equal)
@@ -496,4 +496,4 @@ int Differ::commonSuffix(const QString &text1, const QString &text2) const
     return i;
 }
 
-} // namespace DIFFEditor
+} // namespace DiffEditor

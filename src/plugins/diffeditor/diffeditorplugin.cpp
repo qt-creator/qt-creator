@@ -46,8 +46,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
 
-using namespace DIFFEditor;
-using namespace DIFFEditor::Internal;
+namespace DiffEditor {
+namespace Internal {
 
 ///////////////////////////////// DiffEditor //////////////////////////////////
 
@@ -349,5 +349,7 @@ QString DiffEditorPlugin::getFileContents(const QString &fileName, QTextCodec *c
     return QString();
 }
 
+} // namespace Internal
+} // namespace DiffEditor
 
-Q_EXPORT_PLUGIN(DiffEditorPlugin)
+Q_EXPORT_PLUGIN(DiffEditor::Internal::DiffEditorPlugin)

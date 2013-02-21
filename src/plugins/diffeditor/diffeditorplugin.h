@@ -42,7 +42,7 @@
 #include <QAction>
 #include <QToolBar>
 
-namespace DIFFEditor {
+namespace DiffEditor {
 class DiffEditorWidget;
 
 namespace Internal {
@@ -153,6 +153,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace DIFFEditor
+} // namespace DiffEditor
 
 #endif // DIFFEDITORPLUGIN_H

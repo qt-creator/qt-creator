@@ -38,7 +38,7 @@ template <class K, class T>
 class QMap;
 QT_END_NAMESPACE
 
-namespace DIFFEditor {
+namespace DiffEditor {
 
 class DIFFEDITOR_EXPORT Diff
 {
@@ -93,6 +93,6 @@ private:
     DiffMode m_currentDiffMode;
 };
 
-} // namespace DIFFEditor
+} // namespace DiffEditor
 
 #endif // DIFF_H

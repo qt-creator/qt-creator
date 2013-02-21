@@ -30,7 +30,7 @@
 #ifndef DIFFEDITORCONSTANTS_H
 #define DIFFEDITORCONSTANTS_H
 
-namespace DIFFEditor {
+namespace DiffEditor {
 namespace Constants {
 
 const char DIFF_EDITOR_ID[] = "Diff Editor";
@@ -39,6 +39,6 @@ const char DIFF_EDITOR_MIMETYPE[] = "text/x-patch";
 const char G_TOOLS_DIFF[] = "QtCreator.Group.Tools.Options";
 
 } // namespace Constants
-} // namespace DIFFEditor
+} // namespace DiffEditor
 
 #endif // DIFFEDITORCONSTANTS_H
