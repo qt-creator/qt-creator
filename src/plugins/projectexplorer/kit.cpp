@@ -51,6 +51,7 @@ namespace {
 const char ID_KEY[] = "PE.Profile.Id";
 const char DISPLAYNAME_KEY[] = "PE.Profile.Name";
 const char AUTODETECTED_KEY[] = "PE.Profile.AutoDetected";
+const char SDK_PROVIDED_KEY[] = "PE.Profile.SDK";
 const char DATA_KEY[] = "PE.Profile.Data";
 const char ICON_KEY[] = "PE.Profile.Icon";
 
@@ -86,6 +87,7 @@ public:
     KitPrivate(Id id) :
         m_id(id),
         m_autodetected(false),
+        m_sdkProvided(false),
         m_isValid(true),
         m_hasWarning(false),
         m_nestedBlockingLevel(0),
@@ -98,6 +100,7 @@ public:
     QString m_displayName;
     Id m_id;
     bool m_autodetected;
+    bool m_sdkProvided;
     bool m_isValid;
     bool m_hasWarning;
     QIcon m_icon;
@@ -306,6 +309,11 @@ bool Kit::isAutoDetected() const
     return d->m_autodetected;
 }
 
+bool Kit::isSdkProvided() const
+{
+    return d->m_sdkProvided;
+}
+
 Id Kit::id() const
 {
     return d->m_id;
@@ -379,6 +387,7 @@ QVariantMap Kit::toMap() const
     data.insert(QLatin1String(ID_KEY), QString::fromLatin1(d->m_id.name()));
     data.insert(QLatin1String(DISPLAYNAME_KEY), d->m_displayName);
     data.insert(QLatin1String(AUTODETECTED_KEY), d->m_autodetected);
+    data.insert(QLatin1String(SDK_PROVIDED_KEY), d->m_sdkProvided);
     data.insert(QLatin1String(ICON_KEY), d->m_iconPath);
 
     QVariantMap extra;
@@ -457,6 +466,12 @@ bool Kit::fromMap(const QVariantMap &data)
         return false;
     d->m_id = id;
     d->m_autodetected = data.value(QLatin1String(AUTODETECTED_KEY)).toBool();
+    // if we don't have that setting assume that autodetected implies sdk
+    QVariant value = data.value(QLatin1String(SDK_PROVIDED_KEY));
+    if (value.isValid())
+        d->m_sdkProvided = value.toBool();
+    else
+        d->m_sdkProvided = d->m_autodetected;
     setDisplayName(data.value(QLatin1String(DISPLAYNAME_KEY)).toString());
     setIconPath(data.value(QLatin1String(ICON_KEY)).toString());
 
@@ -470,6 +485,11 @@ bool Kit::fromMap(const QVariantMap &data)
 void Kit::setAutoDetected(bool detected)
 {
     d->m_autodetected = detected;
+}
+
+void Kit::setSdkProvided(bool sdkProvided)
+{
+    d->m_sdkProvided = sdkProvided;
 }
 
 void Kit::kitUpdated()

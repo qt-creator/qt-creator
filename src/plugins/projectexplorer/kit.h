@@ -97,6 +97,7 @@ public:
     void copyFrom(const Kit *k);
 
 private:
+    void setSdkProvided(bool sdkProvided);
     ~Kit();
 
     // Unimplemented.

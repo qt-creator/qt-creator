@@ -150,6 +150,7 @@ void KitManager::restoreKits()
         // make sure we mark these as autodetected and run additional setup logic
         foreach (Kit *k, system.kits) {
             k->setAutoDetected(true);
+            k->setSdkProvided(true);
             k->setup();
         }
 
@@ -161,7 +162,7 @@ void KitManager::restoreKits()
     // read all kits from user file
     KitList userKits = restoreKits(settingsFileName());
     foreach (Kit *k, userKits.kits) {
-        if (k->isAutoDetected())
+        if (k->isSdkProvided())
             kitsToCheck.append(k);
         else
             kitsToRegister.append(k);
@@ -202,6 +203,7 @@ void KitManager::restoreKits()
     if (kits().isEmpty()) {
         Kit *defaultKit = new Kit; // One kit using default values
         defaultKit->setDisplayName(tr("Desktop"));
+        defaultKit->setSdkProvided(false);
         defaultKit->setAutoDetected(false);
         defaultKit->setIconPath(QLatin1String(":///DESKTOP///"));
 
