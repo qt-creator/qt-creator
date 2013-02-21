@@ -463,6 +463,8 @@ bool MsvcToolChainFactory::checkForVisualStudioInstallation(const QString &vsNam
 
 QString MsvcToolChainFactory::vcVarsBatFor(const QString &basePath, const QString &toolchainName)
 {
+    if (toolchainName.startsWith(QLatin1Char('/'))) // windows sdk case, all use SetEnv.cmd
+        return basePath + QLatin1String("/SetEnv.cmd");
     if (toolchainName == QLatin1String("x86"))
         return basePath + QLatin1String("/bin/vcvars32.bat");
     if (toolchainName == QLatin1String("x86_amd64"))
