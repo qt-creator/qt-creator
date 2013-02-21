@@ -257,10 +257,19 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     boxlayout->addWidget(resetButton);
     toplayout->addRow(tr("Working directory:"), boxlayout);
 
+    QHBoxLayout *innerBox = new QHBoxLayout();
     m_useTerminalCheck = new QCheckBox(tr("Run in terminal"), this);
     m_useTerminalCheck->setChecked(m_qt4RunConfiguration->runMode() == ProjectExplorer::LocalApplicationRunConfiguration::Console);
-    toplayout->addRow(QString(), m_useTerminalCheck);
     m_useTerminalCheck->setVisible(!m_qt4RunConfiguration->forcedGuiMode());
+    innerBox->addWidget(m_useTerminalCheck);
+
+    m_useQvfbCheck = new QCheckBox(tr("Run on QVFb"), this);
+    m_useQvfbCheck->setToolTip(tr("Check this option to run the application on a Qt Virtual Framebuffer."));
+    m_useQvfbCheck->setChecked(m_qt4RunConfiguration->runMode() == ProjectExplorer::LocalApplicationRunConfiguration::Console);
+    m_useQvfbCheck->setVisible(false);
+    innerBox->addWidget(m_useQvfbCheck);
+    innerBox->addStretch();
+    toplayout->addRow(QString(), innerBox);
 
     if (Utils::HostOsInfo::isMacHost()) {
         m_usingDyldImageSuffix = new QCheckBox(tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)"), this);
@@ -313,6 +322,8 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
             this, SLOT(argumentsEdited(QString)));
     connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
             this, SLOT(termToggled(bool)));
+    connect(m_useQvfbCheck, SIGNAL(toggled(bool)),
+            this, SLOT(qvfbToggled(bool)));
 
     connect(m_environmentWidget, SIGNAL(userChangesChanged()),
             this, SLOT(userChangesEdited()));
@@ -415,6 +426,12 @@ void Qt4RunConfigurationWidget::termToggled(bool on)
     m_ignoreChange = true;
     m_qt4RunConfiguration->setRunMode(on ? LocalApplicationRunConfiguration::Console
                                          : LocalApplicationRunConfiguration::Gui);
+    m_ignoreChange = false;
+}
+
+void Qt4RunConfigurationWidget::qvfbToggled(bool on)
+{
+    m_ignoreChange = true;
     m_ignoreChange = false;
 }
 
