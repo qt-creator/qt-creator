@@ -541,7 +541,7 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
         if (!checkForVisualStudioInstallation(vsName))
             continue;
 
-        QString path = vsRegistry.value(vsName).toString();
+        QString path = QDir::fromNativeSeparators(vsRegistry.value(vsName).toString());
         if (path.endsWith(QLatin1Char('/')))
             path.chop(1);
         const int version = vsName.left(dotPos).toInt();
