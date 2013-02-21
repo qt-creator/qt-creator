@@ -485,7 +485,7 @@ DoxygenGenerator::DocumentationStyle doxygenStyle(const QTextCursor &cursor,
 {
     const int pos = cursor.position();
 
-    QString comment = doc->characterAt(pos - 3)
+    QString comment = QString(doc->characterAt(pos - 3))
             + doc->characterAt(pos - 2)
             + doc->characterAt(pos - 1);
 
@@ -2627,7 +2627,7 @@ bool CPPEditorWidget::handleDocumentationComment(QKeyEvent *e)
 bool CPPEditorWidget::isStartOfDoxygenComment(const QTextCursor &cursor) const
 {
     const int pos = cursor.position();
-    QString comment = characterAt(pos - 3)
+    QString comment = QString(characterAt(pos - 3))
             + characterAt(pos - 2)
             + characterAt(pos - 1);
 
