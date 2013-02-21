@@ -234,17 +234,18 @@
             \li \l{Deploying to Mobile Devices}
             \list
                 \li \l{Deploying Applications to Android Devices}
+                \li \l{Deploying BlackBerry 10 Devices}
                 \li \l{Deploying Applications to Linux-Based Devices}
                 \li \l{Deploying Applications to QNX Devices}
             \endlist
             \li \l{Connecting Mobile Devices}
             \list
                 \li \l{Connecting Android Devices}
+                \li \l{Connecting BlackBerry 10 Devices}
                 \li \l{Connecting Embedded Linux Devices}
                 \li \l{Connecting Maemo Devices}
                 \li \l{Connecting MeeGo Harmattan Devices}
                 \li \l{Connecting QNX Devices}
-
             \endlist
             \li \l{Customizing the Build Process}
             \li \l{Using Maemo or MeeGo Harmattan Emulator}
