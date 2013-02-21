@@ -40,7 +40,9 @@
 #include <QKeyEvent>
 #include <QString>
 #include <QTextDocument>
+#ifdef WITH_TESTS
 #include <QtTest>
+#endif
 
 
 /*!
@@ -217,6 +219,127 @@ void CppPlugin::test_doxygen_comments_java_style_continuation()
         " */\n"
         "int a;\n"
         ;
+
+    TestCase data(given);
+    data.run(expected);
+}
+
+void CppPlugin::test_doxygen_comments_cpp_styleA()
+{
+   const QByteArray given =
+         "bool preventFolding;\n"
+         "///|\n"
+         "int a;\n"
+         ;
+
+   const QByteArray expected =
+         "bool preventFolding;\n"
+         "///\n"
+         "/// \\brief a\n"
+         "///\n"
+         "int a;\n"
+         ;
+   TestCase data(given);
+   data.run(expected);
+}
+
+void CppPlugin::test_doxygen_comments_cpp_styleB()
+{
+   const QByteArray given =
+         "bool preventFolding;\n"
+         "//!|\n"
+         "int a;\n"
+         ;
+
+   const QByteArray expected =
+         "bool preventFolding;\n"
+         "//!\n"
+         "//! \\brief a\n"
+         "//!\n"
+         "int a;\n"
+         ;
+   TestCase data(given);
+   data.run(expected);
+}
+
+void CppPlugin::test_doxygen_comments_cpp_styleA_continuation()
+{
+   const QByteArray given =
+         "bool preventFolding;\n"
+         "///\n"
+         "/// \\brief a|\n"
+         "///\n"
+         "int a;\n"
+         ;
+   const QByteArray expected =
+         "bool preventFolding;\n"
+         "///\n"
+         "/// \\brief a\n"
+         "///\n"
+         "///\n"
+         "int a;\n"
+         ;
+
+   TestCase data(given);
+   data.run(expected);
+}
+
+/// test cpp style doxygen comment when inside a indented scope
+void CppPlugin::test_doxygen_comments_cpp_styleA_indented()
+{
+   const QByteArray given =
+         "    bool preventFolding;\n"
+         "    ///|\n"
+         "    int a;\n"
+         ;
+
+   const QByteArray expected =
+         "    bool preventFolding;\n"
+         "    ///\n"
+         "    /// \\brief a\n"
+         "    ///\n"
+         "    int a;\n"
+         ;
+   TestCase data(given);
+   data.run(expected);
+}
+
+/// test cpp style doxygen comment continuation when inside a indented scope
+void CppPlugin::test_doxygen_comments_cpp_styleA_indented_continuation()
+{
+   const QByteArray given =
+         "    bool preventFolding;\n"
+         "    ///\n"
+         "    /// \\brief a|\n"
+         "    ///\n"
+         "    int a;\n"
+         ;
+   const QByteArray expected =
+         "    bool preventFolding;\n"
+         "    ///\n"
+         "    /// \\brief a\n"
+         "    ///\n"
+         "    ///\n"
+         "    int a;\n"
+         ;
+
+   TestCase data(given);
+   data.run(expected);
+}
+
+void CppPlugin::test_doxygen_comments_cpp_styleA_corner_case()
+{
+    const QByteArray given =
+          "bool preventFolding;\n"
+          "///\n"
+          "void d(); ///|\n"
+          ;
+    const QByteArray expected =
+            "bool preventFolding;\n"
+            "///\n"
+            "void d(); ///\n"
+            "\n"
+          ;
 
     TestCase data(given);
     data.run(expected);

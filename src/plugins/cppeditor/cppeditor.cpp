@@ -420,8 +420,174 @@ struct CanonicalSymbol
 
 };
 
-
 int numberOfClosedEditors = 0;
+
+/// Check if previous line is a CppStyle Doxygen Comment
+bool isPreviousLineCppStyleComment(const QTextCursor &cursor)
+{
+   const QTextBlock &currentBlock = cursor.block();
+   if (!currentBlock.isValid())
+      return false;
+
+   const QTextBlock &actual = currentBlock.previous();
+   if (!actual.isValid())
+      return false;
+
+   const QString text = actual.text().trimmed();
+   if (text.startsWith(QLatin1String("///")) || text.startsWith(QLatin1String("//!")))
+      return true;
+
+   return false;
+}
+
+/// Check if next line is a CppStyle Doxygen Comment
+bool isNextLineCppStyleComment(const QTextCursor &cursor)
+{
+   const QTextBlock &currentBlock = cursor.block();
+   if (!currentBlock.isValid())
+      return false;
+
+   const QTextBlock &actual = currentBlock.next();
+   if (!actual.isValid())
+      return false;
+
+   const QString text = actual.text().trimmed();
+   if (text.startsWith(QLatin1String("///")) || text.startsWith(QLatin1String("//!")))
+      return true;
+
+   return false;
+}
+
+/// Check if line is a CppStyle Doxygen comment and the cursor is after the comment
+bool isCursorAfterCppComment(const QTextCursor &cursor, const QTextDocument *doc)
+{
+    QTextCursor cursorFirstNonBlank(cursor);
+    cursorFirstNonBlank.movePosition(QTextCursor::StartOfLine);
+    while (doc->characterAt(cursorFirstNonBlank.position()).isSpace()
+           && cursorFirstNonBlank.movePosition(QTextCursor::NextCharacter)) {
+    }
+
+    const QTextBlock& block = cursorFirstNonBlank.block();
+    const QString text = block.text().trimmed();
+    if (text.startsWith(QLatin1String("///")) || text.startsWith(QLatin1String("//!")))
+        return (cursor.position() >= cursorFirstNonBlank.position() + 3);
+
+    return false;
+}
+
+bool isCppStyleContinuation(const QTextCursor& cursor)
+{
+    return (isPreviousLineCppStyleComment(cursor) || isNextLineCppStyleComment(cursor));
+}
+
+DoxygenGenerator::DocumentationStyle doxygenStyle(const QTextCursor &cursor,
+                                                  const QTextDocument *doc)
+{
+    const int pos = cursor.position();
+
+    QString comment = doc->characterAt(pos - 3)
+            + doc->characterAt(pos - 2)
+            + doc->characterAt(pos - 1);
+
+    if (comment == QLatin1String("/**"))
+        return CppTools::DoxygenGenerator::JavaStyle;
+    else if (comment == QLatin1String("/*!"))
+        return CppTools::DoxygenGenerator::QtStyle;
+    else if (comment == QLatin1String("///"))
+        return CppTools::DoxygenGenerator::CppStyleA;
+    else
+        return CppTools::DoxygenGenerator::CppStyleB;
+}
+
+bool handleDoxygenCppStyleContinuation(QTextCursor &cursor,
+                                       QKeyEvent *e)
+{
+    const int blockPos = cursor.positionInBlock();
+    const QString &text = cursor.block().text();
+    int offset = 0;
+    for (; offset < blockPos; ++offset) {
+        if (!text.at(offset).isSpace())
+            break;
+    }
+
+    // If the line does not start with the comment we don't
+    // consider it as a continuation. Handles situations like:
+    // void d(); ///<enter>
+    if (!(text.trimmed().startsWith(QLatin1String("///"))
+        || text.startsWith(QLatin1String("//!"))))
+       return false;
+
+    QString newLine(QLatin1Char('\n'));
+    newLine.append(QString(offset, QLatin1Char(' '))); // indent correctly
+
+    const QString commentMarker = text.mid(offset, 3);
+    newLine.append(commentMarker);
+
+    cursor.insertText(newLine);
+    e->accept();
+    return true;
+}
+
+bool handleDoxygenContinuation(QTextCursor &cursor,
+                               QKeyEvent *e,
+                               const QTextDocument *doc,
+                               const bool enableDoxygen,
+                               const bool leadingAsterisks)
+{
+    // It might be a continuation if:
+    // a) current line starts with /// or //! and cursor is positioned after the comment
+    // b) current line is in the middle of a multi-line Qt or Java style comment
+
+    if (enableDoxygen && !cursor.atEnd() && isCursorAfterCppComment(cursor, doc))
+        return handleDoxygenCppStyleContinuation(cursor, e);
+
+    if (!leadingAsterisks)
+        return false;
+
+    // We continue the comment if the cursor is after a comment's line asterisk and if
+    // there's no asterisk immediately after the cursor (that would already be considered
+    // a leading asterisk).
+    int offset = 0;
+    const int blockPos = cursor.positionInBlock();
+    const QString &text = cursor.block().text();
+    for (; offset < blockPos; ++offset) {
+        if (!text.at(offset).isSpace())
+            break;
+    }
+
+    if (offset < blockPos
+            && (text.at(offset) == QLatin1Char('*')
+                || (offset < blockPos - 1
+                    && text.at(offset) == QLatin1Char('/')
+                    && text.at(offset + 1) == QLatin1Char('*')))) {
+        int followinPos = blockPos;
+        for (; followinPos < text.length(); ++followinPos) {
+            if (!text.at(followinPos).isSpace())
+                break;
+        }
+        if (followinPos == text.length()
+                || text.at(followinPos) != QLatin1Char('*')) {
+            QString newLine(QLatin1Char('\n'));
+            QTextCursor c(cursor);
+            c.movePosition(QTextCursor::StartOfBlock);
+            c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, offset);
+            newLine.append(c.selectedText());
+            if (text.at(offset) == QLatin1Char('/')) {
+                newLine.append(QLatin1String(" *"));
+            } else {
+                int start = offset;
+                while (offset < blockPos && text.at(offset) == QLatin1Char('*'))
+                    ++offset;
+                newLine.append(QString(offset - start, QLatin1Char('*')));
+            }
+            cursor.insertText(newLine);
+            e->accept();
+            return true;
+        }
+    }
+
+    return false;
+}
 
 } // end of anonymous namespace
 
@@ -2397,27 +2563,34 @@ bool CPPEditorWidget::handleDocumentationComment(QKeyEvent *e)
             return false;
 
         // We are interested on two particular cases:
-        //   1) The cursor is right after a /** or /*! and the user pressed enter. If Doxygen
-        //      is enabled we need to generate an entire comment block.
+        //   1) The cursor is right after a /**, /*!, /// or ///! and the user pressed enter.
+        //      If Doxygen is enabled we need to generate an entire comment block.
         //   2) The cursor is already in the middle of a multi-line comment and the user pressed
         //      enter. If leading asterisk(s) is set we need to write a comment continuation
         //      with those.
 
         if (m_commentsSettings.m_enableDoxygen
                 && cursor.positionInBlock() >= 3) {
+
             const int pos = cursor.position();
-            if (characterAt(pos - 3) == QLatin1Char('/')
-                    && characterAt(pos - 2) == QLatin1Char('*')
-                    && (characterAt(pos - 1) == QLatin1Char('*')
-                        || characterAt(pos - 1) == QLatin1Char('!'))) {
+
+            if (isStartOfDoxygenComment(cursor)) {
+                CppTools::DoxygenGenerator::DocumentationStyle style
+                        = doxygenStyle(cursor, document());
+
+                // Check if we're already in a CppStyle Doxygen comment => continuation
+                // Needs special handling since CppStyle does not have start and end markers
+                if ((style == CppTools::DoxygenGenerator::CppStyleA
+                     || style == CppTools::DoxygenGenerator::CppStyleB)
+                        && isCppStyleContinuation(cursor)) {
+                    return handleDoxygenCppStyleContinuation(cursor, e);
+                }
+
                 CppTools::DoxygenGenerator doxygen;
+                doxygen.setStyle(style);
                 doxygen.setAddLeadingAsterisks(m_commentsSettings.m_leadingAsterisks);
                 doxygen.setGenerateBrief(m_commentsSettings.m_generateBrief);
                 doxygen.setStartComment(false);
-                if (characterAt(pos - 1) == QLatin1Char('!'))
-                    doxygen.setStyle(CppTools::DoxygenGenerator::QtStyle);
-                else
-                    doxygen.setStyle(CppTools::DoxygenGenerator::JavaStyle);
 
                 // Move until we reach any possibly meaningful content.
                 while (document()->characterAt(cursor.position()).isSpace()
@@ -2437,56 +2610,33 @@ bool CPPEditorWidget::handleDocumentationComment(QKeyEvent *e)
                         return true;
                     }
                 }
-                cursor.setPosition(pos);
-            }
-        }
 
-        if (!m_commentsSettings.m_leadingAsterisks)
-            return false;
-
-        // We continue the comment if the cursor is after a comment's line asterisk and if
-        // there's no asterisk immediately after the cursor (that would already be considered
-        // a leading asterisk).
-        int offset = 0;
-        const int blockPos = cursor.positionInBlock();
-        const QString &text = cursor.block().text();
-        for (; offset < blockPos; ++offset) {
-            if (!text.at(offset).isSpace())
-                break;
-        }
-
-        if (offset < blockPos
-                && (text.at(offset) == QLatin1Char('*')
-                    || (offset < blockPos - 1
-                        && text.at(offset) == QLatin1Char('/')
-                        && text.at(offset + 1) == QLatin1Char('*')))) {
-            int followinPos = blockPos;
-            for (; followinPos < text.length(); ++followinPos) {
-                if (!text.at(followinPos).isSpace())
-                    break;
             }
-            if (followinPos == text.length()
-                    || text.at(followinPos) != QLatin1Char('*')) {
-                QString newLine(QLatin1Char('\n'));
-                QTextCursor c(cursor);
-                c.movePosition(QTextCursor::StartOfBlock);
-                c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, offset);
-                newLine.append(c.selectedText());
-                if (text.at(offset) == QLatin1Char('/')) {
-                    newLine.append(QLatin1String(" *"));
-                } else {
-                    int start = offset;
-                    while (offset < blockPos && text.at(offset) == QLatin1Char('*'))
-                        ++offset;
-                    newLine.append(QString(offset - start, QLatin1Char('*')));
-                }
-                cursor.insertText(newLine);
-                e->accept();
-                return true;
-            }
-        }
+        } // right after first doxygen comment
+
+        return handleDoxygenContinuation(cursor,
+                                         e,
+                                         document(),
+                                         m_commentsSettings.m_enableDoxygen,
+                                         m_commentsSettings.m_leadingAsterisks);
     }
 
+    return false;
+}
+
+bool CPPEditorWidget::isStartOfDoxygenComment(const QTextCursor &cursor) const
+{
+    const int pos = cursor.position();
+    QString comment = characterAt(pos - 3)
+            + characterAt(pos - 2)
+            + characterAt(pos - 1);
+
+    if ((comment == QLatin1String("/**"))
+            || (comment == QLatin1String("/*!"))
+            || (comment == QLatin1String("///"))
+            || (comment == QLatin1String("//!"))) {
+        return true;
+    }
     return false;
 }
 

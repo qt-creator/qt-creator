@@ -238,7 +238,7 @@ QChar DoxygenGenerator::startMark() const
 
 QChar DoxygenGenerator::styleMark() const
 {
-    if (m_style == QtStyle)
+    if (m_style == QtStyle || m_style == CppStyleA || m_style == CppStyleB)
         return QLatin1Char('\\');
     return QLatin1Char('@');
 }
@@ -256,17 +256,31 @@ QString DoxygenGenerator::commandSpelling(Command command)
 
 void DoxygenGenerator::writeStart(QString *comment) const
 {
-    comment->append(offsetString() % QLatin1String("/*") % startMark());
+    if (m_style == CppStyleA)
+        comment->append(QLatin1String("///"));
+    if (m_style == CppStyleB)
+        comment->append(QLatin1String("//!"));
+    else
+        comment->append(offsetString() % QLatin1String("/*") % startMark());
 }
 
 void DoxygenGenerator::writeEnd(QString *comment) const
 {
-    comment->append(offsetString() % QLatin1String(" */"));
+    if (m_style == CppStyleA)
+        comment->append(QLatin1String("///"));
+    else if (m_style == CppStyleB)
+        comment->append(QLatin1String("//!"));
+    else
+        comment->append(offsetString() % QLatin1String(" */"));
 }
 
 void DoxygenGenerator::writeContinuation(QString *comment) const
 {
-    if (m_addLeadingAsterisks)
+    if (m_style == CppStyleA)
+        comment->append(offsetString() % QLatin1String("///"));
+    else if (m_style == CppStyleB)
+        comment->append(offsetString() % QLatin1String("//!"));
+    else if (m_addLeadingAsterisks)
         comment->append(offsetString() % QLatin1String(" *"));
     else
         comment->append(offsetString() % QLatin1String("  "));

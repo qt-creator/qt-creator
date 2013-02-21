@@ -285,6 +285,7 @@ private:
     QModelIndex indexForPosition(int line, int column, const QModelIndex &rootIndex = QModelIndex()) const;
 
     bool handleDocumentationComment(QKeyEvent *e);
+    bool isStartOfDoxygenComment(const QTextCursor &cursor) const;
 
     CPlusPlus::CppModelManagerInterface *m_modelManager;
 
