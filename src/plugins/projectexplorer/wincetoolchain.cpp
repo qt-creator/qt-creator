@@ -308,7 +308,7 @@ QString WinCEToolChain::ceVer() const
 
 QVariantMap WinCEToolChain::toMap() const
 {
-    QVariantMap data = ToolChain::toMap();
+    QVariantMap data = AbstractMsvcToolChain::toMap();
 
     data.insert(QLatin1String(msvcVerKeyC), m_msvcVer);
     data.insert(QLatin1String(ceVerKeyC), m_ceVer);

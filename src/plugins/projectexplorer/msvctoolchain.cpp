@@ -376,7 +376,7 @@ QList<Utils::FileName> MsvcToolChain::suggestedMkspecList() const
 
 QVariantMap MsvcToolChain::toMap() const
 {
-    QVariantMap data = ToolChain::toMap();
+    QVariantMap data = AbstractMsvcToolChain::toMap();
     data.insert(QLatin1String(varsBatKeyC), m_vcvarsBat);
     if (!m_varsBatArg.isEmpty())
         data.insert(QLatin1String(varsBatArgKeyC), m_varsBatArg);
