@@ -40,10 +40,7 @@
 #include <QKeyEvent>
 #include <QString>
 #include <QTextDocument>
-#ifdef WITH_TESTS
 #include <QtTest>
-#endif
-
 
 /*!
     Tests for inserting doxygen comments.
