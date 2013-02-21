@@ -158,7 +158,7 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_currentBc(0)
 {
     setProjectContext(Core::Context(Constants::PROJECT_ID));
-    setProjectLanguage(Core::Context(ProjectExplorer::Constants::LANG_CXX));
+    setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
     connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(changeActiveTarget(ProjectExplorer::Target*)));
