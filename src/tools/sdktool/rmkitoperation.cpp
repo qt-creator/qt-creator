@@ -164,7 +164,7 @@ QVariantMap RmKitOperation::rmKit(const QVariantMap &map, const QString &id)
     bool ok;
     int count = GetOperation::get(map, QLatin1String(COUNT)).toInt(&ok);
     if (!ok) {
-        std::cerr << "Error: The count found in map is not an integer.";
+        std::cerr << "Error: The count found in map is not an integer." << std::endl;
         return map;
     }
 
@@ -179,13 +179,13 @@ QVariantMap RmKitOperation::rmKit(const QVariantMap &map, const QString &id)
         profileList << profile;
     }
     if (profileList.count() == map.count() - 3) {
-        std::cerr << "Error: Id was not found.";
+        std::cerr << "Error: Id was not found." << std::endl;
         return map;
     }
 
     int defaultKit = GetOperation::get(map, QLatin1String(DEFAULT)).toInt(&ok);
     if (!ok) {
-        std::cerr << "Error: Could not find the default kit.";
+        std::cerr << "Error: Could not find the default kit." << std::endl;
         defaultKit = -1;
     }
 
