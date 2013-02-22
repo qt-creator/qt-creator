@@ -57,7 +57,6 @@ namespace QmlJS {
 */
 class QMLJS_EXPORT QmlBundle
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlJS::QmlBundle)
     typedef PersistentTrie::Trie Trie;
 public:
     QmlBundle(const QmlBundle &o);

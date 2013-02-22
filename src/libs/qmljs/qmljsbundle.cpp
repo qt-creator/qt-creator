@@ -223,7 +223,8 @@ QStringList QmlBundle::maybeReadTrie(Trie &trie, Utils::JsonObjectValue *config,
     QStringList res;
     if (!config->hasMember(propertyName)) {
         if (required)
-            res << tr("Missing required property \"%1\" from %2").arg(propertyName, path);
+            res << QString::fromLatin1("Missing required property \"%1\" from %2").arg(propertyName,
+                                                                                       path);
         return res;
     }
     Utils::JsonValue *imp0 = config->member(propertyName);
@@ -234,14 +235,15 @@ QStringList QmlBundle::maybeReadTrie(Trie &trie, Utils::JsonObjectValue *config,
             if (impStr != 0) {
                 trie.insert(impStr->value());
             } else {
-                res.append(tr("Expected all elements of array in property \"%1\" to be strings in QmlBundle at %2.")
-                           .arg(propertyName).arg(path));
+                res.append(QString::fromLatin1("Expected all elements of array in property \"%1\" "
+                                               "to be strings in QmlBundle at %2.")
+                           .arg(propertyName, path));
                 break;
             }
         }
     } else {
-        res.append(tr("Expected string array in property \"%1\" in QmlBundle at %2.")
-                   .arg(propertyName).arg(path));
+        res.append(QString::fromLatin1("Expected string array in property \"%1\" in QmlBundle at %2.")
+                   .arg(propertyName, path));
     }
     return res;
 }
@@ -252,13 +254,13 @@ bool QmlBundle::readFrom(QString path, QStringList *errors)
     QFile f(path);
     if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
         if (errors)
-            (*errors) << tr("Could not open QmlBundle at %1 .").arg(path);
+            (*errors) << QString::fromLatin1("Could not open file at %1 .").arg(path);
         return false;
     }
     JsonObjectValue *config = JsonValue::create(QString::fromUtf8(f.readAll()))->toObject();
     if (config == 0) {
         if (errors)
-            (*errors) << tr("Could not parse json object in QmlBundle at %1 .").arg(path);
+            (*errors) << QString::fromLatin1("Could not parse json object in file at %1 .").arg(path);
         return false;
     }
     QStringList errs;
@@ -268,10 +270,11 @@ bool QmlBundle::readFrom(QString path, QStringList *errors)
         if (n != 0)
             m_name = n->value();
         else
-            errs.append(tr("Property \"name\" in QmlBundle at %1 is expected to be a string.")
-                         .arg(path));
+            errs.append(QString::fromLatin1("Property \"name\" in QmlBundle at %1 is expected "
+                                             "to be a string.").arg(path));
     } else {
-        errs.append(tr("Missing required property \"name\" in QmlBundle at %1 .").arg(path));
+        errs.append(QString::fromLatin1("Missing required property \"name\" in QmlBundle "
+                                         "at %1 .").arg(path));
     }
     errs << maybeReadTrie(m_searchPaths, config, path, QLatin1String("searchPaths"));
     errs << maybeReadTrie(m_installPaths, config, path, QLatin1String("installPaths"));
