@@ -87,12 +87,12 @@ int RmKitOperation::execute() const
     if (map.isEmpty())
         map = AddKitOperation::initializeKits();
 
-    map = rmKit(map, m_id);
+    QVariantMap result = rmKit(map, m_id);
 
-    if (map.isEmpty())
+    if (result.isEmpty() || result == map)
         return -2;
 
-    return save(map, QLatin1String("profiles")) ? 0 : -3;
+    return save(result, QLatin1String("profiles")) ? 0 : -3;
 }
 
 #ifdef WITH_TESTS
