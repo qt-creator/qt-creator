@@ -51,7 +51,7 @@ namespace Internal {
 
 ///////////////////////////////// DiffEditor //////////////////////////////////
 
-DiffEditor::DiffEditor(DiffEditorWidget *editorWidget)
+DiffEditorEditable::DiffEditorEditable(DiffEditorWidget *editorWidget)
     :
     IEditor(0),
     m_file(new DiffFile(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE), this)),
@@ -61,21 +61,21 @@ DiffEditor::DiffEditor(DiffEditorWidget *editorWidget)
     setWidget(editorWidget);
 }
 
-DiffEditor::~DiffEditor()
+DiffEditorEditable::~DiffEditorEditable()
 {
     delete m_toolWidget;
     if (m_widget)
         delete m_widget;
 }
 
-bool DiffEditor::createNew(const QString &contents)
+bool DiffEditorEditable::createNew(const QString &contents)
 {
     Q_UNUSED(contents)
 //    setFileContents(contents);
     return true;
 }
 
-bool DiffEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
+bool DiffEditorEditable::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     Q_UNUSED(errorString)
     Q_UNUSED(fileName)
@@ -87,35 +87,35 @@ bool DiffEditor::open(QString *errorString, const QString &fileName, const QStri
     return true;
 }
 
-Core::IDocument *DiffEditor::document()
+Core::IDocument *DiffEditorEditable::document()
 {
     return m_file;
 }
 
-QString DiffEditor::displayName() const
+QString DiffEditorEditable::displayName() const
 {
     if (m_displayName.isEmpty())
         m_displayName = QCoreApplication::translate("DiffEditor", Constants::DIFF_EDITOR_DISPLAY_NAME);
     return m_displayName;
 }
 
-void DiffEditor::setDisplayName(const QString &title)
+void DiffEditorEditable::setDisplayName(const QString &title)
 {
     m_displayName = title;
     emit changed();
 }
 
-bool DiffEditor::duplicateSupported() const
+bool DiffEditorEditable::duplicateSupported() const
 {
     return false;
 }
 
-Core::IEditor *DiffEditor::duplicate(QWidget * /*parent*/)
+Core::IEditor *DiffEditorEditable::duplicate(QWidget * /*parent*/)
 {
     return 0;
 }
 
-Core::Id DiffEditor::id() const
+Core::Id DiffEditorEditable::id() const
 {
     return Constants::DIFF_EDITOR_ID;
 }
@@ -132,7 +132,7 @@ static QToolBar *createToolBar(const QWidget *someWidget)
     return toolBar;
 }
 
-QWidget *DiffEditor::toolBar()
+QWidget *DiffEditorEditable::toolBar()
 {
     if (m_toolWidget)
         return m_toolWidget;
@@ -161,12 +161,12 @@ QWidget *DiffEditor::toolBar()
     return m_toolWidget;
 }
 
-QByteArray DiffEditor::saveState() const
+QByteArray DiffEditorEditable::saveState() const
 {
     return QByteArray();
 }
 
-bool DiffEditor::restoreState(const QByteArray &/*state*/)
+bool DiffEditorEditable::restoreState(const QByteArray &/*state*/)
 {
     return true;
 }
@@ -252,7 +252,7 @@ QString DiffEditorFactory::displayName() const
 Core::IEditor *DiffEditorFactory::createEditor(QWidget *parent)
 {
     DiffEditorWidget *editorWidget = new DiffEditorWidget(parent);
-    DiffEditor *editor = new DiffEditor(editorWidget);
+    DiffEditorEditable *editor = new DiffEditorEditable(editorWidget);
     return editor;
 }
 
@@ -335,7 +335,7 @@ void DiffEditorPlugin::diff()
 
 DiffEditorWidget *DiffEditorPlugin::getDiffEditorWidget(const Core::IEditor *editor) const
 {
-    if (const DiffEditor *de = qobject_cast<const DiffEditor *>(editor))
+    if (const DiffEditorEditable *de = qobject_cast<const DiffEditorEditable *>(editor))
         return de->editorWidget();
     return 0;
 }

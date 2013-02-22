@@ -48,12 +48,12 @@ class DiffEditorWidget;
 namespace Internal {
 class DiffFile;
 
-class DiffEditor : public Core::IEditor
+class DiffEditorEditable : public Core::IEditor
 {
     Q_OBJECT
 public:
-    explicit DiffEditor(DiffEditorWidget *editorWidget);
-    virtual ~DiffEditor();
+    explicit DiffEditorEditable(DiffEditorWidget *editorWidget);
+    virtual ~DiffEditorEditable();
 
 public:
     // Core::IEditor

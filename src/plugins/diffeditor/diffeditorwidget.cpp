@@ -53,11 +53,11 @@ namespace DiffEditor {
 
 //////////////////////
 
-class DiffViewEditor : public BaseTextEditor
+class DiffViewEditorEditable : public BaseTextEditor
 {
 Q_OBJECT
 public:
-    DiffViewEditor(BaseTextEditorWidget *editorWidget) : BaseTextEditor(editorWidget) {}
+    DiffViewEditorEditable(BaseTextEditorWidget *editorWidget) : BaseTextEditor(editorWidget) {}
     virtual Core::Id id() const { return "DiffViewEditor"; }
     virtual bool duplicateSupported() const { return false; }
     virtual IEditor *duplicate(QWidget *parent) { Q_UNUSED(parent) return 0; }
@@ -89,7 +89,7 @@ public:
 
 protected:
     virtual int extraAreaWidth(int *markWidthPtr = 0) const { return BaseTextEditorWidget::extraAreaWidth(markWidthPtr); }
-    BaseTextEditor *createEditor() { return new DiffViewEditor(this); }
+    BaseTextEditor *createEditor() { return new DiffViewEditorEditable(this); }
     virtual QString lineNumber(int blockNumber) const;
     int lineNumberTopPositionOffset(int blockNumber) const;
     virtual int lineNumberDigits() const;
