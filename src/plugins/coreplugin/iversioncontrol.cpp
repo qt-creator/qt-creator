@@ -46,4 +46,9 @@ QString IVersionControl::vcsTopic(const QString &)
     return QString();
 }
 
+IVersionControl::OpenSupportMode IVersionControl::openSupportMode() const
+{
+    return NoOpen;
+}
+
 }

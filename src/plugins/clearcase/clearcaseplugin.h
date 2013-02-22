@@ -158,6 +158,7 @@ public:
     QString currentView() const { return m_viewData.name; }
     void refreshActivities();
     inline bool isUcm() const { return m_viewData.isUcm; }
+    inline bool isDynamic() const { return m_viewData.isDynamic; }
     void setStatus(const QString &file, FileStatus::Status status, bool update = true);
 
     bool ccCheckUcm(const QString &viewname, const QString &workingDir) const;

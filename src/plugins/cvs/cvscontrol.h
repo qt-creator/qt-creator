@@ -51,6 +51,7 @@ public:
 
     bool isConfigured() const;
     bool supportsOperation(Operation operation) const;
+    OpenSupportMode openSupportMode() const;
     bool vcsOpen(const QString &fileName);
     bool vcsAdd(const QString &fileName);
     bool vcsDelete(const QString &filename);

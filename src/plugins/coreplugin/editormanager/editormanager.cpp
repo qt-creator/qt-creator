@@ -1709,7 +1709,7 @@ void EditorManager::vcsOpenCurrentEditor()
 
     const QString directory = QFileInfo(curEditor->document()->fileName()).absolutePath();
     IVersionControl *versionControl = ICore::vcsManager()->findVersionControlForDirectory(directory);
-    if (!versionControl || !versionControl->supportsOperation(IVersionControl::OpenOperation))
+    if (!versionControl || versionControl->openSupportMode() == IVersionControl::NoOpen)
         return;
 
     if (!versionControl->vcsOpen(curEditor->document()->fileName())) {
@@ -1763,7 +1763,7 @@ void EditorManager::updateMakeWritableWarning()
         bool promptVCS = false;
         const QString directory = QFileInfo(curEditor->document()->fileName()).absolutePath();
         IVersionControl *versionControl = ICore::vcsManager()->findVersionControlForDirectory(directory);
-        if (versionControl && versionControl->supportsOperation(IVersionControl::OpenOperation)) {
+        if (versionControl && versionControl->openSupportMode() != IVersionControl::NoOpen) {
             if (versionControl->settingsFlags() & IVersionControl::AutoOpen) {
                 vcsOpenCurrentEditor();
                 ww = false;

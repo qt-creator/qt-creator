@@ -71,7 +71,6 @@ bool PerforceVersionControl::supportsOperation(Operation operation) const
     case AddOperation:
     case DeleteOperation:
     case MoveOperation:
-    case OpenOperation:
     case AnnotateOperation:
         return supported;
     case CreateRepositoryOperation:
@@ -81,6 +80,11 @@ bool PerforceVersionControl::supportsOperation(Operation operation) const
         break;
     }
     return false;
+}
+
+Core::IVersionControl::OpenSupportMode PerforceVersionControl::openSupportMode() const
+{
+    return OpenOptional;
 }
 
 bool PerforceVersionControl::vcsOpen(const QString &fileName)

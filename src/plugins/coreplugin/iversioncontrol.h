@@ -50,13 +50,19 @@ public:
     Q_DECLARE_FLAGS(SettingsFlags, SettingsFlag)
 
     enum Operation {
-        AddOperation, DeleteOperation, OpenOperation, MoveOperation,
+        AddOperation, DeleteOperation, MoveOperation,
         CreateRepositoryOperation,
         SnapshotOperations,
         AnnotateOperation,
         CheckoutOperation,
         GetRepositoryRootOperation
         };
+
+    enum OpenSupportMode {
+        NoOpen,        /*!< Files can be edited without noticing the VCS */
+        OpenOptional,  /*!< Files can be opened by the VCS, or hijacked */
+        OpenMandatory  /*!< Files must always be opened by the VCS */
+    };
 
     explicit IVersionControl(QObject *parent = 0) : QObject(parent) {}
     virtual ~IVersionControl() {}
@@ -84,6 +90,11 @@ public:
      * Return false if the VCS is not configured yet.
      */
     virtual bool supportsOperation(Operation operation) const = 0;
+
+    /*!
+     * Returns the open support mode.
+     */
+    virtual OpenSupportMode openSupportMode() const;
 
     /*!
      * Called prior to save, if the file is read only. Should be implemented if

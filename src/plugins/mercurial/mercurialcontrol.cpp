@@ -85,7 +85,6 @@ bool MercurialControl::supportsOperation(Operation operation) const
     case Core::IVersionControl::CheckoutOperation:
     case Core::IVersionControl::GetRepositoryRootOperation:
         break;
-    case Core::IVersionControl::OpenOperation:
     case Core::IVersionControl::SnapshotOperations:
         supported = false;
         break;

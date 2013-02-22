@@ -68,7 +68,6 @@ bool ClearCaseControl::supportsOperation(Operation operation) const
 {
     bool rc = isConfigured();
     switch (operation) {
-    case OpenOperation:
     case AddOperation:
     case DeleteOperation:
     case MoveOperation:
@@ -82,6 +81,14 @@ bool ClearCaseControl::supportsOperation(Operation operation) const
         break;
     }
     return rc;
+}
+
+Core::IVersionControl::OpenSupportMode ClearCaseControl::openSupportMode() const
+{
+    if (m_plugin->isDynamic())
+        return IVersionControl::OpenMandatory; // Checkout is the only option for dynamic views
+    else
+        return IVersionControl::OpenOptional; // Snapshot views supports Hijack and check out
 }
 
 bool ClearCaseControl::vcsOpen(const QString &fileName)

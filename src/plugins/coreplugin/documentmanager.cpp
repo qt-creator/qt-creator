@@ -813,7 +813,7 @@ DocumentManager::ReadOnlyAction
 {
     // Version Control: If automatic open is desired, open right away.
     bool promptVCS = false;
-    if (versionControl && versionControl->supportsOperation(IVersionControl::OpenOperation)) {
+    if (versionControl && versionControl->openSupportMode() != IVersionControl::NoOpen) {
         if (versionControl->settingsFlags() & IVersionControl::AutoOpen)
             return RO_OpenVCS;
         promptVCS = true;
@@ -824,22 +824,30 @@ DocumentManager::ReadOnlyAction
                        tr("The file <i>%1</i> is read only.").arg(QDir::toNativeSeparators(fileName)),
                        QMessageBox::Cancel, parent);
 
-    QString makeWritableText;
     QPushButton *vcsButton = 0;
     if (promptVCS) {
         vcsButton = msgBox.addButton(versionControl->vcsOpenText(), QMessageBox::AcceptRole);
-        makeWritableText = versionControl->vcsMakeWritableText();
     }
-    if (makeWritableText.isEmpty())
-        makeWritableText = tr("Make &Writable");
 
-    QPushButton *makeWritableButton =  msgBox.addButton(makeWritableText, QMessageBox::AcceptRole);
+    QString makeWritableText;
+    QPushButton *makeWritableButton = 0;
+    // If the VCS has OpenMandatory we don't show "Make Writable"
+    if (versionControl->openSupportMode() != IVersionControl::OpenMandatory) {
+        makeWritableText = versionControl->vcsMakeWritableText();
+        if (makeWritableText.isEmpty())
+            makeWritableText = tr("Make &Writable");
+        makeWritableButton = msgBox.addButton(makeWritableText, QMessageBox::AcceptRole);
+    }
 
     QPushButton *saveAsButton = 0;
     if (displaySaveAsButton)
         saveAsButton = msgBox.addButton(tr("&Save As..."), QMessageBox::ActionRole);
 
-    msgBox.setDefaultButton(vcsButton ? vcsButton : makeWritableButton);
+    if (vcsButton)
+        msgBox.setDefaultButton(vcsButton);
+    else if (makeWritableButton)
+        msgBox.setDefaultButton(makeWritableButton);
+
     msgBox.exec();
 
     QAbstractButton *clickedButton = msgBox.clickedButton();

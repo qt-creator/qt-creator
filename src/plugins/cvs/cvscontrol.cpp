@@ -69,7 +69,6 @@ bool CvsControl::supportsOperation(Operation operation) const
     case AddOperation:
     case DeleteOperation:
     case AnnotateOperation:
-    case OpenOperation:
         break;
     case MoveOperation:
     case CreateRepositoryOperation:
@@ -80,6 +79,11 @@ bool CvsControl::supportsOperation(Operation operation) const
         break;
     }
     return rc;
+}
+
+Core::IVersionControl::OpenSupportMode CvsControl::openSupportMode() const
+{
+    return OpenOptional;
 }
 
 bool CvsControl::vcsOpen(const QString &fileName)

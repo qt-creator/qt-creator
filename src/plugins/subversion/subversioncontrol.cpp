@@ -73,7 +73,6 @@ bool SubversionControl::supportsOperation(Operation operation) const
     case CheckoutOperation:
     case GetRepositoryRootOperation:
         break;
-    case OpenOperation:
     case CreateRepositoryOperation:
     case SnapshotOperations:
         rc = false;

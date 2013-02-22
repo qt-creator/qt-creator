@@ -80,8 +80,6 @@ bool GitVersionControl::supportsOperation(Operation operation) const
     case CheckoutOperation:
     case GetRepositoryRootOperation:
         return true;
-    case OpenOperation:
-        break;
     }
     return false;
 }
