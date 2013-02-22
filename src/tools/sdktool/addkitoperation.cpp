@@ -50,6 +50,7 @@ static char ID[] = "PE.Profile.Id";
 static char DISPLAYNAME[] = "PE.Profile.Name";
 static char ICON[] = "PE.Profile.Icon";
 static char AUTODETECTED[] = "PE.Profile.Autodetected";
+static char SDK[] = "PE.Profile.SDK";
 static char DATA[] = "PE.Profile.Data";
 
 // Standard KitInformation:
@@ -260,6 +261,7 @@ bool AddKitOperation::test() const
             || !profile0.contains(QLatin1String(DISPLAYNAME))
             || profile0.value(QLatin1String(DISPLAYNAME)).toString() != QLatin1String("Test Kit")
             || !profile0.contains(QLatin1String(AUTODETECTED))
+            || !profile0.contains(QLatin1String(SDK))
             || profile0.value(QLatin1String(AUTODETECTED)).toBool() != true)
         return false;
 
@@ -298,6 +300,7 @@ bool AddKitOperation::test() const
             || !profile1.contains(QLatin1String(DISPLAYNAME))
             || profile1.value(QLatin1String(DISPLAYNAME)).toString() != QLatin1String("Test Kit2")
             || !profile1.contains(QLatin1String(AUTODETECTED))
+            || !profile1.contains(QLatin1String(SDK))
             || profile1.value(QLatin1String(AUTODETECTED)).toBool() != true)
         return false;
 
@@ -366,6 +369,7 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map,
     data << KeyValuePair(QStringList() << kit << QLatin1String(DISPLAYNAME), QVariant(uniqueName));
     data << KeyValuePair(QStringList() << kit << QLatin1String(ICON), QVariant(icon));
     data << KeyValuePair(QStringList() << kit << QLatin1String(AUTODETECTED), QVariant(true));
+    data << KeyValuePair(QStringList() << kit << QLatin1String(SDK), QVariant(true));
 
     data << KeyValuePair(QStringList() << kit << QLatin1String(DATA)
                          << QLatin1String(DEBUGGER) << QLatin1String(DEBUGGER_ENGINE), QVariant(debuggerType));
