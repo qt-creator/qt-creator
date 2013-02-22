@@ -48,6 +48,12 @@
 #include <iostream>
 #include <QProcess>
 
+#if  QT_VERSION >= 0x050000
+#define MSKIP_SINGLE(x) QSKIP(x)
+#else
+#define MSKIP_SINGLE(x) QSKIP(x, SkipSingle)
+#endif
+
 using namespace Valgrind;
 using namespace Valgrind::XmlProtocol;
 
@@ -143,6 +149,8 @@ void ParserTests::cleanup()
 
 void ParserTests::testHelgrindSample1()
 {
+    MSKIP_SINGLE("testfile does not exist");
+
     initTest(QLatin1String("helgrind-output-sample1.xml"));
 
     QList<Error> expectedErrors;
@@ -313,6 +321,8 @@ void ParserTests::testMemcheckSample1()
 
 void ParserTests::testMemcheckSample2()
 {
+    MSKIP_SINGLE("testfile does not exist");
+
     initTest(QLatin1String("memcheck-output-sample2.xml"));
 
     Valgrind::XmlProtocol::Parser parser;
@@ -337,6 +347,8 @@ void ParserTests::testMemcheckSample2()
 
 void ParserTests::testMemcheckSample3()
 {
+    MSKIP_SINGLE("testfile does not exist");
+
     initTest(QLatin1String("memcheck-output-sample3.xml"));
 
     Valgrind::XmlProtocol::Parser parser;
@@ -387,8 +399,10 @@ void ParserTests::testMemcheckSample3()
 
 void ParserTests::testMemcheckCharm()
 {
+    MSKIP_SINGLE("testfile does not exist");
+
     // a somewhat larger file, to make sure buffering and partial I/O works ok
-    initTest(QLatin1String("memcheck-output-charm.xml"));
+    initTest(QLatin1String("memcheck-output-untitled.xml"));
 
     Valgrind::XmlProtocol::Parser parser;
     Recorder rec(&parser);

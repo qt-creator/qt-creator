@@ -1,5 +1,6 @@
-include(../../../qtcreator.pri)
-include(../../auto/qttestrpath.pri)
+include(../../../../qtcreator.pri)
+include(../../qttestrpath.pri)
+include($$IDE_SOURCE_TREE/src/libs/3rdparty/botan/botan.pri)
 include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
 include($$IDE_SOURCE_TREE/src/libs/ssh/ssh.pri)
 include($$IDE_SOURCE_TREE/src/plugins/valgrind/valgrind_test.pri)
@@ -12,7 +13,7 @@ macx:CONFIG -= app_bundle
 QT += gui network
 
 DEFINES += "PARSERTESTS_DATA_DIR=\\\"$$PWD/data\\\""
-
+DEFINES += "VALGRIND_FAKE_PATH=\\\"$$IDE_BUILD_TREE/src/tools/valgrindfake/valgrind-fake\\\""
 
 SOURCES += modeldemo.cpp
 

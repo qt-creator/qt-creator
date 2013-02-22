@@ -56,7 +56,7 @@ using namespace Valgrind;
 using namespace Valgrind::XmlProtocol;
 using namespace Valgrind::Memcheck;
 
-//BEGIN Test Helpers and boilterplate code
+//BEGIN Test Helpers and boilerplate code
 
 TestRunner::TestRunner(QObject *parent)
     : QObject(parent),

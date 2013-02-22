@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
     calleeDock->setWidget(handler->calleesView());
     window.addDockWidget(Qt::RightDockWidgetArea, calleeDock);
 
-    QDockWidget *widgetDock = new QDockWidget("visualisation", &window);
+    QDockWidget *widgetDock = new QDockWidget("vizualisation", &window);
     widgetDock->setWidget(handler->visualisation());
     window.addDockWidget(Qt::BottomDockWidgetArea, widgetDock);
 

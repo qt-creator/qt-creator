@@ -44,7 +44,7 @@ using namespace Valgrind::XmlProtocol;
 
 static QString fakeValgrindExecutable()
 {
-    return QCoreApplication::applicationDirPath() + QLatin1String("/../../valgrind-fake/valgrind-fake");
+    return QLatin1String(VALGRIND_FAKE_PATH);
 }
 
 static QString dataFile(const QLatin1String &file)

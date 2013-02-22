@@ -76,9 +76,9 @@ public Q_SLOTS:
         errors.append(err);
     }
 
-    void errorCount(qint64 uniq, qint64 count)
+    void errorCount(qint64 unique, qint64 count)
     {
-        errorcounts.push_back(qMakePair(uniq, count));
+        errorcounts.push_back(qMakePair(unique, count));
     }
 
     void suppressionCount(const QString &name, qint64 count)
