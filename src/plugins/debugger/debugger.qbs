@@ -9,7 +9,6 @@ QtcPlugin {
     Depends { name: "Qt"; submodules: ["widgets", "network", "script"] }
     Depends { name: "Core" }
     Depends { name: "CppTools" }
-    Depends { name: "QmlJSTools" }
     Depends { name: "Find" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
