@@ -2,6 +2,8 @@ source("../../shared/qtcreator.py")
 
 def main():
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     createProject_Qt_Console(tempDir(), "SquishProject")
     selectFromLocator("main.cpp")
     cppwindow = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")

@@ -26,6 +26,8 @@ def main():
     files = map(copyToTemplateDir, files)
 
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     for currentFile in files:
         test.log("Opening file %s" % currentFile)
         invokeMenuItem("File", "Open File or Project...")

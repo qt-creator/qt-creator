@@ -18,6 +18,8 @@ def getQModelIndexStr(textProperty, container):
 
 def main():
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     # goto help mode and click on topic
     switchViewTo(ViewConstants.HELP)
     manualQModelIndex = getQModelIndexStr("text?='Qt Creator Manual *'",

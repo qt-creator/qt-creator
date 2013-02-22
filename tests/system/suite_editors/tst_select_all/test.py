@@ -17,6 +17,8 @@ def main():
             return
 
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     for currentFile in files:
         test.log("Opening file %s" % currentFile)
         size = charactersInFile(currentFile)

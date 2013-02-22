@@ -15,6 +15,8 @@ def main():
     if not neededFilePresent(SpeedCrunchPath):
         return
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     checkedTargets = openQmakeProject(SpeedCrunchPath)
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
 

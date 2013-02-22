@@ -12,6 +12,8 @@ def main():
     if not changeFilePermissions(testFolder, True, False, "testfiles.pro"):
         test.fatal("Could not set permissions for files to read-only - test will likely fail.")
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     openQmakeProject(os.path.join(testFolder, "testfiles.pro"))
     modifiedUnsaved = []
     readOnlyFiles = []

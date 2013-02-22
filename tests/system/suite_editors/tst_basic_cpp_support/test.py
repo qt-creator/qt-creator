@@ -14,6 +14,8 @@ def main():
     cleanUpUserFiles(proFile)
 
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     overrideInstallLazySignalHandler()
     installLazySignalHandler(":Qt Creator_CppEditor::Internal::CPPEditorWidget", "textChanged()",
                              "__handleTextChanged__")

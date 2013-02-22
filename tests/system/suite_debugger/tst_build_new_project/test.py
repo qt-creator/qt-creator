@@ -4,6 +4,8 @@ project = "SquishProject"
 
 def main():
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     checkedTargets = createProject_Qt_Console(tempDir(), project)
     availableConfigs = iterateBuildConfigs(len(checkedTargets))
     if not availableConfigs:

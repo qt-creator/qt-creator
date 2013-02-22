@@ -20,6 +20,8 @@ def verifyInteractiveQMLHelp(lineText, helpText):
 
 def main():
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     addHelpDocumentationFromSDK()
     # create qt quick application
     createNewQtQuickApplication(tempDir(), "SampleApp")

@@ -10,6 +10,8 @@ def main():
     if not neededFilePresent(os.path.join(sourceExample, qmlFile)):
         return
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     # add docs to have the correct tool tips
     addHelpDocumentationFromSDK()
     templateDir = prepareTemplate(sourceExample)

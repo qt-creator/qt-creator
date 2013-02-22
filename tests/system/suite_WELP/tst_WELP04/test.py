@@ -4,6 +4,8 @@ source("../../shared/suites_qtta.py")
 def main():
     # open Qt Creator
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     if not test.verify(checkIfObjectExists(getQmlItem("Text", ":Qt Creator_QDeclarativeView", False,
                                                       "text='Getting Started'")),
                        "Verifying: Qt Creator displays Welcome Page with Getting Started."):

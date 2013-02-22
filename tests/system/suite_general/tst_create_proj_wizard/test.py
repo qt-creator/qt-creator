@@ -10,6 +10,8 @@ def main():
         return
     templateDir = prepareTemplate(sourceExample)
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     overrideInstallLazySignalHandler()
     installLazySignalHandler(":frame.templateDescription_QTextBrowser",
                              "textChanged()","__handleTextChanged__")
