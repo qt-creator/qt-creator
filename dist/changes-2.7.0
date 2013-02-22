@@ -103,7 +103,7 @@ C++ Support
    * Added Create Getter and Setter Member Functions refactoring action
    * Added Reformat Pointers or References refactoring action
    * Fixed semantic highlighting when multiple editors are visible
-   * Fixed Find/Rename Macro usage
+   * Fixed Rename Symbol Under Cursor for C++ macros
    * Added code completion for instantiation of templates with default argument
    * Added C++11 alignof and alignas tokens
    * Added support for C++11 brace initializers (QTCREATORBUG-7919 et al)
