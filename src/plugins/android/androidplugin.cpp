@@ -82,7 +82,6 @@ void AndroidPlugin::extensionsInitialized()
     ProjectExplorer::DeviceManager *dm = ProjectExplorer::DeviceManager::instance();
     if (dm->find(Core::Id(Constants::ANDROID_DEVICE_ID)).isNull())
         dm->addDevice(ProjectExplorer::IDevice::Ptr(new Internal::AndroidDevice));
-    Internal::AndroidConfigurations::instance().updateAutomaticKitList();
     connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
             &Internal::AndroidConfigurations::instance(), SLOT(updateAutomaticKitList()));
 }
