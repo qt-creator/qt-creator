@@ -214,14 +214,15 @@ void BarDescriptorEditorWidget::initAssetsPage()
     connect(m_ui->addAsset, SIGNAL(clicked()), this, SLOT(addNewAsset()));
     connect(m_ui->removeAsset, SIGNAL(clicked()), this, SLOT(removeSelectedAsset()));
     connect(m_assetsModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(updateEntryCheckState(QStandardItem*)));
-    connect(m_assetsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(setDirty()));
+    connectAssetsModel();
 }
 
 void BarDescriptorEditorWidget::clearAssetsPage()
 {
-    disconnect(m_assetsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(setDirty()));
+    // We can't just block signals, as the view depends on them
+    disconnectAssetsModel();
     m_assetsModel->removeRows(0, m_assetsModel->rowCount());
-    connect(m_assetsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(setDirty()));
+    connectAssetsModel();
 }
 
 void BarDescriptorEditorWidget::initSourcePage()
@@ -235,6 +236,20 @@ void BarDescriptorEditorWidget::clearSourcePage()
     disconnect(m_ui->xmlSourceView, SIGNAL(textChanged()), this, SLOT(setDirty()));
     m_ui->xmlSourceView->clear();
     connect(m_ui->xmlSourceView, SIGNAL(textChanged()), this, SLOT(setDirty()));
+}
+
+void BarDescriptorEditorWidget::disconnectAssetsModel()
+{
+    disconnect(m_assetsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(setDirty()));
+    disconnect(m_assetsModel, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(setDirty()));
+    disconnect(m_assetsModel, SIGNAL(rowsRemoved(QModelIndex, int, int)), this, SLOT(setDirty()));
+}
+
+void BarDescriptorEditorWidget::connectAssetsModel()
+{
+    connect(m_assetsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(setDirty()));
+    connect(m_assetsModel, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(setDirty()));
+    connect(m_assetsModel, SIGNAL(rowsRemoved(QModelIndex, int, int)), this, SLOT(setDirty()));
 }
 
 Core::IEditor *BarDescriptorEditorWidget::editor() const
@@ -522,6 +537,13 @@ void BarDescriptorEditorWidget::handleSplashScreenSelectionChanged(const QItemSe
 
 void BarDescriptorEditorWidget::addAsset(const BarDescriptorAsset &asset)
 {
+    disconnectAssetsModel();
+    addAssetInternal(asset);
+    connectAssetsModel();
+}
+
+void BarDescriptorEditorWidget::addAssetInternal(const BarDescriptorAsset &asset)
+{
     const QString path = asset.source;
     const QString dest = asset.destination;
     QTC_ASSERT(!path.isEmpty(), return);
@@ -529,8 +551,6 @@ void BarDescriptorEditorWidget::addAsset(const BarDescriptorAsset &asset)
 
     if (hasAsset(asset))
         return;
-
-    disconnect(m_assetsModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(updateEntryCheckState(QStandardItem*)));
 
     QList<QStandardItem *> items;
     items << new QStandardItem(path);
@@ -542,7 +562,6 @@ void BarDescriptorEditorWidget::addAsset(const BarDescriptorAsset &asset)
     items << entryItem;
     m_assetsModel->appendRow(items);
 
-    connect(m_assetsModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(updateEntryCheckState(QStandardItem*)));
 }
 
 bool BarDescriptorEditorWidget::hasAsset(const BarDescriptorAsset &asset)
@@ -631,7 +650,7 @@ void BarDescriptorEditorWidget::addNewAsset()
     asset.source = fileName;
     asset.destination = fi.fileName();
     asset.entry = false; // TODO
-    addAsset(asset);
+    addAssetInternal(asset);
 }
 
 void BarDescriptorEditorWidget::removeSelectedAsset()
@@ -670,5 +689,5 @@ void BarDescriptorEditorWidget::addImageAsAsset(const QString &path)
     asset.source = path;
     asset.destination = QFileInfo(path).fileName();
     asset.entry = false;
-    addAsset(asset);
+    addAssetInternal(asset);
 }
