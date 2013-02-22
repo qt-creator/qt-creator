@@ -136,7 +136,7 @@ bool ClearCaseControl::vcsAnnotate(const QString &file, int line)
 
 QString ClearCaseControl::vcsOpenText() const
 {
-    return tr("&Check Out");
+    return tr("Check &Out");
 }
 
 QString ClearCaseControl::vcsMakeWritableText() const
