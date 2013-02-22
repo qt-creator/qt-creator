@@ -100,7 +100,8 @@ Debugging
 Analyzer
 
 C++ Support
-   * Added GetterSetter quick fix
+   * Added Create Getter and Setter Member Functions refactoring action
+   * Added Reformat Pointers or References refactoring action
    * Fixed semantic highlighting when multiple editors are visible
    * Fixed Find/Rename Macro usage
    * Added code completion for instantiation of templates with default argument
