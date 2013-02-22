@@ -95,7 +95,11 @@ ToolChainManagerPrivate::ToolChainManagerPrivate(ToolChainManager *parent)
 { }
 
 ToolChainManagerPrivate::~ToolChainManagerPrivate()
-{ delete m_writer; }
+{
+    qDeleteAll(m_toolChains);
+    m_toolChains.clear();
+    delete m_writer;
+}
 
 QList<ToolChain *> &ToolChainManagerPrivate::toolChains()
 {
@@ -210,12 +214,6 @@ void ToolChainManager::restoreToolChains()
 ToolChainManager::~ToolChainManager()
 {
     saveToolChains(); // Make sure to save tool chains when closing
-
-    // Deregister tool chains
-    QList<ToolChain *> copy = d->toolChains();
-    foreach (ToolChain *tc, copy)
-        deregisterToolChain(tc);
-
     delete d;
     m_instance = 0;
 }
