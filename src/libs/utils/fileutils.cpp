@@ -332,33 +332,18 @@ bool FileSaverBase::setResult(bool ok)
 
 bool FileSaverBase::setResult(QTextStream *stream)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
     stream->flush();
     return setResult(stream->status() == QTextStream::Ok);
-#else
-    Q_UNUSED(stream)
-    return true;
-#endif
 }
 
 bool FileSaverBase::setResult(QDataStream *stream)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
     return setResult(stream->status() == QDataStream::Ok);
-#else
-    Q_UNUSED(stream)
-    return true;
-#endif
 }
 
 bool FileSaverBase::setResult(QXmlStreamWriter *stream)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
     return setResult(!stream->hasError());
-#else
-    Q_UNUSED(stream)
-    return true;
-#endif
 }
 
 
