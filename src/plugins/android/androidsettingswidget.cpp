@@ -230,7 +230,7 @@ bool AndroidSettingsWidget::checkNDK(const Utils::FileName &location)
         m_ui->toolchainFoundLabel->setVisible(false);
     } else {
         m_ui->ndkWarningIconLabel->setVisible(false);
-        m_ui->toolchainFoundLabel->setText(tr("Found %1 toolchains for this NDK.").arg(compilerPaths.count()));
+        m_ui->toolchainFoundLabel->setText(tr("Found %n toolchains for this NDK.", 0, compilerPaths.count()));
         m_ui->toolchainFoundLabel->setVisible(true);
     }
 

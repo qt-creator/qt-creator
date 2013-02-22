@@ -200,7 +200,7 @@ void BlackBerryDeviceConfigurationWidget::initGui()
     }
 
     progressDialog->setWindowModality(Qt::WindowModal);
-    progressDialog->setWindowTitle(tr("Operation in progress"));
+    progressDialog->setWindowTitle(tr("Operation in Progress"));
     progressDialog->setCancelButton(0);
     progressDialog->setLabelText(tr("Uploading debug token"));
     progressDialog->setMinimum(0);

@@ -602,7 +602,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             Kit *newKit = new Kit;
             newKit->setAutoDetected(true);
             QString arch = ProjectExplorer::Abi::toString(tc->targetAbi().architecture());
-            newKit->setDisplayName(tr("Android for %1 (gcc %2, qt %3) ")
+            newKit->setDisplayName(tr("Android for %1 (GCC %2, Qt %3)")
                                    .arg(arch)
                                    .arg(tc->ndkToolChainVersion())
                                    .arg(qt->qtVersionString()));
