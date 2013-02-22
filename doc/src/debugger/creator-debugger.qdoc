@@ -502,33 +502,79 @@
     The interruption of a program by a breakpoint can be restricted with
     certain conditions.
 
-    To set a breakpoint at a particular line you want the program to stop,
-    click the left margin or press \key F9 (\key F8 for Mac OS X).
-
-    To set breakpoints, select \gui {Add Breakpoint} in
-    the context menu in the \gui Breakpoints view.
-
-    \image qtcreator-add-breakpoint.png "Add Breakpoints" dialog
-
-    \note You can remove a breakpoint:
-
-    \list
-
-        \li By clicking the breakpoint marker in the text editor.
-
-        \li By selecting the breakpoint in the breakpoint view and pressing
-            \key{Delete}.
-
-        \li By selecting \gui{Delete Breakpoint} from the context
-            menu in the \gui Breakpoints view.
-
-    \endlist
-
     You can set and delete breakpoints before the program starts running or
     while it is running under the debugger's control. Breakpoints are saved
     together with a session.
 
+    \section2 Adding Breakpoints
+
+    To add breakpoints:
+
+    \list 1
+
+        \li Add a new breakpoint in one of the following ways:
+
+            \list
+
+                \li In the code editor, click the left margin or press \key F9
+                    (\key F8 for Mac OS X) at a particular line you want the
+                    program to stop.
+
+                \li In the \gui Breakpoints view, double-click in the empty
+                    part of the view.
+
+                \li In the \gui Breakpoints view, select \gui {Add Breakpoint}
+                    in the context menu.
+
+            \endlist
+
+        \li In the \gui {Breakpoint type} field, select the location in the
+            program code where you want the program to stop. The other options
+            to specify depend on the selected location.
+
+            \image qtcreator-add-breakpoint.png "Add Breakpoints" dialog
+
+        \li In the \gui Condition field, set the condition to be evaluated
+            before stopping at the breakpoint if the condition evaluates as
+            true.
+
+        \li In the \gui Ignore field, specify the number of times that the
+            breakpoint is ignored before the program stops.
+
+        \li In the \gui Commands field, specify the commands to execute when
+            the program stops; one command on a line. GDB executes the commands
+            in the order in which they are specified.
+
+    \endlist
+
+    For more information on breakpoints, see
+    \l{http://sourceware.org/gdb/onlinedocs/gdb/Breakpoints.html#Breakpoints}
+    {Breakpoints, Watchpoints, and Catchpoints} in GDB documentation.
+
+    \section2 Moving Breakpoints
+
+    To move the breakpoint, drag and drop a breakpoint marker to another line.
+
+    \section2 Deleting Breakpoints
+
+    To delete breakpoints:
+
+    \list
+
+        \li Click the breakpoint marker in the text editor.
+
+        \li Select the breakpoint in the \gui Breakpoints view and press
+            \key{Delete}.
+
+        \li Select \gui{Delete Breakpoint} in the context menu in the
+            \gui Breakpoints view.
+
+    \endlist
+
     \section2 Setting Data Breakpoints
+
+    A \e {data breakpoint} stops the program when data is read or written at the
+    specified address.
 
     To set a data breakpoint at an address:
 

@@ -84,16 +84,16 @@ Debugging
      types (QByteArray, std::string, char[], char* etc)
    * Adjusted to GDB 7.5 changes
    * Removed dependency on QmlJSTools
-   * Added shortcut to add breakpoint by double click on break view
-   * Made breakpoint markers draggable
-   * Added logging of exceptions (QTCREATORBUG-8141)
-   * Added option to use Intel-style disassembly
-   * Improved color highlighting of locals in memory view
+   * Implemented adding breakpoints by double-clicking in Breakpoints view
+   * Implemented dragging and dropping breakpoint markers
+   * Added logging of exceptions in the Compile Output pane (QTCREATORBUG-8141)
+   * Added option to use Intel-style disassembly to debugger GDB options
+   * Improved color highlighting of locals in Memory view
    * Made string cutoff value configurable
    * Put separate string displays in tab widget (QTCREATORBUG-8344)
    * Implemented basic value editing for CDB (QTCREATORBUG-8344)
    * Implemented support for displaying images in CDB
-   * Added framework to wrap plain GDB pretty printers for use in Creator
+   * Added framework to wrap plain GDB pretty printers for use in Qt Creator
    * Implemented display format changes for multi-selection
      (QTCREATORBUG-7577)
 
