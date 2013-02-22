@@ -370,8 +370,8 @@
         <translation>Zusätzliche Argumente:</translation>
     </message>
     <message>
-        <source>Kits:</source>
-        <translation>Kits:</translation>
+        <source>Targets:</source>
+        <translation>Ziele:</translation>
     </message>
     <message>
         <source>&lt;b&gt;No build configuration found on this kit.&lt;/b&gt;</source>
@@ -1877,6 +1877,14 @@
         <translation>Klassenhierarchie öffnen</translation>
     </message>
     <message>
+        <source>Open Method Declaration/Definition in Next Split</source>
+        <translation>Methodendeklaration beziehungsweise -definition im nächsten geteilten Fenster anzeigen</translation>
+    </message>
+    <message>
+        <source>Ctrl+E, Shift+F2</source>
+        <translation>Ctrl+E, Shift+F2</translation>
+    </message>
+    <message>
         <source>Ctrl+Shift+T</source>
         <translation>Ctrl+Shift+T</translation>
     </message>
@@ -2018,12 +2026,12 @@
         <translation>Kurzbeschreibung erstellen</translation>
     </message>
     <message>
-        <source>Add leading asterisks when continuing comments on new lines</source>
-        <translation>Asterisk-Zeichen am Zeilenanfang einfügen, wenn ein Kommentar auf einer neuen Zeile fortgesetzt wird</translation>
-    </message>
-    <message>
         <source>Add leading asterisks</source>
         <translation>Vorangehenden Asterisk einfügen</translation>
+    </message>
+    <message>
+        <source>Add leading asterisks when continuing Qt (/*!) and Java (/**) style comments on new lines</source>
+        <translation>Asterisk-Zeichen am Zeilenanfang einfügen, wenn ein Kommentar im Qt-Stil (/*!) oder im Java-Stil (/**) auf einer neuen Zeile fortgesetzt wird</translation>
     </message>
 </context>
 <context>
@@ -2098,6 +2106,10 @@
     <message>
         <source>Switch Header/Source</source>
         <translation>Zwischen Header- und Quelldatei wechseln</translation>
+    </message>
+    <message>
+        <source>Open Corresponding Header/Source in Next Split</source>
+        <translation>Headerdatei beziehungsweise Quelldatei im nächsten geteilten Fenster anzeigen</translation>
     </message>
 </context>
 <context>
@@ -3488,12 +3500,16 @@ receives a signal like SIGSEGV during debugging.</source>
         <translation>Für diesen Stack-Frame ist Quellcode vorhanden&lt;br&gt;Doppelklicken Sie auf den Dateinamen, um einen Editor zu öffnen.</translation>
     </message>
     <message>
-        <source>Binary debug information is not accessible for this frame. This either means the core was not compiled with debug information, or the debug information is not accessible. Note that most distributions ship debug information in separate packages.</source>
-        <translation>Für diesen Stack-Frame ist keine binäre Debuginformation verfügbar. Entweder stammt die Core-Datei von einer ohne Debuginformation erstellten Anwendung oder es kann nicht auf die Debuginformation zugegriffen werden. Beachten Sie, dass manche Distributionen die Debuginformationen in separaten Paketen ausliefern.</translation>
+        <source>Binary debug information is not accessible for this frame. This either means the core was not compiled with debug information, or the debug information is not accessible.</source>
+        <translation>Für diesen Stack-Frame ist keine binäre Debuginformation verfügbar. Entweder stammt die Core-Datei von einer ohne Debuginformation erstellten Anwendung oder es kann nicht auf die Debuginformation zugegriffen werden.</translation>
     </message>
     <message>
-        <source>Binary debug information is accessible for this frame. However, matching sources have not been found. Note that some distributions ship debug sources in separate packages.</source>
-        <translation>Für diesen Stack-Frame ist binäre Debuginformation verfügbar. Es konnte aber kein passender Quellcode gefunden werden. Beachten Sie, dass manche Distributionen die Debuginformationen in separaten Paketen ausliefern.</translation>
+        <source>Binary debug information is accessible for this frame. However, matching sources have not been found.</source>
+        <translation>Für diesen Stack-Frame ist binäre Debuginformation verfügbar. Es konnte aber kein passender Quellcode gefunden werden.</translation>
+    </message>
+    <message>
+        <source>Note that most distributions ship debug information in separate packages.</source>
+        <translation>Beachten Sie, dass manche Distributionen die Debuginformationen in separaten Paketen ausliefern.</translation>
     </message>
 </context>
 <context>
@@ -4833,14 +4849,6 @@ Grund: %3</translation>
         <source>Clone URL:</source>
         <translation>Clone-URL:</translation>
     </message>
-    <message>
-        <source>Delete master branch</source>
-        <translation>Master-Branch löschen</translation>
-    </message>
-    <message>
-        <source>Delete the master branch after checking out the repository.</source>
-        <translation>Bewirkt, dass der Master-Branch nach Checkout des Repositories gelöscht wird.</translation>
-    </message>
 </context>
 <context>
     <name>Git::Internal::BranchDialog</name>
@@ -5584,6 +5592,10 @@ Grund: %3</translation>
     <message>
         <source>Another submit is currently being executed.</source>
         <translation>Another submit is currently being executed.</translation>
+    </message>
+    <message>
+        <source>Unsupported version of Git found. Git %1 or later required.</source>
+        <translation>Es wurde eine nicht unterstützte Version von Git festgestellt. Es wird Git %1 oder neuer benötigt.</translation>
     </message>
     <message>
         <source>Amend %1</source>
@@ -9119,6 +9131,14 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Im Terminal ausführen</translation>
     </message>
     <message>
+        <source>Run on QVFb</source>
+        <translation>In QVFb ausführen</translation>
+    </message>
+    <message>
+        <source>Check this option to run the application on a Qt Virtual Framebuffer.</source>
+        <translation>Aktivieren Sie diese Einstellung, um die Anwendung in Qts virtuellem Framebuffer auszuführen.</translation>
+    </message>
+    <message>
         <source>Base environment for this run configuration:</source>
         <translation>Basisumgebung für diese Ausführungskonfiguration:</translation>
     </message>
@@ -10458,6 +10478,14 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>Symbol unter Einfügemarke verfolgen</translation>
     </message>
     <message>
+        <source>Follow Symbol Under Cursor in Next Split</source>
+        <translation>Symbol unter Einfügemarke im nächsten geteilten Fenster verfolgen</translation>
+    </message>
+    <message>
+        <source>Jump to File Under Cursor in Next Split</source>
+        <translation>Gehe zu Datei unter Einfügemarke in nächstem geteilten Fenster</translation>
+    </message>
+    <message>
         <source>Jump To File Under Cursor</source>
         <translation>Gehe zu Datei unter Einfügemarke</translation>
     </message>
@@ -11192,8 +11220,8 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
         <translation>Der Pfad &apos;%1&apos; ist keine Datei.</translation>
     </message>
     <message>
-        <source>The path &lt;b&gt;%1&lt;/b&gt; is not a executable file.</source>
-        <translation>Der Pfad &lt;b&gt; %1&lt;/b&gt; ist keine ausführbare Datei.</translation>
+        <source>The path &lt;b&gt;%1&lt;/b&gt; is not an executable file.</source>
+        <translation>Der Pfad &lt;b&gt;%1&lt;/b&gt; ist keine ausführbare Datei.</translation>
     </message>
     <message>
         <source>Full path: &lt;b&gt;%1&lt;/b&gt;</source>
@@ -13158,8 +13186,8 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <translation>Zeitüberschreitung bei Ausführung von &apos;%1&apos; (%2 ms).</translation>
     </message>
     <message>
-        <source>qmake &apos;%1&apos; is not an executable</source>
-        <translation>qmake &apos;%1&apos; ist keine ausführbare Datei</translation>
+        <source>qmake &apos;%1&apos; is not an executable.</source>
+        <translation>qmake &apos;%1&apos; ist keine ausführbare Datei.</translation>
     </message>
     <message>
         <source>&apos;%1&apos; crashed.</source>
@@ -14400,18 +14428,6 @@ Verwenden Sie die Eigenschaft importPaths, um Importpfade zu qmlproject-basierte
         <translation>Qt5-GUI-Anwendung für BlackBerry</translation>
     </message>
     <message>
-        <source>BlackBerry Qt Quick 2 Application</source>
-        <translation>Qt Quick 2-Anwendung für BlackBerry</translation>
-    </message>
-    <message>
-        <source>Creates a Qt Quick application for BlackBerry.</source>
-        <translation>Erstellt eine Qt Quick-Anwendung für BlackBerry.</translation>
-    </message>
-    <message>
-        <source>BlackBerry Qt Quick Application</source>
-        <translation>Qt Quick-Anwendung für BlackBerry</translation>
-    </message>
-    <message>
         <source>Plain C++ Project</source>
         <translation>C++-Projekt</translation>
     </message>
@@ -14435,11 +14451,6 @@ Verwenden Sie die Eigenschaft importPaths, um Importpfade zu qmlproject-basierte
         <source>Creates an experimental Qt 5 GUI application for BlackBerry 10. You need to provide your own build of Qt 5 for BlackBerry 10 since Qt 5 is not provided in the current BlackBerry 10 NDK and is not included in DevAlpha devices.</source>
         <oldsource>Creates an experimental Qt5 Gui application for BlackBerry 10. You need an own Qt5 build for BlackBerry 10 since Qt5 is not provided in the current BlackBerry 10 NDK and is not included in DevAlpha devices.</oldsource>
         <translation>Erstellt eine experimentelle Qt 5-GUI-Anwendung für BlackBerry 10. Sie benötigen einen eigenen Build von Qt 5 für BlackBerry 10, da Qt 5 vom aktuellen BlackBerry 10 NDK nicht bereitgestellt wird und in den DevAlpha-Geräten nicht enthalten ist.</translation>
-    </message>
-    <message>
-        <source>Creates an experimental Qt Quick 2 application for BlackBerry 10. You need to provide your own build of Qt 5 for BlackBerry 10 since Qt 5 is not provided in the current BlackBerry 10 NDK and is not included in DevAlpha devices.</source>
-        <oldsource>Creates an experimental Qt Quick 2 application for BlackBerry 10. You need an own Qt5 build for BlackBerry 10 since Qt5 is not provided in the current BlackBerry 10 NDK and is not included in DevAlpha devices.</oldsource>
-        <translation>Erstellt eine experimentelle Qt Quick 2 -Anwendung für BlackBerry 10. Sie benötigen einen eigenen Build von Qt 5 für BlackBerry 10, da Qt 5 vom aktuellen BlackBerry 10 NDK nicht bereitgestellt wird und in den DevAlpha-Geräten nicht enthalten ist.</translation>
     </message>
     <message>
         <source>Creates a qmake-based test project for which a code snippet can be entered.</source>
@@ -16832,6 +16843,18 @@ Erfordert &lt;b&gt;Qt 5.0&lt;/b&gt; oder neuer.</translation>
     <message>
         <source>Qt Quick 1 Application (from Existing QML File)</source>
         <translation>Qt Quick 1-Anwendung (aus existierender QML-Datei)</translation>
+    </message>
+    <message>
+        <source>Qt Quick 2 Application (from Existing QML File)</source>
+        <translation>Qt Quick 2-Anwendung (aus existierender QML-Datei)</translation>
+    </message>
+    <message>
+        <source>Creates a deployable Qt Quick application from existing QML files. All files and directories that reside in the same directory as the main .qml file are deployed. You can modify the contents of the directory any time before deploying.
+
+Requires &lt;b&gt;Qt 5.0&lt;/b&gt; or newer.</source>
+        <translation>Erstellt eine Qt Quick-Anwendung aus bereits existierenden QML-Dateien. Alle im Ordner der Haupt-QML-Datei befindlichen Dateien und Ordner sind zum Deployment vorgesehen. Der Inhalt des Ordners kann vor dem Deployment beliebig geändert werden.
+
+Erforder &lt;b&gt;Qt 5.0&lt;/b&gt; oder neuer.</translation>
     </message>
     <message>
         <source>The Qt Quick Components for MeeGo Harmattan are a set of ready-made components that are designed with specific native appearance for the MeeGo Harmattan platform.
@@ -19722,6 +19745,10 @@ Fehler: %2</translation>
         <translation>Diese Änderung rückgängig machen...</translation>
     </message>
     <message>
+        <source>Failed to retrieve data.</source>
+        <translation>Es konnten keine Daten erhalten werden.</translation>
+    </message>
+    <message>
         <source>Unable to Paste</source>
         <translation>Fehlschlag beim Senden an CodePaster</translation>
     </message>
@@ -21546,6 +21573,10 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <source>Cannot Start QML Puppet Executable</source>
         <translation>QML-Puppet konnte nicht gestartet werden</translation>
+    </message>
+    <message>
+        <source>The executable of the QML Puppet process (%1) cannot be started. Please check your installation. QML Puppet is a process which runs in the background to render the items.</source>
+        <translation>Die ausführbare Datei des QML-Puppet-Prozesses (%1) konnte nicht gestartet werden. Bitte überprüfen Sie Ihre Installation. QML Puppet ist ein Prozess, der im Hintergrund die Elemente rendert.</translation>
     </message>
     <message>
         <source>The executable of the QML Puppet process (&lt;code&gt;%1&lt;/code&gt;) cannot be found. Check your installation. QML Puppet is a process which runs in the background to render the items.</source>
@@ -24832,16 +24863,16 @@ Filter: %2
 <context>
     <name>ProjectExplorer::SettingsAccessor</name>
     <message>
-        <source>Using Old Project Settings File</source>
-        <translation>Projekteinstellungsdatei einer Vorgängerversion verwenden</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.&lt;/p&gt;&lt;p&gt;Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Es wird eine versionierte Sicherungskopie der .user-Datei benutzt, da die aktuelle Datei von einer neuen, inkompatiblen Version von Qt Creator erzeugt wurde.&lt;/p&gt;&lt;p&gt;Änderungen der Projekteinstellungen, die nach der letzten Benutzung dieser Version von Qt Creator für dieses Projekt vorgenommen wurden, werden nicht berücksichtigt, und die jetzt folgenden Änderungen werden &lt;b&gt;nicht&lt;/b&gt; auf die neue Version übertragen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Project Settings File from a different Environment?</source>
-        <translation>Projektdatei aus anderer Umgebung?</translation>
+        <source>Using Old Settings File for &apos;%1&apos;</source>
+        <translation>Verwendete alte Einstellungsdatei für &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Settings File for &apos;%1&apos; from a different Environment?</source>
+        <translation>Einstellungsdatei für &apos;%1&apos; aus anderer Umgebung?</translation>
     </message>
     <message>
         <source>Qt Creator has found a .user settings file which was created for another development setup, maybe originating from another machine.
@@ -25989,12 +26020,8 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
         <translation>Passende Klammern &amp;hervorheben</translation>
     </message>
     <message>
-        <source>Open links in another split</source>
-        <translation>Verweise in anderem geteilten Fenster öffnen</translation>
-    </message>
-    <message>
-        <source>Force open links in next split</source>
-        <translation>Öffnen von Verweisen in nächstem geteilten Fenster erzwingen</translation>
+        <source>Always open links in another split</source>
+        <translation>Verweise immer in anderem geteilten Fenster öffnen</translation>
     </message>
 </context>
 <context>
@@ -27853,7 +27880,7 @@ Sie müssen für die Plattform kompiliert vorliegen</translation>
         <translation>APK wählen</translation>
     </message>
     <message>
-        <source>Clean libs on device</source>
+        <source>Clean Libs on Device</source>
         <translation>Bibliotheken auf Gerät bereinigen</translation>
     </message>
 </context>
@@ -28055,6 +28082,10 @@ Sie müssen für die Plattform kompiliert vorliegen</translation>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
+    <message>
+        <source>Automatically create kits for Android tool chains</source>
+        <translation>Kits für Android-Toolchains automatisch erstellen</translation>
+    </message>
 </context>
 <context>
     <name>Core::RemoveFileDialog</name>
@@ -28182,6 +28213,70 @@ Sie müssen für die Plattform kompiliert vorliegen</translation>
         <source>Device &amp;password:</source>
         <translation>Geräte&amp;passwort:</translation>
     </message>
+    <message>
+        <source>Request</source>
+        <translation>Anforderung</translation>
+    </message>
+    <message>
+        <source>Upload</source>
+        <translation>Hochladen</translation>
+    </message>
+    <message>
+        <source>Failed to upload debug token: </source>
+        <translation>Fehlschlag beim Hochladen des Debug-Tokens: </translation>
+    </message>
+    <message>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+    <message>
+        <source>Debug token successfully uploaded.</source>
+        <translation>Das Debug-Token wurde erfolgreich hochgeladen.</translation>
+    </message>
+    <message>
+        <source>No route to host.</source>
+        <translation>Keine Route zum Host.</translation>
+    </message>
+    <message>
+        <source>Authentication failed.</source>
+        <translation>Die Authentifizierung schlug fehl.</translation>
+    </message>
+    <message>
+        <source>Development mode is disabled on the device.</source>
+        <translation>Der Entwicklungsmodus ist auf dem Gerät deaktiviert.</translation>
+    </message>
+    <message>
+        <source>Failed to start inferior process.</source>
+        <translation>Der zu debuggende Prozess konnte nicht gestartet werden.</translation>
+    </message>
+    <message>
+        <source>Inferior processes timed out.</source>
+        <translation>Zeitüberschreitung des zu debuggenden Prozesses.</translation>
+    </message>
+    <message>
+        <source>Inferior process has crashed.</source>
+        <translation>Der zu debuggende Prozess ist abgestürzt.</translation>
+    </message>
+    <message>
+        <source>Failed to communicate with the inferior process.</source>
+        <translation>Fehlschlag bei der Kommunikation mit dem zu debuggenden Prozess.</translation>
+    </message>
+    <message>
+        <source>An unknwon error has happened.</source>
+        <translation>Es trat ein unbekannter Fehler auf.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Fehler</translation>
+    </message>
+    <message>
+        <source>Operation in Progress</source>
+        <translation>Operation läuft</translation>
+    </message>
+    <message>
+        <source>Uploading debug token</source>
+        <translation>Lade Debug-Token hoch</translation>
+    </message>
 </context>
 <context>
     <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardSetupPage</name>
@@ -28224,6 +28319,10 @@ Sie müssen für die Plattform kompiliert vorliegen</translation>
     <message>
         <source>BlackBerry Device</source>
         <translation>BlackBerry-Gerät</translation>
+    </message>
+    <message>
+        <source>Request</source>
+        <translation>Anforderung</translation>
     </message>
 </context>
 <context>
@@ -28585,6 +28684,10 @@ Please install an SDK of at least API version %1.</source>
         <translation>Es konnte kein AVD erzeugt werden, da kein hinreichend aktuelles Android-SDK verfügbar ist.
 Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translation>
     </message>
+    <message>
+        <source>Android for %1 (GCC %2, Qt %3)</source>
+        <translation>Android für %1 (GCC %2, Qt %3)</translation>
+    </message>
 </context>
 <context>
     <name>Android</name>
@@ -28650,8 +28753,8 @@ Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translati
         <translation>Es kann kein Deployment durchgeführt werden: Es wurden keine Geräte oder Emulatoren für das Paket gefunden.</translation>
     </message>
     <message>
-        <source>No android toolchain selected</source>
-        <translation>Es ist keine Android-Toolchain ausgewählt</translation>
+        <source>No Android toolchain selected.</source>
+        <translation>Es ist keine Android-Toolchain ausgewählt.</translation>
     </message>
     <message>
         <source>Could not run adb. No device found.</source>
@@ -28998,9 +29101,24 @@ Bitte wählen Sie einen gültigen Paketnamen für Ihre Anwendung (z.B. &quot;org
         <source>&quot;%1&quot; does not seem to be an Android NDK top folder.</source>
         <translation>&quot;%1&quot; ist offenbar kein Android-NDK-Ordner.</translation>
     </message>
+    <message numerus="yes">
+        <source>Found %n toolchains for this NDK.</source>
+        <translation>
+            <numerusform>Es wurde eine Toolchain für dieses NDK gefunden.</numerusform>
+            <numerusform>Es wurden %n Toolchains für dieses NDK gefunden.</numerusform>
+        </translation>
+    </message>
     <message>
-        <source>Android NDK Folder</source>
-        <translation>Android-NDK-Ordner</translation>
+        <source>Qt version for architecture %1 is missing.
+ To add the Qt version, select Options &gt; Build &amp; Run &gt; Qt Versions.</source>
+        <translation>Für die Architektur %1 fehlt die Qt-Version.
+ Wählen Sie Einstellungen &gt; Erstellung und Ausführung &gt; Qt Versionen, um die Qt-Version hinzuzufügen.</translation>
+    </message>
+    <message>
+        <source>Qt versions for architectures %1 are missing.
+ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</source>
+        <translation>Für die Architekturen %1 fehlen die Qt-Versionen.
+ Wählen Sie Einstellungen &gt; Erstellung und Ausführung &gt; Qt Versionen, um Qt-Versionen hinzuzufügen.</translation>
     </message>
     <message>
         <source>Select Android SDK folder</source>
@@ -32016,10 +32134,6 @@ Fehlerausgabe: %1</translation>
 <context>
     <name>Debugger::Internal::DebuggerKitConfigWidget</name>
     <message>
-        <source>Manage...</source>
-        <translation>Verwalten...</translation>
-    </message>
-    <message>
         <source>The debugger to use for this kit.</source>
         <translation>Der für dieses Kit zu verwendende Debugger.</translation>
     </message>
@@ -32420,24 +32534,12 @@ Fehlerausgabe: %1</translation>
         <translation>Warnung</translation>
     </message>
     <message>
-        <source>Ignore this warning and open the file</source>
-        <translation>Warnung ignorieren und Datei öffnen</translation>
-    </message>
-    <message>
-        <source>Ignore</source>
-        <translation>Ignorieren</translation>
-    </message>
-    <message>
         <source>This QML file contains features which are not supported by Qt Quick Designer</source>
         <translation>Diese QML-Datei enthält Features, die von Qt Quick Designer nicht unterstützt werden.</translation>
     </message>
     <message>
         <source>Warn about unsupported features</source>
         <translation>Zeige eine Warnung bei nicht unterstützten Features an</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>OK</translation>
     </message>
 </context>
 <context>
@@ -33783,280 +33885,282 @@ Jetzt Commit durchführen?</translation>
 <context>
     <name>QmlJS::StaticAnalysisMessages</name>
     <message>
-        <source>do not use &apos;%1&apos; as a constructor</source>
-        <translation>&apos;%1&apos; darf nicht als Konstruktor verwendet werden</translation>
+        <source>Do not use &apos;%1&apos; as a constructor.</source>
+        <translation>&apos;%1&apos; darf nicht als Konstruktor verwendet werden.</translation>
     </message>
     <message>
-        <source>invalid value for enum</source>
-        <translation>Unbekannter Wert für Aufzählung</translation>
+        <source>Invalid value for enum.</source>
+        <translation>Unbekannter Wert für Aufzählung.</translation>
     </message>
     <message>
-        <source>enum value must be a string or a number</source>
-        <translation>Wert der Aufzählung ist weder Zeichenkette noch Zahl</translation>
+        <source>Enum value must be a string or a number.</source>
+        <translation>Wert der Aufzählung ist weder Zeichenkette noch Zahl.</translation>
     </message>
     <message>
-        <source>number value expected</source>
-        <translation>numerischer Wert erwartet</translation>
+        <source>Number value expected.</source>
+        <translation>Numerischer Wert erwartet.</translation>
     </message>
     <message>
-        <source>boolean value expected</source>
-        <translation>boolescher Wert erwartet</translation>
+        <source>Boolean value expected.</source>
+        <translation>Boolescher Wert erwartet.</translation>
     </message>
     <message>
-        <source>string value expected</source>
-        <translation>Zeichenkette erwartet</translation>
+        <source>String value expected.</source>
+        <translation>Zeichenkette erwartet.</translation>
     </message>
     <message>
-        <source>invalid URL</source>
-        <translation>ungültige URL</translation>
+        <source>Invalid URL.</source>
+        <translation>Ungültige URL.</translation>
     </message>
     <message>
-        <source>file or directory does not exist</source>
-        <translation>Datei oder Ordner existiert nicht</translation>
+        <source>File or directory does not exist.</source>
+        <translation>Datei oder Ordner existiert nicht.</translation>
     </message>
     <message>
-        <source>invalid color</source>
-        <translation>ungültige Farbe</translation>
+        <source>Invalid color.</source>
+        <translation>Ungültige Farbe.</translation>
     </message>
     <message>
-        <source>anchor line expected</source>
-        <translation>Ankerzeile erwartet</translation>
+        <source>Anchor line expected.</source>
+        <translation>Ankerzeile erwartet.</translation>
     </message>
     <message>
-        <source>duplicate property binding</source>
-        <translation>mehrfache Bindung der Eigenschaft</translation>
+        <source>Duplicate property binding.</source>
+        <translation>Mehrfache Bindung der Eigenschaft.</translation>
     </message>
     <message>
-        <source>id expected</source>
-        <translation>id erwartet</translation>
+        <source>Id expected.</source>
+        <translation>ID erwartet.</translation>
     </message>
     <message>
-        <source>invalid id</source>
-        <translation>ungültige id</translation>
+        <source>Invalid id.</source>
+        <translation>Ungültige ID.</translation>
     </message>
     <message>
-        <source>duplicate id</source>
-        <translation>mehrfach vorhandene id</translation>
+        <source>Duplicate id.</source>
+        <translation>mehrfach vorhandene ID.</translation>
     </message>
     <message>
-        <source>invalid property name &apos;%1&apos;</source>
-        <translation>&apos;%1&apos; ist kein gültiger Name einer Eigenschaft</translation>
+        <source>Invalid property name &apos;%1&apos;.</source>
+        <translation>&apos;%1&apos; ist kein gültiger Name einer Eigenschaft.</translation>
     </message>
     <message>
-        <source>&apos;%1&apos; does not have members</source>
-        <translation>&apos;%1&apos; hat keine Member</translation>
+        <source>&apos;%1&apos; does not have members.</source>
+        <translation>&apos;%1&apos; hat keine Member.</translation>
     </message>
     <message>
-        <source>&apos;%1&apos; is not a member of &apos;%2&apos;</source>
-        <translation>&apos;%1&apos; gehört nicht zu &apos;%2&apos;</translation>
+        <source>&apos;%1&apos; is not a member of &apos;%2&apos;.</source>
+        <translation>&apos;%1&apos; gehört nicht zu &apos;%2&apos;.</translation>
     </message>
     <message>
-        <source>assignment in condition</source>
-        <translation>Zuweisung in Bedingung</translation>
+        <source>Assignment in condition.</source>
+        <translation>Zuweisung in Bedingung.</translation>
     </message>
     <message>
-        <source>unterminated non-empty case block</source>
-        <translation>case nicht abgeschlossen und nicht leer</translation>
+        <source>Unterminated non-empty case block.</source>
+        <translation>case-Block nicht abgeschlossen und nicht leer.</translation>
     </message>
     <message>
-        <source>do not use &apos;eval&apos;</source>
-        <translation>von der Verwendung von &apos;eval&apos; wird abgeraten</translation>
+        <source>Do not use &apos;eval&apos;.</source>
+        <translation>von der Verwendung von &apos;eval&apos; wird abgeraten.</translation>
     </message>
     <message>
-        <source>unreachable</source>
-        <translation>nicht erreichbar</translation>
+        <source>Unreachable.</source>
+        <translation>Nicht erreichbar.</translation>
     </message>
     <message>
-        <source>do not use &apos;with&apos;</source>
-        <translation>von der Verwendung von &apos;with&apos; wird abgeraten</translation>
+        <source>Do not use &apos;with&apos;.</source>
+        <translation>Von der Verwendung von &apos;with&apos; wird abgeraten.</translation>
     </message>
     <message>
-        <source>do not use comma expressions</source>
-        <translation>von der Verwendung von Komma-Ausdrücken wird abgeraten</translation>
+        <source>Do not use comma expressions.</source>
+        <translation>Von der Verwendung von Komma-Ausdrücken wird abgeraten.</translation>
     </message>
     <message>
-        <source>unnecessary message suppression</source>
-        <translation>unnötige Unterdrückung einer Nachricht</translation>
+        <source>&apos;%1&apos; already is a formal parameter.</source>
+        <translation>&apos;%1&apos; ist bereits ein formaler Parameter.</translation>
     </message>
     <message>
-        <source>var &apos;%1&apos; is used before its declaration</source>
-        <translation>Variable &apos;%1&apos; wird vor Deklaration benutzt</translation>
+        <source>Unnecessary message suppression.</source>
+        <translation>Unnötige Unterdrückung einer Nachricht.</translation>
     </message>
     <message>
-        <source>&apos;%1&apos; already is a formal parameter</source>
-        <translation>&apos;%1&apos; ist bereits ein formaler Parameter</translation>
+        <source>&apos;%1&apos; already is a function.</source>
+        <translation>&apos;%1&apos; ist bereits als Funktion definiert.</translation>
     </message>
     <message>
-        <source>&apos;%1&apos; already is a function</source>
-        <translation>&apos;%1&apos; ist bereits als Funktion definiert</translation>
+        <source>var &apos;%1&apos; is used before its declaration.</source>
+        <translation>Variable &apos;%1&apos; wird vor Deklaration benutzt.</translation>
     </message>
     <message>
-        <source>&apos;%1&apos; already is a var</source>
-        <translation>&apos;%1&apos; ist bereits als Variable definiert</translation>
+        <source>&apos;%1&apos; already is a var.</source>
+        <translation>&apos;%1&apos; ist bereits als Variable definiert.</translation>
     </message>
     <message>
-        <source>&apos;%1&apos; is declared more than once</source>
-        <translation>&apos;%1&apos; mehrfach deklariert</translation>
+        <source>&apos;%1&apos; is declared more than once.</source>
+        <translation>&apos;%1&apos; mehrfach deklariert.</translation>
     </message>
     <message>
-        <source>function &apos;%1&apos; is used before its declaration</source>
-        <translation>Funktion &apos;%1&apos; wird vor Deklaration benutzt</translation>
+        <source>Function &apos;%1&apos; is used before its declaration.</source>
+        <translation>Funktion &apos;%1&apos; wird vor Deklaration benutzt.
+</translation>
     </message>
     <message>
-        <source>the &apos;function&apos; keyword and the opening parenthesis should be separated by a single space</source>
-        <translation>Das Schlüsselwort &apos;function&apos; und die öffnende Klammer sollten durch ein Leerzeichen getrennt werden</translation>
+        <source>The &apos;function&apos; keyword and the opening parenthesis should be separated by a single space.</source>
+        <translation>Das Schlüsselwort &apos;function&apos; und die öffnende Klammer sollten durch ein Leerzeichen getrennt werden.</translation>
     </message>
     <message>
-        <source>do not use stand-alone blocks</source>
-        <translation>eigenständige Blöcke sollten nicht verwendet werden</translation>
+        <source>Do not use stand-alone blocks.</source>
+        <translation>Eigenständige Blöcke sollten nicht verwendet werden.</translation>
     </message>
     <message>
-        <source>do not use void expressions</source>
-        <translation>von der Verwendung von void-Ausdrücken wird abgeraten</translation>
+        <source>Do not use void expressions.</source>
+        <translation>Von der Verwendung von void-Ausdrücken wird abgeraten.</translation>
     </message>
     <message>
-        <source>confusing pluses</source>
-        <translation>Pluszeichen an dieser Stelle sind verwirrend</translation>
+        <source>Confusing pluses.</source>
+        <translation>Pluszeichen an dieser Stelle sind verwirrend.</translation>
     </message>
     <message>
-        <source>confusing minuses</source>
-        <translation>Minuszeichen an dieser Stelle sind verwirrend</translation>
+        <source>Confusing minuses.</source>
+        <translation>Minuszeichen an dieser Stelle sind verwirrend.</translation>
     </message>
     <message>
-        <source>declare all function vars on a single line</source>
-        <translation>Funktionsvariablen sollten auf einer einzigen Zeile deklariert werden</translation>
+        <source>Declare all function vars on a single line.</source>
+        <translation>Funktionsvariablen sollten auf einer einzigen Zeile deklariert werden.</translation>
     </message>
     <message>
-        <source>unnecessary parentheses</source>
-        <translation>unnötige Klammern</translation>
+        <source>Unnecessary parentheses.</source>
+        <translation>Unnötige Klammern.</translation>
     </message>
     <message>
-        <source>== and != may perform type coercion, use === or !== to avoid</source>
-        <translation>== und != können unbeabsichtigte Typumwandlungen verursachen, === oder !== sollten stattdessen verwendet werden</translation>
+        <source>== and != may perform type coercion, use === or !== to avoid it.</source>
+        <translation>== und != können unbeabsichtigte Typumwandlungen verursachen, === oder !== sollten stattdessen verwendet werden.</translation>
     </message>
     <message>
-        <source>expression statements should be assignments, calls or delete expressions only</source>
-        <translation>Anweisungen mit Ausdrücken sollten Zuweisungen, Funktionsaufrufe oder delete-Ausdrücke sein</translation>
+        <source>Expression statements should be assignments, calls or delete expressions only.</source>
+        <translation>Anweisungen mit Ausdrücken sollten Zuweisungen, Funktionsaufrufe oder delete-Ausdrücke sein.</translation>
     </message>
     <message>
-        <source>var declarations should be at the start of a function</source>
-        <translation>var-Deklarationen sollten am Beginn einer Funktion stehen</translation>
+        <source>Place var declarations at the start of a function.</source>
+        <translation>var-Deklarationen sollten am Beginn einer Funktion stehen.</translation>
     </message>
     <message>
-        <source>only use one statement per line</source>
-        <translation>eine Zeile sollte nur eine Anweisung enthalten</translation>
+        <source>Use only one statement per line.</source>
+        <translation>Eine Zeile sollte nur eine Anweisung enthalten.</translation>
     </message>
     <message>
-        <source>unknown component</source>
-        <translation>unbekannte Komponente</translation>
+        <source>Unknown component.</source>
+        <translation>Unbekannte Komponente.</translation>
     </message>
     <message>
-        <source>could not resolve the prototype &apos;%1&apos; of &apos;%2&apos;</source>
-        <translation>Prototyp &apos;%1&apos; von &apos;%2&apos; konnte nicht aufgelöst werden</translation>
+        <source>Could not resolve the prototype &apos;%1&apos; of &apos;%2&apos;.</source>
+        <translation>Prototyp &apos;%1&apos; von &apos;%2&apos; konnte nicht aufgelöst werden.</translation>
     </message>
     <message>
-        <source>could not resolve the prototype &apos;%1&apos;</source>
-        <translation>Prototyp &apos;%1&apos; konnte nicht aufgelöst werden</translation>
+        <source>Could not resolve the prototype &apos;%1&apos;.</source>
+        <translation>Prototyp &apos;%1&apos; konnte nicht aufgelöst werden.</translation>
     </message>
     <message>
-        <source>prototype cycle, the last non-repeated component is &apos;%1&apos;</source>
-        <translation>Prototyp-Schleife, letztes nicht wiederholt auftretendes Objekt ist &apos;%1&apos;</translation>
+        <source>Prototype cycle, the last non-repeated component is &apos;%1&apos;.</source>
+        <translation>Prototyp-Schleife, letztes nicht wiederholt auftretendes Objekt ist &apos;%1&apos;.</translation>
     </message>
     <message>
-        <source>invalid property type &apos;%1&apos;</source>
-        <translation>&apos;%1&apos; ist kein gültiger Eigenschaftstyp</translation>
+        <source>Invalid property type &apos;%1&apos;.</source>
+        <translation>&apos;%1&apos; ist kein gültiger Eigenschaftstyp.</translation>
     </message>
     <message>
-        <source>== and != perform type coercion, use === or !== to avoid</source>
-        <translation>== und != verursachen unbeabsichtigte Typumwandlungen, === oder !== sollten stattdessen verwendet werden</translation>
+        <source>== and != perform type coercion, use === or !== to avoid it.</source>
+        <translation>== und != verursachen unbeabsichtigte Typumwandlungen, === oder !== sollten stattdessen verwendet werden.</translation>
     </message>
     <message>
-        <source>calls of functions that start with an uppercase letter should use &apos;new&apos;</source>
-        <translation>Funktionen, die mit einem Großbuchstaben beginnen, sollten mit &apos;new&apos; aufgerufen werden</translation>
+        <source>Calls of functions that start with an uppercase letter should use &apos;new&apos;.</source>
+        <translation>Funktionen, die mit einem Großbuchstaben beginnen, sollten mit &apos;new&apos; aufgerufen werden.</translation>
     </message>
     <message>
-        <source>&apos;new&apos; should only be used with functions that start with an uppercase letter</source>
-        <translation>&apos;new&apos; sollte nur mit Funktionen verwendet werden, die mit einem Großbuchstaben beginnen</translation>
+        <source>Use &apos;new&apos; only with functions that start with an uppercase letter.</source>
+        <translation>&apos;new&apos; sollte nur mit Funktionen verwendet werden, die mit einem Großbuchstaben beginnen.</translation>
     </message>
     <message>
-        <source>use spaces around binary operators</source>
-        <translation>binäre Operatoren sollten von Leerzeichen umgeben sein</translation>
+        <source>Use spaces around binary operators.</source>
+        <translation>Binäre Operatoren sollten von Leerzeichen umgeben sein.</translation>
     </message>
     <message>
-        <source>unintentional empty block, use ({}) for empty object literal</source>
-        <translation>unbeabsichtigter leerer Block, verwenden Sie ({}) als leeres Objekt-Literal</translation>
+        <source>Unintentional empty block, use ({}) for empty object literal.</source>
+        <translation>Unbeabsichtigter leerer Block, verwenden Sie ({}) als leeres Objekt-Literal.</translation>
     </message>
     <message>
-        <source>use %1 instead of &apos;var&apos; or &apos;variant&apos; to improve performance</source>
-        <translation>Zur Steigerung der Ausführungsgeschwindigkeit sollte %1 an Stelle von &apos;var&apos; oder &apos;variant&apos; verwendet werden</translation>
+        <source>Use %1 instead of &apos;var&apos; or &apos;variant&apos; to improve performance.</source>
+        <translation>Zur Steigerung der Ausführungsgeschwindigkeit sollte %1 an Stelle von &apos;var&apos; oder &apos;variant&apos; verwendet werden.</translation>
     </message>
     <message>
-        <source>missing property &apos;%1&apos;</source>
-        <translation>fehlende Eigenschaft &apos;%1&apos;</translation>
+        <source>Missing property &apos;%1&apos;.</source>
+        <translation>Fehlende Eigenschaft &apos;%1&apos;.</translation>
     </message>
     <message>
-        <source>object value expected</source>
-        <translation>Objektwert erwartet</translation>
+        <source>Object value expected.</source>
+        <translation>Objektwert erwartet.</translation>
     </message>
     <message>
-        <source>array value expected</source>
-        <translation>Feld erwartet</translation>
+        <source>Array value expected.</source>
+        <translation>Feld erwartet.</translation>
     </message>
     <message>
-        <source>%1 value expected</source>
-        <translation>%1-Wert erwartet</translation>
+        <source>%1 value expected.</source>
+        <translation>%1-Wert erwartet.</translation>
     </message>
     <message>
-        <source>maximum number value is %1</source>
-        <translation>Maximalwert ist %1 </translation>
+        <source>Maximum number value is %1.</source>
+        <translation>Maximalwert ist %1.</translation>
     </message>
     <message>
-        <source>minimum number value is %1</source>
-        <translation>Minimalwert ist %1</translation>
+        <source>Minimum number value is %1.</source>
+        <translation>Minimalwert ist %1.
+</translation>
     </message>
     <message>
-        <source>maximum number value is exclusive</source>
-        <translation>Maximalwert ist ausgeschlossen</translation>
+        <source>Maximum number value is exclusive.</source>
+        <translation>Maximalwert ist ausgeschlossen.</translation>
     </message>
     <message>
-        <source>minimum number value is exclusive</source>
-        <translation>Minimalwert ist ausgeschlossen</translation>
+        <source>Minimum number value is exclusive.</source>
+        <translation>Minimalwert ist ausgeschlossen.</translation>
     </message>
     <message>
-        <source>string value does not match required pattern</source>
-        <translation>Der Wert der Zeichenkette entspricht nicht dem Muster</translation>
+        <source>String value does not match required pattern.</source>
+        <translation>Der Wert der Zeichenkette entspricht nicht dem Muster.</translation>
     </message>
     <message>
-        <source>minimum string value length is %1</source>
-        <translation>Die Zeichenkette muss mindestens %1 Zeichen enthalten</translation>
+        <source>Minimum string value length is %1.</source>
+        <translation>Die Zeichenkette muss mindestens %1 Zeichen enthalten.</translation>
     </message>
     <message>
-        <source>maximum string value length is %1</source>
-        <translation>Die Zeichenkette darf maximal %1 Zeichen enthalten</translation>
+        <source>Maximum string value length is %1.</source>
+        <translation>Die Zeichenkette darf maximal %1 Zeichen enthalten.</translation>
     </message>
     <message>
-        <source>%1 elements expected in array value</source>
-        <translation>Das Feld benötigt %1 Werte</translation>
+        <source>%1 elements expected in array value.</source>
+        <translation>Das Feld benötigt %1 Werte.</translation>
     </message>
     <message>
-        <source>Imperative code is not supported in the Qt Quick Designer</source>
-        <translation>Imperativer Code wird von Qt Quick Designer nicht unterstützt</translation>
+        <source>Imperative code is not supported in the Qt Quick Designer.</source>
+        <translation>Imperativer Code wird von Qt Quick Designer nicht unterstützt.</translation>
     </message>
     <message>
-        <source>This type is not supported in the Qt Quick Designer</source>
-        <translation>Dieser Typ wird von Qt Quick Designer nicht unterstützt</translation>
+        <source>This type is not supported in the Qt Quick Designer.</source>
+        <translation>Dieser Typ wird von Qt Quick Designer nicht unterstützt.</translation>
     </message>
     <message>
-        <source>Reference to parent item cannot be resolved correctly by the Qt Quick Designer</source>
-        <translation>Der Verweis auf das Elternelement kann von Qt Quick Designer nicht korrekt aufgelöst werden</translation>
+        <source>Reference to parent item cannot be resolved correctly by the Qt Quick Designer.</source>
+        <translation>Der Verweis auf das Elternelement kann von Qt Quick Designer nicht korrekt aufgelöst werden.</translation>
     </message>
     <message>
-        <source>This visual property binding cannot be evaluated in the local context and might not show up in Qt Quick Designer as expected</source>
-        <translation>Dieses sichtbare Property-Binding kann nicht im lokalen Kontext ausgewertet werden und wird daher in Qt Quick Designer möglicherweise nicht wie erwartet angezeigt</translation>
+        <source>This visual property binding cannot be evaluated in the local context and might not show up in Qt Quick Designer as expected.</source>
+        <translation>Dieses sichtbare Property-Binding kann nicht im lokalen Kontext ausgewertet werden und wird daher in Qt Quick Designer möglicherweise nicht wie erwartet angezeigt.</translation>
     </message>
     <message>
-        <source>Qt Quick Designer only supports states in the root item </source>
-        <translation>Qt Quick Designer unterstützt nur States im Wurzelelement </translation>
+        <source>Qt Quick Designer only supports states in the root item.</source>
+        <translation>Qt Quick Designer unterstützt nur States im Wurzelelement.</translation>
     </message>
 </context>
 <context>
@@ -34159,8 +34263,8 @@ Jetzt Commit durchführen?</translation>
 <context>
     <name>QbsProjectManager::Internal::QbsBuildStep</name>
     <message>
-        <source>qbs build</source>
-        <translation>qbs-Build</translation>
+        <source>Qbs build</source>
+        <translation>Qbs-Build</translation>
     </message>
 </context>
 <context>
@@ -34173,8 +34277,8 @@ Jetzt Commit durchführen?</translation>
 <context>
     <name>QbsProjectManager::Internal::QbsCleanStep</name>
     <message>
-        <source>qbs clean</source>
-        <translation>qbs clean</translation>
+        <source>Qbs clean</source>
+        <translation>Qbs clean</translation>
     </message>
 </context>
 <context>
@@ -34497,8 +34601,8 @@ Jetzt Commit durchführen?</translation>
 <context>
     <name>Android::Internal::AndroidGdbServerKitInformation</name>
     <message>
-        <source>GDBserver</source>
-        <translation>GDBserver</translation>
+        <source>GDB server</source>
+        <translation>GDB Server</translation>
     </message>
 </context>
 <context>
@@ -34516,20 +34620,20 @@ Jetzt Commit durchführen?</translation>
         <translation>Bearbeiten...</translation>
     </message>
     <message>
-        <source>Android GDBserver</source>
-        <translation>Android-GDBserver</translation>
+        <source>Android GDB server</source>
+        <translation>Android-GDB Server</translation>
     </message>
     <message>
-        <source>The GDBserver to use for this kit.</source>
-        <translation>Der für dieses Kit zu verwendende GDBserver.</translation>
+        <source>The GDB server to use for this kit.</source>
+        <translation>Der für dieses Kit zu verwendende GDB-Server.</translation>
+    </message>
+    <message>
+        <source>GDB Server for &quot;%1&quot;</source>
+        <translation>GDB-Server für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>&amp;Binary:</source>
         <translation>&amp;Ausführbare Datei:</translation>
-    </message>
-    <message>
-        <source>GDBserver for &quot;%1&quot;</source>
-        <translation>GDBserver für &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
@@ -34545,6 +34649,484 @@ Jetzt Commit durchführen?</translation>
     <message>
         <source>This .qml file contains features which are not supported by Qt Quick Designer</source>
         <translation>Diese .qml-Datei enthält Features, die von Qt Quick Designer nicht unterstützt werden</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryCreateCertificateDialog</name>
+    <message>
+        <source>Path:</source>
+        <translation>Pfad:</translation>
+    </message>
+    <message>
+        <source>Author:</source>
+        <translation>Autor:</translation>
+    </message>
+    <message>
+        <source>Password:</source>
+        <translation>Passwort:</translation>
+    </message>
+    <message>
+        <source>Confirm password:</source>
+        <translation>Passwort bestätigen:</translation>
+    </message>
+    <message>
+        <source>Show password</source>
+        <translation>Passwort anzeigen</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Status</translation>
+    </message>
+    <message>
+        <source>PKCS 12 archives (*.p12)</source>
+        <translation>PKCS 12-Archive (*.p12)</translation>
+    </message>
+    <message>
+        <source>Base directory does not exist.</source>
+        <translation>Basisverzeichnis existiert nicht.</translation>
+    </message>
+    <message>
+        <source>The entered passwords do not match.</source>
+        <translation>Die eingegebenen Passwörter stimmen nicht überein.</translation>
+    </message>
+    <message>
+        <source>Are you sure?</source>
+        <translation>Sind Sie sicher?</translation>
+    </message>
+    <message>
+        <source>The file &apos;%1&apos; will be overwritten. Do you want to proceed?</source>
+        <translation>Die Datei &apos;%1&apos; wird überschrieben. Möchten Sie fortsetzen?</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Fehler</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred while creating the certificate.</source>
+        <translation>Beim Erstellen des Zertifikats trat ein unbekannter Fehler auf.</translation>
+    </message>
+    <message>
+        <source>Please be patient...</source>
+        <translation>Bitte haben Sie einen Moment Geduld...</translation>
+    </message>
+    <message>
+        <source>Create Certificate</source>
+        <translation>Zertifikat erstellen</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryImportCertificateDialog</name>
+    <message>
+        <source>Path:</source>
+        <translation>Pfad:</translation>
+    </message>
+    <message>
+        <source>Password:</source>
+        <translation>Passwort:</translation>
+    </message>
+    <message>
+        <source>Import Certificate</source>
+        <translation>Zertifikat importieren</translation>
+    </message>
+    <message>
+        <source>PKCS 12 Archives (*.p12)</source>
+        <translation>PKCS 12-Archive (*.p12)</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Fehler</translation>
+    </message>
+    <message>
+        <source>The keystore password is invalid.</source>
+        <translation>Ungültiges Keystore-Passwort.</translation>
+    </message>
+    <message>
+        <source>An unknown error has occurred.</source>
+        <translation>Es trat ein unbekannter Fehler auf.</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryKeysWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>Registered: Yes</source>
+        <translation>Registriert: Ja</translation>
+    </message>
+    <message>
+        <source>Register</source>
+        <translation>Registrieren</translation>
+    </message>
+    <message>
+        <source>Unregister</source>
+        <translation>Registrierung aufheben</translation>
+    </message>
+    <message>
+        <source>Developer Certificate</source>
+        <translation>Entwicklerzertifikat</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>Erstellen</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Importieren</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Löschen</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Fehler</translation>
+    </message>
+    <message>
+        <source>Unregister Key</source>
+        <translation>Schlüsselregistrierung aufheben</translation>
+    </message>
+    <message>
+        <source>Could not insert default certificate.</source>
+        <translation>Das Vorgabezertifikat konnte nicht eingefügt werden.</translation>
+    </message>
+    <message>
+        <source>Do you really want to unregister your key? This action cannot be undone.</source>
+        <translation>Möchten Sie wirklich die Registrierung Ihres Schlüssels aufheben? Dies kann nicht rückgängig gemacht werden.</translation>
+    </message>
+    <message>
+        <source>Error storing certificate.</source>
+        <translation>Fehler beim Speichern des Zertifikats.</translation>
+    </message>
+    <message>
+        <source>This certificate already exists.</source>
+        <translation>Dieses Zertifikat existiert bereits.</translation>
+    </message>
+    <message>
+        <source>Delete Certificate</source>
+        <translation>Zertifikat löschen</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete this certificate?</source>
+        <translation>Möchten dieses Zertifikat wirklich löschen?</translation>
+    </message>
+    <message>
+        <source>Registered: No</source>
+        <translation>Registriert: Nein</translation>
+    </message>
+    <message>
+        <source>BlackBerry Signing Authority</source>
+        <translation>BlackBerry-Signierstelle</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryRegisterKeyDialog</name>
+    <message>
+        <source>PBDT CSJ file:</source>
+        <translation>PBDT CSJ Datei:</translation>
+    </message>
+    <message>
+        <source>RDK CSJ file:</source>
+        <translation>RDK CSJ-Datei:</translation>
+    </message>
+    <message>
+        <source>Keystore password:</source>
+        <translation>Keystore-Passwort:</translation>
+    </message>
+    <message>
+        <source>Confirm password:</source>
+        <translation>Passwort bestätigen:</translation>
+    </message>
+    <message>
+        <source>Generate developer certificate automatically</source>
+        <translation>Entwicklerzertifikat automatisch erstellen</translation>
+    </message>
+    <message>
+        <source>Show</source>
+        <translation>Anzeigen</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Status</translation>
+    </message>
+    <message>
+        <source>CSK PINs do not match.</source>
+        <translation>CSK-PINs stimmen nicht überein.</translation>
+    </message>
+    <message>
+        <source>Keystore password does not match.</source>
+        <translation>Keystore-Passwörter stimmen nicht überein.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Fehler</translation>
+    </message>
+    <message>
+        <source>Error creating developer certificate.</source>
+        <translation>Fehler beim Erstellen des Entwicklerzertifikats.</translation>
+    </message>
+    <message>
+        <source>Browse CSJ File</source>
+        <translation>PBDT CSJ-Datei auswählen</translation>
+    </message>
+    <message>
+        <source>CSJ files (*.csj)</source>
+        <translation>CSJ Dateien (*.csj)</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Obtaining keys&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You will need to order a pair of CSJ files from BlackBerry, by &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;visiting this page.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Schlüssel erhalten&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Sie müssen zwei CSJ-Dateien bei BlackBerry bestellen, was auf dieser &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;Seite&lt;/span&gt;&lt;/a&gt; geschieht.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>CSJ PIN:</source>
+        <translation>CSJ-PIN:</translation>
+    </message>
+    <message>
+        <source>CSK PIN:</source>
+        <translation>CSK-PIN:</translation>
+    </message>
+    <message>
+        <source>Confirm CSK PIN:</source>
+        <translation>CSK-PIN bestätigen:</translation>
+    </message>
+    <message>
+        <source>This is the PIN you entered when you requested the CSJ files.</source>
+        <translation>Dies ist die PIN, die Sie bei der Anforderung der CSJ-Dateien eingegeben haben.</translation>
+    </message>
+    <message>
+        <source>Create Key</source>
+        <translation>Schlüssel erstellen</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryCertificateModel</name>
+    <message>
+        <source>Path</source>
+        <translation>Pfad</translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <translation>Autor</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktiv</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryCsjRegistrar</name>
+    <message>
+        <source>Failed to start blackberry-signer process.</source>
+        <translation>Der BlackBerry-Signierungsprozess konnte nicht gestartet werden.</translation>
+    </message>
+    <message>
+        <source>Process timed out.</source>
+        <translation>Zeitüberschreitung des Prozesses.</translation>
+    </message>
+    <message>
+        <source>Child process has crashed.</source>
+        <translation>Der Kindprozess ist abgestürzt.</translation>
+    </message>
+    <message>
+        <source>Process I/O error.</source>
+        <translation>Ein/Ausgabefehler des Prozesses.</translation>
+    </message>
+    <message>
+        <source>Unknown process error.</source>
+        <translation>Unbekannter Fehler des Prozesses.</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryKeysPage</name>
+    <message>
+        <source>Keys</source>
+        <translation>Schlüssel</translation>
+    </message>
+</context>
+<context>
+    <name>QbsProjectManager::Internal::QbsStepConfigWidget</name>
+    <message>
+        <source>Dry run</source>
+        <translation>Probelauf</translation>
+    </message>
+    <message>
+        <source>Keep Going</source>
+        <translation>Fortsetzen</translation>
+    </message>
+    <message>
+        <source>jobs</source>
+        <translation>Jobs</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
+        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
+    </message>
+</context>
+<context>
+    <name>DiffEditor</name>
+    <message>
+        <source>Diff Editor</source>
+        <translation>Diff-Editor</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeProjectManager::Internal::NoKitPage</name>
+    <message>
+        <source>Show Options</source>
+        <translation>Einstellungen anzeigen</translation>
+    </message>
+    <message>
+        <source>Check Kits</source>
+        <translation>Kits prüfen</translation>
+    </message>
+    <message>
+        <source>There are compatible kits.</source>
+        <translation>Es sind kompatible Kits vorhanden.</translation>
+    </message>
+    <message>
+        <source>Qt Creator has no kits that are suitable for CMake projects. Please configure a kit.</source>
+        <translation>Qt Creator hat keine für CMake-Projekte geeigneten Kits. Bitte richten Sie ein Kit ein.</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryDebugTokenRequestDialog</name>
+    <message>
+        <source>Request Debug Token</source>
+        <translation>Debug-Token anfordern</translation>
+    </message>
+    <message>
+        <source>Debug token path:</source>
+        <translation>Pfad zu Debug Token:</translation>
+    </message>
+    <message>
+        <source>Keystore:</source>
+        <translation>Keystore:</translation>
+    </message>
+    <message>
+        <source>Keystore password:</source>
+        <translation>Keystore-Passwort:</translation>
+    </message>
+    <message>
+        <source>CSK password:</source>
+        <translation>CSK-Passwort:</translation>
+    </message>
+    <message>
+        <source>Device PIN:</source>
+        <translation>Geräte-PIN:</translation>
+    </message>
+    <message>
+        <source>Show password</source>
+        <translation>Passwort anzeigen</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Status</translation>
+    </message>
+    <message>
+        <source>BAR Files (*.bar)</source>
+        <translation>BAR-Dateien (*.bar)</translation>
+    </message>
+    <message>
+        <source>Base directory does not exist.</source>
+        <translation>Basisverzeichnis existiert nicht.</translation>
+    </message>
+    <message>
+        <source>Are you sure?</source>
+        <translation>Sind Sie sicher?</translation>
+    </message>
+    <message>
+        <source>The file &apos;%1&apos; will be overwritten. Do you want to proceed?</source>
+        <translation>Die Datei &apos;%1&apos; wird überschrieben. Möchten Sie fortsetzen?</translation>
+    </message>
+    <message>
+        <source>Failed to request debug token: </source>
+        <translation>Fehlschlag beim Anfordern des Debug-Tokens: </translation>
+    </message>
+    <message>
+        <source>Wrong CSK password.</source>
+        <translation>Falsches CSK-Passwort.</translation>
+    </message>
+    <message>
+        <source>Wrong keystore password.</source>
+        <translation>Falsches Keystore-Passwort.</translation>
+    </message>
+    <message>
+        <source>Network unreachable.</source>
+        <translation>Das Netzwerk ist nicht erreichbar.</translation>
+    </message>
+    <message>
+        <source>Illegal device PIN.</source>
+        <translation>Unzulässige Geräte-PIN.</translation>
+    </message>
+    <message>
+        <source>Failed to start inferior process.</source>
+        <translation>Der zu debuggende Prozess konnte nicht gestartet werden.</translation>
+    </message>
+    <message>
+        <source>Inferior processes timed out.</source>
+        <translation>Zeitüberschreitung des zu debuggenden Prozesses.</translation>
+    </message>
+    <message>
+        <source>Inferior process has crashed.</source>
+        <translation>Der zu debuggende Prozess ist abgestürzt.</translation>
+    </message>
+    <message>
+        <source>Failed to communicate with the inferior process.</source>
+        <translation>Fehlschlag bei Kommunikation mit dem zu debuggenden Prozess.</translation>
+    </message>
+    <message>
+        <source>An unknwon error has occurred.</source>
+        <translation>Es trat ein unbekannter Fehler auf.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Fehler</translation>
+    </message>
+    <message>
+        <source>Requesting debug token...</source>
+        <translation>Debug-Token anfordern...</translation>
+    </message>
+</context>
+<context>
+    <name>DiffEditor::Internal::DiffEditorEditable</name>
+    <message>
+        <source>Ignore Whitespaces</source>
+        <translation>Leerzeichen nicht berücksichtigen</translation>
+    </message>
+    <message>
+        <source>Context Lines:</source>
+        <translation>Kontextzeilen:</translation>
+    </message>
+</context>
+<context>
+    <name>DiffEditor::Internal::DiffEditorPlugin</name>
+    <message>
+        <source>Diff...</source>
+        <translation>Diff...</translation>
+    </message>
+    <message>
+        <source>Select First File for Diff</source>
+        <translation>Erste Datei für Diff auswählen</translation>
+    </message>
+    <message>
+        <source>Select Second File for Diff</source>
+        <translation>Zweite Datei für Diff auswählen</translation>
+    </message>
+    <message>
+        <source>Diff &quot;%1&quot;, &quot;%2&quot;</source>
+        <extracomment>Editor title</extracomment>
+        <translation>Diff &quot;%1&quot;, &quot;%2&quot;</translation>
+    </message>
+</context>
+<context>
+    <name>DiffEditor::DiffViewEditorWidget</name>
+    <message numerus="yes">
+        <source>Skipped %n lines...</source>
+        <translation>
+            <numerusform>Eine Zeile übersprungen...</numerusform>
+            <numerusform>%n Zeilen übersprungen...</numerusform>
+        </translation>
     </message>
 </context>
 </TS>
