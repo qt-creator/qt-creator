@@ -605,6 +605,10 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
 void QbsProject::updateQmlJsCodeModel(const qbs::ProjectData *prj)
 {
     Q_UNUSED(prj);
+    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
+    if (!modelManager)
+        return;
+
     QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
             QmlJSTools::defaultProjectInfoForProject(this);
     modelManager->updateProjectInfo(projectInfo);
