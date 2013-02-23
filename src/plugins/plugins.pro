@@ -90,7 +90,7 @@ contains(QT_CONFIG, declarative) {
     warning("QmlProjectManager, QmlProfiler and QmlDesigner plugins have been disabled: The plugins require QtDeclarative");
 }
 
-include (debugger/lldb/guest/qtcreator-lldb.pri)
+include (debugger/lldblib/guest/qtcreator-lldb.pri)
 
 plugin_coreplugin.subdir = coreplugin
 
