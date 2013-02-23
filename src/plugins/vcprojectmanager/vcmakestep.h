@@ -19,6 +19,7 @@ class VcMakeStep : public ProjectExplorer::AbstractProcessStep
 
 public:
     explicit VcMakeStep(ProjectExplorer::BuildStepList *bsl);
+    ~VcMakeStep();
 
     bool init();
     void run(QFutureInterface<bool> &fi);

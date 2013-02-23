@@ -35,6 +35,10 @@ VcMakeStep::VcMakeStep(ProjectExplorer::BuildStepList *bsl)
 {
 }
 
+VcMakeStep::~VcMakeStep()
+{
+}
+
 bool VcMakeStep::init()
 {
     VcProjectBuildConfiguration *bc = vcProjectBuildConfiguration();
