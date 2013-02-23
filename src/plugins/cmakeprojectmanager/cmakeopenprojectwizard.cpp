@@ -663,6 +663,7 @@ void CMakeRunPage::initializePage()
         m_generatorComboBox->show();
         QList<ProjectExplorer::Kit *> kitList =
                 ProjectExplorer::KitManager::instance()->kits();
+        int defaultIndex = 0;
 
         foreach (ProjectExplorer::Kit *k, kitList) {
             QList<GeneratorInfo> infos = GeneratorInfo::generatorInfosFor(k,
@@ -670,10 +671,15 @@ void CMakeRunPage::initializePage()
                                                                           preferNinja,
                                                                           hasCodeBlocksGenerator);
 
+            if (k == ProjectExplorer::KitManager::instance()->defaultKit())
+                defaultIndex = m_generatorComboBox->count();
+
             foreach (const GeneratorInfo &info, infos)
                 if (cachedGenerator.isEmpty() || info.generator() == cachedGenerator)
                     m_generatorComboBox->addItem(info.displayName(), qVariantFromValue(info));
         }
+
+        m_generatorComboBox->setCurrentIndex(defaultIndex);
     } else {
         // Note: We don't compare the actually cached generator to what is set in the buildconfiguration
         // We assume that the buildconfiguration is correct
