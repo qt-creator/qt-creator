@@ -833,12 +833,18 @@ public:
     Input(int k, int m, const QString &t = QString())
         : m_key(k), m_modifiers(cleanModifier(m)), m_text(t)
     {
-        // On Mac, QKeyEvent::text() returns non-empty strings for
-        // cursor keys. This breaks some of the logic later on
-        // relying on text() being empty for "special" keys.
-        // FIXME: Check the real conditions.
-        if (m_text.size() == 1 && m_text.at(0).unicode() < ' ')
-            m_text.clear();
+        if (m_text.size() == 1) {
+            QChar x = m_text.at(0);
+
+            // On Mac, QKeyEvent::text() returns non-empty strings for
+            // cursor keys. This breaks some of the logic later on
+            // relying on text() being empty for "special" keys.
+            // FIXME: Check the real conditions.
+            if (x.unicode() < ' ')
+                m_text.clear();
+            else
+                m_key = x.toUpper().unicode();
+        }
 
         // Set text only if input is ascii key without control modifier.
         if (m_text.isEmpty() && k <= 0x7f && (m & (HostOsInfo::controlModifier())) == 0) {
