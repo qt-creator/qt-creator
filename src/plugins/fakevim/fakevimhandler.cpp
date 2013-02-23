@@ -125,6 +125,7 @@ namespace Internal {
 #define Left            QTextCursor::Left
 #define EndOfDocument   QTextCursor::End
 #define StartOfDocument QTextCursor::Start
+#define NextBlock       QTextCursor::NextBlock
 
 #define ParagraphSeparator QChar::ParagraphSeparator
 
@@ -504,7 +505,7 @@ static void searchForward(QTextCursor *tc, QRegExp &needleExp, int *repeat)
         if (!tc->hasSelection())
             tc->movePosition(Right);
         if (tc->atBlockEnd())
-            tc->movePosition(Right);
+            tc->movePosition(NextBlock);
         *tc = doc->find(needleExp, *tc);
     }
 
@@ -517,7 +518,7 @@ static void searchForward(QTextCursor *tc, QRegExp &needleExp, int *repeat)
         if (!tc->hasSelection())
             tc->movePosition(Right);
         if (tc->atBlockEnd())
-            tc->movePosition(Right);
+            tc->movePosition(NextBlock);
         *tc = doc->find(needleExp, *tc);
         if (tc->isNull())
             return;
