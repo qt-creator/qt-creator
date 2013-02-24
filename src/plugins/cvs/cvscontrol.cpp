@@ -148,6 +148,11 @@ bool CvsControl::vcsAnnotate(const QString &file, int line)
     return true;
 }
 
+QString CvsControl::vcsOpenText() const
+{
+    return tr("&Edit");
+}
+
 bool CvsControl::managesDirectory(const QString &directory, QString *topLevel) const
 {
     return m_plugin->managesDirectory(directory, topLevel);

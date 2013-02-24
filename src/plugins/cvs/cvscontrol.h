@@ -64,6 +64,8 @@ public:
     bool vcsRemoveSnapshot(const QString &topLevel, const QString &name);
     bool vcsAnnotate(const QString &file, int line);
 
+    QString vcsOpenText() const;
+
     void emitRepositoryChanged(const QString &s);
     void emitFilesChanged(const QStringList &l);
     void emitConfigurationChanged();
