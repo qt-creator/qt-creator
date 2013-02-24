@@ -78,6 +78,8 @@ struct AndroidDeviceInfo
     QString serialNumber;
     QString cpuABI;
     int sdk;
+
+    static QStringList adbSelector(const QString &serialNumber);
 };
 
 class AndroidConfigurations : public QObject

@@ -350,8 +350,23 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices(int apiLevel)
     QList<QByteArray> adbDevs = adbProc.readAll().trimmed().split('\n');
     adbDevs.removeFirst();
     AndroidDeviceInfo dev;
+
+    // workaround for '????????????' serial numbers:
+    // can use "adb -d" when only one usb device attached
+    int usbDevicesNum = 0;
+    QStringList serialNumbers;
     foreach (const QByteArray &device, adbDevs) {
-        dev.serialNumber = QString::fromLatin1(device.left(device.indexOf('\t')).trimmed());
+        const QString serialNo = QString::fromLatin1(device.left(device.indexOf('\t')).trimmed());;
+        if (!serialNo.startsWith(QLatin1String("emulator")))
+            ++usbDevicesNum;
+        serialNumbers << serialNo;
+    }
+
+    foreach (const QString &serialNo, serialNumbers) {
+        if (serialNo.contains(QLatin1String("????")) && usbDevicesNum > 1)
+            continue;
+
+        dev.serialNumber = serialNo;
         dev.sdk = getSDKVersion(dev.serialNumber);
         if (apiLevel != -1 && dev.sdk != apiLevel)
             continue;
@@ -522,12 +537,13 @@ QString AndroidConfigurations::startAVD(int *apiLevel, const QString &name) cons
 
 int AndroidConfigurations::getSDKVersion(const QString &device) const
 {
+    // workaround for '????????????' serial numbers
+    QStringList arguments = AndroidDeviceInfo::adbSelector(device);
+    arguments << QLatin1String("shell") << QLatin1String("getprop")
+              << QLatin1String("ro.build.version.sdk");
 
     QProcess adbProc;
-    adbProc.start(adbToolPath().toString(),
-                  QStringList() << QLatin1String("-s") << device
-                  << QLatin1String("shell") << QLatin1String("getprop")
-                  << QLatin1String("ro.build.version.sdk"));
+    adbProc.start(adbToolPath().toString(), arguments);
     if (!adbProc.waitForFinished(-1)) {
         adbProc.kill();
         return -1;
@@ -642,6 +658,17 @@ void AndroidConfigurations::updateAutomaticKitList()
 
     foreach (Kit *kit, newKits)
         KitManager::instance()->registerKit(kit);
+}
+
+/**
+ * Workaround for '????????????' serial numbers
+ * @return ("-d") for buggy devices, ("-s", <serial no>) for normal
+ */
+QStringList AndroidDeviceInfo::adbSelector(const QString &serialNumber)
+{
+    if (serialNumber.startsWith(QLatin1String("????")))
+        return QStringList() << QLatin1String("-d");
+    return QStringList() << QLatin1String("-s") << serialNumber;
 }
 
 AndroidConfigurations &AndroidConfigurations::instance(QObject *parent)
