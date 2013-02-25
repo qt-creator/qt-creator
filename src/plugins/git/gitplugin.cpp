@@ -958,22 +958,25 @@ void GitPlugin::pull()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
+    QString topLevel = state.topLevel();
     bool rebase = m_gitClient->settings()->boolValue(GitSettings::pullRebaseKey);
 
     if (!rebase) {
         bool isDetached;
-        QString branchRebaseConfig = m_gitClient->synchronousRepositoryBranches(state.topLevel(), &isDetached).at(0);
+        QString branchRebaseConfig = m_gitClient->synchronousRepositoryBranches(topLevel, &isDetached).at(0);
         if (!isDetached) {
             branchRebaseConfig.prepend(QLatin1String("branch."));
             branchRebaseConfig.append(QLatin1String(".rebase"));
-            rebase = (m_gitClient->readConfigValue(state.topLevel(), branchRebaseConfig) == QLatin1String("true"));
+            rebase = (m_gitClient->readConfigValue(topLevel, branchRebaseConfig) == QLatin1String("true"));
         }
     }
 
-    GitClient::StashGuard stashGuard(state.topLevel(), QLatin1String("Pull"));
-    if (stashGuard.stashingFailed(false) || (rebase && (stashGuard.result() == GitClient::NotStashed)))
+    GitClient::StashGuard stashGuard(topLevel, QLatin1String("Pull"));
+    if (stashGuard.stashingFailed(false))
         return;
-    if (!m_gitClient->synchronousPull(state.topLevel(), rebase))
+    if (rebase && (stashGuard.result() == GitClient::NotStashed))
+        m_gitClient->synchronousCheckoutFiles(topLevel);
+    if (!m_gitClient->synchronousPull(topLevel, rebase))
         stashGuard.preventPop();
 }
 
