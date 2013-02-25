@@ -887,6 +887,9 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
     if (acceptedEditors.isEmpty())
         return false;
 
+    // close Editor History list
+    windowPopup()->setVisible(false);
+
     // add duplicates
     QList<IEditor *> duplicates;
     foreach (IEditor *editor, acceptedEditors)
