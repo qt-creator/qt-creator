@@ -104,6 +104,9 @@ Analyzer
 C++ Support
    * Added Create Getter and Setter Member Functions refactoring action
    * Added Reformat Pointers or References refactoring action
+     (QTCREATORBUG-6169)
+   * Introduced formatting options for pointers and references
+     (QTCREATORBUG-6169)
    * Fixed semantic highlighting when multiple editors are visible
    * Fixed Rename Symbol Under Cursor for C++ macros
    * Added support for -stdlib=.. variants
