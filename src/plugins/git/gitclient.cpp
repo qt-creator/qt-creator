@@ -1906,7 +1906,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
             filesToAdd.append(file);
 
         if ((state & StagedFile) && !checked) {
-            if (state & (AddedFile | DeletedFile)) {
+            if (state & (ModifiedFile | AddedFile | DeletedFile)) {
                 filesToReset.append(file);
             } else if (state & (RenamedFile | CopiedFile)) {
                 const QString newFile = file.mid(file.indexOf(renameSeparator) + renameSeparator.count());
