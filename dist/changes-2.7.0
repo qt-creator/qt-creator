@@ -92,10 +92,12 @@ Debugging
    * Made string cutoff value configurable
    * Put separate string displays in tab widget (QTCREATORBUG-8344)
    * Implemented basic value editing for CDB (QTCREATORBUG-8344)
+   * Added CDB setting to ignore first-chance exceptions (QTCREATORBUG-8141)
    * Implemented support for displaying images in CDB
    * Added framework to wrap plain GDB pretty printers for use in Qt Creator
    * Implemented display format changes for multi-selection
      (QTCREATORBUG-7577)
+   * Added hook for user specified commands after attaching to target
 
 Analyzer
 
@@ -104,29 +106,28 @@ C++ Support
    * Added Reformat Pointers or References refactoring action
    * Fixed semantic highlighting when multiple editors are visible
    * Fixed Rename Symbol Under Cursor for C++ macros
-   * Added code completion for instantiation of templates with default argument
-   * Added C++11 alignof and alignas tokens
-   * Added support for C++11 brace initializers (QTCREATORBUG-7919 et al)
-   * Fixed parsing of C++11 noexcept(constant-expression_
-   * Added support for C++11 ref-qualifiers in function declarators: void
-     foo() const &; void bar() && and related pointer-to-member declarators
-   * Added parsing of alias declarations: using Foo = std::vector<int>::iterator
-   * Added support for C++11 enum classes and opaque enum declarations
-   * Fixed use of >> in C++11 template arguments
-   * Added hook for user specified commands after attaching to target
-   * Added CDB setting to ignore first-chance exceptions (QTCREATORBUG-8141)
-   * Improved handling of lambda captures (QTCREATORBUG-7968,
-     QTCREATORBUG-7949)
-   * Improved code completion for Qt containers (QTCREATORBUG-8228)
    * Added support for -stdlib=.. variants
-   * Fixed code completion in nested classes when enclosing class is template
-   * Fixed code completion for operator-> (QTCREATORBUG-629)
-   * Fixed code completion when casting inside parentheses
-     (QTCREATORBUG-8368)
-   * Switched to C++11 parsing in cases of doubt (CMake/Autotools/Generic)
    * Fixed constructor parsing in cases with unnamed parameters
-   * Introduced formatting options for pointers and references
-     (QTCREATORBUG-6169)
+   * Code completion
+     * Added code completion for instantiation of templates with default
+       argument
+     * Improved code completion for Qt containers (QTCREATORBUG-8228)
+     * Fixed code completion for classes in class templates
+     * Fixed code completion for operator-> (QTCREATORBUG-629)
+     * Fixed code completion when casting inside parentheses (QTCREATORBUG-8368)
+   * C++11 support
+     * Added C++11 alignof and alignas tokens
+     * Added support for C++11 brace initializers (QTCREATORBUG-7919 et al)
+     * Added support for C++11 ref-qualifiers in function declarators: void
+       foo() const &; void bar() && and related pointer-to-member declarators
+     * Added support for C++11 enum classes and opaque enum declarations
+     * Fixed use of >> in C++11 template arguments
+     * Switched to C++11 parsing in cases of doubt (CMake/Autotools/Generic)
+     * Fixed parsing of C++11 noexcept(constant-expression)
+     * Added parsing of alias declarations:
+       using Foo = std::vector<int>::iterator
+     * Improved handling of lambda captures (QTCREATORBUG-7968,
+       QTCREATORBUG-7949)
 
 QML/JS Support
    * Improved JS Console
