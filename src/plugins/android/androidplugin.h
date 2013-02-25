@@ -44,6 +44,8 @@ public:
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
+private slots:
+    void kitsRestored();
 };
 
 } // namespace Android
