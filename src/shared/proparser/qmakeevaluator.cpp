@@ -1050,7 +1050,7 @@ bool QMakeEvaluator::prepareProject(const QString &inDir)
             forever {
                 QString superfile = superdir + QLatin1String("/.qmake.super");
                 if (IoUtils::exists(superfile)) {
-                    m_superfile = superfile;
+                    m_superfile = QDir::cleanPath(superfile);
                     break;
                 }
                 QFileInfo qdfi(superdir);
@@ -1087,8 +1087,8 @@ bool QMakeEvaluator::prepareProject(const QString &inDir)
         } else {
             m_buildRoot = QFileInfo(cachefile).path();
         }
-        m_conffile = conffile;
-        m_cachefile = cachefile;
+        m_conffile = QDir::cleanPath(conffile);
+        m_cachefile = QDir::cleanPath(cachefile);
     }
   no_cache:
 
