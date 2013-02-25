@@ -104,31 +104,42 @@ def modifyRunSettingsForHookIntoQtQuickUI(kitCount, workingDir, projectName, por
                               "window=':Qt Creator_Core::Internal::MainWindow' "
                               "leftWidget={type='QLabel' text~='Us(e|ing) <b>Build Environment</b>'"
                               " unnamed='1' visible='1'}}"))
-    row = 0
     for varName in ("PATH", "SQUISH_LIBQTDIR"):
-        __addVariableToRunEnvironment__(varName, qtLibPath, row)
-        row = row + 1
+        __addVariableToRunEnvironment__(varName, qtLibPath)
     if not platform.system() in ('Microsoft', 'Windows', 'Darwin'):
-        __addVariableToRunEnvironment__("LD_LIBRARY_PATH", qtLibPath, 0)
+        __addVariableToRunEnvironment__("LD_LIBRARY_PATH", qtLibPath)
     if platform.system() == "Darwin":
-        __addVariableToRunEnvironment__("DYLD_FRAMEWORK_PATH", qtLibPath, 0)
+        __addVariableToRunEnvironment__("DYLD_FRAMEWORK_PATH", qtLibPath)
     if not platform.system() in ('Microsoft', 'Windows'):
-        __addVariableToRunEnvironment__("DISPLAY", ":0.0", 0)
+        __addVariableToRunEnvironment__("DISPLAY", ":0.0")
     result = qmlViewer
     switchViewTo(ViewConstants.EDIT)
     return result
 
 # this helper method must be called on the run settings page of a Qt Quick UI with DetailsWidget
 # for the run settings already opened - it won't work on other views because of a different layout
-def __addVariableToRunEnvironment__(name, value, row):
+def __addVariableToRunEnvironment__(name, value):
     clickButton(waitForObject("{text='Add' type='QPushButton' unnamed='1' visible='1' "
                               "container={window=':Qt Creator_Core::Internal::MainWindow' "
                               "type='Utils::DetailsWidget' unnamed='1' visible='1' occurrence='2'}}"))
     varNameLineEd = waitForObject("{type='QExpandingLineEdit' visible='1' unnamed='1'}")
     replaceEditorContent(varNameLineEd, name)
+    type(varNameLineEd, "<Return>")
+    row = getTableRowOf(name, ":Qt Creator_QTableView")
+    if row == -1:
+        test.fatal("Could not find entered variable name inside table - skipping entering value.")
+        return
     valueLineEd = __doubleClickQTableView__(":Qt Creator_QTableView", row, 1)
     replaceEditorContent(valueLineEd, value)
     type(valueLineEd, "<Return>")
+
+def getTableRowOf(value, table):
+    tblModel = waitForObject(table).model()
+    items = dumpItems(tblModel)
+    if value in items:
+        return items.index(value)
+    else:
+        return -1
 
 def __getMkspecFromQMakeConf__(qmakeConf):
     if qmakeConf==None or not os.path.exists(qmakeConf):
@@ -303,6 +314,7 @@ def __configureFW__(workingDir, projectName, isReleaseBuild, addToFW=True):
     else:
         mode = "delete"
         enable = ""
+        projectName = ""
     return subprocess.call('netsh firewall %s allowedprogram "%s.exe" %s %s' % (mode, path, projectName, enable))
 
 # helper to check whether win firewall is running or not
