@@ -73,13 +73,13 @@ public slots:
 
     void changeExtraInformation(const QString &info)
     {
-        QMessageBox::information(m_widget, "Information", info);
+        QMessageBox::information(m_widget, tr("Information"), info);
     }
 
     void updateStatusBar()
     {
         int slack = 80 - m_statusMessage.size() - m_statusData.size();
-        QString msg = m_statusMessage + QString(slack, QChar(' ')) + m_statusData;
+        QString msg = m_statusMessage + QString(slack, QLatin1Char(' ')) + m_statusData;
         m_mainWindow->statusBar()->showMessage(msg);
     }
 
@@ -103,15 +103,15 @@ int main(int argc, char *argv[])
     if (usePlainTextEdit) {
         QPlainTextEdit *w = new QPlainTextEdit;
         w->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        title = "PlainTextEdit";
+        title = QLatin1String("PlainTextEdit");
         widget = w;
     } else {
         QTextEdit *w = new QTextEdit;
         w->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        title = "TextEdit";
+        title = QLatin1String("TextEdit");
         widget = w;
     }
-    widget->setObjectName("Editor");
+    widget->setObjectName(QLatin1String("Editor"));
     //widget->resize(450, 350);
     widget->setFocus();
 
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
 
     FakeVimHandler handler(widget, 0);
 
-    mw.setWindowTitle("Fakevim (" + title + ")");
+    mw.setWindowTitle(QLatin1String("Fakevim (") + title + QLatin1Char(')'));
     mw.setCentralWidget(widget);
     mw.resize(600, 650);
     mw.move(0, 0);
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
     QFont font = widget->font();
     //: -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-1
     //font.setFamily("Misc");
-    font.setFamily("Monospace");
+    font.setFamily(QLatin1String("Monospace"));
     //font.setStretch(QFont::SemiCondensed);
 
     widget->setFont(font);
@@ -151,12 +151,12 @@ int main(int argc, char *argv[])
     theFakeVimSetting(ConfigShiftWidth)->setValue(8);
     theFakeVimSetting(ConfigTabStop)->setValue(8);
     theFakeVimSetting(ConfigAutoIndent)->setValue(true);
-    theFakeVimSetting(ConfigIsKeyword)->setValue("@,48-57,_,192-255,a-z,A-Z");
+    theFakeVimSetting(ConfigIsKeyword)->setValue(QLatin1String("@,48-57,_,192-255,a-z,A-Z"));
 
     handler.installEventFilter();
     handler.setupWidget();
     if (args.size() >= 1)
-        handler.handleCommand("r " + args.at(0));
+        handler.handleCommand(QLatin1String("r ") + args.at(0));
 
     return app.exec();
 }
