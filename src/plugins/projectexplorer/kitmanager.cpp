@@ -34,10 +34,12 @@
 #include "kitinformation.h"
 #include "kitmanagerconfigwidget.h"
 #include "project.h"
+#include "projectexplorer.h"
 
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 
 #include <utils/persistentsettings.h>
 #include <utils/environment.h>
@@ -137,6 +139,7 @@ void KitManager::restoreKits()
         return;
 
     initializing = true;
+    QTC_CHECK(ProjectExplorerPlugin::instance()->pluginSpec()->state() == ExtensionSystem::PluginSpec::Running);
 
     QList<Kit *> kitsToRegister;
     QList<Kit *> kitsToValidate;
@@ -261,6 +264,9 @@ bool greaterPriority(KitInformation *a, KitInformation *b)
 
 void KitManager::registerKitInformation(KitInformation *ki)
 {
+    QTC_CHECK(ProjectExplorerPlugin::instance()->pluginSpec()->state() <= ExtensionSystem::PluginSpec::Initialized);
+    QTC_CHECK(d->m_kitList.isEmpty());
+
     QList<KitInformation *>::iterator it
             = qLowerBound(d->m_informationList.begin(), d->m_informationList.end(), ki, greaterPriority);
     d->m_informationList.insert(it, ki);
@@ -456,7 +462,7 @@ void KitManager::setDefaultKit(Kit *k)
 
 void KitManager::validateKits()
 {
-    foreach (Kit *k, kits())
+    foreach (Kit *k, d->m_kitList) // no need to load kits just to validate them!
         k->validate();
 }
 
