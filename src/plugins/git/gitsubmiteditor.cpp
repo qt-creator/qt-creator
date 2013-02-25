@@ -34,6 +34,7 @@
 #include "gitsubmiteditor.h"
 #include "gitsubmiteditorwidget.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
 #include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
@@ -85,7 +86,8 @@ private:
 GitSubmitEditor::GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent) :
     VcsBaseSubmitEditor(parameters, new GitSubmitEditorWidget(parent)),
     m_model(0),
-    m_amend(false)
+    m_amend(false),
+    m_forceClose(false)
 {
     connect(this, SIGNAL(diffSelectedFiles(QList<int>)), this, SLOT(slotDiffSelected(QList<int>)));
 }
@@ -162,10 +164,13 @@ void GitSubmitEditor::updateFileModel()
     GitClient *client = GitPlugin::instance()->gitClient();
     QString errorMessage, commitTemplate;
     CommitData data;
-    if (client->getCommitData(m_workingDirectory, m_amend, &commitTemplate, &data, &errorMessage))
+    if (client->getCommitData(m_workingDirectory, m_amend, &commitTemplate, &data, &errorMessage)) {
         setCommitData(data);
-    else
+    } else {
         VcsBase::VcsBaseOutputWindow::instance()->append(errorMessage);
+        m_forceClose = true;
+        Core::EditorManager::instance()->closeEditors(QList<IEditor*>() << this);
+    }
 }
 
 GitSubmitEditorPanelData GitSubmitEditor::panelData() const

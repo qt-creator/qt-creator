@@ -54,6 +54,7 @@ public:
     void setCommitData(const CommitData &);
     void setAmend(bool amend);
     GitSubmitEditorPanelData panelData() const;
+    bool forceClose() const { return m_forceClose; }
 
 signals:
     void diff(const QStringList &unstagedFiles, const QStringList &stagedFiles);
@@ -72,6 +73,7 @@ private:
     VcsBase::SubmitFileModel *m_model;
     QString m_commitEncoding;
     bool m_amend;
+    bool m_forceClose;
     QString m_workingDirectory;
 };
 
