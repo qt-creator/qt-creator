@@ -7,7 +7,7 @@ QtcTool {
     Depends { name: "cpp" }
     Depends {
         name: "Qt"
-        submodules: "core", "gui", "network"
+        submodules: ["gui", "network"]
     }
     Depends { name: "Core" }
 
