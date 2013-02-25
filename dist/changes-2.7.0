@@ -139,7 +139,6 @@ QML/JS Support
    * Added persistent trie to store imports
    * Improved initial kit selection (QTCREATORBUG-8424)
    * Added detection of import type from main file (QTCREATORBUG-8358)
-   * Fixed QmlProjectManager (QTCREATORBUG-8679, QTCREATORBUG-8680)
 
 GLSL Support
 
