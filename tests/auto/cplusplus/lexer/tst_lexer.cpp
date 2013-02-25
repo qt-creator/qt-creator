@@ -33,6 +33,8 @@
 #include <Token.h>
 #include <SimpleLexer.h>
 
+Q_DECLARE_METATYPE(QList<unsigned>)
+
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;
 
