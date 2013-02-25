@@ -13,9 +13,6 @@
     <height>199</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Dialog</string>
-  </property>
   <property name="modal">
    <bool>true</bool>
   </property>
