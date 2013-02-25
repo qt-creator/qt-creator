@@ -247,6 +247,10 @@ public:
                            QString *output = 0,
                            QString *errorMessage = 0);
 
+    void continueCommandIfNeeded(const QString &workingDirectory);
+    void continuePreviousGitCommand(const QString &workingDirectory, const QString &msgBoxTitle, QString msgBoxText,
+                                    const QString &buttonName, const QString &gitCommand);
+
     void launchGitK(const QString &workingDirectory, const QString &fileName);
     void launchGitK(const QString &workingDirectory) { launchGitK(workingDirectory, QString()); }
 

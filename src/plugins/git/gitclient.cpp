@@ -1641,6 +1641,52 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, St
     return StatusUnchanged;
 }
 
+void GitClient::continueCommandIfNeeded(const QString &workingDirectory)
+{
+    QString gitDir = findGitDirForRepository(workingDirectory);
+
+    if (QFile::exists(gitDir + QLatin1String("/rebase-apply/rebasing"))) {
+        continuePreviousGitCommand(workingDirectory, tr("Continue Rebase"),
+                tr("Continue rebase?"), tr("Continue"), QLatin1String("rebase"));
+    } else if (QFile::exists(gitDir + QLatin1String("/REVERT_HEAD"))) {
+        continuePreviousGitCommand(workingDirectory, tr("Continue Revert"),
+                tr("You need to commit changes to finish revert.\nCommit now?"),
+                tr("Commit"), QLatin1String("revert"));
+    } else if (QFile::exists(gitDir + QLatin1String("/CHERRY_PICK_HEAD"))) {
+        continuePreviousGitCommand(workingDirectory, tr("Continue Cherry-Picking"),
+                tr("You need to commit changes to finish cherry-picking.\nCommit now?"),
+                tr("Commit"), QLatin1String("cherry-pick"));
+    }
+}
+
+void GitClient::continuePreviousGitCommand(const QString &workingDirectory,
+                                           const QString &msgBoxTitle, QString msgBoxText,
+                                           const QString &buttonName, const QString &gitCommand)
+{
+    bool isRebase = gitCommand == QLatin1String("rebase");
+    bool hasChanges = gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules))
+            == GitClient::StatusChanged;
+    if (!hasChanges)
+        msgBoxText.prepend(tr("No changes found. "));
+    QMessageBox msgBox(QMessageBox::Question, msgBoxTitle, msgBoxText);
+    if (hasChanges || isRebase)
+        msgBox.addButton(hasChanges ? buttonName : tr("Skip"), QMessageBox::AcceptRole);
+    msgBox.addButton(QMessageBox::Abort);
+    msgBox.addButton(QMessageBox::Ignore);
+    switch (msgBox.exec()) {
+    case QMessageBox::Ignore:
+        break;
+    case QMessageBox::Abort:
+        synchronousAbortCommand(workingDirectory, gitCommand);
+        break;
+    default: // Continue/Skip
+        if (isRebase)
+            synchronousCommandContinue(workingDirectory, gitCommand, hasChanges);
+        else
+            GitPlugin::instance()->startCommit();
+    }
+}
+
 // Quietly retrieve branch list of remote repository URL
 //
 // The branch HEAD is pointing to is always returned first.

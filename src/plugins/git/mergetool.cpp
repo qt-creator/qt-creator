@@ -255,54 +255,13 @@ void MergeTool::readData()
     }
 }
 
-void MergeTool::continuePreviousGitCommand(const QString &msgBoxTitle, QString msgBoxText,
-                                           const QString &buttonName, const QString &gitCommand)
-{
-    QString workingDirectory = m_process->workingDirectory();
-    bool isRebase = gitCommand == QLatin1String("rebase");
-    bool hasChanges = m_gitClient->gitStatus(m_process->workingDirectory(),
-            StatusMode(NoUntracked | NoSubmodules)) == GitClient::StatusChanged;
-    if (!hasChanges)
-        msgBoxText.prepend(tr("No changes found. "));
-    QMessageBox msgBox(QMessageBox::Question, msgBoxTitle, msgBoxText);
-    if (hasChanges || isRebase)
-        msgBox.addButton(hasChanges ? buttonName : tr("Skip"), QMessageBox::AcceptRole);
-    msgBox.addButton(QMessageBox::Abort);
-    msgBox.addButton(QMessageBox::Ignore);
-    switch (msgBox.exec()) {
-    case QMessageBox::Ignore:
-        break;
-    case QMessageBox::Abort:
-        m_gitClient->synchronousAbortCommand(workingDirectory, gitCommand);
-        break;
-    default: // Continue/Skip
-        if (isRebase)
-            m_gitClient->synchronousCommandContinue(workingDirectory, gitCommand, hasChanges);
-        else
-            GitPlugin::instance()->startCommit();
-    }
-}
-
 void MergeTool::done()
 {
     VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
     int exitCode = m_process->exitCode();
     if (!exitCode) {
         outputWindow->append(tr("Merge tool process finished successully."));
-        QString gitDir = m_gitClient->findGitDirForRepository(m_process->workingDirectory());
-
-        if (QFile::exists(gitDir + QLatin1String("/rebase-apply/rebasing"))) {
-            continuePreviousGitCommand(tr("Continue Rebase"), tr("Continue rebase?"),
-                    tr("Continue"), QLatin1String("rebase"));
-        } else if (QFile::exists(gitDir + QLatin1String("/REVERT_HEAD"))) {
-            continuePreviousGitCommand(tr("Continue Revert"),
-                    tr("You need to commit changes to finish revert.\nCommit now?"),
-                    tr("Commit"), QLatin1String("revert"));
-        } else if (QFile::exists(gitDir + QLatin1String("/CHERRY_PICK_HEAD"))) {
-            continuePreviousGitCommand(tr("Continue Cherry-Picking"),
-                    tr("You need to commit changes to finish cherry-picking.\nCommit now?"),
-                    tr("Commit"), QLatin1String("cherry-pick"));
-        }
+        m_gitClient->continueCommandIfNeeded(m_process->workingDirectory());
     } else {
         outputWindow->append(tr("Merge tool process terminated with exit code %1").arg(exitCode));
     }
