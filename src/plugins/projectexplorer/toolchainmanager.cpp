@@ -31,11 +31,13 @@
 
 #include "abi.h"
 #include "kitinformation.h"
+#include "projectexplorer.h"
 #include "toolchain.h"
 
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
@@ -133,6 +135,7 @@ ToolChainManager::ToolChainManager(QObject *parent) :
 void ToolChainManager::restoreToolChains()
 {
     QTC_ASSERT(!d->m_writer, return);
+    QTC_CHECK(ProjectExplorerPlugin::instance()->pluginSpec()->state() == ExtensionSystem::PluginSpec::Running);
     d->m_writer =
             new Utils::PersistentSettingsWriter(settingsFileName(QLatin1String(TOOLCHAIN_FILENAME)), QLatin1String("QtCreatorToolChains"));
 
