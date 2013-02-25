@@ -1128,7 +1128,10 @@ void MainWindow::updateFocusWidget(QWidget *old, QWidget *now)
             p = p->parentWidget();
         }
     }
-    updateContextObject(newContext);
+
+    // ignore toplevels that define no context, like popups without parent
+    if (newContext || qApp->focusWidget() == focusWidget())
+        updateContextObject(newContext);
 }
 
 void MainWindow::updateContextObject(IContext *context)
