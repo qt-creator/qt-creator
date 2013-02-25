@@ -588,7 +588,10 @@ void AndroidConfigurations::updateAutomaticKitList()
     foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::instance()->versions()) {
         if (qtVersion->type() != QLatin1String(Constants::ANDROIDQT))
             continue;
-        qtVersionsForArch[qtVersion->qtAbis().first().architecture()].append(qtVersion);
+        QList<ProjectExplorer::Abi> qtAbis = qtVersion->qtAbis();
+        if (qtAbis.empty())
+            continue;
+        qtVersionsForArch[qtAbis.first().architecture()].append(qtVersion);
     }
 
     ProjectExplorer::DeviceManager *dm = ProjectExplorer::DeviceManager::instance();
