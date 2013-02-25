@@ -136,11 +136,20 @@ QML/JS Support
    * Improved JS Console
    * Fixed indentation in if condition and lambda expressions
      (QTCREATORBUG-7243)
-   * Added persistent trie to store imports
    * Made sure default kit for new Qt Quick 2 UI project is Qt 5 based
      (QTCREATORBUG-8424)
    * Added detection of import type from main file to invoke QML Viewer when
      previewing QML documents that import Qt Quick 1 (QTCREATORBUG-8358)
+   * Corrected handling of Qt Quick 2 only features
+     (QTCREATORBUG-8750, QTCREATORBUG-8624, QTCREATORBUG-8584,
+      QTCREATORBUG-8583, QTCREATORBUG-8429)
+   * Added import completion in editor
+   * Improved speed of QML/JS Editor for large files (QTCREATORBUG-8673)
+   * Made contextual help more robust (QTCREATORBUG-3169)
+   * Improved initial kit selection (QTCREATORBUG-8424)
+   * Added detection of import type from main file (QTCREATORBUG-8358)
+   * Hid properties starting with "__" in auto-completion
+   * Changed paser to enforce strict mode for javascript within a QML file
 
 GLSL Support
 
@@ -212,9 +221,12 @@ WelcomePage:
 Platform Specific
 
 Mac
+   * Replaced xterm with Terminal.app as default terminal (QTCREATORBUG-6371)
 
 Linux
    * Added crash handler providing a backtrace for debug builds
+   * Added support for terminal emulators that share a unique process
+     (QTCREATORBUG-1633)
 
 Windows
    * Improved UI to handle x64 and amd64 etc toolchains
