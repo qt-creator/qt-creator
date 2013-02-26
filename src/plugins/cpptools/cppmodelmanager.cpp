@@ -282,17 +282,14 @@ namespace {
 class Process: public std::unary_function<Document::Ptr, void>
 {
     QPointer<CppModelManager> _modelManager;
-    Snapshot _snapshot;
     Document::Ptr _doc;
     Document::CheckMode _mode;
 
 public:
     Process(QPointer<CppModelManager> modelManager,
             Document::Ptr doc,
-            const Snapshot &snapshot,
             const CppModelManager::WorkingCopy &workingCopy)
         : _modelManager(modelManager),
-          _snapshot(snapshot),
           _doc(doc),
           _mode(Document::FastCheck)
     {
@@ -317,6 +314,11 @@ void CppPreprocessor::run(const QString &fileName)
 {
     QString absoluteFilePath = fileName;
     sourceNeeded(0, absoluteFilePath, IncludeGlobal);
+}
+
+void CppPreprocessor::removeFromCache(const QString &fileName)
+{
+    m_snapshot.remove(fileName);
 }
 
 void CppPreprocessor::resetEnvironment()
@@ -601,8 +603,7 @@ void CppPreprocessor::sourceNeeded(unsigned line, QString &fileName, IncludeType
     m_snapshot.insert(doc);
     m_todo.remove(fileName);
 
-    Process process(m_modelManager, doc, m_snapshot, m_workingCopy);
-
+    Process process(m_modelManager, doc, m_workingCopy);
     process();
 
     (void) switchDocument(previousDoc);

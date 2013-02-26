@@ -36,7 +36,7 @@ static void parse(QFutureInterface<void> &future,
     foreach (const QString &file, files) {
         QFileInfo info(file);
 
-        preproc->m_snapshot.remove(file);
+        preproc->removeFromCache(file);
 
         if (suffixes.contains(info.suffix()))
             sources.append(file);
