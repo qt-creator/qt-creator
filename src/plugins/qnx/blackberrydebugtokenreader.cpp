@@ -49,6 +49,9 @@ BlackBerryDebugTokenReader::BlackBerryDebugTokenReader(const QString &filePath)
 {
 #ifdef QNX_ZIP_FILE_SUPPORT
     m_zipReader = new QZipReader(filePath);
+#else
+    Q_UNUSED(filePath);
+    Q_UNUSED(m_zipReader);
 #endif
 }
 
@@ -98,6 +101,7 @@ QString BlackBerryDebugTokenReader::manifestValue(const QByteArray &key) const
     QByteArray manifestContent = m_zipReader->fileData(QLatin1String(MANIFEST_FILENAME));
     return value(key, manifestContent);
 #else
+    Q_UNUSED(key);
     return QString();
 #endif
 }
