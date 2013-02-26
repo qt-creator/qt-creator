@@ -145,8 +145,10 @@ QML/JS Support
 GLSL Support
 
 Help
-   * Used zoom factor instead of text size multiplier (QTCREATORBUG-7199)
-   * Corrected setup of HelpNetworkReply for offline resources
+   * Used zoom factor instead of text size multiplier to make also images
+     smaller when zooming in (QTCREATORBUG-7199)
+   * Corrected setup of HelpNetworkReply for offline resources to display
+     standard help icons correctly when viewing documents in Help mode
      (QTCREATORBUG-8211)
 
 Qt Designer
