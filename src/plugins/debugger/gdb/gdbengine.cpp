@@ -3167,6 +3167,10 @@ void GdbEngine::insertBreakpoint(BreakpointModelId id)
     if (handler->isOneShot(id))
         cmd += "-t ";
 
+    // FIXME: -d does not work on Mac gdb.
+    if (!handler->isEnabled(id) && !m_isMacGdb)
+        cmd += "-d ";
+
     if (int ignoreCount = handler->ignoreCount(id))
         cmd += "-i " + QByteArray::number(ignoreCount) + ' ';
 
