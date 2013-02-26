@@ -2008,7 +2008,8 @@ void CPPEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
     // Clear all additional formats since they may have changed
     QTextBlock b = document()->firstBlock();
     while (b.isValid()) {
-        highlighter->setExtraAdditionalFormats(b, QList<QTextLayout::FormatRange>());
+        QList<QTextLayout::FormatRange> noFormats;
+        highlighter->setExtraAdditionalFormats(b, noFormats);
         b = b.next();
     }
 
