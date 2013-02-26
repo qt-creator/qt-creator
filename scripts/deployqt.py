@@ -251,7 +251,7 @@ def main():
     QT_INSTALL_IMPORTS = readQmakeVar(qmake_bin, 'QT_INSTALL_IMPORTS')
     QT_INSTALL_TRANSLATIONS = readQmakeVar(qmake_bin, 'QT_INSTALL_TRANSLATIONS')
 
-    plugins = ['accessible', 'designer', 'iconengines', 'imageformats', 'platforms', 'printsupport', 'sqldrivers']
+    plugins = ['accessible', 'codecs', 'designer', 'iconengines', 'imageformats', 'platforms', 'printsupport', 'sqldrivers']
     imports = ['Qt', 'QtWebKit']
 
     if sys.platform.startswith('win'):
