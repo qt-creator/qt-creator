@@ -323,6 +323,13 @@ CheckSymbols::CheckSymbols(Document::Ptr doc, const LookupContext &context, cons
     _potentialFunctions = collectTypes.functions();
     _potentialStatics = collectTypes.statics();
 
+    unsigned line = 0;
+    getTokenEndPosition(translationUnit()->ast()->lastToken(), &line, 0);
+    _chunkSize = qMin(50U, line / 200);
+    _usages.reserve(_chunkSize);
+
+    _astStack.reserve(200);
+
     typeOfExpression.init(_doc, _context.snapshot(), _context.bindings());
     // make possible to instantiate templates
     typeOfExpression.setExpandTemplates(true);
@@ -1055,7 +1062,8 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
     }
 
     if (!enclosingFunctionDefinition(true))
-        flush();
+        if (_usages.size() >= _chunkSize)
+            flush();
 
     return false;
 }
@@ -1100,15 +1108,13 @@ void CheckSymbols::addUse(unsigned tokenIndex, UseKind kind)
     addUse(use);
 }
 
-static const int chunkSize = 50;
-
 void CheckSymbols::addUse(const Use &use)
 {
     if (use.isInvalid())
         return;
 
     if (! enclosingFunctionDefinition()) {
-        if (_usages.size() >= chunkSize) {
+        if (_usages.size() >= _chunkSize) {
             if (use.line > _lineOfLastUsage)
                 flush();
         }
@@ -1386,6 +1392,7 @@ void CheckSymbols::flush()
 
     qSort(_usages.begin(), _usages.end(), sortByLinePredicate);
     reportResults(_usages);
+    int cap = _usages.capacity();
     _usages.clear();
-    _usages.reserve(chunkSize);
+    _usages.reserve(cap);
 }

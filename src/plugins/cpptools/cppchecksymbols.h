@@ -175,6 +175,7 @@ private:
     QSet<QByteArray> _potentialStatics;
     QList<AST *> _astStack;
     QVector<Use> _usages;
+    int _chunkSize;
     unsigned _lineOfLastUsage;
     QList<Use> _macroUses;
 };
