@@ -42,7 +42,7 @@ DefaultAssistInterface::DefaultAssistInterface(QTextDocument *textDocument,
                                                Core::IDocument *document,
                                                AssistReason reason)
     : m_textDocument(textDocument)
-    , m_detached(false)
+    , m_isAsync(false)
     , m_position(position)
     , m_document(document)
     , m_reason(reason)
@@ -50,7 +50,7 @@ DefaultAssistInterface::DefaultAssistInterface(QTextDocument *textDocument,
 
 DefaultAssistInterface::~DefaultAssistInterface()
 {
-    if (m_detached)
+    if (m_isAsync)
         delete m_textDocument;
 }
 
@@ -64,11 +64,17 @@ QString DefaultAssistInterface::textAt(int pos, int length) const
     return Convenience::textAt(QTextCursor(m_textDocument), pos, length);
 }
 
-void DefaultAssistInterface::detach(QThread *destination)
+void DefaultAssistInterface::prepareForAsyncUse()
 {
-    m_textDocument = m_textDocument->clone();
-    m_textDocument->moveToThread(destination);
-    m_detached = true;
+    m_text = m_textDocument->toPlainText();
+    m_textDocument = 0;
+    m_isAsync = true;
+}
+
+void DefaultAssistInterface::recreateTextDocument()
+{
+    m_textDocument = new QTextDocument(m_text);
+    m_text = QString();
 }
 
 AssistReason DefaultAssistInterface::reason() const

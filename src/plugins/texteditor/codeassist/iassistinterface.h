@@ -58,7 +58,8 @@ public:
     virtual QString textAt(int position, int length) const = 0;
     virtual const Core::IDocument *document() const = 0;
     virtual QTextDocument *textDocument() const = 0;
-    virtual void detach(QThread *destination) = 0;
+    virtual void prepareForAsyncUse() = 0;
+    virtual void recreateTextDocument() = 0;
     virtual AssistReason reason() const = 0;
 };
 

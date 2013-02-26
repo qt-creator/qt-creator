@@ -132,6 +132,8 @@ private:
 // --------------------
 const QChar CodeAssistantPrivate::m_null;
 
+static const int AutomaticProposalTimerInterval = 400;
+
 CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
     : m_q(assistant)
     , m_textEditor(0)
@@ -142,7 +144,7 @@ CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
     , m_settings(TextEditorSettings::instance()->completionSettings())
 {
     m_automaticProposalTimer.setSingleShot(true);
-    m_automaticProposalTimer.setInterval(400);
+    m_automaticProposalTimer.setInterval(AutomaticProposalTimerInterval);
     connect(&m_automaticProposalTimer, SIGNAL(timeout()), this, SLOT(automaticProposalTimeout()));
 
     connect(TextEditorSettings::instance(),
@@ -248,7 +250,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
             m_requestRunner = new ProcessorRunner;
             connect(m_requestRunner, SIGNAL(finished()), this, SLOT(proposalComputed()));
             connect(m_requestRunner, SIGNAL(finished()), this, SLOT(finalizeRequest()));
-            assistInterface->detach(m_requestRunner);
+            assistInterface->prepareForAsyncUse();
             m_requestRunner->setReason(reason);
             m_requestRunner->setProcessor(processor);
             m_requestRunner->setAssistInterface(assistInterface);
