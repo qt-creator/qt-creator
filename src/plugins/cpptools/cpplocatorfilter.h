@@ -55,17 +55,20 @@ public:
 protected:
     SearchSymbols search;
 
+    void flushPendingDocument(bool force);
+
 private slots:
-    void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
+    void onDocumentUpdated(CPlusPlus::Document::Ptr updatedDoc);
     void onAboutToRemoveFiles(const QStringList &files);
 
 private:
     CppModelManager *m_manager;
 
     QHash<QString, QList<ModelItemInfo> > m_searchList;
-    QList<ModelItemInfo> m_previousResults;
     QString m_previousEntry;
-    bool m_forceNewSearchList;
+
+    mutable QMutex m_pendingDocumentsMutex;
+    QVector<CPlusPlus::Document::Ptr> m_pendingDocuments;
 };
 
 } // namespace Internal
