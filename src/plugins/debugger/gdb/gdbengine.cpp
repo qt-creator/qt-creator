@@ -3167,6 +3167,9 @@ void GdbEngine::insertBreakpoint(BreakpointModelId id)
     if (handler->isOneShot(id))
         cmd += "-t ";
 
+    if (int ignoreCount = handler->ignoreCount(id))
+        cmd += "-i " + QByteArray::number(ignoreCount) + ' ';
+
     QByteArray condition = handler->condition(id);
     if (!condition.isEmpty())
         cmd += " -c \"" + condition + "\" ";
