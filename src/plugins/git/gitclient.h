@@ -42,7 +42,6 @@
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
-class QErrorMessage;
 class QSignalMapper;
 class QDebug;
 class QProcessEnvironment;
