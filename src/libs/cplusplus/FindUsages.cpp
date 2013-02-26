@@ -41,37 +41,6 @@
 
 using namespace CPlusPlus;
 
-namespace {
-
-QString fetchLine(const QByteArray &bytes, const int line)
-{
-    int current = 0;
-    const char *s = bytes.constData();
-
-    if (line) {
-        while (*s) {
-            if (*s == '\n') {
-                ++current;
-                if (line == current) {
-                    ++s;
-                    break;
-                }
-            }
-            ++s;
-        }
-    }
-
-    if (current == line) {
-        const char *e = s;
-        while (*e && *e != '\n')
-            ++e;
-        return QString::fromUtf8(s, e - s);
-    }
-    return QString();
-}
-
-} // Anonymous
-
 FindUsages::FindUsages(const QByteArray &originalSource, Document::Ptr doc, const Snapshot &snapshot)
     : ASTVisitor(doc->translationUnit()),
       _id(0),
@@ -85,6 +54,8 @@ FindUsages::FindUsages(const QByteArray &originalSource, Document::Ptr doc, cons
 {
     _snapshot.insert(_doc);
     typeofExpression.init(_doc, _snapshot, _context.bindings());
+
+    prepareLines(_originalSource);
 }
 
 FindUsages::FindUsages(const LookupContext &context)
@@ -99,6 +70,8 @@ FindUsages::FindUsages(const LookupContext &context)
       _currentScope(0)
 {
     typeofExpression.init(_doc, _snapshot, _context.bindings());
+
+    prepareLines(_originalSource);
 }
 
 QList<Usage> FindUsages::usages() const
@@ -178,8 +151,7 @@ QString FindUsages::matchingLine(const Token &tk) const
             break;
     }
 
-    const QString matchingLine = QString::fromUtf8(cp, lineEnd - cp);
-    return matchingLine;
+    return QString::fromUtf8(cp, lineEnd - cp);
 }
 
 void FindUsages::reportResult(unsigned tokenIndex)
@@ -195,9 +167,8 @@ void FindUsages::reportResult(unsigned tokenIndex)
     unsigned line, col;
     getTokenStartPosition(tokenIndex, &line, &col);
     QString lineText;
-    const int lines = _originalSource.count('\n') + 1;
-    if (((int) line - 1) < lines)
-        lineText = fetchLine(_originalSource, line - 1);
+    if (line < _sourceLineEnds.size())
+        lineText = fetchLine(line);
     else
         lineText = matchingLine(tk);
 
@@ -2167,3 +2138,28 @@ bool FindUsages::visit(ArrayDeclaratorAST *ast)
     // unsigned rbracket_token = ast->rbracket_token;
     return false;
 }
+
+void FindUsages::prepareLines(const QByteArray &bytes)
+{
+    _sourceLineEnds.reserve(1000);
+    const char *s = bytes.constData();
+    _sourceLineEnds.push_back(s - 1); // we start counting at line 1, so line 0 is always empty.
+
+    for (; *s; ++s)
+        if (*s == '\n')
+            _sourceLineEnds.push_back(s);
+    if (s != _sourceLineEnds.back() + 1) // no newline at the end of the file
+        _sourceLineEnds.push_back(s);
+}
+
+QString FindUsages::fetchLine(unsigned lineNr) const
+{
+    Q_ASSERT(lineNr < _sourceLineEnds.size());
+    if (lineNr == 0)
+        return QString();
+
+    const char *start = _sourceLineEnds.at(lineNr - 1) + 1;
+    const char *end = _sourceLineEnds.at(lineNr);
+    return QString::fromUtf8(start, end - start);
+}
+
