@@ -121,6 +121,10 @@ bool AndroidDeployStep::init()
         return false;
     }
     m_ndkToolChainVersion = static_cast<AndroidToolChain *>(tc)->ndkToolChainVersion();
+
+    QString arch = static_cast<Qt4Project *>(project())->rootQt4ProjectNode()->singleVariableValue(Qt4ProjectManager::AndroidArchVar);
+    if (!arch.isEmpty())
+        m_libgnustl = AndroidManager::libGnuStl(arch, m_ndkToolChainVersion);
     return true;
 }
 
@@ -402,6 +406,22 @@ bool AndroidDeployStep::deployPackage()
                      remoteRoot + QLatin1String("/lib"),
                      true,
                      QStringList() << QLatin1String("*.so"));
+
+        // don't use the libgnustl_shared.so from the qt directory
+        for (int i = 0; i < deployList.count(); ++i) {
+            if (deployList.at(i).remoteFileName == QLatin1String("/data/local/tmp/qt/lib/libgnustl_shared.so")) {
+                deployList.removeAt(i);
+                break;
+            }
+        }
+
+        // We want to deploy that *always*
+        // since even if the timestamps did not change, the toolchain might have changed
+        // leading to a different file
+        deployList.append(DeployItem(m_libgnustl,
+                                     QDateTime::currentDateTimeUtc().toTime_t(),
+                                     QLatin1String("/data/local/tmp/qt/lib/libgnustl_shared.so"), false));
+
         collectFiles(&deployList,
                      m_qtVersionSourcePath + QLatin1String("/plugins"),
                      remoteRoot + QLatin1String("/plugins"),

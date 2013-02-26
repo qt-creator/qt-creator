@@ -112,6 +112,8 @@ public:
     static QStringList prebundledLibs(ProjectExplorer::Target *target);
     static bool setPrebundledLibs(ProjectExplorer::Target *target, const QStringList &libs);
 
+    static QString libGnuStl(const QString &arch, const QString &ndkToolChainVersion);
+
 private:
     static void raiseError(const QString &reason);
     static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName);

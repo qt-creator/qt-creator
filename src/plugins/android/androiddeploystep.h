@@ -154,7 +154,7 @@ private:
     QString m_runQASIPackagePath;
     AndroidDeployAction m_runDeployAction;
     QString m_ndkToolChainVersion;
-
+    QString m_libgnustl;
     static const Core::Id Id;
 };
 
