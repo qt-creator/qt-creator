@@ -594,7 +594,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
 #ifdef DEBUG_LOOKUP
             Overview oo;
             qDebug() << "Found" << id->chars() << "in"
-                     << (binding ? oo(binding->_name) : QString::fromAscii("<null>"));
+                     << (binding ? oo(binding->_name) : QString::fromLatin1("<null>"));
 #endif // DEBUG_LOOKUP
 
             LookupItem item;

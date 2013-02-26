@@ -1766,7 +1766,7 @@ QmlJS::ConsoleItem *constructLogItemTree(QmlJS::ConsoleItem *parent,
     if (objectData.name.isEmpty())
         text = objectData.value.toString();
     else
-        text = QString(_("%1: %2")).arg(QString::fromAscii(objectData.name))
+        text = QString(_("%1: %2")).arg(QString::fromLatin1(objectData.name))
                 .arg(objectData.value.toString());
 
     ConsoleItem *item = new ConsoleItem(parent, ConsoleItem::UndefinedType, text);
