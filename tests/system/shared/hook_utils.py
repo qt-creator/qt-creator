@@ -1,6 +1,4 @@
 import re
-# flag that caches the information whether Windows firewall is running or not
-fireWallState = None
 
 # this function modifies all necessary run settings to make it possible to hook into
 # the application compiled by Creator
@@ -310,17 +308,16 @@ def __configureFW__(workingDir, projectName, isReleaseBuild, addToFW=True):
 # helper to check whether win firewall is running or not
 # this doesn't check for other firewalls!
 def __isWinFirewallRunning__():
-    global fireWallState
-    if fireWallState != None:
-        return fireWallState
+    if hasattr(__isWinFirewallRunning__, "fireWallState"):
+        return __isWinFirewallRunning__.fireWallState
     if not platform.system() in ('Microsoft' 'Windows'):
-        fireWallState = False
+        __isWinFirewallRunning__.fireWallState = False
         return False
     result = getOutputFromCmdline("netsh firewall show state")
     for line in result.splitlines():
         if "Operational mode" in line:
-            fireWallState = not "Disable" in line
-            return fireWallState
+            __isWinFirewallRunning__.fireWallState = not "Disable" in line
+            return __isWinFirewallRunning__.fireWallState
     return None
 
 # this function adds the given executable as an attachable AUT
