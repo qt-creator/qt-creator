@@ -34,12 +34,15 @@ def main():
         for key in ["<Up>", "<Down>", "<Left>", "<Right>"]:
             test.log("Selecting everything")
             invokeMenuItem("Edit", "Select All")
-            waitFor("editor.textCursor().hasSelection()", 1000)
+            test.verify(waitFor("editor.textCursor().hasSelection()", 500),
+                        "verify selecting")
             test.compare(editor.textCursor().selectionStart(), 0)
             test.compare(editor.textCursor().selectionEnd(), size)
             test.compare(editor.textCursor().position(), size)
             test.log("Pressing key: %s" % key.replace("<", "").replace(">", ""))
             type(editor, key)
+            test.verify(waitFor("not editor.textCursor().hasSelection()", 500),
+                        "verify deselecting")
             if key == "<Up>":
                 test.compare(editor.textCursor().selectionStart(), editor.textCursor().selectionEnd())
             else:
