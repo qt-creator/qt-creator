@@ -7,7 +7,6 @@ SUBDIRS += \
     debugger \
     extensionsystem \
     environment \
-    fakevim \
     generichighlighter \
     profilewriter \
     ioutils \
