@@ -137,8 +137,10 @@ QML/JS Support
    * Fixed indentation in if condition and lambda expressions
      (QTCREATORBUG-7243)
    * Added persistent trie to store imports
-   * Improved initial kit selection (QTCREATORBUG-8424)
-   * Added detection of import type from main file (QTCREATORBUG-8358)
+   * Made sure default kit for new Qt Quick 2 UI project is Qt 5 based
+     (QTCREATORBUG-8424)
+   * Added detection of import type from main file to invoke QML Viewer when
+     previewing QML documents that import Qt Quick 1 (QTCREATORBUG-8358)
 
 GLSL Support
 
