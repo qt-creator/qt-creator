@@ -299,6 +299,7 @@ protected:
 
     virtual void notifyEngineRequestRemoteSetup();
     public:
+    virtual void notifyEngineRemoteServerRunning(const QByteArray &, int pid);
     virtual void notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort);
     virtual void notifyEngineRemoteSetupFailed(const QString &message);
 

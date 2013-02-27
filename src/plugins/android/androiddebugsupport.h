@@ -53,7 +53,8 @@ public:
         Debugger::DebuggerRunControl *runControl);
 
 private slots:
-    void handleRemoteProcessStarted(int gdbServerPort = -1, int qmlPort = -1);
+    void handleRemoteServerRunning(const QByteArray &serverChannel, int pid);
+    void handleRemoteProcessStarted(int gdbServerPort, int qmlPort);
     void handleRemoteProcessFinished(const QString &errorMsg);
 
     void handleRemoteOutput(const QByteArray &output);

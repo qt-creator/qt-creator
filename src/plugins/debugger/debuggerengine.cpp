@@ -879,6 +879,11 @@ void DebuggerEngine::notifyEngineRequestRemoteSetup()
     emit requestRemoteSetup();
 }
 
+void DebuggerEngine::notifyEngineRemoteServerRunning(const QByteArray &, int /*pid*/)
+{
+    showMessage(_("NOTE: REMOTE SERVER RUNNING IN MULTIMODE"));
+}
+
 void DebuggerEngine::notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort)
 {
     showMessage(_("NOTE: REMOTE SETUP DONE: GDB SERVER PORT: %1  QML PORT %2")

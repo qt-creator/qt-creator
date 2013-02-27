@@ -60,6 +60,8 @@ namespace Internal {
 GdbRemoteServerEngine::GdbRemoteServerEngine(const DebuggerStartParameters &startParameters)
     : GdbEngine(startParameters)
 {
+    m_isMulti = false;
+    m_targetPid = -1;
     connect(&m_uploadProc, SIGNAL(error(QProcess::ProcessError)),
         SLOT(uploadProcError(QProcess::ProcessError)));
     connect(&m_uploadProc, SIGNAL(readyReadStandardOutput()),
@@ -261,13 +263,8 @@ void GdbRemoteServerEngine::handleFileExecAndSymbols(const GdbResponse &response
 
 void GdbRemoteServerEngine::callTargetRemote()
 {
-    //m_breakHandler->clearBreakMarkers();
-
-    // "target remote" does three things:
-    //     (1) connects to the gdb server
-    //     (2) starts the remote application
-    //     (3) stops the remote application (early, e.g. in the dynamic linker)
-    QByteArray channel = startParameters().remoteChannel.toLatin1();
+    QByteArray rawChannel = startParameters().remoteChannel.toLatin1();
+    QByteArray channel = rawChannel;
 
     // Don't touch channels with explicitly set protocols.
     if (!channel.startsWith("tcp:") && !channel.startsWith("udp:")
@@ -283,14 +280,16 @@ void GdbRemoteServerEngine::callTargetRemote()
 
     if (m_isQnxGdb)
         postCommand("target qnx " + channel, CB(handleTargetQnx));
+    else if (m_isMulti)
+        postCommand("target extended-remote " + m_serverChannel, CB(handleTargetExtendedRemote));
     else
-        postCommand("target remote " + channel, CB(handleTargetRemote));
+        postCommand("target remote " + channel, CB(handleTargetRemote), 10);
 }
 
-void GdbRemoteServerEngine::handleTargetRemote(const GdbResponse &record)
+void GdbRemoteServerEngine::handleTargetRemote(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    if (record.resultClass == GdbResultDone) {
+    if (response.resultClass == GdbResultDone) {
         // gdb server will stop the remote application itself.
         showMessage(_("INFERIOR STARTED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
@@ -303,9 +302,48 @@ void GdbRemoteServerEngine::handleTargetRemote(const GdbResponse &record)
     } else {
         // 16^error,msg="hd:5555: Connection timed out."
         QString msg = msgConnectRemoteServerFailed(
-            QString::fromLocal8Bit(record.data.findChild("msg").data()));
+            QString::fromLocal8Bit(response.data.findChild("msg").data()));
         notifyInferiorSetupFailed(msg);
     }
+}
+
+void GdbRemoteServerEngine::handleTargetExtendedRemote(const GdbResponse &response)
+{
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    if (response.resultClass == GdbResultDone) {
+        // gdb server will stop the remote application itself.
+        showMessage(_("ATTACHED TO GDB SERVER STARTED"));
+        showMessage(msgAttachedToStoppedInferior(), StatusBar);
+        QString postAttachCommands = debuggerCore()->stringSetting(GdbPostAttachCommands);
+        if (!postAttachCommands.isEmpty()) {
+            foreach (const QString &cmd, postAttachCommands.split(QLatin1Char('\n')))
+                postCommand(cmd.toLatin1());
+        }
+        postCommand("attach " + QByteArray::number(m_targetPid), CB(handleTargetExtendedAttach));
+    } else {
+        QString msg = msgConnectRemoteServerFailed(
+            QString::fromLocal8Bit(response.data.findChild("msg").data()));
+        notifyInferiorSetupFailed(msg);
+    }
+}
+
+void GdbRemoteServerEngine::handleTargetExtendedAttach(const GdbResponse &response)
+{
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    if (response.resultClass == GdbResultDone) {
+        // gdb server will stop the remote application itself.
+        handleInferiorPrepared();
+    } else {
+        QString msg = msgConnectRemoteServerFailed(
+            QString::fromLocal8Bit(response.data.findChild("msg").data()));
+        notifyInferiorSetupFailed(msg);
+    }
+}
+
+void GdbRemoteServerEngine::notifyInferiorSetupOk()
+{
+    emit aboutToNotifyInferiorSetupOk();
+    GdbEngine::notifyInferiorSetupOk();
 }
 
 void GdbRemoteServerEngine::handleTargetQnx(const GdbResponse &response)
@@ -417,22 +455,36 @@ void GdbRemoteServerEngine::shutdownEngine()
     notifyAdapterShutdownOk();
 }
 
+void GdbRemoteServerEngine::notifyEngineRemoteServerRunning
+    (const QByteArray &serverChannel, int inferiorPid)
+{
+    showMessage(_("NOTE: REMOTE SERVER RUNNING IN MULTIMODE"));
+    m_isMulti = true;
+    m_targetPid = inferiorPid;
+    m_serverChannel = serverChannel;
+    startGdb();
+}
+
 void GdbRemoteServerEngine::notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort)
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     DebuggerEngine::notifyEngineRemoteSetupDone(gdbServerPort, qmlPort);
 
-    if (qmlPort != -1)
-        startParameters().qmlServerPort = qmlPort;
-    if (gdbServerPort != -1) {
-        QString &rc = startParameters().remoteChannel;
-        const int sepIndex = rc.lastIndexOf(QLatin1Char(':'));
-        if (sepIndex != -1) {
-            rc.replace(sepIndex + 1, rc.count() - sepIndex - 1,
-                       QString::number(gdbServerPort));
+    if (m_isMulti) {
+        // Has been done in notifyEngineRemoteServerRunning
+    } else {
+        if (qmlPort != -1)
+            startParameters().qmlServerPort = qmlPort;
+        if (gdbServerPort != -1) {
+            QString &rc = startParameters().remoteChannel;
+            const int sepIndex = rc.lastIndexOf(QLatin1Char(':'));
+            if (sepIndex != -1) {
+                rc.replace(sepIndex + 1, rc.count() - sepIndex - 1,
+                           QString::number(gdbServerPort));
+            }
         }
+        startGdb();
     }
-    startGdb();
 }
 
 void GdbRemoteServerEngine::notifyEngineRemoteSetupFailed(const QString &reason)

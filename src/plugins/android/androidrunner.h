@@ -56,9 +56,11 @@ public:
 public slots:
     void start();
     void stop();
+    void handleGdbRunning();
 
 signals:
-    void remoteProcessStarted(int gdbServerPort = -1, int qmlPort = -1);
+    void remoteServerRunning(const QByteArray &serverChannel, int pid);
+    void remoteProcessStarted(int gdbServerPort, int qmlPort);
     void remoteProcessFinished(const QString &errString = QString());
 
     void remoteOutput(const QByteArray &output);
@@ -69,29 +71,41 @@ private slots:
     void checkPID();
     void logcatReadStandardError();
     void logcatReadStandardOutput();
-    void startLogcat();
     void asyncStart();
 
 private:
-    void adbKill(qint64 pid, const QString &device, int timeout = 2000, const QString &runAsPackageName = QString());
+    void adbKill(qint64 pid);
+    QStringList selector() const { return m_selector; }
+    void forceStop();
+    QByteArray runPs();
+    void findPs();
 
 private:
     QProcess m_adbLogcatProcess;
+    QTimer m_checkPIDTimer;
+    bool m_wasStarted;
+
     QByteArray m_logcat;
     QString m_intentName;
     QString m_packageName;
     QString m_deviceSerialNumber;
     qint64 m_processPID;
-    qint64 m_gdbserverPID;
-    QTimer m_checkPIDTimer;
     bool m_useCppDebugger;
     bool m_useQmlDebugger;
-    QString m_remoteGdbChannel;
+    ushort m_localGdbServerPort; // Local end of forwarded debug socket.
     uint m_qmlPort;
     bool m_useLocalQtLibs;
+    QString m_pingFile;
+    QString m_pongFile;
+    QString m_gdbserverPath;
+    QString m_gdbserverCommand;
+    QString m_gdbserverSocket;
     QString m_localLibs;
     QString m_localJars;
     QString m_localJarsInitClasses;
+    QString m_adb;
+    bool m_isBusyBox;
+    QStringList m_selector;
     QMutex m_mutex;
 };
 

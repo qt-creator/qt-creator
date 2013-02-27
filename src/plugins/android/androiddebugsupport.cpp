@@ -135,7 +135,11 @@ AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
             m_runner, SLOT(start()));
     connect(m_runControl, SIGNAL(finished()),
             m_runner, SLOT(stop()));
+    connect(m_runControl->engine(), SIGNAL(aboutToNotifyInferiorSetupOk()),
+            m_runner, SLOT(handleGdbRunning()));
 
+    connect(m_runner, SIGNAL(remoteServerRunning(QByteArray,int)),
+        SLOT(handleRemoteServerRunning(QByteArray,int)));
     connect(m_runner, SIGNAL(remoteProcessStarted(int,int)),
         SLOT(handleRemoteProcessStarted(int,int)));
     connect(m_runner, SIGNAL(remoteProcessFinished(QString)),
@@ -145,6 +149,11 @@ AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
         SLOT(handleRemoteErrorOutput(QByteArray)));
     connect(m_runner, SIGNAL(remoteOutput(QByteArray)),
         SLOT(handleRemoteOutput(QByteArray)));
+}
+
+void AndroidDebugSupport::handleRemoteServerRunning(const QByteArray &serverChannel, int pid)
+{
+    m_runControl->engine()->notifyEngineRemoteServerRunning(serverChannel, pid);
 }
 
 void AndroidDebugSupport::handleRemoteProcessStarted(int gdbServerPort, int qmlPort)
