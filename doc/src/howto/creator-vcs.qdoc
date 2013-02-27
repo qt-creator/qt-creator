@@ -293,20 +293,10 @@
 
     Bazaar is a free version control system sponsored by Canonical.
 
-    The \gui Bazaar submenu contains the following additional items:
-
-    \table
-        \header
-            \li Menu Item
-            \li Description
-        \row
-            \li \gui{Pull}
-            \li Turn the branch into a mirror of another branch.
-        \row
-            \li \gui{Push}
-            \li Update a mirror of the branch.
-
-    \endtable
+    In addition to the standard version control system functions, you can
+    select \gui Tools > \gui Bazaar > \gui Pull to turn the branch into a
+    mirror of another branch. To update a mirror of the branch, select
+    \gui Push.
 
     \section2 Using Additional ClearCase Functions
 
@@ -348,20 +338,9 @@
 
     CVS is an open source version control system.
 
-    The \gui CVS submenu contains the following additional items:
-
-    \table
-        \header
-            \li Menu Item
-            \li Description
-        \row
-            \li \gui{Edit}
-            \li Open a file for editing.
-        \row
-            \li \gui{Unedit}
-            \li Discard the changes that you made in a file.
-
-    \endtable
+    In addition to the standard version control system functions, you can
+    select \gui Tools > \gui CVS > \gui Edit to open a file for editing.
+    To discard the changes that you made in a file, select \gui Unedit.
 
     \section2 Using Additional Git Functions
 
@@ -621,15 +600,8 @@
 
     Subversion is an open source version control system.
 
-    The \gui Subversion submenu contains the following additional items:
-
-    \table
-        \header
-            \li Menu Item
-            \li Description
-        \row
-            \li \gui{Describe}
-            \li Display commit log messages for a revision.
-    \endtable
+    In addition to the standard version control system functions, you can
+    select \gui Tools > \gui Subversion > \gui Describe to display commit log
+    messages for a revision.
 
 */
