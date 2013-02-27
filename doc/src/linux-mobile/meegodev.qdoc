@@ -35,6 +35,10 @@
     to create, build, debug, run, and deploy Harmattan applications as part of
     the Qt 4 SDK.
 
+    \note In \QC 2.7, and later, the Madde plugin that you need for MeeGo
+    development is disabled by default. To enable it, select \gui Help >
+    \gui {About Plugins} > \gui {Device Support} > \gui Madde and restart \QC.
+
     \if defined(qcmanual)
     For more information about the Harmattan platform, see
     \l{http://library.developer.nokia.com/topic/MeeGo_1.2_Harmattan_API/html/guide/html/Developer_Library_Harmattan_overview_5dcf.html}

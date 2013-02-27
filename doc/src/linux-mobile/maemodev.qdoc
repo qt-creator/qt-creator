@@ -36,6 +36,10 @@
     run, and deploy Maemo 5 applications as a part of the custom installation
     in the Qt 4 SDK online installer.
 
+    \note In \QC 2.7, and later, the Madde plugin that you need for Maemo
+    development is disabled by default. To enable it, select \gui Help >
+    \gui {About Plugins} > \gui {Device Support} > \gui Madde and restart \QC.
+
     \if defined(qcmanual)
     For more
     information about the Maemo 5 platform, see
