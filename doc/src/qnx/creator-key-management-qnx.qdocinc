@@ -1,0 +1,93 @@
+    \section2 Obtaining New Keys
+
+    To request keys from the BlackBerry Signing Authority, select
+    \gui {Tools > Options > BlackBerry > Keys} > \gui {Register}.
+    Then select the \gui {visiting this page} link, and follow the
+    instructions.
+
+    \image qtcreator-blackberry-obtain-keys.png "Requesting new keys"
+
+    \section2 Registering Newly Obtained Keys
+
+    After a couple of hours, you should receive two CSJ files, the PBDT and
+    the RDK files. Once you have received them, you can begin the key
+    registration using the \gui {Register Key} dialog mentioned above, located
+    at \gui {Tools > Options > BlackBerry > Keys > Register}.
+
+    \image qtcreator-blackberry-registerkeydialog.png "Register Key Dialog"
+
+    All you need to do is to browse for the PBDT CSJ file, and the RDK CSJ
+    file. If both files are located within the same directory, \QC will be
+    able to guess the path of one of them based on the path of the other one.
+
+    \list
+
+        \li PBDT CSJ file
+
+            The path of the PBDT CSJ file that you received from BlackBerry.
+
+        \li RDK CSJ file
+
+            The path of the RDK CSJ file that you received from BlackBerry.
+
+        \li CSJ PIN
+
+            The PIN you entered on the key request form.
+
+        \li CSK PIN
+
+            This is going to be the password used by the CSK keys.
+
+    \endlist
+
+    If this is your first run and you do not have a developer certificate yet,
+    make sure you check the \gui {Generate developer certificate
+    automatically} checkbox. \gui {Keystore password} refers to the password
+    used to open the container where the certificate will be stored. It is
+    common practice to use the same password used for the CSK file, but not
+    mandatory.
+
+    Once you have filled in all the relevant information, simply press \gui
+    {OK} and your keys will then be registered with the BlackBerry Signing Authority,
+    and will be ready to use.
+
+    \section2 Creating a New Certificate
+
+    To create a new developer certificate, click the \gui {Create} button to
+    launch the \gui {Create Certificate} dialog.
+
+    \image qtcreator-blackberry-createcertificatedialog.png "Create Certificate Dialog"
+
+    The fields you will need to fill in are:
+
+    \list
+
+        \li Path
+
+            The path to the new certificate, including the filename.
+
+        \li Author
+
+            The author, or owner of the certificate.
+
+        \li Password
+
+            The password which will be used to unlock the certificate from
+            they keystore.
+
+    \endlist
+
+    After filling in these fields, simply click \gui {OK} and the certificate
+    will be created.
+
+    \section2 Importing an Existing Certificate
+
+    If you already happen to have a certificate, and would like to use it
+    instead of for example having a new one automatically generated, all you
+    need to do is to launch the \gui {Import Certificate} dialog, clicking the
+    \gui {Import} button.
+
+    \image qtcreator-blackberry-importcertificatedialog.png "Import Certificate Dialog"
+
+    Once the dialog pops up, all you need to do is to browse for your new
+    certificate and fill in the password field.

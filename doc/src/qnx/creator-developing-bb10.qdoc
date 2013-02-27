@@ -52,5 +52,7 @@
         \li Create and upload a debug token bar file when adding the device from the wizard.
     \endlist
 
+    \include qnx/creator-key-management-qnx.qdocinc
+
     For more details please refer to the Qt-Project wiki page: \l {http://qt-project.org/wiki/BlackBerry} {http://qt-project.org/wiki/BlackBerry}.
 */
