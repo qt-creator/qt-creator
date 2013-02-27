@@ -1268,8 +1268,7 @@ bool SubversionPlugin::vcsMove(const QString &workingDir, const QString &from, c
 
 bool SubversionPlugin::vcsCheckout(const QString &directory, const QByteArray &url)
 {
-    QUrl tempUrl;
-    tempUrl.setEncodedUrl(url);
+    QUrl tempUrl = QUrl::fromEncoded(url);
     QString username = tempUrl.userName();
     QString password = tempUrl.password();
     QStringList args = QStringList(QLatin1String("checkout"));
