@@ -620,11 +620,6 @@ void AndroidConfigurations::updateAutomaticKitList()
         foreach (QtSupport::BaseQtVersion *qt, qtVersions) {
             Kit *newKit = new Kit;
             newKit->setAutoDetected(true);
-            QString arch = ProjectExplorer::Abi::toString(tc->targetAbi().architecture());
-            newKit->setDisplayName(tr("Android for %1 (GCC %2, Qt %3)")
-                                   .arg(arch)
-                                   .arg(tc->ndkToolChainVersion())
-                                   .arg(qt->qtVersionString()));
             newKit->setIconPath(QLatin1String(Constants::ANDROID_SETTINGS_CATEGORY_ICON));
             DeviceTypeKitInformation::setDeviceTypeId(newKit, Core::Id(Constants::ANDROID_DEVICE_TYPE));
             ToolChainKitInformation::setToolChain(newKit, tc);
@@ -656,8 +651,16 @@ void AndroidConfigurations::updateAutomaticKitList()
     foreach (Kit *k, existingKits)
         KitManager::instance()->deregisterKit(k);
 
-    foreach (Kit *kit, newKits)
+    foreach (Kit *kit, newKits) {
+        AndroidToolChain *tc = static_cast<AndroidToolChain *>(ToolChainKitInformation::toolChain(kit));
+        QString arch = ProjectExplorer::Abi::toString(tc->targetAbi().architecture());
+        QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(kit);
+        kit->setDisplayName(tr("Android for %1 (GCC %2, Qt %3)")
+                            .arg(arch)
+                            .arg(tc->ndkToolChainVersion())
+                            .arg(qt->qtVersionString()));
         KitManager::instance()->registerKit(kit);
+    }
 }
 
 /**
