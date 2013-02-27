@@ -189,11 +189,18 @@ public:
     void append(const QString &text)
     {
         const int N = 100000;
-        if (blockCount() > N) {
-            QTextBlock block = document()->findBlock(9 * N / 10);
+        const int bc = blockCount();
+        if (bc > N) {
+            QTextDocument *doc = document();
+            QTextBlock block = doc->findBlockByLineNumber(bc * 9 / 10);
             QTextCursor tc(block);
-            tc.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+            tc.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
             tc.removeSelectedText();
+            // Seems to be the only way to force shrinking of the
+            // allocated data.
+            QString contents = doc->toHtml();
+            doc->clear();
+            doc->setHtml(contents);
         }
         appendPlainText(text);
     }
