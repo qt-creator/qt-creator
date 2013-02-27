@@ -88,7 +88,8 @@ int StatesEditorModel::rowCount(const QModelIndex &parent) const
 
 void StatesEditorModel::reset()
 {
-    QAbstractListModel::reset();
+    QAbstractListModel::beginResetModel();
+    QAbstractListModel::endResetModel();
 }
 
 QVariant StatesEditorModel::data(const QModelIndex &index, int role) const
