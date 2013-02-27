@@ -145,16 +145,13 @@ bool AndroidPackageCreationStep::init()
     // Copying
     m_androidDir = AndroidManager::dirPath(target());
     Utils::FileName path = m_androidDir;
-    Utils::FileName androidLibPath;
-    QStringList configs = project->rootQt4ProjectNode()->variableValue(Qt4ProjectManager::ConfigVar);
-    if (configs.contains(QLatin1String("x86")))
-        androidLibPath = path.appendPath(QLatin1String("libs/x86"));
-    else if (configs.contains(QLatin1String("mips")))
-        androidLibPath = path.appendPath(QLatin1String("libs/mips"));
-    else if (configs.contains(QLatin1String("armeabi-v7a")))
-        androidLibPath = path.appendPath(QLatin1String("libs/armeabi-v7a"));
-    else
-        androidLibPath = path.appendPath(QLatin1String("libs/armeabi"));
+    QString androidTargetArch = project->rootQt4ProjectNode()->singleVariableValue(Qt4ProjectManager::AndroidArchVar);
+    if (androidTargetArch.isEmpty()) {
+        raiseError(tr("Cannot create Android package: No ANDROID_TARGET_ARCH set in make spec."));
+        return false;
+    }
+
+    Utils::FileName androidLibPath = path.appendPath(QLatin1String("libs/") + androidTargetArch);
     m_gdbServerDestination = androidLibPath.appendPath(QLatin1String("gdbserver"));
     m_gdbServerSource = AndroidGdbServerKitInformation::gdbServer(target()->kit());
     m_debugBuild = bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild;

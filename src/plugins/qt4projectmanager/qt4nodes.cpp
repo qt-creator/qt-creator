@@ -1941,6 +1941,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
                 = m_readerExact->values(QLatin1String("TARGET_VERSION_EXT"));
         newVarValues[StaticLibExtensionVar] = m_readerExact->values(QLatin1String("QMAKE_EXTENSION_STATICLIB"));
         newVarValues[ShLibExtensionVar] = m_readerExact->values(QLatin1String("QMAKE_EXTENSION_SHLIB"));
+        newVarValues[AndroidArchVar] = m_readerExact->values(QLatin1String("ANDROID_TARGET_ARCH"));
 
         m_isDeployable = false;
         if (m_projectType == ApplicationTemplate) {
