@@ -1327,8 +1327,10 @@
 
     However, the usefulness of this security measure seems dubious,
     because this feature can be easily disabled. With root permissions, you can
-    disable the feature immediately by writing \c{0} into
-    \c{/proc/sys/kernel/yama/ptrace_scope}. Even if you do not have elevated
+    disable the feature temporarily by writing \c{0} into
+    \c{/proc/sys/kernel/yama/ptrace_scope} or permanently by changing
+    the value in \c{/etc/sysctl.d/10-ptrace.conf}.
+    Even if you do not have elevated
     permissions, you can disable the feature later by adding a library that
     calls \c{prctl(0x59616d61, getppid(), 0, 0, 0);}, such as the one in
     \c{$QTCREATORDIR/lib/libptracepreload.so} to the LD_PRELOAD environment.
