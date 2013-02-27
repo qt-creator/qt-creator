@@ -71,6 +71,8 @@ QHash<QString, QStringList> sortFilesIntoPaths(const QString &base, const QSet<Q
         } else {
             // `file' is not part of the project.
             relativeFilePath = baseDir.relativeFilePath(absoluteFilePath.toString());
+            if (relativeFilePath.endsWith(QLatin1Char('/')))
+                relativeFilePath.chop(1);
         }
 
         filesInPath[relativeFilePath].append(absoluteFileName);
