@@ -83,7 +83,14 @@ void AndroidSettingsPage::apply()
             ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
     }
 
-    // TODO deregister old automatic toolchains?
+    for (int i = 0; i < existingToolChains.count(); ++i) {
+        ProjectExplorer::ToolChain *tc = existingToolChains.at(i);
+        if (tc->type() == QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE)) {
+            if (!tc->isValid()) {
+                ProjectExplorer::ToolChainManager::instance()->deregisterToolChain(tc);
+            }
+        }
+    }
 
     AndroidConfigurations::instance().updateAutomaticKitList();
 }

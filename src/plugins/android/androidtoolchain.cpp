@@ -101,7 +101,8 @@ QString AndroidToolChain::typeDisplayName() const
 
 bool AndroidToolChain::isValid() const
 {
-    return GccToolChain::isValid() && targetAbi().isValid() && !m_ndkToolChainVersion.isEmpty();
+    return GccToolChain::isValid() && targetAbi().isValid() && !m_ndkToolChainVersion.isEmpty()
+            && compilerCommand().isChildOf(AndroidConfigurations::instance().config().ndkLocation);
 }
 
 void AndroidToolChain::addToEnvironment(Environment &env) const
