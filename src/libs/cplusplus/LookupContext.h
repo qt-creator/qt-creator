@@ -113,6 +113,7 @@ private:
     QList<Symbol *> _todo;
     QSharedPointer<Control> _control;
     TemplateNameIdTable _specializations;
+    QMap<const TemplateNameId *, ClassOrNamespace *> _instantiations;
 
     // it's an instantiation.
     const TemplateNameId *_templateId;

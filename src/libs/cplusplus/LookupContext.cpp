@@ -749,6 +749,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
         return 0;
 
     ClassOrNamespace *reference = it->second;
+    ClassOrNamespace *baseTemplateClassReference = reference;
 
     const TemplateNameId *templId = name->asTemplateNameId();
     if (templId) {
@@ -764,7 +765,8 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
         if (templId->isSpecialization()) {
             // if it is a specialization we try to find or create new one and
             // add to base class(reference)
-            TemplateNameIdTable::const_iterator cit = reference->_specializations.find(templId);
+            TemplateNameIdTable::const_iterator cit
+                    = reference->_specializations.find(templId);
             if (cit != reference->_specializations.end()) {
                 return cit->second;
             } else {
@@ -776,6 +778,10 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                 return newSpecialization;
             }
         } else {
+            QMap<const TemplateNameId *, ClassOrNamespace *>::const_iterator citInstantiation
+                    = reference->_instantiations.find(templId);
+            if (citInstantiation != reference->_instantiations.end())
+                return citInstantiation.value();
             TemplateNameId *nonConstTemplId = const_cast<TemplateNameId *>(templId);
             // make this instantiation looks like specialization which help to find
             // full specialization for this instantiation
@@ -833,7 +839,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
     // construct all instantiation data.
     if (templId) {
         _alreadyConsideredTemplates.insert(templId);
-        ClassOrNamespace *instantiation = _factory->allocClassOrNamespace(reference);
+        ClassOrNamespace *instantiation = _factory->allocClassOrNamespace(baseTemplateClassReference);
 #ifdef DEBUG_LOOKUP
         instantiation->_name = templId;
 #endif // DEBUG_LOOKUP
@@ -960,6 +966,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
         }
 
         _alreadyConsideredTemplates.clear(templId);
+        baseTemplateClassReference->_instantiations[templId] = instantiation;
         return instantiation;
     }
 
