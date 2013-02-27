@@ -213,7 +213,6 @@ void ToolChainManager::restoreToolChains()
 
 ToolChainManager::~ToolChainManager()
 {
-    saveToolChains(); // Make sure to save tool chains when closing
     delete d;
     m_instance = 0;
 }
