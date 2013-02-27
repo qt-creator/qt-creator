@@ -268,7 +268,7 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
     invalidateSourcesList();
 
     m_debugInfoTaskHandler = new DebugInfoTaskHandler(this);
-    ExtensionSystem::PluginManager::addObject(m_debugInfoTaskHandler);
+    //ExtensionSystem::PluginManager::addObject(m_debugInfoTaskHandler);
 
     m_commandTimer.setSingleShot(true);
     connect(&m_commandTimer, SIGNAL(timeout()), SLOT(commandTimeout()));
@@ -287,7 +287,7 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
 
 GdbEngine::~GdbEngine()
 {
-    ExtensionSystem::PluginManager::removeObject(m_debugInfoTaskHandler);
+    //ExtensionSystem::PluginManager::removeObject(m_debugInfoTaskHandler);
     delete m_debugInfoTaskHandler;
     m_debugInfoTaskHandler = 0;
 
