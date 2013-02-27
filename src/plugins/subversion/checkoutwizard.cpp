@@ -82,17 +82,19 @@ QSharedPointer<VcsBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QLi
     const CheckoutWizardPage *cwp = qobject_cast<const CheckoutWizardPage *>(parameterPages.front());
     QTC_ASSERT(cwp, return QSharedPointer<VcsBase::AbstractCheckoutJob>());
     const SubversionSettings settings = SubversionPlugin::instance()->settings();
-    const QString binary = settings.svnBinaryPath;
+    const QString binary = settings.binaryPath();
     const QString directory = cwp->directory();
     QStringList args;
     args << QLatin1String("checkout") << cwp->repository() << directory;
     const QString workingDirectory = cwp->path();
     *checkoutPath = workingDirectory + QLatin1Char('/') + directory;
-    const QStringList completeArgs = settings.hasAuthentication() ?
-                                     SubversionPlugin::addAuthenticationOptions(args, settings.user, settings.password) :
-                                     args;
+    if (settings.hasAuthentication()) {
+        const QString user = settings.stringValue(SubversionSettings::userKey);
+        const QString pwd = settings.stringValue(SubversionSettings::passwordKey);
+        args = SubversionPlugin::addAuthenticationOptions(args, user, pwd);
+    }
     VcsBase::ProcessCheckoutJob *job = new VcsBase::ProcessCheckoutJob;
-    job->addStep(binary, completeArgs, workingDirectory);
+    job->addStep(binary, args, workingDirectory);
     return QSharedPointer<VcsBase::AbstractCheckoutJob>(job);
 }
 

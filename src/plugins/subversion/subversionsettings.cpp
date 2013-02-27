@@ -34,73 +34,48 @@
 
 #include <QSettings>
 
-static const char groupC[] = "Subversion";
-static const char commandKeyC[] = "Command";
-static const char userKeyC[] = "User";
-static const char passwordKeyC[] = "Password";
-static const char authenticationKeyC[] = "Authentication";
+namespace Subversion {
+namespace Internal {
 
-static const char promptToSubmitKeyC[] = "PromptForSubmit";
-static const char timeOutKeyC[] = "TimeOut";
-static const char spaceIgnorantAnnotationKeyC[] = "SpaceIgnorantAnnotation";
-static const char logCountKeyC[] = "LogCount";
+const QLatin1String SubversionSettings::useAuthenticationKey("Authentication");
+const QLatin1String SubversionSettings::userKey("User");
+const QLatin1String SubversionSettings::passwordKey("Password");
+const QLatin1String SubversionSettings::spaceIgnorantAnnotationKey("SpaceIgnorantAnnotation");
 
-enum { defaultTimeOutS = 30, defaultLogCount = 1000 };
-
-static QString defaultCommand()
+SubversionSettings::SubversionSettings()
 {
-    return QLatin1String("svn" QTC_HOST_EXE_SUFFIX);
+    setSettingsGroup(QLatin1String("Subversion"));
+    declareKey(binaryPathKey, QLatin1String("svn" QTC_HOST_EXE_SUFFIX));
+    declareKey(logCountKey, 1000);
+    declareKey(useAuthenticationKey, false);
+    declareKey(userKey, QLatin1String(""));
+    declareKey(passwordKey, QLatin1String(""));
+    declareKey(spaceIgnorantAnnotationKey, true);
 }
 
-using namespace Subversion::Internal;
-
-SubversionSettings::SubversionSettings() :
-    svnCommand(defaultCommand()),
-    useAuthentication(false),
-    logCount(defaultLogCount),
-    timeOutS(defaultTimeOutS),
-    promptToSubmit(true),
-    spaceIgnorantAnnotation(true)
+bool SubversionSettings::hasAuthentication() const
 {
+    return boolValue(useAuthenticationKey) && !stringValue(userKey).isEmpty();
 }
 
-void SubversionSettings::fromSettings(QSettings *settings)
+int SubversionSettings::timeOutMs() const
 {
-    settings->beginGroup(QLatin1String(groupC));
-    svnCommand = settings->value(QLatin1String(commandKeyC), defaultCommand()).toString();
-    svnBinaryPath = Utils::Environment::systemEnvironment().searchInPath(svnCommand);
-    useAuthentication = settings->value(QLatin1String(authenticationKeyC), QVariant(false)).toBool();
-    user = settings->value(QLatin1String(userKeyC), QString()).toString();
-    password =  settings->value(QLatin1String(passwordKeyC), QString()).toString();
-    timeOutS = settings->value(QLatin1String(timeOutKeyC), defaultTimeOutS).toInt();
-    promptToSubmit = settings->value(QLatin1String(promptToSubmitKeyC), true).toBool();
-    spaceIgnorantAnnotation = settings->value(QLatin1String(spaceIgnorantAnnotationKeyC), true).toBool();
-    logCount = settings->value(QLatin1String(logCountKeyC), int(defaultLogCount)).toInt();
-    settings->endGroup();
+    return 1000 * intValue(timeoutKey);
 }
 
-void SubversionSettings::toSettings(QSettings *settings) const
+void SubversionSettings::readLegacySettings(const QSettings *settings)
 {
-    settings->beginGroup(QLatin1String(groupC));
-    settings->setValue(QLatin1String(commandKeyC), svnCommand);
-    settings->setValue(QLatin1String(authenticationKeyC), QVariant(useAuthentication));
-    settings->setValue(QLatin1String(userKeyC), user);
-    settings->setValue(QLatin1String(passwordKeyC), password);
-    settings->setValue(QLatin1String(promptToSubmitKeyC), promptToSubmit);
-    settings->setValue(QLatin1String(timeOutKeyC), timeOutS);
-    settings->setValue(QLatin1String(spaceIgnorantAnnotationKeyC), spaceIgnorantAnnotation);
-    settings->setValue(QLatin1String(logCountKeyC), logCount);
-    settings->endGroup();
+    const QString keyRoot = settingsGroup() + QLatin1Char('/');
+    const QString oldBinaryPathKey = keyRoot + QLatin1String("Command");
+    const QString oldPromptOnSubmitKey = keyRoot + QLatin1String("PromptForSubmit");
+    const QString oldTimeoutKey = keyRoot + QLatin1String("TimeOut");
+    if (settings->contains(oldBinaryPathKey))
+        this->setValue(binaryPathKey, settings->value(oldBinaryPathKey).toString());
+    if (settings->contains(oldPromptOnSubmitKey))
+        this->setValue(promptOnSubmitKey, settings->value(oldPromptOnSubmitKey).toBool());
+    if (settings->contains(oldTimeoutKey))
+        this->setValue(timeoutKey, settings->value(oldTimeoutKey).toInt());
 }
 
-bool SubversionSettings::equals(const SubversionSettings &s) const
-{
-    return svnCommand        == s.svnCommand
-        && useAuthentication == s.useAuthentication
-        && user              == s.user
-        && password          == s.password
-        && logCount          == s.logCount
-        && timeOutS          == s.timeOutS
-        && promptToSubmit    == s.promptToSubmit
-        && spaceIgnorantAnnotation == s.spaceIgnorantAnnotation;
-}
+} // namespace Internal
+} // namespace Subversion

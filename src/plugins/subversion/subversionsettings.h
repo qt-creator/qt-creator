@@ -30,44 +30,27 @@
 #ifndef SUBVERSIONSETTINGS_H
 #define SUBVERSIONSETTINGS_H
 
-#include <QStringList>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <vcsbase/vcsbaseclientsettings.h>
 
 namespace Subversion {
 namespace Internal {
 
-struct SubversionSettings
+class SubversionSettings : public VcsBase::VcsBaseClientSettings
 {
+public:
+    static const QLatin1String useAuthenticationKey;
+    static const QLatin1String userKey;
+    static const QLatin1String passwordKey;
+    static const QLatin1String spaceIgnorantAnnotationKey;
+
     SubversionSettings();
+    bool hasAuthentication() const;
 
-    void fromSettings(QSettings *);
-    void toSettings(QSettings *) const;
+    int timeOutMs() const;
 
-    inline int timeOutMS() const     { return timeOutS * 1000;  }
-    inline int longTimeOutMS() const { return timeOutS * 10000; }
-
-    inline bool hasAuthentication() const { return useAuthentication && !user.isEmpty(); }
-
-    bool equals(const SubversionSettings &s) const;
-
-    QString svnCommand;
-    QString svnBinaryPath;
-    bool useAuthentication;
-    QString user;
-    QString password;
-    int logCount;
-    int timeOutS;
-    bool promptToSubmit;
-    bool spaceIgnorantAnnotation;
+protected:
+    void readLegacySettings(const QSettings *settings);
 };
-
-inline bool operator==(const SubversionSettings &p1, const SubversionSettings &p2)
-    { return p1.equals(p2); }
-inline bool operator!=(const SubversionSettings &p1, const SubversionSettings &p2)
-    { return !p1.equals(p2); }
 
 } // namespace Internal
 } // namespace Subversion

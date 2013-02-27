@@ -54,30 +54,31 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
 SubversionSettings SettingsPageWidget::settings() const
 {
     SubversionSettings rc;
-    rc.svnCommand = m_ui.pathChooser->rawPath();
-    rc.svnBinaryPath = m_ui.pathChooser->path();
-    rc.useAuthentication = m_ui.userGroupBox->isChecked();
-    rc.user =  m_ui.usernameLineEdit->text();
-    rc.password = m_ui.passwordLineEdit->text();
-    rc.timeOutS = m_ui.timeOutSpinBox->value();
-    if (rc.user.isEmpty())
-        rc.useAuthentication = false;
-    rc.promptToSubmit = m_ui.promptToSubmitCheckBox->isChecked();
-    rc.spaceIgnorantAnnotation = m_ui.spaceIgnorantAnnotationCheckBox->isChecked();
-    rc.logCount = m_ui.logCountSpinBox->value();
+    rc.setValue(SubversionSettings::binaryPathKey, m_ui.pathChooser->rawPath());
+    rc.setValue(SubversionSettings::useAuthenticationKey, m_ui.userGroupBox->isChecked());
+    rc.setValue(SubversionSettings::userKey, m_ui.usernameLineEdit->text());
+    rc.setValue(SubversionSettings::passwordKey, m_ui.passwordLineEdit->text());
+    rc.setValue(SubversionSettings::timeoutKey, m_ui.timeOutSpinBox->value());
+    if (rc.stringValue(SubversionSettings::userKey).isEmpty())
+        rc.setValue(SubversionSettings::useAuthenticationKey, false);
+    rc.setValue(SubversionSettings::promptOnSubmitKey, m_ui.promptToSubmitCheckBox->isChecked());
+    rc.setValue(SubversionSettings::spaceIgnorantAnnotationKey,
+                m_ui.spaceIgnorantAnnotationCheckBox->isChecked());
+    rc.setValue(SubversionSettings::logCountKey, m_ui.logCountSpinBox->value());
     return rc;
 }
 
 void SettingsPageWidget::setSettings(const SubversionSettings &s)
 {
-    m_ui.pathChooser->setPath(s.svnCommand);
-    m_ui.usernameLineEdit->setText(s.user);
-    m_ui.passwordLineEdit->setText(s.password);
-    m_ui.userGroupBox->setChecked(s.useAuthentication);
-    m_ui.timeOutSpinBox->setValue(s.timeOutS);
-    m_ui.promptToSubmitCheckBox->setChecked(s.promptToSubmit);
-    m_ui.spaceIgnorantAnnotationCheckBox->setChecked(s.spaceIgnorantAnnotation);
-    m_ui.logCountSpinBox->setValue(s.logCount);
+    m_ui.pathChooser->setPath(s.binaryPath());
+    m_ui.usernameLineEdit->setText(s.stringValue(SubversionSettings::userKey));
+    m_ui.passwordLineEdit->setText(s.stringValue(SubversionSettings::passwordKey));
+    m_ui.userGroupBox->setChecked(s.boolValue(SubversionSettings::useAuthenticationKey));
+    m_ui.timeOutSpinBox->setValue(s.intValue(SubversionSettings::timeoutKey));
+    m_ui.promptToSubmitCheckBox->setChecked(s.boolValue(SubversionSettings::promptOnSubmitKey));
+    m_ui.spaceIgnorantAnnotationCheckBox->setChecked(
+                s.boolValue(SubversionSettings::spaceIgnorantAnnotationKey));
+    m_ui.logCountSpinBox->setValue(s.intValue(SubversionSettings::logCountKey));
 }
 
 QString SettingsPageWidget::searchKeywords() const
