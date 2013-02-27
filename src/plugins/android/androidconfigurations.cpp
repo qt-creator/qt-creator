@@ -591,11 +591,6 @@ void AndroidConfigurations::updateAutomaticKitList()
             continue;
         if (k->isSdkProvided())
             continue;
-        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain((k));
-        if (!tc)
-            continue;
-        if (tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
-            continue;
 
         existingKits << k;
     }
