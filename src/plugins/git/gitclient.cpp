@@ -1775,7 +1775,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
 
     commitData->panelInfo.repository = repoDirectory;
 
-    QString gitDir = GitClient::findGitDirForRepository(repoDirectory);
+    QString gitDir = findGitDirForRepository(repoDirectory);
     if (gitDir.isEmpty()) {
         *errorMessage = tr("The repository \"%1\" is not initialized.").arg(repoDirectory);
         return false;
