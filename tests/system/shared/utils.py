@@ -212,7 +212,7 @@ def getOutputFromCmdline(cmdline):
     versCall.stdout.close()
     return result
 
-def selectFromFileDialog(fileName):
+def selectFromFileDialog(fileName, waitForFile=False):
     if platform.system() == "Darwin":
         snooze(1)
         nativeType("<Command+Shift+g>")
@@ -233,6 +233,9 @@ def selectFromFileDialog(fileName):
         waitFor("str(pathLine.text)==''")
         replaceEditorContent(pathLine, fName)
         clickButton(findObject("{text='Open' type='QPushButton'}"))
+    if waitForFile:
+        fileCombo = waitForObject(":Qt Creator_FilenameQComboBox")
+        waitFor("str(fileCombo.currentText) in fileName", 5000)
 
 # add qt.qch from SDK path
 def addHelpDocumentationFromSDK():
