@@ -216,16 +216,11 @@ void Kit::fix()
 void Kit::setup()
 {
     KitGuard g(this);
-    QHash<Core::Id, QVariant> data = d->m_data;
-    for (int i = 0; i < 5; ++i) {
-        // Allow for some retries to settle down in a good configuration
-        // This is necessary for the Qt version to pick its preferred tool chain
-        // and that to pick a working debugger afterwards.
-        foreach (KitInformation *i, KitManager::instance()->kitInformation())
-            i->setup(this);
-        if (d->m_data == data)
-            break;
-    }
+    // Process the KitInfos in reverse order: They may only be based on other information lower in
+    // the stack.
+    QList<KitInformation *> info = KitManager::instance()->kitInformation();
+    for (int i = info.count() - 1; i >= 0; --i)
+        info.at(i)->setup(this);
 }
 
 QString Kit::displayName() const
