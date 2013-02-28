@@ -842,7 +842,7 @@ public:
             // FIXME: Check the real conditions.
             if (x.unicode() < ' ')
                 m_text.clear();
-            else
+            else if (x.isLetter())
                 m_key = x.toUpper().unicode();
         }
 
