@@ -255,28 +255,33 @@
     troubleshooting.
 
     The content and formatting of documentation are separated in QDoc.
-    Separate style sheets are used to generate help files for \QC and online
+    The documentation configuration, style sheets, and templates have
+    changed over time, so they differ between Qt and \QC versions. In Qt 4,
+    separate style sheets are used to generate help files for \QC and online
     documentation for the Web.
 
-    The documentation configuration, style sheets, and build process have
-    changed over time, so they differ between Qt and \QC versions. To use the
-    online style, use QDoc from Qt 4.7.4 to build the docs. To use the \QC help
-    style, use QDoc from Qt 4.8, or later.
+    In Qt 5, only one set of templates is used, as defined by the
+    \c {qt5\qtbase\doc\global\qt-module-defaults.qdocconf} configuration file.
+    It is fetched from Qt sources by adding the following line to the qdocconf
+    file:
+
+    \c {include ($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)}
+
+    To pick the Qt to use, run qmake from either Qt 4 or Qt 5.
 
     To build documentation for the sources from the qtcreator master branch, use
     build scripts defined in the doc.pri file. To build all \QC docs in the
     help format and to create help files (.qch), enter the following build
-    commands from the project folder:
+    commands from the project folder (after running qmake):
 
     \list
 
         \o  nmake docs (on Windows)
-        \o  make docs (on Linux)
+        \o  make docs (on Linux and Mac OS)
 
     \endlist
 
-    The following options generate HTML that uses the help style, and therefore
-    require QDoc from Qt 4.8 or later:
+    Besides \c docs, you have the following options:
 
     \list
 
@@ -291,13 +296,6 @@
 
         \o  dev_qch_docs - build Extending \QC Manual in help format and
             generate a help file (.qch)
-
-    \endlist
-
-    The following options generate HTML that uses the online style (they do not
-    generate a help file), and therefore require QDoc from Qt 4.7.4:
-
-    \list
 
         \o  docs_online - build \QC Manual and Extending \QC Manual in online
             format
