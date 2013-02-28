@@ -293,6 +293,52 @@ private:
     QStringList m_fileNames;
 };
 
+class ConflictHandler : public QObject
+{
+    Q_OBJECT
+public:
+    ConflictHandler(QObject *parent,
+                    const QString &workingDirectory,
+                    const QString &command)
+        : QObject(parent),
+          m_workingDirectory(workingDirectory),
+          m_command(command)
+    {
+    }
+
+    ~ConflictHandler()
+    {
+        if (m_commit.isEmpty())
+            GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(m_workingDirectory);
+        else
+            GitPlugin::instance()->gitClient()->handleMergeConflicts(
+                        m_workingDirectory, m_commit, m_command);
+    }
+
+    void readStdOutString(const QString &data)
+    {
+        static QRegExp patchFailedRE(QLatin1String("Patch failed at ([^\\n]*)"));
+        if (patchFailedRE.indexIn(data) != -1)
+            m_commit = patchFailedRE.cap(1);
+    }
+public slots:
+    void readStdOut(const QByteArray &data)
+    {
+        readStdOutString(QString::fromUtf8(data));
+    }
+
+    void readStdErr(const QString &data)
+    {
+        static QRegExp couldNotApplyRE(QLatin1String("[Cc]ould not (?:apply|revert) ([^\\n]*)"));
+        if (couldNotApplyRE.indexIn(data) != -1)
+            m_commit = couldNotApplyRE.cap(1);
+    }
+private:
+    QString m_workingDirectory;
+    QString m_command;
+    QString m_commit;
+};
+
 Core::IEditor *locateEditor(const char *property, const QString &entry)
 {
     foreach (Core::IEditor *ed, Core::ICore::editorManager()->openedEditors())
@@ -2146,20 +2192,14 @@ bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
     // Disable UNIX terminals to suppress SSH prompting.
     const unsigned flags = VcsBase::VcsBasePlugin::SshPasswordPrompt|VcsBase::VcsBasePlugin::ShowStdOutInLogWindow;
     const Utils::SynchronousProcessResponse resp = synchronousGit(workingDirectory, arguments, flags);
+    ConflictHandler conflictHandler(0, workingDirectory, abortCommand);
     // Notify about changed files or abort the rebase.
     const bool ok = resp.result == Utils::SynchronousProcessResponse::Finished;
     if (ok) {
         GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(workingDirectory);
-    } else if (resp.stdOut.contains(QLatin1String("CONFLICT"))) {
-        // rebase conflict is output to stdOut
-        QRegExp conflictedCommit(QLatin1String("Patch failed at ([^\\n]*)"));
-        conflictedCommit.indexIn(resp.stdOut);
-        handleMergeConflicts(workingDirectory, conflictedCommit.cap(1), abortCommand);
-    } else if (resp.stdErr.contains(QLatin1String("conflict"))) {
-        // cherry-pick/revert conflict is output to stdErr
-        QRegExp conflictedCommit(QLatin1String("could not (?:apply|revert) ([^\\n]*)"));
-        conflictedCommit.indexIn(resp.stdErr);
-        handleMergeConflicts(workingDirectory, conflictedCommit.cap(1), abortCommand);
+    } else {
+        conflictHandler.readStdOutString(resp.stdOut);
+        conflictHandler.readStdErr(resp.stdErr);
     }
     return ok;
 }
