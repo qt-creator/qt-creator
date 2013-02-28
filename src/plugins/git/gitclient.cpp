@@ -1732,10 +1732,23 @@ void GitClient::continuePreviousGitCommand(const QString &workingDirectory,
         synchronousAbortCommand(workingDirectory, gitCommand);
         break;
     default: // Continue/Skip
-        if (isRebase)
-            synchronousCommandContinue(workingDirectory, gitCommand, hasChanges);
-        else
+        if (isRebase) {
+            // Git might request an editor, so this must be done asynchronously
+            // and without timeout
+            QStringList arguments;
+            arguments << gitCommand << QLatin1String(hasChanges ? "--continue" : "--skip");
+            outputWindow()->appendCommand(workingDirectory,
+                                          settings()->stringValue(GitSettings::binaryPathKey),
+                                          arguments);
+            VcsBase::Command *command = createCommand(workingDirectory, 0, true);
+            command->addJob(arguments, -1);
+            command->execute();
+            ConflictHandler *handler = new ConflictHandler(command, workingDirectory, gitCommand);
+            connect(command, SIGNAL(outputData(QByteArray)), handler, SLOT(readStdOut(QByteArray)));
+            connect(command, SIGNAL(errorText(QString)), handler, SLOT(readStdErr(QString)));
+        } else {
             GitPlugin::instance()->startCommit();
+        }
     }
 }
 
@@ -2216,13 +2229,6 @@ bool GitClient::synchronousPull(const QString &workingDirectory, bool rebase)
     }
 
     return executeAndHandleConflicts(workingDirectory, arguments, abortCommand);
-}
-
-bool GitClient::synchronousCommandContinue(const QString &workingDirectory, const QString &command, bool hasChanges)
-{
-    QStringList arguments;
-    arguments << command << QLatin1String(hasChanges ? "--continue" : "--skip");
-    return executeAndHandleConflicts(workingDirectory, arguments, command);
 }
 
 void GitClient::synchronousAbortCommand(const QString &workingDir, const QString &abortCommand)
