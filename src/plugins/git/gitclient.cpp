@@ -365,6 +365,8 @@ const char *GitClient::decorateOption = "--decorate";
 
 QString GitClient::findRepositoryForDirectory(const QString &dir)
 {
+    if (dir.endsWith(QLatin1String("/.git")) || dir.contains(QLatin1String("/.git/")))
+        return QString();
     // Find a directory to run git in:
     const QString root = QDir::rootPath();
     const QString home = QDir::homePath();
