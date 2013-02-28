@@ -269,8 +269,6 @@ void KitManager::registerKitInformation(KitInformation *ki)
             = qLowerBound(d->m_informationList.begin(), d->m_informationList.end(), ki, greaterPriority);
     d->m_informationList.insert(it, ki);
 
-    connect(ki, SIGNAL(validationNeeded()), this, SLOT(validateKits()));
-
     if (!d->m_initialized)
         return;
 
@@ -457,12 +455,6 @@ void KitManager::setDefaultKit(Kit *k)
     d->m_defaultKit = k;
     if (d->m_initialized)
         emit defaultkitChanged();
-}
-
-void KitManager::validateKits()
-{
-    foreach (Kit *k, d->m_kitList) // no need to load kits just to validate them!
-        k->validate();
 }
 
 void KitManager::addKit(Kit *k)

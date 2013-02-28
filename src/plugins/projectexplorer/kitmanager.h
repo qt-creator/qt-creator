@@ -92,9 +92,6 @@ public:
 
 protected:
     void notifyAboutUpdate(Kit *k);
-
-signals:
-    void validationNeeded();
 };
 
 class PROJECTEXPLORER_EXPORT KitMatcher
@@ -148,9 +145,6 @@ signals:
     void kitsChanged();
 
     void kitsLoaded();
-
-private slots:
-    void validateKits();
 
 private:
     explicit KitManager(QObject *parent = 0);
