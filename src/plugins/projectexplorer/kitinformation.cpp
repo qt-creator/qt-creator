@@ -68,7 +68,7 @@ Core::Id SysRootKitInformation::dataId() const
 
 unsigned int SysRootKitInformation::priority() const
 {
-    return 32000;
+    return 31000;
 }
 
 QVariant SysRootKitInformation::defaultValue(Kit *k) const
