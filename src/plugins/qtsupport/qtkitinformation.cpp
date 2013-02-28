@@ -35,6 +35,7 @@
 #include "qtparser.h"
 
 #include <utils/environment.h>
+#include <utils/qtcassert.h>
 
 namespace QtSupport {
 namespace Internal {
@@ -44,10 +45,8 @@ const char QT_INFORMATION[] = "QtSupport.QtInformation";
 QtKitInformation::QtKitInformation()
 {
     setObjectName(QLatin1String("QtKitInformation"));
-    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
-            this, SIGNAL(validationNeeded()));
-    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
-            this, SLOT(qtVersionsChanged(QList<int>,QList<int>,QList<int>)));
+    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsLoaded()),
+            this, SLOT(kitsWereLoaded()));
 }
 
 Core::Id QtKitInformation::dataId() const
@@ -89,14 +88,17 @@ QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *k) const
 
 QList<ProjectExplorer::Task> QtKitInformation::validate(const ProjectExplorer::Kit *k) const
 {
+    QList<ProjectExplorer::Task> result;
+    QTC_ASSERT(QtVersionManager::instance()->isLoaded(), return result);
     BaseQtVersion *version = qtVersion(k);
     if (!version)
-        return QList<ProjectExplorer::Task>();
+        return result;
     return version->validateKit(k);
 }
 
 void QtKitInformation::fix(ProjectExplorer::Kit *k)
 {
+    QTC_ASSERT(QtVersionManager::instance()->isLoaded(), return);
     BaseQtVersion *version = qtVersion(k);
     if (!version)
         setQtVersionId(k, -1);
@@ -185,6 +187,15 @@ void QtKitInformation::qtVersionsChanged(const QList<int> &addedIds,
     foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::instance()->kits())
         if (changedIds.contains(qtVersionId(k)))
             notifyAboutUpdate(k);
+}
+
+void QtKitInformation::kitsWereLoaded()
+{
+    foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::instance()->kits())
+        fix(k);
+
+    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
+            this, SLOT(qtVersionsChanged(QList<int>,QList<int>,QList<int>)));
 }
 
 QtPlatformKitMatcher::QtPlatformKitMatcher(const QString &platform) :
