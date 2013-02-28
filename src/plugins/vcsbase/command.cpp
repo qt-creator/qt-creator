@@ -247,7 +247,8 @@ void Command::run()
 
         process->closeWriteChannel();
         const int timeOutSeconds = d->m_jobs.at(j).timeout;
-        if (!Utils::SynchronousProcess::readDataFromProcess(*process, timeOutSeconds * 1000,
+        if (!Utils::SynchronousProcess::readDataFromProcess(*process,
+                                                            timeOutSeconds >= 0 ? timeOutSeconds * 1000 : -1,
                                                             &stdOut, &stdErr, false)) {
             Utils::SynchronousProcess::stopProcess(*process);
             ok = false;
