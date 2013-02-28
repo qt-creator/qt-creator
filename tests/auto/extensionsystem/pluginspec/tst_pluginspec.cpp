@@ -68,7 +68,7 @@ void tst_PluginSpec::read()
     QCOMPARE(spec.version, QString("1.0.1"));
     QCOMPARE(spec.compatVersion, QString("1.0.0"));
     QCOMPARE(spec.experimental, false);
-    QCOMPARE(spec.enabled, true);
+    QCOMPARE(spec.enabledInSettings, true);
     QCOMPARE(spec.vendor, QString("Digia Plc"));
     QCOMPARE(spec.copyright, QString("(C) 2013 Digia Plc"));
     QCOMPARE(spec.license, QString("This is a default license bla\nblubbblubb\nend of terms"));
@@ -185,7 +185,7 @@ void tst_PluginSpec::experimental()
     Internal::PluginSpecPrivate spec(0);
     QVERIFY(spec.read("testspecs/simplespec_experimental.xml"));
     QCOMPARE(spec.experimental, true);
-    QCOMPARE(spec.enabled, false);
+    QCOMPARE(spec.enabledInSettings, false);
 }
 
 void tst_PluginSpec::locationAndPath()
