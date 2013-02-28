@@ -1459,8 +1459,7 @@ VcsBase::Command *GitClient::createCommand(const QString &workingDirectory,
             connect(command, SIGNAL(outputData(QByteArray)), editor, SLOT(setPlainTextDataFiltered(QByteArray)));
     }
 
-    if (outputWindow())
-        connect(command, SIGNAL(errorText(QString)), outputWindow(), SLOT(appendError(QString)));
+    connect(command, SIGNAL(errorText(QString)), outputWindow(), SLOT(appendError(QString)));
     return command;
 }
 
