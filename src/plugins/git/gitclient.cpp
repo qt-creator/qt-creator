@@ -2105,7 +2105,7 @@ bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
         handleMergeConflicts(workingDirectory, conflictedCommit.cap(1), abortCommand);
     } else if (resp.stdErr.contains(QLatin1String("conflict"))) {
         // cherry-pick/revert conflict is output to stdErr
-        QRegExp conflictedCommit(QLatin1String("could not (?:apply|revert) ([^\\n]*)$"));
+        QRegExp conflictedCommit(QLatin1String("could not (?:apply|revert) ([^\\n]*)"));
         conflictedCommit.indexIn(resp.stdErr);
         handleMergeConflicts(workingDirectory, conflictedCommit.cap(1), abortCommand);
     }
