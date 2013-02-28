@@ -34,6 +34,7 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainmanager.h>
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
@@ -201,6 +202,7 @@ DebuggerKitInformation::DebuggerItem DebuggerKitInformation::autoDetectItem(cons
 
 void DebuggerKitInformation::setup(Kit *k)
 {
+    QTC_ASSERT(ToolChainManager::instance()->isLoaded(), return);
     setDebuggerItem(k, autoDetectItem(k));
 }
 

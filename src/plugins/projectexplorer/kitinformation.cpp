@@ -126,12 +126,8 @@ static const char TOOLCHAIN_INFORMATION[] = "PE.Profile.ToolChain";
 ToolChainKitInformation::ToolChainKitInformation()
 {
     setObjectName(QLatin1String("ToolChainInformation"));
-    connect(ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
-            this, SIGNAL(validationNeeded()));
-    connect(ToolChainManager::instance(), SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain*)),
-            this, SIGNAL(validationNeeded()));
-    connect(ToolChainManager::instance(), SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain*)),
-            this, SLOT(toolChainUpdated(ProjectExplorer::ToolChain*)));
+    connect(KitManager::instance(), SIGNAL(kitsLoaded()),
+            this, SLOT(kitsWereLoaded()));
 }
 
 Core::Id ToolChainKitInformation::dataId() const
@@ -174,6 +170,7 @@ QList<Task> ToolChainKitInformation::validate(const Kit *k) const
 
 void ToolChainKitInformation::fix(Kit *k)
 {
+    QTC_ASSERT(ToolChainManager::instance()->isLoaded(), return);
     if (toolChain(k))
         return;
 
@@ -184,6 +181,7 @@ void ToolChainKitInformation::fix(Kit *k)
 
 void ToolChainKitInformation::setup(Kit *k)
 {
+    QTC_ASSERT(ToolChainManager::instance()->isLoaded(), return);
     const QString id = k->value(Core::Id(TOOLCHAIN_INFORMATION)).toString();
     if (id.isEmpty())
         return;
@@ -233,6 +231,7 @@ IOutputParser *ToolChainKitInformation::createOutputParser(const Kit *k) const
 
 ToolChain *ToolChainKitInformation::toolChain(const Kit *k)
 {
+    QTC_ASSERT(ToolChainManager::instance()->isLoaded(), return 0);
     if (!k)
         return 0;
     return ToolChainManager::instance()
@@ -249,11 +248,29 @@ QString ToolChainKitInformation::msgNoToolChainInTarget()
     return tr("No compiler set in kit.");
 }
 
-void ToolChainKitInformation::toolChainUpdated(ToolChain *tc)
+void ToolChainKitInformation::kitsWereLoaded()
 {
     foreach (Kit *k, KitManager::instance()->kits())
-        if (toolChain(k) == tc)
-            notifyAboutUpdate(k);
+        fix(k);
+
+    connect(ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
+            this, SLOT(toolChainRemoved(ProjectExplorer::ToolChain*)));
+    connect(ToolChainManager::instance(), SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain*)),
+            this, SLOT(toolChainUpdated(ProjectExplorer::ToolChain*)));
+}
+
+void ToolChainKitInformation::toolChainUpdated(ProjectExplorer::ToolChain *tc)
+{
+    ToolChainMatcher m(tc);
+    foreach (Kit *k, KitManager::instance()->kits(&m))
+        notifyAboutUpdate(k);
+}
+
+void ToolChainKitInformation::toolChainRemoved(ProjectExplorer::ToolChain *tc)
+{
+    Q_UNUSED(tc);
+    foreach (Kit *k, KitManager::instance()->kits())
+        fix(k);
 }
 
 // --------------------------------------------------------------------------

@@ -78,13 +78,10 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     ProjectExplorer::DeviceManager::instance()
             ->addDevice(ProjectExplorer::IDevice::Ptr(new Internal::AndroidDevice));
 
-    return true;
-}
-
-void AndroidPlugin::extensionsInitialized()
-{
-    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsChanged()),
+    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsLoaded()),
             this, SLOT(kitsRestored()));
+
+    return true;
 }
 
 void AndroidPlugin::kitsRestored()

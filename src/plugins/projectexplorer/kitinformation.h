@@ -120,7 +120,9 @@ public:
 
     static QString msgNoToolChainInTarget();
 private slots:
+    void kitsWereLoaded();
     void toolChainUpdated(ProjectExplorer::ToolChain *tc);
+    void toolChainRemoved(ProjectExplorer::ToolChain *tc);
 };
 
 class PROJECTEXPLORER_EXPORT ToolChainMatcher : public KitMatcher
