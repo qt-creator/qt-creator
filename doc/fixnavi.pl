@@ -78,7 +78,7 @@ for my $file (@files) {
         } elsif ($intoc) {
             if (/^\h*\\endlist/) {
                 $intoc--;
-            } elsif (!$skipping && /^\h*\\o\h+\\l\h*{(.*)}$/) {
+            } elsif (!$skipping && /^\h*\\li\h+\\l\h*{(.*)}$/) {
                 push @toc, $1;
             }
         } elsif ($inhdr) {
