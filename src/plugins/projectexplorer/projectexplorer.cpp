@@ -344,6 +344,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new Internal::DesktopDeviceFactory);
 
     d->m_kitManager = new KitManager; // register before ToolChainManager
+    new DeviceManager; // Create DeviceManager singleton
     d->m_toolChainManager = new ToolChainManager;
     addAutoReleasedObject(new Internal::ToolChainOptionsPage);
     addAutoReleasedObject(new KitOptionsPage);
@@ -1126,6 +1127,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
     DeviceManager *dm = DeviceManager::instance();
     if (dm->find(Core::Id(Constants::DESKTOP_DEVICE_ID)).isNull())
         DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
+    dm->load();
 }
 
 void ProjectExplorerPlugin::loadCustomWizards()

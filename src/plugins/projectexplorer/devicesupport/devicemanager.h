@@ -42,6 +42,8 @@ namespace ProjectExplorer {
 class IDevice;
 class IDeviceFactory;
 
+class ProjectExplorerPlugin;
+
 namespace Internal {
 class DeviceManagerPrivate;
 class DeviceSettingsWidget;
@@ -62,12 +64,13 @@ public:
     IDevice::ConstPtr deviceAt(int index) const;
 
     IDevice::ConstPtr find(Core::Id id) const;
-    IDevice::ConstPtr findInactiveAutoDetectedDevice(Core::Id type, Core::Id id);
     IDevice::ConstPtr defaultDevice(Core::Id deviceType) const;
     bool hasDevice(const QString &name) const;
 
     void addDevice(const IDevice::Ptr &device);
     void removeDevice(Core::Id id);
+
+    bool isLoaded() const;
 
 signals:
     void deviceAdded(Core::Id id);
@@ -76,11 +79,13 @@ signals:
     void deviceListChanged();
     void updated(); // Emitted for all of the above.
 
+    void devicesLoaded(); // Emitted once load() is done
+
 private slots:
     void save();
 
 private:
-    DeviceManager(bool isInstance = false);
+    DeviceManager(bool isInstance = true);
 
     void load();
     void loadPre2_6();
@@ -104,6 +109,9 @@ private:
     static void copy(const DeviceManager *source, DeviceManager *target, bool deep);
 
     Internal::DeviceManagerPrivate * const d;
+
+    friend class Internal::DeviceManagerPrivate;
+    friend class ProjectExplorerPlugin;
 };
 
 } // namespace ProjectExplorer
