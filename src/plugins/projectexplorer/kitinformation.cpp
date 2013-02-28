@@ -458,6 +458,11 @@ void DeviceKitInformation::kitsWereLoaded()
             this, SLOT(deviceRemoved(Core::Id)));
     connect(DeviceManager::instance(), SIGNAL(deviceUpdated(Core::Id)),
             this, SLOT(deviceUpdated(Core::Id)));
+
+    connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+            this, SLOT(kitUpdated(ProjectExplorer::Kit*)));
+    connect(KitManager::instance(), SIGNAL(unmanagedKitUpdated(ProjectExplorer::Kit*)),
+            this, SLOT(kitUpdated(ProjectExplorer::Kit*)));
 }
 
 void DeviceKitInformation::deviceUpdated(const Core::Id &id)
@@ -468,19 +473,25 @@ void DeviceKitInformation::deviceUpdated(const Core::Id &id)
     }
 }
 
+void DeviceKitInformation::kitUpdated(Kit *k)
+{
+    setup(k); // Set default device if necessary
+}
+
 void DeviceKitInformation::deviceAdded(const Core::Id &id)
 {
     Q_UNUSED(id);
     DeviceMatcher m;
-    foreach (Kit *k, KitManager::instance()->kits(&m))
-        fix(k);
+    foreach (Kit *k, KitManager::instance()->kits(&m)) {
+        setup(k); // Set default device if necessary
+    }
 }
 
 void DeviceKitInformation::deviceRemoved(const Core::Id &id)
 {
     DeviceMatcher m(id);
     foreach (Kit *k, KitManager::instance()->kits(&m))
-        fix(k);
+        setup(k); // Set default device if necessary
 }
 
 } // namespace ProjectExplorer

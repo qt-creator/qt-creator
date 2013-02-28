@@ -220,6 +220,7 @@ private slots:
     void deviceAdded(const Core::Id &id);
     void deviceRemoved(const Core::Id &id);
     void deviceUpdated(const Core::Id &id);
+    void kitUpdated(ProjectExplorer::Kit *k);
 };
 
 class PROJECTEXPLORER_EXPORT DeviceMatcher : public KitMatcher
