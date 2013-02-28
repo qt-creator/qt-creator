@@ -40,6 +40,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/abi.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
 
 #include <QComboBox>
 #include <QHBoxLayout>
@@ -336,12 +337,8 @@ static const char DEVICE_INFORMATION[] = "PE.Profile.Device";
 DeviceKitInformation::DeviceKitInformation()
 {
     setObjectName(QLatin1String("DeviceInformation"));
-    connect(DeviceManager::instance(), SIGNAL(deviceRemoved(Core::Id)),
-            this, SIGNAL(validationNeeded()));
-    connect(DeviceManager::instance(), SIGNAL(deviceUpdated(Core::Id)),
-            this, SIGNAL(validationNeeded()));
-    connect(DeviceManager::instance(), SIGNAL(deviceUpdated(Core::Id)),
-            this, SLOT(deviceUpdated(Core::Id)));
+    connect(KitManager::instance(), SIGNAL(kitsLoaded()),
+            this, SLOT(kitsWereLoaded()));
 }
 
 Core::Id DeviceKitInformation::dataId() const
@@ -381,6 +378,16 @@ void DeviceKitInformation::fix(Kit *k)
     if (!dev.isNull() && dev->type() == DeviceTypeKitInformation::deviceTypeId(k))
         return;
 
+    setDeviceId(k, Core::Id());
+}
+
+void DeviceKitInformation::setup(Kit *k)
+{
+    QTC_ASSERT(DeviceManager::instance()->isLoaded(), return);
+    IDevice::ConstPtr dev = DeviceKitInformation::device(k);
+    if (!dev.isNull() && dev->type() == DeviceTypeKitInformation::deviceTypeId(k))
+        return;
+
     setDeviceId(k, Core::Id::fromSetting(defaultValue(k)));
 }
 
@@ -403,6 +410,7 @@ KitInformation::ItemList DeviceKitInformation::toUserOutput(Kit *k) const
 
 IDevice::ConstPtr DeviceKitInformation::device(const Kit *k)
 {
+    QTC_ASSERT(DeviceManager::instance()->isLoaded(), return IDevice::ConstPtr());
     DeviceManager *dm = DeviceManager::instance();
     return dm ? dm->find(deviceId(k)) : IDevice::ConstPtr();
 }
@@ -422,11 +430,40 @@ void DeviceKitInformation::setDeviceId(Kit *k, const Core::Id id)
     k->setValue(DEVICE_INFORMATION, id.toSetting());
 }
 
-void DeviceKitInformation::deviceUpdated(const Core::Id &id)
+void DeviceKitInformation::kitsWereLoaded()
 {
     foreach (Kit *k, KitManager::instance()->kits())
+        fix(k);
+
+    connect(DeviceManager::instance(), SIGNAL(deviceAdded(Core::Id)),
+            this, SLOT(deviceAdded(Core::Id)));
+    connect(DeviceManager::instance(), SIGNAL(deviceRemoved(Core::Id)),
+            this, SLOT(deviceRemoved(Core::Id)));
+    connect(DeviceManager::instance(), SIGNAL(deviceUpdated(Core::Id)),
+            this, SLOT(deviceUpdated(Core::Id)));
+}
+
+void DeviceKitInformation::deviceUpdated(const Core::Id &id)
+{
+    foreach (Kit *k, KitManager::instance()->kits()) {
         if (deviceId(k) == id)
             notifyAboutUpdate(k);
+    }
+}
+
+void DeviceKitInformation::deviceAdded(const Core::Id &id)
+{
+    Q_UNUSED(id);
+    DeviceMatcher m;
+    foreach (Kit *k, KitManager::instance()->kits(&m))
+        fix(k);
+}
+
+void DeviceKitInformation::deviceRemoved(const Core::Id &id)
+{
+    DeviceMatcher m(id);
+    foreach (Kit *k, KitManager::instance()->kits(&m))
+        fix(k);
 }
 
 } // namespace ProjectExplorer
