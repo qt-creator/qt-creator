@@ -284,7 +284,7 @@ def deleteAppFromWinFW(workingDir, projectName, isReleaseBuild=True):
     if result == 0:
         test.log("Deleted %s from firewall" % projectName)
     else:
-        test.fatal("Could not delete %s as allowed program from win firewall" % (projectName))
+        test.warning("Could not delete %s as allowed program from win firewall" % (projectName))
 
 # helper that can modify the win firewall to allow a program to communicate through it or delete it
 # param addToFW defines whether to add (True) or delete (False) this programm to/from the firewall
