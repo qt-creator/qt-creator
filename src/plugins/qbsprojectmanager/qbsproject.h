@@ -80,7 +80,7 @@ public:
     QStringList files(FilesMode fileMode) const;
 
     qbs::BuildJob *build(const qbs::BuildOptions &opts);
-    qbs::CleanJob *clean(const qbs::BuildOptions &opts, bool everything);
+    qbs::CleanJob *clean(const qbs::CleanOptions &opts);
 
     static ProjectExplorer::FileType fileTypeFor(const QSet<QString> &tags);
 

@@ -177,12 +177,11 @@ qbs::BuildJob *QbsProject::build(const qbs::BuildOptions &opts)
     return m_rootProjectNode->project()->buildAllProducts(opts, env);
 }
 
-qbs::CleanJob *QbsProject::clean(const qbs::BuildOptions &opts, bool everything)
+qbs::CleanJob *QbsProject::clean(const qbs::CleanOptions &opts)
 {
     if (!m_rootProjectNode || !m_rootProjectNode->project())
         return 0;
-    return m_rootProjectNode->project()->cleanAllProducts(opts, everything ? qbs::Project::CleanupAll
-                                                                           : qbs::Project::CleanupTemporaries);
+    return m_rootProjectNode->project()->cleanAllProducts(opts);
 }
 
 QString QbsProject::profileForTarget(const ProjectExplorer::Target *t) const

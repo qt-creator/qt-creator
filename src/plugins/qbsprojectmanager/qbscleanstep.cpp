@@ -44,7 +44,6 @@
 static const char QBS_CLEAN_ALL[] = "Qbs.CleanAll";
 static const char QBS_DRY_RUN[] = "Qbs.DryRun";
 static const char QBS_KEEP_GOING[] = "Qbs.DryKeepGoing";
-static const char QBS_MAXJOBCOUNT[] = "Qbs.MaxJobs";
 
 // --------------------------------------------------------------------
 // Constants:
@@ -59,14 +58,14 @@ namespace Internal {
 
 QbsCleanStep::QbsCleanStep(ProjectExplorer::BuildStepList *bsl) :
     ProjectExplorer::BuildStep(bsl, Core::Id(Constants::QBS_CLEANSTEP_ID)),
-    m_cleanAll(false), m_job(0), m_showCompilerOutput(true), m_parser(0)
+    m_job(0), m_showCompilerOutput(true), m_parser(0)
 {
     setDisplayName(tr("Qbs clean"));
 }
 
 QbsCleanStep::QbsCleanStep(ProjectExplorer::BuildStepList *bsl, const QbsCleanStep *other) :
     ProjectExplorer::BuildStep(bsl, Core::Id(Constants::QBS_CLEANSTEP_ID)),
-    m_qbsBuildOptions(other->m_qbsBuildOptions), m_cleanAll(other->m_cleanAll), m_job(0),
+    m_qbsCleanOptions(other->m_qbsCleanOptions), m_job(0),
     m_showCompilerOutput(other->m_showCompilerOutput), m_parser(0)
 { }
 
@@ -97,9 +96,9 @@ void QbsCleanStep::run(QFutureInterface<bool> &fi)
     m_fi = &fi;
 
     QbsProject *pro = static_cast<QbsProject *>(project());
-    qbs::BuildOptions options(m_qbsBuildOptions);
+    qbs::CleanOptions options(m_qbsCleanOptions);
 
-    m_job = pro->clean(options, m_cleanAll);
+    m_job = pro->clean(options);
 
     if (!m_job) {
         m_fi->reportResult(false);
@@ -133,22 +132,22 @@ void QbsCleanStep::cancel()
 
 bool QbsCleanStep::dryRun() const
 {
-    return m_qbsBuildOptions.dryRun;
+    return m_qbsCleanOptions.dryRun;
 }
 
 bool QbsCleanStep::keepGoing() const
 {
-    return m_qbsBuildOptions.keepGoing;
+    return m_qbsCleanOptions.keepGoing;
 }
 
 int QbsCleanStep::maxJobs() const
 {
-    return m_qbsBuildOptions.maxJobCount;
+    return 1;
 }
 
 bool QbsCleanStep::cleanAll() const
 {
-    return m_cleanAll;
+    return m_qbsCleanOptions.cleanType == qbs::CleanOptions::CleanupAll;
 }
 
 bool QbsCleanStep::fromMap(const QVariantMap &map)
@@ -156,10 +155,10 @@ bool QbsCleanStep::fromMap(const QVariantMap &map)
     if (!ProjectExplorer::BuildStep::fromMap(map))
         return false;
 
-    m_qbsBuildOptions.dryRun = map.value(QLatin1String(QBS_DRY_RUN)).toBool();
-    m_qbsBuildOptions.keepGoing = map.value(QLatin1String(QBS_KEEP_GOING)).toBool();
-    m_qbsBuildOptions.maxJobCount = map.value(QLatin1String(QBS_MAXJOBCOUNT)).toInt();
-    m_cleanAll = map.value(QLatin1String(QBS_CLEAN_ALL)).toBool();
+    m_qbsCleanOptions.dryRun = map.value(QLatin1String(QBS_DRY_RUN)).toBool();
+    m_qbsCleanOptions.keepGoing = map.value(QLatin1String(QBS_KEEP_GOING)).toBool();
+    m_qbsCleanOptions.cleanType = map.value(QLatin1String(QBS_CLEAN_ALL)).toBool()
+            ? qbs::CleanOptions::CleanupAll : qbs::CleanOptions::CleanupTemporaries;
 
     return true;
 }
@@ -167,10 +166,10 @@ bool QbsCleanStep::fromMap(const QVariantMap &map)
 QVariantMap QbsCleanStep::toMap() const
 {
     QVariantMap map = ProjectExplorer::BuildStep::toMap();
-    map.insert(QLatin1String(QBS_DRY_RUN), m_qbsBuildOptions.dryRun);
-    map.insert(QLatin1String(QBS_KEEP_GOING), m_qbsBuildOptions.keepGoing);
-    map.insert(QLatin1String(QBS_MAXJOBCOUNT), m_qbsBuildOptions.maxJobCount);
-    map.insert(QLatin1String(QBS_CLEAN_ALL), m_cleanAll);
+    map.insert(QLatin1String(QBS_DRY_RUN), m_qbsCleanOptions.dryRun);
+    map.insert(QLatin1String(QBS_KEEP_GOING), m_qbsCleanOptions.keepGoing);
+    map.insert(QLatin1String(QBS_CLEAN_ALL),
+               m_qbsCleanOptions.cleanType == qbs::CleanOptions::CleanupAll);
 
     return map;
 }
@@ -216,33 +215,33 @@ void QbsCleanStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, con
 
 void QbsCleanStep::setDryRun(bool dr)
 {
-    if (m_qbsBuildOptions.dryRun == dr)
+    if (m_qbsCleanOptions.dryRun == dr)
         return;
-    m_qbsBuildOptions.dryRun = dr;
+    m_qbsCleanOptions.dryRun = dr;
     emit changed();
 }
 
 void QbsCleanStep::setKeepGoing(bool kg)
 {
-    if (m_qbsBuildOptions.keepGoing == kg)
+    if (m_qbsCleanOptions.keepGoing == kg)
         return;
-    m_qbsBuildOptions.keepGoing = kg;
+    m_qbsCleanOptions.keepGoing = kg;
     emit changed();
 }
 
 void QbsCleanStep::setMaxJobs(int jobcount)
 {
-    if (m_qbsBuildOptions.maxJobCount == jobcount)
-        return;
-    m_qbsBuildOptions.maxJobCount = jobcount;
+    Q_UNUSED(jobcount); // TODO: Remove all job count-related stuff.
     emit changed();
 }
 
 void QbsCleanStep::setCleanAll(bool ca)
 {
-    if (m_cleanAll == ca)
+    qbs::CleanOptions::CleanType newType = ca
+            ? qbs::CleanOptions::CleanupAll : qbs::CleanOptions::CleanupTemporaries;
+    if (m_qbsCleanOptions.cleanType == newType)
         return;
-    m_cleanAll = ca;
+    m_qbsCleanOptions.cleanType = newType;
     emit changed();
 }
 
