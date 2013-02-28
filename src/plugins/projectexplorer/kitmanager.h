@@ -123,6 +123,8 @@ public:
 
     static void deleteKit(Kit *k);
 
+    bool isLoaded() const;
+
 public slots:
     bool registerKit(ProjectExplorer::Kit *k);
     void deregisterKit(ProjectExplorer::Kit *k);
@@ -144,6 +146,8 @@ signals:
     void defaultkitChanged();
     // Something changed.
     void kitsChanged();
+
+    void kitsLoaded();
 
 private slots:
     void validateKits();

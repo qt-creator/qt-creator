@@ -1129,6 +1129,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
         DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
     dm->load();
     d->m_toolChainManager->restoreToolChains();
+    d->m_kitManager->restoreKits();
 }
 
 void ProjectExplorerPlugin::loadCustomWizards()
