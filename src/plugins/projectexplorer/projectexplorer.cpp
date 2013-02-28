@@ -1128,6 +1128,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
     if (dm->find(Core::Id(Constants::DESKTOP_DEVICE_ID)).isNull())
         DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
     dm->load();
+    d->m_toolChainManager->restoreToolChains();
 }
 
 void ProjectExplorerPlugin::loadCustomWizards()
