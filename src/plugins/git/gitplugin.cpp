@@ -949,8 +949,10 @@ bool GitPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEdi
         closeEditor = m_gitClient->addAndCommit(m_submitRepository, editor->panelData(),
                                                 m_commitAmendSHA1, m_commitMessageFileName, model);
     }
-    if (closeEditor)
+    if (closeEditor) {
         cleanCommitMessageFile();
+        m_gitClient->continueCommandIfNeeded(m_submitRepository);
+    }
     return closeEditor;
 }
 
