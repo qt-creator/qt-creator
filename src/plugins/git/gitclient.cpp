@@ -1645,6 +1645,9 @@ void GitClient::continueCommandIfNeeded(const QString &workingDirectory)
     if (QFile::exists(gitDir + QLatin1String("/rebase-apply/rebasing"))) {
         continuePreviousGitCommand(workingDirectory, tr("Continue Rebase"),
                 tr("Continue rebase?"), tr("Continue"), QLatin1String("rebase"));
+    } else if (QFile::exists(gitDir + QLatin1String("/rebase-merge"))) {
+        continuePreviousGitCommand(workingDirectory, tr("Continue Rebase"),
+                tr("Continue rebase?"), tr("Continue"), QLatin1String("rebase"), false);
     } else if (QFile::exists(gitDir + QLatin1String("/REVERT_HEAD"))) {
         continuePreviousGitCommand(workingDirectory, tr("Continue Revert"),
                 tr("You need to commit changes to finish revert.\nCommit now?"),
@@ -1658,11 +1661,17 @@ void GitClient::continueCommandIfNeeded(const QString &workingDirectory)
 
 void GitClient::continuePreviousGitCommand(const QString &workingDirectory,
                                            const QString &msgBoxTitle, QString msgBoxText,
-                                           const QString &buttonName, const QString &gitCommand)
+                                           const QString &buttonName, const QString &gitCommand,
+                                           bool requireChanges)
 {
     bool isRebase = gitCommand == QLatin1String("rebase");
-    bool hasChanges = gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules))
+    bool hasChanges;
+    if (!requireChanges) {
+        hasChanges = true;
+    } else {
+        hasChanges = gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules))
             == GitClient::StatusChanged;
+    }
     if (!hasChanges)
         msgBoxText.prepend(tr("No changes found. "));
     QMessageBox msgBox(QMessageBox::Question, msgBoxTitle, msgBoxText);

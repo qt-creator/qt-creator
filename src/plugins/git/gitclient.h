@@ -249,7 +249,7 @@ public:
 
     void continueCommandIfNeeded(const QString &workingDirectory);
     void continuePreviousGitCommand(const QString &workingDirectory, const QString &msgBoxTitle, QString msgBoxText,
-                                    const QString &buttonName, const QString &gitCommand);
+                                    const QString &buttonName, const QString &gitCommand, bool requireChanges = true);
 
     void launchGitK(const QString &workingDirectory, const QString &fileName);
     void launchGitK(const QString &workingDirectory) { launchGitK(workingDirectory, QString()); }
