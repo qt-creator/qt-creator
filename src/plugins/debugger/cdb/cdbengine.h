@@ -181,7 +181,8 @@ private:
     };
     enum ParseStackResultFlags // Flags returned by parseStackTrace
     {
-        ParseStackStepInto = 1 // Need to execute a step, hit on a call frame in "Step into"
+        ParseStackStepInto = 1, // Need to execute a step, hit on a call frame in "Step into"
+        ParseStackStepOut = 2 // Need to step out, hit on a frame without debug information
     };
 
 

@@ -2235,8 +2235,12 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
         } else {
             const GdbMi stack = stopReason.findChild("stack");
             if (stack.isValid()) {
-                if (parseStackTrace(stack, sourceStepInto) & ParseStackStepInto) {
-                    executeStep(); // Hit on a frame while step into, see parseStackTrace().
+                switch (parseStackTrace(stack, sourceStepInto)) {
+                case ParseStackStepInto: // Hit on a frame while step into, see parseStackTrace().
+                    executeStep();
+                    return;
+                case ParseStackStepOut: // Hit on a frame with no source while step into.
+                    executeStepOut();
                     return;
                 }
             } else {
@@ -2872,8 +2876,9 @@ unsigned CdbEngine::parseStackTrace(const GdbMi &data, bool sourceStepInto)
     // Parse frames, find current. Special handling for step into:
     // When stepping into on an actual function (source mode) by executing 't', an assembler
     // frame pointing at the jmp instruction is hit (noticeable by top function being
-    // 'ILT+'). If that is the case, execute another 't' to step into the actual function.    .
+    // 'ILT+'). If that is the case, execute another 't' to step into the actual function.
     // Note that executing 't 2' does not work since it steps 2 instructions on a non-call code line.
+    // If the operate by instruction flag is set, always use the first frame.
     int current = -1;
     bool incomplete;
     StackFrames frames = parseFrames(data, &incomplete);
@@ -2881,9 +2886,15 @@ unsigned CdbEngine::parseStackTrace(const GdbMi &data, bool sourceStepInto)
     for (int i = 0; i < count; i++) {
         const bool hasFile = !frames.at(i).file.isEmpty();
         // jmp-frame hit by step into, do another 't' and abort sequence.
-        if (!hasFile && i == 0 && sourceStepInto && frames.at(i).function.contains(QLatin1String("ILT+"))) {
-            showMessage(QString::fromLatin1("Step into: Call instruction hit, performing additional step..."), LogMisc);
-            return ParseStackStepInto;
+        if (!hasFile && i == 0 && sourceStepInto) {
+                if (frames.at(i).function.contains(QLatin1String("ILT+"))) {
+                    showMessage(QString::fromLatin1("Step into: Call instruction hit, "
+                                                    "performing additional step..."), LogMisc);
+                    return ParseStackStepInto;
+                }
+                showMessage(QString::fromLatin1("Step into: Hit frame with no source, "
+                                                "step out..."), LogMisc);
+                return ParseStackStepOut;
         }
         if (hasFile) {
             const NormalizedSourceFileName fileName = sourceMapNormalizeFileNameFromDebugger(frames.at(i).file);
