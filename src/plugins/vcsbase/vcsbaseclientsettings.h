@@ -90,6 +90,8 @@ protected:
     void declareKey(const QString &key, const QVariant &defaultValue);
     QVariant keyDefaultValue(const QString &key) const;
 
+    virtual void readLegacySettings(const QSettings *settings);
+
 private:
     friend bool equals(const VcsBaseClientSettings &rhs);
     friend class VcsBaseClientSettingsPrivate;

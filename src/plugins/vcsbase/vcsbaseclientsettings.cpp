@@ -254,6 +254,8 @@ void VcsBaseClientSettings::readSettings(const QSettings *settings)
             break;
         }
     }
+
+    this->readLegacySettings(settings);
 }
 
 bool VcsBaseClientSettings::equals(const VcsBaseClientSettings &rhs) const
@@ -379,6 +381,11 @@ QVariant VcsBaseClientSettings::keyDefaultValue(const QString &key) const
     if (d->m_defaultValueHash.contains(key))
         return d->m_defaultValueHash.value(key);
     return QVariant(valueType(key));
+}
+
+void VcsBaseClientSettings::readLegacySettings(const QSettings *settings)
+{
+    Q_UNUSED(settings);
 }
 
 } // namespace VcsBase
