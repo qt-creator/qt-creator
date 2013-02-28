@@ -20,7 +20,7 @@ QtcPlugin {
     Depends { name: "cpp" }
     cpp.includePaths: base.concat([
         "shared",
-        "lldb",
+        "lldblib",
         "../../shared/json",
         "../../shared/registryaccess"
     ])
@@ -211,10 +211,10 @@ QtcPlugin {
         "images/location_24.png",
         "images/tracepoint.png",
         "images/watchpoint.png",
-        "lldb/ipcenginehost.cpp",
-        "lldb/ipcenginehost.h",
-        "lldb/lldbenginehost.cpp",
-        "lldb/lldbenginehost.h",
+        "lldblib/ipcenginehost.cpp",
+        "lldblib/ipcenginehost.h",
+        "lldblib/lldbenginehost.cpp",
+        "lldblib/lldbenginehost.h",
         "namedemangler/demanglerexceptions.h",
         "namedemangler/globalparsestate.cpp",
         "namedemangler/globalparsestate.h",
@@ -277,9 +277,9 @@ QtcPlugin {
     Group {
         condition: qbs.targetOS == "mac"
         files: [
-            "lldb/lldboptionspage.cpp",
-            "lldb/lldboptionspage.h",
-            "lldb/lldboptionspagewidget.ui",
+            "lldblib/lldboptionspage.cpp",
+            "lldblib/lldboptionspage.h",
+            "lldblib/lldboptionspagewidget.ui",
         ]
     }
 
