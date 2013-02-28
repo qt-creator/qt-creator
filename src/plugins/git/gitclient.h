@@ -259,6 +259,7 @@ public:
     QProcessEnvironment processEnvironment() const;
 
     bool isValidRevision(const QString &revision) const;
+    void handleMergeConflicts(const QString &workingDir, const QString &commit, const QString &abortCommand);
 
     static QString msgNoChangedFiles();
 
@@ -324,7 +325,6 @@ private:
     void connectRepositoryChanged(const QString & repository, VcsBase::Command *cmd);
     bool executeAndHandleConflicts(const QString &workingDirectory, const QStringList &arguments,
                                    const QString &abortCommand = QString());
-    void handleMergeConflicts(const QString &workingDir, const QString &commit, const QString &abortCommand);
     bool tryLauchingGitK(const QProcessEnvironment &env,
                          const QString &workingDirectory,
                          const QString &fileName,
