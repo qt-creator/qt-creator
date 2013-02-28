@@ -429,8 +429,7 @@ KitInformation::ItemList DeviceKitInformation::toUserOutput(Kit *k) const
 IDevice::ConstPtr DeviceKitInformation::device(const Kit *k)
 {
     QTC_ASSERT(DeviceManager::instance()->isLoaded(), return IDevice::ConstPtr());
-    DeviceManager *dm = DeviceManager::instance();
-    return dm ? dm->find(deviceId(k)) : IDevice::ConstPtr();
+    return DeviceManager::instance()->find(deviceId(k));
 }
 
 Core::Id DeviceKitInformation::deviceId(const Kit *k)
