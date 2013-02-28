@@ -78,8 +78,10 @@ private slots:
     void showDialog();
 
 private:
+    QWidget *m_main;
     QLabel *m_label;
-    QPushButton *m_button;
+    QPushButton *m_autoDetectButton;
+    QPushButton *m_editButton;
 };
 
 class DebuggerKitConfigDialog : public QDialog

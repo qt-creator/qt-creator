@@ -43,6 +43,8 @@ def main():
     global textHasChanged
     noMatch = "Your search did not match any documents."
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     installLazySignalHandler(":Qt Creator_Help::Internal::HelpViewer", "textChanged()", "__handleTextChanged__")
     addHelpDocumentationFromSDK()
     # switch to help mode

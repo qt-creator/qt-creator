@@ -137,6 +137,8 @@ signals:
     void changed();
 
 private slots:
+    void setAuthorFromDebugToken();
+
     void addNewAsset();
     void removeSelectedAsset();
     void updateEntryCheckState(QStandardItem *item);
@@ -162,6 +164,10 @@ private:
     void initSourcePage();
     void clearSourcePage();
 
+    void disconnectAssetsModel();
+    void connectAssetsModel();
+
+    void addAssetInternal(const BarDescriptorAsset &asset);
     bool hasAsset(const BarDescriptorAsset &asset);
     QString localAssetPathFromDestination(const QString &path);
 

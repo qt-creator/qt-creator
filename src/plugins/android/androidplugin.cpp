@@ -44,6 +44,8 @@
 #include "androidqtversionfactory.h"
 #include "androiddeployconfiguration.h"
 #include "androidgdbserverkitinformation.h"
+#include <projectexplorer/kitmanager.h>
+#include <qtsupport/qtversionmanager.h>
 
 #include <QtPlugin>
 
@@ -80,6 +82,17 @@ void AndroidPlugin::extensionsInitialized()
     ProjectExplorer::DeviceManager *dm = ProjectExplorer::DeviceManager::instance();
     if (dm->find(Core::Id(Constants::ANDROID_DEVICE_ID)).isNull())
         dm->addDevice(ProjectExplorer::IDevice::Ptr(new Internal::AndroidDevice));
+    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsChanged()),
+            this, SLOT(kitsRestored()));
+}
+
+void AndroidPlugin::kitsRestored()
+{
+    Internal::AndroidConfigurations::instance().updateAutomaticKitList();
+    connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
+            &Internal::AndroidConfigurations::instance(), SLOT(updateAutomaticKitList()));
+    disconnect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsChanged()),
+               this, SLOT(kitsRestored()));
 }
 
 } // namespace Android

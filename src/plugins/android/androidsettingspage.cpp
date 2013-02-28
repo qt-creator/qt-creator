@@ -82,6 +82,17 @@ void AndroidSettingsPage::apply()
         else
             ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
     }
+
+    for (int i = 0; i < existingToolChains.count(); ++i) {
+        ProjectExplorer::ToolChain *tc = existingToolChains.at(i);
+        if (tc->type() == QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE)) {
+            if (!tc->isValid()) {
+                ProjectExplorer::ToolChainManager::instance()->deregisterToolChain(tc);
+            }
+        }
+    }
+
+    AndroidConfigurations::instance().updateAutomaticKitList();
 }
 
 void AndroidSettingsPage::finish()

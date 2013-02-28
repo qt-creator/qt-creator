@@ -49,7 +49,8 @@ OTHER_FILES += CppEditor.mimetypes.xml
 
 equals(TEST, 1) {
     SOURCES += \
-        cppquickfix_test.cpp
+        cppquickfix_test.cpp \
+        cppdoxygen_test.cpp
 
     DEFINES += SRCDIR=\\\"$$PWD\\\"
 }

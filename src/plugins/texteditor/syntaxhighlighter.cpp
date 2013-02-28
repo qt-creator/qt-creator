@@ -694,8 +694,10 @@ static bool byStartOfRange(const QTextLayout::FormatRange &range, const QTextLay
     return range.start < other.start;
 }
 
+// The formats is passed in by reference in order to prevent unnecessary copying of its items.
+// After this method returns, the list is modified, and should be considered invalidated!
 void SyntaxHighlighter::setExtraAdditionalFormats(const QTextBlock& block,
-                                                  const QList<QTextLayout::FormatRange> &fmts)
+                                                  QList<QTextLayout::FormatRange> &formats)
 {
 //    qDebug() << "setAdditionalFormats() on block" << block.blockNumber();
 //    qDebug() << "   is valid:" << (block.isValid() ? "Yes" : "No");
@@ -708,21 +710,21 @@ void SyntaxHighlighter::setExtraAdditionalFormats(const QTextBlock& block,
 //                 << "color:" << overrides.at(i).format.foreground().color();
     Q_D(SyntaxHighlighter);
 
-    if (block.layout() == 0 || block.text().isEmpty())
+    const int blockLength = block.length();
+    if (block.layout() == 0 || blockLength == 0)
         return;
 
-    QList<QTextLayout::FormatRange> formats;
-    formats.reserve(fmts.size());
-    foreach (QTextLayout::FormatRange r, fmts) {
-        r.format.setProperty(QTextFormat::UserProperty, true);
-        formats.append(r);
-    }
     qSort(formats.begin(), formats.end(), byStartOfRange);
 
+    const QList<QTextLayout::FormatRange> all = block.layout()->additionalFormats();
     QList<QTextLayout::FormatRange> previousSemanticFormats;
     QList<QTextLayout::FormatRange> formatsToApply;
+    previousSemanticFormats.reserve(all.size());
+    formatsToApply.reserve(all.size() + formats.size());
 
-    const QList<QTextLayout::FormatRange> all = block.layout()->additionalFormats();
+    for (int i = 0, ei = formats.size(); i < ei; ++i)
+        formats[i].format.setProperty(QTextFormat::UserProperty, true);
+
     foreach (const QTextLayout::FormatRange &r, all) {
         if (r.format.hasProperty(QTextFormat::UserProperty))
             previousSemanticFormats.append(r);
@@ -753,7 +755,7 @@ void SyntaxHighlighter::setExtraAdditionalFormats(const QTextBlock& block,
     bool wasInReformatBlocks = d->inReformatBlocks;
     d->inReformatBlocks = true;
     block.layout()->setAdditionalFormats(formatsToApply);
-    document()->markContentsDirty(block.position(), block.length()-1);
+    document()->markContentsDirty(block.position(), blockLength - 1);
     d->inReformatBlocks = wasInReformatBlocks;
 }
 

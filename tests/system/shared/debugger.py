@@ -30,8 +30,7 @@ def takeDebuggerLog():
     debuggerLogWindow = waitForObject("{container=':DebugModeWidget.Debugger Log_QDockWidget' type='Debugger::Internal::CombinedPane' unnamed='1' visible='1'}")
     debuggerLog = str(debuggerLogWindow.plainText)
     mouseClick(debuggerLogWindow, 5, 5, 0, Qt.LeftButton)
-    activateItem(waitForObjectItem(openContextMenuOnTextCursorPosition(debuggerLogWindow),
-                                   "Clear Contents"))
+    invokeContextMenuItem(debuggerLogWindow, "Clear Contents")
     waitFor("str(debuggerLogWindow.plainText)==''", 5000)
     invokeMenuItem("Window", "Views", "Debugger Log")
     return debuggerLog

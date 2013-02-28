@@ -703,6 +703,40 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
     return 0;
 }
 
+ClassOrNamespace *ClassOrNamespace::findSpecializationWithPointer(const TemplateNameId *templId,
+                                                         const TemplateNameIdTable &specializations)
+{
+    // we go through all specialization and try to find that one with template argument as pointer
+    for (TemplateNameIdTable::const_iterator cit = specializations.begin();
+         cit != specializations.end(); ++cit) {
+        const TemplateNameId *specializationNameId = cit->first;
+        const unsigned specializationTemplateArgumentCount
+                = specializationNameId->templateArgumentCount();
+        const unsigned initializationTemplateArgumentCount
+                = templId->templateArgumentCount();
+        // for now it works only when we have the same number of arguments in specialization
+        // and initialization(in future it should be more clever)
+        if (specializationTemplateArgumentCount == initializationTemplateArgumentCount) {
+            for (unsigned i = 0; i < initializationTemplateArgumentCount; ++i) {
+                const FullySpecifiedType &specializationTemplateArgument
+                        = specializationNameId->templateArgumentAt(i);
+                const FullySpecifiedType &initializationTemplateArgument
+                        = templId->templateArgumentAt(i);
+                PointerType *specPointer
+                        = specializationTemplateArgument.type()->asPointerType();
+                // specialization and initialization argument have to be a pointer
+                // additionally type of pointer argument of specialization has to be namedType
+                if (specPointer && initializationTemplateArgument.type()->isPointerType()
+                        && specPointer->elementType().type()->isNamedType()) {
+                    return cit->second;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
 ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespace *origin)
 {
     Q_ASSERT(name != 0);
@@ -715,16 +749,24 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
         return 0;
 
     ClassOrNamespace *reference = it->second;
+    ClassOrNamespace *baseTemplateClassReference = reference;
 
     const TemplateNameId *templId = name->asTemplateNameId();
     if (templId) {
+        // for "using" we should use the real one ClassOrNamespace(it should be the first
+        // one item from usings list)
+        // we indicate that it is a 'using' by checking number of symbols(it should be 0)
+        if (reference->symbols().count() == 0 && reference->usings().count() != 0)
+            reference = reference->_usings[0];
+
         // if it is a TemplateNameId it could be a specialization(full or partial) or
         // instantiation of one of the specialization(reference->_specialization) or
         // base class(reference)
         if (templId->isSpecialization()) {
             // if it is a specialization we try to find or create new one and
             // add to base class(reference)
-            TemplateNameIdTable::const_iterator cit = reference->_specializations.find(templId);
+            TemplateNameIdTable::const_iterator cit
+                    = reference->_specializations.find(templId);
             if (cit != reference->_specializations.end()) {
                 return cit->second;
             } else {
@@ -736,15 +778,24 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                 return newSpecialization;
             }
         } else {
+            QMap<const TemplateNameId *, ClassOrNamespace *>::const_iterator citInstantiation
+                    = reference->_instantiations.find(templId);
+            if (citInstantiation != reference->_instantiations.end())
+                return citInstantiation.value();
             TemplateNameId *nonConstTemplId = const_cast<TemplateNameId *>(templId);
             // make this instantiation looks like specialization which help to find
             // full specialization for this instantiation
             nonConstTemplId->setIsSpecialization(true);
-            TemplateNameIdTable::const_iterator cit = reference->_specializations.find(templId);
-            if (cit != reference->_specializations.end()) {
+            const TemplateNameIdTable &specializations = reference->_specializations;
+            TemplateNameIdTable::const_iterator cit = specializations.find(templId);
+            if (cit != specializations.end()) {
                 // we found full specialization
                 reference = cit->second;
             } else {
+                ClassOrNamespace *specializationWithPointer
+                        = findSpecializationWithPointer(templId, specializations);
+                if (specializationWithPointer)
+                    reference = specializationWithPointer;
                 // TODO: find the best specialization(probably partial) for this instantiation
             }
             // let's instantiation be instantiation
@@ -788,7 +839,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
     // construct all instantiation data.
     if (templId) {
         _alreadyConsideredTemplates.insert(templId);
-        ClassOrNamespace *instantiation = _factory->allocClassOrNamespace(reference);
+        ClassOrNamespace *instantiation = _factory->allocClassOrNamespace(baseTemplateClassReference);
 #ifdef DEBUG_LOOKUP
         instantiation->_name = templId;
 #endif // DEBUG_LOOKUP
@@ -833,6 +884,17 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                     oo.showReturnTypes = true;
                     oo.showTemplateParameters = true;
                     qDebug()<<"cloned"<<oo(clone->type());
+                    if (Class *klass = s->asClass()) {
+                        const unsigned klassMemberCount = klass->memberCount();
+                        for (unsigned i = 0; i < klassMemberCount; ++i){
+                            Symbol *klassMemberAsSymbol = klass->memberAt(i);
+                            if (klassMemberAsSymbol->isTypedef()) {
+                                if (Declaration *declaration = klassMemberAsSymbol->asDeclaration()) {
+                                    qDebug() << "Member: " << oo(declaration->type(), declaration->name());
+                                }
+                            }
+                        }
+                    }
 #endif // DEBUG_LOOKUP
                 }
                 instantiateNestedClasses(reference, cloner, subst, instantiation);
@@ -904,6 +966,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
         }
 
         _alreadyConsideredTemplates.clear(templId);
+        baseTemplateClassReference->_instantiations[templId] = instantiation;
         return instantiation;
     }
 

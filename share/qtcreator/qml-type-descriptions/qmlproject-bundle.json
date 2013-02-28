@@ -1,0 +1,12 @@
+{
+    "name": "qmlproject",
+    "searchPaths": [
+        ""],
+    "installPaths": [
+        ""],
+    "implicitImports": [
+        ""],
+    "supportedImports": [
+        "QmlProject 1.0",
+        "QmlProject 1.1"]
+}

@@ -40,8 +40,8 @@ using namespace TextEditor;
 using namespace Internal;
 
 HighlightDefinition::HighlightDefinition() :
-    m_singleLineCommentAfterWhiteSpaces(false),
     m_keywordCaseSensitivity(Qt::CaseSensitive),
+    m_singleLineCommentAfterWhiteSpaces(false),
     m_indentationBasedFolding(false)
 {
     QString s(QLatin1String(".():!+,-<=>%&/;?[]^{|}~\\*, \t"));

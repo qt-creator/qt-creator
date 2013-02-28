@@ -352,6 +352,9 @@ namespace Utils {
 namespace Internal {
 QString matchCaseReplacement(const QString &originalText, const QString &replaceText)
 {
+    if (originalText.isEmpty())
+       return replaceText;
+
     //Now proceed with actual case matching
     bool firstIsUpperCase = originalText.at(0).isUpper();
     bool firstIsLowerCase = originalText.at(0).isLower();
@@ -397,12 +400,12 @@ QString Utils::matchCaseReplacement(const QString &originalText, const QString &
     const int originalTextLen = originalText.length();
 
     int prefixLen = 0;
-    for (; prefixLen <= replaceTextLen && prefixLen <= originalTextLen; prefixLen++)
+    for (; prefixLen < replaceTextLen && prefixLen < originalTextLen; ++prefixLen)
         if (replaceText.at(prefixLen).toLower() != originalText.at(prefixLen).toLower())
             break;
 
     int suffixLen = 0;
-    for (; suffixLen < replaceTextLen - prefixLen && suffixLen < originalTextLen - prefixLen; suffixLen++)
+    for (; suffixLen < replaceTextLen - prefixLen && suffixLen < originalTextLen - prefixLen; ++suffixLen)
         if (replaceText.at(replaceTextLen - 1 - suffixLen).toLower() != originalText.at(originalTextLen- 1 - suffixLen).toLower())
             break;
 

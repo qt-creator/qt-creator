@@ -316,8 +316,8 @@ def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None
     global processStarted, processExited
     processStarted = processExited = False
     overrideInstallLazySignalHandler()
-    installLazySignalHandler("{type='ProjectExplorer::ApplicationLaucher'}", "processStarted()", "__handleProcessStarted__")
-    installLazySignalHandler("{type='ProjectExplorer::ApplicationLaucher'}", "processExited(int)", "__handleProcessExited__")
+    installLazySignalHandler("{type='ProjectExplorer::ApplicationLauncher'}", "processStarted()", "__handleProcessStarted__")
+    installLazySignalHandler("{type='ProjectExplorer::ApplicationLauncher'}", "processExited(int)", "__handleProcessExited__")
     runButton = waitForObject("{type='Core::Internal::FancyToolButton' text='Run' visible='1'}")
     clickButton(runButton)
     if sType != SubprocessType.QT_QUICK_UI:

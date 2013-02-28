@@ -250,6 +250,8 @@ private:
 
 class CPPTOOLS_EXPORT CppPreprocessor: public CPlusPlus::Client
 {
+    Q_DISABLE_COPY(CppPreprocessor)
+
 public:
     CppPreprocessor(QPointer<CppModelManager> modelManager, bool dumpFileNameWhileParsing = false);
     virtual ~CppPreprocessor();
@@ -263,6 +265,7 @@ public:
     void setTodo(const QStringList &files);
 
     void run(const QString &fileName);
+    void removeFromCache(const QString &fileName);
 
     void resetEnvironment();
     static QString cleanPath(const QString &path);
@@ -272,9 +275,6 @@ public:
 
     CppModelManager *modelManager() const
     { return m_modelManager.data(); }
-
-public: // attributes
-    CPlusPlus::Snapshot m_snapshot;
 
 protected:
     CPlusPlus::Document::Ptr switchDocument(CPlusPlus::Document::Ptr doc);
@@ -302,13 +302,13 @@ protected:
     virtual void sourceNeeded(unsigned line, QString &fileName, IncludeType type);
 
 private:
+    CPlusPlus::Snapshot m_snapshot;
     QPointer<CppModelManager> m_modelManager;
     bool m_dumpFileNameWhileParsing;
     CPlusPlus::Environment m_env;
     CPlusPlus::Preprocessor m_preprocess;
     QStringList m_includePaths;
     CPlusPlus::CppModelManagerInterface::WorkingCopy m_workingCopy;
-    QStringList m_projectFiles;
     QStringList m_frameworkPaths;
     QSet<QString> m_included;
     CPlusPlus::Document::Ptr m_currentDoc;

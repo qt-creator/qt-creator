@@ -44,6 +44,7 @@
 #include <QWeakPointer>
 #include <QRectF>
 #include <QTime>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QDeclarativeEngine;
@@ -193,9 +194,11 @@ private: // functions
     void resetVerticalAnchors(const ModelNode &node);
 
     void restartProcess();
+    void restartProcessDelayed();
 
 private slots:
     void handleChrash();
+    void restartProcessDelayedTimeOut();
 
 private: //variables
     NodeInstance m_rootNodeInstance;
@@ -210,6 +213,8 @@ private: //variables
     QTime m_lastCrashTime;
     NodeInstanceServerInterface::RunModus m_runModus;
     QString m_pathToQt;
+    bool m_puppetRestarted;
+    QTimer m_singleShotTimerRestartProcessDelayed;
 };
 
 } // namespace ProxyNodeInstanceView

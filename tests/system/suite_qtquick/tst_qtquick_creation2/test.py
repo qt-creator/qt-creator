@@ -6,6 +6,8 @@ def main():
     if not neededFilePresent(os.path.join(sourceExample, qmlFile)):
         return
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     # using a temporary directory won't mess up a potentially existing
     workingDir = tempDir()
     checkedTargets, projectName = createNewQtQuickApplication(workingDir, None,

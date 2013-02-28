@@ -4,6 +4,8 @@ source("../../shared/suites_qtta.py")
 # entry of test
 def main():
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     # create qt quick application
     createNewQtQuickApplication(tempDir(), "SampleApp")
     # create syntax error in qml file

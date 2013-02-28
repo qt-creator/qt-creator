@@ -93,7 +93,7 @@ int RmToolChainOperation::execute() const
     if (result == map)
         return -2;
 
-    return save(map, QLatin1String("toolchains")) ? 0 : -3;
+    return save(result, QLatin1String("toolchains")) ? 0 : -3;
 }
 
 #ifdef WITH_TESTS

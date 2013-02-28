@@ -47,6 +47,8 @@ def main():
     templateDir = prepareTemplate(sourceExample)
     examplePath = os.path.join(templateDir, proFile)
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     # open example project
     openQmakeProject(examplePath)
     # open qml file
@@ -60,8 +62,7 @@ def main():
         return
     for i in range(5):
         type(editorArea, "<Left>")
-    ctxtMenu = openContextMenuOnTextCursorPosition(editorArea)
-    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), "Find Usages"))
+    invokeContextMenuItem(editorArea, "Find Usages")
     # check if usage was properly found
     expectedResults = [ExpectedResult("color-animation.qml", 49, "Rectangle {"),
                        ExpectedResult("color-animation.qml", 96, "Rectangle {"),

@@ -49,8 +49,10 @@ public:
     DoxygenGenerator();
 
     enum DocumentationStyle {
-        JavaStyle,
-        QtStyle
+        JavaStyle,  ///< JavaStyle comment: /**
+        QtStyle,    ///< QtStyle comment: /*!
+        CppStyleA,  ///< CppStyle comment variant A: ///
+        CppStyleB   ///< CppStyle comment variant B: //!
     };
 
     void setStyle(DocumentationStyle style);

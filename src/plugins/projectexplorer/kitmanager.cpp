@@ -34,10 +34,12 @@
 #include "kitinformation.h"
 #include "kitmanagerconfigwidget.h"
 #include "project.h"
+#include "projectexplorer.h"
 
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 
 #include <utils/persistentsettings.h>
 #include <utils/environment.h>
@@ -137,6 +139,7 @@ void KitManager::restoreKits()
         return;
 
     initializing = true;
+    QTC_CHECK(ProjectExplorerPlugin::instance()->pluginSpec()->state() == ExtensionSystem::PluginSpec::Running);
 
     QList<Kit *> kitsToRegister;
     QList<Kit *> kitsToValidate;
@@ -150,6 +153,7 @@ void KitManager::restoreKits()
         // make sure we mark these as autodetected and run additional setup logic
         foreach (Kit *k, system.kits) {
             k->setAutoDetected(true);
+            k->setSdkProvided(true);
             k->setup();
         }
 
@@ -161,7 +165,7 @@ void KitManager::restoreKits()
     // read all kits from user file
     KitList userKits = restoreKits(settingsFileName());
     foreach (Kit *k, userKits.kits) {
-        if (k->isAutoDetected())
+        if (k->isSdkProvided())
             kitsToCheck.append(k);
         else
             kitsToRegister.append(k);
@@ -202,6 +206,7 @@ void KitManager::restoreKits()
     if (kits().isEmpty()) {
         Kit *defaultKit = new Kit; // One kit using default values
         defaultKit->setDisplayName(tr("Desktop"));
+        defaultKit->setSdkProvided(false);
         defaultKit->setAutoDetected(false);
         defaultKit->setIconPath(QLatin1String(":///DESKTOP///"));
 
@@ -259,6 +264,9 @@ bool greaterPriority(KitInformation *a, KitInformation *b)
 
 void KitManager::registerKitInformation(KitInformation *ki)
 {
+    QTC_CHECK(ProjectExplorerPlugin::instance()->pluginSpec()->state() <= ExtensionSystem::PluginSpec::Initialized);
+    QTC_CHECK(d->m_kitList.isEmpty());
+
     QList<KitInformation *>::iterator it
             = qLowerBound(d->m_informationList.begin(), d->m_informationList.end(), ki, greaterPriority);
     d->m_informationList.insert(it, ki);
@@ -454,7 +462,7 @@ void KitManager::setDefaultKit(Kit *k)
 
 void KitManager::validateKits()
 {
-    foreach (Kit *k, kits())
+    foreach (Kit *k, d->m_kitList) // no need to load kits just to validate them!
         k->validate();
 }
 

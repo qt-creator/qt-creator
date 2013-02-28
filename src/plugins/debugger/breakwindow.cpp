@@ -705,6 +705,18 @@ void BreakTreeView::keyPressEvent(QKeyEvent *ev)
         int row = qMin(model()->rowCount() - ids.size() - 1, currentIndex().row());
         deleteBreakpoints(ids);
         setCurrentIndex(si.at(0).sibling(row, 0));
+    } else if (ev->key() == Qt::Key_Space) {
+        QItemSelectionModel *sm = selectionModel();
+        QTC_ASSERT(sm, return);
+        const QModelIndexList selectedIds = sm->selectedIndexes();
+        if (!selectedIds.isEmpty()) {
+            BreakHandler *handler = breakHandler();
+            const BreakpointModelIds validIds = handler->findBreakpointsByIndex(selectedIds);
+            const bool isEnabled = validIds.isEmpty() || handler->isEnabled(validIds.at(0));
+            setBreakpointsEnabled(validIds, !isEnabled);
+            foreach (const QModelIndex &id, selectedIds)
+                update(id);
+        }
     }
     QTreeView::keyPressEvent(ev);
 }

@@ -32,10 +32,15 @@
 #include "ui_androidsettingswidget.h"
 
 #include "androidconfigurations.h"
-
 #include "androidconstants.h"
+#include "androidtoolchain.h"
 
 #include <utils/hostosinfo.h>
+#include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/kitinformation.h>
+#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtversionmanager.h>
 
 #include <QFile>
 #include <QTextStream>
@@ -150,6 +155,7 @@ void AndroidSettingsWidget::initGui()
     m_ui->AntLocationLineEdit->setText(m_androidConfig.antLocation.toUserOutput());
     m_ui->OpenJDKLocationLineEdit->setText(m_androidConfig.openJDKLocation.toUserOutput());
     m_ui->DataPartitionSizeSpinBox->setValue(m_androidConfig.partitionSize);
+    m_ui->CreateKitCheckBox->setChecked(m_androidConfig.automaticKitCreation);
     m_ui->AVDTableView->setModel(&m_AVDModel);
     m_AVDModel.setAvdList(AndroidConfigurations::instance().androidVirtualDevices());
     m_ui->AVDTableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
@@ -186,19 +192,79 @@ bool AndroidSettingsWidget::checkSDK(const Utils::FileName &location)
     return true;
 }
 
+int indexOf(const QList<AndroidToolChainFactory::AndroidToolChainInformation> &list, const Utils::FileName &f)
+{
+    int end = list.count();
+    for (int i = 0; i < end; ++i) {
+        if (list.at(i).compilerCommand == f)
+            return i;
+    }
+    return -1;
+}
+
 bool AndroidSettingsWidget::checkNDK(const Utils::FileName &location)
 {
-    if (location.isEmpty())
+    if (location.isEmpty()) {
+        m_ui->ndkWarningIconLabel->setVisible(false);
+        m_ui->toolchainFoundLabel->setVisible(false);
+        m_ui->kitWarningIconLabel->setVisible(false);
+        m_ui->kitWarningLabel->setVisible(false);
         return false;
+    }
     Utils::FileName platformPath = location;
     Utils::FileName toolChainPath = location;
     Utils::FileName sourcesPath = location;
     if (!platformPath.appendPath(QLatin1String("platforms")).toFileInfo().exists()
             || !toolChainPath.appendPath(QLatin1String("toolchains")).toFileInfo().exists()
             || !sourcesPath.appendPath(QLatin1String("sources/cxx-stl")).toFileInfo().exists()) {
-        QMessageBox::critical(this, tr("Android NDK Folder"), tr("\"%1\" does not seem to be an Android NDK top folder.").arg(location.toUserOutput()));
+        m_ui->toolchainFoundLabel->setText(tr("\"%1\" does not seem to be an Android NDK top folder.").arg(location.toUserOutput()));
+        m_ui->toolchainFoundLabel->setVisible(true);
+        m_ui->ndkWarningIconLabel->setVisible(true);
         return false;
     }
+
+    // Check how many toolchains we could add...
+    QList<AndroidToolChainFactory::AndroidToolChainInformation> compilerPaths = AndroidToolChainFactory::toolchainPathsForNdk(location);
+    if (compilerPaths.isEmpty()) {
+        m_ui->ndkWarningIconLabel->setVisible(false);
+        m_ui->toolchainFoundLabel->setVisible(false);
+    } else {
+        m_ui->ndkWarningIconLabel->setVisible(false);
+        m_ui->toolchainFoundLabel->setText(tr("Found %n toolchains for this NDK.", 0, compilerPaths.count()));
+        m_ui->toolchainFoundLabel->setVisible(true);
+    }
+
+    // See if we have qt versions for those toolchains
+    QSet<ProjectExplorer::Abi::Architecture> toolchainsForArch;
+    foreach (const AndroidToolChainFactory::AndroidToolChainInformation &ati, compilerPaths)
+        toolchainsForArch.insert(ati.architecture);
+
+    QSet<ProjectExplorer::Abi::Architecture> qtVersionsForArch;
+    foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::instance()->versions()) {
+        if (qtVersion->type() != QLatin1String(Constants::ANDROIDQT))
+            continue;
+        qtVersionsForArch.insert(qtVersion->qtAbis().first().architecture());
+    }
+
+    QSet<ProjectExplorer::Abi::Architecture> missingQtArchs = toolchainsForArch.subtract(qtVersionsForArch);
+    if (missingQtArchs.isEmpty()) {
+        m_ui->kitWarningIconLabel->setVisible(false);
+        m_ui->kitWarningLabel->setVisible(false);
+    } else {
+        m_ui->kitWarningIconLabel->setVisible(true);
+        m_ui->kitWarningLabel->setVisible(true);
+        if (missingQtArchs.count() == 1) {
+            m_ui->kitWarningLabel->setText(tr("Qt version for architecture %1 is missing.\n To add the Qt version, select Options > Build & Run > Qt Versions.")
+                                           .arg(ProjectExplorer::Abi::toString((*missingQtArchs.constBegin()))));
+        } else {
+            QStringList missingArchs;
+            foreach (ProjectExplorer::Abi::Architecture arch, missingQtArchs)
+                missingArchs.append(ProjectExplorer::Abi::toString(arch));
+            m_ui->kitWarningLabel->setText(tr("Qt versions for architectures %1 are missing.\n To add the Qt versions, select Options > Build & Run > Qt Versions.")
+                                           .arg(missingArchs.join(QLatin1String(", "))));
+        }
+    }
+
     m_androidConfig.ndkLocation = location;
     return true;
 
@@ -243,7 +309,9 @@ void AndroidSettingsWidget::openJDKLocationEditingFinished()
 
 void AndroidSettingsWidget::browseSDKLocation()
 {
-    Utils::FileName dir = Utils::FileName::fromString(QFileDialog::getExistingDirectory(this, tr("Select Android SDK folder")));
+    Utils::FileName dir = Utils::FileName::fromString(
+                QFileDialog::getExistingDirectory(this, tr("Select Android SDK folder"),
+                                                  m_ui->SDKLocationLineEdit->text()));
     if (!checkSDK(dir))
         return;
     m_ui->SDKLocationLineEdit->setText(dir.toUserOutput());
@@ -252,7 +320,9 @@ void AndroidSettingsWidget::browseSDKLocation()
 
 void AndroidSettingsWidget::browseNDKLocation()
 {
-    Utils::FileName dir = Utils::FileName::fromString(QFileDialog::getExistingDirectory(this, tr("Select Android NDK folder")));
+    Utils::FileName dir = Utils::FileName::fromString(
+                QFileDialog::getExistingDirectory(this, tr("Select Android NDK folder"),
+                                                  m_ui->NDKLocationLineEdit->text()));
     if (!checkNDK(dir))
         return;
     m_ui->NDKLocationLineEdit->setText(dir.toUserOutput());
@@ -315,6 +385,11 @@ void AndroidSettingsWidget::avdActivated(QModelIndex index)
 void AndroidSettingsWidget::dataPartitionSizeEditingFinished()
 {
     m_androidConfig.partitionSize = m_ui->DataPartitionSizeSpinBox->value();
+}
+
+void AndroidSettingsWidget::createKitToggled()
+{
+    m_androidConfig.automaticKitCreation = m_ui->CreateKitCheckBox->isChecked();
 }
 
 void AndroidSettingsWidget::manageAVD()

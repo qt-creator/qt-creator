@@ -31,11 +31,13 @@
 
 #include "abi.h"
 #include "kitinformation.h"
+#include "projectexplorer.h"
 #include "toolchain.h"
 
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
@@ -93,7 +95,11 @@ ToolChainManagerPrivate::ToolChainManagerPrivate(ToolChainManager *parent)
 { }
 
 ToolChainManagerPrivate::~ToolChainManagerPrivate()
-{ delete m_writer; }
+{
+    qDeleteAll(m_toolChains);
+    m_toolChains.clear();
+    delete m_writer;
+}
 
 QList<ToolChain *> &ToolChainManagerPrivate::toolChains()
 {
@@ -133,6 +139,7 @@ ToolChainManager::ToolChainManager(QObject *parent) :
 void ToolChainManager::restoreToolChains()
 {
     QTC_ASSERT(!d->m_writer, return);
+    QTC_CHECK(ProjectExplorerPlugin::instance()->pluginSpec()->state() == ExtensionSystem::PluginSpec::Running);
     d->m_writer =
             new Utils::PersistentSettingsWriter(settingsFileName(QLatin1String(TOOLCHAIN_FILENAME)), QLatin1String("QtCreatorToolChains"));
 
@@ -206,13 +213,6 @@ void ToolChainManager::restoreToolChains()
 
 ToolChainManager::~ToolChainManager()
 {
-    saveToolChains(); // Make sure to save tool chains when closing
-
-    // Deregister tool chains
-    QList<ToolChain *> copy = d->toolChains();
-    foreach (ToolChain *tc, copy)
-        deregisterToolChain(tc);
-
     delete d;
     m_instance = 0;
 }

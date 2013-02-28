@@ -884,4 +884,5 @@ void ProjectExplorer::ProjectExplorerPlugin::testFlavorForOs()
     }
 }
 
+
 #endif

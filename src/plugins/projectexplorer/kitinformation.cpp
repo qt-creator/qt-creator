@@ -316,7 +316,10 @@ const Core::Id DeviceTypeKitInformation::deviceTypeId(const Kit *k)
     // FIXME: This should be fromSetting/toSetting instead.
     if (!k)
         return Core::Id();
-    return Core::Id::fromName(k->value(DEVICETYPE_INFORMATION).toByteArray());
+    QByteArray value = k->value(DEVICETYPE_INFORMATION).toByteArray();
+    if (value.isEmpty())
+        return Core::Id();
+    return Core::Id::fromName(value);
 }
 
 void DeviceTypeKitInformation::setDeviceTypeId(Kit *k, Core::Id type)

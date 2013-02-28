@@ -73,8 +73,10 @@ public:
     QString url;
     QString category;
     QList<PluginDependency> dependencies;
-    bool enabled;
+    bool enabledInSettings;
     bool disabledIndirectly;
+    bool forceEnabled;
+    bool forceDisabled;
 
     QString location;
     QString filePath;

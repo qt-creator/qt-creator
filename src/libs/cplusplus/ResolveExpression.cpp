@@ -835,8 +835,9 @@ public:
     void resolve(FullySpecifiedType *type, Scope **scope, ClassOrNamespace *binding)
     {
         QSet<Symbol *> visited;
+        _binding = binding;
         while (NamedType *namedTy = getNamedType(*type)) {
-            QList<LookupItem> namedTypeItems = getNamedTypeItems(namedTy->name(), *scope, binding);
+            QList<LookupItem> namedTypeItems = getNamedTypeItems(namedTy->name(), *scope, _binding);
 
 #ifdef DEBUG_LOOKUP
             qDebug() << "-- we have" << namedTypeItems.size() << "candidates";
@@ -908,7 +909,7 @@ private:
     }
 
     bool findTypedef(const QList<LookupItem>& namedTypeItems, FullySpecifiedType *type,
-                     Scope **scope, QSet<Symbol *>& visited) const
+                     Scope **scope, QSet<Symbol *>& visited)
     {
         bool foundTypedef = false;
         foreach (const LookupItem &it, namedTypeItems) {
@@ -921,6 +922,7 @@ private:
                 // continue working with the typedefed type and scope
                 *type = declaration->type();
                 *scope = it.scope();
+                _binding = it.binding();
                 foundTypedef = true;
                 break;
             }
@@ -930,6 +932,8 @@ private:
     }
 
     const LookupContext &_context;
+    // binding has to be remembered in case of resolving typedefs for templates
+    ClassOrNamespace *_binding;
 };
 
 ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &baseResults,

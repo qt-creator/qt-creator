@@ -23,12 +23,12 @@ Module {
             var cmd = new JavaScriptCommand();
             cmd.description = "prepare " + FileInfo.fileName(output.fileName);
             cmd.highlight = "codegen";
-            cmd.qtcreator_version = product.module.qtcreator_version;
-            cmd.ide_version_major = product.module.ide_version_major;
-            cmd.ide_version_minor = product.module.ide_version_minor;
-            cmd.ide_version_release = product.module.ide_version_release;
+            cmd.qtcreator_version = product.moduleProperty("pluginspec", "qtcreator_version");
+            cmd.ide_version_major = product.moduleProperty("pluginspec", "ide_version_major");
+            cmd.ide_version_minor = product.moduleProperty("pluginspec", "ide_version_minor");
+            cmd.ide_version_release = product.moduleProperty("pluginspec", "ide_version_release");
 
-            cmd.pluginspecreplacements = product.module.pluginspecreplacements;
+            cmd.pluginspecreplacements = product.moduleProperty("pluginspec", "pluginspecreplacements");
 
             cmd.sourceCode = function() {
                 var i;
@@ -60,7 +60,7 @@ Module {
         Artifact {
             fileTags: ["qt_plugin_metadata"]
             fileName: {
-                var destdir = FileInfo.joinPaths(product.modules["qt/core"].generatedFilesDir,
+                var destdir = FileInfo.joinPaths(product.moduleProperty("qt/core", "generatedFilesDir"),
                                                  input.fileName);
                 return destdir.replace(/\.[^\.]*$/, '.json');
             }
@@ -68,7 +68,7 @@ Module {
 
         prepare: {
             var xslFile = project.path + "/src/pluginjsonmetadata.xsl";
-            var xmlPatternsPath = product.modules["qt/core"].binPath + "/xmlpatterns";
+            var xmlPatternsPath = product.moduleProperty("qt/core", "binPath") + "/xmlpatterns";
             var args = [
                 "-no-format",
                 "-output",

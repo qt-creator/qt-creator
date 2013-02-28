@@ -9,6 +9,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_texteditor \
             plugin_cppeditor \
             plugin_bineditor \
+            plugin_diffeditor \
             plugin_imageviewer \
             plugin_bookmarks \
             plugin_projectexplorer \
@@ -118,6 +119,10 @@ plugin_bineditor.subdir = bineditor
 plugin_bineditor.depends = plugin_texteditor
 plugin_bineditor.depends += plugin_coreplugin
 
+plugin_diffeditor.subdir = diffeditor
+plugin_diffeditor.depends = plugin_texteditor
+plugin_diffeditor.depends += plugin_coreplugin
+
 plugin_imageviewer.subdir = imageviewer
 plugin_imageviewer.depends = plugin_coreplugin
 
@@ -167,6 +172,7 @@ plugin_qt4projectmanager.depends += plugin_qtsupport
 plugin_qt4projectmanager.depends += plugin_cpptools
 plugin_qt4projectmanager.depends += plugin_debugger
 plugin_qt4projectmanager.depends += plugin_qmljseditor
+plugin_qt4projectmanager.depends += plugin_qmljstools
 
 plugin_remotelinux.subdir = remotelinux
 plugin_remotelinux.depends += plugin_coreplugin
@@ -202,7 +208,6 @@ plugin_debugger.subdir = debugger
 plugin_debugger.depends = plugin_projectexplorer
 plugin_debugger.depends += plugin_coreplugin
 plugin_debugger.depends += plugin_cpptools
-plugin_debugger.depends += plugin_qmljstools
 
 plugin_fakevim.subdir = fakevim
 plugin_fakevim.depends = plugin_coreplugin
@@ -265,6 +270,7 @@ plugin_qmlprojectmanager.subdir = qmlprojectmanager
 plugin_qmlprojectmanager.depends = plugin_texteditor
 plugin_qmlprojectmanager.depends += plugin_projectexplorer
 plugin_qmlprojectmanager.depends += plugin_qmljseditor
+plugin_qmlprojectmanager.depends += plugin_qmljstools
 plugin_qmlprojectmanager.depends += plugin_debugger
 plugin_qmlprojectmanager.depends += plugin_qtsupport
 
@@ -315,6 +321,7 @@ plugin_qmlprofiler.depends += plugin_analyzerbase
 plugin_qmlprofiler.depends += plugin_qmlprojectmanager
 plugin_qmlprofiler.depends += plugin_qt4projectmanager
 plugin_qmlprofiler.depends += plugin_remotelinux
+plugin_qmlprofiler.depends += plugin_qmljstools
 
 plugin_qmljstools.subdir = qmljstools
 plugin_qmljstools.depends = plugin_projectexplorer
@@ -345,6 +352,7 @@ plugin_qbsprojectmanager.subdir = qbsprojectmanager
 plugin_qbsprojectmanager.depends = plugin_texteditor
 plugin_qbsprojectmanager.depends += plugin_projectexplorer
 plugin_qbsprojectmanager.depends += plugin_cpptools
+plugin_qbsprojectmanager.depends += plugin_qmljstools
 plugin_qbsprojectmanager.depends += plugin_qtsupport
 
 plugin_clearcase.subdir = clearcase

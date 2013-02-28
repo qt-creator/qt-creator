@@ -908,9 +908,9 @@ public:
 
 private:
     Type _type;
+    LanguageUtils::ComponentVersion _version;
     QString _name;
     QString _path;
-    LanguageUtils::ComponentVersion _version;
     QString _as;
     AST::UiImport *_ast;
 };

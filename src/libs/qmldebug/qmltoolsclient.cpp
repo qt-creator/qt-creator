@@ -65,8 +65,8 @@ QmlToolsClient::QmlToolsClient(QmlDebugConnection *client)
     : BaseToolsClient(client, QLatin1String("QmlInspector")),
       m_connection(client),
       m_requestId(0),
-      m_slowDownFactor(1),
       m_reloadQueryId(-1),
+      m_slowDownFactor(1),
       m_destroyObjectQueryId(-1)
 {
     setObjectName(name());

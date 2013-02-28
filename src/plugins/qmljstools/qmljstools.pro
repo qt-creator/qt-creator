@@ -10,6 +10,7 @@ DEFINES += QMLJSTOOLS_LIBRARY
 }
 
 HEADERS += \
+    $$PWD/qmljsbundleprovider.h \
     $$PWD/qmljstoolsplugin.h \
     $$PWD/qmljstoolsconstants.h \
     $$PWD/qmljstoolssettings.h \
@@ -36,6 +37,7 @@ HEADERS += \
     $$PWD/qmlconsoleproxymodel.h
 
 SOURCES += \
+    $$PWD/qmljsbundleprovider.cpp \
     $$PWD/qmljstoolsplugin.cpp \
     $$PWD/qmljstoolssettings.cpp \
     $$PWD/qmljscodestylepreferencesfactory.cpp \

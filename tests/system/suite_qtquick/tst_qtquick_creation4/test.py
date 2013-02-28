@@ -2,6 +2,8 @@ source("../../shared/qtcreator.py")
 
 def main():
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     # using a temporary directory won't mess up a potentially existing
     createNewQmlExtension(tempDir())
     # wait for parsing to complete

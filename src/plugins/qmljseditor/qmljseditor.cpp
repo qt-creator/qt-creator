@@ -76,6 +76,7 @@
 #include <QFileInfo>
 #include <QSignalMapper>
 #include <QTimer>
+#include <QPointer>
 #include <QScopedPointer>
 #include <QTextCodec>
 
@@ -1174,7 +1175,7 @@ void QmlJSTextEditorWidget::performQuickFix(int index)
 
 void QmlJSTextEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
-    QMenu *menu = new QMenu();
+    QPointer<QMenu> menu(new QMenu(this));
 
     QMenu *refactoringMenu = new QMenu(tr("Refactoring"), menu);
 
@@ -1223,8 +1224,10 @@ void QmlJSTextEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     appendStandardContextMenuActions(menu);
 
     menu->exec(e->globalPos());
-    menu->deleteLater();
+    if (!menu)
+        return;
     m_quickFixes.clear();
+    delete menu;
 }
 
 bool QmlJSTextEditorWidget::event(QEvent *e)

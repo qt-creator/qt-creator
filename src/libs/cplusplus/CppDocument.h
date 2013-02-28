@@ -146,8 +146,8 @@ public:
                           const QString &text,
                           unsigned length = 0)
             : _level(level),
-              _fileName(fileName),
               _line(line),
+              _fileName(fileName),
               _column(column),
               _length(length),
               _text(text)
@@ -185,8 +185,8 @@ public:
 
     private:
         int _level;
-        QString _fileName;
         unsigned _line;
+        QString _fileName;
         unsigned _column;
         unsigned _length;
         QString _text;
@@ -377,7 +377,6 @@ public:
 
     bool contains(const QString &fileName) const;
     Document::Ptr document(const QString &fileName) const;
-    Document::Ptr operator[](const QString &fileName) const;
 
     const_iterator find(const QString &fileName) const;
 

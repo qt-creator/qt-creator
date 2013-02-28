@@ -98,7 +98,8 @@ enum Qt4Variable {
     VersionVar,
     TargetVersionExtVar,
     StaticLibExtensionVar,
-    ShLibExtensionVar
+    ShLibExtensionVar,
+    AndroidArchVar
 };
 
 // Import base classes into namespace
@@ -433,9 +434,13 @@ private:
     TargetInformation targetInformation(QtSupport::ProFileReader *reader) const;
     void setupInstallsList(const QtSupport::ProFileReader *reader);
 
+    bool m_isDeployable;
+
+    bool m_validParse;
+    bool m_parseInProgress;
+
     Qt4ProjectType m_projectType;
     Qt4VariablesHash m_varValues;
-    bool m_isDeployable;
 
     QMap<QString, QDateTime> m_uitimestamps;
     TargetInformation m_qt4targetInformation;
@@ -443,9 +448,6 @@ private:
     QStringList m_subProjectsNotToDeploy;
     InstallsList m_installsList;
     friend class Qt4NodeHierarchy;
-
-    bool m_validParse;
-    bool m_parseInProgress;
 
     QStringList m_uiHeaderFiles;
 

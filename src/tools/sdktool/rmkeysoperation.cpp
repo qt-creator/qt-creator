@@ -72,7 +72,7 @@ int RmKeysOperation::execute() const
         return 1;
 
     // Write data again:
-    return save(map, m_file) ? 0 : 2;
+    return save(result, m_file) ? 0 : 2;
 }
 
 #ifdef WITH_TESTS

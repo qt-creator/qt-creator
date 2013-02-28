@@ -51,6 +51,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <cpptools/ModelManagerInterface.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljstools/qmljsmodelmanager.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/toolchain.h>
@@ -348,7 +349,7 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_activeTarget(0)
 {
     setProjectContext(Core::Context(Qt4ProjectManager::Constants::PROJECT_ID));
-    setProjectLanguage(Core::Context(ProjectExplorer::Constants::LANG_CXX));
+    setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
     m_asyncUpdateTimer.setSingleShot(true);
     m_asyncUpdateTimer.setInterval(3000);
@@ -592,53 +593,35 @@ void Qt4Project::updateQmlJSCodeModel()
     if (!modelManager)
         return;
 
-    QmlJS::ModelManagerInterface::ProjectInfo projectInfo = modelManager->projectInfo(this);
-    projectInfo.sourceFiles = m_projectFiles->files[QMLType];
+    QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
+            QmlJSTools::defaultProjectInfoForProject(this);
 
     FindQt4ProFiles findQt4ProFiles;
     QList<Qt4ProFileNode *> proFiles = findQt4ProFiles(rootProjectNode());
 
     projectInfo.importPaths.clear();
+
+    bool hasQmlLib = false;
     foreach (Qt4ProFileNode *node, proFiles) {
         projectInfo.importPaths.append(node->variableValue(QmlImportPathVar));
+        if (!hasQmlLib) {
+            QStringList qtLibs = node->variableValue(QtVar);
+            hasQmlLib = qtLibs.contains(QLatin1String("declarative")) ||
+                    qtLibs.contains(QLatin1String("qml")) ||
+                    qtLibs.contains(QLatin1String("quick"));
+        }
     }
 
-    bool preferDebugDump = false;
-    projectInfo.tryQmlDump = false;
+    // If the project directory has a pro/pri file that includes a qml or quick or declarative
+    // library then chances of the project being a QML project is quite high.
+    // This assumption fails when there are no QDeclarativeEngine/QDeclarativeView (QtQuick 1)
+    // or QQmlEngine/QQuickView (QtQuick 2) instances.
+    Core::Context pl(ProjectExplorer::Constants::LANG_CXX);
+    if (m_projectFiles->files[QMLType].count() && hasQmlLib)
+        pl.add(ProjectExplorer::Constants::LANG_QMLJS);
+    setProjectLanguages(pl);
 
-    ProjectExplorer::Target *t = activeTarget();
-    ProjectExplorer::Kit *k = t ? t->kit() : ProjectExplorer::KitManager::instance()->defaultKit();
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
-
-    if (t) {
-        if (Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(t->activeBuildConfiguration()))
-            preferDebugDump = bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild;
-    } else {
-        if (qtVersion)
-            preferDebugDump = qtVersion->defaultBuildConfig() & QtSupport::BaseQtVersion::DebugBuild;
-    }
-    if (qtVersion && qtVersion->isValid()) {
-        projectInfo.tryQmlDump = qtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
-                || qtVersion->type() == QLatin1String(QtSupport::Constants::SIMULATORQT);
-        projectInfo.qtQmlPath = qtVersion->qmakeProperty("QT_INSTALL_QML");
-        if (!projectInfo.qtQmlPath.isEmpty())
-            projectInfo.importPaths += projectInfo.qtQmlPath;
-        projectInfo.qtImportsPath = qtVersion->qmakeProperty("QT_INSTALL_IMPORTS");
-        if (!projectInfo.qtImportsPath.isEmpty())
-            projectInfo.importPaths += projectInfo.qtImportsPath;
-        projectInfo.qtVersionString = qtVersion->qtVersionString();
-    }
     projectInfo.importPaths.removeDuplicates();
-
-    if (projectInfo.tryQmlDump) {
-        QtSupport::QmlDumpTool::pathAndEnvironment(this, qtVersion,
-                                                   ToolChainKitInformation::toolChain(k),
-                                                   preferDebugDump, &projectInfo.qmlDumpPath,
-                                                   &projectInfo.qmlDumpEnvironment);
-    } else {
-        projectInfo.qmlDumpPath.clear();
-        projectInfo.qmlDumpEnvironment.clear();
-    }
 
     modelManager->updateProjectInfo(projectInfo);
 }

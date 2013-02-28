@@ -54,7 +54,7 @@ QStyleItem::QStyleItem(QDeclarativeItem *parent)
     : QDeclarativeItem(parent),
     m_dummywidget(0),
     m_styleoption(0),
-    m_type(Undefined),
+    m_itemType(Undefined),
     m_sunken(false),
     m_raised(false),
     m_active(true),

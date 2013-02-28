@@ -62,8 +62,6 @@ public:
     SemanticInfo();
 
     unsigned revision;
-    bool hasQ: 1;
-    bool hasD: 1;
     bool forced: 1;
     CPlusPlus::Snapshot snapshot;
     CPlusPlus::Document::Ptr doc;

@@ -11,6 +11,8 @@ def main():
         return
     templateDir = prepareTemplate(sourceExample)
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     openQmakeProject(os.path.join(templateDir, proFile))
     qmlFiles = ["focus.QML.qml.focus\\.qml", "focus.QML.qml.Core.ListMenu\\.qml"]
     checkOutlineFor(qmlFiles)

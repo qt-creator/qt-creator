@@ -43,6 +43,7 @@
 #include <qt4projectmanager/qt4nodes.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qtsupport/qtkitinformation.h>
 #include <coreplugin/icore.h>
 #include <ssh/sshconnection.h>
 
@@ -109,16 +110,16 @@ void BlackBerryDeployConfiguration::setupBarDescriptor()
         if (button == QDialogButtonBox::No)
             return;
 
-        Utils::FileReader reader;
         QString barDescriptorTemplate;
-        if (QDir(Utils::FileName::fromString(target()->project()->projectDirectory()).appendPath(QLatin1String("qml")).toString()).exists())
+        QtSupport::QtVersionNumber qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit())->qtVersion();
+        if (qtVersion >= QtSupport::QtVersionNumber(5, 0, 0))
             barDescriptorTemplate = Core::ICore::resourcePath()
-                    + QLatin1String("/templates/wizards/bb-quickapp/") + barDescriptorFileName;
+                    + QLatin1String("/templates/wizards/bb-qt5-bardescriptor/bar-descriptor.xml");
         else
             barDescriptorTemplate = Core::ICore::resourcePath()
-                    + QLatin1String("/templates/wizards/bb-guiapp/") + barDescriptorFileName;
+                    + QLatin1String("/templates/wizards/bb-bardescriptor/bar-descriptor.xml");
 
-
+        Utils::FileReader reader;
         if (!reader.fetch(barDescriptorTemplate)) {
             QMessageBox::warning(Core::ICore::mainWindow(),
                                  tr("Cannot Set up Application Descriptor File"),
@@ -128,7 +129,15 @@ void BlackBerryDeployConfiguration::setupBarDescriptor()
         }
 
         QString content = QString::fromUtf8(reader.data());
-        content.replace(QLatin1String("%ProjectName%"), projectName);
+        content.replace(QLatin1String("PROJECTNAME"), projectName);
+        content.replace(QLatin1String("PROJECTPATH"), projectName);
+        content.replace(QLatin1String("ID"), QLatin1String("com.example.") + projectName);
+
+        if (Utils::FileName::fromString(target()->project()->projectDirectory())
+                 .appendPath(QLatin1String("qml")).toFileInfo().exists())
+            content.replace(QLatin1String("</qnx>"),
+                            QLatin1String("    <asset path=\"%SRC_DIR%/qml\">qml</asset>\n</qnx>"));
+
         Utils::FileSaver writer(barDescriptorFile.fileName(), QIODevice::WriteOnly);
         writer.write(content.toUtf8());
         if (!writer.finalize()) {

@@ -60,6 +60,7 @@ QWidget *SettingsPage::createPage(QWidget *parent)
 
     m_page = new QWidget(parent);
     m_ui.setupUi(m_page);
+    m_ui.refreshInterval->setToolTip(m_ui.refreshIntervalLabel->toolTip());
     connect(m_ui.filterList, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
             this, SLOT(updateButtonStates()));
     connect(m_ui.filterList, SIGNAL(itemActivated(QListWidgetItem*)),

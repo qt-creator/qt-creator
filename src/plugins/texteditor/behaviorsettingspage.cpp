@@ -42,6 +42,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <utils/hostosinfo.h>
 
 #include <QSettings>
 #include <QTextCodec>
@@ -113,6 +114,8 @@ QWidget *BehaviorSettingsPage::createPage(QWidget *parent)
     QWidget *w = new QWidget(parent);
     d->m_page = new Internal::Ui::BehaviorSettingsPage;
     d->m_page->setupUi(w);
+    if (Utils::HostOsInfo::isMacHost())
+        d->m_page->gridLayout->setContentsMargins(-1, 0, -1, 0); // don't ask.
     d->m_pageCodeStyle = new SimpleCodeStylePreferences(w);
     d->m_pageCodeStyle->setDelegatingPool(d->m_codeStyle->delegatingPool());
     d->m_pageCodeStyle->setTabSettings(d->m_codeStyle->tabSettings());

@@ -773,19 +773,19 @@ void MainWindow::registerDefaultActions()
     else
         tmpaction = new QAction(icon, tr("About &Qt Creator..."), this);
     cmd = ActionManager::registerAction(tmpaction, Constants::ABOUT_QTCREATOR, globalContext);
-    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
-    tmpaction->setEnabled(true);
     if (Utils::HostOsInfo::isMacHost())
         cmd->action()->setMenuRole(QAction::ApplicationSpecificRole);
+    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
+    tmpaction->setEnabled(true);
     connect(tmpaction, SIGNAL(triggered()), this,  SLOT(aboutQtCreator()));
 
     //About Plugins Action
     tmpaction = new QAction(tr("About &Plugins..."), this);
     cmd = ActionManager::registerAction(tmpaction, Constants::ABOUT_PLUGINS, globalContext);
-    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
-    tmpaction->setEnabled(true);
     if (Utils::HostOsInfo::isMacHost())
         cmd->action()->setMenuRole(QAction::ApplicationSpecificRole);
+    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
+    tmpaction->setEnabled(true);
     connect(tmpaction, SIGNAL(triggered()), this,  SLOT(aboutPlugins()));
     // About Qt Action
 //    tmpaction = new QAction(tr("About &Qt..."), this);
@@ -1128,7 +1128,10 @@ void MainWindow::updateFocusWidget(QWidget *old, QWidget *now)
             p = p->parentWidget();
         }
     }
-    updateContextObject(newContext);
+
+    // ignore toplevels that define no context, like popups without parent
+    if (newContext || qApp->focusWidget() == focusWidget())
+        updateContextObject(newContext);
 }
 
 void MainWindow::updateContextObject(IContext *context)

@@ -32,6 +32,7 @@
 
 #include <qmljs/qmljs_global.h>
 
+#include <QHash>
 #include <QList>
 #include <QSharedPointer>
 
@@ -67,7 +68,9 @@ public:
                          const QString &base = QString(), LookupFlags flags = LookupFlags(CaseInsensitive|Partial));
     static bool contains(const Ptr &trie, const QString &value, LookupFlags flags = LookupFlags(0));
     static QStringList stringList(const Ptr &trie);
+    static bool isSame(const Ptr &trie1, const Ptr &trie2);
 
+    static Ptr replaceF(const Ptr &trie, const QHash<QString, QString> &replacements);
     static Ptr insertF(const Ptr &trie, const QString &value);
     static std::pair<Ptr,int> intersectF(const Ptr &v1, const Ptr &v2, int index1=0);
     static std::pair<Ptr,int> mergeF(const Ptr &v1, const Ptr &v2);
@@ -91,10 +94,16 @@ public:
     Trie insertF(const QString &value) const;
     Trie intersectF(const Trie &v) const;
     Trie mergeF(const Trie &v) const;
+    Trie replaceF(const QHash<QString, QString> &replacements) const;
 
     void insert(const QString &value);
     void intersect(const Trie &v);
     void merge(const Trie &v);
+    void replace(const QHash<QString, QString> &replacements);
+
+    bool isEmpty() const;
+    bool operator==(const Trie &o);
+    bool operator!=(const Trie &o);
 
     friend QMLJS_EXPORT QDebug &operator<<(QDebug &dbg, const TrieNode::Ptr &trie);
     friend QMLJS_EXPORT QDebug &operator<<(QDebug &dbg, const Trie &trie);

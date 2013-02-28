@@ -283,22 +283,54 @@ bool PluginSpec::isDisabledByDefault() const
 }
 
 /*!
-    \fn bool PluginSpec::isEnabled() const
-    Returns if the plugin is loaded at startup. True by default - the user can change it from the Plugin settings.
+    \fn bool PluginSpec::isEnabledInSettings() const
+    Returns if the plugin should be loaded at startup. True by default
+    The user can change it from the Plugin settings.
+    Note: That this function returns true even if a plugin is disabled because
+    of a not loaded dependencies, or a error in loading.
 */
-bool PluginSpec::isEnabled() const
+bool PluginSpec::isEnabledInSettings() const
 {
-    return d->enabled;
+    return d->enabledInSettings;
+}
+
+/*!
+    \fn bool PluginSpec::isEffectivelyEnabled() const
+    Returns if the plugin is loaded at startup.
+    \see PluginSpec::isEnabled
+*/
+bool PluginSpec::isEffectivelyEnabled() const
+{
+    return !d->disabledIndirectly
+            && (d->enabledInSettings || d->forceEnabled)
+            && !d->forceDisabled;
 }
 
 /*!
     \fn bool PluginSpec::isDisabledIndirectly() const
-    Returns true if loading was not done due to user unselecting this plugin or its dependencies,
-    or if command-line parameter -noload was used.
+    Returns true if loading was not done due to user unselecting this plugin or its dependencies.
 */
 bool PluginSpec::isDisabledIndirectly() const
 {
     return d->disabledIndirectly;
+}
+
+/*!
+    \fn bool PluginSpec::isForceEnabled() const
+    Returns if the plugin is enabled via the -load option on the command line.
+*/
+bool PluginSpec::isForceEnabled() const
+{
+    return d->forceEnabled;
+}
+
+/*!
+    \fn bool PluginSpec::isForceDisabled() const
+    Returns if the plugin is disabled via the -noload option on the command line.
+*/
+bool PluginSpec::isForceDisabled() const
+{
+    return d->forceDisabled;
 }
 
 /*!
@@ -468,8 +500,10 @@ PluginSpecPrivate::PluginSpecPrivate(PluginSpec *spec)
     :
     experimental(false),
     disabledByDefault(false),
-    enabled(true),
+    enabledInSettings(true),
     disabledIndirectly(false),
+    forceEnabled(false),
+    forceDisabled(false),
     plugin(0),
     state(PluginSpec::Invalid),
     hasError(false),
@@ -528,7 +562,7 @@ bool PluginSpecPrivate::read(const QString &fileName)
 
 void PluginSpec::setEnabled(bool value)
 {
-    d->enabled = value;
+    d->enabledInSettings = value;
 }
 
 void PluginSpec::setDisabledByDefault(bool value)
@@ -539,6 +573,20 @@ void PluginSpec::setDisabledByDefault(bool value)
 void PluginSpec::setDisabledIndirectly(bool value)
 {
     d->disabledIndirectly = value;
+}
+
+void PluginSpec::setForceEnabled(bool value)
+{
+    d->forceEnabled = value;
+    if (value)
+        d->forceDisabled = false;
+}
+
+void PluginSpec::setForceDisabled(bool value)
+{
+    if (value)
+        d->forceEnabled = false;
+    d->forceDisabled = value;
 }
 
 /*!
@@ -616,7 +664,7 @@ void PluginSpecPrivate::readPluginSpec(QXmlStreamReader &reader)
         return;
     if (experimental)
         disabledByDefault = true;
-    enabled = !disabledByDefault;
+    enabledInSettings = !disabledByDefault;
     while (!reader.atEnd()) {
         reader.readNext();
         switch (reader.tokenType()) {
@@ -888,7 +936,7 @@ bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
 
 void PluginSpecPrivate::disableIndirectlyIfDependencyDisabled()
 {
-    if (!enabled)
+    if (!enabledInSettings)
         return;
 
     if (disabledIndirectly)
@@ -900,7 +948,7 @@ void PluginSpecPrivate::disableIndirectlyIfDependencyDisabled()
         if (it.key().type == PluginDependency::Optional)
             continue;
         PluginSpec *dependencySpec = it.value();
-        if (dependencySpec->isDisabledIndirectly() || !dependencySpec->isEnabled()) {
+        if (!dependencySpec->isEffectivelyEnabled()) {
             disabledIndirectly = true;
             break;
         }

@@ -369,11 +369,10 @@ void Lexer::scan_helper(Token *tok)
             if (_yychar == '/' || _yychar == '!') {
                 yyinp();
 
-                if (_yychar == '<')
+                if (_yychar == '<' || _yychar != '/') {
                     yyinp();
-
-                if (_yychar != '\n' && std::isspace(_yychar))
                     doxy = true;
+                }
             }
 
             while (_yychar && _yychar != '\n')

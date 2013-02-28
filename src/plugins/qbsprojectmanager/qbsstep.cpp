@@ -75,7 +75,7 @@ QbsStep::QbsStep(ProjectExplorer::BuildStepList *bsl, const QbsStep *other) :
 
 QbsBuildConfiguration *QbsStep::currentBuildConfiguration() const
 {
-    QbsBuildConfiguration *bc = static_cast<QbsBuildConfiguration *>(currentBuildConfiguration());
+    QbsBuildConfiguration *bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
     if (!bc)
         bc = static_cast<QbsBuildConfiguration *>(target()->activeBuildConfiguration());
     return bc;

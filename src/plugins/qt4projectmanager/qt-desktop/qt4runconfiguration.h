@@ -181,6 +181,7 @@ private slots:
 
     void effectiveTargetInformationChanged();
     void termToggled(bool);
+    void qvfbToggled(bool);
     void usingDyldImageSuffixToggled(bool);
     void usingDyldImageSuffixChanged(bool);
     void baseEnvironmentSelected(int index);
@@ -194,6 +195,7 @@ private:
     Utils::PathChooser *m_workingDirectoryEdit;
     QLineEdit *m_argumentsLineEdit;
     QCheckBox *m_useTerminalCheck;
+    QCheckBox *m_useQvfbCheck;
     QCheckBox *m_usingDyldImageSuffix;
     QLineEdit *m_qmlDebugPort;
 

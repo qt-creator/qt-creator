@@ -238,8 +238,8 @@ FormatDescription::FormatDescription(TextStyle id, const QString &displayName, c
 
 FormatDescription::FormatDescription(TextStyle id, const QString &displayName, const QString &tooltipText, const Format &format) :
     m_id(id),
-    m_displayName(displayName),
     m_format(format),
+    m_displayName(displayName),
     m_tooltipText(tooltipText)
 {
 }

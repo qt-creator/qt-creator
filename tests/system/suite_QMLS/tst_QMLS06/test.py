@@ -12,9 +12,7 @@ def main():
     invokeMenuItem("File", "Save All")
     # invoke Refactoring - Wrap Component in Loader
     numLinesExpected = len(str(editorArea.plainText).splitlines()) + 10
-    ctxtMenu = openContextMenuOnTextCursorPosition(editorArea)
-    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), "Refactoring"))
-    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), "Wrap Component in Loader"))
+    invokeContextMenuItem(editorArea, "Refactoring", "Wrap Component in Loader")
     # wait until refactoring ended
     waitFor("len(str(editorArea.plainText).splitlines()) >= numLinesExpected", 5000)
     # verify if refactoring was properly applied

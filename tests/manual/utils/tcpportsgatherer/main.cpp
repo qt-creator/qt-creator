@@ -20,7 +20,7 @@ int main()
     qDebug() << ipPorts.usedPorts().toString();
 
     qDebug() << "Getting a few ports ...";
-    PortList portList = PortList::fromString("10000-10100");
+    PortList portList = PortList::fromString(QLatin1String("10000-10100"));
     QStringList ports;
     for (int i = 0; i < 10; ++i) {
         quint16 port = ipPorts.getNextFreePort(&portList);
@@ -31,6 +31,6 @@ int main()
         Q_ASSERT(!ports.contains(portStr));
         ports.append(QString::number(port));
     }
-    qDebug() << ports.join(", ");
+    qDebug() << ports.join(QLatin1String(", "));
     return 0;
 }

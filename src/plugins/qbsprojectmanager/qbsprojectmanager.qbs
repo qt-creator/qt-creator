@@ -17,6 +17,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "QtSupport" }
     Depends { name: "QmlJS" }
+    Depends { name: "QmlJSTools" }
 
     Depends { name: "cpp" }
 

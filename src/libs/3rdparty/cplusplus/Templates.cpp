@@ -526,11 +526,23 @@ FullySpecifiedType Subst::apply(const Name *name) const
             return _previous->apply(name);
 
         else if (const QualifiedNameId *q = name->asQualifiedNameId()) {
-            const NamedType *name = apply(q->base())->asNamedType();
+            const NamedType *baseNamedType = apply(q->base())->asNamedType();
             const NamedType *unqualified = apply(q->name())->asNamedType();
-            if (name && name->name()->identifier() != 0 && unqualified)
-                return control()->namedType(control()->qualifiedNameId(name->name()->identifier(),
-                                                                       unqualified->name()));
+            if (baseNamedType) {
+                if (! unqualified) {
+                    const Name *qualifiedBase = baseNamedType->name();
+                    const Name *qualifiedName = q->name();
+                    return control()->namedType(control()->qualifiedNameId(qualifiedBase,
+                                                                           qualifiedName));
+                }
+                else if(baseNamedType->name()->identifier() != 0) {
+                    const QualifiedNameId *clonedQualifiedNameId
+                            = control()->qualifiedNameId(baseNamedType->name()->identifier(),
+                                                         unqualified->name());
+                    NamedType *clonedNamedType = control()->namedType(clonedQualifiedNameId);
+                    return clonedNamedType;
+                }
+            }
         }
 
     }

@@ -1,0 +1,88 @@
+/****************************************************************************
+**
+** Copyright (c) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-project-cmake.html
+    \page creator-project-qbs.html
+    \nextpage creator-projects-autotools.html
+
+    \title Setting Up a Qbs Project
+
+    The Qt Build Suite (Qbs) and the Qbs plugin are still experimental, and
+    therefore, you must first build them from sources. You can use the Qbs
+    plugin only with a \QC instance you also built from sources by using the
+    same tool chain as for building Qbs and the Qbs plugin.
+
+    To use Qbs to build a project, you must create a .qbs file for the project.
+    For more information, see the
+    \l{http://doc-snapshot.qt-project.org/qbs/index.html}{Qbs Manual}.
+
+    \section1 Building the Qbs Plugin
+
+    To build the Qbs plugin and to enable it in \QC:
+
+    \list 1
+
+        \li Clone the Qbs repository and build Qbs.
+
+        \li Set values for the environment variables that specify the Qbs source
+            directory (QBS_SOURCE_DIR) and build directory (QBS_BUILD_DIR).
+
+        \li To build the Qbs plugin that is located in the
+            \c {src\plugins\qbsprojectmanager} directory in the \QC source
+            directory, clone the \QC repository and build \QC.
+
+        \li To enable the plugin, select \gui Help > \gui {About Plugins} >
+            \gui {Build Systems} > \gui {QbsProjectManager}.
+
+        \li To use the plugin, restart \QC.
+
+    \endlist
+
+    \section1 Building Applications with Qbs
+
+    To build your application with Qbs:
+
+    \list 1
+
+        \li Create a .qbs file for your project. For examples, see the
+            \c {tests\manual} directory in the qbs repository.
+
+        \li In \QC, select \gui File > \gui {Open File or Project}.
+
+        \li Select the .qbs file for your project.
+
+            \image creator-qbs-project.png
+
+        \li Select \gui Build > \gui {Build Project} to build the executable, so
+            that you can specify it in the run settings of the project.
+
+        \li Select \gui Projects > \gui {Run}, and specify the executable in the
+            \gui Command field. This allows you to run it directly from \QC.
+            This will happen automatically in a future release.
+
+            \image creator-run-settings-qbs.png
+
+        \li Click the
+            \inlineimage qtcreator-run.png
+            (\gui Run) button to run the application.
+
+        \endlist
+
+*/

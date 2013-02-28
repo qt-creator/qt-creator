@@ -332,6 +332,7 @@ Kit *KitModel::markForAddition(Kit *baseKit)
     if (baseKit) {
         k->copyFrom(baseKit);
         k->setAutoDetected(false); // Make sure we have a manual kit!
+        k->setSdkProvided(false);
         k->setDisplayName(tr("Clone of %1").arg(k->displayName()));
     } else {
         k->setup();

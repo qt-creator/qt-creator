@@ -36,7 +36,7 @@ static void parse(QFutureInterface<void> &future,
     foreach (const QString &file, files) {
         QFileInfo info(file);
 
-        preproc->m_snapshot.remove(file);
+        preproc->removeFromCache(file);
 
         if (suffixes.contains(info.suffix()))
             sources.append(file);
@@ -178,7 +178,6 @@ QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(const QStringList &sour
 
     CppPreprocessor *preproc = new CppPreprocessor(mgr, m_dumpFileNameWhileParsing);
     preproc->setRevision(++m_revision);
-    preproc->setProjectFiles(mgr->projectFiles());
     preproc->setIncludePaths(mgr->includePaths());
     preproc->setFrameworkPaths(mgr->frameworkPaths());
     preproc->setWorkingCopy(workingCopy);

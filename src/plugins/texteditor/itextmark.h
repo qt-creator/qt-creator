@@ -56,8 +56,8 @@ public:
         : m_markableInterface(0),
           m_lineNumber(line),
           m_priority(NormalPriority),
-          m_widthFactor(1.0),
-          m_visible(true)
+          m_visible(true),
+          m_widthFactor(1.0)
     {}
     virtual ~ITextMark();
 
@@ -95,10 +95,10 @@ private:
     Q_DISABLE_COPY(ITextMark)
     ITextMarkable *m_markableInterface;
     int m_lineNumber;
-    QIcon m_icon;
     Priority m_priority;
-    double m_widthFactor;
     bool m_visible;
+    QIcon m_icon;
+    double m_widthFactor;
 };
 
 typedef QList<ITextMark *> TextMarks;

@@ -3,6 +3,8 @@ source("../../shared/suites_qtta.py")
 
 def startQtCreatorWithNewAppAtQMLEditor(projectDir, projectName, line = None):
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return None
     # create qt quick application
     createNewQtQuickApplication(projectDir, projectName)
     # open qml file

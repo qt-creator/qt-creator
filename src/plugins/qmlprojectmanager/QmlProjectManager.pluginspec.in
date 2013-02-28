@@ -17,6 +17,7 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
         <dependency name=\"ProjectExplorer\" version=\"$$QTCREATOR_VERSION\"/>
         <dependency name=\"TextEditor\" version=\"$$QTCREATOR_VERSION\"/>
         <dependency name=\"QmlJSEditor\" version=\"$$QTCREATOR_VERSION\"/>
+        <dependency name=\"QmlJSTools\" version=\"$$QTCREATOR_VERSION\"/>
         <dependency name=\"Debugger\" version=\"$$QTCREATOR_VERSION\" />
         <dependency name=\"QtSupport\" version=\"$$QTCREATOR_VERSION\" />
     </dependencyList>

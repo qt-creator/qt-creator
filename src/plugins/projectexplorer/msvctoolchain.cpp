@@ -103,14 +103,10 @@ static Abi findAbiOfMsvc(MsvcToolChain::Type type, MsvcToolChain::Platform platf
 
     QString msvcVersionString = version;
     if (type == MsvcToolChain::WindowsSDK) {
-        if (version.startsWith(QLatin1String("7.")))
-            msvcVersionString = QLatin1String("10.0");
-        else if (version.startsWith(QLatin1String("6.1"))
-                 || (version.startsWith(QLatin1String("6.0")) && version != QLatin1String("6.0")))
-            // The 6.0 SDK is shipping MSVC2005, Starting at 6.0a it is MSVC2008.
+        if (version == QLatin1String("v7.0") || version.startsWith(QLatin1String("6.")))
             msvcVersionString = QLatin1String("9.0");
-        else
-            msvcVersionString = QLatin1String("8.0");
+        else if (version == QLatin1String("v7.0A") || version == QLatin1String("v7.1"))
+            msvcVersionString = QLatin1String("10.0");
     }
     if (msvcVersionString.startsWith(QLatin1String("11.")))
         flavor = Abi::WindowsMsvc2012Flavor;
@@ -376,7 +372,7 @@ QList<Utils::FileName> MsvcToolChain::suggestedMkspecList() const
 
 QVariantMap MsvcToolChain::toMap() const
 {
-    QVariantMap data = ToolChain::toMap();
+    QVariantMap data = AbstractMsvcToolChain::toMap();
     data.insert(QLatin1String(varsBatKeyC), m_vcvarsBat);
     if (!m_varsBatArg.isEmpty())
         data.insert(QLatin1String(varsBatArgKeyC), m_varsBatArg);
@@ -463,6 +459,8 @@ bool MsvcToolChainFactory::checkForVisualStudioInstallation(const QString &vsNam
 
 QString MsvcToolChainFactory::vcVarsBatFor(const QString &basePath, const QString &toolchainName)
 {
+    if (toolchainName.startsWith(QLatin1Char('/'))) // windows sdk case, all use SetEnv.cmd
+        return basePath + QLatin1String("/SetEnv.cmd");
     if (toolchainName == QLatin1String("x86"))
         return basePath + QLatin1String("/bin/vcvars32.bat");
     if (toolchainName == QLatin1String("x86_amd64"))
@@ -494,7 +492,6 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
     if (!defaultSdkPath.isEmpty()) {
         foreach (const QString &sdkKey, sdkRegistry.childGroups()) {
             const QString name = sdkRegistry.value(sdkKey + QLatin1String("/ProductName")).toString();
-            const QString version = sdkRegistry.value(sdkKey + QLatin1String("/ProductVersion")).toString();
             const QString folder = sdkRegistry.value(sdkKey + QLatin1String("/InstallationFolder")).toString();
             if (folder.isEmpty())
                 continue;
@@ -508,14 +505,14 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
 
             QList<ToolChain *> tmp;
             tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::x86),
-                                         findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::x86, version),
+                                         findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::x86, sdkKey),
                                          fi.absoluteFilePath(), QLatin1String("/x86"), true));
             // Add all platforms, cross-compiler is automatically selected by SetEnv.cmd if needed
             tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::amd64),
-                                         findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::amd64, version),
+                                         findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::amd64, sdkKey),
                                          fi.absoluteFilePath(), QLatin1String("/x64"), true));
             tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::ia64),
-                                         findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::ia64, version),
+                                         findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::ia64, sdkKey),
                                          fi.absoluteFilePath(), QLatin1String("/ia64"), true));
             // Make sure the default is front.
             if (folder == defaultSdkPath)
@@ -541,7 +538,7 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
         if (!checkForVisualStudioInstallation(vsName))
             continue;
 
-        QString path = vsRegistry.value(vsName).toString();
+        QString path = QDir::fromNativeSeparators(vsRegistry.value(vsName).toString());
         if (path.endsWith(QLatin1Char('/')))
             path.chop(1);
         const int version = vsName.left(dotPos).toInt();

@@ -89,9 +89,15 @@ QString AndroidQtVersion::invalidReason() const
 
 QList<ProjectExplorer::Abi> AndroidQtVersion::detectQtAbis() const
 {
-    return QList<ProjectExplorer::Abi>() << ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::LinuxOS,
-                                                                 ProjectExplorer::Abi::AndroidLinuxFlavor, ProjectExplorer::Abi::ElfFormat,
-                                                                 32);
+    QList<ProjectExplorer::Abi> abis = qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
+    for (int i = 0; i < abis.count(); ++i) {
+        abis[i] = Abi(abis.at(i).architecture(),
+                      abis.at(i).os(),
+                      ProjectExplorer::Abi::AndroidLinuxFlavor,
+                      abis.at(i).binaryFormat(),
+                      abis.at(i).wordWidth());
+    }
+    return abis;
 }
 
 void AndroidQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const

@@ -261,6 +261,54 @@ QStringList TrieNode::stringList(const TrieNode::Ptr &trie)
     return a.res;
 }
 
+bool TrieNode::isSame(const TrieNode::Ptr &trie1, const TrieNode::Ptr &trie2)
+{
+    if (trie1.data() == trie2.data())
+        return true;
+    if (trie1.isNull() || trie2.isNull())
+        return false; // assume never to generate non null empty tries
+    if (trie1->prefix != trie2->prefix)
+        return false; // assume no excess splitting
+    QList<TrieNode::Ptr> t1 = trie1->postfixes, t2 =trie2->postfixes;
+    int nEl = t1.size();
+    if (nEl != t2.size()) return false;
+    // different order = different trie
+    for (int i = 0; i < nEl; ++i) {
+        if (!isSame(t1.value(i), t2.value(i)))
+            return false;
+    }
+    return true;
+}
+
+namespace {
+class ReplaceInTrie
+{
+public:
+    TrieNode::Ptr trie;
+    QHash<QString, QString> replacements;
+    ReplaceInTrie() { }
+    void operator()(QString s)
+    {
+        QHashIterator<QString, QString> i(replacements);
+        QString res = s;
+        while (i.hasNext()) {
+            i.next();
+            res.replace(i.key(), i.value());
+        }
+        trie = TrieNode::insertF(trie,res);
+    }
+};
+}
+
+TrieNode::Ptr TrieNode::replaceF(const TrieNode::Ptr &trie, const QHash<QString, QString> &replacements)
+{
+    // inefficient...
+    ReplaceInTrie rep;
+    rep.replacements = replacements;
+    enumerateTrieNode<ReplaceInTrie>(trie, rep, QString());
+    return rep.trie;
+}
+
 std::pair<TrieNode::Ptr,int> TrieNode::intersectF(
     const TrieNode::Ptr &v1, const TrieNode::Ptr &v2, int index1)
 {
@@ -553,6 +601,26 @@ void Trie::merge(const Trie &v)
     trie = TrieNode::mergeF(trie, v.trie).first;
 }
 
+void Trie::replace(const QHash<QString, QString> &replacements)
+{
+    trie = TrieNode::replaceF(trie, replacements);
+}
+
+bool Trie::isEmpty() const
+{
+    return trie.isNull(); // assuming to never generate an empty non null trie
+}
+
+bool Trie::operator==(const Trie &o)
+{
+    return TrieNode::isSame(trie,o.trie);
+}
+
+bool Trie::operator!=(const Trie &o)
+{
+    return !TrieNode::isSame(trie,o.trie);
+}
+
 Trie Trie::insertF(const QString &value) const
 {
     return Trie(TrieNode::insertF(trie, value));
@@ -568,13 +636,19 @@ Trie Trie::mergeF(const Trie &v) const
     return Trie(TrieNode::mergeF(trie, v.trie).first);
 }
 
+Trie Trie::replaceF(const QHash<QString, QString> &replacements) const
+{
+    return Trie(TrieNode::replaceF(trie, replacements));
+}
+
 /*!
   \fn int matchStrength(const QString &searchStr, const QString &str)
 
   Returns a number defining how well the serachStr matches str.
 
   Quite simplistic, looks only at the first match, and prefers contiguos
-  matches, or matches to ca capitalized or separated word.
+  matches, or matches to capitalized or separated words.
+  Match to the last char is also preferred.
 */
 int matchStrength(const QString &searchStr, const QString &str)
 {
@@ -601,6 +675,8 @@ int matchStrength(const QString &searchStr, const QString &str)
     }
     if (i != iEnd)
         return iEnd - i;
+    if (j == jEnd)
+        ++res;
     return res;
 }
 

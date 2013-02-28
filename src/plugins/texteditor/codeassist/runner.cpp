@@ -60,6 +60,7 @@ void ProcessorRunner::setProcessor(IAssistProcessor *computer)
 
 void ProcessorRunner::run()
 {
+    m_interface->recreateTextDocument();
     m_proposal = m_processor->perform(m_interface);
 }
 

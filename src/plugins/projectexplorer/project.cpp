@@ -92,7 +92,7 @@ public:
     Target *m_activeTarget;
     EditorConfiguration *m_editorConfiguration;
     Core::Context m_projectContext;
-    Core::Context m_projectLanguage;
+    Core::Context m_projectLanguages;
     QVariantMap m_pluginSettings;
     SettingsAccessor *m_accessor;
 };
@@ -400,9 +400,9 @@ void Project::setProjectContext(Core::Context context)
     d->m_projectContext = context;
 }
 
-void Project::setProjectLanguage(Core::Context language)
+void Project::setProjectLanguages(Core::Context language)
 {
-    d->m_projectLanguage = language;
+    d->m_projectLanguages = language;
 }
 
 Core::Context Project::projectContext() const
@@ -410,9 +410,9 @@ Core::Context Project::projectContext() const
     return d->m_projectContext;
 }
 
-Core::Context Project::projectLanguage() const
+Core::Context Project::projectLanguages() const
 {
-    return d->m_projectLanguage;
+    return d->m_projectLanguages;
 }
 
 QVariant Project::namedSettings(const QString &name) const

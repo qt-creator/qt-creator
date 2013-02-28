@@ -68,3 +68,4 @@ ModelManagerInterface *ModelManagerInterface::instance()
 {
     return g_instance;
 }
+

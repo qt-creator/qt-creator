@@ -45,7 +45,8 @@ using namespace Core::Internal;
 #define CANCELBUTTON_SIZE 15
 
 ProgressBar::ProgressBar(QWidget *parent)
-    : QWidget(parent), m_error(false), m_minimum(1), m_maximum(100), m_value(1), m_cancelButtonFader(0), m_finished(false)
+    : QWidget(parent), m_minimum(1), m_maximum(100), m_value(1), m_cancelButtonFader(0),
+      m_finished(false), m_error(false)
 {
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     setMouseTracking(true);

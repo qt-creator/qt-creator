@@ -70,6 +70,7 @@ public:
     Utils::FileName openJDKLocation;
     Utils::FileName keystoreLocation;
     unsigned partitionSize;
+    bool automaticKitCreation;
 };
 
 struct AndroidDeviceInfo
@@ -77,6 +78,8 @@ struct AndroidDeviceInfo
     QString serialNumber;
     QString cpuABI;
     int sdk;
+
+    static QStringList adbSelector(const QString &serialNumber);
 };
 
 class AndroidConfigurations : public QObject
@@ -116,6 +119,7 @@ signals:
 
 public slots:
     bool createAVD(int minApiLevel = 0) const;
+    void updateAutomaticKitList();
 
 private:
     Utils::FileName toolPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;

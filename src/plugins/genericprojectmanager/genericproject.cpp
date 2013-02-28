@@ -59,6 +59,27 @@ using namespace ProjectExplorer;
 namespace GenericProjectManager {
 namespace Internal {
 
+static QList<Core::MimeType> cppMimeTypes()
+{
+    QStringList mimeTypesNames;
+    mimeTypesNames << QLatin1String(CppTools::Constants::C_SOURCE_MIMETYPE)
+                   << QLatin1String(CppTools::Constants::C_HEADER_MIMETYPE)
+                   << QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)
+                   << QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
+                   << QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE);
+
+    QList<Core::MimeType> mimeTypes;
+
+    const Core::MimeDatabase *mimeDatabase = Core::ICore::mimeDatabase();
+    foreach (const QString &typeName, mimeTypesNames) {
+        Core::MimeType mimeType = mimeDatabase->findByType(typeName);
+        if (!mimeType.isNull())
+            mimeTypes.append(mimeType);
+    }
+
+    return mimeTypes;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////
 //
 // GenericProject
@@ -70,7 +91,7 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
       m_fileName(fileName)
 {
     setProjectContext(Context(GenericProjectManager::Constants::PROJECTCONTEXT));
-    setProjectLanguage(Context(ProjectExplorer::Constants::LANG_CXX));
+    setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
 
     QFileInfo fileInfo(m_fileName);
     QDir dir = fileInfo.dir();
@@ -269,18 +290,17 @@ void GenericProject::refresh(RefreshOptions options)
         // ### add _defines.
 
         // Add any C/C++ files to be parsed
-        QStringList cppMimeTypes;
-        cppMimeTypes << QLatin1String(CppTools::Constants::C_SOURCE_MIMETYPE)
-                     << QLatin1String(CppTools::Constants::C_HEADER_MIMETYPE)
-                     << QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)
-                     << QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
-                     << QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE);
+        const QList<Core::MimeType> mimeTypes = cppMimeTypes();
+        QFileInfo fileInfo;
 
-        const Core::MimeDatabase *mimeDatabase = Core::ICore::mimeDatabase();
         foreach (const QString &file, files()) {
-            const Core::MimeType mimeType = mimeDatabase->findByFile(QFileInfo(file));
-            if (cppMimeTypes.contains(mimeType.type()))
-                part->sourceFiles += file;
+            fileInfo.setFile(file);
+            foreach (const Core::MimeType &mimeType, mimeTypes) {
+                if (mimeType.matchesFile(fileInfo)) {
+                    part->sourceFiles += file;
+                    break;
+                }
+            }
         }
 
         QStringList filesToUpdate;

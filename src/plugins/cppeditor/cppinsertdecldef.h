@@ -56,10 +56,7 @@ public:
 class GenerateGetterSetter : public CppQuickFixFactory
 {
 public:
-    GenerateGetterSetter(const bool testMode = false) : m_testMode(testMode) {}
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
-private:
-    const bool m_testMode;
 };
 
 } // namespace Internal

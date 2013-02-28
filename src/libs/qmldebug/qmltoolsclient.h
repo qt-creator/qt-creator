@@ -79,8 +79,8 @@ private:
     QList<int> m_currentDebugIds;
     QmlDebugConnection *m_connection;
     int m_requestId;
-    qreal m_slowDownFactor;
     int m_reloadQueryId;
+    qreal m_slowDownFactor;
     int m_destroyObjectQueryId;
 };
 

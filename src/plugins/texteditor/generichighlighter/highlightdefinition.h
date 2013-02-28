@@ -106,7 +106,6 @@ private:
     QString m_initialContext;
 
     QString m_singleLineComment;
-    bool m_singleLineCommentAfterWhiteSpaces;
 
     QString m_multiLineCommentStart;
     QString m_multiLineCommentEnd;
@@ -114,6 +113,7 @@ private:
 
     Qt::CaseSensitivity m_keywordCaseSensitivity;
 
+    bool m_singleLineCommentAfterWhiteSpaces;
     bool m_indentationBasedFolding;
 
     QSet<QChar> m_delimiters;

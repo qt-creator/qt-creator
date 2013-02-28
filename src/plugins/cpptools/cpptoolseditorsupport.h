@@ -89,9 +89,9 @@ private:
     QPointer<TextEditor::ITextEditor> _textEditor;
     QTimer *_updateDocumentTimer;
     int _updateDocumentInterval;
+    unsigned _revision;
     QFuture<void> _documentParser;
     QString _cachedContents;
-    unsigned _revision;
 };
 
 } // namespace Internal

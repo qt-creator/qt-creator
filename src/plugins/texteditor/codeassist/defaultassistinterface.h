@@ -48,15 +48,17 @@ public:
     virtual QString textAt(int position, int length) const;
     virtual const Core::IDocument *document() const { return m_document; }
     virtual QTextDocument *textDocument() const { return m_textDocument; }
-    virtual void detach(QThread *destination);
+    virtual void prepareForAsyncUse();
+    virtual void recreateTextDocument();
     virtual AssistReason reason() const;
 
 private:
     QTextDocument *m_textDocument;
-    bool m_detached;
+    bool m_isAsync;
     int m_position;
     Core::IDocument *m_document;
     AssistReason m_reason;
+    QString m_text;
 };
 
 } // TextEditor

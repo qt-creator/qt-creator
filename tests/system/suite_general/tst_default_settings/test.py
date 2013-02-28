@@ -12,6 +12,8 @@ def main():
     __createMinimumIni__(emptySettings)
     SettingsPath = ' -settingspath "%s"' % emptySettings
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     invokeMenuItem("Tools", "Options...")
     __checkBuildAndRun__()
     clickButton(waitForObject(":Options.Cancel_QPushButton"))

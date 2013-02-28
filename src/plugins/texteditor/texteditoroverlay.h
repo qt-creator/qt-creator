@@ -112,9 +112,9 @@ private:
     QTextCursor assembleCursorForSelection(int selectionIndex) const;
 
     bool m_visible;
+    bool m_alpha;
     int m_borderWidth;
     int m_dropShadowWidth;
-    bool m_alpha;
     int m_firstSelectionOriginalBegin;
     BaseTextEditorWidget *m_editor;
     QWidget *m_viewport;

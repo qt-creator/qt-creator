@@ -2,6 +2,8 @@ source("../../shared/qtcreator.py")
 
 def main():
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     # using a temporary directory won't mess up a potentially exisiting
     createNewQtQuickApplication(tempDir(), "untitled")
     if not prepareQmlFile():

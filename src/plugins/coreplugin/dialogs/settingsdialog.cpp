@@ -73,11 +73,11 @@ class Category
 {
 public:
     Id id;
+    int index;
     QString displayName;
     QIcon icon;
     QList<IOptionsPage *> pages;
     QList<IOptionsPageProvider *> providers;
-    int index;
     QTabWidget *tabWidget;
 };
 

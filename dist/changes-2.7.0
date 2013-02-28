@@ -65,9 +65,9 @@ CMake Projects
    * Fixed build directory when adding build configurations
      (QTCREATORBUG-8425)
 
-QBS Projects
-   * Implemented initial support for Qt Build Suite (QBS) projects
-   * Made Qt Creator itself compilable with QBS
+Qbs Projects
+   * Implemented initial support for Qt Build Suite (Qbs) projects
+   * Made Qt Creator itself compilable with Qbs
 
 Generic Projects
    * Implemented using MIME types to recognize source files (QTCREATORBUG-5451)
@@ -84,63 +84,80 @@ Debugging
      types (QByteArray, std::string, char[], char* etc)
    * Adjusted to GDB 7.5 changes
    * Removed dependency on QmlJSTools
-   * Added shortcut to add breakpoint by double click on break view
-   * Made breakpoint markers draggable
-   * Added logging of exceptions (QTCREATORBUG-8141)
-   * Added option to use Intel-style disassembly
-   * Improved color highlighting of locals in memory view
+   * Implemented adding breakpoints by double-clicking in Breakpoints view
+   * Implemented dragging and dropping breakpoint markers
+   * Added logging of exceptions in the Compile Output pane (QTCREATORBUG-8141)
+   * Added option to use Intel-style disassembly to debugger GDB options
+   * Improved color highlighting of locals in Memory view
    * Made string cutoff value configurable
    * Put separate string displays in tab widget (QTCREATORBUG-8344)
    * Implemented basic value editing for CDB (QTCREATORBUG-8344)
+   * Added CDB setting to ignore first-chance exceptions (QTCREATORBUG-8141)
    * Implemented support for displaying images in CDB
-   * Added framework to wrap plain GDB pretty printers for use in Creator
+   * Added framework to wrap plain GDB pretty printers for use in Qt Creator
    * Implemented display format changes for multi-selection
      (QTCREATORBUG-7577)
+   * Added hook for user specified commands after attaching to target
 
 Analyzer
 
 C++ Support
-   * Added GetterSetter quick fix
-   * Fixed semantic highlighting when multiple editors are visible
-   * Fixed Find/Rename Macro usage
-   * Added code completion for instantiation of templates with default argument
-   * Added C++11 alignof and alignas tokens
-   * Added support for C++11 brace initializers (QTCREATORBUG-7919 et al)
-   * Fixed parsing of C++11 noexcept(constant-expression_
-   * Added support for C++11 ref-qualifiers in function declarators: void
-     foo() const &; void bar() && and related pointer-to-member declarators
-   * Added parsing of alias declarations: using Foo = std::vector<int>::iterator
-   * Added support for C++11 enum classes and opaque enum declarations
-   * Fixed use of >> in C++11 template arguments
-   * Added hook for user specified commands after attaching to target
-   * Added CDB setting to ignore first-chance exceptions (QTCREATORBUG-8141)
-   * Improved handling of lambda captures (QTCREATORBUG-7968,
-     QTCREATORBUG-7949)
-   * Improved code completion for Qt containers (QTCREATORBUG-8228)
-   * Added support for -stdlib=.. variants
-   * Fixed code completion in nested classes when enclosing class is template
-   * Fixed code completion for operator-> (QTCREATORBUG-629)
-   * Fixed code completion when casting inside parentheses
-     (QTCREATORBUG-8368)
-   * Switched to C++11 parsing in cases of doubt (CMake/Autotools/Generic)
-   * Fixed constructor parsing in cases with unnamed parameters
+   * Added Create Getter and Setter Member Functions refactoring action
+   * Added Reformat Pointers or References refactoring action
+     (QTCREATORBUG-6169)
    * Introduced formatting options for pointers and references
      (QTCREATORBUG-6169)
+   * Fixed semantic highlighting when multiple editors are visible
+   * Fixed Rename Symbol Under Cursor for C++ macros
+   * Added support for -stdlib=.. variants
+   * Fixed constructor parsing in cases with unnamed parameters
+   * Code completion
+     * Added code completion for instantiation of templates with default
+       argument
+     * Improved code completion for Qt containers (QTCREATORBUG-8228)
+     * Fixed code completion for classes in class templates
+     * Fixed code completion for operator-> (QTCREATORBUG-629)
+     * Fixed code completion when casting inside parentheses (QTCREATORBUG-8368)
+   * C++11 support
+     * Added C++11 alignof and alignas tokens
+     * Added support for C++11 brace initializers (QTCREATORBUG-7919 et al)
+     * Added support for C++11 ref-qualifiers in function declarators: void
+       foo() const &; void bar() && and related pointer-to-member declarators
+     * Added support for C++11 enum classes and opaque enum declarations
+     * Fixed use of >> in C++11 template arguments
+     * Switched to C++11 parsing in cases of doubt (CMake/Autotools/Generic)
+     * Fixed parsing of C++11 noexcept(constant-expression)
+     * Added parsing of alias declarations:
+       using Foo = std::vector<int>::iterator
+     * Improved handling of lambda captures (QTCREATORBUG-7968,
+       QTCREATORBUG-7949)
 
 QML/JS Support
    * Improved JS Console
    * Fixed indentation in if condition and lambda expressions
      (QTCREATORBUG-7243)
-   * Added persistent trie to store imports
+   * Made sure default kit for new Qt Quick 2 UI project is Qt 5 based
+     (QTCREATORBUG-8424)
+   * Added detection of import type from main file to invoke QML Viewer when
+     previewing QML documents that import Qt Quick 1 (QTCREATORBUG-8358)
+   * Corrected handling of Qt Quick 2 only features
+     (QTCREATORBUG-8750, QTCREATORBUG-8624, QTCREATORBUG-8584,
+      QTCREATORBUG-8583, QTCREATORBUG-8429)
+   * Added import completion in editor
+   * Improved speed of QML/JS Editor for large files (QTCREATORBUG-8673)
+   * Made contextual help more robust (QTCREATORBUG-3169)
    * Improved initial kit selection (QTCREATORBUG-8424)
    * Added detection of import type from main file (QTCREATORBUG-8358)
-   * Fixed QmlProjectManager (QTCREATORBUG-8679, QTCREATORBUG-8680)
+   * Hid properties starting with "__" in auto-completion
+   * Changed paser to enforce strict mode for javascript within a QML file
 
 GLSL Support
 
 Help
-   * Used zoom factor instead of text size multiplier (QTCREATORBUG-7199)
-   * Corrected setup of HelpNetworkReply for offline resources
+   * Used zoom factor instead of text size multiplier to make also images
+     smaller when zooming in (QTCREATORBUG-7199)
+   * Corrected setup of HelpNetworkReply for offline resources to display
+     standard help icons correctly when viewing documents in Help mode
      (QTCREATORBUG-8211)
 
 Qt Designer
@@ -153,27 +170,25 @@ Qt Quick Designer
    * Added manual test files for Qt Quick 2
    * Added QQuickItem to New Class wizard
 
-Version control plugins
-
-Git
-   * Introduced MergeTool support
-   * Added timeout to the gerrit query process
-   * Added support for merge status
-   * Fixed log encoding
-   * Reorganized menu (QTCREATORBUG-8363)
-   * Added gitk launch for current file (QTCREATORBUG-8327)
-   * Added branch name validation (QTCREATORBUG-8370)
-   * Added Merge and Rebase (QTCREATORBUG-8367)
-   * Added auto stash when switching branches (QTCREATORBUG-8417)
-   * Added Soft Reset to Reset dialog
-   * Added context actions for cherry-pick and revert
-   * Implemented refreshing file list on commit page every time
-     it becomes visible (QTCREATORBUG-5645)
-
-SVN
-
-ClearCase
-   * Marked the plugin as non-experimental
+Version Control Systems
+   * Git
+     * Dropped support for Git versions earlier than 1.7.2
+     * Introduced Merge Tool support
+     * Added timeout to the Gerrit query process
+     * Added support for merge status
+     * Fixed log encoding
+     * Reorganized Git menu (QTCREATORBUG-8363)
+     * Added Gitk launch for current file (QTCREATORBUG-8327)
+     * Added branch name validation (QTCREATORBUG-8370)
+     * Added Merge and Rebase for branches in local repository
+       (QTCREATORBUG-8367)
+     * Added automatic stashing when switching branches (QTCREATORBUG-8417)
+     * Added Soft Reset to Reset dialog
+     * Added Cherry-Pick Commit and Revert Single Commit in local repository
+     * Implemented refreshing file list in Git Commit pane every time
+       it is displayed (QTCREATORBUG-5645)
+   * Promoted the ClearCase plugin from an experimental plugin to a
+     standard plugin
 
 FakeVim
    * Created new suite of auto tests
@@ -203,9 +218,12 @@ WelcomePage:
 Platform Specific
 
 Mac
+   * Replaced xterm with Terminal.app as default terminal (QTCREATORBUG-6371)
 
 Linux
    * Added crash handler providing a backtrace for debug builds
+   * Added support for terminal emulators that share a unique process
+     (QTCREATORBUG-1633)
 
 Windows
    * Improved UI to handle x64 and amd64 etc toolchains

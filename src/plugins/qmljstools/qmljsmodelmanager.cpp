@@ -32,6 +32,7 @@
 #include "qmljsplugindumper.h"
 #include "qmljsfindexportedcpptypes.h"
 #include "qmljssemanticinfo.h"
+#include "qmljsbundleprovider.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -42,15 +43,25 @@
 #include <cplusplus/CppDocument.h>
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsbind.h>
+#include <qmljs/qmljsbundle.h>
 #include <qmljs/parser/qmldirparser_p.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qmldumptool.h>
+#include <qtsupport/qtsupportconstants.h>
 #include <utils/hostosinfo.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QDir>
 #include <QFile>
@@ -61,12 +72,111 @@
 #include <QTextStream>
 #include <QCoreApplication>
 #include <QTimer>
+#include <QRegExp>
 
 #include <QDebug>
 
 using namespace QmlJS;
 using namespace QmlJSTools;
 using namespace QmlJSTools::Internal;
+
+
+ModelManagerInterface::ProjectInfo QmlJSTools::defaultProjectInfoForProject(
+        ProjectExplorer::Project *project)
+{
+    ModelManagerInterface::ProjectInfo projectInfo(project);
+    ProjectExplorer::Target *activeTarget = 0;
+    if (project) {
+        Core::MimeDatabase *db = Core::ICore::mimeDatabase();
+        QList<Core::MimeGlobPattern> globs;
+        QList<Core::MimeType> mimeTypes = db->mimeTypes();
+        foreach (const Core::MimeType &mimeType, mimeTypes)
+            if (mimeType.type() == QLatin1String(Constants::QML_MIMETYPE)
+                    || mimeType.subClassesOf().contains(QLatin1String(Constants::QML_MIMETYPE)))
+                globs << mimeType.globPatterns();
+        if (globs.isEmpty())
+            globs << Core::MimeGlobPattern(QRegExp(QLatin1String(".*\\.(?:qbs|qml|qmltypes|qmlproject)$")));
+        foreach (const QString &filePath
+                 , project->files(ProjectExplorer::Project::ExcludeGeneratedFiles))
+            foreach (const Core::MimeGlobPattern &glob, globs)
+                if (glob.regExp().exactMatch(filePath))
+                    projectInfo.sourceFiles << filePath;
+        activeTarget = project->activeTarget();
+    }
+    ProjectExplorer::Kit *activeKit = activeTarget ? activeTarget->kit() :
+                                           ProjectExplorer::KitManager::instance()->defaultKit();
+    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(activeKit);
+
+    bool preferDebugDump = false;
+    bool setPreferDump = false;
+    projectInfo.tryQmlDump = false;
+
+    if (activeTarget) {
+        if (ProjectExplorer::BuildConfiguration *bc = activeTarget->activeBuildConfiguration()) {
+            preferDebugDump = bc->buildType() == ProjectExplorer::BuildConfiguration::Debug;
+            setPreferDump = true;
+        }
+    }
+    if (!setPreferDump && qtVersion)
+        preferDebugDump = (qtVersion->defaultBuildConfig() & QtSupport::BaseQtVersion::DebugBuild);
+    if (qtVersion && qtVersion->isValid()) {
+        projectInfo.tryQmlDump = project && (
+                    qtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
+                    || qtVersion->type() == QLatin1String(QtSupport::Constants::SIMULATORQT));
+        projectInfo.qtQmlPath = qtVersion->qmakeProperty("QT_INSTALL_QML");
+        projectInfo.qtImportsPath = qtVersion->qmakeProperty("QT_INSTALL_IMPORTS");
+        projectInfo.qtVersionString = qtVersion->qtVersionString();
+    }
+
+    if (projectInfo.tryQmlDump) {
+        ProjectExplorer::ToolChain *toolChain =
+                ProjectExplorer::ToolChainKitInformation::toolChain(activeKit);
+        QtSupport::QmlDumpTool::pathAndEnvironment(project, qtVersion,
+                                                   toolChain,
+                                                   preferDebugDump, &projectInfo.qmlDumpPath,
+                                                   &projectInfo.qmlDumpEnvironment);
+    } else {
+        projectInfo.qmlDumpPath.clear();
+        projectInfo.qmlDumpEnvironment.clear();
+    }
+    setupProjectInfoQmlBundles(projectInfo);
+    return projectInfo;
+}
+
+void QmlJSTools::setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &projectInfo)
+{
+    ProjectExplorer::Target *activeTarget = 0;
+    if (projectInfo.project) {
+        activeTarget = projectInfo.project->activeTarget();
+    }
+    ProjectExplorer::Kit *activeKit = activeTarget
+            ? activeTarget->kit() : ProjectExplorer::KitManager::instance()->defaultKit();
+    QHash<QString, QString> replacements;
+    replacements.insert(QLatin1String("$(QT_INSTALL_IMPORTS)"), projectInfo.qtImportsPath);
+    replacements.insert(QLatin1String("$(QT_INSTALL_QML)"), projectInfo.qtQmlPath);
+
+    QList<IBundleProvider *> bundleProviders =
+            ExtensionSystem::PluginManager::getObjects<IBundleProvider>();
+
+    foreach (IBundleProvider *bp, bundleProviders) {
+        if (bp)
+            bp->mergeBundlesForKit(activeKit, projectInfo.activeBundle, replacements);
+    }
+    projectInfo.extendedBundle = projectInfo.activeBundle;
+
+    if (projectInfo.project) {
+        QSet<ProjectExplorer::Kit *> currentKits;
+        foreach (const ProjectExplorer::Target *t, projectInfo.project->targets())
+            if (t->kit())
+                currentKits.insert(t->kit());
+        currentKits.remove(activeKit);
+        foreach (ProjectExplorer::Kit *kit, currentKits) {
+            foreach (IBundleProvider *bp, bundleProviders)
+                if (bp)
+                    bp->mergeBundlesForKit(kit, projectInfo.extendedBundle, replacements);
+        }
+    }
+}
 
 static QStringList environmentImportPaths();
 
@@ -373,6 +483,7 @@ void ModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 void ModelManager::removeProjectInfo(ProjectExplorer::Project *project)
 {
     ProjectInfo info(project);
+    info.sourceFiles.clear();
     // update with an empty project info to clear data
     updateProjectInfo(info);
 
@@ -380,6 +491,16 @@ void ModelManager::removeProjectInfo(ProjectExplorer::Project *project)
         QMutexLocker locker(&m_mutex);
         m_projects.remove(project);
     }
+}
+
+ModelManagerInterface::ProjectInfo ModelManager::projectInfoForPath(QString path)
+{
+    QMutexLocker locker(&m_mutex);
+
+    foreach (const ProjectInfo &p, m_projects)
+        if (p.sourceFiles.contains(path))
+            return p;
+    return ProjectInfo();
 }
 
 void ModelManager::emitDocumentChangedOnDisk(Document::Ptr doc)
@@ -660,6 +781,18 @@ QStringList ModelManager::importPaths() const
     return m_allImportPaths;
 }
 
+QmlLanguageBundles ModelManager::activeBundles() const
+{
+    QMutexLocker l(&m_mutex);
+    return m_activeBundles;
+}
+
+QmlLanguageBundles ModelManager::extendedBundles() const
+{
+    QMutexLocker l(&m_mutex);
+    return m_extendedBundles;
+}
+
 static QStringList environmentImportPaths()
 {
     QStringList paths;
@@ -679,6 +812,8 @@ static QStringList environmentImportPaths()
 void ModelManager::updateImportPaths()
 {
     QStringList allImportPaths;
+    QmlLanguageBundles activeBundles;
+    QmlLanguageBundles extendedBundles;
     QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projects);
     while (it.hasNext()) {
         it.next();
@@ -688,12 +823,40 @@ void ModelManager::updateImportPaths()
                 allImportPaths += canonicalPath;
         }
     }
+    it.toFront();
+    while (it.hasNext()) {
+        it.next();
+        activeBundles.mergeLanguageBundles(it.value().activeBundle);
+        foreach (Document::Language l, it.value().activeBundle.languages()) {
+            foreach (const QString &path, it.value().activeBundle.bundleForLanguage(l)
+                 .searchPaths().stringList()) {
+                const QString canonicalPath = QFileInfo(path).canonicalFilePath();
+                if (!canonicalPath.isEmpty())
+                    allImportPaths += canonicalPath;
+            }
+        }
+    }
+    it.toFront();
+    while (it.hasNext()) {
+        it.next();
+        extendedBundles.mergeLanguageBundles(it.value().extendedBundle);
+        foreach (Document::Language l, it.value().extendedBundle.languages()) {
+            foreach (const QString &path, it.value().extendedBundle.bundleForLanguage(l)
+                     .searchPaths().stringList()) {
+                const QString canonicalPath = QFileInfo(path).canonicalFilePath();
+                if (!canonicalPath.isEmpty())
+                    allImportPaths += canonicalPath;
+            }
+        }
+    }
     allImportPaths += m_defaultImportPaths;
     allImportPaths.removeDuplicates();
 
     {
         QMutexLocker l(&m_mutex);
         m_allImportPaths = allImportPaths;
+        m_activeBundles = activeBundles;
+        m_extendedBundles = extendedBundles;
     }
 
 

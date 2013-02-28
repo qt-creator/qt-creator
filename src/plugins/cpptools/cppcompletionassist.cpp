@@ -111,8 +111,8 @@ public:
 
 private:
     bool m_isOverloaded;
-    unsigned m_completionOperator;
     mutable QChar m_typedChar;
+    unsigned m_completionOperator;
     QSharedPointer<TypeOfExpression> m_typeOfExpression;
 };
 

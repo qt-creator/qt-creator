@@ -560,7 +560,7 @@ bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeOutMS,
     bool finished = false;
     bool hasData = false;
     do {
-        finished = p.waitForFinished(timeOutMS);
+        finished = p.state() == QProcess::NotRunning || p.waitForFinished(timeOutMS);
         hasData = false;
         // First check 'stdout'
         if (p.bytesAvailable()) { // applies to readChannel() only
@@ -580,7 +580,11 @@ bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeOutMS,
         // Prompt user, pretend we have data if says 'No'.
         const bool hang = !hasData && !finished;
         if (hang && showTimeOutMessageBox) {
-            if (!askToKill())
+            QString binary;
+#if QT_VERSION >= 0x050000
+            binary = p.program();
+#endif
+            if (!askToKill(binary))
                 hasData = true;
         }
     } while (hasData && !finished);

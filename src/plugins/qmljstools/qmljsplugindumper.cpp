@@ -119,6 +119,13 @@ void PluginDumper::onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::Projec
         loadQmltypesFile(QStringList(builtinQmltypesPath), info.qtImportsPath, builtinInfo);
         return;
     }
+    // QTDIR/imports/QtQuick1/builtins.qmltypes was used in developer builds of 5.0.0, 5.0.1
+    const QString builtinQmltypesPath2 = info.qtImportsPath
+            + QLatin1String("/QtQuick1/builtins.qmltypes");
+    if (QFile::exists(builtinQmltypesPath2)) {
+        loadQmltypesFile(QStringList(builtinQmltypesPath2), info.qtImportsPath, builtinInfo);
+        return;
+    }
 
     // run qmldump
     QProcess *process = new QProcess(this);

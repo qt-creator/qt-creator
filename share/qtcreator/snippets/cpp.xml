@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <snippets>
+<snippet group="C++" trigger="main" id="cpp_main">int main(int argc, char *argv[])
+{
+    $$
+    return 0;
+}
+</snippet>
 <snippet group="C++" trigger="class" id="cpp_genericclass">class $name$
 {
 public:

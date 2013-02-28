@@ -651,11 +651,6 @@ bool Snapshot::isEmpty() const
     return _documents.isEmpty();
 }
 
-Document::Ptr Snapshot::operator[](const QString &fileName) const
-{
-    return _documents.value(fileName, Document::Ptr());
-}
-
 Snapshot::const_iterator Snapshot::find(const QString &fileName) const
 {
     return _documents.find(fileName);

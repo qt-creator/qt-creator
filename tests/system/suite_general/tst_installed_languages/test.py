@@ -4,6 +4,8 @@ def main():
     for lang in testData.dataset("languages.tsv"):
         overrideStartApplication()
         startApplication("qtcreator" + SettingsPath)
+        if not startedWithoutPluginError():
+            return
         invokeMenuItem("Tools", "Options...")
         waitForObjectItem(":Options_QListView", "Environment")
         clickItem(":Options_QListView", "Environment", 14, 15, 0, Qt.LeftButton)

@@ -26,6 +26,8 @@ def main():
     projectName1 = "SampleApp1"
     projectName2 = "SampleApp2"
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     # create qt quick application 1
     createNewQtQuickApplication(tempDir(), projectName1)
     # create qt quick application 2

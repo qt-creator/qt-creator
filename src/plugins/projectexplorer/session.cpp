@@ -880,6 +880,10 @@ bool SessionManager::loadSession(const QString &session)
         m_future.setProgressRange(0, fileList.count() + openEditorsCount + 2);
         m_future.setProgressValue(1);
 
+        // if one processEvents doesn't get the job done
+        // just use two!
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         restoreProjects(fileList);
         sessionLoadingProgress();
         restoreDependencies(reader);

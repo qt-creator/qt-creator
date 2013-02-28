@@ -262,7 +262,6 @@ private:
     SemanticHighlighter::Source currentSource(bool force = false);
 
     void highlightUses(const QList<TextEditor::SemanticHighlighter::Result> &uses,
-                       const CppTools::SemanticInfo &semanticInfo,
                        QList<QTextEdit::ExtraSelection> *selections);
 
     void createToolBar(CPPEditor *editable);
@@ -286,6 +285,7 @@ private:
     QModelIndex indexForPosition(int line, int column, const QModelIndex &rootIndex = QModelIndex()) const;
 
     bool handleDocumentationComment(QKeyEvent *e);
+    bool isStartOfDoxygenComment(const QTextCursor &cursor) const;
 
     CPlusPlus::CppModelManagerInterface *m_modelManager;
 

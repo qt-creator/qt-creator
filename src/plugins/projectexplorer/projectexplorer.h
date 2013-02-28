@@ -188,6 +188,7 @@ private slots:
 
     void determineSessionToRestoreAtStartup();
     void restoreSession();
+    void restoreSession2();
     void loadSession(const QString &session);
     void runProject();
     void runProjectWithoutDeploy();

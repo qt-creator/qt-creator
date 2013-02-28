@@ -8,6 +8,22 @@
 #ifndef BOTAN_AMALGAMATION_H__
 #define BOTAN_AMALGAMATION_H__
 
+#ifdef USE_SYSTEM_BOTAN
+#include <botan/auto_rng.h>
+#include <botan/cbc.h>
+#include <botan/der_enc.h>
+#include <botan/dh.h>
+#include <botan/dl_group.h>
+#include <botan/dsa.h>
+#include <botan/hmac.h>
+#include <botan/init.h>
+#include <botan/lookup.h>
+#include <botan/pem.h>
+#include <botan/pubkey.h>
+#include <botan/rsa.h>
+#include <botan/ui.h>
+#else
+
 #include <QtGlobal>
 
 #include <iosfwd>
@@ -16184,5 +16200,5 @@ class BOTAN_DLL ANSI_X919_MAC : public MessageAuthenticationCode
 
 }
 
-
-#endif
+#endif // USE_SYSTEM_BOTAN
+#endif // BOTAN_AMALGAMATION_H__

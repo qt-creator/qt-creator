@@ -61,6 +61,8 @@ inline unsigned version(unsigned major, unsigned minor, unsigned patch)
     return (major << 16) + (minor << 8) + patch;
 }
 
+QString versionString(unsigned ver);
+
 } // namespace Internal
 } // namespace Git
 

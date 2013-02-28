@@ -7,6 +7,8 @@ def main():
         return
 
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
 
     openQmakeProject(pathSpeedcrunch)
     # Wait for parsing to complete

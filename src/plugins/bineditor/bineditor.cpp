@@ -49,6 +49,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPainter>
+#include <QPointer>
 #include <QScrollBar>
 #include <QToolTip>
 #include <QWheelEvent>
@@ -1487,56 +1488,61 @@ void BinEditor::contextMenuEvent(QContextMenuEvent *event)
     const int selStart = selectionStart();
     const int byteCount = selectionEnd() - selStart + 1;
 
-    QMenu contextMenu;
-    QAction copyAsciiAction(tr("Copy Selection as ASCII Characters"), this);
-    QAction copyHexAction(tr("Copy Selection as Hex Values"), this);
-    QAction jumpToBeAddressHereAction(this);
-    QAction jumpToBeAddressNewWindowAction(this);
-    QAction jumpToLeAddressHereAction(this);
-    QAction jumpToLeAddressNewWindowAction(this);
-    QAction addWatchpointAction(tr("Set Data Breakpoint on Selection"), this);
-    contextMenu.addAction(&copyAsciiAction);
-    contextMenu.addAction(&copyHexAction);
-    contextMenu.addAction(&addWatchpointAction);
+    QPointer<QMenu> contextMenu(new QMenu(this));
 
-    addWatchpointAction.setEnabled(byteCount > 0 && byteCount <= 32);
+    QAction *copyAsciiAction = new QAction(tr("Copy Selection as ASCII Characters"), contextMenu);
+    QAction *copyHexAction = new QAction(tr("Copy Selection as Hex Values"), contextMenu);
+    QAction *jumpToBeAddressHereAction = new QAction(contextMenu);
+    QAction *jumpToBeAddressNewWindowAction = new QAction(contextMenu);
+    QAction *jumpToLeAddressHereAction = new QAction(contextMenu);
+    QAction *jumpToLeAddressNewWindowAction = new QAction(contextMenu);
+    QAction *addWatchpointAction = new QAction(tr("Set Data Breakpoint on Selection"), contextMenu);
+    contextMenu->addAction(copyAsciiAction);
+    contextMenu->addAction(copyHexAction);
+    contextMenu->addAction(addWatchpointAction);
+
+    addWatchpointAction->setEnabled(byteCount > 0 && byteCount <= 32);
 
     quint64 beAddress = 0;
     quint64 leAddress = 0;
     if (byteCount <= 8) {
         asIntegers(selStart, byteCount, beAddress, leAddress);
-        setupJumpToMenuAction(&contextMenu, &jumpToBeAddressHereAction,
-                      &jumpToBeAddressNewWindowAction, beAddress);
+        setupJumpToMenuAction(contextMenu, jumpToBeAddressHereAction,
+                              jumpToBeAddressNewWindowAction, beAddress);
 
         // If the menu entries would be identical, show only one of them.
         if (beAddress != leAddress) {
-            setupJumpToMenuAction(&contextMenu, &jumpToLeAddressHereAction,
-                              &jumpToLeAddressNewWindowAction, leAddress);
+            setupJumpToMenuAction(contextMenu, jumpToLeAddressHereAction,
+                                  jumpToLeAddressNewWindowAction, leAddress);
         }
     } else {
-        jumpToBeAddressHereAction.setText(tr("Jump to Address in This Window"));
-        jumpToBeAddressNewWindowAction.setText(tr("Jump to Address in New Window"));
-        jumpToBeAddressHereAction.setEnabled(false);
-        jumpToBeAddressNewWindowAction.setEnabled(false);
-        contextMenu.addAction(&jumpToBeAddressHereAction);
-        contextMenu.addAction(&jumpToBeAddressNewWindowAction);
+        jumpToBeAddressHereAction->setText(tr("Jump to Address in This Window"));
+        jumpToBeAddressNewWindowAction->setText(tr("Jump to Address in New Window"));
+        jumpToBeAddressHereAction->setEnabled(false);
+        jumpToBeAddressNewWindowAction->setEnabled(false);
+        contextMenu->addAction(jumpToBeAddressHereAction);
+        contextMenu->addAction(jumpToBeAddressNewWindowAction);
     }
 
-    QAction *action = contextMenu.exec(event->globalPos());
-    if (action == &copyAsciiAction)
+    QAction *action = contextMenu->exec(event->globalPos());
+    if (!contextMenu)
+        return;
+
+    if (action == copyAsciiAction)
         copy(true);
-    else if (action == &copyHexAction)
+    else if (action == copyHexAction)
         copy(false);
-    else if (action == &jumpToBeAddressHereAction)
+    else if (action == jumpToBeAddressHereAction)
         jumpToAddress(beAddress);
-    else if (action == &jumpToLeAddressHereAction)
+    else if (action == jumpToLeAddressHereAction)
         jumpToAddress(leAddress);
-    else if (action == &jumpToBeAddressNewWindowAction)
+    else if (action == jumpToBeAddressNewWindowAction)
         emit newWindowRequested(beAddress);
-    else if (action == &jumpToLeAddressNewWindowAction)
+    else if (action == jumpToLeAddressNewWindowAction)
         emit newWindowRequested(leAddress);
-    else if (action == &addWatchpointAction)
+    else if (action == addWatchpointAction)
         emit addWatchpointRequested(m_baseAddr + selStart, byteCount);
+    delete contextMenu;
 }
 
 void BinEditor::setupJumpToMenuAction(QMenu *menu, QAction *actionHere,

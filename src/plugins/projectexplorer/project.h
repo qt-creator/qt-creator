@@ -114,7 +114,7 @@ public:
     static QString projectDirectory(const QString &top);
 
     virtual Core::Context projectContext() const;
-    virtual Core::Context projectLanguage() const;
+    virtual Core::Context projectLanguages() const;
 
     QVariant namedSettings(const QString &name) const;
     void setNamedSettings(const QString &name, const QVariant &value);
@@ -148,7 +148,7 @@ protected:
     virtual bool setupTarget(Target *t);
 
     virtual void setProjectContext(Core::Context context);
-    virtual void setProjectLanguage(Core::Context language);
+    virtual void setProjectLanguages(Core::Context language);
 
 private slots:
     void changeEnvironment();

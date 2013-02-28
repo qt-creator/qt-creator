@@ -14,7 +14,8 @@ def main():
         return
 
     startApplication("qtcreator" + SettingsPath)
-
+    if not startedWithoutPluginError():
+        return
     result = openCmakeProject(SpeedCrunchPath, BuildPath)
     if not result:
         test.fatal("Could not open/create cmake project - leaving test")

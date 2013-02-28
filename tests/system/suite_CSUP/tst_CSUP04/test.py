@@ -13,6 +13,8 @@ def main():
     templateDir = prepareTemplate(sourceExample)
     examplePath = os.path.join(templateDir, proFile)
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     # open example project
     openQmakeProject(examplePath)
     installLazySignalHandler("{type='Core::FutureProgress' unnamed='1'}", "finished()", "__handleFutureProgress__")

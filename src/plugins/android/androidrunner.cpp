@@ -80,7 +80,7 @@ void AndroidRunner::checkPID()
 
     // Detect busybox, as we need to pass -w to it to get wide output.
     psProc.start(AndroidConfigurations::instance().adbToolPath().toString(),
-                 QStringList() << QLatin1String("-s") << m_deviceSerialNumber
+                 AndroidDeviceInfo::adbSelector(m_deviceSerialNumber)
                  << QLatin1String("shell") << QLatin1String("readlink") << QLatin1String("$(which ps)"));
     if (!psProc.waitForFinished(-1)) {
         psProc.kill();
@@ -93,7 +93,7 @@ void AndroidRunner::checkPID()
     }
 
     psProc.start(AndroidConfigurations::instance().adbToolPath().toString(),
-                 QStringList() << QLatin1String("-s") << m_deviceSerialNumber
+                 AndroidDeviceInfo::adbSelector(m_deviceSerialNumber)
                  << QLatin1String("shell") << psCmd);
     if (!psProc.waitForFinished(-1)) {
         psProc.kill();
@@ -161,9 +161,8 @@ void AndroidRunner::asyncStart()
     QString extraParams;
     QProcess adbStarProc;
     if (m_useCppDebugger) {
-        QStringList arguments;
-        arguments << QLatin1String("-s") << m_deviceSerialNumber
-                  << QLatin1String("forward") << QString::fromLatin1("tcp%1").arg(m_remoteGdbChannel)
+        QStringList arguments = AndroidDeviceInfo::adbSelector(m_deviceSerialNumber);
+        arguments << QLatin1String("forward") << QString::fromLatin1("tcp%1").arg(m_remoteGdbChannel)
                   << QString::fromLatin1("localfilesystem:/data/data/%1/debug-socket").arg(m_packageName);
         adbStarProc.start(AndroidConfigurations::instance().adbToolPath().toString(), arguments);
         if (!adbStarProc.waitForStarted()) {
@@ -177,10 +176,9 @@ void AndroidRunner::asyncStart()
         extraParams = QLatin1String("-e native_debug true -e gdbserver_socket +debug-socket");
     }
     if (m_useQmlDebugger) {
-        QStringList arguments;
+        QStringList arguments = AndroidDeviceInfo::adbSelector(m_deviceSerialNumber);
         QString port = QString::fromLatin1("tcp:%1").arg(m_qmlPort);
-        arguments << QLatin1String("-s") << m_deviceSerialNumber
-                  << QLatin1String("forward") << port << port; // currently forward to same port on device and host
+        arguments << QLatin1String("forward") << port << port; // currently forward to same port on device and host
         adbStarProc.start(AndroidConfigurations::instance().adbToolPath().toString(), arguments);
         if (!adbStarProc.waitForStarted()) {
             emit remoteProcessFinished(tr("Failed to forward QML debugging ports. Reason: %1.").arg(adbStarProc.errorString()));
@@ -204,9 +202,8 @@ void AndroidRunner::asyncStart()
     }
 
     extraParams = extraParams.trimmed();
-    QStringList arguments;
-    arguments << QLatin1String("-s") << m_deviceSerialNumber
-              << QLatin1String("shell") << QLatin1String("am")
+    QStringList arguments = AndroidDeviceInfo::adbSelector(m_deviceSerialNumber);
+    arguments << QLatin1String("shell") << QLatin1String("am")
               << QLatin1String("start") << QLatin1String("-n") << m_intentName;
 
     if (extraParams.length())
@@ -246,7 +243,7 @@ void AndroidRunner::startLogcat()
 {
     m_checkPIDTimer.start(1000); // check if the application is alive every 1 seconds
     m_adbLogcatProcess.start(AndroidConfigurations::instance().adbToolPath().toString(),
-                             QStringList() << QLatin1String("-s") << m_deviceSerialNumber
+                             AndroidDeviceInfo::adbSelector(m_deviceSerialNumber)
                              << QLatin1String("logcat"));
     emit remoteProcessStarted(5039);
 }
@@ -294,9 +291,8 @@ void AndroidRunner::logcatReadStandardOutput()
 void AndroidRunner::adbKill(qint64 pid, const QString &device, int timeout, const QString &runAsPackageName)
 {
     QProcess process;
-    QStringList arguments;
+    QStringList arguments = AndroidDeviceInfo::adbSelector(device);
 
-    arguments << QLatin1String("-s") << device;
     arguments << QLatin1String("shell");
     if (runAsPackageName.size())
         arguments << QLatin1String("run-as") << runAsPackageName;

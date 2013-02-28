@@ -41,9 +41,9 @@ using namespace TextEditor::Internal;
 TextEditorOverlay::TextEditorOverlay(BaseTextEditorWidget *editor) :
     QObject(editor),
     m_visible(false),
+    m_alpha(true),
     m_borderWidth(1),
     m_dropShadowWidth(2),
-    m_alpha(true),
     m_firstSelectionOriginalBegin(-1),
     m_editor(editor),
     m_viewport(editor->viewport())

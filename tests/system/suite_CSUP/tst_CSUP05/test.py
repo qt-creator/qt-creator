@@ -12,6 +12,8 @@ def main():
     templateDir = prepareTemplate(sourceExample)
     examplePath = os.path.join(templateDir, proFile)
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     # open example project
     openQmakeProject(examplePath)
     # wait for parsing to complete

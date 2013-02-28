@@ -28,6 +28,8 @@ def main():
     global webPageContentLoadedValue, gettingStartedText
     # open Qt Creator
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     installLazySignalHandler(":QWebPage","loadFinished(bool)", "webPageContentLoaded")
     installLazySignalHandler(":*Qt Creator_Help::Internal::HelpViewer", "loadFinished(bool)",
                              "webPageContentLoaded")

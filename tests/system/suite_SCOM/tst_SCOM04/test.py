@@ -7,6 +7,8 @@ def main():
     expectedErrorAlternatives = ["'SyntaxError' was not declared in this scope",
                                  "'SyntaxError' : undeclared identifier"]
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     # create qt quick application
     checkedTargets, projectName = createNewQtQuickApplication(tempDir(), "SampleApp")
     # create syntax error in cpp file

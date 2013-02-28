@@ -4,6 +4,8 @@ source("../../shared/qtcreator.py")
 # entry of test
 def main():
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     # create qt quick application
 # Step 1: Open test .pro project.
     createNewQtQuickApplication(tempDir(), "SampleApp")

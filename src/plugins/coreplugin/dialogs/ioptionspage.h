@@ -63,8 +63,8 @@ protected:
     void setCategoryIcon(const QString &categoryIcon) { m_categoryIcon = categoryIcon; }
 
     Id m_id;
-    QString m_displayName;
     Id m_category;
+    QString m_displayName;
     QString m_displayCategory;
     QString m_categoryIcon;
 };

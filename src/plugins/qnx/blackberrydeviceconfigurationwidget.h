@@ -36,8 +36,14 @@
 
 #include "blackberrydeviceconfiguration.h"
 
+QT_BEGIN_NAMESPACE
+class QProgressDialog;
+QT_END_NAMESPACE
+
 namespace Qnx {
 namespace Internal {
+
+class BlackBerryDebugTokenUploader;
 
 namespace Ui {
 class BlackBerryDeviceConfigurationWidget;
@@ -58,6 +64,10 @@ private slots:
     void keyFileEditingFinished();
     void showPassword(bool showClearText);
     void debugTokenEditingFinished();
+    void requestDebugToken();
+    void uploadDebugToken();
+    void updateUploadButton();
+    void uploadFinished(int status);
 
 private:
     void updateDeviceFromUi();
@@ -66,6 +76,10 @@ private:
     BlackBerryDeviceConfiguration::Ptr deviceConfiguration() const;
 
     Ui::BlackBerryDeviceConfigurationWidget *ui;
+
+    QProgressDialog *progressDialog;
+
+    BlackBerryDebugTokenUploader *uploader;
 };
 
 

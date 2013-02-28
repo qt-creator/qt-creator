@@ -5,6 +5,8 @@ workingDir = None
 def main():
     global workingDir
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     targets = [QtQuickConstants.Targets.DESKTOP_474_GCC]
     if platform.system() in ('Windows', 'Microsoft'):
         targets.append(QtQuickConstants.Targets.DESKTOP_474_MSVC2008)

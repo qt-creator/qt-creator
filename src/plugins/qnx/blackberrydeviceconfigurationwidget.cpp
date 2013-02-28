@@ -29,6 +29,8 @@
 **
 ****************************************************************************/
 
+#include "blackberrydebugtokenuploader.h"
+#include "blackberrydebugtokenrequestdialog.h"
 #include "blackberrydeviceconfigurationwidget.h"
 #include "ui_blackberrydeviceconfigurationwidget.h"
 #include "qnxconstants.h"
@@ -36,12 +38,17 @@
 #include <ssh/sshconnection.h>
 #include <utils/pathchooser.h>
 
+#include <QProgressDialog>
+#include <QMessageBox>
+
 using namespace ProjectExplorer;
 using namespace Qnx::Internal;
 
 BlackBerryDeviceConfigurationWidget::BlackBerryDeviceConfigurationWidget(const IDevice::Ptr &device, QWidget *parent) :
     IDeviceWidget(device, parent),
-    ui(new Ui::BlackBerryDeviceConfigurationWidget)
+    ui(new Ui::BlackBerryDeviceConfigurationWidget),
+    progressDialog(new QProgressDialog(this)),
+    uploader(new BlackBerryDebugTokenUploader(this))
 {
     ui->setupUi(this);
     connect(ui->hostLineEdit, SIGNAL(editingFinished()), this, SLOT(hostNameEditingFinished()));
@@ -49,7 +56,11 @@ BlackBerryDeviceConfigurationWidget::BlackBerryDeviceConfigurationWidget(const I
     connect(ui->keyFileLineEdit, SIGNAL(editingFinished()), this, SLOT(keyFileEditingFinished()));
     connect(ui->keyFileLineEdit, SIGNAL(browsingFinished()), this, SLOT(keyFileEditingFinished()));
     connect(ui->showPasswordCheckBox, SIGNAL(toggled(bool)), this, SLOT(showPassword(bool)));
+    connect(ui->debugToken, SIGNAL(changed(QString)), this, SLOT(updateUploadButton()));
     connect(ui->debugToken, SIGNAL(editingFinished()), this, SLOT(debugTokenEditingFinished()));
+    connect(ui->requestButton, SIGNAL(clicked()), this, SLOT(requestDebugToken()));
+    connect(ui->uploadButton, SIGNAL(clicked()), this, SLOT(uploadDebugToken()));
+    connect(uploader, SIGNAL(finished(int)), this, SLOT(uploadFinished(int)));
 
     initGui();
 }
@@ -91,6 +102,72 @@ void BlackBerryDeviceConfigurationWidget::debugTokenEditingFinished()
     deviceConfiguration()->setDebugToken(ui->debugToken->path());
 }
 
+void BlackBerryDeviceConfigurationWidget::requestDebugToken()
+{
+    BlackBerryDebugTokenRequestDialog dialog;
+
+    const int result = dialog.exec();
+
+    if (result != QDialog::Accepted)
+        return;
+
+    ui->debugToken->setPath(dialog.debugToken());
+    debugTokenEditingFinished();
+}
+
+void BlackBerryDeviceConfigurationWidget::uploadDebugToken()
+{
+    progressDialog->show();
+
+    uploader->uploadDebugToken(ui->debugToken->path(),
+            ui->hostLineEdit->text(), ui->pwdLineEdit->text());
+}
+
+void BlackBerryDeviceConfigurationWidget::updateUploadButton()
+{
+    ui->uploadButton->setEnabled(!ui->debugToken->path().isEmpty());
+}
+
+void BlackBerryDeviceConfigurationWidget::uploadFinished(int status)
+{
+    progressDialog->hide();
+
+    QString errorString = tr("Failed to upload debug token: ");
+
+    switch (status) {
+    case BlackBerryDebugTokenUploader::Success:
+        QMessageBox::information(this, tr("Qt Creator"), tr("Debug token successfully uploaded."));
+        return;
+    case BlackBerryDebugTokenUploader::NoRouteToHost:
+        errorString += tr("No route to host.");
+        break;
+    case BlackBerryDebugTokenUploader::AuthenticationFailed:
+        errorString += tr("Authentication failed.");
+        break;
+    case BlackBerryDebugTokenUploader::DevelopmentModeDisabled:
+        errorString += tr("Development mode is disabled on the device.");
+        break;
+    case BlackBerryDebugTokenUploader::FailedToStartInferiorProcess:
+        errorString += tr("Failed to start inferior process.");
+        break;
+    case BlackBerryDebugTokenUploader::InferiorProcessTimedOut:
+        errorString += tr("Inferior processes timed out.");
+        break;
+    case BlackBerryDebugTokenUploader::InferiorProcessCrashed:
+        errorString += tr("Inferior process has crashed.");
+        break;
+    case BlackBerryDebugTokenUploader::InferiorProcessReadError:
+    case BlackBerryDebugTokenUploader::InferiorProcessWriteError:
+        errorString += tr("Failed to communicate with the inferior process.");
+        break;
+    case BlackBerryDebugTokenUploader::UnknownError:
+        errorString += tr("An unknwon error has happened.");
+        break;
+    }
+
+    QMessageBox::critical(this, tr("Error"), errorString);
+}
+
 void BlackBerryDeviceConfigurationWidget::updateDeviceFromUi()
 {
     hostNameEditingFinished();
@@ -121,6 +198,13 @@ void BlackBerryDeviceConfigurationWidget::initGui()
         ui->debugToken->setEnabled(false);
         ui->debugTokenLabel->setEnabled(false);
     }
+
+    progressDialog->setWindowModality(Qt::WindowModal);
+    progressDialog->setWindowTitle(tr("Operation in Progress"));
+    progressDialog->setCancelButton(0);
+    progressDialog->setLabelText(tr("Uploading debug token"));
+    progressDialog->setMinimum(0);
+    progressDialog->setMaximum(0);
 }
 
 BlackBerryDeviceConfiguration::Ptr BlackBerryDeviceConfigurationWidget::deviceConfiguration() const

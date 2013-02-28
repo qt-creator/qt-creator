@@ -50,12 +50,14 @@ public:
     bool parse();
 
     static const char *NO_LOAD_OPTION;
+    static const char *LOAD_OPTION;
     static const char *TEST_OPTION;
     static const char *PROFILE_OPTION;
 private:
     // return value indicates if the option was processed
     // it doesn't indicate success (--> m_hasError)
     bool checkForEndOfOptions();
+    bool checkForLoadOption();
     bool checkForNoLoadOption();
     bool checkForTestOption();
     bool checkForAppOption();

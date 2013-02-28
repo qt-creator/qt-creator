@@ -79,6 +79,10 @@
             \li  -client
             \li  Attempt to connect to an already running instance of \QC.
 
+       \row
+            \li -load <plugin>
+            \li Load the specified plugin.
+
         \row
             \li  -noload <plugin>
             \li  Do not load the specified plugin.

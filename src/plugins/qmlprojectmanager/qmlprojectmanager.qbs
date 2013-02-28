@@ -12,6 +12,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "QmlJSEditor" }
     Depends { name: "QmlJS" }
+    Depends { name: "QmlJSTools" }
     Depends { name: "Debugger" }
     Depends { name: "QtSupport" }
     Depends { name: "app_version_header" }

@@ -286,6 +286,7 @@
             \li \l{Using Other Build Systems}
             \list
                 \li \l{Setting Up a CMake Project}
+                \li \l{Setting Up a Qbs Project}
                 \li \l{Setting Up an Autotools Project}
                 \li \l{Setting Up a Generic Project}
             \endlist

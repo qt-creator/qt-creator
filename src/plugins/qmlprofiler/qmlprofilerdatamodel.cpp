@@ -174,7 +174,6 @@ public:
     void prepareForDisplay();
     void linkStartsToEnds();
     void linkEndsToStarts();
-    bool checkBindingLoop(QmlRangeEventData *from, QmlRangeEventData *current, QList<QmlRangeEventData *>visited);
 
 
     // stats
@@ -320,7 +319,7 @@ void QmlProfilerDataModel::addRangedEvent(int type, int bindingType, qint64 star
 
     // backwards compatibility: "compiling" events don't have a proper location in older
     // version of the protocol, but the filename is passed in the details string
-    if (type == QmlDebug::Compiling && eventLocation.filename.isEmpty()) {
+    if ((type == QmlDebug::Creating || type == QmlDebug::Compiling) && eventLocation.filename.isEmpty()) {
         eventLocation.filename = details;
         eventLocation.line = 1;
         eventLocation.column = 1;
@@ -803,6 +802,9 @@ void QmlProfilerDataModel::complete()
         d->v8DataModel->collectV8Statistics();
         compileStatistics(traceStartTime(), traceEndTime());
         setState(Done);
+    } else
+    if (currentState() == Done) {
+        // ignore duplicated complete signals
     } else {
         emit error(tr("Unexpected complete signal in data model."));
     }
@@ -1246,7 +1248,8 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::findBindingLoops(qint64 
         stack << inTimeEvent;
         stackRefs << currentEvent;
 
-        if (loopDetected) {
+        // skip loops if bindings are anonymous
+        if (loopDetected && !currentEvent->location.filename.isEmpty()) {
             if (i >= fromIndex && i <= toIndex) {
                 // for the statistics
                 currentEvent->isBindingLoop = true;

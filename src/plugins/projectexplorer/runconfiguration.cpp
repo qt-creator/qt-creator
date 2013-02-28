@@ -157,23 +157,11 @@ bool DebuggerRunConfigurationAspect::useCppDebugger() const
     return m_useCppDebugger;
 }
 
-static bool isQtQuickAppProject(Project *project)
-{
-    const QString projectDirectory = project->projectDirectory();
-    // Qt Quick 1 wizard generated file
-    const QString qq1FilePath = projectDirectory
-            + QLatin1String("/qmlapplicationviewer/qmlapplicationviewer.pri");
-    // Qt Quick 2 wizard generated file
-    const QString qq2FilePath = projectDirectory
-            + QLatin1String("/qtquick2applicationviewer/qtquick2applicationviewer.pri");
-    const QStringList projectFiles = project->files(Project::ExcludeGeneratedFiles);
-    return projectFiles.contains(qq1FilePath) || projectFiles.contains(qq2FilePath);
-}
-
 bool DebuggerRunConfigurationAspect::useQmlDebugger() const
 {
     if (m_useQmlDebugger == DebuggerRunConfigurationAspect::AutoEnableQmlDebugger)
-        return isQtQuickAppProject(m_runConfiguration->target()->project());
+        return m_runConfiguration->target()->project()->projectLanguages().contains(
+                    ProjectExplorer::Constants::LANG_QMLJS);
     return m_useQmlDebugger == DebuggerRunConfigurationAspect::EnableQmlDebugger;
 }
 

@@ -31,6 +31,7 @@
 
 #include <QDebug>
 #include <QTextDocument>
+#include <QStringList>
 
 using namespace QmlJS;
 
@@ -204,6 +205,8 @@ void CompletionContextFinder::checkImport()
 
     //qDebug() << "Start line:" << *yyLine << m_startTokenIndex;
 
+    QStringList libVersionImport;
+    int isInLibVersionImport;
     int i = m_startTokenIndex;
     bool stop = false;
     enum State {
@@ -216,6 +219,7 @@ void CompletionContextFinder::checkImport()
         ExpectAs =                  1 << 5
     };
     State state = Unknown;
+    isInLibVersionImport = -1;
 
     while (!stop) {
         if (i < 0) {
@@ -233,17 +237,27 @@ void CompletionContextFinder::checkImport()
         case Token::Identifier: {
             const QStringRef tokenString = yyLine->midRef(token.begin(), token.length);
             if (tokenString == QLatin1String("as")) {
+                isInLibVersionImport = 0;
                 if (state == Unknown) {
                     state = State(ExpectAnyTarget | ExpectVersion);
                     break;
                 }
             } else if (tokenString == QLatin1String("import")) {
-                if (state == Unknown || (state & ExpectImport))
+                if (state == Unknown || (state & ExpectImport)) {
+                    if (isInLibVersionImport == -1 && token.end() < m_cursor.position())
+                        isInLibVersionImport = 1;
                     m_inImport = true;
+                }
             } else {
                 if (state == Unknown || (state & ExpectAnyTarget)
                         || (state & ExpectTargetIdentifier)) {
                     state = State(ExpectImport | ExpectTargetDot);
+                    libVersionImport.prepend(tokenString.toString());
+                    if (isInLibVersionImport == -1) {
+                        if (token.end() < m_cursor.position())
+                            libVersionImport.append(QLatin1String(" "));
+                        isInLibVersionImport = 1;
+                    }
                     break;
                 }
             }
@@ -260,6 +274,10 @@ void CompletionContextFinder::checkImport()
         case Token::Number:
             if (state == Unknown || (state & ExpectVersion)) {
                 state = ExpectAnyTarget;
+                libVersionImport.prepend(yyLine->midRef(token.begin(), token.length).toString());
+                libVersionImport.prepend(QLatin1String(" "));
+                if (isInLibVersionImport == -1)
+                    isInLibVersionImport = 1;
                 break;
             }
             stop = true;
@@ -267,6 +285,9 @@ void CompletionContextFinder::checkImport()
         case Token::Dot:
             if (state == Unknown || (state & ExpectTargetDot)) {
                 state = ExpectTargetIdentifier;
+                libVersionImport.prepend(QLatin1String("."));
+                if (isInLibVersionImport == -1)
+                    isInLibVersionImport = 1;
                 break;
             }
             stop = true;
@@ -276,11 +297,19 @@ void CompletionContextFinder::checkImport()
             stop = true;
             break;
         }
-
+        if (isInLibVersionImport == -1)
+            isInLibVersionImport = 0;
         --i;
     }
 
     YY_RESTORE();
+    if (m_inImport && isInLibVersionImport == 1) {
+        m_libVersion = libVersionImport.join(QLatin1String(""));
+        if (m_libVersion.isNull())
+            m_libVersion = QLatin1String("");
+    } else {
+        m_libVersion = QString();
+    }
 }
 
 QStringList CompletionContextFinder::qmlObjectTypeName() const
@@ -325,6 +354,11 @@ bool QmlJS::CompletionContextFinder::isInStringLiteral() const
 bool QmlJS::CompletionContextFinder::isInImport() const
 {
     return m_inImport;
+}
+
+QString CompletionContextFinder::libVersionImport() const
+{
+    return m_libVersion;
 }
 
 int CompletionContextFinder::findOpeningBrace(int startTokenIndex)

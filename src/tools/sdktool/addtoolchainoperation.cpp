@@ -149,11 +149,11 @@ int AddToolChainOperation::execute() const
     if (map.isEmpty())
         map = initializeToolChains();
 
-    map = addToolChain(map, m_id, m_displayName, m_path, m_targetAbi, m_supportedAbis, m_extra);
-    if (map.isEmpty())
+    QVariantMap result = addToolChain(map, m_id, m_displayName, m_path, m_targetAbi, m_supportedAbis, m_extra);
+    if (map.isEmpty() || map == result)
         return -2;
 
-    return save(map, QLatin1String("toolchains")) ? 0 : -3;
+    return save(result, QLatin1String("toolchains")) ? 0 : -3;
 }
 
 #ifdef WITH_TESTS

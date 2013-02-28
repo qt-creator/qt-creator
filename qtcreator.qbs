@@ -45,6 +45,7 @@ Project {
         "src/plugins/debugger/debugger.qbs",
         "src/plugins/debugger/ptracepreload.qbs",
         "src/plugins/designer/designer.qbs",
+        "src/plugins/diffeditor/diffeditor.qbs",
         "src/plugins/fakevim/fakevim.qbs",
         "src/plugins/find/find.qbs",
         "src/plugins/genericprojectmanager/genericprojectmanager.qbs",
@@ -109,7 +110,7 @@ Project {
                 cmd.ide_version_major = product.ide_version_major;
                 cmd.ide_version_minor = product.ide_version_minor;
                 cmd.ide_version_release = product.ide_version_release;
-                cmd.onWindows = (product.modules.qbs.targetOS == "windows");
+                cmd.onWindows = (product.moduleProperty("qbs", "targetOS") === "windows");
                 cmd.sourceCode = function() {
                     var file = new TextFile(input.fileName);
                     var content = file.readAll();

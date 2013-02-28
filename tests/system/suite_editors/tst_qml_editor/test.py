@@ -10,6 +10,8 @@ def main():
     if not neededFilePresent(os.path.join(sourceExample, qmlFile)):
         return
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     # add docs to have the correct tool tips
     addHelpDocumentationFromSDK()
     templateDir = prepareTemplate(sourceExample)
@@ -52,8 +54,7 @@ def testRenameId():
         return False
     type(editor, "<Down>")
     searchFinished = False
-    ctxtMenu = openContextMenuOnTextCursorPosition(editor)
-    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), "Rename Symbol Under Cursor"))
+    invokeContextMenuItem(editor, "Rename Symbol Under Cursor")
     waitFor("searchFinished")
     type(waitForObject("{leftWidget={text='Replace with:' type='QLabel' unnamed='1' visible='1'} "
                        "type='Find::Internal::WideEnoughLineEdit' unnamed='1' visible='1' "

@@ -134,6 +134,7 @@
 #include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
+#include <QTimer>
 #include <QWizard>
 
 /*!
@@ -247,6 +248,7 @@ struct ProjectExplorerPluginPrivate {
     KitManager *m_kitManager;
     ToolChainManager *m_toolChainManager;
     bool m_shuttingDown;
+    QStringList m_arguments;
 };
 
 ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
@@ -1597,8 +1599,15 @@ void ProjectExplorerPlugin::restoreSession()
     connect(d->m_welcomePage, SIGNAL(requestSession(QString)), this, SLOT(loadSession(QString)));
     connect(d->m_welcomePage, SIGNAL(requestProject(QString)), this, SLOT(openProjectWelcomePage(QString)));
 
-    Core::ICore::openFiles(arguments, Core::ICore::OpenFilesFlags(Core::ICore::CanContainLineNumbers | Core::ICore::SwitchMode));
+    d->m_arguments = arguments;
+    QTimer::singleShot(0, this, SLOT(restoreSession2()));
     updateActions();
+}
+
+void ProjectExplorerPlugin::restoreSession2()
+{
+    QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+    Core::ICore::openFiles(d->m_arguments, Core::ICore::OpenFilesFlags(Core::ICore::CanContainLineNumbers | Core::ICore::SwitchMode));
 }
 
 void ProjectExplorerPlugin::loadSession(const QString &session)
@@ -1800,11 +1809,11 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
 
         if (d->m_currentProject) {
             oldContext.add(d->m_currentProject->projectContext());
-            oldContext.add(d->m_currentProject->projectLanguage());
+            oldContext.add(d->m_currentProject->projectLanguages());
         }
         if (project) {
             newContext.add(project->projectContext());
-            newContext.add(project->projectLanguage());
+            newContext.add(project->projectLanguages());
         }
 
         Core::ICore::updateAdditionalContexts(oldContext, newContext);

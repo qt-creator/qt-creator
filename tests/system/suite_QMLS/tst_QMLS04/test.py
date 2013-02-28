@@ -8,9 +8,7 @@ def main():
     for i in range(5):
         type(editorArea, "<Left>")
     # invoke Refactoring - Move Component into separate file
-    ctxtMenu = openContextMenuOnTextCursorPosition(editorArea)
-    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), "Refactoring"))
-    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), "Move Component into Separate File"))
+    invokeContextMenuItem(editorArea, "Refactoring", "Move Component into Separate File")
     # give component name and proceed
     replaceEditorContent(waitForObject(":Dialog.componentNameEdit_QLineEdit"), "MyComponent")
     clickButton(waitForObject(":Dialog.OK_QPushButton"))

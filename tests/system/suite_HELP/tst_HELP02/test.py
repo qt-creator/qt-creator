@@ -33,6 +33,8 @@ def main():
         test.fatal("Can't find version from file.")
         return
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     if platform.system() == "Darwin":
        invokeMenuItem("Help", "About Qt Creator")
     else:

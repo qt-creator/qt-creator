@@ -11,6 +11,8 @@ def main():
         return
     proFile = os.path.join(folder, "testfiles.pro")
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     openQmakeProject(proFile)
     if not testRenameMacroAfterSourceModification():
         return

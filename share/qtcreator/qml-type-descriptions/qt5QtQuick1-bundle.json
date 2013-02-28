@@ -1,0 +1,16 @@
+{
+    "name": "QtQuick1",
+    "searchPaths": [
+        "$(QT_INSTALL_IMPORTS)"],
+    "installPaths": [
+        "$(QT_INSTALL_IMPORTS)"],
+    "implicitImports": [
+        "__javascriptQt5__"],
+    "supportedImports": [
+        "QtQuick 1.1",
+        "Qt.labs.gestures 1.0",
+        "Qt.labs.particles 1.0",
+        "Qt.labs.shaders 1.0",
+        "Qt.labs.folderlistmodel 1.0",
+        "QtWebKit 1.0"]
+}

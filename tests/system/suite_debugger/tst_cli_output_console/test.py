@@ -15,6 +15,8 @@ def main():
     outputStdOut = "Output from std::cout."
     outputStdErr = "Output from std::cerr."
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     installLazySignalHandler("{type='ProjectExplorer::Internal::ProjectExplorerPlugin' unnamed='1'}",
                              "runControlFinished(ProjectExplorer::RunControl*)", "__handlerunControlFinished__")
     checkedTargets = createProject_Qt_Console(tempDir(), project)

@@ -133,7 +133,7 @@ void PluginView::updateList()
 
     PluginCollection *defaultCollection = 0;
     foreach (PluginCollection *collection, PluginManager::pluginCollections()) {
-        if (collection->name().isEmpty()) {
+        if (collection->name().isEmpty() || collection->plugins().isEmpty()) {
             defaultCollection = collection;
             continue;
         }
@@ -155,23 +155,26 @@ void PluginView::updateList()
         collectionItem->setData(0, Qt::UserRole, qVariantFromValue(collection));
     }
 
-    // add all non-categorized plugins into utilities. could also be added as root items
-    // but that makes the tree ugly.
-    QTreeWidgetItem *defaultCollectionItem = new QTreeWidgetItem(QStringList()
-        << QString(tr("Utilities"))
-        << QString()
-        << QString()
-        << QString()
-        << QString());
+    QList<PluginSpec *> plugins = defaultCollection ? defaultCollection->plugins() : QList<PluginSpec *>();
+    if (!plugins.isEmpty()) {
+        // add all non-categorized plugins into utilities. could also be added as root items
+        // but that makes the tree ugly.
+        QTreeWidgetItem *defaultCollectionItem = new QTreeWidgetItem(QStringList()
+            << QString(tr("Utilities"))
+            << QString()
+            << QString()
+            << QString()
+            << QString());
 
-    m_items.append(defaultCollectionItem);
-    Qt::CheckState groupState = Qt::Unchecked;
-    int state = parsePluginSpecs(defaultCollectionItem, groupState, defaultCollection ? defaultCollection->plugins() : QList<PluginSpec *>());
+        m_items.append(defaultCollectionItem);
+        Qt::CheckState groupState = Qt::Unchecked;
+        int state = parsePluginSpecs(defaultCollectionItem, groupState, plugins);
 
-    defaultCollectionItem->setIcon(0, iconForState(state));
-    defaultCollectionItem->setData(C_LOAD, Qt::CheckStateRole, QVariant(groupState));
-    defaultCollectionItem->setToolTip(C_LOAD, tr("Load on Startup"));
-    defaultCollectionItem->setData(0, Qt::UserRole, qVariantFromValue(defaultCollection));
+        defaultCollectionItem->setIcon(0, iconForState(state));
+        defaultCollectionItem->setData(C_LOAD, Qt::CheckStateRole, QVariant(groupState));
+        defaultCollectionItem->setToolTip(C_LOAD, tr("Load on Startup"));
+        defaultCollectionItem->setData(0, Qt::UserRole, qVariantFromValue(defaultCollection));
+    }
 
     updatePluginDependencies();
 
@@ -189,7 +192,7 @@ void PluginView::updateList()
 int PluginView::parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &groupState, QList<PluginSpec*> plugins)
 {
     int ret = 0;
-    int loadCount = 0;
+    int checkedCount = 0;
 
     for (int i = 0; i < plugins.length(); ++i) {
         PluginSpec *spec = plugins[i];
@@ -212,9 +215,9 @@ int PluginView::parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &gr
         pluginItem->setData(0, Qt::UserRole, qVariantFromValue(spec));
 
         Qt::CheckState state = Qt::Unchecked;
-        if (spec->isEnabled()) {
+        if (spec->isEnabledInSettings()) {
             state = Qt::Checked;
-            ++loadCount;
+            ++checkedCount;
         }
 
         if (!m_whitelist.contains(spec->name())) {
@@ -232,15 +235,14 @@ int PluginView::parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &gr
             parentItem->addChild(pluginItem);
         else
             m_items.append(pluginItem);
-
     }
 
-    if (loadCount == plugins.length()) {
-        groupState = Qt::Checked;
-        ret |= ParsedAll;
-    } else if (loadCount == 0) {
+    if (checkedCount == 0) {
         groupState = Qt::Unchecked;
         ret |= ParsedNone;
+    } else if (checkedCount == plugins.length()) {
+        groupState = Qt::Checked;
+        ret |= ParsedAll;
     } else {
         groupState = Qt::PartiallyChecked;
         ret = ret | ParsedPartial;
@@ -300,7 +302,7 @@ void PluginView::updatePluginSettings(QTreeWidgetItem *item, int column)
                 Qt::CheckState state = Qt::PartiallyChecked;
                 int loadCount = 0;
                 for (int i = 0; i < collection->plugins().length(); ++i) {
-                    if (collection->plugins().at(i)->isEnabled())
+                    if (collection->plugins().at(i)->isEnabledInSettings())
                         ++loadCount;
                 }
                 if (loadCount == collection->plugins().length())
@@ -330,7 +332,8 @@ void PluginView::updatePluginSettings(QTreeWidgetItem *item, int column)
             }
         }
         updatePluginDependencies();
-        emit pluginSettingsChanged(collection->plugins().first());
+        if (!collection->plugins().isEmpty())
+            emit pluginSettingsChanged(collection->plugins().first());
     }
 
     m_allowCheckStateUpdate = true;
@@ -349,7 +352,7 @@ void PluginView::updatePluginDependencies()
             if (it.key().type == PluginDependency::Optional)
                 continue;
             PluginSpec *depSpec = it.value();
-            if (!depSpec->isEnabled() || depSpec->isDisabledIndirectly()) {
+            if (!depSpec->isEnabledInSettings() || depSpec->isDisabledIndirectly()) {
                 disableIndirectly = true;
                 break;
             }

@@ -122,10 +122,10 @@ bool ResetDialog::populateLog(const QString &repository)
     if (const int rowCount = m_model->rowCount())
         m_model->removeRows(0, rowCount);
 
-    // Retrieve log using a custom format "Sha1:Subject"
+    // Retrieve log using a custom format "Sha1:Subject [(refs)]"
     GitClient *client = GitPlugin::instance()->gitClient();
     QStringList arguments;
-    arguments << QLatin1String("--max-count=30") << QLatin1String("--format=%h:%s");
+    arguments << QLatin1String("--max-count=30") << QLatin1String("--format=%h:%s %d");
     QString output;
     if (!client->synchronousLog(repository, arguments, &output))
         return false;
@@ -136,6 +136,11 @@ bool ResetDialog::populateLog(const QString &repository)
             for (int c = 0; c < ColumnCount; ++c) {
                 QStandardItem *item = new QStandardItem;
                 item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+                if (line.endsWith(QLatin1Char(')'))) {
+                    QFont font = item->font();
+                    font.setItalic(true);
+                    item->setFont(font);
+                }
                 row.push_back(item);
             }
             row[Sha1Column]->setText(line.left(colonPos));

@@ -46,7 +46,6 @@ struct CloneWizardPagePrivate;
 class CloneWizardPage : public VcsBase::BaseCheckoutWizardPage
 {
     Q_OBJECT
-    Q_PROPERTY(bool deleteMasterBranch READ deleteMasterBranch WRITE setDeleteMasterBranch)
 public:
     explicit CloneWizardPage(QWidget *parent = 0);
     ~CloneWizardPage();
@@ -56,9 +55,6 @@ public:
 protected:
     QString directoryFromRepository(const QString &r) const;
     QStringList branches(const QString &repository, int *current);
-
-    bool deleteMasterBranch() const;
-    void setDeleteMasterBranch(bool v);
 
 private:
     CloneWizardPagePrivate *d;

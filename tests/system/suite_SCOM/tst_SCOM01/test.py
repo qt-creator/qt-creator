@@ -4,6 +4,8 @@ source("../../shared/suites_qtta.py")
 # entry of test
 def main():
     startApplication("qtcreator" + SettingsPath)
+    if not startedWithoutPluginError():
+        return
     # create qt quick application
     checkedTargets, projectName = createNewQtQuickApplication(tempDir(), "SampleApp")
     # build it - on all build configurations
