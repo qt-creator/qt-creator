@@ -151,13 +151,64 @@
     You can illustrate your documentation by using screen shots, diagrams, and
     other images.
 
+    \section2 Taking Screen Shots
+
+    \QC has the native look and feel on Windows, Linux, and Mac OS, and
+    therefore, screen shots can end up looking very different, depending on who
+    takes them and which system they use. To try to preserve a consistent look
+    and feel in the \QC Manual, observe the guidelines listed in this section
+    when taking screen shots.
+
+    To make the images look similar regardless of the operating system they were
+    taken on, you are asked to adjust their size to 75%. This makes the screen
+    shots hard to read, but they are provided more as reassurance for users that
+    they are in the correct place in the UI than as an actual source of
+    information. To make sure that no important information is lost, always
+    place example values also in the text.
+
+    \list
+
+        \li Use the screen resolution of 1024x768 (this is available on all
+            screens).
+
+        \li Use the aspect ratio of 4:3.
+
+        \li Open the application in the maximum size on full screen.
+
+        \li Use your favorite tool to take the screen shot.
+
+        \li Include only the part of the screen that you need (you can crop the
+            image also in the screen capture tool).
+
+        \li In the screen capture tool, open the screen shot and adjust its size
+            to 75%.
+
+        \li To highlight parts of the screen shot, use the images of numbers
+            that are stored in \c{doc\images\numbers} in the \QC repository.
+
+        \li Before you submit the images to the repository, optimize them to
+            save space.
+
+    \endlist
+
+    \section2 Optimizing Images
+
     Save images in the PNG format in the \QC project folder in the
     \c {doc\images} folder. Binary images can easily add megabytes to the Git
     history. To keep the history as small as possible, the Git post-commit hooks
     remind you to try to keep image size below 50 kilobytes. To achieve this
     goal, crop images so that only relevant information is visible in them.
-    Before committing images, optimize them by using the Radical Image
-    Optimization Tool (RIOT).
+    Before committing images, optimize them by using an image optimization tool.
+
+    Optimization should not visibly reduce image quality. If it does, do not do
+    it. You can use the Radical Image Optimization Tool (RIOT) on Windows (very
+    efficient) or ImageOptim on Mac OS (much less efficient), or some other tool
+    available on Linux.
+
+    With ImageOptim, you simply drag and drop the image files to the
+    application. The following section describes the settings to use for RIOT.
+
+    \section3 Using RIOT
 
     Use the \c {\image} and \c {\inlineimage} QDoc commands to refer to images
     from the text. You do not need to add paths to image names. For example:
