@@ -44,6 +44,7 @@
 
 #include <QtPlugin>
 #include <QDebug>
+#include <QDateTime>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -87,6 +88,7 @@ void CorePlugin::parseArguments(const QStringList &arguments)
 
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
+    qsrand(QDateTime::currentDateTime().toTime_t());
     parseArguments(arguments);
     const bool success = m_mainWindow->init(errorMessage);
     if (success) {
