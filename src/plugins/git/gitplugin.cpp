@@ -436,6 +436,10 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            globalcontext, false, SLOT(resetRepository()));
 
     createRepositoryAction(localRepositoryMenu,
+                           tr("Interactive Rebase..."), Core::Id("Git.Rebase"),
+                           globalcontext, true, SLOT(startRebase()));
+
+    createRepositoryAction(localRepositoryMenu,
                            tr("Revert Single Commit..."), Core::Id("Git.Revert"),
                            globalcontext, true, SLOT(startRevertCommit()));
 
@@ -717,6 +721,24 @@ void GitPlugin::resetRepository()
             m_gitClient->softReset(topLevel, dialog.commit());
             break;
         }
+}
+
+void GitPlugin::startRebase()
+{
+    QString workingDirectory = currentState().currentDirectoryOrTopLevel();
+    if (workingDirectory.isEmpty() || !m_gitClient->canRebase(workingDirectory))
+        return;
+    GitClient::StashGuard stashGuard(workingDirectory, QLatin1String("Rebase-i"));
+    if (stashGuard.stashingFailed(true))
+        return;
+    stashGuard.preventPop();
+    LogChangeDialog dialog(false);
+    dialog.setWindowTitle(tr("Interactive Rebase"));
+    if (!dialog.runDialog(workingDirectory))
+        return;
+    const QString change = dialog.commit();
+    if (!change.isEmpty())
+        m_gitClient->interactiveRebase(workingDirectory, change);
 }
 
 void GitPlugin::startRevertCommit()

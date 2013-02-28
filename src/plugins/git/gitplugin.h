@@ -116,6 +116,7 @@ private slots:
     void undoFileChanges(bool revertStaging = true);
     void undoUnstagedFileChanges();
     void resetRepository();
+    void startRebase();
     void startRevertCommit();
     void startCherryPickCommit();
     void stageFile();

@@ -111,7 +111,7 @@ public:
     unsigned gitVersion(QString *errorMessage = 0) const;
 
     QString findRepositoryForDirectory(const QString &dir);
-    QString findGitDirForRepository(const QString &repositoryDir);
+    QString findGitDirForRepository(const QString &repositoryDir) const;
 
     void diff(const QString &workingDirectory, const QStringList &diffArgs, const QString &fileName);
     void diff(const QString &workingDirectory, const QStringList &diffArgs,
@@ -199,11 +199,13 @@ public:
     bool synchronousPull(const QString &workingDirectory, bool rebase);
     bool synchronousPush(const QString &workingDirectory, const QString &remote = QString());
     bool synchronousMerge(const QString &workingDirectory, const QString &branch);
+    bool canRebase(const QString &workingDirectory) const;
     bool synchronousRebase(const QString &workingDirectory,
                            const QString &baseBranch,
                            const QString &topicBranch = QString());
     bool revertCommit(const QString &workingDirectory, const QString &commit);
     bool cherryPickCommit(const QString &workingDirectory, const QString &commit);
+    void interactiveRebase(const QString &workingDirectory, const QString &commit);
     void synchronousAbortCommand(const QString &workingDir, const QString &abortCommand);
 
     // git svn support (asynchronous).

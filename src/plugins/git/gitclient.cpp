@@ -340,6 +340,37 @@ private:
     QString m_commit;
 };
 
+class RebaseManager : public QObject
+{
+    Q_OBJECT
+
+public:
+    RebaseManager(QObject *parent) : QObject(parent)
+    {
+    }
+
+public slots:
+    void readStdErr(const QString &error)
+    {
+        // rebase conflict is output to stdOut
+        QRegExp conflictedCommit(QLatin1String("Could not apply ([^\\n]*)"));
+        conflictedCommit.indexIn(error);
+        m_commit = conflictedCommit.cap(1);
+    }
+
+    void finished(bool ok, int exitCode, const QVariant &workingDirectory)
+    {
+        Q_UNUSED(ok);
+        if (exitCode != 0 && !m_commit.isEmpty()) {
+            GitPlugin::instance()->gitClient()->handleMergeConflicts(
+                        workingDirectory.toString(), m_commit, QLatin1String("rebase"));
+        }
+    }
+
+private:
+    QString m_commit;
+};
+
 Core::IEditor *locateEditor(const char *property, const QString &entry)
 {
     foreach (Core::IEditor *ed, Core::ICore::editorManager()->openedEditors())
@@ -434,7 +465,7 @@ QString GitClient::findRepositoryForDirectory(const QString &dir)
     return QString();
 }
 
-QString GitClient::findGitDirForRepository(const QString &repositoryDir)
+QString GitClient::findGitDirForRepository(const QString &repositoryDir) const
 {
     static QHash<QString, QString> repoDirCache;
     QString &res = repoDirCache[repositoryDir];
@@ -2335,6 +2366,19 @@ bool GitClient::synchronousMerge(const QString &workingDirectory, const QString 
     return executeAndHandleConflicts(workingDirectory, arguments, command);
 }
 
+bool GitClient::canRebase(const QString &workingDirectory) const
+{
+    const QString gitDir = findGitDirForRepository(workingDirectory);
+    if (QFileInfo(gitDir + QLatin1String("/rebase-apply")).exists()
+            || QFileInfo(gitDir + QLatin1String("/rebase-merge")).exists()) {
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(
+                    tr("Rebase, merge or am is in progress. Please finish "
+                       "or abort it then try again"));
+        return false;
+    }
+    return true;
+}
+
 bool GitClient::synchronousRebase(const QString &workingDirectory, const QString &baseBranch,
                                   const QString &topicBranch)
 {
@@ -2364,6 +2408,21 @@ bool GitClient::cherryPickCommit(const QString &workingDirectory, const QString 
     arguments << command << commit;
 
     return executeAndHandleConflicts(workingDirectory, arguments, command);
+}
+
+void GitClient::interactiveRebase(const QString &workingDirectory, const QString &commit)
+{
+    QStringList arguments;
+    arguments << QLatin1String("rebase") << QLatin1String("-i") << commit;
+    outputWindow()->appendCommand(workingDirectory, settings()->stringValue(GitSettings::binaryPathKey), arguments);
+    VcsBase::Command *command = createCommand(workingDirectory, 0, true);
+    command->addJob(arguments, -1);
+    command->execute();
+    command->setCookie(workingDirectory);
+    RebaseManager *rebaseManager = new RebaseManager(command);
+    connect(command, SIGNAL(errorText(QString)), rebaseManager, SLOT(readStdErr(QString)));
+    connect(command, SIGNAL(finished(bool,int,QVariant)),
+            rebaseManager, SLOT(finished(bool,int,QVariant)));
 }
 
 QString GitClient::msgNoChangedFiles()
