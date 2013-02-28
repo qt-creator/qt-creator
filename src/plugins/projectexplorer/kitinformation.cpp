@@ -395,6 +395,7 @@ void DeviceKitInformation::fix(Kit *k)
     if (!dev.isNull() && dev->type() == DeviceTypeKitInformation::deviceTypeId(k))
         return;
 
+    qWarning("Device is no longer known, removing from kit \"%s\".", qPrintable(k->displayName()));
     setDeviceId(k, Core::Id());
 }
 

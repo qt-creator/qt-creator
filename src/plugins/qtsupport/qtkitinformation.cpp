@@ -100,8 +100,10 @@ void QtKitInformation::fix(ProjectExplorer::Kit *k)
 {
     QTC_ASSERT(QtVersionManager::instance()->isLoaded(), return);
     BaseQtVersion *version = qtVersion(k);
-    if (!version)
+    if (!version) {
+        qWarning("Qt version is no longer known, removing from kit \"%s\".", qPrintable(k->displayName()));
         setQtVersionId(k, -1);
+    }
 }
 
 ProjectExplorer::KitConfigWidget *QtKitInformation::createConfigWidget(ProjectExplorer::Kit *k) const
