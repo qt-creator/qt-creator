@@ -65,7 +65,6 @@ public:
     IDevice::ConstPtr findInactiveAutoDetectedDevice(Core::Id type, Core::Id id);
     IDevice::ConstPtr defaultDevice(Core::Id deviceType) const;
     bool hasDevice(const QString &name) const;
-    Core::Id deviceId(const IDevice::ConstPtr &device) const;
 
     void addDevice(const IDevice::Ptr &device);
     void removeDevice(Core::Id id);

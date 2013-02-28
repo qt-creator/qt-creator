@@ -386,11 +386,6 @@ IDevice::ConstPtr DeviceManager::defaultDevice(Core::Id deviceType) const
     return id.isValid() ? find(id) : IDevice::ConstPtr();
 }
 
-Core::Id DeviceManager::deviceId(const IDevice::ConstPtr &device) const
-{
-    return device ? device->id() : Core::Id();
-}
-
 void DeviceManager::ensureOneDefaultDevicePerType()
 {
     foreach (const IDevice::Ptr &device, d->devices) {
