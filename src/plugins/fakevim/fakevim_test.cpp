@@ -1499,6 +1499,14 @@ void FakeVimPlugin::test_vim_copy_paste()
     data.setText(X "a" N "" N "b");
     KEYS("Vjy", X "a" N "" N "b");
     KEYS("p", "a" N X "a" N "" N "" N "b");
+
+    // registers
+    data.setText(X "abc" N "def" N "ghi");
+    KEYS("\"xyy", X "abc" N "def" N "ghi");
+    KEYS("\"xp", "abc" N X "abc" N "def" N "ghi");
+    KEYS("j\"yyy", "abc" N "abc" N X "def" N "ghi");
+    KEYS("gg\"yP", X "def" N "abc" N "abc" N "def" N "ghi");
+    KEYS("\"xP", X "abc" N "def" N "abc" N "abc" N "def" N "ghi");
 }
 
 void FakeVimPlugin::test_vim_undo_redo()

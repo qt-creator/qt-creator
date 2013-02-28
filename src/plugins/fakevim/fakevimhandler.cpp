@@ -4008,7 +4008,7 @@ bool FakeVimHandler::Private::handleYankSubMode(const Input &input)
         m_movetype = MoveLineWise;
         int endPos = firstPositionInLine(lineForPosition(position()) + count() - 1);
         Range range(position(), endPos, RangeLineMode);
-        yankText(range);
+        yankText(range, m_register);
         m_submode = NoSubMode;
         handled = true;
     } else {
