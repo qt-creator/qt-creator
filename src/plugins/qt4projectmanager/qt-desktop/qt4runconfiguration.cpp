@@ -431,6 +431,7 @@ void Qt4RunConfigurationWidget::termToggled(bool on)
 
 void Qt4RunConfigurationWidget::qvfbToggled(bool on)
 {
+    Q_UNUSED(on);
     m_ignoreChange = true;
     m_ignoreChange = false;
 }
