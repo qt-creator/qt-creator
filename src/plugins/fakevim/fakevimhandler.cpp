@@ -3670,8 +3670,8 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         endEditBlock();
     } else if (input.isControl('o')) {
         jump(-count());
-    } else if (input.is('p') || input.is('P')) {
-        pasteText(input.is('p'));
+    } else if (input.is('p') || input.is('P') || input.isShift(Qt::Key_Insert)) {
+        pasteText(!input.is('P'));
         setTargetColumn();
         setDotCommand(_("%1p"), count());
         finishMovement();
@@ -4335,6 +4335,13 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
             insert = _("<C-P>");
         else
             insert = _("<C-N>");
+    } else if (input.isShift(Qt::Key_Insert)) {
+        // Insert text from clipboard.
+        QClipboard *clipboard = QApplication::clipboard();
+        const QMimeData *data = clipboard->mimeData();
+        if (data && data->hasText())
+            insertInInsertMode(data->text());
+        insert = _("<S-INSERT>");
     } else if (!input.text().isEmpty()) {
         insert = input.text();
         insertInInsertMode(insert);
@@ -7217,7 +7224,7 @@ RangeMode FakeVimHandler::Private::registerRangeMode(int reg) const
 
         // Use range mode from Vim's clipboard data if available.
         const QMimeData *data = clipboard->mimeData(mode);
-        if (data != 0 && data->hasFormat(vimMimeText)) {
+        if (data && data->hasFormat(vimMimeText)) {
             QByteArray bytes = data->data(vimMimeText);
             if (bytes.length() > 0)
                 return static_cast<RangeMode>(bytes.at(0));
