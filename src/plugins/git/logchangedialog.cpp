@@ -96,8 +96,6 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent)
 
 bool LogChangeDialog::runDialog(const QString &repository)
 {
-    setWindowTitle(tr("Undo Changes to %1").arg(QDir::toNativeSeparators(repository)));
-
     if (!populateLog(repository) || !m_model->rowCount())
         return QDialog::Rejected;
 

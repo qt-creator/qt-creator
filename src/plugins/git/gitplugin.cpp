@@ -705,15 +705,17 @@ void GitPlugin::resetRepository()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
+    QString topLevel = state.topLevel();
 
     LogChangeDialog dialog(true);
-    if (dialog.runDialog(state.topLevel()))
+    dialog.setWindowTitle(tr("Undo Changes to %1").arg(QDir::toNativeSeparators(topLevel)));
+    if (dialog.runDialog(topLevel))
         switch (dialog.resetType()) {
         case HardReset:
-            m_gitClient->hardReset(state.topLevel(), dialog.commit());
+            m_gitClient->hardReset(topLevel, dialog.commit());
             break;
         case SoftReset:
-            m_gitClient->softReset(state.topLevel(), dialog.commit());
+            m_gitClient->softReset(topLevel, dialog.commit());
             break;
         }
 }
