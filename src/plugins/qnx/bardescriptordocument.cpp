@@ -36,12 +36,13 @@
 #include "bardescriptordocumentnodehandlers.h"
 
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/QTextCodec>
+#include <QFile>
+#include <QFileInfo>
+#include <QDir>
+#include <QTextCodec>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
@@ -70,6 +71,13 @@ BarDescriptorDocument::BarDescriptorDocument(BarDescriptorEditorWidget *editorWi
 
     // Assets
     registerNodeHandler(new BarDescriptorDocumentAssetNodeHandler(m_editorWidget));
+
+    // blackberry-nativepackager requires the XML file to be in UTF-8 encoding,
+    // force if possible
+    if (QTextCodec *defaultUTF8 = QTextCodec::codecForName("UTF-8"))
+        setCodec(defaultUTF8);
+    else
+        setCodec(Core::EditorManager::instance()->defaultTextCodec());
 }
 
 BarDescriptorDocument::~BarDescriptorDocument()
