@@ -235,7 +235,8 @@ def selectFromFileDialog(fileName, waitForFile=False):
         clickButton(findObject("{text='Open' type='QPushButton'}"))
     if waitForFile:
         fileCombo = waitForObject(":Qt Creator_FilenameQComboBox")
-        waitFor("str(fileCombo.currentText) in fileName", 5000)
+        if not waitFor("str(fileCombo.currentText) in fileName", 5000):
+            test.fail("%s could not be opened in time." % fileName)
 
 # add qt.qch from SDK path
 def addHelpDocumentationFromSDK():
