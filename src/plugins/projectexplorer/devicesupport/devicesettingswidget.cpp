@@ -213,7 +213,8 @@ void DeviceSettingsWidget::displayCurrent()
     }
     m_ui->deviceStateValueTextLabel->setText(current->deviceStateToString());
 
-    m_ui->removeConfigButton->setEnabled(!current->isAutoDetected());
+    m_ui->removeConfigButton->setEnabled(!current->isAutoDetected()
+            || current->deviceState() == IDevice::DeviceDisconnected);
     fillInValues();
 }
 
