@@ -16,11 +16,9 @@ def main():
         placeCursorToLine(cppwindow, "return a.exec();")
         typeLines(cppwindow, ("<Up>", testData.field(record, "declaration")))
         type(cppwindow, testData.field(record, "usage"))
-        waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}",
-                      "sourceFilesRefreshed(QStringList)", 1000)
+        snooze(1) # maybe find something better
         type(cppwindow, testData.field(record, "operator"))
-        waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}",
-                      "sourceFilesRefreshed(QStringList)", 1000)
+        waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", 1500)
         test.compare(str(lineUnderCursor(cppwindow)).strip(), testData.field(record, "expected"))
         invokeMenuItem("File", 'Revert "main.cpp" to Saved')
         clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
