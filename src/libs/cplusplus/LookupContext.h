@@ -45,12 +45,24 @@
 
 namespace CPlusPlus {
 
+namespace Internal {
+struct FullyQualifiedName
+{
+    QList<const Name *> fqn;
+
+    FullyQualifiedName(const QList<const Name *> &fqn)
+        : fqn(fqn)
+    {}
+};
+} // namespace Internal;
+
 class CreateBindings;
 
 class CPLUSPLUS_EXPORT ClassOrNamespace
 {
 public:
     ClassOrNamespace(CreateBindings *factory, ClassOrNamespace *parent);
+    ~ClassOrNamespace();
 
     const TemplateNameId *templateId() const;
     ClassOrNamespace *instantiationOrigin() const;
@@ -67,6 +79,8 @@ public:
 
     ClassOrNamespace *lookupType(const Name *name);
     ClassOrNamespace *findType(const Name *name);
+
+    Symbol *lookupInScope(const QList<const Name *> &fullName);
 
 private:
     typedef std::map<const Name *, ClassOrNamespace *, Name::Compare> Table;
@@ -114,6 +128,8 @@ private:
     QSharedPointer<Control> _control;
     TemplateNameIdTable _specializations;
     QMap<const TemplateNameId *, ClassOrNamespace *> _instantiations;
+
+    QHash<Internal::FullyQualifiedName, Symbol *> *_scopeLookupCache;
 
     // it's an instantiation.
     const TemplateNameId *_templateId;
@@ -308,7 +324,6 @@ private:
     bool m_expandTemplates;
 };
 
-bool CPLUSPLUS_EXPORT compareName(const Name *name, const Name *other);
 bool CPLUSPLUS_EXPORT compareFullyQualifiedName(const QList<const Name *> &path,
                                                 const QList<const Name *> &other);
 

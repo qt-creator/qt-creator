@@ -92,7 +92,7 @@ static void path_helper(Symbol *symbol, QList<const Name *> *names)
 
 namespace CPlusPlus {
 
-bool compareName(const Name *name, const Name *other)
+static inline bool compareName(const Name *name, const Name *other)
 {
     if (name == other)
         return true;
@@ -121,6 +121,30 @@ bool compareFullyQualifiedName(const QList<const Name *> &path, const QList<cons
     return true;
 }
 
+}
+
+namespace CPlusPlus {
+namespace Internal {
+
+bool operator==(const FullyQualifiedName &left, const FullyQualifiedName &right)
+{
+    return compareFullyQualifiedName(left.fqn, right.fqn);
+}
+
+uint qHash(const FullyQualifiedName &fullyQualifiedName)
+{
+    uint h = 0;
+    for (int i = 0; i < fullyQualifiedName.fqn.size(); ++i) {
+        if (const Name *n = fullyQualifiedName.fqn.at(i)) {
+            if (const Identifier *id = n->identifier()) {
+                h <<= 1;
+                h += id->hashCode();
+            }
+        }
+    }
+    return h;
+}
+}
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -393,11 +417,20 @@ ClassOrNamespace *LookupContext::lookupParent(Symbol *symbol) const
 }
 
 ClassOrNamespace::ClassOrNamespace(CreateBindings *factory, ClassOrNamespace *parent)
-    : _factory(factory), _parent(parent), _templateId(0), _instantiationOrigin(0)
+    : _factory(factory)
+    , _parent(parent)
+    , _scopeLookupCache(0)
+    , _templateId(0)
+    , _instantiationOrigin(0)
 #ifdef DEBUG_LOOKUP
     , _name(0)
 #endif // DEBUG_LOOKUP
 {
+}
+
+ClassOrNamespace::~ClassOrNamespace()
+{
+    delete _scopeLookupCache;
 }
 
 const TemplateNameId *ClassOrNamespace::templateId() const
@@ -464,7 +497,7 @@ QList<LookupItem> ClassOrNamespace::lookup_helper(const Name *name, bool searchI
     if (name) {
 
         if (const QualifiedNameId *q = name->asQualifiedNameId()) {
-            if (! q->base())
+            if (! q->base()) // e.g. ::std::string
                 result = globalNamespace()->find(q->name());
 
             else if (ClassOrNamespace *binding = lookupType(q->base())) {
@@ -477,23 +510,10 @@ QList<LookupItem> ClassOrNamespace::lookup_helper(const Name *name, bool searchI
                 // a qualified name. For instance, a nested class which is forward declared
                 // in the class but defined outside it - we should capture both.
                 Symbol *match = 0;
-                ClassOrNamespace *parentBinding = binding->parent();
-                while (parentBinding && !match) {
-                    for (int j = 0; j < parentBinding->symbols().size() && !match; ++j) {
-                        if (Scope *scope = parentBinding->symbols().at(j)->asScope()) {
-                            for (unsigned i = 0; i < scope->memberCount(); ++i) {
-                                Symbol *candidate = scope->memberAt(i);
-                                if (compareFullyQualifiedName(
-                                            fullName,
-                                            LookupContext::fullyQualifiedName(candidate))) {
-                                    match = candidate;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    parentBinding = parentBinding->parent();
-                }
+                for (ClassOrNamespace *parentBinding = binding->parent();
+                        parentBinding && !match;
+                        parentBinding = parentBinding->parent())
+                    match = parentBinding->lookupInScope(fullName);
 
                 if (match) {
                     LookupItem item;
@@ -632,6 +652,24 @@ ClassOrNamespace *ClassOrNamespace::findType(const Name *name)
 {
     QSet<ClassOrNamespace *> processed;
     return lookupType_helper(name, &processed, /*searchInEnclosingScope =*/ false, this);
+}
+
+Symbol *ClassOrNamespace::lookupInScope(const QList<const Name *> &fullName)
+{
+    if (!_scopeLookupCache) {
+        _scopeLookupCache = new QHash<Internal::FullyQualifiedName, Symbol *>;
+
+        for (int j = 0; j < symbols().size(); ++j) {
+            if (Scope *scope = symbols().at(j)->asScope()) {
+                for (unsigned i = 0; i < scope->memberCount(); ++i) {
+                    Symbol *s = scope->memberAt(i);
+                    _scopeLookupCache->insert(LookupContext::fullyQualifiedName(s), s);
+                }
+            }
+        }
+    }
+
+    return _scopeLookupCache->value(fullName, 0);
 }
 
 ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
