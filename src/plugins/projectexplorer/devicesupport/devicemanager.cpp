@@ -225,7 +225,7 @@ Utils::FileName DeviceManager::settingsFilePath(const QString &extension)
     return Utils::FileName::fromString(QFileInfo(ExtensionSystem::PluginManager::settings()->fileName()).absolutePath() + extension);
 }
 
-void DeviceManager::addDevice(const IDevice::Ptr &_device)
+void DeviceManager::addDevice(const IDevice::ConstPtr &_device)
 {
     const IDevice::Ptr device = _device->clone();
 

@@ -67,7 +67,7 @@ public:
     IDevice::ConstPtr defaultDevice(Core::Id deviceType) const;
     bool hasDevice(const QString &name) const;
 
-    void addDevice(const IDevice::Ptr &device);
+    void addDevice(const IDevice::ConstPtr &device);
     void removeDevice(Core::Id id);
 
     bool isLoaded() const;
