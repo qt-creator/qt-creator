@@ -4,6 +4,7 @@
 #include "vcprojectnodes.h"
 
 #include <QXmlStreamReader>
+#include <QMap>
 
 class QFileInfo;
 class QString;
@@ -35,6 +36,20 @@ struct Filter
     QList<File *> files;
 };
 
+struct ConfigurationInfo
+{
+    QStringList defines;
+    struct Flags {
+        Flags();
+
+        bool useOpenMP : 1;
+        /// in range 0..4, http://msdn.microsoft.com/en-us/library/thxezb7y.aspx
+        unsigned warningLevel : 3;
+    };
+
+    Flags flags;
+};
+
 struct Project
 {
     Project();
@@ -44,6 +59,7 @@ struct Project
     QString displayName;
 
     Filter *files;
+    QMap<QString, ConfigurationInfo> configurations;
 };
 
 }
@@ -63,6 +79,8 @@ private:
     void readToolFiles();
     void readPublishingData();
     void readConfigurations();
+    void readConfiguration();
+    void readTool();
     void readReferences();
     void readFiles();
     void readFile();
@@ -82,6 +100,7 @@ private:
 private:
     VcProjectInfo::Project *m_project;
     VcProjectInfo::Filter *m_currentFilter;
+    QString m_currentConfigurationName;
 
     QString m_currentElement;
 };

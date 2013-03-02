@@ -33,6 +33,10 @@ STRING(Tool);
 STRING(ToolFiles);
 STRING(VisualStudioProject);
 STRING(Version);
+STRING(PreprocessorDefinitions);
+STRING(WarningLevel);
+STRING(VCCLCompilerTool);
+STRING(OpenMP);
 
 using namespace VcProjectInfo;
 
@@ -40,6 +44,12 @@ VcProjectInfo::Filter::~Filter()
 {
     qDeleteAll(filters);
     qDeleteAll(files);
+}
+
+ConfigurationInfo::Flags::Flags()
+    : useOpenMP(false)
+    , warningLevel(1)
+{
 }
 
 Project::Project()
@@ -179,6 +189,42 @@ void VcProjectReader::readPublishingData()
 void VcProjectReader::readConfigurations()
 {
     while (!elementEnds(strConfigurations) && !hasError()) {
+        if (elementStarts(strConfiguration)) {
+            readConfiguration();
+        }
+        readNextNonSpace();
+    }
+}
+
+void VcProjectReader::readConfiguration()
+{
+    QString saved = m_currentConfigurationName;
+    m_currentConfigurationName = attrStr(strName);
+    readNextNonSpace();
+    while (!elementEnds(strConfiguration) && !hasError()) {
+        if (elementStarts(strTool)) {
+            readTool();
+            readNextNonSpace();
+        } else {
+            unexpectedElement();
+        }
+    }
+    m_currentConfigurationName = saved;
+}
+
+void VcProjectReader::readTool()
+{
+    if (attrStr(strName) == strVCCLCompilerTool) {
+        ConfigurationInfo &info = m_project->configurations[m_currentConfigurationName];
+        info.flags.useOpenMP = (attrStr(strOpenMP) == QLatin1String("true"));
+        bool ok = true;
+        const unsigned warningLevel = attrStr(strWarningLevel).toUInt(&ok);
+        if (ok)
+            info.flags.warningLevel = warningLevel;
+        info.defines = attrStr(strPreprocessorDefinitions).split(
+                    ";", QString::SkipEmptyParts);
+    }
+    while (!elementEnds(strTool) && !hasError()) {
         readNextNonSpace();
     }
 }

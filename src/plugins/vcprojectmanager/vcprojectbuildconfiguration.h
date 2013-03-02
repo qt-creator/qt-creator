@@ -21,11 +21,15 @@ public:
     ProjectExplorer::IOutputParser *createOutputParser() const;
     BuildType buildType() const;
 
+    const VcProjectInfo::ConfigurationInfo &info() const;
+    void setInfo(const VcProjectInfo::ConfigurationInfo &info);
+
 protected:
     VcProjectBuildConfiguration(ProjectExplorer::Target *parent, VcProjectBuildConfiguration *source);
 
 private:
     QString m_buildDirectory;
+    VcProjectInfo::ConfigurationInfo m_info;
 };
 
 class VcProjectBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory

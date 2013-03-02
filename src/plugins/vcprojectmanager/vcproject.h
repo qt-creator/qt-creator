@@ -33,6 +33,9 @@ public:
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
     QString defaultBuildDirectory() const;
 
+    bool needsConfiguration() const;
+    bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const;
+
 public slots:
     void reparse();
 
@@ -51,7 +54,7 @@ protected:
 private:
     void addCxxModelFiles(const ProjectExplorer::FolderNode *node, QStringList &sourceFiles);
     void updateCodeModels();
-    void loadBuildConfigurations();
+    void importBuildConfigurations();
 
     VcManager *m_projectManager;
     VcProjectFile *m_projectFile;
@@ -60,6 +63,7 @@ private:
     QString m_name;
     QFileSystemWatcher *m_projectFileWatcher;
     QFuture<void> m_codeModelFuture;
+    QMap<QString, VcProjectInfo::ConfigurationInfo> m_configurations;
 };
 
 class VcProjectBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget

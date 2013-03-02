@@ -52,6 +52,16 @@ ProjectExplorer::BuildConfiguration::BuildType VcProjectBuildConfiguration::buil
     return Debug;
 }
 
+const VcProjectInfo::ConfigurationInfo &VcProjectBuildConfiguration::info() const
+{
+    return m_info;
+}
+
+void VcProjectBuildConfiguration::setInfo(const VcProjectInfo::ConfigurationInfo &info)
+{
+    m_info = info;
+}
+
 VcProjectBuildConfiguration::VcProjectBuildConfiguration(ProjectExplorer::Target *parent, VcProjectBuildConfiguration *source)
     : BuildConfiguration(parent, source)
 {

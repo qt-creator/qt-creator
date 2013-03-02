@@ -20,6 +20,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/abi.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
 
@@ -32,6 +33,24 @@ using namespace ProjectExplorer;
 
 namespace VcProjectManager {
 namespace Internal {
+
+class VCProjKitMatcher : public KitMatcher
+{
+public:
+    bool matches(const Kit *k) const
+    {
+        ToolChain *tc = ToolChainKitInformation::toolChain(k);
+        Abi abi = tc->targetAbi();
+        switch (abi.osFlavor()) {
+        case Abi::WindowsMsvc2005Flavor:
+        case Abi::WindowsMsvc2008Flavor:
+        case Abi::WindowsCEFlavor:
+            return true;
+        default:
+            return false;
+        }
+    }
+};
 
 VcProject::VcProject(VcManager *projectManager, const QString &projectFilePath)
     : m_projectManager(projectManager)
@@ -98,6 +117,22 @@ QString VcProject::defaultBuildDirectory() const
     return vcFile->path() + QLatin1String("-build");
 }
 
+bool VcProject::needsConfiguration() const
+{
+    return targets().isEmpty() || !activeTarget() || activeTarget()->buildConfigurations().isEmpty();
+}
+
+bool VcProject::supportsKit(Kit *k, QString *errorMessage) const
+{
+    VCProjKitMatcher matcher;
+    if (!matcher.matches(k)) {
+        if (errorMessage)
+            *errorMessage = tr("Kit toolchain does not support MSVC 2005 or 2008 ABI");
+        return false;
+    }
+    return true;
+}
+
 void VcProject::reparse()
 {
     QString projectFilePath = m_projectFile->filePath();
@@ -116,6 +151,7 @@ void VcProject::reparse()
         m_rootNode->refresh(projInfo->files);
     }
 
+    m_configurations = projInfo->configurations;
     delete projInfo;
 
     updateCodeModels();
@@ -125,20 +161,44 @@ void VcProject::reparse()
 
 bool VcProject::fromMap(const QVariantMap &map)
 {
-    loadBuildConfigurations();
+    const bool ok = Project::fromMap(map);
+
+    if (ok || needsConfiguration())
+        importBuildConfigurations();
+
+    if (!ok)
+        return false;
+
     updateCodeModels();
-    return Project::fromMap(map);
+    return true;
 }
 
 bool VcProject::setupTarget(ProjectExplorer::Target *t)
 {
-    VcProjectBuildConfigurationFactory *factory
-            = ExtensionSystem::PluginManager::instance()->getObject<VcProjectBuildConfigurationFactory>();
-    VcProjectBuildConfiguration *bc = factory->create(t, Constants::VC_PROJECT_BC_ID, QLatin1String("vcproj"));
-    if (!bc)
-        return false;
+    foreach (const QString &name, m_configurations.keys()) {
+        VcProjectBuildConfigurationFactory *factory
+                = ExtensionSystem::PluginManager::instance()->getObject<VcProjectBuildConfigurationFactory>();
+        VcProjectBuildConfiguration *bc = factory->create(t, Constants::VC_PROJECT_BC_ID, name);
+        if (!bc)
+            continue;
+        bc->setInfo(m_configurations.value(name));
 
-    t->addBuildConfiguration(bc);
+        // build step
+        ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+        VcMakeStep *makeStep = new VcMakeStep(buildSteps);
+        QString argument(QLatin1String("/p:configuration=\"") + name + QLatin1String("\""));
+        makeStep->addBuildArgument(argument);
+        buildSteps->insertStep(0, makeStep);
+
+        //clean step
+        ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+        makeStep = new VcMakeStep(cleanSteps);
+        argument = QLatin1String("/p:configuration=\"") + name + QLatin1String("\" /t:Clean");
+        makeStep->addBuildArgument(argument);
+        cleanSteps->insertStep(0, makeStep);
+
+        t->addBuildConfiguration(bc);
+    }
     return true;
 }
 
@@ -177,10 +237,18 @@ void VcProject::updateCodeModels()
 
     pinfo.clearProjectParts();
     ProjectPart::Ptr pPart(new ProjectPart());
+
+    BuildConfiguration *bc = activeTarget() ? activeTarget()->activeBuildConfiguration() : NULL;
+    if (bc) {
+        VcProjectBuildConfiguration *vbc = qobject_cast<VcProjectBuildConfiguration*>(bc);
+        QTC_ASSERT(vbc, return);
+        pPart->defines += vbc->info().defines.join(QLatin1String("\n")).toLatin1();
+    }
     // VS 2005-2008 has poor c++11 support, see http://wiki.apache.org/stdcxx/C%2B%2B0xCompilerSupport
     pPart->cxx11Enabled = false;
     pPart->qtVersion = ProjectPart::NoQt;
-    pPart->defines += tc->predefinedMacros(QStringList()); // TODO: extract proper CXX flags and project defines
+    pPart->defines += tc->predefinedMacros(QStringList());
+
     foreach (const HeaderPath &path, tc->systemHeaderPaths(Utils::FileName()))
         if (path.kind() != HeaderPath::FrameworkHeaderPath)
             pPart->includePaths += path.path();
@@ -192,56 +260,17 @@ void VcProject::updateCodeModels()
     m_codeModelFuture = modelmanager->updateSourceFiles(pPart->sourceFiles);
 }
 
-void VcProject::loadBuildConfigurations()
+void VcProject::importBuildConfigurations()
 {
-    Kit *defaultKit = KitManager::instance()->defaultKit();
-    if (defaultKit) {
+    VCProjKitMatcher matcher;
+    Kit *kit = KitManager::instance()->find(&matcher);
+    if (!kit)
+        kit = KitManager::instance()->defaultKit();
 
-        // Note(Radovan): When targets are available from .vcproj or .vcproj.user
-        // file create Target object for each of them
-
-        Target *target = new Target(this, defaultKit);
-
-        // Debug build configuration
-        VcProjectBuildConfiguration *bc = new VcProjectBuildConfiguration(target);
-        bc->setDefaultDisplayName(tr("Debug"));
-
-        // build step
-        ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-        VcMakeStep *makeStep = new VcMakeStep(buildSteps);
-        QLatin1String argument("/p:configuration=\"Debug\"");
-        makeStep->addBuildArgument(argument);
-        buildSteps->insertStep(0, makeStep);
-
-        //clean step
-        ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-        makeStep = new VcMakeStep(cleanSteps);
-        argument = QLatin1String("/p:configuration=\"Debug\" /t:Clean");
-        makeStep->addBuildArgument(argument);
-        cleanSteps->insertStep(0, makeStep);
-
-        target->addBuildConfiguration(bc);
-
-        // Release build configuration
-        bc = new VcProjectBuildConfiguration(target);
-        bc->setDefaultDisplayName("Release");
-
-        // build step
-        buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-        makeStep = new VcMakeStep(buildSteps);
-        argument = QLatin1String("/p:configuration=\"Release\"");
-        makeStep->addBuildArgument(argument);
-        buildSteps->insertStep(0, makeStep);
-
-        //clean step
-        cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-        makeStep = new VcMakeStep(cleanSteps);
-        argument = QLatin1String("/p:configuration=\"Release\" /t:Clean");
-        makeStep->addBuildArgument(argument);
-        cleanSteps->insertStep(0, makeStep);
-
-        target->addBuildConfiguration(bc);
-        addTarget(target);    }
+    removeTarget(target(kit));
+    addTarget(createTarget(kit));
+    if (!activeTarget() && kit)
+        addTarget(createTarget(kit));
 }
 
 VcProjectBuildSettingsWidget::VcProjectBuildSettingsWidget()
