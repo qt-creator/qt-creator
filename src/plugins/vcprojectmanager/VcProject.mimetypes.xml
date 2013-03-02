@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
   <mime-type type="text/x-vc-project">
-    <sub-class-of type="text/plain"/>
+    <sub-class-of type="application/xml"/>
     <comment>Vc Project file</comment>
     <glob pattern="*.vcproj"/>
   </mime-type>
