@@ -66,6 +66,7 @@ public:
 
     QByteArray predefinedMacros(const QStringList &cxxflags) const;
     CompilerFlags compilerFlags(const QStringList &cxxflags) const;
+    WarningFlags warningFlags(const QStringList &cflags) const;
 
     QList<HeaderPath> systemHeaderPaths(const QStringList &cxxflags, const Utils::FileName &sysRoot) const;
     void addToEnvironment(Utils::Environment &env) const;
@@ -100,6 +101,20 @@ protected:
     static const int PREDEFINED_MACROS_CACHE_SIZE;
     mutable GccCache m_predefinedMacros;
 
+    class WarningFlagAdder
+    {
+        QByteArray m_flagUtf8;
+        WarningFlags &m_flags;
+        bool m_doesEnable;
+        bool m_triggered;
+    public:
+        WarningFlagAdder(const QString &flag, WarningFlags &flags);
+        void operator ()(const char name[], WarningFlags flagsSet);
+        void operator ()(const char name[], WarningFlag flag);
+
+        bool triggered() const;
+    };
+
 private:
     GccToolChain(bool autodetect);
 
@@ -126,6 +141,8 @@ public:
     QString type() const;
     QString typeDisplayName() const;
     QString makeCommand(const Utils::Environment &environment) const;
+
+    WarningFlags warningFlags(const QStringList &cflags) const;
 
     IOutputParser *outputParser() const;
 

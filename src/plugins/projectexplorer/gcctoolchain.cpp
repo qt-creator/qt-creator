@@ -436,6 +436,51 @@ ToolChain::CompilerFlags GccToolChain::compilerFlags(const QStringList &cxxflags
     return NO_FLAGS;
 }
 
+GccToolChain::WarningFlags GccToolChain::warningFlags(const QStringList &cflags) const
+{
+    // based on 'LC_ALL="en" gcc -Q --help=warnings | grep enabled'
+    WarningFlags flags(WarnDeprecated | WarnIgnoredQualfiers
+                       | WarnSignedComparison | WarnUninitializedVars);
+    WarningFlags groupWall(WarningsAll | WarnUnknownPragma |WarnUnusedFunctions
+                           | WarnUnusedLocals | WarnUnusedResult | WarnUnusedValue
+                           | WarnSignedComparison | WarnUninitializedVars);
+    WarningFlags groupWextra(WarningsExtra | WarnIgnoredQualfiers | WarnUnusedParams);
+
+    foreach (const QString &flag, cflags) {
+        if (flag == QLatin1String("--all-warnings"))
+            flags |= groupWall;
+        else if (flag == QLatin1String("--extra-warnings"))
+            flags |= groupWextra;
+
+        WarningFlagAdder add(flag, flags);
+        if (add.triggered())
+            continue;
+
+        // supported by clang too
+        add("error", WarningsAsErrors);
+        add("all", groupWall);
+        add("extra", groupWextra);
+        add("deprecated", WarnDeprecated);
+        add("effc++", WarnEffectiveCxx);
+        add("ignored-qualifiers", WarnIgnoredQualfiers);
+        add("non-virtual-dtor", WarnNonVirtualDestructor);
+        add("overloaded-virtual", WarnOverloadedVirtual);
+        add("shadow", WarnHiddenLocals);
+        add("sign-compare", WarnSignedComparison);
+        add("unknown-pragmas", WarnUnknownPragma);
+        add("unused", ToolChain::WarningFlag(
+                WarnUnusedFunctions | WarnUnusedLocals | WarnUnusedParams
+                | WarnUnusedResult | WarnUnusedValue));
+        add("unused-function", WarnUnusedFunctions);
+        add("unused-variable", WarnUnusedLocals);
+        add("unused-parameter", WarnUnusedParams);
+        add("unused-result", WarnUnusedResult);
+        add("unused-value", WarnUnusedValue);
+        add("uninitialized", WarnUninitializedVars);
+    }
+    return flags;
+}
+
 QList<HeaderPath> GccToolChain::systemHeaderPaths(const QStringList &cxxflags, const Utils::FileName &sysRoot) const
 {
     if (m_headerPaths.isEmpty()) {
@@ -827,6 +872,18 @@ QString ClangToolChain::makeCommand(const Utils::Environment &environment) const
     return makes.first();
 }
 
+ToolChain::WarningFlags ClangToolChain::warningFlags(const QStringList &cflags) const
+{
+    WarningFlags flags = GccToolChain::warningFlags(cflags);;
+    foreach (const QString &flag, cflags) {
+        if (flag == QLatin1String("-Wdocumentation"))
+            flags |= WarnDocumentation;
+        if (flag == QLatin1String("-Wno-documentation"))
+            flags &= ~WarnDocumentation;
+    }
+    return flags;
+}
+
 QList<FileName> ClangToolChain::suggestedMkspecList() const
 {
     Abi abi = targetAbi();
@@ -1087,6 +1144,46 @@ ToolChain *Internal::LinuxIccToolChainFactory::restore(const QVariantMap &data)
 GccToolChain *Internal::LinuxIccToolChainFactory::createToolChain(bool autoDetect)
 {
     return new LinuxIccToolChain(autoDetect);
+}
+
+GccToolChain::WarningFlagAdder::WarningFlagAdder(const QString &flag, ToolChain::WarningFlags &flags) :
+    m_flags(flags),
+    m_triggered(false)
+{
+    if (!flag.startsWith(QLatin1String("-W"))) {
+        m_triggered = true;
+        return;
+    }
+
+    m_doesEnable = !flag.startsWith(QLatin1String("-Wno-"));
+    if (m_doesEnable)
+        m_flagUtf8 = flag.mid(2).toUtf8();
+    else
+        m_flagUtf8 = flag.mid(5).toUtf8();
+}
+
+void GccToolChain::WarningFlagAdder::operator ()(const char name[], ToolChain::WarningFlags flagsSet)
+{
+    if (m_triggered)
+        return;
+    if (0 == strcmp(m_flagUtf8.data(), name))
+    {
+        m_triggered = true;
+        if (m_doesEnable)
+            m_flags |= flagsSet;
+        else
+            m_flags &= ~flagsSet;
+    }
+}
+
+void GccToolChain::WarningFlagAdder::operator ()(const char name[], ToolChain::WarningFlag flag)
+{
+    (*this)(name, WarningFlags(flag));
+}
+
+bool GccToolChain::WarningFlagAdder::triggered() const
+{
+    return m_triggered;
 }
 
 } // namespace ProjectExplorer

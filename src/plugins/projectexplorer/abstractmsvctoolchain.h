@@ -52,6 +52,7 @@ public:
 
     QByteArray predefinedMacros(const QStringList &cxxflags) const;
     CompilerFlags compilerFlags(const QStringList &cxxflags) const;
+    WarningFlags warningFlags(const QStringList &cflags) const;
     QList<HeaderPath> systemHeaderPaths(const QStringList &cxxflags, const Utils::FileName &sysRoot) const;
     void addToEnvironment(Utils::Environment &env) const;
 
@@ -71,6 +72,21 @@ public:
                                             QMap<QString, QString> &envPairs);
 
 protected:
+    class WarningFlagAdder
+    {
+        int m_warningCode;
+        WarningFlags &m_flags;
+        bool m_doesEnable;
+        bool m_triggered;
+    public:
+        WarningFlagAdder(const QString &flag, WarningFlags &flags);
+        void operator ()(int warningCode, WarningFlags flagsSet);
+        void operator ()(int warningCode, WarningFlag flag);
+
+        bool triggered() const;
+    };
+
+    static void inferWarningsForLevel(int warningLevel, WarningFlags &flags);
     virtual Utils::Environment readEnvironmentSetting(Utils::Environment& env) const = 0;
     virtual QByteArray msvcPredefinedMacros(const QStringList cxxflags,
                                             const Utils::Environment& env) const;

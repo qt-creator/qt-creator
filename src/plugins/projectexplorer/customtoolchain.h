@@ -67,6 +67,7 @@ public:
 
     QByteArray predefinedMacros(const QStringList &cxxflags) const;
     CompilerFlags compilerFlags(const QStringList &cxxflags) const;
+    WarningFlags warningFlags(const QStringList &cxxflags) const;
     const QStringList &rawPredefinedMacros() const;
     void setPredefinedMacros(const QStringList &list);
 

@@ -101,6 +101,55 @@ ToolChain::CompilerFlags AbstractMsvcToolChain::compilerFlags(const QStringList 
     }
 }
 
+/**
+ * Converts MSVC warning flags to clang flags.
+ * @see http://msdn.microsoft.com/en-us/library/thxezb7y.aspx
+ */
+AbstractMsvcToolChain::WarningFlags AbstractMsvcToolChain::warningFlags(const QStringList &cflags) const
+{
+    WarningFlags flags;
+    foreach (QString flag, cflags) {
+        if (!flag.isEmpty() && flag[0] == QLatin1Char('-'))
+            flag[0] = QLatin1Char('/');
+
+        if (flag == QLatin1String("/WX"))
+            flags |= WarningsAsErrors;
+        else if (flag == QLatin1String("/W0") || flag == QLatin1String("/w"))
+            inferWarningsForLevel(0, flags);
+        else if (flag == QLatin1String("/W1"))
+            inferWarningsForLevel(1, flags);
+        else if (flag == QLatin1String("/W2"))
+            inferWarningsForLevel(2, flags);
+        else if (flag == QLatin1String("/W3") || flag == QLatin1String("/W4") || flag == QLatin1String("/Wall"))
+            inferWarningsForLevel(3, flags);
+
+        WarningFlagAdder add(flag, flags);
+        if (add.triggered())
+            continue;
+        // http://msdn.microsoft.com/en-us/library/ay4h0tc9.aspx
+        add(4263, WarnOverloadedVirtual);
+        // http://msdn.microsoft.com/en-us/library/ytxde1x7.aspx
+        add(4230, WarnIgnoredQualfiers);
+        // not exact match, http://msdn.microsoft.com/en-us/library/0hx5ckb0.aspx
+        add(4258, WarnHiddenLocals);
+        // http://msdn.microsoft.com/en-us/library/wzxffy8c.aspx
+        add(4265, WarnNonVirtualDestructor);
+        // http://msdn.microsoft.com/en-us/library/y92ktdf2%28v=vs.90%29.aspx
+        add(4018, WarnSignedComparison);
+        // http://msdn.microsoft.com/en-us/library/w099eeey%28v=vs.90%29.aspx
+        add(4068, WarnUnknownPragma);
+        // http://msdn.microsoft.com/en-us/library/26kb9fy0%28v=vs.80%29.aspx
+        add(4100, WarnUnusedParams);
+        // http://msdn.microsoft.com/en-us/library/c733d5h9%28v=vs.90%29.aspx
+        add(4101, WarnUnusedLocals);
+        // http://msdn.microsoft.com/en-us/library/xb1db44s%28v=vs.90%29.aspx
+        add(4189, WarnUnusedLocals);
+        // http://msdn.microsoft.com/en-us/library/ttcz0bys%28v=vs.90%29.aspx
+        add(4996, WarnDeprecated);
+    }
+    return flags;
+}
+
 QList<HeaderPath> AbstractMsvcToolChain::systemHeaderPaths(const QStringList &cxxflags, const Utils::FileName &sysRoot) const
 {
     Q_UNUSED(cxxflags);
@@ -276,6 +325,30 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
     return true;
 }
 
+/**
+ * Infers warnings settings on warning level set
+ * @see http://msdn.microsoft.com/en-us/library/23k5d385.aspx
+ */
+void AbstractMsvcToolChain::inferWarningsForLevel(int warningLevel, WarningFlags &flags)
+{
+    // reset all except unrelated flag
+    flags = flags & WarningsAsErrors;
+
+    if (warningLevel >= 1) {
+        flags |= WarningFlags(WarningsDefault | WarnIgnoredQualfiers | WarnHiddenLocals  | WarnUnknownPragma);
+    }
+    if (warningLevel >= 2) {
+        flags |= WarningsAll;
+    }
+    if (warningLevel >= 3) {
+        flags |= WarningFlags(WarningsExtra | WarnNonVirtualDestructor | WarnSignedComparison
+                | WarnUnusedLocals | WarnDeprecated);
+    }
+    if (warningLevel >= 4) {
+        flags |= WarnUnusedParams;
+    }
+}
+
 bool AbstractMsvcToolChain::operator ==(const ToolChain &other) const
 {
     if (!ToolChain::operator ==(other))
@@ -284,6 +357,52 @@ bool AbstractMsvcToolChain::operator ==(const ToolChain &other) const
     const AbstractMsvcToolChain *msvcTc = static_cast<const AbstractMsvcToolChain *>(&other);
     return targetAbi() == msvcTc->targetAbi()
             && m_vcvarsBat == msvcTc->m_vcvarsBat;
+}
+
+AbstractMsvcToolChain::WarningFlagAdder::WarningFlagAdder(const QString &flag,
+                                                    ToolChain::WarningFlags &flags) :
+    m_flags(flags),
+    m_triggered(false)
+{
+    if (flag.startsWith(QLatin1String("-wd"))) {
+        m_doesEnable = false;
+    } else if (flag.startsWith(QLatin1String("-w"))) {
+        m_doesEnable = true;
+    } else {
+        m_triggered = true;
+        return;
+    }
+    bool ok = false;
+    if (m_doesEnable)
+        m_warningCode = flag.mid(2).toInt(&ok);
+    else
+        m_warningCode = flag.mid(3).toInt(&ok);
+    if (!ok)
+        m_triggered = true;
+}
+
+void AbstractMsvcToolChain::WarningFlagAdder::operator ()(int warningCode, ToolChain::WarningFlags flagsSet)
+{
+    if (m_triggered)
+        return;
+    if (warningCode == m_warningCode)
+    {
+        m_triggered = true;
+        if (m_doesEnable)
+            m_flags |= flagsSet;
+        else
+            m_flags &= ~flagsSet;
+    }
+}
+
+void AbstractMsvcToolChain::WarningFlagAdder::operator ()(int warningCode, ToolChain::WarningFlag flag)
+{
+    (*this)(warningCode, WarningFlags(flag));
+}
+
+bool AbstractMsvcToolChain::WarningFlagAdder::triggered() const
+{
+    return m_triggered;
 }
 
 

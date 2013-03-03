@@ -216,6 +216,11 @@ QList<Task> ToolChain::validateKit(const Kit *) const
 */
 
 /*!
+    \fn QStringList ProjectExplorer::ToolChain::clangParserFlags(const QStringList &cxxflags) const = 0
+    \brief Converts toolchain-specific flags to list flags that tunes libclang parser
+*/
+
+/*!
     \fn bool ProjectExplorer::ToolChainFactory::canRestore(const QVariantMap &data)
     \brief Used by the ToolChainManager to restore user-generated tool chains.
 */

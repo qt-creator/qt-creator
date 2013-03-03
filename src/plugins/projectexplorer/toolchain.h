@@ -87,6 +87,37 @@ public:
         STD_CXX11 = 1
     };
     virtual CompilerFlags compilerFlags(const QStringList &cxxflags) const = 0;
+
+    enum WarningFlag {
+        // General settings
+        WarningsAsErrors,
+        WarningsDefault,
+        WarningsAll,
+        WarningsExtra,
+        WarningsPedantic,
+
+        // Any language
+        WarnUnusedLocals,
+        WarnUnusedParams,
+        WarnUnusedFunctions,
+        WarnUnusedResult,
+        WarnUnusedValue,
+        WarnDocumentation,
+        WarnUninitializedVars,
+        WarnHiddenLocals,
+        WarnUnknownPragma,
+        WarnDeprecated,
+        WarnSignedComparison,
+        WarnIgnoredQualfiers,
+
+        // C++
+        WarnOverloadedVirtual,
+        WarnEffectiveCxx,
+        WarnNonVirtualDestructor
+    };
+    Q_DECLARE_FLAGS(WarningFlags, WarningFlag)
+
+    virtual WarningFlags warningFlags(const QStringList &cflags) const = 0;
     virtual QList<HeaderPath> systemHeaderPaths(const QStringList &cxxflags,
                                                 const Utils::FileName &sysRoot) const = 0;
     virtual void addToEnvironment(Utils::Environment &env) const = 0;

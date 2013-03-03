@@ -145,6 +145,12 @@ ToolChain::CompilerFlags CustomToolChain::compilerFlags(const QStringList &cxxfl
     return NO_FLAGS;
 }
 
+ToolChain::WarningFlags CustomToolChain::warningFlags(const QStringList &cxxflags) const
+{
+    Q_UNUSED(cxxflags);
+    return WarningFlags(WarningsDefault);
+}
+
 const QStringList &CustomToolChain::rawPredefinedMacros() const
 {
     return m_predefinedMacros;
