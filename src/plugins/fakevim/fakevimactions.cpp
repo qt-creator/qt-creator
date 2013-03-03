@@ -195,6 +195,7 @@ FakeVimSettings *theFakeVimSettings()
     createAction(s, ConfigSmartCase,      false, _("SmartCase"),     _("scs"));
     createAction(s, ConfigWrapScan,       true,  _("WrapScan"),      _("ws"));
     createAction(s, ConfigShowCmd,        true,  _("ShowCmd"),       _("sc"));
+    createAction(s, ConfigScrollOff,      0,     _("ScrollOff"),     _("so"));
     createAction(s, ConfigBackspace,      _("indent,eol,start"), _("ConfigBackspace"), _("bs"));
     createAction(s, ConfigIsKeyword,      _("@,48-57,_,192-255,a-z,A-Z"), _("IsKeyword"), _("isk"));
     createAction(s, ConfigClipboard,      QString(), _("Clipboard"), _("cb"));

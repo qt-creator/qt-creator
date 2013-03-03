@@ -90,7 +90,8 @@ enum FakeVimSettingsCode
     ConfigShowMarks,
     ConfigPassControlKey,
     ConfigClipboard,
-    ConfigShowCmd
+    ConfigShowCmd,
+    ConfigScrollOff
 };
 
 class FakeVimSettings : public QObject

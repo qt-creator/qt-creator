@@ -1492,9 +1492,11 @@ public:
     int logicalToPhysicalColumn(int logical, const QString &text) const;
     Column cursorColumn() const; // as visible on screen
     int firstVisibleLine() const;
+    void setScrollBarValue(int line);
     void scrollToLine(int line);
     void scrollUp(int count);
     void scrollDown(int count) { scrollUp(-count); }
+    void updateScrollOffset();
     void alignViewportToCursor(Qt::AlignmentFlag align, int line = -1,
         bool moveToNonBlank = false);
 
@@ -2564,6 +2566,8 @@ void FakeVimHandler::Private::moveDown(int n)
         block = document()->lastBlock();
     setPosition(block.position() + qMax(0, qMin(block.length() - 2, col)));
     moveToTargetColumn();
+
+    updateScrollOffset();
 }
 
 bool FakeVimHandler::Private::moveToNextParagraph(int count)
@@ -3334,13 +3338,13 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
     } else if (input.is(']')) {
         m_subsubmode = CloseSquareSubSubMode;
     } else if (input.isKey(Key_PageDown) || input.isControl('f')) {
-        moveDown(count * (linesOnScreen() - 2) - cursorLineOnScreen());
+        moveDown(count * (linesOnScreen() - 2));
         scrollToLine(cursorLine());
         handleStartOfLine();
         movement = _("f");
     } else if (input.isKey(Key_PageUp) || input.isControl('b')) {
-        moveUp(count * (linesOnScreen() - 2) + cursorLineOnScreen());
-        scrollToLine(cursorLine() + linesOnScreen() - 2);
+        moveUp(count * (linesOnScreen() - 2));
+        scrollToLine(qMax(0, cursorLine() - linesOnScreen()));
         handleStartOfLine();
         movement = _("b");
     } else if (input.isKey(Key_BracketLeft) || input.isKey(Key_BracketRight)) {
@@ -5994,13 +5998,22 @@ int FakeVimHandler::Private::linesInDocument() const
     return document()->lastBlock().length() <= 1 ? count - 1 : count;
 }
 
+void FakeVimHandler::Private::setScrollBarValue(int line)
+{
+    QScrollBar *scrollBar = EDITOR(verticalScrollBar());
+
+    // Convert line number to scroll bar value.
+    const int maxValue = scrollBar->maximum();
+    const int scrollLines = qMax(1, linesInDocument() - linesOnScreen());
+    const int value = maxValue >= scrollLines ? line * maxValue / scrollLines : line;
+
+    scrollBar->setValue(value);
+}
+
 void FakeVimHandler::Private::scrollToLine(int line)
 {
-    // FIXME: works only for QPlainTextEdit
-    QScrollBar *scrollBar = EDITOR(verticalScrollBar());
-    //qDebug() << "SCROLL: " << scrollBar->value() << line;
-    scrollBar->setValue(line);
-    //QTC_CHECK(firstVisibleLine() == line);
+    setScrollBarValue(line);
+    updateScrollOffset();
 }
 
 int FakeVimHandler::Private::firstVisibleLine() const
@@ -6018,6 +6031,23 @@ int FakeVimHandler::Private::firstVisibleLine() const
 void FakeVimHandler::Private::scrollUp(int count)
 {
     scrollToLine(cursorLine() - cursorLineOnScreen() - count);
+}
+
+void FakeVimHandler::Private::updateScrollOffset()
+{
+    // Precision of scroll offset depends on singleStep property of vertical scroll bar.
+    const int screenLines = linesOnScreen();
+    const int offset = qMin(theFakeVimSetting(ConfigScrollOff)->value().toInt(), screenLines / 2);
+    const int line = cursorLine();
+    const int scrollLine = firstVisibleLine();
+    int d = line - scrollLine;
+    if (d < offset) {
+        setScrollBarValue(scrollLine - offset + d);
+    } else {
+        d = screenLines - d;
+        if (d <= offset)
+            setScrollBarValue(scrollLine + offset - d);
+    }
 }
 
 void FakeVimHandler::Private::alignViewportToCursor(AlignmentFlag align, int line,
