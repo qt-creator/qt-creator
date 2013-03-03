@@ -75,6 +75,7 @@ enum FakeVimSettingsCode
     ConfigIncSearch,
     ConfigUseCoreSearch,
     ConfigSmartCase,
+    ConfigIgnoreCase,
     ConfigWrapScan,
 
     // indent  allow backspacing over autoindent

@@ -348,7 +348,7 @@ static bool eatString(const char *prefix, QString *str)
     return true;
 }
 
-static QRegExp vimPatternToQtPattern(QString needle, bool smartcase)
+static QRegExp vimPatternToQtPattern(QString needle, bool ignoreCaseOption, bool smartCaseOption)
 {
     /* Transformations (Vim regexp -> QRegExp):
      *   \a -> [A-Za-z]
@@ -379,7 +379,9 @@ static QRegExp vimPatternToQtPattern(QString needle, bool smartcase)
      *   \c - set ignorecase for rest
      *   \C - set noignorecase for rest
      */
-    bool ignorecase = smartcase && !needle.contains(QRegExp(_("[A-Z]")));
+    // FIXME: Option smartcase should be used only if search was typed by user.
+    bool ignorecase = ignoreCaseOption
+        && !(smartCaseOption && needle.contains(QRegExp(_("[A-Z]"))));
     QString pattern;
     pattern.reserve(2 * needle.size());
 
@@ -4724,7 +4726,8 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
     if (g.lastSubstituteFlags.contains(QLatin1Char('i')))
         needle.prepend(_("\\c"));
 
-    QRegExp pattern = vimPatternToQtPattern(needle, hasConfig(ConfigSmartCase));
+    QRegExp pattern = vimPatternToQtPattern(needle, hasConfig(ConfigIgnoreCase),
+                                            hasConfig(ConfigSmartCase));
 
     QTextBlock lastBlock;
     QTextBlock firstBlock;
@@ -5448,7 +5451,8 @@ void FakeVimHandler::Private::searchBalanced(bool forward, QChar needle, QChar o
 QTextCursor FakeVimHandler::Private::search(const SearchData &sd, int startPos, int count,
     bool showMessages)
 {
-    QRegExp needleExp = vimPatternToQtPattern(sd.needle, hasConfig(ConfigSmartCase));
+    QRegExp needleExp = vimPatternToQtPattern(sd.needle, hasConfig(ConfigIgnoreCase),
+                                              hasConfig(ConfigSmartCase));
     if (!needleExp.isValid()) {
         if (showMessages) {
             QString error = needleExp.errorString();

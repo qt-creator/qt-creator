@@ -193,6 +193,7 @@ FakeVimSettings *theFakeVimSettings()
     createAction(s, ConfigIncSearch,      true,  _("IncSearch"),     _("is"));
     createAction(s, ConfigUseCoreSearch,  false, _("UseCoreSearch"), _("ucs"));
     createAction(s, ConfigSmartCase,      false, _("SmartCase"),     _("scs"));
+    createAction(s, ConfigIgnoreCase,     false, _("IgnoreCase"),    _("ic"));
     createAction(s, ConfigWrapScan,       true,  _("WrapScan"),      _("ws"));
     createAction(s, ConfigShowCmd,        true,  _("ShowCmd"),       _("sc"));
     createAction(s, ConfigScrollOff,      0,     _("ScrollOff"),     _("so"));

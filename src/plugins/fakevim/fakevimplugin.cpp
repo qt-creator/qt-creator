@@ -313,6 +313,8 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
         m_ui.checkBoxUseCoreSearch);
     m_group.insert(theFakeVimSetting(ConfigSmartCase),
         m_ui.checkBoxSmartCase);
+    m_group.insert(theFakeVimSetting(ConfigIgnoreCase),
+        m_ui.checkBoxIgnoreCase);
     m_group.insert(theFakeVimSetting(ConfigWrapScan),
         m_ui.checkBoxWrapScan);
 
@@ -1792,9 +1794,8 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
         } else if (cmd.args == _("noic") || cmd.args == _("noignorecase")) {
             // :set noic
             setActionChecked(Find::Constants::CASE_SENSITIVE, true);
-        } else {
-            *handled = false; // Let the handler see it as well.
         }
+        *handled = false; // Let the handler see it as well.
     } else if (cmd.matches(_("n"), _("next"))) {
         // :n[ext]
         switchToFile(currentFile() + cmd.count);
