@@ -5165,18 +5165,26 @@ bool FakeVimHandler::Private::handleExReadCommand(const ExCommand &cmd)
         return false;
 
     beginEditBlock();
+
     moveToStartOfLine();
     setTargetColumn();
     moveDown();
+    int pos = position();
+
     m_currentFileName = cmd.args;
     QFile file(m_currentFileName);
     file.open(QIODevice::ReadOnly);
     QTextStream ts(&file);
     QString data = ts.readAll();
     insertText(data);
+
+    setAnchorAndPosition(pos, pos);
+
     endEditBlock();
+
     showMessage(MessageInfo, FakeVimHandler::tr("\"%1\" %2L, %3C")
         .arg(m_currentFileName).arg(data.count(QLatin1Char('\n'))).arg(data.size()));
+
     return true;
 }
 
