@@ -158,13 +158,14 @@ equals(TEST, 1):!isEmpty(copydata) {
     INPUT_FILE = $$IDE_SOURCE_TREE/$$TEST_DIR/simple.pro
     macx: OUTPUT_DIR = $$IDE_DATA_PATH/$$TEST_DIR
     else: OUTPUT_DIR = $$IDE_BUILD_TREE/$$TEST_DIR
+    testfile.target = $$OUTPUT_DIR/$$basename(INPUT_FILE)
+    testfile.depends = $$INPUT_FILE
     win32 {
         INPUT_FILE ~= s,/,\\\\,g
         OUTPUT_DIR ~= s,/,\\\\,g
     } else {
         isEmpty(QMAKE_CHK_EXISTS_GLUE):QMAKE_CHK_EXISTS_GLUE  = "|| "
     }
-    testfile.target = test_resources
     testfile.commands = ($$QMAKE_CHK_DIR_EXISTS \"$$OUTPUT_DIR\" $$QMAKE_CHK_EXISTS_GLUE $$QMAKE_MKDIR \"$$OUTPUT_DIR\") \
         && $$QMAKE_COPY \"$$INPUT_FILE\" \"$$OUTPUT_DIR\"
     QMAKE_EXTRA_TARGETS += testfile
