@@ -4036,9 +4036,9 @@ bool FakeVimHandler::Private::handleZSubMode(const Input &input)
         if (input.isReturn() || input.is('t'))
             align = Qt::AlignTop;
         else if (input.is('.') || input.is('z'))
-            align = Qt::AlignBottom;
-        else
             align = Qt::AlignVCenter;
+        else
+            align = Qt::AlignBottom;
         const bool moveToNonBlank = (input.is('.') || input.isReturn() || input.is('-'));
         const int line = m_mvcount.isEmpty() ? -1 : firstPositionInLine(count());
         alignViewportToCursor(align, line, moveToNonBlank);
