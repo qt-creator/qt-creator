@@ -82,7 +82,7 @@ void CppModelManagerInterface::ProjectInfo::clearProjectParts()
 }
 
 void CppModelManagerInterface::ProjectInfo::appendProjectPart(
-        const CppModelManagerInterface::ProjectPart::Ptr &part)
+        const ProjectPart::Ptr &part)
 {
     if (!part)
         return;
@@ -103,12 +103,8 @@ void CppModelManagerInterface::ProjectInfo::appendProjectPart(
 
     // update source files
     QSet<QString> srcs = QSet<QString>::fromList(m_sourceFiles);
-    foreach (const QString &src, part->headerFiles)
-        srcs.insert(src);
-    foreach (const QString &src, part->sourceFiles)
-        srcs.insert(src);
-    foreach (const QString &src, part->objcSourceFiles)
-        srcs.insert(src);
+    foreach (const ProjectFile &file, part->files)
+        srcs.insert(file.path);
     m_sourceFiles = srcs.toList();
 
     // update defines

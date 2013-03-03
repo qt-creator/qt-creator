@@ -491,7 +491,8 @@ void Qt4Project::updateCodeModels()
 
 void Qt4Project::updateCppCodeModel()
 {
-    typedef CPlusPlus::CppModelManagerInterface::ProjectPart ProjectPart;
+    typedef CPlusPlus::ProjectPart ProjectPart;
+    typedef CPlusPlus::ProjectFile ProjectFile;
 
     Kit *k = 0;
     QtSupport::BaseQtVersion *qtVersion = 0;
@@ -567,20 +568,31 @@ void Qt4Project::updateCppCodeModel()
 
         // part->language
         if (tc)
-            part->language = tc->compilerFlags(cxxflags) == ToolChain::STD_CXX11 ? ProjectPart::CXX11 : ProjectPart::CXX;
+            part->cxxVersion = (tc->compilerFlags(cxxflags) == ToolChain::STD_CXX11)
+                    ? ProjectPart::CXX11 : ProjectPart::CXX98;
         else
-            part->language = CPlusPlus::CppModelManagerInterface::ProjectPart::CXX11;
+            part->cxxVersion = ProjectPart::CXX11;
 
-        part->sourceFiles = pro->variableValue(CppSourceVar);
-        part->headerFiles += pro->variableValue(CppHeaderVar);
-        part->headerFiles += pro->uiFiles();
-        part->sourceFiles.prepend(CPlusPlus::CppModelManagerInterface::configurationFileName());
-        part->objcSourceFiles = pro->variableValue(ObjCSourceVar);
+        foreach (const QString &file, pro->variableValue(CppSourceVar)) {
+            allFiles << file;
+            part->files << ProjectFile(file, ProjectFile::CXXSource);
+        }
+        foreach (const QString &file, pro->variableValue(CppHeaderVar)) {
+            allFiles << file;
+            part->files << ProjectFile(file, ProjectFile::CXXHeader);
+        }
+        foreach (const QString &file, pro->uiFiles()) {
+            allFiles << file;
+            part->files << ProjectFile(file, ProjectFile::CXXHeader);
+        }
+
+        part->files.prepend(ProjectFile(CPlusPlus::CppModelManagerInterface::configurationFileName(),
+                                        ProjectFile::CXXSource));
+        foreach (const QString &file, pro->variableValue(ObjCSourceVar)) {
+            allFiles << file;
+            part->files << ProjectFile(file, ProjectFile::ObjCSource);
+        }
         pinfo.appendProjectPart(part);
-
-        allFiles += part->headerFiles;
-        allFiles += part->sourceFiles;
-        allFiles += part->objcSourceFiles;
     }
 
     modelmanager->updateProjectInfo(pinfo);

@@ -48,7 +48,8 @@ HEADERS += completionsettingspage.h \
     TypeHierarchyBuilder.h \
     cppindexingsupport.h \
     builtinindexingsupport.h \
-    cpppointerdeclarationformatter.h
+    cpppointerdeclarationformatter.h \
+    cppprojectfile.h
 
 SOURCES += completionsettingspage.cpp \
     cppclassesfilter.cpp \
@@ -90,7 +91,8 @@ SOURCES += completionsettingspage.cpp \
     TypeHierarchyBuilder.cpp \
     cppindexingsupport.cpp \
     builtinindexingsupport.cpp \
-    cpppointerdeclarationformatter.cpp
+    cpppointerdeclarationformatter.cpp \
+    cppprojectfile.cpp
 
 FORMS += completionsettingspage.ui \
     cppfilesettingspage.ui \

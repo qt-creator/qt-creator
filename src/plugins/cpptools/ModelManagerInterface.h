@@ -33,6 +33,7 @@
 #include <cplusplus/CppDocument.h>
 #include <languageutils/fakemetaobject.h>
 #include "cpptools_global.h"
+#include "cppprojectfile.h"
 
 #include <QObject>
 #include <QHash>
@@ -63,47 +64,63 @@ namespace CppTools {
 
 namespace CPlusPlus {
 
+class CPPTOOLS_EXPORT ProjectPart
+{
+public:
+    ProjectPart()
+        : cVersion(C89)
+        , cxxVersion(CXX11)
+        , cxxExtensions(NoExtensions)
+        , qtVersion(UnknownQt)
+    {}
+
+public:
+    enum CVersion {
+        C89,
+        C99,
+        C11
+    };
+
+    enum CXXVersion {
+        CXX98,
+        CXX11
+    };
+
+    enum CXXExtension {
+        NoExtensions = 0x0,
+        GnuExtensions = 0x1,
+        MicrosoftExtensions = 0x2,
+        BorlandExtensions = 0x4,
+        OpenMP = 0x8
+    };
+    Q_DECLARE_FLAGS(CXXExtensions, CXXExtension)
+
+    enum QtVersion {
+        UnknownQt = -1,
+        NoQt = 0,
+        Qt4 = 1,
+        Qt5 = 2
+    };
+
+    typedef QSharedPointer<ProjectPart> Ptr;
+
+public: //attributes
+    QList<ProjectFile> files;
+    QByteArray defines;
+    QStringList includePaths;
+    QStringList frameworkPaths;
+    QStringList precompiledHeaders;
+    CVersion cVersion;
+    CXXVersion cxxVersion;
+    CXXExtensions cxxExtensions;
+    QtVersion qtVersion;
+};
+
 class CPPTOOLS_EXPORT CppModelManagerInterface : public QObject
 {
     Q_OBJECT
 
 public:
-
-    class CPPTOOLS_EXPORT ProjectPart
-    {
-    public:
-        ProjectPart()
-            : language(CXX11)
-            , qtVersion(UnknownQt)
-        {}
-
-    public: // enums and types
-        enum Language {
-            C89 = 1,
-            C99 = 2,
-            CXX = 3,
-            CXX11 = 4
-        };
-        enum QtVersion {
-            UnknownQt = -1,
-            NoQt = 0,
-            Qt4 = 1,
-            Qt5 = 2
-        };
-
-        typedef QSharedPointer<ProjectPart> Ptr;
-
-    public: //attributes
-        QStringList headerFiles;
-        QStringList sourceFiles;
-        QStringList objcSourceFiles;
-        QByteArray defines;
-        QStringList includePaths;
-        QStringList frameworkPaths;
-        QStringList precompiledHeaders;
-        Language language;
-        QtVersion qtVersion;
-    };
 
     class CPPTOOLS_EXPORT ProjectInfo
     {
@@ -251,5 +268,7 @@ public Q_SLOTS:
 };
 
 } // namespace CPlusPlus
+
+QDebug operator <<(QDebug stream, const CPlusPlus::ProjectFile &cxxFile);
 
 #endif // CPPMODELMANAGERINTERFACE_H

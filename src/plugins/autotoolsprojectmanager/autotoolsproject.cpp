@@ -434,13 +434,15 @@ void AutotoolsProject::updateCppCodeModel()
             || (pinfo.frameworkPaths() != allFrameworkPaths);
     if (update) {
         pinfo.clearProjectParts();
-        CPlusPlus::CppModelManagerInterface::ProjectPart::Ptr part(
-                    new CPlusPlus::CppModelManagerInterface::ProjectPart);
+        CPlusPlus::ProjectPart::Ptr part(new CPlusPlus::ProjectPart);
         part->includePaths = allIncludePaths;
-        part->sourceFiles = m_files;
+        foreach (const QString &file, m_files)
+            part->files << CPlusPlus::ProjectFile(file, CPlusPlus::ProjectFile::CXXSource);
+
         part->defines = macros;
         part->frameworkPaths = allFrameworkPaths;
-        part->language = CPlusPlus::CppModelManagerInterface::ProjectPart::CXX11;
+        part->cVersion = CPlusPlus::ProjectPart::C99;
+        part->cxxVersion = CPlusPlus::ProjectPart::CXX11;
         pinfo.appendProjectPart(part);
 
         modelManager->updateProjectInfo(pinfo);

@@ -89,9 +89,9 @@
 
 namespace CPlusPlus {
 
-uint qHash(const CppModelManagerInterface::ProjectPart &p)
+uint qHash(const ProjectPart &p)
 {
-    uint h = qHash(p.defines) ^ p.language ^ p.qtVersion;
+    uint h = qHash(p.defines) ^ p.cVersion ^ p.cxxVersion ^ p.cxxExtensions ^ p.qtVersion;
 
     foreach (const QString &i, p.includePaths)
         h ^= qHash(i);
@@ -102,12 +102,16 @@ uint qHash(const CppModelManagerInterface::ProjectPart &p)
     return h;
 }
 
-bool operator==(const CppModelManagerInterface::ProjectPart &p1,
-                const CppModelManagerInterface::ProjectPart &p2)
+bool operator==(const ProjectPart &p1,
+                const ProjectPart &p2)
 {
     if (p1.defines != p2.defines)
         return false;
-    if (p1.language != p2.language)
+    if (p1.cVersion != p2.cVersion)
+        return false;
+    if (p1.cxxVersion != p2.cxxVersion)
+        return false;
+    if (p1.cxxExtensions != p2.cxxExtensions)
         return false;
     if (p1.qtVersion!= p2.qtVersion)
         return false;
@@ -769,9 +773,8 @@ QStringList CppModelManager::internalProjectFiles() const
         it.next();
         ProjectInfo pinfo = it.value();
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
-            files += part->headerFiles;
-            files += part->sourceFiles;
-            files += part->objcSourceFiles;
+            foreach (const ProjectFile &file, part->files)
+                files += file.path;
         }
     }
     files.removeDuplicates();
@@ -839,24 +842,37 @@ void CppModelManager::dumpModelManagerConfiguration()
         qDebug()<<" for project:"<< pinfo.project().data()->document()->fileName();
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
             qDebug() << "=== part ===";
-            const char* lang;
-            switch (part->language) {
-            case ProjectPart::CXX: lang = "C++"; break;
-            case ProjectPart::CXX11: lang = "C++11"; break;
-            case ProjectPart::C89: lang = "C89"; break;
-            case ProjectPart::C99: lang = "C99"; break;
-            default: lang = "INVALID";
+            const char* cVersion;
+            const char* cxxVersion;
+            const char* cxxExtensions;
+            switch (part->cVersion) {
+            case ProjectPart::C89: cVersion = "C89"; break;
+            case ProjectPart::C99: cVersion = "C99"; break;
+            case ProjectPart::C11: cVersion = "C11"; break;
+            default: cVersion = "INVALID";
+            }
+            switch (part->cxxVersion) {
+            case ProjectPart::CXX98: cVersion = "CXX98"; break;
+            case ProjectPart::CXX11: cVersion = "CXX11"; break;
+            default: cxxVersion = "INVALID";
+            }
+            switch (part->cxxExtensions) {
+            case ProjectPart::NoExtensions: cVersion = "NoExtensions"; break;
+            case ProjectPart::GnuExtensions: cVersion = "GnuExtensions"; break;
+            case ProjectPart::MicrosoftExtensions: cVersion = "MicrosoftExtensions"; break;
+            case ProjectPart::BorlandExtensions: cVersion = "BorlandExtensions"; break;
+            default: cxxExtensions = "INVALID";
             }
 
-            qDebug() << "language:" << lang;
+            qDebug() << "cVersion:" << cVersion;
+            qDebug() << "cxxVersion:" << cxxVersion;
+            qDebug() << "cxxExtensions:" << cxxExtensions;
             qDebug() << "Qt version:" << part->qtVersion;
             qDebug() << "precompiled header:" << part->precompiledHeaders;
             qDebug() << "defines:" << part->defines;
             qDebug() << "includes:" << part->includePaths;
             qDebug() << "frameworkPaths:" << part->frameworkPaths;
-            qDebug() << "headers:" << part->headerFiles;
-            qDebug() << "sources:" << part->sourceFiles;
-            qDebug() << "objc sources:" << part->objcSourceFiles;
+            qDebug() << "files:" << part->files;
             qDebug() << "";
         }
     }
@@ -988,12 +1004,8 @@ void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 
         foreach (const ProjectInfo &projectInfo, m_projects) {
             foreach (const ProjectPart::Ptr &projectPart, projectInfo.projectParts()) {
-                foreach (const QString &sourceFile, projectPart->sourceFiles)
-                    m_srcToProjectPart[sourceFile].append(projectPart);
-                foreach (const QString &objcSourceFile, projectPart->objcSourceFiles)
-                    m_srcToProjectPart[objcSourceFile].append(projectPart);
-                foreach (const QString &headerFile, projectPart->headerFiles)
-                    m_srcToProjectPart[headerFile].append(projectPart);
+                foreach (const ProjectFile &cxxFile, projectPart->files)
+                    m_srcToProjectPart[cxxFile.path].append(projectPart);
             }
         }
     }
@@ -1004,9 +1016,9 @@ void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
     emit projectPartsUpdated(pinfo.project().data());
 }
 
-QList<CppModelManager::ProjectPart::Ptr> CppModelManager::projectPart(const QString &fileName) const
+QList<ProjectPart::Ptr> CppModelManager::projectPart(const QString &fileName) const
 {
-    QList<CppModelManager::ProjectPart::Ptr> parts = m_srcToProjectPart.value(fileName);
+    QList<ProjectPart::Ptr> parts = m_srcToProjectPart.value(fileName);
     if (!parts.isEmpty())
         return parts;
 

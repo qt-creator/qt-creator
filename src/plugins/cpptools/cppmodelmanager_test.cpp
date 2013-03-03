@@ -39,7 +39,8 @@ using namespace CppTools::Internal;
 
 typedef CPlusPlus::Document Document;
 typedef CPlusPlus::CppModelManagerInterface::ProjectInfo ProjectInfo;
-typedef CPlusPlus::CppModelManagerInterface::ProjectPart ProjectPart;
+typedef CPlusPlus::ProjectPart ProjectPart;
+typedef CPlusPlus::ProjectFile ProjectFile;
 typedef ProjectExplorer::Project Project;
 
 namespace {
@@ -81,7 +82,7 @@ void CppToolsPlugin::test_modelmanager_paths()
 
     ProjectPart::Ptr part(new ProjectPart);
     pi.appendProjectPart(part);
-    part->language = ProjectPart::CXX;
+    part->cxxVersion = ProjectPart::CXX98;
     part->qtVersion = ProjectPart::Qt5;
     part->defines = QByteArray("#define OH_BEHAVE -1\n");
     part->includePaths = QStringList() << testIncludeDir(false);
@@ -109,19 +110,20 @@ void CppToolsPlugin::test_modelmanager_framework_headers()
 
     ProjectPart::Ptr part(new ProjectPart);
     pi.appendProjectPart(part);
-    part->language = ProjectPart::CXX;
+    part->cxxVersion = ProjectPart::CXX98;
     part->qtVersion = ProjectPart::Qt5;
     part->defines = QByteArray("#define OH_BEHAVE -1\n");
     part->includePaths << testIncludeDir();
     part->frameworkPaths << testFrameworksDir();
-    part->sourceFiles << testSource(QLatin1String("test_modelmanager_framework_headers.cpp"));
+    const QString &source = testSource(QLatin1String("test_modelmanager_framework_headers.cpp"));
+    part->files << ProjectFile(source, ProjectFile::CXXSource);
 
     mm->updateProjectInfo(pi);
-    mm->updateSourceFiles(part->sourceFiles).waitForFinished();
+    mm->updateSourceFiles(QStringList(source)).waitForFinished();
     QCoreApplication::processEvents();
 
-    QVERIFY(mm->snapshot().contains(part->sourceFiles.first()));
-    Document::Ptr doc = mm->snapshot().document(part->sourceFiles.first());
+    QVERIFY(mm->snapshot().contains(source));
+    Document::Ptr doc = mm->snapshot().document(source);
     QVERIFY(!doc.isNull());
     CPlusPlus::Namespace *ns = doc->globalNamespace();
     QVERIFY(ns);

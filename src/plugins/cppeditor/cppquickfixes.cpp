@@ -1688,17 +1688,19 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
     QList<CppModelManagerInterface::ProjectInfo> projectInfos = modelManager->projectInfos();
     bool inProject = false;
     foreach (const CppModelManagerInterface::ProjectInfo &info, projectInfos) {
-        foreach (CppModelManagerInterface::ProjectPart::Ptr part, info.projectParts()) {
-            if (part->sourceFiles.contains(doc->fileName()) || part->objcSourceFiles.contains(doc->fileName()) || part->headerFiles.contains(doc->fileName())) {
-                inProject = true;
-                includePaths += part->includePaths;
+        foreach (ProjectPart::Ptr part, info.projectParts()) {
+            foreach (const ProjectFile &file, part->files) {
+                if (file.path == doc->fileName()) {
+                    inProject = true;
+                    includePaths += part->includePaths;
+                }
             }
         }
     }
     if (!inProject) {
         // better use all include paths than none
         foreach (const CppModelManagerInterface::ProjectInfo &info, projectInfos) {
-            foreach (CppModelManagerInterface::ProjectPart::Ptr part, info.projectParts())
+            foreach (ProjectPart::Ptr part, info.projectParts())
                 includePaths += part->includePaths;
         }
     }

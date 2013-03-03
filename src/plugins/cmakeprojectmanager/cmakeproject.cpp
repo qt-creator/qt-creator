@@ -372,19 +372,20 @@ bool CMakeProject::parseCMakeLists()
                 || pinfo.defines() != allDefines
                 || pinfo.frameworkPaths() != allFrameworkPaths)  {
             pinfo.clearProjectParts();
-            CPlusPlus::CppModelManagerInterface::ProjectPart::Ptr part(
-                        new CPlusPlus::CppModelManagerInterface::ProjectPart);
+            CPlusPlus::ProjectPart::Ptr part(new CPlusPlus::ProjectPart);
             part->includePaths = allIncludePaths;
-            // TODO we only want C++ files, not all other stuff that might be in the project
-            part->sourceFiles = m_files;
+            CPlusPlus::ProjectFileAdder adder(part->files);
+            foreach (const QString &file, m_files)
+                adder.maybeAdd(file);
             part->defines = allDefines;
             part->frameworkPaths = allFrameworkPaths;
+            part->cVersion = CPlusPlus::ProjectPart::C99;
             if (tc)
-                part->language = tc->compilerFlags(cxxflags) == ToolChain::STD_CXX11
-                        ? CPlusPlus::CppModelManagerInterface::ProjectPart::CXX11
-                        : CPlusPlus::CppModelManagerInterface::ProjectPart::CXX;
+                part->cxxVersion = tc->compilerFlags(cxxflags) == ToolChain::STD_CXX11
+                        ? CPlusPlus::ProjectPart::CXX11
+                        : CPlusPlus::ProjectPart::CXX98;
             else
-                part->language = CPlusPlus::CppModelManagerInterface::ProjectPart::CXX11;
+                part->cxxVersion = CPlusPlus::ProjectPart::CXX11;
             pinfo.appendProjectPart(part);
             modelmanager->updateProjectInfo(pinfo);
             m_codeModelFuture.cancel();

@@ -59,27 +59,6 @@ using namespace ProjectExplorer;
 namespace GenericProjectManager {
 namespace Internal {
 
-static QList<Core::MimeType> cppMimeTypes()
-{
-    QStringList mimeTypesNames;
-    mimeTypesNames << QLatin1String(CppTools::Constants::C_SOURCE_MIMETYPE)
-                   << QLatin1String(CppTools::Constants::C_HEADER_MIMETYPE)
-                   << QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)
-                   << QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
-                   << QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE);
-
-    QList<Core::MimeType> mimeTypes;
-
-    const Core::MimeDatabase *mimeDatabase = Core::ICore::mimeDatabase();
-    foreach (const QString &typeName, mimeTypesNames) {
-        Core::MimeType mimeType = mimeDatabase->findByType(typeName);
-        if (!mimeType.isNull())
-            mimeTypes.append(mimeType);
-    }
-
-    return mimeTypes;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////
 //
 // GenericProject
@@ -267,8 +246,7 @@ void GenericProject::refresh(RefreshOptions options)
     if (modelManager) {
         CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
         pinfo.clearProjectParts();
-        CPlusPlus::CppModelManagerInterface::ProjectPart::Ptr part(
-                    new CPlusPlus::CppModelManagerInterface::ProjectPart);
+        CPlusPlus::ProjectPart::Ptr part(new CPlusPlus::ProjectPart);
 
         Kit *k = activeTarget() ? activeTarget()->kit() : KitManager::instance()->defaultKit();
         if (ToolChain *tc = ToolChainKitInformation::toolChain(k)) {
@@ -290,29 +268,23 @@ void GenericProject::refresh(RefreshOptions options)
         // ### add _defines.
 
         // Add any C/C++ files to be parsed
-        const QList<Core::MimeType> mimeTypes = cppMimeTypes();
-        QFileInfo fileInfo;
-
-        foreach (const QString &file, files()) {
-            fileInfo.setFile(file);
-            foreach (const Core::MimeType &mimeType, mimeTypes) {
-                if (mimeType.matchesFile(fileInfo)) {
-                    part->sourceFiles += file;
-                    break;
-                }
-            }
-        }
+        CPlusPlus::ProjectFileAdder adder(part->files);
+        foreach (const QString &file, files())
+            adder.maybeAdd(file);
 
         QStringList filesToUpdate;
 
         if (options & Configuration) {
-            filesToUpdate = part->sourceFiles;
+            foreach (const CPlusPlus::ProjectFile &file, part->files)
+                filesToUpdate << file.path;
             filesToUpdate.append(CPlusPlus::CppModelManagerInterface::configurationFileName());
             // Full update, if there's a code model update, cancel it
             m_codeModelFuture.cancel();
         } else if (options & Files) {
             // Only update files that got added to the list
-            QSet<QString> newFileList = part->sourceFiles.toSet();
+            QSet<QString> newFileList;
+            foreach (const CPlusPlus::ProjectFile &file, part->files)
+                newFileList.insert(file.path);
             newFileList.subtract(oldFileList);
             filesToUpdate.append(newFileList.toList());
         }
