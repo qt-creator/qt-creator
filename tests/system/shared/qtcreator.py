@@ -206,3 +206,6 @@ if os.getenv("SYSTEST_NOSETTINGSPATH") != "1":
     cwd = os.path.abspath(cwd)
     copySettingsToTmpDir()
     atexit.register(__removeTestingDir__)
+
+if os.getenv("SYSTEST_WRITE_RESULTS") == "1" and os.getenv("SYSTEST_RESULTS_FOLDER") != None:
+    atexit.register(writeTestResults, os.getenv("SYSTEST_RESULTS_FOLDER"))
