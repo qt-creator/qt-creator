@@ -63,11 +63,19 @@ struct FactoryAndId
     Core::Id id;
 };
 
+class DeployFactoryAndId
+{
+public:
+    ProjectExplorer::DeployConfigurationFactory *factory;
+    Core::Id id;
+};
+
 
 } // namespace Internal
 } // namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::Internal::FactoryAndId)
+Q_DECLARE_METATYPE(ProjectExplorer::Internal::DeployFactoryAndId)
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -381,15 +389,19 @@ void RunSettingsWidget::currentDeployConfigurationChanged(int index)
 void RunSettingsWidget::aboutToShowDeployMenu()
 {
     m_addDeployMenu->clear();
-    DeployConfigurationFactory *factory = DeployConfigurationFactory::find(m_target);
-    if (!factory)
+    QList<DeployConfigurationFactory *> factories = DeployConfigurationFactory::find(m_target);
+    if (factories.isEmpty())
         return;
-    QList<Core::Id> ids = factory->availableCreationIds(m_target);
-    foreach (Core::Id id, ids) {
-        QAction *action = m_addDeployMenu->addAction(factory->displayNameForId(id));
-        action->setData(QVariant::fromValue(id));
-        connect(action, SIGNAL(triggered()),
-                this, SLOT(addDeployConfiguration()));
+
+    foreach (DeployConfigurationFactory *factory, factories) {
+        QList<Core::Id> ids = factory->availableCreationIds(m_target);
+        foreach (Core::Id id, ids) {
+            QAction *action = m_addDeployMenu->addAction(factory->displayNameForId(id));
+            DeployFactoryAndId data = { factory, id };
+            action->setData(QVariant::fromValue(data));
+            connect(action, SIGNAL(triggered()),
+                    this, SLOT(addDeployConfiguration()));
+        }
     }
 }
 
@@ -398,19 +410,13 @@ void RunSettingsWidget::addDeployConfiguration()
     QAction *act = qobject_cast<QAction *>(sender());
     if (!act)
         return;
-    Core::Id id = act->data().value<Core::Id>();
-    DeployConfigurationFactory *factory = DeployConfigurationFactory::find(m_target);
-    if (!factory)
+    DeployFactoryAndId data = act->data().value<DeployFactoryAndId>();
+    if (!data.factory->canCreate(m_target, data.id))
         return;
-    DeployConfiguration *newDc = 0;
-    foreach (Core::Id id, factory->availableCreationIds(m_target)) {
-        if (!factory->canCreate(m_target, id))
-            continue;
-        newDc = factory->create(m_target, id);
-    }
+    DeployConfiguration *newDc = data.factory->create(m_target, data.id);
     if (!newDc)
         return;
-    QTC_CHECK(!newDc || newDc->id() == id);
+    QTC_CHECK(!newDc || newDc->id() == data.id);
     m_target->addDeployConfiguration(newDc);
     m_target->setActiveDeployConfiguration(newDc);
     m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().size() > 1);

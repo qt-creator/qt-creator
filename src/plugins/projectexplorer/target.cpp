@@ -545,12 +545,16 @@ void Target::updateDefaultBuildConfigurations()
 
 void Target::updateDefaultDeployConfigurations()
 {
-    DeployConfigurationFactory *dcFactory = DeployConfigurationFactory::find(this);
-    if (!dcFactory) {
+    QList<DeployConfigurationFactory *> dcFactories = DeployConfigurationFactory::find(this);
+    if (dcFactories.isEmpty()) {
         qWarning("No deployment configuration factory found for target id '%s'.", qPrintable(id().toString()));
         return;
     }
-    QList<Core::Id> dcIds = dcFactory->availableCreationIds(this);
+
+    QList<Core::Id> dcIds;
+    foreach (DeployConfigurationFactory *dcFactory, dcFactories)
+        dcIds.append(dcFactory->availableCreationIds(this));
+
     QList<DeployConfiguration *> dcList = deployConfigurations();
 
     foreach (DeployConfiguration *dc, dcList) {
@@ -561,12 +565,14 @@ void Target::updateDefaultDeployConfigurations()
     }
 
     foreach (Core::Id id, dcIds) {
-        if (!dcFactory->canCreate(this, id))
-            continue;
-        DeployConfiguration *dc = dcFactory->create(this, id);
-        if (dc) {
-            QTC_CHECK(dc->id() == id);
-            addDeployConfiguration(dc);
+        foreach (DeployConfigurationFactory *dcFactory, dcFactories) {
+            if (dcFactory->canCreate(this, id)) {
+                DeployConfiguration *dc = dcFactory->create(this, id);
+                if (dc) {
+                    QTC_CHECK(dc->id() == id);
+                    addDeployConfiguration(dc);
+                }
+            }
         }
     }
 }

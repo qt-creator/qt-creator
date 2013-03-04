@@ -110,7 +110,7 @@ public:
     virtual DeployConfiguration *clone(Target *parent, DeployConfiguration *product);
 
     static DeployConfigurationFactory *find(Target *parent, const QVariantMap &map);
-    static DeployConfigurationFactory *find(Target *parent);
+    static QList<DeployConfigurationFactory *> find(Target *parent);
     static DeployConfigurationFactory *find(Target *parent, DeployConfiguration *dc);
 
 signals:
