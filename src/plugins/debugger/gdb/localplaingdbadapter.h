@@ -62,7 +62,6 @@ private:
     QByteArray execFilePath() const;
     QByteArray toLocalEncoding(const QString &s) const;
     QString fromLocalEncoding(const QByteArray &b) const;
-    void checkForReleaseBuild();
 
     OutputCollector m_outputCollector;
     LocalGdbProcess m_gdbProc;

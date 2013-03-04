@@ -67,7 +67,6 @@ public:
     QCheckBox *checkBoxAdjustBreakpointLocations;
     QCheckBox *checkBoxUseDynamicType;
     QCheckBox *checkBoxLoadGdbInit;
-    QCheckBox *checkBoxWarnOnReleaseBuilds;
     QLabel *labelDangerous;
     QCheckBox *checkBoxTargetAsync;
     QCheckBox *checkBoxAutoEnrichParameters;
@@ -157,13 +156,6 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     checkBoxLoadGdbInit->setToolTip(GdbOptionsPage::tr(
         "Allows or inhibits reading the user's default\n"
         ".gdbinit file on debugger startup."));
-
-    checkBoxWarnOnReleaseBuilds = new QCheckBox(groupBoxGeneral);
-    checkBoxWarnOnReleaseBuilds->setText(GdbOptionsPage::tr(
-        "Warn when debugging \"Release\" builds"));
-    checkBoxWarnOnReleaseBuilds->setToolTip(GdbOptionsPage::tr(
-        "Show a warning when starting the debugger "
-        "on a binary with insufficient debug information."));
 
     labelDangerous = new QLabel(GdbOptionsPage::tr(
         "The options below should be used with care."));
@@ -292,7 +284,6 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     formLayout->addRow(checkBoxAdjustBreakpointLocations);
     formLayout->addRow(checkBoxUseDynamicType);
     formLayout->addRow(checkBoxLoadGdbInit);
-    formLayout->addRow(checkBoxWarnOnReleaseBuilds);
     formLayout->addRow(checkBoxIntelFlavor);
     formLayout->addRow(labelDangerous);
     formLayout->addRow(checkBoxTargetAsync);
@@ -335,7 +326,6 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     group.insert(dc->action(AutoEnrichParameters), checkBoxAutoEnrichParameters);
     group.insert(dc->action(UseDynamicType), checkBoxUseDynamicType);
     group.insert(dc->action(TargetAsync), checkBoxTargetAsync);
-    group.insert(dc->action(WarnOnReleaseBuilds), checkBoxWarnOnReleaseBuilds);
     group.insert(dc->action(AdjustBreakpointLocations), checkBoxAdjustBreakpointLocations);
     group.insert(dc->action(BreakOnWarning), checkBoxBreakOnWarning);
     group.insert(dc->action(BreakOnFatal), checkBoxBreakOnFatal);
@@ -360,7 +350,6 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
             << sep << groupBoxGeneral->title()
             << sep << checkBoxLoadGdbInit->text()
             << sep << checkBoxTargetAsync->text()
-            << sep << checkBoxWarnOnReleaseBuilds->text()
             << sep << checkBoxUseDynamicType->text()
             << sep << labelGdbWatchdogTimeout->text()
             << sep << checkBoxEnableReverseDebugging->text()

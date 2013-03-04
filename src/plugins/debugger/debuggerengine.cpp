@@ -37,10 +37,11 @@
 #include "debuggerstringutils.h"
 #include "debuggerstartparameters.h"
 
-#include "memoryagent.h"
-#include "disassembleragent.h"
 #include "breakhandler.h"
+#include "disassembleragent.h"
+#include "memoryagent.h"
 #include "moduleshandler.h"
+#include "peutils.h"
 #include "registerhandler.h"
 #include "snapshothandler.h"
 #include "sourcefileshandler.h"
@@ -60,6 +61,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/taskhub.h>
 
+#include <utils/elfreader.h>
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>
 #include <utils/fileinprojectfinder.h>
@@ -760,6 +762,7 @@ void DebuggerEnginePrivate::doSetupEngine()
 {
     m_engine->showMessage(_("CALL: SETUP ENGINE"));
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << m_engine << state());
+    m_engine->checkForReleaseBuild(m_startParameters);
     m_engine->setupEngine();
 }
 
@@ -1787,6 +1790,95 @@ bool DebuggerEngine::isStateDebugging() const
 void DebuggerEngine::setStateDebugging(bool on)
 {
     d->m_isStateDebugging = on;
+}
+
+void DebuggerEngine::checkForReleaseBuild(const DebuggerStartParameters &sp)
+{
+    if (!debuggerCore()->boolSetting(WarnOnReleaseBuilds) || !(sp.languages & CppLanguage))
+        return;
+    QString binary = sp.executable;
+    if (binary.isEmpty())
+        return;
+
+    QString detailedWarning;
+    switch (sp.toolChainAbi.binaryFormat()) {
+    case ProjectExplorer::Abi::PEFormat: {
+        if (sp.masterEngineType != CdbEngineType)
+            return;
+        if (!binary.endsWith(QLatin1String(".exe"), Qt::CaseInsensitive))
+            binary.append(QLatin1String(".exe"));
+        QString errorMessage;
+        QStringList rc;
+        if (getPDBFiles(binary, &rc, &errorMessage) && !rc.isEmpty())
+            return;
+        if (!errorMessage.isEmpty()) {
+            detailedWarning.append(tr("\n").append(errorMessage));
+        }
+        break;
+    }
+    case ProjectExplorer::Abi::ElfFormat: {
+
+        Utils::ElfReader reader(binary);
+        Utils::ElfData elfData = reader.readHeaders();
+        QString error = reader.errorString();
+
+        debuggerCore()->showMessage(_("EXAMINING ") + binary, LogDebug);
+        QByteArray msg = "ELF SECTIONS: ";
+
+        static QList<QByteArray> interesting;
+        if (interesting.isEmpty()) {
+            interesting.append(".debug_info");
+            interesting.append(".debug_abbrev");
+            interesting.append(".debug_line");
+            interesting.append(".debug_str");
+            interesting.append(".debug_loc");
+            interesting.append(".debug_range");
+            interesting.append(".gdb_index");
+            interesting.append(".note.gnu.build-id");
+            interesting.append(".gnu.hash");
+            interesting.append(".gnu_debuglink");
+        }
+
+        QSet<QByteArray> seen;
+        foreach (const Utils::ElfSectionHeader &header, elfData.sectionHeaders) {
+            msg.append(header.name);
+            msg.append(' ');
+            if (interesting.contains(header.name))
+                seen.insert(header.name);
+        }
+        debuggerCore()->showMessage(_(msg), LogDebug);
+
+        if (!error.isEmpty()) {
+            debuggerCore()->showMessage(_("ERROR WHILE READING ELF SECTIONS: ") + error,
+                                        LogDebug);
+            return;
+        }
+
+        if (elfData.sectionHeaders.isEmpty()) {
+            debuggerCore()->showMessage(_("NO SECTION HEADERS FOUND. IS THIS AN EXECUTABLE?"),
+                                        LogDebug);
+            return;
+        }
+
+        // Note: .note.gnu.build-id also appears in regular release builds.
+        // bool hasBuildId = elfData.indexOf(".note.gnu.build-id") >= 0;
+        bool hasEmbeddedInfo = elfData.indexOf(".debug_info") >= 0;
+        bool hasLink = elfData.indexOf(".gnu_debuglink") >= 0;
+        if (hasEmbeddedInfo || hasLink)
+            return;
+
+        foreach (const QByteArray &name, interesting) {
+            const QString found = seen.contains(name) ? tr("Found.") : tr("Not Found.");
+            detailedWarning.append(tr("\nSection %1: %2").arg(_(name)).arg(found));
+        }
+        break;
+    }
+    default:
+        return;
+    }
+    showMessageBox(QMessageBox::Information, tr("Warning"),
+                   tr("This does not seem to be a \"Debug\" build.\n"
+                      "Setting breakpoints by file name and line number may fail.\n").append(detailedWarning));
 }
 
 void DebuggerEngine::handleAutoTests()

@@ -4831,9 +4831,6 @@ void GdbEngine::startGdb(const QStringList &args)
     typedef GlobalDebuggerOptions::SourcePathMap SourcePathMap;
     typedef SourcePathMap::const_iterator SourcePathMapIterator;
 
-    if (debuggerCore()->boolSetting(WarnOnReleaseBuilds))
-        checkForReleaseBuild();
-
     showStatusMessage(tr("Setting up inferior..."));
 
     // Addint executable to modules list.
@@ -5346,70 +5343,6 @@ bool GdbEngine::attemptQuickStart() const
     }
 
     return true;
-}
-
-void GdbEngine::checkForReleaseBuild()
-{
-    const QString binary = startParameters().executable;
-    if (binary.isEmpty())
-        return;
-    ElfReader reader(binary);
-    ElfData elfData = reader.readHeaders();
-    QString error = reader.errorString();
-
-    showMessage(_("EXAMINING ") + binary);
-    QByteArray msg = "ELF SECTIONS: ";
-
-    static QList<QByteArray> interesting;
-    if (interesting.isEmpty()) {
-        interesting.append(".debug_info");
-        interesting.append(".debug_abbrev");
-        interesting.append(".debug_line");
-        interesting.append(".debug_str");
-        interesting.append(".debug_loc");
-        interesting.append(".debug_range");
-        interesting.append(".gdb_index");
-        interesting.append(".note.gnu.build-id");
-        interesting.append(".gnu.hash");
-        interesting.append(".gnu_debuglink");
-    }
-
-    QSet<QByteArray> seen;
-    foreach (const ElfSectionHeader &header, elfData.sectionHeaders) {
-        msg.append(header.name);
-        msg.append(' ');
-        if (interesting.contains(header.name))
-            seen.insert(header.name);
-    }
-    showMessage(_(msg));
-
-    if (!error.isEmpty()) {
-        showMessage(_("ERROR WHILE READING ELF SECTIONS: ") + error);
-        return;
-    }
-
-    if (elfData.sectionHeaders.isEmpty()) {
-        showMessage(_("NO SECTION HEADERS FOUND. IS THIS AN EXECUTABLE?"));
-        return;
-    }
-
-    // Note: .note.gnu.build-id also appears in regular release builds.
-    // bool hasBuildId = elfData.indexOf(".note.gnu.build-id") >= 0;
-    bool hasEmbeddedInfo = elfData.indexOf(".debug_info") >= 0;
-    bool hasLink = elfData.indexOf(".gnu_debuglink") >= 0;
-    if (hasEmbeddedInfo || hasLink)
-        return;
-
-    QString warning;
-    warning = tr("This does not seem to be a \"Debug\" build.\n"
-        "Setting breakpoints by file name and line number may fail.\n");
-
-    foreach (const QByteArray &name, interesting) {
-        QString found = seen.contains(name) ? tr("Found.") : tr("Not Found.");
-        warning.append(tr("\nSection %1: %2").arg(_(name)).arg(found));
-    }
-
-    showMessageBox(QMessageBox::Information, tr("Warning"), warning);
 }
 
 void GdbEngine::write(const QByteArray &data)

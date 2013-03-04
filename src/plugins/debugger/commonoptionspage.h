@@ -74,6 +74,7 @@ private:
     QCheckBox *checkBoxShowQmlObjectTree;
     QCheckBox *checkBoxBreakpointsFullPath;
     QCheckBox *checkBoxRegisterForPostMortem;
+    QCheckBox *checkBoxWarnOnReleaseBuilds;
     QLabel *labelMaximalStackDepth;
     QLabel *labelMaximalStringLength;
     QSpinBox *spinBoxMaximalStackDepth;

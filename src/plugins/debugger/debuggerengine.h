@@ -385,6 +385,8 @@ protected:
     bool isStateDebugging() const;
     void setStateDebugging(bool on);
 
+    static void checkForReleaseBuild(const DebuggerStartParameters& sp);
+
     virtual void setupSlaveInferior();
     virtual void setupSlaveEngine();
     virtual void runSlaveEngine();

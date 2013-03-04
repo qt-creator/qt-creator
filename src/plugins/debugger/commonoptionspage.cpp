@@ -93,6 +93,11 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     checkBoxRegisterForPostMortem->setToolTip(tr("Register Qt Creator for debugging crashed applications."));
     checkBoxRegisterForPostMortem->setText(tr("Use Qt Creator for post-mortem debugging"));
 
+    checkBoxWarnOnReleaseBuilds = new QCheckBox(behaviorBox);
+    checkBoxWarnOnReleaseBuilds->setText(tr("Warn when debugging \"Release\" builds"));
+    checkBoxWarnOnReleaseBuilds->setToolTip(tr("Show a warning when starting the debugger "
+                                            "on a binary with insufficient debug information."));
+
     labelMaximalStackDepth = new QLabel(tr("Maximum stack depth:"), behaviorBox);
 
     spinBoxMaximalStackDepth = new QSpinBox(behaviorBox);
@@ -127,6 +132,7 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     gridLayout->addWidget(checkBoxCloseBuffersOnExit, 2, 0, 1, 1);
     gridLayout->addWidget(checkBoxBringToForegroundOnInterrrupt, 3, 0, 1, 1);
     gridLayout->addWidget(checkBoxBreakpointsFullPath, 4, 0, 1, 1);
+    gridLayout->addWidget(checkBoxWarnOnReleaseBuilds, 5, 0, 1, 1);
     gridLayout->addLayout(horizontalLayout, 6, 0, 1, 2);
 
     gridLayout->addWidget(checkBoxFontSizeFollowsEditor, 0, 1, 1, 1);
@@ -160,6 +166,8 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
         checkBoxBringToForegroundOnInterrrupt);
     m_group->insert(dc->action(ShowQmlObjectTree),
         checkBoxShowQmlObjectTree);
+    m_group->insert(dc->action(WarnOnReleaseBuilds),
+        checkBoxWarnOnReleaseBuilds);
     m_group->insert(dc->action(FontSizeFollowsEditor),
         checkBoxFontSizeFollowsEditor);
     m_group->insert(dc->action(AutoDerefPointers), 0);
@@ -207,7 +215,8 @@ QString CommonOptionsPageWidget::searchKeyWords() const
            << sep << checkBoxSwitchModeOnExit->text()
            << sep << labelMaximalStackDepth->text()
            << sep << checkBoxBringToForegroundOnInterrrupt->text()
-           << sep << checkBoxShowQmlObjectTree->text();
+           << sep << checkBoxShowQmlObjectTree->text()
+           << sep << checkBoxWarnOnReleaseBuilds->text();
     if (Utils::HostOsInfo::isWindowsHost())
         stream << sep << checkBoxRegisterForPostMortem->text();
 
