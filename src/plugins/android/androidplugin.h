@@ -43,7 +43,8 @@ public:
     AndroidPlugin();
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
+    void extensionsInitialized() { }
+
 private slots:
     void kitsRestored();
 };

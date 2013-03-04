@@ -72,6 +72,7 @@ private slots:
     void qtVersionsChanged(const QList<int> &addedIds,
                            const QList<int> &removedIds,
                            const QList<int> &changedIds);
+    void kitsWereLoaded();
 };
 
 class QTSUPPORT_EXPORT QtPlatformKitMatcher : public ProjectExplorer::KitMatcher

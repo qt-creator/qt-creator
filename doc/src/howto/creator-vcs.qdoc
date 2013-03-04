@@ -214,7 +214,7 @@
     version identifier at the beginning of a line and choose one of the
     revisions shown at the bottom of the context menu. This allows you to
     navigate through the history of the file and obtain previous versions of
-    it. It also works for Git and Mercurial using SHA's.
+    it. It also works for Git and Mercurial using SHA-1.
 
     The same context menu is available when right-clicking on a version
     identifier in the file log view of a single file.
@@ -255,16 +255,21 @@
 
     \list
 
-        \li \gui{Undo Unstaged Changes} reverts all changes and resets the
-            working directory to the state of the index.
+        \li \gui Git > \gui {Current File} > \gui{Undo Unstaged Changes} reverts
+            all changes and resets the working directory to the state of the
+            index.
 
-        \li \gui{Undo Uncommitted Changes} reverts all changes, discarding the
+        \li \gui Git > \gui {Current File} > \gui {Undo Uncommitted Changes}
+            reverts all changes, discarding the
             index. This returns your working copy to the state it was in right
             after the last commit.
 
-        \li \gui{Reset...} opens a dialog where you can select the SHA1 to reset
-            the working directory to. This is useful after applying patches for
-            review, for example.
+        \li \gui Git > \gui {Local Repository} > \gui Reset opens a dialog
+            where you can select the SHA-1 to reset the working directory to.
+            This is useful after applying patches for review, for example. You
+            can choose between a \gui {Soft Reset} that does not touch the index
+            file nor the working tree at all and a \gui {Hard Reset} that
+            discards all changes to tracked files in working tree.
 
     \endlist
 
@@ -351,61 +356,40 @@
     tool for projects that use Git. You can apply and check out changes from
     Gerrit in \QC 2.6 and later.
 
-    The \gui Git submenu contains the following additional items:
+    \section3 Working with the Current File
 
-    \table
-        \header
-            \li Menu Item
-            \li Description
-        \row
-            \li \gui {Patch > Apply from Editor/Apply from File}
-            \li Patches are rewriting instructions that can be applied to a set
-                of files. You can either apply a patch file that is open in \QC
-                or select the patch file to apply from the file system.
-        \row
-            \li \gui{Pull}
-            \li Pull changes from the remote repository. If there are locally
-                modified files, you are prompted to stash those changes. Select
-                \gui{Tools > Options > Version Control > Git} and select the
-                \gui {Pull with rebase} check box to perform a rebase operation
-                while pulling.
+    In addition to the standard version control system functions, you can
+    select \gui Tools > \gui Git > \gui {Current File} > \gui {Stage File for
+    Commit} to mark a new or modified file for committing to the repository.
 
-        \row
-            \li \gui{Clean/Clean Project}
-            \li All files that are not under version control (with the exception
-                of patches and project files) are displayed in the \gui {Clean
-                Repository} dialog. Select the files to delete and click
-                \gui Delete. This allows you to clean a build completely.
-        \row
-            \li \gui{Launch gitk}
-            \li Start the commit viewer for Git, gitk.
-        \row
-            \li \gui{Branches}
-            \li Manage local and remote branches.
-        \row
-            \li \gui Remotes
-            \li Manage remote repositories available in Git.
-        \row
-            \li \gui {Stage File for Commit}
-            \li Mark new or modified files for committing to the repository.
-                To undo this function, select \gui {Unstage File from Commit}.
-        \row
-            \li \gui{Show Commit}
-            \li Select a commit to view. Enter the SHA of the commit
-                in the \gui Change field.
-        \row
-            \li \gui Stash
-            \li Store local changes temporarily.
-        \row
-            \li \gui{Amend Last Commit}
-            \li Revert the last commit.
-        \row
-            \li \gui Gerrit
-            \li View, apply, and check out changes from Gerrit.
+    To undo this function, select \gui {Unstage File from Commit}.
 
-    \endtable
+    \section3 Working with the Current Project
 
-    \section3 Working with Branches
+    In addition to the standard version control system functions, you can
+    select \gui Tools > \gui Git > \gui {Current Project} > \gui {Clean Project}
+    to clean the working directory. All files that are not under version control
+    are displayed in the \gui {Clean Repository} dialog. Ignored files are
+    deselected by default. Select the files to delete and click \gui Delete.
+
+    \section3 Working with Local Repositories
+
+    In addition to the standard version control system functions, you can
+    select \gui Tools > \gui Git > \gui {Local Repository} > \gui Clean to clean
+    the repository.
+
+    To show commits, select \gui Tools > \gui Git > \gui {Show Commit} and
+    select a commit to view. Enter the SHA-1 or reference of the commit in the
+    \gui Change field.
+
+    To apply latest changes to the last commit, select \gui Tools > \gui Git >
+    \gui {Local Repository} > \gui {Amend Last Commit}. You can also edit the
+    commit message.
+
+    The following sections describe how to manage local and remote branches,
+    apply patches, and use stashes.
+
+    \section4 Working with Branches
 
     To work with Git branches, select \gui{Branches}. The checked out branch
     is shown in bold and underlined in the list of branches. Double-click branch
@@ -420,14 +404,18 @@
             \li Menu Item
             \li Description
         \row
+            \li \gui{Refresh}
+            \li Refresh the list of branches.
+        \row
             \li \gui{Add}
             \li Create new tracking and non-tracking branches.
         \row
-            \li \gui{Checkout}
-            \li Check out the selected branch and make it current.
-        \row
             \li \gui{Remove}
             \li Remove a local branch. You cannot delete remote branches.
+        \row
+            \li \gui{Checkout}
+            \li Check out the selected branch and make it current. You can stash
+                changes you have made to tracked files.
         \row
             \li \gui{Diff}
             \li Show the differences between the selected and the current
@@ -436,14 +424,59 @@
             \li \gui{Log}
             \li Show the changes in a branch.
         \row
-            \li \gui{Refresh}
-            \li Refresh the list of branches.
+            \li \gui Merge
+            \li Join the development histories in two branches together.
+        \row
+            \li \gui Rebase
+            \li Copy local commits to the updated upstream head.
     \endtable
+
+    \section4 Applying Patches
+
+    Patches are rewriting instructions that can be applied to a set of files.
+    To apply a patch file that is open in \QC, select \gui Tools > \gui Git >
+    \gui {Local Repository} > \gui {Apply from Editor}.
+
+    To select the patch file to apply from the file system, select
+    \gui {Apply from File}.
+
+    \section4 Using Stashes
+
+    With Git, you can put your current set of changes onto a virtual shelf
+    called a \e stash. Stashes are useful, for example, to put aside a set of
+    changes to work on higher priority tasks or to pull in new chages from
+    another repository.
+
+    To stash all local changes, select \gui Tools > \gui Git >
+    \gui {Local Repository} > \gui Stash > \gui Stash. The working copy is reset
+    to the state it had after the last commit.
+
+    To display a dialog that shows all known stashes with options to restore,
+    display or delete them, select \gui Stashes.
+
+    To save a snapshot of your current work under a name for later reference,
+    select \gui {Stash Snapshot}. The working copy is unchanged. For example, if
+    you want to try something and find out later that it does not work, you can
+    discard the changes and return to the state of the snapshot.
+
+    To remove a single stashed state from the stash list and apply it on top of
+    the current working tree state, select \gui {Stash Pop}.
 
     \section3 Working with Remote Repositories
 
-    To manage remote repositories available in Git, select \gui{Remotes}.
-    Double-click the names and URLs of the remote repositories to edit them.
+    In addition to the standard version control system functions, you can
+    select \gui Tools > \gui Git > \gui {Remote Repository} > \gui Pull to
+    pull changes from the remote repository. If there are locally modified
+    files, you are prompted to stash the changes. Select \gui Tools >
+    \gui Options > \gui {Version Control} > \gui Git and then select the
+    \gui {Pull with rebase} check box to perform a rebase operation while
+    pulling.
+
+    \section4 Managing Remote Repositories
+
+    To manage remote repositories available in Git, select \gui Tools > \gui Git
+    > \gui {Remote Repository} > \gui{Manage Remotes}. Double-click the names
+    and URLs of the remote repositories to edit them.
 
     The following operations are supported:
 
@@ -466,43 +499,15 @@
             \li Refresh the list of remote repositories.
     \endtable
 
+    \section4 Using Git with Subversion
 
-    \section3 Using Stashes
+    You can use Git as a client for a Subversion server. To fetch changes from a
+    Subversion repository to a Git repository, select \gui Tools > \gui Git >
+    \gui {Remote Repository} > \gui Subversion > \gui Fetch.
 
-    With Git, you can put your current set of changes onto a virtual shelf
-    called a \e stash. Stashes are useful, for example, to put aside a set of
-    changes to work on higher priority tasks or to pull in new chages from
-    another repository.
+    To view the Git Subversion log, select \gui Log.
 
-    \QC exposes this functionality in the \gui{Tools > Git > Stash} menu.
-
-    \table
-        \header
-            \li Menu Item
-            \li Description
-        \row
-            \li \gui{Stashes}
-            \li Display a dialog that shows all known stashes with options to
-                restore, display or delete them.
-        \row
-            \li \gui{Stash}
-            \li Stash all local changes. The working copy is then reset to
-                the state it had right after the last commit.
-        \row
-            \li \gui{Stash Snapshot}
-            \li Save a snapshot of your current work under a name for later
-                reference. The working copy is unchanged.
-
-                For example, if you want to try something and find out later
-                that it does not work, you can discard it and return to the
-                state of the snapshot.
-        \row
-            \li \gui{Stash Pop}
-            \li Remove a single stashed state from the stash list and apply it
-                on top of the current working tree state.
-    \endtable
-
-    \section3 Reviewing Code with Gerrit
+    \section4 Reviewing Code with Gerrit
 
     If your Git project uses Gerrit for code reviews, you can view your changes
     in \QC.
@@ -521,12 +526,30 @@
 
     To apply the selected change to the top of your local repository, select
     \gui Apply. To remove the change after testing it, select \gui Tools >
-    \gui Git > \gui {Reset}. In the \gui {Undo Changes to} dialog, select the
+    \gui Git > \gui {Local Repository} > \gui Reset. In the
+    \gui {Undo Changes to} dialog, select the
     state to reset the working directory to, and then select \gui OK.
 
     To check out the change in a headless state, select \gui Checkout.
 
     To refresh the list of changes, select \gui Refresh.
+
+    \section3 Working with Git Tools
+
+    To start the commit viewer for Git, select \gui Tools > \gui Git >
+    \gui {Git Tools} > \gui Gitk. You can also start the tool to view commits in
+    the current document or in the folder that contains the current document.
+    To specify arguments for running Gitk, select \gui Tools > \gui Options >
+    \gui {Version Control} > \gui Git.
+
+    To use some other application for viewing Git history, such as GitX or
+    QGit viewer, select \gui Tools > \gui Options > \gui {Version Control} >
+    \gui Git and specify the path to the application executable in the
+    \gui {Command} field. To start the application, select \gui Tools > \gui Git
+    > \gui {Git Tools} > \gui {Repository Browser}.
+
+    To resolve merge conflicts, select \gui Tools > \gui Git > \gui {Git Tools}
+    > \gui {Merge Tool}.
 
     \section2 Using Additional Mercurial Functionality
 

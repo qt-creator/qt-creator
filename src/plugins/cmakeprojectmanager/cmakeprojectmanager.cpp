@@ -161,6 +161,11 @@ bool CMakeManager::hasCodeBlocksNinjaGenerator() const
     return m_settingsPage->hasCodeBlocksNinjaGenerator();
 }
 
+bool CMakeManager::preferNinja() const
+{
+    return m_settingsPage->preferNinja();
+}
+
 // need to refactor this out
 // we probably want the process instead of this function
 // cmakeproject then could even run the cmake process in the background, adding the files afterwards
@@ -241,7 +246,7 @@ QString CMakeManager::qtVersionForQMake(const QString &qmakePath)
 
 
 CMakeSettingsPage::CMakeSettingsPage()
-    :  m_pathchooser(0)
+    :  m_pathchooser(0), m_preferNinja(0)
 {
     setId("Z.CMake");
     setDisplayName(tr("CMake"));
@@ -288,6 +293,11 @@ QWidget *CMakeSettingsPage::createPage(QWidget *parent)
     formLayout->addRow(tr("Executable:"), m_pathchooser);
     formLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
     m_pathchooser->setPath(m_cmakeValidatorForUser.cmakeExecutable());
+
+    m_preferNinja = new QCheckBox(tr("Prefer Ninja generator (CMake 2.8.9 or higher required)"));
+    m_preferNinja->setChecked(preferNinja());
+    formLayout->addRow(m_preferNinja);
+
     return outerWidget;
 }
 
@@ -296,6 +306,7 @@ void CMakeSettingsPage::saveSettings() const
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("CMakeSettings"));
     settings->setValue(QLatin1String("cmakeExecutable"), m_cmakeValidatorForUser.cmakeExecutable());
+    settings->setValue(QLatin1String("preferNinja"), m_preferNinja->isChecked());
     settings->endGroup();
 }
 
@@ -303,9 +314,8 @@ void CMakeSettingsPage::apply()
 {
     if (!m_pathchooser) // page was never shown
         return;
-    if (m_cmakeValidatorForUser.cmakeExecutable() == m_pathchooser->path())
-        return;
-    m_cmakeValidatorForUser.setCMakeExecutable(m_pathchooser->path());
+    if (m_cmakeValidatorForUser.cmakeExecutable() != m_pathchooser->path())
+        m_cmakeValidatorForUser.setCMakeExecutable(m_pathchooser->path());
     saveSettings();
 }
 
@@ -349,6 +359,15 @@ bool CMakeSettingsPage::hasCodeBlocksNinjaGenerator() const
     if (m_cmakeValidatorForSystem.isValid())
         return m_cmakeValidatorForSystem.hasCodeBlocksNinjaGenerator();
     return false;
+}
+
+bool CMakeSettingsPage::preferNinja() const
+{
+    QSettings *settings = Core::ICore::settings();
+    settings->beginGroup(QLatin1String("CMakeSettings"));
+    const bool r = settings->value(QLatin1String("preferNinja"), false).toBool();
+    settings->endGroup();
+    return r;
 }
 
 TextEditor::Keywords CMakeSettingsPage::keywords()

@@ -346,15 +346,19 @@ void DeviceInformationConfigWidget::manageDevices()
 void DeviceInformationConfigWidget::modelAboutToReset()
 {
     m_selectedId = m_model->deviceId(m_comboBox->currentIndex());
+    m_ignoreChange = true;
 }
 
 void DeviceInformationConfigWidget::modelReset()
 {
     m_comboBox->setCurrentIndex(m_model->indexForId(m_selectedId));
+    m_ignoreChange = false;
 }
 
 void DeviceInformationConfigWidget::currentDeviceChanged()
 {
+    if (m_ignoreChange)
+        return;
     DeviceKitInformation::setDeviceId(m_kit, m_model->deviceId(m_comboBox->currentIndex()));
 }
 

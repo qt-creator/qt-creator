@@ -39,7 +39,6 @@
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/pluginspec.h>
 
 #include <utils/persistentsettings.h>
 #include <utils/environment.h>
@@ -139,7 +138,6 @@ void KitManager::restoreKits()
         return;
 
     initializing = true;
-    QTC_CHECK(ProjectExplorerPlugin::instance()->pluginSpec()->state() == ExtensionSystem::PluginSpec::Running);
 
     QList<Kit *> kitsToRegister;
     QList<Kit *> kitsToValidate;
@@ -221,6 +219,7 @@ void KitManager::restoreKits()
 
     d->m_writer = new Utils::PersistentSettingsWriter(settingsFileName(), QLatin1String("QtCreatorProfiles"));
     d->m_initialized = true;
+    emit kitsLoaded();
     emit kitsChanged();
 }
 
@@ -264,14 +263,11 @@ bool greaterPriority(KitInformation *a, KitInformation *b)
 
 void KitManager::registerKitInformation(KitInformation *ki)
 {
-    QTC_CHECK(ProjectExplorerPlugin::instance()->pluginSpec()->state() <= ExtensionSystem::PluginSpec::Initialized);
-    QTC_CHECK(d->m_kitList.isEmpty());
+    QTC_CHECK(!isLoaded());
 
     QList<KitInformation *>::iterator it
             = qLowerBound(d->m_informationList.begin(), d->m_informationList.end(), ki, greaterPriority);
     d->m_informationList.insert(it, ki);
-
-    connect(ki, SIGNAL(validationNeeded()), this, SLOT(validateKits()));
 
     if (!d->m_initialized)
         return;
@@ -344,9 +340,6 @@ KitManager::KitList KitManager::restoreKits(const Utils::FileName &fileName)
 
 QList<Kit *> KitManager::kits(const KitMatcher *m) const
 {
-    if (!d->m_initialized)
-        const_cast<KitManager *>(this)->restoreKits();
-
     QList<Kit *> result;
     foreach (Kit *k, d->m_kitList) {
         if (!m || m->matches(k))
@@ -375,8 +368,6 @@ Kit *KitManager::find(const KitMatcher *m) const
 
 Kit *KitManager::defaultKit() const
 {
-    if (!d->m_initialized)
-        const_cast<KitManager *>(this)->restoreKits();
     return d->m_defaultKit;
 }
 
@@ -402,6 +393,11 @@ void KitManager::deleteKit(Kit *k)
     delete k;
 }
 
+bool KitManager::isLoaded() const
+{
+    return d->m_initialized;
+}
+
 void KitManager::notifyAboutUpdate(ProjectExplorer::Kit *k)
 {
     if (!k)
@@ -414,6 +410,7 @@ void KitManager::notifyAboutUpdate(ProjectExplorer::Kit *k)
 
 bool KitManager::registerKit(ProjectExplorer::Kit *k)
 {
+    QTC_ASSERT(isLoaded(), return false);
     if (!k)
         return true;
     foreach (Kit *current, kits()) {
@@ -458,12 +455,6 @@ void KitManager::setDefaultKit(Kit *k)
     d->m_defaultKit = k;
     if (d->m_initialized)
         emit defaultkitChanged();
-}
-
-void KitManager::validateKits()
-{
-    foreach (Kit *k, d->m_kitList) // no need to load kits just to validate them!
-        k->validate();
 }
 
 void KitManager::addKit(Kit *k)

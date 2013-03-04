@@ -42,6 +42,7 @@
 
 #include <QFuture>
 #include <QStringList>
+#include <QCheckBox>
 #include <QDir>
 #include <QVector>
 #include <QAction>
@@ -81,6 +82,7 @@ public:
                        const QString &generator);
     bool hasCodeBlocksMsvcGenerator() const;
     bool hasCodeBlocksNinjaGenerator() const;
+    bool preferNinja() const;
     static QString findCbpFile(const QDir &);
 
     static QString findDumperLibrary(const Utils::Environment &env);
@@ -115,6 +117,7 @@ public:
     bool isCMakeExecutableValid() const;
     bool hasCodeBlocksMsvcGenerator() const;
     bool hasCodeBlocksNinjaGenerator() const;
+    bool preferNinja() const;
 
     TextEditor::Keywords keywords();
 
@@ -123,6 +126,7 @@ private:
     QString findCmakeExecutable() const;
 
     Utils::PathChooser *m_pathchooser;
+    QCheckBox *m_preferNinja;
     CMakeValidator m_cmakeValidatorForUser;
     CMakeValidator m_cmakeValidatorForSystem;
 };

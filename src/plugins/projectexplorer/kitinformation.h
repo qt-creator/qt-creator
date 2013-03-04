@@ -120,7 +120,9 @@ public:
 
     static QString msgNoToolChainInTarget();
 private slots:
+    void kitsWereLoaded();
     void toolChainUpdated(ProjectExplorer::ToolChain *tc);
+    void toolChainRemoved(ProjectExplorer::ToolChain *tc);
 };
 
 class PROJECTEXPLORER_EXPORT ToolChainMatcher : public KitMatcher
@@ -200,6 +202,7 @@ public:
 
     QList<Task> validate(const Kit *k) const;
     void fix(Kit *k);
+    void setup(Kit *k);
 
     KitConfigWidget *createConfigWidget(Kit *k) const;
 
@@ -211,8 +214,13 @@ public:
     static Core::Id deviceId(const Kit *k);
     static void setDevice(Kit *k, IDevice::ConstPtr dev);
     static void setDeviceId(Kit *k, const Core::Id id);
+
 private slots:
+    void kitsWereLoaded();
+    void deviceAdded(const Core::Id &id);
+    void deviceRemoved(const Core::Id &id);
     void deviceUpdated(const Core::Id &id);
+    void kitUpdated(ProjectExplorer::Kit *k);
 };
 
 class PROJECTEXPLORER_EXPORT DeviceMatcher : public KitMatcher
@@ -220,6 +228,8 @@ class PROJECTEXPLORER_EXPORT DeviceMatcher : public KitMatcher
 public:
     DeviceMatcher(Core::Id id) : m_devId(id)
     { }
+
+    DeviceMatcher() { }
 
     bool matches(const Kit *k) const
     {

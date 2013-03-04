@@ -386,8 +386,33 @@ def __closeSubprocessByHookingInto__(executable, port, function, sType, userDefT
     try:
         attachToApplication(executable)
     except:
-        test.warning("Could not attach to '%s' - using fallback of pushing STOP inside Creator." % executable)
         resetApplicationContextToCreator()
+        if "Loading Qt Wrapper failed" in str(output.plainText):
+            test.warning("Loading of Qt Wrapper failed - probably different Qt versions.",
+                         "Resetting hook-into settings to continue.")
+            # assuming we're still on the build settings of the current project (TODO)
+            switchViewTo(ViewConstants.PROJECTS)
+            if sType == SubprocessType.QT_QUICK_UI:
+                selectConfig = "QML Viewer"
+            else:
+                selectConfig = executable
+            selectFromCombo(waitForObject("{buddy={text='Run configuration:' type='QLabel' "
+                                          "unnamed='1' visible='1'} type='QComboBox' unnamed='1' "
+                                          "visible='1'}"), selectConfig)
+            switchViewTo(ViewConstants.EDIT)
+            global processStarted
+            processStarted = False
+            runButton = waitForObject("{type='Core::Internal::FancyToolButton' text='Run' "
+                                      "visible='1'}")
+            clickButton(runButton)
+            if not waitFor("processStarted == True", 10000):
+                test.fatal("Something seems to be really wrong.", "Application output:"
+                           % str(output.plainText))
+                return False
+            else:
+                test.log("Application seems to be started without hooking-into.")
+        else:
+            test.warning("Could not attach to '%s' - using fallback of pushing STOP inside Creator." % executable)
         __closeSubprocessByPushingStop__(sType)
         return False
     if function == None:

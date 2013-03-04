@@ -92,9 +92,6 @@ public:
 
 protected:
     void notifyAboutUpdate(Kit *k);
-
-signals:
-    void validationNeeded();
 };
 
 class PROJECTEXPLORER_EXPORT KitMatcher
@@ -123,6 +120,8 @@ public:
 
     static void deleteKit(Kit *k);
 
+    bool isLoaded() const;
+
 public slots:
     bool registerKit(ProjectExplorer::Kit *k);
     void deregisterKit(ProjectExplorer::Kit *k);
@@ -145,8 +144,7 @@ signals:
     // Something changed.
     void kitsChanged();
 
-private slots:
-    void validateKits();
+    void kitsLoaded();
 
 private:
     explicit KitManager(QObject *parent = 0);

@@ -1,0 +1,46 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (C) 2011 - 2013 Research In Motion
+**
+** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: KDAB (info@kdab.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-deploying-android.html
+    \page creator-deployment-bb10.html
+    \nextpage creator-deployment-maemo.html
+
+    \title Deploying Applications to BlackBerry 10 Devices
+
+    To deploy Qt applications to BlackBerry 10 devices:
+
+    \list 1
+        \li Create a new project. To create an application with the native BlackBerry 10 look and feel,
+        select \gui File > \gui {New File or Project} > \gui {BlackBerry Qt Gui Application} > \gui Choose.
+        \li Select a BlackBerry 10 Kit for either device or simulator.
+        \li \QC will generate an additional application descriptor file to enable the packaging process.
+        \li You can use the BAR descriptor editor to customize the appearance and behavior of the application.
+    \endlist
+
+    For more details please refer to the Qt-Project wiki page: \l {http://qt-project.org/wiki/BlackBerry} {http://qt-project.org/wiki/BlackBerry}.
+*/

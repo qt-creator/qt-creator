@@ -51,6 +51,13 @@
             Android version 1.6, or later. You must install the Qt for Android
             SDK to develop for Android devices.
 
+        \li \l{Connecting BlackBerry 10 Devices}
+
+            \QC enables you to develop, deploy and debug your Qt applications
+            on BlackBerry 10.
+            You need to install the BlackBerry 10 NDK which contains a pre-built Qt.
+            You also need either a BlackBerry 10 device or the simulator.
+
         \li \l{Connecting Embedded Linux Devices}
 
             If you have a tool chain for building applications for embedded

@@ -74,16 +74,14 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     addAutoReleasedObject(new Internal::AndroidDeployConfigurationFactory);
     addAutoReleasedObject(new Internal::AndroidDeviceFactory);
     ProjectExplorer::KitManager::instance()->registerKitInformation(new Internal::AndroidGdbServerKitInformation);
-    return true;
-}
 
-void AndroidPlugin::extensionsInitialized()
-{
-    ProjectExplorer::DeviceManager *dm = ProjectExplorer::DeviceManager::instance();
-    if (dm->find(Core::Id(Constants::ANDROID_DEVICE_ID)).isNull())
-        dm->addDevice(ProjectExplorer::IDevice::Ptr(new Internal::AndroidDevice));
-    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsChanged()),
+    ProjectExplorer::DeviceManager::instance()
+            ->addDevice(ProjectExplorer::IDevice::Ptr(new Internal::AndroidDevice));
+
+    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsLoaded()),
             this, SLOT(kitsRestored()));
+
+    return true;
 }
 
 void AndroidPlugin::kitsRestored()

@@ -159,6 +159,7 @@ private slots:
 
 private:
     bool m_isReadOnly;
+    bool m_ignoreChange;
     QComboBox *m_comboBox;
     QPushButton *m_manageButton;
     DeviceManagerModel *m_model;

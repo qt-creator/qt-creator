@@ -75,7 +75,6 @@ QWidget *ToolSettings::createPage(QWidget *parent)
 
 static QString getUserFilePath(const QString &proposalFileName)
 {
-    static bool seeded = false;
     QDir resourceDir(ICore::userResourcePath());
     if (!resourceDir.exists(QLatin1String("externaltools")))
         resourceDir.mkpath(QLatin1String("externaltools"));
@@ -89,10 +88,6 @@ static QString getUserFilePath(const QString &proposalFileName)
         if (count > 15)
             return QString();
         // add random number
-        if (!seeded) {
-            seeded = true;
-            qsrand(QTime::currentTime().msec());
-        }
         int number = qrand() % 1000;
         tryPath = newFilePath + QString::number(number) + suffix;
     }

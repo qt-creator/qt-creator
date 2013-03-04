@@ -66,6 +66,8 @@ public:
 
     Utils::FileName defaultDebugger(const Abi &abi) const;
 
+    bool isLoaded() const;
+
 public slots:
     bool registerToolChain(ProjectExplorer::ToolChain *tc);
     void deregisterToolChain(ProjectExplorer::ToolChain *tc);
@@ -80,6 +82,8 @@ signals:
     void toolChainUpdated(ProjectExplorer::ToolChain *);
     // Something changed:
     void toolChainsChanged();
+
+    void toolChainsLoaded();
 
 private:
     explicit ToolChainManager(QObject *parent = 0);

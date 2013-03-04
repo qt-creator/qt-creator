@@ -84,8 +84,7 @@ private:
     void setMaxJobs(int jobcount);
     void setCleanAll(bool ca);
 
-    qbs::BuildOptions m_qbsBuildOptions;
-    bool m_cleanAll;
+    qbs::CleanOptions m_qbsCleanOptions;
 
     QFutureInterface<bool> *m_fi;
     qbs::CleanJob *m_job;

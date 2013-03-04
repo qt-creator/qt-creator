@@ -40,6 +40,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/abi.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
 
 #include <QComboBox>
 #include <QHBoxLayout>
@@ -67,7 +68,7 @@ Core::Id SysRootKitInformation::dataId() const
 
 unsigned int SysRootKitInformation::priority() const
 {
-    return 32000;
+    return 31000;
 }
 
 QVariant SysRootKitInformation::defaultValue(Kit *k) const
@@ -125,12 +126,8 @@ static const char TOOLCHAIN_INFORMATION[] = "PE.Profile.ToolChain";
 ToolChainKitInformation::ToolChainKitInformation()
 {
     setObjectName(QLatin1String("ToolChainInformation"));
-    connect(ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
-            this, SIGNAL(validationNeeded()));
-    connect(ToolChainManager::instance(), SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain*)),
-            this, SIGNAL(validationNeeded()));
-    connect(ToolChainManager::instance(), SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain*)),
-            this, SLOT(toolChainUpdated(ProjectExplorer::ToolChain*)));
+    connect(KitManager::instance(), SIGNAL(kitsLoaded()),
+            this, SLOT(kitsWereLoaded()));
 }
 
 Core::Id ToolChainKitInformation::dataId() const
@@ -173,6 +170,7 @@ QList<Task> ToolChainKitInformation::validate(const Kit *k) const
 
 void ToolChainKitInformation::fix(Kit *k)
 {
+    QTC_ASSERT(ToolChainManager::instance()->isLoaded(), return);
     if (toolChain(k))
         return;
 
@@ -183,6 +181,7 @@ void ToolChainKitInformation::fix(Kit *k)
 
 void ToolChainKitInformation::setup(Kit *k)
 {
+    QTC_ASSERT(ToolChainManager::instance()->isLoaded(), return);
     const QString id = k->value(Core::Id(TOOLCHAIN_INFORMATION)).toString();
     if (id.isEmpty())
         return;
@@ -232,6 +231,7 @@ IOutputParser *ToolChainKitInformation::createOutputParser(const Kit *k) const
 
 ToolChain *ToolChainKitInformation::toolChain(const Kit *k)
 {
+    QTC_ASSERT(ToolChainManager::instance()->isLoaded(), return 0);
     if (!k)
         return 0;
     return ToolChainManager::instance()
@@ -248,11 +248,29 @@ QString ToolChainKitInformation::msgNoToolChainInTarget()
     return tr("No compiler set in kit.");
 }
 
-void ToolChainKitInformation::toolChainUpdated(ToolChain *tc)
+void ToolChainKitInformation::kitsWereLoaded()
 {
     foreach (Kit *k, KitManager::instance()->kits())
-        if (toolChain(k) == tc)
-            notifyAboutUpdate(k);
+        fix(k);
+
+    connect(ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
+            this, SLOT(toolChainRemoved(ProjectExplorer::ToolChain*)));
+    connect(ToolChainManager::instance(), SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain*)),
+            this, SLOT(toolChainUpdated(ProjectExplorer::ToolChain*)));
+}
+
+void ToolChainKitInformation::toolChainUpdated(ProjectExplorer::ToolChain *tc)
+{
+    ToolChainMatcher m(tc);
+    foreach (Kit *k, KitManager::instance()->kits(&m))
+        notifyAboutUpdate(k);
+}
+
+void ToolChainKitInformation::toolChainRemoved(ProjectExplorer::ToolChain *tc)
+{
+    Q_UNUSED(tc);
+    foreach (Kit *k, KitManager::instance()->kits())
+        fix(k);
 }
 
 // --------------------------------------------------------------------------
@@ -336,12 +354,8 @@ static const char DEVICE_INFORMATION[] = "PE.Profile.Device";
 DeviceKitInformation::DeviceKitInformation()
 {
     setObjectName(QLatin1String("DeviceInformation"));
-    connect(DeviceManager::instance(), SIGNAL(deviceRemoved(Core::Id)),
-            this, SIGNAL(validationNeeded()));
-    connect(DeviceManager::instance(), SIGNAL(deviceUpdated(Core::Id)),
-            this, SIGNAL(validationNeeded()));
-    connect(DeviceManager::instance(), SIGNAL(deviceUpdated(Core::Id)),
-            this, SLOT(deviceUpdated(Core::Id)));
+    connect(KitManager::instance(), SIGNAL(kitsLoaded()),
+            this, SLOT(kitsWereLoaded()));
 }
 
 Core::Id DeviceKitInformation::dataId() const
@@ -381,6 +395,17 @@ void DeviceKitInformation::fix(Kit *k)
     if (!dev.isNull() && dev->type() == DeviceTypeKitInformation::deviceTypeId(k))
         return;
 
+    qWarning("Device is no longer known, removing from kit \"%s\".", qPrintable(k->displayName()));
+    setDeviceId(k, Core::Id());
+}
+
+void DeviceKitInformation::setup(Kit *k)
+{
+    QTC_ASSERT(DeviceManager::instance()->isLoaded(), return);
+    IDevice::ConstPtr dev = DeviceKitInformation::device(k);
+    if (!dev.isNull() && dev->type() == DeviceTypeKitInformation::deviceTypeId(k))
+        return;
+
     setDeviceId(k, Core::Id::fromSetting(defaultValue(k)));
 }
 
@@ -403,8 +428,8 @@ KitInformation::ItemList DeviceKitInformation::toUserOutput(const Kit *k) const
 
 IDevice::ConstPtr DeviceKitInformation::device(const Kit *k)
 {
-    DeviceManager *dm = DeviceManager::instance();
-    return dm ? dm->find(deviceId(k)) : IDevice::ConstPtr();
+    QTC_ASSERT(DeviceManager::instance()->isLoaded(), return IDevice::ConstPtr());
+    return DeviceManager::instance()->find(deviceId(k));
 }
 
 Core::Id DeviceKitInformation::deviceId(const Kit *k)
@@ -422,11 +447,51 @@ void DeviceKitInformation::setDeviceId(Kit *k, const Core::Id id)
     k->setValue(DEVICE_INFORMATION, id.toSetting());
 }
 
-void DeviceKitInformation::deviceUpdated(const Core::Id &id)
+void DeviceKitInformation::kitsWereLoaded()
 {
     foreach (Kit *k, KitManager::instance()->kits())
+        fix(k);
+
+    connect(DeviceManager::instance(), SIGNAL(deviceAdded(Core::Id)),
+            this, SLOT(deviceAdded(Core::Id)));
+    connect(DeviceManager::instance(), SIGNAL(deviceRemoved(Core::Id)),
+            this, SLOT(deviceRemoved(Core::Id)));
+    connect(DeviceManager::instance(), SIGNAL(deviceUpdated(Core::Id)),
+            this, SLOT(deviceUpdated(Core::Id)));
+
+    connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+            this, SLOT(kitUpdated(ProjectExplorer::Kit*)));
+    connect(KitManager::instance(), SIGNAL(unmanagedKitUpdated(ProjectExplorer::Kit*)),
+            this, SLOT(kitUpdated(ProjectExplorer::Kit*)));
+}
+
+void DeviceKitInformation::deviceUpdated(const Core::Id &id)
+{
+    foreach (Kit *k, KitManager::instance()->kits()) {
         if (deviceId(k) == id)
             notifyAboutUpdate(k);
+    }
+}
+
+void DeviceKitInformation::kitUpdated(Kit *k)
+{
+    setup(k); // Set default device if necessary
+}
+
+void DeviceKitInformation::deviceAdded(const Core::Id &id)
+{
+    Q_UNUSED(id);
+    DeviceMatcher m;
+    foreach (Kit *k, KitManager::instance()->kits(&m)) {
+        setup(k); // Set default device if necessary
+    }
+}
+
+void DeviceKitInformation::deviceRemoved(const Core::Id &id)
+{
+    DeviceMatcher m(id);
+    foreach (Kit *k, KitManager::instance()->kits(&m))
+        setup(k); // Set default device if necessary
 }
 
 } // namespace ProjectExplorer

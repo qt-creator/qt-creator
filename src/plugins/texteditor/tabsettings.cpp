@@ -341,7 +341,6 @@ void TabSettings::reindentLine(QTextBlock block, int delta) const
 
     QTextCursor cursor(block);
     cursor.beginEditBlock();
-    cursor.movePosition(QTextCursor::StartOfBlock);
     cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, firstNonSpace(text));
     cursor.removeSelectedText();
     cursor.insertText(indentString);

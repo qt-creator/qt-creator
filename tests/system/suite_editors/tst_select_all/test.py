@@ -23,7 +23,7 @@ def main():
         test.log("Opening file %s" % currentFile)
         size = charactersInFile(currentFile)
         invokeMenuItem("File", "Open File or Project...")
-        selectFromFileDialog(currentFile)
+        selectFromFileDialog(currentFile, True)
         editor = getEditorForFileSuffix(currentFile)
         if editor == None:
             test.fatal("Could not get the editor for '%s'" % currentFile,

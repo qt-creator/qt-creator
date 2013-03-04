@@ -65,6 +65,15 @@ public:
         : line(0), column(0), length(0), kind(-1) {}
     Result(unsigned line, unsigned column, unsigned length, int kind)
         : line(line), column(column), length(length), kind(kind) {}
+
+    bool operator==(const Result& other) const
+    {
+        return
+            line == other.line &&
+            column == other.column &&
+            length == other.length &&
+            kind == other.kind;
+    }
 };
 
 // Applies the future results [from, to) and applies the extra formats

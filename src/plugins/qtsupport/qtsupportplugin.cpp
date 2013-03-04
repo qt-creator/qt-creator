@@ -83,6 +83,8 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 
     addAutoReleasedObject(new CustomExecutableRunConfigurationFactory);
 
+    ProjectExplorer::KitManager::instance()->registerKitInformation(new QtKitInformation);
+
     return true;
 }
 
@@ -98,7 +100,6 @@ void QtSupportPlugin::extensionsInitialized()
             this, SLOT(updateVariable(QByteArray)));
 
     QtVersionManager::instance()->extensionsInitialized();
-    ProjectExplorer::KitManager::instance()->registerKitInformation(new QtKitInformation);
 }
 
 bool QtSupportPlugin::delayedInitialize()

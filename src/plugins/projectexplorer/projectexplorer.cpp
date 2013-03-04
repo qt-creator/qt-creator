@@ -344,7 +344,15 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new Internal::DesktopDeviceFactory);
 
     d->m_kitManager = new KitManager; // register before ToolChainManager
+    new DeviceManager; // Create DeviceManager singleton
     d->m_toolChainManager = new ToolChainManager;
+
+    // Register KitInformation:
+    KitManager::instance()->registerKitInformation(new DeviceTypeKitInformation);
+    KitManager::instance()->registerKitInformation(new DeviceKitInformation);
+    KitManager::instance()->registerKitInformation(new ToolChainKitInformation);
+    KitManager::instance()->registerKitInformation(new SysRootKitInformation);
+
     addAutoReleasedObject(new Internal::ToolChainOptionsPage);
     addAutoReleasedObject(new KitOptionsPage);
 
@@ -1116,16 +1124,10 @@ void ProjectExplorerPlugin::extensionsInitialized()
     }
     d->m_buildManager->extensionsInitialized();
 
-    // Register KitInformation:
-    // Only do this now to make sure all device factories were properly initialized.
-    KitManager::instance()->registerKitInformation(new SysRootKitInformation);
-    KitManager::instance()->registerKitInformation(new DeviceKitInformation);
-    KitManager::instance()->registerKitInformation(new DeviceTypeKitInformation);
-    KitManager::instance()->registerKitInformation(new ToolChainKitInformation);
-
-    DeviceManager *dm = DeviceManager::instance();
-    if (dm->find(Core::Id(Constants::DESKTOP_DEVICE_ID)).isNull())
-        DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
+    DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
+    DeviceManager::instance()->load();
+    d->m_toolChainManager->restoreToolChains();
+    d->m_kitManager->restoreKits();
 }
 
 void ProjectExplorerPlugin::loadCustomWizards()

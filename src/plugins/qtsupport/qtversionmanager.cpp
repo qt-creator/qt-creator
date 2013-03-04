@@ -143,6 +143,7 @@ void QtVersionManager::extensionsInitialized()
         findSystemQt();
     }
 
+    emit qtVersionsLoaded();
     emit qtVersionsChanged(m_versions.keys(), QList<int>(), QList<int>());
     saveQtVersions();
 
@@ -160,6 +161,11 @@ bool QtVersionManager::delayedInitialize()
 {
     updateDocumentation();
     return true;
+}
+
+bool QtVersionManager::isLoaded() const
+{
+    return m_writer;
 }
 
 QtVersionManager::~QtVersionManager()
@@ -232,6 +238,7 @@ bool QtVersionManager::restoreQtVersions()
                      qPrintable(filename.toUserOutput()));
     }
     ++m_idcount;
+
     return true;
 }
 
@@ -398,6 +405,7 @@ void QtVersionManager::findSystemQt()
 
 void QtVersionManager::addVersion(BaseQtVersion *version)
 {
+    QTC_ASSERT(m_writer, return);
     QTC_ASSERT(version != 0, return);
     if (m_versions.contains(version->uniqueId()))
         return;
@@ -453,6 +461,7 @@ int QtVersionManager::getUniqueId()
 QList<BaseQtVersion *> QtVersionManager::versions() const
 {
     QList<BaseQtVersion *> versions;
+    QTC_ASSERT(isLoaded(), return versions);
     foreach (BaseQtVersion *version, m_versions)
         versions << version;
     qSort(versions.begin(), versions.end(), &qtVersionNumberCompare);
@@ -462,6 +471,7 @@ QList<BaseQtVersion *> QtVersionManager::versions() const
 QList<BaseQtVersion *> QtVersionManager::validVersions() const
 {
     QList<BaseQtVersion *> results;
+    QTC_ASSERT(isLoaded(), return results);
     foreach (BaseQtVersion *v, m_versions) {
         if (v->isValid())
             results.append(v);
@@ -472,6 +482,7 @@ QList<BaseQtVersion *> QtVersionManager::validVersions() const
 
 bool QtVersionManager::isValidId(int id) const
 {
+    QTC_ASSERT(isLoaded(), return false);
     return m_versions.contains(id);
 }
 
@@ -508,6 +519,7 @@ QString QtVersionManager::displayNameForPlatform(const QString &string) const
 
 BaseQtVersion *QtVersionManager::version(int id) const
 {
+    QTC_ASSERT(isLoaded(), return 0);
     QMap<int, BaseQtVersion *>::const_iterator it = m_versions.find(id);
     if (it == m_versions.constEnd())
         return 0;

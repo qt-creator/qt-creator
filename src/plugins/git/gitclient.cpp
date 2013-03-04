@@ -365,6 +365,8 @@ const char *GitClient::decorateOption = "--decorate";
 
 QString GitClient::findRepositoryForDirectory(const QString &dir)
 {
+    if (dir.endsWith(QLatin1String("/.git")) || dir.contains(QLatin1String("/.git/")))
+        return QString();
     // Find a directory to run git in:
     const QString root = QDir::rootPath();
     const QString home = QDir::homePath();
@@ -1459,8 +1461,7 @@ VcsBase::Command *GitClient::createCommand(const QString &workingDirectory,
             connect(command, SIGNAL(outputData(QByteArray)), editor, SLOT(setPlainTextDataFiltered(QByteArray)));
     }
 
-    if (outputWindow())
-        connect(command, SIGNAL(errorText(QString)), outputWindow(), SLOT(appendError(QString)));
+    connect(command, SIGNAL(errorText(QString)), outputWindow(), SLOT(appendError(QString)));
     return command;
 }
 
@@ -1822,7 +1823,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
 
     commitData->panelInfo.repository = repoDirectory;
 
-    QString gitDir = GitClient::findGitDirForRepository(repoDirectory);
+    QString gitDir = findGitDirForRepository(repoDirectory);
     if (gitDir.isEmpty()) {
         *errorMessage = tr("The repository \"%1\" is not initialized.").arg(repoDirectory);
         return false;
@@ -2151,7 +2152,7 @@ bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
         handleMergeConflicts(workingDirectory, conflictedCommit.cap(1), abortCommand);
     } else if (resp.stdErr.contains(QLatin1String("conflict"))) {
         // cherry-pick/revert conflict is output to stdErr
-        QRegExp conflictedCommit(QLatin1String("could not (?:apply|revert) ([^\\n]*)$"));
+        QRegExp conflictedCommit(QLatin1String("could not (?:apply|revert) ([^\\n]*)"));
         conflictedCommit.indexIn(resp.stdErr);
         handleMergeConflicts(workingDirectory, conflictedCommit.cap(1), abortCommand);
     }
@@ -2444,9 +2445,11 @@ QString GitClient::readConfig(const QString &workingDirectory, const QStringList
 
     QByteArray outputText;
     QByteArray errorText;
-    if (fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText, false))
-        return commandOutputFromLocal8Bit(outputText);
-    return QString();
+    if (!fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText, false))
+        return QString();
+    if (Utils::HostOsInfo::isWindowsHost())
+        return QString::fromUtf8(outputText).remove(QLatin1Char('\r'));
+    return commandOutputFromLocal8Bit(outputText);
 }
 
 // Read a single-line config value, return trimmed
