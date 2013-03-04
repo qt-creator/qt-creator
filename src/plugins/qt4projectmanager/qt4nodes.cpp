@@ -1289,8 +1289,6 @@ QSet<Utils::FileName> Qt4PriFileNode::filterFilesProVariables(ProjectExplorer::F
     if (fileType != ProjectExplorer::QMLType && fileType != ProjectExplorer::UnknownFileType)
         return files;
     QSet<Utils::FileName> result;
-    if (fileType != ProjectExplorer::QMLType && fileType != ProjectExplorer::UnknownFileType)
-        return result;
     if (fileType == ProjectExplorer::QMLType) {
         foreach (const Utils::FileName &file, files)
             if (file.endsWith(QLatin1String(".qml")))
