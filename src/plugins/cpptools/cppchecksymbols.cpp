@@ -285,7 +285,10 @@ protected:
 
 static bool sortByLinePredicate(const CheckSymbols::Use &lhs, const CheckSymbols::Use &rhs)
 {
-    return lhs.line < rhs.line;
+    if (lhs.line == rhs.line)
+        return lhs.column < rhs.column;
+    else
+        return lhs.line < rhs.line;
 }
 
 
@@ -325,7 +328,7 @@ CheckSymbols::CheckSymbols(Document::Ptr doc, const LookupContext &context, cons
 
     unsigned line = 0;
     getTokenEndPosition(translationUnit()->ast()->lastToken(), &line, 0);
-    _chunkSize = qMin(50U, line / 200);
+    _chunkSize = qMax(50U, line / 200);
     _usages.reserve(_chunkSize);
 
     _astStack.reserve(200);
