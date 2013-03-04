@@ -737,6 +737,7 @@ static void assignAction(QAction *self, QAction *other)
     self->setIcon(other->icon());
     self->setShortcut(other->shortcut());
     self->setEnabled(other->isEnabled());
+    self->setIconVisibleInMenu(other->isIconVisibleInMenu());
 }
 
 void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, const QModelIndex &editorIndex)
