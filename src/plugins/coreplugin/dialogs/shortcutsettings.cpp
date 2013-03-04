@@ -82,6 +82,7 @@ QWidget *ShortcutSettings::createPage(QWidget *parent)
     setTargetLabelText(targetLabelText);
     setTargetEditTitle(editTitle);
     setTargetHeader(editTitle);
+    targetEdit()->setPlaceholderText(tr("Type to set shortcut"));
 
     if (m_searchKeywords.isEmpty()) {
         QTextStream(&m_searchKeywords) << ' ' << pageTitle

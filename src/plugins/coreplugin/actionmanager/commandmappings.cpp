@@ -65,6 +65,7 @@ QWidget *CommandMappings::createPage(QWidget *parent)
     QWidget *w = new QWidget(parent);
     m_page->setupUi(w);
     m_page->targetEdit->setAutoHideButton(Utils::FancyLineEdit::Right, true);
+    m_page->targetEdit->setPlaceholderText(QString());
     m_page->targetEdit->installEventFilter(this);
 
     connect(m_page->targetEdit, SIGNAL(buttonClicked(Utils::FancyLineEdit::Side)),
