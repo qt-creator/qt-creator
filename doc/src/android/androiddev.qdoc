@@ -32,7 +32,8 @@
     installed on the development PC, you can add it to \QC. You can then add a
     \l{glossary-buildandrun-kit}{kit}
     with the Android device type, the tool chain, and the Qt version for Android,
-    to build and run applications on Android devices.
+    to build and run applications on Android devices. You can also allow \QC to
+    automatically configure the kit.
 
     The Android Debug Bridge (adb) command line tool is integrated to \QC to
     enable you to deploy applications to connected Android devices, to run
@@ -65,8 +66,13 @@
 
             \c {ant -version}
 
-        \li \l{http://necessitas.kde.org/necessitas/necessitas_sdk_installer.php}
-            {Necessitas SDK}
+        \li A tool chain for building applications for Android devices. You have
+            several options, such as the
+            \l{http://developer.android.com/sdk/index.html}{Android SDK} and
+            \l{http://developer.android.com/tools/sdk/ndk/index.html}
+            {Android NDK} from Google or the
+            \l{http://necessitas.kde.org/necessitas/necessitas_sdk_installer.php}
+            {Necessitas SDK}.
 
     \endlist
 
@@ -80,31 +86,26 @@
     \list 1
 
         \li Select \gui Tools > \gui Options > \gui {Build & Run} >
-            \gui {Qt Versions} > \gui Add to add Qt for Android.
-
-        \li In the \gui {qmake location} field, add the \c qmake path from the
-            Qt for Android SDK
-            (\c {/opt/necessitas/Android/<qtversion>/bin/qmake} by default).
+            \gui {Qt Versions} > \gui Add to add the path to \c qmake path in
+            the Qt for Android SDK.
 
         \li Select \gui Tools > \gui Options > \gui Android to view and edit
             paths to the required software.
 
             \image qtcreator-options-android.png "Android options"
 
-        \li Select \gui Tools > \gui Options > \gui {Build & Run} >
-            \gui {Qt Versions} and build the GDB Helper to make the debugging
-            output for Qt specific constructs clean and easy to read.
-
-        \li To build the GDB Helper, select Qt for Android, select \gui Details
-            in the \gui Helpers section, and then select \gui Build in the
-            \gui {GDB Helper} field.
+        \li Select the \gui {Automatically create kits for Android tool chains}
+            check box to allow \QC to create the kits for you. \QC displays a
+            warning if it cannot find a suitable Qt version.
 
         \li Select \gui {Start Android AVD Manager} to create Android virtual
-            devices (AVD) that enable you emulate device hardware and software
+            devices (AVD) that enable you to emulate device hardware and software
             on the Android Emulator.
 
         \li To specify information for the Android manifest file, select
-            \gui Projects > \gui Run, and then select \gui Details to view the
+            \gui Projects > \gui Run for the \gui Android kit.
+
+        \li Select \gui Details to view the
             \gui {Package configurations}. For more information about the
             options you have, see
             \l{Specifying Run Settings for Android Devices}.
