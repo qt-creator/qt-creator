@@ -70,11 +70,11 @@ void LldbOptionsPageWidget::load()
 LldbOptionsPage::LldbOptionsPage()
 {
     //    m_options->fromSettings(Core::ICore::settings());
-    setId(QLatin1String("F.Lldb"));
+    setId(Core::Id("F.Lldb"));
     setDisplayName(tr("LLDB"));
     setCategory(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Debugger", Constants::DEBUGGER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(QIcon(QLatin1String(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON)));
+    setCategoryIcon(QLatin1String(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *LldbOptionsPage::createPage(QWidget *parent)
@@ -96,7 +96,7 @@ void LldbOptionsPage::finish()
 
 bool LldbOptionsPage::matches(const QString &s) const
 {
-    return QString(s.toLower()).contains("lldb");
+    return QString(s.toLower()).contains(QLatin1String("lldb"));
 }
 
 void addLldbOptionPages(QList<Core::IOptionsPage *> *opts)
