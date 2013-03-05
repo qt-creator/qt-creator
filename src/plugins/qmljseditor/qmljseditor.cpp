@@ -667,11 +667,13 @@ void QmlJSTextEditorWidget::onDocumentUpdated(QmlJS::Document::Ptr doc)
         m_futureSemanticInfoRevision = doc->editorRevision();
         m_semanticInfoUpdater->update(doc, m_modelManager->snapshot());
         setExtraSelections(CodeWarningsSelection, QList<QTextEdit::ExtraSelection>());
-    } else {
+    } else if (Document::isFullySupportedLanguage(doc->language())) {
         // show parsing errors
         QList<QTextEdit::ExtraSelection> selections;
         appendExtraSelectionsForMessages(&selections, doc->diagnosticMessages(), document());
         setExtraSelections(CodeWarningsSelection, selections);
+    } else {
+        setExtraSelections(CodeWarningsSelection, QList<QTextEdit::ExtraSelection>());
     }
 }
 
