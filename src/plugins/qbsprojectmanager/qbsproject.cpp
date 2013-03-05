@@ -148,13 +148,19 @@ ProjectExplorer::ProjectNode *QbsProject::rootProjectNode() const
 QStringList QbsProject::files(ProjectExplorer::Project::FilesMode fileMode) const
 {
     Q_UNUSED(fileMode);
-    QStringList result;
+    QSet<QString> result;
     if (m_rootProjectNode && m_rootProjectNode->projectData()) {
-        foreach (const qbs::ProductData &prd, m_rootProjectNode->projectData()->products())
-            foreach (const qbs::GroupData &grp, prd.groups())
-                result.append(grp.allFilePaths());
+        foreach (const qbs::ProductData &prd, m_rootProjectNode->projectData()->products()) {
+            foreach (const qbs::GroupData &grp, prd.groups()) {
+                foreach (const QString &file, grp.allFilePaths())
+                    result.insert(file);
+                result.insert(grp.location().fileName);
+            }
+            result.insert(prd.location().fileName);
+        }
+        result.insert(m_rootProjectNode->projectData()->location().fileName);
     }
-    return result;
+    return result.toList();
 }
 
 void QbsProject::invalidate()
