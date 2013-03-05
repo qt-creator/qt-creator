@@ -61,14 +61,14 @@ QmlPropertyChangesNodeInstance::Pointer QmlPropertyChangesNodeInstance::create(Q
     return instance;
 }
 
-void QmlPropertyChangesNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
+void QmlPropertyChangesNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
     QMetaObject metaObject = QDeclarativePropertyChanges::staticMetaObject;
 
-    if (metaObject.indexOfProperty(name.toLatin1()) > 0) { // 'restoreEntryValues', 'explicit'
+    if (metaObject.indexOfProperty(name) > 0) { // 'restoreEntryValues', 'explicit'
         ObjectNodeInstance::setPropertyVariant(name, value);
     } else {
-        changesObject()->changeValue(name.toLatin1(), value);
+        changesObject()->changeValue(name, value);
         QObject *targetObject = changesObject()->object();
         if (targetObject && nodeInstanceServer()->activeStateInstance().isWrappingThisObject(changesObject()->state())) {
             ServerNodeInstance targetInstance = nodeInstanceServer()->instanceForObject(targetObject);
@@ -77,29 +77,29 @@ void QmlPropertyChangesNodeInstance::setPropertyVariant(const QString &name, con
     }
 }
 
-void QmlPropertyChangesNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
+void QmlPropertyChangesNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
     QMetaObject metaObject = QDeclarativePropertyChanges::staticMetaObject;
 
-    if (metaObject.indexOfProperty(name.toLatin1()) > 0) { // 'restoreEntryValues', 'explicit'
+    if (metaObject.indexOfProperty(name) > 0) { // 'restoreEntryValues', 'explicit'
         ObjectNodeInstance::setPropertyBinding(name, expression);
     } else {
-        changesObject()->changeExpression(name.toLatin1(), expression);
+        changesObject()->changeExpression(name, expression);
     }
 }
 
-QVariant QmlPropertyChangesNodeInstance::property(const QString &name) const
+QVariant QmlPropertyChangesNodeInstance::property(const PropertyName &name) const
 {
-    return changesObject()->property(name.toLatin1());
+    return changesObject()->property(name);
 }
 
-void QmlPropertyChangesNodeInstance::resetProperty(const QString &name)
+void QmlPropertyChangesNodeInstance::resetProperty(const PropertyName &name)
 {
-    changesObject()->removeProperty(name.toLatin1());
+    changesObject()->removeProperty(name);
 }
 
 
-void QmlPropertyChangesNodeInstance::reparent(const ServerNodeInstance &oldParentInstance, const QString &oldParentProperty, const ServerNodeInstance &newParentInstance, const QString &newParentProperty)
+void QmlPropertyChangesNodeInstance::reparent(const ServerNodeInstance &oldParentInstance, const PropertyName &oldParentProperty, const ServerNodeInstance &newParentInstance, const PropertyName &newParentProperty)
 {
     changesObject()->detachFromState();
 

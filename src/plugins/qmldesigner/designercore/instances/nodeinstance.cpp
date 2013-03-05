@@ -67,13 +67,13 @@ public:
     bool isInPositioner;
 
 
-    QHash<QString, QVariant> propertyValues;
-    QHash<QString, bool> hasBindingForProperty;
-    QHash<QString, bool> hasAnchors;
-    QHash<QString, QString> instanceTypes;
+    QHash<PropertyName, QVariant> propertyValues;
+    QHash<PropertyName, bool> hasBindingForProperty;
+    QHash<PropertyName, bool> hasAnchors;
+    QHash<PropertyName, TypeName> instanceTypes;
 
     QPixmap renderPixmap;
-    QHash<QString, QPair<QString, qint32> > anchors;
+    QHash<PropertyName, QPair<PropertyName, qint32> > anchors;
 };
 
 NodeInstance::NodeInstance()
@@ -236,7 +236,7 @@ void NodeInstance::paint(QPainter *painter)
         painter->drawPixmap(boundingRect().topLeft(), d->renderPixmap);
 }
 
-QVariant NodeInstance::property(const QString &name) const
+QVariant NodeInstance::property(const PropertyName &name) const
 {
     if (isValid())
         return d->propertyValues.value(name);
@@ -244,7 +244,7 @@ QVariant NodeInstance::property(const QString &name) const
     return QVariant();
 }
 
-bool NodeInstance::hasBindingForProperty(const QString &name) const
+bool NodeInstance::hasBindingForProperty(const PropertyName &name) const
 {
     if (isValid())
         return d->hasBindingForProperty.value(name, false);
@@ -252,12 +252,12 @@ bool NodeInstance::hasBindingForProperty(const QString &name) const
     return false;
 }
 
-QString NodeInstance::instanceType(const QString &name) const
+TypeName NodeInstance::instanceType(const PropertyName &name) const
 {
     if (isValid())
         return d->instanceTypes.value(name);
 
-    return QString();
+    return TypeName();
 }
 
 qint32 NodeInstance::parentId() const
@@ -268,7 +268,7 @@ qint32 NodeInstance::parentId() const
         return false;
 }
 
-bool NodeInstance::hasAnchor(const QString &name) const
+bool NodeInstance::hasAnchor(const PropertyName &name) const
 {
     if (isValid())
         return d->hasAnchors.value(name, false);
@@ -276,15 +276,15 @@ bool NodeInstance::hasAnchor(const QString &name) const
     return false;
 }
 
-QPair<QString, qint32> NodeInstance::anchor(const QString &name) const
+QPair<PropertyName, qint32> NodeInstance::anchor(const PropertyName &name) const
 {
     if (isValid())
-        return d->anchors.value(name, QPair<QString, qint32>(QString(), qint32(-1)));
+        return d->anchors.value(name, QPair<PropertyName, qint32>(PropertyName(), qint32(-1)));
 
-    return QPair<QString, qint32>(QString(), -1);
+    return QPair<PropertyName, qint32>(PropertyName(), -1);
 }
 
-void NodeInstance::setProperty(const QString &name, const QVariant &value)
+void NodeInstance::setProperty(const PropertyName &name, const QVariant &value)
 {
     d->propertyValues.insert(name, value);
 }
@@ -425,7 +425,7 @@ InformationName NodeInstance::setInformationHasContent(bool hasContent)
     return NoInformationChange;
 }
 
-InformationName NodeInstance::setInformationHasAnchor(const QString &sourceAnchorLine, bool hasAnchor)
+InformationName NodeInstance::setInformationHasAnchor(const PropertyName &sourceAnchorLine, bool hasAnchor)
 {
     if (d->hasAnchors.value(sourceAnchorLine) != hasAnchor) {
         d->hasAnchors.insert(sourceAnchorLine, hasAnchor);
@@ -435,9 +435,9 @@ InformationName NodeInstance::setInformationHasAnchor(const QString &sourceAncho
     return NoInformationChange;
 }
 
-InformationName NodeInstance::setInformationAnchor(const QString &sourceAnchorLine, const QString &targetAnchorLine, qint32 targetInstanceId)
+InformationName NodeInstance::setInformationAnchor(const PropertyName &sourceAnchorLine, const PropertyName &targetAnchorLine, qint32 targetInstanceId)
 {
-    QPair<QString, qint32>  anchorPair = QPair<QString, qint32>(targetAnchorLine, targetInstanceId);
+    QPair<PropertyName, qint32>  anchorPair = QPair<PropertyName, qint32>(targetAnchorLine, targetInstanceId);
     if (d->anchors.value(sourceAnchorLine) != anchorPair) {
         d->anchors.insert(sourceAnchorLine, anchorPair);
         return Anchor;
@@ -446,7 +446,7 @@ InformationName NodeInstance::setInformationAnchor(const QString &sourceAnchorLi
     return NoInformationChange;
 }
 
-InformationName NodeInstance::setInformationInstanceTypeForProperty(const QString &property, const QString &type)
+InformationName NodeInstance::setInformationInstanceTypeForProperty(const PropertyName &property, const TypeName &type)
 {
     if (d->instanceTypes.value(property) != type) {
         d->instanceTypes.insert(property, type);
@@ -456,7 +456,7 @@ InformationName NodeInstance::setInformationInstanceTypeForProperty(const QStrin
     return NoInformationChange;
 }
 
-InformationName NodeInstance::setInformationHasBindingForProperty(const QString &property, bool hasProperty)
+InformationName NodeInstance::setInformationHasBindingForProperty(const PropertyName &property, bool hasProperty)
 {
     if (d->hasBindingForProperty.value(property) != hasProperty) {
         d->hasBindingForProperty.insert(property, hasProperty);
@@ -481,10 +481,10 @@ InformationName NodeInstance::setInformation(InformationName name, const QVarian
     case IsAnchoredByChildren: return setInformationIsAnchoredByChildren(information.toBool()); break;
     case IsAnchoredBySibling: return setInformationIsAnchoredBySibling(information.toBool()); break;
     case HasContent: return setInformationHasContent(information.toBool()); break;
-    case HasAnchor: return setInformationHasAnchor(information.toString(), secondInformation.toBool());break;
-    case Anchor: return setInformationAnchor(information.toString(), secondInformation.toString(), thirdInformation.value<qint32>()); break;
-    case InstanceTypeForProperty: return setInformationInstanceTypeForProperty(information.toString(), secondInformation.toString()); break;
-    case HasBindingForProperty: return setInformationHasBindingForProperty(information.toString(), secondInformation.toBool()); break;
+    case HasAnchor: return setInformationHasAnchor(information.toByteArray(), secondInformation.toBool());break;
+    case Anchor: return setInformationAnchor(information.toByteArray(), secondInformation.toByteArray(), thirdInformation.value<qint32>()); break;
+    case InstanceTypeForProperty: return setInformationInstanceTypeForProperty(information.toByteArray(), secondInformation.toByteArray()); break;
+    case HasBindingForProperty: return setInformationHasBindingForProperty(information.toByteArray(), secondInformation.toBool()); break;
     case NoName:
     default: break;
     }

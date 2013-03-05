@@ -55,7 +55,7 @@ InternalNode::InternalNode() :
 {
 }
 
-InternalNode::InternalNode(const QString &typeName,int majorVersion, int minorVersion, qint32 internalId):
+InternalNode::InternalNode(const TypeName &typeName,int majorVersion, int minorVersion, qint32 internalId):
         m_typeName(typeName),
         m_majorVersion(majorVersion),
         m_minorVersion(minorVersion),
@@ -65,7 +65,7 @@ InternalNode::InternalNode(const QString &typeName,int majorVersion, int minorVe
 
 }
 
-InternalNode::Pointer InternalNode::create(const QString &type,int majorVersion, int minorVersion, qint32 internalId)
+InternalNode::Pointer InternalNode::create(const TypeName &type,int majorVersion, int minorVersion, qint32 internalId)
 {
     InternalNode *newPointer(new InternalNode(type, majorVersion, minorVersion, internalId));
     InternalNode::Pointer smartPointer(newPointer);
@@ -84,12 +84,12 @@ void InternalNode::setInternalWeakPointer(const Pointer &pointer)
     m_internalPointer = pointer;
 }
 
-QString InternalNode::type() const
+TypeName InternalNode::type() const
 {
     return m_typeName;
 }
 
-void InternalNode::setType(const QString &newType)
+void InternalNode::setType(const TypeName &newType)
 {
     m_typeName = newType;
 }
@@ -166,32 +166,32 @@ uint qHash(const InternalNodePointer& node)
     return ::qHash(node->internalId());
 }
 
-QVariant InternalNode::auxiliaryData(const QString &name) const
+QVariant InternalNode::auxiliaryData(const PropertyName &name) const
 {
     return m_auxiliaryDataHash.value(name);
 }
 
-void InternalNode::setAuxiliaryData(const QString &name, const QVariant &data)
+void InternalNode::setAuxiliaryData(const PropertyName &name, const QVariant &data)
 {
     m_auxiliaryDataHash.insert(name, data);
 }
 
-bool InternalNode::hasAuxiliaryData(const QString &name) const
+bool InternalNode::hasAuxiliaryData(const PropertyName &name) const
 {
     return m_auxiliaryDataHash.contains(name);
 }
 
-QHash<QString, QVariant> InternalNode::auxiliaryData() const
+QHash<PropertyName, QVariant> InternalNode::auxiliaryData() const
 {
     return m_auxiliaryDataHash;
 }
 
-InternalProperty::Pointer InternalNode::property(const QString &name) const
+InternalProperty::Pointer InternalNode::property(const PropertyName &name) const
 {
     return m_namePropertyHash.value(name);
 }
 
-InternalBindingProperty::Pointer InternalNode::bindingProperty(const QString &name) const
+InternalBindingProperty::Pointer InternalNode::bindingProperty(const PropertyName &name) const
 {
     InternalProperty::Pointer property =  m_namePropertyHash.value(name);
     if (property->isBindingProperty())
@@ -200,7 +200,7 @@ InternalBindingProperty::Pointer InternalNode::bindingProperty(const QString &na
     return InternalBindingProperty::Pointer();
 }
 
-InternalVariantProperty::Pointer InternalNode::variantProperty(const QString &name) const
+InternalVariantProperty::Pointer InternalNode::variantProperty(const PropertyName &name) const
 {
     InternalProperty::Pointer property =  m_namePropertyHash.value(name);
     if (property->isVariantProperty())
@@ -209,13 +209,13 @@ InternalVariantProperty::Pointer InternalNode::variantProperty(const QString &na
     return InternalVariantProperty::Pointer();
 }
 
-void InternalNode::addBindingProperty(const QString &name)
+void InternalNode::addBindingProperty(const PropertyName &name)
 {
     InternalProperty::Pointer newProperty(InternalBindingProperty::create(name, internalPointer()));
     m_namePropertyHash.insert(name, newProperty);
 }
 
-InternalNodeListProperty::Pointer InternalNode::nodeListProperty(const QString &name) const
+InternalNodeListProperty::Pointer InternalNode::nodeListProperty(const PropertyName &name) const
 {
     InternalProperty::Pointer property =  m_namePropertyHash.value(name);
     if (property && property->isNodeListProperty())
@@ -224,7 +224,7 @@ InternalNodeListProperty::Pointer InternalNode::nodeListProperty(const QString &
     return InternalNodeListProperty::Pointer();
 }
 
-InternalNodeAbstractProperty::Pointer InternalNode::nodeAbstractProperty(const QString &name) const
+InternalNodeAbstractProperty::Pointer InternalNode::nodeAbstractProperty(const PropertyName &name) const
 {
     InternalProperty::Pointer property =  m_namePropertyHash.value(name);
     if (property && property->isNodeAbstractProperty())
@@ -233,7 +233,7 @@ InternalNodeAbstractProperty::Pointer InternalNode::nodeAbstractProperty(const Q
     return InternalNodeProperty::Pointer();
 }
 
-InternalNodeProperty::Pointer InternalNode::nodeProperty(const QString &name) const
+InternalNodeProperty::Pointer InternalNode::nodeProperty(const PropertyName &name) const
 {
     InternalProperty::Pointer property =  m_namePropertyHash.value(name);
     if (property->isNodeProperty())
@@ -242,31 +242,31 @@ InternalNodeProperty::Pointer InternalNode::nodeProperty(const QString &name) co
     return InternalNodeProperty::Pointer();
 }
 
-void InternalNode::addVariantProperty(const QString &name)
+void InternalNode::addVariantProperty(const PropertyName &name)
 {
     InternalProperty::Pointer newProperty(InternalVariantProperty::create(name, internalPointer()));
     m_namePropertyHash.insert(name, newProperty);
 }
 
-void InternalNode::addNodeProperty(const QString &name)
+void InternalNode::addNodeProperty(const PropertyName &name)
 {
     InternalProperty::Pointer newProperty(InternalNodeProperty::create(name, internalPointer()));
     m_namePropertyHash.insert(name, newProperty);
 }
 
-void InternalNode::addNodeListProperty(const QString &name)
+void InternalNode::addNodeListProperty(const PropertyName &name)
 {
     InternalProperty::Pointer newProperty(InternalNodeListProperty::create(name, internalPointer()));
     m_namePropertyHash.insert(name, newProperty);
 }
 
-void InternalNode::removeProperty(const QString &name)
+void InternalNode::removeProperty(const PropertyName &name)
 {
     InternalProperty::Pointer property = m_namePropertyHash.take(name);
     Q_ASSERT(!property.isNull());
 }
 
-QList<QString> InternalNode::propertyNameList() const
+PropertyNameList InternalNode::propertyNameList() const
 {
     return m_namePropertyHash.keys();
 }
@@ -276,7 +276,7 @@ bool InternalNode::hasProperties() const
     return !m_namePropertyHash.isEmpty();
 }
 
-bool InternalNode::hasProperty(const QString &name) const
+bool InternalNode::hasProperty(const PropertyName &name) const
 {
     return m_namePropertyHash.contains(name);
 }

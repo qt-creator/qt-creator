@@ -49,8 +49,7 @@ public:
     BindingProperty();
     BindingProperty(const BindingProperty &property, AbstractView *view);
 
-    void setDynamicTypeNameAndExpression(const QString &type, const QString &expression);
-    BindingProperty& operator= (const QPair<QString, QString> &typeExpressionPair);
+    void setDynamicTypeNameAndExpression(const TypeName &type, const QString &expression);
 
     ModelNode resolveToModelNode() const;
     AbstractProperty resolveToProperty() const;
@@ -58,7 +57,7 @@ public:
     QList<ModelNode> resolveToModelNodeList() const;
 
 protected:
-    BindingProperty(const QString &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
+    BindingProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
 };
 
 } // namespace QmlDesigner

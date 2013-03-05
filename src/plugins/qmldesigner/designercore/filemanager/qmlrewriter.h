@@ -79,8 +79,8 @@ protected:
     bool includeSurroundingWhitespace(int &start, int &end) const;
     void includeLeadingEmptyLine(int &start) const;
 
-    static QmlJS::AST::UiObjectMemberList *searchMemberToInsertAfter(QmlJS::AST::UiObjectMemberList *members, const QStringList &propertyOrder);
-    static QmlJS::AST::UiObjectMemberList *searchMemberToInsertAfter(QmlJS::AST::UiObjectMemberList *members, const QString &propertyName, const QStringList &propertyOrder);
+    static QmlJS::AST::UiObjectMemberList *searchMemberToInsertAfter(QmlJS::AST::UiObjectMemberList *members, const PropertyNameList &propertyOrder);
+    static QmlJS::AST::UiObjectMemberList *searchMemberToInsertAfter(QmlJS::AST::UiObjectMemberList *members, const QmlDesigner::PropertyName &propertyName, const PropertyNameList &propertyOrder);
 
 protected:
     bool didRewriting() const

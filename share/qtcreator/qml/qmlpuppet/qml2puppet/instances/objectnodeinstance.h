@@ -90,7 +90,7 @@ public:
 
     Pointer parentInstance() const;
 
-    virtual void reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const QString &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const QString &newParentProperty);
+    virtual void reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty);
 
     virtual void setId(const QString &id);
     virtual QString id() const;
@@ -112,8 +112,8 @@ public:
 
     virtual int penWidth() const;
 
-    virtual bool hasAnchor(const QString &name) const;
-    virtual QPair<QString, ServerNodeInstance> anchor(const QString &name) const;
+    virtual bool hasAnchor(const PropertyName &name) const;
+    virtual QPair<PropertyName, ServerNodeInstance> anchor(const PropertyName &name) const;
     virtual bool isAnchoredBySibling() const;
     virtual bool isAnchoredByChildren() const;
 
@@ -123,17 +123,17 @@ public:
     virtual QPointF transformOriginPoint() const;
     virtual double zValue() const;
 
-    virtual void setPropertyVariant(const QString &name, const QVariant &value);
-    virtual void setPropertyBinding(const QString &name, const QString &expression);
-    virtual QVariant property(const QString &name) const;
-    virtual void resetProperty(const QString &name);
-    virtual void refreshProperty(const QString &name);
-    virtual QString instanceType(const QString &name) const;
-    QStringList propertyNames() const;
+    virtual void setPropertyVariant(const PropertyName &name, const QVariant &value);
+    virtual void setPropertyBinding(const PropertyName &name, const QString &expression);
+    virtual QVariant property(const PropertyName &name) const;
+    virtual void resetProperty(const PropertyName &name);
+    virtual void refreshProperty(const PropertyName &name);
+    virtual QString instanceType(const PropertyName &name) const;
+    PropertyNameList propertyNames() const;
 
     virtual QList<ServerNodeInstance> childItems() const;
 
-    void createDynamicProperty(const QString &name, const QString &typeName);
+    void createDynamicProperty(const QString &PropertyName, const QString &typeName);
     void setDeleteHeldInstance(bool deleteInstance);
     bool deleteHeldInstance() const;
 
@@ -144,10 +144,10 @@ public:
     virtual void deactivateState();
 
     void populateResetHashes();
-    bool hasValidResetBinding(const QString &propertyName) const;
-    QQmlAbstractBinding *resetBinding(const QString &propertyName) const;
-    QVariant resetValue(const QString &propertyName) const;
-    void setResetValue(const QString &propertyName, const QVariant &value);
+    bool hasValidResetBinding(const PropertyName &propertyName) const;
+    QQmlAbstractBinding *resetBinding(const PropertyName &propertyName) const;
+    QVariant resetValue(const PropertyName &propertyName) const;
+    void setResetValue(const PropertyName &propertyName, const QVariant &value);
 
     QObject *object() const;
 
@@ -158,14 +158,14 @@ public:
     void setInPositioner(bool isInPositioner);
     virtual void refreshPositioner();
 
-    bool hasBindingForProperty(const QString &name, bool *hasChanged = 0) const;
+    bool hasBindingForProperty(const PropertyName &name, bool *hasChanged = 0) const;
 
     QQmlContext *context() const;
     QQmlEngine *engine() const;
 
-    virtual bool updateStateVariant(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QVariant &value);
-    virtual bool updateStateBinding(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QString &expression);
-    virtual bool resetStateProperty(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QVariant &resetValue);
+    virtual bool updateStateVariant(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QVariant &value);
+    virtual bool updateStateBinding(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QString &expression);
+    virtual bool resetStateProperty(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QVariant &resetValue);
 
 
     bool isValid() const;
@@ -180,22 +180,22 @@ public:
     static QVariant fixResourcePaths(const QVariant &value);
 
 protected:
-    void doResetProperty(const QString &propertyName);
-    void removeFromOldProperty(QObject *object, QObject *oldParent, const QString &oldParentProperty);
-    void addToNewProperty(QObject *object, QObject *newParent, const QString &newParentProperty);
+    void doResetProperty(const PropertyName &propertyName);
+    void removeFromOldProperty(QObject *object, QObject *oldParent, const PropertyName &oldParentProperty);
+    void addToNewProperty(QObject *object, QObject *newParent, const PropertyName &newParentProperty);
     void deleteObjectsInList(const QQmlProperty &metaProperty);
     QVariant convertSpecialCharacter(const QVariant& value) const;
 
 private:
-    QHash<QString, QVariant> m_resetValueHash;
-    QHash<QString, QWeakPointer<QQmlAbstractBinding> > m_resetBindingHash;
-    QHash<QString, ServerNodeInstance> m_modelAbstractPropertyHash;
-    mutable QHash<QString, bool> m_hasBindingHash;
+    QHash<PropertyName, QVariant> m_resetValueHash;
+    QHash<PropertyName, QWeakPointer<QQmlAbstractBinding> > m_resetBindingHash;
+    QHash<PropertyName, ServerNodeInstance> m_modelAbstractPropertyHash;
+    mutable QHash<PropertyName, bool> m_hasBindingHash;
     qint32 m_instanceId;
     QString m_id;
 
     QPointer<NodeInstanceServer> m_nodeInstanceServer;
-    QString m_parentProperty;
+    PropertyName m_parentProperty;
     bool m_deleteHeldInstance;
     QPointer<QObject> m_object;
     NodeInstanceMetaObject *m_metaObject;

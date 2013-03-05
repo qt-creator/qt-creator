@@ -48,7 +48,7 @@ bool PositionerNodeInstance::isResizable() const
     return true;
 }
 
-void PositionerNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
+void PositionerNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
     if (name == "move" || name == "add")
         return;
@@ -56,7 +56,7 @@ void PositionerNodeInstance::setPropertyVariant(const QString &name, const QVari
     QmlGraphicsItemNodeInstance::setPropertyVariant(name, value);
 }
 
-void PositionerNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
+void PositionerNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
     if (name == "move" || name == "add")
         return;

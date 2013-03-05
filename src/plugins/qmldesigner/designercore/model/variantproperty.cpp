@@ -50,7 +50,7 @@ VariantProperty::VariantProperty(const VariantProperty &property, AbstractView *
 
 }
 
-VariantProperty::VariantProperty(const QString &propertyName, const Internal::InternalNodePointer &internalNode, Model* model,  AbstractView *view) :
+VariantProperty::VariantProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model,  AbstractView *view) :
         AbstractProperty(propertyName, internalNode, model, view)
 {
 }
@@ -95,7 +95,7 @@ VariantProperty& VariantProperty::operator= (const QVariant &value)
     return *this;
 }
 
-void VariantProperty::setDynamicTypeNameAndValue(const QString &type, const QVariant &value)
+void VariantProperty::setDynamicTypeNameAndValue(const TypeName &type, const QVariant &value)
 {
     Internal::WriteLocker locker(model());
     if (!isValid())
@@ -119,16 +119,6 @@ void VariantProperty::setDynamicTypeNameAndValue(const QString &type, const QVar
 
      model()->d->setDynamicVariantProperty(internalNode(), name(), type, value);
 }
-
-VariantProperty& VariantProperty::operator= (const QPair<QString, QVariant> &typeValuePair)
-{
-    setDynamicTypeNameAndValue(typeValuePair.first, typeValuePair.second);
-    return *this;
-}
-
-
-
-
 
 QDebug operator<<(QDebug debug, const VariantProperty &VariantProperty)
 {

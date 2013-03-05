@@ -33,7 +33,7 @@
 namespace QmlDesigner {
 namespace Internal {
 
-InternalNodeAbstractProperty::InternalNodeAbstractProperty(const QString &name, const InternalNode::Pointer &propertyOwner)
+InternalNodeAbstractProperty::InternalNodeAbstractProperty(const PropertyName &name, const InternalNode::Pointer &propertyOwner)
     : InternalProperty(name, propertyOwner)
 {
 }

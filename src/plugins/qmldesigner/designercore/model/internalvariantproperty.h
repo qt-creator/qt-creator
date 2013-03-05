@@ -40,19 +40,19 @@ class InternalVariantProperty : public InternalProperty
 public:
     typedef QSharedPointer<InternalVariantProperty> Pointer;
 
-    static Pointer create(const QString &name, const InternalNodePointer &propertyOwner);
+    static Pointer create(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
     bool isValid() const;
 
     QVariant value() const;
     void setValue(const QVariant &value);
 
-    void setDynamicValue(const QString &type, const QVariant &value);
+    void setDynamicValue(const TypeName &type, const QVariant &value);
 
     bool isVariantProperty() const;
 
 protected:
-    InternalVariantProperty(const QString &name, const InternalNodePointer &propertyOwner);
+    InternalVariantProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
 private:
     QVariant m_value;

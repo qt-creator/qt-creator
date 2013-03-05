@@ -58,7 +58,7 @@ public:
     using InternalProperty::remove; // keep the virtual remove(...) method around
 
 protected:
-    InternalNodeAbstractProperty(const QString &name, const InternalNodePointer &propertyOwner);
+    InternalNodeAbstractProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
     virtual void remove(const InternalNodePointer &node) = 0;
     virtual void add(const InternalNodePointer &node) = 0;
 };

@@ -63,7 +63,7 @@ inline static QString doubleToString(double d)
     return string;
 }
 
-QmlTextGenerator::QmlTextGenerator(const QStringList &propertyOrder, int indentDepth):
+QmlTextGenerator::QmlTextGenerator(const PropertyNameList &propertyOrder, int indentDepth):
         m_propertyOrder(propertyOrder),
         m_indentDepth(indentDepth)
 {
@@ -104,7 +104,7 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
         const QVariant value = variantProperty.value();
         const QString stringValue = value.toString();
 
-        if (property.name() == QLatin1String("id"))
+        if (property.name() == "id")
             return stringValue;
 
           if (false) {
@@ -186,11 +186,11 @@ QString QmlTextGenerator::propertiesToQml(const ModelNode &node, int indentDepth
     QString topPart;
     QString bottomPart;
 
-    QStringList nodePropertyNames = node.propertyNames();
+    PropertyNameList nodePropertyNames = node.propertyNames();
     bool addToTop = true;
 
-    foreach (const QString &propertyName, m_propertyOrder) {
-        if (QLatin1String("id") == propertyName) {
+    foreach (const PropertyName &propertyName, m_propertyOrder) {
+        if (propertyName == "id") {
             // the model handles the id property special, so:
             if (!node.id().isEmpty()) {
                 QString idLine(indentDepth, QLatin1Char(' '));
@@ -215,7 +215,7 @@ QString QmlTextGenerator::propertiesToQml(const ModelNode &node, int indentDepth
         }
     }
 
-    foreach (const QString &propertyName, nodePropertyNames) {
+    foreach (const PropertyName &propertyName, nodePropertyNames) {
         bottomPart.prepend(propertyToQml(node.property(propertyName), indentDepth));
     }
 

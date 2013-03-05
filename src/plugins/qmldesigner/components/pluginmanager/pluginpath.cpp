@@ -175,7 +175,7 @@ QStandardItem *PluginPath::createModelItem()
     for (PluginDataList::iterator it = m_plugins.begin(); it != end; ++it) {
         QStandardItem *pluginItem = new QStandardItem(QFileInfo(it->path).fileName());
         if (instance(*it)) {
-            pluginItem->appendRow(new QStandardItem(QString::fromLatin1(it->instanceGuard->metaObject()->className())));
+            pluginItem->appendRow(new QStandardItem(QString::fromUtf8(it->instanceGuard->metaObject()->className())));
             pathItem->appendRow(pluginItem);
         } else {
             pluginItem->setToolTip(it->errorMessage);

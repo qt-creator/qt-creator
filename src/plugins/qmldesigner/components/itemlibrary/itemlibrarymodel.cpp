@@ -519,7 +519,7 @@ int ItemLibraryModel::getWidth(const ItemLibraryEntry &itemLibraryEntry)
 {
     foreach (const ItemLibraryEntry::Property &property, itemLibraryEntry.properties())
     {
-        if (property.name() == QLatin1String("width"))
+        if (property.name() == "width")
             return property.value().toInt();
     }
     return 64;
@@ -529,7 +529,7 @@ int ItemLibraryModel::getHeight(const ItemLibraryEntry &itemLibraryEntry)
 {
     foreach (const ItemLibraryEntry::Property &property, itemLibraryEntry.properties())
     {
-        if (property.name() == QLatin1String("height"))
+        if (property.name() == "height")
             return property.value().toInt();
     }
     return 64;

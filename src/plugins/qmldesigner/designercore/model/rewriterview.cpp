@@ -375,7 +375,7 @@ void RewriterView::scriptFunctionsChanged(const ModelNode & /*node*/, const QStr
 {
 }
 
-void RewriterView::instancePropertyChange(const QList<QPair<ModelNode, QString> > & /*propertyList*/)
+void RewriterView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > & /*propertyList*/)
 {
 }
 

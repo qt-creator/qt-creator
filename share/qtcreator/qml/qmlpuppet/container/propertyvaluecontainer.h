@@ -35,8 +35,9 @@
 #include <QVariant>
 #include <QString>
 
-namespace QmlDesigner {
+#include "nodeinstanceglobal.h"
 
+namespace QmlDesigner {
 
 class PropertyValueContainer
 {
@@ -44,19 +45,19 @@ class PropertyValueContainer
 
 public:
     PropertyValueContainer();
-    PropertyValueContainer(qint32 instanceId, const QString &name, const QVariant &value, const QString &dynamicTypeName);
+    PropertyValueContainer(qint32 instanceId, const PropertyName &name, const QVariant &value, const TypeName &dynamicTypeName);
 
     qint32 instanceId() const;
-    QString name() const;
+    PropertyName name() const;
     QVariant value() const;
     bool isDynamic() const;
-    QString dynamicTypeName() const;
+    TypeName dynamicTypeName() const;
 
 private:
     qint32 m_instanceId;
-    QString m_name;
+    PropertyName m_name;
     QVariant m_value;
-    QString m_dynamicTypeName;
+    TypeName m_dynamicTypeName;
 };
 
 QDataStream &operator<<(QDataStream &out, const PropertyValueContainer &container);

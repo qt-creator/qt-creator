@@ -661,7 +661,7 @@ Internal::ChildrenChangeEventFilter *NodeInstanceServer::childrenChangeEventFilt
     return m_childrenChangeEventFilter.data();
 }
 
-void NodeInstanceServer::addFilePropertyToFileSystemWatcher(QObject *object, const QString &propertyName, const QString &path)
+void NodeInstanceServer::addFilePropertyToFileSystemWatcher(QObject *object, const PropertyName &propertyName, const QString &path)
 {
     if (!m_fileSystemWatcherHash.contains(path)) {
         m_fileSystemWatcherHash.insert(path, ObjectPropertyPair(object, propertyName));
@@ -669,7 +669,7 @@ void NodeInstanceServer::addFilePropertyToFileSystemWatcher(QObject *object, con
     }
 }
 
-void NodeInstanceServer::removeFilePropertyFromFileSystemWatcher(QObject *object, const QString &propertyName, const QString &path)
+void NodeInstanceServer::removeFilePropertyFromFileSystemWatcher(QObject *object, const PropertyName &propertyName, const QString &path)
 {
     if (m_fileSystemWatcherHash.contains(path)) {
         fileSystemWatcher()->removePath(path);
@@ -682,7 +682,7 @@ void NodeInstanceServer::refreshLocalFileProperty(const QString &path)
     if (m_fileSystemWatcherHash.contains(path)) {
         foreach (const ObjectPropertyPair &objectPropertyPair, m_fileSystemWatcherHash) {
             QObject *object = objectPropertyPair.first.data();
-            QString propertyName = objectPropertyPair.second;
+            PropertyName propertyName = objectPropertyPair.second;
 
             if (hasInstanceForObject(object)) {
                 instanceForObject(object).refreshProperty(propertyName);
@@ -734,7 +734,7 @@ void NodeInstanceServer::resetInstanceProperty(const PropertyAbstractContainer &
         ServerNodeInstance instance = instanceForId(propertyContainer.instanceId());
         Q_ASSERT(instance.isValid());
 
-        const QString name = propertyContainer.name();
+        const PropertyName name = propertyContainer.name();
 
         if (activeStateInstance().isValid() && !instance.isSubclassOf("QtQuick/PropertyChanges")) {
             bool statePropertyWasReseted = activeStateInstance().resetStateProperty(instance, name, instance.resetVariant(name));
@@ -755,7 +755,7 @@ void NodeInstanceServer::setInstancePropertyBinding(const PropertyBindingContain
     if (hasInstanceForId(bindingContainer.instanceId())) {
         ServerNodeInstance instance = instanceForId(bindingContainer.instanceId());
 
-        const QString name = bindingContainer.name();
+        const PropertyName name = bindingContainer.name();
         const QString expression = bindingContainer.expression();
 
 
@@ -789,7 +789,7 @@ void NodeInstanceServer::setInstancePropertyVariant(const PropertyValueContainer
         ServerNodeInstance instance = instanceForId(valueContainer.instanceId());
 
 
-        const QString name = valueContainer.name();
+        const PropertyName name = valueContainer.name();
         const QVariant value = valueContainer.value();
 
 
@@ -816,8 +816,8 @@ void NodeInstanceServer::setInstancePropertyVariant(const PropertyValueContainer
 void NodeInstanceServer::setInstanceAuxiliaryData(const PropertyValueContainer &auxiliaryContainer)
 {
     //instanceId() == 0: the item is root
-    if (auxiliaryContainer.instanceId() == 0 && (auxiliaryContainer.name() == QLatin1String("width") ||
-                                        auxiliaryContainer.name() == QLatin1String("height"))) {
+    if (auxiliaryContainer.instanceId() == 0 && (auxiliaryContainer.name() == "width" ||
+                                        auxiliaryContainer.name() == "height")) {
 
         if (!auxiliaryContainer.value().isNull()) {
             setInstancePropertyVariant(auxiliaryContainer);
@@ -825,8 +825,8 @@ void NodeInstanceServer::setInstanceAuxiliaryData(const PropertyValueContainer &
             rootNodeInstance().resetProperty(auxiliaryContainer.name());
         }
     }
-    if (auxiliaryContainer.name().endsWith(QLatin1String("@NodeInstance"))) {
-        QString propertyName = auxiliaryContainer.name().leftRef(auxiliaryContainer.name().count() - 12).toString();
+    if (auxiliaryContainer.name().endsWith("@NodeInstance")) {
+        PropertyName propertyName = auxiliaryContainer.name().left(auxiliaryContainer.name().count() - 12);
         if (!auxiliaryContainer.value().isNull()) {
             setInstancePropertyVariant(PropertyValueContainer(auxiliaryContainer.instanceId(),
                                                               propertyName,
@@ -897,51 +897,51 @@ static QVector<InformationContainer> createInformationVector(const QList<ServerN
         informationVector.append(InformationContainer(instance.instanceId(), IsAnchoredByChildren, instance.isAnchoredByChildren()));
         informationVector.append(InformationContainer(instance.instanceId(), IsAnchoredBySibling, instance.isAnchoredBySibling()));
 
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, QString("anchors.fill"), instance.hasAnchor("anchors.fill")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, QString("anchors.centerIn"), instance.hasAnchor("anchors.centerIn")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, QString("anchors.right"), instance.hasAnchor("anchors.right")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, QString("anchors.top"), instance.hasAnchor("anchors.top")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, QString("anchors.left"), instance.hasAnchor("anchors.left")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, QString("anchors.bottom"), instance.hasAnchor("anchors.bottom")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, QString("anchors.horizontalCenter"), instance.hasAnchor("anchors.horizontalCenter")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, QString("anchors.verticalCenter"), instance.hasAnchor("anchors.verticalCenter")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, QString("anchors.baseline"), instance.hasAnchor("anchors.baseline")));
+        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.fill"), instance.hasAnchor("anchors.fill")));
+        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.centerIn"), instance.hasAnchor("anchors.centerIn")));
+        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.right"), instance.hasAnchor("anchors.right")));
+        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.top"), instance.hasAnchor("anchors.top")));
+        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.left"), instance.hasAnchor("anchors.left")));
+        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.bottom"), instance.hasAnchor("anchors.bottom")));
+        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.horizontalCenter"), instance.hasAnchor("anchors.horizontalCenter")));
+        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.verticalCenter"), instance.hasAnchor("anchors.verticalCenter")));
+        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.baseline"), instance.hasAnchor("anchors.baseline")));
 
-        QPair<QString, ServerNodeInstance> anchorPair = instance.anchor("anchors.fill");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, QString("anchors.fill"), anchorPair.first, anchorPair.second.instanceId()));
+        QPair<PropertyName, ServerNodeInstance> anchorPair = instance.anchor("anchors.fill");
+        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.fill"), anchorPair.first, anchorPair.second.instanceId()));
 
         anchorPair = instance.anchor("anchors.centerIn");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, QString("anchors.centerIn"), anchorPair.first, anchorPair.second.instanceId()));
+        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.centerIn"), anchorPair.first, anchorPair.second.instanceId()));
 
         anchorPair = instance.anchor("anchors.right");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, QString("anchors.right"), anchorPair.first, anchorPair.second.instanceId()));
+        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.right"), anchorPair.first, anchorPair.second.instanceId()));
 
         anchorPair = instance.anchor("anchors.top");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, QString("anchors.top"), anchorPair.first, anchorPair.second.instanceId()));
+        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.top"), anchorPair.first, anchorPair.second.instanceId()));
 
         anchorPair = instance.anchor("anchors.left");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, QString("anchors.left"), anchorPair.first, anchorPair.second.instanceId()));
+        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.left"), anchorPair.first, anchorPair.second.instanceId()));
 
         anchorPair = instance.anchor("anchors.bottom");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, QString("anchors.bottom"), anchorPair.first, anchorPair.second.instanceId()));
+        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.bottom"), anchorPair.first, anchorPair.second.instanceId()));
 
         anchorPair = instance.anchor("anchors.horizontalCenter");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, QString("anchors.horizontalCenter"), anchorPair.first, anchorPair.second.instanceId()));
+        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.horizontalCenter"), anchorPair.first, anchorPair.second.instanceId()));
 
         anchorPair = instance.anchor("anchors.verticalCenter");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, QString("anchors.verticalCenter"), anchorPair.first, anchorPair.second.instanceId()));
+        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.verticalCenter"), anchorPair.first, anchorPair.second.instanceId()));
 
         anchorPair = instance.anchor("anchors.baseline");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, QString("anchors.baseline"), anchorPair.first, anchorPair.second.instanceId()));
+        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.baseline"), anchorPair.first, anchorPair.second.instanceId()));
 
-        QStringList propertyNames = instance.propertyNames();
+        PropertyNameList propertyNames = instance.propertyNames();
 
         if (initial) {
-            foreach (const QString &propertyName,propertyNames)
+            foreach (const PropertyName &propertyName,propertyNames)
                 informationVector.append(InformationContainer(instance.instanceId(), InstanceTypeForProperty, propertyName, instance.instanceType(propertyName)));
         }
 
-        foreach (const QString &propertyName,instance.propertyNames()) {
+        foreach (const PropertyName &propertyName,instance.propertyNames()) {
             bool hasChanged = false;
             bool hasBinding = instance.hasBindingForProperty(propertyName, &hasChanged);
             if (hasChanged)
@@ -979,10 +979,10 @@ ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QList<
     QVector<PropertyValueContainer> valueVector;
 
     foreach (const ServerNodeInstance &instance, instanceList) {
-        foreach (const QString &propertyName, instance.propertyNames()) {
+        foreach (const PropertyName &propertyName, instance.propertyNames()) {
             QVariant propertyValue = instance.property(propertyName);
             if (supportedVariantType(propertyValue.userType()))
-                valueVector.append(PropertyValueContainer(instance.instanceId(), propertyName, propertyValue, QString()));
+                valueVector.append(PropertyValueContainer(instance.instanceId(), propertyName, propertyValue, PropertyName()));
         }
     }
 
@@ -1005,13 +1005,13 @@ ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QVecto
     QVector<PropertyValueContainer> valueVector;
 
     foreach (const InstancePropertyPair &property, propertyList) {
-        const QString propertyName = property.second;
+        const PropertyName propertyName = property.second;
         const ServerNodeInstance instance = property.first;
 
         if (instance.isValid()) {
             QVariant propertyValue = instance.property(propertyName);
             if (QMetaType::isRegistered(propertyValue.userType()) && supportedVariantType(propertyValue.type())) {
-                valueVector.append(PropertyValueContainer(instance.instanceId(), propertyName, propertyValue, QString()));
+                valueVector.append(PropertyValueContainer(instance.instanceId(), propertyName, propertyValue, PropertyName()));
             }
         }
     }
@@ -1034,7 +1034,7 @@ QObject *NodeInstanceServer::dummyContextObject() const
     return m_dummyContextObject.data();
 }
 
-void NodeInstanceServer::notifyPropertyChange(qint32 instanceid, const QString &propertyName)
+void NodeInstanceServer::notifyPropertyChange(qint32 instanceid, const PropertyName &propertyName)
 {
     if (hasInstanceForId(instanceid))
         addChangedProperty(InstancePropertyPair(instanceForId(instanceid), propertyName));

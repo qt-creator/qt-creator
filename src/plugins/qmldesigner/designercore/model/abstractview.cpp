@@ -74,15 +74,15 @@ RewriterTransaction AbstractView::beginRewriterTransaction()
     return RewriterTransaction(this);
 }
 
-ModelNode AbstractView::createModelNode(const QString &typeString,
+ModelNode AbstractView::createModelNode(const TypeName &typeName,
                             int majorVersion,
                             int minorVersion,
-                            const QList<QPair<QString, QVariant> > &propertyList,
-                            const QList<QPair<QString, QVariant> > &auxPropertyList,
+                            const QList<QPair<PropertyName, QVariant> > &propertyList,
+                            const QList<QPair<PropertyName, QVariant> > &auxPropertyList,
                             const QString &nodeSource,
                             ModelNode::NodeSourceType nodeSourceType)
 {
-    return ModelNode(model()->d->createNode(typeString, majorVersion, minorVersion, propertyList, auxPropertyList, nodeSource, nodeSourceType), model(), this);
+    return ModelNode(model()->d->createNode(typeName, majorVersion, minorVersion, propertyList, auxPropertyList, nodeSource, nodeSourceType), model(), this);
 }
 
 
@@ -387,7 +387,7 @@ void AbstractView::emitCustomNotification(const QString &identifier, const QList
     model()->d->notifyCustomNotification(this, identifier, nodeList, data);
 }
 
-void AbstractView::emitInstancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList)
+void AbstractView::emitInstancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList)
 {
     if (model() && nodeInstanceView() == this)
         model()->d->notifyInstancePropertyChange(propertyList);
@@ -454,7 +454,7 @@ void AbstractView::setAcutalStateNode(const ModelNode &node)
         model()->d->notifyActualStateChanged(node);
 }
 
-void AbstractView::changeRootNodeType(const QString &type, int majorVersion, int minorVersion)
+void AbstractView::changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion)
 {
     Internal::WriteLocker locker(m_model.data());
 

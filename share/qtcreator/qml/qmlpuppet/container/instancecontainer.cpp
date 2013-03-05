@@ -38,11 +38,11 @@ InstanceContainer::InstanceContainer()
 {
 }
 
-InstanceContainer::InstanceContainer(qint32 instanceId, const QString &type, int majorNumber, int minorNumber, const QString &componentPath, const QString &nodeSource, NodeSourceType nodeSourceType,NodeMetaType metaType)
+InstanceContainer::InstanceContainer(qint32 instanceId, const TypeName &type, int majorNumber, int minorNumber, const QString &componentPath, const QString &nodeSource, NodeSourceType nodeSourceType, NodeMetaType metaType)
     : m_instanceId(instanceId), m_type(type), m_majorNumber(majorNumber), m_minorNumber(minorNumber), m_componentPath(componentPath),
       m_nodeSource(nodeSource), m_nodeSourceType(nodeSourceType), m_metaType(metaType)
 {
-    m_type.replace(QLatin1Char('.'), QLatin1Char('/'));
+    m_type.replace('.', '/');
 }
 
 qint32 InstanceContainer::instanceId() const
@@ -50,7 +50,7 @@ qint32 InstanceContainer::instanceId() const
     return m_instanceId;
 }
 
-QString InstanceContainer::type() const
+TypeName InstanceContainer::type() const
 {
     return m_type;
 }

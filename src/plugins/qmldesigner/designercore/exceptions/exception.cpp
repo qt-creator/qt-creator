@@ -111,7 +111,7 @@ Exception::Exception(int line,
 #endif
 
 if (s_shouldAssert)
-    Q_ASSERT_X(false, function.toLatin1(), QString("%1:%2 - %3").arg(file).arg(line).arg(function).toLatin1());
+    Q_ASSERT_X(false, function.toUtf8(), QString("%1:%2 - %3").arg(file).arg(line).arg(function).toUtf8());
 }
 
 Exception::~Exception()

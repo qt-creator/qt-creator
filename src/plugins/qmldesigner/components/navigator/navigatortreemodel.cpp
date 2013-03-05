@@ -52,8 +52,8 @@ static inline void setScenePos(const QmlDesigner::ModelNode &modelNode,const QPo
     QmlDesigner::QmlItemNode parentNode = modelNode.parentProperty().parentQmlObjectNode().toQmlItemNode();
     if (parentNode.isValid()) {
         QPointF localPos = parentNode.instanceSceneTransform().inverted().map(pos);
-        modelNode.variantProperty(QLatin1String("x")) = localPos.toPoint().x();
-        modelNode.variantProperty(QLatin1String("y")) = localPos.toPoint().y();
+        modelNode.variantProperty("x") = localPos.toPoint().x();
+        modelNode.variantProperty("y") = localPos.toPoint().y();
     }
 }
 
@@ -138,7 +138,7 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
         return false;
 
     QModelIndex parentIndex, parentItemIndex;
-    QString parentPropertyName;
+    PropertyName parentPropertyName;
     int targetIndex;
 
     parentIndex = dropIndex.sibling(dropIndex.row(), 0);
@@ -154,7 +154,7 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
     }
     else {
         parentItemIndex = parentIndex.parent();
-        parentPropertyName = parentIndex.data(Qt::DisplayRole).toString();
+        parentPropertyName = parentIndex.data(Qt::DisplayRole).toByteArray();
     }
 
     // Disallow dropping items between properties, which are listed first.
@@ -509,7 +509,7 @@ void NavigatorTreeModel::removeSubTree(const ModelNode &node)
 void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentProperty, const QList<ModelNode> &modelNodes, int targetIndex)
 {
     try {
-        QString propertyQmlType = qmlTypeInQtContainer(parentProperty.parentModelNode().metaInfo().propertyTypeName(parentProperty.name()));
+        TypeName propertyQmlType = qmlTypeInQtContainer(parentProperty.parentModelNode().metaInfo().propertyTypeName(parentProperty.name()));
 
         RewriterTransaction transaction = m_view->beginRewriterTransaction();
         foreach (const ModelNode &node, modelNodes) {
@@ -577,14 +577,14 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentPropert
 QList<ModelNode> NavigatorTreeModel::modelNodeChildren(const ModelNode &parentNode)
 {
     QList<ModelNode> children;
-    QStringList properties;
+    PropertyNameList properties;
 
     if (parentNode.metaInfo().hasDefaultProperty())
         properties << parentNode.metaInfo().defaultPropertyName();
 
     properties << visibleProperties(parentNode);
 
-    foreach (const QString &propertyName, properties) {
+    foreach (const PropertyName &propertyName, properties) {
         AbstractProperty property(parentNode.property(propertyName));
         if (property.isNodeProperty())
             children << property.toNodeProperty().modelNode();
@@ -595,9 +595,9 @@ QList<ModelNode> NavigatorTreeModel::modelNodeChildren(const ModelNode &parentNo
     return children;
 }
 
-QString NavigatorTreeModel::qmlTypeInQtContainer(const QString &qtContainerType) const
+TypeName NavigatorTreeModel::qmlTypeInQtContainer(const TypeName &qtContainerType) const
 {
-    QString typeName(qtContainerType);
+    TypeName typeName(qtContainerType);
     if (typeName.startsWith("QDeclarativeListProperty<") &&
         typeName.endsWith('>')) {
         typeName.remove(0, 25);
@@ -610,17 +610,17 @@ QString NavigatorTreeModel::qmlTypeInQtContainer(const QString &qtContainerType)
 }
 
 
-QStringList NavigatorTreeModel::visibleProperties(const ModelNode &node) const
+PropertyNameList NavigatorTreeModel::visibleProperties(const ModelNode &node) const
 {
-    QStringList propertyList;
+    PropertyNameList propertyList;
 
-    foreach (const QString &propertyName, node.metaInfo().propertyNames()) {
+    foreach (const PropertyName &propertyName, node.metaInfo().propertyNames()) {
         if (!propertyName.contains('.') && //do not show any dot properties, since they are tricky and unlikely to make sense
             node.metaInfo().propertyIsWritable(propertyName) && !m_hiddenProperties.contains(propertyName) &&
             !node.metaInfo().propertyIsEnumType(propertyName) && //Some enums have the same name as Qml types (e. g. Flow)
             propertyName != node.metaInfo().defaultPropertyName()) { // TODO: ask the node instances
 
-            QString qmlType = qmlTypeInQtContainer(node.metaInfo().propertyTypeName(propertyName));
+            TypeName qmlType = qmlTypeInQtContainer(node.metaInfo().propertyTypeName(propertyName));
             if (node.model()->metaInfo(qmlType).isValid() &&
                 node.model()->metaInfo(qmlType).isSubclassOf("QtQuick.Item", -1, -1)) {
                 propertyList.append(propertyName);

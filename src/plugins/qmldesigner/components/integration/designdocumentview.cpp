@@ -70,7 +70,7 @@ void DesignDocumentView::scriptFunctionsChanged(const ModelNode &/*node*/, const
 {
 }
 
-void DesignDocumentView::instancePropertyChange(const QList<QPair<ModelNode, QString> > &/*propertyList*/)
+void DesignDocumentView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &/*propertyList*/)
 {
 }
 
@@ -128,7 +128,7 @@ void DesignDocumentView::importsChanged(const QList<Import> &/*addedImports*/, c
 
 static QStringList arrayToStringList(const QByteArray &byteArray)
 {
-    QString str(QString::fromLatin1(byteArray));
+    QString str(QString::fromUtf8(byteArray));
     return str.split('\n');
 }
 
@@ -137,7 +137,7 @@ static QByteArray stringListToArray(const QStringList &stringList)
     QString str;
     foreach (const QString &subString, stringList)
         str += subString + '\n';
-    return str.toLatin1();
+    return str.toUtf8();
 }
 
 void DesignDocumentView::toClipboard() const

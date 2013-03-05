@@ -50,7 +50,7 @@ BindingProperty::BindingProperty(const BindingProperty &property, AbstractView *
 }
 
 
-BindingProperty::BindingProperty(const QString &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view)
+BindingProperty::BindingProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view)
     : AbstractProperty(propertyName, internalNode, model, view)
 {
 }
@@ -110,9 +110,9 @@ static ModelNode resolveBinding(const QString &binding, ModelNode currentNode, A
                 currentNode = currentNode.parentProperty().toNodeAbstractProperty().parentModelNode();
             else
                 return ModelNode(); //binding not valid
-        } else if (currentNode.hasProperty(element)) {
-            if (currentNode.property(element).isNodeProperty()) {
-                currentNode = currentNode.nodeProperty(element).modelNode();
+        } else if (currentNode.hasProperty(element.toUtf8())) {
+            if (currentNode.property(element.toUtf8()).isNodeProperty()) {
+                currentNode = currentNode.nodeProperty(element.toUtf8()).modelNode();
             } else {
                 currentNode = view->modelNodeForId(element); //id
                 if (!currentNode.isValid())
@@ -167,7 +167,7 @@ AbstractProperty BindingProperty::resolveToProperty() const
     }
 
     if (node.isValid())
-        return node.property(element);
+        return node.property(element.toUtf8());
     else
         return AbstractProperty();
 }
@@ -199,7 +199,7 @@ QList<ModelNode> BindingProperty::resolveToModelNodeList() const
     return returnList;
 }
 
-void BindingProperty::setDynamicTypeNameAndExpression(const QString &typeName, const QString &expression)
+void BindingProperty::setDynamicTypeNameAndExpression(const TypeName &typeName, const QString &expression)
 {
     Internal::WriteLocker locker(model());
     if (!isValid())
@@ -228,13 +228,6 @@ void BindingProperty::setDynamicTypeNameAndExpression(const QString &typeName, c
         model()->d->removeProperty(internalNode()->property(name()));
 
      model()->d->setDynamicBindingProperty(internalNode(), name(), typeName, expression);
-}
-
-BindingProperty& BindingProperty::operator= (const QPair<QString, QString> &typeExpressionPair)
-{
-   setDynamicTypeNameAndExpression(typeExpressionPair.first, typeExpressionPair.second);
-
-   return *this;
 }
 
 } // namespace QmlDesigner

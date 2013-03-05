@@ -60,7 +60,7 @@ public:
     QList<ModelNode> allSubNodes();
 
 protected:
-    NodeAbstractProperty(const QString &propertyName, const Internal::InternalNodePointer &internalNode, Model *model, AbstractView *view);
+    NodeAbstractProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model *model, AbstractView *view);
     NodeAbstractProperty(const Internal::InternalNodeAbstractPropertyPointer &property, Model *model, AbstractView *view);
     void reparentHere(const ModelNode &modelNode, bool isNodeList);
 };

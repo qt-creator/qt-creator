@@ -47,7 +47,7 @@ public:
 
     static Pointer create(QObject *objectToBeWrapped);
 
-    void setPropertyVariant(const QString &name, const QVariant &value);
+    void setPropertyVariant(const PropertyName &name, const QVariant &value);
 
     bool isTransition() const;
 

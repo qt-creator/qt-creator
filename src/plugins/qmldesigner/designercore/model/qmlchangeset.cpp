@@ -60,7 +60,7 @@ bool QmlModelStateOperation::isValid() const
                 || modelNode().metaInfo().isSubclassOf("<cpp>.QQuickStateOperation", -1, -1));
 }
 
-void QmlPropertyChanges::removeProperty(const QString &name)
+void QmlPropertyChanges::removeProperty(const PropertyName &name)
 {
     RewriterTransaction transaction(qmlModelView()->beginRewriterTransaction());
     if (name == "name")

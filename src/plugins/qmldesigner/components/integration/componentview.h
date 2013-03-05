@@ -73,7 +73,7 @@ public:
     void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange);
     void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
-    void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
+    void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList);
     void instancesCompleted(const QVector<ModelNode> &completedNodeList);
     void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &/*informationChangeHash*/);
     void instancesRenderImageChanged(const QVector<ModelNode> &nodeList);

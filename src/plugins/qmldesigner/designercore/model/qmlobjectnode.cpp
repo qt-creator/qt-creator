@@ -43,7 +43,7 @@
 
 namespace QmlDesigner {
 
-void QmlObjectNode::setVariantProperty(const QString &name, const QVariant &value)
+void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant &value)
 {
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
@@ -59,7 +59,7 @@ void QmlObjectNode::setVariantProperty(const QString &name, const QVariant &valu
     }
 }
 
-void QmlObjectNode::setBindingProperty(const QString &name, const QString &expression)
+void QmlObjectNode::setBindingProperty(const PropertyName &name, const QString &expression)
 {
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
@@ -95,13 +95,13 @@ instanciated instance of this object.
 \return the value of this property based on the instance
 
 */
-QVariant  QmlObjectNode::instanceValue(const QString &name) const
+QVariant  QmlObjectNode::instanceValue(const PropertyName &name) const
 {
     return nodeInstance().property(name);
 }
 
 
-bool QmlObjectNode::hasProperty(const QString &name) const
+bool QmlObjectNode::hasProperty(const PropertyName &name) const
 {
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
@@ -115,7 +115,7 @@ bool QmlObjectNode::hasProperty(const QString &name) const
     return modelNode().hasProperty(name);
 }
 
-bool QmlObjectNode::hasBindingProperty(const QString &name) const
+bool QmlObjectNode::hasBindingProperty(const PropertyName &name) const
 {
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
@@ -129,22 +129,22 @@ bool QmlObjectNode::hasBindingProperty(const QString &name) const
     return modelNode().hasBindingProperty(name);
 }
 
-NodeAbstractProperty QmlObjectNode::nodeAbstractProperty(const QString &name) const
+NodeAbstractProperty QmlObjectNode::nodeAbstractProperty(const PropertyName &name) const
 {
    return modelNode().nodeAbstractProperty(name);
 }
 
-NodeProperty QmlObjectNode::nodeProperty(const QString &name) const
+NodeProperty QmlObjectNode::nodeProperty(const PropertyName &name) const
 {
     return modelNode().nodeProperty(name);
 }
 
-NodeListProperty QmlObjectNode::nodeListProperty(const QString &name) const
+NodeListProperty QmlObjectNode::nodeListProperty(const PropertyName &name) const
 {
     return modelNode().nodeListProperty(name);
 }
 
-bool QmlObjectNode::propertyAffectedByCurrentState(const QString &name) const
+bool QmlObjectNode::propertyAffectedByCurrentState(const PropertyName &name) const
 {
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
@@ -158,7 +158,7 @@ bool QmlObjectNode::propertyAffectedByCurrentState(const QString &name) const
     return currentState().propertyChanges(modelNode()).modelNode().hasProperty(name);
 }
 
-QVariant QmlObjectNode::modelValue(const QString &name) const
+QVariant QmlObjectNode::modelValue(const PropertyName &name) const
 {
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
@@ -177,7 +177,7 @@ QVariant QmlObjectNode::modelValue(const QString &name) const
     return propertyChanges.modelNode().variantProperty(name).value();
 }
 
-QString QmlObjectNode::expression(const QString &name) const
+QString QmlObjectNode::expression(const PropertyName &name) const
 {
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
@@ -338,7 +338,7 @@ QList<QmlModelState> QmlObjectNode::allDefinedStates() const
 
 */
 
-void  QmlObjectNode::removeVariantProperty(const QString &name)
+void  QmlObjectNode::removeVariantProperty(const PropertyName &name)
 {
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
@@ -380,7 +380,7 @@ bool QmlObjectNode::isAncestorOf(const QmlObjectNode &objectNode) const
     return modelNode().isAncestorOf(objectNode.modelNode());
 }
 
-QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, const QString &name)
+QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, const PropertyName &name)
 {
     QmlModelView *modelView = qobject_cast<QmlModelView*>(modelNode.view());
     if (!modelView)
@@ -389,12 +389,12 @@ QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, const QString 
     return modelView->instanceForModelNode(modelNode).property(name);
 }
 
-QString QmlObjectNode::instanceType(const QString &name) const
+TypeName QmlObjectNode::instanceType(const PropertyName &name) const
 {
     return nodeInstance().instanceType(name);
 }
 
-bool QmlObjectNode::instanceHasBinding(const QString &name) const
+bool QmlObjectNode::instanceHasBinding(const PropertyName &name) const
 {
     QmlModelView *modelView = qobject_cast<QmlModelView*>(modelNode().view());
     if (!modelView)
@@ -457,7 +457,7 @@ bool QmlObjectNode::hasDefaultProperty() const
     return modelNode().metaInfo().hasDefaultProperty();
 }
 
-QString QmlObjectNode::defaultProperty() const
+PropertyName QmlObjectNode::defaultProperty() const
 {
     return modelNode().metaInfo().defaultPropertyName();
 }

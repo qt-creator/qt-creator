@@ -48,14 +48,14 @@ PropertyContainer::PropertyContainer()
 {
 }
 
-PropertyContainer::PropertyContainer(const QString &name, const QString &type, const QVariant &value)
+PropertyContainer::PropertyContainer(const PropertyName &name, const QString &type, const QVariant &value)
         : m_name(name), m_type(type), m_value(value)
 {
     Q_ASSERT_X(!name.isEmpty(), Q_FUNC_INFO, "Name of property cannot be empty");
     Q_ASSERT_X(!type.isEmpty(), Q_FUNC_INFO, "Type of property cannot be empty");
 }
 
-void PropertyContainer::set(const QString &name, const QString &type, const QVariant &value)
+void PropertyContainer::set(const PropertyName &name, const QString &type, const QVariant &value)
 {
     m_name = name;
     m_type = type;
@@ -67,7 +67,7 @@ bool PropertyContainer::isValid() const
     return !m_name.isEmpty() && m_value.isValid();
 }
 
-QString PropertyContainer::name() const
+PropertyName PropertyContainer::name() const
 {
     return m_name;
 }

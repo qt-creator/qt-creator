@@ -45,12 +45,12 @@ public:
 
     static Pointer create(QObject *objectToBeWrapped);
 
-    void setPropertyVariant(const QString &name, const QVariant &value);
-    void setPropertyBinding(const QString &name, const QString &expression);
+    void setPropertyVariant(const PropertyName &name, const QVariant &value);
+    void setPropertyBinding(const PropertyName &name, const QString &expression);
 
 
-    QVariant property(const QString &name) const;
-    void resetProperty(const QString &name);
+    QVariant property(const PropertyName &name) const;
+    void resetProperty(const PropertyName &name);
 
 private:
     bool m_isEnabled;

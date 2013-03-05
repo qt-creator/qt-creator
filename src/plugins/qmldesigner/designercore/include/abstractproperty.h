@@ -81,7 +81,7 @@ public:
     AbstractProperty& operator=(const AbstractProperty &other);
     AbstractProperty(const AbstractProperty &property, AbstractView *view);
 
-    QString name() const;
+    PropertyName name() const;
 
     bool isValid() const;
     ModelNode parentModelNode() const;
@@ -101,17 +101,17 @@ public:
     bool isNodeProperty() const;
 
     bool isDynamic() const;
-    QString dynamicTypeName() const;
+    TypeName dynamicTypeName() const;
 
 protected:
-    AbstractProperty(const QString &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
+    AbstractProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
     AbstractProperty(const Internal::InternalPropertyPointer &property, Model* model, AbstractView *view);
     Internal::InternalNodePointer internalNode() const;
     Model *model() const;
     AbstractView *view() const;
 
 private:
-    QString m_propertyName;
+    PropertyName m_propertyName;
     Internal::InternalNodePointer m_internalNode;
     QWeakPointer<Model> m_model;
     QWeakPointer<AbstractView> m_view;

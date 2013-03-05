@@ -46,7 +46,7 @@ NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstance::Pointer
     setCached(true);
 }
 
-NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const QString &prefix, QDeclarativeEngine *engine)
+NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const PropertyName &prefix, QDeclarativeEngine *engine)
     : QDeclarativeOpenMetaObject(object, new QDeclarativeOpenMetaObjectType(object->metaObject(), engine), true),
     m_nodeInstance(nodeInstance),
     m_prefix(prefix)
@@ -56,7 +56,7 @@ NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstancePointer &
 
 void NodeInstanceMetaObject::createNewProperty(const QString &name)
 {
-    int id = createProperty(name.toLatin1(), 0);
+    int id = createProperty(name.toUtf8(), 0);
     setValue(id, QVariant());
     Q_ASSERT(id >= 0);
     Q_UNUSED(id)

@@ -34,6 +34,8 @@
 #include <QString>
 #include <QDataStream>
 
+#include "nodeinstanceglobal.h"
+
 namespace QmlDesigner {
 
 class InstanceContainer;
@@ -58,10 +60,10 @@ public:
     };
 
     InstanceContainer();
-    InstanceContainer(qint32 instanceId, const QString &type, int majorNumber, int minorNumber, const QString &componentPath, const QString &nodeSource, NodeSourceType nodeSourceType, NodeMetaType metaType);
+    InstanceContainer(qint32 instanceId, const TypeName &type, int majorNumber, int minorNumber, const QString &componentPath, const QString &nodeSource, NodeSourceType nodeSourceType, NodeMetaType metaType);
 
     qint32 instanceId() const;
-    QString type() const;
+    TypeName type() const;
     int majorNumber() const;
     int minorNumber() const;
     QString componentPath() const;
@@ -71,7 +73,7 @@ public:
 
 private:
     qint32 m_instanceId;
-    QString m_type;
+    TypeName m_type;
     qint32 m_majorNumber;
     qint32 m_minorNumber;
     QString m_componentPath;

@@ -40,9 +40,9 @@ namespace QmlDesigner {
 class ModelNode;
 class NodeState;
 
-const QString auxDataString = QLatin1String("anchors_");
+const PropertyName auxDataString("anchors_");
 
-static inline void backupPropertyAndRemove(ModelNode node, const QString &propertyName)
+static inline void backupPropertyAndRemove(ModelNode node, const PropertyName &propertyName)
 {
     if (node.hasVariantProperty(propertyName)) {
         node.setAuxiliaryData(auxDataString + propertyName, node.variantProperty(propertyName).value());
@@ -56,7 +56,7 @@ static inline void backupPropertyAndRemove(ModelNode node, const QString &proper
 }
 
 
-static inline void restoreProperty(ModelNode node, const QString &propertyName)
+static inline void restoreProperty(ModelNode node, const PropertyName &propertyName)
 {
     if (node.hasAuxiliaryData(auxDataString + propertyName))
         node.variantProperty(propertyName) = node.auxiliaryData(auxDataString + propertyName);

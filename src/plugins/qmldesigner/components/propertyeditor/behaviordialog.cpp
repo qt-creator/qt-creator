@@ -88,7 +88,7 @@ BehaviorDialog::BehaviorDialog(QWidget *parent) : QDialog(parent), m_ui(new Inte
     setModal(true);
 }
 
- void BehaviorDialog::setup(const ModelNode &node, const QString propertyName)
+ void BehaviorDialog::setup(const ModelNode &node, const PropertyName propertyName)
 {
         m_modelNode = node;
         m_ui->duration->setValue(100);

@@ -48,8 +48,6 @@ public:
     bool validStateName(const QString &name) const;
     QString currentStateName() const;
 
-    void nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName);
-
     // AbstractView
     void modelAttached(Model *model);
     void modelAboutToBeDetached(Model *model);

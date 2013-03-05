@@ -51,29 +51,29 @@ public:
     };
 
 public:
-    QmlRefactoring(const QmlJS::Document::Ptr &doc, QmlDesigner::TextModifier &modifier, const QStringList &propertyOrder);
+    QmlRefactoring(const QmlJS::Document::Ptr &doc, QmlDesigner::TextModifier &modifier, const PropertyNameList &propertyOrder);
 
     bool reparseDocument();
 
     bool addImport(const Import &import);
     bool removeImport(const Import &import);
 
-    bool addToArrayMemberList(int parentLocation, const QString &propertyName, const QString &content);
+    bool addToArrayMemberList(int parentLocation, const PropertyName &propertyName, const QString &content);
     bool addToObjectMemberList(int parentLocation, const QString &content);
-    bool addProperty(int parentLocation, const QString &name, const QString &value, PropertyType propertyType);
-    bool changeProperty(int parentLocation, const QString &name, const QString &value, PropertyType propertyType);
+    bool addProperty(int parentLocation, const PropertyName &name, const QString &value, PropertyType propertyType);
+    bool changeProperty(int parentLocation, const PropertyName &name, const QString &value, PropertyType propertyType);
     bool changeObjectType(int nodeLocation, const QString &newType);
 
-    bool moveObject(int objectLocation, const QString &targetPropertyName, bool targetIsArray, int targetParentObjectLocation);
+    bool moveObject(int objectLocation, const PropertyName &targetPropertyName, bool targetIsArray, int targetParentObjectLocation);
     bool moveObjectBeforeObject(int movingObjectLocation, int beforeObjectLocation, bool inDefaultProperty);
 
     bool removeObject(int nodeLocation);
-    bool removeProperty(int parentLocation, const QString &name);
+    bool removeProperty(int parentLocation, const PropertyName &name);
 
 private:
     QmlJS::Document::Ptr qmlDocument;
     TextModifier *textModifier;
-    QStringList m_propertyOrder;
+    PropertyNameList m_propertyOrder;
 };
 
 } // namespace QmlDesigner

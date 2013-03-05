@@ -43,7 +43,7 @@ class InternalNodeListProperty : public InternalNodeAbstractProperty
 public:
     typedef QSharedPointer<InternalNodeListProperty> Pointer;
 
-    static Pointer create(const QString &name, const InternalNodePointer &propertyOwner);
+    static Pointer create(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
     bool isValid() const;
 
@@ -60,7 +60,7 @@ public:
     void slide(int from, int to);
 
 protected:
-    InternalNodeListProperty(const QString &name, const InternalNodePointer &propertyOwner);
+    InternalNodeListProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
     void add(const InternalNodePointer &node);
     void remove(const InternalNodePointer &node);
 

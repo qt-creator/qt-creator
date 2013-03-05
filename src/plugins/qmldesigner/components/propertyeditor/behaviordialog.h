@@ -55,7 +55,7 @@ public:
     explicit BehaviorWidget(QWidget *parent = 0);
 
     ModelNode modelNode() const {return m_modelNode; }
-    QString propertyName() const {return m_propertyName; }
+    PropertyName propertyName() const {return m_propertyName; }
 
     PropertyEditorNodeWrapper* complexNode() const;
     void setComplexNode(PropertyEditorNodeWrapper* complexNode);
@@ -65,7 +65,7 @@ public slots:
 
 private:
     ModelNode m_modelNode;
-    QString m_propertyName;
+    PropertyName m_propertyName;
     PropertyEditorNodeWrapper* m_complexNode;
     QScopedPointer<BehaviorDialog> m_BehaviorDialog;
 };
@@ -75,7 +75,7 @@ class BehaviorDialog : public QDialog
     Q_OBJECT
 public:
     explicit BehaviorDialog(QWidget *parent = 0);
-    void setup(const ModelNode &node, const QString propertyName);
+    void setup(const ModelNode &node, const PropertyName propertyName);
 
 public slots:
     virtual void accept();
@@ -85,7 +85,7 @@ public slots:
 
 private:
     ModelNode m_modelNode;
-    QString m_propertyName;
+    PropertyName m_propertyName;
     QScopedPointer<Internal::Ui::BehaviorDialog> m_ui;
 };
 

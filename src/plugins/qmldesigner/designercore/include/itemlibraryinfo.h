@@ -62,7 +62,7 @@ public:
     ~ItemLibraryEntry();
 
     QString name() const;
-    QString typeName() const;
+    TypeName typeName() const;
     QIcon icon() const;
     QString iconPath() const;
     int majorVersion() const;
@@ -80,11 +80,11 @@ public:
 
     QList<Property> properties() const;
 
-    void setType(const QString &typeName, int majorVersion, int minorVersion);
+    void setType(const TypeName &typeName, int majorVersion, int minorVersion);
     void setName(const QString &name);
     void setIconPath(const QString &iconPath);
     void addProperty(const Property &p);
-    void addProperty(QString &name, QString &type, QVariant &value);
+    void addProperty(PropertyName &name, QString &type, QVariant &value);
     void setDragIcon(const QIcon &icon);
     void setIcon(const QIcon &icon);
     void setCategory(const QString &category);

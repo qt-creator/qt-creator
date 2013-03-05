@@ -53,7 +53,7 @@ void NodeInstanceSignalSpy::setObjectNodeInstance(const ObjectNodeInstance::Poin
 
 }
 
-void NodeInstanceSignalSpy::registerObject(QObject *spiedObject, const QString &prefix)
+void NodeInstanceSignalSpy::registerObject(QObject *spiedObject, const PropertyName &prefix)
 {
     if (m_registeredObjectList.contains(spiedObject)) // prevent cycles
         return;
@@ -70,7 +70,7 @@ void NodeInstanceSignalSpy::registerObject(QObject *spiedObject, const QString &
                  && QQmlMetaType::isQObject(metaProperty.userType())) {
                   QObject *propertyObject = QQmlMetaType::toQObject(metaProperty.read(spiedObject));
                   if (propertyObject)
-                      registerObject(propertyObject, prefix + metaProperty.name() + QLatin1Char('.'));
+                      registerObject(propertyObject, prefix + metaProperty.name() + '.');
              } else if (metaProperty.hasNotifySignal()) {
                  QMetaMethod metaMethod = metaProperty.notifySignal();
                  bool isConnecting = QMetaObject::connect(spiedObject, metaMethod.methodIndex(), this, methodeOffset, Qt::DirectConnection);
@@ -86,7 +86,7 @@ void NodeInstanceSignalSpy::registerObject(QObject *spiedObject, const QString &
                  && QQmlMetaType::isQObject(metaProperty.userType())) {
                  QObject *propertyObject = QQmlMetaType::toQObject(metaProperty.read(spiedObject));
                  if (propertyObject)
-                     registerObject(propertyObject, prefix + metaProperty.name() + QLatin1Char('/'));
+                     registerObject(propertyObject, prefix + metaProperty.name() + '/');
              }
 
              // search recursive in objects list
@@ -99,7 +99,7 @@ void NodeInstanceSignalSpy::registerObject(QObject *spiedObject, const QString &
                      for (int i = 0; i < list.count(); i++) {
                          QObject *propertyObject = list.at(i);
                          if (propertyObject)
-                             registerObject(propertyObject, prefix + metaProperty.name() + QLatin1Char('/'));
+                             registerObject(propertyObject, prefix + metaProperty.name() + '/');
                      }
                  }
              }

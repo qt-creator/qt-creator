@@ -132,8 +132,8 @@ private:
 
     QList<ModelNode> modelNodeChildren(const ModelNode &parentNode);
 
-    QString qmlTypeInQtContainer(const QString &qtContainerType) const;
-    QStringList visibleProperties(const ModelNode &node) const;
+    TypeName qmlTypeInQtContainer(const TypeName &qtContainerType) const;
+    PropertyNameList visibleProperties(const ModelNode &node) const;
 
     bool blockItemChangedSignal(bool block);
 

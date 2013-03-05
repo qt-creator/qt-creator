@@ -226,7 +226,7 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
     return instance;
 }
 
-void ServerNodeInstance::reparent(const ServerNodeInstance &oldParentInstance, const QString &oldParentProperty, const ServerNodeInstance &newParentInstance, const QString &newParentProperty)
+void ServerNodeInstance::reparent(const ServerNodeInstance &oldParentInstance, const PropertyName &oldParentProperty, const ServerNodeInstance &newParentInstance, const PropertyName &newParentProperty)
 {
     m_nodeInstance->reparent(oldParentInstance.m_nodeInstance, oldParentProperty, newParentInstance.m_nodeInstance, newParentProperty);
 }
@@ -283,35 +283,35 @@ QRectF ServerNodeInstance::boundingRect() const
     return boundingRect;
 }
 
-void ServerNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
+void ServerNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
     m_nodeInstance->setPropertyVariant(name, value);
 
 }
 
-void ServerNodeInstance::setPropertyDynamicVariant(const QString &name, const QString &typeName, const QVariant &value)
+void ServerNodeInstance::setPropertyDynamicVariant(const PropertyName &name, const TypeName &typeName, const QVariant &value)
 {
     m_nodeInstance->createDynamicProperty(name, typeName);
     m_nodeInstance->setPropertyVariant(name, value);
 }
 
-void ServerNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
+void ServerNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
     m_nodeInstance->setPropertyBinding(name, expression);
 }
 
-void ServerNodeInstance::setPropertyDynamicBinding(const QString &name, const QString &typeName, const QString &expression)
+void ServerNodeInstance::setPropertyDynamicBinding(const PropertyName &name, const TypeName &typeName, const QString &expression)
 {
     m_nodeInstance->createDynamicProperty(name, typeName);
     m_nodeInstance->setPropertyBinding(name, expression);
 }
 
-void ServerNodeInstance::resetProperty(const QString &name)
+void ServerNodeInstance::resetProperty(const PropertyName &name)
 {
     m_nodeInstance->resetProperty(name);
 }
 
-void ServerNodeInstance::refreshProperty(const QString &name)
+void ServerNodeInstance::refreshProperty(const PropertyName &name)
 {
     m_nodeInstance->refreshProperty(name);
 }
@@ -325,17 +325,17 @@ void ServerNodeInstance::setId(const QString &id)
 \brief Returns the property value of the property of this NodeInstance.
 \returns QVariant value
 */
-QVariant ServerNodeInstance::property(const QString &name) const
+QVariant ServerNodeInstance::property(const PropertyName &name) const
 {
     return m_nodeInstance->property(name);
 }
 
-QStringList ServerNodeInstance::propertyNames() const
+PropertyNameList ServerNodeInstance::propertyNames() const
 {
     return m_nodeInstance->propertyNames();
 }
 
-bool ServerNodeInstance::hasBindingForProperty(const QString &name, bool *hasChanged) const
+bool ServerNodeInstance::hasBindingForProperty(const PropertyName &name, bool *hasChanged) const
 {
     return m_nodeInstance->hasBindingForProperty(name, hasChanged);
 }
@@ -344,7 +344,7 @@ bool ServerNodeInstance::hasBindingForProperty(const QString &name, bool *hasCha
 \brief Returns the property default value of the property of this NodeInstance.
 \returns QVariant default value which is the reset value to
 */
-QVariant ServerNodeInstance::defaultValue(const QString &name) const
+QVariant ServerNodeInstance::defaultValue(const PropertyName &name) const
 {
     return m_nodeInstance->resetValue(name);
 }
@@ -352,7 +352,7 @@ QVariant ServerNodeInstance::defaultValue(const QString &name) const
 /*!
 \brief Returns the type of the property of this NodeInstance.
 */
-QString ServerNodeInstance::instanceType(const QString &name) const
+QString ServerNodeInstance::instanceType(const PropertyName &name) const
 {
     return m_nodeInstance->instanceType(name);
 }
@@ -384,7 +384,7 @@ bool ServerNodeInstance::isInPositioner() const
     return m_nodeInstance->isInPositioner();
 }
 
-bool ServerNodeInstance::hasAnchor(const QString &name) const
+bool ServerNodeInstance::hasAnchor(const PropertyName &name) const
 {
     return m_nodeInstance->hasAnchor(name);
 }
@@ -404,7 +404,7 @@ bool ServerNodeInstance::isAnchoredByChildren() const
     return m_nodeInstance->isAnchoredByChildren();
 }
 
-QPair<QString, ServerNodeInstance> ServerNodeInstance::anchor(const QString &name) const
+QPair<PropertyName, ServerNodeInstance> ServerNodeInstance::anchor(const PropertyName &name) const
 {
     return m_nodeInstance->anchor(name);
 }
@@ -542,22 +542,22 @@ void ServerNodeInstance::deactivateState()
     m_nodeInstance->deactivateState();
 }
 
-bool ServerNodeInstance::updateStateVariant(const ServerNodeInstance &target, const QString &propertyName, const QVariant &value)
+bool ServerNodeInstance::updateStateVariant(const ServerNodeInstance &target, const PropertyName &propertyName, const QVariant &value)
 {
     return m_nodeInstance->updateStateVariant(target.internalInstance(), propertyName, value);
 }
 
-bool ServerNodeInstance::updateStateBinding(const ServerNodeInstance &target, const QString &propertyName, const QString &expression)
+bool ServerNodeInstance::updateStateBinding(const ServerNodeInstance &target, const PropertyName &propertyName, const QString &expression)
 {
     return m_nodeInstance->updateStateBinding(target.internalInstance(), propertyName, expression);
 }
 
-QVariant ServerNodeInstance::resetVariant(const QString &propertyName) const
+QVariant ServerNodeInstance::resetVariant(const PropertyName &propertyName) const
 {
     return m_nodeInstance->resetValue(propertyName);
 }
 
-bool ServerNodeInstance::resetStateProperty(const ServerNodeInstance &target, const QString &propertyName, const QVariant &resetValue)
+bool ServerNodeInstance::resetStateProperty(const ServerNodeInstance &target, const PropertyName &propertyName, const QVariant &resetValue)
 {
     return m_nodeInstance->resetStateProperty(target.internalInstance(), propertyName, resetValue);
 }

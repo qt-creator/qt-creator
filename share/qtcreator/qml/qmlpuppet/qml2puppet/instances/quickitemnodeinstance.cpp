@@ -353,7 +353,7 @@ QRectF QuickItemNodeInstance::boundingRect() const
     return QRectF();
 }
 
-void QuickItemNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
+void QuickItemNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
     if (name == "state")
         return; // states are only set by us
@@ -390,7 +390,7 @@ void QuickItemNodeInstance::setPropertyVariant(const QString &name, const QVaria
         parentInstance()->refreshPositioner();
 }
 
-void QuickItemNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
+void QuickItemNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
     if (name == "state")
         return; // states are only set by us
@@ -405,7 +405,7 @@ void QuickItemNodeInstance::setPropertyBinding(const QString &name, const QStrin
         parentInstance()->refreshPositioner();
 }
 
-QVariant QuickItemNodeInstance::property(const QString &name) const
+QVariant QuickItemNodeInstance::property(const PropertyName &name) const
 {
     return ObjectNodeInstance::property(name);
 }
@@ -486,7 +486,7 @@ int QuickItemNodeInstance::penWidth() const
     return DesignerSupport::borderWidth(quickItem());
 }
 
-void QuickItemNodeInstance::resetProperty(const QString &name)
+void QuickItemNodeInstance::resetProperty(const PropertyName &name)
 {
     if (name == "height") {
         m_hasHeight = false;
@@ -536,7 +536,7 @@ void QuickItemNodeInstance::resetProperty(const QString &name)
         parentInstance()->refreshPositioner();
 }
 
-void QuickItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const QString &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const QString &newParentProperty)
+void QuickItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty)
 {
     if (oldParentInstance && oldParentInstance->isPositioner()) {
         setInPositioner(false);
@@ -565,9 +565,9 @@ void QuickItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParen
         parentInstance()->refreshPositioner();
 }
 
-static bool isValidAnchorName(const QString &name)
+static bool isValidAnchorName(const PropertyName &name)
 {
-    static QStringList anchorNameList(QStringList() << "anchors.top"
+    static PropertyNameList anchorNameList(PropertyNameList() << "anchors.top"
                                                     << "anchors.left"
                                                     << "anchors.right"
                                                     << "anchors.bottom"
@@ -580,12 +580,12 @@ static bool isValidAnchorName(const QString &name)
     return anchorNameList.contains(name);
 }
 
-bool QuickItemNodeInstance::hasAnchor(const QString &name) const
+bool QuickItemNodeInstance::hasAnchor(const PropertyName &name) const
 {
     return DesignerSupport::hasAnchor(quickItem(), name);
 }
 
-QPair<QString, ServerNodeInstance> QuickItemNodeInstance::anchor(const QString &name) const
+QPair<PropertyName, ServerNodeInstance> QuickItemNodeInstance::anchor(const PropertyName &name) const
 {
     if (!isValidAnchorName(name) || !DesignerSupport::hasAnchor(quickItem(), name))
         return ObjectNodeInstance::anchor(name);
@@ -593,7 +593,7 @@ QPair<QString, ServerNodeInstance> QuickItemNodeInstance::anchor(const QString &
     QPair<QString, QObject*> nameObjectPair = DesignerSupport::anchorLineTarget(quickItem(), name, context());
 
     QObject *targetObject = nameObjectPair.second;
-    QString targetName = nameObjectPair.first;
+    PropertyName targetName = nameObjectPair.first.toUtf8();
 
     if (targetObject && nodeInstanceServer()->hasInstanceForObject(targetObject)) {
         return qMakePair(targetName, nodeInstanceServer()->instanceForObject(targetObject));

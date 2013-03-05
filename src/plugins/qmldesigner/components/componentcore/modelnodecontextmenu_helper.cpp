@@ -52,49 +52,49 @@ static inline bool checkIfNodeIsAView(const ModelNode &node)
              node.metaInfo().isSubclassOf("QtQuick.PathView", -1, -1));
 }
 
-static inline void getProperties(const ModelNode node, QHash<QString, QVariant> &propertyHash)
+static inline void getProperties(const ModelNode node, QHash<PropertyName, QVariant> &propertyHash)
 {
     if (QmlObjectNode(node).isValid()) {
-        foreach (const QString &propertyName, node.propertyNames()) {
+        foreach (const PropertyName &propertyName, node.propertyNames()) {
             if (node.property(propertyName).isVariantProperty() ||
                     (node.property(propertyName).isBindingProperty() &&
-                     !propertyName.contains(QLatin1String("anchors.")))) {
+                     !propertyName.contains("anchors."))) {
                 propertyHash.insert(propertyName, QmlObjectNode(node).instanceValue(propertyName));
             }
         }
     }
     QmlItemNode itemNode(node);
     if (itemNode.isValid()) {
-        propertyHash.insert(QLatin1String("width"), itemNode.instanceValue(QLatin1String("width")));
-        propertyHash.insert(QLatin1String("height"), itemNode.instanceValue(QLatin1String("height")));
-        propertyHash.remove(QLatin1String("x"));
-        propertyHash.remove(QLatin1String("y"));
-        propertyHash.remove(QLatin1String("rotation"));
-        propertyHash.remove(QLatin1String("opacity"));
+        propertyHash.insert("width", itemNode.instanceValue("width"));
+        propertyHash.insert("height", itemNode.instanceValue("height"));
+        propertyHash.remove("x");
+        propertyHash.remove("y");
+        propertyHash.remove("rotation");
+        propertyHash.remove("opacity");
     }
 }
 
-static inline void applyProperties(ModelNode &node, const QHash<QString, QVariant> &propertyHash)
+static inline void applyProperties(ModelNode &node, const QHash<PropertyName, QVariant> &propertyHash)
 {
-    QHash<QString, QVariant> auxiliaryData  = node.auxiliaryData();
-    foreach (const QString propertyName, auxiliaryData.keys()) {
+    QHash<PropertyName, QVariant> auxiliaryData  = node.auxiliaryData();
+    foreach (const PropertyName propertyName, auxiliaryData.keys()) {
         node.setAuxiliaryData(propertyName, QVariant());
     }
 
-    QHashIterator<QString, QVariant> propertyIterator(propertyHash);
+    QHashIterator<PropertyName, QVariant> propertyIterator(propertyHash);
     while (propertyIterator.hasNext()) {
         propertyIterator.next();
-        const QString propertyName = propertyIterator.key();
-        if (propertyName == QLatin1String("width") || propertyName == QLatin1String("height")) {
+        const PropertyName propertyName = propertyIterator.key();
+        if (propertyName == "width" || propertyName == "height") {
             node.setAuxiliaryData(propertyIterator.key(), propertyIterator.value());
         } else if (node.property(propertyIterator.key()).isDynamic() &&
-                   node.property(propertyIterator.key()).dynamicTypeName() == QLatin1String("alias") &&
+                   node.property(propertyIterator.key()).dynamicTypeName() == "alias" &&
                    node.property(propertyIterator.key()).isBindingProperty()) {
             AbstractProperty targetProperty = node.bindingProperty(propertyIterator.key()).resolveToProperty();
             if (targetProperty.isValid())
-                targetProperty.parentModelNode().setAuxiliaryData(targetProperty.name() + QLatin1String("@NodeInstance"), propertyIterator.value());
+                targetProperty.parentModelNode().setAuxiliaryData(targetProperty.name() + "@NodeInstance", propertyIterator.value());
         } else {
-            node.setAuxiliaryData(propertyIterator.key() + QLatin1String("@NodeInstance"), propertyIterator.value());
+            node.setAuxiliaryData(propertyIterator.key() + "@NodeInstance", propertyIterator.value());
         }
     }
 }
@@ -175,7 +175,7 @@ static inline void openFileForComponent(const ModelNode &node)
 
     //int width = 0;
     //int height = 0;
-    QHash<QString, QVariant> propertyHash;
+    QHash<PropertyName, QVariant> propertyHash;
     if (node.metaInfo().isFileComponent()) {
         //getWidthHeight(node, width, height);
         getProperties(node, propertyHash);
@@ -202,7 +202,7 @@ static inline void openInlineComponent(const ModelNode &node)
     if (!currentDesignDocument())
         return;
 
-    QHash<QString, QVariant> propertyHash;
+    QHash<PropertyName, QVariant> propertyHash;
 
     if (node.nodeSourceType() == ModelNode::NodeWithComponentSource) {
         //getWidthHeight(node, width, height);

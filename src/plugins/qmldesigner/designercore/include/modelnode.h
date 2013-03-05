@@ -65,7 +65,7 @@ class ModelNode;
 
 QMLDESIGNERCORE_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);
 
-typedef QList<QPair<QString, QVariant> > PropertyListType;
+typedef QList<QPair<PropertyName, QVariant> > PropertyListType;
 
 class QMLDESIGNERCORE_EXPORT  ModelNode
 {
@@ -96,8 +96,8 @@ public:
     ~ModelNode();
 
     ModelNode& operator=(const ModelNode &other);
-    QString type() const;
-    QString simplifiedTypeName() const;
+    TypeName type() const;
+    TypeName simplifiedTypeName() const;
     int minorVersion() const;
     int majorVersion() const;
     int majorQtQuickVersion() const;
@@ -108,7 +108,7 @@ public:
 
     NodeAbstractProperty parentProperty() const;
     void setParentProperty(NodeAbstractProperty parent);
-    void setParentProperty(const ModelNode &newParentNode, const QString &propertyName);
+    void setParentProperty(const ModelNode &newParentNode, const PropertyName &propertyName);
     bool hasParentProperty() const;
 
     const QList<ModelNode> allDirectSubModelNodes() const;
@@ -117,29 +117,29 @@ public:
 
     //###
 
-    AbstractProperty property(const QString &name) const;
-    VariantProperty variantProperty(const QString &name) const;
-    BindingProperty bindingProperty(const QString &name) const;
-    NodeListProperty nodeListProperty(const QString &name) const;
-    NodeProperty nodeProperty(const QString &name) const;
-    NodeAbstractProperty nodeAbstractProperty(const QString &name) const;
+    AbstractProperty property(const PropertyName &name) const;
+    VariantProperty variantProperty(const PropertyName &name) const;
+    BindingProperty bindingProperty(const PropertyName &name) const;
+    NodeListProperty nodeListProperty(const PropertyName &name) const;
+    NodeProperty nodeProperty(const PropertyName &name) const;
+    NodeAbstractProperty nodeAbstractProperty(const PropertyName &name) const;
 
-    void removeProperty(const QString &name); //### also implement in AbstractProperty
+    void removeProperty(const PropertyName &name); //### also implement in AbstractProperty
     QList<AbstractProperty> properties() const;
     QList<VariantProperty> variantProperties() const;
     QList<NodeAbstractProperty> nodeAbstractProperties() const;
     QList<NodeProperty> nodeProperties() const;
     QList<NodeListProperty> nodeListProperties() const;
     QList<BindingProperty> bindingProperties() const;
-    QStringList propertyNames() const;
+    PropertyNameList propertyNames() const;
 
     bool hasProperties() const;
-    bool hasProperty(const QString &name) const;
-    bool hasVariantProperty(const QString &name) const;
-    bool hasBindingProperty(const QString &name) const;
-    bool hasNodeAbstracProperty(const QString &name) const;
-    bool hasNodeProperty(const QString &name) const;
-    bool hasNodeListProperty(const QString &name) const;
+    bool hasProperty(const PropertyName &name) const;
+    bool hasVariantProperty(const PropertyName &name) const;
+    bool hasBindingProperty(const PropertyName &name) const;
+    bool hasNodeAbstracProperty(const PropertyName &name) const;
+    bool hasNodeProperty(const PropertyName &name) const;
+    bool hasNodeListProperty(const PropertyName &name) const;
 
 
     void setScriptFunctions(const QStringList &scriptFunctionList);
@@ -168,10 +168,10 @@ public:
     static int variantUserType();
     QVariant toVariant() const;
 
-    QVariant auxiliaryData(const QString &name) const;
-    void setAuxiliaryData(const QString &name, const QVariant &data) const;
-    bool hasAuxiliaryData(const QString &name) const;
-    QHash<QString, QVariant> auxiliaryData() const;
+    QVariant auxiliaryData(const PropertyName &name) const;
+    void setAuxiliaryData(const PropertyName &name, const QVariant &data) const;
+    bool hasAuxiliaryData(const PropertyName &name) const;
+    QHash<PropertyName, QVariant> auxiliaryData() const;
 
     qint32 internalId() const;
 

@@ -121,7 +121,7 @@ QSizeF QmlGraphicsItemNodeInstance::size() const
     return QSizeF(width, height);
 }
 
-void QmlGraphicsItemNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
+void QmlGraphicsItemNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
     if (name == "state")
         return; // states are only set by us
@@ -155,7 +155,7 @@ void QmlGraphicsItemNodeInstance::setPropertyVariant(const QString &name, const 
         parentInstance()->refreshPositioner();
 }
 
-void QmlGraphicsItemNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
+void QmlGraphicsItemNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
     if (name == "state")
         return; // states are only set by us
@@ -163,7 +163,7 @@ void QmlGraphicsItemNodeInstance::setPropertyBinding(const QString &name, const 
     GraphicsObjectNodeInstance::setPropertyBinding(name, expression);
 }
 
-QVariant QmlGraphicsItemNodeInstance::property(const QString &name) const
+QVariant QmlGraphicsItemNodeInstance::property(const PropertyName &name) const
 {
     return GraphicsObjectNodeInstance::property(name);
 }
@@ -273,7 +273,7 @@ bool QmlGraphicsItemNodeInstance::isVisible() const
     return qmlGraphicsItem()->isVisible();
 }
 
-void QmlGraphicsItemNodeInstance::resetProperty(const QString &name)
+void QmlGraphicsItemNodeInstance::resetProperty(const PropertyName &name)
 {
     if (name == "height") {
         m_hasHeight = false;
@@ -329,7 +329,7 @@ void QmlGraphicsItemNodeInstance::resetProperty(const QString &name)
         parentInstance()->refreshPositioner();
 }
 
-void QmlGraphicsItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const QString &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const QString &newParentProperty)
+void QmlGraphicsItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty)
 {
     if (oldParentInstance && oldParentInstance->isPositioner()) {
         setInPositioner(false);
@@ -359,7 +359,7 @@ void QmlGraphicsItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &ol
         parentInstance()->refreshPositioner();
 }
 
-QDeclarativeAnchors::Anchor anchorLineFlagForName(const QString &name)
+QDeclarativeAnchors::Anchor anchorLineFlagForName(const PropertyName &name)
 {
     if (name == "anchors.top")
         return QDeclarativeAnchors::TopAnchor;
@@ -387,7 +387,7 @@ QDeclarativeAnchors::Anchor anchorLineFlagForName(const QString &name)
     return QDeclarativeAnchors::LeftAnchor;
 }
 
-QString propertyNameForAnchorLine(const QDeclarativeAnchorLine::AnchorLine &anchorLine)
+PropertyName propertyNameForAnchorLine(const QDeclarativeAnchorLine::AnchorLine &anchorLine)
 {
     switch(anchorLine) {
         case QDeclarativeAnchorLine::Left: return "left";
@@ -398,13 +398,13 @@ QString propertyNameForAnchorLine(const QDeclarativeAnchorLine::AnchorLine &anch
         case QDeclarativeAnchorLine::VCenter: return "verticalCenter";
         case QDeclarativeAnchorLine::Baseline: return "baseline";
         case QDeclarativeAnchorLine::Invalid:
-        default: return QString();
+        default: return PropertyName();
     }
 }
 
-static bool isValidAnchorName(const QString &name)
+static bool isValidAnchorName(const PropertyName &name)
 {
-    static QStringList anchorNameList(QStringList() << "anchors.top"
+    static PropertyNameList anchorNameList(PropertyNameList() << "anchors.top"
                                                     << "anchors.left"
                                                     << "anchors.right"
                                                     << "anchors.bottom"
@@ -417,13 +417,13 @@ static bool isValidAnchorName(const QString &name)
     return anchorNameList.contains(name);
 }
 
-QPair<QString, ServerNodeInstance> QmlGraphicsItemNodeInstance::anchor(const QString &name) const
+QPair<PropertyName, ServerNodeInstance> QmlGraphicsItemNodeInstance::anchor(const PropertyName &name) const
 {
     if (!isValidAnchorName(name) || !hasAnchor(name))
         return GraphicsObjectNodeInstance::anchor(name);
 
     QObject *targetObject = 0;
-    QString targetName;
+    PropertyName targetName;
 
     if (name == "anchors.fill") {
         targetObject = anchors()->fill();
@@ -462,7 +462,7 @@ QList<ServerNodeInstance> QmlGraphicsItemNodeInstance::stateInstances() const
     return instanceList;
 }
 
-bool QmlGraphicsItemNodeInstance::hasAnchor(const QString &name) const
+bool QmlGraphicsItemNodeInstance::hasAnchor(const PropertyName &name) const
 {
     if (!isValidAnchorName(name))
         return false;

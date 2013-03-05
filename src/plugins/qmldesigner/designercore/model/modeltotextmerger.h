@@ -53,7 +53,7 @@ namespace Internal {
 class ModelToTextMerger
 {
     typedef AbstractView::PropertyChangeFlags PropertyChangeFlags;
-    static QStringList m_propertyOrder;
+    static PropertyNameList m_propertyOrder;
 
 public:
     ModelToTextMerger(RewriterView *reWriterView);
@@ -90,7 +90,7 @@ protected:
     { return m_rewriteActions; }
 
     static QmlDesigner::QmlRefactoring::PropertyType propertyType(const AbstractProperty &property, const QString &textValue = QString());
-    static QStringList getPropertyOrder();
+    static PropertyNameList getPropertyOrder();
 
     static bool isInHierarchy(const AbstractProperty &property);
 

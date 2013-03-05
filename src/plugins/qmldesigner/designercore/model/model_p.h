@@ -66,7 +66,7 @@ typedef QSharedPointer<InternalBindingProperty> InternalBindingPropertyPointer;
 typedef QSharedPointer<InternalVariantProperty> InternalVariantPropertyPointer;
 typedef QSharedPointer<InternalNodeAbstractProperty> InternalNodeAbstractPropertyPointer;
 typedef QSharedPointer<InternalNodeListProperty> InternalNodeListPropertyPointer;
-typedef QPair<InternalNodePointer, QString> PropertyPair;
+typedef QPair<InternalNodePointer, PropertyName> PropertyPair;
 
 
 class ModelPrivate;
@@ -93,16 +93,16 @@ public:
      ModelPrivate(Model *model);
     ~ModelPrivate();
 
-    static Model *create(QString type, int major, int minor, Model *metaInfoPropxyModel);
+    static Model *create(const TypeName &type, int major, int minor, Model *metaInfoPropxyModel);
 
     QUrl fileUrl() const;
     void setFileUrl(const QUrl &url);
 
-    InternalNodePointer createNode(const QString &typeString,
+    InternalNodePointer createNode(const TypeName &typeName,
                                      int majorVersion,
                                      int minorVersion,
-                                     const QList<QPair<QString, QVariant> > &propertyList,
-                                     const QList<QPair<QString, QVariant> > &auxPropertyList,
+                                     const QList<QPair<PropertyName, QVariant> > &propertyList,
+                                     const QList<QPair<PropertyName, QVariant> > &auxPropertyList,
                                      const QString &nodeSource,
                                      ModelNode::NodeSourceType nodeSourceType,
                                      bool isRootNode = false);
@@ -128,26 +128,26 @@ public:
     void setModel(Model *q) { m_q = q; }
 
     void notifyNodeCreated(const InternalNodePointer &newInternalNodePointer);
-    void notifyNodeAboutToBeReparent(const InternalNodePointer &internalNodePointer, const InternalNodeAbstractPropertyPointer &newPropertyParent, const InternalNodePointer &oldParent, const QString &oldPropertyName, AbstractView::PropertyChangeFlags propertyChange);
-    void notifyNodeReparent(const InternalNodePointer &internalNodePointer, const InternalNodeAbstractPropertyPointer &newPropertyParent, const InternalNodePointer &oldParent, const QString &oldPropertyName, AbstractView::PropertyChangeFlags propertyChange);
+    void notifyNodeAboutToBeReparent(const InternalNodePointer &internalNodePointer, const InternalNodeAbstractPropertyPointer &newPropertyParent, const InternalNodePointer &oldParent, const PropertyName &oldPropertyName, AbstractView::PropertyChangeFlags propertyChange);
+    void notifyNodeReparent(const InternalNodePointer &internalNodePointer, const InternalNodeAbstractPropertyPointer &newPropertyParent, const InternalNodePointer &oldParent, const PropertyName &oldPropertyName, AbstractView::PropertyChangeFlags propertyChange);
     void notifyNodeAboutToBeRemoved(const InternalNodePointer &nodePointer);
-    void notifyNodeRemoved(const InternalNodePointer &nodePointer, const InternalNodePointer &parentNodePointer, const QString &parentPropertyName, AbstractView::PropertyChangeFlags propertyChange);
+    void notifyNodeRemoved(const InternalNodePointer &nodePointer, const InternalNodePointer &parentNodePointer, const PropertyName &parentPropertyName, AbstractView::PropertyChangeFlags propertyChange);
     void notifyNodeIdChanged(const InternalNodePointer& nodePointer, const QString& newId, const QString& oldId);
 
     void notifyPropertiesRemoved(const QList<PropertyPair> &propertyList);
     void notifyPropertiesAboutToBeRemoved(const QList<InternalPropertyPointer> &propertyList);
     void notifyBindingPropertiesChanged(const QList<InternalBindingPropertyPointer> &propertyList, AbstractView::PropertyChangeFlags propertyChange);
-    void notifyVariantPropertiesChanged(const InternalNodePointer &internalNodePointer, const QStringList& propertyNameList, AbstractView::PropertyChangeFlags propertyChange);
+    void notifyVariantPropertiesChanged(const InternalNodePointer &internalNodePointer, const PropertyNameList &propertyNameList, AbstractView::PropertyChangeFlags propertyChange);
     void notifyScriptFunctionsChanged(const InternalNodePointer &internalNodePointer, const QStringList &scriptFunctionList);
 
     void notifyNodeOrderChanged(const InternalNodeListPropertyPointer &internalListPropertyPointer, const InternalNodePointer &internalNodePointer, int oldIndex);
-    void notifyAuxiliaryDataChanged(const InternalNodePointer &internalNode, const QString &name, const QVariant &data);
+    void notifyAuxiliaryDataChanged(const InternalNodePointer &internalNode, const PropertyName &name, const QVariant &data);
     void notifyNodeSourceChanged(const InternalNodePointer &internalNode, const QString &newNodeSource);
 
     void notifyRootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
 
     void notifyCustomNotification(const AbstractView *senderView, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
-    void notifyInstancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
+    void notifyInstancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList);
     void notifyInstancesCompleted(const QVector<ModelNode> &nodeList);
     void notifyInstancesInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash);
     void notifyInstancesRenderImageChanged(const QVector<ModelNode> &nodeList);
@@ -168,7 +168,7 @@ public:
     void changeSelectedNodes(const QList<InternalNodePointer> &newSelectedsNodeList,
                              const QList<InternalNodePointer> &oldSelectedsNodeList);
 
-    void setAuxiliaryData(const InternalNodePointer& node, const QString &name, const QVariant &data);
+    void setAuxiliaryData(const InternalNodePointer& node, const PropertyName &name, const QVariant &data);
     void resetModelByRewriter(const QString &description);
 
 
@@ -182,19 +182,19 @@ public:
 
     //node state property manipulation
 
-    void addProperty(const InternalNodePointer &node, const QString &name);
-    void setPropertyValue(const InternalNodePointer &node,const QString &name, const QVariant &value);
+    void addProperty(const InternalNodePointer &node, const PropertyName &name);
+    void setPropertyValue(const InternalNodePointer &node,const PropertyName &name, const QVariant &value);
     void removeProperty(const InternalPropertyPointer &property);
 
-    void setBindingProperty(const InternalNodePointer &internalNode, const QString &name, const QString &expression);
-    void setVariantProperty(const InternalNodePointer &internalNode, const QString &name, const QVariant &value);
-    void setDynamicVariantProperty(const InternalNodePointer &internalNode, const QString &name, const QString &propertyType, const QVariant &value);
-    void setDynamicBindingProperty(const InternalNodePointer &internalNode, const QString &name, const QString &dynamicPropertyType, const QString &expression);
-    void reparentNode(const InternalNodePointer &internalNode, const QString &name, const InternalNodePointer &internalNodeToBeAppended, bool list = true);
-    void changeNodeOrder(const InternalNodePointer &internalParentNode, const QString &listPropertyName, int from, int to);
+    void setBindingProperty(const InternalNodePointer &internalNode, const PropertyName &name, const QString &expression);
+    void setVariantProperty(const InternalNodePointer &internalNode, const PropertyName &name, const QVariant &value);
+    void setDynamicVariantProperty(const InternalNodePointer &internalNode, const PropertyName &name, const TypeName &propertyType, const QVariant &value);
+    void setDynamicBindingProperty(const InternalNodePointer &internalNode, const PropertyName &name, const TypeName &dynamicPropertyType, const QString &expression);
+    void reparentNode(const InternalNodePointer &internalNode, const PropertyName &name, const InternalNodePointer &internalNodeToBeAppended, bool list = true);
+    void changeNodeOrder(const InternalNodePointer &internalParentNode, const PropertyName &listPropertyName, int from, int to);
     void checkPropertyName(const QString &propertyName);
     void clearParent(const InternalNodePointer &internalNode);
-    void changeRootNodeType(const QString &type, int majorVersion, int minorVersion);
+    void changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion);
     void setScriptFunctions(const InternalNodePointer &internalNode, const QStringList &scriptFunctionList);
     void setNodeSource(const InternalNodePointer &internalNode, const QString &nodeSource);
 

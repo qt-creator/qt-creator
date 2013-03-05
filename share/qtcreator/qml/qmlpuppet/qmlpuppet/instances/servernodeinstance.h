@@ -114,13 +114,13 @@ public:
     double zValue() const;
 
     double opacity() const;
-    QVariant property(const QString &name) const;
-    QVariant defaultValue(const QString &name) const;
-    QString instanceType(const QString &name) const;
-    QStringList propertyNames() const;
+    QVariant property(const PropertyName &name) const;
+    QVariant defaultValue(const PropertyName &name) const;
+    QString instanceType(const PropertyName &name) const;
+    PropertyNameList propertyNames() const;
 
 
-    bool hasBindingForProperty(const QString &name, bool *hasChanged = 0) const;
+    bool hasBindingForProperty(const PropertyName &name, bool *hasChanged = 0) const;
 
     bool isValid() const;
     void makeInvalid();
@@ -134,12 +134,12 @@ public:
 
     bool isWrappingThisObject(QObject *object) const;
 
-    QVariant resetVariant(const QString &name) const;
+    QVariant resetVariant(const PropertyName &name) const;
 
-    bool hasAnchor(const QString &name) const;
+    bool hasAnchor(const PropertyName &name) const;
     bool isAnchoredBySibling() const;
     bool isAnchoredByChildren() const;
-    QPair<QString, ServerNodeInstance> anchor(const QString &name) const;
+    QPair<PropertyName, ServerNodeInstance> anchor(const PropertyName &name) const;
 
     int penWidth() const;
 
@@ -160,27 +160,27 @@ public:
 private: // functions
     ServerNodeInstance(const QSharedPointer<Internal::ObjectNodeInstance> &abstractInstance);
 
-    void setPropertyVariant(const QString &name, const QVariant &value);
-    void setPropertyDynamicVariant(const QString &name, const QString &typeName, const QVariant &value);
+    void setPropertyVariant(const PropertyName &name, const QVariant &value);
+    void setPropertyDynamicVariant(const PropertyName &name, const TypeName &typeName, const QVariant &value);
 
-    void setPropertyBinding(const QString &name, const QString &expression);
-    void setPropertyDynamicBinding(const QString &name, const QString &typeName, const QString &expression);
+    void setPropertyBinding(const PropertyName &name, const QString &expression);
+    void setPropertyDynamicBinding(const PropertyName &name, const TypeName &typeName, const QString &expression);
 
-    void resetProperty(const QString &name);
-    void refreshProperty(const QString &name);
+    void resetProperty(const PropertyName &name);
+    void refreshProperty(const PropertyName &name);
 
     void activateState();
     void deactivateState();
     void refreshState();
 
-    bool updateStateVariant(const ServerNodeInstance &target, const QString &propertyName, const QVariant &value);
-    bool updateStateBinding(const ServerNodeInstance &target, const QString &propertyName, const QString &expression);
-    bool resetStateProperty(const ServerNodeInstance &target, const QString &propertyName, const QVariant &resetValue);
+    bool updateStateVariant(const ServerNodeInstance &target, const PropertyName &propertyName, const QVariant &value);
+    bool updateStateBinding(const ServerNodeInstance &target, const PropertyName &propertyName, const QString &expression);
+    bool resetStateProperty(const ServerNodeInstance &target, const PropertyName &propertyName, const QVariant &resetValue);
 
     static ServerNodeInstance create(NodeInstanceServer *nodeInstanceServer, const InstanceContainer &instanceContainer, ComponentWrap componentWrap);
 
     void setDeleteHeldInstance(bool deleteInstance);
-    void reparent(const ServerNodeInstance &oldParentInstance, const QString &oldParentProperty, const ServerNodeInstance &newParentInstance, const QString &newParentProperty);
+    void reparent(const ServerNodeInstance &oldParentInstance, const PropertyName &oldParentProperty, const ServerNodeInstance &newParentInstance, const PropertyName &newParentProperty);
 
 
     void setId(const QString &id);

@@ -40,7 +40,7 @@ class InternalNodeProperty : public InternalNodeAbstractProperty
 public:
     typedef QSharedPointer<InternalNodeProperty> Pointer;
 
-    static Pointer create(const QString &name, const InternalNodePointer &propertyOwner);
+    static Pointer create(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
     bool isValid() const;
     bool isEmpty() const;
@@ -55,7 +55,7 @@ public:
 
 
 protected:
-    InternalNodeProperty(const QString &name, const InternalNodePointer &node);
+    InternalNodeProperty(const PropertyName &name, const InternalNodePointer &node);
     void add(const InternalNodePointer &node);
     void remove(const InternalNodePointer &node);
 

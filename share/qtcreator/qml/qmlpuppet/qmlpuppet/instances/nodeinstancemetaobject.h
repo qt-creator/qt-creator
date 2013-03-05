@@ -33,7 +33,10 @@
 #include <QDeclarativeContext>
 #include <private/qdeclarativeopenmetaobject_p.h>
 
+#include "nodeinstanceglobal.h"
+
 namespace QmlDesigner {
+
 namespace Internal {
 
 class ObjectNodeInstance;
@@ -44,7 +47,7 @@ class NodeInstanceMetaObject : public QDeclarativeOpenMetaObject
 {
 public:
     NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QDeclarativeEngine *engine);
-    NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const QString &prefix, QDeclarativeEngine *engine);
+    NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const PropertyName &prefix, QDeclarativeEngine *engine);
     void createNewProperty(const QString &name);
 
 protected:
@@ -53,7 +56,7 @@ protected:
 
 private:
     ObjectNodeInstanceWeakPointer m_nodeInstance;
-    QString m_prefix;
+    PropertyName m_prefix;
     QWeakPointer<QDeclarativeContext> m_context;
 };
 

@@ -44,8 +44,8 @@ static inline void setScenePos(const QmlDesigner::ModelNode &modelNode,const QPo
     QmlDesigner::QmlItemNode parentNode = modelNode.parentProperty().parentQmlObjectNode().toQmlItemNode();
     if (parentNode.isValid()) {
         QPointF localPos = parentNode.instanceSceneTransform().inverted().map(pos);
-        modelNode.variantProperty(QLatin1String("x")) = localPos.toPoint().x();
-        modelNode.variantProperty(QLatin1String("y")) = localPos.toPoint().y();
+        modelNode.variantProperty("x") = localPos.toPoint().x();
+        modelNode.variantProperty("y") = localPos.toPoint().y();
     }
 }
 
@@ -218,7 +218,7 @@ void NavigatorView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStr
 {
 }
 
-void NavigatorView::instancePropertyChange(const QList<QPair<ModelNode, QString> > &/*propertyList*/)
+void NavigatorView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &/*propertyList*/)
 {
 }
 

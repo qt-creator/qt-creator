@@ -30,6 +30,8 @@
 #ifndef PROPERTYEDITORVALUE_H
 #define PROPERTYEDITORVALUE_H
 
+#include <qmldesignercorelib_global.h>
+
 #include <QObject>
 #include <QDeclarativePropertyMap>
 #include <qdeclarative.h>
@@ -53,12 +55,12 @@ public:
     QString type();
     QDeclarativePropertyMap* properties();
     QmlDesigner::ModelNode parentModelNode() const;
-    QString propertyName() const;
+    QmlDesigner::PropertyName propertyName() const;
 
 public slots:
     void add(const QString &type = QString());
     void remove();
-    void changeValue(const QString &name);
+    void changeValue(const QString &propertyName);
     void update();
 
 signals:
@@ -113,8 +115,8 @@ public:
 
     bool isTranslated() const;
 
-    QString name() const;
-    void setName(const QString &name);
+    QmlDesigner::PropertyName name() const;
+    void setName(const QmlDesigner::PropertyName &name);
 
     QmlDesigner::ModelNode modelNode() const;
     void setModelNode(const QmlDesigner::ModelNode &modelNode);
@@ -142,7 +144,7 @@ private: //variables
     QmlDesigner::ModelNode m_modelNode;
     QVariant m_value;
     QString m_expression;
-    QString m_name;
+    QmlDesigner::PropertyName m_name;
     bool m_isInSubState;
     bool m_isInModel;
     bool m_isBound;

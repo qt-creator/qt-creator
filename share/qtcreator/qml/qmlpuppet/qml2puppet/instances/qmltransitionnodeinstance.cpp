@@ -59,7 +59,7 @@ bool QmlTransitionNodeInstance::isTransition() const
     return true;
 }
 
-void QmlTransitionNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
+void QmlTransitionNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
     if (name == "from" || name == "to")
         return;

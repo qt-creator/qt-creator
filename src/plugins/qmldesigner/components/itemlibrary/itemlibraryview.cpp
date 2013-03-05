@@ -145,7 +145,7 @@ void ItemLibraryView::scriptFunctionsChanged(const ModelNode &, const QStringLis
 
 }
 
-void ItemLibraryView::instancePropertyChange(const QList<QPair<ModelNode, QString> > &)
+void ItemLibraryView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &)
 {
 
 }

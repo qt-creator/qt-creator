@@ -37,6 +37,7 @@
 #include <QPair>
 
 #include "commondefines.h"
+#include "nodeinstanceglobal.h"
 
 namespace QmlDesigner {
 
@@ -71,11 +72,11 @@ public:
     int penWidth() const;
     void paint(QPainter *painter);
 
-    QVariant property(const QString &name) const;
-    bool hasBindingForProperty(const QString &name) const;
-    QPair<QString, qint32> anchor(const QString &name) const;
-    bool hasAnchor(const QString &name) const;
-    QString instanceType(const QString &name) const;
+    QVariant property(const PropertyName &name) const;
+    bool hasBindingForProperty(const PropertyName &name) const;
+    QPair<PropertyName, qint32> anchor(const PropertyName &name) const;
+    bool hasAnchor(const PropertyName &name) const;
+    TypeName instanceType(const PropertyName &name) const;
 
     qint32 parentId() const;
     qint32 instanceId() const;
@@ -83,7 +84,7 @@ public:
     QPixmap renderPixmap() const;
 
 protected:
-    void setProperty(const QString &name, const QVariant &value);
+    void setProperty(const PropertyName &name, const QVariant &value);
     InformationName setInformation(InformationName name,
                         const QVariant &information,
                         const QVariant &secondInformation,
@@ -101,10 +102,10 @@ protected:
     InformationName setInformationIsAnchoredByChildren(bool isAnchoredByChildren);
     InformationName setInformationIsAnchoredBySibling(bool isAnchoredBySibling);
     InformationName setInformationHasContent(bool hasContent);
-    InformationName setInformationHasAnchor(const QString &sourceAnchorLine, bool hasAnchor);
-    InformationName setInformationAnchor(const QString &sourceAnchorLine, const QString &targetAnchorLine, qint32 targetInstanceId);
-    InformationName setInformationInstanceTypeForProperty(const QString &property, const QString &type);
-    InformationName setInformationHasBindingForProperty(const QString &property, bool hasProperty);
+    InformationName setInformationHasAnchor(const PropertyName &sourceAnchorLine, bool hasAnchor);
+    InformationName setInformationAnchor(const PropertyName &sourceAnchorLine, const PropertyName &targetAnchorLine, qint32 targetInstanceId);
+    InformationName setInformationInstanceTypeForProperty(const PropertyName &property, const TypeName &type);
+    InformationName setInformationHasBindingForProperty(const PropertyName &property, bool hasProperty);
 
     void setParentId(qint32 instanceId);
     void setRenderPixmap(const QImage &image);

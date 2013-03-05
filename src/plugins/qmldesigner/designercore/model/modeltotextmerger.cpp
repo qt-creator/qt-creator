@@ -335,27 +335,27 @@ QmlDesigner::QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const 
     return (QmlDesigner::QmlRefactoring::PropertyType) -1;
 }
 
-QStringList ModelToTextMerger::m_propertyOrder;
+PropertyNameList ModelToTextMerger::m_propertyOrder;
 
-QStringList ModelToTextMerger::getPropertyOrder()
+PropertyNameList ModelToTextMerger::getPropertyOrder()
 {
     if (m_propertyOrder.isEmpty()) {
         m_propertyOrder
-                << QLatin1String("id")
-                << QLatin1String("name")
-                << QLatin1String("target")
-                << QLatin1String("property")
-                << QLatin1String("x")
-                << QLatin1String("y")
-                << QLatin1String("width")
-                << QLatin1String("height")
-                << QLatin1String("position")
-                << QLatin1String("color")
-                << QLatin1String("radius")
-                << QLatin1String("text")
-                << QString::null
-                << QLatin1String("states")
-                << QLatin1String("transitions")
+                << PropertyName("id")
+                << PropertyName("name")
+                << PropertyName("target")
+                << PropertyName("property")
+                << PropertyName("x")
+                << PropertyName("y")
+                << PropertyName("width")
+                << PropertyName("height")
+                << PropertyName("position")
+                << PropertyName("color")
+                << PropertyName("radius")
+                << PropertyName("text")
+                << PropertyName()
+                << PropertyName("states")
+                << PropertyName("transitions")
                 ;
     }
 

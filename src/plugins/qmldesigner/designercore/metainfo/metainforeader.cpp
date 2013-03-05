@@ -83,7 +83,7 @@ QStringList MetaInfoReader::errors()
     return QmlJS::SimpleAbstractStreamReader::errors();
 }
 
-void MetaInfoReader::setQualifcation(const QString &qualification)
+void MetaInfoReader::setQualifcation(const TypeName &qualification)
 {
     m_qualication = qualification;
 }
@@ -142,7 +142,7 @@ void MetaInfoReader::propertyDefinition(const QString &name, const QVariant &val
 MetaInfoReader::ParserSate MetaInfoReader::readDocument(const QString &name)
 {
     if (name == QLatin1String(rootElementName)) {
-        m_currentClassName = QString();
+        m_currentClassName.clear();
         m_currentIcon = QString();
         return ParsingMetaInfo;
     } else {
@@ -154,7 +154,7 @@ MetaInfoReader::ParserSate MetaInfoReader::readDocument(const QString &name)
 MetaInfoReader::ParserSate MetaInfoReader::readMetaInfoRootElement(const QString &name)
 {
     if (name == QLatin1String(typeElementName)) {
-        m_currentClassName = QString();
+        m_currentClassName .clear();
         m_currentIcon = QString();
         return ParsingType;
     } else {
@@ -182,7 +182,7 @@ MetaInfoReader::ParserSate MetaInfoReader::readItemLibraryEntryElement(const QSt
     if (name == QmlSourceElementName) {
         return ParsingQmlSource;
     } else if (name == PropertyElementName) {
-        m_currentPropertyName = QString();
+        m_currentPropertyName = PropertyName();
         m_currentPropertyType = QString();
         m_currentPropertyValue = QVariant();
         return ParsingProperty;
@@ -207,9 +207,9 @@ MetaInfoReader::ParserSate MetaInfoReader::readQmlSourceElement(const QString &n
 void MetaInfoReader::readTypeProperty(const QString &name, const QVariant &value)
 {
     if (name == QLatin1String("name")) {
-        m_currentClassName = value.toString();
+        m_currentClassName = value.toString().toUtf8();
         if (!m_qualication.isEmpty()) //prepend qualification
-            m_currentClassName = m_qualication + QLatin1String(".") + m_currentClassName;
+            m_currentClassName = m_qualication + "." + m_currentClassName;
     } else if (name == QLatin1String("icon")) {
         m_currentIcon = absoluteFilePathForDocument(value.toString());
     } else {
@@ -241,7 +241,7 @@ void MetaInfoReader::readItemLibraryEntryProperty(const QString &name, const QVa
 void MetaInfoReader::readPropertyProperty(const QString &name, const QVariant &value)
 {
     if (name == QLatin1String("name")) {
-       m_currentPropertyName = value.toString();
+       m_currentPropertyName = value.toByteArray();
     } else if (name == QLatin1String("type")) {
         m_currentPropertyType = value.toString();
     } else if (name == QLatin1String("value")) {
@@ -264,7 +264,7 @@ void MetaInfoReader::readQmlSourceProperty(const QString &name, const QVariant &
 
 void MetaInfoReader::setVersion(const QString &versionNumber)
 {
-    const QString typeName = m_currentEntry.typeName();
+    const TypeName typeName = m_currentEntry.typeName();
     int major = 1;
     int minor = 0;
 
