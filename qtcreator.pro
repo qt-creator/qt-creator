@@ -50,14 +50,19 @@ macx {
     }
 }
 
-INSTALLER_ARCHIVE = $$OUT_PWD/qt-creator-$${PATTERN}-installer-archive.7z
+INSTALLER_ARCHIVE_FROM_ENV = $$(INSTALLER_ARCHIVE)
+isEmpty(INSTALLER_ARCHIVE_FROM_ENV) {
+    INSTALLER_ARCHIVE = $$OUT_PWD/qt-creator-$${PATTERN}-installer-archive.7z
+} else {
+    INSTALLER_ARCHIVE = $$OUT_PWD/$$(INSTALLER_ARCHIVE)
+}
 
 bindist.depends = deployqt
 bindist.commands = 7z a -mx9 $$OUT_PWD/qt-creator-$${PATTERN}.7z \"$$BINDIST_SOURCE\"
 bindist_installer.depends = deployqt
-bindist_installer.commands = 7z a -mx9 $$OUT_PWD/qt-creator-$${PATTERN}-installer-archive.7z \"$$BINDIST_INSTALLER_SOURCE\"
+bindist_installer.commands = 7z a -mx9 $${INSTALLER_ARCHIVE} \"$$BINDIST_INSTALLER_SOURCE\"
 installer.depends = bindist_installer
-installer.commands = $$PWD/scripts/packageIfw.py -i \"$(IFW_PATH)\" -v $${QTCREATOR_VERSION} -a \"$$INSTALLER_ARCHIVE\" "qt-creator-$${PATTERN}"
+installer.commands = $$PWD/scripts/packageIfw.py -i \"$(IFW_PATH)\" -v $${QTCREATOR_VERSION} -a \"$${INSTALLER_ARCHIVE}\" "qt-creator-$${PATTERN}"
 
 win32 {
     deployqt.commands ~= s,/,\\\\,g
