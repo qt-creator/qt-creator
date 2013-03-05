@@ -103,7 +103,6 @@ QMakeGlobals::QMakeGlobals()
     dirlist_sep = QLatin1Char(':');
     dir_sep = QLatin1Char('/');
 #endif
-    qmakespec = getEnv(QLatin1String("QMAKESPEC"));
 }
 
 QMakeGlobals::~QMakeGlobals()
