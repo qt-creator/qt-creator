@@ -144,7 +144,7 @@ void ConsoleItem::setText(const QString &text)
     }
 }
 
-const QString &ConsoleItem::text() const
+QString ConsoleItem::text() const
 {
     return m_text;
 }

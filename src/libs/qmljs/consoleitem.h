@@ -66,7 +66,7 @@ public:
     bool detachChild(int position);
     int childNumber() const;
     void setText(const QString &text);
-    const QString &text() const;
+    QString text() const;
     QString expression() const;
 
 private:
