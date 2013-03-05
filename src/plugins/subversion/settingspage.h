@@ -45,7 +45,7 @@ QT_END_NAMESPACE
 namespace Subversion {
 namespace Internal {
 
-struct SubversionSettings;
+class SubversionSettings;
 
 class SettingsPageWidget : public QWidget
 {
