@@ -82,6 +82,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/icorelistener.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 
@@ -1223,6 +1224,7 @@ public slots:
     bool parseArgument(QStringList::const_iterator &it,
         const QStringList::const_iterator &cend, QString *errorMessage);
     bool parseArguments(const QStringList &args, QString *errorMessage);
+    void parseCommandLineArguments();
 
     DebuggerToolTipManager *toolTipManager() const { return m_toolTipManager; }
     QSharedPointer<GlobalDebuggerOptions> globalDebuggerOptions() const { return m_globalDebuggerOptions; }
@@ -1507,11 +1509,26 @@ bool DebuggerPluginPrivate::parseArguments(const QStringList &args,
     return true;
 }
 
+void DebuggerPluginPrivate::parseCommandLineArguments()
+{
+    QString errorMessage;
+    if (!parseArguments(m_arguments, &errorMessage)) {
+        errorMessage = tr("Error evaluating command line arguments: %1")
+            .arg(errorMessage);
+        qWarning("%s\n", qPrintable(errorMessage));
+        Core::MessageManager::instance()->printToOutputPanePopup(errorMessage);
+    }
+    if (!m_scheduledStarts.isEmpty())
+        QTimer::singleShot(0, this, SLOT(runScheduled()));
+}
+
 bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     QString *errorMessage)
 {
     Q_UNUSED(errorMessage);
     m_arguments = arguments;
+    if (!m_arguments.isEmpty())
+        connect(KitManager::instance(), SIGNAL(kitsLoaded()), this, SLOT(parseCommandLineArguments()));
     // Cpp/Qml ui setup
     m_mainWindow = new DebuggerMainWindow;
 
@@ -2869,14 +2886,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     m_mainWindow->addStagedMenuEntries();
 
-    // Do not fail to load the whole plugin if something goes wrong here.
-    QString errorMessage;
-    if (!parseArguments(m_arguments, &errorMessage)) {
-        errorMessage = tr("Error evaluating command line arguments: %1")
-            .arg(errorMessage);
-        qWarning("%s\n", qPrintable(errorMessage));
-    }
-
     // Register factory of DebuggerRunControl.
     m_debuggerRunControlFactory = new DebuggerRunControlFactory(m_plugin);
     m_plugin->addAutoReleasedObject(m_debuggerRunControlFactory);
@@ -3291,8 +3300,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_returnWindow->setVisible(false);
 
     // time gdb -i mi -ex 'b debuggerplugin.cpp:800' -ex r -ex q bin/qtcreator.bin
-    if (!m_scheduledStarts.isEmpty())
-        QTimer::singleShot(0, this, SLOT(runScheduled()));
 }
 
 SavedAction *DebuggerPluginPrivate::action(int code) const
