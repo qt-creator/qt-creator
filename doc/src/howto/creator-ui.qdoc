@@ -244,6 +244,8 @@
 
        \li \gui{Compile Output}
 
+       \li \gui {QML/JS Console}
+
        \li \gui {To-Do Entries}
 
        \li \gui{Version Control}
@@ -344,6 +346,17 @@
     code editor.
 
     Select the \gui {Cancel Build} button to cancel the build.
+
+    \section2 QML/JS Console
+
+    In the \gui {QML/JS Console}, you can type JavaScript expressions and use them to get
+    information about the state of your application during debugging. You can change property
+    values temporarily, without editing the source, and view the results in the running
+    application.
+
+    \image qml-script-console.png "QML/JS Console"
+
+    You can change the property values permanently in the code editor.
 
     \section2 To-Do List
 
