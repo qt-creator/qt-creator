@@ -281,7 +281,7 @@ QmlModelState QmlModelState::duplicate(const QString &name) const
 
 //    QmlModelState newState(stateGroup().addState(name));
     PropertyListType propertyList;
-    propertyList.append(qMakePair(QString("name"), QVariant(name)));
+    propertyList.append(qMakePair(PropertyName("name"), QVariant(name)));
     QmlModelState newState ( qmlModelView()->createQmlState(propertyList) );
 
     foreach (const ModelNode &childNode, modelNode().nodeListProperty("changes").toModelNodeList()) {

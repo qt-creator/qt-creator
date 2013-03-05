@@ -55,7 +55,7 @@ BehaviorNodeInstance::Pointer BehaviorNodeInstance::create(QObject *object)
     return instance;
 }
 
-void BehaviorNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
+void BehaviorNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
     if (name == "enabled")
         return;
@@ -63,7 +63,7 @@ void BehaviorNodeInstance::setPropertyVariant(const QString &name, const QVarian
     ObjectNodeInstance::setPropertyVariant(name, value);
 }
 
-void BehaviorNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
+void BehaviorNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
     if (name == "enabled")
         return;
@@ -71,7 +71,7 @@ void BehaviorNodeInstance::setPropertyBinding(const QString &name, const QString
     ObjectNodeInstance::setPropertyBinding(name, expression);
 }
 
-QVariant BehaviorNodeInstance::property(const QString &name) const
+QVariant BehaviorNodeInstance::property(const PropertyName &name) const
 {
     if (name == "enabled")
         return QVariant::fromValue(m_isEnabled);
@@ -79,7 +79,7 @@ QVariant BehaviorNodeInstance::property(const QString &name) const
     return ObjectNodeInstance::property(name);
 }
 
-void BehaviorNodeInstance::resetProperty(const QString &name)
+void BehaviorNodeInstance::resetProperty(const PropertyName &name)
 {
     if (name == "enabled")
         m_isEnabled = true;

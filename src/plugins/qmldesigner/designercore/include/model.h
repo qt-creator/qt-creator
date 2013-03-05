@@ -60,7 +60,7 @@ class AbstractProperty;
 class RewriterView;
 class NodeInstanceView;
 
-typedef QList<QPair<QString, QVariant> > PropertyListType;
+typedef QList<QPair<PropertyName, QVariant> > PropertyListType;
 
 class QMLDESIGNERCORE_EXPORT Model : public QObject
 {
@@ -79,15 +79,15 @@ public:
 
     virtual ~Model();
 
-    static Model *create(QString type, int major = 1, int minor = 1, Model *metaInfoPropxyModel = 0);
+    static Model *create(TypeName type, int major = 1, int minor = 1, Model *metaInfoPropxyModel = 0);
 
     QUrl fileUrl() const;
     void setFileUrl(const QUrl &url);
 
     const MetaInfo metaInfo() const;
     MetaInfo metaInfo();
-    NodeMetaInfo metaInfo(const QString &typeName, int majorVersion = -1, int minorVersion = -1);
-    bool hasNodeMetaInfo(const QString &typeName, int majorVersion = -1, int minorVersion = -1);
+    NodeMetaInfo metaInfo(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1);
+    bool hasNodeMetaInfo(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1);
 
     void attachView(AbstractView *view);
     void detachView(AbstractView *view, ViewNotification emitDetachNotify = NotifyView);

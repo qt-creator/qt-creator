@@ -54,7 +54,7 @@ InternalProperty::~InternalProperty()
 {
 }
 
-InternalProperty::InternalProperty(const QString &name, const InternalNode::Pointer &propertyOwner)
+InternalProperty::InternalProperty(const PropertyName &name, const InternalNode::Pointer &propertyOwner)
      : m_name(name),
      m_propertyOwner(propertyOwner)
 {
@@ -79,7 +79,7 @@ bool InternalProperty::isValid() const
     return m_propertyOwner && !m_name.isEmpty();
 }
 
-QString InternalProperty::name() const
+PropertyName InternalProperty::name() const
 {
     return m_name;
 }
@@ -152,12 +152,12 @@ void InternalProperty::remove()
     m_propertyOwner.clear();
 }
 
-QString InternalProperty::dynamicTypeName() const
+TypeName InternalProperty::dynamicTypeName() const
 {
     return m_dynamicType;
 }
 
-void InternalProperty::setDynamicTypeName(const QString &name)
+void InternalProperty::setDynamicTypeName(const TypeName &name)
 {
     m_dynamicType = name;
 }

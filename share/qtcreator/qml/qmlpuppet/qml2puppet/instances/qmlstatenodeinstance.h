@@ -48,15 +48,15 @@ public:
 
     static Pointer create(QObject *objectToBeWrapped);
 
-    void setPropertyVariant(const QString &name, const QVariant &value);
-    void setPropertyBinding(const QString &name, const QString &expression);
+    void setPropertyVariant(const PropertyName &name, const QVariant &value);
+    void setPropertyBinding(const PropertyName &name, const QString &expression);
 
     void activateState();
     void deactivateState();
 
-    bool updateStateVariant(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QVariant &value);
-    bool updateStateBinding(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QString &expression);
-    bool resetStateProperty(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QVariant &resetValue);
+    bool updateStateVariant(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QVariant &value);
+    bool updateStateBinding(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QString &expression);
+    bool resetStateProperty(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QVariant &resetValue);
 
 
 protected:

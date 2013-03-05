@@ -237,17 +237,17 @@ bool GraphicsObjectNodeInstance::isGraphicsObject() const
     return true;
 }
 
-void GraphicsObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
+void GraphicsObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
     ObjectNodeInstance::setPropertyVariant(name, value);
 }
 
-void GraphicsObjectNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
+void GraphicsObjectNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
     ObjectNodeInstance::setPropertyBinding(name, expression);
 }
 
-QVariant GraphicsObjectNodeInstance::property(const QString &name) const
+QVariant GraphicsObjectNodeInstance::property(const PropertyName &name) const
 {
     return ObjectNodeInstance::property(name);
 }

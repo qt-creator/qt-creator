@@ -120,7 +120,7 @@ public:
         setupContext();
     }
 
-    virtual void instancePropertyChange(const QList<QPair<ModelNode, QString> > &)
+    virtual void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &)
     {}
 
     virtual void instancesCompleted(const QVector<ModelNode> &)

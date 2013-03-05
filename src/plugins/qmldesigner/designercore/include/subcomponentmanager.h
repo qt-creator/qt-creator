@@ -57,7 +57,7 @@ public:
     QStringList directories() const;
 
 private slots:
-    void parseDirectory(const QString &canonicalDirPath,  bool addToLibrary = true, const QString& qualification = QString());
+    void parseDirectory(const QString &canonicalDirPath,  bool addToLibrary = true, const TypeName &qualification = TypeName());
     void parseFile(const QString &canonicalFilePath,  bool addToLibrary, const QString&);
     void parseFile(const QString &canonicalFilePath);
 

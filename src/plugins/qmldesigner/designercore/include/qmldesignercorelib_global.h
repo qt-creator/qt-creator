@@ -30,6 +30,9 @@
 #ifndef CORELIB_GLOBAL_H
 #define CORELIB_GLOBAL_H
 
+#include <QtGlobal>
+#include <QList>
+
 // Unnecessary since core isn't a dll any more.
 
 #define TEST_CORESHARED_EXPORT
@@ -39,7 +42,12 @@
 #else
 #  define QMLDESIGNERCORE_EXPORT Q_DECL_IMPORT
 #endif
-
+namespace QmlDesigner {
+typedef QByteArray PropertyName;
+typedef QList<PropertyName> PropertyNameList;
+typedef QByteArray TypeName;
+typedef QByteArray IdName;
+}
 //#if defined(TEST_EXPORTS)
 //#if defined(CORE_LIBRARY)
 //#  define TEST_CORESHARED_EXPORT Q_DECL_EXPORT

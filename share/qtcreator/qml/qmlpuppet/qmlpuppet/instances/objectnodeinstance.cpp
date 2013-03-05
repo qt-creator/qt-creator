@@ -82,7 +82,7 @@ void ObjectNodeInstance::destroy()
         if (object()) {
             setId(QString());
             if (m_instanceId >= 0) {
-                reparent(parentInstance(), m_parentProperty, ObjectNodeInstance::Pointer(), QString());
+                reparent(parentInstance(), m_parentProperty, ObjectNodeInstance::Pointer(), PropertyName());
             }
         }
 
@@ -246,7 +246,7 @@ double ObjectNodeInstance::opacity() const
     return 1.0;
 }
 
-bool ObjectNodeInstance::hasAnchor(const QString &/*name*/) const
+bool ObjectNodeInstance::hasAnchor(const PropertyName &/*name*/) const
 {
     return false;
 }
@@ -261,9 +261,9 @@ bool ObjectNodeInstance::isAnchoredByChildren() const
     return false;
 }
 
-QPair<QString, ServerNodeInstance> ObjectNodeInstance::anchor(const QString &/*name*/) const
+QPair<PropertyName, ServerNodeInstance> ObjectNodeInstance::anchor(const PropertyName &/*name*/) const
 {
-    return qMakePair(QString(), ServerNodeInstance());
+    return qMakePair(PropertyName(), ServerNodeInstance());
 }
 
 
@@ -292,7 +292,7 @@ static bool hasFullImplementedListInterface(const QDeclarativeListReference &lis
 
 static void removeObjectFromList(const QDeclarativeProperty &property, QObject *objectToBeRemoved, QDeclarativeEngine * engine)
 {
-    QDeclarativeListReference listReference(property.object(), property.name().toLatin1(), engine);
+    QDeclarativeListReference listReference(property.object(), property.name().toUtf8(), engine);
 
     if (!hasFullImplementedListInterface(listReference)) {
         qWarning() << "Property list interface not fully implemented for Class " << property.property().typeName() << " in property " << property.name() << "!";
@@ -315,7 +315,7 @@ static void removeObjectFromList(const QDeclarativeProperty &property, QObject *
         listReference.append(object);
 }
 
-void ObjectNodeInstance::removeFromOldProperty(QObject *object, QObject *oldParent, const QString &oldParentProperty)
+void ObjectNodeInstance::removeFromOldProperty(QObject *object, QObject *oldParent, const PropertyName &oldParentProperty)
 {
     QDeclarativeProperty property(oldParent, oldParentProperty, context());
 
@@ -334,7 +334,7 @@ void ObjectNodeInstance::removeFromOldProperty(QObject *object, QObject *oldPare
         object->setParent(0);
 }
 
-void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, const QString &newParentProperty)
+void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, const PropertyName &newParentProperty)
 {
     QDeclarativeProperty property(newParent, newParentProperty, context());
 
@@ -359,7 +359,7 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
     Q_ASSERT(objectToVariant(object).isValid());
 }
 
-void ObjectNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const QString &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const QString &newParentProperty)
+void ObjectNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty)
 {
     if (oldParentInstance) {
         removeFromOldProperty(object(), oldParentInstance->object(), oldParentProperty);
@@ -434,7 +434,7 @@ QVariant ObjectNodeInstance::fixResourcePaths(const QVariant &value)
     return value;
 }
 
-void ObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
+void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
     QDeclarativeProperty property(object(), name, context());
 
@@ -469,7 +469,7 @@ void ObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant 
     }
 }
 
-void ObjectNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
+void ObjectNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
     QDeclarativeProperty property(object(), name, context());
 
@@ -512,7 +512,7 @@ void ObjectNodeInstance::deleteObjectsInList(const QDeclarativeProperty &propert
     list.clear();
 }
 
-void ObjectNodeInstance::resetProperty(const QString &name)
+void ObjectNodeInstance::resetProperty(const PropertyName &name)
 {
     doResetProperty(name);
 
@@ -523,7 +523,7 @@ void ObjectNodeInstance::resetProperty(const QString &name)
         doResetProperty("font.pixelSize");
 }
 
-void ObjectNodeInstance::refreshProperty(const QString &name)
+void ObjectNodeInstance::refreshProperty(const PropertyName &name)
 {
     QDeclarativeProperty property(object(), name, context());
 
@@ -543,14 +543,14 @@ void ObjectNodeInstance::refreshProperty(const QString &name)
 #else
         QByteArray key = oldValue.toUrl().toEncoded(QUrl::FormattingOption(0x100));
 #endif
-        QString pixmapKey = QString::fromLatin1(key.constData(), key.count());
+        QString pixmapKey = QString::fromUtf8(key.constData(), key.count());
         QPixmapCache::remove(pixmapKey);
     }
 
     property.write(oldValue);
 }
 
-bool ObjectNodeInstance::hasBindingForProperty(const QString &name, bool *hasChanged) const
+bool ObjectNodeInstance::hasBindingForProperty(const PropertyName &name, bool *hasChanged) const
 {
     QDeclarativeProperty property(object(), name, context());
 
@@ -565,7 +565,7 @@ bool ObjectNodeInstance::hasBindingForProperty(const QString &name, bool *hasCha
     return QDeclarativePropertyPrivate::binding(property);
 }
 
-void ObjectNodeInstance::doResetProperty(const QString &propertyName)
+void ObjectNodeInstance::doResetProperty(const PropertyName &propertyName)
 {
     m_modelAbstractPropertyHash.remove(propertyName);
 
@@ -613,7 +613,7 @@ void ObjectNodeInstance::doResetProperty(const QString &propertyName)
     }
 }
 
-QVariant ObjectNodeInstance::property(const QString &name) const
+QVariant ObjectNodeInstance::property(const PropertyName &name) const
 {
     if (m_modelAbstractPropertyHash.contains(name))
         return QVariant::fromValue(m_modelAbstractPropertyHash.value(name));
@@ -640,9 +640,9 @@ QVariant ObjectNodeInstance::property(const QString &name) const
     return property.read();
 }
 
-QStringList allPropertyNames(QObject *object, const QString &baseName = QString(), QObjectList *inspectedObjects = new QObjectList)
+PropertyNameList allPropertyNames(QObject *object, const PropertyName &baseName = PropertyName(), QObjectList *inspectedObjects = new QObjectList)
 {
-    QStringList propertyNameList;
+    PropertyNameList propertyNameList;
 
 
     if (inspectedObjects== 0 || inspectedObjects->contains(object))
@@ -659,28 +659,28 @@ QStringList allPropertyNames(QObject *object, const QString &baseName = QString(
             if (declarativeProperty.name() != "parent") {
                 QObject *childObject = QDeclarativeMetaType::toQObject(declarativeProperty.read());
                 if (childObject)
-                    propertyNameList.append(allPropertyNames(childObject, baseName +  QString::fromUtf8(metaProperty.name()) + '.', inspectedObjects));
+                    propertyNameList.append(allPropertyNames(childObject, baseName +  PropertyName(metaProperty.name()) + '.', inspectedObjects));
             }
         } else if (QDeclarativeValueTypeFactory::valueType(metaProperty.userType())) {
             QDeclarativeValueType *valueType = QDeclarativeValueTypeFactory::valueType(metaProperty.userType());
             valueType->setValue(metaProperty.read(object));
-            propertyNameList.append(allPropertyNames(valueType, baseName +  QString::fromUtf8(metaProperty.name()) + '.', inspectedObjects));
+            propertyNameList.append(allPropertyNames(valueType, baseName +  PropertyName(metaProperty.name()) + '.', inspectedObjects));
         } else  {
-            propertyNameList.append(baseName + QString::fromUtf8(metaProperty.name()));
+            propertyNameList.append(baseName + metaProperty.name());
         }
     }
 
     return propertyNameList;
 }
 
-QStringList ObjectNodeInstance::propertyNames() const
+PropertyNameList ObjectNodeInstance::propertyNames() const
 {
     if (isValid())
         return allPropertyNames(object());
-    return QStringList();
+    return PropertyNameList();
 }
 
-QString ObjectNodeInstance::instanceType(const QString &name) const
+QString ObjectNodeInstance::instanceType(const PropertyName &name) const
 {
     QDeclarativeProperty property(object(), name, context());
     if (!property.isValid())
@@ -809,9 +809,9 @@ static void disableTiledBackingStore(QObject *object)
 #endif
 }
 
-QStringList propertyNameForWritableProperties(QObject *object, const QString &baseName = QString(), QObjectList *inspectedObjects = new QObjectList())
+PropertyNameList propertyNameForWritableProperties(QObject *object, const PropertyName &baseName = PropertyName(), QObjectList *inspectedObjects = new QObjectList())
 {
-    QStringList propertyNameList;
+    PropertyNameList propertyNameList;
 
     if (inspectedObjects == 0 || inspectedObjects->contains(object))
         return propertyNameList;
@@ -826,14 +826,14 @@ QStringList propertyNameForWritableProperties(QObject *object, const QString &ba
             if (declarativeProperty.name() != "parent") {
                 QObject *childObject = QDeclarativeMetaType::toQObject(declarativeProperty.read());
                 if (childObject)
-                    propertyNameList.append(propertyNameForWritableProperties(childObject, baseName +  QString::fromUtf8(metaProperty.name()) + '.', inspectedObjects));
+                    propertyNameList.append(propertyNameForWritableProperties(childObject, baseName +  PropertyName(metaProperty.name()) + '.', inspectedObjects));
             }
         } else if (QDeclarativeValueTypeFactory::valueType(metaProperty.userType())) {
             QDeclarativeValueType *valueType = QDeclarativeValueTypeFactory::valueType(metaProperty.userType());
             valueType->setValue(metaProperty.read(object));
-            propertyNameList.append(propertyNameForWritableProperties(valueType, baseName +  QString::fromUtf8(metaProperty.name()) + '.', inspectedObjects));
+            propertyNameList.append(propertyNameForWritableProperties(valueType, baseName +  PropertyName(metaProperty.name()) + '.', inspectedObjects));
         } else if (metaProperty.isReadable() && metaProperty.isWritable()) {
-            propertyNameList.append(baseName + QString::fromUtf8(metaProperty.name()));
+            propertyNameList.append(baseName + PropertyName(metaProperty.name()));
         }
     }
 
@@ -845,9 +845,9 @@ static void fixResourcePathsForObject(QObject *object)
     if (qgetenv("QMLDESIGNER_RC_PATHS").isEmpty())
         return;
 
-    QStringList propertyNameList = propertyNameForWritableProperties(object);
+    PropertyNameList propertyNameList = propertyNameForWritableProperties(object);
 
-    foreach (const QString &propertyName, propertyNameList) {
+    foreach (const PropertyName &propertyName, propertyNameList) {
         QDeclarativeProperty property(object, propertyName, QDeclarativeEngine::contextForObject(object));
 
         const QVariant value  = property.read();
@@ -1061,9 +1061,9 @@ void ObjectNodeInstance::deactivateState()
 
 void ObjectNodeInstance::populateResetHashes()
 {
-    QStringList propertyNameList = propertyNameForWritableProperties(object());
+    PropertyNameList propertyNameList = propertyNameForWritableProperties(object());
 
-    foreach(const QString &propertyName, propertyNameList) {
+    foreach (const PropertyName &propertyName, propertyNameList) {
         QDeclarativeProperty property(object(), propertyName, QDeclarativeEngine::contextForObject(object()));
 
         QDeclarativeAbstractBinding::Pointer binding = QDeclarativeAbstractBinding::getPointer(QDeclarativePropertyPrivate::binding(property));
@@ -1075,22 +1075,22 @@ void ObjectNodeInstance::populateResetHashes()
     }
 }
 
-QDeclarativeAbstractBinding *ObjectNodeInstance::resetBinding(const QString &propertyName) const
+QDeclarativeAbstractBinding *ObjectNodeInstance::resetBinding(const PropertyName &propertyName) const
 {
     return m_resetBindingHash.value(propertyName).data();
 }
 
-bool ObjectNodeInstance::hasValidResetBinding(const QString &propertyName) const
+bool ObjectNodeInstance::hasValidResetBinding(const PropertyName &propertyName) const
 {
     return m_resetBindingHash.contains(propertyName) &&  m_resetBindingHash.value(propertyName).data();
 }
 
-QVariant ObjectNodeInstance::resetValue(const QString &propertyName) const
+QVariant ObjectNodeInstance::resetValue(const PropertyName &propertyName) const
 {
     return m_resetValueHash.value(propertyName);
 }
 
-void ObjectNodeInstance::setResetValue(const QString &propertyName, const QVariant &value)
+void ObjectNodeInstance::setResetValue(const PropertyName &propertyName, const QVariant &value)
 {
     m_resetValueHash.insert(propertyName, value);
 }
@@ -1157,7 +1157,7 @@ int ObjectNodeInstance::penWidth() const
     return 0;
 }
 
-void ObjectNodeInstance::createDynamicProperty(const QString &name, const QString &/*typeName*/)
+void ObjectNodeInstance::createDynamicProperty(const PropertyName &name, const QString &/*typeName*/)
 {
     if (m_metaObject == 0) {
         qWarning() << "ObjectNodeInstance.createDynamicProperty: No Metaobject.";
@@ -1167,17 +1167,17 @@ void ObjectNodeInstance::createDynamicProperty(const QString &name, const QStrin
     m_metaObject->createNewProperty(name);
 }
 
-bool ObjectNodeInstance::updateStateVariant(const ObjectNodeInstance::Pointer &/*target*/, const QString &/*propertyName*/, const QVariant &/*value*/)
+bool ObjectNodeInstance::updateStateVariant(const ObjectNodeInstance::Pointer &/*target*/, const PropertyName &/*propertyName*/, const QVariant &/*value*/)
 {
     return false;
 }
 
-bool ObjectNodeInstance::updateStateBinding(const ObjectNodeInstance::Pointer &/*target*/, const QString &/*propertyName*/, const QString &/*expression*/)
+bool ObjectNodeInstance::updateStateBinding(const ObjectNodeInstance::Pointer &/*target*/, const PropertyName &/*propertyName*/, const QString &/*expression*/)
 {
     return false;
 }
 
-bool ObjectNodeInstance::resetStateProperty(const ObjectNodeInstance::Pointer &/*target*/, const QString &/*propertyName*/, const QVariant &/*resetValue*/)
+bool ObjectNodeInstance::resetStateProperty(const ObjectNodeInstance::Pointer &/*target*/, const PropertyName &/*propertyName*/, const QVariant &/*resetValue*/)
 {
     return false;
 }

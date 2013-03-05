@@ -50,7 +50,7 @@ NodeListProperty::NodeListProperty(const NodeListProperty &property, AbstractVie
 
 }
 
-NodeListProperty::NodeListProperty(const QString &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view) :
+NodeListProperty::NodeListProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view) :
         NodeAbstractProperty(propertyName, internalNode, model, view)
 {
 }

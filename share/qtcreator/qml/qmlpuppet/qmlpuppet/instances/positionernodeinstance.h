@@ -47,8 +47,8 @@ public:
 
     static Pointer create(QObject *objectToBeWrapped);
 
-    void setPropertyVariant(const QString &name, const QVariant &value);
-    void setPropertyBinding(const QString &name, const QString &expression);
+    void setPropertyVariant(const PropertyName &name, const QVariant &value);
+    void setPropertyBinding(const PropertyName &name, const QString &expression);
 
     bool isPositioner() const;
 

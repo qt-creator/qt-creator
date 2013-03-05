@@ -548,14 +548,14 @@ QmlItemNode findRecursiveQmlItemNode(const QmlObjectNode &firstQmlObjectNode)
     return QmlItemNode();
 }
 
-void FormEditorView::instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList)
+void FormEditorView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList)
 {
-    typedef QPair<ModelNode, QString> NodePropertyPair;
+    typedef QPair<ModelNode, PropertyName> NodePropertyPair;
     foreach (const NodePropertyPair &nodePropertyPair, propertyList) {
         const QmlItemNode itemNode(nodePropertyPair.first);
-        const QString propertyName = nodePropertyPair.second;
+        const PropertyName propertyName = nodePropertyPair.second;
         if (itemNode.isValid() && scene()->hasItemForQmlItemNode(itemNode)) {
-            static QStringList skipList = QStringList() << "x" << "y" << "width" << "height";
+            static PropertyNameList skipList = PropertyNameList() << "x" << "y" << "width" << "height";
             if (!skipList.contains(propertyName)) {
                 m_scene->synchronizeOtherProperty(itemNode, propertyName);
                 m_currentTool->formEditorItemsChanged(QList<FormEditorItem*>() << m_scene->itemForQmlItemNode(itemNode));

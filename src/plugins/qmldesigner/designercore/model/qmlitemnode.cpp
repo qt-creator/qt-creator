@@ -308,7 +308,7 @@ QList<QmlModelState> QmlModelStateGroup::allStates() const
     return returnList;
 }
 
-QString QmlItemNode::simplifiedTypeName() const
+TypeName QmlItemNode::simplifiedTypeName() const
 {
     return modelNode().simplifiedTypeName();
 }
@@ -325,7 +325,7 @@ QmlModelState QmlModelStateGroup::addState(const QString &name)
 
 
     PropertyListType propertyList;
-    propertyList.append(qMakePair(QString("name"), QVariant(name)));
+    propertyList.append(qMakePair(PropertyName("name"), QVariant(name)));
 
     ModelNode newState = QmlObjectNode(modelNode()).qmlModelView()->createQmlState(propertyList);
     modelNode().nodeListProperty("states").reparentHere(newState);

@@ -41,7 +41,7 @@ public:
     AddObjectVisitor(QmlDesigner::TextModifier &modifier,
                      quint32 parentLocation,
                      const QString &content,
-                     const QStringList &propertyOrder);
+                     const PropertyNameList &propertyOrder);
 
 protected:
     virtual bool visit(QmlJS::AST::UiObjectBinding *ast);
@@ -53,7 +53,7 @@ private:
 private:
     quint32 m_parentLocation;
     QString m_content;
-    QStringList m_propertyOrder;
+    PropertyNameList m_propertyOrder;
 };
 
 } // namespace Internal

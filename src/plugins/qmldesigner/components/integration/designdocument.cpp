@@ -567,7 +567,7 @@ void DesignDocument::paste()
             int offset = double(qrand()) / RAND_MAX * 20 - 10;
 
             foreach (const ModelNode &node, selectedNodes) {
-                QString defaultProperty(targetNode.metaInfo().defaultPropertyName());
+                PropertyName defaultProperty(targetNode.metaInfo().defaultPropertyName());
                 ModelNode pastedNode(view.insertModel(node));
                 pastedNodeList.append(pastedNode);
                 scatterItem(pastedNode, targetNode, offset);
@@ -600,7 +600,7 @@ void DesignDocument::paste()
 
                 targetNode = targetNode.parentProperty().parentModelNode();
 
-            QString defaultProperty(targetNode.metaInfo().defaultPropertyName());
+            PropertyName defaultProperty(targetNode.metaInfo().defaultPropertyName());
 
             scatterItem(pastedNode, targetNode);
             if (targetNode.nodeListProperty(defaultProperty).isValid())

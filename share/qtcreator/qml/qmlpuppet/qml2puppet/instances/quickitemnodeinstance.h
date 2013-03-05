@@ -78,18 +78,18 @@ public:
     bool isMovable() const;
     void setMovable(bool movable);
 
-    void setPropertyVariant(const QString &name, const QVariant &value);
-    void setPropertyBinding(const QString &name, const QString &expression);
+    void setPropertyVariant(const PropertyName &name, const QVariant &value);
+    void setPropertyBinding(const PropertyName &name, const QString &expression);
 
-    QVariant property(const QString &name) const;
-    void resetProperty(const QString &name);
+    QVariant property(const PropertyName &name) const;
+    void resetProperty(const PropertyName &name);
 
-    void reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const QString &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const QString &newParentProperty);
+    void reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty);
 
     int penWidth() const;
 
-    bool hasAnchor(const QString &name) const;
-    QPair<QString, ServerNodeInstance> anchor(const QString &name) const;
+    bool hasAnchor(const PropertyName &name) const;
+    QPair<PropertyName, ServerNodeInstance> anchor(const PropertyName &name) const;
     bool isAnchoredBySibling() const;
     bool isAnchoredByChildren() const;
     void doComponentComplete();

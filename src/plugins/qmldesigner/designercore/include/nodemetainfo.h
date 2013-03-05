@@ -60,7 +60,7 @@ class QMLDESIGNERCORE_EXPORT NodeMetaInfo
 {
 public:
     NodeMetaInfo();
-    NodeMetaInfo(Model *model, QString type, int maj, int min);
+    NodeMetaInfo(Model *model, TypeName type, int maj, int min);
 
     ~NodeMetaInfo();
 
@@ -69,23 +69,23 @@ public:
 
     bool isValid() const;
     bool isFileComponent() const;
-    bool hasProperty(const QString &propertyName) const;
-    QStringList propertyNames() const;
-    QStringList directPropertyNames() const;
-    QString defaultPropertyName() const;
+    bool hasProperty(const PropertyName &propertyName) const;
+    PropertyNameList propertyNames() const;
+    PropertyNameList directPropertyNames() const;
+    PropertyName defaultPropertyName() const;
     bool hasDefaultProperty() const;
-    QString propertyTypeName(const QString &propertyName) const;
-    bool propertyIsWritable(const QString &propertyName) const;
-    bool propertyIsListProperty(const QString &propertyName) const;
-    bool propertyIsEnumType(const QString &propertyName) const;
-    QString propertyEnumScope(const QString &propertyName) const;
-    QStringList propertyKeysForEnum(const QString &propertyName) const;
-    QVariant propertyCastedValue(const QString &propertyName, const QVariant &value) const;
+    TypeName propertyTypeName(const PropertyName &propertyName) const;
+    bool propertyIsWritable(const PropertyName &propertyName) const;
+    bool propertyIsListProperty(const PropertyName &propertyName) const;
+    bool propertyIsEnumType(const PropertyName &propertyName) const;
+    QString propertyEnumScope(const PropertyName &propertyName) const;
+    QStringList propertyKeysForEnum(const PropertyName &propertyName) const;
+    QVariant propertyCastedValue(const PropertyName &propertyName, const QVariant &value) const;
 
     QList<NodeMetaInfo> superClasses() const;
     NodeMetaInfo directSuperClass() const;
 
-    QString typeName() const;
+    TypeName typeName() const;
     int majorVersion() const;
     int minorVersion() const;
 
@@ -95,7 +95,7 @@ public:
     bool hasCustomParser() const;
 
     bool availableInVersion(int majorVersion, int minorVersion) const;
-    bool isSubclassOf(const QString& type, int majorVersion, int minorVersio) const;
+    bool isSubclassOf(const TypeName &type, int majorVersion, int minorVersio) const;
 
     bool isPositioner() const;
 

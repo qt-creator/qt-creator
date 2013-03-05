@@ -120,7 +120,7 @@ NodeInstanceMetaObject *NodeInstanceMetaObject::createNodeInstanceMetaObject(con
     return new NodeInstanceMetaObject(nodeInstance, engine);
 }
 
-NodeInstanceMetaObject *NodeInstanceMetaObject::createNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const QString &prefix, QQmlEngine *engine)
+NodeInstanceMetaObject *NodeInstanceMetaObject::createNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const PropertyName &prefix, QQmlEngine *engine)
 {
     //Avoid setting up multiple NodeInstanceMetaObjects on the same QObject
     QObjectPrivate *op = QObjectPrivate::get(nodeInstance->object());
@@ -175,7 +175,7 @@ NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstance::Pointer
 
 }
 
-NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const QString &prefix, QQmlEngine *engine)
+NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const PropertyName &prefix, QQmlEngine *engine)
     : QQmlVMEMetaObject(object, cacheForObject(object, engine), vMEMetaDataForObject(object)),
       m_nodeInstance(nodeInstance),
       m_prefix(prefix),
@@ -199,7 +199,7 @@ NodeInstanceMetaObject::~NodeInstanceMetaObject()
 
 void NodeInstanceMetaObject::createNewProperty(const QString &name)
 {
-    int id = createProperty(name.toLatin1(), 0);
+    int id = createProperty(name.toUtf8(), 0);
     setValue(id, QVariant());
     Q_ASSERT(id >= 0);
     Q_UNUSED(id);

@@ -34,7 +34,10 @@
 #include <QHash>
 #include <QSharedPointer>
 
+#include "nodeinstanceglobal.h"
+
 namespace QmlDesigner {
+
 namespace Internal {
 
 class ObjectNodeInstance;
@@ -51,11 +54,11 @@ public:
     virtual int qt_metacall(QMetaObject::Call, int, void **);
 
 protected:
-    void registerObject(QObject *spiedObject, const QString &prefix = QString());
+    void registerObject(QObject *spiedObject, const PropertyName &prefix = PropertyName());
 
 private:
     int methodeOffset;
-    QHash<int, QString> m_indexPropertyHash;
+    QHash<int, PropertyName> m_indexPropertyHash;
     QObjectList m_registeredObjectList;
     ObjectNodeInstanceWeakPointer m_objectNodeInstance;
 };

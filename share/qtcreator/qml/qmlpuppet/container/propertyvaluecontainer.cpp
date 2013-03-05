@@ -36,7 +36,7 @@ PropertyValueContainer::PropertyValueContainer()
 {
 }
 
-PropertyValueContainer::PropertyValueContainer(qint32 instanceId, const QString &name, const QVariant &value, const QString &dynamicTypeName)
+PropertyValueContainer::PropertyValueContainer(qint32 instanceId, const PropertyName &name, const QVariant &value, const TypeName &dynamicTypeName)
     : m_instanceId(instanceId),
     m_name(name),
     m_value(value),
@@ -49,7 +49,7 @@ qint32 PropertyValueContainer::instanceId() const
     return m_instanceId;
 }
 
-QString PropertyValueContainer::name() const
+PropertyName PropertyValueContainer::name() const
 {
     return m_name;
 }
@@ -64,7 +64,7 @@ bool PropertyValueContainer::isDynamic() const
     return !m_dynamicTypeName.isEmpty();
 }
 
-QString PropertyValueContainer::dynamicTypeName() const
+TypeName PropertyValueContainer::dynamicTypeName() const
 {
     return m_dynamicTypeName;
 }

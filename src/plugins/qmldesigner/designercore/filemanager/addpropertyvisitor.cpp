@@ -39,10 +39,10 @@ using namespace QmlJS::AST;
 
 AddPropertyVisitor::AddPropertyVisitor(QmlDesigner::TextModifier &modifier,
                                        quint32 parentLocation,
-                                       const QString &name,
+                                       const QmlDesigner::PropertyName &name,
                                        const QString &value,
                                        QmlRefactoring::PropertyType propertyType,
-                                       const QStringList &propertyOrder):
+                                       const PropertyNameList &propertyOrder):
     QMLRewriter(modifier),
     m_parentLocation(parentLocation),
     m_name(name),

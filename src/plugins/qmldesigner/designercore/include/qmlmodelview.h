@@ -57,12 +57,12 @@ public:
     QmlModelState baseState() const;
     QmlModelStateGroup rootStateGroup() const;
 
-    QmlObjectNode createQmlObjectNode(const QString &typeString,
+    QmlObjectNode createQmlObjectNode(const TypeName &typeString,
                                       int majorVersion,
                                       int minorVersion,
                                       const PropertyListType &propertyList = PropertyListType());
 
-    QmlItemNode createQmlItemNode(const QString &typeString,
+    QmlItemNode createQmlItemNode(const TypeName &typeString,
                                     int majorVersion,
                                     int minorVersion,
                                     const PropertyListType &propertyList = PropertyListType());
@@ -89,9 +89,7 @@ public:
     void modelAttached(Model *model);
     void modelAboutToBeDetached(Model *model);
 
-    virtual void nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName);
-
-    void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
+    void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList);
     void instancesCompleted(const QVector<ModelNode> &completedNodeList);
     void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash);
     void instancesRenderImageChanged(const QVector<ModelNode> &nodeList);
@@ -125,9 +123,6 @@ public:
 protected:
     NodeInstance instanceForModelNode(const ModelNode &modelNode);
     bool hasInstanceForModelNode(const ModelNode &modelNode);
-    virtual void transformChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName) ;
-    virtual void parentChanged(const QmlObjectNode &qmlObjectNode);
-    virtual void otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName);
 
     void activateState(const QmlModelState &state);
 

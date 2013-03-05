@@ -36,7 +36,7 @@ PropertyAbstractContainer::PropertyAbstractContainer()
 {
 }
 
-PropertyAbstractContainer::PropertyAbstractContainer(qint32 instanceId, const QString &name, const QString &dynamicTypeName)
+PropertyAbstractContainer::PropertyAbstractContainer(qint32 instanceId, const PropertyName &name, const QString &dynamicTypeName)
     : m_instanceId(instanceId),
     m_name(name),
     m_dynamicTypeName(dynamicTypeName)
@@ -48,7 +48,7 @@ qint32 PropertyAbstractContainer::instanceId() const
     return m_instanceId;
 }
 
-QString PropertyAbstractContainer::name() const
+PropertyName PropertyAbstractContainer::name() const
 {
     return m_name;
 }

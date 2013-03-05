@@ -345,7 +345,7 @@ void DesignModeWidget::setup()
             QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
             sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
             sheet += "QLabel { background-color: #4f4f4f; }";
-            navigationView.widget->setStyleSheet(QString::fromLatin1(sheet));
+            navigationView.widget->setStyleSheet(QString::fromUtf8(sheet));
         }
     }
 

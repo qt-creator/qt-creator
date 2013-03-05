@@ -54,7 +54,7 @@ public:
 
     NodeProperty();
 protected:
-    NodeProperty(const QString &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
+    NodeProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
 };
 
 } // namespace QmlDesigner

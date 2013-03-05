@@ -65,9 +65,9 @@ public:
 
     bool equalGraphicsItem(QGraphicsItem *item) const;
 
-    void setPropertyVariant(const QString &name, const QVariant &value);
-    void setPropertyBinding(const QString &name, const QString &expression);
-    QVariant property(const QString &name) const;
+    void setPropertyVariant(const PropertyName &name, const QVariant &value);
+    void setPropertyBinding(const PropertyName &name, const QString &expression);
+    QVariant property(const PropertyName &name) const;
 
     bool hasContent() const;
 

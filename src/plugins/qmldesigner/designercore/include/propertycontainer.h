@@ -53,21 +53,21 @@ class QMLDESIGNERCORE_EXPORT PropertyContainer
 
 public:
     PropertyContainer();
-    PropertyContainer(const QString &name, const QString &type, const QVariant &value);
+    PropertyContainer(const PropertyName &name, const QString &type, const QVariant &value);
 
     bool isValid() const;
 
-    QString name() const;
+    PropertyName name() const;
     QVariant value() const;
     QString type() const;
 
 
     void setValue(const QVariant &value);
-    void set(const QString &name, const QString &type, const QVariant &value);
+    void set(const PropertyName &name, const QString &type, const QVariant &value);
 
 
 private:
-    QString m_name;
+    PropertyName m_name;
     QString m_type;
     mutable QVariant m_value;
 };

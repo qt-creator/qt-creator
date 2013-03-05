@@ -42,7 +42,7 @@ namespace Internal {
 class QmlTextGenerator
 {
 public:
-    explicit QmlTextGenerator(const QStringList &propertyOrder, int indentDepth = 0);
+    explicit QmlTextGenerator(const PropertyNameList &propertyOrder, int indentDepth = 0);
 
     QString operator()(const AbstractProperty &property) const
     { return toQml(property, m_indentDepth); }
@@ -59,7 +59,7 @@ private:
     static QString escape(const QString &value);
 
 private:
-    QStringList m_propertyOrder;
+    PropertyNameList m_propertyOrder;
     int m_indentDepth;
 };
 

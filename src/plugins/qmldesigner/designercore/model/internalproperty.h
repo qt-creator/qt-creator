@@ -67,7 +67,7 @@ public:
 
     virtual bool isValid() const;
 
-    QString name() const;
+    PropertyName name() const;
 
     virtual bool isBindingProperty() const;
     virtual bool isVariantProperty() const;
@@ -85,19 +85,19 @@ public:
 
     virtual void remove();
 
-    QString dynamicTypeName() const;
+    TypeName dynamicTypeName() const;
 
     void resetDynamicTypeName();
 
 protected: // functions
-    InternalProperty(const QString &name, const InternalNodePointer &propertyOwner);
+    InternalProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
     Pointer internalPointer() const;
     void setInternalWeakPointer(const Pointer &pointer);
-    void setDynamicTypeName(const QString &name);
+    void setDynamicTypeName(const TypeName &name);
 private:
     WeakPointer m_internalPointer;
-    QString m_name;
-    QString m_dynamicType;
+    PropertyName m_name;
+    TypeName m_dynamicType;
     InternalNodeWeakPointer m_propertyOwner;
 
 };

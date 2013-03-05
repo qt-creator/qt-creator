@@ -83,7 +83,7 @@ public:
                                       const QList<ModelNode> &lastSelectedNodeList);
     void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
-    void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
+    void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList);
     void instancesCompleted(const QVector<ModelNode> &completedNodeList);
     void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash);
     void instancesRenderImageChanged(const QVector<ModelNode> &nodeList);

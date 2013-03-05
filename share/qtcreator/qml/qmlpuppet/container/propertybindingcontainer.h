@@ -34,6 +34,7 @@
 #include <qmetatype.h>
 #include <QString>
 
+#include "nodeinstanceglobal.h"
 
 namespace QmlDesigner {
 
@@ -43,19 +44,19 @@ class PropertyBindingContainer
 
 public:
     PropertyBindingContainer();
-    PropertyBindingContainer(qint32 instanceId, const QString &name, const QString &expression, const QString &dynamicTypeName);
+    PropertyBindingContainer(qint32 instanceId, const PropertyName &name, const QString &expression, const TypeName &dynamicTypeName);
 
     qint32 instanceId() const;
-    QString name() const;
+    PropertyName name() const;
     QString expression() const;
     bool isDynamic() const;
-    QString dynamicTypeName() const;
+    TypeName dynamicTypeName() const;
 
 private:
     qint32 m_instanceId;
-    QString m_name;
+    PropertyName m_name;
     QString m_expression;
-    QString m_dynamicTypeName;
+    TypeName m_dynamicTypeName;
 };
 
 QDataStream &operator<<(QDataStream &out, const PropertyBindingContainer &container);

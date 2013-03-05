@@ -77,7 +77,7 @@ inline bool singleSelectionNotRoot(const SelectionContext &selectionState)
 inline bool selectionHasProperty(const SelectionContext &selectionState, const char *property)
 {
     foreach (const ModelNode &modelNode, selectionState.selectedModelNodes())
-        if (modelNode.hasProperty(QLatin1String(property)))
+        if (modelNode.hasProperty(PropertyName(property)))
             return true;
     return false;
 }

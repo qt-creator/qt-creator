@@ -34,6 +34,8 @@
 #include <QString>
 #include <QDataStream>
 
+#include "nodeinstanceglobal.h"
+
 namespace QmlDesigner {
 
 class ReparentContainer
@@ -43,22 +45,22 @@ public:
     ReparentContainer();
     ReparentContainer(qint32 instanceId,
                       qint32 oldParentInstanceId,
-                      const QString &oldParentProperty,
+                      const PropertyName &oldParentProperty,
                       qint32 newParentInstanceId,
-                      const QString &newParentProperty);
+                      const PropertyName &newParentProperty);
 
     qint32 instanceId() const;
     qint32 oldParentInstanceId() const;
-    QString oldParentProperty() const;
+    PropertyName oldParentProperty() const;
     qint32 newParentInstanceId() const;
-    QString newParentProperty() const;
+    PropertyName newParentProperty() const;
 
 private:
     qint32 m_instanceId;
     qint32 m_oldParentInstanceId;
-    QString m_oldParentProperty;
+    PropertyName m_oldParentProperty;
     qint32 m_newParentInstanceId;
-    QString m_newParentProperty;
+    PropertyName m_newParentProperty;
 };
 
 QDataStream &operator<<(QDataStream &out, const ReparentContainer &container);

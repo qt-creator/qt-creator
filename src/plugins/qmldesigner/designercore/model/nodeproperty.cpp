@@ -42,7 +42,7 @@ NodeProperty::NodeProperty()
 {
 }
 
-NodeProperty::NodeProperty(const QString &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view)
+NodeProperty::NodeProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view)
     :  NodeAbstractProperty(propertyName, internalNode, model, view)
 {
 

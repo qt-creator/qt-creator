@@ -66,8 +66,8 @@ class PropertyEditor: public QmlModelView
         ~NodeType();
 
         void setup(const QmlObjectNode &fxObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditor *propertyEditor);
-        void initialSetup(const QString &typeName, const QUrl &qmlSpecificsFile, PropertyEditor *propertyEditor);
-        void setValue(const QmlObjectNode &fxObjectNode, const QString &name, const QVariant &value);
+        void initialSetup(const TypeName &typeName, const QUrl &qmlSpecificsFile, PropertyEditor *propertyEditor);
+        void setValue(const QmlObjectNode &fxObjectNode, const PropertyName &name, const QVariant &value);
 
         DeclarativeWidgetView *m_view;
         Internal::QmlAnchorBindingProxy m_backendAnchorBinding;
@@ -109,14 +109,12 @@ public:
 
     void resetView();
     void actualStateChanged(const ModelNode &node);
+    void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList);
 
 protected:
     void timerEvent(QTimerEvent *event);
-    void otherPropertyChanged(const QmlObjectNode &, const QString &propertyName);
-    void transformChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName);
-
-    void setupPane(const QString &typeName);
-    void setValue(const QmlObjectNode &fxObjectNode, const QString &name, const QVariant &value);
+    void setupPane(const TypeName &typeName);
+    void setValue(const QmlObjectNode &fxObjectNode, const PropertyName &name, const QVariant &value);
 
 private slots:
     void reloadQml();
@@ -129,7 +127,7 @@ private: //functions
     QString qmlFileName(const NodeMetaInfo &nodeInfo) const;
     QUrl fileToUrl(const QString &filePath) const;
     QString fileFromUrl(const QUrl &url) const;
-    QUrl qmlForNode(const ModelNode &modelNode, QString &className) const;
+    QUrl qmlForNode(const ModelNode &modelNode, TypeName &className) const;
     QString locateQmlFile(const NodeMetaInfo &info, const QString &relativePath) const;
     void select(const ModelNode& node);
 

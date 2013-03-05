@@ -60,7 +60,7 @@ PlainTextEditModifier::~PlainTextEditModifier()
 
 void PlainTextEditModifier::save(QIODevice *device)
 {
-    device->write(m_textEdit->toPlainText().toLatin1());
+    device->write(m_textEdit->toPlainText().toUtf8());
 }
 
 void PlainTextEditModifier::replace(int offset, int length, const QString &replacement)

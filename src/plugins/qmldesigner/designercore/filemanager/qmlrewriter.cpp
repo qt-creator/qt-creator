@@ -262,9 +262,9 @@ void QMLRewriter::includeLeadingEmptyLine(int &start) const
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
-UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *members, const QStringList &propertyOrder)
+UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *members, const QmlDesigner::PropertyNameList &propertyOrder)
 {
-    const int objectDefinitionInsertionPoint = propertyOrder.indexOf(QString());
+    const int objectDefinitionInsertionPoint = propertyOrder.indexOf(PropertyName()); // XXX ????
 
     UiObjectMemberList *lastObjectDef = 0;
     UiObjectMemberList *lastNonObjectDef = 0;
@@ -276,13 +276,13 @@ UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *m
         if (cast<UiObjectDefinition*>(member))
             lastObjectDef = iter;
         else if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(member))
-            idx = propertyOrder.indexOf(toString(arrayBinding->qualifiedId));
+            idx = propertyOrder.indexOf(toString(arrayBinding->qualifiedId).toUtf8());
         else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(member))
-            idx = propertyOrder.indexOf(toString(objectBinding->qualifiedId));
+            idx = propertyOrder.indexOf(toString(objectBinding->qualifiedId).toUtf8());
         else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(member))
-            idx = propertyOrder.indexOf(toString(scriptBinding->qualifiedId));
+            idx = propertyOrder.indexOf(toString(scriptBinding->qualifiedId).toUtf8());
         else if (cast<UiPublicMember*>(member))
-            idx = propertyOrder.indexOf(QLatin1String("property"));
+            idx = propertyOrder.indexOf("property");
 
         if (idx < objectDefinitionInsertionPoint)
             lastNonObjectDef = iter;
@@ -295,7 +295,7 @@ UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *m
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
-UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *members, const QString &propertyName, const QStringList &propertyOrder)
+UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *members, const QmlDesigner::PropertyName &propertyName, const QmlDesigner::PropertyNameList &propertyOrder)
 {
     if (!members)
         return 0; // empty members
@@ -319,7 +319,7 @@ UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *m
 
     int idx = propertyOrder.indexOf(propertyName);
     if (idx == -1)
-        idx = propertyOrder.indexOf(QString());
+        idx = propertyOrder.indexOf(PropertyName());
     if (idx == -1)
         idx = propertyOrder.size() - 1;
 

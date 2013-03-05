@@ -42,9 +42,9 @@ ReparentContainer::ReparentContainer()
 
 ReparentContainer::ReparentContainer(qint32 instanceId,
                   qint32 oldParentInstanceId,
-                  const QString &oldParentProperty,
+                  const PropertyName &oldParentProperty,
                   qint32 newParentInstanceId,
-                  const QString &newParentProperty)
+                  const PropertyName &newParentProperty)
     : m_instanceId(instanceId),
     m_oldParentInstanceId(oldParentInstanceId),
     m_oldParentProperty(oldParentProperty),
@@ -63,7 +63,7 @@ qint32 ReparentContainer::oldParentInstanceId() const
     return m_oldParentInstanceId;
 }
 
-QString ReparentContainer::oldParentProperty() const
+PropertyName ReparentContainer::oldParentProperty() const
 {
     return m_oldParentProperty;
 }
@@ -73,7 +73,7 @@ qint32 ReparentContainer::newParentInstanceId() const
     return m_newParentInstanceId;
 }
 
-QString ReparentContainer::newParentProperty() const
+PropertyName ReparentContainer::newParentProperty() const
 {
     return m_newParentProperty;
 }

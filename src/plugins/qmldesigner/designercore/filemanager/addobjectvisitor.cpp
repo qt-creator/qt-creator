@@ -40,7 +40,7 @@ using namespace QmlJS::AST;
 AddObjectVisitor::AddObjectVisitor(QmlDesigner::TextModifier &modifier,
                                    quint32 parentLocation,
                                    const QString &content,
-                                   const QStringList &propertyOrder):
+                                   const PropertyNameList &propertyOrder):
     QMLRewriter(modifier),
     m_parentLocation(parentLocation),
     m_content(content),

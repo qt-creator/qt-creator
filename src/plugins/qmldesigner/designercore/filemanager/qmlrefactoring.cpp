@@ -45,7 +45,7 @@ using namespace QmlJS;
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
 
-QmlRefactoring::QmlRefactoring(const Document::Ptr &doc, TextModifier &modifier, const QStringList &propertyOrder):
+QmlRefactoring::QmlRefactoring(const Document::Ptr &doc, TextModifier &modifier, const PropertyNameList &propertyOrder):
         qmlDocument(doc),
         textModifier(&modifier),
         m_propertyOrder(propertyOrder)
@@ -83,7 +83,7 @@ bool QmlRefactoring::removeImport(const Import &import)
     return visitor.remove(qmlDocument->qmlProgram(), import);
 }
 
-bool QmlRefactoring::addToArrayMemberList(int parentLocation, const QString &propertyName, const QString &content)
+bool QmlRefactoring::addToArrayMemberList(int parentLocation, const PropertyName &propertyName, const QString &content)
 {
     if (parentLocation < 0)
         return false;
@@ -102,7 +102,7 @@ bool QmlRefactoring::addToObjectMemberList(int parentLocation, const QString &co
     return visit(qmlDocument->qmlProgram());
 }
 
-bool QmlRefactoring::addProperty(int parentLocation, const QString &name, const QString &value, PropertyType propertyType)
+bool QmlRefactoring::addProperty(int parentLocation, const PropertyName &name, const QString &value, PropertyType propertyType)
 {
     if (parentLocation < 0)
         return false;
@@ -111,7 +111,7 @@ bool QmlRefactoring::addProperty(int parentLocation, const QString &name, const 
     return visit(qmlDocument->qmlProgram());
 }
 
-bool QmlRefactoring::changeProperty(int parentLocation, const QString &name, const QString &value, PropertyType propertyType)
+bool QmlRefactoring::changeProperty(int parentLocation, const PropertyName &name, const QString &value, PropertyType propertyType)
 {
     if (parentLocation < 0)
         return false;
@@ -129,7 +129,7 @@ bool QmlRefactoring::changeObjectType(int nodeLocation, const QString &newType)
     return visit(qmlDocument->qmlProgram());
 }
 
-bool QmlRefactoring::moveObject(int objectLocation, const QString &targetPropertyName, bool targetIsArrayBinding, int targetParentObjectLocation)
+bool QmlRefactoring::moveObject(int objectLocation, const PropertyName &targetPropertyName, bool targetIsArrayBinding, int targetParentObjectLocation)
 {
     if (objectLocation < 0 || targetParentObjectLocation < 0)
         return false;
@@ -162,7 +162,7 @@ bool QmlRefactoring::removeObject(int nodeLocation)
     return visit(qmlDocument->qmlProgram());
 }
 
-bool QmlRefactoring::removeProperty(int parentLocation, const QString &name)
+bool QmlRefactoring::removeProperty(int parentLocation, const PropertyName &name)
 {
     if (parentLocation < 0 || name.isEmpty())
         return false;

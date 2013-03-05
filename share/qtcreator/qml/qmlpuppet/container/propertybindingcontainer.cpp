@@ -37,7 +37,7 @@ PropertyBindingContainer::PropertyBindingContainer()
 {
 }
 
-PropertyBindingContainer::PropertyBindingContainer(qint32 instanceId, const QString &name, const QString &expression, const QString &dynamicTypeName)
+PropertyBindingContainer::PropertyBindingContainer(qint32 instanceId, const PropertyName &name, const QString &expression, const TypeName &dynamicTypeName)
     : m_instanceId(instanceId),
     m_name(name),
     m_expression(expression),
@@ -50,7 +50,7 @@ qint32 PropertyBindingContainer::instanceId() const
     return m_instanceId;
 }
 
-QString PropertyBindingContainer::name() const
+PropertyName PropertyBindingContainer::name() const
 {
     return m_name;
 }
@@ -65,7 +65,7 @@ bool PropertyBindingContainer::isDynamic() const
     return !m_dynamicTypeName.isEmpty();
 }
 
-QString PropertyBindingContainer::dynamicTypeName() const
+TypeName PropertyBindingContainer::dynamicTypeName() const
 {
     return m_dynamicTypeName;
 }

@@ -69,9 +69,9 @@ class NodeInstanceServer : public NodeInstanceServerInterface
 {
     Q_OBJECT
 public:
-    typedef QPair<QWeakPointer<QObject>, QString>  ObjectPropertyPair;
+    typedef QPair<QWeakPointer<QObject>, PropertyName>  ObjectPropertyPair;
     typedef QPair<qint32, QString>  IdPropertyPair;
-    typedef QPair<ServerNodeInstance, QString>  InstancePropertyPair;
+    typedef QPair<ServerNodeInstance, PropertyName>  InstancePropertyPair;
     typedef QPair<QString, QWeakPointer<QObject> > DummyPair;
 
     explicit NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
@@ -108,8 +108,8 @@ public:
     QFileSystemWatcher *fileSystemWatcher();
     QFileSystemWatcher *dummydataFileSystemWatcher();
     Internal::ChildrenChangeEventFilter *childrenChangeEventFilter() const;
-    void addFilePropertyToFileSystemWatcher(QObject *object, const QString &propertyName, const QString &path);
-    void removeFilePropertyFromFileSystemWatcher(QObject *object, const QString &propertyName, const QString &path);
+    void addFilePropertyToFileSystemWatcher(QObject *object, const PropertyName &propertyName, const QString &path);
+    void removeFilePropertyFromFileSystemWatcher(QObject *object, const PropertyName &propertyName, const QString &path);
 
     QUrl fileUrl() const;
 
@@ -119,7 +119,7 @@ public:
 
     ServerNodeInstance rootNodeInstance() const;
 
-    void notifyPropertyChange(qint32 instanceid, const QString &propertyName);
+    void notifyPropertyChange(qint32 instanceid, const PropertyName &propertyName);
 
     QStringList imports() const;
     QObject *dummyContextObject() const;

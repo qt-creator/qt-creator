@@ -438,9 +438,9 @@ public:
             fileName = (_styleSheetFile.toLocalFile());
         Utils::FileReader reader;
         if (reader.fetch(fileName))
-            q->setStyleSheet(QString::fromLatin1(reader.data()));
+            q->setStyleSheet(QString::fromUtf8(reader.data()));
         else
-            qWarning() << QString::fromLatin1("setStyleSheetFile: %1").arg(reader.errorString());
+            qWarning() << QString::fromUtf8("setStyleSheetFile: %1").arg(reader.errorString());
 
     }
 
@@ -630,7 +630,7 @@ private:
                 qWarning() << "setIconFromFile: failed to load" << path;
             pb->setIcon(pixmap);
         } else {
-            qWarning() << QString::fromLatin1("setIconFromFile: %1: %2").arg(path, file.errorString());
+            qWarning() << QString::fromUtf8("setIconFromFile: %1: %2").arg(path, file.errorString());
         }
 
     }
@@ -694,7 +694,7 @@ private:
                 qWarning() << "setIconFromFile: failed to load" << path;
             lb->setPixmap(pixmap);
         } else {
-            qWarning() << QString::fromLatin1("setIconFromFile: %1: %2").arg(path, file.errorString());
+            qWarning() << QString::fromUtf8("setIconFromFile: %1: %2").arg(path, file.errorString());
         }
 
     }
@@ -765,7 +765,7 @@ private:
                 qWarning() << "setIconFromFile: failed to load" << path;
             pb->setIcon(pixmap);
         } else {
-            qWarning() << QString::fromLatin1("setIconFromFile: %1: %2").arg(path, file.errorString());
+            qWarning() << QString::fromUtf8("setIconFromFile: %1: %2").arg(path, file.errorString());
         }
 
     }
@@ -1008,7 +1008,7 @@ void WidgetLoader::setQmlData(const QString &data)
         m_widget->show();
     } else {
         m_component = new QDeclarativeComponent(qmlEngine(this), this);
-        m_component->setData (m_qmlData.toLatin1(), m_baseUrl);
+        m_component->setData (m_qmlData.toUtf8(), m_baseUrl);
         if (m_component) {
             emit sourceChanged();
             emit widgetChanged();

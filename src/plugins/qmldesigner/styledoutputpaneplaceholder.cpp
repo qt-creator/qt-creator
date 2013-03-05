@@ -41,7 +41,7 @@ StyledOutputpanePlaceHolder::StyledOutputpanePlaceHolder(Core::IMode *mode, QSpl
 {
     QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/outputpane-style.css");
     sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
-    m_customStylesheet = QString::fromLatin1(sheet);
+    m_customStylesheet = QString::fromUtf8(sheet);
 }
 
 void StyledOutputpanePlaceHolder::childEvent(QChildEvent *event)

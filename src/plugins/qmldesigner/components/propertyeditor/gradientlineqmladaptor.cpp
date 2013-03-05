@@ -82,12 +82,12 @@ void GradientLineQmlAdaptor::setupGradient()
     if (!modelNode.isValid())
         return;
 
-    if (modelNode.hasBindingProperty(gradientName()))
+    if (modelNode.hasBindingProperty(gradientName().toUtf8()))
         return;
 
-    if (modelNode.hasProperty(gradientName())) { //gradient exists
+    if (modelNode.hasProperty(gradientName().toUtf8())) { //gradient exists
 
-        ModelNode gradientNode = modelNode.nodeProperty(gradientName()).modelNode();
+        ModelNode gradientNode = modelNode.nodeProperty(gradientName().toUtf8()).modelNode();
         QList<ModelNode> stopList = gradientNode.nodeListProperty("stops").toModelNodeList();
 
         foreach (const ModelNode &stopNode, stopList) {
@@ -115,7 +115,7 @@ void GradientLineQmlAdaptor::writeGradient()
     if (!m_itemNode.isValid())
         return;
 
-    if (!m_itemNode.modelNode().metaInfo().hasProperty(gradientName()))
+    if (!m_itemNode.modelNode().metaInfo().hasProperty(gradientName().toUtf8()))
         return;
     try {
         ModelNode modelNode = m_itemNode.modelNode();
@@ -123,13 +123,13 @@ void GradientLineQmlAdaptor::writeGradient()
         QString oldId;
         QVector<QGradientStop> stops = gradient().stops();
         if (m_itemNode.isInBaseState()) {
-            if (modelNode.hasProperty(gradientName())) {
-                oldId = modelNode.nodeProperty(gradientName()).modelNode().id();
-                modelNode.removeProperty(gradientName());
+            if (modelNode.hasProperty(gradientName().toUtf8())) {
+                oldId = modelNode.nodeProperty(gradientName().toUtf8()).modelNode().id();
+                modelNode.removeProperty(gradientName().toUtf8());
             }
 
             ModelNode gradientNode= modelNode.view()->createModelNode("QtQuick.Gradient", modelNode.majorQtQuickVersion(), 0);
-            modelNode.nodeProperty(gradientName()).reparentHere(gradientNode);
+            modelNode.nodeProperty(gradientName().toUtf8()).reparentHere(gradientNode);
 
             RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction();
 
@@ -143,11 +143,11 @@ void GradientLineQmlAdaptor::writeGradient()
                 gradientNode.nodeListProperty("stops").reparentHere(gradientStopNode);
             }
         } else { //state
-            if  (!modelNode.hasProperty(gradientName())) {
+            if (!modelNode.hasProperty(gradientName().toUtf8())) {
                 qWarning(" GradientLine::updateGradient: no gradient in state");
                 return;
             }
-            ModelNode gradientNode = modelNode.nodeProperty(gradientName()).modelNode();
+            ModelNode gradientNode = modelNode.nodeProperty(gradientName().toUtf8()).modelNode();
             QList<ModelNode> stopList = gradientNode.nodeListProperty("stops").toModelNodeList();
             for (int i = 0;i < stops.size(); i++) {
                 QmlObjectNode stopObjectNode = stopList.at(i);
@@ -166,15 +166,15 @@ void GradientLineQmlAdaptor::deleteGradient()
     if (!m_itemNode.isValid())
         return;
 
-    if (!m_itemNode.modelNode().metaInfo().hasProperty(gradientName()))
+    if (!m_itemNode.modelNode().metaInfo().hasProperty(gradientName().toUtf8()))
         return;
 
     ModelNode modelNode = m_itemNode.modelNode();
 
     if (m_itemNode.isInBaseState()) {
-        if (modelNode.hasProperty(gradientName())) {
+        if (modelNode.hasProperty(gradientName().toUtf8())) {
             RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction();
-            ModelNode gradientNode = modelNode.nodeProperty(gradientName()).modelNode();
+            ModelNode gradientNode = modelNode.nodeProperty(gradientName().toUtf8()).modelNode();
             if (QmlObjectNode(gradientNode).isValid())
                 QmlObjectNode(gradientNode).destroy();
         }

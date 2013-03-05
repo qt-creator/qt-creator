@@ -191,7 +191,7 @@ QVariant read(const QString &typeStr, const QString &str, const MetaInfo &)
 
 QVariant read(const QString &typeStr, const QString &str)
 {
-    int type = QMetaType::type(typeStr.toLatin1().constData());
+    int type = QMetaType::type(typeStr.toUtf8().constData());
     if (type == 0) {
         qWarning() << "Type " << typeStr
                 << " is unknown to QMetaType system. Cannot create properly typed QVariant for value "

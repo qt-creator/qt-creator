@@ -58,7 +58,7 @@ public:
 
     QStringList errors();
 
-    void setQualifcation(const QString &qualification);
+    void setQualifcation(const TypeName &qualification);
 
 protected:
     virtual void elementStart(const QString &name);
@@ -106,18 +106,18 @@ private:
     ParserSate m_parserState;
     MetaInfo m_metaInfo;
 
-    QString m_currentClassName;
+    TypeName m_currentClassName;
     QString m_currentIcon;
     QString m_currentSource;
     ItemLibraryEntry m_currentEntry;
 
-    QString m_currentPropertyName;
+    PropertyName m_currentPropertyName;
     QString m_currentPropertyType;
     QVariant m_currentPropertyValue;
 
     bool m_overwriteDuplicates;
 
-    QString m_qualication;
+    TypeName m_qualication;
 };
 
 }

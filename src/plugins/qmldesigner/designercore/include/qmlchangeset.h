@@ -53,7 +53,7 @@ public:
     QmlPropertyChanges() : QmlModelStateOperation() {}
     QmlPropertyChanges(const ModelNode &modelNode) : QmlModelStateOperation(modelNode) {}
     bool isValid() const;
-    void removeProperty(const QString &name);
+    void removeProperty(const PropertyName &name);
 };
 
 } //QmlDesigner

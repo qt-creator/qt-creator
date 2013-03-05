@@ -40,7 +40,7 @@ namespace Internal {
 class RewriteActionCompressor
 {
 public:
-    RewriteActionCompressor(const QStringList &propertyOrder): m_propertyOrder(propertyOrder) {}
+    RewriteActionCompressor(const PropertyNameList &propertyOrder): m_propertyOrder(propertyOrder) {}
 
     void operator()(QList<RewriteAction *> &actions) const;
 
@@ -55,7 +55,7 @@ private:
     void compressAddReparentActions(QList<RewriteAction *> &actions) const;
 
 private:
-    QStringList m_propertyOrder;
+    PropertyNameList m_propertyOrder;
 };
 
 } // namespace Internal

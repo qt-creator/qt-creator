@@ -56,7 +56,7 @@ AbstractProperty::AbstractProperty():
 {
 }
 
-AbstractProperty::AbstractProperty(const QString &propertyName, const Internal::InternalNodePointer  &internalNode, Model* model,  AbstractView *view)
+AbstractProperty::AbstractProperty(const PropertyName &propertyName, const Internal::InternalNodePointer  &internalNode, Model* model,  AbstractView *view)
     : m_propertyName(propertyName),
     m_internalNode(internalNode),
     m_model(model),
@@ -126,7 +126,7 @@ AbstractView *AbstractProperty::view() const
 
  The QVariant is null if the property doesn't exists.
 */
-QString AbstractProperty::name() const
+PropertyName AbstractProperty::name() const
 {
     if (m_propertyName == "id") { // the ID for a node is independent of the state, so it has to be set with ModelNode::setId
         Q_ASSERT_X(0, Q_FUNC_INFO, "id is not a property in the model");
@@ -367,7 +367,7 @@ bool AbstractProperty::isDynamic() const
     return !dynamicTypeName().isEmpty();
 }
 
-QString AbstractProperty::dynamicTypeName() const
+TypeName AbstractProperty::dynamicTypeName() const
 {
     if (!isValid())
         throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, m_propertyName);
@@ -375,7 +375,7 @@ QString AbstractProperty::dynamicTypeName() const
     if (internalNode()->hasProperty(name()))
         return internalNode()->property(name())->dynamicTypeName();
 
-    return QString();
+    return TypeName();
 }
 
 /*!
@@ -405,7 +405,7 @@ uint qHash(const AbstractProperty &property)
 
 QDebug operator<<(QDebug debug, const AbstractProperty &property)
 {
-    return debug.nospace() << "AbstractProperty(" << (property.isValid() ? property.name() : QLatin1String("invalid")) << ')';
+    return debug.nospace() << "AbstractProperty(" << (property.isValid() ? property.name() : PropertyName("invalid")) << ')';
 }
 
 QTextStream& operator<<(QTextStream &stream, const AbstractProperty &property)

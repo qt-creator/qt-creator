@@ -40,20 +40,20 @@ class InternalBindingProperty : public InternalProperty
 public:
     typedef QSharedPointer<InternalBindingProperty> Pointer;
 
-    static Pointer create(const QString &name, const InternalNodePointer &propertyOwner);
+    static Pointer create(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
     bool isValid() const;
 
     QString expression() const;
     void setExpression(const QString &expression);
 
-    void setDynamicExpression(const QString &type, const QString &expression);
+    void setDynamicExpression(const TypeName &type, const QString &expression);
 
 
     bool isBindingProperty() const;
 
 protected:
-    InternalBindingProperty(const QString &name, const InternalNodePointer &propertyOwner);
+    InternalBindingProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
 private:
     QString m_expression;

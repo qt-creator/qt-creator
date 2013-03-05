@@ -58,21 +58,21 @@ public:
     QString validId();
 
     QmlModelState currentState() const;
-    void setVariantProperty(const QString &name, const QVariant &value);
-    void setBindingProperty(const QString &name, const QString &expression);
-    NodeAbstractProperty nodeAbstractProperty(const QString &name) const;
-    NodeProperty nodeProperty(const QString &name) const;
-    NodeListProperty nodeListProperty(const QString &name) const;
+    void setVariantProperty(const PropertyName &name, const QVariant &value);
+    void setBindingProperty(const PropertyName &name, const QString &expression);
+    NodeAbstractProperty nodeAbstractProperty(const PropertyName &name) const;
+    NodeProperty nodeProperty(const PropertyName &name) const;
+    NodeListProperty nodeListProperty(const PropertyName &name) const;
 
-    QVariant instanceValue(const QString &name) const;
-    QString instanceType(const QString &name) const;
+    QVariant instanceValue(const PropertyName &name) const;
+    TypeName instanceType(const PropertyName &name) const;
 
-    bool hasProperty(const QString &name) const;
-    bool hasBindingProperty(const QString &name) const;
-    bool instanceHasBinding(const QString &name) const;
-    bool propertyAffectedByCurrentState(const QString &name) const;
-    QVariant modelValue(const QString &name) const;
-    QString expression(const QString &name) const;
+    bool hasProperty(const PropertyName &name) const;
+    bool hasBindingProperty(const PropertyName &name) const;
+    bool instanceHasBinding(const PropertyName &name) const;
+    bool propertyAffectedByCurrentState(const PropertyName &name) const;
+    QVariant modelValue(const PropertyName &name) const;
+    QString expression(const PropertyName &name) const;
     bool isInBaseState() const;
     QmlPropertyChanges propertyChangeForCurrentState() const;
 
@@ -85,7 +85,7 @@ public:
     QList<QmlModelState> allAffectingStates() const;
     QList<QmlModelStateOperation> allAffectingStatesOperations() const;
 
-    void removeVariantProperty(const QString &name);
+    void removeVariantProperty(const PropertyName &name);
 
     void setParent(QmlObjectNode newParent);
 
@@ -94,9 +94,9 @@ public:
     bool isAncestorOf(const QmlObjectNode &objectNode) const;
 
     bool hasDefaultProperty() const;
-    QString defaultProperty() const;
+    PropertyName defaultProperty() const;
 
-    static  QVariant instanceValue(const ModelNode &modelNode, const QString &name);
+    static  QVariant instanceValue(const ModelNode &modelNode, const PropertyName &name);
 
 protected:
     NodeInstance nodeInstance() const;

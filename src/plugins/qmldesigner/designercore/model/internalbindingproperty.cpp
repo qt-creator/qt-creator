@@ -32,13 +32,13 @@
 namespace QmlDesigner {
 namespace Internal {
 
-InternalBindingProperty::InternalBindingProperty(const QString &name, const InternalNodePointer &propertyOwner)
+InternalBindingProperty::InternalBindingProperty(const PropertyName &name, const InternalNodePointer &propertyOwner)
     : InternalProperty(name, propertyOwner)
 {
 }
 
 
-InternalBindingProperty::Pointer InternalBindingProperty::create(const QString &name, const InternalNodePointer &propertyOwner)
+InternalBindingProperty::Pointer InternalBindingProperty::create(const PropertyName &name, const InternalNodePointer &propertyOwner)
 {
     InternalBindingProperty *newPointer(new InternalBindingProperty(name, propertyOwner));
     InternalBindingProperty::Pointer smartPointer(newPointer);
@@ -67,7 +67,7 @@ bool InternalBindingProperty::isBindingProperty() const
     return true;
 }
 
-void InternalBindingProperty::setDynamicExpression(const QString &type, const QString &expression)
+void InternalBindingProperty::setDynamicExpression(const TypeName &type, const QString &expression)
 {
     setExpression(expression);
     setDynamicTypeName(type);

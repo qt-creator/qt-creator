@@ -49,7 +49,7 @@ NodeAbstractProperty::NodeAbstractProperty(const NodeAbstractProperty &property,
 {
 }
 
-NodeAbstractProperty::NodeAbstractProperty(const QString &propertyName, const Internal::InternalNodePointer &internalNode, Model *model, AbstractView *view)
+NodeAbstractProperty::NodeAbstractProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model *model, AbstractView *view)
     : AbstractProperty(propertyName, internalNode, model, view)
 {
 }
@@ -161,7 +161,7 @@ uint qHash(const NodeAbstractProperty &property)
 
 QDebug operator<<(QDebug debug, const NodeAbstractProperty &property)
 {
-    return debug.nospace() << "NodeAbstractProperty(" << (property.isValid() ? property.name() : QLatin1String("invalid")) << ')';
+    return debug.nospace() << "NodeAbstractProperty(" << (property.isValid() ? property.name() : PropertyName("invalid")) << ')';
 }
 
 QTextStream& operator<<(QTextStream &stream, const NodeAbstractProperty &property)

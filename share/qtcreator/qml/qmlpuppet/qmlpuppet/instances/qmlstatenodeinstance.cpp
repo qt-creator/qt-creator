@@ -99,7 +99,7 @@ bool QmlStateNodeInstance::isStateActive() const
     return stateObject() && stateGroup() && stateGroup()->state() == property("name");
 }
 
-void QmlStateNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
+void QmlStateNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
     bool hasParent = parent();
     bool isStateOfTheRootModelNode = parentInstance() && parentInstance()->isRootNodeInstance();
@@ -109,7 +109,7 @@ void QmlStateNodeInstance::setPropertyVariant(const QString &name, const QVarian
     ObjectNodeInstance::setPropertyVariant(name, value);
 }
 
-void QmlStateNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
+void QmlStateNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
     bool hasParent = parent();
     bool isStateOfTheRootModelNode = parentInstance() && parentInstance()->isRootNodeInstance();
@@ -119,19 +119,19 @@ void QmlStateNodeInstance::setPropertyBinding(const QString &name, const QString
     ObjectNodeInstance::setPropertyBinding(name, expression);
 }
 
-bool QmlStateNodeInstance::updateStateVariant(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QVariant &value)
+bool QmlStateNodeInstance::updateStateVariant(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QVariant &value)
 {
-    return stateObject()->changeValueInRevertList(target->object(), propertyName.toLatin1(), value);
+    return stateObject()->changeValueInRevertList(target->object(), propertyName, value);
 }
 
-bool QmlStateNodeInstance::updateStateBinding(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QString &expression)
+bool QmlStateNodeInstance::updateStateBinding(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QString &expression)
 {
-    return stateObject()->changeValueInRevertList(target->object(), propertyName.toLatin1(), expression);
+    return stateObject()->changeValueInRevertList(target->object(), propertyName, expression);
 }
 
-bool QmlStateNodeInstance::resetStateProperty(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QVariant & /* resetValue */)
+bool QmlStateNodeInstance::resetStateProperty(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QVariant & /* resetValue */)
 {
-    return stateObject()->removeEntryFromRevertList(target->object(), propertyName.toLatin1());
+    return stateObject()->removeEntryFromRevertList(target->object(), propertyName);
 }
 
 } // namespace Internal

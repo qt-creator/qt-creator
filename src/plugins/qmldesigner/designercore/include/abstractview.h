@@ -81,7 +81,7 @@ public:
 
     RewriterTransaction beginRewriterTransaction();
 
-    ModelNode createModelNode(const QString &typeString,
+    ModelNode createModelNode(const TypeName &typeName,
                          int majorVersion,
                          int minorVersion,
                          const PropertyListType &propertyList = PropertyListType(),
@@ -111,7 +111,7 @@ public:
     void emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList);
     void emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 
-    void emitInstancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
+    void emitInstancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList);
     void emitInstancesCompleted(const QVector<ModelNode> &nodeList);
     void emitInstanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash);
     void emitInstancesRenderImageChanged(const QVector<ModelNode> &nodeList);
@@ -138,7 +138,7 @@ public:
     virtual void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) = 0;
     virtual void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) = 0;
 
-    virtual void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList) = 0;
+    virtual void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList) = 0;
     virtual void instancesCompleted(const QVector<ModelNode> &completedNodeList) = 0;
     virtual void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash) = 0;
     virtual void instancesRenderImageChanged(const QVector<ModelNode> &nodeList) = 0;
@@ -170,7 +170,7 @@ public:
 
     QmlModelView *toQmlModelView();
 
-    void changeRootNodeType(const QString &type, int majorVersion, int minorVersion);
+    void changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion);
 
     NodeInstanceView *nodeInstanceView() const;
     RewriterView *rewriterView() const;

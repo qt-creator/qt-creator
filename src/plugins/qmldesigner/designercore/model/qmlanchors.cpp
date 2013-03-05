@@ -39,21 +39,19 @@
 namespace QmlDesigner {
 
 
-static QString lineTypeToString(AnchorLine::Type lineType)
+static PropertyName lineTypeToString(AnchorLine::Type lineType)
 {
-    QString typeString;
-
     switch (lineType) {
-        case AnchorLine::Left:             return QLatin1String("left");
-        case AnchorLine::Top:              return QLatin1String("top");
-        case AnchorLine::Right:            return QLatin1String("right");
-        case AnchorLine::Bottom:           return QLatin1String("bottom");
-        case AnchorLine::HorizontalCenter: return QLatin1String("horizontalCenter");
-        case AnchorLine::VerticalCenter:   return QLatin1String("verticalCenter");
-        case AnchorLine::Baseline:         return QLatin1String("baseline");
-        case AnchorLine::Fill:             return QLatin1String("fill");
-        case AnchorLine::Center:           return QLatin1String("centerIn");
-        default:                           return QString();
+        case AnchorLine::Left:             return PropertyName("left");
+        case AnchorLine::Top:              return PropertyName("top");
+        case AnchorLine::Right:            return PropertyName("right");
+        case AnchorLine::Bottom:           return PropertyName("bottom");
+        case AnchorLine::HorizontalCenter: return PropertyName("horizontalCenter");
+        case AnchorLine::VerticalCenter:   return PropertyName("verticalCenter");
+        case AnchorLine::Baseline:         return PropertyName("baseline");
+        case AnchorLine::Fill:             return PropertyName("fill");
+        case AnchorLine::Center:           return PropertyName("centerIn");
+        default:                           return PropertyName();
     }
 }
 
@@ -91,27 +89,27 @@ static AnchorLine::Type propertyNameToLineType(const QString & string)
     return AnchorLine::Invalid;
 }
 
-static QString marginPropertyName(AnchorLine::Type lineType)
+static PropertyName marginPropertyName(AnchorLine::Type lineType)
 {
     switch (lineType) {
-        case AnchorLine::Left:             return QLatin1String("anchors.leftMargin");
-        case AnchorLine::Top:              return QLatin1String("anchors.topMargin");
-        case AnchorLine::Right:            return QLatin1String("anchors.rightMargin");
-        case AnchorLine::Bottom:           return QLatin1String("anchors.bottomMargin");
-        case AnchorLine::HorizontalCenter: return QLatin1String("anchors.horizontalCenterOffset");
-        case AnchorLine::VerticalCenter:   return QLatin1String("anchors.verticalCenterOffset");
-        default:                           return QString();
+        case AnchorLine::Left:             return PropertyName("anchors.leftMargin");
+        case AnchorLine::Top:              return PropertyName("anchors.topMargin");
+        case AnchorLine::Right:            return PropertyName("anchors.rightMargin");
+        case AnchorLine::Bottom:           return PropertyName("anchors.bottomMargin");
+        case AnchorLine::HorizontalCenter: return PropertyName("anchors.horizontalCenterOffset");
+        case AnchorLine::VerticalCenter:   return PropertyName("anchors.verticalCenterOffset");
+        default:                           return PropertyName();
     }
 }
 
-static QString anchorPropertyName(AnchorLine::Type lineType)
+static PropertyName anchorPropertyName(AnchorLine::Type lineType)
 {
-    const QString typeString = lineTypeToString(lineType);
+    const PropertyName typeString = lineTypeToString(lineType);
 
     if (typeString.isEmpty())
-        return QString();
+        return PropertyName();
     else
-        return QString("anchors.%1").arg(typeString);
+        return PropertyName("anchors.") + typeString;
 }
 
 
@@ -186,7 +184,7 @@ void QmlAnchors::setAnchor(AnchorLine::Type sourceAnchorLine,
             removeAnchor(sourceAnchorLine);
         }
 
-        const QString propertyName = anchorPropertyName(sourceAnchorLine);
+        const PropertyName propertyName = anchorPropertyName(sourceAnchorLine);
         QString targetExpression = targetQmlItemNode.modelNode().validId();
         if (targetQmlItemNode.modelNode() == qmlItemNode().modelNode().parentProperty().parentModelNode())
             targetExpression = "parent";
@@ -204,10 +202,10 @@ bool detectHorizontalCycle(const ModelNode &node, QList<ModelNode> knownNodeList
 
     knownNodeList.append(node);
 
-    static QStringList validAnchorLines(QStringList() << "right" << "left" << "horizontalCenter");
-    static QStringList anchorNames(QStringList() << "anchors.right" << "anchors.left" << "anchors.horizontalCenter");
+    static PropertyNameList validAnchorLines(PropertyNameList() << "right" << "left" << "horizontalCenter");
+    static PropertyNameList anchorNames(PropertyNameList() << "anchors.right" << "anchors.left" << "anchors.horizontalCenter");
 
-    foreach (const QString &anchorName, anchorNames) {
+    foreach (const PropertyName &anchorName, anchorNames) {
         if (node.hasBindingProperty(anchorName)) {
             AbstractProperty targetProperty = node.bindingProperty(anchorName).resolveToProperty();
             if (targetProperty.isValid()) {
@@ -221,8 +219,8 @@ bool detectHorizontalCycle(const ModelNode &node, QList<ModelNode> knownNodeList
 
     }
 
-    static QStringList anchorShortcutNames(QStringList() << "anchors.fill" << "anchors.centerIn");
-    foreach (const QString &anchorName, anchorShortcutNames) {
+    static PropertyNameList anchorShortcutNames(PropertyNameList() << "anchors.fill" << "anchors.centerIn");
+    foreach (const PropertyName &anchorName, anchorShortcutNames) {
         if (node.hasBindingProperty(anchorName)) {
             ModelNode targetNode = node.bindingProperty(anchorName).resolveToModelNode();
 
@@ -244,10 +242,10 @@ bool detectVerticalCycle(const ModelNode &node, QList<ModelNode> knownNodeList)
 
     knownNodeList.append(node);
 
-    static QStringList validAnchorLines(QStringList() << "top" << "bottom" << "verticalCenter" << "baseline");
-    static QStringList anchorNames(QStringList() << "anchors.top" << "anchors.bottom" << "anchors.verticalCenter" << "anchors.baseline");
+    static PropertyNameList validAnchorLines(PropertyNameList() << "top" << "bottom" << "verticalCenter" << "baseline");
+    static PropertyNameList anchorNames(PropertyNameList() << "anchors.top" << "anchors.bottom" << "anchors.verticalCenter" << "anchors.baseline");
 
-    foreach (const QString &anchorName, anchorNames) {
+    foreach (const PropertyName &anchorName, anchorNames) {
         if (node.hasBindingProperty(anchorName)) {
             AbstractProperty targetProperty = node.bindingProperty(anchorName).resolveToProperty();
             if (targetProperty.isValid()) {
@@ -261,8 +259,8 @@ bool detectVerticalCycle(const ModelNode &node, QList<ModelNode> knownNodeList)
 
     }
 
-    static QStringList anchorShortcutNames(QStringList() << "anchors.fill" << "anchors.centerIn");
-    foreach (const QString &anchorName, anchorShortcutNames) {
+    static PropertyNameList anchorShortcutNames(PropertyNameList() << "anchors.fill" << "anchors.centerIn");
+    foreach (const PropertyName &anchorName, anchorShortcutNames) {
         if (node.hasBindingProperty(anchorName)) {
             ModelNode targetNode = node.bindingProperty(anchorName).resolveToModelNode();
 
@@ -309,7 +307,7 @@ AnchorLine::Type QmlAnchors::possibleAnchorLines(AnchorLine::Type sourceAnchorLi
 
 AnchorLine QmlAnchors::instanceAnchor(AnchorLine::Type sourceAnchorLine) const
 {
-    QPair<QString, qint32> targetAnchorLinePair;
+    QPair<PropertyName, qint32> targetAnchorLinePair;
     if (qmlItemNode().nodeInstance().hasAnchor("anchors.fill") && (sourceAnchorLine & AnchorLine::Fill)) {
         targetAnchorLinePair = qmlItemNode().nodeInstance().anchor("anchors.fill");
         targetAnchorLinePair.first = lineTypeToString(sourceAnchorLine); // TODO: looks wrong
@@ -335,7 +333,7 @@ void QmlAnchors::removeAnchor(AnchorLine::Type sourceAnchorLine)
 {
    RewriterTransaction transaction = qmlItemNode().qmlModelView()->beginRewriterTransaction();
     if (qmlItemNode().isInBaseState()) {
-        const QString propertyName = anchorPropertyName(sourceAnchorLine);
+        const PropertyName propertyName = anchorPropertyName(sourceAnchorLine);
         if (qmlItemNode().nodeInstance().hasAnchor("anchors.fill") && (sourceAnchorLine & AnchorLine::Fill)) {
             qmlItemNode().modelNode().removeProperty("anchors.fill");
             qmlItemNode().modelNode().bindingProperty("anchors.top").setExpression("parent.top");
@@ -378,7 +376,7 @@ void QmlAnchors::removeAnchors()
 
 bool QmlAnchors::instanceHasAnchor(AnchorLine::Type sourceAnchorLine) const
 {
-    const QString propertyName = anchorPropertyName(sourceAnchorLine);
+    const PropertyName propertyName = anchorPropertyName(sourceAnchorLine);
 
     if (sourceAnchorLine & AnchorLine::Fill)
         return qmlItemNode().nodeInstance().hasAnchor(propertyName) || qmlItemNode().nodeInstance().hasAnchor("anchors.fill");
@@ -403,7 +401,7 @@ bool QmlAnchors::instanceHasAnchors() const
 
 void QmlAnchors::setMargin(AnchorLine::Type sourceAnchorLineType, double margin) const
 {
-    QString propertyName = marginPropertyName(sourceAnchorLineType);
+    PropertyName propertyName = marginPropertyName(sourceAnchorLineType);
     qmlItemNode().setVariantProperty(propertyName, qRound(margin));
 }
 
@@ -420,7 +418,7 @@ double QmlAnchors::instanceMargin(AnchorLine::Type sourceAnchorLineType) const
 void QmlAnchors::removeMargin(AnchorLine::Type sourceAnchorLineType)
 {
     if (qmlItemNode().isInBaseState()) {
-        QString propertyName = marginPropertyName(sourceAnchorLineType);
+        PropertyName propertyName = marginPropertyName(sourceAnchorLineType);
         qmlItemNode().modelNode().removeProperty(propertyName);
     }
 }

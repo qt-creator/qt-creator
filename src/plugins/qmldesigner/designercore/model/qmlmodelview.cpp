@@ -83,7 +83,7 @@ QmlModelStateGroup QmlModelView::rootStateGroup() const
     return QmlModelStateGroup(rootModelNode());
 }
 
-QmlObjectNode QmlModelView::createQmlObjectNode(const QString &typeString,
+QmlObjectNode QmlModelView::createQmlObjectNode(const TypeName &typeString,
                      int majorVersion,
                      int minorVersion,
                      const PropertyListType &propertyList)
@@ -91,7 +91,7 @@ QmlObjectNode QmlModelView::createQmlObjectNode(const QString &typeString,
     return QmlObjectNode(createModelNode(typeString, majorVersion, minorVersion, propertyList));
 }
 
-QmlItemNode QmlModelView::createQmlItemNode(const QString &typeString,
+QmlItemNode QmlModelView::createQmlItemNode(const TypeName &typeString,
                                 int majorVersion,
                                 int minorVersion,
                                 const PropertyListType &propertyList)
@@ -127,9 +127,9 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
         if (!model()->imports().contains(newImport))
             model()->changeImports(QList<Import>() << newImport, QList<Import>());
 
-        QList<QPair<QString, QVariant> > propertyPairList;
-        propertyPairList.append(qMakePair(QString("x"), QVariant( round(position.x(), 4))));
-        propertyPairList.append(qMakePair(QString("y"), QVariant( round(position.y(), 4))));
+        QList<QPair<PropertyName, QVariant> > propertyPairList;
+        propertyPairList.append(qMakePair(PropertyName("x"), QVariant( round(position.x(), 4))));
+        propertyPairList.append(qMakePair(PropertyName("y"), QVariant( round(position.y(), 4))));
 
         QString relativeImageName = imageName;
 
@@ -139,7 +139,7 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
             relativeImageName = fileDir.relativeFilePath(imageName);
         }
 
-        propertyPairList.append(qMakePair(QString("source"), QVariant(relativeImageName)));
+        propertyPairList.append(qMakePair(PropertyName("source"), QVariant(relativeImageName)));
         newNode = createQmlItemNode("QtQuick.Image", -1, -1, propertyPairList);
         parentNode.nodeAbstractProperty("data").reparentHere(newNode);
 
@@ -213,9 +213,9 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
             }
         }
 
-        QList<QPair<QString, QVariant> > propertyPairList;
-        propertyPairList.append(qMakePair(QString("x"), QVariant(round(position.x(), 4))));
-        propertyPairList.append(qMakePair(QString("y"), QVariant(round(position.y(), 4))));
+        QList<QPair<PropertyName, QVariant> > propertyPairList;
+        propertyPairList.append(qMakePair(PropertyName("x"), QVariant(round(position.x(), 4))));
+        propertyPairList.append(qMakePair(PropertyName("y"), QVariant(round(position.y(), 4))));
 
         if (itemLibraryEntry.qml().isEmpty()) {
             foreach (const PropertyContainer &property, itemLibraryEntry.properties())
@@ -387,13 +387,7 @@ void QmlModelView::rootNodeTypeChanged(const QString &/*type*/, int, int /*minor
 void QmlModelView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/) {}
 void QmlModelView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/, const QList<ModelNode> &/*lastSelectedNodeList*/) {}
 
-void QmlModelView::instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList)
-{
-    typedef QPair<ModelNode, QString> ModelNodePropertyPair;
-    foreach (const ModelNodePropertyPair &propertyPair, propertyList) {
-        nodeInstancePropertyChanged(propertyPair.first, propertyPair.second);
-    }
-}
+
 void QmlModelView::instancesCompleted(const QVector<ModelNode> &/*completedNodeList*/)
 {
 }
@@ -448,30 +442,7 @@ void QmlModelView::actualStateChanged(const ModelNode & /*node*/)
 
 }
 
-void QmlModelView::nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName)
-{
-    QmlObjectNode qmlObjectNode(node);
-
-    if (!qmlObjectNode.isValid())
-        return;
-
-    if (isTransformProperty(propertyName))
-        transformChanged(qmlObjectNode, propertyName);
-    else if (propertyName == "parent")
-        parentChanged(qmlObjectNode);
-    else
-        otherPropertyChanged(qmlObjectNode, propertyName);
-}
-
-void QmlModelView::transformChanged(const QmlObjectNode &/*qmlObjectNode*/, const QString &/*propertyName*/)
-{
-}
-
-void QmlModelView::parentChanged(const QmlObjectNode &/*qmlObjectNode*/)
-{
-}
-
-void QmlModelView::otherPropertyChanged(const QmlObjectNode &/*qmlObjectNode*/, const QString &/*propertyName*/)
+void QmlModelView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > & /*propertyList*/)
 {
 }
 

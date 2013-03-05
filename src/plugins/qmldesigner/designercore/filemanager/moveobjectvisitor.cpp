@@ -45,10 +45,10 @@ class Inserter: public QMLRewriter
 public:
     Inserter(QmlDesigner::TextModifier &modifier,
              quint32 targetParentObjectLocation,
-             const QString &targetPropertyName,
+             const QmlDesigner::PropertyName &targetPropertyName,
              bool targetIsArrayBinding,
              TextModifier::MoveInfo moveInfo,
-             const QStringList &propertyOrder):
+             const PropertyNameList &propertyOrder):
         QMLRewriter(modifier),
         targetParentObjectLocation(targetParentObjectLocation),
         targetPropertyName(targetPropertyName),
@@ -151,18 +151,18 @@ private:
 
 private:
     quint32 targetParentObjectLocation;
-    QString targetPropertyName;
+    QmlDesigner::PropertyName targetPropertyName;
     bool targetIsArrayBinding;
     TextModifier::MoveInfo moveInfo;
-    QStringList propertyOrder;
+    PropertyNameList propertyOrder;
 };
 
 MoveObjectVisitor::MoveObjectVisitor(QmlDesigner::TextModifier &modifier,
                                      quint32 objectLocation,
-                                     const QString &targetPropertyName,
+                                     const QmlDesigner::PropertyName &targetPropertyName,
                                      bool targetIsArrayBinding,
                                      quint32 targetParentObjectLocation,
-                                     const QStringList &propertyOrder):
+                                     const PropertyNameList &propertyOrder):
     QMLRewriter(modifier),
     objectLocation(objectLocation),
     targetPropertyName(targetPropertyName),

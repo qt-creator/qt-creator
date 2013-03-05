@@ -40,10 +40,10 @@ class MoveObjectVisitor: public QMLRewriter
 public:
     MoveObjectVisitor(QmlDesigner::TextModifier &modifier,
                       quint32 objectLocation,
-                      const QString &targetPropertyName,
+                      const QmlDesigner::PropertyName &targetPropertyName,
                       bool targetIsArrayBinding,
                       quint32 targetParentObjectLocation,
-                      const QStringList &propertyOrder);
+                      const PropertyNameList &propertyOrder);
 
     bool operator ()(QmlJS::AST::UiProgram *ast);
 
@@ -58,10 +58,10 @@ private:
 private:
     QList<QmlJS::AST::Node *> parents;
     quint32 objectLocation;
-    QString targetPropertyName;
+    PropertyName targetPropertyName;
     bool targetIsArrayBinding;
     quint32 targetParentObjectLocation;
-    QStringList propertyOrder;
+    PropertyNameList propertyOrder;
 
     QmlJS::AST::UiProgram *program;
 };

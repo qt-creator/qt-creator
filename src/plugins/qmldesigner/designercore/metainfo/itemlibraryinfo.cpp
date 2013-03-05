@@ -42,7 +42,7 @@ public:
     ItemLibraryEntryData() : majorVersion(-1), minorVersion(-1)
     { }
     QString name;
-    QString typeName;
+    TypeName typeName;
     QString category;
     int majorVersion;
     int minorVersion;
@@ -113,7 +113,7 @@ QString ItemLibraryEntry::name() const
     return m_data->name;
 }
 
-QString ItemLibraryEntry::typeName() const
+TypeName ItemLibraryEntry::typeName() const
 {
     return m_data->typeName;
 }
@@ -168,7 +168,7 @@ void ItemLibraryEntry::setName(const QString &name)
      m_data->name = name;
 }
 
-void ItemLibraryEntry::setType(const QString &typeName, int majorVersion, int minorVersion)
+void ItemLibraryEntry::setType(const TypeName &typeName, int majorVersion, int minorVersion)
 {
     m_data->typeName = typeName;
     m_data->majorVersion = majorVersion;
@@ -195,7 +195,7 @@ void ItemLibraryEntry::setForceImport(bool b)
     m_data->forceImport = b;
 }
 
-void ItemLibraryEntry::addProperty(QString &name, QString &type, QVariant &value)
+void ItemLibraryEntry::addProperty(PropertyName &name, QString &type, QVariant &value)
 {
     Property property;
     property.set(name, type, value);

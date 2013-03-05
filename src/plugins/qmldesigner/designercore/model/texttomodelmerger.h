@@ -79,7 +79,7 @@ public:
                   QmlJS::AST::UiObjectMember *astNode,
                   ReadingContext *context,
                   DifferenceHandler &differenceHandler);
-    QString syncScriptBinding(ModelNode &modelNode,
+    QmlDesigner::PropertyName syncScriptBinding(ModelNode &modelNode,
                               const QString &prefix,
                               QmlJS::AST::UiScriptBinding *script,
                               ReadingContext *context,
@@ -92,7 +92,7 @@ public:
                           DifferenceHandler &differenceHandler);
     void syncExpressionProperty(AbstractProperty &modelProperty,
                                 const QString &javascript,
-                                const QString &astType,
+                                const TypeName &astType,
                                 DifferenceHandler &differenceHandler);
     void syncArrayProperty(AbstractProperty &modelProperty,
                            const QList<QmlJS::AST::UiObjectMember *> &arrayMembers,
@@ -100,13 +100,13 @@ public:
                            DifferenceHandler &differenceHandler);
     void syncVariantProperty(AbstractProperty &modelProperty,
                              const QVariant &astValue,
-                             const QString &astType,
+                             const TypeName &astType,
                              DifferenceHandler &differenceHandler);
     void syncNodeListProperty(NodeListProperty &modelListProperty,
                               const QList<QmlJS::AST::UiObjectMember *> arrayMembers,
                               ReadingContext *context,
                               DifferenceHandler &differenceHandler);
-    ModelNode createModelNode(const QString &typeName,
+    ModelNode createModelNode(const TypeName &typeName,
                               int majorVersion,
                               int minorVersion,
                               bool isImplicitComponent,
@@ -157,17 +157,17 @@ public:
     virtual void importAbsentInQMl(const QmlDesigner::Import &import) = 0;
     virtual void bindingExpressionsDiffer(BindingProperty &modelProperty,
                                           const QString &javascript,
-                                          const QString &astType) = 0;
+                                          const TypeName &astType) = 0;
     virtual void shouldBeBindingProperty(AbstractProperty &modelProperty,
                                          const QString &javascript,
-                                         const QString &astType) = 0;
+                                         const TypeName &astType) = 0;
     virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty,
                                           const QList<QmlJS::AST::UiObjectMember *> arrayMembers,
                                           ReadingContext *context) = 0;
-    virtual void variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const QString &dynamicTypeName) = 0;
-    virtual void shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const QString &dynamicTypeName) = 0;
+    virtual void variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicTypeName) = 0;
+    virtual void shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicTypeName) = 0;
     virtual void shouldBeNodeProperty(AbstractProperty &modelProperty,
-                                      const QString &typeName,
+                                      const TypeName &typeName,
                                       int majorVersion,
                                       int minorVersion,
                                       QmlJS::AST::UiObjectMember *astNode,
@@ -178,7 +178,7 @@ public:
                                                    QmlJS::AST::UiObjectMember *arrayMember) = 0;
     virtual void typeDiffers(bool isRootNode,
                              ModelNode &modelNode,
-                             const QString &typeName,
+                             const TypeName &typeName,
                              int majorVersion,
                              int minorVersion,
                              QmlJS::AST::UiObjectMember *astNode,
@@ -204,17 +204,17 @@ public:
     virtual void importAbsentInQMl(const QmlDesigner::Import &import);
     virtual void bindingExpressionsDiffer(BindingProperty &modelProperty,
                                           const QString &javascript,
-                                          const QString &astType);
+                                          const TypeName &astType);
     virtual void shouldBeBindingProperty(AbstractProperty &modelProperty,
                                          const QString &javascript,
-                                         const QString &astType);
+                                         const TypeName &astType);
     virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty,
                                           const QList<QmlJS::AST::UiObjectMember *> arrayMembers,
                                           ReadingContext *context);
-    virtual void variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const QString &dynamicTypeName);
-    virtual void shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const QString &dynamicTypeName);
+    virtual void variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicTypeName);
+    virtual void shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicTypeName);
     virtual void shouldBeNodeProperty(AbstractProperty &modelProperty,
-                                      const QString &typeName,
+                                      const TypeName &typeName,
                                       int majorVersion,
                                       int minorVersion,
                                       QmlJS::AST::UiObjectMember *astNode,
@@ -225,7 +225,7 @@ public:
                                                    QmlJS::AST::UiObjectMember *arrayMember);
     virtual void typeDiffers(bool isRootNode,
                              ModelNode &modelNode,
-                             const QString &typeName,
+                             const TypeName &typeName,
                              int majorVersion,
                              int minorVersion,
                              QmlJS::AST::UiObjectMember *astNode,
@@ -248,17 +248,17 @@ public:
     virtual void importAbsentInQMl(const QmlDesigner::Import &import);
     virtual void bindingExpressionsDiffer(BindingProperty &modelProperty,
                                           const QString &javascript,
-                                          const QString &astType);
+                                          const TypeName &astType);
     virtual void shouldBeBindingProperty(AbstractProperty &modelProperty,
                                          const QString &javascript,
-                                         const QString &astType);
+                                         const TypeName &astType);
     virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty,
                                           const QList<QmlJS::AST::UiObjectMember *> arrayMembers,
                                           ReadingContext *context);
-    virtual void variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const QString &dynamicType);
-    virtual void shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const QString &dynamicTypeName);
+    virtual void variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicType);
+    virtual void shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicTypeName);
     virtual void shouldBeNodeProperty(AbstractProperty &modelProperty,
-                                      const QString &typeName,
+                                      const TypeName &typeName,
                                       int majorVersion,
                                       int minorVersion,
                                       QmlJS::AST::UiObjectMember *astNode,
@@ -269,7 +269,7 @@ public:
                                                    QmlJS::AST::UiObjectMember *arrayMember);
     virtual void typeDiffers(bool isRootNode,
                              ModelNode &modelNode,
-                             const QString &typeName,
+                             const TypeName &typeName,
                              int majorVersion,
                              int minorVersion,
                              QmlJS::AST::UiObjectMember *astNode,

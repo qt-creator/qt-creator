@@ -99,7 +99,7 @@ public:
     void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList);
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
-    void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
+    void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList);
     void instancesCompleted(const QVector<ModelNode> &completedNodeList);
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports);
     void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash);
@@ -107,7 +107,7 @@ public:
     void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList);
     void instancesChildrenChanged(const QVector<ModelNode> &nodeList);
     void instancesToken(const QString &tokenName, int tokenNumber, const QVector<ModelNode> &nodeVector);
-    void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
+    void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data);
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
     void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource);
 

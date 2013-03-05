@@ -205,9 +205,9 @@ void ViewLogger::scriptFunctionsChanged(const ModelNode &node, const QStringList
     m_output << time() << indent("function scripts changed:") << node << endl;
 }
 
-void ViewLogger::instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList)
+void ViewLogger::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList)
 {
-    typedef QPair<ModelNode, QString> PropertyPair;
+    typedef QPair<ModelNode, PropertyName> PropertyPair;
     m_output << time() << indent("instancePropertyChange:") << endl;
 
     foreach (const PropertyPair &propertyPair, propertyList)

@@ -294,12 +294,6 @@ void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty, co
         resetModel();
 }
 
-void StatesEditorView::nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName)
-{
-    // sets currentState() used in sceneChanged
-    QmlModelView::nodeInstancePropertyChanged(node, propertyName);
-}
-
 void StatesEditorView::actualStateChanged(const ModelNode &node)
 {
     QmlModelState newQmlModelState(node);
@@ -309,21 +303,6 @@ void StatesEditorView::actualStateChanged(const ModelNode &node)
     else
         m_statesEditorWidget->setCurrentStateInternalId(newQmlModelState.modelNode().internalId());
     QmlModelView::actualStateChanged(node);
-}
-
-void StatesEditorView::transformChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName)
-{
-    QmlModelView::transformChanged(qmlObjectNode, propertyName);
-}
-
-void StatesEditorView::parentChanged(const QmlObjectNode &qmlObjectNode)
-{
-    QmlModelView::parentChanged(qmlObjectNode);
-}
-
-void StatesEditorView::otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName)
-{
-    QmlModelView::otherPropertyChanged(qmlObjectNode, propertyName);
 }
 
 void StatesEditorView::instancesPreviewImageChanged(const QVector<ModelNode> &nodeList)

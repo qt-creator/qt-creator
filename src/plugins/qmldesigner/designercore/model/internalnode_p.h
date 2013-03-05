@@ -64,10 +64,10 @@ public:
 
     explicit InternalNode();
 
-    static Pointer create(const QString &typeName, int majorVersion, int minorVersion, qint32 internalId);
+    static Pointer create(const TypeName &typeName, int majorVersion, int minorVersion, qint32 internalId);
 
-    QString type() const;
-    void setType(const QString &newType);
+    TypeName type() const;
+    void setType(const TypeName &newType);
 
     int minorVersion() const;
     int majorVersion() const;
@@ -86,28 +86,28 @@ public:
     QString id() const;
     void setId(const QString& id);
 
-    QVariant auxiliaryData(const QString &name) const;
-    void setAuxiliaryData(const QString &name, const QVariant &data);
-    bool hasAuxiliaryData(const QString &name) const;
-    QHash<QString, QVariant> auxiliaryData() const;
+    QVariant auxiliaryData(const PropertyName &name) const;
+    void setAuxiliaryData(const PropertyName &name, const QVariant &data);
+    bool hasAuxiliaryData(const PropertyName &name) const;
+    QHash<PropertyName, QVariant> auxiliaryData() const;
 
-    InternalProperty::Pointer property(const QString &name) const;
-    InternalBindingProperty::Pointer bindingProperty(const QString &name) const;
-    InternalVariantProperty::Pointer variantProperty(const QString &name) const;
-    InternalNodeListProperty::Pointer nodeListProperty(const QString &name) const;
-    InternalNodeAbstractProperty::Pointer nodeAbstractProperty(const QString &name) const;
-    InternalNodeProperty::Pointer nodeProperty(const QString &name) const;
+    InternalProperty::Pointer property(const PropertyName &name) const;
+    InternalBindingProperty::Pointer bindingProperty(const PropertyName &name) const;
+    InternalVariantProperty::Pointer variantProperty(const PropertyName &name) const;
+    InternalNodeListProperty::Pointer nodeListProperty(const PropertyName &name) const;
+    InternalNodeAbstractProperty::Pointer nodeAbstractProperty(const PropertyName &name) const;
+    InternalNodeProperty::Pointer nodeProperty(const PropertyName &name) const;
 
-    void addBindingProperty(const QString &name);
-    void addNodeListProperty(const QString &name);
-    void addVariantProperty(const QString &name);
-    void addNodeProperty(const QString &name);
+    void addBindingProperty(const PropertyName &name);
+    void addNodeListProperty(const PropertyName &name);
+    void addVariantProperty(const PropertyName &name);
+    void addNodeProperty(const PropertyName &name);
 
 
-    QList<QString> propertyNameList() const;
+    PropertyNameList propertyNameList() const;
 
     bool hasProperties() const;
-    bool hasProperty(const QString &name) const;
+    bool hasProperty(const PropertyName &name) const;
 
     QList<InternalProperty::Pointer> propertyList() const;
     QList<InternalNodeAbstractProperty::Pointer> nodeAbstractPropertyList() const;
@@ -128,14 +128,14 @@ public:
 protected:
     Pointer internalPointer() const;
     void setInternalWeakPointer(const Pointer &pointer);
-    void removeProperty(const QString &name);
-    explicit InternalNode(const QString &type, int majorVersion, int minorVersion, qint32 internalId);
+    void removeProperty(const PropertyName &name);
+    explicit InternalNode(const TypeName &type, int majorVersion, int minorVersion, qint32 internalId);
 
 private:
-    QString m_typeName;
+    TypeName m_typeName;
     QString m_id;
 
-    QHash<QString, QVariant> m_auxiliaryDataHash;
+    QHash<PropertyName, QVariant> m_auxiliaryDataHash;
 
     InternalNodeAbstractProperty::WeakPointer m_parentProperty;
     WeakPointer m_internalPointer;
@@ -146,7 +146,7 @@ private:
     bool m_valid;
     qint32 m_internalId;
 
-    QHash<QString, InternalPropertyPointer> m_namePropertyHash;
+    QHash<PropertyName, InternalPropertyPointer> m_namePropertyHash;
     QStringList m_scriptFunctionList;
 
     QString m_nodeSource;

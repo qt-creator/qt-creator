@@ -33,12 +33,12 @@
 namespace QmlDesigner {
 namespace Internal {
 
-InternalNodeProperty::InternalNodeProperty(const QString &name, const InternalNode::Pointer &propertyOwner)
+InternalNodeProperty::InternalNodeProperty(const PropertyName &name, const InternalNode::Pointer &propertyOwner)
     : InternalNodeAbstractProperty(name, propertyOwner)
 {
 }
 
-InternalNodeProperty::Pointer InternalNodeProperty::create(const QString &name, const InternalNode::Pointer &propertyOwner)
+InternalNodeProperty::Pointer InternalNodeProperty::create(const PropertyName &name, const InternalNode::Pointer &propertyOwner)
 {
     InternalNodeProperty *newPointer = new InternalNodeProperty(name, propertyOwner);
     InternalNodeProperty::Pointer smartPointer(newPointer);

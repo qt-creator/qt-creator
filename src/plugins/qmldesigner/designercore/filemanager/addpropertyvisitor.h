@@ -42,10 +42,10 @@ public:
 public:
     AddPropertyVisitor(QmlDesigner::TextModifier &modifier,
                        quint32 parentLocation,
-                       const QString &name,
+                       const QmlDesigner::PropertyName &name,
                        const QString &value,
                        QmlDesigner::QmlRefactoring::PropertyType propertyType,
-                       const QStringList &propertyOrder);
+                       const PropertyNameList &propertyOrder);
 
 protected:
     virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
@@ -56,10 +56,10 @@ private:
 
 private:
     quint32 m_parentLocation;
-    QString m_name;
+    PropertyName m_name;
     QString m_value;
     QmlRefactoring::PropertyType m_propertyType;
-    QStringList m_propertyOrder;
+    PropertyNameList m_propertyOrder;
 };
 
 } // namespace Internal
