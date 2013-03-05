@@ -300,9 +300,13 @@
 
     \image qtcreator-build-issues.png
 
-    Right-clicking on a line brings up a context menu with options to copy
-    the contents and to show a version control annotation view of the line
+    Right-clicking on a line brings up a context menu with options to remove a line, copy
+    its contents, or to show a version control annotation view of the line
     that causes the error message.
+
+    To navigate to the corresponding source code, click an issue or
+    select \gui {Show in Editor} in the context menu. The entry must contain the
+    name of the file where the issue was found.
 
     To jump from one issue to the next or previous one, press \key F6 and
     \key Shift+F6.
