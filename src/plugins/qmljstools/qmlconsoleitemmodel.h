@@ -43,7 +43,7 @@ class QmlConsoleItemModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    enum Roles { TypeRole = Qt::UserRole, FileRole, LineRole };
+    enum Roles { TypeRole = Qt::UserRole, FileRole, LineRole, ExpressionRole };
 
     explicit QmlConsoleItemModel(QObject *parent = 0);
     ~QmlConsoleItemModel();

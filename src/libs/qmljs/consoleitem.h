@@ -67,6 +67,7 @@ public:
     int childNumber() const;
     void setText(const QString &text);
     const QString &text() const;
+    QString expression() const;
 
 private:
     ConsoleItem *m_parentItem;

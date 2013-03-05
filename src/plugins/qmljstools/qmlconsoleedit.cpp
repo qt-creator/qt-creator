@@ -213,7 +213,8 @@ void QmlConsoleEdit::handleUpKey()
             if (ConsoleItem::InputType == (ConsoleItem::ItemType)model->data(
                         index, QmlConsoleItemModel::TypeRole).toInt()) {
                 m_historyIndex = index;
-                replaceCurrentScript(model->data(index, Qt::DisplayRole).toString());
+                replaceCurrentScript(
+                            model->data(index, QmlConsoleItemModel::ExpressionRole).toString());
                 break;
             }
         }
@@ -232,10 +233,12 @@ void QmlConsoleEdit::handleDownKey()
             if (ConsoleItem::InputType == (ConsoleItem::ItemType)model->data(
                         index, QmlConsoleItemModel::TypeRole).toInt()) {
                 m_historyIndex = index;
-                if (currentRow == model->rowCount() - 1)
+                if (currentRow == model->rowCount() - 1) {
                     replaceCurrentScript(m_cachedScript);
-                else
-                    replaceCurrentScript(model->data(index, Qt::DisplayRole).toString());
+                } else {
+                    replaceCurrentScript(
+                                model->data(index, QmlConsoleItemModel::ExpressionRole).toString());
+                }
                 break;
             }
         }

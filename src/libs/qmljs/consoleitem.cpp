@@ -149,4 +149,10 @@ const QString &ConsoleItem::text() const
     return m_text;
 }
 
+QString ConsoleItem::expression() const
+{
+    QString text = m_text;
+    return text.remove(QChar(0x200b));  // ZERO WIDTH SPACE
+}
+
 } // QmlJS

@@ -159,6 +159,8 @@ QVariant QmlConsoleItemModel::data(const QModelIndex &index, int role) const
         return item->file;
     else if (role == QmlConsoleItemModel::LineRole)
         return item->line;
+    else if (role == QmlConsoleItemModel::ExpressionRole)
+        return item->expression();
     else
         return QVariant();
 }

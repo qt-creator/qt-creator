@@ -313,7 +313,7 @@ void QmlConsoleItemDelegate::setEditorData(QWidget *editor,
                                            const QModelIndex &index) const
 {
     QmlConsoleEdit *edtr = qobject_cast<QmlConsoleEdit *>(editor);
-    edtr->insertPlainText(index.data(Qt::DisplayRole).toString());
+    edtr->insertPlainText(index.data(QmlConsoleItemModel::ExpressionRole).toString());
 }
 
 void QmlConsoleItemDelegate::setModelData(QWidget *editor,
