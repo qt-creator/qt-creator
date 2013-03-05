@@ -213,6 +213,57 @@ static void parseSharedLibs(const QByteArray &buffer, QStringList *libs)
     }
 }
 
+void markNeeded(const QString &library,
+                const QVector<AndroidManager::Library> &dependencies,
+                QMap<QString, bool> *neededMap)
+{
+    if (!neededMap->contains(library))
+        return;
+    if (neededMap->value(library))
+        return;
+    neededMap->insert(library, true);
+    for (int i = 0; i < dependencies.size(); ++i) {
+        if (dependencies.at(i).name == library) {
+            foreach (const QString &dependency, dependencies.at(i).dependencies)
+                markNeeded(dependency, dependencies, neededMap);
+            break;
+        }
+    }
+}
+
+QStringList requiredLibraries(QVector<AndroidManager::Library> availableLibraries,
+                      const QStringList &checkedLibs, const QStringList &dependencies)
+{
+    QMap<QString, bool> neededLibraries;
+    QVector<AndroidManager::Library>::const_iterator it, end;
+    it = availableLibraries.constBegin();
+    end = availableLibraries.constEnd();
+
+    for (; it != end; ++it)
+        neededLibraries[(*it).name] = false;
+
+    // Checked items are always needed
+    foreach (const QString &lib, checkedLibs)
+        markNeeded(lib, availableLibraries, &neededLibraries);
+
+    foreach (const QString &lib, dependencies) {
+        if (lib.startsWith(QLatin1String("lib"))
+                && lib.endsWith(QLatin1String(".so")))
+            markNeeded(lib.mid(3, lib.size() - 6), availableLibraries, &neededLibraries);
+    }
+
+    for (int i = availableLibraries.size() - 1; i>= 0; --i)
+        if (!neededLibraries.value(availableLibraries.at(i).name))
+            availableLibraries.remove(i);
+
+    QStringList requiredLibraries;
+    foreach (const AndroidManager::Library &lib, availableLibraries) {
+        if (neededLibraries.value(lib.name))
+            requiredLibraries << lib.name;
+    }
+    return requiredLibraries;
+}
+
 void AndroidPackageCreationStep::checkRequiredLibraries()
 {
     QProcess readelfProc;
@@ -235,21 +286,16 @@ void AndroidPackageCreationStep::checkRequiredLibraries()
     }
     QStringList libs;
     parseSharedLibs(readelfProc.readAll(), &libs);
-    QStringList checkedLibs = AndroidManager::qtLibs(target());
-    QStringList requiredLibraries;
-    foreach (const QString &qtLib, AndroidManager::availableQtLibs(target())) {
-        if (libs.contains(QLatin1String("lib") + qtLib + QLatin1String(".so")) || checkedLibs.contains(qtLib))
-            requiredLibraries << qtLib;
-    }
-    AndroidManager::setQtLibs(target(), requiredLibraries);
+    AndroidManager::setQtLibs(target(), requiredLibraries(AndroidManager::availableQtLibsWithDependencies(target()),
+                                                          AndroidManager::qtLibs(target()), libs));
 
-    checkedLibs = AndroidManager::prebundledLibs(target());
-    requiredLibraries.clear();
+    QStringList checkedLibs = AndroidManager::prebundledLibs(target());
+    QStringList prebundledLibraries;
     foreach (const QString &qtLib, AndroidManager::availableQtLibs(target())) {
         if (libs.contains(qtLib) || checkedLibs.contains(qtLib))
-            requiredLibraries << qtLib;
+            prebundledLibraries << qtLib;
     }
-    AndroidManager::setPrebundledLibs(target(), requiredLibraries);
+    AndroidManager::setPrebundledLibs(target(), prebundledLibraries);
     emit updateRequiredLibrariesModels();
 }
 
@@ -264,7 +310,7 @@ void AndroidPackageCreationStep::initCheckRequiredLibrariesForRun()
     m_readElf = AndroidConfigurations::instance().readelfPath(target()->activeRunConfiguration()->abi().architecture(),
                                                               atc->ndkToolChainVersion());
     m_qtLibs = AndroidManager::qtLibs(target());
-    m_availableQtLibs = AndroidManager::availableQtLibs(target());
+    m_availableQtLibs = AndroidManager::availableQtLibsWithDependencies(target());
     m_prebundledLibs = AndroidManager::prebundledLibs(target());
 }
 
@@ -282,22 +328,18 @@ void AndroidPackageCreationStep::checkRequiredLibrariesForRun()
     }
     QStringList libs;
     parseSharedLibs(readelfProc.readAll(), &libs);
-    QStringList requiredLibraries;
-    foreach (const QString &qtLib, m_availableQtLibs) {
-        if (libs.contains(QLatin1String("lib") + qtLib + QLatin1String(".so")) || m_qtLibs.contains(qtLib))
-            requiredLibraries << qtLib;
-    }
-    QMetaObject::invokeMethod(this, "setQtLibs",Qt::BlockingQueuedConnection,
-                              Q_ARG(QStringList, requiredLibraries));
 
-    requiredLibraries.clear();
-    foreach (const QString &qtLib, m_availableQtLibs) {
-        if (libs.contains(qtLib) || m_prebundledLibs.contains(qtLib))
-            requiredLibraries << qtLib;
+    QMetaObject::invokeMethod(this, "setQtLibs",Qt::BlockingQueuedConnection,
+                              Q_ARG(QStringList, requiredLibraries(m_availableQtLibs, m_qtLibs, libs)));
+
+    QStringList prebundledLibraries;
+    foreach (const AndroidManager::Library &qtLib, m_availableQtLibs) {
+        if (libs.contains(qtLib.name) || m_prebundledLibs.contains(qtLib.name))
+            prebundledLibraries << qtLib.name;
     }
 
     QMetaObject::invokeMethod(this, "setPrebundledLibs", Qt::BlockingQueuedConnection,
-                              Q_ARG(QStringList, requiredLibraries));
+                              Q_ARG(QStringList, prebundledLibraries));
     emit updateRequiredLibrariesModels();
 }
 

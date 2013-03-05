@@ -31,6 +31,7 @@
 #define ANDROIDPACKAGECREATIONSTEP_H
 
 #include "javaparser.h"
+#include "androidmanager.h"
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildstep.h>
@@ -125,7 +126,7 @@ private:
     Utils::FileName m_appPath;
     Utils::FileName m_readElf;
     QStringList m_qtLibs;
-    QStringList m_availableQtLibs;
+    QVector<AndroidManager::Library> m_availableQtLibs;
     QStringList m_prebundledLibs;
 };
 

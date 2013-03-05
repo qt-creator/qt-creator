@@ -104,6 +104,18 @@ public:
     static QString loadLocalJars(ProjectExplorer::Target *target, int apiLevel);
     static QString loadLocalJarsInitClasses(ProjectExplorer::Target *target, int apiLevel);
 
+    class Library
+    {
+    public:
+        Library()
+        { level = -1; }
+        int level;
+        QStringList dependencies;
+        QString name;
+    };
+    typedef QMap<QString, Library> LibrariesMap;
+
+    static QVector<AndroidManager::Library> availableQtLibsWithDependencies(ProjectExplorer::Target *target);
     static QStringList availableQtLibs(ProjectExplorer::Target *target);
     static QStringList qtLibs(ProjectExplorer::Target *target);
     static bool setQtLibs(ProjectExplorer::Target *target, const QStringList &libs);
@@ -131,17 +143,6 @@ private:
         Jar
     };
     static QString loadLocal(ProjectExplorer::Target *target, int apiLevel, ItemType item, const QString &attribute=QLatin1String("file"));
-
-    class Library
-    {
-    public:
-        Library()
-        { level = -1; }
-        int level;
-        QStringList dependencies;
-        QString name;
-    };
-    typedef QMap<QString, Library> LibrariesMap;
 
     enum IconType
     {
