@@ -135,7 +135,7 @@ void QmlConsoleEdit::keyPressEvent(QKeyEvent *e)
         //  Right: Moves the cursor one character to the right.
     case Qt::Key_Right:
         if ( !(e->modifiers() & Qt::ControlModifier)
-             && textCursor().position() <= m_startOfEditableArea) {
+             && textCursor().position() < m_startOfEditableArea) {
             QTextCursor c(textCursor());
             c.setPosition(m_startOfEditableArea);
             setTextCursor(c);
