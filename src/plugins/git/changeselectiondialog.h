@@ -57,6 +57,7 @@ public slots:
 private slots:
     void setDetails(int exitCode);
     void recalculateDetails(const QString &ref);
+    void refresh();
 
 private:
     Ui_ChangeSelectionDialog m_ui;

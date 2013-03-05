@@ -60,7 +60,8 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, QW
     m_gitEnvironment = GitPlugin::instance()->gitClient()->processEnvironment();
     connect(m_ui.changeNumberEdit, SIGNAL(textChanged(QString)),
             this, SLOT(recalculateDetails(QString)));
-    recalculateDetails(m_ui.changeNumberEdit->text());
+    connect(m_ui.workingDirectoryEdit, SIGNAL(textChanged(QString)), this, SLOT(refresh()));
+    refresh();
 }
 
 ChangeSelectionDialog::~ChangeSelectionDialog()
@@ -138,6 +139,11 @@ void ChangeSelectionDialog::recalculateDetails(const QString &ref)
         m_ui.detailsText->setPlainText(tr("Error: Could not start Git."));
     else
         m_ui.detailsText->setPlainText(tr("Fetching commit data..."));
+}
+
+void ChangeSelectionDialog::refresh()
+{
+    recalculateDetails(m_ui.changeNumberEdit->text());
 }
 
 } // Internal
