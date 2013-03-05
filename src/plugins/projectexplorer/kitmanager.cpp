@@ -82,6 +82,36 @@ public:
     KitManagerPrivate();
     ~KitManagerPrivate();
 
+    void insertKit(Kit *k)
+    {
+        // Keep list of kits sorted by displayname:
+        int i =0;
+        for (; i < m_kitList.count(); ++i)
+            if (m_kitList.at(i)->displayName() > k->displayName())
+                break;
+        m_kitList.insert(i, k);
+    }
+
+    void moveKit(int pos)
+    {
+        if (pos < 0 || pos >= m_kitList.count())
+            return;
+
+        Kit *current = m_kitList.at(pos);
+        int prev = pos - 1;
+        int next = pos + 1;
+
+        if (prev >= 0
+                && m_kitList.at(prev)->displayName() > current->displayName()) {
+            std::swap(m_kitList[prev], m_kitList[pos]);
+            moveKit(prev);
+        } else if (next < m_kitList.count()
+                   && m_kitList.at(next)->displayName() < current->displayName()) {
+            std::swap(m_kitList[pos], m_kitList[next]);
+            moveKit(next);
+        }
+    }
+
     Kit *m_defaultKit;
     bool m_initialized;
     QList<KitInformation *> m_informationList;
@@ -402,10 +432,13 @@ void KitManager::notifyAboutUpdate(ProjectExplorer::Kit *k)
 {
     if (!k)
         return;
-    if (kits().contains(k) && d->m_initialized)
+    int pos = d->m_kitList.indexOf(k);
+    if (pos >= 0 && d->m_initialized) {
+        d->moveKit(pos);
         emit kitUpdated(k);
-    else
+    } else {
         emit unmanagedKitUpdated(k);
+    }
 }
 
 bool KitManager::registerKit(ProjectExplorer::Kit *k)
@@ -472,7 +505,8 @@ void KitManager::addKit(Kit *k)
         }
     }
 
-    d->m_kitList.append(k);
+    d->insertKit(k);
+
     if (!d->m_defaultKit ||
             (!d->m_defaultKit->isValid() && k->isValid()))
         setDefaultKit(k);
