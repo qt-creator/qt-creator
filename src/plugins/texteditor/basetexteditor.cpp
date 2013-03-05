@@ -4614,9 +4614,12 @@ void BaseTextEditorWidget::onCodeStylePreferencesDestroyed()
 {
     if (sender() != d->m_codeStylePreferences)
         return;
+    ICodeStylePreferences *prefs = TextEditorSettings::instance()->codeStyle(languageSettingsId());
+    if (prefs == d->m_codeStylePreferences)
+        prefs = 0;
     // avoid failing disconnects, m_codeStylePreferences has already been reduced to QObject
     d->m_codeStylePreferences = 0;
-    setCodeStyle(TextEditorSettings::instance()->codeStyle(languageSettingsId()));
+    setCodeStyle(prefs);
 }
 
 void BaseTextEditorWidget::slotCodeStyleSettingsChanged(const QVariant &)

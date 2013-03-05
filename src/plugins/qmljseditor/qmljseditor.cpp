@@ -532,7 +532,6 @@ QmlJSTextEditorWidget::QmlJSTextEditorWidget(QWidget *parent) :
 
 QmlJSTextEditorWidget::~QmlJSTextEditorWidget()
 {
-    hideContextPane();
     m_semanticInfoUpdater->abort();
     m_semanticInfoUpdater->wait();
 }
