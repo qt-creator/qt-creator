@@ -421,7 +421,7 @@ void FormEditorView::nodeSlidedToIndex(const NodeListProperty &listProperty, int
     m_currentTool->formEditorItemsChanged(scene()->allFormEditorItems());
 }
 
-void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data)
+void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data)
 {
     QmlModelView::auxiliaryDataChanged(node, name, data);
     if (name == "invisible" && m_scene->hasItemForQmlItemNode(QmlItemNode(node))) {

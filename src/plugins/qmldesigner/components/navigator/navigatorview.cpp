@@ -200,7 +200,7 @@ void NavigatorView::rootNodeTypeChanged(const QString & /*type*/, int /*majorVer
         m_treeModel->updateItemRow(rootModelNode());
 }
 
-void NavigatorView::auxiliaryDataChanged(const ModelNode &node, const QString & /*name*/, const QVariant & /*data*/)
+void NavigatorView::auxiliaryDataChanged(const ModelNode &node, const PropertyName & /*name*/, const QVariant & /*data*/)
 {
     if (m_treeModel->isInTree(node))
     {

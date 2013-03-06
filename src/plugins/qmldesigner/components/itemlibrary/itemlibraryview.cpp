@@ -135,7 +135,7 @@ void ItemLibraryView::selectedNodesChanged(const QList<ModelNode> &,
 
 }
 
-void ItemLibraryView::auxiliaryDataChanged(const ModelNode &, const QString &, const QVariant &)
+void ItemLibraryView::auxiliaryDataChanged(const ModelNode &, const PropertyName &, const QVariant &)
 {
 
 }
