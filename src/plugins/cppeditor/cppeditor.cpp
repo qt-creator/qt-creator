@@ -80,7 +80,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <utils/qtcassert.h>
-#include <utils/uncommentselection.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <texteditor/basetextdocument.h>
@@ -1962,6 +1961,11 @@ bool CPPEditor::open(QString *errorString, const QString &fileName, const QStrin
     bool b = TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
     editorWidget()->setMimeType(Core::ICore::mimeDatabase()->findByFile(QFileInfo(fileName)).type());
     return b;
+}
+
+const Utils::CommentDefinition *CPPEditor::commentDefinition() const
+{
+    return &m_commentDefinition;
 }
 
 void CPPEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)

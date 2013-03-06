@@ -663,7 +663,7 @@ public:
     void replace(int length, const QString &string);
     void setCursorPosition(int pos);
     void select(int toPos);
-
+    const Utils::CommentDefinition* commentDefinition() const;
 private slots:
     void updateCursorPosition();
 

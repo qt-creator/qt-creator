@@ -96,4 +96,9 @@ void QmlJSEditorEditable::setTextCodec(QTextCodec *codec, TextCodecReason reason
     editorWidget()->setTextCodec(codec);
 }
 
+const Utils::CommentDefinition *QmlJSEditorEditable::commentDefinition() const
+{
+    return &m_commentDefinition;
+}
+
 } // namespace QmlJSEditor

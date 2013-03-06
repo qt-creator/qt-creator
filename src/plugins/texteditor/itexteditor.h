@@ -50,6 +50,10 @@ class QRect;
 class QTextBlock;
 QT_END_NAMESPACE
 
+namespace Utils {
+    class CommentDefinition;
+}
+
 namespace TextEditor {
 
 class TEXTEDITOR_EXPORT ITextEditor : public Core::IEditor
@@ -99,6 +103,8 @@ public:
 
     virtual void setTextCodec(QTextCodec *, TextCodecReason reason = TextCodecOtherReason) = 0;
     virtual QTextCodec *textCodec() const = 0;
+
+    virtual const Utils::CommentDefinition* commentDefinition() const = 0;
 
     static QMap<QString, QString> openedTextEditorsContents();
     static QMap<QString, QTextCodec *> openedTextEditorsEncodings();

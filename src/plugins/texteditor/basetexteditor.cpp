@@ -70,6 +70,7 @@
 #include <utils/stylehelper.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/tooltip/tipcontents.h>
+#include <utils/uncommentselection.h>
 
 #include <QCoreApplication>
 #include <QTextCodec>
@@ -1171,7 +1172,28 @@ void BaseTextEditorWidget::moveLineUpDown(bool up)
     }
     d->m_refactorOverlay->setMarkers(nonAffectedMarkers + affectedMarkers);
 
-    reindent(document(), move);
+    bool shouldReindent = true;
+    const Utils::CommentDefinition* commentDefinition(editor()->commentDefinition());
+    if (commentDefinition) {
+        QString trimmedText(text.trimmed());
+
+        if (commentDefinition->hasSingleLineStyle()) {
+            if (trimmedText.startsWith(commentDefinition->singleLine()))
+                shouldReindent = false;
+        }
+        if (shouldReindent && commentDefinition->hasMultiLineStyle()) {
+            // Don't have any single line comments; try multi line.
+            if (trimmedText.startsWith(commentDefinition->multiLineStart())
+                && trimmedText.endsWith(commentDefinition->multiLineEnd())) {
+                shouldReindent = false;
+            }
+        }
+    }
+
+    if (shouldReindent) {
+        // The text was not commented at all; re-indent.
+        reindent(document(), move);
+    }
     move.endEditBlock();
 
     setTextCursor(move);
@@ -6345,6 +6367,11 @@ void BaseTextEditor::select(int toPos)
     QTextCursor tc = e->textCursor();
     tc.setPosition(toPos, QTextCursor::KeepAnchor);
     e->setTextCursor(tc);
+}
+
+const CommentDefinition *BaseTextEditor::commentDefinition() const
+{
+    return 0;
 }
 
 void BaseTextEditor::updateCursorPosition()

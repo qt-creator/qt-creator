@@ -36,6 +36,7 @@
 #include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/LookupContext.h>
+#include <utils/uncommentselection.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/quickfix.h>
 #include <texteditor/texteditorconstants.h>
@@ -155,6 +156,10 @@ public:
 
     bool isTemporary() const { return false; }
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+
+    const Utils::CommentDefinition *commentDefinition() const;
+private:
+    Utils::CommentDefinition m_commentDefinition;
 };
 
 class CPPEditorWidget : public TextEditor::BaseTextEditorWidget

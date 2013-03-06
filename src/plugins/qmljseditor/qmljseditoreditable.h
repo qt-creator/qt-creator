@@ -31,6 +31,7 @@
 #define QMLJSEDITOREDITABLE_H
 
 #include "qmljseditor_global.h"
+#include <utils/uncommentselection.h>
 #include <texteditor/basetexteditor.h>
 
 namespace QmlJSEditor {
@@ -50,6 +51,10 @@ public:
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     Core::Id preferredModeType() const;
     void setTextCodec(QTextCodec *codec, TextCodecReason = TextCodecOtherReason);
+
+    const Utils::CommentDefinition *commentDefinition() const;
+private:
+    Utils::CommentDefinition m_commentDefinition;
 };
 
 } // namespace QmlJSEditor
