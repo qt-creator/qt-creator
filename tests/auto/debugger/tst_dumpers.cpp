@@ -228,6 +228,23 @@ struct Cxx11Profile : public Profile
     Cxx11Profile() : Profile("QMAKE_CXXFLAGS += -std=c++0x") {}
 };
 
+struct GdbVersion
+{
+    // Minimum and maximum are inclusive.
+    GdbVersion(int minimum = 0, int maximum = 0)
+    {
+        if (minimum && !maximum)
+            maximum = minimum;
+        if (maximum == 0)
+            maximum = INT_MAX;
+
+        max = maximum;
+        min = minimum;
+    }
+    int min;
+    int max;
+};
+
 struct ForceC {};
 
 struct CoreProfile {};
@@ -236,10 +253,11 @@ struct GuiProfile {};
 
 struct DataBase
 {
-    DataBase() : useQt(false), forceC(false) {}
+    DataBase() : useQt(false), forceC(false), neededGdbVersion() {}
 
     mutable bool useQt;
     mutable bool forceC;
+    mutable GdbVersion neededGdbVersion;
 };
 
 class Data : public DataBase
@@ -261,6 +279,12 @@ public:
     const Data &operator%(const Profile &profile) const
     {
         profileExtra += profile.contents;
+        return *this;
+    }
+
+    const Data &operator%(const GdbVersion &gdbVersion) const
+    {
+        neededGdbVersion = gdbVersion;
         return *this;
     }
 
@@ -332,6 +356,10 @@ private:
     QByteArray m_qmakeBinary;
     bool m_usePython;
     bool m_keepTemp;
+    int m_gdbVersion; // 7.5.1 -> 70501
+    int m_gdbBuildVersion;
+    bool m_isMacGdb;
+    bool m_isQnxGdb;
 };
 
 void tst_Dumpers::initTestCase()
@@ -348,13 +376,25 @@ void tst_Dumpers::initTestCase()
     debugger.start(QString::fromLatin1(m_debuggerBinary)
                    + QLatin1String(" -i mi -quiet -nx"));
     bool ok = debugger.waitForStarted();
-    debugger.write("set confirm off\npython print 43\nquit\n");
+    debugger.write("set confirm off\npython print 43\nshow version\nquit\n");
     ok = debugger.waitForFinished();
     QVERIFY(ok);
     QByteArray output = debugger.readAllStandardOutput();
     //qDebug() << "stdout: " << output;
     m_usePython = !output.contains("Python scripting is not supported in this copy of GDB");
     qDebug() << (m_usePython ? "Python is available" : "Python is not available");
+
+    QString version = QString::fromLocal8Bit(output);
+    int pos1 = version.indexOf(QLatin1String("&\"show version\\n"));
+    QVERIFY(pos1 != -1);
+    pos1 += 20;
+    int pos2 = version.indexOf(QLatin1String("~\"Copyright (C) "), pos1);
+    QVERIFY(pos2 != -1);
+    pos2 -= 4;
+    version = version.mid(pos1, pos2 - pos1);
+    Debugger::Internal::extractGdbVersion(version, &m_gdbVersion,
+        &m_gdbBuildVersion, &m_isMacGdb, &m_isQnxGdb);
+    qDebug() << "Gdb version " << m_gdbVersion;
 }
 
 void tst_Dumpers::cleanupTestCase()
@@ -395,6 +435,11 @@ struct TempStuff
 void tst_Dumpers::dumper()
 {
     QFETCH(Data, data);
+
+    if (data.neededGdbVersion.min > m_gdbVersion)
+        QSKIP("Need minimum GDB version " + QByteArray::number(data.neededGdbVersion.min));
+    if (data.neededGdbVersion.max < m_gdbVersion)
+        QSKIP("Need maximum GDB version " + QByteArray::number(data.neededGdbVersion.max));
 
     bool ok;
     QString cmd;
@@ -4210,6 +4255,7 @@ void tst_Dumpers::dumper_data()
                    "int sharedPtr = 1;\n"
                    "#endif\n"
                    "unused(&ptrConst, &ref, &refConst, &ptrToPtr, &sharedPtr);\n")
+               % GdbVersion(70500)
                % Check("d", "", "Derived")
                % Check("d.@1", "[Base]", "", "Base")
                % Check("d.b", "2", "int")
