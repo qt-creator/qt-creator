@@ -53,7 +53,6 @@ private slots:
     void setDeployLocalQtLibs();
     void setQASIPackagePath();
     void useLocalQtLibsStateChanged(int);
-    void editRulesFile();
     void cleanLibsOnDevice();
 
 private:

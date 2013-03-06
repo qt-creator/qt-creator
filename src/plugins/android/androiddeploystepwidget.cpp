@@ -62,7 +62,6 @@ AndroidDeployStepWidget::AndroidDeployStepWidget(AndroidDeployStep *step) :
     connect(ui->deployQtLibs, SIGNAL(clicked()), SLOT(setDeployLocalQtLibs()));
     connect(ui->chooseButton, SIGNAL(clicked()), SLOT(setQASIPackagePath()));
     connect(ui->useLocalQtLibs, SIGNAL(stateChanged(int)), SLOT(useLocalQtLibsStateChanged(int)));
-    connect(ui->editRulesFilePushButton, SIGNAL(clicked()), SLOT(editRulesFile()));
     connect(ui->cleanLibsPushButton, SIGNAL(clicked()), SLOT(cleanLibsOnDevice()));
 }
 
@@ -104,11 +103,6 @@ void AndroidDeployStepWidget::setQASIPackagePath()
 void AndroidDeployStepWidget::useLocalQtLibsStateChanged(int state)
 {
     m_step->setUseLocalQtLibs(state == Qt::Checked);
-}
-
-void AndroidDeployStepWidget::editRulesFile()
-{
-    Core::ICore::instance()->openFiles(QStringList() << m_step->localLibsRulesFilePath().toString(), Core::ICore::SwitchMode);
 }
 
 void AndroidDeployStepWidget::cleanLibsOnDevice()

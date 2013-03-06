@@ -87,7 +87,6 @@ public:
 
     QString deviceSerialNumber();
     int deviceAPILevel();
-    Utils::FileName localLibsRulesFilePath();
 
     AndroidDeployAction deployAction();
     bool useLocalQtLibs();
