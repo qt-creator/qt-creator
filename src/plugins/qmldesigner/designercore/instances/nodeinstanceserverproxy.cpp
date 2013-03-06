@@ -81,9 +81,9 @@
 
 namespace {
 #ifdef Q_OS_MAC
-#  define SHARE_PATH "/../Resources/qmldesigner"
+#  define SHARE_PATH "/../Resources"
 #else
-#  define SHARE_PATH "/../share/qtcreator/qmldesigner"
+#  define SHARE_PATH "/../share/qtcreator"
 #endif
 
 static QString applicationDirPath()
