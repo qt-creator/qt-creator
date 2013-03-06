@@ -581,7 +581,8 @@ static QString removeWatchActionText(QString exp)
         exp.truncate(30);
         exp.append(QLatin1String("..."));
     }
-    return WatchTreeView::tr("Remove Expression Evaluator for \"%1\"").arg(exp);
+    return WatchTreeView::tr("Remove Expression Evaluator for \"%1\"")
+        .arg(exp.replace(QLatin1Char('&'), QLatin1String("&&")));
 }
 
 static void copyToClipboard(const QString &clipboardText)
