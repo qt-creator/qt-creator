@@ -1913,6 +1913,8 @@ void CdbEngine::handleLocals(const CdbExtensionCommandPtr &reply)
     if (!(flags & PartialLocalsUpdate))
         watchHandler()->removeAllData();
     if (reply->success) {
+        if (debuggerCore()->boolSetting(VerboseLog))
+            showMessage(QLatin1String("Locals: ") + QString::fromLatin1(reply->reply), LogDebug);
         QList<WatchData> watchData;
         GdbMi root;
         root.fromString(reply->reply);
