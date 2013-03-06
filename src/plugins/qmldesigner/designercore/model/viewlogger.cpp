@@ -177,7 +177,7 @@ void ViewLogger::nodeOrderChanged(const NodeListProperty &listProperty, const Mo
     m_output << time() << indent("nodeOrderChanged:") << listProperty << movedNode << oldIndex << endl;
 }
 
-void ViewLogger::auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data)
+void ViewLogger::auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data)
 {
     m_output << time() << indent("auxiliaryDataChanged:") << node << "\t" << name << "\t" << data.toString() << endl;
 }

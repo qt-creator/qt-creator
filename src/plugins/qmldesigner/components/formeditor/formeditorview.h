@@ -99,7 +99,7 @@ public:
     void changeToTransformTools();
 
     void nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int oldIndex);
-    void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
+    void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data);
 
     void instancesCompleted(const QVector<ModelNode> &completedNodeList);
     void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash);

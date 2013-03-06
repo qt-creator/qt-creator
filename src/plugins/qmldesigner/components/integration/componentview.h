@@ -95,7 +95,7 @@ public:
 
     void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
 
-    void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
+    void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data);
 
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 

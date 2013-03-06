@@ -72,7 +72,7 @@ public:
     void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports);
 
-    void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
+    void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data);
 
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
 
@@ -234,7 +234,7 @@ void ForwardView<ViewType>::importRemoved(const Import &import)
 }
 
 template <class ViewType>
-void ForwardView<ViewType>::auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data)
+void ForwardView<ViewType>::auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data)
 {
     AbstractView::auxiliaryDataChanged(node, name, data);
 

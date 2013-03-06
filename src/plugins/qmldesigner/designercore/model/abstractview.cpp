@@ -240,7 +240,7 @@ void AbstractView::propertiesRemoved(const QList<AbstractProperty>& /*propertyLi
 */
 //\}
 
-void AbstractView::auxiliaryDataChanged(const ModelNode &/*node*/, const QString &/*name*/, const QVariant &/*data*/)
+void AbstractView::auxiliaryDataChanged(const ModelNode &/*node*/, const PropertyName &/*name*/, const QVariant &/*data*/)
 {
 
 }

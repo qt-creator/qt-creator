@@ -162,7 +162,7 @@ public:
 
     virtual void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) = 0;
 
-    virtual void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
+    virtual void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data);
 
     virtual void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 
