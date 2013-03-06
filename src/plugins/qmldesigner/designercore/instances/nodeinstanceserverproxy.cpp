@@ -511,8 +511,13 @@ QString NodeInstanceServerProxy::qmlPuppetApplicationName() const
 QString NodeInstanceServerProxy::macOSBundlePath(const QString &path) const
 {
     QString applicationPath = path;
-    if (Utils::HostOsInfo::isMacHost())
-        applicationPath += QLatin1String("/qmlpuppet.app/Contents/MacOS");
+    if (Utils::HostOsInfo::isMacHost()) {
+        if (hasQtQuick2(m_nodeInstanceView.data()))
+            applicationPath += QLatin1String("/qml2puppet.app/Contents/MacOS");
+        else
+            applicationPath += QLatin1String("/qmlpuppet.app/Contents/MacOS");
+
+    }
    return applicationPath;
 }
 
