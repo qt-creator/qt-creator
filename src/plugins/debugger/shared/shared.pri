@@ -8,14 +8,10 @@ HEADERS += $$PWD/backtrace.h \
 
 INCLUDEPATH += $$PWD
 
-win32 {
-
 SOURCES += $$PWD/peutils.cpp
 HEADERS += $$PWD/peutils.h
 
 win32-msvc* {
 #   For the Privilege manipulation functions in sharedlibraryinjector.cpp.
     LIBS += -ladvapi32
-}
-
 }

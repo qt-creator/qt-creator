@@ -29,11 +29,12 @@
 
 #include "peutils.h"
 
-#include <utils/winutils.h>
 #include <QStringList>
-#include <QDebug>
-#include <climits>
-#include <windows.h>
+#ifdef Q_OS_WIN
+#  include <utils/winutils.h>
+#  include <QDebug>
+#  include <climits>
+#  include <windows.h>
 
 using Utils::winErrorMessage;
 
@@ -274,6 +275,21 @@ bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *
 
     return success;
 }
+
+#else // Q_OS_WIN
+
+namespace Debugger {
+namespace Internal {
+
+bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *errorMessage)
+{
+    Q_UNUSED(peExecutableFileName)
+    rc->clear();
+    *errorMessage = QLatin1String("Not implemented.");
+    return false;
+}
+
+#endif // Q_OS_WIN
 
 } // namespace Internal
 } // namespace Debugger
