@@ -140,7 +140,7 @@ def qdump__QModelIndex(d, value):
         rowCount = int(parseAndEvaluate("%s.rowCount(%s)" % (mm_, mi_)))
         columnCount = int(parseAndEvaluate("%s.columnCount(%s)" % (mm_, mi_)))
     except:
-        d.putValue(" ")
+        d.putEmptyValue()
         d.putPlainChildren(value)
         return
 
@@ -309,7 +309,7 @@ def qdump__QFileInfo(d, value):
                 d.putValue("<not available>")
             else:
                 with SubItem(d, "permissions"):
-                    d.putValue(" ")
+                    d.putEmptyValue()
                     d.putType(d.ns + "QFile::Permissions")
                     d.putNumChild(10)
                     if d.isExpanded():
@@ -472,7 +472,7 @@ def qdump__QHashNode(d, value):
     #    d.putName(key)
     #    d.putValue(val)
     #else:
-    d.putValue(" ")
+    d.putEmptyValue()
 
     d.putNumChild(2)
     if d.isExpanded():
@@ -487,7 +487,7 @@ def qHashIteratorHelper(d, value):
     keyType = templateArgument(hashType, 0)
     valueType = templateArgument(hashType, 1)
     d.putNumChild(1)
-    d.putValue(" ")
+    d.putEmptyValue()
     if d.isExpanded():
         with Children(d):
             typeName = "%sQHash<%s,%s>::Node" % (d.ns, keyType, valueType)
@@ -675,7 +675,7 @@ def qdump__QLocale(d, value):
 
 
 def qdump__QMapNode(d, value):
-    d.putValue(" ")
+    d.putEmptyValue()
     d.putNumChild(2)
     if d.isExpanded():
         with Children(d):
@@ -870,7 +870,7 @@ def qdump__QObject(d, value):
     #warn("STRINGDATA: %s " % metaStringData)
     #warn("TYPE: %s " % value.type)
     #warn("INAME: %s " % d.currentIName())
-    #d.putValue("")
+    #d.putEmptyValue()
     #QSignalMapper::staticMetaObject
     #checkRef(d_ptr["ref"])
     d.putNumChild(4)
@@ -881,7 +881,7 @@ def qdump__QObject(d, value):
         if privateTypeName != d.ns + "QObjectPrivate":
             if not privateType is None:
               with SubItem(d, "data"):
-                d.putValue(" ")
+                d.putEmptyValue()
                 d.putNoType()
                 d.putNumChild(1)
                 if d.isExpanded():
@@ -1560,7 +1560,7 @@ def qdump__QTextCursor(d, value):
 
 
 def qdump__QTextDocument(d, value):
-    d.putValue(" ")
+    d.putEmptyValue()
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
@@ -1755,7 +1755,7 @@ def qdump__QVariant(d, value):
             v = d_data["shared"]["ptr"].cast(innerType.pointer()).dereference()
         else:
             v = d_data.cast(innerType)
-        d.putValue(" ", None, -99)
+        d.putEmptyValue(-99)
         d.putItem(v)
         d.putBetterType("%sQVariant (%s)" % (d.ns, innert))
         return innert
@@ -1770,7 +1770,7 @@ def qdump__QVariant(d, value):
     warn("TYPE: %s" % type)
     data = call(value, "constData")
     warn("DATA: %s" % data)
-    d.putValue(" ", None, -99)
+    d.putEmptyValue(-99)
     d.putType("%sQVariant (%s)" % (d.ns, type))
     d.putNumChild(1)
     tdata = data.cast(lookupType(type).pointer()).dereference()
@@ -1840,7 +1840,7 @@ def qdump__QWeakPointer(d, value):
         d.putNumChild(3)
         d.putItem(val.dereference())
     else:
-        d.putValue("")
+        d.putEmptyValue()
 
     d.putNumChild(3)
     if d.isExpanded():
@@ -1865,7 +1865,7 @@ def qdump____c_style_array__(d, value):
     type = value.type.unqualified()
     targetType = type.target()
     typeName = str(type)
-    d.putAddress(value.address)
+    #d.putAddress(value.address)
     d.putType(typeName)
     d.putNumChild(1)
     format = d.currentItemFormat()
@@ -2018,7 +2018,7 @@ def qdump__std__map(d, value):
                         d.putMapName(pair["first"])
                         d.putItem(pair["second"])
                     else:
-                        d.putValue(" ")
+                        d.putEmptyValue()
                         if d.isExpanded():
                             with Children(d, 2):
                                 d.putSubItem("first", pair["first"])
@@ -2040,7 +2040,7 @@ def stdTreeIteratorHelper(d, value):
     pnode = value["_M_node"]
     node = pnode.dereference()
     d.putNumChild(1)
-    d.putValue(" ")
+    d.putEmptyValue()
     if d.isExpanded():
         dataType = templateArgument(value.type, 0)
         nodeType = lookupType("std::_Rb_tree_node<%s>" % dataType)
@@ -2053,7 +2053,7 @@ def stdTreeIteratorHelper(d, value):
                 d.putSubItem("value", data)
             with SubItem(d, "node"):
                 d.putNumChild(1)
-                d.putValue(" ")
+                d.putEmptyValue()
                 d.putType(" ")
                 if d.isExpanded():
                     with Children(d):
@@ -2153,7 +2153,7 @@ def qdump__std__string(d, value):
         encodingType = Hex8EncodedLittleEndian
         displayType = DisplayUtf16String
 
-    d.putAddress(value.address)
+    #d.putAddress(value.address)
     d.putNumChild(0)
     d.putValue(mem, encodingType)
 
@@ -2358,7 +2358,7 @@ def qdump__boost__shared_ptr(d, value):
         d.putNumChild(3)
         d.putItem(val)
     else:
-        d.putValue("")
+        d.putEmptyValue()
 
     d.putNumChild(3)
     if d.isExpanded():
@@ -2394,7 +2394,7 @@ def qform____m128():
     return "As Floats,As Doubles"
 
 def qdump____m128(d, value):
-    d.putValue(" ")
+    d.putEmptyValue()
     d.putNumChild(1)
     if d.isExpanded():
         format = d.currentItemFormat()
@@ -2439,7 +2439,7 @@ def jstagAsString(tag):
 
 
 def qdump__QTJSC__JSValue(d, value):
-    d.putValue(" ")
+    d.putEmptyValue()
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
@@ -2479,7 +2479,7 @@ def qdump__QScriptValue(d, value):
     #  ref           QBasicAtomicInt
     #  stringValue   QString
     #  type          QScriptValuePrivate::Type: { JavaScriptCore, Number, String }
-    #d.putValue(" ")
+    #d.putEmptyValue()
     dd = value["d_ptr"]["d"]
     if isNull(dd):
         d.putValue("(invalid)")
@@ -2714,13 +2714,12 @@ def qdump_Array(d, value):
     n = value["length"]
     p = value["ptr"]
     t = cleanDType(value.type)[7:]
-    d.putAddress(value.address)
     d.putType("%s[%d]" % (t, n))
     if t == "char":
         d.putValue(encodeCharArray(p, 100), Hex2EncodedLocal8Bit)
         d.putNumChild(0)
     else:
-        d.putValue(" ")
+        d.putEmptyValue()
         d.putNumChild(n)
         innerType = p.type
         if d.isExpanded():
@@ -2736,9 +2735,8 @@ def qdump_AArray(d, value):
     # member of type void *. Not much that can be done here.
     p = value["ptr"]
     t = cleanDType(value.type)[8:]
-    d.putAddress(value.address)
     d.putType("%s]" % t.replace("_", "["))
-    d.putValue(" ")
+    d.putEmptyValue()
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d, 1):
@@ -2814,7 +2812,7 @@ if False:
         if d.isExpanded():
           with Children(d):
             with SubItem(d, "tree"):
-              d.putValue(" ")
+              d.putEmptyValue()
               d.putNoType()
               d.putNumChild(1)
               if d.isExpanded():
@@ -2822,7 +2820,7 @@ if False:
                   for i in xrange(count):
                       d.putSubItem(Item(entries[i], iname))
             with SubItem(d, "data"):
-              d.putValue(" ")
+              d.putEmptyValue()
               d.putNoType()
               d.putNumChild(1)
               if d.isExpanded():

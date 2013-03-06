@@ -1090,19 +1090,15 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
     std::wstring value = simpleDumpValue(ctx);
 
     if (addr) {
-        ULONG64 referencedAddr = 0;
-        // Determine referenced address of pointers?
+        str << std::hex << std::showbase << ",addr=\"" << addr << '"';
         if (!value.compare(0, 2u, L"0x")) {
-            std::wistringstream str(value.substr(2u, value.size() - 2u));
-            str >> std::hex >> referencedAddr;
+            // Determine referenced address of pointers?
+            ULONG64 referencedAddr = 0;
+            std::wistringstream istr(value.substr(2u, value.size() - 2u));
+            istr >> std::hex >> referencedAddr;
+            if (referencedAddr)
+                str << ",origaddr=\"" << referencedAddr << '"';
         }
-        // Emulate gdb's behaviour of returning the referenced address
-        // for pointers.
-        str << std::hex << std::showbase;
-        if (referencedAddr)
-            str << ",addr=\"" << referencedAddr << "\",origaddr=\"" << addr << '"';
-        else
-            str << ",addr=\"" << addr << '"';
         str << std::noshowbase << std::dec;
     }
     const ULONG s = size();

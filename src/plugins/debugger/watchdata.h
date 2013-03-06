@@ -99,9 +99,7 @@ public:
 
     void setError(const QString &);
     void setValue(const QString &);
-    void setValueToolTip(const QString &);
     void setType(const QByteArray &, bool guessChildrenFromType = true);
-    void updateAddress(const quint64 &);
     void setHexAddress(const QByteArray &a);
 
     QString toString()  const;
@@ -111,14 +109,12 @@ public:
     static QString shadowedName(const QString &name, int seen);
     static const QString &shadowedNameFormat();
 
-    quint64    coreAddress() const;
     QByteArray hexAddress()  const;
-    QByteArray hexReferencingAddress()  const;
 
     // Protocol interaction.
     void updateValue(const GdbMi &item);
     void updateChildCount(const GdbMi &mi);
-    void updateAddress(const GdbMi &addressMi, const GdbMi &origAddressMi);
+    void updateAddress(const GdbMi &addressMi);
     void updateType(const GdbMi &item);
     void updateDisplayedType(const GdbMi &item);
 
@@ -135,8 +131,8 @@ public:
     QString    typeFormats;  // Selection of formats of displayed value
     QByteArray type;         // Type for further processing
     QString    displayedType;// Displayed type (optional)
-    quint64    address;      // Displayed address
-    quint64    referencingAddress; // Address of the pointer referencing this item (gdb auto-deref)
+    quint64    address;      // Displayed address of the actual object
+    quint64    origaddr;     // Address of the pointer referencing this item (gdb auto-deref)
     uint       size;         // Size
     uint       bitpos;       // Position within bit fields
     uint       bitsize;      // Size in case of bit fields

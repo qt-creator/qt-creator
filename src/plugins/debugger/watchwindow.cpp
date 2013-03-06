@@ -148,12 +148,12 @@ private:
 // Watch model query helpers.
 static inline quint64 addressOf(const QModelIndex &m)
 {
-    return m.data(LocalsAddressRole).toULongLong();
+    return m.data(LocalsObjectAddressRole).toULongLong();
 }
 
-static inline quint64 pointerValueOf(const QModelIndex &m)
+static inline quint64 pointerAddressOf(const QModelIndex &m)
 {
-    return m.data(LocalsPointerValueRole).toULongLong();
+    return m.data(LocalsPointerAddressRole).toULongLong();
 }
 
 static inline QString nameOf(const QModelIndex &m)
@@ -373,15 +373,15 @@ static MemoryMarkupList
 
 // Convenience to create a memory view of a variable.
 static void addVariableMemoryView(DebuggerEngine *engine, bool separateView,
-    const QModelIndex &m, bool deferencePointer,
+    const QModelIndex &m, bool atPointerAddress,
     const QPoint &p, QWidget *parent)
 {
     const QColor background = parent->palette().color(QPalette::Normal, QPalette::Base);
-    const quint64 address = deferencePointer ? pointerValueOf(m) : addressOf(m);
+    const quint64 address = atPointerAddress ? pointerAddressOf(m) : addressOf(m);
     // Fixme: Get the size of pointee (see variableMemoryMarkup())?
     const QString rootToolTip = variableToolTip(nameOf(m), typeOf(m), 0);
     const quint64 typeSize = sizeOf(m);
-    const bool sizeIsEstimate = deferencePointer || !typeSize;
+    const bool sizeIsEstimate = atPointerAddress || !typeSize;
     const quint64 size    = sizeIsEstimate ? 1024 : typeSize;
     if (!address)
          return;
@@ -392,10 +392,10 @@ static void addVariableMemoryView(DebuggerEngine *engine, bool separateView,
                              sizeIsEstimate, background);
     const unsigned flags = separateView
         ? DebuggerEngine::MemoryView|DebuggerEngine::MemoryReadOnly : 0;
-    const QString title = deferencePointer
-        ?  WatchTreeView::tr("Memory Referenced by Pointer \"%1\" (0x%2)")
+    const QString title = atPointerAddress
+        ?  WatchTreeView::tr("Memory at Pointer's Address \"%1\" (0x%2)")
                 .arg(nameOf(m)).arg(address, 0, 16)
-        : WatchTreeView::tr("Memory at Variable \"%1\" (0x%2)")
+        : WatchTreeView::tr("Memory at Object's Address \"%1\" (0x%2)")
                 .arg(nameOf(m)).arg(address, 0, 16);
     engine->openMemoryView(address, flags, markup, p, title, parent);
 }
@@ -418,7 +418,8 @@ static void addStackLayoutMemoryView(DebuggerEngine *engine, bool separateView,
     // pointer' items as they are outside the address range.
     for (int r = 0; r < localsItemCount; r++) {
         const QModelIndex idx = localsIndex.child(r, 0);
-        if (idx.data(LocalsReferencingAddressRole).toULongLong() == 0) {
+        const quint64 pointerAddress = pointerAddressOf(idx);
+        if (pointerAddress == 0) {
             const quint64 address = addressOf(idx);
             if (address) {
                 if (address < start)
@@ -604,13 +605,13 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     const QModelIndex mi2 = idx.sibling(idx.row(), 2);
     const quint64 address = addressOf(mi0);
     const uint size = sizeOf(mi0);
-    const quint64 pointerValue = pointerValueOf(mi0);
+    const quint64 pointerAddress = pointerAddressOf(mi0);
     const QString exp = mi0.data(LocalsExpressionRole).toString();
     const QString name = mi0.data(LocalsNameRole).toString();
     const QString type = mi2.data().toString();
 
     // Offer to open address pointed to or variable address.
-    const bool createPointerActions = pointerValue && pointerValue != address;
+    const bool createPointerActions = pointerAddress && pointerAddress != address;
 
     const QStringList alternativeFormats =
         mi0.data(LocalsTypeFormatListRole).toStringList();
@@ -705,29 +706,29 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
 
     QMenu breakpointMenu;
     breakpointMenu.setTitle(tr("Add Data Breakpoint..."));
-    QAction *actSetWatchpointAtVariableAddress = 0;
-    QAction *actSetWatchpointAtPointerValue = 0;
+    QAction *actSetWatchpointAtObjectAddress = 0;
+    QAction *actSetWatchpointAtPointerAddress = 0;
     const bool canSetWatchpoint = engine->hasCapability(WatchpointByAddressCapability);
     if (canSetWatchpoint && address) {
-        actSetWatchpointAtVariableAddress =
+        actSetWatchpointAtObjectAddress =
             new QAction(tr("Add Data Breakpoint at Object's Address (0x%1)")
                 .arg(address, 0, 16), &breakpointMenu);
-        actSetWatchpointAtVariableAddress->
-            setChecked(mi0.data(LocalsIsWatchpointAtAddressRole).toBool());
+        actSetWatchpointAtObjectAddress->
+            setChecked(mi0.data(LocalsIsWatchpointAtObjectAddressRole).toBool());
         if (createPointerActions) {
-            actSetWatchpointAtPointerValue =
-                new QAction(tr("Add Data Breakpoint at Referenced Address (0x%1)")
-                    .arg(pointerValue, 0, 16), &breakpointMenu);
-            actSetWatchpointAtPointerValue->setCheckable(true);
-            actSetWatchpointAtPointerValue->
-                setChecked(mi0.data(LocalsIsWatchpointAtPointerValueRole).toBool());
+            actSetWatchpointAtPointerAddress =
+                new QAction(tr("Add Data Breakpoint at Pointer's Address (0x%1)")
+                    .arg(pointerAddress, 0, 16), &breakpointMenu);
+            actSetWatchpointAtPointerAddress->setCheckable(true);
+            actSetWatchpointAtPointerAddress->
+                setChecked(mi0.data(LocalsIsWatchpointAtPointerAddressRole).toBool());
         }
     } else {
-        actSetWatchpointAtVariableAddress =
+        actSetWatchpointAtObjectAddress =
             new QAction(tr("Add Data Breakpoint"), &breakpointMenu);
-        actSetWatchpointAtVariableAddress->setEnabled(false);
+        actSetWatchpointAtObjectAddress->setEnabled(false);
     }
-    actSetWatchpointAtVariableAddress->setToolTip(
+    actSetWatchpointAtObjectAddress->setToolTip(
         tr("Setting a data breakpoint on an address will cause the program "
            "to stop when the data at the address is modified."));
 
@@ -748,9 +749,9 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
            "to stop when the data at the address given by the expression "
            "is modified."));
 
-    breakpointMenu.addAction(actSetWatchpointAtVariableAddress);
-    if (actSetWatchpointAtPointerValue)
-        breakpointMenu.addAction(actSetWatchpointAtPointerValue);
+    breakpointMenu.addAction(actSetWatchpointAtObjectAddress);
+    if (actSetWatchpointAtPointerAddress)
+        breakpointMenu.addAction(actSetWatchpointAtPointerAddress);
     breakpointMenu.addAction(actSetWatchpointAtExpression);
 
     QMenu menu;
@@ -792,51 +793,51 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
 
     QMenu memoryMenu;
     memoryMenu.setTitle(tr("Open Memory Editor..."));
-    QAction *actOpenMemoryEditAtVariableAddress = new QAction(&memoryMenu);
-    QAction *actOpenMemoryEditAtPointerValue = new QAction(&memoryMenu);
+    QAction *actOpenMemoryEditAtObjectAddress = new QAction(&memoryMenu);
+    QAction *actOpenMemoryEditAtPointerAddress = new QAction(&memoryMenu);
     QAction *actOpenMemoryEditor = new QAction(&memoryMenu);
     QAction *actOpenMemoryEditorStackLayout = new QAction(&memoryMenu);
-    QAction *actOpenMemoryViewAtVariableAddress = new QAction(&memoryMenu);
-    QAction *actOpenMemoryViewAtPointerValue = new QAction(&memoryMenu);
+    QAction *actOpenMemoryViewAtObjectAddress = new QAction(&memoryMenu);
+    QAction *actOpenMemoryViewAtPointerAddress = new QAction(&memoryMenu);
     if (engine->hasCapability(ShowMemoryCapability)) {
         actOpenMemoryEditor->setText(tr("Open Memory Editor..."));
         if (address) {
-            actOpenMemoryEditAtVariableAddress->setText(
+            actOpenMemoryEditAtObjectAddress->setText(
                 tr("Open Memory Editor at Object's Address (0x%1)")
                     .arg(address, 0, 16));
-            actOpenMemoryViewAtVariableAddress->setText(
+            actOpenMemoryViewAtObjectAddress->setText(
                     tr("Open Memory View at Object's Address (0x%1)")
                         .arg(address, 0, 16));
         } else {
-            actOpenMemoryEditAtVariableAddress->setText(
+            actOpenMemoryEditAtObjectAddress->setText(
                 tr("Open Memory Editor at Object's Address"));
-            actOpenMemoryEditAtVariableAddress->setEnabled(false);
-            actOpenMemoryViewAtVariableAddress->setText(
+            actOpenMemoryEditAtObjectAddress->setEnabled(false);
+            actOpenMemoryViewAtObjectAddress->setText(
                     tr("Open Memory View at Object's Address"));
-            actOpenMemoryViewAtVariableAddress->setEnabled(false);
+            actOpenMemoryViewAtObjectAddress->setEnabled(false);
         }
         if (createPointerActions) {
-            actOpenMemoryEditAtPointerValue->setText(
-                tr("Open Memory Editor at Referenced Address (0x%1)")
-                    .arg(pointerValue, 0, 16));
-            actOpenMemoryViewAtPointerValue->setText(
-                tr("Open Memory View at Referenced Address (0x%1)")
-                    .arg(pointerValue, 0, 16));
+            actOpenMemoryEditAtPointerAddress->setText(
+                tr("Open Memory Editor at Pointer's Address (0x%1)")
+                    .arg(pointerAddress, 0, 16));
+            actOpenMemoryViewAtPointerAddress->setText(
+                tr("Open Memory View at Pointer's Address (0x%1)")
+                    .arg(pointerAddress, 0, 16));
         } else {
-            actOpenMemoryEditAtPointerValue->setText(
-                tr("Open Memory Editor at Referenced Address"));
-            actOpenMemoryEditAtPointerValue->setEnabled(false);
-            actOpenMemoryViewAtPointerValue->setText(
-                tr("Open Memory View at Referenced Address"));
-            actOpenMemoryViewAtPointerValue->setEnabled(false);
+            actOpenMemoryEditAtPointerAddress->setText(
+                tr("Open Memory Editor at Pointer's Address"));
+            actOpenMemoryEditAtPointerAddress->setEnabled(false);
+            actOpenMemoryViewAtPointerAddress->setText(
+                tr("Open Memory View at Pointer's Address"));
+            actOpenMemoryViewAtPointerAddress->setEnabled(false);
         }
         actOpenMemoryEditorStackLayout->setText(
             tr("Open Memory Editor Showing Stack Layout"));
         actOpenMemoryEditorStackLayout->setEnabled(m_type == LocalsType);
-        memoryMenu.addAction(actOpenMemoryViewAtVariableAddress);
-        memoryMenu.addAction(actOpenMemoryViewAtPointerValue);
-        memoryMenu.addAction(actOpenMemoryEditAtVariableAddress);
-        memoryMenu.addAction(actOpenMemoryEditAtPointerValue);
+        memoryMenu.addAction(actOpenMemoryViewAtObjectAddress);
+        memoryMenu.addAction(actOpenMemoryViewAtPointerAddress);
+        memoryMenu.addAction(actOpenMemoryEditAtObjectAddress);
+        memoryMenu.addAction(actOpenMemoryEditAtPointerAddress);
         memoryMenu.addAction(actOpenMemoryEditorStackLayout);
         memoryMenu.addAction(actOpenMemoryEditor);
     } else {
@@ -887,9 +888,9 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
                                    QString(), &ok);
         if (ok && !newExp.isEmpty())
             watchExpression(newExp);
-    } else if (act == actOpenMemoryEditAtVariableAddress) {
+    } else if (act == actOpenMemoryEditAtObjectAddress) {
         addVariableMemoryView(currentEngine(), false, mi0, false, ev->globalPos(), this);
-    } else if (act == actOpenMemoryEditAtPointerValue) {
+    } else if (act == actOpenMemoryEditAtPointerAddress) {
         addVariableMemoryView(currentEngine(), false, mi0, true, ev->globalPos(), this);
     } else if (act == actOpenMemoryEditor) {
         AddressDialog dialog;
@@ -897,16 +898,16 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
             dialog.setAddress(address);
         if (dialog.exec() == QDialog::Accepted)
             currentEngine()->openMemoryView(dialog.address(), false, MemoryMarkupList(), QPoint());
-    } else if (act == actOpenMemoryViewAtVariableAddress) {
+    } else if (act == actOpenMemoryViewAtObjectAddress) {
         addVariableMemoryView(currentEngine(), true, mi0, false, ev->globalPos(), this);
-    } else if (act == actOpenMemoryViewAtPointerValue) {
+    } else if (act == actOpenMemoryViewAtPointerAddress) {
         addVariableMemoryView(currentEngine(), true, mi0, true, ev->globalPos(), this);
     } else if (act == actOpenMemoryEditorStackLayout) {
         addStackLayoutMemoryView(currentEngine(), false, model(), ev->globalPos(), this);
-    } else if (act == actSetWatchpointAtVariableAddress) {
+    } else if (act == actSetWatchpointAtObjectAddress) {
         breakHandler()->setWatchpointAtAddress(address, size);
-    } else if (act == actSetWatchpointAtPointerValue) {
-        breakHandler()->setWatchpointAtAddress(pointerValue, sizeof(void *)); // FIXME: an approximation..
+    } else if (act == actSetWatchpointAtPointerAddress) {
+        breakHandler()->setWatchpointAtAddress(pointerAddress, sizeof(void *)); // FIXME: an approximation..
     } else if (act == actSetWatchpointAtExpression) {
         breakHandler()->setWatchpointAtExpression(name);
     } else if (act == actSelectWidgetToWatch) {

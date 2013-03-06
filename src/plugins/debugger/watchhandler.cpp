@@ -233,12 +233,12 @@ private:
     void setCurrentItem(const QByteArray &iname);
 
     QString displayType(const WatchData &typeIn) const;
+    QString displayName(const WatchItem *item) const;
+    QString displayValue(const WatchData &data) const;
     QString formattedValue(const WatchData &data) const;
-    QString removeInitialNamespace(QString str) const;
     QString removeNamespaces(QString str) const;
     void formatRequests(QByteArray *out, const WatchItem *item) const;
     DebuggerEngine *engine() const;
-    QString display(const WatchItem *item, int col) const;
     int itemFormat(const WatchData &data) const;
     bool contentIsValid() const;
 
@@ -499,30 +499,6 @@ QString WatchModel::removeNamespaces(QString str) const
             str.remove(qtNamespace);
     }
     return str;
-}
-
-QString WatchModel::removeInitialNamespace(QString str) const
-{
-    if (str.startsWith(QLatin1String("std::"))
-            && debuggerCore()->boolSetting(ShowStdNamespace))
-        str = str.mid(5);
-    if (!debuggerCore()->boolSetting(ShowQtNamespace)) {
-        const QByteArray qtNamespace = engine()->qtNamespace();
-        if (!qtNamespace.isEmpty() && str.startsWith(QLatin1String(qtNamespace)))
-            str = str.mid(qtNamespace.size());
-    }
-    return str;
-}
-
-QString WatchModel::displayType(const WatchData &data) const
-{
-    QString base = data.displayedType.isEmpty()
-        ? niceTypeHelper(data.type)
-        : data.displayedType;
-    if (data.bitsize)
-        base += QString::fromLatin1(":%1").arg(data.bitsize);
-    base.remove(QLatin1Char('\''));
-    return base;
 }
 
 static int formatToIntegerBase(int format)
@@ -964,39 +940,40 @@ static QString expression(const WatchItem *item)
     return QString();
 }
 
-QString WatchModel::display(const WatchItem *item, int col) const
+QString WatchModel::displayName(const WatchItem *item) const
 {
     QString result;
-    switch (col) {
-        case 0:
-            if (item->parent == m_watchRoot && item->name.isEmpty())
-                result = tr("<Edit>");
-            else if (item->parent == m_returnRoot)
-                result = tr("returned value");
-            else if (item->name == QLatin1String("*"))
-                result = QLatin1Char('*') + item->parent->name;
-            else
-                result = removeInitialNamespace(item->name);
-            break;
-        case 1:
-            result = removeInitialNamespace(
-                truncateValue(formattedValue(*item)));
-            // Append referencing address unless the value contains it.
-            if (item->referencingAddress) {
-                if (result.startsWith(QLatin1String("0x"))) {
-                    result.prepend(QLatin1Char('@'));
-                } else {
-                    result += QLatin1String(" @");
-                    result += QString::fromLatin1(item->hexReferencingAddress());
-                }
-            }
-            break;
-        case 2:
-            result = removeNamespaces(displayType(*item));
-            break;
-        default:
-            break;
-    }
+    if (item->parent == m_watchRoot && item->name.isEmpty())
+        result = tr("<Edit>");
+    else if (item->parent == m_returnRoot)
+        result = tr("returned value");
+    else if (item->name == QLatin1String("*"))
+        result = QLatin1Char('*') + item->parent->name;
+    else
+        result = removeNamespaces(item->name);
+    return result;
+}
+
+QString WatchModel::displayValue(const WatchData &data) const
+{
+    QString result = removeNamespaces(truncateValue(formattedValue(data)));
+    if (result.isEmpty() && data.address)
+        result += QString::fromLatin1("@0x" + QByteArray::number(data.address, 16));
+//    if (data.origaddr)
+//        result += QString::fromLatin1(" (0x" + QByteArray::number(data.origaddr, 16) + ')');
+    QTC_CHECK(!result.isEmpty());
+    return result;
+}
+
+QString WatchModel::displayType(const WatchData &data) const
+{
+    QString result = data.displayedType.isEmpty()
+        ? niceTypeHelper(data.type)
+        : data.displayedType;
+    if (data.bitsize)
+        result += QString::fromLatin1(":%1").arg(data.bitsize);
+    result.remove(QLatin1Char('\''));
+    result = removeNamespaces(result);
     return result;
 }
 
@@ -1004,7 +981,7 @@ QString WatchModel::displayForAutoTest(const QByteArray &iname) const
 {
     WatchItem *item = findItem(iname);
     if (item)
-        return display(item, 1) + QLatin1Char(' ') + display(item, 2);
+        return displayValue(*item) + QLatin1Char(' ') + displayType(*item);
     return QString();
 }
 
@@ -1039,13 +1016,19 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                     if (!data.displayedType.isEmpty())
                         return data.displayedType;
                     return QString::fromUtf8(data.type);
-                default:
-                    break;
             }
         }
 
-        case Qt::DisplayRole:
-            return display(item, idx.column());
+        case Qt::DisplayRole: {
+            switch (idx.column()) {
+                case 0:
+                    return displayName(item);
+                case 1:
+                    return displayValue(data);
+                case 2:
+                    return displayType(data);
+            }
+        }
 
         case Qt::ToolTipRole:
             return debuggerCore()->boolSetting(UseToolTipsInLocalsView)
@@ -1055,7 +1038,11 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             static const QVariant red(QColor(200, 0, 0));
             static const QVariant gray(QColor(140, 140, 140));
             if (idx.column() == 1) {
-                if (!data.valueEnabled || (!contentIsValid() && !data.isInspect()))
+                if (!data.valueEnabled)
+                    return gray;
+                if (!contentIsValid() && !data.isInspect())
+                    return gray;
+                if (data.value.isEmpty()) // This might still show 0x...
                     return gray;
                 if (data.value != m_valueCache.value(data.iname))
                     return red;
@@ -1093,23 +1080,22 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         case LocalsRawValueRole:
             return data.value;
 
-        case LocalsPointerValueRole:
-            return data.referencingAddress;
+        case LocalsObjectAddressRole:
+            return data.address;
 
-        case LocalsIsWatchpointAtAddressRole: {
+        case LocalsPointerAddressRole:
+            return data.origaddr;
+
+        case LocalsIsWatchpointAtObjectAddressRole: {
             BreakpointParameters bp(WatchpointAtAddress);
-            bp.address = data.coreAddress();
+            bp.address = data.address;
             return engine()->breakHandler()->findWatchpoint(bp) != 0;
         }
 
-        case LocalsAddressRole:
-            return QVariant(data.coreAddress());
-        case LocalsReferencingAddressRole:
-            return QVariant(data.referencingAddress);
         case LocalsSizeRole:
             return QVariant(data.size);
 
-        case LocalsIsWatchpointAtPointerValueRole:
+        case LocalsIsWatchpointAtPointerAddressRole:
             if (isPointerType(data.type)) {
                 BreakpointParameters bp(WatchpointAtAddress);
                 bp.address = pointerValue(data.value);
@@ -1231,7 +1217,7 @@ QVariant WatchModel::headerData(int section, Qt::Orientation orientation, int ro
 
 QStringList WatchModel::typeFormatList(const WatchData &data) const
 {
-    if (data.referencingAddress || isPointerType(data.type))
+    if (data.origaddr || isPointerType(data.type))
         return QStringList()
             << tr("Raw pointer")
             << tr("Latin1 string")

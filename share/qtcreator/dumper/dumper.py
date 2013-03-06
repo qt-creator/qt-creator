@@ -379,11 +379,13 @@ class SubItem:
         self.savedValueEncoding = self.d.currentValueEncoding
         self.savedType = self.d.currentType
         self.savedTypePriority = self.d.currentTypePriority
+        self.savedCurrentAddress = self.d.currentAddress
         self.d.currentIName = self.iname
         self.d.currentValuePriority = -100
         self.d.currentValueEncoding = None
         self.d.currentType = ""
         self.d.currentTypePriority = -100
+        self.d.currentAddress = None
 
     def __exit__(self, exType, exValue, exTraceBack):
         #warn(" CURRENT VALUE: %s %s %s" % (self.d.currentValue,
@@ -408,6 +410,8 @@ class SubItem:
                 self.d.put('value="%s",' % self.d.currentValue)
         except:
             pass
+        if not self.d.currentAddress is None:
+            self.d.put(self.d.currentAddress)
         self.d.put('},')
         self.d.currentIName = self.savedIName
         self.d.currentValue = self.savedValue
@@ -415,6 +419,7 @@ class SubItem:
         self.d.currentValueEncoding = self.savedValueEncoding
         self.d.currentType = self.savedType
         self.d.currentTypePriority = self.savedTypePriority
+        self.d.currentAddress = self.savedCurrentAddress
         return True
 
 class TopLevelItem(SubItem):
@@ -992,6 +997,7 @@ class Dumper:
         self.currentValueEncoding = None
         self.currentType = None
         self.currentTypePriority = -100
+        self.currentAddress = None
         self.typeformats = {}
         self.formats = {}
         self.useDynamicType = True
@@ -1240,7 +1246,8 @@ class Dumper:
         if self.currentPrintsAddress:
             try:
                 # addr can be "None", long(None) fails.
-                self.put('addr="0x%x",' % long(addr))
+                #self.put('addr="0x%x",' % long(addr))
+                self.currentAddress = 'addr="0x%x",' % long(addr)
             except:
                 pass
 
@@ -1248,6 +1255,12 @@ class Dumper:
         #warn("NUM CHILD: '%s' '%s'" % (numchild, self.currentChildNumChild))
         if numchild != self.currentChildNumChild:
             self.put('numchild="%s",' % numchild)
+
+    def putEmptyValue(self, priority = -10):
+        if priority >= self.currentValuePriority:
+            self.currentValue = ""
+            self.currentValuePriority = priority
+            self.currentValueEncoding = None
 
     def putValue(self, value, encoding = None, priority = 0):
         # Higher priority values override lower ones.
@@ -1259,9 +1272,9 @@ class Dumper:
     def putPointerValue(self, value):
         # Use a lower priority
         if value is None:
-            self.putValue(" ", None, -1)
+            self.putEmptyValue(-1)
         else:
-            self.putValue("0x%x" % value.dereference().cast(
+            self.putValue("0x%x" % value.cast(
                 lookupType("unsigned long")), None, -1)
 
     def putStringValue(self, value, priority = 0):
@@ -1327,7 +1340,6 @@ class Dumper:
     def putIntItem(self, name, value):
         with SubItem(self, name):
             self.putValue(value)
-            self.putAddress(value.address)
             self.putType("int")
             self.putNumChild(0)
 
@@ -1434,6 +1446,8 @@ class Dumper:
         typeName = str(type)
         tryDynamic &= self.useDynamicType
         lookupType(typeName) # Fill type cache
+        if tryDynamic:
+            self.putAddress(value.address)
 
         # FIXME: Gui shows references stripped?
         #warn(" ")
@@ -1480,7 +1494,6 @@ class Dumper:
                 return
 
         if type.code == IntCode or type.code == CharCode:
-            self.putAddress(value.address)
             self.putType(typeName)
             if value.is_optimized_out:
                 self.putValue("<optimized out>")
@@ -1490,7 +1503,6 @@ class Dumper:
             return
 
         if type.code == FloatCode or type.code == BoolCode:
-            self.putAddress(value.address)
             self.putType(typeName)
             if value.is_optimized_out:
                 self.putValue("<optimized out>")
@@ -1500,7 +1512,6 @@ class Dumper:
             return
 
         if type.code == EnumCode:
-            self.putAddress(value.address)
             self.putType(typeName)
             if value.is_optimized_out:
                 self.putValue("<optimized out>")
@@ -1510,7 +1521,6 @@ class Dumper:
             return
 
         if type.code == ComplexCode:
-            self.putAddress(value.address)
             self.putType(typeName)
             if value.is_optimized_out:
                 self.putValue("<optimized out>")
@@ -1527,7 +1537,7 @@ class Dumper:
 
             type = stripTypedefs(type)
             # The cast can destroy the address?
-            self.putAddress(value.address)
+            #self.putAddress(value.address)
             # Workaround for http://sourceware.org/bugzilla/show_bug.cgi?id=13380
             if type.code == ArrayCode:
                 value = parseAndEvaluate("{%s}%s" % (type, value.address))
@@ -1568,7 +1578,6 @@ class Dumper:
 
             if isNull(value):
                 #warn("NULL POINTER")
-                self.putAddress(value.address)
                 self.putType(typeName)
                 self.putValue("0x0")
                 self.putNumChild(0)
@@ -1585,12 +1594,10 @@ class Dumper:
                 self.putType(typeName)
                 self.putValue(str(value))
                 self.putNumChild(0)
-                self.putAddress(value.address)
                 return
 
             if format == None and innerTypeName == "char":
                 # Use Latin1 as default for char *.
-                self.putAddress(value.address)
                 self.putType(typeName)
                 self.putValue(encodeCharArray(value), Hex2EncodedLatin1)
                 self.putNumChild(0)
@@ -1598,20 +1605,17 @@ class Dumper:
 
             if format == 0:
                 # Explicitly requested bald pointer.
-                self.putAddress(value.address)
                 self.putType(typeName)
-                self.putPointerValue(value.address)
+                self.putPointerValue(value)
                 self.putNumChild(1)
                 if self.currentIName in self.expandedINames:
                     with Children(self):
                         with SubItem(self, '*'):
                             self.putItem(value.dereference())
-                            #self.putAddress(value)
                 return
 
             if format == 1:
                 # Explicitly requested Latin1 formatting.
-                self.putAddress(value.address)
                 self.putType(typeName)
                 self.putValue(encodeCharArray(value), Hex2EncodedLatin1)
                 self.putNumChild(0)
@@ -1619,7 +1623,6 @@ class Dumper:
 
             if format == 2:
                 # Explicitly requested UTF-8 formatting.
-                self.putAddress(value.address)
                 self.putType(typeName)
                 self.putValue(encodeCharArray(value), Hex2EncodedUtf8)
                 self.putNumChild(0)
@@ -1627,7 +1630,6 @@ class Dumper:
 
             if format == 3:
                 # Explicitly requested local 8 bit formatting.
-                self.putAddress(value.address)
                 self.putType(typeName)
                 self.putValue(encodeCharArray(value), Hex2EncodedLocal8Bit)
                 self.putNumChild(0)
@@ -1635,7 +1637,6 @@ class Dumper:
 
             if format == 4:
                 # Explicitly requested UTF-16 formatting.
-                self.putAddress(value.address)
                 self.putType(typeName)
                 self.putValue(encodeChar2Array(value), Hex4EncodedLittleEndian)
                 self.putNumChild(0)
@@ -1643,7 +1644,6 @@ class Dumper:
 
             if format == 5:
                 # Explicitly requested UCS-4 formatting.
-                self.putAddress(value.address)
                 self.putType(typeName)
                 self.putValue(encodeChar4Array(value), Hex8EncodedLittleEndian)
                 self.putNumChild(0)
@@ -1652,7 +1652,6 @@ class Dumper:
             if innerType.code == MethodCode or innerType.code == FunctionCode:
                 # A function pointer with format None.
                 self.putValue(str(value))
-                self.putAddress(value.address)
                 self.putType(typeName)
                 self.putNumChild(0)
                 return
@@ -1673,20 +1672,26 @@ class Dumper:
                     self.currentChildType = stripClassTag(innerTypeName)
                     self.putItem(value.dereference())
                     self.currentChildType = savedCurrentChildType
-                    self.putPointerValue(value.address)
-                    self.put('origaddr="%s",' % cleanAddress(value.address))
+                    #self.putPointerValue(value)
+                    self.put('origaddr="%s",' % value.address)
                     return
 
             # Fall back to plain pointer printing.
-            #warn("GENERIC PLAIN POINTER: %s" % value.type)
+            warn("GENERIC PLAIN POINTER: %s" % value.type)
+            warn("ADDR PLAIN POINTER: %s" % value.address)
             self.putType(typeName)
-            self.putAddress(value.address)
+            self.putField("aaa", "1")
+            #self.put('addr="0x%x",' % long(value.address))
+            #self.putAddress(value.address)
+            self.putField("bbb", "1")
+            #self.putPointerValue(value)
+            self.putValue("0x%x" % value.cast(lookupType("unsigned long")))
+            self.putField("ccc", "1")
             self.putNumChild(1)
             if self.currentIName in self.expandedINames:
                 with Children(self):
                     with SubItem(self, "*"):
                         self.putItem(value.dereference())
-            self.putPointerValue(value.address)
             return
 
         if type.code == MethodPointerCode \
@@ -1694,7 +1699,6 @@ class Dumper:
                 or type.code == FunctionCode \
                 or type.code == MemberPointerCode:
             self.putType(typeName)
-            self.putAddress(value.address)
             self.putValue(value)
             self.putNumChild(0)
             return
@@ -1723,7 +1727,6 @@ class Dumper:
             format = self.typeformats.get(stripForFormat(typeName))
 
         if self.useFancy and (format is None or format >= 1):
-            self.putAddress(value.address)
             self.putType(typeName)
 
             nsStrippedType = self.stripNamespaceFromType(typeName)\
@@ -1755,7 +1758,6 @@ class Dumper:
             n = value["length"]
             base = value["ptr"]
             self.putType(typeName)
-            self.putAddress(value.address)
             self.putItemCount(n)
             if self.isExpanded():
                 self.putArrayData(base.type.target(), base, n)
@@ -1771,8 +1773,7 @@ class Dumper:
         self.tryPutObjectNameValue(value)  # Is this too expensive?
 
         self.putType(typeName)
-        self.putAddress(value.address)
-        self.putValue("{...}")
+        self.putEmptyValue()
 
         if False:
             numfields = 0
@@ -1792,9 +1793,8 @@ class Dumper:
                 self.putFields(value)
 
     def putPlainChildren(self, value):
-        self.putValue(" ", None, -99)
+        self.putEmptyValue(-99)
         self.putNumChild(1)
-        self.putAddress(value.address)
         if self.currentIName in self.expandedINames:
             with Children(self):
                self.putFields(value)
@@ -1899,7 +1899,6 @@ class Dumper:
             #warn("FIELD NAME: %s" % field.name)
             if len(field.name) > 0:
                 with SubItem(self, field.name):
-                    #self.putAddress(value.address)
                     self.putItem(value[field.name])
             else:
                 # Further nested.
@@ -1909,7 +1908,7 @@ class Dumper:
                 #child = SameItem(item.value, iname)
                 with SubItem(self, name):
                     self.put('name="%s",' % name)
-                    self.putValue(" ")
+                    self.putEmptyValue()
                     fieldTypeName = str(field.type)
                     if fieldTypeName.endswith("<anonymous union>"):
                         self.putType("<anonymous union>")

@@ -123,7 +123,7 @@ WatchData::WatchData() :
     state(InitialState),
     editformat(0),
     address(0),
-    referencingAddress(0),
+    origaddr(0),
     size(0),
     bitpos(0),
     bitsize(0),
@@ -213,11 +213,6 @@ void WatchData::setValue(const QString &value0)
     setValueUnneeded();
 }
 
-void WatchData::setValueToolTip(const QString &tooltip)
-{
-    valuetooltip = tooltip;
-}
-
 enum GuessChildrenResult { HasChildren, HasNoChildren, HasPossiblyChildren };
 
 static GuessChildrenResult guessChildren(const QByteArray &type)
@@ -271,11 +266,6 @@ void WatchData::setType(const QByteArray &str, bool guessChildrenFromType)
     }
 }
 
-void WatchData::updateAddress(const quint64 &a)
-{
-    address = a;
-}
-
 void WatchData::setHexAddress(const QByteArray &a)
 {
     bool ok;
@@ -307,9 +297,9 @@ QString WatchData::toString() const
         str << "addr=\"0x" << address << doubleQuoteComma;
         str.setIntegerBase(10);
     }
-    if (referencingAddress) {
+    if (origaddr) {
         str.setIntegerBase(16);
-        str << "referencingaddr=\"0x" << referencingAddress << doubleQuoteComma;
+        str << "referencingaddr=\"0x" << origaddr << doubleQuoteComma;
         str.setIntegerBase(10);
     }
     if (!exp.isEmpty())
@@ -360,8 +350,6 @@ static void formatToolTipRow(QTextStream &str,
 
 QString WatchData::toToolTip() const
 {
-    if (!valuetooltip.isEmpty())
-        return QString::number(valuetooltip.size());
     QString res;
     QTextStream str(&res);
     str << "<html><body><table>";
@@ -369,15 +357,16 @@ QString WatchData::toToolTip() const
     formatToolTipRow(str, tr("Expression"), QLatin1String(exp));
     formatToolTipRow(str, tr("Internal Type"), QLatin1String(type));
     formatToolTipRow(str, tr("Displayed Type"), displayedType);
-    QString val = value;
+    QString val = valuetooltip.isEmpty() ? valuetooltip : value;
     if (val.size() > 1000) {
         val.truncate(1000);
         val += tr(" ... <cut off>");
     }
     formatToolTipRow(str, tr("Value"), val);
-    formatToolTipRow(str, tr("Object Address"), formatToolTipAddress(address));
-        if (referencingAddress)
-        formatToolTipRow(str, tr("Referencing Address"), formatToolTipAddress(referencingAddress));
+    if (address)
+        formatToolTipRow(str, tr("Object Address"), formatToolTipAddress(address));
+    if (origaddr)
+        formatToolTipRow(str, tr("Pointer Address"), formatToolTipAddress(origaddr));
     if (size)
         formatToolTipRow(str, tr("Static Object Size"), tr("%n bytes", 0, size));
     formatToolTipRow(str, tr("Internal ID"), QLatin1String(iname));
@@ -411,22 +400,10 @@ QString WatchData::shadowedName(const QString &name, int seen)
     return shadowedNameFormat().arg(name).arg(seen);
 }
 
-quint64 WatchData::coreAddress() const
-{
-    return address;
-}
-
 QByteArray WatchData::hexAddress() const
 {
     if (address)
         return QByteArray("0x") + QByteArray::number(address, 16);
-    return QByteArray();
-}
-
-QByteArray WatchData::hexReferencingAddress() const
-{
-    if (referencingAddress)
-        return QByteArray("0x") + QByteArray::number(referencingAddress, 16);
     return QByteArray();
 }
 
@@ -452,7 +429,7 @@ void setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
     int encoding)
 {
     if (mi.isValid())
-        data.setValueToolTip(decodeData(mi.data(), encoding));
+        data.valuetooltip = decodeData(mi.data(), encoding);
 }
 
 void WatchData::updateChildCount(const GdbMi &mi)
@@ -477,20 +454,10 @@ static void setWatchDataValueEditable(WatchData &data, const GdbMi &mi)
         data.valueEditable = false;
 }
 
-static void setWatchDataExpression(WatchData &data, const GdbMi &mi)
+static void setWatchDataAddress(WatchData &data, quint64 address)
 {
-    if (mi.isValid())
-        data.exp = mi.data();
-}
+    data.address = address;
 
-static void setWatchDataAddress(WatchData &data, quint64 address, quint64 origAddress = 0)
-{
-    if (origAddress) { // Gdb dumpers reports the dereferenced address as origAddress
-        data.address = origAddress;
-        data.referencingAddress = address;
-    } else {
-        data.address = address;
-    }
     if (data.exp.isEmpty() && !data.dumperFlags.startsWith('$')) {
         if (data.iname.startsWith("local.") && data.iname.count('.') == 1)
             // Solve one common case of adding 'class' in
@@ -501,18 +468,17 @@ static void setWatchDataAddress(WatchData &data, quint64 address, quint64 origAd
     }
 }
 
-void WatchData::updateAddress(const GdbMi &addressMi, const GdbMi &origAddressMi)
+void WatchData::updateAddress(const GdbMi &mi)
 {
-    if (!addressMi.isValid())
+    if (!mi.isValid())
         return;
-    const QByteArray addressBA = addressMi.data();
+    const QByteArray addressBA = mi.data();
     if (!addressBA.startsWith("0x")) { // Item model dumpers pull tricks.
         dumperFlags = addressBA;
         return;
     }
-    const quint64 address = addressMi.toAddress();
-    const quint64 origAddress = origAddressMi.toAddress();
-    setWatchDataAddress(*this, address, origAddress);
+    const quint64 address = mi.toAddress();
+    setWatchDataAddress(*this, address);
 }
 
 static void setWatchDataSize(WatchData &data, const GdbMi &mi)
@@ -621,23 +587,36 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
     GdbMi mi = item.findChild("editvalue");
     if (mi.isValid())
         data.editvalue = mi.data();
+
     mi = item.findChild("editformat");
     if (mi.isValid())
         data.editformat = mi.data().toInt();
+
     mi = item.findChild("typeformats");
     if (mi.isValid())
         data.typeFormats = QString::fromUtf8(mi.data());
+
     mi = item.findChild("bitpos");
     if (mi.isValid())
         data.bitpos = mi.data().toInt();
+
     mi = item.findChild("bitsize");
     if (mi.isValid())
         data.bitsize = mi.data().toInt();
 
+    mi = item.findChild("origaddr");
+    if (mi.isValid())
+        data.origaddr = mi.toAddress();
+
+    data.updateAddress(item.findChild("addr"));
     data.updateValue(item);
-    data.updateAddress(item.findChild("addr"), item.findChild("origaddr"));
+
     setWatchDataSize(data, item.findChild("size"));
-    setWatchDataExpression(data, item.findChild("exp"));
+
+    mi = item.findChild("exp");
+    if (mi.isValid())
+        data.exp = mi.data();
+
     setWatchDataValueEnabled(data, item.findChild("valueenabled"));
     setWatchDataValueEditable(data, item.findChild("valueeditable"));
     data.updateChildCount(item.findChild("numchild"));
