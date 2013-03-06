@@ -166,15 +166,15 @@ PanelsWidget::~PanelsWidget()
  * | icon   | name                                      |
  * +        +-------------------------------------------+
  * |        | line                                      |
- * +--------+-------------------------------------------+ ABOVE_CONTENTS_MARGIN
- * |          widget (with contentsmargins adjusted!)   |
+ * +        +-------------------------------------------+ ABOVE_CONTENTS_MARGIN
+ * |        | widget (with contentsmargins adjusted!)   |
  * +--------+-------------------------------------------+ BELOW_CONTENTS_MARGIN
  */
 void PanelsWidget::addPropertiesPanel(PropertiesPanel *panel)
 {
     QTC_ASSERT(panel, return);
 
-    const int headerRow(m_layout->rowCount() - 1);
+    const int headerRow = m_layout->rowCount();
 
     // icon:
     if (!panel->icon().isNull()) {
