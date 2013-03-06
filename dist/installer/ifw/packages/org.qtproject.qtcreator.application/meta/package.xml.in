@@ -14,5 +14,6 @@
     <AutoDependOn>org.qtproject.qtcreator</AutoDependOn>
     <UserInterfaces>
         <UserInterface>associatecommonfiletypesform.ui</UserInterface>
+        <UserInterface>launchqtcreatorcheckboxform.ui</UserInterface>
     </UserInterfaces>
 </Package>
