@@ -64,8 +64,8 @@
             need to have the development environment installed on your
             computer to create and run this type of project.
 
-        \li \gui {Qt Quick 1 Application (from Existing QML File)} converts
-            existing Qt Quick 1 applications to Qt Quick application projects.
+        \li \gui {Qt Quick Application (from Existing QML File)} converts
+            existing Qt Quick applications to Qt Quick application projects.
             This enables you to run them from \QC and to deploy them to mobile
             devices.
 
@@ -80,8 +80,8 @@
 
     \section1 Creating Qt Quick UI Projects
 
-    Select \gui {File > New File or Project > Applications > Qt Quick UI >
-    Choose} and follow the instructions of the wizard.
+    Select \gui File > \gui {New File or Project} > \gui Applications > \gui {Qt Quick 1 UI}
+    or \gui {Qt Quick 2 UI} > \gui Choose and follow the instructions of the wizard.
 
     \QC creates the following files:
 
@@ -114,8 +114,8 @@
     \note The SDK for a particular target platform might install additional
     templates for that platform. For example, the \gui {Qt Quick Application for
     MeeGo Harmattan} template is installed as part of the MeeGo Harmattan tool
-    chain and the QNX templates are installed as part of the BlackBerry NDK or
-    the QNX SDK.
+    chain and the BlackBerry 10 and QNX templates are installed as part of the BlackBerry 10 NDK,
+    BlackBerry NDK, or QNX SDK.
 
     \QC creates the necessary boilerplate files. Some of the files are
     specific to a particular target platform.
@@ -123,8 +123,9 @@
     \section1 Importing QML Applications
 
     If you have existing QML applications that you want to run in \QC or deploy
-    to mobile devices, select the \gui {Qt Quick Application (from Existing QML
-    File)} template to import the main .qml file in your project.
+    to mobile devices, select \gui File > \gui {New File or Project} > \gui Applications >
+    \gui {Qt Quick 1 Application (from Existing QML file} or \gui {Qt Quick 2 Application
+    (from Existing QML File)} > \gui Choose to import the main .qml file in your project.
 
     \image qmldesigner-import-project.png "Select Existing QML File dialog"
 
