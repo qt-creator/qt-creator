@@ -341,6 +341,7 @@ private:
     const QString m_msgWait;
     QSignalMapper *m_repositoryChangedSignalMapper;
     GitSettings *m_settings;
+    QString m_gitQtcEditor;
 };
 
 } // namespace Internal

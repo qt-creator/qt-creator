@@ -63,12 +63,13 @@
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
 
-#include <QRegExp>
-#include <QTime>
-#include <QFileInfo>
+#include <QCoreApplication>
 #include <QDir>
+#include <QFileInfo>
 #include <QHash>
+#include <QRegExp>
 #include <QSignalMapper>
+#include <QTime>
 
 #include <QComboBox>
 #include <QMessageBox>
@@ -401,6 +402,9 @@ GitClient::GitClient(GitSettings *settings) :
 {
     QTC_CHECK(settings);
     connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
+    m_gitQtcEditor = QString::fromLatin1("\"%1\" -client -block -pid %2")
+            .arg(QCoreApplication::applicationFilePath())
+            .arg(QCoreApplication::applicationPid());
 }
 
 GitClient::~GitClient()
@@ -1538,6 +1542,7 @@ QProcessEnvironment GitClient::processEnvironment() const
             && settings()->boolValue(GitSettings::winSetHomeEnvironmentKey)) {
         environment.insert(QLatin1String("HOME"), QDir::toNativeSeparators(QDir::homePath()));
     }
+    environment.insert(QLatin1String("GIT_EDITOR"), m_gitQtcEditor);
     // Set up SSH and C locale (required by git using perl).
     VcsBase::VcsBasePlugin::setProcessEnvironment(&environment, false);
     return environment;
