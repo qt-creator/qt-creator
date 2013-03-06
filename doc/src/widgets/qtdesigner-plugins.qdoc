@@ -74,7 +74,7 @@
 
     \QC uses its own set of Qt Libraries located in the bundle, and therefore,
     you need to configure the \QD plugins that you want to use with \QC.
-    Fore more information about how to deploy applications on Mac OS, see
+    Fore more information about how to deploy applications to Mac OS, see
     \l{http://qt-project.org/doc/qt-4.8/deployment-mac.html}
     {Deploying an Application on Mac OS X}.
 

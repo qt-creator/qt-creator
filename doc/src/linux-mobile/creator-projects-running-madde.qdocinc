@@ -34,7 +34,7 @@
     \gui {Application Output} view.
 
     Choose \gui {Projects > Maemo Run} to view the settings for deploying the
-    application on the connected device and creating the installation package.
+    application to the connected device and creating the installation package.
     For more information, see
     \l{Specifying Run Settings for Linux-Based Devices}.
 

@@ -40,7 +40,7 @@
 
         \li \gui {Qt Quick Application} creates a Qt Quick application project
             that can contain both QML and C++ code. The project includes a
-            QDeclarativeView. You can build the application and deploy it on
+            QDeclarativeView. You can build the application and deploy it to
             desktop and mobile target platforms.
 
             You can select a template that uses either the built-in QML elements

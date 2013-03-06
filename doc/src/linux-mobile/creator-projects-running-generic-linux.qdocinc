@@ -27,7 +27,7 @@
     \gui {Application Output} view.
 
     Choose \gui {Projects > Embedded Linux > Run} to view the settings for deploying
-    the application on the connected device. For more information, see
+    the application to the connected device. For more information, see
     \l{Specifying Run Settings for Linux-Based Devices}.
 
     Debugging works transparently if GDB server is installed on the device and
