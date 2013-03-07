@@ -176,6 +176,8 @@ private slots:
     void test_checksymbols_StaticUse();
     void test_checksymbols_VariableHasTheSameNameAsEnumUse();
     void test_checksymbols_NestedClassOfEnclosingTemplateUse();
+
+    void test_checksymbols_QTCREATORBUG8890_danglingPointer();
 };
 
 void tst_CheckSymbols::test_checksymbols_TypeUse()
@@ -441,6 +443,57 @@ void tst_CheckSymbols::test_checksymbols_NestedClassOfEnclosingTemplateUse()
 
     TestData::check(source, expectedUses);
 }
+
+void tst_CheckSymbols::test_checksymbols_QTCREATORBUG8890_danglingPointer()
+{
+    const QByteArray source =
+       "template<class T> class QList {\n"
+        "    public:\n"
+        "        T operator[](int);\n"
+        "};\n"
+        "\n"
+        "template<class T> class QPointer {\n"
+        "    public:\n"
+        "        T& operator->();\n"
+        "};\n"
+        "\n"
+        "class Foo {\n"
+        "    void foo() {}\n"
+        "};\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    QList<QPointer<Foo> > list;\n"
+        "    list[0]->foo();\n"
+        "    list[0]->foo(); // Crashed because of this 'extra' line.\n"
+        "}\n"
+        ;
+
+    const QList<Use> expectedUses = QList<Use>()
+        << Use(1, 16, 1, SemanticInfo::TypeUse)
+        << Use(1, 25, 5, SemanticInfo::TypeUse)
+        << Use(3, 9, 1, SemanticInfo::TypeUse)
+        << Use(3, 11, 8, SemanticInfo::FunctionUse)
+        << Use(6, 16, 1, SemanticInfo::TypeUse)
+        << Use(6, 25, 8, SemanticInfo::TypeUse)
+        << Use(8, 9, 1, SemanticInfo::TypeUse)
+        << Use(8, 12, 8, SemanticInfo::FunctionUse)
+        << Use(11, 7, 3, SemanticInfo::TypeUse)
+        << Use(12, 10, 3, SemanticInfo::FunctionUse)
+        << Use(15, 6, 1, SemanticInfo::FunctionUse)
+        << Use(17, 5, 5, SemanticInfo::TypeUse)
+        << Use(17, 11, 8, SemanticInfo::TypeUse)
+        << Use(17, 20, 3, SemanticInfo::TypeUse)
+        << Use(17, 27, 4, SemanticInfo::LocalUse)
+        << Use(18, 5, 4, SemanticInfo::LocalUse)
+        << Use(18, 14, 3, SemanticInfo::FunctionUse)
+        << Use(19, 5, 4, SemanticInfo::LocalUse)
+        << Use(19, 14, 3, SemanticInfo::FunctionUse)
+        ;
+
+    TestData::check(source, expectedUses);
+ }
+
 
 QTEST_APPLESS_MAIN(tst_CheckSymbols)
 #include "tst_checksymbols.moc"

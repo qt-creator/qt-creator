@@ -548,7 +548,7 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
             if (typeItems.empty())
                 continue;
 
-            CPlusPlus::Clone cloner(_context.control().data());
+            CPlusPlus::Clone cloner(_context.bindings()->control().data());
 
             for (int n = 0; n < typeItems.size(); ++ n) {
                 FullySpecifiedType newType = cloner.type(typeItems[n].type(), 0);
@@ -1061,7 +1061,8 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
 
 FullySpecifiedType ResolveExpression::instantiate(const Name *className, Symbol *candidate) const
 {
-    return DeprecatedGenTemplateInstance::instantiate(className, candidate, _context.control());
+    return DeprecatedGenTemplateInstance::instantiate(className, candidate,
+                                                      _context.bindings()->control());
 }
 
 bool ResolveExpression::visit(PostIncrDecrAST *ast)
