@@ -253,6 +253,8 @@ QtcPlugin {
         "shared/cdbsymbolpathlisteditor.h",
         "shared/hostutils.cpp",
         "shared/hostutils.h",
+        "shared/peutils.cpp",
+        "shared/peutils.h",
     ]
 
     Group {
@@ -269,8 +271,6 @@ QtcPlugin {
         files: [
             "registerpostmortemaction.cpp",
             "registerpostmortemaction.h",
-            "shared/peutils.cpp",
-            "shared/peutils.h",
         ]
     }
 
