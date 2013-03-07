@@ -2,7 +2,6 @@ SOURCES += $$PWD/backtrace.cpp \
            $$PWD/cdbsymbolpathlisteditor.cpp \
            $$PWD/hostutils.cpp \
            $$PWD/peutils.cpp
-           $$PWD/peutils.h
 
 HEADERS += $$PWD/backtrace.h \
            $$PWD/cdbsymbolpathlisteditor.h \
