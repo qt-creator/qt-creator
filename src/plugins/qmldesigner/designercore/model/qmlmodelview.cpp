@@ -351,23 +351,6 @@ void QmlModelView::modelAboutToBeDetached(Model *model)
     AbstractView::modelAboutToBeDetached(model);
 }
 
-static bool isTransformProperty(const QString &name)
-{
-    static QStringList transformProperties(QStringList() << "x"
-                                                         << "y"
-                                                         << "width"
-                                                         << "height"
-                                                         << "z"
-                                                         << "rotation"
-                                                         << "scale"
-                                                         << "transformOrigin"
-                                                         << "paintedWidth"
-                                                         << "paintedHeight"
-                                                         << "border.width");
-
-    return transformProperties.contains(name);
-}
-
 void QmlModelView::nodeOrderChanged(const NodeListProperty &/*listProperty*/, const ModelNode &/*movedNode*/, int /*oldIndex*/)
 {
 
