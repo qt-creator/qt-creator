@@ -29,59 +29,21 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATION_H
-#define QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATION_H
+#ifndef QNX_INTERNAL_BLACKBERRYDEVICEPROCESSSUPPORT_H
+#define QNX_INTERNAL_BLACKBERRYDEVICEPROCESSSUPPORT_H
 
 #include <remotelinux/linuxdevice.h>
-
-namespace ProjectExplorer {
-class Kit;
-}
 
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryDeviceConfiguration : public RemoteLinux::LinuxDevice
+class BlackBerryDeviceProcessSupport : public RemoteLinux::LinuxDeviceProcessSupport
 {
-    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::BlackBerryDeviceConfiguration)
 public:
-    typedef QSharedPointer<BlackBerryDeviceConfiguration> Ptr;
-    typedef QSharedPointer<const BlackBerryDeviceConfiguration> ConstPtr;
-
-
-    static Ptr create();
-    static Ptr create(const QString &name, Core::Id type, MachineType machineType,
-                      Origin origin = ManuallyAdded, Core::Id id = Core::Id());
-
-    QString debugToken() const;
-    void setDebugToken(const QString &debugToken);
-
-    void fromMap(const QVariantMap &map);
-
-    QString displayType() const;
-    ProjectExplorer::IDeviceWidget *createWidget();
-    QList<Core::Id> actionIds() const;
-    QString displayNameForActionId(Core::Id actionId) const;
-    void executeAction(Core::Id actionId, QWidget *parent) const;
-    ProjectExplorer::IDevice::Ptr clone() const;
-
-    static ConstPtr device(const ProjectExplorer::Kit *k);
-
-    ProjectExplorer::DeviceProcessSupport::Ptr processSupport() const;
-
-protected:
-    BlackBerryDeviceConfiguration();
-    BlackBerryDeviceConfiguration(const QString &name, Core::Id type, MachineType machineType,
-                             Origin origin, Core::Id id);
-    BlackBerryDeviceConfiguration(const BlackBerryDeviceConfiguration &other);
-
-    QVariantMap toMap() const;
-
-private:
-    QString m_debugToken;
+    QString killProcessByNameCommandLine(const QString &filePath) const;
 };
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATION_H
+#endif // QNX_INTERNAL_BLACKBERRYDEVICEPROCESSSUPPORT_H

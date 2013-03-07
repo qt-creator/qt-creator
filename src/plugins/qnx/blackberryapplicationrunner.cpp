@@ -89,6 +89,7 @@ BlackBerryApplicationRunner::BlackBerryApplicationRunner(bool debugMode, BlackBe
     , m_appId(QString())
     , m_running(false)
     , m_stopping(false)
+    , m_tailCommand(QString())
     , m_launchProcess(0)
     , m_stopProcess(0)
     , m_tailProcess(0)
@@ -104,13 +105,11 @@ BlackBerryApplicationRunner::BlackBerryApplicationRunner(bool debugMode, BlackBe
     m_environment = buildConfig->environment();
     m_deployCmd = m_environment.searchInPath(QLatin1String(DEPLOY_CMD));
 
-    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target->kit());
-    m_deviceHost = device->sshParameters().host;
-    m_password = device->sshParameters().password;
+    m_device = BlackBerryDeviceConfiguration::device(target->kit());
     m_barPackage = runConfiguration->barPackage();
 
-    m_sshParams = device->sshParameters();
     // The BlackBerry device always uses key authentication
+    m_sshParams = m_device->sshParameters();
     m_sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByKey;
 
     m_runningStateTimer->setInterval(3000);
@@ -125,9 +124,9 @@ void BlackBerryApplicationRunner::start()
     args << QLatin1String("-launchApp");
     if (m_debugMode)
         args << QLatin1String("-debugNative");
-    args << QLatin1String("-device") << m_deviceHost;
-    if (!m_password.isEmpty())
-        args << QLatin1String("-password") << m_password;
+    args << QLatin1String("-device") << m_sshParams.host;
+    if (!m_sshParams.password.isEmpty())
+        args << QLatin1String("-password") << m_sshParams.password;
     args << QDir::toNativeSeparators(m_barPackage);
 
     if (!m_launchProcess) {
@@ -188,9 +187,9 @@ ProjectExplorer::RunControl::StopResult BlackBerryApplicationRunner::stop()
 
     QStringList args;
     args << QLatin1String("-terminateApp");
-    args << QLatin1String("-device") << m_deviceHost;
-    if (!m_password.isEmpty())
-        args << QLatin1String("-password") << m_password;
+    args << QLatin1String("-device") << m_sshParams.host;
+    if (!m_sshParams.password.isEmpty())
+        args << QLatin1String("-password") << m_sshParams.password;
     args << m_barPackage;
 
     if (!m_stopProcess) {
@@ -252,13 +251,13 @@ void BlackBerryApplicationRunner::readStandardError()
 
 void BlackBerryApplicationRunner::killTailProcess()
 {
+    QTC_ASSERT(!m_tailCommand.isEmpty(), return);
+
+    QString killCommand = m_device->processSupport()->killProcessByNameCommandLine(m_tailCommand);
+
     QSsh::SshRemoteProcessRunner *slayProcess = new QSsh::SshRemoteProcessRunner(this);
     connect(slayProcess, SIGNAL(processClosed(int)), this, SIGNAL(finished()));
-
-    if (m_slog2infoFound)
-        slayProcess->run("slay slog2info", m_sshParams);
-    else
-        slayProcess->run("slay tail", m_sshParams);
+    slayProcess->run(killCommand.toLatin1(), m_sshParams);
 
     // Not supported by OpenSSH server
     //m_tailProcess->sendSignalToProcess(Utils::SshRemoteProcess::KillSignal);
@@ -292,14 +291,13 @@ void BlackBerryApplicationRunner::tailApplicationLog()
                 this, SLOT(handleTailConnectionError()));
     }
 
-    QString command;
     if (m_slog2infoFound) {
-        command = QString::fromLatin1("slog2info -w -b ") + m_appId;
+        m_tailCommand = QString::fromLatin1("slog2info -w -b ") + m_appId;
     } else {
-        command = QLatin1String("tail -c +1 -f /accounts/1000/appdata/") + m_appId
+        m_tailCommand = QLatin1String("tail -c +1 -f /accounts/1000/appdata/") + m_appId
                 + QLatin1String("/logs/log");
     }
-    m_tailProcess->run(command.toLatin1(), m_sshParams);
+    m_tailProcess->run(m_tailCommand.toLatin1(), m_sshParams);
 }
 
 void BlackBerryApplicationRunner::handleSlog2InfoFound()
@@ -386,9 +384,9 @@ void BlackBerryApplicationRunner::determineRunningState()
 {
     QStringList args;
     args << QLatin1String("-isAppRunning");
-    args << QLatin1String("-device") << m_deviceHost;
-    if (!m_password.isEmpty())
-        args << QLatin1String("-password") << m_password;
+    args << QLatin1String("-device") << m_sshParams.host;
+    if (!m_sshParams.password.isEmpty())
+        args << QLatin1String("-password") << m_sshParams.password;
     args << m_barPackage;
 
     if (!m_runningStateProcess) {

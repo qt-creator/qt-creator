@@ -73,7 +73,8 @@ SOURCES += qnxplugin.cpp \
     blackberrydebugtokenrequestdialog.cpp \
     blackberrydebugtokenuploader.cpp \
     blackberrydebugtokenreader.cpp \
-    blackberryndkprocess.cpp
+    blackberryndkprocess.cpp \
+    blackberrydeviceprocesssupport.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -143,7 +144,8 @@ HEADERS += qnxplugin.h\
     blackberrydebugtokenrequestdialog.h \
     blackberrydebugtokenuploader.h \
     blackberrydebugtokenreader.h \
-    blackberryndkprocess.h
+    blackberryndkprocess.h \
+    blackberrydeviceprocesssupport.h
 
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \

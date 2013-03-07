@@ -77,6 +77,8 @@ QtcPlugin {
         "blackberrydeviceconfigurationwizardpages.h",
         "blackberrydeviceconfigurationwizardsetuppage.ui",
         "blackberrydeviceconfigurationwizardsshkeypage.ui",
+        "blackberrydeviceprocesssupport.h",
+        "blackberrydeviceprocesssupport.cpp",
         "blackberryqtversion.cpp",
         "blackberryqtversion.h",
         "blackberryqtversionfactory.cpp",

@@ -33,6 +33,7 @@
 
 #include "qnxconstants.h"
 #include "blackberrydeviceconfigurationwidget.h"
+#include "blackberrydeviceprocesssupport.h"
 
 #include <projectexplorer/kitinformation.h>
 
@@ -95,6 +96,11 @@ BlackBerryDeviceConfiguration::ConstPtr BlackBerryDeviceConfiguration::device(co
 {
     IDevice::ConstPtr dev = DeviceKitInformation::device(k);
     return dev.dynamicCast<const BlackBerryDeviceConfiguration>();
+}
+
+DeviceProcessSupport::Ptr BlackBerryDeviceConfiguration::processSupport() const
+{
+    return ProjectExplorer::DeviceProcessSupport::Ptr(new BlackBerryDeviceProcessSupport);
 }
 
 QString BlackBerryDeviceConfiguration::displayType() const

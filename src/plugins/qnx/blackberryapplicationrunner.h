@@ -32,6 +32,8 @@
 #ifndef QNX_INTERNAL_BLACKBERRYAPPLICATIONRUNNER_H
 #define QNX_INTERNAL_BLACKBERRYAPPLICATIONRUNNER_H
 
+#include "blackberrydeviceconfiguration.h"
+
 #include <projectexplorer/runconfiguration.h>
 
 #include <ssh/sshconnection.h>
@@ -109,10 +111,10 @@ private:
 
     Utils::Environment m_environment;
     QString m_deployCmd;
-    QString m_deviceHost;
-    QString m_password;
+    BlackBerryDeviceConfiguration::ConstPtr m_device;
     QString m_barPackage;
     QSsh::SshConnectionParameters m_sshParams;
+    QString m_tailCommand;
 
     QProcess *m_launchProcess;
     QProcess *m_stopProcess;
