@@ -29,65 +29,62 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BARDESCRIPTORDOCUMENT_H
-#define QNX_INTERNAL_BARDESCRIPTORDOCUMENT_H
+#ifndef QNX_INTERNAL_BARDESCRIPTOREDITORASSETSWIDGET_H
+#define QNX_INTERNAL_BARDESCRIPTOREDITORASSETSWIDGET_H
 
-#include <coreplugin/textdocument.h>
+#include "bardescriptoreditorabstractpanelwidget.h"
 
-#include <QDomNode>
+QT_BEGIN_NAMESPACE
+class QStandardItem;
+class QStandardItemModel;
+QT_END_NAMESPACE
 
 namespace Qnx {
 namespace Internal {
 
-class BarDescriptorAsset {
-public:
-    QString source;
-    QString destination;
-    bool entry;
-};
+namespace Ui {
+class BarDescriptorEditorAssetsWidget;
+}
 
-class BarDescriptorEditorWidget;
-class BarDescriptorDocumentAbstractNodeHandler;
+class BarDescriptorAsset;
 
-class BarDescriptorDocument : public Core::TextDocument
+class BarDescriptorEditorAssetsWidget : public BarDescriptorEditorAbstractPanelWidget
 {
     Q_OBJECT
+
 public:
-    explicit BarDescriptorDocument(BarDescriptorEditorWidget *editorWidget);
-    ~BarDescriptorDocument();
+    explicit BarDescriptorEditorAssetsWidget(QWidget *parent = 0);
+    ~BarDescriptorEditorAssetsWidget();
 
-    bool open(QString *errorString, const QString &fileName);
-    bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false);
-    QString fileName() const;
+    void clear();
 
-    QString defaultPath() const;
-    QString suggestedFileName() const;
-    QString mimeType() const;
+    void addAsset(const BarDescriptorAsset &asset);
+    QList<BarDescriptorAsset> assets() const;
 
-    bool shouldAutoSave() const;
-    bool isModified() const;
-    bool isSaveAsAllowed() const;
+    QStandardItemModel *assetsModel() const;
 
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-    void rename(const QString &newName);
+public slots:
+    void addAsset(const QString &fullPath);
+    void removeAsset(const QString &fullPath);
 
-    QString xmlSource() const;
-    bool loadContent(const QString &xmlSource, QString *errorMessage = 0, int *errorLine = 0);
+private slots:
+    void addNewAsset();
+    void removeSelectedAsset();
+    void updateEntryCheckState(QStandardItem *item);
 
 private:
-    void registerNodeHandler(BarDescriptorDocumentAbstractNodeHandler *nodeHandler);
-    BarDescriptorDocumentAbstractNodeHandler *nodeHandlerForDomNode(const QDomNode &node);
-    void removeUnknownNodeHandlers();
+    void connectAssetsModel();
+    void disconnectAssetsModel();
 
-    QList<BarDescriptorDocumentAbstractNodeHandler *> m_nodeHandlers;
+    void addAssetInternal(const BarDescriptorAsset &asset);
+    bool hasAsset(const BarDescriptorAsset &asset);
 
-    QString m_fileName;
+    Ui::BarDescriptorEditorAssetsWidget *m_ui;
 
-    BarDescriptorEditorWidget *m_editorWidget;
+    QStandardItemModel *m_assetsModel;
 };
+
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_BARDESCRIPTORDOCUMENT_H
+#endif // QNX_INTERNAL_BARDESCRIPTOREDITORASSETSWIDGET_H

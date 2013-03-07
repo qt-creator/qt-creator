@@ -79,7 +79,15 @@ SOURCES += qnxplugin.cpp \
     blackberrydeviceinformation.cpp \
     blackberrysshkeysgenerator.cpp \
     blackberryprocessparser.cpp \
-    blackberrysigningpasswordsdialog.cpp
+    blackberrysigningpasswordsdialog.cpp \
+    bardescriptoreditorpackageinformationwidget.cpp \
+    bardescriptoreditorauthorinformationwidget.cpp \
+    bardescriptoreditorentrypointwidget.cpp \
+    bardescriptoreditorgeneralwidget.cpp \
+    bardescriptoreditorpermissionswidget.cpp \
+    bardescriptoreditorenvironmentwidget.cpp \
+    bardescriptoreditorassetswidget.cpp \
+    bardescriptoreditorabstractpanelwidget.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -158,7 +166,15 @@ HEADERS += qnxplugin.h\
     blackberrydeviceinformation.h \
     blackberrysshkeysgenerator.h \
     blackberryprocessparser.h \
-    blackberrysigningpasswordsdialog.h
+    blackberrysigningpasswordsdialog.h \
+    bardescriptoreditorpackageinformationwidget.h \
+    bardescriptoreditorauthorinformationwidget.h \
+    bardescriptoreditorentrypointwidget.h \
+    bardescriptoreditorgeneralwidget.h \
+    bardescriptoreditorpermissionswidget.h \
+    bardescriptoreditorenvironmentwidget.h \
+    bardescriptoreditorassetswidget.h \
+    bardescriptoreditorabstractpanelwidget.h
 
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \
@@ -168,14 +184,20 @@ FORMS += \
     blackberrydeviceconfigurationwidget.ui \
     qnxbaseqtconfigwidget.ui \
     blackberryndksettingswidget.ui \
-    bardescriptoreditorwidget.ui \
     blackberrykeyswidget.ui \
     blackberryregisterkeydialog.ui \
     blackberryimportcertificatedialog.ui \
     blackberrycreatecertificatedialog.ui \
     blackberrydebugtokenrequestdialog.ui \
     blackberrycreatepackagestepconfigwidget.ui \
-    blackberrysigningpasswordsdialog.ui
+    blackberrysigningpasswordsdialog.ui \
+    bardescriptoreditorpackageinformationwidget.ui \
+    bardescriptoreditorauthorinformationwidget.ui \
+    bardescriptoreditorentrypointwidget.ui \
+    bardescriptoreditorgeneralwidget.ui \
+    bardescriptoreditorpermissionswidget.ui \
+    bardescriptoreditorenvironmentwidget.ui \
+    bardescriptoreditorassetswidget.ui
 
 include(../../private_headers.pri)
 

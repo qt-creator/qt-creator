@@ -30,252 +30,133 @@
 ****************************************************************************/
 
 #include "bardescriptoreditorwidget.h"
-#include "ui_bardescriptoreditorwidget.h"
 
 #include "qnxconstants.h"
 #include "bardescriptoreditor.h"
-#include "bardescriptorpermissionsmodel.h"
-#include "blackberrydeviceconfiguration.h"
-#include "blackberrydebugtokenreader.h"
+#include "bardescriptoreditorassetswidget.h"
+#include "bardescriptoreditorauthorinformationwidget.h"
+#include "bardescriptoreditorentrypointwidget.h"
+#include "bardescriptoreditorenvironmentwidget.h"
+#include "bardescriptoreditorgeneralwidget.h"
+#include "bardescriptoreditorpackageinformationwidget.h"
+#include "bardescriptoreditorpermissionswidget.h"
 
-#include <projectexplorer/devicesupport/devicemanager.h>
-#include <qtsupport/qtversionmanager.h>
+#include <projectexplorer/iprojectproperties.h>
+#include <projectexplorer/projectwindow.h>
 #include <texteditor/plaintexteditor.h>
-#include <utils/qtcassert.h>
-#include <utils/fancylineedit.h>
-
-#include <QFileDialog>
-#include <QInputDialog>
-#include <QItemSelection>
-#include <QMessageBox>
-#include <QStandardItemModel>
-#include <QStringListModel>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
-
-namespace {
-void setTextBlocked(QLineEdit *lineEdit, const QString &value)
-{
-    bool blocked = lineEdit->blockSignals(true);
-    lineEdit->setText(value);
-    lineEdit->blockSignals(blocked);
-}
-
-void setComboBoxDataBlocked(QComboBox *comboBox, const QString &data)
-{
-    int index = comboBox->findData(data);
-    QTC_CHECK(index > -1);
-    bool blocked = comboBox->blockSignals(true);
-    comboBox->setCurrentIndex(index);
-    comboBox->blockSignals(blocked);
-}
-
-void setPathBlocked(Utils::PathChooser *pathChooser, const QString &path)
-{
-    bool blocked = pathChooser->blockSignals(true);
-    pathChooser->setPath(path);
-    pathChooser->blockSignals(blocked);
-}
-
-void setCheckBoxBlocked(QCheckBox *checkBox, bool check)
-{
-    bool blocked = checkBox->blockSignals(true);
-    checkBox->setChecked(check);
-    checkBox->blockSignals(blocked);
-}
-
-// Recommended maximum size for icons according to
-// http://developer.blackberry.com/native/documentation/bb10/com.qnx.doc.native_sdk.devguide/com.qnx.doc.native_sdk.devguide/topic/r_barfile_dtd_ref_image.html
-static int AppIconMaxWidth = 114;
-static int AppIconMaxHeight = 114;
-
-// Recommended maximum size for splashscreens according to
-// http://developer.blackberry.com/native/documentation/bb10/com.qnx.doc.native_sdk.devguide/com.qnx.doc.native_sdk.devguide/topic/r_barfile_dtd_ref_splashscreens.html
-static int SplashScreenMaxWidth = 1280;
-static int SplashScreenMaxHeight = 1280;
-}
 
 BarDescriptorEditorWidget::BarDescriptorEditorWidget(QWidget *parent)
     : QStackedWidget(parent)
     , m_editor(0)
     , m_dirty(false)
-    , m_ui(new Ui::BarDescriptorEditorWidget)
 {
-    m_ui->setupUi(this);
-
-    setCurrentIndex(0);
-
     initGeneralPage();
     initApplicationPage();
     initAssetsPage();
     initSourcePage();
-}
 
-BarDescriptorEditorWidget::~BarDescriptorEditorWidget()
-{
-    delete m_ui;
+    setCurrentIndex(0);
 }
 
 void BarDescriptorEditorWidget::initGeneralPage()
 {
-    m_ui->setFromDebugToken->setVisible(BlackBerryDebugTokenReader::isSupported());
+    ProjectExplorer::PanelsWidget *generalPanel = new ProjectExplorer::PanelsWidget(this);
+    initPanelSize(generalPanel);
+    addWidget(generalPanel);
 
-    QRegExp versionNumberRegExp(QLatin1String("(\\d{1,3}\\.)?(\\d{1,3}\\.)?(\\d{1,3})"));
-    QRegExpValidator *versionNumberValidator = new QRegExpValidator(versionNumberRegExp, this);
-    m_ui->packageVersion->setValidator(versionNumberValidator);
+    // Entry-Point Text and Images
+    ProjectExplorer::PropertiesPanel *entryPointPanel = new ProjectExplorer::PropertiesPanel;
+    m_entryPointWidget = new BarDescriptorEditorEntryPointWidget;
+    entryPointPanel->setDisplayName(tr("Entry-Point Text and Images"));
+    entryPointPanel->setWidget(m_entryPointWidget);
+    generalPanel->addPropertiesPanel(entryPointPanel);
 
-    connect(m_ui->packageId, SIGNAL(textChanged(QString)), this, SLOT(setDirty()));
-    connect(m_ui->packageVersion, SIGNAL(textChanged(QString)), this, SLOT(setDirty()));
-    connect(m_ui->packageBuildId, SIGNAL(textChanged(QString)), this, SLOT(setDirty()));
+    // Package Information
+    ProjectExplorer::PropertiesPanel *packageInformationPanel = new ProjectExplorer::PropertiesPanel;
+    m_packageInformationWidget = new BarDescriptorEditorPackageInformationWidget;
+    packageInformationPanel->setDisplayName(tr("Package Information"));
+    packageInformationPanel->setWidget(m_packageInformationWidget);
+    generalPanel->addPropertiesPanel(packageInformationPanel);
 
-    connect(m_ui->author, SIGNAL(textChanged(QString)), this, SLOT(setDirty()));
-    connect(m_ui->authorId, SIGNAL(textChanged(QString)), this, SLOT(setDirty()));
-    connect(m_ui->setFromDebugToken, SIGNAL(clicked()), this, SLOT(setAuthorFromDebugToken()));
-}
+    // Author information
+    ProjectExplorer::PropertiesPanel *authorInformationPanel = new ProjectExplorer::PropertiesPanel;
+    m_authorInformationWidget = new BarDescriptorEditorAuthorInformationWidget;
+    authorInformationPanel->setDisplayName(tr("Author Information"));
+    authorInformationPanel->setWidget(m_authorInformationWidget);
+    generalPanel->addPropertiesPanel(authorInformationPanel);
 
-void BarDescriptorEditorWidget::clearGeneralPage()
-{
-    setTextBlocked(m_ui->packageId, QString());
-    setTextBlocked(m_ui->packageVersion, QString());
-    setTextBlocked(m_ui->packageBuildId, QString());
-
-    setTextBlocked(m_ui->author, QString());
-    setTextBlocked(m_ui->authorId, QString());
+    connect(m_entryPointWidget, SIGNAL(changed()), this, SLOT(setDirty()));
+    connect(m_packageInformationWidget, SIGNAL(changed()), this, SLOT(setDirty()));
+    connect(m_authorInformationWidget, SIGNAL(changed()), this, SLOT(setDirty()));
 }
 
 void BarDescriptorEditorWidget::initApplicationPage()
 {
+    ProjectExplorer::PanelsWidget *applicationPanel = new ProjectExplorer::PanelsWidget(this);
+    initPanelSize(applicationPanel);
+    addWidget(applicationPanel);
+
     // General
-    m_ui->orientation->addItem(tr("Default"), QLatin1String(""));
-    m_ui->orientation->addItem(tr("Auto-orient"), QLatin1String("auto-orient"));
-    m_ui->orientation->addItem(tr("Landscape"), QLatin1String("landscape"));
-    m_ui->orientation->addItem(tr("Portrait"), QLatin1String("portrait"));
-
-    m_ui->chrome->addItem(tr("Standard"), QLatin1String("standard"));
-    m_ui->chrome->addItem(tr("None"), QLatin1String("none"));
-
-    connect(m_ui->orientation, SIGNAL(currentIndexChanged(int)), this, SLOT(setDirty()));
-    connect(m_ui->chrome, SIGNAL(currentIndexChanged(int)), this, SLOT(setDirty()));
-    connect(m_ui->transparentMainWindow, SIGNAL(toggled(bool)), this, SLOT(setDirty()));
-    connect(m_ui->applicationArguments, SIGNAL(textChanged(QString)), this, SLOT(setDirty()));
+    ProjectExplorer::PropertiesPanel *generalPanel = new ProjectExplorer::PropertiesPanel;
+    m_generalWidget = new BarDescriptorEditorGeneralWidget;
+    generalPanel->setDisplayName(tr("General"));
+    generalPanel->setWidget(m_generalWidget);
+    applicationPanel->addPropertiesPanel(generalPanel);
 
     //Permissions
-    m_permissionsModel = new BarDescriptorPermissionsModel(this);
-    m_ui->permissionsView->setModel(m_permissionsModel);
-
-    connect(m_ui->selectAllPermissions, SIGNAL(clicked()), m_permissionsModel, SLOT(checkAll()));
-    connect(m_ui->deselectAllPermissions, SIGNAL(clicked()), m_permissionsModel, SLOT(uncheckAll()));
-    connect(m_permissionsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(setDirty()));
-
-    // Environment
-    m_ui->environmentWidget->setBaseEnvironmentText(tr("Device Environment"));
-
-    connect(m_ui->environmentWidget, SIGNAL(userChangesChanged()), this, SLOT(setDirty()));
-
-    // Entry-Point Text and Images
-    m_ui->iconFilePath->setExpectedKind(Utils::PathChooser::File);
-    m_ui->iconFilePath->setPromptDialogFilter(tr("Images (*.jpg *.png)"));
-
-    m_ui->iconWarningLabel->setVisible(false);
-    m_ui->iconWarningPixmap->setVisible(false);
-
-    m_ui->splashScreenWarningLabel->setVisible(false);
-    m_ui->splashScreenWarningPixmap->setVisible(false);
-
-    connect(m_ui->applicationName, SIGNAL(textChanged(QString)), this, SLOT(setDirty()));
-    connect(m_ui->applicationDescription, SIGNAL(textChanged()), this, SLOT(setDirty()));
-
-    connect(m_ui->iconFilePath, SIGNAL(changed(QString)), this, SLOT(setDirty()));
-    connect(m_ui->iconFilePath, SIGNAL(changed(QString)), this, SLOT(addImageAsAsset(QString)));
-    connect(m_ui->iconFilePath, SIGNAL(changed(QString)), this, SLOT(setApplicationIconPreview(QString)));
-    connect(m_ui->iconFilePath, SIGNAL(changed(QString)), this, SLOT(validateIconSize(QString)));
-    connect(m_ui->iconClearButton, SIGNAL(clicked()), m_ui->iconFilePath->lineEdit(), SLOT(clear()));
-
-    m_splashScreenModel = new QStringListModel(this);
-    m_ui->splashScreensView->setModel(m_splashScreenModel);
-    connect(m_ui->addSplashScreen, SIGNAL(clicked()), this, SLOT(browseForSplashScreen()));
-    connect(m_ui->removeSplashScreen, SIGNAL(clicked()), this, SLOT(removeSelectedSplashScreen()));
-    connect(m_splashScreenModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(setDirty()));
-    connect(m_ui->splashScreensView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(handleSplashScreenSelectionChanged(QItemSelection, QItemSelection)));
-}
-
-void BarDescriptorEditorWidget::clearApplicationPage()
-{
-    // General
-    setComboBoxDataBlocked(m_ui->orientation, QLatin1String(""));
-    setComboBoxDataBlocked(m_ui->chrome, QLatin1String("none"));
-    setCheckBoxBlocked(m_ui->transparentMainWindow, false);
-    setTextBlocked(m_ui->applicationArguments, QString());
-
-    // Permissions
-    disconnect(m_permissionsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(setDirty()));
-    m_permissionsModel->uncheckAll();
-    connect(m_permissionsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(setDirty()));
+    ProjectExplorer::PropertiesPanel *permissionsPanel = new ProjectExplorer::PropertiesPanel;
+    m_permissionsWidget = new BarDescriptorEditorPermissionsWidget;
+    permissionsPanel->setDisplayName(tr("Permissions"));
+    permissionsPanel->setWidget(m_permissionsWidget);
+    applicationPanel->addPropertiesPanel(permissionsPanel);
 
     // Environment
-    disconnect(m_ui->environmentWidget, SIGNAL(userChangesChanged()), this, SLOT(setDirty()));
-    m_ui->environmentWidget->setUserChanges(QList<Utils::EnvironmentItem>());
-    connect(m_ui->environmentWidget, SIGNAL(userChangesChanged()), this, SLOT(setDirty()));
+    ProjectExplorer::PropertiesPanel *environmentPanel = new ProjectExplorer::PropertiesPanel;
+    m_environmentWidget = new BarDescriptorEditorEnvironmentWidget;
+    environmentPanel->setDisplayName(tr("Environment"));
+    environmentPanel->setWidget(m_environmentWidget);
+    applicationPanel->addPropertiesPanel(environmentPanel);
 
-    // Entry-Point Text and Images
-    setPathBlocked(m_ui->iconFilePath, QString());
-    setApplicationIconPreview(QString());
-
-    disconnect(m_splashScreenModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(setDirty()));
-    m_splashScreenModel->setStringList(QStringList());
-    connect(m_splashScreenModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(setDirty()));
-    setImagePreview(m_ui->splashScreenPreviewLabel, QString());
-
+    connect(m_generalWidget, SIGNAL(changed()), this, SLOT(setDirty()));
+    connect(m_permissionsWidget, SIGNAL(changed()), this, SLOT(setDirty()));
+    connect(m_environmentWidget, SIGNAL(changed()), this, SLOT(setDirty()));
 }
 
 void BarDescriptorEditorWidget::initAssetsPage()
 {
-    QStringList headerLabels;
-    headerLabels << tr("Path") << tr("Destination") << tr("Entry-Point");
-    m_assetsModel = new QStandardItemModel(this);
-    m_assetsModel->setHorizontalHeaderLabels(headerLabels);
-    m_ui->assets->setModel(m_assetsModel);
+    ProjectExplorer::PanelsWidget *assetsPanel = new ProjectExplorer::PanelsWidget(this);
+    initPanelSize(assetsPanel);
+    addWidget(assetsPanel);
 
-    connect(m_ui->addAsset, SIGNAL(clicked()), this, SLOT(addNewAsset()));
-    connect(m_ui->removeAsset, SIGNAL(clicked()), this, SLOT(removeSelectedAsset()));
-    connect(m_assetsModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(updateEntryCheckState(QStandardItem*)));
-    connectAssetsModel();
-}
+    ProjectExplorer::PropertiesPanel *assetsPropertiesPanel = new ProjectExplorer::PropertiesPanel;
+    m_assetsWidget = new BarDescriptorEditorAssetsWidget;
+    assetsPropertiesPanel->setDisplayName(tr("Assets"));
+    assetsPropertiesPanel->setWidget(m_assetsWidget);
+    assetsPanel->addPropertiesPanel(assetsPropertiesPanel);
 
-void BarDescriptorEditorWidget::clearAssetsPage()
-{
-    // We can't just block signals, as the view depends on them
-    disconnectAssetsModel();
-    m_assetsModel->removeRows(0, m_assetsModel->rowCount());
-    connectAssetsModel();
+    connect(m_assetsWidget, SIGNAL(changed()), this, SLOT(setDirty()));
+
+    m_entryPointWidget->setAssetsModel(m_assetsWidget->assetsModel());
+    connect(m_entryPointWidget, SIGNAL(imageAdded(QString)), m_assetsWidget, SLOT(addAsset(QString)));
+    connect(m_entryPointWidget, SIGNAL(imageRemoved(QString)), m_assetsWidget, SLOT(removeAsset(QString)));
 }
 
 void BarDescriptorEditorWidget::initSourcePage()
 {
-    m_ui->xmlSourceView->configure(QLatin1String(Constants::QNX_BAR_DESCRIPTOR_MIME_TYPE));
-    connect(m_ui->xmlSourceView, SIGNAL(textChanged()), this, SLOT(setDirty()));
+    m_xmlSourceWidget = new TextEditor::PlainTextEditorWidget(this);
+    addWidget(m_xmlSourceWidget);
+
+    m_xmlSourceWidget->configure(QLatin1String(Constants::QNX_BAR_DESCRIPTOR_MIME_TYPE));
+    connect(m_xmlSourceWidget, SIGNAL(textChanged()), this, SLOT(setDirty()));
 }
 
-void BarDescriptorEditorWidget::clearSourcePage()
+void BarDescriptorEditorWidget::initPanelSize(ProjectExplorer::PanelsWidget *panelsWidget)
 {
-    disconnect(m_ui->xmlSourceView, SIGNAL(textChanged()), this, SLOT(setDirty()));
-    m_ui->xmlSourceView->clear();
-    connect(m_ui->xmlSourceView, SIGNAL(textChanged()), this, SLOT(setDirty()));
-}
-
-void BarDescriptorEditorWidget::disconnectAssetsModel()
-{
-    disconnect(m_assetsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(setDirty()));
-    disconnect(m_assetsModel, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(setDirty()));
-    disconnect(m_assetsModel, SIGNAL(rowsRemoved(QModelIndex, int, int)), this, SLOT(setDirty()));
-}
-
-void BarDescriptorEditorWidget::connectAssetsModel()
-{
-    connect(m_assetsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(setDirty()));
-    connect(m_assetsModel, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(setDirty()));
-    connect(m_assetsModel, SIGNAL(rowsRemoved(QModelIndex, int, int)), this, SLOT(setDirty()));
+    panelsWidget->widget()->setMaximumWidth(900);
+    panelsWidget->widget()->setMinimumWidth(0);
 }
 
 Core::IEditor *BarDescriptorEditorWidget::editor() const
@@ -288,409 +169,51 @@ Core::IEditor *BarDescriptorEditorWidget::editor() const
     return m_editor;
 }
 
-QString BarDescriptorEditorWidget::packageId() const
+BarDescriptorEditorPackageInformationWidget *BarDescriptorEditorWidget::packageInformationWidget() const
 {
-    return m_ui->packageId->text();
+    return m_packageInformationWidget;
 }
 
-void BarDescriptorEditorWidget::setPackageId(const QString &packageId)
+BarDescriptorEditorAuthorInformationWidget *BarDescriptorEditorWidget::authorInformationWidget() const
 {
-    setTextBlocked(m_ui->packageId, packageId);
+    return m_authorInformationWidget;
 }
 
-QString BarDescriptorEditorWidget::packageVersion() const
+BarDescriptorEditorEntryPointWidget *BarDescriptorEditorWidget::entryPointWidget() const
 {
-    QString version = m_ui->packageVersion->text();
-    int pos = 0;
-    if (m_ui->packageVersion->validator()->validate(version, pos) == QValidator::Intermediate) {
-        if (version.endsWith(QLatin1Char('.')))
-            version = version.left(version.size() - 1);
-    }
-    return version;
+    return m_entryPointWidget;
 }
 
-void BarDescriptorEditorWidget::setPackageVersion(const QString &packageVersion)
+BarDescriptorEditorGeneralWidget *BarDescriptorEditorWidget::generalWidget() const
 {
-    setTextBlocked(m_ui->packageVersion, packageVersion);
+    return m_generalWidget;
 }
 
-QString BarDescriptorEditorWidget::packageBuildId() const
+BarDescriptorEditorPermissionsWidget *BarDescriptorEditorWidget::permissionsWidget() const
 {
-    return m_ui->packageBuildId->text();
+    return m_permissionsWidget;
 }
 
-void BarDescriptorEditorWidget::setPackageBuildId(const QString &packageBuildId)
+BarDescriptorEditorEnvironmentWidget *BarDescriptorEditorWidget::environmentWidget() const
 {
-    setTextBlocked(m_ui->packageBuildId, packageBuildId);
+    return m_environmentWidget;
 }
 
-QString BarDescriptorEditorWidget::author() const
+BarDescriptorEditorAssetsWidget *BarDescriptorEditorWidget::assetsWidget() const
 {
-    return m_ui->author->text();
-}
-
-void BarDescriptorEditorWidget::setAuthor(const QString &author)
-{
-    setTextBlocked(m_ui->author, author);
-}
-
-QString BarDescriptorEditorWidget::authorId() const
-{
-    return m_ui->authorId->text();
-}
-
-void BarDescriptorEditorWidget::setAuthorId(const QString &authorId)
-{
-    setTextBlocked(m_ui->authorId, authorId);
-}
-
-QString BarDescriptorEditorWidget::orientation() const
-{
-    return m_ui->orientation->itemData(m_ui->orientation->currentIndex()).toString();
-}
-
-void BarDescriptorEditorWidget::setOrientation(const QString &orientation)
-{
-    setComboBoxDataBlocked(m_ui->orientation, orientation);
-}
-
-QString BarDescriptorEditorWidget::chrome() const
-{
-    return m_ui->chrome->itemData(m_ui->chrome->currentIndex()).toString();
-}
-
-void BarDescriptorEditorWidget::setChrome(const QString &chrome)
-{
-    setComboBoxDataBlocked(m_ui->chrome, chrome);
-}
-
-bool BarDescriptorEditorWidget::transparent() const
-{
-    return m_ui->transparentMainWindow->isChecked();
-}
-
-void BarDescriptorEditorWidget::setTransparent(bool transparent)
-{
-    setCheckBoxBlocked(m_ui->transparentMainWindow, transparent);
-}
-
-void BarDescriptorEditorWidget::appendApplicationArgument(const QString &argument)
-{
-    QString completeArguments = m_ui->applicationArguments->text();
-    if (!completeArguments.isEmpty())
-        completeArguments.append(QLatin1Char(' '));
-    completeArguments.append(argument);
-
-    setTextBlocked(m_ui->applicationArguments, completeArguments);
-}
-
-QStringList BarDescriptorEditorWidget::applicationArguments() const
-{
-    // TODO: Should probably handle "argument with spaces within quotes"
-    return m_ui->applicationArguments->text().split(QLatin1Char(' '));
-}
-
-QStringList BarDescriptorEditorWidget::checkedPermissions() const
-{
-    return m_permissionsModel->checkedIdentifiers();
-}
-
-void BarDescriptorEditorWidget::checkPermission(const QString &identifier)
-{
-    disconnect(m_permissionsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(setDirty()));
-    m_permissionsModel->checkPermission(identifier);
-    connect(m_permissionsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(setDirty()));
-}
-
-QList<Utils::EnvironmentItem> BarDescriptorEditorWidget::environment() const
-{
-    return m_ui->environmentWidget->userChanges();
-}
-
-void BarDescriptorEditorWidget::appendEnvironmentItem(const Utils::EnvironmentItem &envItem)
-{
-    disconnect(m_ui->environmentWidget, SIGNAL(userChangesChanged()), this, SLOT(setDirty()));
-    QList<Utils::EnvironmentItem> items = m_ui->environmentWidget->userChanges();
-    items.append(envItem);
-    m_ui->environmentWidget->setUserChanges(items);
-    connect(m_ui->environmentWidget, SIGNAL(userChangesChanged()), this, SLOT(setDirty()));
-}
-
-QString BarDescriptorEditorWidget::applicationName() const
-{
-    return m_ui->applicationName->text();
-}
-
-void BarDescriptorEditorWidget::setApplicationName(const QString &applicationName)
-{
-    setTextBlocked(m_ui->applicationName, applicationName);
-}
-
-QString BarDescriptorEditorWidget::applicationDescription() const
-{
-    return m_ui->applicationDescription->toPlainText();
-}
-
-void BarDescriptorEditorWidget::setApplicationDescription(const QString &applicationDescription)
-{
-    bool blocked = m_ui->applicationDescription->blockSignals(true);
-    m_ui->applicationDescription->setPlainText(applicationDescription);
-    m_ui->applicationDescription->blockSignals(blocked);
-}
-
-QString BarDescriptorEditorWidget::applicationIconFileName() const
-{
-    return QFileInfo(m_ui->iconFilePath->path()).fileName();
-}
-
-void BarDescriptorEditorWidget::setApplicationIcon(const QString &iconPath)
-{
-    // During file loading, the assets might not have been read yet
-    QMetaObject::invokeMethod(this, "setApplicationIconDelayed", Qt::QueuedConnection, Q_ARG(QString, iconPath));
-}
-
-QStringList BarDescriptorEditorWidget::splashScreens() const
-{
-    QStringList result;
-
-    foreach (const QString &splashScreen, m_splashScreenModel->stringList())
-        result << QFileInfo(splashScreen).fileName();
-
-    return result;
-}
-
-void BarDescriptorEditorWidget::appendSplashScreen(const QString &splashScreenPath)
-{
-    // During file loading, the assets might not have been read yet
-    QMetaObject::invokeMethod(this, "appendSplashScreenDelayed", Qt::QueuedConnection, Q_ARG(QString, splashScreenPath));
-}
-
-void BarDescriptorEditorWidget::setApplicationIconDelayed(const QString &iconPath)
-{
-    const QString fullIconPath = localAssetPathFromDestination(iconPath);
-    setPathBlocked(m_ui->iconFilePath, fullIconPath);
-    setApplicationIconPreview(fullIconPath);
-    validateIconSize(fullIconPath);
-}
-
-void BarDescriptorEditorWidget::setImagePreview(QLabel *previewLabel, const QString &path)
-{
-    if (path.isEmpty()) {
-        previewLabel->clear();
-        return;
-    }
-
-    QPixmap originalPixmap(path);
-    if (originalPixmap.isNull()) {
-        previewLabel->clear();
-        return;
-    }
-
-    QSize size = previewLabel->minimumSize();
-    QPixmap scaledPixmap = originalPixmap.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    if (scaledPixmap.isNull()) {
-        previewLabel->clear();
-        return;
-    }
-
-    previewLabel->setPixmap(scaledPixmap);
-}
-
-void BarDescriptorEditorWidget::validateImage(const QString &path, QLabel *warningMessage, QLabel *warningPixmap, const QSize &maximumSize)
-{
-    ImageValidationResult result = Valid;
-
-    QSize actualSize;
-    if (!path.isEmpty()) {
-        QImage img(path);
-        if (img.isNull()) {
-            result = CouldNotLoad;
-        } else {
-            actualSize = img.size();
-            if (actualSize.width() > maximumSize.width() || actualSize.height() > maximumSize.height())
-                result = IncorrectSize;
-        }
-    }
-
-    switch (result) {
-    case CouldNotLoad:
-        warningMessage->setText(tr("<font color=\"red\">Could not open '%1' for reading.</font>").arg(path));
-        warningMessage->setVisible(true);
-        warningPixmap->setVisible(true);
-        break;
-    case IncorrectSize: {
-        warningMessage->setText(tr("<font color=\"red\">The selected image is too big (%1x%2). The maximum size is %3x%4 pixels.</font>")
-                                .arg(actualSize.width()).arg(actualSize.height())
-                                .arg(maximumSize.width()).arg(maximumSize.height()));
-        warningMessage->setVisible(true);
-        warningPixmap->setVisible(true);
-        break;
-    }
-    case Valid:
-    default:
-        warningMessage->setVisible(false);
-        warningPixmap->setVisible(false);
-        break;
-    }
-}
-
-void BarDescriptorEditorWidget::setApplicationIconPreview(const QString &path)
-{
-    setImagePreview(m_ui->iconPreviewLabel, path);
-}
-
-void BarDescriptorEditorWidget::validateIconSize(const QString &path)
-{
-    validateImage(path, m_ui->iconWarningLabel, m_ui->iconWarningPixmap, QSize(AppIconMaxWidth, AppIconMaxHeight));
-}
-
-void BarDescriptorEditorWidget::appendSplashScreenDelayed(const QString &splashScreenPath)
-{
-    const QString fullSplashScreenPath = localAssetPathFromDestination(splashScreenPath);
-
-    disconnect(m_splashScreenModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(setDirty()));
-    int rowCount = m_splashScreenModel->rowCount();
-    m_splashScreenModel->insertRow(rowCount);
-    m_splashScreenModel->setData(m_splashScreenModel->index(rowCount), fullSplashScreenPath);
-    connect(m_splashScreenModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(setDirty()));
-}
-
-void BarDescriptorEditorWidget::browseForSplashScreen()
-{
-    const QString fileName = QFileDialog::getOpenFileName(this, tr("Select Splash Screen"), QString(), tr("Images (*.jpg *.png)"));
-    if (fileName.isEmpty())
-        return;
-
-    if (m_splashScreenModel->stringList().contains(fileName))
-        return;
-
-    int rowCount = m_splashScreenModel->rowCount();
-    m_splashScreenModel->insertRow(rowCount);
-    m_splashScreenModel->setData(m_splashScreenModel->index(rowCount), fileName);
-    addImageAsAsset(fileName);
-}
-
-void BarDescriptorEditorWidget::removeSelectedSplashScreen()
-{
-    QModelIndexList selectedIndexes = m_ui->splashScreensView->selectionModel()->selectedRows();
-    if (selectedIndexes.isEmpty())
-        return;
-
-    foreach (const QModelIndex &index, selectedIndexes) {
-        QString path = m_splashScreenModel->data(index, Qt::DisplayRole).toString();
-
-        QList<QStandardItem*> assetItems = m_assetsModel->findItems(path);
-        foreach (QStandardItem *assetItem, assetItems) {
-            QList<QStandardItem*> assetRow = m_assetsModel->takeRow(assetItem->row());
-            while (!assetRow.isEmpty())
-                delete assetRow.takeLast();
-        }
-
-        m_splashScreenModel->removeRow(index.row());
-    }
-}
-
-void BarDescriptorEditorWidget::handleSplashScreenSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
-{
-    Q_UNUSED(deselected);
-
-    const bool emptySelection = selected.indexes().isEmpty();
-    m_ui->removeSplashScreen->setEnabled(!emptySelection);
-
-    if (!emptySelection) {
-        QString path = m_splashScreenModel->data(selected.indexes().at(0), Qt::DisplayRole).toString();
-        setImagePreview(m_ui->splashScreenPreviewLabel, path);
-        validateSplashScreenSize(path);
-    } else {
-        setImagePreview(m_ui->splashScreenPreviewLabel, QString());
-        m_ui->splashScreenWarningLabel->setVisible(false);
-        m_ui->splashScreenWarningPixmap->setVisible(false);
-    }
-}
-
-void BarDescriptorEditorWidget::validateSplashScreenSize(const QString &path)
-{
-    validateImage(path, m_ui->splashScreenWarningLabel, m_ui->splashScreenWarningPixmap, QSize(SplashScreenMaxWidth, SplashScreenMaxHeight));
-}
-
-void BarDescriptorEditorWidget::addAsset(const BarDescriptorAsset &asset)
-{
-    disconnectAssetsModel();
-    addAssetInternal(asset);
-    connectAssetsModel();
-}
-
-void BarDescriptorEditorWidget::addAssetInternal(const BarDescriptorAsset &asset)
-{
-    const QString path = asset.source;
-    const QString dest = asset.destination;
-    QTC_ASSERT(!path.isEmpty(), return);
-    QTC_ASSERT(!dest.isEmpty(), return);
-
-    if (hasAsset(asset))
-        return;
-
-    QList<QStandardItem *> items;
-    items << new QStandardItem(path);
-    items << new QStandardItem(dest);
-
-    QStandardItem *entryItem = new QStandardItem();
-    entryItem->setCheckable(true);
-    entryItem->setCheckState(asset.entry ? Qt::Checked : Qt::Unchecked);
-    items << entryItem;
-    m_assetsModel->appendRow(items);
-
-}
-
-bool BarDescriptorEditorWidget::hasAsset(const BarDescriptorAsset &asset)
-{
-    // TODO: Move this to a specific BarDescriptorAssetModel
-    for (int i = 0; i < m_assetsModel->rowCount(); ++i) {
-        QStandardItem *sourceItem = m_assetsModel->item(i, 0);
-        QStandardItem *destItem = m_assetsModel->item(i, 1);
-        if (sourceItem->text() == asset.source && destItem->text() == asset.destination)
-            return true;
-    }
-
-    return false;
-}
-
-QString BarDescriptorEditorWidget::localAssetPathFromDestination(const QString &destination)
-{
-    for (int i = 0; i < m_assetsModel->rowCount(); ++i) {
-        QStandardItem *destItem = m_assetsModel->item(i, 1);
-        if (destItem->text() == destination)
-            return m_assetsModel->item(i, 0)->text();
-    }
-
-    return QString();
-}
-
-QList<BarDescriptorAsset> BarDescriptorEditorWidget::assets() const
-{
-    QList<BarDescriptorAsset> result;
-
-    for (int i = 0; i < m_assetsModel->rowCount(); ++i) {
-        BarDescriptorAsset asset;
-        asset.source = m_assetsModel->item(i, 0)->text();
-        asset.destination = m_assetsModel->item(i, 1)->text();
-        asset.entry = m_assetsModel->item(i, 2)->checkState() == Qt::Checked;
-        result << asset;
-    }
-
-    return result;
+    return m_assetsWidget;
 }
 
 QString BarDescriptorEditorWidget::xmlSource() const
 {
-    return m_ui->xmlSourceView->toPlainText();
+    return m_xmlSourceWidget->toPlainText();
 }
 
 void BarDescriptorEditorWidget::setXmlSource(const QString &xmlSource)
 {
-    disconnect(m_ui->xmlSourceView, SIGNAL(textChanged()), this, SLOT(setDirty()));
-    m_ui->xmlSourceView->setPlainText(xmlSource);
-    connect(m_ui->xmlSourceView, SIGNAL(textChanged()), this, SLOT(setDirty()));
+    bool blocked = m_xmlSourceWidget->blockSignals(true);
+    m_xmlSourceWidget->setPlainText(xmlSource);
+    m_xmlSourceWidget->blockSignals(blocked);
 }
 
 bool BarDescriptorEditorWidget::isDirty() const
@@ -700,10 +223,19 @@ bool BarDescriptorEditorWidget::isDirty() const
 
 void BarDescriptorEditorWidget::clear()
 {
-    clearGeneralPage();
-    clearApplicationPage();
-    clearAssetsPage();
-    clearSourcePage();
+    m_entryPointWidget->clear();
+    m_packageInformationWidget->clear();
+    m_authorInformationWidget->clear();
+
+    m_generalWidget->clear();
+    m_permissionsWidget->clear();
+    m_environmentWidget->clear();
+
+    m_assetsWidget->clear();
+
+    bool blocked = m_xmlSourceWidget->blockSignals(true);
+    m_xmlSourceWidget->clear();
+    m_xmlSourceWidget->blockSignals(blocked);
 }
 
 void BarDescriptorEditorWidget::setDirty(bool dirty)
@@ -715,89 +247,4 @@ void BarDescriptorEditorWidget::setDirty(bool dirty)
 BarDescriptorEditor *BarDescriptorEditorWidget::createEditor()
 {
     return new BarDescriptorEditor(this);
-}
-
-void BarDescriptorEditorWidget::addNewAsset()
-{
-    const QString fileName = QFileDialog::getOpenFileName(this, tr("Select File to Add"));
-    if (fileName.isEmpty())
-        return;
-
-    QFileInfo fi(fileName);
-    BarDescriptorAsset asset;
-    asset.source = fileName;
-    asset.destination = fi.fileName();
-    asset.entry = false; // TODO
-    addAssetInternal(asset);
-}
-
-void BarDescriptorEditorWidget::removeSelectedAsset()
-{
-    QModelIndexList selectedIndexes = m_ui->assets->selectionModel()->selectedRows();
-    if (selectedIndexes.isEmpty())
-        return;
-
-    foreach (const QModelIndex &index, selectedIndexes)
-        m_assetsModel->removeRow(index.row());
-}
-
-void BarDescriptorEditorWidget::updateEntryCheckState(QStandardItem *item)
-{
-    if (item->column() != 2 || item->checkState() == Qt::Unchecked)
-        return;
-
-    disconnect(m_assetsModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(updateEntryCheckState(QStandardItem*)));
-    for (int i = 0; i < m_assetsModel->rowCount(); ++i) {
-        QStandardItem *other = m_assetsModel->item(i, 2);
-        if (other == item)
-            continue;
-
-        // Only one asset can be the entry point
-        other->setCheckState(Qt::Unchecked);
-    }
-    connect(m_assetsModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(updateEntryCheckState(QStandardItem*)));
-}
-
-void BarDescriptorEditorWidget::addImageAsAsset(const QString &path)
-{
-    if (path.isEmpty())
-        return;
-
-    BarDescriptorAsset asset;
-    asset.source = path;
-    asset.destination = QFileInfo(path).fileName();
-    asset.entry = false;
-    addAssetInternal(asset);
-}
-
-void BarDescriptorEditorWidget::setAuthorFromDebugToken()
-{
-    // To select debug token, make it fancier once the debug token management is done in
-    // Qt Creator
-    QStringList debugTokens;
-    ProjectExplorer::DeviceManager *deviceManager = ProjectExplorer::DeviceManager::instance();
-    for (int i = 0; i < deviceManager->deviceCount(); ++i) {
-        ProjectExplorer::IDevice::ConstPtr device = deviceManager->deviceAt(i);
-        if (device->type() == Core::Id(Constants::QNX_BB_OS_TYPE)) {
-            BlackBerryDeviceConfiguration::ConstPtr bbDevice = device.dynamicCast<const BlackBerryDeviceConfiguration>();
-            QTC_ASSERT(bbDevice, continue);
-
-            debugTokens << bbDevice->debugToken();
-        }
-    }
-    debugTokens.removeDuplicates();
-
-    bool ok;
-    QString debugToken = QInputDialog::getItem(this, tr("Select Debug Token"), tr("Debug token:"), debugTokens, 0, false, &ok);
-    if (!ok || debugToken.isEmpty())
-        return;
-
-    BlackBerryDebugTokenReader debugTokenReader(debugToken);
-    if (!debugTokenReader.isValid()) {
-        QMessageBox::warning(this, tr("Error Reading Debug Token"), tr("There was a problem reading debug token"));
-        return;
-    }
-
-    m_ui->author->setText(debugTokenReader.author());
-    m_ui->authorId->setText(debugTokenReader.authorId());
 }

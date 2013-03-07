@@ -29,65 +29,45 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BARDESCRIPTORDOCUMENT_H
-#define QNX_INTERNAL_BARDESCRIPTORDOCUMENT_H
+#ifndef QNX_INTERNAL_BARDESCRIPTOREDITORGENERALWIDGET_H
+#define QNX_INTERNAL_BARDESCRIPTOREDITORGENERALWIDGET_H
 
-#include <coreplugin/textdocument.h>
-
-#include <QDomNode>
+#include "bardescriptoreditorabstractpanelwidget.h"
 
 namespace Qnx {
 namespace Internal {
 
-class BarDescriptorAsset {
-public:
-    QString source;
-    QString destination;
-    bool entry;
-};
+namespace Ui {
+class BarDescriptorEditorGeneralWidget;
+}
 
-class BarDescriptorEditorWidget;
-class BarDescriptorDocumentAbstractNodeHandler;
-
-class BarDescriptorDocument : public Core::TextDocument
+class BarDescriptorEditorGeneralWidget : public BarDescriptorEditorAbstractPanelWidget
 {
     Q_OBJECT
+
 public:
-    explicit BarDescriptorDocument(BarDescriptorEditorWidget *editorWidget);
-    ~BarDescriptorDocument();
+    explicit BarDescriptorEditorGeneralWidget(QWidget *parent = 0);
+    ~BarDescriptorEditorGeneralWidget();
 
-    bool open(QString *errorString, const QString &fileName);
-    bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false);
-    QString fileName() const;
+    void clear();
 
-    QString defaultPath() const;
-    QString suggestedFileName() const;
-    QString mimeType() const;
+    QString orientation() const;
+    void setOrientation(const QString &orientation);
 
-    bool shouldAutoSave() const;
-    bool isModified() const;
-    bool isSaveAsAllowed() const;
+    QString chrome() const;
+    void setChrome(const QString &chrome);
 
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-    void rename(const QString &newName);
+    bool transparent() const;
+    void setTransparent(bool transparent);
 
-    QString xmlSource() const;
-    bool loadContent(const QString &xmlSource, QString *errorMessage = 0, int *errorLine = 0);
+    void appendApplicationArgument(const QString &argument);
+    QStringList applicationArguments() const;
 
 private:
-    void registerNodeHandler(BarDescriptorDocumentAbstractNodeHandler *nodeHandler);
-    BarDescriptorDocumentAbstractNodeHandler *nodeHandlerForDomNode(const QDomNode &node);
-    void removeUnknownNodeHandlers();
-
-    QList<BarDescriptorDocumentAbstractNodeHandler *> m_nodeHandlers;
-
-    QString m_fileName;
-
-    BarDescriptorEditorWidget *m_editorWidget;
+    Ui::BarDescriptorEditorGeneralWidget *m_ui;
 };
+
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_BARDESCRIPTORDOCUMENT_H
+#endif // QNX_INTERNAL_BARDESCRIPTOREDITORGENERALWIDGET_H

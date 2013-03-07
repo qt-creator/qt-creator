@@ -39,6 +39,13 @@ namespace Qnx {
 namespace Internal {
 
 class BarDescriptorEditorWidget;
+class BarDescriptorEditorAssetsWidget;
+class BarDescriptorEditorAuthorInformationWidget;
+class BarDescriptorEditorEntryPointWidget;
+class BarDescriptorEditorEnvironmentWidget;
+class BarDescriptorEditorGeneralWidget;
+class BarDescriptorEditorPackageInformationWidget;
+class BarDescriptorEditorPermissionsWidget;
 
 class BarDescriptorDocumentAbstractNodeHandler
 {
@@ -54,7 +61,15 @@ public:
     int order() const;
 
 protected:
-    BarDescriptorEditorWidget *editorWidget() const;
+    BarDescriptorEditorPackageInformationWidget *packageInformationWidget() const;
+    BarDescriptorEditorAuthorInformationWidget *authorInformationWidget() const;
+
+    BarDescriptorEditorEntryPointWidget *entryPointWidget() const;
+    BarDescriptorEditorGeneralWidget *generalWidget() const;
+    BarDescriptorEditorPermissionsWidget *permissionsWidget() const;
+    BarDescriptorEditorEnvironmentWidget *environmentWidget() const;
+
+    BarDescriptorEditorAssetsWidget *assetsWidget() const;
 
     virtual bool fromNode(const QDomNode &node) = 0;
 

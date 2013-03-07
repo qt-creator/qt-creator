@@ -34,34 +34,31 @@
 
 #include "bardescriptordocument.h"
 
-#include <utils/environment.h>
-
 #include <QStackedWidget>
-
-QT_BEGIN_NAMESPACE
-class QItemSelection;
-class QLabel;
-class QLineEdit;
-class QStandardItemModel;
-class QStandardItem;
-class QStringListModel;
-QT_END_NAMESPACE
 
 namespace Core {
 class IEditor;
 }
 
+namespace ProjectExplorer {
+class PanelsWidget;
+}
+
+namespace TextEditor {
+class PlainTextEditorWidget;
+}
+
 namespace Qnx {
 namespace Internal {
 
-namespace Ui {
-class BarDescriptorEditorWidget;
-}
-
 class BarDescriptorEditor;
-class BarDescriptorPermissionsModel;
-class BarDescriptorQtAssetsModel;
-class BarDescriptorQtAssetsProxyModel;
+class BarDescriptorEditorEntryPointWidget;
+class BarDescriptorEditorPackageInformationWidget;
+class BarDescriptorEditorAuthorInformationWidget;
+class BarDescriptorEditorGeneralWidget;
+class BarDescriptorEditorPermissionsWidget;
+class BarDescriptorEditorEnvironmentWidget;
+class BarDescriptorEditorAssetsWidget;
 
 class BarDescriptorEditorWidget : public QStackedWidget
 {
@@ -69,60 +66,18 @@ class BarDescriptorEditorWidget : public QStackedWidget
 
 public:
     explicit BarDescriptorEditorWidget(QWidget *parent = 0);
-    ~BarDescriptorEditorWidget();
 
     Core::IEditor *editor() const;
 
-    // General
-    QString packageId() const;
-    void setPackageId(const QString &packageId);
+    BarDescriptorEditorEntryPointWidget *entryPointWidget() const;
+    BarDescriptorEditorPackageInformationWidget *packageInformationWidget() const;
+    BarDescriptorEditorAuthorInformationWidget *authorInformationWidget() const;
 
-    QString packageVersion() const;
-    void setPackageVersion(const QString &packageVersion);
+    BarDescriptorEditorGeneralWidget *generalWidget() const;
+    BarDescriptorEditorPermissionsWidget *permissionsWidget() const;
+    BarDescriptorEditorEnvironmentWidget *environmentWidget() const;
 
-    QString packageBuildId() const;
-    void setPackageBuildId(const QString &packageBuildId);
-
-    QString author() const;
-    void setAuthor(const QString &author);
-
-    QString authorId() const;
-    void setAuthorId(const QString &authorId);
-
-    // Application
-    QString orientation() const;
-    void setOrientation(const QString &orientation);
-
-    QString chrome() const;
-    void setChrome(const QString &chrome);
-
-    bool transparent() const;
-    void setTransparent(bool transparent);
-
-    void appendApplicationArgument(const QString &argument);
-    QStringList applicationArguments() const;
-
-    QStringList checkedPermissions() const;
-    void checkPermission(const QString &identifier);
-
-    QList<Utils::EnvironmentItem> environment() const;
-    void appendEnvironmentItem(const Utils::EnvironmentItem &envItem);
-
-    QString applicationName() const;
-    void setApplicationName(const QString &applicationName);
-
-    QString applicationDescription() const;
-    void setApplicationDescription(const QString &applicationDescription);
-
-    QString applicationIconFileName() const;
-    void setApplicationIcon(const QString &iconPath);
-
-    QStringList splashScreens() const;
-    void appendSplashScreen(const QString &splashScreenPath);
-
-    // Assets
-    void addAsset(const BarDescriptorAsset &asset);
-    QList<BarDescriptorAsset> assets() const;
+    BarDescriptorEditorAssetsWidget *assetsWidget() const;
 
     QString xmlSource() const;
     void setXmlSource(const QString &xmlSource);
@@ -136,64 +91,31 @@ public slots:
 signals:
     void changed();
 
-private slots:
-    void setAuthorFromDebugToken();
-
-    void addNewAsset();
-    void removeSelectedAsset();
-    void updateEntryCheckState(QStandardItem *item);
-    void addImageAsAsset(const QString &path);
-
-    void setApplicationIconDelayed(const QString &iconPath);
-    void setApplicationIconPreview(const QString &path);
-    void validateIconSize(const QString &path);
-
-    void appendSplashScreenDelayed(const QString &splashScreenPath);
-    void browseForSplashScreen();
-    void removeSelectedSplashScreen();
-    void handleSplashScreenSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
-    void validateSplashScreenSize(const QString &path);
-
 private:
-    enum ImageValidationResult {
-        Valid,
-        CouldNotLoad,
-        IncorrectSize
-    };
-
     BarDescriptorEditor *createEditor();
 
     void initGeneralPage();
-    void clearGeneralPage();
     void initApplicationPage();
-    void clearApplicationPage();
     void initAssetsPage();
-    void clearAssetsPage();
     void initSourcePage();
-    void clearSourcePage();
-
-    void disconnectAssetsModel();
-    void connectAssetsModel();
-
-    void addAssetInternal(const BarDescriptorAsset &asset);
-    bool hasAsset(const BarDescriptorAsset &asset);
-    QString localAssetPathFromDestination(const QString &path);
-
-    void setImagePreview(QLabel *previewLabel, const QString &path);
-    void validateImage(const QString &path, QLabel *warningMessage, QLabel *warningPixmap, const QSize &maximumSize);
+    void initPanelSize(ProjectExplorer::PanelsWidget *panelsWidget);
 
     mutable Core::IEditor *m_editor;
 
     bool m_dirty;
 
-    // Application
-    BarDescriptorPermissionsModel *m_permissionsModel;
-    QStringListModel *m_splashScreenModel;
+    // New UI
+    BarDescriptorEditorEntryPointWidget *m_entryPointWidget;
+    BarDescriptorEditorPackageInformationWidget *m_packageInformationWidget;
+    BarDescriptorEditorAuthorInformationWidget *m_authorInformationWidget;
 
-    // Assets
-    QStandardItemModel *m_assetsModel;
+    BarDescriptorEditorGeneralWidget *m_generalWidget;
+    BarDescriptorEditorPermissionsWidget *m_permissionsWidget;
+    BarDescriptorEditorEnvironmentWidget *m_environmentWidget;
 
-    Ui::BarDescriptorEditorWidget *m_ui;
+    BarDescriptorEditorAssetsWidget *m_assetsWidget;
+
+    TextEditor::PlainTextEditorWidget *m_xmlSourceWidget;
 };
 
 

@@ -31,6 +31,13 @@
 
 #include "bardescriptordocumentnodehandlers.h"
 #include "bardescriptoreditorwidget.h"
+#include "bardescriptoreditorassetswidget.h"
+#include "bardescriptoreditorauthorinformationwidget.h"
+#include "bardescriptoreditorentrypointwidget.h"
+#include "bardescriptoreditorenvironmentwidget.h"
+#include "bardescriptoreditorgeneralwidget.h"
+#include "bardescriptoreditorpackageinformationwidget.h"
+#include "bardescriptoreditorpermissionswidget.h"
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
@@ -68,9 +75,39 @@ int BarDescriptorDocumentAbstractNodeHandler::order() const
     return m_order;
 }
 
-BarDescriptorEditorWidget *BarDescriptorDocumentAbstractNodeHandler::editorWidget() const
+BarDescriptorEditorPackageInformationWidget *BarDescriptorDocumentAbstractNodeHandler::packageInformationWidget() const
 {
-    return m_editorWidget;
+    return m_editorWidget->packageInformationWidget();
+}
+
+BarDescriptorEditorAuthorInformationWidget *BarDescriptorDocumentAbstractNodeHandler::authorInformationWidget() const
+{
+    return m_editorWidget->authorInformationWidget();
+}
+
+BarDescriptorEditorEntryPointWidget *BarDescriptorDocumentAbstractNodeHandler::entryPointWidget() const
+{
+    return m_editorWidget->entryPointWidget();
+}
+
+BarDescriptorEditorGeneralWidget *BarDescriptorDocumentAbstractNodeHandler::generalWidget() const
+{
+    return m_editorWidget->generalWidget();
+}
+
+BarDescriptorEditorPermissionsWidget *BarDescriptorDocumentAbstractNodeHandler::permissionsWidget() const
+{
+    return m_editorWidget->permissionsWidget();
+}
+
+BarDescriptorEditorEnvironmentWidget *BarDescriptorDocumentAbstractNodeHandler::environmentWidget() const
+{
+    return m_editorWidget->environmentWidget();
+}
+
+BarDescriptorEditorAssetsWidget *BarDescriptorDocumentAbstractNodeHandler::assetsWidget() const
+{
+    return m_editorWidget->assetsWidget();
 }
 
 bool BarDescriptorDocumentAbstractNodeHandler::canHandleSimpleTextElement(const QDomNode &node, const QString &tagName) const
@@ -123,13 +160,13 @@ bool BarDescriptorDocumentIdNodeHandler::fromNode(const QDomNode &node)
     if (!canHandle(node))
         return false;
 
-    editorWidget()->setPackageId(loadSimpleTextElement(node));
+    packageInformationWidget()->setPackageId(loadSimpleTextElement(node));
     return true;
 }
 
 QDomNode BarDescriptorDocumentIdNodeHandler::toNode(QDomDocument &doc) const
 {
-    return createSimpleTextElement(doc, QLatin1String("id"), editorWidget()->packageId());
+    return createSimpleTextElement(doc, QLatin1String("id"), packageInformationWidget()->packageId());
 }
 
 // ----------------------------------------------------------------------------
@@ -149,13 +186,13 @@ bool BarDescriptorDocumentVersionNumberNodeHandler::fromNode(const QDomNode &nod
     if (!canHandle(node))
         return false;
 
-    editorWidget()->setPackageVersion(loadSimpleTextElement(node));
+    packageInformationWidget()->setPackageVersion(loadSimpleTextElement(node));
     return true;
 }
 
 QDomNode BarDescriptorDocumentVersionNumberNodeHandler::toNode(QDomDocument &doc) const
 {
-    return createSimpleTextElement(doc, QLatin1String("versionNumber"), editorWidget()->packageVersion());
+    return createSimpleTextElement(doc, QLatin1String("versionNumber"), packageInformationWidget()->packageVersion());
 }
 
 // ----------------------------------------------------------------------------
@@ -175,13 +212,13 @@ bool BarDescriptorDocumentBuildIdNodeHandler::fromNode(const QDomNode &node)
     if (!canHandle(node))
         return false;
 
-    editorWidget()->setPackageBuildId(loadSimpleTextElement(node));
+    packageInformationWidget()->setPackageBuildId(loadSimpleTextElement(node));
     return true;
 }
 
 QDomNode BarDescriptorDocumentBuildIdNodeHandler::toNode(QDomDocument &doc) const
 {
-    return createSimpleTextElement(doc, QLatin1String("buildId"), editorWidget()->packageBuildId());
+    return createSimpleTextElement(doc, QLatin1String("buildId"), packageInformationWidget()->packageBuildId());
 }
 
 // ----------------------------------------------------------------------------
@@ -203,7 +240,7 @@ bool BarDescriptorDocumentApplicationNameNodeHandler::fromNode(const QDomNode &n
     if (!canHandle(node))
         return false;
 
-    editorWidget()->setApplicationName(loadSimpleTextElement(node));
+    entryPointWidget()->setApplicationName(loadSimpleTextElement(node));
     return true;
 }
 
@@ -211,7 +248,7 @@ QDomNode BarDescriptorDocumentApplicationNameNodeHandler::toNode(QDomDocument &d
 {
     // TODO: Add support for localization
 
-    return createSimpleTextElement(doc, QLatin1String("name"), editorWidget()->applicationName());
+    return createSimpleTextElement(doc, QLatin1String("name"), entryPointWidget()->applicationName());
 }
 
 // ----------------------------------------------------------------------------
@@ -233,13 +270,13 @@ bool BarDescriptorDocumentApplicationDescriptionNodeHandler::fromNode(const QDom
     if (!canHandle(node))
         return false;
 
-    editorWidget()->setApplicationDescription(loadSimpleTextElement(node));
+    entryPointWidget()->setApplicationDescription(loadSimpleTextElement(node));
     return true;
 }
 
 QDomNode BarDescriptorDocumentApplicationDescriptionNodeHandler::toNode(QDomDocument &doc) const
 {
-    return createSimpleTextElement(doc, QLatin1String("description"), editorWidget()->applicationDescription());
+    return createSimpleTextElement(doc, QLatin1String("description"), entryPointWidget()->applicationDescription());
 }
 
 // ----------------------------------------------------------------------------
@@ -281,14 +318,14 @@ bool BarDescriptorDocumentApplicationIconNodeHandler::fromNode(const QDomNode &n
 
     QDomNode imageNode = node.firstChild();
     QDomText imageTextNode = imageNode.firstChild().toText();
-    editorWidget()->setApplicationIcon(imageTextNode.data());
+    entryPointWidget()->setApplicationIcon(imageTextNode.data());
     return true;
 }
 
 QDomNode BarDescriptorDocumentApplicationIconNodeHandler::toNode(QDomDocument &doc) const
 {
     // TODO: Add support for localization
-    const QString iconFileName = editorWidget()->applicationIconFileName();
+    const QString iconFileName = entryPointWidget()->applicationIconFileName();
     if (iconFileName.isEmpty())
         return QDomElement();
 
@@ -336,7 +373,7 @@ bool BarDescriptorDocumentSplashScreenNodeHandler::fromNode(const QDomNode &node
     while (!imageNode.isNull()) {
         if (imageNode.tagName().toLower() == QLatin1String("image")) {
             QDomText imageTextNode = imageNode.firstChild().toText();
-            editorWidget()->appendSplashScreen(imageTextNode.data());
+            entryPointWidget()->appendSplashScreen(imageTextNode.data());
         }
         imageNode = imageNode.nextSiblingElement();
     }
@@ -345,7 +382,7 @@ bool BarDescriptorDocumentSplashScreenNodeHandler::fromNode(const QDomNode &node
 
 QDomNode BarDescriptorDocumentSplashScreenNodeHandler::toNode(QDomDocument &doc) const
 {
-    QStringList splashScreens = editorWidget()->splashScreens();
+    QStringList splashScreens = entryPointWidget()->splashScreens();
     if (splashScreens.isEmpty())
         return QDomElement();
 
@@ -385,7 +422,7 @@ bool BarDescriptorDocumentAssetNodeHandler::fromNode(const QDomNode &node)
     asset.destination = dest;
     asset.entry = entry == QLatin1String("true");
 
-    editorWidget()->addAsset(asset);
+    assetsWidget()->addAsset(asset);
     return true;
 }
 
@@ -393,7 +430,7 @@ QDomNode BarDescriptorDocumentAssetNodeHandler::toNode(QDomDocument &doc) const
 {
     QDomDocumentFragment fragment = doc.createDocumentFragment();
 
-    QList<BarDescriptorAsset> assets = editorWidget()->assets();
+    QList<BarDescriptorAsset> assets = assetsWidget()->assets();
     foreach (const BarDescriptorAsset &asset, assets) {
         QDomElement assetElem = doc.createElement(QLatin1String("asset"));
         assetElem.setAttribute(QLatin1String("path"), asset.source);
@@ -435,15 +472,15 @@ bool BarDescriptorDocumentInitialWindowNodeHandler::fromNode(const QDomNode &nod
     QDomElement child = node.firstChildElement();
     while (!child.isNull()) {
         if (child.tagName() == QLatin1String("aspectRatio")) {
-            editorWidget()->setOrientation(loadSimpleTextElement(child));
+            generalWidget()->setOrientation(loadSimpleTextElement(child));
         } else if (child.tagName() == QLatin1String("autoOrients")) {
             if (loadSimpleTextElement(child) == QLatin1String("true"))
-                editorWidget()->setOrientation(QLatin1String("auto-orient"));
+                generalWidget()->setOrientation(QLatin1String("auto-orient"));
         } else if (child.tagName() == QLatin1String("systemChrome")) {
-            editorWidget()->setChrome(loadSimpleTextElement(child));
+            generalWidget()->setChrome(loadSimpleTextElement(child));
         } else if (child.tagName() == QLatin1String("transparent")) {
             const QString transparent = loadSimpleTextElement(child);
-            editorWidget()->setTransparent(transparent == QLatin1String("true"));
+            generalWidget()->setTransparent(transparent == QLatin1String("true"));
         }
         child = child.nextSiblingElement();
     }
@@ -455,14 +492,14 @@ QDomNode BarDescriptorDocumentInitialWindowNodeHandler::toNode(QDomDocument &doc
 {
     QDomElement element = doc.createElement(QLatin1String("initialWindow"));
 
-    if (editorWidget()->orientation() == QLatin1String("auto-orient")) {
+    if (generalWidget()->orientation() == QLatin1String("auto-orient")) {
         element.appendChild(createSimpleTextElement(doc, QLatin1String("autoOrients"), QLatin1String("true")));
-    } else if (!editorWidget()->orientation().isEmpty()) {
-        element.appendChild(createSimpleTextElement(doc, QLatin1String("aspectRatio"), editorWidget()->orientation()));
+    } else if (!generalWidget()->orientation().isEmpty()) {
+        element.appendChild(createSimpleTextElement(doc, QLatin1String("aspectRatio"), generalWidget()->orientation()));
         element.appendChild(createSimpleTextElement(doc, QLatin1String("autoOrients"), QLatin1String("false")));
     }
-    element.appendChild(createSimpleTextElement(doc, QLatin1String("systemChrome"), editorWidget()->chrome()));
-    element.appendChild(createSimpleTextElement(doc, QLatin1String("transparent"), editorWidget()->transparent() ? QLatin1String("true") : QLatin1String("false")));
+    element.appendChild(createSimpleTextElement(doc, QLatin1String("systemChrome"), generalWidget()->chrome()));
+    element.appendChild(createSimpleTextElement(doc, QLatin1String("transparent"), generalWidget()->transparent() ? QLatin1String("true") : QLatin1String("false")));
 
     return element;
 }
@@ -487,7 +524,7 @@ bool BarDescriptorDocumentActionNodeHandler::fromNode(const QDomNode &node)
 
     QString value = loadSimpleTextElement(node);
     if (value != QLatin1String("run_native")) // This has no representation in the GUI, and is always added
-        editorWidget()->checkPermission(value);
+        permissionsWidget()->checkPermission(value);
 
     return true;
 }
@@ -501,7 +538,7 @@ QDomNode BarDescriptorDocumentActionNodeHandler::toNode(QDomDocument &doc) const
     runNativeElement.appendChild(doc.createTextNode(QLatin1String("run_native")));
     frag.appendChild(runNativeElement);
 
-    QStringList checkedIdentifiers = editorWidget()->checkedPermissions();
+    QStringList checkedIdentifiers = permissionsWidget()->checkedPermissions();
     foreach (const QString &identifier, checkedIdentifiers)
         frag.appendChild(createSimpleTextElement(doc, QLatin1String("action"), identifier));
 
@@ -525,7 +562,7 @@ bool BarDescriptorDocumentArgNodeHandler::fromNode(const QDomNode &node)
     if (!canHandle(node))
         return false;
 
-    editorWidget()->appendApplicationArgument(loadSimpleTextElement(node));
+    generalWidget()->appendApplicationArgument(loadSimpleTextElement(node));
     return true;
 }
 
@@ -533,7 +570,7 @@ QDomNode BarDescriptorDocumentArgNodeHandler::toNode(QDomDocument &doc) const
 {
     QDomDocumentFragment frag = doc.createDocumentFragment();
 
-    QStringList arguments = editorWidget()->applicationArguments();
+    QStringList arguments = generalWidget()->applicationArguments();
     foreach (const QString &argument, arguments)
         frag.appendChild(createSimpleTextElement(doc, QLatin1String("arg"), argument));
 
@@ -573,14 +610,14 @@ bool BarDescriptorDocumentEnvNodeHandler::fromNode(const QDomNode &node)
     QString value = element.attribute(QLatin1String("value"));
 
     Utils::EnvironmentItem item(var, value);
-    editorWidget()->appendEnvironmentItem(item);
+    environmentWidget()->appendEnvironmentItem(item);
     return true;
 }
 
 QDomNode BarDescriptorDocumentEnvNodeHandler::toNode(QDomDocument &doc) const
 {
     QDomDocumentFragment frag = doc.createDocumentFragment();
-    QList<Utils::EnvironmentItem> environmentItems = editorWidget()->environment();
+    QList<Utils::EnvironmentItem> environmentItems = environmentWidget()->environment();
 
     foreach (const Utils::EnvironmentItem &item, environmentItems) {
         QDomElement element = doc.createElement(QLatin1String("env"));
@@ -610,13 +647,13 @@ bool BarDescriptorDocumentAuthorNodeHandler::fromNode(const QDomNode &node)
     if (!canHandle(node))
         return false;
 
-    editorWidget()->setAuthor(loadSimpleTextElement(node));
+    authorInformationWidget()->setAuthor(loadSimpleTextElement(node));
     return true;
 }
 
 QDomNode BarDescriptorDocumentAuthorNodeHandler::toNode(QDomDocument &doc) const
 {
-    return createSimpleTextElement(doc, QLatin1String("author"), editorWidget()->author());
+    return createSimpleTextElement(doc, QLatin1String("author"), authorInformationWidget()->author());
 }
 
 // ----------------------------------------------------------------------------
@@ -636,13 +673,13 @@ bool BarDescriptorDocumentAuthorIdNodeHandler::fromNode(const QDomNode &node)
     if (!canHandle(node))
         return false;
 
-    editorWidget()->setAuthorId(loadSimpleTextElement(node));
+    authorInformationWidget()->setAuthorId(loadSimpleTextElement(node));
     return true;
 }
 
 QDomNode BarDescriptorDocumentAuthorIdNodeHandler::toNode(QDomDocument &doc) const
 {
-    return createSimpleTextElement(doc, QLatin1String("authorId"), editorWidget()->authorId());
+    return createSimpleTextElement(doc, QLatin1String("authorId"), authorInformationWidget()->authorId());
 }
 
 // ----------------------------------------------------------------------------
