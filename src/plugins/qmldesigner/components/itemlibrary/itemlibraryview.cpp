@@ -51,6 +51,16 @@ QWidget *ItemLibraryView::widget()
     return m_widget.data();
 }
 
+bool ItemLibraryView::hasWidget() const
+{
+    return true;
+}
+
+WidgetInfo ItemLibraryView::widgetInfo()
+{
+    return createWidgetInfo(widget(), QLatin1String("Library"), WidgetInfo::LeftPane, 0);
+}
+
 void ItemLibraryView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);

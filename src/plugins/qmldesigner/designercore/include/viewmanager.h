@@ -54,6 +54,7 @@ class ViewManager
 {
 public:
     ViewManager();
+    ~ViewManager();
 
     void attachRewriterView(TextModifier *textModifier);
     void detachRewriterView();
@@ -69,13 +70,14 @@ public:
     void setNodeInstanceViewQtPath(const QString & qtPath);
 
     void resetPropertyEditorView();
-    void resisterFormEditorTool(AbstractFormEditorTool *tool); // takes ownership
 
-    QWidget *formEditorWidget();
-    QWidget *propertyEditorWidget();
-    QWidget *itemLibraryWidget();
-    QWidget *navigatorWidget();
-    QWidget *statesEditorWidget();
+    void resisterFormEditorTool(AbstractFormEditorTool *tool); // takes ownership
+    void registerView(AbstractView *view);
+
+    QList<WidgetInfo> widgetInfos();
+
+    void disableWidgets();
+    void enableWidgets();
 
     void pushFileOnCrambleBar(const QString &fileName);
     void pushInFileComponentOnCrambleBar(const QString &componentId);
@@ -89,8 +91,8 @@ private: // functions
 
     void attachNodeInstanceView();
     void attachItemLibraryView();
-
-
+    void attachAdditionalViews();
+    void detachAdditionalViews();
 
     Model *currentModel() const;
     Model *documentModel() const;

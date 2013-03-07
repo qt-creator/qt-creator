@@ -966,6 +966,15 @@ QWidget *PropertyEditor::widget()
     return m_stackedWidget;
 }
 
+bool PropertyEditor::hasWidget() const
+{
+    return true;
+}
+
+WidgetInfo PropertyEditor::widgetInfo()
+{
+    return createWidgetInfo(m_stackedWidget, QLatin1String("Properties"), WidgetInfo::RightPane, 0);
+}
 
 void PropertyEditor::actualStateChanged(const ModelNode &node)
 {

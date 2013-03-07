@@ -161,7 +161,6 @@ private: // variables
     Core::EditorToolBar *m_toolBar;
     Core::OutputPanePlaceHolder *m_outputPanePlaceholder;
     Core::MiniSplitter *m_outputPlaceholderSplitter;
-    QList<Core::SideBarItem*> m_sideBarItems;
     bool m_isDisabled;
     bool m_showSidebars;
 

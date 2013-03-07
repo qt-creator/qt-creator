@@ -37,6 +37,8 @@
 #include "formeditoritem.h"
 #include "formeditorscene.h"
 #include "toolbox.h"
+
+#include <designmodecontext.h>
 #include <rewritertransaction.h>
 #include <modelnode.h>
 #include <itemlibraryinfo.h>
@@ -54,6 +56,7 @@
 #include <nodelistproperty.h>
 #include <commondefines.h>
 
+#include <coreplugin/icore.h>
 
 namespace QmlDesigner {
 
@@ -68,6 +71,9 @@ FormEditorView::FormEditorView(QObject *parent)
       m_currentTool(m_selectionTool),
       m_transactionCounter(0)
 {
+    Internal::FormEditorContext *formEditorContext = new Internal::FormEditorContext(m_formEditorWidget.data());
+    Core::ICore::addContextObject(formEditorContext);
+
     connect(formEditorWidget()->zoomAction(), SIGNAL(zoomLevelChanged(double)), SLOT(updateGraphicsIndicators()));
     connect(formEditorWidget()->showBoundingRectAction(), SIGNAL(toggled(bool)), scene(), SLOT(setShowBoundingRects(bool)));
     connect(formEditorWidget()->selectOnlyContentItemsAction(), SIGNAL(toggled(bool)), this, SLOT(setSelectOnlyContentItemsAction(bool)));
@@ -271,6 +277,11 @@ void FormEditorView::bindingPropertiesChanged(const QList<BindingProperty>& prop
 QWidget *FormEditorView::widget()
 {
     return m_formEditorWidget.data();
+}
+
+WidgetInfo FormEditorView::widgetInfo()
+{
+    return createWidgetInfo(m_formEditorWidget.data(), "FormEditor", WidgetInfo::CentralPane, 0, tr("Form Editor"));
 }
 
 FormEditorWidget *FormEditorView::formEditorWidget()

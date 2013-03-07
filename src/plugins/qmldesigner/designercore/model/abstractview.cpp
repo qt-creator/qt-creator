@@ -118,6 +118,23 @@ void AbstractView::removeModel()
     m_model.clear();
 }
 
+WidgetInfo AbstractView::createWidgetInfo(QWidget *widget,
+                                          const QString &uniqueId,
+                                          WidgetInfo::PlacementHint placementHint,
+                                          int placementPriority,
+                                          const QString &tabName)
+{
+    WidgetInfo widgetInfo;
+
+    widgetInfo.widget = widget;
+    widgetInfo.uniqueId = uniqueId;
+    widgetInfo.placementHint = placementHint;
+    widgetInfo.placementPriority = placementPriority;
+    widgetInfo.tabName = tabName;
+
+    return widgetInfo;
+}
+
 /*!
 \name Model related functions
 \{
@@ -365,6 +382,16 @@ void AbstractView::resetView()
 
     currentModel->detachView(this);
     currentModel->attachView(this);
+}
+
+bool AbstractView::hasWidget() const
+{
+    return false;
+}
+
+WidgetInfo AbstractView::widgetInfo()
+{
+    return createWidgetInfo();
 }
 
 QList<ModelNode> AbstractView::allModelNodes() const

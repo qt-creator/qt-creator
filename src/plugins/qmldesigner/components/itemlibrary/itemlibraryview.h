@@ -49,6 +49,8 @@ public:
     ~ItemLibraryView();
 
     QWidget *widget();
+    bool hasWidget() const;
+    WidgetInfo widgetInfo();
 
     // AbstractView
     void modelAttached(Model *model);

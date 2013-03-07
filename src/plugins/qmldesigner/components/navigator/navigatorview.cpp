@@ -33,7 +33,9 @@
 #include "modelnodecontextmenu.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 
+#include <designmodecontext.h>
 #include <nodeproperty.h>
 #include <nodelistproperty.h>
 #include <variantproperty.h>
@@ -57,6 +59,9 @@ NavigatorView::NavigatorView(QObject* parent) :
         m_widget(new NavigatorWidget(this)),
         m_treeModel(new NavigatorTreeModel(this))
 {
+    Internal::NavigatorContext *navigatorContext = new Internal::NavigatorContext(m_widget.data());
+    Core::ICore::addContextObject(navigatorContext);
+
     m_widget->setTreeModel(m_treeModel.data());
 
     connect(treeWidget()->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(changeSelection(QItemSelection,QItemSelection)));
@@ -97,6 +102,16 @@ NavigatorView::~NavigatorView()
 QWidget *NavigatorView::widget()
 {
     return m_widget.data();
+}
+
+bool NavigatorView::hasWidget() const
+{
+    return true;
+}
+
+WidgetInfo NavigatorView::widgetInfo()
+{
+    return createWidgetInfo(m_widget.data(), QLatin1String("Navigator"), WidgetInfo::LeftPane, 0);
 }
 
 void NavigatorView::modelAttached(Model *model)
