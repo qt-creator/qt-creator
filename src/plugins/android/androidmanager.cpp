@@ -348,6 +348,62 @@ QString AndroidManager::targetApplication(ProjectExplorer::Target *target)
     return QString();
 }
 
+bool AndroidManager::setUseLocalLibs(ProjectExplorer::Target *target, bool useLocalLibs, int deviceAPILevel)
+{
+    // For Qt 4, the "use local libs" options is handled by passing command line arguments to the
+    // app, so no need to alter the AndroidManifest.xml
+    QtSupport::BaseQtVersion *baseQtVersion = QtSupport::QtKitInformation::qtVersion(target->kit());
+    if (baseQtVersion == 0 || baseQtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
+        return true;
+
+    QDomDocument doc;
+    if (!openManifest(target, doc))
+        return false;
+
+    QDomElement metadataElem = doc.documentElement().firstChildElement(QLatin1String("application")).firstChildElement(QLatin1String("activity")).firstChildElement(QLatin1String("meta-data"));
+
+    QString localLibs;
+    QString localJars;
+    QString staticInitClasses;
+    if (useLocalLibs) {
+        localLibs = loadLocalLibs(target, deviceAPILevel);
+        localJars = loadLocalJars(target, deviceAPILevel);
+        staticInitClasses = loadLocalJarsInitClasses(target, deviceAPILevel);
+    }
+
+    bool changedManifest = false;
+    while (!metadataElem.isNull()) {
+        if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.use_local_qt_libs")) {
+            if (metadataElem.attribute(QLatin1String("android:value")).toInt() != useLocalLibs) {
+                metadataElem.setAttribute(QLatin1String("android:value"), int(useLocalLibs));
+                changedManifest = true;
+            }
+        } else if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.load_local_libs")) {
+            if (metadataElem.attribute(QLatin1String("android:value")) != localLibs) {
+                metadataElem.setAttribute(QLatin1String("android:value"), localLibs);
+                changedManifest = true;
+            }
+        } else if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.load_local_jars")) {
+            if (metadataElem.attribute(QLatin1String("android:value")) != localJars) {
+                metadataElem.setAttribute(QLatin1String("android:value"), localJars);
+                changedManifest = true;
+            }
+        } else if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.static_init_classes")) {
+            if (metadataElem.attribute(QLatin1String("android:value")) != staticInitClasses) {
+                metadataElem.setAttribute(QLatin1String("android:value"), staticInitClasses);
+                changedManifest = true;
+            }
+        }
+
+        metadataElem = metadataElem.nextSiblingElement(QLatin1String("meta-data"));
+    }
+
+    if (changedManifest)
+        return saveManifest(target, doc);
+    else
+        return true;
+}
+
 bool AndroidManager::setTargetApplication(ProjectExplorer::Target *target, const QString &name)
 {
     QDomDocument doc;

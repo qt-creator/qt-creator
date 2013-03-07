@@ -84,6 +84,8 @@ public:
     static bool setTargetApplication(ProjectExplorer::Target *target, const QString &name);
     static QString targetApplicationPath(ProjectExplorer::Target *target);
 
+    static bool setUseLocalLibs(ProjectExplorer::Target *target, bool useLocalLibs, int deviceAPILevel);
+
     static QString targetSDK(ProjectExplorer::Target *target);
     static bool setTargetSDK(ProjectExplorer::Target *target, const QString &sdk);
 

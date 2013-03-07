@@ -32,6 +32,8 @@
 #include "androidconfigurations.h"
 #include "androidcreatekeystorecertificate.h"
 #include "androidmanager.h"
+#include "androiddeploystep.h"
+#include "androidglobal.h"
 #include "ui_androidpackagecreationwidget.h"
 
 #include <projectexplorer/project.h>
@@ -376,11 +378,25 @@ void AndroidPackageCreationWidget::setTarget(const QString &target)
 void AndroidPackageCreationWidget::setQtLibs(QModelIndex, QModelIndex)
 {
     AndroidManager::setQtLibs(m_step->target(), m_qtLibsModel->checkedItems());
+    AndroidDeployStep * const deployStep = AndroidGlobal::buildStep<AndroidDeployStep>(m_step->target()->activeDeployConfiguration());
+    if (deployStep->useLocalQtLibs()) {
+        // ### Passes -1 for API level, which means it won't work with setups that require
+        // library selection based on API level. Use the old approach (command line argument)
+        // in these cases.
+        AndroidManager::setUseLocalLibs(m_step->target(), true, -1);
+    }
 }
 
 void AndroidPackageCreationWidget::setPrebundledLibs(QModelIndex, QModelIndex)
 {
     AndroidManager::setPrebundledLibs(m_step->target(), m_prebundledLibs->checkedItems());
+    AndroidDeployStep * const deployStep = AndroidGlobal::buildStep<AndroidDeployStep>(m_step->target()->activeDeployConfiguration());
+    if (deployStep->useLocalQtLibs()) {
+        // ### Passes -1 for API level, which means it won't work with setups that require
+        // library selection based on API level. Use the old approach (command line argument)
+        // in these cases.
+        AndroidManager::setUseLocalLibs(m_step->target(), true, -1);
+    }
 }
 
 void AndroidPackageCreationWidget::prebundledLibSelected(const QModelIndex &index)
