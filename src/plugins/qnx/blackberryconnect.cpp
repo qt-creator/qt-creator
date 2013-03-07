@@ -109,8 +109,6 @@ BlackBerryConnect::BlackBerryConnect(BlackBerryRunConfiguration *runConfig)
 
     connect(m_process, SIGNAL(readyReadStandardOutput()), this, SLOT(readStandardOutput()));
     connect(m_process, SIGNAL(readyReadStandardError()), this, SLOT(readStandardError()));
-    connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
-            this, SLOT(handleProcessFinished(int,QProcess::ExitStatus)));
 }
 
 void BlackBerryConnect::connectToDevice()
@@ -133,6 +131,9 @@ void BlackBerryConnect::connectToDevice()
         connectArgs << QLatin1String("-password") << m_password;
     connectArgs << QLatin1String("-sshPublicKey") << m_publicKeyFile;
 
+    connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
+            this, SLOT(handleProcessFinished(int,QProcess::ExitStatus)), Qt::UniqueConnection);
+
     m_process->start(m_connectCmd, connectArgs);
 }
 
@@ -142,9 +143,12 @@ void BlackBerryConnect::disconnectFromDevice()
         return;
 
     if (m_usageCount[m_deviceHost] == 1) {
+        disconnect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
+                this, SLOT(handleProcessFinished(int,QProcess::ExitStatus)));
         m_process->terminate();
         if (!m_process->waitForFinished(5000))
             m_process->kill();
+        m_connected = false;
     }
 }
 
