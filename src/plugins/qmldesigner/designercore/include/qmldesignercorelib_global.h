@@ -33,6 +33,8 @@
 #include <QtGlobal>
 #include <QList>
 
+#include <utils/qtcoverride.h>
+
 // Unnecessary since core isn't a dll any more.
 
 #define TEST_CORESHARED_EXPORT
