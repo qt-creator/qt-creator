@@ -173,7 +173,8 @@ HEADERS += \
     $$PWD/tooltip/tipcontents.h \
     $$PWD/tooltip/reuse.h \
     $$PWD/tooltip/effects.h \
-    $$PWD/unixutils.h
+    $$PWD/unixutils.h \
+    $$PWD/qtcoverride.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
