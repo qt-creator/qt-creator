@@ -90,6 +90,7 @@ FormEditorView::~FormEditorView()
     delete m_dragTool;
     m_dragTool = 0;
 
+    qDeleteAll(m_toolList);
 
     // delete scene after tools to prevent double deletion
     // of items
@@ -404,6 +405,11 @@ void FormEditorView::changeToTransformTools()
         return;
 
     changeToSelectionTool();
+}
+
+void FormEditorView::registerTool(AbstractFormEditorTool *tool)
+{
+    m_toolList.append(tool);
 }
 
 void FormEditorView::nodeSlidedToIndex(const NodeListProperty &listProperty, int /*newIndex*/, int /*oldIndex*/)

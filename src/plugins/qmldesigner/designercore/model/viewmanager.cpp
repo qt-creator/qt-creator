@@ -82,6 +82,11 @@ void ViewManager::resetPropertyEditorView()
     m_propertyEditorView.resetView();
 }
 
+void ViewManager::resisterFormEditorTool(AbstractFormEditorTool *tool)
+{
+    m_formEditorView.registerTool(tool);
+}
+
 void ViewManager::detachViewsExceptRewriterAndComponetView()
 {
     switchStateEditorViewToBaseState();

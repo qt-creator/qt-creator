@@ -98,6 +98,8 @@ public:
     void changeToResizeTool();
     void changeToTransformTools();
 
+    void registerTool(AbstractFormEditorTool *tool);
+
     void nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int oldIndex);
     void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data);
 
@@ -136,6 +138,7 @@ private: //functions
 private: //variables
     QWeakPointer<FormEditorWidget> m_formEditorWidget;
     QWeakPointer<FormEditorScene> m_scene;
+    QList<AbstractFormEditorTool*> m_toolList;
     MoveTool *m_moveTool;
     SelectionTool *m_selectionTool;
     ResizeTool *m_resizeTool;

@@ -69,6 +69,7 @@ public:
     void setNodeInstanceViewQtPath(const QString & qtPath);
 
     void resetPropertyEditorView();
+    void resisterFormEditorTool(AbstractFormEditorTool *tool); // takes ownership
 
     QWidget *formEditorWidget();
     QWidget *propertyEditorWidget();
