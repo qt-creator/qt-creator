@@ -30,6 +30,8 @@
 #ifndef PROJECTWINDOW_H
 #define PROJECTWINDOW_H
 
+#include "projectexplorer_export.h"
+
 #include <QMap>
 #include <QScrollArea>
 
@@ -48,11 +50,7 @@ class Target;
 class BuildConfiguration;
 class RunConfiguration;
 
-namespace Internal {
-
-class DoubleTabWidget;
-
-class PanelsWidget : public QScrollArea
+class PROJECTEXPLORER_EXPORT PanelsWidget : public QScrollArea
 {
     Q_OBJECT
 public:
@@ -68,6 +66,10 @@ private:
     QGridLayout *m_layout;
     QWidget *m_root;
 };
+
+namespace Internal {
+
+class DoubleTabWidget;
 
 class ProjectWindow : public QWidget
 {

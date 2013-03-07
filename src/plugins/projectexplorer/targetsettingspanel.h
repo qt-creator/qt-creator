@@ -43,11 +43,11 @@ namespace ProjectExplorer {
 class Target;
 class Project;
 class Kit;
+class PanelsWidget;
 
 namespace Internal {
 
 class TargetSettingsWidget;
-class PanelsWidget;
 
 class TargetSettingsPanelWidget : public QWidget
 {
