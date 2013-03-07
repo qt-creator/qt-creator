@@ -30,7 +30,6 @@
 #include "designmodewidget.h"
 #include "qmldesignerconstants.h"
 #include "styledoutputpaneplaceholder.h"
-#include "designmodecontext.h"
 #include "qmldesignerplugin.h"
 
 #include <model.h>
@@ -71,6 +70,7 @@
 #include <QClipboard>
 #include <QLabel>
 #include <QProgressDialog>
+#include <QTabWidget>
 
 using Core::MiniSplitter;
 using Core::IEditor;
@@ -82,9 +82,6 @@ enum {
     debug = false
 };
 
-const char SB_NAVIGATOR[] = "Navigator";
-const char SB_LIBRARY[] = "Library";
-const char SB_PROPERTIES[] = "Properties";
 const char SB_PROJECTS[] = "Projects";
 const char SB_FILESYSTEM[] = "FileSystem";
 const char SB_OPENDOCUMENTS[] = "OpenDocuments";
@@ -232,9 +229,6 @@ void DesignModeWidget::toggleSidebars()
         m_leftSideBar->setVisible(m_showSidebars);
     if (m_rightSideBar)
         m_rightSideBar->setVisible(m_showSidebars);
-
-    viewManager().statesEditorWidget()->setVisible(m_showSidebars);
-
 }
 
 void DesignModeWidget::readSettings()
@@ -268,8 +262,7 @@ void DesignModeWidget::enableWidgets()
     if (debug)
         qDebug() << Q_FUNC_INFO;
     m_warningWidget->setVisible(false);
-    viewManager().formEditorWidget()->setEnabled(true);
-    viewManager().statesEditorWidget()->setEnabled(true);
+    viewManager().enableWidgets();
     m_leftSideBar->setEnabled(true);
     m_rightSideBar->setEnabled(true);
     m_isDisabled = false;
@@ -280,8 +273,7 @@ void DesignModeWidget::disableWidgets()
     if (debug)
         qDebug() << Q_FUNC_INFO;
 
-    viewManager().formEditorWidget()->setEnabled(false);
-    viewManager().statesEditorWidget()->setEnabled(false);
+    viewManager().disableWidgets();
     m_leftSideBar->setEnabled(false);
     m_rightSideBar->setEnabled(false);
     m_isDisabled = true;
@@ -349,6 +341,7 @@ void DesignModeWidget::setup()
         }
     }
 
+
     m_toolBar = Core::EditorManager::createToolBar(this);
 
     m_mainSplitter = new MiniSplitter(this);
@@ -358,30 +351,41 @@ void DesignModeWidget::setup()
     m_warningWidget = new DocumentWarningWidget(this);
     m_warningWidget->setVisible(false);
 
-    Core::SideBarItem *navigatorItem = new NavigatorSideBarItem(viewManager().navigatorWidget(), QLatin1String(SB_NAVIGATOR));
-    Core::SideBarItem *libraryItem = new ItemLibrarySideBarItem(viewManager().itemLibraryWidget(), QLatin1String(SB_LIBRARY));
-    Core::SideBarItem *propertiesItem = new Core::SideBarItem(viewManager().propertyEditorWidget(), QLatin1String(SB_PROPERTIES));
+    QList<Core::SideBarItem*> sideBarItems;
+    QList<Core::SideBarItem*> leftSideBarItems;
+    QList<Core::SideBarItem*> rightSideBarItems;
 
-    // default items
-    m_sideBarItems << navigatorItem << libraryItem << propertiesItem;
+    foreach (const WidgetInfo &widgetInfo, viewManager().widgetInfos()) {
+        if (widgetInfo.placementHint == widgetInfo.LeftPane) {
+            Core::SideBarItem *sideBarItem = new NavigatorSideBarItem(widgetInfo.widget, widgetInfo.uniqueId);
+            sideBarItems.append(sideBarItem);
+            leftSideBarItems.append(sideBarItem);
+        }
+
+        if (widgetInfo.placementHint == widgetInfo.RightPane) {
+            Core::SideBarItem *sideBarItem = new NavigatorSideBarItem(widgetInfo.widget, widgetInfo.uniqueId);
+            sideBarItems.append(sideBarItem);
+            rightSideBarItems.append(sideBarItem);
+        }
+    }
 
     if (projectsExplorer) {
         Core::SideBarItem *projectExplorerItem = new Core::SideBarItem(projectsExplorer, QLatin1String(SB_PROJECTS));
-        m_sideBarItems << projectExplorerItem;
+        sideBarItems.append(projectExplorerItem);
     }
 
     if (fileSystemExplorer) {
         Core::SideBarItem *fileSystemExplorerItem = new Core::SideBarItem(fileSystemExplorer, QLatin1String(SB_FILESYSTEM));
-        m_sideBarItems << fileSystemExplorerItem;
+        sideBarItems.append(fileSystemExplorerItem);
     }
 
     if (openDocumentsWidget) {
         Core::SideBarItem *openDocumentsItem = new Core::SideBarItem(openDocumentsWidget, QLatin1String(SB_OPENDOCUMENTS));
-        m_sideBarItems << openDocumentsItem;
+        sideBarItems.append(openDocumentsItem);
     }
 
-    m_leftSideBar.reset(new Core::SideBar(m_sideBarItems, QList<Core::SideBarItem*>() << navigatorItem << libraryItem));
-    m_rightSideBar.reset(new Core::SideBar(m_sideBarItems, QList<Core::SideBarItem*>() << propertiesItem));
+    m_leftSideBar.reset(new Core::SideBar(sideBarItems, leftSideBarItems));
+    m_rightSideBar.reset(new Core::SideBar(sideBarItems, rightSideBarItems));
 
     connect(m_leftSideBar.data(), SIGNAL(availableItemsChanged()), SLOT(updateAvailableSidebarItemsRight()));
     connect(m_rightSideBar.data(), SIGNAL(availableItemsChanged()), SLOT(updateAvailableSidebarItemsLeft()));
@@ -398,12 +402,9 @@ void DesignModeWidget::setup()
     if (currentDesignDocument())
         setupNavigatorHistory(currentDesignDocument()->textEditor());
 
-    // right area:
-    QWidget *centerWidget = createCenterWidget();
-
     // m_mainSplitter area:
     m_mainSplitter->addWidget(m_leftSideBar.data());
-    m_mainSplitter->addWidget(centerWidget);
+    m_mainSplitter->addWidget(createCenterWidget());
     m_mainSplitter->addWidget(m_rightSideBar.data());
 
     // Finishing touches:
@@ -416,7 +417,7 @@ void DesignModeWidget::setup()
     mainLayout->addWidget(m_mainSplitter);
 
     m_warningWidget->setVisible(false);
-    viewManager().statesEditorWidget()->setEnabled(true);
+    viewManager().enableWidgets();
     m_leftSideBar->setEnabled(true);
     m_rightSideBar->setEnabled(true);
     m_leftSideBar->setCloseWhenEmpty(true);
@@ -514,6 +515,16 @@ void DesignModeWidget::addNavigatorHistoryEntry(const QString &fileName)
     ++m_navigatorHistoryCounter;
 }
 
+static QWidget *createWidgetsInTabWidget(const QList<WidgetInfo> &widgetInfos)
+{
+    QTabWidget *tabWidget = new QTabWidget;
+
+    foreach (const WidgetInfo &widgetInfo, widgetInfos)
+        tabWidget->addTab(widgetInfo.widget, widgetInfo.tabName);
+
+    return tabWidget;
+}
+
 QWidget *DesignModeWidget::createCenterWidget()
 {
     QWidget *centerWidget = new QWidget;
@@ -522,17 +533,32 @@ QWidget *DesignModeWidget::createCenterWidget()
     rightLayout->setMargin(0);
     rightLayout->setSpacing(0);
     rightLayout->addWidget(m_toolBar);
+
+
     //### we now own these here
-    rightLayout->addWidget(viewManager().statesEditorWidget());
+    QList<WidgetInfo> topWidgetInfos;
+    foreach (const WidgetInfo &widgetInfo, viewManager().widgetInfos()) {
+        if (widgetInfo.placementHint == widgetInfo.TopPane)
+            topWidgetInfos.append(widgetInfo);
+    }
 
-    FormEditorContext *formEditorContext = new FormEditorContext(viewManager().formEditorWidget());
-    Core::ICore::addContextObject(formEditorContext);
+    if (topWidgetInfos.count() == 1)
+        rightLayout->addWidget(topWidgetInfos.first().widget);
+    else
+        rightLayout->addWidget(createWidgetsInTabWidget(topWidgetInfos));
 
-    NavigatorContext *navigatorContext = new NavigatorContext(viewManager().navigatorWidget());
-    Core::ICore::addContextObject(navigatorContext);
+    QList<WidgetInfo> centralWidgetInfos;
+    foreach (const WidgetInfo &widgetInfo, viewManager().widgetInfos()) {
+        if (widgetInfo.placementHint == widgetInfo.CentralPane)
+            centralWidgetInfos.append(widgetInfo);
+    }
 
     // editor and output panes
-    m_outputPlaceholderSplitter->addWidget(viewManager().formEditorWidget());
+    if (centralWidgetInfos.count() == 1)
+        m_outputPlaceholderSplitter->addWidget(centralWidgetInfos.first().widget);
+    else
+         m_outputPlaceholderSplitter->addWidget(createWidgetsInTabWidget(centralWidgetInfos));
+
     m_outputPlaceholderSplitter->addWidget(m_outputPanePlaceholder);
     m_outputPlaceholderSplitter->setStretchFactor(0, 10);
     m_outputPlaceholderSplitter->setStretchFactor(1, 0);

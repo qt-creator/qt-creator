@@ -86,6 +86,8 @@ public:
 
     // FormEditorView
     QWidget *widget();
+    WidgetInfo widgetInfo();
+
     FormEditorWidget *formEditorWidget();
     AbstractFormEditorTool *currentTool() const;
     FormEditorScene *scene() const;

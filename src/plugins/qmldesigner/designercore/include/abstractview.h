@@ -58,6 +58,24 @@ class QmlModelView;
 class NodeInstanceView;
 class RewriterView;
 
+struct WidgetInfo {
+    enum PlacementHint {
+        NoPane,
+        LeftPane,
+        RightPane,
+        TopPane, // not used
+        BottomPane, // not used
+        CentralPane // not used
+    };
+
+    QString uniqueId;
+    QString tabName;
+    QWidget *widget;
+    int placementPriority;
+    PlacementHint placementHint;
+};
+
+
 class QMLDESIGNERCORE_EXPORT AbstractView : public QObject
 {
     Q_OBJECT
@@ -180,11 +198,18 @@ public:
 
     void resetView();
 
+    virtual bool hasWidget() const;
     virtual QWidget *widget() = 0;
+    virtual WidgetInfo widgetInfo();
 
 protected:
     void setModel(Model * model);
     void removeModel();
+    static WidgetInfo createWidgetInfo(QWidget *widget = 0,
+                                       const QString &uniqueId = QString(),
+                                       WidgetInfo::PlacementHint placementHint = WidgetInfo::NoPane,
+                                       int placementPriority = 0,
+                                       const QString &tabName = QString());
 
 private: //functions
     QList<ModelNode> toModelNodeList(const QList<Internal::InternalNodePointer> &nodeList) const;

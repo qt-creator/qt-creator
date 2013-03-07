@@ -84,6 +84,8 @@ public:
     void setQmlDir(const QString &qmlDirPath);
 
     QWidget *widget();
+    bool hasWidget() const;
+    WidgetInfo widgetInfo();
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList);

@@ -65,6 +65,11 @@ QWidget *StatesEditorView::widget()
     return m_statesEditorWidget.data();
 }
 
+WidgetInfo StatesEditorView::widgetInfo()
+{
+    return createWidgetInfo(m_statesEditorWidget.data(), "StatesEditor", WidgetInfo::TopPane, 0, tr("States Editor"));
+}
+
 void StatesEditorView::removeState(int nodeId)
 {
     try {
