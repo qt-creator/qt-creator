@@ -137,7 +137,7 @@ void CrashHandler::onError(const QString &errorMessage)
     d->dialog.setToFinalState();
 
     QTextStream(stderr) << errorMessage;
-    const QString text = QLatin1String("There occured a problem providing the backtrace. "
+    const QString text = QLatin1String("A problem occurred providing the backtrace. "
         "Please make sure to have the debugger \"gdb\" installed.\n");
     d->dialog.appendDebugInfo(text);
     d->dialog.appendDebugInfo(errorMessage);
