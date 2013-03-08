@@ -1647,6 +1647,15 @@ void QmlV8DebuggerClient::setCurrentFrameDetails(const QVariant &bodyVal, const 
     d->clearCache();
 
     const int frameIndex = stackHandler->currentIndex();
+    QSet<QByteArray> expandedInames = watchHandler->expandedINames();
+    QHash<quint64, QByteArray> handlesToLookup;
+    // Store handles of all expanded watch data
+    foreach (const QByteArray &iname, expandedInames) {
+        const WatchData *wd = watchHandler->findData(iname);
+        if (!wd || !wd->isLocal())
+            continue;
+        handlesToLookup.insert(wd->id, iname);
+    }
     watchHandler->removeAllData();
     if (frameIndex < 0)
         return;
@@ -1685,6 +1694,11 @@ void QmlV8DebuggerClient::setCurrentFrameDetails(const QVariant &bodyVal, const 
         d->scope(scopeIndex);
     }
     d->engine->gotoLocation(stackHandler->currentFrame());
+
+    // Expand watch data that were previously expanded
+    QHash<quint64, QByteArray>::const_iterator itEnd = handlesToLookup.end();
+    for (QHash<quint64, QByteArray>::const_iterator it = handlesToLookup.begin(); it != itEnd; ++it)
+        expandObject(it.value(), it.key());
     emit stackFrameCompleted();
 }
 
