@@ -261,6 +261,46 @@ static void printParseWarnings(const QString &libraryPath, const QString &warnin
                                  "%2").arg(libraryPath, warning));
 }
 
+static QString qmlPluginDumpErrorMessage(QProcess *process)
+{
+    QString errorMessage;
+#if QT_VERSION >= 0x050000
+    const QString binary = QDir::toNativeSeparators(process->program());
+#else
+    const QString binary = QLatin1String("qmlplugindump");
+#endif
+    switch (process->error()) {
+    case QProcess::FailedToStart:
+        errorMessage = PluginDumper::tr("\"%1\" failed to start: %2").arg(binary, process->errorString());
+        break;
+    case QProcess::Crashed:
+        errorMessage = PluginDumper::tr("\"%1\" crashed.").arg(binary);
+        break;
+    case QProcess::Timedout:
+        errorMessage = PluginDumper::tr("\"%1\" timed out.").arg(binary);
+        break;
+    case QProcess::ReadError:
+    case QProcess::WriteError:
+        errorMessage = PluginDumper::tr("I/O error running \"%1\".").arg(binary);
+        break;
+    case QProcess::UnknownError:
+        if (process->exitCode())
+            errorMessage = PluginDumper::tr("\"%1\" returned exit code %2.").arg(binary).arg(process->exitCode());
+        break;
+    }
+#if QT_VERSION >= 0x050000
+    errorMessage += QLatin1Char('\n') + PluginDumper::tr("Arguments: %1").arg(process->arguments().join(QLatin1Char(' ')));
+#endif
+    if (process->error() != QProcess::FailedToStart) {
+        const QString stdErr = QString::fromLocal8Bit(process->readAllStandardError());
+        if (!stdErr.isEmpty()) {
+            errorMessage += QLatin1Char('\n');
+            errorMessage += stdErr;
+        }
+    }
+    return errorMessage;
+}
+
 void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
 {
     QProcess *process = qobject_cast<QProcess *>(sender());
@@ -276,7 +316,7 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
 
     if (exitCode != 0) {
         Core::MessageManager *messageManager = Core::MessageManager::instance();
-        const QString errorMessages = QString::fromLocal8Bit(process->readAllStandardError());
+        const QString errorMessages = qmlPluginDumpErrorMessage(process);
         messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, errorMessages));
         libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, qmldumpFailedMessage(libraryPath, errorMessages));
     }
@@ -316,7 +356,7 @@ void PluginDumper::qmlPluginTypeDumpError(QProcess::ProcessError)
         return;
 
     Core::MessageManager *messageManager = Core::MessageManager::instance();
-    const QString errorMessages = QString::fromLocal8Bit(process->readAllStandardError());
+    const QString errorMessages = qmlPluginDumpErrorMessage(process);
     messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, errorMessages));
 
     if (!libraryPath.isEmpty()) {
