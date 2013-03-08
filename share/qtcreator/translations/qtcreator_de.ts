@@ -16854,7 +16854,7 @@ Erfordert &lt;b&gt;Qt 5.0&lt;/b&gt; oder neuer.</translation>
 Requires &lt;b&gt;Qt 5.0&lt;/b&gt; or newer.</source>
         <translation>Erstellt eine Qt Quick-Anwendung aus bereits existierenden QML-Dateien. Alle im Ordner der Haupt-QML-Datei befindlichen Dateien und Ordner sind zum Deployment vorgesehen. Der Inhalt des Ordners kann vor dem Deployment beliebig geändert werden.
 
-Erforder &lt;b&gt;Qt 5.0&lt;/b&gt; oder neuer.</translation>
+Erfordert &lt;b&gt;Qt 5.0&lt;/b&gt; oder neuer.</translation>
     </message>
     <message>
         <source>The Qt Quick Components for MeeGo Harmattan are a set of ready-made components that are designed with specific native appearance for the MeeGo Harmattan platform.
@@ -16870,7 +16870,7 @@ Erfordert &lt;b&gt;Qt 4.7.4&lt;/b&gt; oder neuer sowie die Installation der Komp
 Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
         <translation>Erstellt eine Qt Quick-Anwendung aus bereits existierenden QML-Dateien. Alle im Ordner der Haupt-QML-Datei befindlichen Dateien und Ordner sind zum Deployment vorgesehen. Der Inhalt des Ordners kann vor dem Deployment beliebig geändert werden.
 
-Erforder &lt;b&gt;Qt 4.7.0&lt;/b&gt; oder neuer.</translation>
+Erfordert &lt;b&gt;Qt 4.7.0&lt;/b&gt; oder neuer.</translation>
     </message>
 </context>
 <context>
