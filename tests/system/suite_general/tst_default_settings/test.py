@@ -212,6 +212,7 @@ def __lowerStrs__(iterable):
             yield it
 
 def __checkCreatedSettings__(settingsFolder):
+    waitForCleanShutdown()
     qtProj = os.path.join(settingsFolder, "QtProject")
     folders = []
     files = [{os.path.join(qtProj, "QtCreator.db"):0},
