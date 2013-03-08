@@ -146,7 +146,6 @@ void CrashHandler::onError(const QString &errorMessage)
 void CrashHandler::onBacktraceChunk(const QString &chunk)
 {
     d->dialog.appendDebugInfo(chunk);
-    QTextStream(stdout) << chunk;
 }
 
 void CrashHandler::onBacktraceFinished(const QString &backtrace)
