@@ -47,7 +47,8 @@ public:
         WrongCskPassword = UserStatus,
         WrongKeystorePassword,
         NetworkUnreachable,
-        IllegalPin
+        IllegalPin,
+        NotYetRegistered
     };
 
     explicit BlackBerryDebugTokenRequester(QObject *parent = 0);

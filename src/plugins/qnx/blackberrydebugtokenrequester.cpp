@@ -50,7 +50,7 @@ BlackBerryDebugTokenRequester::BlackBerryDebugTokenRequester(QObject *parent) :
     addErrorStringMapping(QLatin1String(ERR_WRONG_KEYSTORE_PASS), WrongKeystorePassword);
     addErrorStringMapping(QLatin1String(ERR_WRONG_KEYSTORE_PASS), WrongKeystorePassword);
     addErrorStringMapping(QLatin1String(ERR_NETWORK_UNREACHABLE), NetworkUnreachable);
-    addErrorStringMapping(QLatin1String(ERR_NOT_YET_REGISTGERED), BlackBerryNdkProcess::UnknownError);
+    addErrorStringMapping(QLatin1String(ERR_NOT_YET_REGISTGERED), NotYetRegistered);
 }
 
 void BlackBerryDebugTokenRequester::requestDebugToken(const QString &path,

@@ -237,6 +237,9 @@ void BlackBerryDebugTokenRequestDialog::debugTokenArrived(int status)
     case BlackBerryDebugTokenRequester::InferiorProcessWriteError:
         errorString += tr("Failed to communicate with the inferior process.");
         break;
+    case BlackBerryDebugTokenRequester::NotYetRegistered:
+        errorString += tr("Not yet registered to request debug tokens.");
+        break;
     case BlackBerryDebugTokenRequester::UnknownError:
         errorString += tr("An unknwon error has occurred.");
         break;
