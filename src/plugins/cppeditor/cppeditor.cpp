@@ -1016,7 +1016,7 @@ void CPPEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &inf
         }
 
         //Other macro uses
-        foreach (Document::MacroUse use, info.doc->macroUses()) {
+        foreach (const Document::MacroUse &use, info.doc->macroUses()) {
             if (use.macro().line() != macro->line()
                     || use.macro().offset() != macro->offset()
                     || use.macro().length() != macro->length()
