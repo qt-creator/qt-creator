@@ -42,7 +42,11 @@
 #include <QObject>
 #include <QCoreApplication>
 
+#ifdef FAKEVIM_STANDALONE
+using namespace FakeVim::Internal::Utils;
+#else
 using namespace Utils;
+#endif
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -52,6 +56,29 @@ using namespace Utils;
 
 namespace FakeVim {
 namespace Internal {
+
+typedef QLatin1String _;
+
+#ifdef FAKEVIM_STANDALONE
+namespace Utils {
+
+SavedAction::SavedAction(QObject *parent)
+    : QObject(parent)
+{
+}
+
+void SavedAction::setValue(const QVariant &value)
+{
+    m_value = value;
+}
+
+QVariant SavedAction::value() const
+{
+    return m_value;
+}
+
+} // namespace Utils
+#endif // FAKEVIM_STANDALONE
 
 FakeVimSettings::FakeVimSettings()
 {}
@@ -64,7 +91,7 @@ FakeVimSettings::~FakeVimSettings()
 void FakeVimSettings::insertItem(int code, SavedAction *item,
     const QString &longName, const QString &shortName)
 {
-    QTC_ASSERT(!m_items.contains(code), qDebug() << code << item->toString(); return);
+    QTC_ASSERT(!m_items.contains(code), qDebug() << code; return);
     m_items[code] = item;
     if (!longName.isEmpty()) {
         m_nameToCode[longName] = code;
@@ -74,6 +101,7 @@ void FakeVimSettings::insertItem(int code, SavedAction *item,
         m_nameToCode[shortName] = code;
 }
 
+#ifndef FAKEVIM_STANDALONE
 void FakeVimSettings::readSettings(QSettings *settings)
 {
     foreach (SavedAction *item, m_items)
@@ -85,6 +113,7 @@ void FakeVimSettings::writeSettings(QSettings *settings)
     foreach (SavedAction *item, m_items)
         item->writeSettings(settings);
 }
+#endif // FAKEVIM_STANDALONE
 
 SavedAction *FakeVimSettings::item(int code)
 {
@@ -114,162 +143,63 @@ QString FakeVimSettings::trySetValue(const QString &name, const QString &value)
     return QString();
 }
 
+SavedAction *createAction(FakeVimSettings *instance, int code, const QVariant &value,
+                          const QString &settingsKey = QString(),
+                          const QString &shortKey = QString())
+{
+    SavedAction *item = new SavedAction(instance);
+    item->setValue(value);
+#ifndef FAKEVIM_STANDALONE
+    item->setSettingsKey(_("FakeVim"), settingsKey);
+    item->setDefaultValue(value);
+    item->setCheckable( value.canConvert<bool>() );
+#endif
+    instance->insertItem(code, item, settingsKey.toLower(), shortKey);
+    return item;
+}
+
 FakeVimSettings *theFakeVimSettings()
 {
-    static FakeVimSettings *instance = 0;
-    if (instance)
-        return instance;
+    static FakeVimSettings *s = 0;
+    if (s)
+        return s;
 
-    instance = new FakeVimSettings;
+    s = new FakeVimSettings;
 
-    typedef QLatin1String _;
-    SavedAction *item = 0;
-
-    const QString group = _("FakeVim");
-    item = new SavedAction(instance);
-    item->setText(QCoreApplication::translate("FakeVim::Internal",
+    // Specific FakeVim settings
+    createAction(s, ConfigUseFakeVim, true,      _("UseFakeVim"));
+    createAction(s, ConfigReadVimRc,  false,     _("ReadVimRc"));
+    createAction(s, ConfigVimRcPath,  QString(), _("VimRcPath"));
+#ifndef FAKEVIM_STANDALONE
+    s->item(ConfigUseFakeVim)->setText(QCoreApplication::translate("FakeVim::Internal",
         "Use Vim-style Editing"));
-    item->setSettingsKey(group, _("UseFakeVim"));
-    item->setCheckable(true);
-    item->setValue(false);
-    instance->insertItem(ConfigUseFakeVim, item);
-
-    item = new SavedAction(instance);
-    item->setText(QCoreApplication::translate("FakeVim::Internal",
+    s->item(ConfigReadVimRc)->setText(QCoreApplication::translate("FakeVim::Internal",
         "Read .vimrc"));
-    item->setSettingsKey(group, _("ReadVimRc"));
-    item->setCheckable(true);
-    item->setValue(false);
-    instance->insertItem(ConfigReadVimRc, item);
-
-    item = new SavedAction(instance);
-    item->setText(QCoreApplication::translate("FakeVim::Internal",
+    s->item(ConfigVimRcPath)->setText(QCoreApplication::translate("FakeVim::Internal",
         "Path to .vimrc"));
-    item->setDefaultValue(QString());
-    item->setSettingsKey(group, _("VimRcPath"));
-    instance->insertItem(ConfigVimRcPath, item);
+#endif
+    createAction(s, ConfigShowMarks,      false, _("ShowMarks"),      _("sm"));
+    createAction(s, ConfigPassControlKey, false, _("PassControlKey"), _("pck"));
 
-    item = new SavedAction(instance);
-    item->setValue(true);
-    item->setDefaultValue(true);
-    item->setSettingsKey(group, _("StartOfLine"));
-    item->setCheckable(true);
-    instance->insertItem(ConfigStartOfLine, item, _("startofline"), _("sol"));
+    // Emulated Vim setting
+    createAction(s, ConfigStartOfLine,    true,  _("StartOfLine"),   _("sol"));
+    createAction(s, ConfigTabStop,        8,     _("TabStop"),       _("ts"));
+    createAction(s, ConfigSmartTab,       false, _("SmartTab"),      _("sta"));
+    createAction(s, ConfigHlSearch,       true,  _("HlSearch"),      _("hls"));
+    createAction(s, ConfigShiftWidth,     8,     _("ShiftWidth"),    _("sw"));
+    createAction(s, ConfigExpandTab,      false, _("ExpandTab"),     _("et"));
+    createAction(s, ConfigAutoIndent,     false, _("AutoIndent"),    _("ai"));
+    createAction(s, ConfigSmartIndent,    false, _("SmartIndent"),   _("si"));
+    createAction(s, ConfigIncSearch,      true,  _("IncSearch"),     _("is"));
+    createAction(s, ConfigUseCoreSearch,  false, _("UseCoreSearch"), _("ucs"));
+    createAction(s, ConfigSmartCase,      false, _("SmartCase"),     _("scs"));
+    createAction(s, ConfigWrapScan,       true,  _("WrapScan"),      _("ws"));
+    createAction(s, ConfigShowCmd,        true,  _("ShowCmd"),       _("sc"));
+    createAction(s, ConfigBackspace,      _("indent,eol,start"), _("ConfigBackspace"), _("bs"));
+    createAction(s, ConfigIsKeyword,      _("@,48-57,_,192-255,a-z,A-Z"), _("IsKeyword"), _("isk"));
+    createAction(s, ConfigClipboard,      QString(), _("Clipboard"), _("cb"));
 
-    item = new SavedAction(instance);
-    item->setDefaultValue(8);
-    item->setSettingsKey(group, _("TabStop"));
-    instance->insertItem(ConfigTabStop, item, _("tabstop"), _("ts"));
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(false);
-    item->setValue(false);
-    item->setSettingsKey(group, _("SmartTab"));
-    instance->insertItem(ConfigSmartTab, item, _("smarttab"), _("sta"));
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(true);
-    item->setValue(true);
-    item->setSettingsKey(group, _("HlSearch"));
-    item->setCheckable(true);
-    instance->insertItem(ConfigHlSearch, item, _("hlsearch"), _("hls"));
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(8);
-    item->setSettingsKey(group, _("ShiftWidth"));
-    instance->insertItem(ConfigShiftWidth, item, _("shiftwidth"), _("sw"));
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(false);
-    item->setValue(false);
-    item->setSettingsKey(group, _("ExpandTab"));
-    item->setCheckable(true);
-    instance->insertItem(ConfigExpandTab, item, _("expandtab"), _("et"));
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(false);
-    item->setValue(false);
-    item->setSettingsKey(group, _("AutoIndent"));
-    item->setValue(false);
-    item->setCheckable(true);
-    instance->insertItem(ConfigAutoIndent, item, _("autoindent"), _("ai"));
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(false);
-    item->setValue(false);
-    item->setSettingsKey(group, _("SmartIndent"));
-    item->setValue(false);
-    item->setCheckable(true);
-    instance->insertItem(ConfigSmartIndent, item, _("smartindent"), _("si"));
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(true);
-    item->setValue(true);
-    item->setSettingsKey(group, _("IncSearch"));
-    item->setCheckable(true);
-    instance->insertItem(ConfigIncSearch, item, _("incsearch"), _("is"));
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(false);
-    item->setValue(false);
-    item->setSettingsKey(group, _("UseCoreSearch")); item->setCheckable(true);
-    instance->insertItem(ConfigUseCoreSearch, item,
-        _("usecoresearch"), _("ucs"));
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(false);
-    item->setValue(false);
-    item->setSettingsKey(group, _("SmartCase")); item->setCheckable(true);
-    item->setCheckable(true);
-    instance->insertItem(ConfigSmartCase, item, _("smartcase"), _("scs"));
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(true);
-    item->setValue(true);
-    item->setSettingsKey(group, _("WrapScan")); item->setCheckable(true);
-    item->setCheckable(true);
-    instance->insertItem(ConfigWrapScan, item, _("wrapscan"), _("ws"));
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(_("indent,eol,start"));
-    item->setSettingsKey(group, _("Backspace"));
-    instance->insertItem(ConfigBackspace, item, _("backspace"), _("bs"));
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(_("@,48-57,_,192-255,a-z,A-Z"));
-    item->setSettingsKey(group, _("IsKeyword"));
-    instance->insertItem(ConfigIsKeyword, item, _("iskeyword"), _("isk"));
-
-    // Invented here.
-    item = new SavedAction(instance);
-    item->setDefaultValue(false);
-    item->setValue(false);
-    item->setSettingsKey(group, _("ShowMarks"));
-    item->setCheckable(true);
-    instance->insertItem(ConfigShowMarks, item, _("showmarks"), _("sm"));
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(false);
-    item->setValue(false);
-    item->setSettingsKey(group, _("PassControlKey"));
-    item->setCheckable(true);
-    instance->insertItem(ConfigPassControlKey, item, _("passcontrolkey"), _("pck"));
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(QString());
-    item->setValue(QString());
-    item->setSettingsKey(group, _("Clipboard"));
-    item->setCheckable(true);
-    instance->insertItem(ConfigClipboard, item, _("clipboard"), _("cb"));
-
-    item = new SavedAction(instance);
-    item->setDefaultValue(true);
-    item->setValue(true);
-    item->setSettingsKey(group, _("ShowCmd")); item->setCheckable(true);
-    item->setCheckable(true);
-    instance->insertItem(ConfigShowCmd, item, _("showcmd"), _("sc"));
-
-    return instance;
+    return s;
 }
 
 SavedAction *theFakeVimSetting(int code)

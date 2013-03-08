@@ -29,16 +29,55 @@
 
 #include "fakevimhandler.h"
 
-#include <QDebug>
-
 #include <QApplication>
+#include <QFontMetrics>
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QPainter>
 #include <QPlainTextEdit>
 #include <QStatusBar>
 #include <QTextEdit>
 
 using namespace FakeVim::Internal;
+
+typedef QLatin1String _;
+
+/**
+ * Simple editor widget.
+ * @tparam TextEdit QTextEdit or QPlainTextEdit as base class
+ */
+template <typename TextEdit>
+class Editor : public TextEdit
+{
+public:
+    Editor(QWidget *parent = 0) : TextEdit(parent)
+    {
+        TextEdit::setCursorWidth(0);
+    }
+
+    void paintEvent(QPaintEvent *e)
+    {
+        TextEdit::paintEvent(e);
+
+        // Draw text cursor.
+        QRect rect = TextEdit::cursorRect();
+        if ( e->rect().contains(rect) ) {
+            QPainter painter(TextEdit::viewport());
+
+            if ( TextEdit::overwriteMode() ) {
+                QFontMetrics fm(TextEdit::font());
+                rect.setWidth(fm.width(QLatin1Char('m')));
+                painter.setPen(Qt::NoPen);
+                painter.setBrush(TextEdit::palette().color(QPalette::Base));
+                painter.setCompositionMode(QPainter::CompositionMode_Difference);
+            } else {
+                rect.setWidth(TextEdit::cursorWidth());
+                painter.setPen(TextEdit::palette().color(QPalette::Text));
+            }
+            painter.drawRect(rect);
+        }
+    }
+};
 
 class Proxy : public QObject
 {
@@ -64,6 +103,44 @@ public slots:
         updateStatusBar();
     }
 
+    void highlightMatches(const QString &pattern)
+    {
+        QTextEdit *ed = qobject_cast<QTextEdit *>(m_widget);
+        if (!ed)
+            return;
+
+        // Clear previous highlights.
+        ed->selectAll();
+        QTextCursor cur = ed->textCursor();
+        QTextCharFormat fmt = cur.charFormat();
+        fmt.setBackground(Qt::transparent);
+        cur.setCharFormat(fmt);
+
+        // Highlight matches.
+        QTextDocument *doc = ed->document();
+        QRegExp re(pattern);
+        cur = doc->find(re);
+
+        int a = cur.position();
+        while ( !cur.isNull() ) {
+            if ( cur.hasSelection() ) {
+                fmt.setBackground(Qt::yellow);
+                cur.setCharFormat(fmt);
+            } else {
+                cur.movePosition(QTextCursor::NextCharacter);
+            }
+            cur = doc->find(re, cur);
+            int b = cur.position();
+            if (a == b) {
+                cur.movePosition(QTextCursor::NextCharacter);
+                cur = doc->find(re, cur);
+                b = cur.position();
+                if (a == b) break;
+            }
+            a = b;
+        }
+    }
+
     void changeStatusMessage(const QString &contents, int cursorPos)
     {
         m_statusMessage = cursorPos == -1 ? contents
@@ -83,6 +160,18 @@ public slots:
         m_mainWindow->statusBar()->showMessage(msg);
     }
 
+    void handleExCommand(bool *handled, const ExCommand &cmd)
+    {
+        if (cmd.matches(_("q"), _("quit")) || cmd.matches(_("qa"), _("qall"))) {
+            QApplication::quit();
+        } else {
+            *handled = false;
+            return;
+        }
+
+        *handled = true;
+    }
+
 private:
     QWidget *m_widget;
     QMainWindow *m_mainWindow;
@@ -90,55 +179,63 @@ private:
     QString m_statusData;
 };
 
-int main(int argc, char *argv[])
+QWidget *createEditorWidget(bool usePlainTextEdit)
 {
-    QApplication app(argc, argv);
-
-    QStringList args = app.arguments();
-    (void) args.takeFirst();
-
-    QWidget *widget = 0;
-    QString title;
-    bool usePlainTextEdit = args.size() < 2;
+    QWidget *editor = 0;
     if (usePlainTextEdit) {
-        QPlainTextEdit *w = new QPlainTextEdit;
+        Editor<QPlainTextEdit> *w = new Editor<QPlainTextEdit>;
         w->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        title = QLatin1String("PlainTextEdit");
-        widget = w;
+        editor = w;
     } else {
-        QTextEdit *w = new QTextEdit;
+        Editor<QTextEdit> *w = new Editor<QTextEdit>;
         w->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        title = QLatin1String("TextEdit");
-        widget = w;
+        editor = w;
     }
-    widget->setObjectName(QLatin1String("Editor"));
-    //widget->resize(450, 350);
-    widget->setFocus();
+    editor->setObjectName(_("Editor"));
+    editor->setFocus();
 
-    QMainWindow mw;
-    Proxy proxy(widget, &mw);
+    return editor;
+}
 
-    FakeVimHandler handler(widget, 0);
+void initHandler(FakeVimHandler &handler)
+{
+    // Set some Vim options.
+    handler.handleCommand(_("set expandtab"));
+    handler.handleCommand(_("set shiftwidth=8"));
+    handler.handleCommand(_("set tabstop=16"));
+    handler.handleCommand(_("set autoindent"));
 
-    mw.setWindowTitle(QLatin1String("Fakevim (") + title + QLatin1Char(')'));
-    mw.setCentralWidget(widget);
-    mw.resize(600, 650);
-    mw.move(0, 0);
-    mw.show();
+    // Try to source file "fakevimrc" from current directory.
+    handler.handleCommand(_("source fakevimrc"));
 
-    QFont font = widget->font();
-    //: -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-1
-    //font.setFamily("Misc");
-    font.setFamily(QLatin1String("Monospace"));
-    //font.setStretch(QFont::SemiCondensed);
+    handler.installEventFilter();
+    handler.setupWidget();
+}
 
-    widget->setFont(font);
-    mw.statusBar()->setFont(font);
+void initMainWindow(QMainWindow &mainWindow, QWidget *centralWidget, const QString &title)
+{
+    mainWindow.setWindowTitle(QString(_("FakeVim (%1)")).arg(title));
+    mainWindow.setCentralWidget(centralWidget);
+    mainWindow.resize(600, 650);
+    mainWindow.move(0, 0);
+    mainWindow.show();
 
-    QObject::connect(&handler, SIGNAL(commandBufferChanged(QString,int)),
+    // Set monospace font for editor and status bar.
+    QFont font = QApplication::font();
+    font.setFamily(_("Monospace"));
+    centralWidget->setFont(font);
+    mainWindow.statusBar()->setFont(font);
+}
+
+void readFile(FakeVimHandler &handler, const QString &editFileName)
+{
+    handler.handleCommand(QString(_("r %1")).arg(editFileName));
+}
+
+void connectSignals(FakeVimHandler &handler, Proxy &proxy)
+{
+    QObject::connect(&handler, SIGNAL(commandBufferChanged(QString,int,int,int,QObject*)),
         &proxy, SLOT(changeStatusMessage(QString,int)));
-    //QObject::connect(&handler, SIGNAL(quitRequested(bool)),
-    //    &app, SLOT(quit()));
     QObject::connect(&handler,
         SIGNAL(selectionChanged(QList<QTextEdit::ExtraSelection>)),
         &proxy, SLOT(changeSelection(QList<QTextEdit::ExtraSelection>)));
@@ -146,17 +243,42 @@ int main(int argc, char *argv[])
         &proxy, SLOT(changeExtraInformation(QString)));
     QObject::connect(&handler, SIGNAL(statusDataChanged(QString)),
         &proxy, SLOT(changeStatusData(QString)));
+    QObject::connect(&handler, SIGNAL(highlightMatches(QString)),
+        &proxy, SLOT(highlightMatches(QString)));
+    QObject::connect(&handler, SIGNAL(handleExCommandRequested(bool*,ExCommand)),
+        &proxy, SLOT(handleExCommand(bool*,ExCommand)));
+}
 
-    theFakeVimSetting(ConfigUseFakeVim)->setValue(true);
-    theFakeVimSetting(ConfigShiftWidth)->setValue(8);
-    theFakeVimSetting(ConfigTabStop)->setValue(8);
-    theFakeVimSetting(ConfigAutoIndent)->setValue(true);
-    theFakeVimSetting(ConfigIsKeyword)->setValue(QLatin1String("@,48-57,_,192-255,a-z,A-Z"));
+int main(int argc, char *argv[])
+{
+    QApplication app(argc, argv);
 
-    handler.installEventFilter();
-    handler.setupWidget();
-    if (args.size() >= 1)
-        handler.handleCommand(QLatin1String("r ") + args.at(0));
+    QStringList args = app.arguments();
+
+    // If first argument is present use QPlainTextEdit instead on QTextEdit;
+    bool usePlainTextEdit = args.size() > 1;
+    // Second argument is path to file to edit.
+    const QString editFileName = args.value(2, QString(_("/usr/share/vim/vim73/tutor/tutor")));
+
+    // Create editor widget.
+    QWidget *editor = createEditorWidget(usePlainTextEdit);
+
+    // Create FakeVimHandler instance which will emulate Vim behavior in editor widget.
+    FakeVimHandler handler(editor, 0);
+
+    // Create main window.
+    QMainWindow mainWindow;
+    initMainWindow(mainWindow, editor, usePlainTextEdit ? _("QPlainTextEdit") : _("QTextEdit"));
+
+    // Connect slots to FakeVimHandler signals.
+    Proxy proxy(editor, &mainWindow);
+    connectSignals(handler, proxy);
+
+    // Initialize FakeVimHandler.
+    initHandler(handler);
+
+    // Read file content to editor.
+    readFile(handler, editFileName);
 
     return app.exec();
 }

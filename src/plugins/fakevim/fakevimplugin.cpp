@@ -29,6 +29,7 @@
 
 #include "fakevimplugin.h"
 
+#include "fakevimactions.h"
 #include "fakevimhandler.h"
 #include "ui_fakevimoptions.h"
 

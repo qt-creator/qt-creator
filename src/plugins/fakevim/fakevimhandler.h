@@ -30,8 +30,6 @@
 #ifndef FAKEVIM_HANDLER_H
 #define FAKEVIM_HANDLER_H
 
-#include "fakevimactions.h"
-
 #include <QObject>
 #include <QTextEdit>
 

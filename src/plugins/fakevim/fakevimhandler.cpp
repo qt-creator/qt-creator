@@ -59,6 +59,8 @@
 
 #include "fakevimhandler.h"
 
+#include "fakevimactions.h"
+
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
@@ -105,6 +107,9 @@
 #endif
 
 using namespace Utils;
+#ifdef FAKEVIM_STANDALONE
+using namespace FakeVim::Internal::Utils;
+#endif
 
 namespace FakeVim {
 namespace Internal {
@@ -1768,7 +1773,7 @@ public:
     // auto-indent
     QString tabExpand(int len) const;
     Column indentation(const QString &line) const;
-    void insertAutomaticIndentation(bool goingDown);
+    void insertAutomaticIndentation(bool goingDown, bool forceAutoIndent = false);
     bool removeAutomaticIndentation(); // true if something removed
     // number of autoindented characters
     int m_justAutoIndented;
@@ -2045,12 +2050,14 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         return EventPassedToCore;
     }
 
+#ifndef FAKEVIM_STANDALONE
     bool inSnippetMode = false;
     QMetaObject::invokeMethod(editor(),
         "inSnippetMode", Q_ARG(bool *, &inSnippetMode));
 
     if (inSnippetMode)
         return EventPassedToCore;
+#endif
 
     // Fake "End of line"
     //m_tc = cursor();
@@ -4983,22 +4990,14 @@ bool FakeVimHandler::Private::handleExChangeCommand(const ExCommand &cmd)
     if (!cmd.matches(_("c"), _("change")))
         return false;
 
-    const bool oldAutoIndent = hasConfig(ConfigAutoIndent);
-    // Temporarily set autoindent if ! is present.
-    if (cmd.hasBang)
-        theFakeVimSetting(ConfigAutoIndent)->setValue(true, false);
-
     Range range = cmd.range;
     range.rangemode = RangeLineModeExclusive;
     removeText(range);
-    insertAutomaticIndentation(true);
+    insertAutomaticIndentation(true, cmd.hasBang);
 
     // FIXME: In Vim same or less number of lines can be inserted and position after insertion is
     //        beginning of last inserted line.
     enterInsertMode();
-
-    if (cmd.hasBang && !oldAutoIndent)
-        theFakeVimSetting(ConfigAutoIndent)->setValue(false, false);
 
     return true;
 }
@@ -5189,7 +5188,7 @@ bool FakeVimHandler::Private::handleExBangCommand(const ExCommand &cmd) // :!
     QProcess proc;
     proc.start(command);
     proc.waitForStarted();
-    if (Utils::HostOsInfo::isWindowsHost())
+    if (HostOsInfo::isWindowsHost())
         text.replace(_("\n"), _("\r\n"));
     proc.write(text.toUtf8());
     proc.closeWriteChannel();
@@ -6825,9 +6824,9 @@ QString FakeVimHandler::Private::tabExpand(int n) const
          + QString(n % ts, QLatin1Char(' '));
 }
 
-void FakeVimHandler::Private::insertAutomaticIndentation(bool goingDown)
+void FakeVimHandler::Private::insertAutomaticIndentation(bool goingDown, bool forceAutoIndent)
 {
-    if (!hasConfig(ConfigAutoIndent) && !hasConfig(ConfigSmartIndent))
+    if (!forceAutoIndent && !hasConfig(ConfigAutoIndent) && !hasConfig(ConfigSmartIndent))
         return;
 
     if (hasConfig(ConfigSmartIndent)) {
