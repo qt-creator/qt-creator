@@ -153,16 +153,12 @@
     \section1 Executing JavaScript Expressions
 
     When the application is interrupted by a breakpoint, you can use the
-    \gui {Console} to execute JavaScript expressions in the current
-    context. To open it, choose \gui {Window > Views > Console}.
+    \gui {QML/JS Console} to execute JavaScript expressions in the current
+    context. To open it, choose \gui Window > \gui {Output Panes} > \gui {QML/JS Console}.
 
-    \image qml-script-console.png "Console view"
+    \image qml-script-console.png "QML/JS Console"
 
-    You can type JavaScript expressions and use them to get information about
-    the state or your application. You can change property values temporarily,
-    without editing the source, and view the results in the running application.
-
-    You can change the property values permanently in the code editor.
+    For more information about using the console, see \l{QML/JS Console}.
 
     \section1 Applying QML Changes at Runtime
 

@@ -60,10 +60,11 @@ void SearchSymbols::setSeparateScope(bool separateScope)
     this->separateScope = separateScope;
 }
 
-QList<ModelItemInfo> SearchSymbols::operator()(Document::Ptr doc, const QString &scope)
+QList<ModelItemInfo> SearchSymbols::operator()(Document::Ptr doc, int sizeHint, const QString &scope)
 {
     QString previousScope = switchScope(scope);
     items.clear();
+    items.reserve(sizeHint);
     for (unsigned i = 0; i < doc->globalSymbolCount(); ++i) {
         accept(doc->globalSymbolAt(i));
     }

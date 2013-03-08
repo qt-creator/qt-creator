@@ -63,13 +63,6 @@ You must have Qt libraries compiled for that platform</string>
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QPushButton" name="editRulesFilePushButton">
-       <property name="text">
-        <string>Edit Rules File</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item row="2" column="0">

@@ -13,7 +13,8 @@ QtcPlugin {
     cpp.includePaths: base.concat([
         "generichighlighter",
         "snippets",
-        "codeassist"
+        "codeassist",
+        "."
     ])
 
     files: [

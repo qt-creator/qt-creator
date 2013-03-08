@@ -9,7 +9,7 @@
 
     When you run the application on the BlackBerry device, \QC first creates a BAR package
     using the settings in the Application Descriptor File. The default is to create the
-    BAR package in the build directory. The BAR package is then deployed onto the
+    BAR package in the build directory. The BAR package is then deployed to the
     selected device. For more information, see \l{Deploying Applications to QNX Devices}.
 
     Specifying run settings for QNX Neutrino devices is very similar to

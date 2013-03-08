@@ -39,7 +39,7 @@
 
         \li \l{Deploying Applications to Android Devices}
 
-            When you deploy the application on an Android device, \QC copies
+            When you deploy the application to an Android device, \QC copies
             the application files to the device. In addition, you can determine
             the Qt libraries to use.
         \li  \l{Deploying Applications to BlackBerry 10 Devices}
@@ -49,7 +49,7 @@
             device.
         \li \l{Deploying Applications to Linux-Based Devices}
 
-            When you deploy the application on a Linux-based device, such
+            When you deploy the application to a Linux-based device, such
             as embedded Linux, MeeGo 1.2 Harmattan, or Maemo 5/Fremantle, \QC
             copies the application files to the connected device. You
             can test and debug the application on the device.
@@ -57,9 +57,9 @@
             Maemo 5/Fremantle devices.
         \li  \l{Deploying Applications to QNX Devices}
 
-            When you deploy the application on a BlackBerry, \QC  generates a
+            When you deploy the application to a BlackBerry, \QC  generates a
             BAR package in the build directory and deploys it to the connected
-            device. When you deploy it on a QNX Neutrino device, \QC copies
+            device. When you deploy it to a QNX Neutrino device, \QC copies
             the application files to the connected device. You can test and
             debug the application on the device.
     \endlist

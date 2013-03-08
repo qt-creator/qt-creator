@@ -39,14 +39,18 @@
 using namespace CppTools::Internal;
 using namespace Utils;
 
+static const int MaxPendingDocuments = 10;
+
 CppLocatorFilter::CppLocatorFilter(CppModelManager *manager)
-    : m_manager(manager),
-    m_forceNewSearchList(true)
+    : m_manager(manager)
+    , m_pendingDocumentsMutex(QMutex::Recursive)
 {
     setId("Classes and Methods");
     setDisplayName(tr("C++ Classes and Methods"));
     setShortcutString(QString(QLatin1Char(':')));
     setIncludedByDefault(false);
+
+    m_pendingDocuments.reserve(MaxPendingDocuments);
 
     connect(manager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
             this, SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)));
@@ -58,13 +62,53 @@ CppLocatorFilter::CppLocatorFilter(CppModelManager *manager)
 CppLocatorFilter::~CppLocatorFilter()
 { }
 
-void CppLocatorFilter::onDocumentUpdated(CPlusPlus::Document::Ptr doc)
+
+void CppLocatorFilter::flushPendingDocument(bool force)
 {
-    m_searchList[doc->fileName()] = search(doc);
+    QMutexLocker locker(&m_pendingDocumentsMutex);
+    if (!force && m_pendingDocuments.size() < MaxPendingDocuments)
+        return;
+
+    foreach (CPlusPlus::Document::Ptr doc, m_pendingDocuments) {
+        QList<ModelItemInfo> &results = m_searchList[doc->fileName()];
+        results = search(doc, results.size() + 10);
+    }
+
+    m_pendingDocuments.clear();
+    m_pendingDocuments.reserve(MaxPendingDocuments);
+}
+
+void CppLocatorFilter::onDocumentUpdated(CPlusPlus::Document::Ptr updatedDoc)
+{
+    QMutexLocker locker(&m_pendingDocumentsMutex);
+
+    int i = 0, ei = m_pendingDocuments.size();
+    for (; i < ei; ++i) {
+        const CPlusPlus::Document::Ptr &doc = m_pendingDocuments.at(i);
+        if (doc->fileName() == updatedDoc->fileName()
+                && doc->revision() < updatedDoc->revision()) {
+            m_pendingDocuments[i] = updatedDoc;
+            break;
+        }
+    }
+
+    if (i == ei)
+        m_pendingDocuments.append(updatedDoc);
+
+    flushPendingDocument(false);
 }
 
 void CppLocatorFilter::onAboutToRemoveFiles(const QStringList &files)
 {
+    QMutexLocker locker(&m_pendingDocumentsMutex);
+
+    for (int i = 0; i < m_pendingDocuments.size(); ) {
+        if (files.contains(m_pendingDocuments.at(i)->fileName()))
+            m_pendingDocuments.remove(i);
+        else
+            ++i;
+    }
+
     foreach (const QString &file, files)
         m_searchList.remove(file);
 }
@@ -82,6 +126,8 @@ static bool compareLexigraphically(const Locator::FilterEntry &a,
 
 QList<Locator::FilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &origEntry)
 {
+    flushPendingDocument(true);
+
     QString entry = trimWildcards(origEntry);
     QList<Locator::FilterEntry> goodEntries;
     QList<Locator::FilterEntry> betterEntries;
@@ -140,7 +186,5 @@ void CppLocatorFilter::accept(Locator::FilterEntry selection) const
 void CppLocatorFilter::reset()
 {
     m_searchList.clear();
-    m_previousResults.clear();
     m_previousEntry.clear();
-    m_forceNewSearchList = true;
 }

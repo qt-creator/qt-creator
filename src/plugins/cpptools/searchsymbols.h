@@ -99,7 +99,7 @@ struct CPPTOOLS_EXPORT ModelItemInfo
     int column;
 };
 
-class SearchSymbols: public std::unary_function<CPlusPlus::Document::Ptr, QList<ModelItemInfo> >,
+class SearchSymbols: public std::binary_function<CPlusPlus::Document::Ptr, int, QList<ModelItemInfo> >,
                      protected CPlusPlus::SymbolVisitor
 {
 public:
@@ -112,10 +112,10 @@ public:
     void setSymbolsToSearchFor(SymbolTypes types);
     void setSeparateScope(bool separateScope);
 
-    QList<ModelItemInfo> operator()(CPlusPlus::Document::Ptr doc)
-    { return operator()(doc, QString()); }
+    QList<ModelItemInfo> operator()(CPlusPlus::Document::Ptr doc, int sizeHint = 500)
+    { return operator()(doc, sizeHint, QString()); }
 
-    QList<ModelItemInfo> operator()(CPlusPlus::Document::Ptr doc, const QString &scope);
+    QList<ModelItemInfo> operator()(CPlusPlus::Document::Ptr doc, int sizeHint, const QString &scope);
 
 protected:
     using SymbolVisitor::visit;

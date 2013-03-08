@@ -197,9 +197,7 @@
     If you cannot see a file in the \gui Projects view, switch to the
     \gui {File System} view, which shows all the files in the file system.
 
-    To also show hidden files, click
-    \inlineimage qtcreator-filter.png
-    and select \gui {Filter Files} > \gui {Show Hidden Files}.
+    To also show hidden files, select \gui {Filter Files} > \gui {Show Hidden Files}.
 
     To keep the position in the tree synchronized with the file
     opened in the editor, select \gui {Synchronize with Editor}.
@@ -243,6 +241,8 @@
        \li \gui{Application Output}
 
        \li \gui{Compile Output}
+
+       \li \gui {QML/JS Console}
 
        \li \gui {To-Do Entries}
 
@@ -300,9 +300,13 @@
 
     \image qtcreator-build-issues.png
 
-    Right-clicking on a line brings up a context menu with options to copy
-    the contents and to show a version control annotation view of the line
+    Right-clicking on a line brings up a context menu with options to remove a line, copy
+    its contents, or to show a version control annotation view of the line
     that causes the error message.
+
+    To navigate to the corresponding source code, click an issue or
+    select \gui {Show in Editor} in the context menu. The entry must contain the
+    name of the file where the issue was found.
 
     To jump from one issue to the next or previous one, press \key F6 and
     \key Shift+F6.
@@ -344,6 +348,17 @@
     code editor.
 
     Select the \gui {Cancel Build} button to cancel the build.
+
+    \section2 QML/JS Console
+
+    In the \gui {QML/JS Console}, you can type JavaScript expressions and use them to get
+    information about the state of your application during debugging. You can change property
+    values temporarily, without editing the source, and view the results in the running
+    application.
+
+    \image qml-script-console.png "QML/JS Console"
+
+    You can change the property values permanently in the code editor.
 
     \section2 To-Do List
 

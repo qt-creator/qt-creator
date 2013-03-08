@@ -23,6 +23,8 @@ OTHER_FILES += \
 include(../../qttest.pri)
 include(../../../../src/libs/extensionsystem/extensionsystem.pri)
 
+DEFINES += "PLUGINSPEC_DIR=\\\"$$PWD\\\""
+
 COPYDIR = $$OUT_PWD
 COPYFILES = $$OTHER_FILES
 include(../copy.pri)

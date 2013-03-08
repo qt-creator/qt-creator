@@ -89,6 +89,7 @@ public:
     static void globallySuppressInfo(Id id);
     static void initializeGloballySuppressed();
     static void clearGloballySuppressed();
+    static bool anyGloballySuppressed();
 
 signals:
     void changed();

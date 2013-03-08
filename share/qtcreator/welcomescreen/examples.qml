@@ -82,11 +82,9 @@ Rectangle {
         anchors.rightMargin: 80
         anchors.right: parent.right
         anchors.leftMargin: 20
-        model: examplesModel.qtVersionModel
+        model: qtVersionModel
 
         onCurrentIndexChanged: {
-            print("currentIndex" + currentIndex);
-
             if (comboBox.model === undefined)
                 return;
 

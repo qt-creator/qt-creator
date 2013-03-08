@@ -41,6 +41,7 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/qtcassert.h>
 
 #include <QObject>
 #include <QList>
@@ -221,7 +222,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
                                            AssistKind kind,
                                            IAssistProvider *provider)
 {
-    Q_ASSERT(!isWaitingForProposal());
+    QTC_ASSERT(!isWaitingForProposal(), return);
 
     if (!provider) {
         if (kind == Completion) {
@@ -328,6 +329,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
 
 void CodeAssistantPrivate::processProposalItem(IAssistProposalItem *proposalItem)
 {
+    QTC_ASSERT(m_proposal, return);
     proposalItem->apply(m_textEditor, m_proposal->basePosition());
     destroyContext();
     process();
@@ -335,6 +337,7 @@ void CodeAssistantPrivate::processProposalItem(IAssistProposalItem *proposalItem
 
 void CodeAssistantPrivate::handlePrefixExpansion(const QString &newPrefix)
 {
+    QTC_ASSERT(m_proposal, return);
     const int currentPosition = m_textEditor->position();
     m_textEditor->setCursorPosition(m_proposal->basePosition());
     m_textEditor->replace(currentPosition - m_proposal->basePosition(), newPrefix);
@@ -397,6 +400,7 @@ void CodeAssistantPrivate::notifyChange()
     stopAutomaticProposalTimer();
 
     if (isDisplayingProposal()) {
+        QTC_ASSERT(m_proposal, return);
         if (m_textEditor->position() < m_proposal->basePosition()) {
             destroyContext();
         } else {

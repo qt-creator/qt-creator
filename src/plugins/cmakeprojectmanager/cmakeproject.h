@@ -190,7 +190,6 @@ private:
     QStringList m_compilerOptions;
 
     CMakeBuildTarget m_buildTarget;
-    bool m_buildTargetType;
     QList<CMakeBuildTarget> m_buildTargets;
     QString m_projectName;
     QString m_compiler;

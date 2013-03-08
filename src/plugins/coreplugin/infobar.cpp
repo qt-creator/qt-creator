@@ -152,6 +152,11 @@ void InfoBar::clearGloballySuppressed()
     ICore::settings()->setValue(QLatin1String(C_SUPPRESSED_WARNINGS), QStringList());
 }
 
+bool InfoBar::anyGloballySuppressed()
+{
+    return !globallySuppressed.isEmpty();
+}
+
 
 InfoBarDisplay::InfoBarDisplay(QObject *parent)
     : QObject(parent)

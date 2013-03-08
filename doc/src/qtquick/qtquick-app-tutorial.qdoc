@@ -28,19 +28,15 @@
     \page creator-qml-application.html
     \nextpage creator-writing-program.html
 
-    \title Creating a Qt Quick 1 Application
-
-    \note We recommend that you use Qt Quick 2 to develop new applications for
-    platforms that run Qt 5.
+    \title Creating a Qt Quick Application
 
     This tutorial uses built-in QML elements and illustrates basic concepts of
-    \l {http://qt-project.org/doc/qt-4.8/qtquick.html}{Qt Quick 1}.
+    \l {http://qt-project.org/doc/qt-5.0/qtquick/qtquick-index.html}{Qt Quick}.
 
-    This tutorial describes how to use the \QC to implement the
-    \l{http://qt-project.org/doc/qt-4.8/declarative-animation-states.html}
-    {states and transitions example application}. The example application
-     displays a Qt logo that moves between three rectangles on the page when you
-    click them.
+    This tutorial describes how to use \QC to implement Qt states and transitions. We use
+    \l{http://qt-project.org/doc/qt-5.0/qtquick/quick-animation.html}{Qt example code} to
+    create an application that displays a Qt logo that moves between three rectangles on the
+    page when you click them.
 
     \image qmldesigner-tutorial.png "States and transitions example"
 
@@ -52,7 +48,11 @@
     \list 1
 
         \li Select \gui{File > New File or Project > Applications >
-            Qt Quick 1 Application (Built-in Elements) > Choose}.
+            Qt Quick 2 Application (Built-in Elements) > Choose}.
+
+            \note The QML types used in this example are also supported in Qt Quick 1. To create
+            this example application for platforms that run Qt 4, select \gui {Qt Quick 1
+            Application (Built-in Elements)}.
 
         \li In the \gui{Name} field, type \b {Transitions}.
 
@@ -89,7 +89,7 @@
     To use the states.png image in your application, you must copy it to the
     project directory (same subdirectory as the QML file) from the examples
     directory in the Qt installation directory. For example:
-    \c {C:\QtSDK\Examples\4.7\declarative\animation\states}. The image appears
+    \c {C:\Qt\Qt5.0.1\5.0.1\msvc2010\examples\declarative\animation\states}. The image appears
     in the \gui Resources pane. You can also use any other image or a QML
     element, instead.
 
@@ -204,7 +204,7 @@
 
             The qml.main file should now look as follows:
 
-            \snippet transitions/qml/Transitions/main.qml 0
+            \snippet transitions/main.qml 0
 
         \li In the \gui Navigator pane, copy topLeftRect (by pressing
             \key {Ctrl+C}) and paste it to the canvas twice (by pressing
@@ -256,7 +256,7 @@
 
             The qml.main file should now look as follows:
 
-            \snippet transitions/qml/Transitions/main.qml 1
+            \snippet transitions/main.qml 1
 
         \endlist
 
@@ -357,6 +357,6 @@
 
     When you have completed the steps, the main.qml file should look as follows:
 
-    \snippet transitions/qml/Transitions/main.qml 2
+    \snippet transitions/main.qml 2
 
 */

@@ -3,7 +3,6 @@
     <Name>Qt Creator</Name>
     <Version>{version}</Version>
     <Title>Qt Creator {version}</Title>
-    <MaintenanceTitle>Qt Creator Maintenance</MaintenanceTitle>
     <Publisher>Qt Project</Publisher>
     <ProductUrl>http://qt-project.org</ProductUrl>
 

@@ -98,13 +98,15 @@ void QmakeKitInformation::setup(ProjectExplorer::Kit *k)
 
     if (!tc || !tc->suggestedMkspecList().contains(spec)) {
         QList<ProjectExplorer::ToolChain *> tcList = ProjectExplorer::ToolChainManager::instance()->toolChains();
+        ProjectExplorer::ToolChain *possibleTc = 0;
         foreach (ProjectExplorer::ToolChain *current, tcList) {
-            if (version->qtAbis().contains(current->targetAbi())
-                    && current->suggestedMkspecList().contains(spec)) {
-                ProjectExplorer::ToolChainKitInformation::setToolChain(k, current);
-                break;
+            if (version->qtAbis().contains(current->targetAbi())) {
+                possibleTc = current;
+                if (current->suggestedMkspecList().contains(spec))
+                    break;
             }
         }
+        ProjectExplorer::ToolChainKitInformation::setToolChain(k, possibleTc);
     }
 }
 

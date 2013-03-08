@@ -112,19 +112,21 @@ void QmlTaskManager::collectMessages(
 
             FileErrorMessages result;
             result.fileName = fileName;
-            result.tasks = convertToTasks(document->diagnosticMessages(),
-                                          Utils::FileName::fromString(fileName),
-                                          Core::Id(Constants::TASK_CATEGORY_QML));
+            if (Document::isFullySupportedLanguage(document->language())) {
+                result.tasks = convertToTasks(document->diagnosticMessages(),
+                                              Utils::FileName::fromString(fileName),
+                                              Core::Id(Constants::TASK_CATEGORY_QML));
 
-            if (updateSemantic) {
-                result.tasks += convertToTasks(linkMessages.value(fileName),
-                                               Utils::FileName::fromString(fileName),
-                                               Core::Id(Constants::TASK_CATEGORY_QML_ANALYSIS));
+                if (updateSemantic) {
+                    result.tasks += convertToTasks(linkMessages.value(fileName),
+                                                   Utils::FileName::fromString(fileName),
+                                                   Core::Id(Constants::TASK_CATEGORY_QML_ANALYSIS));
 
-                Check checker(document, context);
-                result.tasks += convertToTasks(checker(),
-                                               Utils::FileName::fromString(fileName),
-                                               Core::Id(Constants::TASK_CATEGORY_QML_ANALYSIS));
+                    Check checker(document, context);
+                    result.tasks += convertToTasks(checker(),
+                                                   Utils::FileName::fromString(fileName),
+                                                   Core::Id(Constants::TASK_CATEGORY_QML_ANALYSIS));
+                }
             }
 
             if (!result.tasks.isEmpty())

@@ -14,4 +14,4 @@ COPYFILES = $$OTHER_FILES
 include(../../../copy.pri)
 
 TARGET = $$qtLibraryName(plugin1)
-DESTDIR = $$OUT_PWD
+CONFIG -= debug_and_release_target

@@ -12,7 +12,7 @@ QT += network
 LIBS *= -L$$IDE_PLUGIN_PATH/QtProject
 QMAKE_RPATHDIR *= $$IDE_PLUGIN_PATH/QtProject
 
-DESTDIR=$$IDE_APP_PATH
+DESTDIR=$$IDE_LIBEXEC_PATH
 
 HEADERS = ../protocol.h \
     ../cpasterconstants.h \

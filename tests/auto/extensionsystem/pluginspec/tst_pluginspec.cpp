@@ -35,6 +35,7 @@
 #include <QObject>
 #include <QMetaObject>
 #include <QtTest>
+#include <QDir>
 
 using namespace ExtensionSystem;
 
@@ -54,7 +55,13 @@ private slots:
     void loadLibrary();
     void initializePlugin();
     void initializeExtensions();
+    void init();
 };
+
+void tst_PluginSpec::init()
+{
+    QVERIFY(QDir::setCurrent(QLatin1String(PLUGINSPEC_DIR)));
+}
 
 void tst_PluginSpec::read()
 {

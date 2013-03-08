@@ -125,9 +125,9 @@
                 Use Qt Quick Components for MeeGo Harmattan to design a user
                 interface with the platform look and feel
 
-            \li Qt Quick 1 Application (from Existing QML File)
+            \li Qt Quick Application (from Existing QML File)
 
-                Convert existing Qt Quick 1 applications to projects that you
+                Convert existing Qt Quick applications to projects that you
                 can run in \QC or deploy to mobile devices
 
             \li Qt Console Application

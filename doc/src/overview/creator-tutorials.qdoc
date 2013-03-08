@@ -38,9 +38,9 @@
 
     \list
 
-        \li \l{Creating a Qt Quick 1 Application}
+        \li \l{Creating a Qt Quick Application}
 
-            Learn how to use \QMLD to create a Qt Quick 1 application.
+            Learn how to use \QMLD to create a Qt Quick application.
 
         \li \l{Creating a Qt Widget Based Application}
 

@@ -30,29 +30,23 @@
 
     \image qtcreator-deploy-android.png "Deploy configurations"
 
-    Select the \gui {Use device's Qt libs} option to use Qt libraries installed
-    on the device. If you do not select the \gui {Use local Qt libs} option,
-    the application needs the Ministro package to run. However, if you select
-    the \gui {Use local Qt libs} option, \QC passes special parameters to the
-    application, forcing it to use Qt libraries from the \c{/data/local/qt}
-    folder on the device
+    Select the \gui {Use Qt libraries from device} option to use Qt libraries installed
+    on the device. If you also select the \gui {Use local Qt libraries} check box, \QC passes
+    special parameters to the application, forcing it to use Qt libraries from the
+    \c{/data/local/tmp/qt} folder on the device. If you do not select it, the application needs
+    the Ministro package to run.
 
-    Select the \gui {Deploy local Qt libs} option to deploy Qt libraries from
-    the specified Qt for Android SDK (for exmple, android-lighthouse-4.8.0).
-    This option enables you to develop on the Qt framework to test it.
-
-    The \gui {Deploy local Qt libs} option automatically selects the
-    \gui {Use local Qt libs} option. It is deselected automatically after \QC
-    pushes the Qt libs to the device. Select the option again to push your local
-    Qt modifications to devices. This option takes the same effect as the
-    \c{push_qt_libs.sh} script thas is located in the root folder of the
-    Qt for Android SDK. You can also use the \gui {Use local Qt libs}
-    independently of the \gui {Deploy local Qt libs} option.
+    Select the \gui {Deploy local Qt libraries} option to deploy Qt libraries from
+    the specified Qt for Android SDK (for example, android-lighthouse-4.8.0).
+    This option enables you to develop on the Qt framework to test it. This
+    option automatically selects the \gui {Use local Qt libraries} check box, but you
+    can use it also independently.
 
     \section1 Installing Ministro
 
-    To install Ministro, select the \gui {Install Ministro system} option. You
-    can also use it to install any Android package (.apk). You can use this
+    To install Ministro, select the \gui {Install Ministro, system-wide Qt shared
+    libraries installer} option. You
+    can use this option also to install any Android package (.apk). You can use this
     option to install applications on an Android Virtual Device (AVD). Download
     the Ministro .apk from the Google Market or from the
     \l{http://necessitas.kde.org/necessitas/ministro.php}{Ministro} home page.

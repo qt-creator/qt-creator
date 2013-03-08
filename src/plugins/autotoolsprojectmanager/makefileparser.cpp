@@ -421,7 +421,7 @@ QString MakefileParser::parseIdentifierBeforeAssign(const QString &line)
     QString ret = line.left(end);
     while (end < line.size() && line[end].isSpace())
         ++end;
-    return (line[end] == QLatin1Char('=')) ? ret : QString();
+    return (end < line.size() && line[end] == QLatin1Char('=')) ? ret : QString();
 }
 
 void MakefileParser::addAllSources()

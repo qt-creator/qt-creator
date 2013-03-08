@@ -379,6 +379,9 @@ bool Function::maybeValidPrototype(unsigned actualArgumentCount) const
     for (; minNumberArguments < this->argumentCount(); ++minNumberArguments) {
         Argument *arg = this->argumentAt(minNumberArguments)->asArgument();
 
+        if (! arg) // TODO: Fix me properly - QTCREATORBUG-8316
+            return false;
+
         if (arg->hasInitializer())
             break;
     }

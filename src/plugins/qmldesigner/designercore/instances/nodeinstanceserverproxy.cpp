@@ -81,9 +81,9 @@
 
 namespace {
 #ifdef Q_OS_MAC
-#  define SHARE_PATH "/../Resources/qmldesigner"
+#  define SHARE_PATH "/../Resources"
 #else
-#  define SHARE_PATH "/../share/qtcreator/qmldesigner"
+#  define SHARE_PATH "/../share/qtcreator"
 #endif
 
 static QString applicationDirPath()
@@ -511,8 +511,13 @@ QString NodeInstanceServerProxy::qmlPuppetApplicationName() const
 QString NodeInstanceServerProxy::macOSBundlePath(const QString &path) const
 {
     QString applicationPath = path;
-    if (Utils::HostOsInfo::isMacHost())
-        applicationPath += QLatin1String("/qmlpuppet.app/Contents/MacOS");
+    if (Utils::HostOsInfo::isMacHost()) {
+        if (hasQtQuick2(m_nodeInstanceView.data()))
+            applicationPath += QLatin1String("/qml2puppet.app/Contents/MacOS");
+        else
+            applicationPath += QLatin1String("/qmlpuppet.app/Contents/MacOS");
+
+    }
    return applicationPath;
 }
 

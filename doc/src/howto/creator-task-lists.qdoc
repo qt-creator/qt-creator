@@ -30,24 +30,27 @@
 
     \title Showing Task List Files in Issues Pane
 
-    Code scanning and analysis tools create report files in ASCII format.
-    Usually, the report files consist of lines that contain a file name, a line
-    number, and an error message. A similar format is used for stack traces
-    obtained from crash reports. Traditionally, you would fix the errors by
-    manually navigating to them and correcting them, which is tedious.
+    You can use code scanning and analysis tools to examine source code. These
+    tools report issues for you to fix. \QC enables you to load lists of
+    issues into the \gui Issues pane for easier navigation.
 
-    \QC makes this very easy by providing a way to load these files into
-    the \gui{Issues} pane. You can navigate to the corresponding source
-    code by clicking the error message. But first you must convert the files to
-    the \l{Task List File Format} by using conversion scripts that based on
-    standard text processing tools of the operating system.
+    \QC expects tasks to be defined in a simple line-based file format that is
+    easy to generate using scripts. The scripts can either convert reports from
+    other tools or create lists of issues in the \l{Task List File Format}
+    {task list format} from code. For an example of a script that checks new
+    lines of code and matches them against regular expressions to generate a
+    task list, see \c{scripts\mytasks.pl} in the \QC repository.
 
-    In addition, you can generate task list files from code. For an example of a
-    script that checks new lines of code and matches them against regular
-    expressions to generate a task list, see \c{scripts\mytasks.pl} in the \QC
-    repository.
+    \section1 Managing Task List Entries
 
-    To open task list files, choose \gui{File} > \gui{Open}.
+    To open task list files in the \gui Issues pane, choose \gui File  >
+    \gui Open. Right-click a task list entry to open a context menu that
+    contains commands for managing the entry. You can copy or remove task list
+    entries or navigate to the corresponding source code.
+
+    \QC monitors the loaded files and displays the changes in the \gui Issues
+    pane. To keep the current entries in a task list, but stop checking for
+    changes, select \gui {Stop Monitoring}.
 
     \section1 Task List File Format
 

@@ -126,7 +126,7 @@ bool ArgumentsCollector::checkAndSetStringArg(int &pos, QString &arg, const char
 {
     if (m_arguments.at(pos) == QLatin1String(opt)) {
         if (!arg.isEmpty()) {
-            throw ArgumentErrorException(QLatin1String("option ") + opt
+            throw ArgumentErrorException(QLatin1String("option ") + QLatin1String(opt)
                 + QLatin1String(" was given twice."));
         }
         arg = m_arguments.at(++pos);
@@ -142,13 +142,13 @@ bool ArgumentsCollector::checkAndSetIntArg(int &pos, int &val,
 {
     if (m_arguments.at(pos) == QLatin1String(opt)) {
         if (alreadyGiven) {
-            throw ArgumentErrorException(QLatin1String("option ") + opt
+            throw ArgumentErrorException(QLatin1String("option ") + QLatin1String(opt)
                 + QLatin1String(" was given twice."));
         }
         bool isNumber;
         val = m_arguments.at(++pos).toInt(&isNumber);
         if (!isNumber) {
-            throw ArgumentErrorException(QLatin1String("option ") + opt
+            throw ArgumentErrorException(QLatin1String("option ") + QLatin1String(opt)
                  + QLatin1String(" needs integer argument"));
         }
         alreadyGiven = true;

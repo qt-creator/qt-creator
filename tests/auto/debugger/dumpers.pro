@@ -24,6 +24,7 @@ HEADERS += \
     $$DEBUGGERDIR/debuggerprotocol.h \
     $$DEBUGGERDIR/watchdata.h \
     $$DEBUGGERDIR/watchutils.h \
+    temporarydir.h
 
 !isEmpty(vcproj) {
     DEFINES += DUMPERDIR=\"$$DUMPERDIR\"

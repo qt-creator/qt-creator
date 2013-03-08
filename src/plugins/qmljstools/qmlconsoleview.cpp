@@ -242,7 +242,7 @@ void QmlConsoleView::copyToClipboard(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    QString contents = model()->data(index).toString();
+    QString contents = model()->data(index, QmlConsoleItemModel::ExpressionRole).toString();
     // See if we have file and line Info
     QString filePath = model()->data(index, QmlConsoleItemModel::FileRole).toString();
     if (!filePath.isEmpty()) {

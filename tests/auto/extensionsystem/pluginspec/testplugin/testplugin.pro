@@ -14,4 +14,4 @@ COPYFILES = $$PWD/testplugin.xml
 include(../../copy.pri)
 
 TARGET = $$qtLibraryName(test)
-DESTDIR = $$OUT_PWD
+CONFIG -= debug_and_release_target

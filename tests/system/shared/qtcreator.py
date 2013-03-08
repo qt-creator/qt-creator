@@ -61,6 +61,8 @@ def waitForCleanShutdown(timeOut=10):
     appCtxt = currentApplicationContext()
     shutdownDone = (str(appCtxt)=="")
     if platform.system() in ('Windows','Microsoft'):
+        # cleaning helper for running on the build machines
+        __checkForQmlViewer__()
         endtime = datetime.utcnow() + timedelta(seconds=timeOut)
         while not shutdownDone:
             # following work-around because os.kill() works for win not until python 2.7
@@ -84,6 +86,19 @@ def waitForCleanShutdown(timeOut=10):
                     shutdownDone=True
             if not shutdownDone and datetime.utcnow() > endtime:
                 break
+
+def __checkForQmlViewer__():
+    tasks = subprocess.Popen("tasklist /FI \"IMAGENAME eq qmlviewer.exe\"", shell=True,
+                             stdout=subprocess.PIPE)
+    output = tasks.communicate()[0]
+    tasks.stdout.close()
+    if "INFO: No tasks are running which match the specified criteria." in output:
+        return
+    else:
+        if subprocess.call("taskkill /F /FI \"IMAGENAME eq qmlviewer.exe\"", shell=True) == 0:
+            print "Killed still running qmlviewer"
+        else:
+            print "qmlviewer is still running - failed to kill it"
 
 def __removeTestingDir__():
     def __removeIt__(directory):
@@ -206,3 +221,6 @@ if os.getenv("SYSTEST_NOSETTINGSPATH") != "1":
     cwd = os.path.abspath(cwd)
     copySettingsToTmpDir()
     atexit.register(__removeTestingDir__)
+
+if os.getenv("SYSTEST_WRITE_RESULTS") == "1" and os.getenv("SYSTEST_RESULTS_FOLDER") != None:
+    atexit.register(writeTestResults, os.getenv("SYSTEST_RESULTS_FOLDER"))

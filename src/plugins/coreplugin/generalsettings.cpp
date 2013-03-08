@@ -136,6 +136,7 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
 
     m_page->autoSaveCheckBox->setChecked(EditorManager::instance()->autoSaveEnabled());
     m_page->autoSaveInterval->setValue(EditorManager::instance()->autoSaveInterval());
+    m_page->resetWarningsButton->setEnabled(Core::InfoBar::anyGloballySuppressed());
 
     connect(m_page->resetColorButton, SIGNAL(clicked()),
             this, SLOT(resetInterfaceColor()));
@@ -207,7 +208,7 @@ void GeneralSettings::resetInterfaceColor()
 void GeneralSettings::resetWarnings()
 {
     Core::InfoBar::clearGloballySuppressed();
-    QMessageBox::information(0, tr("Reset warnings"), tr("Done"));
+    m_page->resetWarningsButton->setEnabled(false);
 }
 
 void GeneralSettings::resetTerminal()

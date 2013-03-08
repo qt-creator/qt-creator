@@ -585,7 +585,12 @@ QStringList AndroidManager::availableQtLibs(ProjectExplorer::Target *target)
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target->kit());
     if (tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
         return QStringList();
+
+    Qt4ProjectManager::Qt4Project *project = static_cast<Qt4ProjectManager::Qt4Project *>(target->project());
+    QString arch = project->rootQt4ProjectNode()->singleVariableValue(Qt4ProjectManager::AndroidArchVar);
+
     AndroidToolChain *atc = static_cast<AndroidToolChain *>(tc);
+    QString libgnustl = libGnuStl(arch, atc->ndkToolChainVersion());
 
     Utils::FileName readelfPath = AndroidConfigurations::instance().readelfPath(target->activeRunConfiguration()->abi().architecture(),
                                                                                 atc->ndkToolChainVersion());
@@ -612,6 +617,9 @@ QStringList AndroidManager::availableQtLibs(ProjectExplorer::Target *target)
         const QString library = libPath.absolutePath().mid(libPath.absolutePath().lastIndexOf(QLatin1Char('/')) + 1);
         mapLibs[library].dependencies = dependencies(readelfPath, libPath.absolutePath());
     }
+
+    const QString library = libgnustl.mid(libgnustl.lastIndexOf(QLatin1Char('/')) + 1);
+    mapLibs[library] = Library();;
 
     // clean dependencies
     foreach (const QString &key, mapLibs.keys()) {
@@ -948,6 +956,15 @@ bool AndroidManager::qtLibrariesLessThan(const Library &a, const Library &b)
     if (a.level == b.level)
         return a.name < b.name;
     return a.level < b.level;
+}
+
+QString AndroidManager::libGnuStl(const QString &arch, const QString &ndkToolChainVersion)
+{
+    return AndroidConfigurations::instance().config().ndkLocation.toString()
+            + QLatin1String("/sources/cxx-stl/gnu-libstdc++/")
+            + ndkToolChainVersion + QLatin1String("/libs/")
+            + arch
+            + QLatin1String("/libgnustl_shared.so");
 }
 
 } // namespace Internal

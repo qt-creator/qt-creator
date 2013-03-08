@@ -1761,7 +1761,7 @@
             \li  Forward-declared class or struct
         \row
             \li  Add Definition in 'filename'
-            \li  Inserts a definition stub for a member function declaration in the
+            \li  Inserts a definition stub for a function declaration in the
             implementation file. The definition is placed after that of the
             preceding declaration. Qualified names are minimized when possible,
             instead of always being fully expanded.

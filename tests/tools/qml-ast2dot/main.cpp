@@ -58,7 +58,7 @@ public:
     void operator()(const QString &fileName, const QByteArray &src, Node *ast) {
         _src = src;
         QString basename = fileName;
-        int dotIdx = basename.lastIndexOf('.');
+        int dotIdx = basename.lastIndexOf(QLatin1Char('.'));
         if (dotIdx != -1)
             basename.truncate(dotIdx);
         basename.append(QLatin1String(".ast.dot"));
@@ -99,7 +99,7 @@ protected:
     }
 
     QString spell(const SourceLocation &token) {
-        return _src.mid(token.offset, token.length).replace('\'', "\\\\").replace('"', "\\\"");
+        return QString::fromLatin1(_src.mid(token.offset, token.length).replace('\'', "\\\\").replace('"', "\\\""));
     }
 
     void terminal(const SourceLocation &token) {
@@ -332,7 +332,7 @@ int main(int argc, char *argv[])
         file.close();
 
         Document::MutablePtr doc = Document::create(fileName, Document::guessLanguageFromSuffix(fileName));
-        doc->setSource(source);
+        doc->setSource(QString::fromUtf8(source));
         doc->parse();
 
         foreach (const DiagnosticMessage &m, doc->diagnosticMessages()) {

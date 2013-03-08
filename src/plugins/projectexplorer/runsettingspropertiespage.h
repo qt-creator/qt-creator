@@ -106,6 +106,7 @@ private:
     RunConfigurationModel *m_runConfigurationsModel;
     DeployConfigurationModel *m_deployConfigurationModel;
     QWidget *m_runConfigurationWidget;
+    RunConfiguration *m_runConfiguration;
     QVBoxLayout *m_runLayout;
     NamedWidget *m_deployConfigurationWidget;
     QVBoxLayout *m_deployLayout;

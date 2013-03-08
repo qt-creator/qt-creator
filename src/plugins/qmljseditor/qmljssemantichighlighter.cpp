@@ -429,17 +429,20 @@ protected:
 private:
     void run()
     {
-        int nMessages = m_scopeChain.document()->diagnosticMessages().size()
-                + m_semanticInfo.semanticMessages.size()
-                + m_semanticInfo.staticAnalysisMessages.size();
-        m_delayedUses.reserve(nMessages);
-        m_diagnosticRanges.reserve(nMessages);
-        m_extraFormats.reserve(nMessages);
-        addMessages(m_scopeChain.document()->diagnosticMessages(), m_scopeChain.document());
-        addMessages(m_semanticInfo.semanticMessages, m_semanticInfo.document);
-        addMessages(m_semanticInfo.staticAnalysisMessages, m_semanticInfo.document);
+        int nMessages = 0;
+        if (Document::isFullySupportedLanguage(m_scopeChain.document()->language())) {
+            nMessages = m_scopeChain.document()->diagnosticMessages().size()
+                    + m_semanticInfo.semanticMessages.size()
+                    + m_semanticInfo.staticAnalysisMessages.size();
+            m_delayedUses.reserve(nMessages);
+            m_diagnosticRanges.reserve(nMessages);
+            m_extraFormats.reserve(nMessages);
+            addMessages(m_scopeChain.document()->diagnosticMessages(), m_scopeChain.document());
+            addMessages(m_semanticInfo.semanticMessages, m_semanticInfo.document);
+            addMessages(m_semanticInfo.staticAnalysisMessages, m_semanticInfo.document);
 
-        qSort(m_delayedUses.begin(), m_delayedUses.end(), sortByLinePredicate);
+            qSort(m_delayedUses.begin(), m_delayedUses.end(), sortByLinePredicate);
+        }
         m_currentDelayedUse = 0;
 
         m_semanticHighlighter.reportMessagesInfo(m_diagnosticRanges, m_extraFormats);

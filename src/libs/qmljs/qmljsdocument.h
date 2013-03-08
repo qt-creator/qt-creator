@@ -65,6 +65,7 @@ public:
     };
 
     static bool isQmlLikeLanguage(Language languge);
+    static bool isFullySupportedLanguage(Language language);
 protected:
     Document(const QString &fileName, Language language);
 

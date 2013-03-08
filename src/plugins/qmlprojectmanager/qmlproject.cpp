@@ -51,12 +51,64 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/target.h>
 #include <utils/filesystemwatcher.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include <QTextStream>
 #include <QDeclarativeComponent>
 #include <QDebug>
 
 namespace QmlProjectManager {
+
+namespace Internal {
+
+class QmlProjectKitMatcher : public ProjectExplorer::KitMatcher
+{
+public:
+    QmlProjectKitMatcher(const QmlProject::QmlImport &import)
+        : import(import)
+    {
+    }
+
+    bool matches(const ProjectExplorer::Kit *k) const
+    {
+        if (!k->isValid())
+            return false;
+
+        ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(k);
+        if (dev.isNull() || dev->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+            return false;
+        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
+        if (!version || version->type() != QLatin1String(QtSupport::Constants::DESKTOPQT))
+            return false;
+
+        bool hasViewer;
+        QtSupport::QtVersionNumber minVersion;
+        switch (import) {
+        case QmlProject::UnknownImport:
+            minVersion = QtSupport::QtVersionNumber(4, 7, 0);
+            hasViewer = !version->qmlviewerCommand().isEmpty() || !version->qmlsceneCommand().isEmpty();
+            break;
+        case QmlProject::QtQuick1Import:
+            minVersion = QtSupport::QtVersionNumber(4, 7, 1);
+            hasViewer = !version->qmlviewerCommand().isEmpty();
+            break;
+        case QmlProject::QtQuick2Import:
+            minVersion = QtSupport::QtVersionNumber(5, 0, 0);
+            hasViewer = !version->qmlsceneCommand().isEmpty();
+            break;
+        }
+
+        if (version->qtVersion() >= minVersion
+                && hasViewer)
+            return true;
+
+        return false;
+    }
+private:
+    QmlProject::QmlImport import;
+};
+
+} // namespace Internal
 
 QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
     : m_manager(manager),
@@ -331,9 +383,22 @@ bool QmlProject::fromMap(const QVariantMap &map)
     // refresh first - project information is used e.g. to decide the default RC's
     refresh(Everything);
 
-    ProjectExplorer::Kit *defaultKit = ProjectExplorer::KitManager::instance()->defaultKit();
-    if (!activeTarget() && defaultKit)
-        addTarget(createTarget(defaultKit));
+    if (!activeTarget()) {
+        // find a kit that matches prerequisites (prefer default one)
+        Internal::QmlProjectKitMatcher matcher(defaultImport());
+        ProjectExplorer::KitManager *kitManager = ProjectExplorer::KitManager::instance();
+        QList<ProjectExplorer::Kit*> kits = kitManager->kits(&matcher);
+
+        if (!kits.isEmpty()) {
+            ProjectExplorer::Kit *kit = 0;
+            if (kits.contains(kitManager->defaultKit())) {
+                kit = kitManager->defaultKit();
+            } else {
+                kit = kits.first();
+            }
+            addTarget(createTarget(kit));
+        }
+    }
 
     // addedTarget calls updateEnabled on the runconfigurations
     // which needs to happen after refresh

@@ -126,6 +126,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
       m_runConfigurationsModel(new RunConfigurationModel(target, this)),
       m_deployConfigurationModel(new DeployConfigurationModel(target, this)),
       m_runConfigurationWidget(0),
+      m_runConfiguration(0),
       m_runLayout(0),
       m_deployConfigurationWidget(0),
       m_deployLayout(0),
@@ -359,6 +360,9 @@ void RunSettingsWidget::currentRunConfigurationChanged(int index)
     RunConfiguration *selectedRunConfiguration = 0;
     if (index >= 0)
         selectedRunConfiguration = m_runConfigurationsModel->runConfigurationAt(index);
+
+    if (selectedRunConfiguration != m_runConfiguration)
+        return;
 
     m_ignoreChange = true;
     m_target->setActiveRunConfiguration(selectedRunConfiguration);
