@@ -75,12 +75,12 @@ void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel,
     if (hot) {
         // find all files whose permissions changed OR hijacked files
         // (might have become checked out)
-        foreach (const QString &file, m_statusMap->keys()) {
-            bool permChanged =
-                    m_statusMap->value(file).permissions != QFileInfo(topLevel, file).permissions();
-            if (permChanged || m_statusMap->value(file).status == FileStatus::Hijacked) {
-                files.append(file);
-                (*m_statusMap)[file].status = FileStatus::Unknown;
+        const StatusMap::Iterator send = m_statusMap->end();
+        for (StatusMap::Iterator it = m_statusMap->begin(); it != send; ++it) {
+            const bool permChanged = it.value().permissions != QFileInfo(topLevel, it.key()).permissions();
+            if (permChanged || it.value().status == FileStatus::Hijacked) {
+                files.append(it.key());
+                it.value().status = FileStatus::Unknown;
                 ++total;
             }
         }

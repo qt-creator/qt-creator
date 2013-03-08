@@ -103,6 +103,8 @@ void ClearCaseSettings::fromSettings(QSettings *settings)
 
 void ClearCaseSettings::toSettings(QSettings *settings) const
 {
+    typedef QHash<QString, int>::ConstIterator FilesConstIt;
+
     settings->beginGroup(QLatin1String(groupC));
     settings->setValue(QLatin1String(commandKeyC), ccCommand);
     settings->setValue(QLatin1String(autoCheckOutKeyC), autoCheckOut);
@@ -121,8 +123,9 @@ void ClearCaseSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(disableIndexerKeyC), disableIndexer);
     settings->setValue(QLatin1String(indexOnlyVOBsC), indexOnlyVOBs);
     settings->beginGroup(QLatin1String(totalFilesKeyC));
-    foreach (const QString &view, totalFiles.keys())
-        settings->setValue(view, totalFiles[view]);
+    const FilesConstIt fcend = totalFiles.constEnd();
+    for (FilesConstIt it = totalFiles.constBegin(); it != fcend; ++it)
+        settings->setValue(it.key(), it.value());
     settings->endGroup();
     settings->endGroup();
 }

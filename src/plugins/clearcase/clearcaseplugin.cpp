@@ -872,6 +872,8 @@ void ClearCasePlugin::rmdir(const QString &path)
 
 void ClearCasePlugin::diffActivity()
 {
+    typedef QMap<QString, QStringPair>::Iterator FileVerIt;
+
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     if (ClearCase::Constants::debug)
@@ -920,8 +922,9 @@ void ClearCasePlugin::diffActivity()
     rmdir(QDir::tempPath() + QLatin1String("/ccdiff/") + activity);
     QDir(QDir::tempPath()).rmpath(QLatin1String("ccdiff/") + activity);
     m_diffPrefix = activity;
-    foreach (const QString &file, filever.keys()) {
-        QStringPair pair(filever.value(file));
+    const FileVerIt fend = filever.end();
+    for (FileVerIt it = filever.begin(); it != fend; ++it) {
+        QStringPair &pair(it.value());
         if (pair.first.contains(QLatin1String("CHECKEDOUT")))
             pair.first = ccGetPredecessor(pair.first.left(pair.first.indexOf(QLatin1String("@@"))));
         result += diffExternal(pair.first, pair.second, true);
@@ -1466,7 +1469,7 @@ bool ClearCasePlugin::vcsCheckIn(const QString &messageFile, const QStringList &
         args << QLatin1String("-ptime");
     args << files;
     QList<FCBPointer> blockers;
-    foreach (QString fileName, files) {
+    foreach (const QString &fileName, files) {
         FCBPointer fcb(new Core::FileChangeBlocker(QFileInfo(m_checkInView, fileName).canonicalFilePath()));
         blockers.append(fcb);
     }
@@ -1648,7 +1651,7 @@ QList<QStringPair> ClearCasePlugin::ccGetActivities() const
     args << QLatin1String("-fmt") << QLatin1String("%n\\t%[headline]p\\n");
     const QString response = runCleartoolSync(currentState().topLevel(), args);
     QStringList acts = response.split(QLatin1Char('\n'), QString::SkipEmptyParts);
-    foreach (QString activity, acts) {
+    foreach (const QString &activity, acts) {
         QStringList act = activity.split(QLatin1Char('\t'));
         if (act.size() >= 2)
         {
