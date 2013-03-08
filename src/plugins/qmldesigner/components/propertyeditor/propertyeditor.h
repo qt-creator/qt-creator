@@ -88,30 +88,28 @@ public:
     WidgetInfo widgetInfo();
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
-                              const QList<ModelNode> &lastSelectedNodeList);
-    void nodeAboutToBeRemoved(const ModelNode &removedNode);
+                              const QList<ModelNode> &lastSelectedNodeList) QTC_OVERRIDE;
+    void nodeAboutToBeRemoved(const ModelNode &removedNode) QTC_OVERRIDE;
 
-    void propertiesAdded(const NodeState &state, const QList<NodeProperty>& propertyList);
-    void propertiesRemoved(const QList<AbstractProperty>& propertyList);
-    void propertyValuesChanged(const NodeState &state, const QList<NodeProperty>& propertyList);
+    void propertiesRemoved(const QList<AbstractProperty>& propertyList) QTC_OVERRIDE;
 
-    void modelAttached(Model *model);
+    void modelAttached(Model *model) QTC_OVERRIDE;
 
-    void modelAboutToBeDetached(Model *model);
+    void modelAboutToBeDetached(Model *model) QTC_OVERRIDE;
 
     ModelState modelState() const;
 
-    void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange);
-    void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange);
+    void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange) QTC_OVERRIDE;
+    void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) QTC_OVERRIDE;
 
-    void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash);
+    void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash) QTC_OVERRIDE;
 
-    void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId);
-    void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
+    void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId) QTC_OVERRIDE;
+    void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList) QTC_OVERRIDE;
 
     void resetView();
-    void actualStateChanged(const ModelNode &node);
-    void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList);
+    void actualStateChanged(const ModelNode &node) QTC_OVERRIDE;
+    void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList) QTC_OVERRIDE;
 
 protected:
     void timerEvent(QTimerEvent *event);

@@ -58,27 +58,27 @@ public:
     DesignerActionManagerView() : QmlModelView(0), m_isInRewriterTransaction(false), m_setupContextDirty(false)
     {}
 
-    void modelAttached(Model *model)
+    void modelAttached(Model *model) QTC_OVERRIDE
     {
         QmlModelView::modelAttached(model);
         setupContext();
     }
 
-    void modelAboutToBeDetached(Model *model)
+    void modelAboutToBeDetached(Model *model) QTC_OVERRIDE
     {
         QmlModelView::modelAboutToBeDetached(model);
         setupContext();
     }
 
-    virtual void nodeCreated(const ModelNode &)
+    virtual void nodeCreated(const ModelNode &) QTC_OVERRIDE
     {
         setupContext();
     }
 
-    virtual void nodeAboutToBeRemoved(const ModelNode &)
+    virtual void nodeAboutToBeRemoved(const ModelNode &) QTC_OVERRIDE
     {}
 
-    virtual void nodeRemoved(const ModelNode &, const NodeAbstractProperty &, PropertyChangeFlags)
+    virtual void nodeRemoved(const ModelNode &, const NodeAbstractProperty &, PropertyChangeFlags) QTC_OVERRIDE
     {
         setupContext();
     }
@@ -86,70 +86,70 @@ public:
     virtual void nodeAboutToBeReparented(const ModelNode &,
                                          const NodeAbstractProperty &,
                                          const NodeAbstractProperty &,
-                                         AbstractView::PropertyChangeFlags )
+                                         AbstractView::PropertyChangeFlags ) QTC_OVERRIDE
     {
         setupContext();
     }
 
     virtual void nodeReparented(const ModelNode &, const NodeAbstractProperty &,
                                 const NodeAbstractProperty &,
-                                AbstractView::PropertyChangeFlags)
+                                AbstractView::PropertyChangeFlags) QTC_OVERRIDE
     {
         setupContext();
     }
 
-    virtual void nodeIdChanged(const ModelNode&, const QString&, const QString&)
+    virtual void nodeIdChanged(const ModelNode&, const QString&, const QString&) QTC_OVERRIDE
     {}
 
-    virtual void propertiesAboutToBeRemoved(const QList<AbstractProperty>&)
+    virtual void propertiesAboutToBeRemoved(const QList<AbstractProperty>&) QTC_OVERRIDE
     {}
 
-    virtual void propertiesRemoved(const QList<AbstractProperty>&)
+    virtual void propertiesRemoved(const QList<AbstractProperty>&) QTC_OVERRIDE
     {
         setupContext();
     }
 
-    virtual void variantPropertiesChanged(const QList<VariantProperty>&, PropertyChangeFlags)
+    virtual void variantPropertiesChanged(const QList<VariantProperty>&, PropertyChangeFlags) QTC_OVERRIDE
     {}
 
-    virtual void bindingPropertiesChanged(const QList<BindingProperty>&, PropertyChangeFlags)
+    virtual void bindingPropertiesChanged(const QList<BindingProperty>&, PropertyChangeFlags) QTC_OVERRIDE
     {}
 
-    virtual void rootNodeTypeChanged(const QString &, int , int )
+    virtual void rootNodeTypeChanged(const QString &, int , int ) QTC_OVERRIDE
     {
         setupContext();
     }
 
-    virtual void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &)
+    virtual void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &) QTC_OVERRIDE
     {}
 
-    virtual void instancesCompleted(const QVector<ModelNode> &)
+    virtual void instancesCompleted(const QVector<ModelNode> &) QTC_OVERRIDE
     {}
 
-    virtual void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &)
+    virtual void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &) QTC_OVERRIDE
     {}
 
-    virtual void instancesRenderImageChanged(const QVector<ModelNode> &)
+    virtual void instancesRenderImageChanged(const QVector<ModelNode> &) QTC_OVERRIDE
     {}
 
-    virtual void instancesPreviewImageChanged(const QVector<ModelNode> &)
+    virtual void instancesPreviewImageChanged(const QVector<ModelNode> &) QTC_OVERRIDE
     {}
 
-    virtual void instancesChildrenChanged(const QVector<ModelNode> &)
+    virtual void instancesChildrenChanged(const QVector<ModelNode> &) QTC_OVERRIDE
     {}
 
-    virtual void instancesToken(const QString &, int , const QVector<ModelNode> &)
+    virtual void instancesToken(const QString &, int , const QVector<ModelNode> &) QTC_OVERRIDE
     {}
 
-    virtual void nodeSourceChanged(const ModelNode &, const QString &)
+    virtual void nodeSourceChanged(const ModelNode &, const QString &) QTC_OVERRIDE
     {}
 
-    virtual void rewriterBeginTransaction()
+    virtual void rewriterBeginTransaction() QTC_OVERRIDE
     {
         m_isInRewriterTransaction = true;
     }
 
-    virtual void rewriterEndTransaction()
+    virtual void rewriterEndTransaction() QTC_OVERRIDE
     {
         m_isInRewriterTransaction = false;
 
@@ -157,28 +157,28 @@ public:
             setupContext();
     }
 
-    virtual void actualStateChanged(const ModelNode &)
+    virtual void actualStateChanged(const ModelNode &) QTC_OVERRIDE
     {
         setupContext();
     }
 
     virtual void selectedNodesChanged(const QList<ModelNode> &,
-                                      const QList<ModelNode> &)
+                                      const QList<ModelNode> &) QTC_OVERRIDE
     {
         setupContext();
     }
 
-    virtual void nodeOrderChanged(const NodeListProperty &, const ModelNode &, int )
+    virtual void nodeOrderChanged(const NodeListProperty &, const ModelNode &, int ) QTC_OVERRIDE
     {
         setupContext();
     }
 
-    virtual void importsChanged(const QList<Import> &, const QList<Import> &)
+    virtual void importsChanged(const QList<Import> &, const QList<Import> &) QTC_OVERRIDE
     {
         setupContext();
     }
 
-    virtual void scriptFunctionsChanged(const ModelNode &, const QStringList &)
+    virtual void scriptFunctionsChanged(const ModelNode &, const QStringList &) QTC_OVERRIDE
     {}
 
     void setDesignerActionList(const QList<AbstractDesignerAction* > &designerActionList)
@@ -186,7 +186,7 @@ public:
         m_designerActionList = designerActionList;
     }
 
-    QWidget *widget()
+    QWidget *widget() QTC_OVERRIDE
     {
         return 0;
     }
