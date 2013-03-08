@@ -40,19 +40,25 @@ ProjectExpander::ProjectExpander(const QString &projectFilePath, const QString &
     : m_projectFile(projectFilePath), m_projectName(projectName), m_kit(k), m_bcName(bcName)
 { }
 
-bool ProjectExpander::resolveMacro(const QString &name, QString *ret)
+bool ProjectExpander::resolveProjectMacro(const QString &name, QString *ret)
 {
     QString result;
     bool found = false;
     if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTPROJECT_NAME)) {
-        result = m_projectName;
-        found = true;
+        if (!m_projectName.isEmpty()) {
+            result = m_projectName;
+            found = true;
+        }
     } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTPROJECT_PATH)) {
-        result = m_projectFile.absolutePath();
-        found = true;
+        if (!m_projectFile.filePath().isEmpty()) {
+            result = m_projectFile.absolutePath();
+            found = true;
+        }
     } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTPROJECT_FILEPATH)) {
-        result = m_projectFile.absoluteFilePath();
-        found = true;
+        if (!m_projectFile.filePath().isEmpty()) {
+            result = m_projectFile.absoluteFilePath();
+            found = true;
+        }
     } else if (m_kit && name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTKIT_NAME)) {
         result = m_kit->displayName();
         found = true;
@@ -65,10 +71,19 @@ bool ProjectExpander::resolveMacro(const QString &name, QString *ret)
     } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTBUILD_NAME)) {
         result = m_bcName;
         found = true;
-    } else {
-        result = Core::VariableManager::instance()->value(name.toUtf8(), &found);
     }
     if (ret)
         *ret = result;
+    return found;
+}
+
+bool ProjectExpander::resolveMacro(const QString &name, QString *ret)
+{
+    bool found = resolveProjectMacro(name, ret);
+    if (!found) {
+        QString result = Core::VariableManager::instance()->value(name.toUtf8(), &found);
+        if (ret)
+            *ret = result;
+    }
     return found;
 }

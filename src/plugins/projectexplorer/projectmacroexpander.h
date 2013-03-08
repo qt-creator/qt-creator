@@ -41,6 +41,7 @@ class PROJECTEXPLORER_EXPORT ProjectExpander : public Utils::AbstractQtcMacroExp
 {
 public:
     ProjectExpander(const QString &projectFilePath, const QString &projectName, const Kit *k, const QString &bcName);
+    bool resolveProjectMacro(const QString &name, QString *ret);
     bool resolveMacro(const QString &name, QString *ret);
 
 private:

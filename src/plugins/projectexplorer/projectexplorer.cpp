@@ -35,6 +35,7 @@
 #include "gcctoolchainfactories.h"
 #include "project.h"
 #include "projectexplorersettings.h"
+#include "projectmacroexpander.h"
 #include "removetaskhandler.h"
 #include "kitmanager.h"
 #include "kitoptionspage.h"
@@ -1144,52 +1145,13 @@ void ProjectExplorerPlugin::loadCustomWizards()
 
 void ProjectExplorerPlugin::updateVariable(const QByteArray &variable)
 {
-    if (variable == Constants::VAR_CURRENTPROJECT_FILEPATH) {
-        if (currentProject() && currentProject()->document()) {
-            Core::VariableManager::instance()->insert(variable,
-                                                      currentProject()->document()->fileName());
-        } else {
-            Core::VariableManager::instance()->remove(variable);
-        }
-    } else if (variable == Constants::VAR_CURRENTPROJECT_PATH) {
-        if (currentProject() && currentProject()->document()) {
-            Core::VariableManager::instance()->insert(variable,
-                                                      QFileInfo(currentProject()->document()->fileName()).path());
-        } else {
-            Core::VariableManager::instance()->remove(variable);
-        }
-    } else if (variable == Constants::VAR_CURRENTPROJECT_BUILDPATH) {
+    if (variable == Constants::VAR_CURRENTPROJECT_BUILDPATH) {
         if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->activeBuildConfiguration()) {
             Core::VariableManager::instance()->insert(variable,
                                                       currentProject()->activeTarget()->activeBuildConfiguration()->buildDirectory());
         } else {
             Core::VariableManager::instance()->remove(variable);
         }
-    } else if (variable == Constants::VAR_CURRENTPROJECT_NAME) {
-        if (currentProject())
-            Core::VariableManager::instance()->insert(variable, currentProject()->displayName());
-        else
-            Core::VariableManager::instance()->remove(variable);
-    } else if (variable == Constants::VAR_CURRENTKIT_NAME) {
-        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->kit())
-            Core::VariableManager::instance()->insert(variable, currentProject()->activeTarget()->kit()->displayName());
-        else
-            Core::VariableManager::instance()->remove(variable);
-    } else if (variable == Constants::VAR_CURRENTKIT_FILESYSTEMNAME) {
-        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->kit())
-            Core::VariableManager::instance()->insert(variable, currentProject()->activeTarget()->kit()->fileSystemFriendlyName());
-        else
-            Core::VariableManager::instance()->remove(variable);
-    } else if (variable == Constants::VAR_CURRENTKIT_ID) {
-        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->kit())
-            Core::VariableManager::instance()->insert(variable, currentProject()->activeTarget()->kit()->id().toString());
-        else
-            Core::VariableManager::instance()->remove(variable);
-    } else if (variable == Constants::VAR_CURRENTBUILD_NAME) {
-        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->activeBuildConfiguration())
-            Core::VariableManager::instance()->insert(variable, currentProject()->activeTarget()->activeBuildConfiguration()->displayName());
-        else
-            Core::VariableManager::instance()->remove(variable);
     } else if (variable == Constants::VAR_CURRENTBUILD_TYPE) {
         if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->activeBuildConfiguration()) {
             BuildConfiguration::BuildType type = currentProject()->activeTarget()->activeBuildConfiguration()->buildType();
@@ -1204,6 +1166,28 @@ void ProjectExplorerPlugin::updateVariable(const QByteArray &variable)
         } else {
             Core::VariableManager::instance()->remove(variable);
         }
+    } else {
+        QString projectName;
+        QString projectFilePath;
+        Kit *kit = 0;
+        QString buildConfigurationName;
+        if (Project *project = currentProject()) {
+            projectName = project->displayName();
+            if (Core::IDocument *doc = project->document())
+                projectFilePath = doc->fileName();
+            if (Target *target = project->activeTarget()) {
+                kit = target->kit();
+                if (BuildConfiguration *buildConfiguration = target->activeBuildConfiguration()) {
+                    buildConfigurationName = buildConfiguration->displayName();
+                }
+            }
+        }
+        ProjectExpander expander(projectFilePath, projectName, kit, buildConfigurationName);
+        QString result;
+        if (expander.resolveProjectMacro(QString::fromUtf8(variable), &result))
+            Core::VariableManager::instance()->insert(variable, result);
+        else
+            Core::VariableManager::instance()->remove(variable);
     }
 }
 
