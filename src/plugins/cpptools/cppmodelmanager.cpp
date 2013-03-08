@@ -813,7 +813,7 @@ void CppModelManager::dumpModelManagerConfiguration()
 {
     // Tons of debug output...
     qDebug()<<"========= CppModelManager::dumpModelManagerConfiguration ======";
-    foreach (const ProjectInfo &pinfo, m_projects.values()) {
+    foreach (const ProjectInfo &pinfo, m_projects) {
         qDebug()<<" for project:"<< pinfo.project().data()->document()->fileName();
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
             qDebug() << "=== part ===";
@@ -958,7 +958,7 @@ void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 
         m_srcToProjectPart.clear();
 
-        foreach (const ProjectInfo &projectInfo, m_projects.values()) {
+        foreach (const ProjectInfo &projectInfo, m_projects) {
             foreach (const ProjectPart::Ptr &projectPart, projectInfo.projectParts()) {
                 foreach (const QString &sourceFile, projectPart->sourceFiles)
                     m_srcToProjectPart[sourceFile].append(projectPart);

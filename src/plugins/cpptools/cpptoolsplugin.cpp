@@ -329,7 +329,7 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader)
         foreach (const QString &candidateFileName, candidateFileNames) {
             const QStringList projectFiles = findFilesInProject(candidateFileName, project);
             // Find the file having the most common path with fileName
-            foreach (const QString projectFile, projectFiles) {
+            foreach (const QString &projectFile, projectFiles) {
                 int value = commonStringLength(fileName, projectFile);
                 if (value > compareValue) {
                     compareValue = value;

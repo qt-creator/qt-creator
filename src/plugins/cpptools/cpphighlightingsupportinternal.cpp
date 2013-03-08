@@ -65,7 +65,7 @@ QFuture<CppHighlightingSupport::Use> CppHighlightingSupportInternal::highlightin
     }
 
     //Get macro uses
-    foreach (Document::MacroUse macro, doc->macroUses()) {
+    foreach (const Document::MacroUse &macro, doc->macroUses()) {
         const QString name = QString::fromUtf8(macro.macro().name());
 
         //Filter out QtKeywords
