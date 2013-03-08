@@ -86,39 +86,43 @@ public:
 
     QmlObjectNode fxObjectNodeForId(const QString &id);
 
-    void modelAttached(Model *model);
-    void modelAboutToBeDetached(Model *model);
+    void modelAttached(Model *model) QTC_OVERRIDE;
+    void modelAboutToBeDetached(Model *model) QTC_OVERRIDE;
 
-    void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList);
-    void instancesCompleted(const QVector<ModelNode> &completedNodeList);
-    void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash);
-    void instancesRenderImageChanged(const QVector<ModelNode> &nodeList);
-    void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList);
-    void instancesChildrenChanged(const QVector<ModelNode> &nodeList);
+    void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList) QTC_OVERRIDE;
+    void instancesCompleted(const QVector<ModelNode> &completedNodeList) QTC_OVERRIDE;
+    void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash) QTC_OVERRIDE;
+    void instancesRenderImageChanged(const QVector<ModelNode> &nodeList) QTC_OVERRIDE;
+    void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList) QTC_OVERRIDE;
+    void instancesChildrenChanged(const QVector<ModelNode> &nodeList) QTC_OVERRIDE;
     void instancesToken(const QString &tokenName, int tokenNumber, const QVector<ModelNode> &nodeVector);
 
-    void rewriterBeginTransaction();
-    void rewriterEndTransaction();
+    void rewriterBeginTransaction() QTC_OVERRIDE;
+    void rewriterEndTransaction() QTC_OVERRIDE;
 
     void actualStateChanged(const ModelNode &node);
 
-    void nodeCreated(const ModelNode &createdNode);
-    void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange);
-    void nodeAboutToBeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange);
-    void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange);
-    void propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList);
-    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
-    void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
-    void nodeAboutToBeRemoved(const ModelNode &removedNode);
-    void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId);
-    void propertiesRemoved(const QList<AbstractProperty>& propertyList);
-    void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange);
-    void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange);
-    void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
-    void selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList);
+    void nodeCreated(const ModelNode &createdNode) QTC_OVERRIDE;
+    void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange) QTC_OVERRIDE;
+    void nodeAboutToBeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent,
+                                 const NodeAbstractProperty &oldPropertyParent,
+                                 AbstractView::PropertyChangeFlags propertyChange) QTC_OVERRIDE;
+    void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent,
+                        const NodeAbstractProperty &oldPropertyParent,
+                        AbstractView::PropertyChangeFlags propertyChange) QTC_OVERRIDE;
+    void propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList) QTC_OVERRIDE;
+    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) QTC_OVERRIDE;
+    void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex) QTC_OVERRIDE;
+    void nodeAboutToBeRemoved(const ModelNode &removedNode) QTC_OVERRIDE;
+    void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId) QTC_OVERRIDE;
+    void propertiesRemoved(const QList<AbstractProperty>& propertyList) QTC_OVERRIDE;
+    void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange) QTC_OVERRIDE;
+    void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) QTC_OVERRIDE;
+    void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList) QTC_OVERRIDE;
+    void selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList) QTC_OVERRIDE;
 
-    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports);
-    void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource);
+    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) QTC_OVERRIDE;
+    void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource) QTC_OVERRIDE;
 
 protected:
     NodeInstance instanceForModelNode(const ModelNode &modelNode);
