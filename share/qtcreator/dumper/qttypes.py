@@ -2664,14 +2664,13 @@ def qdump__Eigen__Matrix(d, value):
     storage = value["m_storage"]
     options = numericTemplateArgument(value.type, 3)
     rowMajor = (int(options) & 0x1)
+    argRow = numericTemplateArgument(value.type, 1)
+    argCol = numericTemplateArgument(value.type, 2)
+    nrows = value["m_storage"]["m_rows"] if argRow == -1 else int(argRow)
+    ncols = value["m_storage"]["m_cols"] if argCol == -1 else int(argCol)
     p = storage["m_data"]
     if p.type.code == StructCode: # Static
-        nrows = numericTemplateArgument(value.type, 1)
-        ncols = numericTemplateArgument(value.type, 2)
         p = p["array"].cast(innerType.pointer())
-    else: # Dynamic
-        ncols = storage["m_cols"]
-        nrows = storage["m_rows"]
     d.putValue("(%s x %s), %s" % (nrows, ncols, ["ColumnMajor", "RowMajor"][rowMajor]))
     d.putField("keeporder", "1")
     d.putNumChild(nrows * ncols)
