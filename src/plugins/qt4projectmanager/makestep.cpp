@@ -196,7 +196,10 @@ bool MakeStep::init()
         QString makefile = subNode->makefile();
         if (makefile.isEmpty())
             makefile = QLatin1String("Makefile");
-        if (subNode->isDebugAndRelease()) {
+        // Use Makefile.Debug and Makefile.Release
+        // for file builds, since the rules for that are
+        // only in those files.
+        if (subNode->isDebugAndRelease() && bc->fileNodeBuild()) {
             if (bc->buildType() == Qt4BuildConfiguration::Debug)
                 makefile += QLatin1String(".Debug");
             else
