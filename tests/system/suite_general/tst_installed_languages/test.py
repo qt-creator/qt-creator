@@ -15,6 +15,7 @@ def main():
         clickButton(waitForObject(":Options.OK_QPushButton"))
         clickButton(waitForObject(":Restart required.OK_QPushButton"))
         invokeMenuItem("File", "Exit")
+        waitForCleanShutdown()
         overrideStartApplication()
         startApplication("qtcreator" + SettingsPath)
         try:
@@ -26,5 +27,6 @@ def main():
         except:
             test.fail("Creator seems to be missing %s translation" % languageName)
             sendEvent("QCloseEvent", ":Qt Creator_Core::Internal::MainWindow")
+        waitForCleanShutdown()
         __removeTestingDir__()
         copySettingsToTmpDir()
