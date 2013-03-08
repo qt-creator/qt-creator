@@ -6873,7 +6873,7 @@ void FakeVimHandler::Private::replay(const QString &command)
 {
     //qDebug() << "REPLAY: " << quoteUnprintable(command);
     Inputs inputs(command);
-    foreach (Input in, inputs) {
+    foreach (const Input &in, inputs) {
         if (handleDefaultKey(in) != EventHandled)
             break;
     }
