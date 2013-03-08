@@ -343,7 +343,7 @@ void CodeStyleSelectorWidget::slotRemoveClicked()
 void CodeStyleSelectorWidget::slotImportClicked()
 {
     const Utils::FileName fileName =
-            Utils::FileName::fromString(QFileDialog::getOpenFileName(this, tr("Import Code Style"), QString::null,
+            Utils::FileName::fromString(QFileDialog::getOpenFileName(this, tr("Import Code Style"), QString(),
                                                                      tr("Code styles (*.xml);;All files (*)")));
     if (!fileName.isEmpty()) {
         CodeStylePool *codeStylePool = m_codeStyle->delegatingPool();

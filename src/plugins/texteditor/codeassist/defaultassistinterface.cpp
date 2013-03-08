@@ -74,7 +74,7 @@ void DefaultAssistInterface::prepareForAsyncUse()
 void DefaultAssistInterface::recreateTextDocument()
 {
     m_textDocument = new QTextDocument(m_text);
-    m_text = QString();
+    m_text.clear();
 }
 
 AssistReason DefaultAssistInterface::reason() const

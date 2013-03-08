@@ -143,7 +143,7 @@ MetaInfoReader::ParserSate MetaInfoReader::readDocument(const QString &name)
 {
     if (name == QLatin1String(rootElementName)) {
         m_currentClassName.clear();
-        m_currentIcon = QString();
+        m_currentIcon.clear();
         return ParsingMetaInfo;
     } else {
         addErrorInvalidType(name);
@@ -154,8 +154,8 @@ MetaInfoReader::ParserSate MetaInfoReader::readDocument(const QString &name)
 MetaInfoReader::ParserSate MetaInfoReader::readMetaInfoRootElement(const QString &name)
 {
     if (name == QLatin1String(typeElementName)) {
-        m_currentClassName .clear();
-        m_currentIcon = QString();
+        m_currentClassName.clear();
+        m_currentIcon.clear();
         return ParsingType;
     } else {
         addErrorInvalidType(name);
@@ -183,7 +183,7 @@ MetaInfoReader::ParserSate MetaInfoReader::readItemLibraryEntryElement(const QSt
         return ParsingQmlSource;
     } else if (name == PropertyElementName) {
         m_currentPropertyName = PropertyName();
-        m_currentPropertyType = QString();
+        m_currentPropertyType.clear();
         m_currentPropertyValue = QVariant();
         return ParsingProperty;
     } else {

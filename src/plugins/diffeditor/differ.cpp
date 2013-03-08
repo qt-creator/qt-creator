@@ -294,8 +294,8 @@ QList<Diff> Differ::diffNonCharMode(const QString text1, const QString text2)
                 // Rediff here on char basis
                 newDiffList += preprocess1AndDiff(lastDelete, lastInsert);
 
-                lastDelete = QString();
-                lastInsert = QString();
+                lastDelete.clear();
+                lastInsert.clear();
             }
             newDiffList.append(diffItem);
         }
@@ -406,8 +406,8 @@ QList<Diff> Differ::merge(const QList<Diff> &diffList)
                     newDiffList.append(Diff(Diff::Insert, lastInsert));
                 if (diff.text.count())
                     newDiffList.append(diff);
-                lastDelete = QString();
-                lastInsert = QString();
+                lastDelete.clear();
+                lastInsert.clear();
             } else { // join with last equal diff
                 if (newDiffList.count()
                         && newDiffList.last().command == Diff::Equal) {

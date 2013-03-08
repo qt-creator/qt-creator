@@ -561,7 +561,7 @@ IDevice::Ptr MaemoDeviceConfigWizard::device()
     sshParams.port = d->wizardData.sshPort;
     if (d->wizardData.machineType == IDevice::Emulator) {
         sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
-        sshParams.password = QString();
+        sshParams.password.clear();
         sshParams.timeout = 30;
         freePortsSpec = QLatin1String("13219,14168");
         doTest = false;

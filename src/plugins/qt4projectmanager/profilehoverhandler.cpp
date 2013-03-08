@@ -69,7 +69,7 @@ bool ProFileHoverHandler::acceptEditor(IEditor *editor)
 
 void ProFileHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
 {
-    m_docFragment = QString();
+    m_docFragment.clear();
     m_manualKind = UnknownManual;
     if (ProFileEditorWidget *proFileEditor = qobject_cast<ProFileEditorWidget *>(editor->widget())) {
         if (!proFileEditor->extraSelectionTooltip(pos).isEmpty()) {

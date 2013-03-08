@@ -308,7 +308,7 @@ void CompletionContextFinder::checkImport()
         if (m_libVersion.isNull())
             m_libVersion = QLatin1String("");
     } else {
-        m_libVersion = QString();
+        m_libVersion.clear();
     }
 }
 
