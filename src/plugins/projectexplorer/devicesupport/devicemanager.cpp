@@ -281,6 +281,18 @@ void DeviceManager::removeDevice(Core::Id id)
     emit updated();
 }
 
+void DeviceManager::setDeviceState(Core::Id deviceId, IDevice::DeviceState deviceState)
+{
+    const int pos = d->indexForId(deviceId);
+    QTC_ASSERT(pos != -1, return);
+    IDevice::Ptr &device = d->devices[pos];
+    if (device->deviceState() == deviceState)
+        return;
+    device->setDeviceState(deviceState);
+    emit deviceUpdated(deviceId);
+    emit updated();
+}
+
 bool DeviceManager::isLoaded() const
 {
     return d->writer;
@@ -426,6 +438,7 @@ void ProjectExplorerPlugin::testDeviceManager()
     TestDevice::Ptr dev = IDevice::Ptr(new TestDevice);
     dev->setDisplayName(QLatin1String("blubbdiblubbfurz!"));
     QVERIFY(dev->isAutoDetected());
+    QCOMPARE(dev->deviceState(), IDevice::DeviceStateUnknown);
     QCOMPARE(dev->type(), TestDevice::testTypeId());
 
     TestDevice::Ptr dev2 = dev->clone();
@@ -451,6 +464,23 @@ void ProjectExplorerPlugin::testDeviceManager()
     QCOMPARE(deviceListChangedSpy.count(), 0);
     QCOMPARE(updatedSpy.count(), 1);
     deviceAddedSpy.clear();
+    updatedSpy.clear();
+
+    mgr->setDeviceState(dev->id(), IDevice::DeviceStateUnknown);
+    QCOMPARE(deviceAddedSpy.count(), 0);
+    QCOMPARE(deviceRemovedSpy.count(), 0);
+    QCOMPARE(deviceUpdatedSpy.count(), 0);
+    QCOMPARE(deviceListChangedSpy.count(), 0);
+    QCOMPARE(updatedSpy.count(), 0);
+
+    mgr->setDeviceState(dev->id(), IDevice::DeviceReadyToUse);
+    QCOMPARE(mgr->find(dev->id())->deviceState(), IDevice::DeviceReadyToUse);
+    QCOMPARE(deviceAddedSpy.count(), 0);
+    QCOMPARE(deviceRemovedSpy.count(), 0);
+    QCOMPARE(deviceUpdatedSpy.count(), 1);
+    QCOMPARE(deviceListChangedSpy.count(), 0);
+    QCOMPARE(updatedSpy.count(), 1);
+    deviceUpdatedSpy.clear();
     updatedSpy.clear();
 
     mgr->addDevice(dev2);

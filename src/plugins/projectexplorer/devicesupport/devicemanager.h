@@ -69,6 +69,7 @@ public:
 
     void addDevice(const IDevice::ConstPtr &device);
     void removeDevice(Core::Id id);
+    void setDeviceState(Core::Id deviceId, IDevice::DeviceState deviceState);
 
     bool isLoaded() const;
 
