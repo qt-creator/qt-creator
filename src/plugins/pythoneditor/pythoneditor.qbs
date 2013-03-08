@@ -5,6 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "PythonEditor"
 
+    Depends { name: "Qt.widgets" }
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "CppTools" }
