@@ -193,11 +193,6 @@ void RewriterView::nodeRemoved(const ModelNode &removedNode, const NodeAbstractP
         applyChanges();
 }
 
-void RewriterView::propertiesAdded(const ModelNode &/*node*/, const QList<AbstractProperty>& /*propertyList*/)
-{
-    Q_ASSERT(0);
-}
-
 void RewriterView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList)
 {
     Q_ASSERT(textModifier());

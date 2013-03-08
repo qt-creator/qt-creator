@@ -118,7 +118,6 @@ public:
     RewriterView(DifferenceHandling differenceHandling, QObject *parent);
     ~RewriterView();
 
-    void propertiesAdded(const ModelNode &node, const QList<AbstractProperty>& propertyList);
     void modelAttached(Model *model) QTC_OVERRIDE;
     void modelAboutToBeDetached(Model *model) QTC_OVERRIDE;
     void nodeCreated(const ModelNode &createdNode) QTC_OVERRIDE;
