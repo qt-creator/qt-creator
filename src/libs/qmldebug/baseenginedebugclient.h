@@ -180,7 +180,7 @@ public:
         return -1;
     }
 
-    bool operator ==(const ObjectReference &obj)
+    bool operator ==(const ObjectReference &obj) const
     {
         return m_debugId == obj.debugId();
     }

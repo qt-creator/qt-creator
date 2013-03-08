@@ -143,8 +143,8 @@ private:
     public:
         LastKitState();
         explicit LastKitState(ProjectExplorer::Kit *k);
-        bool operator ==(const LastKitState &other);
-        bool operator !=(const LastKitState &other);
+        bool operator ==(const LastKitState &other) const;
+        bool operator !=(const LastKitState &other) const;
     private:
         int m_qtVersion;
         QString m_toolchain;

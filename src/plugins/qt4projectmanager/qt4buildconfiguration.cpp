@@ -772,7 +772,7 @@ Qt4BuildConfiguration::LastKitState::LastKitState(Kit *k)
     m_toolchain = tc ? tc->id() : QString();
 }
 
-bool Qt4BuildConfiguration::LastKitState::operator ==(const LastKitState &other)
+bool Qt4BuildConfiguration::LastKitState::operator ==(const LastKitState &other) const
 {
     return m_qtVersion == other.m_qtVersion
             && m_toolchain == other.m_toolchain
@@ -780,7 +780,7 @@ bool Qt4BuildConfiguration::LastKitState::operator ==(const LastKitState &other)
             && m_mkspec == other.m_mkspec;
 }
 
-bool Qt4BuildConfiguration::LastKitState::operator !=(const LastKitState &other)
+bool Qt4BuildConfiguration::LastKitState::operator !=(const LastKitState &other) const
 {
     return !operator ==(other);
 }
