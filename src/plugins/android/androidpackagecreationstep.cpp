@@ -205,7 +205,7 @@ static void parseSharedLibs(const QByteArray &buffer, QStringList *libs)
 #else
     QList<QByteArray> lines = buffer.trimmed().split('\n');
 #endif
-    foreach (QByteArray line, lines) {
+    foreach (const QByteArray &line, lines) {
         if (line.contains("(NEEDED)") && line.contains("Shared library:") ) {
             const int pos = line.lastIndexOf('[') + 1;
             (*libs) << QString::fromLatin1(line.mid(pos, line.length() - pos - 1));
