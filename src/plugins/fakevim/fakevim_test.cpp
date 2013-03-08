@@ -2275,9 +2275,9 @@ void FakeVimPlugin::test_vim_command_cj()
 
     data.setText(testLines);
     KEYS("j$",         cursor(1, -1));
-    KEYS("cj<Esc>",    l[0]+"\n|" + "\n" + lmid(3));
-    KEYS("P",          lmid(0,1)+"\n" + "|"+lmid(1,2)+"\n" + "\n" +  lmid(3));
-    KEYS("u",          l[0]+"\n|" + "\n" + lmid(3));
+    KEYS("cj<Esc>",    l[0]+"\n|" + '\n' + lmid(3));
+    KEYS("P",          lmid(0,1)+'\n' + '|'+lmid(1,2)+'\n' + '\n' +  lmid(3));
+    KEYS("u",          l[0]+"\n|" + '\n' + lmid(3));
 
     data.setText(testLines);
     KEYS("j$",          cursor(1, -1));
@@ -2295,7 +2295,7 @@ void FakeVimPlugin::test_vim_command_ck()
     data.setText(testLines);
     KEYS("j$",          cursor(1, -1));
     KEYS("ck<Esc>",     "|\n" + lmid(2));
-    KEYS("P",           "|" + lmid(0,2)+"\n" + "\n" + lmid(2));
+    KEYS("P",           '|' + lmid(0,2)+'\n' + '\n' + lmid(2));
 }
 
 void FakeVimPlugin::test_vim_command_c_dollar()
@@ -2306,10 +2306,10 @@ void FakeVimPlugin::test_vim_command_c_dollar()
     data.setText(testLines);
     KEYS("j",           cursor(1, 0));
     KEYS("$",           cursor(1, -1));
-    KEYS("c$<Esc>",     l[0]+"\n" + l[1].left(l[1].length()-2)+"|"+l[1][l[1].length()-2]+"\n" + lmid(2));
-    KEYS("c$<Esc>",     l[0]+"\n" + l[1].left(l[1].length()-3)+"|"+l[1][l[1].length()-3]+"\n" + lmid(2));
-    KEYS("0c$abc<Esc>", l[0]+"\n" + "ab|c\n" + lmid(2));
-    KEYS("0c$abc<Esc>", l[0]+"\n" + "ab|c\n" + lmid(2));
+    KEYS("c$<Esc>",     l[0]+'\n' + l[1].left(l[1].length()-2)+'|'+l[1][l[1].length()-2]+'\n' + lmid(2));
+    KEYS("c$<Esc>",     l[0]+'\n' + l[1].left(l[1].length()-3)+'|'+l[1][l[1].length()-3]+'\n' + lmid(2));
+    KEYS("0c$abc<Esc>", l[0]+'\n' + "ab|c\n" + lmid(2));
+    KEYS("0c$abc<Esc>", l[0]+'\n' + "ab|c\n" + lmid(2));
 }
 
 void FakeVimPlugin::test_vim_command_C()
@@ -2369,7 +2369,7 @@ void FakeVimPlugin::test_vim_command_dd_2()
     data.setText(testLines);
     KEYS("j",   cursor(1, 0));
     KEYS("dd",  l[0] + "\n|" + lmid(2));
-    KEYS("p",   l[0] + "\n" + l[2] + "\n|" + l[1] + "\n" + lmid(3));
+    KEYS("p",   l[0] + '\n' + l[2] + "\n|" + l[1] + '\n' + lmid(3));
     KEYS("u",   l[0] + "\n|" + lmid(2));
 }
 
@@ -2380,8 +2380,8 @@ void FakeVimPlugin::test_vim_command_d_dollar()
 
     data.setText(testLines);
     KEYS("j$",  cursor(1, -1));
-    KEYS("$d$", l[0]+"\n" + l[1].left(l[1].length()-2)+"|"+l[1][l[1].length()-2]+"\n" + lmid(2));
-    KEYS("0d$", l[0] + "\n"+"|\n" + lmid(2));
+    KEYS("$d$", l[0]+'\n' + l[1].left(l[1].length()-2)+'|'+l[1][l[1].length()-2]+'\n' + lmid(2));
+    KEYS("0d$", l[0] + '\n'+"|\n" + lmid(2));
 }
 
 void FakeVimPlugin::test_vim_command_dj()
@@ -2392,15 +2392,15 @@ void FakeVimPlugin::test_vim_command_dj()
     data.setText(testLines);
     KEYS("j$",   cursor(1, -1));
     KEYS("dj",  l[0]+"\n|" + lmid(3));
-    KEYS("P",   lmid(0,1)+"\n" + "|"+lmid(1));
-    KEYS("0",   lmid(0,1)+"\n" + "|"+lmid(1));
+    KEYS("P",   lmid(0,1)+'\n' + '|'+lmid(1));
+    KEYS("0",   lmid(0,1)+'\n' + '|'+lmid(1));
     KEYS("dj",  l[0]+"\n|" + lmid(3));
-    KEYS("P",   lmid(0,1)+"\n" + "|"+lmid(1));
-    KEYS("05l", l[0]+"\n" + l[1].left(5) + "|" + l[1].mid(5)+"\n" + lmid(2));
+    KEYS("P",   lmid(0,1)+'\n' + '|'+lmid(1));
+    KEYS("05l", l[0]+'\n' + l[1].left(5) + '|' + l[1].mid(5)+'\n' + lmid(2));
     KEYS("dj",  l[0]+"\n|" + lmid(3));
-    KEYS("P",   lmid(0,1)+"\n" + "|"+lmid(1));
+    KEYS("P",   lmid(0,1)+'\n' + '|'+lmid(1));
     KEYS("dj",  l[0]+"\n|" + lmid(3));
-    KEYS("p",   lmid(0,1)+"\n" + lmid(3,1)+"\n" + "|"+lmid(1,2)+"\n" + lmid(4));
+    KEYS("p",   lmid(0,1)+'\n' + lmid(3,1)+'\n' + '|'+lmid(1,2)+'\n' + lmid(4));
 }
 
 void FakeVimPlugin::test_vim_command_dk()
@@ -2410,17 +2410,17 @@ void FakeVimPlugin::test_vim_command_dk()
 
     data.setText(testLines);
     KEYS("j$",    cursor(1, -1));
-    KEYS("dk",   "|" + lmid(2));
-    KEYS("P",    "|" + lmid(0));
+    KEYS("dk",   '|' + lmid(2));
+    KEYS("P",    '|' + lmid(0));
     KEYS("j0",   l[0]+ "\n|" + lmid(1));
-    KEYS("dk",   "|" + lmid(2));
-    KEYS("P",    "|" + lmid(0));
-    KEYS("j05l", l[0]+"\n" + l[1].left(5) + "|" + l[1].mid(5)+"\n" + lmid(2));
-    KEYS("dk",   "|" + lmid(2));
-    KEYS("P",    "|" + lmid(0));
-    KEYS("j05l", l[0]+"\n" + l[1].left(5) + "|" + l[1].mid(5)+"\n" + lmid(2));
-    KEYS("dk",   "|" + lmid(2));
-    KEYS("p",    lmid(2,1)+"\n" + "|" + lmid(0,2)+"\n" + lmid(3));
+    KEYS("dk",   '|' + lmid(2));
+    KEYS("P",    '|' + lmid(0));
+    KEYS("j05l", l[0]+'\n' + l[1].left(5) + '|' + l[1].mid(5)+'\n' + lmid(2));
+    KEYS("dk",   '|' + lmid(2));
+    KEYS("P",    '|' + lmid(0));
+    KEYS("j05l", l[0]+'\n' + l[1].left(5) + '|' + l[1].mid(5)+'\n' + lmid(2));
+    KEYS("dk",   '|' + lmid(2));
+    KEYS("p",    lmid(2,1)+'\n' + '|' + lmid(0,2)+'\n' + lmid(3));
 }
 
 void FakeVimPlugin::test_vim_command_dgg()
@@ -2429,9 +2429,9 @@ void FakeVimPlugin::test_vim_command_dgg()
     setup(&data);
 
     data.setText(testLines);
-    KEYS("G",    lmid(0, l.size()-2)+"\n" "|"+lmid(l.size()-2));
+    KEYS("G",    lmid(0, l.size()-2)+'\n' +  '|'+lmid(l.size()-2));
     KEYS("dgg",  "|");
-    KEYS("u",    "|" + lmid(0));
+    KEYS("u",    '|' + lmid(0));
 }
 
 void FakeVimPlugin::test_vim_command_dG()
@@ -2441,16 +2441,16 @@ void FakeVimPlugin::test_vim_command_dG()
 
     data.setText(testLines);
     KEYS("dG",   "|");
-    KEYS("u",    "|" + lmid(0));
+    KEYS("u",    '|' + lmid(0));
     KEYS("j",    cursor(1, 0));
-    KEYS("dG",   lmid(0,1)+"\n" + "|");
-    KEYS("u",    l[0]+"\n" + "|" + lmid(1));
-    KEYS("G",    lmid(0, l.size()-2)+"\n" + "|"+lmid(l.size()-2));
+    KEYS("dG",   lmid(0,1)+'\n' + '|');
+    KEYS("u",    l[0]+'\n' + '|' + lmid(1));
+    KEYS("G",    lmid(0, l.size()-2)+'\n' + '|'+lmid(l.size()-2));
 
     NOT_IMPLEMENTED
     // include movement to first column, as otherwise the result depends on the 'startofline' setting
-    KEYS("dG0",  lmid(0, l.size()-2)+"\n" + "|"+lmid(l.size()-2,1));
-    KEYS("dG0",  lmid(0, l.size()-3)+"\n" + "|"+lmid(l.size()-3,1));
+    KEYS("dG0",  lmid(0, l.size()-2)+'\n' + '|'+lmid(l.size()-2,1));
+    KEYS("dG0",  lmid(0, l.size()-3)+'\n' + '|'+lmid(l.size()-3,1));
 }
 
 void FakeVimPlugin::test_vim_command_D()
@@ -2460,7 +2460,7 @@ void FakeVimPlugin::test_vim_command_D()
 
     data.setText(testLines);
     KEYS("j",    cursor(1, 0));
-    KEYS("$D",   l[0]+"\n" + l[1].left(l[1].length()-2)+"|"+l[1][l[1].length()-2]+"\n" + lmid(2));
+    KEYS("$D",   l[0]+'\n' + l[1].left(l[1].length()-2)+'|'+l[1][l[1].length()-2]+'\n' + lmid(2));
     KEYS("0D",   l[0] + "\n|\n" + lmid(2));
 }
 
@@ -2482,8 +2482,8 @@ void FakeVimPlugin::test_vim_command_down()
 
     data.setText(testLines);
     KEYS("j",  l[0]+ "\n|" + lmid(1));
-    KEYS("3j", lmid(0,4)+"\n" + "|int main(int argc, char *argv[])\n" + lmid(5));
-    KEYS("4j", lmid(0,8)+"\n" + "|    return app.exec();\n" + lmid(9));
+    KEYS("3j", lmid(0,4)+'\n' + "|int main(int argc, char *argv[])\n" + lmid(5));
+    KEYS("4j", lmid(0,8)+'\n' + "|    return app.exec();\n" + lmid(9));
 }
 
 void FakeVimPlugin::test_vim_command_dfx_down()
@@ -2520,22 +2520,22 @@ void FakeVimPlugin::test_vim_command_e()
     setup(&data);
 
     data.setText(testLines);
-    KEYS("e",  lmid(0,1)+"\n" + "|#include <QtCore>\n" + lmid(2));
-    KEYS("e",  lmid(0,1)+"\n" + "#includ|e <QtCore>\n" + lmid(2));
-    KEYS("e",  lmid(0,1)+"\n" + "#include |<QtCore>\n" + lmid(2));
-    KEYS("3e", lmid(0,2)+"\n" + "|#include <QtGui>\n" + lmid(3));
-    KEYS("e",  lmid(0,2)+"\n" + "#includ|e <QtGui>\n" + lmid(3));
-    KEYS("e",  lmid(0,2)+"\n" + "#include |<QtGui>\n" + lmid(3));
-    KEYS("e",  lmid(0,2)+"\n" + "#include <QtGu|i>\n" + lmid(3));
-    KEYS("4e", lmid(0,4)+"\n" + "int main|(int argc, char *argv[])\n" + lmid(5));
-    KEYS("e",  lmid(0,4)+"\n" + "int main(in|t argc, char *argv[])\n" + lmid(5));
-    KEYS("e",  lmid(0,4)+"\n" + "int main(int arg|c, char *argv[])\n" + lmid(5));
-    KEYS("e",  lmid(0,4)+"\n" + "int main(int argc|, char *argv[])\n" + lmid(5));
-    KEYS("e",  lmid(0,4)+"\n" + "int main(int argc, cha|r *argv[])\n" + lmid(5));
-    KEYS("e",  lmid(0,4)+"\n" + "int main(int argc, char |*argv[])\n" + lmid(5));
-    KEYS("e",  lmid(0,4)+"\n" + "int main(int argc, char *arg|v[])\n" + lmid(5));
-    KEYS("e",  lmid(0,4)+"\n" + "int main(int argc, char *argv[]|)\n" + lmid(5));
-    KEYS("e",  lmid(0,5)+"\n" + "|{\n" + lmid(6));
+    KEYS("e",  lmid(0,1)+'\n' + "|#include <QtCore>\n" + lmid(2));
+    KEYS("e",  lmid(0,1)+'\n' + "#includ|e <QtCore>\n" + lmid(2));
+    KEYS("e",  lmid(0,1)+'\n' + "#include |<QtCore>\n" + lmid(2));
+    KEYS("3e", lmid(0,2)+'\n' + "|#include <QtGui>\n" + lmid(3));
+    KEYS("e",  lmid(0,2)+'\n' + "#includ|e <QtGui>\n" + lmid(3));
+    KEYS("e",  lmid(0,2)+'\n' + "#include |<QtGui>\n" + lmid(3));
+    KEYS("e",  lmid(0,2)+'\n' + "#include <QtGu|i>\n" + lmid(3));
+    KEYS("4e", lmid(0,4)+'\n' + "int main|(int argc, char *argv[])\n" + lmid(5));
+    KEYS("e",  lmid(0,4)+'\n' + "int main(in|t argc, char *argv[])\n" + lmid(5));
+    KEYS("e",  lmid(0,4)+'\n' + "int main(int arg|c, char *argv[])\n" + lmid(5));
+    KEYS("e",  lmid(0,4)+'\n' + "int main(int argc|, char *argv[])\n" + lmid(5));
+    KEYS("e",  lmid(0,4)+'\n' + "int main(int argc, cha|r *argv[])\n" + lmid(5));
+    KEYS("e",  lmid(0,4)+'\n' + "int main(int argc, char |*argv[])\n" + lmid(5));
+    KEYS("e",  lmid(0,4)+'\n' + "int main(int argc, char *arg|v[])\n" + lmid(5));
+    KEYS("e",  lmid(0,4)+'\n' + "int main(int argc, char *argv[]|)\n" + lmid(5));
+    KEYS("e",  lmid(0,5)+'\n' + "|{\n" + lmid(6));
     KEYS("10k","|\n" + lmid(1)); // home.
 }
 
@@ -2547,18 +2547,18 @@ void FakeVimPlugin::test_vim_command_i()
     data.setText(testLines);
 
     // empty insertion at start of document
-    KEYS("i<Esc>", "|" + testLines);
-    KEYS("u", "|" + testLines);
+    KEYS("i<Esc>", '|' + testLines);
+    KEYS("u", '|' + testLines);
 
     // small insertion at start of document
     KEYS("ix<Esc>", "|x" + testLines);
-    KEYS("u", "|" + testLines);
+    KEYS("u", '|' + testLines);
     COMMAND("redo", "|x" + testLines);
-    KEYS("u", "|" + testLines);
+    KEYS("u", '|' + testLines);
 
     // small insertion at start of document
     KEYS("ixxx<Esc>", "xx|x" + testLines);
-    KEYS("u", "|" + testLines);
+    KEYS("u", '|' + testLines);
 
     // combine insertions
     KEYS("i1<Esc>", "|1" + testLines);
@@ -2566,7 +2566,7 @@ void FakeVimPlugin::test_vim_command_i()
     KEYS("i3<Esc>", "|321" + testLines);
     KEYS("u",       "|21" + testLines);
     KEYS("u",       "|1" + testLines);
-    KEYS("u",       "|" + testLines);
+    KEYS("u",       '|' + testLines);
     KEYS("ia<Esc>", "|a" + testLines);
     KEYS("ibx<Esc>", "b|xa" + testLines);
     KEYS("icyy<Esc>", "bcy|yxa" + testLines);
@@ -2638,23 +2638,23 @@ void FakeVimPlugin::test_vim_command_w()
     setup(&data);
 
     data.setText(testLines);
-    KEYS("w",   lmid(0,1)+"\n" + "|#include <QtCore>\n" + lmid(2));
-    KEYS("w",   lmid(0,1)+"\n" + "#|include <QtCore>\n" + lmid(2));
-    KEYS("w",   lmid(0,1)+"\n" + "#include |<QtCore>\n" + lmid(2));
-    KEYS("3w",  lmid(0,2)+"\n" + "|#include <QtGui>\n" + lmid(3));
-    KEYS("w",   lmid(0,2)+"\n" + "#|include <QtGui>\n" + lmid(3));
-    KEYS("w",   lmid(0,2)+"\n" + "#include |<QtGui>\n" + lmid(3));
-    KEYS("w",   lmid(0,2)+"\n" + "#include <|QtGui>\n" + lmid(3));
-    KEYS("4w",  lmid(0,4)+"\n" + "int |main(int argc, char *argv[])\n" + lmid(5));
-    KEYS("w",   lmid(0,4)+"\n" + "int main|(int argc, char *argv[])\n" + lmid(5));
-    KEYS("w",   lmid(0,4)+"\n" + "int main(|int argc, char *argv[])\n" + lmid(5));
-    KEYS("w",   lmid(0,4)+"\n" + "int main(int |argc, char *argv[])\n" + lmid(5));
-    KEYS("w",   lmid(0,4)+"\n" + "int main(int argc|, char *argv[])\n" + lmid(5));
-    KEYS("w",   lmid(0,4)+"\n" + "int main(int argc, |char *argv[])\n" + lmid(5));
-    KEYS("w",   lmid(0,4)+"\n" + "int main(int argc, char |*argv[])\n" + lmid(5));
-    KEYS("w",   lmid(0,4)+"\n" + "int main(int argc, char *|argv[])\n" + lmid(5));
-    KEYS("w",   lmid(0,4)+"\n" + "int main(int argc, char *argv|[])\n" + lmid(5));
-    KEYS("w",   lmid(0,5)+"\n" + "|{\n" + lmid(6));
+    KEYS("w",   lmid(0,1)+'\n' + "|#include <QtCore>\n" + lmid(2));
+    KEYS("w",   lmid(0,1)+'\n' + "#|include <QtCore>\n" + lmid(2));
+    KEYS("w",   lmid(0,1)+'\n' + "#include |<QtCore>\n" + lmid(2));
+    KEYS("3w",  lmid(0,2)+'\n' + "|#include <QtGui>\n" + lmid(3));
+    KEYS("w",   lmid(0,2)+'\n' + "#|include <QtGui>\n" + lmid(3));
+    KEYS("w",   lmid(0,2)+'\n' + "#include |<QtGui>\n" + lmid(3));
+    KEYS("w",   lmid(0,2)+'\n' + "#include <|QtGui>\n" + lmid(3));
+    KEYS("4w",  lmid(0,4)+'\n' + "int |main(int argc, char *argv[])\n" + lmid(5));
+    KEYS("w",   lmid(0,4)+'\n' + "int main|(int argc, char *argv[])\n" + lmid(5));
+    KEYS("w",   lmid(0,4)+'\n' + "int main(|int argc, char *argv[])\n" + lmid(5));
+    KEYS("w",   lmid(0,4)+'\n' + "int main(int |argc, char *argv[])\n" + lmid(5));
+    KEYS("w",   lmid(0,4)+'\n' + "int main(int argc|, char *argv[])\n" + lmid(5));
+    KEYS("w",   lmid(0,4)+'\n' + "int main(int argc, |char *argv[])\n" + lmid(5));
+    KEYS("w",   lmid(0,4)+'\n' + "int main(int argc, char |*argv[])\n" + lmid(5));
+    KEYS("w",   lmid(0,4)+'\n' + "int main(int argc, char *|argv[])\n" + lmid(5));
+    KEYS("w",   lmid(0,4)+'\n' + "int main(int argc, char *argv|[])\n" + lmid(5));
+    KEYS("w",   lmid(0,5)+'\n' + "|{\n" + lmid(6));
 }
 
 void FakeVimPlugin::test_vim_command_yyp()
@@ -2664,7 +2664,7 @@ void FakeVimPlugin::test_vim_command_yyp()
 
     data.setText(testLines);
     KEYS("4j",  lmid(0, 4) + "\n|int main(int argc, char *argv[])\n" + lmid(5));
-    KEYS("yyp", lmid(0, 4) + "\n" + lmid(4, 1) + "\n|" + lmid(4));
+    KEYS("yyp", lmid(0, 4) + '\n' + lmid(4, 1) + "\n|" + lmid(4));
 }
 
 void FakeVimPlugin::test_vim_command_y_dollar()
@@ -2674,10 +2674,10 @@ void FakeVimPlugin::test_vim_command_y_dollar()
 
     data.setText(testLines);
     KEYS("j",    l[0]+"\n|" + lmid(1));
-    KEYS("$y$p", l[0]+"\n"+ l[1]+"|>\n" + lmid(2));
-    KEYS("$y$p", l[0]+"\n"+ l[1]+">|>\n" + lmid(2));
-    KEYS("$y$P", l[0]+"\n"+ l[1]+">|>>\n" + lmid(2));
-    KEYS("$y$P", l[0]+"\n"+ l[1]+">>|>>\n" + lmid(2));
+    KEYS("$y$p", l[0]+'\n'+ l[1]+"|>\n" + lmid(2));
+    KEYS("$y$p", l[0]+'\n'+ l[1]+">|>\n" + lmid(2));
+    KEYS("$y$P", l[0]+'\n'+ l[1]+">|>>\n" + lmid(2));
+    KEYS("$y$P", l[0]+'\n'+ l[1]+">>|>>\n" + lmid(2));
 }
 
 void FakeVimPlugin::test_vim_command_Yp()
@@ -2687,7 +2687,7 @@ void FakeVimPlugin::test_vim_command_Yp()
 
     data.setText(testLines);
     KEYS("4j",  lmid(0, 4) + "\n|int main(int argc, char *argv[])\n" + lmid(5));
-    KEYS("Yp", lmid(0, 4) + "\n" + lmid(4, 1) + "\n|" + lmid(4));
+    KEYS("Yp", lmid(0, 4) + '\n' + lmid(4, 1) + "\n|" + lmid(4));
 }
 
 void FakeVimPlugin::test_vim_command_ma_yank()
@@ -2697,19 +2697,19 @@ void FakeVimPlugin::test_vim_command_ma_yank()
 
     data.setText(testLines);
     KEYS("4j",  lmid(0, 4) + "\n|int main(int argc, char *argv[])\n" + lmid(5));
-    KEYS("ygg", "|" + lmid(0));
+    KEYS("ygg", '|' + lmid(0));
     KEYS("4j",  lmid(0, 4) + "\n|int main(int argc, char *argv[])\n" + lmid(5));
-    KEYS("p",   lmid(0,5) + "\n|" + lmid(0,4) +"\n" + lmid(4));
+    KEYS("p",   lmid(0,5) + "\n|" + lmid(0,4) +'\n' + lmid(4));
 
     data.setText(testLines);
 
-    KEYS("gg",     "|" + lmid(0));
-    KEYS("ma",     "|" + lmid(0));
+    KEYS("gg",     '|' + lmid(0));
+    KEYS("ma",     '|' + lmid(0));
     KEYS("4j",     lmid(0, 4) + "\n|int main(int argc, char *argv[])\n" + lmid(5));
     KEYS("mb",     lmid(0,4) + "\n|" + lmid(4));
-    KEYS("\"ay'a", "|" + lmid(0));
+    KEYS("\"ay'a", '|' + lmid(0));
     KEYS("'b",     lmid(0,4) + "\n|" + lmid(4));
-    KEYS("\"ap",   lmid(0,5) + "\n|" + lmid(0,4) +"\n" + lmid(4));
+    KEYS("\"ap",   lmid(0,5) + "\n|" + lmid(0,4) +'\n' + lmid(4));
 }
 
 void FakeVimPlugin::test_vim_command_Gyyp()
@@ -2719,7 +2719,7 @@ void FakeVimPlugin::test_vim_command_Gyyp()
 
     data.setText(testLines);
     KEYS("G",   lmid(0, l.size()-2) + "\n|" + lmid(l.size()-2));
-    KEYS("yyp", lmid(0) + "|" + lmid(9, 1)+"\n");
+    KEYS("yyp", lmid(0) + '|' + lmid(9, 1)+'\n');
 }
 
 void FakeVimPlugin::test_i_cw_i()
@@ -2771,12 +2771,12 @@ void FakeVimPlugin::test_vim_command_oO()
     setup(&data);
 
     data.setText(testLines);
-    KEYS("gg",              "|" + lmid(0));
+    KEYS("gg",              '|' + lmid(0));
     KEYS("Ol1<Esc>",    "l|1\n" + lmid(0));
     KEYS("gg",              "|l1\n" + lmid(0));
     KEYS("ol2<Esc>",    "l1\n" "l|2\n" + lmid(0));
-    KEYS("G",               "l1\n" "l2\n" + lmid(0,l.size()-2)+"\n" + "|"+lmid(l.size()-2));
-    KEYS("G$",              "l1\n" "l2\n" + lmid(0,l.size()-2)+"\n" + "|"+lmid(l.size()-2));
+    KEYS("G",               "l1\n" "l2\n" + lmid(0,l.size()-2)+'\n' + '|'+lmid(l.size()-2));
+    KEYS("G$",              "l1\n" "l2\n" + lmid(0,l.size()-2)+'\n' + '|'+lmid(l.size()-2));
     KEYS("ol-1<Esc>",   "l1\n" "l2\n" + lmid(0) + "l-|1\n");
     KEYS("G",               "l1\n" "l2\n" + lmid(0) + "|l-1\n");
     KEYS("Ol-2<Esc>",   "l1\n" "l2\n" + lmid(0) + "l-|2\n" + "l-1\n");
@@ -2788,9 +2788,9 @@ void FakeVimPlugin::test_vim_command_x()
     setup(&data);
 
     data.setText(testLines);
-    KEYS("x", "|" + lmid(0));
+    KEYS("x", '|' + lmid(0));
     KEYS("j$", cursor(1, -1));
-    KEYS("x", lmid(0,1)+"\n" + l[1].left(l[1].length()-2)+"|"+l[1].mid(l[1].length()-2,1)+"\n" + lmid(2));
+    KEYS("x", lmid(0,1)+'\n' + l[1].left(l[1].length()-2)+'|'+l[1].mid(l[1].length()-2,1)+'\n' + lmid(2));
 }
 
 void FakeVimPlugin::test_vim_visual_d()
@@ -2799,30 +2799,30 @@ void FakeVimPlugin::test_vim_visual_d()
     setup(&data);
 
     data.setText(testLines);
-    KEYS("vd",  "|" + lmid(1));
-    KEYS("u",   "|" + lmid(0));
-    KEYS("vx",  "|" + lmid(1));
-    KEYS("u",   "|" + lmid(0));
-    KEYS("vjd", "|" + lmid(1).mid(1));
-    KEYS("u",   "|" + lmid(0));
-    KEYS("j",   lmid(0, 1)+"\n" + "|" + lmid(1));
-    KEYS("vd",  lmid(0, 1)+"\n" + "|" + lmid(1).mid(1));
-    KEYS("u",   lmid(0, 1)+"\n" + "|" + lmid(1));
-    KEYS("vx",  lmid(0, 1)+"\n" + "|" + lmid(1).mid(1));
-    KEYS("u",   lmid(0, 1)+"\n" + "|" + lmid(1));
-    KEYS("vhx", lmid(0, 1)+"\n" + "|" + lmid(1).mid(1));
-    KEYS("u",   lmid(0, 1)+"\n" + "|" + lmid(1));
-    KEYS("vlx", lmid(0, 1)+"\n" + "|" + lmid(1).mid(2));
-    KEYS("P",   lmid(0, 1)+"\n" + lmid(1).left(1)+"|"+lmid(1).mid(1));
-    KEYS("vhd", lmid(0, 1)+"\n" + "|" + lmid(1).mid(2));
-    KEYS("u",   lmid(0, 1)+"\n" + "|" + lmid(1));
+    KEYS("vd",  '|' + lmid(1));
+    KEYS("u",   '|' + lmid(0));
+    KEYS("vx",  '|' + lmid(1));
+    KEYS("u",   '|' + lmid(0));
+    KEYS("vjd", '|' + lmid(1).mid(1));
+    KEYS("u",   '|' + lmid(0));
+    KEYS("j",   lmid(0, 1)+'\n' + '|' + lmid(1));
+    KEYS("vd",  lmid(0, 1)+'\n' + '|' + lmid(1).mid(1));
+    KEYS("u",   lmid(0, 1)+'\n' + '|' + lmid(1));
+    KEYS("vx",  lmid(0, 1)+'\n' + '|' + lmid(1).mid(1));
+    KEYS("u",   lmid(0, 1)+'\n' + '|' + lmid(1));
+    KEYS("vhx", lmid(0, 1)+'\n' + '|' + lmid(1).mid(1));
+    KEYS("u",   lmid(0, 1)+'\n' + '|' + lmid(1));
+    KEYS("vlx", lmid(0, 1)+'\n' + '|' + lmid(1).mid(2));
+    KEYS("P",   lmid(0, 1)+'\n' + lmid(1).left(1)+'|'+lmid(1).mid(1));
+    KEYS("vhd", lmid(0, 1)+'\n' + '|' + lmid(1).mid(2));
+    KEYS("u",   lmid(0, 1)+'\n' + '|' + lmid(1));
 
-    KEYS("v$d",     lmid(0, 1)+"\n" + "|" + lmid(2));
-    KEYS("v$od",    lmid(0, 1)+"\n" + "|" + lmid(3));
-    KEYS("$v$x",    lmid(0, 1)+"\n" + lmid(3,1) + "|" + lmid(4));
-    KEYS("0v$d",    lmid(0, 1)+"\n" + "|" + lmid(5));
-    KEYS("$v0d",    lmid(0, 1)+"\n" + "|\n" + lmid(6));
-    KEYS("v$o0k$d", "|" + lmid(6));
+    KEYS("v$d",     lmid(0, 1)+'\n' + '|' + lmid(2));
+    KEYS("v$od",    lmid(0, 1)+'\n' + '|' + lmid(3));
+    KEYS("$v$x",    lmid(0, 1)+'\n' + lmid(3,1) + '|' + lmid(4));
+    KEYS("0v$d",    lmid(0, 1)+'\n' + '|' + lmid(5));
+    KEYS("$v0d",    lmid(0, 1)+'\n' + "|\n" + lmid(6));
+    KEYS("v$o0k$d", '|' + lmid(6));
 }
 
 void FakeVimPlugin::test_vim_Visual_d()
@@ -2831,13 +2831,13 @@ void FakeVimPlugin::test_vim_Visual_d()
     setup(&data);
 
     data.setText(testLines);
-    KEYS("Vd",    "|" + lmid(1));
-    KEYS("V2kd",  "|" + lmid(2));
-    KEYS("u",     "|" + lmid(1));
-    KEYS("u",     "|" + lmid(0));
-    KEYS("j",     lmid(0,1)+"\n" + "|" + lmid(1));
-    KEYS("V$d",   lmid(0,1)+"\n" + "|" + lmid(2));
-    KEYS("$V$$d", lmid(0,1)+"\n" + "|" + lmid(3));
-    KEYS("Vkx",   "|" + lmid(4));
-    KEYS("P",     "|" + lmid(0,1)+"\n" + lmid(3));
+    KEYS("Vd",    '|' + lmid(1));
+    KEYS("V2kd",  '|' + lmid(2));
+    KEYS("u",     '|' + lmid(1));
+    KEYS("u",     '|' + lmid(0));
+    KEYS("j",     lmid(0,1)+'\n' + '|' + lmid(1));
+    KEYS("V$d",   lmid(0,1)+'\n' + '|' + lmid(2));
+    KEYS("$V$$d", lmid(0,1)+'\n' + '|' + lmid(3));
+    KEYS("Vkx",   '|' + lmid(4));
+    KEYS("P",     '|' + lmid(0,1)+'\n' + lmid(3));
 }
