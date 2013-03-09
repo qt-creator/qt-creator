@@ -367,25 +367,20 @@ QString GitClient::findRepositoryForDirectory(const QString &dir)
 {
     if (dir.endsWith(QLatin1String("/.git")) || dir.contains(QLatin1String("/.git/")))
         return QString();
-    // Find a directory to run git in:
-    const QString root = QDir::rootPath();
-    const QString home = QDir::homePath();
-
     QDir directory(dir);
+    QString dotGit = QLatin1String(GIT_DIRECTORY);
+    // QFileInfo is outside loop, because it is faster this way
+    QFileInfo fileInfo;
     do {
-        const QString absDirPath = directory.absolutePath();
-        if (absDirPath == root || absDirPath == home)
-            break;
-
-        if (directory.exists())
-            break;
+        if (directory.exists(dotGit)) {
+            fileInfo.setFile(directory, dotGit);
+            if (fileInfo.isFile())
+                return directory.absolutePath();
+            else if (directory.exists(QLatin1String(".git/config")))
+                return directory.absolutePath();
+        }
     } while (directory.cdUp());
-
-    QByteArray outputText;
-    QStringList arguments;
-    arguments << QLatin1String("rev-parse") << QLatin1String("--show-toplevel");
-    fullySynchronousGit(directory.absolutePath(), arguments, &outputText, 0, false);
-    return QString::fromLocal8Bit(outputText.trimmed());
+    return QString();
 }
 
 QString GitClient::findGitDirForRepository(const QString &repositoryDir)
