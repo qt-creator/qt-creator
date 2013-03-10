@@ -13,6 +13,7 @@ CONFIG   += ordered
 
 SUBDIRS = src share lib/qtcreator/qtcomponents
 unix:!macx:!isEmpty(copydata):SUBDIRS += bin
+!isEmpty(BUILD_TESTS):SUBDIRS += tests
 
 OTHER_FILES += dist/copyright_template.txt \
     $$files(dist/changes-*) \
