@@ -952,10 +952,14 @@ void BaseQtVersion::updateVersionInfo() const
         if (!fi.exists())
             m_installed = false;
     }
-    if (!qtHeaderData.isNull()) {
-        const QFileInfo fi(qtHeaderData);
-        if (!fi.exists())
-            m_installed = false;
+    // Framework builds for Qt 4.8 don't use QT_INSTALL_HEADERS
+    // so we don't check on mac
+    if (!HostOsInfo::isMacHost()) {
+        if (!qtHeaderData.isNull()) {
+            const QFileInfo fi(qtHeaderData);
+            if (!fi.exists())
+                m_installed = false;
+        }
     }
     const QString qtInstallDocs = qmakeProperty("QT_INSTALL_DOCS");
     if (!qtInstallDocs.isNull()) {
