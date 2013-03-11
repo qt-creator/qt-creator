@@ -36,6 +36,12 @@
 #include <QtTest>
 #include "temporarydir.h"
 
+#if  QT_VERSION >= 0x050000
+#define MSKIP_SINGLE(x) QSKIP(x)
+#else
+#define MSKIP_SINGLE(x) QSKIP(x, SkipSingle)
+#endif
+
 using namespace Debugger;
 using namespace Internal;
 
@@ -437,9 +443,9 @@ void tst_Dumpers::dumper()
     QFETCH(Data, data);
 
     if (data.neededGdbVersion.min > m_gdbVersion)
-        QSKIP("Need minimum GDB version " + QByteArray::number(data.neededGdbVersion.min));
+        MSKIP_SINGLE("Need minimum GDB version " + QByteArray::number(data.neededGdbVersion.min));
     if (data.neededGdbVersion.max < m_gdbVersion)
-        QSKIP("Need maximum GDB version " + QByteArray::number(data.neededGdbVersion.max));
+        MSKIP_SINGLE("Need maximum GDB version " + QByteArray::number(data.neededGdbVersion.max));
 
     bool ok;
     QString cmd;
