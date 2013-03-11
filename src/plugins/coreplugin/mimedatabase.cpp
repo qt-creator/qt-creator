@@ -1493,7 +1493,7 @@ MimeType MimeDatabasePrivate::findByFile(const QFileInfo &f, unsigned *priorityP
 
     // Pass 1) Try to match on suffix
     const TypeMimeTypeMap::const_iterator cend = m_typeMimeTypeMap.constEnd();
-    for (int level = m_maxLevel; level >= 0 && candidate.isNull(); level--) {
+    for (int level = m_maxLevel; level >= 0; level--) {
         for (TypeMimeTypeMap::const_iterator it = m_typeMimeTypeMap.constBegin(); it != cend; ++it) {
             if (it.value().level == level) {
                 const unsigned suffixPriority = it.value().type.matchesFileBySuffix(context);
