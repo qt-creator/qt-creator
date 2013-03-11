@@ -21,11 +21,16 @@ OTHER_FILES += dist/copyright_template.txt \
     qbs/pluginspec/pluginspec.qbs
 
 qmake_cache = $$targetPath($$IDE_BUILD_TREE/.qmake.cache)
-unix: maybe_quote = \"
+equals(QMAKE_DIR_SEP, /): {
+    maybe_quote = "\""
+    maybe_backslash = "\\"
+}
 system("echo $${maybe_quote}$${LITERAL_HASH} config for qmake$${maybe_quote} > $$qmake_cache")
 # Make sure the qbs dll ends up alongside the Creator executable.
-win32:exists(src/shared/qbs/qbs.pro) {
+exists(src/shared/qbs/qbs.pro) {
     system("echo QBS_DLLDESTDIR = $${IDE_BUILD_TREE}/bin >> $$qmake_cache")
+    system("echo QBS_DESTDIR = $${maybe_backslash}\"$${IDE_LIBRARY_PATH}$${maybe_backslash}\" >> $$qmake_cache")
+    system("echo QBSLIBDIR = $${maybe_backslash}\"$${IDE_LIBRARY_PATH}$${maybe_backslash}\" >> $$qmake_cache")
 }
 
 contains(QT_ARCH, i386): ARCHITECTURE = x86

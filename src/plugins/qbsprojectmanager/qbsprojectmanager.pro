@@ -9,10 +9,9 @@ include(qbsprojectmanager_dependencies.pri)
 QBS_SOURCE_DIR = $$PWD/../../shared/qbs
 QBS_BUILD_DIR = $$IDE_BUILD_TREE/src/shared/qbs
 
-QBSLIBDIR = $$QBS_BUILD_DIR/lib
 include($$QBS_SOURCE_DIR/src/lib/use.pri)
-linux-*:QMAKE_LFLAGS += -Wl,-z,origin \'-Wl,-rpath,$$QBSLIBDIR\'
-macx:QMAKE_LFLAGS += -Wl,-rpath,$$QBSLIBDIR
+# Mac: fix rpath for qbscore soname
+macx:QMAKE_LFLAGS += -Wl,-rpath,@loader_path/../
 
 QBS_BUILD_DIR_FWD_SLASHES = $$replace(QBS_BUILD_DIR, \\\\, /)
 DEFINES += QBS_BUILD_DIR=\\\"$$QBS_BUILD_DIR_FWD_SLASHES\\\"
