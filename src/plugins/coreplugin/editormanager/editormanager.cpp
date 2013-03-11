@@ -86,8 +86,7 @@
 
 enum { debugEditorManager=0 };
 
-static const char kCurrentDocumentFilePath[] = "CurrentDocument:FilePath";
-static const char kCurrentDocumentPath[] = "CurrentDocument:Path";
+static const char kCurrentDocumentPrefix[] = "CurrentDocument";
 static const char kCurrentDocumentXPos[] = "CurrentDocument:XPos";
 static const char kCurrentDocumentYPos[] = "CurrentDocument:YPos";
 static const char kMakeWritableWarning[] = "Core.EditorManager.MakeWritable";
@@ -467,10 +466,7 @@ void EditorManager::init()
     ExtensionSystem::PluginManager::addObject(d->m_openEditorsFactory);
 
     VariableManager *vm = VariableManager::instance();
-    vm->registerVariable(kCurrentDocumentFilePath,
-        tr("Full path of the current document including file name."));
-    vm->registerVariable(kCurrentDocumentPath,
-        tr("Full path of the current document excluding file name."));
+    vm->registerFileVariables(kCurrentDocumentPrefix, tr("Current document"));
     vm->registerVariable(kCurrentDocumentXPos,
         tr("X-coordinate of the current editor's upper left corner, relative to screen."));
     vm->registerVariable(kCurrentDocumentYPos,
@@ -2291,17 +2287,14 @@ QString EditorManager::windowTitleAddition() const
 
 void EditorManager::updateVariable(const QByteArray &variable)
 {
-    if (variable == kCurrentDocumentFilePath || variable == kCurrentDocumentPath) {
+    if (VariableManager::instance()->isFileVariable(variable, kCurrentDocumentPrefix)) {
         QString value;
         IEditor *curEditor = currentEditor();
         if (curEditor) {
             QString fileName = curEditor->document()->fileName();
-            if (!fileName.isEmpty()) {
-                if (variable == kCurrentDocumentFilePath)
-                    value = QFileInfo(fileName).filePath();
-                else if (variable == kCurrentDocumentPath)
-                    value = QFileInfo(fileName).path();
-            }
+            if (!fileName.isEmpty())
+                value = VariableManager::instance()->fileVariableValue(variable, kCurrentDocumentPrefix,
+                                                                       fileName);
         }
         VariableManager::instance()->insert(variable, value);
     } else if (variable == kCurrentDocumentXPos) {

@@ -237,8 +237,7 @@ const char DESKTOP_DEVICE_ID[] = "Desktop Device";
 const char DESKTOP_DEVICE_TYPE[] = "Desktop";
 
 // Variable Names:
-const char VAR_CURRENTPROJECT_PATH[] = "CurrentProject:Path";
-const char VAR_CURRENTPROJECT_FILEPATH[] = "CurrentProject:FilePath";
+const char VAR_CURRENTPROJECT_PREFIX[] = "CurrentProject";
 const char VAR_CURRENTPROJECT_BUILDPATH[] = "CurrentProject:BuildPath";
 const char VAR_CURRENTPROJECT_NAME[] = "CurrentProject:Name";
 const char VAR_CURRENTKIT_NAME[] = "CurrentKit:Name";

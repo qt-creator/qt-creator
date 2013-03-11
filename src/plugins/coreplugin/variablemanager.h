@@ -32,6 +32,7 @@
 
 #include "core_global.h"
 
+#include <QFileInfo>
 #include <QObject>
 #include <QString>
 
@@ -60,6 +61,15 @@ public:
 
     void registerVariable(const QByteArray &variable,
                           const QString &description);
+
+    void registerFileVariables(const QByteArray &prefix,
+                              const QString &heading);
+    bool isFileVariable(const QByteArray &variable, const QByteArray &prefix);
+    QString fileVariableValue(const QByteArray &variable, const QByteArray &prefix,
+                              const QString &fileName);
+    QString fileVariableValue(const QByteArray &variable, const QByteArray &prefix,
+                              const QFileInfo &fileInfo);
+
     QList<QByteArray> variables() const;
     QString variableDescription(const QByteArray &variable) const;
 

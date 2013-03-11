@@ -49,14 +49,12 @@ bool ProjectExpander::resolveProjectMacro(const QString &name, QString *ret)
             result = m_projectName;
             found = true;
         }
-    } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTPROJECT_PATH)) {
+    } else if (Core::VariableManager::instance()->isFileVariable(
+                   name.toUtf8(), ProjectExplorer::Constants::VAR_CURRENTPROJECT_PREFIX)) {
         if (!m_projectFile.filePath().isEmpty()) {
-            result = m_projectFile.absolutePath();
-            found = true;
-        }
-    } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTPROJECT_FILEPATH)) {
-        if (!m_projectFile.filePath().isEmpty()) {
-            result = m_projectFile.absoluteFilePath();
+            result = Core::VariableManager::instance()->fileVariableValue(name.toUtf8(),
+                                              ProjectExplorer::Constants::VAR_CURRENTPROJECT_PREFIX,
+                                              m_projectFile);
             found = true;
         }
     } else if (m_kit && name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTKIT_NAME)) {

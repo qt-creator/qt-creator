@@ -40,6 +40,9 @@
 #include <QMap>
 #include <QDebug>
 
+static const char kFilePathPostfix[] = ":FilePath";
+static const char kPathPostfix[] = ":Path";
+
 namespace Core {
 
 class VMMapExpander : public Utils::AbstractQtcMacroExpander
@@ -115,6 +118,34 @@ VariableManager *VariableManager::instance()
 void VariableManager::registerVariable(const QByteArray &variable, const QString &description)
 {
     d->m_descriptions.insert(variable, description);
+}
+
+void VariableManager::registerFileVariables(const QByteArray &prefix, const QString &heading)
+{
+    registerVariable(prefix + kFilePathPostfix, tr("%1: Full path including file name.").arg(heading));
+    registerVariable(prefix + kPathPostfix, tr("%1: Full path excluding file name.").arg(heading));
+}
+
+bool VariableManager::isFileVariable(const QByteArray &variable, const QByteArray &prefix)
+{
+    return variable == prefix + kFilePathPostfix
+            || variable == prefix + kPathPostfix;
+}
+
+QString VariableManager::fileVariableValue(const QByteArray &variable, const QByteArray &prefix,
+                                           const QString &fileName)
+{
+    return fileVariableValue(variable, prefix, QFileInfo(fileName));
+}
+
+QString VariableManager::fileVariableValue(const QByteArray &variable, const QByteArray &prefix,
+                                           const QFileInfo &fileInfo)
+{
+    if (variable == prefix + kFilePathPostfix)
+        return fileInfo.filePath();
+    else if (variable == prefix + kPathPostfix)
+        return fileInfo.path();
+    return QString();
 }
 
 QList<QByteArray> VariableManager::variables() const

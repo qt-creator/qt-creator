@@ -1005,10 +1005,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     updateWelcomePage();
 
     Core::VariableManager *vm = Core::VariableManager::instance();
-    vm->registerVariable(Constants::VAR_CURRENTPROJECT_FILEPATH,
-        tr("Full path of the current project's main file, including file name."));
-    vm->registerVariable(Constants::VAR_CURRENTPROJECT_PATH,
-        tr("Full path of the current project's main file, excluding file name."));
+    vm->registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX, tr("Current project's main file"));
     vm->registerVariable(Constants::VAR_CURRENTPROJECT_BUILDPATH,
         tr("Full build path of the current project's active build configuration."));
     vm->registerVariable(Constants::VAR_CURRENTPROJECT_NAME, tr("The current project's name."));
