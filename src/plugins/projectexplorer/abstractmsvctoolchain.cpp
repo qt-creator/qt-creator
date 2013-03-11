@@ -188,9 +188,9 @@ QByteArray AbstractMsvcToolChain::msvcPredefinedMacros(const QStringList cxxflag
 
 
 bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
-                                                        const QString& batchFile,
-                                                        const QString& batchArgs,
-                                                        QMap<QString, QString>& envPairs) const
+                                                        const QString &batchFile,
+                                                        const QString &batchArgs,
+                                                        QMap<QString, QString> &envPairs)
 {
     // Create a temporary file name for the output. Use a temporary file here
     // as I don't know another way to do this in Qt...
@@ -241,12 +241,12 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
     run.start();
 
     if (!run.waitForStarted()) {
-        qWarning("%s: Unable to run '%s': %s", Q_FUNC_INFO, qPrintable(m_vcvarsBat),
+        qWarning("%s: Unable to run '%s': %s", Q_FUNC_INFO, qPrintable(batchFile),
                  qPrintable(run.errorString()));
         return false;
     }
     if (!run.waitForFinished()) {
-        qWarning("%s: Timeout running '%s'", Q_FUNC_INFO, qPrintable(m_vcvarsBat));
+        qWarning("%s: Timeout running '%s'", Q_FUNC_INFO, qPrintable(batchFile));
         Utils::SynchronousProcess::stopProcess(run);
         return false;
     }
