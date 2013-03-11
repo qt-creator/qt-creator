@@ -75,6 +75,7 @@ public:
     QList<Core::Id> knownStepLists() const;
     BuildStepList *stepList(Core::Id id) const;
 
+    virtual bool fromMap(const QVariantMap &map);
     virtual QVariantMap toMap() const;
 
     Target *target() const;
@@ -101,8 +102,6 @@ protected:
     BuildConfiguration(Target *target, BuildConfiguration *source);
 
     void cloneSteps(BuildConfiguration *source);
-
-    virtual bool fromMap(const QVariantMap &map);
 
 private slots:
     void handleKitUpdate();

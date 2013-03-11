@@ -56,6 +56,7 @@ public:
 
     BuildStepList *stepList() const;
 
+    virtual bool fromMap(const QVariantMap &map);
     virtual QVariantMap toMap() const;
 
     virtual NamedWidget *createConfigWidget();
@@ -73,8 +74,6 @@ protected:
     DeployConfiguration(Target *target, DeployConfiguration *source);
 
     void cloneSteps(DeployConfiguration *source);
-
-    bool fromMap(const QVariantMap &map);
 
 private:
     BuildStepList *m_stepList;
