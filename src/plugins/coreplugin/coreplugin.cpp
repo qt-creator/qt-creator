@@ -119,10 +119,12 @@ bool CorePlugin::delayedInitialize()
     return true;
 }
 
-void CorePlugin::remoteCommand(const QStringList & /* options */, const QStringList &args)
+QObject *CorePlugin::remoteCommand(const QStringList & /* options */, const QStringList &args)
 {
-    m_mainWindow->openFiles(args, Core::ICore::OpenFilesFlags(ICore::SwitchMode | ICore::CanContainLineNumbers));
+    IDocument *res = m_mainWindow->openFiles(
+                args, ICore::OpenFilesFlags(ICore::SwitchMode | ICore::CanContainLineNumbers));
     m_mainWindow->activateWindow();
+    return res;
 }
 
 void CorePlugin::fileOpenRequest(const QString &f)

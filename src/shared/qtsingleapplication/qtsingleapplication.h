@@ -50,6 +50,7 @@ public:
     bool event(QEvent *event);
 
     QString applicationId() const;
+    void setBlock(bool value);
 
 public Q_SLOTS:
     bool sendMessage(const QString &message, int timeout = 5000, qint64 pid = -1);
@@ -61,7 +62,7 @@ public:
 // end obsolete methods
 
 Q_SIGNALS:
-    void messageReceived(const QString &message);
+    void messageReceived(const QString &message, QObject *socket);
     void fileOpenRequest(const QString &file);
 
 private:
@@ -70,6 +71,7 @@ private:
     QtLocalPeer *pidPeer;
     QWidget *actWin;
     QString appId;
+    bool block;
 };
 
 } // namespace SharedTools

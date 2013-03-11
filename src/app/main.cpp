@@ -71,7 +71,8 @@ static const char fixedOptionsC[] =
 "    -version                      Display program version\n"
 "    -client                       Attempt to connect to already running first instance\n"
 "    -settingspath <path>          Override the default path where user settings are stored\n"
-"    -pid <pid>                    Attempt to connect to instance given by pid\n";
+"    -pid <pid>                    Attempt to connect to instance given by pid\n"
+"    -block                        Block until editor is closed\n";
 
 
 static const char HELP_OPTION1[] = "-h";
@@ -82,6 +83,7 @@ static const char VERSION_OPTION[] = "-version";
 static const char CLIENT_OPTION[] = "-client";
 static const char SETTINGS_OPTION[] = "-settingspath";
 static const char PID_OPTION[] = "-pid";
+static const char BLOCK_OPTION[] = "-block";
 
 typedef QList<PluginSpec *> PluginSpecSet;
 
@@ -409,6 +411,7 @@ int main(int argc, char **argv)
         appOptions.insert(QLatin1String(VERSION_OPTION), false);
         appOptions.insert(QLatin1String(CLIENT_OPTION), false);
         appOptions.insert(QLatin1String(PID_OPTION), true);
+        appOptions.insert(QLatin1String(BLOCK_OPTION), false);
         QString errorMessage;
         if (!PluginManager::parseOptions(arguments, appOptions, &foundAppOptions, &errorMessage)) {
             displayError(errorMessage);
@@ -456,7 +459,10 @@ int main(int argc, char **argv)
             pid = tmpPid;
     }
 
-    if (app.isRunning() && (pid != -1 || foundAppOptions.contains(QLatin1String(CLIENT_OPTION)))) {
+    bool isBlock = foundAppOptions.contains(QLatin1String(BLOCK_OPTION));
+    if (app.isRunning() && (pid != -1 || isBlock
+                            || foundAppOptions.contains(QLatin1String(CLIENT_OPTION)))) {
+        app.setBlock(isBlock);
         if (app.sendMessage(PluginManager::serializedArguments(), 5000 /*timeout*/, pid))
             return 0;
 
@@ -489,8 +495,8 @@ int main(int argc, char **argv)
 
     // Set up lock and remote arguments.
     app.initialize();
-    QObject::connect(&app, SIGNAL(messageReceived(QString)),
-                     &pluginManager, SLOT(remoteArguments(QString)));
+    QObject::connect(&app, SIGNAL(messageReceived(QString,QObject*)),
+                     &pluginManager, SLOT(remoteArguments(QString,QObject*)));
 
     QObject::connect(&app, SIGNAL(fileOpenRequest(QString)), coreplugin->plugin(),
                      SLOT(fileOpenRequest(QString)));

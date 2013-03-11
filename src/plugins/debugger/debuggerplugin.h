@@ -71,7 +71,7 @@ public:
 private:
     // IPlugin implementation.
     bool initialize(const QStringList &arguments, QString *errorMessage);
-    void remoteCommand(const QStringList &options, const QStringList &arguments);
+    QObject *remoteCommand(const QStringList &options, const QStringList &arguments);
     ShutdownFlag aboutToShutdown();
     void extensionsInitialized();
 

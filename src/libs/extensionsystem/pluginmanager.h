@@ -137,7 +137,7 @@ signals:
     void initializationDone();
 
 public slots:
-    void remoteArguments(const QString &serializedArguments);
+    void remoteArguments(const QString &serializedArguments, QObject *socket);
     void shutdown();
 
 private slots:

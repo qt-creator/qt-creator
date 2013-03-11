@@ -3441,10 +3441,11 @@ IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
-void DebuggerPlugin::remoteCommand(const QStringList &options,
+QObject *DebuggerPlugin::remoteCommand(const QStringList &options,
     const QStringList &list)
 {
     theDebuggerCore->remoteCommand(options, list);
+    return 0;
 }
 
 DebuggerRunControl *DebuggerPlugin::createDebugger

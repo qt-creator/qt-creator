@@ -831,31 +831,51 @@ static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fil
     return 0;
 }
 
-// opens either an editor or loads a project
-void MainWindow::openFiles(const QStringList &fileNames, ICore::OpenFilesFlags flags)
+/*! Either opens \a fileNames with editors or loads a project.
+ *
+ *  \a flags can be used to stop on first failure, indicate that a file name
+ *  might include line numbers and/or switch mode to edit mode.
+ *
+ *  \returns the first opened document. Required to support the -block flag
+ *  for client mode.
+ *
+ *  \sa IPlugin::remoteArguments()
+ */
+IDocument *MainWindow::openFiles(const QStringList &fileNames, ICore::OpenFilesFlags flags)
 {
     QList<IDocumentFactory*> nonEditorFileFactories = getNonEditorDocumentFactories();
+    IDocument *res = 0;
 
     foreach (const QString &fileName, fileNames) {
         const QFileInfo fi(fileName);
         const QString absoluteFilePath = fi.absoluteFilePath();
         if (IDocumentFactory *documentFactory = findDocumentFactory(nonEditorFileFactories, mimeDatabase(), fi)) {
-            Core::IDocument *document = documentFactory->open(absoluteFilePath);
-            if (!document && (flags & ICore::StopOnLoadFail))
-                return;
-            if (document && (flags & ICore::SwitchMode))
-                ModeManager::activateMode(Id(Core::Constants::MODE_EDIT));
+            IDocument *document = documentFactory->open(absoluteFilePath);
+            if (!document) {
+                if (flags & ICore::StopOnLoadFail)
+                    return res;
+            } else {
+                if (!res)
+                    res = document;
+                if (flags & ICore::SwitchMode)
+                    ModeManager::activateMode(Id(Core::Constants::MODE_EDIT));
+            }
         } else {
             QFlags<EditorManager::OpenEditorFlag> emFlags;
             if (flags & ICore::SwitchMode)
                 emFlags = EditorManager::ModeSwitch;
             if (flags & ICore::CanContainLineNumbers)
                 emFlags |=  EditorManager::CanContainLineNumber;
-            Core::IEditor *editor = EditorManager::openEditor(absoluteFilePath, Id(), emFlags);
-            if (!editor && (flags & ICore::StopOnLoadFail))
-                return;
+            IEditor *editor = EditorManager::openEditor(absoluteFilePath, Id(), emFlags);
+            if (!editor) {
+                if (flags & ICore::StopOnLoadFail)
+                    return res;
+            } else if (!res) {
+                res = editor->document();
+            }
         }
     }
+    return res;
 }
 
 void MainWindow::setFocusToEditor()

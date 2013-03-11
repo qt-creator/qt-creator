@@ -158,6 +158,19 @@
 */
 
 /*!
+    \fn QObject *IPlugin::remoteCommand(const QStringList &options, const QStringList &arguments)
+    \brief When \QC is executed with the -client argument while already another instance of \QC
+           is running, this method of plugins is called in the running instance.
+
+    Plugin-specific arguments are passed in \a options, while the rest of the
+    arguments are passed in \a arguments.
+
+    \returns a QObject that blocks the command until it is destroyed, if -block is used.
+
+    \sa PluginManager::serializedArguments()
+*/
+
+/*!
     \fn void IPlugin::asynchronousShutdownFinished()
     Sent by the plugin implementation after a asynchronous shutdown
     is ready to proceed with the shutdown sequence.

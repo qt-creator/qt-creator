@@ -532,13 +532,16 @@ static QStringList subList(const QStringList &in, const QString &key)
 }
 
 /*!
-    \fn PluginManager::remoteArguments(const QString &argument)
+    \fn PluginManager::remoteArguments(const QString &argument, QObject *socket)
 
     Parses the options encoded by serializedArguments() const
     and passes them on to the respective plugins along with the arguments.
+
+    \a socket is passed for disconnecting the peer when the operation is done (for example,
+    document is closed) for supporting the -block flag.
 */
 
-void PluginManager::remoteArguments(const QString &serializedArgument)
+void PluginManager::remoteArguments(const QString &serializedArgument, QObject *socket)
 {
     if (serializedArgument.isEmpty())
         return;
@@ -547,9 +550,15 @@ void PluginManager::remoteArguments(const QString &serializedArgument)
     foreach (const PluginSpec *ps, plugins()) {
         if (ps->state() == PluginSpec::Running) {
             const QStringList pluginOptions = subList(serializedArguments, QLatin1Char(':') + ps->name());
-            ps->plugin()->remoteCommand(pluginOptions, arguments);
+            QObject *socketParent = ps->plugin()->remoteCommand(pluginOptions, arguments);
+            if (socketParent && socket) {
+                socket->setParent(socketParent);
+                socket = 0;
+            }
         }
     }
+    if (socket)
+        delete socket;
 }
 
 /*!
