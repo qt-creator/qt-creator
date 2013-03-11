@@ -77,7 +77,7 @@ static inline void getProperties(const ModelNode node, QHash<PropertyName, QVari
 static inline void applyProperties(ModelNode &node, const QHash<PropertyName, QVariant> &propertyHash)
 {
     QHash<PropertyName, QVariant> auxiliaryData  = node.auxiliaryData();
-    foreach (const PropertyName propertyName, auxiliaryData.keys()) {
+    foreach (const PropertyName &propertyName, auxiliaryData.keys()) {
         node.setAuxiliaryData(propertyName, QVariant());
     }
 

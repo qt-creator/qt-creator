@@ -135,7 +135,7 @@ void BlackBerryConfiguration::loadCertificates()
     settings->beginGroup(SettingsGroup);
     settings->beginGroup(CertificateGroup);
 
-    foreach (QString certificateId, settings->childGroups()) {
+    foreach (const QString &certificateId, settings->childGroups()) {
         settings->beginGroup(certificateId);
 
         BlackBerryCertificate *cert =

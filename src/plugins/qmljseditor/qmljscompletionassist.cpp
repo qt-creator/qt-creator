@@ -668,7 +668,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
                     QStringList nCompletions;
                     QString prefix(libVersion.left(toSkip));
                     nCompletions.reserve(completions.size());
-                    foreach (QString completion, completions)
+                    foreach (const QString &completion, completions)
                         if (completion.startsWith(prefix))
                             nCompletions.append(completion.right(completion.size()-toSkip));
                     completions = nCompletions;

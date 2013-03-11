@@ -382,8 +382,9 @@ void RefactoringFile::indentOrReindent(void (RefactoringChangesData::*mf)(const 
                                                                           const BaseTextEditorWidget *) const,
                                        const QList<QPair<QTextCursor, QTextCursor> > &ranges)
 {
-    QPair<QTextCursor, QTextCursor> p;
-    foreach (p, ranges) {
+    typedef QPair<QTextCursor, QTextCursor> CursorPair;
+
+    foreach (const CursorPair &p, ranges) {
         QTextCursor selection(p.first.document());
         selection.setPosition(p.first.position());
         selection.setPosition(p.second.position(), QTextCursor::KeepAnchor);

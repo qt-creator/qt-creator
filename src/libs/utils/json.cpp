@@ -87,7 +87,7 @@ JsonValue *JsonValue::build(const QVariant &variant)
 
     case QVariant::List: {
         JsonArrayValue *newValue = new JsonArrayValue;
-        foreach (const QVariant element, variant.toList())
+        foreach (const QVariant &element, variant.toList())
             newValue->addElement(build(element));
         return newValue;
     }

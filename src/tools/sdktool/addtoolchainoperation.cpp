@@ -249,7 +249,7 @@ QVariantMap AddToolChainOperation::addToolChain(const QVariantMap &map,
     // Sanity check: Make sure displayName is unique.
     QStringList nameKeys = FindKeyOperation::findKey(map, QLatin1String(DISPLAYNAME));
     QStringList nameList;
-    foreach (const QString nameKey, nameKeys)
+    foreach (const QString &nameKey, nameKeys)
         nameList << GetOperation::get(map, nameKey).toString();
     const QString uniqueName = makeUnique(displayName, nameList);
 

@@ -2675,7 +2675,7 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
         BreakpointResponseId rid(nr);
         if (!isHiddenBreakpoint(rid)) {
             BreakpointResponse br = handler->response(id);
-            foreach (const GdbMi bkpt, response.data.children()) {
+            foreach (const GdbMi &bkpt, response.data.children()) {
                 nr = bkpt.findChild("number").data();
                 rid = BreakpointResponseId(nr);
                 QTC_ASSERT(rid.isValid(), continue);
@@ -3518,7 +3518,7 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
 void GdbEngine::examineModules()
 {
     ModulesHandler *handler = modulesHandler();
-    foreach (Module module, handler->modules()) {
+    foreach (const Module &module, handler->modules()) {
         if (module.elfData.symbolsType == UnknownSymbols)
             handler->updateModule(module);
     }

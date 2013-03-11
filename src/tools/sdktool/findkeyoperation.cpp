@@ -74,7 +74,7 @@ int FindKeyOperation::execute() const
 
     foreach (const QString &k, m_keys) {
         const QStringList result = findKey(map, k);
-        foreach (const QString r, result)
+        foreach (const QString &r, result)
             std::cout << qPrintable(r) << std::endl;
     }
 

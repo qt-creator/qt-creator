@@ -467,7 +467,7 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
         m_objectTreeQueryIds.removeOne(queryId);
         if (value.type() == QVariant::List) {
             QVariantList objList = value.toList();
-            foreach (QVariant var, objList) {
+            foreach (const QVariant &var, objList) {
                 // TODO: check which among the list is the actual
                 // object that needs to be selected.
                 verifyAndInsertObjectInTree(qvariant_cast<ObjectReference>(var));

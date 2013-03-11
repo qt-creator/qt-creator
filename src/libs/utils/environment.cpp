@@ -258,7 +258,7 @@ QString Environment::searchInPath(const QString &executable,
         }
     }
 
-    foreach (QString dir, additionalDirs) {
+    foreach (const QString &dir, additionalDirs) {
         QString tmp = searchInDirectory(execs, dir);
         if (!tmp.isEmpty())
             return tmp;

@@ -1562,6 +1562,8 @@ void generateASTFwd_h(const Snapshot &snapshot, const QDir &cplusplusDir, const 
 
 void generateASTPatternBuilder_h(const QDir &cplusplusDir)
 {
+    typedef QPair<QString, QString> StringPair;
+
     QFileInfo fileInfo(cplusplusDir, QLatin1String("ASTPatternBuilder.h"));
     QFile file(fileInfo.absoluteFilePath());
     if (! file.open(QFile::WriteOnly))
@@ -1619,7 +1621,7 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
         out
                 << "    " << className << " *" << methodName << "(";
 
-        QList<QPair<QString, QString> > args;
+        QList<StringPair> args;
 
         bool first = true;
         for (unsigned index = 0; index < klass->memberCount(); ++index) {
@@ -1652,8 +1654,7 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
                 << "        " << className << " *__ast = new (&pool) " << className << ';' << endl;
 
 
-        QPair<QString, QString> p;
-        foreach (p, args) {
+        foreach (const StringPair &p, args) {
             out << "        __ast->" << p.second << " = " << p.second << ';' << endl;
         }
 

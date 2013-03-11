@@ -717,7 +717,7 @@ QString RewriterView::pathForImport(const Import &import)
 
         QmlJS::ImportInfo importInfo;
 
-        foreach (QmlJS::Import qmljsImport, imports->all()) {
+        foreach (const QmlJS::Import &qmljsImport, imports->all()) {
             if (qmljsImport.info.name() == importStr)
                 importInfo = qmljsImport.info;
         }

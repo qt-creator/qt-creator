@@ -74,7 +74,7 @@ QList<Locator::FilterEntry> CMakeLocatorFilter::matchesFor(QFutureInterface<Loca
     foreach (ProjectExplorer::Project *p, projects) {
         CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(p);
         if (cmakeProject) {
-            foreach (CMakeBuildTarget ct, cmakeProject->buildTargets()) {
+            foreach (const CMakeBuildTarget &ct, cmakeProject->buildTargets()) {
                 if (ct.title.contains(entry)) {
                     Locator::FilterEntry entry(this, ct.title, cmakeProject->document()->fileName());
                     entry.extraInfo = FileUtils::shortNativePath(
