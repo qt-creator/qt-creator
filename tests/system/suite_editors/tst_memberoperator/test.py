@@ -17,10 +17,10 @@ def main():
         typeLines(cppwindow, ("<Up>", testData.field(record, "declaration")))
         type(cppwindow, testData.field(record, "usage"))
         waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}",
-                      "sourceFilesRefreshed(QStringList)")
+                      "sourceFilesRefreshed(QStringList)", 1000)
         type(cppwindow, testData.field(record, "operator"))
         waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}",
-                      "sourceFilesRefreshed(QStringList)")
+                      "sourceFilesRefreshed(QStringList)", 1000)
         test.compare(str(lineUnderCursor(cppwindow)).strip(), testData.field(record, "expected"))
         invokeMenuItem("File", 'Revert "main.cpp" to Saved')
         clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
