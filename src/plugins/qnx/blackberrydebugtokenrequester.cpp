@@ -37,6 +37,7 @@ static const char ERR_WRONG_CSK_PASS[] = "The signature on the code signing requ
 static const char ERR_WRONG_KEYSTORE_PASS[] = "Failed to decrypt keystore, invalid password";
 static const char ERR_ILLEGAL_DEVICE_PIN[] = "Illegal device PIN";
 static const char ERR_NETWORK_UNREACHABLE[] = "Network is unreachable";
+static const char ERR_NOT_YET_REGISTGERED[] = "Not yet registered to request debug tokens";
 }
 
 namespace Qnx {
@@ -49,6 +50,7 @@ BlackBerryDebugTokenRequester::BlackBerryDebugTokenRequester(QObject *parent) :
     addErrorStringMapping(QLatin1String(ERR_WRONG_KEYSTORE_PASS), WrongKeystorePassword);
     addErrorStringMapping(QLatin1String(ERR_WRONG_KEYSTORE_PASS), WrongKeystorePassword);
     addErrorStringMapping(QLatin1String(ERR_NETWORK_UNREACHABLE), NetworkUnreachable);
+    addErrorStringMapping(QLatin1String(ERR_NOT_YET_REGISTGERED), BlackBerryNdkProcess::UnknownError);
 }
 
 void BlackBerryDebugTokenRequester::requestDebugToken(const QString &path,
