@@ -159,6 +159,11 @@ QmlJSToolsSettings::QmlJSToolsSettings(QObject *parent)
 
 QmlJSToolsSettings::~QmlJSToolsSettings()
 {
+    TextEditor::TextEditorSettings *textEditorSettings = TextEditor::TextEditorSettings::instance();
+    textEditorSettings->unregisterCodeStyle(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
+    textEditorSettings->unregisterCodeStylePool(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
+    textEditorSettings->unregisterCodeStyleFactory(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
+
     delete m_globalCodeStyle;
     m_globalCodeStyle = 0;
 }

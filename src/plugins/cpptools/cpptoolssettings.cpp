@@ -241,6 +241,11 @@ CppToolsSettings::~CppToolsSettings()
 {
     ExtensionSystem::PluginManager::removeObject(d->m_completionSettingsPage);
 
+    TextEditor::TextEditorSettings *textEditorSettings = TextEditor::TextEditorSettings::instance();
+    textEditorSettings->unregisterCodeStyle(Constants::CPP_SETTINGS_ID);
+    textEditorSettings->unregisterCodeStylePool(Constants::CPP_SETTINGS_ID);
+    textEditorSettings->unregisterCodeStyleFactory(Constants::CPP_SETTINGS_ID);
+
     delete d;
 
     m_instance = 0;

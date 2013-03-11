@@ -92,15 +92,18 @@ public:
     ICodeStylePreferencesFactory *codeStyleFactory(Core::Id languageId) const;
     QMap<Core::Id, ICodeStylePreferencesFactory *> codeStyleFactories() const;
     void registerCodeStyleFactory(ICodeStylePreferencesFactory *codeStyleFactory);
+    void unregisterCodeStyleFactory(Core::Id languageId);
 
     CodeStylePool *codeStylePool() const;
     CodeStylePool *codeStylePool(Core::Id languageId) const;
     void registerCodeStylePool(Core::Id languageId, CodeStylePool *pool);
+    void unregisterCodeStylePool(Core::Id languageId);
 
     ICodeStylePreferences *codeStyle() const;
     ICodeStylePreferences *codeStyle(Core::Id languageId) const;
     QMap<Core::Id, ICodeStylePreferences *> codeStyles() const;
     void registerCodeStyle(Core::Id languageId, ICodeStylePreferences *prefs);
+    void unregisterCodeStyle(Core::Id languageId);
 
     void registerMimeTypeForLanguageId(const QString &mimeType, Core::Id languageId);
     Core::Id languageId(const QString &mimeType) const;
