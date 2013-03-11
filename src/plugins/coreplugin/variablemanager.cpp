@@ -53,7 +53,7 @@ public:
     virtual bool resolveMacro(const QString &name, QString *ret)
     {
         bool found;
-        *ret = Core::VariableManager::instance()->value(name.toUtf8(), &found);
+        *ret = Core::VariableManager::value(name.toUtf8(), &found);
         return found;
     }
 };
@@ -77,9 +77,12 @@ public:
 */
 
 static VariableManager *variableManagerInstance = 0;
+static VariableManagerPrivate *d;
 
-VariableManager::VariableManager() : d(new VariableManagerPrivate)
+
+VariableManager::VariableManager()
 {
+    d = new VariableManagerPrivate;
     variableManagerInstance = this;
 }
 
@@ -101,7 +104,7 @@ bool VariableManager::remove(const QByteArray &variable)
 
 QString VariableManager::value(const QByteArray &variable, bool *found)
 {
-    emit variableUpdateRequested(variable);
+    variableManagerInstance->variableUpdateRequested(variable);
     if (found)
         *found = d->m_map.contains(variable);
     return d->m_map.value(variable);
@@ -158,12 +161,12 @@ QString VariableManager::fileVariableValue(const QByteArray &variable, const QBy
     return QString();
 }
 
-QList<QByteArray> VariableManager::variables() const
+QList<QByteArray> VariableManager::variables()
 {
     return d->m_descriptions.keys();
 }
 
-QString VariableManager::variableDescription(const QByteArray &variable) const
+QString VariableManager::variableDescription(const QByteArray &variable)
 {
     return d->m_descriptions.value(variable);
 }

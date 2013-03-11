@@ -49,10 +49,10 @@ bool ProjectExpander::resolveProjectMacro(const QString &name, QString *ret)
             result = m_projectName;
             found = true;
         }
-    } else if (Core::VariableManager::instance()->isFileVariable(
+    } else if (Core::VariableManager::isFileVariable(
                    name.toUtf8(), ProjectExplorer::Constants::VAR_CURRENTPROJECT_PREFIX)) {
         if (!m_projectFile.filePath().isEmpty()) {
-            result = Core::VariableManager::instance()->fileVariableValue(name.toUtf8(),
+            result = Core::VariableManager::fileVariableValue(name.toUtf8(),
                                               ProjectExplorer::Constants::VAR_CURRENTPROJECT_PREFIX,
                                               m_projectFile);
             found = true;
@@ -79,7 +79,7 @@ bool ProjectExpander::resolveMacro(const QString &name, QString *ret)
 {
     bool found = resolveProjectMacro(name, ret);
     if (!found) {
-        QString result = Core::VariableManager::instance()->value(name.toUtf8(), &found);
+        QString result = Core::VariableManager::value(name.toUtf8(), &found);
         if (ret)
             *ret = result;
     }

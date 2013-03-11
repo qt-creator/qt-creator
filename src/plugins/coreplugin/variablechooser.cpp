@@ -58,8 +58,7 @@ VariableChooser::VariableChooser(QWidget *parent) :
     setFocusPolicy(Qt::StrongFocus);
     setFocusProxy(ui->variableList);
 
-    VariableManager *vm = VariableManager::instance();
-    foreach (const QByteArray &variable, vm->variables())
+    foreach (const QByteArray &variable, VariableManager::variables())
         ui->variableList->addItem(QString::fromLatin1(variable));
 
     connect(ui->variableList, SIGNAL(currentTextChanged(QString)),
@@ -82,7 +81,7 @@ void VariableChooser::updateDescription(const QString &variable)
     if (variable.isNull())
         ui->variableDescription->setText(m_defaultDescription);
     else
-        ui->variableDescription->setText(VariableManager::instance()->variableDescription(variable.toUtf8()));
+        ui->variableDescription->setText(VariableManager::variableDescription(variable.toUtf8()));
 }
 
 void VariableChooser::updateCurrentEditor(QWidget *old, QWidget *widget)

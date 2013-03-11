@@ -231,20 +231,19 @@ void TextEditorPlugin::extensionsInitialized()
     addAutoReleasedObject(new FindInCurrentFile);
     addAutoReleasedObject(new FindInOpenFiles);
 
-    Core::VariableManager *vm = Core::VariableManager::instance();
-    vm->registerVariable(kCurrentDocumentSelection,
+    Core::VariableManager::registerVariable(kCurrentDocumentSelection,
         tr("Selected text within the current document."));
-    vm->registerVariable(kCurrentDocumentRow,
+    Core::VariableManager::registerVariable(kCurrentDocumentRow,
         tr("Line number of the text cursor position in current document (starts with 1)."));
-    vm->registerVariable(kCurrentDocumentColumn,
+    Core::VariableManager::registerVariable(kCurrentDocumentColumn,
         tr("Column number of the text cursor position in current document (starts with 0)."));
-    vm->registerVariable(kCurrentDocumentRowCount,
+    Core::VariableManager::registerVariable(kCurrentDocumentRowCount,
         tr("Number of lines visible in current document."));
-    vm->registerVariable(kCurrentDocumentColumnCount,
+    Core::VariableManager::registerVariable(kCurrentDocumentColumnCount,
         tr("Number of columns visible in current document."));
-    vm->registerVariable(kCurrentDocumentFontSize,
+    Core::VariableManager::registerVariable(kCurrentDocumentFontSize,
         tr("Current document's font size in points."));
-    connect(vm, SIGNAL(variableUpdateRequested(QByteArray)),
+    connect(Core::VariableManager::instance(), SIGNAL(variableUpdateRequested(QByteArray)),
             this, SLOT(updateVariable(QByteArray)));
     connect(Core::ExternalToolManager::instance(), SIGNAL(replaceSelectionRequested(QString)),
             this, SLOT(updateCurrentSelection(QString)));
@@ -313,7 +312,7 @@ void TextEditorPlugin::updateVariable(const QByteArray &variable)
                 value = QString::number(editor->widget()->font().pointSize());
             }
         }
-        Core::VariableManager::instance()->insert(variable, value);
+        Core::VariableManager::insert(variable, value);
     }
 }
 

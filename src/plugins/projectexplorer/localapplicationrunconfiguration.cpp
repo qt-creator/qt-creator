@@ -57,7 +57,7 @@ Utils::AbstractMacroExpander *LocalApplicationRunConfiguration::macroExpander() 
 {
     if (BuildConfiguration *bc = activeBuildConfiguration())
         return bc->macroExpander();
-    return Core::VariableManager::instance()->macroExpander();
+    return Core::VariableManager::macroExpander();
 }
 
 } // namespace ProjectExplorer

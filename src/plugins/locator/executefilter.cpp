@@ -89,11 +89,10 @@ void ExecuteFilter::accept(FilterEntry selection) const
     if (index != 0)
         p->m_commandHistory.prepend(value);
 
-    VariableManager *vm = Core::VariableManager::instance();
     bool found;
-    QString workingDirectory = vm->value("CurrentDocument:Path", &found);
+    QString workingDirectory = Core::VariableManager::value("CurrentDocument:Path", &found);
     if (!found || workingDirectory.isEmpty())
-        workingDirectory = vm->value("CurrentProject:Path", &found);
+        workingDirectory = Core::VariableManager::value("CurrentProject:Path", &found);
 
     ExecuteData d;
     d.workingDirectory = workingDirectory;

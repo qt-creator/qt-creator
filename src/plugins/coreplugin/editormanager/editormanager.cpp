@@ -465,13 +465,12 @@ void EditorManager::init()
     d->m_openEditorsFactory = new OpenEditorsViewFactory();
     ExtensionSystem::PluginManager::addObject(d->m_openEditorsFactory);
 
-    VariableManager *vm = VariableManager::instance();
-    vm->registerFileVariables(kCurrentDocumentPrefix, tr("Current document"));
-    vm->registerVariable(kCurrentDocumentXPos,
+    VariableManager::registerFileVariables(kCurrentDocumentPrefix, tr("Current document"));
+    VariableManager::registerVariable(kCurrentDocumentXPos,
         tr("X-coordinate of the current editor's upper left corner, relative to screen."));
-    vm->registerVariable(kCurrentDocumentYPos,
+    VariableManager::registerVariable(kCurrentDocumentYPos,
         tr("Y-coordinate of the current editor's upper left corner, relative to screen."));
-    connect(vm, SIGNAL(variableUpdateRequested(QByteArray)),
+    connect(VariableManager::instance(), SIGNAL(variableUpdateRequested(QByteArray)),
             this, SLOT(updateVariable(QByteArray)));
 }
 
@@ -2293,21 +2292,21 @@ void EditorManager::updateVariable(const QByteArray &variable)
         if (curEditor) {
             QString fileName = curEditor->document()->fileName();
             if (!fileName.isEmpty())
-                value = VariableManager::instance()->fileVariableValue(variable, kCurrentDocumentPrefix,
+                value = VariableManager::fileVariableValue(variable, kCurrentDocumentPrefix,
                                                                        fileName);
         }
-        VariableManager::instance()->insert(variable, value);
+        VariableManager::insert(variable, value);
     } else if (variable == kCurrentDocumentXPos) {
         QString value;
         IEditor *curEditor = currentEditor();
         if (curEditor)
             value = QString::number(curEditor->widget()->mapToGlobal(QPoint(0,0)).x());
-        VariableManager::instance()->insert(variable, value);
+        VariableManager::insert(variable, value);
     } else if (variable == kCurrentDocumentYPos) {
         QString value;
         IEditor *curEditor = currentEditor();
         if (curEditor)
             value = QString::number(curEditor->widget()->mapToGlobal(QPoint(0,0)).y());
-        VariableManager::instance()->insert(variable, value);
+        VariableManager::insert(variable, value);
     }
 }

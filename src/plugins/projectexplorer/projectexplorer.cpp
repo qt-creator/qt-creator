@@ -1004,19 +1004,18 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     updateWelcomePage();
 
-    Core::VariableManager *vm = Core::VariableManager::instance();
-    vm->registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX, tr("Current project's main file"));
-    vm->registerVariable(Constants::VAR_CURRENTPROJECT_BUILDPATH,
+    Core::VariableManager::registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX, tr("Current project's main file"));
+    Core::VariableManager::registerVariable(Constants::VAR_CURRENTPROJECT_BUILDPATH,
         tr("Full build path of the current project's active build configuration."));
-    vm->registerVariable(Constants::VAR_CURRENTPROJECT_NAME, tr("The current project's name."));
-    vm->registerVariable(Constants::VAR_CURRENTKIT_NAME, tr("The currently active kit's name."));
-    vm->registerVariable(Constants::VAR_CURRENTKIT_FILESYSTEMNAME,
+    Core::VariableManager::registerVariable(Constants::VAR_CURRENTPROJECT_NAME, tr("The current project's name."));
+    Core::VariableManager::registerVariable(Constants::VAR_CURRENTKIT_NAME, tr("The currently active kit's name."));
+    Core::VariableManager::registerVariable(Constants::VAR_CURRENTKIT_FILESYSTEMNAME,
                          tr("The currently active kit's name in a filesystem friendly version."));
-    vm->registerVariable(Constants::VAR_CURRENTKIT_ID, tr("The currently active kit's id."));
-    vm->registerVariable(Constants::VAR_CURRENTBUILD_NAME, tr("The currently active build configuration's name."));
-    vm->registerVariable(Constants::VAR_CURRENTBUILD_TYPE, tr("The currently active build configuration's type."));
+    Core::VariableManager::registerVariable(Constants::VAR_CURRENTKIT_ID, tr("The currently active kit's id."));
+    Core::VariableManager::registerVariable(Constants::VAR_CURRENTBUILD_NAME, tr("The currently active build configuration's name."));
+    Core::VariableManager::registerVariable(Constants::VAR_CURRENTBUILD_TYPE, tr("The currently active build configuration's type."));
 
-    connect(vm, SIGNAL(variableUpdateRequested(QByteArray)),
+    connect(Core::VariableManager::instance(), SIGNAL(variableUpdateRequested(QByteArray)),
             this, SLOT(updateVariable(QByteArray)));
 
     return true;
@@ -1144,10 +1143,10 @@ void ProjectExplorerPlugin::updateVariable(const QByteArray &variable)
 {
     if (variable == Constants::VAR_CURRENTPROJECT_BUILDPATH) {
         if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->activeBuildConfiguration()) {
-            Core::VariableManager::instance()->insert(variable,
+            Core::VariableManager::insert(variable,
                                                       currentProject()->activeTarget()->activeBuildConfiguration()->buildDirectory());
         } else {
-            Core::VariableManager::instance()->remove(variable);
+            Core::VariableManager::remove(variable);
         }
     } else if (variable == Constants::VAR_CURRENTBUILD_TYPE) {
         if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->activeBuildConfiguration()) {
@@ -1159,9 +1158,9 @@ void ProjectExplorerPlugin::updateVariable(const QByteArray &variable)
                 typeString = tr("release");
             else
                 typeString = tr("unknown");
-            Core::VariableManager::instance()->insert(variable, typeString);
+            Core::VariableManager::insert(variable, typeString);
         } else {
-            Core::VariableManager::instance()->remove(variable);
+            Core::VariableManager::remove(variable);
         }
     } else {
         QString projectName;
@@ -1182,9 +1181,9 @@ void ProjectExplorerPlugin::updateVariable(const QByteArray &variable)
         ProjectExpander expander(projectFilePath, projectName, kit, buildConfigurationName);
         QString result;
         if (expander.resolveProjectMacro(QString::fromUtf8(variable), &result))
-            Core::VariableManager::instance()->insert(variable, result);
+            Core::VariableManager::insert(variable, result);
         else
-            Core::VariableManager::instance()->remove(variable);
+            Core::VariableManager::remove(variable);
     }
 }
 

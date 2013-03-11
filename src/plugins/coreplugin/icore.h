@@ -96,7 +96,7 @@ public:
     static EditorManager *editorManager();
     static ProgressManager *progressManager();
     static ScriptManager *scriptManager();
-    static VariableManager *variableManager();
+    static QT_DEPRECATED VariableManager *variableManager(); // Use VariableManager::... directly.
     static VcsManager *vcsManager();
     static QT_DEPRECATED ModeManager *modeManager(); // Use ModeManager::... directly.
     static MimeDatabase *mimeDatabase();
