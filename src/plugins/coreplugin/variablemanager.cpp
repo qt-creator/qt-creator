@@ -42,6 +42,8 @@
 
 static const char kFilePathPostfix[] = ":FilePath";
 static const char kPathPostfix[] = ":Path";
+static const char kFileNamePostfix[] = ":FileName";
+static const char kFileBaseNamePostfix[] = ":FileBaseName";
 
 namespace Core {
 
@@ -124,12 +126,16 @@ void VariableManager::registerFileVariables(const QByteArray &prefix, const QStr
 {
     registerVariable(prefix + kFilePathPostfix, tr("%1: Full path including file name.").arg(heading));
     registerVariable(prefix + kPathPostfix, tr("%1: Full path excluding file name.").arg(heading));
+    registerVariable(prefix + kFileNamePostfix, tr("%1: File name without including path.").arg(heading));
+    registerVariable(prefix + kFileBaseNamePostfix, tr("%1: File base name without path and suffix.").arg(heading));
 }
 
 bool VariableManager::isFileVariable(const QByteArray &variable, const QByteArray &prefix)
 {
     return variable == prefix + kFilePathPostfix
-            || variable == prefix + kPathPostfix;
+            || variable == prefix + kPathPostfix
+            || variable == prefix + kFileNamePostfix
+            || variable == prefix + kFileBaseNamePostfix;
 }
 
 QString VariableManager::fileVariableValue(const QByteArray &variable, const QByteArray &prefix,
@@ -145,6 +151,10 @@ QString VariableManager::fileVariableValue(const QByteArray &variable, const QBy
         return fileInfo.filePath();
     else if (variable == prefix + kPathPostfix)
         return fileInfo.path();
+    else if (variable == prefix + kFileNamePostfix)
+        return fileInfo.fileName();
+    else if (variable == prefix + kFileBaseNamePostfix)
+        return fileInfo.baseName();
     return QString();
 }
 
