@@ -188,7 +188,11 @@ void PanelsWidget::addPropertiesPanel(PropertiesPanel *panel)
     QLabel *nameLabel = new QLabel(m_root);
     nameLabel->setText(panel->displayName());
     QPalette palette = nameLabel->palette();
-    palette.setBrush(QPalette::All, QPalette::Foreground, QColor(0, 0, 0, 110));
+    for (int i = QPalette::Active; i < QPalette::NColorGroups; ++i ) {
+        QColor foregroundColor = palette.color(QPalette::ColorGroup(i), QPalette::Foreground);
+        foregroundColor.setAlpha(110);
+        palette.setBrush(QPalette::ColorGroup(i), QPalette::Foreground, foregroundColor);
+    }
     nameLabel->setPalette(palette);
     nameLabel->setContentsMargins(0, ABOVE_HEADING_MARGIN, 0, 0);
     QFont f = nameLabel->font();
