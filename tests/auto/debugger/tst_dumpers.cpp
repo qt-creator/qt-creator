@@ -342,6 +342,20 @@ public:
     mutable QMap<QByteArray, Check> checks; // IName -> Action
 };
 
+struct TempStuff
+{
+    TempStuff() : buildTemp(QLatin1String("qt_tst_dumpers_"))
+    {
+        buildPath = buildTemp.path();
+        buildTemp.setAutoRemove(false);
+        QVERIFY(!buildPath.isEmpty());
+    }
+
+    QByteArray input;
+    QTemporaryDir buildTemp;
+    QString buildPath;
+};
+
 Q_DECLARE_METATYPE(Data)
 
 class tst_Dumpers : public QObject
@@ -349,15 +363,17 @@ class tst_Dumpers : public QObject
     Q_OBJECT
 
 public:
-    tst_Dumpers() {}
+    tst_Dumpers() : t(0), m_keepTemp(false) {}
 
 private slots:
     void initTestCase();
     void dumper();
     void dumper_data();
-    void cleanupTestCase();
+    void init();
+    void cleanup();
 
 private:
+    TempStuff *t;
     QByteArray m_debuggerBinary;
     QByteArray m_qmakeBinary;
     bool m_usePython;
@@ -403,40 +419,20 @@ void tst_Dumpers::initTestCase()
     qDebug() << "Gdb version " << m_gdbVersion;
 }
 
-void tst_Dumpers::cleanupTestCase()
+void tst_Dumpers::init()
 {
-//    if (m_keepTemp)
-//        logInput();
+    t = new TempStuff();
 }
 
-struct TempStuff
+void tst_Dumpers::cleanup()
 {
-    TempStuff() : buildTemp(QLatin1String("qt_tst_dumpers_"))
-    {
-        buildPath = buildTemp.path();
-        QVERIFY(!buildPath.isEmpty());
-    }
-
-    void verify(bool ok, int line)
-    {
-        if (ok)
-            return;
-        buildTemp.setAutoRemove(false);
-        logInput();
-        QTest::qVerify(false, "error", "", __FILE__, line);
-    }
-
-    void logInput()
-    {
-        QFile logger(buildPath + QLatin1String("/input.txt"));
+    if (!t->buildTemp.autoRemove()) {
+        QFile logger(t->buildPath + QLatin1String("/input.txt"));
         logger.open(QIODevice::ReadWrite);
-        logger.write(input);
+        logger.write(t->input);
     }
-
-    QByteArray input;
-    QTemporaryDir buildTemp;
-    QString buildPath;
-};
+    delete t;
+}
 
 void tst_Dumpers::dumper()
 {
@@ -447,19 +443,14 @@ void tst_Dumpers::dumper()
     if (data.neededGdbVersion.max < m_gdbVersion)
         MSKIP_SINGLE("Need maximum GDB version " + QByteArray::number(data.neededGdbVersion.max));
 
-    bool ok;
     QString cmd;
     QByteArray output;
     QByteArray error;
 
-    TempStuff t;
-    t.buildTemp.setAutoRemove(m_keepTemp);
-
     const char *mainFile = data.forceC ? "main.c" : "main.cpp";
 
-    QFile proFile(t.buildPath + QLatin1String("/doit.pro"));
-    ok = proFile.open(QIODevice::ReadWrite);
-    t.verify(ok, __LINE__);
+    QFile proFile(t->buildPath + QLatin1String("/doit.pro"));
+    QVERIFY(proFile.open(QIODevice::ReadWrite));
     proFile.write("SOURCES = ");
     proFile.write(mainFile);
     proFile.write("\nTARGET = doit\n");
@@ -472,8 +463,8 @@ void tst_Dumpers::dumper()
     proFile.write(data.profileExtra);
     proFile.close();
 
-    QFile source(t.buildPath + QLatin1Char('/') + QLatin1String(mainFile));
-    ok = source.open(QIODevice::ReadWrite);
+    QFile source(t->buildPath + QLatin1Char('/') + QLatin1String(mainFile));
+    QVERIFY(source.open(QIODevice::ReadWrite));
     QByteArray fullCode =
             "\n\nvoid unused(const void *first,...) { (void) first; }"
             "\n\nvoid breakHere() {}"
@@ -486,29 +477,26 @@ void tst_Dumpers::dumper()
             "\n    breakHere();"
             "\n    return 0;"
             "\n}\n";
-    t.verify(ok, __LINE__);
     source.write(fullCode);
     source.close();
 
     QProcess qmake;
-    qmake.setWorkingDirectory(t.buildPath);
+    qmake.setWorkingDirectory(t->buildPath);
     cmd = QString::fromLatin1(m_qmakeBinary);
     //qDebug() << "Starting qmake: " << cmd;
     qmake.start(cmd);
-    ok = qmake.waitForFinished();
-    t.verify(ok, __LINE__);
+    QVERIFY(qmake.waitForFinished());
     output = qmake.readAllStandardOutput();
     error = qmake.readAllStandardError();
     //qDebug() << "stdout: " << output;
-    if (!error.isEmpty()) { qDebug() << error; t.verify(false, __LINE__); }
+    if (!error.isEmpty()) { qDebug() << error; QVERIFY(false); }
 
     QProcess make;
-    make.setWorkingDirectory(t.buildPath);
+    make.setWorkingDirectory(t->buildPath);
     cmd = QString::fromLatin1("make");
     //qDebug() << "Starting make: " << cmd;
     make.start(cmd);
-    ok = make.waitForFinished();
-    t.verify(ok, __LINE__);
+    QVERIFY(make.waitForFinished());
     output = make.readAllStandardOutput();
     error = make.readAllStandardError();
     //qDebug() << "stdout: " << output;
@@ -572,27 +560,26 @@ void tst_Dumpers::dumper()
 
     cmds += "quit\n";
 
-    t.input = cmds;
+    t->input = cmds;
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     env.insert(QLatin1String("QT_HASH_SEED"), QLatin1String("0"));
     QProcess debugger;
     debugger.setProcessEnvironment(env);
-    debugger.setWorkingDirectory(t.buildPath);
+    debugger.setWorkingDirectory(t->buildPath);
     debugger.start(QString::fromLatin1(m_debuggerBinary)
                    + QLatin1String(" -i mi -quiet -nx"));
-    ok = debugger.waitForStarted();
+    QVERIFY(debugger.waitForStarted());
     debugger.write(cmds);
-    ok = debugger.waitForFinished();
-    t.verify(ok, __LINE__);
+    QVERIFY(debugger.waitForFinished());
     output = debugger.readAllStandardOutput();
     //qDebug() << "stdout: " << output;
     error = debugger.readAllStandardError();
     if (!error.isEmpty()) { qDebug() << error; }
 
     if (m_keepTemp) {
-        QFile logger(t.buildPath + QLatin1String("/output.txt"));
-        ok = logger.open(QIODevice::ReadWrite);
+        QFile logger(t->buildPath + QLatin1String("/output.txt"));
+        logger.open(QIODevice::ReadWrite);
         logger.write("=== STDOUT ===\n");
         logger.write(output);
         logger.write("\n=== STDERR ===\n");
@@ -600,26 +587,25 @@ void tst_Dumpers::dumper()
     }
 
     Context context;
-    int pos1 = output.indexOf("data=");
-    t.verify(pos1 != -1, __LINE__);
-    int pos2 = output.indexOf(",typeinfo", pos1);
-    t.verify(pos2 != -1, __LINE__);
-    QByteArray contents = output.mid(pos1, pos2 - pos1);
+    int posDataStart = output.indexOf("data=");
+    QVERIFY(posDataStart != -1);
+    int posDataEnd = output.indexOf(",typeinfo", posDataStart);
+    QVERIFY(posDataEnd != -1);
+    QByteArray contents = output.mid(posDataStart, posDataEnd - posDataStart);
     contents.replace("\\\"", "\"");
 
-    int pos3 = output.indexOf("@NS@");
-    t.verify(pos3 != -1, __LINE__);
-    pos3 += sizeof("@NS@") - 1;
-    int pos4 = output.indexOf("@", pos3);
-    t.verify(pos4 != -1, __LINE__);
-    context.nameSpace = output.mid(pos3, pos4 - pos3);
+    int posNameSpaceStart = output.indexOf("@NS@");
+    QVERIFY(posNameSpaceStart != -1);
+    posNameSpaceStart += sizeof("@NS@") - 1;
+    int posNameSpaceEnd = output.indexOf("@", posNameSpaceStart);
+    QVERIFY(posNameSpaceEnd != -1);
+    context.nameSpace = output.mid(posNameSpaceStart, posNameSpaceEnd - posNameSpaceStart);
     //qDebug() << "FOUND NS: " << context.nameSpace;
     if (context.nameSpace == "::")
         context.nameSpace.clear();
 
     GdbMi actual;
     actual.fromString(contents);
-    ok = false;
     WatchData local;
     local.iname = "local";
 
@@ -636,6 +622,7 @@ void tst_Dumpers::dumper()
 
     //qDebug() << "QT VERSION " << QByteArray::number(context.qtVersion, 16);
     QSet<QByteArray> seenINames;
+    bool ok = true;
     foreach (const WatchData &item, list) {
         seenINames.insert(item.iname);
         if (data.checks.contains(item.iname)) {
@@ -645,21 +632,21 @@ void tst_Dumpers::dumper()
                 qDebug() << "NAME ACTUAL  : " << item.name.toLatin1();
                 qDebug() << "NAME EXPECTED: " << check.expectedName.name;
                 qDebug() << "CONTENTS     : " << contents;
-                t.verify(false, __LINE__);
+                ok = false;
             }
             if (!check.expectedValue.matches(item.value, context)) {
                 qDebug() << "INAME         : " << item.iname;
                 qDebug() << "VALUE ACTUAL  : " << item.value << toHex(item.value);
                 qDebug() << "VALUE EXPECTED: " << check.expectedValue.value << toHex(check.expectedValue.value);
                 qDebug() << "CONTENTS      : " << contents;
-                t.verify(false, __LINE__);
+                ok = false;
             }
             if (!check.expectedType.matches(item.type, context)) {
                 qDebug() << "INAME        : " << item.iname;
                 qDebug() << "TYPE ACTUAL  : " << item.type;
                 qDebug() << "TYPE EXPECTED: " << check.expectedType.type;
                 qDebug() << "CONTENTS     : " << contents;
-                t.verify(false, __LINE__);
+                ok = false;
             }
         }
     }
@@ -675,8 +662,10 @@ void tst_Dumpers::dumper()
         qDebug() << "SEEN INAMES " << seenINames;
         qDebug() << "CONTENTS     : " << contents;
         qDebug() << "EXPANDED     : " << expanded;
-        t.verify(false, __LINE__);
+        ok = false;
     }
+    QVERIFY(ok);
+    t->buildTemp.setAutoRemove(m_keepTemp);
 }
 
 void tst_Dumpers::dumper_data()
