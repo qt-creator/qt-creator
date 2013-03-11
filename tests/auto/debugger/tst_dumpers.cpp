@@ -32,6 +32,8 @@
 #include "watchutils.h"
 
 #include <CppRewriter.h>
+#include <projectexplorer/abstractmsvctoolchain.h>
+#include <utils/environment.h>
 
 #include <QtTest>
 #include "temporarydir.h"
@@ -356,6 +358,11 @@ struct TempStuff
     QString buildPath;
 };
 
+enum DebuggerEngine {
+    gdbEngine,
+    cdbEngine
+};
+
 Q_DECLARE_METATYPE(Data)
 
 class tst_Dumpers : public QObject
@@ -376,7 +383,9 @@ private:
     TempStuff *t;
     QByteArray m_debuggerBinary;
     QByteArray m_qmakeBinary;
+    QProcessEnvironment m_env;
     bool m_usePython;
+    DebuggerEngine m_debuggerEngine;
     bool m_keepTemp;
     int m_gdbVersion; // 7.5.1 -> 70501
     int m_gdbBuildVersion;
@@ -389,34 +398,56 @@ void tst_Dumpers::initTestCase()
     m_debuggerBinary = qgetenv("QTC_DEBUGGER_PATH");
     if (m_debuggerBinary.isEmpty())
         m_debuggerBinary = "gdb";
+    m_debuggerEngine = m_debuggerBinary.endsWith("cdb.exe") ? cdbEngine : gdbEngine;
 
     m_qmakeBinary = qgetenv("QTC_QMAKE_PATH");
     if (m_qmakeBinary.isEmpty())
         m_qmakeBinary = "qmake";
 
-    QProcess debugger;
-    debugger.start(QString::fromLatin1(m_debuggerBinary)
-                   + QLatin1String(" -i mi -quiet -nx"));
-    bool ok = debugger.waitForStarted();
-    debugger.write("set confirm off\npython print 43\nshow version\nquit\n");
-    ok = debugger.waitForFinished();
-    QVERIFY(ok);
-    QByteArray output = debugger.readAllStandardOutput();
-    //qDebug() << "stdout: " << output;
-    m_usePython = !output.contains("Python scripting is not supported in this copy of GDB");
-    qDebug() << (m_usePython ? "Python is available" : "Python is not available");
+    Utils::Environment utilsEnv = Utils::Environment::systemEnvironment();
+    utilsEnv.appendOrSet(QLatin1String("QT_HASH_SEED"), QLatin1String("0"));
 
-    QString version = QString::fromLocal8Bit(output);
-    int pos1 = version.indexOf(QLatin1String("&\"show version\\n"));
-    QVERIFY(pos1 != -1);
-    pos1 += 20;
-    int pos2 = version.indexOf(QLatin1String("~\"Copyright (C) "), pos1);
-    QVERIFY(pos2 != -1);
-    pos2 -= 4;
-    version = version.mid(pos1, pos2 - pos1);
-    Debugger::Internal::extractGdbVersion(version, &m_gdbVersion,
-        &m_gdbBuildVersion, &m_isMacGdb, &m_isQnxGdb);
-    qDebug() << "Gdb version " << m_gdbVersion;
+    if (m_debuggerEngine == gdbEngine) {
+        QProcess debugger;
+        debugger.start(QString::fromLatin1(m_debuggerBinary)
+                       + QLatin1String(" -i mi -quiet -nx"));
+        bool ok = debugger.waitForStarted();
+        debugger.write("set confirm off\npython print 43\nshow version\nquit\n");
+        ok = debugger.waitForFinished();
+        QVERIFY(ok);
+        QByteArray output = debugger.readAllStandardOutput();
+        //qDebug() << "stdout: " << output;
+        m_usePython = !output.contains("Python scripting is not supported in this copy of GDB");
+        qDebug() << (m_usePython ? "Python is available" : "Python is not available");
+
+        QString version = QString::fromLocal8Bit(output);
+        int pos1 = version.indexOf(QLatin1String("&\"show version\\n"));
+        QVERIFY(pos1 != -1);
+        pos1 += 20;
+        int pos2 = version.indexOf(QLatin1String("~\"Copyright (C) "), pos1);
+        QVERIFY(pos2 != -1);
+        pos2 -= 4;
+        version = version.mid(pos1, pos2 - pos1);
+        Debugger::Internal::extractGdbVersion(version, &m_gdbVersion,
+            &m_gdbBuildVersion, &m_isMacGdb, &m_isQnxGdb);
+        qDebug() << "Gdb version " << m_gdbVersion;
+    } else {
+        QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
+        QMap <QString, QString> envPairs;
+        QVERIFY(ProjectExplorer::Internal::AbstractMsvcToolChain::generateEnvironmentSettings(
+                    utilsEnv, QString::fromLatin1(envBat), QLatin1String(""), envPairs));
+
+        for (QMap<QString,QString>::const_iterator envIt = envPairs.begin(); envIt!=envPairs.end(); ++envIt)
+                utilsEnv.set(envIt.key(), envIt.value());
+
+        const QByteArray cdbextPath = QByteArray(CDBEXT_PATH) + QByteArray("\\qtcreatorcdbext64");
+        QVERIFY(QFile::exists(QString::fromLatin1(cdbextPath + QByteArray("\\qtcreatorcdbext.dll"))));
+        qDebug() << cdbextPath;
+        utilsEnv.appendOrSet(QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"),
+                             QString::fromLatin1(cdbextPath),
+                             QLatin1String(";"));
+    }
+    m_env = utilsEnv.toProcessEnvironment();
 }
 
 void tst_Dumpers::init()
@@ -438,10 +469,12 @@ void tst_Dumpers::dumper()
 {
     QFETCH(Data, data);
 
-    if (data.neededGdbVersion.min > m_gdbVersion)
-        MSKIP_SINGLE("Need minimum GDB version " + QByteArray::number(data.neededGdbVersion.min));
-    if (data.neededGdbVersion.max < m_gdbVersion)
-        MSKIP_SINGLE("Need maximum GDB version " + QByteArray::number(data.neededGdbVersion.max));
+    if (m_debuggerEngine == gdbEngine) {
+        if (data.neededGdbVersion.min > m_gdbVersion)
+            MSKIP_SINGLE("Need minimum GDB version " + QByteArray::number(data.neededGdbVersion.min));
+        if (data.neededGdbVersion.max < m_gdbVersion)
+            MSKIP_SINGLE("Need maximum GDB version " + QByteArray::number(data.neededGdbVersion.max));
+    }
 
     QString cmd;
     QByteArray output;
@@ -493,14 +526,15 @@ void tst_Dumpers::dumper()
 
     QProcess make;
     make.setWorkingDirectory(t->buildPath);
-    cmd = QString::fromLatin1("make");
+    cmd = m_debuggerEngine == gdbEngine ? QString::fromLatin1("make")
+                                        : QString::fromLatin1("nmake");
     //qDebug() << "Starting make: " << cmd;
     make.start(cmd);
     QVERIFY(make.waitForFinished());
     output = make.readAllStandardOutput();
     error = make.readAllStandardError();
     //qDebug() << "stdout: " << output;
-    if (!error.isEmpty()) {
+    if (make.exitCode()) {
         qDebug() << error;
         qDebug() << "\n------------------ CODE --------------------";
         qDebug() << fullCode;
@@ -529,46 +563,66 @@ void tst_Dumpers::dumper()
         expanded += iname;
     }
 
-    QByteArray nograb = "-nograb";
+    QByteArray cmds;
+    QStringList args;
 
-    QByteArray cmds =
-        "set confirm off\n"
-        "file doit\n"
-        "break breakHere\n"
-        "set print object on\n"
-        "set auto-load python-scripts no\n";
+    if (m_debuggerEngine == gdbEngine) {
+        args << QLatin1String("-i")
+             << QLatin1String("mi")
+             << QLatin1String("-quiet")
+             << QLatin1String("-nx");
+        QByteArray nograb = "-nograb";
 
-    if (m_usePython) {
-        cmds +=
-        "python execfile('" + dumperDir + "/bridge.py')\n"
-        "python execfile('" + dumperDir + "/dumper.py')\n"
-        "python execfile('" + dumperDir + "/qttypes.py')\n"
-        "bbsetup\n"
-        "run " + nograb + "\n"
-        "up\n"
-        "python print('@%sS@%s@' % ('N', qtNamespace()))\n"
-        "bb options:fancy,autoderef,dyntype vars: expanded:" + expanded + " typeformats:\n";
-    } else {
-        cmds += "run\n";
-        foreach (const Check &check, data.checks) {
-            QByteArray iname = check.iname;
-            //qDebug() << "INAME: " << iname;
-            cmds += "-var-create " + iname + " * "
-                    + check.expectedName.name + "\n";
+        cmds = "set confirm off\n"
+                "file doit\n"
+                "break breakHere\n"
+                "set print object on\n"
+                "set auto-load python-scripts no\n";
+
+        if (m_usePython) {
+            cmds +=
+                    "python execfile('" + dumperDir + "/bridge.py')\n"
+                    "python execfile('" + dumperDir + "/dumper.py')\n"
+                    "python execfile('" + dumperDir + "/qttypes.py')\n"
+                    "bbsetup\n"
+                    "run " + nograb + "\n"
+                    "up\n"
+                    "python print('@%sS@%s@' % ('N', qtNamespace()))\n"
+                    "bb options:fancy,autoderef,dyntype vars: expanded:" + expanded + " typeformats:\n";
+        } else {
+            cmds += "run\n";
+            foreach (const Check &check, data.checks) {
+                QByteArray iname = check.iname;
+                //qDebug() << "INAME: " << iname;
+                cmds += "-var-create " + iname + " * "
+                        + check.expectedName.name + "\n";
+            }
         }
-    }
+        cmds += "quit\n";
 
-    cmds += "quit\n";
+    } else {
+        args << QLatin1String("-aqtcreatorcdbext.dll")
+             << QLatin1String("-lines")
+             << QLatin1String("-G")
+             << QLatin1String("-c.idle_cmd")
+             << QLatin1String("!qtcreatorcdbext.idle")
+             << QLatin1String("debug\\doit.exe");
+        cmds = "l+t\n"
+               "l+s\n"
+               "bu `doit!" + source.fileName().toLatin1() + ":5`\n"
+               "sxi 0x4000001f\n"
+               "g\n"
+               "gu\n"
+               "!qtcreatorcdbext.locals -t 2 -D -e " + expanded + ",return,watch,inspect -v -c -W 0\n"
+               "q\n";
+    }
 
     t->input = cmds;
 
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    env.insert(QLatin1String("QT_HASH_SEED"), QLatin1String("0"));
     QProcess debugger;
-    debugger.setProcessEnvironment(env);
+    debugger.setProcessEnvironment(m_env);
     debugger.setWorkingDirectory(t->buildPath);
-    debugger.start(QString::fromLatin1(m_debuggerBinary)
-                   + QLatin1String(" -i mi -quiet -nx"));
+    debugger.start(QString::fromLatin1(m_debuggerBinary), args);
     QVERIFY(debugger.waitForStarted());
     debugger.write(cmds);
     QVERIFY(debugger.waitForFinished());
@@ -587,22 +641,36 @@ void tst_Dumpers::dumper()
     }
 
     Context context;
-    int posDataStart = output.indexOf("data=");
-    QVERIFY(posDataStart != -1);
-    int posDataEnd = output.indexOf(",typeinfo", posDataStart);
-    QVERIFY(posDataEnd != -1);
-    QByteArray contents = output.mid(posDataStart, posDataEnd - posDataStart);
-    contents.replace("\\\"", "\"");
+    QByteArray contents;
+    if (m_debuggerEngine == gdbEngine) {
+        int posDataStart = output.indexOf("data=");
+        QVERIFY(posDataStart != -1);
+        int posDataEnd = output.indexOf(",typeinfo", posDataStart);
+        QVERIFY(posDataEnd != -1);
+        contents = output.mid(posDataStart, posDataEnd - posDataStart);
 
-    int posNameSpaceStart = output.indexOf("@NS@");
-    QVERIFY(posNameSpaceStart != -1);
-    posNameSpaceStart += sizeof("@NS@") - 1;
-    int posNameSpaceEnd = output.indexOf("@", posNameSpaceStart);
-    QVERIFY(posNameSpaceEnd != -1);
-    context.nameSpace = output.mid(posNameSpaceStart, posNameSpaceEnd - posNameSpaceStart);
-    //qDebug() << "FOUND NS: " << context.nameSpace;
-    if (context.nameSpace == "::")
-        context.nameSpace.clear();
+        int posNameSpaceStart = output.indexOf("@NS@");
+        QVERIFY(posNameSpaceStart != -1);
+        posNameSpaceStart += sizeof("@NS@") - 1;
+        int posNameSpaceEnd = output.indexOf("@", posNameSpaceStart);
+        QVERIFY(posNameSpaceEnd != -1);
+        context.nameSpace = output.mid(posNameSpaceStart, posNameSpaceEnd - posNameSpaceStart);
+        //qDebug() << "FOUND NS: " << context.nameSpace;
+        if (context.nameSpace == "::")
+            context.nameSpace.clear();
+        contents.replace("\\\"", "\"");
+    } else {
+        const QByteArray locals = "|locals|";
+        int pos1 = output.indexOf(locals);
+        QVERIFY(pos1 != -1);
+        do {
+            int pos2 = output.indexOf("\n", pos1);
+            QVERIFY(pos2 != -1);
+            pos1 += locals.length();
+            contents += output.mid(pos1, pos2 - pos1);
+            pos1 = output.indexOf(locals, pos2);
+        } while (pos1 != -1);
+    }
 
     GdbMi actual;
     actual.fromString(contents);
@@ -631,21 +699,18 @@ void tst_Dumpers::dumper()
                 qDebug() << "INAME        : " << item.iname;
                 qDebug() << "NAME ACTUAL  : " << item.name.toLatin1();
                 qDebug() << "NAME EXPECTED: " << check.expectedName.name;
-                qDebug() << "CONTENTS     : " << contents;
                 ok = false;
             }
             if (!check.expectedValue.matches(item.value, context)) {
                 qDebug() << "INAME         : " << item.iname;
                 qDebug() << "VALUE ACTUAL  : " << item.value << toHex(item.value);
                 qDebug() << "VALUE EXPECTED: " << check.expectedValue.value << toHex(check.expectedValue.value);
-                qDebug() << "CONTENTS      : " << contents;
                 ok = false;
             }
             if (!check.expectedType.matches(item.type, context)) {
                 qDebug() << "INAME        : " << item.iname;
                 qDebug() << "TYPE ACTUAL  : " << item.type;
                 qDebug() << "TYPE EXPECTED: " << check.expectedType.type;
-                qDebug() << "CONTENTS     : " << contents;
                 ok = false;
             }
         }
@@ -660,10 +725,11 @@ void tst_Dumpers::dumper()
                 fail = true;
         }
         qDebug() << "SEEN INAMES " << seenINames;
-        qDebug() << "CONTENTS     : " << contents;
         qDebug() << "EXPANDED     : " << expanded;
         ok = false;
     }
+    if (!ok)
+        qDebug() << "CONTENTS     : " << contents;
     QVERIFY(ok);
     t->buildTemp.setAutoRemove(m_keepTemp);
 }
@@ -4302,7 +4368,6 @@ void tst_Dumpers::dumper_data()
                % Check("n.x", "10", "int")
                % Check("n.y", "20", "int");
 }
-
 
 int main(int argc, char *argv[])
 {
