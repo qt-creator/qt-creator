@@ -16,6 +16,7 @@ def main():
         clickButton(waitForObject(":Restart required.OK_QPushButton"))
         invokeMenuItem("File", "Exit")
         waitForCleanShutdown()
+        snooze(4) # wait for complete unloading of Creator
         overrideStartApplication()
         startApplication("qtcreator" + SettingsPath)
         try:
