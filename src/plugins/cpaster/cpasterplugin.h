@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef CODEPASTERPLUGIN_H
-#define CODEPASTERPLUGIN_H
+#ifndef CPASTERPLUGIN_H
+#define CPASTERPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
 
@@ -98,4 +98,4 @@ private:
 
 } // namespace CodePaster
 
-#endif // CODEPASTERPLUGIN_H
+#endif // CPASTERPLUGIN_H

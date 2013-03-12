@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QBSPROJECTPLUGIN_H
-#define QBSPROJECTPLUGIN_H
+#ifndef QBSPROJECTMANAGERPLUGIN_H
+#define QBSPROJECTMANAGERPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
 
@@ -90,4 +90,4 @@ private:
 } // namespace Internal
 } // namespace QbsProject
 
-#endif // QBSPROJECTPLUGIN_H
+#endif // QBSPROJECTMANAGERPLUGIN_H

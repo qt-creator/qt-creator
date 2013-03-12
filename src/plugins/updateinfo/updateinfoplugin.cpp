@@ -48,7 +48,6 @@
 #include <QFile>
 #include <QThread>
 #include <QCoreApplication>
-#include <QProcess>
 #include <QDomDocument>
 #include <QMessageBox>
 #include <QMenu>

@@ -44,7 +44,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/coreconstants.h>
 
 namespace DiffEditor {
 namespace Internal {

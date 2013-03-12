@@ -27,8 +27,6 @@
 **
 ****************************************************************************/
 
-#include <qglobal.h>
-
 #include "locatorwidget.h"
 #include "locatorplugin.h"
 #include "locatorconstants.h"
@@ -41,7 +39,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/fileiconprovider.h>
 #include <utils/filterlineedit.h>
 #include <utils/hostosinfo.h>

@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef SIMPLENETWORKPROTOCOL_H
-#define SIMPLENETWORKPROTOCOL_H
+#ifndef URLOPENPROTOCOL_H
+#define URLOPENPROTOCOL_H
 
 #include "protocol.h"
 
@@ -54,4 +54,4 @@ private:
 
 }
 
-#endif // SIMPLENETWORKPROTOCOL_H
+#endif // URLOPENPROTOCOL_H

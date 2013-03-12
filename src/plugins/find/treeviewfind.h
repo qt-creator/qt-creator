@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef ITEMMODELFIND_H
-#define ITEMMODELFIND_H
+#ifndef TREEVIEWFIND_H
+#define TREEVIEWFIND_H
 
 #include "ifindsupport.h"
 
@@ -73,4 +73,4 @@ private:
 
 } // namespace Find
 
-#endif // ITEMMODELFIND_H
+#endif // TREEVIEWFIND_H

@@ -27,11 +27,11 @@
 **
 ****************************************************************************/
 
+#include "qdeclarativecanvastimer_p.h"
+
 #include <qscriptengine.h>
 #include <qscriptvalue.h>
 #include <qtimer.h>
-
-#include "qdeclarativecanvastimer_p.h"
 
 QT_BEGIN_NAMESPACE
 

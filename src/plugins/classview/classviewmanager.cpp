@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#include "classviewsymbollocation.h"
 #include "classviewmanager.h"
+#include "classviewsymbollocation.h"
 #include "classviewnavigationwidgetfactory.h"
 #include "classviewparser.h"
 #include "classviewutils.h"

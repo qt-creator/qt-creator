@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef RESOURCEDITORW_H
-#define RESOURCEDITORW_H
+#ifndef RESOURCEEDITORW_H
+#define RESOURCEEDITORW_H
 
 #include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -136,4 +136,4 @@ public:
 } // namespace Internal
 } // namespace ResourceEditor
 
-#endif // RESOURCEDITORW_H
+#endif // RESOURCEEDITORW_H

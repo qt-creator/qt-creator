@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGSPAGE_H
-#define SETTINGSPAGE_H
+#ifndef OPTIONSPAGE_H
+#define OPTIONSPAGE_H
 
 #include "settings.h"
 
@@ -65,4 +65,4 @@ private:
 } // namespace Internal
 } // namespace Todo
 
-#endif // SETTINGSPAGE_H
+#endif // OPTIONSPAGE_H
