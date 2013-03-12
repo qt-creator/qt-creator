@@ -194,11 +194,11 @@ void QmlProject::parseProject(RefreshOptions options)
                     connect(m_projectItem.data(), SIGNAL(qmlFilesChanged(QSet<QString>,QSet<QString>)),
                             this, SLOT(refreshFiles(QSet<QString>,QSet<QString>)));
                 } else {
-                    messageManager->printToOutputPane(tr("Error while loading project file %1.").arg(m_fileName));
-                    messageManager->printToOutputPane(component->errorString(), true);
+                    messageManager->printToOutputPane(tr("Error while loading project file %1.").arg(m_fileName), Core::MessageManager::NoModeSwitch);
+                    messageManager->printToOutputPane(component->errorString(), Core::MessageManager::NoModeSwitch);
                 }
             } else {
-                messageManager->printToOutputPane(tr("QML project: %1").arg(reader.errorString()), true);
+                messageManager->printToOutputPane(tr("QML project: %1").arg(reader.errorString()), Core::MessageManager::NoModeSwitch);
             }
         }
         if (m_projectItem) {
@@ -212,8 +212,9 @@ void QmlProject::parseProject(RefreshOptions options)
                 QString errorMessage;
                 if (!reader.fetch(mainFilePath, &errorMessage)) {
                     messageManager->printToOutputPane(
-                                tr("Warning while loading project file %1.").arg(m_fileName));
-                    messageManager->printToOutputPane(errorMessage, true);
+                                tr("Warning while loading project file %1.").arg(m_fileName),
+                                Core::MessageManager::NoModeSwitch);
+                    messageManager->printToOutputPane(errorMessage, Core::MessageManager::NoModeSwitch);
                 } else {
                     m_defaultImport = detectImport(QString::fromUtf8(reader.data()));
                 }
