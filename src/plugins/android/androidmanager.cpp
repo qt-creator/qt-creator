@@ -615,34 +615,38 @@ QVector<AndroidManager::Library> AndroidManager::availableQtLibsWithDependencies
     mapLibs[library] = Library();;
 
     // clean dependencies
-    foreach (const QString &key, mapLibs.keys()) {
+    const LibrariesMap::Iterator lend = mapLibs.end();
+    for (LibrariesMap::Iterator lit = mapLibs.begin(); lit != lend; ++lit) {
+        Library &library = lit.value();
         int it = 0;
-        while (it < mapLibs[key].dependencies.size()) {
-            const QString &dependName = mapLibs[key].dependencies[it];
-            if (!mapLibs.keys().contains(dependName) && dependName.startsWith(QLatin1String("lib")) && dependName.endsWith(QLatin1String(".so")))
-                mapLibs[key].dependencies.removeAt(it);
+        while (it < library.dependencies.size()) {
+            const QString &dependName = library.dependencies[it];
+            if (!mapLibs.contains(dependName) && dependName.startsWith(QLatin1String("lib")) && dependName.endsWith(QLatin1String(".so")))
+                library.dependencies.removeAt(it);
             else
                 ++it;
         }
-        if (!mapLibs[key].dependencies.size())
-            mapLibs[key].level = 0;
+        if (library.dependencies.isEmpty())
+            library.level = 0;
     }
 
     QVector<Library> qtLibraries;
     // calculate the level for every library
-    foreach (const QString &key, mapLibs.keys()) {
-        if (mapLibs[key].level < 0)
+    for (LibrariesMap::Iterator lit = mapLibs.begin(); lit != lend; ++lit) {
+        Library &library = lit.value();
+        const QString &key = lit.key();
+        if (library.level < 0)
            setLibraryLevel(key, mapLibs);
 
-        if (!mapLibs[key].name.length() && key.startsWith(QLatin1String("lib")) && key.endsWith(QLatin1String(".so")))
-            mapLibs[key].name = key.mid(3, key.length() - 6);
+        if (library.name.isEmpty() && key.startsWith(QLatin1String("lib")) && key.endsWith(QLatin1String(".so")))
+            library.name = key.mid(3, key.length() - 6);
 
-        for (int it = 0; it < mapLibs[key].dependencies.size(); it++) {
-            const QString &libName = mapLibs[key].dependencies[it];
+        for (int it = 0; it < library.dependencies.size(); it++) {
+            const QString &libName = library.dependencies[it];
             if (libName.startsWith(QLatin1String("lib")) && libName.endsWith(QLatin1String(".so")))
-                mapLibs[key].dependencies[it] = libName.mid(3, libName.length() - 6);
+                library.dependencies[it] = libName.mid(3, libName.length() - 6);
         }
-        qtLibraries.push_back(mapLibs[key]);
+        qtLibraries.push_back(library);
     }
     qSort(qtLibraries.begin(), qtLibraries.end(), qtLibrariesLessThan);
 
