@@ -49,7 +49,6 @@
 #include <coreplugin/id.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/iversioncontrol.h>
-#include <coreplugin/variablemanager.h>
 
 #include <texteditor/itexteditor.h>
 #include <utils/hostosinfo.h>
@@ -339,7 +338,9 @@ static inline QString msgParseFilesFailed()
 
 static inline QString currentDocumentPath()
 {
-    return Core::VariableManager::instance()->value("CurrentDocument:Path");
+    if (Core::IEditor *editor = Core::EditorManager::currentEditor())
+        return QFileInfo(editor->document()->fileName()).path();
+    return QString();
 }
 
 // ---------------- GitClient
