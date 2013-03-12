@@ -313,7 +313,7 @@ void CodepasterPlugin::finishPost(const QString &link)
 {
     if (m_settings->copyToClipboard)
         QApplication::clipboard()->setText(link);
-    ICore::messageManager()->printToOutputPane(link, m_settings->displayOutput);
+    ICore::messageManager()->printToOutputPane(link, m_settings->displayOutput ? Core::MessageManager::ModeSwitch : Core::MessageManager::Silent);
 }
 
 // Extract the characters that can be used for a file name from a title
@@ -356,11 +356,11 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     Core::MessageManager *messageManager = ICore::messageManager();
     // Failure?
     if (error) {
-        messageManager->printToOutputPane(content, true);
+        messageManager->printToOutputPane(content, Core::MessageManager::NoModeSwitch);
         return;
     }
     if (content.isEmpty()) {
-        messageManager->printToOutputPane(tr("Empty snippet received for \"%1\".").arg(titleDescription), true);
+        messageManager->printToOutputPane(tr("Empty snippet received for \"%1\".").arg(titleDescription), Core::MessageManager::NoModeSwitch);
         return;
     }
     // If the mime type has a preferred suffix (cpp/h/patch...), use that for
@@ -379,7 +379,7 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     saver.setAutoRemove(false);
     saver.write(byteContent);
     if (!saver.finalize()) {
-        messageManager->printToOutputPane(saver.errorString());
+        messageManager->printToOutputPane(saver.errorString(), Core::MessageManager::NoModeSwitch);
         return;
     }
     const QString fileName = saver.fileName();

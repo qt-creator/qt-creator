@@ -205,7 +205,7 @@ void CodePasterProtocol::fetchFinished()
 void CodePasterProtocol::listFinished()
 {
     if (m_listReply->error()) {
-        Core::ICore::messageManager()->printToOutputPane(m_listReply->errorString(), true);
+        Core::ICore::messageManager()->printToOutputPane(m_listReply->errorString(), Core::MessageManager::NoModeSwitch);
     } else {
         const QByteArray data = m_listReply->readAll();
         const QStringList lines = QString::fromLatin1(data).split(QLatin1Char('\n'));
