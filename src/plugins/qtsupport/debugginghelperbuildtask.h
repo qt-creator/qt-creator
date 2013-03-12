@@ -33,6 +33,7 @@
 #include "qtsupport_global.h"
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <coreplugin/messagemanager.h>
 #include <projectexplorer/toolchain.h>
 
 #include <QObject>
@@ -70,7 +71,7 @@ signals:
     void finished(int qtVersionId, const QString &output, DebuggingHelperBuildTask::Tools tools);
 
     // used internally
-    void logOutput(const QString &output, bool bringToForeground);
+    void logOutput(const QString &output, Core::MessageManager::PrintToOutputPaneFlag flags);
     void updateQtVersions(const Utils::FileName &qmakeCommand);
 
 private:

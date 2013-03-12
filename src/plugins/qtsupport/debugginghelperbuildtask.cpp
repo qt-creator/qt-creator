@@ -62,8 +62,8 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
     qRegisterMetaType<DebuggingHelperBuildTask::Tools>("DebuggingHelperBuildTask::Tools");
 
     // Print result in application ouptut
-    connect(this, SIGNAL(logOutput(QString,bool)),
-            Core::MessageManager::instance(), SLOT(printToOutputPane(QString,bool)),
+    connect(this, SIGNAL(logOutput(QString,Core::MessageManager::Flag)),
+            Core::MessageManager::instance(), SLOT(printToOutputPane(QString,Core::MessageManager::Flag)),
             Qt::QueuedConnection);
 
     //
@@ -264,5 +264,9 @@ void DebuggingHelperBuildTask::log(const QString &output, const QString &error)
         logEntry.append(error);
     m_log.append(logEntry);
 
-    emit logOutput(logEntry, m_showErrors && !error.isEmpty());
+    Core::MessageManager::PrintToOutputPaneFlag flag = Core::MessageManager::Silent;
+    if (m_showErrors && !error.isEmpty())
+        flag = Core::MessageManager::NoModeSwitch;
+
+    emit logOutput(logEntry, flag);
 }
