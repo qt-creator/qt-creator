@@ -27,9 +27,9 @@
 **
 ****************************************************************************/
 
+#include "insertionpointlocator.h"
 #include "cpptoolsreuse.h"
 #include "cpprefactoringchanges.h"
-#include "insertionpointlocator.h"
 #include "symbolfinder.h"
 
 #include <AST.h>

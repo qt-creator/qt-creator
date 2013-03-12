@@ -31,7 +31,6 @@
 #include "cppcodestylepreferencesfactory.h"
 
 #include <cpptools/cppcodestylepreferences.h>
-#include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpptoolssettings.h>
 

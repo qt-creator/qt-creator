@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef CPPPOINTERFORMATTER_H
-#define CPPPOINTERFORMATTER_H
+#ifndef CPPPOINTERDECLARATIONFORMATTER_H
+#define CPPPOINTERDECLARATIONFORMATTER_H
 
 #include "cpptools_global.h"
 
@@ -128,4 +128,4 @@ private:
 
 } // namespace CppTools
 
-#endif // CPPPOINTERFORMATTER_H
+#endif // CPPPOINTERDECLARATIONFORMATTER_H

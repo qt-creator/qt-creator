@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef FINDDERIVEDCLASSES_H
-#define FINDDERIVEDCLASSES_H
+#ifndef TYPEHIERARCHYBUILDER_H
+#define TYPEHIERARCHYBUILDER_H
 
 #include "CppDocument.h"
 #include "ModelManagerInterface.h"
@@ -78,4 +78,4 @@ private:
 
 } // CPlusPlus
 
-#endif // FINDDERIVEDCLASSES_H
+#endif // TYPEHIERARCHYBUILDER_H

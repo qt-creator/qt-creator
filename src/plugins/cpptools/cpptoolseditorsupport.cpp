@@ -27,9 +27,9 @@
 **
 ****************************************************************************/
 
+#include "cpptoolseditorsupport.h"
 #include "cppcompletionsupport.h"
 #include "cpphighlightingsupport.h"
-#include "cpptoolseditorsupport.h"
 #include "cppmodelmanager.h"
 
 #include <coreplugin/idocument.h>

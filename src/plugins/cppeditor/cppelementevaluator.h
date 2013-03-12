@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef CPPHIGHLEVELMODEL_H
-#define CPPHIGHLEVELMODEL_H
+#ifndef CPPELEMENTEVALUATOR_H
+#define CPPELEMENTEVALUATOR_H
 
 #include "cppeditor.h"
 
@@ -199,4 +199,4 @@ public:
 } // namespace Internal
 } // namespace CppEditor
 
-#endif // CPPHIGHLEVELMODEL_H
+#endif // CPPELEMENTEVALUATOR_H

@@ -27,11 +27,8 @@
 **
 ****************************************************************************/
 
-#include <cplusplus/pp.h>
-#include <cplusplus/Overview.h>
-
-#include "builtinindexingsupport.h"
 #include "cppmodelmanager.h"
+#include "builtinindexingsupport.h"
 #include "cppcompletionassist.h"
 #include "cpphighlightingsupport.h"
 #include "cpphighlightingsupportinternal.h"
@@ -40,6 +37,9 @@
 #include "cpptoolsconstants.h"
 #include "cpptoolseditorsupport.h"
 #include "cppfindreferences.h"
+
+#include <cplusplus/pp.h>
+#include <cplusplus/Overview.h>
 
 #include <functional>
 #include <QtConcurrentRun>

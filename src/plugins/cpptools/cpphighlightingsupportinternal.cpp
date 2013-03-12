@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#include "cppchecksymbols.h"
 #include "cpphighlightingsupportinternal.h"
+#include "cppchecksymbols.h"
 
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/SimpleLexer.h>

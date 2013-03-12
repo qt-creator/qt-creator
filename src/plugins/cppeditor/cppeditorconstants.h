@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef CPPPLUGIN_GLOBAL_H
-#define CPPPLUGIN_GLOBAL_H
+#ifndef CPPEDITORCONSTANTS_H
+#define CPPEDITORCONSTANTS_H
 
 namespace CppEditor {
 namespace Constants {
@@ -61,4 +61,4 @@ const char CPP_SNIPPETS_GROUP_ID[] = "C++";
 } // namespace Constants
 } // namespace CppEditor
 
-#endif // CPPPLUGIN_GLOBAL_H
+#endif // CPPEDITORCONSTANTS_H

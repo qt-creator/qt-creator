@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef CPPPLUGIN_ENUMS_H
-#define CPPPLUGIN_ENUMS_H
+#ifndef CPPEDITORENUMS_H
+#define CPPEDITORENUMS_H
 
 namespace CppEditor {
 namespace Internal {
@@ -56,4 +56,4 @@ enum CppFormats {
 } // namespace Internal
 } // namespace CppEditor
 
-#endif // CPPPLUGIN_ENUMS_H
+#endif // CPPEDITORENUMS_H

@@ -27,10 +27,9 @@
 **
 ****************************************************************************/
 
-#include "cppmodelmanager.h"
 #include "cppcompletionassist.h"
-#include "cppdoxygen.h"
 #include "cppmodelmanager.h"
+#include "cppdoxygen.h"
 #include "cpptoolsconstants.h"
 
 #include <Control.h>

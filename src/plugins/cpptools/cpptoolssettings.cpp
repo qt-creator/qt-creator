@@ -35,7 +35,6 @@
 #include "completionsettingspage.h"
 
 #include <texteditor/texteditorsettings.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/codestylepool.h>
 #include <extensionsystem/pluginmanager.h>

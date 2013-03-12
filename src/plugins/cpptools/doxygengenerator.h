@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef DOXYGEGENERATOR_H
-#define DOXYGEGENERATOR_H
+#ifndef DOXYGENGENERATOR_H
+#define DOXYGENGENERATOR_H
 
 #include "cpptools_global.h"
 
@@ -99,4 +99,4 @@ private:
 
 } // CppTools
 
-#endif // DOXYGEGENERATOR_H
+#endif // DOXYGENGENERATOR_H

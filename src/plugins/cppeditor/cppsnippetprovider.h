@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef CPPSNIPPETEDITORDECORATOR_H
-#define CPPSNIPPETEDITORDECORATOR_H
+#ifndef CPPSNIPPETPROVIDER_H
+#define CPPSNIPPETPROVIDER_H
 
 #include <texteditor/snippets/isnippetprovider.h>
 
@@ -50,4 +50,4 @@ public:
 } // Internal
 } // CppEditor
 
-#endif // CPPSNIPPETEDITORDECORATOR_H
+#endif // CPPSNIPPETPROVIDER_H

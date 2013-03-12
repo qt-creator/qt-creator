@@ -27,6 +27,9 @@
 **
 ****************************************************************************/
 
+#ifndef CPPDOXYGEN_H
+#define CPPDOXYGEN_H
+
 #include "cpptools_global.h"
 
 QT_FORWARD_DECLARE_CLASS(QChar)
@@ -260,3 +263,4 @@ CPPTOOLS_EXPORT const char *doxygenTagSpell(int index);
 
 } // namespace ::CppTools
 
+#endif // CPPDOXYGEN_H

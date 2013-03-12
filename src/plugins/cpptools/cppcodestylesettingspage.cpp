@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#include "cppcodestylepreferences.h"
 #include "cppcodestylesettingspage.h"
+#include "cppcodestylepreferences.h"
 #include "cpppointerdeclarationformatter.h"
 #include "cppqtstyleindenter.h"
 #include "cpptoolsconstants.h"

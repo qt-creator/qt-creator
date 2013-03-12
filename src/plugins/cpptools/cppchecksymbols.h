@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_CHECKSYMBOLS_H
-#define CPLUSPLUS_CHECKSYMBOLS_H
+#ifndef CPLUSPLUSCHECKSYMBOLS_H
+#define CPLUSPLUSCHECKSYMBOLS_H
 
 #include "cpptools_global.h"
 
@@ -182,4 +182,4 @@ private:
 
 } // namespace CPlusPlus
 
-#endif // CPLUSPLUS_CHECKSYMBOLS_H
+#endif // CPLUSPLUSCHECKSYMBOLS_H
