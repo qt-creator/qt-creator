@@ -1422,7 +1422,7 @@ void Qt4Project::updateBuildSystemData()
 
     BuildTargetInfoList appTargetList;
     foreach (const Qt4ProFileNode * const node, applicationProFiles())
-        appTargetList.list << BuildTargetInfo(node->targetInformation().executable, node->path());
+        appTargetList.list << BuildTargetInfo(executableFor(node), node->path());
     target->setApplicationTargets(appTargetList);
 }
 
@@ -1440,8 +1440,7 @@ void Qt4Project::collectData(const Qt4ProFileNode *node, DeploymentData &deploym
     switch (node->projectType()) {
     case ApplicationTemplate:
         if (!installsList.targetPath.isEmpty())
-            deploymentData.addFile(node->targetInformation().executable, installsList.targetPath,
-                                   DeployableFile::TypeExecutable);
+            collectApplicationData(node, deploymentData);
         break;
     case LibraryTemplate:
         collectLibraryData(node, deploymentData);
@@ -1458,6 +1457,14 @@ void Qt4Project::collectData(const Qt4ProFileNode *node, DeploymentData &deploym
     default:
         break;
     }
+}
+
+void Qt4Project::collectApplicationData(const Qt4ProFileNode *node, DeploymentData &deploymentData)
+{
+    QString executable = executableFor(node);
+    if (!executable.isEmpty())
+        deploymentData.addFile(executable, node->installsList().targetPath,
+                               DeployableFile::TypeExecutable);
 }
 
 void Qt4Project::collectLibraryData(const Qt4ProFileNode *node, DeploymentData &deploymentData)
@@ -1489,12 +1496,13 @@ void Qt4Project::collectLibraryData(const Qt4ProFileNode *node, DeploymentData &
         }
         targetFileName += targetVersionExt + QLatin1Char('.');
         targetFileName += QLatin1String(isStatic ? "lib" : "dll");
-        deploymentData.addFile(ti.workingDir + QLatin1Char('/') + targetFileName, targetPath);
+        deploymentData.addFile(destDirFor(ti) + QLatin1Char('/') + targetFileName, targetPath);
         break;
     }
-    case ProjectExplorer::Abi::MacOS:
+    case ProjectExplorer::Abi::MacOS: {
+        QString destDir = destDirFor(ti);
         if (config.contains(QLatin1String("lib_bundle"))) {
-            ti.workingDir.append(QLatin1Char('/')).append(ti.target)
+            destDir.append(QLatin1Char('/')).append(ti.target)
                     .append(QLatin1String(".framework"));
         } else {
             targetFileName.prepend(QLatin1String("lib"));
@@ -1510,8 +1518,9 @@ void Qt4Project::collectLibraryData(const Qt4ProFileNode *node, DeploymentData &
             targetFileName += node->singleVariableValue(isStatic
                     ? StaticLibExtensionVar : ShLibExtensionVar);
         }
-        deploymentData.addFile(ti.workingDir + QLatin1Char('/') + targetFileName, targetPath);
+        deploymentData.addFile(destDir + QLatin1Char('/') + targetFileName, targetPath);
         break;
+    }
     case ProjectExplorer::Abi::LinuxOS:
     case ProjectExplorer::Abi::BsdOS:
     case ProjectExplorer::Abi::UnixOS:
@@ -1521,14 +1530,14 @@ void Qt4Project::collectLibraryData(const Qt4ProFileNode *node, DeploymentData &
             targetFileName += QLatin1Char('a');
         } else {
             targetFileName += QLatin1String("so");
-            deploymentData.addFile(ti.workingDir + QLatin1Char('/') + targetFileName, targetPath);
+            deploymentData.addFile(destDirFor(ti) + QLatin1Char('/') + targetFileName, targetPath);
             if (!isPlugin) {
                 QString version = node->singleVariableValue(VersionVar);
                 if (version.isEmpty())
                     version = QLatin1String("1.0.0");
                 targetFileName += QLatin1Char('.');
                 while (true) {
-                    deploymentData.addFile(ti.workingDir + QLatin1Char('/')
+                    deploymentData.addFile(destDirFor(ti) + QLatin1Char('/')
                             + targetFileName + version, targetPath);
                     const QString tmpVersion = version.left(version.lastIndexOf(QLatin1Char('.')));
                     if (tmpVersion == version)
@@ -1540,6 +1549,44 @@ void Qt4Project::collectLibraryData(const Qt4ProFileNode *node, DeploymentData &
         break;
     default:
         break;
+    }
+}
+
+QString Qt4Project::destDirFor(const TargetInformation &ti)
+{
+    if (ti.destDir.isEmpty())
+        return ti.buildDir;
+    if (QDir::isRelativePath(ti.destDir))
+        return QDir::cleanPath(ti.buildDir + QLatin1Char('/') + ti.destDir);
+    return ti.destDir;
+}
+
+QString Qt4Project::executableFor(const Qt4ProFileNode *node)
+{
+    const ProjectExplorer::Kit * const kit = activeTarget()->kit();
+    const ProjectExplorer::ToolChain * const toolchain
+            = ProjectExplorer::ToolChainKitInformation::toolChain(kit);
+    if (!toolchain)
+        return QString();
+
+    TargetInformation ti = node->targetInformation();
+
+    switch (toolchain->targetAbi().os()) {
+    case ProjectExplorer::Abi::MacOS:
+        if (node->variableValue(ConfigVar).contains(QLatin1String("app_bundle")))
+            return QDir::cleanPath(destDirFor(ti) + QLatin1Char('/') + ti.target
+                                   + QLatin1String(".app/Contents/MacOS/") + ti.target);
+        // else fall through
+    case ProjectExplorer::Abi::WindowsOS:
+    case ProjectExplorer::Abi::LinuxOS:
+    case ProjectExplorer::Abi::BsdOS:
+    case ProjectExplorer::Abi::UnixOS: {
+        QString extension = node->singleVariableValue(TargetExtVar);
+        QString executable = QDir::cleanPath(destDirFor(ti) + QLatin1Char('/') + ti.target + extension);
+        return executable;
+    }
+    default:
+        return QString();
     }
 }
 

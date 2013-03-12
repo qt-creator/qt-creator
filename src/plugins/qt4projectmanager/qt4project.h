@@ -56,6 +56,7 @@ class Qt4Manager;
 class Qt4PriFileNode;
 class Qt4ProFileNode;
 class Qt4RunStep;
+struct TargetInformation;
 
 namespace Internal {
 class CentralizedFolderWatcher;
@@ -161,6 +162,7 @@ private slots:
     void activeTargetWasChanged();
 
 private:
+    QString executableFor(const Qt4ProFileNode *node);
     void updateRunConfigurations();
 
     void updateCppCodeModel();
@@ -177,8 +179,11 @@ private:
 
     void updateBuildSystemData();
     void collectData(const Qt4ProFileNode *node, ProjectExplorer::DeploymentData &deploymentData);
+    void collectApplicationData(const Qt4ProFileNode *node,
+                                ProjectExplorer::DeploymentData &deploymentData);
     void collectLibraryData(const Qt4ProFileNode *node,
             ProjectExplorer::DeploymentData &deploymentData);
+    QString destDirFor(const TargetInformation &ti);
 
     Qt4Manager *m_manager;
     Qt4ProFileNode *m_rootProjectNode;

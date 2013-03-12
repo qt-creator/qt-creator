@@ -98,6 +98,7 @@ enum Qt4Variable {
     ObjectExt,
     ObjectsDir,
     VersionVar,
+    TargetExtVar,
     TargetVersionExtVar,
     StaticLibExtensionVar,
     ShLibExtensionVar,
@@ -295,17 +296,17 @@ private:
 struct QT4PROJECTMANAGER_EXPORT TargetInformation
 {
     bool valid;
-    QString workingDir;
     QString target;
-    QString executable;
+    QString destDir;
     QString buildDir;
+    QString buildTarget;
     bool operator==(const TargetInformation &other) const
     {
-        return workingDir == other.workingDir
-                && target == other.target
-                && executable == other.executable
+        return target == other.target
                 && valid == other.valid
-                && buildDir == other.buildDir;
+                && destDir == other.destDir
+                && buildDir == other.buildDir
+                && buildTarget == other.buildTarget;
     }
     bool operator!=(const TargetInformation &other) const
     {
@@ -318,10 +319,10 @@ struct QT4PROJECTMANAGER_EXPORT TargetInformation
 
     TargetInformation(const TargetInformation &other)
         : valid(other.valid),
-          workingDir(other.workingDir),
           target(other.target),
-          executable(other.executable),
-          buildDir(other.buildDir)
+          destDir(other.destDir),
+          buildDir(other.buildDir),
+          buildTarget(other.buildTarget)
     {
     }
 
@@ -380,7 +381,6 @@ public:
     QStringList uiFiles() const;
 
     const Qt4ProFileNode *findProFileFor(const QString &string) const;
-    TargetInformation targetInformation(const QString &fileName) const;
     TargetInformation targetInformation() const;
 
     InstallsList installsList() const;

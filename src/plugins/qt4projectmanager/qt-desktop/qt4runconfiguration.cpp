@@ -444,10 +444,8 @@ bool Qt4RunConfiguration::fromMap(const QVariantMap &map)
 QString Qt4RunConfiguration::executable() const
 {
     Qt4Project *pro = static_cast<Qt4Project *>(target()->project());
-    TargetInformation ti = pro->rootQt4ProjectNode()->targetInformation(m_proFilePath);
-    if (!ti.valid)
-        return QString();
-    return ti.executable;
+    const Qt4ProFileNode *node = pro->rootQt4ProjectNode()->findProFileFor(m_proFilePath);
+    return extractWorkingDirAndExecutable(node).second;
 }
 
 LocalApplicationRunConfiguration::RunMode Qt4RunConfiguration::runMode() const
@@ -490,10 +488,8 @@ QString Qt4RunConfiguration::baseWorkingDirectory() const
 
     // else what the pro file reader tells us
     Qt4Project *pro = static_cast<Qt4Project *>(target()->project());
-    TargetInformation ti = pro->rootQt4ProjectNode()->targetInformation(m_proFilePath);
-    if (!ti.valid)
-        return QString();
-    return ti.workingDir;
+    const Qt4ProFileNode *node = pro->rootQt4ProjectNode()->findProFileFor(m_proFilePath);
+    return extractWorkingDirAndExecutable(node).first;
 }
 
 QString Qt4RunConfiguration::commandLineArguments() const
@@ -585,6 +581,49 @@ QString Qt4RunConfiguration::defaultDisplayName()
 Utils::OutputFormatter *Qt4RunConfiguration::createOutputFormatter() const
 {
     return new QtSupport::QtOutputFormatter(target()->project());
+}
+
+QPair<QString, QString> Qt4RunConfiguration::extractWorkingDirAndExecutable(const Qt4ProFileNode *node) const
+{
+    if (!node)
+        return qMakePair(QString(), QString());
+    TargetInformation ti = node->targetInformation();
+    if (!ti.valid)
+        return qMakePair(QString(), QString());
+
+    const QStringList &config = node->variableValue(ConfigVar);
+
+    QString destDir = ti.destDir;
+    QString workingDir;
+    if (!destDir.isEmpty()) {
+        bool workingDirIsBaseDir = false;
+        if (destDir == ti.buildTarget) {
+            workingDirIsBaseDir = true;
+        }
+        if (QDir::isRelativePath(destDir))
+            destDir = QDir::cleanPath(ti.buildDir + QLatin1Char('/') + destDir);
+
+        if (workingDirIsBaseDir)
+            workingDir = ti.buildDir;
+        else
+            workingDir = destDir;
+    } else {
+        destDir = ti.buildDir;
+        workingDir = ti.buildDir;
+    }
+
+    if (Utils::HostOsInfo::isMacHost()
+            && config.contains(QLatin1String("app_bundle"))) {
+        const QString infix = QLatin1Char('/') + ti.target
+                + QLatin1String(".app/Contents/MacOS");
+        workingDir += infix;
+        destDir += infix;
+    }
+
+    QString executable = QDir::cleanPath(destDir + QLatin1Char('/') + ti.target);
+    executable = Utils::HostOsInfo::withExecutableSuffix(executable);
+    //qDebug() << "##### Qt4RunConfiguration::extractWorkingDirAndExecutable:" workingDir << executable;
+    return qMakePair(workingDir, executable);
 }
 
 ///
