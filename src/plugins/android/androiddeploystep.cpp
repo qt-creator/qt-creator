@@ -172,7 +172,7 @@ void AndroidDeployStep::cleanLibsOnDevice()
     int deviceAPILevel = targetSDK.mid(targetSDK.indexOf(QLatin1Char('-')) + 1).toInt();
     QString deviceSerialNumber = AndroidConfigurations::instance().getDeployDeviceSerialNumber(&deviceAPILevel);
     if (!deviceSerialNumber.length()) {
-        Core::MessageManager::instance()->printToOutputPanePopup(tr("Could not run adb. No device found."));
+        Core::MessageManager::instance()->printToOutputPane(tr("Could not run adb. No device found."), Core::MessageManager::NoModeSwitch);
         return;
     }
     QProcess *process = new QProcess(this);
@@ -180,8 +180,9 @@ void AndroidDeployStep::cleanLibsOnDevice()
     arguments << QLatin1String("shell") << QLatin1String("rm") << QLatin1String("-r") << QLatin1String("/data/local/tmp/qt");
     connect(process, SIGNAL(finished(int)), this, SLOT(cleanLibsFinished()));
     const QString adb = AndroidConfigurations::instance().adbToolPath().toString();
-    Core::MessageManager::instance()->printToOutputPanePopup(adb + QLatin1String(" ")
-                                                             + arguments.join(QLatin1String(" ")));
+    Core::MessageManager::instance()->printToOutputPane(adb + QLatin1String(" ")
+                                                        + arguments.join(QLatin1String(" ")),
+                                                        Core::MessageManager::NoModeSwitch);
     process->start(adb, arguments);
 }
 
@@ -190,8 +191,9 @@ void AndroidDeployStep::cleanLibsFinished()
     QProcess *process = qobject_cast<QProcess *>(sender());
     if (!process)
         return;
-    Core::MessageManager::instance()->printToOutputPanePopup(QString::fromLocal8Bit(process->readAll()));
-    Core::MessageManager::instance()->printToOutputPane(tr("adb finished with exit code %1.").arg(process->exitCode()));
+    Core::MessageManager::instance()->printToOutputPane(QString::fromLocal8Bit(process->readAll()), Core::MessageManager::NoModeSwitch);
+    Core::MessageManager::instance()->printToOutputPane(tr("adb finished with exit code %1.").arg(process->exitCode()),
+                                                        Core::MessageManager::NoModeSwitch);
 }
 
 void AndroidDeployStep::setDeployAction(AndroidDeployStep::AndroidDeployAction deploy)
