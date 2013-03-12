@@ -50,7 +50,6 @@
 #include <QPushButton>
 #include <QToolButton>
 #include <QWidget>
-#include <QLabel>
 
 namespace ProjectExplorer {
 namespace Internal {

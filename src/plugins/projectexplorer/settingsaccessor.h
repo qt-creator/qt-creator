@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTMANAGER_USERFILEACCESSOR_H
-#define PROJECTMANAGER_USERFILEACCESSOR_H
+#ifndef SETTINGSACCESSOR_H
+#define SETTINGSACCESSOR_H
 
 #include <utils/fileutils.h>
 #include <utils/persistentsettings.h>
@@ -117,4 +117,4 @@ private:
 
 } // namespace ProjectExplorer
 
-#endif // PROJECTMANAGER_USERFILEACCESSOR_H
+#endif // SETTINGSACCESSOR_H

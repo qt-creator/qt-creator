@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef CUSTOMPROJECTWIZARD_H
-#define CUSTOMPROJECTWIZARD_H
+#ifndef CUSTOMWIZARD_H
+#define CUSTOMWIZARD_H
 
 #include "../projectexplorer_export.h"
 
@@ -159,4 +159,4 @@ private slots:
 
 } // namespace ProjectExplorer
 
-#endif // CUSTOMPROJECTWIZARD_H
+#endif // CUSTOMWIZARD_H

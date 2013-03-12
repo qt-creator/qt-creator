@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#include "abiwidget.h"
 #include "customtoolchain.h"
+#include "abiwidget.h"
 #include "gccparser.h"
 #include "projectexplorerconstants.h"
 #include "toolchainmanager.h"

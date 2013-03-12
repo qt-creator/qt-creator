@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef CUSTOMPROJECTWIZARDPARAMETERS_H
-#define CUSTOMPROJECTWIZARDPARAMETERS_H
+#ifndef CUSTOMWIZARDPARAMETERS_H
+#define CUSTOMWIZARDPARAMETERS_H
 
 #include <coreplugin/basefilewizard.h>
 
@@ -153,4 +153,4 @@ extern const char customWizardFileOpenProjectAttributeC[];
 } // namespace Internal
 } // namespace ProjectExplorer
 
-#endif // CUSTOMPROJECTWIZARDPARAMETERS_H
+#endif // CUSTOMWIZARDPARAMETERS_H

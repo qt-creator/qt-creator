@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef KITMANAGERWIDGET_H
-#define KITMANAGERWIDGET_H
+#ifndef KITMANAGERCONFIGWIDGET_H
+#define KITMANAGERCONFIGWIDGET_H
 
 #include "kitconfigwidget.h"
 
@@ -106,4 +106,4 @@ private:
 } // namespace Internal
 } // namespace ProjectExplorer
 
-#endif // KITMANAGERWIDGET_H
+#endif // KITMANAGERCONFIGWIDGET_H

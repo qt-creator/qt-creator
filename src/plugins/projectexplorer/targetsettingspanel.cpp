@@ -57,7 +57,6 @@
 #include <QStackedWidget>
 #include <QToolTip>
 #include <QVBoxLayout>
-#include <QToolTip>
 
 
 using namespace Core;

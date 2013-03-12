@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef DEPENDENCIESDIALOG_H
-#define DEPENDENCIESDIALOG_H
+#ifndef DEPENDENCIESPANEL_H
+#define DEPENDENCIESPANEL_H
 
 #include "iprojectproperties.h"
 
@@ -122,4 +122,4 @@ private:
 } // namespace Internal
 } // namespace ProjectExplorer
 
-#endif // DEPENDENCIESDIALOG_H
+#endif // DEPENDENCIESPANEL_H

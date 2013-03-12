@@ -26,8 +26,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef PROJECTEXPLORER_DEPLOYMENTINFO_H
-#define PROJECTEXPLORER_DEPLOYMENTINFO_H
+#ifndef DEPLOYMENTDATA_H
+#define DEPLOYMENTDATA_H
 
 #include "deployablefile.h"
 #include "projectexplorer_export.h"
@@ -83,4 +83,4 @@ inline bool operator!=(const DeploymentData &d1, const DeploymentData &d2)
 
 } // namespace ProjectExplorer
 
-#endif // PROJECTEXPLORER_DEPLOYMENTINFO_H
+#endif // DEPLOYMENTDATA_H

@@ -38,7 +38,6 @@
 #include "idevice.h"
 #include "idevicefactory.h"
 #include "idevicewidget.h"
-#include "projectexplorerconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>

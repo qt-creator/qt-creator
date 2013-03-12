@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTMANAGERINTERFACE_H
-#define PROJECTMANAGERINTERFACE_H
+#ifndef PROJECTMANAGER_H
+#define PROJECTMANAGER_H
 
 #include "projectexplorer_export.h"
 
@@ -55,4 +55,4 @@ public:
 
 } // namespace ProjectExplorer
 
-#endif //PROJECTMANAGERINTERFACE_H
+#endif //PROJECTMANAGER_H

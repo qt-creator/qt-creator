@@ -27,6 +27,9 @@
 **
 ****************************************************************************/
 
+#ifndef TASKMODEL_H
+#define TASKMODEL_H
+
 #include <QAbstractItemModel>
 
 #include <QIcon>
@@ -187,3 +190,5 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
+
+#endif // TASKMODEL_H
