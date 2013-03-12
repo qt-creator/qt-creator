@@ -141,8 +141,6 @@ void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Poi
             }
         }
     }
-
-    m_signalSpy.setObjectNodeInstance(objectNodeInstance);
 }
 
 void ObjectNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance)
