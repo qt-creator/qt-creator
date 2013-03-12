@@ -26,8 +26,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef GENERICLINUXDEVICECONFIGURATIONWIZARDSETUPPAGE_H
-#define GENERICLINUXDEVICECONFIGURATIONWIZARDSETUPPAGE_H
+#ifndef GENERICLINUXDEVICECONFIGURATIONWIZARDPAGES_H
+#define GENERICLINUXDEVICECONFIGURATIONWIZARDPAGES_H
 
 #include "remotelinux_export.h"
 
@@ -89,4 +89,4 @@ private:
 
 } // namespace RemoteLinux
 
-#endif // GENERICLINUXDEVICECONFIGURATIONWIZARDSETUPPAGE_H
+#endif // GENERICLINUXDEVICECONFIGURATIONWIZARDPAGES_H

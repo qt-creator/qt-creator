@@ -38,7 +38,6 @@
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>

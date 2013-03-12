@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QT4PROJECTMANAGER_QT4DEPLOYCONFIGURATION_H
-#define QT4PROJECTMANAGER_QT4DEPLOYCONFIGURATION_H
+#ifndef QT4MAEMODEPLOYCONFIGURATION_H
+#define QT4MAEMODEPLOYCONFIGURATION_H
 
 #include <remotelinux/remotelinuxdeployconfiguration.h>
 #include <utils/fileutils.h>
@@ -91,4 +91,4 @@ private:
 } // namespace Internal
 } // namespace Madde
 
-#endif // QT4PROJECTMANAGER_QT4DEPLOYCONFIGURATION_H
+#endif // QT4MAEMODEPLOYCONFIGURATION_H

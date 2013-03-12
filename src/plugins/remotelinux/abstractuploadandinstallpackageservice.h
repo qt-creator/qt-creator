@@ -26,8 +26,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef ABSTRACTUPLOADANDINSTALLACTION_H
-#define ABSTRACTUPLOADANDINSTALLACTION_H
+#ifndef ABSTRACTUPLOADANDINSTALLPACKAGESERVICE_H
+#define ABSTRACTUPLOADANDINSTALLPACKAGESERVICE_H
 
 #include "abstractremotelinuxdeployservice.h"
 #include "remotelinux_export.h"
@@ -73,4 +73,4 @@ private:
 
 } // namespace RemoteLinux
 
-#endif // ABSTRACTUPLOADANDINSTALLACTION_H
+#endif // ABSTRACTUPLOADANDINSTALLPACKAGESERVICE_H

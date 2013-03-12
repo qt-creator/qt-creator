@@ -26,8 +26,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef DEFAULTDEVICETESTDIALOG_H
-#define DEFAULTDEVICETESTDIALOG_H
+#ifndef LINUXDEVICETESTDIALOG_H
+#define LINUXDEVICETESTDIALOG_H
 
 #include "linuxdevicetester.h"
 #include "remotelinux_export.h"
@@ -64,4 +64,4 @@ private:
 
 } // namespace RemoteLinux
 
-#endif // DEFAULTDEVICETESTDIALOG_H
+#endif // LINUXDEVICETESTDIALOG_H

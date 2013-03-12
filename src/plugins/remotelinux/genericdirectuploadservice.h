@@ -26,8 +26,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef DIRECTDEVICEUPLOADACTION_H
-#define DIRECTDEVICEUPLOADACTION_H
+#ifndef GERNERICDIRECTDEVICEUPLOADSERVICE_H
+#define GERNERICDIRECTDEVICEUPLOADSERVICE_H
 
 #include "abstractremotelinuxdeployservice.h"
 #include "remotelinux_export.h"
@@ -82,4 +82,4 @@ private:
 
 } //namespace RemoteLinux
 
-#endif // DIRECTDEVICEUPLOADACTION_H
+#endif // GERNERICDIRECTDEVICEUPLOADSERVICE_H

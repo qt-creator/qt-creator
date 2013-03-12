@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QEMURUNTIMEMANAGER_H
-#define QEMURUNTIMEMANAGER_H
+#ifndef MAEMOQEMUMANAGER_H
+#define MAEMOQEMUMANAGER_H
 
 #include "maemoconstants.h"
 #include "maemoqemuruntime.h"
@@ -127,4 +127,4 @@ private:
 }   // namespace Internal
 }   // namespace Madde
 
-#endif  // QEMURUNTIMEMANAGER_H
+#endif  // MAEMOQEMUMANAGER_H

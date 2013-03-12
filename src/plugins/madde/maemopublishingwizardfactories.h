@@ -26,8 +26,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef MAEMOPUBLISHINGSERVICE_H
-#define MAEMOPUBLISHINGSERVICE_H
+#ifndef MAEMOPUBLISHINGWIZARDFACTORIES_H
+#define MAEMOPUBLISHINGWIZARDFACTORIES_H
 
 #include <projectexplorer/publishing/ipublishingwizardfactory.h>
 
@@ -54,4 +54,4 @@ private:
 } // namespace Internal
 } // namespace Madde
 
-#endif // MAEMOPUBLISHINGSERVICE_H
+#endif // MAEMOPUBLISHINGWIZARDFACTORIES_H
