@@ -27,6 +27,9 @@
 **
 ****************************************************************************/
 
+#ifndef CUSTOMDRAGANDDROP_H
+#define CUSTOMDRAGANDDROP_H
+
 #include <QPixmap>
 #include <QLabel>
 #include <QTimeLine>
@@ -140,3 +143,5 @@ private:
     };
 
 } //namespave QmlDesigner
+
+#endif // CUSTOMDRAGANDDROP_H

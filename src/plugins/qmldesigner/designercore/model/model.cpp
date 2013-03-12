@@ -27,7 +27,8 @@
 **
 ****************************************************************************/
 
-#include <model.h>
+#include "model.h"
+#include "model_p.h"
 #include <modelnode.h>
 #include "internalnode_p.h"
 #include "invalidpropertyexception.h"
@@ -48,7 +49,6 @@
 #include "nodeinstanceview.h"
 #include "metainfo.h"
 #include "nodemetainfo.h"
-#include "model_p.h"
 #include "subcomponentmanager.h"
 #include "internalproperty.h"
 #include "internalnodelistproperty.h"

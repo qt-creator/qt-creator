@@ -27,10 +27,10 @@
 **
 ****************************************************************************/
 
+#include "settingspage.h"
 #include "designersettings.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
-#include "settingspage.h"
 
 #include <qmljseditor/qmljseditorconstants.h>
 

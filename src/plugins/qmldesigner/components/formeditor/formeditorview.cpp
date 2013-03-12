@@ -27,11 +27,11 @@
 **
 ****************************************************************************/
 
+#include "formeditorview.h"
 #include "selectiontool.h"
 #include "movetool.h"
 #include "resizetool.h"
 #include "dragtool.h"
-#include "formeditorview.h"
 #include "formeditorwidget.h"
 #include "formeditornodeinstanceview.h"
 #include "formeditoritem.h"

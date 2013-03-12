@@ -27,9 +27,9 @@
 **
 ****************************************************************************/
 
-#include <QHash>
-
 #include "import.h"
+
+#include <QHash>
 
 namespace QmlDesigner {
 

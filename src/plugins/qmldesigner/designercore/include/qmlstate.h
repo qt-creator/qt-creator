@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef FXSTATE_H
-#define FXSTATE_H
+#ifndef QMLSTATE_H
+#define QMLSTATE_H
 
 #include <qmldesignercorelib_global.h>
 #include "qmlmodelnodefacade.h"
@@ -79,4 +79,4 @@ protected:
 } //QmlDesigner
 
 
-#endif // FXSTATE_H
+#endif // QMLSTATE_H

@@ -27,10 +27,11 @@
 **
 ****************************************************************************/
 
+#include "stackedutilitypanelcontroller.h"
+#include "designdocument.h"
+
 #include <QStackedWidget>
 
-#include "designdocument.h"
-#include "stackedutilitypanelcontroller.h"
 
 namespace QmlDesigner {
 

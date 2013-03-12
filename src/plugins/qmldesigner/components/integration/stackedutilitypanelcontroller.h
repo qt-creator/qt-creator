@@ -32,6 +32,8 @@
 
 #include "utilitypanelcontroller.h"
 
+class QStackedWidget;
+
 namespace QmlDesigner {
 
 class DesignDocument;

@@ -36,7 +36,6 @@
 #include <model.h>
 #include <nodemetainfo.h>
 #include <metainfo.h>
-#include <nodeproperty.h>
 #include <qmlobjectnode.h>
 
 //using namespace QmlDesigner;

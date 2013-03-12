@@ -27,8 +27,9 @@
 **
 ****************************************************************************/
 
-#include <QDebug>
 #include "modelnodepositionrecalculator.h"
+
+#include <QDebug>
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;

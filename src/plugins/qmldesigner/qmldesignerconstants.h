@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNERPLUGIN_CONSTANTS_H
-#define QMLDESIGNERPLUGIN_CONSTANTS_H
+#ifndef QMLDESIGNERCONSTANTS_H
+#define QMLDESIGNERCONSTANTS_H
 
 namespace QmlDesigner {
 namespace Constants {
@@ -75,4 +75,4 @@ namespace Internal {
 } // Constants
 } // QmlDesigner
 
-#endif //QMLDESIGNERPLUGIN_CONSTANTS_H
+#endif //QMLDESIGNERCONSTANTS_H

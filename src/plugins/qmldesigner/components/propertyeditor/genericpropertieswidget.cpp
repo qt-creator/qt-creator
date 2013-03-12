@@ -27,6 +27,8 @@
 **
 ****************************************************************************/
 
+#include "genericpropertieswidget.h"
+
 #include <QSet>
 #include <QDebug>
 #include <QWidget>
@@ -37,7 +39,6 @@
 #include "qttreepropertybrowser.h"
 #include "qtvariantproperty.h"
 
-#include "genericpropertieswidget.h"
 #include "nodemetainfo.h"
 #include "propertymetainfo.h"
 

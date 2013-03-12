@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include <modelnode.h>
+#include "modelnode.h"
 #include <abstractproperty.h>
 #include <abstractview.h>
 #include <model.h>
@@ -42,8 +42,6 @@
 #include "invalidpropertyexception.h"
 #include "invalidslideindexexception.h"
 #include "model_p.h"
-#include "abstractview.h"
-#include "abstractproperty.h"
 #include "variantproperty.h"
 #include "bindingproperty.h"
 #include "nodeabstractproperty.h"

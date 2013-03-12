@@ -27,13 +27,13 @@
 **
 ****************************************************************************/
 
+#include "modelrewriter.h"
 #include <QCoreApplication>
 
 #include "copyhelper.h"
 #include "invalidmodelnodeexception.h"
 #include "invalidpropertyexception.h"
 #include "internalnode_p.h"
-#include "modelrewriter.h"
 #include "modificationgroupexception.h"
 #include "nodeproperty.h"
 #include "paster.h"

@@ -43,7 +43,6 @@
 #include <rewritingexception.h>
 #include <nodelistproperty.h>
 #include <variantproperty.h>
-#include <rewritingexception.h>
 #include <modelnodeoperations.h>
 #include <qmldesignerplugin.h>
 #include <viewmanager.h>

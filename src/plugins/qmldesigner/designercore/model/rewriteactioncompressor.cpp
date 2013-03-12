@@ -27,13 +27,14 @@
 **
 ****************************************************************************/
 
+#include "rewriteactioncompressor.h"
+
 #include <QSet>
 
 #include "modelnode.h"
 #include "nodelistproperty.h"
 #include "nodeproperty.h"
 #include "qmltextgenerator.h"
-#include "rewriteactioncompressor.h"
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;

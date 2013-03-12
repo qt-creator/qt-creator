@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef VARIANTROPERTY_H
-#define VARIANTROPERTY_H
+#ifndef VARIANTPROPERTY_H
+#define VARIANTPROPERTY_H
 
 #include "qmldesignercorelib_global.h"
 #include "abstractproperty.h"

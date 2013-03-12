@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#include "invalidmodelnodeexception.h"
 #include "modelnodepositionstorage.h"
+#include "invalidmodelnodeexception.h"
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;

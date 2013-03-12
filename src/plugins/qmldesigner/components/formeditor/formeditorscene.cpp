@@ -51,7 +51,6 @@
 #include "formeditornodeinstanceview.h"
 
 #include "resizehandleitem.h"
-#include <QDebug>
 
 
 

@@ -27,13 +27,14 @@
 **
 ****************************************************************************/
 
+#include "qmltextgenerator.h"
+
 #include <QVariant>
 #include <QColor>
 
 #include "bindingproperty.h"
 #include "nodeproperty.h"
 #include "nodelistproperty.h"
-#include "qmltextgenerator.h"
 #include "variantproperty.h"
 #include <nodemetainfo.h>
 #include "model.h"

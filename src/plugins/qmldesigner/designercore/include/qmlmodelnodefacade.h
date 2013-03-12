@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef FXMODELNODEFACADE_H
-#define FXMODELNODEFACADE_H
+#ifndef QMLMODELNODEFACADE_H
+#define QMLMODELNODEFACADE_H
 
 #include <qmldesignercorelib_global.h>
 #include <modelnode.h>
@@ -58,4 +58,4 @@ private:
 
 } //QmlDesigner
 
-#endif // FXMODELNODEFACADE_H
+#endif // QMLMODELNODEFACADE_H

@@ -29,7 +29,6 @@
 
 #include "abstractformeditortool.h"
 #include "formeditorview.h"
-#include "formeditorview.h"
 
 #include <modelnodecontextmenu.h>
 

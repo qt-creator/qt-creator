@@ -27,13 +27,13 @@
 **
 ****************************************************************************/
 
+#include "utilitypanelcontroller.h"
+
 #include <QDebug>
 #include <QEvent>
 #include <QDockWidget>
 #include <QVBoxLayout>
 #include <QWidget>
-
-#include "utilitypanelcontroller.h"
 
 namespace QmlDesigner {
 

@@ -38,7 +38,6 @@
 #include <QMap>
 #include <QPointer>
 #include <QWeakPointer>
-#include <QHash>
 #include <QUrl>
 
 #include <modelnode.h>
