@@ -27,9 +27,9 @@
 **
 ****************************************************************************/
 
-#include <QPushButton>
-
 #include "filternamedialog.h"
+
+#include <QPushButton>
 
 FilterNameDialog::FilterNameDialog(QWidget *parent)
     : QDialog(parent)
