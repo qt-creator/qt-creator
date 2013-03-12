@@ -33,7 +33,6 @@
 #include "reuse.h"
 
 #include <glsl/glslengine.h>
-#include <glsl/glslengine.h>
 #include <glsl/glsllexer.h>
 #include <glsl/glslparser.h>
 #include <glsl/glslsemantic.h>

@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#include "glsltypes.h"
 #include "glslsymbols.h"
+#include "glsltypes.h"
 #include <QDebug>
 
 using namespace GLSL;

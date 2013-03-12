@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef GLSLDITORACTIONHANDLER_H
-#define GLSLDITORACTIONHANDLER_H
+#ifndef GLSLEDITORACTIONHANDLER_H
+#define GLSLEDITORACTIONHANDLER_H
 
 #include <texteditor/texteditoractionhandler.h>
 
@@ -48,4 +48,4 @@ public:
 } // namespace Internal
 } // namespace GLSLEditor
 
-#endif // GLSLDITORACTIONHANDLER_H
+#endif // GLSLEDITORACTIONHANDLER_H
