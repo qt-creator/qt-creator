@@ -1224,7 +1224,7 @@ void CMakeCbpParser::parseAdd()
             if (assignIndex != -1)
                 compilerOption[assignIndex] = ' ';
             m_defines.append("#define ");
-            m_defines.append(compilerOption.mid(macroNameIndex).toLatin1());
+            m_defines.append(compilerOption.mid(macroNameIndex).toUtf8());
             m_defines.append('\n');
         }
     }
