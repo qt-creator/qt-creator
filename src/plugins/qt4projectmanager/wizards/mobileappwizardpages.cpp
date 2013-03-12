@@ -37,7 +37,6 @@
 #include <QTemporaryFile>
 #include <QDesktopServices>
 #include <QFileDialog>
-#include <QFileDialog>
 #include <QMessageBox>
 
 namespace Qt4ProjectManager {

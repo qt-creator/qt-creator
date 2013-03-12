@@ -29,7 +29,6 @@
 
 #include "qmakekitinformation.h"
 
-#include "qmakekitinformation.h"
 #include "qmakekitconfigwidget.h"
 
 #include <projectexplorer/projectexplorerconstants.h>

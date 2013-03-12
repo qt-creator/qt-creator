@@ -27,10 +27,10 @@
 **
 ****************************************************************************/
 
+#include "qtquickappwizard.h"
 #include "mobileappwizardpages.h"
 
 #include "qtquickapp.h"
-#include "qtquickappwizard.h"
 #include "qtquickappwizardpages.h"
 #include "targetsetuppage.h"
 #include "qt4projectmanagerconstants.h"

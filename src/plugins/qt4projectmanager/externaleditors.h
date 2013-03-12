@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNEREXTERNALEDITOR_H
-#define DESIGNEREXTERNALEDITOR_H
+#ifndef EXTERNALEDITORS_H
+#define EXTERNALEDITORS_H
 
 #include <coreplugin/editormanager/iexternaleditor.h>
 #include <coreplugin/id.h>
@@ -146,4 +146,4 @@ private:
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // DESIGNEREXTERNALEDITOR_H
+#endif // EXTERNALEDITORS_H

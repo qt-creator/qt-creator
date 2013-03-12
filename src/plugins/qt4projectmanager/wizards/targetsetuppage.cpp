@@ -52,10 +52,8 @@
 #include <QApplication>
 #include <QButtonGroup>
 #include <QHeaderView>
-#include <QLabel>
 #include <QScrollArea>
 #include <QVBoxLayout>
-#include <QWidget>
 
 namespace Qt4ProjectManager {
 namespace Internal {

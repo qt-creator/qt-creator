@@ -27,10 +27,10 @@
 **
 ****************************************************************************/
 
+#include "html5appwizard.h"
 #include "mobileappwizardpages.h"
 
 #include "html5app.h"
-#include "html5appwizard.h"
 #include "html5appwizardpages.h"
 #include "targetsetuppage.h"
 #include "qt4projectmanagerconstants.h"

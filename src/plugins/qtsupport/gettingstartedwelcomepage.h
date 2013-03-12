@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef GETTINGSTARTEDWELCOMEPLUGIN_H
-#define GETTINGSTARTEDWELCOMEPLUGIN_H
+#ifndef GETTINGSTARTEDWELCOMEPAGE_H
+#define GETTINGSTARTEDWELCOMEPAGE_H
 
 #include <utils/iwelcomepage.h>
 
@@ -99,4 +99,4 @@ private:
 } // namespace Internal
 } // namespace QtSupport
 
-#endif // GETTINGSTARTEDWELCOMEPLUGIN_H
+#endif // GETTINGSTARTEDWELCOMEPAGE_H

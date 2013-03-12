@@ -34,9 +34,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <qtsupport/qtkitinformation.h>
