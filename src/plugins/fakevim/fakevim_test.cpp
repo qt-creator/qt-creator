@@ -1606,6 +1606,9 @@ void FakeVimPlugin::test_vim_letter_case()
 
     // upper- and lower-case
     data.setText("abc DEF");
+    KEYS("~", "A" X "bc DEF");
+
+    data.setText("abc DEF");
     KEYS("lv3l~", "a" X "BC dEF");
     KEYS("v4lU", "a" X "BC DEF");
     KEYS("v4$u", "a" X "bc def");
