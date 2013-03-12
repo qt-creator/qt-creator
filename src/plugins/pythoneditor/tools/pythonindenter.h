@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef PYTHONEDITOR_INDENTER_H
-#define PYTHONEDITOR_INDENTER_H
+#ifndef PYTHONINDENTER_H
+#define PYTHONINDENTER_H
 
 #include "../pythoneditor_global.h"
 #include <texteditor/indenter.h>
@@ -58,4 +58,4 @@ private:
 
 } // namespace PythonEditor
 
-#endif // PYTHONEDITOR_INDENTER_H
+#endif // PYTHONINDENTER_H

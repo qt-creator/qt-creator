@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef PYTHONEDITOR_FORMATTOKEN_H
-#define PYTHONEDITOR_FORMATTOKEN_H
+#ifndef PYTHONFORMATTOKEN_H
+#define PYTHONFORMATTOKEN_H
 
 #include <stdlib.h>
 
@@ -78,4 +78,4 @@ private:
 } // namespace Internal
 } // namespace PythonEditor
 
-#endif // PYTHONEDITOR_FORMATTOKEN_H
+#endif // PYTHONFORMATTOKEN_H

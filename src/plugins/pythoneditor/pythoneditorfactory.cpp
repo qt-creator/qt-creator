@@ -27,10 +27,10 @@
 **
 ****************************************************************************/
 
+#include "pythoneditorfactory.h"
 #include "pythoneditorconstants.h"
 #include "pythoneditorwidget.h"
 #include "pythoneditorplugin.h"
-#include "pythoneditorfactory.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>

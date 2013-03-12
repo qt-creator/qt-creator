@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef PYTHONEDITOR_HIGHLIGHTER_H
-#define PYTHONEDITOR_HIGHLIGHTER_H
+#ifndef PYTHONHIGHLIGHTER_H
+#define PYTHONHIGHLIGHTER_H
 
 #include "../pythoneditor_global.h"
 #include <texteditor/syntaxhighlighter.h>
@@ -59,4 +59,4 @@ private:
 
 } // namespace PythonEditor
 
-#endif // PYTHONEDITOR_HIGHLIGHTER_H
+#endif // PYTHONHIGHLIGHTER_H

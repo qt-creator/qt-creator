@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef PYTHONEDITOR_EDITORWIDGET_H
-#define PYTHONEDITOR_EDITORWIDGET_H
+#ifndef PYTHONEDITORWIDGET_H
+#define PYTHONEDITORWIDGET_H
 
 #include "pythoneditor_global.h"
 
@@ -59,4 +59,4 @@ private:
 
 } // namespace PythonEditor
 
-#endif // PYTHONEDITOR_EDITORWIDGET_H
+#endif // PYTHONEDITORWIDGET_H

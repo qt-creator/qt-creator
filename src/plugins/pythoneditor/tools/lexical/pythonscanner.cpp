@@ -27,9 +27,9 @@
 **
 ****************************************************************************/
 
+#include "pythonscanner.h"
 #include "../../pythoneditorconstants.h"
 #include "../../pythoneditorplugin.h"
-#include "pythonscanner.h"
 
 #include <QString>
 #include <QSet>

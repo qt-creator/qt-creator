@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef PYTHONEDITOR_EDITORFACTORY_H
-#define PYTHONEDITOR_EDITORFACTORY_H
+#ifndef PYTHONEDITORFACTORY_H
+#define PYTHONEDITORFACTORY_H
 
 #include "pythoneditor_global.h"
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -70,4 +70,4 @@ private:
 
 } // namespace PythonEditor
 
-#endif // PYTHONEDITOR_EDITORFACTORY_H
+#endif // PYTHONEDITORFACTORY_H

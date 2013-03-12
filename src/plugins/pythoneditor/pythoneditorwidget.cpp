@@ -33,10 +33,10 @@
   Represents editor as plain text editor.
   */
 
+#include "pythoneditorwidget.h"
 #include "tools/pythonhighlighter.h"
 #include "tools/pythonindenter.h"
 #include "pythoneditor.h"
-#include "pythoneditorwidget.h"
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>

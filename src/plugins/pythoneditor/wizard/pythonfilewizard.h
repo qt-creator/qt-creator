@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef PYEDITOR_FILEWIZARD_H
-#define PYEDITOR_FILEWIZARD_H
+#ifndef PYTHONFILEWIZARD_H
+#define PYTHONFILEWIZARD_H
 
 #include <coreplugin/basefilewizard.h>
 
@@ -54,4 +54,4 @@ protected:
 
 } // namespace PythonEditor
 
-#endif // PYEDITOR_FILEWIZARD_H
+#endif // PYTHONFILEWIZARD_H

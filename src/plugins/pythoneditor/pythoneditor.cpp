@@ -32,10 +32,10 @@
   This editor makes possible to edit Python source files
   */
 
+#include "pythoneditor.h"
 #include "pythoneditorconstants.h"
 #include "pythoneditorplugin.h"
 #include "pythoneditorwidget.h"
-#include "pythoneditor.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
