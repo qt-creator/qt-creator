@@ -559,13 +559,13 @@ void QmlProfilerTool::startTool(StartMode mode)
 void QmlProfilerTool::logStatus(const QString &msg)
 {
     MessageManager *messageManager = MessageManager::instance();
-    messageManager->printToOutputPane(msg, false);
+    messageManager->printToOutputPane(msg, Core::MessageManager::Flash);
 }
 
 void QmlProfilerTool::logError(const QString &msg)
 {
     MessageManager *messageManager = MessageManager::instance();
-    messageManager->printToOutputPane(msg, true);
+    messageManager->printToOutputPane(msg, Core::MessageManager::NoModeSwitch);
 }
 
 void QmlProfilerTool::showErrorDialog(const QString &error)
