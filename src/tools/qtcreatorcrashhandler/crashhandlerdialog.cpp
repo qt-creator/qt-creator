@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#include "crashhandler.h"
 #include "crashhandlerdialog.h"
+#include "crashhandler.h"
 #include "ui_crashhandlerdialog.h"
 #include "utils.h"
 
