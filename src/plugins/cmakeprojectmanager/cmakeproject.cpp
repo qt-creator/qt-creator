@@ -35,7 +35,6 @@
 #include "cmakerunconfiguration.h"
 #include "makestep.h"
 #include "cmakeopenprojectwizard.h"
-#include "cmakebuildconfiguration.h"
 #include "cmakeuicodemodelsupport.h"
 
 #include <projectexplorer/projectexplorerconstants.h>

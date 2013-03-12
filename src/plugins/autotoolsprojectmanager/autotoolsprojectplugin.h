@@ -29,8 +29,8 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOTOOLSPROJECTMANAGER_H
-#define AUTOTOOLSPROJECTMANAGER_H
+#ifndef AUTOTOOLSPROJECTPLUGIN_H
+#define AUTOTOOLSPROJECTPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
 
@@ -80,4 +80,4 @@ public:
 } // namespace Internal
 } // namespace AutotoolsProjectManager
 
-#endif // AUTOTOOLSPROJECTMANAGER_H
+#endif // AUTOTOOLSPROJECTPLUGIN_H

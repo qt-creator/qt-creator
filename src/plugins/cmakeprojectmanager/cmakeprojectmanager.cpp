@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#include "cmakeopenprojectwizard.h"
 #include "cmakeprojectmanager.h"
+#include "cmakeopenprojectwizard.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
 

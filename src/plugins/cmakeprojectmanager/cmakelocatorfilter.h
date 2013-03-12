@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEPROJECTMANAGER_INTERNAL_CMAKEFILTER_H
-#define CMAKEPROJECTMANAGER_INTERNAL_CMAKEFILTER_H
+#ifndef CMAKELOCATORFILTER_H
+#define CMAKELOCATORFILTER_H
 
 #include <locator/ilocatorfilter.h>
 
@@ -56,4 +56,4 @@ private slots:
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEPROJECTMANAGER_INTERNAL_CMAKEFILTER_H
+#endif // CMAKELOCATORFILTER_H
