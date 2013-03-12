@@ -488,7 +488,7 @@ QList<CustomWizard*> CustomWizard::createWizards()
     if (CustomWizardPrivate::verbose) { // Print to output pane for Windows.
         verboseLog += listWizards();
         qWarning("%s", qPrintable(verboseLog));
-        Core::ICore::messageManager()->printToOutputPanePopup(verboseLog);
+        Core::ICore::messageManager()->printToOutputPane(verboseLog, Core::MessageManager::ModeSwitch);
     }
     return rc;
 }
