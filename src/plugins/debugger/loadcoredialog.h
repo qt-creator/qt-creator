@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_ATTACHCOREDIALOG_H
-#define DEBUGGER_ATTACHCOREDIALOG_H
+#ifndef LOADCOREDIALOG_H
+#define LOADCOREDIALOG_H
 
 #include <QDialog>
 
@@ -79,4 +79,4 @@ private:
 } // namespace Debugger
 } // namespace Internal
 
-#endif // DEBUGGER_ATTACHCOREDIALOG_H
+#endif // LOADCOREDIALOG_H

@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_SOURCEFILEWINDOW_H
-#define DEBUGGER_SOURCEFILEWINDOW_H
+#ifndef SOURCEFILESWINDOW_H
+#define SOURCEFILESWINDOW_H
 
 #include "basewindow.h"
 
@@ -58,5 +58,5 @@ public:
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_SOURCEFILEWINDOW_H
+#endif // SOURCEFILESWINDOW_H
 

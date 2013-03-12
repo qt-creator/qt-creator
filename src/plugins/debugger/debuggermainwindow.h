@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGERUISWITCHER_H
-#define DEBUGGERUISWITCHER_H
+#ifndef DEBUGGERMAINWINDOW_H
+#define DEBUGGERMAINWINDOW_H
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
@@ -92,4 +92,4 @@ private:
 
 } // namespace Debugger
 
-#endif // DEBUGGERUISWITCHER_H
+#endif // DEBUGGERMAINWINDOW_H

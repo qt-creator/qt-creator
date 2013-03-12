@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGERPLUGIN_STREAMOPS_H
-#define DEBUGGERPLUGIN_STREAMOPS_H
+#ifndef DEBUGGERSTREAMOPS_H
+#define DEBUGGERSTREAMOPS_H
 
 #include "threaddata.h"
 #include "stackframe.h"
@@ -66,4 +66,4 @@ QDataStream &operator>>(QDataStream& stream, DisassemblerLines &o);
 } // namespace Internal
 } // namespace Debugger
 
-#endif
+#endif // DEBUGGERSTREAMOPS_H

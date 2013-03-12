@@ -80,7 +80,6 @@
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/imode.h>
 #include <coreplugin/icorelistener.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/minisplitter.h>

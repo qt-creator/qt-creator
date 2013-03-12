@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef LLDBSETTINGSPAGE_H
-#define LLDBSETTINGSPAGE_H
+#ifndef LLDBOPTIONSPAGE_H
+#define LLDBOPTIONSPAGE_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include "ui_lldboptionspagewidget.h"
@@ -77,4 +77,4 @@ private:
 } // namespace Internal
 } // namespace Debugger
 
-#endif // LLDBSETTINGSPAGE_H
+#endif // LLDBOPTIONSPAGE_H

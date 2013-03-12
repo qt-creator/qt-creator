@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_PLAINGDBADAPTER_H
-#define DEBUGGER_PLAINGDBADAPTER_H
+#ifndef LOCALPLAINGDBADAPTER_H
+#define LOCALPLAINGDBADAPTER_H
 
 #include "abstractplaingdbadapter.h"
 #include "localgdbprocess.h"
@@ -70,4 +70,4 @@ private:
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_PLAINGDBADAPTER_H
+#endif // LOCALPLAINGDBADAPTER_H

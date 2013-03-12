@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_REMOTEGDBADAPTER_H
-#define DEBUGGER_REMOTEGDBADAPTER_H
+#ifndef REMOTEGDBSERVERADAPTER_H
+#define REMOTEGDBSERVERADAPTER_H
 
 #include "gdbengine.h"
 #include "localgdbprocess.h"
@@ -96,4 +96,4 @@ private:
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_PLAINGDBADAPTER_H
+#endif // REMOTEGDBSERVERADAPTER_H

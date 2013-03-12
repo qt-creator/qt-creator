@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_IPCENGINE_H
-#define DEBUGGER_IPCENGINE_H
+#ifndef IPCENGINEGUEST_H
+#define IPCENGINEGUEST_H
 
 #include "breakhandler.h"
 #include "debuggerengine.h"
@@ -188,4 +188,4 @@ private:
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_LLDBENGINE_H
+#endif // IPCENGINEGUEST_H

@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef GDBPROCESSWRAPPER_H
-#define GDBPROCESSWRAPPER_H
+#ifndef ABSTRACTGDBPROCESS_H
+#define ABSTRACTGDBPROCESS_H
 
 #include <QObject>
 #include <QProcess>
@@ -71,4 +71,4 @@ signals:
 } // namespace Internal
 } // namespace Debugger
 
-#endif // GDBPROCESSWRAPPER_H
+#endif // ABSTRACTGDBPROCESS_H

@@ -33,7 +33,6 @@
 #include "debuggerengine.h"
 #include "debuggeractions.h"
 #include "watchhandler.h"
-#include "watchutils.h"
 #include "stackhandler.h"
 #include "debuggercore.h"
 

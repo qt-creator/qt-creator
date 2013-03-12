@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef CDBSETTINGS_H
-#define CDBSETTINGS_H
+#ifndef CDBOPTIONS_H
+#define CDBOPTIONS_H
 
 #include <QStringList>
 
@@ -80,4 +80,4 @@ inline bool operator!=(const CdbOptions &s1, const CdbOptions &s2)
 } // namespace Internal
 } // namespace Debugger
 
-#endif // CDBSETTINGS_H
+#endif // CDBOPTIONS_H

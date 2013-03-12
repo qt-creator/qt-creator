@@ -57,7 +57,6 @@
 #include <QTabWidget>
 
 #include <ctype.h>
-#include <utils/qtcassert.h>
 
 //#define USE_WATCH_MODEL_TEST 0
 //#define USE_EXPENSIVE_CHECKS 0

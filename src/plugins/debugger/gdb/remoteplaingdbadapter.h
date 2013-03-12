@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTEGDBCLIENTADAPTER_H
-#define REMOTEGDBCLIENTADAPTER_H
+#ifndef REMOTEPLAINGDBADAPTER_H
+#define REMOTEPLAINGDBADAPTER_H
 
 #include "abstractplaingdbadapter.h"
 #include "remotegdbprocess.h"
@@ -69,4 +69,4 @@ private:
 } // namespace Internal
 } // namespace Debugger
 
-#endif // REMOTEGDBCLIENTADAPTER_H
+#endif // REMOTEPLAINGDBADAPTER_H

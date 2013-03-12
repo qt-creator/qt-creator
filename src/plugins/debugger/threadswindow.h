@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_THREADWINDOW_H
-#define DEBUGGER_THREADWINDOW_H
+#ifndef THREADSWINDOW_H
+#define THREADSWINDOW_H
 
 #include "basewindow.h"
 
@@ -59,4 +59,4 @@ public:
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_THREADWINDOW_H
+#endif // THREADSWINDOW_H
