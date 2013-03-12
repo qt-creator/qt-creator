@@ -125,9 +125,9 @@ void ExecuteFilter::finished(int exitCode, QProcess::ExitStatus status)
 {
     QString log = QLatin1Char('\'') + headCommand() + QLatin1String("' ");
     if (status == QProcess::NormalExit && exitCode == 0)
-        ICore::messageManager()->printToOutputPane(log + tr("finished"), true);
+        ICore::messageManager()->printToOutputPane(log + tr("finished"), MessageManager::NoModeSwitch);
     else
-        ICore::messageManager()->printToOutputPane(log + tr("failed"), true);
+        ICore::messageManager()->printToOutputPane(log + tr("failed"), MessageManager::NoModeSwitch);
 
     m_taskQueue.dequeue();
     if (!m_taskQueue.isEmpty())
@@ -137,13 +137,13 @@ void ExecuteFilter::finished(int exitCode, QProcess::ExitStatus status)
 void ExecuteFilter::readStandardOutput()
 {
     QByteArray data = m_process->readAllStandardOutput();
-    ICore::messageManager()->printToOutputPane(QString::fromLocal8Bit(data), true);
+    ICore::messageManager()->printToOutputPane(QString::fromLocal8Bit(data), MessageManager::NoModeSwitch);
 }
 
 void ExecuteFilter::readStandardError()
 {
     QByteArray data = m_process->readAllStandardError();
-    ICore::messageManager()->printToOutputPane(QString::fromLocal8Bit(data), true);
+    ICore::messageManager()->printToOutputPane(QString::fromLocal8Bit(data), MessageManager::NoModeSwitch);
 }
 
 void ExecuteFilter::runHeadCommand()
@@ -153,13 +153,13 @@ void ExecuteFilter::runHeadCommand()
         const QString fullPath = Utils::Environment::systemEnvironment().searchInPath(d.executable);
         if (fullPath.isEmpty()) {
             const QString log = tr("Could not find executable for '%1'").arg(d.executable);
-            ICore::messageManager()->printToOutputPane(log, true);
+            ICore::messageManager()->printToOutputPane(log, MessageManager::NoModeSwitch);
             m_taskQueue.dequeue();
             runHeadCommand();
             return;
         }
         QString log(tr("Starting command '%1'").arg(headCommand()));
-        ICore::messageManager()->printToOutputPane(log, true);
+        ICore::messageManager()->printToOutputPane(log, MessageManager::NoModeSwitch);
         m_process->setWorkingDirectory(d.workingDirectory);
         m_process->setCommand(fullPath, d.arguments);
         m_process->start();
