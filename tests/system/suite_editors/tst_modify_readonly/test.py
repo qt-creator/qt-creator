@@ -76,15 +76,16 @@ def testSaveChangesAndMakeWritable(modifiedFiles, readOnlyFiles):
     checkUnsavedChangesContains(treeWidget.model(), modifiedFiles)
     clickButton(waitForObject("{text='Save All' type='QPushButton' unnamed='1' visible='1' "
                               "window=%s}" % saveDlgStr))
-    # iterating over the readOnlyFiles (order is unpredictable)
-    for i in range(len(readOnlyFiles)):
+    # iterating over the number of modified files (order is unpredictable)
+    for i in range(len(modifiedFiles)):
         try:
             currentText = str(waitForObject(readOnlyMBoxStr, 3000).text)
             currentFile = filePattern.match(currentText).group(1)
             clickButton(waitForObject("{text='Make Writable' type='QPushButton' unnamed='1' "
                                       "visible='1' window=%s}" % readOnlyMBoxStr))
             try:
-                waitForObject(cannotResetStr, 3000)
+                if not waitFor('__checkForMsgBoxOrQuit__(cannotResetStr)', 3000):
+                    raise Exception('Unexpected messagebox did not appear (EXPECTED!).')
                 # should not be possible
                 test.fail("Could not reset file '%s' to writable state." % currentFile)
                 clickButton("{text='OK' type='QPushButton' window=%s}" % cannotResetStr)
@@ -100,9 +101,10 @@ def testSaveChangesAndMakeWritable(modifiedFiles, readOnlyFiles):
                     test.fail("Creator states file '%s' had been made writable - "
                               "but it's still read only." % currentFile)
         except:
-            test.fail("Missing QMessageBox about a read only file.")
-    if not test.verify(len(readOnlyFiles) == 0,
-                       "Checking whether all files have been handled correctly."):
+            if len(readOnlyFiles) != 0:
+                test.fail("Missing QMessageBox about a read only file.")
+    if not test.compare(len(readOnlyFiles), 0,
+                    "Checking whether all files have been handled correctly."):
         try:
             invokeMenuItem("File", "Exit")
             waitForObject(saveDlgStr)
@@ -110,6 +112,9 @@ def testSaveChangesAndMakeWritable(modifiedFiles, readOnlyFiles):
                                       "visible='1' window=%s}" % saveDlgStr))
         except:
             pass
+
+def __checkForMsgBoxOrQuit__(crs):
+    return currentApplicationContext().isRunning and object.exists(crs)
 
 def checkOpenDocumentsContains(itemName):
     openDocsTreeViewModel = waitForObject(":OpenDocuments_Widget").model()

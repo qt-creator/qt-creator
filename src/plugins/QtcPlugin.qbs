@@ -1,5 +1,5 @@
 import qbs.base 1.0
-import qbs.fileinfo 1.0 as FileInfo
+import qbs.fileinfo as FileInfo
 import "../../qbs/defaults.js" as Defaults
 
 Product {
@@ -45,5 +45,9 @@ Product {
         fileTagsFilter: product.type
         qbs.install: true
         qbs.installDir: "lib/qtcreator/plugins/" + provider
+    }
+
+    ProductModule {
+        Depends { name: "ExtensionSystem" }
     }
 }

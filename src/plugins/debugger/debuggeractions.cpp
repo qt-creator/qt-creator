@@ -340,13 +340,8 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     item = new SavedAction(this);
     item->setText(tr("Break on \"abort\""));
     item->setCheckable(true);
-#ifdef Q_OS_WIN
-    item->setDefaultValue(true);
-    item->setValue(true);
-#else
     item->setDefaultValue(false);
     item->setValue(false);
-#endif
     item->setSettingsKey(debugModeGroup, QLatin1String("BreakOnAbort"));
     insertItem(BreakOnAbort, item);
 

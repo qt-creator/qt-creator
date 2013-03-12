@@ -9,7 +9,7 @@
         <alias type="text/xml"/>
         <sub-class-of type="text/plain"/>
         <comment>XML document</comment>
-        <glob pattern="*.xml"/>
+        <glob pattern="*.xml" weight="50"/><!-- reduce weight to allow application/vnd.rim.qnx.bar_descriptor to override by content -->
         <glob pattern="*.xsl"/>
         <glob pattern="*.xslt"/>
         <glob pattern="*.xbl"/>

@@ -65,7 +65,7 @@ void tst_SimpleLexer::doxygen_comments()
         Token expectedToken; // Create a Token in order to spell the token kind
         expectedToken.f.kind = expectedTokenKind;
 //        qDebug("Comparing (i=%d): \"%s\" \"%s\"", i, token.spell(), expectedToken.spell());
-        QCOMPARE(token.spell(), expectedToken.spell());
+        QCOMPARE(token.kind(), expectedTokenKind);
     }
     QVERIFY2(i == expectedTokenKindList.size(), "Less tokens than expected.");
 }
@@ -83,7 +83,7 @@ void tst_SimpleLexer::doxygen_comments_data()
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "//// comment";
-    expectedTokenKindList = QList<unsigned>() << T_CPP_COMMENT;
+    expectedTokenKindList = QList<unsigned>() << T_CPP_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "/// comment";
@@ -104,6 +104,66 @@ void tst_SimpleLexer::doxygen_comments_data()
 
     source = "///\n";
     expectedTokenKindList = QList<unsigned>() << T_CPP_DOXY_COMMENT;
+    QTest::newRow(source) << source << expectedTokenKindList;
+
+    source = "///\n"
+             "int i;";
+    expectedTokenKindList = QList<unsigned>()
+        << T_CPP_DOXY_COMMENT
+        << T_INT << T_IDENTIFIER << T_SEMICOLON;
+    QTest::newRow(source) << source << expectedTokenKindList;
+
+    source = "/* comment */\n";
+    expectedTokenKindList = QList<unsigned>() << T_COMMENT;
+    QTest::newRow(source) << source << expectedTokenKindList;
+
+    source = "/* comment\n"
+             "   comment\n"
+             " */\n";
+    expectedTokenKindList = QList<unsigned>() << T_COMMENT;
+    QTest::newRow(source) << source << expectedTokenKindList;
+
+    source = "/** comment */";
+    expectedTokenKindList = QList<unsigned>() << T_DOXY_COMMENT;
+    QTest::newRow(source) << source << expectedTokenKindList;
+
+    source = "/** comment */\n";
+    expectedTokenKindList = QList<unsigned>() << T_DOXY_COMMENT;
+    QTest::newRow(source) << source << expectedTokenKindList;
+
+    source = "/** comment */ int i;\n";
+    expectedTokenKindList = QList<unsigned>()
+        << T_DOXY_COMMENT << T_INT << T_IDENTIFIER << T_SEMICOLON;
+    QTest::newRow(source) << source << expectedTokenKindList;
+
+    source = "/**\n"
+            "  * comment\n"
+             " */\n";
+    expectedTokenKindList = QList<unsigned>() << T_DOXY_COMMENT;
+    QTest::newRow(source) << source << expectedTokenKindList;
+
+    source = "/*!\n"
+            "  * comment\n"
+             " */\n";
+    expectedTokenKindList = QList<unsigned>() << T_DOXY_COMMENT;
+    QTest::newRow(source) << source << expectedTokenKindList;
+
+    source = "/*!\n"
+             "    comment\n"
+             "*/\n";
+    expectedTokenKindList = QList<unsigned>() << T_DOXY_COMMENT;
+    QTest::newRow(source) << source << expectedTokenKindList;
+
+    source = "int i; /*!< first counter */\n"
+             "int j; /**< second counter */\n"
+             "int k; ///< third counter\n"
+             "int l; //!< fourth counter\n"
+             "       //!< more details...  ";
+    expectedTokenKindList = QList<unsigned>()
+        << T_INT << T_IDENTIFIER << T_SEMICOLON << T_DOXY_COMMENT
+        << T_INT << T_IDENTIFIER << T_SEMICOLON << T_DOXY_COMMENT
+        << T_INT << T_IDENTIFIER << T_SEMICOLON << T_CPP_DOXY_COMMENT
+        << T_INT << T_IDENTIFIER << T_SEMICOLON << T_CPP_DOXY_COMMENT << T_CPP_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 }
 

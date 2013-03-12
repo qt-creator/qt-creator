@@ -351,6 +351,10 @@
         <source>Executable:</source>
         <translation>Ausführbare Datei:</translation>
     </message>
+    <message>
+        <source>Prefer Ninja generator (CMake 2.8.9 or higher required)</source>
+        <translation>Ninja-Generator bevorzugen (benötigt CMake 2.8.9 oder höher)</translation>
+    </message>
 </context>
 <context>
     <name>CMakeProjectManager::Internal::InSourceBuildPage</name>
@@ -1204,10 +1208,6 @@
         <translation>&lt;Sprache des Betriebssystems&gt;</translation>
     </message>
     <message>
-        <source>Done</source>
-        <translation>Beendet</translation>
-    </message>
-    <message>
         <source>Restart required</source>
         <translation>Neustart erforderlich</translation>
     </message>
@@ -1301,12 +1301,12 @@
     </message>
     <message>
         <source>Reset warnings</source>
+        <comment>Button text</comment>
         <translation>Warnungen zurücksetzen</translation>
     </message>
     <message>
-        <source>Reset warnings</source>
-        <comment>Button text</comment>
-        <translation>Warnungen zurücksetzen</translation>
+        <source>Re-enable all warnings which were suppressed using &quot;Don&apos;t show again&quot; button (e.g. missing highlighter).</source>
+        <translation>Alle Warnungen wieder aktivieren, die durch eine &quot;Nicht noch einmal anzeigen&quot;-Schaltfläche unterdrückt wurden (z.B. fehlende Syntaxhervorhebung).</translation>
     </message>
 </context>
 <context>
@@ -16854,7 +16854,7 @@ Erfordert &lt;b&gt;Qt 5.0&lt;/b&gt; oder neuer.</translation>
 Requires &lt;b&gt;Qt 5.0&lt;/b&gt; or newer.</source>
         <translation>Erstellt eine Qt Quick-Anwendung aus bereits existierenden QML-Dateien. Alle im Ordner der Haupt-QML-Datei befindlichen Dateien und Ordner sind zum Deployment vorgesehen. Der Inhalt des Ordners kann vor dem Deployment beliebig geändert werden.
 
-Erforder &lt;b&gt;Qt 5.0&lt;/b&gt; oder neuer.</translation>
+Erfordert &lt;b&gt;Qt 5.0&lt;/b&gt; oder neuer.</translation>
     </message>
     <message>
         <source>The Qt Quick Components for MeeGo Harmattan are a set of ready-made components that are designed with specific native appearance for the MeeGo Harmattan platform.
@@ -16870,7 +16870,7 @@ Erfordert &lt;b&gt;Qt 4.7.4&lt;/b&gt; oder neuer sowie die Installation der Komp
 Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
         <translation>Erstellt eine Qt Quick-Anwendung aus bereits existierenden QML-Dateien. Alle im Ordner der Haupt-QML-Datei befindlichen Dateien und Ordner sind zum Deployment vorgesehen. Der Inhalt des Ordners kann vor dem Deployment beliebig geändert werden.
 
-Erforder &lt;b&gt;Qt 4.7.0&lt;/b&gt; oder neuer.</translation>
+Erfordert &lt;b&gt;Qt 4.7.0&lt;/b&gt; oder neuer.</translation>
     </message>
 </context>
 <context>
@@ -27868,10 +27868,6 @@ Sie müssen für die Plattform kompiliert vorliegen</translation>
         <translation>Lokale Qt-Bibliotheken ausliefern</translation>
     </message>
     <message>
-        <source>Edit Rules File</source>
-        <translation>Regeldatei bearbeiten</translation>
-    </message>
-    <message>
         <source>Install Ministro, system-wide Qt shared libraries installer</source>
         <translation>Installiere Ministro (systemweiter Installer für Qt shared libraries)</translation>
     </message>
@@ -28876,6 +28872,10 @@ Bitte installieren Sie zumindest ein SDK.</translation>
     <message>
         <source>Cannot create Android package: current build configuration is not Qt 4.</source>
         <translation>Es konnte kein Android-Paket erstellt werden: Die gegenwärtige Build-Konfiguration ist keine Qt 4-Build-Konfiguration.</translation>
+    </message>
+    <message>
+        <source>Cannot create Android package: No ANDROID_TARGET_ARCH set in make spec.</source>
+        <translation>Kann Android-Paket nicht erzeugen: ANDROID_TARGET_ARCH in make spec nicht gesetzt.</translation>
     </message>
     <message>
         <source>Cannot find ELF information</source>
@@ -33598,12 +33598,32 @@ Jetzt Commit durchführen?</translation>
         <translation>Hinzuzufügende Datei auswählen</translation>
     </message>
     <message>
+        <source>Select Debug Token</source>
+        <translation>Debug Token auswählen</translation>
+    </message>
+    <message>
+        <source>Debug token:</source>
+        <translation>Debug Token:</translation>
+    </message>
+    <message>
+        <source>Error Reading Debug Token</source>
+        <translation>Fehler beim Lesen des Debug Tokens</translation>
+    </message>
+    <message>
+        <source>There was a problem reading debug token</source>
+        <translation>Es trat ein Fehler beim Lesen des Debug Tokens auf</translation>
+    </message>
+    <message>
         <source>Package version:</source>
         <translation>Version des Pakets:</translation>
     </message>
     <message>
         <source>Package build ID:</source>
         <translation>Paket-Build-ID:</translation>
+    </message>
+    <message>
+        <source>Set from debug token...</source>
+        <translation>Anhand des Debug Tokens einstellen...</translation>
     </message>
 </context>
 <context>

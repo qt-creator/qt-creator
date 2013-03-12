@@ -58,6 +58,7 @@ BlackBerryDeviceConfigurationWidget::BlackBerryDeviceConfigurationWidget(const I
     connect(ui->showPasswordCheckBox, SIGNAL(toggled(bool)), this, SLOT(showPassword(bool)));
     connect(ui->debugToken, SIGNAL(changed(QString)), this, SLOT(updateUploadButton()));
     connect(ui->debugToken, SIGNAL(editingFinished()), this, SLOT(debugTokenEditingFinished()));
+    connect(ui->debugToken, SIGNAL(browsingFinished()), this, SLOT(debugTokenEditingFinished()));
     connect(ui->requestButton, SIGNAL(clicked()), this, SLOT(requestDebugToken()));
     connect(ui->uploadButton, SIGNAL(clicked()), this, SLOT(uploadDebugToken()));
     connect(uploader, SIGNAL(finished(int)), this, SLOT(uploadFinished(int)));

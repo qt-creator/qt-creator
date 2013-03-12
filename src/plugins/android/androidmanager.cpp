@@ -576,15 +576,15 @@ QString AndroidManager::loadLocalJarsInitClasses(ProjectExplorer::Target *target
     return loadLocal(target, apiLevel, Jar, QLatin1String("initClass"));
 }
 
-QStringList AndroidManager::availableQtLibs(ProjectExplorer::Target *target)
+QVector<AndroidManager::Library> AndroidManager::availableQtLibsWithDependencies(ProjectExplorer::Target *target)
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
     if (!target->activeRunConfiguration())
-        return QStringList();
+        return QVector<AndroidManager::Library>();
 
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target->kit());
     if (tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
-        return QStringList();
+        return QVector<AndroidManager::Library>();
 
     Qt4ProjectManager::Qt4Project *project = static_cast<Qt4ProjectManager::Qt4Project *>(target->project());
     QString arch = project->rootQt4ProjectNode()->singleVariableValue(Qt4ProjectManager::AndroidArchVar);
@@ -594,20 +594,13 @@ QStringList AndroidManager::availableQtLibs(ProjectExplorer::Target *target)
 
     Utils::FileName readelfPath = AndroidConfigurations::instance().readelfPath(target->activeRunConfiguration()->abi().architecture(),
                                                                                 atc->ndkToolChainVersion());
-    QStringList libs;
     const Qt4ProjectManager::Qt4Project *const qt4Project
             = qobject_cast<const Qt4ProjectManager::Qt4Project *>(target->project());
     if (!qt4Project || !version)
-        return libs;
+        return QVector<AndroidManager::Library>();
     QString qtLibsPath = version->qmakeProperty("QT_INSTALL_LIBS");
     if (!readelfPath.toFileInfo().exists()) {
-        QDirIterator libsIt(qtLibsPath, QStringList() << QLatin1String("libQt*.so"));
-        while (libsIt.hasNext()) {
-            libsIt.next();
-            libs << libsIt.fileName().mid(3, libsIt.fileName().indexOf(QLatin1Char('.')) - 3);
-        }
-        libs.sort();
-        return libs;
+        return QVector<AndroidManager::Library>();
     }
     LibrariesMap mapLibs;
     QDir libPath;
@@ -652,9 +645,17 @@ QStringList AndroidManager::availableQtLibs(ProjectExplorer::Target *target)
         qtLibraries.push_back(mapLibs[key]);
     }
     qSort(qtLibraries.begin(), qtLibraries.end(), qtLibrariesLessThan);
-    foreach (Library lib, qtLibraries) {
+
+    return qtLibraries;
+
+}
+
+QStringList AndroidManager::availableQtLibs(ProjectExplorer::Target *target)
+{
+    QStringList libs;
+    QVector<Library> qtLibraries = availableQtLibsWithDependencies(target);
+    foreach (Library lib, qtLibraries)
         libs.push_back(lib.name);
-    }
     return libs;
 }
 

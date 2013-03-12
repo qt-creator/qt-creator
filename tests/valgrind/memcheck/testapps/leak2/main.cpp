@@ -36,7 +36,7 @@ int main()
     lower = strdup("asdf");
 
     while (*lower)
-        *(lower++);
+        lower++;
 
     return 0;
 }

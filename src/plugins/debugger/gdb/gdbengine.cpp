@@ -2648,10 +2648,49 @@ void GdbEngine::handleCatchInsert(const GdbResponse &response)
     }
 }
 
+void GdbEngine::handleBkpt(const GdbMi &bkpt, const BreakpointModelId &id)
+{
+    BreakHandler *handler = breakHandler();
+    BreakpointResponse br = handler->response(id);
+    const QByteArray nr = bkpt.findChild("number").data();
+    const BreakpointResponseId rid(nr);
+    QTC_ASSERT(rid.isValid(), return);
+    if (nr.contains('.')) {
+        // A sub-breakpoint.
+        BreakpointResponse sub;
+        updateResponse(sub, bkpt);
+        sub.id = rid;
+        sub.type = br.type;
+        handler->insertSubBreakpoint(id, sub);
+        return;
+    }
+
+    // The MI output format might change, see
+    // http://permalink.gmane.org/gmane.comp.gdb.patches/83936
+    const GdbMi locations = bkpt.findChild("locations");
+    if (locations.isValid()) {
+        foreach (const GdbMi &loc, locations.children()) {
+            // A sub-breakpoint.
+            const QByteArray subnr = loc.findChild("number").data();
+            const BreakpointResponseId subrid(subnr);
+            BreakpointResponse sub;
+            updateResponse(sub, loc);
+            sub.id = subrid;
+            sub.type = br.type;
+            handler->insertSubBreakpoint(id, sub);
+        }
+    }
+
+    // A (the?) primary breakpoint.
+    updateResponse(br, bkpt);
+    br.id = rid;
+    handler->setResponse(id, br);
+}
+
 void GdbEngine::handleBreakInsert1(const GdbResponse &response)
 {
     BreakHandler *handler = breakHandler();
-    BreakpointModelId id = response.cookie.value<BreakpointModelId>();
+    const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     if (handler->state(id) == BreakpointRemoveRequested) {
         if (response.resultClass == GdbResultDone) {
             // This delete was defered. Act now.
@@ -2671,35 +2710,18 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
         // already known data from the BreakpointManager, and then
         // iterate over all items to update main- and sub-data.
         const GdbMi mainbkpt = response.data.findChild("bkpt");
-        QByteArray nr = mainbkpt.findChild("number").data();
-        BreakpointResponseId rid(nr);
-        if (!isHiddenBreakpoint(rid)) {
-            BreakpointResponse br = handler->response(id);
-            foreach (const GdbMi &bkpt, response.data.children()) {
-                nr = bkpt.findChild("number").data();
-                rid = BreakpointResponseId(nr);
-                QTC_ASSERT(rid.isValid(), continue);
-                if (nr.contains('.')) {
-                    // A sub-breakpoint.
-                    BreakpointResponse sub;
-                    updateResponse(sub, bkpt);
-                    sub.id = rid;
-                    sub.type = br.type;
-                    handler->insertSubBreakpoint(id, sub);
-                } else {
-                    // A (the?) primary breakpoint.
-                    updateResponse(br, bkpt);
-                    br.id = rid;
-                    handler->setResponse(id, br);
-                }
-            }
+        const QByteArray mainnr = mainbkpt.findChild("number").data();
+        const BreakpointResponseId mainrid(mainnr);
+        if (!isHiddenBreakpoint(mainrid)) {
+            foreach (const GdbMi &bkpt, response.data.children())
+                handleBkpt(bkpt, id);
             if (handler->needsChange(id)) {
                 handler->notifyBreakpointChangeAfterInsertNeeded(id);
                 changeBreakpoint(id);
             } else {
                 handler->notifyBreakpointInsertOk(id);
             }
-            br = handler->response(id);
+            BreakpointResponse br = handler->response(id);
             attemptAdjustBreakpointLocation(id);
             // Remove if we only support 7.4 or later.
             if (br.multiple && !m_hasBreakpointNotifications)

@@ -361,7 +361,7 @@ void RunSettingsWidget::currentRunConfigurationChanged(int index)
     if (index >= 0)
         selectedRunConfiguration = m_runConfigurationsModel->runConfigurationAt(index);
 
-    if (selectedRunConfiguration != m_runConfiguration)
+    if (selectedRunConfiguration == m_runConfiguration)
         return;
 
     m_ignoreChange = true;

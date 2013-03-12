@@ -368,11 +368,7 @@ void Lexer::scan_helper(Token *tok)
 
             if (_yychar == '/' || _yychar == '!') {
                 yyinp();
-
-                if (_yychar == '<' || _yychar != '/') {
-                    yyinp();
-                    doxy = true;
-                }
+                doxy = true;
             }
 
             while (_yychar && _yychar != '\n')

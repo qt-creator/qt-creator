@@ -123,20 +123,7 @@ HTML.footer = \
     "      of their respective owners. <a title=\"Privacy Policy\"\n" \
     "      href=\"http://en.gitorious.org/privacy_policy/\">Privacy Policy</a></p>\n" \
     "  </div>\n" \
-    "\n" \
-    "  <script src=\"scripts/functions.js\" type=\"text/javascript\"></script>\n" \
-    "  <script type=\"text/javascript\">\n" \
-    "  var _gaq = _gaq || [];\n" \
-    "  _gaq.push(['_setAccount', 'UA-4457116-5']);\n" \
-    "  _gaq.push(['_trackPageview']);\n" \
-    "  (function() {\n" \
-    "  var ga = document.createElement('script'); " \
-    "ga.type = 'text/javascript'; ga.async = true;\n" \
-    "  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + " \
-    "'.google-analytics.com/ga.js';\n" \
-    "  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);\n" \
-    "  })();\n" \
-    "  </script>\n"
+    "\n"
 
 
 # Files not referenced in any qdoc file.

@@ -68,7 +68,8 @@ QtSupport::BaseQtVersion *AndroidQtVersionFactory::create(const Utils::FileName 
     QFileInfo fi(qmakePath.toString());
     if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
         return 0;
-    if (!evaluator->values(QLatin1String("CONFIG")).contains(QLatin1String("android")))
+    if (!evaluator->values(QLatin1String("CONFIG")).contains(QLatin1String("android"))
+            && evaluator->value(QLatin1String("QMAKE_PLATFORM")) != QLatin1String("android"))
         return 0;
     return new AndroidQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
 }
