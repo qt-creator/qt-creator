@@ -112,6 +112,59 @@ void tst_SimpleLexer::doxygen_comments_data()
         << T_CPP_DOXY_COMMENT
         << T_INT << T_IDENTIFIER << T_SEMICOLON;
     QTest::newRow(source) << source << expectedTokenKindList;
+
+    source = "/* comment */\n";
+    expectedTokenKindList = QList<unsigned>() << T_COMMENT;
+    QTest::newRow(source) << source << expectedTokenKindList;
+
+    source = "/* comment\n"
+             "   comment\n"
+             " */\n";
+    expectedTokenKindList = QList<unsigned>() << T_COMMENT;
+    QTest::newRow(source) << source << expectedTokenKindList;
+
+    source = "/** comment */";
+    expectedTokenKindList = QList<unsigned>() << T_DOXY_COMMENT;
+    QTest::newRow(source) << source << expectedTokenKindList;
+
+    source = "/** comment */\n";
+    expectedTokenKindList = QList<unsigned>() << T_DOXY_COMMENT;
+    QTest::newRow(source) << source << expectedTokenKindList;
+
+    source = "/** comment */ int i;\n";
+    expectedTokenKindList = QList<unsigned>()
+        << T_DOXY_COMMENT << T_INT << T_IDENTIFIER << T_SEMICOLON;
+    QTest::newRow(source) << source << expectedTokenKindList;
+
+    source = "/**\n"
+            "  * comment\n"
+             " */\n";
+    expectedTokenKindList = QList<unsigned>() << T_DOXY_COMMENT;
+    QTest::newRow(source) << source << expectedTokenKindList;
+
+    source = "/*!\n"
+            "  * comment\n"
+             " */\n";
+    expectedTokenKindList = QList<unsigned>() << T_DOXY_COMMENT;
+    QTest::newRow(source) << source << expectedTokenKindList;
+
+    source = "/*!\n"
+             "    comment\n"
+             "*/\n";
+    expectedTokenKindList = QList<unsigned>() << T_DOXY_COMMENT;
+    QTest::newRow(source) << source << expectedTokenKindList;
+
+    source = "int i; /*!< first counter */\n"
+             "int j; /**< second counter */\n"
+             "int k; ///< third counter\n"
+             "int l; //!< fourth counter\n"
+             "       //!< more details...  ";
+    expectedTokenKindList = QList<unsigned>()
+        << T_INT << T_IDENTIFIER << T_SEMICOLON << T_DOXY_COMMENT
+        << T_INT << T_IDENTIFIER << T_SEMICOLON << T_DOXY_COMMENT
+        << T_INT << T_IDENTIFIER << T_SEMICOLON << T_CPP_DOXY_COMMENT
+        << T_INT << T_IDENTIFIER << T_SEMICOLON << T_CPP_DOXY_COMMENT << T_CPP_DOXY_COMMENT;
+    QTest::newRow(source) << source << expectedTokenKindList;
 }
 
 QTEST_APPLESS_MAIN(tst_SimpleLexer)
