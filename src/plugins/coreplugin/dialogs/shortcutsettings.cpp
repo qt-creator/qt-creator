@@ -45,7 +45,6 @@
 #include <QFileDialog>
 #include <QLineEdit>
 #include <QAction>
-#include <QKeyEvent>
 #include <QTreeWidgetItem>
 #include <QCoreApplication>
 #include <QDebug>

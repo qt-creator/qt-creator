@@ -39,7 +39,6 @@
 #include <coreplugin/editormanager/editorview.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/openeditorsmodel.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 

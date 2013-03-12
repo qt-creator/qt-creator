@@ -42,7 +42,6 @@
 
 #include <QFileIconProvider>
 #include <QIcon>
-#include <QStyle>
 
 using namespace Utils;
 

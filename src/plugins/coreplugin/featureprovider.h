@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef FEATUREMANAGER_H
-#define FEATUREMANAGER_H
+#ifndef FEATUREPROVIDER_H
+#define FEATUREPROVIDER_H
 
 #include "core_global.h"
 
@@ -148,4 +148,4 @@ inline Core::FeatureSet operator|(Core::Feature feature1, Core::FeatureSet featu
 { return feature2 | feature1; }
 
 
-#endif // FEATUREANAGER_H
+#endif // FEATUREPROVIDER_H

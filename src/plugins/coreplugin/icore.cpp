@@ -343,7 +343,6 @@
     (meaning that its widget got focus), or if the additional context ids changed.
 */
 
-#include "icore.h"
 #include "mainwindow.h"
 #include "documentmanager.h"
 

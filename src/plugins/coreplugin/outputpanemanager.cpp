@@ -32,7 +32,6 @@
 #include "coreconstants.h"
 #include "findplaceholder.h"
 
-#include "coreconstants.h"
 #include "icore.h"
 #include "ioutputpane.h"
 #include "mainwindow.h"
@@ -66,7 +65,6 @@
 #include <QStackedWidget>
 #include <QToolButton>
 #include <QTimeLine>
-#include <QLabel>
 
 namespace Core {
 namespace Internal {

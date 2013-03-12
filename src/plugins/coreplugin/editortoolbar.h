@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef FAKETOOLBAR_H
-#define FAKETOOLBAR_H
+#ifndef EDITORTOOLBAR_H
+#define EDITORTOOLBAR_H
 
 #include "core_global.h"
 
@@ -110,4 +110,4 @@ private:
 
 } // namespace Core
 
-#endif // FAKETOOLBAR_H
+#endif // EDITORTOOLBAR_H

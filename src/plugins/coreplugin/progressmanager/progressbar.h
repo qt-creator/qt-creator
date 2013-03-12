@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef PROGRESSPIE_H
-#define PROGRESSPIE_H
+#ifndef PROGRESSBAR_H
+#define PROGRESSBAR_H
 
 #include <QString>
 #include <QWidget>
@@ -87,4 +87,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif // PROGRESSPIE_H
+#endif // PROGRESSBAR_H
