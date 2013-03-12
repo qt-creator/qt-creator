@@ -27,6 +27,9 @@
 **
 ****************************************************************************/
 
+#ifndef QMLPROJECTMANAGERCONSTANTS_H
+#define QMLPROJECTMANAGERCONSTANTS_H
+
 #include <qglobal.h>
 
 namespace QmlProjectManager {
@@ -41,3 +44,5 @@ const char USER_ENVIRONMENT_CHANGES_KEY[] = "QmlProjectManager.QmlRunConfigurati
 
 } // namespace Constants
 } // namespace QmlProjectManager
+
+#endif // QMLPROJECTMANAGERCONSTANTS_H

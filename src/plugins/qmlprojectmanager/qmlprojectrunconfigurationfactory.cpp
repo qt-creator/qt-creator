@@ -27,10 +27,10 @@
 **
 ****************************************************************************/
 
+#include "qmlprojectrunconfigurationfactory.h"
 #include "qmlprojectmanagerconstants.h"
 #include "qmlproject.h"
 #include "qmlprojectrunconfiguration.h"
-#include "qmlprojectrunconfigurationfactory.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectconfiguration.h>
