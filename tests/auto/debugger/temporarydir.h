@@ -152,6 +152,7 @@ public:
     explicit TemporaryDir(const QString &templateName);
     ~TemporaryDir();
 
+    bool autoRemove() {return d_ptr->autoRemove;}
     void setAutoRemove(bool b);
     bool remove();
     QString path() const;
