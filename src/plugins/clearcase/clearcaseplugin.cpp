@@ -28,12 +28,12 @@
 **
 ****************************************************************************/
 
+#include "clearcaseplugin.h"
 #include "activityselector.h"
 #include "checkoutdialog.h"
 #include "clearcaseconstants.h"
 #include "clearcasecontrol.h"
 #include "clearcaseeditor.h"
-#include "clearcaseplugin.h"
 #include "clearcasesubmiteditor.h"
 #include "clearcasesubmiteditorwidget.h"
 #include "clearcasesync.h"

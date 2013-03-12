@@ -53,7 +53,6 @@
 #include <texteditor/texteditorsettings.h>
 #include <utils/qtcassert.h>
 #include <extensionsystem/invoker.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <QDebug>
 #include <QFileInfo>

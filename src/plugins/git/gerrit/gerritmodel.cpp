@@ -45,12 +45,10 @@
 #include <QDesktopServices>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QTextStream>
 #include <QDebug>
 #include <QScopedPointer>
 #include <QTimer>
 #include <QApplication>
-#include <QMessageBox>
 #if QT_VERSION >= 0x050000
 #  include <QJsonDocument>
 #  include <QJsonValue>

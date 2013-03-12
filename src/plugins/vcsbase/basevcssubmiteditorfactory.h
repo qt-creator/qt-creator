@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef VCSBASE_BASEEDITORFACTORY_H
-#define VCSBASE_BASEEDITORFACTORY_H
+#ifndef BASEVCSSUBMITEDITORFACTORY_H
+#define BASEVCSSUBMITEDITORFACTORY_H
 
 #include "vcsbase_global.h"
 
@@ -90,4 +90,4 @@ private:
 
 } // namespace VcsBase
 
-#endif // VCSBASE_BASEEDITOR_H
+#endif // BASEVCSSUBMITEDITORFACTORY_H

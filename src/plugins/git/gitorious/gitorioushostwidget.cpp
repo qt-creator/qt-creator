@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#include "gitorious.h"
 #include "gitorioushostwidget.h"
+#include "gitorious.h"
 #include "ui_gitorioushostwidget.h"
 
 #include <coreplugin/coreconstants.h>

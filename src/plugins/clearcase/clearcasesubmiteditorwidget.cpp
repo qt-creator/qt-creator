@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#include "activityselector.h"
 #include "clearcasesubmiteditorwidget.h"
+#include "activityselector.h"
 
 #include <vcsbase/submitfilemodel.h>
 

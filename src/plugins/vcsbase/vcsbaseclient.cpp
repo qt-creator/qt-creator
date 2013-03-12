@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#include "command.h"
 #include "vcsbaseclient.h"
+#include "command.h"
 #include "vcsbaseconstants.h"
 #include "vcsbaseclientsettings.h"
 #include "vcsbaseeditorparameterwidget.h"

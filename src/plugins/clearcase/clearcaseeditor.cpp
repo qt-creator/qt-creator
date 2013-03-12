@@ -28,9 +28,9 @@
 **
 ****************************************************************************/
 
+#include "clearcaseeditor.h"
 #include "annotationhighlighter.h"
 #include "clearcaseconstants.h"
-#include "clearcaseeditor.h"
 #include "clearcaseplugin.h"
 
 #include <utils/qtcassert.h>

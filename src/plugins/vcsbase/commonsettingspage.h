@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef COMMONOPTIONSPAGE_H
-#define COMMONOPTIONSPAGE_H
+#ifndef COMMONSETTINGSPAGE_H
+#define COMMONSETTINGSPAGE_H
 
 #include "commonvcssettings.h"
 
@@ -85,4 +85,4 @@ private:
 } // namespace Internal
 } // namespace VcsBase
 
-#endif // COMMONOPTIONSPAGE_H
+#endif // COMMONSETTINGSPAGE_H

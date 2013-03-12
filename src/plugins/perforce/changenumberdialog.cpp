@@ -27,9 +27,9 @@
 **
 ****************************************************************************/
 
-#include <QIntValidator>
-
 #include "changenumberdialog.h"
+
+#include <QIntValidator>
 
 using namespace Perforce::Internal;
 

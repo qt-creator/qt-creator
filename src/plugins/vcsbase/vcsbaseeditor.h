@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef VCSBASE_BASEEDITOR_H
-#define VCSBASE_BASEEDITOR_H
+#ifndef VCSBASEEDITOR_H
+#define VCSBASEEDITOR_H
 
 #include "vcsbase_global.h"
 
@@ -289,4 +289,4 @@ public:
 
 Q_DECLARE_METATYPE(VcsBase::DiffChunk)
 
-#endif // VCSBASE_BASEEDITOR_H
+#endif // VCSBASEEDITOR_H

@@ -27,9 +27,10 @@
 **
 ****************************************************************************/
 
+#include "pendingchangesdialog.h"
+
 #include <QRegExp>
 
-#include "pendingchangesdialog.h"
 
 using namespace Perforce::Internal;
 

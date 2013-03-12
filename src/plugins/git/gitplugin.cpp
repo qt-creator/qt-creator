@@ -59,7 +59,6 @@
 #include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/documentmanager.h>
 
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
@@ -1259,7 +1258,6 @@ GitClient *GitPlugin::gitClient() const
 }
 
 #ifdef WITH_TESTS
-#include "giteditor.h"
 
 #include <QTest>
 #include <QTextBlock>

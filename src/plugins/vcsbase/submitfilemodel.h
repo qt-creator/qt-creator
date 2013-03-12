@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef SUBMITMODEL_H
-#define SUBMITMODEL_H
+#ifndef SUBMITFILEMODEL_H
+#define SUBMITFILEMODEL_H
 
 #include "vcsbase_global.h"
 
@@ -71,4 +71,4 @@ public:
 
 } // namespace VcsBase
 
-#endif // SUBMITMODEL_H
+#endif // SUBMITFILEMODEL_H

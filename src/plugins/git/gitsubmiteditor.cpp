@@ -27,11 +27,11 @@
 **
 ****************************************************************************/
 
+#include "gitsubmiteditor.h"
 #include "commitdata.h"
 #include "gitclient.h"
 #include "gitconstants.h"
 #include "gitplugin.h"
-#include "gitsubmiteditor.h"
 #include "gitsubmiteditorwidget.h"
 
 #include <coreplugin/editormanager/editormanager.h>

@@ -27,9 +27,9 @@
 **
 ****************************************************************************/
 
+#include "mergetool.h"
 #include "gitclient.h"
 #include "gitplugin.h"
-#include "mergetool.h"
 
 #include <vcsbase/vcsbaseoutputwindow.h>
 

@@ -28,10 +28,10 @@
 **
 ****************************************************************************/
 
+#include "settingspage.h"
 #include "clearcaseconstants.h"
 #include "clearcasesettings.h"
 #include "clearcaseplugin.h"
-#include "settingspage.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>

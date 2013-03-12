@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef PERFOCESETTINGS_H
-#define PERFOCESETTINGS_H
+#ifndef PERFORCESETTINGS_H
+#define PERFORCESETTINGS_H
 
 #include <QString>
 #include <QScopedPointer>
@@ -149,4 +149,4 @@ private:
 } // Internal
 } // Perforce
 
-#endif // PERFOCESETTINGS_H
+#endif // PERFORCESETTINGS_H

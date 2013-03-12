@@ -26,8 +26,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "branchinfo.h"
 #include "commiteditor.h"
+#include "branchinfo.h"
 #include "bazaarcommitwidget.h"
 
 #include <vcsbase/submitfilemodel.h>

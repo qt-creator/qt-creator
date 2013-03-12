@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef GIT_INTERNAL_RESETDIALOG_H
-#define GIT_INTERNAL_RESETDIALOG_H
+#ifndef LOGCHANGEDDIALOG_H
+#define LOGCHANGEDDIALOG_H
 
 #include <QDialog>
 
@@ -75,4 +75,4 @@ private:
 } // namespace Internal
 } // namespace Git
 
-#endif // GIT_INTERNAL_RESETDIALOG_H
+#endif // LOGCHANGEDDIALOG_H

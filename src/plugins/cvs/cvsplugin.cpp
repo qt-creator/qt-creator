@@ -58,7 +58,6 @@
 #include <coreplugin/vcsmanager.h>
 #include <utils/stringutils.h>
 #include <utils/fileutils.h>
-#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QDate>
