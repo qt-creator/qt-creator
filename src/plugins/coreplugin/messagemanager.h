@@ -66,9 +66,6 @@ public:
     Q_DECLARE_FLAGS(PrintToOutputPaneFlags, PrintToOutputPaneFlag)
 
 public slots:
-    void printToOutputPane(const QString &text, bool bringToForeground);
-    void printToOutputPanePopup(const QString &text); // pops up
-    void printToOutputPane(const QString &text);
     void printToOutputPane(const QString &text, Core::MessageManager::PrintToOutputPaneFlags flags);
 
 private:

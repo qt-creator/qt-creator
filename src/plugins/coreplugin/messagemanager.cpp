@@ -68,12 +68,6 @@ void MessageManager::showOutputPane()
         m_messageOutputWindow->popup(IOutputPane::ModeSwitch);
 }
 
-void MessageManager::printToOutputPane(const QString &text, bool bringToForeground)
-{
-    printToOutputPane(text, bringToForeground ? ModeSwitch
-                                              : Silent);
-}
-
 void MessageManager::printToOutputPane(const QString &text, PrintToOutputPaneFlags flags)
 {
     if (!m_messageOutputWindow)
@@ -87,15 +81,5 @@ void MessageManager::printToOutputPane(const QString &text, PrintToOutputPaneFla
     }
 
     m_messageOutputWindow->append(text + QLatin1Char('\n'));
-}
-
-void MessageManager::printToOutputPanePopup(const QString &text)
-{
-    printToOutputPane(text, ModeSwitch);
-}
-
-void MessageManager::printToOutputPane(const QString &text)
-{
-    printToOutputPane(text, Silent);
 }
 
