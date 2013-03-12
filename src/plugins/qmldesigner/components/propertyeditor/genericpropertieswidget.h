@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef PropertyView_h
-#define PropertyView_h
+#ifndef GENERICPROPERTIESWIDGET_H
+#define GENERICPROPERTIESWIDGET_H
 
 #include <QTabWidget>
 
@@ -93,4 +93,4 @@ private:
 
 }
 
-#endif // PropertyView_h
+#endif // GENERICPROPERTIESWIDGET_H

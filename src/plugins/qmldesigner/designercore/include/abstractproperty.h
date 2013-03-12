@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef ABSTRACTROPERTY_H
-#define ABSTRACTROPERTY_H
+#ifndef ABSTRACTPROPERTY_H
+#define ABSTRACTPROPERTY_H
 
 #include <QVariant>
 #include <QWeakPointer>

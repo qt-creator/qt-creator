@@ -29,7 +29,6 @@
 
 #include "modelmerger.h"
 
-#include "modelmerger.h"
 #include "modelnode.h"
 #include "abstractview.h"
 #include "model.h"

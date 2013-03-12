@@ -27,6 +27,8 @@
 **
 ****************************************************************************/
 
+#include "rewriterview.h"
+
 #include <filemanager/astobjecttextextractor.h>
 #include <filemanager/objectlengthcalculator.h>
 #include <filemanager/firstdefinitionfinder.h>
@@ -34,7 +36,6 @@
 
 #include <qmljs/parser/qmljsengine_p.h>
 
-#include "rewriterview.h"
 #include "rewritingexception.h"
 #include "textmodifier.h"
 #include "texttomodelmerger.h"

@@ -27,6 +27,8 @@
 **
 ****************************************************************************/
 
+#include "qmlrefactoring.h"
+
 #include <QDebug>
 
 #include "addarraymembervisitor.h"
@@ -37,7 +39,6 @@
 #include "changepropertyvisitor.h"
 #include "moveobjectvisitor.h"
 #include "moveobjectbeforeobjectvisitor.h"
-#include "qmlrefactoring.h"
 #include "removepropertyvisitor.h"
 #include "removeuiobjectmembervisitor.h"
 

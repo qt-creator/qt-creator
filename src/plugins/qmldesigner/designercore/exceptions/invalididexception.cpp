@@ -27,8 +27,9 @@
 **
 ****************************************************************************/
 
-#include <QCoreApplication>
 #include "invalididexception.h"
+
+#include <QCoreApplication>
 
 namespace QmlDesigner {
 

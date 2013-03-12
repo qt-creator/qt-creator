@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef FXOBJECTNODE_H
-#define FXOBJECTNODE_H
+#ifndef QMLOBJECTNODE_H
+#define QMLOBJECTNODE_H
 
 #include <qmldesignercorelib_global.h>
 #include "qmlmodelnodefacade.h"
@@ -111,4 +111,4 @@ QMLDESIGNERCORE_EXPORT QList<ModelNode> toModelNodeList(const QList<QmlObjectNod
 QMLDESIGNERCORE_EXPORT QList<QmlObjectNode> toQmlObjectNodeList(const QList<ModelNode> &modelNodeList);
 }// QmlDesigner
 
-#endif // FXOBJECTNODE_H
+#endif // QMLOBJECTNODE_H

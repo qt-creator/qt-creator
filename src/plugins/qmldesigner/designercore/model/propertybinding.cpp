@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#include "invalidpropertyexception.h"
 #include "propertybinding.h"
+#include "invalidpropertyexception.h"
 
 namespace QmlDesigner {
 

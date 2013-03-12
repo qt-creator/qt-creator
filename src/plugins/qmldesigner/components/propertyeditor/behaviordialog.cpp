@@ -33,7 +33,6 @@
 #include <nodeproperty.h>
 #include <variantproperty.h>
 #include <bindingproperty.h>
-#include <nodeproperty.h>
 
 #include <QLineEdit>
 #include <QSpinBox>

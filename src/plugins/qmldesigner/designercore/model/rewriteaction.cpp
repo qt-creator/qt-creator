@@ -27,12 +27,13 @@
 **
 ****************************************************************************/
 
+#include "rewriteaction.h"
+
 #include <QDebug>
 
 #include "nodeabstractproperty.h"
 #include "nodelistproperty.h"
 #include "nodemetainfo.h"
-#include "rewriteaction.h"
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;

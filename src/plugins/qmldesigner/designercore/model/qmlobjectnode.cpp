@@ -29,7 +29,6 @@
 
 #include "qmlobjectnode.h"
 #include "qmlitemnode.h"
-#include "qmlitemnode.h"
 #include "qmlstate.h"
 #include "variantproperty.h"
 #include "nodeproperty.h"

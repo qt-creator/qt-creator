@@ -27,6 +27,7 @@
 **
 ****************************************************************************/
 
+#include "texttomodelmerger.h"
 #include "abstractproperty.h"
 #include "bindingproperty.h"
 #include "filemanager/firstdefinitionfinder.h"
@@ -37,7 +38,6 @@
 #include "nodeproperty.h"
 #include "propertyparser.h"
 #include "textmodifier.h"
-#include "texttomodelmerger.h"
 #include "rewriterview.h"
 #include "variantproperty.h"
 #include "nodemetainfo.h"

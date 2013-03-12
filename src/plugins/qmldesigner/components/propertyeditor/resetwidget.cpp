@@ -28,8 +28,8 @@
 ****************************************************************************/
 
 
-#include "qdeclarative.h"
 #include "resetwidget.h"
+#include "qdeclarative.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QStringList>

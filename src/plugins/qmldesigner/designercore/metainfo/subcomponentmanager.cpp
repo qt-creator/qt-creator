@@ -27,9 +27,10 @@
 **
 ****************************************************************************/
 
+#include "subcomponentmanager.h"
+
 #include <qmldesignerconstants.h>
 
-#include "subcomponentmanager.h"
 #include "model.h"
 #include "metainfo.h"
 #include "metainforeader.h"

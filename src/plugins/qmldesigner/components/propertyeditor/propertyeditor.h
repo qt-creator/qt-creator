@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QmlPropertyView_h
-#define QmlPropertyView_h
+#ifndef PROPERTYEDITOR_H
+#define PROPERTYEDITOR_H
 
 #include <qmlmodelview.h>
 #include <declarativewidgetview.h>
@@ -167,4 +167,4 @@ protected:
 };
 }
 
-#endif // QmlPropertyView_h
+#endif // PROPERTYEDITOR_H

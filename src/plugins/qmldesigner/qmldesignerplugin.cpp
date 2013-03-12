@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#include "exception.h"
 #include "qmldesignerplugin.h"
+#include "exception.h"
 #include "qmldesignerconstants.h"
 #include "pluginmanager.h"
 #include "designmodewidget.h"

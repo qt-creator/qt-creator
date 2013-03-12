@@ -27,14 +27,13 @@
 **
 ****************************************************************************/
 
+#include "xuifiledialog.h"
 #include <utils/hostosinfo.h>
 
 #include <QDebug>
 #include <QDir>
 #include <QObject>
 #include <QCoreApplication>
-
-#include "xuifiledialog.h"
 
 namespace QmlDesigner {
 

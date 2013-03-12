@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef ITEMLIBRARYTREEVIEW_H
-#define ITEMLIBRARYTREEVIEW_H
+#ifndef ITEMLIBRARYCOMPONENTS_H
+#define ITEMLIBRARYCOMPONENTS_H
 
 #include <QTreeView>
 #include <QStandardItemModel>
@@ -90,5 +90,5 @@ private:
 
 } // namespace QmlDesigner
 
-#endif // ITEMLIBRARYTREEVIEW_H
+#endif // ITEMLIBRARYCOMPONENTS_H
 

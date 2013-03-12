@@ -33,7 +33,6 @@
 #include <QGraphicsScene>
 #include <QDebug>
 #include <cmath>
-#include <QGraphicsScene>
 
 namespace QmlDesigner {
 

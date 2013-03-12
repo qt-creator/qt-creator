@@ -27,13 +27,13 @@
 **
 ****************************************************************************/
 
+#include "navigatorwidget.h"
+#include "navigatorview.h"
+
 #include <QBoxLayout>
 #include <QTreeView>
 #include <QHeaderView>
 #include <model.h>
-
-#include "navigatorwidget.h"
-#include "navigatorview.h"
 
 #include <utils/fileutils.h>
 

@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#include "modelnodepositionrecalculator.h"
 #include "modeltotextmerger.h"
+#include "modelnodepositionrecalculator.h"
 #include "qmltextgenerator.h"
 #include "rewriteactioncompressor.h"
 #include "rewriterview.h"

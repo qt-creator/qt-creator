@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNERNODE_H
-#define DESIGNERNODE_H
+#ifndef MODELNODE_H
+#define MODELNODE_H
 
 #include "qmldesignercorelib_global.h"
 #include <QWeakPointer>
@@ -203,4 +203,4 @@ QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const ModelN
 Q_DECLARE_METATYPE(QmlDesigner::ModelNode)
 Q_DECLARE_METATYPE(QList<QmlDesigner::ModelNode>)
 
-#endif // DESIGNERNODE_H
+#endif // MODELNODE_H

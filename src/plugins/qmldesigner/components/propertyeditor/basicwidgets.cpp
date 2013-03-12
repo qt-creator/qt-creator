@@ -41,7 +41,6 @@
 #include <QMenu>
 #include <QAction>
 #include <QListView>
-#include <QDebug>
 #include <QApplication>
 #include <QGraphicsOpacityEffect>
 #include <QStyleFactory>

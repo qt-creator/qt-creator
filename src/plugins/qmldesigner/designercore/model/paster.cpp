@@ -27,6 +27,8 @@
 **
 ****************************************************************************/
 
+#include "paster.h"
+
 #include <QByteArray>
 #include <QDataStream>
 #include <QSet>
@@ -34,7 +36,6 @@
 #include "changeimportsvisitor.h"
 #include "copypasteutil.h"
 #include "parsedqml.h"
-#include "paster.h"
 #include "qmlrewriter.h"
 
 using namespace QmlJS;

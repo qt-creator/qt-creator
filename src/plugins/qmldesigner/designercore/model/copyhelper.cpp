@@ -27,11 +27,11 @@
 **
 ****************************************************************************/
 
-#include <QBuffer>
-#include <QDataStream>
-
 #include "copyhelper.h"
 #include "internalnode_p.h"
+
+#include <QBuffer>
+#include <QDataStream>
 
 namespace QmlDesigner {
 namespace Internal {

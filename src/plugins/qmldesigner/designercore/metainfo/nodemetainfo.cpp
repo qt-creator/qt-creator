@@ -32,7 +32,6 @@
 #include "invalidargumentexception.h"
 
 #include "metainfo.h"
-#include <model.h>
 #include <rewriterview.h>
 #include <propertyparser.h>
 
