@@ -32,6 +32,7 @@
 #include <QList>
 #include <QStringList>
 #include <QMap>
+#include <QCoreApplication>
 
 namespace DiffEditor {
 
@@ -44,6 +45,34 @@ Diff::Diff(Command com, const QString &txt) :
     command(com),
     text(txt)
 {
+}
+
+bool Diff::operator==(const Diff &other) const
+{
+     return command == other.command && text == other.text;
+}
+
+bool Diff::operator!=(const Diff &other) const
+{
+     return !(operator == (other));
+}
+
+QString Diff::commandString(Command com)
+{
+    if (com == Delete)
+        return QCoreApplication::translate("Diff", "Delete");
+    else if (com == Insert)
+        return QCoreApplication::translate("Diff", "Insert");
+    return QCoreApplication::translate("Diff", "Equal");
+}
+
+QString Diff::toString() const
+{
+    QString prettyText = text;
+    // Replace linebreaks with pretty char
+    prettyText.replace(QLatin1Char('\n'), QLatin1Char(L'\u00b6'));
+    return commandString(command) + QLatin1String(" \"")
+            + prettyText + QLatin1String("\"");
 }
 
 Differ::Differ()
@@ -389,7 +418,7 @@ QList<Diff> Differ::merge(const QList<Diff> &diffList)
     QString lastInsert;
     QList<Diff> newDiffList;
     for (int i = 0; i <= diffList.count(); i++) {
-        const Diff diff = i < diffList.count()
+        Diff diff = i < diffList.count()
                   ? diffList.at(i)
                   : Diff(Diff::Equal, QString()); // dummy, ensure we process to the end even when diffList doesn't end with equality
         if (diff.command == Diff::Delete) {
@@ -398,8 +427,33 @@ QList<Diff> Differ::merge(const QList<Diff> &diffList)
             lastInsert += diff.text;
         } else { // Diff::Equal
             if (lastDelete.count() || lastInsert.count()) {
-                // common prefix and suffix?
 
+                // common prefix
+                const int prefixCount = commonPrefix(lastDelete, lastInsert);
+                if (prefixCount) {
+                    const QString prefix = lastDelete.left(prefixCount);
+                    lastDelete = lastDelete.mid(prefixCount);
+                    lastInsert = lastInsert.mid(prefixCount);
+
+                    if (newDiffList.count()
+                            && newDiffList.last().command == Diff::Equal) {
+                        newDiffList.last().text += prefix;
+                    } else {
+                        newDiffList.append(Diff(Diff::Equal, prefix));
+                    }
+                }
+
+                // common suffix
+                const int suffixCount = commonSuffix(lastDelete, lastInsert);
+                if (suffixCount) {
+                    const QString suffix = lastDelete.right(suffixCount);
+                    lastDelete = lastDelete.left(lastDelete.count() - suffixCount);
+                    lastInsert = lastInsert.left(lastInsert.count() - suffixCount);
+
+                    diff.text.prepend(suffix);
+                }
+
+                // append delete / insert / equal
                 if (lastDelete.count())
                     newDiffList.append(Diff(Diff::Delete, lastDelete));
                 if (lastInsert.count())
@@ -429,7 +483,7 @@ QList<Diff> Differ::merge(const QList<Diff> &diffList)
 
 QList<Diff> Differ::squashEqualities(const QList<Diff> &diffList)
 {
-    if (diffList.count() <= 3) // we need at least 3 items
+    if (diffList.count() < 3) // we need at least 3 items
         return diffList;
     QList<Diff> squashedDiffList;
     Diff prevDiff = diffList.at(0);

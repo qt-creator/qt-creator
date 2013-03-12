@@ -5,6 +5,7 @@ SUBDIRS += \
     changeset \
     cplusplus \
     debugger \
+    diff \
     extensionsystem \
     environment \
     generichighlighter \

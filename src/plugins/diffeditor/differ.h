@@ -52,6 +52,10 @@ public:
     QString text;
     Diff(Command com, const QString &txt);
     Diff();
+    bool operator==(const Diff &other) const;
+    bool operator!=(const Diff &other) const;
+    QString toString() const;
+    static QString commandString(Command com);
 };
 
 class DIFFEDITOR_EXPORT Differ
@@ -67,13 +71,13 @@ public:
     QList<Diff> diff(const QString &text1, const QString &text2);
     void setDiffMode(DiffMode mode);
     bool diffMode() const;
+    QList<Diff> merge(const QList<Diff> &diffList);
 private:
     QList<Diff> preprocess1AndDiff(const QString &text1, const QString &text2);
     QList<Diff> preprocess2AndDiff(const QString &text1, const QString &text2);
     QList<Diff> diffMyers(const QString &text1, const QString &text2);
     QList<Diff> diffMyersSplit(const QString &text1, int x,
                                const QString &text2, int y);
-    QList<Diff> merge(const QList<Diff> &diffList);
     QList<Diff> squashEqualities(const QList<Diff> &diffList);
     QList<Diff> diffNonCharMode(const QString text1, const QString text2);
     QStringList encode(const QString &text1,
