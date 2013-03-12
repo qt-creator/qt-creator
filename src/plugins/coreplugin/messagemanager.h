@@ -31,6 +31,9 @@
 #define MESSAGEMANAGER_H
 
 #include "core_global.h"
+#include "ioutputpane.h"
+#include <QMetaType>
+
 #include <QObject>
 
 namespace Core {
@@ -52,11 +55,21 @@ public:
     static MessageManager *instance() { return m_instance; }
 
     void showOutputPane();
+    enum PrintToOutputPaneFlag {
+        NoModeSwitch = Core::IOutputPane::NoModeSwitch,
+        ModeSwitch = Core::IOutputPane::ModeSwitch,
+        WithFocus = Core::IOutputPane::WithFocus,
+        EnsureSizeHint = Core::IOutputPane::EnsureSizeHint,
+        Silent = 256,
+        Flash = 512 };
+
+    Q_DECLARE_FLAGS(PrintToOutputPaneFlags, PrintToOutputPaneFlag)
 
 public slots:
     void printToOutputPane(const QString &text, bool bringToForeground);
     void printToOutputPanePopup(const QString &text); // pops up
     void printToOutputPane(const QString &text);
+    void printToOutputPane(const QString &text, Core::MessageManager::PrintToOutputPaneFlags flags);
 
 private:
     Internal::MessageOutputWindow *m_messageOutputWindow;
@@ -65,5 +78,7 @@ private:
 };
 
 } // namespace Core
+
+Q_DECLARE_METATYPE(Core::MessageManager::PrintToOutputPaneFlags)
 
 #endif // MESSAGEMANAGER_H

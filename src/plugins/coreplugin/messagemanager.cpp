@@ -43,6 +43,7 @@ MessageManager::MessageManager()
     : m_messageOutputWindow(0)
 {
     m_instance = this;
+    qRegisterMetaType<Core::MessageManager::PrintToOutputPaneFlags>();
 }
 
 MessageManager::~MessageManager()
@@ -69,20 +70,32 @@ void MessageManager::showOutputPane()
 
 void MessageManager::printToOutputPane(const QString &text, bool bringToForeground)
 {
+    printToOutputPane(text, bringToForeground ? ModeSwitch
+                                              : Silent);
+}
+
+void MessageManager::printToOutputPane(const QString &text, PrintToOutputPaneFlags flags)
+{
     if (!m_messageOutputWindow)
         return;
-    if (bringToForeground)
-        m_messageOutputWindow->popup(IOutputPane::ModeSwitch);
+    if (flags & Flash) {
+        m_messageOutputWindow->flash();
+    } else if (flags & Silent) {
+        // Do nothing
+    } else {
+        m_messageOutputWindow->popup(Core::IOutputPane::Flag(int(flags)));
+    }
+
     m_messageOutputWindow->append(text + QLatin1Char('\n'));
 }
 
 void MessageManager::printToOutputPanePopup(const QString &text)
 {
-    printToOutputPane(text, true);
+    printToOutputPane(text, ModeSwitch);
 }
 
 void MessageManager::printToOutputPane(const QString &text)
 {
-    printToOutputPane(text, false);
+    printToOutputPane(text, Silent);
 }
 
