@@ -38,8 +38,8 @@
 // We mean it.
 //
 
-#ifndef QDESIGNER_FORMWINDOMANAGER_H
-#define QDESIGNER_FORMWINDOMANAGER_H
+#ifndef QDESIGNER_FORMWINDOWMANAGER_H
+#define QDESIGNER_FORMWINDOWMANAGER_H
 
 #include "shared_global_p.h"
 #include <QDesignerFormWindowManagerInterface>
@@ -84,4 +84,4 @@ private:
 
 QT_END_NAMESPACE
 
-#endif // QDESIGNER_FORMWINDOMANAGER_H
+#endif // QDESIGNER_FORMWINDOWMANAGER_H

@@ -27,10 +27,10 @@
 **
 ****************************************************************************/
 
+#include "qtcreatorintegration.h"
 #include "formeditorplugin.h"
 #include "formwindoweditor.h"
 #include "formclasswizardpage.h"
-#include "qtcreatorintegration.h"
 #include "formeditorw.h"
 #include "editordata.h"
 #include "codemodelhelpers.h"

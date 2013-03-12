@@ -37,7 +37,6 @@
 #include "qtcreatorintegration.h"
 #include "designerxmleditor.h"
 #include "designercontext.h"
-#include "editorwidget.h"
 #include "resourcehandler.h"
 #include <widgethost.h>
 
@@ -76,7 +75,6 @@
 #include <abstractobjectinspector.h>
 #include <QDesignerPropertyEditorInterface>
 #include <QDesignerActionEditorInterface>
-#include <QDesignerFormEditorInterface>
 
 #include <QAction>
 #include <QActionGroup>

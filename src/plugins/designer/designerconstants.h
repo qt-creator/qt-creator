@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNERPLUGIN_CONSTANTS_H
-#define DESIGNERPLUGIN_CONSTANTS_H
+#ifndef DESIGNERCONSTANTS_H
+#define DESIGNERCONSTANTS_H
 
 #include <QtGlobal>
 
@@ -80,4 +80,4 @@ namespace Internal {
 } // Constants
 } // Designer
 
-#endif //DESIGNERPLUGIN_CONSTANTS_H
+#endif //DESIGNERCONSTANTS_H

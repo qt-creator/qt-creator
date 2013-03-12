@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef FORMWIZARDPAGE_H
-#define FORMWIZARDPAGE_H
+#ifndef FORMTEMPLATEWIZARDPAGE_H
+#define FORMTEMPLATEWIZARDPAGE_H
 
 #include <QWizardPage>
 
