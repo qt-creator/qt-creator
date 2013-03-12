@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#include "proitems.h"
 #include "prowriter.h"
+#include "proitems.h"
 
 #include <QDir>
 #include <QPair>

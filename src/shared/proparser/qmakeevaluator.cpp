@@ -28,10 +28,10 @@
 ****************************************************************************/
 
 #include "qmakeevaluator.h"
+#include "qmakeevaluator_p.h"
 
 #include "qmakeglobals.h"
 #include "qmakeparser.h"
-#include "qmakeevaluator_p.h"
 #include "ioutils.h"
 
 #include <qbytearray.h>
