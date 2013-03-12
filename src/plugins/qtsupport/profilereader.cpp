@@ -30,7 +30,6 @@
 #include "profilereader.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
 
 #include <QDir>
 #include <QDebug>
@@ -50,15 +49,15 @@ static QString format(const QString &fileName, int lineNo, const QString &msg)
 ProMessageHandler::ProMessageHandler(bool verbose)
     : m_verbose(verbose)
 {
-    QObject::connect(this, SIGNAL(errorFound(QString)),
-                     Core::ICore::messageManager(), SLOT(printToOutputPane(QString)),
+    QObject::connect(this, SIGNAL(errorFound(QString,Core::MessageManager::PrintToOutputPaneFlags)),
+                     Core::ICore::messageManager(), SLOT(printToOutputPane(QString,Core::MessageManager::PrintToOutputPaneFlags)),
                      Qt::QueuedConnection);
 }
 
 void ProMessageHandler::message(int type, const QString &msg, const QString &fileName, int lineNo)
 {
     if ((type & CategoryMask) == ErrorMessage && ((type & SourceMask) == SourceParser || m_verbose))
-        emit errorFound(format(fileName, lineNo, msg));
+        emit errorFound(format(fileName, lineNo, msg), Core::MessageManager::NoModeSwitch);
 }
 
 void ProMessageHandler::fileMessage(const QString &)
