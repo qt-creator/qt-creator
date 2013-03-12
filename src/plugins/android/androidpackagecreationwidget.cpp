@@ -39,7 +39,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorer.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qmakestep.h>
 

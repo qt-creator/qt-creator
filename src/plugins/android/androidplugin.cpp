@@ -34,7 +34,6 @@
 #include "androiddeploystepfactory.h"
 #include "androiddevice.h"
 #include "androiddevicefactory.h"
-#include "androidconfigurations.h"
 #include "androidmanager.h"
 #include "androidpackagecreationfactory.h"
 #include "androidpackageinstallationfactory.h"

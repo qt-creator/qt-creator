@@ -31,7 +31,6 @@
 #include "androidconstants.h"
 #include "androidconfigurations.h"
 #include "androidqtversion.h"
-#include "androidconfigurations.h"
 
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
@@ -39,7 +38,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorer.h>
-#include <qtsupport/qtkitinformation.h>
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>

@@ -27,11 +27,11 @@
 **
 ****************************************************************************/
 
+#include "androiddeployconfiguration.h"
 #include "androidconstants.h"
 #include "androiddeploystep.h"
 #include "androidpackageinstallationstep.h"
 #include "androidpackagecreationstep.h"
-#include "androiddeployconfiguration.h"
 #include "androidmanager.h"
 
 #include <projectexplorer/buildsteplist.h>
