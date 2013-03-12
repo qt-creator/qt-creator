@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QSCRIPTSYNTAXHIGHLIGHTER_H
-#define QSCRIPTSYNTAXHIGHLIGHTER_H
+#ifndef QMLJSHIGHLIGHTER_H
+#define QMLJSHIGHLIGHTER_H
 
 #include "qmljseditor_global.h"
 
@@ -98,4 +98,4 @@ private:
 
 } // namespace QmlJSEditor
 
-#endif // QSCRIPTSYNTAXHIGHLIGHTER_H
+#endif // QMLJSHIGHLIGHTER_H

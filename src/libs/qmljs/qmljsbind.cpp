@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#include "parser/qmljsast_p.h"
 #include "qmljsbind.h"
+#include "parser/qmljsast_p.h"
 #include "qmljsutils.h"
 #include "qmljsdocument.h"
 #include "qmljsmodelmanagerinterface.h"

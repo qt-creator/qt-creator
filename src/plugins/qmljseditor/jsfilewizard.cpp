@@ -33,7 +33,6 @@
 
 #include <utils/filewizarddialog.h>
 #include <utils/qtcassert.h>
-#include <utils/filewizarddialog.h>
 
 #include <QFileInfo>
 #include <QTextStream>

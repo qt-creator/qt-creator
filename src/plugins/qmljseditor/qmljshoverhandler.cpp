@@ -27,10 +27,10 @@
 **
 ****************************************************************************/
 
+#include "qmljshoverhandler.h"
 #include "qmljseditor.h"
 #include "qmljseditoreditable.h"
 #include "qmlexpressionundercursor.h"
-#include "qmljshoverhandler.h"
 
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>

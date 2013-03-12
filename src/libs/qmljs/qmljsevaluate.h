@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QMLCHECK_H
-#define QMLCHECK_H
+#ifndef QMLJSEVALUATE_H
+#define QMLJSEVALUATE_H
 
 #include "parser/qmljsastvisitor_p.h"
 #include "qmljsdocument.h"
@@ -164,4 +164,4 @@ private:
 
 } // namespace Qml
 
-#endif // QMLCheck_H
+#endif // QMLJSEVALUATE_H

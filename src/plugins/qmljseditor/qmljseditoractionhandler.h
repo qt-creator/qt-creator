@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDITORACTIONHANDLER_H
-#define QMLDITORACTIONHANDLER_H
+#ifndef QMLJSEDITORACTIONHANDLER_H
+#define QMLJSEDITORACTIONHANDLER_H
 
 #include <texteditor/texteditoractionhandler.h>
 
@@ -48,4 +48,4 @@ public:
 } // namespace Internal
 } // namespace QmlJSEditor
 
-#endif // QMLDITORACTIONHANDLER_H
+#endif // QMLJSEDITORACTIONHANDLER_H

@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSSNIPPETEDITORDECORATOR_H
-#define QMLJSSNIPPETEDITORDECORATOR_H
+#ifndef QMLJSSNIPPETEDITORPROVIDER_H
+#define QMLJSSNIPPETEDITORPROVIDER_H
 
 #include <texteditor/snippets/isnippetprovider.h>
 
@@ -50,4 +50,4 @@ public:
 } // Internal
 } // QmlJSEditor
 
-#endif // QMLJSSNIPPETEDITORDECORATOR_H
+#endif // QMLJSSNIPPETEDITORPROVIDER_H

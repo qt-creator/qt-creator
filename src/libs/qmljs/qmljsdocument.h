@@ -26,8 +26,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef QMLDOCUMENT_H
-#define QMLDOCUMENT_H
+#ifndef QMLJSDOCUMENT_H
+#define QMLJSDOCUMENT_H
 
 #include <QList>
 #include <QPair>
@@ -242,4 +242,4 @@ public:
 
 } // namespace QmlJS
 
-#endif // QMLDOCUMENT_H
+#endif // QMLJSDOCUMENT_H

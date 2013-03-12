@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QMLBIND_H
-#define QMLBIND_H
+#ifndef QMLJSBIND_H
+#define QMLJSBIND_H
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsinterpreter.h>
@@ -111,4 +111,4 @@ private:
 
 } // namespace Qml
 
-#endif // QMLBIND_H
+#endif // QMLJSBIND_H

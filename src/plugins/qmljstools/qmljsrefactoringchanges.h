@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QMLREFACTORINGCHANGES_H
-#define QMLREFACTORINGCHANGES_H
+#ifndef QMLJSREFACTORINGCHANGES_H
+#define QMLJSREFACTORINGCHANGES_H
 
 #include "qmljstools_global.h"
 
@@ -93,4 +93,4 @@ private:
 
 } // namespace QmlJSTools
 
-#endif // QMLREFACTORINGCHANGES_H
+#endif // QMLJSREFACTORINGCHANGES_H
