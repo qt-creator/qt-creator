@@ -32,6 +32,7 @@
 #include "blackberrydeployconfigurationfactory.h"
 
 #include "qnxconstants.h"
+#include "blackberrycheckdevmodestep.h"
 #include "blackberrydeployconfiguration.h"
 #include "blackberrycreatepackagestep.h"
 #include "blackberrydeploystep.h"
@@ -92,8 +93,9 @@ ProjectExplorer::DeployConfiguration *BlackBerryDeployConfigurationFactory::crea
         return 0;
 
     BlackBerryDeployConfiguration *dc = new BlackBerryDeployConfiguration(parent);
-    dc->stepList()->insertStep(0, new BlackBerryCreatePackageStep(dc->stepList()));
-    dc->stepList()->insertStep(1, new BlackBerryDeployStep(dc->stepList()));
+    dc->stepList()->insertStep(0, new BlackBerryCheckDevModeStep(dc->stepList()));
+    dc->stepList()->insertStep(1, new BlackBerryCreatePackageStep(dc->stepList()));
+    dc->stepList()->insertStep(2, new BlackBerryDeployStep(dc->stepList()));
     return dc;
 }
 

@@ -29,41 +29,27 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYDEPLOYSTEP_H
-#define QNX_INTERNAL_BLACKBERRYDEPLOYSTEP_H
+#ifndef QNX_INTERNAL_BLACKBERRYCHECKDEVMODESTEPCONFIGWIDGET_H
+#define QNX_INTERNAL_BLACKBERRYCHECKDEVMODESTEPCONFIGWIDGET_H
 
-#include "blackberryabstractdeploystep.h"
+#include <projectexplorer/buildstep.h>
 
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryDeployStep : public BlackBerryAbstractDeployStep
+class BlackBerryCheckDevModeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
-    friend class BlackBerryDeployStepFactory;
-
 public:
-    explicit BlackBerryDeployStep(ProjectExplorer::BuildStepList *bsl);
-    ~BlackBerryDeployStep();
+    explicit BlackBerryCheckDevModeStepConfigWidget();
 
-    bool init();
-    void run(QFutureInterface<bool> &fi);
-    void cleanup();
+    QString displayName() const;
+    QString summaryText() const;
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-
-protected:
-    BlackBerryDeployStep(ProjectExplorer::BuildStepList *bsl, BlackBerryDeployStep *bs);
-
-    void stdOutput(const QString &line);
-    void processStarted(const ProjectExplorer::ProcessParameters &params);
-
-private:
-    QString deviceHost() const;
-    QString password() const;
+    bool showWidget() const;
 };
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_BLACKBERRYDEPLOYSTEP_H
+#endif // QNX_INTERNAL_BLACKBERRYCHECKDEVMODESTEPCONFIGWIDGET_H

@@ -33,6 +33,7 @@
 
 #include "blackberrydeployconfiguration.h"
 #include "blackberryrunconfiguration.h"
+#include "qnxconstants.h"
 
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
@@ -43,8 +44,6 @@
 #include <QDir>
 
 namespace {
-const char DEPLOY_CMD[] = "blackberry-deploy";
-
 qint64 parsePid(const QString &line)
 {
     QTC_ASSERT(line.startsWith(QLatin1String("result::")), return -1);
@@ -103,7 +102,7 @@ BlackBerryApplicationRunner::BlackBerryApplicationRunner(bool debugMode, BlackBe
     Target *target = runConfiguration->target();
     BuildConfiguration *buildConfig = target->activeBuildConfiguration();
     m_environment = buildConfig->environment();
-    m_deployCmd = m_environment.searchInPath(QLatin1String(DEPLOY_CMD));
+    m_deployCmd = m_environment.searchInPath(QLatin1String(Constants::QNX_BLACKBERRY_DEPLOY_CMD));
 
     m_device = BlackBerryDeviceConfiguration::device(target->kit());
     m_barPackage = runConfiguration->barPackage();

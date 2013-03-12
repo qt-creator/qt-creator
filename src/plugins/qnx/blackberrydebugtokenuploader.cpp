@@ -31,8 +31,9 @@
 
 #include "blackberrydebugtokenuploader.h"
 
+#include "qnxconstants.h"
+
 namespace {
-static const char PROCESS_NAME[] = "blackberry-deploy";
 static const char ERR_NO_ROUTE_HOST[] = "Cannot connect";
 static const char ERR_AUTH_FAILED[] = "Authentication failed";
 static const char ERR_DEVELOPMENT_MODE_DISABLED[] = "Device is not in the Development Mode";
@@ -42,7 +43,7 @@ namespace Qnx {
 namespace Internal {
 
 BlackBerryDebugTokenUploader::BlackBerryDebugTokenUploader(QObject *parent) :
-    BlackBerryNdkProcess(QLatin1String(PROCESS_NAME), parent)
+    BlackBerryNdkProcess(QLatin1String(Constants::QNX_BLACKBERRY_DEPLOY_CMD), parent)
 {
     addErrorStringMapping(QLatin1String(ERR_NO_ROUTE_HOST), NoRouteToHost);
     addErrorStringMapping(QLatin1String(ERR_AUTH_FAILED), AuthenticationFailed);

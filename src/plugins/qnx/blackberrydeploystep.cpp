@@ -49,8 +49,6 @@ using namespace Qnx;
 using namespace Qnx::Internal;
 
 namespace {
-const char DEPLOY_CMD[] = "blackberry-deploy";
-
 int parseProgress(const QString &line)
 {
     const QString startOfLine = QLatin1String("Info: Progress ");
@@ -90,10 +88,10 @@ bool BlackBerryDeployStep::init()
     if (!BlackBerryAbstractDeployStep::init())
         return false;
 
-    QString deployCmd = target()->activeBuildConfiguration()->environment().searchInPath(QLatin1String(DEPLOY_CMD));
+    QString deployCmd = target()->activeBuildConfiguration()->environment().searchInPath(QLatin1String(Constants::QNX_BLACKBERRY_DEPLOY_CMD));
     if (deployCmd.isEmpty()) {
         raiseError(tr("Could not find deploy command '%1' in the build environment")
-                       .arg(QLatin1String(DEPLOY_CMD)));
+                       .arg(QLatin1String(Constants::QNX_BLACKBERRY_DEPLOY_CMD)));
         return false;
     }
 
@@ -188,11 +186,4 @@ QString BlackBerryDeployStep::password() const
     if (device)
         return device->sshParameters().password;
     return QString();
-}
-
-void BlackBerryDeployStep::raiseError(const QString &errorMessage)
-{
-    emit addOutput(errorMessage, BuildStep::ErrorMessageOutput);
-    emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error, errorMessage, Utils::FileName(), -1,
-                      Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
 }

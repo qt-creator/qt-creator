@@ -69,6 +69,7 @@ const char QNX_QNX_RUNCONFIGURATION_PREFIX[] = "Qt4ProjectManager.QNX.QNXRunConf
 
 const char QNX_CREATE_PACKAGE_BS_ID[] = "Qt4ProjectManager.QnxCreatePackageBuildStep";
 const char QNX_DEPLOY_PACKAGE_BS_ID[] = "Qt4ProjectManager.QnxDeployPackageBuildStep";
+const char QNX_CHECK_DEVELOPMENT_MODE_BS_ID[] = "Qt4ProjectManager.QnxCheckDevelopmentModeBuildStep";
 
 const char QNX_PROFILEPATH_KEY[]   = "Qt4ProjectManager.QnxRunConfiguration.ProFilePath";
 
@@ -103,6 +104,9 @@ const char QNX_TASK_CATEGORY_BARDESCRIPTOR[] = "Task.Category.BarDescriptor";
 const char QNX_KEY_AUTHOR[] = "author";
 const char QNX_KEY_PATH[] = "path";
 const char QNX_KEY_ACTIVE[] = "active";
+
+const char QNX_BLACKBERRY_DEPLOY_CMD[] = "blackberry-deploy";
+
 } // namespace Constants
 } // namespace Qnx
 

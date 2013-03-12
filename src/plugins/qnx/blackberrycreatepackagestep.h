@@ -57,8 +57,6 @@ public:
 protected:
     BlackBerryCreatePackageStep(ProjectExplorer::BuildStepList *bsl, BlackBerryCreatePackageStep *bs);
 
-    void raiseError(const QString &errorMessage);
-
 private:
     bool prepareAppDescriptorFile(const QString &appDescriptorPath, const QString &preparedFilePath);
 };

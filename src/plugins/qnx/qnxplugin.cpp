@@ -49,6 +49,7 @@
 #include "bardescriptoreditorfactory.h"
 #include "bardescriptormagicmatcher.h"
 #include "blackberrykeyspage.h"
+#include "blackberrycheckdevmodestepfactory.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
@@ -80,6 +81,7 @@ bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
     addAutoReleasedObject(new BlackBerryRunControlFactory);
     addAutoReleasedObject(new BlackBerryNDKSettingsPage);
     addAutoReleasedObject(new BlackBerryKeysPage);
+    addAutoReleasedObject(new BlackBerryCheckDevModeStepFactory);
 
     // Handles QNX
     addAutoReleasedObject(new QnxQtVersionFactory);

@@ -71,6 +71,8 @@ protected:
 
     void emitOutputInfo(const ProjectExplorer::ProcessParameters &params, const QString& arguments);
 
+    void raiseError(const QString &errorMessage);
+
 private slots:
     void processReadyReadStdOutput();
     void processReadyReadStdError();

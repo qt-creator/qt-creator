@@ -32,7 +32,9 @@
 #include "blackberryabstractdeploystep.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/task.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -174,6 +176,13 @@ void BlackBerryAbstractDeployStep::emitOutputInfo(const ProjectExplorer::Process
                    .arg(QDir::toNativeSeparators(params.effectiveCommand()),
                         arguments),
                    BuildStep::MessageOutput);
+}
+
+void BlackBerryAbstractDeployStep::raiseError(const QString &errorMessage)
+{
+    emit addOutput(errorMessage, BuildStep::ErrorMessageOutput);
+    emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error, errorMessage, Utils::FileName(), -1,
+                                       Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
 }
 
 void BlackBerryAbstractDeployStep::processReadyReadStdOutput()

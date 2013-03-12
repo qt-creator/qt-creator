@@ -153,13 +153,6 @@ QString BlackBerryCreatePackageStep::debugToken() const
     return device->debugToken();
 }
 
-void BlackBerryCreatePackageStep::raiseError(const QString &errorMessage)
-{
-    emit addOutput(errorMessage, BuildStep::ErrorMessageOutput);
-    emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error, errorMessage, Utils::FileName(), -1,
-                                       Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
-}
-
 bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDescriptorPath, const QString &preparedFilePath)
 {
     BlackBerryQtVersion *qtVersion = dynamic_cast<BlackBerryQtVersion *>(QtSupport::QtKitInformation::qtVersion(target()->kit()));
