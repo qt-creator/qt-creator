@@ -258,7 +258,8 @@ static void printParseWarnings(const QString &libraryPath, const QString &warnin
     Core::MessageManager *messageManager = Core::MessageManager::instance();
     messageManager->printToOutputPane(
                 PluginDumper::tr("Warnings while parsing qmltypes information of %1:\n"
-                                 "%2").arg(libraryPath, warning));
+                                 "%2").arg(libraryPath, warning),
+                Core::MessageManager::Flash);
 }
 
 static QString qmlPluginDumpErrorMessage(QProcess *process)
@@ -317,7 +318,8 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
     if (exitCode != 0) {
         Core::MessageManager *messageManager = Core::MessageManager::instance();
         const QString errorMessages = qmlPluginDumpErrorMessage(process);
-        messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, errorMessages));
+        messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, errorMessages),
+                                          Core::MessageManager::Flash);
         libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, qmldumpFailedMessage(libraryPath, errorMessages));
     }
 
@@ -357,8 +359,8 @@ void PluginDumper::qmlPluginTypeDumpError(QProcess::ProcessError)
 
     Core::MessageManager *messageManager = Core::MessageManager::instance();
     const QString errorMessages = qmlPluginDumpErrorMessage(process);
-    messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, errorMessages));
-
+    messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, errorMessages),
+                                      Core::MessageManager::Flash);
     if (!libraryPath.isEmpty()) {
         const Snapshot snapshot = m_modelManager->snapshot();
         LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);

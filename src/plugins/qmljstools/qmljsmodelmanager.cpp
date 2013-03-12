@@ -321,9 +321,9 @@ void ModelManager::loadQmlTypeDescriptions(const QString &resourcePath)
 
     Core::MessageManager *messageManager = Core::MessageManager::instance();
     foreach (const QString &error, errors)
-        messageManager->printToOutputPane(error);
+        messageManager->printToOutputPane(error, Core::MessageManager::Flash);
     foreach (const QString &warning, warnings)
-        messageManager->printToOutputPane(warning);
+        messageManager->printToOutputPane(warning, Core::MessageManager::Flash);
 }
 
 ModelManagerInterface::WorkingCopy ModelManager::workingCopy() const
