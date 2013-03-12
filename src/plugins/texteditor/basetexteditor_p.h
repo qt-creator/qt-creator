@@ -43,6 +43,7 @@
 #include <QSharedPointer>
 #include <QPointer>
 #include <QScopedPointer>
+#include <QTextBlock>
 
 namespace TextEditor {
 

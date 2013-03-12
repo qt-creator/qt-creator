@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#include "plaintexteditor.h"
 #include "plaintexteditorfactory.h"
+#include "plaintexteditor.h"
 #include "basetextdocument.h"
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"

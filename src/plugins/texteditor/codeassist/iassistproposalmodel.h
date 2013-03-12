@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef IASSISTMODEL_H
-#define IASSISTMODEL_H
+#ifndef IASSISTPROPOSALMODEL_H
+#define IASSISTPROPOSALMODEL_H
 
 #include <texteditor/texteditor_global.h>
 
@@ -51,4 +51,4 @@ public:
 
 } // TextEditor
 
-#endif // IASSISTMODEL_H
+#endif // IASSISTPROPOSALMODEL_H

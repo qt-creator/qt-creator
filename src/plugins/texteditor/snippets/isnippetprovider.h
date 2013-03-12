@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef ISNIPPETEDITORDECORATOR_H
-#define ISNIPPETEDITORDECORATOR_H
+#ifndef ISNIPPETPROVIDER_H
+#define ISNIPPETPROVIDER_H
 
 #include <texteditor/texteditor_global.h>
 
@@ -54,4 +54,4 @@ protected:
 
 } // TextEditor
 
-#endif // ISNIPPETEDITORDECORATOR_H
+#endif // ISNIPPETPROVIDER_H

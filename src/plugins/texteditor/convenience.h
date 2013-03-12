@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef BASETEXTEDITORUTIL_H
-#define BASETEXTEDITORUTIL_H
+#ifndef CONCENIENCE_H
+#define CONCENIENCE_H
 
 #include "texteditor_global.h"
 
@@ -51,4 +51,4 @@ TEXTEDITOR_EXPORT QString textAt(QTextCursor tc, int pos, int length);
 } // Util
 } // TextEditor
 
-#endif // BASETEXTEDITORUTIL_H
+#endif // CONCENIENCE_H

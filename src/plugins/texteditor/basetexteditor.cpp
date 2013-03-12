@@ -27,11 +27,12 @@
 **
 ****************************************************************************/
 
+#include "basetexteditor.h"
+#include "basetexteditor_p.h"
 #include "texteditor_global.h"
 
 #include "basetextdocument.h"
 #include "basetextdocumentlayout.h"
-#include "basetexteditor_p.h"
 #include "behaviorsettings.h"
 #include "codecselector.h"
 #include "completionsettings.h"

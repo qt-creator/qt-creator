@@ -66,7 +66,6 @@
 #include <QXmlInputSource>
 #include <QNetworkRequest>
 #include <QNetworkReply>
-#include <QtAlgorithms>
 
 using namespace TextEditor;
 using namespace Internal;
