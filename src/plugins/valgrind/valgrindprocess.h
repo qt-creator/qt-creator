@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef VALGRIND_RUNNER_P_H
-#define VALGRIND_RUNNER_P_H
+#ifndef VALGRINDPROCESS_H
+#define VALGRINDPROCESS_H
 
 #include <utils/qtcprocess.h>
 #include <ssh/sshremoteprocess.h>
@@ -164,4 +164,4 @@ private:
 
 } // namespace Valgrind
 
-#endif // VALGRIND_RUNNER_P_H
+#endif // VALGRINDPROCESS_H

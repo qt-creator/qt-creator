@@ -28,11 +28,11 @@
 ****************************************************************************/
 
 #include "callgrindfunction.h"
+#include "callgrindfunction_p.h"
 
 #include "callgrindfunctioncall.h"
 #include "callgrindcostitem.h"
 #include "callgrindparsedata.h"
-#include "callgrindfunction_p.h"
 
 #include <utils/qtcassert.h>
 

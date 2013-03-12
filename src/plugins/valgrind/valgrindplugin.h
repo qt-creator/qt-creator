@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef VALGRINDTOOLBASEPLUGIN_H
-#define VALGRINDTOOLBASEPLUGIN_H
+#ifndef VALGRINDPLUGIN_H
+#define VALGRINDPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
 #include <analyzerbase/ianalyzertool.h>
@@ -54,4 +54,4 @@ public:
 } // namespace Internal
 } // namespace Valgrind
 
-#endif // VALGRINDTOOLBASEPLUGIN_H
+#endif // VALGRINDPLUGIN_H

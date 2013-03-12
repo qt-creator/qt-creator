@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef LIBVALGRIND_CALLGRIND_CALLEE_H
-#define LIBVALGRIND_CALLGRIND_CALLEE_H
+#ifndef CALLGRINDFUNCTIONCALL_H
+#define CALLGRINDFUNCTIONCALL_H
 
 #include <QMetaType>
 
@@ -90,4 +90,4 @@ private:
 
 Q_DECLARE_METATYPE(const Valgrind::Callgrind::FunctionCall *);
 
-#endif // LIBVALGRIND_CALLGRIND_CALLEE_H
+#endif // CALLGRINDFUNCTIONCALL_H

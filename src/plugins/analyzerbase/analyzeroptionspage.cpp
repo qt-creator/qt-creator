@@ -28,9 +28,8 @@
 **
 ****************************************************************************/
 
-#include "analyzerconstants.h"
-
 #include "analyzeroptionspage.h"
+#include "analyzerconstants.h"
 #include "analyzersettings.h"
 
 #include <coreplugin/icore.h>
