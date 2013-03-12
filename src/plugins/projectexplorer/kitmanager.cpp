@@ -225,8 +225,6 @@ void KitManager::restoreKits()
 
 KitManager::~KitManager()
 {
-    saveKits(); // Make sure we save the current state on exit!
-
     foreach (Kit *k, d->m_kitList)
         delete k;
     d->m_kitList.clear();
