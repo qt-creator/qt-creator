@@ -29,8 +29,8 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYCERTIFICATESTOREMODEL_H
-#define QNX_INTERNAL_BLACKBERRYCERTIFICATESTOREMODEL_H
+#ifndef BLACKBERRYCERTIFICATEMODEL_H
+#define BLACKBERRYCERTIFICATEMODEL_H
 
 #include <QAbstractTableModel>
 #include <QList>
@@ -86,4 +86,4 @@ private:
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_BLACKBERRYCERTIFICATESTOREMODEL_H
+#endif // BLACKBERRYCERTIFICATEMODEL_H

@@ -29,8 +29,8 @@
 **
 ****************************************************************************/
 
-#include "blackberrydebugtokenrequestdialog.h"
 #include "blackberrydeviceconfigurationwizardpages.h"
+#include "blackberrydebugtokenrequestdialog.h"
 #include "ui_blackberrydeviceconfigurationwizardsetuppage.h"
 #include "ui_blackberrydeviceconfigurationwizardsshkeypage.h"
 

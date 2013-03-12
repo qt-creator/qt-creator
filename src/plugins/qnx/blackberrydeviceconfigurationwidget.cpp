@@ -29,9 +29,9 @@
 **
 ****************************************************************************/
 
+#include "blackberrydeviceconfigurationwidget.h"
 #include "blackberrydebugtokenuploader.h"
 #include "blackberrydebugtokenrequestdialog.h"
-#include "blackberrydeviceconfigurationwidget.h"
 #include "ui_blackberrydeviceconfigurationwidget.h"
 #include "qnxconstants.h"
 

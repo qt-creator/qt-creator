@@ -29,8 +29,8 @@
 **
 ****************************************************************************/
 
-#ifndef BLACKBERRYSIGNINGPAGE_H
-#define BLACKBERRYSIGNINGPAGE_H
+#ifndef BLACKBERRYKEYSPAGE_H
+#define BLACKBERRYKEYSPAGE_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -55,4 +55,4 @@ private:
 } // namespace Internal
 } // namespace Qnx
 
-#endif // BLACKBERRYSIGNINGPAGE_H
+#endif // BLACKBERRYKEYSPAGE_H
