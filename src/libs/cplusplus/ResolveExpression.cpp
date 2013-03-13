@@ -638,7 +638,7 @@ bool ResolveExpression::visit(CallAST *ast)
 
                 int score = 0;
 
-                for (unsigned i = 0; i < funTy->argumentCount(); ++i) {
+                for (unsigned i = 0, argc = funTy->argumentCount(); i < argc; ++i) {
                     const FullySpecifiedType formalTy = funTy->argumentAt(i)->type();
 
                     FullySpecifiedType actualTy;

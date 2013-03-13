@@ -140,7 +140,7 @@ private:
 
             fun->setReturnType(q->apply(funTy->returnType()));
 
-            for (unsigned i = 0; i < funTy->argumentCount(); ++i) {
+            for (unsigned i = 0, argc = funTy->argumentCount(); i < argc; ++i) {
                 Argument *originalArgument = funTy->argumentAt(i)->asArgument();
                 Argument *arg = control()->newArgument(/*sourceLocation*/ 0,
                                                        originalArgument->name());

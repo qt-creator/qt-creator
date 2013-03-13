@@ -185,15 +185,16 @@ Symbol *SymbolFinder::findMatchingDefinition(Symbol *declaration,
                     if (! strict && ! best)
                         best = fun;
 
-                    unsigned argc = 0;
-                    for (; argc < declarationTy->argumentCount(); ++argc) {
-                        Symbol *arg = fun->argumentAt(argc);
-                        Symbol *otherArg = declarationTy->argumentAt(argc);
+                    const unsigned argc = declarationTy->argumentCount();
+                    unsigned argIt = 0;
+                    for (; argIt < argc; ++argIt) {
+                        Symbol *arg = fun->argumentAt(argIt);
+                        Symbol *otherArg = declarationTy->argumentAt(argIt);
                         if (! arg->type().isEqualTo(otherArg->type()))
                             break;
                     }
 
-                    if (argc == declarationTy->argumentCount())
+                    if (argIt == argc)
                         best = fun;
                 }
             }

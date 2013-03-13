@@ -1364,7 +1364,7 @@ void CppCompletionAssistProcessor::globalCompletion(CPlusPlus::Scope *currentSco
             }
         } else if (scope->isFunction()) {
             Function *fun = scope->asFunction();
-            for (unsigned i = 0; i < fun->argumentCount(); ++i) {
+            for (unsigned i = 0, argc = fun->argumentCount(); i < argc; ++i) {
                 addCompletionItem(fun->argumentAt(i), FunctionArgumentsOrder);
             }
             break;

@@ -569,7 +569,7 @@ static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
                 method.setMethodType(FakeMetaMethod::Signal);
             else
                 method.setMethodType(FakeMetaMethod::Slot);
-            for (unsigned a = 0; a < func->argumentCount(); ++a) {
+            for (unsigned a = 0, argc = func->argumentCount(); a < argc; ++a) {
                 Symbol *arg = func->argumentAt(a);
                 QString name;
                 if (arg->name())

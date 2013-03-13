@@ -381,10 +381,10 @@ void FunctionDeclDefLink::showMarker(CPPEditorWidget *editor)
 // does consider foo(void) to have one argument
 static int declaredParameterCount(Function *function)
 {
-    int c = function->argumentCount();
-    if (c == 0 && function->memberCount() > 0 && function->memberAt(0)->type().type()->isVoidType())
+    int argc = function->argumentCount();
+    if (argc == 0 && function->memberCount() > 0 && function->memberAt(0)->type().type()->isVoidType())
         return 1;
-    return c;
+    return argc;
 }
 
 Q_GLOBAL_STATIC(QRegExp, commentArgNameRegexp)

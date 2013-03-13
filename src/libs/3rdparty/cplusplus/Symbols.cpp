@@ -235,11 +235,12 @@ bool Function::isEqualTo(const Type *other) const
     const Name *l = unqualifiedName();
     const Name *r = o->unqualifiedName();
     if (l == r || (l && l->isEqualTo(r))) {
-        if (argumentCount() != o->argumentCount())
+        const unsigned argc = argumentCount();
+        if (argc != o->argumentCount())
             return false;
         else if (! _returnType.isEqualTo(o->_returnType))
             return false;
-        for (unsigned i = 0; i < argumentCount(); ++i) {
+        for (unsigned i = 0; i < argc; ++i) {
             Symbol *l = argumentAt(i);
             Symbol *r = o->argumentAt(i);
             if (! l->type().isEqualTo(r->type()))
@@ -297,15 +298,15 @@ Symbol *Function::argumentAt(unsigned index) const
 
 bool Function::hasArguments() const
 {
-    return ! (argumentCount() == 0 ||
-              (argumentCount() == 1 && argumentAt(0)->type()->isVoidType()));
+    unsigned argc = argumentCount();
+    return ! (argc == 0 || (argc == 1 && argumentAt(0)->type()->isVoidType()));
 }
 
 unsigned Function::minimumArgumentCount() const
 {
     unsigned index = 0;
 
-    for (; index < argumentCount(); ++index) {
+    for (unsigned ei = argumentCount(); index < ei; ++index) {
         if (Argument *arg = argumentAt(index)->asArgument()) {
             if (arg->hasInitializer())
                 break;
@@ -374,10 +375,11 @@ void Function::visitSymbol0(SymbolVisitor *visitor)
 
 bool Function::maybeValidPrototype(unsigned actualArgumentCount) const
 {
+    const unsigned argc = argumentCount();
     unsigned minNumberArguments = 0;
 
-    for (; minNumberArguments < this->argumentCount(); ++minNumberArguments) {
-        Argument *arg = this->argumentAt(minNumberArguments)->asArgument();
+    for (; minNumberArguments < argc; ++minNumberArguments) {
+        Argument *arg = argumentAt(minNumberArguments)->asArgument();
 
         if (! arg) // TODO: Fix me properly - QTCREATORBUG-8316
             return false;
@@ -390,7 +392,7 @@ bool Function::maybeValidPrototype(unsigned actualArgumentCount) const
         // not enough arguments.
         return false;
 
-    } else if (! this->isVariadic() && actualArgumentCount > this->argumentCount()) {
+    } else if (!isVariadic() && actualArgumentCount > argc) {
         // too many arguments.
         return false;
     }

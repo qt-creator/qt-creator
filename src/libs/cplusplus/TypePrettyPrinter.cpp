@@ -409,7 +409,7 @@ void TypePrettyPrinter::visit(Function *type)
 
         _text += QLatin1Char('(');
 
-        for (unsigned index = 0; index < type->argumentCount(); ++index) {
+        for (unsigned index = 0, argc = type->argumentCount(); index < argc; ++index) {
             if (index != 0)
                 _text += QLatin1String(", ");
 

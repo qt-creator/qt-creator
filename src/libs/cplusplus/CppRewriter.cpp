@@ -145,7 +145,7 @@ public:
 
             funTy->setReturnType(rewrite->rewriteType(type->returnType()));
 
-            for (unsigned i = 0; i < type->argumentCount(); ++i) {
+            for (unsigned i = 0, argc = type->argumentCount(); i < argc; ++i) {
                 Symbol *arg = type->argumentAt(i);
 
                 Argument *newArg = control()->newArgument(0, 0);
