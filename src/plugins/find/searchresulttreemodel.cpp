@@ -252,12 +252,10 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
             result = QVariant();
         break;
     case Qt::TextColorRole:
-        if (row->item.useTextEditorFont)
-            result = m_color.textForeground;
+        result = m_color.textForeground;
         break;
     case Qt::BackgroundRole:
-        if (row->item.useTextEditorFont)
-            result = m_color.textBackground;
+        result = m_color.textBackground;
         break;
     case ItemDataRoles::ResultLineRole:
     case Qt::DisplayRole:
@@ -273,12 +271,10 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
         result = row->item.icon;
         break;
     case ItemDataRoles::ResultHighlightBackgroundColor:
-        if (row->item.useTextEditorFont)
-            result = m_color.highlightBackground;
+        result = m_color.highlightBackground;
         break;
     case ItemDataRoles::ResultHighlightForegroundColor:
-        if (row->item.useTextEditorFont)
-            result = m_color.highlightForeground;
+        result = m_color.highlightForeground;
         break;
     case ItemDataRoles::SearchTermStartRole:
         result = row->item.textMarkPos;
