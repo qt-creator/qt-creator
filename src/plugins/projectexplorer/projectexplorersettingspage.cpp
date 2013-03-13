@@ -35,6 +35,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/variablechooser.h>
 #include <utils/hostosinfo.h>
 
 #include <QLabel>
@@ -49,6 +50,8 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
     QWidget(parent)
 {
     m_ui.setupUi(this);
+    m_ui.buildDirectoryEdit->setProperty(Core::Constants::VARIABLE_SUPPORT_PROPERTY, true);
+    new Core::VariableChooser(this);
     setJomVisible(Utils::HostOsInfo::isWindowsHost());
     m_ui.directoryButtonGroup->setId(m_ui.currentDirectoryRadioButton, UseCurrentDirectory);
     m_ui.directoryButtonGroup->setId(m_ui.directoryRadioButton, UseProjectDirectory);
