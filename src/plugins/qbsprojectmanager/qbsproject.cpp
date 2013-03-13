@@ -568,7 +568,7 @@ QString QbsProject::qbsBuildDir() const
     QString buildDir = Utils::Environment::systemEnvironment()
             .value(QLatin1String("QBS_BUILD_DIR"));
     if (buildDir.isEmpty())
-        buildDir = QLatin1String(QBS_BUILD_DIR);
+        buildDir = Core::ICore::resourcePath() + QLatin1String("/qbs");
     return buildDir;
 }
 
