@@ -422,7 +422,7 @@ void MsvcToolChainConfigWidget::setFromToolChain()
 {
     MsvcToolChain *tc = static_cast<MsvcToolChain *>(toolChain());
     QTC_ASSERT(tc, return);
-    QString varsBatDisplay = tc->varsBat();
+    QString varsBatDisplay = QDir::toNativeSeparators(tc->varsBat());
     if (!tc->varsBatArg().isEmpty()) {
         varsBatDisplay += QLatin1Char(' ');
         varsBatDisplay += tc->varsBatArg();
