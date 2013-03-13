@@ -3838,19 +3838,22 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             else if (input.is('U'))
                 m_submode = UpCaseSubMode;
         } else {
-            if (!atEndOfLine()) {
-                beginEditBlock();
-                setAnchor();
-                moveRight(qMin(count(), rightDist()));
-                if (input.is('~'))
-                    invertCase(currentRange());
-                else if (input.is('u'))
-                    downCase(currentRange());
-                else if (input.is('U'))
-                    upCase(currentRange());
-                setDotCommand(QString::fromLatin1("%1%2").arg(count()).arg(input.raw()));
-                endEditBlock();
+            beginEditBlock();
+            if (atEndOfLine())
+                moveLeft();
+            setAnchor();
+            moveRight(qMin(count(), rightDist()));
+            if (input.is('~')) {
+                const int pos = position();
+                invertCase(currentRange());
+                setPosition(pos);
+            } else if (input.is('u')) {
+                downCase(currentRange());
+            } else if (input.is('U')) {
+                upCase(currentRange());
             }
+            setDotCommand(QString::fromLatin1("%1%2").arg(count()).arg(input.raw()));
+            endEditBlock();
         }
     } else if (input.isKey(Key_Delete)) {
         setAnchor();
@@ -7533,6 +7536,7 @@ void FakeVimHandler::setTextCursorPosition(int position)
         d->setPosition(pos);
     else
         d->setAnchorAndPosition(pos, pos);
+    d->m_fakeEnd = false;
     d->setTargetColumn();
 }
 
