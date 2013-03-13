@@ -33,8 +33,8 @@
 
     You can export designs from graphics software, such as Adobe Photoshop and
     GIMP, to QML files. Each scene is converted into a single QML file with an
-    Image or a Text element for each layer and saved on the development PC.
-    Top-level layer groups are converted into merged QML Image elements.
+    Image or a Text item for each layer and saved on the development PC.
+    Top-level layer groups are converted into merged QML Image types.
 
     \note GIMP does not support grouping, and therefore, each layer is exported
     as an item in GIMP.
@@ -54,16 +54,16 @@
 
     \list
 
-        \li Layer names are used as element names. Spaces and hash marks (#) are
+        \li Layer names are used as item names. Spaces and hash marks (#) are
             replaced with underscore characters to create valid ids for the
-            elements.
+            items.
 
         \li Layer styles, such as drop shadows, are converted to images.
 
         \li Offset, size, ordering and opacity are preserved.
 
-        \li Text layers are converted to Text elements, unless you specify that
-            they be converted to Image elements.
+        \li Text layers are converted to Text items, unless you specify that
+            they be converted to Image items.
 
         \li Hidden layers can be exported, and their visibility is set to
             hidden.
@@ -79,12 +79,12 @@
 
     \list
 
-        \li To minimize the number of elements, minimize the number of layers or
+        \li To minimize the number of items, minimize the number of layers or
             use top-level layer groups, because each layer or layer group is
-            exported as a Text or Image element.
+            exported as a Text or Image item.
 
-        \li To make sure that all related elements are exported to the same
-            element, use top-level layer groups.
+        \li To make sure that all related items are exported to the same
+            item, use top-level layer groups.
 
         \li To determine that some layers are not exported, hide them, and
             deselect the \gui {Export hidden} check box during exporting.
@@ -133,10 +133,10 @@
             location for the QML file.
 
         \li Select the \gui {Rasterize text} check box to export text layers as
-            images, not as Text elements.
+            images, not as Text items.
 
         \li Select the \gui {Group layers} check box to export each top-level
-            group as a merged QML Image element.
+            group as a merged QML Image item.
 
         \li Select the \gui {Export hidden} check box to export hidden layers
             and to set their visibility property to hidden.

@@ -30,12 +30,12 @@
 
     \title Using Qt Quick Toolbars
 
-    When you select a component in the code and a toolbar is available,
+    When you select a QML type in the code and a toolbar is available,
      a light bulb icon appears:
     \inlineimage qml-toolbar-indicator.png
     . Select the icon to open the toolbar.
 
-    To open toolbars immediately when you select a component, select
+    To open toolbars immediately when you select a QML type, select
     \gui{Tools > Options > Qt Quick > Qt Quick Toolbar > Always show Qt Quick
     Toolbar}.
 
@@ -49,7 +49,7 @@
 
     The Qt Quick Toolbar for images allows you to edit the properties of
     \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-borderimage.html}{Border Image}
-    and \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-image.html}{Image} components.
+    and \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-image.html}{Image} items.
     You can scale and tile the images, replace them with other images,
     preview them, and change the image margins.
 
@@ -63,7 +63,7 @@
     \section1 Formatting Text
 
     The Qt Quick Toolbar for text allows you to edit the properties of
-    \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-text.html}{Text} components.
+    \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-text.html}{Text} items.
     You can change the font family and size as well as text formatting, style,
     alignment, and color.
 
@@ -80,7 +80,7 @@
 
     The Qt Quick Toolbar for animation allows you to edit the properties of
     \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-propertyanimation.html}
-    {PropertyAnimation} components and the components that inherit it. You can
+    {PropertyAnimation} items and the items that inherit it. You can
     change the easing curve type and duration. For some curves, you can also
     specify amplitude, period, and overshoot values.
 
@@ -92,7 +92,7 @@
 
     The Qt Quick Toolbar for rectangles allows you to edit the properties of
     \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-rectangle.html}{Rectangle}
-    components. You can change the fill and border colors and add
+    items. You can change the fill and border colors and add
     gradients.
 
     \image qml-toolbar-rectangle.png "Qt Quick Toolbar for rectangles"

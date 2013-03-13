@@ -507,12 +507,12 @@
     \row
         \li  M204
         \li  Warning
-        \li  This type is not supported in the Qt Quick Designer
+        \li  This QML type is not supported in the Qt Quick Designer
         \li
     \row
         \li  M205
         \li  Warning
-        \li  Reference to parent item cannot be resolved correctly by the
+        \li  Reference to parent QML type cannot be resolved correctly by the
              Qt Quick Designer
         \li
 
@@ -526,7 +526,7 @@
     \row
         \li  M207
         \li  Warning
-        \li  Qt Quick Designer only supports states in the root item
+        \li  Qt Quick Designer only supports states in the root QML type
         \li
 
     \row
@@ -761,7 +761,7 @@
             \li A C++ code snippet
         \row
             \li \inlineimage completion/element.png
-            \li A QML element
+            \li A QML type
         \row
             \li \inlineimage completion/qmlsnippet.png
             \li A QML code snippet
@@ -1492,7 +1492,7 @@
 
     To apply refactoring actions to C++ code, right-click an operand,
     conditional statement, string, or name to open a context menu. In QML code,
-    click an element ID or name.
+    click an item ID or name.
 
     In the context menu, select \gui {Refactoring} and then select a refactoring
     action.
@@ -1877,7 +1877,7 @@
 
         \li  Split initializers
 
-        \li  Move a QML element into a separate file to reuse it in other
+        \li  Move a QML type into a separate file to reuse it in other
         .qml files
 
    \endlist
@@ -1894,11 +1894,11 @@
 
         \row
             \li  Move Component into 'filename.qml'
-            \li  Moves a QML element into a separate file
-            \li  Element name
+            \li  Moves a QML type into a separate file
+            \li  QML type name
         \row
             \li  Split Initializer
-            \li  Reformats a one-line element into a multi-line element. For example,
+            \li  Reformats a one-line type into a multi-line type. For example,
             rewrites
     \code
     Item { x: 10; y: 20; width: 10 }
@@ -1913,12 +1913,12 @@
         width: 10
     }
     \endcode
-            \li  Element property
+            \li  QML type property
         \row
             \li  Wrap in Loader
-            \li  Wraps the element in a Component element and loads it dynamically in
-               a Loader element. This is usually done to improve startup time.
-            \li  Element name
+            \li  Wraps the type in a Component type and loads it dynamically in
+               a Loader type. This is usually done to improve startup time.
+            \li  QML type name
         \row
             \li  Add a message suppression comment
             \li  Prepends the line with an annotation comment that stops the message

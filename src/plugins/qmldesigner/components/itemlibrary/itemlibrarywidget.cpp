@@ -108,7 +108,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
 
     /* other widgets */
     QTabBar *tabBar = new QTabBar(this);
-    tabBar->addTab(tr("Items", "Title of library items view"));
+    tabBar->addTab(tr("QML Types", "Title of library QML types view"));
     tabBar->addTab(tr("Resources", "Title of library resources view"));
     tabBar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 

@@ -30,7 +30,7 @@
 
     \title Creating a Qt Quick Application
 
-    This tutorial uses built-in QML elements and illustrates basic concepts of
+    This tutorial uses built-in QML types and illustrates basic concepts of
     \l {http://qt-project.org/doc/qt-5.0/qtquick/qtquick-index.html}{Qt Quick}.
 
     This tutorial describes how to use \QC to implement Qt states and transitions. We use
@@ -48,11 +48,11 @@
     \list 1
 
         \li Select \gui{File > New File or Project > Applications >
-            Qt Quick 2 Application (Built-in Elements) > Choose}.
+            Qt Quick 2 Application (Built-in Types) > Choose}.
 
             \note The QML types used in this example are also supported in Qt Quick 1. To create
             this example application for platforms that run Qt 4, select \gui {Qt Quick 1
-            Application (Built-in Elements)}.
+            Application (Built-in Types)}.
 
         \li In the \gui{Name} field, type \b {Transitions}.
 
@@ -91,7 +91,7 @@
     directory in the Qt installation directory. For example:
     \c {C:\Qt\Qt5.0.1\5.0.1\msvc2010\examples\declarative\animation\states}. The image appears
     in the \gui Resources pane. You can also use any other image or a QML
-    element, instead.
+    type, instead.
 
     \list 1
 
@@ -132,7 +132,7 @@
 
         \endlist
 
-        \li In the \gui Library view, \gui Items tab, select \gui Rectangle,
+        \li In the \gui Library view, \gui {QML Types} tab, select \gui Rectangle,
             drag and drop it to the canvas, and edit its properties.
 
             \image qmldesigner-tutorial-topleftrect.png "Rectangle properties"
@@ -174,10 +174,10 @@
         \endlist
 
         \li In the \gui Navigator pane, drag and drop the \gui {Mouse Area}
-            element from \e page to \e topLeftRect to make it apply only to the
+            from \e page to \e topLeftRect to make it apply only to the
             rectangle and not to the whole page.
 
-        \li  Edit \gui {Mouse Area} properties:
+        \li  Edit the \gui {Mouse Area} properties:
 
         \list a
 
@@ -187,7 +187,7 @@
                 rectangle.
 
             \li In the code editor, edit the pointer to the clicked expression
-                in the mouse area element, as illustrated by the following code
+                in the mouse area, as illustrated by the following code
                 snippet:
 
                 \qml
@@ -208,7 +208,7 @@
 
         \li In the \gui Navigator pane, copy topLeftRect (by pressing
             \key {Ctrl+C}) and paste it to the canvas twice (by pressing
-            \key {Ctrl+V}). \QC renames the new instances of the element
+            \key {Ctrl+V}). \QC renames the new instances of the type
             topLeftRect1 and topLeftRect2.
 
         \li  Select topLeftRect1 and edit its properties:
@@ -225,7 +225,7 @@
                 for the vertical center anchor.
 
             \li In the code editor,add a pointer to a clicked expression to the
-                mouse area element. The following expression sets the state to
+                mouse area. The following expression sets the state to
                 \e State1:
 
                 \c {onClicked: page.state = 'State1'}
@@ -247,7 +247,7 @@
                 for the left anchor.
 
             \li In the code editor, add a pointer to a clicked expression to the
-                mouse area element. The following expression sets the state to
+                mouse area. The following expression sets the state to
                 \e State2:
 
                 \c {onClicked: page.state = 'State2'}

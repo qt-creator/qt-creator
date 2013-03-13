@@ -43,9 +43,9 @@
             QDeclarativeView. You can build the application and deploy it to
             desktop and mobile target platforms.
 
-            You can select a template that uses either the built-in QML elements
+            You can select a template that uses either the built-in QML types
             or Qt Quick components for a particular platform. The built-in QML
-            elements enable you to create cross-platform applications with a
+            types enable you to create cross-platform applications with a
             custom look and feel, whereas the components provide the look and
             feel for a particular platform.
 
@@ -91,14 +91,14 @@
             files in the project folder belong to the project. Therefore, you do
             not need to individually list all the files in the project.
 
-        \li .qml file defines an element, such as a component, screen, or the
+        \li .qml file defines an UI item, such as a component, screen, or the
             whole application UI.
 
     \endlist
 
     The \c import statement in the beginning of the .qml file specifies the Qt modules to
     \l{http://qt-project.org/doc/qt-5.0/qtqml/qtqml-syntax-imports.html}{import}. Each Qt module
-    contains a set of default elements. Specify a version to get the features you want.
+    contains a set of default QML types. Specify a version to get the features you want.
 
     To use JavaScript and image files in the application, copy them to the
     project folder.
@@ -106,9 +106,8 @@
     \section1 Creating Qt Quick Applications
 
     Select \gui File > \gui {New File or Project} > \gui Applications >
-    \gui {Qt Quick Application 1 (Built-in Elements)} or \gui {Qt Quick
-    Application 2 (Built-in Elements)} > \gui Choose, and follow the
-    instructions of the wizard.
+    \gui {Qt Quick Application 1 (Built-in Types)} or \gui {Qt Quick Application 2 (Built-in Types)}
+    > \gui Choose, and follow the instructions of the wizard.
 
     \note The SDK for a particular target platform might install additional
     templates for that platform. For example, the \gui {Qt Quick Application for

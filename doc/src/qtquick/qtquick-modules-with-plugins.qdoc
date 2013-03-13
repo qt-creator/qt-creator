@@ -49,7 +49,7 @@
 
     Ideally, QML modules have a \c{plugins.qmltypes} file in the same directory
     as the \c qmldir file. The \c qmltypes file contains a description of the
-    components exported by the module's plugins and is loaded by \QC when the
+    types exported by the module's plugins and is loaded by \QC when the
     module is imported.
 
     For Qt 4.8 and later, one or more \c qmltypes files can be listed in the

@@ -69,7 +69,7 @@
                 Button component to create Button objects. Alternatively, a
                 component may be defined inside a
                 \l{http://qt-project.org/doc/qt-5.0/qtqml/qml-qtquick2-component.html}
-                {Component} element.
+                {Component} QML type.
 
         \row
             \li Deploy configuration

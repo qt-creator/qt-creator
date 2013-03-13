@@ -103,7 +103,7 @@
 
         \li Compiling the QML sources
 
-        \li Creating elements
+        \li Creating items using QML types
 
         \li Binding evaluations
 

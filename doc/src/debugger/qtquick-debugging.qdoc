@@ -172,29 +172,29 @@
     \gui {Locals and Expressions} view, they are immediately updated in the running
     application, but not in the source code.
 
-    \section1 Inspecting QML Objects
+    \section1 Inspecting Items
 
     While the application is running, you can use the
-    \gui {Locals and Expressions} view to explore the QML object structure.
+    \gui {Locals and Expressions} view to explore the QML item structure.
 
-    \image qml-observer-view.png "QML object tree"
+    \image qml-observer-view.png "QML item tree"
 
     To keep the application visible while you interact with the debugger, click
     \inlineimage qml-inspector-app-on-top.png
     (\gui {Show Application on Top}).
 
-    You can view a QML element in \gui {Locals and Expressions} in the following
+    You can view a QML item in \gui {Locals and Expressions} in the following
     ways:
 
     \list
 
-        \li Expand the element in the object tree.
+        \li Expand the item in the object tree.
 
-        \li Select the element in the code editor.
+        \li Select the item in the code editor.
 
         \li Click
             \inlineimage qml-inspector-select-button.png
-            (\gui Select) to activate selection mode and then click an element
+            (\gui Select) to activate selection mode and then click an item
             in the running application.
 
     \endlist
@@ -206,16 +206,16 @@
     \section1 Inspecting User Interfaces
 
     When you debug complex applications, you can jump to the position in code
-    where an element is defined or you can zoom into the user interface.
+    where an item is defined or you can zoom into the user interface.
 
-    When the \gui Select tool is enabled, you can click elements in the running
+    When the \gui Select tool is enabled, you can click items in the running
     application to jump to their definitions in the code. The properties of the
-    selected element are displayed in the \gui {Locals and Expressions} view.
+    selected item are displayed in the \gui {Locals and Expressions} view.
 
-    You can also right-click an element in the running application to view the
-    element hierarchy as a context menu.
+    You can also right-click an item in the running application to view the
+    item hierarchy as a context menu.
 
-    \image qml-observer-context-menu.png "QML element hierarchy"
+    \image qml-observer-context-menu.png "QML item hierarchy"
 
     To switch to the zoom mode, click the \gui Zoom button. Click in the
     running application to zoom in. Right-click to open a context menu that

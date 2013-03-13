@@ -31,7 +31,7 @@
 
     \title Creating Screens
 
-    You can use predefined QML elements and your own components to create
+    You can use predefined QML types and your own components to create
     screens. Typically, the main qml file in a Qt Quick project specifies the
     main window of an application.
 
@@ -78,10 +78,10 @@
 
     \endlist
 
-    When you add a Grid View, List View, or Path View element, the
+    When you add a Grid View, List View, or Path View, the
     \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-listmodel.html}{ListModel} and the
     delegate component that creates an instance for each item in the model are
-    added automatically. You can edit element properties
+    added automatically. You can edit item properties
     \if defined(qcmanual)
     in the \gui Properties pane or
     \endif
@@ -90,7 +90,7 @@
 
     \section1 Positioning Items on Screens
 
-    You can use the following items to arrange items on screens:
+    You can use the following QML types to arrange items on screens:
 
     \list
 
@@ -110,8 +110,8 @@
     \endlist
 
     \if defined(qcmanual)
-    To lay out several items in a Column, Row, Grid, or Flow element, select
-    the elements on the canvas, and then select \gui Layout in the context
+    To lay out several items in a Column, Row, Grid, or Flow, select
+    the items on the canvas, and then select \gui Layout in the context
     menu.
     \endif
 
@@ -121,7 +121,7 @@
     Use states and transitions to navigate between screens.
 
     QML states typically describe user interface configurations, such as the UI
-    elements, their properties and behavior and the available actions. For
+    controls, their properties and behavior and the available actions. For
     example, you can use states to create two screens.
 
     \if defined(qcmanual)
@@ -137,7 +137,7 @@
 
 
     To keep the QML code clean, you should create a base state that contains all
-    the elements you will need in the application. You can then create states,
+    the types you will need in the application. You can then create states,
     in which you hide and show a set of items and modify their properties.
     This allows you to:
 
@@ -146,7 +146,7 @@
         \li Align items on different screens with each other.
 
         \li Avoid excessive property changes. If an item is invisible in the
-            base state, you must define all changes to its child elements as
+            base state, you must define all changes to its child types as
             property changes, which leads to complicated QML code.
 
         \li Minimize the differences between the base state and the other states
@@ -162,24 +162,24 @@
 
     \list 1
 
-        \li In the base state, add all elements you will need in the
+        \li In the base state, add all items you will need in the
             application (1).
             While you work on one screen, you can click the
             \inlineimage qmldesigner-show-hide-icon.png
-            icon to hide elements on the canvas that are not part of a screen.
+            icon to hide items on the canvas that are not part of a screen.
 
         \li In the \gui States pane, click the empty slot to create a new state
             and give it a name. For example, \c Normal.
 
         \li In the \gui Properties pane (2), deselect the \gui Visibility check box
-            or set \gui Opacity to 0 for each element that is not needed in this
-            view. If you specify the setting for the parent element, all child
-            elements inherit it and are also hidden.
+            or set \gui Opacity to 0 for each item that is not needed in this
+            view. If you specify the setting for the parent item, all child
+            items inherit it and are also hidden.
 
             \image qmldesigner-screen-design.png "Designing screens"
 
         \li Create additional states for each screen and set the visibility
-            or opacity of the elements in the screen.
+            or opacity of the items in the screen.
 
         \li To determine which view opens when the application starts, use the
             code editor to set the state of the root item of the .qml file, as
@@ -213,8 +213,8 @@
     \l{http://qt-project.org/doc/qt-5.0/qtquick/qtquick-statesanimations-animations.html}
     {Animation and Transitions in Qt Quick}.
 
-    You can use the \c ParallelAnimation element to start several animations at
-    the same time. Or use the \c SequentialAnimation element to run them one
+    You can use the \c ParallelAnimation type to start several animations at
+    the same time. Or use the \c SequentialAnimation type to run them one
     after another.
 
     You can use the code editor to specify transitions. For more information,

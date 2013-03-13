@@ -31,13 +31,13 @@
 
     \title Creating Components
 
-    A \l{glossary-component}{component} provides a way of defining a new type
+    A \l{glossary-component}{component} provides a way of defining a new visual item
     that you can re-use in other QML files. A component is like a black box; it
     interacts with the outside world through properties, signals, and slots, and
     is generally defined in its own QML file. You can import components to
     screens and applications.
 
-    You can use the following QML elements to create components:
+    You can use the following QML types to create components:
 
     \list
 
@@ -49,9 +49,9 @@
             adds a bitmap to the scene. You can stretch and tile images.
 
         \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-item.html}{Item}
-            is the most basic of all visual items in QML. Even though it has no
+            is the most basic of all visual types in QML. Even though it has no
             visual appearance, it defines all the properties that are common
-            across visual items, such as the x and y position, width and height,
+            across visual types, such as the x and y position, width and height,
             anchoring, and key handling.
 
         \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-rectangle.html}{Rectangle}
@@ -73,7 +73,7 @@
 
     \endlist
 
-    QML elements allow you to write cross-platform applications with custom look
+    QML types allow you to write cross-platform applications with custom look
     and feel. You can also use ready-made Qt Quick Components that enable you to
     create applications with a native look and feel for a particular target
     platform. You can install the components as part of the Qt 4 SDK.
@@ -97,11 +97,11 @@
 
         \li Click \gui Design to open the .qml file in \QMLD.
 
-        \li Drag and drop an item from the \gui Library pane to the editor.
+        \li Drag and drop a QML type from the \gui Library pane to the editor.
 
-        \li Edit item properties in the \gui Properties pane.
+        \li Edit its properties in the \gui Properties pane.
 
-            The available properties depend on the item.
+            The available properties depend on the QML type.
 
     \endlist
 

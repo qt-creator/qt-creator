@@ -51,64 +51,60 @@
 
     \list
 
-        \li \gui {Navigator} pane (1) displays the QML elements in the current QML
+        \li \gui {Navigator} pane (1) displays the items in the current QML
             file as tree structure.
 
         \li \gui {Library} pane (2) displays the building blocks that you can use to
-            design applications: predefined QML elements, your own QML
+            design applications: predefined QML types, your own QML
             components, Qt Quick components that you import to the project, and
             other resources.
 
         \li \gui Canvas (3) is the working area where you create QML components and
             design applications.
 
-        \li \gui {Properties} pane (4) organizes the properties of the selected QML
-            element or QML component. You can change the properties also in the
-            code editor.
+        \li \gui {Properties} pane (4) organizes the properties of the selected item.
+            You can change the properties also in the code editor.
 
-        \li \gui {State} pane (5) displays the different states of the component.
+        \li \gui {State} pane (5) displays the different states of the item.
             QML states typically describe user interface configurations, such as
-            the UI  elements, their properties and behavior and the available
+            the UI controls, their properties and behavior and the available
             actions.
 
     \endlist
 
-    \section1 Managing Element Hierarchy
+    \section1 Managing Item Hierarchy
 
-    The \gui Navigator pane displays the
-    \l{http://qt-project.org/doc/qt-5.0/qtquick/qtquick-qmltypereference.html}{Qt Quick QML types}
-    in the current QML file and their relationships. QML types (1) are listed in a
-    tree structure, below their parent (2).
+    The \gui Navigator pane displays the items in the current QML file and their relationships.
+    Items (1) are listed in a tree structure, below their parent (2).
 
     \image qmldesigner-navigator.png "Navigator pane"
 
-    You can select elements in the \gui Navigator to edit their properties
-    in the \gui Properties pane. Elements can access the properties of their
-    parent element. To select elements on the canvas, right-click an element,
-    and select another element in the context menu.
+    You can select items in the \gui Navigator to edit their properties
+    in the \gui Properties pane. Items can access the properties of their
+    parent item. To select items on the canvas, right-click an item,
+    and select another type in the context menu.
 
-    Typically, child elements are located within the parent element on the
+    Typically, child items are located within the parent item on the
     canvas. However, they do not necessarily have to fit inside the parent
-    element. For example, you might want to make a mouse area larger than the
+    item. For example, you might want to make a mouse area larger than the
     rectangle or image beneath it (1).
 
     \image qmldesigner-element-size.png "Mouse area for a button"
 
-    When you copy an element, all its child elements are also copied. When
-    you remove an element, the child elements are also removed.
+    When you copy an item, all its child items are also copied. When
+    you remove an item, the child items are also removed.
 
     You can show and hide items to focus on specific parts of the application.
     Click the
     \inlineimage qmldesigner-show-hide-icon.png
-    icon to change the visibility of an element on the canvas. To change the
-    visibility of an element in the application, use the \gui Visibility
+    icon to change the visibility of an item on the canvas. To change the
+    visibility of an item in the application, use the \gui Visibility
     check box or the \gui Opacity field in the \gui Properties pane. If you set
-    \gui Opacity to 0, elements are hidden, but you can still apply animation
+    \gui Opacity to 0, items are hidden, but you can still apply animation
     to them.
 
     As all properties, visibility and opacity are inherited from the parent
-    element. To hide or show child elements, edit the properties of the
-    parent element.
+    item. To hide or show child items, edit the properties of the parent item.
 
     To view lists of files or projects, instead, select \gui {File System},
     \gui {Open Documents}, or \gui Projects in the menu.
@@ -118,10 +114,10 @@
 
     \section2 Setting the Stacking Order
 
-    The \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-item.html#z-prop}{z property} of a
-    QML type determines its position in relation to its sibling types in the
-    type hierarchy. By default, types with a higher stacking value are
-    drawn on top of siblings with a lower stacking value. Types with the same
+    The \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-item.html#z-prop}{z property} of an
+    item determines its position in relation to its sibling items in the
+    type hierarchy. By default, items with a higher stacking value are
+    drawn on top of siblings with a lower stacking value. Items with the same
     stacking value are drawn in the order they are listed, from the last item
     up.
 
@@ -130,32 +126,32 @@
     or move the item to the front or back of all its siblings. To remove the
     \c z property, select \gui {Reset z Property}.
 
-    \section2 Switching Parent Elements
+    \section2 Switching Parent Items
 
-    When you drag and drop QML elements to the canvas, Qt Quick Designer
-    adds the new element as a child of the element beneath it.
-    When you move elements on the canvas, Qt Quick Designer cannot determine
+    When you drag and drop instances of QML types to the canvas, Qt Quick Designer
+    adds the new item as a child of the item beneath it.
+    When you move items on the canvas, Qt Quick Designer cannot determine
     whether you want to adjust their position or attach them to a new
-    parent element. Therefore, the parent element is not automatically
-    changed. To change the parent of the element, press down the \key Shift
-    key before you drag and drop the element into a new position. The topmost
-    element under the cursor becomes the new parent of the element.
+    parent item. Therefore, the parent item is not automatically
+    changed. To change the parent of the item, press down the \key Shift
+    key before you drag and drop the item into a new position. The topmost
+    item under the cursor becomes the new parent of the item.
 
-    You can change the parent of an element also in the \gui Navigator pane.
-    Drag and drop the element to another position in the tree or use the arrow
-    buttons (1) to move the element in the tree.
+    You can change the parent of an item also in the \gui Navigator pane.
+    Drag and drop the item to another position in the tree or use the arrow
+    buttons (1) to move the item in the tree.
 
     \image qmldesigner-navigator-arrows.png "Navigator arrow buttons"
 
-    \section1 Element Library
+    \section1 QML Type Library
 
-    The \gui {Library} pane contains two tabs: \gui {Items} and \gui {Resources}.
-    The \gui Items pane displays the QML elements grouped by type: your own QML
-    components, basic elements, positioner elements, and views.
+    The \gui {Library} pane contains two tabs: \gui {QML Types} and \gui {Resources}.
+    The \gui {QML Types} pane displays the QML types grouped by category: your own QML
+    components, basic types, positioner types, and views.
 
     Sets of UI components with the look and feel of a particular mobile device
     platform have been defined for Qt Quick. They are based on standard QML
-    elements. To view the UI components in the \gui {Library} pane, add import
+    types. To view the UI components in the \gui {Library} pane, add import
     statements to the .pro file of your project. For example:
 
     \list
@@ -172,25 +168,25 @@
     The \gui {Resources} pane displays the images and other files that you copy
     to the project folder (to the same subfolder as the QML files).
 
-    \section1 Specifying Element Properties
+    \section1 Specifying Item Properties
 
-    The \gui Properties pane displays all the properties of the selected QML
-    element. The properties are grouped by type. The top part of the pane
-    displays properties that are common to all elements, such as element type,
+    The \gui Properties pane displays all the properties of the selected item.
+    The properties are grouped by type. The top part of the pane
+    displays properties that are common to all QML types, such as
     position, size, and visibility.
 
     The bottom part of the pane displays properties that are specific to each
-    element type. For example, the following image displays the properties you
-    can set for \gui Rectangle (1) and \gui Text (2) elements.
+    QML type. For example, the following image displays the properties you
+    can set for \gui Rectangle (1) and \gui Text (2) items.
 
     \image qmldesigner-element-properties.png
 
-    You can use a context-menu to reset some element properties. To reset the
-    position or size property of an element, right-click the element and select
+    You can use a context-menu to reset some item properties. To reset the
+    position or size property of an item, right-click the item and select
     \gui {Edit > Reset Position} or \gui {Reset Size} in the context menu. To
-    set the visibility of the component, select \gui {Edit > Visibility}.
+    set the visibility of the item, select \gui {Edit > Visibility}.
 
-    For more information on the properties available for an element, press
+    For more information on the properties available for an item, press
     \key {F1}.
 
     \section2 Viewing Changes in Properties
@@ -200,7 +196,7 @@
     addition, property changes in states are highlighted with blue.
 
     This allows you to easily see which values are set in the .qml file and
-    which values are default characteristics of an element or a component.
+    which values are default characteristics of a QML type or a component.
 
     When editing states, you can easily see which values are explicitly set in
     the current state and which values are derived from the base state.
@@ -226,21 +222,21 @@
         \row
             \li \image qmldesigner-boolean-true.png
             \li TRUE
-            \li The element is visible by default. The visibility might be
+            \li The QML type is visible by default. The visibility might be
                 overridden by the visibility set in the base state.
         \row
             \li \image qmldesigner-boolean-true-blue.png
             \li TRUE (highlighted)
-            \li The element is explicitly set to visible.
+            \li The QML type is explicitly set to visible.
         \row
             \li \image qmldesigner-boolean-false.png
             \li FALSE
-            \li The element is hidden by default. The visibility might be
+            \li The QML type is hidden by default. The visibility might be
                 overridden by the visibility set in the base state.
         \row
             \li \image qmldesigner-boolean-false-blue.png
             \li FALSE (hightlighted)
-            \li The item is explicitly set to hidden.
+            \li The type is explicitly set to hidden.
     \endtable
 
     \section2 Setting Expressions
@@ -258,7 +254,7 @@
     properties in \QMLD, click the circle icon next to a property to open a
     context menu, and select \gui {Set Expression}.
 
-    \image qmldesigner-set-expression.png "Element properties context menu"
+    \image qmldesigner-set-expression.png "Type properties context menu"
 
     To remove expressions, select \gui Reset in the context menu.
 
@@ -266,9 +262,9 @@
     \l{http://qt-project.org/doc/qt-5.0/qtqml/qtqml-javascript-topic.html}
     {Integrating QML and JavaScript}.
 
-    \section2 Marking Text Elements for Translation
+    \section2 Marking Text Items for Translation
 
-    To support translators, mark each text element that should be translated.
+    To support translators, mark each text item that should be translated.
     In the \gui Properties pane, \gui Text field, select \gui tr (1).
 
     \image qmldesigner-text-property-tr.png "Text properties"
@@ -280,13 +276,13 @@
     \section2 Loading Placeholder Data
 
     \QMLD supports views, models, and delegates, so that when you add a Grid
-    View, List View, or Path View element, the ListModel and the delegate
-    component are added automatically.
+    View, List View, or Path View item, the ListModel and the delegate
+    item are added automatically.
 
     However, the missing context of the application presents a challenge for
     \QMLD. Specific models defined in C++ are the most obvious case. Often,
     the context is missing simple properties, which are either defined in C++,
-    or in other QML files. A typical example is a component which uses the
+    or in other QML files. A typical example is an item that uses the
     properties of its parent, such as \c parent.width.
 
     \section3 Using Dummy Models
@@ -372,33 +368,33 @@
     set of invisible \e anchor lines: top, bottom, left, right, fill, horizontal
     center, vertical center, and baseline.
 
-    In the \gui Layout pane you can set anchors and margins for elements. To set
+    In the \gui Layout pane you can set anchors and margins for items. To set
     the anchors of an item, click the anchor buttons. You can combine the
-    top/bottom, left/right, and horizontal/vertical anchors to anchor objects in
-    the corners of the parent element or center them horizontally or vertically
-    within the parent element.
+    top/bottom, left/right, and horizontal/vertical anchors to anchor items in
+    the corners of the parent item or center them horizontally or vertically
+    within the parent item.
 
     \image qmldesigner-anchor-buttons.png "Anchor buttons"
 
-    In version 2.1, specifying the baseline anchor in Qt Quick Designer is
+    Specifying the baseline anchor in Qt Quick Designer is
     not supported. You can specify it using the code editor.
 
-    For performance reasons, you can only anchor an element to its siblings and
-    direct parent. By default, an element is anchored to its parent when you
-    use the anchor buttons. Select a sibling of the element in the \gui Target
+    For performance reasons, you can only anchor an item to its siblings and
+    direct parent. By default, an item is anchored to its parent when you
+    use the anchor buttons. Select a sibling of the item in the \gui Target
     field to anchor to it, instead.
 
     Arbitrary anchoring is not supported. For example, you cannot specify:
     \c {anchor.left: parent.right}. You have to specify: \c {anchor.left: parent.left}.
-    When you use the anchor buttons, anchors to the parent element are always
-    specified to the same side. However, anchors to sibling elements are specified
+    When you use the anchor buttons, anchors to the parent item are always
+    specified to the same side. However, anchors to sibling items are specified
     to the opposite side: \c {anchor.left: sibling.right}. This allows you to keep
-    sibling elements together.
+    sibling items together.
 
     In the following image, \gui{Rectangle 2} is anchored to \gui{Rectangle 1}
     on its left and to the bottom of its parent.
 
-    \image qmldesigner-anchors.png "Anchoring sibling elements"
+    \image qmldesigner-anchors.png "Anchoring sibling items"
 
     The anchors for \gui{Rectangle 2} are specified as follows in code:
 
@@ -435,7 +431,7 @@
     such that the interface could be seen to be internally changing from one
     \e state to another.
 
-    This applies generally to interface elements regardless of their complexity.
+    This applies generally to interfaces regardless of their complexity.
     A photo viewer may initially present images in a grid, and when an image is
     clicked, change to a detailed state where the individual image is expanded
     and the interface is changed to present new options for image editing.
@@ -443,13 +439,13 @@
     to a \e pressed state in which its color and position is modified to give a
     pressed appearance.
 
-    In QML, any object can change between different states to apply sets of
+    In QML, any item can change between different states to apply sets of
     changes that modify the properties of relevant items. Each state can present
     a different configuration that can, for example:
 
     \list
 
-        \li Show some UI elements and hide others.
+        \li Show some UI items and hide others.
 
         \li Present different available actions to the user.
 
@@ -485,58 +481,58 @@
 
     For more information on adding animation, see \l{Animating Screens}.
 
-    \section1 Aligning and Positioning Elements
+    \section1 Aligning and Positioning QML Types
 
-    The position of an element on the canvas can be either absolute or relative
-    to other elements. In the element properties, you can set the x and y
-    coordinates of an element, or \l{Setting Anchors and Margins}{anchor} it to
-    its parent and sibling elements.
+    The position of an item on the canvas can be either absolute or relative
+    to other items. In the item properties, you can set the x and y
+    coordinates of an item, or \l{Setting Anchors and Margins}{anchor} it to
+    its parent and sibling items.
 
     \section2 Snap to Margins
 
     When you are working on a design, you can use snap and guides to align
-    elements on the canvas. Click the
+    items on the canvas. Click the
     \inlineimage qmldesigner-snap-to-guides-button.png
-    button to have the elements snap to the guides.
+    button to have the items snap to the guides.
 
     Choose \gui {Tools > Options > Qt Quick > Qt Quick Designer} to specify
     settings for snap to
     margins. In the \gui {Snap margin} field, specify the position of the guides
     as pixels  from the edge of the canvas. In the \gui {Item spacing} field,
-    specify the space in pixels to leave between elements on the screen.
+    specify the space in pixels to leave between items on the screen.
 
     The following image shows the position of the guides when \gui {Snap margin}
     is set to 5 pixels.
 
     \image qmldesigner-snap-margins.png "Snap margins on canvas"
 
-    \section2 Hiding Element Boundaries
+    \section2 Hiding Item Boundaries
 
-    Qt Quick Designer displays the boundaries of elements on the canvas. To hide
-    the element boundaries, click the
+    Qt Quick Designer displays the boundaries of items on the canvas. To hide
+    the boundaries, click the
     \inlineimage qmldesigner-show-bounding-rectangles-button.png
     button.
 
-    \section2 Selecting Elements
+    \section2 Selecting Items
 
-    When you point the mouse to overlapping elements, the frontmost element is
-    selected by default. However, elements that do not have any content, such as
-    the mouse area, are typically located in front of elements that do have
-    content, such as rectangles or border images. To select elements with content
+    When you point the mouse to overlapping items, the frontmost item is
+    selected by default. However, items that do not have any content, such as
+    the mouse area, are typically located in front of items that do have
+    content, such as rectangles or border images. To select items with content
     by default, click the
     \inlineimage qmldesigner-only-select-items-with-content.png
     button.
 
-    \section2 Previewing Element Size
+    \section2 Previewing Component Size
 
     The width and height of the root item in a QML file determine the size of
-    the QML element. You can reuse elements, such as buttons, in different
+    the component. You can reuse component, such as buttons, in different
     sizes in other QML files and design screens for use with different device
     profiles, screen resolution, or screen orientation. The component size
     might also be zero (0,0) if its final size is determined by property
     bindings.
 
-    To experiment with different element sizes, enter values in the
+    To experiment with different component sizes, enter values in the
     \gui Height and \gui Width fields (1) on the canvas toolbar. The changes are
     displayed in the \gui States pane (2) and on the canvas (3), but the property
     values are not changed permanently in the QML file. You can permanently
@@ -552,8 +548,8 @@
 
     \section1 Refreshing the Canvas
 
-    When you open QML files in \QMLD, the QML elements in the file are drawn on
-    the canvas. When you edit the element properties in \QMLD, the QML file and
+    When you open QML files in \QMLD, the items in the file are drawn on
+    the canvas. When you edit the item properties in \QMLD, the QML file and
     the image on the canvas might get out of sync. For example, when you change
     the position of an item within a column or a row, the new position might
     not be displayed correctly on the canvas.

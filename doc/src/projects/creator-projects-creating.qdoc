@@ -112,9 +112,9 @@
                 Qt 4.6.x
             \endif
 
-            \li Qt Quick Application (Built-in Elements)
+            \li Qt Quick Application (Built-in Types)
 
-                Use built-in QML elements to design user interfaces based on
+                Use built-in QML types to design user interfaces based on
                 Qt Quick 1 (Qt 4.7.1, or later) or Qt Quick 2 (Qt 5) with a
                 custom look and feel and QML and C++ code to implement the
                 application logic
@@ -279,7 +279,7 @@
         \li Qt resource files, which allow you to store binary files in the
             application executable
 
-        \li QML files, which specify elements in Qt Quick projects.
+        \li QML files, which specify items in Qt Quick projects.
             \gui {Qt Quick 1} creates a QML file that imports Qt Quick 1.1 and
             \gui {Qt Quick 2} creates a QML file that imports Qt Quick 2.0.
             Select \gui {Qt Quick 1} to add files to a Qt Quick 1 application

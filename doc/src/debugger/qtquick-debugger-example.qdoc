@@ -116,7 +116,7 @@
             the \c text property to change it temporarily from \gui {Quit} to
             \gui {End Game}.
 
-            When you select an element, the cursor moves to it in the code
+            When you select an item, the cursor moves to it in the code
             editor, where you can change the value permanently.
 
     \endlist

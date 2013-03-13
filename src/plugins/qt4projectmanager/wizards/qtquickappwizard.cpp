@@ -141,18 +141,18 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
     basicFeatures = Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1);
 
     parameter = base;
-    parameter.setDisplayName(tr("Qt Quick 1 Application (Built-in Elements)"));
-    parameter.setDescription(basicDescription + tr("The built-in elements in the QtQuick 1 namespace allow "
+    parameter.setDisplayName(tr("Qt Quick 1 Application (Built-in Types)"));
+    parameter.setDescription(basicDescription + tr("The built-in QML types in the QtQuick 1 namespace allow "
                                                    "you to write cross-platform applications with "
                                                    "a custom look and feel.\n\nRequires <b>Qt 4.7.0</b> or newer."));
     parameter.setRequiredFeatures(basicFeatures);
     list << parameter;
 
     parameter = base;
-    parameter.setDisplayName(tr("Qt Quick 2 Application (Built-in Elements)"));
+    parameter.setDisplayName(tr("Qt Quick 2 Application (Built-in Types)"));
     parameter.setDescription(tr("Creates a Qt Quick 2 application project that can contain "
                                 "both QML and C++ code and includes a QQuickView.\n\n"
-                                "The built-in elements in the QtQuick 2 namespace allow "
+                                "The built-in QML types in the QtQuick 2 namespace allow "
                                 "you to write cross-platform applications with "
                                 "a custom look and feel.\n\nRequires <b>Qt 5.0</b> or newer."));
     parameter.setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2));
