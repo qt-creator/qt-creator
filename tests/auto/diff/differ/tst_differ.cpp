@@ -77,6 +77,8 @@ private Q_SLOTS:
     void myers();
     void merge_data();
     void merge();
+    void cleanupSemantics_data();
+    void cleanupSemantics();
 };
 
 
@@ -419,6 +421,183 @@ void tst_Differ::merge()
     QCOMPARE(result, expected);
 }
 
+void tst_Differ::cleanupSemantics_data()
+{
+    QTest::addColumn<QList<Diff> >("input");
+    QTest::addColumn<QList<Diff> >("expected");
+
+    QTest::newRow("Empty")
+               << QList<Diff>()
+               << QList<Diff>();
+    QTest::newRow("Don't cleanup 1")
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("AB"))
+               << Diff(Diff::Insert, QString("CD"))
+               << Diff(Diff::Equal, QString("EF"))
+               << Diff(Diff::Delete, QString("G")))
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("AB"))
+               << Diff(Diff::Insert, QString("CD"))
+               << Diff(Diff::Equal, QString("EF"))
+               << Diff(Diff::Delete, QString("G")));
+    QTest::newRow("Don't cleanup 2")
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("ABC"))
+               << Diff(Diff::Insert, QString("DEF"))
+               << Diff(Diff::Equal, QString("GHIJ"))
+               << Diff(Diff::Delete, QString("KLMN")))
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("ABC"))
+               << Diff(Diff::Insert, QString("DEF"))
+               << Diff(Diff::Equal, QString("GHIJ"))
+               << Diff(Diff::Delete, QString("KLMN")));
+    QTest::newRow("Don't cleanup 3")
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("ABC"))
+               << Diff(Diff::Insert, QString("DEF"))
+               << Diff(Diff::Equal, QString("GHIJ"))
+               << Diff(Diff::Delete, QString("KLMNO"))
+               << Diff(Diff::Insert, QString("PQRST")))
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("ABC"))
+               << Diff(Diff::Insert, QString("DEF"))
+               << Diff(Diff::Equal, QString("GHIJ"))
+               << Diff(Diff::Delete, QString("KLMNO"))
+               << Diff(Diff::Insert, QString("PQRST")));
+    QTest::newRow("Simple cleanup")
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("A"))
+               << Diff(Diff::Equal, QString("B"))
+               << Diff(Diff::Delete, QString("C")))
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("ABC"))
+               << Diff(Diff::Insert, QString("B")));
+    QTest::newRow("Backward cleanup")
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("AB"))
+               << Diff(Diff::Equal, QString("CD"))
+               << Diff(Diff::Delete, QString("E"))
+               << Diff(Diff::Equal, QString("F"))
+               << Diff(Diff::Insert, QString("G")))
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("ABCDEF"))
+               << Diff(Diff::Insert, QString("CDFG")));
+    QTest::newRow("Multi cleanup")
+               << (QList<Diff>()
+               << Diff(Diff::Insert, QString("A"))
+               << Diff(Diff::Equal, QString("B"))
+               << Diff(Diff::Delete, QString("C"))
+               << Diff(Diff::Insert, QString("D"))
+               << Diff(Diff::Equal, QString("E"))
+               << Diff(Diff::Insert, QString("F"))
+               << Diff(Diff::Equal, QString("G"))
+               << Diff(Diff::Delete, QString("H"))
+               << Diff(Diff::Insert, QString("I")))
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("BCEGH"))
+               << Diff(Diff::Insert, QString("ABDEFGI")));
+    QTest::newRow("Fraser's example")
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("H"))
+               << Diff(Diff::Insert, QString("My g"))
+               << Diff(Diff::Equal, QString("over"))
+               << Diff(Diff::Delete, QString("i"))
+               << Diff(Diff::Equal, QString("n"))
+               << Diff(Diff::Delete, QString("g"))
+               << Diff(Diff::Insert, QString("ment")))
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("Hovering"))
+               << Diff(Diff::Insert, QString("My government")));
+    QTest::newRow("Overlap keep without equality")
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("ABCXXX"))
+               << Diff(Diff::Insert, QString("XXXDEF")))
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("ABCXXX"))
+               << Diff(Diff::Insert, QString("XXXDEF")));
+    QTest::newRow("Overlap remove equality")
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("ABC"))
+               << Diff(Diff::Equal, QString("XXX"))
+               << Diff(Diff::Insert, QString("DEF")))
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("ABCXXX"))
+               << Diff(Diff::Insert, QString("XXXDEF")));
+    QTest::newRow("Overlap add equality")
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("ABCXXXX"))
+               << Diff(Diff::Insert, QString("XXXXDEF")))
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("ABC"))
+               << Diff(Diff::Equal, QString("XXXX"))
+               << Diff(Diff::Insert, QString("DEF")));
+    QTest::newRow("Overlap keep equality")
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("ABC"))
+               << Diff(Diff::Equal, QString("XXXX"))
+               << Diff(Diff::Insert, QString("DEF")))
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("ABC"))
+               << Diff(Diff::Equal, QString("XXXX"))
+               << Diff(Diff::Insert, QString("DEF")));
+    QTest::newRow("Reverse overlap keep without equality")
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("XXXABC"))
+               << Diff(Diff::Insert, QString("DEFXXX")))
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("XXXABC"))
+               << Diff(Diff::Insert, QString("DEFXXX")));
+    QTest::newRow("Reverse overlap remove equality")
+               << (QList<Diff>()
+               << Diff(Diff::Insert, QString("ABC"))
+               << Diff(Diff::Equal, QString("XXX"))
+               << Diff(Diff::Delete, QString("DEF")))
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("XXXDEF"))
+               << Diff(Diff::Insert, QString("ABCXXX")));
+    QTest::newRow("Reverse overlap add equality")
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("XXXXABC"))
+               << Diff(Diff::Insert, QString("DEFXXXX")))
+               << (QList<Diff>()
+               << Diff(Diff::Insert, QString("DEF"))
+               << Diff(Diff::Equal, QString("XXXX"))
+               << Diff(Diff::Delete, QString("ABC")));
+    QTest::newRow("Reverse overlap keep equality")
+               << (QList<Diff>()
+               << Diff(Diff::Insert, QString("ABC"))
+               << Diff(Diff::Equal, QString("XXXX"))
+               << Diff(Diff::Delete, QString("DEF")))
+               << (QList<Diff>()
+               << Diff(Diff::Insert, QString("ABC"))
+               << Diff(Diff::Equal, QString("XXXX"))
+               << Diff(Diff::Delete, QString("DEF")));
+    QTest::newRow("Two overlaps")
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("ABCDEFG"))
+               << Diff(Diff::Insert, QString("DEFGHIJKLM"))
+               << Diff(Diff::Equal, QString("NOPQR"))
+               << Diff(Diff::Delete, QString("STU"))
+               << Diff(Diff::Insert, QString("TUVW")))
+               << (QList<Diff>()
+               << Diff(Diff::Delete, QString("ABC"))
+               << Diff(Diff::Equal, QString("DEFG"))
+               << Diff(Diff::Insert, QString("HIJKLM"))
+               << Diff(Diff::Equal, QString("NOPQR"))
+               << Diff(Diff::Delete, QString("S"))
+               << Diff(Diff::Equal, QString("TU"))
+               << Diff(Diff::Insert, QString("VW")));
+}
+
+void tst_Differ::cleanupSemantics()
+{
+    QFETCH(QList<Diff>, input);
+    QFETCH(QList<Diff>, expected);
+
+    Differ differ;
+    QList<Diff> result = differ.cleanupSemantics(input);
+    QCOMPARE(result, expected);
+}
 
 
 QTEST_MAIN(tst_Differ)

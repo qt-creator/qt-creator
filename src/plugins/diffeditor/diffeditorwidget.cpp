@@ -254,8 +254,8 @@ void DiffEditorWidget::setDiff(const QString &leftText, const QString &rightText
 {
 //    QTime time;
 //    time.start();
-    Differ diffGenerator;
-    QList<Diff> list = diffGenerator.diff(leftText, rightText);
+    Differ differ;
+    QList<Diff> list = differ.cleanupSemantics(differ.diff(leftText, rightText));
 //    int ela = time.elapsed();
 //    qDebug() << "Time spend in diff:" << ela;
     setDiff(list);
