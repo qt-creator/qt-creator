@@ -3826,7 +3826,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             else if (input.is('U'))
                 m_submode = UpCaseSubMode;
             finishMovement();
-        } else if (m_gflag) {
+        } else if (m_gflag || (input.is('~') && hasConfig(ConfigTildeOp))) {
             setUndoPosition();
             if (atEndOfLine())
                 moveLeft();

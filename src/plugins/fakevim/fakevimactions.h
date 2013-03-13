@@ -78,6 +78,9 @@ enum FakeVimSettingsCode
     ConfigIgnoreCase,
     ConfigWrapScan,
 
+    // command ~ behaves as g~
+    ConfigTildeOp,
+
     // indent  allow backspacing over autoindent
     // eol     allow backspacing over line breaks (join lines)
     // start   allow backspacing over the start of insert; CTRL-W and CTRL-U

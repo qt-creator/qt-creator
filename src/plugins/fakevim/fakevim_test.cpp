@@ -1604,6 +1604,9 @@ void FakeVimPlugin::test_vim_letter_case()
     TestData data;
     setup(&data);
 
+    // set command ~ not to behave as g~
+    data.doCommand("set notildeop");
+
     // upper- and lower-case
     data.setText("abc DEF");
     KEYS("~", "A" X "bc DEF");
@@ -1615,6 +1618,12 @@ void FakeVimPlugin::test_vim_letter_case()
     KEYS("l9~", "aBC de" X "f" N "ghi");
     KEYS(".", "aBC de" X "F" N "ghi");
     KEYS("h.", "aBC dE" X "f" N "ghi");
+
+    // set command ~ to behave as g~
+    data.doCommand("set tildeop");
+
+    data.setText("abc DEF" N "ghi JKL");
+    KEYS("ll~j", "ABC def" N "GHI jkl");
 
     data.setText("abc DEF");
     KEYS("lv3l~", "a" X "BC dEF");
