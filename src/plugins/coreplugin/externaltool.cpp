@@ -555,8 +555,7 @@ bool ExternalToolRunner::resolve()
     { // executable
         QStringList expandedExecutables; /* for error message */
         foreach (const QString &executable, m_tool->executables()) {
-            QString expanded = Utils::expandMacros(executable,
-                                                   Core::VariableManager::macroExpander());
+            QString expanded = Core::VariableManager::expandedString(executable);
             expandedExecutables << expanded;
             m_resolvedExecutable =
                     Utils::Environment::systemEnvironment().searchInPath(expanded);
@@ -580,12 +579,10 @@ bool ExternalToolRunner::resolve()
                                                Core::VariableManager::macroExpander());
     }
     { // input
-        m_resolvedInput = Utils::expandMacros(m_tool->input(),
-                                              Core::VariableManager::macroExpander());
+        m_resolvedInput = Core::VariableManager::expandedString(m_tool->input());
     }
     { // working directory
-        m_resolvedWorkingDirectory = Utils::expandMacros(m_tool->workingDirectory(),
-                                               Core::VariableManager::macroExpander());
+        m_resolvedWorkingDirectory = Core::VariableManager::expandedString(m_tool->workingDirectory());
     }
     return true;
 }

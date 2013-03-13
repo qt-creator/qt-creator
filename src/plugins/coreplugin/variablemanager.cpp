@@ -110,6 +110,11 @@ QString VariableManager::value(const QByteArray &variable, bool *found)
     return d->m_map.value(variable);
 }
 
+QString VariableManager::expandedString(const QString &stringWithVariables)
+{
+    return Utils::expandMacros(stringWithVariables, macroExpander());
+}
+
 Utils::AbstractMacroExpander *VariableManager::macroExpander()
 {
     return &d->m_macroExpander;

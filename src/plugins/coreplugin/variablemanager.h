@@ -57,6 +57,8 @@ public:
     static void insert(const QByteArray &variable, const QString &value);
     static bool remove(const QByteArray &variable);
     static QString value(const QByteArray &variable, bool *found = 0);
+
+    static QString expandedString(const QString &stringWithVariables);
     static Utils::AbstractMacroExpander *macroExpander();
 
     static void registerVariable(const QByteArray &variable,
