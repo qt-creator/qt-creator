@@ -284,17 +284,32 @@ bool Function::hasReturnType() const
 
 unsigned Function::argumentCount() const
 {
-    unsigned c = memberCount();
-    if (c > 0 && memberAt(0)->type()->isVoidType())
+    const unsigned memCnt = memberCount();
+    if (memCnt > 0 && memberAt(0)->type()->isVoidType())
         return 0;
-    // Definitions with function-try-blocks will have more than a block.
-    while (c > 0 && memberAt(c - 1)->isBlock())
-        --c;
-    return c;
+
+    // Definitions with function-try-blocks will have more than a block, and
+    // arguments with a lambda as default argument will also have more blocks.
+    unsigned argc = 0;
+    for (unsigned it = 0; it < memCnt; ++it)
+        if (memberAt(it)->isArgument())
+            ++argc;
+    return argc;
 }
 
 Symbol *Function::argumentAt(unsigned index) const
-{ return memberAt(index); }
+{
+    for (unsigned it = 0, eit = memberCount(); it < eit; ++it) {
+        if (Argument *arg = memberAt(it)->asArgument()) {
+            if (index == 0)
+                return arg;
+            else
+                --index;
+        }
+    }
+
+    return 0;
+}
 
 bool Function::hasArguments() const
 {
@@ -381,7 +396,7 @@ bool Function::maybeValidPrototype(unsigned actualArgumentCount) const
     for (; minNumberArguments < argc; ++minNumberArguments) {
         Argument *arg = argumentAt(minNumberArguments)->asArgument();
 
-        if (! arg) // TODO: Fix me properly - QTCREATORBUG-8316
+        if (! arg)
             return false;
 
         if (arg->hasInitializer())

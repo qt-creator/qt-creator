@@ -177,6 +177,7 @@ private slots:
     void q_enum_1();
 
     void lambda_1();
+    void lambda_2();
 
     void diagnostic_error();
 };
@@ -721,6 +722,33 @@ void tst_Semantic::lambda_1()
     QCOMPARE(doc->errorCount, 0U);
     QCOMPARE(doc->globals->memberCount(), 1U);
 }
+
+void tst_Semantic::lambda_2()
+{
+    QSharedPointer<Document> doc = document(
+                "\n"
+                "class A {\n"
+                "  void f(int i = [](){});\n"
+                "};\n"
+                , false, false, true);
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
+    Class *A = doc->globals->memberAt(0)->asClass();
+    QVERIFY(A);
+    QCOMPARE(A->memberCount(), 1U);
+    Declaration *d = A->memberAt(0)->asDeclaration();
+    QCOMPARE(d->name()->identifier()->chars(), "f");
+    Function *ty = d->type()->asFunctionType();
+    QVERIFY(ty);
+    QCOMPARE(ty->argumentCount(), 1U);
+    Argument *arg = ty->argumentAt(0)->asArgument();
+    QVERIFY(arg);
+    const StringLiteral *init = arg->initializer();
+    QVERIFY(init);
+    QCOMPARE(init->chars(), " [](){}");
+}
+
 
 void tst_Semantic::diagnostic_error()
 {
