@@ -1713,12 +1713,12 @@ static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str,
             const char c = *p;
             display.push_back(c >= 0 && isprint(c) ? wchar_t(c) : L'.');
         }
-        str << fullSize << L" bytes \"" << display;
+        str << "\"" << display;
         if (fullSize > size)
             str << L"...";
         str << L'"';
     } else {
-        str << L"<empty>";
+        str << L"\"\"";
     }
     if (memoryHandle)
         *memoryHandle = new MemoryHandle(reinterpret_cast<unsigned char *>(memory), size);
@@ -2782,7 +2782,8 @@ static inline std::vector<AbstractSymbolGroupNode *>
     unsigned size = 0;
     ULONG64 address = 0;
     if (QtInfo::get(ctx).version > 4) {
-        const QtStringAddressData data = readQtStringAddressData(dV, 5);
+        const SymbolGroupValue adV = dV["QArrayData"];
+        const QtStringAddressData data = readQtStringAddressData(adV, 5);
         size = data.size;
         address = data.address;
     } else {
@@ -2796,7 +2797,7 @@ static inline std::vector<AbstractSymbolGroupNode *>
     if (size > 200)
         size = 200;
     rc.reserve(size);
-    const std::string charType = "unsigned char";
+    const std::string charType = "char";
     std::string errorMessage;
     SymbolGroup *sg = n->symbolGroup();
     for (int i = 0; i < (int)size; ++i, ++address) {
