@@ -89,11 +89,11 @@
     A user interface is only a part of an application, and not really useful by itself.
     You can use Qt or JavaScript to implement the application logic. For more information on
     using JavaScript, see
-    \l {http://qt-project.org/doc/qt-4.8/qdeclarativejavascript.html}
-    {Integrating JavaScript}.
+    \l{http://qt-project.org/doc/qt-5.0/qtqml/qtqml-javascript-topic.html}
+    {Integrating QML and JavaScript}.
 
     For an example of how to use JavaScript to develop a game, see the
-    \l {http://qt-project.org/doc/qt-4.8/qml-advtutorial.html}
+    \l{http://qt-project.org/doc/qt-5.0/qtquick/qtquick2-qml-advtutorial.html}
     {QML Advanced Tutorial}.
 
  */

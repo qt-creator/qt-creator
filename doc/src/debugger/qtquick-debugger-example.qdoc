@@ -31,8 +31,8 @@
     \title Debugging a Qt Quick Example Application
 
     This section uses the
-    \l{http://qt-project.org/doc/qt-4.8/demos-declarative-samegame.html}{Same Game}
-    demo application to illustrate how to debug Qt Quick applications in the
+    \l{http://qt-project.org/doc/qt-5.0/qtquick/qtquick2-qml-advtutorial.html}{Same Game}
+    example application to illustrate how to debug Qt Quick applications in the
     \gui Debug mode.
 
     For more information about all the options you have, see

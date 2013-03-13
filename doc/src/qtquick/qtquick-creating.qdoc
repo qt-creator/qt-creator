@@ -96,10 +96,9 @@
 
     \endlist
 
-    The \c import statement in the beginning of the .qml file specifies the
-    \l{http://qt-project.org/doc/qt-4.8/qdeclarativemodules.html}{Qt modules} to
-    import. Each Qt module contains a set of default elements. Specify a version
-    to get the features you want.
+    The \c import statement in the beginning of the .qml file specifies the Qt modules to
+    \l{http://qt-project.org/doc/qt-5.0/qtqml/qtqml-syntax-imports.html}{import}. Each Qt module
+    contains a set of default elements. Specify a version to get the features you want.
 
     To use JavaScript and image files in the application, copy them to the
     project folder.

@@ -56,7 +56,7 @@
     External > Configure}.
 
     For more information about Qt Linguist, see
-    \l{http://qt-project.org/doc/qt-4.8/linguist-manual.html}
+    \l{http://qt-project.org/doc/qt-5.0/qtlinguist/qtlinguist-index.html}
     {Qt Linguist Manual}.
 
     \section1 Previewing QML Files

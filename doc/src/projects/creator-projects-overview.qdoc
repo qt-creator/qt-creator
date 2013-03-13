@@ -60,7 +60,7 @@
             {shadow builds} are used to keep the build specific files separate
             from the source. You can create separate versions of project files
             to keep platform-dependent code separate. You can use qmake
-            \l{http://qt-project.org/doc/qt-4.8/qmake-tutorial.html#adding-platform-specific-source-files}
+            \l{http://qt-project.org/doc/qt-5.0/qtdoc/qmake-tutorial.html#adding-platform-specific-source-files}
             {scopes} to select the file to process depending on which platform
             qmake is run on.
 

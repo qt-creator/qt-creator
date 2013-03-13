@@ -56,8 +56,7 @@
     automates the generation of build configurations so that only a few lines
     of information are needed to create each configuration. For more
     information about qmake, see the
-    \l{http://qt-project.org/doc/qt-4.8/qmake-manual.html}{qmake Manual}.
-
+    \l{http://qt-project.org/doc/qt-5.0/qtdoc/qmake-manual.html}{qmake Manual}.
     You can modify the build and run settings for qmake projects in the
     \gui Projects mode.
 
@@ -334,7 +333,7 @@
     Qt provides support for integration with OpenGL implementations on all
     platforms, which allows you to display hardware accelerated 3D graphics
     alongside a more conventional user interface. For more information, see
-    \l{http://qt-project.org/doc/qt-4.8/qtopengl.html}{QtOpenGL Module}.
+    \l{http://qt-project.org/doc/qt-5.0/qtopengl/qtopengl-index.html}{Qt OpenGL}.
 
     You can use the QGLShader class to compile OpenGL shaders written in the
     OpenGL Shading Language (GLSL) and in the OpenGL/ES Shading Language
@@ -388,7 +387,7 @@
 
     The wizard creates a project file (.pro) that defines a \c subdirs template
     and the subproject that you add as a value of the
-    \l{http://qt-project.org/doc/qt-4.8/qmake-variable-reference.html#subdirs}
+    \l{http://qt-project.org/doc/qt-5.0/qtdoc/qmake-variable-reference.html#subdirs}
     {SUBDIRS variable}. It also adds all the necessary files for the subproject.
 
     To add more subprojects, right-click the project name in the \gui Projects

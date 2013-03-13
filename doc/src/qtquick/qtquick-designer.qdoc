@@ -76,8 +76,8 @@
     \section1 Managing Element Hierarchy
 
     The \gui Navigator pane displays the
-    \l{http://qt-project.org/doc/qt-4.8/qdeclarativeelements.html}{QML elements}
-    in the current QML file and their relationships. Elements (1) are listed in a
+    \l{http://qt-project.org/doc/qt-5.0/qtquick/qtquick-qmltypereference.html}{Qt Quick QML types}
+    in the current QML file and their relationships. QML types (1) are listed in a
     tree structure, below their parent (2).
 
     \image qmldesigner-navigator.png "Navigator pane"
@@ -118,10 +118,10 @@
 
     \section2 Setting the Stacking Order
 
-    The \l{http://qt-project.org/doc/qt-4.8/qml-item.html#z-prop}{z property} of an
-    element determines its position in relation to its sibling elements in the
-    element hierarchy. By default, elements with a higher stacking value are
-    drawn on top of siblings with a lower stacking value. Elements with the same
+    The \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-item.html#z-prop}{z property} of a
+    QML type determines its position in relation to its sibling types in the
+    type hierarchy. By default, types with a higher stacking value are
+    drawn on top of siblings with a lower stacking value. Types with the same
     stacking value are drawn in the order they are listed, from the last item
     up.
 
@@ -245,7 +245,8 @@
 
     \section2 Setting Expressions
 
-    \l{http://qt-project.org/doc/qt-4.8/propertybinding.html}{Property binding} is a
+    \l{http://qt-project.org/doc/qt-5.0/qtqml/qtqml-syntax-propertybinding.html}
+    {Property binding} is a
     declarative way of specifying the value of a property.
     Binding allows a property value to be expressed as an JavaScript expression
     that defines the value relative to other property values or data accessible
@@ -262,8 +263,8 @@
     To remove expressions, select \gui Reset in the context menu.
 
     For more information on the JavaScript environment provided by QML, see
-    \l{http://qt-project.org/doc/qt-4.8/qdeclarativejavascript.html}
-    {Integrating JavaScript}.
+    \l{http://qt-project.org/doc/qt-5.0/qtqml/qtqml-javascript-topic.html}
+    {Integrating QML and JavaScript}.
 
     \section2 Marking Text Elements for Translation
 
@@ -365,9 +366,9 @@
 
     \section2 Setting Anchors and Margins
 
-    In addition to arranging elements in a grid, row, or column, you can use
-    \l{http://qt-project.org/doc/qt-4.8/qml-anchor-layout.html}{anchors} to lay out
-    screens. In an anchor-based layout, each item can be thought of as having a
+    In addition to arranging QML types in a grid, row, or column, you can use
+    \l{http://qt-project.org/doc/qt-5.0/qtquick/qtquick-positioning-anchors.html}{anchors}
+    to lay out screens. In an anchor-based layout, each QML type can be thought of as having a
     set of invisible \e anchor lines: top, bottom, left, right, fill, horizontal
     center, vertical center, and baseline.
 
@@ -423,8 +424,8 @@
     transformations to an item. Each transformation is applied in order, one at
     a time.
 
-    For more information on Transform elements, see
-    \l {http://qt-project.org/doc/qt-4.8/qml-transform.html}{QML Transform Element}.
+    For more information on Transform types, see
+    \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-transform.html}{Transform}.
 
     \section1 Adding States
 
@@ -463,7 +464,7 @@
     \endlist
 
     The \gui State pane displays the different
-    \l{http://qt-project.org/doc/qt-4.8/qdeclarativestates.html}{states}
+    \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-state.html}{states}
     of the component in the Qt Quick Designer.
 
     \image qmldesigner-transitions.png "State pane"

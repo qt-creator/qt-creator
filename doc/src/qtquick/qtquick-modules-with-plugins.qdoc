@@ -37,9 +37,9 @@
 
     When you write a QML module or use QML from a C++ application you typically
     register new types with
-    \l{http://qt-project.org/doc/qt-4.8/qdeclarativeengine.html#qmlRegisterType}
+    \l{http://qt-project.org/doc/qt-5.0/qtqml/qqmlengine.html#qmlRegisterType}
     {qmlRegisterType} or expose some class instances with
-    \l{http://qt-project.org/doc/qt-4.8/qdeclarativecontext.html#setContextProperty}
+    \l{http://qt-project.org/doc/qt-5.0/qtqml/qqmlcontext.html#setContextProperty}
     {setContextProperty}. The \QC C++ code model now scans for these calls and
     tells the QML code model about them. This means that properties are
     displayed during code completion and the JavaScript code checker does not
@@ -55,8 +55,8 @@
     For Qt 4.8 and later, one or more \c qmltypes files can be listed in the
     \c qmldir file under the \c typeinfo header. These files will be read in
     addition to \c{plugins.qmltypes}. For more information, see
-    \l{http://qt-project.org/doc/qt-4.8/qdeclarativemodules.html#writing-a-qmldir-file}
-    {Writing a qmldir File}.
+    \l{http://qt-project.org/doc/qt-5.0/qtqml/qtqml-modules-qmldir.html#writing-a-qmltypes-file}
+    {Writing a qmltypes File}.
 
     \section1 Generating qmltypes Files
 

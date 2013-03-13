@@ -68,7 +68,7 @@
                 be defined in Button.qml. The QML runtime may instantiate this
                 Button component to create Button objects. Alternatively, a
                 component may be defined inside a
-                \l{http://qt-project.org/doc/qt-4.8/qmlreusablecomponents.html}
+                \l{http://qt-project.org/doc/qt-5.0/qtqml/qml-qtquick2-component.html}
                 {Component} element.
 
         \row

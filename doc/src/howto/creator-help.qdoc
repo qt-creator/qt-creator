@@ -176,7 +176,7 @@
 
             For information on how to prepare your documentation and create a
             .qch file, see
-            \l{http://qt-project.org/doc/qt-4.8/qthelp-framework.html}
+            \l{http://qt-project.org/doc/qt-5.0/qthelp/qthelp-framework.html}
             {The Qt Help Framework}.
 
         \li To add the .qch file to \QC, select \gui Tools > \gui Options >

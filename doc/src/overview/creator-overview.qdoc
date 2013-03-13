@@ -59,7 +59,7 @@
 
                 \QC provides two integrated visual editors, \QMLD and \QD.
                 To create intuitive, modern-looking, fluid user interfaces, you
-                can use \l {http://qt-project.org/doc/qt-4.8/qtquick.html}
+                can use \l{http://qt-project.org/doc/qt-5.0/qtquick/qtquick-index.html}
                 {Qt Quick}.
                 If you need a traditional user interface that is clearly
                 structured and enforces a platform look and feel, you can use

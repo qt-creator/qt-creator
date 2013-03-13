@@ -73,7 +73,7 @@
     \gui {Remote Directory} field displays the folder where the file is
     installed on the device. Text in red color indicates that the information is
     missing. Edit the qmake
-    \l{http://qt-project.org/doc/qt-4.8/qmake-variable-reference.html#installs}
+    \l{http://qt-project.org/doc/qt-5.0/qtdoc/qmake-variable-reference.html#installs}
     {INSTALLS variable} in the project .pro file to add the missing files.
 
     When you run the application, \QC copies the necessary files to the device

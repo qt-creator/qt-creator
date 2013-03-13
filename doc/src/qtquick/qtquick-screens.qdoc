@@ -63,23 +63,23 @@
     \section1 Using Data Models
 
     You can create the following types of views to organize items provided by
-    \l{http://qt-project.org/doc/qt-4.8/qdeclarativemodels.html}{data models}:
+    \l{http://qt-project.org/doc/qt-5.0/qtquick/qtquick-modelviewsdata-modelview.html}{data models}:
 
     \list
 
-        \li \l{http://qt-project.org/doc/qt-4.8/qml-gridview.html}{Grid View}
+        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-gridview.html}{Grid View}
             provides a grid vizualization of a model.
 
-        \li \l{http://qt-project.org/doc/qt-4.8/qml-listview.html}{List View}
+        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-listview.html}{List View}
             provides a list vizualization of a model.
 
-        \li \l{http://qt-project.org/doc/qt-4.8/qml-pathview.html}{Path View}
+        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-pathview.html}{Path View}
             visualizes the contents of a model along a path.
 
     \endlist
 
     When you add a Grid View, List View, or Path View element, the
-    \l{http://qt-project.org/doc/qt-4.8/qml-listmodel.html}{ListModel} and the
+    \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-listmodel.html}{ListModel} and the
     delegate component that creates an instance for each item in the model are
     added automatically. You can edit element properties
     \if defined(qcmanual)
@@ -94,17 +94,17 @@
 
     \list
 
-        \li \l{http://qt-project.org/doc/qt-4.8-snapshot/qml-column.html}{Column}
+        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-column.html}{Column}
             arranges its child items vertically.
 
-        \li \l{http://qt-project.org/doc/qt-4.8-snapshot/qml-row.html}{Row}
+        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-row.html}{Row}
             arranges its child items horizontally.
 
-        \li \l{http://qt-project.org/doc/qt-4.8-snapshot/qml-grid.html}{Grid}
+        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-grid.html}{Grid}
             arranges its child items so that they are aligned in a grid and
             are not overlapping.
 
-        \li \l{http://qt-project.org/doc/qt-4.8-snapshot/qml-flow.html}{Flow}
+        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-flow.html}{Flow}
             arranges its child items side by side, wrapping as necessary.
 
     \endlist
@@ -210,16 +210,16 @@
     use different types of animated transitions. For example, you can animate
     changes to property values and colors. You can use rotation animation to
     control the direction of rotation. For more information, see
-    \l{http://qt-project.org/doc/qt-4.8/qdeclarativeanimation.html}
-    {QML Animation}.
+    \l{http://qt-project.org/doc/qt-5.0/qtquick/qtquick-statesanimations-animations.html}
+    {Animation and Transitions in Qt Quick}.
 
     You can use the \c ParallelAnimation element to start several animations at
     the same time. Or use the \c SequentialAnimation element to run them one
     after another.
 
     You can use the code editor to specify transitions. For more information,
-    see \l{http://qt-project.org/doc/qt-4.8/qml-transition.html}
-    {QML Transition Element}.
+    see \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-transition.html}
+    {Transition}.
 
 */
 
@@ -237,18 +237,18 @@
 
     \list
 
-        \li \l{http://qt-project.org/doc/qt-4.8/qml-flickable.html}{Flickable}
+        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-flickable.html}{Flickable}
             items can be flicked horizontally or vertically.
 
-        \li \l{http://qt-project.org/doc/qt-4.8/qml-flipable.html}{Flipable}
+        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-flipable.html}{Flipable}
             items can be flipped between their front and back sides by using
             rotation, state, and transition.
 
-        \li \l{http://qt-project.org/doc/qt-4.8/qml-focusscope.html}{Focus Scope}
+        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-focusscope.html}{Focus Scope}
             assists in keyboard focus handling when building reusable QML
             components.
 
-        \li \l{http://qt-project.org/doc/qt-4.8/qml-mousearea.html}{Mouse Area}
+        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-mousearea.html}{Mouse Area}
             enables simple mouse handling.
 
     \endlist
