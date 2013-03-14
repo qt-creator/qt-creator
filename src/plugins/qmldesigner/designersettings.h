@@ -54,6 +54,8 @@ public:
     int canvasHeight;
     bool warningsInDesigner;
     bool designerWarningsInEditor;
+    bool showDebugView;
+    bool enableDebugView;
 };
 
 inline bool operator==(const DesignerSettings &s1, const DesignerSettings &s2)

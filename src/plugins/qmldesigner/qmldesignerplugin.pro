@@ -19,6 +19,7 @@ include(components/navigator/navigator.pri)
 include(components/pluginmanager/pluginmanager.pri)
 include(components/stateseditor/stateseditor.pri)
 include(components/resources/resources.pri)
+include(components/debugview/debugview.pri)
 include(qmldesignerplugin.pri)
 
 DEFINES -= QT_NO_CAST_FROM_ASCII

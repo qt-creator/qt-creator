@@ -7,6 +7,7 @@
 #include "formeditorwidget.h"
 #include "toolbox.h"
 #include "designeractionmanager.h"
+#include "designersettings.h"
 
 #include <qmldesigner/qmldesignerplugin.h>
 
@@ -108,6 +109,8 @@ void ViewManager::detachViewsExceptRewriterAndComponetView()
     currentModel()->detachView(&m_itemLibraryView);
     currentModel()->detachView(&m_statesEditorView);
     currentModel()->detachView(&m_propertyEditorView);
+    if (m_debugView.isAttached())
+        currentModel()->detachView(&m_debugView);
     currentModel()->setNodeInstanceView(0);
 
     static bool enableViewLogger = !qgetenv("QTC_ENABLE_QMLDESIGNER_LOGGER").isEmpty();
@@ -151,6 +154,8 @@ void ViewManager::attachViewsExceptRewriterAndComponetView()
     if (enableViewLogger)
         currentModel()->attachView(&m_viewLogger);
 
+    if (QmlDesignerPlugin::instance()->settings().enableDebugView)
+        currentModel()->attachView(&m_debugView);
     attachNodeInstanceView();
     currentModel()->attachView(&m_formEditorView);
     currentModel()->attachView(&m_navigatorView);
@@ -191,6 +196,8 @@ QList<WidgetInfo> ViewManager::widgetInfos()
     widgetInfoList.append(m_navigatorView.widgetInfo());
     widgetInfoList.append(m_propertyEditorView.widgetInfo());
     widgetInfoList.append(m_statesEditorView.widgetInfo());
+    if (m_debugView.hasWidget())
+        widgetInfoList.append(m_debugView.widgetInfo());
 
     foreach (const QWeakPointer<AbstractView> &abstractView, m_additionalViews) {
         if (abstractView && abstractView->hasWidget())
