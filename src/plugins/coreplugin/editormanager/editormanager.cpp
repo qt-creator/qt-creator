@@ -320,14 +320,14 @@ EditorManager::EditorManager(QWidget *parent) :
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     connect(d->m_closeCurrentEditorAction, SIGNAL(triggered()), this, SLOT(closeEditor()));
 
-#ifdef Q_OS_WIN
-    // workaround for QTCREATORBUG-72
-    QShortcut *sc = new QShortcut(parent);
-    cmd = ActionManager::registerShortcut(sc, Constants::CLOSE_ALTERNATIVE, editManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+F4")));
-    cmd->setDescription(EditorManager::tr("Close"));
-    connect(sc, SIGNAL(activated()), this, SLOT(closeEditor()));
-#endif
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        // workaround for QTCREATORBUG-72
+        QShortcut *sc = new QShortcut(parent);
+        cmd = ActionManager::registerShortcut(sc, Constants::CLOSE_ALTERNATIVE, editManagerContext);
+        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+F4")));
+        cmd->setDescription(EditorManager::tr("Close"));
+        connect(sc, SIGNAL(activated()), this, SLOT(closeEditor()));
+    }
 
     // Close All Action
     cmd = ActionManager::registerAction(d->m_closeAllEditorsAction, Constants::CLOSEALL, editManagerContext, true);

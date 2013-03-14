@@ -30,6 +30,7 @@
 #include "fancyactionbar.h"
 #include "coreconstants.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
 #include <utils/stringutils.h>
 #include <utils/tooltip/tooltip.h>
@@ -152,8 +153,9 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
     // draw borders
     bool isTitledAction = defaultAction()->property("titledAction").toBool();
 
-#ifndef Q_OS_MAC // Mac UIs usually don't hover
-    if (m_fader > 0 && isEnabled() && !isDown() && !isChecked()) {
+
+    if (!Utils::HostOsInfo::isMacHost() // Mac UIs usually don't hover
+            && m_fader > 0 && isEnabled() && !isDown() && !isChecked()) {
         painter.save();
         int fader = int(40 * m_fader);
         QLinearGradient grad(rect().topLeft(), rect().topRight());
@@ -165,9 +167,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         painter.drawLine(rect().topLeft(), rect().topRight());
         painter.drawLine(rect().bottomLeft(), rect().bottomRight());
         painter.restore();
-    } else
-#endif
-    if (isDown() || isChecked()) {
+    } else if (isDown() || isChecked()) {
         painter.save();
         QLinearGradient grad(rect().topLeft(), rect().topRight());
         grad.setColorAt(0, Qt::transparent);

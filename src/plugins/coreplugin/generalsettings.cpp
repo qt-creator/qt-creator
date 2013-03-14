@@ -33,6 +33,7 @@
 #include "infobar.h"
 #include "editormanager/editormanager.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
 #include <utils/qtcolorbutton.h>
 #include <utils/consoleprocess.h>
@@ -114,25 +115,25 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
 
     m_page->colorButton->setColor(StyleHelper::requestedBaseColor());
     m_page->reloadBehavior->setCurrentIndex(EditorManager::instance()->reloadSetting());
-#ifdef Q_OS_UNIX
-    const QStringList availableTerminals = ConsoleProcess::availableTerminalEmulators();
-    const QString currentTerminal = ConsoleProcess::terminalEmulator(settings);
-    m_page->terminalComboBox->addItems(availableTerminals);
-    m_page->terminalComboBox->lineEdit()->setText(currentTerminal);
-#else
-    m_page->terminalLabel->hide();
-    m_page->terminalComboBox->hide();
-    m_page->resetTerminalButton->hide();
-#endif
+    if (HostOsInfo::isAnyUnixHost()) {
+        const QStringList availableTerminals = ConsoleProcess::availableTerminalEmulators();
+        const QString currentTerminal = ConsoleProcess::terminalEmulator(settings);
+        m_page->terminalComboBox->addItems(availableTerminals);
+        m_page->terminalComboBox->lineEdit()->setText(currentTerminal);
+    } else {
+        m_page->terminalLabel->hide();
+        m_page->terminalComboBox->hide();
+        m_page->resetTerminalButton->hide();
+    }
 
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-    m_page->externalFileBrowserEdit->setText(UnixUtils::fileBrowser(settings));
-#else
-    m_page->externalFileBrowserLabel->hide();
-    m_page->externalFileBrowserEdit->hide();
-    m_page->resetFileBrowserButton->hide();
-    m_page->helpExternalFileBrowserButton->hide();
-#endif
+    if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost()) {
+        m_page->externalFileBrowserEdit->setText(UnixUtils::fileBrowser(settings));
+    } else {
+        m_page->externalFileBrowserLabel->hide();
+        m_page->externalFileBrowserEdit->hide();
+        m_page->resetFileBrowserButton->hide();
+        m_page->helpExternalFileBrowserButton->hide();
+    }
 
     m_page->autoSaveCheckBox->setChecked(EditorManager::instance()->autoSaveEnabled());
     m_page->autoSaveInterval->setValue(EditorManager::instance()->autoSaveInterval());
@@ -142,16 +143,14 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
             this, SLOT(resetInterfaceColor()));
     connect(m_page->resetWarningsButton, SIGNAL(clicked()),
             this, SLOT(resetWarnings()));
-#ifdef Q_OS_UNIX
-    connect(m_page->resetTerminalButton, SIGNAL(clicked()),
-            this, SLOT(resetTerminal()));
-#ifndef Q_OS_MAC
-    connect(m_page->resetFileBrowserButton, SIGNAL(clicked()),
-            this, SLOT(resetFileBrowser()));
-    connect(m_page->helpExternalFileBrowserButton, SIGNAL(clicked()),
-            this, SLOT(showHelpForFileBrowser()));
-#endif
-#endif
+    if (HostOsInfo::isAnyUnixHost()) {
+        connect(m_page->resetTerminalButton, SIGNAL(clicked()), this, SLOT(resetTerminal()));
+        if (!HostOsInfo::isMacHost()) {
+            connect(m_page->resetFileBrowserButton, SIGNAL(clicked()), this, SLOT(resetFileBrowser()));
+            connect(m_page->helpExternalFileBrowserButton, SIGNAL(clicked()),
+                    this, SLOT(showHelpForFileBrowser()));
+        }
+    }
 
     if (m_searchKeywords.isEmpty()) {
         QLatin1Char sep(' ');
@@ -181,13 +180,14 @@ void GeneralSettings::apply()
     // Apply the new base color if accepted
     StyleHelper::setBaseColor(m_page->colorButton->color());
     EditorManager::instance()->setReloadSetting(IDocument::ReloadSetting(m_page->reloadBehavior->currentIndex()));
-#ifdef Q_OS_UNIX
-    ConsoleProcess::setTerminalEmulator(Core::ICore::settings(),
-                                        m_page->terminalComboBox->lineEdit()->text());
-#ifndef Q_OS_MAC
-    Utils::UnixUtils::setFileBrowser(Core::ICore::settings(), m_page->externalFileBrowserEdit->text());
-#endif
-#endif
+    if (HostOsInfo::isAnyUnixHost()) {
+        ConsoleProcess::setTerminalEmulator(Core::ICore::settings(),
+                                            m_page->terminalComboBox->lineEdit()->text());
+        if (!HostOsInfo::isMacHost()) {
+            Utils::UnixUtils::setFileBrowser(Core::ICore::settings(),
+                                             m_page->externalFileBrowserEdit->text());
+        }
+    }
     EditorManager::instance()->setAutoSaveEnabled(m_page->autoSaveCheckBox->isChecked());
     EditorManager::instance()->setAutoSaveInterval(m_page->autoSaveInterval->value());
 }
@@ -213,16 +213,14 @@ void GeneralSettings::resetWarnings()
 
 void GeneralSettings::resetTerminal()
 {
-#if defined(Q_OS_UNIX)
-    m_page->terminalComboBox->lineEdit()->setText(ConsoleProcess::defaultTerminalEmulator());
-#endif
+    if (HostOsInfo::isAnyUnixHost())
+        m_page->terminalComboBox->lineEdit()->setText(ConsoleProcess::defaultTerminalEmulator());
 }
 
 void GeneralSettings::resetFileBrowser()
 {
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-    m_page->externalFileBrowserEdit->setText(UnixUtils::defaultFileBrowser());
-#endif
+    if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost())
+        m_page->externalFileBrowserEdit->setText(UnixUtils::defaultFileBrowser());
 }
 
 
@@ -250,9 +248,8 @@ void GeneralSettings::variableHelpDialogCreator(const QString &helpText)
 
 void GeneralSettings::showHelpForFileBrowser()
 {
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-    variableHelpDialogCreator(UnixUtils::fileBrowserHelpText());
-#endif
+    if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost())
+        variableHelpDialogCreator(UnixUtils::fileBrowserHelpText());
 }
 
 void GeneralSettings::resetLanguage()

@@ -113,7 +113,6 @@
 #include <QStyleFactory>
 
 /*
-#ifdef Q_OS_UNIX
 #include <signal.h>
 extern "C" void handleSigInt(int sig)
 {
@@ -121,7 +120,6 @@ extern "C" void handleSigInt(int sig)
     Core::ICore::exit();
     qDebug() << "SIGINT caught. Shutting down.";
 }
-#endif
 */
 
 using namespace Core;
@@ -168,10 +166,8 @@ MainWindow::MainWindow() :
     m_optionsAction(0),
     m_toggleSideBarAction(0),
     m_toggleFullScreenAction(0),
-#ifdef Q_OS_MAC
     m_minimizeAction(0),
     m_zoomAction(0),
-#endif
     m_toggleSideBarButton(new QToolButton)
 {
     (void) new DocumentManager(this);
@@ -230,9 +226,8 @@ MainWindow::MainWindow() :
     statusBar()->insertPermanentWidget(0, m_toggleSideBarButton);
 
 //    setUnifiedTitleAndToolBarOnMac(true);
-#ifdef Q_OS_UNIX
-     //signal(SIGINT, handleSigInt);
-#endif
+    //if (Utils::HostOsInfo::isAnyUnixHost())
+        //signal(SIGINT, handleSigInt);
 
     statusBar()->setProperty("p_styled", true);
     setAcceptDrops(true);
@@ -265,7 +260,6 @@ void MainWindow::setOverrideColor(const QColor &color)
     m_overrideColor = color;
 }
 
-#ifdef Q_OS_MAC
 void MainWindow::setIsFullScreen(bool fullScreen)
 {
     if (fullScreen)
@@ -273,7 +267,6 @@ void MainWindow::setIsFullScreen(bool fullScreen)
     else
         m_toggleFullScreenAction->setText(tr("Enter Full Screen"));
 }
-#endif
 
 MainWindow::~MainWindow()
 {
@@ -1095,16 +1088,16 @@ void MainWindow::changeEvent(QEvent *e)
             emit windowActivated();
         }
     } else if (e->type() == QEvent::WindowStateChange) {
-#ifdef Q_OS_MAC
-        bool minimized = isMinimized();
-        if (debugMainWindow)
-            qDebug() << "main window state changed to minimized=" << minimized;
-        m_minimizeAction->setEnabled(!minimized);
-        m_zoomAction->setEnabled(!minimized);
-#else
-        bool isFullScreen = (windowState() & Qt::WindowFullScreen) != 0;
-        m_toggleFullScreenAction->setChecked(isFullScreen);
-#endif
+        if (Utils::HostOsInfo::isMacHost()) {
+            bool minimized = isMinimized();
+            if (debugMainWindow)
+                qDebug() << "main window state changed to minimized=" << minimized;
+            m_minimizeAction->setEnabled(!minimized);
+            m_zoomAction->setEnabled(!minimized);
+        } else {
+            bool isFullScreen = (windowState() & Qt::WindowFullScreen) != 0;
+            m_toggleFullScreenAction->setChecked(isFullScreen);
+        }
     }
 }
 

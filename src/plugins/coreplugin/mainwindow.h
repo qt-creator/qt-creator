@@ -120,9 +120,7 @@ public:
 
     void setOverrideColor(const QColor &color);
 
-#ifdef Q_OS_MAC
     void setIsFullScreen(bool fullScreen);
-#endif
 signals:
     void windowActivated();
 

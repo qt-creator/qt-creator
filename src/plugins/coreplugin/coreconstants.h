@@ -109,9 +109,7 @@ const char REMOVE_CURRENT_SPLIT[]  = "QtCreator.RemoveCurrentSplit";
 const char REMOVE_ALL_SPLITS[]     = "QtCreator.RemoveAllSplits";
 const char GOTO_OTHER_SPLIT[]      = "QtCreator.GotoOtherSplit";
 const char CLOSE[]                 = "QtCreator.Close";
-#ifdef Q_OS_WIN
 const char CLOSE_ALTERNATIVE[]     = "QtCreator.Close_Alternative"; // temporary, see QTCREATORBUG-72
-#endif
 const char CLOSEALL[]              = "QtCreator.CloseAll";
 const char CLOSEOTHERS[]           = "QtCreator.CloseOthers";
 const char GOTONEXT[]              = "QtCreator.GotoNext";

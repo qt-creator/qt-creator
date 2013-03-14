@@ -35,6 +35,7 @@
 
 #include <coreplugin/coreconstants.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
@@ -902,13 +903,10 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
                     if (mflags & (State_Sunken)) {
                         QColor shade(0, 0, 0, 50);
                         painter->fillRect(tool.rect.adjusted(0, -1, 1, 1), shade);
-                    }
-#ifndef Q_OS_MAC
-                    else if (mflags & (State_MouseOver)) {
+                    } else if (!Utils::HostOsInfo::isMacHost() && (mflags & State_MouseOver)) {
                         QColor shade(255, 255, 255, 50);
                         painter->fillRect(tool.rect.adjusted(0, -1, 1, 1), shade);
                     }
-#endif
                 }
                 tool.rect = tool.rect.adjusted(2, 2, -2, -2);
                 drawPrimitive(PE_IndicatorArrowDown, &tool, painter, widget);

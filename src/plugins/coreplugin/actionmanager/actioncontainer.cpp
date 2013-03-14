@@ -36,6 +36,7 @@
 #include "coreconstants.h"
 #include "id.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -424,7 +425,6 @@ void MenuActionContainer::removeMenu(QMenu *menu)
     m_menu->removeAction(menu->menuAction());
 }
 
-#ifdef Q_OS_MAC
 static bool menuInMenuBar(const QMenu *menu)
 {
     foreach (const QWidget *widget, menu->menuAction()->associatedWidgets()) {
@@ -433,19 +433,18 @@ static bool menuInMenuBar(const QMenu *menu)
     }
     return false;
 }
-#endif
 
 bool MenuActionContainer::updateInternal()
 {
     if (onAllDisabledBehavior() == Show)
         return true;
 
-#ifdef Q_OS_MAC
-    // work around QTBUG-25544 which makes menus in the menu bar stay at their enabled state at startup
-    // (so menus that are disabled at startup would stay disabled)
-    if (menuInMenuBar(m_menu))
-        return true;
-#endif
+    if (Utils::HostOsInfo::isMacHost()) {
+        // work around QTBUG-25544 which makes menus in the menu bar stay at their enabled state at startup
+        // (so menus that are disabled at startup would stay disabled)
+        if (menuInMenuBar(m_menu))
+            return true;
+    }
 
     bool hasitems = false;
     QList<QAction *> actions = m_menu->actions();

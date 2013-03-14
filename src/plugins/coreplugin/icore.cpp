@@ -346,6 +346,8 @@
 #include "mainwindow.h"
 #include "documentmanager.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QDir>
 #include <QCoreApplication>
 #include <QDebug>
@@ -483,15 +485,11 @@ QString ICore::userInterfaceLanguage()
     return qApp->property("qtc_locale").toString();
 }
 
-#ifdef Q_OS_MAC
-#  define SHARE_PATH "/../Resources"
-#else
-#  define SHARE_PATH "/../share/qtcreator"
-#endif
-
 QString ICore::resourcePath()
 {
-    return QDir::cleanPath(QCoreApplication::applicationDirPath() + QLatin1String(SHARE_PATH));
+    const QString sharePath = QLatin1String(Utils::HostOsInfo::isMacHost()
+                                            ? "/../Resources" : "/../share/qtcreator");
+    return QDir::cleanPath(QCoreApplication::applicationDirPath() + sharePath);
 }
 
 QString ICore::userResourcePath()
