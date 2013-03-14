@@ -47,6 +47,17 @@ using namespace QmlDebug;
 namespace QmlProfiler {
 namespace Internal {
 
+typedef  QHash <QString, QmlRangeEventRelative *> EventHash;
+
+static EventHash cloneEventHash(const EventHash &src)
+{
+    EventHash result;
+    const EventHash::ConstIterator cend = src.constEnd();
+    for (EventHash::ConstIterator it = src.constBegin(); it != cend; ++it)
+        result.insert(it.key(), new QmlRangeEventRelative(it.value()));
+    return result;
+}
+
 ///////////////////////////////////////////////////////////
 QmlRangeEventData::QmlRangeEventData()
 {
@@ -64,9 +75,9 @@ QmlRangeEventData::QmlRangeEventData()
 
 QmlRangeEventData::~QmlRangeEventData()
 {
-    qDeleteAll(parentHash.values());
+    qDeleteAll(parentHash);
     parentHash.clear();
-    qDeleteAll(childrenHash.values());
+    qDeleteAll(childrenHash);
     childrenHash.clear();
 }
 
@@ -90,17 +101,11 @@ QmlRangeEventData &QmlRangeEventData::operator=(const QmlRangeEventData &ref)
     eventId = ref.eventId;
     isBindingLoop = ref.isBindingLoop;
 
-    qDeleteAll(parentHash.values());
-    parentHash.clear();
-    foreach (const QString &key, ref.parentHash.keys()) {
-        parentHash.insert(key, new QmlRangeEventRelative(ref.parentHash.value(key)));
-    }
+    qDeleteAll(parentHash);
+    parentHash = cloneEventHash(ref.parentHash);
 
-    qDeleteAll(childrenHash.values());
-    childrenHash.clear();
-    foreach (const QString &key, ref.childrenHash.keys()) {
-        childrenHash.insert(key, new QmlRangeEventRelative(ref.childrenHash.value(key)));
-    }
+    qDeleteAll(childrenHash);
+    childrenHash = cloneEventHash(ref.childrenHash);
 
     return *this;
 }
@@ -263,7 +268,7 @@ QV8EventData *QmlProfilerDataModel::v8EventDescription(int eventId) const
 
 void QmlProfilerDataModel::clear()
 {
-    qDeleteAll(d->rangeEventDictionary.values());
+    qDeleteAll(d->rangeEventDictionary);
     d->rangeEventDictionary.clear();
 
     d->endInstanceList.clear();
@@ -1289,8 +1294,8 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::clearQmlRootEvent()
     qmlRootEvent.medianTime = 0;
     qmlRootEvent.eventId = -1;
 
-    qDeleteAll(qmlRootEvent.parentHash.values());
-    qDeleteAll(qmlRootEvent.childrenHash.values());
+    qDeleteAll(qmlRootEvent.parentHash);
+    qDeleteAll(qmlRootEvent.childrenHash);
     qmlRootEvent.parentHash.clear();
     qmlRootEvent.childrenHash.clear();
 }

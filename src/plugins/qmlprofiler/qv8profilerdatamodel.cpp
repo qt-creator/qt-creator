@@ -42,6 +42,17 @@ QT_END_NAMESPACE
 namespace QmlProfiler {
 namespace Internal {
 
+typedef  QHash <QString, QV8EventSub *> EventHash;
+
+static EventHash cloneEventHash(const EventHash &src)
+{
+    EventHash result;
+    const EventHash::ConstIterator cend = src.constEnd();
+    for (EventHash::ConstIterator it = src.constBegin(); it != cend; ++it)
+        result.insert(it.key(), new QV8EventSub(it.value()));
+    return result;
+}
+
 QV8EventData &QV8EventData::operator=(const QV8EventData &ref)
 {
     if (this == &ref)
@@ -58,17 +69,12 @@ QV8EventData &QV8EventData::operator=(const QV8EventData &ref)
     selfPercent = ref.selfPercent;
     eventId = ref.eventId;
 
-    qDeleteAll(parentHash.values());
-    parentHash.clear();
-    foreach (const QString &key, ref.parentHash.keys()) {
-        parentHash.insert(key, new QV8EventSub(ref.parentHash.value(key)));
-    }
+    qDeleteAll(parentHash);
+    parentHash = cloneEventHash(ref.parentHash);
 
-    qDeleteAll(childrenHash.values());
-    childrenHash.clear();
-    foreach (const QString &key, ref.childrenHash.keys()) {
-        childrenHash.insert(key, new QV8EventSub(ref.childrenHash.value(key)));
-    }
+    qDeleteAll(childrenHash);
+    childrenHash = cloneEventHash(ref.childrenHash);
+
     return *this;
 }
 
@@ -440,8 +446,12 @@ void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
         d->v8MeasuredTime = cumulatedV8Time;
 
     // find v8events' children and parents
-    foreach (int parentIndex, childrenIndexes.keys()) {
-        QStringList childrenStrings = childrenIndexes.value(parentIndex).split(QLatin1String(","));
+    typedef QHash <int, QString>::ConstIterator ChildIndexConstIt;
+
+    const ChildIndexConstIt icend = childrenIndexes.constEnd();
+    for (ChildIndexConstIt it = childrenIndexes.constBegin(); it != icend; ++it) {
+        const int parentIndex = it.key();
+        const QStringList childrenStrings = it.value().split(QLatin1Char(','));
         QStringList childrenTimesStrings = childrenTimes.value(parentIndex).split(QLatin1String(", "));
         QStringList parentTimesStrings = parentTimes.value(parentIndex).split(QLatin1String(", "));
         for (int ndx = 0; ndx < childrenStrings.count(); ndx++) {

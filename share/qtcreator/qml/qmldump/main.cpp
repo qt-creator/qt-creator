@@ -165,10 +165,12 @@ QByteArray convertToId(const QMetaObject *mo)
 
 QSet<const QMetaObject *> collectReachableMetaObjects(const QList<QDeclarativeType *> &skip = QList<QDeclarativeType *>())
 {
+    typedef QHash<QByteArray, QSet<QByteArray> > ExtensionHash;
+
     QSet<const QMetaObject *> metas;
     metas.insert(FriendlyQObject::qtMeta());
 
-    QHash<QByteArray, QSet<QByteArray> > extensions;
+    ExtensionHash extensions;
     foreach (const QDeclarativeType *ty, QDeclarativeMetaType::qmlTypes()) {
         qmlTypesByCppName[ty->metaObject()->className()].insert(ty);
         if (ty->isExtendedType()) {
@@ -181,10 +183,12 @@ QSet<const QMetaObject *> collectReachableMetaObjects(const QList<QDeclarativeTy
     // For each export of a base object there can be a single extension object overriding it.
     // Example: QDeclarativeGraphicsWidget overrides the QtQuick/QGraphicsWidget export
     //          of QGraphicsWidget.
-    foreach (const QByteArray &baseCpp, extensions.keys()) {
+    const ExtensionHash::ConstIterator cend = extensions.constEnd();
+    for (ExtensionHash::ConstIterator it = extensions.constBegin(); it != cend; ++it) {
+        const QByteArray &baseCpp = it.key();
         QSet<const QDeclarativeType *> baseExports = qmlTypesByCppName.value(baseCpp);
 
-        const QSet<QByteArray> extensionCppNames = extensions.value(baseCpp);
+        const QSet<QByteArray> &extensionCppNames = it.value();
         foreach (const QByteArray &extensionCppName, extensionCppNames) {
             const QSet<const QDeclarativeType *> extensionExports = qmlTypesByCppName.value(extensionCppName);
 

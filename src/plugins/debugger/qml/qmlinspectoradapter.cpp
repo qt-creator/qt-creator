@@ -503,8 +503,8 @@ void QmlInspectorAdapter::selectObject(const ObjectReference &obj,
 
 void QmlInspectorAdapter::deletePreviews()
 {
-    foreach (const QString &key, m_textPreviews.keys())
-        delete m_textPreviews.take(key);
+    qDeleteAll(m_textPreviews);
+    m_textPreviews.clear();
 }
 
 void QmlInspectorAdapter::enableTools(const bool enable)

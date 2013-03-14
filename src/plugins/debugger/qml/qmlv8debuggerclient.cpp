@@ -1390,13 +1390,7 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                         BreakHandler *handler = d->engine->breakHandler();
 
                         foreach (int v8Id, v8BreakpointIds) {
-                            BreakpointModelId internalId;
-                            foreach (const BreakpointModelId &id, d->breakpoints.keys()) {
-                                if (d->breakpoints.value(id) == v8Id) {
-                                    internalId = id;
-                                    break;
-                                }
-                            }
+                            const BreakpointModelId internalId = d->breakpoints.key(v8Id);
 
                             if (internalId.isValid()) {
                                 const BreakpointParameters &params = handler->breakpointData(internalId);
@@ -1426,19 +1420,18 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                         //Update breakpoint data
                         BreakHandler *handler = d->engine->breakHandler();
                         foreach (int v8Id, v8BreakpointIds) {
-                            foreach (const BreakpointModelId &id, d->breakpoints.keys()) {
-                                if (d->breakpoints.value(id) == v8Id) {
-                                    BreakpointResponse br = handler->response(id);
-                                    if (br.functionName.isEmpty()) {
-                                        br.functionName = invocationText;
-                                        handler->setResponse(id, br);
-                                    }
-                                    if (handler->state(id) != BreakpointInserted) {
-                                        br.lineNumber = breakData.value(
-                                                    _("sourceLine")).toInt() + 1;
-                                        handler->setResponse(id, br);
-                                        handler->notifyBreakpointInsertOk(id);
-                                    }
+                            const BreakpointModelId id = d->breakpoints.key(v8Id);
+                            if (id.isValid()) {
+                                BreakpointResponse br = handler->response(id);
+                                if (br.functionName.isEmpty()) {
+                                    br.functionName = invocationText;
+                                    handler->setResponse(id, br);
+                                }
+                                if (handler->state(id) != BreakpointInserted) {
+                                    br.lineNumber = breakData.value(
+                                                _("sourceLine")).toInt() + 1;
+                                    handler->setResponse(id, br);
+                                    handler->notifyBreakpointInsertOk(id);
                                 }
                             }
                         }
