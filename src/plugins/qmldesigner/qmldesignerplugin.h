@@ -32,6 +32,7 @@
 
 #include <qmldesigner/designersettings.h>
 #include <qmldesigner/components/pluginmanager/pluginmanager.h>
+#include <qmldesignercorelib_global.h>
 
 #include <extensionsystem/iplugin.h>
 
@@ -61,7 +62,7 @@ class DesignModeWidget;
 class DesignModeContext;
 }
 
-class QmlDesignerPlugin : public ExtensionSystem::IPlugin
+class QMLDESIGNERCORE_EXPORT QmlDesignerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlDesigner.json")
