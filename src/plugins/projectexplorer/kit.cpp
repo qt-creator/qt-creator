@@ -91,7 +91,8 @@ public:
         m_isValid(true),
         m_hasWarning(false),
         m_nestedBlockingLevel(0),
-        m_mustNotify(false)
+        m_mustNotify(false),
+        m_mustNotifyAboutDisplayName(false)
     {
         if (!id.isValid())
             m_id = Id::fromString(QUuid::createUuid().toString());
@@ -107,6 +108,7 @@ public:
     QString m_iconPath;
     int m_nestedBlockingLevel;
     bool m_mustNotify;
+    bool m_mustNotifyAboutDisplayName;
 
     QHash<Core::Id, QVariant> m_data;
 };
@@ -144,9 +146,12 @@ void Kit::unblockNotification()
     --d->m_nestedBlockingLevel;
     if (d->m_nestedBlockingLevel > 0)
         return;
-    if (d->m_mustNotify)
+    if (d->m_mustNotifyAboutDisplayName)
+        kitDisplayNameChanged();
+    else if (d->m_mustNotify)
         kitUpdated();
     d->m_mustNotify = false;
+    d->m_mustNotifyAboutDisplayName = false;
 }
 
 Kit *Kit::clone(bool keepName) const
@@ -174,6 +179,7 @@ void Kit::copyFrom(const Kit *k)
     d->m_autodetected = k->d->m_autodetected;
     d->m_displayName = k->d->m_displayName;
     d->m_mustNotify = true;
+    d->m_mustNotifyAboutDisplayName = true;
 }
 
 bool Kit::isValid() const
@@ -241,46 +247,22 @@ static QString candidateName(const QString &name, const QString &postfix)
 
 void Kit::setDisplayName(const QString &name)
 {
-    KitManager *km = KitManager::instance();
-    QList<KitInformation *> kitInfo = km->kitInformation();
+    if (d->m_displayName == name)
+        return;
+    d->m_displayName = name;
+    kitDisplayNameChanged();
+}
 
-    QStringList nameList;
-    nameList << QString(); // Disallow empty kit names!
-    foreach (Kit *k, km->kits()) {
-        if (k == this)
-            continue;
-        nameList << k->displayName();
-        foreach (KitInformation *ki, kitInfo) {
-            const QString postfix = ki->displayNamePostfix(k);
-            if (!postfix.isEmpty())
-                nameList << candidateName(k->displayName(), postfix);
-        }
-    }
-
-    QStringList candidateNames;
-    candidateNames << name;
-
-    foreach (KitInformation *ki, kitInfo) {
+QStringList Kit::candidateNameList(const QString &base) const
+{
+    QStringList result;
+    result << base;
+    foreach (KitInformation *ki, KitManager::instance()->kitInformation()) {
         const QString postfix = ki->displayNamePostfix(this);
         if (!postfix.isEmpty())
-            candidateNames << candidateName(name, postfix);
+            result << candidateName(base, postfix);
     }
-
-    QString uniqueName = Project::makeUnique(name, nameList);
-    if (uniqueName != name) {
-        foreach (const QString &candidate, candidateNames) {
-            const QString tmp = Project::makeUnique(candidate, nameList);
-            if (tmp == candidate) {
-                uniqueName = tmp;
-                break;
-            }
-        }
-    }
-
-    if (d->m_displayName == uniqueName)
-        return;
-    d->m_displayName = uniqueName;
-    kitUpdated();
+    return result;
 }
 
 QString Kit::fileSystemFriendlyName() const
@@ -494,12 +476,23 @@ void Kit::setSdkProvided(bool sdkProvided)
 
 void Kit::kitUpdated()
 {
-    if (d->m_nestedBlockingLevel > 0) {
+    if (d->m_nestedBlockingLevel > 0 && !d->m_mustNotifyAboutDisplayName) {
         d->m_mustNotify = true;
         return;
     }
     validate();
     KitManager::instance()->notifyAboutUpdate(this);
+}
+
+void Kit::kitDisplayNameChanged()
+{
+    if (d->m_nestedBlockingLevel > 0) {
+        d->m_mustNotifyAboutDisplayName = true;
+        d->m_mustNotify = false;
+        return;
+    }
+    validate();
+    KitManager::instance()->notifyAboutDisplayNameChange(this);
 }
 
 } // namespace ProjectExplorer

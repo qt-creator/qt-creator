@@ -122,6 +122,8 @@ public:
 
     bool isLoaded() const;
 
+    static QString uniqueKitName(const Kit *k, const QString name, const QList<Kit *> &allKits);
+
 public slots:
     bool registerKit(ProjectExplorer::Kit *k);
     void deregisterKit(ProjectExplorer::Kit *k);
@@ -149,6 +151,8 @@ signals:
 private:
     explicit KitManager(QObject *parent = 0);
 
+    bool setKeepDisplayNameUnique(bool unique);
+
     // Make sure the this is only called after all
     // KitInformation are registered!
     void restoreKits();
@@ -162,6 +166,7 @@ private:
     };
     KitList restoreKits(const Utils::FileName &fileName);
 
+    void notifyAboutDisplayNameChange(ProjectExplorer::Kit *k);
     void notifyAboutUpdate(ProjectExplorer::Kit *k);
     void addKit(Kit *k);
 

@@ -73,6 +73,8 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &name);
 
+    QStringList candidateNameList(const QString &base) const;
+
     QString fileSystemFriendlyName() const;
 
     bool isAutoDetected() const;
@@ -107,7 +109,7 @@ private:
     Kit(const Kit &other);
     void operator=(const Kit &other);
 
-
+    void kitDisplayNameChanged();
     void kitUpdated();
 
     QVariantMap toMap() const;

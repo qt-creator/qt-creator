@@ -168,11 +168,15 @@ void KitOptionsPage::showKit(Kit *k)
 
 void KitOptionsPage::kitSelectionChanged()
 {
+    QModelIndex current = currentIndex();
+    QWidget *newWidget = current.isValid() ? m_model->widget(current) : 0;
+    if (newWidget == m_currentWidget)
+        return;
+
     if (m_currentWidget)
         m_currentWidget->setVisible(false);
 
-    QModelIndex current = currentIndex();
-    m_currentWidget = current.isValid() ? m_model->widget(current) : 0;
+    m_currentWidget = newWidget;
 
     if (m_currentWidget) {
         m_currentWidget->setVisible(true);

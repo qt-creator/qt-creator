@@ -53,7 +53,7 @@ public:
     }
 
     KitNode(KitNode *kn, Kit *k) :
-        parent(kn)
+        parent(kn), widget(0)
     {
         if (kn)
             kn->childNodes.append(this);
@@ -96,6 +96,8 @@ KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent) :
             this, SLOT(addKit(ProjectExplorer::Kit*)));
     connect(KitManager::instance(), SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
             this, SLOT(removeKit(ProjectExplorer::Kit*)));
+    connect(KitManager::instance(), SIGNAL(unmanagedKitUpdated(ProjectExplorer::Kit*)),
+            this, SLOT(updateKit(ProjectExplorer::Kit*)));
     connect(KitManager::instance(), SIGNAL(defaultkitChanged()),
             this, SLOT(changeDefaultKit()));
 
@@ -284,6 +286,8 @@ void KitModel::apply()
     }
 
     // Update kits:
+    KitManager *km = KitManager::instance();
+    bool unique = km->setKeepDisplayNameUnique(false);
     nodes = m_autoRoot->childNodes; // These can be dirty due to being made default!
     nodes.append(m_manualRoot->childNodes);
     foreach (KitNode *n, nodes) {
@@ -294,6 +298,7 @@ void KitModel::apply()
             emit dataChanged(index(n, 0), index(n, columnCount(QModelIndex())));
         }
     }
+    km->setKeepDisplayNameUnique(unique);
 }
 
 void KitModel::markForRemoval(Kit *k)
@@ -346,6 +351,12 @@ Kit *KitModel::markForAddition(Kit *baseKit)
     return k;
 }
 
+QString KitModel::findNameFor(Kit *k, const QString baseName)
+{
+    QList<Kit *> kits = kitList(m_root);
+    return KitManager::uniqueKitName(k, baseName, kits);
+}
+
 QModelIndex KitModel::index(KitNode *node, int column) const
 {
     if (node->parent == 0) // is root (or was marked for deletion)
@@ -388,6 +399,18 @@ void KitModel::setDefaultNode(KitNode *node)
         m_defaultNode->widget->setIsDefaultKit(true);
         emit dataChanged(index(m_defaultNode), index(m_defaultNode));
     }
+}
+
+QList<Kit *> KitModel::kitList(KitNode *node) const
+{
+    QList<Kit *> result;
+    if (!node)
+        return result;
+    foreach (KitNode *n, node->childNodes)
+        result.append(kitList(n));
+    if (node->widget)
+        result.append(node->widget->workingCopy());
+    return result;
 }
 
 void KitModel::addKit(Kit *k)
@@ -444,6 +467,11 @@ void KitModel::removeKit(Kit *k)
     delete node;
 
     emit kitStateChanged();
+}
+
+void KitModel::updateKit(Kit *k)
+{
+    k->setDisplayName(findNameFor(k, k->displayName()));
 }
 
 void KitModel::changeDefaultKit()

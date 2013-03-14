@@ -87,12 +87,15 @@ public:
     void markForRemoval(Kit *k);
     Kit *markForAddition(Kit *baseKit);
 
+    QString findNameFor(Kit *k, const QString baseName);
+
 signals:
     void kitStateChanged();
 
 private slots:
     void addKit(ProjectExplorer::Kit *k);
     void removeKit(ProjectExplorer::Kit *k);
+    void updateKit(ProjectExplorer::Kit*);
     void changeDefaultKit();
     void setDirty();
 
@@ -101,6 +104,7 @@ private:
     KitNode *findWorkingCopy(Kit *k) const;
     KitNode *createNode(KitNode *parent, Kit *k);
     void setDefaultNode(KitNode *node);
+    QList<Kit *> kitList(KitNode *node) const;
 
     KitNode *m_root;
     KitNode *m_autoRoot;
