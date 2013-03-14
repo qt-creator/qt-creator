@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = myplugin
-QT += declarative
+QT += qml
 CONFIG += qt plugin
 
 TARGET = $$qtLibraryTarget($$TARGET)

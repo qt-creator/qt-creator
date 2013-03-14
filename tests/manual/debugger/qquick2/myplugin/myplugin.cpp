@@ -1,6 +1,8 @@
 #include "myplugin.h"
 #include "mytype.h"
 
+#include <qqml.h>
+
 void MyPlugin::registerTypes(const char *uri)
 {
     // @uri mymodule
@@ -8,4 +10,3 @@ void MyPlugin::registerTypes(const char *uri)
     qmlRegisterType<MyType>(uri, 1, 0, "MyType");
 }
 
-Q_EXPORT_PLUGIN(MyPlugin)

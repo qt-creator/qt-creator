@@ -1,7 +1,7 @@
 #include <QGuiApplication>
 #include <QQuickView>
-#include <QDeclarativeContext>
-#include <QDeclarativeEngine>
+#include <QQmlContext>
+#include <QQmlEngine>
 #include <QDebug>
 
 class Backend : public QObject {
