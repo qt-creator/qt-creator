@@ -288,6 +288,11 @@ void DeviceManager::setDeviceState(Core::Id deviceId, IDevice::DeviceState devic
     IDevice::Ptr &device = d->devices[pos];
     if (device->deviceState() == deviceState)
         return;
+
+    // To see the state change in the DeviceSettingsWidget
+    if (this == instance() && d->clonedInstance)
+        d->clonedInstance->setDeviceState(deviceId, deviceState);
+
     device->setDeviceState(deviceState);
     emit deviceUpdated(deviceId);
     emit updated();
