@@ -30,16 +30,15 @@
 #include "highlightersettings.h"
 
 #include <coreplugin/icore.h>
+#include <utils/hostosinfo.h>
 
 #include <QSettings>
 #include <QLatin1String>
 #include <QLatin1Char>
 #include <QDir>
 #include <QFile>
-#include <QStringList>
-#ifdef Q_OS_UNIX
 #include <QProcess>
-#endif
+#include <QStringList>
 
 namespace TextEditor {
 namespace Internal {
@@ -49,45 +48,45 @@ QString findFallbackDefinitionsLocation()
     QDir dir;
     dir.setNameFilters(QStringList(QLatin1String("*.xml")));
 
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-    static const QLatin1String kateSyntax[] = {
-        QLatin1String("/share/apps/katepart/syntax"),
-        QLatin1String("/share/kde4/apps/katepart/syntax")
-    };
-    static const int kateSyntaxCount =
-        sizeof(kateSyntax) / sizeof(kateSyntax[0]);
+    if (Utils::HostOsInfo::isAnyUnixHost() && !Utils::HostOsInfo::isMacHost()) {
+        static const QLatin1String kateSyntax[] = {
+            QLatin1String("/share/apps/katepart/syntax"),
+            QLatin1String("/share/kde4/apps/katepart/syntax")
+        };
+        static const int kateSyntaxCount =
+                sizeof(kateSyntax) / sizeof(kateSyntax[0]);
 
-    // Some wild guesses.
-    for (int i = 0; i < kateSyntaxCount; ++i) {
-        QStringList paths;
-        paths << QLatin1String("/usr") + kateSyntax[i]
-              << QLatin1String("/usr/local") + kateSyntax[i]
-              << QLatin1String("/opt") + kateSyntax[i];
-        foreach (const QString &path, paths) {
-            dir.setPath(path);
-            if (dir.exists() && !dir.entryInfoList().isEmpty())
-                return dir.path();
-        }
-    }
-
-    // Try kde-config.
-    QStringList programs;
-    programs << QLatin1String("kde-config") << QLatin1String("kde4-config");
-    foreach (const QString &program, programs) {
-        QProcess process;
-        process.start(program, QStringList(QLatin1String("--prefix")));
-        if (process.waitForStarted(5000)) {
-            process.waitForFinished(5000);
-            QString output = QString::fromLocal8Bit(process.readAllStandardOutput());
-            output.remove(QLatin1Char('\n'));
-            for (int i = 0; i < kateSyntaxCount; ++i) {
-                dir.setPath(output + kateSyntax[i]);
+        // Some wild guesses.
+        for (int i = 0; i < kateSyntaxCount; ++i) {
+            QStringList paths;
+            paths << QLatin1String("/usr") + kateSyntax[i]
+                     << QLatin1String("/usr/local") + kateSyntax[i]
+                        << QLatin1String("/opt") + kateSyntax[i];
+            foreach (const QString &path, paths) {
+                dir.setPath(path);
                 if (dir.exists() && !dir.entryInfoList().isEmpty())
                     return dir.path();
             }
         }
+
+        // Try kde-config.
+        QStringList programs;
+        programs << QLatin1String("kde-config") << QLatin1String("kde4-config");
+        foreach (const QString &program, programs) {
+            QProcess process;
+            process.start(program, QStringList(QLatin1String("--prefix")));
+            if (process.waitForStarted(5000)) {
+                process.waitForFinished(5000);
+                QString output = QString::fromLocal8Bit(process.readAllStandardOutput());
+                output.remove(QLatin1Char('\n'));
+                for (int i = 0; i < kateSyntaxCount; ++i) {
+                    dir.setPath(output + kateSyntax[i]);
+                    if (dir.exists() && !dir.entryInfoList().isEmpty())
+                        return dir.path();
+                }
+            }
+        }
     }
-#endif
 
     dir.setPath(Core::ICore::resourcePath() + QLatin1String("/generic-highlighter"));
     if (dir.exists() && !dir.entryInfoList().isEmpty())

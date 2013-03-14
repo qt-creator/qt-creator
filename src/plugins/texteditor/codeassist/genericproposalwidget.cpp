@@ -532,20 +532,29 @@ void GenericProposalWidget::turnOnAutoWidth()
     updatePositionAndSize();
 }
 
+static bool useCarbonWorkaround()
+{
+#if (QT_VERSION < 0x050000) && defined(Q_OS_DARWIN) && ! defined(QT_MAC_USE_COCOA)
+    return true;
+#else
+    return false;
+#endif
+}
+
 bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
 {
     if (e->type() == QEvent::FocusOut) {
         abort();
-#if (QT_VERSION < 0x050000) && defined(Q_OS_DARWIN) && ! defined(QT_MAC_USE_COCOA)
-        QFocusEvent *fe = static_cast<QFocusEvent *>(e);
-        if (fe->reason() == Qt::OtherFocusReason) {
-            // Qt/carbon workaround
-            // focus out is received before the key press event.
-            if (d->m_completionListView->currentIndex().isValid())
-                emit proposalItemActivated(d->m_model->proposalItem(
-                                              d->m_completionListView->currentIndex().row()));
+        if (useCarbonWorkaround()) {
+            QFocusEvent *fe = static_cast<QFocusEvent *>(e);
+            if (fe->reason() == Qt::OtherFocusReason) {
+                // Qt/carbon workaround
+                // focus out is received before the key press event.
+                if (d->m_completionListView->currentIndex().isValid())
+                    emit proposalItemActivated(d->m_model->proposalItem(
+                                                   d->m_completionListView->currentIndex().row()));
+            }
         }
-#endif
         if (d->m_infoFrame)
             d->m_infoFrame->close();
         return true;
@@ -583,12 +592,12 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
 
         case Qt::Key_Tab:
         case Qt::Key_Return:
-#if (QT_VERSION >= 0x050000) || (defined(QT_MAC_USE_COCOA) || !defined(Q_OS_DARWIN))
-            abort();
-            if (d->m_completionListView->currentIndex().isValid())
-                emit proposalItemActivated(d->m_model->proposalItem(
-                                              d->m_completionListView->currentIndex().row()));
-#endif
+            if (!useCarbonWorkaround()) {
+                abort();
+                if (d->m_completionListView->currentIndex().isValid())
+                    emit proposalItemActivated(d->m_model->proposalItem(
+                                                   d->m_completionListView->currentIndex().row()));
+            }
             return true;
 
         case Qt::Key_Up:

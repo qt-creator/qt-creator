@@ -31,6 +31,7 @@
 #include "fontsettingspage.h"
 #include "texteditorconstants.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 
@@ -51,16 +52,6 @@ static const char schemeFileNameKey[] = "ColorScheme";
 namespace {
 static const bool DEFAULT_ANTIALIAS = true;
 
-#ifdef Q_OS_MAC
-    enum { DEFAULT_FONT_SIZE = 12 };
-    static const char DEFAULT_FONT_FAMILY[] = "Monaco";
-#elif defined(Q_OS_UNIX)
-    enum { DEFAULT_FONT_SIZE = 9 };
-    static const char DEFAULT_FONT_FAMILY[] = "Monospace";
-#else
-    enum { DEFAULT_FONT_SIZE = 10 };
-    static const char DEFAULT_FONT_FAMILY[] = "Courier";
-#endif
 } // anonymous namespace
 
 namespace TextEditor {
@@ -68,7 +59,7 @@ namespace TextEditor {
 // -- FontSettings
 FontSettings::FontSettings() :
     m_family(defaultFixedFontFamily()),
-    m_fontSize(DEFAULT_FONT_SIZE),
+    m_fontSize(defaultFontSize()),
     m_fontZoom(100),
     m_antialias(DEFAULT_ANTIALIAS)
 {
@@ -77,7 +68,7 @@ FontSettings::FontSettings() :
 void FontSettings::clear()
 {
     m_family = defaultFixedFontFamily();
-    m_fontSize = DEFAULT_FONT_SIZE;
+    m_fontSize = defaultFontSize();
     m_fontZoom = 100;
     m_antialias = DEFAULT_ANTIALIAS;
     m_scheme.clear();
@@ -90,7 +81,7 @@ void FontSettings::toSettings(const QString &category,
     if (m_family != defaultFixedFontFamily() || s->contains(QLatin1String(fontFamilyKey)))
         s->setValue(QLatin1String(fontFamilyKey), m_family);
 
-    if (m_fontSize != DEFAULT_FONT_SIZE || s->contains(QLatin1String(fontSizeKey)))
+    if (m_fontSize != defaultFontSize() || s->contains(QLatin1String(fontSizeKey)))
         s->setValue(QLatin1String(fontSizeKey), m_fontSize);
 
     if (m_fontZoom!= 100 || s->contains(QLatin1String(fontZoomKey)))
@@ -336,11 +327,20 @@ void FontSettings::setColorScheme(const ColorScheme &scheme)
     m_scheme = scheme;
 }
 
+static QString defaultFontFamily()
+{
+    if (Utils::HostOsInfo::isMacHost())
+        return QLatin1String("Monaco");
+    if (Utils::HostOsInfo::isAnyUnixHost())
+        return QLatin1String("Monospace");
+    return QLatin1String("Courier");
+}
+
 QString FontSettings::defaultFixedFontFamily()
 {
     static QString rc;
     if (rc.isEmpty()) {
-        QFont f = QFont(QLatin1String(DEFAULT_FONT_FAMILY));
+        QFont f = QFont(defaultFontFamily());
         f.setStyleHint(QFont::TypeWriter);
         rc = f.family();
     }
@@ -349,7 +349,11 @@ QString FontSettings::defaultFixedFontFamily()
 
 int FontSettings::defaultFontSize()
 {
-    return DEFAULT_FONT_SIZE;
+    if (Utils::HostOsInfo::isMacHost())
+        return 12;
+    if (Utils::HostOsInfo::isAnyUnixHost())
+        return 9;
+    return 10;
 }
 
 /**
