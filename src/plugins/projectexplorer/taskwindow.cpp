@@ -546,6 +546,8 @@ void TaskWindow::setShowWarnings(bool show)
 
 void TaskWindow::updateCategoriesMenu()
 {
+    typedef QMap<QString, QByteArray>::ConstIterator NameToIdsConstIt;
+
     d->m_categoriesMenu->clear();
 
     const QList<Core::Id> filteredCategories = d->m_filter->filteredCategories();
@@ -554,8 +556,10 @@ void TaskWindow::updateCategoriesMenu()
     foreach (const Core::Id &categoryId, d->m_model->categoryIds())
         nameToIds.insert(d->m_model->categoryDisplayName(categoryId), categoryId.name());
 
-    foreach (const QString &displayName, nameToIds.keys()) {
-        const QByteArray categoryId = nameToIds.value(displayName);
+    const NameToIdsConstIt cend = nameToIds.constEnd();
+    for (NameToIdsConstIt it = nameToIds.constBegin(); it != cend; ++it) {
+        const QString &displayName = it.key();
+        const QByteArray categoryId = it.value();
         QAction *action = new QAction(d->m_categoriesMenu);
         action->setCheckable(true);
         action->setText(displayName);

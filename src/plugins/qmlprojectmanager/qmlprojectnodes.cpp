@@ -110,11 +110,12 @@ void QmlProjectNode::refresh()
         filesInDirectory[relativeDirectory].append(absoluteFilePath);
     }
 
-    foreach (const QString &directory, filesInDirectory.keys()) {
-        FolderNode *folder = findOrCreateFolderByName(directory);
+    const QHash<QString, QStringList>::ConstIterator cend = filesInDirectory.constEnd();
+    for (QHash<QString, QStringList>::ConstIterator it = filesInDirectory.constBegin(); it != cend; ++it) {
+        FolderNode *folder = findOrCreateFolderByName(it.key());
 
         QList<FileNode *> fileNodes;
-        foreach (const QString &file, filesInDirectory.value(directory)) {
+        foreach (const QString &file, it.value()) {
             FileType fileType = SourceType; // ### FIXME
             FileNode *fileNode = new FileNode(file, fileType, /*generated = */ false);
             fileNodes.append(fileNode);

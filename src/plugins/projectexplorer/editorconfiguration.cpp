@@ -114,7 +114,7 @@ EditorConfiguration::EditorConfiguration() : d(new EditorConfigurationPrivate)
 
 EditorConfiguration::~EditorConfiguration()
 {
-    qDeleteAll(d->m_languageCodeStylePreferences.values());
+    qDeleteAll(d->m_languageCodeStylePreferences);
     delete d;
 }
 

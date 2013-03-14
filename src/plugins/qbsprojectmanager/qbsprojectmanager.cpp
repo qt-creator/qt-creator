@@ -162,8 +162,9 @@ qbs::Preferences *QbsManager::preferences()
 void QbsManager::addProfile(const QString &name, const QVariantMap &data)
 {
     const QString base = QLatin1String(PROFILES_PREFIX) + name;
-    foreach (const QString &key, data.keys())
-        m_settings->setValue(base + key, data.value(key));
+    const QVariantMap::ConstIterator cend = data.constEnd();
+    for (QVariantMap::ConstIterator it = data.constBegin(); it != cend; ++it)
+        m_settings->setValue(base + it.key(), it.value());
 }
 
 void QbsManager::removeCreatorProfiles()

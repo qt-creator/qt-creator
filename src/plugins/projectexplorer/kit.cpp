@@ -378,6 +378,8 @@ bool Kit::isEqual(const Kit *other) const
 
 QVariantMap Kit::toMap() const
 {
+    typedef QHash<Core::Id, QVariant>::ConstIterator IdVariantConstIt;
+
     QVariantMap data;
     data.insert(QLatin1String(ID_KEY), QString::fromLatin1(d->m_id.name()));
     data.insert(QLatin1String(DISPLAYNAME_KEY), d->m_displayName);
@@ -386,8 +388,10 @@ QVariantMap Kit::toMap() const
     data.insert(QLatin1String(ICON_KEY), d->m_iconPath);
 
     QVariantMap extra;
-    foreach (const Id key, d->m_data.keys())
-        extra.insert(QString::fromLatin1(key.name().constData()), d->m_data.value(key));
+
+    const IdVariantConstIt cend = d->m_data.constEnd();
+    for (IdVariantConstIt it = d->m_data.constBegin(); it != cend; ++it)
+        extra.insert(QString::fromLatin1(it.key().name().constData()), it.value());
     data.insert(QLatin1String(DATA_KEY), extra);
 
     return data;
@@ -471,8 +475,9 @@ bool Kit::fromMap(const QVariantMap &data)
     setIconPath(data.value(QLatin1String(ICON_KEY)).toString());
 
     QVariantMap extra = data.value(QLatin1String(DATA_KEY)).toMap();
-    foreach (const QString &key, extra.keys())
-        setValue(Id(key), extra.value(key));
+    const QVariantMap::ConstIterator cend = extra.constEnd();
+    for (QVariantMap::ConstIterator it = extra.constBegin(); it != cend; ++it)
+        setValue(Id(it.key()), it.value());
 
     return true;
 }

@@ -133,9 +133,12 @@ void BlackBerryNdkProcess::processError(QProcess::ProcessError error)
 
 int BlackBerryNdkProcess::errorLineToReturnStatus(const QString &line) const
 {
-    foreach (const QString &key, m_errorStringMap.keys()) {
-        if (line.contains(key))
-            return m_errorStringMap.value(key);
+    typedef QMap<QString, int>::ConstIterator ConstIt;
+
+    const ConstIt cend = m_errorStringMap.constEnd();
+    for (ConstIt it = m_errorStringMap.constBegin(); it != cend; ++it) {
+        if (line.contains(it.key()))
+            return it.value();
     }
 
     return -1;

@@ -204,7 +204,9 @@ bool QtVersionManager::restoreQtVersions()
         return false;
 
     const QString keyPrefix = QLatin1String(QTVERSION_DATA_KEY);
-    foreach (const QString &key, data.keys()) {
+    const QVariantMap::ConstIterator dcend = data.constEnd();
+    for (QVariantMap::ConstIterator it = data.constBegin(); it != dcend; ++it) {
+        const QString &key = it.key();
         if (!key.startsWith(keyPrefix))
             continue;
         bool ok;
@@ -212,7 +214,7 @@ bool QtVersionManager::restoreQtVersions()
         if (!ok || count < 0)
             continue;
 
-        const QVariantMap qtversionMap = data.value(key).toMap();
+        const QVariantMap qtversionMap = it.value().toMap();
         const QString type = qtversionMap.value(QLatin1String(QTVERSION_TYPE_KEY)).toString();
 
         bool restored = false;
@@ -276,7 +278,9 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
     QStringList sdkVersions;
 
     const QString keyPrefix = QLatin1String(QTVERSION_DATA_KEY);
-    foreach (const QString &key, data.keys()) {
+    const QVariantMap::ConstIterator dcend = data.constEnd();
+    for (QVariantMap::ConstIterator it = data.constBegin(); it != dcend; ++it) {
+        const QString &key = it.key();
         if (!key.startsWith(keyPrefix))
             continue;
         bool ok;
@@ -284,7 +288,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
         if (!ok || count < 0)
             continue;
 
-        QVariantMap qtversionMap = data.value(key).toMap();
+        QVariantMap qtversionMap = it.value().toMap();
         const QString type = qtversionMap.value(QLatin1String(QTVERSION_TYPE_KEY)).toString();
         const QString autoDetectionSource = qtversionMap.value(QLatin1String("autodetectionSource")).toString();
         sdkVersions << autoDetectionSource;

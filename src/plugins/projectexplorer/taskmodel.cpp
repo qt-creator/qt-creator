@@ -182,13 +182,16 @@ void TaskModel::updateTaskLineNumber(unsigned int id, int line)
 
 void TaskModel::clearTasks(const Core::Id &categoryId)
 {
+    typedef QHash<Core::Id,CategoryData>::ConstIterator IdCategoryConstIt;
+
     if (categoryId.uniqueIdentifier() == 0) {
         if (m_tasks.count() == 0)
             return;
         beginRemoveRows(QModelIndex(), 0, m_tasks.count() -1);
         m_tasks.clear();
-        foreach (const Core::Id &key, m_categories.keys())
-            m_categories[key].clear();
+        const IdCategoryConstIt cend = m_categories.constEnd();
+        for (IdCategoryConstIt it = m_categories.constBegin(); it != cend; ++it)
+            m_categories[it.key()].clear();
         endRemoveRows();
     } else {
         int index = 0;
