@@ -29,57 +29,71 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYCONNECT_H
-#define QNX_INTERNAL_BLACKBERRYCONNECT_H
-
-#include <utils/outputformat.h>
+#ifndef QNX_INTERNAL_BLACKBERRYDEVICECONNECTIONMANAGER_H
+#define QNX_INTERNAL_BLACKBERRYDEVICECONNECTIONMANAGER_H
 
 #include <QObject>
-#include <QProcess>
+
+#include <coreplugin/id.h>
+#include <projectexplorer/devicesupport/idevice.h>
 
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryRunConfiguration;
+class BlackBerryDeviceConnection;
 
-class BlackBerryConnect : public QObject
+class BlackBerryDeviceConnectionManager : public QObject
 {
     Q_OBJECT
 public:
-    static BlackBerryConnect *instance(BlackBerryRunConfiguration *runConfig);
-    static void cleanup(BlackBerryConnect *instance);
+    ~BlackBerryDeviceConnectionManager();
+
+    void initialize();
+    void killAllConnections();
+
+    static BlackBerryDeviceConnectionManager *instance();
+
+    bool isConnected(Core::Id deviceId);
+
+    QString connectionLog(Core::Id deviceId) const;
+
+    void connectDevice(const ProjectExplorer::IDevice::ConstPtr &device);
+    void disconnectDevice(const ProjectExplorer::IDevice::ConstPtr &device);
 
 signals:
-    void connected();
-    void error(const QString &msg);
-    void output(const QString &msg, Utils::OutputFormat format);
+    void connectionOutput(Core::Id deviceId, const QString &output);
+    void deviceAboutToConnect(Core::Id deviceId);
 
 public slots:
-    void connectToDevice();
-    void disconnectFromDevice();
+    void connectDevice(Core::Id deviceId);
+    void disconnectDevice(Core::Id deviceId);
 
 private slots:
-    void handleProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void readStandardOutput();
-    void readStandardError();
+    void handleDeviceListChanged();
+
+    void handleDeviceAboutToConnect();
+    void handleDeviceConnected();
+    void handleDeviceDisconnected();
+
+    void handleProcessOutput(const QString &output);
 
 private:
-    explicit BlackBerryConnect(BlackBerryRunConfiguration *runConfig);
+    explicit BlackBerryDeviceConnectionManager();
 
-    static QMap<QString, BlackBerryConnect *> m_instances;
-    static QMap<QString, int> m_usageCount;
+    BlackBerryDeviceConnection *connectionForHost(const QString &host) const;
+    QList<Core::Id> devicesForHost(const QString &host) const;
 
-    QProcess *m_process;
-    QString m_connectCmd;
-    QString m_deviceHost;
-    QString m_password;
-    QString m_publicKeyFile;
-    QString m_qnxHost;
+    int connectionUsageCount(Core::Id deviceId);
 
-    bool m_connected;
+    void disconnectRemovedDevices();
+    void reconnectChangedDevices();
+    void connectAddedDevices();
+
+    static BlackBerryDeviceConnectionManager *m_instance;
+    QMultiMap<BlackBerryDeviceConnection*, Core::Id> m_connections;
 };
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_BLACKBERRYCONNECT_H
+#endif // QNX_INTERNAL_BLACKBERRYDEVICECONNECTIONMANAGER_H

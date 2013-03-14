@@ -131,7 +131,8 @@ void DeviceManagerModel::handleDeviceRemoved(Core::Id id)
 void DeviceManagerModel::handleDeviceUpdated(Core::Id id)
 {
     const int idx = indexForId(id);
-    QTC_ASSERT(idx != -1, return);
+    if (idx < 0) // This occurs when a device not matching the type filter is updated
+        return;
     d->devices[idx] = d->deviceManager->find(id);
     const QModelIndex changedIndex = index(idx, 0);
     emit dataChanged(changedIndex, changedIndex);

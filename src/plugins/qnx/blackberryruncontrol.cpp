@@ -32,7 +32,6 @@
 #include "blackberryruncontrol.h"
 #include "blackberryapplicationrunner.h"
 #include "blackberryrunconfiguration.h"
-#include "blackberryconnect.h"
 
 #include <QIcon>
 #include <QTimer>
@@ -44,28 +43,17 @@ BlackBerryRunControl::BlackBerryRunControl(BlackBerryRunConfiguration *runConfig
     : ProjectExplorer::RunControl(runConfiguration, ProjectExplorer::NormalRunMode)
 {
     m_runner = new BlackBerryApplicationRunner(false, runConfiguration, this);
-    m_connector = BlackBerryConnect::instance(runConfiguration);
 
     connect(m_runner, SIGNAL(started()), this, SIGNAL(started()));
     connect(m_runner, SIGNAL(finished()), this, SIGNAL(finished()));
-    connect(m_runner, SIGNAL(finished()), m_connector, SLOT(disconnectFromDevice()));
     connect(m_runner, SIGNAL(output(QString,Utils::OutputFormat)),
             this, SLOT(appendMessage(QString,Utils::OutputFormat)));
     connect(m_runner, SIGNAL(startFailed(QString)), this, SLOT(handleStartFailed(QString)));
-
-    connect(m_connector, SIGNAL(connected()), m_runner, SLOT(start()));
-    connect(m_connector, SIGNAL(output(QString,Utils::OutputFormat)),
-            this, SLOT(appendMessage(QString,Utils::OutputFormat)));
-}
-
-BlackBerryRunControl::~BlackBerryRunControl()
-{
-    BlackBerryConnect::cleanup(m_connector);
 }
 
 void BlackBerryRunControl::start()
 {
-    m_connector->connectToDevice();
+    m_runner->start();
 }
 
 ProjectExplorer::RunControl::StopResult BlackBerryRunControl::stop()

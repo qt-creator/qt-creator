@@ -35,6 +35,7 @@
 #include "blackberrydeployconfiguration.h"
 #include "blackberrydebugsupport.h"
 #include "blackberryqtversion.h"
+#include "blackberrydeviceconnectionmanager.h"
 #include "qnxutils.h"
 
 #include <debugger/debuggerplugin.h>
@@ -96,6 +97,14 @@ ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(ProjectExplorer
     if (!activeDeployConf) {
         if (errorMessage)
             *errorMessage = tr("No active deploy configuration");
+        return 0;
+    }
+
+    BlackBerryDeviceConfiguration::ConstPtr device =
+            BlackBerryDeviceConfiguration::device(rc->target()->kit());
+    if (!BlackBerryDeviceConnectionManager::instance()->isConnected(device->id())) {
+        if (errorMessage)
+            *errorMessage = tr("Device not connected");
         return 0;
     }
 

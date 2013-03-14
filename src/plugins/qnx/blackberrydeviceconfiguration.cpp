@@ -33,6 +33,7 @@
 
 #include "qnxconstants.h"
 #include "blackberrydeviceconfigurationwidget.h"
+#include "blackberrydeviceconnectionmanager.h"
 #include "blackberrydeviceprocesssupport.h"
 
 #include <projectexplorer/kitinformation.h>
@@ -40,6 +41,11 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 using namespace ProjectExplorer;
+
+namespace {
+const char ConnectToDeviceActionId[]      = "Qnx.BlackBerry.ConnectToDeviceAction";
+const char DisconnectFromDeviceActionId[] = "Qnx.BlackBerry.DisconnectFromDeviceAction";
+}
 
 BlackBerryDeviceConfiguration::BlackBerryDeviceConfiguration()
     : RemoteLinux::LinuxDevice()
@@ -116,19 +122,34 @@ IDeviceWidget *BlackBerryDeviceConfiguration::createWidget()
 
 QList<Core::Id> BlackBerryDeviceConfiguration::actionIds() const
 {
-    return QList<Core::Id>();
+    return QList<Core::Id>() << Core::Id(ConnectToDeviceActionId)
+                             << Core::Id(DisconnectFromDeviceActionId);
 }
 
 QString BlackBerryDeviceConfiguration::displayNameForActionId(Core::Id actionId) const
 {
-    Q_UNUSED(actionId);
+    if (actionId == Core::Id(ConnectToDeviceActionId))
+        return tr("Connect to device");
+    else if (actionId == Core::Id(DisconnectFromDeviceActionId))
+        return tr("Disconnect from device");
+
     return QString();
 }
 
 void BlackBerryDeviceConfiguration::executeAction(Core::Id actionId, QWidget *parent) const
 {
-    Q_UNUSED(actionId);
     Q_UNUSED(parent);
+
+    const BlackBerryDeviceConfiguration::ConstPtr device =
+            sharedFromThis().staticCast<const BlackBerryDeviceConfiguration>();
+
+    BlackBerryDeviceConnectionManager *connectionManager =
+            BlackBerryDeviceConnectionManager::instance();
+    if (actionId == Core::Id(ConnectToDeviceActionId))
+        connectionManager->connectDevice(device);
+    else if (actionId == Core::Id(DisconnectFromDeviceActionId)
+             && connectionManager->isConnected(id()))
+        connectionManager->disconnectDevice(device);
 }
 
 QVariantMap BlackBerryDeviceConfiguration::toMap() const

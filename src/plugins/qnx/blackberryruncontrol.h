@@ -50,7 +50,6 @@ class BlackBerryRunControl : public ProjectExplorer::RunControl
     Q_OBJECT
 public:
     explicit BlackBerryRunControl(BlackBerryRunConfiguration *runConfiguration);
-    ~BlackBerryRunControl();
 
     void start();
     ProjectExplorer::RunControl::StopResult stop();
@@ -62,7 +61,6 @@ private slots:
 
 private:
     BlackBerryApplicationRunner *m_runner;
-    BlackBerryConnect *m_connector;
 };
 
 } // namespace Internal

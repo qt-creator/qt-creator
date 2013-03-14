@@ -57,7 +57,6 @@ class BlackBerryDebugSupport : public QObject
 public:
     explicit BlackBerryDebugSupport(BlackBerryRunConfiguration *runConfig,
                              Debugger::DebuggerRunControl *runControl);
-    ~BlackBerryDebugSupport();
 
 signals:
     void output(const QString &msg, Utils::OutputFormat format);
@@ -70,15 +69,12 @@ private slots:
 
     void handleDebuggerStateChanged(Debugger::DebuggerState state);
 
-    void handleConnectorError(const QString &message);
-
     void handleApplicationOutput(const QString &msg, Utils::OutputFormat format);
 
 private:
     Debugger::DebuggerEngine *m_engine;
 
     BlackBerryApplicationRunner *m_runner;
-    BlackBerryConnect *m_connector;
 };
 
 } // namespace Internal

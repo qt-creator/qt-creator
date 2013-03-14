@@ -29,65 +29,63 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
-#define QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
+#ifndef QNX_INTERNAL_BLACKBERRYDEVICECONNECTION_H
+#define QNX_INTERNAL_BLACKBERRYDEVICECONNECTION_H
 
-#include <projectexplorer/devicesupport/idevicewidget.h>
+#include <QObject>
 
-#include "blackberrydeviceconfiguration.h"
+#include <coreplugin/id.h>
+#include <projectexplorer/devicesupport/idevice.h>
 
 QT_BEGIN_NAMESPACE
-class QProgressDialog;
-class QAbstractButton;
+class QProcess;
 QT_END_NAMESPACE
 
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryDebugTokenUploader;
-
-namespace Ui {
-class BlackBerryDeviceConfigurationWidget;
-}
-
-class BlackBerryDeviceConfigurationWidget : public ProjectExplorer::IDeviceWidget
+class BlackBerryDeviceConnection : public QObject
 {
     Q_OBJECT
-
 public:
-    explicit BlackBerryDeviceConfigurationWidget(const ProjectExplorer::IDevice::Ptr &device,
-                                          QWidget *parent = 0);
-    ~BlackBerryDeviceConfigurationWidget();
+    enum State {
+        Disconnected,
+        Connecting,
+        Connected
+    };
+
+    explicit BlackBerryDeviceConnection();
+
+    void connectDevice(const ProjectExplorer::IDevice::ConstPtr &device);
+    void disconnectDevice();
+
+    QString host() const;
+    State connectionState();
+
+    QString messageLog() const;
+
+signals:
+    void deviceAboutToConnect();
+    void deviceConnected();
+    void deviceDisconnected();
+
+    void processOutput(const QString &output);
 
 private slots:
-    void hostNameEditingFinished();
-    void passwordEditingFinished();
-    void keyFileEditingFinished();
-    void showPassword(bool showClearText);
-    void debugTokenEditingFinished();
-    void requestDebugToken();
-    void uploadDebugToken();
-    void updateUploadButton();
-    void uploadFinished(int status);
-    void appendConnectionLog(Core::Id deviceId, const QString &line);
-    void clearConnectionLog(Core::Id deviceId);
+    void processFinished();
+    void readStandardOutput();
+    void readStandardError();
 
 private:
-    void updateDeviceFromUi();
-    void initGui();
+    QString m_host;
+    State m_connectionState;
 
-    BlackBerryDeviceConfiguration::Ptr deviceConfiguration() const;
+    QString m_messageLog;
 
-    Ui::BlackBerryDeviceConfigurationWidget *ui;
-    QAbstractButton *uploadButton;
-
-    QProgressDialog *progressDialog;
-
-    BlackBerryDebugTokenUploader *uploader;
+    QProcess *m_process;
 };
-
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIDGET_H
+#endif // QNX_INTERNAL_BLACKBERRYDEVICECONNECTION_H

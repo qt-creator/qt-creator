@@ -31,7 +31,6 @@
 
 #include "blackberrydebugsupport.h"
 #include "blackberryapplicationrunner.h"
-#include "blackberryconnect.h"
 
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerengine.h>
@@ -46,36 +45,24 @@ BlackBerryDebugSupport::BlackBerryDebugSupport(BlackBerryRunConfiguration *runCo
     , m_engine(runControl->engine())
 {
     m_runner = new BlackBerryApplicationRunner(true, runConfig, this);
-    m_connector = BlackBerryConnect::instance(runConfig);
 
     connect(m_engine, SIGNAL(requestRemoteSetup()), this, SLOT(launchRemoteApplication()));
     connect(m_engine, SIGNAL(stateChanged(Debugger::DebuggerState)),
             this, SLOT(handleDebuggerStateChanged(Debugger::DebuggerState)));
-
-    connect(m_connector, SIGNAL(error(QString)), this, SLOT(handleConnectorError(QString)));
-    connect(m_connector, SIGNAL(connected()), m_runner, SLOT(start()));
-    connect(m_connector, SIGNAL(output(QString,Utils::OutputFormat)),
-            runControl, SLOT(appendMessage(QString,Utils::OutputFormat)));
 
     connect(m_runner, SIGNAL(started()), this, SLOT(handleStarted()));
     connect(m_runner, SIGNAL(started()), m_runner, SLOT(checkSlog2Info()));
     connect(m_runner, SIGNAL(startFailed(QString)), this, SLOT(handleStartFailed(QString)));
     connect(m_runner, SIGNAL(output(QString,Utils::OutputFormat)),
             this, SLOT(handleApplicationOutput(QString,Utils::OutputFormat)));
-    connect(m_runner, SIGNAL(finished()), m_connector, SLOT(disconnectFromDevice()));
 
     connect(this, SIGNAL(output(QString,Utils::OutputFormat)),
             runControl, SLOT(appendMessage(QString,Utils::OutputFormat)));
 }
 
-BlackBerryDebugSupport::~BlackBerryDebugSupport()
-{
-    BlackBerryConnect::cleanup(m_connector);
-}
-
 void BlackBerryDebugSupport::launchRemoteApplication()
 {
-    m_connector->connectToDevice();
+    m_runner->start();
 }
 
 void BlackBerryDebugSupport::handleStarted()
@@ -95,11 +82,6 @@ void BlackBerryDebugSupport::handleDebuggerStateChanged(Debugger::DebuggerState 
         if (m_runner->isRunning())
             m_runner->stop();
     }
-}
-
-void BlackBerryDebugSupport::handleConnectorError(const QString &message)
-{
-    m_engine->notifyEngineRemoteSetupFailed(message);
 }
 
 void BlackBerryDebugSupport::handleApplicationOutput(const QString &msg, Utils::OutputFormat format)

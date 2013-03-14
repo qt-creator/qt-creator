@@ -33,9 +33,12 @@
 #include "blackberrydebugtokenuploader.h"
 #include "blackberrydebugtokenrequestdialog.h"
 #include "ui_blackberrydeviceconfigurationwidget.h"
+#include "blackberrydeviceconnectionmanager.h"
 #include "qnxconstants.h"
 
 #include <ssh/sshconnection.h>
+#include <texteditor/texteditorsettings.h>
+#include <texteditor/fontsettings.h>
 #include <utils/pathchooser.h>
 #include <utils/fancylineedit.h>
 
@@ -53,6 +56,9 @@ BlackBerryDeviceConfigurationWidget::BlackBerryDeviceConfigurationWidget(const I
     uploader(new BlackBerryDebugTokenUploader(this))
 {
     ui->setupUi(this);
+
+    ui->connectionLog->setFont(TextEditor::TextEditorSettings::instance()->fontSettings().font());
+
     connect(ui->hostLineEdit, SIGNAL(editingFinished()), this, SLOT(hostNameEditingFinished()));
     connect(ui->pwdLineEdit, SIGNAL(editingFinished()), this, SLOT(passwordEditingFinished()));
     connect(ui->keyFileLineEdit, SIGNAL(editingFinished()), this, SLOT(keyFileEditingFinished()));
@@ -62,6 +68,11 @@ BlackBerryDeviceConfigurationWidget::BlackBerryDeviceConfigurationWidget(const I
     connect(ui->debugToken, SIGNAL(editingFinished()), this, SLOT(debugTokenEditingFinished()));
     connect(ui->debugToken, SIGNAL(browsingFinished()), this, SLOT(debugTokenEditingFinished()));
     connect(uploader, SIGNAL(finished(int)), this, SLOT(uploadFinished(int)));
+
+    connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(connectionOutput(Core::Id, QString)),
+            this, SLOT(appendConnectionLog(Core::Id, QString)));
+    connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(deviceAboutToConnect(Core::Id)),
+            this, SLOT(clearConnectionLog(Core::Id)));
 
     ui->debugToken->addButton(tr("Request"), this, SLOT(requestDebugToken()));
     ui->debugToken->addButton(tr("Upload"), this, SLOT(uploadDebugToken()));
@@ -173,6 +184,18 @@ void BlackBerryDeviceConfigurationWidget::uploadFinished(int status)
     QMessageBox::critical(this, tr("Error"), errorString);
 }
 
+void BlackBerryDeviceConfigurationWidget::appendConnectionLog(Core::Id deviceId, const QString &line)
+{
+    if (deviceId == device()->id())
+        ui->connectionLog->appendPlainText(line.trimmed());
+}
+
+void BlackBerryDeviceConfigurationWidget::clearConnectionLog(Core::Id deviceId)
+{
+    if (deviceId == device()->id())
+        ui->connectionLog->clear();
+}
+
 void BlackBerryDeviceConfigurationWidget::updateDeviceFromUi()
 {
     hostNameEditingFinished();
@@ -210,6 +233,8 @@ void BlackBerryDeviceConfigurationWidget::initGui()
     progressDialog->setLabelText(tr("Uploading debug token"));
     progressDialog->setMinimum(0);
     progressDialog->setMaximum(0);
+
+    ui->connectionLog->setPlainText(BlackBerryDeviceConnectionManager::instance()->connectionLog(device()->id()).trimmed());
 }
 
 BlackBerryDeviceConfiguration::Ptr BlackBerryDeviceConfigurationWidget::deviceConfiguration() const

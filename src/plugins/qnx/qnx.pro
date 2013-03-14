@@ -29,7 +29,6 @@ SOURCES += qnxplugin.cpp \
     blackberryruncontrol.cpp \
     blackberrydebugsupport.cpp \
     blackberryapplicationrunner.cpp \
-    blackberryconnect.cpp \
     qnxutils.cpp \
     blackberrydeviceconfigurationwidget.cpp \
     qnxdeviceconfigurationfactory.cpp \
@@ -77,7 +76,9 @@ SOURCES += qnxplugin.cpp \
     blackberrydeviceprocesssupport.cpp \
     blackberrycheckdevmodestepfactory.cpp \
     blackberrycheckdevmodestep.cpp \
-    blackberrycheckdevmodestepconfigwidget.cpp
+    blackberrycheckdevmodestepconfigwidget.cpp \
+    blackberrydeviceconnection.cpp \
+    blackberrydeviceconnectionmanager.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -103,7 +104,6 @@ HEADERS += qnxplugin.h\
     blackberryruncontrol.h \
     blackberrydebugsupport.h \
     blackberryapplicationrunner.h \
-    blackberryconnect.h \
     qnxutils.h \
     blackberrydeviceconfigurationwidget.h \
     qnxdeviceconfigurationfactory.h \
@@ -151,7 +151,9 @@ HEADERS += qnxplugin.h\
     blackberrydeviceprocesssupport.h \
     blackberrycheckdevmodestepfactory.h \
     blackberrycheckdevmodestep.h \
-    blackberrycheckdevmodestepconfigwidget.h
+    blackberrycheckdevmodestepconfigwidget.h \
+    blackberrydeviceconnection.h \
+    blackberrydeviceconnectionmanager.h
 
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \

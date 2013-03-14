@@ -50,6 +50,7 @@
 #include "bardescriptormagicmatcher.h"
 #include "blackberrykeyspage.h"
 #include "blackberrycheckdevmodestepfactory.h"
+#include "blackberrydeviceconnectionmanager.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
@@ -64,6 +65,7 @@ QNXPlugin::QNXPlugin()
 
 QNXPlugin::~QNXPlugin()
 {
+    delete BlackBerryDeviceConnectionManager::instance();
 }
 
 bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
@@ -82,6 +84,7 @@ bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
     addAutoReleasedObject(new BlackBerryNDKSettingsPage);
     addAutoReleasedObject(new BlackBerryKeysPage);
     addAutoReleasedObject(new BlackBerryCheckDevModeStepFactory);
+    BlackBerryDeviceConnectionManager::instance()->initialize();
 
     // Handles QNX
     addAutoReleasedObject(new QnxQtVersionFactory);

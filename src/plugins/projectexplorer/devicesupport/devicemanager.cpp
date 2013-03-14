@@ -281,15 +281,17 @@ void DeviceManager::removeDevice(Core::Id id)
 
 void DeviceManager::setDeviceState(Core::Id deviceId, IDevice::DeviceState deviceState)
 {
+    // To see the state change in the DeviceSettingsWidget. This has to happen before
+    // the pos check below, in case the device is only present in the cloned instance.
+    if (this == instance() && d->clonedInstance)
+        d->clonedInstance->setDeviceState(deviceId, deviceState);
+
     const int pos = d->indexForId(deviceId);
-    QTC_ASSERT(pos != -1, return);
+    if (pos < 0)
+        return;
     IDevice::Ptr &device = d->devices[pos];
     if (device->deviceState() == deviceState)
         return;
-
-    // To see the state change in the DeviceSettingsWidget
-    if (this == instance() && d->clonedInstance)
-        d->clonedInstance->setDeviceState(deviceId, deviceState);
 
     device->setDeviceState(deviceState);
     emit deviceUpdated(deviceId);
