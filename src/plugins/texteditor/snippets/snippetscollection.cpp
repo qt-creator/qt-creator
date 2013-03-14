@@ -319,11 +319,15 @@ bool SnippetsCollection::synchronize(QString *errorString)
     }
     Utils::FileSaver saver(m_userSnippetsPath + m_userSnippetsFile);
     if (!saver.hasError()) {
+        typedef QHash<QString, int>::ConstIterator GroupIndexByIdConstIt;
+
         QXmlStreamWriter writer(saver.file());
         writer.setAutoFormatting(true);
         writer.writeStartDocument();
         writer.writeStartElement(kSnippets);
-        foreach (const QString &groupId, m_groupIndexById.keys()) {
+        const GroupIndexByIdConstIt cend = m_groupIndexById.constEnd();
+        for (GroupIndexByIdConstIt it = m_groupIndexById.constBegin(); it != cend; ++it ) {
+            const QString &groupId = it.key();
             const int size = m_snippets.at(groupIndex(groupId)).size();
             for (int i = 0; i < size; ++i) {
                 const Snippet &current = snippet(i, groupId);
