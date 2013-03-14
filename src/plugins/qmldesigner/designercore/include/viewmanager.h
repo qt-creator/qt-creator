@@ -50,7 +50,7 @@ namespace Internal {
     class DesignModeWidget;
 }
 
-class ViewManager
+class QMLDESIGNERCORE_EXPORT ViewManager
 {
 public:
     ViewManager();
