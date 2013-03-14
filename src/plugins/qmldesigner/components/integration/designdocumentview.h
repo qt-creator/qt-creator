@@ -87,8 +87,6 @@ public:
     QString toText() const;
     void fromText(QString text);
 
-    QWidget *widget();
-
 private:
     ModelMerger m_modelMerger;
 };

@@ -729,11 +729,6 @@ QString RewriterView::pathForImport(const Import &import)
     return QString();
 }
 
-QWidget *RewriterView::widget()
-{
-    return 0;
-}
-
 void RewriterView::qmlTextChanged()
 {
     if (inErrorState())

@@ -199,7 +199,6 @@ public:
     void resetView();
 
     virtual bool hasWidget() const;
-    virtual QWidget *widget() = 0;
     virtual WidgetInfo widgetInfo();
 
 protected:

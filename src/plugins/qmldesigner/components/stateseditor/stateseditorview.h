@@ -74,7 +74,6 @@ public:
 
     void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList);
 
-    QWidget *widget();
     WidgetInfo widgetInfo();
 
 

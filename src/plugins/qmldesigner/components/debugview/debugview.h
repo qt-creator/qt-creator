@@ -67,8 +67,6 @@ public:
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList) QTC_OVERRIDE;
     void propertiesRemoved(const QList<AbstractProperty> &propertyList) QTC_OVERRIDE;
 
-    QWidget *widget() QTC_OVERRIDE;
-
     void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) QTC_OVERRIDE;
 
     void rewriterBeginTransaction() QTC_OVERRIDE;

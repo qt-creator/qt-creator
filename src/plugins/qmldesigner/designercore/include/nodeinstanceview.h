@@ -149,8 +149,6 @@ public:
 
     void sendToken(const QString &token, int number, const QVector<ModelNode> &nodeVector);
 
-    QWidget *widget();
-
 signals:
     void qmlPuppetCrashed();
 

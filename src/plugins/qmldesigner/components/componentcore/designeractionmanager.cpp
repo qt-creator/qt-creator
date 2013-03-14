@@ -186,11 +186,6 @@ public:
         m_designerActionList = designerActionList;
     }
 
-    QWidget *widget() QTC_OVERRIDE
-    {
-        return 0;
-    }
-
 protected:
     void setupContext()
     {

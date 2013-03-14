@@ -287,9 +287,5 @@ void ViewLogger::actualStateChanged(const ModelNode &node)
     m_output << time() << indent("actualStateChanged:") << node << endl;
 }
 
-QWidget *ViewLogger::widget()
-{
-    return 0;
-}
 } // namespace Internal
 } // namespace QmlDesigner

@@ -1244,9 +1244,4 @@ void NodeInstanceView::sendToken(const QString &token, int number, const QVector
     nodeInstanceServer()->token(TokenCommand(token, number, instanceIdVector));
 }
 
-QWidget *NodeInstanceView::widget()
-{
-    return 0;
-}
-
 }
