@@ -27,64 +27,39 @@
 **
 ****************************************************************************/
 
-
-#ifndef SETTINGSPAGE_H
-#define SETTINGSPAGE_H
-
-#include "ui_settingspage.h"
-
-#include <coreplugin/dialogs/ioptionspage.h>
+#ifndef DEBUGVIEWWIDGET_H
+#define DEBUGVIEWWIDGET_H
 
 #include <QWidget>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include "ui_debugviewwidget.h"
 
 namespace QmlDesigner {
 
-class DesignerSettings;
-
 namespace Internal {
 
-class SettingsPageWidget : public QWidget
+class DebugViewWidget : public QWidget
 {
     Q_OBJECT
-
 public:
-    explicit SettingsPageWidget(QWidget *parent = 0);
+    DebugViewWidget(QWidget *parent = 0);
 
-    DesignerSettings settings() const;
-    void setSettings(const DesignerSettings &designerSettings);
+    void addLogMessage(const QString &topic, const QString &message, bool highlight = false);
+    void addErrorMessage(const QString &topic, const QString &message);
+    void addLogInstanceMessage(const QString &topic, const QString &message, bool highlight = false);
 
-    QString searchKeywords() const;
+    void setDebugViewEnabled(bool b);
 
 public slots:
-    void debugViewEnabledToggled(bool b);
+    void enabledCheckBoxToggled(bool b);
 
 private:
-    Ui::SettingsPage m_ui;
+    Ui::DebugViewWidget m_ui;
 };
 
+} //namespace Internal
 
-class SettingsPage : public Core::IOptionsPage
-{
-    Q_OBJECT
+} //namespace QmlDesigner
 
-public:
-    SettingsPage();
+#endif //DEBUGVIEWWIDGET_H
 
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish() { }
-    bool matches(const QString &) const;
-
-private:
-    QString m_searchKeywords;
-    SettingsPageWidget* m_widget;
-};
-
-} // namespace Internal
-} // namespace QmlDesigner
-
-#endif // SETTINGSPAGE_H

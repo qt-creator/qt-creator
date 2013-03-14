@@ -41,7 +41,9 @@ DesignerSettings::DesignerSettings()
     canvasWidth(10000),
     canvasHeight(10000),
     warningsInDesigner(true),
-    designerWarningsInEditor(false)
+    designerWarningsInEditor(false),
+    showDebugView(false),
+    enableDebugView(false)
 {}
 
 void DesignerSettings::fromSettings(QSettings *settings)
@@ -61,6 +63,10 @@ void DesignerSettings::fromSettings(QSettings *settings)
             QLatin1String(QmlDesigner::Constants::QML_WARNIN_FOR_FEATURES_IN_DESIGNER_KEY), QVariant(true)).toBool();
     designerWarningsInEditor = settings->value(
             QLatin1String(QmlDesigner::Constants::QML_WARNIN_FOR_DESIGNER_FEATURES_IN_EDITOR_KEY), QVariant(false)).toBool();
+    showDebugView = settings->value(
+            QLatin1String(QmlDesigner::Constants::QML_SHOW_DEBUGVIEW), QVariant(false)).toBool();
+    enableDebugView = settings->value(
+            QLatin1String(QmlDesigner::Constants::QML_ENABLE_DEBUGVIEW), QVariant(false)).toBool();
 
     settings->endGroup();
     settings->endGroup();
@@ -77,6 +83,8 @@ void DesignerSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_CANVASHEIGHT_KEY), canvasHeight);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_WARNIN_FOR_FEATURES_IN_DESIGNER_KEY), warningsInDesigner);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_WARNIN_FOR_DESIGNER_FEATURES_IN_EDITOR_KEY), designerWarningsInEditor);
+    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_SHOW_DEBUGVIEW), showDebugView);
+    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_ENABLE_DEBUGVIEW), enableDebugView);
 
     settings->endGroup();
     settings->endGroup();
@@ -89,5 +97,7 @@ bool DesignerSettings::equals(const DesignerSettings &other) const
             && canvasWidth == other.canvasWidth
             && canvasHeight == other.canvasHeight
             && warningsInDesigner == other.warningsInDesigner
-            && designerWarningsInEditor == other.designerWarningsInEditor;
+            && designerWarningsInEditor == other.designerWarningsInEditor
+            && showDebugView == other.showDebugView
+            && enableDebugView == other.enableDebugView;
 }

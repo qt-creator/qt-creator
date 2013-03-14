@@ -44,29 +44,34 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     QWidget(parent)
 {
     m_ui.setupUi(this);
+    connect(m_ui.designerEnableDebuggerCheckBox, SIGNAL(toggled(bool)), this, SLOT(debugViewEnabledToggled(bool)));
 }
 
 DesignerSettings SettingsPageWidget::settings() const
 {
-    DesignerSettings ds;
-    ds.itemSpacing = m_ui.spinItemSpacing->value();
-    ds.snapMargin = m_ui.spinSnapMargin->value();
-    ds.canvasWidth = m_ui.spinCanvasWidth->value();
-    ds.canvasHeight = m_ui.spinCanvasHeight->value();
-    ds.warningsInDesigner = m_ui.designerWarningsCheckBox->isChecked();
-    ds.designerWarningsInEditor = m_ui.designerWarningsInEditorCheckBox->isChecked();
+    DesignerSettings designerSettings;
+    designerSettings.itemSpacing = m_ui.spinItemSpacing->value();
+    designerSettings.snapMargin = m_ui.spinSnapMargin->value();
+    designerSettings.canvasWidth = m_ui.spinCanvasWidth->value();
+    designerSettings.canvasHeight = m_ui.spinCanvasHeight->value();
+    designerSettings.warningsInDesigner = m_ui.designerWarningsCheckBox->isChecked();
+    designerSettings.designerWarningsInEditor = m_ui.designerWarningsInEditorCheckBox->isChecked();
+    designerSettings.showDebugView = m_ui.designerShowDebuggerCheckBox->isChecked();
+    designerSettings.enableDebugView = m_ui.designerEnableDebuggerCheckBox->isChecked();
 
-    return ds;
+    return designerSettings;
 }
 
-void SettingsPageWidget::setSettings(const DesignerSettings &s)
+void SettingsPageWidget::setSettings(const DesignerSettings &designerSettings)
 {
-    m_ui.spinItemSpacing->setValue(s.itemSpacing);
-    m_ui.spinSnapMargin->setValue(s.snapMargin);
-    m_ui.spinCanvasWidth->setValue(s.canvasWidth);
-    m_ui.spinCanvasHeight->setValue(s.canvasHeight);
-    m_ui.designerWarningsCheckBox->setChecked(s.warningsInDesigner);
-    m_ui.designerWarningsInEditorCheckBox->setChecked(s.designerWarningsInEditor);
+    m_ui.spinItemSpacing->setValue(designerSettings.itemSpacing);
+    m_ui.spinSnapMargin->setValue(designerSettings.snapMargin);
+    m_ui.spinCanvasWidth->setValue(designerSettings.canvasWidth);
+    m_ui.spinCanvasHeight->setValue(designerSettings.canvasHeight);
+    m_ui.designerWarningsCheckBox->setChecked(designerSettings.warningsInDesigner);
+    m_ui.designerWarningsInEditorCheckBox->setChecked(designerSettings.designerWarningsInEditor);
+    m_ui.designerShowDebuggerCheckBox->setChecked(designerSettings.showDebugView);
+    m_ui.designerEnableDebuggerCheckBox->setChecked(designerSettings.enableDebugView);
 }
 
 QString SettingsPageWidget::searchKeywords() const
@@ -79,6 +84,12 @@ QString SettingsPageWidget::searchKeywords() const
             << ' ' << m_ui.canvasHeightLabel->text();
     rc.remove(QLatin1Char('&'));
     return rc;
+}
+
+void SettingsPageWidget::debugViewEnabledToggled(bool b)
+{
+    if (b && ! m_ui.designerShowDebuggerCheckBox->isChecked())
+        m_ui.designerShowDebuggerCheckBox->setChecked(true);
 }
 
 SettingsPage::SettingsPage() :

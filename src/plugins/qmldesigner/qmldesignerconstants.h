@@ -62,6 +62,8 @@ const char QML_CONTEXTPANE_KEY[] = "ContextPaneEnabled";
 const char QML_CONTEXTPANEPIN_KEY[] = "ContextPanePinned";
 const char QML_WARNIN_FOR_FEATURES_IN_DESIGNER_KEY[] = "WarnAboutQtQuickFeaturesInDesigner";
 const char QML_WARNIN_FOR_DESIGNER_FEATURES_IN_EDITOR_KEY[] = "WarnAboutQtQuickDesignerFeaturesInCodeEditor";
+const char QML_SHOW_DEBUGVIEW[] = "ShowQtQuickDesignerDebugView";
+const char QML_ENABLE_DEBUGVIEW[] = "EnableQtQuickDesignerDebugView";
 enum { QML_OPENDESIGNMODE_DEFAULT = 0 }; // 0 for text mode, 1 for design mode
 
 const char SETTINGS_CATEGORY_QML_ICON[] = ":/core/images/category_qml.png";
