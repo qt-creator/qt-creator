@@ -2410,6 +2410,9 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
         GdbMi gdbmi;
         gdbmi.fromString(message);
         exception.fromGdbMI(gdbmi);
+        // Don't show the Win32 x86 emulation subsystem breakpoint hit exception.
+        if (exception.exceptionCode == winExceptionWX86Breakpoint)
+            return;
         const QString message = exception.toString(true);
         showStatusMessage(message);
         // Report C++ exception in application output as well.
