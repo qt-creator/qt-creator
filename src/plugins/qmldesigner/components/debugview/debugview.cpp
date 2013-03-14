@@ -249,7 +249,7 @@ void DebugView::rewriterEndTransaction()
 
 WidgetInfo DebugView::widgetInfo()
 {
-    return createWidgetInfo(m_debugViewWidget.data(), "DebugView", WidgetInfo::LeftPane, 0, tr("Debug View"));
+    return createWidgetInfo(m_debugViewWidget.data(), QLatin1String("DebugView"), WidgetInfo::LeftPane, 0, tr("Debug View"));
 }
 
 bool DebugView::hasWidget() const
