@@ -79,6 +79,8 @@ private Q_SLOTS:
     void merge();
     void cleanupSemantics_data();
     void cleanupSemantics();
+    void cleanupSemanticsLossless_data();
+    void cleanupSemanticsLossless();
 };
 
 
@@ -596,6 +598,96 @@ void tst_Differ::cleanupSemantics()
 
     Differ differ;
     QList<Diff> result = differ.cleanupSemantics(input);
+    QCOMPARE(result, expected);
+}
+
+void tst_Differ::cleanupSemanticsLossless_data()
+{
+    QTest::addColumn<QList<Diff> >("input");
+    QTest::addColumn<QList<Diff> >("expected");
+
+    QTest::newRow("Empty")
+               << QList<Diff>()
+               << QList<Diff>();
+    QTest::newRow("Start edge")
+               << (QList<Diff>()
+               << Diff(Diff::Equal, QString("A"))
+               << Diff(Diff::Insert, QString("A"))
+               << Diff(Diff::Equal, QString("AB")))
+               << (QList<Diff>()
+               << Diff(Diff::Insert, QString("A"))
+               << Diff(Diff::Equal, QString("AAB")));
+    QTest::newRow("End edge")
+               << (QList<Diff>()
+               << Diff(Diff::Equal, QString("AB"))
+               << Diff(Diff::Insert, QString("B"))
+               << Diff(Diff::Equal, QString("B")))
+               << (QList<Diff>()
+               << Diff(Diff::Equal, QString("ABB"))
+               << Diff(Diff::Insert, QString("B")));
+    QTest::newRow("Blank lines")
+               << (QList<Diff>()
+               << Diff(Diff::Equal, QString("AAA\r\n\r\nBBB"))
+               << Diff(Diff::Insert, QString("\r\nCCC\r\n\r\nBBB"))
+               << Diff(Diff::Equal, QString("\r\nDDD")))
+               << (QList<Diff>()
+               << Diff(Diff::Equal, QString("AAA\r\n\r\n"))
+               << Diff(Diff::Insert, QString("BBB\r\nCCC\r\n\r\n"))
+               << Diff(Diff::Equal, QString("BBB\r\nDDD")));
+    QTest::newRow("Line breaks")
+               << (QList<Diff>()
+               << Diff(Diff::Equal, QString("AAA\r\nBBB"))
+               << Diff(Diff::Insert, QString("CCC\r\nBBB"))
+               << Diff(Diff::Equal, QString(" DDD")))
+               << (QList<Diff>()
+               << Diff(Diff::Equal, QString("AAA\r\n"))
+               << Diff(Diff::Insert, QString("BBBCCC\r\n"))
+               << Diff(Diff::Equal, QString("BBB DDD")));
+    QTest::newRow("The end of sentence")
+               << (QList<Diff>()
+               << Diff(Diff::Equal, QString("AAA BBB. AAA "))
+               << Diff(Diff::Insert, QString("CCC. AAA "))
+               << Diff(Diff::Equal, QString("DDD.")))
+               << (QList<Diff>()
+               << Diff(Diff::Equal, QString("AAA BBB. "))
+               << Diff(Diff::Insert, QString("AAA CCC. "))
+               << Diff(Diff::Equal, QString("AAA DDD.")));
+    QTest::newRow("Whitespaces")
+               << (QList<Diff>()
+               << Diff(Diff::Equal, QString("AAAX BBB"))
+               << Diff(Diff::Insert, QString("CCCX BBB"))
+               << Diff(Diff::Equal, QString("DDD")))
+               << (QList<Diff>()
+               << Diff(Diff::Equal, QString("AAAX "))
+               << Diff(Diff::Insert, QString("BBBCCCX "))
+               << Diff(Diff::Equal, QString("BBBDDD")));
+    QTest::newRow("Non-alphanumeric")
+               << (QList<Diff>()
+               << Diff(Diff::Equal, QString("AAAX,BBB"))
+               << Diff(Diff::Insert, QString("CCCX,BBB"))
+               << Diff(Diff::Equal, QString("DDD")))
+               << (QList<Diff>()
+               << Diff(Diff::Equal, QString("AAAX,"))
+               << Diff(Diff::Insert, QString("BBBCCCX,"))
+               << Diff(Diff::Equal, QString("BBBDDD")));
+    QTest::newRow("Fraser's example")
+               << (QList<Diff>()
+               << Diff(Diff::Equal, QString("Th"))
+               << Diff(Diff::Insert, QString("at c"))
+               << Diff(Diff::Equal, QString("at cartoon")))
+               << (QList<Diff>()
+               << Diff(Diff::Equal, QString("That "))
+               << Diff(Diff::Insert, QString("cat "))
+               << Diff(Diff::Equal, QString("cartoon")));
+}
+
+void tst_Differ::cleanupSemanticsLossless()
+{
+    QFETCH(QList<Diff>, input);
+    QFETCH(QList<Diff>, expected);
+
+    Differ differ;
+    QList<Diff> result = differ.cleanupSemanticsLossless(input);
     QCOMPARE(result, expected);
 }
 

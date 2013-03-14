@@ -71,8 +71,9 @@ public:
     QList<Diff> diff(const QString &text1, const QString &text2);
     void setDiffMode(DiffMode mode);
     bool diffMode() const;
-    QList<Diff> merge(const QList<Diff> &diffList);
-    QList<Diff> cleanupSemantics(const QList<Diff> &diffList);
+    static QList<Diff> merge(const QList<Diff> &diffList);
+    static QList<Diff> cleanupSemantics(const QList<Diff> &diffList);
+    static QList<Diff> cleanupSemanticsLossless(const QList<Diff> &diffList);
 
 private:
     QList<Diff> preprocess1AndDiff(const QString &text1, const QString &text2);
@@ -80,7 +81,6 @@ private:
     QList<Diff> diffMyers(const QString &text1, const QString &text2);
     QList<Diff> diffMyersSplit(const QString &text1, int x,
                                const QString &text2, int y);
-    QList<Diff> squashEqualities(const QList<Diff> &diffList);
     QList<Diff> diffNonCharMode(const QString text1, const QString text2);
     QStringList encode(const QString &text1,
                        const QString &text2,
@@ -89,14 +89,8 @@ private:
     QString encode(const QString &text,
                    QStringList *lines,
                    QMap<QString, int> *lineToCode);
-    QList<Diff> decode(const QList<Diff> &diffList,
-                       const QStringList &lines);
     int findSubtextEnd(const QString &text,
                        int subTextStart);
-    int commonPrefix(const QString &text1, const QString &text2) const;
-    int commonSuffix(const QString &text1, const QString &text2) const;
-    int commonOverlap(const QString &text1, const QString &text2) const;
-    QList<Diff> cleanupOverlaps(const QList<Diff> &diffList);
     DiffMode m_diffMode;
     DiffMode m_currentDiffMode;
 };

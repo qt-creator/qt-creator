@@ -36,6 +36,201 @@
 
 namespace DiffEditor {
 
+static int commonPrefix(const QString &text1, const QString &text2)
+{
+    int i = 0;
+    const int text1Count = text1.count();
+    const int text2Count = text2.count();
+    const int maxCount = qMin(text1Count, text2Count);
+    while (i < maxCount) {
+        if (text1.at(i) != text2.at(i))
+            break;
+        i++;
+    }
+    return i;
+}
+
+static int commonSuffix(const QString &text1, const QString &text2)
+{
+    int i = 0;
+    const int text1Count = text1.count();
+    const int text2Count = text2.count();
+    const int maxCount = qMin(text1Count, text2Count);
+    while (i < maxCount) {
+        if (text1.at(text1Count - i - 1) != text2.at(text2Count - i - 1))
+            break;
+        i++;
+    }
+    return i;
+}
+
+static int commonOverlap(const QString &text1, const QString &text2)
+{
+    int i = 0;
+    const int text1Count = text1.count();
+    const int text2Count = text2.count();
+    const int maxCount = qMin(text1Count, text2Count);
+    while (i < maxCount) {
+        if (text1.midRef(text1Count - maxCount + i) == text2.leftRef(maxCount - i))
+            return maxCount - i;
+        i++;
+    }
+    return 0;
+}
+
+static QList<Diff> decode(const QList<Diff> &diffList,
+                                  const QStringList &lines)
+{
+    QList<Diff> newDiffList;
+    for (int i = 0; i < diffList.count(); i++) {
+        Diff diff = diffList.at(i);
+        QString text;
+        for (int j = 0; j < diff.text.count(); j++) {
+            const int idx = static_cast<ushort>(diff.text.at(j).unicode());
+            text += lines.value(idx);
+        }
+        diff.text = text;
+        newDiffList.append(diff);
+    }
+    return newDiffList;
+}
+
+static QList<Diff> squashEqualities(const QList<Diff> &diffList)
+{
+    if (diffList.count() < 3) // we need at least 3 items
+        return diffList;
+
+    QList<Diff> newDiffList;
+    Diff prevDiff = diffList.at(0);
+    Diff thisDiff = diffList.at(1);
+    Diff nextDiff = diffList.at(2);
+    int i = 2;
+    while (i < diffList.count()) {
+        if (prevDiff.command == Diff::Equal
+                && nextDiff.command == Diff::Equal) {
+            if (thisDiff.text.endsWith(prevDiff.text)) {
+                thisDiff.text = prevDiff.text
+                        + thisDiff.text.left(thisDiff.text.count()
+                        - prevDiff.text.count());
+                nextDiff.text = prevDiff.text + nextDiff.text;
+            } else if (thisDiff.text.startsWith(nextDiff.text)) {
+                prevDiff.text += nextDiff.text;
+                thisDiff.text = thisDiff.text.mid(nextDiff.text.count())
+                        + nextDiff.text;
+                i++;
+                if (i < diffList.count())
+                    nextDiff = diffList.at(i);
+                newDiffList.append(prevDiff);
+            } else {
+                newDiffList.append(prevDiff);
+            }
+        } else {
+            newDiffList.append(prevDiff);
+        }
+        prevDiff = thisDiff;
+        thisDiff = nextDiff;
+        i++;
+        if (i < diffList.count())
+            nextDiff = diffList.at(i);
+    }
+    newDiffList.append(prevDiff);
+    if (i == diffList.count())
+        newDiffList.append(thisDiff);
+    return newDiffList;
+}
+
+static QList<Diff> cleanupOverlaps(const QList<Diff> &diffList)
+{
+    // Find overlaps between deletions and insetions.
+    // The "diffList" already contains at most one deletion and
+    // one insertion between two equalities, in this order.
+    // Eliminate overlaps, e.g.:
+    // DEL(ABCXXXX), INS(XXXXDEF) -> DEL(ABC), EQ(XXXX), INS(DEF)
+    // DEL(XXXXABC), INS(DEFXXXX) -> INS(DEF), EQ(XXXX), DEL(ABC)
+    QList<Diff> newDiffList;
+    int i = 0;
+    while (i < diffList.count()) {
+        Diff thisDiff = diffList.at(i);
+        Diff nextDiff = i < diffList.count() - 1
+                ? diffList.at(i + 1)
+                : Diff(Diff::Equal, QString());
+        if (thisDiff.command == Diff::Delete
+                && nextDiff.command == Diff::Insert) {
+            const int delInsOverlap = commonOverlap(thisDiff.text, nextDiff.text);
+            const int insDelOverlap = commonOverlap(nextDiff.text, thisDiff.text);
+            if (delInsOverlap >= insDelOverlap) {
+                if (delInsOverlap > thisDiff.text.count() / 2
+                        || delInsOverlap > nextDiff.text.count() / 2) {
+                    thisDiff.text = thisDiff.text.left(thisDiff.text.count() - delInsOverlap);
+                    Diff equality = Diff(Diff::Equal, nextDiff.text.left(delInsOverlap));
+                    nextDiff.text = nextDiff.text.mid(delInsOverlap);
+                    newDiffList.append(thisDiff);
+                    newDiffList.append(equality);
+                    newDiffList.append(nextDiff);
+                } else {
+                    newDiffList.append(thisDiff);
+                    newDiffList.append(nextDiff);
+                }
+            } else {
+                if (insDelOverlap > thisDiff.text.count() / 2
+                        || insDelOverlap > nextDiff.text.count() / 2) {
+                    nextDiff.text = nextDiff.text.left(nextDiff.text.count() - insDelOverlap);
+                    Diff equality = Diff(Diff::Equal, thisDiff.text.left(insDelOverlap));
+                    thisDiff.text = thisDiff.text.mid(insDelOverlap);
+                    newDiffList.append(nextDiff);
+                    newDiffList.append(equality);
+                    newDiffList.append(thisDiff);
+                } else {
+                    newDiffList.append(thisDiff);
+                    newDiffList.append(nextDiff);
+                }
+            }
+            i += 2;
+        } else {
+            newDiffList.append(thisDiff);
+            i++;
+        }
+    }
+    return newDiffList;
+}
+
+static int cleanupSemanticsScore(const QString &text1, const QString &text2)
+{
+    static QRegExp blankLineEnd = QRegExp(QLatin1String("\\n\\r?\\n$"));
+    static QRegExp blankLineStart = QRegExp(QLatin1String("^\\r?\\n\\r?\\n"));
+    static QRegExp sentenceEnd = QRegExp(QLatin1String("\\. $"));
+
+    if (!text1.count() || !text2.count()) // Edges
+        return 6;
+
+    QChar char1 = text1[text1.count() - 1];
+    QChar char2 = text2[0];
+    bool nonAlphaNumeric1 = !char1.isLetterOrNumber();
+    bool nonAlphaNumeric2 = !char2.isLetterOrNumber();
+    bool whitespace1 = nonAlphaNumeric1 && char1.isSpace();
+    bool whitespace2 = nonAlphaNumeric2 && char2.isSpace();
+    bool lineBreak1 = whitespace1 && char1.category() == QChar::Other_Control;
+    bool lineBreak2 = whitespace2 && char2.category() == QChar::Other_Control;
+    bool blankLine1 = lineBreak1 && blankLineEnd.indexIn(text1) != -1;
+    bool blankLine2 = lineBreak2 && blankLineStart.indexIn(text2) != -1;
+
+    if (blankLine1 || blankLine2) // Blank lines
+      return 5;
+    if (lineBreak1 || lineBreak2) // Line breaks
+      return 4;
+    if (sentenceEnd.indexIn(text1) != -1) // End of sentence
+      return 3;
+    if (whitespace1 || whitespace2) // Whitespaces
+      return 2;
+    if (nonAlphaNumeric1 || nonAlphaNumeric2) // Non-alphanumerics
+      return 1;
+
+    return 0;
+}
+
+///////////////
+
+
 Diff::Diff() :
     command(Diff::Equal)
 {
@@ -74,6 +269,8 @@ QString Diff::toString() const
     return commandString(command) + QLatin1String(" \"")
             + prettyText + QLatin1String("\"");
 }
+
+///////////////
 
 Differ::Differ()
     : m_diffMode(Differ::LineMode),
@@ -395,23 +592,6 @@ QString Differ::encode(const QString &text,
     return codes;
 }
 
-QList<Diff> Differ::decode(const QList<Diff> &diffList,
-                                  const QStringList &lines)
-{
-    QList<Diff> newDiffList;
-    for (int i = 0; i < diffList.count(); i++) {
-        Diff diff = diffList.at(i);
-        QString text;
-        for (int j = 0; j < diff.text.count(); j++) {
-            const int idx = static_cast<ushort>(diff.text.at(j).unicode());
-            text += lines.value(idx);
-        }
-        diff.text = text;
-        newDiffList.append(diff);
-    }
-    return newDiffList;
-}
-
 QList<Diff> Differ::merge(const QList<Diff> &diffList)
 {
     QString lastDelete;
@@ -478,49 +658,6 @@ QList<Diff> Differ::merge(const QList<Diff> &diffList)
     if (squashedDiffList.count() != newDiffList.count())
         return merge(squashedDiffList);
 
-    return squashedDiffList;
-}
-
-QList<Diff> Differ::squashEqualities(const QList<Diff> &diffList)
-{
-    if (diffList.count() < 3) // we need at least 3 items
-        return diffList;
-    QList<Diff> squashedDiffList;
-    Diff prevDiff = diffList.at(0);
-    Diff thisDiff = diffList.at(1);
-    Diff nextDiff = diffList.at(2);
-    int i = 2;
-    while (i < diffList.count()) {
-        if (prevDiff.command == Diff::Equal
-                && nextDiff.command == Diff::Equal) {
-            if (thisDiff.text.endsWith(prevDiff.text)) {
-                thisDiff.text = prevDiff.text
-                        + thisDiff.text.left(thisDiff.text.count()
-                        - prevDiff.text.count());
-                nextDiff.text = prevDiff.text + nextDiff.text;
-            } else if (thisDiff.text.startsWith(nextDiff.text)) {
-                prevDiff.text += nextDiff.text;
-                thisDiff.text = thisDiff.text.mid(nextDiff.text.count())
-                        + nextDiff.text;
-                i++;
-                if (i < diffList.count())
-                    nextDiff = diffList.at(i);
-                squashedDiffList.append(prevDiff);
-            } else {
-                squashedDiffList.append(prevDiff);
-            }
-        } else {
-            squashedDiffList.append(prevDiff);
-        }
-        prevDiff = thisDiff;
-        thisDiff = nextDiff;
-        i++;
-        if (i < diffList.count())
-            nextDiff = diffList.at(i);
-    }
-    squashedDiffList.append(prevDiff);
-    if (i == diffList.count())
-        squashedDiffList.append(thisDiff);
     return squashedDiffList;
 }
 
@@ -606,104 +743,83 @@ QList<Diff> Differ::cleanupSemantics(const QList<Diff> &diffList)
         }
     }
 
-    return cleanupOverlaps(merge(newDiffList));
+    return cleanupOverlaps(cleanupSemanticsLossless(merge(newDiffList)));
 }
 
-QList<Diff> Differ::cleanupOverlaps(const QList<Diff> &diffList)
+QList<Diff> Differ::cleanupSemanticsLossless(const QList<Diff> &diffList)
 {
-    // Find overlaps between deletions and insetions.
-    // The "diffList" already contains at most one deletion and
-    // one insertion between two equalities, in this order.
-    // Eliminate overlaps, e.g.:
-    // DEL(ABCXXXX), INS(XXXXDEF) -> DEL(ABC), EQ(XXXX), INS(DEF)
-    // DEL(XXXXABC), INS(DEFXXXX) -> INS(DEF), EQ(XXXX), DEL(ABC)
+    if (diffList.count() < 3) // we need at least 3 items
+        return diffList;
+
     QList<Diff> newDiffList;
-    int i = 0;
+    Diff prevDiff = diffList.at(0);
+    Diff thisDiff = diffList.at(1);
+    Diff nextDiff = diffList.at(2);
+    int i = 2;
     while (i < diffList.count()) {
-        Diff thisDiff = diffList.at(i);
-        Diff nextDiff = i < diffList.count() - 1
-                ? diffList.at(i + 1)
-                : Diff(Diff::Equal, QString());
-        if (thisDiff.command == Diff::Delete
-                && nextDiff.command == Diff::Insert) {
-            const int delInsOverlap = commonOverlap(thisDiff.text, nextDiff.text);
-            const int insDelOverlap = commonOverlap(nextDiff.text, thisDiff.text);
-            if (delInsOverlap >= insDelOverlap) {
-                if (delInsOverlap > thisDiff.text.count() / 2
-                        || delInsOverlap > nextDiff.text.count() / 2) {
-                    thisDiff.text = thisDiff.text.left(thisDiff.text.count() - delInsOverlap);
-                    Diff equality = Diff(Diff::Equal, nextDiff.text.left(delInsOverlap));
-                    nextDiff.text = nextDiff.text.mid(delInsOverlap);
-                    newDiffList.append(thisDiff);
-                    newDiffList.append(equality);
-                    newDiffList.append(nextDiff);
-                } else {
-                    newDiffList.append(thisDiff);
-                    newDiffList.append(nextDiff);
-                }
-            } else {
-                if (insDelOverlap > thisDiff.text.count() / 2
-                        || insDelOverlap > nextDiff.text.count() / 2) {
-                    nextDiff.text = nextDiff.text.left(nextDiff.text.count() - insDelOverlap);
-                    Diff equality = Diff(Diff::Equal, thisDiff.text.left(insDelOverlap));
-                    thisDiff.text = thisDiff.text.mid(insDelOverlap);
-                    newDiffList.append(nextDiff);
-                    newDiffList.append(equality);
-                    newDiffList.append(thisDiff);
-                } else {
-                    newDiffList.append(thisDiff);
-                    newDiffList.append(nextDiff);
+        if (prevDiff.command == Diff::Equal
+                && nextDiff.command == Diff::Equal) {
+
+            // Single edit surrounded by equalities
+            QString equality1 = prevDiff.text;
+            QString edit = thisDiff.text;
+            QString equality2 = nextDiff.text;
+
+            // Shift the edit as far left as possible
+            const int suffixCount = commonSuffix(equality1, edit);
+            if (suffixCount) {
+                const QString commonString = edit.mid(edit.count() - suffixCount);
+                equality1 = equality1.left(equality1.count() - suffixCount);
+                edit = commonString + edit.left(edit.count() - suffixCount);
+                equality2 = commonString + equality2;
+            }
+
+            // Step char by char right, looking for the best score
+            QString bestEquality1 = equality1;
+            QString bestEdit = edit;
+            QString bestEquality2 = equality2;
+            int bestScore = cleanupSemanticsScore(equality1, edit)
+                    + cleanupSemanticsScore(edit, equality2);
+
+            while (!edit.isEmpty() && !equality2.isEmpty()
+                   && edit[0] == equality2[0]) {
+                equality1 += edit[0];
+                edit = edit.mid(1) + equality2[0];
+                equality2 = equality2.mid(1);
+                const int score = cleanupSemanticsScore(equality1, edit)
+                        + cleanupSemanticsScore(edit, equality2);
+                if (score >= bestScore) {
+                    bestEquality1 = equality1;
+                    bestEdit = edit;
+                    bestEquality2 = equality2;
+                    bestScore = score;
                 }
             }
-            i += 2;
+            prevDiff.text = bestEquality1;
+            thisDiff.text = bestEdit;
+            nextDiff.text = bestEquality2;
+
+            if (!bestEquality1.isEmpty()) {
+                newDiffList.append(prevDiff); // append modified equality1
+            }
+            if (bestEquality2.isEmpty()) {
+                i++;
+                if (i < diffList.count())
+                    nextDiff = diffList.at(i); // omit equality2
+            }
         } else {
-            newDiffList.append(thisDiff);
-            i++;
+            newDiffList.append(prevDiff); // append prevDiff
         }
+        prevDiff = thisDiff;
+        thisDiff = nextDiff;
+        i++;
+        if (i < diffList.count())
+            nextDiff = diffList.at(i);
     }
+    newDiffList.append(prevDiff);
+    if (i == diffList.count())
+        newDiffList.append(thisDiff);
     return newDiffList;
-}
-
-int Differ::commonPrefix(const QString &text1, const QString &text2) const
-{
-    int i = 0;
-    const int text1Count = text1.count();
-    const int text2Count = text2.count();
-    const int maxCount = qMin(text1Count, text2Count);
-    while (i < maxCount) {
-        if (text1.at(i) != text2.at(i))
-            break;
-        i++;
-    }
-    return i;
-}
-
-int Differ::commonSuffix(const QString &text1, const QString &text2) const
-{
-    int i = 0;
-    const int text1Count = text1.count();
-    const int text2Count = text2.count();
-    const int maxCount = qMin(text1Count, text2Count);
-    while (i < maxCount) {
-        if (text1.at(text1Count - i - 1) != text2.at(text2Count - i - 1))
-            break;
-        i++;
-    }
-    return i;
-}
-
-int Differ::commonOverlap(const QString &text1, const QString &text2) const
-{
-    int i = 0;
-    const int text1Count = text1.count();
-    const int text2Count = text2.count();
-    const int maxCount = qMin(text1Count, text2Count);
-    while (i < maxCount) {
-        if (text1.midRef(text1Count - maxCount + i) == text2.leftRef(maxCount - i))
-            return maxCount - i;
-        i++;
-    }
-    return 0;
 }
 
 } // namespace DiffEditor
