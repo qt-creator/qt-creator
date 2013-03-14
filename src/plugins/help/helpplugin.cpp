@@ -104,11 +104,12 @@ const char SB_SEARCH[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Search
 const char SB_OPENPAGES[] = "OpenPages";
 
 #define IMAGEPATH ":/help/images/"
-#if defined(Q_OS_MAC)
-#   define DOCPATH "/../Resources/doc/"
-#else
-#   define DOCPATH "/../share/doc/qtcreator/"
-#endif
+
+static QString docPath()
+{
+    return QLatin1String(Utils::HostOsInfo::isMacHost()
+                         ? "/../Resources/doc/" : "/../share/doc/qtcreator/");
+}
 
 using namespace Core;
 
@@ -393,11 +394,11 @@ void HelpPlugin::extensionsInitialized()
     // without a qt development version. TODO: is this still really needed, remove
     const QString &appPath = QCoreApplication::applicationDirPath();
     filesToRegister.append(QDir::cleanPath(QDir::cleanPath(appPath
-        + QLatin1String(DOCPATH "qml.qch"))));
+        + docPath() + QLatin1String("qml.qch"))));
 
     // we might need to register creators inbuild help
     filesToRegister.append(QDir::cleanPath(appPath
-        + QLatin1String(DOCPATH "qtcreator.qch")));
+        + docPath() + QLatin1String("qtcreator.qch")));
     Core::HelpManager::instance()->registerDocumentation(filesToRegister);
 }
 
