@@ -73,6 +73,7 @@
 #include <utils/savedaction.h>
 #include <utils/consoleprocess.h>
 #include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
 
 #include <cplusplus/findcdbbreakpoint.h>
 #include <cplusplus/CppDocument.h>
@@ -332,27 +333,22 @@ static inline bool validMode(DebuggerStartMode sm)
 // Accessed by RunControlFactory
 DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp, QString *errorMessage)
 {
-#ifdef Q_OS_WIN
-    CdbOptionsPage *op = CdbOptionsPage::instance();
-    if (!op || !op->options()->isValid() || !validMode(sp.startMode)) {
-        *errorMessage = QLatin1String("Internal error: Invalid start parameters passed for thre CDB engine.");
-        return 0;
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        CdbOptionsPage *op = CdbOptionsPage::instance();
+        if (!op || !op->options()->isValid() || !validMode(sp.startMode)) {
+            *errorMessage = QLatin1String("Internal error: Invalid start parameters passed for thee CDB engine.");
+            return 0;
+        }
+        return new CdbEngine(sp, op->options());
     }
-    return new CdbEngine(sp, op->options());
-#else
-    Q_UNUSED(sp)
-#endif
     *errorMessage = QString::fromLatin1("Unsupported debug mode");
     return 0;
 }
 
 void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
 {
-#ifdef Q_OS_WIN
-    opts->push_back(new CdbOptionsPage);
-#else
-    Q_UNUSED(opts);
-#endif
+    if (Utils::HostOsInfo::isWindowsHost())
+        opts->push_back(new CdbOptionsPage);
 }
 
 #define QT_CREATOR_CDB_EXT "qtcreatorcdbext"
