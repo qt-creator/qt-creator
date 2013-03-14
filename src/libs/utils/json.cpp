@@ -252,13 +252,15 @@ void JsonSchema::enterNestedTypeSchema()
 
 QStringList JsonSchema::properties(JsonObjectValue *v) const
 {
+    typedef QHash<QString, JsonValue *>::ConstIterator MemberConstIterator;
+
     QStringList all;
 
     if (JsonObjectValue *ov = getObjectValue(kProperties, v)) {
-        foreach (const QString &property, ov->members().keys()) {
-            if (hasPropertySchema(property))
-                all.append(property);
-        }
+        const MemberConstIterator cend = ov->members().constEnd();
+        for (MemberConstIterator it = ov->members().constBegin(); it != cend; ++it)
+            if (hasPropertySchema(it.key()))
+                all.append(it.key());
     }
 
     if (JsonObjectValue *base = resolveBase(v))

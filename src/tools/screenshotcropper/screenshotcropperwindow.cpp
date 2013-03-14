@@ -52,11 +52,14 @@ ScreenShotCropperWindow::~ScreenShotCropperWindow()
 
 void ScreenShotCropperWindow::loadData(const QString &areasXmlFile, const QString &imagesFolder)
 {
+    typedef QMap<QString, QRect>::ConstIterator StringRectConstIt;
+
     m_areasOfInterestFile = areasXmlFile;
     m_areasOfInterest = ScreenshotCropper::loadAreasOfInterest(m_areasOfInterestFile);
     m_imagesFolder = imagesFolder;
-    foreach (const QString &pngFile, m_areasOfInterest.keys())
-        ui->m_filenamesList->addItem(pngFile);
+    const StringRectConstIt cend = m_areasOfInterest.constEnd();
+    for (StringRectConstIt it = m_areasOfInterest.constBegin(); it != cend; ++it)
+        ui->m_filenamesList->addItem(it.key());
 }
 
 void ScreenShotCropperWindow::selectImage(int index)

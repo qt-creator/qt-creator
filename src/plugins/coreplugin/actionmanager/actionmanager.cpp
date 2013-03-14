@@ -459,8 +459,8 @@ ActionManagerPrivate::~ActionManagerPrivate()
     // first delete containers to avoid them reacting to command deletion
     foreach (ActionContainerPrivate *container, m_idContainerMap)
         disconnect(container, SIGNAL(destroyed()), this, SLOT(containerDestroyed()));
-    qDeleteAll(m_idContainerMap.values());
-    qDeleteAll(m_idCmdMap.values());
+    qDeleteAll(m_idContainerMap);
+    qDeleteAll(m_idCmdMap);
 }
 
 QDebug operator<<(QDebug d, const Context &context)

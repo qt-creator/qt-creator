@@ -130,9 +130,9 @@ void DocSettingsPage::addDocumentation()
 
     if (!docsUnableToRegister.isEmpty()) {
         formatedFail += QString::fromLatin1("<ul><li><b>%1</b>").arg(tr("Namespace already registered:"));
-        foreach (const QString &key, docsUnableToRegister.keys()) {
-            formatedFail += QString::fromLatin1("<ul><li>%1 - %2</li></ul>").arg(key, docsUnableToRegister
-                .value(key));
+        const NameSpaceToPathHash::ConstIterator cend = docsUnableToRegister.constEnd();
+        for (NameSpaceToPathHash::ConstIterator it = docsUnableToRegister.constBegin(); it != cend; ++it) {
+            formatedFail += QString::fromLatin1("<ul><li>%1 - %2</li></ul>").arg(it.key(), it.value());
         }
         formatedFail += QLatin1String("</li></ul>");
     }
