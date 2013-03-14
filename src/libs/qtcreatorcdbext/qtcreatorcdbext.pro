@@ -20,8 +20,6 @@ BASENAME=qtcreatorcdbext
 
 DEF_FILE=$$PWD/qtcreatorcdbext.def
 
-IDE_BASE_PATH=$$dirname(IDE_APP_PATH)
-
 # Find out whether we are _building_ 64/32bit and determine target
 # directories accordingly.
 #
@@ -43,7 +41,7 @@ contains(ENV_CPU, ^AMD64$) {
 
 LIBS+=-luser32
 
-DESTDIR=$$IDE_BASE_PATH/lib/$${DIRNAME}
+DESTDIR=$$IDE_BUILD_TREE/lib/$${DIRNAME}
 TARGET = $$BASENAME
 
 message("Compiling Qt Creator CDB extension $$TARGET $$DESTDIR for $$CDB_PLATFORM using $$CDB_PATH")
