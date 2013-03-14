@@ -45,6 +45,7 @@
 #include <texteditor/findinfiles.h>
 
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/elidinglabel.h>
@@ -76,32 +77,19 @@ public:
     explicit DotRemovalFilter(QObject *parent = 0);
 protected:
     virtual bool filterAcceptsRow(int source_row, const QModelIndex &parent) const;
-private:
-#if defined(Q_OS_UNIX)
-    const QVariant m_root;
-    const QVariant m_dotdot;
-#endif
-    const QVariant m_dot;
 };
 
-DotRemovalFilter::DotRemovalFilter(QObject *parent) :
-    QSortFilterProxyModel(parent),
-#if defined(Q_OS_UNIX)
-    m_root(QString(QLatin1Char('/'))),
-    m_dotdot(QLatin1String("..")),
-#endif
-    m_dot(QString(QLatin1Char('.')))
+DotRemovalFilter::DotRemovalFilter(QObject *parent) : QSortFilterProxyModel(parent)
 {
 }
 
 bool DotRemovalFilter::filterAcceptsRow(int source_row, const QModelIndex &parent) const
 {
     const QVariant fileName = sourceModel()->data(parent.child(source_row, 0));
-#if defined(Q_OS_UNIX)
-    if (sourceModel()->data(parent) == m_root && fileName == m_dotdot)
-        return false;
-#endif
-    return fileName != m_dot;
+    if (Utils::HostOsInfo::isAnyUnixHost())
+        if (sourceModel()->data(parent) == QLatin1String("/") && fileName == QLatin1String(".."))
+            return false;
+    return fileName != QLatin1String(".");
 }
 
 // FolderNavigationModel: Shows path as tooltip.
@@ -145,9 +133,8 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
     QDir::Filters filters = QDir::AllDirs | QDir::Files | QDir::Drives
                             | QDir::Readable| QDir::Writable
                             | QDir::Executable | QDir::Hidden;
-#ifdef Q_OS_WIN // Symlinked directories can cause file watcher warnings on Win32.
-    filters |= QDir::NoSymLinks;
-#endif
+    if (Utils::HostOsInfo::isWindowsHost()) // Symlinked directories can cause file watcher warnings on Win32.
+        filters |= QDir::NoSymLinks;
     m_fileSystemModel->setFilter(filters);
     m_filterModel->setSourceModel(m_fileSystemModel);
     m_filterHiddenFilesAction->setCheckable(true);
