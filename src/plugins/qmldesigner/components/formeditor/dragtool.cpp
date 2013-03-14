@@ -310,7 +310,7 @@ void DragTool::dragEnterEvent(QGraphicsSceneDragDropEvent * event)
         QList<Import> importToBeAddedList;
         m_blockMove = false;
         if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo")) {
-            view()->widget()->setFocus();
+            view()->widgetInfo().widget->setFocus();
             m_Aborted = false;
             Q_ASSERT(!event->mimeData()->data("application/vnd.bauhaus.itemlibraryinfo").isEmpty());
 

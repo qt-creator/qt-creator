@@ -99,11 +99,6 @@ NavigatorView::~NavigatorView()
         delete m_widget.data();
 }
 
-QWidget *NavigatorView::widget()
-{
-    return m_widget.data();
-}
-
 bool NavigatorView::hasWidget() const
 {
     return true;

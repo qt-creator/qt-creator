@@ -87,8 +87,6 @@ public:
 
     void actualStateChanged(const ModelNode &node);
 
-    QWidget *widget();
-
 protected:
     QString time() const;
 

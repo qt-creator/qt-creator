@@ -43,14 +43,6 @@ ItemLibraryView::~ItemLibraryView()
 
 }
 
-QWidget *ItemLibraryView::widget()
-{
-    if (m_widget.isNull())
-        m_widget = new ItemLibraryWidget;
-
-    return m_widget.data();
-}
-
 bool ItemLibraryView::hasWidget() const
 {
     return true;
@@ -58,7 +50,10 @@ bool ItemLibraryView::hasWidget() const
 
 WidgetInfo ItemLibraryView::widgetInfo()
 {
-    return createWidgetInfo(widget(), QLatin1String("Library"), WidgetInfo::LeftPane, 0);
+    if (m_widget.isNull())
+            m_widget = new ItemLibraryWidget;
+
+    return createWidgetInfo(m_widget.data(), QLatin1String("Library"), WidgetInfo::LeftPane, 0);
 }
 
 void ItemLibraryView::modelAttached(Model *model)

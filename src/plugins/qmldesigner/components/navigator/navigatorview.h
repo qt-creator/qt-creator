@@ -56,7 +56,6 @@ public:
     NavigatorView(QObject* parent = 0);
     ~NavigatorView();
 
-    QWidget *widget();
     bool hasWidget() const;
     WidgetInfo widgetInfo();
 

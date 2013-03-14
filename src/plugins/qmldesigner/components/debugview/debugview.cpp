@@ -220,11 +220,6 @@ void DebugView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
     }
 }
 
-QWidget *DebugView::widget()
-{
-    return 0;
-}
-
 void DebugView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data)
 {
     if (isDebugViewEnabled()) {

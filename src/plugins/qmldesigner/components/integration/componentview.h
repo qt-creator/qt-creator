@@ -115,8 +115,6 @@ public:
 
     void setComponentNode(const ModelNode &node);
 
-    QWidget *widget();
-
 signals:
     void componentListChanged(const QStringList &componentList);
 

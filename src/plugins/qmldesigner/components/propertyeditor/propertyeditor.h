@@ -83,7 +83,6 @@ public:
 
     void setQmlDir(const QString &qmlDirPath);
 
-    QWidget *widget();
     bool hasWidget() const;
     WidgetInfo widgetInfo();
 

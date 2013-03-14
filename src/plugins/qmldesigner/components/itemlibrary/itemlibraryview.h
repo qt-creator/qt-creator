@@ -48,7 +48,6 @@ public:
     ItemLibraryView(QObject* parent = 0);
     ~ItemLibraryView();
 
-    QWidget *widget() QTC_OVERRIDE;
     bool hasWidget() const QTC_OVERRIDE;
     WidgetInfo widgetInfo() QTC_OVERRIDE;
 

@@ -73,11 +73,6 @@ void ComponentView::setComponentNode(const ModelNode &node)
     m_componentAction->setCurrentIndex(indexForNode(node));
 }
 
-QWidget *ComponentView::widget()
-{
-    return 0;
-}
-
 void ComponentView::removeSingleNodeFromList(const ModelNode &node)
 {
     for (int row = 0; row < m_standardItemModel->rowCount(); row++) {

@@ -222,9 +222,4 @@ void DesignDocumentView::fromText(QString text)
     }
 }
 
-QWidget *DesignDocumentView::widget()
-{
-    return 0;
-}
-
 }// namespace QmlDesigner

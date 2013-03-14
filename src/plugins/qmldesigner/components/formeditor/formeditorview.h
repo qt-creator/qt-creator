@@ -85,7 +85,6 @@ public:
     void propertiesRemoved(const QList<AbstractProperty> &propertyList) QTC_OVERRIDE;
 
     // FormEditorView
-    QWidget *widget() QTC_OVERRIDE;
     WidgetInfo widgetInfo() QTC_OVERRIDE;
 
     FormEditorWidget *formEditorWidget();

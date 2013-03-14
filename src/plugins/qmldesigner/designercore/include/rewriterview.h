@@ -206,8 +206,6 @@ public:
 
     QString pathForImport(const Import &import);
 
-    QWidget *widget();
-
 signals:
     void errorsChanged(const QList<RewriterView::Error> &errors);
 
