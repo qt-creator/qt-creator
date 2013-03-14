@@ -42,12 +42,7 @@
 #include <QMessageBox>
 #include <QTextStream>
 
-#include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
-
-#if defined(Q_OS_WIN)
-#include <QSysInfo>
-#endif
 
 namespace Qnx {
 namespace Internal {
