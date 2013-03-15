@@ -37,7 +37,6 @@
 **
 ****************************************************************************/
 
-#include <qdeclarative.h>
 #include "qstyleplugin.h"
 #include "qstyleitem.h"
 #include "qrangemodel.h"

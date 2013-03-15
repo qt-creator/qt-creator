@@ -64,7 +64,6 @@
 #include <QPlainTextEdit>
 #include <QVBoxLayout>
 #include <QScrollArea>
-#include <QTabWidget>
 #include <QToolButton>
 #include <QMenu>
 #include <QClipboard>

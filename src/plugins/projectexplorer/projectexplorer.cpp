@@ -73,7 +73,6 @@
 #include "session.h"
 #include "projectnodes.h"
 #include "sessiondialog.h"
-#include "target.h"
 #include "projectexplorersettingspage.h"
 #include "projectwelcomepage.h"
 #include "corelistenercheckingforrunningbuild.h"

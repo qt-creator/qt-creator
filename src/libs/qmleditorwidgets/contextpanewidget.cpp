@@ -35,13 +35,11 @@
 #include <QFontComboBox>
 #include <QComboBox>
 #include <QSpinBox>
-#include <QToolButton>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QGridLayout>
-#include <QToolButton>
 #include <QGraphicsEffect>
 #include <QAction>
 #include "contextpanetextwidget.h"

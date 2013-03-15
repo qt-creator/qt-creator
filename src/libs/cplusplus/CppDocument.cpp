@@ -47,7 +47,6 @@
 #include <NameVisitor.h>
 #include <TypeVisitor.h>
 #include <CoreTypes.h>
-#include <LookupContext.h>
 
 #include <QByteArray>
 #include <QBitArray>

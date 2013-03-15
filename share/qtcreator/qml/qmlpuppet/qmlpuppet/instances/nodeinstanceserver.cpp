@@ -65,7 +65,6 @@
 #include "informationchangedcommand.h"
 #include "pixmapchangedcommand.h"
 #include "commondefines.h"
-#include "childrenchangeeventfilter.h"
 #include "changestatecommand.h"
 #include "childrenchangedcommand.h"
 #include "completecomponentcommand.h"

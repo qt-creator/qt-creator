@@ -32,7 +32,6 @@
 #include "macrosconstants.h"
 #include "macromanager.h"
 #include "macro.h"
-#include "macrosconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
