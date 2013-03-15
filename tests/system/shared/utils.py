@@ -291,7 +291,7 @@ def __checkParentAccess__(filePath):
 # this function checks for all configured Qt versions inside
 # options dialog and returns a dict holding the kits as keys
 # and a list of information of its configured Qt
-def getConfiguredKits(isMaddedDisabled=True):
+def getConfiguredKits(isMaddeDisabled=True):
     def __retrieveQtVersionName__(target, version):
         treeWidget = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
         return treeWidget.currentItem().text(0)
@@ -310,8 +310,8 @@ def getConfiguredKits(isMaddedDisabled=True):
     # update collected Qt versions with their configured device and version
     iterateKits(True, True, __setQtVersionForKit__, kitsWithQtVersionName)
     # merge defined target names with their configured Qt versions and devices
-    for kit,qtVersion in kitsWithQtVersionName.iteritems():
-        if isMaddedDisabled and  kit in ('Fremantle', 'Harmattan') and qtVersion == 'None':
+    for kit, qtVersion in kitsWithQtVersionName.iteritems():
+        if isMaddeDisabled and kit in ('Fremantle', 'Harmattan') and qtVersion == 'None':
                 test.log("Found Kit '%s' with unassigned Qt version (disabled Madde plugin)" % kit)
         elif qtVersion in qtVersionNames:
             result[kit] = targetsQtVersions[qtVersionNames.index(qtVersion)].items()[0]
