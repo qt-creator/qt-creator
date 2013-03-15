@@ -62,7 +62,7 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc, const QString &source)
     return preprocessed;
 }
 
-void FastPreprocessor::sourceNeeded(unsigned line, QString &fileName, IncludeType)
+void FastPreprocessor::sourceNeeded(unsigned line, const QString &fileName, IncludeType)
 {
     Q_ASSERT(_currentDoc);
     // CHECKME: Is that cleanName needed?

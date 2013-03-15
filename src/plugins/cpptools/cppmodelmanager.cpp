@@ -315,8 +315,7 @@ public:
 
 void CppPreprocessor::run(const QString &fileName)
 {
-    QString absoluteFilePath = fileName;
-    sourceNeeded(0, absoluteFilePath, IncludeGlobal);
+    sourceNeeded(0, fileName, IncludeGlobal);
 }
 
 void CppPreprocessor::removeFromCache(const QString &fileName)
@@ -330,60 +329,60 @@ void CppPreprocessor::resetEnvironment()
     m_processed.clear();
 }
 
-bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QString *result, unsigned *revision)
+void CppPreprocessor::getFileContents(const QString &absoluteFilePath,
+                                      QString *contents,
+                                      unsigned *revision) const
+{
+    if (absoluteFilePath.isEmpty())
+        return;
+
+    if (m_workingCopy.contains(absoluteFilePath)) {
+        QPair<QString, unsigned> entry = m_workingCopy.get(absoluteFilePath);
+        if (contents)
+            *contents = entry.first;
+        if (revision)
+            *revision = entry.second;
+        return;
+    }
+
+    QFile file(absoluteFilePath);
+    if (file.open(QFile::ReadOnly | QFile::Text)) {
+        QTextCodec *defaultCodec = Core::EditorManager::instance()->defaultTextCodec();
+        QTextStream stream(&file);
+        stream.setCodec(defaultCodec);
+        if (contents)
+            *contents = stream.readAll();
+        if (revision)
+            *revision = 0;
+        file.close();
+    }
+}
+
+bool CppPreprocessor::checkFile(const QString &absoluteFilePath) const
 {
     if (absoluteFilePath.isEmpty() || m_included.contains(absoluteFilePath))
         return true;
 
-    if (m_workingCopy.contains(absoluteFilePath)) {
-        m_included.insert(absoluteFilePath);
-        const QPair<QString, unsigned> r = m_workingCopy.get(absoluteFilePath);
-        *result = r.first;
-        *revision = r.second;
-        return true;
-    }
-
     QFileInfo fileInfo(absoluteFilePath);
-    if (! fileInfo.isFile())
-        return false;
-
-    QFile file(absoluteFilePath);
-    if (file.open(QFile::ReadOnly | QFile::Text)) {
-        m_included.insert(absoluteFilePath);
-        QTextCodec *defaultCodec = Core::EditorManager::instance()->defaultTextCodec();
-        QTextStream stream(&file);
-        stream.setCodec(defaultCodec);
-        if (result)
-            *result = stream.readAll();
-        file.close();
-        return true;
-    }
-
-    return false;
+    return fileInfo.isFile() && fileInfo.isReadable();
 }
 
-QString CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type, unsigned *revision)
+/// Resolve the given file name to its absolute path w.r.t. the include type.
+QString CppPreprocessor::resolveFile(const QString &fileName, IncludeType type)
 {
     if (type == IncludeGlobal) {
-        const QString fn = m_fileNameCache.value(fileName);
+        QString fn = m_fileNameCache.value(fileName);
 
-        if (! fn.isEmpty()) {
-            fileName = fn;
+        if (! fn.isEmpty())
+            return fn;
 
-            if (revision)
-                *revision = 0;
-
-            return QString();
-        }
-
-        const QString originalFileName = fileName;
-        const QString contents = tryIncludeFile_helper(fileName, type, revision);
-        m_fileNameCache.insert(originalFileName, fileName);
-        return contents;
+        fn = resolveFile_helper(fileName, type);
+        m_fileNameCache.insert(fileName, fn);
+        return fn;
     }
 
     // IncludeLocal, IncludeNext
-    return tryIncludeFile_helper(fileName, type, revision);
+    return resolveFile_helper(fileName, type);
 }
 
 QString CppPreprocessor::cleanPath(const QString &path)
@@ -395,32 +394,23 @@ QString CppPreprocessor::cleanPath(const QString &path)
     return result;
 }
 
-QString CppPreprocessor::tryIncludeFile_helper(QString &fileName, IncludeType type, unsigned *revision)
+QString CppPreprocessor::resolveFile_helper(const QString &fileName, IncludeType type)
 {
     QFileInfo fileInfo(fileName);
-    if (fileName == Preprocessor::configurationFileName || fileInfo.isAbsolute()) {
-        QString contents;
-        includeFile(fileName, &contents, revision);
-        return contents;
-    }
+    if (fileName == Preprocessor::configurationFileName || fileInfo.isAbsolute())
+        return fileName;
 
     if (type == IncludeLocal && m_currentDoc) {
         QFileInfo currentFileInfo(m_currentDoc->fileName());
         QString path = cleanPath(currentFileInfo.absolutePath()) + fileName;
-        QString contents;
-        if (includeFile(path, &contents, revision)) {
-            fileName = path;
-            return contents;
-        }
+        if (checkFile(path))
+            return path;
     }
 
     foreach (const QString &includePath, m_includePaths) {
         QString path = includePath + fileName;
-        QString contents;
-        if (includeFile(path, &contents, revision)) {
-            fileName = path;
-            return contents;
-        }
+        if (checkFile(path))
+            return path;
     }
 
     int index = fileName.indexOf(QLatin1Char('/'));
@@ -430,11 +420,8 @@ QString CppPreprocessor::tryIncludeFile_helper(QString &fileName, IncludeType ty
 
         foreach (const QString &frameworkPath, m_frameworkPaths) {
             QString path = frameworkPath + name;
-            QString contents;
-            if (includeFile(path, &contents, revision)) {
-                fileName = path;
-                return contents;
-            }
+            if (checkFile(path))
+                return path;
         }
     }
 
@@ -547,18 +534,24 @@ void CppPreprocessor::stopSkippingBlocks(unsigned offset)
         m_currentDoc->stopSkippingBlocks(offset);
 }
 
-void CppPreprocessor::sourceNeeded(unsigned line, QString &fileName, IncludeType type)
+void CppPreprocessor::sourceNeeded(unsigned line, const QString &fileName, IncludeType type)
 {
     if (fileName.isEmpty())
         return;
 
-    unsigned editorRevision = 0;
-    QString contents = tryIncludeFile(fileName, type, &editorRevision);
-    fileName = QDir::cleanPath(fileName);
-    if (m_currentDoc) {
-        m_currentDoc->addIncludeFile(fileName, line);
+    QString absoluteFileName = resolveFile(fileName, type);
+    if (m_included.contains(absoluteFileName))
+        return; // we've already seen this file.
+    m_included.insert(absoluteFileName);
 
-        if (contents.isEmpty() && ! QFileInfo(fileName).isAbsolute()) {
+    absoluteFileName = QDir::cleanPath(absoluteFileName);
+    unsigned editorRevision = 0;
+    QString contents;
+    getFileContents(absoluteFileName, &contents, &editorRevision);
+    if (m_currentDoc) {
+        m_currentDoc->addIncludeFile(absoluteFileName, line);
+
+        if (contents.isEmpty() && ! QFileInfo(absoluteFileName).isAbsolute()) {
             QString msg = QCoreApplication::translate(
                     "CppPreprocessor", "%1: No such file or directory").arg(fileName);
 
@@ -570,32 +563,34 @@ void CppPreprocessor::sourceNeeded(unsigned line, QString &fileName, IncludeType
             m_currentDoc->addDiagnosticMessage(d);
 
             //qWarning() << "file not found:" << fileName << m_currentDoc->fileName() << env.current_line;
+
+            return;
         }
     }
 
     if (m_dumpFileNameWhileParsing) {
-        qDebug() << "Parsing file:" << fileName
+        qDebug() << "Parsing file:" << absoluteFileName
 //             << "contents:" << contents.size()
                     ;
     }
 
-    Document::Ptr doc = m_snapshot.document(fileName);
+    Document::Ptr doc = m_snapshot.document(absoluteFileName);
     if (doc) {
         mergeEnvironment(doc);
         return;
     }
 
-    doc = Document::create(fileName);
+    doc = Document::create(absoluteFileName);
     doc->setRevision(m_revision);
     doc->setEditorRevision(editorRevision);
 
-    QFileInfo info(fileName);
+    QFileInfo info(absoluteFileName);
     if (info.exists())
         doc->setLastModified(info.lastModified());
 
     Document::Ptr previousDoc = switchDocument(doc);
 
-    const QByteArray preprocessedCode = m_preprocess.run(fileName, contents);
+    const QByteArray preprocessedCode = m_preprocess.run(absoluteFileName, contents);
 
 //    { QByteArray b(preprocessedCode); b.replace("\n", "<<<\n"); qDebug("Preprocessed code for \"%s\": [[%s]]", fileName.toUtf8().constData(), b.constData()); }
 
@@ -604,7 +599,7 @@ void CppPreprocessor::sourceNeeded(unsigned line, QString &fileName, IncludeType
     doc->tokenize();
 
     m_snapshot.insert(doc);
-    m_todo.remove(fileName);
+    m_todo.remove(absoluteFileName);
 
     Process process(m_modelManager, doc, m_workingCopy);
     process();

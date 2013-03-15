@@ -281,9 +281,10 @@ public:
 protected:
     CPlusPlus::Document::Ptr switchDocument(CPlusPlus::Document::Ptr doc);
 
-    bool includeFile(const QString &absoluteFilePath, QString *result, unsigned *revision);
-    QString tryIncludeFile(QString &fileName, IncludeType type, unsigned *revision);
-    QString tryIncludeFile_helper(QString &fileName, IncludeType type, unsigned *revision);
+    void getFileContents(const QString &absoluteFilePath, QString *contents, unsigned *revision) const;
+    bool checkFile(const QString &absoluteFilePath) const;
+    QString resolveFile(const QString &fileName, IncludeType type);
+    QString resolveFile_helper(const QString &fileName, IncludeType type);
 
     void mergeEnvironment(CPlusPlus::Document::Ptr doc);
 
@@ -301,7 +302,7 @@ protected:
     virtual void markAsIncludeGuard(const QByteArray &macroName);
     virtual void startSkippingBlocks(unsigned offset);
     virtual void stopSkippingBlocks(unsigned offset);
-    virtual void sourceNeeded(unsigned line, QString &fileName, IncludeType type);
+    virtual void sourceNeeded(unsigned line, const QString &fileName, IncludeType type);
 
 private:
     CPlusPlus::Snapshot m_snapshot;

@@ -98,7 +98,7 @@ public:
   virtual void startSkippingBlocks(unsigned offset) = 0;
   virtual void stopSkippingBlocks(unsigned offset) = 0;
 
-  virtual void sourceNeeded(unsigned line, QString &fileName, IncludeType mode) = 0;
+  virtual void sourceNeeded(unsigned line, const QString &fileName, IncludeType mode) = 0;
 };
 
 } // namespace CPlusPlus

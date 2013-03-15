@@ -67,7 +67,7 @@ public:
     void addInclude(const QString &absoluteFilePath)
     { included.append(absoluteFilePath); }
 
-    virtual void sourceNeeded(QString &fileName, IncludeType mode, unsigned)
+    virtual void sourceNeeded(const QString &fileName, IncludeType mode, unsigned)
     {
         const QString currentFile = env->currentFile;
 
@@ -122,7 +122,7 @@ public:
     virtual void stopSkippingBlocks(unsigned)
     { }
 
-    virtual void sourceNeeded(unsigned, QString &, IncludeType)
+    virtual void sourceNeeded(unsigned, const QString &, IncludeType)
     { }
 };
 
