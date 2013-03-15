@@ -1576,10 +1576,25 @@ bool BaseTextEditorWidget::cursorMoveKeyEvent(QKeyEvent *e)
     return true;
 }
 
+static inline bool isModifier(QKeyEvent *e)
+{
+    if (!e)
+        return false;
+    switch (e->key()) {
+    case Qt::Key_Shift:
+    case Qt::Key_Control:
+    case Qt::Key_Meta:
+    case Qt::Key_Alt:
+        return true;
+    default:
+        return false;
+    }
+}
 
 void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
 {
-    viewport()->setCursor(Qt::BlankCursor);
+    if (!isModifier(e))
+        viewport()->setCursor(Qt::BlankCursor);
     ToolTip::instance()->hide();
 
     d->m_moveLineUndoHack = false;
