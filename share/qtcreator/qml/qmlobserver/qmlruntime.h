@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDECLARATIVEVIEWER_H
-#define QDECLARATIVEVIEWER_H
+#ifndef QMLRUNTIME_H
+#define QMLRUNTIME_H
 
 #include <QMainWindow>
 #include <QTimer>
@@ -211,4 +211,4 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QDeclarativeViewer::ScriptOptions)
 
 QT_END_NAMESPACE
 
-#endif
+#endif // QMLRUNTIME_H

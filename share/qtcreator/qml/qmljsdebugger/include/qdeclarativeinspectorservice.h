@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDECLARATIVEDESIGNDEBUGSERVER_H
-#define QDECLARATIVEDESIGNDEBUGSERVER_H
+#ifndef QDECLARATIVEDINSPECTORSERVICE_H
+#define QDECLARATIVEDINSPECTORSERVICE_H
 
 #include "qt_private/qdeclarativedebugservice_p.h"
 #include "qmlinspectorconstants.h"
@@ -100,4 +100,4 @@ private:
 
 } // namespace QmlJSDebugger
 
-#endif // QDECLARATIVEDESIGNDEBUGSERVER_H
+#endif // QDECLARATIVEDINSPECTORSERVICE_H

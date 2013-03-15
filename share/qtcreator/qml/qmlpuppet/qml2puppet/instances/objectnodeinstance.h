@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef ABSTRACTNODEINSTANCE_H
-#define ABSTRACTNODEINSTANCE_H
+#ifndef OBJECTNODEINSTANCE_H
+#define OBJECTNODEINSTANCE_H
 
 #include "nodeinstanceserver.h"
 #include "nodeinstancemetaobject.h"
@@ -207,4 +207,4 @@ private:
 } // namespace Internal
 } // namespace QmlDesigner
 
-#endif // ABSTRACTNODEINSTANCE_H
+#endif // OBJECTNODEINSTANCE_H

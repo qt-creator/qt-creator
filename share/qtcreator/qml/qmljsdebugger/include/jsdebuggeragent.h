@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QSCRIPTDEBUGGERAGENT_P_H
-#define QSCRIPTDEBUGGERAGENT_P_H
+#ifndef JSDEBUGGERAGENT_H
+#define JSDEBUGGERAGENT_H
 
 //
 //  W A R N I N G
@@ -104,4 +104,4 @@ private:
 
 } // namespace QmlJSDebugger
 
-#endif
+#endif // JSDEBUGGERAGENT_H

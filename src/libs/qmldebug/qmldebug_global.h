@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSDEBUGCLIENT_GLOBAL_H
-#define QMLJSDEBUGCLIENT_GLOBAL_H
+#ifndef QMLDEBUG_GLOBAL_H
+#define QMLDEBUG_GLOBAL_H
 
 #if defined(QMLDEBUG_LIB)
 #  define QMLDEBUG_EXPORT Q_DECL_EXPORT
@@ -38,4 +38,4 @@
 #  define QMLDEBUG_EXPORT Q_DECL_IMPORT
 #endif
 
-#endif // QMLJSDEBUGCLIENT_GLOBAL_H
+#endif // QMLDEBUG_GLOBAL_H
