@@ -243,8 +243,12 @@ static QList<Abi> guessGccAbi(const QString &m, const QByteArray &macros)
         } else if (p == QLatin1String("x86_64") || p == QLatin1String("amd64")) {
             arch = Abi::X86Architecture;
             width = 64;
+        } else if (p == QLatin1String("powerpc64")) {
+            arch = Abi::PowerPCArchitecture;
+            width = 64;
         } else if (p == QLatin1String("powerpc")) {
             arch = Abi::PowerPCArchitecture;
+            width = 32;
         } else if (p == QLatin1String("linux") || p == QLatin1String("linux6e")) {
             os = Abi::LinuxOS;
             if (flavor == Abi::UnknownFlavor)
@@ -284,7 +288,7 @@ static QList<Abi> guessGccAbi(const QString &m, const QByteArray &macros)
         abiList << Abi(arch, os, flavor, format, width == 64 ? 32 : 64);
         abiList << Abi(arch == Abi::X86Architecture ? Abi::PowerPCArchitecture : Abi::X86Architecture, os, flavor, format, width);
         abiList << Abi(arch == Abi::X86Architecture ? Abi::PowerPCArchitecture : Abi::X86Architecture, os, flavor, format, width == 64 ? 32 : 64);
-    } else if (width == 0 || width == 64) {
+    } else if (arch == Abi::X86Architecture && (width == 0 || width == 64)) {
         if (macros.contains("#define __x86_64 1"))
             abiList << Abi(arch, os, flavor, format, 64);
         abiList << Abi(arch, os, flavor, format, 32);
@@ -1170,6 +1174,14 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
                 << QString::fromLatin1("arm-angstrom-linux-gnueabi")
                 << QByteArray()
                 << (QStringList() << QLatin1String("arm-linux-generic-elf-32bit"));
+    QTest::newRow("Linux 9 (ppc)")
+                << QString::fromLatin1("powerpc-nsg-linux")
+                << QByteArray()
+                << (QStringList() << QLatin1String("ppc-linux-generic-elf-32bit"));
+    QTest::newRow("Linux 10 (ppc 64bit)")
+                << QString::fromLatin1("powerpc64-suse-linux")
+                << QByteArray()
+                << (QStringList() << QLatin1String("ppc-linux-generic-elf-64bit"));
 
     QTest::newRow("Mingw 1 (32bit)")
             << QString::fromLatin1("i686-w64-mingw32")
@@ -1251,9 +1263,8 @@ void ProjectExplorerPlugin::testGccAbiGuessing()
 
     QList<Abi> al = guessGccAbi(input, macros);
     QCOMPARE(al.count(), abiList.count());
-    for (int i = 0; i < al.count(); ++i) {
+    for (int i = 0; i < al.count(); ++i)
         QCOMPARE(al.at(i).toString(), abiList.at(i));
-    }
 }
 
 } // namespace ProjectExplorer
