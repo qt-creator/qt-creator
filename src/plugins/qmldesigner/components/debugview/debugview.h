@@ -97,4 +97,4 @@ private: //variables
 
 } // namespace QmlDesigner
 
-#endif DEBUGVIEW_H
+#endif // DEBUGVIEW_H
