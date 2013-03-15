@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef SSHABSTRACTCRYPTOFACILITY_P_H
-#define SSHABSTRACTCRYPTOFACILITY_P_H
+#ifndef SSHCRYPTOFACILITY_P_H
+#define SSHCRYPTOFACILITY_P_H
 
 #include <botan/botan.h>
 
@@ -139,4 +139,4 @@ private:
 } // namespace Internal
 } // namespace QSsh
 
-#endif // SSHABSTRACTCRYPTOFACILITY_P_H
+#endif // SSHCRYPTOFACILITY_P_H

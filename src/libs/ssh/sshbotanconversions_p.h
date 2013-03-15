@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef BYTEARRAYCONVERSIONS_P_H
-#define BYTEARRAYCONVERSIONS_P_H
+#ifndef SSHBOTANCONVERSIONS_P_H
+#define SSHBOTANCONVERSIONS_P_H
 
 #include "sshcapabilities_p.h"
 
@@ -95,4 +95,4 @@ inline quint32 botanHMacKeyLen(const QByteArray &rfcAlgoName)
 } // namespace Internal
 } // namespace QSsh
 
-#endif // BYTEARRAYCONVERSIONS_P_H
+#endif // SSHBOTANCONVERSIONS_P_H

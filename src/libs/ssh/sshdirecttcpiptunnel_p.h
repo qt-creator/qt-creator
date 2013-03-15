@@ -26,8 +26,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef DIRECTTCPIPCHANNEL_P_H
-#define DIRECTTCPIPCHANNEL_P_H
+#ifndef SSHDIRECTTCPIPTUNNEL_P_H
+#define SSHDIRECTTCPIPTUNNEL_P_H
 
 #include "sshchannel_p.h"
 
@@ -78,4 +78,4 @@ private:
 } // namespace Internal
 } // namespace QSsh
 
-#endif // DIRECTTCPIPCHANNEL_P_H
+#endif // SSHDIRECTTCPIPTUNNEL_P_H

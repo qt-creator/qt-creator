@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef SSHCONNECTIONOUTSTATE_P_H
-#define SSHCONNECTIONOUTSTATE_P_H
+#ifndef SSHSENDFACILITY_P_H
+#define SSHSENDFACILITY_P_H
 
 #include "sshcryptofacility_p.h"
 #include "sshoutgoingpacket_p.h"
@@ -98,4 +98,4 @@ private:
 } // namespace Internal
 } // namespace QSsh
 
-#endif // SSHCONNECTIONOUTSTATE_P_H
+#endif // SSHSENDFACILITY_P_H

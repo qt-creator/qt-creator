@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef SFTCHANNEL_P_H
-#define SFTCHANNEL_P_H
+#ifndef SFTPCHANNEL_P_H
+#define SFTPCHANNEL_P_H
 
 #include "sftpdefs.h"
 #include "sftpincomingpacket_p.h"

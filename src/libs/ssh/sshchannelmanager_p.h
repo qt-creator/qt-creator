@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef SSHCHANNELLAYER_P_H
-#define SSHCHANNELLAYER_P_H
+#ifndef SSHCHANNELMANAGER_P_H
+#define SSHCHANNELMANAGER_P_H
 
 #include <QHash>
 #include <QObject>
@@ -97,4 +97,4 @@ private:
 } // namespace Internal
 } // namespace QSsh
 
-#endif // SSHCHANNELLAYER_P_H
+#endif // SSHCHANNELMANAGER_P_H
