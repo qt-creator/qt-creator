@@ -35,12 +35,12 @@
 
 using namespace ProjectExplorer;
 
-ProjectExpander::ProjectExpander(const QString &projectFilePath, const QString &projectName,
+ProjectMacroExpander::ProjectMacroExpander(const QString &projectFilePath, const QString &projectName,
                                  const Kit *k, const QString &bcName)
     : m_projectFile(projectFilePath), m_projectName(projectName), m_kit(k), m_bcName(bcName)
 { }
 
-bool ProjectExpander::resolveProjectMacro(const QString &name, QString *ret)
+bool ProjectMacroExpander::resolveProjectMacro(const QString &name, QString *ret)
 {
     QString result;
     bool found = false;
@@ -75,7 +75,7 @@ bool ProjectExpander::resolveProjectMacro(const QString &name, QString *ret)
     return found;
 }
 
-bool ProjectExpander::resolveMacro(const QString &name, QString *ret)
+bool ProjectMacroExpander::resolveMacro(const QString &name, QString *ret)
 {
     bool found = resolveProjectMacro(name, ret);
     if (!found) {

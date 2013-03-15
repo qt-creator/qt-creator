@@ -209,7 +209,7 @@ QString CMakeProject::shadowBuildDirectory(const QString &projectFilePath, const
         return info.absolutePath();
 
     const QString projectName = QFileInfo(info.absolutePath()).fileName();
-    ProjectExplorer::ProjectExpander expander(projectFilePath, projectName, k, bcName);
+    ProjectExplorer::ProjectMacroExpander expander(projectFilePath, projectName, k, bcName);
     QDir projectDir = QDir(projectDirectory(projectFilePath));
     QString buildPath = Utils::expandMacros(Core::DocumentManager::buildDirectory(), &expander);
     return QDir::cleanPath(projectDir.absoluteFilePath(buildPath));

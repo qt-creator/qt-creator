@@ -1178,7 +1178,7 @@ void ProjectExplorerPlugin::updateVariable(const QByteArray &variable)
                 }
             }
         }
-        ProjectExpander expander(projectFilePath, projectName, kit, buildConfigurationName);
+        ProjectMacroExpander expander(projectFilePath, projectName, kit, buildConfigurationName);
         QString result;
         if (expander.resolveProjectMacro(QString::fromUtf8(variable), &result))
             Core::VariableManager::insert(variable, result);

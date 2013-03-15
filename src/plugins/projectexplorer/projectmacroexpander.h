@@ -37,10 +37,10 @@
 namespace ProjectExplorer {
 class Kit;
 
-class PROJECTEXPLORER_EXPORT ProjectExpander : public Utils::AbstractQtcMacroExpander
+class PROJECTEXPLORER_EXPORT ProjectMacroExpander : public Utils::AbstractQtcMacroExpander
 {
 public:
-    ProjectExpander(const QString &projectFilePath, const QString &projectName, const Kit *k, const QString &bcName);
+    ProjectMacroExpander(const QString &projectFilePath, const QString &projectName, const Kit *k, const QString &bcName);
     bool resolveProjectMacro(const QString &name, QString *ret);
     bool resolveMacro(const QString &name, QString *ret);
 

@@ -1390,7 +1390,7 @@ QString Qt4Project::shadowBuildDirectory(const QString &proFilePath, const Kit *
         return info.absolutePath();
 
     const QString projectName = QFileInfo(proFilePath).completeBaseName();
-    ProjectExplorer::ProjectExpander expander(proFilePath, projectName, k, suffix);
+    ProjectExplorer::ProjectMacroExpander expander(proFilePath, projectName, k, suffix);
     QDir projectDir = QDir(projectDirectory(proFilePath));
     QString buildPath = Utils::expandMacros(Core::DocumentManager::buildDirectory(), &expander);
     return QDir::cleanPath(projectDir.absoluteFilePath(buildPath));
