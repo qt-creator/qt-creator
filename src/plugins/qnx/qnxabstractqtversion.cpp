@@ -103,12 +103,8 @@ void QnxAbstractQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils
 
 Utils::Environment QnxAbstractQtVersion::qmakeRunEnvironment() const
 {
-    if (!m_environmentUpToDate && !sdkPath().isEmpty())
-    {
-        // TODO: return Utils::Environment instead(?)
-        m_envMap = QnxUtils::parseEnvironmentFile(QnxUtils::envFilePath(sdkPath()));
-        m_environmentUpToDate = true;
-    }
+    if (!sdkPath().isEmpty())
+        updateEnvironment();
 
     Utils::Environment env = Utils::Environment::systemEnvironment();
     QnxUtils::prependQnxMapToEnvironment(m_envMap, env);
