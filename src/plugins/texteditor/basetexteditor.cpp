@@ -861,7 +861,6 @@ void BaseTextEditorWidget::gotoPreviousWordCamelCaseWithSelection()
 
 void BaseTextEditorWidget::gotoNextWordCamelCase()
 {
-    qDebug() << Q_FUNC_INFO;
     QTextCursor c = textCursor();
     camelCaseRight(c, QTextCursor::MoveAnchor);
     setTextCursor(c);
@@ -873,8 +872,6 @@ void BaseTextEditorWidget::gotoNextWordCamelCaseWithSelection()
     camelCaseRight(c, QTextCursor::KeepAnchor);
     setTextCursor(c);
 }
-
-
 
 static QTextCursor flippedCursor(const QTextCursor &cursor)
 {
