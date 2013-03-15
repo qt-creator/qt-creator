@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTFILEUTILS_H
-#define TEXTFILEUTILS_H
+#ifndef TEXTFILEFORMAT_H
+#define TEXTFILEFORMAT_H
 
 #include "utils_global.h"
 
@@ -90,4 +90,4 @@ public:
 
 } // namespace Utils
 
-#endif // TEXTFILEUTILS_H
+#endif // TEXTFILEFORMAT_H

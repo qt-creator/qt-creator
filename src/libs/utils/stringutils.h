@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGSTUTILS_H
-#define SETTINGSTUTILS_H
+#ifndef STRINGUTILS_H
+#define STRINGUTILS_H
 
 #include "utils_global.h"
 
@@ -82,4 +82,4 @@ QTCREATOR_UTILS_EXPORT QString expandMacros(const QString &str, AbstractMacroExp
 
 } // namespace Utils
 
-#endif // SETTINGSTUTILS_H
+#endif // STRINGUTILS_H

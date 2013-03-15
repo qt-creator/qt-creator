@@ -27,6 +27,9 @@
 **
 ****************************************************************************/
 
+#ifndef NETWORKACCESSMANAGER_H
+#define NETWORKACCESSMANAGER_H
+
 #include "utils_global.h"
 
 #include <QNetworkAccessManager>
@@ -50,3 +53,5 @@ protected:
 
 
 } // namespace utils
+
+#endif // NETWORKACCESSMANAGER_H

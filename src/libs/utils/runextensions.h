@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QTCONCURRENT_RUNEX_H
-#define QTCONCURRENT_RUNEX_H
+#ifndef RUNEXTENSIONS_H
+#define RUNEXTENSIONS_H
 
 #include <qrunnable.h>
 #include <qfutureinterface.h>
@@ -420,4 +420,4 @@ QFuture<T> run(void (Class::*fn)(QFutureInterface<T> &, Arg1, Arg2, Arg3, Arg4, 
 
 QT_END_NAMESPACE
 
-#endif // QTCONCURRENT_RUNEX_H
+#endif // RUNEXTENSIONS_H
