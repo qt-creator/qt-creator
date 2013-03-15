@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_PP_CLIENT_H
-#define CPLUSPLUS_PP_CLIENT_H
+#ifndef PREPROCESSORCLIENT_H
+#define PREPROCESSORCLIENT_H
 
 #include <CPlusPlusForwardDeclarations.h>
 #include <QVector>
@@ -102,4 +102,4 @@ public:
 
 } // namespace CPlusPlus
 
-#endif // CPLUSPLUS_PP_CLIENT_H
+#endif // PREPROCESSORCLIENT_H

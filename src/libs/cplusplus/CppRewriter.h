@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_REWRITER_H
-#define CPLUSPLUS_REWRITER_H
+#ifndef CPPREWRITER_H
+#define CPPREWRITER_H
 
 #include "CppDocument.h"
 #include "LookupContext.h"
@@ -120,4 +120,4 @@ CPLUSPLUS_EXPORT QString simplifySTLType(const QString &typeIn);
 
 } // namespace CPlusPlus
 
-#endif
+#endif // CPPREWRITER_H
