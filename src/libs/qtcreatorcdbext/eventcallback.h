@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGEVENTHANDLER_H
-#define DEBUGEVENTHANDLER_H
+#ifndef EVENTCALLBACK_H
+#define EVENTCALLBACK_H
 
 #include "common.h"
 #include "extensioncontext.h"
@@ -152,4 +152,4 @@ public:
     private:
         IDebugEventCallbacks *m_wrapped;
 };
-#endif // DEBUGEVENTHANDLER_H
+#endif // EVENTCALLBACK_H

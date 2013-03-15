@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef THREADLIST_H
-#define THREADLIST_H
+#ifndef GDBMIHELPERS_H
+#define GDBMIHELPERS_H
 
 #include "common.h"
 #include <vector>
@@ -182,4 +182,4 @@ bool evaluateExpression(CIDebugControl *control, const std::string expression,
 bool evaluateInt64Expression(CIDebugControl *control, const std::string expression,
                              LONG64 *, std::string *errorMessage);
 
-#endif // THREADLIST_H
+#endif // GDBMIHELPERS_H

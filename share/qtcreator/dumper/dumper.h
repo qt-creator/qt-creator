@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef GDBMACROS_H
-#define GDBMACROS_H
+#ifndef DUMPER_H
+#define DUMPER_H
 
 #ifdef MACROSDEBUG
 Q_DECL_EXPORT extern char xDumpInBuffer[];
@@ -43,4 +43,4 @@ void *qDumpObjectData440(int protocolVersion, int token, const void *data,
   int dumpChildren, int extraInt0, int extraInt1, int extraInt2, int extraInt3);
 
 
-#endif // GDBMACROS_H
+#endif // DUMPER_H

@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGEVENTOUTPUT_H
-#define DEBUGEVENTOUTPUT_H
+#ifndef OUTPUTCALLBACK_H
+#define OUTPUTCALLBACK_H
 
 #include "common.h"
 
@@ -68,4 +68,4 @@ private:
     std::wstring m_recorded;
 };
 
-#endif // DEBUGEVENTOUTPUT_H
+#endif // OUTPUTCALLBACK_H

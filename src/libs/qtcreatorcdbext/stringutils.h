@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef SPLIT_H
-#define SPLIT_H
+#ifndef STRINGUTILS_H
+#define STRINGUTILS_H
 
 #include <string>
 #include <sstream>
@@ -226,4 +226,4 @@ private:
 // Format a map as a GDBMI hash {key="value",..}
 void formatGdbmiHash(std::ostream &os, const std::map<std::string, std::string> &, bool closeHash = true);
 
-#endif // SPLIT_H
+#endif // STRINGUTILS_H

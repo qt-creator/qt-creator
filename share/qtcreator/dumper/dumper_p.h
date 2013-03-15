@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef GDBMACROS_P_H
-#define GDBMACROS_P_H
+#ifndef DUMPER_P_H
+#define DUMPER_P_H
 
 #include <QObject>
 #include <QPointer>
@@ -201,4 +201,4 @@ public:
 QT_END_NAMESPACE
 #endif
 
-#endif // GDBMACROS_P_H
+#endif // DUMPER_P_H
