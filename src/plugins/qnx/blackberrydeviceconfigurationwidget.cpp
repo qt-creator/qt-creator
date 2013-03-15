@@ -40,6 +40,7 @@
 
 #include <QProgressDialog>
 #include <QMessageBox>
+#include <QAbstractButton>
 
 using namespace ProjectExplorer;
 using namespace Qnx::Internal;
@@ -59,9 +60,11 @@ BlackBerryDeviceConfigurationWidget::BlackBerryDeviceConfigurationWidget(const I
     connect(ui->debugToken, SIGNAL(changed(QString)), this, SLOT(updateUploadButton()));
     connect(ui->debugToken, SIGNAL(editingFinished()), this, SLOT(debugTokenEditingFinished()));
     connect(ui->debugToken, SIGNAL(browsingFinished()), this, SLOT(debugTokenEditingFinished()));
-    connect(ui->requestButton, SIGNAL(clicked()), this, SLOT(requestDebugToken()));
-    connect(ui->uploadButton, SIGNAL(clicked()), this, SLOT(uploadDebugToken()));
     connect(uploader, SIGNAL(finished(int)), this, SLOT(uploadFinished(int)));
+
+    ui->debugToken->addButton(tr("Request"), this, SLOT(requestDebugToken()));
+    ui->debugToken->addButton(tr("Upload"), this, SLOT(uploadDebugToken()));
+    uploadButton = ui->debugToken->buttonAtIndex(2);
 
     initGui();
 }
@@ -126,7 +129,7 @@ void BlackBerryDeviceConfigurationWidget::uploadDebugToken()
 
 void BlackBerryDeviceConfigurationWidget::updateUploadButton()
 {
-    ui->uploadButton->setEnabled(!ui->debugToken->path().isEmpty());
+    uploadButton->setEnabled(!ui->debugToken->path().isEmpty());
 }
 
 void BlackBerryDeviceConfigurationWidget::uploadFinished(int status)
