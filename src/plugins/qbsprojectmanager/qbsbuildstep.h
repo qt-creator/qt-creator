@@ -100,7 +100,6 @@ private:
     QFutureInterface<bool> *m_fi;
     qbs::BuildJob *m_job;
     int m_progressBase;
-    bool m_showCompilerOutput;
     ProjectExplorer::IOutputParser *m_parser;
 
     friend class QbsBuildStepConfigWidget;

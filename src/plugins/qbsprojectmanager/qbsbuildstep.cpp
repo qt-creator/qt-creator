@@ -62,15 +62,14 @@ namespace Internal {
 
 QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl) :
     ProjectExplorer::BuildStep(bsl, Core::Id(Constants::QBS_BUILDSTEP_ID)),
-    m_job(0), m_showCompilerOutput(true), m_parser(0)
+    m_job(0), m_parser(0)
 {
     setDisplayName(tr("Qbs build"));
 }
 
 QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl, const QbsBuildStep *other) :
     ProjectExplorer::BuildStep(bsl, Core::Id(Constants::QBS_BUILDSTEP_ID)),
-    m_qbsBuildOptions(other->m_qbsBuildOptions),  m_job(0),
-    m_showCompilerOutput(other->m_showCompilerOutput), m_parser(0)
+    m_qbsBuildOptions(other->m_qbsBuildOptions),  m_job(0), m_parser(0)
 { }
 
 QbsBuildStep::~QbsBuildStep()
@@ -262,7 +261,7 @@ void QbsBuildStep::handleProcessResultReport(const qbs::ProcessResult &result)
 {
     bool hasOutput = !result.stdOut.isEmpty() || !result.stdErr.isEmpty();
 
-    if (result.success && !hasOutput && !m_showCompilerOutput)
+    if (result.success && !hasOutput)
         return;
 
     m_parser->setWorkingDirectory(result.workingDirectory);
