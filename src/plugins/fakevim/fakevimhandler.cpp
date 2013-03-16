@@ -1841,8 +1841,6 @@ public:
             : mappings(), currentMap(&mappings), inputTimer(-1), currentMessageLevel(MessageInfo),
               lastSearchForward(false), findPending(false), returnToMode(CommandMode)
         {
-            // default mapping state - shouldn't be removed
-            mapStates << MappingState();
             commandBuffer.setPrompt(QLatin1Char(':'));
         }
 
@@ -2343,7 +2341,8 @@ EventResult FakeVimHandler::Private::handleKey(const Input &input)
         if (!in.isValid()) {
             unhandleMappedKeys();
         } else {
-            if (handleMapped && !g.mapStates.last().noremap && m_subsubmode != SearchSubSubMode) {
+            if (handleMapped && (g.mapStates.isEmpty() || !g.mapStates.last().noremap)
+                    && m_subsubmode != SearchSubSubMode) {
                 if (!g.currentMap.isValid()) {
                     g.currentMap.reset(currentModeCode());
                     if (!g.currentMap.walk(g.pendingInput) && g.currentMap.isComplete()) {
@@ -2369,6 +2368,7 @@ EventResult FakeVimHandler::Private::handleKey(const Input &input)
             if (r != EventHandled) {
                 // clear bad mapping and end all started edit blocks
                 g.pendingInput.clear();
+                g.mapStates.clear();
                 while (m_editBlockLevel > 0)
                     endEditBlock();
                 return r;
@@ -2400,12 +2400,11 @@ EventResult FakeVimHandler::Private::handleDefaultKey(const Input &input)
 
 void FakeVimHandler::Private::handleMappedKeys()
 {
-    int maxMapDepth = g.mapStates.last().maxMapDepth - 1;
+    int maxMapDepth = g.mapStates.isEmpty() ? 1000 : g.mapStates.last().maxMapDepth - 1;
 
     int invalidCount = g.currentMap.invalidInputCount();
     if (invalidCount > 0) {
-        g.mapStates.remove(g.mapStates.size() - invalidCount, invalidCount);
-        QTC_CHECK(!g.mapStates.empty());
+        g.mapStates.remove(0, invalidCount);
         for (int i = 0; i < invalidCount; ++i)
             endEditBlock();
     }
@@ -2427,11 +2426,11 @@ void FakeVimHandler::Private::handleMappedKeys()
 
 void FakeVimHandler::Private::unhandleMappedKeys()
 {
-    if (g.mapStates.size() == 1)
+    if (g.mapStates.isEmpty())
         return;
     g.mapStates.pop_back();
     endEditBlock();
-    if (g.mapStates.size() == 1)
+    if (g.mapStates.isEmpty())
         g.commandBuffer.setHistoryAutoSave(true);
     if (m_mode == ExMode || m_subsubmode == SearchSubSubMode)
         updateMiniBuffer(); // update cursor position on command line
@@ -2889,20 +2888,20 @@ void FakeVimHandler::Private::updateMiniBuffer()
     int anchorPos = -1;
     MessageLevel messageLevel = MessageMode;
 
-    if (g.mapStates.last().silent && g.currentMessageLevel < MessageInfo)
+    if (!g.mapStates.isEmpty() && g.mapStates.last().silent && g.currentMessageLevel < MessageInfo)
         g.currentMessage.clear();
 
     if (m_passing) {
         msg = _("PASSING");
     } else if (m_subsubmode == SearchSubSubMode) {
         msg = g.searchBuffer.display();
-        if (g.mapStates.size() == 1) {
+        if (g.mapStates.isEmpty()) {
             cursorPos = g.searchBuffer.cursorPos() + 1;
             anchorPos = g.searchBuffer.anchorPos() + 1;
         }
     } else if (m_mode == ExMode) {
         msg = g.commandBuffer.display();
-        if (g.mapStates.size() == 1) {
+        if (g.mapStates.isEmpty()) {
             cursorPos = g.commandBuffer.cursorPos() + 1;
             anchorPos = g.commandBuffer.anchorPos() + 1;
         }
@@ -2910,7 +2909,7 @@ void FakeVimHandler::Private::updateMiniBuffer()
         msg = g.currentMessage;
         g.currentMessage.clear();
         messageLevel = g.currentMessageLevel;
-    } else if (g.mapStates.size() > 1 && !g.mapStates.last().silent) {
+    } else if (!g.mapStates.isEmpty() && !g.mapStates.last().silent) {
         // Do not reset previous message when after running a mapped command.
         return;
     } else if (m_mode == CommandMode && !g.currentCommand.isEmpty() && hasConfig(ConfigShowCmd)) {
