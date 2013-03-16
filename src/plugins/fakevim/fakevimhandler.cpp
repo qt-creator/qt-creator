@@ -1442,6 +1442,7 @@ public:
     void finishMovement(const QString &dotCommandMovement = QString());
     void finishMovement(const QString &dotCommandMovement, int count);
     void resetCommandMode();
+    void clearCommandMode();
     QTextCursor search(const SearchData &sd, int startPos, int count, bool showMessages);
     void search(const SearchData &sd, bool showMessages = true);
     void searchNext(bool forward = true);
@@ -2828,16 +2829,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
 
 void FakeVimHandler::Private::resetCommandMode()
 {
-    m_subsubmode = NoSubSubMode;
-    m_submode = NoSubMode;
-    m_movetype = MoveInclusive;
-    m_mvcount.clear();
-    m_opcount.clear();
-    m_gflag = false;
-    m_register = '"';
-    //m_tc.clearSelection();
-    m_rangemode = RangeCharMode;
-    g.currentCommand.clear();
+    clearCommandMode();
     if (g.returnToMode != CommandMode) {
         const QString lastInsertion = m_lastInsertion;
         if (g.returnToMode == InsertMode)
@@ -2849,6 +2841,19 @@ void FakeVimHandler::Private::resetCommandMode()
     }
     if (isNoVisualMode())
         setAnchor();
+}
+
+void FakeVimHandler::Private::clearCommandMode()
+{
+    m_submode = NoSubMode;
+    m_subsubmode = NoSubSubMode;
+    m_movetype = MoveInclusive;
+    m_mvcount.clear();
+    m_opcount.clear();
+    m_gflag = false;
+    m_register = '"';
+    m_rangemode = RangeCharMode;
+    g.currentCommand.clear();
 }
 
 void FakeVimHandler::Private::updateSelection()
@@ -6842,8 +6847,7 @@ void FakeVimHandler::Private::enterCommandMode(Mode returnToMode)
     if (atEndOfLine())
         moveLeft();
     m_mode = CommandMode;
-    m_submode = NoSubMode;
-    m_subsubmode = NoSubSubMode;
+    clearCommandMode();
     g.returnToMode = returnToMode;
 }
 

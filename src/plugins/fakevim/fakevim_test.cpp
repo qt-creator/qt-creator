@@ -541,6 +541,9 @@ void FakeVimPlugin::test_vim_insert()
     KEYS("<insert>x<insert>X<left><left><down><esc>", "xXbc" N X "def");
     KEYS(".", "xXbc" N "x" X "Xef");
 
+    data.setText("abc" N "def");
+    KEYS("2oXYZ<esc>.", "abc" N "XYZ" N "XYZ" N "XYZ" N "XY" X "Z" N "def");
+
     // delete in insert mode is part of dot command
     data.setText("abc" N "def");
     KEYS("iX<delete>Y", "XY" X "bc" N "def");
