@@ -1396,6 +1396,7 @@ public:
     void handleExCommand(const QString &cmd);
 
     void installEventFilter();
+    void removeEventFilter();
     void passShortcuts(bool enable);
     void setupWidget();
     void restoreWidget(int tabSize);
@@ -1727,6 +1728,8 @@ public:
     void pasteText(bool afterCursor);
 
     void joinLines(int count, bool preserveSpace = false);
+
+    void insertNewLine();
 
     // undo handling
     int revision() const { return document()->availableUndoSteps(); }
@@ -2096,6 +2099,12 @@ void FakeVimHandler::Private::installEventFilter()
 {
     EDITOR(viewport()->installEventFilter(q));
     EDITOR(installEventFilter(q));
+}
+
+void FakeVimHandler::Private::removeEventFilter()
+{
+    EDITOR(viewport()->removeEventFilter(q));
+    EDITOR(removeEventFilter(q));
 }
 
 void FakeVimHandler::Private::setupWidget()
@@ -3661,26 +3670,38 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         bool insertAfter = input.is('o');
         setDotCommand(_(insertAfter ? "%1o" : "%1O"), count());
         setUndoPosition();
-        enterInsertMode();
-        // Insert new line so that command can be repeated [count] times inserting new line
-        // each time without unfolding any lines.
-        QTextBlock block = cursor().block();
-        bool appendLine = false;
-        if (insertAfter) {
-            const int line = lineNumber(block);
-            appendLine = line >= document()->lineCount();
-            setPosition(appendLine ? lastPositionInLine(line) : firstPositionInLine(line + 1));
-        } else {
-            setPosition(block.position());
+
+        // Prepend line only if on the first line and command is 'O'.
+        bool appendLine = true;
+        if (!insertAfter) {
+            if (block().blockNumber() == 0)
+                appendLine = false;
+            else
+                moveUp();
         }
+        const int line = lineNumber(block());
+
+        enterInsertMode();
         beginEditBlock();
-        insertText(QString::fromLatin1("\n"));
-        if (!appendLine)
+        if (appendLine) {
+            setPosition(lastPositionInLine(line));
+            insertNewLine();
+        } else {
+            setPosition(firstPositionInLine(line));
+            insertNewLine();
             moveUp();
-        insertAutomaticIndentation(insertAfter);
+        }
         recordInsertion(QString::fromLatin1("\n"));
         setTargetColumn();
         endEditBlock();
+
+        // Close accidentally opened block.
+        if (block().blockNumber() > 0) {
+            moveUp();
+            if (line != lineNumber(block()))
+                emit q->fold(1, true);
+            moveDown();
+        }
     } else if (input.isControl('o')) {
         jump(-count());
     } else if (input.is('p') || input.is('P') || input.isShift(Qt::Key_Insert)) {
@@ -4266,9 +4287,8 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
     } else if (input.isReturn() || input.isControl('j') || input.isControl('m')) {
         joinPreviousEditBlock();
         m_submode = NoSubMode;
-        insertText(QString::fromLatin1("\n"));
+        insertNewLine();
         insert = _("\n");
-        insertAutomaticIndentation(true);
         endEditBlock();
     } else if (input.isBackspace()) {
         joinPreviousEditBlock();
@@ -6454,6 +6474,30 @@ void FakeVimHandler::Private::joinLines(int count, bool preserveSpace)
         }
     }
     setPosition(pos);
+}
+
+void FakeVimHandler::Private::insertNewLine()
+{
+    if ( hasConfig(ConfigPassNewLine) ) {
+        QKeyEvent event(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier, QLatin1String("\n"));
+
+        removeEventFilter();
+
+        QTextCursor tc = m_cursor;
+        tc.setPosition(tc.position());
+        EDITOR(setTextCursor(tc));
+        bool accepted = QApplication::sendEvent(editor(), &event);
+
+        installEventFilter();
+
+        if (accepted) {
+            setPosition(EDITOR(textCursor()).position());
+            return;
+        }
+    }
+
+    insertText(QString::fromLatin1("\n"));
+    insertAutomaticIndentation(true);
 }
 
 QString FakeVimHandler::Private::lineContents(int line) const

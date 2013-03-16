@@ -1646,6 +1646,7 @@ void FakeVimPlugin::test_vim_code_autoindent()
     TestData data;
     setup(&data);
 
+    data.doCommand("set nopassnewline");
     data.doCommand("set expandtab");
     data.doCommand("set shiftwidth=3");
 
