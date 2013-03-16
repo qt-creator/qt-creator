@@ -724,7 +724,7 @@ void GitPlugin::startRebase()
     if (workingDirectory.isEmpty() || !m_gitClient->canRebase(workingDirectory))
         return;
     GitClient::StashGuard stashGuard(workingDirectory, QLatin1String("Rebase-i"));
-    if (stashGuard.stashingFailed(true))
+    if (stashGuard.stashingFailed())
         return;
     stashGuard.preventPop();
     LogChangeDialog dialog(false);
@@ -778,7 +778,7 @@ void GitPlugin::startChangeRelatedAction()
     }
 
     GitClient::StashGuard stashGuard(workingDirectory, command);
-    if (stashGuard.stashingFailed(true))
+    if (stashGuard.stashingFailed())
         return;
 
     if (!(m_gitClient->*commandFunction)(workingDirectory, change))
@@ -1009,8 +1009,9 @@ void GitPlugin::pull()
         }
     }
 
-    GitClient::StashGuard stashGuard(topLevel, QLatin1String("Pull"));
-    if (stashGuard.stashingFailed(false) || (rebase && (stashGuard.result() == GitClient::NotStashed)))
+    GitClient::StashGuard stashGuard(topLevel, QLatin1String("Pull"),
+                                     rebase ? Default : AllowUnstashed);
+    if (stashGuard.stashingFailed())
         return;
     if (!m_gitClient->synchronousPull(topLevel, rebase))
         stashGuard.preventPop();
@@ -1137,8 +1138,8 @@ void GitPlugin::promptApplyPatch()
 void GitPlugin::applyPatch(const QString &workingDirectory, QString file)
 {
     // Ensure user has been notified about pending changes
-    GitClient::StashGuard stashGuard(workingDirectory, QLatin1String("Apply-Patch"));
-    if (stashGuard.stashingFailed(false))
+    GitClient::StashGuard stashGuard(workingDirectory, QLatin1String("Apply-Patch"), AllowUnstashed);
+    if (stashGuard.stashingFailed())
         return;
     // Prompt for file
     if (file.isEmpty()) {
@@ -1168,7 +1169,7 @@ void GitPlugin::stash()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     QString id;
-    gitClient()->ensureStash(state.topLevel(), QString(), false, &id);
+    gitClient()->ensureStash(state.topLevel(), QString(), NoPrompt, &id);
     if (!id.isEmpty() && m_stashDialog)
         m_stashDialog->refresh(state.topLevel(), true);
 }

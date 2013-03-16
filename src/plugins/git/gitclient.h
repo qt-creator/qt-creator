@@ -76,6 +76,12 @@ enum StatusMode
     NoSubmodules = 2
 };
 
+enum StashFlag {
+    Default        = 0x00, /* Prompt and do not allow unstashed */
+    AllowUnstashed = 0x01,
+    NoPrompt       = 0x02
+};
+
 class GitClient : public QObject
 {
     Q_OBJECT
@@ -87,12 +93,14 @@ public:
     class StashGuard
     {
     public:
-        StashGuard(const QString &workingDirectory, const QString &keyword, bool askUser = true);
+        StashGuard(const QString &workingDirectory, const QString &keyword,
+                   StashFlag flag = Default);
         ~StashGuard();
 
         void preventPop();
-        bool stashingFailed(bool includeNotStashed) const;
+        bool stashingFailed() const;
         StashResult result() const { return stashResult; }
+        QString stashMessage() const { return message; }
 
     private:
         bool pop;
@@ -100,6 +108,7 @@ public:
         QString message;
         QString workingDir;
         GitClient *client;
+        StashFlag flags;
     };
 
     static const char *stashNamePrefix;
@@ -250,8 +259,8 @@ public:
 
     QString readConfigValue(const QString &workingDirectory, const QString &configVar) const;
 
-    StashResult ensureStash(const QString &workingDirectory, const QString &keyword, bool askUser,
-                            QString *message, QString *errorMessage = 0);
+    StashResult ensureStash(const QString &workingDirectory, const QString &keyword,
+                            StashFlag flag, QString *message, QString *errorMessage = 0);
 
     bool getCommitData(const QString &workingDirectory, bool amend,
                        QString *commitTemplate, CommitData *commitData,

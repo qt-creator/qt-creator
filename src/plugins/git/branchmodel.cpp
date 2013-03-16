@@ -470,10 +470,8 @@ void BranchModel::checkoutBranch(const QModelIndex &idx)
     if (branch.isEmpty())
         return;
 
-    GitClient::StashGuard stashGuard(m_workingDirectory, QLatin1String("Branch-Checkout"));
-    if (stashGuard.stashingFailed(false))
-        return;
-    stashGuard.preventPop();
+    // No StashGuard since this function for now is only used with clean working dir.
+    // If it is ever used from another place, please add StashGuard here
     QString errorMessage;
     if (m_client->synchronousCheckout(m_workingDirectory, branch, &errorMessage)) {
         if (errorMessage.isEmpty()) {

@@ -188,7 +188,8 @@ void BranchDialog::checkout()
         QString stashMessage;
         if (branchCheckoutDialog.makeStashOfCurrentBranch()
             || branchCheckoutDialog.moveLocalChangesToNextBranch()) {
-            gitClient->ensureStash(m_repository, currentBranch + QLatin1String("-AutoStash"), false, &stashMessage);
+            gitClient->ensureStash(m_repository, currentBranch + QLatin1String("-AutoStash"),
+                                   NoPrompt, &stashMessage);
         } else if (branchCheckoutDialog.discardLocalChanges()) {
             gitClient->synchronousReset(m_repository);
         }
@@ -287,7 +288,7 @@ void BranchDialog::merge()
     QTC_CHECK(idx != m_model->currentBranch());            // otherwise the button would not be enabled!
 
     const QString branch = m_model->branchName(idx);
-    GitClient::StashGuard stashGuard(m_repository, QLatin1String("merge"), false);
+    GitClient::StashGuard stashGuard(m_repository, QLatin1String("merge"), AllowUnstashed);
     if (!GitPlugin::instance()->gitClient()->synchronousMerge(m_repository, branch))
         stashGuard.preventPop();
 }
@@ -299,7 +300,7 @@ void BranchDialog::rebase()
     QTC_CHECK(idx != m_model->currentBranch());            // otherwise the button would not be enabled!
 
     const QString baseBranch = m_model->branchName(idx);
-    GitClient::StashGuard stashGuard(m_repository, QLatin1String("rebase"), false);
+    GitClient::StashGuard stashGuard(m_repository, QLatin1String("rebase"));
     if (!GitPlugin::instance()->gitClient()->synchronousRebase(m_repository, baseBranch))
         stashGuard.preventPop();
 }
