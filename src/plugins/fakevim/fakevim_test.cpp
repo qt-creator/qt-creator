@@ -2889,3 +2889,40 @@ void FakeVimPlugin::test_vim_Visual_d()
     KEYS("Vkx",   '|' + lmid(4));
     KEYS("P",     '|' + lmid(0,1)+'\n' + lmid(3));
 }
+
+void FakeVimPlugin::test_macros()
+{
+    TestData data;
+    setup(&data);
+
+    // execute register content
+    data.setText("r1" N "r2r3");
+    KEYS("\"xy$", X "r1" N "r2r3");
+    KEYS("@x", X "11" N "r2r3");
+    INTEGRITY(false);
+
+    data.doKeys("j\"xy$");
+    KEYS("@x", "11" N X "32r3");
+    INTEGRITY(false);
+
+    data.setText("3<C-A>");
+    KEYS("\"xy$", X "3<C-A>");
+    KEYS("@x", X "6<C-A>");
+    KEYS("@x", X "9<C-A>");
+    KEYS("2@x", "1" X "5<C-A>");
+    KEYS("2@@", "2" X "1<C-A>");
+    KEYS("@@", "2" X "4<C-A>");
+
+// Raw characters for macro recording.
+#define ESC "\x1b"
+#define ENTER "\n"
+
+    // record
+    data.setText("abc" N "def");
+    KEYS("qx" "A" ENTER "- xyz" ESC "rZjI- opq" ENTER ESC "q" , "abc" N "- xyZ" N "- opq" N X "def");
+    KEYS("@x" , "abc" N "- xyZ" N "- opq" N "def" N "- opq" N X "- xyZ");
+
+    data.setText("  1 2 3" N "  4 5 6" N "  7 8 9");
+    KEYS("qx" "wrXj" "q", "  X 2 3" N "  4 5 6" N "  7 8 9");
+    KEYS("2@x", "  X 2 3" N "  4 X 6" N "  7 8 X");
+}

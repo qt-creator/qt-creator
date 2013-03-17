@@ -178,7 +178,9 @@ enum SubMode
     YankSubMode,         // Used for y
     ZSubMode,            // Used for z
     CapitalZSubMode,     // Used for Z
-    ReplaceSubMode      // Used for r
+    ReplaceSubMode,      // Used for r
+    MacroRecordSubMode,  // Used for q
+    MacroExecuteSubMode  // Used for @
 };
 
 /*! A \e SubSubMode is used for things that require one more data item
@@ -937,13 +939,16 @@ public:
 
     int key() const { return m_key; }
 
+    // Return raw character for macro recording or dot command.
     QChar raw() const
     {
         if (m_key == Key_Tab)
             return QLatin1Char('\t');
         if (m_key == Key_Return)
             return QLatin1Char('\n');
-        return m_key;
+        if (m_key == Key_Escape)
+            return QChar(27);
+        return m_xkey;
     }
 
     QString toString() const
@@ -1438,6 +1443,8 @@ public:
     bool handleYankSubMode(const Input &);
     bool handleZSubMode(const Input &);
     bool handleCapitalZSubMode(const Input &);
+    bool handleMacroRecordSubMode(const Input &);
+    bool handleMacroExecuteSubMode(const Input &);
 
     bool handleCount(const Input &); // Handle count for commands (return false if input isn't count).
     bool handleMovement(const Input &);
@@ -1659,6 +1666,12 @@ public:
     void ensureCursorVisible();
     void insertInInsertMode(const QString &text);
 
+    // Macro recording
+    bool startRecording(const Input &input);
+    void record(const Input &input);
+    void stopRecording();
+    bool executeRegister(int register);
+
 public:
     QTextEdit *m_textedit;
     QPlainTextEdit *m_plaintextedit;
@@ -1848,7 +1861,7 @@ public:
         GlobalData()
             : mappings(), currentMap(&mappings), inputTimer(-1), mapDepth(0),
               currentMessageLevel(MessageInfo), lastSearchForward(false), findPending(false),
-              returnToMode(CommandMode)
+              returnToMode(CommandMode), currentRegister(0), lastExecutedRegister(0)
         {
             commandBuffer.setPrompt(QLatin1Char(':'));
         }
@@ -1892,6 +1905,11 @@ public:
 
         // Return to insert/replace mode after single command (<C-O>).
         Mode returnToMode;
+
+        // Currently recorded macro (not recording if null string).
+        QString recording;
+        int currentRegister;
+        int lastExecutedRegister;
     } g;
 };
 
@@ -2316,8 +2334,10 @@ EventResult FakeVimHandler::Private::handleKey(const Input &input)
     // Waiting on input to complete mapping?
     EventResult r = stopWaitForMapping(hasInput);
 
-    if (hasInput)
+    if (hasInput) {
+        record(input);
         g.pendingInput.append(input);
+    }
 
     // Process pending input.
     // Note: Pending input is global state and can be extended by:
@@ -2973,24 +2993,27 @@ void FakeVimHandler::Private::updateMiniBuffer()
         messageLevel = MessageShowCmd;
     } else if (m_mode == CommandMode && isVisualMode()) {
         if (isVisualCharMode())
-            msg = _("VISUAL");
+            msg = _("-- VISUAL --");
         else if (isVisualLineMode())
-            msg = _("VISUAL LINE");
+            msg = _("-- VISUAL LINE --");
         else if (isVisualBlockMode())
             msg = _("VISUAL BLOCK");
     } else if (m_mode == InsertMode) {
-        msg = _("INSERT");
+        msg = _("-- INSERT --");
     } else if (m_mode == ReplaceMode) {
-        msg = _("REPLACE");
+        msg = _("-- REPLACE --");
     } else {
         QTC_CHECK(m_mode == CommandMode && m_subsubmode != SearchSubSubMode);
         if (g.returnToMode == CommandMode)
-            msg = _("COMMAND");
+            msg = _("-- COMMAND --");
         else if (g.returnToMode == InsertMode)
-            msg = _("(insert)");
+            msg = _("-- (insert) --");
         else
-            msg = _("(replace)");
+            msg = _("-- (replace) --");
     }
+
+    if (!g.recording.isNull() && msg.startsWith(_("--")))
+        msg.append(_("recording"));
 
     emit q->commandBufferChanged(msg, cursorPos, anchorPos, messageLevel, q);
 
@@ -3467,6 +3490,10 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         handled = handleZSubMode(input);
     } else if (m_submode == CapitalZSubMode) {
         handled = handleCapitalZSubMode(input);
+    } else if (m_submode == MacroRecordSubMode) {
+        handled = handleMacroRecordSubMode(input);
+    } else if (m_submode == MacroExecuteSubMode) {
+        handled = handleMacroExecuteSubMode(input);
     } else if (m_submode == ShiftLeftSubMode
         || m_submode == ShiftRightSubMode
         || m_submode == IndentSubMode) {
@@ -3756,6 +3783,16 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         setTargetColumn();
         setDotCommand(_("%1p"), count());
         finishMovement();
+    } else if (input.is('q')) {
+        if (g.recording.isNull()) {
+            // Recording shouldn't work in mapping or while executing register.
+            handled = g.mapStates.empty();
+            if (handled)
+                m_submode = MacroRecordSubMode;
+        } else {
+            // Stop recording.
+            stopRecording();
+        }
     } else if (input.is('r')) {
         m_submode = ReplaceSubMode;
     } else if (!isVisualMode() && input.is('R')) {
@@ -3924,6 +3961,8 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             setDotCommand(QString::fromLatin1("%1%2").arg(count()).arg(input.raw()));
             endEditBlock();
         }
+    } else if (input.is('@')) {
+        m_submode = MacroExecuteSubMode;
     } else if (input.isKey(Key_Delete)) {
         setAnchor();
         moveRight(qMin(1, rightDist()));
@@ -4159,6 +4198,24 @@ bool FakeVimHandler::Private::handleCapitalZSubMode(const Input &input)
         handled = false;
     m_submode = NoSubMode;
     return handled;
+}
+
+bool FakeVimHandler::Private::handleMacroRecordSubMode(const Input &input)
+{
+    m_submode = NoSubMode;
+    return startRecording(input);
+}
+
+bool FakeVimHandler::Private::handleMacroExecuteSubMode(const Input &input)
+{
+    m_submode = NoSubMode;
+
+    bool result = true;
+    int repeat = count();
+    while (result && --repeat >= 0)
+        result = executeRegister(input.asChar().unicode());
+
+    return result;
 }
 
 EventResult FakeVimHandler::Private::handleReplaceMode(const Input &input)
@@ -4464,6 +4521,54 @@ void FakeVimHandler::Private::insertInInsertMode(const QString &text)
     setTargetColumn();
     endEditBlock();
     m_ctrlVActive = false;
+}
+
+bool FakeVimHandler::Private::startRecording(const Input &input)
+{
+    QChar reg = input.asChar();
+    if (reg == QLatin1Char('"') || reg.isLetterOrNumber()) {
+        g.currentRegister = reg.unicode();
+        g.recording = QLatin1String("");
+        return true;
+    }
+
+    return false;
+}
+
+void FakeVimHandler::Private::record(const Input &input)
+{
+    if ( !g.recording.isNull() )
+        g.recording.append(input.raw());
+}
+
+void FakeVimHandler::Private::stopRecording()
+{
+    // Remove q from end (stop recording command).
+    g.recording.remove(g.recording.size() - 1, 1);
+    setRegister(g.currentRegister, g.recording, m_rangemode);
+    g.currentRegister = 0;
+    g.recording = QString();
+}
+
+bool FakeVimHandler::Private::executeRegister(int reg)
+{
+    QChar regChar(reg);
+
+    // TODO: Prompt for an expression to execute if register is '='.
+    if (reg == '@' && g.lastExecutedRegister != 0)
+        reg = g.lastExecutedRegister;
+    else if (QString::fromLatin1("\".*+").contains(regChar) || regChar.isLetterOrNumber())
+        g.lastExecutedRegister = reg;
+    else
+        return false;
+
+    // FIXME: In Vim it's possible to interrupt recursive macro with <C-c>.
+    //        One solution may be to call QApplication::processEvents() and check if <C-c> was
+    //        used when a mapping is active.
+    // According to Vim, register is executed like mapping.
+    prependMapping(Inputs(registerContents(reg)));
+
+    return true;
 }
 
 EventResult FakeVimHandler::Private::handleExMode(const Input &input)

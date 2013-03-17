@@ -151,7 +151,7 @@ public:
             hide();
         } else {
             show();
-            m_label->setText(messageLevel == MessageMode ? _("-- ") + contents + _(" --") : contents);
+            m_label->setText(contents);
 
             QString css;
             if (messageLevel == MessageError) {
