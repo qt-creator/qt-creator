@@ -3597,25 +3597,19 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         setAnchor();
         m_opcount = m_mvcount;
         m_mvcount.clear();
+        m_rangemode = RangeCharMode;
         m_movetype = MoveExclusive;
         m_submode = input.is('c') ? ChangeSubMode : DeleteSubMode;
     } else if ((input.is('c') || input.is('C') || input.is('s') || input.is('R'))
           && (isVisualCharMode() || isVisualLineMode())) {
         setDotCommand(visualDotCommand() + input.asChar());
-        if ((input.is('c')|| input.is('s')) && isVisualCharMode()) {
-            leaveVisualMode();
-            m_rangemode = RangeCharMode;
-        } else {
-            leaveVisualMode();
-            m_rangemode = RangeLineMode;
-            // leaveVisualMode() has set this to MoveInclusive for visual character mode
-            m_movetype =  MoveLineWise;
-        }
+        leaveVisualMode();
         m_submode = ChangeSubMode;
         finishMovement();
     } else if (input.is('C')) {
         setAnchor();
         moveToEndOfLine();
+        m_rangemode = RangeCharMode;
         m_submode = ChangeSubMode;
         setDotCommand(QString(QLatin1Char('C')));
         finishMovement();
@@ -3634,13 +3628,11 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             finishMovement();
         } else if (isVisualLineMode()) {
             leaveVisualMode();
-            m_rangemode = RangeLineMode;
             yankText(currentRange(), m_register);
             removeText(currentRange());
             handleStartOfLine();
         } else if (isVisualBlockMode()) {
             leaveVisualMode();
-            m_rangemode = RangeBlockMode;
             yankText(currentRange(), m_register);
             removeText(currentRange());
             setPosition(qMin(position(), anchor()));
@@ -3864,6 +3856,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         scrollUp(1);
     } else if (input.is('y') && isNoVisualMode()) {
         setAnchor();
+        m_rangemode = RangeCharMode;
         m_movetype = MoveExclusive;
         m_submode = YankSubMode;
     } else if (input.is('y') && isVisualCharMode()) {
@@ -6710,10 +6703,16 @@ void FakeVimHandler::Private::leaveVisualMode()
     setMark(QLatin1Char('<'), mark(QLatin1Char('<')).position);
     setMark(QLatin1Char('>'), mark(QLatin1Char('>')).position);
     m_lastVisualModeInverted = anchor() > position();
-    if (isVisualLineMode())
+    if (isVisualLineMode()) {
+        m_rangemode = RangeLineMode;
         m_movetype = MoveLineWise;
-    else if (isVisualCharMode())
+    } else if (isVisualCharMode()) {
+        m_rangemode = RangeCharMode;
         m_movetype = MoveInclusive;
+    } else if (isVisualBlockMode()) {
+        m_rangemode = RangeBlockMode;
+        m_movetype = MoveInclusive;
+    }
 
     m_visualMode = NoVisualMode;
     updateMiniBuffer();

@@ -764,6 +764,12 @@ void FakeVimPlugin::test_vim_delete()
     data.setText("  abc" N "  def" N "  gh" X "i" N "  jkl");
     KEYS("dk", "  abc" N "  " X "jkl");
     INTEGRITY(false);
+
+    // delete with copy to a register
+    data.setText("abc" N "def");
+    KEYS("\"xd$", X "" N "def");
+    KEYS("\"xp", "ab" X "c" N "def");
+    KEYS("2\"xp", "abcabcab" X "c" N "def");
 }
 
 void FakeVimPlugin::test_vim_delete_inner_word()
@@ -1013,6 +1019,12 @@ void FakeVimPlugin::test_vim_change_replace()
     data.setText("abc" N "de" X "f" N  "" N "jkl" N "mno");
     KEYS("<c-v>2jh" "2s" "XYZ<esc>", "abc" N "d" X "XYZ" N "" N "jXYZ" N "mno");
     INTEGRITY(false);
+
+    // change with copy to a register
+    data.setText("abc" N "def");
+    KEYS("\"xCxyz<esc>", "xy" X "z" N "def");
+    KEYS("\"xp", "xyzab" X "c" N "def");
+    KEYS("2\"xp", "xyzabcabcab" X "c" N "def");
 }
 
 void FakeVimPlugin::test_vim_block_selection()
@@ -1970,6 +1982,10 @@ void FakeVimPlugin::test_vim_ex_yank()
     COMMAND("$-1y", "abc" N X "def");
     KEYS("P", "abc" N X "abc" N "def");
     COMMAND("u", "abc" N X "def");
+
+    data.setText("abc" N "def");
+    KEYS("\"xy$", X "abc" N "def");
+    KEYS("\"xP", "ab" X "cabc" N "def");
 }
 
 void FakeVimPlugin::test_vim_ex_delete()
