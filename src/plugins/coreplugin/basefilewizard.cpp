@@ -526,7 +526,8 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QStri
     foreach (IFileWizardExtension *ex, extensions) {
         bool remove;
         if (!ex->processFiles(files, &remove, &errorMessage)) {
-            QMessageBox::critical(parent, tr("File Generation Failure"), errorMessage);
+            if (!errorMessage.isEmpty())
+                QMessageBox::critical(parent, tr("File Generation Failure"), errorMessage);
             return;
         }
         removeOpenProjectAttribute |= remove;

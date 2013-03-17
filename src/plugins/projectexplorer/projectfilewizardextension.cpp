@@ -58,6 +58,7 @@
 #include <QDir>
 #include <QTextDocument>
 #include <QTextCursor>
+#include <QMessageBox>
 
 /*!
     \class ProjectExplorer::Internal::ProjectFileWizardExtension
@@ -444,8 +445,21 @@ bool ProjectFileWizardExtension::processFiles(
         const QList<Core::GeneratedFile> &files,
         bool *removeOpenProjectAttribute, QString *errorMessage)
 {
-    return processProject(files, removeOpenProjectAttribute, errorMessage) &&
-           processVersionControl(files, errorMessage);
+    if (!processProject(files, removeOpenProjectAttribute, errorMessage))
+        return false;
+    if (!processVersionControl(files, errorMessage)) {
+        QString message;
+        if (errorMessage) {
+            message = *errorMessage;
+            message.append(QLatin1String("\n\n"));
+            errorMessage->clear();
+        }
+        message.append(tr("Open project anyway?"));
+        if (QMessageBox::question(Core::ICore::mainWindow(), tr("Version Control Failure"), message,
+                                  QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+            return false;
+    }
+    return true;
 }
 
 // Add files to project && version control
