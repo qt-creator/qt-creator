@@ -2251,6 +2251,14 @@ void FakeVimPlugin::test_map()
     KEYS("Y", X "abc" N "def");
     data.doCommand("unmap X|unmap Y");
 
+    // correct mapping after bad one
+    data.setText("abc" N "def");
+    data.doCommand("map X Y");
+    data.doCommand("map Y X");
+    data.doCommand("map Xx xxx");
+    KEYS("Xr2", X "2bc" N "def");
+    data.doCommand("unmap X|unmap x|unmap Y");
+
     // <C-o>
     data.setText("abc def");
     data.doCommand("imap X <c-o>:%s/def/xxx/<cr>");

@@ -870,7 +870,7 @@ public:
 
     bool isDigit() const
     {
-        return m_xkey >= QLatin1Char('0') && m_xkey <= QLatin1Char('9');
+        return m_xkey >= '0' && m_xkey <= '9';
     }
 
     bool isKey(int c) const
@@ -983,6 +983,7 @@ public:
         : m_noremap(noremap), m_silent(silent)
     {
         parseFrom(str);
+        squeeze();
     }
 
     bool noremap() const { return m_noremap; }
@@ -1255,6 +1256,8 @@ class MappingsIterator : public QVector<ModeMapping::Iterator>
 public:
     MappingsIterator(Mappings *mappings, char mode = -1, const Inputs &inputs = Inputs())
         : m_parent(mappings)
+        , m_lastValid(-1)
+        , m_mode(0)
     {
         reset(mode);
         walk(inputs);
@@ -1265,7 +1268,7 @@ public:
     {
         clear();
         m_lastValid = -1;
-        m_invalidInputCount = 0;
+        m_currentInputs.clear();
         if (mode != 0) {
             m_mode = mode;
             if (mode != -1)
@@ -1284,17 +1287,12 @@ public:
     // Return size of current map.
     int mapLength() const { return m_lastValid + 1; }
 
-    int invalidInputCount() const { return m_invalidInputCount; }
-
     bool walk(const Input &input)
     {
+        m_currentInputs.append(input);
+
         if (m_modeMapping == m_parent->end())
             return false;
-
-        if (!input.isValid()) {
-            m_invalidInputCount += 1;
-            return true;
-        }
 
         ModeMapping::Iterator it;
         if (isValid()) {
@@ -1360,21 +1358,22 @@ public:
             current->setValue(inputs);
     }
 
+    const Inputs &currentInputs() const { return m_currentInputs; }
+
 private:
     Mappings *m_parent;
     Mappings::Iterator m_modeMapping;
     int m_lastValid;
-    int m_invalidInputCount;
     char m_mode;
+    Inputs m_currentInputs;
 };
 
 // state of current mapping
 struct MappingState {
     MappingState()
-        : maxMapDepth(1000), noremap(false), silent(false) {}
-    MappingState(int depth, bool noremap, bool silent)
-        : maxMapDepth(depth), noremap(noremap), silent(silent) {}
-    int maxMapDepth;
+        : noremap(false), silent(false) {}
+    MappingState(bool noremap, bool silent)
+        : noremap(noremap), silent(silent) {}
     bool noremap;
     bool silent;
 };
@@ -1411,8 +1410,16 @@ public:
 
     EventResult handleKey(const Input &input);
     EventResult handleDefaultKey(const Input &input);
-    void handleMappedKeys();
-    void unhandleMappedKeys();
+    EventResult handleCurrentMapAsDefault();
+    void prependInputs(const QVector<Input> &inputs); // Handle inputs.
+    void prependMapping(const Inputs &inputs); // Handle inputs as mapping.
+    bool expandCompleteMapping(); // Return false if current mapping is not complete.
+    bool extendMapping(const Input &input); // Return false if no suitable mappig found.
+    void endMapping();
+    bool canHandleMapping();
+    void clearPendingInput();
+    void waitForMapping();
+    EventResult stopWaitForMapping(bool hasInput);
     EventResult handleInsertMode(const Input &);
     EventResult handleReplaceMode(const Input &);
 
@@ -1839,8 +1846,9 @@ public:
     static struct GlobalData
     {
         GlobalData()
-            : mappings(), currentMap(&mappings), inputTimer(-1), currentMessageLevel(MessageInfo),
-              lastSearchForward(false), findPending(false), returnToMode(CommandMode)
+            : mappings(), currentMap(&mappings), inputTimer(-1), mapDepth(0),
+              currentMessageLevel(MessageInfo), lastSearchForward(false), findPending(false),
+              returnToMode(CommandMode)
         {
             commandBuffer.setPrompt(QLatin1Char(':'));
         }
@@ -1854,10 +1862,11 @@ public:
         Mappings mappings;
 
         // Input.
-        Inputs pendingInput;
+        QList<Input> pendingInput;
         MappingsIterator currentMap;
         int inputTimer;
         QStack<MappingState> mapStates;
+        int mapDepth;
 
         // Command line buffers.
         CommandBuffer commandBuffer;
@@ -2302,82 +2311,47 @@ EventResult FakeVimHandler::Private::handleKey(const Input &input)
 {
     KEY_DEBUG("HANDLE INPUT: " << input << " MODE: " << mode);
 
-    bool handleMapped = true;
     bool hasInput = input.isValid();
+
+    // Waiting on input to complete mapping?
+    EventResult r = stopWaitForMapping(hasInput);
 
     if (hasInput)
         g.pendingInput.append(input);
 
-    // Waiting on input to complete mapping?
-    if (g.inputTimer != -1) {
-        killTimer(g.inputTimer);
-        g.inputTimer = -1;
-        // If there is a new input add it to incomplete input or
-        // if the mapped input can be completed complete.
-        if (hasInput && g.currentMap.walk(input)) {
-            if (g.currentMap.canExtend()) {
-                g.currentCommand.append(input.toString());
-                updateMiniBuffer();
-                g.inputTimer = startTimer(1000);
-                return EventHandled;
-            } else {
-                hasInput = false;
-                handleMappedKeys();
-            }
-        } else if (g.currentMap.isComplete()) {
-            handleMappedKeys();
-        } else {
-            g.currentMap.reset();
-            handleMapped = false;
-        }
-        g.currentCommand.clear();
-        updateMiniBuffer();
-    }
-
-    EventResult r = EventUnhandled;
-    while (!g.pendingInput.isEmpty()) {
-        const Input &in = g.pendingInput.front();
+    // Process pending input.
+    // Note: Pending input is global state and can be extended by:
+    //         1. handling a user input (though handleKey() is not called recursively),
+    //         2. expanding a user mapping or
+    //         3. executing a register.
+    while (!g.pendingInput.isEmpty() && r == EventHandled) {
+        const Input in = g.pendingInput.takeFirst();
 
         // invalid input is used to pop mapping state
         if (!in.isValid()) {
-            unhandleMappedKeys();
+            endMapping();
         } else {
-            if (handleMapped && (g.mapStates.isEmpty() || !g.mapStates.last().noremap)
-                    && m_subsubmode != SearchSubSubMode) {
-                if (!g.currentMap.isValid()) {
-                    g.currentMap.reset(currentModeCode());
-                    if (!g.currentMap.walk(g.pendingInput) && g.currentMap.isComplete()) {
-                        handleMappedKeys();
-                        continue;
-                    }
+            // Handle user mapping.
+            if (canHandleMapping()) {
+                if (extendMapping(in)) {
+                    if (!hasInput || !g.currentMap.canExtend())
+                        expandCompleteMapping();
+                } else if (!expandCompleteMapping()) {
+                    r = handleCurrentMapAsDefault();
                 }
-
-                // handle user mapping
-                if (g.currentMap.canExtend()) {
-                    g.currentCommand.append(in.toString());
-                    updateMiniBuffer();
-                    // wait for user to press any key or trigger complete mapping after interval
-                    g.inputTimer = startTimer(1000);
-                    return EventHandled;
-                } else if (g.currentMap.isComplete()) {
-                    handleMappedKeys();
-                    continue;
-                }
-            }
-
-            r = handleDefaultKey(in);
-            if (r != EventHandled) {
-                // clear bad mapping and end all started edit blocks
-                g.pendingInput.clear();
-                g.mapStates.clear();
-                while (m_editBlockLevel > 0)
-                    endEditBlock();
-                return r;
+            } else {
+                r = handleDefaultKey(in);
             }
         }
-        handleMapped = true;
-        g.pendingInput.pop_front();
     }
+
+    if (g.currentMap.canExtend()) {
+        waitForMapping();
+        return EventHandled;
+    }
+
+    if (r != EventHandled)
+        clearPendingInput();
 
     return r;
 }
@@ -2399,50 +2373,127 @@ EventResult FakeVimHandler::Private::handleDefaultKey(const Input &input)
     return EventUnhandled;
 }
 
-void FakeVimHandler::Private::handleMappedKeys()
+EventResult FakeVimHandler::Private::handleCurrentMapAsDefault()
 {
-    int maxMapDepth = g.mapStates.isEmpty() ? 1000 : g.mapStates.last().maxMapDepth - 1;
+    // If mapping has failed take the first input from it and try default command.
+    const Inputs &inputs = g.currentMap.currentInputs();
 
-    int invalidCount = g.currentMap.invalidInputCount();
-    if (invalidCount > 0) {
-        g.mapStates.remove(0, invalidCount);
-        for (int i = 0; i < invalidCount; ++i)
-            endEditBlock();
-    }
-
-    if (maxMapDepth <= 0) {
-        showMessage(MessageError, tr("Recursive mapping"));
-        g.pendingInput.remove(0, g.currentMap.mapLength() + invalidCount);
-    } else {
-        const Inputs &inputs = g.currentMap.inputs();
-        QVector<Input> rest = g.pendingInput.mid(g.currentMap.mapLength() + invalidCount);
-        g.pendingInput.clear();
-        g.pendingInput << inputs << Input() << rest;
-        g.mapStates << MappingState(maxMapDepth, inputs.noremap(), inputs.silent());
-        g.commandBuffer.setHistoryAutoSave(false);
-        beginLargeEditBlock();
-    }
+    Input in = inputs.front();
+    if (inputs.size() > 1)
+        prependInputs(inputs.mid(1));
     g.currentMap.reset();
+
+    return handleDefaultKey(in);
 }
 
-void FakeVimHandler::Private::unhandleMappedKeys()
+void FakeVimHandler::Private::prependInputs(const QVector<Input> &inputs)
 {
+    for (int i = inputs.size() - 1; i >= 0; --i)
+        g.pendingInput.prepend(inputs[i]);
+}
+
+void FakeVimHandler::Private::prependMapping(const Inputs &inputs)
+{
+    // FIXME: Implement Vim option maxmapdepth (default value is 1000).
+    if (g.mapDepth >= 1000) {
+        const int i = qMax(0, g.pendingInput.lastIndexOf(Input()));
+        QList<Input> inputs = g.pendingInput.mid(i);
+        clearPendingInput();
+        g.pendingInput.append(inputs);
+        showMessage(MessageError, tr("Recursive mapping"));
+        updateMiniBuffer();
+        return;
+    }
+
+    ++g.mapDepth;
+    g.pendingInput.prepend(Input());
+    prependInputs(inputs);
+    g.mapStates << MappingState(inputs.noremap(), inputs.silent());
+    g.commandBuffer.setHistoryAutoSave(false);
+    beginLargeEditBlock();
+}
+
+bool FakeVimHandler::Private::expandCompleteMapping()
+{
+    if (!g.currentMap.isComplete())
+        return false;
+
+    const Inputs &inputs = g.currentMap.inputs();
+    int usedInputs = g.currentMap.mapLength();
+    prependInputs(g.currentMap.currentInputs().mid(usedInputs));
+    prependMapping(inputs);
+    g.currentMap.reset();
+
+    return true;
+}
+
+bool FakeVimHandler::Private::extendMapping(const Input &input)
+{
+    if (!g.currentMap.isValid())
+        g.currentMap.reset(currentModeCode());
+    return g.currentMap.walk(input);
+}
+
+void FakeVimHandler::Private::endMapping()
+{
+    if (!g.currentMap.canExtend())
+        --g.mapDepth;
     if (g.mapStates.isEmpty())
         return;
     g.mapStates.pop_back();
     endEditBlock();
     if (g.mapStates.isEmpty())
         g.commandBuffer.setHistoryAutoSave(true);
-    if (m_mode == ExMode || m_subsubmode == SearchSubSubMode)
-        updateMiniBuffer(); // update cursor position on command line
+    updateMiniBuffer();
+}
+
+bool FakeVimHandler::Private::canHandleMapping()
+{
+    return m_subsubmode != SearchSubSubMode
+        && (g.mapStates.isEmpty() || !g.mapStates.last().noremap);
+}
+
+void FakeVimHandler::Private::clearPendingInput()
+{
+    // Clear pending input on interrupt or bad mapping.
+    g.pendingInput.clear();
+    g.mapStates.clear();
+    g.mapDepth = 0;
+
+    // Clear all started edit blocks.
+    while (m_editBlockLevel > 0)
+        endEditBlock();
+}
+
+void FakeVimHandler::Private::waitForMapping()
+{
+    g.currentCommand.clear();
+    foreach (const Input &input, g.currentMap.currentInputs())
+        g.currentCommand.append(input.toString());
+    updateMiniBuffer();
+
+    // wait for user to press any key or trigger complete mapping after interval
+    g.inputTimer = startTimer(1000);
+}
+
+EventResult FakeVimHandler::Private::stopWaitForMapping(bool hasInput)
+{
+    if (g.inputTimer != -1) {
+        killTimer(g.inputTimer);
+        g.inputTimer = -1;
+        g.currentCommand.clear();
+        if (!hasInput && !expandCompleteMapping()) {
+            // Cannot complete mapping so handle the first input from it as default command.
+            return handleCurrentMapAsDefault();
+        }
+    }
+
+    return EventHandled;
 }
 
 void FakeVimHandler::Private::timerEvent(QTimerEvent *ev)
 {
     if (ev->timerId() == g.inputTimer) {
-        if (g.currentMap.isComplete())
-            handleMappedKeys();
-
         enterFakeVim();
         handleKey(Input());
         leaveFakeVim();
