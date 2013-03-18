@@ -44,7 +44,7 @@ class FormEditorView;
 
 class QMLDESIGNERCORE_EXPORT AbstractFormEditorTool
 {
-
+    friend class FormEditorView;
 public:
     AbstractFormEditorTool(FormEditorView* view);
 
@@ -100,6 +100,7 @@ protected:
     virtual void showContextMenu(QGraphicsSceneMouseEvent *event);
 
     FormEditorView *view() const;
+    void setView(FormEditorView *view);
     FormEditorScene* scene() const;
 private:
     FormEditorView *m_view;

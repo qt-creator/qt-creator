@@ -438,6 +438,7 @@ void FormEditorView::changeToCustomTool(const ModelNode &modelNode)
 
 void FormEditorView::registerTool(AbstractCustomTool *tool)
 {
+    tool->setView(this);
     m_customToolList.append(tool);
 }
 
