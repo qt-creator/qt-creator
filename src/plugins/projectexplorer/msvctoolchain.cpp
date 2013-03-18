@@ -384,7 +384,7 @@ bool MsvcToolChain::fromMap(const QVariantMap &data)
 {
     if (!ToolChain::fromMap(data))
         return false;
-    m_vcvarsBat = data.value(QLatin1String(varsBatKeyC)).toString();
+    m_vcvarsBat = QDir::fromNativeSeparators(data.value(QLatin1String(varsBatKeyC)).toString());
     m_varsBatArg = data.value(QLatin1String(varsBatArgKeyC)).toString();
     const QString abiString = data.value(QLatin1String(supportedAbiKeyC)).toString();
     m_abi = Abi(abiString);
@@ -422,7 +422,7 @@ void MsvcToolChainConfigWidget::setFromToolChain()
 {
     MsvcToolChain *tc = static_cast<MsvcToolChain *>(toolChain());
     QTC_ASSERT(tc, return);
-    QString varsBatDisplay = tc->varsBat();
+    QString varsBatDisplay = QDir::toNativeSeparators(tc->varsBat());
     if (!tc->varsBatArg().isEmpty()) {
         varsBatDisplay += QLatin1Char(' ');
         varsBatDisplay += tc->varsBatArg();

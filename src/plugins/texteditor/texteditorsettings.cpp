@@ -411,6 +411,11 @@ void TextEditorSettings::registerCodeStyleFactory(ICodeStylePreferencesFactory *
     m_d->m_languageToFactory.insert(factory->languageId(), factory);
 }
 
+void TextEditorSettings::unregisterCodeStyleFactory(Core::Id languageId)
+{
+    m_d->m_languageToFactory.remove(languageId);
+}
+
 QMap<Core::Id, ICodeStylePreferencesFactory *> TextEditorSettings::codeStyleFactories() const
 {
     return m_d->m_languageToFactory;
@@ -441,6 +446,11 @@ void TextEditorSettings::registerCodeStyle(Core::Id languageId, ICodeStylePrefer
     m_d->m_languageToCodeStyle.insert(languageId, prefs);
 }
 
+void TextEditorSettings::unregisterCodeStyle(Core::Id languageId)
+{
+    m_d->m_languageToCodeStyle.remove(languageId);
+}
+
 CodeStylePool *TextEditorSettings::codeStylePool() const
 {
     return m_d->m_behaviorSettingsPage->codeStylePool();
@@ -454,6 +464,11 @@ CodeStylePool *TextEditorSettings::codeStylePool(Core::Id languageId) const
 void TextEditorSettings::registerCodeStylePool(Core::Id languageId, CodeStylePool *pool)
 {
     m_d->m_languageToCodeStylePool.insert(languageId, pool);
+}
+
+void TextEditorSettings::unregisterCodeStylePool(Core::Id languageId)
+{
+    m_d->m_languageToCodeStylePool.remove(languageId);
 }
 
 void TextEditorSettings::registerMimeTypeForLanguageId(const QString &mimeType, Core::Id languageId)

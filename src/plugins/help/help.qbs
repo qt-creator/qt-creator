@@ -21,11 +21,15 @@ QtcPlugin {
     Depends { name: "app_version_header" }
 
     Depends { name: "cpp" }
-    Properties {
-        condition: qtcore.versionMajor >= 5
-        cpp.defines: base.concat(["QT_NO_WEBKIT"])
+
+    cpp.defines: {
+        var list = base;
+        if (qtcore.versionMajor >= 5)
+            list.push("QT_NO_WEBKIT");
+        list.push("QT_CLUCENE_SUPPORT");
+        return list;
     }
-    cpp.defines: base.concat("QT_CLUCENE_SUPPORT")
+
     cpp.includePaths: base.concat("../../shared/help")
 
     files: [

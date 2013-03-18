@@ -12,7 +12,7 @@ cp -a "${sourceFolder}/" "${intermediateFolder}"
 ln -s /Applications "${intermediateFolder}"
 cp "$(dirname "${BASH_SOURCE[0]}")/../LICENSE.LGPL" "${intermediateFolder}/LICENSE_LGPL.txt"
 echo Creating image...
-hdiutil create -srcfolder "${intermediateFolder}" -volname "${title}" -format UDBZ "${finalDMGName}" -ov -scrub
+hdiutil create -srcfolder "${intermediateFolder}" -volname "${title}" -format UDBZ "${finalDMGName}" -ov -scrub -stretch 1g
 
 # clean up
 rm -rf "${intermediateFolder}"

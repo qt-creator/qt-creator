@@ -1,4 +1,4 @@
-QT += declarative quick
+QT += qml quick
 
 macx:CONFIG -= app_bundle
 

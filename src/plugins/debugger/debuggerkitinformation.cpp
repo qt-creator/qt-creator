@@ -203,7 +203,8 @@ DebuggerKitInformation::DebuggerItem DebuggerKitInformation::autoDetectItem(cons
 void DebuggerKitInformation::setup(Kit *k)
 {
     QTC_ASSERT(ToolChainManager::instance()->isLoaded(), return);
-    setDebuggerItem(k, autoDetectItem(k));
+    if (!isValidDebugger(k))
+        setDebuggerItem(k, autoDetectItem(k));
 }
 
 // Check the configuration errors and return a flag mask. Provide a quick check and

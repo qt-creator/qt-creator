@@ -31,6 +31,7 @@
 function Component()
 {
     component.loaded.connect(this, Component.prototype.loaded);
+    installer.installationFinished.connect(this, Component.prototype.installationFinishedPageIsShown);
     installer.finishButtonClicked.connect(this, Component.prototype.installationFinished);
     installer.setDefaultPageVisible(QInstaller.ComponentSelection, false);
 }
@@ -170,6 +171,17 @@ Component.prototype.createOperations = function()
                                 "QtProject-qtcreator.desktop",
                                 "Type=Application\nExec=@TargetDir@/bin/qtcreator\nPath=@TargetDir@\nName=Qt Creator\nGenericName=The IDE of choice for Qt development.\nGenericName[de]=Die IDE der Wahl zur Qt Entwicklung\nIcon=QtProject-qtcreator\nTerminal=false\nCategories=Development;IDE;Qt;\nMimeType=text/x-c++src;text/x-c++hdr;text/x-xsrc;application/x-designer;application/vnd.nokia.qt.qmakeprofile;application/vnd.nokia.xml.qt.resource;text/x-qml;"
                                 );
+    }
+}
+
+Component.prototype.installationFinishedPageIsShown = function()
+{
+    try {
+        if (component.installed && installer.isInstaller() && installer.status == QInstaller.Success) {
+            installer.addWizardPageItem( component, "LaunchQtCreatorCheckBoxForm", QInstaller.InstallationFinished );
+        }
+    } catch(e) {
+        print(e);
     }
 }
 

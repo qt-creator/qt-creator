@@ -83,8 +83,8 @@
 
             \image qtquick-example-setting-breakpoint3.png
 
-        \li To execute JavaScript commands in the current context, select the
-            \gui {Console} tab.
+        \li To execute JavaScript commands in the current context, open the
+            \gui {QML/JS Console} output pane.
 
         \li To change the score to 1000, enter \c{gameCanvas.score = 1000}
             in the console.
@@ -108,15 +108,15 @@
             \inlineimage qml-inspector-select-button.png
             (\gui Select) to activate selection mode and then click the
             \gui {Quit} button to move into the \gui ButtonLabel component
-            in the \gui {Console} and the code editor.
-
-            \image qtquick-example-property-values.png
+            in the \gui {QML/JS Console} and the code editor.
 
         \li In the \gui {Locals and Expressions} view, double-click the value of
             the \c text property to change it temporarily from \gui {Quit} to
             \gui {End Game}.
 
-            When you select an item, the cursor moves to it in the code
+            \image qtquick-example-property-values.png
+
+            When you select an element, the cursor moves to it in the code
             editor, where you can change the value permanently.
 
     \endlist

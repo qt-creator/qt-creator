@@ -111,7 +111,8 @@ def modifyRunSettingsForHookIntoQtQuickUI(kitCount, workingDir, projectName, por
     if platform.system() == "Darwin":
         __addVariableToRunEnvironment__("DYLD_FRAMEWORK_PATH", qtLibPath)
     if not platform.system() in ('Microsoft', 'Windows'):
-        __addVariableToRunEnvironment__("DISPLAY", ":0.0")
+        if not os.getenv("DISPLAY"):
+            __addVariableToRunEnvironment__("DISPLAY", ":0.0")
     result = qmlViewer
     switchViewTo(ViewConstants.EDIT)
     return result

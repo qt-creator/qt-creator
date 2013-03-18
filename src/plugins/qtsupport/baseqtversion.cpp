@@ -66,6 +66,9 @@ static const char QTVERSIONAUTODETECTED[] = "isAutodetected";
 static const char QTVERSIONAUTODETECTIONSOURCE []= "autodetectionSource";
 static const char QTVERSIONQMAKEPATH[] = "QMakePath";
 
+static const char MKSPEC_VALUE_LIBINFIX[] = "QT_LIBINFIX";
+static const char MKSPEC_VALUE_NAMESPACE[] = "QT_NAMESPACE";
+
 ///////////////
 // QtVersionNumber
 ///////////////
@@ -369,12 +372,14 @@ Utils::FileName QtSupport::BaseQtVersion::mkspecsPath() const
 
 QString QtSupport::BaseQtVersion::qtNamespace() const
 {
-    return qmakeProperty("QT_NAMESPACE");
+    ensureMkSpecParsed();
+    return m_mkspecValues.value(QLatin1String(MKSPEC_VALUE_NAMESPACE));
 }
 
 QString QtSupport::BaseQtVersion::qtLibInfix() const
 {
-    return qmakeProperty("QT_LIBINFIX");
+    ensureMkSpecParsed();
+    return m_mkspecValues.value(QLatin1String(MKSPEC_VALUE_LIBINFIX));
 }
 
 void BaseQtVersion::setId(int id)
@@ -833,9 +838,13 @@ void BaseQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
     const QString designerBins = QLatin1String("QT.designer.bins");
     const QString qmlBins = QLatin1String("QT.qml.bins");
     const QString declarativeBins = QLatin1String("QT.declarative.bins");
+    const QString libinfix = QLatin1String(MKSPEC_VALUE_LIBINFIX);
+    const QString ns = QLatin1String(MKSPEC_VALUE_NAMESPACE);
     m_mkspecValues.insert(designerBins, evaluator->value(designerBins));
     m_mkspecValues.insert(qmlBins, evaluator->value(qmlBins));
     m_mkspecValues.insert(declarativeBins, evaluator->value(declarativeBins));
+    m_mkspecValues.insert(libinfix, evaluator->value(libinfix));
+    m_mkspecValues.insert(ns, evaluator->value(ns));
 }
 
 FileName BaseQtVersion::mkspec() const
@@ -951,10 +960,14 @@ void BaseQtVersion::updateVersionInfo() const
         if (!fi.exists())
             m_installed = false;
     }
-    if (!qtHeaderData.isNull()) {
-        const QFileInfo fi(qtHeaderData);
-        if (!fi.exists())
-            m_installed = false;
+    // Framework builds for Qt 4.8 don't use QT_INSTALL_HEADERS
+    // so we don't check on mac
+    if (!HostOsInfo::isMacHost()) {
+        if (!qtHeaderData.isNull()) {
+            const QFileInfo fi(qtHeaderData);
+            if (!fi.exists())
+                m_installed = false;
+        }
     }
     const QString qtInstallDocs = qmakeProperty("QT_INSTALL_DOCS");
     if (!qtInstallDocs.isNull()) {

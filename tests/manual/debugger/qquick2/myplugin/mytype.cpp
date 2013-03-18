@@ -1,8 +1,8 @@
+#include "mytype.h"
+
 #include <QTimer>
 #include <QTime>
-#include <qdeclarative.h>
-
-#include "mytype.h"
+#include <qqml.h>
 
 MyType::MyType(QObject *parent)
     : QObject(parent)

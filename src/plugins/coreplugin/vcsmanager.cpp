@@ -145,8 +145,12 @@ public:
 
         QString tmpDir = dir;
         const QChar slash = QLatin1Char('/');
-        while (tmpDir.count() >= topLevel.count() && tmpDir.count() > 0) {
+        while (tmpDir.count() >= topLevel.count() && !tmpDir.isEmpty()) {
             m_cachedMatches.insert(tmpDir, newInfo);
+            // if no vc was found, this might mean we're inside a repo internal directory (.git)
+            // Cache only input directory, not parents
+            if (!vc)
+                break;
             const int slashPos = tmpDir.lastIndexOf(slash);
             if (slashPos >= 0)
                 tmpDir.truncate(slashPos);

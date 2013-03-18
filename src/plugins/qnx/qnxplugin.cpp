@@ -98,9 +98,7 @@ bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
     barDescriptorMimeType.addMagicMatcher(QSharedPointer<Core::IMagicMatcher>(new BarDescriptorMagicMatcher));
     barDescriptorMimeType.setSubClassesOf(QStringList() << QLatin1String("application/xml"));
 
-    Core::ICore *core = Core::ICore::instance();
-    Core::MimeDatabase *mdb = core->mimeDatabase();
-    if (!mdb->addMimeType(barDescriptorMimeType)) {
+    if (!Core::ICore::mimeDatabase()->addMimeType(barDescriptorMimeType)) {
         *errorString = tr("Could not add mime-type for bar-descriptor.xml editor");
         return false;
     }

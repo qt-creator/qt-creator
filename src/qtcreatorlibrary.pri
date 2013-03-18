@@ -19,9 +19,10 @@ contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 
 !macx {
     win32 {
-        target.path = $$QTC_PREFIX/bin
+        dlltarget.path = $$QTC_PREFIX/bin
+        INSTALLS += dlltarget
     } else {
         target.path = $$QTC_PREFIX/$$IDE_LIBRARY_BASENAME/qtcreator
+        INSTALLS += target
     }
-    INSTALLS += target
 }

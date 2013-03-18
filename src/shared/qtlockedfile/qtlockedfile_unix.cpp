@@ -95,6 +95,7 @@ bool QtLockedFile::unlock()
     }
 
     m_lock_mode = NoLock;
+    remove();
     return true;
 }
 

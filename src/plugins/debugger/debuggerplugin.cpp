@@ -1574,8 +1574,11 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
     m_interruptAction->setEnabled(false);
     m_continueAction->setEnabled(false);
     m_exitAction->setEnabled(false);
-    m_startAction->setEnabled(true);
-    m_debugWithoutDeployAction->setEnabled(true);
+    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
+    const bool canRun = pe->canRun(project, DebugRunMode);
+    m_startAction->setEnabled(canRun);
+    m_startAction->setToolTip(canRun ? QString() : pe->cannotRunReason(project, DebugRunMode));
+    m_debugWithoutDeployAction->setEnabled(canRun);
     setProxyAction(m_visibleStartAction, Core::Id(Constants::DEBUG));
 }
 

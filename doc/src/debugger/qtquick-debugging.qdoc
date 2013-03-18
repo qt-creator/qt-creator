@@ -168,7 +168,7 @@
     \inlineimage qml-observer-bar-reload.png "Apply Changes on Save button"
     (\gui {Apply Changes on Save}) button on the toolbar.
 
-    When you change property values in the \gui {Console} or in the
+    When you change property values in the \gui {QML/JS Console} or in the
     \gui {Locals and Expressions} view, they are immediately updated in the running
     application, but not in the source code.
 

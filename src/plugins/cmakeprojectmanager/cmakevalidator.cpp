@@ -223,6 +223,8 @@ void CMakeValidator::parseFunctionDetailsOutput(const QByteArray &output)
     QList<QByteArray> cmakeCommandsHelp = output.split('\n');
     for (int i = 0; i < cmakeCommandsHelp.count(); ++i) {
         QByteArray lineTrimmed = cmakeCommandsHelp.at(i).trimmed();
+        if (cmakeFunctionsList.isEmpty())
+            break;
         if (cmakeFunctionsList.first().toLatin1() == lineTrimmed) {
             QStringList commandSyntaxes;
             QString currentCommandSyntax;
@@ -231,7 +233,7 @@ void CMakeValidator::parseFunctionDetailsOutput(const QByteArray &output)
             for (; i < cmakeCommandsHelp.count(); ++i) {
                 lineTrimmed = cmakeCommandsHelp.at(i).trimmed();
 
-                if (cmakeFunctionsList.first().toLatin1() == lineTrimmed) {
+                if (!cmakeFunctionsList.isEmpty() && cmakeFunctionsList.first().toLatin1() == lineTrimmed) {
                     //start of next function in output
                     if (!currentCommandSyntax.isEmpty())
                         commandSyntaxes << currentCommandSyntax.append(QLatin1String("</table>"));

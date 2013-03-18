@@ -8,21 +8,24 @@ QtcLibrary {
     Depends { name: "Qt.network" }
     cpp.includePaths: base.concat(".")
 
-    cpp.defines: base.concat("ZEROCONF_LIBRARY")
+    cpp.defines: {
+        var list = base;
+        list.push("ZEROCONF_LIBRARY");
+        if (qbs.targetOS === "linux") {
+            list.push(
+                "_GNU_SOURCE",
+                "HAVE_IPV6",
+                "USES_NETLINK",
+                "HAVE_LINUX",
+                "TARGET_OS_LINUX"
+            );
+        }
+        return list;
+    }
 
     Properties {
         condition: qbs.targetOS == "windows"
         cpp.dynamicLibraries:  "ws2_32"
-    }
-    Properties {
-        condition: qbs.targetOS == "linux"
-        cpp.defines: base.concat([
-            "_GNU_SOURCE",
-            "HAVE_IPV6",
-            "USES_NETLINK",
-            "HAVE_LINUX",
-            "TARGET_OS_LINUX"
-        ])
     }
 
     files: [

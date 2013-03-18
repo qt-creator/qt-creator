@@ -191,7 +191,10 @@ void KitManager::restoreKits()
     }
 
     // read all kits from user file
-    KitList userKits = restoreKits(settingsFileName());
+    KitList userKits;
+    Utils::FileName userSettingsFile(settingsFileName());
+    if (userSettingsFile.toFileInfo().exists())
+        userKits = restoreKits(userSettingsFile);
     foreach (Kit *k, userKits.kits) {
         if (k->isSdkProvided())
             kitsToCheck.append(k);
@@ -255,8 +258,6 @@ void KitManager::restoreKits()
 
 KitManager::~KitManager()
 {
-    saveKits(); // Make sure we save the current state on exit!
-
     foreach (Kit *k, d->m_kitList)
         delete k;
     d->m_kitList.clear();

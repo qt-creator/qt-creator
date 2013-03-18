@@ -27,6 +27,14 @@
 **
 ****************************************************************************/
 
+/*
+The main algorithm "diffMyers()" is based on "An O(ND) Difference Algorithm
+and Its Variations" by Eugene W. Myers: http://www.xmailserver.org/diff2.pdf
+
+Preprocessing and postprocessing functions inspired by "Diff Strategies"
+publication by Neil Fraser: http://neil.fraser.name/writing/diff/
+*/
+
 #include "differ.h"
 
 #include <QList>

@@ -82,8 +82,9 @@ void NodeInstanceSignalSpy::registerObject(QObject *spiedObject, const PropertyN
 
              // search recursive in objects
              if (metaProperty.isReadable()
-                 && metaProperty.isWritable()
-                 && QQmlMetaType::isQObject(metaProperty.userType())) {
+                     && metaProperty.isWritable()
+                     && QQmlMetaType::isQObject(metaProperty.userType())
+                     && QLatin1String(metaProperty.name()) != QLatin1String("parent")) {
                  QObject *propertyObject = QQmlMetaType::toQObject(metaProperty.read(spiedObject));
                  if (propertyObject)
                      registerObject(propertyObject, prefix + metaProperty.name() + '/');
