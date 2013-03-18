@@ -199,6 +199,10 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
     connect(&proxyModel, SIGNAL(layoutChanged()), SLOT(handleProcessListUpdated()));
     connect(buttonBox, SIGNAL(accepted()), q, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), q, SLOT(reject()));
+
+    QWidget::setTabOrder(kitChooser, processFilterLineEdit);
+    QWidget::setTabOrder(processFilterLineEdit, procView);
+    QWidget::setTabOrder(procView, buttonBox);
 }
 
 void DeviceProcessesDialogPrivate::setDevice(const IDevice::ConstPtr &device)

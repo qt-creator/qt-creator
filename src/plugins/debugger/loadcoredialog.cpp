@@ -255,13 +255,13 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     d->forceLocalLabel->setText(tr("Use local core file:"));
     d->forceLocalLabel->setBuddy(d->forceLocalCheckBox);
 
-    d->localCoreFileName = new PathChooser(this);
-    d->localCoreFileName->setExpectedKind(PathChooser::File);
-    d->localCoreFileName->setPromptDialogTitle(tr("Select Core File"));
-
     d->localExecFileName = new PathChooser(this);
     d->localExecFileName->setExpectedKind(PathChooser::File);
     d->localExecFileName->setPromptDialogTitle(tr("Select Executable"));
+
+    d->localCoreFileName = new PathChooser(this);
+    d->localCoreFileName->setExpectedKind(PathChooser::File);
+    d->localCoreFileName->setPromptDialogTitle(tr("Select Core File"));
 
     d->overrideStartScriptFileName = new PathChooser(this);
     d->overrideStartScriptFileName->setExpectedKind(PathChooser::File);
