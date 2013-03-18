@@ -31,9 +31,6 @@
 
 #include "hostosinfo.h"
 
-#include <QString>
-#include <QStringList>
-#include <QFileInfo>
 #include <QDir>
 
 #include <limits.h>

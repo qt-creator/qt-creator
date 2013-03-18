@@ -32,11 +32,10 @@
 
 #include "utils_global.h"
 
-#include <QList>
 #include <QMap>
-#include <QProcessEnvironment>
-#include <QString>
 #include <QStringList>
+
+QT_FORWARD_DECLARE_CLASS(QProcessEnvironment)
 
 namespace Utils {
 

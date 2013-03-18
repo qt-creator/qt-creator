@@ -30,12 +30,8 @@
 #include "newclasswidget.h"
 #include "ui_newclasswidget.h"
 
-#include <utils/filewizardpage.h>
 
 #include <QFileDialog>
-#include <QFileInfo>
-#include <QStringList>
-#include <QDir>
 #include <QDebug>
 #include <QRegExp>
 

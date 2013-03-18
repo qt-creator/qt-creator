@@ -31,6 +31,7 @@
 #include "ui_genericlinuxdeviceconfigurationwidget.h"
 
 #include <utils/portlist.h>
+#include <utils/fancylineedit.h>
 #include <ssh/sshconnection.h>
 #include <ssh/sshkeycreationdialog.h>
 

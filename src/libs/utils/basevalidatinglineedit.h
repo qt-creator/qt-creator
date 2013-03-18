@@ -30,8 +30,6 @@
 #ifndef BASEVALIDATINGLINEEDIT_H
 #define BASEVALIDATINGLINEEDIT_H
 
-#include "utils_global.h"
-
 #include "fancylineedit.h"
 
 namespace Utils {

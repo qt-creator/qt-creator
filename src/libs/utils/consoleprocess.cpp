@@ -29,8 +29,6 @@
 
 #include "consoleprocess_p.h"
 
-#include <utils/hostosinfo.h>
-
 #include <QSettings>
 
 namespace Utils {

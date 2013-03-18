@@ -31,6 +31,7 @@
 #define CONSOLEPROCESS_P_H
 
 #include "consoleprocess.h"
+#include "environment.h"
 
 #include <QTemporaryFile>
 

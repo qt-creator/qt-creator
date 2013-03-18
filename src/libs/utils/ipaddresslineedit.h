@@ -30,7 +30,6 @@
 #ifndef IPADDRESSLINEEDIT_H
 #define IPADDRESSLINEEDIT_H
 
-#include "utils_global.h"
 #include "basevalidatinglineedit.h"
 
 namespace Utils {

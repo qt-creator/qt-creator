@@ -29,18 +29,12 @@
 
 #include "settingsselector.h"
 
-#include <QAbstractItemModel>
-#include <QVariant>
-
-#include <QAction>
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QInputDialog>
 #include <QLabel>
-#include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QSpacerItem>
 
 namespace Utils {
 

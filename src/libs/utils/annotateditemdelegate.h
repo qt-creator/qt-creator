@@ -32,7 +32,6 @@
 
 #include "utils_global.h"
 
-#include <QString>
 #include <QStyledItemDelegate>
 
 namespace Utils {

@@ -31,14 +31,10 @@
 #include "qtcassert.h"
 #include "stylehelper.h"
 
-#include <QList>
-#include <QHBoxLayout>
 #include <QPushButton>
 #include <QMenu>
-#include <QStyle>
 #include <QResizeEvent>
 #include <QPainter>
-#include <QImage>
 
 namespace Utils {
 

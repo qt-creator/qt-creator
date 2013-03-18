@@ -30,8 +30,8 @@
 #include "detailsbutton.h"
 
 #include <utils/hostosinfo.h>
-#include <utils/stylehelper.h>
 
+#include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
 #include <QPaintEvent>
 #include <QPainter>

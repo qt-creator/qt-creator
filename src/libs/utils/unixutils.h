@@ -32,8 +32,6 @@
 
 #include "utils_global.h"
 
-#include <QString>
-
 QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE

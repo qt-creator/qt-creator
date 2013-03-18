@@ -32,8 +32,6 @@
 
 #include "utils_global.h"
 
-#include <QString>
-
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT HtmlDocExtractor

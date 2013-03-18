@@ -41,6 +41,7 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/pathchooser.h>
+#include <utils/fancylineedit.h>
 
 #include <QComboBox>
 #include <QLabel>

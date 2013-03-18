@@ -33,6 +33,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/fancylineedit.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/variablechooser.h>

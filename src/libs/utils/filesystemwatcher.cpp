@@ -31,7 +31,6 @@
 
 #include <QDebug>
 #include <QDir>
-#include <QFileInfo>
 #include <QFileSystemWatcher>
 #include <QDateTime>
 

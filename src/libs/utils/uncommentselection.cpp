@@ -28,11 +28,8 @@
 ****************************************************************************/
 
 #include "uncommentselection.h"
-#include <QtGlobal>
 #include <QPlainTextEdit>
-#include <QTextCursor>
 #include <QTextBlock>
-#include <QTextDocument>
 
 using namespace Utils;
 

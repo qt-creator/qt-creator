@@ -30,17 +30,12 @@
 #ifndef BUILDABLEHELPERLIBRARY_H
 #define BUILDABLEHELPERLIBRARY_H
 
-#include "utils_global.h"
-#include <utils/environment.h>
-#include <utils/fileutils.h>
-
-#include <QString>
+#include "environment.h"
+#include "fileutils.h"
 
 QT_FORWARD_DECLARE_CLASS(QFileInfo)
 
 namespace Utils {
-
-class Environment;
 
 class QTCREATOR_UTILS_EXPORT BuildableHelperLibrary
 {

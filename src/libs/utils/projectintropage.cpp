@@ -28,13 +28,9 @@
 ****************************************************************************/
 
 #include "projectintropage.h"
-#include "filewizardpage.h"
 #include "ui_projectintropage.h"
 
-#include <QMessageBox>
 #include <QDir>
-#include <QFileInfo>
-
 
 /*!
     \class Utils::ProjectIntroPage

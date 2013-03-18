@@ -41,6 +41,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <utils/historycompleter.h>
 #include <utils/pathchooser.h>
+#include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 

@@ -29,9 +29,9 @@
 
 #include "portlist.h"
 
-#include <QList>
 #include <QPair>
 #include <QString>
+#include <QStringList>
 
 #include <cctype>
 

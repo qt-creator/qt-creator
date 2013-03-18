@@ -36,12 +36,8 @@
 #include <QSettings>
 
 #include <QAbstractButton>
-#include <QAction>
-#include <QActionGroup>
-#include <QCheckBox>
 #include <QGroupBox>
 #include <QLineEdit>
-#include <QRadioButton>
 #include <QSpinBox>
 #include <QTextEdit>
 

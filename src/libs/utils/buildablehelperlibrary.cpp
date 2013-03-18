@@ -28,20 +28,11 @@
 ****************************************************************************/
 
 #include "buildablehelperlibrary.h"
+#include "hostosinfo.h"
+#include "synchronousprocess.h"
 
-#include <QFileInfo>
-#include <QCoreApplication>
-#include <QHash>
-#include <QProcess>
 #include <QDir>
 #include <QDateTime>
-
-#include <utils/environment.h>
-#include <utils/fileutils.h>
-#include <utils/hostosinfo.h>
-#include <utils/synchronousprocess.h>
-
-#include <QDesktopServices>
 #include <QDebug>
 
 namespace Utils {

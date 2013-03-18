@@ -31,7 +31,6 @@
 #define CODEGENERATION_H
 
 #include "utils_global.h"
-#include <QString>
 
 QT_BEGIN_NAMESPACE
 class QTextStream;

@@ -37,6 +37,8 @@
 
 #include <qtsupport/profilereader.h>
 
+#include <QFileInfo>
+
 using namespace Qnx;
 using namespace Qnx::Internal;
 

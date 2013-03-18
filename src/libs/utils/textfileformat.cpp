@@ -33,12 +33,9 @@
 
 #include <QTextCodec>
 #include <QStringList>
-#include <QCoreApplication>
 #include <QDebug>
 
 enum { debug = 0 };
-
-#include <exception>
 
 namespace Utils {
 

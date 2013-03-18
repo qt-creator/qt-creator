@@ -31,7 +31,6 @@
 
 #include <QCoreApplication>
 #include <QLocale>
-#include <QUrl>
 #include <QNetworkReply>
 
 #ifdef Q_OS_UNIX

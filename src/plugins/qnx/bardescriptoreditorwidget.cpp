@@ -42,6 +42,7 @@
 #include <qtsupport/qtversionmanager.h>
 #include <texteditor/plaintexteditor.h>
 #include <utils/qtcassert.h>
+#include <utils/fancylineedit.h>
 
 #include <QFileDialog>
 #include <QInputDialog>

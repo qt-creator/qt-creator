@@ -29,6 +29,7 @@
 
 #include "pathchooser.h"
 
+#include "fancylineedit.h"
 #include "basevalidatinglineedit.h"
 #include "environment.h"
 #include "qtcassert.h"
@@ -38,15 +39,9 @@
 
 #include <QDebug>
 #include <QDesktopServices>
-#include <QDir>
-#include <QEvent>
 #include <QFileDialog>
-#include <QFileInfo>
 #include <QHBoxLayout>
-#include <QLineEdit>
-#include <QProcess>
 #include <QPushButton>
-#include <QSettings>
 
 /*!
     \class Utils::PathChooser

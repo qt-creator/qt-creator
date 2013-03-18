@@ -29,14 +29,11 @@
 
 #include "consoleprocess_p.h"
 
-#include "environment.h"
 #include "qtcprocess.h"
 
 #include <utils/hostosinfo.h>
 
 #include <QCoreApplication>
-#include <QDir>
-#include <QSettings>
 #include <QTimer>
 
 #include <sys/stat.h>

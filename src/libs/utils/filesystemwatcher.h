@@ -33,7 +33,6 @@
 #include "utils_global.h"
 
 #include <QObject>
-#include <QStringList>
 
 namespace Utils {
 class FileSystemWatcherPrivate;

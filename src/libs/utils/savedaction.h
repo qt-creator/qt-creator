@@ -32,10 +32,6 @@
 
 #include "utils_global.h"
 
-#include <QString>
-#include <QVariant>
-#include <QList>
-
 #include <QAction>
 
 QT_BEGIN_NAMESPACE

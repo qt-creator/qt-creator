@@ -33,7 +33,6 @@
 #include "utils_global.h"
 
 #include <qendian.h>
-#include <qstring.h>
 #include <qvector.h>
 #include <qcoreapplication.h>
 

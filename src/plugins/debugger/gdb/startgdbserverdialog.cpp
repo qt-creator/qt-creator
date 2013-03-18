@@ -50,6 +50,7 @@
 
 #include <QVariant>
 #include <QMessageBox>
+#include <QFileInfo>
 
 using namespace Core;
 using namespace ProjectExplorer;

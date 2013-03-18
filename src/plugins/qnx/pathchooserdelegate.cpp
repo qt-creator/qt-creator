@@ -32,8 +32,7 @@
 #include "pathchooserdelegate.h"
 
 #include <utils/pathchooser.h>
-
-#include <QLineEdit>
+#include <utils/fancylineedit.h>
 
 using namespace Qnx;
 using namespace Qnx::Internal;

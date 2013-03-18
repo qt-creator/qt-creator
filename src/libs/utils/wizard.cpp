@@ -31,11 +31,9 @@
 
 #include <QMap>
 #include <QHash>
-#include <QVariant>
 
 #include <QLabel>
 #include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QStyle>
 
 /*! \class Utils::Wizard

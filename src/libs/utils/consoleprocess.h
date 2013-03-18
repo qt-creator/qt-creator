@@ -32,11 +32,6 @@
 
 #include "utils_global.h"
 
-#include "environment.h"
-
-#include <QObject>
-#include <QString>
-#include <QStringList>
 #include <QProcess>
 
 QT_BEGIN_NAMESPACE
@@ -44,6 +39,7 @@ class QSettings;
 QT_END_NAMESPACE
 
 namespace Utils {
+class Environment;
 struct ConsoleProcessPrivate;
 
 class QTCREATOR_UTILS_EXPORT ConsoleProcess : public QObject

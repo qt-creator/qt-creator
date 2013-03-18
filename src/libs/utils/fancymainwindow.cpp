@@ -31,10 +31,6 @@
 
 #include "qtcassert.h"
 
-#include <QList>
-#include <QHash>
-
-#include <QAction>
 #include <QContextMenuEvent>
 #include <QMenu>
 #include <QDockWidget>

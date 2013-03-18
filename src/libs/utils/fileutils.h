@@ -33,9 +33,7 @@
 #include "utils_global.h"
 
 #include <QCoreApplication>
-#include <QIODevice>
 #include <QXmlStreamWriter> // Mac.
-#include <QFileInfo>
 #include <QMetaType>
 
 QT_BEGIN_NAMESPACE
@@ -45,6 +43,8 @@ class QWidget;
 class QTextStream;
 class QDataStream;
 class QDateTime;
+class QFileInfo;
+class QDir;
 QT_END_NAMESPACE
 
 namespace Utils {

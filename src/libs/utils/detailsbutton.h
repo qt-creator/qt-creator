@@ -33,9 +33,6 @@
 #include "utils_global.h"
 
 #include <QAbstractButton>
-#include <QPixmap>
-
-#include <QGraphicsOpacityEffect>
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsOpacityEffect)
 

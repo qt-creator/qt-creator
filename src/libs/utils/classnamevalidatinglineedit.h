@@ -30,7 +30,6 @@
 #ifndef CLASSNAMEVALIDATINGLINEEDIT_H
 #define CLASSNAMEVALIDATINGLINEEDIT_H
 
-#include "utils_global.h"
 #include "basevalidatinglineedit.h"
 
 namespace Utils {

@@ -29,8 +29,6 @@
 
 #include "htmldocextractor.h"
 
-#include <QLatin1String>
-#include <QLatin1Char>
 #include <QStringList>
 #include <QRegExp>
 

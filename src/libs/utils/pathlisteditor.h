@@ -33,7 +33,6 @@
 #include "utils_global.h"
 
 #include <QWidget>
-#include <QStringList>
 
 namespace Utils {
 

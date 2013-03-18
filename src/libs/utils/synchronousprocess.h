@@ -32,9 +32,7 @@
 
 #include "utils_global.h"
 
-#include <QObject>
 #include <QProcess>
-#include <QStringList>
 #include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE

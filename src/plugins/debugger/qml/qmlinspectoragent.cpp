@@ -39,6 +39,7 @@
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 #include <QElapsedTimer>
+#include <QFileInfo>
 
 using namespace QmlDebug;
 using namespace QmlDebug::Constants;

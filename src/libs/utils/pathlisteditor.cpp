@@ -32,20 +32,15 @@
 #include "hostosinfo.h"
 
 #include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QPlainTextEdit>
 #include <QToolButton>
-#include <QSpacerItem>
 #include <QFileDialog>
-#include <QTextCursor>
 #include <QTextBlock>
 #include <QMenu>
-#include <QAction>
 
 #include <QSignalMapper>
 #include <QMimeData>
 #include <QSharedPointer>
-#include <QDir>
 #include <QDebug>
 
 /*!

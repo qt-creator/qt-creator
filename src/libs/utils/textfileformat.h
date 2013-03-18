@@ -32,8 +32,6 @@
 
 #include "utils_global.h"
 
-#include <QtGlobal>
-
 QT_BEGIN_NAMESPACE
 class QTextCodec;
 class QStringList;

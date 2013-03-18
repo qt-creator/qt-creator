@@ -32,8 +32,8 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
+#include <QTextDocument> // Qt::escape() in Qt 4
 #include <QFont>
-#include <QTextEdit>
 
 namespace Utils {
 namespace Internal {

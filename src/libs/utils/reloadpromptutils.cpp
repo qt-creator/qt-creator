@@ -33,7 +33,6 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QAbstractButton>
 
 using namespace Utils;
 

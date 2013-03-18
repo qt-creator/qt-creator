@@ -29,12 +29,8 @@
 
 #include "persistentsettings.h"
 
-#include <utils/fileutils.h>
-
 #include <QDebug>
-#include <QFile>
 #include <QDir>
-#include <QVariant>
 #include <QStack>
 #include <QXmlStreamAttributes>
 #include <QXmlStreamReader>

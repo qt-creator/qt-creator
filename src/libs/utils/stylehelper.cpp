@@ -32,13 +32,9 @@
 #include "hostosinfo.h"
 
 #include <QPixmapCache>
-#include <QWidget>
-#include <QRect>
 #include <QPainter>
 #include <QApplication>
-#include <QPalette>
 #include <QStyleOption>
-#include <QObject>
 
 // Clamps float color values within (0, 255)
 static int clamp(float x)

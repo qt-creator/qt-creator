@@ -29,6 +29,8 @@
 
 #include "iwelcomepage.h"
 
+#include <QUrl>
+
 namespace Utils {
 
 IWelcomePage::IWelcomePage()
@@ -40,3 +42,5 @@ IWelcomePage::~IWelcomePage()
 }
 
 } // namespace Utils
+
+#include "moc_iwelcomepage.cpp"

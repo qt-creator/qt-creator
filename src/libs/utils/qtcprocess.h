@@ -30,11 +30,9 @@
 #ifndef QTCPROCESS_H
 #define QTCPROCESS_H
 
-#include <QProcess>
-
-#include "utils_global.h"
-
 #include "environment.h"
+
+#include <QProcess>
 
 namespace Utils {
 class AbstractMacroExpander;

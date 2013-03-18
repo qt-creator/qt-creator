@@ -29,22 +29,11 @@
 
 #include "checkablemessagebox.h"
 
-#include <QDebug>
-#include <QVariant>
-
 #include <QPushButton>
-#include <QAction>
-#include <QApplication>
-#include <QButtonGroup>
 #include <QCheckBox>
-#include <QDialog>
-#include <QDialogButtonBox>
 #include <QHBoxLayout>
-#include <QHeaderView>
 #include <QLabel>
-#include <QSpacerItem>
-#include <QVBoxLayout>
-
+#include <QDebug>
 
 /*!
     \class Utils::CheckableMessageBox

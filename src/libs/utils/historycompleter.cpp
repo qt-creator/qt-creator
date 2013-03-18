@@ -31,7 +31,6 @@
 
 #include "qtcassert.h"
 
-#include <QAbstractListModel>
 #include <QSettings>
 
 #include <QItemDelegate>
@@ -39,7 +38,6 @@
 #include <QLineEdit>
 #include <QListView>
 #include <QPainter>
-#include <QStyle>
 
 namespace Utils {
 namespace Internal {

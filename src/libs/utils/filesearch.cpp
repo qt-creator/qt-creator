@@ -30,9 +30,6 @@
 #include "filesearch.h"
 #include <cctype>
 
-#include <QBuffer>
-#include <QFile>
-#include <QtConcurrentRun>
 #include <QRegExp>
 #include <QCoreApplication>
 #include <QTextCodec>

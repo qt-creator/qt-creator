@@ -46,6 +46,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QFileInfo>
 
 namespace ProjectExplorer {
 

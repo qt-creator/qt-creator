@@ -50,6 +50,8 @@
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
+#include <QFileInfo>
+
 using namespace QmlDebug;
 
 namespace Debugger {

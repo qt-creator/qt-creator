@@ -35,11 +35,7 @@
 
 #include <QDir>
 #include <QDebug>
-#include <QFileInfo>
-#include <QTemporaryFile>
 #include <QDateTime>
-#include <QDataStream>
-#include <QTextStream>
 #include <QMessageBox>
 
 namespace Utils {

@@ -30,10 +30,7 @@
 #ifndef PATHCHOOSER_H
 #define PATHCHOOSER_H
 
-#include "utils_global.h"
-
 #include "fileutils.h"
-#include "fancylineedit.h"
 
 #include <QWidget>
 
@@ -45,6 +42,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
+class FancyLineEdit;
 class Environment;
 class PathChooserPrivate;
 

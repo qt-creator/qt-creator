@@ -39,6 +39,7 @@
 
 #include <QFormLayout>
 #include <QMessageBox>
+#include <QFileInfo>
 
 using namespace ProjectExplorer;
 using namespace Qnx;

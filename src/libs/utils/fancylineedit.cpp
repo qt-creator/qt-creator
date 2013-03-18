@@ -31,18 +31,12 @@
 #include "historycompleter.h"
 #include "qtcassert.h"
 
-#include <QEvent>
 #include <QDebug>
-#include <QString>
 #include <QPropertyAnimation>
 #include <QApplication>
 #include <QMenu>
-#include <QMouseEvent>
-#include <QLabel>
-#include <QAbstractButton>
 #include <QPainter>
 #include <QStyle>
-#include <QPaintEvent>
 #include <QDesktopWidget>
 
 /*! Opens a menu at the specified widget position.

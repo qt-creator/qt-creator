@@ -32,7 +32,6 @@
 
 #include "utils_global.h"
 
-#include <QStringList>
 #include <QFuture>
 #include <QMap>
 #include <QStack>

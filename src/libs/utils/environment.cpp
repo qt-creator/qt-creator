@@ -32,9 +32,7 @@
 #include "hostosinfo.h"
 
 #include <QDir>
-#include <QProcess>
 #include <QProcessEnvironment>
-#include <QString>
 #include <QCoreApplication>
 
 class SystemEnvironment : public Utils::Environment

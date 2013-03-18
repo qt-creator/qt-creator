@@ -31,9 +31,6 @@
 #include "detailsbutton.h"
 #include "hostosinfo.h"
 
-#include <QStack>
-#include <QPropertyAnimation>
-
 #include <QGridLayout>
 #include <QLabel>
 #include <QCheckBox>

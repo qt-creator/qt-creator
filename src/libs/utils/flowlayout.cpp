@@ -29,8 +29,6 @@
 
 #include "flowlayout.h"
 
-#include <QRect>
-#include <QWidgetItem>
 #include <QWidget>
 
 using namespace Utils;

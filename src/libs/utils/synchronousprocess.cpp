@@ -33,9 +33,7 @@
 
 #include <QDebug>
 #include <QTimer>
-#include <QEventLoop>
 #include <QTextCodec>
-#include <QFileInfo>
 #include <QDir>
 #include <QMessageBox>
 

@@ -34,7 +34,6 @@
 
 #include <QDialogButtonBox>
 #include <QMessageBox>
-#include <QDialog>
 
 namespace Utils {
 

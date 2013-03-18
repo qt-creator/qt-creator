@@ -30,7 +30,6 @@
 
 #include "unixutils.h"
 #include <QSettings>
-#include <QObject>
 #include <QFileInfo>
 #include <QCoreApplication>
 

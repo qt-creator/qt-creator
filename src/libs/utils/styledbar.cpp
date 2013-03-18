@@ -29,12 +29,7 @@
 
 #include "styledbar.h"
 
-#include "stylehelper.h"
-
-#include <QVariant>
 #include <QPainter>
-#include <QPixmapCache>
-#include <QStyle>
 #include <QStyleOption>
 
 using namespace Utils;

@@ -39,6 +39,8 @@
 #include <projectexplorer/target.h>
 #include <ssh/sshconnection.h>
 
+#include <QFileInfo>
+
 using namespace Qnx;
 using namespace Qnx::Internal;
 

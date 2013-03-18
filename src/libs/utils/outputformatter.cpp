@@ -30,9 +30,6 @@
 #include "outputformatter.h"
 
 #include <QPlainTextEdit>
-#include <QColor>
-
-#include <QString>
 
 using namespace Utils;
 

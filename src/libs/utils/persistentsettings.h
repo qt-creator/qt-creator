@@ -30,11 +30,8 @@
 #ifndef PERSISTENTSETTINGS_H
 #define PERSISTENTSETTINGS_H
 
-#include "utils_global.h"
-
 #include "fileutils.h"
 
-#include <QMap>
 #include <QVariant>
 
 QT_BEGIN_NAMESPACE

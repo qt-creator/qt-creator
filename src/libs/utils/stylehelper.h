@@ -32,7 +32,6 @@
 
 #include "utils_global.h"
 
-#include <QColor>
 #include <QStyle>
 
 QT_BEGIN_NAMESPACE

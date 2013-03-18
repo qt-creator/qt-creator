@@ -30,9 +30,7 @@
 #include "elfreader.h"
 #include "qtcassert.h"
 
-#include <QFile>
 #include <QDir>
-#include <QLibrary>
 #include <QDebug>
 
 namespace Utils {

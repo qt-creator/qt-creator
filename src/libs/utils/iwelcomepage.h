@@ -33,8 +33,8 @@
 #include "utils_global.h"
 
 #include <QObject>
-#include <QUrl>
 
+QT_FORWARD_DECLARE_CLASS(QUrl)
 QT_FORWARD_DECLARE_CLASS(QDeclarativeEngine)
 
 namespace Utils {

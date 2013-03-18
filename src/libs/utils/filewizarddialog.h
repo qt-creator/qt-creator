@@ -30,7 +30,6 @@
 #ifndef FILEWIZARDDIALOG_H
 #define FILEWIZARDDIALOG_H
 
-#include "utils_global.h"
 #include "wizard.h"
 
 namespace Utils {

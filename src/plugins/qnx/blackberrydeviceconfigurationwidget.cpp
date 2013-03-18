@@ -37,6 +37,7 @@
 
 #include <ssh/sshconnection.h>
 #include <utils/pathchooser.h>
+#include <utils/fancylineedit.h>
 
 #include <QProgressDialog>
 #include <QMessageBox>
