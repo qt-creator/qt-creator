@@ -30,6 +30,7 @@
 #include "pythoneditorplugin.h"
 #include "pythoneditorconstants.h"
 #include "wizard/pythonfilewizard.h"
+#include "wizard/pythonclasswizard.h"
 #include "pythoneditorwidget.h"
 #include "pythoneditorfactory.h"
 
@@ -249,6 +250,7 @@ bool PythonEditorPlugin::initialize(
     // Add Python files and classes creation dialogs
     ////////////////////////////////////////////////////////////////////////////
     addAutoReleasedObject(new FileWizard(Core::ICore::instance()));
+    addAutoReleasedObject(new ClassWizard(Core::ICore::instance()));
 
     return true;
 }

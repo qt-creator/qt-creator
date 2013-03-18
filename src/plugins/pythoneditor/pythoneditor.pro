@@ -18,6 +18,10 @@ HEADERS += \
     pythoneditorwidget.h \
     pythoneditorconstants.h \
     wizard/pythonfilewizard.h \
+    wizard/pythonclasswizard.h \
+    wizard/pythonclassnamepage.h \
+    wizard/pythonclasswizarddialog.h \
+    wizard/pythonsourcegenerator.h \
     tools/pythonhighlighter.h \
     tools/pythonindenter.h \
     tools/lexical/pythonformattoken.h \
@@ -30,6 +34,10 @@ SOURCES += \
     pythoneditor.cpp \
     pythoneditorwidget.cpp \
     wizard/pythonfilewizard.cpp \
+    wizard/pythonclasswizarddialog.cpp \
+    wizard/pythonclasswizard.cpp \
+    wizard/pythonclassnamepage.cpp \
+    wizard/pythonsourcegenerator.cpp \
     tools/pythonhighlighter.cpp \
     tools/pythonindenter.cpp \
     tools/lexical/pythonscanner.cpp

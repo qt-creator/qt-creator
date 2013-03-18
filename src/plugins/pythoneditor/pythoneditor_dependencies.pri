@@ -2,4 +2,6 @@ QTC_PLUGIN_NAME = PythonEditor
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
     texteditor \
-    cpptools
+    cpptools \
+    qtsupport \
+    projectexplorer

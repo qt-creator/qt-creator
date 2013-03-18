@@ -37,6 +37,14 @@ QtcPlugin {
         "tools/pythonindenter.h",
         "wizard/pythonfilewizard.h",
         "wizard/pythonfilewizard.cpp",
+        "wizard/pythonclasswizard.h",
+        "wizard/pythonclassnamepage.h",
+        "wizard/pythonclasswizarddialog.h",
+        "wizard/pythonsourcegenerator.h",
+        "wizard/pythonclasswizarddialog.cpp",
+        "wizard/pythonclasswizard.cpp",
+        "wizard/pythonclassnamepage.cpp",
+        "wizard/pythonsourcegenerator.cpp"
     ]
 }
 
