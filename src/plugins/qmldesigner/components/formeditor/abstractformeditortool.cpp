@@ -56,6 +56,11 @@ FormEditorView* AbstractFormEditorTool::view() const
     return m_view;
 }
 
+void AbstractFormEditorTool::setView(FormEditorView *view)
+{
+    m_view = view;
+}
+
 FormEditorScene* AbstractFormEditorTool::scene() const
 {
     return view()->scene();
