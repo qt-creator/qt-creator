@@ -50,7 +50,7 @@ namespace Internal {
     class MoveController;
 }
 
-class FormEditorItem : public QGraphicsObject
+class QMLDESIGNERCORE_EXPORT FormEditorItem : public QGraphicsObject
 {
     Q_OBJECT
 
