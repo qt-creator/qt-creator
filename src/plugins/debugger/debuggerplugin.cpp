@@ -1619,7 +1619,9 @@ void DebuggerPluginPrivate::attachCore()
 {
     AttachCoreDialog dlg(mainWindow());
 
-    dlg.setKitId(Id(configValue(_("LastExternalKit")).toString()));
+    const QString lastExternalKit = configValue(_("LastExternalKit")).toString();
+    if (!lastExternalKit.isEmpty())
+        dlg.setKitId(Id(lastExternalKit));
     dlg.setLocalExecutableFile(configValue(_("LastExternalExecutableFile")).toString());
     dlg.setLocalCoreFile(configValue(_("LastLocalCoreFile")).toString());
     dlg.setRemoteCoreFile(configValue(_("LastRemoteCoreFile")).toString());
