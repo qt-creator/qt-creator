@@ -33,6 +33,7 @@
 #include "modelnodecontextmenu.h"
 #include "modelnodeoperations.h"
 #include "designeractionmanager.h"
+#include "defaultdesigneraction.h"
 
 #include <QAction>
 #include <QMenu>
@@ -101,29 +102,6 @@ namespace ComponentUtils {
     void goIntoComponent(const ModelNode &modelNode);
 }
 
-class DefaultAction : public QAction
-{
-    Q_OBJECT
-
-public:
-    DefaultAction(const QString &description) : QAction(description, 0)
-    {
-        connect(this, SIGNAL(triggered(bool)), this, SLOT(actionTriggered(bool)));
-    }
-
-public slots: //virtual method instead of slot
-    virtual void actionTriggered(bool)
-    { }
-
-    void setSelectionContext(const SelectionContext &selectionContext)
-    {
-        m_selectionContext = selectionContext;
-    }
-
-protected:
-    SelectionContext m_selectionContext;
-};
-
 class ActionTemplate : public DefaultAction
 {
 
@@ -139,38 +117,6 @@ public /*slots*/:
         return m_action(m_selectionContext);
     }
     ModelNodeOperations::SelectionAction m_action;
-};
-
-
-class DefaultDesignerAction : public AbstractDesignerAction
-{
-public:
-    DefaultDesignerAction() : m_action(new DefaultAction(QString()))
-    {}
-
-    DefaultDesignerAction(DefaultAction *action) : m_action(action)
-    {}
-
-    QAction *action() const { return m_action; }
-
-    void setCurrentContext(const SelectionContext &selectionContext)
-    {
-        m_selectionContext = selectionContext;
-        updateContext();
-    }
-
-    virtual void updateContext()
-    {
-        m_action->setSelectionContext(m_selectionContext);
-        if (m_selectionContext.isValid()) {
-            m_action->setEnabled(isEnabled(m_selectionContext));
-            m_action->setVisible(isVisible(m_selectionContext));
-        }
-    }
-
-protected:
-    DefaultAction *m_action;
-    SelectionContext m_selectionContext;
 };
 
 class MenuDesignerAction : public AbstractDesignerAction
@@ -230,7 +176,7 @@ public:
         m_category(category),
         m_priority(priority),
         m_visibility(&SelectionContextFunctors::always)
-    { m_action->setSeparator(true); }
+    { defaultAction()->setSeparator(true); }
 
     bool isVisible(const SelectionContext &m_selectionState) const { return m_visibility(m_selectionState); }
     bool isEnabled(const SelectionContext &) const { return true; }
