@@ -30,6 +30,7 @@
 #ifndef DESIGNERACTIONMANAGER_H
 #define DESIGNERACTIONMANAGER_H
 
+#include <qmldesignercorelib_global.h>
 #include "abstractdesigneraction.h"
 #include "qmlmodelview.h"
 
@@ -41,7 +42,7 @@ namespace Internal {
 class DesignerActionManagerView;
 }
 
-class DesignerActionManager {
+class QMLDESIGNERCORE_EXPORT DesignerActionManager {
 public:
     static void addDesignerAction(AbstractDesignerAction *newAction);
     static QList<AbstractDesignerAction* > designerActions();
