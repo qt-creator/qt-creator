@@ -12,6 +12,8 @@ public:
 
     void selectedItemsChanged(const QList<FormEditorItem *> &itemList) QTC_OVERRIDE;
 
+    virtual QString name() const = 0;
+
     virtual int wantHandleItem(const ModelNode &modelNode) const QTC_OVERRIDE = 0;
 };
 
