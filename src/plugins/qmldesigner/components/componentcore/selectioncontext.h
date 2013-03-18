@@ -27,6 +27,7 @@
 **
 ****************************************************************************/
 
+#include <qmldesignercorelib_global.h>
 #include <qmlmodelview.h>
 
 #ifndef SELECTIONCONTEXT_H
@@ -34,7 +35,7 @@
 
 namespace QmlDesigner {
 
-class SelectionContext {
+class QMLDESIGNERCORE_EXPORT SelectionContext {
 
 public:
     SelectionContext();
