@@ -55,11 +55,12 @@ protected:
     void addDesignerActionInternal(AbstractDesignerAction *newAction);
     QList<AbstractDesignerAction* > factoriesInternal() const;
     DesignerActionManager();
+    ~DesignerActionManager();
 
 private:
     static DesignerActionManager *m_instance;
     QList<QSharedPointer<AbstractDesignerAction> > m_designerActions;
-    QScopedPointer<Internal::DesignerActionManagerView> m_view;
+    Internal::DesignerActionManagerView *m_view;
 };
 
 } //QmlDesigner
