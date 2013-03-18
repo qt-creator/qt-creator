@@ -67,23 +67,23 @@ public:
     virtual ~DragTool();
 
     void mousePressEvent(const QList<QGraphicsItem*> &itemList,
-                         QGraphicsSceneMouseEvent *event);
+                         QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
     void mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
-                        QGraphicsSceneMouseEvent *event);
+                        QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
     void mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
-                           QGraphicsSceneMouseEvent *event);
+                           QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
     void mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList,
-                               QGraphicsSceneMouseEvent *event);
+                               QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
     void hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
-                        QGraphicsSceneMouseEvent *event);
+                        QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
 
-    void keyPressEvent(QKeyEvent *event);
-    void keyReleaseEvent(QKeyEvent *keyEvent);
+    void keyPressEvent(QKeyEvent *event) QTC_OVERRIDE;
+    void keyReleaseEvent(QKeyEvent *keyEvent) QTC_OVERRIDE;
 
-    void itemsAboutToRemoved(const QList<FormEditorItem*> &itemList);
+    void itemsAboutToRemoved(const QList<FormEditorItem*> &itemList) QTC_OVERRIDE;
 
-    void selectedItemsChanged(const QList<FormEditorItem*> &itemList);
-    void instancesParentChanged(const QList<FormEditorItem *> &itemList);
+    void selectedItemsChanged(const QList<FormEditorItem*> &itemList) QTC_OVERRIDE;
+    void instancesParentChanged(const QList<FormEditorItem *> &itemList) QTC_OVERRIDE;
     void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList) QTC_OVERRIDE;
 
     void updateMoveManipulator();
@@ -91,18 +91,18 @@ public:
     void beginWithPoint(const QPointF &beginPoint);
 
 
-    virtual void dropEvent(QGraphicsSceneDragDropEvent * event);
-    virtual void dragEnterEvent(QGraphicsSceneDragDropEvent * event);
-    virtual void dragLeaveEvent(QGraphicsSceneDragDropEvent * event);
-    virtual void dragMoveEvent(QGraphicsSceneDragDropEvent * event);
+    virtual void dropEvent(QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
+    virtual void dragEnterEvent(QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
+    virtual void dragLeaveEvent(QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
+    virtual void dragMoveEvent(QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
 
     //void beginWithPoint(const QPointF &beginPoint);
 
-    void clear();
+    void clear() QTC_OVERRIDE;
 
-    void formEditorItemsChanged(const QList<FormEditorItem*> &itemList);
+    void formEditorItemsChanged(const QList<FormEditorItem*> &itemList) QTC_OVERRIDE;
 
-    void instancesCompleted(const QList<FormEditorItem*> &itemList);
+    void instancesCompleted(const QList<FormEditorItem*> &itemList) QTC_OVERRIDE;
 
     void clearMoveDelay();
 

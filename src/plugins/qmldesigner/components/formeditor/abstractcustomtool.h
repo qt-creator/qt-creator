@@ -8,11 +8,11 @@ namespace QmlDesigner {
 class QMLDESIGNERCORE_EXPORT AbstractCustomTool : public QmlDesigner::AbstractFormEditorTool
 {
 public:
-    AbstractCustomTool(FormEditorView* view);
+    AbstractCustomTool();
 
-    void selectedItemsChanged(const QList<FormEditorItem *> &itemList);
+    void selectedItemsChanged(const QList<FormEditorItem *> &itemList) QTC_OVERRIDE;
 
-    virtual bool wantHandleItem(const ModelNode &modelNode) const = 0;
+    virtual int wantHandleItem(const ModelNode &modelNode) const QTC_OVERRIDE = 0;
 };
 
 } // namespace QmlDesigner
