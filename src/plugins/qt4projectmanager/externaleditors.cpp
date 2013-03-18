@@ -31,6 +31,7 @@
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
@@ -75,9 +76,15 @@ static inline QString msgAppNotFound(const QString &id)
 }
 
 // -- Commands and helpers
-#ifdef Q_OS_MAC
-static const char linguistBinaryC[] = "Linguist";
-static const char designerBinaryC[] = "Designer";
+static QString linguistBinary()
+{
+    return QLatin1String(Utils::HostOsInfo::isMacHost() ? "Linguist" : "linguist");
+}
+
+static QString designerBinary()
+{
+    return QLatin1String(Utils::HostOsInfo::isMacHost() ? "Designer" : "designer");
+}
 
 // Mac: Change the call 'Foo.app/Contents/MacOS/Foo <filelist>' to
 // 'open -a Foo.app <filelist>'. doesn't support generic command line arguments
@@ -91,10 +98,6 @@ static void createMacOpenCommand(QString *binary, QStringList *arguments)
         *binary = QLatin1String("open");
     }
 }
-#else
-static const char linguistBinaryC[] = "linguist";
-static const char designerBinaryC[] = "designer";
-#endif
 
 static const char designerIdC[] = "Qt.Designer";
 static const char linguistIdC[] = "Qt.Linguist";
@@ -193,9 +196,8 @@ bool LinguistExternalEditor::startEditor(const QString &fileName, QString *error
 {
     EditorLaunchData data;
     return getEditorLaunchData(fileName, &QtSupport::BaseQtVersion::linguistCommand,
-                            QLatin1String(linguistBinaryC),
-                            QStringList(), true, &data, errorMessage)
-    && startEditorProcess(data, errorMessage);
+                            linguistBinary(), QStringList(), true, &data, errorMessage)
+            && startEditorProcess(data, errorMessage);
 }
 
 // --------------- MacDesignerExternalEditor, using Mac 'open'
@@ -211,8 +213,7 @@ bool MacDesignerExternalEditor::startEditor(const QString &fileName, QString *er
 {
     EditorLaunchData data;
     return getEditorLaunchData(fileName, &QtSupport::BaseQtVersion::designerCommand,
-                            QLatin1String(designerBinaryC),
-                            QStringList(), true, &data, errorMessage)
+                            designerBinary(), QStringList(), true, &data, errorMessage)
         && startEditorProcess(data, errorMessage);
     return false;
 }
@@ -247,8 +248,7 @@ bool DesignerExternalEditor::startEditor(const QString &fileName, QString *error
     EditorLaunchData data;
     // Find the editor binary
     if (!getEditorLaunchData(fileName, &QtSupport::BaseQtVersion::designerCommand,
-                            QLatin1String(designerBinaryC),
-                            QStringList(), false, &data, errorMessage)) {
+                            designerBinary(), QStringList(), false, &data, errorMessage)) {
         return false;
     }
     // Known one?
