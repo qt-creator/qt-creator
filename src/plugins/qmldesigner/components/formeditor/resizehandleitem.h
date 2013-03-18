@@ -32,11 +32,13 @@
 
 #include <QGraphicsPixmapItem>
 
+#include <qmldesignercorelib_global.h>
+
 #include "resizecontroller.h"
 
 namespace QmlDesigner {
 
-class ResizeHandleItem : public QGraphicsPixmapItem
+class QMLDESIGNERCORE_EXPORT ResizeHandleItem : public QGraphicsPixmapItem
 {
 public:
     enum
