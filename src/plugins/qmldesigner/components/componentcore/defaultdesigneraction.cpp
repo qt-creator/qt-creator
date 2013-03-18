@@ -27,44 +27,59 @@
 **
 ****************************************************************************/
 
-#ifndef ABSTRACTDESIGNERACTION_H
-#define ABSTRACTDESIGNERACTION_H
 
-#include "componentcore_constants.h"
-#include "selectioncontext.h"
-
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
+#include "defaultdesigneraction.h"
 
 namespace QmlDesigner {
 
-class AbstractDesignerAction
+DefaultDesignerAction::DefaultDesignerAction()
+    : m_action(new DefaultAction(QString()))
 {
-public:
-    enum Type {
-        Menu,
-        Action
-    };
+}
 
-    enum Priorities {
-        HighestPriority = ComponentCoreConstants::priorityFirst,
-        CustomActionsPriority = ComponentCoreConstants::priorityCustomActions,
-        RefactoringActionsPriority = ComponentCoreConstants::priorityRefactoring,
-        LowestPriority = ComponentCoreConstants::priorityLast
-    };
+DefaultDesignerAction::DefaultDesignerAction(DefaultAction *action)
+    : m_action(action)
+{
+}
 
-    virtual ~AbstractDesignerAction() {}
+void DefaultDesignerAction::setCurrentContext(const SelectionContext &selectionContext)
+{
+    m_selectionContext = selectionContext;
+    updateContext();
+}
 
-    virtual QAction *action() const = 0;
-    virtual QString category() const = 0;
-    virtual QString menuId() const = 0;
-    virtual int priority() const = 0;
-    virtual Type type() const = 0;
-    virtual void setCurrentContext(const SelectionContext &selectionState) = 0;
+void DefaultDesignerAction::updateContext()
+{
+    m_action->setSelectionContext(m_selectionContext);
+    if (m_selectionContext.isValid()) {
+        m_action->setEnabled(isEnabled(m_selectionContext));
+        m_action->setVisible(isVisible(m_selectionContext));
+    }
+}
 
-};
+DefaultAction *DefaultDesignerAction::defaultAction() const
+{
+    return m_action;
+}
 
-} //QmlDesigner
+SelectionContext DefaultDesignerAction::selectionContext() const
+{
+    return m_selectionContext;
+}
 
-#endif //ABSTRACTDESIGNERACTION_H
+DefaultAction::DefaultAction(const QString &description)
+    : QAction(description, 0)
+{
+    connect(this, SIGNAL(triggered(bool)), this, SLOT(actionTriggered(bool)));
+}
+
+void DefaultAction::actionTriggered(bool)
+{
+}
+
+void DefaultAction::setSelectionContext(const SelectionContext &selectionContext)
+{
+    m_selectionContext = selectionContext;
+}
+
+} // namespace QmlDesigner

@@ -27,44 +27,52 @@
 **
 ****************************************************************************/
 
-#ifndef ABSTRACTDESIGNERACTION_H
-#define ABSTRACTDESIGNERACTION_H
 
-#include "componentcore_constants.h"
-#include "selectioncontext.h"
+#ifndef QMLDESIGNER_DEFAULTDESIGNERACTION_H
+#define QMLDESIGNER_DEFAULTDESIGNERACTION_H
 
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
+#include "abstractdesigneraction.h"
+
+#include <QAction>
 
 namespace QmlDesigner {
 
-class AbstractDesignerAction
+class DefaultAction : public QAction
 {
+    Q_OBJECT
+
 public:
-    enum Type {
-        Menu,
-        Action
-    };
+    DefaultAction(const QString &description);
 
-    enum Priorities {
-        HighestPriority = ComponentCoreConstants::priorityFirst,
-        CustomActionsPriority = ComponentCoreConstants::priorityCustomActions,
-        RefactoringActionsPriority = ComponentCoreConstants::priorityRefactoring,
-        LowestPriority = ComponentCoreConstants::priorityLast
-    };
+public slots: //virtual method instead of slot
+    virtual void actionTriggered(bool);
+    void setSelectionContext(const SelectionContext &selectionContext);
 
-    virtual ~AbstractDesignerAction() {}
-
-    virtual QAction *action() const = 0;
-    virtual QString category() const = 0;
-    virtual QString menuId() const = 0;
-    virtual int priority() const = 0;
-    virtual Type type() const = 0;
-    virtual void setCurrentContext(const SelectionContext &selectionState) = 0;
-
+protected:
+    SelectionContext m_selectionContext;
 };
 
-} //QmlDesigner
+class DefaultDesignerAction : public AbstractDesignerAction
+{
+public:
+    DefaultDesignerAction();
+    DefaultDesignerAction(DefaultAction *action);
 
-#endif //ABSTRACTDESIGNERACTION_H
+    QAction *action() const { return m_action; }
+    void setCurrentContext(const SelectionContext &selectionContext);
+
+protected:
+    virtual void updateContext();
+    virtual bool isVisible(const SelectionContext &selectionState) const = 0;
+    virtual bool isEnabled(const SelectionContext &selectionState) const = 0;
+    DefaultAction *defaultAction() const;
+    SelectionContext selectionContext() const;
+
+private:
+    DefaultAction *m_action;
+    SelectionContext m_selectionContext;
+};
+
+} // namespace QmlDesigner
+
+#endif // QMLDESIGNER_DEFAULTDESIGNERACTION_H
