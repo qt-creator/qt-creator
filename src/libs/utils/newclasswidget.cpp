@@ -61,9 +61,12 @@ struct NewClassWidgetPrivate {
     // fooled by a temporarily hidden widget
     bool m_baseClassInputVisible;
     bool m_formInputVisible;
+    bool m_headerInputVisible;
+    bool m_sourceInputVisible;
     bool m_pathInputVisible;
     bool m_qobjectCheckBoxVisible;
     bool m_formInputCheckable;
+    QRegExp m_classNameValidator;
 };
 
 NewClassWidgetPrivate:: NewClassWidgetPrivate() :
@@ -74,6 +77,8 @@ NewClassWidgetPrivate:: NewClassWidgetPrivate() :
     m_classEdited(false),
     m_baseClassInputVisible(true),
     m_formInputVisible(true),
+    m_headerInputVisible(true),
+    m_sourceInputVisible(true),
     m_pathInputVisible(true),
     m_qobjectCheckBoxVisible(false),
     m_formInputCheckable(false)
@@ -89,6 +94,8 @@ NewClassWidget::NewClassWidget(QWidget *parent) :
     d->m_ui.setupUi(this);
 
     d->m_ui.baseClassComboBox->setEditable(false);
+
+    setNamesDelimiter(QLatin1String("::"));
 
     connect(d->m_ui.classLineEdit, SIGNAL(updateFileName(QString)),
             this, SLOT(slotUpdateFileNames(QString)));
@@ -206,6 +213,30 @@ void NewClassWidget::setFormInputVisible(bool visible)
 bool NewClassWidget::isFormInputVisible() const
 {
     return d->m_formInputVisible;
+}
+
+void NewClassWidget::setHeaderInputVisible(bool visible)
+{
+    d->m_headerInputVisible = visible;
+    d->m_ui.headerLabel->setVisible(visible);
+    d->m_ui.headerFileLineEdit->setVisible(visible);
+}
+
+bool NewClassWidget::isHeaderInputVisible() const
+{
+    return d->m_headerInputVisible;
+}
+
+void NewClassWidget::setSourceInputVisible(bool visible)
+{
+    d->m_sourceInputVisible = visible;
+    d->m_ui.sourceLabel->setVisible(visible);
+    d->m_ui.sourceFileLineEdit->setVisible(visible);
+}
+
+bool NewClassWidget::isSourceInputVisible() const
+{
+    return d->m_sourceInputVisible;
 }
 
 void NewClassWidget::setFormInputCheckable(bool checkable)
@@ -383,9 +414,23 @@ NewClassWidget::ClassType NewClassWidget::classType() const
     return static_cast<ClassType>(d->m_ui.classTypeComboBox->currentIndex());
 }
 
+QString NewClassWidget::namesDelimiter() const
+{
+    return d->m_ui.classLineEdit->namespaceDelimiter();
+}
+
 void NewClassWidget::setClassType(ClassType ct)
 {
     d->m_ui.classTypeComboBox->setCurrentIndex(ct);
+}
+
+void NewClassWidget::setNamesDelimiter(const QString &delimiter)
+{
+    d->m_ui.classLineEdit->setNamespaceDelimiter(delimiter);
+    const QString escaped = QRegExp::escape(delimiter);
+    d->m_classNameValidator = QRegExp(QLatin1String("[a-zA-Z_][a-zA-Z0-9_]*(")
+                                      + escaped
+                                      + QLatin1String("[a-zA-Z_][a-zA-Z0-9_]*)*"));
 }
 
 bool NewClassWidget::isClassTypeComboVisible() const
@@ -447,23 +492,21 @@ bool NewClassWidget::isValid(QString *error) const
     }
 
     if (isBaseClassInputVisible() && isBaseClassEditable()) {
-        // TODO: Should this be a ClassNameValidatingComboBox?
-        QRegExp classNameValidator(QLatin1String("[a-zA-Z_][a-zA-Z0-9_]*(::[a-zA-Z_][a-zA-Z0-9_]*)*"));
         const QString baseClass = d->m_ui.baseClassComboBox->currentText().trimmed();
-        if (!baseClass.isEmpty() && !classNameValidator.exactMatch(baseClass)) {
+        if (!baseClass.isEmpty() && !d->m_classNameValidator.exactMatch(baseClass)) {
             if (error)
                 *error = tr("Invalid base class name");
             return false;
         }
     }
 
-    if (!d->m_ui.headerFileLineEdit->isValid()) {
+    if (isHeaderInputVisible() && !d->m_ui.headerFileLineEdit->isValid()) {
         if (error)
             *error = tr("Invalid header file name: '%1'").arg(d->m_ui.headerFileLineEdit->errorMessage());
         return false;
     }
 
-    if (!d->m_ui.sourceFileLineEdit->isValid()) {
+    if (isSourceInputVisible() && !d->m_ui.sourceFileLineEdit->isValid()) {
         if (error)
             *error = tr("Invalid source file name: '%1'").arg(d->m_ui.sourceFileLineEdit->errorMessage());
         return false;
@@ -540,8 +583,10 @@ QStringList NewClassWidget::files() const
 {
     QStringList rc;
     const QDir dir = QDir(path());
-    rc.push_back(expandFileName(dir, headerFileName(), headerExtension()));
-    rc.push_back(expandFileName(dir, sourceFileName(), sourceExtension()));
+    if (isHeaderInputVisible())
+        rc.push_back(expandFileName(dir, headerFileName(), headerExtension()));
+    if (isSourceInputVisible())
+        rc.push_back(expandFileName(dir, sourceFileName(), sourceExtension()));
     if (isFormInputVisible())
         rc.push_back(expandFileName(dir, formFileName(), formExtension()));
     return rc;

@@ -151,9 +151,9 @@ QString ClassNameValidatingLineEdit::fixInputString(const QString &string)
 
 void ClassNameValidatingLineEdit::updateRegExp() const
 {
-    QString identifierPatter(QLatin1String("[a-zA-Z_][a-zA-Z0-9_]*"));
-    QString pattern(QLatin1String("%1(%2%1)*"));
-    d->m_nameRegexp.setPattern(pattern.arg(identifierPatter).arg(d->m_namespaceDelimiter));
+    const QString pattern(QLatin1String("%1(%2%1)*"));
+    d->m_nameRegexp.setPattern(pattern.arg(QLatin1String("[a-zA-Z_][a-zA-Z0-9_]*"))
+                               .arg(QRegExp::escape(d->m_namespaceDelimiter)));
 }
 
 QString ClassNameValidatingLineEdit::createClassName(const QString &name)

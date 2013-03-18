@@ -49,6 +49,8 @@ class QTCREATOR_UTILS_EXPORT NewClassWidget : public QWidget
     Q_PROPERTY(bool baseClassInputVisible READ isBaseClassInputVisible WRITE setBaseClassInputVisible DESIGNABLE true)
     Q_PROPERTY(bool baseClassEditable READ isBaseClassEditable WRITE setBaseClassEditable DESIGNABLE false)
     Q_PROPERTY(bool formInputVisible READ isFormInputVisible WRITE setFormInputVisible DESIGNABLE true)
+    Q_PROPERTY(bool headerInputVisible READ isHeaderInputVisible WRITE setHeaderInputVisible DESIGNABLE true)
+    Q_PROPERTY(bool sourceInputVisible READ isSourceInputVisible WRITE setSourceInputVisible DESIGNABLE true)
     Q_PROPERTY(bool pathInputVisible READ isPathInputVisible WRITE setPathInputVisible DESIGNABLE true)
     Q_PROPERTY(bool classTypeComboVisible READ isClassTypeComboVisible WRITE setClassTypeComboVisible DESIGNABLE true)
     Q_PROPERTY(QString className READ className WRITE setClassName DESIGNABLE true)
@@ -61,6 +63,7 @@ class QTCREATOR_UTILS_EXPORT NewClassWidget : public QWidget
     Q_PROPERTY(QString sourceExtension READ sourceExtension WRITE setSourceExtension DESIGNABLE true)
     Q_PROPERTY(QString headerExtension READ headerExtension WRITE setHeaderExtension DESIGNABLE true)
     Q_PROPERTY(QString formExtension READ formExtension WRITE setFormExtension DESIGNABLE true)
+    Q_PROPERTY(QString namesDelimiter READ namesDelimiter WRITE setNamesDelimiter)
     Q_PROPERTY(bool formInputCheckable READ formInputCheckable WRITE setFormInputCheckable DESIGNABLE true)
     Q_PROPERTY(bool formInputChecked READ formInputChecked WRITE setFormInputChecked DESIGNABLE true)
     Q_PROPERTY(bool allowDirectories READ allowDirectories WRITE setAllowDirectories)
@@ -86,6 +89,8 @@ public:
     bool isBaseClassInputVisible() const;
     bool isBaseClassEditable() const;
     bool isFormInputVisible() const;
+    bool isHeaderInputVisible() const;
+    bool isSourceInputVisible() const;
     bool isPathInputVisible() const;
     bool formInputCheckable() const;
     bool formInputChecked() const;
@@ -103,6 +108,7 @@ public:
     bool allowDirectories() const;
     bool lowerCaseFiles() const;
     ClassType classType() const;
+    QString namesDelimiter() const;
     bool isClassTypeComboVisible() const;
 
     bool isValid(QString *error = 0) const;
@@ -118,6 +124,8 @@ public slots:
     void setBaseClassInputVisible(bool visible);
     void setBaseClassEditable(bool editable);
     void setFormInputVisible(bool visible);
+    void setHeaderInputVisible(bool visible);
+    void setSourceInputVisible(bool visible);
     void setPathInputVisible(bool visible);
     void setFormInputCheckable(bool v);
     void setFormInputChecked(bool v);
@@ -136,6 +144,7 @@ public slots:
     void setAllowDirectories(bool v);
     void setLowerCaseFiles(bool v);
     void setClassType(ClassType ct);
+    void setNamesDelimiter(const QString &delimiter);
     void setClassTypeComboVisible(bool v);
 
     /**
