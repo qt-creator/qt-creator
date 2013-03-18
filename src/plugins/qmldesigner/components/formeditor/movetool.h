@@ -69,6 +69,7 @@ public:
 
     void instancesCompleted(const QList<FormEditorItem*> &itemList);
     void instancesParentChanged(const QList<FormEditorItem *> &itemList);
+    void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList) QTC_OVERRIDE;
 
     void updateMoveManipulator();
 

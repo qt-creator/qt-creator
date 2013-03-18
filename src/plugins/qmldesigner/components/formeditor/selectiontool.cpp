@@ -284,6 +284,10 @@ void SelectionTool::instancesParentChanged(const QList<FormEditorItem *> &/*item
 
 }
 
+void SelectionTool::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > & /*propertyList*/)
+{
+}
+
 void SelectionTool::selectUnderPoint(QGraphicsSceneMouseEvent *event)
 {
     m_singleSelectionManipulator.begin(event->scenePos());

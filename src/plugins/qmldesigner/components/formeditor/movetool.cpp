@@ -268,6 +268,10 @@ void  MoveTool::instancesParentChanged(const QList<FormEditorItem *> &itemList)
     m_moveManipulator.synchronizeInstanceParent(itemList);
 }
 
+void MoveTool::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > & /*propertyList*/)
+{
+}
+
 bool MoveTool::haveSameParent(const QList<FormEditorItem*> &itemList)
 {
     if (itemList.isEmpty())

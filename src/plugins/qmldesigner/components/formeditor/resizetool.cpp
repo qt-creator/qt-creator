@@ -208,6 +208,10 @@ void ResizeTool::instancesCompleted(const QList<FormEditorItem*> &/*itemList*/)
 {
 }
 
+void ResizeTool::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > & /*propertyList*/)
+{
+}
+
 
 void ResizeTool::instancesParentChanged(const QList<FormEditorItem *> &/*itemList*/)
 {

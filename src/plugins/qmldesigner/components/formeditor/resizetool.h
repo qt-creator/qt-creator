@@ -71,6 +71,7 @@ public:
     void instancesParentChanged(const QList<FormEditorItem *> &itemList);
 
     void instancesCompleted(const QList<FormEditorItem*> &itemList);
+    void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList) QTC_OVERRIDE;
 
 
 private:

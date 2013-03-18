@@ -244,6 +244,9 @@ void DragTool::instancesParentChanged(const QList<FormEditorItem *> &itemList)
     m_moveManipulator.synchronizeInstanceParent(itemList);
 }
 
+void DragTool::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > & /*propertyList*/)
+{
+}
 
 void DragTool::clearMoveDelay()
 {
