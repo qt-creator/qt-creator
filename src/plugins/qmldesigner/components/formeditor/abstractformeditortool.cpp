@@ -204,8 +204,11 @@ void AbstractFormEditorTool::mouseReleaseEvent(const QList<QGraphicsItem*> & /*i
     }
 }
 
-void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &, QGraphicsSceneMouseEvent *)
+void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *)
 {
+    FormEditorItem *formEditorItem = topFormEditorItem(itemList);
+    if (formEditorItem)
+        view()->changeToCustomTool(formEditorItem->qmlItemNode().modelNode());
 }
 
 void AbstractFormEditorTool::showContextMenu(QGraphicsSceneMouseEvent *event)

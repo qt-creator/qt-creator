@@ -37,6 +37,7 @@
 #include "formeditoritem.h"
 #include "formeditorscene.h"
 #include "toolbox.h"
+#include "abstractcustomtool.h"
 
 #include <designmodecontext.h>
 #include <rewritertransaction.h>
@@ -96,7 +97,7 @@ FormEditorView::~FormEditorView()
     delete m_dragTool;
     m_dragTool = 0;
 
-    qDeleteAll(m_toolList);
+    qDeleteAll(m_customToolList);
 
     // delete scene after tools to prevent double deletion
     // of items
@@ -413,9 +414,31 @@ void FormEditorView::changeToTransformTools()
     changeToSelectionTool();
 }
 
-void FormEditorView::registerTool(AbstractFormEditorTool *tool)
+void FormEditorView::changeToCustomTool(const ModelNode &modelNode)
 {
-    m_toolList.append(tool);
+    int handlingRank = 0;
+    AbstractCustomTool *selectedCustomTool;
+
+    foreach (AbstractCustomTool *customTool, m_customToolList) {
+        if (customTool->wantHandleItem(modelNode) > handlingRank) {
+            handlingRank = customTool->wantHandleItem(modelNode);
+            selectedCustomTool = customTool;
+        }
+
+    }
+
+    if (handlingRank > 0) {
+        m_scene->updateAllFormEditorItems();
+        m_currentTool->clear();
+        m_currentTool = selectedCustomTool;
+        m_currentTool->clear();
+        m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
+    }
+}
+
+void FormEditorView::registerTool(AbstractCustomTool *tool)
+{
+    m_customToolList.append(tool);
 }
 
 void FormEditorView::nodeSlidedToIndex(const NodeListProperty &listProperty, int /*newIndex*/, int /*oldIndex*/)

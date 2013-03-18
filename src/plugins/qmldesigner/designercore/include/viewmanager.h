@@ -72,7 +72,7 @@ public:
 
     void resetPropertyEditorView();
 
-    void registerFormEditorTool(AbstractFormEditorTool *tool); // takes ownership
+    void registerFormEditorTool(AbstractCustomTool *tool); // takes ownership
     void registerView(AbstractView *view);
 
     QList<WidgetInfo> widgetInfos();
