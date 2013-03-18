@@ -99,7 +99,8 @@ const IAssistProvider *CppQuickFixAssistProcessor::provider() const
 // --------------------------
 CppQuickFixAssistInterface::CppQuickFixAssistInterface(CPPEditorWidget *editor,
                                                        TextEditor::AssistReason reason)
-    : DefaultAssistInterface(editor->document(), editor->position(), editor->editorDocument(), reason)
+    : DefaultAssistInterface(editor->document(), editor->position(),
+                             editor->editorDocument()->fileName(), reason)
     , m_editor(editor)
     , m_semanticInfo(editor->semanticInfo())
     , m_snapshot(CPlusPlus::CppModelManagerInterface::instance()->snapshot())

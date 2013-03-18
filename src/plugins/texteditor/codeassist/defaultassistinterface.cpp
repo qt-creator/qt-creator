@@ -39,12 +39,12 @@ using namespace TextEditor;
 
 DefaultAssistInterface::DefaultAssistInterface(QTextDocument *textDocument,
                                                int position,
-                                               Core::IDocument *document,
+                                               const QString &fileName,
                                                AssistReason reason)
     : m_textDocument(textDocument)
     , m_isAsync(false)
     , m_position(position)
-    , m_document(document)
+    , m_fileName(fileName)
     , m_reason(reason)
 {}
 

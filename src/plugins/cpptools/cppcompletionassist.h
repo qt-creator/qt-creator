@@ -167,12 +167,12 @@ class CppCompletionAssistInterface : public TextEditor::DefaultAssistInterface
 public:
     CppCompletionAssistInterface(QTextDocument *textDocument,
                                  int position,
-                                 Core::IDocument *document,
+                                 const QString &fileName,
                                  TextEditor::AssistReason reason,
                                  const CPlusPlus::Snapshot &snapshot,
                                  const QStringList &includePaths,
                                  const QStringList &frameworkPaths)
-        : TextEditor::DefaultAssistInterface(textDocument, position, document, reason)
+        : TextEditor::DefaultAssistInterface(textDocument, position, fileName, reason)
         , m_snapshot(snapshot)
         , m_includePaths(includePaths)
         , m_frameworkPaths(frameworkPaths)

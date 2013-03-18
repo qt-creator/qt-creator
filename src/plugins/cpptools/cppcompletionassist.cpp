@@ -453,7 +453,7 @@ public:
         return new CppTools::Internal::CppCompletionAssistInterface(
                     document,
                     position,
-                    editor()->document(),
+                    editor()->document()->fileName(),
                     reason,
                     modelManager->snapshot(),
                     includePaths,
@@ -975,7 +975,7 @@ int CppCompletionAssistProcessor::startCompletionHelper()
 
     int line = 0, column = 0;
     Convenience::convertPosition(m_interface->textDocument(), startOfExpression, &line, &column);
-    const QString fileName = m_interface->document()->fileName();
+    const QString fileName = m_interface->fileName();
     return startCompletionInternal(fileName, line, column, expression, endOfExpression);
 }
 
@@ -1000,7 +1000,7 @@ bool CppCompletionAssistProcessor::tryObjCCompletion()
     const int startPos = tokens[start].begin() + tokens.startPosition();
     const QString expr = m_interface->textAt(startPos, m_interface->position() - startPos);
 
-    Document::Ptr thisDocument = m_interface->snapshot().document(m_interface->document()->fileName());
+    Document::Ptr thisDocument = m_interface->snapshot().document(m_interface->fileName());
     if (! thisDocument)
         return false;
 
@@ -1143,7 +1143,7 @@ bool CppCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
 
     // Make completion for all relevant includes
     QStringList includePaths = m_interface->includePaths();
-    const QString &currentFilePath = QFileInfo(m_interface->document()->fileName()).path();
+    const QString &currentFilePath = QFileInfo(m_interface->fileName()).path();
     if (!includePaths.contains(currentFilePath))
         includePaths.append(currentFilePath);
 
@@ -1204,7 +1204,7 @@ bool CppCompletionAssistProcessor::objcKeywordsWanted() const
     if (!m_objcEnabled)
         return false;
 
-    const QString fileName = m_interface->document()->fileName();
+    const QString fileName = m_interface->fileName();
 
     const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
     return mdb->findByFile(fileName).type() == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE);

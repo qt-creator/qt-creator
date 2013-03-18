@@ -463,11 +463,11 @@ void GLSLCompletionAssistProcessor::addCompletion(const QString &text,
 // -----------------------------
 GLSLCompletionAssistInterface::GLSLCompletionAssistInterface(QTextDocument *textDocument,
                                                              int position,
-                                                             Core::IDocument *document,
+                                                             const QString &fileName,
                                                              TextEditor::AssistReason reason,
                                                              const QString &mimeType,
                                                              const Document::Ptr &glslDoc)
-    : DefaultAssistInterface(textDocument, position, document, reason)
+    : DefaultAssistInterface(textDocument, position, fileName, reason)
     , m_mimeType(mimeType)
     , m_glslDoc(glslDoc)
 {

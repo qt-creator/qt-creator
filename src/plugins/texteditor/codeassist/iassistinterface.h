@@ -56,7 +56,7 @@ public:
     virtual int position() const = 0;
     virtual QChar characterAt(int position) const = 0;
     virtual QString textAt(int position, int length) const = 0;
-    virtual const Core::IDocument *document() const = 0;
+    virtual QString fileName() const = 0;
     virtual QTextDocument *textDocument() const = 0;
     virtual void prepareForAsyncUse() = 0;
     virtual void recreateTextDocument() = 0;

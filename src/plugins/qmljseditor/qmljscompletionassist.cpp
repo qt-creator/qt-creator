@@ -530,7 +530,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
     if (assistInterface->reason() == IdleEditor && !acceptsIdleEditor())
         return 0;
 
-    const QString &fileName = m_interface->document()->fileName();
+    const QString &fileName = m_interface->fileName();
 
     m_startPosition = assistInterface->position();
     while (isIdentifierChar(m_interface->textDocument()->characterAt(m_startPosition - 1), false, false))
@@ -964,10 +964,10 @@ bool QmlJSCompletionAssistProcessor::completeUrl(const QString &relativeBasePath
 // ------------------------------
 QmlJSCompletionAssistInterface::QmlJSCompletionAssistInterface(QTextDocument *textDocument,
                                                                int position,
-                                                               Core::IDocument *document,
+                                                               const QString &fileName,
                                                                TextEditor::AssistReason reason,
                                                                const SemanticInfo &info)
-    : DefaultAssistInterface(textDocument, position, document, reason)
+    : DefaultAssistInterface(textDocument, position, fileName, reason)
     , m_semanticInfo(info)
     , m_darkBlueIcon(iconForColor(Qt::darkBlue))
     , m_darkYellowIcon(iconForColor(Qt::darkYellow))

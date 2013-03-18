@@ -39,14 +39,14 @@ class TEXTEDITOR_EXPORT DefaultAssistInterface : public IAssistInterface
 public:
     DefaultAssistInterface(QTextDocument *textDocument,
                            int position,
-                           Core::IDocument *document,
+                           const QString &fileName,
                            AssistReason reason);
     virtual ~DefaultAssistInterface();
 
     virtual int position() const { return m_position; }
     virtual QChar characterAt(int position) const;
     virtual QString textAt(int position, int length) const;
-    virtual const Core::IDocument *document() const { return m_document; }
+    virtual QString fileName() const { return m_fileName; }
     virtual QTextDocument *textDocument() const { return m_textDocument; }
     virtual void prepareForAsyncUse();
     virtual void recreateTextDocument();
@@ -56,7 +56,7 @@ private:
     QTextDocument *m_textDocument;
     bool m_isAsync;
     int m_position;
-    Core::IDocument *m_document;
+    QString m_fileName;
     AssistReason m_reason;
     QString m_text;
 };

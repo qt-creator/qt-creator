@@ -1424,7 +1424,7 @@ TextEditor::IAssistInterface *QmlJSTextEditorWidget::createAssistInterface(
     if (assistKind == TextEditor::Completion) {
         return new QmlJSCompletionAssistInterface(document(),
                                                   position(),
-                                                  editor()->document(),
+                                                  editor()->document()->fileName(),
                                                   reason,
                                                   m_semanticInfo);
     } else if (assistKind == TextEditor::QuickFix) {

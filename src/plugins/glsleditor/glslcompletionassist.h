@@ -96,7 +96,7 @@ class GLSLCompletionAssistInterface : public TextEditor::DefaultAssistInterface
 {
 public:
     GLSLCompletionAssistInterface(QTextDocument *textDocument,
-                                  int position, Core::IDocument *document,
+                                  int position, const QString &fileName,
                                   TextEditor::AssistReason reason,
                                   const QString &mimeType,
                                   const Document::Ptr &glslDoc);

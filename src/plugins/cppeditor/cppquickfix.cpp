@@ -74,7 +74,7 @@ const CppQuickFixAssistInterface *CppQuickFixOperation::assistInterface() const
 
 QString CppQuickFixOperation::fileName() const
 {
-    return m_interface->document()->fileName();
+    return m_interface->fileName();
 }
 
 void CppQuickFixFactory::matchingOperations(const QuickFixInterface &interface, QuickFixOperations &result)

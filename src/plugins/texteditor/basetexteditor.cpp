@@ -6681,7 +6681,7 @@ IAssistInterface *BaseTextEditorWidget::createAssistInterface(AssistKind kind,
                                                               AssistReason reason) const
 {
     Q_UNUSED(kind);
-    return new DefaultAssistInterface(document(), position(), d->m_document.data(), reason);
+    return new DefaultAssistInterface(document(), position(), d->m_document->fileName(), reason);
 }
 
 QString TextEditor::BaseTextEditorWidget::foldReplacementText(const QTextBlock &) const

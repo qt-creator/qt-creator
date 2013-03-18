@@ -45,7 +45,8 @@ using namespace TextEditor;
 // -----------------------
 QmlJSQuickFixAssistInterface::QmlJSQuickFixAssistInterface(QmlJSTextEditorWidget *editor,
                                                            TextEditor::AssistReason reason)
-    : DefaultAssistInterface(editor->document(), editor->position(), editor->editorDocument(), reason)
+    : DefaultAssistInterface(editor->document(), editor->position(),
+                             editor->editorDocument()->fileName(), reason)
     , m_editor(editor)
     , m_semanticInfo(editor->semanticInfo())
     , m_currentFile(QmlJSRefactoringChanges::file(m_editor, m_semanticInfo.document))
