@@ -20,10 +20,7 @@ def main():
         overrideStartApplication()
         startApplication("qtcreator" + SettingsPath)
         try:
-            if languageName == "Chinese (China)" and platform.system() == 'Darwin':
-                invokeMenuItem("文件(F)", "退出")
-            else:
-                invokeMenuItem(testData.field(lang, "File"), testData.field(lang, "Exit"))
+            invokeMenuItem(testData.field(lang, "File"), testData.field(lang, "Exit"))
             test.passes("Creator was running in %s translation." % languageName)
         except:
             test.fail("Creator seems to be missing %s translation" % languageName)
