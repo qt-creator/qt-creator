@@ -81,14 +81,10 @@ void EditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
 {
     TextEditor::BaseTextEditorWidget::setFontSettings(fs);
 
-#ifdef PYTHONEDITOR_HIGHLIGHTER_H
     PythonHighlighter *highlighter =
             qobject_cast<PythonHighlighter *>(baseTextDocument()->syntaxHighlighter());
     if (highlighter)
-    {
         highlighter->setFontSettings(fs);
-    }
-#endif
 }
 
 TextEditor::BaseTextEditor *EditorWidget::createEditor()
