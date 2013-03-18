@@ -4,8 +4,8 @@
 
 namespace QmlDesigner {
 
-AbstractCustomTool::AbstractCustomTool(FormEditorView* view)
-    : AbstractFormEditorTool(view)
+AbstractCustomTool::AbstractCustomTool()
+    : AbstractFormEditorTool(0)
 {
 }
 
