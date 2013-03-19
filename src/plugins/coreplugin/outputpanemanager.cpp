@@ -246,6 +246,7 @@ void OutputPaneManager::init()
     const int n = m_panes.size();
 
     int shortcutNumber = 1;
+    const Id baseId = Id("QtCreator.Pane.");
     for (int i = 0; i != n; ++i) {
         IOutputPane *outPane = m_panes.at(i);
         const int idx = m_outputWidgetPane->addWidget(outPane->outputWidget(this));
@@ -271,9 +272,9 @@ void OutputPaneManager::init()
 
         minTitleWidth = qMax(minTitleWidth, titleFm.width(outPane->displayName()));
 
-        QString actionId = QLatin1String("QtCreator.Pane.") + outPane->displayName().simplified();
-        actionId.remove(QLatin1Char(' '));
-        Id id = Id::fromString(actionId);
+        QString suffix = outPane->displayName().simplified();
+        suffix.remove(QLatin1Char(' '));
+        const Id id = baseId.withSuffix(suffix);
         QAction *action = new QAction(outPane->displayName(), this);
         Command *cmd = ActionManager::registerAction(action, id, globalContext);
 

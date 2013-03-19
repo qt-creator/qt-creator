@@ -99,6 +99,7 @@ void MacroOptionsWidget::initialize()
 void MacroOptionsWidget::createTable()
 {
     QDir dir(MacroManager::instance()->macrosDirectory());
+    const Core::Id base = Core::Id(Constants::PREFIX_MACRO);
     QMapIterator<QString, Macro *> it(MacroManager::instance()->macros());
     while (it.hasNext()) {
         it.next();
@@ -111,8 +112,7 @@ void MacroOptionsWidget::createTable()
             macroItem->setData(0, WRITE_ROLE, it.value()->isWritable());
 
             Core::Command *command =
-                    Core::ActionManager::command(Core::Id::fromString(QLatin1String(Constants::PREFIX_MACRO)
-                                                          + it.value()->displayName()));
+                    Core::ActionManager::command(base.withSuffix(it.value()->displayName()));
             if (command && command->shortcut())
                 macroItem->setText(2, command->shortcut()->key().toString());
         }

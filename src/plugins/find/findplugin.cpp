@@ -227,6 +227,7 @@ void FindPlugin::setupFilterMenuItems()
     Core::ActionContainer *mfindadvanced = Core::ActionManager::actionContainer(Constants::M_FIND_ADVANCED);
     d->m_filterActions.clear();
     bool haveEnabledFilters = false;
+    const Core::Id base("FindFilter.");
     foreach (IFindFilter *filter, findInterfaces) {
         QAction *action = new QAction(QLatin1String("    ") + filter->displayName(), this);
         bool isEnabled = filter->isEnabled();
@@ -235,7 +236,7 @@ void FindPlugin::setupFilterMenuItems()
         action->setEnabled(isEnabled);
         action->setData(qVariantFromValue(filter));
         cmd = Core::ActionManager::registerAction(action,
-            Core::Id::fromString(QLatin1String("FindFilter.")+filter->id()), globalcontext);
+            base.withSuffix(filter->id()), globalcontext);
         cmd->setDefaultKeySequence(filter->defaultShortcut());
         mfindadvanced->addAction(cmd);
         d->m_filterActions.insert(filter, action);

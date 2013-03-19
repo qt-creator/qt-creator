@@ -809,11 +809,11 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<Internal:
     }
     qDeleteAll(m_tools);
     QMapIterator<QString, QAction *> remainingActions(m_actions);
-    const QString externalToolsPrefix = QLatin1String("Tools.External.");
+    const Id externalToolsPrefix = Id("Tools.External.");
     while (remainingActions.hasNext()) {
         remainingActions.next();
         ActionManager::unregisterAction(remainingActions.value(),
-            Id::fromString(externalToolsPrefix + remainingActions.key()));
+            externalToolsPrefix.withSuffix(remainingActions.key()));
         delete remainingActions.value();
     }
     m_actions.clear();
@@ -835,7 +835,7 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<Internal:
             if (m_containers.contains(containerName))
                 container = m_containers.take(containerName); // remove to avoid deletion below
             else
-                container = ActionManager::createMenu(Id::fromString(QLatin1String("Tools.External.Category.") + containerName));
+                container = ActionManager::createMenu(Id("Tools.External.Category.").withSuffix(containerName));
             newContainers.insert(containerName, container);
             mexternaltools->addMenu(container, Constants::G_DEFAULT_ONE);
             container->menu()->setTitle(containerName);
@@ -847,13 +847,13 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<Internal:
             Command *command = 0;
             if (m_actions.contains(toolId)) {
                 action = m_actions.value(toolId);
-                command = ActionManager::command(Id::fromString(externalToolsPrefix + toolId));
+                command = ActionManager::command(externalToolsPrefix.withSuffix(toolId));
             } else {
                 action = new QAction(tool->displayName(), this);
                 action->setData(toolId);
                 m_actions.insert(toolId, action);
                 connect(action, SIGNAL(triggered()), this, SLOT(menuActivated()));
-                command = ActionManager::registerAction(action, Id::fromString(externalToolsPrefix + toolId), Context(Constants::C_GLOBAL));
+                command = ActionManager::registerAction(action, externalToolsPrefix.withSuffix(toolId), Context(Constants::C_GLOBAL));
                 command->setAttribute(Command::CA_UpdateText);
             }
             action->setText(tool->displayName());

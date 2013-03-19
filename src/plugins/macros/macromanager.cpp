@@ -157,7 +157,7 @@ void MacroManager::MacroManagerPrivate::initialize()
 
 static Core::Id makeId(const QString &name)
 {
-    return Core::Id::fromString(QLatin1String(Constants::PREFIX_MACRO) + name);
+    return Core::Id(Constants::PREFIX_MACRO).withSuffix(name);
 }
 
 void MacroManager::MacroManagerPrivate::addMacro(Macro *macro)
