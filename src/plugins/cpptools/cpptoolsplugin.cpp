@@ -98,6 +98,11 @@ CppToolsPlugin::~CppToolsPlugin()
     delete CppModelManager::instance();
 }
 
+CppToolsPlugin *CppToolsPlugin::instance()
+{
+    return m_instance;
+}
+
 bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
 {
     Q_UNUSED(arguments)

@@ -59,7 +59,7 @@ namespace Internal {
 class CppModelManager;
 struct CppFileSettings;
 
-class CppToolsPlugin : public ExtensionSystem::IPlugin
+class CPPTOOLS_EXPORT CppToolsPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CppTools.json")
@@ -68,14 +68,17 @@ public:
     CppToolsPlugin();
     ~CppToolsPlugin();
 
+    static CppToolsPlugin *instance();
+
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
 
-private slots:
+public slots:
     void switchHeaderSource();
     void switchHeaderSourceInNextSplit();
 
+private slots:
 #ifdef WITH_TESTS
     void test_codegen_public_in_empty_class();
     void test_codegen_public_in_nonempty_class();
