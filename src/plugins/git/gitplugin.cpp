@@ -128,7 +128,7 @@ using namespace Git::Internal;
 GitPlugin *GitPlugin::m_instance = 0;
 
 GitPlugin::GitPlugin() :
-    VcsBase::VcsBasePlugin(QLatin1String(Git::Constants::GITSUBMITEDITOR_ID)),
+    VcsBase::VcsBasePlugin(Git::Constants::GITSUBMITEDITOR_ID),
     m_commandLocator(0),
     m_showAction(0),
     m_submitCurrentAction(0),

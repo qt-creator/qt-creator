@@ -116,7 +116,7 @@ static const VcsBase::VcsBaseSubmitEditorParameters submitEditorParameters = {
 BazaarPlugin *BazaarPlugin::m_instance = 0;
 
 BazaarPlugin::BazaarPlugin()
-    : VcsBase::VcsBasePlugin(QLatin1String(Constants::COMMIT_ID)),
+    : VcsBase::VcsBasePlugin(Constants::COMMIT_ID),
       m_optionsPage(0),
       m_client(0),
       m_commandLocator(0),

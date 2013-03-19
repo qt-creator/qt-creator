@@ -169,7 +169,7 @@ ViewData::ViewData() :
 }
 
 ClearCasePlugin::ClearCasePlugin() :
-    VcsBase::VcsBasePlugin(QLatin1String(ClearCase::Constants::CLEARCASECHECKINEDITOR_ID)),
+    VcsBase::VcsBasePlugin(ClearCase::Constants::CLEARCASECHECKINEDITOR_ID),
     m_commandLocator(0),
     m_checkOutAction(0),
     m_checkInCurrentAction(0),

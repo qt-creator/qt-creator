@@ -494,7 +494,7 @@ VCSBASE_EXPORT QDebug operator<<(QDebug in, const VcsBasePluginState &state)
 
 struct VcsBasePluginPrivate
 {
-    explicit VcsBasePluginPrivate(const QString &submitEditorId);
+    explicit VcsBasePluginPrivate(const Core::Id submitEditorId);
 
     inline bool supportsRepositoryCreation() const;
 
@@ -511,8 +511,8 @@ struct VcsBasePluginPrivate
     static Internal::StateListener *m_listener;
 };
 
-VcsBasePluginPrivate::VcsBasePluginPrivate(const QString &submitEditorId) :
-    m_submitEditorId(Core::Id::fromString(submitEditorId)),
+VcsBasePluginPrivate::VcsBasePluginPrivate(const Core::Id submitEditorId) :
+    m_submitEditorId(submitEditorId),
     m_versionControl(0),
     m_actionState(-1),
     m_testSnapshotAction(0),
@@ -529,7 +529,7 @@ bool VcsBasePluginPrivate::supportsRepositoryCreation() const
 
 Internal::StateListener *VcsBasePluginPrivate::m_listener = 0;
 
-VcsBasePlugin::VcsBasePlugin(const QString &submitEditorId) :
+VcsBasePlugin::VcsBasePlugin(const Core::Id submitEditorId) :
     d(new VcsBasePluginPrivate(submitEditorId))
 {
 }

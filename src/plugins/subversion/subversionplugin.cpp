@@ -186,7 +186,7 @@ static inline QStringList svnDirectories()
 SubversionPlugin *SubversionPlugin::m_subversionPluginInstance = 0;
 
 SubversionPlugin::SubversionPlugin() :
-    VcsBase::VcsBasePlugin(QLatin1String(Subversion::Constants::SUBVERSIONCOMMITEDITOR_ID)),
+    VcsBase::VcsBasePlugin(Subversion::Constants::SUBVERSIONCOMMITEDITOR_ID),
     m_svnDirectories(svnDirectories()),
     m_commandLocator(0),
     m_addAction(0),

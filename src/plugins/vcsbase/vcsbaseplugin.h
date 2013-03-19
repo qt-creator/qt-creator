@@ -32,6 +32,7 @@
 
 #include "vcsbase_global.h"
 
+#include <coreplugin/id.h>
 #include <extensionsystem/iplugin.h>
 
 #include <QSharedDataPointer>
@@ -124,7 +125,7 @@ class VCSBASE_EXPORT VcsBasePlugin : public ExtensionSystem::IPlugin
     Q_OBJECT
 
 protected:
-    explicit VcsBasePlugin(const QString &submitEditorId);
+    explicit VcsBasePlugin(const Core::Id submitEditorId);
 
     void initializeVcs(Core::IVersionControl *vc);
     virtual void extensionsInitialized();

@@ -176,7 +176,7 @@ PerforceResponse::PerforceResponse() :
 PerforcePlugin *PerforcePlugin::m_perforcePluginInstance = NULL;
 
 PerforcePlugin::PerforcePlugin() :
-    VcsBase::VcsBasePlugin(QLatin1String(Constants::PERFORCE_SUBMIT_EDITOR_ID)),
+    VcsBase::VcsBasePlugin(Constants::PERFORCE_SUBMIT_EDITOR_ID),
     m_commandLocator(0),
     m_editAction(0),
     m_addAction(0),
