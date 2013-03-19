@@ -50,8 +50,9 @@ public:
     explicit Id(const QByteArray &name);
 
     Id withSuffix(int suffix) const;
-    Id withSuffix(const char *name) const;
-    Id withPrefix(const char *name) const;
+    Id withSuffix(const char *suffix) const;
+    Id withSuffix(const QString &suffix) const;
+    Id withPrefix(const char *prefix) const;
 
     QByteArray name() const;
     QString toString() const; // Avoid.

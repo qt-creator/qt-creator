@@ -283,6 +283,12 @@ Id Id::withSuffix(const char *suffix) const
     return Id(ba.constData());
 }
 
+Id Id::withSuffix(const QString &suffix) const
+{
+    const QByteArray ba = name() + suffix.toUtf8();
+    return Id(ba.constData());
+}
+
 /*!
   Constructs a derived id.
 
