@@ -48,7 +48,6 @@
 #include <QHBoxLayout>
 
 static const int SEARCHRESULT_WARNING_LIMIT = 200000;
-static const char UNDO_WARNING_ID[] = "warninglabel";
 static const char SIZE_WARNING_ID[] = "sizeWarningLabel";
 
 namespace Find {
@@ -232,7 +231,7 @@ void SearchResultWidget::addResults(const QList<SearchResultItem> &items, Search
     updateMatchesFoundLabel();
     if (firstItems) {
         if (!m_dontAskAgainGroup.isEmpty()) {
-            Core::Id undoWarningId(QByteArray(UNDO_WARNING_ID) + '/' + m_dontAskAgainGroup.toLatin1());
+            Core::Id undoWarningId = Core::Id("warninglabel/").withSuffix(m_dontAskAgainGroup);
             if (m_infoBar.canInfoBeAdded(undoWarningId)) {
                 Core::InfoBarEntry info(undoWarningId, tr("This change cannot be undone."),
                                         Core::InfoBarEntry::GlobalSuppressionEnabled);

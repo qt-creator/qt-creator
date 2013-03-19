@@ -61,7 +61,7 @@ public:
 
 BaseVcsEditorFactoryPrivate::BaseVcsEditorFactoryPrivate(const VcsBaseEditorParameters *t) :
     m_type(t),
-    m_id(QByteArray(t->id)),
+    m_id(t->id),
     m_mimeTypes(QStringList(QLatin1String(t->mimeType))),
     m_editorHandler(new TextEditor::TextEditorActionHandler(t->context))
 {

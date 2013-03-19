@@ -1291,7 +1291,7 @@ Core::IEditor *ClearCasePlugin::showOutputInEditor(const QString& title, const Q
 {
     const VcsBase::VcsBaseEditorParameters *params = findType(editorType);
     QTC_ASSERT(params, return 0);
-    const Core::Id id = Core::Id(QByteArray(params->id));
+    const Core::Id id = params->id;
     if (ClearCase::Constants::debug)
         qDebug() << "ClearCasePlugin::showOutputInEditor" << title << id.name()
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);

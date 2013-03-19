@@ -161,14 +161,6 @@ Id::Id(const char *name)
 {}
 
 /*!
-    \overload
-
-*/
-Id::Id(const QByteArray &name)
-   : m_id(theId(name))
-{}
-
-/*!
   Returns an internal representation of the id.
 */
 

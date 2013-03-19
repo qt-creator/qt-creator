@@ -100,7 +100,7 @@ void MacroEvent::load(QDataStream &stream)
 {
     QByteArray ba;
     stream >> ba;
-    d->id = Core::Id(ba);
+    d->id = Core::Id::fromName(ba);
     int count;
     stream >> count;
     quint8 id;

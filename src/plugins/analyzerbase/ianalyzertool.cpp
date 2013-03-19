@@ -47,14 +47,14 @@ Id IAnalyzerTool::defaultMenuGroup(StartMode mode)
 
 Id IAnalyzerTool::defaultActionId(const IAnalyzerTool *tool, StartMode mode)
 {
-    Id id = tool->id();
+    Id id = Id("Analyzer").withSuffix(tool->id().toString());
     switch (mode) {
     case StartLocal:
-        return Id(QByteArray("Analyzer." + id.name() + ".Local"));
+        return id.withSuffix(".Local");
     case StartRemote:
-        return Id(QByteArray("Analyzer." + id.name() + ".Remote"));
+        return id.withSuffix(".Remote");
     case StartQml:
-        return Id(QByteArray("Analyzer." + id.name() + ".Qml"));
+        return id.withSuffix(".Qml");
     }
     return Id();
 }

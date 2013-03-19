@@ -540,32 +540,32 @@ void TaskWindow::setShowWarnings(bool show)
 
 void TaskWindow::updateCategoriesMenu()
 {
-    typedef QMap<QString, QByteArray>::ConstIterator NameToIdsConstIt;
+    typedef QMap<QString, Core::Id>::ConstIterator NameToIdsConstIt;
 
     d->m_categoriesMenu->clear();
 
     const QList<Core::Id> filteredCategories = d->m_filter->filteredCategories();
 
-    QMap<QString, QByteArray> nameToIds;
+    QMap<QString, Core::Id> nameToIds;
     foreach (const Core::Id &categoryId, d->m_model->categoryIds())
-        nameToIds.insert(d->m_model->categoryDisplayName(categoryId), categoryId.name());
+        nameToIds.insert(d->m_model->categoryDisplayName(categoryId), categoryId);
 
     const NameToIdsConstIt cend = nameToIds.constEnd();
     for (NameToIdsConstIt it = nameToIds.constBegin(); it != cend; ++it) {
         const QString &displayName = it.key();
-        const QByteArray categoryId = it.value();
+        const Core::Id categoryId = it.value();
         QAction *action = new QAction(d->m_categoriesMenu);
         action->setCheckable(true);
         action->setText(displayName);
-        action->setData(categoryId);
-        action->setChecked(!filteredCategories.contains(Core::Id(categoryId)));
+        action->setData(categoryId.toSetting());
+        action->setChecked(!filteredCategories.contains(categoryId));
         d->m_categoriesMenu->addAction(action);
     }
 }
 
 void TaskWindow::filterCategoryTriggered(QAction *action)
 {
-    Core::Id categoryId(action->data().toByteArray());
+    Core::Id categoryId = Core::Id::fromSetting(action->data());
     QTC_CHECK(categoryId.uniqueIdentifier() != 0);
 
     setCategoryVisibility(categoryId, action->isChecked());

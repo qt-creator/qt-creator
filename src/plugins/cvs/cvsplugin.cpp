@@ -1270,7 +1270,7 @@ IEditor *CvsPlugin::showOutputInEditor(const QString& title, const QString &outp
 {
     const VcsBaseEditorParameters *params = findType(editorType);
     QTC_ASSERT(params, return 0);
-    const Id id = Core::Id(QByteArray(params->id));
+    const Id id = params->id;
     if (Cvs::Constants::debug)
         qDebug() << "CVSPlugin::showOutputInEditor" << title << id.name()
                  <<  "source=" << source << "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);

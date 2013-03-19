@@ -1349,4 +1349,3 @@ void CMakeBuildTarget::clear()
     title.clear();
     library = false;
 }
-

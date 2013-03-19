@@ -93,7 +93,7 @@ bool ProjectConfiguration::usesDefaultDisplayName() const
 QVariantMap ProjectConfiguration::toMap() const
 {
     QVariantMap map;
-    map.insert(QLatin1String(CONFIGURATION_ID_KEY), m_id.name());
+    map.insert(QLatin1String(CONFIGURATION_ID_KEY), m_id.toSetting());
     map.insert(QLatin1String(DISPLAY_NAME_KEY), m_displayName);
     map.insert(QLatin1String(DEFAULT_DISPLAY_NAME_KEY), m_defaultDisplayName);
     return map;
@@ -101,7 +101,7 @@ QVariantMap ProjectConfiguration::toMap() const
 
 bool ProjectConfiguration::fromMap(const QVariantMap &map)
 {
-    m_id = Core::Id(map.value(QLatin1String(CONFIGURATION_ID_KEY), QByteArray()).toByteArray());
+    m_id = Core::Id::fromSetting(map.value(QLatin1String(CONFIGURATION_ID_KEY)));
     m_displayName = map.value(QLatin1String(DISPLAY_NAME_KEY), QString()).toString();
     m_defaultDisplayName = map.value(QLatin1String(DEFAULT_DISPLAY_NAME_KEY),
                                      m_defaultDisplayName.isEmpty() ?

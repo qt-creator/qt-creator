@@ -2425,7 +2425,7 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
                 QByteArray devId = dc.value(QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.DeviceId")).toByteArray();
                 if (devId.isEmpty())
                     devId = QByteArray("Desktop Device");
-                if (!devId.isEmpty() && !DeviceManager::instance()->find(Core::Id(devId))) // We do not know that device
+                if (!devId.isEmpty() && !DeviceManager::instance()->find(Core::Id::fromName(devId))) // We do not know that device
                     devId.clear();
                 tmpKit->setValue(Core::Id("PE.Profile.Device"), devId);
 

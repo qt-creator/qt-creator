@@ -412,7 +412,7 @@ Core::IEditor *VcsBaseSubmitEditor::duplicate(QWidget * /*parent*/)
 
 Core::Id VcsBaseSubmitEditor::id() const
 {
-    return Core::Id(QByteArray(d->m_parameters->id));
+    return d->m_parameters->id;
 }
 
 static QToolBar *createToolBar(const QWidget *someWidget, QAction *submitAction, QAction *diffAction)

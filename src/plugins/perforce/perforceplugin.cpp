@@ -1170,7 +1170,7 @@ Core::IEditor *PerforcePlugin::showOutputInEditor(const QString &title, const QS
 {
     const VcsBase::VcsBaseEditorParameters *params = findType(editorType);
     QTC_ASSERT(params, return 0);
-    const Core::Id id = Core::Id(QByteArray(params->id));
+    const Core::Id id = params->id;
     if (Perforce::Constants::debug)
         qDebug() << "PerforcePlugin::showOutputInEditor" << title << id.name()
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
