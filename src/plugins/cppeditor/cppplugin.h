@@ -76,17 +76,19 @@ signals:
     void typeHierarchyRequested();
 
 public slots:
+    void openDeclarationDefinitionInNextSplit();
+    void openTypeHierarchy();
+    void findUsages();
+    void renameSymbolUnderCursor();
+    void switchDeclarationDefinition();
+
     void setSortedOutline(bool sorted);
 
 private slots:
-    void switchDeclarationDefinition();
-    void openDeclarationDefinitionInNextSplit();
-    void renameSymbolUnderCursor();
+
     void onTaskStarted(const QString &type);
     void onAllTasksFinished(const QString &type);
-    void findUsages();
     void currentEditorChanged(Core::IEditor *editor);
-    void openTypeHierarchy();
 
 #ifdef WITH_TESTS
 private slots:
