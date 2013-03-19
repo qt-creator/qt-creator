@@ -617,7 +617,7 @@ Core::ActionContainer *FormEditorW::createPreviewStyleMenu(QActionGroup *actionG
             name += dot;
         }
         name += data.toString();
-        Core::Command *command = Core::ActionManager::registerAction(a, Core::Id(name), m_contexts);
+        Core::Command *command = Core::ActionManager::registerAction(a, Core::Id::fromString(name), m_contexts);
         bindShortcut(command, a);
         if (isDeviceProfile) {
             command->setAttribute(Core::Command::CA_UpdateText);
