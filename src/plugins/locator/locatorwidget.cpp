@@ -104,12 +104,14 @@ public:
     void updatePreferredSize();
     QSize preferredSize() const { return m_preferredSize; }
 
-#if defined(Q_OS_WIN)
     void focusOutEvent (QFocusEvent * event)  {
-        if (event->reason() == Qt::ActiveWindowFocusReason)
-            hide();
+        if (Utils::HostOsInfo::isWindowsHost()) {
+            if (event->reason() == Qt::ActiveWindowFocusReason)
+                hide();
+        } else {
+            QTreeView::focusOutEvent(event);
+        }
     }
-#endif
 
     void next() {
         int index = currentIndex().row();
