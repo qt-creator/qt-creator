@@ -972,31 +972,6 @@ static inline void getDateFromJulianDay(unsigned julianDay, int *year, int *mont
         *day = d;
 }
 
-// Convert and format Julian Date as used in QDate
-static inline void formatJulianDate(std::wostream &str, unsigned julianDate)
-{
-    int y, m, d;
-    getDateFromJulianDay(julianDate, &y, &m, &d);
-    str << d << '.' << m << '.' << y;
-}
-
-// Format time in milliseconds as "hh:dd:ss:mmm"
-static inline void formatMilliSeconds(std::wostream &str, int milliSecs)
-{
-    const int hourFactor = 1000 * 3600;
-    const int hours = milliSecs / hourFactor;
-    milliSecs = milliSecs % hourFactor;
-    const int minFactor = 1000 * 60;
-    const int minutes = milliSecs / minFactor;
-    milliSecs = milliSecs % minFactor;
-    const int secs = milliSecs / 1000;
-    milliSecs = milliSecs % 1000;
-    str.fill('0');
-    str << std::setw(2) << hours << ':' << std::setw(2)
-        << minutes << ':' << std::setw(2) << secs
-        << '.' << std::setw(3) << milliSecs;
-}
-
 const char *stdStringTypeC = "std::basic_string<char,std::char_traits<char>,std::allocator<char> >";
 const char *stdWStringTypeC = "std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >";
 // Compiler option:  -Zc:wchar_t-:
@@ -2042,21 +2017,13 @@ static inline bool dumpQFlags(const SymbolGroupValue &v, std::wostream &str)
     return false;
 }
 
-static bool dumpJulianDate(int julianDay, std::wostream &str)
-{
-    if (julianDay < 0)
-        return false;
-    else if (!julianDay)
-        str << L"<null>";
-    else
-        formatJulianDate(str, julianDay);
-    return true;
-}
-
 static bool dumpQDate(const SymbolGroupValue &v, std::wostream &str)
 {
-    if (const SymbolGroupValue julianDayV = v["jd"])
-        return dumpJulianDate(julianDayV.intValue(), str);
+    if (const SymbolGroupValue julianDayV = v["jd"]) {
+        if (julianDayV.intValue() > 0)
+            str << julianDayV.intValue();
+        return true;
+    }
     return false;
 }
 
@@ -2064,10 +2031,8 @@ static bool dumpQTime(const SymbolGroupValue &v, std::wostream &str)
 {
     if (const SymbolGroupValue milliSecsV = v["mds"]) {
         const int milliSecs = milliSecsV.intValue();
-        if (milliSecs >= 0) {
-            formatMilliSeconds(str, milliSecs);
-            return true;
-        }
+        str << milliSecs;
+        return true;
     }
     return false;
 }
@@ -2090,14 +2055,11 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str)
         str << L"<null>";
         return true;
     }
-    if (!dumpJulianDate(date, str))
-        return false;
     const ULONG64 timeAddr = dateAddr + (qtVersion < 5 ? SymbolGroupValue::intSize() : 8);
     const int time =
         SymbolGroupValue::readIntValue(v.context().dataspaces,
                                        timeAddr, SymbolGroupValue::intSize(), 0);
-    str << L' ';
-    formatMilliSeconds(str, time);
+    str << date << '/' << time;
     return true;
 }
 

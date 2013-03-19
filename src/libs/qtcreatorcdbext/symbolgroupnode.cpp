@@ -364,7 +364,10 @@ enum DumpEncoding // WatchData encoding of GDBMI values
     DumpEncodingHex_Ucs4_LittleEndian_WithQuotes = 3,
     DumpEncodingBase64_Utf16 = 4,
     DumpEncodingHex_Latin1_WithQuotes = 6,
-    DumpEncodingHex_Utf8_LittleEndian_WithQuotes = 9
+    DumpEncodingHex_Utf8_LittleEndian_WithQuotes = 9,
+    DumpEncodingJulianDate = 14,
+    DumpEncodingMillisecondsSinceMidnight = 15,
+    DumpEncodingJulianDateAndMillisecondsSinceMidnight = 16
 };
 
 /* Recode arrays/pointers of char*, wchar_t according to users
@@ -1110,7 +1113,20 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
 
     // Shall it be recoded?
     int encoding = 0;
-    if (dumpParameters.recode(t, aFullIName, ctx, addr, &value, &encoding)) {
+    switch (knownType(t, 0)) {
+    case KT_QDate:
+        encoding = DumpEncodingJulianDate;
+        break;
+    case KT_QTime:
+        encoding = DumpEncodingMillisecondsSinceMidnight;
+        break;
+    case KT_QDateTime:
+        encoding = DumpEncodingJulianDateAndMillisecondsSinceMidnight;
+        break;
+    }
+    if (encoding) {
+        str << ",valueencoded=\"" << encoding << "\",value=\"" << gdbmiWStringFormat(value) <<'"';
+    } else if (dumpParameters.recode(t, aFullIName, ctx, addr, &value, &encoding)) {
         str << ",valueencoded=\"" << encoding
             << "\",value=\"" << gdbmiWStringFormat(value) <<'"';
     } else { // As is: ASCII or base64?
