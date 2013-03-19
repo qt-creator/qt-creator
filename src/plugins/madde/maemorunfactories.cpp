@@ -110,9 +110,8 @@ bool MaemoRunConfigurationFactory::canClone(Target *parent,
         return false;
     const RemoteLinuxRunConfiguration * const rlrc
             = qobject_cast<RemoteLinuxRunConfiguration *>(source);
-    QString idStr = QString::fromLatin1(source->id().name()) + QLatin1Char('.')
-            + rlrc->projectFilePath();
-    return rlrc && canCreate(parent, Core::Id(idStr));
+    Core::Id id = source->id().withSuffix(QLatin1Char('.') + rlrc->projectFilePath());
+    return rlrc && canCreate(parent, id);
 }
 
 QList<Core::Id> MaemoRunConfigurationFactory::availableCreationIds(Target *parent) const
@@ -122,7 +121,7 @@ QList<Core::Id> MaemoRunConfigurationFactory::availableCreationIds(Target *paren
         return result;
     QStringList proFiles = static_cast<Qt4Project *>(parent->project())->applicationProFilePathes(QLatin1String(MAEMO_RC_ID_PREFIX));
     foreach (const QString &pf, proFiles)
-        result << Core::Id(pf);
+        result << Core::Id::fromString(pf);
     return result;
 }
 
