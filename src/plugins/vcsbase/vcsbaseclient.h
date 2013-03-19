@@ -31,6 +31,7 @@
 #define VCSBASECLIENT_H
 
 #include "vcsbase_global.h"
+#include <coreplugin/id.h>
 
 #include <QObject>
 #include <QStringList>
@@ -148,7 +149,7 @@ protected:
         StatusCommand
     };
     virtual QString vcsCommandString(VcsCommand cmd) const;
-    virtual QString vcsEditorKind(VcsCommand cmd) const = 0;
+    virtual Core::Id vcsEditorKind(VcsCommand cmd) const = 0;
 
     virtual QStringList revisionSpec(const QString &revision) const = 0;
     virtual VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
@@ -170,7 +171,7 @@ protected:
                                                          const QStringList &args,
                                                          unsigned flags = 0,
                                                          QTextCodec *outputCodec = 0);
-    VcsBase::VcsBaseEditorWidget *createVcsEditor(const QString &kind, QString title,
+    VcsBase::VcsBaseEditorWidget *createVcsEditor(Core::Id kind, QString title,
                                                   const QString &source, bool setSourceCodec,
                                                   const char *registerDynamicProperty,
                                                   const QString &dynamicPropertyValue) const;

@@ -122,17 +122,17 @@ void BazaarClient::view(const QString &source, const QString &id, const QStringL
     VcsBaseClient::view(source, id, args);
 }
 
-QString BazaarClient::vcsEditorKind(VcsCommand cmd) const
+Core::Id BazaarClient::vcsEditorKind(VcsCommand cmd) const
 {
     switch (cmd) {
     case AnnotateCommand:
-        return QLatin1String(Constants::ANNOTATELOG);
+        return Constants::ANNOTATELOG;
     case DiffCommand:
-        return QLatin1String(Constants::DIFFLOG);
+        return Constants::DIFFLOG;
     case LogCommand:
-        return QLatin1String(Constants::FILELOG);
+        return Constants::FILELOG;
     default:
-        return QString();
+        return Core::Id();
     }
 }
 

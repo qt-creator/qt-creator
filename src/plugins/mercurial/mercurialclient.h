@@ -80,7 +80,7 @@ public:
     QString findTopLevelForFile(const QFileInfo &file) const;
 
 protected:
-    QString vcsEditorKind(VcsCommand cmd) const;
+    Core::Id vcsEditorKind(VcsCommand cmd) const;
     QStringList revisionSpec(const QString &revision) const;
     VcsBase::VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
                                                             const QStringList &files,

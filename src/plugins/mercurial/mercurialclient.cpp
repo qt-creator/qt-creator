@@ -248,10 +248,9 @@ void MercurialClient::incoming(const QString &repositoryRoot, const QString &rep
         id += repository;
     }
 
-    const QString kind = QLatin1String(Constants::DIFFLOG);
     const QString title = tr("Hg incoming %1").arg(id);
 
-    VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(kind, title, repositoryRoot,
+    VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG, title, repositoryRoot,
                                                      true, "incoming", id);
     VcsBase::Command *cmd = createCommand(repository, editor);
     if (!repository.isEmpty() && VcsBase::VcsBasePlugin::isSshPromptConfigured())
@@ -264,11 +263,10 @@ void MercurialClient::outgoing(const QString &repositoryRoot)
     QStringList args;
     args << QLatin1String("outgoing") << QLatin1String("-g") << QLatin1String("-p");
 
-    const QString kind = QLatin1String(Constants::DIFFLOG);
     const QString title = tr("Hg outgoing %1").
             arg(QDir::toNativeSeparators(repositoryRoot));
 
-    VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(kind, title, repositoryRoot, true,
+    VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG, title, repositoryRoot, true,
                                                      "outgoing", repositoryRoot);
 
     VcsBase::Command *cmd = createCommand(repositoryRoot, editor);
@@ -332,16 +330,18 @@ QString MercurialClient::findTopLevelForFile(const QFileInfo &file) const
                 VcsBase::VcsBasePlugin::findRepositoryForDirectory(file.absolutePath(), repositoryCheckFile);
 }
 
-QString MercurialClient::vcsEditorKind(VcsCommand cmd) const
+Core::Id MercurialClient::vcsEditorKind(VcsCommand cmd) const
 {
-    switch (cmd)
-    {
-    case AnnotateCommand : return QLatin1String(Constants::ANNOTATELOG);
-    case DiffCommand : return QLatin1String(Constants::DIFFLOG);
-    case LogCommand : return QLatin1String(Constants::FILELOG);
-    default : return QLatin1String("");
+    switch (cmd) {
+    case AnnotateCommand:
+        return Constants::ANNOTATELOG;
+    case DiffCommand:
+        return Constants::DIFFLOG;
+    case LogCommand:
+        return Constants::FILELOG;
+    default:
+        return Core::Id();
     }
-    return QLatin1String("");
 }
 
 QStringList MercurialClient::revisionSpec(const QString &revision) const
