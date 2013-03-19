@@ -23,12 +23,14 @@ QtcPlugin {
         "cppautocompleter.h",
         "cppclasswizard.cpp",
         "cppclasswizard.h",
-        "cppeditor.cpp",
-        "cppeditor.h",
-        "cppeditor.qrc",
-        "cppeditor_global.h",
         "cppeditorconstants.h",
+        "cppeditor.cpp",
         "cppeditorenums.h",
+        "cppeditor_global.h",
+        "cppeditor.h",
+        "cppeditorplugin.cpp",
+        "cppeditorplugin.h",
+        "cppeditor.qrc",
         "cppelementevaluator.cpp",
         "cppelementevaluator.h",
         "cppfilewizard.cpp",
@@ -41,14 +43,12 @@ QtcPlugin {
         "cpphoverhandler.h",
         "cppoutline.cpp",
         "cppoutline.h",
-        "cppplugin.cpp",
-        "cppplugin.h",
-        "cppquickfix.cpp",
-        "cppquickfix.h",
         "cppquickfixassistant.cpp",
         "cppquickfixassistant.h",
+        "cppquickfix.cpp",
         "cppquickfixes.cpp",
         "cppquickfixes.h",
+        "cppquickfix.h",
         "cppsnippetprovider.cpp",
         "cppsnippetprovider.h",
         "cpptypehierarchy.cpp",
@@ -58,9 +58,9 @@ QtcPlugin {
     Group {
         condition: Defaults.testsEnabled(qbs)
         files: [
-            "cppquickfix_test.cpp",
             "cppdoxygen_test.cpp",
-            "fileandtokenactions_test.cpp"
+            "cppquickfix_test.cpp",
+            "fileandtokenactions_test.cpp",
         ]
 
         cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])

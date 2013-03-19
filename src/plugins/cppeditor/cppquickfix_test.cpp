@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "cppeditor.h"
-#include "cppplugin.h"
+#include "cppeditorplugin.h"
 #include "cppquickfixassistant.h"
 #include "cppquickfixes.h"
 
@@ -313,7 +313,7 @@ void TestCase::run(CppQuickFixFactory *factory, int resultIndex)
 /// 1. If the name does not start with ("m_" or "_") and does not
 ///    end with "_", we are forced to prefix the getter with "get".
 /// 2. Setter: Use pass by value on integer/float and pointer types.
-void CppPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefix()
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefix()
 {
     const QByteArray original =
         "\n"
@@ -353,7 +353,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefix()
 /// Checks:
 /// 1. Getter: "get" prefix is not necessary.
 /// 2. Setter: Parameter name is base name.
-void CppPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithoutPrefix()
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithoutPrefix()
 {
     const QByteArray original =
         "\n"
@@ -392,7 +392,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithoutPrefix()
 
 /// Check: Setter: Use pass by reference for parameters which
 /// are not integer, float or pointers.
-void CppPlugin::test_quickfix_GenerateGetterSetter_customType()
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_customType()
 {
     const QByteArray original =
         "\n"
@@ -432,7 +432,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_customType()
 /// Checks:
 /// 1. Setter: No setter is generated for const members.
 /// 2. Getter: Return a non-const type since it pass by value anyway.
-void CppPlugin::test_quickfix_GenerateGetterSetter_constMember()
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_constMember()
 {
     const QByteArray original =
         "\n"
@@ -464,7 +464,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_constMember()
 }
 
 /// Checks: No special treatment for pointer to non const.
-void CppPlugin::test_quickfix_GenerateGetterSetter_pointerToNonConst()
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_pointerToNonConst()
 {
     const QByteArray original =
         "\n"
@@ -502,7 +502,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_pointerToNonConst()
 }
 
 /// Checks: No special treatment for pointer to const.
-void CppPlugin::test_quickfix_GenerateGetterSetter_pointerToConst()
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_pointerToConst()
 {
     const QByteArray original =
         "\n"
@@ -542,7 +542,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_pointerToConst()
 /// Checks:
 /// 1. Setter: Setter is a static function.
 /// 2. Getter: Getter is a static, non const function.
-void CppPlugin::test_quickfix_GenerateGetterSetter_staticMember()
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_staticMember()
 {
     const QByteArray original =
         "\n"
@@ -580,7 +580,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_staticMember()
 }
 
 /// Check: Check if it works on the second declarator
-void CppPlugin::test_quickfix_GenerateGetterSetter_secondDeclarator()
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_secondDeclarator()
 {
     const QByteArray original =
         "\n"
@@ -618,7 +618,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_secondDeclarator()
 }
 
 /// Check: Quick fix is offered for "int *@it;" ('@' denotes the text cursor position)
-void CppPlugin::test_quickfix_GenerateGetterSetter_triggeringRightAfterPointerSign()
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_triggeringRightAfterPointerSign()
 {
     const QByteArray original =
         "\n"
@@ -656,7 +656,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_triggeringRightAfterPointerSi
 }
 
 /// Check: Quick fix is not triggered on a member function.
-void CppPlugin::test_quickfix_GenerateGetterSetter_notTriggeringOnMemberFunction()
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_notTriggeringOnMemberFunction()
 {
     const QByteArray original = "class Something { void @f(); };";
 
@@ -666,7 +666,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_notTriggeringOnMemberFunction
 }
 
 /// Check: Quick fix is not triggered on an member array;
-void CppPlugin::test_quickfix_GenerateGetterSetter_notTriggeringOnMemberArray()
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_notTriggeringOnMemberArray()
 {
     const QByteArray original = "class Something { void @a[10]; };";
 
@@ -677,7 +677,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_notTriggeringOnMemberArray()
 
 /// Check: Do not offer the quick fix if there is already a member with the
 /// getter or setter name we would generate.
-void CppPlugin::test_quickfix_GenerateGetterSetter_notTriggeringWhenGetterOrSetterExist()
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_notTriggeringWhenGetterOrSetterExist()
 {
     const QByteArray original =
         "class Something {\n"
@@ -692,7 +692,7 @@ void CppPlugin::test_quickfix_GenerateGetterSetter_notTriggeringWhenGetterOrSett
 
 /// Check: Just a basic test since the main functionality is tested in
 /// cpppointerdeclarationformatter_test.cpp
-void CppPlugin::test_quickfix_ReformatPointerDeclaration()
+void CppEditorPlugin::test_quickfix_ReformatPointerDeclaration()
 {
     const QByteArray original = "char@*s;";
     const QByteArray expected = "char *s;\n";
@@ -703,7 +703,7 @@ void CppPlugin::test_quickfix_ReformatPointerDeclaration()
 }
 
 /// Check from source file: If there is no header file, insert the definition after the class.
-void CppPlugin::test_quickfix_InsertDefFromDecl_basic()
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_basic()
 {
     const QByteArray original =
         "struct Foo\n"
@@ -726,7 +726,7 @@ void CppPlugin::test_quickfix_InsertDefFromDecl_basic()
 }
 
 /// Check from header file: If there is a source file, insert the definition in the source file.
-void CppPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic1()
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic1()
 {
     QList<TestDocumentPtr> testFiles;
 
@@ -759,7 +759,7 @@ void CppPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic1()
 }
 
 /// Check from source file: Insert in source file, not header file.
-void CppPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic2()
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic2()
 {
     QList<TestDocumentPtr> testFiles;
 
@@ -792,7 +792,7 @@ void CppPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic2()
 
 /// Check from header file: If the class is in a namespace, the added function definition
 /// name must be qualified accordingly.
-void CppPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace1()
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace1()
 {
     QList<TestDocumentPtr> testFiles;
 
@@ -828,7 +828,7 @@ void CppPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace1()
 
 /// Check from header file: If the class is in namespace N and the source file has a
 /// "using namespace N" line, the function definition name must be qualified accordingly.
-void CppPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace2()
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace2()
 {
     QList<TestDocumentPtr> testFiles;
 
@@ -866,7 +866,7 @@ void CppPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace2()
     data.run(&factory);
 }
 
-void CppPlugin::test_quickfix_InsertDefFromDecl_freeFunction()
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_freeFunction()
 {
     const QByteArray original = "void free()@;\n";
     const QByteArray expected = original +
@@ -922,7 +922,7 @@ void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
 }
 
 /// Check from source file: Insert in header file.
-void CppPlugin::test_quickfix_InsertDeclFromDef()
+void CppEditorPlugin::test_quickfix_InsertDeclFromDef()
 {
     insertToSectionDeclFromDef("public", 0);
     insertToSectionDeclFromDef("public slots", 1);
@@ -933,7 +933,7 @@ void CppPlugin::test_quickfix_InsertDeclFromDef()
 }
 
 /// Check normal add include if there is already a include
-void CppPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_normal()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_normal()
 {
     QList<TestDocumentPtr> testFiles;
 
@@ -972,7 +972,7 @@ void CppPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_normal()
 }
 
 /// Check add include if no include is present
-void CppPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noinclude()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noinclude()
 {
     QList<TestDocumentPtr> testFiles;
 
@@ -1008,7 +1008,7 @@ void CppPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noinclude()
 }
 
 /// Check add include if no include is present with comment on top
-void CppPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment01()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment01()
 {
     QList<TestDocumentPtr> testFiles;
 
@@ -1049,7 +1049,7 @@ void CppPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment0
     data.run(&factory);
 }
 /// Check add include if no include is present with comment on top
-void CppPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment02()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment02()
 {
     QList<TestDocumentPtr> testFiles;
 
@@ -1095,7 +1095,7 @@ void CppPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment0
 }
 
 /// Check: Move definition from header to cpp.
-void CppPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
 {
     QList<TestDocumentPtr> testFiles;
     QByteArray original;
@@ -1138,7 +1138,7 @@ void CppPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
 }
 
 /// Check: Move definition outside class
-void CppPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside()
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside()
 {
     QByteArray original =
         "class Foo {\n"
@@ -1162,7 +1162,7 @@ void CppPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside()
 }
 
 /// Check: Move definition from header to cpp (with namespace).
-void CppPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS()
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS()
 {
     QList<TestDocumentPtr> testFiles;
     QByteArray original;
@@ -1205,7 +1205,7 @@ void CppPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS()
 }
 
 /// Check: Move definition from header to cpp (with namespace + using).
-void CppPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing()
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing()
 {
     QList<TestDocumentPtr> testFiles;
     QByteArray original;
@@ -1250,7 +1250,7 @@ void CppPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing()
 }
 
 /// Check: Move definition outside class with Namespace
-void CppPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutsideWithNs()
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutsideWithNs()
 {
     QByteArray original =
         "namespace MyNs {\n"
@@ -1276,7 +1276,7 @@ void CppPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutsideWithNs()
 }
 
 /// Check: Move free function from header to cpp.
-void CppPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCpp()
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCpp()
 {
     QList<TestDocumentPtr> testFiles;
     QByteArray original;
@@ -1312,7 +1312,7 @@ void CppPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCpp()
 }
 
 /// Check: Move free function from header to cpp (with namespace).
-void CppPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS()
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS()
 {
     QList<TestDocumentPtr> testFiles;
     QByteArray original;
@@ -1352,7 +1352,7 @@ void CppPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS()
 }
 
 /// Check: Move Ctor with member initialization list (QTCREATORBUG-9157).
-void CppPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization()
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization()
 {
     QList<TestDocumentPtr> testFiles;
     QByteArray original;
@@ -1392,7 +1392,7 @@ void CppPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization()
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
-void CppPlugin::test_quickfix_MoveFuncDefToDecl_MemberFunc()
+void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFunc()
 {
     QList<TestDocumentPtr> testFiles;
     QByteArray original;
@@ -1419,7 +1419,7 @@ void CppPlugin::test_quickfix_MoveFuncDefToDecl_MemberFunc()
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncOutside()
-void CppPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncOutside()
+void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncOutside()
 {
     QByteArray original =
         "class Foo {\n"
@@ -1444,7 +1444,7 @@ void CppPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncOutside()
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS()
-void CppPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNS()
+void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNS()
 {
     QList<TestDocumentPtr> testFiles;
     QByteArray original;
@@ -1483,7 +1483,7 @@ void CppPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNS()
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing()
-void CppPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNSUsing()
+void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNSUsing()
 {
     QList<TestDocumentPtr> testFiles;
     QByteArray original;
@@ -1526,7 +1526,7 @@ void CppPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNSUsing()
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncOutsideWithNs()
-void CppPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncOutsideWithNs()
+void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncOutsideWithNs()
 {
     QByteArray original =
         "namespace MyNs {\n"
@@ -1552,7 +1552,7 @@ void CppPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncOutsideWithNs()
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_FreeFuncToCpp()
-void CppPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCpp()
+void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCpp()
 {
     QList<TestDocumentPtr> testFiles;
     QByteArray original;
@@ -1583,7 +1583,7 @@ void CppPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCpp()
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS()
-void CppPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCppNS()
+void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCppNS()
 {
     QList<TestDocumentPtr> testFiles;
     QByteArray original;
@@ -1620,7 +1620,7 @@ void CppPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCppNS()
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_CtorWithInitialization()
-void CppPlugin::test_quickfix_MoveFuncDefToDecl_CtorWithInitialization()
+void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_CtorWithInitialization()
 {
     QList<TestDocumentPtr> testFiles;
     QByteArray original;

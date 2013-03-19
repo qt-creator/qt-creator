@@ -28,8 +28,12 @@
 ****************************************************************************/
 
 #include "cppeditor.h"
-#include "cppplugin.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+#include <cplusplus/CppDocument.h>
+#include <cppeditor/cppeditor.h>
+#include <cppeditor/cppeditorplugin.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 #include <utils/fileutils.h>
 
 #include <QCoreApplication>
@@ -136,7 +140,7 @@ void TestCase::run(const QByteArray &expected, int undoCount)
 }
 } // anonymous namespace
 
-void CppPlugin::test_doxygen_comments_qt_style()
+void CppEditorPlugin::test_doxygen_comments_qt_style()
 {
     const QByteArray given =
         "bool preventFolding;\n"
@@ -155,7 +159,7 @@ void CppPlugin::test_doxygen_comments_qt_style()
     data.run(expected);
 }
 
-void CppPlugin::test_doxygen_comments_qt_style_continuation()
+void CppEditorPlugin::test_doxygen_comments_qt_style_continuation()
 {
     const QByteArray given =
         "bool preventFolding;\n"
@@ -177,7 +181,7 @@ void CppPlugin::test_doxygen_comments_qt_style_continuation()
     data.run(expected);
 }
 
-void CppPlugin::test_doxygen_comments_java_style()
+void CppEditorPlugin::test_doxygen_comments_java_style()
 {
     const QByteArray given =
         "bool preventFolding;\n"
@@ -196,7 +200,7 @@ void CppPlugin::test_doxygen_comments_java_style()
     data.run(expected);
 }
 
-void CppPlugin::test_doxygen_comments_java_style_continuation()
+void CppEditorPlugin::test_doxygen_comments_java_style_continuation()
 {
     const QByteArray given =
         "bool preventFolding;\n"
@@ -218,7 +222,7 @@ void CppPlugin::test_doxygen_comments_java_style_continuation()
     data.run(expected);
 }
 
-void CppPlugin::test_doxygen_comments_cpp_styleA()
+void CppEditorPlugin::test_doxygen_comments_cpp_styleA()
 {
    const QByteArray given =
          "bool preventFolding;\n"
@@ -237,7 +241,7 @@ void CppPlugin::test_doxygen_comments_cpp_styleA()
    data.run(expected);
 }
 
-void CppPlugin::test_doxygen_comments_cpp_styleB()
+void CppEditorPlugin::test_doxygen_comments_cpp_styleB()
 {
    const QByteArray given =
          "bool preventFolding;\n"
@@ -256,7 +260,7 @@ void CppPlugin::test_doxygen_comments_cpp_styleB()
    data.run(expected);
 }
 
-void CppPlugin::test_doxygen_comments_cpp_styleA_continuation()
+void CppEditorPlugin::test_doxygen_comments_cpp_styleA_continuation()
 {
    const QByteArray given =
          "bool preventFolding;\n"
@@ -279,7 +283,7 @@ void CppPlugin::test_doxygen_comments_cpp_styleA_continuation()
 }
 
 /// test cpp style doxygen comment when inside a indented scope
-void CppPlugin::test_doxygen_comments_cpp_styleA_indented()
+void CppEditorPlugin::test_doxygen_comments_cpp_styleA_indented()
 {
    const QByteArray given =
          "    bool preventFolding;\n"
@@ -299,7 +303,7 @@ void CppPlugin::test_doxygen_comments_cpp_styleA_indented()
 }
 
 /// test cpp style doxygen comment continuation when inside a indented scope
-void CppPlugin::test_doxygen_comments_cpp_styleA_indented_continuation()
+void CppEditorPlugin::test_doxygen_comments_cpp_styleA_indented_continuation()
 {
    const QByteArray given =
          "    bool preventFolding;\n"
@@ -321,7 +325,7 @@ void CppPlugin::test_doxygen_comments_cpp_styleA_indented_continuation()
    data.run(expected);
 }
 
-void CppPlugin::test_doxygen_comments_cpp_styleA_corner_case()
+void CppEditorPlugin::test_doxygen_comments_cpp_styleA_corner_case()
 {
     const QByteArray given =
           "bool preventFolding;\n"

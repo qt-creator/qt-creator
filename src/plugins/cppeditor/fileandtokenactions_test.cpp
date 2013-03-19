@@ -32,7 +32,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <cppeditor/cppeditor.h>
-#include <cppeditor/cppplugin.h>
+#include <cppeditor/cppeditorplugin.h>
 #include <cppeditor/cppquickfixassistant.h>
 #include <cppeditor/cppquickfix.h>
 #include <cpptools/cpptoolsplugin.h>
@@ -367,7 +367,7 @@ void SwitchDeclarationDefinitionTokenAction::run(CPPEditorWidget *)
     IEditor *editorBefore = em->currentEditor();
     const int originalLine = editorBefore->currentLine();
     const int originalColumn = editorBefore->currentColumn();
-    CppEditor::Internal::CppPlugin::instance()->switchDeclarationDefinition();
+    CppEditor::Internal::CppEditorPlugin::instance()->switchDeclarationDefinition();
     QApplication::processEvents();
 
     // Go back
@@ -388,7 +388,7 @@ public:
 
 void FindUsagesTokenAction::run(CPPEditorWidget *)
 {
-    CppEditor::Internal::CppPlugin::instance()->findUsages();
+    CppEditor::Internal::CppEditorPlugin::instance()->findUsages();
     QApplication::processEvents();
 }
 
@@ -401,7 +401,7 @@ public:
 
 void RenameSymbolUnderCursorTokenAction::run(CPPEditorWidget *)
 {
-    CppEditor::Internal::CppPlugin::instance()->renameSymbolUnderCursor();
+    CppEditor::Internal::CppEditorPlugin::instance()->renameSymbolUnderCursor();
     QApplication::processEvents();
 }
 
@@ -414,7 +414,7 @@ public:
 
 void OpenTypeHierarchyTokenAction::run(CPPEditorWidget *)
 {
-    CppEditor::Internal::CppPlugin::instance()->openTypeHierarchy();
+    CppEditor::Internal::CppEditorPlugin::instance()->openTypeHierarchy();
     QApplication::processEvents();
 }
 
@@ -504,13 +504,13 @@ void SwitchHeaderSourceFileAction::run(CPPEditorWidget *)
 
 } // anonymous namespace
 
-void CppPlugin::test_openEachFile()
+void CppEditorPlugin::test_openEachFile()
 {
     TestActionsTestCase test;
     test.run();
 }
 
-void CppPlugin::test_switchHeaderSourceOnEachFile()
+void CppEditorPlugin::test_switchHeaderSourceOnEachFile()
 {
     Actions fileActions;
     fileActions << ActionPointer(new SwitchHeaderSourceFileAction);
@@ -519,7 +519,7 @@ void CppPlugin::test_switchHeaderSourceOnEachFile()
     test.run(Actions(), fileActions);
 }
 
-void CppPlugin::test_moveTokenWiseThroughEveryFile()
+void CppEditorPlugin::test_moveTokenWiseThroughEveryFile()
 {
     Actions tokenActions;
     tokenActions << ActionPointer(new NoOpTokenAction());
@@ -529,7 +529,7 @@ void CppPlugin::test_moveTokenWiseThroughEveryFile()
 }
 
 /// May block if file does not exists (e.g. a not generated ui_* file).
-void CppPlugin::test_moveTokenWiseThroughEveryFileAndFollowSymbol()
+void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndFollowSymbol()
 {
     Actions tokenActions;
     tokenActions << ActionPointer(new FollowSymbolUnderCursorTokenAction());
@@ -538,7 +538,7 @@ void CppPlugin::test_moveTokenWiseThroughEveryFileAndFollowSymbol()
     test.run(tokenActions);
 }
 
-void CppPlugin::test_moveTokenWiseThroughEveryFileAndSwitchDeclarationDefinition()
+void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndSwitchDeclarationDefinition()
 {
     Actions tokenActions;
     tokenActions << ActionPointer(new SwitchDeclarationDefinitionTokenAction());
@@ -547,7 +547,7 @@ void CppPlugin::test_moveTokenWiseThroughEveryFileAndSwitchDeclarationDefinition
     test.run(tokenActions);
 }
 
-void CppPlugin::test_moveTokenWiseThroughEveryFileAndFindUsages()
+void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndFindUsages()
 {
     Actions tokenActions;
     tokenActions << ActionPointer(new FindUsagesTokenAction());
@@ -556,7 +556,7 @@ void CppPlugin::test_moveTokenWiseThroughEveryFileAndFindUsages()
     test.run(tokenActions);
 }
 
-void CppPlugin::test_moveTokenWiseThroughEveryFileAndRenameUsages()
+void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndRenameUsages()
 {
     Actions tokenActions;
     tokenActions << ActionPointer(new RenameSymbolUnderCursorTokenAction());
@@ -565,7 +565,7 @@ void CppPlugin::test_moveTokenWiseThroughEveryFileAndRenameUsages()
     test.run(tokenActions);
 }
 
-void CppPlugin::test_moveTokenWiseThroughEveryFileAndOpenTypeHierarchy()
+void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndOpenTypeHierarchy()
 {
     Actions tokenActions;
     tokenActions << ActionPointer(new OpenTypeHierarchyTokenAction());
@@ -574,7 +574,7 @@ void CppPlugin::test_moveTokenWiseThroughEveryFileAndOpenTypeHierarchy()
     test.run(tokenActions);
 }
 
-void CppPlugin::test_moveTokenWiseThroughEveryFileAndInvokeCompletion()
+void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndInvokeCompletion()
 {
     Actions tokenActions;
     tokenActions << ActionPointer(new InvokeCompletionTokenAction());
@@ -583,7 +583,7 @@ void CppPlugin::test_moveTokenWiseThroughEveryFileAndInvokeCompletion()
     test.run(tokenActions);
 }
 
-void CppPlugin::test_moveTokenWiseThroughEveryFileAndTriggerQuickFixes()
+void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndTriggerQuickFixes()
 {
     Actions tokenActions;
     tokenActions << ActionPointer(new RunAllQuickFixesTokenAction());

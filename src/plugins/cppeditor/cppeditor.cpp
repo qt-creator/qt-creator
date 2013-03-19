@@ -30,7 +30,7 @@
 #include "cppeditor.h"
 
 #include "cppeditorconstants.h"
-#include "cppplugin.h"
+#include "cppeditorplugin.h"
 #include "cpphighlighter.h"
 #include "cppautocompleter.h"
 #include "cppquickfixassistant.h"
@@ -659,7 +659,7 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
 
     m_outlineModel = new OverviewModel(this);
     m_proxyModel = new OverviewProxyModel(m_outlineModel, this);
-    if (CppPlugin::instance()->sortedOutline())
+    if (CppEditorPlugin::instance()->sortedOutline())
         m_proxyModel->sort(0, Qt::AscendingOrder);
     else
         m_proxyModel->sort(-1, Qt::AscendingOrder); // don't sort yet, but set column for sortedOutline()
@@ -671,7 +671,8 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
     m_sortAction = new QAction(tr("Sort Alphabetically"), m_outlineCombo);
     m_sortAction->setCheckable(true);
     m_sortAction->setChecked(sortedOutline());
-    connect(m_sortAction, SIGNAL(toggled(bool)), CppPlugin::instance(), SLOT(setSortedOutline(bool)));
+    connect(m_sortAction, SIGNAL(toggled(bool)),
+            CppEditorPlugin::instance(), SLOT(setSortedOutline(bool)));
     m_outlineCombo->addAction(m_sortAction);
 
     m_updateOutlineTimer = new QTimer(this);
@@ -1787,7 +1788,7 @@ void CPPEditorWidget::contextMenuEvent(QContextMenuEvent *e)
             createAssistInterface(TextEditor::QuickFix, TextEditor::ExplicitlyInvoked);
         if (interface) {
             QScopedPointer<TextEditor::IAssistProcessor> processor(
-                        CppPlugin::instance()->quickFixProvider()->createProcessor());
+                        CppEditorPlugin::instance()->quickFixProvider()->createProcessor());
             QScopedPointer<TextEditor::IAssistProposal> proposal(processor->perform(interface));
             if (!proposal.isNull()) {
                 TextEditor::BasicProposalItemListModel *model =
@@ -1911,7 +1912,7 @@ Core::IEditor *CPPEditor::duplicate(QWidget *parent)
 {
     CPPEditorWidget *newEditor = new CPPEditorWidget(parent);
     newEditor->duplicateFrom(editorWidget());
-    CppPlugin::instance()->initializeEditor(newEditor);
+    CppEditorPlugin::instance()->initializeEditor(newEditor);
     return newEditor->editor();
 }
 

@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef CPPPLUGIN_H
-#define CPPPLUGIN_H
+#ifndef CPPEDITORPLUGIN_H
+#define CPPEDITORPLUGIN_H
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
@@ -50,16 +50,16 @@ class CPPEditorWidget;
 class CppQuickFixCollector;
 class CppQuickFixAssistProvider;
 
-class CppPlugin : public ExtensionSystem::IPlugin
+class CppEditorPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CppEditor.json")
 
 public:
-    CppPlugin();
-    ~CppPlugin();
+    CppEditorPlugin();
+    ~CppEditorPlugin();
 
-    static CppPlugin *instance();
+    static CppEditorPlugin *instance();
 
     bool initialize(const QStringList &arguments, QString *errorMessage = 0);
     void extensionsInitialized();
@@ -170,7 +170,7 @@ private:
     void writeSettings();
     void readSettings();
 
-    static CppPlugin *m_instance;
+    static CppEditorPlugin *m_instance;
 
     TextEditor::TextEditorActionHandler *m_actionHandler;
     bool m_sortedOutline;
@@ -189,7 +189,7 @@ class CppEditorFactory : public Core::IEditorFactory
     Q_OBJECT
 
 public:
-    CppEditorFactory(CppPlugin *owner);
+    CppEditorFactory(CppEditorPlugin *owner);
 
     // IEditorFactory
     QStringList mimeTypes() const;
@@ -198,11 +198,11 @@ public:
     QString displayName() const;
 
 private:
-    CppPlugin *m_owner;
+    CppEditorPlugin *m_owner;
     QStringList m_mimeTypes;
 };
 
 } // namespace Internal
 } // namespace CppEditor
 
-#endif // CPPPLUGIN_H
+#endif // CPPEDITORPLUGIN_H

@@ -32,7 +32,7 @@
 #include "cppeditorconstants.h"
 #include "cppeditor.h"
 #include "cppelementevaluator.h"
-#include "cppplugin.h"
+#include "cppeditorplugin.h"
 
 #include <utils/navigationtreeview.h>
 #include <utils/annotateditemdelegate.h>
@@ -144,7 +144,7 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget(Core::IEditor *editor) :
         layout->addWidget(m_treeView);
 
         connect(m_treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(onItemClicked(QModelIndex)));
-        connect(CppPlugin::instance(), SIGNAL(typeHierarchyRequested()), this, SLOT(perform()));
+        connect(CppEditorPlugin::instance(), SIGNAL(typeHierarchyRequested()), this, SLOT(perform()));
     } else {
         QLabel *label = new QLabel(tr("No type hierarchy available"), this);
         label->setAlignment(Qt::AlignCenter);

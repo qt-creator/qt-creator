@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "cppplugin.h"
+#include "cppeditorplugin.h"
 
 #include "cppclasswizard.h"
 #include "cppeditor.h"
@@ -65,7 +65,7 @@ enum { QUICKFIX_INTERVAL = 20 };
 
 //////////////////////////// CppEditorFactory /////////////////////////////
 
-CppEditorFactory::CppEditorFactory(CppPlugin *owner) :
+CppEditorFactory::CppEditorFactory(CppEditorPlugin *owner) :
     m_owner(owner)
 {
     m_mimeTypes << QLatin1String(CppEditor::Constants::C_SOURCE_MIMETYPE)
@@ -108,11 +108,11 @@ QStringList CppEditorFactory::mimeTypes() const
     return m_mimeTypes;
 }
 
-///////////////////////////////// CppPlugin //////////////////////////////////
+///////////////////////////////// CppEditorPlugin //////////////////////////////////
 
-CppPlugin *CppPlugin::m_instance = 0;
+CppEditorPlugin *CppEditorPlugin::m_instance = 0;
 
-CppPlugin::CppPlugin() :
+CppEditorPlugin::CppEditorPlugin() :
     m_actionHandler(0),
     m_sortedOutline(false),
     m_renameSymbolUnderCursorAction(0),
@@ -124,18 +124,18 @@ CppPlugin::CppPlugin() :
     m_instance = this;
 }
 
-CppPlugin::~CppPlugin()
+CppEditorPlugin::~CppEditorPlugin()
 {
     delete m_actionHandler;
     m_instance = 0;
 }
 
-CppPlugin *CppPlugin::instance()
+CppEditorPlugin *CppEditorPlugin::instance()
 {
     return m_instance;
 }
 
-void CppPlugin::initializeEditor(CPPEditorWidget *editor)
+void CppEditorPlugin::initializeEditor(CPPEditorWidget *editor)
 {
     m_actionHandler->setupActions(editor);
 
@@ -147,23 +147,23 @@ void CppPlugin::initializeEditor(CPPEditorWidget *editor)
             editor, SLOT(setSortedOutline(bool)));
 }
 
-void CppPlugin::setSortedOutline(bool sorted)
+void CppEditorPlugin::setSortedOutline(bool sorted)
 {
     m_sortedOutline = sorted;
     emit outlineSortingChanged(sorted);
 }
 
-bool CppPlugin::sortedOutline() const
+bool CppEditorPlugin::sortedOutline() const
 {
     return m_sortedOutline;
 }
 
-CppQuickFixAssistProvider *CppPlugin::quickFixProvider() const
+CppQuickFixAssistProvider *CppEditorPlugin::quickFixProvider() const
 {
     return m_quickFixProvider;
 }
 
-bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
+bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
     if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/cppeditor/CppEditor.mimetypes.xml"), errorMessage))
         return false;
@@ -301,55 +301,55 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     return true;
 }
 
-void CppPlugin::readSettings()
+void CppEditorPlugin::readSettings()
 {
     m_sortedOutline = Core::ICore::settings()->value(QLatin1String("CppTools/SortedMethodOverview"), false).toBool();
 }
 
-void CppPlugin::writeSettings()
+void CppEditorPlugin::writeSettings()
 {
     Core::ICore::settings()->setValue(QLatin1String("CppTools/SortedMethodOverview"), m_sortedOutline);
 }
 
-void CppPlugin::extensionsInitialized()
+void CppEditorPlugin::extensionsInitialized()
 {
 }
 
-ExtensionSystem::IPlugin::ShutdownFlag CppPlugin::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag CppEditorPlugin::aboutToShutdown()
 {
     writeSettings();
     return SynchronousShutdown;
 }
 
-void CppPlugin::switchDeclarationDefinition()
+void CppEditorPlugin::switchDeclarationDefinition()
 {
     CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(Core::EditorManager::currentEditor()->widget());
     if (editor)
         editor->switchDeclarationDefinition(/*inNextSplit*/ false);
 }
 
-void CppPlugin::openDeclarationDefinitionInNextSplit()
+void CppEditorPlugin::openDeclarationDefinitionInNextSplit()
 {
     CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(Core::EditorManager::currentEditor()->widget());
     if (editor)
         editor->switchDeclarationDefinition(/*inNextSplit*/ true);
 }
 
-void CppPlugin::renameSymbolUnderCursor()
+void CppEditorPlugin::renameSymbolUnderCursor()
 {
     CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(Core::EditorManager::currentEditor()->widget());
     if (editor)
         editor->renameSymbolUnderCursor();
 }
 
-void CppPlugin::findUsages()
+void CppEditorPlugin::findUsages()
 {
     CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(Core::EditorManager::currentEditor()->widget());
     if (editor)
         editor->findUsages();
 }
 
-void CppPlugin::onTaskStarted(const QString &type)
+void CppEditorPlugin::onTaskStarted(const QString &type)
 {
     if (type == QLatin1String(CppTools::Constants::TASK_INDEX)) {
         m_renameSymbolUnderCursorAction->setEnabled(false);
@@ -359,7 +359,7 @@ void CppPlugin::onTaskStarted(const QString &type)
     }
 }
 
-void CppPlugin::onAllTasksFinished(const QString &type)
+void CppEditorPlugin::onAllTasksFinished(const QString &type)
 {
     if (type == QLatin1String(CppTools::Constants::TASK_INDEX)) {
         m_renameSymbolUnderCursorAction->setEnabled(true);
@@ -369,7 +369,7 @@ void CppPlugin::onAllTasksFinished(const QString &type)
     }
 }
 
-void CppPlugin::currentEditorChanged(Core::IEditor *editor)
+void CppEditorPlugin::currentEditorChanged(Core::IEditor *editor)
 {
     if (! editor)
         return;
@@ -379,7 +379,7 @@ void CppPlugin::currentEditorChanged(Core::IEditor *editor)
     }
 }
 
-void CppPlugin::openTypeHierarchy()
+void CppEditorPlugin::openTypeHierarchy()
 {
     CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(Core::EditorManager::currentEditor()->widget());
     if (editor) {
@@ -389,4 +389,4 @@ void CppPlugin::openTypeHierarchy()
     }
 }
 
-Q_EXPORT_PLUGIN(CppPlugin)
+Q_EXPORT_PLUGIN(CppEditorPlugin)
