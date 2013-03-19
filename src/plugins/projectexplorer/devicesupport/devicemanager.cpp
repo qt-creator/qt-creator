@@ -181,7 +181,7 @@ QList<IDevice::Ptr> DeviceManager::fromMap(const QVariantMap &map)
     const QVariantMap defaultDevsMap = map.value(QLatin1String(DefaultDevicesKey)).toMap();
     for (QVariantMap::ConstIterator it = defaultDevsMap.constBegin();
          it != defaultDevsMap.constEnd(); ++it) {
-        d->defaultDevices.insert(Core::Id(it.key()), Core::Id(it.value().toString()));
+        d->defaultDevices.insert(Core::Id::fromString(it.key()), Core::Id::fromSetting(it.value()));
     }
     const QVariantList deviceList = map.value(QLatin1String(DeviceListKey)).toList();
     foreach (const QVariant &v, deviceList) {
@@ -203,7 +203,7 @@ QVariantMap DeviceManager::toMap() const
     typedef QHash<Core::Id, Core::Id> TypeIdHash;
     for (TypeIdHash::ConstIterator it = d->defaultDevices.constBegin();
              it != d->defaultDevices.constEnd(); ++it) {
-        defaultDeviceMap.insert(it.key().toString(), it.value().toString());
+        defaultDeviceMap.insert(it.key().toString(), it.value().toSetting());
     }
     map.insert(QLatin1String(DefaultDevicesKey), defaultDeviceMap);
     QVariantList deviceList;

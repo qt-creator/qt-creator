@@ -355,11 +355,10 @@ KitManager::KitList KitManager::restoreKits(const Utils::FileName &fileName)
                      qPrintable(fileName.toUserOutput()), i);
         }
     }
-    const QString defaultId = data.value(QLatin1String(KIT_DEFAULT_KEY)).toString();
-    if (defaultId.isEmpty())
+    const Core::Id id = Core::Id::fromSetting(data.value(QLatin1String(KIT_DEFAULT_KEY)));
+    if (!id.isValid())
         return result;
 
-    const Core::Id id = Core::Id(defaultId);
     foreach (Kit *k, result.kits) {
         if (k->id() == id) {
             result.defaultKit = id;

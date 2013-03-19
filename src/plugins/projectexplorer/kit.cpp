@@ -477,7 +477,7 @@ bool Kit::fromMap(const QVariantMap &data)
     QVariantMap extra = data.value(QLatin1String(DATA_KEY)).toMap();
     const QVariantMap::ConstIterator cend = extra.constEnd();
     for (QVariantMap::ConstIterator it = extra.constBegin(); it != cend; ++it)
-        setValue(Id(it.key()), it.value());
+        setValue(Id::fromString(it.key()), it.value());
 
     return true;
 }
