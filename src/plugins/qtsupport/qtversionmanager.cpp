@@ -47,6 +47,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/filesystemwatcher.h>
+#include <utils/hostosinfo.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
@@ -625,10 +626,10 @@ Utils::FileName QtVersionManager::findQMakeBinaryFromMakefile(const QString &mak
                     qDebug()<<"#~~ QMAKE is:"<<r1.cap(1).trimmed();
                 QFileInfo qmake(r1.cap(1).trimmed());
                 QString qmakePath = qmake.filePath();
-#ifdef Q_OS_WIN
-                if (!qmakePath.endsWith(QLatin1String(".exe")))
+                if (Utils::HostOsInfo::isWindowsHost()
+                        && !qmakePath.endsWith(QLatin1String(".exe"))) {
                     qmakePath.append(QLatin1String(".exe"));
-#endif
+                }
                 // Is qmake still installed?
                 QFileInfo fi(qmakePath);
                 if (fi.exists())
