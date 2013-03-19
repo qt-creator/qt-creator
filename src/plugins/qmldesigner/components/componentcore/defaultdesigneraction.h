@@ -59,12 +59,12 @@ public:
     DefaultDesignerAction(DefaultAction *action);
 
     QAction *action() const { return m_action; }
-    void setCurrentContext(const SelectionContext &selectionContext);
+    void currentContextChanged(const SelectionContext &selectionContext);
 
 protected:
     virtual void updateContext();
-    virtual bool isVisible(const SelectionContext &selectionState) const = 0;
-    virtual bool isEnabled(const SelectionContext &selectionState) const = 0;
+    virtual bool isVisible(const SelectionContext &selectionContext) const = 0;
+    virtual bool isEnabled(const SelectionContext &selectionContext) const = 0;
     DefaultAction *defaultAction() const;
     SelectionContext selectionContext() const;
 

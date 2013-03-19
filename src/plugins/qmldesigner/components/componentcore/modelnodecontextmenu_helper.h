@@ -56,7 +56,7 @@ inline bool inBaseState(const SelectionContext &selectionState)
 
 inline bool singleSelection(const SelectionContext &selectionState)
 {
-    return selectionState.singleSelected();
+    return selectionState.isSingleNodeIsSelected();
 }
 
 inline bool selectionEnabled(const SelectionContext &selectionState)
@@ -71,7 +71,7 @@ inline bool selectionNotEmpty(const SelectionContext &selectionState)
 
 inline bool singleSelectionNotRoot(const SelectionContext &selectionState)
 {
-    return selectionState.singleSelected()
+    return selectionState.isSingleNodeIsSelected()
         && !selectionState.currentSingleSelectedNode().isRootNode();
 }
 
@@ -144,7 +144,7 @@ public:
     AbstractDesignerAction::Type type() const { return AbstractDesignerAction::Menu; }
     QAction *action() const { return m_action; }
 
-    virtual void setCurrentContext(const SelectionContext &selectionContext)
+    virtual void currentContextChanged(const SelectionContext &selectionContext)
     {
         m_selectionContext = selectionContext;
         updateContext();
@@ -184,7 +184,7 @@ public:
     QString menuId() const { return QString(); }
     int priority() const { return m_priority; }
     Type type() const { return Action; }
-    void setCurrentContext(const SelectionContext &) {}
+    void currentContextChanged(const SelectionContext &) {}
 
 private:
     const QString m_category;

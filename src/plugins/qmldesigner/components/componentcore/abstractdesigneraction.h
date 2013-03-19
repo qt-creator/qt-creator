@@ -61,7 +61,7 @@ public:
     virtual QString menuId() const = 0;
     virtual int priority() const = 0;
     virtual Type type() const = 0;
-    virtual void setCurrentContext(const SelectionContext &selectionState) = 0;
+    virtual void currentContextChanged(const SelectionContext &selectionState) = 0;
 
 };
 

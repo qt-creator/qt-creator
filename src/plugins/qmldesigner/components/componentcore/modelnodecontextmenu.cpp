@@ -89,7 +89,7 @@ void populateMenu(QSet<AbstractDesignerAction* > &abstractDesignerActions,
 
     foreach (AbstractDesignerAction* designerAction, matchingFactoriesList) {
        if (designerAction->type() == AbstractDesignerAction::Menu) {
-           designerAction->setCurrentContext(selectionContext);
+           designerAction->currentContextChanged(selectionContext);
            QMenu *newMenu = designerAction->action()->menu();
            menu->addMenu(newMenu);
 
@@ -98,7 +98,7 @@ void populateMenu(QSet<AbstractDesignerAction* > &abstractDesignerActions,
            populateMenu(abstractDesignerActions, designerAction->menuId(), newMenu, selectionContext);
        } else if (designerAction->type() == AbstractDesignerAction::Action) {
            QAction* action = designerAction->action();
-           designerAction->setCurrentContext(selectionContext);
+           designerAction->currentContextChanged(selectionContext);
            menu->addAction(action);
        }
     }

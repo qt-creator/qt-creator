@@ -42,7 +42,7 @@ DefaultDesignerAction::DefaultDesignerAction(DefaultAction *action)
 {
 }
 
-void DefaultDesignerAction::setCurrentContext(const SelectionContext &selectionContext)
+void DefaultDesignerAction::currentContextChanged(const SelectionContext &selectionContext)
 {
     m_selectionContext = selectionContext;
     updateContext();
