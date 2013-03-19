@@ -86,4 +86,9 @@ inline uint qHash(const Id &id) { return id.uniqueIdentifier(); }
 Q_DECLARE_METATYPE(Core::Id)
 Q_DECLARE_METATYPE(QList<Core::Id>)
 
+QT_BEGIN_NAMESPACE
+QDataStream &operator<<(QDataStream &ds, const Core::Id &id);
+QDataStream &operator>>(QDataStream &ds, Core::Id &id);
+QT_END_NAMESPACE
+
 #endif // CORE_ID_H

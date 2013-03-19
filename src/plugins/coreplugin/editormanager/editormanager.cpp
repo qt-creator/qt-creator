@@ -1981,7 +1981,7 @@ QByteArray EditorManager::saveState() const
 
     foreach (const OpenEditorsModel::Entry &entry, entries) {
         if (!entry.editor || !entry.editor->isTemporary())
-            stream << entry.fileName() << entry.displayName() << entry.id().name();
+            stream << entry.fileName() << entry.displayName() << entry.id();
     }
 
     stream << d->m_splitter->saveState();
@@ -2012,7 +2012,7 @@ bool EditorManager::restoreState(const QByteArray &state)
         stream >> fileName;
         QString displayName;
         stream >> displayName;
-        QByteArray id;
+        Core::Id id;
         stream >> id;
 
         if (!fileName.isEmpty() && !displayName.isEmpty()) {
@@ -2021,9 +2021,9 @@ bool EditorManager::restoreState(const QByteArray &state)
                 continue;
             QFileInfo rfi(autoSaveName(fileName));
             if (rfi.exists() && fi.lastModified() < rfi.lastModified())
-                openEditor(fileName, Id::fromName(id));
+                openEditor(fileName, id);
             else
-                d->m_editorModel->addRestoredEditor(fileName, displayName, Id::fromName(id));
+                d->m_editorModel->addRestoredEditor(fileName, displayName, id);
         }
     }
 

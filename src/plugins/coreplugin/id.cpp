@@ -354,3 +354,21 @@ QString Id::suffixAfter(Id baseId) const
 }
 
 } // namespace Core
+
+
+QT_BEGIN_NAMESPACE
+
+QDataStream &operator<<(QDataStream &ds, const Core::Id &id)
+{
+    return ds << id.name();
+}
+
+QDataStream &operator>>(QDataStream &ds, Core::Id &id)
+{
+    QByteArray ba;
+    ds >> ba;
+    id = Core::Id::fromName(ba);
+    return ds;
+}
+
+QT_END_NAMESPACE
