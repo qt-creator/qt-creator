@@ -45,8 +45,11 @@ class QMLDESIGNERCORE_EXPORT DefaultAction : public QAction
 public:
     DefaultAction(const QString &description);
 
+signals:
+    void triggered(bool checked, const SelectionContext &selectionContext);
+
 public slots: //virtual method instead of slot
-    virtual void actionTriggered(bool);
+    virtual void actionTriggered(bool enable);
     void setSelectionContext(const SelectionContext &selectionContext);
 
 protected:
@@ -59,14 +62,15 @@ public:
     DefaultDesignerAction(const QString &description = QString());
     DefaultDesignerAction(DefaultAction *action);
 
-    QAction *action() const { return m_action; }
+    QAction *action() const;
+    DefaultAction *defaultAction() const;
+
     void currentContextChanged(const SelectionContext &selectionContext);
 
 protected:
     virtual void updateContext();
     virtual bool isVisible(const SelectionContext &selectionContext) const = 0;
     virtual bool isEnabled(const SelectionContext &selectionContext) const = 0;
-    DefaultAction *defaultAction() const;
     SelectionContext selectionContext() const;
 
 private:

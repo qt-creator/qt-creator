@@ -78,8 +78,9 @@ DefaultAction::DefaultAction(const QString &description)
     connect(this, SIGNAL(triggered(bool)), this, SLOT(actionTriggered(bool)));
 }
 
-void DefaultAction::actionTriggered(bool)
+void DefaultAction::actionTriggered(bool enable)
 {
+    emit triggered(enable, m_selectionContext);
 }
 
 void DefaultAction::setSelectionContext(const SelectionContext &selectionContext)
