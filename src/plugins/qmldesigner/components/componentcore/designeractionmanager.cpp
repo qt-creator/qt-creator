@@ -309,7 +309,7 @@ using namespace SelectionContextFunctors;
 
 bool multiSelection(const SelectionContext &context)
 {
-    return !singleSelection(context);
+    return !singleSelection(context) && selectionNotEmpty(context);
 }
 
 bool singleSelectionAndInBaseState(const SelectionContext &context)
