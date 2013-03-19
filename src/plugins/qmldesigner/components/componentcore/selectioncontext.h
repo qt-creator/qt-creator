@@ -44,7 +44,7 @@ public:
     void setTargetNode(const ModelNode &modelNode);
     ModelNode targetNode() const;
 
-    bool isSingleNodeIsSelected() const;
+    bool singleNodeIsSelected() const;
     bool isInBaseState() const;
 
     ModelNode currentSingleSelectedNode() const;

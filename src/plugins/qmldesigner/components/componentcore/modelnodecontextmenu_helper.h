@@ -56,7 +56,7 @@ inline bool inBaseState(const SelectionContext &selectionState)
 
 inline bool singleSelection(const SelectionContext &selectionState)
 {
-    return selectionState.isSingleNodeIsSelected();
+    return selectionState.singleNodeIsSelected();
 }
 
 inline bool selectionEnabled(const SelectionContext &selectionState)
@@ -71,7 +71,7 @@ inline bool selectionNotEmpty(const SelectionContext &selectionState)
 
 inline bool singleSelectionNotRoot(const SelectionContext &selectionState)
 {
-    return selectionState.isSingleNodeIsSelected()
+    return selectionState.singleNodeIsSelected()
         && !selectionState.currentSingleSelectedNode().isRootNode();
 }
 
