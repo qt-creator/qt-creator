@@ -605,7 +605,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
         for (int i = 0; i < count; i++) {
             Core::Command *tCommand
                     = Core::ActionManager::registerAction(snapShotActions.at(i),
-                                                    Core::Id(QLatin1String("Git.Snapshot.") + QString::number(i)),
+                                                    Core::Id("Git.Snapshot.").withSuffix(i),
                                                     globalcontext);
             gitContainer->addAction(tCommand);
         }
