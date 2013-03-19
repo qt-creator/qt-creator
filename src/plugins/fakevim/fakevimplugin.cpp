@@ -1073,12 +1073,12 @@ bool FakeVimPluginPrivate::initialize()
         ActionManager::actionContainer(Core::Constants::M_EDIT_ADVANCED);
     advancedMenu->addAction(cmd, Core::Constants::G_EDIT_EDITOR);
 
+    const Id base = Id("FakeVim.UserAction");
     for (int i = 1; i < 10; ++i) {
         QAction *act = new QAction(this);
         act->setText(tr("Execute User Action #%1").arg(i));
         act->setData(i);
-        QString id = QString::fromLatin1("FakeVim.UserAction%1").arg(i);
-        cmd = ActionManager::registerAction(act, Id(id), globalcontext);
+        cmd = ActionManager::registerAction(act, base.withSuffix(i), globalcontext);
         cmd->setDefaultKeySequence(QKeySequence((UseMacShortcuts ? tr("Meta+V,%1") : tr("Alt+V,%1")).arg(i)));
         connect(act, SIGNAL(triggered()), SLOT(userActionTriggered()));
     }
@@ -1826,7 +1826,7 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
             const QString &id = it.key();
             QRegExp re = it.value();
             if (!re.pattern().isEmpty() && re.indexIn(cmd.cmd) != -1) {
-                triggerAction(Core::Id(id));
+                triggerAction(Core::Id::fromString(id));
                 return;
             }
         }
