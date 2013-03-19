@@ -411,8 +411,8 @@ void AnalyzerManagerPrivate::activateDock(Qt::DockWidgetArea area, QDockWidget *
 
     QAction *toggleViewAction = dockWidget->toggleViewAction();
     toggleViewAction->setText(dockWidget->windowTitle());
-    Command *cmd = Core::ActionManager::registerAction(toggleViewAction,
-        Id(QLatin1String("Analyzer.") + dockWidget->objectName()), globalContext);
+    Command *cmd = ActionManager::registerAction(toggleViewAction,
+        Id("Analyzer.").withSuffix(dockWidget->objectName()), globalContext);
     cmd->setAttribute(Command::CA_Hide);
 
     ActionContainer *viewsMenu = Core::ActionManager::actionContainer(Id(M_WINDOW_VIEWS));
@@ -422,7 +422,8 @@ void AnalyzerManagerPrivate::activateDock(Qt::DockWidgetArea area, QDockWidget *
 void AnalyzerManagerPrivate::deactivateDock(QDockWidget *dockWidget)
 {
     QAction *toggleViewAction = dockWidget->toggleViewAction();
-    Core::ActionManager::unregisterAction(toggleViewAction, Id(QLatin1String("Analyzer.") + dockWidget->objectName()));
+    ActionManager::unregisterAction(toggleViewAction,
+        Id("Analyzer.").withSuffix(dockWidget->objectName()));
     m_mainWindow->removeDockWidget(dockWidget);
     dockWidget->hide();
     // Prevent saveState storing the data of the wrong children.
@@ -584,7 +585,7 @@ void AnalyzerManagerPrivate::selectSavedTool()
     const QSettings *settings = ICore::settings();
 
     if (settings->contains(QLatin1String(LAST_ACTIVE_TOOL))) {
-        const Id lastActiveAction(settings->value(QLatin1String(LAST_ACTIVE_TOOL)).toString());
+        const Id lastActiveAction = Id::fromSetting(settings->value(QLatin1String(LAST_ACTIVE_TOOL)));
         foreach (QAction *action, m_actions) {
             IAnalyzerTool *tool = m_toolFromAction.value(action);
             StartMode mode = m_modeFromAction.value(action);

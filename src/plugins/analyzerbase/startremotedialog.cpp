@@ -90,9 +90,8 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
 
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("AnalyzerStartRemoteDialog"));
-    QString kit = settings->value(QLatin1String("profile")).toString();
     d->kitChooser->populate();
-    d->kitChooser->setCurrentKitId(Core::Id(kit));
+    d->kitChooser->setCurrentKitId(Core::Id::fromSetting(settings->value(QLatin1String("profile"))));
     d->executable->setText(settings->value(QLatin1String("executable")).toString());
     d->workingDirectory->setText(settings->value(QLatin1String("workingDirectory")).toString());
     d->arguments->setText(settings->value(QLatin1String("arguments")).toString());
