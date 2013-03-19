@@ -69,7 +69,7 @@ QList<Core::Id> BlackBerryRunConfigurationFactory::availableCreationIds(ProjectE
 
     QStringList proFiles = qt4Project->applicationProFilePathes(QLatin1String(Constants::QNX_BB_RUNCONFIGURATION_PREFIX));
     foreach (const QString &pf, proFiles)
-        ids << Core::Id(pf);
+        ids << Core::Id::fromString(pf);
 
     return ids;
 }

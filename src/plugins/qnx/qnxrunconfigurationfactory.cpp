@@ -70,7 +70,7 @@ QList<Core::Id> QnxRunConfigurationFactory::availableCreationIds(ProjectExplorer
 
     QStringList proFiles = qt4Project->applicationProFilePathes(QLatin1String(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX));
     foreach (const QString &pf, proFiles)
-        ids << Core::Id(pf);
+        ids << Core::Id::fromString(pf);
     return ids;
 }
 

@@ -112,7 +112,7 @@ ExternalQtEditor::ExternalQtEditor(const QString &id,
                                    QObject *parent) :
     Core::IExternalEditor(parent),
     m_mimeTypes(mimetype),
-    m_id(id),
+    m_id(Core::Id::fromString(id)),
     m_displayName(displayName)
 {
 }

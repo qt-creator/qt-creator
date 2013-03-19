@@ -894,12 +894,9 @@ bool SessionManager::loadSession(const QString &session)
         m_future = QFutureInterface<void>();
 
         // restore the active mode
-        QString modeIdentifier = value(QLatin1String("ActiveMode")).toString();
-        Id modeId;
-        if (modeIdentifier.isEmpty())
+        Id modeId = Id::fromSetting(value(QLatin1String("ActiveMode")));
+        if (!modeId.isValid())
             modeId = Id(Core::Constants::MODE_EDIT);
-        else
-            modeId = Id(modeIdentifier);
 
         ModeManager::activateMode(modeId);
         ModeManager::setFocusToCurrentMode();

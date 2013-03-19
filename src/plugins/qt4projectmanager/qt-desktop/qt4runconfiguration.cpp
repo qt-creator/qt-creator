@@ -813,7 +813,7 @@ QList<Core::Id> Qt4RunConfigurationFactory::availableCreationIds(ProjectExplorer
     Qt4Project *project = static_cast<Qt4Project *>(parent->project());
     QStringList proFiles = project->applicationProFilePathes(QLatin1String(QT4_RC_PREFIX));
     foreach (const QString &pf, proFiles)
-        result << Core::Id(pf);
+        result << Core::Id::fromString(pf);
     return result;
 }
 
