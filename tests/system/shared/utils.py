@@ -147,11 +147,24 @@ def waitForSignal(object, signal, timeout=30000):
     beforeCount = signalObjects[realName]
     waitFor("signalObjects[realName] > beforeCount", timeout)
 
+handledSignal = {}
+
 def prepareForSignal(object, signal):
     global signalObjects
+    global handledSignal
     overrideInstallLazySignalHandler()
     realName = objectMap.realName(object)
 #    test.log("waitForSignal: "+realName)
+    if realName in handledSignal.keys():
+        if handledSignal[realName] != signal:
+            # The current implementation does not support this.
+            # When an object has two different handled signals, waitForSignal() will only wait
+            # for the first of them to be emitted.
+            test.warning("You are trying to handle two different signals from the same object.",
+                         "Adding %s to object %s, which already has handled signal %s. "
+                         "This can lead to unexpected results." % (signal, realName, handledSignal[realName]))
+    else:
+        handledSignal[realName] = signal
     if not (realName in signalObjects):
         signalObjects[realName] = 0
     installLazySignalHandler(object, signal, "__callbackFunction__")
