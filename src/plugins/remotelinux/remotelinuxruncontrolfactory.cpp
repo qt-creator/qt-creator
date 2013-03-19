@@ -62,7 +62,7 @@ bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration, Ru
     if (mode != NormalRunMode && mode != DebugRunMode && mode != DebugRunModeWithBreakOnMain)
         return false;
 
-    const QString idStr = QString::fromLatin1(runConfiguration->id().name());
+    const QByteArray idStr = runConfiguration->id().name();
     if (!runConfiguration->isEnabled() || !idStr.startsWith(RemoteLinuxRunConfiguration::IdPrefix))
         return false;
 

@@ -49,10 +49,10 @@ namespace Internal {
 namespace {
 QString pathFromId(Core::Id id)
 {
-    QString idStr = QString::fromUtf8(id.name());
+    QByteArray idStr = id.name();
     if (!idStr.startsWith(RemoteLinuxRunConfiguration::IdPrefix))
         return QString();
-    return idStr.mid(RemoteLinuxRunConfiguration::IdPrefix.size());
+    return QString::fromUtf8(idStr.mid(strlen(RemoteLinuxRunConfiguration::IdPrefix)));
 }
 
 } // namespace
@@ -78,7 +78,7 @@ bool RemoteLinuxRunConfigurationFactory::canRestore(Target *parent, const QVaria
 {
     if (!canHandle(parent))
         return false;
-    return idFromMap(map).toString().startsWith(RemoteLinuxRunConfiguration::IdPrefix);
+    return idFromMap(map).name().startsWith(RemoteLinuxRunConfiguration::IdPrefix);
 }
 
 bool RemoteLinuxRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
@@ -94,8 +94,9 @@ QList<Core::Id> RemoteLinuxRunConfigurationFactory::availableCreationIds(Target 
     if (!canHandle(parent))
         return result;
 
+    const Core::Id base = Core::Id(RemoteLinuxRunConfiguration::IdPrefix);
     foreach (const BuildTargetInfo &bti, parent->applicationTargets().list)
-        result << (Core::Id(RemoteLinuxRunConfiguration::IdPrefix + bti.projectFilePath.toString()));
+        result << base.withSuffix(bti.projectFilePath.toString());
     return result;
 }
 

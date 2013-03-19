@@ -98,7 +98,7 @@ public:
 
     QString projectFilePath() const;
 
-    static const QString IdPrefix;
+    static const char *IdPrefix;
 
 signals:
     void deploySpecsChanged();
