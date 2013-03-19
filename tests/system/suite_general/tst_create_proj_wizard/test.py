@@ -19,6 +19,7 @@ def main():
     invokeMenuItem("File", "Exit")
     waitForCleanShutdown()
     __copyOriginalSettings__()
+    overrideStartApplication()
     startApplication("qtcreator" + SettingsPath)
     performTest(templateDir, qmlFile, False)
     invokeMenuItem("File", "Exit")
