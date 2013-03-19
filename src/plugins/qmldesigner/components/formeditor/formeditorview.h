@@ -100,6 +100,7 @@ public:
     void changeToResizeTool();
     void changeToTransformTools();
     void changeToCustomTool(const ModelNode &modelNode);
+    void changeToCustomTool(AbstractCustomTool *customTool);
 
     void registerTool(AbstractCustomTool *tool);
 

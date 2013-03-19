@@ -436,6 +436,15 @@ void FormEditorView::changeToCustomTool(const ModelNode &modelNode)
     }
 }
 
+void FormEditorView::changeToCustomTool(AbstractCustomTool *customTool)
+{
+    m_scene->updateAllFormEditorItems();
+    m_currentTool->clear();
+    m_currentTool = customTool;
+    m_currentTool->clear();
+    m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
+}
+
 void FormEditorView::registerTool(AbstractCustomTool *tool)
 {
     tool->setView(this);
