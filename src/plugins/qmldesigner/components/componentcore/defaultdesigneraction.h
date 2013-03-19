@@ -37,7 +37,7 @@
 
 namespace QmlDesigner {
 
-class DefaultAction : public QAction
+class QMLDESIGNERCORE_EXPORT DefaultAction : public QAction
 {
     Q_OBJECT
 
@@ -52,7 +52,7 @@ protected:
     SelectionContext m_selectionContext;
 };
 
-class DefaultDesignerAction : public AbstractDesignerAction
+class QMLDESIGNERCORE_EXPORT DefaultDesignerAction : public AbstractDesignerAction
 {
 public:
     DefaultDesignerAction();

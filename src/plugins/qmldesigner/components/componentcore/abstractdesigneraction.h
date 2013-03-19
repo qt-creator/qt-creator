@@ -39,7 +39,7 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class AbstractDesignerAction
+class QMLDESIGNERCORE_EXPORT AbstractDesignerAction
 {
 public:
     enum Type {
