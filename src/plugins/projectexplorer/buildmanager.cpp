@@ -90,8 +90,6 @@ struct BuildManagerPrivate {
     // is set to true while canceling, so that nextBuildStep knows that the BuildStep finished because of canceling
     bool m_skipDisabled;
     bool m_canceling;
-    bool m_doNotEnterEventLoop;
-    QEventLoop *m_eventLoop;
 
     // Progress reporting to the progress manager
     int m_progress;
@@ -108,8 +106,6 @@ BuildManagerPrivate::BuildManagerPrivate() :
   , m_previousBuildStepProject(0)
   , m_skipDisabled(false)
   , m_canceling(false)
-  , m_doNotEnterEventLoop(false)
-  , m_eventLoop(0)
   , m_maxProgress(0)
   , m_progressFutureInterface(0)
 {
@@ -202,36 +198,13 @@ int BuildManager::getErrorTaskCount() const
 void BuildManager::cancel()
 {
     if (d->m_running) {
+        if (d->m_canceling)
+            return;
         d->m_canceling = true;
         d->m_watcher.cancel();
-        if (d->m_currentBuildStep->runInGuiThread()) {
-            // This is evil. A nested event loop.
+        if (d->m_currentBuildStep->runInGuiThread())
             d->m_currentBuildStep->cancel();
-            if (d->m_doNotEnterEventLoop) {
-                d->m_doNotEnterEventLoop = false;
-            } else {
-                d->m_eventLoop = new QEventLoop;
-                d->m_eventLoop->exec();
-                delete d->m_eventLoop;
-                d->m_eventLoop = 0;
-            }
-        } else {
-            d->m_watcher.waitForFinished();
-        }
-
-        // The cancel message is added to the output window via a single shot timer
-        // since the canceling is likely to have generated new addToOutputWindow signals
-        // which are waiting in the event queue to be processed
-        // (And we want those to be before the cancel message.)
-        QTimer::singleShot(0, this, SLOT(emitCancelMessage()));
-
-        disconnectOutput(d->m_currentBuildStep);
-        decrementActiveBuildSteps(d->m_currentBuildStep);
-
-        d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, tr("Build/Deployment canceled")); //TODO NBS fix in qtconcurrent
-        clearBuildQueue();
     }
-    return;
 }
 
 void BuildManager::updateTaskCount()
@@ -338,7 +311,6 @@ void BuildManager::startBuildQueue(const QStringList &preambleMessage)
         d->m_progressFutureInterface->setProgressRange(0, d->m_maxProgress * 100);
 
         d->m_running = true;
-        d->m_canceling = false;
         d->m_progressFutureInterface->reportStarted();
         nextStep();
     } else {
@@ -383,20 +355,24 @@ void BuildManager::buildStepFinishedAsync()
     disconnect(d->m_currentBuildStep, SIGNAL(finished()),
                this, SLOT(buildStepFinishedAsync()));
     d->m_futureInterfaceForAysnc = QFutureInterface<bool>();
-    if (d->m_canceling) {
-        if (d->m_eventLoop)
-            d->m_eventLoop->exit();
-        else
-            d->m_doNotEnterEventLoop = true;
-    } else {
-        nextBuildQueue();
-    }
+    nextBuildQueue();
 }
 
 void BuildManager::nextBuildQueue()
 {
-    if (d->m_canceling)
+    if (d->m_canceling) {
+        d->m_canceling = false;
+        QTimer::singleShot(0, this, SLOT(emitCancelMessage()));
+
+        disconnectOutput(d->m_currentBuildStep);
+        decrementActiveBuildSteps(d->m_currentBuildStep);
+
+        //TODO NBS fix in qtconcurrent
+        d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100,
+                                                              tr("Build/Deployment canceled"));
+        clearBuildQueue();
         return;
+    }
 
     disconnectOutput(d->m_currentBuildStep);
     ++d->m_progress;
