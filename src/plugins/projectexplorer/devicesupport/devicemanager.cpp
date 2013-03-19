@@ -425,7 +425,7 @@ class TestDevice : public IDevice
 {
 public:
     TestDevice()
-        : IDevice(testTypeId(), AutoDetected, Hardware, Core::Id(QUuid::createUuid().toString())) {}
+        : IDevice(testTypeId(), AutoDetected, Hardware, Core::Id::fromString(QUuid::createUuid().toString())) {}
 
     static Core::Id testTypeId() { return Core::Id("TestType"); }
 private:
