@@ -362,7 +362,7 @@ void DesignerActionManager::createDefaultDesignerActions()
 
     addDesignerAction(new SelectionModelNodeAction(selectionCategoryDisplayName, selectionCategory, prioritySelectionCategory));
 
-    addDesignerAction(new MenuDesignerAction(stackCategoryDisplayName, stackCategory, priorityStackCategory, &always));
+    addDesignerAction(new MenuDesignerAction(stackCategoryDisplayName, stackCategory, priorityStackCategory, &selectionNotEmpty));
         addDesignerAction(new ModelNodeAction
                    (toFrontDisplayName, stackCategory, 200, &toFront, &singleSelection));
         addDesignerAction(new ModelNodeAction
