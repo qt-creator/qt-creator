@@ -32,8 +32,8 @@
 
 namespace QmlDesigner {
 
-DefaultDesignerAction::DefaultDesignerAction()
-    : m_action(new DefaultAction(QString()))
+DefaultDesignerAction::DefaultDesignerAction(const QString &description)
+    : m_action(new DefaultAction(description))
 {
 }
 

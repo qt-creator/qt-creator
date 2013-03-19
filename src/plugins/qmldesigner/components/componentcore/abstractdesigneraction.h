@@ -57,8 +57,8 @@ public:
     virtual ~AbstractDesignerAction() {}
 
     virtual QAction *action() const = 0;
-    virtual QString category() const = 0;
-    virtual QString menuId() const = 0;
+    virtual QByteArray category() const = 0;
+    virtual QByteArray menuId() const = 0;
     virtual int priority() const = 0;
     virtual Type type() const = 0;
     virtual void currentContextChanged(const SelectionContext &selectionState) = 0;

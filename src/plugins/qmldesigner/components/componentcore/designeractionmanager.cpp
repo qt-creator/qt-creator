@@ -227,7 +227,7 @@ QmlModelView *DesignerActionManager::view()
 class VisiblityModelNodeAction : public ModelNodeAction
 {
 public:
-    VisiblityModelNodeAction(const QString &description, const QString &category, int priority,
+    VisiblityModelNodeAction(const QString &description, const QByteArray &category, int priority,
             ModelNodeOperations::SelectionAction action,
             SelectionContextFunction enabled = &SelectionContextFunctors::always,
             SelectionContextFunction visibility = &SelectionContextFunctors::always) :
@@ -253,7 +253,7 @@ public:
 class SelectionModelNodeAction : public MenuDesignerAction
 {
 public:
-    SelectionModelNodeAction(const QString &displayName, const QString &menuId, int priority) :
+    SelectionModelNodeAction(const QString &displayName, const QByteArray &menuId, int priority) :
         MenuDesignerAction(displayName, menuId, priority,
                            &SelectionContextFunctors::always, &SelectionContextFunctors::selectionEnabled)
 

@@ -55,7 +55,7 @@ protected:
 class QMLDESIGNERCORE_EXPORT DefaultDesignerAction : public AbstractDesignerAction
 {
 public:
-    DefaultDesignerAction();
+    DefaultDesignerAction(const QString &description = QString());
     DefaultDesignerAction(DefaultAction *action);
 
     QAction *action() const { return m_action; }
