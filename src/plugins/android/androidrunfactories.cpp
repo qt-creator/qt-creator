@@ -53,7 +53,7 @@ namespace Android {
 namespace Internal {
 
 #define ANDROID_PREFIX "Qt4ProjectManager.AndroidRunConfiguration"
-static QLatin1String ANDROID_RC_ID_PREFIX(ANDROID_PREFIX ":");
+static const char ANDROID_RC_ID_PREFIX[] = ANDROID_PREFIX ":";
 
 static QString pathFromId(const Core::Id id)
 {
@@ -96,9 +96,10 @@ QList<Core::Id> AndroidRunConfigurationFactory::availableCreationIds(Target *par
     if (!AndroidManager::supportsAndroid(parent))
         return ids;
     QList<Qt4ProFileNode *> nodes = static_cast<Qt4Project *>(parent->project())->allProFiles();
+    const Core::Id base = Core::Id(ANDROID_RC_ID_PREFIX);
     foreach (Qt4ProFileNode *node, nodes)
         if (node->projectType() == ApplicationTemplate || node->projectType() == LibraryTemplate)
-            ids << Core::Id(ANDROID_RC_ID_PREFIX + node->targetInformation().target);
+            ids << base.withSuffix(node->targetInformation().target);
     return ids;
 }
 
