@@ -34,6 +34,7 @@
 #include "abstractdesigneraction.h"
 
 #include <QAction>
+#include <QScopedPointer>
 
 namespace QmlDesigner {
 
@@ -69,7 +70,7 @@ protected:
     SelectionContext selectionContext() const;
 
 private:
-    DefaultAction *m_action;
+    QScopedPointer<DefaultAction> m_defaultAction;
     SelectionContext m_selectionContext;
 };
 

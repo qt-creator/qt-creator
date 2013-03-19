@@ -33,13 +33,18 @@
 namespace QmlDesigner {
 
 DefaultDesignerAction::DefaultDesignerAction(const QString &description)
-    : m_action(new DefaultAction(description))
+    : m_defaultAction(new DefaultAction(description))
 {
 }
 
 DefaultDesignerAction::DefaultDesignerAction(DefaultAction *action)
-    : m_action(action)
+    : m_defaultAction(action)
 {
+}
+
+QAction *DefaultDesignerAction::action() const
+{
+    return m_defaultAction.data();
 }
 
 void DefaultDesignerAction::currentContextChanged(const SelectionContext &selectionContext)
@@ -50,16 +55,16 @@ void DefaultDesignerAction::currentContextChanged(const SelectionContext &select
 
 void DefaultDesignerAction::updateContext()
 {
-    m_action->setSelectionContext(m_selectionContext);
+    m_defaultAction->setSelectionContext(m_selectionContext);
     if (m_selectionContext.isValid()) {
-        m_action->setEnabled(isEnabled(m_selectionContext));
-        m_action->setVisible(isVisible(m_selectionContext));
+        m_defaultAction->setEnabled(isEnabled(m_selectionContext));
+        m_defaultAction->setVisible(isVisible(m_selectionContext));
     }
 }
 
 DefaultAction *DefaultDesignerAction::defaultAction() const
 {
-    return m_action;
+    return m_defaultAction.data();
 }
 
 SelectionContext DefaultDesignerAction::selectionContext() const
