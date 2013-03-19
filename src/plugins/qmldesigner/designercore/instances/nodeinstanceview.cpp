@@ -1162,11 +1162,13 @@ void NodeInstanceView::statePreviewImagesChanged(const StatePreviewImageChangedC
   foreach (const ImageContainer &container, command.previews()) {
       if (container.keyNumber() == -1) {
           m_baseStatePreviewImage = container.image();
-          previewImageChangeVector.append(rootModelNode());
+          if (!container.image().isNull())
+              previewImageChangeVector.append(rootModelNode());
       } else if (hasInstanceForId(container.instanceId())) {
           ModelNode node = modelNodeForInternalId(container.instanceId());
           m_statePreviewImage.insert(node, container.image());
-          previewImageChangeVector.append(node);
+          if (!container.image().isNull())
+              previewImageChangeVector.append(node);
       }
   }
 
