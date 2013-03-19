@@ -512,7 +512,7 @@ struct VcsBasePluginPrivate
 };
 
 VcsBasePluginPrivate::VcsBasePluginPrivate(const QString &submitEditorId) :
-    m_submitEditorId(submitEditorId),
+    m_submitEditorId(Core::Id::fromString(submitEditorId)),
     m_versionControl(0),
     m_actionState(-1),
     m_testSnapshotAction(0),

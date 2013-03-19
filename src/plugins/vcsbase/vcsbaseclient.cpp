@@ -566,7 +566,7 @@ VcsBase::VcsBaseEditorWidget *VcsBaseClient::createVcsEditor(const QString &kind
         baseEditor = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
         QTC_ASSERT(baseEditor, return 0);
     } else {
-        outputEditor = Core::EditorManager::openEditorWithContents(Core::Id(kind), &title, progressMsg);
+        outputEditor = Core::EditorManager::openEditorWithContents(Core::Id::fromString(kind), &title, progressMsg);
         outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
         baseEditor = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
         connect(baseEditor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
