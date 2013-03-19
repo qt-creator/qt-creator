@@ -68,8 +68,7 @@ private:
     void addChangeActions(QMenu *menu, const QString &change);
     QString revisionSubject(const QTextBlock &inBlock) const;
 
-    mutable QRegExp m_changeNumberPattern8;
-    mutable QRegExp m_changeNumberPattern40;
+    mutable QRegExp m_changeNumberPattern;
     QString m_currentChange;
 };
 

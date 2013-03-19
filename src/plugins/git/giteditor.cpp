@@ -51,8 +51,7 @@
 #include <QTextEdit>
 #include <QTextBlock>
 
-#define CHANGE_PATTERN_8C "[a-f0-9]{7,8}"
-#define CHANGE_PATTERN_40C "[a-f0-9]{40,40}"
+#define CHANGE_PATTERN "[a-f0-9]{7,40}"
 
 namespace Git {
 namespace Internal {
@@ -61,11 +60,9 @@ namespace Internal {
 GitEditor::GitEditor(const VcsBase::VcsBaseEditorParameters *type,
                      QWidget *parent)  :
     VcsBase::VcsBaseEditorWidget(type, parent),
-    m_changeNumberPattern8(QLatin1String(CHANGE_PATTERN_8C)),
-    m_changeNumberPattern40(QLatin1String(CHANGE_PATTERN_40C))
+    m_changeNumberPattern(QLatin1String(CHANGE_PATTERN))
 {
-    QTC_ASSERT(m_changeNumberPattern8.isValid(), return);
-    QTC_ASSERT(m_changeNumberPattern40.isValid(), return);
+    QTC_ASSERT(m_changeNumberPattern.isValid(), return);
     /* Diff format:
         diff --git a/src/plugins/git/giteditor.cpp b/src/plugins/git/giteditor.cpp
         index 40997ff..4e49337 100644
@@ -85,11 +82,11 @@ QSet<QString> GitEditor::annotationChanges() const
     if (txt.isEmpty())
         return changes;
     // Hunt for first change number in annotation: "<change>:"
-    QRegExp r(QLatin1String("^(" CHANGE_PATTERN_8C ") "));
+    QRegExp r(QLatin1String("^(" CHANGE_PATTERN ") "));
     QTC_ASSERT(r.isValid(), return changes);
     if (r.indexIn(txt) != -1) {
         changes.insert(r.cap(1));
-        r.setPattern(QLatin1String("\n(" CHANGE_PATTERN_8C ") "));
+        r.setPattern(QLatin1String("\n(" CHANGE_PATTERN ") "));
         QTC_ASSERT(r.isValid(), return changes);
         int pos = 0;
         while ((pos = r.indexIn(txt, pos)) != -1) {
@@ -108,9 +105,7 @@ QString GitEditor::changeUnderCursor(const QTextCursor &c) const
     if (!cursor.hasSelection())
         return QString();
     const QString change = cursor.selectedText();
-    if (m_changeNumberPattern8.exactMatch(change))
-        return change;
-    if (m_changeNumberPattern40.exactMatch(change))
+    if (m_changeNumberPattern.exactMatch(change))
         return change;
     return QString();
 }
