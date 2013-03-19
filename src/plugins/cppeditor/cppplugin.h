@@ -86,13 +86,13 @@ public slots:
     void setSortedOutline(bool sorted);
 
 private slots:
-
     void onTaskStarted(const QString &type);
     void onAllTasksFinished(const QString &type);
     void currentEditorChanged(Core::IEditor *editor);
 
 #ifdef WITH_TESTS
 private slots:
+    // The following tests expect that no projects are loaded on start-up.
     void test_doxygen_comments_qt_style();
     void test_doxygen_comments_qt_style_continuation();
     void test_doxygen_comments_java_style();
@@ -130,6 +130,19 @@ private slots:
     void test_quickfix_AddIncludeForUndefinedIdentifier_noinclude();
     void test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment01();
     void test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment02();
+
+    // The following tests depend on the projects that are loaded on startup
+    // and will be skipped in case no projects are loaded.
+    void test_openEachFile();
+    void test_switchHeaderSourceOnEachFile();
+    void test_moveTokenWiseThroughEveryFile();
+    void test_moveTokenWiseThroughEveryFileAndFollowSymbol();
+    void test_moveTokenWiseThroughEveryFileAndSwitchDeclarationDefinition();
+    void test_moveTokenWiseThroughEveryFileAndFindUsages();
+    void test_moveTokenWiseThroughEveryFileAndRenameUsages();
+    void test_moveTokenWiseThroughEveryFileAndOpenTypeHierarchy();
+    void test_moveTokenWiseThroughEveryFileAndInvokeCompletion();
+    void test_moveTokenWiseThroughEveryFileAndTriggerQuickFixes();
 #endif // WITH_TESTS
 
 private:
