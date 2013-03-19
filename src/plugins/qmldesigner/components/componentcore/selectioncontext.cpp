@@ -58,7 +58,7 @@ ModelNode SelectionContext::targetNode() const
     return m_targetNode;
 }
 
-bool SelectionContext::isSingleNodeIsSelected() const
+bool SelectionContext::singleNodeIsSelected() const
 {
     return m_selectedModelNodes.count() == 1;
 }
