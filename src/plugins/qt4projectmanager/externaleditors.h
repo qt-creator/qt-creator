@@ -75,7 +75,7 @@ protected:
         QString workingDirectory;
     };
 
-    explicit ExternalQtEditor(const QString &id,
+    explicit ExternalQtEditor(Core::Id id,
                               const QString &displayName,
                               const QString &mimetype,
                               QObject *parent = 0);

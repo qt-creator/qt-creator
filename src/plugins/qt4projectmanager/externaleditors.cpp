@@ -106,13 +106,13 @@ static const char designerDisplayName[] = QT_TRANSLATE_NOOP("OpenWith::Editors",
 static const char linguistDisplayName[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Qt Linguist");
 
 // -------------- ExternalQtEditor
-ExternalQtEditor::ExternalQtEditor(const QString &id,
+ExternalQtEditor::ExternalQtEditor(Core::Id id,
                                    const QString &displayName,
                                    const QString &mimetype,
                                    QObject *parent) :
     Core::IExternalEditor(parent),
     m_mimeTypes(mimetype),
-    m_id(Core::Id::fromString(id)),
+    m_id(id),
     m_displayName(displayName)
 {
 }
@@ -160,12 +160,8 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
     // Setup binary + arguments, use Mac Open if appropriate
     data->arguments = additionalArguments;
     data->arguments.push_back(fileName);
-#ifdef Q_OS_MAC
-    if (useMacOpenCommand)
+    if (Utils::HostOsInfo::isMacHost() && useMacOpenCommand)
         createMacOpenCommand(&(data->binary), &(data->arguments));
-#else
-    Q_UNUSED(useMacOpenCommand)
-#endif
     if (debug)
         qDebug() << Q_FUNC_INFO << '\n' << data->binary << data->arguments;
     return true;
@@ -185,7 +181,7 @@ bool ExternalQtEditor::startEditorProcess(const EditorLaunchData &data, QString 
 
 // --------------- LinguistExternalEditor
 LinguistExternalEditor::LinguistExternalEditor(QObject *parent) :
-       ExternalQtEditor(QLatin1String(linguistIdC),
+       ExternalQtEditor(linguistIdC,
                         QLatin1String(linguistDisplayName),
                         QLatin1String(Qt4ProjectManager::Constants::LINGUIST_MIMETYPE),
                         parent)
@@ -202,7 +198,7 @@ bool LinguistExternalEditor::startEditor(const QString &fileName, QString *error
 
 // --------------- MacDesignerExternalEditor, using Mac 'open'
 MacDesignerExternalEditor::MacDesignerExternalEditor(QObject *parent) :
-       ExternalQtEditor(QLatin1String(designerIdC),
+       ExternalQtEditor(designerIdC,
                         QLatin1String(designerDisplayName),
                         QLatin1String(Qt4ProjectManager::Constants::FORM_MIMETYPE),
                         parent)
@@ -220,7 +216,7 @@ bool MacDesignerExternalEditor::startEditor(const QString &fileName, QString *er
 
 // --------------- DesignerExternalEditor with Designer Tcp remote control.
 DesignerExternalEditor::DesignerExternalEditor(QObject *parent) :
-    ExternalQtEditor(QLatin1String(designerIdC),
+    ExternalQtEditor(designerIdC,
                      QLatin1String(designerDisplayName),
                      QLatin1String(Designer::Constants::FORM_MIMETYPE),
                      parent),
