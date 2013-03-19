@@ -101,6 +101,9 @@ public:
 
     virtual bool eventFilter(QObject *o, QEvent *e);
 
+signals:
+    void finished();
+
 private slots:
     void finalizeRequest();
     void proposalComputed();
@@ -251,6 +254,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
             m_requestRunner = new ProcessorRunner;
             connect(m_requestRunner, SIGNAL(finished()), this, SLOT(proposalComputed()));
             connect(m_requestRunner, SIGNAL(finished()), this, SLOT(finalizeRequest()));
+            connect(m_requestRunner, SIGNAL(finished()), this, SIGNAL(finished()));
             assistInterface->prepareForAsyncUse();
             m_requestRunner->setReason(reason);
             m_requestRunner->setProcessor(processor);
@@ -487,7 +491,9 @@ bool CodeAssistantPrivate::eventFilter(QObject *o, QEvent *e)
 // CodeAssistant
 // -------------
 CodeAssistant::CodeAssistant() : d(new CodeAssistantPrivate(this))
-{}
+{
+    connect(d, SIGNAL(finished()), SIGNAL(finished()));
+}
 
 CodeAssistant::~CodeAssistant()
 {

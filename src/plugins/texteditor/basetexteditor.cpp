@@ -249,6 +249,8 @@ BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)
 
     d->visibleFoldedBlockNumber = d->suggestedVisibleFoldedBlockNumber = -1;
 
+    connect(d->m_codeAssistant.data(), SIGNAL(finished()), this, SIGNAL(assistFinished()));
+
     connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(slotUpdateExtraAreaWidth()));
     connect(this, SIGNAL(modificationChanged(bool)), this, SLOT(slotModificationChanged(bool)));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(slotCursorPositionChanged()));
@@ -1088,6 +1090,11 @@ void BaseTextEditorWidget::openLinkUnderCursorInNextSplit()
     Link symbolLink = findLinkAt(textCursor());
 
     openLink(symbolLink, !alwaysOpenLinksInNextSplit());
+}
+
+void BaseTextEditorWidget::abortAssist()
+{
+    d->m_codeAssistant->destroyContext();
 }
 
 void BaseTextEditorWidget::moveLineUpDown(bool up)

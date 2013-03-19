@@ -332,8 +332,12 @@ public slots:
     void openLinkUnderCursor();
     void openLinkUnderCursorInNextSplit();
 
+    /// Abort code assistant if it is running.
+    void abortAssist();
+
 signals:
     void changed();
+    void assistFinished();
 
     // ITextEditor
     void contentsChanged();

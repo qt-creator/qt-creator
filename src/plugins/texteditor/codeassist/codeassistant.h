@@ -34,14 +34,18 @@
 
 #include <texteditor/texteditor_global.h>
 
+#include <QObject>
+
 namespace TextEditor {
 
 class CodeAssistantPrivate;
 class IAssistProvider;
 class BaseTextEditor;
 
-class CodeAssistant
+class CodeAssistant : public QObject
 {
+    Q_OBJECT
+
 public:
     CodeAssistant();
     ~CodeAssistant();
@@ -54,6 +58,9 @@ public:
     void destroyContext();
 
     void invoke(AssistKind assistKind, IAssistProvider *provider = 0);
+
+signals:
+    void finished();
 
 private:
     CodeAssistantPrivate *d;
