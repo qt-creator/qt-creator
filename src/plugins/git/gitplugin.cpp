@@ -976,10 +976,8 @@ void GitPlugin::pull()
     }
 
     GitClient::StashGuard stashGuard(topLevel, QLatin1String("Pull"));
-    if (stashGuard.stashingFailed(false))
+    if (stashGuard.stashingFailed(false) || (rebase && (stashGuard.result() == GitClient::NotStashed)))
         return;
-    if (rebase && (stashGuard.result() == GitClient::NotStashed))
-        m_gitClient->synchronousCheckoutFiles(topLevel);
     if (!m_gitClient->synchronousPull(topLevel, rebase))
         stashGuard.preventPop();
 }
