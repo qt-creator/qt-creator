@@ -195,7 +195,7 @@ protected:
         }
         SelectionContext selectionContext(this);
         foreach (AbstractDesignerAction* action, m_designerActionList) {
-            action->setCurrentContext(selectionContext);
+            action->currentContextChanged(selectionContext);
         }
         m_setupContextDirty = false;
     }
@@ -270,7 +270,7 @@ public:
         }
         if (m_action->isEnabled()) {
             ModelNode parentNode;
-            if (m_selectionContext.singleSelected() && !m_selectionContext.currentSingleSelectedNode().isRootNode()) {
+            if (m_selectionContext.isSingleNodeIsSelected() && !m_selectionContext.currentSingleSelectedNode().isRootNode()) {
                 ActionTemplate *selectionAction = new ActionTemplate(QString(), &ModelNodeOperations::select);
                 selectionAction->setParent(m_menu.data());
 
@@ -282,7 +282,7 @@ public:
 
                 m_menu->addAction(selectionAction);
             }
-            foreach (const ModelNode &node, m_selectionContext.view()->allModelNodes()) {
+            foreach (const ModelNode &node, m_selectionContext.qmlModelView()->allModelNodes()) {
                 if (node != m_selectionContext.currentSingleSelectedNode()
                         && node != parentNode
                         && contains(node, m_selectionContext.scenePos())

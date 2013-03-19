@@ -33,27 +33,92 @@ namespace QmlDesigner {
 
 
 SelectionContext::SelectionContext() :
-    m_view(0),
     m_isInBaseState(false),
     m_toggled(false)
 {
 
 }
 
-SelectionContext::SelectionContext(QmlModelView *view) :
-    m_view(view),
-    m_isInBaseState(view->currentState().isBaseState()),
+SelectionContext::SelectionContext(QmlModelView *qmlModelView) :
+    m_qmlModelView(qmlModelView),
+    m_isInBaseState(qmlModelView->currentState().isBaseState()),
     m_toggled(false)
 {
-    if (m_view && m_view->model())
-        m_selectedModelNodes = view->selectedModelNodes();
+    if (qmlModelView && qmlModelView->model())
+        m_selectedModelNodes = qmlModelView->selectedModelNodes();
+}
 
-    if (m_selectedModelNodes.count()== 1) {
-        m_singleSelected = true;
-        m_currentSingleSelectedNode = m_selectedModelNodes.first();
-    } else {
-        m_singleSelected = false;
-    }
+void SelectionContext::setTargetNode(const ModelNode &modelNode)
+{
+    m_targetNode = modelNode;
+}
+
+ModelNode SelectionContext::targetNode() const
+{
+    return m_targetNode;
+}
+
+bool SelectionContext::isSingleNodeIsSelected() const
+{
+    return m_selectedModelNodes.count() == 1;
+}
+
+bool SelectionContext::isInBaseState() const
+{
+    return m_isInBaseState;
+}
+
+ModelNode SelectionContext::currentSingleSelectedNode() const
+{
+    if (m_selectedModelNodes.count() != 1)
+        return ModelNode();
+
+    return m_selectedModelNodes.first();
+}
+
+QList<ModelNode> SelectionContext::selectedModelNodes() const
+{
+    return m_selectedModelNodes;
+}
+
+QmlModelView *SelectionContext::qmlModelView() const
+{
+    return m_qmlModelView.data();
+}
+
+void SelectionContext::setShowSelectionTools(bool show)
+{
+    m_showSelectionTools = show;
+}
+
+bool SelectionContext::showSelectionTools() const
+{
+    return m_showSelectionTools;
+}
+
+void SelectionContext::setScenePos(const QPoint &postition)
+{
+    m_scenePosition = postition;
+}
+
+QPoint SelectionContext::scenePos() const
+{
+    return m_scenePosition;
+}
+
+void SelectionContext::setToggled(bool toggled)
+{
+    m_toggled = toggled;
+}
+
+bool SelectionContext::toggled() const
+{
+    return m_toggled;
+}
+
+bool SelectionContext::isValid() const
+{
+    return qmlModelView() && qmlModelView()->model() && qmlModelView()->nodeInstanceView();
 }
 
 } //QmlDesigner
