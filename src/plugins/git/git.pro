@@ -48,8 +48,7 @@ SOURCES += gitplugin.cpp \
     mergetool.cpp \
     branchcheckoutdialog.cpp
 
-FORMS += changeselectiondialog.ui \
-    settingspage.ui \
+FORMS += settingspage.ui \
     gitsubmitpanel.ui \
     branchdialog.ui \
     stashdialog.ui \

@@ -32,38 +32,60 @@
 
 #include <QDialog>
 #include <QProcessEnvironment>
-QT_FORWARD_DECLARE_CLASS(QProcess)
 
-#include "ui_changeselectiondialog.h"
+QT_BEGIN_NAMESPACE
+class QPushButton;
+class QLabel;
+class QLineEdit;
+class QPlainTextEdit;
+class QProcess;
+QT_END_NAMESPACE
 
 namespace Git {
 namespace Internal {
+
+enum ChangeCommand {
+    NoCommand,
+    CherryPick,
+    Revert,
+    Show
+};
 
 class ChangeSelectionDialog : public QDialog
 {
     Q_OBJECT
 public:
-    ChangeSelectionDialog(const QString &workingDirectory = QString(), QWidget *parent = 0);
+    ChangeSelectionDialog(const QString &workingDirectory, QWidget *parent);
     ~ChangeSelectionDialog();
 
     QString change() const;
 
     QString workingDirectory() const;
-    void setWorkingDirectory(const QString &s);
-
-public slots:
-    void selectWorkingDirectory();
+    ChangeCommand command() const;
 
 private slots:
     void setDetails(int exitCode);
     void recalculateDetails(const QString &ref);
-    void refresh();
+    void acceptCherryPick();
+    void acceptRevert();
+    void acceptShow();
 
 private:
-    Ui_ChangeSelectionDialog m_ui;
+    void enableButtons(bool b);
+
     QProcess* m_process;
     QString m_gitBinaryPath;
     QProcessEnvironment m_gitEnvironment;
+
+    QLabel* m_workingDirectoryLabel;
+    QLineEdit* m_changeNumberEdit;
+    QPlainTextEdit* m_detailsText;
+    QPushButton* m_showButton;
+    QPushButton* m_cherryPickButton;
+    QPushButton* m_revertButton;
+    QPushButton* m_cancelButton;
+
+    ChangeCommand m_command;
 };
 
 } // namespace Internal

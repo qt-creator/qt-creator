@@ -68,7 +68,6 @@ namespace Internal {
 
 class GitVersionControl;
 class GitClient;
-class ChangeSelectionDialog;
 class GitSubmitEditor;
 class CommitData;
 class StashDialog;
@@ -117,8 +116,7 @@ private slots:
     void undoUnstagedFileChanges();
     void resetRepository();
     void startRebase();
-    void startRevertCommit();
-    void startCherryPickCommit();
+    void startChangeRelatedAction();
     void stageFile();
     void unstageFile();
     void gitkForCurrentFile();
@@ -129,7 +127,6 @@ private slots:
     void promptApplyPatch();
     void gitClientMemberFuncRepositoryAction();
 
-    void showCommit();
     void startAmendCommit();
     void stash();
     void stashSnapshot();
@@ -201,8 +198,6 @@ private:
     Locator::CommandLocator *m_commandLocator;
     QAction *m_createRepositoryAction;
 
-    QAction *m_showAction;
-
     QAction *m_submitCurrentAction;
     QAction *m_diffSelectedFilesAction;
     QAction *m_undoAction;
@@ -216,7 +211,6 @@ private:
     Utils::ParameterAction *m_applyCurrentFilePatchAction;
 
     GitClient                   *m_gitClient;
-    ChangeSelectionDialog       *m_changeSelectionDialog;
     QPointer<StashDialog>       m_stashDialog;
     QPointer<BranchDialog>      m_branchDialog;
     QPointer<RemoteDialog>      m_remoteDialog;

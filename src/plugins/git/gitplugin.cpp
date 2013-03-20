@@ -130,7 +130,6 @@ GitPlugin *GitPlugin::m_instance = 0;
 GitPlugin::GitPlugin() :
     VcsBase::VcsBasePlugin(Git::Constants::GITSUBMITEDITOR_ID),
     m_commandLocator(0),
-    m_showAction(0),
     m_submitCurrentAction(0),
     m_diffSelectedFilesAction(0),
     m_undoAction(0),
@@ -138,7 +137,6 @@ GitPlugin::GitPlugin() :
     m_menuAction(0),
     m_applyCurrentFilePatchAction(0),
     m_gitClient(0),
-    m_changeSelectionDialog(0),
     m_submitActionTriggered(false)
 {
     m_instance = this;
@@ -440,12 +438,8 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            globalcontext, true, SLOT(startRebase()));
 
     createRepositoryAction(localRepositoryMenu,
-                           tr("Revert Single Commit..."), Core::Id("Git.Revert"),
-                           globalcontext, true, SLOT(startRevertCommit()));
-
-    createRepositoryAction(localRepositoryMenu,
-                           tr("Cherry-Pick Commit..."), Core::Id("Git.CherryPick"),
-                           globalcontext, true, SLOT(startCherryPickCommit()));
+                           tr("Change-related Actions..."), Core::Id("Git.ChangeRelatedActions"),
+                           globalcontext, true, SLOT(startChangeRelatedAction()));
 
     // --------------
     localRepositoryMenu->addSeparator(globalcontext);
@@ -588,11 +582,6 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     // --------------
     gitContainer->addSeparator(globalcontext);
-
-    m_showAction
-            = createRepositoryAction(gitContainer,
-                                     tr("Show..."), Core::Id("Git.ShowCommit"),
-                                     globalcontext, true, SLOT(showCommit())).first;
 
     m_createRepositoryAction = new QAction(tr("Create Repository..."), this);
     Core::Command *createRepositoryCommand = Core::ActionManager::registerAction(m_createRepositoryAction, "Git.CreateRepository", globalcontext);
@@ -741,40 +730,51 @@ void GitPlugin::startRebase()
         m_gitClient->interactiveRebase(workingDirectory, change);
 }
 
-void GitPlugin::startRevertCommit()
+void GitPlugin::startChangeRelatedAction()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QString workingDirectory = state.currentDirectoryOrTopLevel();
+    const QString workingDirectory = state.currentDirectoryOrTopLevel();
     if (workingDirectory.isEmpty())
         return;
-    GitClient::StashGuard stashGuard(workingDirectory, QLatin1String("Revert"));
+
+    QPointer<ChangeSelectionDialog> dialog = new ChangeSelectionDialog
+            (workingDirectory, Core::ICore::mainWindow());
+
+    int result = dialog->exec();
+
+    if (dialog.isNull() || (result == QDialog::Rejected) || dialog->change().isEmpty())
+        return;
+
+    const QString change = dialog->change();
+
+    if (dialog->command() == Show) {
+        m_gitClient->show(workingDirectory, change);
+        return;
+    }
+
+    QString command;
+    bool (GitClient::*commandFunction)(const QString&, const QString&);
+    switch (dialog->command()) {
+    case CherryPick:
+        command = QLatin1String("Cherry-pick");
+        commandFunction = &GitClient::cherryPickCommit;
+        break;
+    case Revert:
+        command = QLatin1String("Revert");
+        commandFunction = &GitClient::revertCommit;
+        break;
+    default:
+        return;
+    }
+
+    GitClient::StashGuard stashGuard(workingDirectory, command);
     if (stashGuard.stashingFailed(true))
         return;
-    ChangeSelectionDialog changeSelectionDialog(workingDirectory);
 
-    if (changeSelectionDialog.exec() != QDialog::Accepted)
-        return;
-    const QString change = changeSelectionDialog.change();
-    if (!change.isEmpty() && !m_gitClient->revertCommit(workingDirectory, change))
+    if (!(m_gitClient->*commandFunction)(workingDirectory, change))
         stashGuard.preventPop();
-}
 
-void GitPlugin::startCherryPickCommit()
-{
-    const VcsBase::VcsBasePluginState state = currentState();
-    QString workingDirectory = state.currentDirectoryOrTopLevel();
-    if (workingDirectory.isEmpty())
-        return;
-    GitClient::StashGuard stashGuard(state.topLevel(), QLatin1String("Cherry-pick"));
-    if (stashGuard.stashingFailed(true))
-        return;
-    ChangeSelectionDialog changeSelectionDialog(workingDirectory);
-
-    if (changeSelectionDialog.exec() != QDialog::Accepted)
-        return;
-    const QString change = changeSelectionDialog.change();
-    if (!change.isEmpty() && !m_gitClient->cherryPickCommit(workingDirectory, change))
-        stashGuard.preventPop();
+    delete dialog;
 }
 
 void GitPlugin::stageFile()
@@ -1228,9 +1228,6 @@ void GitPlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)
     foreach (QAction *repositoryAction, m_repositoryActions)
         repositoryAction->setEnabled(repositoryEnabled);
     updateRepositoryBrowserAction();
-
-    // Prompts for repo.
-    m_showAction->setEnabled(true);
 }
 
 void GitPlugin::updateRepositoryBrowserAction()
@@ -1238,24 +1235,6 @@ void GitPlugin::updateRepositoryBrowserAction()
     const bool repositoryEnabled = currentState().hasTopLevel();
     const bool hasRepositoryBrowserCmd = !settings().stringValue(GitSettings::repositoryBrowserCmd).isEmpty();
     m_repositoryBrowserAction->setEnabled(repositoryEnabled && hasRepositoryBrowserCmd);
-}
-
-void GitPlugin::showCommit()
-{
-    const VcsBase::VcsBasePluginState state = currentState();
-
-    if (!m_changeSelectionDialog)
-        m_changeSelectionDialog = new ChangeSelectionDialog();
-
-    m_changeSelectionDialog->setWorkingDirectory(state.currentDirectoryOrTopLevel());
-
-    if (m_changeSelectionDialog->exec() != QDialog::Accepted)
-        return;
-    const QString change = m_changeSelectionDialog->change();
-    if (change.isEmpty())
-        return;
-
-    m_gitClient->show(m_changeSelectionDialog->workingDirectory(), change);
 }
 
 const GitSettings &GitPlugin::settings() const
