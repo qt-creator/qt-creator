@@ -40,6 +40,7 @@
 #include <QTableView>
 #include <QTextDocument> // for Qt::escape
 #include <QVBoxLayout>
+#include <headerviewstretcher.h>
 
 namespace ProjectExplorer {
 
@@ -96,8 +97,8 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     d->m_environmentView->setMinimumHeight(400);
     d->m_environmentView->setGridStyle(Qt::NoPen);
     d->m_environmentView->horizontalHeader()->setStretchLastSection(true);
-    d->m_environmentView->horizontalHeader()->setResizeMode(0, QHeaderView::ResizeToContents);
     d->m_environmentView->horizontalHeader()->setHighlightSections(false);
+    new Utils::HeaderViewStretcher(d->m_environmentView->horizontalHeader(), 1);
     d->m_environmentView->verticalHeader()->hide();
     QFontMetrics fm(font());
     d->m_environmentView->verticalHeader()->setDefaultSectionSize(qMax(static_cast<int>(fm.height() * 1.2), fm.height() + 4));
