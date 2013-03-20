@@ -68,7 +68,7 @@ bool HeaderViewStretcher::eventFilter(QObject *obj, QEvent *ev)
             if (hv->resizeMode(m_columnToStretch) == QHeaderView::Interactive) {
                 QResizeEvent *re = static_cast<QResizeEvent*>(ev);
                 int diff = re->size().width() - re->oldSize().width() ;
-                hv->resizeSection(m_columnToStretch, qMax(32, hv->sectionSize(1) + diff));
+                hv->resizeSection(m_columnToStretch, qMax(32, hv->sectionSize(m_columnToStretch) + diff));
             }
         }
     }

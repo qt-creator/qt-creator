@@ -37,7 +37,7 @@
 #include "icore.h"
 #include "id.h"
 
-#include <utils/treewidgetcolumnstretcher.h>
+#include <utils/headerviewstretcher.h>
 
 #include <QKeyEvent>
 #include <QShortcut>
