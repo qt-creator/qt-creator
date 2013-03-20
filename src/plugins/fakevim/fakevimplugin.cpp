@@ -75,7 +75,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
-#include <utils/treewidgetcolumnstretcher.h>
 #include <utils/stylehelper.h>
 
 #include <cpptools/cpptoolsconstants.h>

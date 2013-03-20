@@ -45,7 +45,7 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/consoleprocess.cpp \
     $$PWD/uncommentselection.cpp \
     $$PWD/parameteraction.cpp \
-    $$PWD/treewidgetcolumnstretcher.cpp \
+    $$PWD/headerviewstretcher.cpp \
     $$PWD/checkablemessagebox.cpp \
     $$PWD/styledbar.cpp \
     $$PWD/stylehelper.cpp \
@@ -129,7 +129,7 @@ HEADERS += \
     $$PWD/textfileformat.h \
     $$PWD/uncommentselection.h \
     $$PWD/parameteraction.h \
-    $$PWD/treewidgetcolumnstretcher.h \
+    $$PWD/headerviewstretcher.h \
     $$PWD/checkablemessagebox.h \
     $$PWD/qtcassert.h \
     $$PWD/styledbar.h \

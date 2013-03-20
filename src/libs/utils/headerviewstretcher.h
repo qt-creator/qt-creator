@@ -27,27 +27,27 @@
 **
 ****************************************************************************/
 
-#ifndef TREEWIDGETCOLUMNSTRETCHER_H
-#define TREEWIDGETCOLUMNSTRETCHER_H
+#ifndef HEADERVIEWSTRETCHER_H
+#define HEADERVIEWSTRETCHER_H
 
 #include "utils_global.h"
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
-class QTreeWidget;
+class QHeaderView;
 QT_END_NAMESPACE
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT TreeWidgetColumnStretcher : public QObject
+class QTCREATOR_UTILS_EXPORT HeaderViewStretcher : public QObject
 {
     const int m_columnToStretch;
 public:
-    explicit TreeWidgetColumnStretcher(QTreeWidget *treeWidget, int columnToStretch);
+    explicit HeaderViewStretcher(QHeaderView *headerView, int columnToStretch);
 
     virtual bool eventFilter(QObject *obj, QEvent *ev);
 };
 
 } // namespace Utils
 
-#endif // TREEWIDGETCOLUMNSTRETCHER_H
+#endif // HEADERVIEWSTRETCHER_H

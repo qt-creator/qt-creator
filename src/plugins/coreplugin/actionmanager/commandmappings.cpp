@@ -37,7 +37,7 @@
 #include "id.h"
 
 #include <utils/hostosinfo.h>
-#include <utils/treewidgetcolumnstretcher.h>
+#include <utils/headerviewstretcher.h>
 
 #include <QKeyEvent>
 #include <QShortcut>
@@ -90,7 +90,7 @@ QWidget *CommandMappings::createPage(QWidget *parent)
     connect(m_page->targetEdit, SIGNAL(textChanged(QString)),
         this, SLOT(targetIdentifierChanged()));
 
-    new Utils::TreeWidgetColumnStretcher(m_page->commandList, 1);
+    new Utils::HeaderViewStretcher(m_page->commandList->header(), 1);
 
     commandChanged(0);
 

@@ -41,7 +41,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <utils/treewidgetcolumnstretcher.h>
 #include <utils/qtcassert.h>
 #include <utils/buildablehelperlibrary.h>
 #include <utils/pathchooser.h>

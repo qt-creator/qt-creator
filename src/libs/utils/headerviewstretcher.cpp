@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "treewidgetcolumnstretcher.h"
+#include "headerviewstretcher.h"
 #include <QTreeWidget>
 #include <QHideEvent>
 #include <QHeaderView>
@@ -35,24 +35,24 @@
 using namespace Utils;
 
 /*!
-    \class Utils::TreeWidgetColumnStretcher
+    \class Utils::HeaderViewStretcher
 
-    \brief The class fixes QTreeWidget to resize all columns to contents, except one
+    \brief The class fixes QHeaderView to resize all columns to contents, except one
     stretching column.
 
     As opposed to standard QTreeWidget, all columns are
     still interactively resizable.
 */
 
-TreeWidgetColumnStretcher::TreeWidgetColumnStretcher(QTreeWidget *treeWidget, int columnToStretch)
-        : QObject(treeWidget->header()), m_columnToStretch(columnToStretch)
+HeaderViewStretcher::HeaderViewStretcher(QHeaderView *headerView, int columnToStretch)
+        : QObject(headerView), m_columnToStretch(columnToStretch)
 {
-    parent()->installEventFilter(this);
+    headerView->installEventFilter(this);
     QHideEvent fake;
-    TreeWidgetColumnStretcher::eventFilter(parent(), &fake);
+    HeaderViewStretcher::eventFilter(headerView, &fake);
 }
 
-bool TreeWidgetColumnStretcher::eventFilter(QObject *obj, QEvent *ev)
+bool HeaderViewStretcher::eventFilter(QObject *obj, QEvent *ev)
 {
     if (obj == parent()) {
         if (ev->type() == QEvent::Show) {
