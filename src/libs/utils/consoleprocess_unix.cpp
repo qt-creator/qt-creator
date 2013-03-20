@@ -213,7 +213,8 @@ void ConsoleProcess::stop()
 
 bool ConsoleProcess::isRunning() const
 {
-    return d->m_process.state() != QProcess::NotRunning;
+    return d->m_process.state() != QProcess::NotRunning
+            || (d->m_stubSocket && d->m_stubSocket->isOpen());
 }
 
 QString ConsoleProcess::stubServerListen()
