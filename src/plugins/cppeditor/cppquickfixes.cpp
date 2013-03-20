@@ -1069,7 +1069,7 @@ void TranslateStringLiteral::match(const CppQuickFixInterface &interface,
 
     QString trContext;
 
-    QSharedPointer<Control> control = interface->context().control();
+    QSharedPointer<Control> control = interface->context().bindings()->control();
     const Name *trName = control->identifier("tr");
 
     // Check whether we are in a method:
@@ -1471,7 +1471,7 @@ public:
             UseMinimalNames q(con);
             env.enter(&q);
 
-            Control *control = assistInterface()->context().control().data();
+            Control *control = assistInterface()->context().bindings()->control().data();
             FullySpecifiedType tn = rewriteType(result.first().type(), &env, control);
 
             Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();

@@ -173,7 +173,7 @@ class CPLUSPLUS_EXPORT CreateBindings: protected SymbolVisitor
     Q_DISABLE_COPY(CreateBindings)
 
 public:
-    CreateBindings(Document::Ptr thisDocument, const Snapshot &snapshot, QSharedPointer<Control> control);
+    CreateBindings(Document::Ptr thisDocument, const Snapshot &snapshot);
     virtual ~CreateBindings();
 
     /// Returns the binding for the global namespace.
@@ -187,7 +187,8 @@ public:
 
     /// Returns the Control that must be used to create temporary symbols.
     /// \internal
-    QSharedPointer<Control> control() const;
+    QSharedPointer<Control> control() const
+    { return _control; }
 
     bool expandTemplates() const
     { return _expandTemplates; }
@@ -292,8 +293,6 @@ public:
     /// \internal
     void setBindings(QSharedPointer<CreateBindings> bindings);
 
-    QSharedPointer<Control> control() const; // ### deprecate
-
     static QList<const Name *> fullyQualifiedName(Symbol *symbol);
     static QList<const Name *> path(Symbol *symbol);
 
@@ -318,8 +317,6 @@ private:
 
     // Bindings
     mutable QSharedPointer<CreateBindings> _bindings;
-
-    QSharedPointer<Control> _control;
 
     bool m_expandTemplates;
 };

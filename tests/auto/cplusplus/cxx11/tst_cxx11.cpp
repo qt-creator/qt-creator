@@ -174,7 +174,7 @@ void tst_cxx11::inlineNamespaceLookup()
     snapshot.insert(doc);
 
     LookupContext context(doc, snapshot);
-    QSharedPointer<Control> control = context.control();
+    QSharedPointer<Control> control = context.bindings()->control();
 
     QList<LookupItem> results = context.lookup(control->identifier("foo"), doc->globalNamespace());
     QCOMPARE(results.size(), 1); // the symbol is visible from the global scope

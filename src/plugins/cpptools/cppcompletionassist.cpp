@@ -1778,7 +1778,7 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
     }
 
     if (functions.isEmpty()) {
-        const Name *functionCallOp = context.control()->operatorNameId(OperatorNameId::FunctionCallOp);
+        const Name *functionCallOp = context.bindings()->control()->operatorNameId(OperatorNameId::FunctionCallOp);
 
         foreach (const LookupItem &result, results) {
             FullySpecifiedType ty = result.type().simplified();
@@ -1873,7 +1873,7 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
                     targetCoN = context.globalNamespace();
                 UseMinimalNames q(targetCoN);
                 env.enter(&q);
-                Control *control = context.control().data();
+                Control *control = context.bindings()->control().data();
 
                 // set up signature autocompletion
                 foreach (Function *f, functions) {

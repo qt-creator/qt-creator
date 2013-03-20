@@ -259,7 +259,7 @@ public:
         env.switchScope(m_decl->enclosingScope());
         UseMinimalNames q(targetCoN);
         env.enter(&q);
-        Control *control = assistInterface()->context().control().data();
+        Control *control = assistInterface()->context().bindings()->control().data();
 
         // rewrite the function type
         FullySpecifiedType tn = rewriteType(m_decl->type(), &env, control);
@@ -651,7 +651,7 @@ public:
         env.enter(&subs);
 
         Overview printer = CppCodeStyleSettings::currentProjectCodeStyleOverview();
-        Control *control = assistInterface()->context().control().data();
+        Control *control = assistInterface()->context().bindings()->control().data();
         QString funcDef;
         QString funcDecl; // We generate a declaration only in the case of a member function.
         QString funcCall;
