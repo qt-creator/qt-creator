@@ -114,26 +114,22 @@ bool OptionsParser::checkForTestOption()
                     m_pmPrivate->testSpecs.append(PluginManagerPrivate::TestSpec(spec));
             }
         } else {
-            PluginSpec *spec = m_pmPrivate->pluginByName(m_currentArg);
-            if (!spec) {
+            QStringList args = m_currentArg.split(QLatin1Char(','));
+            const QString pluginName = args.takeFirst();
+            if (PluginSpec *spec = m_pmPrivate->pluginByName(pluginName)) {
+                if (m_pmPrivate->containsTestSpec(spec)) {
+                    if (m_errorString)
+                        *m_errorString = QCoreApplication::translate("PluginManager",
+                                                                     "The plugin '%1' is specified twice for testing.").arg(pluginName);
+                    m_hasError = true;
+                } else {
+                    m_pmPrivate->testSpecs.append(PluginManagerPrivate::TestSpec(spec, args));
+                }
+            } else  {
                 if (m_errorString)
                     *m_errorString = QCoreApplication::translate("PluginManager",
-                                                                 "The plugin '%1' does not exist.").arg(m_currentArg);
+                                                                 "The plugin '%1' does not exist.").arg(pluginName);
                 m_hasError = true;
-            } else if (!m_pmPrivate->containsTestSpec(spec)) {
-                    // Collect optional test functions. Everything following the plugin
-                    // name until the next option is interpreted as a test function. E.g.
-                    // in './qtcreator -test Git myFile' the argument 'myFile' will be
-                    // be interpreted as an function name and not a file to open.
-                    const QStringList::const_iterator current(m_it);
-                    QStringList testFunctions;
-                    while (nextToken() && !m_currentArg.startsWith(QLatin1Char('-')))
-                           testFunctions.append(m_currentArg);
-                    // Make sure a following nextToken() call will get the current/next option.
-                    if (current != m_it && m_it != m_end)
-                        --m_it;
-                    m_pmPrivate->testSpecs.append(
-                        PluginManagerPrivate::TestSpec(spec, testFunctions));
             }
         }
     }
