@@ -33,9 +33,12 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
+#include <utils/tcpportsgatherer.h>
 
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerplugin.h>
@@ -199,25 +202,42 @@ RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConf
     Debugger::DebuggerStartParameters params;
     params.startMode = Debugger::StartInternal;
     params.executable = runConfig->observerPath();
-    params.qmlServerAddress = QLatin1String("127.0.0.1");
-    params.qmlServerPort = runConfig->debuggerAspect()->qmlDebugServerPort();
-    params.processArgs = QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(params.qmlServerPort);
-    params.processArgs += QLatin1Char(' ') + runConfig->viewerArguments();
+    params.processArgs = runConfig->viewerArguments();
     params.workingDirectory = runConfig->workingDirectory();
     params.environment = runConfig->environment();
     params.displayName = runConfig->displayName();
     params.projectSourceDirectory = runConfig->target()->project()->projectDirectory();
     params.projectSourceFiles = runConfig->target()->project()->files(Project::ExcludeGeneratedFiles);
-    if (runConfig->debuggerAspect()->useQmlDebugger())
+    if (runConfig->debuggerAspect()->useQmlDebugger()) {
+        const ProjectExplorer::IDevice::ConstPtr device =
+                DeviceKitInformation::device(runConfig->target()->kit());
+        params.qmlServerAddress = QLatin1String("127.0.0.1");
+        QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
+        Utils::TcpPortsGatherer portsGatherer;
+        portsGatherer.update(QAbstractSocket::UnknownNetworkLayerProtocol);
+        Utils::PortList portList = device->freePorts();
+        int freePort = portsGatherer.getNextFreePort(&portList);
+        if (freePort == -1) {
+            if (errorMessage)
+                *errorMessage = tr("Not enough free ports for QML debugging. Increase the "
+                                   "port range for Desktop device in Device settings.");
+            return 0;
+        }
+        params.qmlServerPort = freePort;
         params.languages |= Debugger::QmlLanguage;
+
+        // Makes sure that all bindings go through the JavaScript engine, so that
+        // breakpoints are actually hit!
+        const QString optimizerKey = QLatin1String("QML_DISABLE_OPTIMIZER");
+        if (!params.environment.hasKey(optimizerKey))
+            params.environment.set(optimizerKey, QLatin1String("1"));
+
+        Utils::QtcProcess::addArg(&params.processArgs,
+                                  QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(
+                                      params.qmlServerPort));
+    }
     if (runConfig->debuggerAspect()->useCppDebugger())
         params.languages |= Debugger::CppLanguage;
-
-    // Makes sure that all bindings go through the JavaScript engine, so that
-    // breakpoints are actually hit!
-    const QString optimizerKey = QLatin1String("QML_DISABLE_OPTIMIZER");
-    if (!params.environment.hasKey(optimizerKey))
-        params.environment.set(optimizerKey, QLatin1String("1"));
 
     if (params.executable.isEmpty()) {
         QmlProjectPlugin::showQmlObserverToolWarning();

@@ -40,11 +40,13 @@ namespace ProjectExplorer {
 LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *target, const Core::Id id) :
     RunConfiguration(target, id)
 {
+    ctor();
 }
 
 LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *target, LocalApplicationRunConfiguration *rc) :
     RunConfiguration(target, rc)
 {
+    ctor();
 }
 
 LocalApplicationRunConfiguration::~LocalApplicationRunConfiguration()
@@ -56,6 +58,11 @@ Utils::AbstractMacroExpander *LocalApplicationRunConfiguration::macroExpander() 
     if (BuildConfiguration *bc = activeBuildConfiguration())
         return bc->macroExpander();
     return Core::VariableManager::macroExpander();
+}
+
+void LocalApplicationRunConfiguration::ctor()
+{
+    debuggerAspect()->suppressQmlDebuggingSpinbox();
 }
 
 } // namespace ProjectExplorer

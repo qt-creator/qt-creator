@@ -121,6 +121,7 @@ HEADERS += projectexplorer.h \
     devicesupport/deviceapplicationrunner.h \
     devicesupport/localprocesslist.h \
     devicesupport/sshdeviceprocesslist.h \
+    devicesupport/desktopdeviceconfigurationwidget.h \
     deploymentdata.h \
     buildtargetinfo.h \
     customtoolchain.h \
@@ -232,6 +233,7 @@ SOURCES += projectexplorer.cpp \
     devicesupport/deviceapplicationrunner.cpp \
     devicesupport/localprocesslist.cpp \
     devicesupport/sshdeviceprocesslist.cpp \
+    devicesupport/desktopdeviceconfigurationwidget.cpp \
     deployablefile.cpp \
     customtoolchain.cpp \
     projectmacroexpander.cpp
@@ -246,7 +248,8 @@ FORMS += processstep.ui \
     publishing/publishingwizardselectiondialog.ui \
     codestylesettingspropertiespage.ui \
     devicesupport/devicefactoryselectiondialog.ui \
-    devicesupport/devicesettingswidget.ui
+    devicesupport/devicesettingswidget.ui \
+    devicesupport/desktopdeviceconfigurationwidget.ui
 
 WINSOURCES += \
     windebuginterface.cpp \

@@ -95,7 +95,6 @@ DeviceSettingsWidget::DeviceSettingsWidget(QWidget *parent)
       m_additionalActionsMapper(new QSignalMapper(this)),
       m_configWidget(0)
 {
-    m_deviceManagerModel->setFilter(QList<Core::Id>() << Core::Id(Constants::DESKTOP_DEVICE_ID));
     initGui();
     connect(m_additionalActionsMapper, SIGNAL(mapped(int)),
             SLOT(handleAdditionalActionRequest(int)));

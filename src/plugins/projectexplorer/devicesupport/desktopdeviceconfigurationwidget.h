@@ -27,53 +27,35 @@
 **
 ****************************************************************************/
 
-#include "desktopdevicefactory.h"
-#include "desktopdevice.h"
-#include "projectexplorerconstants.h"
+#ifndef DESKTOPDEVICECONFIGURATIONWIDGET_H
+#define DESKTOPDEVICECONFIGURATIONWIDGET_H
 
-#include <utils/qtcassert.h>
+#include "idevicewidget.h"
 
 namespace ProjectExplorer {
-namespace Internal {
-
-DesktopDeviceFactory::DesktopDeviceFactory(QObject *parent) : IDeviceFactory(parent)
-{ }
-
-QString DesktopDeviceFactory::displayNameForId(Core::Id type) const
-{
-    if (type == Constants::DESKTOP_DEVICE_TYPE)
-        return tr("Desktop");
-    return QString();
+namespace Ui {
+class DesktopDeviceConfigurationWidget;
 }
 
-QList<Core::Id> DesktopDeviceFactory::availableCreationIds() const
+class DesktopDeviceConfigurationWidget : public IDeviceWidget
 {
-    return QList<Core::Id>() << Core::Id(Constants::DESKTOP_DEVICE_TYPE);
-}
+    Q_OBJECT
+public:
+    explicit DesktopDeviceConfigurationWidget(const IDevice::Ptr &device, QWidget *parent = 0);
+    ~DesktopDeviceConfigurationWidget();
 
-bool DesktopDeviceFactory::canCreate() const
-{
-    return false;
-}
+    void updateDeviceFromUi();
 
-IDevice::Ptr DesktopDeviceFactory::create(Core::Id id) const
-{
-    Q_UNUSED(id);
-    return IDevice::Ptr();
-}
+private slots:
+    void updateFreePorts();
 
-bool DesktopDeviceFactory::canRestore(const QVariantMap &map) const
-{
-    return IDevice::idFromMap(map) == Constants::DESKTOP_DEVICE_ID;
-}
+private:
+    void initGui();
 
-IDevice::Ptr DesktopDeviceFactory::restore(const QVariantMap &map) const
-{
-    QTC_ASSERT(canRestore(map), return ProjectExplorer::IDevice::Ptr());
-    const ProjectExplorer::IDevice::Ptr device = IDevice::Ptr(new DesktopDevice);
-    device->fromMap(map);
-    return device;
-}
+private:
+    Ui::DesktopDeviceConfigurationWidget *m_ui;
+};
 
-} // namespace Internal
 } // namespace ProjectExplorer
+
+#endif // DESKTOPDEVICECONFIGURATIONWIDGET_H

@@ -63,6 +63,9 @@ protected:
     explicit LocalApplicationRunConfiguration(Target *target, LocalApplicationRunConfiguration *rc);
 
     Utils::AbstractMacroExpander *macroExpander() const;
+
+private:
+    void ctor();
 };
 
 } // namespace ProjectExplorer

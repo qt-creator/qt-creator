@@ -54,6 +54,8 @@
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/portlist.h>
+#include <utils/tcpportsgatherer.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 
@@ -491,7 +493,7 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     sp.executable = rc->executable();
     if (sp.executable.isEmpty())
         return sp;
-    sp.startMode = StartInternal;
+
     sp.processArgs = rc->commandLineArguments();
     sp.useTerminal = rc->runMode() == LocalApplicationRunConfiguration::Console;
     sp.dumperLibrary = rc->dumperLibrary();
@@ -513,8 +515,22 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
         sp.languages |= CppLanguage;
 
     if (aspect->useQmlDebugger()) {
+        const ProjectExplorer::IDevice::ConstPtr device =
+                DeviceKitInformation::device(runConfiguration->target()->kit());
         sp.qmlServerAddress = _("127.0.0.1");
-        sp.qmlServerPort = aspect->qmlDebugServerPort();
+        QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return sp);
+        TcpPortsGatherer portsGatherer;
+        portsGatherer.update(QAbstractSocket::UnknownNetworkLayerProtocol);
+        Utils::PortList portList = device->freePorts();
+        int freePort = portsGatherer.getNextFreePort(&portList);
+        if (freePort == -1) {
+            if (errorMessage)
+                *errorMessage = DebuggerPlugin::tr("Not enough free ports for QML debugging. "
+                                                   "Increase the port range for Desktop device in "
+                                                   "Device settings.");
+            return sp;
+        }
+        sp.qmlServerPort = freePort;
         sp.languages |= QmlLanguage;
 
         // Makes sure that all bindings go through the JavaScript engine, so that
@@ -525,6 +541,8 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
 
         QtcProcess::addArg(&sp.processArgs, QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(sp.qmlServerPort));
     }
+
+    sp.startMode = StartInternal;
 
     // FIXME: If it's not yet build this will be empty and not filled
     // when rebuild as the runConfiguration is not stored and therefore

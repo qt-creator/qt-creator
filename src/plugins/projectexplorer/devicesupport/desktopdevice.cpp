@@ -31,17 +31,27 @@
 #include "projectexplorerconstants.h"
 #include "deviceprocesslist.h"
 #include "localprocesslist.h"
+#include "desktopdeviceconfigurationwidget.h"
+
+#include <ssh/sshconnection.h>
+#include <utils/portlist.h>
 
 #include <QCoreApplication>
 
+using namespace ProjectExplorer::Constants;
+
 namespace ProjectExplorer {
 
-DesktopDevice::DesktopDevice() : IDevice(Core::Id(Constants::DESKTOP_DEVICE_TYPE),
+DesktopDevice::DesktopDevice() : IDevice(Core::Id(DESKTOP_DEVICE_TYPE),
                                          IDevice::AutoDetected,
                                          IDevice::Hardware,
-                                         Core::Id(Constants::DESKTOP_DEVICE_ID))
+                                         Core::Id(DESKTOP_DEVICE_ID))
 {
-    setDisplayName(QCoreApplication::translate("ProjectExplorer::DesktopDevice", "Run locally"));
+    setDisplayName(QCoreApplication::translate("ProjectExplorer::DesktopDevice", "Local PC"));
+    setDeviceState(IDevice::DeviceReadyToUse);
+    const QString portRange =
+            QString::fromLatin1("%1-%2").arg(DESKTOP_PORT_START).arg(DESKTOP_PORT_END);
+    setFreePorts(Utils::PortList::fromString(portRange));
 }
 
 DesktopDevice::DesktopDevice(const DesktopDevice &other) :
@@ -60,7 +70,7 @@ QString DesktopDevice::displayType() const
 
 IDeviceWidget *DesktopDevice::createWidget()
 {
-    return 0;
+    return new DesktopDeviceConfigurationWidget(sharedFromThis());
 }
 
 QList<Core::Id> DesktopDevice::actionIds() const

@@ -33,9 +33,11 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/fileutils.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
+#include <utils/portlist.h>
 
 #include <QFileInfo>
 #include <QHash>
@@ -162,6 +164,14 @@ void DeviceManager::load()
                 sdkDevices.removeOne(sdkDevice);
                 break;
             }
+        }
+        // TODO: Remove this in 2.9; this code introduces a bug #QTCREATORBUG-9055
+        // Set default port for desktop devices.
+        if (device->type() == Constants::DESKTOP_DEVICE_TYPE
+                && device->freePorts().toString().isEmpty()) {
+            Utils::PortList freePorts;
+            freePorts.addRange(Constants::DESKTOP_PORT_START, Constants::DESKTOP_PORT_END);
+            device->setFreePorts(freePorts);
         }
         addDevice(device);
     }
