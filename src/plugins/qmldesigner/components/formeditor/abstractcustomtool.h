@@ -14,7 +14,7 @@ public:
 
     virtual QString name() const = 0;
 
-    virtual int wantHandleItem(const ModelNode &modelNode) const QTC_OVERRIDE = 0;
+    virtual int wantHandleItem(const ModelNode &modelNode) const = 0;
 };
 
 } // namespace QmlDesigner
