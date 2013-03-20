@@ -32,6 +32,7 @@
 #include "bardescriptordocument.h"
 
 #include "qnxconstants.h"
+#include "bardescriptoreditor.h"
 #include "bardescriptoreditorwidget.h"
 #include "bardescriptordocumentnodehandlers.h"
 
@@ -185,24 +186,31 @@ void BarDescriptorDocument::rename(const QString &newName)
 
 QString BarDescriptorDocument::xmlSource() const
 {
-    QDomDocument doc;
-    doc.appendChild(doc.createProcessingInstruction(QLatin1String("xml"), QLatin1String("version='1.0' encoding='") + QLatin1String(codec()->name()) + QLatin1String("' standalone='no'")));
+    BarDescriptorEditor *editor = qobject_cast<BarDescriptorEditor*>(m_editorWidget->editor());
+    QTC_ASSERT(editor, return QString());
 
-    // QNX
-    QDomElement rootElem = doc.createElement(QLatin1String("qnx"));
-    rootElem.setAttribute(QLatin1String("xmlns"), QLatin1String("http://www.qnx.com/schemas/application/1.0"));
+    if (editor->activePage() == BarDescriptorEditor::Source) {
+        return m_editorWidget->xmlSource();
+    } else {
+        QDomDocument doc;
+        doc.appendChild(doc.createProcessingInstruction(QLatin1String("xml"), QLatin1String("version='1.0' encoding='") + QLatin1String(codec()->name()) + QLatin1String("' standalone='no'")));
 
-    QMap<int, BarDescriptorDocumentAbstractNodeHandler*> nodeHandlerMap;
-    foreach (BarDescriptorDocumentAbstractNodeHandler *nodeHandler, m_nodeHandlers)
-        nodeHandlerMap.insertMulti(nodeHandler->order(), nodeHandler);
+        // QNX
+        QDomElement rootElem = doc.createElement(QLatin1String("qnx"));
+        rootElem.setAttribute(QLatin1String("xmlns"), QLatin1String("http://www.qnx.com/schemas/application/1.0"));
 
-    QList<BarDescriptorDocumentAbstractNodeHandler*> nodeHandlers = nodeHandlerMap.values();
-    foreach (BarDescriptorDocumentAbstractNodeHandler *nodeHandler, nodeHandlers)
-        rootElem.appendChild(nodeHandler->toNode(doc));
+        QMap<int, BarDescriptorDocumentAbstractNodeHandler*> nodeHandlerMap;
+        foreach (BarDescriptorDocumentAbstractNodeHandler *nodeHandler, m_nodeHandlers)
+            nodeHandlerMap.insertMulti(nodeHandler->order(), nodeHandler);
 
-    doc.appendChild(rootElem);
+        QList<BarDescriptorDocumentAbstractNodeHandler*> nodeHandlers = nodeHandlerMap.values();
+        foreach (BarDescriptorDocumentAbstractNodeHandler *nodeHandler, nodeHandlers)
+            rootElem.appendChild(nodeHandler->toNode(doc));
 
-    return doc.toString(4);
+        doc.appendChild(rootElem);
+
+        return doc.toString(4);
+    }
 }
 
 bool BarDescriptorDocument::loadContent(const QString &xmlSource, QString *errorMessage, int *errorLine)

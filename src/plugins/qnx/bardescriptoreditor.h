@@ -54,6 +54,13 @@ class BarDescriptorEditor : public Core::IEditor
 {
     Q_OBJECT
 public:
+    enum EditorPage {
+        General = 0,
+        Application,
+        Assets,
+        Source
+    };
+
     explicit BarDescriptorEditor(BarDescriptorEditorWidget *editorWidget);
 
     bool createNew(const QString &contents = QString());
@@ -73,17 +80,12 @@ public:
 
     QWidget *toolBar();
 
+    EditorPage activePage() const;
+
 private slots:
     void changeEditorPage(QAction *action);
 
 private:
-    enum EditorPage {
-        General = 0,
-        Application,
-        Assets,
-        Source
-    };
-
     ProjectExplorer::TaskHub *taskHub();
 
     void setActivePage(EditorPage page);
