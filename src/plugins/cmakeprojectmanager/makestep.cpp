@@ -337,7 +337,9 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     // TODO update this list also on rescans of the CMakeLists.txt
     CMakeProject *pro = static_cast<CMakeProject *>(m_makeStep->target()->project());
-    foreach (const QString& buildTarget, pro->buildTargetTitles()) {
+    QStringList targetList = pro->buildTargetTitles();
+    targetList.sort(Qt::CaseInsensitive);
+    foreach (const QString &buildTarget, targetList) {
         QListWidgetItem *item = new QListWidgetItem(buildTarget, m_buildTargetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(m_makeStep->buildsBuildTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
