@@ -32,6 +32,8 @@
 
 #include "portlist.h"
 
+#include <QAbstractSocket>
+
 namespace Utils {
 namespace Internal {
 class TcpPortsGathererPrivate;
@@ -40,20 +42,13 @@ class TcpPortsGathererPrivate;
 class QTCREATOR_UTILS_EXPORT TcpPortsGatherer
 {
 public:
-    enum NetworkLayerProtocol {
-        IPv4Protocol = 0x1,
-        IPv6Protocol = 0x2,
-        AnyIPProcol = IPv4Protocol | IPv6Protocol
-    };
-    Q_DECLARE_FLAGS(ProtocolFlags, NetworkLayerProtocol)
-
-    TcpPortsGatherer(ProtocolFlags flags);
+    TcpPortsGatherer();
     ~TcpPortsGatherer();
 
-    void update();
+    void update(QAbstractSocket::NetworkLayerProtocol protocol);
 
-    PortList usedPorts() const;
-    quint16 getNextFreePort(PortList *port);
+    QList<int> usedPorts() const;
+    int getNextFreePort(PortList *port) const;
 
 private:
     Internal::TcpPortsGathererPrivate *d;

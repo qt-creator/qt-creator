@@ -30,6 +30,8 @@
 #include "tcpportsgatherer.h"
 #include "qtcassert.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QDebug>
 #include <QFile>
 #include <QProcess>
@@ -71,15 +73,15 @@ namespace Internal {
 class TcpPortsGathererPrivate
 {
 public:
-    TcpPortsGathererPrivate(TcpPortsGatherer::ProtocolFlags protocolFlags)
-        : protocolFlags(protocolFlags) {}
+    TcpPortsGathererPrivate()
+        : protocol(QAbstractSocket::UnknownNetworkLayerProtocol) {}
 
-    TcpPortsGatherer::ProtocolFlags protocolFlags;
-    PortList usedPorts;
+    QAbstractSocket::NetworkLayerProtocol protocol;
+    QSet<int> usedPorts;
 
-    void updateWin(TcpPortsGatherer::ProtocolFlags protocolFlags);
-    void updateLinux(TcpPortsGatherer::ProtocolFlags protocolFlags);
-    void updateNetstat(TcpPortsGatherer::ProtocolFlags protocolFlags);
+    void updateWin();
+    void updateLinux();
+    void updateNetstat();
 };
 
 #ifdef Q_OS_WIN
@@ -114,41 +116,51 @@ QSet<int> usedTcpPorts(ULONG (__stdcall *Func)(Table*, PULONG, BOOL))
 }
 #endif
 
-void TcpPortsGathererPrivate::updateWin(TcpPortsGatherer::ProtocolFlags protocolFlags)
+void TcpPortsGathererPrivate::updateWin()
 {
 #ifdef Q_OS_WIN
     QSet<int> ports;
 
-    if (protocolFlags & TcpPortsGatherer::IPv4Protocol)
+    if (protocol == QAbstractSocket::IPv4Protocol) {
         ports.unite(usedTcpPorts<MIB_TCPTABLE>(GetTcpTable));
+    } else {
+        //Dynamically load symbol for GetTcp6Table for systems that dont have support for IPV6,
+        //eg Windows XP
+        typedef ULONG (__stdcall *GetTcp6TablePtr)(PMIB_TCP6TABLE, PULONG, BOOL);
+        static GetTcp6TablePtr getTcp6TablePtr = 0;
 
-    //Dynamically load symbol for GetTcp6Table for systems that dont have support for IPV6,
-    //eg Windows XP
-    typedef ULONG (__stdcall *GetTcp6TablePtr)(PMIB_TCP6TABLE, PULONG, BOOL);
-    static GetTcp6TablePtr getTcp6TablePtr = 0;
+        if (!getTcp6TablePtr)
+            getTcp6TablePtr = (GetTcp6TablePtr)QLibrary::resolve(QLatin1String("Iphlpapi.dll"),
+                                                                 "GetTcp6Table");
 
-    if (!getTcp6TablePtr)
-        getTcp6TablePtr = (GetTcp6TablePtr)QLibrary::resolve(QLatin1String("Iphlpapi.dll"),
-                                                             "GetTcp6Table");
-
-    if (getTcp6TablePtr && (protocolFlags & TcpPortsGatherer::IPv6Protocol))
-        ports.unite(usedTcpPorts<MIB_TCP6TABLE>(getTcp6TablePtr));
+        if (getTcp6TablePtr && (protocol == QAbstractSocket::IPv6Protocol)) {
+            ports.unite(usedTcpPorts<MIB_TCP6TABLE>(getTcp6TablePtr));
+        } else if (protocol == QAbstractSocket::UnknownNetworkLayerProtocol) {
+            ports.unite(usedTcpPorts<MIB_TCPTABLE>(GetTcpTable));
+            if (getTcp6TablePtr)
+                ports.unite(usedTcpPorts<MIB_TCP6TABLE>(getTcp6TablePtr));
+        }
+    }
 
     foreach (int port, ports) {
         if (!usedPorts.contains(port))
             usedPorts.addPort(port);
     }
 #endif
-    Q_UNUSED(protocolFlags);
+    Q_UNUSED(protocol);
 }
 
-void TcpPortsGathererPrivate::updateLinux(TcpPortsGatherer::ProtocolFlags protocolFlags)
+void TcpPortsGathererPrivate::updateLinux()
 {
     QStringList filePaths;
-    if (protocolFlags & TcpPortsGatherer::IPv4Protocol)
-        filePaths.append(QLatin1String("/proc/net/tcp"));
-    if (protocolFlags & TcpPortsGatherer::IPv6Protocol)
-        filePaths.append(QLatin1String("/proc/net/tcp6"));
+    const QString tcpFile = QLatin1String("/proc/net/tcp");
+    const QString tcp6File = QLatin1String("/proc/net/tcp6");
+    if (protocol == QAbstractSocket::IPv4Protocol)
+        filePaths << tcpFile;
+    else if (protocol == QAbstractSocket::IPv6Protocol)
+        filePaths << tcp6File;
+    else
+        filePaths << tcpFile << tcp6File;
 
     foreach (const QString &filePath, filePaths) {
         QFile file(filePath);
@@ -172,8 +184,7 @@ void TcpPortsGathererPrivate::updateLinux(TcpPortsGatherer::ProtocolFlags protoc
                 bool isNumber;
                 quint16 port = pattern.cap(1).toUShort(&isNumber, 16);
                 QTC_ASSERT(isNumber, continue);
-                if (!usedPorts.contains(port))
-                    usedPorts.addPort(port);
+                usedPorts.insert(port);
             } else {
                 qWarning() << "TcpPortsGatherer: File" << filePath << "has unexpected format.";
                 continue;
@@ -183,7 +194,7 @@ void TcpPortsGathererPrivate::updateLinux(TcpPortsGatherer::ProtocolFlags protoc
 }
 
 // Only works with FreeBSD version of netstat like we have on Mac OS X
-void TcpPortsGathererPrivate::updateNetstat(TcpPortsGatherer::ProtocolFlags protocolFlags)
+void TcpPortsGathererPrivate::updateNetstat()
 {
     QStringList netstatArgs;
 
@@ -191,9 +202,9 @@ void TcpPortsGathererPrivate::updateNetstat(TcpPortsGatherer::ProtocolFlags prot
     netstatArgs.append(QLatin1String("-n"));     // show network addresses as numbers
     netstatArgs.append(QLatin1String("-p"));
     netstatArgs.append(QLatin1String("tcp"));
-    if (protocolFlags != TcpPortsGatherer::AnyIPProcol) {
+    if (protocol != QAbstractSocket::UnknownNetworkLayerProtocol) {
         netstatArgs.append(QLatin1String("-f")); // limit to address family
-        if (protocolFlags == TcpPortsGatherer::IPv4Protocol)
+        if (protocol == QAbstractSocket::IPv4Protocol)
             netstatArgs.append(QLatin1String("inet"));
         else
             netstatArgs.append(QLatin1String("inet6"));
@@ -227,8 +238,7 @@ void TcpPortsGathererPrivate::updateNetstat(TcpPortsGatherer::ProtocolFlags prot
             if (!isNumber)
                 continue;
 
-            if (!usedPorts.contains(port))
-                usedPorts.addPort(port);
+            usedPorts.insert(port);
         }
     }
 }
@@ -245,10 +255,9 @@ void TcpPortsGathererPrivate::updateNetstat(TcpPortsGatherer::ProtocolFlags prot
   to select a port for use in a range.
 */
 
-TcpPortsGatherer::TcpPortsGatherer(TcpPortsGatherer::ProtocolFlags protocolFlags)
-    : d(new Internal::TcpPortsGathererPrivate(protocolFlags))
+TcpPortsGatherer::TcpPortsGatherer()
+    : d(new Internal::TcpPortsGathererPrivate())
 {
-    update();
 }
 
 TcpPortsGatherer::~TcpPortsGatherer()
@@ -256,38 +265,38 @@ TcpPortsGatherer::~TcpPortsGatherer()
     delete d;
 }
 
-void TcpPortsGatherer::update()
+void TcpPortsGatherer::update(QAbstractSocket::NetworkLayerProtocol protocol)
 {
-    d->usedPorts = PortList();
+    d->protocol = protocol;
+    d->usedPorts.clear();
 
-#if defined(Q_OS_WIN)
-    d->updateWin(d->protocolFlags);
-#elif defined(Q_OS_LINUX)
-    d->updateLinux(d->protocolFlags);
-#else
-    d->updateNetstat(d->protocolFlags);
-#endif
+    if (Utils::HostOsInfo::isWindowsHost())
+        d->updateWin();
+    else if (Utils::HostOsInfo::isLinuxHost())
+        d->updateLinux();
+    else
+        d->updateNetstat();
 }
 
-PortList TcpPortsGatherer::usedPorts() const
+QList<int> TcpPortsGatherer::usedPorts() const
 {
-    return d->usedPorts;
+    return d->usedPorts.values();
 }
 
 /*!
   Select a port out of \a freePorts that is not yet used.
 
-  Returns the port, or 0 if no free port is available.
+  Returns the port, or -1 if no free port is available.
   */
-quint16 TcpPortsGatherer::getNextFreePort(PortList *freePorts)
+int TcpPortsGatherer::getNextFreePort(PortList *freePorts) const
 {
-    QTC_ASSERT(freePorts, return 0);
+    QTC_ASSERT(freePorts, return -1);
     while (freePorts->hasMore()) {
         const int port = freePorts->getNext();
         if (!d->usedPorts.contains(port))
             return port;
     }
-    return 0;
+    return -1;
 }
 
 } // namespace Utils
