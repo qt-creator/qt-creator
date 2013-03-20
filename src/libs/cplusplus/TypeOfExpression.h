@@ -142,6 +142,11 @@ private:
     mutable QSharedPointer<Environment> m_environment;
 
     bool m_expandTemplates;
+
+    // FIXME: This is a temporary hack to avoid dangling pointers.
+    // Keep the expression documents and thus all the symbols and
+    // their types alive until they are not needed any more.
+    QList<Document::Ptr> m_documents;
 };
 
 ExpressionAST CPLUSPLUS_EXPORT *extractExpressionAST(Document::Ptr doc);
