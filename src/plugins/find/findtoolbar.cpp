@@ -285,6 +285,14 @@ void FindToolBar::installEventFilters()
     }
 }
 
+bool FindToolBar::shouldSetFocusOnKeyEvent(QKeyEvent *event)
+{
+    return event->key() == Qt::Key_Escape && !event->modifiers()
+            && !m_findCompleter->popup()->isVisible()
+            && !m_replaceCompleter->popup()->isVisible()
+            && m_currentDocumentFind->isEnabled();
+}
+
 bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::KeyPress) {
@@ -315,13 +323,9 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
         }
     } else if (obj == this && event->type() == QEvent::ShortcutOverride) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
-        if (ke->key() == Qt::Key_Escape && !ke->modifiers()
-                && !m_findCompleter->popup()->isVisible()
-                && !m_replaceCompleter->popup()->isVisible()) {
-            if (setFocusToCurrentFindSupport()) {
-                event->accept();
-                return true;
-            }
+        if (shouldSetFocusOnKeyEvent(ke)) {
+            event->accept();
+            return true;
         } else if (ke->key() == Qt::Key_Space && (ke->modifiers() & Utils::HostOsInfo::controlModifier())) {
             event->accept();
             return true;
@@ -332,6 +336,16 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
             m_currentDocumentFind->clearFindScope();
     }
     return Utils::StyledBar::eventFilter(obj, event);
+}
+
+void FindToolBar::keyPressEvent(QKeyEvent *event)
+{
+    if (shouldSetFocusOnKeyEvent(event)) {
+        if (setFocusToCurrentFindSupport())
+            event->accept();
+        return;
+    }
+    return Utils::StyledBar::keyPressEvent(event);
 }
 
 void FindToolBar::adaptToCandidate()
