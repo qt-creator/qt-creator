@@ -73,7 +73,7 @@ public:
 
     void updateMoveManipulator();
 
-    void beginWithPoint(const QPointF &beginPoint) QTC_OVERRIDE;
+    void beginWithPoint(const QPointF &beginPoint);
 
     void clear() QTC_OVERRIDE;
 
