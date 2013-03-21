@@ -460,7 +460,6 @@ void tst_Dumpers::initTestCase()
 
         const QByteArray cdbextPath = QByteArray(CDBEXT_PATH) + QByteArray("\\qtcreatorcdbext64");
         QVERIFY(QFile::exists(QString::fromLatin1(cdbextPath + QByteArray("\\qtcreatorcdbext.dll"))));
-        qDebug() << cdbextPath;
         utilsEnv.appendOrSet(QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"),
                              QString::fromLatin1(cdbextPath),
                              QLatin1String(";"));
@@ -644,8 +643,15 @@ void tst_Dumpers::dumper()
                "sxi 0x4000001f\n"
                "g\n"
                "gu\n"
-               "!qtcreatorcdbext.locals -t 2 -D -e " + expanded + ",return,watch,inspect -v -c -W 0\n"
-               "q\n";
+               "!qtcreatorcdbext.expandlocals -t 0 -c 0 " + expanded + "\n";
+        int token = 0;
+        QStringList sortediNames;
+        foreach (QByteArray iName, expandedINames)
+            sortediNames << QString::fromLatin1(iName);
+        sortediNames.sort();
+        foreach (QString iName, sortediNames)
+            cmds += "!qtcreatorcdbext.locals -t " + QByteArray::number(++token) + " -c 0 " + iName.toLatin1() + "\n";
+        cmds += "q\n";
     } else if (m_debuggerEngine == LldbEngine) {
         cmds = "script execfile('" + dumperDir + "/bridge.py')\n"
                "script execfile('" + dumperDir + "/dumper.py')\n"
@@ -705,16 +711,20 @@ void tst_Dumpers::dumper()
         int pos1 = output.indexOf(locals);
         QVERIFY(pos1 != -1);
         do {
+            pos1 += locals.length();
+            if (output.at(pos1) == '[')
+                ++pos1;
             int pos2 = output.indexOf("\n", pos1);
             QVERIFY(pos2 != -1);
-            pos1 += locals.length();
+            if (output.at(pos2 - 1) == ']')
+                --pos2;
             contents += output.mid(pos1, pos2 - pos1);
             pos1 = output.indexOf(locals, pos2);
         } while (pos1 != -1);
     }
 
     GdbMi actual;
-    actual.fromString(contents);
+    actual.fromStringMultiple(contents);
     WatchData local;
     local.iname = "local";
 
