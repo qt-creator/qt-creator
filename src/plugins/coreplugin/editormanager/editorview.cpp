@@ -455,6 +455,7 @@ void EditorView::goForwardInNavigationHistory()
 SplitterOrView::SplitterOrView(OpenEditorsModel *model)
 {
     Q_ASSERT(model);
+    Q_UNUSED(model); // For building in release mode.
     m_isRoot = true;
     m_layout = new QStackedLayout(this);
     m_view = new EditorView();

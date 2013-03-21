@@ -112,7 +112,10 @@ void SshAbstractCryptoFacility::convert(QByteArray &data, quint32 offset,
         dataSize);
     quint32 bytesRead = m_pipe->read(reinterpret_cast<byte *>(data.data()) + offset,
         dataSize, m_pipe->message_count() - 1); // Can't use Pipe::LAST_MESSAGE because of a VC bug.
-    Q_ASSERT(bytesRead == dataSize);
+    if (bytesRead != dataSize) {
+        throw SshClientException(SshInternalError,
+                QLatin1String("Internal error: Botan::Pipe::read() returned unexpected value"));
+    }
 }
 
 QByteArray SshAbstractCryptoFacility::generateMac(const QByteArray &data,

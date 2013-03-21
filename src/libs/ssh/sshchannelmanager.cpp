@@ -211,9 +211,16 @@ int SshChannelManager::channelCount() const
 
 void SshChannelManager::removeChannel(ChannelIterator it)
 {
-    Q_ASSERT(it != m_channels.end() && "Unexpected channel lookup failure.");
+    if (it == m_channels.end()) {
+        throw SshClientException(SshInternalError,
+                QLatin1String("Internal error: Unexpected channel lookup failure"));
+    }
     const int removeCount = m_sessions.remove(it.value());
-    Q_ASSERT(removeCount == 1 && "Session for channel not found.");
+    if (removeCount != 1) {
+        throw SshClientException(SshInternalError,
+                QString::fromLocal8Bit("Internal error: Unexpected session count %1 for channel.")
+                                 .arg(removeCount));
+    }
     m_channels.erase(it);
 }
 

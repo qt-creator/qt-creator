@@ -353,8 +353,7 @@ QList<MaemoMountSpecification> MaemoMountAndCopyFilesService::mountSpecification
 
 void MaemoMountAndCopyFilesService::doInstall()
 {
-    m_copyFacility->copyFiles(connection(), deviceConfiguration(), m_filesToCopy,
-        deployMountPoint());
+    m_copyFacility->copyFiles(deviceConfiguration(), m_filesToCopy, deployMountPoint());
 }
 
 void MaemoMountAndCopyFilesService::cancelInstallation()

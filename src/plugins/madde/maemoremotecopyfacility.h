@@ -51,8 +51,7 @@ public:
     explicit MaemoRemoteCopyFacility(QObject *parent = 0);
     ~MaemoRemoteCopyFacility();
 
-    void copyFiles(QSsh::SshConnection *connection,
-        const ProjectExplorer::IDevice::ConstPtr &device,
+    void copyFiles(const ProjectExplorer::IDevice::ConstPtr &device,
         const QList<ProjectExplorer::DeployableFile> &deployables, const QString &mountPoint);
     void cancel();
 

@@ -81,7 +81,7 @@ public:
         if (!version || version->type() != QLatin1String(QtSupport::Constants::DESKTOPQT))
             return false;
 
-        bool hasViewer;
+        bool hasViewer = false; // Initialization needed for dumb compilers.
         QtSupport::QtVersionNumber minVersion;
         switch (import) {
         case QmlProject::UnknownImport:
