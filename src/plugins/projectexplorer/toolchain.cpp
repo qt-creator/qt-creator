@@ -31,6 +31,7 @@
 
 #include "abi.h"
 #include "toolchainmanager.h"
+#include "task.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/environment.h>
@@ -188,6 +189,15 @@ bool ToolChain::fromMap(const QVariantMap &data)
     d->m_autodetect = data.value(QLatin1String(AUTODETECT_KEY), false).toBool();
 
     return true;
+}
+
+/*!
+    \brief Used by the toolchainkitinformation to validate the kit.
+*/
+
+QList<Task> ToolChain::validateKit(const Kit */*k*/) const
+{
+    return QList<Task>();
 }
 
 /*!

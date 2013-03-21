@@ -55,6 +55,8 @@ class IOutputParser;
 class ToolChainConfigWidget;
 class ToolChainFactory;
 class ToolChainManager;
+class Task;
+class Kit;
 
 // --------------------------------------------------------------------------
 // ToolChain (documentation inside)
@@ -104,7 +106,7 @@ public:
     // Used by the toolchainmanager to save user-generated tool chains.
     // Make sure to call this method when deriving!
     virtual QVariantMap toMap() const;
-
+    virtual QList<Task> validateKit(const Kit *k) const;
 protected:
     ToolChain(const QString &id, bool autoDetect);
     explicit ToolChain(const ToolChain &);

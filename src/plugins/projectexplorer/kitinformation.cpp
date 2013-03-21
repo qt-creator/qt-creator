@@ -162,9 +162,13 @@ QVariant ToolChainKitInformation::defaultValue(Kit *k) const
 QList<Task> ToolChainKitInformation::validate(const Kit *k) const
 {
     QList<Task> result;
-    if (!toolChain(k)) {
+
+    const ToolChain* toolchain = toolChain(k);
+    if (!toolchain) {
         result << Task(Task::Error, ToolChainKitInformation::msgNoToolChainInTarget(),
                        Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+    } else {
+        result << toolchain->validateKit(k);
     }
     return result;
 }
