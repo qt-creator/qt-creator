@@ -1777,7 +1777,7 @@ void DebuggerPluginPrivate::attachToQmlPort()
     Kit *kit = dlg.kit();
     QTC_ASSERT(kit && fillParameters(&sp, kit), return);
     setConfigValue(_("LastQmlServerPort"), dlg.port());
-    setConfigValue(_("LastProfile"), kit->id().toString());
+    setConfigValue(_("LastProfile"), kit->id().toSetting());
 
     sp.qmlServerAddress = sp.connParams.host;
     sp.qmlServerPort = dlg.port();
