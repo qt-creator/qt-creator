@@ -33,6 +33,7 @@
 #include "cpptools_global.h"
 
 #include <QString>
+#include <QObject>
 
 namespace CPlusPlus {
 class CppModelManagerInterface;
@@ -40,8 +41,9 @@ class CppModelManagerInterface;
 
 namespace CppTools {
 
-class CPPTOOLS_EXPORT AbstractEditorSupport
+class CPPTOOLS_EXPORT AbstractEditorSupport : public QObject
 {
+    Q_OBJECT
 public:
     explicit AbstractEditorSupport(CPlusPlus::CppModelManagerInterface *modelmanager);
     virtual ~AbstractEditorSupport();

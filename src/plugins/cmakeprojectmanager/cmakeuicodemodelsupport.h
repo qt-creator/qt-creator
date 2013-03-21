@@ -42,6 +42,7 @@ class CMakeProject;
 
 class CMakeUiCodeModelSupport : public CppTools::UiCodeModelSupport
 {
+    Q_OBJECT
 public:
     CMakeUiCodeModelSupport(CPlusPlus::CppModelManagerInterface *modelmanager,
                           CMakeProject *project,

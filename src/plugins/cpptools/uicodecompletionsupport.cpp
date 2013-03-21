@@ -44,11 +44,12 @@ UiCodeModelSupport::UiCodeModelSupport(CppModelManagerInterface *modelmanager,
     : AbstractEditorSupport(modelmanager),
       m_sourceName(source),
       m_fileName(uiHeaderFile),
-      m_initialized(false),
-      m_running(false)
+      m_state(BARE)
 {
     if (debug)
         qDebug()<<"ctor UiCodeModelSupport for"<<m_sourceName<<uiHeaderFile;
+    connect(&m_process, SIGNAL(finished(int)),
+            this, SLOT(finishProcess()));
 }
 
 UiCodeModelSupport::~UiCodeModelSupport()
@@ -59,7 +60,8 @@ UiCodeModelSupport::~UiCodeModelSupport()
 
 void UiCodeModelSupport::init() const
 {
-    m_initialized = true;
+    if (m_state != BARE)
+        return;
     QDateTime sourceTime = QFileInfo(m_sourceName).lastModified();
     QFileInfo uiHeaderFileInfo(m_fileName);
     QDateTime uiHeaderTime = uiHeaderFileInfo.exists() ? uiHeaderFileInfo.lastModified() : QDateTime();
@@ -71,6 +73,7 @@ void UiCodeModelSupport::init() const
             QTextStream stream(&file);
             m_contents = stream.readAll().toUtf8();
             m_cacheTime = uiHeaderTime;
+            m_state = FINISHED;
             return;
         }
     }
@@ -91,20 +94,25 @@ void UiCodeModelSupport::init() const
                 qDebug()<<"uic run wasn't succesfull";
             m_cacheTime = QDateTime ();
             m_contents = QByteArray();
+            m_state = FINISHED;
             return;
         }
     } else {
         if (debug)
             qDebug()<<"Could open "<<m_sourceName<<"needed for the cpp model";
         m_contents = QByteArray();
+        m_state = FINISHED;
     }
 }
 
 QByteArray UiCodeModelSupport::contents() const
 {
-    if (!m_initialized)
+    // Check the common case first
+    if (m_state == FINISHED)
+        return m_contents;
+    if (m_state == BARE)
         init();
-    if (m_running)
+    if (m_state == RUNNING)
         finishProcess();
 
     return m_contents;
@@ -120,13 +128,16 @@ void UiCodeModelSupport::setFileName(const QString &name)
     if (m_fileName == name && m_cacheTime.isValid())
         return;
 
+    if (m_state == RUNNING)
+        finishProcess();
+
     if (debug)
         qDebug() << "UiCodeModelSupport::setFileName"<<name;
 
     m_fileName = name;
     m_contents.clear();
     m_cacheTime = QDateTime();
-    init();
+    m_state = BARE;
 }
 
 bool UiCodeModelSupport::runUic(const QString &ui) const
@@ -145,19 +156,23 @@ bool UiCodeModelSupport::runUic(const QString &ui) const
     if (!m_process.waitForBytesWritten(3000))
         goto error;
     m_process.closeWriteChannel();
-    m_running = true;
+    m_state = RUNNING;
     return true;
 
 error:
     if (debug)
         qDebug() << "failed" << m_process.readAllStandardError();
     m_process.kill();
-    m_running = false;
+    m_state = FINISHED;
     return false;
 }
 
 void UiCodeModelSupport::updateFromEditor(const QString &formEditorContents)
 {
+    if (m_state == BARE)
+        init();
+    if (m_state == RUNNING)
+        finishProcess();
     if (runUic(formEditorContents))
         if (finishProcess())
             updateDocument();
@@ -165,23 +180,29 @@ void UiCodeModelSupport::updateFromEditor(const QString &formEditorContents)
 
 bool UiCodeModelSupport::finishProcess() const
 {
-    if (!m_running)
+    if (m_state != RUNNING)
         return false;
     if (!m_process.waitForFinished(3000)
             && m_process.exitStatus() != QProcess::NormalExit
             && m_process.exitCode() != 0) {
+        if (m_state != RUNNING) // waitForFinished can recurse into finishProcess
+            return false;
+
         if (debug)
             qDebug() << "failed" << m_process.readAllStandardError();
         m_process.kill();
-        m_running = false;
+        m_state = FINISHED;
         return false;
     }
+
+    if (m_state != RUNNING) // waitForFinished can recurse into finishProcess
+        return true;
 
     m_contents = m_process.readAllStandardOutput();
     m_cacheTime = QDateTime::currentDateTime();
     if (debug)
         qDebug() << "ok" << m_contents.size() << "bytes.";
-    m_running = false;
+    m_state = FINISHED;
     return true;
 }
 
@@ -189,6 +210,10 @@ void UiCodeModelSupport::updateFromBuild()
 {
     if (debug)
         qDebug()<<"UiCodeModelSupport::updateFromBuild() for file"<<m_sourceName;
+    if (m_state == BARE)
+        init();
+    if (m_state == RUNNING)
+        finishProcess();
     // This is mostly a fall back for the cases when uic couldn't be run
     // it pays special attention to the case where a ui_*h was newly created
     QDateTime sourceTime = QFileInfo(m_sourceName).lastModified();

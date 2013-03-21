@@ -42,6 +42,7 @@ namespace Internal {
 
 class Qt4UiCodeModelSupport : public CppTools::UiCodeModelSupport
 {
+    Q_OBJECT
 public:
     Qt4UiCodeModelSupport(CPlusPlus::CppModelManagerInterface *modelmanager,
                           Qt4Project *project,
