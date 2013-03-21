@@ -592,6 +592,11 @@ void Qt4Project::updateCppCodeModel()
             allFiles << file;
             part->files << ProjectFile(file, ProjectFile::ObjCSource);
         }
+        foreach (const QString &file, pro->variableValue(ObjCHeaderVar)) {
+            allFiles << file;
+            part->files << ProjectFile(file, ProjectFile::ObjCXXHeader);
+        }
+
         pinfo.appendProjectPart(part);
     }
 

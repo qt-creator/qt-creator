@@ -1920,6 +1920,8 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
                                                     QLatin1String("SOURCES"), m_projectDir, buildDirectory);
         newVarValues[ObjCSourceVar] = fileListForVar(m_readerExact, m_readerCumulative,
                                                      QLatin1String("OBJECTIVE_SOURCES"), m_projectDir, buildDirectory);
+        newVarValues[ObjCHeaderVar] = fileListForVar(m_readerExact, m_readerCumulative,
+                                                     QLatin1String("OBJECTIVE_HEADERS"), m_projectDir, buildDirectory);
         newVarValues[UiDirVar] = QStringList() << uiDirPath(m_readerExact);
         newVarValues[MocDirVar] = QStringList() << mocDirPath(m_readerExact);
         newVarValues[PkgConfigVar] = m_readerExact->values(QLatin1String("PKGCONFIG"));
