@@ -74,6 +74,7 @@ public:
     QCheckBox *checkBoxAdjustBreakpointLocations;
     QCheckBox *checkBoxUseDynamicType;
     QCheckBox *checkBoxLoadGdbInit;
+    QCheckBox *checkBoxLoadGdbDumpers;
     QCheckBox *checkBoxIntelFlavor;
 
     QGroupBox *groupBoxStartupCommands;
@@ -155,6 +156,13 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "Allows or inhibits reading the user's default\n"
         ".gdbinit file on debugger startup."));
 
+    checkBoxLoadGdbDumpers = new QCheckBox(groupBoxGeneral);
+    checkBoxLoadGdbDumpers->setText(GdbOptionsPage::tr("Load system gdb pretty printers"));
+    checkBoxLoadGdbDumpers->setToolTip(GdbOptionsPage::tr(
+        "Allows or inhibits using the default gdb pretty printers "
+        "installed in your system or linked to the libraries your "
+        "application uses.\n"));
+
     checkBoxIntelFlavor = new QCheckBox(groupBoxGeneral);
     checkBoxIntelFlavor->setText(GdbOptionsPage::tr("Use Intel style disassembly"));
     checkBoxIntelFlavor->setToolTip(GdbOptionsPage::tr(
@@ -226,6 +234,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     formLayout->addRow(checkBoxAdjustBreakpointLocations);
     formLayout->addRow(checkBoxUseDynamicType);
     formLayout->addRow(checkBoxLoadGdbInit);
+    formLayout->addRow(checkBoxLoadGdbDumpers);
     formLayout->addRow(checkBoxIntelFlavor);
 
     QGridLayout *startLayout = new QGridLayout(groupBoxStartupCommands);
@@ -256,6 +265,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     group.insert(dc->action(GdbStartupCommands), textEditStartupCommands);
     group.insert(dc->action(GdbPostAttachCommands), textEditPostAttachCommands);
     group.insert(dc->action(LoadGdbInit), checkBoxLoadGdbInit);
+    group.insert(dc->action(LoadGdbDumpers), checkBoxLoadGdbDumpers);
     group.insert(dc->action(UseDynamicType), checkBoxUseDynamicType);
     group.insert(dc->action(AdjustBreakpointLocations), checkBoxAdjustBreakpointLocations);
     group.insert(dc->action(GdbWatchdogTimeout), spinBoxGdbWatchdogTimeout);
@@ -272,6 +282,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     QTextStream(&searchKeywords)
             << sep << groupBoxGeneral->title()
             << sep << checkBoxLoadGdbInit->text()
+            << sep << checkBoxLoadGdbDumpers->text()
             << sep << checkBoxUseDynamicType->text()
             << sep << labelGdbWatchdogTimeout->text()
             << sep << checkBoxSkipKnownFrames->text()

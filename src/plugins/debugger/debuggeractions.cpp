@@ -358,6 +358,14 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     insertItem(LoadGdbInit, item);
 
     item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("LoadGdbDumpers"));
+    item->setDefaultValue(QString());
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    item->setValue(true);
+    insertItem(LoadGdbDumpers, item);
+
+    item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("AutoEnrichParameters"));
     item->setDefaultValue(QString());
     item->setCheckable(true);

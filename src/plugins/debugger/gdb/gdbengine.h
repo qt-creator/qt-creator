@@ -708,6 +708,7 @@ protected:
     // debug information.
     bool attemptQuickStart() const;
     bool m_fullStartDone;
+    bool m_systemDumpersLoaded;
     bool m_pythonAttemptedToLoad;
 
     // Test

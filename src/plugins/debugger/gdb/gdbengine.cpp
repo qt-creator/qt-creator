@@ -262,6 +262,7 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
     m_disassembleUsesComma = false;
     m_terminalTrap = startParameters.useTerminal;
     m_fullStartDone = false;
+    m_systemDumpersLoaded = false;
     m_forceAsyncModel = false;
     m_pythonAttemptedToLoad = false;
 
@@ -1605,6 +1606,12 @@ void GdbEngine::handleStop1(const GdbMi &data)
         m_resultVarName = resultVar.data();
     else
         m_resultVarName.clear();
+
+    if (!m_systemDumpersLoaded) {
+        m_systemDumpersLoaded = true;
+        if (debuggerCore()->boolSetting(LoadGdbDumpers))
+            postCommand("importPlainDumpers");
+    }
 
     bool initHelpers = m_debuggingHelperState == DebuggingHelperUninitialized
                        || m_debuggingHelperState == DebuggingHelperLoadTried;

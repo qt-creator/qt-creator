@@ -117,6 +117,7 @@ enum DebuggerActionCode
 
     // Gdb
     LoadGdbInit,
+    LoadGdbDumpers,
     AttemptQuickStart,
     GdbStartupCommands,
     GdbPostAttachCommands,
