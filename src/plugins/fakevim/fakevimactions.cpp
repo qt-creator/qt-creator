@@ -167,7 +167,7 @@ FakeVimSettings *theFakeVimSettings()
     s = new FakeVimSettings;
 
     // Specific FakeVim settings
-    createAction(s, ConfigUseFakeVim, true,      _("UseFakeVim"));
+    createAction(s, ConfigUseFakeVim, false,     _("UseFakeVim"));
     createAction(s, ConfigReadVimRc,  false,     _("ReadVimRc"));
     createAction(s, ConfigVimRcPath,  QString(), _("VimRcPath"));
 #ifndef FAKEVIM_STANDALONE
