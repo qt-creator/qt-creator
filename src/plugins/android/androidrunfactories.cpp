@@ -52,16 +52,11 @@ using namespace Qt4ProjectManager;
 namespace Android {
 namespace Internal {
 
-#define ANDROID_PREFIX "Qt4ProjectManager.AndroidRunConfiguration"
-static const char ANDROID_RC_ID_PREFIX[] = ANDROID_PREFIX ":";
+static const char ANDROID_RC_ID_PREFIX[] = "Qt4ProjectManager.AndroidRunConfiguration:";
 
 static QString pathFromId(const Core::Id id)
 {
-    QString pathStr = id.toString();
-    const QString prefix = QLatin1String(ANDROID_RC_ID_PREFIX);
-    if (!pathStr.startsWith(prefix))
-        return QString();
-    return pathStr.mid(prefix.size());
+    return id.suffixAfter(ANDROID_RC_ID_PREFIX);
 }
 
 AndroidRunConfigurationFactory::AndroidRunConfigurationFactory(QObject *parent)
@@ -81,8 +76,7 @@ bool AndroidRunConfigurationFactory::canRestore(Target *parent, const QVariantMa
 {
     if (!canHandle(parent))
         return false;
-    QString id = ProjectExplorer::idFromMap(map).toString();
-    return id.startsWith(QLatin1String(ANDROID_RC_ID_PREFIX));
+    return ProjectExplorer::idFromMap(map).name().startsWith(ANDROID_RC_ID_PREFIX);
 }
 
 bool AndroidRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
