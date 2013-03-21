@@ -36,7 +36,7 @@
 #include "debuggerdialogs.h"
 #include "memoryagent.h"
 
-#include <utils/qtcassert.h>
+
 #include <utils/savedaction.h>
 
 #include <QDebug>
@@ -44,7 +44,6 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QContextMenuEvent>
-#include <QHeaderView>
 #include <QInputDialog>
 #include <QMenu>
 

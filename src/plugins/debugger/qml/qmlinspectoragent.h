@@ -30,12 +30,10 @@
 #ifndef QMLINSPECTORAGENT_H
 #define QMLINSPECTORAGENT_H
 
-#include <QObject>
 #include <QStack>
 #include <QTimer>
 
 #include <qmldebug/baseenginedebugclient.h>
-#include <watchdata.h>
 
 namespace Debugger {
 

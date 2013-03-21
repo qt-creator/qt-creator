@@ -35,7 +35,6 @@
 #include <ssh/sshconnection.h>
 #include <ssh/sshremoteprocess.h>
 
-#include <QByteArray>
 #include <QQueue>
 
 namespace Debugger {

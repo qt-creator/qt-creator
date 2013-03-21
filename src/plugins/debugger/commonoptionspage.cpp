@@ -32,16 +32,12 @@
 #include "debuggeractions.h"
 #include "debuggerinternalconstants.h"
 #include "debuggercore.h"
-#include "debuggerstringutils.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/manhattanstyle.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-#include <projectexplorer/projectexplorer.h>
-
-#include <QLabel>
+#include <QSpinBox>
 #include <QTextStream>
 
 using namespace Core;

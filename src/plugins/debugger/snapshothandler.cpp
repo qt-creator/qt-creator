@@ -29,18 +29,14 @@
 
 #include "snapshothandler.h"
 
-#include "debuggerconstants.h"
 #include "debuggerinternalconstants.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
-#include "debuggerrunner.h"
 #include "debuggerstartparameters.h"
 
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QFile>
-#include <QIcon>
 
 namespace Debugger {
 namespace Internal {

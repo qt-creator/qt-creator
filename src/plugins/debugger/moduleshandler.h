@@ -32,9 +32,6 @@
 
 #include <utils/elfreader.h>
 
-#include <QObject>
-#include <QVector>
-
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
 class QSortFilterProxyModel;

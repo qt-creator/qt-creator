@@ -30,8 +30,6 @@
 #ifndef DEBUGGER_BREAKPOINT_H
 #define DEBUGGER_BREAKPOINT_H
 
-#include <QDebug>
-#include <QList>
 #include <QMetaType>
 #include <QString>
 

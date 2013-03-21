@@ -36,27 +36,17 @@
 #include "debuggerstartparameters.h"
 #include "debuggerstringutils.h"
 #include "disassemblerlines.h"
-#include "stackframe.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 
-#include <projectexplorer/abi.h>
-
 #include <texteditor/basetextdocument.h>
-#include <texteditor/basetexteditor.h>
-#include <texteditor/basetextmark.h>
 #include <texteditor/plaintexteditor.h>
-#include <texteditor/texteditorconstants.h>
 
 #include <utils/qtcassert.h>
 
 #include <QTextBlock>
-#include <QIcon>
-#include <QPointer>
-#include <QPair>
 #include <QDir>
 
 using namespace Core;

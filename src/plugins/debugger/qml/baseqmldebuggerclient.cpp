@@ -28,9 +28,7 @@
 ****************************************************************************/
 
 #include "baseqmldebuggerclient.h"
-#include "breakpoint.h"
 
-#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
 namespace Debugger {

@@ -32,26 +32,15 @@
 
 #include "debuggerengine.h"
 
-#include "stackframe.h"
 #include "watchhandler.h"
 #include "watchutils.h"
-#include "threaddata.h"
 
 #include <coreplugin/id.h>
 
-#include <QByteArray>
 #include <QProcess>
-#include <QHash>
-#include <QMap>
-#include <QMultiMap>
-#include <QObject>
-#include <QPoint>
-#include <QSet>
 #include <QTextCodec>
 #include <QTime>
 #include <QTimer>
-#include <QVariant>
-
 
 namespace Debugger {
 namespace Internal {

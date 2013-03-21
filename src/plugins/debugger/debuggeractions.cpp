@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "debuggeractions.h"
-#include "debuggerconstants.h"
 
 #ifdef Q_OS_WIN
 #include "registerpostmortemaction.h"
@@ -36,10 +35,8 @@
 
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>
-#include <utils/pathchooser.h>
 
 #include <QDebug>
-#include <QVariant>
 #include <QSettings>
 
 using namespace Utils;

@@ -30,9 +30,9 @@
 #ifndef STARTGDBSERVERDIALOG_H
 #define STARTGDBSERVERDIALOG_H
 
-#include "debugger_global.h"
-#include <projectexplorer/kit.h>
-#include <projectexplorer/devicesupport/deviceprocessesdialog.h>
+#include <QObject>
+
+namespace ProjectExplorer { class DeviceProcessesDialog; }
 
 namespace Debugger {
 namespace Internal {

@@ -29,21 +29,15 @@
 
 #include "qmlcppengine.h"
 #include "debuggerruncontrolfactory.h"
-#include "debuggercore.h"
 #include "debuggerstartparameters.h"
 #include "stackhandler.h"
 #include "qmlengine.h"
-#include "watchdata.h"
 #include "watchhandler.h"
 
-#include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
-#include <texteditor/itexteditor.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <qmljs/consolemanagerinterface.h>
-
-#include <QTimer>
 
 namespace Debugger {
 namespace Internal {

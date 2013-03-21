@@ -33,10 +33,6 @@
 #include <qmljs/parser/qmljslexer_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
 
-#include <QVector>
-#include <QString>
-#include <QList>
-
 namespace Debugger {
 namespace Internal {
 

@@ -29,9 +29,7 @@
 
 #include "threadswindow.h"
 
-#include "threadshandler.h"
 #include "debuggeractions.h"
-#include "debuggerconstants.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 
@@ -39,7 +37,6 @@
 
 #include <QDebug>
 #include <QContextMenuEvent>
-#include <QHeaderView>
 #include <QMenu>
 
 namespace Debugger {

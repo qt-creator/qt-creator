@@ -32,7 +32,6 @@
 #include "debuggerprotocol.h"
 #include "debuggerstringutils.h"
 #include "debuggerstartparameters.h"
-#include "procinterrupt.h"
 
 #include <utils/qtcassert.h>
 

@@ -31,17 +31,12 @@
 #define DEBUGGER_CDBENGINE_H
 
 #include "debuggerengine.h"
-#include "breakpoint.h"
-#include "threaddata.h"
 
 #include <QSharedPointer>
 #include <QProcess>
-#include <QVariantList>
 #include <QMap>
-#include <QMultiHash>
+#include <QVariant>
 #include <QTime>
-#include <QPair>
-#include <QList>
 
 namespace Utils {
 class ConsoleProcess;

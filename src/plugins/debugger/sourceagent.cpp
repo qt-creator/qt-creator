@@ -29,40 +29,21 @@
 
 #include "sourceagent.h"
 
-#include "breakhandler.h"
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
 #include "debuggercore.h"
-#include "debuggerstringutils.h"
-#include "stackframe.h"
 #include "stackhandler.h"
 
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/icore.h>
-
-#include <texteditor/basetextdocument.h>
 #include <texteditor/basetexteditor.h>
-#include <texteditor/basetextmark.h>
-#include <texteditor/plaintexteditor.h>
-#include <texteditor/texteditorconstants.h>
 
 #include <cppeditor/cppeditorconstants.h>
 
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QMetaObject>
-#include <QTimer>
-#include <QPointer>
 #include <QFileInfo>
 
-#include <QMessageBox>
-#include <QPlainTextEdit>
 #include <QTextBlock>
-#include <QTextCursor>
-#include <QIcon>
 
 #include <limits.h>
 

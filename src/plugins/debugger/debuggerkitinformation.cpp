@@ -33,14 +33,12 @@
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
-#include <QPair>
 
 using namespace ProjectExplorer;
 using namespace Utils;

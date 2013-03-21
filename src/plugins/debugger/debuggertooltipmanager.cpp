@@ -29,19 +29,13 @@
 
 #include "debuggertooltipmanager.h"
 #include "debuggerinternalconstants.h"
-#include "watchutils.h"
 #include "debuggerengine.h"
 #include "debuggeractions.h"
-#include "watchhandler.h"
 #include "stackhandler.h"
 #include "debuggercore.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/imode.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 
 #include <utils/tooltip/tooltip.h>
@@ -51,25 +45,16 @@
 #include <QToolButton>
 #include <QToolBar>
 #include <QVBoxLayout>
-#include <QStyle>
-#include <QIcon>
 #include <QApplication>
-#include <QMoveEvent>
 #include <QDesktopWidget>
 #include <QScrollBar>
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
-#include <QStandardItem>
-#include <QPlainTextEdit>
-#include <QTextCursor>
-#include <QTextDocument>
 #include <QLabel>
 #include <QClipboard>
 
-#include <QVariant>
 #include <QStack>
 #include <QDebug>
-#include <QTimer>
 
 using namespace Core;
 using namespace TextEditor;

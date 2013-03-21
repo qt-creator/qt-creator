@@ -30,16 +30,12 @@
 #include "cdbengine.h"
 
 #include "breakhandler.h"
-#include "breakpoint.h"
 #include "bytearrayinputstream.h"
-#include "cdboptions.h"
 #include "cdboptionspage.h"
 #include "cdbparsehelpers.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
-#include "debuggerinternalconstants.h"
 #include "debuggerprotocol.h"
-#include "debuggerrunner.h"
 #include "debuggerstartparameters.h"
 #include "debuggertooltipmanager.h"
 #include "disassembleragent.h"
@@ -47,23 +43,15 @@
 #include "memoryagent.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
-#include "stackframe.h"
 #include "stackhandler.h"
 #include "threadshandler.h"
 #include "watchhandler.h"
-#include "watchutils.h"
 #include "shared/cdbsymbolpathlisteditor.h"
 #include "shared/hostutils.h"
 #include "procinterrupt.h"
 #include "sourceutils.h"
 
-#include <TranslationUnit.h>
-
 #include <coreplugin/icore.h>
-#include <texteditor/itexteditor.h>
-#include <projectexplorer/abi.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
 
 #include <utils/synchronousprocess.h>
@@ -76,17 +64,9 @@
 #include <utils/hostosinfo.h>
 
 #include <cplusplus/findcdbbreakpoint.h>
-#include <cplusplus/CppDocument.h>
 #include <cpptools/ModelManagerInterface.h>
 
-#include <QCoreApplication>
-#include <QFileInfo>
 #include <QDir>
-#include <QDebug>
-#include <QTextStream>
-#include <QDateTime>
-#include <QToolTip>
-#include <QMainWindow>
 #include <QMessageBox>
 
 #include <cctype>

@@ -35,8 +35,6 @@
 #include "debuggerstartparameters.h"
 #include "debuggerstringutils.h"
 
-#include <projectexplorer/abi.h>
-#include <utils/fancymainwindow.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>

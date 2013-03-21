@@ -29,20 +29,16 @@
 
 #include "cdbparsehelpers.h"
 
-#include "breakpoint.h"
 #include "bytearrayinputstream.h"
 #include "debuggerprotocol.h"
 #include "disassemblerlines.h"
-#include "registerhandler.h"
 #include "shared/hostutils.h"
-#include "threadshandler.h"
+#include "threaddata.h"
 
 #include <utils/qtcassert.h>
 
-#include <QByteArray>
-#include <QVariant>
-#include <QString>
 #include <QDir>
+#include <QTextStream>
 #include <QDebug>
 
 #include <cctype>

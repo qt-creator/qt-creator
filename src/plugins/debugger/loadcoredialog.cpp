@@ -29,50 +29,29 @@
 
 #include "loadcoredialog.h"
 
-#include "debuggerconstants.h"
-#include "debuggercore.h"
 #include "debuggerstartparameters.h"
 #include "debuggerdialogs.h"
 
-#include <coreplugin/icore.h>
-#include <projectexplorer/abi.h>
-#include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitinformation.h>
-#include <ssh/sshconnection.h>
-#include <ssh/sshremoteprocessrunner.h>
-#include <ssh/sftpdefs.h>
 #include <ssh/sftpfilesystemmodel.h>
-#include <utils/historycompleter.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
 #include <QCheckBox>
-#include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
 #include <QRegExp>
 #include <QTemporaryFile>
 
-#include <QButtonGroup>
-#include <QComboBox>
 #include <QDialogButtonBox>
-#include <QFileDialog>
 #include <QFormLayout>
-#include <QGridLayout>
-#include <QGroupBox>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
-#include <QMessageBox>
 #include <QPushButton>
-#include <QRadioButton>
-#include <QScrollArea>
 #include <QSortFilterProxyModel>
-#include <QStandardItemModel>
-#include <QTableView>
 #include <QTextBrowser>
 #include <QTreeView>
-#include <QVBoxLayout>
 
 using namespace Core;
 using namespace ProjectExplorer;

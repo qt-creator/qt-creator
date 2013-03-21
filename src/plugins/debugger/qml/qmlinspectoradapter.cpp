@@ -38,7 +38,6 @@
 #include "qmllivetextpreview.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <qmldebug/declarativeenginedebugclient.h>
 #include <qmldebug/declarativeenginedebugclientv2.h>

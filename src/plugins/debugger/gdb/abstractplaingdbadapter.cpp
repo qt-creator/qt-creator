@@ -35,10 +35,6 @@
 #include "debuggerstartparameters.h"
 #include "debuggerstringutils.h"
 
-#include <QDir>
-#include <QFile>
-#include <QTemporaryFile>
-
 #include <utils/qtcassert.h>
 
 namespace Debugger {

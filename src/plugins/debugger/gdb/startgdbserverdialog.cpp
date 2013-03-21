@@ -29,26 +29,19 @@
 
 #include "startgdbserverdialog.h"
 
-#include "debuggercore.h"
 #include "debuggermainwindow.h"
 #include "debuggerplugin.h"
 #include "debuggerkitinformation.h"
-#include "debuggerrunner.h"
 #include "debuggerruncontrolfactory.h"
 #include "debuggerstartparameters.h"
 
-#include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/kitchooser.h>
-#include <projectexplorer/devicesupport/deviceprocesslist.h>
+#include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
-#include <ssh/sshconnection.h>
 #include <ssh/sshremoteprocessrunner.h>
-#include <utils/pathchooser.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
-#include <QVariant>
 #include <QMessageBox>
 #include <QFileInfo>
 

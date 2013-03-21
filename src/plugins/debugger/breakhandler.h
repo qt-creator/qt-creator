@@ -32,10 +32,7 @@
 
 #include "breakpoint.h"
 
-#include <QObject>
 #include <QAbstractTableModel>
-
-#include <QIcon>
 
 //////////////////////////////////////////////////////////////////
 //

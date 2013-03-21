@@ -28,31 +28,20 @@
 ****************************************************************************/
 
 #include "debuggerkitconfigwidget.h"
-#include "debuggerkitinformation.h"
 
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/abi.h>
-#include <projectexplorer/kitinformation.h>
 
 #include <utils/pathchooser.h>
-#include <utils/qtcassert.h>
 #include <utils/elidinglabel.h>
 
 #ifdef Q_OS_WIN
 #include <utils/winutils.h>
 #endif
 
-#include <QUrl>
-
-#include <QDesktopServices>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
 #include <QFormLayout>
-#include <QLabel>
 #include <QComboBox>
-#include <QMenu>
-#include <QAction>
 #include <QPushButton>
 #include <QDialogButtonBox>
 

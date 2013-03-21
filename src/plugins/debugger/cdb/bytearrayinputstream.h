@@ -30,7 +30,6 @@
 #ifndef BYTEARRAYINPUTSTREAM_H
 #define BYTEARRAYINPUTSTREAM_H
 
-#include <QByteArray>
 #include <QString>
 
 namespace Debugger {

@@ -32,9 +32,6 @@
 
 #include "debuggerconstants.h"
 
-#include <QObject>
-#include <QStringList>
-
 #include <coreplugin/icontext.h>
 #include <qmldebug/qmldebugclient.h>
 #include <qmljs/qmljsdocument.h>

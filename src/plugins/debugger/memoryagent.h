@@ -34,8 +34,6 @@
 
 #include <QObject>
 #include <QPointer>
-#include <QString>
-#include <QList>
 #include <QColor>
 
 QT_FORWARD_DECLARE_CLASS(QPoint)

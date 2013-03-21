@@ -34,8 +34,6 @@
 #include <projectexplorer/abi.h>
 
 #include <QDialog>
-#include <QHash>
-#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;

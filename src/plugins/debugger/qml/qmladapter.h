@@ -30,12 +30,8 @@
 #ifndef QMLADAPTER_H
 #define QMLADAPTER_H
 
-#include "debugger_global.h"
-
 #include <qmldebug/qmldebugclient.h>
 
-#include <QAbstractSocket>
-#include <QObject>
 #include <QPointer>
 #include <QTimer>
 

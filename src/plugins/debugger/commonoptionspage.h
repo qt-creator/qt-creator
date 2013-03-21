@@ -36,11 +36,10 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/savedaction.h>
 
-#include <QCheckBox>
-#include <QLabel>
 #include <QPointer>
 #include <QSharedPointer>
-#include <QSpinBox>
+
+class QSpinBox;
 
 namespace Debugger {
 namespace Internal {

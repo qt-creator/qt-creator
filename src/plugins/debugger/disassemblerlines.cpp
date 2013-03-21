@@ -33,7 +33,6 @@
 #include <QDebug>
 #include <QRegExp>
 #include <QFile>
-#include <QTextStream>
 
 namespace Debugger {
 namespace Internal {

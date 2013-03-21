@@ -29,42 +29,18 @@
 
 #include "sourceutils.h"
 
-#include "debuggerprotocol.h"
-#include "debuggerstringutils.h"
 #include "watchdata.h"
 #include "watchutils.h"
 
-#include <utils/qtcassert.h>
-
-#include <coreplugin/idocument.h>
-
 #include <texteditor/basetexteditor.h>
-#include <texteditor/basetextmark.h>
-#include <texteditor/itexteditor.h>
-#include <texteditor/texteditorconstants.h>
-#include <coreplugin/editormanager/editormanager.h>
-
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/abstracteditorsupport.h>
 
 #include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Overview.h>
-#include <Symbols.h>
-#include <Scope.h>
 
-#include <extensionsystem/pluginmanager.h>
-
-#include <QCoreApplication>
-#include <QDateTime>
 #include <QDebug>
-#include <QHash>
-#include <QStringList>
-#include <QTextStream>
-#include <QTime>
-
-#include <QTextCursor>
-#include <QPlainTextEdit>
 
 #include <string.h>
 #include <ctype.h>

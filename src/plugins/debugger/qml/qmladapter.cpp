@@ -34,7 +34,6 @@
 #include "qmlv8debuggerclient.h"
 #include "qscriptdebuggerclient.h"
 
-#include <qmldebug/qdebugmessageclient.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>

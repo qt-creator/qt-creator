@@ -33,11 +33,7 @@
 #include "debugger_global.h"
 #include "debuggerconstants.h"
 
-#include <projectexplorer/abi.h>
 #include <projectexplorer/runconfiguration.h>
-
-#include <QPair>
-#include <QStringList>
 
 namespace Utils {
 class Environment;

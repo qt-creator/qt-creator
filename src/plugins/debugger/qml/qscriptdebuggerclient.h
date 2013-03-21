@@ -31,9 +31,6 @@
 #define QSCRIPTDEBUGGERCLIENT_H
 
 #include "baseqmldebuggerclient.h"
-#include "stackframe.h"
-#include "watchdata.h"
-#include "qmlengine.h"
 
 namespace Debugger {
 namespace Internal {

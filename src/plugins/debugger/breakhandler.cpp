@@ -28,14 +28,12 @@
 ****************************************************************************/
 
 #include "breakhandler.h"
-#include "debuggerinternalconstants.h"
 #include "breakpointmarker.h"
 
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerstringutils.h"
-#include "stackframe.h"
 
 #include <extensionsystem/invoker.h>
 #include <utils/hostosinfo.h>
@@ -46,8 +44,7 @@
 #endif
 
 #include <QDir>
-#include <QFileInfo>
-#include <QTimerEvent>
+#include <QDebug>
 
 #define BREAK_ASSERT(cond, action) if (cond) {} else { action; }
 //#define BREAK_ASSERT(cond, action) QTC_ASSERT(cond, action)

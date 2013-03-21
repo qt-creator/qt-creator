@@ -31,7 +31,6 @@
 
 #include "utils/qtcassert.h"
 
-#include <QByteArray>
 #include <QDebug>
 #include <QFileInfo>
 

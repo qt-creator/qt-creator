@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "breakwindow.h"
-#include "debuggerinternalconstants.h"
 #include "breakhandler.h"
 #include "debuggerengine.h"
 #include "debuggeractions.h"
@@ -38,28 +37,18 @@
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
-#include <QAction>
-#include <QApplication>
-#include <QButtonGroup>
 #include <QCheckBox>
 #include <QComboBox>
-#include <QDebug>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QGroupBox>
-#include <QHBoxLayout>
-#include <QHeaderView>
-#include <QIntValidator>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
-#include <QSpacerItem>
 #include <QSpinBox>
 #include <QTextEdit>
-#include <QVariant>
-#include <QVBoxLayout>
 
 namespace Debugger {
 namespace Internal {

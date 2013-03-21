@@ -30,7 +30,6 @@
 #include "moduleswindow.h"
 
 #include "debuggeractions.h"
-#include "debuggerconstants.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 
@@ -41,7 +40,6 @@
 #include <QDebug>
 #include <QProcess>
 
-#include <QHeaderView>
 #include <QMenu>
 #include <QResizeEvent>
 

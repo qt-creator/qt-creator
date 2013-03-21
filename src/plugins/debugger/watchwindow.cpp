@@ -32,12 +32,10 @@
 #include "breakhandler.h"
 #include "registerhandler.h"
 #include "debuggeractions.h"
-#include "debuggerconstants.h"
 #include "debuggerinternalconstants.h"
 #include "debuggercore.h"
 #include "debuggerdialogs.h"
 #include "debuggerengine.h"
-#include "debuggerstartparameters.h"
 #include "watchdelegatewidgets.h"
 #include "watchhandler.h"
 #include "debuggertooltipmanager.h"
@@ -49,19 +47,14 @@
 #include <utils/savedaction.h>
 
 #include <QDebug>
-#include <QMetaObject>
 #include <QMetaProperty>
-#include <QVariant>
 #include <QMimeData>
 
 #include <QApplication>
-#include <QPalette>
 #include <QClipboard>
-#include <QContextMenuEvent>
 #include <QHeaderView>
 #include <QItemDelegate>
 #include <QMenu>
-#include <QPainter>
 #include <QInputDialog>
 #include <QMessageBox>
 

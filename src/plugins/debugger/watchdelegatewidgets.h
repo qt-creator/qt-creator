@@ -32,7 +32,6 @@
 
 #include <QLineEdit>
 #include <QComboBox>
-#include <QVariant>
 
 namespace Debugger {
 namespace Internal {

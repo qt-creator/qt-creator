@@ -35,8 +35,6 @@
 #include "debuggerstringutils.h"
 #include "debuggertooltipmanager.h"
 
-#include "breakhandler.h"
-#include "watchhandler.h"
 #include "stackhandler.h"
 
 #include <utils/qtcassert.h>

@@ -32,7 +32,6 @@
 #include <coreplugin/minisplitter.h>
 
 #include <QVBoxLayout>
-#include <QSplitter>
 #include <QStackedWidget>
 
 const int LOCAL_WIDGET_INDEX = 0;

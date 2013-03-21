@@ -34,21 +34,15 @@
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <QLabel>
-#include <QVBoxLayout>
 #include <QImage>
-#include <QPixmap>
-#include <QPoint>
+#include <QVBoxLayout>
 #include <QMouseEvent>
 #include <QScrollArea>
-#include <QMenu>
-#include <QAction>
-#include <QKeySequence>
 #include <QClipboard>
 #include <QApplication>
 #include <QPainter>
 #include <QDir>
 #include <QTemporaryFile>
-#include <QVariant>
 
 // Widget showing the image in a 1-pixel frame with context menu.
 class ImageWidget : public QWidget

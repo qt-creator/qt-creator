@@ -28,12 +28,10 @@
 ****************************************************************************/
 
 #include "procinterrupt.h"
-#include "debuggerconstants.h"
 
-#include <QCoreApplication>
 #include <QProcess> // makes kill visible on Windows.
-#include <QFile>
 #include <QDir>
+
 using namespace Debugger::Internal;
 
 static inline QString msgCannotInterrupt(int pid, const QString &why)

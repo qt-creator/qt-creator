@@ -30,10 +30,6 @@
 #ifndef DEBUGGER_PROTOCOL_H
 #define DEBUGGER_PROTOCOL_H
 
-#include "debugger_global.h"
-
-#include <QByteArray>
-#include <QList>
 #include <QVariant>
 
 namespace Debugger {

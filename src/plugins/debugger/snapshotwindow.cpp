@@ -40,7 +40,6 @@
 
 #include <QDebug>
 
-#include <QHeaderView>
 #include <QMenu>
 #include <QKeyEvent>
 

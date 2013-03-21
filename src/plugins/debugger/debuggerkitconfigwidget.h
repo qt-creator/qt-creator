@@ -49,7 +49,6 @@ class FileName;
 }
 
 namespace Debugger {
-class DebuggerKitInformation;
 
 namespace Internal {
 // -----------------------------------------------------------------------

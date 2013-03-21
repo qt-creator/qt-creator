@@ -35,7 +35,6 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include "ui_cdboptionspagewidget.h"
 
-#include <QWidget>
 #include <QPointer>
 #include <QSharedPointer>
 #include <QDialog>

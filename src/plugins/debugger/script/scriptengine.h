@@ -33,7 +33,6 @@
 #include "debuggerengine.h"
 
 #include <QSharedPointer>
-#include <QScopedPointer>
 #include <QHash>
 
 QT_BEGIN_NAMESPACE

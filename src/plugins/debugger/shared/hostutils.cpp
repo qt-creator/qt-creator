@@ -29,16 +29,6 @@
 
 #include "hostutils.h"
 
-#include <utils/synchronousprocess.h>
-
-#include <QDebug>
-#include <QDir>
-#include <QFile>
-#include <QLibrary>
-#include <QProcess>
-#include <QString>
-#include <QTextStream>
-
 #ifdef Q_OS_WIN
 
 // Enable Win API of XP SP1 and later

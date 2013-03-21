@@ -45,16 +45,9 @@
 #include <cplusplus/CppRewriter.h>
 
 #include <QDebug>
-#include <QEvent>
-#include <QFile>
-#include <QPointer>
 #include <QProcess>
-#include <QTextStream>
 #include <QtAlgorithms>
-
-#include <QLabel>
 #include <QTextEdit>
-#include <QTabWidget>
 
 #include <ctype.h>
 

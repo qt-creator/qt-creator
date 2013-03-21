@@ -36,12 +36,8 @@
 
 #include <QDir>
 #include <QDebug>
-#include <QFileDialog>
 #include <QAction>
-#include <QDialogButtonBox>
-#include <QVBoxLayout>
 #include <QFormLayout>
-#include <QMessageBox>
 
 namespace Debugger {
 namespace Internal {

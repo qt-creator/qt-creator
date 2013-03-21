@@ -32,9 +32,6 @@
 
 #include "watchdata.h"
 
-#include <QHash>
-#include <QSet>
-#include <QStringList>
 #include <QPointer>
 #include <QAbstractItemModel>
 

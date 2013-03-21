@@ -35,20 +35,13 @@
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 
-#include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QStandardItemModel>
-#include <QStandardItem>
 #include <QTreeView>
 #include <QLineEdit>
-#include <QSpacerItem>
 #include <QPushButton>
 #include <QFormLayout>
 #include <QFileDialog>
 #include <QLabel>
-
-#include <QDir>
-#include <QPair>
 
 using namespace Utils;
 

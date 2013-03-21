@@ -34,29 +34,21 @@
 #include "debuggerengine.h"
 
 #include <QDebug>
-#include <QFile>
 #include <QTime>
 
 #include <QHBoxLayout>
-#include <QVBoxLayout>
 #include <QLabel>
-#include <QLineEdit>
-#include <QKeyEvent>
 #include <QMenu>
-#include <QSpacerItem>
 #include <QSyntaxHighlighter>
 #include <QPlainTextEdit>
 #include <QFileDialog>
-#include <QMessageBox>
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/findplaceholder.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 #include <find/basetextfind.h>
 
 #include <utils/savedaction.h>
-#include <utils/fileutils.h>
 #include <utils/fancylineedit.h>
 
 namespace Debugger {

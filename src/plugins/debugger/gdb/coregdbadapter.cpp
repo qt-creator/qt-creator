@@ -29,21 +29,15 @@
 
 #include "coregdbadapter.h"
 
-#include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerprotocol.h"
 #include "debuggerstartparameters.h"
 #include "debuggerstringutils.h"
 
-#include <utils/consoleprocess.h>
-#include <utils/elfreader.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QDir>
-#include <QFileInfo>
 #include <QMessageBox>
-#include <QProcess>
 #include <QTemporaryFile>
 
 using namespace Utils;

@@ -35,8 +35,6 @@
 #include <QTreeView>
 
 #include <QPointer>
-#include <QPoint>
-#include <QList>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 #include <QDate>

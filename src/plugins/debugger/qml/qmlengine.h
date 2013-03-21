@@ -38,11 +38,8 @@
 #include <projectexplorer/applicationlauncher.h>
 #include <qmldebug/qdebugmessageclient.h>
 #include <qmldebug/qmloutputparser.h>
-#include <qmljs/qmljsdocument.h>
 #include <qmljs/iscriptevaluator.h>
-#include <utils/outputformat.h>
 
-#include <QAbstractSocket>
 #include <QTextDocument>
 
 namespace Core {

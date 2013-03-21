@@ -29,9 +29,7 @@
 
 #include "registerwindow.h"
 #include "memoryview.h"
-#include "debuggeractions.h"
 #include "debuggerdialogs.h"
-#include "debuggerconstants.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "registerhandler.h"
@@ -39,11 +37,9 @@
 #include "memoryagent.h"
 
 #include <utils/qtcassert.h>
-#include <utils/savedaction.h>
 
 #include <QDebug>
 
-#include <QHeaderView>
 #include <QItemDelegate>
 #include <QMenu>
 #include <QPainter>

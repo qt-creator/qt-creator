@@ -28,21 +28,15 @@
 ****************************************************************************/
 #include "qscriptdebuggerclient.h"
 
-#include "watchdata.h"
 #include "watchhandler.h"
-#include "breakpoint.h"
 #include "breakhandler.h"
-#include "debuggerconstants.h"
 #include "qmlengine.h"
 #include "stackhandler.h"
 #include "debuggercore.h"
 #include "debuggerstringutils.h"
 
-#include <QTextDocument>
 #include <QFileInfo>
-#include <QTextStream>
 #include <QMessageBox>
-#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
 namespace Debugger {

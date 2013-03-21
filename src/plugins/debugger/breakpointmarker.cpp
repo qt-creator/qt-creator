@@ -31,8 +31,6 @@
 #include "breakhandler.h"
 #include "debuggercore.h"
 
-#include <QIcon>
-
 //////////////////////////////////////////////////////////////////
 //
 // BreakpointMarker

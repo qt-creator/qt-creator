@@ -31,10 +31,7 @@
 #include "debuggerruncontrolfactory.h"
 
 #include "debuggeractions.h"
-#include "debuggerinternalconstants.h"
 #include "debuggercore.h"
-#include "debuggerengine.h"
-#include "debuggermainwindow.h"
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
 #include "debuggerstartparameters.h"
@@ -47,31 +44,24 @@
 #  include <utils/winutils.h>
 #endif
 
-#include <projectexplorer/abi.h>
 #include <projectexplorer/localapplicationrunconfiguration.h> // For LocalApplication*
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
-#include <projectexplorer/toolchain.h>
 
-#include <utils/outputformat.h>
-#include <utils/synchronousprocess.h>
 #include <utils/qtcassert.h>
-#include <utils/fancymainwindow.h>
 #include <utils/qtcprocess.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 
-#include <QDir>
 #include <QCheckBox>
 #include <QSpinBox>
 #include <QDebug>
 #include <QErrorMessage>
 #include <QFormLayout>
 #include <QLabel>
-#include <QPointer>
 
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;

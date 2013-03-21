@@ -30,7 +30,6 @@
 #ifndef ABSTRACTGDBPROCESS_H
 #define ABSTRACTGDBPROCESS_H
 
-#include <QObject>
 #include <QProcess>
 
 namespace Debugger {

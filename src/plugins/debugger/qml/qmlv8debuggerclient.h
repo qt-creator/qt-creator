@@ -31,8 +31,6 @@
 #define QMLV8DEBUGGERCLIENT_H
 
 #include "baseqmldebuggerclient.h"
-#include "stackframe.h"
-#include "watchdata.h"
 
 namespace Debugger {
 namespace Internal {

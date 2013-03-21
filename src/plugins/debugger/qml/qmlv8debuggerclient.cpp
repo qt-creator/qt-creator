@@ -32,7 +32,6 @@
 #include "debuggerstringutils.h"
 
 #include "watchhandler.h"
-#include "breakpoint.h"
 #include "breakhandler.h"
 #include "qmlengine.h"
 #include "stackhandler.h"
@@ -40,20 +39,13 @@
 #include "debuggeractions.h"
 
 #include <utils/qtcassert.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/basetexteditor.h>
 
 #include <qmljs/consolemanagerinterface.h>
-#include <qmljs/consoleitem.h>
 
 #include <QTextBlock>
-#include <QVariant>
-#include <QStack>
-#include <QQueue>
 #include <QFileInfo>
-#include <QTextDocument>
 #include <QScriptEngine>
-#include <QScriptValue>
 
 #define DEBUG_QML 0
 #if DEBUG_QML

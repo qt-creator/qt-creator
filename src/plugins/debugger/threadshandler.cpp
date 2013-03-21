@@ -29,7 +29,6 @@
 
 #include "threadshandler.h"
 
-#include "debuggerconstants.h"
 #include "debuggercore.h"
 #include "debuggerprotocol.h"
 #include "watchutils.h"
@@ -37,8 +36,6 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QTextStream>
-#include <QSortFilterProxyModel>
 
 namespace Debugger {
 namespace Internal {

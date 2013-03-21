@@ -34,20 +34,10 @@
 #include "debuggerinternalconstants.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/projectexplorer.h>
-#include <utils/savedaction.h>
 
-#include <QCoreApplication>
 #include <QDebug>
-#include <QTextStream>
 
-#include <QCheckBox>
 #include <QFormLayout>
-#include <QGridLayout>
-#include <QGroupBox>
-#include <QLabel>
-#include <QLineEdit>
-#include <QRadioButton>
 #include <QSpinBox>
 #include <QTextEdit>
 

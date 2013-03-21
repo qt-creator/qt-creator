@@ -32,7 +32,6 @@
 
 #include <QGroupBox>
 #include <QMap>
-#include <QPair>
 
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;

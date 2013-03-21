@@ -33,9 +33,7 @@
 
 #include "debuggerstartparameters.h"
 #include "debuggeractions.h"
-#include "debuggerconstants.h"
 #include "debuggercore.h"
-#include "debuggerdialogs.h"
 #include "debuggerinternalconstants.h"
 #include "debuggermainwindow.h"
 #include "debuggerrunner.h"
@@ -45,44 +43,25 @@
 #include "watchwindow.h"
 
 #include "breakhandler.h"
-#include "moduleshandler.h"
-#include "registerhandler.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
 #include "sourcefileshandler.h"
-#include "watchutils.h"
-
-#include <qmldebug/baseenginedebugclient.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/consolemanagerinterface.h>
-#include <qmljs/consoleitem.h>
 
-#include <utils/environment.h>
 #include <utils/qtcassert.h>
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
-#include <texteditor/itexteditor.h>
-
-#include <QDateTime>
 #include <QDebug>
 #include <QDir>
-#include <QFileInfo>
-#include <QTimer>
 
-#include <QAction>
-#include <QApplication>
 #include <QMessageBox>
 #include <QPlainTextEdit>
-#include <QToolTip>
-
-#include <QTcpSocket>
-#include <QHostAddress>
 
 #include <QDockWidget>
 

@@ -32,7 +32,6 @@
 #include "debuggerinternalconstants.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
-#include "debuggerplugin.h"
 #include "debuggerrunner.h"
 #include "debuggerstringutils.h"
 #include "debuggerstartparameters.h"
@@ -43,25 +42,19 @@
 #include "moduleshandler.h"
 #include "peutils.h"
 #include "registerhandler.h"
-#include "snapshothandler.h"
 #include "sourcefileshandler.h"
 #include "stackhandler.h"
 #include "threadshandler.h"
 #include "watchhandler.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 
-#include <texteditor/itexteditor.h>
-#include <texteditor/basetextmark.h>
-
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/taskhub.h>
 
-#include <utils/elfreader.h>
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>
 #include <utils/fileinprojectfinder.h>
@@ -70,9 +63,7 @@
 
 #include <QDebug>
 #include <QTimer>
-#include <QFile>
 #include <QFileInfo>
-#include <QFutureInterface>
 
 #include <QMessageBox>
 

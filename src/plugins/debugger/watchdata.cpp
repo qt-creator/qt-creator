@@ -34,8 +34,7 @@
 #include "watchutils.h"
 #include "debuggerprotocol.h"
 
-#include <QTextDocument>
-#include <QTextStream>
+#include <QTextDocument> // Qt::escape() in Qt 4
 #include <QDebug>
 
 ////////////////////////////////////////////////////////////////////

@@ -28,22 +28,15 @@
 ****************************************************************************/
 
 #include "cdboptionspage.h"
-#include "cdboptions.h"
 #include "commonoptionspage.h"
 #include "debuggerinternalconstants.h"
 #include "cdbengine.h"
 #include "cdbsymbolpathlisteditor.h"
 
-#include <utils/synchronousprocess.h>
-
 #include <coreplugin/icore.h>
 
-#include <QTextStream>
-#include <QLineEdit>
 #include <QDialogButtonBox>
-#include <QPushButton>
-#include <QCheckBox>
-#include <QVBoxLayout>
+#include <QTextStream>
 
 namespace Debugger {
 namespace Internal {

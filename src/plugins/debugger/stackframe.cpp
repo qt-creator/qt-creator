@@ -30,11 +30,8 @@
 #include "stackframe.h"
 #include "watchutils.h"
 
-#include <QFileInfo>
 #include <QDebug>
 #include <QDir>
-#include <QTextStream>
-#include <QCoreApplication>
 
 #include <utils/hostosinfo.h>
 

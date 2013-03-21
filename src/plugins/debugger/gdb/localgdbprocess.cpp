@@ -36,9 +36,6 @@
 #include <utils/winutils.h>
 #endif
 
-#include <utils/qtcassert.h>
-
-
 namespace Debugger {
 namespace Internal {
 

@@ -32,7 +32,6 @@
 
 #include "watchutils.h"
 #include "watchdata.h"
-#include "debuggerprotocol.h"
 
 #include <QDebug>
 

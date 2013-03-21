@@ -31,11 +31,6 @@
 
 #include "globalparsestate.h"
 
-#include <QByteArray>
-#include <QList>
-#include <QSet>
-#include <QSharedPointer>
-
 namespace Debugger {
 namespace Internal {
 

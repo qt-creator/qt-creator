@@ -39,7 +39,6 @@
 
 #else
 
-#include <QFile>
 #include <QSocketNotifier>
 #include <QTemporaryFile>
 #include <QVarLengthArray>

@@ -30,7 +30,6 @@
 #ifndef SOURCE_UTILS_H
 #define SOURCE_UTILS_H
 
-#include <QSet>
 #include <QString>
 
 namespace TextEditor { class ITextEditor; }

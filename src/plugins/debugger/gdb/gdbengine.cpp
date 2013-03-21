@@ -41,60 +41,38 @@
 #include "remoteplaingdbadapter.h"
 
 #include "debuggeractions.h"
-#include "debuggerconstants.h"
 #include "debuggercore.h"
 #include "debuggerplugin.h"
 #include "debuggerprotocol.h"
-#include "debuggerrunner.h"
 #include "debuggerstringutils.h"
 #include "debuggertooltipmanager.h"
 #include "disassembleragent.h"
 #include "gdboptionspage.h"
 #include "memoryagent.h"
 #include "sourceutils.h"
-#include "watchutils.h"
 
 #include "breakhandler.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
-#include "snapshothandler.h"
 #include "sourcefileshandler.h"
 #include "stackhandler.h"
 #include "threadshandler.h"
-#include "watchhandler.h"
 #include "debuggersourcepathmappingwidget.h"
 #include "hostutils.h"
 #include "logwindow.h"
 #include "procinterrupt.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
-#include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/abi.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/itaskhandler.h>
-#include <texteditor/itexteditor.h>
-#include <utils/elfreader.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/savedaction.h>
 
-#include <QCoreApplication>
-#include <QDebug>
-#include <QDir>
 #include <QDirIterator>
-#include <QFileInfo>
-#include <QMetaObject>
-#include <QTime>
-#include <QTimer>
 #include <QTemporaryFile>
-#include <QTextStream>
 
-#include <QAction>
-#include <QDialogButtonBox>
-#include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
 

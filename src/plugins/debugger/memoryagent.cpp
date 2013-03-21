@@ -38,15 +38,12 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/icore.h>
 
 #include <utils/qtcassert.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/invoker.h>
 
 #include <QMessageBox>
-#include <QVBoxLayout>
 
 #include <cstring>
 

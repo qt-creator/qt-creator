@@ -29,11 +29,9 @@
 
 #include "debuggerprotocol.h"
 
-#include <QByteArray>
 #include <QCoreApplication>
 #include <QDateTime>
 #include <QDebug>
-#include <QTextStream>
 
 #include <ctype.h>
 

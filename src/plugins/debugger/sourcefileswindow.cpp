@@ -29,16 +29,12 @@
 
 #include "sourcefileswindow.h"
 
-#include "debuggeractions.h"
-#include "debuggerconstants.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 
 #include <utils/qtcassert.h>
-#include <utils/savedaction.h>
 
 #include <QDebug>
-#include <QFileInfo>
 
 #include <QContextMenuEvent>
 #include <QMenu>

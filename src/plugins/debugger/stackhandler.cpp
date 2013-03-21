@@ -31,7 +31,6 @@
 
 #include "debuggeractions.h"
 #include "debuggercore.h"
-#include "debuggerengine.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>

@@ -30,46 +30,28 @@
 #include "debuggerdialogs.h"
 #include "debuggerstartparameters.h"
 
-#include "debuggerconstants.h"
 #include "debuggerkitinformation.h"
 #include "debuggerstringutils.h"
 #include "cdb/cdbengine.h"
-#include "shared/hostutils.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/abi.h>
-#include <projectexplorer/kitinformation.h>
-#include <utils/historycompleter.h>
 #include <utils/pathchooser.h>
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
-#include <utils/synchronousprocess.h>
 
-#include <QAction>
-#include <QApplication>
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QDebug>
-#include <QDialog>
 #include <QDialogButtonBox>
 #include <QDir>
-#include <QFileDialog>
 #include <QFormLayout>
-#include <QGridLayout>
 #include <QGroupBox>
-#include <QHeaderView>
 #include <QLabel>
-#include <QLineEdit>
-#include <QMessageBox>
 #include <QPushButton>
 #include <QRadioButton>
 #include <QRegExp>
 #include <QScrollArea>
 #include <QSpinBox>
-#include <QStandardItemModel>
-#include <QTreeView>
-#include <QVariant>
-#include <QVBoxLayout>
 
 using namespace Core;
 using namespace ProjectExplorer;

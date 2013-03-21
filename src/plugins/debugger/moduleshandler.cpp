@@ -29,7 +29,6 @@
 
 #include "moduleshandler.h"
 
-#include <utils/elfreader.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>

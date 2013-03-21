@@ -30,8 +30,6 @@
 #ifndef QMLLIVETEXTPREVIEW_H
 #define QMLLIVETEXTPREVIEW_H
 
-#include <QObject>
-
 #include <texteditor/basetexteditor.h>
 #include <qmljs/qmljsdocument.h>
 
