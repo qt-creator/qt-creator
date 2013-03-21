@@ -283,6 +283,12 @@ Id Id::withSuffix(const char *suffix) const
     return Id(ba.constData());
 }
 
+/*!
+  \overload
+
+  \sa stringSuffix()
+*/
+
 Id Id::withSuffix(const QString &suffix) const
 {
     const QByteArray ba = name() + suffix.toUtf8();
@@ -338,6 +344,22 @@ CORE_EXPORT const char *nameForId(int id)
 bool Id::alphabeticallyBefore(Id other) const
 {
     return toString().compare(other.toString(), Qt::CaseInsensitive) < 0;
+}
+
+
+/*!
+  Convenience function to extract a part of the id string
+  representation. This can be used to split off the base
+  part used when generating an id with \c{withSuffix()}.
+
+  \sa withSuffix()
+*/
+
+QString Id::suffixAfter(Id baseId) const
+{
+    const QByteArray b = baseId.name();
+    const QByteArray n = name();
+    return n.startsWith(b) ? QString::fromUtf8(n.mid(b.size())) : QString();
 }
 
 } // namespace Core

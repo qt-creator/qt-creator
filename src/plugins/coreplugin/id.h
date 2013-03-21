@@ -57,6 +57,7 @@ public:
     QByteArray name() const;
     QString toString() const; // Avoid.
     QVariant toSetting() const; // Good to use.
+    QString suffixAfter(Id baseId) const;
     bool isValid() const { return m_id; }
     bool operator==(Id id) const { return m_id == id.m_id; }
     bool operator==(const char *name) const;
