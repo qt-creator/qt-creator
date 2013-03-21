@@ -142,9 +142,8 @@ void TcpPortsGathererPrivate::updateWin()
         }
     }
 
-    foreach (int port, ports) {
+    foreach (int port, ports)
         usedPorts.insert(port);
-    }
 #endif
     Q_UNUSED(protocol);
 }
