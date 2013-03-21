@@ -528,7 +528,7 @@ bool CMakeRunConfigurationFactory::canClone(ProjectExplorer::Target *parent, Pro
 {
     if (!canHandle(parent))
         return false;
-    return source->id().toString().startsWith(QLatin1String(CMAKE_RC_PREFIX));
+    return source->id().name().startsWith(CMAKE_RC_PREFIX);
 }
 
 ProjectExplorer::RunConfiguration *CMakeRunConfigurationFactory::clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration * source)
@@ -543,8 +543,7 @@ bool CMakeRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, c
 {
     if (!qobject_cast<CMakeProject *>(parent->project()))
         return false;
-    QString id = QString::fromUtf8(ProjectExplorer::idFromMap(map).name());
-    return id.startsWith(QLatin1String(CMAKE_RC_PREFIX));
+    return ProjectExplorer::idFromMap(map).name().startsWith(CMAKE_RC_PREFIX);
 }
 
 ProjectExplorer::RunConfiguration *CMakeRunConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
@@ -561,14 +560,10 @@ ProjectExplorer::RunConfiguration *CMakeRunConfigurationFactory::restore(Project
 
 QString CMakeRunConfigurationFactory::buildTargetFromId(Core::Id id)
 {
-    QString idstr = QString::fromUtf8(id.name());
-    if (!idstr.startsWith(QLatin1String(CMAKE_RC_PREFIX)))
-        return QString();
-    return idstr.mid(QString::fromLatin1(CMAKE_RC_PREFIX).length());
+    return id.suffixAfter(CMAKE_RC_PREFIX);
 }
 
 Core::Id CMakeRunConfigurationFactory::idFromBuildTarget(const QString &target)
 {
-    QString id = QString::fromLatin1(CMAKE_RC_PREFIX) + target;
-    return Core::Id(id.toUtf8());
+    return Core::Id(CMAKE_RC_PREFIX).withSuffix(target);
 }
