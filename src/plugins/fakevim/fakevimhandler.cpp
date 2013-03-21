@@ -901,15 +901,25 @@ public:
         return m_xkey == c && m_modifiers != int(HostOsInfo::controlModifier());
     }
 
+    bool isControl() const
+    {
+        return m_modifiers & HostOsInfo::controlModifier();
+    }
+
     bool isControl(int c) const
     {
-        return m_modifiers == int(HostOsInfo::controlModifier())
+        return isControl()
             && (m_xkey == c || m_xkey + 32 == c || m_xkey + 64 == c || m_xkey + 96 == c);
+    }
+
+    bool isShift() const
+    {
+        return m_modifiers & Qt::ShiftModifier;
     }
 
     bool isShift(int c) const
     {
-        return m_modifiers == Qt::ShiftModifier && m_xkey == c;
+        return isShift() && m_xkey == c;
     }
 
     bool operator<(const Input &a) const
@@ -953,13 +963,23 @@ public:
 
     QString toString() const
     {
-        bool hasCtrl = m_modifiers & int(HostOsInfo::controlModifier());
         QString key = vimKeyNames().key(m_key);
-        if (key.isEmpty())
-            key = QChar(m_xkey);
-        else
-            key = QLatin1Char('<') + key + QLatin1Char('>');
-        return (hasCtrl ? QString::fromLatin1("^") : QString()) + key;
+
+        if (key.isEmpty()) {
+            if (m_xkey == '<')
+                key = _("<LT>");
+            else
+                key = QChar(m_xkey);
+        } else {
+            if (isShift())
+                key.prepend(_("S-"));
+            if (isControl())
+                key.prepend(_("C-"));
+            key.prepend(QLatin1Char('<'));
+            key.append(QLatin1Char('>'));
+        }
+
+        return key;
     }
 
     QDebug dump(QDebug ts) const
@@ -4538,7 +4558,7 @@ bool FakeVimHandler::Private::startRecording(const Input &input)
 void FakeVimHandler::Private::record(const Input &input)
 {
     if ( !g.recording.isNull() )
-        g.recording.append(input.raw());
+        g.recording.append(input.toString());
 }
 
 void FakeVimHandler::Private::stopRecording()
@@ -4566,7 +4586,7 @@ bool FakeVimHandler::Private::executeRegister(int reg)
     //        One solution may be to call QApplication::processEvents() and check if <C-c> was
     //        used when a mapping is active.
     // According to Vim, register is executed like mapping.
-    prependMapping(Inputs(registerContents(reg)));
+    prependMapping(Inputs(registerContents(reg), false, false));
 
     return true;
 }

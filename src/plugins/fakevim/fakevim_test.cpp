@@ -2925,4 +2925,16 @@ void FakeVimPlugin::test_macros()
     data.setText("  1 2 3" N "  4 5 6" N "  7 8 9");
     KEYS("qx" "wrXj" "q", "  X 2 3" N "  4 5 6" N "  7 8 9");
     KEYS("2@x", "  X 2 3" N "  4 X 6" N "  7 8 X");
+
+    data.setText("abc" N "def");
+    KEYS("qx<right>i<right> xyz <esc>q", "ab xyz" X " c" N "def");
+    KEYS("j0@x", "ab xyz c" N "de xyz" X " f");
+
+    data.setText("abc" N "def");
+    data.doCommand("unmap <S-down>");
+    KEYS("qx<S-down><esc>q", X "abc" N "def");
+    data.doCommand("noremap <S-down> ddp");
+    KEYS("@x", "def" N X "abc");
+    KEYS("gg@x", "abc" N X "def");
+    data.doCommand("unmap <S-down>");
 }
