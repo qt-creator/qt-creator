@@ -212,7 +212,7 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
                        'This is a script error. Using Qt Quick 1 instead.')
         available = __createProjectOrFileSelectType__("  Applications", "Qt Quick 1 Application (from Existing QML File)", fromWelcome)
     else:
-        available = __createProjectOrFileSelectType__("  Applications", "Qt Quick %d Application (Built-in Elements)"
+        available = __createProjectOrFileSelectType__("  Applications", "Qt Quick %d Application (Built-in Types)"
                                                 % qtQuickVersion, fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
     if templateFile:
