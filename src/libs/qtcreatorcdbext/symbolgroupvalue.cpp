@@ -1752,8 +1752,8 @@ static bool dumpQStringFromQPrivateClass(const SymbolGroupValue &v,
     const ULONG64 stringAddress = addressOfQPrivateMember(v, mode, additionalOffset);
     if (!stringAddress)
         return false;
-    const std::string dumpType = QtInfo::get(v.context()).prependQtCoreModule("QString");
-    const std::string symbolName = SymbolGroupValue::pointedToSymbolName(stringAddress , dumpType);
+    std::string dumpType = QtInfo::get(v.context()).prependQtCoreModule("QString");
+    std::string symbolName = SymbolGroupValue::pointedToSymbolName(stringAddress , dumpType);
     if (SymbolGroupValue::verbose > 1)
         DebugPrint() <<  "dumpQStringFromQPrivateClass of " << v.name() << '/'
                      << v.type() << " mode=" << mode
@@ -1761,8 +1761,16 @@ static bool dumpQStringFromQPrivateClass(const SymbolGroupValue &v,
                      << std::dec << " expr=" << symbolName;
     SymbolGroupNode *stringNode =
             v.node()->symbolGroup()->addSymbol(v.module(), symbolName, std::string(), &errorMessage);
-    if (!stringNode)
-        return false;
+    if (!stringNode && errorMessage.find("DEBUG_ANY_ID") != std::string::npos) {
+        // HACK:
+        // In some rare cases the the AddSymbol can't create a node with a given module name,
+        // but is able to add the symbol without any modulename.
+        dumpType = QtInfo::get(v.context()).prependModuleAndNameSpace("QString", "", QtInfo::get(v.context()).nameSpace);
+        symbolName = SymbolGroupValue::pointedToSymbolName(stringAddress , dumpType);
+        stringNode = v.node()->symbolGroup()->addSymbol(v.module(), symbolName, std::string(), &errorMessage);
+        if (!stringNode)
+            return false;
+    }
     return dumpQString(SymbolGroupValue(stringNode, v.context()), str);
 }
 
