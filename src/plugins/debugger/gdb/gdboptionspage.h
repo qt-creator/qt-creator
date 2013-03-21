@@ -37,6 +37,7 @@ namespace Debugger {
 namespace Internal {
 
 class GdbOptionsPageWidget;
+class GdbOptionsPageWidget2;
 
 class GdbOptionsPage : public Core::IOptionsPage
 {
@@ -52,6 +53,23 @@ public:
 
 private:
     QPointer<GdbOptionsPageWidget> m_widget;
+};
+
+// The "Dangerous" options.
+class GdbOptionsPage2 : public Core::IOptionsPage
+{
+    Q_OBJECT
+
+public:
+    GdbOptionsPage2();
+    ~GdbOptionsPage2();
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish();
+    bool matches(const QString &) const;
+
+private:
+    QPointer<GdbOptionsPageWidget2> m_widget;
 };
 
 } // namespace Internal

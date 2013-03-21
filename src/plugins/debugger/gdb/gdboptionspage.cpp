@@ -54,6 +54,13 @@
 namespace Debugger {
 namespace Internal {
 
+
+/////////////////////////////////////////////////////////////////////////
+//
+// GdbOptionsPageWidget - harmless options
+//
+/////////////////////////////////////////////////////////////////////////
+
 class GdbOptionsPageWidget : public QWidget
 {
 public:
@@ -67,15 +74,6 @@ public:
     QCheckBox *checkBoxAdjustBreakpointLocations;
     QCheckBox *checkBoxUseDynamicType;
     QCheckBox *checkBoxLoadGdbInit;
-    QLabel *labelDangerous;
-    QCheckBox *checkBoxTargetAsync;
-    QCheckBox *checkBoxAutoEnrichParameters;
-    QCheckBox *checkBoxBreakOnWarning;
-    QCheckBox *checkBoxBreakOnFatal;
-    QCheckBox *checkBoxBreakOnAbort;
-    QCheckBox *checkBoxEnableReverseDebugging;
-    QCheckBox *checkBoxAttemptQuickStart;
-    QCheckBox *checkBoxMultiInferior;
     QCheckBox *checkBoxIntelFlavor;
 
     QGroupBox *groupBoxStartupCommands;
@@ -157,62 +155,6 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "Allows or inhibits reading the user's default\n"
         ".gdbinit file on debugger startup."));
 
-    labelDangerous = new QLabel(GdbOptionsPage::tr(
-        "The options below should be used with care."));
-    labelDangerous->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body>The options below give access to advanced "
-        "or experimental functions of GDB. Enabling them may negatively "
-        "impact your debugging experience.</body></html>"));
-    QFont f = labelDangerous->font();
-    f.setItalic(true);
-    labelDangerous->setFont(f);
-
-    checkBoxTargetAsync = new QCheckBox(groupBoxGeneral);
-    checkBoxTargetAsync->setText(GdbOptionsPage::tr(
-        "Use asynchronous mode to control the inferior"));
-
-    checkBoxAutoEnrichParameters = new QCheckBox(groupBoxGeneral);
-    checkBoxAutoEnrichParameters->setText(GdbOptionsPage::tr(
-        "Use common locations for debug information"));
-    checkBoxAutoEnrichParameters->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body>Add common paths to locations "
-        "of debug information such as <i>/usr/src/debug</i> "
-        "when starting GDB.</body></html>"));
-
-    // #fixme: 2.7 Move to common settings page.
-    checkBoxBreakOnWarning = new QCheckBox(groupBoxGeneral);
-    checkBoxBreakOnWarning->setText(CommonOptionsPage::msgSetBreakpointAtFunction("qWarning"));
-    checkBoxBreakOnWarning->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("qWarning"));
-
-    checkBoxBreakOnFatal = new QCheckBox(groupBoxGeneral);
-    checkBoxBreakOnFatal->setText(CommonOptionsPage::msgSetBreakpointAtFunction("qFatal"));
-    checkBoxBreakOnFatal->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("qFatal"));
-
-    checkBoxBreakOnAbort = new QCheckBox(groupBoxGeneral);
-    checkBoxBreakOnAbort->setText(CommonOptionsPage::msgSetBreakpointAtFunction("abort"));
-    checkBoxBreakOnAbort->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("abort"));
-
-    checkBoxEnableReverseDebugging = new QCheckBox(groupBoxGeneral);
-    checkBoxEnableReverseDebugging->setText(GdbOptionsPage::tr("Enable reverse debugging"));
-    checkBoxEnableReverseDebugging->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body><p>Enable stepping backwards.</p><p>"
-        "<b>Note:</b> This feature is very slow and unstable on the GDB side. "
-        "It exhibits unpredictable behavior when going backwards over system "
-        "calls and is very likely to destroy your debugging session.</p></body></html>"));
-
-    checkBoxAttemptQuickStart = new QCheckBox(groupBoxGeneral);
-    checkBoxAttemptQuickStart->setText(GdbOptionsPage::tr("Attempt quick start"));
-    checkBoxAttemptQuickStart->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body>Postpone reading debug information as long as possible. "
-        "This can result in faster startup times at the price of not being able to "
-        "set breakpoints by file and number.</body></html>"));
-
-    checkBoxMultiInferior = new QCheckBox(groupBoxGeneral);
-    checkBoxMultiInferior->setText(GdbOptionsPage::tr("Debug all children"));
-    checkBoxMultiInferior->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body>Keep debugging all children after a fork."
-        "</body></html>"));
-
     checkBoxIntelFlavor = new QCheckBox(groupBoxGeneral);
     checkBoxIntelFlavor->setText(GdbOptionsPage::tr("Use Intel style disassembly"));
     checkBoxIntelFlavor->setToolTip(GdbOptionsPage::tr(
@@ -285,15 +227,6 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     formLayout->addRow(checkBoxUseDynamicType);
     formLayout->addRow(checkBoxLoadGdbInit);
     formLayout->addRow(checkBoxIntelFlavor);
-    formLayout->addRow(labelDangerous);
-    formLayout->addRow(checkBoxTargetAsync);
-    formLayout->addRow(checkBoxAutoEnrichParameters);
-    formLayout->addRow(checkBoxBreakOnWarning);
-    formLayout->addRow(checkBoxBreakOnFatal);
-    formLayout->addRow(checkBoxBreakOnAbort);
-    formLayout->addRow(checkBoxEnableReverseDebugging);
-    formLayout->addRow(checkBoxAttemptQuickStart);
-    formLayout->addRow(checkBoxMultiInferior);
 
     QGridLayout *startLayout = new QGridLayout(groupBoxStartupCommands);
     startLayout->addWidget(textEditStartupCommands, 0, 0, 1, 1);
@@ -323,22 +256,12 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     group.insert(dc->action(GdbStartupCommands), textEditStartupCommands);
     group.insert(dc->action(GdbPostAttachCommands), textEditPostAttachCommands);
     group.insert(dc->action(LoadGdbInit), checkBoxLoadGdbInit);
-    group.insert(dc->action(AutoEnrichParameters), checkBoxAutoEnrichParameters);
     group.insert(dc->action(UseDynamicType), checkBoxUseDynamicType);
-    group.insert(dc->action(TargetAsync), checkBoxTargetAsync);
     group.insert(dc->action(AdjustBreakpointLocations), checkBoxAdjustBreakpointLocations);
-    group.insert(dc->action(BreakOnWarning), checkBoxBreakOnWarning);
-    group.insert(dc->action(BreakOnFatal), checkBoxBreakOnFatal);
-    group.insert(dc->action(BreakOnAbort), checkBoxBreakOnAbort);
     group.insert(dc->action(GdbWatchdogTimeout), spinBoxGdbWatchdogTimeout);
-    group.insert(dc->action(AttemptQuickStart), checkBoxAttemptQuickStart);
-    group.insert(dc->action(MultiInferior), checkBoxMultiInferior);
     group.insert(dc->action(IntelFlavor), checkBoxIntelFlavor);
-
     group.insert(dc->action(UseMessageBoxForSignals), checkBoxUseMessageBoxForSignals);
     group.insert(dc->action(SkipKnownFrames), checkBoxSkipKnownFrames);
-    group.insert(dc->action(EnableReverseDebugging), checkBoxEnableReverseDebugging);
-    group.insert(dc->action(GdbWatchdogTimeout), 0);
 
     //lineEditSelectedPluginBreakpointsPattern->
     //    setEnabled(dc->action(SelectedPluginBreakpoints)->value().toBool());
@@ -349,20 +272,11 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     QTextStream(&searchKeywords)
             << sep << groupBoxGeneral->title()
             << sep << checkBoxLoadGdbInit->text()
-            << sep << checkBoxTargetAsync->text()
             << sep << checkBoxUseDynamicType->text()
             << sep << labelGdbWatchdogTimeout->text()
-            << sep << checkBoxEnableReverseDebugging->text()
             << sep << checkBoxSkipKnownFrames->text()
             << sep << checkBoxUseMessageBoxForSignals->text()
-            << sep << checkBoxAdjustBreakpointLocations->text()
-            << sep << checkBoxAttemptQuickStart->text()
-            << sep << checkBoxMultiInferior->text()
-    //        << sep << groupBoxPluginDebugging->title()
-    //        << sep << radioButtonAllPluginBreakpoints->text()
-    //        << sep << radioButtonSelectedPluginBreakpoints->text()
-    //        << sep << labelSelectedPluginBreakpoints->text()
-    //        << sep << radioButtonNoPluginBreakpoints->text()
+            << sep << checkBoxAdjustBreakpointLocations->text();
     ;
     searchKeywords.remove(QLatin1Char('&'));
 }
@@ -399,6 +313,166 @@ void GdbOptionsPage::finish()
 }
 
 bool GdbOptionsPage::matches(const QString &s) const
+{
+    return m_widget && m_widget->searchKeywords.contains(s, Qt::CaseInsensitive);
+}
+
+/////////////////////////////////////////////////////////////////////////
+//
+// GdbOptionsPageWidget2 - dangerous options
+//
+/////////////////////////////////////////////////////////////////////////
+
+class GdbOptionsPageWidget2 : public QWidget
+{
+public:
+    explicit GdbOptionsPageWidget2(QWidget *parent);
+
+    QGroupBox *groupBoxDangerous;
+    QLabel *labelDangerous;
+    QCheckBox *checkBoxTargetAsync;
+    QCheckBox *checkBoxAutoEnrichParameters;
+    QCheckBox *checkBoxBreakOnWarning;
+    QCheckBox *checkBoxBreakOnFatal;
+    QCheckBox *checkBoxBreakOnAbort;
+    QCheckBox *checkBoxEnableReverseDebugging;
+    QCheckBox *checkBoxAttemptQuickStart;
+    QCheckBox *checkBoxMultiInferior;
+
+    Utils::SavedActionSet group;
+    QString searchKeywords;
+};
+
+GdbOptionsPageWidget2::GdbOptionsPageWidget2(QWidget *parent)
+    : QWidget(parent)
+{
+    groupBoxDangerous = new QGroupBox(this);
+    groupBoxDangerous->setTitle(GdbOptionsPage::tr("Extended"));
+
+    labelDangerous = new QLabel(GdbOptionsPage::tr(
+        "The options below should be used with care."));
+    labelDangerous->setToolTip(GdbOptionsPage::tr(
+        "<html><head/><body>The options below give access to advanced "
+        "or experimental functions of GDB. Enabling them may negatively "
+        "impact your debugging experience.</body></html>"));
+    QFont f = labelDangerous->font();
+    f.setItalic(true);
+    labelDangerous->setFont(f);
+
+    checkBoxTargetAsync = new QCheckBox(groupBoxDangerous);
+    checkBoxTargetAsync->setText(GdbOptionsPage::tr(
+        "Use asynchronous mode to control the inferior"));
+
+    checkBoxAutoEnrichParameters = new QCheckBox(groupBoxDangerous);
+    checkBoxAutoEnrichParameters->setText(GdbOptionsPage::tr(
+        "Use common locations for debug information"));
+    checkBoxAutoEnrichParameters->setToolTip(GdbOptionsPage::tr(
+        "<html><head/><body>Add common paths to locations "
+        "of debug information such as <i>/usr/src/debug</i> "
+        "when starting GDB.</body></html>"));
+
+    // #fixme: 2.7 Move to common settings page.
+    checkBoxBreakOnWarning = new QCheckBox(groupBoxDangerous);
+    checkBoxBreakOnWarning->setText(CommonOptionsPage::msgSetBreakpointAtFunction("qWarning"));
+    checkBoxBreakOnWarning->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("qWarning"));
+
+    checkBoxBreakOnFatal = new QCheckBox(groupBoxDangerous);
+    checkBoxBreakOnFatal->setText(CommonOptionsPage::msgSetBreakpointAtFunction("qFatal"));
+    checkBoxBreakOnFatal->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("qFatal"));
+
+    checkBoxBreakOnAbort = new QCheckBox(groupBoxDangerous);
+    checkBoxBreakOnAbort->setText(CommonOptionsPage::msgSetBreakpointAtFunction("abort"));
+    checkBoxBreakOnAbort->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("abort"));
+
+    checkBoxEnableReverseDebugging = new QCheckBox(groupBoxDangerous);
+    checkBoxEnableReverseDebugging->setText(GdbOptionsPage::tr("Enable reverse debugging"));
+    checkBoxEnableReverseDebugging->setToolTip(GdbOptionsPage::tr(
+        "<html><head/><body><p>Enable stepping backwards.</p><p>"
+        "<b>Note:</b> This feature is very slow and unstable on the GDB side. "
+        "It exhibits unpredictable behavior when going backwards over system "
+        "calls and is very likely to destroy your debugging session.</p></body></html>"));
+
+    checkBoxAttemptQuickStart = new QCheckBox(groupBoxDangerous);
+    checkBoxAttemptQuickStart->setText(GdbOptionsPage::tr("Attempt quick start"));
+    checkBoxAttemptQuickStart->setToolTip(GdbOptionsPage::tr(
+        "<html><head/><body>Postpone reading debug information as long as possible. "
+        "This can result in faster startup times at the price of not being able to "
+        "set breakpoints by file and number.</body></html>"));
+
+    checkBoxMultiInferior = new QCheckBox(groupBoxDangerous);
+    checkBoxMultiInferior->setText(GdbOptionsPage::tr("Debug all children"));
+    checkBoxMultiInferior->setToolTip(GdbOptionsPage::tr(
+        "<html><head/><body>Keep debugging all children after a fork."
+        "</body></html>"));
+
+
+    QFormLayout *formLayout = new QFormLayout(groupBoxDangerous);
+    formLayout->addRow(labelDangerous);
+    formLayout->addRow(checkBoxTargetAsync);
+    formLayout->addRow(checkBoxAutoEnrichParameters);
+    formLayout->addRow(checkBoxBreakOnWarning);
+    formLayout->addRow(checkBoxBreakOnFatal);
+    formLayout->addRow(checkBoxBreakOnAbort);
+    formLayout->addRow(checkBoxEnableReverseDebugging);
+    formLayout->addRow(checkBoxAttemptQuickStart);
+    formLayout->addRow(checkBoxMultiInferior);
+
+    QGridLayout *gridLayout = new QGridLayout(this);
+    gridLayout->addWidget(groupBoxDangerous, 0, 0, 2, 1);
+
+    DebuggerCore *dc = debuggerCore();
+    group.insert(dc->action(AutoEnrichParameters), checkBoxAutoEnrichParameters);
+    group.insert(dc->action(TargetAsync), checkBoxTargetAsync);
+    group.insert(dc->action(BreakOnWarning), checkBoxBreakOnWarning);
+    group.insert(dc->action(BreakOnFatal), checkBoxBreakOnFatal);
+    group.insert(dc->action(BreakOnAbort), checkBoxBreakOnAbort);
+    group.insert(dc->action(AttemptQuickStart), checkBoxAttemptQuickStart);
+    group.insert(dc->action(MultiInferior), checkBoxMultiInferior);
+    group.insert(dc->action(EnableReverseDebugging), checkBoxEnableReverseDebugging);
+
+    const QLatin1Char sep(' ');
+    QTextStream(&searchKeywords)
+            << sep << groupBoxDangerous->title()
+            << sep << checkBoxTargetAsync->text()
+            << sep << checkBoxEnableReverseDebugging->text()
+            << sep << checkBoxAttemptQuickStart->text()
+            << sep << checkBoxMultiInferior->text()
+    ;
+    searchKeywords.remove(QLatin1Char('&'));
+}
+
+GdbOptionsPage2::GdbOptionsPage2()
+{
+    setId("M.Gdb2");
+    setDisplayName(tr("GDB Extended"));
+    setCategory(Constants::DEBUGGER_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("Debugger", Constants::DEBUGGER_SETTINGS_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
+}
+
+GdbOptionsPage2::~GdbOptionsPage2()
+{
+}
+
+QWidget *GdbOptionsPage2::createPage(QWidget *parent)
+{
+    m_widget = new GdbOptionsPageWidget2(parent);
+    return m_widget;
+}
+
+void GdbOptionsPage2::apply()
+{
+    if (m_widget)
+        m_widget->group.apply(Core::ICore::settings());
+}
+
+void GdbOptionsPage2::finish()
+{
+    if (m_widget)
+        m_widget->group.finish();
+}
+
+bool GdbOptionsPage2::matches(const QString &s) const
 {
     return m_widget && m_widget->searchKeywords.contains(s, Qt::CaseInsensitive);
 }

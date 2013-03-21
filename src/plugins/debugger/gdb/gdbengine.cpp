@@ -5470,6 +5470,7 @@ DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp)
 void addGdbOptionPages(QList<Core::IOptionsPage *> *opts)
 {
     opts->push_back(new GdbOptionsPage());
+    opts->push_back(new GdbOptionsPage2());
 }
 
 } // namespace Internal
