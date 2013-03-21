@@ -127,8 +127,10 @@ void CrashHandlerDialog::setApplicationInfo(const QString &signalName)
     const QString title = tr("%1 has closed unexpectedly (Signal \"%2\")").arg(ideName, signalName);
     const QString introLabelContents = tr(
         "<p><b>%1.</b></p>"
-        "<p>Please file a <a href='%2'>bug report</a> with the debug information provided below.</p>")
-        .arg(title, QLatin1String(URL_BUGTRACKER));
+        "<p>Please file a <a href='%2'>bug report</a> with the debug information provided below.</p>"
+        "<p>Hint: Deactivate this Crash Handler by adding QTC_NO_CRASH_HANDLER=1<br/>"
+        "to the environment (evaluated on startup of %3).</p>")
+        .arg(title, QLatin1String(URL_BUGTRACKER), ideName);
     m_ui->introLabel->setText(introLabelContents);
     setWindowTitle(title);
 

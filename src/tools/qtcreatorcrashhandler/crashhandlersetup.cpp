@@ -83,6 +83,9 @@ extern "C" void signalHandler(int signal)
 void setupCrashHandler()
 {
 #ifdef BUILD_CRASH_HANDLER
+    if (!qgetenv("QTC_NO_CRASH_HANDLER").isEmpty())
+        return;
+
     const QString crashHandlerPath = qApp->applicationDirPath()
         + QLatin1String("/qtcreator_crash_handler");
     crashHandlerPathC = qstrdup(qPrintable(crashHandlerPath));
