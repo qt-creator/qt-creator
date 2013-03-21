@@ -66,6 +66,7 @@ public:
     QCheckBox *checkBoxLoadGdbInit;
     QCheckBox *checkBoxLoadGdbDumpers;
     QCheckBox *checkBoxIntelFlavor;
+    QCheckBox *checkBoxIdentifyDebugInfoPackages;
 
     QGroupBox *groupBoxStartupCommands;
     QTextEdit *textEditStartupCommands;
@@ -159,6 +160,14 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "<html><head/><body>GDB shows by default AT&&T style disassembly."
         "</body></html>"));
 
+    checkBoxIdentifyDebugInfoPackages = new QCheckBox(groupBoxGeneral);
+    checkBoxIdentifyDebugInfoPackages->setText(GdbOptionsPage::tr("Create tasks from missing packages"));
+    checkBoxIdentifyDebugInfoPackages->setToolTip(GdbOptionsPage::tr(
+        "<html><head/><body><p>Checking this option attempts to identify missing debug "
+        "info packages and lists them in the Issues output pane.</p><p>"
+        "<b>Note:</b>This feature needs special support from the Linux "
+        "distribution and GDB build and is not everywhere available.</p></body></html>"));
+
     groupBoxStartupCommands = new QGroupBox(this);
     groupBoxStartupCommands->setTitle(GdbOptionsPage::tr("Additional Startup Commands"));
     groupBoxStartupCommands->setToolTip(GdbOptionsPage::tr(
@@ -226,6 +235,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     formLayout->addRow(checkBoxLoadGdbInit);
     formLayout->addRow(checkBoxLoadGdbDumpers);
     formLayout->addRow(checkBoxIntelFlavor);
+    formLayout->addRow(checkBoxIdentifyDebugInfoPackages);
 
     QGridLayout *startLayout = new QGridLayout(groupBoxStartupCommands);
     startLayout->addWidget(textEditStartupCommands, 0, 0, 1, 1);
@@ -260,6 +270,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     group.insert(dc->action(AdjustBreakpointLocations), checkBoxAdjustBreakpointLocations);
     group.insert(dc->action(GdbWatchdogTimeout), spinBoxGdbWatchdogTimeout);
     group.insert(dc->action(IntelFlavor), checkBoxIntelFlavor);
+    group.insert(dc->action(IdentifyDebugInfoPackages), checkBoxIdentifyDebugInfoPackages);
     group.insert(dc->action(UseMessageBoxForSignals), checkBoxUseMessageBoxForSignals);
     group.insert(dc->action(SkipKnownFrames), checkBoxSkipKnownFrames);
 

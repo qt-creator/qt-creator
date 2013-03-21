@@ -128,6 +128,7 @@ enum DebuggerActionCode
     WarnOnReleaseBuilds,
     MultiInferior,
     IntelFlavor,
+    IdentifyDebugInfoPackages,
 
     // Stack
     MaximalStackDepth,

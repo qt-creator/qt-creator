@@ -718,23 +718,25 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 break;
             }
 
-            // From SuSE's gdb: >&"Missing separate debuginfo for ...\n"
-            // ">&"Try: zypper install -C \"debuginfo(build-id)=c084ee5876ed1ac12730181c9f07c3e027d8e943\"\n"
-            if (data.startsWith("Missing separate debuginfo for ")) {
-                m_lastMissingDebugInfo = QString::fromLocal8Bit(data.mid(32));
-            } else if (data.startsWith("Try: zypper")) {
-                QString cmd = QString::fromLocal8Bit(data.mid(4));
+            if (debuggerCore()->boolSetting(IdentifyDebugInfoPackages)) {
+                // From SuSE's gdb: >&"Missing separate debuginfo for ...\n"
+                // ">&"Try: zypper install -C \"debuginfo(build-id)=c084ee5876ed1ac12730181c9f07c3e027d8e943\"\n"
+                if (data.startsWith("Missing separate debuginfo for ")) {
+                    m_lastMissingDebugInfo = QString::fromLocal8Bit(data.mid(32));
+                } else if (data.startsWith("Try: zypper")) {
+                    QString cmd = QString::fromLocal8Bit(data.mid(4));
 
-                Task task(Task::Warning,
-                    tr("Missing debug information for %1\nTry: %2")
-                        .arg(m_lastMissingDebugInfo).arg(cmd),
-                    FileName(), 0, Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO));
+                    Task task(Task::Warning,
+                        tr("Missing debug information for %1\nTry: %2")
+                            .arg(m_lastMissingDebugInfo).arg(cmd),
+                        FileName(), 0, Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO));
 
-                taskHub()->addTask(task);
+                    taskHub()->addTask(task);
 
-                DebugInfoTask dit;
-                dit.command = cmd;
-                m_debugInfoTaskHandler->addTask(task.taskId, dit);
+                    DebugInfoTask dit;
+                    dit.command = cmd;
+                    m_debugInfoTaskHandler->addTask(task.taskId, dit);
+                }
             }
 
             break;
