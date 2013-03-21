@@ -143,8 +143,7 @@ void TcpPortsGathererPrivate::updateWin()
     }
 
     foreach (int port, ports) {
-        if (!usedPorts.contains(port))
-            usedPorts.addPort(port);
+        usedPorts.insert(port);
     }
 #endif
     Q_UNUSED(protocol);
