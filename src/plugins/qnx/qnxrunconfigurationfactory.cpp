@@ -42,15 +42,9 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-namespace {
-QString pathFromId(const Core::Id id)
+static QString pathFromId(const Core::Id id)
 {
-    const QString idStr = id.toString();
-    if (idStr.startsWith(QLatin1String(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX)))
-        return idStr.mid(QString::fromLatin1(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX).size());
-
-    return QString();
-}
+    return id.suffixAfter(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX);
 }
 
 QnxRunConfigurationFactory::QnxRunConfigurationFactory(QObject *parent) :
@@ -80,7 +74,7 @@ QString QnxRunConfigurationFactory::displayNameForId(const Core::Id id) const
     if (path.isEmpty())
         return QString();
 
-    if (id.toString().startsWith(QLatin1String(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX)))
+    if (id.name().startsWith(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX))
         return tr("%1 on QNX Device").arg(QFileInfo(path).completeBaseName());
 
     return QString();
@@ -103,7 +97,7 @@ ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::create(ProjectExp
     if (!canCreate(parent, id))
         return 0;
 
-    if (id.toString().startsWith(QLatin1String(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX)))
+    if (id.name().startsWith(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX))
         return new QnxRunConfiguration(parent, id, pathFromId(id));
 
     return 0;
@@ -111,10 +105,8 @@ ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::create(ProjectExp
 
 bool QnxRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const
 {
-    if (!canHandle(parent))
-        return false;
-
-    return ProjectExplorer::idFromMap(map).toString().startsWith(QLatin1String(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX));
+    return canHandle(parent)
+            && ProjectExplorer::idFromMap(map).name().startsWith(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX);
 }
 
 ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)

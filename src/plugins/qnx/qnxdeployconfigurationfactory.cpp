@@ -59,7 +59,7 @@ QList<Core::Id> QnxDeployConfigurationFactory::availableCreationIds(ProjectExplo
 
 QString QnxDeployConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (id.toString().startsWith(QLatin1String(Constants::QNX_QNX_DEPLOYCONFIGURATION_ID)))
+    if (id.name().startsWith(Constants::QNX_QNX_DEPLOYCONFIGURATION_ID))
         return tr("Deploy to QNX Device");
 
     return QString();
@@ -67,11 +67,7 @@ QString QnxDeployConfigurationFactory::displayNameForId(const Core::Id id) const
 
 bool QnxDeployConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const Core::Id id) const
 {
-    if (!canHandle(parent)
-            || !id.toString().startsWith(QLatin1String(Constants::QNX_QNX_DEPLOYCONFIGURATION_ID)))
-        return false;
-
-    return true;
+    return canHandle(parent) && id.name().startsWith(Constants::QNX_QNX_DEPLOYCONFIGURATION_ID);
 }
 
 ProjectExplorer::DeployConfiguration *QnxDeployConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id)
