@@ -1979,6 +1979,8 @@ class PlainDumper:
         lister = getattr(printer, "children", None)
         children = [] if lister is None else list(lister())
         d.putType(self.printer.name)
+        val = printer.to_string().encode("hex")
+        d.putValue(val, Hex2EncodedLatin1)
         d.putValue(printer.to_string())
         d.putNumChild(len(children))
         if d.isExpanded():
