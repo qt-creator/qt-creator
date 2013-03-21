@@ -241,7 +241,7 @@ bool AndroidSettingsWidget::checkNDK(const Utils::FileName &location)
 
     QSet<ProjectExplorer::Abi::Architecture> qtVersionsForArch;
     foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::instance()->versions()) {
-        if (qtVersion->type() != QLatin1String(Constants::ANDROIDQT))
+        if (qtVersion->type() != QLatin1String(Constants::ANDROIDQT) || qtVersion->qtAbis().isEmpty())
             continue;
         qtVersionsForArch.insert(qtVersion->qtAbis().first().architecture());
     }
