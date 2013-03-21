@@ -94,7 +94,7 @@ private:
 
     // For SettingsWidget.
     IDevice::Ptr mutableDevice(Core::Id id) const;
-    void setDefaultDevice(int index);
+    void setDefaultDevice(Core::Id id);
     static DeviceManager *cloneInstance();
     static void replaceInstance();
     static void removeClonedInstance();

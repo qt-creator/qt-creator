@@ -268,7 +268,7 @@ void DeviceSettingsWidget::deviceNameEditingFinished()
 
 void DeviceSettingsWidget::setDefaultDevice()
 {
-    m_deviceManager->setDefaultDevice(currentIndex());
+    m_deviceManager->setDefaultDevice(currentDevice()->id());
     m_ui->defaultDeviceButton->setEnabled(false);
 }
 

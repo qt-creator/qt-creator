@@ -303,12 +303,12 @@ bool DeviceManager::isLoaded() const
     return d->writer;
 }
 
-void DeviceManager::setDefaultDevice(int idx)
+void DeviceManager::setDefaultDevice(Core::Id id)
 {
     QTC_ASSERT(this != instance(), return);
-    QTC_ASSERT(idx >= 0 && idx < deviceCount(), return);
 
-    const IDevice::ConstPtr &device = d->devices.at(idx);
+    const IDevice::ConstPtr &device = find(id);
+    QTC_ASSERT(device, return);
     const IDevice::ConstPtr &oldDefaultDevice = defaultDevice(device->type());
     if (device == oldDefaultDevice)
         return;
