@@ -47,18 +47,27 @@ namespace Internal {
 
 class BarPackageDeployInformation {
 public:
-    BarPackageDeployInformation(bool enabled, QString appDescriptorPath, QString packagePath, QString proFilePath)
+    BarPackageDeployInformation(bool enabled, const QString &proFilePath, const QString &sourceDir,
+                                const QString &buildDir, const QString &targetName)
         : enabled(enabled)
-        , appDescriptorPath(appDescriptorPath)
-        , packagePath(packagePath)
         , proFilePath(proFilePath)
+        , sourceDir(sourceDir)
+        , buildDir(buildDir)
+        , targetName(targetName)
     {
     }
 
+    QString appDescriptorPath() const;
+    QString packagePath() const;
+
     bool enabled;
-    QString appDescriptorPath;
-    QString packagePath;
     QString proFilePath;
+    QString sourceDir;
+    QString buildDir;
+    QString targetName;
+
+    QString userAppDescriptorPath;
+    QString userPackagePath;
 };
 
 class BlackBerryDeployInformation : public QAbstractTableModel
