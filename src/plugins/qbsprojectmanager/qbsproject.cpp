@@ -470,8 +470,13 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
             QStringList list = props.getModulePropertiesAsStringList(
                         QLatin1String(CONFIG_CPP_MODULE),
                         QLatin1String(CONFIG_DEFINES));
-            foreach (const QString &def, list)
-                grpDefines += (QByteArray("#define ") + def.toUtf8() + '\n');
+            foreach (const QString &def, list) {
+                QByteArray data = def.toUtf8();
+                int pos = data.indexOf('=');
+                if (pos >= 0)
+                    data[pos] = ' ';
+                grpDefines += (QByteArray("#define ") + data + '\n');
+            }
 
             list = props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
                                                          QLatin1String(CONFIG_INCLUDEPATHS));
