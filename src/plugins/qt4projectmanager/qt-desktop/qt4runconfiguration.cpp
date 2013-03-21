@@ -77,23 +77,19 @@ using Utils::PersistentSettingsReader;
 using Utils::PersistentSettingsWriter;
 
 namespace {
-const char * const QT4_RC_PREFIX("Qt4ProjectManager.Qt4RunConfiguration:");
 
-const char * const COMMAND_LINE_ARGUMENTS_KEY("Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments");
-const char * const PRO_FILE_KEY("Qt4ProjectManager.Qt4RunConfiguration.ProFile");
-const char * const USE_TERMINAL_KEY("Qt4ProjectManager.Qt4RunConfiguration.UseTerminal");
-const char * const USE_DYLD_IMAGE_SUFFIX_KEY("Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix");
-const char * const USER_ENVIRONMENT_CHANGES_KEY("Qt4ProjectManager.Qt4RunConfiguration.UserEnvironmentChanges");
-const char * const BASE_ENVIRONMENT_BASE_KEY("Qt4ProjectManager.Qt4RunConfiguration.BaseEnvironmentBase");
-const char * const USER_WORKING_DIRECTORY_KEY("Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory");
+const char QT4_RC_PREFIX[] = "Qt4ProjectManager.Qt4RunConfiguration:";
+const char COMMAND_LINE_ARGUMENTS_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments";
+const char PRO_FILE_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.ProFile";
+const char USE_TERMINAL_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UseTerminal";
+const char USE_DYLD_IMAGE_SUFFIX_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix";
+const char USER_ENVIRONMENT_CHANGES_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UserEnvironmentChanges";
+const char BASE_ENVIRONMENT_BASE_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.BaseEnvironmentBase";
+const char USER_WORKING_DIRECTORY_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory";
 
 QString pathFromId(Core::Id id)
 {
-    QString idstr = id.toString();
-    const QString prefix = QLatin1String(QT4_RC_PREFIX);
-    if (!idstr.startsWith(prefix))
-        return QString();
-    return idstr.mid(prefix.size());
+    return id.suffixAfter(QT4_RC_PREFIX);
 }
 
 } // namespace
