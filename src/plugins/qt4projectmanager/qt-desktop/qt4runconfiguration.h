@@ -56,7 +56,7 @@ namespace Qt4ProjectManager {
 class Qt4Project;
 class Qt4ProFileNode;
 class Qt4PriFileNode;
-struct TargetInformation;
+class TargetInformation;
 
 namespace Internal {
 class Qt4RunConfigurationFactory;

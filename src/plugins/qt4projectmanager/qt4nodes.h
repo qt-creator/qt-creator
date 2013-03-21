@@ -293,8 +293,9 @@ private:
 
 } // namespace Internal
 
-struct QT4PROJECTMANAGER_EXPORT TargetInformation
+class QT4PROJECTMANAGER_EXPORT TargetInformation
 {
+public:
     bool valid;
     QString target;
     QString destDir;

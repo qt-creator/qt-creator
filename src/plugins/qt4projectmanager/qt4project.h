@@ -56,7 +56,7 @@ class Qt4Manager;
 class Qt4PriFileNode;
 class Qt4ProFileNode;
 class Qt4RunStep;
-struct TargetInformation;
+class TargetInformation;
 
 namespace Internal {
 class CentralizedFolderWatcher;
