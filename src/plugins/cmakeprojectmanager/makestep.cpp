@@ -81,7 +81,7 @@ MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) :
     AbstractProcessStep(bsl, bs),
     m_clean(bs->m_clean),
     m_buildTargets(bs->m_buildTargets),
-    m_additionalArguments(Utils::QtcProcess::joinArgs(bs->m_buildTargets))
+    m_additionalArguments(bs->m_additionalArguments)
 {
     ctor();
 }
