@@ -1804,12 +1804,10 @@ static inline bool dumpQFileInfo(const SymbolGroupValue &v, std::wostream &str)
  * Dump 1st string past its QSharedData base class. */
 static bool inline dumpQDir(const SymbolGroupValue &v, std::wostream &str)
 {
-    // Access QDirPrivate's dirEntry, which has the path as first member.
-    const unsigned listSize = qListSize(v.context());
-    const unsigned offset = padOffset(listSize + 2 * SymbolGroupValue::intSize())
-            + padOffset(SymbolGroupValue::pointerSize() + SymbolGroupValue::sizeOf("bool"))
-            + 2 * listSize;
-    return dumpQStringFromQPrivateClass(v, QPDM_qSharedDataPadded, offset,  str);
+    const unsigned offset =
+            v.fieldOffset(QtInfo::get(v.context()).prependQtCoreModule("QDirPrivate").c_str(),
+                          "dirEntry.m_filePath");
+    return dumpQStringFromQPrivateClass(v, QPDM_None, offset,  str);
 }
 
 /* Dump QRegExp, for whose private class no debugging information is available.
