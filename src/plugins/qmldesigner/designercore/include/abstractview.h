@@ -42,6 +42,7 @@
 
 QT_BEGIN_NAMESPACE
 class QStyle;
+class QToolButton;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -58,7 +59,32 @@ class QmlModelView;
 class NodeInstanceView;
 class RewriterView;
 
-struct WidgetInfo {
+class WidgetInfo {
+
+public:
+    class ToolBarWidgetFactoryInterface {
+    public:
+        ToolBarWidgetFactoryInterface()
+        {}
+
+        virtual QList<QToolButton*> createToolBarWidgets() = 0;
+    };
+
+    template <class T>
+    class ToolBarWidgetDefaultFactory : public ToolBarWidgetFactoryInterface {
+    public:
+        ToolBarWidgetDefaultFactory(T *t ) : m_t(t)
+        {}
+
+        QList<QToolButton*> createToolBarWidgets()
+        {
+            return m_t->createToolBarWidgets();
+        }
+
+    private:
+        T * m_t;
+    };
+
     enum PlacementHint {
         NoPane,
         LeftPane,
@@ -68,11 +94,18 @@ struct WidgetInfo {
         CentralPane // not used
     };
 
+    WidgetInfo()
+        : widget(0),
+          toolBarWidgetFactory(0)
+    {
+    }
+
     QString uniqueId;
     QString tabName;
     QWidget *widget;
     int placementPriority;
     PlacementHint placementHint;
+    ToolBarWidgetFactoryInterface *toolBarWidgetFactory;
 };
 
 
@@ -205,6 +238,7 @@ protected:
     void setModel(Model * model);
     void removeModel();
     static WidgetInfo createWidgetInfo(QWidget *widget = 0,
+                                       WidgetInfo::ToolBarWidgetFactoryInterface *toolBarWidgetFactory = 0,
                                        const QString &uniqueId = QString(),
                                        WidgetInfo::PlacementHint placementHint = WidgetInfo::NoPane,
                                        int placementPriority = 0,

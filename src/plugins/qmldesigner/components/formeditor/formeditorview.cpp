@@ -277,7 +277,7 @@ void FormEditorView::bindingPropertiesChanged(const QList<BindingProperty>& prop
 
 WidgetInfo FormEditorView::widgetInfo()
 {
-    return createWidgetInfo(m_formEditorWidget.data(), "FormEditor", WidgetInfo::CentralPane, 0, tr("Form Editor"));
+    return createWidgetInfo(m_formEditorWidget.data(), 0, "FormEditor", WidgetInfo::CentralPane, 0, tr("Form Editor"));
 }
 
 FormEditorWidget *FormEditorView::formEditorWidget()
