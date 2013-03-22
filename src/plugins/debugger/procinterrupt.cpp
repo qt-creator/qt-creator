@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "procinterrupt.h"
+#include "debuggerconstants.h"
 
 #include <QProcess> // makes kill visible on Windows.
 #include <QDir>
