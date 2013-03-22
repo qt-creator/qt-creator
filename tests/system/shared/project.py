@@ -207,10 +207,8 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
                                 targets=QtQuickConstants.desktopTargetClasses(), qtQuickVersion=1,
                                 fromWelcome=False):
     if templateFile:
-        if qtQuickVersion == 2:
-            test.fatal('There is no wizard "Qt Quick 2 Application (from Existing QML File)"',
-                       'This is a script error. Using Qt Quick 1 instead.')
-        available = __createProjectOrFileSelectType__("  Applications", "Qt Quick 1 Application (from Existing QML File)", fromWelcome)
+        available = __createProjectOrFileSelectType__("  Applications", "Qt Quick %d Application (from Existing QML File)"
+                                                      % qtQuickVersion, fromWelcome)
     else:
         available = __createProjectOrFileSelectType__("  Applications", "Qt Quick %d Application (Built-in Elements)"
                                                 % qtQuickVersion, fromWelcome)
