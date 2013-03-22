@@ -48,6 +48,12 @@ public:
 
     QString title() const;
     void setTitle(const QString &title);
+    void setTitleVisible(bool visible);
+    bool isTitleVisible() const;
+    void setSeparatorVisible(bool visible);
+    bool isSeparatorVisible() const;
+    void setCancelEnabled(bool enabled);
+    bool isCancelEnabled() const;
     void setError(bool on);
     bool hasError() const;
     QSize sizeHint() const;
@@ -75,6 +81,9 @@ private:
     QImage bar;
     QString m_text;
     QString m_title;
+    bool m_titleVisible;
+    bool m_separatorVisible;
+    bool m_cancelEnabled;
     int m_progressHeight;
     int m_minimum;
     int m_maximum;

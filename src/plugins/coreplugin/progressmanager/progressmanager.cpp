@@ -28,10 +28,28 @@
 ****************************************************************************/
 
 #include "progressmanager_p.h"
+#include "progressbar.h"
 #include "progressview.h"
+#include "../actionmanager/actionmanager.h"
+#include "../icontext.h"
+#include "../coreconstants.h"
 #include "../icore.h"
+#include "../statusbarwidget.h"
 
+
+#include <extensionsystem/pluginmanager.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
+
+#include <QAction>
+#include <QEvent>
+#include <QHBoxLayout>
+#include <QPainter>
+#include <QPropertyAnimation>
+#include <QStyle>
+#include <QStyleOption>
+#include <QTimer>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -243,15 +261,68 @@ using namespace Core::Internal;
 
 ProgressManagerPrivate::ProgressManagerPrivate(QObject *parent)
   : ProgressManager(parent),
-    m_applicationTask(0)
+    m_applicationTask(0),
+    m_opacityEffect(new QGraphicsOpacityEffect(this)),
+    m_progressViewPinned(false),
+    m_hovered(false)
 {
     m_progressView = new ProgressView;
+    connect(m_progressView, SIGNAL(hasErrorChanged()), this, SLOT(updateSummaryProgressBar()));
+    connect(m_progressView, SIGNAL(fadeOfLastProgressStarted()), this, SLOT(updateSummaryProgressBar()));
+    // withDelay, so the statusBarWidget has the chance to get the enter event
+    connect(m_progressView, SIGNAL(hoveredChanged(bool)), this, SLOT(updateVisibilityWithDelay()));
     connect(ICore::instance(), SIGNAL(coreAboutToClose()), this, SLOT(cancelAllRunningTasks()));
 }
 
 ProgressManagerPrivate::~ProgressManagerPrivate()
 {
+    ExtensionSystem::PluginManager::removeObject(m_statusBarWidgetContainer);
+    delete m_statusBarWidgetContainer;
     cleanup();
+}
+
+void ProgressManagerPrivate::init()
+{
+    m_statusBarWidgetContainer = new Core::StatusBarWidget;
+    m_statusBarWidget = new QWidget;
+    QHBoxLayout *layout = new QHBoxLayout(m_statusBarWidget);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
+    m_statusBarWidget->setLayout(layout);
+    m_summaryProgressBar = new ProgressBar(m_statusBarWidget);
+    m_summaryProgressBar->setMinimumWidth(70);
+    m_summaryProgressBar->setTitleVisible(false);
+    m_summaryProgressBar->setSeparatorVisible(false);
+    m_summaryProgressBar->setCancelEnabled(false);
+    m_summaryProgressBar->setGraphicsEffect(m_opacityEffect);
+    m_summaryProgressBar->setVisible(!m_progressViewPinned);
+    layout->addWidget(m_summaryProgressBar);
+    ToggleButton *toggleButton = new ToggleButton(m_statusBarWidget);
+    layout->addWidget(toggleButton);
+    m_statusBarWidgetContainer->setWidget(m_statusBarWidget);
+    m_statusBarWidgetContainer->setPosition(Core::StatusBarWidget::RightCorner);
+    ExtensionSystem::PluginManager::addObject(m_statusBarWidgetContainer);
+    m_statusBarWidget->installEventFilter(this);
+
+    QAction *toggleProgressView = new QAction(tr("Toggle progress details"), this);
+    toggleProgressView->setCheckable(true);
+    toggleProgressView->setChecked(m_progressViewPinned);
+    // we have to set an transparent icon to prevent the tool button to show text
+    QPixmap p(1, 1);
+    p.fill(Qt::transparent);
+    toggleProgressView->setIcon(QIcon(p));
+    Command *cmd = ActionManager::registerAction(toggleProgressView,
+                                                 Id("QtCreator.ToggleProgressDetails"),
+                                                 Context(Constants::C_GLOBAL));
+    cmd->setDefaultKeySequence(QKeySequence(Utils::HostOsInfo::isMacHost()
+                                               ? tr("Ctrl+Shift+0")
+                                               : tr("Alt+Shift+0")));
+    connect(toggleProgressView, SIGNAL(toggled(bool)), this, SLOT(progressDetailsToggled(bool)));
+    toggleButton->setDefaultAction(cmd->action());
+
+    m_progressView->setVisible(m_progressViewPinned);
+
+    initInternal();
 }
 
 void ProgressManagerPrivate::cancelTasks(const QString &type)
@@ -271,8 +342,23 @@ void ProgressManagerPrivate::cancelTasks(const QString &type)
         delete task.key();
         task = m_runningTasks.erase(task);
     }
-    if (found)
+    if (found) {
+        updateSummaryProgressBar();
         emit allTasksFinished(type);
+    }
+}
+
+bool ProgressManagerPrivate::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == m_statusBarWidget && event->type() == QEvent::Enter) {
+        m_hovered = true;
+        updateVisibility();
+    } else if (obj == m_statusBarWidget && event->type() == QEvent::Leave) {
+        m_hovered = false;
+        // give the progress view the chance to get the mouse enter event
+        updateVisibilityWithDelay();
+    }
+    return false;
 }
 
 void ProgressManagerPrivate::cancelAllRunningTasks()
@@ -287,6 +373,7 @@ void ProgressManagerPrivate::cancelAllRunningTasks()
         ++task;
     }
     m_runningTasks.clear();
+    updateSummaryProgressBar();
 }
 
 FutureProgress *ProgressManagerPrivate::addTask(const QFuture<void> &future, const QString &title,
@@ -294,6 +381,8 @@ FutureProgress *ProgressManagerPrivate::addTask(const QFuture<void> &future, con
 {
     QFutureWatcher<void> *watcher = new QFutureWatcher<void>();
     m_runningTasks.insert(watcher, type);
+    connect(watcher, SIGNAL(progressRangeChanged(int,int)), this, SLOT(updateSummaryProgressBar()));
+    connect(watcher, SIGNAL(progressValueChanged(int)), this, SLOT(updateSummaryProgressBar()));
     connect(watcher, SIGNAL(finished()), this, SLOT(taskFinished()));
     if (flags & ShowInApplicationIcon) {
         if (m_applicationTask)
@@ -312,7 +401,7 @@ FutureProgress *ProgressManagerPrivate::addTask(const QFuture<void> &future, con
     return m_progressView->addTask(future, title, type, flags);
 }
 
-QWidget *ProgressManagerPrivate::progressView()
+ProgressView *ProgressManagerPrivate::progressView()
 {
     return m_progressView;
 }
@@ -327,6 +416,7 @@ void ProgressManagerPrivate::taskFinished()
     QString type = m_runningTasks.value(task);
     m_runningTasks.remove(task);
     delete task;
+    updateSummaryProgressBar();
 
     if (!m_runningTasks.key(type, 0))
         emit allTasksFinished(type);
@@ -340,4 +430,97 @@ void ProgressManagerPrivate::disconnectApplicationTask()
             this, SLOT(setApplicationProgressValue(int)));
     setApplicationProgressVisible(false);
     m_applicationTask = 0;
+}
+
+void ProgressManagerPrivate::updateSummaryProgressBar()
+{
+    m_summaryProgressBar->setError(m_progressView->hasError());
+    updateVisibility();
+    if (m_runningTasks.isEmpty()) {
+        m_summaryProgressBar->setFinished(true);
+        if (m_progressView->isEmpty() || m_progressView->isFading())
+            fadeAway();
+        return;
+    }
+
+    stopFade();
+
+    m_summaryProgressBar->setFinished(false);
+    QMapIterator<QFutureWatcher<void> *, QString> it(m_runningTasks);
+    int range = 0;
+    int value = 0;
+    while (it.hasNext()) {
+        it.next();
+        QFutureWatcher<void> *watcher = it.key();
+        int min = watcher->progressMinimum();
+        range += watcher->progressMaximum() - min;
+        value += watcher->progressValue() - min;
+    }
+    m_summaryProgressBar->setRange(0, range);
+    m_summaryProgressBar->setValue(value);
+}
+
+void ProgressManagerPrivate::fadeAway()
+{
+    stopFade();
+    m_opacityAnimation = new QPropertyAnimation(m_opacityEffect, "opacity");
+    m_opacityAnimation->setDuration(Utils::StyleHelper::progressFadeAnimationDuration);
+    m_opacityAnimation->setEndValue(0.);
+    connect(m_opacityAnimation, SIGNAL(finished()), this, SLOT(fadeFinished()));
+    m_opacityAnimation->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void ProgressManagerPrivate::stopFade()
+{
+    if (m_opacityAnimation) {
+        m_opacityAnimation->stop();
+        m_opacityEffect->setOpacity(1.);
+        delete m_opacityAnimation;
+    }
+}
+
+void ProgressManagerPrivate::updateVisibility()
+{
+    m_progressView->setVisible(m_progressViewPinned || m_hovered || m_progressView->isHovered());
+    m_summaryProgressBar->setVisible((!m_runningTasks.isEmpty() || !m_progressView->isEmpty())
+                                     && !m_progressViewPinned);
+}
+
+void ProgressManagerPrivate::updateVisibilityWithDelay()
+{
+    QTimer::singleShot(150, this, SLOT(updateVisibility()));
+}
+
+void ProgressManagerPrivate::fadeFinished()
+{
+    m_summaryProgressBar->setVisible(false);
+    m_opacityEffect->setOpacity(1.);
+}
+
+void ProgressManagerPrivate::progressDetailsToggled(bool checked)
+{
+    m_progressViewPinned = checked;
+    updateVisibility();
+}
+
+ToggleButton::ToggleButton(QWidget *parent)
+    : QToolButton(parent)
+{
+    setToolButtonStyle(Qt::ToolButtonIconOnly);
+}
+
+QSize ToggleButton::sizeHint() const
+{
+    return QSize(12, 12);
+}
+
+void ToggleButton::paintEvent(QPaintEvent *event)
+{
+    QToolButton::paintEvent(event);
+    QPainter p(this);
+    QStyle *s = style();
+    QStyleOption arrowOpt;
+    arrowOpt.initFrom(this);
+    arrowOpt.rect = QRect(rect().center().x() - 3, rect().center().y() - 6, 9, 9);
+    s->drawPrimitive(QStyle::PE_IndicatorArrowUp, &arrowOpt, &p, this);
 }

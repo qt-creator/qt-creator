@@ -71,14 +71,21 @@ public:
     void setWidget(QWidget *widget);
     QWidget *widget() const;
 
+    bool isFading() const;
+
+    QSize sizeHint() const;
+
 signals:
     void clicked();
     void finished();
     void canceled();
     void removeMe();
+    void hasErrorChanged();
+    void fadeStarted();
 
 protected:
     void mousePressEvent(QMouseEvent *event);
+    void paintEvent(QPaintEvent *);
 
 private slots:
     void updateToolTip(const QString &);
@@ -90,6 +97,7 @@ private slots:
     void setProgressText(const QString &text);
 
 private:
+    friend class FutureProgressPrivate; // for sending signal
     FutureProgressPrivate *d;
 };
 

@@ -84,7 +84,7 @@ static inline HWND hwndOfWidget(const QWidget *w)
 }
 #endif
 
-void Core::Internal::ProgressManagerPrivate::init()
+void Core::Internal::ProgressManagerPrivate::initInternal()
 {
     CoInitialize(NULL);
     HRESULT hRes = CoCreateInstance(CLSID_TaskbarList,
@@ -164,7 +164,7 @@ void Core::Internal::ProgressManagerPrivate::setApplicationProgressVisible(bool 
 
 #else
 
-void Core::Internal::ProgressManagerPrivate::init()
+void Core::Internal::ProgressManagerPrivate::initInternal()
 {
 }
 

@@ -35,6 +35,7 @@
 #include <QFuture>
 #include <QWidget>
 
+
 QT_BEGIN_NAMESPACE
 class QVBoxLayout;
 QT_END_NAMESPACE
@@ -59,17 +60,37 @@ public:
                             const QString &type,
                             ProgressManager::ProgressFlags flags);
 
+    bool hasError() const;
+    bool isFading() const;
+    bool isEmpty() const;
+    bool isHovered() const;
+
+    void setReferenceWidget(QWidget *widget);
+
+protected:
+    bool event(QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event);
+
+signals:
+    void hasErrorChanged();
+    void fadeOfLastProgressStarted();
+    void hoveredChanged(bool hovered);
+
 private slots:
     void slotRemoveTask();
+    void checkForLastProgressFading();
 
 private:
     void removeOldTasks(const QString &type, bool keepOne = false);
     void removeOneOldTask();
     void removeTask(FutureProgress *task);
     void deleteTask(FutureProgress *task);
+    void reposition();
 
     QVBoxLayout *m_layout;
     QList<FutureProgress *> m_taskList;
+    QWidget *m_referenceWidget;
+    bool m_hovered;
 };
 
 } // namespace Internal

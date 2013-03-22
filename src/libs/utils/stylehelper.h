@@ -50,6 +50,7 @@ class QTCREATOR_UTILS_EXPORT StyleHelper
 {
 public:
     static const unsigned int DEFAULT_BASE_COLOR = 0x666666;
+    static const int progressFadeAnimationDuration = 600;
 
     // Height of the project explorer navigation bar
     static int navigationWidgetHeight() { return 24; }

@@ -32,18 +32,22 @@
 
 #include <utils/qtcassert.h>
 
+#include <QEvent>
 #include <QVBoxLayout>
 
 using namespace Core;
 using namespace Core::Internal;
 
+static const int PROGRESS_WIDTH = 100;
+
 ProgressView::ProgressView(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent), m_referenceWidget(0), m_hovered(false)
 {
     m_layout = new QVBoxLayout;
     setLayout(m_layout);
-    m_layout->setMargin(0);
+    m_layout->setContentsMargins(0, 0, 0, 1);
     m_layout->setSpacing(0);
+    m_layout->setSizeConstraint(QLayout::SetFixedSize);
     setWindowTitle(tr("Processes"));
 }
 
@@ -59,7 +63,7 @@ FutureProgress *ProgressView::addTask(const QFuture<void> &future,
                                       ProgressManager::ProgressFlags flags)
 {
     removeOldTasks(type);
-    if (m_taskList.size() == 3)
+    if (m_taskList.size() == 10)
         removeOneOldTask();
     FutureProgress *progress = new FutureProgress(this);
     progress->setTitle(title);
@@ -72,8 +76,74 @@ FutureProgress *ProgressView::addTask(const QFuture<void> &future,
         progress->setKeepOnFinish(FutureProgress::KeepOnFinishTillUserInteraction);
     else
         progress->setKeepOnFinish(FutureProgress::HideOnFinish);
+    connect(progress, SIGNAL(hasErrorChanged()), this, SIGNAL(hasErrorChanged()));
     connect(progress, SIGNAL(removeMe()), this, SLOT(slotRemoveTask()));
+    connect(progress, SIGNAL(fadeStarted()), this, SLOT(checkForLastProgressFading()));
     return progress;
+}
+
+bool ProgressView::hasError() const
+{
+    foreach (FutureProgress *progress, m_taskList)
+        if (progress->hasError())
+            return true;
+    return false;
+}
+
+bool ProgressView::isFading() const
+{
+    if (m_taskList.isEmpty())
+        return false;
+    foreach (FutureProgress *progress, m_taskList) {
+        if (!progress->isFading()) // we still have progress bars that are not fading, do nothing
+            return false;
+    }
+    return true;
+}
+
+bool ProgressView::isEmpty() const
+{
+    return m_taskList.isEmpty();
+}
+
+bool ProgressView::isHovered() const
+{
+    return m_hovered;
+}
+
+void ProgressView::setReferenceWidget(QWidget *widget)
+{
+    if (m_referenceWidget)
+        removeEventFilter(this);
+    m_referenceWidget = widget;
+    if (m_referenceWidget)
+        installEventFilter(this);
+    reposition();
+}
+
+bool ProgressView::event(QEvent *event)
+{
+    if (event->type() == QEvent::ParentAboutToChange && parentWidget()) {
+        parentWidget()->removeEventFilter(this);
+    } else if (event->type() == QEvent::ParentChange && parentWidget()) {
+        parentWidget()->installEventFilter(this);
+    } else if (event->type() == QEvent::Resize) {
+        reposition();
+    } else if (event->type() == QEvent::Enter) {
+        m_hovered = true;
+        emit hoveredChanged(m_hovered);
+    } else if (event->type() == QEvent::Leave) {
+        m_hovered = false;
+        emit hoveredChanged(m_hovered);
+    }
+    return QWidget::event(event);
+}
+
+bool ProgressView::eventFilter(QObject *obj, QEvent *event)
+{
+    if ((obj == parentWidget() || obj == m_referenceWidget) && event->type() == QEvent::Resize)
+        reposition();
+    return false;
 }
 
 void ProgressView::removeOldTasks(const QString &type, bool keepOne)
@@ -97,6 +167,15 @@ void ProgressView::deleteTask(FutureProgress *progress)
     layout()->removeWidget(progress);
     progress->hide();
     progress->deleteLater();
+}
+
+void ProgressView::reposition()
+{
+    if (!parentWidget() || !m_referenceWidget)
+        return;
+    QPoint topRightReferenceInParent =
+            m_referenceWidget->mapTo(parentWidget(), m_referenceWidget->rect().topRight());
+    move(topRightReferenceInParent - rect().bottomRight());
 }
 
 void ProgressView::removeOneOldTask()
@@ -145,4 +224,10 @@ void ProgressView::slotRemoveTask()
     QString type = progress->type();
     removeTask(progress);
     removeOldTasks(type, true);
+}
+
+void ProgressView::checkForLastProgressFading()
+{
+    if (isEmpty() || isFading())
+        emit fadeOfLastProgressStarted();
 }
