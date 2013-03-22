@@ -48,7 +48,7 @@ class FormEditorItem;
 class FormEditorView;
 class LayerItem;
 
-class FormEditorScene : public QGraphicsScene
+class QMLDESIGNERCORE_EXPORT FormEditorScene : public QGraphicsScene
 {
     Q_OBJECT
 

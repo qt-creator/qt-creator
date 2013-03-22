@@ -57,7 +57,7 @@ class DragTool;
 class ItemLibraryEntry;
 class QmlItemNode;
 
-class  FormEditorView : public QmlModelView
+class QMLDESIGNERCORE_EXPORT FormEditorView : public QmlModelView
 {
     Q_OBJECT
 
