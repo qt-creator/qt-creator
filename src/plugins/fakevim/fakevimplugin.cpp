@@ -292,8 +292,12 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
         m_ui.checkBoxSmartTab);
     m_group.insert(theFakeVimSetting(ConfigStartOfLine),
         m_ui.checkBoxStartOfLine);
+    m_group.insert(theFakeVimSetting(ConfigPassNewLine),
+        m_ui.checkBoxPassNewLine);
     m_group.insert(theFakeVimSetting(ConfigTabStop),
         m_ui.spinBoxTabStop);
+    m_group.insert(theFakeVimSetting(ConfigScrollOff),
+        m_ui.spinBoxScrollOff);
     m_group.insert(theFakeVimSetting(ConfigBackspace),
         m_ui.lineEditBackspace);
     m_group.insert(theFakeVimSetting(ConfigIsKeyword),
@@ -348,10 +352,16 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
                 << sep << m_ui.checkBoxSmartCase->text()
                 << sep << m_ui.checkBoxShowMarks->text()
                 << sep << m_ui.checkBoxPassControlKey->text()
+                << sep << m_ui.checkBoxPassNewLine->text()
+                << sep << m_ui.checkBoxIgnoreCase->text()
+                << sep << m_ui.checkBoxWrapScan->text()
+                << sep << m_ui.checkBoxShowCmd->text()
                 << sep << m_ui.labelShiftWidth->text()
                 << sep << m_ui.labelTabulator->text()
                 << sep << m_ui.labelBackspace->text()
-                << sep << m_ui.labelIsKeyword->text();
+                << sep << m_ui.labelIsKeyword->text()
+                << sep << m_ui.labelScrollOff->text()
+                << sep << m_ui.lineEditVimRcPath->text();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
     return w;
@@ -381,6 +391,7 @@ void FakeVimOptionPage::setQtStyle()
     m_ui.checkBoxSmartIndent->setChecked(true);
     m_ui.checkBoxIncSearch->setChecked(true);
     m_ui.lineEditBackspace->setText(_("indent,eol,start"));
+    m_ui.checkBoxPassNewLine->setChecked(true);
 }
 
 void FakeVimOptionPage::setPlainStyle()
@@ -393,6 +404,7 @@ void FakeVimOptionPage::setPlainStyle()
     m_ui.checkBoxSmartIndent->setChecked(false);
     m_ui.checkBoxIncSearch->setChecked(false);
     m_ui.lineEditBackspace->setText(QString());
+    m_ui.checkBoxPassNewLine->setChecked(false);
 }
 
 void FakeVimOptionPage::openVimRc()
