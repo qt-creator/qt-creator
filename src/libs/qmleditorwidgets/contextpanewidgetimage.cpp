@@ -420,7 +420,8 @@ static inline bool parseSciFile(const QString &fileName, QString &pixmapFileName
     QString imgFile;
 
     QFile data(fileName);
-    data.open(QIODevice::ReadOnly);
+    if (!data.open(QIODevice::ReadOnly))
+        return false;
 
     QByteArray raw;
     while (raw = data.readLine(), !raw.isEmpty()) {
