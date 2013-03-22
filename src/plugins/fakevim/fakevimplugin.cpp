@@ -2051,7 +2051,7 @@ void FakeVimPlugin::extensionsInitialized()
 {
     d->m_statusBar = new StatusBarWidget;
     d->m_statusBar->setWidget(new MiniBuffer);
-    d->m_statusBar->setPosition(StatusBarWidget::Last);
+    d->m_statusBar->setPosition(StatusBarWidget::LastLeftAligned);
     addAutoReleasedObject(d->m_statusBar);
 }
 

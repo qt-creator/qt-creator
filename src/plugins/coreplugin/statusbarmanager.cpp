@@ -41,20 +41,30 @@
 using namespace Core;
 using namespace Core::Internal;
 
+static QWidget *createWidget()
+{
+    QWidget *w = new QWidget();
+    w->setLayout(new QHBoxLayout);
+    w->setVisible(true);
+    w->layout()->setMargin(0);
+    return w;
+}
+
 StatusBarManager::StatusBarManager(MainWindow *mainWnd)
   : QObject(mainWnd),
     m_mainWnd(mainWnd)
 {
-    for (int i = 0; i <= StatusBarWidget::Last; ++i) {
-        QWidget *w = new QWidget();
+    for (int i = 0; i <= StatusBarWidget::LastLeftAligned; ++i) {
+        QWidget *w = createWidget();
         m_mainWnd->statusBar()->insertPermanentWidget(i, w);
-        w->setLayout(new QHBoxLayout);
-        w->setVisible(true);
-        w->layout()->setMargin(0);
         m_statusBarWidgets.append(w);
     }
-    m_mainWnd->statusBar()->insertPermanentWidget(StatusBarWidget::Last+1,
+    m_mainWnd->statusBar()->insertPermanentWidget(StatusBarWidget::LastLeftAligned + 1,
                                                   new QLabel(), 1);
+    QWidget *rightCornerWidget = createWidget();
+    m_mainWnd->statusBar()->insertPermanentWidget(StatusBarWidget::LastLeftAligned + 2,
+                                                  rightCornerWidget);
+    m_statusBarWidgets.append(rightCornerWidget);
 }
 
 StatusBarManager::~StatusBarManager()

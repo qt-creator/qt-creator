@@ -40,7 +40,7 @@ class CORE_EXPORT StatusBarWidget : public IContext
     Q_OBJECT
 
 public:
-    enum StatusBarPosition { First=0, Second=1, Third=2, Last=Third };
+    enum StatusBarPosition { First=0, Second=1, Third=2, LastLeftAligned=Third, RightCorner};
 
     StatusBarWidget(QObject *parent = 0);
     ~StatusBarWidget();
