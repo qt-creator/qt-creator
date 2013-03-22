@@ -33,6 +33,8 @@
 #include <QtGlobal>
 #include <QList>
 
+#define QTC_OVERRIDE //hack for Qt Creator 2.7
+
 // Unnecessary since core isn't a dll any more.
 
 #define TEST_CORESHARED_EXPORT
