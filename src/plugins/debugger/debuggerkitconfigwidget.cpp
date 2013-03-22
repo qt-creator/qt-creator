@@ -132,10 +132,12 @@ DebuggerKitConfigDialog::DebuggerKitConfigDialog(QWidget *parent)
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     m_comboBox->addItem(DebuggerKitInformation::debuggerEngineName(GdbEngineType), QVariant(int(GdbEngineType)));
-    if (ProjectExplorer::Abi::hostAbi().os() == ProjectExplorer::Abi::WindowsOS)
+    if (ProjectExplorer::Abi::hostAbi().os() == ProjectExplorer::Abi::WindowsOS) {
         m_comboBox->addItem(DebuggerKitInformation::debuggerEngineName(CdbEngineType), QVariant(int(CdbEngineType)));
-    else
+    } else {
         m_comboBox->addItem(DebuggerKitInformation::debuggerEngineName(LldbEngineType), QVariant(int(LldbEngineType)));
+        m_comboBox->addItem(DebuggerKitInformation::debuggerEngineName(LldbLibEngineType), QVariant(int(LldbLibEngineType)));
+    }
     connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(refreshLabel()));
     QLabel *engineTypeLabel = new QLabel(tr("&Engine:"));
     engineTypeLabel->setBuddy(m_comboBox);

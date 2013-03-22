@@ -195,19 +195,21 @@ enum LogChannel
 enum DebuggerEngineType
 {
     NoEngineType      = 0,
-    GdbEngineType     = 0x01,
-    ScriptEngineType  = 0x02,
-    CdbEngineType     = 0x04,
-    PdbEngineType     = 0x08,
-    QmlEngineType     = 0x20,
-    QmlCppEngineType  = 0x40,
-    LldbEngineType  = 0x80,
+    GdbEngineType     = 0x001,
+    ScriptEngineType  = 0x002,
+    CdbEngineType     = 0x004,
+    PdbEngineType     = 0x008,
+    QmlEngineType     = 0x020,
+    QmlCppEngineType  = 0x040,
+    LldbLibEngineType = 0x080,
+    LldbEngineType    = 0x100,
     AllEngineTypes = GdbEngineType
         | ScriptEngineType
         | CdbEngineType
         | PdbEngineType
         | QmlEngineType
         | QmlCppEngineType
+        | LldbLibEngineType
         | LldbEngineType
 };
 

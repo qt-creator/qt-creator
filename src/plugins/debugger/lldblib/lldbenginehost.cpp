@@ -222,7 +222,7 @@ void LldbEngineHost::stderrReady()
     fprintf(stderr,"%s", m_guestProcess->readAllStandardError().data());
 }
 
-DebuggerEngine *createLldbEngine(const DebuggerStartParameters &startParameters)
+DebuggerEngine *createLldbLibEngine(const DebuggerStartParameters &startParameters)
 {
     return new LldbEngineHost(startParameters);
 }

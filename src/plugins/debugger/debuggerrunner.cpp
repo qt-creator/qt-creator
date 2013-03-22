@@ -32,12 +32,13 @@
 
 #include "debuggeractions.h"
 #include "debuggercore.h"
-#include "debuggerplugin.h"
-#include "debuggerstringutils.h"
-#include "debuggerstartparameters.h"
+#include "debuggerengine.h"
 #include "debuggerkitinformation.h"
-#include "lldblib/lldbenginehost.h"
+#include "debuggerplugin.h"
+#include "debuggerstartparameters.h"
+#include "debuggerstringutils.h"
 #include "debuggertooltipmanager.h"
+#include "breakhandler.h"
 
 #ifdef Q_OS_WIN
 #  include "peutils.h"
@@ -78,6 +79,7 @@ DebuggerEngine *createScriptEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createPdbEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp, QString *error);
+DebuggerEngine *createLldbLibEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createLldbEngine(const DebuggerStartParameters &sp);
 
 static const char *engineTypeName(DebuggerEngineType et)
@@ -97,8 +99,10 @@ static const char *engineTypeName(DebuggerEngineType et)
         return "QML engine";
     case Debugger::QmlCppEngineType:
         return "QML C++ engine";
+    case Debugger::LldbLibEngineType:
+        return "LLDB binary engine";
     case Debugger::LldbEngineType:
-        return "LLDB engine";
+        return "LLDB command line engine";
     case Debugger::AllEngineTypes:
         break;
     }
@@ -651,6 +655,8 @@ DebuggerEngine *DebuggerRunControlFactory::createEngine(DebuggerEngineType et,
         return createQmlEngine(sp);
     case LldbEngineType:
         return createLldbEngine(sp);
+    case LldbLibEngineType:
+        return createLldbLibEngine(sp);
     case QmlCppEngineType:
         return createQmlCppEngine(sp, errorMessage);
     default:
