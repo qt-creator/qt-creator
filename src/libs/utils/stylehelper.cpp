@@ -496,5 +496,14 @@ void StyleHelper::tintImage(QImage &img, const QColor &tintColor)
     }
 }
 
+QLinearGradient StyleHelper::statusBarGradient(const QRect &statusBarRect)
+{
+    QLinearGradient grad(statusBarRect.topLeft(), QPoint(statusBarRect.center().x(), statusBarRect.bottom()));
+    QColor startColor = shadowColor().darker(164);
+    QColor endColor = baseColor().darker(130);
+    grad.setColorAt(0, startColor);
+    grad.setColorAt(1, endColor);
+    return grad;
+}
 
 } // namespace Utils
