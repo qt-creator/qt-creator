@@ -78,6 +78,7 @@ public:
     static bool setMediumDpiIcon(ProjectExplorer::Target *target, const QString &iconFilePath);
     static QIcon lowDpiIcon(ProjectExplorer::Target *target);
     static bool setLowDpiIcon(ProjectExplorer::Target *target, const QString &iconFilePath);
+    static bool ensureIconAttribute(ProjectExplorer::Target *target);
 
     static QStringList availableTargetApplications(ProjectExplorer::Target *target);
     static QString targetApplication(ProjectExplorer::Target *target);

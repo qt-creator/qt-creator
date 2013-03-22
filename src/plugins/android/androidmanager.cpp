@@ -223,6 +223,16 @@ bool AndroidManager::setVersionName(ProjectExplorer::Target *target, const QStri
     return saveManifest(target, doc);
 }
 
+bool AndroidManager::ensureIconAttribute(ProjectExplorer::Target *target)
+{
+    QDomDocument doc;
+    if (!openManifest(target, doc))
+        return false;
+    QDomElement applicationElem = doc.documentElement().firstChildElement(QLatin1String("application"));
+    applicationElem.setAttribute(QLatin1String("android:icon"), QLatin1String("@drawable/icon"));
+    return saveManifest(target, doc);
+}
+
 QString AndroidManager::targetSDK(ProjectExplorer::Target *target)
 {
     if (!createAndroidTemplatesIfNecessary(target))
@@ -251,7 +261,8 @@ QIcon AndroidManager::highDpiIcon(ProjectExplorer::Target *target)
 
 bool AndroidManager::setHighDpiIcon(ProjectExplorer::Target *target, const QString &iconFilePath)
 {
-    return setIcon(target, HighDPI, iconFilePath);
+    return ensureIconAttribute(target) &&
+            setIcon(target, HighDPI, iconFilePath);
 }
 
 QIcon AndroidManager::mediumDpiIcon(ProjectExplorer::Target *target)
@@ -261,7 +272,8 @@ QIcon AndroidManager::mediumDpiIcon(ProjectExplorer::Target *target)
 
 bool AndroidManager::setMediumDpiIcon(ProjectExplorer::Target *target, const QString &iconFilePath)
 {
-    return setIcon(target, MediumDPI, iconFilePath);
+    return ensureIconAttribute(target) &&
+            setIcon(target, MediumDPI, iconFilePath);
 }
 
 QIcon AndroidManager::lowDpiIcon(ProjectExplorer::Target *target)
@@ -271,7 +283,8 @@ QIcon AndroidManager::lowDpiIcon(ProjectExplorer::Target *target)
 
 bool AndroidManager::setLowDpiIcon(ProjectExplorer::Target *target, const QString &iconFilePath)
 {
-    return setIcon(target, LowDPI, iconFilePath);
+    return ensureIconAttribute(target) &&
+            setIcon(target, LowDPI, iconFilePath);
 }
 
 Utils::FileName AndroidManager::dirPath(ProjectExplorer::Target *target)
@@ -957,6 +970,8 @@ bool AndroidManager::setIcon(ProjectExplorer::Target *target, IconType type, con
 
     const QString path = iconPath(target, type);
     QFile::remove(path);
+    QDir dir;
+    dir.mkpath(QFileInfo(path).absolutePath());
     return QFile::copy(iconFileName, path);
 }
 
