@@ -51,7 +51,6 @@ public:
                                         ProjectExplorer::RunMode mode,
                                         QString *errorMessage);
     ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect();
-    ProjectExplorer::IRunConfigurationAspect *cloneRunConfigurationAspect(ProjectExplorer::IRunConfigurationAspect *source);
     ProjectExplorer::RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
 
 };

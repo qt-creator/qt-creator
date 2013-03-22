@@ -89,14 +89,6 @@ IRunConfigurationAspect *AnalyzerRunControlFactory::createRunConfigurationAspect
     return new AnalyzerRunConfigurationAspect;
 }
 
-IRunConfigurationAspect *AnalyzerRunControlFactory::cloneRunConfigurationAspect(IRunConfigurationAspect *source)
-{
-    AnalyzerRunConfigurationAspect *s = dynamic_cast<AnalyzerRunConfigurationAspect *>(source);
-    if (!s)
-        return 0;
-    return new AnalyzerRunConfigurationAspect(s);
-}
-
 RunConfigWidget *AnalyzerRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
 {
     AnalyzerRunConfigWidget *ret = new AnalyzerRunConfigWidget;

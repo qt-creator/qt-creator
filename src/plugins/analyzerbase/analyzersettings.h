@@ -118,7 +118,7 @@ protected:
     void fromMap(const QVariantMap &map, QList<AbstractAnalyzerSubConfig *> *subConfigs);
 
     AnalyzerSettings(QObject *parent);
-    AnalyzerSettings(AnalyzerSettings *other);
+    AnalyzerSettings(const AnalyzerSettings *other);
     QList<AbstractAnalyzerSubConfig *> m_subConfigs;
 };
 
@@ -167,11 +167,12 @@ class ANALYZER_EXPORT AnalyzerRunConfigurationAspect
 
 public:
     AnalyzerRunConfigurationAspect();
-    AnalyzerRunConfigurationAspect(AnalyzerRunConfigurationAspect *other);
+    AnalyzerRunConfigurationAspect(const AnalyzerRunConfigurationAspect *other);
     ~AnalyzerRunConfigurationAspect();
 
     QString displayName() const;
     virtual QVariantMap toMap() const;
+    AnalyzerRunConfigurationAspect *clone(ProjectExplorer::RunConfiguration *parent) const;
 
     bool isUsingGlobalSettings() const { return m_useGlobalSettings; }
     void setUsingGlobalSettings(bool value);

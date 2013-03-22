@@ -121,7 +121,7 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(RunConfiguration 
 {}
 
 DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(RunConfiguration *runConfiguration,
-                                                               DebuggerRunConfigurationAspect *other)
+                                                               const DebuggerRunConfigurationAspect *other)
     : m_runConfiguration(runConfiguration),
       m_useCppDebugger(other->m_useCppDebugger),
       m_useQmlDebugger(other->m_useQmlDebugger),
@@ -251,6 +251,11 @@ void DebuggerRunConfigurationAspect::fromMap(const QVariantMap &map)
     m_useMultiProcess = map.value(QLatin1String(USE_MULTIPROCESS_KEY), false).toBool();
 }
 
+DebuggerRunConfigurationAspect *DebuggerRunConfigurationAspect::clone(RunConfiguration *parent) const
+{
+    return new DebuggerRunConfigurationAspect(parent, this);
+}
+
 
 /*!
     \class ProjectExplorer::RunConfiguration
@@ -276,17 +281,13 @@ RunConfiguration::RunConfiguration(Target *target, const Core::Id id) :
 
 RunConfiguration::RunConfiguration(Target *target, RunConfiguration *source) :
     ProjectConfiguration(target, source),
-    m_debuggerAspect(new DebuggerRunConfigurationAspect(this, source->debuggerAspect()))
+    m_debuggerAspect(source->debuggerAspect()->clone(this))
 {
     Q_ASSERT(target);
-    QList<IRunControlFactory *> factories = ExtensionSystem::PluginManager::getObjects<IRunControlFactory>();
     foreach (IRunConfigurationAspect *aspect, source->m_aspects) {
-        foreach (IRunControlFactory *factory, factories) {
-            if (IRunConfigurationAspect *clone = factory->cloneRunConfigurationAspect(aspect)) {
-                m_aspects.append(clone);
-                break;
-            }
-        }
+        IRunConfigurationAspect *clone = aspect->clone(this);
+        if (clone)
+            m_aspects.append(clone);
     }
 }
 
@@ -513,12 +514,6 @@ IRunControlFactory::~IRunControlFactory()
 
 IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect()
 {
-    return 0;
-}
-
-IRunConfigurationAspect *IRunControlFactory::cloneRunConfigurationAspect(IRunConfigurationAspect *source)
-{
-    Q_UNUSED(source);
     return 0;
 }
 

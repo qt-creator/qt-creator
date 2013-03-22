@@ -54,7 +54,7 @@ AnalyzerSettings::AnalyzerSettings(QObject *parent)
 {
 }
 
-AnalyzerSettings::AnalyzerSettings(AnalyzerSettings *other)
+AnalyzerSettings::AnalyzerSettings(const AnalyzerSettings *other)
 {
     Q_UNUSED(other);
 }
@@ -168,7 +168,7 @@ AnalyzerRunConfigurationAspect::AnalyzerRunConfigurationAspect()
     resetCustomToGlobalSettings();
 }
 
-AnalyzerRunConfigurationAspect::AnalyzerRunConfigurationAspect(AnalyzerRunConfigurationAspect *other)
+AnalyzerRunConfigurationAspect::AnalyzerRunConfigurationAspect(const AnalyzerRunConfigurationAspect *other)
     : AnalyzerSettings(other), m_useGlobalSettings(other->m_useGlobalSettings)
 {
 
@@ -202,6 +202,13 @@ QVariantMap AnalyzerRunConfigurationAspect::toMap() const
     QVariantMap map = AnalyzerSettings::toMap(m_customConfigurations);
     map.insert(QLatin1String(useGlobalC), m_useGlobalSettings);
     return map;
+}
+
+AnalyzerRunConfigurationAspect *AnalyzerRunConfigurationAspect::clone(
+        ProjectExplorer::RunConfiguration *parent) const
+{
+    Q_UNUSED(parent)
+    return new AnalyzerRunConfigurationAspect(this);
 }
 
 void AnalyzerRunConfigurationAspect::setUsingGlobalSettings(bool value)

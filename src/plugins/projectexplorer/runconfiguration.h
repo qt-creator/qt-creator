@@ -77,6 +77,9 @@ public:
     virtual ~IRunConfigurationAspect() {}
     virtual QVariantMap toMap() const = 0;
     virtual QString displayName() const = 0;
+
+    virtual IRunConfigurationAspect *clone(RunConfiguration *parent) const = 0;
+
 protected:
     friend class RunConfiguration;
     virtual void fromMap(const QVariantMap &map) = 0;
@@ -89,7 +92,8 @@ class PROJECTEXPLORER_EXPORT DebuggerRunConfigurationAspect
 
 public:
     DebuggerRunConfigurationAspect(RunConfiguration *runConfiguration);
-    DebuggerRunConfigurationAspect(RunConfiguration *runConfiguration, DebuggerRunConfigurationAspect *other);
+    DebuggerRunConfigurationAspect(RunConfiguration *runConfiguration,
+                                   const DebuggerRunConfigurationAspect *other);
 
     enum QmlDebuggerStatus {
         DisableQmlDebugger = 0,
@@ -99,6 +103,8 @@ public:
 
     QVariantMap toMap() const;
     void fromMap(const QVariantMap &map);
+
+    DebuggerRunConfigurationAspect *clone(RunConfiguration *parent) const;
 
     QString displayName() const;
 
@@ -234,7 +240,6 @@ public:
     virtual QString displayName() const = 0;
 
     virtual IRunConfigurationAspect *createRunConfigurationAspect();
-    virtual IRunConfigurationAspect *cloneRunConfigurationAspect(IRunConfigurationAspect *);
     virtual RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
 };
 
