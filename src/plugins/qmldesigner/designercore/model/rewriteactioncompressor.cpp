@@ -338,6 +338,8 @@ void RewriteActionCompressor::compressAddEditActions(QList<RewriteAction *> &act
         const int idx = actions.indexOf(action);
         if (newAction && idx >= 0)
             actions[idx] = newAction;
+        else
+            delete newAction;
     }
 }
 
