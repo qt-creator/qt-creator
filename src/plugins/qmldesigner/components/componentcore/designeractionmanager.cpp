@@ -221,7 +221,7 @@ QList<AbstractDesignerAction* > DesignerActionManager::designerActions()
 
 QmlModelView *DesignerActionManager::view()
 {
-    return instance()->m_view.data();
+    return instance()->m_view;
 }
 
 class VisiblityModelNodeAction : public ModelNodeAction
@@ -434,6 +434,11 @@ QList<AbstractDesignerAction* > DesignerActionManager::factoriesInternal() const
 
 DesignerActionManager::DesignerActionManager() : m_view(new Internal::DesignerActionManagerView)
 {
+}
+
+DesignerActionManager::~DesignerActionManager()
+{
+    delete m_view;
 }
 
 } //QmlDesigner
