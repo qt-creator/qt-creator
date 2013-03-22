@@ -1837,15 +1837,50 @@ static inline bool dumpQFile(const SymbolGroupValue &v, std::wostream &str)
 static inline bool dumpQHostAddress(const SymbolGroupValue &v, std::wostream &str)
 {
     // Determine offset in private struct: qIPv6AddressType (array, unaligned) +  uint32 + enum.
-    static unsigned qIPv6AddressSize = 0;
-    if (!qIPv6AddressSize) {
-        const std::string qIPv6AddressType = QtInfo::get(v.context()).prependQtNetworkModule("QIPv6Address");
-        qIPv6AddressSize = SymbolGroupValue::sizeOf(qIPv6AddressType.c_str());
-    }
-    if (!qIPv6AddressSize)
+    const QtInfo info = QtInfo::get(v.context());
+    SymbolGroupValue d = v["d"]["d"];
+    std::ostringstream namestr;
+    namestr << '(' << info.prependQtNetworkModule("QHostAddressPrivate *") << ")("
+            << std::showbase << std::hex << d.pointerValue() << ')';
+    SymbolGroupNode *qHostAddressPrivateNode
+            = v.node()->symbolGroup()->addSymbol(v.module(), namestr.str(), std::string(), &std::string());
+    if (!qHostAddressPrivateNode)
         return false;
-    const unsigned offset = padOffset(8 + qIPv6AddressSize);
-    return dumpQStringFromQPrivateClass(v, QPDM_None, offset,  str);
+    const SymbolGroupValue qHostAddressPrivateValue = SymbolGroupValue(qHostAddressPrivateNode, v.context());
+    const bool parsed = readPODFromMemory<bool>(qHostAddressPrivateValue.context().dataspaces,
+                                                qHostAddressPrivateValue["isParsed"].address(),
+                                                sizeof(bool), false, &std::string());
+    if (parsed) {
+        const int protocol = qHostAddressPrivateValue["protocol"].intValue(-1);
+        if (protocol < 0) {
+            str << L"Uninitialized/Unknown protocol";
+            return true;
+        }
+        if (protocol == 1) {
+            str << L"IPv6 protocol";
+            return true;
+        }
+        DebugPrint() << v.name().c_str() << ": " <<  parsed;
+        const SymbolGroupValue a = qHostAddressPrivateValue["a"];
+        const unsigned int address = static_cast<unsigned int>(SymbolGroupValue::readIntValue(v.context().dataspaces, a.address()));
+        str << (address >> 24) << '.'
+            << (address << 8 >> 24) << '.'
+            << (address << 16 >> 24) << '.'
+            << (address << 24 >> 24);
+        return true;
+    }
+    unsigned offset = 0;
+    if (info.version < 5) {
+        static unsigned qIPv6AddressSize = 0;
+        if (!qIPv6AddressSize) {
+            const std::string qIPv6AddressType = QtInfo::get(v.context()).prependQtNetworkModule("QIPv6Address");
+            qIPv6AddressSize = SymbolGroupValue::sizeOf(qIPv6AddressType.c_str());
+        }
+        if (!qIPv6AddressSize)
+            return false;
+        offset = padOffset(8 + qIPv6AddressSize);
+    }
+    return dumpQStringFromQPrivateClass(v, QPDM_None, offset, str);
 }
 
 /* Dump QProcess, for whose private class no debugging information is available.
