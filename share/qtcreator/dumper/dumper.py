@@ -802,27 +802,28 @@ def stripTypedefs(type):
     return type
 
 def extractFields(type):
-    # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953:
+    return type.fields()
+    ## Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953:
+    ##fields = type.fields()
+    ## Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=11777:
+    ##fields = defsype).fields()
+    ## This seems to work.
+    ##warn("TYPE 0: %s" % type)
+    #type = stripTypedefs(type)
     #fields = type.fields()
-    # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=11777:
-    #fields = defsype).fields()
-    # This seems to work.
-    #warn("TYPE 0: %s" % type)
-    type = stripTypedefs(type)
-    fields = type.fields()
-    if len(fields):
-        return fields
-    #warn("TYPE 1: %s" % type)
-    # This fails for arrays. See comment in lookupType.
-    type0 = lookupType(str(type))
-    if not type0 is None:
-        type = type0
-    if type.code == FunctionCode:
-        return []
-    #warn("TYPE 2: %s" % type)
-    fields = type.fields()
-    #warn("FIELDS: %s" % fields)
-    return fields
+    #if len(fields):
+    #    return fields
+    ##warn("TYPE 1: %s" % type)
+    ## This fails for arrays. See comment in lookupType.
+    #type0 = lookupType(str(type))
+    #if not type0 is None:
+    #    type = type0
+    #if type.code == FunctionCode:
+    #    return []
+    ##warn("TYPE 2: %s" % type)
+    #fields = type.fields()
+    ##warn("FIELDS: %s" % fields)
+    #return fields
 
 #######################################################################
 #
