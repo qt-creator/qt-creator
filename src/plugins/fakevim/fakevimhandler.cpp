@@ -7600,7 +7600,10 @@ void FakeVimHandler::disconnectFromEditor()
 
 bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
 {
-    bool active = theFakeVimSetting(ConfigUseFakeVim)->value().toBool();
+#ifndef FAKEVIM_STANDALONE
+    if (!theFakeVimSetting(ConfigUseFakeVim)->value().toBool())
+        return QObject::eventFilter(ob, ev);
+#endif
 
     // Catch mouse events on the viewport.
     QWidget *viewport = 0;
@@ -7609,14 +7612,14 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
     else if (d->m_textedit)
         viewport = d->m_textedit->viewport();
     if (ob == viewport) {
-        if (active && ev->type() == QEvent::MouseButtonRelease) {
+        if (ev->type() == QEvent::MouseButtonRelease) {
             QMouseEvent *mev = static_cast<QMouseEvent *>(ev);
             if (mev->button() == Qt::LeftButton) {
                 d->importSelection();
                 //return true;
             }
         }
-        if (active && ev->type() == QEvent::MouseButtonPress) {
+        if (ev->type() == QEvent::MouseButtonPress) {
             QMouseEvent *mev = static_cast<QMouseEvent *>(ev);
             if (mev->button() == Qt::LeftButton)
                 d->m_visualMode = NoVisualMode;
@@ -7624,12 +7627,12 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
         return QObject::eventFilter(ob, ev);
     }
 
-    if (active && ev->type() == QEvent::Shortcut) {
+    if (ev->type() == QEvent::Shortcut) {
         d->passShortcuts(false);
         return false;
     }
 
-    if (active && ev->type() == QEvent::InputMethod && ob == d->editor()) {
+    if (ev->type() == QEvent::InputMethod && ob == d->editor()) {
         // This handles simple dead keys. The sequence of events is
         // KeyRelease-InputMethod-KeyRelease  for dead keys instead of
         // KeyPress-KeyRelease as for simple keys. As vi acts on key presses,
@@ -7644,7 +7647,7 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
         return res == EventHandled || res == EventCancelled;
     }
 
-    if (active && ev->type() == QEvent::KeyPress &&
+    if (ev->type() == QEvent::KeyPress &&
         (ob == d->editor() || (d->m_mode == ExMode || d->m_subsubmode == SearchSubSubMode))) {
         QKeyEvent *kev = static_cast<QKeyEvent *>(ev);
         KEY_DEBUG("KEYPRESS" << kev->key() << kev->text() << QChar(kev->key()));
@@ -7658,7 +7661,7 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
         return res == EventHandled || res == EventCancelled;
     }
 
-    if (active && ev->type() == QEvent::ShortcutOverride && ob == d->editor()) {
+    if (ev->type() == QEvent::ShortcutOverride && ob == d->editor()) {
         QKeyEvent *kev = static_cast<QKeyEvent *>(ev);
         if (d->wantsOverride(kev)) {
             KEY_DEBUG("OVERRIDING SHORTCUT" << kev->key());
@@ -7669,7 +7672,7 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
         return true;
     }
 
-    if (active && ev->type() == QEvent::FocusIn && ob == d->editor())
+    if (ev->type() == QEvent::FocusIn && ob == d->editor())
         d->focus();
 
     return QObject::eventFilter(ob, ev);
