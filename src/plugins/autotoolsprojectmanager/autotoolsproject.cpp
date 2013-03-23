@@ -317,10 +317,14 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
 
         // Add file node
         const QString filePath = directory.absoluteFilePath(file);
-        if (nodeHash.contains(filePath))
+        if (nodeHash.contains(filePath)) {
             nodeHash.remove(filePath);
-        else
-            fileNodes.append(new FileNode(filePath, ResourceType, false));
+        } else {
+            if (file == QLatin1String("Makefile.am") || file == QLatin1String("configure.ac"))
+                fileNodes.append(new FileNode(filePath, ProjectFileType, false));
+            else
+                fileNodes.append(new FileNode(filePath, ResourceType, false));
+        }
     }
 
     if (!fileNodes.isEmpty())
