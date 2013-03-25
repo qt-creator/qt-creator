@@ -39,7 +39,9 @@
 #include <QPointer>
 #include <QSharedPointer>
 
+QT_BEGIN_NAMESPACE
 class QSpinBox;
+QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
