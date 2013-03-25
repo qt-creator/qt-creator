@@ -33,9 +33,10 @@
 #include "vcsbase_global.h"
 
 #include <QObject>
-#include <QStringList>
-#include <QVariant>
-#include <QProcessEnvironment>
+
+QT_FORWARD_DECLARE_CLASS(QStringList)
+QT_FORWARD_DECLARE_CLASS(QVariant)
+QT_FORWARD_DECLARE_CLASS(QProcessEnvironment)
 
 namespace VcsBase {
 

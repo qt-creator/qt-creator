@@ -34,7 +34,6 @@
 
 #include "vcsbaseoptionspage.h"
 
-#include <QPointer>
 #include <QWidget>
 
 namespace VcsBase {

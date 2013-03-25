@@ -28,15 +28,12 @@
 ****************************************************************************/
 
 #include "vcsplugin.h"
-#include "diffhighlighter.h"
 #include "commonsettingspage.h"
 #include "nicknamedialog.h"
 #include "vcsbaseoutputwindow.h"
 #include "corelistener.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/id.h>
 #include <coreplugin/mimedatabase.h>
 
 #include <QtPlugin>

@@ -34,7 +34,6 @@
 #include <utils/qtcassert.h>
 
 #include <QApplication>
-#include <QCursor>
 
 /*!
     \class VcsBase::CheckoutProgressWizardPage

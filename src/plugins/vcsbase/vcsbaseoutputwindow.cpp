@@ -29,7 +29,6 @@
 
 #include "vcsbaseoutputwindow.h"
 
-#include <utils/qtcassert.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <QPlainTextEdit>
@@ -38,7 +37,6 @@
 #include <QTextBlock>
 #include <QMenu>
 #include <QAction>
-#include <QTextDocument>
 #include <QTextBlockUserData>
 
 #include <QPointer>

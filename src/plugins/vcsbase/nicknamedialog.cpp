@@ -33,7 +33,6 @@
 #include <utils/fileutils.h>
 
 #include <QDebug>
-#include <QFile>
 #include <QDir>
 #include <QPushButton>
 #include <QStandardItemModel>

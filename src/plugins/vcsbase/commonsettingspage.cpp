@@ -29,16 +29,13 @@
 
 #include "commonsettingspage.h"
 #include "vcsbaseconstants.h"
-#include "nicknamedialog.h"
 
 #include "ui_commonsettingspage.h"
 
 #include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <QDebug>
 #include <QCoreApplication>
-#include <QMessageBox>
 
 namespace VcsBase {
 namespace Internal {

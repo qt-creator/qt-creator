@@ -32,13 +32,13 @@
 
 #include "vcsbase_global.h"
 
-#include <QStringList>
 #include <QVariant>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QToolButton;
+class QStringList;
 QT_END_NAMESPACE
 
 namespace VcsBase {

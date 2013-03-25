@@ -29,12 +29,10 @@
 
 #include "vcsbaseclient.h"
 #include "command.h"
-#include "vcsbaseconstants.h"
 #include "vcsbaseclientsettings.h"
 #include "vcsbaseeditorparameterwidget.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <utils/qtcassert.h>
@@ -44,7 +42,6 @@
 #include <vcsbase/vcsbaseplugin.h>
 
 #include <QStringList>
-#include <QSharedPointer>
 #include <QDir>
 #include <QProcess>
 #include <QSignalMapper>
@@ -52,7 +49,8 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QByteArray>
-#include <QMetaType>
+#include <QVariant>
+#include <QProcessEnvironment>
 
 /*!
     \class VcsBase::VcsBaseClient

@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "submitfilemodel.h"
-#include "vcsbaseconstants.h"
 
 #include <coreplugin/fileiconprovider.h>
 #include <utils/qtcassert.h>

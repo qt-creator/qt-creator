@@ -35,7 +35,7 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-#include <QStringList>
+QT_FORWARD_DECLARE_CLASS(QStringList)
 
 namespace VcsBase {
 namespace Internal {

@@ -35,6 +35,7 @@
 #include <QDebug>
 #include <QQueue>
 #include <QDir>
+#include <QStringList>
 #include <utils/synchronousprocess.h>
 #include <utils/qtcassert.h>
 
