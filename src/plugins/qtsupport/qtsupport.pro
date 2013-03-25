@@ -4,9 +4,8 @@ DEFINES += QT_CREATOR QTSUPPORT_LIBRARY
 QT += network declarative
 
 include(../../qtcreatorplugin.pri)
-DEFINES += \
-    QMAKE_AS_LIBRARY QMAKE_LIBRARY \
-    PROPARSER_THREAD_SAFE PROEVALUATOR_THREAD_SAFE PROEVALUATOR_CUMULATIVE PROEVALUATOR_SETENV
+
+DEFINES += QMAKE_LIBRARY
 include(../../shared/proparser/proparser.pri)
 
 HEADERS += \
