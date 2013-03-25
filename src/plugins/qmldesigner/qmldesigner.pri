@@ -1,7 +1,6 @@
 include(qmldesigner_dependencies.pri)
 include(designercore/designercore.pri)
 LIBS *= -l$$qtLibraryName(QmlDesigner)
-INCLUDEPATH *= $$PWD
 INCLUDEPATH *= $$PWD/components/componentcore
 INCLUDEPATH *= $$PWD/components/formeditor
 INCLUDEPATH *= $$PWD/components/itemlibrary
