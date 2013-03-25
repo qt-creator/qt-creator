@@ -76,6 +76,8 @@ QtcPlugin {
         "cppqtstyleindenter.h",
         "cpppointerdeclarationformatter.cpp",
         "cpppointerdeclarationformatter.h",
+        "cppprojectfile.cpp",
+        "cppprojectfile.h",
         "cpprefactoringchanges.cpp",
         "cpprefactoringchanges.h",
         "cppsemanticinfo.cpp",
