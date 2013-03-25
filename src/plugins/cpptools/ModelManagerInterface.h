@@ -269,6 +269,4 @@ public Q_SLOTS:
 
 } // namespace CPlusPlus
 
-QDebug operator <<(QDebug stream, const CPlusPlus::ProjectFile &cxxFile);
-
 #endif // CPPMODELMANAGERINTERFACE_H
