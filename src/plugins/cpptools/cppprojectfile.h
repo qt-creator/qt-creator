@@ -79,8 +79,8 @@ private:
     QFileInfo m_fileInfo;
 };
 
-} // namespace CPlusPlus
+QDebug operator<<(QDebug stream, const CPlusPlus::ProjectFile &cxxFile);
 
-QDebug operator <<(QDebug stream, const CPlusPlus::ProjectFile &cxxFile);
+} // namespace CPlusPlus
 
 #endif // CPLUSPLUS_CPPPROJECTFILE_H

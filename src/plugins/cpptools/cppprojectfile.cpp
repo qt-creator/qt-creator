@@ -78,9 +78,7 @@ void ProjectFileAdder::addMapping(const char *mimeName, ProjectFile::Kind kind)
         m_mapping.append(Pair(mimeType, kind));
 }
 
-} // namespace CPlusPlus
-
-QDebug operator <<(QDebug stream, const CPlusPlus::ProjectFile &cxxFile)
+QDebug operator<<(QDebug stream, const CPlusPlus::ProjectFile &cxxFile)
 {
     const char *kind;
     switch (cxxFile.kind) {
@@ -99,3 +97,5 @@ QDebug operator <<(QDebug stream, const CPlusPlus::ProjectFile &cxxFile)
     stream << cxxFile.path << QLatin1String(", ") << kind;
     return stream;
 }
+
+} // namespace CPlusPlus
