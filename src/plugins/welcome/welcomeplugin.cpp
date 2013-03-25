@@ -104,10 +104,8 @@ public:
     Q_SCRIPTABLE QString platform() const;
 
     bool eventFilter(QObject *, QEvent *);
-public slots:
-    void newProject();
-    void openProject();
 
+public slots:
     void setActivePlugin(int pos)
     {
         if (m_activePlugin != pos) {
@@ -325,17 +323,6 @@ void WelcomeMode::welcomePluginAdded(QObject *obj)
         QDeclarativeContext *ctx = m_welcomePage->rootContext();
         ctx->setContextProperty(QLatin1String("pagesModel"), QVariant::fromValue(m_pluginList));
     }
-}
-
-void WelcomeMode::newProject()
-{
-    Core::ICore::showNewItemDialog(tr("New Project"),
-                                               Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard));
-}
-
-void WelcomeMode::openProject()
-{
-    ProjectExplorer::ProjectExplorerPlugin::instance()->openOpenProjectDialog();
 }
 
 WelcomePlugin::WelcomePlugin()

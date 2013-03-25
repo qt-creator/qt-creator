@@ -145,7 +145,7 @@ Rectangle {
                 x: 51
                 y: 45
                 text: qsTr("Open Project")
-                onClicked: welcomeMode.openProject();
+                onClicked: projectWelcomePage.openProject();
             }
 
             LinkedText {
@@ -153,7 +153,7 @@ Rectangle {
                 x: 51
                 y: 13
                 text: qsTr("Create Project")
-                onClicked: welcomeMode.newProject();
+                onClicked: projectWelcomePage.newProject();
             }
 
             Image {

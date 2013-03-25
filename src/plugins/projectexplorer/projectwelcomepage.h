@@ -102,10 +102,15 @@ public:
 
     void reloadWelcomeScreenData();
 
+public slots:
+    void newProject();
+    void openProject();
+
 signals:
     void requestProject(const QString &project);
     void requestSession(const QString &session);
     void manageSessions();
+
 private:
     SessionModel *m_sessionModel;
     ProjectModel *m_projectModel;
