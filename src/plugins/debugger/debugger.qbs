@@ -211,6 +211,8 @@ QtcPlugin {
         "images/location_24.png",
         "images/tracepoint.png",
         "images/watchpoint.png",
+        "lldb/lldbengine.cpp",
+        "lldb/lldbengine.h",
         "lldblib/ipcenginehost.cpp",
         "lldblib/ipcenginehost.h",
         "lldblib/lldbenginehost.cpp",
