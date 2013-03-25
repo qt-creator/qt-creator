@@ -1,7 +1,10 @@
-include($$IDE_SOURCE_TREE/src/libs/languageutils/languageutils.pri)
-include($$IDE_SOURCE_TREE/src/libs/cplusplus/cplusplus.pri)
-include($$IDE_SOURCE_TREE/src/libs/qmljs/qmljs.pri)
-include($$IDE_SOURCE_TREE/src/plugins/projectexplorer/projectexplorer.pri)
-include($$IDE_SOURCE_TREE/src/plugins/qtsupport/qtsupport.pri)
-include($$IDE_SOURCE_TREE/src/plugins/texteditor/texteditor.pri)
-include($$IDE_SOURCE_TREE/src/plugins/cpptools/cpptools.pri)
+QTC_PLUGIN_NAME = QmlJSTools
+QTC_LIB_DEPENDS += \
+    languageutils \
+    cplusplus \
+    qmljs
+QTC_PLUGIN_DEPENDS += \
+    projectexplorer \
+    qtsupport \
+    texteditor \
+    cpptools

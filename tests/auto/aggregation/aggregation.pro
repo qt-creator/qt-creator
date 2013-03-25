@@ -1,4 +1,4 @@
 QT -= gui
+QTC_LIB_DEPENDS += aggregation
 include(../qttest.pri)
-include($$IDE_SOURCE_TREE/src/libs/aggregation/aggregation.pri)
 SOURCES += tst_aggregate.cpp

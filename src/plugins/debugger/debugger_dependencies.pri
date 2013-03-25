@@ -1,10 +1,13 @@
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/cpptools/cpptools.pri)
-include(../../plugins/find/find.pri)
-include(../../plugins/projectexplorer/projectexplorer.pri)
-include(../../plugins/texteditor/texteditor.pri)
-include(../../libs/cplusplus/cplusplus.pri)
-include(../../libs/utils/utils.pri)
-include(../../libs/qmljs/qmljs.pri)
-include(../../libs/qmldebug/qmldebug.pri)
-include(../../libs/ssh/ssh.pri)
+QTC_PLUGIN_NAME = Debugger
+QTC_LIB_DEPENDS += \
+    cplusplus \
+    utils \
+    qmldebug \
+    qmljs \
+    ssh
+QTC_PLUGIN_DEPENDS += \
+    coreplugin \
+    cpptools \
+    find \
+    projectexplorer \
+    texteditor

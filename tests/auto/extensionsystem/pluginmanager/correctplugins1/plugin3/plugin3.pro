@@ -6,8 +6,8 @@ DEFINES += PLUGIN3_LIBRARY
 
 OTHER_FILES = $$PWD/plugin.spec
 
+QTC_LIB_DEPENDS += extensionsystem
 include(../../../../qttest.pri)
-include(../../../../../../src/libs/extensionsystem/extensionsystem.pri)
 
 COPYDIR = $$OUT_PWD
 COPYFILES = $$OTHER_FILES

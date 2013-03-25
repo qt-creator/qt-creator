@@ -1,6 +1,8 @@
-include(../../plugins/projectexplorer/projectexplorer.pri)
-include(../../plugins/texteditor/texteditor.pri)
-include(../../plugins/qmljseditor/qmljseditor.pri)
-include(../../plugins/qmljstools/qmljstools.pri)
-include(../../plugins/debugger/debugger.pri)
-include(../../plugins/qtsupport/qtsupport.pri)
+QTC_PLUGIN_NAME = QmlProjectManager
+QTC_PLUGIN_DEPENDS += \
+    projectexplorer \
+    texteditor \
+    qmljseditor \
+    qmljstools \
+    debugger \
+    qtsupport

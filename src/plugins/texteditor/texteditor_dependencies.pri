@@ -1,4 +1,7 @@
-include(../../libs/utils/utils.pri)
-include(../../plugins/find/find.pri)
-include(../../plugins/locator/locator.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
+QTC_PLUGIN_NAME = TextEditor
+QTC_LIB_DEPENDS += \
+    utils
+QTC_PLUGIN_DEPENDS += \
+    find \
+    locator \
+    coreplugin

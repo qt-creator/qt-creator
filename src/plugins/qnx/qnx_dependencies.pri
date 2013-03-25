@@ -1,4 +1,6 @@
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/qt4projectmanager/qt4projectmanager.pri)
-include(../../plugins/remotelinux/remotelinux.pri)
-include(../../plugins/texteditor/texteditor.pri)
+QTC_PLUGIN_NAME = Qnx
+QTC_PLUGIN_DEPENDS += \
+    coreplugin \
+    qt4projectmanager \
+    remotelinux \
+    texteditor

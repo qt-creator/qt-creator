@@ -1,3 +1,5 @@
-include(../../plugins/projectexplorer/projectexplorer.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/texteditor/texteditor.pri)
+QTC_PLUGIN_NAME = Bookmarks
+QTC_PLUGIN_DEPENDS += \
+    projectexplorer \
+    coreplugin \
+    texteditor

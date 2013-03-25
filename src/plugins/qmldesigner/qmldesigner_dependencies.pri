@@ -1,9 +1,12 @@
-include(../../libs/utils/utils.pri)
-include(../../libs/qmljs/qmljs.pri)
-include(../../libs/qmleditorwidgets/qmleditorwidgets.pri)
-include(../coreplugin/coreplugin.pri)
-include(../texteditor/texteditor.pri)
-include(../qmljseditor/qmljseditor.pri)
-include(../qt4projectmanager/qt4projectmanager.pri)
-include(../qmlprojectmanager/qmlprojectmanager.pri)
-include(../projectexplorer/projectexplorer.pri)
+QTC_PLUGIN_NAME = QmlDesigner
+QTC_LIB_DEPENDS += \
+    utils \
+    qmljs \
+    qmleditorwidgets
+QTC_PLUGIN_DEPENDS += \
+    coreplugin \
+    texteditor \
+    qmljseditor \
+    qt4projectmanager \
+    qmlprojectmanager \
+    projectexplorer

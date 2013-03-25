@@ -1,4 +1,5 @@
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/find/find.pri)
-include(../../plugins/locator/locator.pri)
-
+QTC_PLUGIN_NAME = Help
+QTC_PLUGIN_DEPENDS += \
+    coreplugin \
+    find \
+    locator

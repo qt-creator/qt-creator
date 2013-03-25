@@ -1,6 +1,9 @@
-include(../../plugins/projectexplorer/projectexplorer.pri)
-include(../../plugins/qtsupport/qtsupport.pri)
-include(../../plugins/cpptools/cpptools.pri)
-include(../../plugins/debugger/debugger.pri)
-include(../../libs/qmljs/qmljs.pri)
-include(../../plugins/qmljstools/qmljstools.pri)
+QTC_PLUGIN_NAME = Qt4ProjectManager
+QTC_LIB_DEPENDS += \
+    qmljs
+QTC_PLUGIN_DEPENDS += \
+    projectexplorer \
+    qtsupport \
+    cpptools \
+    debugger \
+    qmljstools

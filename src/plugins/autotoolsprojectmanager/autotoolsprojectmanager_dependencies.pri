@@ -1,4 +1,6 @@
-include(../../plugins/projectexplorer/projectexplorer.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/cpptools/cpptools.pri)
-include(../../plugins/qtsupport/qtsupport.pri)
+QTC_PLUGIN_NAME = AutotoolsProjectManager
+QTC_PLUGIN_DEPENDS += \
+    projectexplorer \
+    coreplugin \
+    cpptools \
+    qtsupport

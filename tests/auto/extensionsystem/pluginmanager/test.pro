@@ -2,8 +2,8 @@ TARGET = pluginmanager
 
 # Input
 
+QTC_LIB_DEPENDS += extensionsystem
 include(../../qttest.pri)
-include(../../../../src/libs/extensionsystem/extensionsystem.pri)
 
 SOURCES += tst_pluginmanager.cpp
 

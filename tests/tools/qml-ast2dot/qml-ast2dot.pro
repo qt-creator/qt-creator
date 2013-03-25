@@ -1,11 +1,8 @@
 QT = core gui
+QTC_LIB_DEPENDS += qmljs
 include(../../../qtcreator.pri)
 macx:CONFIG -= app_bundle
 TARGET = qml-ast2dot
-
-include($$IDE_SOURCE_TREE/src/libs/qmljs/qmljs.pri)
-include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
-include($$IDE_SOURCE_TREE/src/libs/languageutils/languageutils.pri)
 
 # Input
 SOURCES += main.cpp

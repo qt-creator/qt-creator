@@ -1,5 +1,7 @@
-include(../../plugins/projectexplorer/projectexplorer.pri)
-include(../../plugins/cpptools/cpptools.pri)
-include(../../plugins/texteditor/texteditor.pri)
-include(../../plugins/qtsupport/qtsupport.pri)
-include(../../plugins/qmljstools/qmljstools.pri)
+QTC_PLUGIN_NAME = QbsProjectManager
+QTC_PLUGIN_DEPENDS += \
+    projectexplorer \
+    cpptools \
+    texteditor \
+    qtsupport \
+    qmljstools

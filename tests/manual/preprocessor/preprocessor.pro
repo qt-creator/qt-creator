@@ -2,11 +2,11 @@ QT = core
 macx:CONFIG -= app_bundle
 TARGET = pp
 
-include(../../auto/qttest.pri)
+QTC_LIB_DEPENDS += \
+    cplusplus \
+    utils
 
-include($$IDE_SOURCE_TREE/src/libs/cplusplus/cplusplus.pri)
-include($$IDE_SOURCE_TREE/src/libs/languageutils/languageutils.pri)
-include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
+include(../../auto/qttest.pri)
 
 # Input
 SOURCES += main.cpp

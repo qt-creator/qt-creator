@@ -1,7 +1,10 @@
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/texteditor/texteditor.pri)
-include(../../plugins/projectexplorer/projectexplorer.pri)
-include(../../plugins/cpptools/cpptools.pri)
-include(../../libs/glsl/glsl.pri)
-include(../../libs/utils/utils.pri)
-include(../../libs/cplusplus/cplusplus.pri)
+QTC_PLUGIN_NAME = GLSLEditor
+QTC_LIB_DEPENDS += \
+    glsl \
+    utils \
+    cplusplus
+QTC_PLUGIN_DEPENDS += \
+    coreplugin \
+    texteditor \
+    projectexplorer \
+    cpptools

@@ -8,8 +8,8 @@
 QT       += core
 QT       += gui
 
+QTC_LIB_DEPENDS += utils
 include(../../../qtcreator.pri)
-include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
 
 # -- Add creator 'utils' lib
 macx:QMAKE_LFLAGS += -Wl,-rpath,\"$$IDE_BIN_PATH/..\"

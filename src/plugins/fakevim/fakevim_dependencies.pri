@@ -1,3 +1,5 @@
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/texteditor/texteditor.pri)
-include(../../plugins/find/find.pri)
+QTC_PLUGIN_NAME = FakeVim
+QTC_PLUGIN_DEPENDS += \
+    coreplugin \
+    texteditor \
+    find

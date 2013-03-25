@@ -1,2 +1,4 @@
-include(../../plugins/qt4projectmanager/qt4projectmanager.pri)
-include(../../plugins/remotelinux/remotelinux.pri)
+QTC_PLUGIN_NAME = Madde
+QTC_PLUGIN_DEPENDS += \
+    qt4projectmanager \
+    remotelinux

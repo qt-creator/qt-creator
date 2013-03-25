@@ -1,5 +1,8 @@
-include(../../plugins/projectexplorer/projectexplorer.pri)
-include(../../plugins/texteditor/texteditor.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/vcsbase/vcsbase.pri)
-include(../../libs/utils/utils.pri)
+QTC_PLUGIN_NAME = CVS
+QTC_LIB_DEPENDS += \
+    utils
+QTC_PLUGIN_DEPENDS += \
+    projectexplorer \
+    texteditor \
+    coreplugin \
+    vcsbase

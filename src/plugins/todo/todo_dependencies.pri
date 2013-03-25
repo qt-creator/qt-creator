@@ -1,5 +1,8 @@
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/projectexplorer/projectexplorer.pri)
-include(../../plugins/texteditor/texteditor.pri)
-include(../../plugins/cpptools/cpptools.pri)
-include(../../libs/qmljs/qmljs.pri)
+QTC_PLUGIN_NAME = Todo
+QTC_LIB_DEPENDS += \
+    qmljs
+QTC_PLUGIN_DEPENDS += \
+    coreplugin \
+    projectexplorer \
+    texteditor \
+    cpptools

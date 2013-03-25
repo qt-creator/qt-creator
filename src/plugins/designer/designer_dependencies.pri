@@ -1,5 +1,8 @@
-include(../../libs/cplusplus/cplusplus.pri)
-include(../../plugins/cpptools/cpptools.pri)
-include(../../plugins/texteditor/texteditor.pri)
-include(../../libs/utils/utils.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
+QTC_PLUGIN_NAME = Designer
+QTC_LIB_DEPENDS += \
+    cplusplus \
+    utils
+QTC_PLUGIN_DEPENDS += \
+    cpptools \
+    texteditor \
+    coreplugin

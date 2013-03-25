@@ -1,6 +1,9 @@
-include(../../plugins/projectexplorer/projectexplorer.pri)
-include(../../libs/qmljs/qmljs.pri)
-include(../../libs/utils/utils.pri)
+QTC_PLUGIN_NAME = QtSupport
+QTC_LIB_DEPENDS += \
+    qmljs \
+    utils
+QTC_PLUGIN_DEPENDS += \
+    projectexplorer
 DEFINES *= \
     QMAKE_AS_LIBRARY \
     PROPARSER_THREAD_SAFE \

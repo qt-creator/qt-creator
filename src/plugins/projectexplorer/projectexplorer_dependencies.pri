@@ -1,7 +1,10 @@
-include(../../libs/utils/utils.pri)
-include(../../libs/ssh/ssh.pri)
-include(../../plugins/locator/locator.pri)
-include(../../plugins/find/find.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/texteditor/texteditor.pri)
+QTC_PLUGIN_NAME = ProjectExplorer
+QTC_LIB_DEPENDS += \
+    ssh \
+    utils
+QTC_PLUGIN_DEPENDS += \
+    locator \
+    find \
+    coreplugin \
+    texteditor
 QT *= network

@@ -1,3 +1,6 @@
-include(../../libs/utils/utils.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/find/find.pri)
+QTC_PLUGIN_NAME = ResourceEditor
+QTC_LIB_DEPENDS += \
+    utils
+QTC_PLUGIN_DEPENDS += \
+    coreplugin \
+    find

@@ -1,3 +1,5 @@
-include(../qmljs/qmljs.pri)
-include(../utils/utils.pri)
+QTC_LIB_NAME = QmlEditorWidgets
+QTC_LIB_DEPENDS += \
+    qmljs \
+    utils
 QT *= declarative

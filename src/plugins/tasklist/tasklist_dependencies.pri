@@ -1,2 +1,4 @@
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/projectexplorer/projectexplorer.pri)
+QTC_PLUGIN_NAME = TaskList
+QTC_PLUGIN_DEPENDS += \
+    coreplugin \
+    projectexplorer

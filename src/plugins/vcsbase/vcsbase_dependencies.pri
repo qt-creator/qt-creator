@@ -1,5 +1,7 @@
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/texteditor/texteditor.pri)
-include(../../plugins/projectexplorer/projectexplorer.pri)
-include(../../plugins/find/find.pri)
-include(../../plugins/cpptools/cpptools.pri)
+QTC_PLUGIN_NAME = VcsBase
+QTC_PLUGIN_DEPENDS += \
+    coreplugin \
+    texteditor \
+    projectexplorer \
+    find \
+    cpptools

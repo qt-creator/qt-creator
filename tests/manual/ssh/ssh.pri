@@ -1,7 +1,7 @@
 QT       = core network
 
+QTC_LIB_DEPENDS += ssh
 include (../../../qtcreator.pri)
-include (../../../src/libs/ssh/ssh.pri)
 
 macx:QMAKE_LFLAGS += -Wl,-rpath,\"$$IDE_BIN_PATH/..\"
 LIBS *= -L$$IDE_LIBRARY_PATH

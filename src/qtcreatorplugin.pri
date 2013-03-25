@@ -1,6 +1,6 @@
-include(../qtcreator.pri)
-
 include($$replace(_PRO_FILE_PWD_, ([^/]+$), \\1/\\1_dependencies.pri))
+
+include(../qtcreator.pri)
 
 # use gui precompiled header for plugins by default
 isEmpty(PRECOMPILED_HEADER):PRECOMPILED_HEADER = $$PWD/shared/qtcreator_gui_pch.h

@@ -1,15 +1,18 @@
 TEMPLATE = app
 TARGET=cpaster
 
+QTC_LIB_DEPENDS += \
+    extensionsystem \
+    utils
+
 include(../../../../qtcreator.pri)
 include(../../../rpath.pri)
-include(../../../plugins/coreplugin/coreplugin.pri)
 
 CONFIG += console
 CONFIG -= app_bundle
 QT += network
 
-LIBS *= -L$$IDE_PLUGIN_PATH/QtProject
+LIBS *= -L$$IDE_PLUGIN_PATH/QtProject -l$$qtLibraryName(Core)
 QMAKE_RPATHDIR *= $$IDE_PLUGIN_PATH/QtProject
 
 DESTDIR=$$IDE_LIBEXEC_PATH

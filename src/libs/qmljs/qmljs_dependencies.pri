@@ -1,2 +1,4 @@
-include(../utils/utils.pri)
-include(../languageutils/languageutils.pri)
+QTC_LIB_NAME = QmlJS
+QTC_LIB_DEPENDS += \
+    utils \
+    languageutils

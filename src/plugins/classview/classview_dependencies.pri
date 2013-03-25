@@ -1,5 +1,8 @@
-include(../../libs/utils/utils.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/cpptools/cpptools.pri)
-include(../../plugins/projectexplorer/projectexplorer.pri)
-include(../../plugins/texteditor/texteditor.pri)
+QTC_PLUGIN_NAME = ClassView
+QTC_LIB_DEPENDS += \
+    utils
+QTC_PLUGIN_DEPENDS += \
+    coreplugin \
+    cpptools \
+    projectexplorer \
+    texteditor

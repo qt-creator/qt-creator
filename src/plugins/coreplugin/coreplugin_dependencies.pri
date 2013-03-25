@@ -1,2 +1,4 @@
-include(../../libs/extensionsystem/extensionsystem.pri)
-include(../../libs/utils/utils.pri)
+QTC_PLUGIN_NAME = Core
+QTC_LIB_DEPENDS += \
+    extensionsystem \
+    utils

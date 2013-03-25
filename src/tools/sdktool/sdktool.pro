@@ -1,6 +1,8 @@
+QTC_LIB_DEPENDS += \
+    utils
+
 include(../../../qtcreator.pri)
 include(../../rpath.pri)
-include(../../libs/utils/utils.pri)
 
 CONFIG += console
 CONFIG -= app_bundle

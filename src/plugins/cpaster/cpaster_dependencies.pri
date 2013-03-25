@@ -1,2 +1,4 @@
-include(../../plugins/texteditor/texteditor.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
+QTC_PLUGIN_NAME = CodePaster
+QTC_PLUGIN_DEPENDS += \
+    texteditor \
+    coreplugin

@@ -1,4 +1,6 @@
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/locator/locator.pri)
-include(../../plugins/find/find.pri)
-include(../../plugins/texteditor/texteditor.pri)
+QTC_PLUGIN_NAME = Macros
+QTC_PLUGIN_DEPENDS += \
+    coreplugin \
+    locator \
+    find \
+    texteditor

@@ -1,4 +1,6 @@
-include(../../plugins/projectexplorer/projectexplorer.pri)
-include(../../plugins/cpptools/cpptools.pri)
-include(../../plugins/texteditor/texteditor.pri)
-include(../../plugins/qtsupport/qtsupport.pri)
+QTC_PLUGIN_NAME = GenericProjectManager
+QTC_PLUGIN_DEPENDS += \
+    projectexplorer \
+    cpptools \
+    texteditor \
+    qtsupport

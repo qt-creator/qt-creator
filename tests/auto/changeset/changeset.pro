@@ -1,5 +1,5 @@
-include(../qttest.pri)
+QTC_LIB_DEPENDS += utils
 
-include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
+include(../qttest.pri)
 
 SOURCES += tst_changeset.cpp
