@@ -31,6 +31,7 @@
 
 #include "qbsproject.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <qbs.h>
@@ -86,7 +87,10 @@ public:
             if (child->isFile())
                 return;
 
-            node->name = node->name + QLatin1Char('/') + child->name;
+            if (!Utils::HostOsInfo::isWindowsHost() || !node->name.isEmpty())
+                node->name = node->name + QLatin1Char('/') + child->name;
+            else
+                node->name = child->name;
             node->children = child->children;
 
             foreach (FileTreeNode *tmpChild, node->children)
@@ -108,7 +112,8 @@ public:
         QString p = name;
         FileTreeNode *node = parent;
         while (node) {
-            p = node->name + QLatin1Char('/') + p;
+            if (!Utils::HostOsInfo::isWindowsHost() || !node->name.isEmpty())
+                p = node->name + QLatin1Char('/') + p;
             node = node->parent;
         }
         return p;
