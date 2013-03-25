@@ -32,7 +32,9 @@
 
 #include "utilitypanelcontroller.h"
 
+QT_BEGIN_NAMESPACE
 class QStackedWidget;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
