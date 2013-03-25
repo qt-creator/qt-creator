@@ -59,7 +59,7 @@ void QbsLogSink::sendMessages()
 
     Core::MessageManager *mm = Core::MessageManager::instance();
     foreach (const QString &msg, toSend)
-        mm->printToOutputPane(msg);
+        mm->printToOutputPane(msg, Core::MessageManager::NoModeSwitch);
 }
 
 void QbsLogSink::doPrintMessage(qbs::LoggerLevel level, const QString &message, const QString &tag)
