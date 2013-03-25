@@ -2,7 +2,6 @@ TEMPLATE = lib
 TARGET = Subversion
 
 include(../../qtcreatorplugin.pri)
-include(subversion_dependencies.pri)
 
 HEADERS += annotationhighlighter.h \
     subversionplugin.h \

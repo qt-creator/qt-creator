@@ -1,7 +1,6 @@
 TEMPLATE = lib
 TARGET = Git
 include(../../qtcreatorplugin.pri)
-include(git_dependencies.pri)
 HEADERS += gitplugin.h \
     gitconstants.h \
     gitclient.h \

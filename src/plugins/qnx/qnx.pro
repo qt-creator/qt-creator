@@ -4,7 +4,6 @@ QT += network xml
 PROVIDER = BlackBerry
 
 include(../../qtcreatorplugin.pri)
-include(qnx_dependencies.pri)
 
 SOURCES += qnxplugin.cpp \
     blackberryqtversionfactory.cpp \

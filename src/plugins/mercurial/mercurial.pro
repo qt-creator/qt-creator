@@ -1,7 +1,6 @@
 TARGET = Mercurial
 TEMPLATE = lib
 include(../../qtcreatorplugin.pri)
-include(mercurial_dependencies.pri)
 SOURCES += mercurialplugin.cpp \
     optionspage.cpp \
     mercurialcontrol.cpp \

@@ -6,7 +6,6 @@ TARGET = Debugger
 # CONFIG += single
 
 include(../../qtcreatorplugin.pri)
-include(debugger_dependencies.pri)
 
 DEFINES += DEBUGGER_LIBRARY
 

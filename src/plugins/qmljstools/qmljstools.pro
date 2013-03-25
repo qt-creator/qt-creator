@@ -1,7 +1,6 @@
 TEMPLATE = lib
 TARGET = QmlJSTools
 include(../../qtcreatorplugin.pri)
-include(qmljstools_dependencies.pri)
 
 DEFINES += QMLJSTOOLS_LIBRARY
 

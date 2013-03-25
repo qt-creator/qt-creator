@@ -2,7 +2,6 @@ TEMPLATE = lib
 TARGET = CppEditor
 DEFINES += CPPEDITOR_LIBRARY
 include(../../qtcreatorplugin.pri)
-include(cppeditor_dependencies.pri)
 HEADERS += cppplugin.h \
     cppeditor.h \
     cpphighlighter.h \

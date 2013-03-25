@@ -2,7 +2,6 @@ QT += network
 TEMPLATE = lib
 TARGET = CodePaster
 include(../../qtcreatorplugin.pri)
-include(cpaster_dependencies.pri)
 HEADERS += cpasterplugin.h \
     settingspage.h \
     protocol.h \

@@ -1,7 +1,6 @@
 TEMPLATE = lib
 TARGET = ImageViewer
 include(../../qtcreatorplugin.pri)
-include(imageviewer_dependencies.pri)
 
 HEADERS += \
     imageviewerplugin.h \

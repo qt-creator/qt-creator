@@ -5,5 +5,4 @@ DEFINES += \
     QT_CREATOR
 
 include(../../qtcreatorlibrary.pri)
-include(glsl_dependencies.pri)
 include(glsl-lib.pri)

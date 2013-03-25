@@ -1,5 +1,7 @@
 include(../qtcreator.pri)
 
+include($$replace(_PRO_FILE_PWD_, ([^/]+$), \\1/\\1_dependencies.pri))
+
 # use precompiled header for libraries by default
 isEmpty(PRECOMPILED_HEADER):PRECOMPILED_HEADER = $$PWD/shared/qtcreator_pch.h
 

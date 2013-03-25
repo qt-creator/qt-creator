@@ -1,7 +1,6 @@
 TEMPLATE = lib
 TARGET = GLSLEditor
 include(../../qtcreatorplugin.pri)
-include(glsleditor_dependencies.pri)
 
 DEFINES += \
     GLSLEDITOR_LIBRARY \

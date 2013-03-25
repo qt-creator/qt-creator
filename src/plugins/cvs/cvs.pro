@@ -2,7 +2,6 @@ TEMPLATE = lib
 TARGET = CVS
 
 include(../../qtcreatorplugin.pri)
-include(cvs_dependencies.pri)
 
 HEADERS += annotationhighlighter.h \
     cvsplugin.h \

@@ -3,7 +3,6 @@ TARGET = FakeVim
 
 # CONFIG += single
 include(../../qtcreatorplugin.pri)
-include(fakevim_dependencies.pri)
 
 QT += gui
 SOURCES += fakevimactions.cpp \

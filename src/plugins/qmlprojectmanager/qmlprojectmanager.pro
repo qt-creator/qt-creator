@@ -4,7 +4,6 @@ TARGET = QmlProjectManager
 QT += network declarative
 
 include(../../qtcreatorplugin.pri)
-include(qmlprojectmanager_dependencies.pri)
 include(fileformat/fileformat.pri)
 
 DEFINES += QMLPROJECTMANAGER_LIBRARY

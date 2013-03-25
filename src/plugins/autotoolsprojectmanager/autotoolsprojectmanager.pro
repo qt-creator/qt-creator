@@ -3,7 +3,6 @@ TARGET = AutotoolsProjectManager
 #PROVIDER = Openismus
 
 include(../../qtcreatorplugin.pri)
-include(autotoolsprojectmanager_dependencies.pri)
 
 HEADERS = autotoolsprojectplugin.h\
           autotoolsopenprojectwizard.h\

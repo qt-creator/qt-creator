@@ -2,7 +2,6 @@ TEMPLATE = lib
 TARGET   = Bookmarks
 
 include(../../qtcreatorplugin.pri)
-include(bookmarks_dependencies.pri)
 
 HEADERS += bookmarksplugin.h \
            bookmark.h \

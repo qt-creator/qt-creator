@@ -2,7 +2,6 @@ TEMPLATE = lib
 TARGET = Valgrind
 
 include(../../qtcreatorplugin.pri)
-include(valgrind_dependencies.pri)
 include(callgrind/callgrind.pri)
 include(memcheck/memcheck.pri)
 include(xmlprotocol/xmlprotocol.pri)

@@ -3,7 +3,6 @@ TARGET = ClearCase
 # PROVIDER = AudioCodes
 
 include(../../qtcreatorplugin.pri)
-include(clearcase_dependencies.pri)
 
 HEADERS += activityselector.h \
     annotationhighlighter.h \

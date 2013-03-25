@@ -2,7 +2,6 @@ TEMPLATE = lib
 TARGET = ResourceEditor
 
 include(../../qtcreatorplugin.pri)
-include(resourceeditor_dependencies.pri)
 include(qrceditor/qrceditor.pri)
 
 INCLUDEPATH += $$PWD/../../tools/utils

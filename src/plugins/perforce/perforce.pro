@@ -2,7 +2,6 @@ TEMPLATE = lib
 TARGET = Perforce
 
 include(../../qtcreatorplugin.pri)
-include(perforce_dependencies.pri)
 
 HEADERS += \
     perforceplugin.h \

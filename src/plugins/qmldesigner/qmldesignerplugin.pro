@@ -7,7 +7,6 @@ INCLUDEPATH += $$PWD
 
 include(../../qtcreatorplugin.pri)
 include(../../private_headers.pri)
-include(qmldesigner_dependencies.pri)
 
 include(designercore/designercore-lib.pri)
 include(components/componentcore/componentcore.pri)

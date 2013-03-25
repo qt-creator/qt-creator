@@ -2,7 +2,6 @@ TEMPLATE = lib
 TARGET = Android
 
 include(../../qtcreatorplugin.pri)
-include(android_dependencies.pri)
 
 isEmpty(ANDROID_ENABLE):ANDROID_EXPERIMENTAL_STR="true"
 else:ANDROID_EXPERIMENTAL_STR="false"

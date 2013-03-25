@@ -5,5 +5,4 @@ DEFINES += QT_CREATOR
 unix:QMAKE_CXXFLAGS_DEBUG += -O3
 
 include(../../qtcreatorlibrary.pri)
-include(languageutils_dependencies.pri)
 include(languageutils-lib.pri)

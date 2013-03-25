@@ -4,7 +4,6 @@ TARGET = AnalyzerBase
 DEFINES += ANALYZER_LIBRARY
 
 include(../../qtcreatorplugin.pri)
-include(analyzerbase_dependencies.pri)
 
 QT += network
 

@@ -14,7 +14,6 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 INCLUDEPATH += $$PWD
 
 include(../../qtcreatorplugin.pri)
-include(help_dependencies.pri)
 
 DEFINES += \
     QT_CLUCENE_SUPPORT \

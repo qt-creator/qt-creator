@@ -1,7 +1,6 @@
 TEMPLATE = lib
 TARGET = CppTools
 include(../../qtcreatorplugin.pri)
-include(cpptools_dependencies.pri)
 
 INCLUDEPATH += .
 DEFINES += CPPTOOLS_LIBRARY
