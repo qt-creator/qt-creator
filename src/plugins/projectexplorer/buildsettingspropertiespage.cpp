@@ -28,22 +28,17 @@
 ****************************************************************************/
 
 #include "buildsettingspropertiespage.h"
-#include "buildstep.h"
 #include "buildstepspage.h"
 #include "project.h"
-#include "projectexplorerconstants.h"
 #include "target.h"
 #include "buildconfiguration.h"
 #include "buildconfigurationmodel.h"
 
-#include <coreplugin/coreconstants.h>
-#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
 
 #include <QMargins>
-#include <QTimer>
 #include <QCoreApplication>
 #include <QComboBox>
 #include <QInputDialog>

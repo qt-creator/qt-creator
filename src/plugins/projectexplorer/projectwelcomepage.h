@@ -31,10 +31,8 @@
 #define PROJECTWELCOMEPAGE_H
 
 #include <QAbstractListModel>
-#include <QStringList>
 
 #include <utils/iwelcomepage.h>
-#include <coreplugin/icore.h>
 
 QT_BEGIN_NAMESPACE
 class QDeclarativeEngine;

@@ -34,8 +34,6 @@
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/codestyleeditor.h>
 
-#include <QTextCodec>
-
 using namespace TextEditor;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

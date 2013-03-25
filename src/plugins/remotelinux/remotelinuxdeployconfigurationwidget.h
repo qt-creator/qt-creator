@@ -32,6 +32,7 @@
 #include "remotelinux_export.h"
 
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/namedwidget.h>
 
 namespace RemoteLinux {
 class RemoteLinuxDeployConfiguration;

@@ -32,8 +32,6 @@
 
 #include "projectexplorer_export.h"
 
-#include <utils/fileutils.h>
-
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE

@@ -34,7 +34,6 @@
 
 #include <QAbstractItemModel>
 #include <QList>
-#include <QSharedPointer>
 
 namespace ProjectExplorer {
 

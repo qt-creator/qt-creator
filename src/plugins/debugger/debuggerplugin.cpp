@@ -82,6 +82,7 @@
 
 #include <projectexplorer/localapplicationrunconfiguration.h>
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/projectexplorer.h>

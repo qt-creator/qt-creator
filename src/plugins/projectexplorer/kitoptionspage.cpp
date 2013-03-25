@@ -35,10 +35,6 @@
 #include "kitmanagerconfigwidget.h"
 #include "kitmanager.h"
 
-#include <coreplugin/icore.h>
-
-#include <utils/qtcassert.h>
-
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QItemSelectionModel>

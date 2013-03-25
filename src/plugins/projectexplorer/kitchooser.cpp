@@ -31,9 +31,6 @@
 
 #include "kitinformation.h"
 #include "kitmanager.h"
-#include "abi.h"
-
-#include <utils/qtcassert.h>
 
 namespace ProjectExplorer {
 

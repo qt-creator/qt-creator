@@ -29,10 +29,8 @@
 
 #include "buildconfiguration.h"
 
-#include "buildmanager.h"
 #include "buildsteplist.h"
 #include "projectexplorer.h"
-#include "projectexplorerconstants.h"
 #include "kitmanager.h"
 #include "target.h"
 #include "project.h"
@@ -44,8 +42,6 @@
 
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
-
-#include <QProcess>
 
 static const char BUILD_STEP_LIST_COUNT[] = "ProjectExplorer.BuildConfiguration.BuildStepListCount";
 static const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildStepList.";

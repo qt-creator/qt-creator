@@ -35,11 +35,9 @@
 #include "projectexplorerconstants.h"
 #include "toolchainmanager.h"
 
-#include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
-#include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 
 #include <QBuffer>
@@ -48,9 +46,7 @@
 #include <QProcess>
 #include <QScopedPointer>
 
-#include <QComboBox>
 #include <QFormLayout>
-#include <QLabel>
 
 using namespace Utils;
 

@@ -35,7 +35,6 @@
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
-#include "projectexplorerconstants.h"
 #include "target.h"
 #include "toolchain.h"
 #include "toolchainmanager.h"
@@ -45,10 +44,10 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/persistentsettings.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/persistentsettings.h>
 
 #include <QApplication>
 #include <QFile>

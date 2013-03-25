@@ -29,7 +29,8 @@
 
 #include "abi.h"
 
-#include <QCoreApplication>
+#include <utils/fileutils.h>
+
 #include <QDebug>
 #include <QtEndian>
 #include <QFile>

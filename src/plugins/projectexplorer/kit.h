@@ -33,8 +33,6 @@
 #include "projectexplorer_export.h"
 #include "task.h"
 
-#include <coreplugin/id.h>
-
 #include <QVariant>
 
 namespace Utils { class Environment; }

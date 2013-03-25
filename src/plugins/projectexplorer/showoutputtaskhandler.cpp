@@ -29,7 +29,6 @@
 
 #include "showoutputtaskhandler.h"
 
-#include "projectexplorerconstants.h"
 #include "task.h"
 
 #include "compileoutputwindow.h"

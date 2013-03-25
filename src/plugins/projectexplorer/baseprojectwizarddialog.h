@@ -31,11 +31,8 @@
 #define BASEPROJECTWIZARDDIALOG_H
 
 #include "projectexplorer_export.h"
-#include <coreplugin/featureprovider.h>
 #include <coreplugin/basefilewizard.h>
 #include <utils/wizard.h>
-
-#include <QWizard>
 
 namespace Utils {
     class ProjectIntroPage;

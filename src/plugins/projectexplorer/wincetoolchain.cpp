@@ -31,10 +31,7 @@
 
 #include "msvcparser.h"
 #include "projectexplorerconstants.h"
-#include "headerpath.h"
 
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorersettings.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>

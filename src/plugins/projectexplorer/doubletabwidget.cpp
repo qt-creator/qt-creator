@@ -34,7 +34,6 @@
 
 #include <QRect>
 #include <QPainter>
-#include <QFont>
 #include <QMouseEvent>
 #include <QMenu>
 #include <QToolTip>

@@ -36,7 +36,6 @@
 
 #include <utils/outputformat.h>
 
-#include <QMetaType>
 #include <QPointer>
 #include <QWidget>
 

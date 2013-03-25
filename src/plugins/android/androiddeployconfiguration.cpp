@@ -36,6 +36,7 @@
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 
 #include <qt4projectmanager/qt4project.h>
 #include <qtsupport/qtkitinformation.h>

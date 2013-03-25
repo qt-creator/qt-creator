@@ -33,7 +33,6 @@
 #include "buildsteplist.h"
 #include "projectexplorerconstants.h"
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
@@ -42,7 +41,6 @@
 
 #include <QSignalMapper>
 
-#include <QPropertyAnimation>
 #include <QLabel>
 #include <QPushButton>
 #include <QMenu>
@@ -50,7 +48,6 @@
 #include <QHBoxLayout>
 #include <QToolButton>
 #include <QMessageBox>
-#include <QGraphicsOpacityEffect>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

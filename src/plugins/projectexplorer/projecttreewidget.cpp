@@ -33,7 +33,6 @@
 #include "projectnodes.h"
 #include "project.h"
 #include "session.h"
-#include "projectexplorerconstants.h"
 #include "projectmodels.h"
 
 #include <coreplugin/actionmanager/command.h>
@@ -41,22 +40,16 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/icontext.h>
 
-#include <utils/qtcassert.h>
 #include <utils/navigationtreeview.h>
 
 #include <QDebug>
 #include <QSettings>
 
-#include <QHeaderView>
 #include <QStyledItemDelegate>
-#include <QTreeView>
 #include <QVBoxLayout>
 #include <QToolButton>
-#include <QFocusEvent>
 #include <QAction>
-#include <QPalette>
 #include <QMenu>
 
 using namespace Core;

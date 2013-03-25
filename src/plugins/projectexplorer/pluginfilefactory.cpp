@@ -30,15 +30,11 @@
 #include "pluginfilefactory.h"
 #include "projectexplorer.h"
 #include "project.h"
-#include "projectexplorerconstants.h"
 #include "iprojectmanager.h"
-#include "session.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 #include <coreplugin/mimedatabase.h>
-#include <coreplugin/messagemanager.h>
 
 #include <QDebug>
 #include <QMessageBox>

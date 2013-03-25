@@ -34,16 +34,13 @@
 #include "projectexplorer.h"
 #include "editorconfiguration.h"
 
-#include <utils/qtcassert.h>
 #include <texteditor/itexteditor.h>
-#include <coreplugin/editormanager/editormanager.h>
 
 #include <QSettings>
 #include <QRegExp>
 
 #include <QGridLayout>
 #include <QLabel>
-#include <QHBoxLayout>
 
 using namespace Find;
 using namespace ProjectExplorer;

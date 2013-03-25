@@ -29,8 +29,6 @@
 
 #include "projectwelcomepage.h"
 
-#include "projectexplorerconstants.h"
-
 #include <utils/stringutils.h>
 
 #include <QDeclarativeEngine>

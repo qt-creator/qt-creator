@@ -28,10 +28,8 @@
 ****************************************************************************/
 #include "devicemanagermodel.h"
 
-#include "../projectexplorerconstants.h"
 #include "devicemanager.h"
 
-#include <coreplugin/id.h>
 #include <utils/qtcassert.h>
 
 #include <QString>

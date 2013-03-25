@@ -39,13 +39,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/abi.h>
-#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
-#include <QComboBox>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QPushButton>
 #include <QFileInfo>
 
 namespace ProjectExplorer {

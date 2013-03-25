@@ -32,8 +32,10 @@
 
 #include "toolchain.h"
 #include "abi.h"
+#include "headerpath.h"
 
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 
 namespace ProjectExplorer {
 namespace Internal {

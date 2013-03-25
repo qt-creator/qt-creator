@@ -32,6 +32,7 @@
 #include "qmakekitconfigwidget.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <qtsupport/baseqtversion.h>

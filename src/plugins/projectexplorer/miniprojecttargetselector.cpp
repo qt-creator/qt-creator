@@ -30,7 +30,6 @@
 #include "miniprojecttargetselector.h"
 #include "target.h"
 
-#include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 
@@ -57,7 +56,6 @@
 #include <QPainter>
 #include <QAction>
 #include <QItemDelegate>
-#include <QApplication>
 
 static QIcon createCenteredIcon(const QIcon &icon, const QIcon &overlay)
 {

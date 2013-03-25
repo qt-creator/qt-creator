@@ -29,19 +29,14 @@
 
 #include "processstep.h"
 #include "buildstep.h"
-#include "project.h"
 #include "buildconfiguration.h"
 #include "projectexplorerconstants.h"
 #include "target.h"
 #include "kit.h"
 
-#include <coreplugin/idocument.h>
 #include <coreplugin/variablemanager.h>
-#include <utils/qtcprocess.h>
-#include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QFileDialog>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

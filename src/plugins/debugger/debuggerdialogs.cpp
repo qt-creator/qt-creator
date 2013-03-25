@@ -35,6 +35,7 @@
 #include "cdb/cdbengine.h"
 
 #include <coreplugin/icore.h>
+#include <projectexplorer/toolchain.h>
 #include <utils/pathchooser.h>
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>

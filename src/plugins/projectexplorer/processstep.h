@@ -33,8 +33,6 @@
 #include "ui_processstep.h"
 #include "abstractprocessstep.h"
 
-#include <utils/environment.h>
-
 namespace ProjectExplorer {
 
 namespace Internal {

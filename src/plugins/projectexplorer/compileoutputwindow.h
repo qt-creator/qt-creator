@@ -31,7 +31,6 @@
 #define COMPILEOUTPUTWINDOW_H
 
 #include "buildstep.h"
-#include <coreplugin/outputwindow.h>
 #include <coreplugin/ioutputpane.h>
 
 #include <QHash>

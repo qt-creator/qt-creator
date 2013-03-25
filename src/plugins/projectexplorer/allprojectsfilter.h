@@ -33,7 +33,6 @@
 #include <locator/basefilefilter.h>
 
 #include <QFutureInterface>
-#include <QString>
 
 namespace ProjectExplorer {
 

@@ -32,17 +32,18 @@
 
 #include "projectexplorer_export.h"
 
-#include "task.h"
-
 #include <coreplugin/id.h>
-#include <utils/fileutils.h>
 
 #include <QObject>
 #include <QPair>
 
-namespace Utils { class Environment; }
+namespace Utils {
+class FileName;
+class Environment;
+}
 
 namespace ProjectExplorer {
+class Task;
 class IOutputParser;
 class Kit;
 class KitConfigWidget;

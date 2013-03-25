@@ -30,8 +30,6 @@
 #include "ioutputparser.h"
 #include "task.h"
 
-#include <utils/qtcassert.h>
-
 /*!
     \class ProjectExplorer::IOutputParser
 

@@ -37,7 +37,6 @@
 
 #include <QApplication>
 #include <QLayout>
-#include <QMessageBox>
 
 namespace ProjectExplorer {
 namespace Internal {

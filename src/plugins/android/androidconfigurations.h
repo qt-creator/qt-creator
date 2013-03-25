@@ -34,6 +34,7 @@
 #include <QString>
 #include <QVector>
 #include <projectexplorer/abi.h>
+#include <utils/fileutils.h>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

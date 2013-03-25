@@ -34,14 +34,12 @@
 #include "kit.h"
 
 #include "devicesupport/idevice.h"
-#include "toolchain.h"
-
-#include <utils/fileutils.h>
 
 #include <QVariant>
 
 namespace ProjectExplorer {
 
+class ToolChain;
 class KitConfigWidget;
 
 // --------------------------------------------------------------------------

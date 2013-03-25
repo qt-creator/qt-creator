@@ -40,14 +40,12 @@
 #include <utils/winutils.h>
 #endif
 
-#include <QTimer>
 #include <QTextCodec>
 
 #ifdef Q_OS_WIN
 #include <windows.h>
 #endif
 
-#include "projectexplorerconstants.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
 

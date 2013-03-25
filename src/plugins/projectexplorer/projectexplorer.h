@@ -33,7 +33,6 @@
 #include "projectexplorer_export.h"
 #include "projectexplorerconstants.h"
 
-#include <coreplugin/id.h>
 #include <extensionsystem/iplugin.h>
 
 #include <QPair>
@@ -46,6 +45,7 @@ QT_END_NAMESPACE
 
 namespace Core {
 class IMode;
+class Id;
 }
 
 namespace ProjectExplorer {

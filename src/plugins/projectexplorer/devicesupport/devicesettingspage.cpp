@@ -34,7 +34,6 @@
 
 #include <QCoreApplication>
 #include <QString>
-#include <QIcon>
 
 namespace ProjectExplorer {
 namespace Internal {

@@ -40,13 +40,10 @@
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
-#include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSortFilterProxyModel>
-#include <QSpacerItem>
 #include <QTextBrowser>
-#include <QTextDocument>
 #include <QTreeView>
 #include <QVBoxLayout>
 

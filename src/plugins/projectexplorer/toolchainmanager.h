@@ -32,12 +32,12 @@
 
 #include "projectexplorer_export.h"
 
-#include <utils/fileutils.h>
 
 #include <QList>
 #include <QObject>
 #include <QString>
 
+namespace Utils { class FileName; }
 namespace ProjectExplorer {
 class ProjectExplorerPlugin;
 class ToolChain;

@@ -37,7 +37,6 @@
 #include "buildconfiguration.h"
 #include "deployconfiguration.h"
 #include "project.h"
-#include "projectexplorerconstants.h"
 #include "runconfiguration.h"
 
 #include <limits>

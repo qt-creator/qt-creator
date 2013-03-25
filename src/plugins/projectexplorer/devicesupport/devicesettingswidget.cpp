@@ -34,27 +34,18 @@
 #include "devicemanager.h"
 #include "devicemanagermodel.h"
 #include "deviceprocessesdialog.h"
-#include "deviceprocesslist.h"
 #include "idevice.h"
 #include "idevicefactory.h"
 #include "idevicewidget.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 #include <extensionsystem/pluginmanager.h>
-#include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
-#include <QFileInfo>
 #include <QPixmap>
-#include <QRegExp>
-#include <QSettings>
+#include <QPushButton>
 #include <QSignalMapper>
 #include <QTextStream>
-
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QIntValidator>
 
 #include <algorithm>
 

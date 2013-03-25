@@ -37,19 +37,15 @@
 #include "target.h"
 #include "project.h"
 
-#include <coreplugin/coreconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
 #include <utils/qtcassert.h>
 
-#include <QPair>
 #include <QVariant>
 #include <QAction>
-#include <QButtonGroup>
 #include <QComboBox>
 #include <QGridLayout>
-#include <QHeaderView>
 #include <QInputDialog>
 #include <QLabel>
 #include <QMenu>

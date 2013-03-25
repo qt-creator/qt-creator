@@ -28,8 +28,6 @@
 ****************************************************************************/
 
 #include "foldernavigationwidget.h"
-#include "projectexplorer.h"
-#include "projectexplorerconstants.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -44,7 +42,6 @@
 #include <find/findplugin.h>
 #include <texteditor/findinfiles.h>
 
-#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -55,8 +52,6 @@
 #include <QFileSystemModel>
 #include <QVBoxLayout>
 #include <QToolButton>
-#include <QPushButton>
-#include <QLabel>
 #include <QListView>
 #include <QSortFilterProxyModel>
 #include <QAction>

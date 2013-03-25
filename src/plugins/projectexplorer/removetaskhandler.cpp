@@ -33,12 +33,7 @@
 #include "task.h"
 #include "taskhub.h"
 
-#include <coreplugin/coreconstants.h>
-
-#include <QDir>
 #include <QAction>
-#include <QApplication>
-#include <QClipboard>
 
 using namespace ProjectExplorer::Internal;
 

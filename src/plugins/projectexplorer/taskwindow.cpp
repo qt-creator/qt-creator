@@ -36,22 +36,15 @@
 #include "taskmodel.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
-#include <QFileInfo>
-#include <QApplication>
-#include <QClipboard>
-#include <QKeyEvent>
 #include <QListView>
 #include <QPainter>
 #include <QStyledItemDelegate>
-#include <QSortFilterProxyModel>
 #include <QMenu>
 #include <QToolButton>
 

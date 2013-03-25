@@ -41,7 +41,6 @@
 
 #include <QFileInfo>
 #include <QDir>
-#include <QApplication>
 #include <QIcon>
 #include <QStyle>
 

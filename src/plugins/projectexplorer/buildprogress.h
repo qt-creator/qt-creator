@@ -34,7 +34,8 @@
 
 #include <QPointer>
 #include <QWidget>
-#include <QLabel>
+
+QT_FORWARD_DECLARE_CLASS(QLabel)
 
 namespace ProjectExplorer {
 namespace Internal {

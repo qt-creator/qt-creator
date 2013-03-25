@@ -35,6 +35,8 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/fileutils.h>
+
 #include <QLineEdit>
 
 namespace Qt4ProjectManager {

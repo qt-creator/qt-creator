@@ -33,8 +33,11 @@
 #include "projectexplorer_export.h"
 
 #include "abi.h"
+#include "headerpath.h"
 #include "toolchain.h"
 #include "toolchainconfigwidget.h"
+
+#include <utils/fileutils.h>
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;

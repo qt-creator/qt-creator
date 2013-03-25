@@ -33,7 +33,6 @@
 #include "projectexplorer_export.h"
 
 #include "projectconfiguration.h"
-#include "namedwidget.h"
 
 #include <QString>
 

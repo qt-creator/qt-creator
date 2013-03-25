@@ -31,18 +31,16 @@
 #include "idevicefactory.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/project.h>
+#include <utils/fileutils.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
 #include <QHash>
 #include <QList>
-#include <QSettings>
 #include <QString>
-#include <QVariantHash>
 #include <QVariantList>
 
 #include <limits>

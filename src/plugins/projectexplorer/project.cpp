@@ -30,24 +30,17 @@
 #include "project.h"
 
 #include "buildconfiguration.h"
-#include "deployconfiguration.h"
 #include "editorconfiguration.h"
 #include "projectexplorer.h"
-#include "projectexplorerconstants.h"
-#include "projectnodes.h"
-#include "runconfiguration.h"
 #include "target.h"
 #include "settingsaccessor.h"
 
 #include <coreplugin/idocument.h>
 #include <coreplugin/icontext.h>
-#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildmanager.h>
-#include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 #include <limits>
 #include <utils/qtcassert.h>
-#include <utils/environment.h>
 
 /*!
     \class ProjectExplorer::Project

@@ -32,7 +32,6 @@
 
 #include "runconfiguration.h"
 #include "applicationlauncher.h"
-#include "projectexplorerconstants.h"
 
 namespace ProjectExplorer {
 

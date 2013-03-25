@@ -29,13 +29,10 @@
 
 #include "localapplicationruncontrol.h"
 #include "localapplicationrunconfiguration.h"
-#include "projectexplorerconstants.h"
 
-#include <utils/outputformat.h>
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
 
-#include <QLabel>
 #include <QIcon>
 #include <QDir>
 

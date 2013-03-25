@@ -32,8 +32,9 @@
 #include "idevice.h"
 #include "idevicefactory.h"
 
+#include <coreplugin/id.h>
+
 #include <extensionsystem/pluginmanager.h>
-#include <utils/qtcassert.h>
 
 #include <QPushButton>
 

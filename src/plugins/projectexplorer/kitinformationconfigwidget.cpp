@@ -44,7 +44,6 @@
 #include <utils/fancylineedit.h>
 
 #include <QComboBox>
-#include <QLabel>
 #include <QPushButton>
 
 using namespace Core;

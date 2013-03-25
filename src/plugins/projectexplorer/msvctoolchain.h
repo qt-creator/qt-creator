@@ -34,9 +34,7 @@
 #include "abi.h"
 #include "toolchainconfigwidget.h"
 
-#include <utils/environment.h>
-
-#include <QLabel>
+QT_FORWARD_DECLARE_CLASS(QLabel)
 
 namespace ProjectExplorer {
 namespace Internal {

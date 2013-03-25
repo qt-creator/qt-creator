@@ -30,11 +30,11 @@
 #include "toolchain.h"
 
 #include "abi.h"
+#include "headerpath.h"
 #include "toolchainmanager.h"
 #include "task.h"
 
-#include <extensionsystem/pluginmanager.h>
-#include <utils/environment.h>
+#include <utils/fileutils.h>
 
 #include <QCoreApplication>
 #include <QUuid>
@@ -122,6 +122,11 @@ bool ToolChain::isAutoDetected() const
 QString ToolChain::id() const
 {
     return d->m_id;
+}
+
+QList<Utils::FileName> ToolChain::suggestedMkspecList() const
+{
+    return QList<Utils::FileName>();
 }
 
 Utils::FileName ToolChain::suggestedDebugger() const

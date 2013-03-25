@@ -29,17 +29,14 @@
 
 #include "abstractprocessstep.h"
 #include "ansifilterparser.h"
-#include "buildconfiguration.h"
 #include "buildstep.h"
 #include "ioutputparser.h"
 #include "project.h"
-#include "target.h"
 #include "task.h"
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <QEventLoop>
 #include <QTimer>
 #include <QDir>
 

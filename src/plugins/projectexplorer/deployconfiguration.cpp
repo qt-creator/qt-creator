@@ -29,18 +29,13 @@
 
 #include "deployconfiguration.h"
 
-#include "buildmanager.h"
 #include "buildsteplist.h"
-#include "buildstepspage.h"
 #include "kitinformation.h"
 #include "project.h"
 #include "projectexplorer.h"
-#include "projectexplorerconstants.h"
 #include "target.h"
 
 #include <extensionsystem/pluginmanager.h>
-
-#include <QStringList>
 
 using namespace ProjectExplorer;
 

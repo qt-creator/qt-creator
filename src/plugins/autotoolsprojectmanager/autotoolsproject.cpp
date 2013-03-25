@@ -40,12 +40,14 @@
 #include "makefileparserthread.h"
 
 #include <projectexplorer/abi.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/headerpath.h>
 #include <extensionsystem/pluginmanager.h>
 #include <cpptools/ModelManagerInterface.h>
 #include <coreplugin/icore.h>

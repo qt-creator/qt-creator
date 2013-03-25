@@ -32,18 +32,14 @@
 #include "projectexplorer.h"
 #include "project.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-
-#include <texteditor/itexteditor.h>
+#include <coreplugin/id.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/texteditorsettings.h>
-#include <texteditor/tabsettings.h>
 #include <texteditor/simplecodestylepreferences.h>
 #include <texteditor/typingsettings.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/extraencodingsettings.h>
-#include <texteditor/icodestylepreferences.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 
 #include <QLatin1String>

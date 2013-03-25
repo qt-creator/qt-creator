@@ -29,8 +29,6 @@
 
 #include "baseprojectwizarddialog.h"
 
-#include <coreplugin/basefilewizard.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/documentmanager.h>
 #include <utils/projectintropage.h>
 
