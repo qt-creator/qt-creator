@@ -2,11 +2,7 @@ TEMPLATE = lib
 TARGET = PythonEditor
 
 include(../../qtcreatorplugin.pri)
-
-# dependencies
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/texteditor/texteditor.pri)
-include(../../plugins/cpptools/cpptools.pri)
+include(pythoneditor_dependencies.pri)
 
 DEFINES += \
     PYEDITOR_LIBRARY

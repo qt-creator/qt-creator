@@ -2,9 +2,7 @@ TEMPLATE = lib
 TARGET   = Bookmarks
 
 include(../../qtcreatorplugin.pri)
-include(../../plugins/projectexplorer/projectexplorer.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/texteditor/texteditor.pri)
+include(bookmarks_dependencies.pri)
 
 HEADERS += bookmarksplugin.h \
            bookmark.h \

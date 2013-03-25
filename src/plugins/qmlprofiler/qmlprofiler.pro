@@ -6,14 +6,7 @@ DEFINES += QMLPROFILER_LIBRARY
 QT += network script declarative
 
 include(../../qtcreatorplugin.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/analyzerbase/analyzerbase.pri)
-include(../../plugins/qmlprojectmanager/qmlprojectmanager.pri)
-include(../../plugins/qt4projectmanager/qt4projectmanager.pri)
-include(../../plugins/qmljstools/qmljstools.pri)
-include(../../plugins/remotelinux/remotelinux.pri)
-include(../../libs/qmldebug/qmldebug.pri)
-include(../../libs/extensionsystem/extensionsystem.pri)
+include(qmlprofiler_dependencies.pri)
 include(canvas/canvas.pri)
 
 SOURCES += \

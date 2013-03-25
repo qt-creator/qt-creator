@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET = HelloWorld
 
 include(../../qtcreatorplugin.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
+include(helloworld_dependencies.pri)
 
 HEADERS += helloworldplugin.h \
     helloworldwindow.h

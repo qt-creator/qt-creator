@@ -1,11 +1,7 @@
 TEMPLATE = lib
 TARGET = Git
 include(../../qtcreatorplugin.pri)
-include(../../plugins/projectexplorer/projectexplorer.pri)
-include(../../plugins/texteditor/texteditor.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/vcsbase/vcsbase.pri)
-include(../../libs/utils/utils.pri)
+include(git_dependencies.pri)
 HEADERS += gitplugin.h \
     gitconstants.h \
     gitclient.h \

@@ -2,8 +2,7 @@ TEMPLATE = lib
 TARGET = TaskList
 
 include(../../qtcreatorplugin.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/projectexplorer/projectexplorer.pri)
+include(tasklist_dependencies.pri)
 
 HEADERS += tasklistplugin.h \
     tasklist_export.h \
