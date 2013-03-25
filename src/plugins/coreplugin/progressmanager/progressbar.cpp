@@ -231,7 +231,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
     // draw outer rect
     QRect rect(INDENT - 1, h+6, size().width()-2*INDENT + 1, m_progressHeight-1);
     p.setPen(Utils::StyleHelper::panelTextColor());
-    Utils::StyleHelper::drawCornerImage(bar, &p, rect, 2, 2, 2, 2);
+    Utils::StyleHelper::drawCornerImage(bar, &p, rect, 4, 2, 3, 2);
 
     // draw inner rect
     QColor c = Utils::StyleHelper::panelTextColor();
