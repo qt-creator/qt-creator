@@ -4,7 +4,6 @@ QT += xml script network declarative
 
 include(../../qtcreatorplugin.pri)
 include(projectexplorer_dependencies.pri)
-include(../../libs/utils/utils.pri)
 include(../../libs/ssh/ssh.pri)
 include(customwizard/customwizard.pri)
 INCLUDEPATH += $$PWD/../../libs/utils

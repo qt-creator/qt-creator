@@ -2,7 +2,6 @@ TEMPLATE = lib
 TARGET = QbsProjectManager
 
 include(../../qtcreatorplugin.pri)
-include(../../libs/qmljs/qmljs.pri)
 include(qbsprojectmanager_dependencies.pri)
 
 # Look for qbs in the environment (again)

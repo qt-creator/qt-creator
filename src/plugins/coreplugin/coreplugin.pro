@@ -12,7 +12,6 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 include(../../qtcreatorplugin.pri)
-include(../../libs/utils/utils.pri)
 include(../../shared/scriptwrapper/scriptwrapper.pri)
 include(coreplugin_dependencies.pri)
 win32-msvc*:QMAKE_CXXFLAGS += -wd4251 -wd4290 -wd4250
