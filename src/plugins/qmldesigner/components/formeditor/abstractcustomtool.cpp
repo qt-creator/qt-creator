@@ -9,7 +9,7 @@ AbstractCustomTool::AbstractCustomTool()
 {
 }
 
-void AbstractCustomTool::selectedItemsChanged(const QList<FormEditorItem *> &itemList)
+void AbstractCustomTool::selectedItemsChanged(const QList<FormEditorItem *> &)
 {
     view()->changeToSelectionTool();
 }

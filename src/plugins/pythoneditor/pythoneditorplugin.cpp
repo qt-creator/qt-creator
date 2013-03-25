@@ -214,9 +214,7 @@ bool PythonEditorPlugin::initialize(
 {
     Q_UNUSED(arguments)
 
-    Core::ICore *pCore = Core::ICore::instance();
-
-    if (! pCore->mimeDatabase()->addMimeTypes(
+    if (! Core::ICore::mimeDatabase()->addMimeTypes(
             QLatin1String(RC_PY_MIME_XML),
             errorMessage))
     {

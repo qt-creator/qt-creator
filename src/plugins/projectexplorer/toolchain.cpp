@@ -195,7 +195,7 @@ bool ToolChain::fromMap(const QVariantMap &data)
     \brief Used by the toolchainkitinformation to validate the kit.
 */
 
-QList<Task> ToolChain::validateKit(const Kit */*k*/) const
+QList<Task> ToolChain::validateKit(const Kit *) const
 {
     return QList<Task>();
 }
