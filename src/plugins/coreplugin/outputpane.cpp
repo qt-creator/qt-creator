@@ -144,6 +144,7 @@ void OutputPanePlaceHolder::ensureSizeHintAsMinimum()
     if (idx < 0)
         return;
 
+    d->m_splitter->refresh();
     QList<int> sizes = d->m_splitter->sizes();
     Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance();
     int minimum = (d->m_splitter->orientation() == Qt::Vertical
