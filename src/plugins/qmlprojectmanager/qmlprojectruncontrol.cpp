@@ -200,6 +200,8 @@ QString QmlProjectRunControlFactory::displayName() const
 RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConfiguration *runConfig, QString *errorMessage)
 {
     Debugger::DebuggerStartParameters params;
+    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
+            = runConfig->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
     params.startMode = Debugger::StartInternal;
     params.executable = runConfig->observerPath();
     params.processArgs = runConfig->viewerArguments();
@@ -208,7 +210,7 @@ RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConf
     params.displayName = runConfig->displayName();
     params.projectSourceDirectory = runConfig->target()->project()->projectDirectory();
     params.projectSourceFiles = runConfig->target()->project()->files(Project::ExcludeGeneratedFiles);
-    if (runConfig->debuggerAspect()->useQmlDebugger()) {
+    if (aspect->useQmlDebugger()) {
         const ProjectExplorer::IDevice::ConstPtr device =
                 DeviceKitInformation::device(runConfig->target()->kit());
         params.qmlServerAddress = QLatin1String("127.0.0.1");
@@ -236,7 +238,7 @@ RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConf
                                   QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(
                                       params.qmlServerPort));
     }
-    if (runConfig->debuggerAspect()->useCppDebugger())
+    if (aspect->useCppDebugger())
         params.languages |= Debugger::CppLanguage;
 
     if (params.executable.isEmpty()) {

@@ -147,15 +147,17 @@ Debugger::DebuggerStartParameters BlackBerryRunControlFactory::startParameters(
     params.displayName = runConfig->displayName();
     params.remoteSetupNeeded = true;
 
-    if (runConfig->debuggerAspect()->useQmlDebugger()) {
+    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
+            = runConfig->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+    if (aspect->useQmlDebugger()) {
         BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(runConfig->target()->kit());
         if (device) {
             params.qmlServerAddress = device->sshParameters().host;
-            params.qmlServerPort = runConfig->debuggerAspect()->qmlDebugServerPort();
+            params.qmlServerPort = aspect->qmlDebugServerPort();
             params.languages |= Debugger::QmlLanguage;
         }
     }
-    if (runConfig->debuggerAspect()->useCppDebugger())
+    if (aspect->useCppDebugger())
         params.languages |= Debugger::CppLanguage;
 
     if (const ProjectExplorer::Project *project = runConfig->target()->project()) {

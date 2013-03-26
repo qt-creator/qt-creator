@@ -46,10 +46,12 @@ namespace Internal {
 AndroidRunner::AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig, bool debuggingMode)
     : QThread(parent)
 {
-    m_useCppDebugger = debuggingMode && runConfig->debuggerAspect()->useCppDebugger();
-    m_useQmlDebugger = debuggingMode && runConfig->debuggerAspect()->useQmlDebugger();
+    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
+            = runConfig->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+    m_useCppDebugger = debuggingMode && aspect->useCppDebugger();
+    m_useQmlDebugger = debuggingMode && aspect->useQmlDebugger();
     m_remoteGdbChannel = runConfig->remoteChannel();
-    m_qmlPort = runConfig->debuggerAspect()->qmlDebugServerPort();
+    m_qmlPort = aspect->qmlDebugServerPort();
     ProjectExplorer::Target *target = runConfig->target();
     AndroidDeployStep *ds = runConfig->deployStep();
     if ((m_useLocalQtLibs = ds->useLocalQtLibs())) {

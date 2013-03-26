@@ -49,7 +49,6 @@ public:
         Gui
     };
 
-    virtual ~LocalApplicationRunConfiguration();
     virtual QString executable() const = 0;
     virtual RunMode runMode() const = 0;
     virtual QString workingDirectory() const = 0;
@@ -63,9 +62,6 @@ protected:
     explicit LocalApplicationRunConfiguration(Target *target, LocalApplicationRunConfiguration *rc);
 
     Utils::AbstractMacroExpander *macroExpander() const;
-
-private:
-    void ctor();
 };
 
 } // namespace ProjectExplorer

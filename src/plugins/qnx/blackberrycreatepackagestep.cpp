@@ -191,10 +191,12 @@ bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDes
         fileContent.replace(SRC_DIR_VAR, QDir::toNativeSeparators(target()->project()->projectDirectory()).toLatin1());
 
     // Add parameter for QML debugging (if enabled)
-    if (target()->activeRunConfiguration()->debuggerAspect()->useQmlDebugger()) {
+    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
+            = target()->activeRunConfiguration()->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+    if (aspect->useQmlDebugger()) {
         if (!fileContent.contains("-qmljsdebugger")) {
             const QString argString = QString::fromLatin1("<arg>-qmljsdebugger=port:%1</arg>\n</qnx>")
-                    .arg(target()->activeRunConfiguration()->debuggerAspect()->qmlDebugServerPort());
+                    .arg(aspect->qmlDebugServerPort());
             fileContent.replace("</qnx>", argString.toLatin1());
         }
     }

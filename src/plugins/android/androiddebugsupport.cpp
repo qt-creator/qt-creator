@@ -91,7 +91,9 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
     params.displayName = AndroidManager::packageName(target);
     params.remoteSetupNeeded = true;
 
-    if (runConfig->debuggerAspect()->useCppDebugger()) {
+    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
+            = runConfig->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+    if (aspect->useCppDebugger()) {
         params.languages |= CppLanguage;
         Kit *kit = target->kit();
         params.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
@@ -108,10 +110,10 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
         params.solibSearchPath.append(qtSoPaths(version));
     }
-    if (runConfig->debuggerAspect()->useQmlDebugger()) {
+    if (aspect->useQmlDebugger()) {
         params.languages |= QmlLanguage;
         params.qmlServerAddress = QLatin1String("localhost");
-        params.qmlServerPort = runConfig->debuggerAspect()->qmlDebugServerPort();
+        params.qmlServerPort = aspect->qmlDebugServerPort();
         //TODO: Not sure if these are the right paths.
         params.projectSourceDirectory = project->projectDirectory();
         params.projectSourceFiles = project->files(Qt4Project::ExcludeGeneratedFiles);
@@ -128,9 +130,13 @@ AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
     DebuggerRunControl *runControl)
     : QObject(runControl), m_runControl(runControl),
       m_runner(new AndroidRunner(this, runConfig, true)),
-      m_gdbServerPort(5039), m_qmlPort(runConfig->debuggerAspect()->qmlDebugServerPort())
+      m_gdbServerPort(5039),
+      m_qmlPort(0)
 {
-    Q_ASSERT(runConfig->debuggerAspect()->useCppDebugger() || runConfig->debuggerAspect()->useQmlDebugger());
+    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
+            = runConfig->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+    m_qmlPort = aspect->qmlDebugServerPort();
+    Q_ASSERT(aspect->useCppDebugger() || aspect->useQmlDebugger());
 
     connect(m_runControl->engine(), SIGNAL(requestRemoteSetup()),
             m_runner, SLOT(start()));

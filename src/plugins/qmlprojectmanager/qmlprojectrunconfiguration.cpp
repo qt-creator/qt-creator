@@ -91,9 +91,11 @@ QString QmlProjectRunConfiguration::disabledReason() const
 void QmlProjectRunConfiguration::ctor()
 {
     // reset default settings in constructor
-    debuggerAspect()->setUseCppDebugger(false);
-    debuggerAspect()->setUseQmlDebugger(true);
-    debuggerAspect()->suppressQmlDebuggingSpinbox();
+    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
+            = extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+    aspect->setUseCppDebugger(false);
+    aspect->setUseQmlDebugger(true);
+    aspect->suppressQmlDebuggingSpinbox();
 
     EditorManager *em = Core::EditorManager::instance();
     connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),

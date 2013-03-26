@@ -117,7 +117,7 @@ RemoteLinuxRunConfiguration::~RemoteLinuxRunConfiguration()
 void RemoteLinuxRunConfiguration::init()
 {
     setDefaultDisplayName(defaultDisplayName());
-    debuggerAspect()->suppressQmlDebuggingSpinbox();
+    extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>()->suppressQmlDebuggingSpinbox();
 
     connect(target(), SIGNAL(deploymentDataChanged()), SLOT(handleBuildSystemDataUpdated()));
     connect(target(), SIGNAL(applicationTargetsChanged()), SLOT(handleBuildSystemDataUpdated()));
@@ -278,9 +278,11 @@ QString RemoteLinuxRunConfiguration::alternateRemoteExecutable() const
 int RemoteLinuxRunConfiguration::portsUsedByDebuggers() const
 {
     int ports = 0;
-    if (debuggerAspect()->useQmlDebugger())
+    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
+            = extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+    if (aspect->useQmlDebugger())
         ++ports;
-    if (debuggerAspect()->useCppDebugger())
+    if (aspect->useCppDebugger())
         ++ports;
 
     return ports;

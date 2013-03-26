@@ -83,7 +83,8 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     subLayout->setMargin(0);
     addMountWidgets(subLayout);
     connect(m_runConfiguration->target(), SIGNAL(kitChanged()), this, SLOT(updateMountWarning()));
-    connect(m_runConfiguration->debuggerAspect(), SIGNAL(debuggersChanged()),
+    connect(m_runConfiguration->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>(),
+            SIGNAL(debuggersChanged()),
             SLOT(updateMountWarning()));
     updateMountWarning();
 

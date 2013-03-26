@@ -166,8 +166,6 @@ public:
     bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
 
-    DebuggerRunConfigurationAspect *debuggerAspect() const { return m_debuggerAspect; }
-
     QList<IRunConfigurationAspect *> extraAspects() const;
     template <typename T> T *extraAspect() const
     {
@@ -198,7 +196,6 @@ protected:
 
 private:
     QList<IRunConfigurationAspect *> m_aspects;
-    DebuggerRunConfigurationAspect *m_debuggerAspect;
     bool m_aspectsInitialized;
 };
 

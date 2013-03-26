@@ -49,6 +49,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
@@ -144,7 +145,7 @@ public:
 
 DebuggerRunConfigWidget::DebuggerRunConfigWidget(RunConfiguration *runConfiguration)
 {
-    m_aspect = runConfiguration->debuggerAspect();
+    m_aspect = runConfiguration->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
 
     m_useCppDebugger = new QCheckBox(tr("Enable C++"), this);
     m_useQmlDebugger = new QCheckBox(tr("Enable QML"), this);
@@ -508,7 +509,8 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
         }
     }
 
-    DebuggerRunConfigurationAspect *aspect = runConfiguration->debuggerAspect();
+    DebuggerRunConfigurationAspect *aspect
+            = runConfiguration->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
     sp.multiProcess = aspect->useMultiProcess();
 
     if (aspect->useCppDebugger())
@@ -582,7 +584,8 @@ static bool fixupEngineTypes(DebuggerStartParameters &sp, RunConfiguration *rc, 
     }
 
     if (rc) {
-        DebuggerRunConfigurationAspect *aspect = rc->debuggerAspect();
+        DebuggerRunConfigurationAspect *aspect
+                = rc->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
         if (const Target *target = rc->target())
             if (!fillParameters(&sp, target->kit(), errorMessage))
                 return false;
@@ -632,6 +635,11 @@ DebuggerRunControl *DebuggerRunControlFactory::doCreate
         return 0;
 
     return new DebuggerRunControl(rc, sp);
+}
+
+IRunConfigurationAspect *DebuggerRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
+{
+    return new DebuggerRunConfigurationAspect(rc);
 }
 
 DebuggerRunControl *DebuggerRunControlFactory::createAndScheduleRun

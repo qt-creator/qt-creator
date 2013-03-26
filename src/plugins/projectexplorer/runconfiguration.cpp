@@ -272,7 +272,6 @@ DebuggerRunConfigurationAspect *DebuggerRunConfigurationAspect::clone(RunConfigu
 
 RunConfiguration::RunConfiguration(Target *target, const Core::Id id) :
     ProjectConfiguration(target, id),
-    m_debuggerAspect(new DebuggerRunConfigurationAspect(this)),
     m_aspectsInitialized(false)
 {
     Q_ASSERT(target);
@@ -280,7 +279,6 @@ RunConfiguration::RunConfiguration(Target *target, const Core::Id id) :
 
 RunConfiguration::RunConfiguration(Target *target, RunConfiguration *source) :
     ProjectConfiguration(target, source),
-    m_debuggerAspect(source->debuggerAspect()->clone(this)),
     m_aspectsInitialized(true)
 {
     Q_ASSERT(target);
@@ -293,7 +291,6 @@ RunConfiguration::RunConfiguration(Target *target, RunConfiguration *source) :
 
 RunConfiguration::~RunConfiguration()
 {
-    delete m_debuggerAspect;
     qDeleteAll(m_aspects);
 }
 
@@ -359,8 +356,6 @@ QVariantMap RunConfiguration::toMap() const
 {
     QVariantMap map = ProjectConfiguration::toMap();
 
-    map.unite(m_debuggerAspect->toMap());
-
     foreach (IRunConfigurationAspect *aspect, m_aspects)
         map.unite(aspect->toMap());
 
@@ -381,7 +376,6 @@ ProjectExplorer::Abi RunConfiguration::abi() const
 bool RunConfiguration::fromMap(const QVariantMap &map)
 {
     addExtraAspects();
-    m_debuggerAspect->fromMap(map);
 
     foreach (IRunConfigurationAspect *aspect, m_aspects)
         aspect->fromMap(map);

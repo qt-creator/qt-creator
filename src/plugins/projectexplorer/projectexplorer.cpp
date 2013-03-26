@@ -2370,14 +2370,15 @@ void ProjectExplorerPlugin::activeRunConfigurationChanged()
     if (previousRunConfiguration) {
         disconnect(previousRunConfiguration, SIGNAL(enabledChanged()),
                    this, SIGNAL(updateRunActions()));
-        disconnect(previousRunConfiguration->debuggerAspect(), SIGNAL(debuggersChanged()),
+        disconnect(previousRunConfiguration->extraAspect<DebuggerRunConfigurationAspect>(),
+                   SIGNAL(debuggersChanged()),
                    this, SIGNAL(updateRunActions()));
     }
     previousRunConfiguration = rc;
     if (rc) {
         connect(rc, SIGNAL(enabledChanged()),
                 this, SIGNAL(updateRunActions()));
-        connect(rc->debuggerAspect(), SIGNAL(debuggersChanged()),
+        connect(rc->extraAspect<DebuggerRunConfigurationAspect>(), SIGNAL(debuggersChanged()),
                 this, SIGNAL(updateRunActions()));
     }
     emit updateRunActions();

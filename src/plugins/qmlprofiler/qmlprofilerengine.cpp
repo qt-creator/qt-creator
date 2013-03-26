@@ -83,6 +83,8 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
     AbstractQmlProfilerRunner *runner = 0;
     if (!runConfiguration) // attaching
         return 0;
+    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
+            = runConfiguration->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
     if (QmlProjectManager::QmlProjectRunConfiguration *rc1 =
             qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration)) {
         // This is a "plain" .qmlproject.
@@ -91,7 +93,7 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
         conf.executableArguments = rc1->viewerArguments();
         conf.workingDirectory = rc1->workingDirectory();
         conf.environment = rc1->environment();
-        conf.port = rc1->debuggerAspect()->qmlDebugServerPort();
+        conf.port = aspect->qmlDebugServerPort();
         runner = new LocalQmlProfilerRunner(conf, parent);
     } else if (LocalApplicationRunConfiguration *rc2 =
             qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
@@ -101,7 +103,7 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
         conf.executableArguments = rc2->commandLineArguments();
         conf.workingDirectory = rc2->workingDirectory();
         conf.environment = rc2->environment();
-        conf.port = rc2->debuggerAspect()->qmlDebugServerPort();
+        conf.port = aspect->qmlDebugServerPort();
         runner = new LocalQmlProfilerRunner(conf, parent);
     } else if (RemoteLinux::RemoteLinuxRunConfiguration *rmConfig =
             qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {

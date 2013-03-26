@@ -200,13 +200,14 @@ void DebuggerMainWindowPrivate::updateUiForTarget(Target *target)
 void DebuggerMainWindowPrivate::updateUiForRunConfiguration(RunConfiguration *rc)
 {
     if (m_previousRunConfiguration)
-        disconnect(m_previousRunConfiguration->debuggerAspect(), SIGNAL(debuggersChanged()),
+        disconnect(m_previousRunConfiguration->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>(),
+                   SIGNAL(debuggersChanged()),
                    this, SLOT(updateUiForCurrentRunConfiguration()));
     m_previousRunConfiguration = rc;
     updateUiForCurrentRunConfiguration();
     if (!rc)
         return;
-    connect(m_previousRunConfiguration->debuggerAspect(),
+    connect(m_previousRunConfiguration->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>(),
             SIGNAL(debuggersChanged()),
             SLOT(updateUiForCurrentRunConfiguration()));
 }
@@ -224,9 +225,9 @@ void DebuggerMainWindowPrivate::updateActiveLanguages()
         newLanguages = m_engineDebugLanguages;
     else {
         if (m_previousRunConfiguration) {
-            if (m_previousRunConfiguration->debuggerAspect()->useCppDebugger())
+            if (m_previousRunConfiguration->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>()->useCppDebugger())
                 newLanguages |= CppLanguage;
-            if (m_previousRunConfiguration->debuggerAspect()->useQmlDebugger())
+            if (m_previousRunConfiguration->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>()->useQmlDebugger())
                 newLanguages |= QmlLanguage;
         }
     }

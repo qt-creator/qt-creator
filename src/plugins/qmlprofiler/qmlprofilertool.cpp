@@ -299,6 +299,9 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
     AnalyzerStartParameters sp;
     sp.startMode = StartQml; // FIXME: The parameter struct is not needed/not used.
 
+    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
+            = runConfiguration->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+
     // FIXME: This is only used to communicate the connParams settings.
     if (QmlProjectRunConfiguration *rc1 =
             qobject_cast<QmlProjectRunConfiguration *>(runConfiguration)) {
@@ -309,7 +312,7 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
         sp.debuggeeArgs = rc1->viewerArguments();
         sp.displayName = rc1->displayName();
         sp.connParams.host = QLatin1String("localhost");
-        sp.connParams.port = rc1->debuggerAspect()->qmlDebugServerPort();
+        sp.connParams.port = aspect->qmlDebugServerPort();
     } else if (LocalApplicationRunConfiguration *rc2 =
             qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
         sp.environment = rc2->environment();
@@ -318,7 +321,7 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
         sp.debuggeeArgs = rc2->commandLineArguments();
         sp.displayName = rc2->displayName();
         sp.connParams.host = QLatin1String("localhost");
-        sp.connParams.port = rc2->debuggerAspect()->qmlDebugServerPort();
+        sp.connParams.port = aspect->qmlDebugServerPort();
     } else if (RemoteLinux::RemoteLinuxRunConfiguration *rc3 =
             qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
         sp.debuggee = rc3->remoteExecutableFilePath();
