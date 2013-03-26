@@ -400,11 +400,9 @@ bool CustomExecutableRunConfigurationFactory::canCreate(ProjectExplorer::Target 
 }
 
 ProjectExplorer::RunConfiguration *
-CustomExecutableRunConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id)
+CustomExecutableRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, const Core::Id id)
 {
-    if (!canCreate(parent, id))
-        return 0;
-
+    Q_UNUSED(id);
     return new CustomExecutableRunConfiguration(parent);
 }
 

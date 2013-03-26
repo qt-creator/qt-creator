@@ -213,7 +213,6 @@ public:
     ~Qt4RunConfigurationFactory();
 
     bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
-    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
     ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
     bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const;
@@ -225,6 +224,9 @@ public:
     bool canHandle(ProjectExplorer::Target *t) const;
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
                                                                         ProjectExplorer::Node *n);
+
+private:
+    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, const Core::Id id);
 };
 
 } // namespace Internal

@@ -37,7 +37,6 @@
 #include "kitinformation.h"
 #include <extensionsystem/pluginmanager.h>
 
-#include <utils/qtcassert.h>
 #include <utils/outputformatter.h>
 #include <utils/checkablemessagebox.h>
 
@@ -273,15 +272,16 @@ DebuggerRunConfigurationAspect *DebuggerRunConfigurationAspect::clone(RunConfigu
 
 RunConfiguration::RunConfiguration(Target *target, const Core::Id id) :
     ProjectConfiguration(target, id),
-    m_debuggerAspect(new DebuggerRunConfigurationAspect(this))
+    m_debuggerAspect(new DebuggerRunConfigurationAspect(this)),
+    m_aspectsInitialized(false)
 {
     Q_ASSERT(target);
-    addExtraAspects();
 }
 
 RunConfiguration::RunConfiguration(Target *target, RunConfiguration *source) :
     ProjectConfiguration(target, source),
-    m_debuggerAspect(source->debuggerAspect()->clone(this))
+    m_debuggerAspect(source->debuggerAspect()->clone(this)),
+    m_aspectsInitialized(true)
 {
     Q_ASSERT(target);
     foreach (IRunConfigurationAspect *aspect, source->m_aspects) {
@@ -299,9 +299,13 @@ RunConfiguration::~RunConfiguration()
 
 void RunConfiguration::addExtraAspects()
 {
+    if (m_aspectsInitialized)
+        return;
+
     foreach (IRunControlFactory *factory, ExtensionSystem::PluginManager::getObjects<IRunControlFactory>())
-        if (IRunConfigurationAspect *aspect = factory->createRunConfigurationAspect())
+        if (IRunConfigurationAspect *aspect = factory->createRunConfigurationAspect(this))
             m_aspects.append(aspect);
+    m_aspectsInitialized = true;
 }
 
 /*!
@@ -376,6 +380,7 @@ ProjectExplorer::Abi RunConfiguration::abi() const
 
 bool RunConfiguration::fromMap(const QVariantMap &map)
 {
+    addExtraAspects();
     m_debuggerAspect->fromMap(map);
 
     foreach (IRunConfigurationAspect *aspect, m_aspects)
@@ -402,6 +407,7 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
 
 QList<IRunConfigurationAspect *> RunConfiguration::extraAspects() const
 {
+    QTC_ASSERT(m_aspectsInitialized, return QList<IRunConfigurationAspect *>());
     return m_aspects;
 }
 
@@ -443,6 +449,17 @@ IRunConfigurationFactory::IRunConfigurationFactory(QObject *parent) :
 
 IRunConfigurationFactory::~IRunConfigurationFactory()
 {
+}
+
+RunConfiguration *IRunConfigurationFactory::create(Target *parent, const Core::Id id)
+{
+    if (!canCreate(parent, id))
+        return 0;
+    RunConfiguration *rc = doCreate(parent, id);
+    if (!rc)
+        return 0;
+    rc->addExtraAspects();
+    return rc;
 }
 
 IRunConfigurationFactory *IRunConfigurationFactory::find(Target *parent, const QVariantMap &map)
@@ -512,8 +529,9 @@ IRunControlFactory::~IRunControlFactory()
 {
 }
 
-IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect()
+IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
 {
+    Q_UNUSED(rc);
     return 0;
 }
 

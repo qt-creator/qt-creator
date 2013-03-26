@@ -513,11 +513,9 @@ bool CMakeRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, co
     return project->hasBuildTarget(buildTargetFromId(id));
 }
 
-ProjectExplorer::RunConfiguration *CMakeRunConfigurationFactory::create(ProjectExplorer::Target *parent,
-                                                                        const Core::Id id)
+ProjectExplorer::RunConfiguration *CMakeRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent,
+                                                                          const Core::Id id)
 {
-    if (!canCreate(parent, id))
-        return 0;
     CMakeProject *project = static_cast<CMakeProject *>(parent->project());
     const QString title(buildTargetFromId(id));
     const CMakeBuildTarget &ct = project->buildTargetForTitle(title);

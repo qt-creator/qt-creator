@@ -102,10 +102,8 @@ QString AndroidRunConfigurationFactory::displayNameForId(const Core::Id id) cons
     return QFileInfo(pathFromId(id)).completeBaseName();
 }
 
-RunConfiguration *AndroidRunConfigurationFactory::create(Target *parent, const Core::Id id)
+RunConfiguration *AndroidRunConfigurationFactory::doCreate(Target *parent, const Core::Id id)
 {
-    if (!canCreate(parent, id))
-        return 0;
     return new AndroidRunConfiguration(parent, id, pathFromId(id));
 }
 

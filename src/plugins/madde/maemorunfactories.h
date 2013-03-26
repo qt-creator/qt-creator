@@ -59,7 +59,6 @@ public:
     QList<Core::Id> availableCreationIds(Target *parent) const;
 
     bool canCreate(Target *parent, const Core::Id id) const;
-    RunConfiguration *create(Target *parent, const Core::Id id);
 
     bool canRestore(Target *parent, const QVariantMap &map) const;
     RunConfiguration *restore(Target *parent, const QVariantMap &map);
@@ -70,6 +69,9 @@ public:
     bool canHandle(ProjectExplorer::Target *t) const;
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
                                                                         ProjectExplorer::Node *n);
+
+private:
+    RunConfiguration *doCreate(Target *parent, const Core::Id id);
 };
 
 class MaemoRunControlFactory : public IRunControlFactory

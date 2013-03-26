@@ -132,10 +132,8 @@ QString MaemoRunConfigurationFactory::displayNameForId(const Core::Id id) const
         + QLatin1String(" (on remote Maemo device)");
 }
 
-RunConfiguration *MaemoRunConfigurationFactory::create(Target *parent, const Core::Id id)
+RunConfiguration *MaemoRunConfigurationFactory::doCreate(Target *parent, const Core::Id id)
 {
-    if (!canCreate(parent, id))
-        return 0;
     return new MaemoRunConfiguration(parent, id, pathFromId(id));
 }
 

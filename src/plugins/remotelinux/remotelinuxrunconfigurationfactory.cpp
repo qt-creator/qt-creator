@@ -105,9 +105,8 @@ QString RemoteLinuxRunConfigurationFactory::displayNameForId(const Core::Id id) 
         + tr(" (on Remote Generic Linux Host)");
 }
 
-RunConfiguration *RemoteLinuxRunConfigurationFactory::create(Target *parent, const Core::Id id)
+RunConfiguration *RemoteLinuxRunConfigurationFactory::doCreate(Target *parent, const Core::Id id)
 {
-    QTC_ASSERT(canCreate(parent, id), return 0);
     return new RemoteLinuxRunConfiguration(parent, id, pathFromId(id));
 }
 

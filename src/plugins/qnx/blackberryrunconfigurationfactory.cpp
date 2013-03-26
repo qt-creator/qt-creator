@@ -95,12 +95,9 @@ bool BlackBerryRunConfigurationFactory::canCreate(ProjectExplorer::Target *paren
     return qt4Project->hasApplicationProFile(pathFromId(id));
 }
 
-ProjectExplorer::RunConfiguration *BlackBerryRunConfigurationFactory::create(ProjectExplorer::Target *parent,
+ProjectExplorer::RunConfiguration *BlackBerryRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent,
                                                                       const Core::Id id)
 {
-    if (!canCreate(parent, id))
-        return 0;
-
     return new BlackBerryRunConfiguration(parent, id, pathFromId(id));
 }
 

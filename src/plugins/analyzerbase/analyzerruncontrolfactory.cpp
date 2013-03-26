@@ -81,8 +81,9 @@ RunControl *AnalyzerRunControlFactory::create(RunConfiguration *runConfiguration
     return rc;
 }
 
-IRunConfigurationAspect *AnalyzerRunControlFactory::createRunConfigurationAspect()
+IRunConfigurationAspect *AnalyzerRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
 {
+    Q_UNUSED(rc);
     return new AnalyzerRunConfigurationAspect;
 }
 

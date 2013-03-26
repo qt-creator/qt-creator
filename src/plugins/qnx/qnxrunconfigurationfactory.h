@@ -47,7 +47,6 @@ public:
     QString displayNameForId(const Core::Id id) const;
 
     bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
-    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
 
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
     ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Target *parent,
@@ -57,7 +56,10 @@ public:
     ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent,
                                              ProjectExplorer::RunConfiguration *source);
 
+private:
     bool canHandle(ProjectExplorer::Target *t) const;
+
+    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, const Core::Id id);
 };
 
 } // namespace Internal

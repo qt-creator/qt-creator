@@ -735,11 +735,8 @@ bool Qt4RunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, cons
     return project->hasApplicationProFile(pathFromId(id));
 }
 
-ProjectExplorer::RunConfiguration *Qt4RunConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id)
+ProjectExplorer::RunConfiguration *Qt4RunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, const Core::Id id)
 {
-    if (!canCreate(parent, id))
-        return 0;
-
     Qt4RunConfiguration *rc = new Qt4RunConfiguration(parent, id);
     QList<Qt4ProFileNode *> profiles = static_cast<Qt4Project *>(parent->project())->applicationProFiles();
     foreach (Qt4ProFileNode *node, profiles) {

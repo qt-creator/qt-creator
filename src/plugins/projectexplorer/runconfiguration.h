@@ -35,6 +35,7 @@
 #include "projectexplorerconstants.h"
 
 #include <utils/outputformat.h>
+#include <utils/qtcassert.h>
 
 #include <QPointer>
 #include <QWidget>
@@ -170,6 +171,7 @@ public:
     QList<IRunConfigurationAspect *> extraAspects() const;
     template <typename T> T *extraAspect() const
     {
+        QTC_ASSERT(m_aspectsInitialized, return 0);
         IRunConfigurationAspect *typeCheck = static_cast<T *>(0);
         Q_UNUSED(typeCheck);
         T *result = 0;
@@ -182,6 +184,8 @@ public:
 
     virtual ProjectExplorer::Abi abi() const;
 
+    void addExtraAspects();
+
 signals:
     void enabledChanged();
 
@@ -193,10 +197,9 @@ protected:
     BuildConfiguration *activeBuildConfiguration() const;
 
 private:
-    void addExtraAspects();
-
     QList<IRunConfigurationAspect *> m_aspects;
     DebuggerRunConfigurationAspect *m_debuggerAspect;
+    bool m_aspectsInitialized;
 };
 
 class PROJECTEXPLORER_EXPORT IRunConfigurationFactory : public QObject
@@ -211,7 +214,7 @@ public:
     virtual QString displayNameForId(const Core::Id id) const = 0;
 
     virtual bool canCreate(Target *parent, const Core::Id id) const = 0;
-    virtual RunConfiguration *create(Target *parent, const Core::Id id) = 0;
+    RunConfiguration *create(Target *parent, const Core::Id id);
     virtual bool canRestore(Target *parent, const QVariantMap &map) const = 0;
     virtual RunConfiguration *restore(Target *parent, const QVariantMap &map) = 0;
     virtual bool canClone(Target *parent, RunConfiguration *product) const = 0;
@@ -223,6 +226,9 @@ public:
 
 signals:
     void availableCreationIdsChanged();
+
+private:
+    virtual RunConfiguration *doCreate(Target *parent, const Core::Id id) = 0;
 };
 
 class RunConfigWidget;
@@ -239,7 +245,7 @@ public:
 
     virtual QString displayName() const = 0;
 
-    virtual IRunConfigurationAspect *createRunConfigurationAspect();
+    virtual IRunConfigurationAspect *createRunConfigurationAspect(RunConfiguration *rc);
     virtual RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
 };
 

@@ -110,10 +110,8 @@ bool QmlProjectRunConfigurationFactory::canCreate(ProjectExplorer::Target *paren
     return false;
 }
 
-ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id)
+ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, const Core::Id id)
 {
-    if (!canCreate(parent, id))
-        return 0;
     return new QmlProjectRunConfiguration(parent, id);
 }
 
