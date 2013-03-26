@@ -68,6 +68,9 @@ public:
         {}
 
         virtual QList<QToolButton*> createToolBarWidgets() = 0;
+
+        virtual ~ToolBarWidgetFactoryInterface()
+        {}
     };
 
     template <class T>
