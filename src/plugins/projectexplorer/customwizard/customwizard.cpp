@@ -36,7 +36,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <extensionsystem/pluginmanager.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 

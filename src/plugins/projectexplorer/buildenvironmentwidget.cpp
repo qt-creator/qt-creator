@@ -33,7 +33,6 @@
 #include "environmentwidget.h"
 
 #include <projectexplorer/target.h>
-#include <utils/qtcassert.h>
 
 #include <QVBoxLayout>
 #include <QCheckBox>

@@ -34,6 +34,9 @@
 
 #include "toolchain.h"
 #include "abi.h"
+#include "headerpath.h"
+
+#include <utils/fileutils.h>
 
 namespace ProjectExplorer {
 

@@ -33,6 +33,7 @@
 #define QNX_INTERNAL_BLACKBERRYDEPLOYCONFIGURATIONWIDGET_H
 
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/namedwidget.h>
 
 namespace Qnx {
 namespace Internal {

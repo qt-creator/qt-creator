@@ -30,6 +30,7 @@
 #include "genericprojectnodes.h"
 #include "genericproject.h"
 
+#include <utils/fileutils.h>
 #include <coreplugin/idocument.h>
 #include <projectexplorer/projectexplorer.h>
 

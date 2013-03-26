@@ -30,12 +30,11 @@
 #include "basevcseditorfactory.h"
 #include "vcsbaseeditor.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/fontsettings.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <QCoreApplication>
+#include <QStringList>
 
 /*!
     \class VcsBase::BaseVCSEditorFactory

@@ -33,6 +33,7 @@
 #include <QToolButton>
 #include <QHBoxLayout>
 
+#include <QStringList>
 #include <QDebug>
 
 namespace VcsBase {

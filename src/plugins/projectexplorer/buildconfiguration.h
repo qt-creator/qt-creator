@@ -35,8 +35,6 @@
 
 #include <utils/environment.h>
 
-#include <QStringList>
-
 namespace Utils {
 class AbstractMacroExpander;
 }

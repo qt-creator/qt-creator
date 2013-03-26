@@ -36,6 +36,7 @@
 #include "debuggerstartparameters.h"
 
 #include <projectexplorer/kitchooser.h>
+#include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <ssh/sshremoteprocessrunner.h>

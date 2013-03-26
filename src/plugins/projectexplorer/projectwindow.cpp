@@ -34,20 +34,16 @@
 #include "kitmanager.h"
 #include "project.h"
 #include "projectexplorer.h"
-#include "projectexplorerconstants.h"
 #include "session.h"
-#include "projecttreewidget.h"
 #include "iprojectproperties.h"
 #include "targetsettingspanel.h"
 #include "target.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
-#include <QApplication>
 #include <QGridLayout>
 #include <QLabel>
 #include <QPainter>

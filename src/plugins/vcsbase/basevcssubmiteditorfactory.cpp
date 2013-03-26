@@ -30,8 +30,6 @@
 #include "basevcssubmiteditorfactory.h"
 #include "vcsbasesubmiteditor.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-
 namespace VcsBase {
 
 namespace Internal {

@@ -33,8 +33,6 @@
 
 #include <coreplugin/variablemanager.h>
 
-#include <utils/stringutils.h>
-
 namespace ProjectExplorer {
 
 /// LocalApplicationRunConfiguration

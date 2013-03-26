@@ -36,7 +36,6 @@
 #include <QDebug>
 #include <QtAlgorithms>
 #include <QRegExp>
-#include <QBrush>
 
 /*!
     \class VcsBase::DiffHighlighter

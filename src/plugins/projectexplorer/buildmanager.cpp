@@ -32,7 +32,6 @@
 #include "buildprogress.h"
 #include "buildsteplist.h"
 #include "compileoutputwindow.h"
-#include "projectexplorerconstants.h"
 #include "projectexplorer.h"
 #include "project.h"
 #include "projectexplorersettings.h"
@@ -45,13 +44,10 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <projectexplorer/session.h>
 #include <extensionsystem/pluginmanager.h>
-#include <utils/qtcassert.h>
 
-#include <QDir>
 #include <QPointer>
 #include <QTime>
 #include <QTimer>
-#include <QMetaType>
 #include <QList>
 #include <QHash>
 #include <QFutureWatcher>

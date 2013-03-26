@@ -31,37 +31,27 @@
 
 #include "project.h"
 #include "projectexplorer.h"
-#include "projectexplorerconstants.h"
 #include "nodesvisitor.h"
 #include "editorconfiguration.h"
 #include "projectnodes.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
-#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/modemanager.h>
 
 #include <texteditor/itexteditor.h>
 
-#include <utils/listutils.h>
-#include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
-#include <QFuture>
-#include <QSettings>
-#include <QTimer>
 
-#include <QApplication>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QTextCodec>
 
 namespace {
     bool debug = false;

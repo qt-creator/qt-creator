@@ -30,7 +30,6 @@
 #include "vcsannotatetaskhandler.h"
 
 #include "task.h"
-#include "projectexplorerconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>

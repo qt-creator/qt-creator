@@ -34,7 +34,6 @@
 #include "toolchain.h"
 #include "abi.h"
 #include "buildconfiguration.h"
-#include "projectexplorerconstants.h"
 #include "kitinformation.h"
 #include <extensionsystem/pluginmanager.h>
 
@@ -45,8 +44,6 @@
 #include <coreplugin/icore.h>
 
 #include <QTimer>
-#include <QSettings>
-#include <QMessageBox>
 #include <QPushButton>
 
 #ifdef Q_OS_MAC

@@ -29,8 +29,6 @@
 
 #include "task.h"
 
-#include <QDir>
-
 namespace ProjectExplorer
 {
 

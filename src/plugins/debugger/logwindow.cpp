@@ -50,6 +50,7 @@
 
 #include <utils/savedaction.h>
 #include <utils/fancylineedit.h>
+#include <utils/fileutils.h>
 
 namespace Debugger {
 namespace Internal {

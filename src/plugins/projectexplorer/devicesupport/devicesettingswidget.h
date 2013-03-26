@@ -31,15 +31,14 @@
 #define DEVICESETTINGSWIDGET_H
 
 #include "devicesupport/idevice.h"
-#include <coreplugin/id.h>
 
 #include <QList>
 #include <QString>
-#include <QPushButton>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QSignalMapper;
+class QPushButton;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {

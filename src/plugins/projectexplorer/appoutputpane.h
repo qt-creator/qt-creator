@@ -30,14 +30,18 @@
 #ifndef APPOUTPUTPANE_H
 #define APPOUTPUTPANE_H
 
-#include <coreplugin/outputwindow.h>
 #include <coreplugin/ioutputpane.h>
+
+#include <utils/outputformat.h>
 
 QT_BEGIN_NAMESPACE
 class QTabWidget;
 class QToolButton;
 class QAction;
+class QPoint;
 QT_END_NAMESPACE
+
+namespace Core { class OutputWindow; }
 
 namespace ProjectExplorer {
 

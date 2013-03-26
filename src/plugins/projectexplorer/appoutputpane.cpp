@@ -28,26 +28,21 @@
 ****************************************************************************/
 
 #include "appoutputpane.h"
-#include "projectexplorerconstants.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
 #include "runconfiguration.h"
 #include "session.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/icontext.h>
+#include <coreplugin/outputwindow.h>
 #include <find/basetextfind.h>
-#include <aggregation/aggregate.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/invoker.h>
 
 #include <utils/qtcassert.h>
-#include <utils/outputformatter.h>
 
 #include <QAction>
 #include <QVBoxLayout>

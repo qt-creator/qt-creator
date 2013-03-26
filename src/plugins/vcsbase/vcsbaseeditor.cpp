@@ -30,16 +30,9 @@
 #include "vcsbaseeditor.h"
 #include "diffhighlighter.h"
 #include "baseannotationhighlighter.h"
-#include "vcsbaseconstants.h"
-#include "vcsbaseoutputwindow.h"
 #include "vcsbaseplugin.h"
 
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
-#include <coreplugin/iversioncontrol.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/modemanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/editorconfiguration.h>
@@ -49,30 +42,24 @@
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetextdocumentlayout.h>
 #include <texteditor/fontsettings.h>
-#include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 #include <utils/qtcassert.h>
-#include <extensionsystem/invoker.h>
 
 #include <QDebug>
 #include <QFileInfo>
 #include <QFile>
-#include <QProcess>
 #include <QRegExp>
 #include <QSet>
 #include <QTextCodec>
-#include <QTextStream>
 #include <QUrl>
 #include <QTextBlock>
 #include <QDesktopServices>
 #include <QAction>
 #include <QKeyEvent>
-#include <QLayout>
 #include <QMenu>
 #include <QTextCursor>
 #include <QTextEdit>
 #include <QComboBox>
-#include <QToolBar>
 #include <QClipboard>
 #include <QApplication>
 #include <QMessageBox>

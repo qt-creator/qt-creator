@@ -28,11 +28,8 @@
 ****************************************************************************/
 
 #include "taskhub.h"
-#include "extensionsystem/pluginmanager.h"
 #include "projectexplorer.h"
 #include <coreplugin/ioutputpane.h>
-#include <texteditor/basetextmark.h>
-#include <QMetaType>
 
 using namespace ProjectExplorer;
 

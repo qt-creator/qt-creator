@@ -30,7 +30,6 @@
 #include "taskmodel.h"
 
 #include "task.h"
-#include "taskhub.h"
 
 #include <utils/qtcassert.h>
 

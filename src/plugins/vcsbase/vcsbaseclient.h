@@ -35,12 +35,11 @@
 
 #include <QObject>
 #include <QStringList>
-#include <QSharedPointer>
-#include <QVariant>
-#include <QProcessEnvironment>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
+class QVariant;
+class QProcessEnvironment;
 QT_END_NAMESPACE
 
 namespace Utils {

@@ -32,7 +32,6 @@
 
 #include <projectexplorer/projectexplorer.h>
 
-#include <QStringList>
 #include <QDir>
 
 namespace Utils {

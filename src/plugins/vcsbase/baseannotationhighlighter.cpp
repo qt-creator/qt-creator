@@ -29,11 +29,9 @@
 
 #include "baseannotationhighlighter.h"
 
-#include <QSet>
 #include <QDebug>
 #include <QColor>
 #include <QTextDocument>
-#include <QTextEdit>
 #include <QTextCharFormat>
 
 typedef QMap<QString, QTextCharFormat> ChangeNumberFormatMap;

@@ -30,18 +30,15 @@
 #include "projectmodels.h"
 
 #include "project.h"
-#include "projectexplorerconstants.h"
 #include "projectnodes.h"
 #include "projectexplorer.h"
 
 #include <coreplugin/fileiconprovider.h>
-#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QFileInfo>
 
 #include <QFont>
-#include <QIcon>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

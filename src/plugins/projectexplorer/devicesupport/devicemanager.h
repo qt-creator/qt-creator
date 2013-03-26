@@ -32,9 +32,10 @@
 #include "idevice.h"
 
 #include <projectexplorer/projectexplorer_export.h>
-#include <utils/fileutils.h>
 
 #include <QObject>
+
+namespace Utils { class FileName; }
 
 namespace ProjectExplorer {
 class IDevice;

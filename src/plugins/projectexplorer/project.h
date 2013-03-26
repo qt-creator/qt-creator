@@ -35,7 +35,6 @@
 #include <coreplugin/id.h>
 
 #include <QObject>
-#include <QSet>
 #include <QFileSystemModel>
 
 namespace Core {

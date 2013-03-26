@@ -29,7 +29,6 @@
 
 #include "linuxiccparser.h"
 #include "ldparser.h"
-#include "taskwindow.h"
 #include "projectexplorerconstants.h"
 
 using namespace ProjectExplorer;

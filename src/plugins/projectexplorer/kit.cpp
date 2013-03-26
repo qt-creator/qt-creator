@@ -29,14 +29,8 @@
 
 #include "kit.h"
 
-#include "devicesupport/devicemanager.h"
-#include "kitinformation.h"
 #include "kitmanager.h"
-#include "project.h"
-#include "toolchainmanager.h"
 #include "ioutputparser.h"
-
-#include <utils/qtcassert.h>
 
 #include <QApplication>
 #include <QIcon>

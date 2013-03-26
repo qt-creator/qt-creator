@@ -31,7 +31,6 @@
 #define BUILDSTEPSPAGE_H
 
 #include "buildstep.h"
-#include "deployconfiguration.h"
 #include "namedwidget.h"
 #include <utils/detailsbutton.h>
 

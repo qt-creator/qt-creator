@@ -32,9 +32,9 @@
 
 #include "projectexplorer_export.h"
 
-#include <utils/fileutils.h>
-
 #include <QList>
+
+namespace Utils { class FileName; }
 
 namespace ProjectExplorer {
 

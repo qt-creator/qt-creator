@@ -32,8 +32,6 @@
 #include "session.h"
 #include "project.h"
 
-#include <QVariant>
-
 using namespace Core;
 using namespace Locator;
 using namespace ProjectExplorer;

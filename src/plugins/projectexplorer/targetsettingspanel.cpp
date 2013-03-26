@@ -43,13 +43,11 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/buildmanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/runconfiguration.h>
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>

@@ -38,14 +38,12 @@
 #include <utils/stringutils.h>
 
 #include <coreplugin/basefilewizard.h>
-#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditorsettings.h>
-#include <texteditor/indenter.h>
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/normalindenter.h>
@@ -53,7 +51,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/editorconfiguration.h>
 
-#include <QVariant>
 #include <QtAlgorithms>
 #include <QDebug>
 #include <QFileInfo>

@@ -31,7 +31,6 @@
 
 #include "vcsbaseconstants.h"
 
-#include <coreplugin/dialogs/iwizard.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 

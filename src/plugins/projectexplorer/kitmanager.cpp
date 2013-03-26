@@ -30,26 +30,19 @@
 #include "kitmanager.h"
 
 #include "kit.h"
-#include "kitconfigwidget.h"
-#include "kitinformation.h"
+#include "task.h"
 #include "kitmanagerconfigwidget.h"
 #include "project.h"
-#include "projectexplorer.h"
 
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/persistentsettings.h>
-#include <utils/environment.h>
 #include <utils/qtcassert.h>
+#include <utils/environment.h>
 
-#include <QCoreApplication>
-#include <QDir>
 #include <QSettings>
-
-#include <QFormLayout>
-#include <QLabel>
 
 static const char KIT_DATA_KEY[] = "Profile.";
 static const char KIT_COUNT_KEY[] = "Profile.Count";

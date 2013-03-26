@@ -34,10 +34,6 @@
 #include "abi.h"
 #include "toolchainconfigwidget.h"
 
-#include <utils/environment.h>
-
-#include <QLabel>
-
 namespace ProjectExplorer {
 namespace Internal {
 

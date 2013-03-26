@@ -29,7 +29,6 @@
 
 #include "showineditortaskhandler.h"
 
-#include "projectexplorerconstants.h"
 #include "task.h"
 
 #include <texteditor/basetexteditor.h>

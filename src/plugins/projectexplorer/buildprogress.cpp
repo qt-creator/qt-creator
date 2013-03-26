@@ -34,6 +34,7 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QFont>
 #include <QPixmap>
 #include <QDebug>

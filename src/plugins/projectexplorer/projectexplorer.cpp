@@ -40,7 +40,6 @@
 #include "kitmanager.h"
 #include "kitoptionspage.h"
 #include "target.h"
-#include "targetsettingspanel.h"
 #include "toolchainmanager.h"
 #include "toolchainoptionspage.h"
 #include "copytaskhandler.h"
@@ -58,12 +57,10 @@
 #include "dependenciespanel.h"
 #include "foldernavigationwidget.h"
 #include "iprojectmanager.h"
-#include "metatypedeclarations.h"
 #include "nodesvisitor.h"
 #include "appoutputpane.h"
 #include "pluginfilefactory.h"
 #include "processstep.h"
-#include "projectexplorerconstants.h"
 #include "customwizard.h"
 #include "kitinformation.h"
 #include "projectfilewizardextension.h"
@@ -94,37 +91,27 @@
 #endif
 
 #include <extensionsystem/pluginspec.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/id.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/id.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/findplaceholder.h>
-#include <coreplugin/basefilewizard.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/variablemanager.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/removefiledialog.h>
-#include <extensionsystem/pluginmanager.h>
-#include <find/searchresultwindow.h>
-#include <utils/consoleprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
-#include <utils/stringutils.h>
-#include <utils/persistentsettings.h>
 
 #include <QtPlugin>
-#include <QDateTime>
 #include <QDebug>
 #include <QFileInfo>
 #include <QSettings>

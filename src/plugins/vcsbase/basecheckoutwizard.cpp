@@ -28,15 +28,12 @@
 ****************************************************************************/
 
 #include "basecheckoutwizard.h"
-#include "vcsbaseconstants.h"
 #include "checkoutwizarddialog.h"
 #include "checkoutjobs.h"
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QCoreApplication>
-#include <QFileInfo>
 #include <QDir>
 #include <QMessageBox>
 

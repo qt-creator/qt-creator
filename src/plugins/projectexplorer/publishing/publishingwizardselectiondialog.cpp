@@ -31,9 +31,7 @@
 
 #include "ipublishingwizardfactory.h"
 
-#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/project.h>
-#include <utils/qtcassert.h>
 
 #include <QPushButton>
 

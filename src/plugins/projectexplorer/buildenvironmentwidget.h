@@ -30,7 +30,6 @@
 #ifndef BUILDENVIRONMENTWIDGET_H
 #define BUILDENVIRONMENTWIDGET_H
 
-#include <projectexplorer/buildstep.h>
 #include <projectexplorer/namedwidget.h>
 
 QT_BEGIN_NAMESPACE

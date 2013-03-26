@@ -31,12 +31,10 @@
 #include "toolchain.h"
 
 #include <utils/qtcassert.h>
-#include <utils/pathchooser.h>
 
 #include <QString>
 
 #include <QFormLayout>
-#include <QGridLayout>
 #include <QLineEdit>
 #include <QLabel>
 

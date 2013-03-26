@@ -31,12 +31,7 @@
 
 #include "msvcparser.h"
 #include "projectexplorerconstants.h"
-#include "headerpath.h"
 
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorersettings.h>
-
-#include <utils/fileutils.h>
 #include <utils/synchronousprocess.h>
 #include <utils/winutils.h>
 #include <utils/qtcassert.h>
@@ -46,9 +41,9 @@
 #include <QFileInfo>
 #include <QProcess>
 #include <QSettings>
-#include <QUrl>
+
+#include <QLabel>
 #include <QFormLayout>
-#include <QDesktopServices>
 
 #define KEY_ROOT "ProjectExplorer.MsvcToolChain."
 static const char varsBatKeyC[] = KEY_ROOT"VarsBat";

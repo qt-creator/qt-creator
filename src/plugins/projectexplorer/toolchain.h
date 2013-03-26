@@ -31,10 +31,6 @@
 #define TOOLCHAIN_H
 
 #include "projectexplorer_export.h"
-#include "headerpath.h"
-
-#include <coreplugin/id.h>
-#include <utils/fileutils.h>
 
 #include <QObject>
 #include <QString>
@@ -42,6 +38,7 @@
 
 namespace Utils {
 class Environment;
+class FileName;
 }
 
 namespace ProjectExplorer {
@@ -51,6 +48,7 @@ class ToolChainPrivate;
 }
 
 class Abi;
+class HeaderPath;
 class IOutputParser;
 class ToolChainConfigWidget;
 class ToolChainFactory;
@@ -73,7 +71,7 @@ public:
     bool isAutoDetected() const;
     QString id() const;
 
-    virtual QList<Utils::FileName> suggestedMkspecList() const { return QList<Utils::FileName>(); }
+    virtual QList<Utils::FileName> suggestedMkspecList() const;
     virtual Utils::FileName suggestedDebugger() const;
 
     virtual QString type() const = 0;

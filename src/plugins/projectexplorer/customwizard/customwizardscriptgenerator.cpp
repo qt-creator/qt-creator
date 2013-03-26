@@ -32,7 +32,6 @@
 #include "customwizardparameters.h"
 
 #include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
 
 #include <QProcess>
 #include <QDir>

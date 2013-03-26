@@ -31,9 +31,9 @@
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
-#include <utils/synchronousprocess.h>
 
 #include <QSettings>
+#include <QVariant>
 
 namespace {
 

@@ -31,25 +31,20 @@
 #include "buildmanager.h"
 #include "showoutputtaskhandler.h"
 #include "task.h"
-#include "projectexplorerconstants.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
 #include "taskhub.h"
 
-#include <coreplugin/icontext.h>
+#include <coreplugin/outputwindow.h>
 #include <find/basetextfind.h>
-#include <aggregation/aggregate.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 
-#include <QKeyEvent>
 #include <QIcon>
 #include <QTextCharFormat>
 #include <QTextBlock>
 #include <QTextCursor>
-#include <QTextEdit>
-#include <QScrollBar>
 #include <QPlainTextEdit>
 #include <QToolButton>
 

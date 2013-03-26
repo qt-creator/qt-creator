@@ -31,7 +31,6 @@
 
 #include <QFileInfo>
 #include <QHash>
-#include <QPair>
 
 using namespace Utils;
 

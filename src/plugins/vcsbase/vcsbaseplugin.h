@@ -32,7 +32,6 @@
 
 #include "vcsbase_global.h"
 
-#include <coreplugin/id.h>
 #include <extensionsystem/iplugin.h>
 
 #include <QSharedDataPointer>
@@ -46,7 +45,10 @@ QT_END_NAMESPACE
 
 namespace Utils { struct SynchronousProcessResponse; }
 
-namespace Core { class IVersionControl; }
+namespace Core {
+class IVersionControl;
+class Id;
+}
 
 namespace VcsBase {
 

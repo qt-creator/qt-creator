@@ -32,14 +32,13 @@
 
 #include "../projectexplorer_export.h"
 
-#include <projectexplorer/kit.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/devicesupport/deviceprocesslist.h>
 
 #include <QDialog>
 
 namespace ProjectExplorer {
 
+class DeviceProcess;
 class KitChooser;
 
 namespace Internal { class DeviceProcessesDialogPrivate; }

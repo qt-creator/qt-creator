@@ -32,8 +32,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QObject>
-
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;
 QT_END_NAMESPACE

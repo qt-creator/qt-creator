@@ -34,7 +34,6 @@
 #include "toolchainconfigwidget.h"
 #include "toolchainmanager.h"
 
-#include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/detailswidget.h>
@@ -45,7 +44,6 @@
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QItemSelectionModel>
-#include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>

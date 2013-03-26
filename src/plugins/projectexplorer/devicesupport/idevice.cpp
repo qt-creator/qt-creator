@@ -31,7 +31,6 @@
 #include "devicemanager.h"
 #include "deviceprocesslist.h"
 
-#include <coreplugin/id.h>
 #include <ssh/sshconnection.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>

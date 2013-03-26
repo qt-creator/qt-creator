@@ -35,17 +35,14 @@
 #include "corelistener.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
+#include <coreplugin/id.h>
 #include <coreplugin/iversioncontrol.h>
-#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/vcsmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
-#include <utils/environment.h>
 
 #include <QDebug>
 #include <QDir>
@@ -53,7 +50,6 @@
 #include <QScopedPointer>
 #include <QSharedPointer>
 #include <QProcessEnvironment>
-#include <QTextStream>
 #include <QTextCodec>
 
 #include <QAction>

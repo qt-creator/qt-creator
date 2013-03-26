@@ -32,8 +32,6 @@
 #include "../projectexplorer_export.h"
 #include "idevice.h"
 
-#include <coreplugin/id.h>
-
 #include <QAbstractListModel>
 
 namespace ProjectExplorer {

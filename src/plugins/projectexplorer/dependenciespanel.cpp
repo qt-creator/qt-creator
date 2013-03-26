@@ -35,21 +35,14 @@
 #include <coreplugin/idocument.h>
 #include <utils/detailswidget.h>
 
-#include <QVector>
 #include <QDebug>
 #include <QSize>
 #include <QCoreApplication>
 
-#include <QLabel>
-#include <QApplication>
 #include <QHBoxLayout>
 #include <QTreeView>
 #include <QSpacerItem>
-#include <QHeaderView>
 #include <QMessageBox>
-#include <QPushButton>
-#include <QToolButton>
-#include <QWidget>
 
 namespace ProjectExplorer {
 namespace Internal {

@@ -29,16 +29,13 @@
 
 #include "projectexplorersettingspage.h"
 #include "projectexplorersettings.h"
-#include "projectexplorerconstants.h"
 #include "projectexplorer.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/variablechooser.h>
 #include <utils/hostosinfo.h>
 
-#include <QLabel>
 #include <QCoreApplication>
 
 namespace ProjectExplorer {

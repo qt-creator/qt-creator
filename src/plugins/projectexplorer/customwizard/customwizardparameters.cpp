@@ -39,7 +39,6 @@
 
 #include <QDebug>
 #include <QCoreApplication>
-#include <QLocale>
 #include <QFile>
 #include <QDir>
 #include <QFileInfo>

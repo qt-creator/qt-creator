@@ -28,19 +28,20 @@
 ****************************************************************************/
 
 #include "command.h"
-#include "vcsbaseconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <extensionsystem/pluginmanager.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDebug>
 #include <QProcess>
+#include <QProcessEnvironment>
 #include <QFuture>
 #include <QtConcurrentRun>
 #include <QFileInfo>
 #include <QCoreApplication>
+#include <QVariant>
+#include <QStringList>
 
 Q_DECLARE_METATYPE(QVariant)
 

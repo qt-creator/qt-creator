@@ -30,9 +30,9 @@
 #ifndef DEVICEFACTORYSELECTIONDIALOG_H
 #define DEVICEFACTORYSELECTIONDIALOG_H
 
-#include <coreplugin/id.h>
-
 #include <QDialog>
+
+namespace Core { class Id; }
 
 namespace ProjectExplorer {
 class IDeviceFactory;

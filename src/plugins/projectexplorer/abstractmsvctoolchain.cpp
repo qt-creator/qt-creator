@@ -33,14 +33,10 @@
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorersettings.h>
-#include <projectexplorer/gcctoolchain.h>
 
-
-#include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
 
-#include <QFileInfo>
 #include <QDir>
 #include <QTemporaryFile>
 

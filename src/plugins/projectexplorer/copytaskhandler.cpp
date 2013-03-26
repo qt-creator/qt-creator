@@ -30,12 +30,9 @@
 #include "copytaskhandler.h"
 
 #include "task.h"
-#include "taskwindow.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 
-#include <QDir>
 #include <QAction>
 #include <QApplication>
 #include <QClipboard>

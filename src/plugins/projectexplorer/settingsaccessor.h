@@ -31,7 +31,10 @@
 #define SETTINGSACCESSOR_H
 
 #include <utils/fileutils.h>
-#include <utils/persistentsettings.h>
+
+#include <QVariantMap>
+
+namespace Utils { class PersistentSettingsWriter; }
 
 namespace ProjectExplorer {
 
