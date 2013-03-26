@@ -455,9 +455,9 @@ def iterateQtVersions(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
     treeWidget = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
     root = treeWidget.invisibleRootItem()
     for rootChild in dumpChildren(root):
-        rootChildText = str(rootChild.text(0)).replace(".", "\\.")
+        rootChildText = str(rootChild.text(0)).replace(".", "\\.").replace("_", "\\_")
         for subChild in dumpChildren(rootChild):
-            subChildText = str(subChild.text(0)).replace(".", "\\.")
+            subChildText = str(subChild.text(0)).replace(".", "\\.").replace("_", "\\_")
             clickItem(treeWidget, ".".join([rootChildText,subChildText]), 5, 5, 0, Qt.LeftButton)
             currentText = str(waitForObject(":QtSupport__Internal__QtVersionManager.QLabel").text)
             matches = pattern.match(currentText)
