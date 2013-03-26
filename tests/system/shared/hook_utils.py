@@ -160,15 +160,18 @@ def __getMkspecFromQMakeConf__(qmakeConf):
     return os.path.basename(mkspec)
 
 def __getMkspecFromQmake__(qmakeCall):
-    QmakeConfPath = getOutputFromCmdline("%s -query QMAKE_MKSPECS" % qmakeCall).strip()
-    for tmpPath in QmakeConfPath.split(os.pathsep):
-        tmpPath = tmpPath + os.sep + "default" + os.sep +"qmake.conf"
-        result = __getMkspecFromQMakeConf__(tmpPath)
-        if result != None:
-            return result.strip()
-    test.warning("Could not find qmake.conf inside provided QMAKE_MKSPECS path",
-                 "QMAKE_MKSPECS returned: '%s'" % QmakeConfPath)
-    return None
+    if getOutputFromCmdline("%s -query QT_VERSION" % qmakeCall).strip().startswith("5."):
+        return getOutputFromCmdline("%s -query QMAKE_XSPEC" % qmakeCall).strip()
+    else:
+        QmakeConfPath = getOutputFromCmdline("%s -query QMAKE_MKSPECS" % qmakeCall).strip()
+        for tmpPath in QmakeConfPath.split(os.pathsep):
+            tmpPath = tmpPath + os.sep + "default" + os.sep +"qmake.conf"
+            result = __getMkspecFromQMakeConf__(tmpPath)
+            if result != None:
+                return result.strip()
+        test.warning("Could not find qmake.conf inside provided QMAKE_MKSPECS path",
+                     "QMAKE_MKSPECS returned: '%s'" % QmakeConfPath)
+        return None
 
 # helper that double clicks the table view at specified row and column
 # returns the QExpandingLineEdit (the editable table cell)
