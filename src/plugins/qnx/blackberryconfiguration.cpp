@@ -358,6 +358,7 @@ ProjectExplorer::Kit *BlackBerryConfiguration::createKit(QnxArchitecture arch, Q
         kit->setDisplayName(tr("BlackBerry 10 (%1)").arg(m_config.targetName));
     }
 
+    kit->setIconPath(QLatin1String(Constants::QNX_BB_CATEGORY_ICON));
     ProjectExplorer::DeviceTypeKitInformation::setDeviceTypeId(kit, Constants::QNX_BB_OS_TYPE);
     ProjectExplorer::SysRootKitInformation::setSysRoot(kit, m_config.sysRoot);
 

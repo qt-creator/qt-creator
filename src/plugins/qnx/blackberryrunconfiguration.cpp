@@ -104,7 +104,7 @@ QString BlackBerryRunConfiguration::barPackage() const
     QList<BarPackageDeployInformation> packages = dc->deploymentInfo()->enabledPackages();
     foreach (const BarPackageDeployInformation package, packages) {
         if (package.proFilePath == proFilePath())
-            return package.packagePath;
+            return package.packagePath();
     }
     return QString();
 }

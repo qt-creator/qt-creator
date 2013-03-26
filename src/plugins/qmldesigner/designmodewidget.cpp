@@ -148,25 +148,35 @@ QList<QToolButton *> ItemLibrarySideBarItem::createToolBarWidgets()
     return qobject_cast<ItemLibraryWidget*>(widget())->createToolBarWidgets();
 }
 
-class NavigatorSideBarItem : public Core::SideBarItem
+class DesignerSideBarItem : public Core::SideBarItem
 {
 public:
-    explicit NavigatorSideBarItem(QWidget *widget, const QString &id);
-    virtual ~NavigatorSideBarItem();
+    explicit DesignerSideBarItem(QWidget *widget, WidgetInfo::ToolBarWidgetFactoryInterface *createToolBarWidgets, const QString &id);
+    virtual ~DesignerSideBarItem();
 
     virtual QList<QToolButton *> createToolBarWidgets();
+
+private:
+    WidgetInfo::ToolBarWidgetFactoryInterface *m_toolBarWidgetFactory;
+
 };
 
-NavigatorSideBarItem::NavigatorSideBarItem(QWidget *widget, const QString &id) : Core::SideBarItem(widget, id) {}
-
-NavigatorSideBarItem::~NavigatorSideBarItem()
+DesignerSideBarItem::DesignerSideBarItem(QWidget *widget, WidgetInfo::ToolBarWidgetFactoryInterface *toolBarWidgetFactory, const QString &id)
+    : Core::SideBarItem(widget, id) , m_toolBarWidgetFactory(toolBarWidgetFactory)
 {
-
 }
 
-QList<QToolButton *> NavigatorSideBarItem::createToolBarWidgets()
+DesignerSideBarItem::~DesignerSideBarItem()
 {
-    return qobject_cast<NavigatorWidget*>(widget())->createToolBarWidgets();
+    delete m_toolBarWidgetFactory;
+}
+
+QList<QToolButton *> DesignerSideBarItem::createToolBarWidgets()
+{
+    if (m_toolBarWidgetFactory)
+        return m_toolBarWidgetFactory->createToolBarWidgets();
+
+    return QList<QToolButton *>();
 }
 
 void DocumentWarningWidget::goToError()
@@ -356,13 +366,13 @@ void DesignModeWidget::setup()
 
     foreach (const WidgetInfo &widgetInfo, viewManager().widgetInfos()) {
         if (widgetInfo.placementHint == widgetInfo.LeftPane) {
-            Core::SideBarItem *sideBarItem = new NavigatorSideBarItem(widgetInfo.widget, widgetInfo.uniqueId);
+            Core::SideBarItem *sideBarItem = new DesignerSideBarItem(widgetInfo.widget, widgetInfo.toolBarWidgetFactory, widgetInfo.uniqueId);
             sideBarItems.append(sideBarItem);
             leftSideBarItems.append(sideBarItem);
         }
 
         if (widgetInfo.placementHint == widgetInfo.RightPane) {
-            Core::SideBarItem *sideBarItem = new NavigatorSideBarItem(widgetInfo.widget, widgetInfo.uniqueId);
+            Core::SideBarItem *sideBarItem = new DesignerSideBarItem(widgetInfo.widget, widgetInfo.toolBarWidgetFactory, widgetInfo.uniqueId);
             sideBarItems.append(sideBarItem);
             rightSideBarItems.append(sideBarItem);
         }

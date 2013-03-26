@@ -97,6 +97,7 @@ private slots:
 
 protected:
     bool focusNextPrevChild(bool next);
+    void keyPressEvent(QKeyEvent *event);
 
 private:
     void installEventFilters();
@@ -114,6 +115,8 @@ private:
     void selectFindText();
     void updateIcons();
     void updateFlagMenus();
+
+    bool shouldSetFocusOnKeyEvent(QKeyEvent *event);
 
     FindPlugin *m_plugin;
     CurrentDocumentFind *m_currentDocumentFind;

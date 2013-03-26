@@ -3,7 +3,7 @@ source("../../shared/qtcreator.py")
 import re
 
 def main():
-    global textChanged
+    global tmpSettingsDir
     sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/text/textselection")
     qmlFile = os.path.join("qml", "textselection.qml")
     if not neededFilePresent(os.path.join(sourceExample, qmlFile)):
@@ -15,7 +15,19 @@ def main():
     overrideInstallLazySignalHandler()
     installLazySignalHandler(":frame.templateDescription_QTextBrowser",
                              "textChanged()","__handleTextChanged__")
-    kits = getConfiguredKits()
+    performTest(templateDir, qmlFile, True)
+    enableMaddePlugin()
+    invokeMenuItem("File", "Exit")
+    waitForCleanShutdown()
+    copySettingsToTmpDir(tmpSettingsDir, ['QtCreator.ini'])
+    overrideStartApplication()
+    startApplication("qtcreator" + SettingsPath)
+    performTest(templateDir, qmlFile, False)
+    invokeMenuItem("File", "Exit")
+
+def performTest(templateDir, qmlFile, isMaddeDisabled):
+    global textChanged
+    kits = getConfiguredKits(isMaddeDisabled)
     test.log("Collecting potential project types...")
     availableProjectTypes = []
     invokeMenuItem("File", "New File or Project...")
@@ -26,13 +38,15 @@ def main():
     comboBox = findObject("{name='comboBox' type='QComboBox' visible='1' "
                           "window=':New_Core::Internal::NewDialog'}")
     targets = zip(*kits.values())[0]
-    if (QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.MAEMO5) not in targets
-        and QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.HARMATTAN) not in targets):
-        test.compare(comboBox.currentText, "Desktop Templates")
-        test.verify(not comboBox.enabled, "Verifying whether combobox is disabled.")
-    else:
+    maddeTargets = QtQuickConstants.getTargetsAsStrings([QtQuickConstants.Targets.MAEMO5,
+                                                         QtQuickConstants.Targets.HARMATTAN])
+    maddeInTargets = len(set(targets) & set(maddeTargets)) > 0
+    test.compare(comboBox.enabled, maddeInTargets, "Verifying whether combox is enabled.")
+    test.compare(maddeInTargets, not isMaddeDisabled, "Verifying if kits are configured.")
+    if maddeInTargets:
         test.compare(comboBox.currentText, "All Templates")
-        test.verify(comboBox.enabled, "Verifying whether combobox is enabled.")
+    else:
+        test.compare(comboBox.currentText, "Desktop Templates")
     for category in [item.replace(".", "\\.") for item in dumpItems(catModel, projects)]:
         # skip non-configurable
         if "Import" in category:
@@ -106,7 +120,17 @@ def main():
             test.fail("Found unexpected additional kit(s) %s on 'Kit Selection' page."
                       % str(availableCheckboxes))
         clickButton(waitForObject("{text='Cancel' type='QPushButton' unnamed='1' visible='1'}"))
-    invokeMenuItem("File", "Exit")
+
+def enableMaddePlugin():
+    invokeMenuItem("Help", "About Plugins...")
+    pluginsTW = waitForObject(":Installed Plugins.categoryWidget_QTreeWidget")
+    devSupport = ("{container=':Installed Plugins.categoryWidget_QTreeWidget' "
+                  "column='0' text='Device Support' type='QModelIndex'}")
+    # children position + 1 because children will be counted beginning with 0
+    maddePos = dumpItems(pluginsTW.model(), waitForObject(devSupport)).index('Madde') + 1
+    mouseClick(waitForObject("{column='1' container=%s text='' type='QModelIndex' "
+                             "occurrence='%d'}" % (devSupport, maddePos)), 5, 5, 0, Qt.LeftButton)
+    clickButton(":Installed Plugins.Close_QPushButton")
 
 def __handleTextChanged__(object):
     global textChanged

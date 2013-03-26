@@ -607,13 +607,15 @@ ClearCaseSubmitEditor *ClearCasePlugin::openClearCaseSubmitEditor(const QString 
 
 void ClearCasePlugin::updateStatusActions()
 {
+    FileStatus fileStatus = FileStatus::Unknown;
     bool hasFile = currentState().hasFile();
-    QString fileName = currentState().relativeCurrentFile();
+    if (hasFile) {
+        QString fileName = currentState().relativeCurrentFile();
+        fileStatus = m_statusMap->value(fileName, FileStatus(FileStatus::Unknown));
 
-    FileStatus fileStatus = m_statusMap->value(fileName, FileStatus(FileStatus::Unknown));
-
-    if (ClearCase::Constants::debug)
-        qDebug() << Q_FUNC_INFO << fileName << ", status = " << fileStatus.status;
+        if (ClearCase::Constants::debug)
+            qDebug() << Q_FUNC_INFO << fileName << ", status = " << fileStatus.status;
+    }
 
     m_checkOutAction->setEnabled(hasFile && (fileStatus.status & (FileStatus::CheckedIn | FileStatus::Hijacked)));
     m_undoCheckOutAction->setEnabled(hasFile && (fileStatus.status & FileStatus::CheckedOut));

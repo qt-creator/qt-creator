@@ -57,11 +57,12 @@ QtcLibrary {
             result.push("botan-1.10")
         if (qbs.targetOS === "windows")
             result.push("advapi32", "user32")
-        else {
-            result.push("rt")
-            if (qbs.targetOS === "linux" || qbs.targetOS === "mac")
-                result.push("dl")
-        }
+        else if (qbs.targetOS === "linux")
+            result.push("rt", "dl");
+        else if (qbs.targetOS === "mac")
+            result.push("dl");
+        else if (qbs.targetPlatform.indexOf("unix") !== -1)
+            result.push("rt");
         return result
     }
     property var botanDefines: {

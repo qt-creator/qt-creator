@@ -50,7 +50,27 @@ const char ENABLED_KEY[]        = "Qnx.BlackBerry.DeployInformation.Enabled";
 const char APPDESCRIPTOR_KEY[]  = "Qnx.BlackBerry.DeployInformation.AppDescriptor";
 const char PACKAGE_KEY[]        = "Qnx.BlackBerry.DeployInformation.Package";
 const char PROFILE_KEY[]        = "Qnx.BlackBerry.DeployInformation.ProFile";
+const char TARGET_KEY[]         = "Qnx.BlackBerry.DeployInformation.Target";
+const char SOURCE_KEY[]         = "Qnx.BlackBerry.DeployInformation.Source";
 }
+
+QString BarPackageDeployInformation::appDescriptorPath() const
+{
+   if (userAppDescriptorPath.isEmpty())
+       return sourceDir + QLatin1String("/bar-descriptor.xml");
+
+   return userAppDescriptorPath;
+}
+
+QString BarPackageDeployInformation::packagePath() const
+{
+    if (userPackagePath.isEmpty())
+        return buildDir + QLatin1String("/") + targetName + QLatin1String(".bar");
+
+    return userPackagePath;
+}
+
+// ----------------------------------------------------------------------------
 
 BlackBerryDeployInformation::BlackBerryDeployInformation(ProjectExplorer::Target *target)
     : QAbstractTableModel(target)
@@ -89,9 +109,9 @@ QVariant BlackBerryDeployInformation::data(const QModelIndex &index, int role) c
             return di.enabled ? Qt::Checked : Qt::Unchecked;
     } else if (role == Qt::DisplayRole || role == Qt::EditRole) {
         if (index.column() == AppDescriptorColumn)
-            return di.appDescriptorPath;
+            return QDir::toNativeSeparators(di.appDescriptorPath());
         else if (index.column() == PackageColumn)
-            return di.packagePath;
+            return QDir::toNativeSeparators(di.packagePath());
     }
 
     return QVariant();
@@ -126,9 +146,9 @@ bool BlackBerryDeployInformation::setData(const QModelIndex &index, const QVaria
         di.enabled = static_cast<Qt::CheckState>(value.toInt()) == Qt::Checked;
     } else if (role == Qt::EditRole) {
         if (index.column() == AppDescriptorColumn)
-            di.appDescriptorPath = value.toString();
+            di.userAppDescriptorPath = value.toString();
         else if (index.column() == PackageColumn)
-            di.packagePath = value.toString();
+            di.userPackagePath = value.toString();
     }
 
     emit dataChanged(index, index);
@@ -173,9 +193,11 @@ QVariantMap BlackBerryDeployInformation::toMap() const
 
         QVariantMap deployInfoMap;
         deployInfoMap[QLatin1String(ENABLED_KEY)] = deployInfo.enabled;
-        deployInfoMap[QLatin1String(APPDESCRIPTOR_KEY)] = deployInfo.appDescriptorPath;
-        deployInfoMap[QLatin1String(PACKAGE_KEY)] = deployInfo.packagePath;
+        deployInfoMap[QLatin1String(APPDESCRIPTOR_KEY)] = deployInfo.userAppDescriptorPath;
+        deployInfoMap[QLatin1String(PACKAGE_KEY)] = deployInfo.userPackagePath;
         deployInfoMap[QLatin1String(PROFILE_KEY)] = deployInfo.proFilePath;
+        deployInfoMap[QLatin1String(TARGET_KEY)] = deployInfo.targetName;
+        deployInfoMap[QLatin1String(SOURCE_KEY)] = deployInfo.sourceDir;
 
         outerMap[QString::fromLatin1(DEPLOYINFO_KEY).arg(i)] = deployInfoMap;
     }
@@ -196,8 +218,13 @@ void BlackBerryDeployInformation::fromMap(const QVariantMap &map)
         const QString appDescriptorPath = innerMap.value(QLatin1String(APPDESCRIPTOR_KEY)).toString();
         const QString packagePath = innerMap.value(QLatin1String(PACKAGE_KEY)).toString();
         const QString proFilePath = innerMap.value(QLatin1String(PROFILE_KEY)).toString();
+        const QString targetName = innerMap.value(QLatin1String(TARGET_KEY)).toString();
+        const QString sourceDir = innerMap.value(QLatin1String(SOURCE_KEY)).toString();
 
-        m_deployInformation << BarPackageDeployInformation(enabled, appDescriptorPath, packagePath, proFilePath);
+        BarPackageDeployInformation deployInformation(enabled, proFilePath, sourceDir, m_target->activeBuildConfiguration()->buildDirectory(), targetName);
+        deployInformation.userAppDescriptorPath = appDescriptorPath;
+        deployInformation.userPackagePath = packagePath;
+        m_deployInformation << deployInformation;
     }
 
     endResetModel();
@@ -216,8 +243,13 @@ void BlackBerryDeployInformation::updateModel()
     foreach (Qt4ProjectManager::Qt4ProFileNode *node, appNodes) {
         bool nodeFound = false;
         for (int i = 0; i < m_deployInformation.size(); ++i) {
-            if (m_deployInformation[i].proFilePath == node->path()) {
-                keep << m_deployInformation[i];
+            if (m_deployInformation[i].proFilePath == node->path()
+                    && (!m_deployInformation[i].userAppDescriptorPath.isEmpty()
+                        || !m_deployInformation[i].userPackagePath.isEmpty())) {
+                BarPackageDeployInformation deployInformation = m_deployInformation[i];
+                // In case the user resets the bar package path (or if it is empty already), we need the current build dir
+                deployInformation.buildDir = m_target->activeBuildConfiguration()->buildDirectory();
+                keep << deployInformation;
                 nodeFound = true;
                 break;
             }
@@ -270,9 +302,7 @@ BarPackageDeployInformation BlackBerryDeployInformation::deployInformationFromNo
     Qt4ProjectManager::TargetInformation ti = node->targetInformation();
 
     QFileInfo fi(node->path());
-    const QString appDescriptorPath = QDir::toNativeSeparators(fi.absolutePath() + QLatin1String("/bar-descriptor.xml"));
-    QString buildDir = m_target->activeBuildConfiguration()->buildDirectory();
-    QString barPackagePath = QDir::toNativeSeparators(buildDir + QLatin1Char('/') + ti.target + QLatin1String(".bar"));
+    const QString buildDir = m_target->activeBuildConfiguration()->buildDirectory();
 
-    return BarPackageDeployInformation(true, appDescriptorPath, barPackagePath, node->path());
+    return BarPackageDeployInformation(true, node->path(), fi.absolutePath(), buildDir, ti.target);
 }

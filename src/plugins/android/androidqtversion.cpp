@@ -42,6 +42,7 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
 
+#include <projectexplorer/target.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorer.h>
 
@@ -115,8 +116,18 @@ void AndroidQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::En
     if (!qt4pro || !qt4pro->activeTarget()
             || QtSupport::QtKitInformation::qtVersion(k)->type() != QLatin1String(Constants::ANDROIDQT))
         return;
+
+    Target *target = qt4pro->activeTarget();
+    if (DeviceTypeKitInformation::deviceTypeId(target->kit()) != Constants::ANDROID_DEVICE_TYPE)
+        return;
+    if (AndroidConfigurations::instance().config().ndkLocation.isEmpty()
+            || AndroidConfigurations::instance().config().sdkLocation.isEmpty())
+        return;
+    if (AndroidConfigurations::instance().sdkTargets().isEmpty())
+        return;
+
     env.set(QLatin1String("ANDROID_NDK_PLATFORM"),
-            AndroidConfigurations::instance().bestMatch(AndroidManager::targetSDK(qt4pro->activeTarget())));
+            AndroidConfigurations::instance().bestMatch(AndroidManager::targetSDK(target)));
 
 }
 

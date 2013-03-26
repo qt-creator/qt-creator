@@ -1974,7 +1974,7 @@ class PlainDumper:
         self.printer = printer
 
     def __call__(self, d, value):
-        printer = self.printer.invoke(value)
+        printer = self.printer.gen_printer(value)
         lister = getattr(printer, "children", None)
         children = [] if lister is None else list(lister())
         d.putType(self.printer.name)

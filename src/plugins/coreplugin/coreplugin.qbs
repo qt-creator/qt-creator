@@ -31,6 +31,8 @@ QtcPlugin {
         ]
     }
 
+    cpp.frameworks: qbs.targetOS === "mac" ? ["AppKit"] : undefined
+
     files: [
         "basefilewizard.cpp",
         "basefilewizard.h",
@@ -234,8 +236,10 @@ QtcPlugin {
     }
 
     Group {
-        condition: qbs.targetOS == "macx"
+        condition: qbs.targetOS == "mac"
         files: [
+            "macfullscreen.h",
+            "macfullscreen.mm",
             "progressmanager/progressmanager_mac.mm",
         ]
     }

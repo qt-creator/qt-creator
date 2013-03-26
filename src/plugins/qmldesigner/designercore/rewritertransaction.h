@@ -30,13 +30,15 @@
 #ifndef REWRITERTRANSACTION_H
 #define REWRITERTRANSACTION_H
 
+#include <qmldesignercorelib_global.h>
+
 #include <QWeakPointer>
 
 namespace QmlDesigner {
 
 class AbstractView;
 
-class RewriterTransaction
+class QMLDESIGNERCORE_EXPORT RewriterTransaction
 {
 public:
     RewriterTransaction();

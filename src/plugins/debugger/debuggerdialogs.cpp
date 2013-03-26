@@ -226,15 +226,17 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Debugger"));
 
+    d->kitChooser = new KitChooser(this);
+    d->kitChooser->populate();
+
+    d->serverPortLabel = new QLabel(tr("Server port:"), this);
+    d->serverPortSpinBox = new QSpinBox(this);
+    d->serverPortSpinBox->setRange(1, 65535);
+
     d->localExecutablePathChooser = new PathChooser(this);
     d->localExecutablePathChooser->setExpectedKind(PathChooser::File);
     d->localExecutablePathChooser->setPromptDialogTitle(tr("Select Executable"));
     d->localExecutablePathChooser->lineEdit()->setHistoryCompleter(QLatin1String("LocalExecutable"));
-
-    d->serverPortSpinBox = new QSpinBox(this);
-    d->serverPortSpinBox->setRange(1, 65535);
-
-    d->serverPortLabel = new QLabel(tr("Server port:"), this);
 
     d->arguments = new FancyLineEdit(this);
     d->arguments->setHistoryCompleter(QLatin1String("CommandlineArguments"));
@@ -245,9 +247,6 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->workingDirectory->lineEdit()->setHistoryCompleter(QLatin1String("WorkingDirectory"));
 
     d->runInTerminalCheckBox = new QCheckBox(this);
-
-    d->kitChooser = new KitChooser(this);
-    d->kitChooser->populate();
 
     d->breakAtMainCheckBox = new QCheckBox(this);
     d->breakAtMainCheckBox->setText(QString());

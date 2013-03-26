@@ -22,7 +22,23 @@ for(deploymentfolder, DEPLOYMENTFOLDERS) {
 
 MAINPROFILEPWD = $$PWD
 
-android {
+android-no-sdk {
+    for(deploymentfolder, DEPLOYMENTFOLDERS) {
+        item = item$${deploymentfolder}
+        itemfiles = $${item}.files
+        $$itemfiles = $$eval($${deploymentfolder}.source)
+        itempath = $${item}.path
+        $$itempath = /data/user/qt/$$eval($${deploymentfolder}.target)
+        export($$itemfiles)
+        export($$itempath)
+        INSTALLS += $$item
+    }
+
+    target.path = /data/user/qt
+
+    export(target.path)
+    INSTALLS += target
+} else:android {
     for(deploymentfolder, DEPLOYMENTFOLDERS) {
         item = item$${deploymentfolder}
         itemfiles = $${item}.files

@@ -223,6 +223,16 @@ bool AndroidManager::setVersionName(ProjectExplorer::Target *target, const QStri
     return saveManifest(target, doc);
 }
 
+bool AndroidManager::ensureIconAttribute(ProjectExplorer::Target *target)
+{
+    QDomDocument doc;
+    if (!openManifest(target, doc))
+        return false;
+    QDomElement applicationElem = doc.documentElement().firstChildElement(QLatin1String("application"));
+    applicationElem.setAttribute(QLatin1String("android:icon"), QLatin1String("@drawable/icon"));
+    return saveManifest(target, doc);
+}
+
 QString AndroidManager::targetSDK(ProjectExplorer::Target *target)
 {
     if (!createAndroidTemplatesIfNecessary(target))
@@ -251,7 +261,8 @@ QIcon AndroidManager::highDpiIcon(ProjectExplorer::Target *target)
 
 bool AndroidManager::setHighDpiIcon(ProjectExplorer::Target *target, const QString &iconFilePath)
 {
-    return setIcon(target, HighDPI, iconFilePath);
+    return ensureIconAttribute(target) &&
+            setIcon(target, HighDPI, iconFilePath);
 }
 
 QIcon AndroidManager::mediumDpiIcon(ProjectExplorer::Target *target)
@@ -261,7 +272,8 @@ QIcon AndroidManager::mediumDpiIcon(ProjectExplorer::Target *target)
 
 bool AndroidManager::setMediumDpiIcon(ProjectExplorer::Target *target, const QString &iconFilePath)
 {
-    return setIcon(target, MediumDPI, iconFilePath);
+    return ensureIconAttribute(target) &&
+            setIcon(target, MediumDPI, iconFilePath);
 }
 
 QIcon AndroidManager::lowDpiIcon(ProjectExplorer::Target *target)
@@ -271,7 +283,8 @@ QIcon AndroidManager::lowDpiIcon(ProjectExplorer::Target *target)
 
 bool AndroidManager::setLowDpiIcon(ProjectExplorer::Target *target, const QString &iconFilePath)
 {
-    return setIcon(target, LowDPI, iconFilePath);
+    return ensureIconAttribute(target) &&
+            setIcon(target, LowDPI, iconFilePath);
 }
 
 Utils::FileName AndroidManager::dirPath(ProjectExplorer::Target *target)
@@ -346,6 +359,62 @@ QString AndroidManager::targetApplication(ProjectExplorer::Target *target)
         metadataElem = metadataElem.nextSiblingElement(QLatin1String("meta-data"));
     }
     return QString();
+}
+
+bool AndroidManager::setUseLocalLibs(ProjectExplorer::Target *target, bool useLocalLibs, int deviceAPILevel)
+{
+    // For Qt 4, the "use local libs" options is handled by passing command line arguments to the
+    // app, so no need to alter the AndroidManifest.xml
+    QtSupport::BaseQtVersion *baseQtVersion = QtSupport::QtKitInformation::qtVersion(target->kit());
+    if (baseQtVersion == 0 || baseQtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
+        return true;
+
+    QDomDocument doc;
+    if (!openManifest(target, doc))
+        return false;
+
+    QDomElement metadataElem = doc.documentElement().firstChildElement(QLatin1String("application")).firstChildElement(QLatin1String("activity")).firstChildElement(QLatin1String("meta-data"));
+
+    QString localLibs;
+    QString localJars;
+    QString staticInitClasses;
+    if (useLocalLibs) {
+        localLibs = loadLocalLibs(target, deviceAPILevel);
+        localJars = loadLocalJars(target, deviceAPILevel);
+        staticInitClasses = loadLocalJarsInitClasses(target, deviceAPILevel);
+    }
+
+    bool changedManifest = false;
+    while (!metadataElem.isNull()) {
+        if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.use_local_qt_libs")) {
+            if (metadataElem.attribute(QLatin1String("android:value")).toInt() != useLocalLibs) {
+                metadataElem.setAttribute(QLatin1String("android:value"), int(useLocalLibs));
+                changedManifest = true;
+            }
+        } else if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.load_local_libs")) {
+            if (metadataElem.attribute(QLatin1String("android:value")) != localLibs) {
+                metadataElem.setAttribute(QLatin1String("android:value"), localLibs);
+                changedManifest = true;
+            }
+        } else if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.load_local_jars")) {
+            if (metadataElem.attribute(QLatin1String("android:value")) != localJars) {
+                metadataElem.setAttribute(QLatin1String("android:value"), localJars);
+                changedManifest = true;
+            }
+        } else if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.static_init_classes")) {
+            if (metadataElem.attribute(QLatin1String("android:value")) != staticInitClasses) {
+                metadataElem.setAttribute(QLatin1String("android:value"), staticInitClasses);
+                changedManifest = true;
+            }
+        }
+
+        metadataElem = metadataElem.nextSiblingElement(QLatin1String("meta-data"));
+    }
+
+    if (changedManifest)
+        return saveManifest(target, doc);
+    else
+        return true;
 }
 
 bool AndroidManager::setTargetApplication(ProjectExplorer::Target *target, const QString &name)
@@ -905,6 +974,8 @@ bool AndroidManager::setIcon(ProjectExplorer::Target *target, IconType type, con
 
     const QString path = iconPath(target, type);
     QFile::remove(path);
+    QDir dir;
+    dir.mkpath(QFileInfo(path).absolutePath());
     return QFile::copy(iconFileName, path);
 }
 

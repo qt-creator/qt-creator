@@ -78,11 +78,14 @@ public:
     static bool setMediumDpiIcon(ProjectExplorer::Target *target, const QString &iconFilePath);
     static QIcon lowDpiIcon(ProjectExplorer::Target *target);
     static bool setLowDpiIcon(ProjectExplorer::Target *target, const QString &iconFilePath);
+    static bool ensureIconAttribute(ProjectExplorer::Target *target);
 
     static QStringList availableTargetApplications(ProjectExplorer::Target *target);
     static QString targetApplication(ProjectExplorer::Target *target);
     static bool setTargetApplication(ProjectExplorer::Target *target, const QString &name);
     static QString targetApplicationPath(ProjectExplorer::Target *target);
+
+    static bool setUseLocalLibs(ProjectExplorer::Target *target, bool useLocalLibs, int deviceAPILevel);
 
     static QString targetSDK(ProjectExplorer::Target *target);
     static bool setTargetSDK(ProjectExplorer::Target *target, const QString &sdk);

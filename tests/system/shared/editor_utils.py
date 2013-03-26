@@ -274,8 +274,8 @@ def invokeContextMenuItem(editorArea, command1, command2 = None):
     ctxtMenu = openContextMenuOnTextCursorPosition(editorArea)
     activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), command1, 2000))
     if command2:
-        activateItem(waitForObjectItem("{type='QMenu' visible='1' window=%s}"
-                                       % objectMap.realName(ctxtMenu), command2, 2000))
+        activateItem(waitForObjectItem("{title='%s' type='QMenu' visible='1' window=%s}"
+                                       % (command1, objectMap.realName(ctxtMenu)), command2, 2000))
 
 # this function invokes the "Find Usages" item from context menu
 # param editor an editor object

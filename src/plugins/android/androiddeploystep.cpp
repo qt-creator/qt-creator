@@ -210,6 +210,11 @@ void AndroidDeployStep::setDeployQASIPackagePath(const QString &package)
 void AndroidDeployStep::setUseLocalQtLibs(bool useLocal)
 {
     m_useLocalQtLibs = useLocal;
+
+    // ### Passes -1 for API level, which means it won't work with setups that require
+    // library selection based on API level. Use the old approach (command line argument)
+    // in these cases.
+    AndroidManager::setUseLocalLibs(target(), useLocal, -1);
 }
 
 bool AndroidDeployStep::runCommand(QProcess *buildProc,

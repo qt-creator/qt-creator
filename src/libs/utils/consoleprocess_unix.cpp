@@ -210,7 +210,8 @@ void ConsoleProcess::stop()
 
 bool ConsoleProcess::isRunning() const
 {
-    return d->m_process.state() != QProcess::NotRunning;
+    return d->m_process.state() != QProcess::NotRunning
+            || (d->m_stubSocket && d->m_stubSocket->isOpen());
 }
 
 QString ConsoleProcess::stubServerListen()
@@ -242,8 +243,11 @@ QString ConsoleProcess::stubServerListen()
 
 void ConsoleProcess::stubServerShutdown()
 {
-    if (d->m_stubSocket)
+    if (d->m_stubSocket) {
+        readStubOutput(); // we could get the shutdown signal before emptying the buffer
+        d->m_stubSocket->disconnect(); // avoid getting queued readyRead signals
         d->m_stubSocket->deleteLater(); // we might be called from the disconnected signal of m_stubSocket
+    }
     d->m_stubSocket = 0;
     if (d->m_stubServer.isListening()) {
         d->m_stubServer.close();

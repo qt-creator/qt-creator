@@ -102,17 +102,17 @@ bool BlackBerryCreatePackageStep::init()
     }
 
     foreach (const BarPackageDeployInformation &info, packagesToDeploy) {
-        if (info.appDescriptorPath.isEmpty()) {
+        if (info.appDescriptorPath().isEmpty()) {
             raiseError(tr("Application descriptor file not specified, please check deployment settings"));
             return false;
         }
 
-        if (info.packagePath.isEmpty()) {
+        if (info.packagePath().isEmpty()) {
             raiseError(tr("No package specified, please check deployment settings"));
             return false;
         }
 
-        const QString buildDir = target()->activeBuildConfiguration()->buildDirectory();
+        const QString buildDir = QFileInfo(info.packagePath()).absolutePath();
         QDir dir(buildDir);
         if (!dir.exists()) {
             if (!dir.mkpath(buildDir)) {
@@ -122,7 +122,7 @@ bool BlackBerryCreatePackageStep::init()
         }
 
         const QString preparedFilePath =  buildDir + QLatin1String("/bar-descriptor-") + project()->displayName() + QLatin1String("-qtc-generated.xml");
-        if (!prepareAppDescriptorFile(info.appDescriptorPath, preparedFilePath))
+        if (!prepareAppDescriptorFile(info.appDescriptorPath(), preparedFilePath))
             // If there is an error, prepareAppDescriptorFile() will raise it
             return false;
 
@@ -131,7 +131,7 @@ bool BlackBerryCreatePackageStep::init()
         args << QLatin1String("-devMode");
         if (!debugToken().isEmpty())
             args << QLatin1String("-debugToken") << QnxUtils::addQuotes(QDir::toNativeSeparators(debugToken()));
-        args << QLatin1String("-package") << QnxUtils::addQuotes(QDir::toNativeSeparators(info.packagePath));
+        args << QLatin1String("-package") << QnxUtils::addQuotes(QDir::toNativeSeparators(info.packagePath()));
         args << QnxUtils::addQuotes(QDir::toNativeSeparators(preparedFilePath));
         addCommand(packageCmd, args);
     }

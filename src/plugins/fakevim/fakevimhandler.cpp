@@ -5577,6 +5577,11 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
         }
         lastCommand = line;
     }
+
+    // if the last command closed the editor, we would crash here (:vs and then :on)
+    if (!(m_textedit || m_plaintextedit))
+        return;
+
     endEditBlock();
 
     resetCommandMode();

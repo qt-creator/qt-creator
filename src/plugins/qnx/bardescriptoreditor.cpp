@@ -151,6 +151,14 @@ QWidget *BarDescriptorEditor::toolBar()
     return m_toolBar;
 }
 
+BarDescriptorEditor::EditorPage BarDescriptorEditor::activePage() const
+{
+    BarDescriptorEditorWidget *editorWidget = qobject_cast<BarDescriptorEditorWidget *>(widget());
+    QTC_ASSERT(editorWidget, return static_cast<EditorPage>(-1));
+
+    return static_cast<EditorPage>(editorWidget->currentIndex());
+}
+
 void BarDescriptorEditor::changeEditorPage(QAction *action)
 {
     setActivePage(static_cast<EditorPage>(action->data().toInt()));

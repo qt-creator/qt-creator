@@ -156,6 +156,9 @@ unsigned int DebuggerKitInformation::priority() const
 
 DebuggerKitInformation::DebuggerItem DebuggerKitInformation::autoDetectItem(const Kit *k)
 {
+    if (DebuggerKitInformation::isValidDebugger(k))
+        return DebuggerKitInformation::debuggerItem(k);
+
     DebuggerItem result;
     const ToolChain *tc = ToolChainKitInformation::toolChain(k);
     Abi abi = Abi::hostAbi();
@@ -201,8 +204,7 @@ DebuggerKitInformation::DebuggerItem DebuggerKitInformation::autoDetectItem(cons
 void DebuggerKitInformation::setup(Kit *k)
 {
     QTC_ASSERT(ToolChainManager::instance()->isLoaded(), return);
-    if (!isValidDebugger(k))
-        setDebuggerItem(k, autoDetectItem(k));
+    setDebuggerItem(k, autoDetectItem(k));
 }
 
 // Check the configuration errors and return a flag mask. Provide a quick check and

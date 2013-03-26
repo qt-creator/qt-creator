@@ -905,11 +905,6 @@ This option is useful when you want to try your application on devices which don
 не имеют доступа к Android Market (например, эмулятор Android).</translation>
     </message>
     <message>
-        <source>Edit Rules File</source>
-        <translation>Изменить файл
-правил</translation>
-    </message>
-    <message>
         <source>Install Ministro, system-wide Qt shared libraries installer</source>
         <translation>Развёртывать Ministro - установщик общесистемных библиотек Qt</translation>
     </message>
@@ -4668,10 +4663,6 @@ p, li { white-space: pre-wrap; }
         <translation>&lt;Системный&gt;</translation>
     </message>
     <message>
-        <source>Done</source>
-        <translation>Выполнено</translation>
-    </message>
-    <message>
         <source>Restart required</source>
         <translation>Требуется перезапуск</translation>
     </message>
@@ -4757,12 +4748,12 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Reset warnings</source>
-        <translation>Сброс предупреждений</translation>
+        <comment>Button text</comment>
+        <translation>Вернуть предупреждения</translation>
     </message>
     <message>
-        <source>Reset warnings</source>
-        <comment>Button text</comment>
-        <translation>Сбросить предупреждения</translation>
+        <source>Re-enable all warnings which were suppressed using &quot;Don&apos;t show again&quot; button (e.g. missing highlighter).</source>
+        <translation>Вернуть все предупреждения, отключённые кнопкой «Больше не показывать».</translation>
     </message>
 </context>
 <context>
@@ -21666,15 +21657,15 @@ Do you want to ignore them?</source>
     </message>
     <message>
         <source>debug</source>
-        <translation type="unfinished">отладка</translation>
+        <translation>отладка</translation>
     </message>
     <message>
         <source>release</source>
-        <translation type="unfinished">выпуск</translation>
+        <translation>выпуск</translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation type="unfinished">неизвестно</translation>
+        <translation>неизвестно</translation>
     </message>
     <message>
         <source>Failed to Open Project</source>
@@ -22672,7 +22663,7 @@ Remote stderr was: %1</source>
     <name>QmlDesigner::Internal::MetaInfoPrivate</name>
     <message>
         <source>Invalid meta info</source>
-        <translation type="unfinished">Неверная мета-информация</translation>
+        <translation>Неверная мета-информация</translation>
     </message>
 </context>
 <context>
@@ -24829,6 +24820,17 @@ Please use the stop button instead.</source>
     </message>
 </context>
 <context>
+    <name>QmlProjectManager::QmlApplicationWizardDialog</name>
+    <message>
+        <source>Creates a Qt Quick 1 UI project with a single QML file that contains the main view.&amp;lt;br/&amp;gt;You can review Qt Quick 1 UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Requires &amp;lt;b&amp;gt;Qt 4.8&amp;lt;/b&amp;gt; or newer.</source>
+        <translation>Создание проекта Qt Quick 1 с одним файлом QML, содержащим главный интерфейс.&amp;lt;br/&amp;gt; Проверять проекты Qt Quick 1 можно без пересборки в QML Viewer. Для создания и запуска этого типа проектов не требуется интегрированная среда разработки. &amp;lt;b/r&amp;gt;&amp;lt;br/&amp;gt;Требуется &amp;lt;b&amp;gt;Qt 4.8&amp;lt;/b&amp;gt; или выше.</translation>
+    </message>
+    <message>
+        <source>Creates a Qt Quick 2 UI project with a single QML file that contains the main view.&amp;lt;br/&amp;gt;You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Requires &amp;lt;b&amp;gt;Qt 5.0&amp;lt;/b&amp;gt; or newer.</source>
+        <translation>Создание проекта Qt Quick 2 с одним файлом QML, содержащим главный интерфейс.&amp;lt;br/&amp;gt; Проверять проекты Qt Quick 2 можно без пересборки в QML Scene. Для создания и запуска этого типа проектов не требуется интегрированная среда разработки. &amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Требуется &amp;lt;b&amp;gt;Qt 5.0&amp;lt;/b&amp;gt; или выше.</translation>
+    </message>
+</context>
+<context>
     <name>QmlProjectManager::QmlProject</name>
     <message>
         <source>Error while loading project file %1.</source>
@@ -24937,7 +24939,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
     <message>
         <source>Assets</source>
-        <translation type="unfinished">Ресурсы</translation>
+        <translation>Ресурсы</translation>
     </message>
     <message>
         <source>XML Source</source>
@@ -25905,7 +25907,7 @@ Do you want to add it to the project?</source>
     </message>
     <message>
         <source>BlackBerry Signing Authority</source>
-        <translation type="unfinished">Центр подписывания BlackBerry</translation>
+        <translation>Центр подписывания BlackBerry</translation>
     </message>
     <message>
         <source>Registered: Yes</source>
@@ -29899,7 +29901,7 @@ with a password, which you can enter below.</source>
     <name>SubComponentManager::parseDirectory</name>
     <message>
         <source>Invalid meta info</source>
-        <translation type="unfinished">Неверная мета-информация</translation>
+        <translation>Неверная мета-информация</translation>
     </message>
 </context>
 <context>

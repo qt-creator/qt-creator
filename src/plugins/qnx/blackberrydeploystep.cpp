@@ -115,7 +115,7 @@ bool BlackBerryDeployStep::init()
         args << QLatin1String("-device") << deviceHost();
         if (!password().isEmpty())
             args << QLatin1String("-password") << password();
-        args << QnxUtils::addQuotes(QDir::toNativeSeparators(info.packagePath));
+        args << QnxUtils::addQuotes(QDir::toNativeSeparators(info.packagePath()));
 
         addCommand(deployCmd, args);
     }
@@ -130,8 +130,8 @@ void BlackBerryDeployStep::run(QFutureInterface<bool> &fi)
 
     QList<BarPackageDeployInformation> packagesToDeploy = deployConfig->deploymentInfo()->enabledPackages();
     foreach (const BarPackageDeployInformation &info, packagesToDeploy) {
-        if (!QFileInfo(info.packagePath).exists()) {
-            raiseError(tr("Package '%1' does not exist. Create the package first.").arg(info.packagePath));
+        if (!QFileInfo(info.packagePath()).exists()) {
+            raiseError(tr("Package '%1' does not exist. Create the package first.").arg(info.packagePath()));
             fi.reportResult(false);
             return;
         }

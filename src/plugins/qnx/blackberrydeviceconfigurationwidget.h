@@ -38,6 +38,7 @@
 
 QT_BEGIN_NAMESPACE
 class QProgressDialog;
+class QAbstractButton;
 QT_END_NAMESPACE
 
 namespace Qnx {
@@ -76,6 +77,7 @@ private:
     BlackBerryDeviceConfiguration::Ptr deviceConfiguration() const;
 
     Ui::BlackBerryDeviceConfigurationWidget *ui;
+    QAbstractButton *uploadButton;
 
     QProgressDialog *progressDialog;
 

@@ -107,7 +107,7 @@ def __removeTestingDir__():
 
     devicesXML = os.path.join(tmpSettingsDir, "QtProject", "qtcreator", "devices.xml")
     lastMTime = os.path.getmtime(devicesXML)
-    testingDir = os.path.dirname(os.path.dirname(tmpSettingsDir))
+    testingDir = os.path.dirname(tmpSettingsDir)
     waitForCleanShutdown()
     waitFor('os.path.getmtime(devicesXML) > lastMTime', 5000)
     waitFor('__removeIt__(testingDir)', 2000)
@@ -191,26 +191,44 @@ def substituteUnchosenTargetABIs(settingsDir):
     os.remove(origToolchains)
     test.log("Substituted unchosen ABIs inside toolchains.xml...")
 
-def copySettingsToTmpDir():
-    global tmpSettingsDir
-    global SettingsPath
-    tmpSettingsDir = tempDir()
-    tmpSettingsDir = os.path.abspath(tmpSettingsDir + "/settings")
-    shutil.copytree(cwd, tmpSettingsDir)
+def copySettingsToTmpDir(destination=None, omitFiles=[]):
+    global tmpSettingsDir, SettingsPath, origSettingsDir
+    if destination:
+        destination = os.path.abspath(destination)
+        if not os.path.exists(destination):
+            os.makedirs(destination)
+        elif os.path.isfile(destination):
+                test.warning("Provided destination for settings exists as file.",
+                             "Creating another folder for being able to execute tests.")
+                destination = tempDir()
+    else:
+        destination = tempDir()
+    tmpSettingsDir = destination
+    pathLen = len(origSettingsDir) + 1
+    for r,d,f in os.walk(origSettingsDir):
+        currentPath = os.path.join(tmpSettingsDir, r[pathLen:])
+        for dd in d:
+            folder = os.path.join(currentPath, dd)
+            if not os.path.exists(folder):
+                os.makedirs(folder)
+        for ff in f:
+            if not ff in omitFiles:
+                shutil.copy(os.path.join(r, ff), currentPath)
     if platform.system() in ('Linux', 'Darwin'):
         substituteTildeWithinToolchains(tmpSettingsDir)
     substituteUnchosenTargetABIs(tmpSettingsDir)
     SettingsPath = ' -settingspath "%s"' % tmpSettingsDir
 
+# current dir is directory holding qtcreator.py
+origSettingsDir = os.path.abspath(os.path.join(os.getcwd(), "..", "..", "settings"))
+
 if platform.system() in ('Windows', 'Microsoft'):
     sdkPath = "C:\\QtSDK"
-    cwd = os.getcwd()       # current dir is directory holding qtcreator.py
-    cwd+="\\..\\..\\settings\\windows"
+    origSettingsDir = os.path.join(origSettingsDir, "windows")
     defaultQtVersion = "Qt 4.7.4 for Desktop - MinGW 4.4 (Qt SDK)"
 else:
     sdkPath = os.path.expanduser("~/QtSDK")
-    cwd = os.getcwd()       # current dir is directory holding qtcreator.py
-    cwd+="/../../settings/unix"
+    origSettingsDir = os.path.join(origSettingsDir, "unix")
     defaultQtVersion = "Desktop Qt 4.7.4 for GCC (Qt SDK)"
 srcPath = os.getenv("SYSTEST_SRCPATH", sdkPath + "/src")
 
@@ -218,7 +236,6 @@ overrideStartApplication()
 
 # the following only doesn't work if the test ends in an exception
 if os.getenv("SYSTEST_NOSETTINGSPATH") != "1":
-    cwd = os.path.abspath(cwd)
     copySettingsToTmpDir()
     atexit.register(__removeTestingDir__)
 

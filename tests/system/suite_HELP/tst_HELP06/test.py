@@ -3,12 +3,17 @@ source("../../shared/suites_qtta.py")
 
 # test bookmark functionality
 def renameBookmarkFolder(view, item, newName):
-    openItemContextMenu(view, item, 5, 5, 0)
-    activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1' "
-                                   "window=':Add Bookmark_BookmarkDialog'}", "Rename Folder"))
+    invokeContextMenuItemOnBookmarkFolder(view, item, "Rename Folder")
     replaceEditorContent(waitForObject(":Add Bookmark.treeView_QExpandingLineEdit"), newName)
     type(waitForObject(":Add Bookmark.treeView_QExpandingLineEdit"), "<Return>")
     return
+
+def invokeContextMenuItemOnBookmarkFolder(view, item, menuItem):
+    aboveWidget = "{name='line' type='QFrame' visible='1' window=':Add Bookmark_BookmarkDialog'}"
+    mouseClick(waitForObjectItem(view, item), 5, 5, 0, Qt.LeftButton)
+    openItemContextMenu(view, item, 5, 5, 0)
+    activateItem(waitForObject("{aboveWidget=%s type='QMenu' unnamed='1' visible='1' "
+                               "window=':Add Bookmark_BookmarkDialog'}" % aboveWidget), menuItem)
 
 def getQModelIndexStr(textProperty, container):
     if (container.startswith(":")):
@@ -84,11 +89,10 @@ def main():
     # delete previously created directory
     clickButton(waitForObject(":Qt Creator.Add Bookmark_QToolButton"))
     clickButton(waitForObject(":Add Bookmark.ExpandBookmarksList_QToolButton"))
-    openItemContextMenu(waitForObject(":Add Bookmark.treeView_QTreeView"), "Sample.Folder 1", 5, 5, 0)
-    activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1' "
-                                   "window=':Add Bookmark_BookmarkDialog'}", "Delete Folder"))
+    invokeContextMenuItemOnBookmarkFolder(":Add Bookmark.treeView_QTreeView", "Sample.Folder 1",
+                                          "Delete Folder")
     clickButton(waitForObject("{container=':Add Bookmark.treeView_QTreeView' text='Yes' "
-                              "type='QPushButton' unnamed='1' visible='1'}"))#:treeView.Yes_QPushButton"))
+                              "type='QPushButton' unnamed='1' visible='1'}"))
     # close bookmarks
     clickButton(waitForObject(":Add Bookmark.OK_QPushButton"))
     # choose bookmarks from command combobox

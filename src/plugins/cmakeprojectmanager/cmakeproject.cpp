@@ -352,6 +352,7 @@ bool CMakeProject::parseCMakeLists()
 
     QByteArray allDefines;
     allDefines.append(tc->predefinedMacros(cxxflags));
+    allDefines.append(cbpparser.defines());
 
     QStringList allFrameworkPaths;
     QList<ProjectExplorer::HeaderPath> allHeaderPaths;
@@ -1215,8 +1216,18 @@ void CMakeCbpParser::parseAdd()
 
     QString compilerOption = addAttributes.value(QLatin1String("option")).toString();
     // defining multiple times a macro to the same value makes no sense
-    if (!compilerOption.isEmpty() && !m_compilerOptions.contains(compilerOption))
+    if (!compilerOption.isEmpty() && !m_compilerOptions.contains(compilerOption)) {
         m_compilerOptions.append(compilerOption);
+        int macroNameIndex = compilerOption.indexOf(QLatin1String("-D")) + 2;
+        if (macroNameIndex != 1) {
+            int assignIndex = compilerOption.indexOf(QLatin1Char('='), macroNameIndex);
+            if (assignIndex != -1)
+                compilerOption[assignIndex] = ' ';
+            m_defines.append("#define ");
+            m_defines.append(compilerOption.mid(macroNameIndex).toUtf8());
+            m_defines.append('\n');
+        }
+    }
 
     while (!atEnd()) {
         readNext();
@@ -1312,6 +1323,11 @@ bool CMakeCbpParser::hasCMakeFiles()
 QStringList CMakeCbpParser::includeFiles()
 {
     return m_includeFiles;
+}
+
+QByteArray CMakeCbpParser::defines() const
+{
+    return m_defines;
 }
 
 QList<CMakeBuildTarget> CMakeCbpParser::buildTargets()
