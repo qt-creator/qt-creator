@@ -39,8 +39,6 @@ QT_FORWARD_DECLARE_CLASS(QDeclarativeEngine)
 
 namespace Utils {
 
-class IWelcomePagePrivate;
-
 class QTCREATOR_UTILS_EXPORT IWelcomePage : public QObject
 {
     Q_OBJECT
@@ -68,10 +66,6 @@ public:
     virtual void facilitateQml(QDeclarativeEngine *) {}
     virtual bool hasSearchBar() const { return false; }
     virtual Id id() const = 0;
-
-private:
-    // not used atm
-    IWelcomePagePrivate *d;
 };
 
 }
