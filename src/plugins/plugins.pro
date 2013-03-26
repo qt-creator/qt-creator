@@ -63,7 +63,7 @@ linux-* {
 
 include(../../qtcreator.pri)
 
-contains(QT_CONFIG, declarative)|!isEmpty(Qt.declarative.name) {
+contains(QT_CONFIG, declarative)|!isEmpty(QT.declarative.name) {
     SUBDIRS += \
             plugin_qmlprojectmanager \
             plugin_qmlprofiler
