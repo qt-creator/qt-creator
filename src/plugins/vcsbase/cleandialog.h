@@ -60,6 +60,8 @@ protected:
 
 private slots:
     void slotDoubleClicked(const QModelIndex &);
+    void selectAllItems(bool checked);
+    void updateSelectAllCheckBox();
 
 private:
     QStringList checkedFiles() const;

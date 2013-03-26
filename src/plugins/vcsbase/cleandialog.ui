@@ -18,6 +18,13 @@
     <widget class="QGroupBox" name="groupBox">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
+       <widget class="QCheckBox" name="selectAllCheckBox">
+        <property name="text">
+         <string>Select All</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QTreeView" name="filesTreeView"/>
       </item>
      </layout>
@@ -44,8 +51,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>257</x>
+     <y>649</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -60,8 +67,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>325</x>
+     <y>649</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>

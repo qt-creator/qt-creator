@@ -170,6 +170,8 @@ CleanDialog::CleanDialog(QWidget *parent) :
     d->ui.filesTreeView->setRootIsDecorated(false);
     connect(d->ui.filesTreeView, SIGNAL(doubleClicked(QModelIndex)),
             this, SLOT(slotDoubleClicked(QModelIndex)));
+    connect(d->ui.selectAllCheckBox, SIGNAL(clicked(bool)), this, SLOT(selectAllItems(bool)));
+    connect(d->ui.filesTreeView, SIGNAL(clicked(QModelIndex)), this, SLOT(updateSelectAllCheckBox()));
 }
 
 CleanDialog::~CleanDialog()
@@ -193,6 +195,9 @@ void CleanDialog::setFileList(const QString &workingDirectory, const QStringList
 
     for (int c = 0; c < d->m_filesModel->columnCount(); c++)
         d->ui.filesTreeView->resizeColumnToContents(c);
+
+    if (ignoredFiles.isEmpty())
+        d->ui.selectAllCheckBox->setChecked(true);
 }
 
 void CleanDialog::addFile(const QString &workingDirectory, QString fileName, bool checked)
@@ -275,6 +280,31 @@ void CleanDialog::slotDoubleClicked(const QModelIndex &index)
         if (!item->data(Internal::isDirectoryRole).toBool()) {
             const QString fname = item->data(Internal::fileNameRole).toString();
             Core::EditorManager::openEditor(fname, Core::Id(), Core::EditorManager::ModeSwitch);
+    }
+}
+
+void CleanDialog::selectAllItems(bool checked)
+{
+    if (const int rowCount = d->m_filesModel->rowCount()) {
+        for (int r = 0; r < rowCount; ++r) {
+            QStandardItem *item = d->m_filesModel->item(r, 0);
+            item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+        }
+    }
+}
+
+void CleanDialog::updateSelectAllCheckBox()
+{
+    bool checked = true;
+    if (const int rowCount = d->m_filesModel->rowCount()) {
+        for (int r = 0; r < rowCount; ++r) {
+            const QStandardItem *item = d->m_filesModel->item(r, 0);
+            if (item->checkState() == Qt::Unchecked) {
+                checked = false;
+                break;
+            }
+        }
+        d->ui.selectAllCheckBox->setChecked(checked);
     }
 }
 
