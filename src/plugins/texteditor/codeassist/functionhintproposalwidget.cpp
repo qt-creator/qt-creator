@@ -39,10 +39,8 @@
 #include <QLabel>
 #include <QToolButton>
 #include <QHBoxLayout>
-#include <QVBoxLayout>
 #include <QDesktopWidget>
 #include <QKeyEvent>
-#include <QShortcutEvent>
 
 namespace TextEditor {
 

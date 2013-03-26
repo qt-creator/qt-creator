@@ -34,9 +34,6 @@
 #include "basicproposalitem.h"
 #include "ifunctionhintproposalmodel.h"
 
-#include <QtGui/QIcon>
-#include <QtCore/QStringList>
-
 namespace TextEditor {
 
 class TEXTEDITOR_EXPORT Keywords

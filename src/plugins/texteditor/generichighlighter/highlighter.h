@@ -39,7 +39,6 @@
 #include <QSharedPointer>
 #include <QStringList>
 
-#include <QSyntaxHighlighter>
 #include <QTextCharFormat>
 
 namespace TextEditor {

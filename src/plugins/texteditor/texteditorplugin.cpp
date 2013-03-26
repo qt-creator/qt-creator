@@ -34,7 +34,6 @@
 #include "findinopenfiles.h"
 #include "fontsettings.h"
 #include "linenumberfilter.h"
-#include "texteditorconstants.h"
 #include "texteditorsettings.h"
 #include "textfilewizard.h"
 #include "plaintexteditorfactory.h"
@@ -42,22 +41,14 @@
 #include "manager.h"
 #include "outlinefactory.h"
 #include "snippets/plaintextsnippetprovider.h"
-#include "codeassist/assistenums.h"
-#include "basetextmark.h"
 #include "basetextmarkregistry.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/variablemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/id.h>
 #include <coreplugin/externaltoolmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditoractionhandler.h>
-#include <find/searchresultwindow.h>
 #include <utils/qtcassert.h>
 
 #include <QtPlugin>

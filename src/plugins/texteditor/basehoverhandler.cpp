@@ -30,13 +30,8 @@
 #include "basehoverhandler.h"
 #include "itexteditor.h"
 #include "basetexteditor.h"
-#include "displaysettings.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/helpmanager.h>
-#include <coreplugin/id.h>
-#include <debugger/debuggerconstants.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/tooltip/tipcontents.h>
 

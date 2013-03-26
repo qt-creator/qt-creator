@@ -29,7 +29,6 @@
 
 #include "autocompleter.h"
 #include "basetextdocumentlayout.h"
-#include "texteditorsettings.h"
 #include "tabsettings.h"
 
 #include <QDebug>

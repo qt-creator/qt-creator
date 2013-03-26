@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "circularclipboardassist.h"
-#include "codeassist/iassistprovider.h"
 #include "codeassist/iassistinterface.h"
 #include "codeassist/iassistprocessor.h"
 #include "codeassist/iassistproposal.h"

@@ -29,13 +29,11 @@
 
 #include "plaintexteditor.h"
 #include "tabsettings.h"
-#include "texteditorconstants.h"
 #include "texteditorplugin.h"
 #include "texteditorsettings.h"
 #include "basetextdocument.h"
 #include "highlightdefinition.h"
 #include "highlighter.h"
-#include "highlighterexception.h"
 #include "highlightersettings.h"
 #include "manager.h"
 #include "context.h"
@@ -44,10 +42,8 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 
 #include <QSharedPointer>
-#include <QFileInfo>
 
 #include <QDebug>
 

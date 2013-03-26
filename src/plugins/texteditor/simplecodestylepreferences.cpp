@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "simplecodestylepreferences.h"
-#include "tabsettings.h"
 
 using namespace TextEditor;
 

@@ -33,9 +33,7 @@
 #include "itemdata.h"
 #include "keywordlist.h"
 #include "context.h"
-#include "reuse.h"
 #include "manager.h"
-#include "highlighterexception.h"
 
 #include <QLatin1String>
 

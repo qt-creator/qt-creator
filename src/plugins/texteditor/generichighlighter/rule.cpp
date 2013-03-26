@@ -28,12 +28,9 @@
 ****************************************************************************/
 
 #include "rule.h"
-#include "highlighterexception.h"
 #include "progressdata.h"
 #include "highlightdefinition.h"
 #include "reuse.h"
-
-#include <QStringList>
 
 #include <functional>
 

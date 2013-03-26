@@ -32,11 +32,6 @@
 
 #include <QUrl>
 #include <QIODevice>
-#include <QXmlStreamReader>
-#include <QXmlStreamAttributes>
-#include <QFuture>
-#include <QFutureWatcher>
-#include <QtConcurrentMap>
 #include <QFile>
 #include <QFileInfo>
 #include <QMessageBox>

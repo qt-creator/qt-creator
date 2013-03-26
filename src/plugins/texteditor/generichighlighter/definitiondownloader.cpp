@@ -33,7 +33,6 @@
 
 #include <QLatin1Char>
 #include <QEventLoop>
-#include <QFile>
 #include <QScopedPointer>
 #include <QNetworkRequest>
 #include <QNetworkReply>

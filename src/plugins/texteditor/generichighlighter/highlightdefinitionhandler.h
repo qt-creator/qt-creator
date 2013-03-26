@@ -31,7 +31,6 @@
 #define HIGHLIGHTDEFINITIONHANDLER_H
 
 #include <QString>
-#include <QList>
 #include <QSharedPointer>
 #include <QStack>
 

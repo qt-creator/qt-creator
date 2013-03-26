@@ -31,7 +31,6 @@
 
 #include <texteditor/convenience.h>
 
-#include <QThread>
 #include <QTextDocument>
 #include <QTextCursor>
 

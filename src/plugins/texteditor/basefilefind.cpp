@@ -34,34 +34,23 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/documentmanager.h>
-#include <find/textfindconstants.h>
-#include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/refactoringchanges.h>
 #include <utils/stylehelper.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/filesearch.h>
 
 #include <QDebug>
-#include <QDirIterator>
 #include <QSettings>
 #include <QHash>
 #include <QPair>
 #include <QStringListModel>
 #include <QFutureWatcher>
 #include <QPointer>
-#include <QFileDialog>
-#include <QCheckBox>
 #include <QComboBox>
 #include <QLabel>
-#include <QHBoxLayout>
 #include <QLabel>
-#include <QPushButton>
-#include <QTextBlock>
 
 namespace TextEditor {
 namespace Internal {

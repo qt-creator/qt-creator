@@ -40,6 +40,7 @@
 #include <texteditor/storagesettings.h>
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/extraencodingsettings.h>
+#include <texteditor/tabsettings.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 
 #include <QLatin1String>

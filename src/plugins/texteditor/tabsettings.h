@@ -32,7 +32,6 @@
 
 #include "texteditor_global.h"
 
-#include <QVariant>
 #include <QTextBlock>
 
 QT_BEGIN_NAMESPACE

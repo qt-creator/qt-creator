@@ -29,9 +29,7 @@
 
 #include "fontsettingspage.h"
 
-#include "colorschemeedit.h"
 #include "fontsettings.h"
-#include "texteditorconstants.h"
 #include "ui_fontsettingspage.h"
 
 #include <coreplugin/icore.h>
@@ -41,17 +39,11 @@
 #include <QDebug>
 #include <QSettings>
 #include <QTimer>
-#include <QCheckBox>
-#include <QComboBox>
 #include <QFileDialog>
 #include <QFontDatabase>
 #include <QInputDialog>
-#include <QListWidget>
 #include <QMessageBox>
 #include <QPalette>
-#include <QTextCharFormat>
-#include <QTextEdit>
-#include <QToolButton>
 
 namespace TextEditor {
 namespace Internal {

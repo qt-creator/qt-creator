@@ -33,20 +33,16 @@
 #include "snippet.h"
 #include "snippetscollection.h"
 #include "snippetssettings.h"
-#include "reuse.h"
 #include "ui_snippetssettingspage.h"
 
 #include <coreplugin/icore.h>
 #include <texteditor/texteditorsettings.h>
-#include <texteditor/fontsettings.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QModelIndex>
 #include <QAbstractTableModel>
 #include <QList>
-#include <QSettings>
 #include <QTextStream>
-#include <QHash>
 #include <QMessageBox>
 
 namespace TextEditor {

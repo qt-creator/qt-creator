@@ -29,7 +29,6 @@
 
 #include "basetexteditor.h"
 #include "basetexteditor_p.h"
-#include "texteditor_global.h"
 
 #include "basetextdocument.h"
 #include "basetextdocumentlayout.h"
@@ -39,8 +38,6 @@
 #include "tabsettings.h"
 #include "typingsettings.h"
 #include "icodestylepreferences.h"
-#include "texteditorconstants.h"
-#include "texteditorplugin.h"
 #include "syntaxhighlighter.h"
 #include "indenter.h"
 #include "autocompleter.h"
@@ -56,14 +53,9 @@
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/manhattanstyle.h>
-#include <coreplugin/id.h>
-#include <extensionsystem/pluginmanager.h>
 #include <find/basetextfind.h>
 #include <utils/linecolumnlabel.h>
 #include <utils/hostosinfo.h>
@@ -75,30 +67,24 @@
 
 #include <QCoreApplication>
 #include <QTextCodec>
-#include <QFile>
 #include <QDebug>
 #include <QTimer>
 #include <QTimeLine>
-#include <QTime>
 #include <QMimeData>
 #include <QAbstractTextDocumentLayout>
 #include <QApplication>
 #include <QKeyEvent>
-#include <QLabel>
-#include <QLayout>
 #include <QPainter>
 #include <QPrinter>
 #include <QPrintDialog>
 #include <QScrollBar>
 #include <QShortcut>
 #include <QStyle>
-#include <QSyntaxHighlighter>
 #include <QTextCursor>
 #include <QTextDocumentFragment>
 #include <QTextBlock>
 #include <QTextLayout>
 #include <QToolBar>
-#include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
 #include <QClipboard>

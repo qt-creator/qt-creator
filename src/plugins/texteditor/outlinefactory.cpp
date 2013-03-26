@@ -31,9 +31,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
 
-#include <QVBoxLayout>
 #include <QToolButton>
 #include <QLabel>
 #include <QStackedWidget>

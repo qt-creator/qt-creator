@@ -31,7 +31,6 @@
 #define SIMPLECODESTYLEPREFERENCES_H
 
 #include "icodestylepreferences.h"
-#include "tabsettings.h"
 
 namespace TextEditor {
 

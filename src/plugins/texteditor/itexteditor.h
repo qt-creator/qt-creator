@@ -36,8 +36,6 @@
 
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <QObject>
-#include <QList>
 #include <QMap>
 #include <QIcon>
 

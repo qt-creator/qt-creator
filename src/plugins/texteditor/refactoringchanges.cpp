@@ -30,14 +30,9 @@
 #include "refactoringchanges.h"
 #include "basetexteditor.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/qtcassert.h>
 
 #include <QFile>
-#include <QSet>
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextDocument>

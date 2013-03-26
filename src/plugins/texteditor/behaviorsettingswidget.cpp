@@ -30,7 +30,6 @@
 #include "behaviorsettingswidget.h"
 #include "ui_behaviorsettingswidget.h"
 
-#include <texteditor/tabsettings.h>
 #include <texteditor/typingsettings.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/behaviorsettings.h>

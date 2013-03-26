@@ -33,12 +33,8 @@
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
 #include "texteditoractionhandler.h"
-#include "texteditorsettings.h"
-#include "manager.h"
-#include "highlightersettings.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/infobar.h>
 
 #include <QCoreApplication>

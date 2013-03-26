@@ -35,7 +35,7 @@
 
 #include <texteditor/texteditor_global.h>
 
-#include <QIcon>
+QT_FORWARD_DECLARE_CLASS(QIcon)
 
 namespace TextEditor {
 

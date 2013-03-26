@@ -32,8 +32,6 @@
 
 #include "texteditor_global.h"
 
-#include <QtGlobal>
-
 QT_BEGIN_NAMESPACE
 class QTextDocument;
 class QTextCursor;

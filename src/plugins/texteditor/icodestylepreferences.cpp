@@ -30,12 +30,9 @@
 #include "icodestylepreferences.h"
 #include "codestylepool.h"
 #include "tabsettings.h"
-#include "texteditorconstants.h"
-
 #include <utils/settingsutils.h>
 
 #include <QSettings>
-#include <QStringList>
 
 using namespace TextEditor;
 

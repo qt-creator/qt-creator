@@ -31,13 +31,6 @@
 #include "basetextdocument.h"
 #include "basetextdocumentlayout.h"
 
-#include <qtextdocument.h>
-#include <qtextlayout.h>
-#include <qpointer.h>
-#include <qtextobject.h>
-#include <qtextcursor.h>
-#include <qdebug.h>
-#include <qtextedit.h>
 #include <qtimer.h>
 
 #include <math.h>

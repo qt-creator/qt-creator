@@ -35,13 +35,11 @@
 #include <QDebug>
 #include <QSettings>
 #include <QDir>
-#include <QDirIterator>
 #include <QPushButton>
 #include <QFileDialog>
 #include <QLabel>
 #include <QComboBox>
 #include <QHBoxLayout>
-#include <QVBoxLayout>
 
 using namespace Find;
 using namespace TextEditor;

@@ -30,8 +30,6 @@
 #include "progressdata.h"
 #include "rule.h"
 
-#include <QtGlobal>
-
 using namespace TextEditor;
 using namespace Internal;
 

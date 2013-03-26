@@ -33,7 +33,6 @@
 #include "texteditor_global.h"
 
 #include <coreplugin/icontext.h>
-#include <coreplugin/id.h>
 
 #include <QObject>
 #include <QPointer>

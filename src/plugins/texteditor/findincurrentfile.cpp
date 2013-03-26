@@ -32,6 +32,7 @@
 
 #include <utils/filesearch.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <QSettings>

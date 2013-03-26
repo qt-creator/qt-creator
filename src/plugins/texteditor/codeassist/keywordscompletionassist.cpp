@@ -31,14 +31,11 @@
 
 #include <texteditor/codeassist/iassistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
-#include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/basicproposalitemlistmodel.h>
 #include "completionsettings.h"
 #include "texteditorsettings.h"
 #include "basetexteditor.h"
-
-#include <QtGui/QTextCursor>
 
 using namespace TextEditor;
 

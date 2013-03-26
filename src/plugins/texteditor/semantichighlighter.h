@@ -33,8 +33,6 @@
 #include "texteditor_global.h"
 
 #include <QHash>
-#include <QMap>
-#include <QVector>
 #include <QFuture>
 #include <QTextCharFormat>
 

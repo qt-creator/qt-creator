@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "texteditorsettings.h"
-#include "texteditorconstants.h"
 
 #include "basetexteditor.h"
 #include "behaviorsettings.h"
@@ -41,7 +40,6 @@
 #include "storagesettings.h"
 #include "tabsettings.h"
 #include "extraencodingsettings.h"
-#include "texteditorplugin.h"
 #include "highlightersettingspage.h"
 #include "snippetssettingspage.h"
 #include "icodestylepreferences.h"

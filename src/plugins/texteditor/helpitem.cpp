@@ -33,7 +33,6 @@
 #include <utils/htmldocextractor.h>
 
 #include <QUrl>
-#include <QByteArray>
 #include <QMap>
 
 using namespace TextEditor;

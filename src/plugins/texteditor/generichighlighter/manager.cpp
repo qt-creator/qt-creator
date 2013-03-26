@@ -39,12 +39,10 @@
 #include "texteditorsettings.h"
 
 #include <coreplugin/icore.h>
-#include <utils/qtcassert.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/QtConcurrentTools>
 
 #include <QtAlgorithms>
-#include <QtPlugin>
 #include <QString>
 #include <QLatin1Char>
 #include <QLatin1String>
@@ -54,13 +52,11 @@
 #include <QDir>
 #include <QRegExp>
 #include <QFuture>
-#include <QtConcurrentRun>
 #include <QtConcurrentMap>
 #include <QUrl>
 #include <QSet>
 #include <QXmlStreamReader>
 #include <QXmlStreamAttributes>
-#include <QDesktopServices>
 #include <QMessageBox>
 #include <QXmlSimpleReader>
 #include <QXmlInputSource>

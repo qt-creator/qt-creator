@@ -34,7 +34,6 @@
 #include "ui_highlightersettingspage.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
 
 #include <QMessageBox>
 

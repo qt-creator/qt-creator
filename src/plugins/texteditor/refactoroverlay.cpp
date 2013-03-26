@@ -32,7 +32,6 @@
 #include "basetexteditor.h"
 
 #include <QPainter>
-#include <QTextBlock>
 
 #include <QDebug>
 

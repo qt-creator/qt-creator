@@ -33,7 +33,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <QSettings>
 #include <QTextStream>
 
 using namespace TextEditor;

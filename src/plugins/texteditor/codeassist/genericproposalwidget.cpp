@@ -28,10 +28,8 @@
 ****************************************************************************/
 
 #include "genericproposalwidget.h"
-#include "iassistprovider.h"
 #include "igenericproposalmodel.h"
 #include "iassistproposalitem.h"
-#include "genericproposal.h"
 #include "codeassistant.h"
 
 #include <texteditor/texteditorsettings.h>

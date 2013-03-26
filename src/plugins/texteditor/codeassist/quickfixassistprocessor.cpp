@@ -37,7 +37,6 @@
 // @TODO: Move...
 #include <texteditor/quickfix.h>
 
-#include <QMap>
 #include <QDebug>
 
 using namespace TextEditor;

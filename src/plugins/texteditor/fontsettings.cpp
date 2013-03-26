@@ -29,10 +29,8 @@
 
 #include "fontsettings.h"
 #include "fontsettingspage.h"
-#include "texteditorconstants.h"
 
 #include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 
 #include <QCoreApplication>

@@ -32,10 +32,12 @@
 
 #include "basefilefind.h"
 
-#include <coreplugin/idocument.h>
-#include <coreplugin/editormanager/ieditor.h>
-
 #include <QPointer>
+
+namespace Core {
+class IEditor;
+class IDocument;
+} // namespace Core
 
 namespace TextEditor {
 namespace Internal {

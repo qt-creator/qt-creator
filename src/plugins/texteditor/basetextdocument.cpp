@@ -40,21 +40,15 @@
 
 #include <QApplication>
 #include <QDir>
-#include <QFile>
 #include <QFileInfo>
 #include <QFutureInterface>
 #include <QScrollBar>
 #include <QStringList>
-#include <QSyntaxHighlighter>
 #include <QTextCodec>
-#include <QTextStream>
 
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/qtcassert.h>
-#include <utils/fileutils.h>
-#include <utils/reloadpromptutils.h>
 
 namespace TextEditor {
 class BaseTextDocumentPrivate
