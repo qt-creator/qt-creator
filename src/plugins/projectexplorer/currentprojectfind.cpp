@@ -35,6 +35,7 @@
 
 #include <coreplugin/idocument.h>
 #include <utils/qtcassert.h>
+#include <utils/filesearch.h>
 
 #include <QDebug>
 #include <QSettings>

@@ -32,13 +32,11 @@
 
 #include "basefilefind.h"
 
-#include <find/ifindfilter.h>
-
 #include <QPointer>
-#include <QLabel>
-#include <QComboBox>
 #include <QStringListModel>
 
+QT_FORWARD_DECLARE_CLASS(QLabel)
+QT_FORWARD_DECLARE_CLASS(QComboBox)
 
 namespace TextEditor {
 
@@ -48,6 +46,7 @@ class TEXTEDITOR_EXPORT FindInFiles : public BaseFileFind
 
 public:
     FindInFiles();
+    ~FindInFiles();
 
     QString id() const;
     QString displayName() const;

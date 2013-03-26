@@ -35,6 +35,7 @@
 #include "editorconfiguration.h"
 
 #include <texteditor/itexteditor.h>
+#include <utils/filesearch.h>
 
 #include <QSettings>
 #include <QRegExp>

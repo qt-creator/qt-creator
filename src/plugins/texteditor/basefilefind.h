@@ -34,12 +34,6 @@
 
 #include <find/ifindfilter.h>
 #include <find/searchresultwindow.h>
-#include <utils/filesearch.h>
-
-#include <QStringListModel>
-
-#include <QFutureWatcher>
-#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -50,11 +44,15 @@ namespace Utils {
 class FileIterator;
 }
 namespace Find {
+class SearchResult;
 struct SearchResultItem;
 class IFindSupport;
 }
 
 namespace TextEditor {
+namespace Internal {
+class BaseFileFindPrivate;
+} // namespace Internal
 
 class TEXTEDITOR_EXPORT BaseFileFind : public Find::IFindFilter
 {
@@ -108,13 +106,7 @@ private:
                       Find::SearchResultWindow::SearchMode searchMode);
     void runSearch(Find::SearchResult *search);
 
-    QMap<QFutureWatcher<Utils::FileSearchResultList> *, QPointer<Find::SearchResult> > m_watchers;
-    QPointer<Find::IFindSupport> m_currentFindSupport;
-
-    QLabel *m_resultLabel;
-    QStringListModel m_filterStrings;
-    QString m_filterSetting;
-    QPointer<QComboBox> m_filterCombo;
+    Internal::BaseFileFindPrivate *d;
 };
 
 } // namespace TextEditor
