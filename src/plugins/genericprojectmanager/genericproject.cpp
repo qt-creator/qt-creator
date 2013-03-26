@@ -328,6 +328,7 @@ QStringList GenericProject::processEntries(const QStringList &paths,
     const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     const QDir projectDir(QFileInfo(m_fileName).dir());
 
+    QFileInfo fileInfo;
     QStringList absolutePaths;
     foreach (const QString &path, paths) {
         QString trimmedPath = path.trimmed();
@@ -338,10 +339,13 @@ QStringList GenericProject::processEntries(const QStringList &paths,
 
         trimmedPath = Utils::FileName::fromUserInput(trimmedPath).toString();
 
-        const QString absPath = QFileInfo(projectDir, trimmedPath).absoluteFilePath();
-        absolutePaths.append(absPath);
-        if (map)
-            map->insert(absPath, trimmedPath);
+        fileInfo.setFile(projectDir, trimmedPath);
+        if (fileInfo.exists()) {
+            const QString absPath = fileInfo.absoluteFilePath();
+            absolutePaths.append(absPath);
+            if (map)
+                map->insert(absPath, trimmedPath);
+        }
     }
     absolutePaths.removeDuplicates();
     return absolutePaths;
