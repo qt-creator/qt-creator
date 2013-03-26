@@ -13,12 +13,7 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <category>Qt Creator</category>
     <description>ProjectExplorer framework that can be extended with different kind of project types.</description>
     <url>http://www.qt-project.org</url>
-    <dependencyList>
-        <dependency name=\"Core\" version=\"$$QTCREATOR_VERSION\"/>
-        <dependency name=\"Find\" version=\"$$QTCREATOR_VERSION\"/>
-        <dependency name=\"Locator\" version=\"$$QTCREATOR_VERSION\"/>
-        <dependency name=\"TextEditor\" version=\"$$QTCREATOR_VERSION\"/>
-    </dependencyList>
+    $$dependencyList
     <argumentList>
         <argument name=\"-customwizard-verbose\">Verbose loading of custom wizards</argument>
         <argument name=\"-lastsession\">Restore the last session</argument>

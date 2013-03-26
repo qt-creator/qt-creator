@@ -22,6 +22,10 @@ QtcPlugin {
         "../../shared",
     ])
 
+    pluginRecommends: [
+        "Designer"
+    ]
+
     files: [
         "Qt4ProjectManager.mimetypes.xml",
         "addlibrarywizard.cpp",

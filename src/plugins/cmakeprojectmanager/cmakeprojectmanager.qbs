@@ -14,6 +14,10 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "QtSupport" }
 
+    pluginRecommends: [
+        "Designer"
+    ]
+
     files: [
         "CMakeProject.mimetypes.xml",
         "cmakebuildconfiguration.cpp",

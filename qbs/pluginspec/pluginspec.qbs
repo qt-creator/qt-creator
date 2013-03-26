@@ -29,6 +29,18 @@ Module {
             cmd.ide_version_release = product.moduleProperty("pluginspec", "ide_version_release");
 
             cmd.pluginspecreplacements = product.moduleProperty("pluginspec", "pluginspecreplacements");
+            cmd.plugin_depends = [];
+            var deps = product.dependencies;
+            for (var d in deps) {
+                var depdeps = deps[d].dependencies;
+                for (var dd in depdeps) {
+                    if (depdeps[dd].name == 'pluginspec') {
+                        cmd.plugin_depends.push(deps[d].name);
+                        break;
+                    }
+                }
+            }
+            cmd.plugin_recommends = product.pluginRecommends
 
             cmd.sourceCode = function() {
                 var i;
@@ -42,6 +54,15 @@ Module {
                 vars['IDE_VERSION_MAJOR'] = ide_version_major;
                 vars['IDE_VERSION_MINOR'] = ide_version_minor;
                 vars['IDE_VERSION_RELEASE'] = ide_version_release;
+                var deplist = ["<dependencyList>"];
+                for (i in plugin_depends) {
+                    deplist.push("        <dependency name=\"" + plugin_depends[i] + "\" version=\"" + qtcreator_version + "\"/>");
+                }
+                for (i in plugin_recommends) {
+                    deplist.push("        <dependency name=\"" + plugin_recommends[i] + "\" version=\"" + qtcreator_version + "\" type=\"optional\"/>");
+                }
+                deplist.push("    </dependencyList>");
+                vars['dependencyList'] = deplist.join("\n");
                 for (i in vars) {
                     all = all.replace(new RegExp('\\\$\\\$' + i + '(?!\w)', 'g'), vars[i]);
                 }

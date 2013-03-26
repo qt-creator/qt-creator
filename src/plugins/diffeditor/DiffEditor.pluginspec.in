@@ -13,8 +13,5 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <category>Qt Creator</category>
     <description>Diff editor component.</description>
     <url>http://www.qt-project.org</url>
-    <dependencyList>
-        <dependency name=\"Core\" version=\"$$QTCREATOR_VERSION\"/>
-        <dependency name=\"TextEditor\" version=\"$$QTCREATOR_VERSION\"/>
-    </dependencyList>
+    $$dependencyList
 </plugin>

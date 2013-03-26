@@ -6,6 +6,7 @@ Product {
     type: ["dynamiclibrary", "pluginSpec"]
     property string provider: 'QtProject'
     property var pluginspecreplacements
+    property var pluginRecommends: []
     targetName: {
         // see PluginSpecPrivate::loadLibrary()
         if (qbs.debugInformation) {

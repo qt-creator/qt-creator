@@ -11,3 +11,5 @@ QTC_PLUGIN_DEPENDS += \
     find \
     projectexplorer \
     texteditor
+QTC_PLUGIN_RECOMMENDS += \
+    cppeditor

@@ -12,10 +12,5 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
   </license>
   <description>Adds pane that lists all TODO, FIXME, etc. entries in comments.</description>
   <url>http://www.qt-project.org</url>
-  <dependencyList>
-    <dependency name=\"Core\" version=\"$$QTCREATOR_VERSION\"/>
-    <dependency name=\"ProjectExplorer\" version=\"$$QTCREATOR_VERSION\"/>
-    <dependency name=\"TextEditor\" version=\"$$QTCREATOR_VERSION\"/>
-    <dependency name=\"CppTools\" version=\"$$QTCREATOR_VERSION\"/>
-  </dependencyList>
+  $$dependencyList
 </plugin>

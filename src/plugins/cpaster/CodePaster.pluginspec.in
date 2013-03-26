@@ -12,8 +12,5 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     </license>
     <description>Codepaster plugin for pushing/fetching diff from server</description>
     <url>http://www.qt-project.org</url>
-    <dependencyList>
-        <dependency name=\"TextEditor\" version=\"$$QTCREATOR_VERSION\"/>
-        <dependency name=\"Core\" version=\"$$QTCREATOR_VERSION\"/>
-    </dependencyList>
+    $$dependencyList
 </plugin>

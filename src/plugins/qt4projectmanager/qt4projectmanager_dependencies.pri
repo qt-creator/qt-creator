@@ -7,3 +7,5 @@ QTC_PLUGIN_DEPENDS += \
     cpptools \
     debugger \
     qmljstools
+QTC_PLUGIN_RECOMMENDS += \
+    designer

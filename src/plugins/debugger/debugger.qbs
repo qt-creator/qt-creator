@@ -25,6 +25,10 @@ QtcPlugin {
         "../../shared/registryaccess"
     ])
 
+    pluginRecommends: [
+        "CppEditor"
+    ]
+
     Group {
         condition: Defaults.testsEnabled(qbs)
         qbs.install: true

@@ -13,10 +13,5 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <category>Code Analyzer</category>
     <description>Valgrind Plugin</description>
     <url>http://www.qt-project.org</url>
-    <dependencyList>
-        <dependency name=\"AnalyzerBase\" version=\"$$QTCREATOR_VERSION\"/>
-        <dependency name=\"Core\" version=\"$$QTCREATOR_VERSION\"/>
-        <dependency name=\"RemoteLinux\" version=\"$$QTCREATOR_VERSION\"/>
-        <dependency name=\"TextEditor\" version=\"$$QTCREATOR_VERSION\"/>
-    </dependencyList>
+    $$dependencyList
 </plugin>

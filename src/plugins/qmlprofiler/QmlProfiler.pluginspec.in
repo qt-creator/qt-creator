@@ -13,12 +13,5 @@
     <category>Qt Quick</category>
     <description>Qml Profiler Plugin</description>
     <url>http://www.qt-project.org</url>
-    <dependencyList>
-        <dependency name=\"Core\" version=\"$$QTCREATOR_VERSION\"/>
-        <dependency name=\"AnalyzerBase\" version=\"$$QTCREATOR_VERSION\"/>
-        <dependency name=\"QmlProjectManager\" version=\"$$QTCREATOR_VERSION\"/>
-        <dependency name=\"QmlJSTools\" version=\"$$QTCREATOR_VERSION\"/>
-        <dependency name=\"Qt4ProjectManager\" version=\"$$QTCREATOR_VERSION\"/>
-        <dependency name=\"RemoteLinux\" version=\"$$QTCREATOR_VERSION\"/>
-    </dependencyList>
+    $$dependencyList
 </plugin>

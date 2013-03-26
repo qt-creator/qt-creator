@@ -13,10 +13,5 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <category>Qt Creator</category>
     <description>Qt Designer integration.</description>
     <url>http://www.qt-project.org</url>
-    <dependencyList>
-        <dependency name=\"Core\" version=\"$$QTCREATOR_VERSION\"/>
-<!-- For compiling with CPP support enabled -->
-        <dependency name=\"CppTools\" version=\"$$QTCREATOR_VERSION\"/>
-        <dependency name=\"TextEditor\" version=\"$$QTCREATOR_VERSION\"/>
-    </dependencyList>
+    $$dependencyList
 </plugin>
