@@ -65,6 +65,7 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/itaskhandler.h>
+#include <texteditor/itexteditor.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>

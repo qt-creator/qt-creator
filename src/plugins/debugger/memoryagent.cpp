@@ -37,6 +37,7 @@
 #include "debuggerinternalconstants.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/qtcassert.h>

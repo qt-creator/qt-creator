@@ -43,6 +43,7 @@
 #include "modeltest.h"
 #endif
 
+#include <QTimerEvent>
 #include <QDir>
 #include <QDebug>
 

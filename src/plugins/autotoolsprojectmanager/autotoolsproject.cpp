@@ -51,6 +51,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <cpptools/ModelManagerInterface.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/icontext.h>
 #include <utils/qtcassert.h>
 #include <utils/filesystemwatcher.h>
 

@@ -27,38 +27,41 @@
 **
 ****************************************************************************/
 
-#ifndef BASETEXTMARK_H
-#define BASETEXTMARK_H
+#ifndef BASETEXTMARKREGISTRY_H
+#define BASETEXTMARKREGISTRY_H
 
-#include "texteditor_global.h"
-#include "itextmark.h"
+#include <utils/fileutils.h>
 
-namespace TextEditor {
-namespace Internal {
-class BaseTextMarkRegistry;
+#include <QObject>
+#include <QHash>
+#include <QSet>
+
+namespace Core {
+class IEditor;
+class IDocument;
 }
 
-class ITextMarkable;
+namespace TextEditor {
+class BaseTextMark;
+namespace Internal {
 
-class TEXTEDITOR_EXPORT BaseTextMark : public TextEditor::ITextMark
+class BaseTextMarkRegistry : public QObject
 {
-    friend class Internal::BaseTextMarkRegistry;
-
+    Q_OBJECT
 public:
-    BaseTextMark(const QString &fileName, int lineNumber);
-    void init();
-    virtual ~BaseTextMark();
+    BaseTextMarkRegistry(QObject *parent);
 
-    /// called if the filename of the document changed
-    virtual void updateFileName(const QString &fileName);
-
-    // access to internal data
-    QString fileName() const { return m_fileName; }
-
+    void add(BaseTextMark *mark);
+    bool remove(BaseTextMark *mark);
+private slots:
+    void editorOpened(Core::IEditor *editor);
+    void documentRenamed(Core::IDocument *document, const QString &oldName, const QString &newName);
+    void allDocumentsRenamed(const QString &oldName, const QString &newName);
 private:
-    QString m_fileName;
+    QHash<Utils::FileName, QSet<BaseTextMark *> > m_marks;
 };
 
+} // namespace Internal
 } // namespace TextEditor
 
-#endif // BASETEXTMARK_H
+#endif // BASETEXTMARKREGISTRY_H

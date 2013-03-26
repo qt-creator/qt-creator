@@ -35,6 +35,7 @@
 #include "watchhandler.h"
 
 #include <utils/qtcassert.h>
+#include <texteditor/itexteditor.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <qmljs/consolemanagerinterface.h>

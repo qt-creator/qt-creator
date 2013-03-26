@@ -226,7 +226,8 @@ HEADERS += texteditorplugin.h \
     circularclipboard.h \
     circularclipboardassist.h \
     itextmark.h \
-    codeassist/keywordscompletionassist.h
+    codeassist/keywordscompletionassist.h \
+    basetextmarkregistry.h
 
 FORMS += \
     displaysettingspage.ui \

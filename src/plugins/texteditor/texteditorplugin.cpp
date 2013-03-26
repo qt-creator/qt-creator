@@ -44,6 +44,7 @@
 #include "snippets/plaintextsnippetprovider.h"
 #include "codeassist/assistenums.h"
 #include "basetextmark.h"
+#include "basetextmarkregistry.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>

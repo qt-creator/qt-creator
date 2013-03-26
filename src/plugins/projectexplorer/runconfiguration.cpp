@@ -42,6 +42,7 @@
 #include <utils/checkablemessagebox.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/icontext.h>
 
 #include <QTimer>
 #include <QPushButton>

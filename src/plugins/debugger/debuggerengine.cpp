@@ -49,11 +49,14 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/taskhub.h>
+
+#include <texteditor/itexteditor.h>
 
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>

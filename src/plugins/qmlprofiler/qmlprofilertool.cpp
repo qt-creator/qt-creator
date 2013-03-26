@@ -53,6 +53,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/localapplicationrunconfiguration.h>
+#include <texteditor/itexteditor.h>
 
 #include <remotelinux/remotelinuxrunconfiguration.h>
 #include <remotelinux/linuxdevice.h>

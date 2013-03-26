@@ -53,6 +53,7 @@
 
 #include <utils/qtcassert.h>
 
+#include <texteditor/itexteditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>

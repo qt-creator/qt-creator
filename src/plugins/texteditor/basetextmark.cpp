@@ -27,6 +27,7 @@
 **
 ****************************************************************************/
 
+#include "basetextmarkregistry.h"
 #include "basetextmark.h"
 #include "itexteditor.h"
 #include "basetextdocument.h"

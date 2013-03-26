@@ -92,6 +92,7 @@
 
 #include <extensionsystem/pluginspec.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/id.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>

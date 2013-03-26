@@ -53,6 +53,7 @@
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/taskhub.h>
+#include <texteditor/itexteditor.h>
 
 #include <utils/synchronousprocess.h>
 #include <utils/qtcprocess.h>
