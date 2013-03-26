@@ -473,6 +473,8 @@ void OutputPaneManager::showPage(int idx, int flags)
     }
 
     if (ph) {
+        QSettings *settings = ICore::settings();
+        int height = settings->value(QLatin1String("OutputPanePlaceHolder/Height"), 0).toInt();
         // make the page visible
         ph->setVisible(true);
         ensurePageVisible(idx);
@@ -483,6 +485,7 @@ void OutputPaneManager::showPage(int idx, int flags)
             ICore::raiseWindow(m_outputWidgetPane);
         }
 
+        ph->setDefaultHeight(height);
         if (flags & IOutputPane::EnsureSizeHint)
             ph->ensureSizeHintAsMinimum();
     } else {
@@ -569,6 +572,12 @@ void OutputPaneManager::saveSettings() const
         settings->setValue(QLatin1String(outputPaneVisibleKeyC), m_buttons.at(i)->isVisible());
     }
     settings->endArray();
+    OutputPanePlaceHolder *ph = OutputPanePlaceHolder::getCurrent();
+    if (ph) {
+        int height = ph->height();
+        if (height)
+            settings->setValue(QLatin1String("OutputPanePlaceHolder/Height"), height);
+    }
 }
 
 void OutputPaneManager::clearPage()

@@ -61,6 +61,7 @@ public:
 
     void unmaximize();
     bool isMaximized() const;
+    void setDefaultHeight(int height);
     void ensureSizeHintAsMinimum();
 
 private slots:
