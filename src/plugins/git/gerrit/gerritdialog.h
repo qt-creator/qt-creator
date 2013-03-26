@@ -31,6 +31,7 @@
 #define GERRIT_INTERNAL_GERRITDIALOG_H
 
 #include <utils/filterlineedit.h>
+#include <utils/pathchooser.h>
 
 #include <QDialog>
 #include <QSharedPointer>
@@ -78,6 +79,7 @@ public:
     explicit GerritDialog(const QSharedPointer<GerritParameters> &p,
                           QWidget *parent = 0);
     ~GerritDialog();
+    QString repositoryPath() const;
 
 signals:
     void fetchDisplay(const QSharedPointer<Gerrit::Internal::GerritChange> &);
@@ -88,6 +90,9 @@ public slots:
     void fetchStarted(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
     void fetchFinished();
 
+protected:
+    void showEvent(QShowEvent *event);
+
 private slots:
     void slotCurrentChanged();
     void slotDoubleClicked(const QModelIndex &);
@@ -96,6 +101,7 @@ private slots:
     void slotFetchApply();
     void slotFetchCheckout();
     void slotRefresh();
+    void displayRepositoryPath();
 
 private:
     const QStandardItem *itemAt(const QModelIndex &i, int column = 0) const;
@@ -112,11 +118,13 @@ private:
     QTextBrowser *m_detailsBrowser;
     QueryValidatingLineEdit *m_queryLineEdit;
     Utils::FilterLineEdit *m_filterLineEdit;
+    Utils::PathChooser *m_repositoryChooser;
     QDialogButtonBox *m_buttonBox;
     QPushButton *m_displayButton;
     QPushButton *m_applyButton;
     QPushButton *m_checkoutButton;
     QPushButton *m_refreshButton;
+    QLabel *m_repositoryChooserLabel;
     bool m_fetchRunning;
 };
 

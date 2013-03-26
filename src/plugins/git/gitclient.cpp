@@ -1504,6 +1504,67 @@ bool GitClient::synchronousRemoteCmd(const QString &workingDirectory, QStringLis
     return true;
 }
 
+QMap<QString,QString> GitClient::synchronousRemotesList(const QString &workingDirectory,
+                                                        QString *errorMessage)
+{
+    QMap<QString,QString> result;
+    QString output;
+    QString error;
+    QStringList args(QLatin1String("-v"));
+    if (!synchronousRemoteCmd(workingDirectory, args, &output, &error)) {
+        if (errorMessage)
+            *errorMessage = error;
+        else
+            outputWindow()->append(error);
+        return result;
+    }
+    QStringList remotes = output.split(QLatin1String("\n"));
+
+    foreach (const QString &remote, remotes) {
+        if (!remote.endsWith(QLatin1String(" (fetch)")))
+            continue;
+
+        QStringList tokens = remote.split(QRegExp(QLatin1String("\\s")),
+                                          QString::SkipEmptyParts);
+        if (tokens.count() != 3)
+            continue;
+
+        result.insert(tokens.at(0), tokens.at(1));
+    }
+    return result;
+}
+
+QMap<QString,QString> GitClient::synchronousSubmoduleList(const QString &workingDirectory,
+                                                          QString *errorMessage)
+{
+    QStringList args;
+    QMap<QString,QString> result;
+    args << QLatin1String("config") << QLatin1String("-l");
+    QByteArray outputText;
+    QByteArray errorText;
+    const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
+    if (!rc) {
+        QString message = tr("Cannot run \"git config -l\" in \"%1\": %2").
+                arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
+
+        if (errorMessage)
+            *errorMessage = message;
+        else
+            outputWindow()->append(message);
+        return result;
+    }
+
+    QStringList outputList = commandOutputLinesFromLocal8Bit(outputText);
+    QString urlKey = QLatin1String(".url=");
+    foreach (const QString& line, outputList) {
+        if (line.startsWith(QLatin1String("submodule."))) {
+            result.insertMulti(line.mid(10, line.indexOf(urlKey) - 10),
+                               line.mid(line.indexOf(urlKey, 10) + 5));
+        }
+    }
+    return result;
+}
+
 bool GitClient::synchronousShow(const QString &workingDirectory, const QString &id,
                                  QString *output, QString *errorMessage)
 {

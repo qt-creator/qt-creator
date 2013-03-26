@@ -32,6 +32,7 @@
 #include "gerritparameters.h"
 
 #include <utils/filterlineedit.h>
+#include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 
 #include <QVBoxLayout>
@@ -103,7 +104,9 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     , m_detailsBrowser(new QTextBrowser)
     , m_queryLineEdit(new QueryValidatingLineEdit)
     , m_filterLineEdit(new Utils::FilterLineEdit)
+    , m_repositoryChooser(new Utils::PathChooser)
     , m_buttonBox(new QDialogButtonBox(QDialogButtonBox::Close))
+    , m_repositoryChooserLabel(new QLabel(tr("Apply in: "), this))
     , m_fetchRunning(false)
 {
     setWindowTitle(tr("Gerrit %1@%2").arg(p->user, p->host));
@@ -157,9 +160,15 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_detailsBrowser->setTextInteractionFlags(Qt::TextBrowserInteraction);
     detailsLayout->addWidget(m_detailsBrowser);
 
-    m_displayButton = addActionButton(tr("Diff..."), SLOT(slotFetchDisplay()));
-    m_applyButton = addActionButton(tr("Apply..."), SLOT(slotFetchApply()));
-    m_checkoutButton = addActionButton(tr("Checkout..."), SLOT(slotFetchCheckout()));
+    m_repositoryChooser->setExpectedKind(Utils::PathChooser::Directory);
+    QHBoxLayout *repoPathLayout = new QHBoxLayout;
+    repoPathLayout->addWidget(m_repositoryChooserLabel);
+    repoPathLayout->addWidget(m_repositoryChooser);
+    detailsLayout->addLayout(repoPathLayout);
+
+    m_displayButton = addActionButton(QString(), SLOT(slotFetchDisplay()));
+    m_applyButton = addActionButton(QString(), SLOT(slotFetchApply()));
+    m_checkoutButton = addActionButton(QString(), SLOT(slotFetchCheckout()));
     m_refreshButton = addActionButton(tr("Refresh"), SLOT(slotRefresh()));
 
     connect(m_model, SIGNAL(refreshStateChanged(bool)),
@@ -183,6 +192,35 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
 
     resize(QSize(950, 600));
     m_treeView->setFocus();
+}
+
+QString GerritDialog::repositoryPath() const
+{
+    return m_repositoryChooser->path();
+}
+
+void GerritDialog::displayRepositoryPath()
+{
+    QTC_ASSERT(m_parameters, return);
+    m_repositoryChooser->setVisible(!m_parameters->promptPath);
+    m_repositoryChooserLabel->setVisible(!m_parameters->promptPath);
+    if (m_repositoryChooser->path().isEmpty())
+        m_repositoryChooser->setPath(m_parameters->repositoryPath);
+    if (m_parameters->promptPath) {
+        m_displayButton->setText(tr("Diff..."));
+        m_applyButton->setText(tr("Apply..."));
+        m_checkoutButton->setText(tr("Checkout..."));
+    } else {
+        m_displayButton->setText(tr("Diff"));
+        m_applyButton->setText(tr("Apply"));
+        m_checkoutButton->setText(tr("Checkout"));
+    }
+}
+
+void GerritDialog::showEvent(QShowEvent *event)
+{
+    displayRepositoryPath();
+    QDialog::showEvent(event);
 }
 
 QPushButton *GerritDialog::addActionButton(const QString &text, const char *buttonSlot)

@@ -63,8 +63,10 @@ private:
     QLineEdit *m_hostLineEdit;
     QLineEdit *m_userLineEdit;
     Utils::PathChooser *m_sshChooser;
+    Utils::PathChooser *m_repositoryChooser;
     QSpinBox *m_portSpinBox;
     QCheckBox *m_httpsCheckBox;
+    QCheckBox *m_promptPathCheckBox;
 };
 
 class GerritOptionsPage : public VcsBase::VcsBaseOptionsPage

@@ -60,8 +60,10 @@
 #include <QRegExp>
 #include <QAction>
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QTemporaryFile>
 #include <QDir>
+#include <QMap>
 
 enum { debug = 0 };
 
@@ -411,14 +413,79 @@ void GerritPlugin::fetch(const QSharedPointer<Gerrit::Internal::GerritChange> &c
     if (git.isEmpty())
         return;
 
-    // Ask the user for a repository to retrieve the change.
-    const QString title =
-        tr("Enter Local Repository for '%1' (%2)").arg(change->project, change->branch);
-    const QString suggestedRespository =
-        findLocalRepository(change->project, change->branch);
-    const QString repository =
-        QFileDialog::getExistingDirectory(m_dialog.data(),
-                                          title, suggestedRespository);
+    Git::Internal::GitClient* gitClient = Git::Internal::GitPlugin::instance()->gitClient();
+
+    QString repository;
+    bool verifiedRepository = false;
+    if (!m_dialog.isNull() && !m_parameters.isNull() && !m_parameters->promptPath
+            && QFile::exists(m_dialog->repositoryPath())) {
+        repository = gitClient->findRepositoryForDirectory(m_dialog->repositoryPath());
+    }
+    if (!repository.isEmpty()) {
+        // Check if remote from a working dir is the same as remote from patch
+        QMap<QString, QString> remotesList = gitClient->synchronousRemotesList(repository);
+        if (!remotesList.isEmpty()) {
+            QStringList remotes = remotesList.values();
+            foreach (QString remote, remotes) {
+                if (remote.endsWith(QLatin1String(".git")))
+                    remote.chop(4);
+                if (remote.contains(m_parameters->host) && remote.endsWith(change->project)) {
+                    verifiedRepository = true;
+                    break;
+                }
+            }
+
+            if (!verifiedRepository && QFile::exists(repository + QLatin1String("/.gitmodules"))) {
+                QMap<QString,QString> submodules = gitClient->synchronousSubmoduleList(repository);
+
+                QMap<QString,QString>::const_iterator i = submodules.constBegin();
+                while (i != submodules.constEnd()) {
+                    QString remote = i.value();
+                    if (remote.endsWith(QLatin1String(".git")))
+                        remote.chop(4);
+                    if (remote.contains(m_parameters->host) && remote.endsWith(change->project)
+                            && QFile::exists(repository + QLatin1Char('/') + i.key())) {
+                        repository = QDir::cleanPath(repository + QLatin1Char('/') + i.key());
+                        verifiedRepository = true;
+                        break;
+                    }
+                    ++i;
+                }
+            }
+
+            if (!verifiedRepository){
+                QMessageBox::StandardButton answer = QMessageBox::question(
+                            Core::ICore::mainWindow(), tr("Remote not Verified"),
+                            tr("Change host: %1\nand project: %2\n\nwere not verified among remotes"
+                               " in %3. Select different folder?")
+                            .arg(m_parameters->host,
+                                 change->project,
+                                 QDir::toNativeSeparators(repository)),
+                            QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+                            QMessageBox::Yes);
+                switch (answer) {
+                case QMessageBox::Cancel:
+                    return;
+                case QMessageBox::No:
+                    verifiedRepository = true;
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+    }
+
+    if (!verifiedRepository) {
+        // Ask the user for a repository to retrieve the change.
+        const QString title =
+                tr("Enter Local Repository for '%1' (%2)").arg(change->project, change->branch);
+        const QString suggestedRespository =
+                findLocalRepository(change->project, change->branch);
+        repository = QFileDialog::getExistingDirectory(m_dialog.data(),
+                                                       title, suggestedRespository);
+    }
+
     if (repository.isEmpty())
         return;
 

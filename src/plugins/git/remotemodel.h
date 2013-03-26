@@ -70,8 +70,6 @@ public:
 
 protected:
     struct Remote {
-        bool parse(const QString &line);
-
         QString name;
         QString url;
     };

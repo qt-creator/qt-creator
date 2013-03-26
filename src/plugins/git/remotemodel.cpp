@@ -33,21 +33,6 @@
 namespace Git {
 namespace Internal {
 
-// Parse a branch line: " *name sha description".
-bool RemoteModel::Remote::parse(const QString &line)
-{
-    if (!line.endsWith(QLatin1String(" (fetch)")))
-        return false;
-
-    QStringList tokens = line.split(QRegExp(QLatin1String("\\s")), QString::SkipEmptyParts);
-    if (tokens.count() != 3)
-        return false;
-
-    name = tokens.at(0);
-    url = tokens.at(1);
-    return true;
-}
-
 // ------ RemoteModel
 RemoteModel::RemoteModel(GitClient *client, QObject *parent) :
     QAbstractTableModel(parent),
@@ -192,21 +177,21 @@ void RemoteModel::clear()
 
 bool RemoteModel::refresh(const QString &workingDirectory, QString *errorMessage)
 {
-    // Run branch command with verbose.
-    QStringList remoteArgs;
-    remoteArgs << QLatin1String("-v");
-    QString output;
-    if (!m_client->synchronousRemoteCmd(workingDirectory, remoteArgs, &output, errorMessage))
+    // get list of remotes.
+    QMap<QString,QString> remotesList =
+            m_client->synchronousRemotesList(workingDirectory, errorMessage);
+
+    if (remotesList.isEmpty())
         return false;
-    // Parse output
+
     m_workingDirectory = workingDirectory;
     beginResetModel();
     m_remotes.clear();
-    const QStringList lines = output.split(QLatin1Char('\n'));
-    for (int r = 0; r < lines.count(); ++r) {
+    foreach (const QString &remoteName, remotesList.keys()) {
         Remote newRemote;
-        if (newRemote.parse(lines.at(r)))
-            m_remotes.push_back(newRemote);
+        newRemote.name = remoteName;
+        newRemote.url = remotesList.value(remoteName);
+        m_remotes.push_back(newRemote);
     }
     endResetModel();
     return true;

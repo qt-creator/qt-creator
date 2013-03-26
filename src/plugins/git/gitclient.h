@@ -182,6 +182,11 @@ public:
                               QString *output, QString *errorMessage);
     bool synchronousRemoteCmd(const QString &workingDirectory, QStringList remoteArgs,
                               QString *output, QString *errorMessage);
+
+    QMap<QString,QString> synchronousRemotesList(const QString &workingDirectory,
+                                                 QString *errorMessage = 0);
+    QMap<QString,QString> synchronousSubmoduleList(const QString &workingDirectory,
+                                                   QString *errorMessage = 0);
     bool synchronousShow(const QString &workingDirectory, const QString &id,
                               QString *output, QString *errorMessage);
     bool synchronousParentRevisions(const QString &workingDirectory,
