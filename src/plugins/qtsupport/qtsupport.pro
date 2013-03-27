@@ -32,7 +32,8 @@ HEADERS += \
     qtparser.h \
     gettingstartedwelcomepage.h \
     exampleslistmodel.h \
-    screenshotcropper.h
+    screenshotcropper.h \
+    qtconfigwidget.h
 
 SOURCES += \
     qtsupportplugin.cpp \
@@ -54,7 +55,8 @@ SOURCES += \
     qtparser.cpp \
     gettingstartedwelcomepage.cpp \
     exampleslistmodel.cpp \
-    screenshotcropper.cpp
+    screenshotcropper.cpp \
+    qtconfigwidget.cpp
 
 FORMS   +=  \
     showbuildlog.ui \

@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "baseqtversion.h"
+#include "qtconfigwidget.h"
 #include "qmlobservertool.h"
 #include "qmldumptool.h"
 #include "qmldebugginglibrary.h"
@@ -150,14 +151,6 @@ bool QtVersionNumber::operator <=(const QtVersionNumber &b) const
 bool QtVersionNumber::operator >=(const QtVersionNumber &b) const
 {
     return b <= *this;
-}
-
-///////////////
-// QtConfigWidget
-///////////////
-QtConfigWidget::QtConfigWidget()
-{
-
 }
 
 ///////////////

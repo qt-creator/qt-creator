@@ -54,6 +54,8 @@ QtcPlugin {
     files: [
         "baseqtversion.cpp",
         "baseqtversion.h",
+        "qtconfigwidget.cpp",
+        "qtconfigwidget.h",
         "customexecutableconfigurationwidget.cpp",
         "customexecutableconfigurationwidget.h",
         "customexecutablerunconfiguration.cpp",

@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "qtoptionspage.h"
+#include "qtconfigwidget.h"
 #include "ui_showbuildlog.h"
 #include "ui_qtversionmanager.h"
 #include "ui_qtversioninfo.h"

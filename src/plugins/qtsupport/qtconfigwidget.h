@@ -1,9 +1,7 @@
-/**************************************************************************
+/****************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
-**
-** Contact: Research In Motion (blackberry-qt@qnx.com)
-** Contact: KDAB (info@kdab.com)
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
 **
@@ -29,36 +27,23 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXBASEQTCONFIGWIDGET_H
-#define QNX_INTERNAL_QNXBASEQTCONFIGWIDGET_H
+#ifndef QTCONFIGWIDGET_H
+#define QTCONFIGWIDGET_H
 
-#include <qtsupport/qtconfigwidget.h>
+#include "qtsupport_global.h"
 
-namespace Qnx {
-namespace Internal {
-namespace Ui {
-class QnxBaseQtConfigWidget;
-}
+#include <QWidget>
 
-class QnxAbstractQtVersion;
+namespace QtSupport {
 
-class QnxBaseQtConfigWidget : public QtSupport::QtConfigWidget
+class QTSUPPORT_EXPORT QtConfigWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit QnxBaseQtConfigWidget(QnxAbstractQtVersion *version);
-    ~QnxBaseQtConfigWidget();
-
-private slots:
-    void updateSdkPath(const QString &path);
-
-private:
-    QnxAbstractQtVersion *m_version;
-
-    Ui::QnxBaseQtConfigWidget *m_ui;
+    QtConfigWidget();
+signals:
+    void changed();
 };
+} // namespace QtSupport
 
-} // namespace Internal
-} // namespace Qnx
-
-#endif // QNX_INTERNAL_QNXBASEQTCONFIGWIDGET_H
+#endif // QTCONFIGWIDGET_H

@@ -40,7 +40,6 @@
 #include <coreplugin/featureprovider.h>
 
 #include <QVariantMap>
-#include <QWidget>
 
 namespace Utils {
 class Environment;
@@ -59,6 +58,8 @@ QT_END_NAMESPACE
 
 namespace QtSupport
 {
+class QtConfigWidget;
+
 class QTSUPPORT_EXPORT QtVersionNumber
 {
 public:
@@ -80,15 +81,6 @@ private:
 };
 
 namespace Internal { class QtOptionsPageWidget; }
-
-class QTSUPPORT_EXPORT QtConfigWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    QtConfigWidget();
-signals:
-    void changed();
-};
 
 class QTSUPPORT_EXPORT BaseQtVersion
 {
