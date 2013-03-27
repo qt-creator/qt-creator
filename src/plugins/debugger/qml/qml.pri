@@ -1,5 +1,3 @@
-include($$PWD/../../../libs/qmldebug/qmldebug.pri)
-
 HEADERS += \
     $$PWD/qmlengine.h \
     $$PWD/qmladapter.h \
