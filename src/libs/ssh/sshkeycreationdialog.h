@@ -57,6 +57,7 @@ private slots:
 private:
     void setPrivateKeyFile(const QString &filePath);
     void saveKeys();
+    bool userForbidsOverwriting();
 
 private:
     SshKeyGenerator *m_keyGenerator;

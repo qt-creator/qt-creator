@@ -69,6 +69,9 @@ void SshKeyCreationDialog::keyTypeChanged()
 
 void SshKeyCreationDialog::generateKeys()
 {
+    if (userForbidsOverwriting())
+        return;
+
     const SshKeyGenerator::KeyType keyType = m_ui->rsa->isChecked()
         ? SshKeyGenerator::Rsa
         : SshKeyGenerator::Dsa;
@@ -128,6 +131,16 @@ void SshKeyCreationDialog::saveKeys()
     }
 
     accept();
+}
+
+bool SshKeyCreationDialog::userForbidsOverwriting()
+{
+    if (!QFileInfo(privateKeyFilePath()).exists() && !QFileInfo(publicKeyFilePath()).exists())
+        return false;
+    const QMessageBox::StandardButton reply = QMessageBox::question(this, tr("File Exists"),
+            tr("There already is a file of that name. Do you want to overwrite it?"),
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    return reply != QMessageBox::Yes;
 }
 
 QString SshKeyCreationDialog::privateKeyFilePath() const
