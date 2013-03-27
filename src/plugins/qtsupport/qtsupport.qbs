@@ -108,6 +108,8 @@ QtcPlugin {
         cpp.includePaths: "../../shared"
         cpp.defines: [
             "QMAKE_AS_LIBRARY",
+            "PROPARSER_THREAD_SAFE",
+            "PROEVALUATOR_CUMULATIVE",
             "PROEVALUATOR_THREAD_SAFE",
             "QMAKE_BUILTIN_PRFS",
             "PROEVALUATOR_SETENV"
