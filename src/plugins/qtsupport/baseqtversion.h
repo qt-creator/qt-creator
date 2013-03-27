@@ -35,8 +35,6 @@
 #include <utils/fileutils.h>
 
 #include <projectexplorer/abi.h>
-#include <projectexplorer/headerpath.h>
-#include <projectexplorer/task.h>
 
 #include <QVariantMap>
 
@@ -52,6 +50,8 @@ namespace ProjectExplorer {
 class IOutputParser;
 class Kit;
 class ToolChain;
+class HeaderPath;
+class Task;
 } // namespace ProjectExplorer
 
 QT_BEGIN_NAMESPACE

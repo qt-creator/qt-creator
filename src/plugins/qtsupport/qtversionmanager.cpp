@@ -62,6 +62,7 @@
 #include <QFile>
 #include <QSettings>
 #include <QTextStream>
+#include <QStringList>
 #include <QTimer>
 
 #include <algorithm>

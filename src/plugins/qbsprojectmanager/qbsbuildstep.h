@@ -33,6 +33,7 @@
 #include "qbsbuildconfiguration.h"
 
 #include <projectexplorer/buildstep.h>
+#include <projectexplorer/task.h>
 
 #include <qbs.h>
 

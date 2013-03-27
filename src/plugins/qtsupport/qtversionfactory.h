@@ -32,7 +32,6 @@
 
 #include "qtsupport_global.h"
 
-#include <utils/fileutils.h>
 #include <QObject>
 #include <QVariantMap>
 
@@ -40,6 +39,8 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 class ProFileEvaluator;
 QT_END_NAMESPACE
+
+namespace Utils { class FileName; }
 
 namespace QtSupport {
 

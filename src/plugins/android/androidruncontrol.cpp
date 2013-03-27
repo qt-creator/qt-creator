@@ -36,6 +36,8 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <QIcon>
+
 using namespace ProjectExplorer;
 
 namespace Android {

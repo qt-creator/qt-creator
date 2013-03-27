@@ -42,6 +42,8 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/headerpath.h>
+#include <projectexplorer/task.h>
 #include <qtsupport/debugginghelper.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <coreplugin/featureprovider.h>

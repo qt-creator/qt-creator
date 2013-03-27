@@ -33,8 +33,8 @@
 #include "qtsupport_global.h"
 #include "baseqtversion.h"
 
-#include <QSet>
-#include <QStringList>
+QT_FORWARD_DECLARE_CLASS(QStringList)
+QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace Utils {
 class FileSystemWatcher;

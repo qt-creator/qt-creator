@@ -54,6 +54,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/headerpath.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qmljstools/qmljsmodelmanager.h>
 

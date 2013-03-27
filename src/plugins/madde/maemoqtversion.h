@@ -30,6 +30,7 @@
 #define MAEMOQTVERSION_H
 
 #include <qtsupport/baseqtversion.h>
+#include <coreplugin/id.h>
 
 namespace Madde {
 namespace Internal {

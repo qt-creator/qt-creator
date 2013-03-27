@@ -34,6 +34,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 
 #include <QSettings>
 
