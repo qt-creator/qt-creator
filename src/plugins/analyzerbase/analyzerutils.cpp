@@ -31,24 +31,14 @@
 
 #include "analyzerconstants.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
 #include <texteditor/basetexteditor.h>
-#include <texteditor/itexteditor.h>
 #include <utils/qtcassert.h>
 
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cpptools/ModelManagerInterface.h>
-#include <cplusplus/LookupItem.h>
 #include <cplusplus/TypeOfExpression.h>
 
-// shared/cplusplus includes
-#include <Scope.h>
-#include <Symbol.h>
-
-#include <QTextDocumentFragment>
 #include <QTextCursor>
-#include <QWidget>
 
 using namespace Analyzer;
 using namespace Core;

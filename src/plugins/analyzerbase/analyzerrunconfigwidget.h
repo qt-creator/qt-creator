@@ -33,8 +33,6 @@
 
 #include "analyzersettings.h"
 
-#include <projectexplorer/runconfiguration.h>
-
 #include <utils/detailswidget.h>
 
 QT_BEGIN_NAMESPACE

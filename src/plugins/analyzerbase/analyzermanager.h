@@ -33,7 +33,7 @@
 
 #include "analyzerbase_global.h"
 #include "analyzerconstants.h"
-#include <coreplugin/id.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <QObject>

@@ -29,7 +29,6 @@
 ****************************************************************************/
 
 #include "ianalyzertool.h"
-#include "analyzermanager.h"
 
 using namespace Core;
 

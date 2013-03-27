@@ -31,7 +31,6 @@
 #define ANALYZERRUNCONTROLFACTORY_H
 
 #include <analyzerbase/analyzerruncontrol.h>
-#include <projectexplorer/runconfiguration.h>
 
 namespace Analyzer {
 namespace Internal {

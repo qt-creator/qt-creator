@@ -29,23 +29,13 @@
 ****************************************************************************/
 
 #include "analyzerplugin.h"
-#include "analyzerconstants.h"
 #include "analyzermanager.h"
-#include "ianalyzertool.h"
 #include "analyzerruncontrolfactory.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/imode.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/editormanager.h>
-
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
 
 #include <QtPlugin>
-#include <QMessageBox>
-#include <QApplication>
 
 using namespace Analyzer;
 using namespace Analyzer::Internal;

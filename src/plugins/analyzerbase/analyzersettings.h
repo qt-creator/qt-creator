@@ -32,11 +32,9 @@
 #define ANALYZER_INTERNAL_ANALYZERSETTINGS_H
 
 #include <QObject>
-#include <QVariant>
 
 #include "analyzerbase_global.h"
 
-#include <coreplugin/id.h>
 #include <projectexplorer/runconfiguration.h>
 
 namespace Analyzer {

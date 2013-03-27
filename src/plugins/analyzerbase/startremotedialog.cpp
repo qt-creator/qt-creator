@@ -30,18 +30,14 @@
 #include "startremotedialog.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitinformation.h>
 #include <ssh/sshconnection.h>
-#include <utils/pathchooser.h>
 
 #include <QDialogButtonBox>
 #include <QFormLayout>
-#include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QSpinBox>
 
 using namespace ProjectExplorer;
 using namespace Utils;

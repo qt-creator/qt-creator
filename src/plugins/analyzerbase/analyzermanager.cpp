@@ -30,12 +30,7 @@
 
 #include "analyzermanager.h"
 
-#include "analyzerconstants.h"
 #include "analyzerplugin.h"
-#include "analyzerruncontrol.h"
-#include "analyzeroptionspage.h"
-#include "analyzerstartparameters.h"
-#include "analyzerutils.h"
 #include "ianalyzertool.h"
 #include "analyzersettings.h"
 
@@ -43,34 +38,24 @@
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
-#include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/outputpane.h>
 #include <coreplugin/rightpane.h>
-#include <coreplugin/id.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/iprojectmanager.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/session.h>
-
-#include <extensionsystem/iplugin.h>
 
 #include <utils/fancymainwindow.h>
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/statuslabel.h>
-#include <ssh/sshconnection.h>
 
 #include <QVariant>
 #include <QDebug>
@@ -78,15 +63,10 @@
 #include <QVBoxLayout>
 #include <QDockWidget>
 #include <QAction>
-#include <QMenu>
-#include <QMenuBar>
 #include <QToolButton>
 #include <QComboBox>
 #include <QStackedWidget>
 #include <QDialog>
-#include <QApplication>
-#include <QLabel>
-#include <QCheckBox>
 #include <QDialogButtonBox>
 #include <QPointer>
 #include <QPushButton>

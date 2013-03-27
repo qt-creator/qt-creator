@@ -29,10 +29,7 @@
 ****************************************************************************/
 
 #include "analyzeroptionspage.h"
-#include "analyzerconstants.h"
 #include "analyzersettings.h"
-
-#include <coreplugin/icore.h>
 
 #include <QCoreApplication>
 #include <QDebug>

@@ -29,18 +29,13 @@
 ****************************************************************************/
 
 #include "analyzerruncontrol.h"
-#include "analyzerconstants.h"
 #include "ianalyzerengine.h"
 #include "ianalyzertool.h"
 #include "analyzermanager.h"
 #include "analyzerstartparameters.h"
 
-#include <projectexplorer/localapplicationrunconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
-#include <coreplugin/ioutputpane.h>
 
 #include <QDebug>
 
