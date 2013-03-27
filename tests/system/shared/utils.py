@@ -196,6 +196,11 @@ def cleanUpUserFiles(pathsToProFiles=None):
     return doneWithoutErrors
 
 def invokeMenuItem(menu, item, subItem = None):
+    if platform.system() == "Darwin":
+        try:
+            waitForObject(":Qt Creator.QtCreator.MenuBar_QMenuBar", 2000)
+        except:
+            nativeMouseClick(waitForObject(":Qt Creator_Core::Internal::MainWindow", 1000), 20, 20, 0, Qt.LeftButton)
     menuObject = waitForObjectItem(":Qt Creator.QtCreator.MenuBar_QMenuBar", menu)
     waitFor("menuObject.visible", 1000)
     activateItem(menuObject)
