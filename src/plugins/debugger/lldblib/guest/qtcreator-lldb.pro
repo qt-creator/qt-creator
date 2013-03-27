@@ -10,8 +10,8 @@ TEMPLATE = app
 CONFIG  -= app_bundle
 CONFIG += debug
 TARGET = qtcreator-lldb
-DEPENDPATH += . .. ../.. ../../..  ../../../../libs
-INCLUDEPATH += . .. ../.. ../../.. ../../../../libs
+DEPENDPATH += . .. ../.. ../../..
+INCLUDEPATH += . .. ../.. ../../..
 DESTDIR  = $$IDE_LIBEXEC_PATH
 
 MOC_DIR=.tmp

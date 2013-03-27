@@ -5,7 +5,6 @@ TEMPLATE = app
 TARGET = cplusplus-update-frontend
 DESTDIR = ./
 DEFINES += QTCREATOR_UTILS_STATIC_LIB
-INCLUDEPATH += . ../../libs
 
 include(../../../qtcreator.pri)
 include(../../libs/cplusplus/cplusplus-lib.pri)

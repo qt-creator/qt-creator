@@ -12,7 +12,6 @@ include(../../../../src/rpath.pri)
 include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
 
 
-INCLUDEPATH += ../../../../src/libs
 UTILSDIR = ../../../../src/libs/utils
 
 DEFINES += QTCREATOR_UTILS_STATIC_LIB

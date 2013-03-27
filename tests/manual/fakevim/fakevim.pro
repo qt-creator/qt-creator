@@ -16,4 +16,4 @@ HEADERS += $$FAKEVIMDIR/fakevimhandler.h \
             $$UTILSDIR/hostosinfo.h \
             $$UTILSDIR/qtcassert.h
 
-INCLUDEPATH += $$FAKEVIMDIR $$UTILSDIR
+INCLUDEPATH += $$FAKEVIMDIR

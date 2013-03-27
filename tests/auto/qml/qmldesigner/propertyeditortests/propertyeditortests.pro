@@ -10,7 +10,6 @@ include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/designercore.pri)
 include($$IDE_SOURCE_TREE/src/libs/qmljs/qmljs-lib.pri)
 HEADERS+=$$IDE_SOURCE_TREE/src/libs/utils/changeset.h
 SOURCES+=$$IDE_SOURCE_TREE/src/libs/utils/changeset.cpp
-INCLUDEPATH+=$$IDE_SOURCE_TREE/src/libs
 #DEFINES+=QTCREATOR_UTILS_STATIC_LIB QML_BUILD_STATIC_LIB
 
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/include

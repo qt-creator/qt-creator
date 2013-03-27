@@ -16,5 +16,3 @@ HEADERS += \
     $$SRCDIR/plugins/qmljstools/qmljsqtstylecodeformatter.h \
     $$SRCDIR/plugins/texteditor/basetextdocumentlayout.h \
     $$SRCDIR/plugins/texteditor/itextmark.h
-
-INCLUDEPATH += $$SRCDIR/plugins $$SRCDIR/libs

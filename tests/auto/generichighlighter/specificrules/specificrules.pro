@@ -12,5 +12,3 @@ SOURCES += tst_specificrules.cpp \
     $$GENERICHIGHLIGHTERDIR/highlightdefinition.cpp \
     $$GENERICHIGHLIGHTERDIR/keywordlist.cpp \
     $$GENERICHIGHLIGHTERDIR/itemdata.cpp
-
-INCLUDEPATH += $$PLUGINSDIR
