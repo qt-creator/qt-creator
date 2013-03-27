@@ -6,8 +6,7 @@ QtcLibrary {
 
     cpp.includePaths: base.concat("parser")
     cpp.defines: base.concat([
-        "QMLJS_BUILD_DIR",
-        "QT_CREATOR"
+        "QMLJS_BUILD_DIR"
     ])
     cpp.optimization: "fast"
 
@@ -110,9 +109,6 @@ QtcLibrary {
     ProductModule {
         Depends { name: "cpp" }
         Depends { name: "LanguageUtils" }
-        cpp.defines: [
-            "QT_CREATOR"
-        ]
     }
 }
 

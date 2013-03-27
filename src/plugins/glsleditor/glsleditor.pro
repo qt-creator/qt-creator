@@ -3,8 +3,7 @@ TARGET = GLSLEditor
 include(../../qtcreatorplugin.pri)
 
 DEFINES += \
-    GLSLEDITOR_LIBRARY \
-    QT_CREATOR
+    GLSLEDITOR_LIBRARY
 
 HEADERS += \
 glsleditor.h \

@@ -6,6 +6,7 @@ function testsEnabled(qbs)
 function defines(qbs)
 {
     var list = [
+        "QT_CREATOR",
         'IDE_LIBRARY_BASENAME="lib"',
         "QT_DISABLE_DEPRECATED_BEFORE=0x040900",
         "QT_NO_CAST_TO_ASCII",

@@ -5,7 +5,6 @@ QtcLibrary {
     name: "GLSL"
 
     cpp.defines: base.concat([
-        "QT_CREATOR",
         "GLSL_BUILD_LIB"
     ])
 

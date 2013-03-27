@@ -7,8 +7,7 @@ QtcLibrary {
     cpp.includePaths: base.concat("easingpane")
     cpp.defines: base.concat([
         "QWEAKPOINTER_ENABLE_ARROW",
-        "BUILD_QMLEDITORWIDGETS_LIB",
-        "QT_CREATOR"
+        "BUILD_QMLEDITORWIDGETS_LIB"
     ])
     cpp.optimization: "fast"
 

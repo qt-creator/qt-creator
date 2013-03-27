@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = QtSupport
-DEFINES += QT_CREATOR QTSUPPORT_LIBRARY
+DEFINES += QTSUPPORT_LIBRARY
 QT += network declarative
 
 include(../../qtcreatorplugin.pri)

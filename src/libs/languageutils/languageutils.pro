@@ -1,6 +1,5 @@
 TEMPLATE = lib
 TARGET = LanguageUtils
-DEFINES += QT_CREATOR
 
 unix:QMAKE_CXXFLAGS_DEBUG += -O3
 

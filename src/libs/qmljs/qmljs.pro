@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = QmlJS
-DEFINES += QMLJS_BUILD_DIR QT_CREATOR
+DEFINES += QMLJS_BUILD_DIR
 
 QT +=script
 include(../../qtcreatorlibrary.pri)

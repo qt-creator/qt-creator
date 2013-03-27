@@ -4,8 +4,7 @@ include(../../qtcreatorplugin.pri)
 QT += script
 
 DEFINES += \
-    QMLJSEDITOR_LIBRARY \
-    QT_CREATOR
+    QMLJSEDITOR_LIBRARY
 
 HEADERS += \
     qmljseditor.h \

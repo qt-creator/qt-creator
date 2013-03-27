@@ -4,7 +4,6 @@ QT += network
 include(../../qtcreatorplugin.pri)
 
 DEFINES += \
-    QT_CREATOR \
     QT4PROJECTMANAGER_LIBRARY
 
 HEADERS += \
