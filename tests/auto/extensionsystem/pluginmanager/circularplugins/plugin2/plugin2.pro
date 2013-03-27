@@ -2,6 +2,7 @@ TEMPLATE = lib
 
 SOURCES += plugin2.cpp
 HEADERS += plugin2.h
+DEFINES += PLUGIN2_LIBRARY
 
 OTHER_FILES = $$PWD/plugin.xml
 

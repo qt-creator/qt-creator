@@ -2,6 +2,7 @@ TEMPLATE = lib
 
 SOURCES += plugin3.cpp
 HEADERS += plugin3.h
+DEFINES += PLUGIN3_LIBRARY
 
 OTHER_FILES = $$PWD/plugin.spec
 

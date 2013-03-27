@@ -33,10 +33,17 @@
 #include <extensionsystem/iplugin.h>
 
 #include <QObject>
+#include <QtGlobal>
+
+#if defined(PLUGIN1_LIBRARY)
+#  define PLUGIN1_EXPORT Q_DECL_EXPORT
+#else
+#  define PLUGIN1_EXPORT Q_DECL_IMPORT
+#endif
 
 namespace Plugin1 {
 
-class MyPlugin1 : public ExtensionSystem::IPlugin
+class PLUGIN1_EXPORT MyPlugin1 : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
 
