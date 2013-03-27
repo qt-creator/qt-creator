@@ -33,6 +33,7 @@
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/environmentmodel.h>
+#include <utils/headerviewstretcher.h>
 
 #include <QString>
 #include <QHeaderView>
@@ -40,7 +41,6 @@
 #include <QTableView>
 #include <QTextDocument> // for Qt::escape
 #include <QVBoxLayout>
-#include <headerviewstretcher.h>
 
 namespace ProjectExplorer {
 
