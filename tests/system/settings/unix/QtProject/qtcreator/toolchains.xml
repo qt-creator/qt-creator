@@ -9,6 +9,7 @@
    <valuelist type="QVariantList" key="ProjectExplorer.GccToolChain.SupportedAbis">
     <value type="QString">x86-linux-generic-elf-64bit</value>
     <value type="QString">x86-linux-generic-elf-32bit</value>
+    <value type="QString">x86-macos-generic-mach_o-64bit</value>
    </valuelist>
    <value type="QString" key="ProjectExplorer.GccToolChain.TargetAbi">SET_BY_SQUISH</value>
    <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">false</value>

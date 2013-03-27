@@ -147,6 +147,10 @@ def substituteDefaultCompiler(settingsDir):
         test.log("Injected default compiler '%s' to qtversion.xml..." % compiler)
 
 def __guessABI__(supportedABIs, use64Bit):
+    if platform.system() == 'Linux':
+        supportedABIs = filter(lambda x: 'linux' in x, supportedABIs)
+    elif platform.system() == 'Darwin':
+        supportedABIs = filter(lambda x: 'macos' in x, supportedABIs)
     if use64Bit:
         searchFor = "64bit"
     else:
@@ -162,8 +166,6 @@ def __guessABI__(supportedABIs, use64Bit):
     return ''
 
 def __is64BitOS__():
-    if platform.system() == 'Darwin':
-        return sys.maxsize > (2 ** 32)
     if platform.system() in ('Microsoft', 'Windows'):
         machine = os.getenv("PROCESSOR_ARCHITEW6432", os.getenv("PROCESSOR_ARCHITECTURE"))
     else:
