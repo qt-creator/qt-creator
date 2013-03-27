@@ -31,6 +31,7 @@
 
 #include "cpptoolsreuse.h"
 #include "symbolfinder.h"
+#include "cpptoolsconstants.h"
 
 #include <coreplugin/icore.h>
 
@@ -317,19 +318,6 @@ InsertionLocation InsertionPointLocator::methodDeclarationInClass(
     }
 }
 
-static bool isSourceFile(const QString &fileName)
-{
-    const Core::MimeDatabase *mimeDb = Core::ICore::mimeDatabase();
-    Core::MimeType cSourceTy = mimeDb->findByType(QLatin1String("text/x-csrc"));
-    Core::MimeType cppSourceTy = mimeDb->findByType(QLatin1String("text/x-c++src"));
-    Core::MimeType mSourceTy = mimeDb->findByType(QLatin1String("text/x-objcsrc"));
-    QStringList suffixes = cSourceTy.suffixes();
-    suffixes += cppSourceTy.suffixes();
-    suffixes += mSourceTy.suffixes();
-    QFileInfo fileInfo(fileName);
-    return suffixes.contains(fileInfo.suffix());
-}
-
 namespace {
 template <class Key, class Value>
 class HighestValue
@@ -588,7 +576,7 @@ QList<InsertionLocation> InsertionPointLocator::methodDefinition(
     const QString declFileName = QString::fromUtf8(declaration->fileName(),
                                                    declaration->fileNameLength());
     QString target = declFileName;
-    if (!isSourceFile(declFileName)) {
+    if (!ProjectFile::isSource(ProjectFile::classify(declFileName))) {
         QString candidate = CppTools::correspondingHeaderOrSource(declFileName);
         if (!candidate.isEmpty())
             target = candidate;

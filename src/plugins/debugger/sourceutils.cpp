@@ -33,8 +33,8 @@
 #include "watchutils.h"
 
 #include <texteditor/basetexteditor.h>
-#include <cpptools/cpptoolsconstants.h>
 #include <cpptools/abstracteditorsupport.h>
+#include <cpptools/cppprojectfile.h>
 
 #include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/ExpressionUnderCursor.h>
@@ -314,15 +314,11 @@ bool getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
 // Editor tooltip support
 bool isCppEditor(Core::IEditor *editor)
 {
-    using namespace CppTools::Constants;
     const Core::IDocument *document= editor->document();
     if (!document)
         return false;
-    const QByteArray mimeType = document->mimeType().toLatin1();
-    return mimeType == C_SOURCE_MIMETYPE
-        || mimeType == CPP_SOURCE_MIMETYPE
-        || mimeType == CPP_HEADER_MIMETYPE
-        || mimeType == OBJECTIVE_CPP_SOURCE_MIMETYPE;
+
+    return CppTools::ProjectFile::classify(document->fileName()) != CppTools::ProjectFile::Unclassified;
 }
 
 // Return the Cpp expression, and, if desired, the function
@@ -330,7 +326,6 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
                         int *line, int *column, QString *function /* = 0 */)
 {
     using namespace CppTools;
-    using namespace CPlusPlus;
     *line = *column = 0;
     if (function)
         function->clear();

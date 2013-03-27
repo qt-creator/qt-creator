@@ -48,6 +48,58 @@ ProjectFile::ProjectFile(const QString &file, Kind kind)
 {
 }
 
+ProjectFile::Kind ProjectFile::classify(const QString &file)
+{
+    const Core::MimeDatabase *mimeDatabase = Core::ICore::mimeDatabase();
+    const QFileInfo fi(file);
+    const Core::MimeType mimeType = mimeDatabase->findByFile(fi);
+    if (!mimeType)
+        return Unclassified;
+    const QString mt = mimeType.type();
+    if (mt == QLatin1String(CppTools::Constants::C_SOURCE_MIMETYPE))
+        return CSource;
+    if (mt == QLatin1String(CppTools::Constants::C_HEADER_MIMETYPE))
+        return CHeader;
+    if (mt == QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE))
+        return CXXSource;
+    if (mt == QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE))
+        return CXXHeader;
+    if (mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE))
+        return ObjCXXSource;
+    return Unclassified;
+}
+
+/// @return True if file is header or cannot be classified (i.e has no file extension)
+bool ProjectFile::isHeader(ProjectFile::Kind kind)
+{
+    switch (kind) {
+    case ProjectFile::CHeader:
+    case ProjectFile::CXXHeader:
+    case ProjectFile::ObjCHeader:
+    case ProjectFile::ObjCXXHeader:
+    case ProjectFile::Unclassified:
+        return true;
+    default:
+        return false;
+    }
+}
+
+/// @return True if file is correctly classified source
+bool ProjectFile::isSource(ProjectFile::Kind kind)
+{
+    switch (kind) {
+    case ProjectFile::CSource:
+    case ProjectFile::CXXSource:
+    case ProjectFile::ObjCSource:
+    case ProjectFile::ObjCXXSource:
+    case ProjectFile::CudaSource:
+    case ProjectFile::OpenCLSource:
+        return true;
+    default:
+        return false;
+    }
+}
+
 ProjectFileAdder::ProjectFileAdder(QList<ProjectFile> &files)
     : m_files(files)
 {

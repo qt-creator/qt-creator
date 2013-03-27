@@ -43,6 +43,7 @@ class CPPTOOLS_EXPORT ProjectFile
 public:
     // enums and types
     enum Kind {
+        Unclassified = 0,
         CHeader = 1,
         CSource = 2,
         CXXHeader = 3,
@@ -57,6 +58,10 @@ public:
 
     ProjectFile();
     ProjectFile(const QString &file, Kind kind);
+
+    static Kind classify(const QString &file);
+    static bool isHeader(Kind kind);
+    static bool isSource(Kind kind);
 
     QString path;
     Kind kind;

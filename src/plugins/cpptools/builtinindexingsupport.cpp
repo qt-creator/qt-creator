@@ -2,6 +2,8 @@
 
 #include "cppmodelmanager.h"
 #include "searchsymbols.h"
+#include "cpptoolsconstants.h"
+#include "cppprojectfile.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -22,24 +24,12 @@ static void parse(QFutureInterface<void> &future,
     if (files.isEmpty())
         return;
 
-    const Core::MimeDatabase *mimeDb = Core::ICore::mimeDatabase();
-    Core::MimeType cSourceTy = mimeDb->findByType(QLatin1String("text/x-csrc"));
-    Core::MimeType cppSourceTy = mimeDb->findByType(QLatin1String("text/x-c++src"));
-    Core::MimeType mSourceTy = mimeDb->findByType(QLatin1String("text/x-objcsrc"));
-
     QStringList sources;
     QStringList headers;
 
-    QStringList suffixes = cSourceTy.suffixes();
-    suffixes += cppSourceTy.suffixes();
-    suffixes += mSourceTy.suffixes();
-
     foreach (const QString &file, files) {
-        QFileInfo info(file);
-
         preproc->removeFromCache(file);
-
-        if (suffixes.contains(info.suffix()))
+        if (ProjectFile::isSource(ProjectFile::classify(file)))
             sources.append(file);
         else
             headers.append(file);
