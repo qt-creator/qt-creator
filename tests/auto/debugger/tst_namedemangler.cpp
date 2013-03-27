@@ -32,6 +32,8 @@
 #include <QObject>
 #include <QTest>
 
+#include <cctype>
+
 #define TEST_CORRECTLY_MANGLED_NAME(mangled, expectedDemangled) \
     do { \
         QVERIFY2(demangler.demangle(QLatin1String(mangled)), qPrintable(demangler.errorString())); \
