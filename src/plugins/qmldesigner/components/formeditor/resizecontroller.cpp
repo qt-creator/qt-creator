@@ -38,7 +38,26 @@
 
 namespace QmlDesigner {
 
+class ResizeControllerData
+{
+public:
+    ResizeControllerData(LayerItem *layerItem,
+                         FormEditorItem *formEditorItem);
+    ResizeControllerData(const ResizeControllerData &other);
+    ~ResizeControllerData();
 
+
+    QWeakPointer<LayerItem> layerItem;
+    QWeakPointer<FormEditorItem> formEditorItem;
+    QSharedPointer<ResizeHandleItem> topLeftItem;
+    QSharedPointer<ResizeHandleItem> topRightItem;
+    QSharedPointer<ResizeHandleItem> bottomLeftItem;
+    QSharedPointer<ResizeHandleItem> bottomRightItem;
+    QSharedPointer<ResizeHandleItem> topItem;
+    QSharedPointer<ResizeHandleItem> leftItem;
+    QSharedPointer<ResizeHandleItem> rightItem;
+    QSharedPointer<ResizeHandleItem> bottomItem;
+};
 
 ResizeControllerData::ResizeControllerData(LayerItem *layerItem, FormEditorItem *formEditorItem)
     : layerItem(layerItem),
@@ -71,14 +90,14 @@ ResizeControllerData::ResizeControllerData(const ResizeControllerData &other)
 ResizeControllerData::~ResizeControllerData()
 {
     if (layerItem) {
-        layerItem->scene()->removeItem(topLeftItem);
-        layerItem->scene()->removeItem(topRightItem);
-        layerItem->scene()->removeItem(bottomLeftItem);
-        layerItem->scene()->removeItem(bottomRightItem);
-        layerItem->scene()->removeItem(topItem);
-        layerItem->scene()->removeItem(leftItem);
-        layerItem->scene()->removeItem(rightItem);
-        layerItem->scene()->removeItem(bottomItem);
+        layerItem->scene()->removeItem(topLeftItem.data());
+        layerItem->scene()->removeItem(topRightItem.data());
+        layerItem->scene()->removeItem(bottomLeftItem.data());
+        layerItem->scene()->removeItem(bottomRightItem.data());
+        layerItem->scene()->removeItem(topItem.data());
+        layerItem->scene()->removeItem(leftItem.data());
+        layerItem->scene()->removeItem(rightItem.data());
+        layerItem->scene()->removeItem(bottomItem.data());
     }
 }
 
@@ -98,35 +117,35 @@ ResizeController::ResizeController(const QSharedPointer<ResizeControllerData> &d
 ResizeController::ResizeController(LayerItem *layerItem, FormEditorItem *formEditorItem)
     : m_data(new ResizeControllerData(layerItem, formEditorItem))
 {
-    m_data->topLeftItem = new ResizeHandleItem(layerItem, *this);
+    m_data->topLeftItem = QSharedPointer<ResizeHandleItem>(new ResizeHandleItem(layerItem, *this));
     m_data->topLeftItem->setZValue(302);
     m_data->topLeftItem->setCursor(Qt::SizeFDiagCursor);
 
-    m_data->topRightItem = new ResizeHandleItem(layerItem, *this);
+    m_data->topRightItem = QSharedPointer<ResizeHandleItem>(new ResizeHandleItem(layerItem, *this));
     m_data->topRightItem->setZValue(301);
     m_data->topRightItem->setCursor(Qt::SizeBDiagCursor);
 
-    m_data->bottomLeftItem = new ResizeHandleItem(layerItem, *this);
+    m_data->bottomLeftItem = QSharedPointer<ResizeHandleItem>(new ResizeHandleItem(layerItem, *this));
     m_data->bottomLeftItem->setZValue(301);
     m_data->bottomLeftItem->setCursor(Qt::SizeBDiagCursor);
 
-    m_data->bottomRightItem = new ResizeHandleItem(layerItem, *this);
+    m_data->bottomRightItem = QSharedPointer<ResizeHandleItem>(new ResizeHandleItem(layerItem, *this));
     m_data->bottomRightItem->setZValue(305);
     m_data->bottomRightItem->setCursor(Qt::SizeFDiagCursor);
 
-    m_data->topItem = new ResizeHandleItem(layerItem, *this);
+    m_data->topItem = QSharedPointer<ResizeHandleItem>(new ResizeHandleItem(layerItem, *this));
     m_data->topItem->setZValue(300);
     m_data->topItem->setCursor(Qt::SizeVerCursor);
 
-    m_data->leftItem = new ResizeHandleItem(layerItem, *this);
+    m_data->leftItem = QSharedPointer<ResizeHandleItem>(new ResizeHandleItem(layerItem, *this));
     m_data->leftItem->setZValue(300);
     m_data->leftItem->setCursor(Qt::SizeHorCursor);
 
-    m_data->rightItem = new ResizeHandleItem(layerItem, *this);
+    m_data->rightItem = QSharedPointer<ResizeHandleItem>(new ResizeHandleItem(layerItem, *this));
     m_data->rightItem->setZValue(300);
     m_data->rightItem->setCursor(Qt::SizeHorCursor);
 
-    m_data->bottomItem = new ResizeHandleItem(layerItem, *this);
+    m_data->bottomItem = QSharedPointer<ResizeHandleItem>(new ResizeHandleItem(layerItem, *this));
     m_data->bottomItem->setZValue(300);
     m_data->bottomItem->setCursor(Qt::SizeVerCursor);
 

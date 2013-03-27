@@ -40,30 +40,7 @@ class FormEditorItem;
 class LayerItem;
 class ResizeHandleItem;
 
-
-class ResizeControllerData
-{
-public:
-    ResizeControllerData(LayerItem *layerItem,
-                         FormEditorItem *formEditorItem);
-    ResizeControllerData(const ResizeControllerData &other);
-    ~ResizeControllerData();
-
-
-    QWeakPointer<LayerItem> layerItem;
-    QWeakPointer<FormEditorItem> formEditorItem;
-    ResizeHandleItem *topLeftItem;
-    ResizeHandleItem *topRightItem;
-    ResizeHandleItem *bottomLeftItem;
-    ResizeHandleItem *bottomRightItem;
-    ResizeHandleItem *topItem;
-    ResizeHandleItem *leftItem;
-    ResizeHandleItem *rightItem;
-    ResizeHandleItem *bottomItem;
-};
-
-
-
+class ResizeControllerData;
 
 class ResizeController
 {
