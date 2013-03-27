@@ -21,6 +21,7 @@ HEADERS += servicebrowser.h \
     syssocket.h
 
 include(../../qtcreatorlibrary.pri)
+include(zeroconf_dependencies.pri)
 
 win32{
     LIBS += -lws2_32

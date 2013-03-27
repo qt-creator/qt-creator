@@ -2,6 +2,7 @@ TEMPLATE = lib
 TARGET = Aggregation
 
 include(../../qtcreatorlibrary.pri)
+include(aggregation_depedencies.pri)
 
 DEFINES += AGGREGATION_LIBRARY
 
