@@ -198,6 +198,7 @@ void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
     save();
     updateAvailablePlatforms();
     updateAutomaticKitList();
+    updateAndroidDevice();
     emit updated();
 }
 
@@ -697,6 +698,17 @@ void AndroidConfigurations::load()
     settings->beginGroup(SettingsGroup);
     m_config = AndroidConfig(*settings);
     settings->endGroup();
+    updateAndroidDevice();
+}
+
+void AndroidConfigurations::updateAndroidDevice()
+{
+    if (adbToolPath().toFileInfo().exists())
+        ProjectExplorer::DeviceManager::instance()
+                ->addDevice(ProjectExplorer::IDevice::Ptr(new Internal::AndroidDevice));
+    else
+        ProjectExplorer::DeviceManager::instance()
+                ->removeDevice(Core::Id(Constants::ANDROID_DEVICE_ID));
 }
 
 AndroidConfigurations *AndroidConfigurations::m_instance = 0;

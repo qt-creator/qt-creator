@@ -132,6 +132,7 @@ private:
 
     int getSDKVersion(const QString &device) const;
     void updateAvailablePlatforms();
+    void updateAndroidDevice();
 
 
     static AndroidConfigurations *m_instance;

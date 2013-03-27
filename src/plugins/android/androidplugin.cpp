@@ -74,9 +74,6 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     addAutoReleasedObject(new Internal::AndroidDeviceFactory);
     ProjectExplorer::KitManager::instance()->registerKitInformation(new Internal::AndroidGdbServerKitInformation);
 
-    ProjectExplorer::DeviceManager::instance()
-            ->addDevice(ProjectExplorer::IDevice::Ptr(new Internal::AndroidDevice));
-
     connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsLoaded()),
             this, SLOT(kitsRestored()));
 
