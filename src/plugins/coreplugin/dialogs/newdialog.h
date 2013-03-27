@@ -35,10 +35,10 @@
 #include <QDialog>
 #include <QIcon>
 #include <QList>
-#include <QModelIndex>
 
 QT_BEGIN_NAMESPACE
 class QAbstractProxyModel;
+class QModelIndex;
 class QSortFilterProxyModel;
 class QPushButton;
 class QStandardItem;

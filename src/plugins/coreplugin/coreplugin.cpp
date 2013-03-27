@@ -39,7 +39,6 @@
 #include "modemanager.h"
 #include "infobar.h"
 
-#include <extensionsystem/pluginmanager.h>
 #include <utils/savefile.h>
 
 #include <QtPlugin>

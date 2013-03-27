@@ -32,7 +32,6 @@
 
 #include <coreplugin/core_global.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/id.h>
 
 #include <QMetaType>
 

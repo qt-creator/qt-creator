@@ -36,10 +36,7 @@
 #include <QPropertyAnimation>
 #include <QSequentialAnimationGroup>
 
-#include <QColor>
 #include <QVBoxLayout>
-#include <QMenu>
-#include <QProgressBar>
 #include <QHBoxLayout>
 #include <QPainter>
 #include <QMouseEvent>

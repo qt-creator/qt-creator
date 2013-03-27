@@ -35,9 +35,7 @@
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QSettings>
 #include <QToolButton>
-#include <QVariant>
 
 static const char C_SUPPRESSED_WARNINGS[] = "SuppressedWarnings";
 

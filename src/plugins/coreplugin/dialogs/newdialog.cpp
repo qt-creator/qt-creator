@@ -29,17 +29,12 @@
 
 #include "newdialog.h"
 #include "ui_newdialog.h"
-#include "basefilewizard.h"
-
-#include <utils/stylehelper.h>
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/featureprovider.h>
 
+#include <QModelIndex>
 #include <QAbstractProxyModel>
 #include <QSortFilterProxyModel>
-#include <QItemSelectionModel>
-#include <QHeaderView>
 #include <QPushButton>
 #include <QStandardItem>
 #include <QItemDelegate>

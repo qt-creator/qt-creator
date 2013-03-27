@@ -41,8 +41,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
-#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 
@@ -50,9 +48,7 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QDir>
-#include <QFile>
 #include <QDateTime>
-#include <QMenu>
 #include <QAction>
 
 #include <QDebug>

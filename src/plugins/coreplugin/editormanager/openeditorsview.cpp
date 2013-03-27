@@ -29,28 +29,17 @@
 
 #include "openeditorsview.h"
 #include "editormanager.h"
-#include "editorview.h"
 #include "openeditorsmodel.h"
-#include "icore.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/documentmanager.h>
-#include <coreplugin/id.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <utils/qtcassert.h>
 
 #include <QApplication>
-#include <QGridLayout>
-#include <QTimer>
 #include <QMenu>
 #include <QPainter>
 #include <QStyle>
-#include <QStyleOption>
 #include <QHeaderView>
 #include <QKeyEvent>
-#include <QTreeView>
 
 using namespace Core;
 using namespace Core::Internal;

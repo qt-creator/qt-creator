@@ -31,7 +31,6 @@
 #define IWIZARD_H
 
 #include <coreplugin/core_global.h>
-#include <coreplugin/featureprovider.h>
 
 #include <QObject>
 #include <QVariantMap>
@@ -41,6 +40,8 @@ class QIcon;
 QT_END_NAMESPACE
 
 namespace Core {
+
+class FeatureSet;
 
 class CORE_EXPORT IWizard
     : public QObject

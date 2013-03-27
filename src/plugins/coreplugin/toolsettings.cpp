@@ -39,8 +39,6 @@
 #include <QCoreApplication>
 #include <QFileInfo>
 #include <QDir>
-#include <QTime>
-#include <QIcon>
 
 #include <QDebug>
 

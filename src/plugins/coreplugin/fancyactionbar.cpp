@@ -36,21 +36,13 @@
 #include <utils/tooltip/tooltip.h>
 #include <utils/tooltip/tipcontents.h>
 
-#include <coreplugin/icore.h>
-#include <coreplugin/imode.h>
-
-#include <QHBoxLayout>
 #include <QPainter>
-#include <QPicture>
 #include <QVBoxLayout>
 #include <QAction>
-#include <QStatusBar>
 #include <QStyle>
 #include <QStyleOption>
 #include <QMouseEvent>
-#include <QApplication>
 #include <QEvent>
-#include <QAnimationGroup>
 #include <QPropertyAnimation>
 #include <QDebug>
 

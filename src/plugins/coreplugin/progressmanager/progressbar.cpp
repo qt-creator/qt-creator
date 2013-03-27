@@ -34,7 +34,6 @@
 #include <QPropertyAnimation>
 #include <QPainter>
 #include <QFont>
-#include <QBrush>
 #include <QColor>
 #include <QMouseEvent>
 

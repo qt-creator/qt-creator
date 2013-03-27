@@ -40,7 +40,6 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QLocale>
-#include <QMap>
 #include <QHash>
 #include <QMultiHash>
 #include <QRegExp>
@@ -48,7 +47,6 @@
 #include <QSharedPointer>
 #include <QStringList>
 #include <QTextStream>
-#include <QMutexLocker>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 

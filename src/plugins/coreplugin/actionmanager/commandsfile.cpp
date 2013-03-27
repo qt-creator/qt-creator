@@ -33,12 +33,11 @@
 
 #include <app/app_version.h>
 
-#include <coreplugin/id.h>
-
 #include <utils/qtcassert.h>
 
 #include <utils/fileutils.h>
 
+#include <QKeySequence>
 #include <QFile>
 #include <QXmlStreamAttributes>
 #include <QXmlStreamWriter>

@@ -28,8 +28,6 @@
 ****************************************************************************/
 
 #include "saveitemsdialog.h"
-#include "mainwindow.h"
-#include "vcsmanager.h"
 
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/idocument.h>
@@ -38,9 +36,6 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QPushButton>
-#include <QTreeWidget>
-#include <QHeaderView>
-#include <QCheckBox>
 #include <QDebug>
 
 Q_DECLARE_METATYPE(Core::IDocument*)

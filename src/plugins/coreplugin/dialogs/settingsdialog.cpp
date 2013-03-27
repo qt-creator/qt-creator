@@ -37,14 +37,10 @@
 
 #include <QApplication>
 #include <QDialogButtonBox>
-#include <QFrame>
 #include <QGridLayout>
-#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QIcon>
-#include <QItemSelectionModel>
 #include <QLabel>
-#include <QLineEdit>
 #include <QListView>
 #include <QPointer>
 #include <QPushButton>
@@ -55,8 +51,6 @@
 #include <QStackedLayout>
 #include <QStyle>
 #include <QStyledItemDelegate>
-#include <QToolBar>
-#include <QToolButton>
 
 static const char categoryKeyC[] = "General/LastPreferenceCategory";
 static const char pageKeyC[] = "General/LastPreferencePage";

@@ -38,6 +38,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/icontext.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 

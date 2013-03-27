@@ -35,7 +35,6 @@
 
 #include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
-#include <utils/qtcolorbutton.h>
 #include <utils/consoleprocess.h>
 #include <utils/unixutils.h>
 

@@ -30,28 +30,18 @@
 #include "navigationsubwidget.h"
 #include "navigationwidget.h"
 
-#include "icore.h"
-#include "icontext.h"
 #include "coreconstants.h"
 #include "inavigationwidgetfactory.h"
-#include "modemanager.h"
-#include "actionmanager/actionmanager.h"
 #include "actionmanager/command.h"
 #include "id.h"
-
-#include <extensionsystem/pluginmanager.h>
 
 #include <utils/styledbar.h>
 
 #include <QDebug>
-#include <QSettings>
 
-#include <QAction>
 #include <QHBoxLayout>
 #include <QResizeEvent>
 #include <QToolButton>
-#include <QShortcut>
-#include <QStandardItemModel>
 
 Q_DECLARE_METATYPE(Core::INavigationWidgetFactory *)
 

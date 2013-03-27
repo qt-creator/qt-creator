@@ -32,7 +32,6 @@
 
 #include "core_global.h"
 #include "icontext.h"
-#include <QPointer>
 
 namespace Core {
 

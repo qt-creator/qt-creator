@@ -40,6 +40,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileiconprovider.h>
+#include <coreplugin/icontext.h>
 #include <utils/filterlineedit.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>

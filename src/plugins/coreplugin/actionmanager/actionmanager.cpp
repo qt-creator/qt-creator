@@ -34,13 +34,10 @@
 #include "command_p.h"
 #include "id.h"
 
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QSettings>
-#include <QDesktopWidget>
 #include <QLabel>
 #include <QMenu>
 #include <QAction>

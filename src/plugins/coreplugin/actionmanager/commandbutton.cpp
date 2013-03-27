@@ -30,7 +30,6 @@
 #include "commandbutton.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
 #include <utils/proxyaction.h>
 
 using namespace Core;

@@ -33,7 +33,6 @@
 #include "coreplugin/core_global.h"
 #include "coreplugin/id.h"
 #include <coreplugin/actionmanager/command.h>
-#include "coreplugin/icontext.h"
 
 #include <QObject>
 #include <QList>

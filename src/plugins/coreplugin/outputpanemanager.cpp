@@ -34,14 +34,11 @@
 
 #include "icore.h"
 #include "ioutputpane.h"
-#include "mainwindow.h"
 #include "modemanager.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/findplaceholder.h>
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -60,7 +57,6 @@
 #include <QLabel>
 #include <QMenu>
 #include <QPainter>
-#include <QSplitter>
 #include <QStyle>
 #include <QStackedWidget>
 #include <QToolButton>

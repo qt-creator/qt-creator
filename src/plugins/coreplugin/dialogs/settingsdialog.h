@@ -31,7 +31,6 @@
 #define SETTINGSDIALOG_H
 
 #include "coreplugin/dialogs/ioptionspage.h"
-#include "coreplugin/id.h"
 
 #include <QList>
 #include <QSet>

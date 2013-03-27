@@ -32,24 +32,15 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/openeditorsmodel.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/icorelistener.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <extensionsystem/pluginmanager.h>
-#include <utils/qtcassert.h>
 
-#include <QPair>
-#include <QFileInfo>
 #include <QPointer>
 #include <QStringList>
 #include <QDebug>
 
-#include <QAction>
-#include <QPlainTextEdit>
 #include <QStackedWidget>
 
 static Core::DesignMode *m_instance = 0;

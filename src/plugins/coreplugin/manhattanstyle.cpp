@@ -31,36 +31,26 @@
 
 #include "styleanimator.h"
 
-#include <QLibrary>
-
 #include <coreplugin/coreconstants.h>
 
 #include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
 #include <utils/fancymainwindow.h>
 
 #include <QApplication>
 #include <QComboBox>
-#include <QDialogButtonBox>
 #include <QDockWidget>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenuBar>
 #include <QPainter>
 #include <QPixmap>
-#include <QPixmapCache>
-#include <QPushButton>
-#include <QScrollArea>
-#include <QSplitter>
 #include <QStatusBar>
 #include <QStyleFactory>
 #include <QStyleOption>
 #include <QToolBar>
-#include <QTreeView>
 #include <QToolButton>
-#include <QAbstractItemView>
 
 // We define a currently unused state for indicating animations
 const QStyle::State State_Animating = QStyle::State(0x00000040);

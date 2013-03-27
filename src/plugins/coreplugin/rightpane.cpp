@@ -36,7 +36,6 @@
 #include <QVBoxLayout>
 #include <QSplitter>
 #include <QResizeEvent>
-#include <QTextEdit>
 
 
 using namespace Core;

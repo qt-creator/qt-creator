@@ -28,8 +28,6 @@
 ****************************************************************************/
 
 #include "basefilewizard.h"
-
-#include "coreconstants.h"
 #include "icore.h"
 #include "ifilewizardextension.h"
 #include "mimedatabase.h"
@@ -39,17 +37,13 @@
 #include <utils/filewizarddialog.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 
 #include <QDir>
-#include <QFile>
 #include <QFileInfo>
-#include <QVector>
 #include <QDebug>
 #include <QSharedData>
 #include <QEventLoop>
-#include <QSharedPointer>
 #include <QScopedPointer>
 
 #include <QMessageBox>

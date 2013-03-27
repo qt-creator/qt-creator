@@ -29,8 +29,6 @@
 
 #include "statusbarwidget.h"
 
-#include <QWidget>
-
 using namespace Core;
 
 StatusBarWidget::StatusBarWidget(QObject *parent)

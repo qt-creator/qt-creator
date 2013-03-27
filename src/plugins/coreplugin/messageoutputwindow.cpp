@@ -32,8 +32,6 @@
 #include "icontext.h"
 #include "coreconstants.h"
 
-#include <QScrollBar>
-
 using namespace Core::Internal;
 
 MessageOutputWindow::MessageOutputWindow()

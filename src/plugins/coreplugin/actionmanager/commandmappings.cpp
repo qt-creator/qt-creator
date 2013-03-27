@@ -31,20 +31,11 @@
 #include "shortcutsettings.h"
 #include "ui_commandmappings.h"
 #include "commandsfile.h"
-#include "coreconstants.h"
-#include "documentmanager.h"
-#include "icore.h"
-#include "id.h"
 
 #include <utils/hostosinfo.h>
 #include <utils/headerviewstretcher.h>
 
-#include <QKeyEvent>
-#include <QShortcut>
-#include <QHeaderView>
 #include <QTreeWidgetItem>
-#include <QFileDialog>
-#include <QCoreApplication>
 #include <QDebug>
 
 Q_DECLARE_METATYPE(Core::Internal::ShortcutItem*)

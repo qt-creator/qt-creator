@@ -28,13 +28,12 @@
 ****************************************************************************/
 
 #include "id.h"
-#include "coreconstants.h"
 
 #include <utils/qtcassert.h>
 
 #include <QByteArray>
 #include <QHash>
-#include <QVector>
+#include <QVariant>
 
 #include <string.h>
 

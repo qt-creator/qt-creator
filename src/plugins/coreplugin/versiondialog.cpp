@@ -28,21 +28,17 @@
 ****************************************************************************/
 
 #include "versiondialog.h"
-#include "icore.h"
 
 #include <app/app_version.h>
 #include <coreplugin/coreconstants.h>
 #include <utils/qtcassert.h>
 
-#include <QDate>
-#include <QFile>
 #include <QSysInfo>
 
 #include <QDialogButtonBox>
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
-#include <QTextBrowser>
 
 using namespace Core;
 using namespace Core::Internal;

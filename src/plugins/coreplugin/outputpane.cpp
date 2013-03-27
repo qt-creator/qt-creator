@@ -30,9 +30,6 @@
 #include "outputpane.h"
 #include "outputpanemanager.h"
 
-#include "coreconstants.h"
-#include "icore.h"
-#include "ioutputpane.h"
 #include "modemanager.h"
 
 #include <QSplitter>

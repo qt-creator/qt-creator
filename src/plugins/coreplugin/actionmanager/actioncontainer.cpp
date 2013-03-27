@@ -28,10 +28,7 @@
 ****************************************************************************/
 
 #include "actioncontainer_p.h"
-#include "actionmanager_p.h"
 #include "actionmanager.h"
-
-#include "command_p.h"
 
 #include "coreconstants.h"
 #include "id.h"

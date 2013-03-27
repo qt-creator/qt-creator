@@ -29,7 +29,6 @@
 
 #include "navigationwidget.h"
 #include "navigationsubwidget.h"
-#include "icore.h"
 #include "icontext.h"
 #include "coreconstants.h"
 #include "inavigationwidgetfactory.h"
@@ -38,17 +37,12 @@
 #include "actionmanager/command.h"
 #include "id.h"
 
-#include <extensionsystem/pluginmanager.h>
-
-#include <utils/styledbar.h>
-
 #include <QDebug>
 #include <QSettings>
 
 #include <QAction>
 #include <QHBoxLayout>
 #include <QResizeEvent>
-#include <QToolButton>
 #include <QShortcut>
 #include <QStandardItemModel>
 

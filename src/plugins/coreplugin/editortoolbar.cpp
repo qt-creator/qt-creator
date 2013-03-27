@@ -32,36 +32,21 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/minisplitter.h>
-#include <coreplugin/sidebar.h>
-#include <coreplugin/id.h>
 
-#include <coreplugin/editormanager/editorview.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/openeditorsmodel.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
 
 #include <utils/hostosinfo.h>
-#include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
-#include <utils/styledbar.h>
 
-#include <QSettings>
-#include <QEvent>
 #include <QDir>
-#include <QPointer>
 #include <QApplication>
 #include <QComboBox>
-#include <QPlainTextEdit>
 #include <QVBoxLayout>
-#include <QScrollArea>
-#include <QTabWidget>
 #include <QToolButton>
 #include <QMenu>
 #include <QClipboard>
-#include <QLabel>
-#include <QToolBar>
 
 enum {
     debug = false

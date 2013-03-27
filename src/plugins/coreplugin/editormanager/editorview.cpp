@@ -36,30 +36,19 @@
 #include <coreplugin/editortoolbar.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/infobar.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <coreplugin/findplaceholder.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QDir>
-#include <QFileInfo>
-#include <QMimeData>
 
-#include <QApplication>
-#include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QStackedWidget>
-#include <QStyle>
-#include <QStyleOption>
 #include <QToolButton>
-#include <QMenu>
-#include <QClipboard>
-#include <QAction>
 #include <QSplitter>
 #include <QStackedLayout>
 

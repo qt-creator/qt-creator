@@ -29,7 +29,6 @@
 
 #include "command_p.h"
 
-#include "icore.h"
 #include "icontext.h"
 #include "id.h"
 

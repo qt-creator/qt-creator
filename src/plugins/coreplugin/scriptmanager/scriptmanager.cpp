@@ -42,7 +42,6 @@
 #include <QInputDialog>
 #include <QFileDialog>
 #include <QMainWindow>
-#include <QToolBar>
 #include <QStatusBar>
 
 // Script function template to pop up a message box

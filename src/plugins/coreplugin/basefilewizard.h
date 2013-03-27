@@ -32,6 +32,7 @@
 
 #include "core_global.h"
 #include "generatedfile.h"
+#include "featureprovider.h"
 
 #include <coreplugin/dialogs/iwizard.h>
 

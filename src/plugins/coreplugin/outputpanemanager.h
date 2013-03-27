@@ -32,7 +32,6 @@
 
 #include <coreplugin/id.h>
 
-#include <QMap>
 #include <QToolButton>
 
 QT_BEGIN_NAMESPACE

@@ -29,18 +29,10 @@
 
 #include "sidebar.h"
 #include "sidebarwidget.h"
-#include "imode.h"
 
-#include <coreplugin/coreconstants.h>
-
-#include "actionmanager/actionmanager.h"
 #include "actionmanager/command.h"
 
-#include <QEvent>
 #include <QSettings>
-#include <QLayout>
-#include <QToolBar>
-#include <QAction>
 #include <QPointer>
 #include <QToolButton>
 

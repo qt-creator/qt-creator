@@ -40,13 +40,9 @@
 #include <QMouseEvent>
 #include <QStyleFactory>
 #include <QPainter>
-#include <QSplitter>
 #include <QStackedLayout>
 #include <QStatusBar>
-#include <QToolButton>
 #include <QToolTip>
-#include <QAnimationGroup>
-#include <QPropertyAnimation>
 
 using namespace Core;
 using namespace Internal;

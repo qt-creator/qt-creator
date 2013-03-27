@@ -29,16 +29,11 @@
 
 #include "statusbarmanager.h"
 
-#include "coreconstants.h"
 #include "mainwindow.h"
 #include "statusbarwidget.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <aggregation/aggregate.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <QSettings>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QStatusBar>

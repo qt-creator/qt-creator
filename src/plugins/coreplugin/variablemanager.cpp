@@ -28,15 +28,10 @@
 ****************************************************************************/
 
 #include "variablemanager.h"
-#include "idocument.h"
-#include "editormanager/ieditor.h"
-#include "editormanager/editormanager.h"
 
 #include <utils/stringutils.h>
-#include <utils/qtcassert.h>
 
 #include <QFileInfo>
-#include <QObject>
 #include <QMap>
 #include <QDebug>
 

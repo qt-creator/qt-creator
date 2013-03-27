@@ -29,6 +29,7 @@
 
 #include "iwizard.h"
 #include "icore.h"
+#include "featureprovider.h"
 
 #include <extensionsystem/pluginmanager.h>
 

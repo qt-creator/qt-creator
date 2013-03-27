@@ -33,7 +33,8 @@
 #include <QObject>
 #include <QString>
 #include <QMap>
-#include <QKeySequence>
+
+QT_FORWARD_DECLARE_CLASS(QKeySequence)
 
 namespace Core {
 namespace Internal {

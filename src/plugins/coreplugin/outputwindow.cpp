@@ -30,12 +30,8 @@
 #include "outputwindow.h"
 
 #include "actionmanager/actionmanager.h"
-#include "actionmanager/command.h"
 #include "coreconstants.h"
 #include "icore.h"
-
-#include <utils/qtcassert.h>
-#include <utils/outputformatter.h>
 
 #include <QAction>
 #include <QScrollBar>

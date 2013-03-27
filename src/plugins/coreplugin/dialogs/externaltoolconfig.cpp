@@ -40,9 +40,7 @@
 #include <coreplugin/variablemanager.h>
 
 #include <QTextStream>
-#include <QFile>
 #include <QMimeData>
-#include <QMessageBox>
 #include <QMenu>
 
 using namespace Core;

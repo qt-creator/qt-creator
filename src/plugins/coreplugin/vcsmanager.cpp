@@ -39,7 +39,6 @@
 #include <QString>
 #include <QList>
 #include <QMap>
-#include <QCoreApplication>
 
 #include <QFileInfo>
 #include <QMessageBox>

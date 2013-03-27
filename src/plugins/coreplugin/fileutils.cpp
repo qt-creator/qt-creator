@@ -33,10 +33,8 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
-#include <coreplugin/removefiledialog.h>
 #include <coreplugin/vcsmanager.h>
 #include <utils/consoleprocess.h>
-#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/unixutils.h>

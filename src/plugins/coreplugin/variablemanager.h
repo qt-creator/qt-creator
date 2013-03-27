@@ -32,9 +32,10 @@
 
 #include "core_global.h"
 
-#include <QFileInfo>
 #include <QObject>
 #include <QString>
+
+QT_FORWARD_DECLARE_CLASS(QFileInfo)
 
 namespace Utils {
 class AbstractMacroExpander;

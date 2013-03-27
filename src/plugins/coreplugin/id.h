@@ -34,7 +34,8 @@
 
 #include <QMetaType>
 #include <QString>
-#include <QVariant>
+
+QT_FORWARD_DECLARE_CLASS(QVariant)
 
 namespace Core {
 

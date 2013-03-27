@@ -32,9 +32,6 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <QStatusBar>
-#include <QApplication>
-
 using namespace Core;
 
 MessageManager *MessageManager::m_instance = 0;

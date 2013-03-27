@@ -34,20 +34,15 @@
 #include "icore.h"
 #include "mainwindow.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/imode.h>
-#include <coreplugin/id.h>
 
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QList>
 #include <QMap>
 #include <QVector>
 

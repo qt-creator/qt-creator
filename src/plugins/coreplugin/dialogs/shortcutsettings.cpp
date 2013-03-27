@@ -37,14 +37,9 @@
 #include "icore.h"
 #include "id.h"
 
-#include <utils/headerviewstretcher.h>
-
 #include <QKeyEvent>
-#include <QShortcut>
-#include <QHeaderView>
 #include <QFileDialog>
 #include <QLineEdit>
-#include <QAction>
 #include <QTreeWidgetItem>
 #include <QCoreApplication>
 #include <QDebug>

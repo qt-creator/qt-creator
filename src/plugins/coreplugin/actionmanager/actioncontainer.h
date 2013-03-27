@@ -30,7 +30,6 @@
 #ifndef ACTIONCONTAINER_H
 #define ACTIONCONTAINER_H
 
-#include "coreplugin/id.h"
 #include "coreplugin/icontext.h"
 
 #include <QObject>

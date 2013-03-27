@@ -32,17 +32,14 @@
 #include "coreconstants.h"
 #include "modemanager.h"
 #include "minisplitter.h"
-#include "findplaceholder.h"
 #include "outputpane.h"
 #include "navigationwidget.h"
 #include "rightpane.h"
 #include "ieditor.h"
-#include "idocument.h"
 
 #include <QLatin1String>
 #include <QHBoxLayout>
 #include <QWidget>
-#include <QSplitter>
 #include <QIcon>
 
 using namespace Core;

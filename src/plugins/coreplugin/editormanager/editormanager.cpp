@@ -38,20 +38,16 @@
 #include "ieditor.h"
 #include "iversioncontrol.h"
 #include "mimedatabase.h"
-#include "tabpositionindicator.h"
 #include "vcsmanager.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/iexternaleditor.h>
 #include <coreplugin/editortoolbar.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icorelistener.h>
-#include <coreplugin/id.h>
-#include <coreplugin/imode.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/settingsdatabase.h>
@@ -59,7 +55,6 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <utils/consoleprocess.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
@@ -67,7 +62,6 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QMap>
-#include <QProcess>
 #include <QSet>
 #include <QSettings>
 #include <QTextCodec>
@@ -77,12 +71,10 @@
 #include <QShortcut>
 #include <QApplication>
 #include <QFileDialog>
-#include <QLayout>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSplitter>
-#include <QStackedLayout>
 
 enum { debugEditorManager=0 };
 

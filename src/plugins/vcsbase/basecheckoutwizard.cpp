@@ -31,6 +31,8 @@
 #include "checkoutwizarddialog.h"
 #include "checkoutjobs.h"
 
+#include <coreplugin/featureprovider.h>
+
 #include <projectexplorer/projectexplorer.h>
 
 #include <QCoreApplication>

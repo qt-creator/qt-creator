@@ -33,11 +33,10 @@
 #include <coreplugin/id.h>
 
 #include <QObject>
-#include <QStringList>
 #include <QPair>
-#include <QVariant>
 
 QT_BEGIN_NAMESPACE
+class QStringList;
 class QAction;
 class QMainWindow;
 class QMenu;

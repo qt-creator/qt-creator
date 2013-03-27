@@ -37,8 +37,6 @@
 #include "ieditorfactory.h"
 #include "iexternaleditor.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <QCoreApplication>
 #include <QStringList>
 #include <QSet>

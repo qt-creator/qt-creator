@@ -38,7 +38,6 @@
 #include "iversioncontrol.h"
 #include "mimedatabase.h"
 #include "saveitemsdialog.h"
-#include "vcsmanager.h"
 #include "coreconstants.h"
 
 #include <utils/hostosinfo.h>
@@ -46,12 +45,12 @@
 #include <utils/pathchooser.h>
 #include <utils/reloadpromptutils.h>
 
+#include <QStringList>
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QFileSystemWatcher>
-#include <QPair>
 #include <QSettings>
 #include <QTimer>
 #include <QAction>

@@ -32,7 +32,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <QHBoxLayout>
 #include <QVBoxLayout>
 
 using namespace Core;

@@ -29,7 +29,6 @@
 
 #include "openwithdialog.h"
 
-#include <QListWidget>
 #include <QPushButton>
 #include <QFileInfo>
 

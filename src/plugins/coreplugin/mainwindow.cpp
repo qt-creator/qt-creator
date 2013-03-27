@@ -35,7 +35,6 @@
 #include "icore.h"
 #include "coreconstants.h"
 #include "editormanager.h"
-#include "externaltool.h"
 #include "toolsettings.h"
 #include "mimetypesettings.h"
 #include "fancytabwidget.h"
@@ -52,10 +51,8 @@
 #include "outputpane.h"
 #include "plugindialog.h"
 #include "progressmanager_p.h"
-#include "progressview.h"
 #include "shortcutsettings.h"
 #include "vcsmanager.h"
-#include "variablechooser.h"
 #include "scriptmanager_p.h"
 #include "settingsdialog.h"
 #include "variablemanager.h"
@@ -67,8 +64,6 @@
 #include "rightpane.h"
 #include "editormanager/ieditorfactory.h"
 #include "statusbarwidget.h"
-#include "basefilewizard.h"
-#include "ioutputpane.h"
 #include "externaltoolmanager.h"
 #include "editormanager/systemeditor.h"
 
@@ -83,7 +78,6 @@
 #include <coreplugin/settingsdatabase.h>
 #include <utils/historycompleter.h>
 #include <utils/hostosinfo.h>
-#include <utils/pathchooser.h>
 #include <utils/stylehelper.h>
 #include <utils/stringutils.h>
 #include <extensionsystem/pluginmanager.h>
@@ -92,20 +86,16 @@
 #include <QFileInfo>
 #include <QSettings>
 #include <QTimer>
-#include <QtPlugin>
 #include <QUrl>
 #include <QDir>
-#include <QFile>
 #include <QMimeData>
 
 #include <QApplication>
 #include <QCloseEvent>
 #include <QMenu>
-#include <QPixmap>
 #include <QPrinter>
 #include <QShortcut>
 #include <QStatusBar>
-#include <QWizard>
 #include <QToolButton>
 #include <QMessageBox>
 #include <QMenuBar>

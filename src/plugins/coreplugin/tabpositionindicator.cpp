@@ -31,7 +31,6 @@
 
 #include <QPainter>
 #include <QPaintEvent>
-#include <QBrush>
 #include <QPalette>
 
 using namespace Core::Internal;
