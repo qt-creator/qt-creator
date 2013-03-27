@@ -387,7 +387,7 @@ bool AndroidManager::setUseLocalLibs(ProjectExplorer::Target *target, bool useLo
     bool changedManifest = false;
     while (!metadataElem.isNull()) {
         if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.use_local_qt_libs")) {
-            if (metadataElem.attribute(QLatin1String("android:value")).toInt() != useLocalLibs) {
+            if (metadataElem.attribute(QLatin1String("android:value")).toInt() != int(useLocalLibs)) {
                 metadataElem.setAttribute(QLatin1String("android:value"), int(useLocalLibs));
                 changedManifest = true;
             }
