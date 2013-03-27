@@ -1,9 +1,9 @@
 TEMPLATE  = subdirs
 CONFIG   += ordered
 
-# aggregation and extensionsystem are directly in src.pro
-# because of dependencies of app
 SUBDIRS   = \
+    aggregation \
+    extensionsystem \
     utils \
     utils/process_stub.pro \
     languageutils \
