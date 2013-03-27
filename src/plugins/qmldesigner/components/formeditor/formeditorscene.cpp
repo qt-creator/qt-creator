@@ -78,6 +78,7 @@ void FormEditorScene::setupScene()
     m_formLayerItem = new LayerItem(this);
     m_manipulatorLayerItem = new LayerItem(this);
     m_manipulatorLayerItem->setZValue(1.0);
+    m_manipulatorLayerItem->setFlag(QGraphicsItem::ItemClipsChildrenToShape, false);
     m_formLayerItem->setZValue(0.0);
     m_formLayerItem->setFlag(QGraphicsItem::ItemClipsChildrenToShape, false);
 }
