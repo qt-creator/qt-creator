@@ -35,6 +35,7 @@ QtcPlugin {
         "basetexteditor_p.h",
         "basetextmark.cpp",
         "basetextmark.h",
+        "basetextmarkregistry.h",
         "behaviorsettings.cpp",
         "behaviorsettings.h",
         "behaviorsettingspage.cpp",
