@@ -178,6 +178,8 @@ void FormEditorView::modelAboutToBeDetached(Model *model)
     m_moveTool->clear();
     m_resizeTool->clear();
     m_dragTool->clear();
+    foreach (AbstractCustomTool *customTool, m_customToolList)
+        customTool->clear();
     m_scene->clearFormEditorItems();
     m_formEditorWidget->updateActions();
     m_formEditorWidget->resetView();
