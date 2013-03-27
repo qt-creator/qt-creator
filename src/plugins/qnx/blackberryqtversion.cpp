@@ -34,6 +34,7 @@
 #include "qnxutils.h"
 #include "qnxconstants.h"
 
+#include <coreplugin/featureprovider.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>

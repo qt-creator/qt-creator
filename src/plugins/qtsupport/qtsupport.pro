@@ -33,7 +33,8 @@ HEADERS += \
     gettingstartedwelcomepage.h \
     exampleslistmodel.h \
     screenshotcropper.h \
-    qtconfigwidget.h
+    qtconfigwidget.h \
+    qtfeatureprovider.h
 
 SOURCES += \
     qtsupportplugin.cpp \

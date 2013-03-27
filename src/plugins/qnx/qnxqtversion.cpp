@@ -33,6 +33,7 @@
 
 #include "qnxconstants.h"
 
+#include <coreplugin/featureprovider.h>
 #include <utils/hostosinfo.h>
 
 using namespace Qnx;

@@ -34,6 +34,7 @@
 
 #include "baseqtversion.h"
 
+#include <coreplugin/featureprovider.h>
 #include <projectexplorer/kitinformation.h>
 
 namespace QtSupport {

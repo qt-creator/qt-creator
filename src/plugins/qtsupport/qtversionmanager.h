@@ -143,21 +143,6 @@ private:
     Utils::PersistentSettingsWriter *m_writer;
 };
 
-namespace Internal {
-
-class QTSUPPORT_EXPORT QtFeatureProvider : public Core::IFeatureProvider
-{
-    Q_OBJECT
-
-public:
-    QtFeatureProvider() {}
-    Core::FeatureSet availableFeatures(const QString &platformName) const;
-    QStringList availablePlatforms() const;
-    QString displayNameForPlatform(const QString &string) const;
-};
-
-}
-
 } // namespace QtSupport
 
 #endif // QTVERSIONMANAGER_H

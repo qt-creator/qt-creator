@@ -31,6 +31,8 @@
 
 #include "qtkitinformation.h"
 #include "qtversionfactory.h"
+#include "baseqtversion.h"
+#include "qtfeatureprovider.h"
 
 #include "qtsupportconstants.h"
 

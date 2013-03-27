@@ -44,6 +44,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/debugginghelper.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <coreplugin/featureprovider.h>
 
 #include <utils/persistentsettings.h>
 #include <utils/environment.h>

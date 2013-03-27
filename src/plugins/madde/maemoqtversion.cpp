@@ -34,6 +34,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <coreplugin/featureprovider.h>
 #include <utils/hostosinfo.h>
 
 #include <QCoreApplication>

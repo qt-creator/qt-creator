@@ -33,6 +33,7 @@
 #include "qtoptionspage.h"
 #include "qtkitinformation.h"
 #include "qtversionmanager.h"
+#include "qtfeatureprovider.h"
 
 #include "profilereader.h"
 

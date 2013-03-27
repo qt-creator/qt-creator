@@ -37,13 +37,16 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/task.h>
-#include <coreplugin/featureprovider.h>
 
 #include <QVariantMap>
 
 namespace Utils {
 class Environment;
 } // namespace Utils
+
+namespace Core {
+class FeatureSet;
+} // namespace Core
 
 namespace ProjectExplorer {
 class IOutputParser;

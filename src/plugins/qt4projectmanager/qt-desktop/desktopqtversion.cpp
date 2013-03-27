@@ -32,6 +32,7 @@
 
 #include <qtsupport/qtsupportconstants.h>
 #include <proparser/profileevaluator.h>
+#include <coreplugin/featureprovider.h>
 
 #include <QCoreApplication>
 #include <QDir>
