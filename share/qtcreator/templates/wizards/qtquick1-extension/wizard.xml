@@ -41,7 +41,7 @@ leave room for the Qt 4 target page.
     <icon>lib.png</icon>
     <description>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QDeclarativeEngine class.
 
-    Requires &lt;b&gt;Qt 4.7.1&lt;/b&gt; or newer.</description>
+    Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</description>
     <displayname>Qt Quick 1 Extension Plugin</displayname>
     <displaycategory>Libraries</displaycategory>
     <files>
