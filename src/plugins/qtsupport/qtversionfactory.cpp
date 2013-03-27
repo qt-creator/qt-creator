@@ -29,14 +29,10 @@
 
 #include "qtversionfactory.h"
 #include "profilereader.h"
-#include "qtversionmanager.h"
 #include "baseqtversion.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
-
-#include <QSettings>
 
 using namespace QtSupport;
 using namespace QtSupport::Internal;

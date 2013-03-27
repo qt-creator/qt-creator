@@ -33,7 +33,6 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/abi.h>
 

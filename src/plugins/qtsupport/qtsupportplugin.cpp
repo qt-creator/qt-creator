@@ -40,14 +40,11 @@
 #include "gettingstartedwelcomepage.h"
 
 #include <coreplugin/variablemanager.h>
-#include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 
 #include <QtPlugin>
-#include <QMenu>
 
 static const char kHostBins[] = "CurrentProject:QT_HOST_BINS";
 static const char kInstallBins[] = "CurrentProject:QT_INSTALL_BINS";

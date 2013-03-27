@@ -38,7 +38,6 @@
 
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
-#include <projectexplorer/kitmanager.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 #include <utils/environment.h>

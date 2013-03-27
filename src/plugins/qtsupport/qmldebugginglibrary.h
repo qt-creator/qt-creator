@@ -30,7 +30,6 @@
 #ifndef QMLDEBUGGINGLIBRARY_H
 #define QMLDEBUGGINGLIBRARY_H
 
-#include "qtsupport_global.h"
 #include <utils/buildablehelperlibrary.h>
 
 QT_FORWARD_DECLARE_CLASS(QDir)

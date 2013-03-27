@@ -31,7 +31,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <QDir>
 #include <QDebug>
 
 using namespace QtSupport;

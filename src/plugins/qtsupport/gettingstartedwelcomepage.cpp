@@ -32,25 +32,19 @@
 #include "exampleslistmodel.h"
 #include "screenshotcropper.h"
 
-#include "qtsupportconstants.h"
-
 #include <utils/pathchooser.h>
-#include <utils/fileutils.h>
 
 #ifdef Q_OS_WIN
 #include <utils/winutils.h>
 #endif
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreplugin.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectnodes.h>
 
 #include <QMutex>
 #include <QThread>
@@ -59,9 +53,6 @@
 #include <QWaitCondition>
 #include <QDir>
 #include <QBuffer>
-#include <QGraphicsProxyWidget>
-#include <QScrollBar>
-#include <QSortFilterProxyModel>
 #include <QImage>
 #include <QImageReader>
 #include <QGridLayout>

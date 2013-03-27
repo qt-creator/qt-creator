@@ -31,9 +31,6 @@
 #define PROFILEREADER_H
 
 #include "qtsupport_global.h"
-#include "proparser/qmakeglobals.h"
-#include "proparser/qmakeparser.h"
-#include "proparser/qmakeevaluator.h"
 #include "proparser/profileevaluator.h"
 
 #include <coreplugin/messagemanager.h>

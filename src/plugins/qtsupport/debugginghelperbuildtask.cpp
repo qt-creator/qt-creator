@@ -34,10 +34,6 @@
 #include "qmldebugginglibrary.h"
 #include "baseqtversion.h"
 #include "qtversionmanager.h"
-#include <coreplugin/messagemanager.h>
-#include <projectexplorer/abi.h>
-#include <projectexplorer/toolchainmanager.h>
-#include <projectexplorer/toolchain.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>

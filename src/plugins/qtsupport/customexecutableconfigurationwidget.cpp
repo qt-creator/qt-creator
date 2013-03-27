@@ -33,9 +33,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/environmentwidget.h>
-#include <coreplugin/helpmanager.h>
 #include <utils/detailswidget.h>
-#include <utils/environment.h>
 #include <utils/pathchooser.h>
 
 #include <QCheckBox>

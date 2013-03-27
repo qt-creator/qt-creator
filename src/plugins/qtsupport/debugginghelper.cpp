@@ -31,14 +31,8 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/synchronousprocess.h>
-
-#include <QFileInfo>
 #include <QCoreApplication>
-#include <QHash>
-#include <QProcess>
 #include <QDir>
-#include <QDateTime>
 #include <QStringList>
 
 #include <QDesktopServices>

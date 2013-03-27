@@ -38,18 +38,11 @@
 #include "profilereader.h"
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/gnumakeparser.h>
-#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/headerpath.h>
-#include <projectexplorer/task.h>
 #include <qtsupport/debugginghelper.h>
 #include <qtsupport/qtsupportconstants.h>
-#include <coreplugin/featureprovider.h>
 
-#include <utils/persistentsettings.h>
-#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>

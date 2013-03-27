@@ -36,9 +36,6 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/runconfiguration.h>
 #include <utils/runextensions.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <utils/hostosinfo.h>

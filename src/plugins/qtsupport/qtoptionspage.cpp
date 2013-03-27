@@ -43,16 +43,13 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/qtcassert.h>
-#include <utils/buildablehelperlibrary.h>
 #include <utils/pathchooser.h>
 #include <projectexplorer/toolchainmanager.h>
-#include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/hostosinfo.h>
 #include <utils/runextensions.h>
 
 #include <QDir>
-#include <QToolTip>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QTextBrowser>

@@ -31,11 +31,8 @@
 
 #include <texteditor/basetexteditor.h>
 #include <projectexplorer/project.h>
-#include <utils/qtcassert.h>
 
-#include <QFileInfo>
 #include <QUrl>
-#include <QPlainTextEdit>
 #include <QTextCursor>
 
 using namespace ProjectExplorer;

@@ -35,7 +35,6 @@
 #include <QDebug>
 #include <QFile>
 #include <QFileInfo>
-#include <QPainter>
 
 namespace QtSupport {
 namespace Internal {

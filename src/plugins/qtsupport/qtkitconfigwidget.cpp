@@ -39,7 +39,6 @@
 #include <utils/qtcassert.h>
 
 #include <QComboBox>
-#include <QHBoxLayout>
 #include <QPushButton>
 
 namespace QtSupport {

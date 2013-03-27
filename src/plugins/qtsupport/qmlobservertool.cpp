@@ -32,9 +32,7 @@
 #include "qtsupportconstants.h"
 #include "baseqtversion.h"
 #include <coreplugin/icore.h>
-#include <utils/qtcassert.h>
 
-#include <projectexplorer/project.h>
 #include <QDesktopServices>
 #include <QCoreApplication>
 #include <QDir>

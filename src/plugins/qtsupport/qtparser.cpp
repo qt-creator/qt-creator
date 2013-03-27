@@ -32,8 +32,6 @@
 #include <projectexplorer/task.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <utils/qtcassert.h>
-
 using namespace QtSupport;
 using ProjectExplorer::Task;
 
