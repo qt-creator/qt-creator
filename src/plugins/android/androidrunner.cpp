@@ -35,6 +35,7 @@
 #include "androidrunconfiguration.h"
 #include "androidmanager.h"
 
+#include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/target.h>
 
 #include <QTime>
@@ -46,8 +47,8 @@ namespace Internal {
 AndroidRunner::AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig, bool debuggingMode)
     : QThread(parent)
 {
-    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+    Debugger::DebuggerRunConfigurationAspect *aspect
+            = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
     m_useCppDebugger = debuggingMode && aspect->useCppDebugger();
     m_useQmlDebugger = debuggingMode && aspect->useQmlDebugger();
     m_remoteGdbChannel = runConfig->remoteChannel();

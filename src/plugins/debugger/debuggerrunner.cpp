@@ -35,6 +35,7 @@
 #include "debuggerengine.h"
 #include "debuggerkitinformation.h"
 #include "debuggerplugin.h"
+#include "debuggerrunconfigurationaspect.h"
 #include "debuggerstartparameters.h"
 #include "debuggerstringutils.h"
 #include "debuggertooltipmanager.h"
@@ -145,7 +146,7 @@ public:
 
 DebuggerRunConfigWidget::DebuggerRunConfigWidget(RunConfiguration *runConfiguration)
 {
-    m_aspect = runConfiguration->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+    m_aspect = runConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
 
     m_useCppDebugger = new QCheckBox(tr("Enable C++"), this);
     m_useQmlDebugger = new QCheckBox(tr("Enable QML"), this);
@@ -510,7 +511,7 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     }
 
     DebuggerRunConfigurationAspect *aspect
-            = runConfiguration->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+            = runConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
     sp.multiProcess = aspect->useMultiProcess();
 
     if (aspect->useCppDebugger())
@@ -585,7 +586,7 @@ static bool fixupEngineTypes(DebuggerStartParameters &sp, RunConfiguration *rc, 
 
     if (rc) {
         DebuggerRunConfigurationAspect *aspect
-                = rc->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+                = rc->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
         if (const Target *target = rc->target())
             if (!fillParameters(&sp, target->kit(), errorMessage))
                 return false;

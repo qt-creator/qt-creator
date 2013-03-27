@@ -81,6 +81,10 @@ const char DOCKWIDGET_DEFAULT_AREA[]      = "Debugger.Docks.DefaultArea";
 const char TASK_CATEGORY_DEBUGGER_TEST[]      = "DebuggerTest";
 const char TASK_CATEGORY_DEBUGGER_DEBUGINFO[] = "Debuginfo";
 const char TASK_CATEGORY_DEBUGGER_RUNTIME[]   = "DebugRuntime";
+
+// Run Configuration Aspect defaults:
+const int QML_DEFAULT_DEBUG_SERVER_PORT = 3768;
+
 } // namespace Constants
 
 enum DebuggerState

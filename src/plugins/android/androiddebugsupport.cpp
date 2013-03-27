@@ -37,6 +37,7 @@
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerrunconfigurationaspect.h>
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerstartparameters.h>
 
@@ -91,8 +92,8 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
     params.displayName = AndroidManager::packageName(target);
     params.remoteSetupNeeded = true;
 
-    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+    Debugger::DebuggerRunConfigurationAspect *aspect
+            = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
     if (aspect->useCppDebugger()) {
         params.languages |= CppLanguage;
         Kit *kit = target->kit();
@@ -133,8 +134,8 @@ AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
       m_gdbServerPort(5039),
       m_qmlPort(0)
 {
-    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+    Debugger::DebuggerRunConfigurationAspect *aspect
+            = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
     m_qmlPort = aspect->qmlDebugServerPort();
     Q_ASSERT(aspect->useCppDebugger() || aspect->useQmlDebugger());
 

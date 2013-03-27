@@ -38,7 +38,6 @@
 #include <utils/environment.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QMetaType>
 
@@ -67,7 +66,7 @@ public:
         multiProcess(false),
         languages(AnyLanguage),
         qmlServerAddress(QLatin1String("127.0.0.1")),
-        qmlServerPort(ProjectExplorer::Constants::QML_DEFAULT_DEBUG_SERVER_PORT),
+        qmlServerPort(Constants::QML_DEFAULT_DEBUG_SERVER_PORT),
         remoteSetupNeeded(false),
         startMode(NoStartMode),
         closeMode(KillAtClose),

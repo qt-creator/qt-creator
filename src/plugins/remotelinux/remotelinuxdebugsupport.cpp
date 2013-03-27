@@ -32,6 +32,7 @@
 #include "remotelinuxrunconfiguration.h"
 
 #include <debugger/debuggerengine.h>
+#include <debugger/debuggerrunconfigurationaspect.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerkitinformation.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -61,8 +62,8 @@ public:
     LinuxDeviceDebugSupportPrivate(const RemoteLinuxRunConfiguration *runConfig,
             DebuggerEngine *engine)
         : engine(engine),
-          qmlDebugging(runConfig->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>()->useQmlDebugger()),
-          cppDebugging(runConfig->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>()->useCppDebugger()),
+          qmlDebugging(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useQmlDebugger()),
+          cppDebugging(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useCppDebugger()),
           state(Inactive),
           gdbServerPort(-1), qmlPort(-1),
           device(DeviceKitInformation::device(runConfig->target()->kit())),
@@ -105,8 +106,8 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const RemoteLin
     if (ToolChain *tc = ToolChainKitInformation::toolChain(k))
         params.toolChainAbi = tc->targetAbi();
 
-    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+    Debugger::DebuggerRunConfigurationAspect *aspect
+            = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
     if (aspect->useQmlDebugger()) {
         params.languages |= QmlLanguage;
         params.qmlServerAddress = device->sshParameters().host;

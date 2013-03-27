@@ -226,9 +226,6 @@ const char MSVC_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.Msvc";
 const char WINCE_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.WinCE";
 const char CUSTOM_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.Custom";
 
-// Run Configuration defaults:
-const int QML_DEFAULT_DEBUG_SERVER_PORT = 3768;
-
 // Default directory to run custom (build) commands in.
 const char DEFAULT_WORKING_DIR[] = "%{buildDir}";
 

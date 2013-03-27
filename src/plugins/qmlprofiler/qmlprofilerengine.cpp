@@ -34,6 +34,7 @@
 
 #include <analyzerbase/analyzermanager.h>
 #include <coreplugin/icore.h>
+#include <debugger/debuggerrunconfigurationaspect.h>
 #include <utils/qtcassert.h>
 #include <coreplugin/helpmanager.h>
 #include <qmlprojectmanager/qmlprojectrunconfiguration.h>
@@ -83,8 +84,8 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
     AbstractQmlProfilerRunner *runner = 0;
     if (!runConfiguration) // attaching
         return 0;
-    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
-            = runConfiguration->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+    Debugger::DebuggerRunConfigurationAspect *aspect
+            = runConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
     if (QmlProjectManager::QmlProjectRunConfiguration *rc1 =
             qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration)) {
         // This is a "plain" .qmlproject.

@@ -31,6 +31,7 @@
 
 #include <remotelinux/remotelinuxrunconfiguration.h>
 
+#include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/localapplicationrunconfiguration.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
@@ -67,7 +68,7 @@ Analyzer::AnalyzerStartParameters ValgrindTool::createStartParameters(
         sp.debuggee = rc1->executable();
         sp.debuggeeArgs = rc1->commandLineArguments();
         sp.connParams.host = QLatin1String("localhost");
-        sp.connParams.port = rc1->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>()
+        sp.connParams.port = rc1->extraAspect<Debugger::DebuggerRunConfigurationAspect>()
                 ->qmlDebugServerPort();
     } else if (RemoteLinuxRunConfiguration *rc2 =
                qobject_cast<RemoteLinuxRunConfiguration *>(runConfiguration)) {

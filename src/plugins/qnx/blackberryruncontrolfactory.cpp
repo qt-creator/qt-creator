@@ -39,6 +39,7 @@
 #include "qnxutils.h"
 
 #include <debugger/debuggerplugin.h>
+#include <debugger/debuggerrunconfigurationaspect.h>
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerkitinformation.h>
 #include <projectexplorer/deployconfiguration.h>
@@ -147,8 +148,8 @@ Debugger::DebuggerStartParameters BlackBerryRunControlFactory::startParameters(
     params.displayName = runConfig->displayName();
     params.remoteSetupNeeded = true;
 
-    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+    Debugger::DebuggerRunConfigurationAspect *aspect
+            = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
     if (aspect->useQmlDebugger()) {
         BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(runConfig->target()->kit());
         if (device) {

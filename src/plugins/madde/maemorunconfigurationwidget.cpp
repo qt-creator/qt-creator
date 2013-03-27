@@ -36,6 +36,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
@@ -83,7 +84,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     subLayout->setMargin(0);
     addMountWidgets(subLayout);
     connect(m_runConfiguration->target(), SIGNAL(kitChanged()), this, SLOT(updateMountWarning()));
-    connect(m_runConfiguration->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>(),
+    connect(m_runConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>(),
             SIGNAL(debuggersChanged()),
             SLOT(updateMountWarning()));
     updateMountWarning();

@@ -69,6 +69,8 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 
+#include <debugger/debuggerrunconfigurationaspect.h>
+
 #include <qtsupport/qtkitinformation.h>
 
 #include <QApplication>
@@ -299,8 +301,8 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
     AnalyzerStartParameters sp;
     sp.startMode = StartQml; // FIXME: The parameter struct is not needed/not used.
 
-    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
-            = runConfiguration->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+    Debugger::DebuggerRunConfigurationAspect *aspect
+            = runConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
 
     // FIXME: This is only used to communicate the connParams settings.
     if (QmlProjectRunConfiguration *rc1 =

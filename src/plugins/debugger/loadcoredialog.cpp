@@ -33,6 +33,7 @@
 #include "debuggerdialogs.h"
 
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <ssh/sftpfilesystemmodel.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>

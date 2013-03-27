@@ -47,7 +47,6 @@ namespace Utils { class OutputFormatter; }
 namespace ProjectExplorer {
 class Abi;
 class BuildConfiguration;
-class DebuggerRunConfigurationAspect;
 class RunConfiguration;
 class RunControl;
 class Target;
@@ -85,64 +84,6 @@ protected:
     friend class RunConfiguration;
     virtual void fromMap(const QVariantMap &map) = 0;
 };
-
-class PROJECTEXPLORER_EXPORT DebuggerRunConfigurationAspect
-    : public QObject, public ProjectExplorer::IRunConfigurationAspect
-{
-    Q_OBJECT
-
-public:
-    DebuggerRunConfigurationAspect(RunConfiguration *runConfiguration);
-    DebuggerRunConfigurationAspect(RunConfiguration *runConfiguration,
-                                   const DebuggerRunConfigurationAspect *other);
-
-    enum QmlDebuggerStatus {
-        DisableQmlDebugger = 0,
-        EnableQmlDebugger,
-        AutoEnableQmlDebugger
-    };
-
-    QVariantMap toMap() const;
-    void fromMap(const QVariantMap &map);
-
-    DebuggerRunConfigurationAspect *clone(RunConfiguration *parent) const;
-
-    QString displayName() const;
-
-    bool useCppDebugger() const;
-    void setUseCppDebugger(bool value);
-    bool useQmlDebugger() const;
-    void setUseQmlDebugger(bool value);
-    uint qmlDebugServerPort() const;
-    void setQmllDebugServerPort(uint port);
-    bool useMultiProcess() const;
-    void setUseMultiProcess(bool on);
-    void suppressDisplay();
-    void suppressQmlDebuggingOptions();
-    void suppressCppDebuggingOptions();
-    void suppressQmlDebuggingSpinbox();
-    bool isDisplaySuppressed() const;
-    bool areQmlDebuggingOptionsSuppressed() const;
-    bool areCppDebuggingOptionsSuppressed() const;
-    bool isQmlDebuggingSpinboxSuppressed() const;
-    RunConfiguration *runConfiguration();
-
-signals:
-    void debuggersChanged();
-
-public:
-    RunConfiguration *m_runConfiguration;
-    bool m_useCppDebugger;
-    QmlDebuggerStatus m_useQmlDebugger;
-    uint m_qmlDebugServerPort;
-    bool m_useMultiProcess;
-
-    bool m_suppressDisplay;
-    bool m_suppressQmlDebuggingOptions;
-    bool m_suppressCppDebuggingOptions;
-    bool m_suppressQmlDebuggingSpinbox;
-};
-
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
@@ -186,6 +127,7 @@ public:
 
 signals:
     void enabledChanged();
+    void requestRunActionsUpdate();
 
 protected:
     RunConfiguration(Target *parent, const Core::Id id);
@@ -195,6 +137,8 @@ protected:
     BuildConfiguration *activeBuildConfiguration() const;
 
 private:
+    void ctor();
+
     QList<IRunConfigurationAspect *> m_aspects;
     bool m_aspectsInitialized;
 };

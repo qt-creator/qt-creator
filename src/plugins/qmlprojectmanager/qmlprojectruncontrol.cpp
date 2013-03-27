@@ -30,6 +30,7 @@
 #include "qmlprojectruncontrol.h"
 #include "qmlprojectrunconfiguration.h"
 #include <coreplugin/icore.h>
+#include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/kit.h>
@@ -200,8 +201,8 @@ QString QmlProjectRunControlFactory::displayName() const
 RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConfiguration *runConfig, QString *errorMessage)
 {
     Debugger::DebuggerStartParameters params;
-    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+    Debugger::DebuggerRunConfigurationAspect *aspect
+            = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
     params.startMode = Debugger::StartInternal;
     params.executable = runConfig->observerPath();
     params.processArgs = runConfig->viewerArguments();

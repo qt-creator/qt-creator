@@ -35,6 +35,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
+#include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -91,8 +92,8 @@ QString QmlProjectRunConfiguration::disabledReason() const
 void QmlProjectRunConfiguration::ctor()
 {
     // reset default settings in constructor
-    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
-            = extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+    Debugger::DebuggerRunConfigurationAspect *aspect
+            = extraAspect<Debugger::DebuggerRunConfigurationAspect>();
     aspect->setUseCppDebugger(false);
     aspect->setUseQmlDebugger(true);
     aspect->suppressQmlDebuggingSpinbox();

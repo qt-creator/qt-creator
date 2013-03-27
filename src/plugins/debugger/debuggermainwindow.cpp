@@ -30,6 +30,7 @@
 #include "debuggermainwindow.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
+#include "debuggerrunconfigurationaspect.h"
 
 #include <utils/appmainwindow.h>
 #include <utils/styledbar.h>
@@ -200,14 +201,14 @@ void DebuggerMainWindowPrivate::updateUiForTarget(Target *target)
 void DebuggerMainWindowPrivate::updateUiForRunConfiguration(RunConfiguration *rc)
 {
     if (m_previousRunConfiguration)
-        disconnect(m_previousRunConfiguration->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>(),
+        disconnect(m_previousRunConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>(),
                    SIGNAL(debuggersChanged()),
                    this, SLOT(updateUiForCurrentRunConfiguration()));
     m_previousRunConfiguration = rc;
     updateUiForCurrentRunConfiguration();
     if (!rc)
         return;
-    connect(m_previousRunConfiguration->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>(),
+    connect(m_previousRunConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>(),
             SIGNAL(debuggersChanged()),
             SLOT(updateUiForCurrentRunConfiguration()));
 }
@@ -225,9 +226,9 @@ void DebuggerMainWindowPrivate::updateActiveLanguages()
         newLanguages = m_engineDebugLanguages;
     else {
         if (m_previousRunConfiguration) {
-            if (m_previousRunConfiguration->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>()->useCppDebugger())
+            if (m_previousRunConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useCppDebugger())
                 newLanguages |= CppLanguage;
-            if (m_previousRunConfiguration->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>()->useQmlDebugger())
+            if (m_previousRunConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useQmlDebugger())
                 newLanguages |= QmlLanguage;
         }
     }

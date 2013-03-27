@@ -39,6 +39,7 @@
 #include "blackberrydeviceconfiguration.h"
 #include "blackberrydeployinformation.h"
 
+#include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/runconfiguration.h>
@@ -191,8 +192,8 @@ bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDes
         fileContent.replace(SRC_DIR_VAR, QDir::toNativeSeparators(target()->project()->projectDirectory()).toLatin1());
 
     // Add parameter for QML debugging (if enabled)
-    ProjectExplorer::DebuggerRunConfigurationAspect *aspect
-            = target()->activeRunConfiguration()->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>();
+    Debugger::DebuggerRunConfigurationAspect *aspect
+            = target()->activeRunConfiguration()->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
     if (aspect->useQmlDebugger()) {
         if (!fileContent.contains("-qmljsdebugger")) {
             const QString argString = QString::fromLatin1("<arg>-qmljsdebugger=port:%1</arg>\n</qnx>")

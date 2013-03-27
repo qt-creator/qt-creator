@@ -38,6 +38,7 @@
 #include "stackhandler.h"
 
 #include <coreplugin/icore.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>

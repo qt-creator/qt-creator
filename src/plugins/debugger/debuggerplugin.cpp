@@ -37,6 +37,7 @@
 #include "debuggerengine.h"
 #include "debuggermainwindow.h"
 #include "debuggerrunner.h"
+#include "debuggerrunconfigurationaspect.h"
 #include "debuggerruncontrolfactory.h"
 #include "debuggerstringutils.h"
 #include "debuggerkitinformation.h"
@@ -478,7 +479,7 @@ bool DummyEngine::hasCapability(unsigned cap) const
     QTC_ASSERT(activeRc, return 0);
 
     // This is a non-started Cdb or Gdb engine:
-    if (activeRc->extraAspect<ProjectExplorer::DebuggerRunConfigurationAspect>()->useCppDebugger())
+    if (activeRc->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useCppDebugger())
         return cap & (WatchpointByAddressCapability
                | BreakConditionCapability
                | TracePointCapability
