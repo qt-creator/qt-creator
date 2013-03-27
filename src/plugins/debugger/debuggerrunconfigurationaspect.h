@@ -58,6 +58,7 @@ public:
     void fromMap(const QVariantMap &map);
 
     DebuggerRunConfigurationAspect *clone(ProjectExplorer::RunConfiguration *parent) const;
+    ProjectExplorer::RunConfigWidget *createConfigurationWidget();
 
     QString displayName() const;
 

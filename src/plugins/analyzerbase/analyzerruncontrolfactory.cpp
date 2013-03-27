@@ -30,7 +30,6 @@
 #include "analyzerruncontrolfactory.h"
 #include "analyzersettings.h"
 #include "analyzerruncontrol.h"
-#include "analyzerrunconfigwidget.h"
 #include "analyzermanager.h"
 #include "ianalyzertool.h"
 #include "analyzerstartparameters.h"
@@ -85,13 +84,6 @@ IRunConfigurationAspect *AnalyzerRunControlFactory::createRunConfigurationAspect
 {
     Q_UNUSED(rc);
     return new AnalyzerRunConfigurationAspect;
-}
-
-RunConfigWidget *AnalyzerRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
-{
-    AnalyzerRunConfigWidget *ret = new AnalyzerRunConfigWidget;
-    ret->setRunConfiguration(runConfiguration);
-    return ret;
 }
 
 } // namespace Internal

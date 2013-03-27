@@ -551,9 +551,8 @@ QString RunSettingsWidget::uniqueRCName(const QString &name)
 
 void RunSettingsWidget::addRunControlWidgets()
 {
-    foreach (IRunControlFactory *f, ExtensionSystem::PluginManager::getObjects<IRunControlFactory>()) {
-        ProjectExplorer::RunConfigWidget *rcw =
-            f->createConfigurationWidget(m_target->activeRunConfiguration());
+    foreach (IRunConfigurationAspect *aspect, m_target->activeRunConfiguration()->extraAspects()) {
+        ProjectExplorer::RunConfigWidget *rcw = aspect->createConfigurationWidget();
         if (rcw)
             addSubWidget(rcw);
     }

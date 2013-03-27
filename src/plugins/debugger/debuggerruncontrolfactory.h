@@ -71,8 +71,6 @@ public:
 
 private:
     QString displayName() const;
-    ProjectExplorer::RunConfigWidget *createConfigurationWidget(
-        ProjectExplorer::RunConfiguration *runConfiguration);
 };
 
 } // namespace Internal

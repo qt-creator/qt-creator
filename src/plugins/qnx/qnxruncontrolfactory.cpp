@@ -137,9 +137,3 @@ QString QnxRunControlFactory::displayName() const
 {
     return tr("Run on remote QNX device");
 }
-
-RunConfigWidget *QnxRunControlFactory::createConfigurationWidget(RunConfiguration *config)
-{
-    Q_UNUSED(config)
-    return 0;
-}

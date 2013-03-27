@@ -50,7 +50,6 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
@@ -59,14 +58,8 @@
 #include <utils/portlist.h>
 #include <utils/tcpportsgatherer.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/helpmanager.h>
 
-#include <QCheckBox>
-#include <QSpinBox>
-#include <QDebug>
 #include <QErrorMessage>
-#include <QFormLayout>
-#include <QLabel>
 
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
@@ -111,139 +104,6 @@ static const char *engineTypeName(DebuggerEngineType et)
         break;
     }
     return "No engine";
-}
-
-////////////////////////////////////////////////////////////////////////
-//
-// DebuggerRunConfigWidget
-//
-////////////////////////////////////////////////////////////////////////
-
-class DebuggerRunConfigWidget : public RunConfigWidget
-{
-    Q_OBJECT
-
-public:
-    explicit DebuggerRunConfigWidget(RunConfiguration *runConfiguration);
-    QString displayName() const { return tr("Debugger Settings"); }
-
-private slots:
-    void useCppDebuggerToggled(bool on);
-    void useQmlDebuggerToggled(bool on);
-    void qmlDebugServerPortChanged(int port);
-    void useMultiProcessToggled(bool on);
-
-public:
-    DebuggerRunConfigurationAspect *m_aspect; // not owned
-
-    QCheckBox *m_useCppDebugger;
-    QCheckBox *m_useQmlDebugger;
-    QSpinBox *m_debugServerPort;
-    QLabel *m_debugServerPortLabel;
-    QLabel *m_qmlDebuggerInfoLabel;
-    QCheckBox *m_useMultiProcess;
-};
-
-DebuggerRunConfigWidget::DebuggerRunConfigWidget(RunConfiguration *runConfiguration)
-{
-    m_aspect = runConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-
-    m_useCppDebugger = new QCheckBox(tr("Enable C++"), this);
-    m_useQmlDebugger = new QCheckBox(tr("Enable QML"), this);
-
-    m_debugServerPort = new QSpinBox(this);
-    m_debugServerPort->setMinimum(1);
-    m_debugServerPort->setMaximum(65535);
-
-    m_debugServerPortLabel = new QLabel(tr("Debug port:"), this);
-    m_debugServerPortLabel->setBuddy(m_debugServerPort);
-
-    m_qmlDebuggerInfoLabel = new QLabel(tr("<a href=\""
-        "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html"
-        "\">What are the prerequisites?</a>"));
-
-    m_useCppDebugger->setChecked(m_aspect->useCppDebugger());
-    m_useQmlDebugger->setChecked(m_aspect->useQmlDebugger());
-
-    m_debugServerPort->setValue(m_aspect->qmlDebugServerPort());
-
-    static const QByteArray env = qgetenv("QTC_DEBUGGER_MULTIPROCESS");
-    m_useMultiProcess =
-        new QCheckBox(tr("Enable Debugging of Subprocesses"), this);
-    m_useMultiProcess->setChecked(m_aspect->useMultiProcess());
-    m_useMultiProcess->setVisible(env.toInt());
-
-    connect(m_qmlDebuggerInfoLabel, SIGNAL(linkActivated(QString)),
-            Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
-    connect(m_useQmlDebugger, SIGNAL(toggled(bool)),
-            SLOT(useQmlDebuggerToggled(bool)));
-    connect(m_useCppDebugger, SIGNAL(toggled(bool)),
-            SLOT(useCppDebuggerToggled(bool)));
-    connect(m_debugServerPort, SIGNAL(valueChanged(int)),
-            SLOT(qmlDebugServerPortChanged(int)));
-    connect(m_useMultiProcess, SIGNAL(toggled(bool)),
-            SLOT(useMultiProcessToggled(bool)));
-
-    if (m_aspect->isDisplaySuppressed())
-        hide();
-
-    if (m_aspect->areQmlDebuggingOptionsSuppressed()) {
-        m_debugServerPortLabel->hide();
-        m_debugServerPort->hide();
-        m_useQmlDebugger->hide();
-    }
-
-    if (m_aspect->areCppDebuggingOptionsSuppressed())
-        m_useCppDebugger->hide();
-
-    if (m_aspect->isQmlDebuggingSpinboxSuppressed()) {
-        m_debugServerPort->hide();
-        m_debugServerPortLabel->hide();
-    }
-
-    QHBoxLayout *qmlLayout = new QHBoxLayout;
-    qmlLayout->setMargin(0);
-    qmlLayout->addWidget(m_useQmlDebugger);
-    qmlLayout->addWidget(m_debugServerPortLabel);
-    qmlLayout->addWidget(m_debugServerPort);
-    qmlLayout->addWidget(m_qmlDebuggerInfoLabel);
-    qmlLayout->addStretch();
-
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->setMargin(0);
-    layout->addWidget(m_useCppDebugger);
-    layout->addLayout(qmlLayout);
-    layout->addWidget(m_useMultiProcess);
-    setLayout(layout);
-}
-
-void DebuggerRunConfigWidget::qmlDebugServerPortChanged(int port)
-{
-    m_aspect->m_qmlDebugServerPort = port;
-}
-
-void DebuggerRunConfigWidget::useCppDebuggerToggled(bool on)
-{
-    m_aspect->m_useCppDebugger = on;
-    if (!on && !m_useQmlDebugger->isChecked())
-        m_useQmlDebugger->setChecked(true);
-}
-
-void DebuggerRunConfigWidget::useQmlDebuggerToggled(bool on)
-{
-    m_debugServerPort->setEnabled(on);
-    m_debugServerPortLabel->setEnabled(on);
-
-    m_aspect->m_useQmlDebugger = on
-            ? DebuggerRunConfigurationAspect::EnableQmlDebugger
-            : DebuggerRunConfigurationAspect::DisableQmlDebugger;
-    if (!on && !m_useCppDebugger->isChecked())
-        m_useCppDebugger->setChecked(true);
-}
-
-void DebuggerRunConfigWidget::useMultiProcessToggled(bool on)
-{
-    m_aspect->m_useMultiProcess = on;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -660,12 +520,6 @@ DebuggerRunControl *DebuggerRunControlFactory::createAndScheduleRun
     return rc;
 }
 
-RunConfigWidget *DebuggerRunControlFactory::createConfigurationWidget
-    (RunConfiguration *runConfiguration)
-{
-    return new DebuggerRunConfigWidget(runConfiguration);
-}
-
 DebuggerEngine *DebuggerRunControlFactory::createEngine(DebuggerEngineType et,
     const DebuggerStartParameters &sp, QString *errorMessage)
 {
@@ -695,5 +549,3 @@ DebuggerEngine *DebuggerRunControlFactory::createEngine(DebuggerEngineType et,
 }
 
 } // namespace Debugger
-
-#include "debuggerrunner.moc"

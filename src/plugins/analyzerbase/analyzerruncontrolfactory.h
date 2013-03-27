@@ -50,8 +50,6 @@ public:
                                         ProjectExplorer::RunMode mode,
                                         QString *errorMessage);
     ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect(ProjectExplorer::RunConfiguration *rc);
-    ProjectExplorer::RunConfigWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
-
 };
 
 } // namespace Internal

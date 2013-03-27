@@ -31,6 +31,7 @@
 #include "analyzersettings.h"
 
 #include "analyzermanager.h"
+#include "analyzerrunconfigwidget.h"
 #include "ianalyzertool.h"
 #include "analyzerplugin.h"
 #include "analyzeroptionspage.h"
@@ -226,6 +227,13 @@ void AnalyzerRunConfigurationAspect::resetCustomToGlobalSettings()
 {
     AnalyzerGlobalSettings *gs = AnalyzerGlobalSettings::instance();
     AnalyzerSettings::fromMap(gs->toMap(), &m_customConfigurations);
+}
+
+ProjectExplorer::RunConfigWidget *AnalyzerRunConfigurationAspect::createConfigurationWidget()
+{
+    AnalyzerRunConfigWidget *ret = new AnalyzerRunConfigWidget;
+    ret->setRunConfigurationAspect(this);
+    return ret;
 }
 
 } // namespace Analyzer

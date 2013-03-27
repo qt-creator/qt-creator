@@ -104,6 +104,12 @@ bool ProcessHandle::equals(const ProcessHandle &rhs) const
 }
 
 
+RunConfigWidget *IRunConfigurationAspect::createConfigurationWidget()
+{
+    return 0;
+}
+
+
 /*!
     \class ProjectExplorer::RunConfiguration
     \brief  Base class for a run configuration. A run configuration specifies how a
@@ -393,11 +399,6 @@ IRunControlFactory::~IRunControlFactory()
 IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
 {
     Q_UNUSED(rc);
-    return 0;
-}
-
-RunConfigWidget *IRunControlFactory::createConfigurationWidget(RunConfiguration *)
-{
     return 0;
 }
 

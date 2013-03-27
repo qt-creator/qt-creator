@@ -48,6 +48,7 @@ namespace ProjectExplorer {
 class Abi;
 class BuildConfiguration;
 class RunConfiguration;
+class RunConfigWidget;
 class RunControl;
 class Target;
 
@@ -79,6 +80,7 @@ public:
     virtual QString displayName() const = 0;
 
     virtual IRunConfigurationAspect *clone(RunConfiguration *parent) const = 0;
+    virtual RunConfigWidget *createConfigurationWidget();
 
 protected:
     friend class RunConfiguration;
@@ -173,8 +175,6 @@ private:
     virtual RunConfiguration *doRestore(Target *parent, const QVariantMap &map) = 0;
 };
 
-class RunConfigWidget;
-
 class PROJECTEXPLORER_EXPORT IRunControlFactory : public QObject
 {
     Q_OBJECT
@@ -188,7 +188,6 @@ public:
     virtual QString displayName() const = 0;
 
     virtual IRunConfigurationAspect *createRunConfigurationAspect(RunConfiguration *rc);
-    virtual RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
 };
 
 class PROJECTEXPLORER_EXPORT RunConfigWidget

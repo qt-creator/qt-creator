@@ -68,7 +68,7 @@ public:
 
     virtual QString displayName() const;
 
-    void setRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    void setRunConfigurationAspect(AnalyzerRunConfigurationAspect *aspect);
 
 private:
     void setDetailEnabled(bool value);

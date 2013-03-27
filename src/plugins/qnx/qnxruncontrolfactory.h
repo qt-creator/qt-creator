@@ -45,7 +45,6 @@ public:
     explicit QnxRunControlFactory(QObject *parent = 0);
 
     QString displayName() const;
-    ProjectExplorer::RunConfigWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
 
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
                 ProjectExplorer::RunMode mode) const;

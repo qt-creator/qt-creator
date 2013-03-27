@@ -177,6 +177,7 @@ public:
     void resetCustomToGlobalSettings();
 
     QList<AbstractAnalyzerSubConfig *> customSubConfigs() const { return m_customConfigurations; }
+    ProjectExplorer::RunConfigWidget *createConfigurationWidget();
 
 protected:
     virtual void fromMap(const QVariantMap &map);

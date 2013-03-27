@@ -91,12 +91,10 @@ QString AnalyzerRunConfigWidget::displayName() const
     return tr("Analyzer Settings");
 }
 
-void AnalyzerRunConfigWidget::setRunConfiguration(ProjectExplorer::RunConfiguration *rc)
+void AnalyzerRunConfigWidget::setRunConfigurationAspect(AnalyzerRunConfigurationAspect *aspect)
 {
-    QTC_ASSERT(rc, return);
-
-    m_aspect = rc->extraAspect<AnalyzerRunConfigurationAspect>();
-    QTC_ASSERT(m_aspect, return);
+    QTC_ASSERT(aspect, return);
+    m_aspect = aspect;
 
     // add config widget for each sub config
     foreach (AbstractAnalyzerSubConfig *config, m_aspect->customSubConfigs()) {
