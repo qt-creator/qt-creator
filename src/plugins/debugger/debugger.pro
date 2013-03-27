@@ -9,8 +9,6 @@ include(../../qtcreatorplugin.pri)
 
 DEFINES += DEBUGGER_LIBRARY
 
-INCLUDEPATH += $$PWD/../../libs/utils
-
 QT += gui \
     network \
     script

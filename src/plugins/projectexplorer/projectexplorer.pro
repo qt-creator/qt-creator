@@ -4,7 +4,6 @@ QT += xml script declarative
 
 include(../../qtcreatorplugin.pri)
 include(customwizard/customwizard.pri)
-INCLUDEPATH += $$PWD/../../libs/utils
 HEADERS += projectexplorer.h \
     abi.h \
     abiwidget.h \
