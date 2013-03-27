@@ -50,8 +50,8 @@ ProjectFileAdder::ProjectFileAdder(QList<ProjectFile> &files)
 {
     addMapping(CppTools::Constants::C_SOURCE_MIMETYPE, ProjectFile::CSource);
     addMapping(CppTools::Constants::C_HEADER_MIMETYPE, ProjectFile::CHeader);
-    addMapping(CppTools::Constants::CPP_SOURCE_MIMETYPE, ProjectFile::CSource);
-    addMapping(CppTools::Constants::CPP_HEADER_MIMETYPE, ProjectFile::CHeader);
+    addMapping(CppTools::Constants::CPP_SOURCE_MIMETYPE, ProjectFile::CXXSource);
+    addMapping(CppTools::Constants::CPP_HEADER_MIMETYPE, ProjectFile::CXXHeader);
     addMapping(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE, ProjectFile::ObjCXXSource);
 }
 

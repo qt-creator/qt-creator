@@ -843,26 +843,27 @@ void CppModelManager::dumpModelManagerConfiguration()
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
             qDebug() << "=== part ===";
             const char* cVersion;
-            const char* cxxVersion;
-            const char* cxxExtensions;
             switch (part->cVersion) {
             case ProjectPart::C89: cVersion = "C89"; break;
             case ProjectPart::C99: cVersion = "C99"; break;
             case ProjectPart::C11: cVersion = "C11"; break;
             default: cVersion = "INVALID";
             }
+            const char* cxxVersion;
             switch (part->cxxVersion) {
-            case ProjectPart::CXX98: cVersion = "CXX98"; break;
-            case ProjectPart::CXX11: cVersion = "CXX11"; break;
+            case ProjectPart::CXX98: cxxVersion = "CXX98"; break;
+            case ProjectPart::CXX11: cxxVersion = "CXX11"; break;
             default: cxxVersion = "INVALID";
             }
-            switch (part->cxxExtensions) {
-            case ProjectPart::NoExtensions: cVersion = "NoExtensions"; break;
-            case ProjectPart::GnuExtensions: cVersion = "GnuExtensions"; break;
-            case ProjectPart::MicrosoftExtensions: cVersion = "MicrosoftExtensions"; break;
-            case ProjectPart::BorlandExtensions: cVersion = "BorlandExtensions"; break;
-            default: cxxExtensions = "INVALID";
-            }
+            QStringList cxxExtensions;
+            if (part->cxxExtensions & ProjectPart::GnuExtensions)
+                cxxExtensions << QLatin1String("GnuExtensions");
+            if (part->cxxExtensions & ProjectPart::MicrosoftExtensions)
+                cxxExtensions << QLatin1String("MicrosoftExtensions");
+            if (part->cxxExtensions & ProjectPart::BorlandExtensions)
+                cxxExtensions << QLatin1String("BorlandExtensions");
+            if (part->cxxExtensions & ProjectPart::OpenMP)
+                cxxExtensions << QLatin1String("OpenMP");
 
             qDebug() << "cVersion:" << cVersion;
             qDebug() << "cxxVersion:" << cxxVersion;
