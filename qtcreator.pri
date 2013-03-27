@@ -94,6 +94,8 @@ defineReplace(stripSrcDir) {
 
 } # qt5
 
+!isEmpty(BUILD_TESTS):TEST = 1
+
 isEmpty(TEST):CONFIG(debug, debug|release) {
     !debug_and_release|build_pass {
         TEST = 1
