@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef MACROSPLUGIN_FINDEVENTHANDLER_H
-#define MACROSPLUGIN_FINDEVENTHANDLER_H
+#ifndef FINDMACROHANDLER_H
+#define FINDMACROHANDLER_H
 
 #include "imacrohandler.h"
 
@@ -68,4 +68,4 @@ private slots:
 } // namespace Internal
 } // namespace Macros
 
-#endif // MACROSPLUGIN_FINDEVENTHANDLER_H
+#endif // FINDMACROHANDLER_H

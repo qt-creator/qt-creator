@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef CONCENIENCE_H
-#define CONCENIENCE_H
+#ifndef CONVENIENCE_H
+#define CONVENIENCE_H
 
 #include "texteditor_global.h"
 
@@ -51,4 +51,4 @@ TEXTEDITOR_EXPORT QString textAt(QTextCursor tc, int pos, int length);
 } // Util
 } // TextEditor
 
-#endif // CONCENIENCE_H
+#endif // CONVENIENCE_H

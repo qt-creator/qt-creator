@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef MACROSPLUGIN_ACTIONEVENTHANDLER_H
-#define MACROSPLUGIN_ACTIONEVENTHANDLER_H
+#ifndef ACTIOMACROHANDLER_H
+#define ACTIOMACROHANDLER_H
 
 #include "imacrohandler.h"
 
@@ -70,4 +70,4 @@ private:
 } // namespace Internal
 } // namespace Macros
 
-#endif // MACROSPLUGIN_ACTIONEVENTHANDLER_H
+#endif // ACTIOMACROHANDLER_H

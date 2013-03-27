@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef MACROSPLUGIN_TEXTEDITOREVENTHANDLER_H
-#define MACROSPLUGIN_TEXTEDITOREVENTHANDLER_H
+#ifndef TEXTEDITORMACROHANDLER_H
+#define TEXTEDITORMACROHANDLER_H
 
 #include "imacrohandler.h"
 
@@ -69,4 +69,4 @@ private:
 } // namespace Internal
 } // namespace Macros
 
-#endif // MACROSPLUGIN_TEXTEDITOREVENTHANDLER_H
+#endif // TEXTEDITORMACROHANDLER_H

@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QAGGREGATION_H
-#define QAGGREGATION_H
+#ifndef AGGREGATE_H
+#define AGGREGATE_H
 
 #include "aggregation_global.h"
 
@@ -131,4 +131,4 @@ template <typename T> QList<T *> query_all(QObject *obj)
 
 } // namespace Aggregation
 
-#endif // QAGGREGATION_H
+#endif // AGGREGATE_H

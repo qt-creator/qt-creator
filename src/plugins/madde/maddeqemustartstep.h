@@ -26,8 +26,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef MAEMOQEMUSTARTSTEP_H
-#define MAEMOQEMUSTARTSTEP_H
+#ifndef MADDEQEMUSTARTSTEP_H
+#define MADDEQEMUSTARTSTEP_H
 
 #include <remotelinux/abstractremotelinuxdeploystep.h>
 
@@ -57,4 +57,4 @@ private:
 } // namespace Internal
 } // namespace Madde
 
-#endif // MAEMOQEMUSTARTSTEP_H
+#endif // MADDEQEMUSTARTSTEP_H
