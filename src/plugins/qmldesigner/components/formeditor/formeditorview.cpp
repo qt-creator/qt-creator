@@ -183,6 +183,8 @@ void FormEditorView::modelAboutToBeDetached(Model *model)
     m_formEditorWidget->resetView();
     scene()->resetScene();
 
+    m_currentTool = m_selectionTool;
+
     QmlModelView::modelAboutToBeDetached(model);
 }
 
