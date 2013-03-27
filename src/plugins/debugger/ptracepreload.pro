@@ -1,5 +1,5 @@
 
-include(../../qtcreatorlibrary.pri)
+include(../../../qtcreator.pri)
 
 TEMPLATE = lib
 TARGET = ptracepreload
