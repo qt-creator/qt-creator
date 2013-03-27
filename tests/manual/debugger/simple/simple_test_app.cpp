@@ -3042,12 +3042,12 @@ namespace stdset {
     {
         typedef std::set<int> Set;
         Set set;
-        set.insert(11.0);
-        set.insert(22.0);
-        set.insert(33.0);
-        set.insert(44.0);
-        set.insert(55.0);
-        set.insert(66.0);
+        set.insert(11);
+        set.insert(22);
+        set.insert(33);
+        set.insert(44);
+        set.insert(55);
+        set.insert(66);
 
         Set::iterator it1 = set.begin();
         Set::iterator it2 = it1; ++it2;

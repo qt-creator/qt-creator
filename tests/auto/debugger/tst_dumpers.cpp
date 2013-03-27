@@ -837,9 +837,9 @@ void tst_Dumpers::dumper_data()
                     "QByteArray buf3(str3);\n"
                     "unused(&buf1, &buf2, &buf3);\n")
                % CoreProfile()
-               % Check("buf1", "\"" + QByteArray(1, 0xee) + "\"", "@QByteArray")
-               % Check("buf2", "\"" + QByteArray(1, 0xee) + "\"", "@QByteArray")
-               % Check("buf3", "\"\ee\"", "@QByteArray")
+               % Check("buf1", "\"" + QByteArray(1, (char)0xee) + "\"", "@QByteArray")
+               % Check("buf2", "\"" + QByteArray(1, (char)0xee) + "\"", "@QByteArray")
+               % Check("buf3", "\"\\ee\"", "@QByteArray")
                % CheckType("str1", "char *");
 
     QTest::newRow("QByteArray4")
@@ -928,7 +928,7 @@ void tst_Dumpers::dumper_data()
                     "QFileInfo fi(\"C:\\Program Files\\tt\");\n"
                     "QString s = fi.absoluteFilePath();\n")
                % Check("fi", "\"C:/Program Files/tt\"", "QFileInfo")
-               % Check("file", "\"C:\Program Files\t\"", "QFile")
+               % Check("file", "\"C:\\Program Files\\t\"", "QFile")
                % Check("s", "\"C:/Program Files/tt\"", "QString");
 #else
             << Data("#include <QFile>\n"
@@ -2806,7 +2806,7 @@ void tst_Dumpers::dumper_data()
                % Check("l.0", "[0]", "\" big, \"", "@QString")
                % Check("l.1", "[1]", "\" World \"", "@QString");
 
-    QChar oUmlaut = QLatin1Char(0xf6);
+    QChar oUmlaut = QLatin1Char((char)0xf6);
     QTest::newRow("String")
             << Data("#include <QString>",
                     "const wchar_t *w = L\"aöa\";\n"

@@ -150,9 +150,9 @@ int main(int argc, char *argv[])
     }
 }
 
-int make_depend(QCoreApplication *app)
+int make_depend(QCoreApplication *)
 {
-    QStringList todo = app->arguments();
+    QStringList todo = QCoreApplication::arguments();
     todo.removeFirst();
 
     if (todo.isEmpty())

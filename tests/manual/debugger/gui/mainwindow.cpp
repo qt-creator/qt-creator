@@ -62,7 +62,7 @@ struct TestClass {
 
 TestClass::TestClass() :
         m_i(1),
-        m_f(M_E)
+        m_f((float)M_E)
 {
 }
 
@@ -120,7 +120,7 @@ void MainWindow::complexBP(int *inc, QString inx)
     qint64 i64 = 54354;
     quint64 iu64 = 54354;
 
-    float r = M_PI;
+    float r = (float)M_PI;
     double d = M_PI;
 
     QString x = "Hallo ";
