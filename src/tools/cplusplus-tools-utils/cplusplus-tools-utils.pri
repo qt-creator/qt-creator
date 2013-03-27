@@ -1,5 +1,5 @@
 DEPENDPATH += $$PWD
-INCLUDEPATH += $$PWD $$PWD/../../libs/utils
+INCLUDEPATH += $$PWD
 
 DEFINES *= QT_NO_CAST_FROM_ASCII
 DEFINES += PATH_PREPROCESSOR_CONFIG=\\\"$$PWD/pp-configuration.inc\\\"

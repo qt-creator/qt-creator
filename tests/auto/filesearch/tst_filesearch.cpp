@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include <filesearch.h>
+#include <utils/filesearch.h>
 
 #include <QtTest>
 

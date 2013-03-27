@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include <stringutils.h>
+#include <utils/stringutils.h>
 
 #include <QtTest>
 

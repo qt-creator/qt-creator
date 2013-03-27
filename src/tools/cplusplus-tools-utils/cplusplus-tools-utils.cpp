@@ -29,7 +29,8 @@
 
 
 #include "cplusplus-tools-utils.h"
-#include "environment.h"
+
+#include <utils/environment.h>
 
 #include <QDebug>
 #include <QDir>

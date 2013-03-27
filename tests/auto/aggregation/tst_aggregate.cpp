@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include <aggregate.h>
+#include <aggregation/aggregate.h>
 
 #include <QtTest>
 

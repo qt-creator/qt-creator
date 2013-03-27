@@ -3,7 +3,6 @@ include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
 
 DEFINES -= QT_USE_FAST_OPERATOR_PLUS QT_USE_FAST_CONCATENATION
 
-INCLUDEPATH += $$IDE_SOURCE_TREE/src/libs/utils
 SOURCES += tst_stringutils.cpp \
 #    $$UTILS_PATH/stringutils.cpp
 
