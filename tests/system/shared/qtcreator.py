@@ -112,21 +112,39 @@ def __removeTestingDir__():
     waitFor('os.path.getmtime(devicesXML) > lastMTime', 5000)
     waitFor('__removeIt__(testingDir)', 2000)
 
-def substituteTildeWithinToolchains(settingsDir):
-    toolchains = os.path.join(settingsDir, "QtProject", 'qtcreator', 'toolchains.xml')
-    origToolchains = toolchains + "_orig"
-    home = os.path.expanduser("~")
-    os.rename(toolchains, origToolchains)
-    origFile = open(origToolchains, "r")
-    modifiedFile = open(toolchains, "w")
+def __substitute__(fileName, search, replace):
+    origFileName = fileName + "_orig"
+    os.rename(fileName, origFileName)
+    origFile = open(origFileName, "r")
+    modifiedFile = open(fileName, "w")
     for line in origFile:
-        if "~" in line:
-            line = line.replace("~", home)
-        modifiedFile.write(line)
+        modifiedFile.write(line.replace(search, replace))
     origFile.close()
     modifiedFile.close()
-    os.remove(origToolchains)
+    os.remove(origFileName)
+
+def substituteTildeWithinToolchains(settingsDir):
+    toolchains = os.path.join(settingsDir, "QtProject", 'qtcreator', 'toolchains.xml')
+    home = os.path.expanduser("~")
+    __substitute__(toolchains, "~", home)
     test.log("Substituted all tildes with '%s' inside toolchains.xml..." % home)
+
+def substituteDefaultCompiler(settingsDir):
+    compiler = None
+    if platform.system() == 'Darwin':
+        compiler = "clang_64"
+    elif platform.system() == 'Linux':
+        if __is64BitOS__():
+            compiler = "gcc_64"
+        else:
+            compiler = "gcc"
+    else:
+        test.warning("Called substituteDefaultCompiler() on wrong platform.",
+                     "This is a script error.")
+    if compiler:
+        qtversion = os.path.join(settingsDir, "QtProject", 'qtcreator', 'qtversion.xml')
+        __substitute__(qtversion, "SQUISH_DEFAULT_COMPILER", compiler)
+        test.log("Injected default compiler '%s' to qtversion.xml..." % compiler)
 
 def __guessABI__(supportedABIs, use64Bit):
     if use64Bit:
@@ -216,6 +234,7 @@ def copySettingsToTmpDir(destination=None, omitFiles=[]):
                 shutil.copy(os.path.join(r, ff), currentPath)
     if platform.system() in ('Linux', 'Darwin'):
         substituteTildeWithinToolchains(tmpSettingsDir)
+        substituteDefaultCompiler(tmpSettingsDir)
     substituteUnchosenTargetABIs(tmpSettingsDir)
     SettingsPath = ' -settingspath "%s"' % tmpSettingsDir
 
