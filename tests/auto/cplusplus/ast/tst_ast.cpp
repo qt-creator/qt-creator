@@ -30,10 +30,10 @@
 #include <QtTest>
 #include <QDebug>
 
-#include <Control.h>
-#include <Literals.h>
-#include <Parser.h>
-#include <AST.h>
+#include <cplusplus/Control.h>
+#include <cplusplus/Literals.h>
+#include <cplusplus/Parser.h>
+#include <cplusplus/AST.h>
 
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;

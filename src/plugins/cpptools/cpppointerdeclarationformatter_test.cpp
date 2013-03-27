@@ -28,19 +28,20 @@
 ****************************************************************************/
 
 #include "cpptoolsplugin.h"
+#include "cpppointerdeclarationformatter.h"
+#include "cpprefactoringchanges.h"
+#include "cpptoolsplugin.h"
 
-#include <AST.h>
-#include <CppDocument.h>
-#include <Symbols.h>
-#include <TranslationUnit.h>
-#include <pp.h>
-
-#include <cpptools/cpppointerdeclarationformatter.h>
-#include <cpptools/cpprefactoringchanges.h>
-#include <cpptools/cpptoolsplugin.h>
 #include <texteditor/plaintexteditor.h>
+
 #include <utils/changeset.h>
 #include <utils/fileutils.h>
+
+#include <cplusplus/AST.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/TranslationUnit.h>
+#include <cplusplus/pp.h>
 
 #include <QDebug>
 #include <QDir>

@@ -30,7 +30,8 @@
 #ifndef CPLUSPLUS_EXPRESSIONUNDERCURSOR_H
 #define CPLUSPLUS_EXPRESSIONUNDERCURSOR_H
 
-#include "CPlusPlusForwardDeclarations.h"
+#include <cplusplus/CPlusPlusForwardDeclarations.h>
+
 #include <QList>
 
 QT_BEGIN_NAMESPACE

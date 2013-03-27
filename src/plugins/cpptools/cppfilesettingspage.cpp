@@ -28,8 +28,9 @@
 ****************************************************************************/
 
 #include "cppfilesettingspage.h"
+
 #include "cpptoolsconstants.h"
-#include "ui_cppfilesettingspage.h"
+#include <ui_cppfilesettingspage.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -37,7 +38,6 @@
 #include <cppeditor/cppeditorconstants.h>
 
 #include <extensionsystem/pluginmanager.h>
-
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 
@@ -50,7 +50,6 @@
 #include <QLocale>
 #include <QTextCodec>
 #include <QTextStream>
-
 #include <QFileDialog>
 #include <QMessageBox>
 

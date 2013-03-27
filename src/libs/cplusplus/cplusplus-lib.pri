@@ -4,7 +4,7 @@ contains(CONFIG, dll) {
     DEFINES += CPLUSPLUS_BUILD_STATIC_LIB
 }
 
-INCLUDEPATH += $$PWD
+INCLUDEPATH *= $$IDE_SOURCE_TREE/src/libs/3rdparty
 
 include(../3rdparty/cplusplus/cplusplus.pri)
 

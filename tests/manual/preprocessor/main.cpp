@@ -27,9 +27,9 @@
 **
 ****************************************************************************/
 
-#include <PreprocessorEnvironment.h>
-#include <PreprocessorClient.h>
-#include <pp.h>
+#include <cplusplus/PreprocessorEnvironment.h>
+#include <cplusplus/PreprocessorClient.h>
+#include <cplusplus/pp.h>
 
 #include <QCoreApplication>
 #include <QFile>

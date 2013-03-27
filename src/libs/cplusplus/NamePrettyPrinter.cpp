@@ -29,10 +29,11 @@
 
 #include "NamePrettyPrinter.h"
 
-#include <Names.h>
-#include <Overview.h>
-#include <NameVisitor.h>
-#include <Literals.h>
+#include "Overview.h"
+
+#include <cplusplus/Names.h>
+#include <cplusplus/NameVisitor.h>
+#include <cplusplus/Literals.h>
 
 using namespace CPlusPlus;
 

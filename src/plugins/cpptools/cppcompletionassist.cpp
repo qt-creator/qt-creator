@@ -28,29 +28,10 @@
 ****************************************************************************/
 
 #include "cppcompletionassist.h"
+
 #include "cppmodelmanager.h"
 #include "cppdoxygen.h"
 #include "cpptoolsconstants.h"
-
-#include <Control.h>
-#include <AST.h>
-#include <ASTVisitor.h>
-#include <CoreTypes.h>
-#include <Literals.h>
-#include <Names.h>
-#include <NameVisitor.h>
-#include <Symbols.h>
-#include <SymbolVisitor.h>
-#include <Scope.h>
-#include <TranslationUnit.h>
-#include <CppRewriter.h>
-
-#include <cplusplus/ResolveExpression.h>
-#include <cplusplus/MatchingText.h>
-#include <cplusplus/Overview.h>
-#include <cplusplus/ExpressionUnderCursor.h>
-#include <cplusplus/BackwardsScanner.h>
-#include <cplusplus/LookupContext.h>
 
 #include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
@@ -64,7 +45,27 @@
 #include <texteditor/snippets/snippet.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
+
 #include <utils/qtcassert.h>
+
+#include <cplusplus/AST.h>
+#include <cplusplus/ASTVisitor.h>
+#include <cplusplus/BackwardsScanner.h>
+#include <cplusplus/Control.h>
+#include <cplusplus/CoreTypes.h>
+#include <cplusplus/CppRewriter.h>
+#include <cplusplus/ExpressionUnderCursor.h>
+#include <cplusplus/Literals.h>
+#include <cplusplus/LookupContext.h>
+#include <cplusplus/MatchingText.h>
+#include <cplusplus/NameVisitor.h>
+#include <cplusplus/Names.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/ResolveExpression.h>
+#include <cplusplus/Scope.h>
+#include <cplusplus/SymbolVisitor.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/TranslationUnit.h>
 
 #include <QLatin1String>
 #include <QTextCursor>

@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "cpptypehierarchy.h"
+
 #include "cppeditorconstants.h"
 #include "cppeditor.h"
 #include "cppelementevaluator.h"
@@ -35,6 +36,7 @@
 
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
+
 #include <utils/navigationtreeview.h>
 #include <utils/annotateditemdelegate.h>
 

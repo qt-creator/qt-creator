@@ -28,13 +28,15 @@
 ****************************************************************************/
 
 #include "cpphighlightingsupportinternal.h"
+
 #include "cppchecksymbols.h"
+#include "cpptoolsreuse.h"
+
+#include <texteditor/itexteditor.h>
 
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/SimpleLexer.h>
 #include <cplusplus/Token.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <texteditor/itexteditor.h>
 
 using namespace CPlusPlus;
 using namespace CppTools;

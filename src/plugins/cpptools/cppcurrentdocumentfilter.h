@@ -30,6 +30,7 @@
 #define CPPCURRENTDOCUMENTFILTER_H
 
 #include "searchsymbols.h"
+
 #include <locator/ilocatorfilter.h>
 
 namespace Core {

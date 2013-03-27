@@ -28,34 +28,22 @@
 ****************************************************************************/
 
 #include "cppeditor.h"
+
 #include "cppeditorconstants.h"
 #include "cppplugin.h"
 #include "cpphighlighter.h"
 #include "cppautocompleter.h"
 #include "cppquickfixassistant.h"
 
-#include <AST.h>
-#include <Control.h>
-#include <Token.h>
-#include <Scope.h>
-#include <Symbols.h>
-#include <Names.h>
-#include <CoreTypes.h>
-#include <Literals.h>
-#include <ASTVisitor.h>
-#include <SymbolVisitor.h>
-#include <TranslationUnit.h>
-#include <cplusplus/ASTPath.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/id.h>
+#include <coreplugin/mimedatabase.h>
 #include <cpptools/ModelManagerInterface.h>
-#include <cplusplus/ExpressionUnderCursor.h>
-#include <cplusplus/TypeOfExpression.h>
-#include <cplusplus/Overview.h>
-#include <cplusplus/OverviewModel.h>
-#include <cplusplus/SimpleLexer.h>
-#include <cplusplus/MatchingText.h>
-#include <cplusplus/BackwardsScanner.h>
-#include <cplusplus/FastPreprocessor.h>
-
 #include <cpptools/cpptoolsplugin.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppchecksymbols.h>
@@ -70,28 +58,41 @@
 #include <cpptools/doxygengenerator.h>
 #include <cpptools/cpptoolssettings.h>
 #include <cpptools/symbolfinder.h>
-
-#include <coreplugin/icore.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/id.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/mimedatabase.h>
-#include <utils/qtcassert.h>
-#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetextdocumentlayout.h>
+#include <texteditor/codeassist/basicproposalitem.h>
+#include <texteditor/codeassist/basicproposalitemlistmodel.h>
+#include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/fontsettings.h>
-#include <texteditor/tabsettings.h>
-#include <texteditor/texteditorconstants.h>
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/semantichighlighter.h>
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
-#include <texteditor/codeassist/basicproposalitem.h>
-#include <texteditor/codeassist/genericproposal.h>
+#include <texteditor/tabsettings.h>
+#include <texteditor/texteditorconstants.h>
+
+#include <utils/qtcassert.h>
+#include <extensionsystem/pluginmanager.h>
+
+#include <cplusplus/AST.h>
+#include <cplusplus/Control.h>
+#include <cplusplus/Token.h>
+#include <cplusplus/Scope.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/Names.h>
+#include <cplusplus/CoreTypes.h>
+#include <cplusplus/Literals.h>
+#include <cplusplus/ASTVisitor.h>
+#include <cplusplus/SymbolVisitor.h>
+#include <cplusplus/TranslationUnit.h>
+#include <cplusplus/ASTPath.h>
+#include <cplusplus/ExpressionUnderCursor.h>
+#include <cplusplus/TypeOfExpression.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/OverviewModel.h>
+#include <cplusplus/SimpleLexer.h>
+#include <cplusplus/MatchingText.h>
+#include <cplusplus/BackwardsScanner.h>
+#include <cplusplus/FastPreprocessor.h>
 
 #include <QDebug>
 #include <QTime>
@@ -2650,4 +2651,4 @@ void CPPEditorWidget::onCommentsSettingsChanged(const CppTools::CommentsSettings
     m_commentsSettings = settings;
 }
 
-#include "cppeditor.moc"
+#include <cppeditor.moc>

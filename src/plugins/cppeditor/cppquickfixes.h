@@ -33,10 +33,11 @@
 #include "cppquickfix.h"
 
 #include <cpptools/cpprefactoringchanges.h>
+
 #include <extensionsystem/iplugin.h>
 
-#include <AST.h>
-#include <ASTMatcher.h>
+#include <cplusplus/AST.h>
+#include <cplusplus/ASTMatcher.h>
 
 QT_BEGIN_NAMESPACE
 class QByteArray;

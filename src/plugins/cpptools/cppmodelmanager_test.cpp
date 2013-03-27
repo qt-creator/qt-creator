@@ -28,9 +28,11 @@
 ****************************************************************************/
 
 #include "cpptoolsplugin.h"
-#include "CppDocument.h"
+
 #include "cppmodelmanager.h"
 #include "modelmanagertesthelper.h"
+
+#include <cplusplus/CppDocument.h>
 
 #include <QtTest>
 #include <QDebug>

@@ -30,8 +30,8 @@
 #ifndef FINDCDBBREAKPOINT_H
 #define FINDCDBBREAKPOINT_H
 
-#include <CPlusPlusForwardDeclarations.h>
-#include <ASTVisitor.h>
+#include <cplusplus/CPlusPlusForwardDeclarations.h>
+#include <cplusplus/ASTVisitor.h>
 
 namespace CPlusPlus {
 

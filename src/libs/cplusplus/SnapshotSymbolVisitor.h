@@ -31,7 +31,9 @@
 #define CPLUSPLUS_SNAPSHOTSYMBOLVISITOR_H
 
 #include "CppDocument.h"
-#include <SymbolVisitor.h>
+
+#include <cplusplus/SymbolVisitor.h>
+
 #include <QSet>
 
 namespace CPlusPlus {

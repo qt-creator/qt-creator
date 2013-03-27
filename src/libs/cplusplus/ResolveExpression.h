@@ -32,9 +32,10 @@
 
 #include "LookupContext.h"
 
-#include <ASTVisitor.h>
-#include <FullySpecifiedType.h>
-#include <Bind.h>
+#include <cplusplus/ASTVisitor.h>
+#include <cplusplus/FullySpecifiedType.h>
+#include <cplusplus/Bind.h>
+
 #include <set>
 
 namespace CPlusPlus {

@@ -31,7 +31,9 @@
 #define CPPHIGHLIGHTER_H
 
 #include "cppeditorenums.h"
+
 #include <texteditor/syntaxhighlighter.h>
+
 #include <QTextCharFormat>
 #include <QtAlgorithms>
 

@@ -31,7 +31,7 @@
 #include "watchdata.h"
 #include "watchutils.h"
 
-#include <CppRewriter.h>
+#include <cplusplus/CppRewriter.h>
 #include <projectexplorer/abstractmsvctoolchain.h>
 #include <utils/environment.h>
 

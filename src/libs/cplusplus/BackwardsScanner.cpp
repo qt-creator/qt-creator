@@ -26,8 +26,11 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+
 #include "BackwardsScanner.h"
-#include <Token.h>
+
+#include <cplusplus/Token.h>
+
 #include <QTextCursor>
 #include <QTextDocument>
 

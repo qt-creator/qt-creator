@@ -28,15 +28,19 @@
 ****************************************************************************/
 
 #include "cppcodestylepreferencesfactory.h"
+
 #include "cppcodestylesettings.h"
 #include "cppcodestylesettingspage.h"
 #include "cppcodestylepreferences.h"
 #include "cpptoolsconstants.h"
 #include "cppqtstyleindenter.h"
-#include <extensionsystem/pluginmanager.h>
-#include <texteditor/tabsettings.h>
-#include <texteditor/snippets/isnippetprovider.h>
+
 #include <cppeditor/cppeditorconstants.h>
+#include <texteditor/snippets/isnippetprovider.h>
+#include <texteditor/tabsettings.h>
+
+#include <extensionsystem/pluginmanager.h>
+
 #include <QLayout>
 
 using namespace CppTools;

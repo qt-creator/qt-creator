@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "cpptoolsplugin.h"
+
 #include "completionsettingspage.h"
 #include "cppfilesettingspage.h"
 #include "cppcodestylesettingspage.h"
@@ -41,30 +42,26 @@
 #include "cpptoolssettings.h"
 #include "cpptoolsreuse.h"
 
-#include <extensionsystem/pluginmanager.h>
-
-#include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/id.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/id.h>
+#include <coreplugin/mimedatabase.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
-#include <coreplugin/documentmanager.h>
 #include <cppeditor/cppeditorconstants.h>
-#include <texteditor/basetexteditor.h>
-
-#include <QtConcurrentRun>
-#include <QFutureSynchronizer>
-#include <utils/runextensions.h>
-
 #include <find/ifindfilter.h>
 #include <find/searchresultwindow.h>
+#include <texteditor/basetexteditor.h>
+
+#include <extensionsystem/pluginmanager.h>
 #include <utils/filesearch.h>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 
 #include <QtPlugin>
 #include <QFileInfo>
@@ -73,6 +70,8 @@
 #include <QSettings>
 #include <QMenu>
 #include <QAction>
+#include <QtConcurrentRun>
+#include <QFutureSynchronizer>
 
 #include <sstream>
 

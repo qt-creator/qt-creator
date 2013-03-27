@@ -33,6 +33,7 @@
 #include "cpptoolssettings.h"
 #include "cppcodestylepreferences.h"
 #include "cpptoolsconstants.h"
+
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
 

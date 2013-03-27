@@ -26,15 +26,18 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+
 #include "CppRewriter.h"
-#include <TypeVisitor.h>
-#include <NameVisitor.h>
-#include <CoreTypes.h>
-#include <Symbols.h>
-#include <Literals.h>
-#include <Names.h>
-#include <Scope.h>
-#include <Overview.h>
+
+#include "Overview.h"
+
+#include <cplusplus/TypeVisitor.h>
+#include <cplusplus/NameVisitor.h>
+#include <cplusplus/CoreTypes.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/Literals.h>
+#include <cplusplus/Names.h>
+#include <cplusplus/Scope.h>
 
 #include <QVarLengthArray>
 #include <QRegExp>

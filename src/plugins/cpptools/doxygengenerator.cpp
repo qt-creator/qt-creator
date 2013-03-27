@@ -29,15 +29,15 @@
 
 #include "doxygengenerator.h"
 
-#include <cplusplus/SimpleLexer.h>
+#include <cplusplus/AST.h>
 #include <cplusplus/BackwardsScanner.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/LookupContext.h>
+#include <cplusplus/Scope.h>
+#include <cplusplus/SimpleLexer.h>
+#include <cplusplus/Symbols.h>
 #include <cplusplus/Token.h>
 #include <cplusplus/TranslationUnit.h>
-#include <cplusplus/AST.h>
-#include <cplusplus/Symbols.h>
-#include <cplusplus/CppDocument.h>
-#include <cplusplus/Scope.h>
-#include <cplusplus/LookupContext.h>
 
 #include <utils/qtcassert.h>
 

@@ -28,15 +28,18 @@
 ****************************************************************************/
 
 #include "FindUsages.h"
+
 #include "Overview.h"
-#include <AST.h>
-#include <TranslationUnit.h>
-#include <Control.h>
-#include <Names.h>
-#include <Symbols.h>
-#include <CoreTypes.h>
-#include <Literals.h>
-#include <Scope.h>
+
+#include <cplusplus/AST.h>
+#include <cplusplus/TranslationUnit.h>
+#include <cplusplus/Control.h>
+#include <cplusplus/Names.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/CoreTypes.h>
+#include <cplusplus/Literals.h>
+#include <cplusplus/Scope.h>
+
 #include <QDebug>
 
 using namespace CPlusPlus;

@@ -28,8 +28,10 @@
 ****************************************************************************/
 
 #include "FastPreprocessor.h"
-#include <Literals.h>
-#include <TranslationUnit.h>
+
+#include <cplusplus/Literals.h>
+#include <cplusplus/TranslationUnit.h>
+
 #include <QDir>
 
 using namespace CPlusPlus;

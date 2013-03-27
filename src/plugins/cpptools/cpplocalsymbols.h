@@ -34,7 +34,7 @@
 #include "cppsemanticinfo.h"
 
 #include <cplusplus/CppDocument.h>
-#include <ASTfwd.h>
+#include <cplusplus/ASTfwd.h>
 
 namespace CppTools {
 

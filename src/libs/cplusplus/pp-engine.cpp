@@ -49,11 +49,10 @@
 #include "pp.h"
 #include "pp-cctype.h"
 
-#include <Control.h>
-#include <Lexer.h>
-#include <Token.h>
-#include <Literals.h>
-#include <cctype>
+#include <cplusplus/Control.h>
+#include <cplusplus/Lexer.h>
+#include <cplusplus/Token.h>
+#include <cplusplus/Literals.h>
 
 #include <QDebug>
 #include <QList>
@@ -61,6 +60,7 @@
 #include <QTime>
 #include <QPair>
 
+#include <cctype>
 #include <list>
 #include <algorithm>
 

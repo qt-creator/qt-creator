@@ -32,6 +32,7 @@
 
 #include "cpptools_global.h"
 #include "cppcodestylesettings.h"
+
 #include <texteditor/icodestylepreferences.h>
 
 namespace CppTools {

@@ -27,12 +27,11 @@
 **
 ****************************************************************************/
 
-#include <CppDocument.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/findcdbbreakpoint.h>
 
 #include <QtTest>
 #include <QDebug>
-
-#include <findcdbbreakpoint.h>
 
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;

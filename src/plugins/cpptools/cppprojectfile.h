@@ -30,10 +30,12 @@
 #ifndef CPLUSPLUS_CPPPROJECTFILE_H
 #define CPLUSPLUS_CPPPROJECTFILE_H
 
+#include "cpptools_global.h"
+
+#include <coreplugin/mimedatabase.h>
+
 #include <QString>
 #include <QMap>
-#include <coreplugin/mimedatabase.h>
-#include "cpptools_global.h"
 
 namespace CPlusPlus {
 

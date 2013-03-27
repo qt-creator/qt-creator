@@ -52,8 +52,9 @@
 #include "PPToken.h"
 #include "PreprocessorClient.h"
 
-#include <Lexer.h>
-#include <Token.h>
+#include <cplusplus/Lexer.h>
+#include <cplusplus/Token.h>
+
 #include <QVector>
 #include <QBitArray>
 #include <QByteArray>

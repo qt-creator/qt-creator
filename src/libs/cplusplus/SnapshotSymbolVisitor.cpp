@@ -28,7 +28,8 @@
 ****************************************************************************/
 
 #include "SnapshotSymbolVisitor.h"
-#include <Symbols.h>
+
+#include <cplusplus/Symbols.h>
 
 using namespace CPlusPlus;
 

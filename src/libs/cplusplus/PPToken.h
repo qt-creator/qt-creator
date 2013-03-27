@@ -30,8 +30,8 @@
 #ifndef CPLUSPLUS_INTERNAL_PPTOKEN_H
 #define CPLUSPLUS_INTERNAL_PPTOKEN_H
 
-#include <CPlusPlus.h>
-#include <Token.h>
+#include <cplusplus/CPlusPlus.h>
+#include <cplusplus/Token.h>
 
 #include <QByteArray>
 

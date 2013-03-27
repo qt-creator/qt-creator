@@ -28,18 +28,21 @@
 ****************************************************************************/
 
 #include "cpprefactoringchanges.h"
+
 #include "cppcodestylepreferences.h"
 #include "cppqtstyleindenter.h"
+#include "cppcodeformatter.h"
+#include "cppmodelmanager.h"
+#include "cpptoolssettings.h"
+#include "cpptoolsconstants.h"
 
-#include <TranslationUnit.h>
-#include <AST.h>
-#include <cpptools/cppcodeformatter.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolssettings.h>
-#include <cpptools/cpptoolsconstants.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/tabsettings.h>
 #include <projectexplorer/editorconfiguration.h>
+
+#include <cplusplus/TranslationUnit.h>
+#include <cplusplus/AST.h>
+
 #include <utils/qtcassert.h>
 
 #include <QTextBlock>

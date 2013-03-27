@@ -47,8 +47,11 @@
 */
 
 #include "PreprocessorEnvironment.h"
+
 #include "Macro.h"
+
 #include <QDebug>
+
 #include <cstring>
 
 using namespace CPlusPlus;

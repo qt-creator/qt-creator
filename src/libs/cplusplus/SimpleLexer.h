@@ -29,7 +29,7 @@
 #ifndef CPLUSPLUS_SIMPLELEXER_H
 #define CPLUSPLUS_SIMPLELEXER_H
 
-#include <CPlusPlusForwardDeclarations.h>
+#include <cplusplus/CPlusPlusForwardDeclarations.h>
 
 #include <QString>
 #include <QList>

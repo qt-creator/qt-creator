@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#include <CppDocument.h>
-#include <pp.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/pp.h>
 
 #include <cpptools/cppchecksymbols.h>
 #include <cpptools/cppsemanticinfo.h>

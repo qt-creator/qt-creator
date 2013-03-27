@@ -31,16 +31,15 @@
 #define CPLUSPLUSCHECKSYMBOLS_H
 
 #include "cpptools_global.h"
-
 #include "cppsemanticinfo.h"
 
+#include <texteditor/semantichighlighter.h>
+
+#include <cplusplus/ASTVisitor.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/TypeOfExpression.h>
 
-#include <texteditor/semantichighlighter.h>
-
-#include <ASTVisitor.h>
 #include <QSet>
 #include <QFuture>
 #include <QtConcurrentRun>

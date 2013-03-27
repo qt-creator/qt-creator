@@ -33,15 +33,18 @@
 #include "CppDocument.h"
 #include "LookupItem.h"
 #include "AlreadyConsideredClassContainer.h"
-#include <FullySpecifiedType.h>
-#include <Type.h>
-#include <SymbolVisitor.h>
-#include <Control.h>
-#include <Name.h>
+
+#include <cplusplus/FullySpecifiedType.h>
+#include <cplusplus/Type.h>
+#include <cplusplus/SymbolVisitor.h>
+#include <cplusplus/Control.h>
+#include <cplusplus/Name.h>
+
 #include <QSet>
+#include <QMap>
+
 #include <map>
 #include <functional>
-#include <QMap>
 
 namespace CPlusPlus {
 

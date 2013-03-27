@@ -30,11 +30,13 @@
 #include "TypePrettyPrinter.h"
 
 #include "Overview.h"
-#include <FullySpecifiedType.h>
-#include <Literals.h>
-#include <CoreTypes.h>
-#include <Symbols.h>
-#include <Scope.h>
+
+#include <cplusplus/FullySpecifiedType.h>
+#include <cplusplus/Literals.h>
+#include <cplusplus/CoreTypes.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/Scope.h>
+
 #include <QStringList>
 #include <QDebug>
 

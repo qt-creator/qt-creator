@@ -30,16 +30,17 @@
 #include "cppinsertdecldef.h"
 #include "cppquickfixassistant.h"
 
-#include <CPlusPlus.h>
-#include <cplusplus/ASTPath.h>
-#include <cplusplus/CppRewriter.h>
-#include <cplusplus/LookupContext.h>
-#include <cplusplus/Overview.h>
-#include <cplusplus/ASTVisitor.h>
-#include <cpptools/insertionpointlocator.h>
 #include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/cpptoolsreuse.h>
+#include <cpptools/insertionpointlocator.h>
+
+#include <cplusplus/ASTPath.h>
+#include <cplusplus/ASTVisitor.h>
+#include <cplusplus/CPlusPlus.h>
+#include <cplusplus/CppRewriter.h>
+#include <cplusplus/LookupContext.h>
+#include <cplusplus/Overview.h>
 
 #include <utils/qtcassert.h>
 

@@ -30,15 +30,14 @@
 #ifndef CPPTOOLSEDITORSUPPORT_H
 #define CPPTOOLSEDITORSUPPORT_H
 
+#include <cplusplus/CppDocument.h>
+
 #include <QObject>
 #include <QPointer>
 #include <QFuture>
 #include <QScopedPointer>
 #include <QSharedPointer>
-
 #include <QTextCursor>
-
-#include <cplusplus/CppDocument.h>
 
 QT_BEGIN_NAMESPACE
 class QTimer;

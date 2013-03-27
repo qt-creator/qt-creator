@@ -6,8 +6,6 @@ DUMPERDIR   = $$IDE_SOURCE_TREE/share/qtcreator/dumper
 
 # To access the std::type rewriter
 DEFINES += CPLUSPLUS_BUILD_STATIC_LIB
-INCLUDEPATH += $$IDE_SOURCE_TREE/src/libs/cplusplus
-INCLUDEPATH += $$IDE_SOURCE_TREE/src/libs/3rdparty/cplusplus
 include($$IDE_SOURCE_TREE/src/plugins/cpptools/cpptools.pri)
 include($$IDE_SOURCE_TREE/src/rpath.pri)
 

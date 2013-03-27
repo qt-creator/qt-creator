@@ -30,7 +30,8 @@
 #ifndef CPLUSPLUS_NAMEPRETTYPRINTER_H
 #define CPLUSPLUS_NAMEPRETTYPRINTER_H
 
-#include <NameVisitor.h>
+#include <cplusplus/NameVisitor.h>
+
 #include <QString>
 
 namespace CPlusPlus {

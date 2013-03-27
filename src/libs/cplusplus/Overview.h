@@ -30,7 +30,7 @@
 #ifndef CPLUSPLUS_OVERVIEW_H
 #define CPLUSPLUS_OVERVIEW_H
 
-#include <CPlusPlusForwardDeclarations.h>
+#include <cplusplus/CPlusPlusForwardDeclarations.h>
 
 #include <QList>
 #include <QString>

@@ -28,28 +28,26 @@
 ****************************************************************************/
 
 #include "cppquickfixassistant.h"
+
 #include "cppeditorconstants.h"
 #include "cppeditor.h"
-
 // @TODO: temp
 #include "cppquickfix.h"
 
-#include <AST.h>
-#include <TranslationUnit.h>
-#include <Token.h>
-
-#include <cplusplus/ASTPath.h>
-#include <cplusplus/CppDocument.h>
-#include <cplusplus/ResolveExpression.h>
-#include <cplusplus/Overview.h>
-#include <cplusplus/TypeOfExpression.h>
-#include <cplusplus/DependencyTable.h>
-#include <cplusplus/CppRewriter.h>
-
 #include <cpptools/cpprefactoringchanges.h>
 
-#include <extensionsystem/pluginmanager.h>
+#include <cplusplus/AST.h>
+#include <cplusplus/ASTPath.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/CppRewriter.h>
+#include <cplusplus/DependencyTable.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/ResolveExpression.h>
+#include <cplusplus/Token.h>
+#include <cplusplus/TranslationUnit.h>
+#include <cplusplus/TypeOfExpression.h>
 
+#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>

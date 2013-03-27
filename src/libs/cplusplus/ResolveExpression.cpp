@@ -28,26 +28,28 @@
 ****************************************************************************/
 
 #include "ResolveExpression.h"
+
 #include "LookupContext.h"
 #include "Overview.h"
 #include "DeprecatedGenTemplateInstance.h"
 #include "CppRewriter.h"
 #include "TypeOfExpression.h"
 
-#include <Control.h>
-#include <AST.h>
-#include <Scope.h>
-#include <Names.h>
-#include <Symbols.h>
-#include <Literals.h>
-#include <CoreTypes.h>
-#include <TypeVisitor.h>
-#include <NameVisitor.h>
-#include <Templates.h>
+#include <cplusplus/Control.h>
+#include <cplusplus/AST.h>
+#include <cplusplus/Scope.h>
+#include <cplusplus/Names.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/Literals.h>
+#include <cplusplus/CoreTypes.h>
+#include <cplusplus/TypeVisitor.h>
+#include <cplusplus/NameVisitor.h>
+#include <cplusplus/Templates.h>
 
 #include <QList>
 #include <QDebug>
 #include <QSet>
+
 #include <map>
 
 using namespace CPlusPlus;

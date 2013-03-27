@@ -28,9 +28,10 @@
 ****************************************************************************/
 
 #include "LookupItem.h"
-#include <FullySpecifiedType.h>
-#include <Symbol.h>
-#include <Control.h>
+
+#include <cplusplus/FullySpecifiedType.h>
+#include <cplusplus/Symbol.h>
+#include <cplusplus/Control.h>
 
 #include <QDebug>
 

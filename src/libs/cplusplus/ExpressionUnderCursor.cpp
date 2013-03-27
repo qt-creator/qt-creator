@@ -28,9 +28,11 @@
 ****************************************************************************/
 
 #include "ExpressionUnderCursor.h"
+
 #include "SimpleLexer.h"
 #include "BackwardsScanner.h"
-#include <Token.h>
+
+#include <cplusplus/Token.h>
 
 #include <QTextCursor>
 #include <QTextBlock>

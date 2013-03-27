@@ -27,20 +27,20 @@
 **
 ****************************************************************************/
 
-#include <AST.h>
-#include <ASTVisitor.h>
-#include <ASTPatternBuilder.h>
-#include <ASTMatcher.h>
-#include <Control.h>
-#include <Scope.h>
-#include <TranslationUnit.h>
-#include <Literals.h>
-#include <Symbols.h>
-#include <Names.h>
-#include <CoreTypes.h>
-#include <CppDocument.h>
-#include <SymbolVisitor.h>
-#include <Overview.h>
+#include <cplusplus/AST.h>
+#include <cplusplus/ASTMatcher.h>
+#include <cplusplus/ASTPatternBuilder.h>
+#include <cplusplus/ASTVisitor.h>
+#include <cplusplus/Control.h>
+#include <cplusplus/CoreTypes.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/Literals.h>
+#include <cplusplus/Names.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/Scope.h>
+#include <cplusplus/SymbolVisitor.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/TranslationUnit.h>
 
 #include "cplusplus-tools-utils.h"
 

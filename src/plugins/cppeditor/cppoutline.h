@@ -32,8 +32,9 @@
 
 #include "cppeditor.h"
 
-#include <utils/navigationtreeview.h>
 #include <texteditor/ioutlinewidget.h>
+
+#include <utils/navigationtreeview.h>
 
 #include <QSortFilterProxyModel>
 #include <QTreeView>

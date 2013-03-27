@@ -31,7 +31,8 @@
 #define CPPAUTOCOMPLETER_H
 
 #include <texteditor/autocompleter.h>
-#include <Token.h>
+
+#include <cplusplus/Token.h>
 
 namespace CppEditor {
 namespace Internal {

@@ -29,10 +29,10 @@
 
 #include "Icons.h"
 
-#include <FullySpecifiedType.h>
-#include <Scope.h>
-#include <Symbols.h>
-#include <Type.h>
+#include <cplusplus/FullySpecifiedType.h>
+#include <cplusplus/Scope.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/Type.h>
 
 using namespace CPlusPlus;
 using CPlusPlus::Icons;

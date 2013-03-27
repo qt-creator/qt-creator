@@ -32,14 +32,15 @@
 #include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
 
-#include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/futureprogress.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <find/textfindconstants.h>
-#include <utils/runextensions.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
-#include <projectexplorer/project.h>
+
+#include <utils/runextensions.h>
 #include <utils/qtcassert.h>
 
 #include <QSet>

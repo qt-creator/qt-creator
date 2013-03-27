@@ -30,7 +30,7 @@
 #ifndef CPPINSERTQTPROPERTYMEMBERS_H
 #define CPPINSERTQTPROPERTYMEMBERS_H
 
-#include <cppeditor/cppquickfix.h>
+#include "cppquickfix.h"
 
 #include <QString>
 

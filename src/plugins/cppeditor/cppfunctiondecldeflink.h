@@ -32,10 +32,11 @@
 
 #include "cppquickfix.h"
 
+#include <cpptools/cpprefactoringchanges.h>
+
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/ASTfwd.h>
 
-#include <cpptools/cpprefactoringchanges.h>
 #include <utils/changeset.h>
 
 #include <QString>

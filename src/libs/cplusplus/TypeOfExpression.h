@@ -33,7 +33,8 @@
 #include "LookupContext.h"
 #include "PreprocessorEnvironment.h"
 
-#include <ASTfwd.h>
+#include <cplusplus/ASTfwd.h>
+
 #include <QMap>
 #include <QObject>
 #include <QString>

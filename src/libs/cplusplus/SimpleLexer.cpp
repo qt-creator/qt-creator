@@ -29,10 +29,10 @@
 
 #include "SimpleLexer.h"
 
-#include "ObjectiveCTypeQualifiers.h"
+#include <cplusplus/ObjectiveCTypeQualifiers.h>
+#include <cplusplus/Lexer.h>
+#include <cplusplus/Token.h>
 
-#include <Lexer.h>
-#include <Token.h>
 #include <QDebug>
 
 using namespace CPlusPlus;

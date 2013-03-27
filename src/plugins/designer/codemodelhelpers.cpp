@@ -37,7 +37,7 @@
 #include <cplusplus/Literals.h>
 #include <cplusplus/Scope.h>
 #include <cplusplus/Control.h>
-#include <SymbolVisitor.h>
+#include <cplusplus/SymbolVisitor.h>
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>

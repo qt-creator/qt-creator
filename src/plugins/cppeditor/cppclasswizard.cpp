@@ -28,12 +28,13 @@
 ****************************************************************************/
 
 #include "cppclasswizard.h"
+
 #include "cppeditorconstants.h"
 
-#include <cpptools/cpptoolsconstants.h>
-#include <cpptools/abstracteditorsupport.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
+#include <cpptools/abstracteditorsupport.h>
+#include <cpptools/cpptoolsconstants.h>
 
 #include <utils/codegeneration.h>
 #include <utils/newclasswidget.h>
@@ -43,7 +44,6 @@
 #include <QDir>
 #include <QTextStream>
 #include <QSettings>
-
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>

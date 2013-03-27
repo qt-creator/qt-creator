@@ -1,10 +1,12 @@
 #include "builtinindexingsupport.h"
+
 #include "cppmodelmanager.h"
 #include "searchsymbols.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+
 #include <utils/runextensions.h>
 
 #include <QCoreApplication>

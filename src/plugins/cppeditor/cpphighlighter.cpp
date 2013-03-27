@@ -29,12 +29,13 @@
 
 #include "cpphighlighter.h"
 
-#include <Token.h>
-#include <cplusplus/SimpleLexer.h>
-#include <cplusplus/Lexer.h>
 #include <cpptools/cppdoxygen.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <texteditor/basetextdocumentlayout.h>
+
+#include <cplusplus/Token.h>
+#include <cplusplus/SimpleLexer.h>
+#include <cplusplus/Lexer.h>
 
 #include <QTextDocument>
 #include <QDebug>

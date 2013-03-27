@@ -31,7 +31,7 @@
 
 #include <cppeditor/cppeditorconstants.h>
 
-#include <Token.h>
+#include <cplusplus/Token.h>
 
 using namespace CPlusPlus;
 using namespace CppTools;

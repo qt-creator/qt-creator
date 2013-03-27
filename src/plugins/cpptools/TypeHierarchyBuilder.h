@@ -30,10 +30,11 @@
 #ifndef TYPEHIERARCHYBUILDER_H
 #define TYPEHIERARCHYBUILDER_H
 
-#include "CppDocument.h"
-#include "ModelManagerInterface.h"
-#include "Overview.h"
 #include "cpptools_global.h"
+#include "ModelManagerInterface.h"
+
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/Overview.h>
 
 #include <QList>
 #include <QStringList>

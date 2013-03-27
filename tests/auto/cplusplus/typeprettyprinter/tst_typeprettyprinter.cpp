@@ -27,16 +27,16 @@
 **
 ****************************************************************************/
 
+#include <cplusplus/CoreTypes.h>
+#include <cplusplus/FullySpecifiedType.h>
+#include <cplusplus/Literals.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/Type.h>
+#include <cplusplus/TypePrettyPrinter.h>
+
 #include <QObject>
 #include <QtTest>
-
-#include <CoreTypes.h>
-#include <FullySpecifiedType.h>
-#include <Literals.h>
-#include <Overview.h>
-#include <Symbols.h>
-#include <Type.h>
-#include <TypePrettyPrinter.h>
 
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;

@@ -30,9 +30,9 @@
 #ifndef CPLUSPLUS_DEPRECATEDGENTEMPLATEINSTANCE_H
 #define CPLUSPLUS_DEPRECATEDGENTEMPLATEINSTANCE_H
 
-#include <TypeVisitor.h>
-#include <NameVisitor.h>
-#include <FullySpecifiedType.h>
+#include <cplusplus/TypeVisitor.h>
+#include <cplusplus/NameVisitor.h>
+#include <cplusplus/FullySpecifiedType.h>
 
 #include <QList>
 #include <QPair>

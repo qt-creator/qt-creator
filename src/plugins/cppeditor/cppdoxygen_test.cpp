@@ -27,12 +27,14 @@
 **
 ****************************************************************************/
 
+#include "cppeditor.h"
+#include "cppplugin.h"
+
 #include <coreplugin/editormanager/editormanager.h>
-#include <cplusplus/CppDocument.h>
-#include <cppeditor/cppeditor.h>
-#include <cppeditor/cppplugin.h>
 #include <cpptools/ModelManagerInterface.h>
+
 #include <utils/fileutils.h>
+#include <cplusplus/CppDocument.h>
 
 #include <QCoreApplication>
 #include <QDebug>

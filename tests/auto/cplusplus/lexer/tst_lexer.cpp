@@ -27,11 +27,11 @@
 **
 ****************************************************************************/
 
+#include <cplusplus/Token.h>
+#include <cplusplus/SimpleLexer.h>
+
 #include <QtTest>
 #include <QDebug>
-
-#include <Token.h>
-#include <SimpleLexer.h>
 
 Q_DECLARE_METATYPE(QList<unsigned>)
 

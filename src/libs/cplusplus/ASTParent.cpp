@@ -28,7 +28,8 @@
 ****************************************************************************/
 
 #include "ASTParent.h"
-#include "AST.h"
+
+#include <cplusplus/AST.h>
 
 using namespace CPlusPlus;
 

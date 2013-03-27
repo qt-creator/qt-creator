@@ -29,10 +29,11 @@
 
 #include "searchsymbols.h"
 
-#include <Literals.h>
-#include <Scope.h>
-#include <Names.h>
+#include <cplusplus/Literals.h>
 #include <cplusplus/LookupContext.h>
+#include <cplusplus/Names.h>
+#include <cplusplus/Scope.h>
+
 #include <QDebug>
 
 using namespace CPlusPlus;

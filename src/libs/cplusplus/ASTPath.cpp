@@ -29,8 +29,8 @@
 
 #include "ASTPath.h"
 
-#include <AST.h>
-#include <TranslationUnit.h>
+#include <cplusplus/AST.h>
+#include <cplusplus/TranslationUnit.h>
 
 #ifdef DEBUG_AST_PATH
 #  include <QDebug>

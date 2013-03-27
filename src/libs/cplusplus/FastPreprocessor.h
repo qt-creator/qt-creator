@@ -34,7 +34,7 @@
 #include "CppDocument.h"
 #include "pp.h"
 
-#include <Control.h>
+#include <cplusplus/Control.h>
 
 #include <QSet>
 #include <QString>

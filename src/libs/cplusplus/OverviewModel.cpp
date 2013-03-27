@@ -28,11 +28,12 @@
 ****************************************************************************/
 
 #include "OverviewModel.h"
+
 #include "Overview.h"
 
-#include <Scope.h>
-#include <Literals.h>
-#include <Symbols.h>
+#include <cplusplus/Scope.h>
+#include <cplusplus/Literals.h>
+#include <cplusplus/Symbols.h>
 
 using namespace CPlusPlus;
 

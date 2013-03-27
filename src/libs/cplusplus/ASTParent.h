@@ -30,7 +30,8 @@
 #ifndef CPLUSPLUS_ASTPARENT_H
 #define CPLUSPLUS_ASTPARENT_H
 
-#include <ASTVisitor.h>
+#include <cplusplus/ASTVisitor.h>
+
 #include <QHash>
 #include <QStack>
 

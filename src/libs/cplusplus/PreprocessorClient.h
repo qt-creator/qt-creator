@@ -30,7 +30,8 @@
 #ifndef PREPROCESSORCLIENT_H
 #define PREPROCESSORCLIENT_H
 
-#include <CPlusPlusForwardDeclarations.h>
+#include <cplusplus/CPlusPlusForwardDeclarations.h>
+
 #include <QVector>
 
 QT_BEGIN_NAMESPACE

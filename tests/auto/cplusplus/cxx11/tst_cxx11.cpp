@@ -27,12 +27,13 @@
 **
 ****************************************************************************/
 
+#include <cplusplus/CPlusPlus.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/LookupContext.h>
+
 #include <QtTest>
 #include <QObject>
 #include <QFile>
-#include <CPlusPlus.h>
-#include <CppDocument.h>
-#include <LookupContext.h>
 
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;

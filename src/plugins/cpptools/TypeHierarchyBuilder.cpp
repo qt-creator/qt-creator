@@ -28,14 +28,15 @@
 ****************************************************************************/
 
 #include "TypeHierarchyBuilder.h"
-#include "FindUsages.h"
-#include "Symbols.h"
-#include "SymbolVisitor.h"
-#include "DependencyTable.h"
-#include "CppDocument.h"
-#include "Literals.h"
-#include "TranslationUnit.h"
-#include "CoreTypes.h"
+
+#include <cplusplus/CoreTypes.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/DependencyTable.h>
+#include <cplusplus/FindUsages.h>
+#include <cplusplus/Literals.h>
+#include <cplusplus/SymbolVisitor.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/TranslationUnit.h>
 
 using namespace CPlusPlus;
 

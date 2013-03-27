@@ -31,17 +31,17 @@
 #include <QObject>
 #include <QList>
 
-#include <AST.h>
-#include <ASTVisitor.h>
-#include <TranslationUnit.h>
-#include <CppDocument.h>
-#include <FindUsages.h>
-#include <Literals.h>
-#include <LookupContext.h>
-#include <Name.h>
-#include <ResolveExpression.h>
-#include <Symbols.h>
-#include <Overview.h>
+#include <cplusplus/AST.h>
+#include <cplusplus/ASTVisitor.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/FindUsages.h>
+#include <cplusplus/Literals.h>
+#include <cplusplus/LookupContext.h>
+#include <cplusplus/Name.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/ResolveExpression.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/TranslationUnit.h>
 
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;

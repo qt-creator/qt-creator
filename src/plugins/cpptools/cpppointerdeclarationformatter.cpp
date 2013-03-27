@@ -30,7 +30,7 @@
 
 #include "cpppointerdeclarationformatter.h"
 
-#include <AST.h>
+#include <cplusplus/AST.h>
 
 #include <QtGlobal>
 #include <QTextCursor>

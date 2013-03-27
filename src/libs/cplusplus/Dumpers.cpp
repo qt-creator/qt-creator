@@ -29,10 +29,12 @@
 
 #include "Dumpers.h"
 
-#include <Overview.h>
-#include <Literals.h>
-#include <Scope.h>
-#include <LookupContext.h>
+#include "Overview.h"
+#include "LookupContext.h"
+
+#include <cplusplus/Literals.h>
+#include <cplusplus/Scope.h>
+
 #include <QDebug>
 
 #include <typeinfo>

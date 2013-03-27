@@ -35,24 +35,25 @@
 #include "cppinsertqtpropertymembers.h"
 #include "cppquickfixassistant.h"
 
-#include <Literals.h>
-#include <Name.h>
-#include <Names.h>
-#include <Symbol.h>
-#include <Symbols.h>
-#include <Token.h>
-#include <TranslationUnit.h>
-
-#include <cplusplus/CppRewriter.h>
-#include <cplusplus/DependencyTable.h>
-#include <cplusplus/Overview.h>
-#include <cplusplus/TypeOfExpression.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <cpptools/cppclassesfilter.h>
 #include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpppointerdeclarationformatter.h>
 #include <cpptools/cpptoolsconstants.h>
-#include <cpptools/ModelManagerInterface.h>
 #include <cpptools/symbolfinder.h>
+
+#include <cplusplus/CppRewriter.h>
+#include <cplusplus/DependencyTable.h>
+#include <cplusplus/Literals.h>
+#include <cplusplus/Name.h>
+#include <cplusplus/Names.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/Symbol.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/Token.h>
+#include <cplusplus/TranslationUnit.h>
+#include <cplusplus/TypeOfExpression.h>
+
 #include <extensionsystem/pluginmanager.h>
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>

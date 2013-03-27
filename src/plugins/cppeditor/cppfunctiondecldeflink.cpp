@@ -32,26 +32,28 @@
 #include "cppeditor.h"
 #include "cppquickfixassistant.h"
 
-#include <cplusplus/CppRewriter.h>
-#include <cplusplus/ASTPath.h>
-#include <cplusplus/AST.h>
-#include <cplusplus/Symbols.h>
-#include <cplusplus/TypeOfExpression.h>
-#include <cplusplus/TranslationUnit.h>
-#include <cplusplus/LookupContext.h>
-#include <cplusplus/Overview.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/icore.h>
 #include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpplocalsymbols.h>
 #include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/symbolfinder.h>
 #include <texteditor/refactoroverlay.h>
-#include <utils/tooltip/tooltip.h>
-#include <utils/tooltip/tipcontents.h>
-#include <utils/qtcassert.h>
-#include <utils/proxyaction.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/icore.h>
 #include <texteditor/texteditorconstants.h>
+
+#include <cplusplus/AST.h>
+#include <cplusplus/ASTPath.h>
+#include <cplusplus/CppRewriter.h>
+#include <cplusplus/LookupContext.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/TranslationUnit.h>
+#include <cplusplus/TypeOfExpression.h>
+
+#include <utils/proxyaction.h>
+#include <utils/qtcassert.h>
+#include <utils/tooltip/tipcontents.h>
+#include <utils/tooltip/tooltip.h>
 
 #include <QtConcurrentRun>
 #include <QVarLengthArray>

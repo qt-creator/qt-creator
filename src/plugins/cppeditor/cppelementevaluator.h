@@ -32,8 +32,9 @@
 
 #include "cppeditor.h"
 
-#include <texteditor/helpitem.h>
 #include <cpptools/symbolfinder.h>
+#include <texteditor/helpitem.h>
+
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
 

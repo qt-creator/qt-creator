@@ -34,7 +34,7 @@
 
 #include "classviewparsertreeitem.h"
 
-#include <CPlusPlusForwardDeclarations.h>
+#include <cplusplus/CPlusPlusForwardDeclarations.h>
 #include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/CppDocument.h>
 

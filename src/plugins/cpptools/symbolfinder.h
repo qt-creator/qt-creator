@@ -32,8 +32,8 @@
 
 #include "cpptools_global.h"
 
-#include <CppDocument.h>
-#include <CPlusPlusForwardDeclarations.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/CPlusPlusForwardDeclarations.h>
 
 #include <QHash>
 #include <QStringList>

@@ -32,9 +32,10 @@
 
 #include "cpptools_global.h"
 
-#include <extensionsystem/iplugin.h>
-#include <projectexplorer/projectexplorer.h>
 #include <find/ifindfilter.h>
+#include <projectexplorer/projectexplorer.h>
+
+#include <extensionsystem/iplugin.h>
 #include <utils/filesearch.h>
 
 #include <QTextDocument>

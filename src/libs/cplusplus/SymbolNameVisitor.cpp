@@ -28,8 +28,9 @@
 ****************************************************************************/
 
 #include "SymbolNameVisitor.h"
-#include <Symbols.h>
-#include <Names.h>
+
+#include <cplusplus/Symbols.h>
+#include <cplusplus/Names.h>
 
 using namespace CPlusPlus;
 

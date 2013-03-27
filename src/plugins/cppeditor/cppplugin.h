@@ -30,8 +30,9 @@
 #ifndef CPPPLUGIN_H
 #define CPPPLUGIN_H
 
-#include <extensionsystem/iplugin.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <QtPlugin>
 #include <QStringList>

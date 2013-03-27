@@ -32,21 +32,21 @@
 #include <QTextDocument>
 #include <QTextCursor>
 
-#include <Control.h>
-#include <Parser.h>
-#include <AST.h>
-#include <ASTVisitor.h>
-#include <Bind.h>
-#include <Scope.h>
-#include <Symbols.h>
-#include <CoreTypes.h>
-#include <Names.h>
-#include <Literals.h>
-#include <DiagnosticClient.h>
-#include <DeprecatedGenTemplateInstance.h>
-#include <Overview.h>
-#include <ExpressionUnderCursor.h>
-#include <Names.h>
+#include <cplusplus/AST.h>
+#include <cplusplus/ASTVisitor.h>
+#include <cplusplus/Bind.h>
+#include <cplusplus/Control.h>
+#include <cplusplus/CoreTypes.h>
+#include <cplusplus/DeprecatedGenTemplateInstance.h>
+#include <cplusplus/DiagnosticClient.h>
+#include <cplusplus/ExpressionUnderCursor.h>
+#include <cplusplus/Literals.h>
+#include <cplusplus/Names.h>
+#include <cplusplus/Names.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/Parser.h>
+#include <cplusplus/Scope.h>
+#include <cplusplus/Symbols.h>
 
 //TESTED_COMPONENT=src/libs/cplusplus
 

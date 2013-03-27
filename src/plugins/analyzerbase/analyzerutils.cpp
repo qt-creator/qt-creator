@@ -31,11 +31,12 @@
 
 #include "analyzerconstants.h"
 
+#include <cpptools/ModelManagerInterface.h>
 #include <texteditor/basetexteditor.h>
+
 #include <utils/qtcassert.h>
 
 #include <cplusplus/ExpressionUnderCursor.h>
-#include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/TypeOfExpression.h>
 
 #include <QTextCursor>

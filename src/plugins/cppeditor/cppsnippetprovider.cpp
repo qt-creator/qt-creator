@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "cppsnippetprovider.h"
+
 #include "cpphighlighter.h"
 #include "cppeditor.h"
 #include "cppautocompleter.h"

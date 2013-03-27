@@ -30,10 +30,11 @@
 #ifndef CPPMODELMANAGERINTERFACE_H
 #define CPPMODELMANAGERINTERFACE_H
 
-#include <cplusplus/CppDocument.h>
-#include <languageutils/fakemetaobject.h>
 #include "cpptools_global.h"
 #include "cppprojectfile.h"
+
+#include <cplusplus/CppDocument.h>
+#include <languageutils/fakemetaobject.h>
 
 #include <QObject>
 #include <QHash>

@@ -30,8 +30,8 @@
 #ifndef CPLUSPLUS_ASTPATH_H
 #define CPLUSPLUS_ASTPATH_H
 
-#include <ASTfwd.h>
-#include <ASTVisitor.h>
+#include <cplusplus/ASTfwd.h>
+#include <cplusplus/ASTVisitor.h>
 
 #include "CppDocument.h"
 

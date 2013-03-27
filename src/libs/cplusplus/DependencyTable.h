@@ -30,7 +30,7 @@
 #ifndef CPLUSPLUS_DEPENDENCYTABLE_H
 #define CPLUSPLUS_DEPENDENCYTABLE_H
 
-#include <CPlusPlusForwardDeclarations.h>
+#include <cplusplus/CPlusPlusForwardDeclarations.h>
 
 #include <QBitArray>
 #include <QHash>

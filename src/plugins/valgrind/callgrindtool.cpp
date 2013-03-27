@@ -90,7 +90,7 @@
 #include <QVBoxLayout>
 
 // shared/cplusplus includes
-#include <Symbols.h>
+#include <cplusplus/Symbols.h>
 
 using namespace Analyzer;
 using namespace Core;

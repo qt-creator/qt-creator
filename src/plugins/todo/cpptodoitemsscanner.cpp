@@ -31,7 +31,7 @@
 #include "cpptodoitemsscanner.h"
 
 #include <projectexplorer/project.h>
-#include <TranslationUnit.h>
+#include <cplusplus/TranslationUnit.h>
 
 namespace Todo {
 namespace Internal {

@@ -28,7 +28,8 @@
 ****************************************************************************/
 
 #include "ModelManagerInterface.h"
-#include "pp-engine.h"
+
+#include <cplusplus/pp-engine.h>
 
 #include <QtCore/QSet>
 

@@ -33,7 +33,9 @@
 #include "LookupContext.h"
 #include "CppDocument.h"
 #include "TypeOfExpression.h"
-#include <ASTVisitor.h>
+
+#include <cplusplus/ASTVisitor.h>
+
 #include <QSet>
 
 namespace CPlusPlus {

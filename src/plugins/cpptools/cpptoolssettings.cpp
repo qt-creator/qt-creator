@@ -28,20 +28,22 @@
 ****************************************************************************/
 
 #include "cpptoolssettings.h"
+
 #include "cpptoolsconstants.h"
 #include "cppcodestylepreferences.h"
 #include "cppcodestylepreferencesfactory.h"
 #include "commentssettings.h"
 #include "completionsettingspage.h"
 
-#include <texteditor/texteditorsettings.h>
-#include <texteditor/tabsettings.h>
-#include <texteditor/codestylepool.h>
-#include <extensionsystem/pluginmanager.h>
-
-#include <utils/settingsutils.h>
-#include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
+#include <texteditor/codestylepool.h>
+#include <texteditor/tabsettings.h>
+#include <texteditor/texteditorsettings.h>
+
+#include <extensionsystem/pluginmanager.h>
+#include <utils/qtcassert.h>
+#include <utils/settingsutils.h>
+
 #include <QSettings>
 
 static const char idKey[] = "CppGlobal";

@@ -28,25 +28,27 @@
 ****************************************************************************/
 
 #include "cppcodestylesettingspage.h"
+
 #include "cppcodestylepreferences.h"
 #include "cpppointerdeclarationformatter.h"
 #include "cppqtstyleindenter.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolssettings.h"
-#include "ui_cppcodestylesettingspage.h"
-
-#include <Overview.h>
-#include <pp.h>
+#include <ui_cppcodestylesettingspage.h>
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
-#include <extensionsystem/pluginmanager.h>
 #include <texteditor/codestyleeditor.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/snippets/isnippetprovider.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
+
+#include <cplusplus/Overview.h>
+#include <cplusplus/pp.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <QTextBlock>
 #include <QTextStream>

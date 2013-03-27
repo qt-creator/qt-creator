@@ -28,8 +28,11 @@
 ****************************************************************************/
 
 #include "cppprojectfile.h"
-#include <coreplugin/icore.h>
+
 #include "cpptoolsconstants.h"
+
+#include <coreplugin/icore.h>
+
 #include <QDebug>
 
 namespace CPlusPlus {

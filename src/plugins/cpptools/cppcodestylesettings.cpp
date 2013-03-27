@@ -28,18 +28,17 @@
 ****************************************************************************/
 
 #include "cppcodestylesettings.h"
-#include "cppcodestylepreferencesfactory.h"
 
-#include <cpptools/cppcodestylepreferences.h>
-#include <cpptools/cpptoolsconstants.h>
-#include <cpptools/cpptoolssettings.h>
+#include "cppcodestylepreferencesfactory.h"
+#include "cppcodestylepreferences.h"
+#include "cpptoolsconstants.h"
+#include "cpptoolssettings.h"
 
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/qtcassert.h>
-
 #include <utils/settingsutils.h>
 
 static const char groupPostfix[] = "IndentSettings";

@@ -29,11 +29,12 @@
 
 #include "findcdbbreakpoint.h"
 
-#include <AST.h>
-#include <TranslationUnit.h>
+#include <cplusplus/AST.h>
+#include <cplusplus/TranslationUnit.h>
+
+#include <QDebug>
 
 #include <typeinfo>
-#include <QDebug>
 
 using namespace CPlusPlus;
 

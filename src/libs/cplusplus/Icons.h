@@ -30,7 +30,7 @@
 #ifndef CPLUSPLUS_ICONS_H
 #define CPLUSPLUS_ICONS_H
 
-#include "CPlusPlusForwardDeclarations.h"
+#include <cplusplus/CPlusPlusForwardDeclarations.h>
 
 #include <QIcon>
 

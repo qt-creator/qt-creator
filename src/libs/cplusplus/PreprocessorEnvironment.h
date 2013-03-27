@@ -49,8 +49,9 @@
 #ifndef PREPROCESSORENVIRONMENT_H
 #define PREPROCESSORENVIRONMENT_H
 
-#include "CPlusPlusForwardDeclarations.h"
 #include "PPToken.h"
+
+#include <cplusplus/CPlusPlusForwardDeclarations.h>
 
 #include <QList>
 #include <QByteArray>

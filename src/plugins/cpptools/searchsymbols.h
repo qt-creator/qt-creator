@@ -31,14 +31,13 @@
 #define SEARCHSYMBOLS_H
 
 #include "cpptools_global.h"
-
 #include "cppindexingsupport.h"
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Icons.h>
 #include <cplusplus/Overview.h>
-#include <Symbols.h>
-#include <SymbolVisitor.h>
+#include <cplusplus/SymbolVisitor.h>
+#include <cplusplus/Symbols.h>
 
 #include <QIcon>
 #include <QMetaType>

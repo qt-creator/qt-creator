@@ -27,8 +27,9 @@
 **
 ****************************************************************************/
 
+#include <cplusplus/pp.h>
+
 #include <QtTest>
-#include <pp.h>
 #include <QHash>
 
 //TESTED_COMPONENT=src/libs/cplusplus

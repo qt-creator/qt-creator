@@ -1,7 +1,6 @@
 TARGET = CppTools
 include(../../qtcreatorplugin.pri)
 
-INCLUDEPATH += .
 DEFINES += CPPTOOLS_LIBRARY
 HEADERS += completionsettingspage.h \
     cppclassesfilter.h \

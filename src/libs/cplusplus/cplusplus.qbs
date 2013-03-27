@@ -4,7 +4,7 @@ import "../QtcLibrary.qbs" as QtcLibrary
 QtcLibrary {
     name: "CPlusPlus"
 
-    cpp.includePaths: base.concat("../3rdparty/cplusplus")
+    cpp.includePaths: base.concat("../3rdparty")
     cpp.defines: base.concat([
         "NDEBUG",
         "CPLUSPLUS_BUILD_LIB"
@@ -171,9 +171,7 @@ QtcLibrary {
     ProductModule {
         Depends { name: "cpp" }
         cpp.includePaths: [
-            ".",
-            "../3rdparty",
-            "../3rdparty/cplusplus"
+            "../3rdparty"
         ]
     }
 }

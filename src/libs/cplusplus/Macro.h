@@ -51,7 +51,7 @@
 
 #include "PPToken.h"
 
-#include <CPlusPlusForwardDeclarations.h>
+#include <cplusplus/CPlusPlusForwardDeclarations.h>
 
 #include <QByteArray>
 #include <QVector>

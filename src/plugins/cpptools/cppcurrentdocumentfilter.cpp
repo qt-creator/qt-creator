@@ -26,10 +26,13 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+
 #include "cppcurrentdocumentfilter.h"
+
 #include "cppmodelmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+
 #include <cplusplus/CppDocument.h>
 
 #include <QStringMatcher>

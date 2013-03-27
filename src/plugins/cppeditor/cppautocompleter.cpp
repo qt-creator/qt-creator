@@ -29,8 +29,7 @@
 
 #include "cppautocompleter.h"
 
-#include <Token.h>
-
+#include <cplusplus/Token.h>
 #include <cplusplus/SimpleLexer.h>
 #include <cplusplus/MatchingText.h>
 #include <cplusplus/BackwardsScanner.h>

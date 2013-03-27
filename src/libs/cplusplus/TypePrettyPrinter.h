@@ -29,8 +29,9 @@
 #ifndef CPLUSPLUS_TYPEPRETTYPRINTER_H
 #define CPLUSPLUS_TYPEPRETTYPRINTER_H
 
-#include <TypeVisitor.h>
-#include <FullySpecifiedType.h>
+#include <cplusplus/TypeVisitor.h>
+#include <cplusplus/FullySpecifiedType.h>
+
 #include <QString>
 #include <QList>
 

@@ -31,22 +31,22 @@
 
 #include <coreplugin/idocument.h>
 #include <cpptools/cpptoolsreuse.h>
-
-#include <FullySpecifiedType.h>
-#include <Literals.h>
-#include <Names.h>
-#include <CoreTypes.h>
-#include <Scope.h>
-#include <Symbol.h>
-#include <Symbols.h>
-#include <cpptools/TypeHierarchyBuilder.h>
 #include <cpptools/ModelManagerInterface.h>
+#include <cpptools/TypeHierarchyBuilder.h>
+
+#include <cplusplus/CoreTypes.h>
 #include <cplusplus/ExpressionUnderCursor.h>
-#include <cplusplus/Overview.h>
-#include <cplusplus/TypeOfExpression.h>
+#include <cplusplus/FullySpecifiedType.h>
+#include <cplusplus/Icons.h>
+#include <cplusplus/Literals.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/LookupItem.h>
-#include <cplusplus/Icons.h>
+#include <cplusplus/Names.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/Scope.h>
+#include <cplusplus/Symbol.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/TypeOfExpression.h>
 
 #include <QDir>
 #include <QFileInfo>

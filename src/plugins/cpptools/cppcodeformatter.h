@@ -31,11 +31,12 @@
 #define CPPCODEFORMATTER_H
 
 #include "cpptools_global.h"
+#include "cppcodestylesettings.h"
 
-#include <Token.h>
-#include <cplusplus/SimpleLexer.h>
 #include <texteditor/tabsettings.h>
-#include <cpptools/cppcodestylesettings.h>
+
+#include <cplusplus/Token.h>
+#include <cplusplus/SimpleLexer.h>
 
 #include <QChar>
 #include <QStack>

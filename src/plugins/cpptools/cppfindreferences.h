@@ -31,6 +31,7 @@
 #define CPPFINDREFERENCES_H
 
 #include <utils/filesearch.h>
+
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/DependencyTable.h>
 #include <cplusplus/FindUsages.h>

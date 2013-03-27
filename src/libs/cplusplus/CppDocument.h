@@ -30,8 +30,9 @@
 #ifndef CPLUSPLUS_CPPDOCUMENT_H
 #define CPLUSPLUS_CPPDOCUMENT_H
 
-#include <CPlusPlusForwardDeclarations.h>
 #include "Macro.h"
+
+#include <cplusplus/CPlusPlusForwardDeclarations.h>
 
 #include <QSharedPointer>
 #include <QDateTime>

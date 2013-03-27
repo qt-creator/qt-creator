@@ -30,10 +30,11 @@
 #ifndef CPLUSPLUS_DUMPERS_H
 #define CPLUSPLUS_DUMPERS_H
 
-#include <CPlusPlusForwardDeclarations.h>
-#include <FullySpecifiedType.h>
-#include <Symbol.h>
-#include <LookupItem.h>
+#include "LookupItem.h"
+
+#include <cplusplus/CPlusPlusForwardDeclarations.h>
+#include <cplusplus/FullySpecifiedType.h>
+#include <cplusplus/Symbol.h>
 
 #include <QString>
 

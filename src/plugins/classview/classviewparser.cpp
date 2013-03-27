@@ -32,10 +32,10 @@
 #include "classviewutils.h"
 
 // cplusplus shared library. the same folder (cplusplus)
-#include <Symbol.h>
-#include <Symbols.h>
-#include <Scope.h>
-#include <Name.h>
+#include <cplusplus/Symbol.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/Scope.h>
+#include <cplusplus/Name.h>
 
 // other
 #include <cpptools/ModelManagerInterface.h>

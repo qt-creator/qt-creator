@@ -31,12 +31,11 @@
 #define INSERTIONPOINTLOCATOR_H
 
 #include "cpptools_global.h"
+#include "cpprefactoringchanges.h"
 
-#include <ASTfwd.h>
-#include <CPlusPlusForwardDeclarations.h>
-
+#include <cplusplus/ASTfwd.h>
+#include <cplusplus/CPlusPlusForwardDeclarations.h>
 #include <cplusplus/CppDocument.h>
-#include <cpptools/cpprefactoringchanges.h>
 
 namespace CppTools {
 

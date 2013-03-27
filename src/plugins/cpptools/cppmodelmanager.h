@@ -33,10 +33,12 @@
 #include "cpptools_global.h"
 #include "cpptoolsconstants.h"
 #include "ModelManagerInterface.h"
+
 #include <projectexplorer/project.h>
+#include <texteditor/basetexteditor.h>
+
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/PreprocessorClient.h>
-#include <texteditor/basetexteditor.h>
 #include <cplusplus/PreprocessorEnvironment.h>
 #include <cplusplus/pp-engine.h>
 

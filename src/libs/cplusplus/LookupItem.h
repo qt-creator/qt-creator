@@ -30,7 +30,8 @@
 #ifndef CPLUSPLUS_LOOKUPITEM_H
 #define CPLUSPLUS_LOOKUPITEM_H
 
-#include <FullySpecifiedType.h>
+#include <cplusplus/FullySpecifiedType.h>
+
 #include <QHash>
 
 namespace CPlusPlus {

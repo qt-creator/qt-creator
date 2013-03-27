@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "cppplugin.h"
+
 #include "cppclasswizard.h"
 #include "cppeditor.h"
 #include "cppeditorconstants.h"
@@ -40,32 +41,32 @@
 #include "cppquickfixassistant.h"
 #include "cppquickfixes.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/mimedatabase.h>
-#include <coreplugin/fileiconprovider.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/id.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/fileiconprovider.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/id.h>
+#include <coreplugin/mimedatabase.h>
 #include <coreplugin/navigationwidget.h>
-#include <texteditor/texteditoractionhandler.h>
-#include <texteditor/texteditorplugin.h>
-#include <texteditor/texteditorsettings.h>
-#include <texteditor/texteditorconstants.h>
-#include <utils/hostosinfo.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/ModelManagerInterface.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpptoolssettings.h>
+#include <texteditor/texteditoractionhandler.h>
+#include <texteditor/texteditorconstants.h>
+#include <texteditor/texteditorplugin.h>
+#include <texteditor/texteditorsettings.h>
+
+#include <utils/hostosinfo.h>
 
 #include <QFileInfo>
 #include <QSettings>
 #include <QTimer>
 #include <QCoreApplication>
 #include <QStringList>
-
 #include <QMenu>
 
 using namespace CppEditor;

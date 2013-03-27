@@ -28,34 +28,37 @@
 ****************************************************************************/
 
 #include "cppfindreferences.h"
-#include "cpptoolsconstants.h"
 
-#include <texteditor/basetexteditor.h>
-#include <texteditor/basefilefind.h>
+#include "cpptoolsconstants.h"
+#include "ModelManagerInterface.h"
+
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/infobar.h>
+#include <coreplugin/progressmanager/futureprogress.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <find/searchresultwindow.h>
+#include <texteditor/basefilefind.h>
+#include <texteditor/basetexteditor.h>
+
 #include <extensionsystem/pluginmanager.h>
 #include <utils/filesearch.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/progressmanager/futureprogress.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/infobar.h>
+#include <utils/runextensions.h>
+#include <utils/textfileformat.h>
 
-#include <ASTVisitor.h>
-#include <AST.h>
-#include <Control.h>
-#include <Literals.h>
-#include <TranslationUnit.h>
-#include <Symbols.h>
-#include <Names.h>
-#include <Scope.h>
-
-#include <cpptools/ModelManagerInterface.h>
+#include <cplusplus/AST.h>
+#include <cplusplus/ASTVisitor.h>
+#include <cplusplus/Control.h>
 #include <cplusplus/CppDocument.h>
-#include <cplusplus/Overview.h>
 #include <cplusplus/FindUsages.h>
+#include <cplusplus/Literals.h>
+#include <cplusplus/Names.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/Scope.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/TranslationUnit.h>
 
 #include <QTime>
 #include <QTimer>
@@ -63,8 +66,6 @@
 #include <QtConcurrentMap>
 #include <QDir>
 #include <QApplication>
-#include <utils/runextensions.h>
-#include <utils/textfileformat.h>
 
 #include <functional>
 

@@ -30,7 +30,7 @@
 #ifndef CPLUSPLUS_SYMBOLNAMEVISITOR_H
 #define CPLUSPLUS_SYMBOLNAMEVISITOR_H
 
-#include <NameVisitor.h>
+#include <cplusplus/NameVisitor.h>
 
 namespace CPlusPlus {
 

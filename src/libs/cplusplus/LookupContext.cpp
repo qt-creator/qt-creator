@@ -28,17 +28,18 @@
 ****************************************************************************/
 
 #include "LookupContext.h"
+
 #include "ResolveExpression.h"
 #include "Overview.h"
 #include "DeprecatedGenTemplateInstance.h"
 #include "CppRewriter.h"
 
-#include <CoreTypes.h>
-#include <Symbols.h>
-#include <Literals.h>
-#include <Names.h>
-#include <Scope.h>
-#include <Control.h>
+#include <cplusplus/CoreTypes.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/Literals.h>
+#include <cplusplus/Names.h>
+#include <cplusplus/Scope.h>
+#include <cplusplus/Control.h>
 
 #include <QStack>
 #include <QHash>
