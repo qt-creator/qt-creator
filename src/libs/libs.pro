@@ -1,20 +1,28 @@
 TEMPLATE  = subdirs
-CONFIG   += ordered
 
 SUBDIRS   = \
     aggregation \
     extensionsystem \
     utils \
-    utils/process_stub.pro \
     languageutils \
     cplusplus \
     qmljs \
     qmldebug \
-    glsl \
     qmleditorwidgets \
-    qtcomponents/styleitem \
+    glsl \
     ssh \
     zeroconf
+
+for(l, SUBDIRS) {
+    QTC_LIB_DEPENDS =
+    include($$l/$${l}_dependencies.pri)
+    lv = $${l}.depends
+    $$lv = $$QTC_LIB_DEPENDS
+}
+
+SUBDIRS += \
+    utils/process_stub.pro \
+    qtcomponents/styleitem
 
 exists(../shared/qbs/qbs.pro):SUBDIRS += \
     ../shared/qbs/src/lib \
