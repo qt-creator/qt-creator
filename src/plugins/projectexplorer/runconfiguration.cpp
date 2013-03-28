@@ -462,6 +462,18 @@ RunConfiguration *IRunConfigurationFactory::create(Target *parent, const Core::I
     return rc;
 }
 
+RunConfiguration *IRunConfigurationFactory::restore(Target *parent, const QVariantMap &map)
+{
+    if (!canRestore(parent, map))
+        return 0;
+    RunConfiguration *rc = doRestore(parent, map);
+    if (!rc->fromMap(map)) {
+        delete rc;
+        rc = 0;
+    }
+    return rc;
+}
+
 IRunConfigurationFactory *IRunConfigurationFactory::find(Target *parent, const QVariantMap &map)
 {
     QList<IRunConfigurationFactory *> factories

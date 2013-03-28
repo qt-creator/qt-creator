@@ -110,20 +110,12 @@ bool BlackBerryRunConfigurationFactory::canRestore(ProjectExplorer::Target *pare
     return ProjectExplorer::idFromMap(map).name().startsWith(Constants::QNX_BB_RUNCONFIGURATION_PREFIX);
 }
 
-ProjectExplorer::RunConfiguration *BlackBerryRunConfigurationFactory::restore(
+ProjectExplorer::RunConfiguration *BlackBerryRunConfigurationFactory::doRestore(
         ProjectExplorer::Target *parent,
         const QVariantMap &map)
 {
-    if (!canRestore(parent, map))
-        return 0;
-
-    ProjectExplorer::RunConfiguration *rc = 0;
-    rc = new BlackBerryRunConfiguration(parent, Core::Id(Constants::QNX_BB_RUNCONFIGURATION_PREFIX), QString());
-    if (rc->fromMap(map))
-        return rc;
-
-    delete rc;
-    return 0;
+    Q_UNUSED(map);
+    return new BlackBerryRunConfiguration(parent, Core::Id(Constants::QNX_BB_RUNCONFIGURATION_PREFIX), QString());
 }
 
 bool BlackBerryRunConfigurationFactory::canClone(ProjectExplorer::Target *parent,

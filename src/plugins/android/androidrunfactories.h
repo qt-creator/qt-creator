@@ -56,12 +56,10 @@ public:
     bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
 
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
-    ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
 
     bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const;
     ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source);
 
-    bool canHandle(ProjectExplorer::Target *t) const;
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
                                                                         ProjectExplorer::Node *n);
 
@@ -69,6 +67,8 @@ private:
     bool canHandle(ProjectExplorer::Target *t) const;
 
     ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, const Core::Id id);
+    ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
+                                                 const QVariantMap &map);
 };
 
 class AndroidRunControlFactory : public ProjectExplorer::IRunControlFactory

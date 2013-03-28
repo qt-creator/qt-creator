@@ -139,7 +139,6 @@ public:
 
     bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
-    ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
     bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product) const;
     ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent,
                                              ProjectExplorer::RunConfiguration *source);
@@ -148,6 +147,8 @@ private:
     bool canHandle(ProjectExplorer::Target *parent) const;
 
     ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, const Core::Id id);
+    ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
+                                                 const QVariantMap &map);
 };
 
 } // namespace QtSupport

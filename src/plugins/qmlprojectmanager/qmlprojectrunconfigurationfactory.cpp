@@ -120,17 +120,10 @@ bool QmlProjectRunConfigurationFactory::canRestore(ProjectExplorer::Target *pare
     return parent && canCreate(parent, ProjectExplorer::idFromMap(map));
 }
 
-ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
+ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::doRestore(ProjectExplorer::Target *parent,
+                                                                                const QVariantMap &map)
 {
-    if (!canRestore(parent, map))
-        return 0;
-
-    Core::Id id = ProjectExplorer::idFromMap(map);
-    QmlProjectRunConfiguration *rc = new QmlProjectRunConfiguration(parent, id);
-    if (rc->fromMap(map))
-        return rc;
-    delete rc;
-    return 0;
+    return new QmlProjectRunConfiguration(parent, ProjectExplorer::idFromMap(map));
 }
 
 bool QmlProjectRunConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const

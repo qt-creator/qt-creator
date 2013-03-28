@@ -416,15 +416,10 @@ bool CustomExecutableRunConfigurationFactory::canRestore(ProjectExplorer::Target
 }
 
 ProjectExplorer::RunConfiguration *
-CustomExecutableRunConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
+CustomExecutableRunConfigurationFactory::doRestore(ProjectExplorer::Target *parent, const QVariantMap &map)
 {
-    if (!canRestore(parent, map))
-        return 0;
-    CustomExecutableRunConfiguration *rc(new CustomExecutableRunConfiguration(parent));
-    if (rc->fromMap(map))
-        return rc;
-    delete rc;
-    return 0;
+    Q_UNUSED(map);
+    return new CustomExecutableRunConfiguration(parent);
 }
 
 bool CustomExecutableRunConfigurationFactory::canClone(ProjectExplorer::Target *parent,

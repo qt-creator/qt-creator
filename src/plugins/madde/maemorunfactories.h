@@ -61,17 +61,18 @@ public:
     bool canCreate(Target *parent, const Core::Id id) const;
 
     bool canRestore(Target *parent, const QVariantMap &map) const;
-    RunConfiguration *restore(Target *parent, const QVariantMap &map);
 
     bool canClone(Target *parent, RunConfiguration *source) const;
     RunConfiguration *clone(Target *parent, RunConfiguration *source);
 
-    bool canHandle(ProjectExplorer::Target *t) const;
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
                                                                         ProjectExplorer::Node *n);
 
 private:
+    bool canHandle(ProjectExplorer::Target *t) const;
+
     RunConfiguration *doCreate(Target *parent, const Core::Id id);
+    RunConfiguration *doRestore(Target *parent, const QVariantMap &map);
 };
 
 class MaemoRunControlFactory : public IRunControlFactory

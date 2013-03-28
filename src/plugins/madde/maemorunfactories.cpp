@@ -137,20 +137,11 @@ RunConfiguration *MaemoRunConfigurationFactory::doCreate(Target *parent, const C
     return new MaemoRunConfiguration(parent, id, pathFromId(id));
 }
 
-RunConfiguration *MaemoRunConfigurationFactory::restore(Target *parent,
+RunConfiguration *MaemoRunConfigurationFactory::doRestore(Target *parent,
     const QVariantMap &map)
 {
-    if (!canRestore(parent, map))
-        return 0;
-
     Core::Id id = ProjectExplorer::idFromMap(map);
-    MaemoRunConfiguration *rc
-        = new MaemoRunConfiguration(parent, id, pathFromId(id));
-    if (rc->fromMap(map))
-        return rc;
-
-    delete rc;
-    return 0;
+    return new MaemoRunConfiguration(parent, id, pathFromId(id));
 }
 
 RunConfiguration *MaemoRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)

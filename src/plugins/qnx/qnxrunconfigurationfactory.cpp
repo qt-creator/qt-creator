@@ -103,18 +103,11 @@ bool QnxRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, con
             && ProjectExplorer::idFromMap(map).name().startsWith(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX);
 }
 
-ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
+ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::doRestore(ProjectExplorer::Target *parent,
+                                                                         const QVariantMap &map)
 {
-    if (!canRestore(parent, map))
-        return 0;
-
-    ProjectExplorer::RunConfiguration *rc = 0;
-    rc = new QnxRunConfiguration(parent, Core::Id(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX), QString());
-    if (rc->fromMap(map))
-        return rc;
-
-    delete rc;
-    return 0;
+    Q_UNUSED(map);
+    return new QnxRunConfiguration(parent, Core::Id(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX), QString());
 }
 
 bool QnxRunConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const

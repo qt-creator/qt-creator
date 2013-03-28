@@ -544,16 +544,11 @@ bool CMakeRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, c
     return ProjectExplorer::idFromMap(map).name().startsWith(CMAKE_RC_PREFIX);
 }
 
-ProjectExplorer::RunConfiguration *CMakeRunConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
+ProjectExplorer::RunConfiguration *CMakeRunConfigurationFactory::doRestore(ProjectExplorer::Target *parent,
+                                                                           const QVariantMap &map)
 {
-    if (!canRestore(parent, map))
-        return 0;
-    CMakeRunConfiguration *rc(new CMakeRunConfiguration(parent, ProjectExplorer::idFromMap(map),
-                                                        QString(), QString(), QString()));
-    if (rc->fromMap(map))
-        return rc;
-    delete rc;
-    return 0;
+    return new CMakeRunConfiguration(parent, ProjectExplorer::idFromMap(map),
+                                     QString(), QString(), QString());
 }
 
 QString CMakeRunConfigurationFactory::buildTargetFromId(Core::Id id)

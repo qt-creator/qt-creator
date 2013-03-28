@@ -107,18 +107,11 @@ RunConfiguration *AndroidRunConfigurationFactory::doCreate(Target *parent, const
     return new AndroidRunConfiguration(parent, id, pathFromId(id));
 }
 
-RunConfiguration *AndroidRunConfigurationFactory::restore(Target *parent,
-    const QVariantMap &map)
+RunConfiguration *AndroidRunConfigurationFactory::doRestore(Target *parent,
+                                                            const QVariantMap &map)
 {
-    if (!canRestore(parent, map))
-        return 0;
     Core::Id id = ProjectExplorer::idFromMap(map);
-    AndroidRunConfiguration *rc = new AndroidRunConfiguration(parent, id, pathFromId(id));
-    if (rc->fromMap(map))
-        return rc;
-
-    delete rc;
-    return 0;
+    return new AndroidRunConfiguration(parent, id, pathFromId(id));
 }
 
 RunConfiguration *AndroidRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)

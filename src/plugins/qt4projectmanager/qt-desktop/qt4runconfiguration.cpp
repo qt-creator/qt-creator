@@ -757,16 +757,10 @@ bool Qt4RunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, con
     return ProjectExplorer::idFromMap(map).toString().startsWith(QLatin1String(QT4_RC_PREFIX));
 }
 
-ProjectExplorer::RunConfiguration *Qt4RunConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
+ProjectExplorer::RunConfiguration *Qt4RunConfigurationFactory::doRestore(ProjectExplorer::Target *parent,
+                                                                         const QVariantMap &map)
 {
-    if (!canRestore(parent, map))
-        return 0;
-    Qt4RunConfiguration *rc = new Qt4RunConfiguration(parent, ProjectExplorer::idFromMap(map));
-    if (rc->fromMap(map))
-        return rc;
-
-    delete rc;
-    return 0;
+    return new Qt4RunConfiguration(parent, ProjectExplorer::idFromMap(map));
 }
 
 bool Qt4RunConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const

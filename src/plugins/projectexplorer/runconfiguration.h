@@ -216,7 +216,7 @@ public:
     virtual bool canCreate(Target *parent, const Core::Id id) const = 0;
     RunConfiguration *create(Target *parent, const Core::Id id);
     virtual bool canRestore(Target *parent, const QVariantMap &map) const = 0;
-    virtual RunConfiguration *restore(Target *parent, const QVariantMap &map) = 0;
+    RunConfiguration *restore(Target *parent, const QVariantMap &map);
     virtual bool canClone(Target *parent, RunConfiguration *product) const = 0;
     virtual RunConfiguration *clone(Target *parent, RunConfiguration *product) = 0;
 
@@ -229,6 +229,7 @@ signals:
 
 private:
     virtual RunConfiguration *doCreate(Target *parent, const Core::Id id) = 0;
+    virtual RunConfiguration *doRestore(Target *parent, const QVariantMap &map) = 0;
 };
 
 class RunConfigWidget;
