@@ -56,6 +56,9 @@ public:
     explicit VariableChooser(QWidget *parent = 0);
     ~VariableChooser();
 
+    static const char kVariableSupportProperty[];
+    static void addVariableSupport(QWidget *textcontrol);
+
 protected:
     void keyPressEvent(QKeyEvent *ke);
     bool eventFilter(QObject *, QEvent *event);

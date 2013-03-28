@@ -47,12 +47,11 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
     QWidget(parent)
 {
     m_ui.setupUi(this);
-    m_ui.buildDirectoryEdit->setProperty(Core::Constants::VARIABLE_SUPPORT_PROPERTY, true);
     new Core::VariableChooser(this);
+    Core::VariableChooser::addVariableSupport(m_ui.buildDirectoryEdit);
     setJomVisible(Utils::HostOsInfo::isWindowsHost());
     m_ui.directoryButtonGroup->setId(m_ui.currentDirectoryRadioButton, UseCurrentDirectory);
     m_ui.directoryButtonGroup->setId(m_ui.directoryRadioButton, UseProjectDirectory);
-    m_ui.buildDirectoryEdit->setProperty(Core::Constants::VARIABLE_SUPPORT_PROPERTY, true);
 
     connect(m_ui.directoryButtonGroup, SIGNAL(buttonClicked(int)),
             this, SLOT(slotDirectoryButtonGroupChanged()));

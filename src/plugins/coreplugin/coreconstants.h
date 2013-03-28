@@ -221,8 +221,6 @@ const char SETTINGS_DEFAULTTEXTENCODING[] = "General/DefaultFileEncoding";
 
 const char ALL_FILES_FILTER[]      = QT_TRANSLATE_NOOP("Core", "All Files (*)");
 
-const char VARIABLE_SUPPORT_PROPERTY[] = "QtCreator.VariableSupport";
-
 const char TR_CLEAR_MENU[]         = QT_TRANSLATE_NOOP("Core", "Clear Menu");
 
 const char DEFAULT_BUILD_DIRECTORY[] = "../build-%{CurrentProject:Name}-%{CurrentKit:FileSystemName}-%{CurrentBuild:Name}";

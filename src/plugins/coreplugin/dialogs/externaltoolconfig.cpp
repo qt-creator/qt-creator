@@ -409,10 +409,10 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     connect(ui->toolTree->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(handleCurrentChanged(QModelIndex,QModelIndex)));
 
-    ui->executable->lineEdit()->setProperty(Constants::VARIABLE_SUPPORT_PROPERTY, true);
-    ui->arguments->setProperty(Constants::VARIABLE_SUPPORT_PROPERTY, true);
-    ui->workingDirectory->lineEdit()->setProperty(Constants::VARIABLE_SUPPORT_PROPERTY, true);
-    ui->inputText->setProperty(Constants::VARIABLE_SUPPORT_PROPERTY, true);
+    Core::VariableChooser::addVariableSupport(ui->executable->lineEdit());
+    Core::VariableChooser::addVariableSupport(ui->arguments);
+    Core::VariableChooser::addVariableSupport(ui->workingDirectory->lineEdit());
+    Core::VariableChooser::addVariableSupport(ui->inputText);
 
     connect(ui->description, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
     connect(ui->executable, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));

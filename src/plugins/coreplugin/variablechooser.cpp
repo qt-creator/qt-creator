@@ -33,6 +33,7 @@
 #include "coreconstants.h"
 
 #include <utils/fancylineedit.h> // IconButton
+#include <utils/qtcassert.h>
 
 #include <QTimer>
 #include <QLineEdit>
@@ -41,6 +42,8 @@
 #include <QListWidgetItem>
 
 using namespace Core;
+
+const char VariableChooser::kVariableSupportProperty[] = "QtCreator.VariableSupport";
 
 VariableChooser::VariableChooser(QWidget *parent) :
     QWidget(parent),
@@ -76,6 +79,12 @@ VariableChooser::~VariableChooser()
     delete ui;
 }
 
+void VariableChooser::addVariableSupport(QWidget *textcontrol)
+{
+    QTC_ASSERT(textcontrol, return);
+    textcontrol->setProperty(kVariableSupportProperty, true);
+}
+
 void VariableChooser::updateDescription(const QString &variable)
 {
     if (variable.isNull())
@@ -109,7 +118,7 @@ void VariableChooser::updateCurrentEditor(QWidget *old, QWidget *widget)
     m_lineEdit = 0;
     m_textEdit = 0;
     m_plainTextEdit = 0;
-    QVariant variablesSupportProperty = widget->property(Constants::VARIABLE_SUPPORT_PROPERTY);
+    QVariant variablesSupportProperty = widget->property(kVariableSupportProperty);
     bool supportsVariables = (variablesSupportProperty.isValid()
                               ? variablesSupportProperty.toBool() : false);
     if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(widget))
