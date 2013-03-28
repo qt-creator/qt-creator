@@ -953,7 +953,6 @@ QString WatchModel::displayValue(const WatchData &data) const
         result += QString::fromLatin1("@0x" + QByteArray::number(data.address, 16));
 //    if (data.origaddr)
 //        result += QString::fromLatin1(" (0x" + QByteArray::number(data.origaddr, 16) + ')');
-    QTC_CHECK(!result.isEmpty());
     return result;
 }
 
