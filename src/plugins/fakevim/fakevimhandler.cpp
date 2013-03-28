@@ -840,7 +840,7 @@ public:
             m_text.clear();
 
         // Set text only if input is ascii key without control modifier.
-        if (m_text.isEmpty() && k <= 0x7f && (m & (HostOsInfo::controlModifier())) == 0) {
+        if (m_text.isEmpty() && k >= 0 && k <= 0x7f && (m & (HostOsInfo::controlModifier())) == 0) {
             QChar c = QChar::fromAscii(k);
             m_text = QString((m & ShiftModifier) != 0 ? c.toUpper() : c.toLower());
         }
