@@ -41,8 +41,11 @@
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
+#include <debugger/debuggerrunconfigurationaspect.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerkitinformation.h>
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <qtsupport/qtkitinformation.h>
@@ -76,6 +79,25 @@ DebuggerStartParameters createStartParameters(const QnxRunConfiguration *runConf
     params.displayName = runConfig->displayName();
     params.remoteSetupNeeded = true;
     params.closeMode = DetachAtClose;
+    params.processArgs = runConfig->arguments();
+
+    Debugger::DebuggerRunConfigurationAspect *aspect
+            = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+    if (aspect->useQmlDebugger()) {
+        params.languages |= QmlLanguage;
+        params.qmlServerAddress = device->sshParameters().host;
+        params.qmlServerPort = 0; // QML port is handed out later
+    }
+
+    if (aspect->useCppDebugger())
+        params.languages |= Debugger::CppLanguage;
+
+    if (const ProjectExplorer::Project *project = runConfig->target()->project()) {
+        params.projectSourceDirectory = project->projectDirectory();
+        if (const ProjectExplorer::BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
+            params.projectBuildDirectory = buildConfig->buildDirectory();
+        params.projectSourceFiles = project->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
+    }
 
     QnxQtVersion *qtVersion =
             dynamic_cast<QnxQtVersion *>(QtSupport::QtKitInformation::qtVersion(k));

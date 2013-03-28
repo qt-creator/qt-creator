@@ -72,6 +72,8 @@ private:
     void startExecution();
     void setFinished();
 
+    QString executable() const;
+
     enum State {
         Inactive,
         GatheringPorts,
@@ -79,14 +81,17 @@ private:
         Debugging
     };
 
-    const QString m_executable;
+    const QString m_remoteExecutable;
     const QString m_commandPrefix;
-    const QString m_arguments;
     ProjectExplorer::IDevice::ConstPtr m_device;
     ProjectExplorer::DeviceApplicationRunner *m_runner;
     ProjectExplorer::DeviceUsedPortsGatherer * m_portsGatherer;
     Debugger::DebuggerEngine *m_engine;
-    int m_port;
+    int m_pdebugPort;
+    int m_qmlPort;
+
+    bool m_useCppDebugger;
+    bool m_useQmlDebugger;
 
     State m_state;
 };

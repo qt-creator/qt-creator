@@ -34,6 +34,8 @@
 #include "qnxrunconfiguration.h"
 
 #include <debugger/debuggerengine.h>
+#include <debugger/debuggerrunconfigurationaspect.h>
+#include <debugger/debuggerstartparameters.h>
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/kitinformation.h>
@@ -49,12 +51,14 @@ using namespace Qnx::Internal;
 
 QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::DebuggerEngine *engine)
     : QObject(engine)
-    , m_executable(QLatin1String(Constants::QNX_DEBUG_EXECUTABLE))
+    , m_remoteExecutable(runConfig->remoteExecutableFilePath())
     , m_commandPrefix(runConfig->commandPrefix())
-    , m_arguments(runConfig->arguments())
     , m_device(DeviceKitInformation::device(runConfig->target()->kit()))
     , m_engine(engine)
-    , m_port(-1)
+    , m_pdebugPort(-1)
+    , m_qmlPort(-1)
+    , m_useCppDebugger(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useCppDebugger())
+    , m_useQmlDebugger(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useQmlDebugger())
     , m_state(Inactive)
 {
     m_runner = new DeviceApplicationRunner(this);
@@ -68,6 +72,7 @@ QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::Debug
     connect(m_runner, SIGNAL(finished(bool)), SLOT(handleRemoteProcessFinished(bool)));
     connect(m_runner, SIGNAL(reportProgress(QString)),       this, SLOT(handleProgressReport(QString)));
     connect(m_runner, SIGNAL(remoteStdout(QByteArray)),      this, SLOT(handleRemoteOutput(QByteArray)));
+    connect(m_runner, SIGNAL(remoteStderr(QByteArray)),     this, SLOT(handleRemoteOutput(QByteArray)));
 
     connect(m_engine, SIGNAL(requestRemoteSetup()), this, SLOT(handleAdapterSetupRequested()));
 }
@@ -93,19 +98,38 @@ void QnxDebugSupport::startExecution()
     if (m_state == Inactive)
         return;
 
-    m_state = StartingRemoteProcess;
     Utils::PortList portList = m_device->freePorts();
-    m_port = m_portsGatherer->getNextFreePort(&portList);
+    if (m_useCppDebugger)
+        m_pdebugPort = m_portsGatherer->getNextFreePort(&portList);
+    if (m_useQmlDebugger)
+        m_qmlPort = m_portsGatherer->getNextFreePort(&portList);
 
-    const QString remoteCommandLine = QString::fromLatin1("%1 %2 %3")
-            .arg(m_commandPrefix, m_executable).arg(m_port);
+    if ((m_useCppDebugger && m_pdebugPort == -1) || (m_useQmlDebugger && m_qmlPort == -1)) {
+        handleError(tr("Not enough free ports on device for debugging."));
+        return;
+    }
+
+    m_state = StartingRemoteProcess;
+
+    if (m_useQmlDebugger)
+        m_engine->startParameters().processArgs += QString::fromLocal8Bit(" -qmljsdebugger=port:%1,block").arg(m_qmlPort);
+
+    QString remoteCommandLine;
+    if (m_useCppDebugger)
+        remoteCommandLine = QString::fromLatin1("%1 %2 %3")
+                .arg(m_commandPrefix, executable()).arg(m_pdebugPort);
+    else if (m_useQmlDebugger && !m_useCppDebugger)
+        remoteCommandLine = QString::fromLatin1("%1 %2 %3")
+                .arg(m_commandPrefix, executable(), m_engine->startParameters().processArgs);
+
     m_runner->start(m_device, remoteCommandLine.toUtf8());
 }
 
 void QnxDebugSupport::handleRemoteProcessStarted()
 {
+    m_state = Debugging;
     if (m_engine)
-        m_engine->notifyEngineRemoteSetupDone(m_port, -1);
+        m_engine->notifyEngineRemoteSetupDone(m_pdebugPort, m_qmlPort);
 }
 
 void QnxDebugSupport::handleRemoteProcessFinished(bool success)
@@ -118,7 +142,7 @@ void QnxDebugSupport::handleRemoteProcessFinished(bool success)
             m_engine->notifyInferiorIll();
 
     } else {
-        const QString errorMsg = tr("The %1 process closed unexpectedly.").arg(m_executable);
+        const QString errorMsg = tr("The %1 process closed unexpectedly.").arg(executable());
         m_engine->notifyEngineRemoteSetupFailed(errorMsg);
     }
 }
@@ -130,8 +154,15 @@ void QnxDebugSupport::handleDebuggingFinished()
 
 void QnxDebugSupport::setFinished()
 {
+    if (m_state != GatheringPorts && m_state != Inactive)
+        m_runner->stop(m_device->processSupport()->killProcessByNameCommandLine(executable()).toUtf8());
+
     m_state = Inactive;
-    m_runner->stop(m_device->processSupport()->killProcessByNameCommandLine(m_executable).toUtf8());
+}
+
+QString QnxDebugSupport::executable() const
+{
+    return m_useCppDebugger? QLatin1String(Constants::QNX_DEBUG_EXECUTABLE) : m_remoteExecutable;
 }
 
 void QnxDebugSupport::handleProgressReport(const QString &progressOutput)
