@@ -45,8 +45,8 @@ class ItemLibraryEntry;
 class QMLDESIGNERCORE_EXPORT QmlModelView : public AbstractView
 {
     Q_OBJECT
-    friend QMLDESIGNERCORE_EXPORT class QmlObjectNode;
-    friend QMLDESIGNERCORE_EXPORT class QmlModelNodeFacade;
+    friend class QmlObjectNode;
+    friend class QmlModelNodeFacade;
 
 public:
     QmlModelView(QObject *parent) ;

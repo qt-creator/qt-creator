@@ -42,7 +42,7 @@ class QmlObjectNode;
 
 class QMLDESIGNERCORE_EXPORT QmlModelState : public QmlModelNodeFacade
 {
-    friend class QMLDESIGNERCORE_EXPORT QmlModelView;
+    friend class QmlModelView;
 
 public:
     QmlModelState();
