@@ -32,8 +32,6 @@
 
 #include "qt4projectmanager_global.h"
 
-#include "buildconfigurationinfo.h"
-
 #include <projectexplorer/buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
 
@@ -45,6 +43,7 @@ class QMakeStep;
 class MakeStep;
 class Qt4BuildConfigurationFactory;
 class Qt4ProFileNode;
+class BuildConfigurationInfo;
 
 class QT4PROJECTMANAGER_EXPORT Qt4BuildConfiguration : public ProjectExplorer::BuildConfiguration
 {

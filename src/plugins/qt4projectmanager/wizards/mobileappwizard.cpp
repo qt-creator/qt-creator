@@ -38,6 +38,7 @@
 #include <projectexplorer/task.h>
 
 #include <qtsupport/qtsupportconstants.h>
+#include <qtsupport/baseqtversion.h>
 
 #include <QCoreApplication>
 #include <QIcon>

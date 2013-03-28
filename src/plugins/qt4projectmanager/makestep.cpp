@@ -42,6 +42,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/task.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcprocess.h>
 #include <qtsupport/qtparser.h>

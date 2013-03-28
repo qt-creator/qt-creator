@@ -31,6 +31,7 @@
 
 #include <utils/detailswidget.h>
 #include <utils/pathchooser.h>
+#include <utils/fileutils.h>
 
 #include <QFileInfo>
 

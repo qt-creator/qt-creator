@@ -31,17 +31,29 @@
 #define TARGETSETUPPAGE_H
 
 #include "../qt4projectmanager_global.h"
-#include "../qt4targetsetupwidget.h"
-
-#include <coreplugin/featureprovider.h>
-#include <projectexplorer/kitmanager.h>
-#include <qtsupport/qtversionmanager.h>
 
 #include <QString>
 #include <QWizardPage>
+#include <QMap>
+
+QT_FORWARD_DECLARE_CLASS(QSpacerItem)
+
+namespace Utils { class FileName; }
+
+namespace Core {
+class Id;
+} // namespace Core
+
+namespace ProjectExplorer {
+class Kit;
+class KitMatcher;
+} // namespace ProjectExplorer
+
+namespace QtSupport { class BaseQtVersion; }
 
 namespace Qt4ProjectManager {
 class Qt4Project;
+class Qt4TargetSetupWidget;
 
 namespace Internal {
 class ImportWidget;

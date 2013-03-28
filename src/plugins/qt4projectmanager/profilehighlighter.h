@@ -32,10 +32,6 @@
 
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/codeassist/keywordscompletionassist.h>
-#include <QtAlgorithms>
-#include <QSyntaxHighlighter>
-#include <QTextCharFormat>
-#include <QVector>
 
 namespace Qt4ProjectManager {
 namespace Internal {

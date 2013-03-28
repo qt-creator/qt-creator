@@ -31,10 +31,11 @@
 #define QMAKESTEP_H
 
 #include "qt4projectmanager_global.h"
-#include <utils/fileutils.h>
 #include <projectexplorer/abstractprocessstep.h>
 
 #include <QStringList>
+
+namespace Utils { class FileName; }
 
 namespace ProjectExplorer {
 class BuildStep;

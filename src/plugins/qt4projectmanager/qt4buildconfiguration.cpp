@@ -35,6 +35,7 @@
 #include "qt4nodes.h"
 #include "qmakestep.h"
 #include "makestep.h"
+#include "buildconfigurationinfo.h"
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>

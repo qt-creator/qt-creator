@@ -31,10 +31,12 @@
 #define ABSTRACTMOBILEAPPWIZARD_H
 
 #include <qt4projectmanager/qt4projectmanager_global.h>
-#include <qtsupport/qtversionmanager.h>
-#include <coreplugin/basefilewizard.h>
 #include <projectexplorer/baseprojectwizarddialog.h>
-#include <qt4projectmanager/wizards/abstractmobileapp.h>
+
+namespace QtSupport {
+class QtVersionNumber;
+class QtVersionManager;
+} // QtSupport
 
 namespace Qt4ProjectManager {
 

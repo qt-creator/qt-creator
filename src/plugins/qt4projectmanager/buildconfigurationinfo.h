@@ -32,7 +32,6 @@
 
 #include "qt4projectmanager_global.h"
 
-#include <coreplugin/featureprovider.h>
 #include <qtsupport/baseqtversion.h>
 
 namespace Qt4ProjectManager {

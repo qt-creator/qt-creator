@@ -39,6 +39,8 @@
 #include "qmakekitinformation.h"
 #include "qt4nodes.h"
 
+#include <utils/fileutils.h>
+
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorer.h>

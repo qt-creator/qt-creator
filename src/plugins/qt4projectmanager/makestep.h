@@ -34,11 +34,11 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildstep.h>
-#include <projectexplorer/task.h>
 
 namespace ProjectExplorer {
 class BuildStep;
 class IBuildStepFactory;
+class Task;
 }
 
 namespace Qt4ProjectManager {

@@ -62,6 +62,7 @@
 #include <utils/stringutils.h>
 #include <utils/fileutils.h>
 #include <proparser/prowriter.h>
+#include <utils/fileutils.h>
 #include <algorithm>
 
 #include <QDebug>

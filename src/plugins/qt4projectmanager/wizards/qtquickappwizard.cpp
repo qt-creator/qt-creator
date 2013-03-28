@@ -36,6 +36,7 @@
 #include "qt4projectmanagerconstants.h"
 
 #include <qtsupport/qtsupportconstants.h>
+#include <qtsupport/baseqtversion.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <coreplugin/dialogs/iwizard.h>
 

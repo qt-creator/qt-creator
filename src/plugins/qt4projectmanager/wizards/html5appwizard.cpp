@@ -35,6 +35,7 @@
 #include "targetsetuppage.h"
 #include "qt4projectmanagerconstants.h"
 
+#include <qtsupport/baseqtversion.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <limits>

@@ -29,6 +29,7 @@
 
 #include "targetsetuppage.h"
 #include "importwidget.h"
+#include "../qt4targetsetupwidget.h"
 
 #include "buildconfigurationinfo.h"
 #include "qt4buildconfiguration.h"
@@ -43,6 +44,7 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionfactory.h>
+#include <qtsupport/qtversionmanager.h>
 #include <utils/qtcprocess.h>
 
 #include <QLabel>

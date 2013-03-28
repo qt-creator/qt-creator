@@ -32,9 +32,10 @@
 
 #include <QWidget>
 
-#include <utils/fileutils.h>
-
-namespace Utils { class PathChooser; }
+namespace Utils {
+class PathChooser;
+class FileName;
+} // namespace Utils
 
 namespace Qt4ProjectManager {
 namespace Internal {

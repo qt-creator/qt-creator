@@ -46,6 +46,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QSharedPointer>
+#include <QTextBlock>
 
 namespace Qt4ProjectManager {
 namespace Internal {
