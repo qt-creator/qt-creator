@@ -16,6 +16,11 @@ def main():
         return
     # open example project
     checkedTargets = openQmakeProject(examplePath)
+    if not replaceLine("propertyanimation.Sources.main\\.cpp",
+                       "#include <QtGui/QApplication>",
+                       "#include <QApplication>"):
+        return
+    invokeMenuItem("File", "Save All")
     # build and wait until finished - on all build configurations
     availableConfigs = iterateBuildConfigs(len(checkedTargets))
     if not availableConfigs:

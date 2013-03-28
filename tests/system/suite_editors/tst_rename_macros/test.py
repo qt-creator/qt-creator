@@ -90,16 +90,6 @@ def testRenameMacroAfterSourceMoving():
     revertChanges(formerTexts)
     return True
 
-def openDocumentPlaceCursor(doc, line, additionalFunction=None):
-    global cppEditorStr
-    if openDocument(doc) and placeCursorToLine(cppEditorStr, line):
-        if additionalFunction:
-            additionalFunction()
-        return str(waitForObject(cppEditorStr).plainText)
-    else:
-        earlyExit("Open %s or placing cursor to line (%s) failed." % (simpleFileName(doc), line))
-        return None
-
 def performMacroRenaming(newMacroName):
     for i in range(10):
         type(cppEditorStr, "<Left>")
@@ -150,8 +140,3 @@ def revertChanges(files):
 
 def simpleFileName(navigatorFileName):
     return ".".join(navigatorFileName.split(".")[-2:]).replace("\\","")
-
-def earlyExit(details="No additional information"):
-    test.fail("Something went wrong running this test", details)
-    invokeMenuItem("File", "Save All")
-    invokeMenuItem("File", "Exit")

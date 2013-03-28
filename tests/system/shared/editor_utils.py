@@ -311,3 +311,31 @@ def openDocument(treeElement):
         return True
     except:
         return False
+
+def earlyExit(details="No additional information"):
+    test.fail("Something went wrong running this test", details)
+    invokeMenuItem("File", "Save All")
+    invokeMenuItem("File", "Exit")
+
+def openDocumentPlaceCursor(doc, line, additionalFunction=None):
+    cppEditorStr = ":Qt Creator_CppEditor::Internal::CPPEditorWidget"
+    if openDocument(doc) and placeCursorToLine(cppEditorStr, line):
+        if additionalFunction:
+            additionalFunction()
+        return str(waitForObject(cppEditorStr).plainText)
+    else:
+        earlyExit("Open %s or placing cursor to line (%s) failed." % (doc, line))
+        return None
+
+# Replaces a line in the editor with another
+# param fileSpec a string specifying a file in Projects view
+# param oldLine a string holding the line to be replaced
+# param newLine a string holding the line to be inserted
+def replaceLine(fileSpec, oldLine, newLine):
+    if openDocumentPlaceCursor(fileSpec, oldLine) == None:
+        return False
+    editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
+    for i in range(len(oldLine)):
+        type(editor, "<Backspace>")
+    type(editor, newLine)
+    return True
