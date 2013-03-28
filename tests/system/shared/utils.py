@@ -238,7 +238,7 @@ def selectFromFileDialog(fileName, waitForFile=False):
         nativeType(fileName)
         snooze(1)
         nativeType("<Return>")
-        snooze(2)
+        snooze(3)
         nativeType("<Return>")
         snooze(1)
     else:
