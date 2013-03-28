@@ -194,7 +194,7 @@ def __selectTreeItemOnBuildAndRun__(treeViewOrWidget, itemText, isRegex=False):
                 or itemText == dumpedItem):
                 found = True
                 item = ".".join([str(section.data().toString()),
-                                 dumpedItem.replace(".", "\\.")])
+                                 dumpedItem.replace(".", "\\.").replace("_", "\\_")])
                 clickItem(treeViewOrWidget, item, 5, 5, 0, Qt.LeftButton)
                 break
         if found:

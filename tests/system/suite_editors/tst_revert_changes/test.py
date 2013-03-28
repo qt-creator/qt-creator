@@ -62,6 +62,8 @@ def __modifyProFile__():
 # re-order some stuff inside header
 def __modifyHeader__():
     global cppEditorStr, homeShortCut, endShortCut
+    if platform.system() == "Darwin":
+        JIRA.performWorkaroundIfStillOpen(6918, JIRA.Bug.CREATOR, waitForObject(cppEditorStr, 1000))
     if placeCursorToLine(cppEditorStr, "class.+", True):
         type(cppEditorStr, homeShortCut)
         markText(cppEditorStr, "Down", 5)

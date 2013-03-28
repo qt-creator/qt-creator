@@ -295,6 +295,8 @@ static const char binaryKeyC[] = "Binary";
 DebuggerKitInformation::DebuggerItem DebuggerKitInformation::variantToItem(const QVariant &v)
 {
     DebuggerItem result;
+    if (v.isNull())
+        return result;
     if (v.type() == QVariant::String) { // Convert legacy config items, remove later.
         const QString binary = v.toString();
         result.binary = Utils::FileName::fromString(binary);

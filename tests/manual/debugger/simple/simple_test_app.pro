@@ -10,7 +10,7 @@ QT += network
 QT += script
 QT += xml
 
-contains(QT_CONFIG, webkit) {
+contains(QT_CONFIG, webkit)|!isEmpty(QT.webkit.name) {
     QT += webkit
     greaterThan(QT_MAJOR_VERSION, 4) {
         QT += webkitwidgets

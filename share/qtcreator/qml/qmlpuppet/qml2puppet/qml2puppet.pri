@@ -1,6 +1,6 @@
 
 QT += core gui widgets qml quick network v8
-contains (QT_CONFIG, webkit) {
+!isEmpty(QT.webkit.name) {
     QT += webkit
 }
 

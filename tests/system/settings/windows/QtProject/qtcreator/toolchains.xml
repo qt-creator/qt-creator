@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorToolChains>
-<!-- Written by Qt Creator 2.5.83, 2012-09-25T18:19:53. -->
+<!-- Written by QtCreator 2.7.1, 2013-03-22T16:13:19. -->
 <qtcreator>
  <data>
   <variable>ToolChain.0</variable>
@@ -44,6 +44,17 @@
  <data>
   <variable>ToolChain.3</variable>
   <valuemap type="QVariantMap">
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.SupportedAbi">x86-windows-msvc2010-pe-32bit</value>
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBat">c:/Program Files (x86)/Microsoft Visual Studio 10.0/VC/vcvarsall.bat</value>
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBatArg">x86</value>
+   <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">true</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">Microsoft Visual C++ Compiler 10.0 (x86)</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Msvc:{1186dad9-c485-4f69-b7e1-aff54c89ecb2}</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>ToolChain.4</variable>
+  <valuemap type="QVariantMap">
    <value type="QString" key="ProjectExplorer.MsvcToolChain.SupportedAbi">x86-windows-msvc2008-pe-32bit</value>
    <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBat">c:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat</value>
    <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">false</value>
@@ -53,7 +64,7 @@
  </data>
  <data>
   <variable>ToolChain.Count</variable>
-  <value type="int">4</value>
+  <value type="int">5</value>
  </data>
  <data>
   <variable>Version</variable>
