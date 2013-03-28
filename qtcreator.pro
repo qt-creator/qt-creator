@@ -21,7 +21,7 @@ OTHER_FILES += dist/copyright_template.txt \
     qbs/pluginspec/pluginspec.qbs
 
 qmake_cache = $$targetPath($$IDE_BUILD_TREE/.qmake.cache)
-equals(QMAKE_DIR_SEP, /): {
+!equals(QMAKE_HOST.os, Windows) {
     maybe_quote = "\""
     maybe_backslash = "\\"
 }
