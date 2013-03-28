@@ -188,6 +188,8 @@ public:
     QString synchronousShortDescription(const QString &workingDirectory, const QString &revision);
     QString synchronousShortDescription(const QString &workingDirectory, const QString &revision,
                                      const QString &format);
+    bool synchronousHeadRefs(const QString &workingDirectory, QStringList *output,
+                             QString *errorMessage = 0);
     QString synchronousTopic(const QString &workingDirectory);
     QString synchronousTopRevision(const QString &workingDirectory, QString *errorMessage = 0);
     void synchronousTagsForCommit(const QString &workingDirectory, const QString &revision,

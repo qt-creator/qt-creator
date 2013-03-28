@@ -1181,6 +1181,42 @@ static inline QString msgCannotDetermineBranch(const QString &workingDirectory, 
     return GitClient::tr("Cannot retrieve branch of \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), why);
 }
 
+bool GitClient::synchronousHeadRefs(const QString &workingDirectory, QStringList *output,
+                                    QString *errorMessage)
+{
+    QStringList args;
+    args << QLatin1String("show-ref") << QLatin1String("--head") << QLatin1String("--abbrev=10");
+    QByteArray outputText;
+    QByteArray errorText;
+    const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
+    if (!rc) {
+        QString message = tr("Cannot run \"git show-ref --head\" in \"%1\": %2").
+                arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
+
+        if (errorMessage)
+            *errorMessage = message;
+        else
+            outputWindow()->append(message);
+        return false;
+    }
+
+    QByteArray headSha = outputText.left(10);
+    QByteArray newLine("\n");
+
+    int currentIndex = 15;
+
+    while (true) {
+        currentIndex = outputText.indexOf(headSha, currentIndex);
+        if (currentIndex < 0)
+            break;
+        currentIndex += 11;
+        output->append(QString::fromLocal8Bit(outputText.mid(currentIndex,
+                                outputText.indexOf(newLine, currentIndex) - currentIndex)));
+   }
+
+    return true;
+}
+
 struct TopicData
 {
     QDateTime timeStamp;
@@ -1216,15 +1252,24 @@ QString GitClient::synchronousTopic(const QString &workingDirectory)
         return data.topic = branch;
     }
 
-    // Detached HEAD, try a tag
-    arguments.clear();
-    arguments << QLatin1String("describe") << QLatin1String("--tags")
-              << QLatin1String("--exact-match") << QLatin1String("HEAD");
-    if (fullySynchronousGit(workingDirectory, arguments, &outputTextData, 0, false))
-        return data.topic = commandOutputFromLocal8Bit(outputTextData.trimmed());
+    // Detached HEAD, try a tag or remote branch
+    QStringList references;
+    if (!synchronousHeadRefs(workingDirectory, &references))
+        return QString();
+
+    QString tagStart    = QLatin1String("refs/tags/");
+    QString remoteStart = QLatin1String("refs/remotes/");
+    QString remoteBranch;
+
+    foreach (const QString &ref, references) {
+        if (ref.startsWith(tagStart))
+            return data.topic = ref.mid(10);
+        if (ref.startsWith(remoteStart))
+            remoteBranch = ref.mid(13);
+    }
 
     // No tag
-    return data.topic = tr("Detached HEAD");
+    return data.topic = remoteBranch.isEmpty() ? tr("Detached HEAD") : remoteBranch;
 }
 
 // Retrieve head revision
