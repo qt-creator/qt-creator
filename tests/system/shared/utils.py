@@ -267,9 +267,10 @@ def addHelpDocumentationFromSDK():
     clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Documentation")
     # get rid of all docs already registered
     listWidget = waitForObject("{type='QListWidget' name='docsListWidget' visible='1'}")
-    for i in range(listWidget.count):
+    if listWidget.count > 0:
         rect = listWidget.visualItemRect(listWidget.item(0))
         mouseClick(listWidget, rect.x+5, rect.y+5, 0, Qt.LeftButton)
+        type(listWidget, "<Ctrl+A>")
         mouseClick(waitForObject("{type='QPushButton' name='removeButton' visible='1'}"), 5, 5, 0, Qt.LeftButton)
     clickButton(waitForObject("{type='QPushButton' name='addButton' visible='1' text='Add...'}"))
     selectFromFileDialog("%s/Documentation/qt.qch" % sdkPath)
