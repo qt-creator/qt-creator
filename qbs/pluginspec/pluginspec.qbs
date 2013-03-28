@@ -43,7 +43,7 @@ Module {
                 vars['IDE_VERSION_MINOR'] = ide_version_minor;
                 vars['IDE_VERSION_RELEASE'] = ide_version_release;
                 for (i in vars) {
-                    all = all.replace(new RegExp('\\\$\\\$' + i.toUpperCase() + '(?!\w)', 'g'), vars[i]);
+                    all = all.replace(new RegExp('\\\$\\\$' + i + '(?!\w)', 'g'), vars[i]);
                 }
                 var file = new TextFile(output.fileName, TextFile.WriteOnly);
                 file.truncate();
