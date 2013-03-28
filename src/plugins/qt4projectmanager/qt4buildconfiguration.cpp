@@ -742,10 +742,6 @@ Qt4BuildConfiguration *Qt4BuildConfiguration::setup(Target *t, QString defaultDi
     if (importing)
         qmakeStep->setLinkQmlDebuggingLibrary(enableQmlDebugger);
 
-    // Set some options for qmake and make.
-    if (qmakeBuildConfiguration & BaseQtVersion::BuildAll) // debug_and_release => explicit targets
-        makeStep->setUserArguments(debug ? QLatin1String("debug") : QLatin1String("release"));
-
     bc->setQMakeBuildConfiguration(qmakeBuildConfiguration);
 
     if (!directory.isEmpty())
