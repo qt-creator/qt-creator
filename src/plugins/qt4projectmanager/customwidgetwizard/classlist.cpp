@@ -35,8 +35,6 @@
 #include <QMessageBox>
 #include <QStandardItemModel>
 #include <QStandardItem>
-#include <QLabel>
-#include <QToolButton>
 
 #include <QDebug>
 #include <QRegExp>

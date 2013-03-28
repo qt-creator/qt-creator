@@ -28,15 +28,11 @@
 ****************************************************************************/
 
 #include "desktopqtversion.h"
-#include "../qt4projectmanagerconstants.h"
 
 #include <qtsupport/qtsupportconstants.h>
-#include <proparser/profileevaluator.h>
 #include <coreplugin/featureprovider.h>
 
 #include <QCoreApplication>
-#include <QDir>
-#include <QFileInfoList>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

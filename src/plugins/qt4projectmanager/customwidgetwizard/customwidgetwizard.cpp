@@ -30,8 +30,8 @@
 #include "customwidgetwizard.h"
 #include "customwidgetwizarddialog.h"
 #include "plugingenerator.h"
-#include "pluginoptions.h"
 #include "filenamingparameters.h"
+#include "pluginoptions.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 

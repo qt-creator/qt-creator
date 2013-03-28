@@ -28,10 +28,8 @@
 ****************************************************************************/
 
 #include "mobilelibraryparameters.h"
-#include "qtprojectparameters.h"
 
 #include <QTextStream>
-#include <QDir>
 
 namespace Qt4ProjectManager {
 namespace Internal {

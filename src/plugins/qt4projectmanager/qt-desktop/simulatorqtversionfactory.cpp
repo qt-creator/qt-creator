@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "simulatorqtversionfactory.h"
-#include "qt4projectmanagerconstants.h"
 #include "simulatorqtversion.h"
 
 #include <qtsupport/qtsupportconstants.h>

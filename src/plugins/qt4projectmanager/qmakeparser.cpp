@@ -28,11 +28,9 @@
 ****************************************************************************/
 
 #include "qmakeparser.h"
-#include "qt4projectmanagerconstants.h"
 
 #include <projectexplorer/task.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <utils/qtcassert.h>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

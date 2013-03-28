@@ -29,11 +29,6 @@
 
 #include "qtquickappwizardpages.h"
 #include "ui_qtquickcomponentsetoptionspage.h"
-#include <coreplugin/coreconstants.h>
-
-#include <QDesktopServices>
-#include <QFileDialog>
-#include <QMessageBox>
 
 namespace Qt4ProjectManager {
 namespace Internal {

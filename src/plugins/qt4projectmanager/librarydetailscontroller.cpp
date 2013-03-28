@@ -39,7 +39,6 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/buildconfiguration.h>
 #include <utils/hostosinfo.h>
 
 #include <QFileInfo>

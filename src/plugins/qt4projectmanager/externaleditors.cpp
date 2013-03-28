@@ -37,11 +37,9 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
 #include <qtsupport/qtkitinformation.h>
-#include <qtsupport/qtversionmanager.h>
 #include <designer/designerconstants.h>
 
 #include <QProcess>
-#include <QFileInfo>
 #include <QDebug>
 #include <QSignalMapper>
 

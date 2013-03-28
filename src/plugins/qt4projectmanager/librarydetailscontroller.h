@@ -30,7 +30,6 @@
 #ifndef LIBRARYDETAILSCONTROLLER_H
 #define LIBRARYDETAILSCONTROLLER_H
 
-#include <QWidget>
 #include "addlibrarywizard.h"
 
 namespace Qt4ProjectManager {

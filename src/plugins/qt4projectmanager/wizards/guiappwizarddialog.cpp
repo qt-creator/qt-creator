@@ -30,12 +30,10 @@
 #include "guiappwizarddialog.h"
 
 #include "filespage.h"
-#include "qtprojectparameters.h"
 
 #include <qtsupport/qtsupportconstants.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <QSet>
 
 namespace Qt4ProjectManager {
 namespace Internal {

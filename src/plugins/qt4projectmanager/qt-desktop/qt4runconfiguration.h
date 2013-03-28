@@ -37,7 +37,6 @@
 #include <utils/environment.h>
 
 #include <QStringList>
-#include <QMetaType>
 #include <QLabel>
 #include <QWidget>
 

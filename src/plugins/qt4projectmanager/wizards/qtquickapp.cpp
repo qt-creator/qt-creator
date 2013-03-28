@@ -31,9 +31,7 @@
 
 #include <QDir>
 #include <QFile>
-#include <QRegExp>
 #include <QTextStream>
-#include <QCoreApplication>
 
 #ifndef CREATORLESSTEST
 #include <coreplugin/icore.h>

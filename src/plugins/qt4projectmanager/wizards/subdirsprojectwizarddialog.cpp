@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "subdirsprojectwizarddialog.h"
-#include "qtprojectparameters.h"
 #include <projectexplorer/projectexplorerconstants.h>
 
 namespace Qt4ProjectManager {

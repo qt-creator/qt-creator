@@ -32,9 +32,6 @@
 
 #include "abstractmobileapp.h"
 
-#include <QHash>
-#include <QStringList>
-
 namespace Qt4ProjectManager {
 namespace Internal {
 

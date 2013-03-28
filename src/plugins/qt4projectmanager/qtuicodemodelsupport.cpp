@@ -31,9 +31,7 @@
 #include "qt4buildconfiguration.h"
 
 #include "qt4project.h"
-#include "qt4projectmanager.h"
 #include <projectexplorer/target.h>
-#include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
 using namespace Qt4ProjectManager;

@@ -31,7 +31,6 @@
 #define LIBRARYWIZARDDIALOG_H
 
 #include "qtwizard.h"
-#include "qtprojectparameters.h"
 
 namespace Qt4ProjectManager {
 namespace Internal {

@@ -32,13 +32,10 @@
 #include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
 #include "qtuicodemodelsupport.h"
-#include "qmakestep.h"
 #include "qt4buildconfiguration.h"
 #include "qmakerunconfigurationfactory.h"
 
 #include <projectexplorer/nodesvisitor.h>
-#include <projectexplorer/runconfiguration.h>
-
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/fileiconprovider.h>
@@ -47,34 +44,24 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <cpptools/ModelManagerInterface.h>
-#include <cplusplus/CppDocument.h>
-#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtkitinformation.h>
-#include <qtsupport/qtsupportconstants.h>
 
 #include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
 #include <utils/stringutils.h>
-#include <utils/fileutils.h>
 #include <proparser/prowriter.h>
-#include <utils/fileutils.h>
 #include <algorithm>
 
 #include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QCoreApplication>
 #include <QXmlStreamReader>
 
-#include <QPainter>
 #include <QMessageBox>
-#include <QPushButton>
 #include <utils/QtConcurrentTools>
 
 // Static cached data in struct Qt4NodeStaticData providing information and icons

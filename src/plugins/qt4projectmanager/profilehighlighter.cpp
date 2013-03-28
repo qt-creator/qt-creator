@@ -32,10 +32,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <QRegExp>
-#include <QColor>
 #include <QTextDocument>
-#include <QTextEdit>
 
 using namespace Qt4ProjectManager::Internal;
 

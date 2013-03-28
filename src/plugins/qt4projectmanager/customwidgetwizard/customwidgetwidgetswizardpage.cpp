@@ -29,12 +29,10 @@
 
 #include "customwidgetwidgetswizardpage.h"
 #include "ui_customwidgetwidgetswizardpage.h"
-#include "plugingenerator.h"
 #include "classdefinition.h"
 
 #include <coreplugin/coreconstants.h>
 
-#include <QFileInfo>
 #include <QTimer>
 
 #include <QStackedLayout>

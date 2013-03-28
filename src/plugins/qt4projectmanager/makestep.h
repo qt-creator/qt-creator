@@ -33,7 +33,6 @@
 #include "qt4projectmanager_global.h"
 
 #include <projectexplorer/abstractprocessstep.h>
-#include <projectexplorer/buildstep.h>
 
 namespace ProjectExplorer {
 class BuildStep;

@@ -31,10 +31,7 @@
 
 #include "qtmodulesinfo.h"
 
-#include <utils/qtcassert.h>
-
 #include <QDebug>
-#include <QVariant>
 
 #include <QCheckBox>
 #include <QLabel>

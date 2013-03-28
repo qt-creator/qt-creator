@@ -30,7 +30,6 @@
 #include "consoleappwizard.h"
 
 #include "consoleappwizarddialog.h"
-#include "qt4projectmanagerconstants.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <cpptools/abstracteditorsupport.h>

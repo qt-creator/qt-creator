@@ -34,10 +34,6 @@
 #include <projectexplorer/baseprojectwizarddialog.h>
 #include <projectexplorer/customwizard/customwizard.h>
 
-#include <coreplugin/basefilewizard.h>
-
-#include <QSet>
-
 namespace ProjectExplorer { class Kit; }
 
 namespace Qt4ProjectManager {

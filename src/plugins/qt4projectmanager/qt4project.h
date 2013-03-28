@@ -36,7 +36,6 @@
 #include <projectexplorer/projectnodes.h>
 
 #include <QStringList>
-#include <QMap>
 #include <QFutureInterface>
 #include <QTimer>
 #include <QFuture>

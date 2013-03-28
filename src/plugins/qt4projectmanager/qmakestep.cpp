@@ -30,39 +30,28 @@
 #include "qmakestep.h"
 #include "ui_qmakestep.h"
 
-#include <projectexplorer/projectexplorerconstants.h>
 #include "qmakeparser.h"
 #include "qt4buildconfiguration.h"
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
-#include "qt4projectmanager.h"
 #include "qmakekitinformation.h"
 #include "qt4nodes.h"
-
-#include <utils/fileutils.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/mainwindow.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/messagemanager.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/debugginghelperbuildtask.h>
 #include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QDir>
-#include <QFile>
 #include <utils/runextensions.h>
-#include <QtConcurrentRun>
 #include <QMessageBox>
 
 using namespace Qt4ProjectManager;

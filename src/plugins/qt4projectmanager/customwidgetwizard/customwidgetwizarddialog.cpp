@@ -30,12 +30,9 @@
 #include "customwidgetwizarddialog.h"
 #include "customwidgetwidgetswizardpage.h"
 #include "customwidgetpluginwizardpage.h"
-#include "customwidgetwizard.h"
+#include "pluginoptions.h"
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/kitmanager.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 

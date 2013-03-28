@@ -36,13 +36,10 @@
 #include "targetsetuppage.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/editormanager/editormanager.h>
 
 #include <cpptools/cpptoolsconstants.h>
 
-#include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/task.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 

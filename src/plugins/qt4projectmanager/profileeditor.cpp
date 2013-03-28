@@ -30,17 +30,11 @@
 #include "profileeditor.h"
 
 #include "profilehighlighter.h"
-#include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
 #include "profileeditorfactory.h"
 
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditoractionhandler.h>
-#include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <QFileInfo>

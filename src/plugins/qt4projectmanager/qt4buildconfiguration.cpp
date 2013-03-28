@@ -37,7 +37,6 @@
 #include "makestep.h"
 #include "buildconfigurationinfo.h"
 
-#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <limits>
 #include <projectexplorer/buildsteplist.h>
@@ -45,10 +44,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
-#include <projectexplorer/kitinformation.h>
-#include <qtsupport/qtsupportconstants.h>
-#include <qtsupport/qtversionfactory.h>
-#include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 #include <qt4projectmanager/qmakekitinformation.h>

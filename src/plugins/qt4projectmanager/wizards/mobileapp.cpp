@@ -29,11 +29,6 @@
 
 #include "mobileapp.h"
 
-#include <coreplugin/icore.h>
-
-#include <QDir>
-#include <QFile>
-#include <QRegExp>
 #include <QTextStream>
 
 namespace Qt4ProjectManager {

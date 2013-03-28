@@ -30,8 +30,6 @@
 #ifndef QTQUICKAPPWIZARDPAGES_H
 #define QTQUICKAPPWIZARDPAGES_H
 
-#include "qtquickapp.h"
-
 #include <QWizardPage>
 
 namespace Qt4ProjectManager {

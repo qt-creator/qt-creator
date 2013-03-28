@@ -29,16 +29,12 @@
 
 #include "librarywizard.h"
 #include "librarywizarddialog.h"
-#include "qt4projectmanager.h"
-#include "qt4projectmanagerconstants.h"
 #include "mobilelibraryparameters.h"
 
-#include <utils/codegeneration.h>
 #include <cpptools/abstracteditorsupport.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/qtsupportconstants.h>
 
-#include <QDir>
 #include <QFileInfo>
 #include <QTextStream>
 #include <QIcon>

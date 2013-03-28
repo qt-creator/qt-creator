@@ -34,7 +34,6 @@
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/kitoptionspage.h>
 #include <qtsupport/qtkitinformation.h>

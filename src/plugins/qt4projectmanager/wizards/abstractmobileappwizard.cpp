@@ -29,22 +29,17 @@
 
 #include "abstractmobileappwizard.h"
 
-#include "abstractmobileapp.h"
 #include "mobileappwizardpages.h"
 #include "targetsetuppage.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4projectmanager.h>
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtkitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/customwizard/customwizard.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <utils/qtcassert.h>
-
-#include <QIcon>
 
 namespace Qt4ProjectManager {
 

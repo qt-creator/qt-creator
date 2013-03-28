@@ -28,10 +28,8 @@
 ****************************************************************************/
 
 #include "qtmodulesinfo.h"
-#include "qglobal.h"
 #include <QDebug>
 #include <QString>
-#include <QHash>
 #include <QCoreApplication>
 
 using namespace Qt4ProjectManager::Internal;

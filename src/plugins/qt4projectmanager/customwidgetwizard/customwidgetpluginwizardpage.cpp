@@ -29,7 +29,6 @@
 
 #include "customwidgetpluginwizardpage.h"
 #include "customwidgetwidgetswizardpage.h"
-#include "pluginoptions.h"
 #include "ui_customwidgetpluginwizardpage.h"
 
 namespace Qt4ProjectManager {

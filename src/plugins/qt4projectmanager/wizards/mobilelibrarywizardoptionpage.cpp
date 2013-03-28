@@ -31,12 +31,6 @@
 #include "ui_mobilelibrarywizardoptionpage.h"
 #include "qtprojectparameters.h"
 
-#include <coreplugin/coreconstants.h>
-
-#include <QDesktopServices>
-#include <QFileDialog>
-#include <QMessageBox>
-
 namespace Qt4ProjectManager {
 namespace Internal {
 

@@ -34,14 +34,9 @@
 #include "profileeditor.h"
 
 #include <coreplugin/fileiconprovider.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <QCoreApplication>
-#include <QFileInfo>
-#include <QAction>
-#include <QMenu>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

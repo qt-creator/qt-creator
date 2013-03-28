@@ -29,33 +29,14 @@
 
 #include "qt4projectconfigwidget.h"
 
-#include "makestep.h"
-#include "qmakestep.h"
 #include "qt4project.h"
-#include "qt4projectmanagerconstants.h"
-#include "qt4projectmanager.h"
 #include "qt4buildconfiguration.h"
 #include "qt4nodes.h"
 #include "ui_qt4projectconfigwidget.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
-
 #include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/task.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/buildconfiguration.h>
-#include <qtsupport/qtversionfactory.h>
-#include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
-#include <qtsupport/qtsupportconstants.h>
-#include <qtsupport/qtversionmanager.h>
-#include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-#include <extensionsystem/pluginmanager.h>
 
-#include <QPushButton>
 #include <utils/detailswidget.h>
 
 using namespace Qt4ProjectManager;

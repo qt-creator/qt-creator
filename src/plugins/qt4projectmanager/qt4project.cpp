@@ -30,53 +30,32 @@
 #include "qt4project.h"
 
 #include "qt4projectmanager.h"
-#include "makestep.h"
 #include "qmakestep.h"
-#include "qmakerunconfigurationfactory.h"
 #include "qt4nodes.h"
-#include "qt4projectconfigwidget.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4buildconfiguration.h"
 #include "findqt4profiles.h"
 #include "buildconfigurationinfo.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/variablemanager.h>
-#include <extensionsystem/pluginmanager.h>
 #include <cpptools/ModelManagerInterface.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljsmodelmanager.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacroexpander.h>
-#include <utils/qtcassert.h>
-#include <qtsupport/customexecutablerunconfiguration.h>
-#include <qtsupport/qmldumptool.h>
-#include <qtsupport/baseqtversion.h>
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtkitinformation.h>
-#include <qtsupport/qtsupportconstants.h>
-#include <qtsupport/qtversionmanager.h>
-#include <utils/QtConcurrentTools>
-#include <utils/stringutils.h>
 
 #include <QDebug>
 #include <QDir>
 #include <QFileSystemWatcher>
-#include <QFileDialog>
-#include <QInputDialog>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

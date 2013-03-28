@@ -33,16 +33,11 @@
 #include "modulespage.h"
 #include "mobilelibrarywizardoptionpage.h"
 #include "mobilelibraryparameters.h"
-#include "abstractmobileapp.h"
-#include "qt4projectmanagerconstants.h"
-
-#include <qtsupport/qtsupportconstants.h>
 
 #include <utils/projectintropage.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <QDebug>
-#include <QDir>
 
 #include <QComboBox>
 #include <QLabel>

@@ -28,8 +28,6 @@
 ****************************************************************************/
 
 #include "consoleappwizarddialog.h"
-#include "consoleappwizard.h"
-#include <coreplugin/basefilewizard.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <QDebug>

@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "winceqtversion.h"
-#include "qt4projectmanagerconstants.h"
 #include <qtsupport/qtsupportconstants.h>
 #include <QCoreApplication>
 #include <QStringList>

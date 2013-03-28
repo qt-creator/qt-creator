@@ -31,16 +31,10 @@
 #include "profileeditor.h"
 #include "profilecompletionassist.h"
 
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
 #include <extensionsystem/pluginmanager.h>
-#include <texteditor/itexteditor.h>
-#include <texteditor/basetexteditor.h>
-#include <texteditor/helpitem.h>
 #include <utils/htmldocextractor.h>
 
-#include <QTextCursor>
 #include <QTextBlock>
 #include <QUrl>
 

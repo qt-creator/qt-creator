@@ -29,11 +29,6 @@
 
 #include "html5appwizardpages.h"
 #include "ui_html5appwizardsourcespage.h"
-#include <coreplugin/coreconstants.h>
-
-#include <QDesktopServices>
-#include <QFileDialog>
-#include <QMessageBox>
 
 namespace Qt4ProjectManager {
 namespace Internal {

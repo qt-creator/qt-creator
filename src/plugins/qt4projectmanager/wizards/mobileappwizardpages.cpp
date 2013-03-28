@@ -31,11 +31,9 @@
 #include "ui_mobileappwizardgenericoptionspage.h"
 #include "ui_mobileappwizardmaemooptionspage.h"
 #include "ui_mobileappwizardharmattanoptionspage.h"
-#include <coreplugin/coreconstants.h>
 #include <utils/fileutils.h>
 
 #include <QTemporaryFile>
-#include <QDesktopServices>
 #include <QFileDialog>
 #include <QMessageBox>
 

@@ -30,8 +30,6 @@
 #include "qmakerunconfigurationfactory.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/target.h>
-#include <qtsupport/customexecutablerunconfiguration.h>
 
 namespace Qt4ProjectManager {
 

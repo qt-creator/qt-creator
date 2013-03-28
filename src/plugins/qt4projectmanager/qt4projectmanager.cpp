@@ -40,24 +40,12 @@
 #include "wizards/qtquickapp.h"
 #include "wizards/html5app.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/basefilewizard.h>
-#include <coreplugin/id.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/session.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
-#include <qtsupport/profilereader.h>
-#include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
-#include <qtsupport/qtversionmanager.h>
 
-#include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
 #include <QVariant>

@@ -29,39 +29,24 @@
 
 #include "qt4runconfiguration.h"
 
-#include "../makestep.h"
 #include "../qt4nodes.h"
 #include "../qt4project.h"
 #include "../qt4buildconfiguration.h"
-#include "../qt4projectmanagerconstants.h"
-#include "../qmakestep.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/variablemanager.h>
-#include <coreplugin/idocument.h>
-#include <coreplugin/helpmanager.h>
-#include <projectexplorer/buildstep.h>
 #include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/pathchooser.h>
 #include <utils/detailswidget.h>
 #include <utils/stringutils.h>
 #include <utils/persistentsettings.h>
-#include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtsupportconstants.h>
-#include <qtsupport/baseqtversion.h>
-#include <qtsupport/profilereader.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/hostosinfo.h>
 
 #include <QFormLayout>
-#include <QInputDialog>
 #include <QLabel>
 #include <QLineEdit>
 #include <QCheckBox>

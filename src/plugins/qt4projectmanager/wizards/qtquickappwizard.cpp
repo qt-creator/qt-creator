@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "qtquickappwizard.h"
-#include "mobileappwizardpages.h"
 
 #include "qtquickapp.h"
 #include "qtquickappwizardpages.h"
@@ -38,9 +37,7 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/baseqtversion.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <coreplugin/dialogs/iwizard.h>
 
-#include <QCoreApplication>
 #include <QIcon>
 #include <QDebug>
 

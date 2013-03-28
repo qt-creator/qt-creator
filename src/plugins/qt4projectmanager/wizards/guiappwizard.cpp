@@ -34,7 +34,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <cpptools/abstracteditorsupport.h>
 #include <designer/cpp/formclasswizardparameters.h>
-#include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/invoker.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -42,9 +41,7 @@
 #include <utils/fileutils.h>
 
 #include <QDir>
-#include <QFile>
 #include <QTextStream>
-#include <QUuid>
 #include <QFileInfo>
 #include <QSharedPointer>
 

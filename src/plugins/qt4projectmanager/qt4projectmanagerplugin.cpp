@@ -48,7 +48,6 @@
 #include "profilehoverhandler.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4project.h"
-#include "profileeditor.h"
 #include "externaleditors.h"
 #include "profilecompletionassist.h"
 #include "qt-desktop/qt4runconfiguration.h"
@@ -58,25 +57,16 @@
 #include "unconfiguredprojectpanel.h"
 #include "qmakekitinformation.h"
 
-#include <coreplugin/id.h>
 #include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildmanager.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
 #include <utils/hostosinfo.h>
 #include <utils/parameteraction.h>
 
@@ -85,7 +75,6 @@
 #endif
 
 #include <QtPlugin>
-#include <QMenu>
 
 using namespace Qt4ProjectManager::Internal;
 using namespace Qt4ProjectManager;

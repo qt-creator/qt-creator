@@ -32,7 +32,6 @@
 #include "qt4projectmanagerconstants.h"
 
 #include "qt4project.h"
-#include "qt4projectmanager.h"
 
 #include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
@@ -40,13 +39,9 @@
 #include <coreplugin/coreconstants.h>
 #include <qtsupport/qtkitinformation.h>
 
-#include <projectexplorer/kit.h>
-#include <projectexplorer/kitmanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
-#include <QLabel>
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QDialogButtonBox>

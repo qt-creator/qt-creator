@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "html5appwizard.h"
-#include "mobileappwizardpages.h"
 
 #include "html5app.h"
 #include "html5appwizardpages.h"
@@ -40,7 +39,6 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <limits>
 
-#include <QCoreApplication>
 #include <QIcon>
 
 namespace Qt4ProjectManager {
