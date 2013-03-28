@@ -1,5 +1,3 @@
-TARGET = Todo
-
 include(../../qtcreatorplugin.pri)
 
 HEADERS += todoplugin.h \

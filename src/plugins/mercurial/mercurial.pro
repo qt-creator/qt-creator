@@ -1,4 +1,3 @@
-TARGET = Mercurial
 include(../../qtcreatorplugin.pri)
 SOURCES += mercurialplugin.cpp \
     optionspage.cpp \

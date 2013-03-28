@@ -1,5 +1,3 @@
-TARGET = PythonEditor
-
 include(../../qtcreatorplugin.pri)
 include(pythoneditor_dependencies.pri)
 

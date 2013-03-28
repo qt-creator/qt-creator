@@ -1,5 +1,3 @@
-TARGET   = Bookmarks
-
 include(../../qtcreatorplugin.pri)
 
 HEADERS += bookmarksplugin.h \

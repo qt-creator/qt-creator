@@ -1,4 +1,3 @@
-TARGET = Designer
 DEFINES += DESIGNER_LIBRARY
 
 include(../../qtcreatorplugin.pri)

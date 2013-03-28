@@ -1,4 +1,3 @@
-TARGET = TextEditor
 DEFINES += TEXTEDITOR_LIBRARY
 QT += xml network
 CONFIG += exceptions

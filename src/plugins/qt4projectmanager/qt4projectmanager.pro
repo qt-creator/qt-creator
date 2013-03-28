@@ -1,4 +1,3 @@
-TARGET = Qt4ProjectManager
 QT += network
 include(../../qtcreatorplugin.pri)
 

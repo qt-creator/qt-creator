@@ -1,4 +1,3 @@
-TARGET = AutotoolsProjectManager
 #PROVIDER = Openismus
 
 include(../../qtcreatorplugin.pri)

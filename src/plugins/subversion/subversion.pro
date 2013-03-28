@@ -1,5 +1,3 @@
-TARGET = Subversion
-
 include(../../qtcreatorplugin.pri)
 
 HEADERS += annotationhighlighter.h \

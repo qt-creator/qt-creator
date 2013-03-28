@@ -1,4 +1,3 @@
-TARGET = Git
 include(../../qtcreatorplugin.pri)
 HEADERS += gitplugin.h \
     gitconstants.h \

@@ -1,5 +1,3 @@
-TARGET = QbsProjectManager
-
 include(../../qtcreatorplugin.pri)
 
 # Look for qbs in the environment (again)

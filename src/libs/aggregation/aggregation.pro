@@ -1,5 +1,3 @@
-TARGET = Aggregation
-
 include(../../qtcreatorlibrary.pri)
 
 DEFINES += AGGREGATION_LIBRARY

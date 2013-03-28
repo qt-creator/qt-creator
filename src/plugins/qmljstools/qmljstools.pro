@@ -1,4 +1,3 @@
-TARGET = QmlJSTools
 include(../../qtcreatorplugin.pri)
 
 DEFINES += QMLJSTOOLS_LIBRARY

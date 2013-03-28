@@ -1,5 +1,3 @@
-TARGET = HelloWorld
-
 include(../../qtcreatorplugin.pri)
 
 HEADERS += helloworldplugin.h \

@@ -2,8 +2,6 @@ QT       -= gui
 QT       += network
 CONFIG   += exceptions
 
-TARGET = zeroconf
-
 DEFINES += ZEROCONF_LIBRARY
 
 SOURCES += servicebrowser.cpp \

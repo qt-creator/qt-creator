@@ -1,4 +1,3 @@
-TARGET = UpdateInfo
 QT += network xml
 
 HEADERS += updateinfoplugin.h \

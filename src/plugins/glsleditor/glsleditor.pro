@@ -1,4 +1,3 @@
-TARGET = GLSLEditor
 include(../../qtcreatorplugin.pri)
 
 DEFINES += \

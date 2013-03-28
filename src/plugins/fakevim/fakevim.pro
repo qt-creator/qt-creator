@@ -1,5 +1,3 @@
-TARGET = FakeVim
-
 # CONFIG += single
 include(../../qtcreatorplugin.pri)
 

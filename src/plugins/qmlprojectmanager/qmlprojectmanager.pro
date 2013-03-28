@@ -1,5 +1,3 @@
-TARGET = QmlProjectManager
-
 QT += network declarative
 
 include(../../qtcreatorplugin.pri)

@@ -1,4 +1,3 @@
-TARGET = Core
 DEFINES += CORE_LIBRARY
 QT += network \
     script \

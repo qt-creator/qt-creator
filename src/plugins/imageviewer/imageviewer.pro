@@ -1,4 +1,3 @@
-TARGET = ImageViewer
 include(../../qtcreatorplugin.pri)
 
 HEADERS += \

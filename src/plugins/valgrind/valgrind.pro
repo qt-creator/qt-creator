@@ -1,5 +1,3 @@
-TARGET = Valgrind
-
 include(../../qtcreatorplugin.pri)
 include(callgrind/callgrind.pri)
 include(memcheck/memcheck.pri)

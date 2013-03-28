@@ -1,4 +1,3 @@
-TARGET = Bazaar
 include(../../qtcreatorplugin.pri)
 SOURCES += \
     bazaarclient.cpp \

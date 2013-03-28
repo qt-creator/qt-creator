@@ -1,5 +1,3 @@
-TARGET = QmlDesigner
-
 CONFIG += exceptions
 
 INCLUDEPATH += $$PWD

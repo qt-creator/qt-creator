@@ -1,4 +1,3 @@
-TARGET = ClassView
 include(../../qtcreatorplugin.pri)
 
 HEADERS += \

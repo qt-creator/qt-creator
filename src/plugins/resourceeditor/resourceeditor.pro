@@ -1,5 +1,3 @@
-TARGET = ResourceEditor
-
 include(../../qtcreatorplugin.pri)
 include(qrceditor/qrceditor.pri)
 

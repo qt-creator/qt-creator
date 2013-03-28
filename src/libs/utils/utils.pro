@@ -1,4 +1,3 @@
-TARGET = Utils
 QT += gui network
 
 include(../../qtcreatorlibrary.pri)

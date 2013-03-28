@@ -1,4 +1,3 @@
-TARGET = Locator
 DEFINES += LOCATOR_LIBRARY
 include(../../qtcreatorplugin.pri)
 HEADERS += locatorplugin.h \

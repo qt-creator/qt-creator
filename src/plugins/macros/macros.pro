@@ -1,5 +1,3 @@
-TARGET = Macros
-
 DEFINES += MACROS_LIBRARY
 
 include(../../qtcreatorplugin.pri)

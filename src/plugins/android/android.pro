@@ -1,5 +1,3 @@
-TARGET = Android
-
 include(../../qtcreatorplugin.pri)
 
 isEmpty(ANDROID_ENABLE):ANDROID_EXPERIMENTAL_STR="true"

@@ -1,4 +1,3 @@
-TARGET = VcsBase
 DEFINES += VCSBASE_LIBRARY
 include(../../qtcreatorplugin.pri)
 HEADERS += vcsbase_global.h \

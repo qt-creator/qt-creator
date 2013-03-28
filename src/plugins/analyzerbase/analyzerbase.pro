@@ -1,5 +1,3 @@
-TARGET = AnalyzerBase
-
 DEFINES += ANALYZER_LIBRARY
 
 include(../../qtcreatorplugin.pri)

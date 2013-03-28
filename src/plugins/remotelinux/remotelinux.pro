@@ -1,4 +1,3 @@
-TARGET = RemoteLinux
 QT += network
 
 include(../../qtcreatorplugin.pri)

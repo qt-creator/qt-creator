@@ -1,4 +1,3 @@
-TARGET = DiffEditor
 DEFINES += DIFFEDITOR_LIBRARY
 include(../../qtcreatorplugin.pri)
 

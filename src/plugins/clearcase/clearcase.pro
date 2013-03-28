@@ -1,4 +1,3 @@
-TARGET = ClearCase
 # PROVIDER = AudioCodes
 
 include(../../qtcreatorplugin.pri)

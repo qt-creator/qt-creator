@@ -1,5 +1,3 @@
-TARGET = QmlProfiler
-
 DEFINES += QMLPROFILER_LIBRARY
 
 QT += network script declarative

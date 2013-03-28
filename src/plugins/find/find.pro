@@ -1,4 +1,3 @@
-TARGET = Find
 include(../../qtcreatorplugin.pri)
 DEFINES += FIND_LIBRARY
 HEADERS += findtoolwindow.h \

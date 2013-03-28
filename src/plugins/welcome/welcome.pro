@@ -1,4 +1,3 @@
-TARGET = Welcome
 QT += network declarative
 
 include(../../qtcreatorplugin.pri)

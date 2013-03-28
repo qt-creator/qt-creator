@@ -1,4 +1,3 @@
-TARGET = QtcSsh
 QT += gui network
 DEFINES += QSSH_LIBRARY
 

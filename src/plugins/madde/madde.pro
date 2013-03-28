@@ -1,4 +1,3 @@
-TARGET = Madde
 QT += network
 
 include(../../qtcreatorplugin.pri)

@@ -1,4 +1,3 @@
-TARGET = GenericProjectManager
 include(../../qtcreatorplugin.pri)
 
 HEADERS = genericproject.h \

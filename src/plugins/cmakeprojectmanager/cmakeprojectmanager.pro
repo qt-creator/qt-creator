@@ -1,5 +1,3 @@
-TARGET = CMakeProjectManager
-
 include(../../qtcreatorplugin.pri)
 
 HEADERS = cmakeproject.h \

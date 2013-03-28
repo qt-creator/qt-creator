@@ -1,4 +1,3 @@
-TARGET = ProjectExplorer
 QT += xml script declarative
 
 include(../../qtcreatorplugin.pri)

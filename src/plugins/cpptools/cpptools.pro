@@ -1,4 +1,3 @@
-TARGET = CppTools
 include(../../qtcreatorplugin.pri)
 
 DEFINES += CPPTOOLS_LIBRARY

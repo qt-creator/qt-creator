@@ -1,5 +1,3 @@
-TARGET = Perforce
-
 include(../../qtcreatorplugin.pri)
 
 HEADERS += \

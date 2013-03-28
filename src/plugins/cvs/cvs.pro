@@ -1,5 +1,3 @@
-TARGET = CVS
-
 include(../../qtcreatorplugin.pri)
 
 HEADERS += annotationhighlighter.h \

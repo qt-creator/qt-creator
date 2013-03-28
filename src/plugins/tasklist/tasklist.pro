@@ -1,5 +1,3 @@
-TARGET = TaskList
-
 include(../../qtcreatorplugin.pri)
 
 HEADERS += tasklistplugin.h \

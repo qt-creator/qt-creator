@@ -1,4 +1,3 @@
-TARGET = QmlJS
 DEFINES += QMLJS_BUILD_DIR
 
 QT +=script

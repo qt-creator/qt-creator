@@ -1,4 +1,3 @@
-TARGET = GLSL
 DEFINES += \
     GLSL_BUILD_LIB
 

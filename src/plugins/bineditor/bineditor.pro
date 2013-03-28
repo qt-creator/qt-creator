@@ -1,4 +1,3 @@
-TARGET = BinEditor
 include(../../qtcreatorplugin.pri)
 
 HEADERS += bineditorplugin.h \
