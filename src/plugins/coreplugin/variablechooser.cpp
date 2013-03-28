@@ -43,8 +43,53 @@
 
 using namespace Core;
 
+/*!
+ * \class Core::VariableChooser
+ * \brief The VariableChooser class is used to add a tool window for selecting \QC variables
+ * to line edits, text edits or plain text edits.
+ *
+ * If you allow users to add \QC variables to strings that are specified in your UI, for example
+ * when users can provide a string through a text control, you should add a variable chooser to it.
+ * The variable chooser allows users to open a tool window that contains the list of
+ * all available variables together with a description. Double-clicking a variable inserts the
+ * corresponding string into the corresponding text control like a line edit.
+ *
+ * \image variablechooser.png "External Tools Preferences with Variable Chooser"
+ *
+ * The variable chooser monitors focus changes of all children of its parent widget.
+ * When a text control gets focus, the variable chooser checks if it has variable support set,
+ * either through the addVariableSupport() method or by manually setting the
+ * custom kVariableSupportProperty on the control. If the control supports variables,
+ * a tool button which opens the variable chooser is shown in it while it has focus.
+ *
+ * Supported text controls are QLineEdit, QTextEdit and QPlainTextEdit.
+ *
+ * The variable chooser is deleted when its parent widget is deleted.
+ *
+ * Example:
+ * \code
+ * QWidget *myOptionsContainerWidget = new QWidget;
+ * new Core::VariableChooser(myOptionsContainerWidget)
+ * QLineEdit *myLineEditOption = new QLineEdit(myOptionsContainerWidget);
+ * myOptionsContainerWidget->layout()->addWidget(myLineEditOption);
+ * Core::VariableChooser::addVariableSupport(myLineEditOption);
+ * \endcode
+ */
+
+/*!
+ * \variable VariableChooser::kVariableSupportProperty
+ * Property name that is checked for deciding if a widget supports \QC variables.
+ * Can be manually set with
+ * \c{textcontrol->setProperty(VariableChooser::kVariableSupportProperty, true)}
+ * \sa addVariableSupport()
+ */
 const char VariableChooser::kVariableSupportProperty[] = "QtCreator.VariableSupport";
 
+/*!
+ * Creates a variable chooser that tracks all children of \a parent for variable support.
+ * Ownership is also transferred to \a parent.
+ * \sa addVariableSupport()
+ */
 VariableChooser::VariableChooser(QWidget *parent) :
     QWidget(parent),
     ui(new Internal::Ui::VariableChooser),
@@ -73,18 +118,28 @@ VariableChooser::VariableChooser(QWidget *parent) :
     updateCurrentEditor(0, qApp->focusWidget());
 }
 
+/*!
+ * \internal
+ */
 VariableChooser::~VariableChooser()
 {
     delete m_iconButton;
     delete ui;
 }
 
+/*!
+ * Marks the control as supporting variables.
+ * \sa kVariableSupportProperty
+ */
 void VariableChooser::addVariableSupport(QWidget *textcontrol)
 {
     QTC_ASSERT(textcontrol, return);
     textcontrol->setProperty(kVariableSupportProperty, true);
 }
 
+/*!
+ * \internal
+ */
 void VariableChooser::updateDescription(const QString &variable)
 {
     if (variable.isNull())
@@ -93,6 +148,9 @@ void VariableChooser::updateDescription(const QString &variable)
         ui->variableDescription->setText(VariableManager::variableDescription(variable.toUtf8()));
 }
 
+/*!
+ * \internal
+ */
 void VariableChooser::updateCurrentEditor(QWidget *old, QWidget *widget)
 {
     if (old)
@@ -151,6 +209,9 @@ void VariableChooser::updateCurrentEditor(QWidget *old, QWidget *widget)
     }
 }
 
+/*!
+ * \internal
+ */
 void VariableChooser::createIconButton()
 {
     m_iconButton = new Utils::IconButton;
@@ -160,6 +221,9 @@ void VariableChooser::createIconButton()
     connect(m_iconButton, SIGNAL(clicked()), this, SLOT(updatePositionAndShow()));
 }
 
+/*!
+ * \internal
+ */
 void VariableChooser::updatePositionAndShow()
 {
     if (parentWidget()) {
@@ -171,12 +235,18 @@ void VariableChooser::updatePositionAndShow()
     activateWindow();
 }
 
+/*!
+ * \internal
+ */
 void VariableChooser::handleItemActivated(QListWidgetItem *item)
 {
     if (item)
         insertVariable(item->text());
 }
 
+/*!
+ * \internal
+ */
 void VariableChooser::insertVariable(const QString &variable)
 {
     const QString &text = QLatin1String("%{") + variable + QLatin1String("}");
@@ -192,6 +262,9 @@ void VariableChooser::insertVariable(const QString &variable)
     }
 }
 
+/*!
+ * \internal
+ */
 static bool handleEscapePressed(QKeyEvent *ke, QWidget *widget)
 {
     if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
@@ -202,11 +275,17 @@ static bool handleEscapePressed(QKeyEvent *ke, QWidget *widget)
     return false;
 }
 
+/*!
+ * \internal
+ */
 void VariableChooser::keyPressEvent(QKeyEvent *ke)
 {
     handleEscapePressed(ke, this);
 }
 
+/*!
+ * \internal
+ */
 bool VariableChooser::eventFilter(QObject *, QEvent *event)
 {
     if (event->type() == QEvent::KeyPress && isVisible()) {
