@@ -46,6 +46,7 @@
 #include <qtsupport/customexecutablerunconfiguration.h>
 #include <remotelinux/remotelinuxdebugsupport.h>
 #include <remotelinux/remotelinuxruncontrol.h>
+#include <utils/qtcassert.h>
 
 using namespace Debugger;
 using namespace ProjectExplorer;
@@ -195,35 +196,58 @@ MaemoRunControlFactory::~MaemoRunControlFactory()
 
 bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
+    if (mode != NormalRunMode && mode != DebugRunMode && mode != DebugRunModeWithBreakOnMain)
+        return false;
     const MaemoRunConfiguration * const maemoRunConfig
         = qobject_cast<MaemoRunConfiguration *>(runConfiguration);
-    if (!maemoRunConfig || !maemoRunConfig->isEnabled())
-        return false;
-    return maemoRunConfig->hasEnoughFreePorts(mode);
+    return maemoRunConfig && maemoRunConfig->isEnabled();
 }
 
-RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig, RunMode mode, QString *errorMessage)
+RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig, RunMode mode,
+                                           QString *errorMessage)
 {
-    Q_ASSERT(canRun(runConfig, mode));
+    QTC_ASSERT(canRun(runConfig, mode), return 0);
 
     MaemoRunConfiguration *rc = qobject_cast<MaemoRunConfiguration *>(runConfig);
-    Q_ASSERT(rc);
-
-    if (mode == NormalRunMode) {
+    QTC_ASSERT(rc, return 0);
+    switch (mode) {
+    case NormalRunMode: {
         RemoteLinuxRunControl * const runControl = new RemoteLinuxRunControl(rc);
         setHelperActions(runControl, rc, runControl);
         return runControl;
     }
+    case DebugRunMode:
+    case DebugRunModeWithBreakOnMain: {
+        IDevice::ConstPtr dev = DeviceKitInformation::device(rc->target()->kit());
+        if (!dev) {
+            *errorMessage = tr("Cannot debug: Kit has no device.");
+            return 0;
+        }
+        if (rc->portsUsedByDebuggers() > dev->freePorts().count()) {
+            *errorMessage = tr("Cannot debug: Not enough free ports available.");
+            return 0;
+        }
+        DebuggerStartParameters params = LinuxDeviceDebugSupport::startParameters(rc);
+        if (mode == ProjectExplorer::DebugRunModeWithBreakOnMain)
+            params.breakOnMain = true;
+        DebuggerRunControl * const runControl
+                = DebuggerPlugin::createDebugger(params, rc, errorMessage);
+        if (!runControl)
+            return 0;
+        LinuxDeviceDebugSupport * const debugSupport =
+                new LinuxDeviceDebugSupport(rc, runControl->engine());
+        setHelperActions(debugSupport, rc, runControl);
+        connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
+        return runControl;
+    }
+    case NoRunMode:
+    case QmlProfilerRunMode:
+    case CallgrindRunMode:
+    case MemcheckRunMode:
+        QTC_ASSERT(false, return 0);
+    }
 
-    const DebuggerStartParameters params = LinuxDeviceDebugSupport::startParameters(rc);
-    DebuggerRunControl * const runControl = DebuggerPlugin::createDebugger(params, rc, errorMessage);
-    if (!runControl)
-        return 0;
-    LinuxDeviceDebugSupport * const debugSupport
-            = new LinuxDeviceDebugSupport(rc, runControl->engine());
-    setHelperActions(debugSupport, rc, runControl);
-    connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
-    return runControl;
+    QTC_ASSERT(false, return 0);
 }
 
 QString MaemoRunControlFactory::displayName() const

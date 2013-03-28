@@ -101,6 +101,7 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const RemoteLin
     Target *target = runConfig->target();
     Kit *k = target->kit();
     const IDevice::ConstPtr device = DeviceKitInformation::device(k);
+    QTC_ASSERT(device, return params);
 
     params.sysRoot = SysRootKitInformation::sysRoot(k).toString();
     params.debuggerCommand = DebuggerKitInformation::debuggerCommand(k).toString();

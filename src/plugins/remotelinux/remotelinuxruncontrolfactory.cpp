@@ -41,6 +41,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <utils/portlist.h>
+#include <utils/qtcassert.h>
 
 using namespace Debugger;
 using namespace ProjectExplorer;
@@ -63,42 +64,50 @@ bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration, Ru
         return false;
 
     const QByteArray idStr = runConfiguration->id().name();
-    if (!runConfiguration->isEnabled() || !idStr.startsWith(RemoteLinuxRunConfiguration::IdPrefix))
-        return false;
-
-    if (mode == NormalRunMode)
-        return true;
-
-    const RemoteLinuxRunConfiguration * const remoteRunConfig
-            = qobject_cast<RemoteLinuxRunConfiguration *>(runConfiguration);
-    if (mode == DebugRunMode) {
-        IDevice::ConstPtr dev = DeviceKitInformation::device(runConfiguration->target()->kit());
-        if (dev.isNull())
-            return false;
-        return remoteRunConfig->portsUsedByDebuggers() <= dev->freePorts().count();
-    }
-    return true;
+    return runConfiguration->isEnabled() && idStr.startsWith(RemoteLinuxRunConfiguration::IdPrefix);
 }
 
-RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, RunMode mode, QString *errorMessage)
+RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, RunMode mode,
+                                                 QString *errorMessage)
 {
-    Q_ASSERT(canRun(runConfig, mode));
+    QTC_ASSERT(canRun(runConfig, mode), return 0);
 
     RemoteLinuxRunConfiguration *rc = qobject_cast<RemoteLinuxRunConfiguration *>(runConfig);
-    Q_ASSERT(rc);
-    if (mode == ProjectExplorer::NormalRunMode)
+    QTC_ASSERT(rc, return 0);
+    switch (mode) {
+    case NormalRunMode:
         return new RemoteLinuxRunControl(rc);
+    case DebugRunMode:
+    case DebugRunModeWithBreakOnMain: {
+        IDevice::ConstPtr dev = DeviceKitInformation::device(rc->target()->kit());
+        if (!dev) {
+            *errorMessage = tr("Cannot debug: Kit has no device.");
+            return 0;
+        }
+        if (rc->portsUsedByDebuggers() > dev->freePorts().count()) {
+            *errorMessage = tr("Cannot debug: Not enough free ports available.");
+            return 0;
+        }
+        DebuggerStartParameters params = LinuxDeviceDebugSupport::startParameters(rc);
+        if (mode == ProjectExplorer::DebugRunModeWithBreakOnMain)
+            params.breakOnMain = true;
+        DebuggerRunControl * const runControl
+                = DebuggerPlugin::createDebugger(params, rc, errorMessage);
+        if (!runControl)
+            return 0;
+        LinuxDeviceDebugSupport * const debugSupport =
+                new LinuxDeviceDebugSupport(rc, runControl->engine());
+        connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
+        return runControl;
+    }
+    case NoRunMode:
+    case QmlProfilerRunMode:
+    case CallgrindRunMode:
+    case MemcheckRunMode:
+        QTC_ASSERT(false, return 0);
+    }
 
-    DebuggerStartParameters params = LinuxDeviceDebugSupport::startParameters(rc);
-    if (mode == ProjectExplorer::DebugRunModeWithBreakOnMain)
-        params.breakOnMain = true;
-    DebuggerRunControl * const runControl = DebuggerPlugin::createDebugger(params, rc, errorMessage);
-    if (!runControl)
-        return 0;
-    LinuxDeviceDebugSupport * const debugSupport =
-            new LinuxDeviceDebugSupport(rc, runControl->engine());
-    connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
-    return runControl;
+    QTC_ASSERT(false, return 0);
 }
 
 QString RemoteLinuxRunControlFactory::displayName() const
