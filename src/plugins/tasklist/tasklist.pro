@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = TaskList
 
 include(../../qtcreatorplugin.pri)

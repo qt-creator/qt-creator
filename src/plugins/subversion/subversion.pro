@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = Subversion
 
 include(../../qtcreatorplugin.pri)

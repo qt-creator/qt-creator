@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = CppTools
 include(../../qtcreatorplugin.pri)
 

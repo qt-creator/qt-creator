@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = ImageViewer
 include(../../qtcreatorplugin.pri)
 

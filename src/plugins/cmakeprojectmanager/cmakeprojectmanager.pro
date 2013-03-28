@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = CMakeProjectManager
 
 include(../../qtcreatorplugin.pri)

@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = AnalyzerBase
 
 DEFINES += ANALYZER_LIBRARY

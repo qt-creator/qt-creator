@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = VcsBase
 DEFINES += VCSBASE_LIBRARY
 include(../../qtcreatorplugin.pri)

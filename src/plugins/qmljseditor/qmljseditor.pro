@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = QmlJSEditor
 include(../../qtcreatorplugin.pri)
 QT += script

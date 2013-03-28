@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = LanguageUtils
 
 unix:QMAKE_CXXFLAGS_DEBUG += -O3

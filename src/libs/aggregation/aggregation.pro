@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = Aggregation
 
 include(../../qtcreatorlibrary.pri)

@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = CVS
 
 include(../../qtcreatorplugin.pri)

@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = Android
 
 include(../../qtcreatorplugin.pri)

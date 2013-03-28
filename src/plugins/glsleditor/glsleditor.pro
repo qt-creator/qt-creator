@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = GLSLEditor
 include(../../qtcreatorplugin.pri)
 

@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = Designer
 DEFINES += DESIGNER_LIBRARY
 

@@ -108,6 +108,7 @@ CONFIG += include_source_dir
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 
+TEMPLATE = lib
 CONFIG += plugin plugin_with_soname
 linux*:QMAKE_LFLAGS += $$QMAKE_LFLAGS_NOUNDEF
 

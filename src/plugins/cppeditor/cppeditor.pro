@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = CppEditor
 DEFINES += CPPEDITOR_LIBRARY
 include(../../qtcreatorplugin.pri)

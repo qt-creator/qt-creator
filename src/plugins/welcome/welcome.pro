@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = Welcome
 QT += network declarative
 

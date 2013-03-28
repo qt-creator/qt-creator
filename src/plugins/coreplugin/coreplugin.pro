@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = Core
 DEFINES += CORE_LIBRARY
 QT += network \

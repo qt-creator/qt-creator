@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = QmlDebug
 QT += network
 

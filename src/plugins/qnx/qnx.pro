@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = Qnx
 QT += network xml
 PROVIDER = BlackBerry

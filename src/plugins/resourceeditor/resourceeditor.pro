@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = ResourceEditor
 
 include(../../qtcreatorplugin.pri)

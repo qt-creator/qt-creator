@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = QmlProjectManager
 
 QT += network declarative

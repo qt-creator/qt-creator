@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = GenericProjectManager
 include(../../qtcreatorplugin.pri)
 

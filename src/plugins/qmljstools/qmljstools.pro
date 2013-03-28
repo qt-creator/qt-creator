@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = QmlJSTools
 include(../../qtcreatorplugin.pri)
 

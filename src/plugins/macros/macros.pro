@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = Macros
 
 DEFINES += MACROS_LIBRARY

@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = Utils
 QT += gui network
 

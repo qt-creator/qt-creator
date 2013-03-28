@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = Perforce
 
 include(../../qtcreatorplugin.pri)

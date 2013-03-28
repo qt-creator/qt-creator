@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = Todo
 
 include(../../qtcreatorplugin.pri)

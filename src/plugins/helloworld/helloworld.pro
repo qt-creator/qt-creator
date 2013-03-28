@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = HelloWorld
 
 include(../../qtcreatorplugin.pri)

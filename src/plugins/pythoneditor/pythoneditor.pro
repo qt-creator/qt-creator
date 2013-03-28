@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = PythonEditor
 
 include(../../qtcreatorplugin.pri)

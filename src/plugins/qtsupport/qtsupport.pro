@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = QtSupport
 DEFINES += QTSUPPORT_LIBRARY
 QT += network declarative

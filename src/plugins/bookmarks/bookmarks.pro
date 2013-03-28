@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET   = Bookmarks
 
 include(../../qtcreatorplugin.pri)

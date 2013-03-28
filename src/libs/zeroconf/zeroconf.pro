@@ -3,7 +3,6 @@ QT       += network
 CONFIG   += exceptions
 
 TARGET = zeroconf
-TEMPLATE = lib
 
 DEFINES += ZEROCONF_LIBRARY
 

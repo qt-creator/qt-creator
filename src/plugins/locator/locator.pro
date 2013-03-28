@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = Locator
 DEFINES += LOCATOR_LIBRARY
 include(../../qtcreatorplugin.pri)

@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = ClassView
 include(../../qtcreatorplugin.pri)
 

@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = BinEditor
 include(../../qtcreatorplugin.pri)
 

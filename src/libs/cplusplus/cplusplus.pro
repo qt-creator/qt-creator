@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = CPlusPlus
 
 DEFINES += NDEBUG

@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = Valgrind
 
 include(../../qtcreatorplugin.pri)

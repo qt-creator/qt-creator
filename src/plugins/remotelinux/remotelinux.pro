@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = RemoteLinux
 QT += network
 

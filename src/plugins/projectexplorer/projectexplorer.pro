@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = ProjectExplorer
 QT += xml script declarative
 

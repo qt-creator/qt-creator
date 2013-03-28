@@ -1,4 +1,3 @@
-TEMPLATE = lib
 TARGET = QbsProjectManager
 
 include(../../qtcreatorplugin.pri)
