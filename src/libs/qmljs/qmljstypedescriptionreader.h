@@ -49,7 +49,7 @@ class UiScriptBinding;
 class SourceLocation;
 }
 
-class TypeDescriptionReader
+class QMLJS_EXPORT TypeDescriptionReader
 {
     Q_DECLARE_TR_FUNCTIONS(QmlJS::TypeDescriptionReader)
 
