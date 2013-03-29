@@ -208,6 +208,13 @@ int FakeMetaObject::methodOffset() const
 { return 0; }
 FakeMetaMethod FakeMetaObject::method(int index) const
 { return m_methods.at(index); }
+int FakeMetaObject::methodIndex(const QString &name) const //If performances becomes an issue, just use a nameToIdx hash
+{
+    for (int i=0; i<m_methods.count(); i++)
+        if (m_methods[i].methodName() == name)
+            return i;
+    return -1;
+}
 
 QString FakeMetaObject::defaultPropertyName() const
 { return m_defaultPropertyName; }

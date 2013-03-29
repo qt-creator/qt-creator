@@ -188,6 +188,7 @@ public:
     int methodCount() const;
     int methodOffset() const;
     FakeMetaMethod method(int index) const;
+    int methodIndex(const QString &name) const; // Note: Returns any method with that name in case of overloads
 
     QString defaultPropertyName() const;
     void setDefaultPropertyName(const QString &defaultPropertyName);
