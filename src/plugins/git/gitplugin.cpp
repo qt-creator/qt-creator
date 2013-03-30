@@ -441,6 +441,11 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            tr("Change-related Actions..."), Core::Id("Git.ChangeRelatedActions"),
                            globalcontext, true, SLOT(startChangeRelatedAction()));
 
+    m_submoduleUpdateAction =
+            createRepositoryAction(localRepositoryMenu,
+                                   tr("Update Submodules"), Core::Id("Git.SubmoduleUpdate"),
+                                   globalcontext, true, SLOT(updateSubmodules())).first;
+
     // --------------
     localRepositoryMenu->addSeparator(globalcontext);
 
@@ -1089,6 +1094,13 @@ void GitPlugin::cleanRepository(const QString &directory)
     dialog.exec();
 }
 
+void GitPlugin::updateSubmodules()
+{
+    const VcsBase::VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return);
+    m_gitClient->submoduleUpdate(state.topLevel());
+}
+
 // If the file is modified in an editor, make sure it is saved.
 static bool ensureFileSaved(const QString &fileName)
 {
@@ -1224,13 +1236,14 @@ void GitPlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)
         fileAction->setParameter(fileName);
     // If the current file looks like a patch, offer to apply
     m_applyCurrentFilePatchAction->setParameter(currentState().currentPatchFileDisplayName());
-
     const QString projectName = currentState().currentProjectName();
     foreach (Utils::ParameterAction *projectAction, m_projectActions)
         projectAction->setParameter(projectName);
 
     foreach (QAction *repositoryAction, m_repositoryActions)
         repositoryAction->setEnabled(repositoryEnabled);
+    m_submoduleUpdateAction->setVisible(repositoryEnabled
+            && QFile::exists(currentState().topLevel() + QLatin1String("/.gitmodules")));
     updateRepositoryBrowserAction();
 }
 

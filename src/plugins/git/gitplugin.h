@@ -123,6 +123,7 @@ private slots:
     void gitkForCurrentFolder();
     void cleanProject();
     void cleanRepository();
+    void updateSubmodules();
     void applyCurrentFilePatch();
     void promptApplyPatch();
     void gitClientMemberFuncRepositoryAction();
@@ -204,6 +205,7 @@ private:
     QAction *m_redoAction;
     QAction *m_menuAction;
     QAction *m_repositoryBrowserAction;
+    QAction *m_submoduleUpdateAction;
 
     QVector<Utils::ParameterAction *> m_fileActions;
     QVector<Utils::ParameterAction *> m_projectActions;

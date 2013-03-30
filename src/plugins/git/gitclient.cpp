@@ -873,6 +873,7 @@ bool GitClient::synchronousCheckout(const QString &workingDirectory,
             outputWindow()->appendError(msg);
         return false;
     }
+    promptSubmoduleUpdate(workingDirectory);
     return true;
 }
 
@@ -1710,6 +1711,27 @@ GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory,
     return Stashed;
  }
 
+void GitClient::submoduleUpdate(const QString &workingDirectory)
+{
+    QStringList arguments;
+    arguments << QLatin1String("submodule") << QLatin1String("update");
+
+    VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
+    connectRepositoryChanged(workingDirectory, cmd);
+}
+
+void GitClient::promptSubmoduleUpdate(const QString &workingDirectory)
+{
+    if (!QFile::exists(workingDirectory + QLatin1String("/.gitmodules")))
+        return;
+
+    if (QMessageBox::question(Core::ICore::mainWindow(), tr("Submodules Found"),
+                              tr("Would you like to update submodules?"),
+                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+        submoduleUpdate(workingDirectory);
+    }
+}
+
 // Trim a git status file spec: "modified:    foo .cpp" -> "modified: foo .cpp"
 static inline QString trimFileSpecification(QString fileSpec)
 {
@@ -2312,7 +2334,12 @@ bool GitClient::synchronousPull(const QString &workingDirectory, bool rebase)
         abortCommand = QLatin1String("merge");
     }
 
-    return executeAndHandleConflicts(workingDirectory, arguments, abortCommand);
+    bool ok = executeAndHandleConflicts(workingDirectory, arguments, abortCommand);
+
+    if (ok)
+        promptSubmoduleUpdate(workingDirectory);
+
+    return ok;
 }
 
 void GitClient::synchronousAbortCommand(const QString &workingDir, const QString &abortCommand)
