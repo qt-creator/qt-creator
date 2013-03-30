@@ -763,6 +763,10 @@ void GitPlugin::startChangeRelatedAction()
         command = QLatin1String("Revert");
         commandFunction = &GitClient::revertCommit;
         break;
+    case Checkout:
+        command =  QLatin1String("Checkout");
+        commandFunction = &GitClient::synchronousCheckout;
+        break;
     default:
         return;
     }

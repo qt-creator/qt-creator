@@ -155,7 +155,9 @@ public:
                                   QString revision = QString(), QString *errorMessage = 0,
                                   bool revertStaging = true);
     // Checkout branch
-    bool synchronousCheckout(const QString &workingDirectory, const QString &ref, QString *errorMessage = 0);
+    bool synchronousCheckout(const QString &workingDirectory, const QString &ref, QString *errorMessage);
+    bool synchronousCheckout(const QString &workingDirectory, const QString &ref)
+         { return synchronousCheckout(workingDirectory, ref, 0); }
 
     // Do a stash and return identier.
     enum { StashPromptDescription = 0x1, StashImmediateRestore = 0x2, StashIgnoreUnchanged = 0x4 };

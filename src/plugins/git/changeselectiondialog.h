@@ -46,6 +46,7 @@ namespace Internal {
 
 enum ChangeCommand {
     NoCommand,
+    Checkout,
     CherryPick,
     Revert,
     Show
@@ -66,6 +67,7 @@ public:
 private slots:
     void setDetails(int exitCode);
     void recalculateDetails(const QString &ref);
+    void acceptCheckout();
     void acceptCherryPick();
     void acceptRevert();
     void acceptShow();
@@ -83,6 +85,7 @@ private:
     QPushButton* m_showButton;
     QPushButton* m_cherryPickButton;
     QPushButton* m_revertButton;
+    QPushButton* m_checkoutButton;
     QPushButton* m_cancelButton;
 
     ChangeCommand m_command;
