@@ -93,7 +93,7 @@ enum FakeVimSettingsCode
     // other actions
     ConfigShowMarks,
     ConfigPassControlKey,
-    ConfigPassNewLine,
+    ConfigPassKeys,
     ConfigClipboard,
     ConfigShowCmd,
     ConfigScrollOff

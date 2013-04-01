@@ -292,8 +292,8 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
         m_ui.checkBoxSmartTab);
     m_group.insert(theFakeVimSetting(ConfigStartOfLine),
         m_ui.checkBoxStartOfLine);
-    m_group.insert(theFakeVimSetting(ConfigPassNewLine),
-        m_ui.checkBoxPassNewLine);
+    m_group.insert(theFakeVimSetting(ConfigPassKeys),
+        m_ui.checkBoxPassKeys);
     m_group.insert(theFakeVimSetting(ConfigTabStop),
         m_ui.spinBoxTabStop);
     m_group.insert(theFakeVimSetting(ConfigScrollOff),
@@ -352,7 +352,7 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
                 << sep << m_ui.checkBoxSmartCase->text()
                 << sep << m_ui.checkBoxShowMarks->text()
                 << sep << m_ui.checkBoxPassControlKey->text()
-                << sep << m_ui.checkBoxPassNewLine->text()
+                << sep << m_ui.checkBoxPassKeys->text()
                 << sep << m_ui.checkBoxIgnoreCase->text()
                 << sep << m_ui.checkBoxWrapScan->text()
                 << sep << m_ui.checkBoxShowCmd->text()
@@ -391,7 +391,7 @@ void FakeVimOptionPage::setQtStyle()
     m_ui.checkBoxSmartIndent->setChecked(true);
     m_ui.checkBoxIncSearch->setChecked(true);
     m_ui.lineEditBackspace->setText(_("indent,eol,start"));
-    m_ui.checkBoxPassNewLine->setChecked(true);
+    m_ui.checkBoxPassKeys->setChecked(true);
 }
 
 void FakeVimOptionPage::setPlainStyle()
@@ -404,7 +404,7 @@ void FakeVimOptionPage::setPlainStyle()
     m_ui.checkBoxSmartIndent->setChecked(false);
     m_ui.checkBoxIncSearch->setChecked(false);
     m_ui.lineEditBackspace->setText(QString());
-    m_ui.checkBoxPassNewLine->setChecked(false);
+    m_ui.checkBoxPassKeys->setChecked(false);
 }
 
 void FakeVimOptionPage::openVimRc()

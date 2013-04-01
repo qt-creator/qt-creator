@@ -949,6 +949,8 @@ public:
 
     int key() const { return m_key; }
 
+    int modifiers() const { return m_modifiers; }
+
     // Return raw character for macro recording or dot command.
     QChar raw() const
     {
@@ -1708,6 +1710,7 @@ public:
     int m_oldInternalPosition; // copy from last event to check for external changes
     int m_oldInternalAnchor;
     int m_oldPosition; // FIXME: Merge with above.
+    int m_oldDocumentLength;
     int m_register;
     QString m_mvcount;
     QString m_opcount;
@@ -1771,6 +1774,11 @@ public:
     void joinLines(int count, bool preserveSpace = false);
 
     void insertNewLine();
+
+    bool handleInsertInEditor(const Input &input, QString *insert);
+    bool passEventToEditor(QEvent &event); // Pass event to editor widget without filtering. Returns true if event was processed.
+    // Guess insert command for text modification which happened externally (e.g. code-completion).
+    QString guessInsertCommand(int pos1, int pos2, int len1, int len2);
 
     // undo handling
     int revision() const { return document()->availableUndoSteps(); }
@@ -1974,6 +1982,7 @@ void FakeVimHandler::Private::init()
     m_oldExternalAnchor = -1;
     m_oldExternalPosition = -1;
     m_oldPosition = -1;
+    m_oldDocumentLength = -1;
     m_breakEditBlock = false;
     m_searchStartPosition = 0;
     m_searchFromScreenLine = 0;
@@ -2255,6 +2264,7 @@ void FakeVimHandler::Private::recordInsertion(const QString &insert)
         m_oldPosition = pos;
         setTargetColumn();
     }
+    m_oldDocumentLength = document()->characterCount();
 }
 
 void FakeVimHandler::Private::ensureCursorVisible()
@@ -3601,7 +3611,9 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         //    << input;
         QString savedCommand = g.dotCommand;
         g.dotCommand.clear();
+        beginEditBlock();
         replay(savedCommand);
+        endEditBlock();
         resetCommandMode();
         g.dotCommand = savedCommand;
     } else if (input.is('<') || input.is('>') || input.is('=')) {
@@ -4305,16 +4317,17 @@ EventResult FakeVimHandler::Private::handleReplaceMode(const Input &input)
 EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
 {
     bool clearLastInsertion = m_breakEditBlock;
-    if (m_oldPosition != position()) {
+    int pos2 = position();
+    int len2 = document()->characterCount();
+    if (m_oldPosition != pos2 || m_oldDocumentLength != len2) {
         if (clearLastInsertion) {
             clearLastInsertion = false;
             m_lastInsertion.clear();
         }
-        recordInsertion();
+        recordInsertion(guessInsertCommand(m_oldPosition, pos2, m_oldDocumentLength, len2));
     }
 
     QString insert;
-    bool move = false;
     if (input.isEscape()) {
         // Repeat insertion [count] times.
         // One instance was already physically inserted while typing.
@@ -4357,6 +4370,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
             m_lastInsertion.remove(0, 1);
         g.dotCommand += m_lastInsertion + _("<ESC>");
         enterCommandMode();
+        setTargetColumn();
         m_ctrlVActive = false;
         m_visualBlockInsert = false;
     } else if (m_ctrlVActive) {
@@ -4381,86 +4395,82 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         insert = _("<INSERT>");
     } else if (input.isKey(Key_Left)) {
         moveLeft(count());
-        move = true;
         setTargetColumn();
     } else if (input.isControl(Key_Left)) {
         moveToNextWordStart(count(), false, false);
-        move = true;
         setTargetColumn();
     } else if (input.isKey(Key_Down)) {
         //removeAutomaticIndentation();
         m_submode = NoSubMode;
         moveDown(count());
-        move = true;
     } else if (input.isKey(Key_Up)) {
         //removeAutomaticIndentation();
         m_submode = NoSubMode;
         moveUp(count());
-        move = true;
     } else if (input.isKey(Key_Right)) {
         moveRight(count());
-        move = true;
         setTargetColumn();
     } else if (input.isControl(Key_Right)) {
         moveToNextWordStart(count(), false, true);
         moveRight(); // we need one more move since we are in insert mode
-        move = true;
         setTargetColumn();
     } else if (input.isKey(Key_Home)) {
         moveToStartOfLine();
-        move = true;
         setTargetColumn();
     } else if (input.isKey(Key_End)) {
         if (count() > 1)
             moveDown(count() - 1);
         moveBehindEndOfLine();
-        move = true;
         setTargetColumn();
         m_targetColumn = -1;
     } else if (input.isReturn() || input.isControl('j') || input.isControl('m')) {
-        joinPreviousEditBlock();
-        m_submode = NoSubMode;
-        insertNewLine();
-        insert = _("\n");
-        endEditBlock();
-    } else if (input.isBackspace()) {
-        joinPreviousEditBlock();
-        m_justAutoIndented = 0;
-        if (!m_lastInsertion.isEmpty()
-                || hasConfig(ConfigBackspace, "start")
-                || hasConfig(ConfigBackspace, "2")) {
-            const int line = cursorLine() + 1;
-            const Column col = cursorColumn();
-            QString data = lineContents(line);
-            const Column ind = indentation(data);
-            if (col.logical <= ind.logical && col.logical
-                    && startsWithWhitespace(data, col.physical)) {
-                const int ts = config(ConfigTabStop).toInt();
-                const int newl = col.logical - 1 - (col.logical - 1) % ts;
-                const QString prefix = tabExpand(newl);
-                setLineContents(line, prefix + data.mid(col.physical));
-                moveToStartOfLine();
-                moveRight(prefix.size());
-            } else {
-                setAnchor();
-                cursor().deletePreviousChar();
-            }
+        if (!input.isReturn() || !handleInsertInEditor(input, &insert)) {
+            joinPreviousEditBlock();
+            m_submode = NoSubMode;
+            insertNewLine();
+            insert = _("\n");
+            endEditBlock();
         }
-        insert = _("<BS>");
-        endEditBlock();
+    } else if (input.isBackspace()) {
+        if (!handleInsertInEditor(input, &insert)) {
+            joinPreviousEditBlock();
+            m_justAutoIndented = 0;
+            if (!m_lastInsertion.isEmpty()
+                    || hasConfig(ConfigBackspace, "start")
+                    || hasConfig(ConfigBackspace, "2")) {
+                const int line = cursorLine() + 1;
+                const Column col = cursorColumn();
+                QString data = lineContents(line);
+                const Column ind = indentation(data);
+                if (col.logical <= ind.logical && col.logical
+                        && startsWithWhitespace(data, col.physical)) {
+                    const int ts = config(ConfigTabStop).toInt();
+                    const int newl = col.logical - 1 - (col.logical - 1) % ts;
+                    const QString prefix = tabExpand(newl);
+                    setLineContents(line, prefix + data.mid(col.physical));
+                    moveToStartOfLine();
+                    moveRight(prefix.size());
+                } else {
+                    setAnchor();
+                    cursor().deletePreviousChar();
+                }
+            }
+            insert = _("<BS>");
+            endEditBlock();
+        }
     } else if (input.isKey(Key_Delete)) {
-        joinPreviousEditBlock();
-        cursor().deleteChar();
-        insert = _("<DELETE>");
-        endEditBlock();
+        if (!handleInsertInEditor(input, &insert)) {
+            joinPreviousEditBlock();
+            cursor().deleteChar();
+            insert = _("<DELETE>");
+            endEditBlock();
+        }
     } else if (input.isKey(Key_PageDown) || input.isControl('f')) {
         removeAutomaticIndentation();
         moveDown(count() * (linesOnScreen() - 2));
-        move = true;
     } else if (input.isKey(Key_PageUp) || input.isControl('b')) {
         removeAutomaticIndentation();
         moveUp(count() * (linesOnScreen() - 2));
-        move = true;
     } else if (input.isKey(Key_Tab)) {
         m_justAutoIndented = 0;
         if (hasConfig(ConfigExpandTab)) {
@@ -4511,16 +4521,20 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         if (data && data->hasText())
             insertInInsertMode(data->text());
         insert = _("<S-INSERT>");
-    } else if (!input.text().isEmpty()) {
-        insert = input.text();
-        insertInInsertMode(insert);
-        insert.replace(_("<"), _("<LT>"));
     } else {
-        // We don't want fancy stuff in insert mode.
-        return EventHandled;
+        if (!handleInsertInEditor(input, &insert)) {
+            insert = input.text();
+            if (!insert.isEmpty()) {
+                insertInInsertMode(insert);
+                insert.replace(_("<"), _("<LT>"));
+            } else {
+                // We don't want fancy stuff in insert mode.
+                return EventHandled;
+            }
+        }
     }
 
-    if (move) {
+    if (insert.isNull()) {
         breakEditBlock();
         m_oldPosition = position();
     } else {
@@ -6664,26 +6678,113 @@ void FakeVimHandler::Private::joinLines(int count, bool preserveSpace)
 
 void FakeVimHandler::Private::insertNewLine()
 {
-    if ( hasConfig(ConfigPassNewLine) ) {
+    if ( hasConfig(ConfigPassKeys) ) {
         QKeyEvent event(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier, QLatin1String("\n"));
-
-        removeEventFilter();
-
-        QTextCursor tc = m_cursor;
-        tc.setPosition(tc.position());
-        EDITOR(setTextCursor(tc));
-        bool accepted = QApplication::sendEvent(editor(), &event);
-
-        installEventFilter();
-
-        if (accepted) {
-            setPosition(EDITOR(textCursor()).position());
+        if (passEventToEditor(event))
             return;
-        }
     }
 
     insertText(QString::fromLatin1("\n"));
     insertAutomaticIndentation(true);
+}
+
+bool FakeVimHandler::Private::handleInsertInEditor(const Input &input, QString *insert)
+{
+    if (!hasConfig(ConfigPassKeys) || m_editBlockLevel > 0)
+        return false;
+
+    const int pos1 = position();
+    const int len1 = lastPositionInDocument();
+
+    QKeyEvent event(QEvent::KeyPress, input.key(),
+                    static_cast<Qt::KeyboardModifiers>(input.modifiers()), input.text());
+    if (!passEventToEditor(event))
+        return false;
+
+    const int pos2 = position();
+    const int len2 = lastPositionInDocument();
+
+    *insert = guessInsertCommand(pos1, pos2, len1, len2);
+
+    return true;
+}
+
+bool FakeVimHandler::Private::passEventToEditor(QEvent &event)
+{
+    removeEventFilter();
+
+    QTextCursor tc = m_cursor;
+    tc.setPosition(tc.position());
+    EDITOR(setTextCursor(tc));
+    bool accepted = QApplication::sendEvent(editor(), &event);
+
+    installEventFilter();
+
+    if (accepted)
+        setPosition(EDITOR(textCursor()).position());
+
+    return accepted;
+}
+
+QString FakeVimHandler::Private::guessInsertCommand(int pos1, int pos2, int len1, int len2)
+{
+    QString insert;
+
+    // Guess the inserted/deleted text.
+    if (len1 > len2) {
+        // Text deleted.
+        if (pos1 == pos2) {
+            // Text after cursor deleted.
+            insert = QString(_("<C-O>%1x")).arg(len1 - len2);
+        } else if (pos1 > pos2) {
+            // Text in front of cursor deleted.
+            const int backspaces = pos1 - pos2;
+            insert = QString(_("<BS>")).repeated(backspaces);
+            // Some text after cursor may have beed deleted too.
+            const int deletes = len1 - len2 - backspaces;
+            if (deletes > 0)
+                insert.append(QString(_("<C-O>%1x")).arg(deletes));
+        }
+    } else if (len1 < len2) {
+        // Text inserted.
+        if (pos1 < pos2) {
+            QTextCursor tc = cursor();
+            tc.setPosition(pos1);
+            tc.setPosition(pos2, KeepAnchor);
+            insert = QString(tc.selectedText()).replace(_("<"), _("<LT>"));
+
+            const int textLen = pos2 - pos1;
+            const int rest = len2 - len1 - textLen;
+            if (rest > 0) {
+                // Text inserted after new cursor position.
+                // On dot command, cursor must insert the same text and move in front of it.
+                tc.setPosition(pos2);
+                tc.setPosition(pos2 + rest, KeepAnchor);
+                insert.append(QString(tc.selectedText()).replace(_("<"), _("<LT>")));
+
+                const int up = document()->findBlock(pos2).blockNumber()
+                        - document()->findBlock(pos1).blockNumber();
+                if (up > 0)
+                    insert.append(QString(_("<UP>")).repeated(up));
+                insert.append(_("<END>"));
+                const int right = rightDist();
+                if (right > 0)
+                    insert.append(QString(_("<LEFT>")).repeated(right));
+            }
+        }
+    } else {
+        // Document length is unchanged so assume that no text inserted or deleted.
+        // Check if cursor moved.
+        const int right = pos2 - pos1;
+        if (right > 0)
+            insert = QString(_("<RIGHT>")).repeated(right);
+        else if (right < 0)
+            insert = QString(_("<LEFT>")).repeated(-right);
+        else
+            insert = _(""); // Empty non-null string.
+    }
+
+    return insert;
 }
 
 QString FakeVimHandler::Private::lineContents(int line) const
@@ -7000,6 +7101,7 @@ void FakeVimHandler::Private::enterInsertMode()
     m_subsubmode = NoSubSubMode;
     m_lastInsertion.clear();
     m_oldPosition = position();
+    m_oldDocumentLength = document()->characterCount();
     if (g.returnToMode != InsertMode) {
         g.returnToMode = InsertMode;
         // If entering insert mode from command mode, m_targetColumn shouldn't be -1 (end of line).

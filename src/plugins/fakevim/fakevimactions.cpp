@@ -180,7 +180,7 @@ FakeVimSettings *theFakeVimSettings()
 #endif
     createAction(s, ConfigShowMarks,      false, _("ShowMarks"),      _("sm"));
     createAction(s, ConfigPassControlKey, false, _("PassControlKey"), _("pck"));
-    createAction(s, ConfigPassNewLine,    false, _("PassNewLine"),    _("pnl"));
+    createAction(s, ConfigPassKeys,       true,  _("PassKeys"),       _("pk"));
 
     // Emulated Vim setting
     createAction(s, ConfigStartOfLine,    true,  _("StartOfLine"),   _("sol"));
