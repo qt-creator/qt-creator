@@ -44,7 +44,6 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/exceptions/invalidslideindexexception.cpp \
     $$PWD/model/import.cpp \
     $$PWD/exceptions/invalidqmlsourceexception.cpp \
-    $$PWD/model/viewlogger.cpp \
     $$PWD/model/internalvariantproperty.cpp \
     $$PWD/model/internalnodelistproperty.cpp \
     $$PWD/model/variantproperty.cpp \
@@ -114,7 +113,6 @@ HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/include/invalidslideindexexception.h \
     $$PWD/include/import.h \
     $$PWD/include/invalidqmlsourceexception.h \
-    $$PWD/model/viewlogger.h \
     $$PWD/model/internalvariantproperty.h \
     $$PWD/model/internalnodelistproperty.h \
     $$PWD/include/variantproperty.h \

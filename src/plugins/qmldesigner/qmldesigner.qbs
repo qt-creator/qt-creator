@@ -280,8 +280,6 @@ QtcPlugin {
             "model/texttomodelmerger.cpp",
             "model/texttomodelmerger.h",
             "model/variantproperty.cpp",
-            "model/viewlogger.cpp",
-            "model/viewlogger.h",
             "pluginmanager/widgetpluginmanager.cpp",
             "pluginmanager/widgetpluginmanager.h",
             "pluginmanager/widgetpluginpath.cpp",

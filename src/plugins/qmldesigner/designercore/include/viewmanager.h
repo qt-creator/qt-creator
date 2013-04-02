@@ -41,7 +41,6 @@
 #include <propertyeditor.h>
 #include <componentview.h>
 #include <debugview.h>
-#include <model/viewlogger.h>
 
 namespace QmlDesigner {
 
@@ -105,7 +104,6 @@ private: // functions
 
 private: // variables
     QmlModelState m_savedState;
-    Internal::ViewLogger m_viewLogger;
     Internal::DebugView m_debugView;
     ComponentView m_componentView;
     FormEditorView m_formEditorView;
