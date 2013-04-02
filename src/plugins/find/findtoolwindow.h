@@ -31,7 +31,6 @@
 #define FINDTOOLWINDOW_H
 
 #include "ui_finddialog.h"
-#include "ifindfilter.h"
 
 #include <QList>
 
@@ -39,6 +38,7 @@ QT_FORWARD_DECLARE_CLASS(QCompleter)
 
 namespace Find {
 class FindPlugin;
+class IFindFilter;
 
 namespace Internal {
 

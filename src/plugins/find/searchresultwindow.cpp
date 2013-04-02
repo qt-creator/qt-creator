@@ -45,6 +45,7 @@
 #include <QVBoxLayout>
 #include <QFont>
 #include <QAction>
+#include <QToolButton>
 #include <QComboBox>
 #include <QScrollArea>
 #include <QStackedWidget>

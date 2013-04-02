@@ -43,6 +43,11 @@
 
 #include <QDir>
 #include <QSettings>
+#include <QFrame>
+#include <QLabel>
+#include <QLineEdit>
+#include <QToolButton>
+#include <QCheckBox>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 

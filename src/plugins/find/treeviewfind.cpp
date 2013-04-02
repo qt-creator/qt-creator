@@ -31,6 +31,7 @@
 
 #include <QTreeView>
 #include <QTextCursor>
+#include <QModelIndex>
 
 namespace Find {
 

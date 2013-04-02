@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "findtoolwindow.h"
+#include "ifindfilter.h"
 #include "findplugin.h"
 
 #include <coreplugin/icore.h>

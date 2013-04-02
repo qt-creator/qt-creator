@@ -30,6 +30,7 @@
 #include "ifindfilter.h"
 
 #include <QPainter>
+#include <QPixmap>
 
 /*!
     \class Find::IFindFilter

@@ -32,10 +32,9 @@
 
 #include "ifindsupport.h"
 
-#include <QModelIndex>
-
 QT_BEGIN_NAMESPACE
 class QTreeView;
+class QModelIndex;
 QT_END_NAMESPACE
 
 namespace Find {

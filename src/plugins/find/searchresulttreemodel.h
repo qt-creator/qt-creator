@@ -34,9 +34,7 @@
 #include "searchresultcolor.h"
 
 #include <QAbstractItemModel>
-#include <QRegExp>
 #include <QFont>
-#include <QTextDocument>
 
 namespace Find {
 namespace Internal {

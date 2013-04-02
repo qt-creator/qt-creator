@@ -34,12 +34,15 @@
 
 #include <coreplugin/infobar.h>
 
-#include <QFrame>
-#include <QLabel>
-#include <QLineEdit>
-#include <QToolButton>
 #include <QWidget>
-#include <QCheckBox>
+
+QT_BEGIN_NAMESPACE
+class QFrame;
+class QLabel;
+class QLineEdit;
+class QToolButton;
+class QCheckBox;
+QT_END_NAMESPACE
 
 namespace Find {
 namespace Internal {

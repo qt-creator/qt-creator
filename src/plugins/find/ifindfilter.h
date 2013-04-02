@@ -33,12 +33,11 @@
 #include "find_global.h"
 #include "textfindconstants.h"
 
-#include <QPixmap>
-
 QT_BEGIN_NAMESPACE
 class QWidget;
 class QSettings;
 class QKeySequence;
+class Pixmap;
 QT_END_NAMESPACE
 
 namespace Find {
