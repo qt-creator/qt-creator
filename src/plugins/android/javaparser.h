@@ -46,6 +46,8 @@ public:
     void setProjectFileList(const QStringList &fileList);
 
 private:
+    void parse(const QString &line);
+
     QRegExp m_javaRegExp;
     QStringList m_fileList;
 };

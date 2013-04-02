@@ -37,15 +37,26 @@ using namespace ProjectExplorer;
 
 JavaParser::JavaParser() :
   m_javaRegExp(QLatin1String("^(.*\\[javac\\]\\s)(.*\\.java):(\\d+):(.*)$"))
-{
-}
+{ }
 
 void JavaParser::stdOutput(const QString &line)
 {
-    stdError(line);
+    parse(line);
+    IOutputParser::stdOutput(line);
 }
 
 void JavaParser::stdError(const QString &line)
+{
+    parse(line);
+    IOutputParser::stdError(line);
+}
+
+void JavaParser::setProjectFileList(const QStringList &fileList)
+{
+    m_fileList = fileList;
+}
+
+void JavaParser::parse(const QString &line)
 {
     if (m_javaRegExp.indexIn(line) > -1) {
         bool ok;
@@ -67,10 +78,5 @@ void JavaParser::stdError(const QString &line)
         emit addTask(task);
         return;
     }
-    IOutputParser::stdError(line);
-}
 
-void JavaParser::setProjectFileList(const QStringList &fileList)
-{
-    m_fileList = fileList;
 }
