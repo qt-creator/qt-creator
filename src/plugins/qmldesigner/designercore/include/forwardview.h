@@ -62,6 +62,7 @@ public:
     void propertiesRemoved(const QList<AbstractProperty>& propertyList);
     void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange);
     void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange);
+    void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty>& propertyList,PropertyChangeFlags propertyChange);
     void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
@@ -183,6 +184,12 @@ void ForwardView<ViewType>::bindingPropertiesChanged(const QList<BindingProperty
 {
     foreach (const ViewTypePointer &view, m_targetViewList)
         view->bindingPropertiesChanged(adjustedList(propertyList, view.data()), propertyChange);
+}
+
+void ForwardView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &propertyList, AbstractView::PropertyChangeFlags propertyChange)
+{
+    foreach (const ViewTypePointer &view, m_targetViewList)
+        view->signalHandlerPropertiesChanged(adjustedList(propertyList, view.data()), propertyChange);
 }
 
 template <class ViewType>

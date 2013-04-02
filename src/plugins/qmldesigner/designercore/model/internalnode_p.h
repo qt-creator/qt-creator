@@ -38,6 +38,7 @@
 #include "internalproperty.h"
 #include "internalvariantproperty.h"
 #include "internalbindingproperty.h"
+#include "internalsignalhandlerproperty.h"
 #include "internalnodelistproperty.h"
 #include "internalnodeproperty.h"
 #include "internalnodeabstractproperty.h"
@@ -93,12 +94,14 @@ public:
 
     InternalProperty::Pointer property(const PropertyName &name) const;
     InternalBindingProperty::Pointer bindingProperty(const PropertyName &name) const;
+    InternalSignalHandlerProperty::Pointer signalHandlerProperty(const PropertyName &name) const;
     InternalVariantProperty::Pointer variantProperty(const PropertyName &name) const;
     InternalNodeListProperty::Pointer nodeListProperty(const PropertyName &name) const;
     InternalNodeAbstractProperty::Pointer nodeAbstractProperty(const PropertyName &name) const;
     InternalNodeProperty::Pointer nodeProperty(const PropertyName &name) const;
 
     void addBindingProperty(const PropertyName &name);
+    void addSignalHandlerProperty(const PropertyName &name);
     void addNodeListProperty(const PropertyName &name);
     void addVariantProperty(const PropertyName &name);
     void addNodeProperty(const PropertyName &name);

@@ -58,6 +58,7 @@ public:
     virtual void propertiesRemoved(const QList<AbstractProperty>& propertyList) QTC_OVERRIDE;
     virtual void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange) QTC_OVERRIDE;
     virtual void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) QTC_OVERRIDE;
+    virtual void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty>& propertyList, PropertyChangeFlags propertyChange) QTC_OVERRIDE;
     virtual void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) QTC_OVERRIDE;
 
     virtual void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,

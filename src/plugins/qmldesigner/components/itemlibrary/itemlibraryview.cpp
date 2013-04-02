@@ -103,6 +103,10 @@ void ItemLibraryView::bindingPropertiesChanged(const QList<BindingProperty> &, P
 
 }
 
+void ItemLibraryView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &, AbstractView::PropertyChangeFlags)
+{
+}
+
 void ItemLibraryView::nodeAboutToBeRemoved(const ModelNode &)
 {
 

@@ -32,6 +32,7 @@
 #include "internalvariantproperty.h"
 #include "internalnodelistproperty.h"
 #include "internalnodeproperty.h"
+#include "internalsignalhandlerproperty.h"
 #include "internalnode_p.h"
 #include <QVariant>
 #include <QString>
@@ -116,6 +117,11 @@ bool InternalProperty::isNodeAbstractProperty() const
     return false;
 }
 
+bool InternalProperty::isSignalHandlerProperty() const
+{
+    return false;
+}
+
 QSharedPointer<InternalVariantProperty> InternalProperty::toVariantProperty() const
 
 {
@@ -144,6 +150,12 @@ QSharedPointer<InternalNodeAbstractProperty> InternalProperty::toNodeAbstractPro
 {
     Q_ASSERT(internalPointer().dynamicCast<InternalNodeAbstractProperty>());
     return internalPointer().staticCast<InternalNodeAbstractProperty>();
+}
+
+QSharedPointer<InternalSignalHandlerProperty> InternalProperty::toSignalHandlerProperty() const
+{
+    Q_ASSERT(internalPointer().dynamicCast<InternalSignalHandlerProperty>());
+    return internalPointer().staticCast<InternalSignalHandlerProperty>();
 }
 
 void InternalProperty::remove()

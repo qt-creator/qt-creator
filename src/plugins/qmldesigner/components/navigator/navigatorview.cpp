@@ -162,6 +162,11 @@ void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> & /*pr
 {
 }
 
+void NavigatorView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> & /*propertyList*/,
+                                                   AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+}
+
 void NavigatorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
     if (m_treeModel->isInTree(removedNode))

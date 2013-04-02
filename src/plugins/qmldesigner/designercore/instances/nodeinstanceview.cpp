@@ -376,6 +376,11 @@ void NodeInstanceView::bindingPropertiesChanged(const QList<BindingProperty>& pr
     nodeInstanceServer()->changePropertyBindings(createChangeBindingCommand(propertyList));
 }
 
+void NodeInstanceView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> & /*propertyList*/,
+                                                      AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+}
+
 /*! \brief Notifing the view that a AbstractProperty value was changed to a ModelNode.
 
   The property will be set for the NodeInstance.

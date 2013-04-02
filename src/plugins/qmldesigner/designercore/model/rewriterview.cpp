@@ -43,6 +43,7 @@
 #include "modeltotextmerger.h"
 #include "nodelistproperty.h"
 #include "nodeproperty.h"
+#include "signalhandlerproperty.h"
 #include "invalidmodelnodeexception.h"
 
 
@@ -256,6 +257,22 @@ void RewriterView::bindingPropertiesChanged(const QList<BindingProperty>& proper
 
     QList<AbstractProperty> usefulPropertyList;
     foreach (const BindingProperty &property, propertyList)
+        usefulPropertyList.append(property);
+
+    modelToTextMerger()->propertiesChanged(usefulPropertyList, propertyChange);
+
+    if (!isModificationGroupActive())
+        applyChanges();
+}
+
+void RewriterView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &propertyList, AbstractView::PropertyChangeFlags propertyChange)
+{
+    Q_ASSERT(textModifier());
+    if (textToModelMerger()->isActive())
+        return;
+
+    QList<AbstractProperty> usefulPropertyList;
+    foreach (const SignalHandlerProperty &property, propertyList)
         usefulPropertyList.append(property);
 
     modelToTextMerger()->propertiesChanged(usefulPropertyList, propertyChange);

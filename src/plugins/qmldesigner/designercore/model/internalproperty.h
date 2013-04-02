@@ -46,6 +46,7 @@ namespace QmlDesigner {
 namespace Internal {
 
 class InternalBindingProperty;
+class InternalSignalHandlerProperty;
 class InternalVariantProperty;
 class InternalNodeListProperty;
 class InternalNodeProperty;
@@ -74,12 +75,14 @@ public:
     virtual bool isNodeListProperty() const;
     virtual bool isNodeProperty() const;
     virtual bool isNodeAbstractProperty() const;
+    virtual bool isSignalHandlerProperty() const;
 
     QSharedPointer<InternalBindingProperty> toBindingProperty() const;
     QSharedPointer<InternalVariantProperty> toVariantProperty() const;
     QSharedPointer<InternalNodeListProperty> toNodeListProperty() const;
     QSharedPointer<InternalNodeProperty> toNodeProperty() const;
     QSharedPointer<InternalNodeAbstractProperty> toNodeAbstractProperty() const;
+    QSharedPointer<InternalSignalHandlerProperty> toSignalHandlerProperty() const;
 
     InternalNodePointer propertyOwner() const;
 

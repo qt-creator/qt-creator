@@ -33,6 +33,7 @@
 #include <QColor>
 
 #include "bindingproperty.h"
+#include "signalhandlerproperty.h"
 #include "nodeproperty.h"
 #include "nodelistproperty.h"
 #include "variantproperty.h"
@@ -74,6 +75,8 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
 {
     if (property.isBindingProperty()) {
         return property.toBindingProperty().expression();
+    } else if (property.isSignalHandlerProperty()) {
+        return property.toSignalHandlerProperty().source();
     } else if (property.isNodeProperty()) {
         return toQml(property.toNodeProperty().modelNode(), indentDepth);
     } else if (property.isNodeListProperty()) {

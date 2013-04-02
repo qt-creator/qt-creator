@@ -76,7 +76,9 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/qmltextgenerator.cpp \
     $$PWD/model/modelmerger.cpp \
     $$PWD/exceptions/rewritingexception.cpp \
-    $$PWD/model/viewmanager.cpp
+    $$PWD/model/viewmanager.cpp \
+    $$PWD/model/signalhandlerproperty.cpp \
+    $$PWD/model/internalsignalhandlerproperty.cpp
 
 HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/include/abstractview.h \
@@ -147,7 +149,9 @@ HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/include/mathutils.h \
     $$PWD/include/customnotifications.h \
     $$PWD/include/rewritingexception.h \
-    $$PWD/include/viewmanager.h
+    $$PWD/include/viewmanager.h \
+    $$PWD/include/signalhandlerproperty.h \
+    $$PWD/model/internalsignalhandlerproperty.h
 
 contains(CONFIG, plugin) {
   # If core.pri has been included in the qmldesigner plugin

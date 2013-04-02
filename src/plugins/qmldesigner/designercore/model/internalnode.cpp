@@ -200,6 +200,15 @@ InternalBindingProperty::Pointer InternalNode::bindingProperty(const PropertyNam
     return InternalBindingProperty::Pointer();
 }
 
+InternalSignalHandlerProperty::Pointer InternalNode::signalHandlerProperty(const PropertyName &name) const
+{
+    InternalProperty::Pointer property =  m_namePropertyHash.value(name);
+    if (property->isSignalHandlerProperty())
+        return property.staticCast<InternalSignalHandlerProperty>();
+
+    return InternalSignalHandlerProperty::Pointer();
+}
+
 InternalVariantProperty::Pointer InternalNode::variantProperty(const PropertyName &name) const
 {
     InternalProperty::Pointer property =  m_namePropertyHash.value(name);
@@ -212,6 +221,12 @@ InternalVariantProperty::Pointer InternalNode::variantProperty(const PropertyNam
 void InternalNode::addBindingProperty(const PropertyName &name)
 {
     InternalProperty::Pointer newProperty(InternalBindingProperty::create(name, internalPointer()));
+    m_namePropertyHash.insert(name, newProperty);
+}
+
+void InternalNode::addSignalHandlerProperty(const PropertyName &name)
+{
+    InternalProperty::Pointer newProperty(InternalSignalHandlerProperty::create(name, internalPointer()));
     m_namePropertyHash.insert(name, newProperty);
 }
 

@@ -127,6 +127,7 @@ public:
     void propertiesRemoved(const QList<AbstractProperty>& propertyList) QTC_OVERRIDE;
     void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange) QTC_OVERRIDE;
     void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) QTC_OVERRIDE;
+    void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty>& propertyList,PropertyChangeFlags propertyChange) QTC_OVERRIDE;
     void nodeAboutToBeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent,
                                  const NodeAbstractProperty &oldPropertyParent,
                                  AbstractView::PropertyChangeFlags propertyChange) QTC_OVERRIDE;

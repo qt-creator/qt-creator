@@ -56,6 +56,7 @@ class NodeMetaInfo;
 class AbstractProperty;
 class BindingProperty;
 class VariantProperty;
+class SignalHandlerProperty;
 class Model;
 class AbstractView;
 class NodeListProperty;
@@ -120,6 +121,7 @@ public:
     AbstractProperty property(const PropertyName &name) const;
     VariantProperty variantProperty(const PropertyName &name) const;
     BindingProperty bindingProperty(const PropertyName &name) const;
+    SignalHandlerProperty signalHandlerProperty(const PropertyName &name) const;
     NodeListProperty nodeListProperty(const PropertyName &name) const;
     NodeProperty nodeProperty(const PropertyName &name) const;
     NodeAbstractProperty nodeAbstractProperty(const PropertyName &name) const;

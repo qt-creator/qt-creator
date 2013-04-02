@@ -152,6 +152,10 @@ void ViewLogger::bindingPropertiesChanged(const QList<BindingProperty>& property
         m_output << time() << indent() << property << endl;
 }
 
+void ViewLogger::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> & /*propertyList*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+}
+
 void ViewLogger::rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
 {
     m_output << time() << indent("rootNodeTypeChanged:") << rootModelNode() << type << majorVersion << minorVersion << endl;

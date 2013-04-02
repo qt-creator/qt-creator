@@ -279,6 +279,10 @@ void FormEditorView::bindingPropertiesChanged(const QList<BindingProperty>& prop
     QmlModelView::bindingPropertiesChanged(propertyList, propertyChange);
 }
 
+void FormEditorView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> & /*propertyList*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+}
+
 WidgetInfo FormEditorView::widgetInfo()
 {
     return createWidgetInfo(m_formEditorWidget.data(), 0, "FormEditor", WidgetInfo::CentralPane, 0, tr("Form Editor"));

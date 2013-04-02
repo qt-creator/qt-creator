@@ -70,6 +70,7 @@ public:
     void propertiesRemoved(const QList<AbstractProperty> &propertyList) QTC_OVERRIDE;
     void variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags propertyChange) QTC_OVERRIDE;
     void bindingPropertiesChanged(const QList<BindingProperty> &propertyList, PropertyChangeFlags propertyChange) QTC_OVERRIDE;
+    void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty>& propertyList,PropertyChangeFlags propertyChange) QTC_OVERRIDE;
 
     void nodeAboutToBeRemoved(const ModelNode &removedNode) QTC_OVERRIDE;
     void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex) QTC_OVERRIDE;
