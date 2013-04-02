@@ -2489,7 +2489,15 @@ void FakeVimHandler::Private::endMapping()
 
 bool FakeVimHandler::Private::canHandleMapping()
 {
-    return m_subsubmode != SearchSubSubMode
+    // Don't handle user mapping in sub-modes that cannot be followed by movement and in "noremap".
+    return m_subsubmode == NoSubSubMode
+        && m_submode != RegisterSubMode
+        && m_submode != WindowSubMode
+        && m_submode != ZSubMode
+        && m_submode != CapitalZSubMode
+        && m_submode != ReplaceSubMode
+        && m_submode != MacroRecordSubMode
+        && m_submode != MacroExecuteSubMode
         && (g.mapStates.isEmpty() || !g.mapStates.last().noremap);
 }
 

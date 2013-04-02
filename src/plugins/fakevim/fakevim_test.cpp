@@ -2291,6 +2291,15 @@ void FakeVimPlugin::test_map()
     data.setText("abc" N "def");
     data.doCommand(QString::fromUtf8("no \xc3\xb8 l|no l k|no k j|no j h"));
     KEYS(QString::fromUtf8("\xc3\xb8"), "a" X "bc" N "def");
+
+    // Don't handle mapping in sub-modes that are not followed by movement command.
+    data.setText("abc" N "def");
+    data.doCommand("map <SPACE> A<cr>xy z<esc><left><left>");
+    KEYS("<space>", "abc" N "x" X "y z" N "def");
+    KEYS("r<space>", "abc" N "x" X "  z" N "def");
+    KEYS("f<space>", "abc" N "x " X " z" N "def");
+    KEYS("t<space>", "abc" N "x " X " z" N "def");
+    data.doCommand("unmap <SPACE>");
 }
 
 void FakeVimPlugin::test_vim_command_cc()
