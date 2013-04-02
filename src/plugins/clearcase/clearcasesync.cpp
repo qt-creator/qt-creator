@@ -67,23 +67,36 @@ void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel,
         return;
 
     QDir topLevelDir(topLevel);
+    const bool isDynamic = m_plugin->isDynamic();
+
     QStringList args(QLatin1String("ls"));
     if (hot) {
         // find all files whose permissions changed OR hijacked files
         // (might have become checked out)
         const StatusMap::Iterator send = m_statusMap->end();
         for (StatusMap::Iterator it = m_statusMap->begin(); it != send; ++it) {
-            const bool permChanged = it.value().permissions != QFileInfo(topLevel, it.key()).permissions();
+            const QFileInfo fi(topLevel, it.key());
+            const bool permChanged = it.value().permissions != fi.permissions();
             if (permChanged || it.value().status == FileStatus::Hijacked) {
                 files.append(it.key());
                 it.value().status = FileStatus::Unknown;
+                ++total;
+            } else if (isDynamic && !fi.isWritable()) { // assume a read only file is checked in
+                it.value().status = FileStatus::CheckedIn;
                 ++total;
             }
         }
         args << files;
     } else {
-        foreach (const QString &file, files)
-            m_plugin->setStatus(topLevelDir.relativeFilePath(file), FileStatus::Unknown, false);
+        foreach (const QString &file, files) {
+            if (isDynamic) { // assume a read only file is checked in
+                const QFileInfo fi(topLevelDir, file);
+                if (!fi.isWritable())
+                    m_plugin->setStatus(topLevelDir.relativeFilePath(file), FileStatus::CheckedIn, false);
+            } else {
+                m_plugin->setStatus(topLevelDir.relativeFilePath(file), FileStatus::Unknown, false);
+            }
+        }
         args << QLatin1String("-recurse");
 
         QStringList vobs;
