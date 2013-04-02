@@ -60,6 +60,8 @@ public:
     // For GnuMakeParser
     virtual void setWorkingDirectory(const QString &workingDirectory);
 
+    static QString rightTrimmed(const QString &in);
+
 signals:
     void addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
     void addTask(const ProjectExplorer::Task &task);

@@ -47,7 +47,7 @@ QtParser::QtParser() :
 
 void QtParser::stdError(const QString &line)
 {
-    QString lne(line.trimmed());
+    QString lne = rightTrimmed(line);
     if (m_mocRegExp.indexIn(lne) > -1) {
         bool ok;
         int lineno = m_mocRegExp.cap(3).toInt(&ok);

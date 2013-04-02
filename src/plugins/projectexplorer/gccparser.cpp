@@ -62,7 +62,7 @@ GccParser::GccParser()
 
 void GccParser::stdError(const QString &line)
 {
-    QString lne = line.trimmed();
+    QString lne = rightTrimmed(line);
 
     // Blacklist some lines to not handle them:
     if (lne.startsWith(QLatin1String("TeamBuilder ")) ||
@@ -117,7 +117,7 @@ void GccParser::stdError(const QString &line)
         return;
     } else if (m_regExpIncluded.indexIn(lne) > -1) {
         emit addTask(Task(Task::Unknown,
-                          lne /* description */,
+                          lne.trimmed() /* description */,
                           Utils::FileName::fromUserInput(m_regExpIncluded.cap(1)) /* filename */,
                           m_regExpIncluded.cap(3).toInt() /* linenumber */,
                           Core::Id(Constants::TASK_CATEGORY_COMPILE)));

@@ -33,10 +33,8 @@
 
 using namespace ProjectExplorer;
 
-namespace {
-    // opt. drive letter + filename: (2 brackets)
-    const char * const FILE_PATTERN = "(<command line>|([A-Za-z]:)?[^:]+\\.[^:]+)";
-}
+// opt. drive letter + filename: (2 brackets)
+static const char * const FILE_PATTERN = "(<command line>|([A-Za-z]:)?[^:]+\\.[^:]+)";
 
 ClangParser::ClangParser() :
     m_commandRegExp(QLatin1String("^clang(\\+\\+)?: +(fatal +)?(warning|error|note): (.*)$")),
@@ -57,7 +55,7 @@ ClangParser::~ClangParser()
 
 void ClangParser::stdError(const QString &line)
 {
-    const QString lne = line.left(line.count() - 1);
+    const QString lne = rightTrimmed(line);
     if (m_summaryRegExp.indexIn(lne) > -1) {
         emitTask();
         m_expectSnippet = false;

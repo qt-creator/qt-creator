@@ -57,7 +57,7 @@ LdParser::LdParser()
 
 void LdParser::stdError(const QString &line)
 {
-    QString lne = line.trimmed();
+    QString lne = rightTrimmed(line);
     if (lne.startsWith(QLatin1String("TeamBuilder "))
             || lne.startsWith(QLatin1String("distcc["))
             || lne.contains(QLatin1String("ar: creating "))) {

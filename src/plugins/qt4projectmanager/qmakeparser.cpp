@@ -44,7 +44,7 @@ QMakeParser::QMakeParser() : m_error(QLatin1String("^(.+):(\\d+):\\s(.+)$"))
 
 void QMakeParser::stdError(const QString &line)
 {
-    QString lne(line.trimmed());
+    QString lne = rightTrimmed(line);
     if (lne.startsWith(QLatin1String("Project ERROR:"))) {
         const QString description = lne.mid(15);
         emit addTask(Task(Task::Error,

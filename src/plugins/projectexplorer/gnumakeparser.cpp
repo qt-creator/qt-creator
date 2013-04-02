@@ -69,7 +69,7 @@ bool GnuMakeParser::hasFatalErrors() const
 
 void GnuMakeParser::stdOutput(const QString &line)
 {
-    QString lne = line.trimmed();
+    const QString lne = rightTrimmed(line);
 
     if (m_makeDir.indexIn(lne) > -1) {
         if (m_makeDir.cap(7) == QLatin1String("Leaving"))
@@ -84,7 +84,7 @@ void GnuMakeParser::stdOutput(const QString &line)
 
 void GnuMakeParser::stdError(const QString &line)
 {
-    QString lne = line.trimmed();
+    const QString lne = rightTrimmed(line);
 
     if (m_makefileError.indexIn(lne) > -1) {
         ++m_fatalErrorCount;
