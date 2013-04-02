@@ -33,7 +33,6 @@
 #include <coreplugin/icore.h>
 #include <ssh/sshconnection.h>
 
-#include <QTimer>
 #include <QFileDialog>
 
 using namespace ProjectExplorer;

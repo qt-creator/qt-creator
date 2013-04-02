@@ -34,7 +34,6 @@
 
 #include <projectexplorer/deployablefile.h>
 #include <utils/qtcassert.h>
-#include <ssh/sshconnection.h>
 
 #include <QFileInfo>
 #include <QString>

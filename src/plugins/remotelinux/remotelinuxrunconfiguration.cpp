@@ -29,19 +29,13 @@
 
 #include "remotelinuxrunconfiguration.h"
 
-#include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxrunconfigurationwidget.h"
 
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
 #include <qtsupport/qtoutputformatter.h>
-
-#include <utils/portlist.h>
-#include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 using namespace QSsh;

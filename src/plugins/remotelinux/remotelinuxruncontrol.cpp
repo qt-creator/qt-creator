@@ -33,9 +33,7 @@
 
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <utils/qtcassert.h>
 
 #include <QString>
 #include <QIcon>

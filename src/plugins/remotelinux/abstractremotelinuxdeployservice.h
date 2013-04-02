@@ -34,7 +34,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 
 #include <QObject>
-#include <QSharedPointer>
 #include <QVariantMap>
 
 namespace QSsh { class SshConnection; }

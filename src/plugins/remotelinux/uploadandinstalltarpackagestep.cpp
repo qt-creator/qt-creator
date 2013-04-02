@@ -32,8 +32,6 @@
 #include "remotelinuxpackageinstaller.h"
 #include "tarpackagecreationstep.h"
 
-#include <projectexplorer/buildsteplist.h>
-
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {

@@ -33,12 +33,10 @@
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxruncontrol.h"
 
-#include <debugger/debuggerconstants.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerstartparameters.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>

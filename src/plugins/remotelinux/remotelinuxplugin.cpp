@@ -36,15 +36,7 @@
 #include "remotelinuxrunconfigurationfactory.h"
 #include "remotelinuxruncontrolfactory.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
-
-#include <projectexplorer/projectexplorerconstants.h>
-
 #include <QtPlugin>
-#include <QAction>
 
 namespace RemoteLinux {
 namespace Internal {

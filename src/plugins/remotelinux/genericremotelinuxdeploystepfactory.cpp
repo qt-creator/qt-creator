@@ -31,14 +31,9 @@
 #include "genericdirectuploadstep.h"
 #include "remotelinuxcheckforfreediskspacestep.h"
 #include "remotelinuxdeployconfiguration.h"
-#include "remotelinuxdeployconfigurationfactory.h"
 #include "remotelinuxcustomcommanddeploymentstep.h"
 #include "tarpackagecreationstep.h"
 #include "uploadandinstalltarpackagestep.h"
-
-#include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/target.h>
 
 using namespace ProjectExplorer;
 

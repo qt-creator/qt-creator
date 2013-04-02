@@ -32,9 +32,7 @@
 #include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxdeploymentdatamodel.h"
 
-#include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
-#include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 

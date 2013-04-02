@@ -30,8 +30,9 @@
 #ifndef REMOTELINUXENVIRONMENTREADER_H
 #define REMOTELINUXENVIRONMENTREADER_H
 
-#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/environment.h>
+
+#include <QObject>
 
 namespace ProjectExplorer {
 class RunConfiguration;

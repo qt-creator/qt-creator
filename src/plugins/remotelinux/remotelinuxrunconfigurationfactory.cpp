@@ -39,7 +39,6 @@
 
 #include <QFileInfo>
 #include <QString>
-#include <QStringList>
 
 using namespace ProjectExplorer;
 

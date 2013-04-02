@@ -28,15 +28,11 @@
 ****************************************************************************/
 #include "abstractpackagingstep.h"
 
-#include "remotelinuxdeployconfiguration.h"
-
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/task.h>
-#include <utils/fileutils.h>
 
 #include <QDateTime>
 #include <QFileInfo>

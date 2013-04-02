@@ -31,9 +31,6 @@
 #include <ssh/sshremoteprocessrunner.h>
 #include <utils/fileutils.h>
 
-#include <QFile>
-#include <QSharedPointer>
-
 using namespace QSsh;
 
 namespace RemoteLinux {

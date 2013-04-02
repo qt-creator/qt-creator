@@ -34,10 +34,8 @@
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerkitinformation.h>
-#include <projectexplorer/abi.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
-#include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
@@ -46,7 +44,6 @@
 #include <utils/qtcassert.h>
 
 #include <QPointer>
-#include <QSharedPointer>
 
 using namespace QSsh;
 using namespace Debugger;

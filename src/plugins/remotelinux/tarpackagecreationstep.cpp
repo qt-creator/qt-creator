@@ -28,8 +28,6 @@
 ****************************************************************************/
 #include "tarpackagecreationstep.h"
 
-#include "remotelinuxdeployconfiguration.h"
-
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>

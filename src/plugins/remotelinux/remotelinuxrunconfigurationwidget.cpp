@@ -31,10 +31,7 @@
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxenvironmentreader.h"
 
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
 #include <projectexplorer/environmentwidget.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/detailswidget.h>
 
 #include <QCoreApplication>
@@ -42,7 +39,6 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QFormLayout>
-#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>

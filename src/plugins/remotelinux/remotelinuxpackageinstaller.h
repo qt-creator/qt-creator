@@ -34,8 +34,6 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 
-#include <QSharedPointer>
-
 namespace RemoteLinux {
 
 namespace Internal {

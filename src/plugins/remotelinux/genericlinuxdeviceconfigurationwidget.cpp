@@ -35,8 +35,6 @@
 #include <ssh/sshconnection.h>
 #include <ssh/sshkeycreationdialog.h>
 
-#include <QTextStream>
-
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
 using namespace QSsh;

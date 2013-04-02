@@ -28,8 +28,6 @@
 ****************************************************************************/
 #include "remotelinuxenvironmentreader.h"
 
-#include "linuxdevice.h"
-
 #include <ssh/sshremoteprocessrunner.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>

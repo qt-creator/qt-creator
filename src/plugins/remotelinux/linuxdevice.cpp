@@ -36,8 +36,6 @@
 
 #include <coreplugin/id.h>
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
-#include <ssh/sshconnection.h>
-#include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;

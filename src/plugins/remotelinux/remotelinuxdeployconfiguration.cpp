@@ -30,9 +30,6 @@
 
 #include "remotelinuxdeployconfigurationwidget.h"
 
-#include <projectexplorer/project.h>
-#include <projectexplorer/target.h>
-
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {

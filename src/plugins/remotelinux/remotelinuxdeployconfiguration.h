@@ -32,10 +32,8 @@
 
 #include "remotelinux_export.h"
 
-#include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/devicesupport/idevice.h>
 
 namespace RemoteLinux {
 namespace Internal { class RemoteLinuxDeployConfigurationFactory; }

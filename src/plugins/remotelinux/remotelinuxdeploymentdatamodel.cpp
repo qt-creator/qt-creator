@@ -29,8 +29,6 @@
 
 #include "remotelinuxdeploymentdatamodel.h"
 
-#include <QDir>
-
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {

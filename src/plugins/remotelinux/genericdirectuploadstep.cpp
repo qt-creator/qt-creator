@@ -29,15 +29,12 @@
 #include "genericdirectuploadstep.h"
 
 #include "genericdirectuploadservice.h"
-#include "remotelinuxdeployconfiguration.h"
 
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/target.h>
 
 #include <QCheckBox>
 #include <QVBoxLayout>
-#include <QList>
-#include <QSharedPointer>
 
 using namespace ProjectExplorer;
 
