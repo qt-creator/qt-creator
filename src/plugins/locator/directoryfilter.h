@@ -34,7 +34,6 @@
 #include "basefilefilter.h"
 
 #include <QString>
-#include <QList>
 #include <QByteArray>
 #include <QFutureInterface>
 #include <QMutex>

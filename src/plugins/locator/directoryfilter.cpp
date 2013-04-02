@@ -29,13 +29,7 @@
 
 #include "directoryfilter.h"
 
-#include <QDir>
-#include <QStack>
-#include <QCompleter>
 #include <QFileDialog>
-#include <QMessageBox>
-
-#include <utils/QtConcurrentTools>
 #include <utils/filesearch.h>
 
 using namespace Locator;

@@ -36,7 +36,6 @@
 
 #include <QString>
 #include <QList>
-#include <QByteArray>
 #include <QFutureInterface>
 
 namespace Core {

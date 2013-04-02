@@ -32,13 +32,10 @@
 #include "locatorconstants.h"
 #include "ilocatorfilter.h"
 
-#include <extensionsystem/pluginmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icontext.h>
 #include <utils/filterlineedit.h>
@@ -46,24 +43,16 @@
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
-#include <QtConcurrentRun>
 #include <QColor>
 #include <QFileInfo>
-#include <QFile>
 #include <QTimer>
-#include <QSettings>
 #include <QEvent>
 #include <QAction>
 #include <QApplication>
-#include <QContextMenuEvent>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QKeyEvent>
-#include <QLabel>
-#include <QLineEdit>
 #include <QMenu>
-#include <QMouseEvent>
-#include <QPushButton>
 #include <QScrollBar>
 #include <QTreeView>
 #include <QToolTip>

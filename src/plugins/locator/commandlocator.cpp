@@ -30,7 +30,6 @@
 #include "commandlocator.h"
 
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/icore.h>
 
 #include <utils/qtcassert.h>
 

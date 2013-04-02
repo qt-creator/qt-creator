@@ -44,7 +44,6 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
-#include <coreplugin/id.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/QtConcurrentTools>
 #include <utils/qtcassert.h>
@@ -52,7 +51,6 @@
 #include <QSettings>
 #include <QtPlugin>
 #include <QFuture>
-#include <QFutureWatcher>
 #include <QAction>
 
 /*!

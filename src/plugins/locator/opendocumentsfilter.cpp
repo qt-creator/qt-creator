@@ -34,7 +34,6 @@
 #include <utils/fileutils.h>
 
 #include <QFileInfo>
-#include <QDir>
 
 using namespace Core;
 using namespace Locator;

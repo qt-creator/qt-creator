@@ -37,7 +37,6 @@
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/actionmanager/command.h>
 
-#include <QObject>
 #include <QTimer>
 #include <QFutureWatcher>
 
