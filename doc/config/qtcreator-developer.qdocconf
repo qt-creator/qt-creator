@@ -33,10 +33,9 @@ sourcedirs              = . \
                           ../../src/plugins/projectexplorer\
                           ../../src/plugins/texteditor
 
-# -- Generate complete documentation. Set this to 'false'
-#    to generate public API documentation only.
-
-showinternal = true
+# -- Uncomment following option to generate complete documentation
+#    instead of public API documentation only.
+#showinternal = true
 
 headers.fileextensions  = "*.h"
 sources.fileextensions  = "*.cpp *.qdoc"
