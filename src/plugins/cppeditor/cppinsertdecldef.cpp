@@ -299,7 +299,9 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
             if (simpleDecl->symbols && ! simpleDecl->symbols->next) {
                 if (Symbol *symbol = simpleDecl->symbols->value) {
                     if (Declaration *decl = symbol->asDeclaration()) {
-                        if (decl->type()->isFunctionType()) {
+                        if (Function *func = decl->type()->asFunctionType()) {
+                            if (func->isSignal())
+                                return;
                             CppRefactoringChanges refactoring(interface->snapshot());
                             InsertionPointLocator locator(refactoring);
                             foreach (const InsertionLocation &loc, locator.methodDefinition(decl)) {
