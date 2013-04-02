@@ -1121,6 +1121,29 @@ static inline bool splitCommitParents(const QString &line,
     return true;
 }
 
+bool GitClient::synchronousRevListCmd(const QString &workingDirectory, const QStringList &arguments,
+                                      QString *output, QString *errorMessage)
+{
+    QByteArray outputTextData;
+    QByteArray errorText;
+
+    QStringList args(QLatin1String("rev-list"));
+    args += arguments;
+
+    const bool rc = fullySynchronousGit(workingDirectory, args, &outputTextData, &errorText);
+    if (!rc) {
+        if (errorMessage)
+            *errorMessage = commandOutputFromLocal8Bit(errorText);
+        else
+            outputWindow()->append(tr("Cannot execute \"git %1\" in \"%2\": %3").arg(
+                                       args.join(QLatin1String(" ")), workingDirectory,
+                                       commandOutputFromLocal8Bit(errorText)));
+        return false;
+    }
+    *output = commandOutputFromLocal8Bit(outputTextData);
+    return true;
+}
+
 // Find out the immediate parent revisions of a revision of the repository.
 // Might be several in case of merges.
 bool GitClient::synchronousParentRevisions(const QString &workingDirectory,
@@ -1129,8 +1152,8 @@ bool GitClient::synchronousParentRevisions(const QString &workingDirectory,
                                            QStringList *parents,
                                            QString *errorMessage)
 {
-    QByteArray outputTextData;
-    QByteArray errorText;
+    QString outputText;
+    QString errorText;
     QStringList arguments;
     if (parents && !isValidRevision(revision)) { // Not Committed Yet
         *parents = QStringList(QLatin1String("HEAD"));
@@ -1142,14 +1165,13 @@ bool GitClient::synchronousParentRevisions(const QString &workingDirectory,
         arguments.append(QLatin1String("--"));
         arguments.append(files);
     }
-    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText);
-    if (!rc) {
-        *errorMessage = msgParentRevisionFailed(workingDirectory, revision, commandOutputFromLocal8Bit(errorText));
+
+    if (!synchronousRevListCmd(workingDirectory, arguments, &outputText, &errorText)) {
+        *errorMessage = msgParentRevisionFailed(workingDirectory, revision, errorText);
         return false;
     }
     // Should result in one line of blank-delimited revisions, specifying current first
     // unless it is top.
-    QString outputText = commandOutputFromLocal8Bit(outputTextData);
     outputText.remove(QLatin1Char('\n'));
     if (!splitCommitParents(outputText, 0, parents)) {
         *errorMessage = msgParentRevisionFailed(workingDirectory, revision, msgInvalidRevision());
@@ -2487,14 +2509,14 @@ void GitClient::subversionLog(const QString &workingDirectory)
     executeGit(workingDirectory, arguments, editor);
 }
 
-bool GitClient::synchronousPush(const QString &workingDirectory, const QString &remote)
+bool GitClient::synchronousPush(const QString &workingDirectory, const QStringList &pushArgs)
 {
     // Disable UNIX terminals to suppress SSH prompting.
     const unsigned flags = VcsBase::VcsBasePlugin::SshPasswordPrompt|VcsBase::VcsBasePlugin::ShowStdOutInLogWindow
                            |VcsBase::VcsBasePlugin::ShowSuccessMessage;
     QStringList arguments(QLatin1String("push"));
-    if (!remote.isEmpty())
-        arguments << remote;
+    if (!pushArgs.isEmpty())
+        arguments += pushArgs;
     const Utils::SynchronousProcessResponse resp =
             synchronousGit(workingDirectory, arguments, flags);
     return resp.result == Utils::SynchronousProcessResponse::Finished;

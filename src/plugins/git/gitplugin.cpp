@@ -623,8 +623,12 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
 
     /* "Gerrit" */
-    Gerrit::Internal::GerritPlugin *gp = new Gerrit::Internal::GerritPlugin(this);
-    return gp->initialize(remoteRepositoryMenu);
+    m_gerritPlugin = new Gerrit::Internal::GerritPlugin(this);
+    const bool ok = m_gerritPlugin->initialize(remoteRepositoryMenu);
+    m_gerritPlugin->updateActions(currentState().hasTopLevel());
+    m_gerritPlugin->addToLocator(m_commandLocator);
+
+    return ok;
 }
 
 GitVersionControl *GitPlugin::gitVersionControl() const
@@ -1245,6 +1249,8 @@ void GitPlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)
     m_submoduleUpdateAction->setVisible(repositoryEnabled
             && QFile::exists(currentState().topLevel() + QLatin1String("/.gitmodules")));
     updateRepositoryBrowserAction();
+
+    m_gerritPlugin->updateActions(repositoryEnabled);
 }
 
 void GitPlugin::updateRepositoryBrowserAction()

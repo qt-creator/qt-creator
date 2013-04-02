@@ -63,6 +63,11 @@ class ParameterAction;
 namespace Locator {
     class CommandLocator;
 }
+namespace Gerrit {
+namespace Internal {
+class GerritPlugin;
+}
+}
 namespace Git {
 namespace Internal {
 
@@ -211,6 +216,7 @@ private:
     QVector<Utils::ParameterAction *> m_projectActions;
     QVector<QAction *> m_repositoryActions;
     Utils::ParameterAction *m_applyCurrentFilePatchAction;
+    Gerrit::Internal::GerritPlugin *m_gerritPlugin;
 
     GitClient                   *m_gitClient;
     QPointer<StashDialog>       m_stashDialog;

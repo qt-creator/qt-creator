@@ -107,6 +107,9 @@ QtcPlugin {
             "gerritparameters.h",
             "gerritplugin.cpp",
             "gerritplugin.h",
+            "gerritpushdialog.cpp",
+            "gerritpushdialog.h",
+            "gerritpushdialog.ui",
         ]
     }
 }

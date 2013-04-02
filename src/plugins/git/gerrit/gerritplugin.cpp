@@ -32,6 +32,7 @@
 #include "gerritdialog.h"
 #include "gerritmodel.h"
 #include "gerritoptionspage.h"
+#include "gerritpushdialog.h"
 
 #include "../gitplugin.h"
 #include "../gitclient.h"
@@ -50,6 +51,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <locator/commandlocator.h>
 
 #include <vcsbase/vcsbaseoutputwindow.h>
 
@@ -70,6 +72,7 @@ enum { debug = 0 };
 namespace Gerrit {
 namespace Constants {
 const char GERRIT_OPEN_VIEW[] = "Gerrit.OpenView";
+const char GERRIT_PUSH[] = "Gerrit.Push";
 }
 namespace Internal {
 
@@ -332,8 +335,57 @@ bool GerritPlugin::initialize(Core::ActionContainer *ac)
     connect(openViewAction, SIGNAL(triggered()), this, SLOT(openView()));
     ac->addAction(command);
 
+    QAction *pushAction = new QAction(tr("Push to Gerrit..."), this);
+
+    Core::Command *pushCommand =
+        Core::ActionManager::registerAction(pushAction, Constants::GERRIT_PUSH,
+                           Core::Context(Core::Constants::C_GLOBAL));
+    connect(pushAction, SIGNAL(triggered()), this, SLOT(push()));
+    ac->addAction(pushCommand);
+
+    m_pushToGerritPair = ActionCommandPair(pushAction, pushCommand);
+
     Git::Internal::GitPlugin::instance()->addAutoReleasedObject(new GerritOptionsPage(m_parameters));
     return true;
+}
+
+void GerritPlugin::updateActions(bool hasTopLevel)
+{
+    m_pushToGerritPair.first->setEnabled(hasTopLevel);
+}
+
+void GerritPlugin::addToLocator(Locator::CommandLocator *locator)
+{
+    locator->appendCommand(m_pushToGerritPair.second);
+}
+
+void GerritPlugin::push()
+{
+    const QString topLevel = Git::Internal::GitPlugin::instance()->currentState().topLevel();
+
+    QPointer<GerritPushDialog> dialog = new GerritPushDialog(topLevel, Core::ICore::mainWindow());
+
+    if (!dialog->localChangesFound()) {
+        QMessageBox::critical(Core::ICore::mainWindow(), tr("No Local Changes"),
+                              tr("Change from HEAD appears to be in remote branch already! Aborting."));
+        return;
+    }
+
+    if (dialog->exec() == QDialog::Rejected)
+        return;
+
+    if (dialog.isNull())
+        return;
+
+    QStringList args;
+
+    args << dialog->selectedRemoteName();
+    args << QLatin1String("HEAD:refs/") + dialog->selectedPushType() +
+            QLatin1Char('/') + dialog->selectedRemoteBranchName();
+
+    Git::Internal::GitPlugin::instance()->gitClient()->synchronousPush(topLevel, args);
+
+    delete dialog;
 }
 
 // Open or raise the Gerrit dialog window.

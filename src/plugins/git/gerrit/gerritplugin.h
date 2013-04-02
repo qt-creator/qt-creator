@@ -33,9 +33,19 @@
 #include <QObject>
 #include <QPointer>
 #include <QSharedPointer>
+#include <QPair>
+
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
 
 namespace Core {
 class ActionContainer;
+class Command;
+}
+
+namespace Locator {
+    class CommandLocator;
 }
 
 namespace Gerrit {
@@ -44,6 +54,8 @@ namespace Internal {
 class GerritChange;
 class GerritParameters;
 class GerritDialog;
+
+typedef QPair<QAction *, Core::Command* > ActionCommandPair;
 
 class GerritPlugin : public QObject
 {
@@ -56,11 +68,13 @@ public:
 
     static QString gitBinary();
     static QString branch(const QString &repository);
+    void addToLocator(Locator::CommandLocator *locator);
 
 public slots:
     void fetchDisplay(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
     void fetchApply(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
     void fetchCheckout(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
+    void updateActions(bool hasTopLevel);
 
 signals:
     void fetchStarted(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
@@ -68,6 +82,7 @@ signals:
 
 private slots:
     void openView();
+    void push();
 
 private:
     QString findLocalRepository(QString project, const QString &branch) const;
@@ -75,6 +90,7 @@ private:
 
     QSharedPointer<GerritParameters> m_parameters;
     QPointer<GerritDialog> m_dialog;
+    ActionCommandPair m_pushToGerritPair;
 };
 
 } // namespace Internal

@@ -189,6 +189,10 @@ public:
                                                    QString *errorMessage = 0);
     bool synchronousShow(const QString &workingDirectory, const QString &id,
                               QString *output, QString *errorMessage);
+
+    bool synchronousRevListCmd(const QString &workingDirectory, const QStringList &arguments,
+                               QString *output, QString *errorMessage = 0);
+
     bool synchronousParentRevisions(const QString &workingDirectory,
                                     const QStringList &files /* = QStringList() */,
                                     const QString &revision,
@@ -208,7 +212,8 @@ public:
     QString vcsGetRepositoryURL(const QString &directory);
     bool synchronousFetch(const QString &workingDirectory, const QString &remote);
     bool synchronousPull(const QString &workingDirectory, bool rebase);
-    bool synchronousPush(const QString &workingDirectory, const QString &remote = QString());
+    bool synchronousPush(const QString &workingDirectory,
+                         const QStringList &pushArgs = QStringList());
     bool synchronousMerge(const QString &workingDirectory, const QString &branch);
     bool canRebase(const QString &workingDirectory) const;
     bool synchronousRebase(const QString &workingDirectory,
