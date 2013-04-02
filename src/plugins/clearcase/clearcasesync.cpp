@@ -65,11 +65,7 @@ void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel,
 
     if (settings.disableIndexer)
         return;
-    QStringList vobs;
-    if (!settings.indexOnlyVOBs.isEmpty())
-        vobs = settings.indexOnlyVOBs.split(QLatin1Char(','));
-    else
-        vobs = m_plugin->ccGetActiveVobs();
+
     QDir topLevelDir(topLevel);
     QStringList args(QLatin1String("ls"));
     if (hot) {
@@ -89,6 +85,13 @@ void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel,
         foreach (const QString &file, files)
             m_plugin->setStatus(topLevelDir.relativeFilePath(file), FileStatus::Unknown, false);
         args << QLatin1String("-recurse");
+
+        QStringList vobs;
+        if (!settings.indexOnlyVOBs.isEmpty())
+            vobs = settings.indexOnlyVOBs.split(QLatin1Char(','));
+        else
+            vobs = m_plugin->ccGetActiveVobs();
+
         args << vobs;
     }
 
