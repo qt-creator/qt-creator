@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "SignalHandlerProperty.h"
+#include "signalhandlerproperty.h"
 #include "nodeabstractproperty.h"
 #include "nodeproperty.h"
 #include "internalproperty.h"
