@@ -14,8 +14,11 @@ SUBDIRS += \
     qtcprocess \
     utils \
     utils_stringutils \
-    filesearch \
-    valgrind
+    filesearch
+
+!win32 {
+    SUBDIRS += valgrind
+}
 
 #contains (QT_CONFIG, declarative) {
 #SUBDIRS += qml
