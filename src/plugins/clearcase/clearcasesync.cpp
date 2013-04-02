@@ -114,21 +114,21 @@ void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel,
                 if (atatpos != -1) { // probably managed file
                     // find first whitespace. anything before that is not interesting
                     int wspos = buffer.indexOf(QRegExp(QLatin1String("\\s")));
-                    const QString file = QDir::fromNativeSeparators(buffer.left(atatpos));
+                    const QString relFile = topLevelDir.relativeFilePath(QDir::fromNativeSeparators(buffer.left(atatpos)));
                     QString ccState;
                     QRegExp reState(QLatin1String("^\\s*\\[[^\\]]*\\]")); // [hijacked]; [loaded but missing]
                     if (reState.indexIn(buffer, wspos + 1, QRegExp::CaretAtOffset) != -1) {
                         ccState = reState.cap();
                         if (ccState.indexOf(QLatin1String("hijacked")) != -1)
-                            m_plugin->setStatus(file, FileStatus::Hijacked, true);
+                            m_plugin->setStatus(relFile, FileStatus::Hijacked, true);
                         else if (ccState.indexOf(QLatin1String("loaded but missing")) != -1)
-                            m_plugin->setStatus(file, FileStatus::Missing, false);
+                            m_plugin->setStatus(relFile, FileStatus::Missing, false);
                     }
                     else if (buffer.lastIndexOf(QLatin1String("CHECKEDOUT"), wspos) != -1)
-                        m_plugin->setStatus(file, FileStatus::CheckedOut, true);
+                        m_plugin->setStatus(relFile, FileStatus::CheckedOut, true);
                     // don't care about checked-in files not listed in project
-                    else if (m_statusMap->contains(file))
-                        m_plugin->setStatus(file, FileStatus::CheckedIn, true);
+                    else if (m_statusMap->contains(relFile))
+                        m_plugin->setStatus(relFile, FileStatus::CheckedIn, true);
                 }
                 buffer.clear();
                 future.setProgressValue(qMin(total, ++processed));
