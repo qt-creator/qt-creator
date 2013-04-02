@@ -31,6 +31,7 @@
 #define DEBUGVIEW_H
 
 #include <qmlmodelview.h>
+#include <QPointer>
 
 namespace QmlDesigner {
 
@@ -91,7 +92,7 @@ protected:
     void logInstance(const QString &title, const QString &message, bool highlight = false);
 
 private: //variables
-    QWeakPointer<DebugViewWidget> m_debugViewWidget;
+    QPointer<DebugViewWidget> m_debugViewWidget;
 };
 
 } // namespace Internal
