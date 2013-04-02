@@ -43,7 +43,7 @@ namespace CppTools {
 class CPPTOOLS_EXPORT UiCodeModelSupport : public AbstractEditorSupport
 {
 public:
-    UiCodeModelSupport(CPlusPlus::CppModelManagerInterface *modelmanager,
+    UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
                        const QString &sourceFile,
                        const QString &uiHeaderFile);
     ~UiCodeModelSupport();

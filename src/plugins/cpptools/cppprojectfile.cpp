@@ -35,7 +35,7 @@
 
 #include <QDebug>
 
-namespace CPlusPlus {
+namespace CppTools {
 
 ProjectFile::ProjectFile()
     : kind(CHeader)
@@ -81,24 +81,24 @@ void ProjectFileAdder::addMapping(const char *mimeName, ProjectFile::Kind kind)
         m_mapping.append(Pair(mimeType, kind));
 }
 
-QDebug operator<<(QDebug stream, const CPlusPlus::ProjectFile &cxxFile)
+QDebug operator<<(QDebug stream, const CppTools::ProjectFile &cxxFile)
 {
     const char *kind;
     switch (cxxFile.kind) {
-    case CPlusPlus::ProjectFile::CHeader: kind = "CHeader"; break;
-    case CPlusPlus::ProjectFile::CSource: kind = "CSource"; break;
-    case CPlusPlus::ProjectFile::CXXHeader: kind = "CXXHeader"; break;
-    case CPlusPlus::ProjectFile::CXXSource: kind = "CXXSource"; break;
-    case CPlusPlus::ProjectFile::ObjCHeader: kind = "ObjCHeader"; break;
-    case CPlusPlus::ProjectFile::ObjCSource: kind = "ObjCSource"; break;
-    case CPlusPlus::ProjectFile::ObjCXXHeader: kind = "ObjCXXHeader"; break;
-    case CPlusPlus::ProjectFile::ObjCXXSource: kind = "ObjCXXSource"; break;
-    case CPlusPlus::ProjectFile::CudaSource: kind = "CudaSource"; break;
-    case CPlusPlus::ProjectFile::OpenCLSource: kind = "OpenCLSource"; break;
+    case CppTools::ProjectFile::CHeader: kind = "CHeader"; break;
+    case CppTools::ProjectFile::CSource: kind = "CSource"; break;
+    case CppTools::ProjectFile::CXXHeader: kind = "CXXHeader"; break;
+    case CppTools::ProjectFile::CXXSource: kind = "CXXSource"; break;
+    case CppTools::ProjectFile::ObjCHeader: kind = "ObjCHeader"; break;
+    case CppTools::ProjectFile::ObjCSource: kind = "ObjCSource"; break;
+    case CppTools::ProjectFile::ObjCXXHeader: kind = "ObjCXXHeader"; break;
+    case CppTools::ProjectFile::ObjCXXSource: kind = "ObjCXXSource"; break;
+    case CppTools::ProjectFile::CudaSource: kind = "CudaSource"; break;
+    case CppTools::ProjectFile::OpenCLSource: kind = "OpenCLSource"; break;
     default: kind = "INVALID"; break;
     }
     stream << cxxFile.path << QLatin1String(", ") << kind;
     return stream;
 }
 
-} // namespace CPlusPlus
+} // namespace CppTools

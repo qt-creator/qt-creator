@@ -38,7 +38,7 @@ QT_FORWARD_DECLARE_CLASS(QStringRef)
 namespace CPlusPlus {
 class Symbol;
 class LookupContext;
-}
+} // namespace CPlusPlus
 
 namespace CppTools {
 

@@ -70,6 +70,7 @@
 #include <functional>
 
 using namespace CppTools::Internal;
+using namespace CppTools;
 using namespace CPlusPlus;
 
 static QString getSource(const QString &fileName,

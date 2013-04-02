@@ -38,7 +38,7 @@
 #include <cplusplus/Symbols.h>
 #include <cplusplus/TranslationUnit.h>
 
-using namespace CPlusPlus;
+using namespace CppTools;
 
 namespace {
 
@@ -50,7 +50,7 @@ QString unqualifyName(const QString &qualifiedName)
     return qualifiedName.right(qualifiedName.length() - index - 2);
 }
 
-class DerivedHierarchyVisitor : public SymbolVisitor
+class DerivedHierarchyVisitor : public CPlusPlus::SymbolVisitor
 {
 public:
     DerivedHierarchyVisitor(const QString &qualifiedName)
@@ -58,47 +58,48 @@ public:
         , _unqualifiedName(unqualifyName(qualifiedName))
     {}
 
-    void execute(const Document::Ptr &doc, const Snapshot &snapshot);
+    void execute(const CPlusPlus::Document::Ptr &doc, const CPlusPlus::Snapshot &snapshot);
 
-    virtual bool visit(Class *);
+    virtual bool visit(CPlusPlus::Class *);
 
-    const QList<Symbol *> &derived() { return _derived; }
+    const QList<CPlusPlus::Symbol *> &derived() { return _derived; }
     const QStringList otherBases() { return _otherBases; }
 
 private:
-    LookupContext _context;
+    CPlusPlus::LookupContext _context;
     QString _qualifiedName;
     QString _unqualifiedName;
-    Overview _overview;
-    QHash<Symbol *, QString> _actualBases;
+    CPlusPlus::Overview _overview;
+    QHash<CPlusPlus::Symbol *, QString> _actualBases;
     QStringList _otherBases;
-    QList<Symbol *> _derived;
+    QList<CPlusPlus::Symbol *> _derived;
 };
 
-void DerivedHierarchyVisitor::execute(const Document::Ptr &doc, const Snapshot &snapshot)
+void DerivedHierarchyVisitor::execute(const CPlusPlus::Document::Ptr &doc,
+                                      const CPlusPlus::Snapshot &snapshot)
 {
     _derived.clear();
     _otherBases.clear();
-    _context = LookupContext(doc, snapshot);
+    _context = CPlusPlus::LookupContext(doc, snapshot);
 
     for (unsigned i = 0; i < doc->globalSymbolCount(); ++i)
         accept(doc->globalSymbolAt(i));
 }
 
-bool DerivedHierarchyVisitor::visit(Class *symbol)
+bool DerivedHierarchyVisitor::visit(CPlusPlus::Class *symbol)
 {
     for (unsigned i = 0; i < symbol->baseClassCount(); ++i) {
-        BaseClass *baseSymbol = symbol->baseClassAt(i);
+        CPlusPlus::BaseClass *baseSymbol = symbol->baseClassAt(i);
 
         QString baseName = _actualBases.value(baseSymbol);
         if (baseName.isEmpty()) {
-            QList<LookupItem> items = _context.lookup(baseSymbol->name(), symbol->enclosingScope());
+            QList<CPlusPlus::LookupItem> items = _context.lookup(baseSymbol->name(), symbol->enclosingScope());
             if (items.isEmpty() || !items.first().declaration())
                 continue;
 
-            Symbol *actualBaseSymbol = items.first().declaration();
+            CPlusPlus::Symbol *actualBaseSymbol = items.first().declaration();
             if (actualBaseSymbol->isTypedef()) {
-                NamedType *namedType = actualBaseSymbol->type()->asNamedType();
+                CPlusPlus::NamedType *namedType = actualBaseSymbol->type()->asNamedType();
                 if (!namedType) {
                     // Anonymous aggregate such as: typedef struct {} Empty;
                     continue;
@@ -112,7 +113,8 @@ bool DerivedHierarchyVisitor::visit(Class *symbol)
                 }
             }
 
-            const QList<const Name *> &full = LookupContext::fullyQualifiedName(actualBaseSymbol);
+            const QList<const CPlusPlus::Name *> &full
+                    = CPlusPlus::LookupContext::fullyQualifiedName(actualBaseSymbol);
             baseName = _overview.prettyName(full);
             _actualBases.insert(baseSymbol, baseName);
         }
@@ -126,15 +128,15 @@ bool DerivedHierarchyVisitor::visit(Class *symbol)
     return true;
 }
 
-}
+} // namespace
 
 TypeHierarchy::TypeHierarchy() : _symbol(0)
 {}
 
-TypeHierarchy::TypeHierarchy(Symbol *symbol) : _symbol(symbol)
+TypeHierarchy::TypeHierarchy(CPlusPlus::Symbol *symbol) : _symbol(symbol)
 {}
 
-Symbol *TypeHierarchy::symbol() const
+CPlusPlus::Symbol *TypeHierarchy::symbol() const
 {
     return _symbol;
 }
@@ -144,12 +146,12 @@ const QList<TypeHierarchy> &TypeHierarchy::hierarchy() const
     return _hierarchy;
 }
 
-TypeHierarchyBuilder::TypeHierarchyBuilder(Symbol *symbol, const Snapshot &snapshot)
+TypeHierarchyBuilder::TypeHierarchyBuilder(CPlusPlus::Symbol *symbol, const CPlusPlus::Snapshot &snapshot)
     : _symbol(symbol)
     , _snapshot(snapshot)
     , _dependencies(QString::fromUtf8(symbol->fileName(), symbol->fileNameLength()))
 {
-    DependencyTable dependencyTable;
+    CPlusPlus::DependencyTable dependencyTable;
     dependencyTable.build(_snapshot);
     _dependencies.append(dependencyTable.filesDependingOn(_dependencies.first()));
 }
@@ -170,17 +172,17 @@ TypeHierarchy TypeHierarchyBuilder::buildDerivedTypeHierarchy()
 
 void TypeHierarchyBuilder::buildDerived(TypeHierarchy *typeHierarchy)
 {
-    Symbol *symbol = typeHierarchy->_symbol;
+    CPlusPlus::Symbol *symbol = typeHierarchy->_symbol;
     if (_visited.contains(symbol))
         return;
 
     _visited.insert(symbol);
 
-    const QString &symbolName = _overview.prettyName(LookupContext::fullyQualifiedName(symbol));
+    const QString &symbolName = _overview.prettyName(CPlusPlus::LookupContext::fullyQualifiedName(symbol));
     DerivedHierarchyVisitor visitor(symbolName);
 
     foreach (const QString &fileName, _dependencies) {
-        Document::Ptr doc = _snapshot.document(fileName);
+        CPlusPlus::Document::Ptr doc = _snapshot.document(fileName);
         if ((_candidates.contains(fileName) && !_candidates.value(fileName).contains(symbolName))
                 || !doc->control()->findIdentifier(symbol->identifier()->chars(),
                                                    symbol->identifier()->size())) {
@@ -193,7 +195,7 @@ void TypeHierarchyBuilder::buildDerived(TypeHierarchy *typeHierarchy)
         foreach (const QString &candidate, visitor.otherBases())
             _candidates[fileName].insert(candidate);
 
-        foreach (Symbol *s, visitor.derived()) {
+        foreach (CPlusPlus::Symbol *s, visitor.derived()) {
             TypeHierarchy derivedHierarchy(s);
             buildDerived(&derivedHierarchy);
             typeHierarchy->_hierarchy.append(derivedHierarchy);

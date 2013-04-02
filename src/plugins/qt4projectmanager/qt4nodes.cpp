@@ -1423,8 +1423,8 @@ Qt4ProFileNode::Qt4ProFileNode(Qt4Project *project,
 
 Qt4ProFileNode::~Qt4ProFileNode()
 {
-    CPlusPlus::CppModelManagerInterface *modelManager
-            = CPlusPlus::CppModelManagerInterface::instance();
+    CppTools::CppModelManagerInterface *modelManager
+            = CppTools::CppModelManagerInterface::instance();
     QMap<QString, Internal::Qt4UiCodeModelSupport *>::const_iterator it, end;
     end = m_uiCodeModelSupport.constEnd();
     for (it = m_uiCodeModelSupport.constBegin(); it != end; ++it) {
@@ -2275,8 +2275,8 @@ QString Qt4ProFileNode::uiHeaderFile(const QString &uiDir, const QString &formFi
 void Qt4ProFileNode::createUiCodeModelSupport()
 {
 //    qDebug()<<"creatUiCodeModelSupport()";
-    CPlusPlus::CppModelManagerInterface *modelManager
-            = CPlusPlus::CppModelManagerInterface::instance();
+    CppTools::CppModelManagerInterface *modelManager
+            = CppTools::CppModelManagerInterface::instance();
 
     // First move all to
     QMap<QString, Internal::Qt4UiCodeModelSupport *> oldCodeModelSupport;

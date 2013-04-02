@@ -42,28 +42,17 @@
 #include <QStringList>
 #include <QFuture>
 
-namespace Core {
-    class IEditor;
-}
-
-namespace CPlusPlus {
-    class LookupContext;
-}
-
-namespace ProjectExplorer {
-    class Project;
-}
+namespace Core { class IEditor; }
+namespace CPlusPlus { class LookupContext; }
+namespace ProjectExplorer { class Project; }
 
 namespace CppTools {
-    class AbstractEditorSupport;
-    class CppCompletionSupport;
-    class CppCompletionAssistProvider;
-    class CppHighlightingSupport;
-    class CppHighlightingSupportFactory;
-    class CppIndexingSupport;
-}
-
-namespace CPlusPlus {
+class AbstractEditorSupport;
+class CppCompletionSupport;
+class CppCompletionAssistProvider;
+class CppHighlightingSupport;
+class CppHighlightingSupportFactory;
+class CppIndexingSupport;
 
 class CPPTOOLS_EXPORT ProjectPart
 {
@@ -268,6 +257,6 @@ public Q_SLOTS:
     virtual void GC() = 0;
 };
 
-} // namespace CPlusPlus
+} // namespace CppTools
 
 #endif // CPPMODELMANAGERINTERFACE_H

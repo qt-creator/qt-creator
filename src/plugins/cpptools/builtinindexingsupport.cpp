@@ -54,7 +54,7 @@ static void parse(QFutureInterface<void> &future,
 
     future.setProgressRange(0, files.size());
 
-    const QString conf = CPlusPlus::CppModelManagerInterface::configurationFileName();
+    const QString conf = CppModelManagerInterface::configurationFileName();
     bool processingHeaders = false;
 
     for (int i = 0; i < files.size(); ++i) {

@@ -427,21 +427,21 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
     qtVersion = QtSupport::QtKitInformation::qtVersion(k);
     tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
 
-    CPlusPlus::CppModelManagerInterface *modelmanager =
-        CPlusPlus::CppModelManagerInterface::instance();
+    CppTools::CppModelManagerInterface *modelmanager =
+        CppTools::CppModelManagerInterface::instance();
 
     if (!modelmanager)
         return;
 
-    CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
+    CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
     pinfo.clearProjectParts();
-    CPlusPlus::ProjectPart::QtVersion qtVersionForPart
-            = CPlusPlus::ProjectPart::NoQt;
+    CppTools::ProjectPart::QtVersion qtVersionForPart
+            = CppTools::ProjectPart::NoQt;
     if (qtVersion) {
         if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
-            qtVersionForPart = CPlusPlus::ProjectPart::Qt4;
+            qtVersionForPart = CppTools::ProjectPart::Qt4;
         else
-            qtVersionForPart = CPlusPlus::ProjectPart::Qt5;
+            qtVersionForPart = CppTools::ProjectPart::Qt5;
     }
 
     QStringList allFiles;
@@ -500,18 +500,18 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
             const QString pch = props.getModuleProperty(QLatin1String(CONFIG_CPP_MODULE),
                     QLatin1String(CONFIG_PRECOMPILEDHEADER)).toString();
 
-            CPlusPlus::ProjectPart::Ptr part(new CPlusPlus::ProjectPart);
-            CPlusPlus::ProjectFileAdder adder(part->files);
+            CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
+            CppTools::ProjectFileAdder adder(part->files);
             foreach (const QString &file, grp.allFilePaths())
                 if (adder.maybeAdd(file))
                     allFiles.append(file);
-            part->files << CPlusPlus::ProjectFile(QLatin1String(CONFIGURATION_PATH),
-                                                  CPlusPlus::ProjectFile::CXXHeader);
+            part->files << CppTools::ProjectFile(QLatin1String(CONFIGURATION_PATH),
+                                                  CppTools::ProjectFile::CXXHeader);
 
             part->qtVersion = qtVersionForPart;
             // TODO: qbs has separate variable for CFLAGS
-            part->cVersion = CPlusPlus::ProjectPart::C99;
-            part->cxxVersion = isCxx11 ? CPlusPlus::ProjectPart::CXX11 : CPlusPlus::ProjectPart::CXX98;
+            part->cVersion = CppTools::ProjectPart::C99;
+            part->cxxVersion = isCxx11 ? CppTools::ProjectPart::CXX11 : CppTools::ProjectPart::CXX98;
             // TODO: get the exact cxxExtensions from toolchain
             part->includePaths = grpIncludePaths;
             part->frameworkPaths = grpFrameworkPaths;

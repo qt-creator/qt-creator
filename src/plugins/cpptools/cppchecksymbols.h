@@ -44,10 +44,10 @@
 #include <QFuture>
 #include <QtConcurrentRun>
 
-namespace CPlusPlus {
+namespace CppTools {
 
 class CPPTOOLS_EXPORT CheckSymbols:
-        protected ASTVisitor,
+        protected CPlusPlus::ASTVisitor,
         public QRunnable,
         public QFutureInterface<TextEditor::SemanticHighlighter::Result>
 {
@@ -70,7 +70,9 @@ public:
         return future;
     }
 
-    static Future go(Document::Ptr doc, const LookupContext &context, const QList<Use> &macroUses);
+    static Future go(CPlusPlus::Document::Ptr doc,
+                     const CPlusPlus::LookupContext &context,
+                     const QList<Use> &macroUses);
 
     static QMap<int, QVector<Use> > chunks(const QFuture<Use> &future, int from, int to)
     {
@@ -92,93 +94,98 @@ protected:
     using ASTVisitor::visit;
     using ASTVisitor::endVisit;
 
-    CheckSymbols(Document::Ptr doc, const LookupContext &context, const QList<Use> &macroUses);
+    CheckSymbols(CPlusPlus::Document::Ptr doc,
+                 const CPlusPlus::LookupContext &context,
+                 const QList<Use> &macroUses);
 
-    bool hasVirtualDestructor(Class *klass) const;
-    bool hasVirtualDestructor(ClassOrNamespace *binding) const;
+    bool hasVirtualDestructor(CPlusPlus::Class *klass) const;
+    bool hasVirtualDestructor(CPlusPlus::ClassOrNamespace *binding) const;
 
     bool warning(unsigned line, unsigned column, const QString &text, unsigned length = 0);
-    bool warning(AST *ast, const QString &text);
+    bool warning(CPlusPlus::AST *ast, const QString &text);
 
-    QByteArray textOf(AST *ast) const;
+    QByteArray textOf(CPlusPlus::AST *ast) const;
 
-    bool maybeType(const Name *name) const;
-    bool maybeField(const Name *name) const;
-    bool maybeStatic(const Name *name) const;
-    bool maybeFunction(const Name *name) const;
+    bool maybeType(const CPlusPlus::Name *name) const;
+    bool maybeField(const CPlusPlus::Name *name) const;
+    bool maybeStatic(const CPlusPlus::Name *name) const;
+    bool maybeFunction(const CPlusPlus::Name *name) const;
 
-    void checkNamespace(NameAST *name);
-    void checkName(NameAST *ast, Scope *scope = 0);
-    ClassOrNamespace *checkNestedName(QualifiedNameAST *ast);
+    void checkNamespace(CPlusPlus::NameAST *name);
+    void checkName(CPlusPlus::NameAST *ast, CPlusPlus::Scope *scope = 0);
+    CPlusPlus::ClassOrNamespace *checkNestedName(CPlusPlus::QualifiedNameAST *ast);
 
     void addUse(const Use &use);
     void addUse(unsigned tokenIndex, UseKind kind);
-    void addUse(NameAST *name, UseKind kind);
+    void addUse(CPlusPlus::NameAST *name, UseKind kind);
 
-    void addType(ClassOrNamespace *b, NameAST *ast);
+    void addType(CPlusPlus::ClassOrNamespace *b, CPlusPlus::NameAST *ast);
 
-    bool maybeAddTypeOrStatic(const QList<LookupItem> &candidates, NameAST *ast);
-    bool maybeAddField(const QList<LookupItem> &candidates, NameAST *ast);
-    bool maybeAddFunction(const QList<LookupItem> &candidates, NameAST *ast, unsigned argumentCount);
+    bool maybeAddTypeOrStatic(const QList<CPlusPlus::LookupItem> &candidates,
+                              CPlusPlus::NameAST *ast);
+    bool maybeAddField(const QList<CPlusPlus::LookupItem> &candidates,
+                       CPlusPlus::NameAST *ast);
+    bool maybeAddFunction(const QList<CPlusPlus::LookupItem> &candidates,
+                          CPlusPlus::NameAST *ast, unsigned argumentCount);
 
-    bool isTemplateClass(Symbol *s) const;
+    bool isTemplateClass(CPlusPlus::Symbol *s) const;
 
-    Scope *enclosingScope() const;
-    FunctionDefinitionAST *enclosingFunctionDefinition(bool skipTopOfStack = false) const;
-    TemplateDeclarationAST *enclosingTemplateDeclaration() const;
+    CPlusPlus::Scope *enclosingScope() const;
+    CPlusPlus::FunctionDefinitionAST *enclosingFunctionDefinition(bool skipTopOfStack = false) const;
+    CPlusPlus::TemplateDeclarationAST *enclosingTemplateDeclaration() const;
 
-    virtual bool preVisit(AST *);
-    virtual void postVisit(AST *);
+    virtual bool preVisit(CPlusPlus::AST *);
+    virtual void postVisit(CPlusPlus::AST *);
 
-    virtual bool visit(NamespaceAST *);
-    virtual bool visit(UsingDirectiveAST *);
-    virtual bool visit(SimpleDeclarationAST *);
-    virtual bool visit(TypenameTypeParameterAST *ast);
-    virtual bool visit(TemplateTypeParameterAST *ast);
-    virtual bool visit(FunctionDefinitionAST *ast);
-    virtual bool visit(ParameterDeclarationAST *ast);
+    virtual bool visit(CPlusPlus::NamespaceAST *);
+    virtual bool visit(CPlusPlus::UsingDirectiveAST *);
+    virtual bool visit(CPlusPlus::SimpleDeclarationAST *);
+    virtual bool visit(CPlusPlus::TypenameTypeParameterAST *ast);
+    virtual bool visit(CPlusPlus::TemplateTypeParameterAST *ast);
+    virtual bool visit(CPlusPlus::FunctionDefinitionAST *ast);
+    virtual bool visit(CPlusPlus::ParameterDeclarationAST *ast);
 
-    virtual bool visit(ElaboratedTypeSpecifierAST *ast);
+    virtual bool visit(CPlusPlus::ElaboratedTypeSpecifierAST *ast);
 
-    virtual bool visit(SimpleNameAST *ast);
-    virtual bool visit(DestructorNameAST *ast);
-    virtual bool visit(QualifiedNameAST *ast);
-    virtual bool visit(TemplateIdAST *ast);
+    virtual bool visit(CPlusPlus::SimpleNameAST *ast);
+    virtual bool visit(CPlusPlus::DestructorNameAST *ast);
+    virtual bool visit(CPlusPlus::QualifiedNameAST *ast);
+    virtual bool visit(CPlusPlus::TemplateIdAST *ast);
 
-    virtual bool visit(MemberAccessAST *ast);
-    virtual bool visit(CallAST *ast);
-    virtual bool visit(NewExpressionAST *ast);
+    virtual bool visit(CPlusPlus::MemberAccessAST *ast);
+    virtual bool visit(CPlusPlus::CallAST *ast);
+    virtual bool visit(CPlusPlus::NewExpressionAST *ast);
 
-    virtual bool visit(GotoStatementAST *ast);
-    virtual bool visit(LabeledStatementAST *ast);
-    virtual bool visit(SimpleSpecifierAST *ast);
-    virtual bool visit(ClassSpecifierAST *ast);
+    virtual bool visit(CPlusPlus::GotoStatementAST *ast);
+    virtual bool visit(CPlusPlus::LabeledStatementAST *ast);
+    virtual bool visit(CPlusPlus::SimpleSpecifierAST *ast);
+    virtual bool visit(CPlusPlus::ClassSpecifierAST *ast);
 
-    virtual bool visit(MemInitializerAST *ast);
-    virtual bool visit(EnumeratorAST *ast);
+    virtual bool visit(CPlusPlus::MemInitializerAST *ast);
+    virtual bool visit(CPlusPlus::EnumeratorAST *ast);
 
-    NameAST *declaratorId(DeclaratorAST *ast) const;
+    CPlusPlus::NameAST *declaratorId(CPlusPlus::DeclaratorAST *ast) const;
 
-    static unsigned referenceToken(NameAST *name);
+    static unsigned referenceToken(CPlusPlus::NameAST *name);
 
     void flush();
 
 private:
-    Document::Ptr _doc;
-    LookupContext _context;
-    TypeOfExpression typeOfExpression;
+    CPlusPlus::Document::Ptr _doc;
+    CPlusPlus::LookupContext _context;
+    CPlusPlus::TypeOfExpression typeOfExpression;
     QString _fileName;
     QSet<QByteArray> _potentialTypes;
     QSet<QByteArray> _potentialFields;
     QSet<QByteArray> _potentialFunctions;
     QSet<QByteArray> _potentialStatics;
-    QList<AST *> _astStack;
+    QList<CPlusPlus::AST *> _astStack;
     QVector<Use> _usages;
     int _chunkSize;
     unsigned _lineOfLastUsage;
     QList<Use> _macroUses;
 };
 
-} // namespace CPlusPlus
+} // namespace CppTools
 
 #endif // CPLUSPLUSCHECKSYMBOLS_H

@@ -1282,7 +1282,7 @@ void CPPEditorWidget::finishHighlightSymbolUsages()
 
     if (m_modelManager)
         m_modelManager->setExtraDiagnostics(m_lastSemanticInfo.doc->fileName(),
-                                            CPlusPlus::CppModelManagerInterface::CppSemanticsDiagnostic,
+                                            CppTools::CppModelManagerInterface::CppSemanticsDiagnostic,
                                             m_lastSemanticInfo.doc->diagnosticMessages());
 }
 

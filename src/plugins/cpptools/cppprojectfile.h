@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_CPPPROJECTFILE_H
-#define CPLUSPLUS_CPPPROJECTFILE_H
+#ifndef CPPTOOLS_CPPPROJECTFILE_H
+#define CPPTOOLS_CPPPROJECTFILE_H
 
 #include "cpptools_global.h"
 
@@ -37,7 +37,7 @@
 #include <QString>
 #include <QMap>
 
-namespace CPlusPlus {
+namespace CppTools {
 
 class CPPTOOLS_EXPORT ProjectFile
 {
@@ -81,8 +81,8 @@ private:
     QFileInfo m_fileInfo;
 };
 
-QDebug operator<<(QDebug stream, const CPlusPlus::ProjectFile &cxxFile);
+QDebug operator<<(QDebug stream, const CppTools::ProjectFile &cxxFile);
 
-} // namespace CPlusPlus
+} // namespace CppTools
 
-#endif // CPLUSPLUS_CPPPROJECTFILE_H
+#endif // CPPTOOLS_CPPPROJECTFILE_H

@@ -84,11 +84,11 @@ TestCase::TestCase(const QByteArray &input)
     Utils::FileSaver srcSaver(fileName);
     srcSaver.write(originalText);
     srcSaver.finalize();
-    CPlusPlus::CppModelManagerInterface::instance()->updateSourceFiles(QStringList()<<fileName);
+    CppTools::CppModelManagerInterface::instance()->updateSourceFiles(QStringList()<<fileName);
 
     // Wait for the parser in the future to give us the document
     while (true) {
-        Snapshot s = CPlusPlus::CppModelManagerInterface::instance()->snapshot();
+        Snapshot s = CppTools::CppModelManagerInterface::instance()->snapshot();
         if (s.contains(fileName))
             break;
         QCoreApplication::processEvents();
@@ -120,7 +120,7 @@ TestCase::~TestCase()
     QCoreApplication::processEvents(); // process any pending events
 
     // Remove the test file from the code-model
-    CppModelManagerInterface *mmi = CPlusPlus::CppModelManagerInterface::instance();
+    CppTools::CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
     mmi->GC();
     QCOMPARE(mmi->snapshot().size(), 0);
 }

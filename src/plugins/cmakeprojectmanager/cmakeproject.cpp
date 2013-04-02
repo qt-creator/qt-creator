@@ -123,8 +123,8 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
 CMakeProject::~CMakeProject()
 {
     // Remove CodeModel support
-    CPlusPlus::CppModelManagerInterface *modelManager
-            = CPlusPlus::CppModelManagerInterface::instance();
+    CppTools::CppModelManagerInterface *modelManager
+            = CppTools::CppModelManagerInterface::instance();
     QMap<QString, CMakeUiCodeModelSupport *>::const_iterator it, end;
     it = m_uiCodeModelSupport.constBegin();
     end = m_uiCodeModelSupport.constEnd();
@@ -367,29 +367,29 @@ bool CMakeProject::parseCMakeLists()
             allIncludePaths.append(headerPath.path());
     }
 
-    CPlusPlus::CppModelManagerInterface *modelmanager =
-            CPlusPlus::CppModelManagerInterface::instance();
+    CppTools::CppModelManagerInterface *modelmanager =
+            CppTools::CppModelManagerInterface::instance();
     if (modelmanager) {
-        CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
+        CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
         if (pinfo.includePaths() != allIncludePaths
                 || pinfo.sourceFiles() != m_files
                 || pinfo.defines() != allDefines
                 || pinfo.frameworkPaths() != allFrameworkPaths)  {
             pinfo.clearProjectParts();
-            CPlusPlus::ProjectPart::Ptr part(new CPlusPlus::ProjectPart);
+            CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
             part->includePaths = allIncludePaths;
-            CPlusPlus::ProjectFileAdder adder(part->files);
+            CppTools::ProjectFileAdder adder(part->files);
             foreach (const QString &file, m_files)
                 adder.maybeAdd(file);
             part->defines = allDefines;
             part->frameworkPaths = allFrameworkPaths;
-            part->cVersion = CPlusPlus::ProjectPart::C99;
+            part->cVersion = CppTools::ProjectPart::C99;
             if (tc)
                 part->cxxVersion = tc->compilerFlags(cxxflags) == ToolChain::STD_CXX11
-                        ? CPlusPlus::ProjectPart::CXX11
-                        : CPlusPlus::ProjectPart::CXX98;
+                        ? CppTools::ProjectPart::CXX11
+                        : CppTools::ProjectPart::CXX98;
             else
-                part->cxxVersion = CPlusPlus::ProjectPart::CXX11;
+                part->cxxVersion = CppTools::ProjectPart::CXX11;
             pinfo.appendProjectPart(part);
             modelmanager->updateProjectInfo(pinfo);
             m_codeModelFuture.cancel();
@@ -787,8 +787,8 @@ void CMakeProject::updateRunConfigurations(Target *t)
 void CMakeProject::createUiCodeModelSupport()
 {
 //    qDebug()<<"creatUiCodeModelSupport()";
-    CPlusPlus::CppModelManagerInterface *modelManager
-            = CPlusPlus::CppModelManagerInterface::instance();
+    CppTools::CppModelManagerInterface *modelManager
+            = CppTools::CppModelManagerInterface::instance();
 
     // First move all to
     QMap<QString, CMakeUiCodeModelSupport *> oldCodeModelSupport;

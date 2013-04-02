@@ -40,9 +40,9 @@
 using namespace CppTools::Internal;
 
 typedef CPlusPlus::Document Document;
-typedef CPlusPlus::CppModelManagerInterface::ProjectInfo ProjectInfo;
-typedef CPlusPlus::ProjectPart ProjectPart;
-typedef CPlusPlus::ProjectFile ProjectFile;
+typedef CppTools::CppModelManagerInterface::ProjectInfo ProjectInfo;
+typedef CppTools::ProjectPart ProjectPart;
+typedef CppTools::ProjectFile ProjectFile;
 typedef ProjectExplorer::Project Project;
 
 namespace {

@@ -207,12 +207,12 @@ void TestCase::init()
     QStringList filePaths;
     foreach (const TestDocumentPtr &testFile, testFiles)
         filePaths << testFile->filePath();
-    CPlusPlus::CppModelManagerInterface::instance()->updateSourceFiles(filePaths);
+    CppTools::CppModelManagerInterface::instance()->updateSourceFiles(filePaths);
 
     // Wait for the parser in the future to give us the document
     QStringList filePathsNotYetInSnapshot(filePaths);
     forever {
-        Snapshot snapshot = CPlusPlus::CppModelManagerInterface::instance()->snapshot();
+        Snapshot snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
         foreach (const QString &filePath, filePathsNotYetInSnapshot) {
             if (snapshot.contains(filePath))
                 filePathsNotYetInSnapshot.removeOne(filePath);
@@ -267,7 +267,7 @@ TestCase::~TestCase()
     QCoreApplication::processEvents(); // process any pending events
 
     // Remove the test files from the code-model
-    CppModelManagerInterface *mmi = CPlusPlus::CppModelManagerInterface::instance();
+    CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
     mmi->GC();
     QCOMPARE(mmi->snapshot().size(), 0);
 }

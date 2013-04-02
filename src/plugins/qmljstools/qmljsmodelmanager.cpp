@@ -254,8 +254,8 @@ ModelManager::~ModelManager()
 
 void ModelManager::delayedInitialization()
 {
-    CPlusPlus::CppModelManagerInterface *cppModelManager =
-            CPlusPlus::CppModelManagerInterface::instance();
+    CppTools::CppModelManagerInterface *cppModelManager =
+            CppTools::CppModelManagerInterface::instance();
     if (cppModelManager) {
         // It's important to have a direct connection here so we can prevent
         // the source and AST of the cpp document being cleaned away.
@@ -899,8 +899,8 @@ void ModelManager::startCppQmlTypeUpdate()
         return;
     }
 
-    CPlusPlus::CppModelManagerInterface *cppModelManager =
-            CPlusPlus::CppModelManagerInterface::instance();
+    CppTools::CppModelManagerInterface *cppModelManager =
+            CppTools::CppModelManagerInterface::instance();
     if (!cppModelManager)
         return;
 

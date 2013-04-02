@@ -39,7 +39,7 @@
 using namespace CMakeProjectManager;
 using namespace Internal;
 
-CMakeUiCodeModelSupport::CMakeUiCodeModelSupport(CPlusPlus::CppModelManagerInterface *modelmanager,
+CMakeUiCodeModelSupport::CMakeUiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
                                              CMakeProject *project,
                                              const QString &source,
                                              const QString &uiHeaderFile)

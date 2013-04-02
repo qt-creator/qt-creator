@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef TYPEHIERARCHYBUILDER_H
-#define TYPEHIERARCHYBUILDER_H
+#ifndef CPPTOOLS_TYPEHIERARCHYBUILDER_H
+#define CPPTOOLS_TYPEHIERARCHYBUILDER_H
 
 #include "cpptools_global.h"
 #include "ModelManagerInterface.h"
@@ -40,7 +40,7 @@
 #include <QStringList>
 #include <QSet>
 
-namespace CPlusPlus {
+namespace CppTools {
 
 class CPPTOOLS_EXPORT TypeHierarchy
 {
@@ -48,20 +48,20 @@ class CPPTOOLS_EXPORT TypeHierarchy
 
 public:
     TypeHierarchy();
-    TypeHierarchy(Symbol *symbol);
+    TypeHierarchy(CPlusPlus::Symbol *symbol);
 
-    Symbol *symbol() const;
+    CPlusPlus::Symbol *symbol() const;
     const QList<TypeHierarchy> &hierarchy() const;
 
 private:
-    Symbol *_symbol;
+    CPlusPlus::Symbol *_symbol;
     QList<TypeHierarchy> _hierarchy;
 };
 
 class CPPTOOLS_EXPORT TypeHierarchyBuilder
 {
 public:
-    TypeHierarchyBuilder(Symbol *symbol, const Snapshot &snapshot);
+    TypeHierarchyBuilder(CPlusPlus::Symbol *symbol, const CPlusPlus::Snapshot &snapshot);
 
     TypeHierarchy buildDerivedTypeHierarchy();
 
@@ -69,14 +69,14 @@ private:
     void reset();
     void buildDerived(TypeHierarchy *typeHierarchy);
 
-    Symbol *_symbol;
-    Snapshot _snapshot;
+    CPlusPlus::Symbol *_symbol;
+    CPlusPlus::Snapshot _snapshot;
     QStringList _dependencies;
-    QSet<Symbol *> _visited;
+    QSet<CPlusPlus::Symbol *> _visited;
     QHash<QString, QSet<QString> > _candidates;
-    Overview _overview;
+    CPlusPlus::Overview _overview;
 };
 
-} // CPlusPlus
+} // CppTools
 
-#endif // TYPEHIERARCHYBUILDER_H
+#endif // CPPTOOLS_TYPEHIERARCHYBUILDER_H

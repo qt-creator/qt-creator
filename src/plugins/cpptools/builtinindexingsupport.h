@@ -40,7 +40,7 @@ namespace Internal {
 
 class BuiltinIndexingSupport: public CppIndexingSupport {
 public:
-    typedef CPlusPlus::CppModelManagerInterface::WorkingCopy WorkingCopy;
+    typedef CppModelManagerInterface::WorkingCopy WorkingCopy;
 
 public:
     BuiltinIndexingSupport();

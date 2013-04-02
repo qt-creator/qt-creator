@@ -283,7 +283,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     cppToolsMenu->addSeparator(globalContext);
     m_updateCodeModelAction = new QAction(tr("Update Code Model"), this);
     cmd = Core::ActionManager::registerAction(m_updateCodeModelAction, Core::Id(Constants::UPDATE_CODEMODEL), globalContext);
-    CPlusPlus::CppModelManagerInterface *cppModelManager = CPlusPlus::CppModelManagerInterface::instance();
+    CppTools::CppModelManagerInterface *cppModelManager = CppTools::CppModelManagerInterface::instance();
     connect(m_updateCodeModelAction, SIGNAL(triggered()), cppModelManager, SLOT(updateModifiedSourceFiles()));
     cppToolsMenu->addAction(cmd);
 

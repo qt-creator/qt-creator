@@ -568,7 +568,7 @@ void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
 void Parser::resetDataToCurrentState()
 {
     // get latest data
-    CPlusPlus::CppModelManagerInterface *codeModel = CPlusPlus::CppModelManagerInterface::instance();
+    CppTools::CppModelManagerInterface *codeModel = CppTools::CppModelManagerInterface::instance();
     if (codeModel)
         resetData(codeModel->snapshot());
 }

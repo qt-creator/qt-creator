@@ -34,7 +34,7 @@
 #include <QtCore/QSet>
 
 /*!
-    \enum CPlusPlus::CppModelManagerInterface::QtVersion
+    \enum CppTools::CppModelManagerInterface::QtVersion
     Allows C++ parser engine to inject headers or change inner settings as
     needed to parse Qt language extensions for concrete major Qt version
     \value UnknownQt
@@ -47,12 +47,12 @@
            Parser may enable tricks for Qt v5.x
 */
 
-using namespace CPlusPlus;
+using namespace CppTools;
 
 static CppModelManagerInterface *g_instance = 0;
 
 const QString CppModelManagerInterface::configurationFileName()
-{ return Preprocessor::configurationFileName; }
+{ return CPlusPlus::Preprocessor::configurationFileName; }
 
 CppModelManagerInterface::CppModelManagerInterface(QObject *parent)
     : QObject(parent)
