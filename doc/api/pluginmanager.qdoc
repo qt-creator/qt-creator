@@ -1,0 +1,121 @@
+/**************************************************************************
+**
+** Copyright (c) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+**
+**************************************************************************/
+
+/*!
+    \page pluginmanager.html
+    \title The Plugin Manager, the Object Pool, and Registered Objects
+
+    Usually, plugins do not need to access the plugin manager directly.
+    They interact with it mostly indirectly through the ExtensionSystem::IPlugin interface.
+    There are occasions though, where using the plugin manager API is necessary.
+    Plugins need to access the plugin manager's object pool to extend
+    some aspects of \QC, for example to add pages to the options dialog. They
+    can also utilize the object pool to provide extension points for other plugins
+    (see \l{Extending and Providing Interfaces}).
+
+    \section1 Plugin Manager
+
+    The plugin manager handles all the details regarding finding plugins, reading their
+    description files, resolving plugin dependencies, loading and initializing all plugins
+    in the right order, and passing on command line arguments.
+
+    In addition, the plugin manager manages an \e{object pool}, where objects can be registered
+    and retrieved depending on different criteria.
+
+    Most interaction of plugins with the plugin manager should be done through the
+    ExtensionSystem::IPlugin interface, but the following tables summarize some methods
+    and signals that can be useful for plugins.
+    See the ExtensionSystem::PluginManager reference documentation for the complete list.
+
+    \table
+        \header
+            \o Method
+            \o Description
+        \row
+            \o instance()
+            \o Returns the singleton plugin manager instance, for example for connecting to signals.
+        \row
+            \o addObject()
+            \o Registers an object in the object pool.
+               Also available through ExtensionSystem::IPlugin::addObject().
+        \row
+            \o removeObject()
+            \o Unregisters an object from the object pool.
+               Also available through ExtensionSystem::IPlugin::removeObject().
+        \row
+            \o getObjects<T>()
+            \o Returns all objects of type T that are registered in the object pool.
+               This respects \l{Aggregations}.
+        \row
+            \o getObject<T>()
+            \o Returns one object of type T that is registered in the object pool.
+               This respects \l{Aggregations}.
+        \row
+            \o getObjectByName(const QString &name)
+            \o Returns one object with the given object name that is registered in the object pool.
+        \row
+            \o getObjectByClassName(const QString &className)
+            \o Returns one object with the given class name that is registered in the object pool.
+    \endtable
+
+    \table
+        \header
+            \o Signal
+            \o Description
+        \row
+            \o objectAdded(QObject *object)
+            \o Sent after an object is registered in the object pool.
+        \row
+            \o aboutToRemoveObject(QObject *object)
+            \o Sent just before an object is unregistered from the object pool.
+        \row
+            \o initializationDone()
+            \o Sent when plugins are running and all delayed initialization is done.
+    \endtable
+
+    \target object pool
+    \section1 Object Pool and Registered Objects
+
+    Plugins can register objects to a common \e pool that is managed by
+    the plugin manager. Objects in the pool must derive from QObject, there are no other
+    prerequisites.
+
+    All objects of a specified type can be retrieved from the object pool
+    via the \l{ExtensionSystem::PluginManager::getObjects()}{getObjects()} and
+    \l{ExtensionSystem::PluginManager::getObject()}{getObject()} methods.
+    They are aware of Aggregation::Aggregate, so these methods use the Aggregation::query() methods
+    instead of qobject_cast to determine the matching objects.
+
+    It is also possible to retrieve an object with a specific object name with
+    \l{ExtensionSystem::PluginManager::getObjectByName()}{getObjectByName()}
+    (see QObject::objectName()), and an object with a given class name with
+    \l{ExtensionSystem::PluginManager::getObjectByClassName()}{getObjectByClassName()}
+    (see QMetaObject::className()).
+
+    Whenever the state of the object pool changes, a corresponding
+    \l{ExtensionSystem::PluginManager::objectAdded()}{objectAdded()} or
+    \l{ExtensionSystem::PluginManager::aboutToRemoveObject()}{aboutToRemoveObject()} signal is
+    emitted by the plugin manager.
+
+    A common use case for the object pool is that a plugin (or the application) provides
+    an \e{extension point} for other plugins, which is a class that can
+    be implemented and added to the object pool to be retrieved by the providing plugin.
+    It is also possible to use the object pool to provide access to an object without actually
+    linking against the providing plugin library. See \l{Extending and Providing Interfaces}
+    for details.
+*/

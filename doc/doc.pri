@@ -61,6 +61,7 @@ DEV_HELP_DEP_FILES = \
     $$PWD/api/first-plugin.qdoc \
     $$PWD/api/plugin-specifications.qdoc \
     $$PWD/api/plugin-lifecycle.qdoc \
+    $$PWD/api/pluginmanager.qdoc \
     $$PWD/api/qtcreator-dev$${COMPAT}.qdocconf
 
 dev_html_docs.commands = $$qdoc($$OUT_PWD/doc/html-dev) $$PWD/api/qtcreator-dev$${COMPAT}.qdocconf
