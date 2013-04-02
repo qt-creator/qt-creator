@@ -47,11 +47,11 @@ ClearCaseSync::ClearCaseSync(ClearCasePlugin *plugin, QSharedPointer<StatusMap> 
 void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel, QStringList &files)
 {
     ClearCaseSettings settings = m_plugin->settings();
-    QString program = settings.ccBinaryPath;
+    const QString program = settings.ccBinaryPath;
     if (program.isEmpty())
         return;
     int total = files.size();
-    bool hot = (total < 10);
+    const bool hot = (total < 10);
     int processed = 0;
     QString view = m_plugin->currentView();
     if (view.isEmpty())
@@ -66,7 +66,7 @@ void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel,
     if (settings.disableIndexer)
         return;
 
-    QDir topLevelDir(topLevel);
+    const QDir topLevelDir(topLevel);
     const bool isDynamic = m_plugin->isDynamic();
 
     QStringList args(QLatin1String("ls"));
@@ -122,17 +122,17 @@ void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel,
         while (process.state() == QProcess::Running &&
                process.bytesAvailable() && !future.isCanceled())
         {
-            QString line = QString::fromLocal8Bit(process.readLine().constData());
+            const QString line = QString::fromLocal8Bit(process.readLine().constData());
 
             buffer += line;
             if (buffer.endsWith(QLatin1Char('\n')) || process.atEnd()) {
-                int atatpos = buffer.indexOf(QLatin1String("@@"));
+                const int atatpos = buffer.indexOf(QLatin1String("@@"));
                 if (atatpos != -1) { // probably managed file
                     // find first whitespace. anything before that is not interesting
-                    int wspos = buffer.indexOf(QRegExp(QLatin1String("\\s")));
+                    const int wspos = buffer.indexOf(QRegExp(QLatin1String("\\s")));
                     const QString file = QDir::fromNativeSeparators(buffer.left(atatpos));
                     QString ccState;
-                    QRegExp reState(QLatin1String("^\\s*\\[[^\\]]*\\]")); // [hijacked]; [loaded but missing]
+                    const QRegExp reState(QLatin1String("^\\s*\\[[^\\]]*\\]")); // [hijacked]; [loaded but missing]
                     if (reState.indexIn(buffer, wspos + 1, QRegExp::CaretAtOffset) != -1) {
                         ccState = reState.cap();
                         if (ccState.indexOf(QLatin1String("hijacked")) != -1)
@@ -154,7 +154,7 @@ void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel,
 
     if (!future.isCanceled()) {
         foreach (const QString &file, files) {
-            QString relFile = topLevelDir.relativeFilePath(file);
+            const QString relFile = topLevelDir.relativeFilePath(file);
             if (m_statusMap->value(relFile).status == FileStatus::Unknown)
                 m_plugin->setStatus(relFile, FileStatus::NotManaged, false);
         }
