@@ -29,7 +29,6 @@
 
 #include "findplugin.h"
 
-#include "textfindconstants.h"
 #include "currentdocumentfind.h"
 #include "findtoolbar.h"
 #include "findtoolwindow.h"
@@ -38,10 +37,8 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/icontext.h>
 #include <coreplugin/id.h>
 
 #include <extensionsystem/pluginmanager.h>

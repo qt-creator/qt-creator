@@ -30,16 +30,10 @@
 #include "searchresulttreemodel.h"
 #include "searchresulttreeitems.h"
 #include "searchresulttreeitemroles.h"
-#include "searchresultcolor.h"
 
 #include <QApplication>
 #include <QFont>
 #include <QFontMetrics>
-#include <QColor>
-#include <QPalette>
-#include <QTextDocument>
-#include <QTextCursor>
-#include <QDir>
 #include <QDebug>
 
 using namespace Find;

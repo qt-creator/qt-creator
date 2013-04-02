@@ -30,15 +30,11 @@
 #include "searchresulttreeitemdelegate.h"
 #include "searchresulttreeitemroles.h"
 
-#include <QTextDocument>
 #include <QPainter>
-#include <QAbstractTextDocumentLayout>
 #include <QApplication>
 
 #include <QModelIndex>
 #include <QDebug>
-
-#include <math.h>
 
 using namespace Find::Internal;
 

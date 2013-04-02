@@ -29,22 +29,17 @@
 
 #include "findtoolbar.h"
 #include "findplugin.h"
-#include "textfindconstants.h"
 #include "ifindfilter.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/findplaceholder.h>
-#include <coreplugin/id.h>
 
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/hostosinfo.h>
-#include <utils/stylehelper.h>
 #include <utils/flowlayout.h>
 
 #include <QDebug>
@@ -53,12 +48,8 @@
 #include <QClipboard>
 #include <QCompleter>
 #include <QKeyEvent>
-#include <QLineEdit>
 #include <QMenu>
-#include <QPushButton>
-#include <QToolButton>
 #include <QPainter>
-#include <QPixmapCache>
 #include <QStringListModel>
 
 Q_DECLARE_METATYPE(QStringList)

@@ -31,7 +31,6 @@
 #include "searchresulttreeitemroles.h"
 #include "searchresulttreemodel.h"
 #include "searchresulttreeitemdelegate.h"
-#include "searchresultcolor.h"
 
 #include <QHeaderView>
 #include <QKeyEvent>

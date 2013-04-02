@@ -34,8 +34,6 @@
 
 #include <QString>
 #include <QList>
-#include <qnamespace.h>
-#include <QIcon>
 
 namespace Find {
 namespace Internal {

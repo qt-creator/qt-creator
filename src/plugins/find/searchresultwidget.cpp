@@ -32,17 +32,13 @@
 #include "searchresulttreemodel.h"
 #include "searchresulttreeitems.h"
 #include "searchresulttreeitemroles.h"
-#include "searchresultcolor.h"
 
-#include "ifindsupport.h"
 #include "findplugin.h"
 #include "treeviewfind.h"
 
 #include <aggregation/aggregate.h>
-#include <coreplugin/icore.h>
 
 #include <QDir>
-#include <QSettings>
 #include <QFrame>
 #include <QLabel>
 #include <QLineEdit>
