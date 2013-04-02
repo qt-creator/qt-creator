@@ -534,8 +534,10 @@ void EditorManager::setCurrentView(Core::Internal::SplitterOrView *view)
     if (view)
         view->update();
 
-    if (view && !view->editor())
+    if (view && !view->editor()) {
         view->setFocus();
+        view->activateWindow();
+    }
 }
 
 Core::Internal::SplitterOrView *EditorManager::currentSplitterOrView() const
@@ -1073,8 +1075,10 @@ Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, C
         setCurrentEditor(editor, (flags & IgnoreNavigationHistory));
         if (flags & ModeSwitch)
             switchToPreferedMode();
-        if (isVisible())
+        if (isVisible()) {
             editor->widget()->setFocus();
+            editor->widget()->activateWindow();
+        }
     }
     return editor;
 }
@@ -2254,6 +2258,7 @@ void EditorManager::gotoOtherSplit()
         if (IEditor *editor = view->editor()) {
             setCurrentEditor(editor, true);
             editor->widget()->setFocus();
+            editor->widget()->activateWindow();
         } else {
             setCurrentView(view);
         }
