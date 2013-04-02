@@ -42,7 +42,7 @@ class LdParser : public ProjectExplorer::IOutputParser
 
 public:
     LdParser();
-    virtual void stdError(const QString &line);
+    void stdError(const QString &line);
 
 private:
     QRegExp m_regExpLinker;

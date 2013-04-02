@@ -42,7 +42,7 @@ class GccParser : public ProjectExplorer::IOutputParser
 
 public:
     GccParser();
-    virtual void stdError(const QString &line);
+    void stdError(const QString &line);
 
 private:
     QRegExp m_regExp;

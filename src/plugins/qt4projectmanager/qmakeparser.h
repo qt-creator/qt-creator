@@ -43,7 +43,7 @@ class QMakeParser : public ProjectExplorer::IOutputParser
 
 public:
     QMakeParser();
-    virtual void stdError(const QString &line);
+    void stdError(const QString &line);
 
 private:
     QRegExp m_error;
