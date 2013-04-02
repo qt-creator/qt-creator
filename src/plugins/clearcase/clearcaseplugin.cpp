@@ -555,21 +555,40 @@ QString ClearCasePlugin::ccGetPredecessor(const QString &version) const
         return response.stdOut;
 }
 
+//! Get a list of paths to active VOBs.
+//! Paths are relative to topLevel
 QStringList ClearCasePlugin::ccGetActiveVobs() const
 {
     QStringList res;
     QStringList args(QLatin1String("lsvob"));
-    args << QLatin1String("-short");
-    QString topLevel = currentState().topLevel();
+    const QString topLevel = currentState().topLevel();
     const ClearCaseResponse response =
             runCleartool(topLevel, args, m_settings.timeOutMS(), SilentRun);
     if (response.error)
         return res;
-    foreach (QString dir, response.stdOut.split(QLatin1Char('\n'), QString::SkipEmptyParts)) {
-        dir = dir.mid(1); // omit first slash
-        QFileInfo fi(topLevel, dir);
-        if (fi.exists())
-            res.append(dir);
+
+    // format of output unix:
+    // * /path/to/vob   /path/to/vob/storage.vbs <and some text omitted here>
+    // format of output windows:
+    // * \vob     \\share\path\to\vob\storage.vbs <and some text omitted here>
+    QString prefix = topLevel;
+    if (!prefix.endsWith(QLatin1Char('/')))
+        prefix += QLatin1Char('/');
+
+    foreach (const QString &line, response.stdOut.split(QLatin1Char('\n'), QString::SkipEmptyParts)) {
+        const bool isActive = line.at(0) == QLatin1Char('*');
+        if (!isActive)
+            continue;
+
+        const QString dir =
+                QDir::fromNativeSeparators(line.mid(3, line.indexOf(QLatin1Char(' '), 3) - 3));
+        const QString relativeDir = QDir(topLevel).relativeFilePath(dir);
+
+        // Snapshot views does not necessarily have all active VOBs loaded, so we'll have to
+        // check if the dirs exists as well. Else the command will work, but the output will
+        // complain about the element not being loaded.
+        if (QFile::exists(prefix + relativeDir))
+            res.append(relativeDir);
     }
     return res;
 }
