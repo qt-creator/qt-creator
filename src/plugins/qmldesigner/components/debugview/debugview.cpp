@@ -186,7 +186,7 @@ void DebugView::bindingPropertiesChanged(const QList<BindingProperty> &propertyL
     }
 }
 
-void DebugView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &propertyList, AbstractView::PropertyChangeFlags propertyChange)
+void DebugView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &propertyList, AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
     if (isDebugViewEnabled()) {
         QTextStream message;
