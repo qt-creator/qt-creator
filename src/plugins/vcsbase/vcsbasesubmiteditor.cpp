@@ -39,7 +39,7 @@
 #include "vcsplugin.h"
 
 #include <aggregation/aggregate.h>
-#include <cpptools/ModelManagerInterface.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/checkablemessagebox.h>

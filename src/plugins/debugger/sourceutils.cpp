@@ -36,7 +36,7 @@
 #include <cpptools/abstracteditorsupport.h>
 #include <cpptools/cppprojectfile.h>
 
-#include <cpptools/ModelManagerInterface.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Overview.h>
 

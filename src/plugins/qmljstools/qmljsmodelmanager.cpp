@@ -37,7 +37,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/messagemanager.h>
-#include <cpptools/ModelManagerInterface.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 #include <qmljs/qmljsbind.h>
 #include <texteditor/basetexteditor.h>
 #include <projectexplorer/buildconfiguration.h>

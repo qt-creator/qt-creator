@@ -33,7 +33,7 @@
 
 #include "cpptools_global.h"
 #include "abstracteditorsupport.h"
-#include "ModelManagerInterface.h"
+#include "cppmodelmanagerinterface.h"
 
 #include <QDateTime>
 #include <QProcess>

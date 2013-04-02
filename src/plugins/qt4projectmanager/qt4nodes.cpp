@@ -51,7 +51,7 @@
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtkitinformation.h>
 
-#include <cpptools/ModelManagerInterface.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/stringutils.h>

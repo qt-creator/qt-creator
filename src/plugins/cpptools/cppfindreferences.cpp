@@ -30,7 +30,7 @@
 #include "cppfindreferences.h"
 
 #include "cpptoolsconstants.h"
-#include "ModelManagerInterface.h"
+#include "cppmodelmanagerinterface.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>

@@ -41,7 +41,7 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/documentmanager.h>
-#include <cpptools/ModelManagerInterface.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 #include <qmljstools/qmljsmodelmanager.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>

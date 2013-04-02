@@ -17,10 +17,6 @@ QtcPlugin {
     Depends { name: "LanguageUtils" }
 
     files: [
-        "ModelManagerInterface.cpp",
-        "ModelManagerInterface.h",
-        "TypeHierarchyBuilder.cpp",
-        "TypeHierarchyBuilder.h",
         "abstracteditorsupport.cpp",
         "abstracteditorsupport.h",
         "commentssettings.cpp",
@@ -72,6 +68,8 @@ QtcPlugin {
         "cpplocatorfilter.h",
         "cppmodelmanager.cpp",
         "cppmodelmanager.h",
+        "cppmodelmanagerinterface.cpp",
+        "cppmodelmanagerinterface.h",
         "cppqtstyleindenter.cpp",
         "cppqtstyleindenter.h",
         "cpppointerdeclarationformatter.cpp",
@@ -102,6 +100,8 @@ QtcPlugin {
         "symbolfinder.h",
         "symbolsfindfilter.cpp",
         "symbolsfindfilter.h",
+        "typehierarchybuilder.cpp",
+        "typehierarchybuilder.h",
         "uicodecompletionsupport.cpp",
         "uicodecompletionsupport.h",
         "builtinindexingsupport.cpp",

@@ -30,8 +30,7 @@
 #include "abstracteditorsupport.h"
 
 #include "cppfilesettingspage.h"
-#include "ModelManagerInterface.h"
-
+#include "cppmodelmanagerinterface.h"
 #include <cplusplus/Overview.h>
 
 #include <QDebug>

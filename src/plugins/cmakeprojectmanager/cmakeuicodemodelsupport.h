@@ -30,10 +30,11 @@
 #ifndef CMAKEUICODEMODELSUPPORT_H
 #define CMAKEUICODEMODELSUPPORT_H
 
-#include <cpptools/ModelManagerInterface.h>
 #include <cpptools/uicodecompletionsupport.h>
 
 #include <QDateTime>
+
+namespace CppTools { class CppModelManagerInterface; }
 
 namespace CMakeProjectManager {
 namespace Internal {

@@ -32,7 +32,7 @@
 
 #include "cpptools_global.h"
 #include "cpptoolsconstants.h"
-#include "ModelManagerInterface.h"
+#include "cppmodelmanagerinterface.h"
 
 #include <projectexplorer/project.h>
 #include <texteditor/basetexteditor.h>

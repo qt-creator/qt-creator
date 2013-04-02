@@ -31,7 +31,7 @@
 #define BUILTININDEXINGSUPPORT_H
 
 #include "cppindexingsupport.h"
-#include "ModelManagerInterface.h"
+#include "cppmodelmanagerinterface.h"
 
 #include <QFutureSynchronizer>
 

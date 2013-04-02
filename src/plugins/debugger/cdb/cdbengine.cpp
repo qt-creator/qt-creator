@@ -65,7 +65,7 @@
 #include <utils/hostosinfo.h>
 
 #include <cplusplus/findcdbbreakpoint.h>
-#include <cpptools/ModelManagerInterface.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 
 #include <QDir>
 #include <QMessageBox>

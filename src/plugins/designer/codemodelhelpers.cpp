@@ -29,7 +29,7 @@
 
 #include "codemodelhelpers.h"
 
-#include <cpptools/ModelManagerInterface.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>

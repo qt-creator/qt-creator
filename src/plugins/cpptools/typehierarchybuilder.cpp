@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "TypeHierarchyBuilder.h"
+#include "typehierarchybuilder.h"
 
 #include <cplusplus/DependencyTable.h>
 #include <cplusplus/FindUsages.h>

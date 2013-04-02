@@ -32,7 +32,7 @@
 #include <qmljs/qmljsinterpreter.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
-#include <cpptools/ModelManagerInterface.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 
 #include <QDebug>
 

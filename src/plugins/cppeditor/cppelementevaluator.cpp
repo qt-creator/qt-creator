@@ -30,7 +30,7 @@
 #include "cppelementevaluator.h"
 
 #include <cpptools/cpptoolsreuse.h>
-#include <cpptools/TypeHierarchyBuilder.h>
+#include <cpptools/typehierarchybuilder.h>
 
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Icons.h>

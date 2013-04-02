@@ -33,7 +33,7 @@
 
 #include "todoitemsscanner.h"
 
-#include <cpptools/ModelManagerInterface.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 
 namespace Todo {
 namespace Internal {

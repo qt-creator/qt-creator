@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "ModelManagerInterface.h"
+#include "cppmodelmanagerinterface.h"
 
 #include <cplusplus/pp-engine.h>
 

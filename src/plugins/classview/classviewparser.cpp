@@ -38,7 +38,7 @@
 #include <cplusplus/Name.h>
 
 // other
-#include <cpptools/ModelManagerInterface.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/Icons.h>
 #include <projectexplorer/projectexplorer.h>

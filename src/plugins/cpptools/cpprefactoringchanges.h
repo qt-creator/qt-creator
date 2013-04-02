@@ -31,7 +31,7 @@
 #define CPPREFACTORINGCHANGES_H
 
 #include "cpptools_global.h"
-#include "ModelManagerInterface.h"
+#include "cppmodelmanagerinterface.h"
 
 #include <texteditor/refactoringchanges.h>
 

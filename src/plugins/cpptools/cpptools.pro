@@ -6,6 +6,7 @@ HEADERS += completionsettingspage.h \
     cppcurrentdocumentfilter.h \
     cppfunctionsfilter.h \
     cppmodelmanager.h \
+    cppmodelmanagerinterface.h \
     cpplocatorfilter.h \
     cpptools_global.h \
     cpptoolsconstants.h \
@@ -39,8 +40,7 @@ HEADERS += completionsettingspage.h \
     cpplocalsymbols.h \
     cppsemanticinfo.h \
     cppcompletionassistprovider.h \
-    ModelManagerInterface.h \
-    TypeHierarchyBuilder.h \
+    typehierarchybuilder.h \
     cppindexingsupport.h \
     builtinindexingsupport.h \
     cpppointerdeclarationformatter.h \
@@ -51,6 +51,7 @@ SOURCES += completionsettingspage.cpp \
     cppcurrentdocumentfilter.cpp \
     cppfunctionsfilter.cpp \
     cppmodelmanager.cpp \
+    cppmodelmanagerinterface.cpp \
     cpplocatorfilter.cpp \
     cpptoolseditorsupport.cpp \
     cpptoolsplugin.cpp \
@@ -82,8 +83,7 @@ SOURCES += completionsettingspage.cpp \
     cpplocalsymbols.cpp \
     cppsemanticinfo.cpp \
     cppcompletionassistprovider.cpp \
-    ModelManagerInterface.cpp \
-    TypeHierarchyBuilder.cpp \
+    typehierarchybuilder.cpp \
     cppindexingsupport.cpp \
     builtinindexingsupport.cpp \
     cpppointerdeclarationformatter.cpp \

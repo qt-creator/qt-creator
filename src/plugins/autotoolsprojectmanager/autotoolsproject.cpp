@@ -49,7 +49,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/headerpath.h>
 #include <extensionsystem/pluginmanager.h>
-#include <cpptools/ModelManagerInterface.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 #include <utils/qtcassert.h>
