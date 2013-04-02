@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "InternalSignalHandlerProperty.h"
+#include "internalsignalhandlerproperty.h"
 
 namespace QmlDesigner {
 namespace Internal {

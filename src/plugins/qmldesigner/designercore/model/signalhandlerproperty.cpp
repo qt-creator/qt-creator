@@ -31,7 +31,7 @@
 #include "nodeabstractproperty.h"
 #include "nodeproperty.h"
 #include "internalproperty.h"
-#include "internalSignalHandlerProperty.h"
+#include "internalsignalhandlerproperty.h"
 #include "invalidmodelnodeexception.h"
 #include "invalidpropertyexception.h"
 #include "invalidargumentexception.h"
