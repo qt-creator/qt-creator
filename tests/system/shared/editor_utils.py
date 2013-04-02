@@ -64,7 +64,7 @@ def widgetContainsPoint(widget, point):
 def openContextMenuOnTextCursorPosition(editor):
     rect = editor.cursorRect(editor.textCursor())
     if platform.system() == 'Darwin':
-        JIRA.performWorkaroundIfStillOpen(6918, JIRA.Bug.CREATOR, editor)
+        JIRA.performWorkaroundIfStillOpen(8735, JIRA.Bug.CREATOR, editor)
     openContextMenu(editor, rect.x+rect.width/2, rect.y+rect.height/2, 0)
     menuInList = [None]
     waitFor("menuVisibleAtEditor(editor, menuInList)", 5000)

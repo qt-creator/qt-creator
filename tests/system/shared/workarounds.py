@@ -201,7 +201,7 @@ class JIRA:
         def __initBugDict__(self):
             self.__bugs__= {
                             'QTCREATORBUG-6853':self._workaroundCreator6853_,
-                            'QTCREATORBUG-6918':self._workaroundCreator_MacEditorFocus_
+                            'QTCREATORBUG-8735':self._workaroundCreator_MacEditorFocus_
                             }
         # helper function - will be called if no workaround for the requested bug is deposited
         def _exitFatal_(self, bugType, number):
