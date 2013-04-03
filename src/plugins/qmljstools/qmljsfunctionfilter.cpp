@@ -30,7 +30,6 @@
 #include "qmljsfunctionfilter.h"
 #include "qmljslocatordata.h"
 
-#include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 
 #include <QStringMatcher>

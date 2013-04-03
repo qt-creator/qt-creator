@@ -32,7 +32,6 @@
 #include "qmljstoolsconstants.h"
 #include "qmljsindenter.h"
 #include <texteditor/simplecodestylepreferences.h>
-#include <texteditor/tabsettings.h>
 #include <texteditor/snippets/isnippetprovider.h>
 #include <extensionsystem/pluginmanager.h>
 #include <qmljseditor/qmljseditorconstants.h>

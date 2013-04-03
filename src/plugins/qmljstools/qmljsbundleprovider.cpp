@@ -30,25 +30,11 @@
 #include "qmljsbundleprovider.h"
 
 #include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/kit.h>
-#include <projectexplorer/kitmanager.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/target.h>
 #include <qmljs/qmljsbundle.h>
-#include <qmljs/qmljsdocument.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <QDir>
-#include <QFile>
-#include <QHash>
-#include <QHashIterator>
-#include <QList>
-#include <QMutex>
-#include <QMutexLocker>
-#include <QtAlgorithms>
 
 namespace QmlJSTools {
 

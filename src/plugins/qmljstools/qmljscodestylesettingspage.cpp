@@ -35,7 +35,6 @@
 #include "qmljsqtstylecodeformatter.h"
 
 #include <texteditor/snippets/isnippetprovider.h>
-#include <texteditor/fontsettings.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/simplecodestylepreferences.h>
 #include <texteditor/displaysettings.h>

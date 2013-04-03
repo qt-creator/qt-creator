@@ -30,14 +30,12 @@
 #include "qmljsplugindumper.h"
 #include "qmljsmodelmanager.h"
 
-#include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <projectexplorer/projectexplorer.h>
 #include <coreplugin/messagemanager.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
 
-#include <QMetaType>
 #include <QDir>
 
 using namespace LanguageUtils;

@@ -41,7 +41,6 @@
 #include <QClipboard>
 #include <QAbstractProxyModel>
 #include <QFileInfo>
-#include <QUrl>
 #include <QScrollBar>
 #include <QStyleFactory>
 #include <QString>

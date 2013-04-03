@@ -35,28 +35,16 @@
 #include "qmljsbundleprovider.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/messagemanager.h>
 #include <cpptools/ModelManagerInterface.h>
-#include <cplusplus/CppDocument.h>
-#include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsbind.h>
-#include <qmljs/qmljsbundle.h>
-#include <qmljs/parser/qmldirparser_p.h>
-#include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/kit.h>
-#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
-#include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qmldumptool.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -66,11 +54,8 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QLibraryInfo>
-#include <QtConcurrentRun>
 #include <utils/runextensions.h>
 #include <QTextStream>
-#include <QCoreApplication>
 #include <QTimer>
 #include <QRegExp>
 

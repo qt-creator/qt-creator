@@ -29,8 +29,6 @@
 
 #include "qmlconsoleitemmodel.h"
 
-#include <utils/qtcassert.h>
-
 #include <QFontMetrics>
 #include <QFont>
 

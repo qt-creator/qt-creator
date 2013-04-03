@@ -31,10 +31,6 @@
 #define QMLJSTOOLS_H
 
 #include <extensionsystem/iplugin.h>
-#include <projectexplorer/projectexplorer.h>
-
-#include <QTextDocument>
-#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;

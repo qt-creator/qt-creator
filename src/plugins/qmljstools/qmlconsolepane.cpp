@@ -30,12 +30,9 @@
 #include "qmlconsolepane.h"
 #include "qmlconsoleview.h"
 #include "qmlconsoleproxymodel.h"
-#include "qmlconsoleitemmodel.h"
-#include "qmlconsolemanager.h"
 #include "qmlconsoleitemdelegate.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/icontext.h>
 #include <coreplugin/findplaceholder.h>
 #include <utils/savedaction.h>
 #include <aggregation/aggregate.h>

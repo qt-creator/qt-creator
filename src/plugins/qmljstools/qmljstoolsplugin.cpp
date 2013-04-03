@@ -37,20 +37,14 @@
 #include "qmlconsolemanager.h"
 #include "qmljsbundleprovider.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <QtPlugin>
-#include <QFileInfo>
-#include <QDir>
 #include <QDebug>
-#include <QSettings>
 #include <QMenu>
 
 using namespace QmlJSTools;

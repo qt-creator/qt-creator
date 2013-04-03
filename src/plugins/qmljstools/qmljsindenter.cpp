@@ -35,7 +35,6 @@
 #include <QChar>
 #include <QTextDocument>
 #include <QTextBlock>
-#include <QTextCursor>
 
 using namespace QmlJSEditor;
 using namespace Internal;

@@ -29,21 +29,10 @@
 
 #include "qmljstoolsplugin.h"
 
-#include <QScopedPointer>
 #include <QLatin1String>
-#include <QGraphicsObject>
-#include <QApplication>
-#include <QSettings>
-#include <QFileInfo>
 
 #include <coreplugin/icore.h>
-#include <qmljs/qmljsinterpreter.h>
-#include <qmljs/qmljsdocument.h>
-#include <qmljs/qmljsbind.h>
-#include <qmljs/qmljscontext.h>
 #include <qmljs/qmljslink.h>
-#include <qmljs/parser/qmljsast_p.h>
-#include <qmljstools/qmljsrefactoringchanges.h>
 #include <qmljstools/qmljsmodelmanager.h>
 
 #include <QtTest>
