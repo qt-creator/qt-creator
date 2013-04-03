@@ -5,9 +5,6 @@ workingDir = None
 def main():
     global workingDir
     startApplication("qtcreator" + SettingsPath)
-    targets = [QtQuickConstants.Targets.DESKTOP_474_GCC]
-    if platform.system() in ('Windows', 'Microsoft'):
-        targets.append(QtQuickConstants.Targets.DESKTOP_474_MSVC2008)
     # using a temporary directory won't mess up a potentially existing
     workingDir = tempDir()
     checkedTargets, projectName = createNewQtQuickApplication(workingDir)
