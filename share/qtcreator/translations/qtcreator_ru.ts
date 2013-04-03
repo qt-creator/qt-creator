@@ -696,8 +696,12 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <translation>Не удалось запустить «%1».</translation>
     </message>
     <message>
-        <source>Cannot find %1 process.</source>
-        <translation>Не удалось найти процесс %1.</translation>
+        <source>
+
+&apos;%1&apos; terminated.</source>
+        <translation>
+
+«%1» завершён.</translation>
     </message>
 </context>
 <context>
@@ -3691,14 +3695,6 @@ p, li { white-space: pre-wrap; }
 </context>
 <context>
     <name>ComboBoxSpecifics</name>
-    <message>
-        <source>Text</source>
-        <translation>Текст</translation>
-    </message>
-    <message>
-        <source>The text shown on the combobox</source>
-        <translation>Текст, отображаемый на поле с выпадающим списком</translation>
-    </message>
     <message>
         <source>The tool tip shown for the combobox.</source>
         <translation>Подсказка, отображаемая для поля с выпадающим списком.</translation>
@@ -6845,6 +6841,33 @@ Flags: %3</source>
     <message>
         <source>CVS Command</source>
         <translation>Команда CVS</translation>
+    </message>
+</context>
+<context>
+    <name>DebugViewWidget</name>
+    <message>
+        <source>Debug</source>
+        <translation>Отладка</translation>
+    </message>
+    <message>
+        <source>Model Log</source>
+        <translation>Журнал модели</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>Очистить</translation>
+    </message>
+    <message>
+        <source>Instance Notifications</source>
+        <translation>Уведомления</translation>
+    </message>
+    <message>
+        <source>Instance Errors</source>
+        <translation>Ошибки</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Включено</translation>
     </message>
 </context>
 <context>
@@ -11377,6 +11400,10 @@ Rebuilding the project might help.</source>
         <translation></translation>
     </message>
     <message>
+        <source>About Qt Designer plugins...</source>
+        <translation>О модулях Qt Designer...</translation>
+    </message>
+    <message>
         <source>Signals &amp;&amp; Slots Editor</source>
         <translation>Редактор сигналов и слотов</translation>
     </message>
@@ -11411,10 +11438,6 @@ Rebuilding the project might help.</source>
     <message>
         <source>Shift+F4</source>
         <translation></translation>
-    </message>
-    <message>
-        <source>About Qt Designer plugins....</source>
-        <translation>О модулях Qt Designer...</translation>
     </message>
     <message>
         <source>Preview in</source>
@@ -19264,10 +19287,6 @@ Preselects Qt for Simulator and mobile targets if available.</source>
         <translation>Создание простого проекта под управлением qmake на языке C++, но без использования библиотеки Qt.</translation>
     </message>
     <message>
-        <source>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QDeclarativeEngine class.</source>
-        <translation>Создание подключаемого модуля на C++, являющегося расширением, которое может быть динамически загружено в приложения через класс QDeclarativeEngine.</translation>
-    </message>
-    <message>
         <source>Custom QML Extension  Plugin Parameters</source>
         <translation>Параметры особого модуля расширяющего QML</translation>
     </message>
@@ -19354,10 +19373,6 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     <message>
         <source>Qt Quick 1 Extension Plugin</source>
         <translation>Модуль, расширяющий Qt Quick 1</translation>
-    </message>
-    <message>
-        <source>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QQmlEngine class.</source>
-        <translation>Создание подключаемого модуля на C++, являющегося расширением, которое может быть динамически загружено в приложения через класс QQmlEngine.</translation>
     </message>
     <message>
         <source>Qt Quick 2 Extension Plugin</source>
@@ -22528,6 +22543,13 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
+    <name>QmlDesigner::FormEditorView</name>
+    <message>
+        <source>Form Editor</source>
+        <translation>Редактор форм</translation>
+    </message>
+</context>
+<context>
     <name>QmlDesigner::FormEditorWidget</name>
     <message>
         <source>Transform Tool (Q).</source>
@@ -22619,6 +22641,117 @@ Remote stderr was: %1</source>
     <message>
         <source>Damping:</source>
         <translation>Затухание:</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::Internal::DebugView</name>
+    <message>
+        <source>Model attached</source>
+        <translation>Модель подключена</translation>
+    </message>
+    <message>
+        <source>FileName %1</source>
+        <translation>Файл %1</translation>
+    </message>
+    <message>
+        <source>Model detached</source>
+        <translation>Модель отключена</translation>
+    </message>
+    <message>
+        <source>Added imports:</source>
+        <translation>Добавленные импорты:</translation>
+    </message>
+    <message>
+        <source>Removed imports:</source>
+        <translation>Убранные импорты:</translation>
+    </message>
+    <message>
+        <source>Imports changed:</source>
+        <translation>Изменения в импортах:</translation>
+    </message>
+    <message>
+        <source>Node created:</source>
+        <translation>Элемент создан:</translation>
+    </message>
+    <message>
+        <source>Node removed:</source>
+        <translation>Элемент удалён:</translation>
+    </message>
+    <message>
+        <source>New parent property:</source>
+        <translation>Новое родительское свойство:</translation>
+    </message>
+    <message>
+        <source>Old parent property:</source>
+        <translation>Старое родительское свойство:</translation>
+    </message>
+    <message>
+        <source>PropertyChangeFlag</source>
+        <translation>PropertyChangeFlag</translation>
+    </message>
+    <message>
+        <source>Node reparanted:</source>
+        <translation>Элемент сменил родителя:</translation>
+    </message>
+    <message>
+        <source>New Id: </source>
+        <translation>Новый Id: </translation>
+    </message>
+    <message>
+        <source>Old Id: </source>
+        <translation>Старый Id: </translation>
+    </message>
+    <message>
+        <source>Node id changed:</source>
+        <translation>Изменён id элемента:</translation>
+    </message>
+    <message>
+        <source>VariantProperties changed:</source>
+        <translation>Изменены VariantProperties:</translation>
+    </message>
+    <message>
+        <source>BindingProperties changed:</source>
+        <translation>Изменены BindingProperties:</translation>
+    </message>
+    <message>
+        <source>SignalHandlerProperties changed:</source>
+        <translation>Изменены SignalHandlerProperties:</translation>
+    </message>
+    <message>
+        <source>Properties removed:</source>
+        <translation>Удалённые свойства:</translation>
+    </message>
+    <message>
+        <source>Auxiliary Data Changed:</source>
+        <translation>Изменённые дополнительные данные:</translation>
+    </message>
+    <message>
+        <source>Begin rewriter transaction</source>
+        <translation>Начало транзакционного рефакторинга</translation>
+    </message>
+    <message>
+        <source>End rewriter transaction</source>
+        <translation>Конец транзакционного рефакторинга</translation>
+    </message>
+    <message>
+        <source>Debug View</source>
+        <translation>Интерфейс отладчика</translation>
+    </message>
+    <message>
+        <source>Instance property change</source>
+        <translation>Изменение свойства экземпляра</translation>
+    </message>
+    <message>
+        <source>Instance Completed</source>
+        <translation>Экземпляр готов</translation>
+    </message>
+    <message>
+        <source>Custom Notification:</source>
+        <translation>Особое оповещение:</translation>
+    </message>
+    <message>
+        <source>Node Source Changed:</source>
+        <translation>Изменены исходники элемента:</translation>
     </message>
 </context>
 <context>
@@ -22761,6 +22894,18 @@ Remote stderr was: %1</source>
     <message>
         <source>Warn about unsupported features of Qt Quick Designer in the code editor</source>
         <translation>Предупреждать о неподдерживаемых особенностях Qt Designer в редакторе кода</translation>
+    </message>
+    <message>
+        <source>Debugging</source>
+        <translation>Отладка</translation>
+    </message>
+    <message>
+        <source>Show the debugging view</source>
+        <translation>Показывать интерфейс отладки</translation>
+    </message>
+    <message>
+        <source>Enable the debugging view</source>
+        <translation>Включить интерфейс отладки</translation>
     </message>
 </context>
 <context>
@@ -23074,6 +23219,10 @@ Remote stderr was: %1</source>
 </context>
 <context>
     <name>QmlDesigner::StatesEditorView</name>
+    <message>
+        <source>States Editor</source>
+        <translation>Редактор состояний</translation>
+    </message>
     <message>
         <source>base state</source>
         <translation>исходное состояние</translation>
@@ -24828,6 +24977,10 @@ Please use the stop button instead.</source>
     <message>
         <source>Creates a Qt Quick 2 UI project with a single QML file that contains the main view.&amp;lt;br/&amp;gt;You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Requires &amp;lt;b&amp;gt;Qt 5.0&amp;lt;/b&amp;gt; or newer.</source>
         <translation>Создание проекта Qt Quick 2 с одним файлом QML, содержащим главный интерфейс.&amp;lt;br/&amp;gt; Проверять проекты Qt Quick 2 можно без пересборки в QML Scene. Для создания и запуска этого типа проектов не требуется интегрированная среда разработки. &amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Требуется &amp;lt;b&amp;gt;Qt 5.0&amp;lt;/b&amp;gt; или выше.</translation>
+    </message>
+    <message>
+        <source>Creates a Qt Quick 2 UI project with a single QML file that contains the main view and uses Qt Quick Controls.&amp;lt;br/&amp;gt;You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. This project requires that you have installed Qt Quick Controls for your Qt version.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Requires &amp;lt;b&amp;gt;Qt 5.1&amp;lt;/b&amp;gt; or newer.</source>
+        <translation>Создание проекта Qt Quick 2 с одним файлом QML, содержащим главный интерфейс и использующим Qt Quick Controls.&amp;lt;br/&amp;gt; Проверять проекты Qt Quick 2 можно без пересборки в QML Scene. Проекту необходимо, чтобы для вашего профиля Qt были установлены Qt Quick Controls. &amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Требуется &amp;lt;b&amp;gt;Qt 5.1&amp;lt;/b&amp;gt; или выше.</translation>
     </message>
 </context>
 <context>
@@ -33067,6 +33220,10 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>The path &apos;%1&apos; is not a directory.</source>
         <translation>Путь «%1» не является каталогом.</translation>
+    </message>
+    <message>
+        <source>The directory &apos;%1&apos; does not exist.</source>
+        <translation>Каталог «%1» отсутствует.</translation>
     </message>
     <message>
         <source>The path &lt;b&gt;%1&lt;/b&gt; is not an executable file.</source>
