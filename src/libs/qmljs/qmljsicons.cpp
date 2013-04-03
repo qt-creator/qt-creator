@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "qmljsicons.h"
+#include <QIcon>
 #include <QDebug>
 #include <QDir>
 #include <QHash>

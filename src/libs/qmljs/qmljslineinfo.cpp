@@ -66,7 +66,6 @@
 */
 
 #include <qmljs/qmljslineinfo.h>
-#include <qmljs/qmljsscanner.h>
 
 #include <QDebug>
 

@@ -30,7 +30,6 @@
 #include "qmljsdelta.h"
 #include "qmljsutils.h"
 #include <qmljs/parser/qmljsast_p.h>
-#include <qmljs/parser/qmljsastvisitor_p.h>
 
 
 #include <typeinfo>

@@ -30,14 +30,10 @@
 #include "qmljsreformatter.h"
 
 #include "qmljscodeformatter.h"
-#include "qmljsscanner.h"
 #include "parser/qmljsast_p.h"
 #include "parser/qmljsastvisitor_p.h"
 
-#include <QCoreApplication>
 #include <QString>
-#include <QFile>
-#include <QTextStream>
 #include <QTextBlock>
 #include <QTextDocument>
 #include <QTextCursor>

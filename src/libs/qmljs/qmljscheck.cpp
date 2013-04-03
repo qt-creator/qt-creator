@@ -29,7 +29,6 @@
 
 #include "qmljscheck.h"
 #include "qmljsbind.h"
-#include "qmljscontext.h"
 #include "qmljsevaluate.h"
 #include "qmljsutils.h"
 #include "parser/qmljsast_p.h"
@@ -38,8 +37,6 @@
 
 #include <QDebug>
 #include <QDir>
-#include <QColor>
-#include <QApplication>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

@@ -31,12 +31,9 @@
 #define QMLJSBIND_H
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
-#include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsvalueowner.h>
 
 #include <QHash>
-#include <QStringList>
-#include <QSharedPointer>
 #include <QCoreApplication>
 
 namespace QmlJS {

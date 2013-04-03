@@ -32,12 +32,7 @@
 #include "parser/qmljsparser_p.h"
 #include "parser/qmljslexer_p.h"
 #include "parser/qmljsengine_p.h"
-#include "parser/qmljsast_p.h"
-#include "parser/qmljsastvisitor_p.h"
-#include <qmljs/qmljsdocument.h>
 
-#include "qmljsbind.h"
-#include "qmljsinterpreter.h"
 #include "qmljsutils.h"
 
 #include <QFile>

@@ -33,10 +33,6 @@
 #include "qmljsdocument.h"
 #include "qmljsmodelmanagerinterface.h"
 
-#include <languageutils/componentversion.h>
-
-#include <QDir>
-#include <QFileInfo>
 #include <QDebug>
 
 using namespace LanguageUtils;

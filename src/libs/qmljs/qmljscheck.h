@@ -30,8 +30,6 @@
 #ifndef QMLJSCHECK_H
 #define QMLJSCHECK_H
 
-#include <qmljs/qmljsdocument.h>
-#include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/qmljsscopechain.h>
 #include <qmljs/qmljsstaticanalysismessage.h>
@@ -40,7 +38,6 @@
 #include <QCoreApplication>
 #include <QSet>
 #include <QStack>
-#include <QColor>
 
 namespace QmlJS {
 

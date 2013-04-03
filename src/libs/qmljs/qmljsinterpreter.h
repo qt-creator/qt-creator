@@ -30,11 +30,8 @@
 #ifndef QMLJS_INTERPRETER_H
 #define QMLJS_INTERPRETER_H
 
-#include <languageutils/componentversion.h>
-#include <languageutils/fakemetaobject.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljs_global.h>
-#include <qmljs/parser/qmljsastfwd_p.h>
 
 #include <QFileInfoList>
 #include <QList>

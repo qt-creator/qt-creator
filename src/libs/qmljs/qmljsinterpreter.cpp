@@ -29,8 +29,6 @@
 
 #include "qmljsinterpreter.h"
 #include "qmljsevaluate.h"
-#include "qmljslink.h"
-#include "qmljsbind.h"
 #include "qmljsscopebuilder.h"
 #include "qmljsscopechain.h"
 #include "qmljsscopeastpath.h"
@@ -39,20 +37,13 @@
 #include "qmljscontext.h"
 #include "parser/qmljsast_p.h"
 
-#include <languageutils/fakemetaobject.h>
 #include <utils/qtcassert.h>
 
 #include <QFile>
 #include <QDir>
 #include <QString>
 #include <QStringList>
-#include <QMetaObject>
-#include <QMetaProperty>
-#include <QXmlStreamReader>
-#include <QProcess>
 #include <QDebug>
-
-#include <algorithm>
 
 using namespace LanguageUtils;
 using namespace QmlJS;

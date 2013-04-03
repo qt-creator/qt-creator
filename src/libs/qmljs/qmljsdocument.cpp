@@ -29,10 +29,9 @@
 
 #include "qmljsdocument.h"
 #include "qmljsbind.h"
-#include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljslexer_p.h>
 #include <qmljs/parser/qmljsparser_p.h>
-#include <qmljs/parser/qmljsastfwd_p.h>
+
 #include <QDir>
 
 using namespace QmlJS;

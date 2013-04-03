@@ -35,7 +35,6 @@
 #include "qmljsutils.h"
 #include "qmljsmodelmanagerinterface.h"
 
-#include <QFileInfo>
 #include <QDir>
 #include <QDebug>
 

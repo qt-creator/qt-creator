@@ -32,7 +32,8 @@
 
 #include <qmljs/qmljs_global.h>
 #include <qmljs/parser/qmljsast_p.h>
-#include <QIcon>
+
+QT_FORWARD_DECLARE_CLASS(QIcon)
 
 namespace QmlJS {
 

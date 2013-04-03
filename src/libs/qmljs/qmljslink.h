@@ -30,10 +30,7 @@
 #ifndef QMLJSLINK_H
 #define QMLJSLINK_H
 
-#include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljscontext.h>
-#include <qmljs/parser/qmljsastfwd_p.h>
-#include <languageutils/componentversion.h>
 
 #include <QCoreApplication>
 

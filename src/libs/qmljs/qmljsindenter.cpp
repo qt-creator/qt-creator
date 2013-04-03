@@ -66,7 +66,6 @@
 */
 
 #include <qmljs/qmljsindenter.h>
-#include <qmljs/qmljsscanner.h>
 
 #include <QDebug>
 #include <QTextBlock>

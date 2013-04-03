@@ -35,7 +35,6 @@
 #include <qmljs/qmljsdocument.h>
 
 #include <QString>
-#include <QCoreApplication>
 #include <QHash>
 
 QT_FORWARD_DECLARE_CLASS(QTextStream)

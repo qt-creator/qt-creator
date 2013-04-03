@@ -29,8 +29,6 @@
 
 #include <qmljs/qmljsscanner.h>
 
-#include <QTextCharFormat>
-
 using namespace QmlJS;
 
 namespace {

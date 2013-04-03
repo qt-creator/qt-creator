@@ -35,7 +35,6 @@
 #include <QDebug>
 #include <QLatin1String>
 #include <QRegExp>
-#include <QMap>
 
 #include <cmath>
 

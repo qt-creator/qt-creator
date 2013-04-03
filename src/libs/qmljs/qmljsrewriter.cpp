@@ -30,9 +30,7 @@
 #include "qmljsrewriter.h"
 
 #include <qmljs/parser/qmljsast_p.h>
-#include <qmljs/parser/qmljsengine_p.h>
 #include <qmljs/qmljsutils.h>
-#include <utils/changeset.h>
 
 // ### FIXME: remove these includes:
 #include <QTextBlock>

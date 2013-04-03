@@ -30,7 +30,6 @@
 #include "qmljsscopebuilder.h"
 
 #include "qmljsbind.h"
-#include "qmljscontext.h"
 #include "qmljsevaluate.h"
 #include "qmljsscopechain.h"
 #include "qmljsutils.h"

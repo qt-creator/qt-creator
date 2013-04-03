@@ -32,15 +32,9 @@
 #include "parser/qmljsparser_p.h"
 #include "parser/qmljslexer_p.h"
 #include "parser/qmljsengine_p.h"
-#include "parser/qmljsast_p.h"
-#include "parser/qmljsastvisitor_p.h"
 
-#include "qmljsbind.h"
 #include "qmljsinterpreter.h"
 #include "qmljsutils.h"
-
-#include <QIODevice>
-#include <QBuffer>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

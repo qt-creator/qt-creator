@@ -30,7 +30,6 @@
 #define QMLJSDOCUMENT_H
 
 #include <QList>
-#include <QPair>
 #include <QSharedPointer>
 #include <QString>
 

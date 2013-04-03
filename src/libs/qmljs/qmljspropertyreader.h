@@ -30,8 +30,6 @@
 #ifndef QMLJSPROPERTYREADER_H
 #define QMLJSPROPERTYREADER_H
 
-#include <qmljs/qmljs_global.h>
-#include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsdocument.h>
 
 #include <QHash>

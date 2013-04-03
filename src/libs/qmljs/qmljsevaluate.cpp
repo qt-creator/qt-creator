@@ -29,7 +29,6 @@
 
 #include "qmljsevaluate.h"
 #include "qmljscontext.h"
-#include "qmljsvalueowner.h"
 #include "qmljsscopechain.h"
 #include "parser/qmljsast_p.h"
 #include <QDebug>
