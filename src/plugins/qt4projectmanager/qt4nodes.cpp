@@ -2180,7 +2180,7 @@ TargetInformation Qt4ProFileNode::targetInformation(QtSupport::ProFileReader *re
     result.executable = QDir::cleanPath(destDir + QLatin1Char('/') + result.target);
     //qDebug() << "##### updateTarget sets:" << result.workingDir << result.executable;
 
-    Utils::HostOsInfo::appendExecutableSuffix(result.executable);
+    result.executable = Utils::HostOsInfo::withExecutableSuffix(result.executable);
     result.valid = true;
 
     if (readerBP)

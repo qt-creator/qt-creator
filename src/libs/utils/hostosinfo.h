@@ -58,7 +58,7 @@ public:
     static bool isMacHost() { return hostOs() == HostOsMac; }
     static inline bool isAnyUnixHost();
 
-    static QString appendExecutableSuffix(const QString &executable)
+    static QString withExecutableSuffix(const QString &executable)
     {
         QString finalName = executable;
         if (isWindowsHost())
