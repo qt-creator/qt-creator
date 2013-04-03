@@ -92,14 +92,15 @@ release/
 /doc/api/html/
 /doc/pluginhowto/html/
 /dist/gdb/python/
+/dist/gdb/qtcreator-*/
+/dist/gdb/source/
+/dist/gdb/staging/
+/dist/gdb/*.gz
 .moc/
 .obj/
 .pch/
 .rcc/
 .uic/
-/dist/gdb/qtcreator-*/
-/dist/gdb/source/
-/dist/gdb/staging/
 ipch/
 tmp/
 # ignore both a directory as well as a symlink
