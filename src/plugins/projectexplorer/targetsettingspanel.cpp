@@ -530,11 +530,15 @@ void TargetSettingsPanelWidget::createAction(Kit *k, QMenu *menu)
 {
     QAction *action = new QAction(k->displayName(), menu);
     action->setData(QVariant::fromValue(k->id()));
+    QString statusTip = QLatin1String("<html><body>");
     QString errorMessage;
     if (!m_project->supportsKit(k, &errorMessage)) {
         action->setEnabled(false);
-        action->setStatusTip(errorMessage);
+        statusTip += errorMessage;
     }
+    statusTip += k->toHtml();
+    action->setStatusTip(statusTip);
+
     menu->addAction(action);
 }
 
