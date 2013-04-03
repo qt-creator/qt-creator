@@ -139,7 +139,7 @@ def getQtInformationForBuildSettings(kitCount, alreadyOnProjectsBuildSettings=Fa
     qtLibPath = getQtInformationByQMakeCall(qtDir, QtInformation.QT_LIBPATH)
     qtBinPath = getQtInformationByQMakeCall(qtDir, QtInformation.QT_BINPATH)
     if afterSwitchTo:
-        if ViewConstants.WELCOME <= afterSwitchTo <= ViewConstans.LAST_AVAILABLE:
+        if ViewConstants.WELCOME <= afterSwitchTo <= ViewConstants.LAST_AVAILABLE:
             switchViewTo(afterSwitchTo)
         else:
             test.warning("Don't know where you trying to switch to (%s)" % afterSwitchTo)
