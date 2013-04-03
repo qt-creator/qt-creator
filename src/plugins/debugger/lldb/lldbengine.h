@@ -121,7 +121,6 @@ private:
     Q_SLOT void readLldbStandardError();
     Q_SLOT void handleOutput2(const QByteArray &data);
     void handleResponse(const QByteArray &ba);
-    void handleOutput(const QByteArray &data);
     void updateAll();
     void updateLocals();
     void handleUpdateAll(const LldbResponse &response);
@@ -137,15 +136,13 @@ private:
 
     struct LldbCommand
     {
-        LldbCommand()
-            : callback(0), callbackName(0)
-        {}
+        LldbCommand() : callback(0), callbackName(0), token(0) {}
 
         LldbCommandCallback callback;
         const char *callbackName;
         QByteArray command;
         QVariant cookie;
-        //QTime postTime;
+        int token;
     };
 
     void handleStop(const LldbResponse &response);

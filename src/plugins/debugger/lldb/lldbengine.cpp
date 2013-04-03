@@ -78,6 +78,23 @@
 namespace Debugger {
 namespace Internal {
 
+static QByteArray quoteUnprintable(const QByteArray &ba)
+{
+    QByteArray res;
+    char buf[10];
+    for (int i = 0, n = ba.size(); i != n; ++i) {
+        const unsigned char c = ba.at(i);
+        if (isprint(c)) {
+            res += c;
+        } else {
+            qsnprintf(buf, sizeof(buf) - 1, "\\%02x", int(c));
+            res += buf;
+        }
+    }
+    return res;
+}
+
+
 ///////////////////////////////////////////////////////////////////////
 //
 // LldbEngine
@@ -124,14 +141,17 @@ void LldbEngine::postCommand(const QByteArray &command,
                  const char *callbackName,
                  const QVariant &cookie)
 {
+    static int token = 0;
+    ++token;
     QTC_ASSERT(m_lldbProc.state() == QProcess::Running, notifyEngineIll());
     LldbCommand cmd;
     cmd.command = command;
     cmd.callback = callback;
     cmd.callbackName = callbackName;
     cmd.cookie = cookie;
+    cmd.token = token;
     m_commands.enqueue(cmd);
-    showMessage(_(cmd.command), LogInput);
+    showMessage(QString::number(token) + _(cmd.command), LogInput);
     m_lldbProc.write(cmd.command + '\n');
 }
 
@@ -600,28 +620,56 @@ void LldbEngine::readLldbStandardError()
     //handleOutput(err);
 }
 
+static bool isEatable(char c)
+{
+    return c == 10 || c == 13;
+}
+
 void LldbEngine::readLldbStandardOutput()
 {
     QByteArray out = m_lldbProc.readAllStandardOutput();
     showMessage(_("Lldb stdout: " + out));
-    qDebug() << "\nLLDB STDOUT" << out;
-    handleOutput(out);
-}
+    qDebug("\nLLDB RAW STDOUT: '%s'", quoteUnprintable(out).constData());
+    // Remove embedded backspace characters
+    int j = 1;
+    const int n = out.size();
+    for (int i = 1; i < n; ++i, ++j) {
+        const char c = out.at(i);
+        if (i != j)
+            out[j] = c;
+        if (c == 8)
+            j -= 2;
+        else if (isEatable(c))
+            --j;
+    }
+    if (j != n)
+        out.resize(j);
+    //qDebug("\n\nLLDB STDOUT: '%s'", quoteUnprintable(out).constData());
+    if (out.isEmpty())
+        return;
 
-void LldbEngine::handleOutput(const QByteArray &data)
-{
     //qDebug() << "READ: " << data;
-    m_inbuffer.append(data);
-    qDebug() << "BUFFER FROM: '" << m_inbuffer << '\'';
+    if (out.startsWith(8)) {
+        if (!m_inbuffer.isEmpty())
+            m_inbuffer.chop(1);
+        m_inbuffer.append(out.mid(1));
+    } else if (isEatable(out.at(0))) {
+        m_inbuffer.append(out.mid(1));
+    } else {
+        m_inbuffer.append(out);
+    }
+
+    qDebug("\nBUFFER FROM: '%s'", quoteUnprintable(m_inbuffer).constData());
     while (true) {
         int pos = m_inbuffer.indexOf("(lldb)");
         if (pos == -1)
             break;
         QByteArray response = m_inbuffer.left(pos).trimmed();
         m_inbuffer = m_inbuffer.mid(pos + 6);
+        qDebug("\nBUFFER RECOGNIZED: '%s'", quoteUnprintable(response).constData());
         emit outputReady(response);
     }
-    qDebug() << "BUFFER LEFT: '" << m_inbuffer << '\'';
+    qDebug("\nBUFFER LEFT: '%s'", quoteUnprintable(m_inbuffer).constData());
     //m_inbuffer.clear();
 }
 
@@ -633,7 +681,7 @@ void LldbEngine::handleOutput2(const QByteArray &data)
     QTC_ASSERT(!m_commands.isEmpty(), qDebug() << "RESPONSE: " << data; return);
     LldbCommand cmd = m_commands.dequeue();
     response.cookie = cmd.cookie;
-    qDebug() << "DEQUE: " << cmd.command << cmd.callbackName;
+    qDebug("\nDEQUE: '%s' -> '%s'", cmd.command.constData(), cmd.callbackName);
     if (cmd.callback) {
         //qDebug() << "EXECUTING CALLBACK " << cmd.callbackName
         //    << " RESPONSE: " << response.data;
