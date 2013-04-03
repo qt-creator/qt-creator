@@ -48,11 +48,6 @@ ClangParser::ClangParser() :
     appendOutputParser(new LdParser);
 }
 
-ClangParser::~ClangParser()
-{
-    emitTask();
-}
-
 void ClangParser::stdError(const QString &line)
 {
     const QString lne = rightTrimmed(line);
@@ -64,15 +59,16 @@ void ClangParser::stdError(const QString &line)
 
     if (m_commandRegExp.indexIn(lne) > -1) {
         m_expectSnippet = true;
-        newTask(Task::Error,
-                m_commandRegExp.cap(4),
-                Utils::FileName(), /* filename */
-                -1, /* line */
-                Core::Id(Constants::TASK_CATEGORY_COMPILE));
+        Task task(Task::Error,
+                  m_commandRegExp.cap(4),
+                  Utils::FileName(), /* filename */
+                  -1, /* line */
+                  Core::Id(Constants::TASK_CATEGORY_COMPILE));
         if (m_commandRegExp.cap(3) == QLatin1String("warning"))
-            m_currentTask.type = Task::Warning;
+            task.type = Task::Warning;
         else if (m_commandRegExp.cap(3) == QLatin1String("note"))
-            m_currentTask.type = Task::Unknown;
+            task.type = Task::Unknown;
+        newTask(task);
         return;
     }
 
@@ -92,45 +88,25 @@ void ClangParser::stdError(const QString &line)
         int lineNo = m_messageRegExp.cap(4).toInt(&ok);
         if (!ok)
             lineNo = m_messageRegExp.cap(5).toInt(&ok);
-        newTask(Task::Error,
-                m_messageRegExp.cap(8),
-                Utils::FileName::fromUserInput(m_messageRegExp.cap(1)), /* filename */
-                lineNo,
-                Core::Id(Constants::TASK_CATEGORY_COMPILE));
+        Task task(Task::Error,
+                  m_messageRegExp.cap(8),
+                  Utils::FileName::fromUserInput(m_messageRegExp.cap(1)), /* filename */
+                  lineNo,
+                  Core::Id(Constants::TASK_CATEGORY_COMPILE));
         if (m_messageRegExp.cap(7) == QLatin1String("warning"))
-            m_currentTask.type = Task::Warning;
+            task.type = Task::Warning;
         else if (m_messageRegExp.cap(7) == QLatin1String("note"))
-            m_currentTask.type = Task::Unknown;
+            task.type = Task::Unknown;
+        newTask(task);
         return;
     }
 
-    if (m_expectSnippet && !m_currentTask.isNull()) {
-        QTextLayout::FormatRange fr;
-        fr.start = m_currentTask.description.count() + 1;
-        fr.length = lne.count() + 1;
-        fr.format.setFontFamily(QLatin1String("Monospaced"));
-        fr.format.setFontStyleHint(QFont::TypeWriter);
-        m_currentTask.description.append(QLatin1Char('\n'));
-        m_currentTask.description.append(lne);
-        m_currentTask.formats.append(fr);
+    if (m_expectSnippet) {
+        amendDescription(lne, true);
         return;
     }
 
     IOutputParser::stdError(line);
-}
-
-void ClangParser::newTask(Task::TaskType type_, const QString &description_,
-                          const Utils::FileName &file_, int line_, const Core::Id &category_)
-{
-    emitTask();
-    m_currentTask = Task(type_, description_, file_, line_, category_);
-}
-
-void ClangParser::emitTask()
-{
-    if (!m_currentTask.isNull())
-        emit addTask(m_currentTask);
-    m_currentTask = Task();
 }
 
 // Unit tests:

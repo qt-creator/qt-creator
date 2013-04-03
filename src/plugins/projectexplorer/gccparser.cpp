@@ -60,6 +60,11 @@ GccParser::GccParser()
     appendOutputParser(new LdParser);
 }
 
+GccParser::~GccParser()
+{
+    emitTask();
+}
+
 void GccParser::stdError(const QString &line)
 {
     QString lne = rightTrimmed(line);
@@ -74,11 +79,11 @@ void GccParser::stdError(const QString &line)
     // Handle misc issues:
     if (lne.startsWith(QLatin1String("ERROR:")) ||
         lne == QLatin1String("* cpp failed")) {
-        emit addTask(Task(Task::Error,
-                          lne /* description */,
-                          Utils::FileName() /* filename */,
-                          -1 /* linenumber */,
-                          Core::Id(Constants::TASK_CATEGORY_COMPILE)));
+        newTask(Task::Error,
+                lne /* description */,
+                Utils::FileName() /* filename */,
+                -1 /* linenumber */,
+                Core::Id(Constants::TASK_CATEGORY_COMPILE));
         return;
     } else if (m_regExpGccNames.indexIn(lne) > -1) {
         QString description = lne.mid(m_regExpGccNames.matchedLength());
@@ -93,7 +98,7 @@ void GccParser::stdError(const QString &line)
         } else if (description.startsWith(QLatin1String("fatal: ")))  {
             task.description = description.mid(7);
         }
-        emit addTask(task);
+        newTask(task);
         return;
     } else if (m_regExp.indexIn(lne) > -1) {
         Utils::FileName filename = Utils::FileName::fromUserInput(m_regExp.cap(1));
@@ -113,17 +118,65 @@ void GccParser::stdError(const QString &line)
         if (m_regExp.cap(5).startsWith(QLatin1Char('#')))
             task.description = m_regExp.cap(5) + task.description;
 
-        emit addTask(task);
+        newTask(task);
         return;
     } else if (m_regExpIncluded.indexIn(lne) > -1) {
-        emit addTask(Task(Task::Unknown,
-                          lne.trimmed() /* description */,
-                          Utils::FileName::fromUserInput(m_regExpIncluded.cap(1)) /* filename */,
-                          m_regExpIncluded.cap(3).toInt() /* linenumber */,
-                          Core::Id(Constants::TASK_CATEGORY_COMPILE)));
+        newTask(Task::Unknown,
+                lne.trimmed() /* description */,
+                Utils::FileName::fromUserInput(m_regExpIncluded.cap(1)) /* filename */,
+                m_regExpIncluded.cap(3).toInt() /* linenumber */,
+                Core::Id(Constants::TASK_CATEGORY_COMPILE));
+        return;
+    } else if (lne.startsWith(QLatin1Char(' '))) {
+        amendDescription(lne, true);
         return;
     }
+
+    emitTask();
     IOutputParser::stdError(line);
+}
+
+void GccParser::stdOutput(const QString &line)
+{
+    emitTask();
+    IOutputParser::stdOutput(line);
+}
+
+void GccParser::newTask(const Task &task)
+{
+    emitTask();
+    m_currentTask = task;
+}
+
+void GccParser::newTask(Task::TaskType type_, const QString &description_,
+                          const Utils::FileName &file_, int line_, const Core::Id &category_)
+{
+    newTask(Task(type_, description_, file_, line_, category_));
+}
+
+void GccParser::emitTask()
+{
+    if (!m_currentTask.isNull())
+        emit addTask(m_currentTask);
+    m_currentTask = Task();
+}
+
+void GccParser::amendDescription(const QString &desc, bool monospaced)
+{
+    if (m_currentTask.isNull())
+        return;
+    int start = m_currentTask.description.count() + 1;
+    m_currentTask.description.append(QLatin1Char('\n'));
+    m_currentTask.description.append(desc);
+    if (monospaced) {
+        QTextLayout::FormatRange fr;
+        fr.start = start;
+        fr.length = desc.count() + 1;
+        fr.format.setFontFamily(QLatin1String("Monospaced"));
+        fr.format.setFontStyleHint(QFont::TypeWriter);
+        m_currentTask.formats.append(fr);
+    }
+    return;
 }
 
 // Unit tests:
@@ -710,6 +763,27 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                          Utils::FileName::fromUserInput(QLatin1String("libimf.so")), -1,
                          Constants::TASK_CATEGORY_COMPILE))
             << QString();
+
+    QTest::newRow("gcc 4.8")
+            << QString::fromLatin1("In file included from /home/code/src/creator/src/libs/extensionsystem/pluginerrorview.cpp:31:0:\n"
+                                   ".uic/ui_pluginerrorview.h:14:25: fatal error: QtGui/QAction: No such file or directory\n"
+                                   " #include <QtGui/QAction>\n"
+                                   "                         ^")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                << Task(Task::Unknown,
+                        QLatin1String("In file included from /home/code/src/creator/src/libs/extensionsystem/pluginerrorview.cpp:31:0:"),
+                        Utils::FileName::fromUserInput(QLatin1String("/home/code/src/creator/src/libs/extensionsystem/pluginerrorview.cpp")), 31,
+                        categoryCompile)
+                << Task(Task::Error,
+                        QLatin1String("QtGui/QAction: No such file or directory\n"
+                                      " #include <QtGui/QAction>\n"
+                                      "                         ^"),
+                        Utils::FileName::fromUserInput(QLatin1String(".uic/ui_pluginerrorview.h")), 14,
+                        categoryCompile))
+            << QString();
+
 }
 
 void ProjectExplorerPlugin::testGccOutputParsers()

@@ -32,6 +32,8 @@
 
 #include "ioutputparser.h"
 
+#include <projectexplorer/task.h>
+
 #include <QRegExp>
 
 namespace ProjectExplorer {
@@ -42,12 +44,24 @@ class GccParser : public ProjectExplorer::IOutputParser
 
 public:
     GccParser();
+    ~GccParser();
     void stdError(const QString &line);
+    void stdOutput(const QString &line);
+
+protected:
+    void newTask(const Task &task);
+    void newTask(Task::TaskType type_, const QString &description_,
+                 const Utils::FileName &file_, int line_, const Core::Id &category_);
+    void emitTask();
+
+    void amendDescription(const QString &desc, bool monospaced);
 
 private:
     QRegExp m_regExp;
     QRegExp m_regExpIncluded;
     QRegExp m_regExpGccNames;
+
+    Task m_currentTask;
 };
 
 } // namespace ProjectExplorer

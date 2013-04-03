@@ -30,35 +30,27 @@
 #ifndef CLANGPARSER_H
 #define CLANGPARSER_H
 
-#include "ioutputparser.h"
+#include "gccparser.h"
 #include "task.h"
 
 #include <QRegExp>
 
 namespace ProjectExplorer {
 
-class ClangParser : public ProjectExplorer::IOutputParser
+class ClangParser : public ProjectExplorer::GccParser
 {
     Q_OBJECT
 
 public:
     ClangParser();
-    ~ClangParser();
     void stdError(const QString &line);
 
 private:
-    void newTask(Task::TaskType type_, const QString &description_,
-                 const Utils::FileName &file_, int line_, const Core::Id &category_);
-
-    void emitTask();
-
     QRegExp m_commandRegExp;
     QRegExp m_inLineRegExp;
     QRegExp m_messageRegExp;
     QRegExp m_summaryRegExp;
     bool m_expectSnippet;
-
-    Task m_currentTask;
 };
 
 } // namespace ProjectExplorer
