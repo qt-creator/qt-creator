@@ -3066,7 +3066,7 @@ bool Parser::parseStatement(StatementAST *&node)
         return parseSwitchStatement(node);
 
     case T_TRY:
-        return parseTryBlockStatement(node);
+        return parseTryBlockStatement(node, 0);
 
     case T_CASE:
     case T_DEFAULT:
@@ -4027,44 +4027,46 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
         node = ast;
         return true;
     } else if (! _inFunctionBody && declarator && (LA() == T_COLON || LA() == T_LBRACE || LA() == T_TRY)) {
-        CtorInitializerAST *ctor_initializer = 0;
-        bool hasCtorInitializer = false;
-        if (LA() == T_COLON) {
-            hasCtorInitializer = true;
-            parseCtorInitializer(ctor_initializer);
+        if (LA() == T_TRY) {
+            FunctionDefinitionAST *ast = new (_pool) FunctionDefinitionAST;
+            ast->qt_invokable_token = qt_invokable_token;
+            ast->decl_specifier_list = decl_specifier_seq;
+            ast->declarator = firstDeclarator;
+            parseTryBlockStatement(ast->function_body, &ast->ctor_initializer);
+            node = ast;
+            return true; // recognized a function definition.
+        } else {
+            CtorInitializerAST *ctor_initializer = 0;
+            bool hasCtorInitializer = false;
 
-            if (LA() != T_LBRACE) {
-                const unsigned pos = cursor();
-
-                for (int n = 0; n < 3 && LA(); consumeToken(), ++n)
-                    if (LA() == T_LBRACE)
-                        break;
+            if (LA() == T_COLON) {
+                hasCtorInitializer = true;
+                parseCtorInitializer(ctor_initializer);
 
                 if (LA() != T_LBRACE) {
-                    error(pos, "unexpected token `%s'", _translationUnit->spell(pos));
-                    rewind(pos);
+                    const unsigned pos = cursor();
+
+                    for (int n = 0; n < 3 && LA(); consumeToken(), ++n)
+                        if (LA() == T_LBRACE)
+                            break;
+
+                    if (LA() != T_LBRACE) {
+                        error(pos, "unexpected token `%s'", _translationUnit->spell(pos));
+                        rewind(pos);
+                    }
                 }
             }
-        }
 
-        if (LA() == T_LBRACE || hasCtorInitializer) {
-            FunctionDefinitionAST *ast = new (_pool) FunctionDefinitionAST;
-            ast->qt_invokable_token = qt_invokable_token;
-            ast->decl_specifier_list = decl_specifier_seq;
-            ast->declarator = firstDeclarator;
-            ast->ctor_initializer = ctor_initializer;
-            parseFunctionBody(ast->function_body);
-            node = ast;
-            return true; // recognized a function definition.
-        } else if (LA() == T_TRY) {
-            FunctionDefinitionAST *ast = new (_pool) FunctionDefinitionAST;
-            ast->qt_invokable_token = qt_invokable_token;
-            ast->decl_specifier_list = decl_specifier_seq;
-            ast->declarator = firstDeclarator;
-            ast->ctor_initializer = ctor_initializer;
-            parseTryBlockStatement(ast->function_body);
-            node = ast;
-            return true; // recognized a function definition.
+            if (LA() == T_LBRACE || hasCtorInitializer) {
+                FunctionDefinitionAST *ast = new (_pool) FunctionDefinitionAST;
+                ast->qt_invokable_token = qt_invokable_token;
+                ast->decl_specifier_list = decl_specifier_seq;
+                ast->declarator = firstDeclarator;
+                ast->ctor_initializer = ctor_initializer;
+                parseFunctionBody(ast->function_body);
+                node = ast;
+                return true; // recognized a function definition.
+            }
         }
     }
 
@@ -4124,13 +4126,50 @@ bool Parser::parseFunctionBody(StatementAST *&node)
     return parsed;
 }
 
-bool Parser::parseTryBlockStatement(StatementAST *&node)
+/**
+ * Parses both try-block and function-try-block
+ * @param placeholder Non-null for function-try-block in around constructor
+ *
+ *  try-block:
+ *      try compound-statement handler-seq
+ *  function-try-block:
+ *      try [ctor-initializer] compound-statement handler-seq
+ */
+bool Parser::parseTryBlockStatement(StatementAST *&node, CtorInitializerAST **placeholder)
 {
     DEBUG_THIS_RULE();
+
     if (LA() == T_TRY) {
         TryBlockStatementAST *ast = new (_pool) TryBlockStatementAST;
+        // try
         ast->try_token = consumeToken();
+        // [ctor-initializer]
+        if (LA() == T_COLON) {
+            const unsigned colonPos = cursor();
+            CtorInitializerAST *ctor_initializer = 0;
+            parseCtorInitializer(ctor_initializer);
+
+            if (LA() != T_LBRACE) {
+                const unsigned pos = cursor();
+
+                for (int n = 0; n < 3 && LA(); consumeToken(), ++n)
+                    if (LA() == T_LBRACE)
+                        break;
+
+                if (LA() != T_LBRACE) {
+                    error(pos, "unexpected token `%s'", _translationUnit->spell(pos));
+                    rewind(pos);
+                }
+            }
+
+            if (placeholder)
+                *placeholder = ctor_initializer;
+            else
+                error(colonPos, "constructor initializer not allowed inside function body");
+        }
+        // compound-statement
         parseCompoundStatement(ast->statement);
+        // handler-seq
         CatchClauseListAST **catch_clause_ptr = &ast->catch_clause_list;
         while (parseCatchClause(*catch_clause_ptr))
             catch_clause_ptr = &(*catch_clause_ptr)->next;

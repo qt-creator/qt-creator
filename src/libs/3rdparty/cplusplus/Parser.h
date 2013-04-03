@@ -165,7 +165,7 @@ public:
     bool parseTemplateParameter(DeclarationAST *&node);
     bool parseTemplateParameterList(DeclarationListAST *&node);
     bool parseThrowExpression(ExpressionAST *&node);
-    bool parseTryBlockStatement(StatementAST *&node);
+    bool parseTryBlockStatement(StatementAST *&node, CtorInitializerAST **placeholder);
     bool parseCatchClause(CatchClauseListAST *&node);
     bool parseTypeId(ExpressionAST *&node);
     bool parseTypeIdList(ExpressionListAST *&node);

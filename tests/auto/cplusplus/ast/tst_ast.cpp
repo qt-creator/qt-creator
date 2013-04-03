@@ -145,6 +145,7 @@ private slots:
     void cpp_constructor_one_named_arg();
     void cpp_constructor_no_arg();
     void cpp_constructor_multiple_args();
+    void cpp_constructor_function_try_catch();
 
     // objc++
     void objc_simple_class();
@@ -1194,6 +1195,27 @@ void tst_AST::cpp_constructor_multiple_args()
 
     FunctionDefinitionAST *funDef = ast->asFunctionDefinition();
     QVERIFY(funDef != 0);
+    QVERIFY(funDef->declarator != 0);
+    QVERIFY(funDef->declarator->postfix_declarator_list != 0);
+    QVERIFY(funDef->declarator->postfix_declarator_list->lastValue() != 0);
+
+    FunctionDeclaratorAST *funDecl = funDef->declarator->postfix_declarator_list->lastValue()->asFunctionDeclarator();
+    QVERIFY(funDecl != 0);
+    QVERIFY(funDecl->parameter_declaration_clause != 0);
+    QVERIFY(funDecl->parameter_declaration_clause->parameter_declaration_list != 0);
+}
+
+void tst_AST::cpp_constructor_function_try_catch()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("QFileInfo::QFileInfo(QString name, QString type)"
+                                                          "    try : m_name(name), m_type(type) {}"
+                                                          "    catch (...) {}"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    FunctionDefinitionAST *funDef = ast->asFunctionDefinition();
+    QVERIFY(funDef != 0);
+    QVERIFY(funDef->ctor_initializer != 0);
     QVERIFY(funDef->declarator != 0);
     QVERIFY(funDef->declarator->postfix_declarator_list != 0);
     QVERIFY(funDef->declarator->postfix_declarator_list->lastValue() != 0);
