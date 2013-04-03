@@ -31,9 +31,7 @@
 #define QMLJSBUNDLEPROVIDER_H
 
 #include <QObject>
-
-#include <qmljs/qmljsbundle.h>
-#include <qmljs/qmljsdocument.h>
+#include <QHash>
 
 #include "qmljstools_global.h"
 
@@ -42,6 +40,11 @@ class Kit;
 class Project;
 class Target;
 }
+
+namespace QmlJS {
+class QmlLanguageBundles;
+class QmlBundle;
+} // namespace QmlJS
 
 namespace QmlJSTools {
 

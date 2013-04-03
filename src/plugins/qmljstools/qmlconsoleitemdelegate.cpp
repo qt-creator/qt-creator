@@ -33,6 +33,7 @@
 #include <QPainter>
 #include <QTreeView>
 #include <QScrollBar>
+#include <QTextLayout>
 
 const char CONSOLE_LOG_BACKGROUND_COLOR[] = "#E8EEF2";
 const char CONSOLE_WARNING_BACKGROUND_COLOR[] = "#F6F4EB";

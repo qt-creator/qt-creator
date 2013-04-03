@@ -34,7 +34,8 @@
 
 #include <QAbstractItemModel>
 #include <QItemSelectionModel>
-#include <QFont>
+
+QT_FORWARD_DECLARE_CLASS(QFont)
 
 namespace QmlJSTools {
 namespace Internal {

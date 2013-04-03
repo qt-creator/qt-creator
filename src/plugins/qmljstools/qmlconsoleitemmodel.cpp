@@ -32,6 +32,7 @@
 #include <utils/qtcassert.h>
 
 #include <QFontMetrics>
+#include <QFont>
 
 using namespace QmlJS;
 
