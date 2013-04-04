@@ -78,6 +78,8 @@ private:
         Utils::FileName m_fileName;
     };
 
+    SettingsData readUserSettings() const;
+
     // The entity which actually reads/writes to the settings file.
     class FileAccessor
     {

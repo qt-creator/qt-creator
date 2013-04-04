@@ -595,76 +595,11 @@ QVariantMap SettingsAccessor::restoreSettings() const
     if (m_lastVersion < 0)
         return QVariantMap();
 
-    SettingsData userSettings;
-    QString fn = project()->property(m_userFileAcessor.id()).toString();
-    if (fn.isEmpty())
-        fn = project()->document()->fileName() + m_userFileAcessor.suffix();
-    userSettings.m_fileName = Utils::FileName::fromString(fn);
-    if (!m_userFileAcessor.readFile(&userSettings))
-        userSettings.clear(); // No user settings, but there can still be shared ones.
-
-    if (userSettings.isValid()) {
-        if (userSettings.m_version > m_lastVersion + 1) {
-            QMessageBox::information(
-                Core::ICore::mainWindow(),
-                QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                        "Using Old Settings File for '%1'").arg(project()->displayName()),
-                QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                        "<html><head/><body><p>A versioned backup of the .user "
-                                        "settings file will be used, because the non-versioned "
-                                        "file was created by an incompatible newer version of "
-                                        "Qt Creator.</p><p>Project settings changes made since "
-                                        "the last time this version of Qt Creator was used "
-                                        "with this project are ignored, and changes made now "
-                                        "will <b>not</b> be propagated to the newer version."
-                                        "</p></body></html>"),
-                QMessageBox::Ok);
-        }
-
-        // Verify environment.
-        const QByteArray fileId = userSettings.environmentId();
-        const QByteArray creatorId = ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId.toByteArray();
-        if (fileId.isEmpty() || fileId != creatorId) {
-            QString backup = fn + QLatin1Char('.') + QString::fromLatin1(fileId).mid(1, 7);
-            QFile::copy(fn, backup);
-
-            if (!fileId.isEmpty()) {
-                // TODO tr, casing check
-                QMessageBox msgBox(
-                    QMessageBox::Question,
-                    QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                            "Settings File for '%1' from a different Environment?").arg(project()->displayName()),
-                    QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                            "Qt Creator has found a .user settings file which was "
-                                            "created for another development setup, maybe "
-                                            "originating from another machine.\n\n"
-                                            "The .user settings files contain environment specific "
-                                            "settings. They should not be copied to a different "
-                                            "environment. \n\n"
-                                            "Do you still want to load the settings file?"),
-                    QMessageBox::Yes | QMessageBox::No,
-                    Core::ICore::mainWindow());
-                msgBox.setDefaultButton(QMessageBox::No);
-                msgBox.setEscapeButton(QMessageBox::No);
-                if (msgBox.exec() == QMessageBox::No)
-                    return QVariantMap();
-            }
-        }
-
-        // Do we need to generate a backup?
-        if (userSettings.m_version < m_lastVersion + 1 && !userSettings.m_usingBackup) {
-            const QString &backupFileName = userSettings.m_fileName.toString()
-                    + QLatin1Char('.')
-                    + m_handlers.value(userSettings.m_version)->displayUserFileVersion();
-            QFile::remove(backupFileName);  // Remove because copy doesn't overwrite
-            QFile::copy(userSettings.m_fileName.toString(), backupFileName);
-        }
-    }
-
+    SettingsData userSettings = readUserSettings();
 
     // Time to consider shared settings...
     SettingsData sharedSettings;
-    fn = project()->property(m_sharedFileAcessor.id()).toString();
+    QString fn = project()->property(m_sharedFileAcessor.id()).toString();
     if (fn.isEmpty())
         fn = project()->document()->fileName() + m_sharedFileAcessor.suffix();
     sharedSettings.m_fileName = Utils::FileName::fromString(fn);
@@ -780,6 +715,78 @@ void SettingsAccessor::addVersionHandler(UserFileVersionHandler *handler)
     Q_ASSERT(m_handlers.count() == m_lastVersion - m_firstVersion + 1);
     for (int i = m_firstVersion; i < m_lastVersion; ++i)
         Q_ASSERT(m_handlers.contains(i));
+}
+
+SettingsAccessor::SettingsData SettingsAccessor::readUserSettings() const
+{
+    SettingsData userSettings;
+
+    QString fn = project()->property(m_userFileAcessor.id()).toString();
+    if (fn.isEmpty())
+        fn = project()->document()->fileName() + m_userFileAcessor.suffix();
+    userSettings.m_fileName = Utils::FileName::fromString(fn);
+    if (!m_userFileAcessor.readFile(&userSettings))
+        userSettings.clear(); // No user settings, but there can still be shared ones.
+
+    if (userSettings.isValid()) {
+        if (userSettings.m_version > m_lastVersion + 1) {
+            QMessageBox::information(
+                Core::ICore::mainWindow(),
+                QApplication::translate("ProjectExplorer::SettingsAccessor",
+                                        "Using Old Settings File for '%1'").arg(project()->displayName()),
+                QApplication::translate("ProjectExplorer::SettingsAccessor",
+                                        "<html><head/><body><p>A versioned backup of the .user "
+                                        "settings file will be used, because the non-versioned "
+                                        "file was created by an incompatible newer version of "
+                                        "Qt Creator.</p><p>Project settings changes made since "
+                                        "the last time this version of Qt Creator was used "
+                                        "with this project are ignored, and changes made now "
+                                        "will <b>not</b> be propagated to the newer version."
+                                        "</p></body></html>"),
+                QMessageBox::Ok);
+        }
+
+        // Verify environment.
+        const QByteArray fileId = userSettings.environmentId();
+        const QByteArray creatorId = ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId.toByteArray();
+        if (fileId.isEmpty() || fileId != creatorId) {
+            QString backup = fn + QLatin1Char('.') + QString::fromLatin1(fileId).mid(1, 7);
+            QFile::copy(fn, backup);
+
+            if (!fileId.isEmpty()) {
+                // TODO tr, casing check
+                QMessageBox msgBox(
+                    QMessageBox::Question,
+                    QApplication::translate("ProjectExplorer::SettingsAccessor",
+                                            "Settings File for '%1' from a different Environment?").arg(project()->displayName()),
+                    QApplication::translate("ProjectExplorer::SettingsAccessor",
+                                            "Qt Creator has found a .user settings file which was "
+                                            "created for another development setup, maybe "
+                                            "originating from another machine.\n\n"
+                                            "The .user settings files contain environment specific "
+                                            "settings. They should not be copied to a different "
+                                            "environment. \n\n"
+                                            "Do you still want to load the settings file?"),
+                    QMessageBox::Yes | QMessageBox::No,
+                    Core::ICore::mainWindow());
+                msgBox.setDefaultButton(QMessageBox::No);
+                msgBox.setEscapeButton(QMessageBox::No);
+                if (msgBox.exec() == QMessageBox::No)
+                    return QVariantMap();
+            }
+        }
+
+        // Do we need to generate a backup?
+        if (userSettings.m_version < m_lastVersion + 1 && !userSettings.m_usingBackup) {
+            const QString &backupFileName = userSettings.m_fileName.toString()
+                    + QLatin1Char('.')
+                    + m_handlers.value(userSettings.m_version)->displayUserFileVersion();
+            QFile::remove(backupFileName);  // Remove because copy doesn't overwrite
+            QFile::copy(userSettings.m_fileName.toString(), backupFileName);
+        }
+    }
+
+    return userSettings;
 }
 
 // -------------------------------------------------------------------------
