@@ -5,6 +5,12 @@ cdbLoaded = False
 lldbLoaded = False
 gdbLoaded = False
 
+#######################################################################
+#
+# Helpers
+#
+#######################################################################
+
 def warn(message):
     print "XXX: %s\n" % message.encode("latin1")
 
@@ -18,36 +24,33 @@ def showException(msg, exType, exValue, exTraceback):
     except:
         pass
 
+
+#######################################################################
+#
+# CDB
+#
+#######################################################################
+
 try:
-    #import cdb_bridge
+    import cdb_bridge
     cdbLoaded = True
 
 except:
     pass
 
+
+#######################################################################
+#
+# GDB
+#
+#######################################################################
+
 try:
-    #import lldb_bridge
-    lldbLoaded = True
+    if cdbLoaded:
+        raise "Not needed"
 
-except:
-    pass
-
-
-try:
     import gdb
     gdbLoaded = True
-
-    #######################################################################
-    #
-    # Sanitize environment
-    #
-    #######################################################################
-
-    #try:
-    #    gdb.execute("set auto-load-scripts no")
-    #except:
-    #    pass
-
 
     #######################################################################
     #
@@ -433,4 +436,90 @@ try:
 
 except:
     pass
+
+
+#######################################################################
+#
+# LLDB
+#
+#######################################################################
+
+try:
+    if gdbLoaded or cdbLoaded:
+       raise "Not needed"
+
+    lldbLoaded = True
+
+    PointerCode, \
+    ArrayCode, \
+    StructCode, \
+    UnionCode, \
+    EnumCode, \
+    FlagsCode, \
+    FunctionCode, \
+    IntCode, \
+    FloatCode, \
+    VoidCode, \
+    SetCode,  \
+    RangeCode, \
+    StringCode,  \
+    BitStringCode, \
+    ErrorTypeCode, \
+    MethodCode, \
+    MethodPointerCode, \
+    MemberPointerCode, \
+    ReferenceCode, \
+    CharCode, \
+    BoolCode, \
+    ComplexCode, \
+    TypedefCode, \
+    NamespaceCode \
+        = range(24)
+
+    def registerCommand(name, func):
+        pass
+
+    class Type:
+        def __init__(self, type):
+            self.raw = type
+            self.code = IntCode
+
+        def __str__(self):
+            return self.raw.name
+
+
+        def unqualified(self):
+            return self
+
+    class Value:
+        def __init__(self, var):
+            self.raw = var
+            self.is_optimized_out = False
+            self.type = Type(var.type)
+            self.type.value_type = var.value_type
+
+        def __str__(self):
+            return self.name
+
+    currentThread = None
+    currentFrame = None
+
+    def listOfLocals(varList):
+        global currentThread
+        global currentFrame
+
+        items = []
+        currentThread = lldb.process.GetThreadAtIndex(0)
+        currentFrame = currentThread.GetFrameAtIndex(0)
+        for var in currentFrame.variables:
+            item = LocalItem()
+            item.iname = "local." + var.name
+            item.name = var.name
+            item.value = Value(var)
+            items.append(item)
+        return items
+
+except:
+    pass
+
 

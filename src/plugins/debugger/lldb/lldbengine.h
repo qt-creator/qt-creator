@@ -60,7 +60,6 @@ class LldbEngine : public DebuggerEngine
 public:
     explicit LldbEngine(const DebuggerStartParameters &startParameters);
     ~LldbEngine();
-
 private:
     // DebuggerEngine implementation
     void executeStep();
@@ -121,6 +120,8 @@ private:
     Q_SLOT void readLldbStandardError();
     Q_SLOT void handleOutput2(const QByteArray &data);
     void handleResponse(const QByteArray &ba);
+
+    void loadPythonDumpers();
     void updateAll();
     void updateLocals();
     void handleUpdateAll(const LldbResponse &response);
@@ -166,6 +167,7 @@ private:
     QString m_scriptFileName;
     QProcess m_lldbProc;
     QString m_lldb;
+    bool m_pythonAttemptedToLoad;
 };
 
 } // namespace Internal

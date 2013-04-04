@@ -63,6 +63,8 @@
 #include <QMessageBox>
 #include <QToolTip>
 
+#include <stdio.h>
+
 
 #define DEBUG_SCRIPT 1
 #if DEBUG_SCRIPT
@@ -87,7 +89,7 @@ static QByteArray quoteUnprintable(const QByteArray &ba)
         if (isprint(c)) {
             res += c;
         } else {
-            qsnprintf(buf, sizeof(buf) - 1, "\\%02x", int(c));
+            qsnprintf(buf, sizeof(buf) - 1, "\\x%02x", int(c));
             res += buf;
         }
     }
@@ -105,6 +107,7 @@ LldbEngine::LldbEngine(const DebuggerStartParameters &startParameters)
     : DebuggerEngine(startParameters)
 {
     setObjectName(QLatin1String("LldbEngine"));
+    m_pythonAttemptedToLoad = false;
 }
 
 LldbEngine::~LldbEngine()
@@ -205,6 +208,43 @@ void LldbEngine::setupEngine()
         notifyEngineSetupFailed();
         return;
     }
+
+    loadPythonDumpers();
+    postCommand("setting set auto-confirm on");
+    postCommand("setting set interpreter.prompt-on-quit off");
+
+    // Default:
+    // frame-format (string) = "frame #${frame.index}: ${frame.pc}
+    // { ${module.file.basename}{`${function.name-with-args}${function.pc-offset}}}
+    // { at ${line.file.basename}:${line.number}}\n"
+    postCommand("settings set frame-format frame=\\{"
+                "index='${frame.index}',"
+                "pc='${frame.pc}',"
+                "module='${module.file.basename}',"
+                //"function='${function.name-with-args}',"
+                "function='${function.name}',"
+                "pcoffset='${function.pc-offset}',"
+                "file='${line.file.basename}',"
+                "line='${line.number}'"
+                "\\},");
+
+
+    // Default:
+    // "thread #${thread.index}: tid = ${thread.id}{, ${frame.pc}}
+    // { ${module.file.basename}{`${function.name-with-args}${function.pc-offset}}}
+    // { at ${line.file.basename}:${line.number}}
+    // {, stop reason = ${thread.stop-reason}}{\nReturn value: ${thread.return-value}}\n"
+    postCommand("settings set thread-format thread=\\{"
+                "index='${thread.index}',"
+                "tid='${thread.id}',"
+                "framepc='${frame.pc}',"
+                "module='${module.file.basename}',"
+                "function='${function.name}',"
+                "pcoffset='${function.pc-offset}',"
+                "stopreason='${thread.stop-reason}'"
+                //"returnvalue='${thread.return-value}'"
+                "\\},");
+
     notifyEngineSetupOk();
 }
 
@@ -644,11 +684,11 @@ void LldbEngine::readLldbStandardOutput()
     }
     if (j != n)
         out.resize(j);
+
     //qDebug("\n\nLLDB STDOUT: '%s'", quoteUnprintable(out).constData());
     if (out.isEmpty())
         return;
 
-    //qDebug() << "READ: " << data;
     if (out.startsWith(8)) {
         if (!m_inbuffer.isEmpty())
             m_inbuffer.chop(1);
@@ -661,16 +701,33 @@ void LldbEngine::readLldbStandardOutput()
 
     qDebug("\nBUFFER FROM: '%s'", quoteUnprintable(m_inbuffer).constData());
     while (true) {
-        int pos = m_inbuffer.indexOf("(lldb)");
+        int pos = m_inbuffer.indexOf("(lldb) ");
         if (pos == -1)
             break;
         QByteArray response = m_inbuffer.left(pos).trimmed();
-        m_inbuffer = m_inbuffer.mid(pos + 6);
+        m_inbuffer = m_inbuffer.mid(pos + 7);
         qDebug("\nBUFFER RECOGNIZED: '%s'", quoteUnprintable(response).constData());
         emit outputReady(response);
     }
     qDebug("\nBUFFER LEFT: '%s'", quoteUnprintable(m_inbuffer).constData());
-    //m_inbuffer.clear();
+
+    if (m_inbuffer.isEmpty())
+        return;
+
+    // Could be a 'stopped' message left.
+    // "<Esc>[KProcess 5564 stopped"
+    // "* thread #1: tid = 0x15bc, 0x0804a17d untitled11`main(argc=1,
+    // argv=0xbfffeff4) + 61 at main.cpp:52, stop reason = breakpoint 1.1 ..."
+    const int pos = m_inbuffer.indexOf("\x1b[KProcess");
+    if (pos != -1) {
+        int pid = 0;
+        const char *format = "\x1b[KProcess %d stopped";
+        if (::sscanf(m_inbuffer.constData() + pos, format, &pid) == 1) {
+            notifyInferiorSpontaneousStop();
+            m_inbuffer.clear();
+            updateAll();
+        }
+    }
 }
 
 void LldbEngine::handleOutput2(const QByteArray &data)
@@ -680,6 +737,10 @@ void LldbEngine::handleOutput2(const QByteArray &data)
     showMessage(_(data));
     QTC_ASSERT(!m_commands.isEmpty(), qDebug() << "RESPONSE: " << data; return);
     LldbCommand cmd = m_commands.dequeue();
+    // FIXME: Find a way to tell LLDB to no echo input.
+    if (response.data.startsWith(cmd.command))
+        response.data = response.data.mid(cmd.command.size());
+
     response.cookie = cmd.cookie;
     qDebug("\nDEQUE: '%s' -> '%s'", cmd.command.constData(), cmd.callbackName);
     if (cmd.callback) {
@@ -704,8 +765,8 @@ void LldbEngine::handleUpdateAll(const LldbResponse &response)
 
 void LldbEngine::updateAll()
 {
-    postCommand("bt", CB(handleBacktrace));
-    //updateLocals();
+    //postCommand("bt", CB(handleBacktrace));
+    updateLocals();
 }
 
 void LldbEngine::updateLocals()
@@ -734,28 +795,17 @@ void LldbEngine::updateLocals()
         options += "defaults,";
     options.chop(1);
 
-    postCommand("qdebug('" + options + "','"
-        + handler->expansionRequests() + "','"
-        + handler->typeFormatRequests() + "','"
-        + handler->individualFormatRequests() + "','"
-        + watchers.toHex() + "')", CB(handleListLocals));
+    postCommand("script bb('options:" + options + " "
+        + "vars: "
+        + "expanded:" + handler->expansionRequests() + " "
+        + "typeformats:" + handler->typeFormatRequests() + " "
+        + "formats:" + handler->individualFormatRequests() + " "
+        + "watcher:" + watchers.toHex() + "')",
+                CB(handleListLocals));
 }
 
 void LldbEngine::handleBacktrace(const LldbResponse &response)
 {
-    //qDebug() << " BACKTRACE: '" << response.data << "'";
-    // "  /usr/lib/python2.6/bdb.py(368)run()"
-    // "-> exec cmd in globals, locals"
-    // "  <string>(1)<module>()"
-    // "  /python/math.py(19)<module>()"
-    // "-> main()"
-    // "  /python/math.py(14)main()"
-    // "-> print cube(3)"
-    // "  /python/math.py(7)cube()"
-    // "-> x = square(a)"
-    // "> /python/math.py(2)square()"
-    // "-> def square(a):"
-
     // Populate stack view.
     StackFrames stackFrames;
     int level = 0;
@@ -805,21 +855,92 @@ void LldbEngine::handleListLocals(const LldbResponse &response)
     //qDebug() << " LOCALS: '" << response.data << "'";
     QByteArray out = response.data.trimmed();
 
+//    GdbMi all;
+//    all.fromStringMultiple(out);
+//    //qDebug() << "ALL: " << all.toString();
+
+//    //GdbMi data = all.findChild("data");
+//    QList<WatchData> list;
+//    WatchHandler *handler = watchHandler();
+//    foreach (const GdbMi &child, all.children()) {
+//        WatchData dummy;
+//        dummy.iname = child.findChild("iname").data();
+//        dummy.name = _(child.findChild("name").data());
+//        //qDebug() << "CHILD: " << child.toString();
+//        parseWatchData(handler->expandedINames(), dummy, child, &list);
+//    }
+//    handler->insertData(list);
+
+    const bool partial = response.cookie.toBool();
+    int pos = out.indexOf("data=");
+    if (pos != 0) {
+        showMessage(_("DISCARDING JUNK AT BEGIN OF RESPONSE: "
+            + out.left(pos)));
+        out = out.mid(pos);
+    }
     GdbMi all;
     all.fromStringMultiple(out);
-    //qDebug() << "ALL: " << all.toString();
+    GdbMi data = all.findChild("data");
 
-    //GdbMi data = all.findChild("data");
-    QList<WatchData> list;
     WatchHandler *handler = watchHandler();
-    foreach (const GdbMi &child, all.children()) {
+    QList<WatchData> list;
+
+    if (!partial) {
+        list.append(*handler->findData("local"));
+        list.append(*handler->findData("watch"));
+        list.append(*handler->findData("return"));
+    }
+
+    foreach (const GdbMi &child, data.children()) {
         WatchData dummy;
         dummy.iname = child.findChild("iname").data();
-        dummy.name = _(child.findChild("name").data());
-        //qDebug() << "CHILD: " << child.toString();
+        GdbMi wname = child.findChild("wname");
+        if (wname.isValid()) {
+            // Happens (only) for watched expressions. They are encoded as
+            // base64 encoded 8 bit data, without quotes
+            dummy.name = decodeData(wname.data(), Base64Encoded8Bit);
+            dummy.exp = dummy.name.toUtf8();
+        } else {
+            dummy.name = _(child.findChild("name").data());
+        }
         parseWatchData(handler->expandedINames(), dummy, child, &list);
     }
+//    const GdbMi typeInfo = all.findChild("typeinfo");
+//    if (typeInfo.type() == GdbMi::List) {
+//        foreach (const GdbMi &s, typeInfo.children()) {
+//            const GdbMi name = s.findChild("name");
+//            const GdbMi size = s.findChild("size");
+//            if (name.isValid() && size.isValid())
+//                m_typeInfoCache.insert(QByteArray::fromBase64(name.data()),
+//                                       TypeInfo(size.data().toUInt()));
+//        }
+//    }
+//    for (int i = 0; i != list.size(); ++i) {
+//        const TypeInfo ti = m_typeInfoCache.value(list.at(i).type);
+//        if (ti.size)
+//            list[i].size = ti.size;
+//    }
+
     handler->insertData(list);
+
+    //rebuildWatchModel();
+    if (!partial)
+        emit stackFrameCompleted();
+}
+
+void LldbEngine::loadPythonDumpers()
+{
+    if (m_pythonAttemptedToLoad)
+        return;
+    m_pythonAttemptedToLoad = true;
+
+    const QByteArray dumperSourcePath =
+        Core::ICore::resourcePath().toLocal8Bit() + "/dumper/";
+
+    postCommand("script execfile('" + dumperSourcePath + "bridge.py')");
+    postCommand("script execfile('" + dumperSourcePath + "dumper.py')");
+    postCommand("script execfile('" + dumperSourcePath + "qttypes.py')");
+    postCommand("script bbsetup('')");
 }
 
 bool LldbEngine::hasCapability(unsigned cap) const
