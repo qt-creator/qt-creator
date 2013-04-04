@@ -32,7 +32,6 @@
 
 #include <utils/environment.h>
 
-#include <QVariant>
 #include <QSettings>
 
 static const char groupC[] = "CodePaster";

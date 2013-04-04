@@ -29,13 +29,10 @@
 
 #include "pastebindotcomprotocol.h"
 
-#include <coreplugin/icore.h>
-
 #include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QStringList>
-#include <QTextStream>
 #include <QXmlStreamReader>
 #include <QXmlStreamAttributes>
 #include <QByteArray>

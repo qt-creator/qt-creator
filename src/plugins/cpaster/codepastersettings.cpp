@@ -32,17 +32,12 @@
 
 #include <coreplugin/icore.h>
 
-#include <QSettings>
 #include <QCoreApplication>
 #include <QLineEdit>
-#include <QFileDialog>
-#include <QGroupBox>
 #include <QFormLayout>
 #include <QVBoxLayout>
 #include <QLabel>
-#include <QIcon>
 #include <QDebug>
-#include <QVariant>
 
 static const char settingsGroupC[] = "CodePasterSettings";
 static const char serverKeyC[] = "Server";

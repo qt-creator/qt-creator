@@ -31,7 +31,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <QFileInfo>
 #include <QNetworkReply>
 
 using namespace CodePaster;

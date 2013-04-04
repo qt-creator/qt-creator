@@ -29,7 +29,6 @@
 
 #include "cpasterplugin.h"
 
-#include "splitter.h"
 #include "pasteview.h"
 #include "codepasterprotocol.h"
 #include "kdepasteprotocol.h"
@@ -57,12 +56,9 @@
 #include <QtPlugin>
 #include <QDebug>
 #include <QDir>
-#include <QFileInfo>
-#include <QTemporaryFile>
 #include <QAction>
 #include <QApplication>
 #include <QClipboard>
-#include <QMenu>
 #include <QInputDialog>
 #include <QUrl>
 

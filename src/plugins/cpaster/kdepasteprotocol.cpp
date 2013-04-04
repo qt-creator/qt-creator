@@ -32,7 +32,6 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QTextStream>
 #include <QXmlStreamReader>
 #include <QByteArray>
 #include <QStringList>

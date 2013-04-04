@@ -31,10 +31,8 @@
 #include "settings.h"
 #include "cpasterconstants.h"
 
-#include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 
-#include <QSettings>
 #include <QTextStream>
 #include <QCoreApplication>
 

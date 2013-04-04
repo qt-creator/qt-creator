@@ -29,18 +29,13 @@
 
 #include "codepasterprotocol.h"
 #include "codepastersettings.h"
-#include "cpasterplugin.h"
 
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/messageoutputwindow.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-#include <QListWidget>
 #include <QNetworkReply>
 #include <QDebug>
 

@@ -32,10 +32,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/messageoutputwindow.h>
-
-#include <utils/qtcassert.h>
-#include <utils/fileutils.h>
 
 #include <QXmlStreamReader>
 #include <QXmlStreamAttribute>
