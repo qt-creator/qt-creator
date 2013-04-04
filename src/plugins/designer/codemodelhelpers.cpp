@@ -30,20 +30,10 @@
 #include "codemodelhelpers.h"
 
 #include <cpptools/ModelManagerInterface.h>
-#include <cplusplus/Symbols.h>
-#include <cplusplus/CoreTypes.h>
-#include <cplusplus/Name.h>
-#include <cplusplus/Names.h>
-#include <cplusplus/Literals.h>
-#include <cplusplus/Scope.h>
-#include <cplusplus/Control.h>
-#include <cplusplus/SymbolVisitor.h>
 
-#include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
-#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QDebug>

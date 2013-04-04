@@ -29,7 +29,6 @@
 
 #include "formeditorw.h"
 #include "formwindoweditor.h"
-#include "designerconstants.h"
 #include "settingsmanager.h"
 #include "settingspage.h"
 #include "editorwidget.h"
@@ -47,14 +46,10 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/id.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/outputpane.h>
 #include <texteditor/texteditorsettings.h>
-#include <extensionsystem/pluginmanager.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <utils/qtcassert.h>
 
@@ -81,7 +76,6 @@
 #include <QApplication>
 #include <QCursor>
 #include <QDockWidget>
-#include <QMenu>
 #include <QMessageBox>
 #include <QKeySequence>
 #include <QPrintDialog>

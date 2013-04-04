@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "designercontext.h"
-#include "designerconstants.h"
 #include "formeditorw.h"
 
 #include <QDesignerFormEditorInterface>
@@ -41,7 +40,6 @@
 
 #include <QWidget>
 #include <QDebug>
-#include <QSettings>
 
 enum { debug = 0 };
 

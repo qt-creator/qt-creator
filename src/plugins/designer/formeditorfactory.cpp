@@ -31,18 +31,15 @@
 #include "formeditorw.h"
 #include "formwindoweditor.h"
 #include "editordata.h"
-#include "designerconstants.h"
 #include "designerxmleditor.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/fileiconprovider.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/modemanager.h>
 
 #include <QCoreApplication>
-#include <QFileInfo>
 #include <QDebug>
 
 using namespace Designer::Constants;

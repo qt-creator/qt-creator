@@ -33,9 +33,6 @@
 
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <utils/qtcassert.h>
-
-#include <QVBoxLayout>
 #include <QDockWidget>
 #include <QAbstractItemView>
 

@@ -38,25 +38,17 @@
 #endif
 
 #include "settingspage.h"
-#include "designerconstants.h"
 #include "qtdesignerformclasscodegenerator.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
-#include <coreplugin/id.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <QDebug>
 #include <QLibraryInfo>
 #include <QTranslator>
 #include <QtPlugin>
-
-#ifdef CPP_ENABLED
-#    include <QWizard>
-#    include <QMainWindow>
-#endif
 
 using namespace Designer::Internal;
 using namespace Designer::Constants;

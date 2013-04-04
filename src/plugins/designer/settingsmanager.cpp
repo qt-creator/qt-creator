@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "settingsmanager.h"
-#include "designerconstants.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>

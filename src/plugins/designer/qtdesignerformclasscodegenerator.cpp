@@ -39,7 +39,6 @@
 #include <QSettings>
 #include <QFileInfo>
 #include <QDebug>
-#include <QSharedData>
 
 static const char uiMemberC[] = "ui";
 static const char uiNamespaceC[] = "Ui";

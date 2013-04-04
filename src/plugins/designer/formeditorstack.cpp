@@ -30,7 +30,6 @@
 #include "formeditorstack.h"
 #include "formwindoweditor.h"
 #include "formeditorw.h"
-#include "designerconstants.h"
 
 #include <widgethost.h>
 
@@ -46,7 +45,6 @@
 #include <QDesignerPropertyEditorInterface>
 
 #include <QDebug>
-#include <QVariant>
 #include <QRect>
 
 namespace Designer {

@@ -29,9 +29,7 @@
 
 #include "formwizarddialog.h"
 #include "formtemplatewizardpage.h"
-#include "formeditorw.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/basefilewizard.h>
 
 #include <utils/filewizardpage.h>

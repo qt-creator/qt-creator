@@ -34,7 +34,6 @@
 
 #include <QStackedWidget>
 #include <QList>
-#include <QString>
 
 QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;

@@ -28,10 +28,8 @@
 ****************************************************************************/
 
 #include "settingspage.h"
-#include "designerconstants.h"
 #include "formeditorw.h"
 
-#include <extensionsystem/pluginmanager.h>
 #if QT_VERSION >= 0x050000
 #    include <QDesignerOptionsPageInterface>
 #else
@@ -39,7 +37,6 @@
 #endif
 
 #include <QCoreApplication>
-#include <QIcon>
 
 using namespace Designer::Internal;
 

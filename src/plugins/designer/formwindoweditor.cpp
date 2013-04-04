@@ -32,17 +32,11 @@
 #include "designerconstants.h"
 #include "resourcehandler.h"
 #include "designerxmleditor.h"
-#include <widgethost.h>
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/mimedatabase.h>
 #include <texteditor/basetextdocument.h>
-#include <texteditor/plaintexteditor.h>
 
 #include <utils/qtcassert.h>
-#include <utils/fileutils.h>
 
 #if QT_VERSION >= 0x050000
 #    include <QDesignerFormWindowInterface>
@@ -53,7 +47,6 @@
 
 #include <QDebug>
 #include <QFileInfo>
-#include <QFile>
 #include <QApplication>
 
 namespace Designer {

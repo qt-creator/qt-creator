@@ -28,37 +28,21 @@
 ****************************************************************************/
 
 #include "qtcreatorintegration.h"
-#include "formeditorplugin.h"
 #include "formwindoweditor.h"
 #include "formclasswizardpage.h"
 #include "formeditorw.h"
 #include "editordata.h"
-#include "codemodelhelpers.h"
 #include <widgethost.h>
 
-#include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/insertionpointlocator.h>
 #include <cpptools/symbolfinder.h>
-#include <cpptools/ModelManagerInterface.h>
-#include <cplusplus/Symbols.h>
 #include <cplusplus/Overview.h>
-#include <cplusplus/CoreTypes.h>
-#include <cplusplus/Name.h>
-#include <cplusplus/Names.h>
-#include <cplusplus/Literals.h>
-#include <cplusplus/Scope.h>
-#include <cplusplus/Control.h>
-#include <cplusplus/TranslationUnit.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <extensionsystem/pluginmanager.h>
 #include <texteditor/basetexteditor.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
-#include <utils/fileutils.h>
 
 #include <QDesignerFormWindowInterface>
 #include <QDesignerFormEditorInterface>

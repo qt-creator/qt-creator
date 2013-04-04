@@ -32,8 +32,6 @@
 
 #include <coreplugin/icontext.h>
 
-#include <QList>
-
 namespace Designer {
 namespace Internal {
 

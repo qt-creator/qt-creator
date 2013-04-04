@@ -30,7 +30,7 @@
 #ifndef QTCREATORINTEGRATION_H
 #define QTCREATORINTEGRATION_H
 
-#include <cpptools/ModelManagerInterface.h>
+#include <QtGlobal>
 
 #if QT_VERSION >= 0x050000
 #    include <QDesignerIntegration>

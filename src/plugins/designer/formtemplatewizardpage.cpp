@@ -29,7 +29,6 @@
 
 #include "formtemplatewizardpage.h"
 #include "formeditorw.h"
-#include "designerconstants.h"
 
 #if QT_VERSION >= 0x050000
 #    include <QDesignerNewFormWidgetInterface>
@@ -45,7 +44,6 @@
 
 #include <QVBoxLayout>
 #include <QMessageBox>
-#include <QAbstractButton>
 
 #ifdef USE_XSLT
 #    include <QXmlQuery>

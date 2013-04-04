@@ -30,15 +30,12 @@
 #include "formclasswizard.h"
 #include "formclasswizarddialog.h"
 #include "designerconstants.h"
-#include "formwindoweditor.h"
 #include "qtdesignerformclasscodegenerator.h"
 #include <qtsupport/qtsupportconstants.h>
 
-#include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
 
 #include <QDebug>
-#include <QSettings>
 
 namespace Designer {
 namespace Internal {

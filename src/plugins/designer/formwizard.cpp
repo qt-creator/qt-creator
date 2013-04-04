@@ -29,7 +29,6 @@
 
 #include "formwizard.h"
 #include "formwizarddialog.h"
-#include "formwindoweditor.h"
 #include "designerconstants.h"
 #include <qtsupport/qtsupportconstants.h>
 

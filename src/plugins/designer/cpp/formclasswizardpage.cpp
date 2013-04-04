@@ -33,13 +33,10 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
-#include <cppeditor/cppeditorconstants.h>
 #include <cpptools/cpptoolsconstants.h>
 
 #include <QDebug>
-#include <QSettings>
 
-#include <QAbstractButton>
 #include <QMessageBox>
 
 namespace Designer {

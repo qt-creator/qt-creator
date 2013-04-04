@@ -30,9 +30,6 @@
 #include "formwindowfile.h"
 #include "designerconstants.h"
 
-#include <coreplugin/icore.h>
-#include <utils/reloadpromptutils.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDesignerFormWindowInterface>
@@ -42,12 +39,9 @@
 #    include "qt_private/qsimpleresource_p.h"
 #endif
 
-#include <QMessageBox>
 #include <QUndoStack>
 
-#include <QFile>
 #include <QFileInfo>
-#include <QByteArray>
 #include <QDebug>
 #include <QTextCodec>
 

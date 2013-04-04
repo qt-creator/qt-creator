@@ -37,7 +37,6 @@
 
 #include <QMap>
 #include <QObject>
-#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 
