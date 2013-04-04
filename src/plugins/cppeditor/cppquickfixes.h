@@ -252,7 +252,7 @@ public:
     if (Type name = foo()) {...}
 
   With
-    Type name = foo;
+    Type name = foo();
     if (name) {...}
 
   Activates on: the name of the introduced variable
@@ -286,7 +286,8 @@ public:
 
   with
      if (something)
-        if (something_else)
+        if (something_else) {
+        }
      }
 
   and
@@ -350,8 +351,9 @@ public:
   if (a)
       b;
   becomes
-  if (a)
+  if (a) {
       b;
+  }
 
   Activates on: the if
 */
