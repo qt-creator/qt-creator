@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>314</width>
-    <height>219</height>
+    <width>335</width>
+    <height>224</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,14 +23,7 @@
       <string>Tabs And Indentation</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0" colspan="2">
-       <widget class="QLabel" name="tabPolicyLabel">
-        <property name="text">
-         <string>Tab policy:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -46,7 +39,7 @@
         </property>
        </spacer>
       </item>
-      <item row="1" column="1">
+      <item row="2" column="1">
        <widget class="QComboBox" name="tabPolicy">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -71,7 +64,7 @@
         </item>
        </widget>
       </item>
-      <item row="2" column="0" colspan="2">
+      <item row="3" column="0" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QLabel" name="tabSizeLabel">
@@ -152,14 +145,7 @@
         </item>
        </layout>
       </item>
-      <item row="3" column="0" colspan="2">
-       <widget class="QLabel" name="continuationAlignBehaviorLabel">
-        <property name="text">
-         <string>Align continuation lines:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
+      <item row="5" column="1">
        <widget class="QComboBox" name="continuationAlignBehavior">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -209,6 +195,33 @@ Influences the indentation of continuation lines.
           <string>With Regular Indent</string>
          </property>
         </item>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QLabel" name="tabPolicyLabel">
+        <property name="text">
+         <string>Tab policy:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="2">
+       <widget class="QLabel" name="continuationAlignBehaviorLabel">
+        <property name="text">
+         <string>Align continuation lines:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="2">
+       <widget class="QLabel" name="codingStyleWarning">
+        <property name="toolTip">
+         <string>The text editor indentation setting is used for non-code files only. See the C++ and Qt Quick coding style settings to configure indentation for code files.</string>
+        </property>
+        <property name="text">
+         <string>&lt;i&gt;Code indentation is configured in &lt;a href=&quot;C++&quot;&gt;C++&lt;/a&gt; and &lt;a href=&quot;QtQuick&quot;&gt;Qt Quick&lt;/a&gt; settings.&lt;/i&gt;</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>

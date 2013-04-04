@@ -41,6 +41,7 @@ QT_END_NAMESPACE
 namespace TextEditor {
 
 class ICodeStylePreferences;
+class TabSettingsWidget;
 class TypingSettings;
 class StorageSettings;
 class BehaviorSettings;
@@ -76,6 +77,8 @@ public:
     void assignedExtraEncodingSettings(ExtraEncodingSettings *encodingSettings) const;
 
     QString collectUiKeywords() const;
+
+    TabSettingsWidget *tabSettingsWidget() const;
 
 signals:
     void typingSettingsChanged(const TextEditor::TypingSettings &settings);

@@ -33,6 +33,7 @@
 #include "texteditor_global.h"
 
 #include "texteditoroptionspage.h"
+#include "tabsettingswidget.h"
 
 namespace TextEditor {
 
@@ -78,6 +79,9 @@ signals:
     void storageSettingsChanged(const TextEditor::StorageSettings &);
     void behaviorSettingsChanged(const TextEditor::BehaviorSettings &);
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &);
+
+private slots:
+    void openCodingStylePreferences(TextEditor::TabSettingsWidget::CodingStyleLink link);
 
 private:
     void settingsFromUI(TypingSettings *typingSettings,

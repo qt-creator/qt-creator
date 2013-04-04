@@ -30,6 +30,8 @@
 #include "behaviorsettingswidget.h"
 #include "ui_behaviorsettingswidget.h"
 
+#include "tabsettingswidget.h"
+
 #include <texteditor/typingsettings.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/behaviorsettings.h>
@@ -241,6 +243,11 @@ QString BehaviorSettingsWidget::collectUiKeywords() const
         << sep << d->m_ui.groupBoxMouse->title();
     keywords.remove(QLatin1Char('&'));
     return keywords;
+}
+
+TabSettingsWidget *BehaviorSettingsWidget::tabSettingsWidget() const
+{
+    return d->m_ui.tabPreferencesWidget->tabSettingsWidget();
 }
 
 void BehaviorSettingsWidget::slotTypingSettingsChanged()

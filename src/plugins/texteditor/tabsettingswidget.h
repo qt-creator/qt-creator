@@ -45,6 +45,11 @@ class TEXTEDITOR_EXPORT TabSettingsWidget : public QWidget
     Q_OBJECT
 
 public:
+    enum CodingStyleLink {
+        CppLink,
+        QtQuickLink
+    };
+
     explicit TabSettingsWidget(QWidget *parent = 0);
     ~TabSettingsWidget();
 
@@ -52,18 +57,21 @@ public:
 
     void setFlat(bool on);
     QString searchKeywords() const;
+    void setCodingStyleWarningVisible(bool visible);
 
 public slots:
     void setTabSettings(const TextEditor::TabSettings& s);
 
 signals:
     void settingsChanged(const TextEditor::TabSettings &);
+    void codingStyleLinkClicked(TextEditor::TabSettingsWidget::CodingStyleLink link);
 
 protected:
     void changeEvent(QEvent *e);
 
 private slots:
     void slotSettingsChanged();
+    void codingStyleLinkActivated(const QString &linkString);
 
 private:
     Internal::Ui::TabSettingsWidget *ui;

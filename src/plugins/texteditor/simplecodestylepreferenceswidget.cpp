@@ -101,7 +101,12 @@ QString SimpleCodeStylePreferencesWidget::searchKeywords() const
 
 void SimpleCodeStylePreferencesWidget::setFlat(bool on)
 {
-     m_tabSettingsWidget->setFlat(on);
+    m_tabSettingsWidget->setFlat(on);
+}
+
+TabSettingsWidget *SimpleCodeStylePreferencesWidget::tabSettingsWidget() const
+{
+    return m_tabSettingsWidget;
 }
 
 } // namespace TextEditor

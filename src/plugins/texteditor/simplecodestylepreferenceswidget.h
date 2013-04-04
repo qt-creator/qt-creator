@@ -55,6 +55,7 @@ public:
     QString searchKeywords() const;
 
     void setFlat(bool on);
+    TabSettingsWidget *tabSettingsWidget() const;
 
 private slots:
     void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *preferences);

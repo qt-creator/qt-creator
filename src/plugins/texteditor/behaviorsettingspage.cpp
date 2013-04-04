@@ -44,6 +44,11 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/hostosinfo.h>
 
+// for opening the respective coding style preferences
+#include <cpptools/cpptoolsconstants.h>
+#include <qmljseditor/qmljseditorconstants.h>
+#include <qmljstools/qmljstoolsconstants.h>
+
 #include <QSettings>
 #include <QTextCodec>
 
@@ -121,6 +126,11 @@ QWidget *BehaviorSettingsPage::createPage(QWidget *parent)
     d->m_pageCodeStyle->setTabSettings(d->m_codeStyle->tabSettings());
     d->m_pageCodeStyle->setCurrentDelegate(d->m_codeStyle->currentDelegate());
     d->m_page->behaviorWidget->setCodeStyle(d->m_pageCodeStyle);
+
+    TabSettingsWidget *tabSettingsWidget = d->m_page->behaviorWidget->tabSettingsWidget();
+    tabSettingsWidget->setCodingStyleWarningVisible(true);
+    connect(tabSettingsWidget, SIGNAL(codingStyleLinkClicked(TextEditor::TabSettingsWidget::CodingStyleLink)),
+            this, SLOT(openCodingStylePreferences(TextEditor::TabSettingsWidget::CodingStyleLink)));
 
     settingsToUI();
 
@@ -257,4 +267,19 @@ const ExtraEncodingSettings &BehaviorSettingsPage::extraEncodingSettings() const
 bool BehaviorSettingsPage::matches(const QString &s) const
 {
     return d->m_searchKeywords.contains(s, Qt::CaseInsensitive);
+}
+
+
+void BehaviorSettingsPage::openCodingStylePreferences(TabSettingsWidget::CodingStyleLink link)
+{
+    switch (link) {
+    case TextEditor::TabSettingsWidget::CppLink:
+        Core::ICore::showOptionsDialog(CppTools::Constants::CPP_SETTINGS_CATEGORY,
+                                       CppTools::Constants::CPP_CODE_STYLE_SETTINGS_ID);
+        break;
+    case TextEditor::TabSettingsWidget::QtQuickLink:
+        Core::ICore::showOptionsDialog(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML,
+                                       QmlJSTools::Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
+        break;
+    }
 }

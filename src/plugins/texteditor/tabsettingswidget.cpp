@@ -40,7 +40,10 @@ TabSettingsWidget::TabSettingsWidget(QWidget *parent) :
     ui(new Internal::Ui::TabSettingsWidget)
 {
     ui->setupUi(this);
+    ui->codingStyleWarning->setVisible(false);
 
+    connect(ui->codingStyleWarning, SIGNAL(linkActivated(QString)),
+            this, SLOT(codingStyleLinkActivated(QString)));
     connect(ui->tabPolicy, SIGNAL(currentIndexChanged(int)),
             this, SLOT(slotSettingsChanged()));
     connect(ui->tabSize, SIGNAL(valueChanged(int)),
@@ -83,6 +86,14 @@ void TabSettingsWidget::slotSettingsChanged()
     emit settingsChanged(tabSettings());
 }
 
+void TabSettingsWidget::codingStyleLinkActivated(const QString &linkString)
+{
+    if (linkString == QLatin1String("C++"))
+        emit codingStyleLinkClicked(CppLink);
+    else if (linkString == QLatin1String("QtQuick"))
+        emit codingStyleLinkClicked(QtQuickLink);
+}
+
 void TabSettingsWidget::setFlat(bool on)
 {
     ui->tabsAndIndentationGroupBox->setFlat(on);
@@ -103,6 +114,11 @@ QString TabSettingsWidget::searchKeywords() const
                ;
     rc.remove(QLatin1Char('&'));
     return rc;
+}
+
+void TabSettingsWidget::setCodingStyleWarningVisible(bool visible)
+{
+    ui->codingStyleWarning->setVisible(visible);
 }
 
 void TabSettingsWidget::changeEvent(QEvent *e)
