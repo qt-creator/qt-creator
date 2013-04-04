@@ -29,13 +29,11 @@
 #include "bazaarcontrol.h"
 #include "bazaarclient.h"
 
-#include <vcsbase/vcsbaseclientsettings.h>
 #include <vcsbase/vcsbaseconstants.h>
 
 #include <QFileInfo>
 #include <QVariant>
 #include <QStringList>
-#include <QDir>
 
 using namespace Bazaar::Internal;
 

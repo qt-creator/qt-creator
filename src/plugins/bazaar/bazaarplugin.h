@@ -31,14 +31,9 @@
 
 #include "bazaarsettings.h"
 
-#include <vcsbase/vcsbaseclientsettings.h>
 #include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbaseplugin.h>
 #include <coreplugin/icontext.h>
-
-#include <QFileInfo>
-#include <QHash>
-#include <qglobal.h>
 
 QT_BEGIN_NAMESPACE
 class QAction;

@@ -43,7 +43,6 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/id.h>
-#include <coreplugin/vcsmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/documentmanager.h>
@@ -63,12 +62,9 @@
 #include <QtPlugin>
 #include <QAction>
 #include <QMenu>
-#include <QMainWindow>
 #include <QDebug>
-#include <QtGlobal>
 #include <QDir>
 #include <QDialog>
-#include <QFileDialog>
 
 using namespace Bazaar::Internal;
 using namespace Bazaar;

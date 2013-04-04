@@ -34,8 +34,6 @@
 
 #include <QDebug>
 
-#include <QDir> //TODO REMOVE WHEN BASE FILE CHANGES ARE PULLED
-
 using namespace Bazaar::Internal;
 
 CommitEditor::CommitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent)

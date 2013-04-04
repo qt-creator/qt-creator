@@ -29,8 +29,6 @@
 #include "bazaarsettings.h"
 #include "constants.h"
 
-#include <QSettings>
-
 namespace Bazaar {
 namespace Internal {
 

@@ -27,12 +27,10 @@
 **
 ****************************************************************************/
 #include "optionspage.h"
-#include "constants.h"
 #include "bazaarsettings.h"
 #include "bazaarplugin.h"
 
 #include <coreplugin/icore.h>
-#include <utils/pathchooser.h>
 #include <vcsbase/vcsbaseconstants.h>
 
 #include <QTextStream>

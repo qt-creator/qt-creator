@@ -29,19 +29,12 @@
 #include "bazaareditor.h"
 #include "annotationhighlighter.h"
 #include "constants.h"
-#include "bazaarplugin.h"
-#include "bazaarclient.h"
 
-#include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
-#include <vcsbase/diffhighlighter.h>
 
 #include <QRegExp>
 #include <QString>
 #include <QTextCursor>
-#include <QTextBlock>
-#include <QDir>
-#include <QFileInfo>
 #include <QDebug>
 
 #define BZR_CHANGE_PATTERN "[0-9]+"

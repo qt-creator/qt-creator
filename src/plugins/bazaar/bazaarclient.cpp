@@ -29,12 +29,8 @@
 #include "bazaarclient.h"
 #include "constants.h"
 
-#include <vcsbase/vcsbaseclientsettings.h>
 #include <vcsbase/vcsbaseplugin.h>
-#include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
-
-#include <utils/qtcassert.h>
 
 #include <QDir>
 #include <QFileInfo>
