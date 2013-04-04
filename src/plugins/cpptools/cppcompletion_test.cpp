@@ -1185,6 +1185,64 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
             << code << completions;
 }
 
+void CppToolsPlugin::test_completion_template_function()
+{
+    QFETCH(QByteArray, code);
+    QFETCH(QStringList, expectedCompletions);
+
+    TestData data;
+    data.srcText = code;
+    setup(&data);
+
+    QStringList actualCompletions = getCompletions(data);
+    actualCompletions.sort();
+    expectedCompletions.sort();
+
+    QString errorPattern(QLatin1String("Completion not found: %1"));
+    foreach (const QString &completion, expectedCompletions) {
+        QByteArray errorMessage = errorPattern.arg(completion).toUtf8();
+        QVERIFY2(actualCompletions.contains(completion), errorMessage.data());
+    }
+}
+
+void CppToolsPlugin::test_completion_template_function_data()
+{
+    QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QStringList>("expectedCompletions");
+
+    QByteArray code;
+    QStringList completions;
+
+    code = "\n"
+           "template <class tclass, typename tname, int tint>\n"
+           "tname Hello(const tclass &e)\n"
+           "{\n"
+           "    tname e2 = e;\n"
+           "    @\n"
+           "}";
+
+    completions.append(QLatin1String("tclass"));
+    completions.append(QLatin1String("tname"));
+    completions.append(QLatin1String("tint"));
+    QTest::newRow("case: template parameters in template function body")
+            << code << completions;
+
+    completions.clear();
+
+    code = "\n"
+           "template <class tclass, typename tname, int tint>\n"
+           "tname Hello(const tclass &e, @)\n"
+           "{\n"
+           "    tname e2 = e;\n"
+           "}";
+
+    completions.append(QLatin1String("tclass"));
+    completions.append(QLatin1String("tname"));
+    completions.append(QLatin1String("tint"));
+    QTest::newRow("case: template parameters in template function parameters list")
+            << code << completions;
+}
+
 void CppToolsPlugin::test_completion_enclosing_template_class()
 {
     test_completion();

@@ -124,6 +124,8 @@ Icons::IconType Icons::iconTypeForSymbol(const Symbol *symbol)
         return FuncPublicIconType;
     } else if (symbol->isNamespace()) {
         return NamespaceIconType;
+    } else if (symbol->isTypenameArgument()) {
+        return ClassIconType;
     } else if (symbol->isUsingNamespaceDirective() ||
                symbol->isUsingDeclaration()) {
         // TODO: Might be nice to have a different icons for these things

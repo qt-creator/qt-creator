@@ -104,6 +104,8 @@ private slots:
     void test_completion_base_class_has_name_the_same_as_derived_data();
     void test_completion_cyclic_inheritance();
     void test_completion_cyclic_inheritance_data();
+    void test_completion_template_function();
+    void test_completion_template_function_data();
     void test_completion_enclosing_template_class();
     void test_completion_enclosing_template_class_data();
     void test_completion_instantiate_nested_class_when_enclosing_is_template();
