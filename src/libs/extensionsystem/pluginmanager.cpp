@@ -750,7 +750,7 @@ void PluginManager::startTests()
  * \fn bool PluginManager::runningTests() const
  * \internal
  */
-bool PluginManager::runningTests()
+bool PluginManager::testRunRequested()
 {
     return !m_instance->d->testSpecs.isEmpty();
 }

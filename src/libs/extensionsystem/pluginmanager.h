@@ -124,7 +124,7 @@ public:
 
     static QString serializedArguments();
 
-    static bool runningTests();
+    static bool testRunRequested();
     static QString testDataDirectory();
 
     static void profilingReport(const char *what, const PluginSpec *spec = 0);

@@ -1116,7 +1116,7 @@ bool FakeVimPluginPrivate::initialize()
         this, SLOT(handleDelayedQuitAll(bool)), Qt::QueuedConnection);
 
     // Vimrc can break test so don't source it if running tests.
-    if (!ExtensionSystem::PluginManager::runningTests())
+    if (!ExtensionSystem::PluginManager::testRunRequested())
         maybeReadVimRc();
     //    << "MODE: " << theFakeVimSetting(ConfigUseFakeVim)->value();
 

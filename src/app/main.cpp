@@ -506,7 +506,7 @@ int main(int argc, char **argv)
 
 #ifdef WITH_TESTS
     // Do this after the event loop has started
-    if (PluginManager::runningTests())
+    if (PluginManager::testRunRequested())
         QTimer::singleShot(100, &pluginManager, SLOT(startTests()));
 #endif
 
