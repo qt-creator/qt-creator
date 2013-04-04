@@ -1186,7 +1186,8 @@ bool GitClient::synchronousHeadRefs(const QString &workingDirectory, QStringList
                                     QString *errorMessage)
 {
     QStringList args;
-    args << QLatin1String("show-ref") << QLatin1String("--head") << QLatin1String("--abbrev=10");
+    args << QLatin1String("show-ref") << QLatin1String("--head")
+         << QLatin1String("--abbrev=10") << QLatin1String("--dereference");
     QByteArray outputText;
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
@@ -1258,15 +1259,21 @@ QString GitClient::synchronousTopic(const QString &workingDirectory)
     if (!synchronousHeadRefs(workingDirectory, &references))
         return QString();
 
-    QString tagStart    = QLatin1String("refs/tags/");
-    QString remoteStart = QLatin1String("refs/remotes/");
+    const QString tagStart(QLatin1String("refs/tags/"));
+    const QString remoteStart(QLatin1String("refs/remotes/"));
+    const QString dereference(QLatin1String("^{}"));
     QString remoteBranch;
 
     foreach (const QString &ref, references) {
-        if (ref.startsWith(tagStart))
-            return data.topic = ref.mid(10);
-        if (ref.startsWith(remoteStart))
-            remoteBranch = ref.mid(13);
+        int derefInd = ref.indexOf(dereference);
+        if (ref.startsWith(tagStart)) {
+            return data.topic = ref.mid(tagStart.size(),
+                                        (derefInd == -1) ? -1 : derefInd - tagStart.size());
+        }
+        if (ref.startsWith(remoteStart)) {
+            remoteBranch = ref.mid(remoteStart.size(),
+                                   (derefInd == -1) ? -1 : derefInd - remoteStart.size());
+        }
     }
 
     // No tag
