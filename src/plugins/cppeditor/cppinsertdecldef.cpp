@@ -567,7 +567,7 @@ public:
             CppRefactoringChanges implRefactoring(snapshot());
             CppRefactoringFilePtr implFile = implRefactoring.file(implFileName);
             ChangeSet implChanges;
-            const int implInsertPos = QFileInfo(implFileName).size();
+            const int implInsertPos = implFile->document()->characterCount() - 1;
             implChanges.insert(implInsertPos, implementation);
             implFile->setChangeSet(implChanges);
             implFile->appendIndentRange(
