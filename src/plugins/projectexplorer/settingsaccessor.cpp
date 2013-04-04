@@ -611,6 +611,8 @@ bool SettingsAccessor::saveSettings(const QVariantMap &map) const
     if (map.isEmpty())
         return false;
 
+    backupUserFile();
+
     SettingsData settings(map);
     settings.m_fileName = Utils::FileName::fromString(defaultFileName(m_userFileAcessor.suffix()));
     const QVariant &shared = m_project->property(SHARED_SETTINGS);
@@ -684,6 +686,28 @@ QString SettingsAccessor::defaultFileName(const QString &suffix) const
 int SettingsAccessor::currentVersion() const
 {
     return m_lastVersion + 1;
+}
+
+void SettingsAccessor::backupUserFile() const
+{
+    SettingsData oldSettings;
+    oldSettings.m_fileName = Utils::FileName::fromString(defaultFileName(m_userFileAcessor.suffix()));
+    if (!m_userFileAcessor.readFile(&oldSettings))
+        return;
+
+    // Do we need to do a backup?
+    const QString origName = oldSettings.fileName().toString();
+    QString backupName = origName;
+    if (oldSettings.environmentId() != creatorId())
+        backupName += QLatin1String(".") + QString::fromLatin1(oldSettings.environmentId()).mid(1, 7);
+    if (oldSettings.version() != currentVersion()) {
+        if (m_handlers.contains(oldSettings.version()))
+            backupName += QLatin1String(".") + m_handlers.value(oldSettings.version())->displayUserFileVersion();
+        else
+            backupName += QLatin1String(".") + QString::number(oldSettings.version());
+    }
+    if (backupName != origName)
+        QFile::copy(origName, backupName);
 }
 
 void SettingsAccessor::incrementVersion(SettingsAccessor::SettingsData &data) const

@@ -63,6 +63,7 @@ private:
     QByteArray creatorId() const;
     QString defaultFileName(const QString &suffix) const;
     int currentVersion() const;
+    void backupUserFile() const;
 
     // The relevant data from the settings currently in use.
     class SettingsData
