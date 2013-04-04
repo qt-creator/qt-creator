@@ -59,7 +59,7 @@ public:
     virtual void fetch(const QString &id);
     virtual void list();
     virtual void paste(const QString &text,
-                       ContentType ct = Text,
+                       ContentType ct = Text, int expiryDays = 1,
                        const QString &username = QString(),
                        const QString &comment = QString(),
                        const QString &description = QString());

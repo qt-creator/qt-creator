@@ -36,20 +36,22 @@
 
 static const char groupC[] = "CodePaster";
 static const char userNameKeyC[] = "UserName";
+static const char expiryDaysKeyC[] = "ExpiryDays";
 static const char defaultProtocolKeyC[] = "DefaultProtocol";
 static const char copyToClipboardKeyC[] = "CopyToClipboard";
 static const char displayOutputKeyC[] = "DisplayOutput";
 
 namespace CodePaster {
 
-Settings::Settings() : copyToClipboard(true), displayOutput(true)
+Settings::Settings() : expiryDays(1), copyToClipboard(true), displayOutput(true)
 {
 }
 
 bool Settings::equals(const Settings &rhs) const
 {
     return copyToClipboard == rhs.copyToClipboard && displayOutput == rhs.displayOutput
-            && username == rhs.username && protocol == rhs.protocol;
+           && expiryDays == rhs.expiryDays && username == rhs.username
+           && protocol == rhs.protocol;
 }
 
 void Settings::toSettings(QSettings *settings) const
@@ -57,6 +59,7 @@ void Settings::toSettings(QSettings *settings) const
     settings->beginGroup(QLatin1String(groupC));
     settings->setValue(QLatin1String(userNameKeyC), username);
     settings->setValue(QLatin1String(defaultProtocolKeyC), protocol);
+    settings->setValue(QLatin1String(expiryDaysKeyC), expiryDays);
     settings->setValue(QLatin1String(copyToClipboardKeyC), copyToClipboard);
     settings->setValue(QLatin1String(displayOutputKeyC), displayOutput);
     settings->endGroup();
@@ -66,6 +69,7 @@ void Settings::fromSettings(const QSettings *settings)
 {
     const QString rootKey = QLatin1String(groupC) + QLatin1Char('/');
     const QString defaultUser = Utils::Environment::systemEnvironment().userName();
+    expiryDays = settings->value(rootKey + QLatin1String(expiryDaysKeyC), 1).toInt();
     username = settings->value(rootKey + QLatin1String(userNameKeyC), defaultUser).toString();
     protocol = settings->value(rootKey + QLatin1String(defaultProtocolKeyC), PasteBinDotComProtocol::protocolName()).toString();
     copyToClipboard = settings->value(rootKey + QLatin1String(copyToClipboardKeyC), true).toBool();

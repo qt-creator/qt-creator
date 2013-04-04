@@ -26,7 +26,7 @@
      <item row="0" column="1">
       <widget class="QComboBox" name="protocolBox"/>
      </item>
-     <item row="1" column="0">
+     <item row="2" column="0">
       <widget class="QLabel" name="userLabel">
        <property name="text">
         <string>&amp;Username:</string>
@@ -36,14 +36,14 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
+     <item row="2" column="1">
       <widget class="QLineEdit" name="uiUsername">
        <property name="placeholderText">
         <string>&lt;Username&gt;</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
+     <item row="3" column="0">
       <widget class="QLabel" name="descriptionLabel">
        <property name="text">
         <string>&amp;Description:</string>
@@ -53,10 +53,33 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+     <item row="3" column="1">
       <widget class="QLineEdit" name="uiDescription">
        <property name="placeholderText">
         <string>&lt;Description&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="expirySpinBox">
+       <property name="suffix">
+        <string>Days</string>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>365</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="expiryLabel">
+       <property name="text">
+        <string>&amp;Expires after:</string>
+       </property>
+       <property name="buddy">
+        <cstring>expirySpinBox</cstring>
        </property>
       </widget>
      </item>

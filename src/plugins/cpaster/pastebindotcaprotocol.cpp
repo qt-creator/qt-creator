@@ -90,7 +90,7 @@ static QByteArray toTypeId(Protocol::ContentType ct)
 }
 
 void PasteBinDotCaProtocol::paste(const QString &text,
-                                  ContentType ct,
+                                  ContentType ct, int expiryDays,
                                   const QString &username,
                                   const QString & /* comment */,
                                   const QString &description)
@@ -103,7 +103,9 @@ void PasteBinDotCaProtocol::paste(const QString &text,
     data += toTypeId(ct);
     data += "&description=";
     data += QUrl::toPercentEncoding(description);
-    data += "expiry=1%20day&name=";
+    data += "&expiry=";
+    data += QByteArray::number(expiryDays);
+    data += "%20day&name=";
     data += QUrl::toPercentEncoding(username);
     // fire request
     const QString link = QLatin1String(urlC) + QLatin1String("quiet-paste.php");

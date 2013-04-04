@@ -46,6 +46,7 @@ struct Settings {
 
     QString username;
     QString protocol;
+    int expiryDays;
     bool copyToClipboard;
     bool displayOutput;
 };

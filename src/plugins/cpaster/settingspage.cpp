@@ -59,6 +59,7 @@ void SettingsWidget::setSettings(const Settings &settings)
     m_ui.userEdit->setText(settings.username);
     const int index = m_ui.defaultProtocol->findText(settings.protocol);
     m_ui.defaultProtocol->setCurrentIndex(index == -1 ? 0  : index);
+    m_ui.expirySpinBox->setValue(settings.expiryDays);
     m_ui.clipboardBox->setChecked(settings.copyToClipboard);
     m_ui.displayBox->setChecked(settings.displayOutput);
 }
@@ -68,6 +69,7 @@ Settings SettingsWidget::settings()
     Settings rc;
     rc.username = m_ui.userEdit->text();
     rc.protocol = m_ui.defaultProtocol->currentText();
+    rc.expiryDays = m_ui.expirySpinBox->value();
     rc.copyToClipboard = m_ui.clipboardBox->isChecked();
     rc.displayOutput = m_ui.displayBox->isChecked();
     return rc;

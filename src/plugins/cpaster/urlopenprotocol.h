@@ -43,7 +43,7 @@ public:
     QString name() const;
     unsigned capabilities() const;
     void fetch(const QString &url);
-    void paste(const QString &, ContentType, const QString &, const QString &, const QString &);
+    void paste(const QString &, ContentType, int, const QString &, const QString &, const QString &);
 
 private slots:
     void fetchFinished();

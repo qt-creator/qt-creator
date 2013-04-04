@@ -99,7 +99,7 @@ static inline QByteArray format(Protocol::ContentType ct)
 }
 
 void PasteBinDotComProtocol::paste(const QString &text,
-                                   ContentType ct,
+                                   ContentType ct, int expiryDays,
                                    const QString &username,
                                    const QString &comment,
                                    const QString &description)
@@ -111,14 +111,14 @@ void PasteBinDotComProtocol::paste(const QString &text,
     // Format body
     QByteArray pasteData = API_KEY;
     pasteData += "api_option=paste&";
-    pasteData += "api_paste_expire_date=1M&";
+    pasteData += "api_paste_expire_date=";
+    pasteData += QByteArray::number(expiryDays);
+    pasteData += "D&";
     pasteData += format(ct);
     pasteData += "api_paste_name=";
     pasteData += QUrl::toPercentEncoding(username);
-
     pasteData += "&api_paste_code=";
     pasteData += QUrl::toPercentEncoding(fixNewLines(text));
-
     // fire request
     m_pasteReply = httpPost(QLatin1String(PASTEBIN_BASE) + QLatin1String(PASTEBIN_API), pasteData);
     connect(m_pasteReply, SIGNAL(finished()), this, SLOT(pasteFinished()));

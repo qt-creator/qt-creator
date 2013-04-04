@@ -43,8 +43,6 @@ enum { debug = 0 };
 static const char hostUrlC[]= "http://paste.kde.org/";
 static const char showPhpScriptpC[] = "show.php";
 
-enum { expirySeconds = 86400 };
-
 namespace CodePaster {
 KdePasteProtocol::KdePasteProtocol(const NetworkAccessManagerProxyPtr &nw) :
     NetworkProtocol(nw),
@@ -97,7 +95,7 @@ static inline QByteArray pasteLanguage(Protocol::ContentType ct)
 }
 
 void KdePasteProtocol::paste(const QString &text,
-                                   ContentType ct,
+                                   ContentType ct, int expiryDays,
                                    const QString &username,
                                    const QString &comment,
                                    const QString &description)
@@ -115,7 +113,7 @@ void KdePasteProtocol::paste(const QString &text,
     pasteData += "&paste_data=";
     pasteData += QUrl::toPercentEncoding(fixNewLines(text));
     pasteData += "&paste_expire=";
-    pasteData += QByteArray::number(expirySeconds);
+    pasteData += QByteArray::number(expiryDays * 86400);
     pasteData += '&';
     pasteData += pasteLanguage(ct);
 
