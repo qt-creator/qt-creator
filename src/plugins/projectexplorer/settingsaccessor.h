@@ -96,8 +96,7 @@ private:
     class FileAccessor
     {
     public:
-        FileAccessor(const QByteArray &id,
-                     const QString &defaultSuffix,
+        FileAccessor(const QString &defaultSuffix,
                      const QString &environmentSuffix,
                      bool envSpecific,
                      SettingsAccessor *accessor);
@@ -107,12 +106,10 @@ private:
         bool writeFile(const SettingsData *settings) const;
 
         QString suffix() const { return m_suffix; }
-        QByteArray id() const { return m_id; }
 
     private:
         void assignSuffix(const QString &defaultSuffix, const QString &environmentSuffix);
 
-        QByteArray m_id;
         QString m_suffix;
         bool m_environmentSpecific;
         SettingsAccessor *m_accessor;

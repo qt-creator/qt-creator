@@ -452,13 +452,11 @@ static QVariantMap processHandlerNodes(const HandlerNode &node, const QVariantMa
 SettingsAccessor::SettingsAccessor(Project *project) :
     m_firstVersion(-1),
     m_lastVersion(-1),
-    m_userFileAcessor(QByteArray("qtcUserFileName"),
-                      QLatin1String(".user"),
+    m_userFileAcessor(QLatin1String(".user"),
                       QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")),
                       true,
                       this),
-    m_sharedFileAcessor(QByteArray("qtcSharedFileName"),
-                        QLatin1String(".shared"),
+    m_sharedFileAcessor(QLatin1String(".shared"),
                         QString::fromLocal8Bit(qgetenv("QTC_SHARED_EXTENSION")),
                         false,
                         this),
@@ -909,13 +907,11 @@ bool SettingsAccessor::SettingsData::isValid() const
 static const char VERSION_KEY[] = "ProjectExplorer.Project.Updater.FileVersion";
 static const char ENVIRONMENT_ID_KEY[] = "ProjectExplorer.Project.Updater.EnvironmentId";
 
-SettingsAccessor::FileAccessor::FileAccessor(const QByteArray &id,
-                                             const QString &defaultSuffix,
+SettingsAccessor::FileAccessor::FileAccessor(const QString &defaultSuffix,
                                              const QString &environmentSuffix,
                                              bool envSpecific,
                                              SettingsAccessor *accessor)
-    : m_id(id)
-    , m_environmentSpecific(envSpecific)
+    : m_environmentSpecific(envSpecific)
     , m_accessor(accessor)
     , m_writer(0)
 {
