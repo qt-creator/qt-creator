@@ -96,7 +96,6 @@ private:
 
     private:
         void assignSuffix(const QString &defaultSuffix, const QString &environmentSuffix);
-        QString assembleFileName(const Project *project) const;
         bool findNewestCompatibleSetting(SettingsData *settings) const;
 
         QByteArray m_id;
