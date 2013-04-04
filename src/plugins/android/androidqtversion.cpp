@@ -103,13 +103,8 @@ QList<ProjectExplorer::Abi> AndroidQtVersion::detectQtAbis() const
 
 void AndroidQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const
 {
-    QString ndk_host = QLatin1String(
-                Utils::HostOsInfo::isLinuxHost() ? "linux-x86" :
-                Utils::HostOsInfo::isWindowsHost() ? "windows" :
-                Utils::HostOsInfo::isMacHost() ? "darwin-x86" : "");
-
     // this env vars are used by qmake mkspecs to generate makefiles (check QTDIR/mkspecs/android-g++/qmake.conf for more info)
-    env.set(QLatin1String("ANDROID_NDK_HOST"), ndk_host);
+    env.set(QLatin1String("ANDROID_NDK_HOST"), AndroidConfigurations::instance().config().toolchainHost);
     env.set(QLatin1String("ANDROID_NDK_ROOT"), AndroidConfigurations::instance().config().ndkLocation.toUserOutput());
 
     Qt4Project *qt4pro = qobject_cast<Qt4ProjectManager::Qt4Project *>(ProjectExplorerPlugin::instance()->currentProject());

@@ -42,21 +42,6 @@ QT_END_NAMESPACE
 namespace Android {
 namespace Internal {
 
-#ifdef Q_OS_LINUX
-    const QLatin1String ToolchainHost("linux-x86");
-#else
-# ifdef Q_OS_DARWIN
-    const QLatin1String ToolchainHost("darwin-x86");
-# else
-#  ifdef Q_OS_WIN32
-    const QLatin1String ToolchainHost("windows");
-#  else
-#  warning No Android supported OSs found
-    const QLatin1String ToolchainHost("linux-x86");
-#  endif
-# endif
-#endif
-
 class AndroidConfig
 {
 public:
@@ -69,6 +54,7 @@ public:
     Utils::FileName antLocation;
     Utils::FileName openJDKLocation;
     Utils::FileName keystoreLocation;
+    QString toolchainHost;
     unsigned partitionSize;
     bool automaticKitCreation;
 };
@@ -95,6 +81,7 @@ public:
     Utils::FileName androidToolPath() const;
     Utils::FileName antToolPath() const;
     Utils::FileName emulatorToolPath() const;
+    Utils::FileName gccPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
     Utils::FileName gdbPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
     Utils::FileName openJDKPath() const;
     Utils::FileName keytoolPath() const;
@@ -124,6 +111,7 @@ public slots:
 private:
     Utils::FileName toolPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
     Utils::FileName openJDKBinPath() const;
+    void detectToolchainHost();
 
     AndroidConfigurations(QObject *parent);
     void load();

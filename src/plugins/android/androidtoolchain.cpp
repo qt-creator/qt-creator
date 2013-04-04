@@ -111,21 +111,7 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
 // TODO this vars should be configurable in projects -> build tab
 // TODO invalidate all .pro files !!!
 
-    QString ndkHost;
-    switch (HostOsInfo::hostOs()) {
-    case HostOsInfo::HostOsLinux:
-        ndkHost = QLatin1String("linux-x86");
-        break;
-    case HostOsInfo::HostOsWindows:
-        ndkHost = QLatin1String("windows");
-        break;
-    case HostOsInfo::HostOsMac:
-        ndkHost = QLatin1String("darwin-x86");
-        break;
-    default:
-        break;
-    }
-    env.set(QLatin1String("ANDROID_NDK_HOST"), ndkHost);
+    env.set(QLatin1String("ANDROID_NDK_HOST"), AndroidConfigurations::instance().config().toolchainHost);
     env.set(QLatin1String("ANDROID_NDK_TOOLCHAIN_PREFIX"), AndroidConfigurations::toolchainPrefix(targetAbi().architecture()));
     env.set(QLatin1String("ANDROID_NDK_TOOLS_PREFIX"), AndroidConfigurations::toolsPrefix(targetAbi().architecture()));
     env.set(QLatin1String("ANDROID_NDK_TOOLCHAIN_VERSION"), m_ndkToolChainVersion);
@@ -302,12 +288,7 @@ QList<AndroidToolChainFactory::AndroidToolChainInformation> AndroidToolChainFact
         if (ati.architecture == Abi::UnknownArchitecture) // e.g. mipsel which is not yet supported
             continue;
         // AndroidToolChain *tc = new AndroidToolChain(arch, version, true);
-        ati.compilerCommand  = ndkPath;
-        ati.compilerCommand.appendPath(QString::fromLatin1("toolchains/%1/prebuilt/%3/bin/%4")
-                                       .arg(fileName)
-                                       .arg(ToolchainHost)
-                                       .arg(AndroidConfigurations::toolsPrefix(ati.architecture)));
-        ati.compilerCommand.append(QLatin1String("-gcc" QTC_HOST_EXE_SUFFIX));
+        ati.compilerCommand = AndroidConfigurations::instance().gccPath(ati.architecture, ati.version);
         // tc->setCompilerCommand(compilerPath);
         result.append(ati);
     }
@@ -334,12 +315,7 @@ QList<ToolChain *> AndroidToolChainFactory::createToolChainsForNdk(const Utils::
         if (arch == Abi::UnknownArchitecture) // e.g. mipsel which is not yet supported
             continue;
         AndroidToolChain *tc = new AndroidToolChain(arch, version, true);
-        FileName compilerPath = ndkPath;
-        compilerPath.appendPath(QString::fromLatin1("toolchains/%1/prebuilt/%3/bin/%4")
-                                .arg(fileName)
-                                .arg(ToolchainHost)
-                                .arg(AndroidConfigurations::toolsPrefix(arch)));
-        compilerPath.append(QLatin1String("-gcc" QTC_HOST_EXE_SUFFIX));
+        FileName compilerPath = AndroidConfigurations::instance().gccPath(arch, version);
         tc->setCompilerCommand(compilerPath);
         result.append(tc);
     }

@@ -81,6 +81,7 @@ namespace {
     const QLatin1String KeystoreLocationKey("KeystoreLocation");
     const QLatin1String AutomaticKitCreationKey("AutomatiKitCreation");
     const QLatin1String PartitionSizeKey("PartitionSize");
+    const QLatin1String ToolchainHostKey("ToolchainHost");
     const QLatin1String ArmToolchainPrefix("arm-linux-androideabi");
     const QLatin1String X86ToolchainPrefix("x86");
     const QLatin1String MipsToolchainPrefix("mipsel-linux-android");
@@ -152,6 +153,7 @@ AndroidConfig::AndroidConfig(const QSettings &settings)
     antLocation = FileName::fromString(settings.value(AntLocationKey).toString());
     openJDKLocation = FileName::fromString(settings.value(OpenJDKLocationKey).toString());
     keystoreLocation = FileName::fromString(settings.value(KeystoreLocationKey).toString());
+    toolchainHost = settings.value(ToolchainHostKey).toString();
     automaticKitCreation = settings.value(AutomaticKitCreationKey, true).toBool();
 
     PersistentSettingsReader reader;
@@ -163,6 +165,7 @@ AndroidConfig::AndroidConfig(const QSettings &settings)
         antLocation = FileName::fromString(reader.restoreValue(AntLocationKey).toString());
         openJDKLocation = FileName::fromString(reader.restoreValue(OpenJDKLocationKey).toString());
         keystoreLocation = FileName::fromString(reader.restoreValue(KeystoreLocationKey).toString());
+        toolchainHost = reader.restoreValue(ToolchainHostKey).toString();
         QVariant v = reader.restoreValue(AutomaticKitCreationKey);
         if (v.isValid())
             automaticKitCreation = v.toBool();
@@ -190,11 +193,16 @@ void AndroidConfig::save(QSettings &settings) const
     settings.setValue(KeystoreLocationKey, keystoreLocation.toString());
     settings.setValue(PartitionSizeKey, partitionSize);
     settings.setValue(AutomaticKitCreationKey, automaticKitCreation);
+    settings.setValue(ToolchainHostKey, toolchainHost);
 }
 
 void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
 {
     m_config = devConfigs;
+
+    if (m_config.toolchainHost.isEmpty())
+        detectToolchainHost();
+
     save();
     updateAvailablePlatforms();
     updateAutomaticKitList();
@@ -277,7 +285,7 @@ FileName AndroidConfigurations::toolPath(Abi::Architecture architecture, const Q
     return path.appendPath(QString::fromLatin1("toolchains/%1-%2/prebuilt/%3/bin/%4")
             .arg(toolchainPrefix(architecture))
             .arg(ndkToolChainVersion)
-            .arg(ToolchainHost)
+            .arg(m_config.toolchainHost)
             .arg(toolsPrefix(architecture)));
 }
 
@@ -291,6 +299,11 @@ FileName AndroidConfigurations::readelfPath(Abi::Architecture architecture, cons
     return toolPath(architecture, ndkToolChainVersion).append(QLatin1String("-readelf" QTC_HOST_EXE_SUFFIX));
 }
 
+FileName AndroidConfigurations::gccPath(Abi::Architecture architecture, const QString &ndkToolChainVersion) const
+{
+    return toolPath(architecture, ndkToolChainVersion).append(QLatin1String("-gcc" QTC_HOST_EXE_SUFFIX));
+}
+
 FileName AndroidConfigurations::gdbPath(Abi::Architecture architecture, const QString &ndkToolChainVersion) const
 {
     return toolPath(architecture, ndkToolChainVersion).append(QLatin1String("-gdb" QTC_HOST_EXE_SUFFIX));
@@ -299,6 +312,30 @@ FileName AndroidConfigurations::gdbPath(Abi::Architecture architecture, const QS
 FileName AndroidConfigurations::openJDKPath() const
 {
     return m_config.openJDKLocation;
+}
+
+void AndroidConfigurations::detectToolchainHost()
+{
+    QStringList hostPatterns;
+    switch (HostOsInfo::hostOs()) {
+    case HostOsInfo::HostOsLinux:
+        hostPatterns << QLatin1String("linux*");
+        break;
+    case HostOsInfo::HostOsWindows:
+        hostPatterns << QLatin1String("windows*");
+        break;
+    case HostOsInfo::HostOsMac:
+        hostPatterns << QLatin1String("darwin*");
+        break;
+    default: /* unknown host */ return;
+    }
+
+    FileName path = m_config.ndkLocation;
+    QDirIterator it(path.appendPath(QLatin1String("prebuilt")).toString(), hostPatterns, QDir::Dirs);
+    if (it.hasNext()) {
+        it.next();
+        m_config.toolchainHost = it.fileName();
+    }
 }
 
 FileName AndroidConfigurations::openJDKBinPath() const

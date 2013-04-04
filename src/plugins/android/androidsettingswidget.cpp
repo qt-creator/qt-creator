@@ -286,6 +286,7 @@ void AndroidSettingsWidget::sdkLocationEditingFinished()
 void AndroidSettingsWidget::ndkLocationEditingFinished()
 {
     Utils::FileName location = Utils::FileName::fromUserInput(m_ui->NDKLocationLineEdit->text());
+    m_androidConfig.toolchainHost.clear(); // force toolchain host detection
     if (!checkNDK(location))
         return;
     saveSettings(true);
