@@ -163,10 +163,11 @@ void DeviceManager::load()
                 break;
             }
         }
-        d->devices << device;
+        addDevice(device);
     }
     // Append the new SDK devices to the model.
-    d->devices << sdkDevices;
+    foreach (const IDevice::Ptr &sdkDevice, sdkDevices)
+        addDevice(sdkDevice);
 
     ensureOneDefaultDevicePerType();
 
@@ -189,7 +190,7 @@ QList<IDevice::Ptr> DeviceManager::fromMap(const QVariantMap &map)
             continue;
         const IDevice::Ptr device = factory->restore(map);
         QTC_ASSERT(device, continue);
-        addDevice(device);
+        devices << device;
     }
     return devices;
 }
