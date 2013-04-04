@@ -1768,28 +1768,14 @@ class Dumper:
         #warn("INAME: %s " % self.currentIName)
         #warn("INAMES: %s " % self.expandedINames)
         #warn("EXPANDED: %s " % (self.currentIName in self.expandedINames))
-        fields = extractFields(type)
-        #fields = type.fields()
-
+        numfields = len(extractFields(type))
         self.tryPutObjectNameValue(value)  # Is this too expensive?
-
         self.putType(typeName)
         self.putEmptyValue()
-
-        if False:
-            numfields = 0
-            for field in fields:
-                bitpos = getattr(field, "bitpos", None)
-                if not bitpos is None:
-                    ++numfields
-        else:
-            numfields = len(fields)
         self.putNumChild(numfields)
 
         if self.currentIName in self.expandedINames:
             innerType = None
-            if len(fields) == 1 and fields[0].name is None:
-                innerType = type.target()
             with Children(self, 1, childType=innerType):
                 self.putFields(value)
 
