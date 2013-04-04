@@ -59,6 +59,10 @@ private:
 
     // Takes ownership of the handler!
     void addVersionHandler(Internal::UserFileVersionHandler *handler);
+    QStringList findSettingsFiles(const QString &suffix) const;
+    QByteArray creatorId() const;
+    QString defaultFileName(const QString &suffix) const;
+    int currentVersion() const;
 
     // The relevant data from the settings currently in use.
     class SettingsData
@@ -70,6 +74,8 @@ private:
         void clear();
         bool isValid() const;
         QByteArray environmentId() const { return m_environmentId; }
+        int version() const { return m_version; }
+        Utils::FileName fileName() const { return m_fileName; }
 
         int m_version;
         QByteArray m_environmentId;
@@ -79,6 +85,7 @@ private:
     };
 
     SettingsData readUserSettings() const;
+    SettingsData findBestSettings(const QStringList &candidates) const;
 
     // The entity which actually reads/writes to the settings file.
     class FileAccessor
@@ -88,7 +95,6 @@ private:
                      const QString &defaultSuffix,
                      const QString &environmentSuffix,
                      bool envSpecific,
-                     bool versionStrict,
                      SettingsAccessor *accessor);
         ~FileAccessor();
 
@@ -100,12 +106,10 @@ private:
 
     private:
         void assignSuffix(const QString &defaultSuffix, const QString &environmentSuffix);
-        bool findNewestCompatibleSetting(SettingsData *settings) const;
 
         QByteArray m_id;
         QString m_suffix;
         bool m_environmentSpecific;
-        bool m_versionStrict;
         SettingsAccessor *m_accessor;
         mutable Utils::PersistentSettingsWriter *m_writer;
     };
