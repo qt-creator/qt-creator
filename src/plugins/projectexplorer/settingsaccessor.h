@@ -107,8 +107,6 @@ private:
         mutable Utils::PersistentSettingsWriter *m_writer;
     };
 
-    static bool verifyEnvironmentId(const QString &id);
-
     QMap<int, Internal::UserFileVersionHandler *> m_handlers;
     int m_firstVersion;
     int m_lastVersion;
