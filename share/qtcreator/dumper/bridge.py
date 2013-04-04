@@ -135,6 +135,33 @@ try:
 #        gdb.execute("set logging redirect off")
         return gdb.history(0)
 
+    def extractFields(value):
+        type = stripTypedefs(value.type)
+        return type.fields()
+        ## Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953:
+        ##fields = type.fields()
+        ## Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=11777:
+        ##fields = defsype).fields()
+        ## This seems to work.
+        ##warn("TYPE 0: %s" % type)
+        #type = stripTypedefs(type)
+        #fields = type.fields()
+        #if len(fields):
+        #    return fields
+        ##warn("TYPE 1: %s" % type)
+        ## This fails for arrays. See comment in lookupType.
+        #type0 = lookupType(str(type))
+        #if not type0 is None:
+        #    type = type0
+        #if type.code == FunctionCode:
+        #    return []
+        ##warn("TYPE 2: %s" % type)
+        #fields = type.fields()
+        ##warn("FIELDS: %s" % fields)
+        #return fields
+
+    def fieldCount(type):
+        return len(type.fields())
 
     def listOfLocals(varList):
         frame = gdb.selected_frame()
@@ -358,29 +385,6 @@ try:
             base += 1
         return s
 
-    def extractFields(type):
-        return type.fields()
-        ## Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953:
-        ##fields = type.fields()
-        ## Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=11777:
-        ##fields = defsype).fields()
-        ## This seems to work.
-        ##warn("TYPE 0: %s" % type)
-        #type = stripTypedefs(type)
-        #fields = type.fields()
-        #if len(fields):
-        #    return fields
-        ##warn("TYPE 1: %s" % type)
-        ## This fails for arrays. See comment in lookupType.
-        #type0 = lookupType(str(type))
-        #if not type0 is None:
-        #    type = type0
-        #if type.code == FunctionCode:
-        #    return []
-        ##warn("TYPE 2: %s" % type)
-        #fields = type.fields()
-        ##warn("FIELDS: %s" % fields)
-        #return fields
 
     #######################################################################
     #
@@ -532,6 +536,9 @@ try:
             #except:
             #    return "<illegal type>"
 
+        def fieldCount(self):
+            return self.raw.num_children
+
         def unqualified(self):
             return self
 
@@ -541,9 +548,13 @@ try:
             self.is_optimized_out = False
             self.address = var.addr
             self.type = Type(var)
+            self.name = var.name
 
         def __str__(self):
             return str(self.raw.value)
+
+        def fields(self):
+            return [Value(self.raw.GetChildAtIndex(i)) for i in range(self.raw.num_children)]
 
     currentThread = None
     currentFrame = None
@@ -563,8 +574,11 @@ try:
             items.append(item)
         return items
 
-    def extractFields(type):
-        return type.fields()
+    def extractFields(value):
+        return value.fields()
+
+    def fieldCount(type):
+        return type.fieldCount();
 
 except:
     #warn("LOADING LLDB FAILED")

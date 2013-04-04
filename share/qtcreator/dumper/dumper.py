@@ -802,29 +802,6 @@ def stripTypedefs(type):
         type = type.strip_typedefs().unqualified()
     return type
 
-def extractFields(type):
-    return type.fields()
-    ## Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953:
-    ##fields = type.fields()
-    ## Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=11777:
-    ##fields = defsype).fields()
-    ## This seems to work.
-    ##warn("TYPE 0: %s" % type)
-    #type = stripTypedefs(type)
-    #fields = type.fields()
-    #if len(fields):
-    #    return fields
-    ##warn("TYPE 1: %s" % type)
-    ## This fails for arrays. See comment in lookupType.
-    #type0 = lookupType(str(type))
-    #if not type0 is None:
-    #    type = type0
-    #if type.code == FunctionCode:
-    #    return []
-    ##warn("TYPE 2: %s" % type)
-    #fields = type.fields()
-    ##warn("FIELDS: %s" % fields)
-    #return fields
 
 #######################################################################
 #
@@ -1769,11 +1746,10 @@ class Dumper:
         #warn("INAME: %s " % self.currentIName)
         #warn("INAMES: %s " % self.expandedINames)
         #warn("EXPANDED: %s " % (self.currentIName in self.expandedINames))
-        numfields = len(extractFields(type))
         self.tryPutObjectNameValue(value)  # Is this too expensive?
         self.putType(typeName)
         self.putEmptyValue()
-        self.putNumChild(numfields)
+        self.putNumChild(fieldCount(type))
 
         if self.currentIName in self.expandedINames:
             innerType = None
@@ -1811,10 +1787,18 @@ class Dumper:
             pass
 
     def putFields(self, value, dumpBase = True):
-            type = stripTypedefs(value.type)
-            # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953:
-            #fields = type.fields()
-            fields = extractFields(type)
+        fields = extractFields(value)
+
+        # FIXME: Merge into this function.
+        if gdbLoaded:
+            self.putFieldsGdb(fields, value, dumpBase)
+            return
+
+        for field in fields:
+            with SubItem(self, field.name):
+                self.putItem(field)
+
+    def putFieldsGdb(self, fields, value, dumpBase):
             #warn("TYPE: %s" % type)
             #warn("FIELDS: %s" % fields)
             baseNumber = 0
@@ -1822,9 +1806,6 @@ class Dumper:
                 #warn("FIELD: %s" % field)
                 #warn("  BITSIZE: %s" % field.bitsize)
                 #warn("  ARTIFICIAL: %s" % field.artificial)
-                bitpos = getattr(field, "bitpos", None)
-                if bitpos is None: # FIXME: Is check correct?
-                    continue  # A static class member(?).
 
                 if field.name is None:
                     innerType = type.target()
@@ -1877,8 +1858,7 @@ class Dumper:
                     with SubItem(self, field.name):
                         #bitsize = getattr(field, "bitsize", None)
                         #if not bitsize is None:
-                        #    self.put("bitsize=\"%s\",bitpos=\"%s\","
-                        #            % (bitsize, bitpos))
+                        #    self.put("bitsize=\"%s\"" % bitsize)
                         self.putItem(downcast(value[field.name]))
 
 
