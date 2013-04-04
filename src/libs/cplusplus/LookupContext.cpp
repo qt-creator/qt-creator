@@ -1106,29 +1106,26 @@ bool ClassOrNamespace::NestedClassInstantiator::isInstantiateNestedClassNeeded(c
 bool ClassOrNamespace::NestedClassInstantiator::containsTemplateType(Declaration *declaration) const
 {
     Type *memberType = declaration->type().type();
-    NamedType *memberNamedType = findMemberNamedType(memberType);
-    if (memberNamedType) {
-        const Name *name = memberNamedType->name();
-        if (_subst.contains(name))
-            return true;
-    }
-    return false;
+    NamedType *namedType = findNamedType(memberType);
+    return namedType && _subst.contains(namedType->name());
 }
 
-bool ClassOrNamespace::NestedClassInstantiator::containsTemplateType(Function * /*function*/) const
+bool ClassOrNamespace::NestedClassInstantiator::containsTemplateType(Function *function) const
 {
-    //TODO: make implementation
-    return false;
+    Type *returnType = function->returnType().type();
+    NamedType *namedType = findNamedType(returnType);
+    return namedType && _subst.contains(namedType->name());
+    //TODO: in future we will need also check function arguments, for now returned value is enough
 }
 
-NamedType *ClassOrNamespace::NestedClassInstantiator::findMemberNamedType(Type *memberType) const
+NamedType *ClassOrNamespace::NestedClassInstantiator::findNamedType(Type *memberType) const
 {
     if (NamedType *namedType = memberType->asNamedType())
         return namedType;
     else if (PointerType *pointerType = memberType->asPointerType())
-        return findMemberNamedType(pointerType->elementType().type());
+        return findNamedType(pointerType->elementType().type());
     else if (ReferenceType *referenceType = memberType->asReferenceType())
-        return findMemberNamedType(referenceType->elementType().type());
+        return findNamedType(referenceType->elementType().type());
 
     return 0;
 }
