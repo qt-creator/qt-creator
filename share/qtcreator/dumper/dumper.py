@@ -512,7 +512,8 @@ def isSimpleType(typeobj):
         or code == CharCode \
         or code == IntCode \
         or code == FloatCode \
-        or code == EnumCode
+        or code == EnumCode \
+        or code == SimpleValueCode
 
 def simpleEncoding(typeobj):
     code = typeobj.code
@@ -1494,7 +1495,7 @@ class Dumper:
                 self.putNumChild(0)
                 return
 
-        if type.code == IntCode or type.code == CharCode:
+        if type.code == IntCode or type.code == CharCode or type.code == SimpleValueCode:
             self.putType(typeName)
             if value.is_optimized_out:
                 self.putValue("<optimized out>")

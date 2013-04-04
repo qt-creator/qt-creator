@@ -11,10 +11,6 @@ gdbLoaded = False
 #
 #######################################################################
 
-def warn(message):
-    print "XXX: %s\n" % message.encode("latin1")
-
-
 def showException(msg, exType, exValue, exTraceback):
     warn("**** CAUGHT EXCEPTION: %s ****" % msg)
     try:
@@ -23,6 +19,33 @@ def showException(msg, exType, exValue, exTraceback):
             warn("%s" % line)
     except:
         pass
+
+PointerCode = None
+ArrayCode = None
+StructCode = None
+UnionCode = None
+EnumCode = None
+FlagsCode = None
+FunctionCode = None
+IntCode = None
+FloatCode = None
+VoidCode = None
+SetCode = None
+RangeCode = None
+StringCode = None
+BitStringCode = None
+ErrorTypeCode = None
+MethodCode = None
+MethodPointerCode = None
+MemberPointerCode = None
+ReferenceCode = None
+CharCode = None
+BoolCode = None
+ComplexCode = None
+TypedefCode = None
+NamespaceCode = None
+SimpleValueCode = None # LLDB only
+
 
 
 #######################################################################
@@ -36,6 +59,7 @@ try:
     cdbLoaded = True
 
 except:
+    #warn("LOADING CDB FAILED")
     pass
 
 
@@ -51,6 +75,11 @@ try:
 
     import gdb
     gdbLoaded = True
+
+    def warn(message):
+        print "XXX: %s\n" % message.encode("latin1")
+
+    #warn("LOADING GDB")
 
     #######################################################################
     #
@@ -329,6 +358,30 @@ try:
             base += 1
         return s
 
+    def extractFields(type):
+        return type.fields()
+        ## Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953:
+        ##fields = type.fields()
+        ## Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=11777:
+        ##fields = defsype).fields()
+        ## This seems to work.
+        ##warn("TYPE 0: %s" % type)
+        #type = stripTypedefs(type)
+        #fields = type.fields()
+        #if len(fields):
+        #    return fields
+        ##warn("TYPE 1: %s" % type)
+        ## This fails for arrays. See comment in lookupType.
+        #type0 = lookupType(str(type))
+        #if not type0 is None:
+        #    type = type0
+        #if type.code == FunctionCode:
+        #    return []
+        ##warn("TYPE 2: %s" % type)
+        #fields = type.fields()
+        ##warn("FIELDS: %s" % fields)
+        #return fields
+
     #######################################################################
     #
     # Types
@@ -435,6 +488,7 @@ try:
 
 
 except:
+    #warn("LOADING GDB FAILED")
     pass
 
 
@@ -450,43 +504,33 @@ try:
 
     lldbLoaded = True
 
-    PointerCode, \
-    ArrayCode, \
+    def warn(message):
+        print "XXX: %s\n" % message.encode("latin1")
+
+    #warn("LOADING LLDB")
+
+    SimpleValueCode, \
     StructCode, \
-    UnionCode, \
-    EnumCode, \
-    FlagsCode, \
-    FunctionCode, \
-    IntCode, \
-    FloatCode, \
-    VoidCode, \
-    SetCode,  \
-    RangeCode, \
-    StringCode,  \
-    BitStringCode, \
-    ErrorTypeCode, \
-    MethodCode, \
-    MethodPointerCode, \
-    MemberPointerCode, \
-    ReferenceCode, \
-    CharCode, \
-    BoolCode, \
-    ComplexCode, \
-    TypedefCode, \
-    NamespaceCode \
-        = range(24)
+    PointerCode \
+        = range(3)
 
     def registerCommand(name, func):
         pass
 
     class Type:
-        def __init__(self, type):
-            self.raw = type
-            self.code = IntCode
+        def __init__(self, var):
+            self.raw = var
+            if var.num_children == 0:
+                self.code = SimpleValueCode
+            else:
+                self.code = StructCode
+            self.value_type = var.value_type
 
         def __str__(self):
-            return self.raw.name
-
+            #try:
+                return self.raw.type.name
+            #except:
+            #    return "<illegal type>"
 
         def unqualified(self):
             return self
@@ -495,11 +539,11 @@ try:
         def __init__(self, var):
             self.raw = var
             self.is_optimized_out = False
-            self.type = Type(var.type)
-            self.type.value_type = var.value_type
+            self.address = var.addr
+            self.type = Type(var)
 
         def __str__(self):
-            return self.name
+            return str(self.raw.value)
 
     currentThread = None
     currentFrame = None
@@ -519,7 +563,11 @@ try:
             items.append(item)
         return items
 
+    def extractFields(type):
+        return type.fields()
+
 except:
+    #warn("LOADING LLDB FAILED")
     pass
 
 

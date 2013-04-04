@@ -853,35 +853,33 @@ void LldbEngine::handleBacktrace(const LldbResponse &response)
 void LldbEngine::handleListLocals(const LldbResponse &response)
 {
     //qDebug() << " LOCALS: '" << response.data << "'";
-    QByteArray out = response.data.trimmed();
+    QByteArray out = response.data;
 
-//    GdbMi all;
-//    all.fromStringMultiple(out);
-//    //qDebug() << "ALL: " << all.toString();
+    {
+        int pos = out.indexOf("data=");
+        if (pos == -1) {
+            showMessage(_("UNEXPECTED LOCALS OUTPUT:" + out));
+            return;
+        }
 
-//    //GdbMi data = all.findChild("data");
-//    QList<WatchData> list;
-//    WatchHandler *handler = watchHandler();
-//    foreach (const GdbMi &child, all.children()) {
-//        WatchData dummy;
-//        dummy.iname = child.findChild("iname").data();
-//        dummy.name = _(child.findChild("name").data());
-//        //qDebug() << "CHILD: " << child.toString();
-//        parseWatchData(handler->expandedINames(), dummy, child, &list);
-//    }
-//    handler->insertData(list);
-
-    const bool partial = response.cookie.toBool();
-    int pos = out.indexOf("data=");
-    if (pos != 0) {
-        showMessage(_("DISCARDING JUNK AT BEGIN OF RESPONSE: "
-            + out.left(pos)));
+        // The value in 'out' should be single-quoted as this is
+        // what the command line does with strings.
+        if (pos != 1) {
+            showMessage(_("DISCARDING JUNK AT BEGIN OF RESPONSE: "
+                + out.left(pos)));
+        }
         out = out.mid(pos);
+        if (out.endsWith('\''))
+            out.chop(1);
+        else
+            showMessage(_("JUNK AT END OF RESPONSE: " + out));
     }
+
     GdbMi all;
     all.fromStringMultiple(out);
     GdbMi data = all.findChild("data");
 
+    const bool partial = response.cookie.toBool();
     WatchHandler *handler = watchHandler();
     QList<WatchData> list;
 
