@@ -492,7 +492,7 @@ namespace {
 
 // It's assumed that the shared map has the same structure as the user map.
 template <class Operation_T>
-void synchronizeSettings(QVariantMap *userMap,
+void synchronizeSettings(QVariantMap &userMap,
                          const QVariantMap &sharedMap,
                          Operation_T *op)
 {
@@ -501,32 +501,33 @@ void synchronizeSettings(QVariantMap *userMap,
     for (; it != eit; ++it) {
         const QString &key = it.key();
         const QVariant &sharedValue = it.value();
-        const QVariant &userValue = userMap->value(key);
+        const QVariant &userValue = userMap.value(key);
         if (sharedValue.type() == QVariant::Map) {
             if (userValue.type() != QVariant::Map) {
                 // This should happen only if the user manually changed the file in such a way.
                 continue;
             }
             QVariantMap nestedUserMap = userValue.toMap();
-            synchronizeSettings(&nestedUserMap,
+            synchronizeSettings(nestedUserMap,
                                 sharedValue.toMap(),
                                 op);
-            userMap->insert(key, nestedUserMap);
-        } else if (userMap->contains(key) && userValue != sharedValue) {
+            userMap.insert(key, nestedUserMap);
+        } else if (userMap.contains(key) && userValue != sharedValue) {
             op->apply(userMap, key, sharedValue);
         }
     }
 }
 
 
-struct MergeSharedSetting
+class MergeSharedSetting
 {
+public:
     MergeSharedSetting(const QSet<QString> &sticky) : m_userSticky(sticky) {}
 
-    void apply(QVariantMap *userMap, const QString &key, const QVariant &sharedValue)
+    void apply(QVariantMap &userMap, const QString &key, const QVariant &sharedValue)
     {
         if (!m_userSticky.contains(key))
-            userMap->insert(key, sharedValue);
+            userMap.insert(key, sharedValue);
     }
     QSet<QString> m_userSticky;
 };
@@ -536,30 +537,32 @@ struct MergeSharedSetting
 //   corresponding ones in the .user file. Whenever we identify a corresponding setting which
 //   has a different value and which is not marked as sticky, we merge the .shared value into
 //   the .user value.
-void mergeSharedSettings(QVariantMap *userMap, const QVariantMap &sharedMap)
+QVariantMap mergeSharedSettings(const QVariantMap &userMap, const QVariantMap &sharedMap)
 {
+    QVariantMap result = userMap;
     if (sharedMap.isEmpty())
-        return;
+        return result;
 
     QSet<QString> stickyKeys;
-    const QVariant stickyList = userMap->take(QLatin1String(USER_STICKY_KEYS_KEY)).toList();
+    const QVariant stickyList = result.take(QLatin1String(USER_STICKY_KEYS_KEY)).toList();
     if (stickyList.isValid()) {
         if (stickyList.type() != QVariant::List) {
             // File is messed up... The user probably changed something.
-            return;
+            return result;
         }
         foreach (const QVariant &v, stickyList.toList())
             stickyKeys.insert(v.toString());
     }
 
     MergeSharedSetting op(stickyKeys);
-    synchronizeSettings(userMap, sharedMap, &op);
+    synchronizeSettings(result, sharedMap, &op);
+    return result;
 }
 
-
-struct TrackUserStickySetting
+class TrackUserStickySetting
 {
-    void apply(QVariantMap *, const QString &key, const QVariant &)
+public:
+    void apply(QVariantMap &, const QString &key, const QVariant &)
     {
         m_userSticky.insert(key);
     }
@@ -574,7 +577,7 @@ struct TrackUserStickySetting
 //   Although this approach is more flexible than permanent/forever sticky settings, it has
 //   the side-effect that if a particular value unintentionally becomes the same in both
 //   the .user and .shared files, this setting will "unstick".
-void trackUserStickySettings(QVariantMap *userMap, const QVariantMap &sharedMap)
+void trackUserStickySettings(QVariantMap &userMap, const QVariantMap &sharedMap)
 {
     if (sharedMap.isEmpty())
         return;
@@ -582,7 +585,7 @@ void trackUserStickySettings(QVariantMap *userMap, const QVariantMap &sharedMap)
     TrackUserStickySetting op;
     synchronizeSettings(userMap, sharedMap, &op);
 
-    userMap->insert(QLatin1String(USER_STICKY_KEYS_KEY), QVariant(op.m_userSticky.toList()));
+    userMap.insert(QLatin1String(USER_STICKY_KEYS_KEY), QVariant(op.m_userSticky.toList()));
 }
 
 } // Anonymous
@@ -594,76 +597,11 @@ QVariantMap SettingsAccessor::restoreSettings() const
         return QVariantMap();
 
     SettingsData userSettings = readUserSettings();
-
-    // Time to consider shared settings...
-    SettingsData sharedSettings;
-    QString fn = project()->property(m_sharedFileAcessor.id()).toString();
-    if (fn.isEmpty())
-        fn = project()->document()->fileName() + m_sharedFileAcessor.suffix();
-    sharedSettings.m_fileName = Utils::FileName::fromString(fn);
-    if (!sharedSettings.fileName().isEmpty() && m_sharedFileAcessor.readFile(&sharedSettings)) {
-        bool useSharedSettings = true;
-        if (sharedSettings.m_version != userSettings.m_version) {
-            int baseFileVersion;
-            if (sharedSettings.m_version > m_lastVersion + 1) {
-                // The shared file version is newer than Creator... If we have valid user
-                // settings we prompt the user whether we could try an *unsupported* update.
-                // This makes sense since the merging operation will only replace shared settings
-                // that perfectly match corresponding user ones. If we don't have valid user
-                // settings to compare against, there's nothing we can do.
-                if (!userSettings.isValid())
-                    return QVariantMap();
-
-                QMessageBox msgBox(
-                            QMessageBox::Question,
-                            QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                                    "Unsupported Shared Settings File"),
-                            QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                                    "The version of your .shared file is not "
-                                                    "supported by this Qt Creator version. "
-                                                    "Only settings that are still compatible "
-                                                    "will be taken into account.\n\n"
-                                                    "Do you want to try loading it?"),
-                            QMessageBox::Yes | QMessageBox::No,
-                            Core::ICore::mainWindow());
-                msgBox.setDefaultButton(QMessageBox::No);
-                msgBox.setEscapeButton(QMessageBox::No);
-                if (msgBox.exec() == QMessageBox::No)
-                    useSharedSettings = false;
-                else
-                    baseFileVersion = m_lastVersion + 1;
-            } else {
-                baseFileVersion = qMax(userSettings.m_version, sharedSettings.m_version);
-            }
-
-            if (useSharedSettings) {
-                // We now update the user and shared settings so they are compatible.
-                for (int i = sharedSettings.m_version; i < baseFileVersion; ++i)
-                    sharedSettings.m_map = m_handlers.value(i)->update(m_project, sharedSettings.m_map);
-
-                if (userSettings.isValid()) {
-                    for (int i = userSettings.m_version; i < baseFileVersion; ++i)
-                        userSettings.m_map = m_handlers.value(i)->update(m_project, userSettings.m_map);
-                    userSettings.m_version = baseFileVersion;
-                }
-            }
-        }
-
-        if (useSharedSettings) {
-            m_project->setProperty(SHARED_SETTINGS, sharedSettings.m_map);
-            if (userSettings.isValid())
-                mergeSharedSettings(&userSettings.m_map, sharedSettings.m_map);
-            if (!userSettings.isValid())
-                userSettings = sharedSettings;
-        }
-    }
+    SettingsData sharedSettings = readSharedSettings();
+    userSettings = mergeSettings(userSettings, sharedSettings);
 
     if (!userSettings.isValid())
         return QVariantMap();
-
-    // Update from the base version to Creator's version.
-    for (int i = userSettings.m_version; i <= m_lastVersion; ++i)
-        userSettings.m_map = m_handlers.value(i)->update(m_project, userSettings.m_map);
 
     return userSettings.m_map;
 }
@@ -674,13 +612,10 @@ bool SettingsAccessor::saveSettings(const QVariantMap &map) const
         return false;
 
     SettingsData settings(map);
-    QString fn = project()->property(m_userFileAcessor.id()).toString();
-    if (fn.isEmpty())
-        fn = project()->document()->fileName() + m_userFileAcessor.suffix();
-    settings.m_fileName = Utils::FileName::fromString(fn);
+    settings.m_fileName = Utils::FileName::fromString(defaultFileName(m_userFileAcessor.suffix()));
     const QVariant &shared = m_project->property(SHARED_SETTINGS);
     if (shared.isValid())
-        trackUserStickySettings(&settings.m_map, shared.toMap());
+        trackUserStickySettings(settings.m_map, shared.toMap());
 
     return m_userFileAcessor.writeFile(&settings);
 }
@@ -751,6 +686,12 @@ int SettingsAccessor::currentVersion() const
     return m_lastVersion + 1;
 }
 
+void SettingsAccessor::incrementVersion(SettingsAccessor::SettingsData &data) const
+{
+    data.m_map = m_handlers.value(data.version())->update(m_project, data.m_map);
+    ++data.m_version;
+}
+
 SettingsAccessor::SettingsData SettingsAccessor::readUserSettings() const
 {
     SettingsData result;
@@ -815,6 +756,42 @@ SettingsAccessor::SettingsData SettingsAccessor::readUserSettings() const
     return result;
 }
 
+SettingsAccessor::SettingsData SettingsAccessor::readSharedSettings() const
+{
+    SettingsData sharedSettings;
+    QString fn = project()->document()->fileName() + m_sharedFileAcessor.suffix();
+    sharedSettings.m_fileName = Utils::FileName::fromString(fn);
+
+    if (!m_sharedFileAcessor.readFile(&sharedSettings))
+        return sharedSettings;
+
+    if (sharedSettings.m_version > currentVersion()) {
+        // The shared file version is newer than Creator... If we have valid user
+        // settings we prompt the user whether we could try an *unsupported* update.
+        // This makes sense since the merging operation will only replace shared settings
+        // that perfectly match corresponding user ones. If we don't have valid user
+        // settings to compare against, there's nothing we can do.
+
+        QMessageBox msgBox(
+                    QMessageBox::Question,
+                    QApplication::translate("ProjectExplorer::SettingsAccessor",
+                                            "Unsupported Shared Settings File"),
+                    QApplication::translate("ProjectExplorer::SettingsAccessor",
+                                            "The version of your .shared file is not "
+                                            "supported by Qt Creator. "
+                                            "Do you want to try loading it anyway?"),
+                    QMessageBox::Yes | QMessageBox::No,
+                    Core::ICore::mainWindow());
+        msgBox.setDefaultButton(QMessageBox::No);
+        msgBox.setEscapeButton(QMessageBox::No);
+        if (msgBox.exec() == QMessageBox::No)
+            sharedSettings.clear();
+        else
+            sharedSettings.m_version = currentVersion();
+    }
+    return sharedSettings;
+}
+
 SettingsAccessor::SettingsData SettingsAccessor::findBestSettings(const QStringList &candidates) const
 {
     SettingsData newestNonMatching;
@@ -852,6 +829,34 @@ SettingsAccessor::SettingsData SettingsAccessor::findBestSettings(const QStringL
         result = newestMatching;
     else if (newestNonMatching.isValid())
         result = newestNonMatching;
+
+    return result;
+}
+
+SettingsAccessor::SettingsData SettingsAccessor::mergeSettings(const SettingsAccessor::SettingsData &user,
+                                                               const SettingsAccessor::SettingsData &shared) const
+{
+    SettingsData newUser = user;
+    SettingsData newShared = shared;
+    if (shared.isValid() && user.isValid()) {
+        while (newUser.version() < newShared.version())
+            incrementVersion(newUser);
+
+        while (newShared.version() < newUser.version())
+            incrementVersion(newShared);
+    }
+
+    m_project->setProperty(SHARED_SETTINGS, newShared.m_map);
+
+    SettingsData result = newUser;
+    result.m_map = mergeSharedSettings(newUser.m_map, newShared.m_map);
+
+    if (!result.isValid())
+        return result;
+
+    // Update from the base version to Creator's version.
+    for (int i = result.version(); i < currentVersion(); ++i)
+        incrementVersion(result);
 
     return result;
 }

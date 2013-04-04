@@ -56,9 +56,9 @@ public:
     bool saveSettings(const QVariantMap &map) const;
 
 private:
-
     // Takes ownership of the handler!
     void addVersionHandler(Internal::UserFileVersionHandler *handler);
+
     QStringList findSettingsFiles(const QString &suffix) const;
     QByteArray creatorId() const;
     QString defaultFileName(const QString &suffix) const;
@@ -84,8 +84,12 @@ private:
         Utils::FileName m_fileName;
     };
 
+    void incrementVersion(SettingsData &data) const;
+
     SettingsData readUserSettings() const;
+    SettingsData readSharedSettings() const;
     SettingsData findBestSettings(const QStringList &candidates) const;
+    SettingsData mergeSettings(const SettingsData &user, const SettingsData &shared) const;
 
     // The entity which actually reads/writes to the settings file.
     class FileAccessor
