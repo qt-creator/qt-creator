@@ -69,8 +69,10 @@ private:
 
         void clear();
         bool isValid() const;
+        QByteArray environmentId() const { return m_environmentId; }
 
         int m_version;
+        QByteArray m_environmentId;
         bool m_usingBackup;
         QVariantMap m_map;
         Utils::FileName m_fileName;

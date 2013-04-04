@@ -120,8 +120,6 @@ using Utils::PersistentSettingsWriter;
 
 namespace {
 
-const char VERSION_KEY[] = "ProjectExplorer.Project.Updater.FileVersion";
-const char ENVIRONMENT_ID_KEY[] = "ProjectExplorer.Project.Updater.EnvironmentId";
 const char USER_STICKY_KEYS_KEY[] = "ProjectExplorer.Project.UserStickyKeys";
 
 const char SHARED_SETTINGS[] = "SharedSettings";
@@ -624,10 +622,10 @@ QVariantMap SettingsAccessor::restoreSettings() const
         }
 
         // Verify environment.
-        const QString fileId = settings.m_map.value(QLatin1String(ENVIRONMENT_ID_KEY)).toString();
-        const QString creatorId = ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId.toString();
+        const QByteArray fileId = settings.environmentId();
+        const QByteArray creatorId = ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId.toByteArray();
         if (fileId.isEmpty() || fileId != creatorId) {
-            QString backup = fn + QLatin1Char('.') + fileId.mid(1, 7);
+            QString backup = fn + QLatin1Char('.') + QString::fromLatin1(fileId).mid(1, 7);
             QFile::copy(fn, backup);
 
             if (!fileId.isEmpty()) {
@@ -793,6 +791,7 @@ void SettingsAccessor::SettingsData::clear()
     m_usingBackup = false;
     m_map.clear();
     m_fileName.clear();
+    m_environmentId.clear();
 }
 
 bool SettingsAccessor::SettingsData::isValid() const
@@ -803,6 +802,10 @@ bool SettingsAccessor::SettingsData::isValid() const
 // -------------------------------------------------------------------------
 // FileAcessor
 // -------------------------------------------------------------------------
+
+static const char VERSION_KEY[] = "ProjectExplorer.Project.Updater.FileVersion";
+static const char ENVIRONMENT_ID_KEY[] = "ProjectExplorer.Project.Updater.EnvironmentId";
+
 SettingsAccessor::FileAccessor::FileAccessor(const QByteArray &id,
                                              const QString &defaultSuffix,
                                              const QString &environmentSuffix,
@@ -905,6 +908,12 @@ bool SettingsAccessor::FileAccessor::readFile(SettingsData *settings) const
         return false;
 
     settings->m_map = reader.restoreValues();
+
+    // Get environment Id:
+    if (m_environmentSpecific) {
+        settings->m_environmentId = settings->m_map.value(QLatin1String(ENVIRONMENT_ID_KEY)).toByteArray();
+        settings->m_map.remove(QLatin1String(ENVIRONMENT_ID_KEY));
+    }
 
     // Get and verify file version
     settings->m_version = settings->m_map.value(QLatin1String(VERSION_KEY), 0).toInt();
