@@ -34,11 +34,6 @@
 
 #include "vcsbase/vcsbaseplugin.h"
 
-#include <coreplugin/editormanager/ieditorfactory.h>
-#include <extensionsystem/iplugin.h>
-
-#include <QObject>
-#include <QProcess>
 #include <QStringList>
 #include <QPointer>
 #include <QPair>
@@ -51,6 +46,7 @@ class QFileInfo;
 QT_END_NAMESPACE
 
 namespace Core {
+class IEditor;
 class IEditorFactory;
 class Command;
 class Context;

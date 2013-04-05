@@ -39,7 +39,6 @@
 #include <QItemSelectionModel>
 #include <QVBoxLayout>
 #include <QComboBox>
-#include <QDir>
 
 namespace Git {
 namespace Internal {

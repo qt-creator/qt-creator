@@ -30,7 +30,6 @@
 #include "gerritmodel.h"
 #include "gerritparameters.h"
 
-#include <coreplugin/vcsmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
@@ -40,9 +39,7 @@
 #include <QStringList>
 #include <QProcess>
 #include <QVariant>
-#include <QUrl>
 #include <QTextStream>
-#include <QDesktopServices>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QDebug>

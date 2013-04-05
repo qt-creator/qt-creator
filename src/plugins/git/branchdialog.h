@@ -31,7 +31,6 @@
 #define BRANCHDIALOG_H
 
 #include <QDialog>
-#include <QItemSelection>
 
 QT_BEGIN_NAMESPACE
 class QPushButton;

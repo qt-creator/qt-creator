@@ -32,10 +32,8 @@
 
 #include "../gitplugin.h"
 #include "../gitclient.h"
-#include <coreplugin/icore.h>
 
 #include <QDir>
-#include <QMessageBox>
 
 namespace Gerrit {
 namespace Internal {

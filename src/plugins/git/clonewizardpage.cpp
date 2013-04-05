@@ -32,9 +32,6 @@
 #include "gitclient.h"
 
 #include <vcsbase/checkoutjobs.h>
-#include <utils/qtcassert.h>
-
-#include <QCheckBox>
 
 namespace Git {
 

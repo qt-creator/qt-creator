@@ -34,7 +34,6 @@
 #include "ui_stashdialog.h"
 
 #include <utils/qtcassert.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
 
 #include <QDebug>
 #include <QDir>
@@ -42,7 +41,6 @@
 #include <QDateTime>
 #include <QStandardItemModel>
 #include <QSortFilterProxyModel>
-#include <QItemSelectionModel>
 #include <QMessageBox>
 #include <QPushButton>
 

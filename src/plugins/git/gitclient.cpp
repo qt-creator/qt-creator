@@ -39,23 +39,16 @@
 
 #include <vcsbase/submitfilemodel.h>
 
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/id.h>
-#include <coreplugin/documentmanager.h>
 #include <coreplugin/iversioncontrol.h>
 
-#include <texteditor/itexteditor.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
-#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <vcsbase/command.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -71,7 +64,6 @@
 #include <QSignalMapper>
 #include <QTime>
 
-#include <QComboBox>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QToolButton>

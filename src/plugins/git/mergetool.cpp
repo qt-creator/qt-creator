@@ -33,7 +33,6 @@
 
 #include <vcsbase/vcsbaseoutputwindow.h>
 
-#include <QFile>
 #include <QMessageBox>
 #include <QProcess>
 #include <QPushButton>

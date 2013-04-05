@@ -34,14 +34,10 @@
 
 #include <vcsbase/vcsbaseconstants.h>
 #include <utils/hostosinfo.h>
-#include <utils/pathchooser.h>
 
-#include <QCoreApplication>
 #include <QDir>
-#include <QFileInfo>
 #include <QDebug>
 #include <QTextStream>
-#include <QProcessEnvironment>
 #include <QMessageBox>
 
 namespace Git {

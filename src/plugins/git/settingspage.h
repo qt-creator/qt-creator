@@ -31,7 +31,6 @@
 #define SETTINGSPAGE_H
 
 #include <QWidget>
-#include <QPointer>
 
 #include <vcsbase/vcsbaseoptionspage.h>
 

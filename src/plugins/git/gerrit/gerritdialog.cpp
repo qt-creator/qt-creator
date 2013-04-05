@@ -31,7 +31,6 @@
 #include "gerritmodel.h"
 #include "gerritparameters.h"
 
-#include <utils/filterlineedit.h>
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 
@@ -42,16 +41,12 @@
 #include <QLabel>
 #include <QTextBrowser>
 #include <QTreeView>
-#include <QHeaderView>
 #include <QDialogButtonBox>
 #include <QPushButton>
 #include <QDesktopServices>
 #include <QSortFilterProxyModel>
 #include <QGroupBox>
 #include <QUrl>
-#include <QClipboard>
-#include <QApplication>
-#include <QProcess>
 #include <QStringListModel>
 #include <QCompleter>
 

@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "gitoriousprojectwidget.h"
-#include "gitorioushostwizardpage.h"
 #include "gitorious.h"
 #include "ui_gitoriousprojectwidget.h"
 
@@ -42,7 +41,6 @@
 #include <QStandardItem>
 #include <QItemSelectionModel>
 #include <QDesktopServices>
-#include <QIcon>
 #include <QStyle>
 
 enum {

@@ -51,7 +51,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/messagemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -62,7 +61,6 @@
 
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
-#include <utils/fileutils.h>
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/submitfilemodel.h>
@@ -79,7 +77,6 @@
 
 #include <QAction>
 #include <QFileDialog>
-#include <QMenu>
 #include <QMessageBox>
 
 static const unsigned minimumRequiredVersion = 0x010702;
@@ -1284,8 +1281,6 @@ GitClient *GitPlugin::gitClient() const
 #ifdef WITH_TESTS
 
 #include <QTest>
-#include <QTextBlock>
-#include <QTextDocument>
 
 Q_DECLARE_METATYPE(FileStates)
 

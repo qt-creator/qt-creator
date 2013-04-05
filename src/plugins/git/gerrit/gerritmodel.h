@@ -32,8 +32,6 @@
 
 #include <QStandardItemModel>
 #include <QSharedPointer>
-#include <QMetaType>
-#include <QPair>
 #include <QDateTime>
 
 QT_BEGIN_NAMESPACE

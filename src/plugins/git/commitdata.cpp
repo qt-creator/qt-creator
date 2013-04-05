@@ -32,7 +32,6 @@
 
 #include <QCoreApplication>
 #include <QDebug>
-#include <QRegExp>
 
 namespace Git {
 namespace Internal {

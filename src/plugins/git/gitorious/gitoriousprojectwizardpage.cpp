@@ -32,8 +32,6 @@
 #include "gitorioushostwizardpage.h"
 #include "gitorious.h"
 
-#include <utils/qtcassert.h>
-
 #include <QStackedWidget>
 #include <QVBoxLayout>
 

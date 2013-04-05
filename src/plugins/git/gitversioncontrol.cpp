@@ -29,10 +29,8 @@
 
 #include "gitversioncontrol.h"
 #include "gitclient.h"
-#include "gitplugin.h"
 #include "gitutils.h"
 
-#include <utils/qtcassert.h>
 #include <vcsbase/vcsbaseconstants.h>
 
 #include <QFileInfo>

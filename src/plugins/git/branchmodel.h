@@ -31,7 +31,6 @@
 #define BRANCHMODEL_H
 
 #include <QAbstractListModel>
-#include <QList>
 #include <QVariant>
 
 namespace Git {

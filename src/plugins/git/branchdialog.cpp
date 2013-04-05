@@ -37,12 +37,10 @@
 #include "ui_branchdialog.h"
 #include "stashdialog.h" // Label helpers
 
-#include <utils/checkablemessagebox.h>
 #include <utils/qtcassert.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 
 #include <QItemSelectionModel>
-#include <QPushButton>
 #include <QMessageBox>
 #include <QList>
 

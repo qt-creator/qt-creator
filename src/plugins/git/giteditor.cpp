@@ -30,25 +30,18 @@
 #include "giteditor.h"
 
 #include "annotationhighlighter.h"
-#include "gitconstants.h"
 #include "gitplugin.h"
 #include "gitclient.h"
 #include "gitsettings.h"
-#include <QTextCodec>
 
-#include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
-#include <vcsbase/diffhighlighter.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <QDebug>
-#include <QDir>
 #include <QFileInfo>
 #include <QRegExp>
 #include <QSet>
-#include <QTextStream>
 
 #include <QTextCursor>
-#include <QTextEdit>
 #include <QTextBlock>
 
 #define CHANGE_PATTERN "[a-f0-9]{7,40}"

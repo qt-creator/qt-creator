@@ -33,8 +33,6 @@
 
 #include <QProcess>
 #include <QFormLayout>
-#include <QSpacerItem>
-#include <QFormLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QLabel>

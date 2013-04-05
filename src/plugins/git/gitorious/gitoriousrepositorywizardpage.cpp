@@ -33,8 +33,6 @@
 #include "gitorious.h"
 #include "ui_gitoriousrepositorywizardpage.h"
 
-#include <utils/qtcassert.h>
-
 #include <QDebug>
 
 #include <QStandardItemModel>

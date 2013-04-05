@@ -30,7 +30,6 @@
 #include "gitutils.h"
 
 #include <QDebug>
-#include <QStringList>
 #include <QInputDialog>
 #include <QLineEdit>
 

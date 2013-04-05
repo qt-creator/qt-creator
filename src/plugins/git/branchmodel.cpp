@@ -34,8 +34,6 @@
 #include <vcsbase/vcsbaseoutputwindow.h>
 
 #include <QFont>
-#include <QRegExp>
-#include <QTimer>
 
 namespace Git {
 namespace Internal {

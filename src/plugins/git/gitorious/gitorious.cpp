@@ -30,7 +30,6 @@
 #include "gitorious.h"
 
 #include <QDebug>
-#include <QCoreApplication>
 #include <QXmlStreamReader>
 #include <QSettings>
 

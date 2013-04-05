@@ -38,8 +38,6 @@
 
 #include <vcsbase/vcsbaseoutputwindow.h>
 
-#include <QItemSelectionModel>
-#include <QPushButton>
 #include <QMessageBox>
 
 namespace Git {

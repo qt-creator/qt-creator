@@ -32,8 +32,6 @@
 
 #include <vcsbase/vcsbaseclientsettings.h>
 
-#include <QStringList>
-
 namespace Git {
 namespace Internal {
 

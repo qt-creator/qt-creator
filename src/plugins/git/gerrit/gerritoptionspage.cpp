@@ -37,7 +37,6 @@
 #include <QSpinBox>
 #include <QCheckBox>
 #include <QFormLayout>
-#include <QVBoxLayout>
 
 namespace Gerrit {
 namespace Internal {

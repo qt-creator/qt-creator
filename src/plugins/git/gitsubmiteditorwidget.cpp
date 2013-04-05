@@ -32,10 +32,8 @@
 
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
-#include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
 
-#include <QLineEdit>
 #include <QRegExpValidator>
 #include <QSyntaxHighlighter>
 #include <QTextEdit>
