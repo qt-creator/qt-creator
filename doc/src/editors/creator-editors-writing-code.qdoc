@@ -63,10 +63,10 @@
             \QC anticipates what you are going to write and completes code
             and code snippets for elements, properties, and IDs.
 
-        \li \l{Indenting Code}
+        \li \l{Indenting Text or Code}
 
-            \QC indents code according to rules that you specify either
-            globally for all files or separately for text, C++, or QML files.
+            \QC indents text and code according to rules that you specify separately for
+            files that contain C++ or QML code and for other text files.
 
         \li \l{Using Qt Quick Toolbars}
 

@@ -40,7 +40,7 @@
 
     You can also specify indentation settings separately for C++ and QML files
     either globally or for the open project. For more information, see
-    \l{Indenting Code}.
+    \l{Indenting Text or Code}.
 
     You can perform the following configuration actions:
 
@@ -53,7 +53,7 @@
             {definition files for syntax highlighting} for other types of files
              than C++ or QML in \gui{Generic Highlighter}.
 
-        \li Set \l{Indenting Code}{tabs, indentation, the handling of
+        \li Set \l{Indenting Text or Code}{tabs, indentation, the handling of
             whitespace, and mouse operations} in \gui Behavior.
 
         \li Set various display properties, for example,

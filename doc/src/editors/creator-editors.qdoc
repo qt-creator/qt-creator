@@ -1004,43 +1004,28 @@
     \page creator-indenting-code.html
     \nextpage qt-quick-toolbars.html
 
-    \title Indenting Code
+    \title Indenting Text or Code
 
-    When you type code, it is indented automatically according to the selected
-    text editor and code style options. Select a block to indent it when you
+    When you type text or code, it is indented automatically according to the selected
+    text editor or code style options. Select a block to indent it when you
     press \key Tab. Press \key {Shift+Tab} to decrease the indentation. You
     can disable automatic indentation.
 
-    You can specify indentation either globally for all files or separately
-    for:
+    You can specify indentation for:
 
     \list
-
-        \li Text files
 
         \li C++ files
 
         \li QML files
+
+        \li Other text files
 
     \endlist
 
     You can also specify indentation separately for each project. You can
     specify several sets of code style settings and easily switch between them.
     In addition, you can import and export code style settings.
-
-    \section1 Indenting Text Files
-
-    To specify global indentation settings for the text editor, select
-    \gui {Tools > Options > Text Editor > Behavior}. You can also use these
-    settings globally for all editors and files.
-
-    \image qtcreator-indentation.png "Text Editor Behavior options"
-
-    To specify settings for a particular project, select \gui {Projects >
-    Editor Settings}.
-
-    You can specify how to interpret the \key Tab and \key Backspace key
-    presses and how to align continuation lines.
 
     \section1 Indenting C++ Files
 
@@ -1082,12 +1067,12 @@
 
     You can use the live preview to see how the options change the indentation.
 
-    To specify the settings for a particular project, select \gui {Projects >
+    To specify different settings for a particular project, select \gui {Projects >
     Code Style Settings}.
 
     \section1 Indenting QML Files
 
-    To specify global settings for the Qt Quick editor:
+    To specify settings for the Qt Quick editor:
 
     \list 1
 
@@ -1109,8 +1094,21 @@
     You can specify how to interpret the \key Tab key presses and how to align
     continuation lines.
 
-    To specify the settings for a particular project, select \gui {Projects >
+    To specify different settings for a particular project, select \gui {Projects >
     Code Style Settings}.
+
+    \section1 Indenting Other Text Files
+
+    To specify indentation settings for text files that do not contain C++ or QML code (such
+    as Python code files), select \gui {Tools > Options > Text Editor > Behavior}.
+
+    \image qtcreator-indentation.png "Text Editor Behavior options"
+
+    To specify different settings for a particular project, select \gui {Projects >
+    Editor Settings}.
+
+    You can specify how to interpret the \key Tab and \key Backspace key
+    presses and how to align continuation lines.
 
     \section1 Specifying Tab Settings
 
@@ -1118,17 +1116,17 @@
 
     \list
 
-        \li Global settings for all files
+        \li For all C++ files
 
-        \li Global C++ settings for C++ files
+        \li For all QML files
 
-        \li Global Qt Quick settings for QML files
+        \li For all other text files
 
-        \li Project specific settings for all editors of files in the project
+        \li For C++ files in a project
 
-        \li Project specific settings for C++ files in the project
+        \li For QML files in a project
 
-        \li Project specific settings for QML files in the project
+        \li For other text files in a project
 
     \endlist
 
@@ -1150,8 +1148,8 @@
 
     \section2 Speficying Typing Options
 
-    When you type code, it is indented automatically according to the selected
-    text editor and code style options. Specify typing options in the
+    When you type text or code, it is indented automatically according to the selected
+    text editor or code style options. Specify typing options in the
     \gui Typing group. To disable automatic indentation, deselect the
     \gui {Enable automatic indentation} check box.
 
