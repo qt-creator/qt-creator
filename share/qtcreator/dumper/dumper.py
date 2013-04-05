@@ -1019,6 +1019,7 @@ class Dumper:
         self.useDynamicType = "dyntype" in options
         self.useFancy = "fancy" in options
         self.passExceptions = "pe" in options
+        #self.passExceptions = True
         self.autoDerefPointers = "autoderef" in options
         self.partialUpdate = "partial" in options
         self.tooltipOnly = "tooltiponly" in options
@@ -1808,6 +1809,7 @@ class Dumper:
                 #warn("  ARTIFICIAL: %s" % field.artificial)
 
                 if field.name is None:
+                    type = stripTypedefs(value.type)
                     innerType = type.target()
                     p = value.cast(innerType.pointer())
                     for i in xrange(type.sizeof / innerType.sizeof):

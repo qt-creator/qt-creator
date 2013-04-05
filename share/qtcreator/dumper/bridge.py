@@ -136,8 +136,7 @@ try:
         return gdb.history(0)
 
     def extractFields(value):
-        type = stripTypedefs(value.type)
-        return type.fields()
+        return value.type.fields()
         ## Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953:
         ##fields = type.fields()
         ## Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=11777:
