@@ -57,7 +57,9 @@ public:
 private slots:
     void validate();
     void requestDebugToken();
+    void setDefaultPath();
     void appendExtension();
+    void expandPath();
     void checkBoxChanged(int state);
     void debugTokenArrived(int status);
 
