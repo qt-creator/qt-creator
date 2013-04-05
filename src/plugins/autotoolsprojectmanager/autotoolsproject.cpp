@@ -79,7 +79,9 @@ AutotoolsProject::AutotoolsProject(AutotoolsManager *manager, const QString &fil
     m_makefileParserThread(0)
 {
     setProjectContext(Core::Context(Constants::PROJECT_CONTEXT));
-    setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
+    Core::Context pl(ProjectExplorer::Constants::LANG_CXX);
+    pl.add(ProjectExplorer::Constants::LANG_QMLJS);
+    setProjectLanguages(pl);
 
     const QFileInfo fileInfo(m_fileName);
     m_projectName = fileInfo.absoluteDir().dirName();
