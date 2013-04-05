@@ -287,7 +287,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
     m_ui->removeConfigButton->setEnabled(true);
 
     if (device->canCreateProcessModel()) {
-        QPushButton * const button = new QPushButton(tr("Remote Processes"));
+        QPushButton * const button = new QPushButton(tr("Show Running Processes"));
         m_additionalActionButtons << button;
         connect(button, SIGNAL(clicked()), SLOT(handleProcessListRequested()));
         m_ui->buttonsLayout->insertWidget(m_ui->buttonsLayout->count() - 1, button);
