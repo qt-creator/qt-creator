@@ -324,6 +324,7 @@ bool CMakeProject::parseCMakeLists()
     allIncludePaths.append(cbpparser.includeFiles());
 
     QStringList cxxflags;
+    bool found = false;
     foreach (const CMakeBuildTarget &buildTarget, m_buildTargets) {
         QString makeCommand = QDir::fromNativeSeparators(buildTarget.makeCommand);
         int startIndex = makeCommand.indexOf(QLatin1Char('\"'));
@@ -336,14 +337,14 @@ bool CMakeProject::parseCMakeLists()
         makefile.truncate(slashIndex);
         makefile.append(QLatin1String("/CMakeFiles/") + buildTarget.title + QLatin1String(".dir/flags.make"));
         QFile file(makefile);
-        bool found = false;
         if (file.exists()) {
             file.open(QIODevice::ReadOnly | QIODevice::Text);
-            QStringList lines = QString::fromLatin1(file.readAll()).split(QLatin1Char('\n'));
-            foreach (const QString &line, lines) {
+            QTextStream stream(&file);
+            while (!stream.atEnd()) {
+                QString line = stream.readLine().trimmed();
                 if (line.startsWith(QLatin1String("CXX_FLAGS ="))) {
-                    int index = line.indexOf(QLatin1Char('=')) + 1;
-                    cxxflags = line.mid(index).trimmed().split(QLatin1Char(' '));
+                    // Skip past =
+                    cxxflags = line.mid(11).trimmed().split(QLatin1Char(' '), QString::SkipEmptyParts);
                     found = true;
                     break;
                 }
@@ -351,6 +352,30 @@ bool CMakeProject::parseCMakeLists()
         }
         if (found)
             break;
+    }
+    // Attempt to find build.ninja file and obtain FLAGS (CXX_FLAGS) from there if no suitable flags.make were
+    // found
+    if (!found && !cbpparser.buildTargets().isEmpty()) {
+        // Get "all" target's working directory
+        QString buildNinjaFile = QDir::fromNativeSeparators(cbpparser.buildTargets().at(0).workingDirectory);
+        buildNinjaFile += QLatin1String("/build.ninja");
+        QFile buildNinja(buildNinjaFile);
+        if (buildNinja.exists()) {
+            buildNinja.open(QIODevice::ReadOnly | QIODevice::Text);
+            QTextStream stream(&buildNinja);
+            bool cxxFound = false;
+            while (!stream.atEnd()) {
+                QString line = stream.readLine().trimmed();
+                // Look for a build rule which invokes CXX_COMPILER
+                if (line.startsWith(QLatin1String("build"))) {
+                    cxxFound = line.indexOf(QLatin1String("CXX_COMPILER")) != -1;
+                } else if (cxxFound && line.startsWith(QLatin1String("FLAGS ="))) {
+                    // Skip past =
+                    cxxflags = line.mid(7).trimmed().split(QLatin1Char(' '), QString::SkipEmptyParts);
+                    break;
+                }
+            }
+        }
     }
 
     QByteArray allDefines;
