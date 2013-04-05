@@ -75,18 +75,18 @@ private slots:
 private:
     void enableButtons(bool b);
 
-    QProcess* m_process;
+    QProcess *m_process;
     QString m_gitBinaryPath;
     QProcessEnvironment m_gitEnvironment;
 
-    QLabel* m_workingDirectoryLabel;
-    QLineEdit* m_changeNumberEdit;
-    QPlainTextEdit* m_detailsText;
-    QPushButton* m_showButton;
-    QPushButton* m_cherryPickButton;
-    QPushButton* m_revertButton;
-    QPushButton* m_checkoutButton;
-    QPushButton* m_cancelButton;
+    QLabel *m_workingDirectoryLabel;
+    QLineEdit *m_changeNumberEdit;
+    QPlainTextEdit *m_detailsText;
+    QPushButton *m_showButton;
+    QPushButton *m_cherryPickButton;
+    QPushButton *m_revertButton;
+    QPushButton *m_checkoutButton;
+    QPushButton *m_cancelButton;
 
     ChangeCommand m_command;
 };

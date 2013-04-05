@@ -44,9 +44,7 @@ class ActionContainer;
 class Command;
 }
 
-namespace Locator {
-    class CommandLocator;
-}
+namespace Locator { class CommandLocator; }
 
 namespace Gerrit {
 namespace Internal {
@@ -55,7 +53,7 @@ class GerritChange;
 class GerritParameters;
 class GerritDialog;
 
-typedef QPair<QAction *, Core::Command* > ActionCommandPair;
+typedef QPair<QAction *, Core::Command *> ActionCommandPair;
 
 class GerritPlugin : public QObject
 {

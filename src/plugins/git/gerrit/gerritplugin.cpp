@@ -473,6 +473,7 @@ void GerritPlugin::fetch(const QSharedPointer<Gerrit::Internal::GerritChange> &c
             && QFile::exists(m_dialog->repositoryPath())) {
         repository = gitClient->findRepositoryForDirectory(m_dialog->repositoryPath());
     }
+
     if (!repository.isEmpty()) {
         // Check if remote from a working dir is the same as remote from patch
         QMap<QString, QString> remotesList = gitClient->synchronousRemotesList(repository);
@@ -505,7 +506,7 @@ void GerritPlugin::fetch(const QSharedPointer<Gerrit::Internal::GerritChange> &c
                 }
             }
 
-            if (!verifiedRepository){
+            if (!verifiedRepository) {
                 QMessageBox::StandardButton answer = QMessageBox::question(
                             Core::ICore::mainWindow(), tr("Remote not Verified"),
                             tr("Change host: %1\nand project: %2\n\nwere not verified among remotes"
