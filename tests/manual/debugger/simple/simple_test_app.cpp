@@ -4600,6 +4600,44 @@ QString fooxx()
 
 namespace basic {
 
+
+    struct Empty {};
+    struct Data { Data() : a(42) {} int a; };
+    struct VEmpty {};
+    struct VData { VData() : v(42) {} int v; };
+
+    struct S1 : Empty, Data, virtual VEmpty, virtual VData
+    {
+        S1() : i1(1) {}
+        int i1;
+    };
+
+    struct S2 : Empty, Data, virtual VEmpty, virtual VData
+    {
+        S2() : i2(1) {}
+        int i2;
+    };
+
+    struct Combined : S1, S2
+    {
+        Combined() : c(1) {} int c;
+    };
+
+
+    void testInheritance()
+    {
+        Combined combined;
+        combined.S1::a = 42;
+        combined.S2::a = 43;
+        combined.S1::v = 44;
+        combined.S2::v = 45;
+
+        BREAK_HERE;
+        // Continue.
+
+        dummyStatement(&combined);
+    }
+
     // This tests display of basic types.
 
     void testInt()
@@ -5393,6 +5431,7 @@ namespace basic {
 
     void testBasic()
     {
+        testInheritance();
         testInt();
         testReference1();
         testReference2();

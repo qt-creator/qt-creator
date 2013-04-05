@@ -4281,6 +4281,31 @@ void tst_Dumpers::dumper_data()
                % Check("f", "2", "double");
 
 
+    QByteArray inheritanceData =
+        "struct Empty {};\n"
+        "struct Data { Data() : a(42) {} int a; };\n"
+        "struct VEmpty {};\n"
+        "struct VData { VData() : v(42) {} int v; };\n"
+        "struct S1 : Empty, Data, virtual VEmpty, virtual VData\n"
+        "    { S1() : i1(1) {} int i1; };\n"
+        "struct S2 : Empty, Data, virtual VEmpty, virtual VData\n"
+        "    { S2() : i2(1) {} int i2; };\n"
+        "struct Combined : S1, S2 { Combined() : c(1) {} int c; };\n";
+
+    QTest::newRow("inheritance")
+            << Data(inheritanceData,
+                    "Combined c;\n"
+                    "c.S1::a = 42;\n"
+                    "c.S2::a = 43;\n"
+                    "c.S1::v = 44;\n"
+                    "c.S2::v = 45;\n")
+                % Check("c.c", "1", "int")
+                % Check("c.@1.@2.a", "42", "int")
+                % Check("c.@1.@4.v", "45", "int")
+                % Check("c.@2.@2.a", "43", "int")
+                % Check("c.@2.@4.v", "45", "int");
+
+
     QTest::newRow("gdb13393")
             << Data(
                    "struct Base {\n"
