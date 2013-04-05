@@ -7,7 +7,7 @@ def main():
     # using a temporary directory won't mess up a potentially existing
     workingDir = tempDir()
     checkedTargets, projectName = createNewQtQuickApplication(workingDir,
-                                                              targets = QtQuickConstants.Targets.DESKTOP_474_GCC)
+                                                              targets = Targets.DESKTOP_474_GCC)
     test.log("Building project")
     result = modifyRunSettingsForHookInto(projectName, len(checkedTargets), 11223)
     invokeMenuItem("Build", "Build All")

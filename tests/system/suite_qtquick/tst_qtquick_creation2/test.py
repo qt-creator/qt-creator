@@ -12,7 +12,7 @@ def main():
     workingDir = tempDir()
     checkedTargets, projectName = createNewQtQuickApplication(workingDir, None,
                                                               os.path.join(prepareTemplate(sourceExample), qmlFile),
-                                                              QtQuickConstants.Targets.DESKTOP_474_GCC)
+                                                              Targets.DESKTOP_474_GCC)
     test.log("Building project")
     result = modifyRunSettingsForHookInto(projectName, len(checkedTargets), 11223)
     invokeMenuItem("Build","Build All")

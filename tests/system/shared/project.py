@@ -12,7 +12,7 @@ def __handleProcessExited__(object, exitCode):
     global processExited
     processExited = True
 
-def openQmakeProject(projectPath, targets=QtQuickConstants.desktopTargetClasses(), fromWelcome=False):
+def openQmakeProject(projectPath, targets=Targets.desktopTargetClasses(), fromWelcome=False):
     cleanUpUserFiles(projectPath)
     if fromWelcome:
         mouseClick(waitForObject(":OpenProject_QStyleItem"), 5, 5, 0, Qt.LeftButton)
@@ -112,7 +112,7 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
 # param checks turns tests in the function on if set to True
 # param available a list holding the available targets
 def __selectQtVersionDesktop__(checks, available=None):
-    checkedTargets = __chooseTargets__(QtQuickConstants.desktopTargetClasses(), available)
+    checkedTargets = __chooseTargets__(Targets.desktopTargetClasses(), available)
     if checks:
         cbObject = ("{type='QCheckBox' text='%s' unnamed='1' visible='1' "
                     "container={type='Utils::DetailsWidget' visible='1' unnamed='1'}}")
@@ -204,7 +204,7 @@ def createProject_Qt_Console(path, projectName, checks = True):
     return checkedTargets
 
 def createNewQtQuickApplication(workingDir, projectName = None, templateFile = None,
-                                targets=QtQuickConstants.desktopTargetClasses(), qtQuickVersion=1,
+                                targets=Targets.desktopTargetClasses(), qtQuickVersion=1,
                                 fromWelcome=False):
     if templateFile:
         available = __createProjectOrFileSelectType__("  Applications", "Qt Quick %d Application (from Existing QML File)"
@@ -240,7 +240,7 @@ def createNewQmlExtension(workingDir):
     if workingDir == None:
         workingDir = tempDir()
     __createProjectSetNameAndPath__(workingDir)
-    checkedTargets = __chooseTargets__(QtQuickConstants.Targets.DESKTOP_474_GCC, available)
+    checkedTargets = __chooseTargets__(Targets.DESKTOP_474_GCC, available)
     nextButton = waitForObject(":Next_QPushButton")
     clickButton(nextButton)
     nameLineEd = waitForObject("{buddy={type='QLabel' text='Object Class-name:' unnamed='1' visible='1'} "
@@ -253,51 +253,39 @@ def createNewQmlExtension(workingDir):
     __createProjectHandleLastPage__()
     return checkedTargets
 
-# parameter components can only be one of the Constants defined in QtQuickConstants.Components
-def __chooseComponents__(components=QtQuickConstants.Components.BUILTIN):
-    rbComponentToChoose = waitForObject("{type='QRadioButton' text='%s' visible='1'}"
-                              % QtQuickConstants.getStringForComponents(components))
-    if rbComponentToChoose.checked:
-        test.passes("Selected QRadioButton is '%s'" % QtQuickConstants.getStringForComponents(components))
-    else:
-        clickButton(rbComponentToChoose)
-        test.verify(rbComponentToChoose.checked, "Selected QRadioButton is '%s'"
-                % QtQuickConstants.getStringForComponents(components))
-
-# parameter target can be an OR'd value of QtQuickConstants.Targets
+# parameter target can be an OR'd value of Targets
 # parameter availableTargets should be the result of __createProjectSelectType__()
 #           or use None as a fallback
-def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP_474_GCC, availableTargets=None,
+def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None,
                       isMaddeDisabled=True):
     if availableTargets != None:
         available = availableTargets
     else:
         # following targets depend on the build environment - added for further/later tests
-        available = [QtQuickConstants.Targets.DESKTOP_474_GCC, QtQuickConstants.Targets.DESKTOP_501_DEFAULT,
-                     QtQuickConstants.Targets.MAEMO5, QtQuickConstants.Targets.EMBEDDED_LINUX,
-                     QtQuickConstants.Targets.SIMULATOR, QtQuickConstants.Targets.HARMATTAN]
+        available = [Targets.DESKTOP_474_GCC, Targets.DESKTOP_501_DEFAULT, Targets.MAEMO5,
+                     Targets.EMBEDDED_LINUX, Targets.SIMULATOR, Targets.HARMATTAN]
         if platform.system() in ('Windows', 'Microsoft'):
-            available.remove(QtQuickConstants.Targets.EMBEDDED_LINUX)
-            available.append(QtQuickConstants.Targets.DESKTOP_474_MSVC2008)
+            available.remove(Targets.EMBEDDED_LINUX)
+            available.append(Targets.DESKTOP_474_MSVC2008)
     if isMaddeDisabled:
         for target in filter(lambda x: x in available,
-                             (QtQuickConstants.Targets.MAEMO5, QtQuickConstants.Targets.HARMATTAN)):
+                             (Targets.MAEMO5, Targets.HARMATTAN)):
             available.remove(target)
     checkedTargets = []
     for current in available:
         mustCheck = targets & current == current
         try:
-            ensureChecked("{type='QCheckBox' text='%s' visible='1'}" % QtQuickConstants.getStringForTarget(current),
+            ensureChecked("{type='QCheckBox' text='%s' visible='1'}" % Targets.getStringForTarget(current),
                           mustCheck, 3000)
             if (mustCheck):
                 checkedTargets.append(current)
         except LookupError:
             if mustCheck:
-                test.fail("Failed to check target '%s'." % QtQuickConstants.getStringForTarget(current))
+                test.fail("Failed to check target '%s'." % Targets.getStringForTarget(current))
             else:
                 # Simulator has been added without knowing whether configured or not - so skip warning here?
-                if current != QtQuickConstants.Targets.SIMULATOR:
-                    test.warning("Target '%s' is not set up correctly." % QtQuickConstants.getStringForTarget(current))
+                if current != Targets.Targets.SIMULATOR:
+                    test.warning("Target '%s' is not set up correctly." % Targets.getStringForTarget(current))
     return checkedTargets
 
 # run and close an application
@@ -453,7 +441,7 @@ def resetApplicationContextToCreator():
 # Simulator must be handled in a special way, because this depends on the
 # configured Qt versions and Toolchains and cannot be looked up the same way
 # if you set getAsStrings to True this function returns a list of strings instead
-# of the constants defined in QtQuickConstants.Targets
+# of the constants defined in Targets
 def __getSupportedPlatforms__(text, getAsStrings=False):
     reqPattern = re.compile("requires qt (?P<version>\d+\.\d+(\.\d+)?)", re.IGNORECASE)
     res = reqPattern.search(text)
@@ -465,31 +453,30 @@ def __getSupportedPlatforms__(text, getAsStrings=False):
         supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split(" ")
         result = []
         if 'Desktop' in supports:
-            result.append(QtQuickConstants.Targets.DESKTOP_474_GCC)
-            result.append(QtQuickConstants.Targets.DESKTOP_501_DEFAULT)
+            result.append(Targets.DESKTOP_474_GCC)
+            result.append(Targets.DESKTOP_501_DEFAULT)
             if platform.system() in ("Linux", "Darwin"):
-                result.append(QtQuickConstants.Targets.EMBEDDED_LINUX)
+                result.append(Targets.EMBEDDED_LINUX)
             elif platform.system() in ('Windows', 'Microsoft'):
-                result.append(QtQuickConstants.Targets.DESKTOP_474_MSVC2008)
+                result.append(Targets.DESKTOP_474_MSVC2008)
         if 'MeeGo/Harmattan' in supports:
-            result.append(QtQuickConstants.Targets.HARMATTAN)
+            result.append(Targets.HARMATTAN)
         if 'Maemo/Fremantle' in supports:
-            result.append(QtQuickConstants.Targets.MAEMO5)
+            result.append(Targets.MAEMO5)
         if not re.search("custom Qt Creator plugin", text):
-            result.append(QtQuickConstants.Targets.SIMULATOR)
+            result.append(Targets.SIMULATOR)
     elif 'Platform independent' in text:
         # MAEMO5 and HARMATTAN could be wrong here - depends on having Madde plugin enabled or not
-        result = [QtQuickConstants.Targets.DESKTOP_474_GCC, QtQuickConstants.Targets.DESKTOP_501_DEFAULT,
-                  QtQuickConstants.Targets.MAEMO5, QtQuickConstants.Targets.SIMULATOR,
-                  QtQuickConstants.Targets.HARMATTAN]
+        result = [Targets.DESKTOP_474_GCC, Targets.DESKTOP_501_DEFAULT, Targets.MAEMO5,
+                  Targets.SIMULATOR, Targets.HARMATTAN]
         if platform.system() in ('Windows', 'Microsoft'):
-            result.append(QtQuickConstants.Targets.DESKTOP_474_MSVC2008)
+            result.append(Targets.DESKTOP_474_MSVC2008)
     else:
         test.warning("Returning None (__getSupportedPlatforms__())",
                      "Parsed text: '%s'" % text)
         return None, None
     if getAsStrings:
-        result = QtQuickConstants.getTargetsAsStrings(result)
+        result = Targets.getTargetsAsStrings(result)
     return result, version
 
 # copy example project (sourceExample is path to project) to temporary directory inside repository

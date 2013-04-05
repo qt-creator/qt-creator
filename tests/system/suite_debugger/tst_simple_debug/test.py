@@ -7,9 +7,9 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    targets = [QtQuickConstants.Targets.DESKTOP_474_GCC]
+    targets = [Targets.DESKTOP_474_GCC]
     if platform.system() in ('Windows', 'Microsoft'):
-        targets.append(QtQuickConstants.Targets.DESKTOP_474_MSVC2008)
+        targets.append(Targets.DESKTOP_474_MSVC2008)
     if not checkDebuggingLibrary(targets):
         test.fatal("Error while checking debugging libraries - leaving this test.")
         invokeMenuItem("File", "Exit")

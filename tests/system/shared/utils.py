@@ -344,8 +344,7 @@ def getConfiguredKits(isMaddeDisabled=True):
         targetInfo = result[targetName]
         if targetInfo[0] == "Maemo":
             result.update({targetName:
-                           (QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.MAEMO5),
-                            targetInfo[1])})
+                           (Targets.getStringForTarget(Targets.MAEMO5), targetInfo[1])})
     test.log("Configured kits: %s" % str(result))
     return result
 
@@ -409,7 +408,7 @@ def checkDebuggingLibrary(kitIDs):
     # end of internal function for iterateQtVersions
     kits, qtv = iterateKits(True, False, __getQtVersionForKit__)
     qtVersionsOfKits = zip(kits, qtv)
-    wantedKits = QtQuickConstants.getTargetsAsStrings(kitIDs)
+    wantedKits = Targets.getTargetsAsStrings(kitIDs)
     kitsQtV = dict([i for i in qtVersionsOfKits if i[0] in wantedKits])
     tv, builtAndFailedList = iterateQtVersions(False, True, __checkDebugLibsInternalFunc__, kitsQtV)
     built = failed = 0
