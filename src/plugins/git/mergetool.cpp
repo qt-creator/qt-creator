@@ -246,7 +246,7 @@ void MergeTool::readData()
         } else if (m_merging && line.startsWith("Continue merging")) {
             if (QMessageBox::question(0, tr("Continue Merging"),
                                       tr("Continue merging other unresolved paths?"),
-                                      QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+                                      QMessageBox::Yes|QMessageBox::No, QMessageBox::No) == QMessageBox::Yes) {
                 m_process->write("y\n");
             } else {
                 m_process->write("n\n");
