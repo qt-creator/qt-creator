@@ -34,6 +34,7 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
@@ -125,9 +126,6 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(DebuggerRunConfigurationAspect 
     connect(m_useMultiProcess, SIGNAL(toggled(bool)),
             SLOT(useMultiProcessToggled(bool)));
 
-    if (m_aspect->isDisplaySuppressed())
-        hide();
-
     if (m_aspect->areQmlDebuggingOptionsSuppressed()) {
         m_debugServerPortLabel->hide();
         m_debugServerPort->hide();
@@ -199,11 +197,7 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(
     m_useCppDebugger(true),
     m_useQmlDebugger(AutoEnableQmlDebugger),
     m_qmlDebugServerPort(Constants::QML_DEFAULT_DEBUG_SERVER_PORT),
-    m_useMultiProcess(false),
-    m_suppressDisplay(false),
-    m_suppressQmlDebuggingOptions(false),
-    m_suppressCppDebuggingOptions(false),
-    m_suppressQmlDebuggingSpinbox(false)
+    m_useMultiProcess(false)
 {
     ctor();
 }
@@ -215,11 +209,7 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(
       m_useCppDebugger(other->m_useCppDebugger),
       m_useQmlDebugger(other->m_useQmlDebugger),
       m_qmlDebugServerPort(other->m_qmlDebugServerPort),
-      m_useMultiProcess(other->m_useMultiProcess),
-      m_suppressDisplay(other->m_suppressDisplay),
-      m_suppressQmlDebuggingOptions(other->m_suppressQmlDebuggingOptions),
-      m_suppressCppDebuggingOptions(other->m_suppressCppDebuggingOptions),
-      m_suppressQmlDebuggingSpinbox(other->m_suppressQmlDebuggingSpinbox)
+      m_useMultiProcess(other->m_useMultiProcess)
 {
     ctor();
 }
@@ -274,44 +264,25 @@ void DebuggerRunConfigurationAspect::setUseMultiProcess(bool value)
     m_useMultiProcess = value;
 }
 
-void DebuggerRunConfigurationAspect::suppressDisplay()
-{
-    m_suppressDisplay = true;
-}
-
-void DebuggerRunConfigurationAspect::suppressQmlDebuggingOptions()
-{
-    m_suppressQmlDebuggingOptions = true;
-}
-
-void DebuggerRunConfigurationAspect::suppressCppDebuggingOptions()
-{
-    m_suppressCppDebuggingOptions = true;
-}
-
-void DebuggerRunConfigurationAspect::suppressQmlDebuggingSpinbox()
-{
-    m_suppressQmlDebuggingSpinbox = true;
-}
-
-bool DebuggerRunConfigurationAspect::isDisplaySuppressed() const
-{
-    return m_suppressDisplay;
-}
-
 bool DebuggerRunConfigurationAspect::areQmlDebuggingOptionsSuppressed() const
 {
-    return m_suppressQmlDebuggingOptions;
+    return !m_runConfiguration->target()->project()
+            ->projectLanguages().contains(ProjectExplorer::Constants::LANG_QMLJS);
 }
 
 bool DebuggerRunConfigurationAspect::areCppDebuggingOptionsSuppressed() const
 {
-    return m_suppressCppDebuggingOptions;
+    return !m_runConfiguration->target()->project()
+            ->projectLanguages().contains(ProjectExplorer::Constants::LANG_CXX);
 }
 
 bool DebuggerRunConfigurationAspect::isQmlDebuggingSpinboxSuppressed() const
 {
-    return m_suppressQmlDebuggingSpinbox;
+    ProjectExplorer::Kit *k = m_runConfiguration->target()->kit();
+    ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(k);
+    if (dev.isNull())
+        return false;
+    return dev->portsGatheringMethod().isNull(); // We know the free ports...
 }
 
 QString DebuggerRunConfigurationAspect::displayName() const
@@ -350,13 +321,18 @@ DebuggerRunConfigurationAspect *DebuggerRunConfigurationAspect::clone(
 
 ProjectExplorer::RunConfigWidget *DebuggerRunConfigurationAspect::createConfigurationWidget()
 {
-    return new Internal::DebuggerRunConfigWidget(this);
+    if (areCppDebuggingOptionsSuppressed() && areQmlDebuggingOptionsSuppressed())
+        return 0;
+    else
+        return new Internal::DebuggerRunConfigWidget(this);
 }
 
 void DebuggerRunConfigurationAspect::ctor()
 {
     connect(this, SIGNAL(debuggersChanged()),
             m_runConfiguration, SIGNAL(requestRunActionsUpdate()));
+    setUseCppDebugger(!areCppDebuggingOptionsSuppressed());
+    setUseQmlDebugger(!areQmlDebuggingOptionsSuppressed());
 }
 
 } // namespace Debugger

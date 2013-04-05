@@ -118,7 +118,6 @@ RemoteLinuxRunConfiguration::~RemoteLinuxRunConfiguration()
 void RemoteLinuxRunConfiguration::init()
 {
     setDefaultDisplayName(defaultDisplayName());
-    extraAspect<Debugger::DebuggerRunConfigurationAspect>()->suppressQmlDebuggingSpinbox();
 
     connect(target(), SIGNAL(deploymentDataChanged()), SLOT(handleBuildSystemDataUpdated()));
     connect(target(), SIGNAL(applicationTargetsChanged()), SLOT(handleBuildSystemDataUpdated()));

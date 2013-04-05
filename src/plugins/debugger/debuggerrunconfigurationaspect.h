@@ -70,11 +70,6 @@ public:
     void setQmllDebugServerPort(uint port);
     bool useMultiProcess() const;
     void setUseMultiProcess(bool on);
-    void suppressDisplay();
-    void suppressQmlDebuggingOptions();
-    void suppressCppDebuggingOptions();
-    void suppressQmlDebuggingSpinbox();
-    bool isDisplaySuppressed() const;
     bool areQmlDebuggingOptionsSuppressed() const;
     bool areCppDebuggingOptionsSuppressed() const;
     bool isQmlDebuggingSpinboxSuppressed() const;
@@ -91,11 +86,6 @@ private:
     QmlDebuggerStatus m_useQmlDebugger;
     uint m_qmlDebugServerPort;
     bool m_useMultiProcess;
-
-    bool m_suppressDisplay;
-    bool m_suppressQmlDebuggingOptions;
-    bool m_suppressCppDebuggingOptions;
-    bool m_suppressQmlDebuggingSpinbox;
 
     friend class Internal::DebuggerRunConfigWidget;
 };
