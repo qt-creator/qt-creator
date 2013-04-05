@@ -94,6 +94,7 @@ namespace Constants {
 const char C_TEXTEDITOR[]          = "Text Editor";
 const char COMPLETE_THIS[]         = "TextEditor.CompleteThis";
 const char QUICKFIX_THIS[]         = "TextEditor.QuickFix";
+const char CREATE_SCRATCH_BUFFER[] = "TextEditor.CreateScratchBuffer";
 const char VISUALIZE_WHITESPACE[]  = "TextEditor.VisualizeWhitespace";
 const char CLEAN_WHITESPACE[]      = "TextEditor.CleanWhitespace";
 const char TEXT_WRAPPING[]         = "TextEditor.TextWrapping";

@@ -99,6 +99,8 @@ static inline QString wizardDisplayCategory()
 // based on a temporary file without prompting for a path.
 class ScratchFileWizard : public Core::IWizard
 {
+    Q_OBJECT
+
 public:
     virtual WizardKind kind() const { return FileWizard; }
     virtual QIcon icon() const { return QIcon(); }
@@ -118,13 +120,15 @@ public:
         { return Core::FeatureSet(); }
     virtual WizardFlags flags() const
         { return Core::IWizard::PlatformIndependent; }
+    virtual void runWizard(const QString &, QWidget *, const QString &, const QVariantMap &)
+        { createFile(); }
 
-    virtual void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues);
+public Q_SLOTS:
+    virtual void createFile();
 };
 
-void ScratchFileWizard::runWizard(const QString &, QWidget *, const QString &, const QVariantMap &extraValues)
+void ScratchFileWizard::createFile()
 {
-    Q_UNUSED(extraValues)
     QString tempPattern = QDir::tempPath();
     if (!tempPattern.endsWith(QLatin1Char('/')))
         tempPattern += QLatin1Char('/');
@@ -156,7 +160,8 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
                                                 wizardParameters);
     // Add text file wizard
     addAutoReleasedObject(wizard);
-    addAutoReleasedObject(new ScratchFileWizard);
+    ScratchFileWizard *scratchFile = new ScratchFileWizard;
+    addAutoReleasedObject(scratchFile);
 
     m_settings = new TextEditorSettings(this);
 
@@ -187,6 +192,13 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     Core::Command *quickFixCommand = Core::ActionManager::registerShortcut(quickFixShortcut, Constants::QUICKFIX_THIS, context);
     quickFixCommand->setDefaultKeySequence(QKeySequence(tr("Alt+Return")));
     connect(quickFixShortcut, SIGNAL(activated()), this, SLOT(invokeQuickFix()));
+
+    // Add shortcut for create a scratch buffer
+    QShortcut *scratchBufferShortcut = new QShortcut(Core::ICore::mainWindow());
+    scratchBufferShortcut->setWhatsThis(tr("Creates a scratch buffer using a temporary file."));
+    scratchBufferShortcut->setContext(Qt::ApplicationShortcut);
+    Core::ActionManager::registerShortcut(scratchBufferShortcut, Constants::CREATE_SCRATCH_BUFFER, context);
+    connect(scratchBufferShortcut, SIGNAL(activated()), scratchFile, SLOT(createFile()));
 
     // Generic highlighter.
     connect(Core::ICore::instance(), SIGNAL(coreOpened()),
@@ -327,3 +339,5 @@ void TextEditorPlugin::updateCurrentSelection(const QString &text)
 }
 
 Q_EXPORT_PLUGIN(TextEditorPlugin)
+
+#include "texteditorplugin.moc"
