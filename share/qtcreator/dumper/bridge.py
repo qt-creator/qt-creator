@@ -112,28 +112,8 @@ try:
 
         Command()
 
-
-    def isGoodGdb():
-        #return gdb.VERSION.startswith("6.8.50.2009") \
-        #   and gdb.VERSION != "6.8.50.20090630-cvs"
-        return 'parse_and_eval' in __builtin__.dir(gdb)
-
-
     def parseAndEvaluate(exp):
-        if isGoodGdb():
-            return gdb.parse_and_eval(exp)
-        # Work around non-existing gdb.parse_and_eval as in released 7.0
-#        gdb.execute("set logging redirect on")
-        gdb.execute("set logging on")
-        try:
-            gdb.execute("print %s" % exp)
-        except:
-            gdb.execute("set logging off")
-#            gdb.execute("set logging redirect off")
-            return None
-        gdb.execute("set logging off")
-#        gdb.execute("set logging redirect off")
-        return gdb.history(0)
+        return gdb.parse_and_eval(exp)
 
     def extractFields(value):
         return value.type.fields()
@@ -179,7 +159,7 @@ try:
 
         items = []
         #warn("HAS BLOCK: %s" % hasBlock)
-        if hasBlock and isGoodGdb():
+        if hasBlock:
             #warn("IS GOOD: %s " % varList)
             try:
                 block = frame.block()
