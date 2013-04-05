@@ -45,6 +45,7 @@
 #endif
 
 using namespace Debugger;
+using namespace Utils;
 using namespace Internal;
 
 static QByteArray noValue = "\001";
@@ -358,9 +359,11 @@ struct TempStuff
     QString buildPath;
 };
 
-enum DebuggerEngine {
-    gdbEngine,
-    cdbEngine
+enum DebuggerEngine
+{
+    GdbEngine,
+    CdbEngine,
+    LldbEngine
 };
 
 Q_DECLARE_METATYPE(Data)
@@ -370,7 +373,16 @@ class tst_Dumpers : public QObject
     Q_OBJECT
 
 public:
-    tst_Dumpers() : t(0), m_keepTemp(false) {}
+    tst_Dumpers()
+    {
+        t = 0;
+        m_keepTemp = false;
+        m_gdbVersion = 0;
+        m_gdbBuildVersion = 0;
+        m_lldbVersion = 0;
+        m_isMacGdb = false;
+        m_isQnxGdb = false;
+    }
 
 private slots:
     void initTestCase();
@@ -389,6 +401,7 @@ private:
     bool m_keepTemp;
     int m_gdbVersion; // 7.5.1 -> 70501
     int m_gdbBuildVersion;
+    int m_lldbVersion;
     bool m_isMacGdb;
     bool m_isQnxGdb;
 };
@@ -398,16 +411,21 @@ void tst_Dumpers::initTestCase()
     m_debuggerBinary = qgetenv("QTC_DEBUGGER_PATH");
     if (m_debuggerBinary.isEmpty())
         m_debuggerBinary = "gdb";
-    m_debuggerEngine = m_debuggerBinary.endsWith("cdb.exe") ? cdbEngine : gdbEngine;
+
+    m_debuggerEngine = GdbEngine;
+    if (m_debuggerBinary.endsWith("cdb.exe"))
+        m_debuggerEngine = CdbEngine;
+    if (m_debuggerBinary.endsWith("lldb") || m_debuggerBinary.contains("/lldb-"))
+        m_debuggerEngine = LldbEngine;
 
     m_qmakeBinary = qgetenv("QTC_QMAKE_PATH");
     if (m_qmakeBinary.isEmpty())
         m_qmakeBinary = "qmake";
 
-    Utils::Environment utilsEnv = Utils::Environment::systemEnvironment();
+    Environment utilsEnv = Environment::systemEnvironment();
     utilsEnv.appendOrSet(QLatin1String("QT_HASH_SEED"), QLatin1String("0"));
 
-    if (m_debuggerEngine == gdbEngine) {
+    if (m_debuggerEngine == GdbEngine) {
         QProcess debugger;
         debugger.start(QString::fromLatin1(m_debuggerBinary)
                        + QLatin1String(" -i mi -quiet -nx"));
@@ -428,14 +446,14 @@ void tst_Dumpers::initTestCase()
         QVERIFY(pos2 != -1);
         pos2 -= 4;
         version = version.mid(pos1, pos2 - pos1);
-        Debugger::Internal::extractGdbVersion(version, &m_gdbVersion,
+        extractGdbVersion(version, &m_gdbVersion,
             &m_gdbBuildVersion, &m_isMacGdb, &m_isQnxGdb);
         qDebug() << "Gdb version " << m_gdbVersion;
-    } else {
+    } else if (m_debuggerEngine == CdbEngine) {
         QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
         QMap <QString, QString> envPairs;
         QVERIFY(ProjectExplorer::Internal::AbstractMsvcToolChain::generateEnvironmentSettings(
-                    utilsEnv, QString::fromLatin1(envBat), QLatin1String(""), envPairs));
+                    utilsEnv, QString::fromLatin1(envBat), QString(), envPairs));
 
         for (QMap<QString,QString>::const_iterator envIt = envPairs.begin(); envIt!=envPairs.end(); ++envIt)
                 utilsEnv.set(envIt.key(), envIt.value());
@@ -446,6 +464,19 @@ void tst_Dumpers::initTestCase()
         utilsEnv.appendOrSet(QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"),
                              QString::fromLatin1(cdbextPath),
                              QLatin1String(";"));
+    } else if (m_debuggerEngine == LldbEngine) {
+        m_usePython = true;
+        QProcess debugger;
+        debugger.start(QString::fromLatin1(m_debuggerBinary + " -v"));
+        bool ok = debugger.waitForFinished(2000);
+        QVERIFY(ok);
+        QByteArray output = debugger.readAllStandardOutput();
+        output += debugger.readAllStandardError();
+        output = output.trimmed();
+        // Should be something like LLDB-178
+        m_lldbVersion = output.mid(5).toInt();
+        qDebug() << "Lldb version " << output << m_lldbVersion;
+        QVERIFY(m_lldbVersion);
     }
     m_env = utilsEnv.toProcessEnvironment();
 }
@@ -469,7 +500,7 @@ void tst_Dumpers::dumper()
 {
     QFETCH(Data, data);
 
-    if (m_debuggerEngine == gdbEngine) {
+    if (m_debuggerEngine == GdbEngine) {
         if (data.neededGdbVersion.min > m_gdbVersion)
             MSKIP_SINGLE("Need minimum GDB version " + QByteArray::number(data.neededGdbVersion.min));
         if (data.neededGdbVersion.max < m_gdbVersion)
@@ -526,7 +557,7 @@ void tst_Dumpers::dumper()
 
     QProcess make;
     make.setWorkingDirectory(t->buildPath);
-    cmd = m_debuggerEngine == gdbEngine ? QString::fromLatin1("make")
+    cmd = m_debuggerEngine == GdbEngine ? QString::fromLatin1("make")
                                         : QString::fromLatin1("nmake");
     //qDebug() << "Starting make: " << cmd;
     make.start(cmd);
@@ -566,7 +597,7 @@ void tst_Dumpers::dumper()
     QByteArray cmds;
     QStringList args;
 
-    if (m_debuggerEngine == gdbEngine) {
+    if (m_debuggerEngine == GdbEngine) {
         args << QLatin1String("-i")
              << QLatin1String("mi")
              << QLatin1String("-quiet")
@@ -600,7 +631,7 @@ void tst_Dumpers::dumper()
         }
         cmds += "quit\n";
 
-    } else {
+    } else if (m_debuggerEngine == CdbEngine) {
         args << QLatin1String("-aqtcreatorcdbext.dll")
              << QLatin1String("-lines")
              << QLatin1String("-G")
@@ -615,6 +646,16 @@ void tst_Dumpers::dumper()
                "gu\n"
                "!qtcreatorcdbext.locals -t 2 -D -e " + expanded + ",return,watch,inspect -v -c -W 0\n"
                "q\n";
+    } else if (m_debuggerEngine == LldbEngine) {
+        cmds = "script execfile('" + dumperDir + "/bridge.py')\n"
+               "script execfile('" + dumperDir + "/dumper.py')\n"
+               "script execfile('" + dumperDir + "/qttypes.py')\n"
+               "bbsetup\n"
+               "run\n"
+               "up\n"
+               "script print('@%sS@%s@' % ('N', qtNamespace()))\n"
+               "script bb('options:fancy,autoderef,dyntype vars: expanded:" + expanded + " typeformats:')\n"
+               "quit\n";
     }
 
     t->input = cmds;
@@ -642,7 +683,7 @@ void tst_Dumpers::dumper()
 
     Context context;
     QByteArray contents;
-    if (m_debuggerEngine == gdbEngine) {
+    if (m_debuggerEngine == GdbEngine) {
         int posDataStart = output.indexOf("data=");
         QVERIFY(posDataStart != -1);
         int posDataEnd = output.indexOf(",typeinfo", posDataStart);
