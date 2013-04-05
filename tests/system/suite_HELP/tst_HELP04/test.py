@@ -34,11 +34,6 @@ def getHighlightsInHtml(htmlCode):
     test.log(res)
     return res
 
-# wait for indexing progress bar to appear and disappear
-def progressBarWait():
-    checkIfObjectExists("{type='Core::Internal::ProgressBar' unnamed='1'}", True, 2000)
-    checkIfObjectExists("{type='Core::Internal::ProgressBar' unnamed='1'}", False, 60000)
-
 def main():
     global textHasChanged
     noMatch = "Your search did not match any documents."

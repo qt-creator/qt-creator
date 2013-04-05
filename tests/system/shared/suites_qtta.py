@@ -33,13 +33,6 @@ def checkSyntaxError(issuesView, expectedTextsArray, warnIfMoreIssues = True):
                     return True
     return False
 
-# wait and verify if object exists/not exists
-def checkIfObjectExists(name, shouldExist = True, timeout = 3000, verboseOnFail = False):
-    result = waitFor("object.exists(name) == shouldExist", timeout)
-    if verboseOnFail and not result:
-        test.log("checkIfObjectExists() failed for '%s'" % name)
-    return result
-
 # change autocomplete options to manual
 def changeAutocompleteToManual():
     invokeMenuItem("Tools", "Options...")

@@ -601,3 +601,15 @@ def writeTestResults(folder):
     for cat in categories:
         resultFile.write("%s:%d\n" % (cat, test.resultCount(cat)))
     resultFile.close()
+
+# wait and verify if object exists/not exists
+def checkIfObjectExists(name, shouldExist = True, timeout = 3000, verboseOnFail = False):
+    result = waitFor("object.exists(name) == shouldExist", timeout)
+    if verboseOnFail and not result:
+        test.log("checkIfObjectExists() failed for '%s'" % name)
+    return result
+
+# wait for progress bar(s) to appear and disappear
+def progressBarWait():
+    checkIfObjectExists("{type='Core::Internal::ProgressBar' unnamed='1'}", True, 2000)
+    checkIfObjectExists("{type='Core::Internal::ProgressBar' unnamed='1'}", False, 60000)

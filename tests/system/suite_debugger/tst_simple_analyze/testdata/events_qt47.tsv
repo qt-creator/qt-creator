@@ -1,0 +1,3 @@
+"0"	"1"	"4"	"9"
+"<program>"	"Binding"	"1"	"Main Program"
+"main.qml:14"	"Signal"	"2"	"triggered(): { var i; for (i = 1; i < 2500; ++i) { var j = i * i; console.log(j); } }"
