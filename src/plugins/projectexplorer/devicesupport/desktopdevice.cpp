@@ -48,7 +48,7 @@ DesktopDevice::DesktopDevice() : IDevice(Core::Id(DESKTOP_DEVICE_TYPE),
                                          Core::Id(DESKTOP_DEVICE_ID))
 {
     setDisplayName(QCoreApplication::translate("ProjectExplorer::DesktopDevice", "Local PC"));
-    setDeviceState(IDevice::DeviceReadyToUse);
+    setDeviceState(IDevice::DeviceStateUnknown);
     const QString portRange =
             QString::fromLatin1("%1-%2").arg(DESKTOP_PORT_START).arg(DESKTOP_PORT_END);
     setFreePorts(Utils::PortList::fromString(portRange));
