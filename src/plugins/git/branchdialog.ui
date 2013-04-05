@@ -96,6 +96,13 @@
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="renameButton">
+            <property name="text">
+             <string>Re&amp;name</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="checkoutButton">
             <property name="text">
              <string>&amp;Checkout</string>

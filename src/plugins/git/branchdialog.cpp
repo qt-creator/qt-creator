@@ -64,6 +64,7 @@ BranchDialog::BranchDialog(QWidget *parent) :
     connect(m_ui->addButton, SIGNAL(clicked()), this, SLOT(add()));
     connect(m_ui->checkoutButton, SIGNAL(clicked()), this, SLOT(checkout()));
     connect(m_ui->removeButton, SIGNAL(clicked()), this, SLOT(remove()));
+    connect(m_ui->renameButton, SIGNAL(clicked()), this, SLOT(rename()));
     connect(m_ui->diffButton, SIGNAL(clicked()), this, SLOT(diff()));
     connect(m_ui->logButton, SIGNAL(clicked()), this, SLOT(log()));
     connect(m_ui->mergeButton, SIGNAL(clicked()), this, SLOT(merge()));
@@ -106,6 +107,7 @@ void BranchDialog::enableButtons()
     const bool currentLocal = m_model->isLocal(m_model->currentBranch());
 
     m_ui->removeButton->setEnabled(hasSelection && !currentSelected && isLocal && isLeaf);
+    m_ui->renameButton->setEnabled(hasSelection && isLocal && isLeaf);
     m_ui->logButton->setEnabled(hasSelection && isLeaf);
     m_ui->diffButton->setEnabled(hasSelection && isLeaf);
     m_ui->checkoutButton->setEnabled(hasSelection && !currentSelected && isLeaf);
@@ -228,6 +230,36 @@ void BranchDialog::remove()
     if (QMessageBox::question(this, tr("Delete Branch"), message, QMessageBox::Yes|QMessageBox::No,
                               wasMerged ? QMessageBox::Yes : QMessageBox::No) == QMessageBox::Yes)
         m_model->removeBranch(selected);
+}
+
+void BranchDialog::rename()
+{
+    QModelIndex selected = selectedIndex();
+    QTC_CHECK(selected != m_model->currentBranch()); // otherwise the button would not be enabled!
+    QTC_CHECK(m_model->isLocal(selected));           // otherwise the button would not be enabled!
+
+    QString oldBranchName = m_model->branchName(selected);
+    QStringList localNames = m_model->localBranchNames();
+
+    QPointer<BranchAddDialog> branchAddDialog = new BranchAddDialog(this, false);
+    branchAddDialog->setBranchName(oldBranchName);
+    branchAddDialog->setTrackedBranchName(QString(), false);
+
+    branchAddDialog->exec();
+
+    if (!branchAddDialog.isNull() && branchAddDialog->result() == QDialog::Accepted && m_model) {
+        if (branchAddDialog->branchName() == oldBranchName)
+            return;
+        if (localNames.contains(branchAddDialog->branchName())) {
+            QMessageBox::critical(this, tr("Branch exists"),
+                                  tr("Local Branch \'%1\' already exists.")
+                                  .arg(branchAddDialog->branchName()));
+            return;
+        }
+        m_model->renameBranch(oldBranchName, branchAddDialog->branchName());
+        refresh();
+    }
+    enableButtons();
 }
 
 void BranchDialog::diff()

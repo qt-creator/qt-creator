@@ -95,11 +95,12 @@ private:
 };
 
 
-BranchAddDialog::BranchAddDialog(QWidget *parent) :
+BranchAddDialog::BranchAddDialog(QWidget *parent, bool addBranch) :
     QDialog(parent),
     m_ui(new Ui::BranchAddDialog)
 {
     m_ui->setupUi(this);
+    setWindowTitle(addBranch ? tr("Add Branch") : tr("Rename Branch"));
     m_ui->branchNameEdit->setValidator(new BranchNameValidator(this));
     connect(m_ui->branchNameEdit, SIGNAL(textChanged(QString)), this, SLOT(updateButtonStatus()));
 }

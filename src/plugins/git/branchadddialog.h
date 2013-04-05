@@ -45,7 +45,7 @@ class BranchAddDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit BranchAddDialog(QWidget *parent = 0);
+    explicit BranchAddDialog(QWidget *parent = 0, bool addBranch = true);
     ~BranchAddDialog();
 
     void setBranchName(const QString &);
