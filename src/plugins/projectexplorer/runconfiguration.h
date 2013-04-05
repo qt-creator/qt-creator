@@ -126,6 +126,7 @@ public:
     virtual ProjectExplorer::Abi abi() const;
 
     void addExtraAspects();
+    void addExtraAspect(IRunConfigurationAspect *aspect);
 
 signals:
     void enabledChanged();

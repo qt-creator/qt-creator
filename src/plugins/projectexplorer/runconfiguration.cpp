@@ -156,9 +156,14 @@ void RunConfiguration::addExtraAspects()
         return;
 
     foreach (IRunControlFactory *factory, ExtensionSystem::PluginManager::getObjects<IRunControlFactory>())
-        if (IRunConfigurationAspect *aspect = factory->createRunConfigurationAspect(this))
-            m_aspects.append(aspect);
+        addExtraAspect(factory->createRunConfigurationAspect(this));
     m_aspectsInitialized = true;
+}
+
+void RunConfiguration::addExtraAspect(IRunConfigurationAspect *aspect)
+{
+    if (aspect)
+        m_aspects += aspect;
 }
 
 void RunConfiguration::ctor()
