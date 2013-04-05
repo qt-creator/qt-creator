@@ -43,6 +43,7 @@
 #include "registerhandler.h"
 #include "stackhandler.h"
 #include "sourceutils.h"
+#include "threadshandler.h"
 #include "watchhandler.h"
 #include "watchutils.h"
 
@@ -360,13 +361,13 @@ void LldbEngine::activateFrame(int frameIndex)
         return;
 
     postCommand("frame select " + QByteArray::number(frameIndex),
-        CB(handleUpdateAll));
+        CB(triggerUpdateAll));
 }
 
 void LldbEngine::selectThread(ThreadId threadId)
 {
     postCommand("thread select " + QByteArray::number(threadId.raw()),
-        CB(handleUpdateAll));
+        CB(triggerUpdateAll));
 }
 
 bool LldbEngine::acceptsBreakpoint(BreakpointModelId id) const
@@ -757,7 +758,7 @@ void LldbEngine::handleFirstCommand(const LldbResponse &response)
     Q_UNUSED(response);
 }
 
-void LldbEngine::handleUpdateAll(const LldbResponse &response)
+void LldbEngine::triggerUpdateAll(const LldbResponse &response)
 {
     Q_UNUSED(response);
     updateAll();
@@ -765,43 +766,53 @@ void LldbEngine::handleUpdateAll(const LldbResponse &response)
 
 void LldbEngine::updateAll()
 {
-    //postCommand("bt", CB(handleBacktrace));
-    updateLocals();
+    updateData(DataKind(LocalsData | StackData | ThreadData));
 }
 
-void LldbEngine::updateLocals()
+void LldbEngine::updateData(DataKind kind)
 {
-    QByteArray watchers;
-    //if (!m_toolTipExpression.isEmpty())
-    //    watchers += m_toolTipExpression.toLatin1()
-    //        + '#' + tooltipINameForExpression(m_toolTipExpression.toLatin1());
+    QByteArray localsOptions;
+    QByteArray stackOptions;
+    QByteArray threadsOptions;
 
-    WatchHandler *handler = watchHandler();
-    QHash<QByteArray, int> watcherNames = handler->watcherNames();
-    QHashIterator<QByteArray, int> it(watcherNames);
-    while (it.hasNext()) {
-        it.next();
-        if (!watchers.isEmpty())
-            watchers += "##";
-        watchers += it.key() + "#watch." + QByteArray::number(it.value());
+    if (kind & LocalsData) {
+        QByteArray watchers;
+        //if (!m_toolTipExpression.isEmpty())
+        //    watchers += m_toolTipExpression.toLatin1()
+        //        + '#' + tooltipINameForExpression(m_toolTipExpression.toLatin1());
+
+        WatchHandler *handler = watchHandler();
+        QHash<QByteArray, int> watcherNames = handler->watcherNames();
+        QHashIterator<QByteArray, int> it(watcherNames);
+        while (it.hasNext()) {
+            it.next();
+            if (!watchers.isEmpty())
+                watchers += "##";
+            watchers += it.key() + "#watch." + QByteArray::number(it.value());
+        }
+
+        QByteArray options;
+        if (debuggerCore()->boolSetting(UseDebuggingHelpers))
+            options += "fancy,";
+        if (debuggerCore()->boolSetting(AutoDerefPointers))
+            options += "autoderef,";
+        if (options.isEmpty())
+            options += "defaults,";
+        options.chop(1);
+
+        localsOptions = "options:" + options + " "
+            + "vars: "
+            + "expanded:" + handler->expansionRequests() + " "
+            + "typeformats:" + handler->typeFormatRequests() + " "
+            + "formats:" + handler->individualFormatRequests() + " "
+            + "watcher:" + watchers.toHex();
     }
 
-    QByteArray options;
-    if (debuggerCore()->boolSetting(UseDebuggingHelpers))
-        options += "fancy,";
-    if (debuggerCore()->boolSetting(AutoDerefPointers))
-        options += "autoderef,";
-    if (options.isEmpty())
-        options += "defaults,";
-    options.chop(1);
-
-    postCommand("script bb('options:" + options + " "
-        + "vars: "
-        + "expanded:" + handler->expansionRequests() + " "
-        + "typeformats:" + handler->typeFormatRequests() + " "
-        + "formats:" + handler->individualFormatRequests() + " "
-        + "watcher:" + watchers.toHex() + "')",
-                CB(handleListLocals));
+    postCommand("script updateData(" + QByteArray::number(kind) + ','
+            + '\'' + localsOptions + "',"
+            + '\'' + stackOptions + "',"
+            + '\'' + threadsOptions + "')",
+                CB(handleUpdateData));
 }
 
 void LldbEngine::handleBacktrace(const LldbResponse &response)
@@ -847,62 +858,69 @@ void LldbEngine::handleBacktrace(const LldbResponse &response)
         gotoLocation(stackFrames.at(currentIndex));
     }
 
-    updateLocals();
+    updateData(LocalsData);
 }
 
-void LldbEngine::handleListLocals(const LldbResponse &response)
+GdbMi LldbEngine::parseFromString(QByteArray out)
+{
+    GdbMi all;
+
+    int pos = out.indexOf("data=");
+    if (pos == -1) {
+        showMessage(_("UNEXPECTED LOCALS OUTPUT:" + out));
+        return all;
+    }
+
+    // The value in 'out' should be single-quoted as this is
+    // what the command line does with strings.
+    if (pos != 1) {
+        showMessage(_("DISCARDING JUNK AT BEGIN OF RESPONSE: "
+            + out.left(pos)));
+    }
+    out = out.mid(pos);
+    if (out.endsWith('\''))
+        out.chop(1);
+    else
+        showMessage(_("JUNK AT END OF RESPONSE: " + out));
+
+    all.fromStringMultiple(out);
+    return all;
+}
+
+void LldbEngine::handleUpdateData(const LldbResponse &response)
 {
     //qDebug() << " LOCALS: '" << response.data << "'";
-    QByteArray out = response.data;
+    GdbMi all = parseFromString(response.data);
 
-    {
-        int pos = out.indexOf("data=");
-        if (pos == -1) {
-            showMessage(_("UNEXPECTED LOCALS OUTPUT:" + out));
-            return;
+    GdbMi vars = all.findChild("data");
+    if (vars.isValid()) {
+        const bool partial = response.cookie.toBool();
+        WatchHandler *handler = watchHandler();
+        QList<WatchData> list;
+
+        if (!partial) {
+            list.append(*handler->findData("local"));
+            list.append(*handler->findData("watch"));
+            list.append(*handler->findData("return"));
         }
 
-        // The value in 'out' should be single-quoted as this is
-        // what the command line does with strings.
-        if (pos != 1) {
-            showMessage(_("DISCARDING JUNK AT BEGIN OF RESPONSE: "
-                + out.left(pos)));
+        foreach (const GdbMi &child, vars.children()) {
+            WatchData dummy;
+            dummy.iname = child.findChild("iname").data();
+            GdbMi wname = child.findChild("wname");
+            if (wname.isValid()) {
+                // Happens (only) for watched expressions. They are encoded as
+                // base64 encoded 8 bit data, without quotes
+                dummy.name = decodeData(wname.data(), Base64Encoded8Bit);
+                dummy.exp = dummy.name.toUtf8();
+            } else {
+                dummy.name = _(child.findChild("name").data());
+            }
+            parseWatchData(handler->expandedINames(), dummy, child, &list);
         }
-        out = out.mid(pos);
-        if (out.endsWith('\''))
-            out.chop(1);
-        else
-            showMessage(_("JUNK AT END OF RESPONSE: " + out));
+        handler->insertData(list);
     }
 
-    GdbMi all;
-    all.fromStringMultiple(out);
-    GdbMi data = all.findChild("data");
-
-    const bool partial = response.cookie.toBool();
-    WatchHandler *handler = watchHandler();
-    QList<WatchData> list;
-
-    if (!partial) {
-        list.append(*handler->findData("local"));
-        list.append(*handler->findData("watch"));
-        list.append(*handler->findData("return"));
-    }
-
-    foreach (const GdbMi &child, data.children()) {
-        WatchData dummy;
-        dummy.iname = child.findChild("iname").data();
-        GdbMi wname = child.findChild("wname");
-        if (wname.isValid()) {
-            // Happens (only) for watched expressions. They are encoded as
-            // base64 encoded 8 bit data, without quotes
-            dummy.name = decodeData(wname.data(), Base64Encoded8Bit);
-            dummy.exp = dummy.name.toUtf8();
-        } else {
-            dummy.name = _(child.findChild("name").data());
-        }
-        parseWatchData(handler->expandedINames(), dummy, child, &list);
-    }
 //    const GdbMi typeInfo = all.findChild("typeinfo");
 //    if (typeInfo.type() == GdbMi::List) {
 //        foreach (const GdbMi &s, typeInfo.children()) {
@@ -919,11 +937,23 @@ void LldbEngine::handleListLocals(const LldbResponse &response)
 //            list[i].size = ti.size;
 //    }
 
-    handler->insertData(list);
+    GdbMi stack = all.findChild("stack");
+    if (stack.isValid()) {
+        //if (!partial)
+        //    emit stackFrameCompleted();
+    }
 
-    //rebuildWatchModel();
-    if (!partial)
-        emit stackFrameCompleted();
+    GdbMi threads = all.findChild("threads");
+    if (threads.isValid()) {
+        ThreadsHandler *handler = threadsHandler();
+        handler->updateThreads(threads);
+        if (!handler->currentThread().isValid()) {
+            ThreadId other = handler->threadAt(0);
+            if (other.isValid())
+                selectThread(other);
+        }
+        updateViews(); // Adjust Threads combobox.
+    }
 }
 
 void LldbEngine::loadPythonDumpers()

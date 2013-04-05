@@ -121,10 +121,13 @@ private:
     Q_SLOT void handleOutput2(const QByteArray &data);
     void handleResponse(const QByteArray &ba);
 
+    enum DataKind { LocalsData = 1, StackData = 2, ThreadData = 4 };
+
     void loadPythonDumpers();
     void updateAll();
-    void updateLocals();
-    void handleUpdateAll(const LldbResponse &response);
+    void updateData(DataKind kind);
+    void triggerUpdateAll(const LldbResponse &response);
+    void handleUpdateData(const LldbResponse &response);
     void handleFirstCommand(const LldbResponse &response);
     void handleExecuteDebuggerCommand(const LldbResponse &response);
     void handleInferiorSetup(const LldbResponse &response);
@@ -152,6 +155,8 @@ private:
     void handleListModules(const LldbResponse &response);
     void handleListSymbols(const LldbResponse &response);
     void handleBreakInsert(const LldbResponse &response);
+    void handleUpdateStack(const LldbResponse &response);
+    void handleUpdateThreads(const LldbResponse &response);
 
     void handleChildren(const WatchData &data0, const GdbMi &item,
         QList<WatchData> *list);
@@ -160,6 +165,7 @@ private:
                      const char *callbackName = 0,
                      const QVariant &cookie = QVariant());
     void postDirectCommand(const QByteArray &command);
+    GdbMi parseFromString(QByteArray out);
 
     QQueue<LldbCommand> m_commands;
 

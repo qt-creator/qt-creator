@@ -559,6 +559,53 @@ try:
     def fieldCount(type):
         return type.fieldCount();
 
+    def threadsData(threadsOptions):
+        result = "threads={threads=["
+        for i in range(lldb.process.num_threads):
+            thread = lldb.process.GetThreadAtIndex(i)
+            result += "{id=\"%d\"" % thread.id
+            result += ",target-id=\"%s\"" % thread.id
+            result += ",stop-reason=\"%s\"" % thread.stop_reason
+
+            if thread.IsSuspended():
+                result += ",state=\"stopped\""
+            else:
+                result += ",state=\"running\""
+
+            if not thread.name is None:
+                result += ",name=\"%s\"" % thread.name
+
+            result += ",frame={"
+            frame = thread.GetFrameAtIndex(0)
+            result += "pc=\"%s\"" % frame.pc
+            result += ",level=\"%d\"" % i
+            result += ",addr=\"%s\"" % frame.pc
+            result += ",fp=\"%s\"" % frame.fp
+            result += ",func=\"%s\"" % frame.function.name
+            result += ",line=\"%s\"" % frame.line_entry.line
+            result += ",fullname=\"%s\"" % frame.line_entry.file
+            result += ",file=\"%s\"" % frame.line_entry.file
+            result += "}},"
+
+        result += "],current-thread-id=\"%s\"}" % lldb.process.GetSelectedThread().id
+        return result
+
+    def stackData(stackOptions):
+        result = "stack=["
+        result += "],"
+        return result
+
+    def updateData(parts, localsOptions, stackOptions, threadsOptions):
+        result = "";
+        if parts & 1:
+            result += bb(localsOptions) + ','
+        if parts & 2:
+            result += stackData(stackOptions)
+        if parts & 4:
+            result += threadsData(threadsOptions)
+        return result
+
+
 except:
     #warn("LOADING LLDB FAILED")
     pass
