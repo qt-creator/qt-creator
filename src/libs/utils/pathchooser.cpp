@@ -231,6 +231,7 @@ QString PathChooserPrivate::expandedPath(const QString &input) const
     case PathChooser::Directory:
     case PathChooser::ExistingDirectory:
     case PathChooser::File:
+    case PathChooser::SaveFile:
         if (!m_baseDirectory.isEmpty() && QFileInfo(path).isRelative())
             return QFileInfo(m_baseDirectory + QLatin1Char('/') + path).absoluteFilePath();
         break;
@@ -382,6 +383,11 @@ void PathChooser::slotBrowse()
                 makeDialogTitle(tr("Choose File")), predefined,
                 d->m_dialogFilter);
         break;
+    case PathChooser::SaveFile:
+        newPath = QFileDialog::getSaveFileName(this,
+                makeDialogTitle(tr("Choose File")), predefined,
+                d->m_dialogFilter);
+        break;
     case PathChooser::Any: {
         QFileDialog dialog(this);
         dialog.setFileMode(QFileDialog::AnyFile);
@@ -469,6 +475,13 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
             return false;
         }
         break;
+    case PathChooser::SaveFile:
+        if (!fi.absoluteDir().exists()) {
+            if (errorMessage)
+                *errorMessage = tr("The directory '%1' does not exist.").arg(QDir::toNativeSeparators(fi.absolutePath()));
+            return false;
+        }
+        break;
     case PathChooser::ExistingCommand:
         if (!fi.exists()) {
             if (errorMessage)
@@ -514,6 +527,14 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
         if (!fi.isFile()) {
             if (errorMessage)
                 *errorMessage = tr("The path <b>%1</b> is not a file.").arg(QDir::toNativeSeparators(expandedPath));
+            return false;
+        }
+        break;
+
+    case PathChooser::SaveFile:
+        if (fi.exists() && fi.isDir()) {
+            if (errorMessage)
+                *errorMessage = tr("The path <b>%1</b> is not a file.").arg(QDir::toNativeSeparators(fi.absolutePath()));
             return false;
         }
         break;
