@@ -1530,6 +1530,7 @@ public:
     int logicalCursorColumn() const; // as visible on screen
     int physicalToLogicalColumn(int physical, const QString &text) const;
     int logicalToPhysicalColumn(int logical, const QString &text) const;
+    int windowScrollOffset() const; // return scrolloffset but max half the current window height
     Column cursorColumn() const; // as visible on screen
     int firstVisibleLine() const;
     void setScrollBarValue(int line);
@@ -1577,6 +1578,8 @@ public:
     void moveBehindEndOfLine();
     void moveUp(int n = 1) { moveDown(-n); }
     void moveDown(int n = 1);
+    void movePageDown(int count);
+    void movePageUp(int count) { movePageDown(-count); }
     void dump(const char *msg) const {
         qDebug() << msg << "POS: " << anchor() << position()
             << "EXT: " << m_oldExternalAnchor << m_oldExternalPosition
@@ -2690,6 +2693,20 @@ void FakeVimHandler::Private::moveDown(int n)
     updateScrollOffset();
 }
 
+void FakeVimHandler::Private::movePageDown(int count)
+{
+    const int scrollOffset = windowScrollOffset();
+    const int screenLines = linesOnScreen();
+    const int offset = count > 0 ? scrollOffset - 2 : screenLines - scrollOffset + 2;
+    const int value = count * screenLines - cursorLineOnScreen() + offset;
+    moveDown(value);
+
+    if (count > 0)
+        scrollToLine(cursorLine());
+    else
+        scrollToLine(qMax(0, cursorLine() - screenLines));
+}
+
 bool FakeVimHandler::Private::moveToNextParagraph(int count)
 {
     const bool forward = count > 0;
@@ -3465,13 +3482,11 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
     } else if (input.is(']')) {
         m_subsubmode = CloseSquareSubSubMode;
     } else if (input.isKey(Key_PageDown) || input.isControl('f')) {
-        moveDown(count * (linesOnScreen() - 2));
-        scrollToLine(cursorLine());
+        movePageDown(count);
         handleStartOfLine();
         movement = _("f");
     } else if (input.isKey(Key_PageUp) || input.isControl('b')) {
-        moveUp(count * (linesOnScreen() - 2));
-        scrollToLine(qMax(0, cursorLine() - linesOnScreen()));
+        movePageUp(count);
         handleStartOfLine();
         movement = _("b");
     } else if (input.isKey(Key_BracketLeft) || input.isKey(Key_BracketRight)) {
@@ -4467,10 +4482,10 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         }
     } else if (input.isKey(Key_PageDown) || input.isControl('f')) {
         removeAutomaticIndentation();
-        moveDown(count() * (linesOnScreen() - 2));
+        movePageDown(count());
     } else if (input.isKey(Key_PageUp) || input.isControl('b')) {
         removeAutomaticIndentation();
-        moveUp(count() * (linesOnScreen() - 2));
+        movePageUp(count());
     } else if (input.isKey(Key_Tab)) {
         m_justAutoIndented = 0;
         if (hasConfig(ConfigExpandTab)) {
@@ -6148,7 +6163,7 @@ int FakeVimHandler::Private::linesOnScreen() const
     if (!editor())
         return 1;
     QRect rect = EDITOR(cursorRect());
-    return EDITOR(height()) / rect.height();
+    return EDITOR(viewport()->height()) / rect.height();
 }
 
 int FakeVimHandler::Private::columnsOnScreen() const
@@ -6157,7 +6172,7 @@ int FakeVimHandler::Private::columnsOnScreen() const
         return 1;
     QRect rect = EDITOR(cursorRect());
     // qDebug() << "WID: " << EDITOR(width()) << "RECT: " << rect;
-    return EDITOR(width()) / rect.width();
+    return EDITOR(viewport()->width()) / rect.width();
 }
 
 int FakeVimHandler::Private::cursorLine() const
@@ -6211,6 +6226,11 @@ int FakeVimHandler::Private::logicalToPhysicalColumn
     return physical;
 }
 
+int FakeVimHandler::Private::windowScrollOffset() const
+{
+    return qMin(theFakeVimSetting(ConfigScrollOff)->value().toInt(), linesOnScreen() / 2);
+}
+
 int FakeVimHandler::Private::logicalCursorColumn() const
 {
     const int physical = physicalCursorColumn();
@@ -6227,10 +6247,7 @@ int FakeVimHandler::Private::linesInDocument() const
 {
     if (cursor().isNull())
         return 0;
-    const int count = document()->blockCount();
-    // Qt inserts an empty line if the last character is a '\n',
-    // but that's not how vi does it.
-    return document()->lastBlock().length() <= 1 ? count - 1 : count;
+    return document()->blockCount();
 }
 
 void FakeVimHandler::Private::setScrollBarValue(int line)
@@ -6271,17 +6288,16 @@ void FakeVimHandler::Private::scrollUp(int count)
 void FakeVimHandler::Private::updateScrollOffset()
 {
     // Precision of scroll offset depends on singleStep property of vertical scroll bar.
-    const int screenLines = linesOnScreen();
-    const int offset = qMin(theFakeVimSetting(ConfigScrollOff)->value().toInt(), screenLines / 2);
+    const int offset = windowScrollOffset();
     const int line = cursorLine();
     const int scrollLine = firstVisibleLine();
     int d = line - scrollLine;
-    if (d < offset) {
+    if (d <= offset) {
         setScrollBarValue(scrollLine - offset + d);
     } else {
-        d = screenLines - d;
+        d = linesOnScreen() - d;
         if (d <= offset)
-            setScrollBarValue(scrollLine + offset - d);
+            setScrollBarValue(scrollLine + offset - d + 1);
     }
 }
 

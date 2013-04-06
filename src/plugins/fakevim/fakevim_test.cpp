@@ -2487,7 +2487,7 @@ void FakeVimPlugin::test_vim_command_dgg()
     setup(&data);
 
     data.setText(testLines);
-    KEYS("G",    lmid(0, l.size()-2)+'\n' +  '|'+lmid(l.size()-2));
+    KEYS("Gk",   lmid(0, l.size()-2)+'\n' +  '|'+lmid(l.size()-2));
     KEYS("dgg",  "|");
     KEYS("u",    '|' + lmid(0));
 }
@@ -2501,9 +2501,9 @@ void FakeVimPlugin::test_vim_command_dG()
     KEYS("dG",   "|");
     KEYS("u",    '|' + lmid(0));
     KEYS("j",    cursor(1, 0));
-    KEYS("dG",   lmid(0,1)+'\n' + '|');
+    KEYS("dG",   "|");
     KEYS("u",    l[0]+'\n' + '|' + lmid(1));
-    KEYS("G",    lmid(0, l.size()-2)+'\n' + '|'+lmid(l.size()-2));
+    KEYS("Gk",   lmid(0, l.size()-2)+'\n' + '|'+lmid(l.size()-2));
 
     NOT_IMPLEMENTED
     // include movement to first column, as otherwise the result depends on the 'startofline' setting
@@ -2776,7 +2776,7 @@ void FakeVimPlugin::test_vim_command_Gyyp()
     setup(&data);
 
     data.setText(testLines);
-    KEYS("G",   lmid(0, l.size()-2) + "\n|" + lmid(l.size()-2));
+    KEYS("Gk",  lmid(0, l.size()-2) + "\n|" + lmid(l.size()-2));
     KEYS("yyp", lmid(0) + '|' + lmid(9, 1)+'\n');
 }
 
@@ -2833,10 +2833,9 @@ void FakeVimPlugin::test_vim_command_oO()
     KEYS("Ol1<Esc>",    "l|1\n" + lmid(0));
     KEYS("gg",              "|l1\n" + lmid(0));
     KEYS("ol2<Esc>",    "l1\n" "l|2\n" + lmid(0));
-    KEYS("G",               "l1\n" "l2\n" + lmid(0,l.size()-2)+'\n' + '|'+lmid(l.size()-2));
-    KEYS("G$",              "l1\n" "l2\n" + lmid(0,l.size()-2)+'\n' + '|'+lmid(l.size()-2));
+    KEYS("Gk$",         "l1\n" "l2\n" + lmid(0,l.size()-2)+'\n' + '|'+lmid(l.size()-2));
     KEYS("ol-1<Esc>",   "l1\n" "l2\n" + lmid(0) + "l-|1\n");
-    KEYS("G",               "l1\n" "l2\n" + lmid(0) + "|l-1\n");
+    KEYS("Gk",          "l1\n" "l2\n" + lmid(0) + "|l-1\n");
     KEYS("Ol-2<Esc>",   "l1\n" "l2\n" + lmid(0) + "l-|2\n" + "l-1\n");
 }
 
