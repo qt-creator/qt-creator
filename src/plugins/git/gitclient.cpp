@@ -1120,7 +1120,7 @@ bool GitClient::synchronousRevListCmd(const QString &workingDirectory, const QSt
     QByteArray errorText;
 
     QStringList args(QLatin1String("rev-list"));
-    args += arguments;
+    args << QLatin1String(noColorOption) << arguments;
 
     const bool rc = fullySynchronousGit(workingDirectory, args, &outputTextData, &errorText);
     if (!rc) {
@@ -1151,8 +1151,7 @@ bool GitClient::synchronousParentRevisions(const QString &workingDirectory,
         *parents = QStringList(QLatin1String("HEAD"));
         return true;
     }
-    arguments << QLatin1String("rev-list") << QLatin1String(GitClient::noColorOption)
-              << QLatin1String("--parents") << QLatin1String("--max-count=1") << revision;
+    arguments << QLatin1String("--parents") << QLatin1String("--max-count=1") << revision;
     if (!files.isEmpty()) {
         arguments.append(QLatin1String("--"));
         arguments.append(files);
