@@ -641,7 +641,8 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
 
             if (s->asNamespaceAlias() && binding) {
                 ClassOrNamespace *targetNamespaceBinding = binding->lookupType(name);
-                if (targetNamespaceBinding && targetNamespaceBinding->symbols().size() == 1) {
+                //there can be many namespace definitions
+                if (targetNamespaceBinding && targetNamespaceBinding->symbols().size() > 0) {
                     Symbol *resolvedSymbol = targetNamespaceBinding->symbols().first();
                     item.setType(resolvedSymbol->type()); // override the type
                 }
