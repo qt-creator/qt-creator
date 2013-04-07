@@ -335,8 +335,14 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
         if (name->identifier() != 0 && scope->isBlock()) {
             bindings()->lookupInScope(name, scope, &candidates, /*templateId = */ 0, /*binding=*/ 0);
 
-            if (! candidates.isEmpty())
-                break; // it's a local.
+            if (! candidates.isEmpty()) {
+                // it's a local.
+                //for qualified it can be outside of the local scope
+                if (name->isQualifiedNameId())
+                    continue;
+                else
+                    break;
+            }
 
             for (unsigned i = 0; i < scope->memberCount(); ++i) {
                 if (UsingNamespaceDirective *u = scope->memberAt(i)->asUsingNamespaceDirective()) {
@@ -352,8 +358,14 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
         } else if (Function *fun = scope->asFunction()) {
             bindings()->lookupInScope(name, fun, &candidates, /*templateId = */ 0, /*binding=*/ 0);
 
-            if (! candidates.isEmpty())
-                break; // it's an argument or a template parameter.
+            if (! candidates.isEmpty()) {
+                // it's an argument or a template parameter.
+                //for qualified it can be outside of the local scope
+                if (name->isQualifiedNameId())
+                    continue;
+                else
+                    break;
+            }
 
             if (fun->name() && fun->name()->isQualifiedNameId()) {
                 if (ClassOrNamespace *binding = bindings()->lookupType(fun)) {
@@ -379,8 +391,14 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
         } else if (Template *templ = scope->asTemplate()) {
             bindings()->lookupInScope(name, templ, &candidates, /*templateId = */ 0, /*binding=*/ 0);
 
-            if (! candidates.isEmpty())
-                return candidates;  // it's a template parameter.
+            if (! candidates.isEmpty()) {
+                // it's a template parameter.
+                //for qualified it can be outside of the local scope
+                if (name->isQualifiedNameId())
+                    continue;
+                else
+                    break;
+            }
 
         } else if (scope->asNamespace()
                    || scope->asClass()

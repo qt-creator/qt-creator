@@ -1240,6 +1240,7 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
 {
     unsigned startToken = ast->firstToken();
     bool isDestructor = false;
+    bool isConstructor = false;
     if (DestructorNameAST *dtor = ast->asDestructorName()) {
         isDestructor = true;
         if (dtor->unqualified_name)
@@ -1263,6 +1264,8 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
         // We don't want to compare destructors with something else or the other way around.
         if (isDestructor != c->name()->isDestructorNameId())
             continue;
+
+        isConstructor = isConstructorDeclaration(c);
 
         Function *funTy = c->type()->asFunctionType();
         if (! funTy) {
@@ -1296,7 +1299,9 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
     }
 
     if (matchType != Match_None) {
+        // decide how constructor and destructor should be highlighted
         if (highlightCtorDtorAsType
+                && (isConstructor || isDestructor)
                 && maybeType(ast->name)
                 && kind == SemanticInfo::FunctionUse) {
             return false;
@@ -1398,4 +1403,13 @@ void CheckSymbols::flush()
     int cap = _usages.capacity();
     _usages.clear();
     _usages.reserve(cap);
+}
+
+bool CheckSymbols::isConstructorDeclaration(Symbol *declaration)
+{
+    Class *clazz = declaration->enclosingClass();
+    if (clazz && clazz->name())
+        return declaration->name()->isEqualTo(clazz->name());
+
+    return false;
 }

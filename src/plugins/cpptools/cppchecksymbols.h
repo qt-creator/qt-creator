@@ -165,6 +165,8 @@ protected:
     void flush();
 
 private:
+    bool isConstructorDeclaration(Symbol *declaration);
+
     Document::Ptr _doc;
     LookupContext _context;
     TypeOfExpression typeOfExpression;
