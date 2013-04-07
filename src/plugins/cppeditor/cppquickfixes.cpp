@@ -1606,20 +1606,63 @@ public:
         CppRefactoringChanges refactoring(snapshot());
         CppRefactoringFilePtr file = refactoring.file(fileName());
 
-        // find location of last include in file
         QList<Document::Include> includes = file->cppDocument()->includes();
-        unsigned lastIncludeLine = 0;
-        foreach (const Document::Include &include, includes) {
-            if (include.line() > lastIncludeLine)
-                lastIncludeLine = include.line();
-        }
+        if (includes.isEmpty()) {
+            // No includes, find possible first/multi line comment
+            int insertPos = 0;
+            QTextBlock block = file->document()->firstBlock();
+            while (block.isValid()) {
+                const QString trimmedText = block.text().trimmed();
 
-        // add include
-        const int insertPos = file->position(lastIncludeLine + 1, 1) - 1;
-        ChangeSet changes;
-        changes.insert(insertPos, QLatin1String("\n#include ") + m_include);
-        file->setChangeSet(changes);
-        file->apply();
+                // Only skip the first comment!
+                if (trimmedText.startsWith(QLatin1String("/*"))) {
+                    do {
+                        const int pos = block.text().indexOf(QLatin1String("*/"));
+                        if (pos > -1) {
+                            insertPos = block.position() + pos + 2;
+                            break;
+                        }
+                        block = block.next();
+                    } while (block.isValid());
+                    break;
+                } else if (trimmedText.startsWith(QLatin1String("//"))) {
+                    block = block.next();
+                    while (block.isValid()) {
+                        if (!block.text().trimmed().startsWith(QLatin1String("//"))) {
+                            insertPos = block.position() - 1;
+                            break;
+                        }
+                        block = block.next();
+                    }
+                    break;
+                }
+
+                if (!trimmedText.isEmpty())
+                    break;
+                block = block.next();
+            }
+
+            ChangeSet changes;
+            if (insertPos != 0)
+                changes.insert(insertPos, QLatin1String("\n\n#include ") + m_include);
+            else
+                changes.insert(insertPos, QString::fromLatin1("#include %1\n\n").arg(m_include));
+            file->setChangeSet(changes);
+            file->apply();
+        } else {
+            // find location of last include in file
+            unsigned lastIncludeLine = 0;
+            foreach (const Document::Include &include, includes) {
+                if (include.line() > lastIncludeLine)
+                    lastIncludeLine = include.line();
+            }
+
+            const int insertPos = qMax(0, file->position(lastIncludeLine + 1, 1) - 1);
+            ChangeSet changes;
+            changes.insert(insertPos, QLatin1String("\n#include ") + m_include);
+            file->setChangeSet(changes);
+            file->apply();
+        }
     }
 
 private:

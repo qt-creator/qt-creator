@@ -881,3 +881,165 @@ void CppPlugin::test_quickfix_InsertDefFromDecl_freeFunction()
     TestCase data(original, expected);
     data.run(&factory);
 }
+
+/// Check normal add include if there is already a include
+void CppPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_normal()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "class Foo {};\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"someheader.h\"\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    Fo@o foo;\n"
+        "}\n"
+        ;
+    expected =
+        "#include \"someheader.h\"\n"
+        "#include \"file.h\"\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    Foo foo;\n"
+        "}\n"
+        "\n"
+        ;
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    AddIncludeForUndefinedIdentifier factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check add include if no include is present
+void CppPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noinclude()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "class Foo {};\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "void f()\n"
+        "{\n"
+        "    Fo@o foo;\n"
+        "}\n"
+        ;
+    expected =
+        "#include \"file.h\"\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    Foo foo;\n"
+        "}\n"
+        "\n"
+        ;
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    AddIncludeForUndefinedIdentifier factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check add include if no include is present with comment on top
+void CppPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment01()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "class Foo {};\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "\n"
+        "// comment\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    Fo@o foo;\n"
+        "}\n"
+        ;
+    expected =
+        "\n"
+        "// comment\n"
+        "\n"
+        "#include \"file.h\"\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    Foo foo;\n"
+        "}\n"
+        "\n"
+        ;
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    AddIncludeForUndefinedIdentifier factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+/// Check add include if no include is present with comment on top
+void CppPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment02()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "class Foo {};\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "\n"
+        "/*\n"
+        " comment\n"
+        " */\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    Fo@o foo;\n"
+        "}\n"
+        ;
+    expected =
+        "\n"
+        "/*\n"
+        " comment\n"
+        " */\n"
+        "\n"
+        "#include \"file.h\"\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    Foo foo;\n"
+        "}\n"
+        "\n"
+        ;
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    AddIncludeForUndefinedIdentifier factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
