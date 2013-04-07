@@ -1957,7 +1957,8 @@ void FakeVimPlugin::test_vim_substitute()
     data.setText("abc" N "def" N "ghi" N "jkl");
     KEYS("jVj:s/^/*<CR>", "abc" N "*def" N X "*ghi" N "jkl");
     COMMAND("'<,'>s/^/*", "abc" N "**def" N X "**ghi" N "jkl");
-    KEYS("ugv:s/^/+<CR>", "abc" N "+*def" N X "+*ghi" N "jkl");
+    KEYS("u", "abc" N X "*def" N "*ghi" N "jkl");
+    KEYS("gv:s/^/+<CR>", "abc" N "+*def" N X "+*ghi" N "jkl");
 }
 
 void FakeVimPlugin::test_vim_ex_yank()
