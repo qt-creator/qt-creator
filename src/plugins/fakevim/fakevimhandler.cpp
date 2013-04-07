@@ -1751,6 +1751,7 @@ public:
     void transformText(const Range &range, Transformation transformation,
         const QVariant &extraData = QVariant());
 
+    void insertText(QTextCursor &tc, const QString &text);
     void insertText(const Register &reg);
     void removeText(const Range &range);
     void removeTransform(TransformationData *td);
@@ -3831,9 +3832,11 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         beginEditBlock();
         if (appendLine) {
             setPosition(lastPositionInLine(line));
+            setAnchor();
             insertNewLine();
         } else {
             setPosition(firstPositionInLine(line));
+            setAnchor();
             insertNewLine();
             moveUp();
         }
@@ -6433,7 +6436,7 @@ void FakeVimHandler::Private::transformText(const Range &range,
             tc.setPosition(range.endPos, KeepAnchor);
             TransformationData td(tc.selectedText(), extra);
             (this->*transformFunc)(&td);
-            tc.insertText(td.to);
+            insertText(tc, td.to);
             endEditBlock();
             break;
         }
@@ -6464,7 +6467,7 @@ void FakeVimHandler::Private::transformText(const Range &range,
             TransformationData td(tc.selectedText(), extra);
             (this->*transformFunc)(&td);
             posAfter = tc.anchor();
-            tc.insertText(td.to);
+            insertText(tc, td.to);
             endEditBlock();
             break;
         }
@@ -6487,7 +6490,7 @@ void FakeVimHandler::Private::transformText(const Range &range,
                 tc.setPosition(block.position() + eCol, KeepAnchor);
                 TransformationData td(tc.selectedText(), extra);
                 (this->*transformFunc)(&td);
-                tc.insertText(td.to);
+                insertText(tc, td.to);
                 block = block.previous();
             }
             endEditBlock();
@@ -6497,6 +6500,30 @@ void FakeVimHandler::Private::transformText(const Range &range,
 
     setPosition(posAfter);
     setTargetColumn();
+}
+
+void FakeVimHandler::Private::insertText(QTextCursor &tc, const QString &text)
+{
+  if (hasConfig(ConfigPassKeys)) {
+      QTextCursor oldTc = cursor();
+      setCursor(tc);
+      EDITOR(setOverwriteMode(false));
+
+      if (tc.hasSelection() && text.isEmpty()) {
+          QKeyEvent event(QEvent::KeyPress, Qt::Key_Delete, Qt::NoModifier, QString());
+          passEventToEditor(event);
+      }
+
+      foreach (QChar c, text) {
+          QKeyEvent event(QEvent::KeyPress, -1, Qt::NoModifier, QString(c));
+          passEventToEditor(event);
+      }
+
+      updateCursorShape();
+      setCursor(oldTc);
+  } else {
+      tc.insertText(text);
+  }
 }
 
 void FakeVimHandler::Private::insertText(const Register &reg)
@@ -6800,12 +6827,15 @@ QString FakeVimHandler::Private::guessInsertCommand(int pos1, int pos2, int len1
 
                 const int up = document()->findBlock(pos2).blockNumber()
                         - document()->findBlock(pos1).blockNumber();
-                if (up > 0)
+                if (up > 0) {
                     insert.append(QString(_("<UP>")).repeated(up));
-                insert.append(_("<END>"));
-                const int right = rightDist();
-                if (right > 0)
-                    insert.append(QString(_("<LEFT>")).repeated(right));
+                    insert.append(_("<END>"));
+                    const int right = rightDist();
+                    if (right > 0)
+                        insert.append(QString(_("<LEFT>")).repeated(right));
+                } else {
+                    insert.append(QString(_("<LEFT>")).repeated(rest));
+                }
             }
         }
     } else {
