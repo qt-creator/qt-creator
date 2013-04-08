@@ -41,15 +41,17 @@ class LayerItem;
 class ResizeHandleItem;
 
 class ResizeControllerData;
+class WeakResizeController;
+
 
 class ResizeController
 {
+    friend class WeakResizeController;
 public:
-    friend class ResizeHandleItem;
-
     ResizeController();
     ResizeController(LayerItem *layerItem, FormEditorItem *formEditorItem);
     ResizeController(const ResizeController &resizeController);
+    ResizeController(const WeakResizeController &resizeController);
     ~ResizeController();
 
     ResizeController& operator=(const ResizeController &other);
@@ -73,11 +75,30 @@ public:
     bool isRightHandle(const ResizeHandleItem *handle) const;
     bool isBottomHandle(const ResizeHandleItem *handle) const;
 
+    WeakResizeController toWeakResizeController() const;
+
+
 private: // functions
     ResizeController(const QSharedPointer<ResizeControllerData> &data);
-    QWeakPointer<ResizeControllerData> weakPointer() const;
 private: // variables
     QSharedPointer<ResizeControllerData> m_data;
+};
+
+class WeakResizeController
+{
+    friend class ResizeController;
+public:
+    WeakResizeController();
+    WeakResizeController(const WeakResizeController &resizeController);
+    WeakResizeController(const ResizeController &resizeController);
+    ~WeakResizeController();
+
+    WeakResizeController& operator=(const WeakResizeController &other);
+
+    ResizeController toResizeController() const;
+
+private: // variables
+    QWeakPointer<ResizeControllerData> m_data;
 };
 
 }

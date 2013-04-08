@@ -36,12 +36,16 @@ namespace QmlDesigner {
 
 ResizeHandleItem::ResizeHandleItem(QGraphicsItem *parent, const ResizeController &resizeController)
     : QGraphicsPixmapItem(QPixmap(":/icon/handle/resize_handle.png"), parent),
-    m_resizeControllerData(resizeController.weakPointer())
+    m_weakResizeController(resizeController.toWeakResizeController())
 {
     setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
     setOffset(-pixmap().rect().center());
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
+}
+
+ResizeHandleItem::~ResizeHandleItem()
+{
 }
 
 void ResizeHandleItem::setHandlePosition(const QPointF & globalPosition, const QPointF & itemSpacePosition)
@@ -62,8 +66,7 @@ QPainterPath ResizeHandleItem::shape() const
 
 ResizeController ResizeHandleItem::resizeController() const
 {
-    Q_ASSERT(!m_resizeControllerData.isNull());
-    return ResizeController(m_resizeControllerData.toStrongRef());
+    return ResizeController(m_weakResizeController.toResizeController());
 }
 
 ResizeHandleItem* ResizeHandleItem::fromGraphicsItem(QGraphicsItem *item)
