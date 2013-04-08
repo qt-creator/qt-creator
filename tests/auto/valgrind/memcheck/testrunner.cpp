@@ -45,6 +45,13 @@
 const QString appSrcDir(TESTRUNNER_SRC_DIR);
 const QString appBinDir(TESTRUNNER_APP_DIR);
 
+#define HEADER_LENGTH 29
+
+bool on64bit()
+{
+    return sizeof(char*) == 8;
+}
+
 QString srcDirForApp(const QString &app)
 {
     return appSrcDir + QDir::separator() + app;
@@ -151,12 +158,15 @@ void TestRunner::testLeak1()
     QCOMPARE(stack.frames().count(), 2);
     {
         const Frame frame = stack.frames().at(0);
-        QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned long)"));
+        if (on64bit())
+            QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned long)"));
+        else
+            QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned int)"));
     }
     {
         const Frame frame = stack.frames().at(1);
         QCOMPARE(frame.functionName(), QLatin1String("main"));
-        QCOMPARE(frame.line(), 5);
+        QCOMPARE(frame.line(), 5 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
         QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -169,7 +179,6 @@ void TestRunner::testLeak2()
     const QString binary = runTestBinary(QLatin1String("leak2/leak2"));
 
     QVERIFY(m_logMessages.isEmpty());
-
     QCOMPARE(m_errors.count(), 1);
     const Error error = m_errors.first();
     QCOMPARE(error.kind(), int(Leak_PossiblyLost));
@@ -189,12 +198,16 @@ void TestRunner::testLeak2()
     }
     {
         const Frame frame = stack.frames().at(2);
-        QCOMPARE(frame.functionName(), QLatin1String("main"));
-        QCOMPARE(frame.line(), 7);
+        if (on64bit()) {
+            QCOMPARE(frame.functionName(), QLatin1String("main"));
+            QCOMPARE(frame.line(), 7 + HEADER_LENGTH);
 
-        QCOMPARE(frame.object(), binary);
-        QCOMPARE(frame.file(), QLatin1String("main.cpp"));
-        QCOMPARE(QDir::cleanPath(frame.directory()), srcDirForApp("leak2"));
+            QCOMPARE(frame.object(), binary);
+            QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+            QCOMPARE(QDir::cleanPath(frame.directory()), srcDirForApp("leak2"));
+        } else {
+           QCOMPARE(frame.functionName(), QLatin1String("(below main)"));
+        }
     }
 }
 
@@ -223,12 +236,16 @@ void TestRunner::testLeak3()
     }
     {
         const Frame frame = stack.frames().at(2);
-        QCOMPARE(frame.functionName(), QLatin1String("main"));
-        QCOMPARE(frame.line(), 7);
+        if (on64bit()) {
+            QCOMPARE(frame.functionName(), QLatin1String("main"));
+            QCOMPARE(frame.line(), 7 + HEADER_LENGTH);
 
-        QCOMPARE(frame.object(), binary);
-        QCOMPARE(frame.file(), QLatin1String("main.cpp"));
-        QCOMPARE(QDir::cleanPath(frame.directory()), srcDirForApp("leak3"));
+            QCOMPARE(frame.object(), binary);
+            QCOMPARE(frame.file(), QLatin1String("main.cpp"));
+            QCOMPARE(QDir::cleanPath(frame.directory()), srcDirForApp("leak3"));
+        } else {
+            QCOMPARE(frame.functionName(), QLatin1String("(below main)"));
+        }
     }
 }
 
@@ -254,21 +271,15 @@ void TestRunner::testLeak4()
     QCOMPARE(stack.frames().count(), 3);
     {
         const Frame frame = stack.frames().at(0);
-        QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned long)"));
-    }
-    {
-        const Frame frame = stack.frames().at(2);
-        QCOMPARE(frame.functionName(), QLatin1String("main"));
-        QCOMPARE(frame.line(), 14);
-
-        QCOMPARE(frame.object(), binary);
-        QCOMPARE(frame.file(), QLatin1String("main.cpp"));
-        QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
+        if (on64bit())
+            QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned long)"));
+        else
+            QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned int)"));
     }
     {
         const Frame frame = stack.frames().at(1);
         QCOMPARE(frame.functionName(), QLatin1String("Foo::Foo()"));
-        QCOMPARE(frame.line(), 6);
+        QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
         QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -277,7 +288,7 @@ void TestRunner::testLeak4()
     {
         const Frame frame = stack.frames().at(2);
         QCOMPARE(frame.functionName(), QLatin1String("main"));
-        QCOMPARE(frame.line(), 14);
+        QCOMPARE(frame.line(), 14 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
         QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -289,19 +300,25 @@ void TestRunner::testLeak4()
     const Error error = m_errors.last();
     QCOMPARE(error.kind(), int(Leak_DefinitelyLost));
     QCOMPARE(error.leakedBlocks(), qint64(1));
-    QCOMPARE(error.leakedBytes(), quint64(16));
+    if (on64bit())
+        QCOMPARE(error.leakedBytes(), quint64(16));
+    else
+        QCOMPARE(error.leakedBytes(), quint64(12));
     QCOMPARE(error.stacks().count(), 1);
     const Stack stack = error.stacks().first();
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 2);
     {
         const Frame frame = stack.frames().at(0);
-        QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned long)"));
+        if (on64bit())
+            QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned long)"));
+        else
+            QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned int)"));
     }
     {
         const Frame frame = stack.frames().at(1);
         QCOMPARE(frame.functionName(), QLatin1String("main"));
-        QCOMPARE(frame.line(), 14);
+        QCOMPARE(frame.line(), 14 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
         QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -330,7 +347,7 @@ void TestRunner::uninit1()
 
     const Frame frame = stack.frames().first();
     QCOMPARE(frame.functionName(), QLatin1String("main"));
-    QCOMPARE(frame.line(), 4);
+    QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
     QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -344,7 +361,7 @@ void TestRunner::uninit1()
 
     const Frame frame = stack.frames().first();
     QCOMPARE(frame.functionName(), QLatin1String("main"));
-    QCOMPARE(frame.line(), 2);
+    QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
     QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -375,7 +392,7 @@ void TestRunner::uninit2()
 
     const Frame frame = stack.frames().first();
     QCOMPARE(frame.functionName(), QLatin1String("main"));
-    QCOMPARE(frame.line(), 4);
+    QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
     QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -389,7 +406,7 @@ void TestRunner::uninit2()
 
     const Frame frame = stack.frames().first();
     QCOMPARE(frame.functionName(), QLatin1String("main"));
-    QCOMPARE(frame.line(), 2);
+    QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
     QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -408,7 +425,7 @@ void TestRunner::uninit2()
 
     const Frame frame = stack.frames().first();
     QCOMPARE(frame.functionName(), QLatin1String("main"));
-    QCOMPARE(frame.line(), 4);
+    QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
     QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -439,7 +456,7 @@ void TestRunner::uninit3()
 
     const Frame frame = stack.frames().first();
     QCOMPARE(frame.functionName(), QLatin1String("main"));
-    QCOMPARE(frame.line(), 4);
+    QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
     QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -453,7 +470,7 @@ void TestRunner::uninit3()
 
     const Frame frame = stack.frames().first();
     QCOMPARE(frame.functionName(), QLatin1String("main"));
-    QCOMPARE(frame.line(), 2);
+    QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
     QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -472,7 +489,7 @@ void TestRunner::uninit3()
 
     const Frame frame = stack.frames().first();
     QCOMPARE(frame.functionName(), QLatin1String("main"));
-    QCOMPARE(frame.line(), 4);
+    QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
     QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -496,20 +513,31 @@ void TestRunner::syscall()
     {
     const Stack stack = error.stacks().first();
     QCOMPARE(stack.line(), qint64(-1));
-    QCOMPARE(stack.frames().count(), 3);
+    if (on64bit()) {
+        QCOMPARE(stack.frames().count(), 4);
 
-    {
-    ///TODO: is this platform specific?
-    const Frame frame = stack.frames().at(0);
-    QCOMPARE(frame.functionName(), QLatin1String("_Exit"));
-    }
-    {
-    const Frame frame = stack.frames().at(1);
-    QCOMPARE(frame.functionName(), QLatin1String("exit"));
-    }
-    {
-    const Frame frame = stack.frames().at(2);
-    QCOMPARE(frame.functionName(), QLatin1String("(below main)"));
+        {
+            const Frame frame = stack.frames().at(0);
+            QCOMPARE(frame.functionName(), QLatin1String("_Exit"));
+        }
+        {
+            const Frame frame = stack.frames().at(1);
+            QCOMPARE(frame.functionName(), QLatin1String("__run_exit_handlers"));
+        }
+        {
+            const Frame frame = stack.frames().at(2);
+            QCOMPARE(frame.functionName(), QLatin1String("exit"));
+        }
+        {
+            const Frame frame = stack.frames().at(3);
+            QCOMPARE(frame.functionName(), QLatin1String("(below main)"));
+        }
+    } else {
+        QCOMPARE(stack.frames().count(), 1);
+        {
+            const Frame frame = stack.frames().at(0);
+            QCOMPARE(frame.functionName(), QLatin1String("_Exit"));
+        }
     }
     }
     //BEGIN second stack
@@ -520,7 +548,7 @@ void TestRunner::syscall()
 
     const Frame frame = stack.frames().first();
     QCOMPARE(frame.functionName(), QLatin1String("main"));
-    QCOMPARE(frame.line(), 2);
+    QCOMPARE(frame.line(), 4 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
     QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -553,7 +581,7 @@ void TestRunner::free1()
     {
     const Frame frame = stack.frames().last();
     QCOMPARE(frame.functionName(), QLatin1String("main"));
-    QCOMPARE(frame.line(), 7);
+    QCOMPARE(frame.line(), 7 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
     QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -566,7 +594,6 @@ void TestRunner::free1()
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 2);
 
-
     {
     const Frame frame = stack.frames().first();
     QCOMPARE(frame.functionName(), QLatin1String("operator delete(void*)"));
@@ -574,7 +601,7 @@ void TestRunner::free1()
     {
     const Frame frame = stack.frames().last();
     QCOMPARE(frame.functionName(), QLatin1String("main"));
-    QCOMPARE(frame.line(), 6);
+    QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
     QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -608,7 +635,7 @@ void TestRunner::free2()
     {
     const Frame frame = stack.frames().last();
     QCOMPARE(frame.functionName(), QLatin1String("main"));
-    QCOMPARE(frame.line(), 6);
+    QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
     QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -624,12 +651,15 @@ void TestRunner::free2()
 
     {
     const Frame frame = stack.frames().first();
-    QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned long)"));
+    if (on64bit())
+        QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned long)"));
+    else
+        QCOMPARE(frame.functionName(), QLatin1String("operator new(unsigned int)"));
     }
     {
     const Frame frame = stack.frames().last();
     QCOMPARE(frame.functionName(), QLatin1String("main"));
-    QCOMPARE(frame.line(), 5);
+    QCOMPARE(frame.line(), 5 + HEADER_LENGTH);
 
     QCOMPARE(frame.object(), binary);
     QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -684,12 +714,12 @@ void TestRunner::overlap()
     QCOMPARE(stack.frames().count(), 2);
     {
         const Frame frame = stack.frames().at(0);
-        QCOMPARE(frame.functionName(), QLatin1String("memcpy"));
+        QVERIFY(frame.functionName().startsWith(QLatin1String("memcpy")));
     }
     {
         const Frame frame = stack.frames().last();
         QCOMPARE(frame.functionName(), QLatin1String("main"));
-        QCOMPARE(frame.line(), 6);
+        QCOMPARE(frame.line(), 6 + HEADER_LENGTH);
 
         QCOMPARE(frame.object(), binary);
         QCOMPARE(frame.file(), QLatin1String("main.cpp"));
