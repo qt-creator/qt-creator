@@ -48,6 +48,7 @@
 #include "watchutils.h"
 
 #include <utils/qtcassert.h>
+#include <utils/savedaction.h>
 
 #include <texteditor/itexteditor.h>
 #include <coreplugin/idocument.h>
@@ -808,57 +809,18 @@ void LldbEngine::updateData(DataKind kind)
             + "watcher:" + watchers.toHex();
     }
 
+    if (kind & StackData) {
+        int maxdepth = debuggerCore()->action(MaximalStackDepth)->value().toInt();
+        ThreadId curthread = threadsHandler()->currentThread();
+        stackOptions += "maxdepth:" + QByteArray::number(maxdepth);
+        stackOptions += "curthread:" + QByteArray::number(curthread.raw());
+    }
+
     postCommand("script updateData(" + QByteArray::number(kind) + ','
             + '\'' + localsOptions + "',"
             + '\'' + stackOptions + "',"
             + '\'' + threadsOptions + "')",
                 CB(handleUpdateData));
-}
-
-void LldbEngine::handleBacktrace(const LldbResponse &response)
-{
-    // Populate stack view.
-    StackFrames stackFrames;
-    int level = 0;
-    int currentIndex = -1;
-    foreach (const QByteArray &line, response.data.split('\n')) {
-        //qDebug() << "  LINE: '" << line << "'";
-        if (line.startsWith("> ") || line.startsWith("  ")) {
-            int pos1 = line.indexOf('(');
-            int pos2 = line.indexOf(')', pos1);
-            if (pos1 != -1 && pos2 != -1) {
-                int lineNumber = line.mid(pos1 + 1, pos2 - pos1 - 1).toInt();
-                QByteArray fileName = line.mid(2, pos1 - 2);
-                //qDebug() << " " << pos1 << pos2 << lineNumber << fileName
-                //    << line.mid(pos1 + 1, pos2 - pos1 - 1);
-                StackFrame frame;
-                frame.file = _(fileName);
-                frame.line = lineNumber;
-                frame.function = _(line.mid(pos2 + 1));
-                frame.usable = QFileInfo(frame.file).isReadable();
-                if (frame.line > 0 && QFileInfo(frame.file).exists()) {
-                    if (line.startsWith("> "))
-                        currentIndex = level;
-                    frame.level = level;
-                    stackFrames.prepend(frame);
-                    ++level;
-                }
-            }
-        }
-    }
-    const int frameCount = stackFrames.size();
-    for (int i = 0; i != frameCount; ++i)
-        stackFrames[i].level = frameCount - stackFrames[i].level - 1;
-    stackHandler()->setFrames(stackFrames);
-
-    // Select current frame.
-    if (currentIndex != -1) {
-        currentIndex = frameCount - currentIndex - 1;
-        stackHandler()->setCurrentIndex(currentIndex);
-        gotoLocation(stackFrames.at(currentIndex));
-    }
-
-    updateData(LocalsData);
 }
 
 GdbMi LldbEngine::parseFromString(QByteArray out)
@@ -941,6 +903,22 @@ void LldbEngine::handleUpdateData(const LldbResponse &response)
     if (stack.isValid()) {
         //if (!partial)
         //    emit stackFrameCompleted();
+        StackHandler *handler = stackHandler();
+        StackFrames frames;
+        foreach (const GdbMi &item, stack.findChild("frames").children()) {
+            StackFrame frame;
+            frame.level = item.findChild("level").data().toInt();
+            frame.file = QString::fromLatin1(item.findChild("file").data());
+            frame.function = QString::fromLatin1(item.findChild("func").data());
+            frame.from = QString::fromLatin1(item.findChild("func").data());
+            frame.line = item.findChild("line").data().toInt();
+            frame.address = item.findChild("addr").data().toULongLong();
+            frame.usable = QFileInfo(frame.file).isReadable();
+            frames.append(frame);
+        }
+        bool canExpand = stack.findChild("hasmore").data().toInt();
+        debuggerCore()->action(ExpandStack)->setEnabled(canExpand);
+        handler->setFrames(frames);
     }
 
     GdbMi threads = all.findChild("threads");

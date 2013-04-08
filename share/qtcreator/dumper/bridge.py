@@ -489,12 +489,12 @@ try:
     def fieldCount(type):
         return type.fieldCount();
 
-    def threadsData(threadsOptions):
+    def threadsData(options):
         result = "threads={threads=["
-        for i in range(lldb.process.num_threads):
-            thread = lldb.process.GetThreadAtIndex(i)
+        for thread in lldb.process.threads:
             result += "{id=\"%d\"" % thread.id
             result += ",target-id=\"%s\"" % thread.id
+            result += ",index=\"%s\"" % thread.idx
             result += ",stop-reason=\"%s\"" % thread.stop_reason
 
             if thread.IsSuspended():
@@ -508,7 +508,6 @@ try:
             result += ",frame={"
             frame = thread.GetFrameAtIndex(0)
             result += "pc=\"%s\"" % frame.pc
-            result += ",level=\"%d\"" % i
             result += ",addr=\"%s\"" % frame.pc
             result += ",fp=\"%s\"" % frame.fp
             result += ",func=\"%s\"" % frame.function.name
@@ -520,19 +519,45 @@ try:
         result += "],current-thread-id=\"%s\"}" % lldb.process.GetSelectedThread().id
         return result
 
-    def stackData(stackOptions):
-        result = "stack=["
-        result += "],"
+    def stackData(options):
+        try:
+            thread = lldb.process.GetThreadById(options["threadid"])
+        except:
+            thread = lldb.process.GetThreadAtIndex(0)
+        result = "stack={frames=["
+        for frame in thread.frames:
+            result += "{pc=\"%s\"" % frame.pc
+            result += ",level=\"%d\"" % frame.idx
+            result += ",addr=\"%s\"" % frame.pc
+            result += ",fp=\"%s\"" % frame.fp
+            result += ",func=\"%s\"" % frame.function.name
+            result += ",line=\"%s\"" % frame.line_entry.line
+            result += ",fullname=\"%s\"" % frame.line_entry.file
+            result += ",usable=\"1\""
+            result += ",file=\"%s\"}," % frame.line_entry.file
+
+        hasmore = "0"
+        result += "],hasmore=\"%s\"}, " % hasmore
         return result
 
-    def updateData(parts, localsOptions, stackOptions, threadsOptions):
+    def parseOptions(optionstring):
+        options = {}
+        for opt in optionstring.split(","):
+            try:
+                key, value = opt.split(":")
+                options[key] = value
+            except:
+                pass
+        return options
+
+    def updateData(parts, localsOptions, stackOptions, threadOptions):
         result = "";
         if parts & 1:
-            result += bb(localsOptions) + ','
+            result += bb(localsOptions) + ","
         if parts & 2:
-            result += stackData(stackOptions)
+            result += stackData(parseOptions(stackOptions))
         if parts & 4:
-            result += threadsData(threadsOptions)
+            result += threadsData(parseOptions(threadOptions))
         return result
 
 

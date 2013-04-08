@@ -150,7 +150,6 @@ private:
     };
 
     void handleStop(const LldbResponse &response);
-    void handleBacktrace(const LldbResponse &response);
     void handleListLocals(const LldbResponse &response);
     void handleListModules(const LldbResponse &response);
     void handleListSymbols(const LldbResponse &response);
