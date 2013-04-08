@@ -31,11 +31,9 @@
 #include "qmlprojectrunconfiguration.h"
 #include "qmlproject.h"
 
-#include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
@@ -44,7 +42,6 @@
 #include <QComboBox>
 #include <QFormLayout>
 #include <QLabel>
-#include <QPushButton>
 #include <QStandardItemModel>
 
 using Core::ICore;

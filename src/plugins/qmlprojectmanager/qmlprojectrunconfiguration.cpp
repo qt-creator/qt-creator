@@ -35,9 +35,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
-#include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/target.h>
-#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtoutputformatter.h>

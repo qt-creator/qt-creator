@@ -33,7 +33,6 @@
 #include "qmlprojectrunconfiguration.h"
 
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/projectconfiguration.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtkitinformation.h>

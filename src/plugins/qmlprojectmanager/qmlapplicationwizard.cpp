@@ -31,30 +31,18 @@
 
 #include "qmlapp.h"
 
-#include <coreplugin/icore.h>
-#include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/customwizard/customwizard.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4projectmanager.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
-#include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtkitinformation.h>
-#include <utils/fileutils.h>
 
 #include "qmlprojectmanager.h"
 #include "qmlproject.h"
 
-#include <QCoreApplication>
-#include <QDirIterator>
-#include <QFileDialog>
-#include <QFileInfo>
 #include <QIcon>
-#include <QMessageBox>
-#include <QUrl>
 
 using namespace Core;
 using namespace ExtensionSystem;

@@ -29,7 +29,6 @@
 
 #include "qmlproject.h"
 #include "qmlprojectfile.h"
-#include "qmlprojectmanagerconstants.h"
 #include "fileformat/qmlprojectitem.h"
 #include "qmlprojectrunconfiguration.h"
 #include "qmlprojectconstants.h"
@@ -39,21 +38,14 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/documentmanager.h>
-#include <extensionsystem/pluginmanager.h>
-#include <qtsupport/qmldumptool.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtversionmanager.h>
 #include <qtsupport/qtkitinformation.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljsmodelmanager.h>
-#include <utils/fileutils.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/target.h>
-#include <utils/filesystemwatcher.h>
 #include <qtsupport/qtsupportconstants.h>
 
-#include <QTextStream>
 #include <QDeclarativeComponent>
 #include <QDebug>
 

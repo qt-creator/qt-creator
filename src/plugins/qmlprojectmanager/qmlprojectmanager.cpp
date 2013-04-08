@@ -31,9 +31,7 @@
 #include "qmlprojectconstants.h"
 #include "qmlproject.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 

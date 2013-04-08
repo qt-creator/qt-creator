@@ -29,23 +29,15 @@
 
 #include "qmlprojectplugin.h"
 #include "qmlprojectmanager.h"
-#include "qmlprojectconstants.h"
 #include "qmlproject.h"
 #include "qmlprojectrunconfigurationfactory.h"
 #include "qmlprojectruncontrol.h"
 #include "qmlapplicationwizard.h"
 #include "fileformat/qmlprojectfileformat.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
-
-#include <texteditor/texteditoractionhandler.h>
-
-#include <projectexplorer/taskhub.h>
-#include <projectexplorer/projectexplorerconstants.h>
 
 #include <qtsupport/qtsupportconstants.h>
 

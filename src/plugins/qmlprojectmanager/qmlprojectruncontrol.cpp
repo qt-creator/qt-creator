@@ -29,23 +29,17 @@
 
 #include "qmlprojectruncontrol.h"
 #include "qmlprojectrunconfiguration.h"
-#include <coreplugin/icore.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/tcpportsgatherer.h>
 
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerplugin.h>
-#include <debugger/debuggerconstants.h>
 #include <debugger/debuggerstartparameters.h>
-#include <debugger/debuggerruncontrolfactory.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qmlobservertool.h>
 

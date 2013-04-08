@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "qmlprojectnodes.h"
-#include "qmlprojectmanager.h"
 #include "qmlproject.h"
 
 #include <coreplugin/idocument.h>
@@ -36,8 +35,6 @@
 #include <projectexplorer/projectexplorer.h>
 
 #include <QFileInfo>
-#include <QDir>
-#include <QTextStream>
 #include <QStyle>
 
 namespace QmlProjectManager {
