@@ -1,94 +1,107 @@
 MetaInfo {
 
     Type {
-        name: "QtDesktop.Button"
+        name: "QtQuick.Controls.Button"
         icon: ":/componentsplugin/images/button16.png"
 
         ItemLibraryEntry {
             name: "Button"
-            category: "Qt Quick - Components"
+            category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/button.png"
             version: "1.0"
-            requiredImport: "QtDesktop"
+            requiredImport: "QtQuick.Controls"
 
             Property { name: "text"; type: "QString"; value: "Button"; }
         }
     }
 
     Type {
-        name: "QtDesktop.CheckBox"
+        name: "QtQuick.Controls.SpinBox"
+        icon: ":/componentsplugin/images/window16.png"
+
+        ItemLibraryEntry {
+            name: "SpinBox"
+            category: "Qt Quick - Controls"
+            libraryIcon: ":/componentsplugin/images/window.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Controls"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Controls.CheckBox"
         icon: ":/componentsplugin/images/checkbox16.png"
 
         ItemLibraryEntry {
             name: "Check Box"
-            category: "Qt Quick - Components"
+            category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/checkbox.png"
             version: "1.0"
-            requiredImport: "QtDesktop"
+            requiredImport: "QtQuick.Controls"
 
             Property { name: "text"; type: "QString"; value: "Check Box"; }
         }
     }
 
     Type {
-        name: "QtDesktop.RadioButton"
+        name: "QtQuick.Controls.RadioButton"
         icon: ":/componentsplugin/images/radiobutton16.png"
 
         ItemLibraryEntry {
             name: "Radio Button"
-            category: "Qt Quick - Components"
+            category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/radiobutton.png"
             version: "1.0"
-            requiredImport: "QtDesktop"
+            requiredImport: "QtQuick.Controls"
 
             Property { name: "text"; type: "QString"; value: "Radio Button"; }
         }
     }
 
     Type {
-        name: "QtDesktop.ComboBox"
+        name: "QtQuick.Controls.ComboBox"
         icon: ":/componentsplugin/images/combobox16.png"
 
         ItemLibraryEntry {
             name: "Combo Box"
-            category: "Qt Quick - Components"
+            category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/combobox.png"
             version: "1.0"
-            requiredImport: "QtDesktop"
+            requiredImport: "QtQuick.Controls"
         }
     }
 
     Type {
-        name: "QtDesktop.ButtonRow"
+        name: "QtQuick.Controls.ButtonRow"
         icon: ":/componentsplugin/images/buttonrow16.png"
 
         ItemLibraryEntry {
             name: "Button Row"
-            category: "Qt Quick - Components"
+            category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/buttonrow.png"
             version: "1.0"
         }
     }
 
     Type {
-        name: "QtDesktop.ButtonColumn"
+        name: "QtQuick.Controls.ButtonColumn"
         icon: ":/componentsplugin/images/buttoncolumn16.png"
 
         ItemLibraryEntry {
             name: "Button Column"
-            category: "Qt Quick - Components"
+            category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/buttoncolumn.png"
             version: "1.0"
         }
     }
 
     Type {
-        name: "QtDesktop.Label"
+        name: "QtQuick.Controls.Label"
         icon: ":/componentsplugin/images/label16.png"
 
         ItemLibraryEntry {
             name: "Label"
-            category: "Qt Quick - Components"
+            category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/label.png"
             version: "1.0"
 
@@ -97,12 +110,12 @@ MetaInfo {
     }
 
     Type {
-        name: "QtDesktop.TextField"
+        name: "QtQuick.Controls.TextField"
         icon: ":/componentsplugin/images/textfield16.png"
 
         ItemLibraryEntry {
             name: "Text Field"
-            category: "Qt Quick - Components"
+            category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/textfield.png"
             version: "1.0"
 
@@ -111,43 +124,43 @@ MetaInfo {
     }
 
     Type {
-        name: "QtDesktop.TextArea"
+        name: "QtQuick.Controls.TextArea"
         icon: ":/componentsplugin/images/textarea16.png"
 
         ItemLibraryEntry {
             name: "Text Area"
-            category: "Qt Quick - Components"
+            category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/textarea.png"
             version: "1.0"
         }
     }
 
     Type {
-        name: "QtDesktop.ProgressBar"
+        name: "QtQuick.Controls.ProgressBar"
         icon: ":/componentsplugin/images/progressbar16.png"
 
         ItemLibraryEntry {
             name: "Progress Bar"
-            category: "Qt Quick - Components"
+            category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/progressbar.png"
             version: "1.0"
         }
     }
 
     Type {
-        name: "QtDesktop.Slider"
+        name: "QtQuick.Controls.Slider"
         icon: ":/componentsplugin/images/sliderh16.png"
 
         ItemLibraryEntry {
             name: "Slider (Horizontal)"
-            category: "Qt Quick - Components"
+            category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/sliderh.png"
             version: "1.0"
         }
 
         ItemLibraryEntry {
            name: "Slider (Vertical)"
-            category: "Qt Quick - Components"
+            category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/sliderh.png"
             version: "1.0"
             Property { name: "orientation"; type: "int"; value: "0"; }
@@ -155,19 +168,19 @@ MetaInfo {
     }
 
     Type {
-        name: "QtDesktop.ScrollBar"
+        name: "QtQuick.Controls.ScrollBar"
         icon: ":/componentsplugin/images/scrollbar16.png"
 
         ItemLibraryEntry {
             name: "Scroll Bar (Horizontal)"
-            category: "Qt Quick - Components"
+            category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/scrollbarh.png"
             version: "1.0"
         }
 
         ItemLibraryEntry {
            name: "Scroll Bar (Vertical)"
-            category: "Qt Quick - Components"
+            category: "Qt Quick - Controls"
             libraryIcon: ":/componentsplugin/images/scrollbarv.png"
             version: "1.0"
             Property { name: "orientation"; type: "int"; value: "0"; }
@@ -175,15 +188,15 @@ MetaInfo {
     }
 
     Type {
-        name: "QtDesktop.ScrollArea"
-        icon: ":/desktopplugin//images/window16.png"
+        name: "QtQuick.Controls.ScrollArea"
+        icon: ":/componentsplugin/images/window16.png"
 
         ItemLibraryEntry {
             name: "Scroll Area"
-            category: "Qt Quick - Components"
-            libraryIcon: ":/desktopplugin/images/window.png"
+            category: "Qt Quick - Controls"
+            libraryIcon: ":/componentsplugin/images/window.png"
             version: "1.0"
-            requiredImport: "QtDesktop"
+            requiredImport: "QtQuick.Controls"
 
             Property { name: "width"; type: "int"; value: 360; }
             Property { name: "height"; type: "int"; value: 300; }
@@ -191,15 +204,15 @@ MetaInfo {
     }
 
  Type {
-        name: "QtDesktop.GroupBox"
-        icon: ":/desktopplugin//images/window16.png"
+        name: "QtQuick.Controls.GroupBox"
+        icon: ":/componentsplugin/images/window16.png"
 
         ItemLibraryEntry {
             name: "Group Box"
-            category: "Qt Quick - Components"
-            libraryIcon: ":/desktopplugin/images/window.png"
+            category: "Qt Quick - Controls"
+            libraryIcon: ":/componentsplugin/images/window.png"
             version: "1.0"
-            requiredImport: "QtDesktop"
+            requiredImport: "QtQuick.Controls"
 
             Property { name: "width"; type: "int"; value: 360; }
             Property { name: "height"; type: "int"; value: 300; }
@@ -207,15 +220,15 @@ MetaInfo {
     }
 
     Type {
-        name: "QtDesktop.Frame"
+        name: "QtQuick.Controls.Frame"
         icon: ":/desktopplugin//images/window16.png"
 
         ItemLibraryEntry {
             name: "Frame"
-            category: "Qt Quick - Components"
+            category: "Qt Quick - Controls"
             libraryIcon: ":/desktopplugin/images/window.png"
             version: "1.0"
-            requiredImport: "QtDesktop"
+            requiredImport: "QtQuick.Controls"
 
             Property { name: "width"; type: "int"; value: 360; }
             Property { name: "height"; type: "int"; value: 300; }
@@ -223,15 +236,15 @@ MetaInfo {
     }
 
     Type {
-        name: "QtDesktop.ToolBar"
+        name: "QtQuick.Controls.ToolBar"
         icon: ":/desktopplugin/images/toolbar16.png"
 
         ItemLibraryEntry {
             name: "Tool Bar"
-            category: "Qt Quick - Components"
+            category: "Qt Quick - Controls"
             libraryIcon: ":/desktopplugin/images/toolbar.png"
             version: "1.0"
-            requiredImport: "QtDesktop"
+            requiredImport: "QtQuick.Controls"
 
             Property { name: "width"; type: "int"; value: 360; }
             Property { name: "height"; type: "int"; value: 50; }
@@ -239,15 +252,15 @@ MetaInfo {
     }
 
     Type {
-        name: "QtDesktop.Dial"
+        name: "QtQuick.Controls.Dial"
         //icon: ":/desktopplugin/images/progressbar16.png"
 
         ItemLibraryEntry {
             name: "Dial"
-            category: "Qt Quick - Components"
+            category: "Qt Quick - Controls"
             //libraryIcon: ":/desktopplugin/images/progressbar.png"
             version: "1.0"
-            requiredImport: "QtDesktop"
+            requiredImport: "QtQuick.Controls"
 
             Property { name: "width"; type: "int"; value: 100; }
             Property { name: "height"; type: "int"; value: 100; }

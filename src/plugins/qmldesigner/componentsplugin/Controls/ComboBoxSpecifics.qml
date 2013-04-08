@@ -35,13 +35,6 @@ GroupBox {
     caption: "Combo Box"
     layout: VerticalLayout {
 
-        ColorGroupBox {
-            text:  qsTr("Text")
-            toolTip:  qsTr("The text shown on the combobox")
-            finished: finishedNotify
-            backendColor: backendValues.textColor
-        }
-
         QWidget {
             layout: HorizontalLayout {
                 Label {
