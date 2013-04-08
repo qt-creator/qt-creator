@@ -50,11 +50,11 @@
 #include <Symbols.h>
 #include <CoreTypes.h>
 #include <Literals.h>
-#include <CppDocument.h>
-#include <Overview.h>
-#include <Names.h>
-#include <Scope.h>
-#include <BackwardsScanner.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/Names.h>
+#include <cplusplus/Scope.h>
+#include <cplusplus/BackwardsScanner.h>
 
 #include <utils/changeset.h>
 

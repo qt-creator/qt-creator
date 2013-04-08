@@ -39,10 +39,10 @@
 #include <Symbols.h>
 #include <Names.h>
 #include <CoreTypes.h>
-#include <CppDocument.h>
 #include <SymbolVisitor.h>
-#include <Overview.h>
-#include <LookupContext.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/LookupContext.h>
 
 #include "cplusplus-tools-utils.h"
 
