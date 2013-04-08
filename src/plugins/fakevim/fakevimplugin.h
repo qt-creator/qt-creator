@@ -142,6 +142,8 @@ private slots:
 
     void test_macros();
 
+    void test_vim_qtcreator();
+
     // special tests
     void test_i_cw_i();
 

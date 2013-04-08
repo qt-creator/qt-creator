@@ -125,6 +125,9 @@ public slots:
     // Set text cursor position. Keeps anchor if in visual mode.
     void setTextCursorPosition(int position);
 
+    QTextCursor textCursor() const;
+    void setTextCursor(const QTextCursor &cursor);
+
     bool jumpToLocalMark(QChar mark, bool backTickMode);
 
 signals:

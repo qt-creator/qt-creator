@@ -1406,10 +1406,10 @@ void FakeVimPluginPrivate::findNext(bool reverse)
 void FakeVimPluginPrivate::foldToggle(int depth)
 {
     IEditor *ieditor = EditorManager::currentEditor();
-    BaseTextEditorWidget *editor = qobject_cast<BaseTextEditorWidget *>(ieditor->widget());
-    QTC_ASSERT(editor != 0, return);
+    FakeVimHandler *handler = m_editorToHandler.value(ieditor, 0);
+    QTC_ASSERT(handler != 0, return);
 
-    QTextBlock block = editor->textCursor().block();
+    QTextBlock block = handler->textCursor().block();
     fold(depth, !BaseTextDocumentLayout::isFolded(block));
 }
 
@@ -1437,6 +1437,8 @@ void FakeVimPluginPrivate::foldAll(bool fold)
 void FakeVimPluginPrivate::fold(int depth, bool fold)
 {
     IEditor *ieditor = EditorManager::currentEditor();
+    FakeVimHandler *handler = m_editorToHandler.value(ieditor, 0);
+    QTC_ASSERT(handler != 0, return);
     BaseTextEditorWidget *editor = qobject_cast<BaseTextEditorWidget *>(ieditor->widget());
     QTC_ASSERT(editor != 0, return);
 
@@ -1445,7 +1447,7 @@ void FakeVimPluginPrivate::fold(int depth, bool fold)
             qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout != 0, return);
 
-    QTextBlock block = editor->textCursor().block();
+    QTextBlock block = handler->textCursor().block();
     int indent = BaseTextDocumentLayout::foldingIndent(block);
     if (fold) {
         if (BaseTextDocumentLayout::isFolded(block)) {
@@ -1496,10 +1498,10 @@ void FakeVimPluginPrivate::fold(int depth, bool fold)
 void FakeVimPluginPrivate::foldGoTo(int count, bool current)
 {
     IEditor *ieditor = EditorManager::currentEditor();
-    BaseTextEditorWidget *editor = qobject_cast<BaseTextEditorWidget *>(ieditor->widget());
-    QTC_ASSERT(editor != 0, return);
+    FakeVimHandler *handler = m_editorToHandler.value(ieditor, 0);
+    QTC_ASSERT(handler != 0, return);
 
-    QTextCursor tc = editor->textCursor();
+    QTextCursor tc = handler->textCursor();
     QTextBlock block = tc.block();
 
     int pos = -1;
@@ -1546,7 +1548,7 @@ void FakeVimPluginPrivate::foldGoTo(int count, bool current)
 
     if (pos != -1) {
         tc.setPosition(pos, QTextCursor::KeepAnchor);
-        editor->setTextCursor(tc);
+        handler->setTextCursor(tc);
     }
 }
 

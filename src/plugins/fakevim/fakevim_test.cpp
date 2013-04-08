@@ -2948,3 +2948,357 @@ void FakeVimPlugin::test_macros()
     KEYS("gg@x", "abc" N X "def");
     data.doCommand("unmap <S-down>");
 }
+
+void FakeVimPlugin::test_vim_qtcreator()
+{
+    TestData data;
+    setup(&data);
+
+    // Pass input keys in insert mode to underlying editor widget.
+    data.doCommand("set passkeys");
+
+    data.setText("" N "");
+    KEYS("i" "void f(int arg1) {<cr>// TODO<cr>;",
+         "void f(int arg1) {" N
+         "    // TODO" N
+         "    ;" X N
+         "}" N
+         "");
+    KEYS("cc" "assert(arg1 != 0",
+         "void f(int arg1) {" N
+         "    // TODO" N
+         "    assert(arg1 != 0" X ")" N
+         "}" N
+         "");
+    KEYS("k" "." "A;",
+         "void f(int arg1) {" N
+         "    assert(arg1 != 0);" X N
+         "    assert(arg1 != 0)" N
+         "}" N
+         "");
+    KEYS("j.",
+         "void f(int arg1) {" N
+         "    assert(arg1 != 0);" N
+         "    assert(arg1 != 0)" X ";" N
+         "}" N
+         "");
+    KEYS("4b2#",
+         "void f(int " X "arg1) {" N
+         "    assert(arg1 != 0);" N
+         "    assert(arg1 != 0);" N
+         "}" N
+         "");
+    KEYS("e" "a, int arg2 = 0<esc>" "n",
+         "void f(int " X "arg1, int arg2 = 0) {" N
+         "    assert(arg1 != 0);" N
+         "    assert(arg1 != 0);" N
+         "}" N
+         "");
+
+    // Record macro.
+    KEYS("2j" "qa" "<C-A>" "f!" "2s>=<esc>" "q",
+         "void f(int arg1, int arg2 = 0) {" N
+         "    assert(arg1 != 0);" N
+         "    assert(arg2 >" X "= 0);" N
+         "}" N
+         "");
+    // Replay macro.
+    KEYS("n" "@a",
+         "void f(int arg1, int arg2 = 0) {" N
+         "    assert(arg2 >" X "= 0);" N
+         "    assert(arg2 >= 0);" N
+         "}" N
+         "");
+
+    // Undo.
+    KEYS("u",
+         "void f(int arg1, int arg2 = 0) {" N
+         "    assert(" X "arg1 != 0);" N
+         "    assert(arg2 >= 0);" N
+         "}" N
+         "");
+    KEYS("u",
+         "void f(int arg1, int arg2 = 0) {" N
+         "    assert(arg1 != 0);" N
+         "    assert(arg2 " X "!= 0);" N
+         "}" N
+         "");
+    KEYS("u",
+         "void f(int arg1, int arg2 = 0) {" N
+         "    assert(arg1 != 0);" N
+         "    assert(" X "arg1 != 0);" N
+         "}" N
+         "");
+    KEYS("u",
+         "void f(int arg1" X ") {" N
+         "    assert(arg1 != 0);" N
+         "    assert(arg1 != 0);" N
+         "}" N
+         "");
+    KEYS("u",
+         "void f(int arg1) {" N
+         "    assert(arg1 != 0);" N
+         "    assert(arg1 != 0" X ")" N
+         "}" N
+         "");
+    KEYS("u",
+         "void f(int arg1) {" N
+         "    assert(arg1 != 0" X ")" N
+         "    assert(arg1 != 0)" N
+         "}" N
+         "");
+    KEYS("u",
+         "void f(int arg1) {" N
+         "    " X "// TODO" N
+         "    assert(arg1 != 0)" N
+         "}" N
+         "");
+    KEYS("u",
+         "void f(int arg1) {" N
+         "    // TODO" N
+         "    " X ";" N
+         "}" N
+         "");
+
+    // Redo and occasional undo.
+    KEYS("<C-R>",
+         "void f(int arg1) {" N
+         "    // TODO" N
+         "    " X "assert(arg1 != 0)" N
+         "}" N
+         "");
+    KEYS("<C-R>",
+         "void f(int arg1) {" N
+         "    " X "assert(arg1 != 0)" N
+         "    assert(arg1 != 0)" N
+         "}" N
+         "");
+    KEYS("<C-R>",
+         "void f(int arg1) {" N
+         "    assert(arg1 != 0)" X ";" N
+         "    assert(arg1 != 0)" N
+         "}" N
+         "");
+    KEYS("u",
+         "void f(int arg1) {" N
+         "    assert(arg1 != 0" X ")" N
+         "    assert(arg1 != 0)" N
+         "}" N
+         "");
+    KEYS("<C-R>",
+         "void f(int arg1) {" N
+         "    assert(arg1 != 0)" X ";" N
+         "    assert(arg1 != 0)" N
+         "}" N
+         "");
+    KEYS("<C-R>",
+         "void f(int arg1) {" N
+         "    assert(arg1 != 0);" N
+         "    assert(arg1 != 0)" X ";" N
+         "}" N
+         "");
+    KEYS("<C-R>",
+         "void f(int arg1" X ", int arg2 = 0) {" N
+         "    assert(arg1 != 0);" N
+         "    assert(arg1 != 0);" N
+         "}" N
+         "");
+    KEYS("<C-R>",
+         "void f(int arg1, int arg2 = 0) {" N
+         "    assert(arg1 != 0);" N
+         "    assert(" X "arg2 != 0);" N
+         "}" N
+         "");
+    KEYS("<C-R>",
+         "void f(int arg1, int arg2 = 0) {" N
+         "    assert(arg1 != 0);" N
+         "    assert(arg2 " X ">= 0);" N
+         "}" N
+         "");
+    KEYS("<C-R>",
+         "void f(int arg1, int arg2 = 0) {" N
+         "    assert(" X "arg2 >= 0);" N
+         "    assert(arg2 >= 0);" N
+         "}" N
+         "");
+    KEYS("3u",
+         "void f(int arg1, int arg2 = 0) {" N
+         "    assert(arg1 != 0);" N
+         "    assert(" X "arg1 != 0);" N
+         "}" N
+         "");
+
+    // Repeat last command.
+    KEYS("w.",
+         "void f(int arg1, int arg2 = 0) {" N
+         "    assert(arg1 != 0);" N
+         "    assert(arg1 >" X "= 0);" N
+         "}" N
+         "");
+
+    KEYS("kdd",
+         "void f(int arg1, int arg2 = 0) {" N
+         "    " X "assert(arg1 >= 0);" N
+         "}" N
+         "");
+
+    // Make mistakes.
+    KEYS("4<esc>3<esc>" "2oif (arg3<bs>2<bs>1 > 0) return true;<esc>",
+         "void f(int arg1, int arg2 = 0) {" N
+         "    assert(arg1 >= 0);" N
+         "    if (arg1 > 0) return true;" N
+         "    if (arg1 > 0) return true" X ";" N
+         "}" N
+         "");
+
+    // Jumps around and change stuff.
+    KEYS("gg" "ciw" "bool",
+         "bool" X " f(int arg1, int arg2 = 0) {" N
+         "    assert(arg1 >= 0);" N
+         "    if (arg1 > 0) return true;" N
+         "    if (arg1 > 0) return true;" N
+         "}" N
+         "");
+    KEYS("`'",
+         "bool f(int arg1, int arg2 = 0) {" N
+         "    assert(arg1 >= 0);" N
+         "    if (arg1 > 0) return true;" N
+         "    if (arg1 > 0) return true" X ";" N
+         "}" N
+         "");
+    KEYS("caW" " false;",
+         "bool f(int arg1, int arg2 = 0) {" N
+         "    assert(arg1 >= 0);" N
+         "    if (arg1 > 0) return true;" N
+         "    if (arg1 > 0) return false;" X N
+         "}" N
+         "");
+    KEYS("k.",
+         "bool f(int arg1, int arg2 = 0) {" N
+         "    assert(arg1 >= 0);" N
+         "    if (arg1 > 0) return false" X ";" N
+         "    if (arg1 > 0) return false;" N
+         "}" N
+         "");
+
+    // Undo/redo again.
+    KEYS("u",
+         "bool f(int arg1, int arg2 = 0) {" N
+         "    assert(arg1 >= 0);" N
+         "    if (arg1 > 0) return" X " true;" N
+         "    if (arg1 > 0) return false;" N
+         "}" N
+         "");
+    KEYS("u",
+         "bool f(int arg1, int arg2 = 0) {" N
+         "    assert(arg1 >= 0);" N
+         "    if (arg1 > 0) return true;" N
+         "    if (arg1 > 0) return" X " true;" N
+         "}" N
+         "");
+    KEYS("<C-R>",
+         "bool f(int arg1, int arg2 = 0) {" N
+         "    assert(arg1 >= 0);" N
+         "    if (arg1 > 0) return true;" N
+         "    if (arg1 > 0) return" X " false;" N
+         "}" N
+         "");
+    KEYS("u",
+         "bool f(int arg1, int arg2 = 0) {" N
+         "    assert(arg1 >= 0);" N
+         "    if (arg1 > 0) return true;" N
+         "    if (arg1 > 0) return" X " true;" N
+         "}" N
+         "");
+    KEYS("u",
+         X "void f(int arg1, int arg2 = 0) {" N
+         "    assert(arg1 >= 0);" N
+         "    if (arg1 > 0) return true;" N
+         "    if (arg1 > 0) return true;" N
+         "}" N
+         "");
+
+    // Record long insert mode.
+    KEYS("qb" "4s" "bool" "<down>" "Q_<insert>ASSERT" "<down><down>" "<insert><bs>2"
+         "<c-o>2w<delete>1" "<c-o>:s/true/false<cr><esc>" "q",
+         "bool f(int arg1, int arg2 = 0) {" N
+         "    Q_ASSERT(arg1 >= 0);" N
+         "    if (arg1 > 0) return true;" N
+         "   " X " if (arg2 > 1) return false;" N
+         "}" N
+         "");
+
+    KEYS("u",
+         "bool f(int arg1, int arg2 = 0) {" N
+         "    Q_ASSERT(arg1 >= 0);" N
+         "    if (arg1 > 0) return true;" N
+         X "    if (arg2 > 1) return true;" N
+         "}" N
+         "");
+    KEYS("u",
+         "bool f(int arg1, int arg2 = 0) {" N
+         "    Q_ASSERT(arg1 >= 0);" N
+         "    if (arg1 > 0) return true;" N
+         "    if (arg2 > " X "0) return true;" N
+         "}" N
+         "");
+    KEYS("u",
+         "bool f(int arg1, int arg2 = 0) {" N
+         "    Q_ASSERT(arg1 >= 0);" N
+         "    if (arg1 > 0) return true;" N
+         "    if (arg1" X " > 0) return true;" N
+         "}" N
+         "");
+    KEYS("u",
+         "bool f(int arg1, int arg2 = 0) {" N
+         "    " X "assert(arg1 >= 0);" N
+         "    if (arg1 > 0) return true;" N
+         "    if (arg1 > 0) return true;" N
+         "}" N
+         "");
+    KEYS("u",
+         X "void f(int arg1, int arg2 = 0) {" N
+         "    assert(arg1 >= 0);" N
+         "    if (arg1 > 0) return true;" N
+         "    if (arg1 > 0) return true;" N
+         "}" N
+         "");
+
+    // Replay.
+    KEYS("@b",
+         "bool f(int arg1, int arg2 = 0) {" N
+         "    Q_ASSERT(arg1 >= 0);" N
+         "    if (arg1 > 0) return true;" N
+         "   " X " if (arg2 > 1) return false;" N
+         "}" N
+         "");
+
+    // Return to the first change.
+    KEYS("99u" "<C-R>",
+         X "void f(int arg1) {" N
+         "    // TODO" N
+         "    ;" N
+         "}" N
+         "");
+    KEYS("<C-R>",
+         "void f(int arg1) {" N
+         "    // TODO" N
+         "    " X "assert(arg1 != 0)" N
+         "}" N
+         "");
+    KEYS("<C-R>",
+         "void f(int arg1) {" N
+         "    " X "assert(arg1 != 0)" N
+         "    assert(arg1 != 0)" N
+         "}" N
+         "");
+
+    // Return to the last change.
+    KEYS("99<C-R>",
+         "bool f(int arg1, int arg2 = 0) {" N
+         "    Q_ASSERT(arg1 >= 0);" N
+         "    if (arg1 > 0) return true;" N
+         "    if (arg2 > 1) return false;" N
+         "}" N
+         "");
+}
