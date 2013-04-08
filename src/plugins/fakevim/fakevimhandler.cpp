@@ -7035,7 +7035,8 @@ void FakeVimHandler::Private::joinPreviousEditBlock()
     UNDO_DEBUG("JOIN");
     if (m_breakEditBlock) {
         beginEditBlock();
-        QTextCursor tc(document());
+        QTextCursor tc(cursor());
+        tc.setPosition(tc.position());
         tc.beginEditBlock();
         tc.insertText(_("X"));
         tc.deletePreviousChar();
