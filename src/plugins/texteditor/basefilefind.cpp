@@ -160,6 +160,8 @@ void BaseFileFind::runSearch(Find::SearchResult *search)
     FileFindParameters parameters = search->userData().value<FileFindParameters>();
     CountingLabel *label = new CountingLabel;
     connect(search, SIGNAL(countChanged(int)), label, SLOT(updateCount(int)));
+    CountingLabel *statusLabel = new CountingLabel;
+    connect(search, SIGNAL(countChanged(int)), statusLabel, SLOT(updateCount(int)));
     Find::SearchResultWindow::instance()->popup(Core::IOutputPane::Flags(Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus));
     QFutureWatcher<FileSearchResultList> *watcher = new QFutureWatcher<FileSearchResultList>();
     d->m_watchers.insert(watcher, search);
@@ -182,6 +184,7 @@ void BaseFileFind::runSearch(Find::SearchResult *search)
                                                                         tr("Search"),
                                                                         QLatin1String(Constants::TASK_SEARCH));
     progress->setWidget(label);
+    progress->setStatusBarWidget(statusLabel);
     connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
 }
 

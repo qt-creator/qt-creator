@@ -35,6 +35,7 @@
 #include <QFutureWatcher>
 #include <QList>
 #include <QGraphicsOpacityEffect>
+#include <QHBoxLayout>
 #include <QPointer>
 #include <QPropertyAnimation>
 #include <QToolButton>
@@ -82,6 +83,7 @@ private slots:
     void progressDetailsToggled(bool checked);
     void updateVisibility();
     void updateVisibilityWithDelay();
+    void updateStatusDetailsWidget();
 
     void slotRemoveTask();
 private:
@@ -102,6 +104,9 @@ private:
     QFutureWatcher<void> *m_applicationTask;
     Core::StatusBarWidget *m_statusBarWidgetContainer;
     QWidget *m_statusBarWidget;
+    QWidget *m_summaryProgressWidget;
+    QHBoxLayout *m_summaryProgressLayout;
+    QWidget *m_currentStatusDetailsWidget;
     ProgressBar *m_summaryProgressBar;
     QGraphicsOpacityEffect *m_opacityEffect;
     QPointer<QPropertyAnimation> m_opacityAnimation;

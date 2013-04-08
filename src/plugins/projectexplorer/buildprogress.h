@@ -44,12 +44,13 @@ class BuildProgress : public QWidget
 {
     Q_OBJECT
 public:
-    BuildProgress(TaskWindow *taskWindow);
+    BuildProgress(TaskWindow *taskWindow, Qt::Orientation orientation = Qt::Vertical);
 
 private slots:
     void updateState();
 
 private:
+    QWidget *m_contentWidget;
     QLabel *m_errorIcon;
     QLabel *m_warningIcon;
     QLabel *m_errorLabel;

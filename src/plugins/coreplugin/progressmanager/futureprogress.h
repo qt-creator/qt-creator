@@ -71,6 +71,9 @@ public:
     void setWidget(QWidget *widget);
     QWidget *widget() const;
 
+    void setStatusBarWidget(QWidget *widget);
+    QWidget *statusBarWidget() const;
+
     bool isFading() const;
 
     QSize sizeHint() const;
@@ -82,6 +85,8 @@ signals:
     void removeMe();
     void hasErrorChanged();
     void fadeStarted();
+
+    void statusBarWidgetChanged();
 
 protected:
     void mousePressEvent(QMouseEvent *event);

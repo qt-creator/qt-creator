@@ -65,6 +65,7 @@ public:
     Internal::ProgressBar *m_progress;
     QWidget *m_widget;
     QHBoxLayout *m_widgetLayout;
+    QWidget *m_statusBarWidget;
     QString m_type;
     FutureProgress::KeepOnFinishType m_keep;
     bool m_waitingForUserInteraction;
@@ -75,6 +76,7 @@ public:
 
 FutureProgressPrivate::FutureProgressPrivate(FutureProgress *q) :
     m_progress(new Internal::ProgressBar), m_widget(0), m_widgetLayout(new QHBoxLayout),
+    m_statusBarWidget(0),
     m_keep(FutureProgress::HideOnFinish), m_waitingForUserInteraction(false),
     m_q(q), m_fadeStarting(false), m_isFading(false)
 {
@@ -339,6 +341,20 @@ bool FutureProgress::keepOnFinish() const
 QWidget *FutureProgress::widget() const
 {
     return d->m_widget;
+}
+
+void FutureProgress::setStatusBarWidget(QWidget *widget)
+{
+    if (widget == d->m_statusBarWidget)
+        return;
+    delete d->m_statusBarWidget;
+    d->m_statusBarWidget = widget;
+    emit statusBarWidgetChanged();
+}
+
+QWidget *FutureProgress::statusBarWidget() const
+{
+    return d->m_statusBarWidget;
 }
 
 bool FutureProgress::isFading() const

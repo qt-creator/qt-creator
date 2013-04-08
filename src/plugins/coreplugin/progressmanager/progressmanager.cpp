@@ -263,6 +263,7 @@ using namespace Core::Internal;
 ProgressManagerPrivate::ProgressManagerPrivate(QObject *parent)
   : ProgressManager(parent),
     m_applicationTask(0),
+    m_currentStatusDetailsWidget(0),
     m_opacityEffect(new QGraphicsOpacityEffect(this)),
     m_progressViewPinned(false),
     m_hovered(false)
@@ -290,14 +291,20 @@ void ProgressManagerPrivate::init()
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     m_statusBarWidget->setLayout(layout);
-    m_summaryProgressBar = new ProgressBar(m_statusBarWidget);
+    m_summaryProgressWidget = new QWidget(m_statusBarWidget);
+    m_summaryProgressWidget->setVisible(!m_progressViewPinned);
+    m_summaryProgressWidget->setGraphicsEffect(m_opacityEffect);
+    m_summaryProgressLayout = new QHBoxLayout(m_summaryProgressWidget);
+    m_summaryProgressLayout->setContentsMargins(0, 0, 0, 0);
+    m_summaryProgressLayout->setSpacing(0);
+    m_summaryProgressWidget->setLayout(m_summaryProgressLayout);
+    m_summaryProgressBar = new ProgressBar(m_summaryProgressWidget);
     m_summaryProgressBar->setMinimumWidth(70);
     m_summaryProgressBar->setTitleVisible(false);
     m_summaryProgressBar->setSeparatorVisible(false);
     m_summaryProgressBar->setCancelEnabled(false);
-    m_summaryProgressBar->setGraphicsEffect(m_opacityEffect);
-    m_summaryProgressBar->setVisible(!m_progressViewPinned);
-    layout->addWidget(m_summaryProgressBar);
+    m_summaryProgressLayout->addWidget(m_summaryProgressBar);
+    layout->addWidget(m_summaryProgressWidget);
     ToggleButton *toggleButton = new ToggleButton(m_statusBarWidget);
     layout->addWidget(toggleButton);
     m_statusBarWidgetContainer->setWidget(m_statusBarWidget);
@@ -420,6 +427,8 @@ FutureProgress *ProgressManagerPrivate::addTask(const QFuture<void> &future, con
     connect(progress, SIGNAL(hasErrorChanged()), this, SLOT(updateSummaryProgressBar()));
     connect(progress, SIGNAL(removeMe()), this, SLOT(slotRemoveTask()));
     connect(progress, SIGNAL(fadeStarted()), this, SLOT(updateSummaryProgressBar()));
+    connect(progress, SIGNAL(statusBarWidgetChanged()), this, SLOT(updateStatusDetailsWidget()));
+    updateStatusDetailsWidget();
 
     emit taskStarted(type);
     return progress;
@@ -545,6 +554,8 @@ void ProgressManagerPrivate::removeOldTasks(const QString &type, bool keepOne)
             firstFound = true;
         }
     }
+    updateSummaryProgressBar();
+    updateStatusDetailsWidget();
 }
 
 void ProgressManagerPrivate::removeOneOldTask()
@@ -578,12 +589,16 @@ void ProgressManagerPrivate::removeOneOldTask()
     // no ended process, no type with multiple processes, just remove the oldest task
     FutureProgress *task = m_taskList.takeFirst();
     deleteTask(task);
+    updateSummaryProgressBar();
+    updateStatusDetailsWidget();
 }
 
 void ProgressManagerPrivate::removeTask(FutureProgress *task)
 {
     m_taskList.removeAll(task);
     deleteTask(task);
+    updateSummaryProgressBar();
+    updateStatusDetailsWidget();
 }
 
 void ProgressManagerPrivate::deleteTask(FutureProgress *progress)
@@ -596,7 +611,7 @@ void ProgressManagerPrivate::deleteTask(FutureProgress *progress)
 void ProgressManagerPrivate::updateVisibility()
 {
     m_progressView->setVisible(m_progressViewPinned || m_hovered || m_progressView->isHovered());
-    m_summaryProgressBar->setVisible((!m_runningTasks.isEmpty() || !m_taskList.isEmpty())
+    m_summaryProgressWidget->setVisible((!m_runningTasks.isEmpty() || !m_taskList.isEmpty())
                                      && !m_progressViewPinned);
 }
 
@@ -605,9 +620,37 @@ void ProgressManagerPrivate::updateVisibilityWithDelay()
     QTimer::singleShot(150, this, SLOT(updateVisibility()));
 }
 
+void ProgressManagerPrivate::updateStatusDetailsWidget()
+{
+    QWidget *candidateWidget = 0;
+    // get newest progress with a status bar widget
+    QList<FutureProgress *>::iterator i = m_taskList.end();
+    while (i != m_taskList.begin()) {
+        --i;
+        candidateWidget = (*i)->statusBarWidget();
+        if (candidateWidget)
+            break;
+    }
+
+    if (candidateWidget == m_currentStatusDetailsWidget)
+        return;
+
+    if (m_currentStatusDetailsWidget) {
+        m_currentStatusDetailsWidget->hide();
+        m_summaryProgressLayout->removeWidget(m_currentStatusDetailsWidget);
+    }
+
+    if (candidateWidget) {
+        m_summaryProgressLayout->insertWidget(0, candidateWidget);
+        candidateWidget->show();
+    }
+
+    m_currentStatusDetailsWidget = candidateWidget;
+}
+
 void ProgressManagerPrivate::summaryProgressFinishedFading()
 {
-    m_summaryProgressBar->setVisible(false);
+    m_summaryProgressWidget->setVisible(false);
     m_opacityEffect->setOpacity(1.);
 }
 

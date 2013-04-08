@@ -42,17 +42,27 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-BuildProgress::BuildProgress(TaskWindow *taskWindow)
-        : m_errorIcon(new QLabel),
+BuildProgress::BuildProgress(TaskWindow *taskWindow, Qt::Orientation orientation)
+        : m_contentWidget(new QWidget),
+        m_errorIcon(new QLabel),
         m_warningIcon(new QLabel),
         m_errorLabel(new QLabel),
         m_warningLabel(new QLabel),
         m_taskWindow(taskWindow)
 {
-    QVBoxLayout *layout = new QVBoxLayout;
+    QHBoxLayout *contentLayout = new QHBoxLayout;
+    contentLayout->setContentsMargins(0, 0, 0, 0);
+    contentLayout->setSpacing(0);
+    setLayout(contentLayout);
+    contentLayout->addWidget(m_contentWidget);
+    QBoxLayout *layout;
+    if (orientation == Qt::Horizontal)
+        layout = new QHBoxLayout;
+    else
+        layout = new QVBoxLayout;
     layout->setContentsMargins(8, 2, 0, 2);
     layout->setSpacing(2);
-    setLayout(layout);
+    m_contentWidget->setLayout(layout);
     QHBoxLayout *errorLayout = new QHBoxLayout;
     errorLayout->setSpacing(2);
     layout->addLayout(errorLayout);
@@ -78,7 +88,7 @@ BuildProgress::BuildProgress(TaskWindow *taskWindow)
     m_errorIcon->setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/compile_error.png")));
     m_warningIcon->setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/compile_warning.png")));
 
-    hide();
+    m_contentWidget->hide();
 
     connect(m_taskWindow, SIGNAL(tasksChanged()), this, SLOT(updateState()));
 }
@@ -105,5 +115,5 @@ void BuildProgress::updateState()
     m_warningLabel->setVisible(haveWarnings);
     m_errorIcon->setVisible(haveErrors);
     m_errorLabel->setVisible(haveErrors);
-    setVisible(haveWarnings || haveErrors);
+    m_contentWidget->setVisible(haveWarnings || haveErrors);
 }
