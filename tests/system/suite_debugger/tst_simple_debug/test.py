@@ -16,7 +16,10 @@ def main():
         return
     # using a temporary directory won't mess up a potentially existing
     workingDir = tempDir()
-    checkedTargets, projectName = createNewQtQuickApplication(workingDir)
+    targetsVal = 0
+    for t in targets:
+        targetsVal |= t
+    checkedTargets, projectName = createNewQtQuickApplication(workingDir, targets=targetsVal)
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     if placeCursorToLine(editor, "MouseArea.*", True):
         type(editor, '<Up>')
