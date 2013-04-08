@@ -1,3 +1,5 @@
+import operator
+
 # for easier re-usage (because Python hasn't an enum type)
 class Targets:
     DESKTOP_474_GCC = 1
@@ -43,6 +45,17 @@ class Targets:
         if None in result:
             test.fatal("You've passed at least one unknown target!")
         return result
+
+    @staticmethod
+    def intToArray(targets):
+        available = [Targets.DESKTOP_474_GCC, Targets.SIMULATOR, Targets.MAEMO5, Targets.HARMATTAN,
+                     Targets.EMBEDDED_LINUX, Targets.DESKTOP_474_MSVC2008,
+                     Targets.DESKTOP_501_DEFAULT]
+        return filter(lambda x: x & targets == x, available)
+
+    @staticmethod
+    def arrayToInt(targetArr):
+        return reduce(operator.or_, targetArr, 0)
 
 # this class holds some constants for easier usage inside the Projects view
 class ProjectSettings:
