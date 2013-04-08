@@ -1129,6 +1129,11 @@ bool NodeMetaInfo::propertyIsEnumType(const PropertyName &propertyName) const
     return m_privateData->isPropertyEnum(propertyName);
 }
 
+bool NodeMetaInfo::propertyIsPrivate(const PropertyName &propertyName) const
+{
+    return propertyName.startsWith("__");
+}
+
 QString NodeMetaInfo::propertyEnumScope(const PropertyName &propertyName) const
 {
     return m_privateData->propertyEnumScope(propertyName);
