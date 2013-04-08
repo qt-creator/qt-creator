@@ -43,13 +43,11 @@ QT_BEGIN_NAMESPACE
 class QTimer;
 QT_END_NAMESPACE
 
-namespace CPlusPlus {
-    class AST;
-}
+namespace CPlusPlus { class AST; }
 
 namespace TextEditor {
-    class ITextEditor;
-    class ITextMark;
+class ITextEditor;
+class ITextMark;
 } // namespace TextEditor
 
 namespace CppTools {

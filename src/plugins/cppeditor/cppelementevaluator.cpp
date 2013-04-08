@@ -73,7 +73,7 @@ namespace {
 
 CppElementEvaluator::CppElementEvaluator(CPPEditorWidget *editor) :
     m_editor(editor),
-    m_modelManager(CppModelManagerInterface::instance()),
+    m_modelManager(CppTools::CppModelManagerInterface::instance()),
     m_tc(editor->textCursor()),
     m_lookupBaseClasses(false),
     m_lookupDerivedClasses(false)
@@ -348,18 +348,18 @@ void CppClass::lookupBases(Symbol *declaration, const CPlusPlus::LookupContext &
 
 void CppClass::lookupDerived(CPlusPlus::Symbol *declaration, const CPlusPlus::Snapshot &snapshot)
 {
-    typedef QPair<CppClass *, TypeHierarchy> Data;
+    typedef QPair<CppClass *, CppTools::TypeHierarchy> Data;
 
-    TypeHierarchyBuilder builder(declaration, snapshot);
-    const TypeHierarchy &completeHierarchy = builder.buildDerivedTypeHierarchy();
+    CppTools::TypeHierarchyBuilder builder(declaration, snapshot);
+    const CppTools::TypeHierarchy &completeHierarchy = builder.buildDerivedTypeHierarchy();
 
     QQueue<Data> q;
     q.enqueue(qMakePair(this, completeHierarchy));
     while (!q.isEmpty()) {
         const Data &current = q.dequeue();
         CppClass *clazz = current.first;
-        const TypeHierarchy &classHierarchy = current.second;
-        foreach (const TypeHierarchy &derivedHierarchy, classHierarchy.hierarchy()) {
+        const CppTools::TypeHierarchy &classHierarchy = current.second;
+        foreach (const CppTools::TypeHierarchy &derivedHierarchy, classHierarchy.hierarchy()) {
             clazz->derived.append(CppClass(derivedHierarchy.symbol()));
             q.enqueue(qMakePair(&clazz->derived.last(), derivedHierarchy));
         }

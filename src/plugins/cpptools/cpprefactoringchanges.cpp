@@ -87,9 +87,9 @@ public:
         m_modelManager->updateSourceFiles(QStringList(fileName));
     }
 
-    CPlusPlus::Snapshot m_snapshot;
-    CPlusPlus::CppModelManagerInterface *m_modelManager;
-    CPlusPlus::CppModelManagerInterface::WorkingCopy m_workingCopy;
+    Snapshot m_snapshot;
+    CppModelManagerInterface *m_modelManager;
+    CppModelManagerInterface::WorkingCopy m_workingCopy;
 
 };
 

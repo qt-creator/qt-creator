@@ -2489,7 +2489,7 @@ void DebuggerPluginPrivate::coreShutdown()
 const CPlusPlus::Snapshot &DebuggerPluginPrivate::cppCodeModelSnapshot() const
 {
     if (m_codeModelSnapshot.isEmpty() && action(UseCodeModel)->isChecked())
-        m_codeModelSnapshot = CPlusPlus::CppModelManagerInterface::instance()->snapshot();
+        m_codeModelSnapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
     return m_codeModelSnapshot;
 }
 

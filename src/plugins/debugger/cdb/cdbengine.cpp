@@ -2611,18 +2611,18 @@ class BreakpointCorrectionContext
 {
 public:
     explicit BreakpointCorrectionContext(const CPlusPlus::Snapshot &s,
-                                         const CPlusPlus::CppModelManagerInterface::WorkingCopy &workingCopy) :
+                                         const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy) :
         m_snapshot(s), m_workingCopy(workingCopy) {}
 
     unsigned fixLineNumber(const QString &fileName, unsigned lineNumber) const;
 
 private:
     const CPlusPlus::Snapshot m_snapshot;
-    CPlusPlus::CppModelManagerInterface::WorkingCopy m_workingCopy;
+    CppTools::CppModelManagerInterface::WorkingCopy m_workingCopy;
 };
 
 static CPlusPlus::Document::Ptr getParsedDocument(const QString &fileName,
-                                                  const CPlusPlus::CppModelManagerInterface::WorkingCopy &workingCopy,
+                                                  const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy,
                                                   const CPlusPlus::Snapshot &snapshot)
 {
     QString src;
@@ -2729,7 +2729,7 @@ void CdbEngine::attemptBreakpointSynchronization()
                 && m_options->breakpointCorrection) {
                 if (lineCorrection.isNull())
                     lineCorrection.reset(new BreakpointCorrectionContext(debuggerCore()->cppCodeModelSnapshot(),
-                                                                         CPlusPlus::CppModelManagerInterface::instance()->workingCopy()));
+                                                                         CppTools::CppModelManagerInterface::instance()->workingCopy()));
                 response.lineNumber = lineCorrection->fixLineNumber(parameters.fileName, parameters.lineNumber);
                 postCommand(cdbAddBreakpointCommand(response, m_sourcePathMappings, id, false), 0);
             } else {

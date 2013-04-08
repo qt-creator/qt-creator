@@ -39,7 +39,7 @@ namespace Internal {
 CppTodoItemsScanner::CppTodoItemsScanner(const KeywordList &keywordList, QObject *parent) :
     TodoItemsScanner(keywordList, parent)
 {
-    CPlusPlus::CppModelManagerInterface *modelManager = CPlusPlus::CppModelManagerInterface::instance();
+    CppTools::CppModelManagerInterface *modelManager = CppTools::CppModelManagerInterface::instance();
 
     connect(modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)), this,
         SLOT(documentUpdated(CPlusPlus::Document::Ptr)), Qt::DirectConnection);
@@ -47,9 +47,9 @@ CppTodoItemsScanner::CppTodoItemsScanner(const KeywordList &keywordList, QObject
 
 bool CppTodoItemsScanner::shouldProcessFile(const QString &fileName)
 {
-    CPlusPlus::CppModelManagerInterface *modelManager = CPlusPlus::CppModelManagerInterface::instance();
+    CppTools::CppModelManagerInterface *modelManager = CppTools::CppModelManagerInterface::instance();
 
-    foreach (const CPlusPlus::CppModelManagerInterface::ProjectInfo &info, modelManager->projectInfos())
+    foreach (const CppTools::CppModelManagerInterface::ProjectInfo &info, modelManager->projectInfos())
         if (info.project().data()->files(ProjectExplorer::Project::ExcludeGeneratedFiles).contains(fileName))
             return true;
 
@@ -61,10 +61,10 @@ void CppTodoItemsScanner::keywordListChanged()
     // We need to rescan everything known to the code model
     // TODO: It would be nice to only tokenize the source files, not update the code model entirely.
 
-    CPlusPlus::CppModelManagerInterface *modelManager = CPlusPlus::CppModelManagerInterface::instance();
+    CppTools::CppModelManagerInterface *modelManager = CppTools::CppModelManagerInterface::instance();
 
     QStringList filesToBeUpdated;
-    foreach (const CPlusPlus::CppModelManagerInterface::ProjectInfo &info, modelManager->projectInfos())
+    foreach (const CppTools::CppModelManagerInterface::ProjectInfo &info, modelManager->projectInfos())
         filesToBeUpdated << info.project().data()->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
 
     modelManager->updateSourceFiles(filesToBeUpdated);

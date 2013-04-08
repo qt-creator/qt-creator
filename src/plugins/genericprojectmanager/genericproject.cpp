@@ -243,13 +243,13 @@ void GenericProject::refresh(RefreshOptions options)
     if (options & Files)
         m_rootNode->refresh(oldFileList);
 
-    CPlusPlus::CppModelManagerInterface *modelManager =
-        CPlusPlus::CppModelManagerInterface::instance();
+    CppTools::CppModelManagerInterface *modelManager =
+        CppTools::CppModelManagerInterface::instance();
 
     if (modelManager) {
-        CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
+        CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
         pinfo.clearProjectParts();
-        CPlusPlus::ProjectPart::Ptr part(new CPlusPlus::ProjectPart);
+        CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
 
         Kit *k = activeTarget() ? activeTarget()->kit() : KitManager::instance()->defaultKit();
         if (ToolChain *tc = ToolChainKitInformation::toolChain(k)) {
@@ -271,22 +271,22 @@ void GenericProject::refresh(RefreshOptions options)
         // ### add _defines.
 
         // Add any C/C++ files to be parsed
-        CPlusPlus::ProjectFileAdder adder(part->files);
+        CppTools::ProjectFileAdder adder(part->files);
         foreach (const QString &file, files())
             adder.maybeAdd(file);
 
         QStringList filesToUpdate;
 
         if (options & Configuration) {
-            foreach (const CPlusPlus::ProjectFile &file, part->files)
+            foreach (const CppTools::ProjectFile &file, part->files)
                 filesToUpdate << file.path;
-            filesToUpdate.append(CPlusPlus::CppModelManagerInterface::configurationFileName());
+            filesToUpdate.append(CppTools::CppModelManagerInterface::configurationFileName());
             // Full update, if there's a code model update, cancel it
             m_codeModelFuture.cancel();
         } else if (options & Files) {
             // Only update files that got added to the list
             QSet<QString> newFileList;
-            foreach (const CPlusPlus::ProjectFile &file, part->files)
+            foreach (const CppTools::ProjectFile &file, part->files)
                 newFileList.insert(file.path);
             newFileList.subtract(oldFileList);
             filesToUpdate.append(newFileList.toList());

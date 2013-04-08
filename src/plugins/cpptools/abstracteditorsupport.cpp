@@ -45,8 +45,6 @@
 
 #include <QDebug>
 
-using namespace CPlusPlus;
-
 namespace CppTools {
 
 AbstractEditorSupport::AbstractEditorSupport(CppModelManagerInterface *modelmanager) :
@@ -97,5 +95,6 @@ QString AbstractEditorSupport::licenseTemplate(const QString &file, const QStrin
 {
     return Internal::CppFileSettings::licenseTemplate(file, className);
 }
-}
+
+} // namespace CppTools
 

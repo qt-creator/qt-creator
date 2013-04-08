@@ -446,9 +446,9 @@ bool Qt4Project::equalFileList(const QStringList &a, const QStringList &b)
     QStringList::const_iterator bend = b.constEnd();
 
     while (ait != aend && bit != bend) {
-        if (*ait == CPlusPlus::CppModelManagerInterface::configurationFileName())
+        if (*ait == CppTools::CppModelManagerInterface::configurationFileName())
             ++ait;
-        else if (*bit == CPlusPlus::CppModelManagerInterface::configurationFileName())
+        else if (*bit == CppTools::CppModelManagerInterface::configurationFileName())
             ++bit;
         else if (*ait == *bit)
             ++ait, ++bit;
@@ -472,8 +472,8 @@ void Qt4Project::updateCodeModels()
 
 void Qt4Project::updateCppCodeModel()
 {
-    typedef CPlusPlus::ProjectPart ProjectPart;
-    typedef CPlusPlus::ProjectFile ProjectFile;
+    typedef CppTools::ProjectPart ProjectPart;
+    typedef CppTools::ProjectFile ProjectFile;
 
     Kit *k = 0;
     QtSupport::BaseQtVersion *qtVersion = 0;
@@ -485,8 +485,8 @@ void Qt4Project::updateCppCodeModel()
     qtVersion = QtSupport::QtKitInformation::qtVersion(k);
     tc = ToolChainKitInformation::toolChain(k);
 
-    CPlusPlus::CppModelManagerInterface *modelmanager =
-        CPlusPlus::CppModelManagerInterface::instance();
+    CppTools::CppModelManagerInterface *modelmanager =
+        CppTools::CppModelManagerInterface::instance();
 
     if (!modelmanager)
         return;
@@ -494,7 +494,7 @@ void Qt4Project::updateCppCodeModel()
     FindQt4ProFiles findQt4ProFiles;
     QList<Qt4ProFileNode *> proFiles = findQt4ProFiles(rootProjectNode());
 
-    CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
+    CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
     pinfo.clearProjectParts();
     ProjectPart::QtVersion qtVersionForPart = ProjectPart::NoQt;
     if (qtVersion) {
@@ -567,7 +567,7 @@ void Qt4Project::updateCppCodeModel()
             part->files << ProjectFile(file, ProjectFile::CXXHeader);
         }
 
-        part->files.prepend(ProjectFile(CPlusPlus::CppModelManagerInterface::configurationFileName(),
+        part->files.prepend(ProjectFile(CppTools::CppModelManagerInterface::configurationFileName(),
                                         ProjectFile::CXXSource));
         foreach (const QString &file, pro->variableValue(ObjCSourceVar)) {
             allFiles << file;

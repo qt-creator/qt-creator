@@ -86,7 +86,7 @@
 #include <iostream>
 #include <sstream>
 
-namespace CPlusPlus {
+namespace CppTools {
 
 uint qHash(const ProjectPart &p)
 {
@@ -119,7 +119,7 @@ bool operator==(const ProjectPart &p1,
     return p1.frameworkPaths == p2.frameworkPaths;
 }
 
-} // namespace CPlusPlus
+} // namespace CppTools
 
 using namespace CppTools;
 using namespace CppTools::Internal;

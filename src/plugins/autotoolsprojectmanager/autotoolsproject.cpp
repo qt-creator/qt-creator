@@ -406,8 +406,8 @@ QList<Node *> AutotoolsProject::nodes(FolderNode *parent) const
 
 void AutotoolsProject::updateCppCodeModel()
 {
-    CPlusPlus::CppModelManagerInterface *modelManager =
-        CPlusPlus::CppModelManagerInterface::instance();
+    CppTools::CppModelManagerInterface *modelManager =
+        CppTools::CppModelManagerInterface::instance();
 
     if (!modelManager)
         return;
@@ -435,7 +435,7 @@ void AutotoolsProject::updateCppCodeModel()
         }
     }
 
-    CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
+    CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
 
     const bool update = (pinfo.includePaths() != allIncludePaths)
             || (pinfo.sourceFiles() != m_files)
@@ -443,15 +443,15 @@ void AutotoolsProject::updateCppCodeModel()
             || (pinfo.frameworkPaths() != allFrameworkPaths);
     if (update) {
         pinfo.clearProjectParts();
-        CPlusPlus::ProjectPart::Ptr part(new CPlusPlus::ProjectPart);
+        CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
         part->includePaths = allIncludePaths;
         foreach (const QString &file, m_files)
-            part->files << CPlusPlus::ProjectFile(file, CPlusPlus::ProjectFile::CXXSource);
+            part->files << CppTools::ProjectFile(file, CppTools::ProjectFile::CXXSource);
 
         part->defines = macros;
         part->frameworkPaths = allFrameworkPaths;
-        part->cVersion = CPlusPlus::ProjectPart::C99;
-        part->cxxVersion = CPlusPlus::ProjectPart::CXX11;
+        part->cVersion = CppTools::ProjectPart::C99;
+        part->cxxVersion = CppTools::ProjectPart::CXX11;
         pinfo.appendProjectPart(part);
 
         modelManager->updateProjectInfo(pinfo);

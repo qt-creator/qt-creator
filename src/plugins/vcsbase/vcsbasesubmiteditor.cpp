@@ -472,7 +472,7 @@ void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *model, const QString &re
     d->m_widget->setFileModel(model);
 
     QSet<QString> uniqueSymbols;
-    const CPlusPlus::Snapshot cppSnapShot = CPlusPlus::CppModelManagerInterface::instance()->snapshot();
+    const CPlusPlus::Snapshot cppSnapShot = CppTools::CppModelManagerInterface::instance()->snapshot();
 
     // Iterate over the files and get interesting symbols
     for (int row = 0; row < model->rowCount(); ++row) {

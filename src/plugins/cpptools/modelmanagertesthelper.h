@@ -72,7 +72,7 @@ class ModelManagerTestHelper: public QObject
     Q_OBJECT
 
 public:
-    typedef CPlusPlus::CppModelManagerInterface::ProjectInfo ProjectInfo;
+    typedef CppModelManagerInterface::ProjectInfo ProjectInfo;
     typedef ProjectExplorer::Project Project;
 
     explicit ModelManagerTestHelper(QObject *parent = 0);

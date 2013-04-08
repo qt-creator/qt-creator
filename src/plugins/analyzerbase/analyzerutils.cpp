@@ -82,7 +82,7 @@ CPlusPlus::Symbol *AnalyzerUtils::findSymbolUnderCursor()
     const int pos = tc.position();
     editorWidget->convertPosition(pos, &line, &column);
 
-    const CPlusPlus::Snapshot &snapshot = CPlusPlus::CppModelManagerInterface::instance()->snapshot();
+    const CPlusPlus::Snapshot &snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
     CPlusPlus::Document::Ptr doc = snapshot.document(editor->document()->fileName());
     QTC_ASSERT(doc, return 0);
 

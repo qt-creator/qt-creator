@@ -58,6 +58,7 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
     m_fileListModel(new QStandardItemModel(this))
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setMargin(0);
 
     //
     // Qt Version, Arguments

@@ -702,9 +702,9 @@ void FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &document)
 
     FindExportsVisitor finder(document);
     finder();
-    if (CppModelManagerInterface *cppModelManager = CppModelManagerInterface::instance()) {
+    if (CppTools::CppModelManagerInterface *cppModelManager = CppTools::CppModelManagerInterface::instance()) {
         cppModelManager->setExtraDiagnostics(
-                    document->fileName(), CppModelManagerInterface::ExportedQmlTypesDiagnostic,
+                    document->fileName(), CppTools::CppModelManagerInterface::ExportedQmlTypesDiagnostic,
                     finder.messages());
     }
 

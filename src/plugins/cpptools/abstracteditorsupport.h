@@ -34,16 +34,13 @@
 
 #include <QString>
 
-namespace CPlusPlus {
-class CppModelManagerInterface;
-}
-
 namespace CppTools {
+class CppModelManagerInterface;
 
 class CPPTOOLS_EXPORT AbstractEditorSupport
 {
 public:
-    explicit AbstractEditorSupport(CPlusPlus::CppModelManagerInterface *modelmanager);
+    explicit AbstractEditorSupport(CppModelManagerInterface *modelmanager);
     virtual ~AbstractEditorSupport();
 
     virtual QByteArray contents() const = 0;
@@ -52,16 +49,16 @@ public:
     void updateDocument();
 
     // TODO: find a better place for common utility functions
-    static QString functionAt(const CPlusPlus::CppModelManagerInterface *mm,
+    static QString functionAt(const CppModelManagerInterface *mm,
                               const QString &fileName,
                               int line, int column);
 
     static QString licenseTemplate(const QString &file = QString(), const QString &className = QString());
 
 private:
-    CPlusPlus::CppModelManagerInterface *m_modelmanager;
+    CppModelManagerInterface *m_modelmanager;
 };
 
-}
+} // namespace CppTools
 
 #endif // ABSTRACTEDITORSUPPORT_H

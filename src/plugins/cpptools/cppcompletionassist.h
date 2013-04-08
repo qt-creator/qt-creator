@@ -60,7 +60,7 @@ class LookupItem;
 class ClassOrNamespace;
 class Function;
 class LookupContext;
-}
+} // namespace CPlusPlus
 
 namespace CppTools {
 namespace Internal {
