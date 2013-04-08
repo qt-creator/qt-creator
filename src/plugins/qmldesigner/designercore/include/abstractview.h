@@ -68,6 +68,9 @@ public:
         {}
 
         virtual QList<QToolButton*> createToolBarWidgets() = 0;
+
+        virtual ~ToolBarWidgetFactoryInterface()
+        {}
     };
 
     template <class T>
@@ -186,6 +189,7 @@ public:
     virtual void propertiesRemoved(const QList<AbstractProperty>& propertyList) = 0;
     virtual void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange) = 0;
     virtual void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) = 0;
+    virtual void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty>& propertyList, PropertyChangeFlags propertyChange) = 0;
     virtual void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) = 0;
 
     virtual void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList) = 0;

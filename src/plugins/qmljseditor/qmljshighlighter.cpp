@@ -296,8 +296,6 @@ int Highlighter::onBlockStart()
 
 void Highlighter::onBlockEnd(int state)
 {
-    typedef TextEditor::TextBlockUserData TextEditorBlockData;
-
     setCurrentBlockState((m_braceDepth << 8) | state);
     TextEditor::BaseTextDocumentLayout::setParentheses(currentBlock(), m_currentBlockParentheses);
     TextEditor::BaseTextDocumentLayout::setFoldingIndent(currentBlock(), m_foldingIndent);

@@ -59,6 +59,9 @@ void DesignDocumentView::propertiesAboutToBeRemoved(const QList<AbstractProperty
 void DesignDocumentView::propertiesRemoved(const QList<AbstractProperty>& /*propertyList*/) {}
 void DesignDocumentView::variantPropertiesChanged(const QList<VariantProperty>& /*propertyList*/, AbstractView::PropertyChangeFlags /*propertyChange*/) {}
 void DesignDocumentView::bindingPropertiesChanged(const QList<BindingProperty>& /*propertyList*/, AbstractView::PropertyChangeFlags /*propertyChange*/) {}
+void DesignDocumentView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> & /*propertyList*/,
+                                                        AbstractView::PropertyChangeFlags /*propertyChange*/)
+{}
 void DesignDocumentView::rootNodeTypeChanged(const QString & /*type*/, int /*majorVersion*/, int /*minorVersion*/) {}
 
 void DesignDocumentView::selectedNodesChanged(const QList<ModelNode> & /*selectedNodeList*/,

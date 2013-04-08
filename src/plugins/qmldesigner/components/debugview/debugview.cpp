@@ -34,6 +34,7 @@
 #include <designersettings.h>
 
 #include <bindingproperty.h>
+#include <signalhandlerproperty.h>
 #include <nodeabstractproperty.h>
 #include <variantproperty.h>
 
@@ -182,6 +183,19 @@ void DebugView::bindingPropertiesChanged(const QList<BindingProperty> &propertyL
             message << property;
         }
         log(tr("BindingProperties changed:"), string);
+    }
+}
+
+void DebugView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &propertyList, AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+    if (isDebugViewEnabled()) {
+        QTextStream message;
+        QString string;
+        message.setString(&string);
+        foreach (const SignalHandlerProperty &property, propertyList) {
+            message << property;
+        }
+        log(tr("SignalHandlerProperties changed:"), string);
     }
 }
 

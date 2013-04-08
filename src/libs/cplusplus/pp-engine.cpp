@@ -702,6 +702,7 @@ QByteArray Preprocessor::run(const QString &fileName,
     m_scratchBuffer.clear();
 
     QByteArray preprocessed, includeGuardMacroName;
+    preprocessed.reserve(source.size() * 2); // multiply by 2 because we insert #gen lines.
     preprocess(fileName, source, &preprocessed, &includeGuardMacroName, noLines,
                markGeneratedTokens, false);
     if (!includeGuardMacroName.isEmpty())

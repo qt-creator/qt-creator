@@ -35,7 +35,6 @@
 #include <basetexteditmodifier.h>
 #include <componenttextmodifier.h>
 #include <subcomponentmanager.h>
-#include <model/viewlogger.h>
 
 #include <QObject>
 #include <QString>

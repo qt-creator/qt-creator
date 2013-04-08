@@ -440,6 +440,8 @@ bool AndroidPackageCreationStep::createPackage()
     QFile::remove(m_gdbServerDestination.toString());
     if (m_debugBuild || !m_certificateAlias.length()) {
         build << QLatin1String("debug");
+        QDir dir;
+        dir.mkpath(m_gdbServerDestination.toFileInfo().absolutePath());
         if (!QFile::copy(m_gdbServerSource.toString(), m_gdbServerDestination.toString())) {
             raiseError(tr("Can't copy gdbserver from '%1' to '%2'").arg(m_gdbServerSource.toUserOutput())
                        .arg(m_gdbServerDestination.toUserOutput()));

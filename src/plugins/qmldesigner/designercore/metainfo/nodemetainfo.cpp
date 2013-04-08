@@ -164,10 +164,19 @@ public:
         return true;
     }
 
+    virtual bool processSignal(const QString &name, const Value * /*value*/)
+    {
+        m_signals.append(name.toUtf8());
+        return true;
+    }
+
     QList<PropertyInfo> properties() const { return m_properties; }
+
+    PropertyNameList signalList() const { return m_signals; }
 
 private:
     QList<PropertyInfo> m_properties;
+    PropertyNameList m_signals;
     const ContextPtr m_context;
 };
 
@@ -278,6 +287,32 @@ QList<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const Cont
     return propertyList;
 }
 
+PropertyNameList getSignals(const ObjectValue *objectValue, const ContextPtr &context, bool local = false)
+{
+    PropertyNameList signalList;
+
+     if (!objectValue)
+        return signalList;
+    if (objectValue->className().isEmpty())
+        return signalList;
+
+    PropertyMemberProcessor processor(context);
+    objectValue->processMembers(&processor);
+
+    signalList.append(processor.signalList());
+
+    if (!local) {
+        const ObjectValue* prototype = objectValue->prototype(context);
+
+        if (prototype == objectValue)
+            return signalList;
+
+        signalList.append(getSignals(prototype, context));
+    }
+
+    return signalList;
+}
+
 QList<PropertyInfo> getTypes(const ObjectValue *objectValue, const ContextPtr &context, bool local = false)
 {
     QList<PropertyInfo> propertyList;
@@ -334,6 +369,7 @@ public:
     bool isFileComponent() const;
     PropertyNameList properties() const;
     PropertyNameList localProperties() const;
+    PropertyNameList signalNames() const;
     PropertyName defaultPropertyName() const;
     TypeName propertyType(const PropertyName &propertyName) const;
 
@@ -386,6 +422,7 @@ private:
     bool m_isValid;
     bool m_isFileComponent;
     PropertyNameList m_properties;
+    PropertyNameList m_signals;
     QList<TypeName> m_propertyTypes;
     PropertyNameList m_localProperties;
     PropertyName m_defaultPropertyName;
@@ -416,6 +453,11 @@ PropertyNameList NodeMetaInfoPrivate::properties() const
 PropertyNameList NodeMetaInfoPrivate::localProperties() const
 {
     return m_localProperties;
+}
+
+PropertyNameList NodeMetaInfoPrivate::signalNames() const
+{
+    return m_signals;
 }
 
 QSet<QString> &NodeMetaInfoPrivate::prototypeCachePositives()
@@ -484,6 +526,7 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, i
             m_defaultPropertyName = objectValue->defaultPropertyName().toUtf8();
             m_isValid = true;
             setupPrototypes();
+            m_signals = getSignals(objectValue, context());
         } else {
             const ObjectValue *objectValue = getObjectValue();
             if (objectValue) {
@@ -512,6 +555,7 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, i
                 m_defaultPropertyName = context()->defaultPropertyName(objectValue).toUtf8();
                 m_isValid = true;
                 setupPrototypes();
+                m_signals = getSignals(objectValue, context());
             }
         }
     }
@@ -1043,6 +1087,11 @@ bool NodeMetaInfo::hasProperty(const PropertyName &propertyName) const
 PropertyNameList NodeMetaInfo::propertyNames() const
 {
     return m_privateData->properties();
+}
+
+PropertyNameList NodeMetaInfo::signalNames() const
+{
+    return m_privateData->signalNames();
 }
 
 PropertyNameList NodeMetaInfo::directPropertyNames() const

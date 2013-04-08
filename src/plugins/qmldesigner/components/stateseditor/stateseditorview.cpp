@@ -342,6 +342,12 @@ void StatesEditorView::bindingPropertiesChanged(const QList<BindingProperty> &/*
 
 }
 
+void StatesEditorView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> & /*propertyList*/,
+                                                      AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+
+}
+
 void StatesEditorView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/, const QList<ModelNode> &/*lastSelectedNodeList*/)
 {
 

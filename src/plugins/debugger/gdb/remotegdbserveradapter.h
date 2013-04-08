@@ -70,20 +70,25 @@ signals:
      * a server start script should be used, but none is given.
      */
     void requestSetup();
+    void aboutToNotifyInferiorSetupOk();
 
 private:
     Q_SLOT void readUploadStandardOutput();
     Q_SLOT void readUploadStandardError();
     Q_SLOT void uploadProcError(QProcess::ProcessError error);
     Q_SLOT void uploadProcFinished();
+    Q_SLOT void callTargetRemote();
 
-    virtual void notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort);
-    virtual void notifyEngineRemoteSetupFailed(const QString &reason);
+    void notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort);
+    void notifyEngineRemoteSetupFailed(const QString &reason);
+    void notifyEngineRemoteServerRunning(const QByteArray &serverChannel, int inferiorPid);
+    void notifyInferiorSetupOk();
 
     void handleSetTargetAsync(const GdbResponse &response);
     void handleFileExecAndSymbols(const GdbResponse &response);
-    void callTargetRemote();
     void handleTargetRemote(const GdbResponse &response);
+    void handleTargetExtendedRemote(const GdbResponse &response);
+    void handleTargetExtendedAttach(const GdbResponse &response);
     void handleTargetQnx(const GdbResponse &response);
     void handleAttach(const GdbResponse &response);
     void handleInterruptInferior(const GdbResponse &response);
@@ -91,6 +96,9 @@ private:
 
     QProcess m_uploadProc;
     LocalGdbProcess m_gdbProc;
+    bool m_isMulti;
+    int m_targetPid;
+    QByteArray m_serverChannel;
 };
 
 } // namespace Internal

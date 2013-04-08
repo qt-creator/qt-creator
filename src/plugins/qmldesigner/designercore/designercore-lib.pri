@@ -44,7 +44,6 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/exceptions/invalidslideindexexception.cpp \
     $$PWD/model/import.cpp \
     $$PWD/exceptions/invalidqmlsourceexception.cpp \
-    $$PWD/model/viewlogger.cpp \
     $$PWD/model/internalvariantproperty.cpp \
     $$PWD/model/internalnodelistproperty.cpp \
     $$PWD/model/variantproperty.cpp \
@@ -76,7 +75,9 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/qmltextgenerator.cpp \
     $$PWD/model/modelmerger.cpp \
     $$PWD/exceptions/rewritingexception.cpp \
-    $$PWD/model/viewmanager.cpp
+    $$PWD/model/viewmanager.cpp \
+    $$PWD/model/signalhandlerproperty.cpp \
+    $$PWD/model/internalsignalhandlerproperty.cpp
 
 HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/include/abstractview.h \
@@ -112,7 +113,6 @@ HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/include/invalidslideindexexception.h \
     $$PWD/include/import.h \
     $$PWD/include/invalidqmlsourceexception.h \
-    $$PWD/model/viewlogger.h \
     $$PWD/model/internalvariantproperty.h \
     $$PWD/model/internalnodelistproperty.h \
     $$PWD/include/variantproperty.h \
@@ -147,7 +147,9 @@ HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/include/mathutils.h \
     $$PWD/include/customnotifications.h \
     $$PWD/include/rewritingexception.h \
-    $$PWD/include/viewmanager.h
+    $$PWD/include/viewmanager.h \
+    $$PWD/include/signalhandlerproperty.h \
+    $$PWD/model/internalsignalhandlerproperty.h
 
 contains(CONFIG, plugin) {
   # If core.pri has been included in the qmldesigner plugin

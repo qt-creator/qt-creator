@@ -238,7 +238,7 @@ def selectFromFileDialog(fileName, waitForFile=False):
         nativeType(fileName)
         snooze(1)
         nativeType("<Return>")
-        snooze(2)
+        snooze(3)
         nativeType("<Return>")
         snooze(1)
     else:
@@ -267,9 +267,10 @@ def addHelpDocumentationFromSDK():
     clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Documentation")
     # get rid of all docs already registered
     listWidget = waitForObject("{type='QListWidget' name='docsListWidget' visible='1'}")
-    for i in range(listWidget.count):
+    if listWidget.count > 0:
         rect = listWidget.visualItemRect(listWidget.item(0))
         mouseClick(listWidget, rect.x+5, rect.y+5, 0, Qt.LeftButton)
+        type(listWidget, "<Ctrl+A>")
         mouseClick(waitForObject("{type='QPushButton' name='removeButton' visible='1'}"), 5, 5, 0, Qt.LeftButton)
     clickButton(waitForObject("{type='QPushButton' name='addButton' visible='1' text='Add...'}"))
     selectFromFileDialog("%s/Documentation/qt.qch" % sdkPath)
@@ -600,3 +601,15 @@ def writeTestResults(folder):
     for cat in categories:
         resultFile.write("%s:%d\n" % (cat, test.resultCount(cat)))
     resultFile.close()
+
+# wait and verify if object exists/not exists
+def checkIfObjectExists(name, shouldExist = True, timeout = 3000, verboseOnFail = False):
+    result = waitFor("object.exists(name) == shouldExist", timeout)
+    if verboseOnFail and not result:
+        test.log("checkIfObjectExists() failed for '%s'" % name)
+    return result
+
+# wait for progress bar(s) to appear and disappear
+def progressBarWait():
+    checkIfObjectExists("{type='Core::Internal::ProgressBar' unnamed='1'}", True, 2000)
+    checkIfObjectExists("{type='Core::Internal::ProgressBar' unnamed='1'}", False, 60000)

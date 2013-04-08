@@ -37,6 +37,7 @@
 #include "invalidpropertyexception.h"
 #include "variantproperty.h"
 #include "bindingproperty.h"
+#include "signalhandlerproperty.h"
 #include "nodeproperty.h"
 #include "nodeabstractproperty.h"
 #include "nodelistproperty.h"
@@ -257,6 +258,19 @@ NodeProperty AbstractProperty::toNodeProperty() const
     return NodeProperty();
 }
 
+SignalHandlerProperty AbstractProperty::toSignalHandlerProperty() const
+{
+    if (!isValid())
+        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, m_propertyName);
+
+    SignalHandlerProperty propertyNode(name(), internalNode(), model(), view());
+
+    if (propertyNode.isSignalHandlerProperty())
+        return propertyNode;
+
+    return SignalHandlerProperty();
+}
+
 NodeListProperty AbstractProperty::toNodeListProperty() const
 {
     if (!isValid())
@@ -343,6 +357,19 @@ bool AbstractProperty::isNodeProperty() const
     if (internalNode()->hasProperty(name())) {
         Q_ASSERT(internalNode()->property(name()));
         return internalNode()->property(name())->isNodeProperty();
+    }
+
+    return false;
+}
+
+bool AbstractProperty::isSignalHandlerProperty() const
+{
+    if (!isValid())
+        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, m_propertyName);
+
+    if (internalNode()->hasProperty(name())) {
+        Q_ASSERT(internalNode()->property(name()));
+        return internalNode()->property(name())->isSignalHandlerProperty();
     }
 
     return false;

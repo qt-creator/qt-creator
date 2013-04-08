@@ -39,7 +39,7 @@ def main():
             continue
 
         if platform.system() == 'Darwin':
-            JIRA.performWorkaroundIfStillOpen(6918, JIRA.Bug.CREATOR, editor)
+            JIRA.performWorkaroundIfStillOpen(8735, JIRA.Bug.CREATOR, editor)
         contentBefore = readFile(currentFile)
         popupText = "The file %s was removed. Do you want to save it under a different name, or close the editor?"
         os.remove(currentFile)

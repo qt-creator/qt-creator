@@ -5,9 +5,6 @@ workingDir = None
 def main():
     global workingDir
     startApplication("qtcreator" + SettingsPath)
-    targets = [QtQuickConstants.Targets.DESKTOP_474_GCC]
-    if platform.system() in ('Windows', 'Microsoft'):
-        targets.append(QtQuickConstants.Targets.DESKTOP_474_MSVC2008)
     # using a temporary directory won't mess up a potentially existing
     workingDir = tempDir()
     checkedTargets, projectName = createNewQtQuickApplication(workingDir)
@@ -29,8 +26,9 @@ def main():
         if not availableConfigs:
             test.fatal("Haven't found a suitable Qt version (need Qt 4.7.4) - leaving without debugging.")
         for kit, config in availableConfigs:
-            test.log("Selecting '%s' as build config" % config)
-            selectBuildConfig(len(checkedTargets), kit, config)
+            qtVersion = selectBuildConfig(len(checkedTargets), kit, config)[0]
+            test.log("Selected kit using Qt %s" % qtVersion)
+            progressBarWait() # progress bars move buttons
             verifyBuildConfig(len(checkedTargets), kit, True, enableQmlDebug=True)
             # explicitly build before start debugging for adding the executable as allowed program to WinFW
             invokeMenuItem("Build", "Rebuild All")
@@ -56,20 +54,40 @@ def main():
             if safeClickTab("Events"):
                 model = waitForObject(":Events.QmlProfilerEventsTable_QmlProfiler::"
                                       "Internal::QmlProfilerEventsMainView").model()
-                test.compare(model.rowCount(), 2) # Only two lines with Qt 4.7, more with Qt 4.8
-                test.compare(dumpItems(model, column=0), ['<program>', 'main.qml:14'])
-                test.compare(dumpItems(model, column=1), ['Binding', 'Signal'])
-                test.compare(dumpItems(model, column=2), ['100.00 %', '100.00 %'])
-                test.compare(dumpItems(model, column=4), ['1', '2'])
-                test.compare(dumpItems(model, column=9), ['Main Program', 'triggered(): { var i; for (i = 1; i < 2500; ++i) '
-                                                          '{ var j = i * i; console.log(j); } }'])
+                if qtVersion.startswith("5."):
+                    compareEventsTab(model, "events_qt50.tsv")
+                else:
+                    compareEventsTab(model, "events_qt47.tsv")
+                    test.verify(str(model.index(0, 8).data()).endswith(' ms'))
+                    test.xverify(str(model.index(1, 8).data()).endswith(' ms')) # QTCREATORBUG-8996
+                test.compare(dumpItems(model, column=2)[0], '100.00 %')
                 for i in [3, 5, 6, 7]:
-                    for item in dumpItems(model, column=i):
+                    for item in dumpItems(model, column=i)[:4]:
                         test.verify(item.endswith(' ms'))
-                test.verify(str(model.index(0, 8).data()).endswith(' ms'))
-                test.xverify(str(model.index(1, 8).data()).endswith(' ms')) # QTCREATORBUG-8996
             deleteAppFromWinFW(workingDir, projectName, False)
     invokeMenuItem("File", "Exit")
+
+def compareEventsTab(model, file):
+    significantColumns = [0, 1, 4, 9]
+
+    expectedTable = []
+    for record in testData.dataset(file):
+        expectedTable.append([testData.field(record, str(col)) for col in significantColumns])
+    foundTable = []
+    for row in range(model.rowCount()):
+        foundTable.append([str(model.index(row, col).data()) for col in significantColumns])
+
+    test.compare(model.rowCount(), len(expectedTable),
+                 "Checking number of rows in Events table")
+    if not test.verify(containsOnce(expectedTable, foundTable),
+                       "Verifying that Events table matches expected values"):
+        test.log("Events displayed by Creator: %s" % foundTable)
+
+def containsOnce(tuple, items):
+    for item in items:
+        if tuple.count(item) != 1:
+            return False
+    return True
 
 def safeClickTab(tab):
     for bar in [":*Qt Creator.JavaScript_QTabBar",

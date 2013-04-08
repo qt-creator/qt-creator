@@ -40,6 +40,7 @@
 #include "textmodifier.h"
 #include "rewriterview.h"
 #include "variantproperty.h"
+#include "signalhandlerproperty.h"
 #include "nodemetainfo.h"
 #include "qmldesignercorelib_global.h"
 
@@ -261,6 +262,11 @@ static bool isCustomParserType(const QString &type)
 static bool isPropertyChangesType(const QmlDesigner::TypeName &type)
 {
     return  type == "PropertyChanges" || type == "QtQuick.PropertyChanges" || type == "Qt.PropertyChanges";
+}
+
+static bool isConnectionsType(const QmlDesigner::TypeName &type)
+{
+    return  type == "Connections" || type == "QtQuick.Connections" || type == "Qt.Connections";
 }
 
 static bool propertyIsComponentType(const QmlDesigner::NodeAbstractProperty &property, const QmlDesigner::TypeName &type, QmlDesigner::Model *model)
@@ -916,7 +922,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
         if (UiArrayBinding *array = cast<UiArrayBinding *>(member)) {
             const QString astPropertyName = toString(array->qualifiedId);
-            if (isPropertyChangesType(typeName) || context->lookupProperty(QString(), array->qualifiedId)) {
+            if (isPropertyChangesType(typeName) || isConnectionsType(typeName) || context->lookupProperty(QString(), array->qualifiedId)) {
                 AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
                 QList<UiObjectMember *> arrayMembers;
                 for (UiArrayMemberList *iter = array->members; iter; iter = iter->next)
@@ -950,7 +956,9 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 const Value *propertyType = 0;
                 const ObjectValue *containingObject = 0;
                 QString name;
-                if (context->lookupProperty(QString(), binding->qualifiedId, &propertyType, &containingObject, &name) || isPropertyChangesType(typeName)) {
+                if (context->lookupProperty(QString(), binding->qualifiedId, &propertyType, &containingObject, &name)
+                        || isPropertyChangesType(typeName)
+                        || isConnectionsType(typeName)) {
                     AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
                     if (context->isArrayProperty(propertyType, containingObject, name))
                         syncArrayProperty(modelProperty, QList<QmlJS::AST::UiObjectMember*>() << member, context, differenceHandler);
@@ -1050,11 +1058,15 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
         return astPropertyName.toUtf8();
     }
 
-    if (isSignalPropertyName(astPropertyName))
-        return PropertyName();
+    if (isSignalPropertyName(astPropertyName)) {
+        AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
+        syncSignalHandler(modelProperty, astValue, differenceHandler);
+        return astPropertyName.toUtf8();
+    }
 
     if (isLiteralValue(script)) {
-        if (isPropertyChangesType(modelNode.type())) {
+        if (isPropertyChangesType(modelNode.type())
+                || isConnectionsType(modelNode.type())) {
             AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
             const QVariant variantValue(deEscape(stripQuotes(astValue)));
             syncVariantProperty(modelProperty, variantValue, TypeName(), differenceHandler);
@@ -1079,7 +1091,9 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
         syncVariantProperty(modelProperty, enumValue, TypeName(), differenceHandler); // TODO: parse type
         return astPropertyName.toUtf8();
     } else { // Not an enum, so:
-        if (isPropertyChangesType(modelNode.type()) || context->lookupProperty(prefix, script->qualifiedId)) {
+        if (isPropertyChangesType(modelNode.type())
+                || isConnectionsType(modelNode.type())
+                || context->lookupProperty(prefix, script->qualifiedId)) {
             AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
             syncExpressionProperty(modelProperty, astValue, TypeName(), differenceHandler); // TODO: parse type
             return astPropertyName.toUtf8();
@@ -1158,6 +1172,21 @@ void TextToModelMerger::syncExpressionProperty(AbstractProperty &modelProperty,
         differenceHandler.shouldBeBindingProperty(modelProperty, javascript, astType);
     }
 }
+
+void TextToModelMerger::syncSignalHandler(AbstractProperty &modelProperty,
+                                               const QString &javascript,
+                                               DifferenceHandler &differenceHandler)
+{
+    if (modelProperty.isSignalHandlerProperty()) {
+        SignalHandlerProperty signalHandlerProperty = modelProperty.toSignalHandlerProperty();
+        if (signalHandlerProperty.source() != javascript) {
+            differenceHandler.signalHandlerSourceDiffer(signalHandlerProperty, javascript);
+        }
+    } else {
+        differenceHandler.shouldBeSignalHandlerProperty(modelProperty, javascript);
+    }
+}
+
 
 void TextToModelMerger::syncArrayProperty(AbstractProperty &modelProperty,
                                           const QList<UiObjectMember *> &arrayMembers,
@@ -1321,6 +1350,21 @@ void ModelValidator::shouldBeBindingProperty(AbstractProperty &modelProperty,
     Q_ASSERT(0);
 }
 
+void ModelValidator::signalHandlerSourceDiffer(SignalHandlerProperty &modelProperty, const QString &javascript)
+{
+    Q_UNUSED(modelProperty)
+    Q_UNUSED(javascript)
+    Q_ASSERT(modelProperty.source() == javascript);
+    Q_ASSERT(0);
+}
+
+void ModelValidator::shouldBeSignalHandlerProperty(AbstractProperty &modelProperty, const QString &javascript)
+{
+    Q_UNUSED(modelProperty)
+    Q_ASSERT(modelProperty.isSignalHandlerProperty());
+    Q_ASSERT(0);
+}
+
 void ModelValidator::shouldBeNodeListProperty(AbstractProperty &modelProperty,
                                               const QList<UiObjectMember *> /*arrayMembers*/,
                                               ReadingContext * /*context*/)
@@ -1448,6 +1492,18 @@ void ModelAmender::shouldBeBindingProperty(AbstractProperty &modelProperty,
         newModelProperty.setExpression(javascript);
     else
         newModelProperty.setDynamicTypeNameAndExpression(astType, javascript);
+}
+
+void ModelAmender::signalHandlerSourceDiffer(SignalHandlerProperty &modelProperty, const QString &javascript)
+{
+    modelProperty.setSource(javascript);
+}
+
+void ModelAmender::shouldBeSignalHandlerProperty(AbstractProperty &modelProperty, const QString &javascript)
+{
+    ModelNode theNode = modelProperty.parentModelNode();
+    SignalHandlerProperty newModelProperty = theNode.signalHandlerProperty(modelProperty.name());
+    newModelProperty.setSource(javascript);
 }
 
 void ModelAmender::shouldBeNodeListProperty(AbstractProperty &modelProperty,

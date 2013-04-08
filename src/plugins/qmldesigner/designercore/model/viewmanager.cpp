@@ -112,10 +112,6 @@ void ViewManager::detachViewsExceptRewriterAndComponetView()
     if (m_debugView.isAttached())
         currentModel()->detachView(&m_debugView);
     currentModel()->setNodeInstanceView(0);
-
-    static bool enableViewLogger = !qgetenv("QTC_ENABLE_QMLDESIGNER_LOGGER").isEmpty();
-    if (enableViewLogger)
-        currentModel()->detachView(&m_viewLogger);
 }
 
 void ViewManager::attachItemLibraryView()
@@ -150,10 +146,6 @@ void ViewManager::detachComponentView()
 
 void ViewManager::attachViewsExceptRewriterAndComponetView()
 {
-    static bool enableViewLogger = !qgetenv("QTC_ENABLE_QMLDESIGNER_LOGGER").isEmpty();
-    if (enableViewLogger)
-        currentModel()->attachView(&m_viewLogger);
-
     if (QmlDesignerPlugin::instance()->settings().enableDebugView)
         currentModel()->attachView(&m_debugView);
     attachNodeInstanceView();

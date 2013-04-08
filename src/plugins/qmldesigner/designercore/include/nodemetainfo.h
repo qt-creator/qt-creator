@@ -71,6 +71,7 @@ public:
     bool isFileComponent() const;
     bool hasProperty(const PropertyName &propertyName) const;
     PropertyNameList propertyNames() const;
+    PropertyNameList signalNames() const;
     PropertyNameList directPropertyNames() const;
     PropertyName defaultPropertyName() const;
     bool hasDefaultProperty() const;

@@ -1249,6 +1249,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
 
 bool GdbEngine::acceptsDebuggerCommands() const
 {
+    return true;
     return state() == InferiorStopOk
         || state() == InferiorUnrunnable;
 }
@@ -3728,7 +3729,7 @@ void GdbEngine::handleThreadInfo(const GdbResponse &response)
                 selectThread(other);
         }
         updateViews(); // Adjust Threads combobox.
-        if (m_hasInferiorThreadList && debuggerCore()->boolSetting(ShowThreadNames)) {
+        if (false && m_hasInferiorThreadList && debuggerCore()->boolSetting(ShowThreadNames)) {
             postCommand("threadnames " +
                 debuggerCore()->action(MaximalStackDepth)->value().toByteArray(),
                 Discardable, CB(handleThreadNames));

@@ -315,7 +315,7 @@ void ModelToTextMerger::schedule(RewriteAction *action)
 
 QmlDesigner::QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const AbstractProperty &property, const QString &textValue)
 {
-    if (property.isBindingProperty()) {
+    if (property.isBindingProperty() || property.isSignalHandlerProperty()) {
         QString val = textValue.trimmed();
         if (val.isEmpty())
             return QmlDesigner::QmlRefactoring::ObjectBinding;

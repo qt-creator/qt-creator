@@ -44,6 +44,7 @@
 #include "model_p.h"
 #include "variantproperty.h"
 #include "bindingproperty.h"
+#include "signalhandlerproperty.h"
 #include "nodeabstractproperty.h"
 #include "nodelistproperty.h"
 #include "nodeproperty.h"
@@ -402,6 +403,14 @@ BindingProperty ModelNode::bindingProperty(const PropertyName &name) const
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
     return BindingProperty(name, m_internalNode, model(), view());
+}
+
+SignalHandlerProperty ModelNode::signalHandlerProperty(const PropertyName &name) const
+{
+    if (!isValid())
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    return SignalHandlerProperty(name, m_internalNode, model(), view());
 }
 
 

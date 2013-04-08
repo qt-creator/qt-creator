@@ -16,7 +16,8 @@ class QtQuickConstants:
 
     @staticmethod
     def desktopTargetClasses():
-        desktopTargets = QtQuickConstants.Targets.DESKTOP_474_GCC
+        desktopTargets = QtQuickConstants.Targets.DESKTOP_474_GCC \
+                         | QtQuickConstants.Targets.DESKTOP_501_DEFAULT
         if platform.system() in ('Windows', 'Microsoft'):
             desktopTargets |= QtQuickConstants.Targets.DESKTOP_474_MSVC2008
         return desktopTargets

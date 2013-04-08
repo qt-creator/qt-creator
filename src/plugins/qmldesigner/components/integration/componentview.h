@@ -78,6 +78,8 @@ public:
                                   PropertyChangeFlags propertyChange) QTC_OVERRIDE;
     void bindingPropertiesChanged(const QList<BindingProperty>& propertyList,
                                   PropertyChangeFlags propertyChange) QTC_OVERRIDE;
+    void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty>& propertyList,
+                                        PropertyChangeFlags propertyChange) QTC_OVERRIDE;
     void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) QTC_OVERRIDE;
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList) QTC_OVERRIDE;
     void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList) QTC_OVERRIDE;

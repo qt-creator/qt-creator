@@ -916,6 +916,11 @@ void PropertyEditor::bindingPropertiesChanged(const QList<BindingProperty>& prop
     }
 }
 
+void PropertyEditor::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> & /*propertyList*/,
+                                                    AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+}
+
 
 void PropertyEditor::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash)
 {

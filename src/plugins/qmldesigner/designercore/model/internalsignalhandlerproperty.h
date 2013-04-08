@@ -27,56 +27,36 @@
 **
 ****************************************************************************/
 
-#ifndef QMLSTATE_H
-#define QMLSTATE_H
+#ifndef INTERNALSIGNALHANDLERPROPERTY_H
+#define INTERNALSIGNALHANDLERPROPERTY_H
 
-#include <qmldesignercorelib_global.h>
-#include "qmlmodelnodefacade.h"
-#include "qmlchangeset.h"
+#include "internalproperty.h"
 
 namespace QmlDesigner {
+namespace Internal {
 
-class QmlModelView;
-class QmlModelStateGroup;
-class QmlObjectNode;
-
-class QMLDESIGNERCORE_EXPORT QmlModelState : public QmlModelNodeFacade
+class InternalSignalHandlerProperty : public InternalProperty
 {
-    friend class QmlModelView;
-
 public:
-    QmlModelState();
-    QmlModelState(const ModelNode &modelNode);
+    typedef QSharedPointer<InternalSignalHandlerProperty> Pointer;
 
-    QmlPropertyChanges propertyChanges(const ModelNode &node);
-    QList<QmlModelStateOperation> stateOperations(const ModelNode &node) const;
-    QList<QmlPropertyChanges> propertyChanges() const;
-    QList<QmlModelStateOperation> stateOperations() const;
+    static Pointer create(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
-    bool hasPropertyChanges(const ModelNode &node) const;
-
-    bool hasStateOperation(const ModelNode &node) const;
-
-    void removePropertyChanges(const ModelNode &node);
-
-    bool affectsModelNode(const ModelNode &node) const;
-    QList<QmlObjectNode> allAffectedNodes() const;
-    QString name() const;
-    void setName(const QString &name);
     bool isValid() const;
-    void destroy();
 
-    bool isBaseState() const;
-    QmlModelState duplicate(const QString &name) const;
-    QmlModelStateGroup stateGroup() const;
+    QString source() const;
+    void setSource(const QString &source);
+
+    bool isSignalHandlerProperty() const;
 
 protected:
-    void addChangeSetIfNotExists(const ModelNode &node);
-    static QmlModelState createBaseState(const QmlModelView *view);
+    InternalSignalHandlerProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
+private:
+    QString m_source;
 };
 
-} //QmlDesigner
+} // namespace Internal
+} // namespace QmlDesigner
 
-
-#endif // QMLSTATE_H
+#endif // INTERNALSIGNALHANDLERPROPERTY_H

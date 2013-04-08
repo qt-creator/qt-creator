@@ -366,6 +366,7 @@ void QmlModelView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& /*p
 void QmlModelView::propertiesRemoved(const QList<AbstractProperty>& /*propertyList*/) {}
 void QmlModelView::variantPropertiesChanged(const QList<VariantProperty>& /*propertyList*/, PropertyChangeFlags /*propertyChange*/) {}
 void QmlModelView::bindingPropertiesChanged(const QList<BindingProperty>& /*propertyList*/, PropertyChangeFlags /*propertyChange*/) {}
+void QmlModelView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> & /*propertyList*/, AbstractView::PropertyChangeFlags /*propertyChange*/) {}
 void QmlModelView::rootNodeTypeChanged(const QString &/*type*/, int, int /*minorVersion*/) {}
 void QmlModelView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/) {}
 void QmlModelView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/, const QList<ModelNode> &/*lastSelectedNodeList*/) {}

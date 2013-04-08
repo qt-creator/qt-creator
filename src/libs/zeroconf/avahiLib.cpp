@@ -334,7 +334,6 @@ public:
             delete connection;
             return kDNSServiceErr_Unknown;
         }
-        typedef void (*AvahiSimplePollSetFuncPtr)(AvahiSimplePoll *s, AvahiPollFunc func, void *userdata);
         m_simplePollSetFunc(connection->simple_poll, &cAvahiPollFunction, mainConnection);
         /* Allocate a new client */
         int error;

@@ -46,7 +46,7 @@ class QmlAnchors;
 
 class QMLDESIGNERCORE_EXPORT QmlItemNode : public QmlObjectNode
 {
-    friend class QMLDESIGNERCORE_EXPORT QmlAnchors;
+    friend class QmlAnchors;
 public:
     QmlItemNode() : QmlObjectNode() {}
     QmlItemNode(const ModelNode &modelNode)  : QmlObjectNode(modelNode) {}

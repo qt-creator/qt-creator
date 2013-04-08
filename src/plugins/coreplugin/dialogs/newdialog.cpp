@@ -187,8 +187,6 @@ NewDialog::NewDialog(QWidget *parent) :
     m_ui(new Core::Internal::Ui::NewDialog),
     m_okButton(0)
 {
-    typedef QMap<QString, QStandardItem *> CategoryItemMap;
-
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
     QPalette p = m_ui->frame->palette();

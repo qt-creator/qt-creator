@@ -30,7 +30,7 @@ def main():
                        "Skipping this file for now.")
             continue
         if platform.system() == 'Darwin':
-            JIRA.performWorkaroundIfStillOpen(6918, JIRA.Bug.CREATOR, editor)
+            JIRA.performWorkaroundIfStillOpen(8735, JIRA.Bug.CREATOR, editor)
         for key in ["<Up>", "<Down>", "<Left>", "<Right>"]:
             test.log("Selecting everything")
             invokeMenuItem("Edit", "Select All")

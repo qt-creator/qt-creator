@@ -27,56 +27,32 @@
 **
 ****************************************************************************/
 
-#ifndef QMLSTATE_H
-#define QMLSTATE_H
+#ifndef SIGNALHANDLERPROPERTY_H
+#define SIGNALHANDLERPROPERTY_H
 
-#include <qmldesignercorelib_global.h>
-#include "qmlmodelnodefacade.h"
-#include "qmlchangeset.h"
+#include "qmldesignercorelib_global.h"
+#include "abstractproperty.h"
 
 namespace QmlDesigner {
 
-class QmlModelView;
-class QmlModelStateGroup;
-class QmlObjectNode;
-
-class QMLDESIGNERCORE_EXPORT QmlModelState : public QmlModelNodeFacade
+class QMLDESIGNERCORE_EXPORT SignalHandlerProperty : public QmlDesigner::AbstractProperty
 {
-    friend class QmlModelView;
+    friend class QmlDesigner::ModelNode;
+    friend class QmlDesigner::Internal::ModelPrivate;
+    friend class QmlDesigner::AbstractProperty;
 
 public:
-    QmlModelState();
-    QmlModelState(const ModelNode &modelNode);
+    void setSource(const QString &source);
+    QString source() const;
+    SignalHandlerProperty& operator= (const QString &source);
 
-    QmlPropertyChanges propertyChanges(const ModelNode &node);
-    QList<QmlModelStateOperation> stateOperations(const ModelNode &node) const;
-    QList<QmlPropertyChanges> propertyChanges() const;
-    QList<QmlModelStateOperation> stateOperations() const;
-
-    bool hasPropertyChanges(const ModelNode &node) const;
-
-    bool hasStateOperation(const ModelNode &node) const;
-
-    void removePropertyChanges(const ModelNode &node);
-
-    bool affectsModelNode(const ModelNode &node) const;
-    QList<QmlObjectNode> allAffectedNodes() const;
-    QString name() const;
-    void setName(const QString &name);
-    bool isValid() const;
-    void destroy();
-
-    bool isBaseState() const;
-    QmlModelState duplicate(const QString &name) const;
-    QmlModelStateGroup stateGroup() const;
+    SignalHandlerProperty();
+    SignalHandlerProperty(const SignalHandlerProperty &property, AbstractView *view);
 
 protected:
-    void addChangeSetIfNotExists(const ModelNode &node);
-    static QmlModelState createBaseState(const QmlModelView *view);
-
+    SignalHandlerProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
 };
 
-} //QmlDesigner
+} // namespace QmlDesigner
 
-
-#endif // QMLSTATE_H
+#endif // SIGNALHANDLERPROPERTY_H

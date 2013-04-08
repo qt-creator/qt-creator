@@ -39,7 +39,7 @@ def main():
 #    Creator will show you the declaration of the variable.
 
     if platform.system() == "Darwin":
-        JIRA.performWorkaroundIfStillOpen(6918, JIRA.Bug.CREATOR, cppwindow)
+        JIRA.performWorkaroundIfStillOpen(8735, JIRA.Bug.CREATOR, cppwindow)
 
     type(cppwindow, "<Ctrl+F>")
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "    xi")

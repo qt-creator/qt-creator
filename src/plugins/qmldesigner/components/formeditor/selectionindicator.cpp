@@ -63,8 +63,10 @@ void SelectionIndicator::hide()
 void SelectionIndicator::clear()
 {
     if (m_layerItem) {
-        foreach (QGraphicsItem *item, m_indicatorShapeHash.values())
+        foreach (QGraphicsItem *item, m_indicatorShapeHash.values()) {
             m_layerItem->scene()->removeItem(item);
+            delete item;
+        }
     }
     m_indicatorShapeHash.clear();
 }

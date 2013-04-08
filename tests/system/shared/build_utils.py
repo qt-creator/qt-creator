@@ -158,13 +158,14 @@ def iterateBuildConfigs(kitCount, filter = ""):
 # param targetCount specifies the number of targets currently defined (must be correct!)
 # param currentTarget specifies the target for which to switch into the specified settings (zero based index)
 # param configName is the name of the configuration that should be selected
+# returns information about the selected kit, see getQtInformationForBuildSettings
 def selectBuildConfig(targetCount, currentTarget, configName):
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(targetCount, currentTarget, ProjectSettings.BUILD)
     if selectFromCombo(":scrollArea.Edit build configuration:_QComboBox", configName):
         waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}",
                       "sourceFilesRefreshed(QStringList)")
-    switchViewTo(ViewConstants.EDIT)
+    return getQtInformationForBuildSettings(targetCount, True, ViewConstants.EDIT)
 
 # This will not trigger a rebuild. If needed, caller has to do this.
 def verifyBuildConfig(targetCount, currentTarget, shouldBeDebug=False, enableShadowBuild=False, enableQmlDebug=False):

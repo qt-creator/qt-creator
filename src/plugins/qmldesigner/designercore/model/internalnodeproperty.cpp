@@ -86,6 +86,7 @@ InternalNode::Pointer InternalNodeProperty::node() const
 
 void InternalNodeProperty::remove(const InternalNode::Pointer &node)
 {
+    Q_UNUSED(node)
     Q_ASSERT(m_node == node);
     m_node.clear();
 

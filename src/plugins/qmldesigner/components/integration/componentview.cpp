@@ -188,6 +188,7 @@ void ComponentView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& /*
 void ComponentView::propertiesRemoved(const QList<AbstractProperty>& /*propertyList*/) {}
 void ComponentView::variantPropertiesChanged(const QList<VariantProperty>& /*propertyList*/, PropertyChangeFlags /*propertyChange*/) {}
 void ComponentView::bindingPropertiesChanged(const QList<BindingProperty>& /*propertyList*/, PropertyChangeFlags /*propertyChange*/) {}
+void ComponentView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> & /*propertyList*/, AbstractView::PropertyChangeFlags /*propertyChange*/) {}
 void ComponentView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/) {}
 void ComponentView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/) {}
 void ComponentView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &/*propertyList*/) {}

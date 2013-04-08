@@ -69,7 +69,7 @@ IDeviceWidget *AndroidDevice::createWidget()
 
 QList<Core::Id> AndroidDevice::actionIds() const
 {
-    return QList<Core::Id>()<<Core::Id(Constants::ANDROID_DEVICE_ID);
+    return QList<Core::Id>();
 }
 
 QString AndroidDevice::displayNameForActionId(Core::Id actionId) const

@@ -56,6 +56,7 @@ namespace Internal {
 class InternalNode;
 class InternalProperty;
 class InternalBindingProperty;
+class InternalSignalHandlerProperty;
 class InternalVariantProperty;
 class InternalNodeAbstractProperty;
 class InternalNodeListProperty;
@@ -63,6 +64,7 @@ class InternalNodeListProperty;
 typedef QSharedPointer<InternalNode> InternalNodePointer;
 typedef QSharedPointer<InternalProperty> InternalPropertyPointer;
 typedef QSharedPointer<InternalBindingProperty> InternalBindingPropertyPointer;
+typedef QSharedPointer<InternalSignalHandlerProperty> InternalSignalHandlerPropertyPointer;
 typedef QSharedPointer<InternalVariantProperty> InternalVariantPropertyPointer;
 typedef QSharedPointer<InternalNodeAbstractProperty> InternalNodeAbstractPropertyPointer;
 typedef QSharedPointer<InternalNodeListProperty> InternalNodeListPropertyPointer;
@@ -137,6 +139,7 @@ public:
     void notifyPropertiesRemoved(const QList<PropertyPair> &propertyList);
     void notifyPropertiesAboutToBeRemoved(const QList<InternalPropertyPointer> &propertyList);
     void notifyBindingPropertiesChanged(const QList<InternalBindingPropertyPointer> &propertyList, AbstractView::PropertyChangeFlags propertyChange);
+    void notifySignalHandlerPropertiesChanged(const QVector<InternalSignalHandlerPropertyPointer> &propertyList, AbstractView::PropertyChangeFlags propertyChange);
     void notifyVariantPropertiesChanged(const InternalNodePointer &internalNodePointer, const PropertyNameList &propertyNameList, AbstractView::PropertyChangeFlags propertyChange);
     void notifyScriptFunctionsChanged(const InternalNodePointer &internalNodePointer, const QStringList &scriptFunctionList);
 
@@ -187,6 +190,7 @@ public:
     void removeProperty(const InternalPropertyPointer &property);
 
     void setBindingProperty(const InternalNodePointer &internalNode, const PropertyName &name, const QString &expression);
+    void setSignalHandlerProperty(const InternalNodePointer &internalNode, const PropertyName &name, const QString &source);
     void setVariantProperty(const InternalNodePointer &internalNode, const PropertyName &name, const QVariant &value);
     void setDynamicVariantProperty(const InternalNodePointer &internalNode, const PropertyName &name, const TypeName &propertyType, const QVariant &value);
     void setDynamicBindingProperty(const InternalNodePointer &internalNode, const PropertyName &name, const TypeName &dynamicPropertyType, const QString &expression);

@@ -138,8 +138,10 @@ void SelectionTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
             return;
         }
 
-        if (topSelectedItemIsMovable(itemList))
+        if (topSelectedItemIsMovable(itemList)) {
             view()->changeToMoveTool();
+            return;
+        }
     }
 
     FormEditorItem *topSelectableItem = 0;

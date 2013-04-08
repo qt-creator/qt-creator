@@ -160,6 +160,9 @@
     a list of all projects open in the current session. The files for each
     project are grouped according to their file type.
 
+    If the project is under version control, information from the version control system
+    might be displayed in brackets after the project name. This is currently implemented for
+    Git (the branch name or a tag is displayed) and ClearCase (the view name is displayed).
 
     You can use the project tree in the following ways:
 

@@ -94,6 +94,9 @@ public:
                                 const QString &javascript,
                                 const TypeName &astType,
                                 DifferenceHandler &differenceHandler);
+    void syncSignalHandler(AbstractProperty &modelProperty,
+                           const QString &javascript,
+                           DifferenceHandler &differenceHandler);
     void syncArrayProperty(AbstractProperty &modelProperty,
                            const QList<QmlJS::AST::UiObjectMember *> &arrayMembers,
                            ReadingContext *context,
@@ -123,7 +126,6 @@ public:
     void setupCustomParserNodeDelayed(const ModelNode &node, bool synchron);
 
     void delayedSetup();
-
 private:
     void setupCustomParserNode(const ModelNode &node);
     void setupComponent(const ModelNode &node);
@@ -158,9 +160,13 @@ public:
     virtual void bindingExpressionsDiffer(BindingProperty &modelProperty,
                                           const QString &javascript,
                                           const TypeName &astType) = 0;
+    virtual void signalHandlerSourceDiffer(SignalHandlerProperty &modelProperty,
+                                          const QString &javascript) = 0;
     virtual void shouldBeBindingProperty(AbstractProperty &modelProperty,
                                          const QString &javascript,
                                          const TypeName &astType) = 0;
+    virtual void shouldBeSignalHandlerProperty(AbstractProperty &modelProperty,
+                                         const QString &javascript) = 0;
     virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty,
                                           const QList<QmlJS::AST::UiObjectMember *> arrayMembers,
                                           ReadingContext *context) = 0;
@@ -208,6 +214,10 @@ public:
     virtual void shouldBeBindingProperty(AbstractProperty &modelProperty,
                                          const QString &javascript,
                                          const TypeName &astType);
+    virtual void signalHandlerSourceDiffer(SignalHandlerProperty &modelProperty,
+                                          const QString &javascript);
+    virtual void shouldBeSignalHandlerProperty(AbstractProperty &modelProperty,
+                                         const QString &javascript);
     virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty,
                                           const QList<QmlJS::AST::UiObjectMember *> arrayMembers,
                                           ReadingContext *context);
@@ -252,6 +262,10 @@ public:
     virtual void shouldBeBindingProperty(AbstractProperty &modelProperty,
                                          const QString &javascript,
                                          const TypeName &astType);
+    virtual void signalHandlerSourceDiffer(SignalHandlerProperty &modelProperty,
+                                          const QString &javascript);
+    virtual void shouldBeSignalHandlerProperty(AbstractProperty &modelProperty,
+                                         const QString &javascript);
     virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty,
                                           const QList<QmlJS::AST::UiObjectMember *> arrayMembers,
                                           ReadingContext *context);

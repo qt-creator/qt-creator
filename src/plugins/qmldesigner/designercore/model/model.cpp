@@ -52,6 +52,7 @@
 #include "subcomponentmanager.h"
 #include "internalproperty.h"
 #include "internalnodelistproperty.h"
+#include "internalsignalhandlerproperty.h"
 #include "internalnodeabstractproperty.h"
 #include "invalidmodelnodeexception.h"
 #include "invalidmodelstateexception.h"
@@ -60,6 +61,7 @@
 #include "abstractproperty.h"
 #include "variantproperty.h"
 #include "bindingproperty.h"
+#include "signalhandlerproperty.h"
 #include "nodeabstractproperty.h"
 #include "nodelistproperty.h"
 #include "rewritertransaction.h"
@@ -1009,6 +1011,46 @@ void ModelPrivate::notifyBindingPropertiesChanged(const QList<InternalBindingPro
         resetModelByRewriter(description);
 }
 
+void ModelPrivate::notifySignalHandlerPropertiesChanged(const QVector<InternalSignalHandlerPropertyPointer> &internalPropertyList, AbstractView::PropertyChangeFlags propertyChange)
+{
+    bool resetModel = false;
+    QString description;
+
+    try {
+        if (rewriterView()) {
+            QVector<SignalHandlerProperty> propertyList;
+            foreach (const InternalSignalHandlerPropertyPointer &signalHandlerProperty, internalPropertyList) {
+                propertyList.append(SignalHandlerProperty(signalHandlerProperty->name(), signalHandlerProperty->propertyOwner(), model(), rewriterView()));
+            }
+            rewriterView()->signalHandlerPropertiesChanged(propertyList, propertyChange);
+        }
+    } catch (RewritingException &e) {
+        description = e.description();
+        resetModel = true;
+    }
+
+    foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
+        Q_ASSERT(view != 0);
+        QVector<SignalHandlerProperty> propertyList;
+        foreach (const InternalSignalHandlerPropertyPointer &signalHandlerProperty, internalPropertyList) {
+            propertyList.append(SignalHandlerProperty(signalHandlerProperty->name(), signalHandlerProperty->propertyOwner(), model(), view.data()));
+        }
+        view->signalHandlerPropertiesChanged(propertyList, propertyChange);
+
+    }
+
+    if (nodeInstanceView()) {
+        QVector<SignalHandlerProperty> propertyList;
+        foreach (const InternalSignalHandlerPropertyPointer &signalHandlerProperty, internalPropertyList) {
+            propertyList.append(SignalHandlerProperty(signalHandlerProperty->name(), signalHandlerProperty->propertyOwner(), model(), nodeInstanceView()));
+        }
+        nodeInstanceView()->signalHandlerPropertiesChanged(propertyList, propertyChange);
+    }
+
+    if (resetModel)
+        resetModelByRewriter(description);
+}
+
 void ModelPrivate::notifyScriptFunctionsChanged(const InternalNodePointer &internalNodePointer, const QStringList &scriptFunctionList)
 {
     bool resetModel = false;
@@ -1390,6 +1432,19 @@ void ModelPrivate::setBindingProperty(const InternalNode::Pointer &internalNode,
     InternalBindingProperty::Pointer bindingProperty = internalNode->bindingProperty(name);
     bindingProperty->setExpression(expression);
     notifyBindingPropertiesChanged(QList<InternalBindingPropertyPointer>() << bindingProperty, propertyChange);
+}
+
+void ModelPrivate::setSignalHandlerProperty(const InternalNodePointer &internalNode, const PropertyName &name, const QString &source)
+{
+    AbstractView::PropertyChangeFlags propertyChange = AbstractView::NoAdditionalChanges;
+    if (!internalNode->hasProperty(name)) {
+        internalNode->addSignalHandlerProperty(name);
+        propertyChange = AbstractView::PropertiesAdded;
+    }
+
+    InternalSignalHandlerProperty::Pointer signalHandlerProperty = internalNode->signalHandlerProperty(name);
+    signalHandlerProperty->setSource(source);
+    notifySignalHandlerPropertiesChanged(QVector<InternalSignalHandlerPropertyPointer>() << signalHandlerProperty, propertyChange);
 }
 
 void ModelPrivate::setVariantProperty(const InternalNode::Pointer &internalNode, const PropertyName &name, const QVariant &value)

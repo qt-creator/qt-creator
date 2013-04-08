@@ -27,56 +27,45 @@
 **
 ****************************************************************************/
 
-#ifndef QMLSTATE_H
-#define QMLSTATE_H
-
-#include <qmldesignercorelib_global.h>
-#include "qmlmodelnodefacade.h"
-#include "qmlchangeset.h"
+#include "internalsignalhandlerproperty.h"
 
 namespace QmlDesigner {
+namespace Internal {
 
-class QmlModelView;
-class QmlModelStateGroup;
-class QmlObjectNode;
-
-class QMLDESIGNERCORE_EXPORT QmlModelState : public QmlModelNodeFacade
+InternalSignalHandlerProperty::InternalSignalHandlerProperty(const PropertyName &name, const InternalNodePointer &propertyOwner)
+    : InternalProperty(name, propertyOwner)
 {
-    friend class QmlModelView;
-
-public:
-    QmlModelState();
-    QmlModelState(const ModelNode &modelNode);
-
-    QmlPropertyChanges propertyChanges(const ModelNode &node);
-    QList<QmlModelStateOperation> stateOperations(const ModelNode &node) const;
-    QList<QmlPropertyChanges> propertyChanges() const;
-    QList<QmlModelStateOperation> stateOperations() const;
-
-    bool hasPropertyChanges(const ModelNode &node) const;
-
-    bool hasStateOperation(const ModelNode &node) const;
-
-    void removePropertyChanges(const ModelNode &node);
-
-    bool affectsModelNode(const ModelNode &node) const;
-    QList<QmlObjectNode> allAffectedNodes() const;
-    QString name() const;
-    void setName(const QString &name);
-    bool isValid() const;
-    void destroy();
-
-    bool isBaseState() const;
-    QmlModelState duplicate(const QString &name) const;
-    QmlModelStateGroup stateGroup() const;
-
-protected:
-    void addChangeSetIfNotExists(const ModelNode &node);
-    static QmlModelState createBaseState(const QmlModelView *view);
-
-};
-
-} //QmlDesigner
+}
 
 
-#endif // QMLSTATE_H
+InternalSignalHandlerProperty::Pointer InternalSignalHandlerProperty::create(const PropertyName &name, const InternalNodePointer &propertyOwner)
+{
+    InternalSignalHandlerProperty *newPointer(new InternalSignalHandlerProperty(name, propertyOwner));
+    InternalSignalHandlerProperty::Pointer smartPointer(newPointer);
+
+    newPointer->setInternalWeakPointer(smartPointer);
+
+    return smartPointer;
+}
+
+bool InternalSignalHandlerProperty::isValid() const
+{
+    return InternalProperty::isValid() && isSignalHandlerProperty();
+}
+
+QString InternalSignalHandlerProperty::source() const
+{
+    return m_source;
+}
+void InternalSignalHandlerProperty::setSource(const QString &source)
+{
+    m_source = source;
+}
+
+bool InternalSignalHandlerProperty::isSignalHandlerProperty() const
+{
+    return true;
+}
+
+} // namespace Internal
+} // namespace QmlDesigner
