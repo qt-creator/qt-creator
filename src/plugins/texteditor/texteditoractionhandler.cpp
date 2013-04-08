@@ -557,7 +557,7 @@ void TextEditorActionHandler::gotoAction()
     QString locatorString = TextEditorPlugin::instance()->lineNumberFilter()->shortcutString();
     locatorString += QLatin1Char(' ');
     const int selectionStart = locatorString.size();
-    locatorString += tr("<line number>");
+    locatorString += tr("<line>:<column>");
     locatorManager->show(locatorString, selectionStart, locatorString.size() - selectionStart);
 }
 

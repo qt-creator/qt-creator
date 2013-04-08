@@ -34,7 +34,12 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
 
+#include <QMetaType>
+#include <QPair>
 #include <QVariant>
+
+typedef QPair<int,int> LineColumn;
+Q_DECLARE_METATYPE(LineColumn)
 
 using namespace Core;
 using namespace Locator;
@@ -53,11 +58,28 @@ LineNumberFilter::LineNumberFilter(QObject *parent)
 
 QList<FilterEntry> LineNumberFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &, const QString &entry)
 {
-    bool ok;
     QList<FilterEntry> value;
-    int line = entry.toInt(&ok);
-    if (line > 0 && currentTextEditor())
-        value.append(FilterEntry(this, tr("Line %1").arg(line), QVariant(line)));
+    QStringList lineAndColumn = entry.split(QLatin1Char(':'));
+    int sectionCount = lineAndColumn.size();
+    int line = 0;
+    int column = 0;
+    if (sectionCount > 0)
+        line = lineAndColumn.at(0).toInt();
+    if (sectionCount > 1)
+        column = lineAndColumn.at(1).toInt();
+    if (currentTextEditor() && (line > 0 || column > 0)) {
+        LineColumn data;
+        data.first = line;
+        data.second = column - 1;  // column API is 0-based
+        QString text;
+        if (line > 0 && column > 0)
+            text = tr("Line %1, Column %2").arg(line).arg(column);
+        else if (line > 0)
+            text = tr("Line %1").arg(line);
+        else
+            text = tr("Column %1").arg(column);
+        value.append(FilterEntry(this, text, QVariant::fromValue(data)));
+    }
     return value;
 }
 
@@ -67,7 +89,13 @@ void LineNumberFilter::accept(FilterEntry selection) const
     if (editor) {
         Core::EditorManager *editorManager = Core::EditorManager::instance();
         editorManager->addCurrentPositionToNavigationHistory();
-        editor->gotoLine(selection.internalData.toInt());
+        LineColumn data = selection.internalData.value<LineColumn>();
+        if (data.first < 1) { // jump to column in same line
+            int currLine, currColumn;
+            editor->convertPosition(editor->position(), &currLine, &currColumn);
+            data.first = currLine;
+        }
+        editor->gotoLine(data.first, data.second);
         editor->widget()->setFocus();
         Core::ModeManager::activateModeType(Id(Core::Constants::MODE_EDIT_TYPE));
     }
