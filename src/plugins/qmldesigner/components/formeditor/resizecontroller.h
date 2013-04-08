@@ -49,6 +49,10 @@ public:
 
     ResizeController();
     ResizeController(LayerItem *layerItem, FormEditorItem *formEditorItem);
+    ResizeController(const ResizeController &resizeController);
+    ~ResizeController();
+
+    ResizeController& operator=(const ResizeController &other);
 
     void show();
     void hide();

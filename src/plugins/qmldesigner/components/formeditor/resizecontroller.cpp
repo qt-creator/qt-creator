@@ -152,6 +152,21 @@ ResizeController::ResizeController(LayerItem *layerItem, FormEditorItem *formEdi
     updatePosition();
 }
 
+ResizeController::ResizeController(const ResizeController &other)
+    : m_data(other.m_data)
+{
+
+}
+
+ResizeController::~ResizeController()
+{
+}
+
+ResizeController &ResizeController::operator =(const ResizeController &other)
+{
+    m_data = other.m_data;
+}
+
 
 bool ResizeController::isValid() const
 {
