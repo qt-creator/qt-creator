@@ -42,6 +42,7 @@ public:
     GitSettings();
 
     static const QLatin1String pullRebaseKey;
+    static const QLatin1String showTagsKey;
     static const QLatin1String omitAnnotationDateKey;
     static const QLatin1String ignoreSpaceChangesInDiffKey;
     static const QLatin1String ignoreSpaceChangesInBlameKey;

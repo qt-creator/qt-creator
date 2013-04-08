@@ -1506,6 +1506,23 @@ bool GitClient::synchronousBranchCmd(const QString &workingDirectory, QStringLis
     return true;
 }
 
+bool GitClient::synchronousShowRefCmd(const QString &workingDirectory, QStringList args,
+                                      QString *output, QString *errorMessage)
+{
+    args.push_front(QLatin1String("show-ref"));
+    QByteArray outputText;
+    QByteArray errorText;
+    const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
+    *output = commandOutputFromLocal8Bit(outputText);
+    if (!rc) {
+        *errorMessage = tr("Cannot run \"git show-ref\" in \"%1\": %2")
+                .arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
+
+        return false;
+    }
+    return true;
+}
+
 bool GitClient::synchronousRemoteCmd(const QString &workingDirectory, QStringList remoteArgs,
                                      QString *output, QString *errorMessage)
 {

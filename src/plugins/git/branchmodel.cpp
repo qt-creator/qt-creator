@@ -132,6 +132,15 @@ public:
             else
                 current = current->append(new BranchNode(path.at(i)));
         }
+        if (n->name.endsWith(QLatin1String("^{}"))) {
+            n->name.chop(3);
+            if (!current->children.isEmpty()) {
+                BranchNode* lastOne = current->children.last();
+                current->children.removeLast();
+                if (lastOne)
+                    delete lastOne;
+            }
+        }
         current->append(n);
     }
 
@@ -316,11 +325,10 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
     if (workingDirectory.isEmpty())
         return false;
 
-    QStringList branchArgs;
-    branchArgs << QLatin1String(GitClient::noColorOption)
-               << QLatin1String("-v") << QLatin1String("-a");
+    QStringList args;
+    args << QLatin1String("--head") << QLatin1String("--dereference");
     QString output;
-    if (!m_client->synchronousBranchCmd(workingDirectory, branchArgs, &output, errorMessage))
+    if (!m_client->synchronousShowRefCmd(workingDirectory, args, &output, errorMessage))
         VcsBase::VcsBaseOutputWindow::instance()->appendError(*errorMessage);
 
     beginResetModel();
@@ -331,9 +339,30 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
     foreach (const QString &l, lines)
         parseOutputLine(l);
 
+    if (m_currentBranch) {
+        if (m_currentBranch->parent == m_rootNode->children[0])
+            m_currentBranch = 0;
+        setCurrentBranch();
+    }
+
     endResetModel();
 
     return true;
+}
+
+void BranchModel::setCurrentBranch()
+{
+    QString currentBranch = m_client->synchronousCurrentLocalBranch(m_workingDirectory);
+    if (currentBranch.isEmpty())
+        return;
+
+    BranchNode *local = m_rootNode->children.at(0);
+    int pos = 0;
+    for (pos = 0; pos < local->count(); ++pos) {
+        if (local->children.at(pos)->name == currentBranch) {
+            m_currentBranch = local->children[pos];
+        }
+    }
 }
 
 void BranchModel::renameBranch(const QString &oldName, const QString &newName)
@@ -538,33 +567,40 @@ void BranchModel::parseOutputLine(const QString &line)
     if (line.size() < 3)
         return;
 
-    bool current = line.startsWith(QLatin1String("* "));
+    const int shaLength = 40;
+    const QString sha = line.left(shaLength);
+    const QString fullName = line.mid(shaLength + 1);
 
-    const QString branchInfo = line.mid(2);
-    if (current && branchInfo.startsWith(QLatin1String("(no branch)")))
+    static QString currentSha;
+    if (fullName == QLatin1String("HEAD")) {
+        currentSha = sha;
         return;
+    }
 
-    QStringList tokens = branchInfo.split(QLatin1Char(' '), QString::SkipEmptyParts);
-    if (tokens.size() < 2)
-        return;
-
-    QString sha = tokens.at(1);
+    bool current = (sha == currentSha);
+    bool showTags = m_client->settings()->boolValue(GitSettings::showTagsKey);
 
     // insert node into tree:
-    QStringList nameParts = tokens.at(0).split(QLatin1Char('/'));
-    if (nameParts.count() < 1)
+    QStringList nameParts = fullName.split(QLatin1Char('/'));
+    nameParts.removeFirst(); // remove refs...
+
+    if (nameParts.first() == QLatin1String("heads"))
+        nameParts[0] = m_rootNode->children.at(0)->name; // Insert the local designator
+    else if (nameParts.first() == QLatin1String("remotes"))
+        nameParts.removeFirst(); // remove "remotes"
+    else if (nameParts.first() == QLatin1String("stash"))
+        return;
+    else if (!showTags && (nameParts.first() == QLatin1String("tags")))
         return;
 
-    if (nameParts.isEmpty() || nameParts.at(0) != QLatin1String("remotes"))
-        nameParts.prepend(m_rootNode->children.at(0)->name); // Insert the local designator
-    else
-        nameParts.removeFirst(); // remove "remotes"
+    // limit depth of list. Git basically only ever wants one / and considers the rest as part of
+    // the name.
     while (nameParts.count() > 3) {
         nameParts[2] = nameParts.at(2) + QLatin1Char('/') + nameParts.at(3);
         nameParts.removeAt(3);
     }
 
-    QString name = nameParts.last();
+    const QString name = nameParts.last();
     nameParts.removeLast();
 
     BranchNode *newNode = new BranchNode(name, sha);

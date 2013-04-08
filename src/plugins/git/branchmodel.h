@@ -82,6 +82,7 @@ public:
 
 private:
     void parseOutputLine(const QString &line);
+    void setCurrentBranch();
     BranchNode *indexToNode(const QModelIndex &index) const;
     QModelIndex nodeToIndex(BranchNode *node) const;
 
