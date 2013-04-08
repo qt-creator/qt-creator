@@ -164,7 +164,9 @@ ResizeController::~ResizeController()
 
 ResizeController &ResizeController::operator =(const ResizeController &other)
 {
-    m_data = other.m_data;
+    if (this != &other)
+        m_data = other.m_data;
+    return *this;
 }
 
 
