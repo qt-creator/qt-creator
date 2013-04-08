@@ -164,7 +164,7 @@ private:
                      const char *callbackName = 0,
                      const QVariant &cookie = QVariant());
     void postDirectCommand(const QByteArray &command);
-    GdbMi parseFromString(QByteArray out);
+    GdbMi parseFromString(QByteArray out, const QByteArray &firstTopLevel);
 
     QQueue<LldbCommand> m_commands;
 

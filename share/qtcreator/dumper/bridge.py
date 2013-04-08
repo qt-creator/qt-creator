@@ -516,7 +516,7 @@ try:
             result += ",file=\"%s\"" % frame.line_entry.file
             result += "}},"
 
-        result += "],current-thread-id=\"%s\"}" % lldb.process.GetSelectedThread().id
+        result += "],current-thread-id=\"%s\"}" % lldb.process.selected_thread.id
         return result
 
     def stackData(options):
@@ -558,6 +558,23 @@ try:
             result += stackData(parseOptions(stackOptions))
         if parts & 4:
             result += threadsData(parseOptions(threadOptions))
+        return result
+
+    def listModules():
+        result = "modules={"
+        for module in lldb.target.modules:
+            result += "{file=\"%s\"" % module.file.fullpath
+            result += ",name=\"%s\"" % module.file.basename
+            #result += ",addrsize=\"%s\"" % module.addr_size
+            #result += ",triple=\"%s\"" % module.triple
+            #result += ",sections={"
+            #for section in module.sections:
+            #    result += "[name=\"%s\"" % section.name
+            #    result += ",addr=\"%s\"" % section.addr
+            #    result += ",size=\"%s\"]," % section.size
+            #result += "}"
+            result += "},"
+        result += "]"
         return result
 
 

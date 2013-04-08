@@ -440,28 +440,23 @@ void LldbEngine::loadAllSymbols()
 
 void LldbEngine::reloadModules()
 {
-    //postCommand("qdebug('listmodules')", CB(handleListModules));
+    postCommand("script listModules()", CB(handleListModules));
 }
 
 void LldbEngine::handleListModules(const LldbResponse &response)
 {
-    GdbMi out;
-    out.fromString(response.data.trimmed());
+    GdbMi all = parseFromString(response.data, "modules");
+    GdbMi mods = all.findChild("modules");
     Modules modules;
-    foreach (const GdbMi &item, out.children()) {
+    foreach (const GdbMi &item, mods.children()) {
         Module module;
-        module.moduleName = _(item.findChild("name").data());
-        QString path = _(item.findChild("value").data());
-        int pos = path.indexOf(_("' from '"));
-        if (pos != -1) {
-            path = path.mid(pos + 8);
-            if (path.size() >= 2)
-                path.chop(2);
-        } else if (path.startsWith(_("<module '"))
-                && path.endsWith(_("' (built-in)>"))) {
-            path = _("(builtin)");
-        }
-        module.modulePath = path;
+        module.modulePath = QString::fromUtf8(item.findChild("file").data());
+        module.moduleName = QString::fromUtf8(item.findChild("name").data());
+        module.symbolsRead = Module::UnknownReadState;
+        module.startAddress = 0;
+        //    item.findChild("loaded_addr").data().toULongLong(0, 0);
+        module.endAddress = 0; // FIXME: End address not easily available.
+        //modulesHandler()->updateModule(module);
         modules.append(module);
     }
     modulesHandler()->setModules(modules);
@@ -823,11 +818,11 @@ void LldbEngine::updateData(DataKind kind)
                 CB(handleUpdateData));
 }
 
-GdbMi LldbEngine::parseFromString(QByteArray out)
+GdbMi LldbEngine::parseFromString(QByteArray out, const QByteArray &firstTopLevel)
 {
     GdbMi all;
 
-    int pos = out.indexOf("data=");
+    int pos = out.indexOf(firstTopLevel + "=");
     if (pos == -1) {
         showMessage(_("UNEXPECTED LOCALS OUTPUT:" + out));
         return all;
@@ -852,8 +847,7 @@ GdbMi LldbEngine::parseFromString(QByteArray out)
 void LldbEngine::handleUpdateData(const LldbResponse &response)
 {
     //qDebug() << " LOCALS: '" << response.data << "'";
-    GdbMi all = parseFromString(response.data);
-
+    GdbMi all = parseFromString(response.data, "data");
     GdbMi vars = all.findChild("data");
     if (vars.isValid()) {
         const bool partial = response.cookie.toBool();
