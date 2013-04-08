@@ -618,6 +618,7 @@ PropertyNameList NavigatorTreeModel::visibleProperties(const ModelNode &node) co
         if (!propertyName.contains('.') && //do not show any dot properties, since they are tricky and unlikely to make sense
             node.metaInfo().propertyIsWritable(propertyName) && !m_hiddenProperties.contains(propertyName) &&
             !node.metaInfo().propertyIsEnumType(propertyName) && //Some enums have the same name as Qml types (e. g. Flow)
+            !node.metaInfo().propertyIsPrivate(propertyName) && //Do not show private properties
             propertyName != node.metaInfo().defaultPropertyName()) { // TODO: ask the node instances
 
             TypeName qmlType = qmlTypeInQtContainer(node.metaInfo().propertyTypeName(propertyName));
