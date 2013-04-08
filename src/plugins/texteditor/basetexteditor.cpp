@@ -6250,6 +6250,8 @@ BaseTextEditor::BaseTextEditor(BaseTextEditorWidget *editor)
     aggregate->add(editor);
 
     m_cursorPositionLabel = new Utils::LineColumnLabel;
+    const int spacing = editor->style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing) / 2;
+    m_cursorPositionLabel->setContentsMargins(spacing, 0, spacing, 0);
 
     m_stretchWidget = new QWidget;
     m_stretchWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
