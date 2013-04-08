@@ -432,15 +432,7 @@ QString GerritPlugin::gitBinary()
 QString GerritPlugin::branch(const QString &repository)
 {
     Git::Internal::GitClient *client = Git::Internal::GitPlugin::instance()->gitClient();
-    QString errorMessage;
-    QString output;
-    if (client->synchronousBranchCmd(repository, QStringList(), &output, &errorMessage)) {
-        output.remove(QLatin1Char('\r'));
-        foreach (const QString &line, output.split(QLatin1Char('\n')))
-            if (line.startsWith(QLatin1String("* ")))
-                return line.right(line.size() - 2);
-    }
-    return QString();
+    return client->synchronousCurrentLocalBranch(repository);
 }
 
 void GerritPlugin::fetchDisplay(const QSharedPointer<Gerrit::Internal::GerritChange> &change)

@@ -201,6 +201,9 @@ public:
     QString synchronousShortDescription(const QString &workingDirectory, const QString &revision);
     QString synchronousShortDescription(const QString &workingDirectory, const QString &revision,
                                      const QString &format);
+
+    QString synchronousCurrentLocalBranch(const QString &workingDirectory);
+
     bool synchronousHeadRefs(const QString &workingDirectory, QStringList *output,
                              QString *errorMessage = 0);
     QString synchronousTopic(const QString &workingDirectory);
@@ -273,7 +276,7 @@ public:
 
     void launchRepositoryBrowser(const QString &workingDirectory);
 
-    QStringList synchronousRepositoryBranches(const QString &repositoryURL, bool *isDetached = 0);
+    QStringList synchronousRepositoryBranches(const QString &repositoryURL);
 
     GitSettings *settings() const;
 

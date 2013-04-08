@@ -1001,12 +1001,11 @@ void GitPlugin::pull()
     bool rebase = m_gitClient->settings()->boolValue(GitSettings::pullRebaseKey);
 
     if (!rebase) {
-        bool isDetached;
-        QString branchRebaseConfig = m_gitClient->synchronousRepositoryBranches(topLevel, &isDetached).at(0);
-        if (!isDetached) {
-            branchRebaseConfig.prepend(QLatin1String("branch."));
-            branchRebaseConfig.append(QLatin1String(".rebase"));
-            rebase = (m_gitClient->readConfigValue(topLevel, branchRebaseConfig) == QLatin1String("true"));
+        QString currentBranch = m_gitClient->synchronousCurrentLocalBranch(topLevel);
+        if (!currentBranch.isEmpty()) {
+            currentBranch.prepend(QLatin1String("branch."));
+            currentBranch.append(QLatin1String(".rebase"));
+            rebase = (m_gitClient->readConfigValue(topLevel, currentBranch) == QLatin1String("true"));
         }
     }
 

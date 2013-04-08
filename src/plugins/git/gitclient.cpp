@@ -1190,6 +1190,22 @@ QString GitClient::synchronousShortDescription(const QString &workingDirectory, 
     return output;
 }
 
+QString GitClient::synchronousCurrentLocalBranch(const QString &workingDirectory)
+{
+    QByteArray outputTextData;
+    QStringList arguments;
+    arguments << QLatin1String("symbolic-ref") << QLatin1String("HEAD");
+    if (fullySynchronousGit(workingDirectory, arguments, &outputTextData, 0, false)) {
+        QString branch = commandOutputFromLocal8Bit(outputTextData.trimmed());
+        const QString refsHeadsPrefix = QLatin1String("refs/heads/");
+        if (branch.startsWith(refsHeadsPrefix)) {
+            branch.remove(0, refsHeadsPrefix.count());
+            return branch;
+        }
+    }
+    return QString();
+}
+
 static inline QString msgCannotDetermineBranch(const QString &workingDirectory, const QString &why)
 {
     return GitClient::tr("Cannot retrieve branch of \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), why);
@@ -1250,22 +1266,10 @@ QString GitClient::synchronousTopic(const QString &workingDirectory)
     if (lastModified == data.timeStamp)
         return data.topic;
     data.timeStamp = lastModified;
-    QByteArray outputTextData;
-    QStringList arguments;
-    arguments << QLatin1String("symbolic-ref") << QLatin1String("HEAD");
     // First try to find branch
-    if (fullySynchronousGit(workingDirectory, arguments, &outputTextData, 0, false)) {
-        QString branch = commandOutputFromLocal8Bit(outputTextData.trimmed());
-
-        // Must strip the "refs/heads/" prefix manually since the --short switch
-        // of git symbolic-ref only got introduced with git 1.7.10, which is not
-        // available for all popular Linux distributions yet.
-        const QString refsHeadsPrefix = QLatin1String("refs/heads/");
-        if (branch.startsWith(refsHeadsPrefix))
-            branch.remove(0, refsHeadsPrefix.count());
-
+    QString branch = synchronousCurrentLocalBranch(workingDirectory);
+    if (!branch.isEmpty())
         return data.topic = branch;
-    }
 
     // Detached HEAD, try a tag or remote branch
     QStringList references;
@@ -1939,10 +1943,8 @@ void GitClient::continuePreviousGitCommand(const QString &workingDirectory,
 // Quietly retrieve branch list of remote repository URL
 //
 // The branch HEAD is pointing to is always returned first.
-QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryURL, bool *isDetached)
+QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryURL)
 {
-    if (isDetached)
-        *isDetached = true;
     QStringList arguments(QLatin1String("ls-remote"));
     arguments << repositoryURL << QLatin1String("HEAD") << QLatin1String("refs/heads/*");
     const unsigned flags =
@@ -1969,8 +1971,6 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
             if (!headFound && line.startsWith(headSha)) {
                 branches[0] = branchName;
                 headFound = true;
-                if (isDetached)
-                    *isDetached = false;
             } else {
                 branches.push_back(branchName);
             }
