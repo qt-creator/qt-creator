@@ -33,6 +33,7 @@
 #include "debuggerengine.h"
 
 #include <QProcess>
+#include <QStack>
 #include <QQueue>
 #include <QVariant>
 
@@ -60,6 +61,7 @@ class LldbEngine : public DebuggerEngine
 public:
     explicit LldbEngine(const DebuggerStartParameters &startParameters);
     ~LldbEngine();
+
 private:
     // DebuggerEngine implementation
     void executeStep();
@@ -71,6 +73,7 @@ private:
     void setupEngine();
     void setupInferior();
     void runEngine();
+    void runEngine2();
     void shutdownInferior();
     void shutdownEngine();
 
@@ -88,8 +91,7 @@ private:
     void selectThread(ThreadId threadId);
 
     bool acceptsBreakpoint(BreakpointModelId id) const;
-    void insertBreakpoint(BreakpointModelId id);
-    void removeBreakpoint(BreakpointModelId id);
+    void attemptBreakpointSynchronization();
 
     void assignValueInDebugger(const WatchData *data,
         const QString &expr, const QVariant &value);
@@ -107,6 +109,9 @@ private:
     bool isSynchronous() const { return true; }
     void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
 
+    void performContinuation();
+    void handleStepOver(const LldbResponse &response);
+
 signals:
     void outputReady(const QByteArray &data);
 
@@ -120,6 +125,10 @@ private:
     Q_SLOT void readLldbStandardError();
     Q_SLOT void handleOutput2(const QByteArray &data);
     void handleResponse(const QByteArray &ba);
+    void refreshAll(const GdbMi &all);
+    void refreshThreads(const GdbMi &threads);
+    void refreshStack(const GdbMi &stack);
+    void refreshLocals(const GdbMi &vars);
 
     enum DataKind { LocalsData = 1, StackData = 2, ThreadData = 4 };
 
@@ -137,6 +146,7 @@ private:
 
     typedef void (LldbEngine::*LldbCommandCallback)
         (const LldbResponse &response);
+    typedef void (LldbEngine::*LldbCommandContinuation)();
 
     struct LldbCommand
     {
@@ -153,7 +163,8 @@ private:
     void handleListLocals(const LldbResponse &response);
     void handleListModules(const LldbResponse &response);
     void handleListSymbols(const LldbResponse &response);
-    void handleBreakInsert(const LldbResponse &response);
+    void handleBreakpointsSynchronized(const LldbResponse &response);
+    void updateBreakpointData(const GdbMi &bkpt, bool added);
     void handleUpdateStack(const LldbResponse &response);
     void handleUpdateThreads(const LldbResponse &response);
 
@@ -167,6 +178,7 @@ private:
     GdbMi parseFromString(QByteArray out, const QByteArray &firstTopLevel);
 
     QQueue<LldbCommand> m_commands;
+    QStack<LldbCommandContinuation> m_continuations;
 
     QByteArray m_inbuffer;
     QString m_scriptFileName;

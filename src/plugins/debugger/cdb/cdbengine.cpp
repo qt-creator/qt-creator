@@ -2586,7 +2586,8 @@ bool CdbEngine::acceptsBreakpoint(BreakpointModelId id) const
     if (!data.isCppBreakpoint())
         return false;
     switch (data.type) {
-    case UnknownType:
+    case UnknownBreakpointType:
+    case LastBreakpointType:
     case BreakpointAtFork:
     case WatchpointAtExpression:
     case BreakpointAtSysCall:

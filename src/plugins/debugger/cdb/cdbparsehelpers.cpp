@@ -92,7 +92,8 @@ static inline QString cdbBreakPointFileName(const BreakpointParameters &bp,
 static BreakpointParameters fixWinMSVCBreakpoint(const BreakpointParameters &p)
 {
     switch (p.type) {
-    case UnknownType:
+    case UnknownBreakpointType:
+    case LastBreakpointType:
     case BreakpointByFileAndLine:
     case BreakpointByFunction:
     case BreakpointByAddress:
@@ -181,12 +182,13 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
     case BreakpointAtExec:
     case WatchpointAtExpression:
     case BreakpointAtSysCall:
-    case UnknownType:
     case BreakpointAtCatch:
     case BreakpointAtThrow:
     case BreakpointAtMain:
     case BreakpointOnQmlSignalEmit:
     case BreakpointAtJavaScriptThrow:
+    case UnknownBreakpointType:
+    case LastBreakpointType:
         QTC_ASSERT(false, return QByteArray());
         break;
     case BreakpointByAddress:

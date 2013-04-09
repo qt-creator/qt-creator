@@ -136,7 +136,7 @@ private:
 };
 
 BreakpointDialog::BreakpointDialog(BreakpointModelId id, QWidget *parent)
-    : QDialog(parent), m_enabledParts(~0), m_previousType(UnknownType),
+    : QDialog(parent), m_enabledParts(~0), m_previousType(UnknownBreakpointType),
       m_firstTypeChange(true)
 {
     setWindowTitle(tr("Edit Breakpoint Properties"));
@@ -158,7 +158,8 @@ BreakpointDialog::BreakpointDialog(BreakpointModelId id, QWidget *parent)
           << tr("Break on data access at address given by expression")
           << tr("Break on QML signal emit")
           << tr("Break when JavaScript exception is thrown");
-    QTC_ASSERT(types.size() == BreakpointAtJavaScriptThrow, return);
+    // We don't list UnknownBreakpointType, so 1 less:
+    QTC_CHECK(types.size() + 1 == LastBreakpointType);
     m_comboBoxType = new QComboBox(groupBoxBasic);
     m_comboBoxType->setMaxVisibleItems(20);
     m_comboBoxType->addItems(types);
@@ -512,7 +513,8 @@ void BreakpointDialog::typeChanged(int)
     m_previousType = newType;
     // Save current state.
     switch (previousType) {
-    case UnknownType:
+    case UnknownBreakpointType:
+    case LastBreakpointType:
         break;
     case BreakpointByFileAndLine:
         getParts(FileAndLinePart|ModulePart|AllConditionParts|TracePointPart, &m_savedParameters);
@@ -542,7 +544,8 @@ void BreakpointDialog::typeChanged(int)
 
     // Enable and set up new state from saved values.
     switch (newType) {
-    case UnknownType:
+    case UnknownBreakpointType:
+    case LastBreakpointType:
         break;
     case BreakpointByFileAndLine:
         setParts(FileAndLinePart|AllConditionParts|ModulePart|TracePointPart, m_savedParameters);

@@ -422,10 +422,33 @@ try:
 
     #warn("LOADING LLDB")
 
+    # Data members
     SimpleValueCode, \
     StructCode, \
     PointerCode \
         = range(3)
+
+    # Breakpoints. Keep synchronized with BreakpointType in breakpoint.h
+    UnknownType = 0
+    BreakpointByFileAndLine = 1
+    BreakpointByFunction = 2
+    BreakpointByAddress = 3
+    BreakpointAtThrow = 4
+    BreakpointAtCatch = 5
+    BreakpointAtMain = 6
+    BreakpointAtFork = 7
+    BreakpointAtExec = 8
+    BreakpointAtSysCall = 10
+    WatchpointAtAddress = 11
+    WatchpointAtExpression = 12
+    BreakpointOnQmlSignalEmit = 13
+    BreakpointAtJavaScriptThrow = 14
+
+
+    import json
+
+    def dumpJson(stuff):
+        warn("%s" % json.dumps(stuff, sort_keys=True, indent=4, separators=(',', ': ')))
 
     def registerCommand(name, func):
         pass
@@ -578,8 +601,133 @@ try:
         return result
 
 
+    def breakpoint_function_wrapper(baton, process, frame, bp_loc):
+        result = "*stopped"
+        result += ",line=\"%s\"" % frame.line_entry.line
+        result += ",file=\"%s\"" % frame.line_entry.file
+        warn("WRAPPER: %s " %result)
+        return result
+
+    def initLldb():
+        pass
+
+    def dumpBreakpoint(bp, modelId):
+        cond = bp.GetCondition()
+        result  = "{lldbid=\"%s\"" % bp.GetID()
+        result += ",modelid=\"%s\"" % modelId
+        result += ",hitcount=\"%s\"" % bp.GetHitCount()
+        result += ",threadid=\"%s\"" % bp.GetThreadID()
+        result += ",oneshot=\"%s\"" % (1 if bp.IsOneShot() else 0)
+        result += ",enabled=\"%s\"" % (1 if bp.IsEnabled() else 0)
+        result += ",valid=\"%s\"" % (1 if bp.IsValid() else 0)
+        result += ",condition=\"%s\"" % ("" if cond is None else cond)
+        result += ",ignorecount=\"%s\"" % bp.GetIgnoreCount()
+        result += ",locations=["
+        for i in range(bp.GetNumLocations()):
+            loc = bp.GetLocationAtIndex(i)
+            addr = loc.GetAddress()
+            result += "{locid=\"%s\"" % loc.GetID()
+            result += ",func=\"%s\"" % addr.GetFunction().GetName()
+            result += ",enabled=\"%s\"" % (1 if loc.IsEnabled() else 0)
+            result += ",resolved=\"%s\"" % (1 if loc.IsResolved() else 0)
+            result += ",valid=\"%s\"" % (1 if loc.IsValid() else 0)
+            result += ",ignorecount=\"%s\"" % loc.GetIgnoreCount()
+            result += ",addr=\"%s\"}," % loc.GetLoadAddress()
+        result += "]},"
+        return result
+
+    def onBreak():
+        lldb.debugger.HandleCommand("settings set frame-format ''")
+        lldb.debugger.HandleCommand("settings set thread-format ''")
+        result = "*stopped,frame={....}"
+        print result
+
+    def handleBreakpoints(stuff):
+        todo = json.loads(stuff)
+        #dumpJson(todo)
+        #target = lldb.debugger.CreateTargetWithFileAndArch (exe, lldb.LLDB_ARCH_DEFAULT)
+        target = lldb.debugger.GetTargetAtIndex(0)
+        #target = lldb.target
+
+        result = "bkpts={added=["
+
+        for bp in todo["add"]:
+            bpType = bp["type"]
+            if bpType == BreakpointByFileAndLine:
+                bpNew = target.BreakpointCreateByLocation(str(bp["file"]), int(bp["line"]))
+            elif bpType == BreakpointByFunction:
+                bpNew = target.BreakpointCreateByName(bp["function"])
+            elif bpType == BreakpointAtMain:
+                bpNew = target.BreakpointCreateByName("main", target.GetExecutable().GetFilename())
+            bpNew.SetIgnoreCount(int(bp["ignorecount"]))
+            bpNew.SetCondition(str(bp["condition"]))
+            bpNew.SetEnabled(int(bp["enabled"]))
+            bpNew.SetOneShot(int(bp["oneshot"]))
+            #bpNew.SetCallback(breakpoint_function_wrapper, None)
+            #bpNew.SetCallback(breakpoint_function_wrapper, None)
+            #"breakpoint command add 1 -o \"import time; print time.asctime()\"
+            #cmd = "script print(11111111)"
+            cmd = "continue"
+            lldb.debugger.HandleCommand(
+                "breakpoint command add -o 'script onBreak()' %s" % bpNew.GetID())
+
+            result += dumpBreakpoint(bpNew, bp["modelid"])
+
+        result += "],changed=["
+
+        for bp in todo["change"]:
+            bpChange = target.FindBreakpointByID(int(bp["lldbid"]))
+            bpChange.SetIgnoreCount(int(bp["ignorecount"]))
+            bpChange.SetCondition(str(bp["condition"]))
+            bpChange.SetEnabled(int(bp["enabled"]))
+            bpChange.SetOneShot(int(bp["oneshot"]))
+            result += dumpBreakpoint(bpChange, bp["modelid"])
+
+        result += "],removed=["
+
+        for bp in todo["remove"]:
+            bpDead = target.BreakpointDelete(int(bp["lldbid"]))
+            result += "{modelid=\"%s\"}" % bp["modelid"]
+
+        result += "]}"
+        return result
+
+    def doStepOver():
+        lldb.debugger.SetAsync(False)
+        lldb.thread.StepOver()
+        lldb.debugger.SetAsync(True)
+        result = "result={"
+        result += "},"
+        result += stackData({'threadid': lldb.process.selected_thread.id})
+        result += threadsData({})
+        return result
+
+    def doInterrupt():
+        lldb.debugger.SetAsync(False)
+        lldb.process.Stop()
+        lldb.debugger.SetAsync(True)
+        result = "result={"
+        result += "}"
+        return result
+
 except:
     #warn("LOADING LLDB FAILED")
     pass
+
+#lldb.debugger.HandleCommand('command script add -f ls.ls ls')
+
+#
+#SBEvent data;
+#while (!stop) {
+#if (self->m_listener.WaitForEvent(UINT32_MAX, data)) {
+#   if (data.getType() == SBProcess::eBroadcastBitStateChanged &&
+#m_process.GetStateFromEvent (data) == eStateStopped) {
+#     SBThread th = m_process.GetSelectedThread();
+#     if (th.GetStopReason() == eStopReasonBreakpoint) {
+#       // th.GetStopReasonDataAtIndex(0) should have the breakpoint id
+#     }
+#   }
+#}
+#}
 
 

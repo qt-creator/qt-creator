@@ -2540,7 +2540,7 @@ QByteArray GdbEngine::breakpointLocation(BreakpointModelId id)
 {
     BreakHandler *handler = breakHandler();
     const BreakpointParameters &data = handler->breakpointData(id);
-    QTC_ASSERT(data.type != UnknownType, return QByteArray());
+    QTC_ASSERT(data.type != UnknownBreakpointType, return QByteArray());
     // FIXME: Non-GCC-runtime
     if (data.type == BreakpointAtThrow)
         return "__cxa_throw";
@@ -3198,7 +3198,7 @@ void GdbEngine::changeBreakpoint(BreakpointModelId id)
 {
     BreakHandler *handler = breakHandler();
     const BreakpointParameters &data = handler->breakpointData(id);
-    QTC_ASSERT(data.type != UnknownType, return);
+    QTC_ASSERT(data.type != UnknownBreakpointType, return);
     const BreakpointResponse &response = handler->response(id);
     QTC_ASSERT(response.id.isValid(), return);
     const QByteArray bpnr = response.id.toByteArray();
