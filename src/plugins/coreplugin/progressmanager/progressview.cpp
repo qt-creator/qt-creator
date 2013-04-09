@@ -28,9 +28,6 @@
 ****************************************************************************/
 
 #include "progressview.h"
-#include "futureprogress.h"
-
-#include <utils/qtcassert.h>
 
 #include <QEvent>
 #include <QVBoxLayout>
@@ -53,57 +50,16 @@ ProgressView::ProgressView(QWidget *parent)
 
 ProgressView::~ProgressView()
 {
-    qDeleteAll(m_taskList);
-    m_taskList.clear();
 }
 
-FutureProgress *ProgressView::addTask(const QFuture<void> &future,
-                                      const QString &title,
-                                      const QString &type,
-                                      ProgressManager::ProgressFlags flags)
+void ProgressView::addProgressWidget(QWidget *widget)
 {
-    removeOldTasks(type);
-    if (m_taskList.size() == 10)
-        removeOneOldTask();
-    FutureProgress *progress = new FutureProgress(this);
-    progress->setTitle(title);
-    progress->setFuture(future);
-
-    m_layout->insertWidget(0, progress);
-    m_taskList.append(progress);
-    progress->setType(type);
-    if (flags.testFlag(ProgressManager::KeepOnFinish))
-        progress->setKeepOnFinish(FutureProgress::KeepOnFinishTillUserInteraction);
-    else
-        progress->setKeepOnFinish(FutureProgress::HideOnFinish);
-    connect(progress, SIGNAL(hasErrorChanged()), this, SIGNAL(hasErrorChanged()));
-    connect(progress, SIGNAL(removeMe()), this, SLOT(slotRemoveTask()));
-    connect(progress, SIGNAL(fadeStarted()), this, SLOT(checkForLastProgressFading()));
-    return progress;
+    m_layout->insertWidget(0, widget);
 }
 
-bool ProgressView::hasError() const
+void ProgressView::removeProgressWidget(QWidget *widget)
 {
-    foreach (FutureProgress *progress, m_taskList)
-        if (progress->hasError())
-            return true;
-    return false;
-}
-
-bool ProgressView::isFading() const
-{
-    if (m_taskList.isEmpty())
-        return false;
-    foreach (FutureProgress *progress, m_taskList) {
-        if (!progress->isFading()) // we still have progress bars that are not fading, do nothing
-            return false;
-    }
-    return true;
-}
-
-bool ProgressView::isEmpty() const
-{
-    return m_taskList.isEmpty();
+    m_layout->removeWidget(widget);
 }
 
 bool ProgressView::isHovered() const
@@ -146,29 +102,6 @@ bool ProgressView::eventFilter(QObject *obj, QEvent *event)
     return false;
 }
 
-void ProgressView::removeOldTasks(const QString &type, bool keepOne)
-{
-    bool firstFound = !keepOne; // start with false if we want to keep one
-    QList<FutureProgress *>::iterator i = m_taskList.end();
-    while (i != m_taskList.begin()) {
-        --i;
-        if ((*i)->type() == type) {
-            if (firstFound && ((*i)->future().isFinished() || (*i)->future().isCanceled())) {
-                deleteTask(*i);
-                i = m_taskList.erase(i);
-            }
-            firstFound = true;
-        }
-    }
-}
-
-void ProgressView::deleteTask(FutureProgress *progress)
-{
-    layout()->removeWidget(progress);
-    progress->hide();
-    progress->deleteLater();
-}
-
 void ProgressView::reposition()
 {
     if (!parentWidget() || !m_referenceWidget)
@@ -176,58 +109,4 @@ void ProgressView::reposition()
     QPoint topRightReferenceInParent =
             m_referenceWidget->mapTo(parentWidget(), m_referenceWidget->rect().topRight());
     move(topRightReferenceInParent - rect().bottomRight());
-}
-
-void ProgressView::removeOneOldTask()
-{
-    if (m_taskList.isEmpty())
-        return;
-    // look for oldest ended process
-    for (QList<FutureProgress *>::iterator i = m_taskList.begin(); i != m_taskList.end(); ++i) {
-        if ((*i)->future().isFinished()) {
-            deleteTask(*i);
-            i = m_taskList.erase(i);
-            return;
-        }
-    }
-    // no ended process, look for a task type with multiple running tasks and remove the oldest one
-    for (QList<FutureProgress *>::iterator i = m_taskList.begin(); i != m_taskList.end(); ++i) {
-        QString type = (*i)->type();
-
-        int taskCount = 0;
-        foreach (FutureProgress *p, m_taskList)
-            if (p->type() == type)
-                ++taskCount;
-
-        if (taskCount > 1) { // don't care for optimizations it's only a handful of entries
-            deleteTask(*i);
-            i = m_taskList.erase(i);
-            return;
-        }
-    }
-
-    // no ended process, no type with multiple processes, just remove the oldest task
-    FutureProgress *task = m_taskList.takeFirst();
-    deleteTask(task);
-}
-
-void ProgressView::removeTask(FutureProgress *task)
-{
-    m_taskList.removeAll(task);
-    deleteTask(task);
-}
-
-void ProgressView::slotRemoveTask()
-{
-    FutureProgress *progress = qobject_cast<FutureProgress *>(sender());
-    QTC_ASSERT(progress, return);
-    QString type = progress->type();
-    removeTask(progress);
-    removeOldTasks(type, true);
-}
-
-void ProgressView::checkForLastProgressFading()
-{
-    if (isEmpty() || isFading())
-        emit fadeOfLastProgressStarted();
 }

@@ -27,6 +27,7 @@
 **
 ****************************************************************************/
 
+#include "futureprogress.h"
 #include "progressmanager_p.h"
 #include "progressbar.h"
 #include "progressview.h"
@@ -267,8 +268,6 @@ ProgressManagerPrivate::ProgressManagerPrivate(QObject *parent)
     m_hovered(false)
 {
     m_progressView = new ProgressView;
-    connect(m_progressView, SIGNAL(hasErrorChanged()), this, SLOT(updateSummaryProgressBar()));
-    connect(m_progressView, SIGNAL(fadeOfLastProgressStarted()), this, SLOT(updateSummaryProgressBar()));
     // withDelay, so the statusBarWidget has the chance to get the enter event
     connect(m_progressView, SIGNAL(hoveredChanged(bool)), this, SLOT(updateVisibilityWithDelay()));
     connect(ICore::instance(), SIGNAL(coreAboutToClose()), this, SLOT(cancelAllRunningTasks()));
@@ -276,6 +275,8 @@ ProgressManagerPrivate::ProgressManagerPrivate(QObject *parent)
 
 ProgressManagerPrivate::~ProgressManagerPrivate()
 {
+    qDeleteAll(m_taskList);
+    m_taskList.clear();
     ExtensionSystem::PluginManager::removeObject(m_statusBarWidgetContainer);
     delete m_statusBarWidgetContainer;
     cleanup();
@@ -379,11 +380,15 @@ void ProgressManagerPrivate::cancelAllRunningTasks()
 FutureProgress *ProgressManagerPrivate::addTask(const QFuture<void> &future, const QString &title,
                                                 const QString &type, ProgressFlags flags)
 {
+    // watch
     QFutureWatcher<void> *watcher = new QFutureWatcher<void>();
     m_runningTasks.insert(watcher, type);
     connect(watcher, SIGNAL(progressRangeChanged(int,int)), this, SLOT(updateSummaryProgressBar()));
     connect(watcher, SIGNAL(progressValueChanged(int)), this, SLOT(updateSummaryProgressBar()));
     connect(watcher, SIGNAL(finished()), this, SLOT(taskFinished()));
+    watcher->setFuture(future);
+
+    // handle application task
     if (flags & ShowInApplicationIcon) {
         if (m_applicationTask)
             disconnectApplicationTask();
@@ -396,9 +401,28 @@ FutureProgress *ProgressManagerPrivate::addTask(const QFuture<void> &future, con
                 this, SLOT(setApplicationProgressValue(int)));
         setApplicationProgressVisible(true);
     }
-    watcher->setFuture(future);
+
+    // create FutureProgress and manage task list
+    removeOldTasks(type);
+    if (m_taskList.size() == 10)
+        removeOneOldTask();
+    FutureProgress *progress = new FutureProgress;
+    progress->setTitle(title);
+    progress->setFuture(future);
+
+    m_progressView->addProgressWidget(progress);
+    m_taskList.append(progress);
+    progress->setType(type);
+    if (flags.testFlag(ProgressManager::KeepOnFinish))
+        progress->setKeepOnFinish(FutureProgress::KeepOnFinishTillUserInteraction);
+    else
+        progress->setKeepOnFinish(FutureProgress::HideOnFinish);
+    connect(progress, SIGNAL(hasErrorChanged()), this, SLOT(updateSummaryProgressBar()));
+    connect(progress, SIGNAL(removeMe()), this, SLOT(slotRemoveTask()));
+    connect(progress, SIGNAL(fadeStarted()), this, SLOT(updateSummaryProgressBar()));
+
     emit taskStarted(type);
-    return m_progressView->addTask(future, title, type, flags);
+    return progress;
 }
 
 ProgressView *ProgressManagerPrivate::progressView()
@@ -434,16 +458,16 @@ void ProgressManagerPrivate::disconnectApplicationTask()
 
 void ProgressManagerPrivate::updateSummaryProgressBar()
 {
-    m_summaryProgressBar->setError(m_progressView->hasError());
+    m_summaryProgressBar->setError(hasError());
     updateVisibility();
     if (m_runningTasks.isEmpty()) {
         m_summaryProgressBar->setFinished(true);
-        if (m_progressView->isEmpty() || m_progressView->isFading())
-            fadeAway();
+        if (m_taskList.isEmpty() || isLastFading())
+            fadeAwaySummaryProgress();
         return;
     }
 
-    stopFade();
+    stopFadeOfSummaryProgress();
 
     m_summaryProgressBar->setFinished(false);
     QMapIterator<QFutureWatcher<void> *, QString> it(m_runningTasks);
@@ -460,17 +484,17 @@ void ProgressManagerPrivate::updateSummaryProgressBar()
     m_summaryProgressBar->setValue(value);
 }
 
-void ProgressManagerPrivate::fadeAway()
+void ProgressManagerPrivate::fadeAwaySummaryProgress()
 {
-    stopFade();
+    stopFadeOfSummaryProgress();
     m_opacityAnimation = new QPropertyAnimation(m_opacityEffect, "opacity");
     m_opacityAnimation->setDuration(Utils::StyleHelper::progressFadeAnimationDuration);
     m_opacityAnimation->setEndValue(0.);
-    connect(m_opacityAnimation, SIGNAL(finished()), this, SLOT(fadeFinished()));
+    connect(m_opacityAnimation, SIGNAL(finished()), this, SLOT(summaryProgressFinishedFading()));
     m_opacityAnimation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
-void ProgressManagerPrivate::stopFade()
+void ProgressManagerPrivate::stopFadeOfSummaryProgress()
 {
     if (m_opacityAnimation) {
         m_opacityAnimation->stop();
@@ -479,10 +503,100 @@ void ProgressManagerPrivate::stopFade()
     }
 }
 
+bool ProgressManagerPrivate::hasError() const
+{
+    foreach (FutureProgress *progress, m_taskList)
+        if (progress->hasError())
+            return true;
+    return false;
+}
+
+bool ProgressManagerPrivate::isLastFading() const
+{
+    if (m_taskList.isEmpty())
+        return false;
+    foreach (FutureProgress *progress, m_taskList) {
+        if (!progress->isFading()) // we still have progress bars that are not fading
+            return false;
+    }
+    return true;
+}
+
+void ProgressManagerPrivate::slotRemoveTask()
+{
+    FutureProgress *progress = qobject_cast<FutureProgress *>(sender());
+    QTC_ASSERT(progress, return);
+    QString type = progress->type();
+    removeTask(progress);
+    removeOldTasks(type, true);
+}
+
+void ProgressManagerPrivate::removeOldTasks(const QString &type, bool keepOne)
+{
+    bool firstFound = !keepOne; // start with false if we want to keep one
+    QList<FutureProgress *>::iterator i = m_taskList.end();
+    while (i != m_taskList.begin()) {
+        --i;
+        if ((*i)->type() == type) {
+            if (firstFound && ((*i)->future().isFinished() || (*i)->future().isCanceled())) {
+                deleteTask(*i);
+                i = m_taskList.erase(i);
+            }
+            firstFound = true;
+        }
+    }
+}
+
+void ProgressManagerPrivate::removeOneOldTask()
+{
+    if (m_taskList.isEmpty())
+        return;
+    // look for oldest ended process
+    for (QList<FutureProgress *>::iterator i = m_taskList.begin(); i != m_taskList.end(); ++i) {
+        if ((*i)->future().isFinished()) {
+            deleteTask(*i);
+            i = m_taskList.erase(i);
+            return;
+        }
+    }
+    // no ended process, look for a task type with multiple running tasks and remove the oldest one
+    for (QList<FutureProgress *>::iterator i = m_taskList.begin(); i != m_taskList.end(); ++i) {
+        QString type = (*i)->type();
+
+        int taskCount = 0;
+        foreach (FutureProgress *p, m_taskList)
+            if (p->type() == type)
+                ++taskCount;
+
+        if (taskCount > 1) { // don't care for optimizations it's only a handful of entries
+            deleteTask(*i);
+            i = m_taskList.erase(i);
+            return;
+        }
+    }
+
+    // no ended process, no type with multiple processes, just remove the oldest task
+    FutureProgress *task = m_taskList.takeFirst();
+    deleteTask(task);
+}
+
+void ProgressManagerPrivate::removeTask(FutureProgress *task)
+{
+    m_taskList.removeAll(task);
+    deleteTask(task);
+}
+
+void ProgressManagerPrivate::deleteTask(FutureProgress *progress)
+{
+    m_progressView->removeProgressWidget(progress);
+    progress->hide();
+    progress->deleteLater();
+}
+
 void ProgressManagerPrivate::updateVisibility()
 {
     m_progressView->setVisible(m_progressViewPinned || m_hovered || m_progressView->isHovered());
-    m_summaryProgressBar->setVisible((!m_runningTasks.isEmpty() || !m_progressView->isEmpty())
+    m_summaryProgressBar->setVisible((!m_runningTasks.isEmpty() || !m_taskList.isEmpty())
                                      && !m_progressViewPinned);
 }
 
@@ -491,7 +605,7 @@ void ProgressManagerPrivate::updateVisibilityWithDelay()
     QTimer::singleShot(150, this, SLOT(updateVisibility()));
 }
 
-void ProgressManagerPrivate::fadeFinished()
+void ProgressManagerPrivate::summaryProgressFinishedFading()
 {
     m_summaryProgressBar->setVisible(false);
     m_opacityEffect->setOpacity(1.);

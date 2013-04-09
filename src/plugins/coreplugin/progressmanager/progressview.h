@@ -32,7 +32,6 @@
 
 #include "progressmanager.h"
 
-#include <QFuture>
 #include <QWidget>
 
 
@@ -41,8 +40,6 @@ class QVBoxLayout;
 QT_END_NAMESPACE
 
 namespace Core {
-
-class FutureProgress;
 
 namespace Internal {
 
@@ -54,15 +51,9 @@ public:
     ProgressView(QWidget *parent = 0);
     ~ProgressView();
 
-    /** The returned FutureProgress instance is guaranteed to live till next main loop event processing (deleteLater). */
-    FutureProgress *addTask(const QFuture<void> &future,
-                            const QString &title,
-                            const QString &type,
-                            ProgressManager::ProgressFlags flags);
+    void addProgressWidget(QWidget *widget);
+    void removeProgressWidget(QWidget *widget);
 
-    bool hasError() const;
-    bool isFading() const;
-    bool isEmpty() const;
     bool isHovered() const;
 
     void setReferenceWidget(QWidget *widget);
@@ -72,23 +63,12 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
 signals:
-    void hasErrorChanged();
-    void fadeOfLastProgressStarted();
     void hoveredChanged(bool hovered);
 
-private slots:
-    void slotRemoveTask();
-    void checkForLastProgressFading();
-
 private:
-    void removeOldTasks(const QString &type, bool keepOne = false);
-    void removeOneOldTask();
-    void removeTask(FutureProgress *task);
-    void deleteTask(FutureProgress *task);
     void reposition();
 
     QVBoxLayout *m_layout;
-    QList<FutureProgress *> m_taskList;
     QWidget *m_referenceWidget;
     bool m_hovered;
 };

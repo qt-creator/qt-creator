@@ -77,17 +77,27 @@ private slots:
     void setApplicationProgressVisible(bool visible);
     void disconnectApplicationTask();
     void updateSummaryProgressBar();
-    void fadeAway();
-    void fadeFinished();
+    void fadeAwaySummaryProgress();
+    void summaryProgressFinishedFading();
     void progressDetailsToggled(bool checked);
     void updateVisibility();
     void updateVisibilityWithDelay();
 
+    void slotRemoveTask();
 private:
     void initInternal();
-    void stopFade();
+    void stopFadeOfSummaryProgress();
+
+    bool hasError() const;
+    bool isLastFading() const;
+
+    void removeOldTasks(const QString &type, bool keepOne = false);
+    void removeOneOldTask();
+    void removeTask(FutureProgress *task);
+    void deleteTask(FutureProgress *task);
 
     QPointer<ProgressView> m_progressView;
+    QList<FutureProgress *> m_taskList;
     QMap<QFutureWatcher<void> *, QString> m_runningTasks;
     QFutureWatcher<void> *m_applicationTask;
     Core::StatusBarWidget *m_statusBarWidgetContainer;
