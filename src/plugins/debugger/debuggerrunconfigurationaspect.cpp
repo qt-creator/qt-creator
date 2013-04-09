@@ -74,6 +74,7 @@ private slots:
     void useQmlDebuggerToggled(bool on);
     void qmlDebugServerPortChanged(int port);
     void useMultiProcessToggled(bool on);
+    void update();
 
 public:
     DebuggerRunConfigurationAspect *m_aspect; // not owned
@@ -104,15 +105,9 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(DebuggerRunConfigurationAspect 
         "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html"
         "\">What are the prerequisites?</a>"));
 
-    m_useCppDebugger->setChecked(m_aspect->useCppDebugger());
-    m_useQmlDebugger->setChecked(m_aspect->useQmlDebugger());
-
-    m_debugServerPort->setValue(m_aspect->qmlDebugServerPort());
-
     static const QByteArray env = qgetenv("QTC_DEBUGGER_MULTIPROCESS");
     m_useMultiProcess =
         new QCheckBox(tr("Enable Debugging of Subprocesses"), this);
-    m_useMultiProcess->setChecked(m_aspect->useMultiProcess());
     m_useMultiProcess->setVisible(env.toInt());
 
     connect(m_qmlDebuggerInfoLabel, SIGNAL(linkActivated(QString)),
@@ -125,20 +120,6 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(DebuggerRunConfigurationAspect 
             SLOT(qmlDebugServerPortChanged(int)));
     connect(m_useMultiProcess, SIGNAL(toggled(bool)),
             SLOT(useMultiProcessToggled(bool)));
-
-    if (m_aspect->areQmlDebuggingOptionsSuppressed()) {
-        m_debugServerPortLabel->hide();
-        m_debugServerPort->hide();
-        m_useQmlDebugger->hide();
-    }
-
-    if (m_aspect->areCppDebuggingOptionsSuppressed())
-        m_useCppDebugger->hide();
-
-    if (m_aspect->isQmlDebuggingSpinboxSuppressed()) {
-        m_debugServerPort->hide();
-        m_debugServerPortLabel->hide();
-    }
 
     QHBoxLayout *qmlLayout = new QHBoxLayout;
     qmlLayout->setMargin(0);
@@ -154,6 +135,29 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(DebuggerRunConfigurationAspect 
     layout->addLayout(qmlLayout);
     layout->addWidget(m_useMultiProcess);
     setLayout(layout);
+
+    connect(aspect->runConfiguration()->target()->project(), SIGNAL(projectLanguagesUpdated()),
+            this, SLOT(update()));
+    update();
+}
+
+void DebuggerRunConfigWidget::update()
+{
+    m_useCppDebugger->setChecked(m_aspect->useCppDebugger());
+    m_useQmlDebugger->setChecked(m_aspect->useQmlDebugger());
+
+    m_debugServerPort->setValue(m_aspect->qmlDebugServerPort());
+
+    m_useMultiProcess->setChecked(m_aspect->useMultiProcess());
+
+    m_useQmlDebugger->setVisible(!m_aspect->areQmlDebuggingOptionsSuppressed());
+    m_qmlDebuggerInfoLabel->setVisible(!m_aspect->areQmlDebuggingOptionsSuppressed());
+    m_debugServerPortLabel->setVisible(!m_aspect->areQmlDebuggingOptionsSuppressed()
+                                       && !m_aspect->isQmlDebuggingSpinboxSuppressed());
+    m_debugServerPort->setVisible(!m_aspect->areQmlDebuggingOptionsSuppressed()
+                                  && !m_aspect->isQmlDebuggingSpinboxSuppressed());
+
+    m_useCppDebugger->setVisible(!m_aspect->areCppDebuggingOptionsSuppressed());
 }
 
 void DebuggerRunConfigWidget::qmlDebugServerPortChanged(int port)
@@ -233,11 +237,13 @@ void DebuggerRunConfigurationAspect::setUseCppDebugger(bool value)
 
 bool DebuggerRunConfigurationAspect::useCppDebugger() const
 {
-    return m_useCppDebugger;
+    return m_useCppDebugger && !areCppDebuggingOptionsSuppressed();
 }
 
 bool DebuggerRunConfigurationAspect::useQmlDebugger() const
 {
+    if (areQmlDebuggingOptionsSuppressed())
+        return false;
     if (m_useQmlDebugger == DebuggerRunConfigurationAspect::AutoEnableQmlDebugger)
         return m_runConfiguration->target()->project()->projectLanguages().contains(
                     ProjectExplorer::Constants::LANG_QMLJS);
@@ -323,8 +329,7 @@ ProjectExplorer::RunConfigWidget *DebuggerRunConfigurationAspect::createConfigur
 {
     if (areCppDebuggingOptionsSuppressed() && areQmlDebuggingOptionsSuppressed())
         return 0;
-    else
-        return new Internal::DebuggerRunConfigWidget(this);
+    return new Internal::DebuggerRunConfigWidget(this);
 }
 
 void DebuggerRunConfigurationAspect::ctor()
