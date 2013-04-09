@@ -268,16 +268,23 @@
 
             \li \c fieldpagetitle specifies the title of the page.
 
-            \li \c field specifies whether the field is mandatory (\c true or
-                \c false). You can use the value of the \c name field as a
-                variable in other files (for example, \c {%MESSAGE%}.
+            \li \c fields specifies the user interface objects on the page.
 
-            \li \c fieldcontrol specifies the field. \c class specifies the
-                field type. You can use interface objects from the QWidget class
-                to create fields. This example uses QLineEdit to create an input
-                field.
+            \li \c field specifies one object. You can use a set of interface objects
+                from QtWidgets classes, derived from QWidget, to create fields. This example
+                uses QLineEdit to create an input field. For more information about the objects
+                that you can add, see \l {Supported Widgets}.
 
-            \li \c validator specifies a regular expression to check the
+            \li \c mandatory specifies whether the field is mandatory (\c true or
+                \c false). For more information, see QWizardPage::registerField().
+
+            \li \c name specifies a name that you can use as a placeholder variable in the
+                template file (for example, \c {%MESSAGE%}).
+
+            \li \c class specifies the type of the \c fieldcontrol. The XML attributes that you
+                can specify for the field depend on the field type.
+
+            \li For a QLineEdit, \c validator specifies a regular expression to check the
                 characters allowed in the field.
 
             \li \c defaulttext specifies text that appears in the field by
@@ -360,9 +367,18 @@
                 <fielddescription xml:lang="de">Klassenname:</fielddescription>
             </field>
             <field name="Datatype">
-
-                <fieldcontrol class="QComboBox" combochoices="QString,int" defaultindex="0" />
-
+                <fieldcontrol class="QComboBox" defaultindex="0">
+                    <comboentries>
+                        <comboentry value="QString">
+                            <comboentrytext>class QString</comboentrytext>
+                            <comboentrytext xml:lang="de">Klasse QString</comboentrytext>
+                        </comboentry>
+                    <comboentry value="int">
+                        <comboentrytext>Integer</comboentrytext>
+                        <comboentrytext xml:lang="de">Ganzzahlwert</comboentrytext>
+                    </comboentry>
+                </comboentries>
+                </fieldcontrol>
                 <fielddescription>Data type:</fielddescription>
                 <fielddescription xml:lang="de">Datentyp:</fielddescription>
             </field>
@@ -371,10 +387,84 @@
         \endcode
 
         In addition to QLineEdit, QComboBox is used in the class wizard to
-        create a field. \c combochoices specifies the options in the combobox
-        and \c defaultindex specifies that QString is the default value.
+        create a field. Specify the following XML attributes:
+
+        \list
+
+            \li \c defaultindex specifies which comboentry is displayed by default. In the above
+                example, "0" means that the first comboentry is the default value.
+
+            \li \c comboentries specifies the options in the combobox.
+
+            \li \c value specifies the type of each \c comboentry, QString or integer.
+
+            \li \c comboentrytext specifies the text of the entry.
+
+        \endlist
 
     \endlist
+
+    \section1 Supported Widgets
+
+    You can use the following interface objects to create fields in the wizards:
+
+    \list
+
+        \li PathChooser utility to set paths
+
+        \li Check boxes with text labels (QCheckBox)
+
+        \li Combined button and popup lists (QComboBox)
+
+        \li One-line text editors (QLineEdit)
+
+        \li Multi-line rich text editors (QTextEdit)
+
+    \endlist
+
+    Using QLineEdit and QComboBox is described in the previous sections.
+    The following sections show examples of using the other classes and describe the XML
+    attributes that you can specify for the \c fieldcontrol element of a field in a particular
+    \c class.
+
+    \section2 Path Choosers
+
+    \code
+    <field mandatory="true" name="QtCreatorSources">
+        <fieldcontrol class="Utils::PathChooser" defaulttext="" />
+            <fielddescription>Qt Creator sources:</fielddescription>
+    </field>
+    \endcode
+
+    The \c defaulttext attribute specifies text that appears in the field by default.
+
+    \section2 Check Boxes
+
+    To make check boxes appear selected by default, set the \c fieldcontrol attribute
+    \c defaultvalue to \c true. Any other value or omitting the attribute makes the check box
+    appear not selected.
+
+    For example:
+
+    \code
+    <field name="CONSOLE">
+        <fieldcontrol class="QCheckBox" defaultvalue="true"/>
+        <fielddescription>Console application</fielddescription>
+    </field>
+    \endcode
+
+    For more examples about using check boxes, see \l{Processing Template Files}.
+
+    \section2 Text Editors
+
+    \code
+    <field name="License">
+        <fieldcontrol class="QTextEdit" defaulttext="Put your license text here" />
+            <fielddescription>License:</fielddescription>
+    </field>
+    \endcode
+
+    The \c defaulttext attribute specifies text that appears in the field by default.
 
     \section1 Processing Template Files
 
@@ -396,9 +486,29 @@
 
     \endlist
 
+    In the \c{helloworld} example, the placeholder \c %NETWORK% is used together with the
+    QCheckBox class. The following line is added to the project file:
+
+    \code
+    %NETWORK%QT += network
+    \endcode
+
+    And the following field is specified in the wizard.xml:
+
+    \code
+    <field name="NETWORK">
+        <fieldcontrol class="QCheckBox" truevalue="" falsevalue="# "/>
+        <fielddescription>Include network module</fielddescription>
+        <fielddescription xml:lang="de">Netzwerk-Modul verwenden</fielddescription>
+    </field>
+    \endcode
+
+    If the checkbox is checked, the placeholder is replaced by \c truevalue. If it is not
+    checked, the placeholder is replaced by \c falsevalue.
+
     You can use conditions to add sections of the file depending on field
     values. Use a syntax that is similar to C++ preprocessing, as demonstrated
-    in the profile of the \c{helloworld} example:
+    in the project file of the \c{helloworld} example:
 
     \code
 
@@ -411,6 +521,16 @@
     The value of the Boolean (QCheckBox) field labeled \c{SCRIPT} determines
     whether the script module is added. The expressions must expand to valid
     Javascript expressions after field replacement.
+
+    For example, the following field is specified in the wizard.xml:
+
+    \code
+    <field name="SCRIPT">
+        <fieldcontrol class="QCheckBox"/>
+        <fielddescription>Include script module</fielddescription>
+        <fielddescription xml:lang="de">Script-Modul verwenden</fielddescription>
+    </field>
+    \endcode
 
     \section1 Pre-defined Standard Variables
 
