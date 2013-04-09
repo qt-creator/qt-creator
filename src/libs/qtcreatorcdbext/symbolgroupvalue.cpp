@@ -2118,7 +2118,7 @@ static bool dumpQImage(const SymbolGroupValue &v, std::wostream &str, MemoryHand
     }
     str << header.width << L'x' << header.height << L", depth: " << depth
         << L", format: " << header.format << L", "
-        << nbytes << L" bytes @0x"  << std::hex << data << std::dec;
+        << nbytes << L" bytes";
     delete [] qImageData;
     // Create Creator Image data for display if reasonable size
     if (memoryHandle && data && nbytes > 0 && nbytes < 205824) {
