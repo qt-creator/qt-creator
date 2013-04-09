@@ -80,21 +80,18 @@ void BlackBerryNdkProcess::addErrorStringMapping(
 
 void BlackBerryNdkProcess::processFinished()
 {
+    QTextStream processOutput(m_process);
     if (m_process->exitCode() == 0) {
+        while (!processOutput.atEnd())
+            processData(processOutput.readLine());
+
         emit finished(Success);
         return;
     }
 
-    QTextStream processOutput(m_process);
-
-    QString errorString;
     int returnStatus = UnknownError;
-
     while (!processOutput.atEnd()) {
-        const QString line = processOutput.readLine();
-
-        returnStatus = errorLineToReturnStatus(line);
-
+        returnStatus = errorLineToReturnStatus(processOutput.readLine());
         if (returnStatus >= 0)
             break;
     }
@@ -142,6 +139,11 @@ int BlackBerryNdkProcess::errorLineToReturnStatus(const QString &line) const
     }
 
     return -1;
+}
+
+void BlackBerryNdkProcess::processData(const QString &line)
+{
+    Q_UNUSED(line);
 }
 
 } // namespace Internal

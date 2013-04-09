@@ -29,58 +29,48 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYDEBUGTOKENREQUESTDIALOG_H
-#define QNX_INTERNAL_BLACKBERRYDEBUGTOKENREQUESTDIALOG_H
+#ifndef QNX_INTERNAL_BLACKBERRYDEVICEINFO_H
+#define QNX_INTERNAL_BLACKBERRYDEVICEINFO_H
 
-#include <QDialog>
-
-QT_BEGIN_NAMESPACE
-class QPushButton;
-QT_END_NAMESPACE
+#include "blackberryndkprocess.h"
 
 namespace Qnx {
 namespace Internal {
 
-class Ui_BlackBerryDebugTokenRequestDialog;
-class BlackBerryDebugTokenRequester;
-class BlackBerryDeviceInformation;
-
-class BlackBerryDebugTokenRequestDialog : public QDialog
+class BlackBerryDeviceInformation : public BlackBerryNdkProcess
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
-    explicit BlackBerryDebugTokenRequestDialog(QWidget *parent = 0,
-            Qt::WindowFlags f = 0);
-    ~BlackBerryDebugTokenRequestDialog();
+    enum ReturnStatus
+    {
+        NoRouteToHost = UserStatus,
+        AuthenticationFailed,
+        DevelopmentModeDisabled,
+        FailedToStartInferiorProcess,
+        InferiorProcessTimedOut,
+        InferiorProcessCrashed,
+        InferiorProcessWriteError,
+        InferiorProcessReadError
+    };
 
-    QString debugToken() const;
-    void setTargetDetails(const QString &deviceIp, const QString &password);
+    explicit BlackBerryDeviceInformation(QObject *parent = 0);
 
-private slots:
-    void validate();
-    void requestDebugToken();
-    void setDefaultPath();
-    void appendExtension();
-    void expandPath();
-    void checkBoxChanged(int state);
-    void debugTokenArrived(int status);
-    void setDevicePin(int status);
+    void setDeviceTarget(const QString &deviceIp, const QString &devicePassword);
+
+    QString devicePin() const;
+    QString deviceOS() const;
+    QString hardwareId() const;
 
 private:
-    void setBusy(bool busy);
-    void populateComboBox();
+    QString m_devicePin;
+    QString m_deviceOS;
+    QString m_hardwareId;
 
-    Ui_BlackBerryDebugTokenRequestDialog *m_ui;
-
-    BlackBerryDebugTokenRequester *m_requester;
-    BlackBerryDeviceInformation *m_deviceInfo;
-
-    QPushButton *m_cancelButton;
-    QPushButton *m_okButton;
+    void processData(const QString &line);
 };
 
 }
-} // namespace Qnx
+}
 
-#endif // QNX_INTERNAL_BLACKBERRYDEBUGTOKENREQUESTDIALOG_H
+#endif // QNX_INTERNAL_BLACKBERRYDEBUGTOKENUPLOADER_H

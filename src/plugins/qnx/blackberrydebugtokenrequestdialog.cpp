@@ -31,6 +31,7 @@
 
 #include "blackberrydebugtokenrequestdialog.h"
 #include "blackberrydebugtokenrequester.h"
+#include "blackberrydeviceinformation.h"
 #include "blackberryconfiguration.h"
 #include "blackberrycertificate.h"
 #include "ui_blackberrydebugtokenrequestdialog.h"
@@ -46,7 +47,8 @@ BlackBerryDebugTokenRequestDialog::BlackBerryDebugTokenRequestDialog(
         QWidget *parent, Qt::WindowFlags f) :
     QDialog(parent, f),
     m_ui(new Ui_BlackBerryDebugTokenRequestDialog),
-    m_requester(new BlackBerryDebugTokenRequester)
+    m_requester(new BlackBerryDebugTokenRequester(this)),
+    m_deviceInfo(new BlackBerryDeviceInformation(this))
 {
     m_ui->setupUi(this);
     m_ui->progressBar->hide();
@@ -83,11 +85,24 @@ BlackBerryDebugTokenRequestDialog::BlackBerryDebugTokenRequestDialog(
             this, SLOT(checkBoxChanged(int)));
     connect(m_requester, SIGNAL(finished(int)),
             this, SLOT(debugTokenArrived(int)));
+    connect(m_deviceInfo, SIGNAL(finished(int)),
+            this, SLOT(setDevicePin(int)));
+}
+
+BlackBerryDebugTokenRequestDialog::~BlackBerryDebugTokenRequestDialog()
+{
+    delete m_ui;
 }
 
 QString BlackBerryDebugTokenRequestDialog::debugToken() const
 {
     return m_ui->debugTokenPath->path();
+}
+
+void BlackBerryDebugTokenRequestDialog::setTargetDetails(const QString &deviceIp, const QString &password)
+{
+    m_ui->devicePin->setPlaceholderText(tr("Requesting Device PIN..."));
+    m_deviceInfo->setDeviceTarget(deviceIp, password);
 }
 
 void BlackBerryDebugTokenRequestDialog::validate()
@@ -230,6 +245,19 @@ void BlackBerryDebugTokenRequestDialog::debugTokenArrived(int status)
     QMessageBox::critical(this, tr("Error"), errorString);
 
     setBusy(false);
+}
+
+void BlackBerryDebugTokenRequestDialog::setDevicePin(int status)
+{
+    m_ui->devicePin->setPlaceholderText(QString());
+    if (status != BlackBerryDeviceInformation::Success)
+        return;
+
+    const QString devicePin = m_deviceInfo->devicePin();
+    if (devicePin.isEmpty())
+        return;
+
+    m_ui->devicePin->setText(devicePin);
 }
 
 void BlackBerryDebugTokenRequestDialog::setBusy(bool busy)

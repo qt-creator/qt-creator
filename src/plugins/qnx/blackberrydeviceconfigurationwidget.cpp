@@ -122,6 +122,9 @@ void BlackBerryDeviceConfigurationWidget::requestDebugToken()
 {
     BlackBerryDebugTokenRequestDialog dialog;
 
+    if (!ui->hostLineEdit->text().isEmpty() && !ui->pwdLineEdit->text().isEmpty())
+        dialog.setTargetDetails(ui->hostLineEdit->text(), ui->pwdLineEdit->text());
+
     const int result = dialog.exec();
 
     if (result != QDialog::Accepted)

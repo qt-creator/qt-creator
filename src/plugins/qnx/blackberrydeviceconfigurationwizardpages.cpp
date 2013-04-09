@@ -133,6 +133,9 @@ void BlackBerryDeviceConfigurationWizardSetupPage::requestDebugToken()
 {
     BlackBerryDebugTokenRequestDialog dialog;
 
+    if (!m_ui->deviceHostIp->text().isEmpty() && !m_ui->password->text().isEmpty())
+        dialog.setTargetDetails(m_ui->deviceHostIp->text(), m_ui->password->text());
+
     const int result = dialog.exec();
 
     if (result != QDialog::Accepted)

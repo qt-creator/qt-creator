@@ -70,6 +70,8 @@ QtcPlugin {
         "blackberrydebugtokenreader.h",
         "blackberrydeviceconfiguration.cpp",
         "blackberrydeviceconfiguration.h",
+        "blackberrydeviceinformation.cpp",
+        "blackberrydeviceinformation.h",
         "blackberrydeviceconfigurationfactory.cpp",
         "blackberrydeviceconfigurationfactory.h",
         "blackberrydeviceconfigurationwidget.cpp",
