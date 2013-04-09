@@ -361,6 +361,7 @@ protected:
     virtual QString lineNumber(int blockNumber) const;
     virtual int lineNumberTopPositionOffset(int blockNumber) const;
     virtual int lineNumberDigits() const;
+    virtual bool selectionVisible(int blockNumber) const;
 
     static QString msgTextTooLarge(quint64 size);
 

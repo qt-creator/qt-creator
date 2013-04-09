@@ -3293,8 +3293,10 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                     if ((hasMainSelection && i == context.selections.size()-1)
                         || (o.format.foreground().style() == Qt::NoBrush
                         && o.format.underlineStyle() != QTextCharFormat::NoUnderline
-                        && o.format.background() == Qt::NoBrush))
-                        prioritySelections.append(o);
+                        && o.format.background() == Qt::NoBrush)) {
+                        if (selectionVisible(block.blockNumber()))
+                            prioritySelections.append(o);
+                    }
                     else
                         selections.append(o);
                 }
@@ -3483,7 +3485,6 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
     bool hasSelection = cursor.hasSelection();
     int selectionStart = cursor.selectionStart();
     int selectionEnd = cursor.selectionEnd();
-
 
     while (block.isValid() && top <= e->rect().bottom()) {
         QTextBlock nextBlock = block.next();
@@ -6194,6 +6195,11 @@ int BaseTextEditorWidget::lineNumberDigits() const
         ++digits;
     }
     return digits;
+}
+
+bool BaseTextEditorWidget::selectionVisible(int blockNumber) const
+{
+    return true;
 }
 
 void BaseTextEditorWidget::appendMenuActionsFromContext(QMenu *menu, const Core::Id menuContextId)
