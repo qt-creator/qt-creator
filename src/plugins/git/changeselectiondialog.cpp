@@ -157,6 +157,7 @@ void ChangeSelectionDialog::enableButtons(bool b)
     m_showButton->setEnabled(b);
     m_cherryPickButton->setEnabled(b);
     m_revertButton->setEnabled(b);
+    m_checkoutButton->setEnabled(b);
 }
 
 void ChangeSelectionDialog::recalculateDetails(const QString &ref)
