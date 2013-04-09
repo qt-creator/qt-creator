@@ -5,10 +5,6 @@ Module {
     Depends { id: qtcore; name: "Qt.core" }
 
     additionalProductFileTags: qtcore.versionMajor < 5 ? ["pluginSpec"] : ["qt_plugin_metadata"]
-    property int ide_version_major: project.ide_version_major
-    property int ide_version_minor: project.ide_version_minor
-    property int ide_version_release: project.ide_version_release
-    property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.' + ide_version_release
 
     Rule {
         inputs: ["pluginSpecIn"]
@@ -22,10 +18,10 @@ Module {
             var cmd = new JavaScriptCommand();
             cmd.description = "prepare " + FileInfo.fileName(output.fileName);
             cmd.highlight = "codegen";
-            cmd.qtcreator_version = product.moduleProperty("pluginspec", "qtcreator_version");
-            cmd.ide_version_major = product.moduleProperty("pluginspec", "ide_version_major");
-            cmd.ide_version_minor = product.moduleProperty("pluginspec", "ide_version_minor");
-            cmd.ide_version_release = product.moduleProperty("pluginspec", "ide_version_release");
+            cmd.ide_version_major = project.ide_version_major;
+            cmd.ide_version_minor = project.ide_version_minor;
+            cmd.ide_version_release = project.ide_version_release;
+            cmd.qtcreator_version = cmd.ide_version_major + '.' + cmd.ide_version_minor + '.' + cmd.ide_version_release;
 
             cmd.pluginspecreplacements = product.pluginspecreplacements;
             cmd.plugin_depends = [];
