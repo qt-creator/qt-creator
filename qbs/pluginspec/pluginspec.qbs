@@ -9,7 +9,6 @@ Module {
     property int ide_version_minor: project.ide_version_minor
     property int ide_version_release: project.ide_version_release
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.' + ide_version_release
-    property var pluginspecreplacements: product.pluginspecreplacements
 
     Rule {
         inputs: ["pluginSpecIn"]
@@ -28,7 +27,7 @@ Module {
             cmd.ide_version_minor = product.moduleProperty("pluginspec", "ide_version_minor");
             cmd.ide_version_release = product.moduleProperty("pluginspec", "ide_version_release");
 
-            cmd.pluginspecreplacements = product.moduleProperty("pluginspec", "pluginspecreplacements");
+            cmd.pluginspecreplacements = product.pluginspecreplacements;
             cmd.plugin_depends = [];
             var deps = product.dependencies;
             for (var d in deps) {
