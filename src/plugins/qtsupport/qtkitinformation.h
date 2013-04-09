@@ -69,6 +69,11 @@ public:
     static BaseQtVersion *qtVersion(const ProjectExplorer::Kit *k);
     static void setQtVersion(ProjectExplorer::Kit *k, const BaseQtVersion *v);
 
+    // Information derived from the Qt version:
+    // FIXME: This should be part of an RunConfigurationAspect...
+    static QString dumperLibrary(const ProjectExplorer::Kit *k);
+    static QStringList dumperLibraryLocations(const ProjectExplorer::Kit *k);
+
 private slots:
     void qtVersionsChanged(const QList<int> &addedIds,
                            const QList<int> &removedIds,

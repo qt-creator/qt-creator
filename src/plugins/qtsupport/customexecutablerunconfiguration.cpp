@@ -29,7 +29,7 @@
 
 #include "customexecutablerunconfiguration.h"
 #include "customexecutableconfigurationwidget.h"
-#include "debugginghelper.h"
+#include "qtkitinformation.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
@@ -365,16 +365,12 @@ QWidget *CustomExecutableRunConfiguration::createConfigurationWidget()
 
 QString CustomExecutableRunConfiguration::dumperLibrary() const
 {
-    Utils::FileName qmakePath = DebuggingHelperLibrary::findSystemQt(environment());
-    QString qtInstallData = DebuggingHelperLibrary::qtInstallDataDir(qmakePath);
-    return DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData);
+    return QtKitInformation::dumperLibrary(target()->kit());
 }
 
 QStringList CustomExecutableRunConfiguration::dumperLibraryLocations() const
 {
-    Utils::FileName qmakePath = DebuggingHelperLibrary::findSystemQt(environment());
-    QString qtInstallData = DebuggingHelperLibrary::qtInstallDataDir(qmakePath);
-    return DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData);
+    return QtKitInformation::dumperLibraryLocations(target()->kit());
 }
 
 ProjectExplorer::Abi CustomExecutableRunConfiguration::abi() const

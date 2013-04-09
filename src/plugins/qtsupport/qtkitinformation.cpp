@@ -180,6 +180,22 @@ void QtKitInformation::setQtVersion(ProjectExplorer::Kit *k, const BaseQtVersion
         setQtVersionId(k, v->uniqueId());
 }
 
+QString QtKitInformation::dumperLibrary(const ProjectExplorer::Kit *k)
+{
+    BaseQtVersion *version = QtKitInformation::qtVersion(k);
+    if (version)
+        return version->gdbDebuggingHelperLibrary();
+    return QString();
+}
+
+QStringList QtKitInformation::dumperLibraryLocations(const ProjectExplorer::Kit *k)
+{
+    BaseQtVersion *version = QtKitInformation::qtVersion(k);
+    if (version)
+        return version->debuggingHelperLibraryLocations();
+    return QStringList();
+}
+
 void QtKitInformation::qtVersionsChanged(const QList<int> &addedIds,
                                          const QList<int> &removedIds,
                                          const QList<int> &changedIds)

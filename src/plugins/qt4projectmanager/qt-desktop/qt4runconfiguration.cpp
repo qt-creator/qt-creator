@@ -673,18 +673,12 @@ QString Qt4RunConfiguration::proFilePath() const
 
 QString Qt4RunConfiguration::dumperLibrary() const
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    if (version)
-        return version->gdbDebuggingHelperLibrary();
-    return QString();
+    return QtSupport::QtKitInformation::dumperLibrary(target()->kit());
 }
 
 QStringList Qt4RunConfiguration::dumperLibraryLocations() const
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    if (version)
-        return version->debuggingHelperLibraryLocations();
-    return QStringList();
+    return QtSupport::QtKitInformation::dumperLibraryLocations(target()->kit());
 }
 
 QString Qt4RunConfiguration::defaultDisplayName()
