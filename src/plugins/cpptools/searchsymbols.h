@@ -36,11 +36,8 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Icons.h>
 #include <cplusplus/Overview.h>
-#include <cplusplus/SymbolVisitor.h>
-#include <cplusplus/Symbols.h>
 
 #include <QIcon>
-#include <QMetaType>
 #include <QString>
 #include <QSet>
 #include <QHash>

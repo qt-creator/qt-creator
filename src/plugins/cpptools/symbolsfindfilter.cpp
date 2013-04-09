@@ -30,13 +30,10 @@
 #include "symbolsfindfilter.h"
 
 #include "cppmodelmanager.h"
-#include "cpptoolsconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <find/textfindconstants.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
@@ -44,7 +41,6 @@
 #include <utils/qtcassert.h>
 
 #include <QSet>
-#include <QRegExp>
 #include <QGridLayout>
 #include <QLabel>
 #include <QButtonGroup>

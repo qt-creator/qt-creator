@@ -29,8 +29,6 @@
 
 #include "cpptoolsreuse.h"
 
-#include <cplusplus/Symbols.h>
-#include <cplusplus/CoreTypes.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/LookupContext.h>
 

@@ -33,12 +33,7 @@
 #include "cpptools_global.h"
 #include "cpprefactoringchanges.h"
 
-#include <cplusplus/AST.h>
-#include <cplusplus/ASTVisitor.h>
 #include <cplusplus/Overview.h>
-#include <cplusplus/Symbols.h>
-
-#include <utils/changeset.h>
 
 namespace CppTools {
 

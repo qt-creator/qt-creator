@@ -32,19 +32,9 @@
 
 #include "cpptools_global.h"
 
-#include <find/ifindfilter.h>
 #include <projectexplorer/projectexplorer.h>
 
-#include <extensionsystem/iplugin.h>
-#include <utils/filesearch.h>
-
-#include <QTextDocument>
-#include <QKeySequence>
 #include <QSharedPointer>
-#include <QFutureInterface>
-#include <QPointer>
-#include <QFutureWatcher>
-#include <QHash>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;

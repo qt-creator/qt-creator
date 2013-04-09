@@ -29,7 +29,6 @@
 
 #include "cppcodestylesettings.h"
 
-#include "cppcodestylepreferencesfactory.h"
 #include "cppcodestylepreferences.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolssettings.h"

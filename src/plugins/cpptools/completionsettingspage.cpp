@@ -35,10 +35,7 @@
 #include <coreplugin/icore.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <QTextStream>
-#include <QCoreApplication>
 
 using namespace CppTools;
 using namespace CppTools::Internal;

@@ -40,12 +40,9 @@
 #include <cppeditor/cppeditorconstants.h>
 #include <texteditor/codestyleeditor.h>
 #include <texteditor/displaysettings.h>
-#include <texteditor/fontsettings.h>
 #include <texteditor/snippets/isnippetprovider.h>
-#include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <cplusplus/Overview.h>
 #include <cplusplus/pp.h>
 
 #include <extensionsystem/pluginmanager.h>

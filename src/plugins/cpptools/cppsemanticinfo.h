@@ -35,7 +35,6 @@
 #include <texteditor/semantichighlighter.h>
 
 #include <cplusplus/CppDocument.h>
-#include <cplusplus/LookupContext.h>
 
 #include <QHash>
 

@@ -34,7 +34,6 @@
 
 #include <cplusplus/Overview.h>
 
-#include <QLatin1String>
 #include <QTextCursor>
 
 namespace CPlusPlus { class DeclarationAST; }

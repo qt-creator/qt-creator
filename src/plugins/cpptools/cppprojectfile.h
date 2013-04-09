@@ -35,7 +35,6 @@
 #include <coreplugin/mimedatabase.h>
 
 #include <QString>
-#include <QMap>
 
 namespace CppTools {
 

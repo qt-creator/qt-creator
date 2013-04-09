@@ -4,7 +4,6 @@
 #include "searchsymbols.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <utils/runextensions.h>

@@ -37,14 +37,10 @@
 #include <projectexplorer/project.h>
 #include <texteditor/basetexteditor.h>
 
-#include <cplusplus/CppDocument.h>
-#include <cplusplus/PreprocessorClient.h>
 #include <cplusplus/PreprocessorEnvironment.h>
 #include <cplusplus/pp-engine.h>
 
 #include <QHash>
-#include <QFutureInterface>
-#include <QFutureSynchronizer>
 #include <QMutex>
 #include <QTimer>
 #include <QTextEdit> // for QTextEdit::ExtraSelection

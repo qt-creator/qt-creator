@@ -33,9 +33,7 @@
 #include "searchsymbols.h"
 
 #include <find/ifindfilter.h>
-#include <find/searchresultwindow.h>
 
-#include <QFutureInterface>
 #include <QFutureWatcher>
 #include <QPointer>
 #include <QWidget>

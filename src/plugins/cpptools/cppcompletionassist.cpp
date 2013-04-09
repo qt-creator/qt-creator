@@ -31,11 +31,8 @@
 
 #include "cppmodelmanager.h"
 #include "cppdoxygen.h"
-#include "cpptoolsconstants.h"
 
-#include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <texteditor/codeassist/basicproposalitem.h>
 #include <texteditor/codeassist/genericproposal.h>
@@ -48,24 +45,12 @@
 
 #include <utils/qtcassert.h>
 
-#include <cplusplus/AST.h>
-#include <cplusplus/ASTVisitor.h>
 #include <cplusplus/BackwardsScanner.h>
-#include <cplusplus/Control.h>
-#include <cplusplus/CoreTypes.h>
 #include <cplusplus/CppRewriter.h>
 #include <cplusplus/ExpressionUnderCursor.h>
-#include <cplusplus/Literals.h>
-#include <cplusplus/LookupContext.h>
 #include <cplusplus/MatchingText.h>
-#include <cplusplus/NameVisitor.h>
-#include <cplusplus/Names.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/ResolveExpression.h>
-#include <cplusplus/Scope.h>
-#include <cplusplus/SymbolVisitor.h>
-#include <cplusplus/Symbols.h>
-#include <cplusplus/TranslationUnit.h>
 
 #include <QLatin1String>
 #include <QTextCursor>

@@ -34,9 +34,7 @@
 
 #include <texteditor/itexteditor.h>
 
-#include <cplusplus/LookupContext.h>
 #include <cplusplus/SimpleLexer.h>
-#include <cplusplus/Token.h>
 
 using namespace CPlusPlus;
 using namespace CppTools;

@@ -30,9 +30,6 @@
 
 #include "cpppointerdeclarationformatter.h"
 
-#include <cplusplus/AST.h>
-
-#include <QtGlobal>
 #include <QTextCursor>
 
 #define DEBUG_OUTPUT 0

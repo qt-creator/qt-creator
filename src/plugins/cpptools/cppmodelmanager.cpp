@@ -35,52 +35,23 @@
 #include "cpphighlightingsupportinternal.h"
 #include "cppindexingsupport.h"
 #include "abstracteditorsupport.h"
-#include "cpptoolsconstants.h"
 #include "cpptoolseditorsupport.h"
 #include "cppfindreferences.h"
 
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
-#include <texteditor/basetexteditor.h>
-#include <texteditor/itexteditor.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
-
-#include <cplusplus/AST.h>
-#include <cplusplus/ASTVisitor.h>
-#include <cplusplus/Control.h>
-#include <cplusplus/CoreTypes.h>
-#include <cplusplus/Lexer.h>
-#include <cplusplus/Literals.h>
-#include <cplusplus/NameVisitor.h>
-#include <cplusplus/Names.h>
-#include <cplusplus/Overview.h>
-#include <cplusplus/Parser.h>
-#include <cplusplus/Scope.h>
-#include <cplusplus/Symbols.h>
-#include <cplusplus/Token.h>
-#include <cplusplus/TranslationUnit.h>
-#include <cplusplus/TypeVisitor.h>
-#include <cplusplus/pp.h>
 
 #include <QCoreApplication>
 #include <QDebug>
 #include <QMutexLocker>
-#include <QTime>
 #include <QTimer>
-#include <QtConcurrentMap>
 #include <QTextBlock>
-#include <QtConcurrentRun>
-#include <QFutureSynchronizer>
 
 #include <functional>
 #include <iostream>

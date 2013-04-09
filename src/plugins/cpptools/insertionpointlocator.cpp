@@ -30,17 +30,9 @@
 #include "insertionpointlocator.h"
 
 #include "cpptoolsreuse.h"
-#include "cpprefactoringchanges.h"
 #include "symbolfinder.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
-
-#include <cplusplus/AST.h>
-#include <cplusplus/ASTVisitor.h>
-#include <cplusplus/Literals.h>
-#include <cplusplus/Symbols.h>
-#include <cplusplus/TranslationUnit.h>
 
 #include <utils/qtcassert.h>
 

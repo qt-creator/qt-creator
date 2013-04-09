@@ -31,21 +31,9 @@
 
 #include "cpplocalsymbols.h"
 
-#include <cplusplus/AST.h>
-#include <cplusplus/Literals.h>
-#include <cplusplus/Names.h>
-#include <cplusplus/Overview.h>
-#include <cplusplus/Scope.h>
-#include <cplusplus/SimpleLexer.h>
-#include <cplusplus/SymbolVisitor.h>
-#include <cplusplus/Symbols.h>
-#include <cplusplus/TranslationUnit.h>
-
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 
 #include <QCoreApplication>
-#include <QThreadPool>
 #include <QDebug>
 
 // This is for experimeting highlighting ctors/dtors as functions (instead of types).

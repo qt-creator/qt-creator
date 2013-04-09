@@ -59,6 +59,7 @@
 #include <cpptools/cpptoolssettings.h>
 #include <cpptools/symbolfinder.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorer.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetextdocumentlayout.h>
 #include <texteditor/codeassist/basicproposalitem.h>

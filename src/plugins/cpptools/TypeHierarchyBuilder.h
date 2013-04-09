@@ -33,7 +33,6 @@
 #include "cpptools_global.h"
 #include "ModelManagerInterface.h"
 
-#include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
 
 #include <QList>

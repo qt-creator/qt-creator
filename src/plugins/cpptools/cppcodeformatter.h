@@ -38,11 +38,9 @@
 #include <cplusplus/Token.h>
 #include <cplusplus/SimpleLexer.h>
 
-#include <QChar>
 #include <QStack>
 #include <QList>
 #include <QVector>
-#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;

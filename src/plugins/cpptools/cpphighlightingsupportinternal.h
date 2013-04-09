@@ -32,10 +32,6 @@
 
 #include "cpphighlightingsupport.h"
 
-#include <texteditor/semantichighlighter.h>
-
-#include <cplusplus/CppDocument.h>
-
 #include <QFuture>
 
 namespace CppTools {

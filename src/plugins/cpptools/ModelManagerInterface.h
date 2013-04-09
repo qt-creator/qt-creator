@@ -34,7 +34,6 @@
 #include "cppprojectfile.h"
 
 #include <cplusplus/CppDocument.h>
-#include <languageutils/fakemetaobject.h>
 
 #include <QObject>
 #include <QHash>

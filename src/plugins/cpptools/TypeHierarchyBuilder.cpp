@@ -29,14 +29,8 @@
 
 #include "TypeHierarchyBuilder.h"
 
-#include <cplusplus/CoreTypes.h>
-#include <cplusplus/CppDocument.h>
 #include <cplusplus/DependencyTable.h>
 #include <cplusplus/FindUsages.h>
-#include <cplusplus/Literals.h>
-#include <cplusplus/SymbolVisitor.h>
-#include <cplusplus/Symbols.h>
-#include <cplusplus/TranslationUnit.h>
 
 using namespace CppTools;
 

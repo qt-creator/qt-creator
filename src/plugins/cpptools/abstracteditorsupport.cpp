@@ -29,19 +29,10 @@
 
 #include "abstracteditorsupport.h"
 
-#include "cpptoolsconstants.h"
 #include "cppfilesettingspage.h"
 #include "ModelManagerInterface.h"
 
-#include <coreplugin/icore.h>
-
-#include <cplusplus/CoreTypes.h>
-#include <cplusplus/CppDocument.h>
-#include <cplusplus/ExpressionUnderCursor.h>
-#include <cplusplus/Names.h>
 #include <cplusplus/Overview.h>
-#include <cplusplus/Scope.h>
-#include <cplusplus/Symbols.h>
 
 #include <QDebug>
 

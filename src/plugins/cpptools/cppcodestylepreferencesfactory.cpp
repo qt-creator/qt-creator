@@ -29,7 +29,6 @@
 
 #include "cppcodestylepreferencesfactory.h"
 
-#include "cppcodestylesettings.h"
 #include "cppcodestylesettingspage.h"
 #include "cppcodestylepreferences.h"
 #include "cpptoolsconstants.h"
@@ -37,7 +36,6 @@
 
 #include <cppeditor/cppeditorconstants.h>
 #include <texteditor/snippets/isnippetprovider.h>
-#include <texteditor/tabsettings.h>
 
 #include <extensionsystem/pluginmanager.h>
 

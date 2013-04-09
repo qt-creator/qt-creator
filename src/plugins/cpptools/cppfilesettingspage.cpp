@@ -37,9 +37,7 @@
 #include <coreplugin/mimedatabase.h>
 #include <cppeditor/cppeditorconstants.h>
 
-#include <extensionsystem/pluginmanager.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 
 #include <QSettings>
 #include <QDebug>
@@ -51,7 +49,6 @@
 #include <QTextCodec>
 #include <QTextStream>
 #include <QFileDialog>
-#include <QMessageBox>
 
 static const char headerSuffixKeyC[] = "HeaderSuffix";
 static const char sourceSuffixKeyC[] = "SourceSuffix";

@@ -34,7 +34,6 @@
 
 #include <utils/wizard.h>
 
-#include <QStringList>
 #include <QWizardPage>
 
 namespace Utils {

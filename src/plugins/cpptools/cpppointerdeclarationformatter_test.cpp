@@ -29,18 +29,12 @@
 
 #include "cpptoolsplugin.h"
 #include "cpppointerdeclarationformatter.h"
-#include "cpprefactoringchanges.h"
 #include "cpptoolsplugin.h"
 
 #include <texteditor/plaintexteditor.h>
 
-#include <utils/changeset.h>
 #include <utils/fileutils.h>
 
-#include <cplusplus/AST.h>
-#include <cplusplus/CppDocument.h>
-#include <cplusplus/Symbols.h>
-#include <cplusplus/TranslationUnit.h>
 #include <cplusplus/pp.h>
 
 #include <QDebug>

@@ -29,14 +29,12 @@
 
 #include "cpptoolsplugin.h"
 
-#include "completionsettingspage.h"
 #include "cppfilesettingspage.h"
 #include "cppcodestylesettingspage.h"
 #include "cppclassesfilter.h"
 #include "cppfunctionsfilter.h"
 #include "cppcurrentdocumentfilter.h"
 #include "cppmodelmanager.h"
-#include "cpptoolsconstants.h"
 #include "cpplocatorfilter.h"
 #include "symbolsfindfilter.h"
 #include "cpptoolssettings.h"
@@ -44,36 +42,20 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
-#include <coreplugin/mimedatabase.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <cppeditor/cppeditorconstants.h>
-#include <find/ifindfilter.h>
-#include <find/searchresultwindow.h>
-#include <texteditor/basetexteditor.h>
 
-#include <extensionsystem/pluginmanager.h>
-#include <utils/filesearch.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 
 #include <QtPlugin>
 #include <QFileInfo>
 #include <QDir>
 #include <QDebug>
-#include <QSettings>
 #include <QMenu>
 #include <QAction>
-#include <QtConcurrentRun>
-#include <QFutureSynchronizer>
-
-#include <sstream>
 
 using namespace CPlusPlus;
 

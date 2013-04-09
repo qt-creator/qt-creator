@@ -30,23 +30,9 @@
 #include "cpptoolsplugin.h"
 #include "cppcompletionassist.h"
 
-#include <texteditor/basetextdocument.h>
 #include <texteditor/plaintexteditor.h>
 #include <texteditor/codeassist/iassistproposal.h>
-#include <texteditor/codeassist/iassistproposalmodel.h>
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
 
-#include <cplusplus/AST.h>
-#include <cplusplus/Bind.h>
-#include <cplusplus/Control.h>
-#include <cplusplus/CppDocument.h>
-#include <cplusplus/DiagnosticClient.h>
-#include <cplusplus/Literals.h>
-#include <cplusplus/Scope.h>
-#include <cplusplus/Symbols.h>
-#include <cplusplus/TranslationUnit.h>
-
-#include <extensionsystem/pluginmanager.h>
 #include <utils/changeset.h>
 #include <utils/fileutils.h>
 

@@ -30,9 +30,6 @@
 #ifndef CPPFINDREFERENCES_H
 #define CPPFINDREFERENCES_H
 
-#include <utils/filesearch.h>
-
-#include <cplusplus/CppDocument.h>
 #include <cplusplus/DependencyTable.h>
 #include <cplusplus/FindUsages.h>
 
@@ -41,7 +38,6 @@
 #include <QPointer>
 #include <QFuture>
 #include <QFutureWatcher>
-#include <QMetaType>
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 

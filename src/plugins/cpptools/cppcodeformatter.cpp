@@ -29,12 +29,7 @@
 
 #include "cppcodeformatter.h"
 
-#include "cppcodestylesettingspage.h"
-
 #include <texteditor/basetextdocumentlayout.h>
-#include <texteditor/tabsettings.h>
-
-#include <cplusplus/Token.h>
 #include <cplusplus/Lexer.h>
 
 #include <utils/qtcassert.h>
@@ -42,7 +37,6 @@
 #include <QDebug>
 #include <QMetaEnum>
 #include <QTextDocument>
-#include <QTextCursor>
 #include <QTextBlock>
 
 using namespace CPlusPlus;

@@ -32,8 +32,6 @@
 #include "cppmodelmanager.h"
 #include "modelmanagertesthelper.h"
 
-#include <cplusplus/CppDocument.h>
-
 #include <QtTest>
 #include <QDebug>
 

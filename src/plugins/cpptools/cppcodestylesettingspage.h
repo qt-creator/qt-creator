@@ -38,9 +38,6 @@
 
 #include <QWidget>
 #include <QPointer>
-#include <QSharedPointer>
-#include <QVariant>
-#include <QStringList>
 
 namespace TextEditor {
     class FontSettings;

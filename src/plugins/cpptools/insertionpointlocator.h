@@ -33,10 +33,6 @@
 #include "cpptools_global.h"
 #include "cpprefactoringchanges.h"
 
-#include <cplusplus/ASTfwd.h>
-#include <cplusplus/CPlusPlusForwardDeclarations.h>
-#include <cplusplus/CppDocument.h>
-
 namespace CppTools {
 
 class CPPTOOLS_EXPORT InsertionLocation

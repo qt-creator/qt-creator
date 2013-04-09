@@ -33,7 +33,6 @@
 #include "cpptools_global.h"
 
 #include <cplusplus/CppDocument.h>
-#include <cplusplus/CPlusPlusForwardDeclarations.h>
 
 #include <QHash>
 #include <QStringList>

@@ -34,7 +34,6 @@
 
 #include <cplusplus/Overview.h>
 
-#include <QMetaType>
 #include <QVariant>
 
 QT_BEGIN_NAMESPACE

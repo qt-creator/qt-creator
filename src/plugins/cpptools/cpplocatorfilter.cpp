@@ -30,9 +30,6 @@
 #include "cpplocatorfilter.h"
 #include "cppmodelmanager.h"
 
-#include <texteditor/itexteditor.h>
-#include <texteditor/basetexteditor.h>
-
 #include <utils/fileutils.h>
 
 #include <QStringMatcher>

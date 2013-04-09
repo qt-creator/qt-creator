@@ -37,6 +37,7 @@
 
 #include <cplusplus/ASTfwd.h>
 #include <cplusplus/CppDocument.h>
+#include <cplusplus/LookupContext.h>
 
 namespace CppTools {
 class CppRefactoringFile;
