@@ -390,12 +390,18 @@ QString Project::generatedUiHeader(const QString & /* formFile */) const
 
 void Project::setProjectContext(Core::Context context)
 {
+    if (d->m_projectContext == context)
+        return;
     d->m_projectContext = context;
+    emit projectContextUpdated();
 }
 
 void Project::setProjectLanguages(Core::Context language)
 {
+    if (d->m_projectLanguages == language)
+        return;
     d->m_projectLanguages = language;
+    emit projectLanguagesUpdated();
 }
 
 Core::Context Project::projectContext() const

@@ -142,6 +142,9 @@ signals:
     void settingsLoaded();
     void aboutToSaveSettings();
 
+    void projectContextUpdated();
+    void projectLanguagesUpdated();
+
 protected:
     virtual bool fromMap(const QVariantMap &map);
     virtual bool setupTarget(Target *t);

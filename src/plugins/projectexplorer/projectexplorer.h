@@ -239,6 +239,8 @@ private slots:
     void updateWelcomePage();
     void updateExternalFileWarning();
 
+    void updateContext();
+
 #ifdef WITH_TESTS
     void testAnsiFilterOutputParser_data();
     void testAnsiFilterOutputParser();
