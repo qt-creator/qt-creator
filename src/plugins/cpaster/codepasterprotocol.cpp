@@ -43,8 +43,7 @@ enum { debug = 0 };
 
 namespace CodePaster {
 
-CodePasterProtocol::CodePasterProtocol(const NetworkAccessManagerProxyPtr &nw) :
-    NetworkProtocol(nw),
+CodePasterProtocol::CodePasterProtocol() :
     m_page(new CodePaster::CodePasterSettingsPage),
     m_pasteReply(0),
     m_fetchReply(0),

@@ -38,7 +38,7 @@ class UrlOpenProtocol : public NetworkProtocol
 {
     Q_OBJECT
 public:
-    UrlOpenProtocol(const NetworkAccessManagerProxyPtr &nw);
+    UrlOpenProtocol();
 
     QString name() const;
     unsigned capabilities() const;

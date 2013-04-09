@@ -48,12 +48,12 @@ DefinitionDownloader::DefinitionDownloader(const QUrl &url, const QString &local
 
 void DefinitionDownloader::run()
 {
-    Utils::NetworkAccessManager manager;
+    Utils::NetworkAccessManager *manager = Utils::NetworkAccessManager::instance();
 
     int currentAttempt = 0;
     const int maxAttempts = 5;
     while (currentAttempt < maxAttempts) {
-        QScopedPointer<QNetworkReply> reply(getData(&manager));
+        QScopedPointer<QNetworkReply> reply(getData(manager));
         if (reply->error() != QNetworkReply::NoError) {
             m_status = NetworkError;
             return;

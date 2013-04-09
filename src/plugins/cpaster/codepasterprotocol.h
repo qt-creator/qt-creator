@@ -44,7 +44,7 @@ class CodePasterProtocol : public NetworkProtocol
 {
     Q_OBJECT
 public:
-    explicit CodePasterProtocol(const NetworkAccessManagerProxyPtr &nw);
+    explicit CodePasterProtocol();
     ~CodePasterProtocol();
 
     QString name() const;

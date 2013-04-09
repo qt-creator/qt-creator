@@ -49,13 +49,12 @@ class PasteReceiver : public QObject
 public:
     PasteReceiver(const QString &protocol, const QString &filePath) : m_filePath(filePath)
     {
-        const QSharedPointer<NetworkAccessManagerProxy> accessMgr(new NetworkAccessManagerProxy);
         if (protocol == KdePasteProtocol::protocolName().toLower())
-            m_protocol.reset(new KdePasteProtocol(accessMgr));
+            m_protocol.reset(new KdePasteProtocol);
         else if (protocol == PasteBinDotCaProtocol::protocolName().toLower())
-            m_protocol.reset(new PasteBinDotCaProtocol(accessMgr));
+            m_protocol.reset(new PasteBinDotCaProtocol);
         else if (protocol == PasteBinDotComProtocol::protocolName().toLower())
-            m_protocol.reset(new PasteBinDotComProtocol(accessMgr));
+            m_protocol.reset(new PasteBinDotComProtocol);
         else
             qFatal("Internal error: Invalid protocol.");
     }

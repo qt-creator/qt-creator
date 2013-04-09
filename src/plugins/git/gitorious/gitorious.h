@@ -36,7 +36,6 @@
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
-class QNetworkAccessManager;
 class QNetworkReply;
 class QDebug;
 class QUrl;
@@ -159,7 +158,7 @@ private slots:
     void slotReplyFinished();
 
 private:
-    Gitorious();
+    Gitorious() {}
     void listProjectsReply(int hostIndex, int page, const QByteArray &data);
     void listCategoriesReply(int index, QByteArray data);
     void emitError(const QString &e);
@@ -167,7 +166,6 @@ private:
     void startProjectsRequest(int index, int page = 1);
 
     QList<GitoriousHost> m_hosts;
-    QNetworkAccessManager *m_networkManager;
 };
 
 } // namespace Internal

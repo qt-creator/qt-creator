@@ -35,8 +35,8 @@
 
 using namespace CodePaster;
 
-UrlOpenProtocol::UrlOpenProtocol(const NetworkAccessManagerProxyPtr &nw)
-    : NetworkProtocol(nw), m_fetchReply(0)
+UrlOpenProtocol::UrlOpenProtocol()
+    : m_fetchReply(0)
 {
 }
 

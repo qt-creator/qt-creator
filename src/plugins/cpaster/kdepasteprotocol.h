@@ -38,7 +38,7 @@ class KdePasteProtocol : public NetworkProtocol
 {
     Q_OBJECT
 public:
-    explicit KdePasteProtocol(const NetworkAccessManagerProxyPtr &nw);
+    KdePasteProtocol();
 
     static QString protocolName();
     QString name() const { return protocolName(); }

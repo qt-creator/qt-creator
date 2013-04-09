@@ -41,6 +41,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/QtConcurrentTools>
+#include <utils/networkaccessmanager.h>
 
 #include <QtAlgorithms>
 #include <QString>
@@ -423,7 +424,7 @@ void Manager::downloadAvailableDefinitionsMetaData()
     QUrl url(QLatin1String("http://www.kate-editor.org/syntax/update-3.9.xml"));
     QNetworkRequest request(url);
     // Currently this takes a couple of seconds on Windows 7: QTBUG-10106.
-    QNetworkReply *reply = m_networkManager.get(request);
+    QNetworkReply *reply = Utils::NetworkAccessManager::instance()->get(request);
     connect(reply, SIGNAL(finished()), this, SLOT(downloadAvailableDefinitionsListFinished()));
 }
 

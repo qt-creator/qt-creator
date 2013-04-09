@@ -44,6 +44,8 @@ class QTCREATOR_UTILS_EXPORT NetworkAccessManager : public QNetworkAccessManager
 public:
     NetworkAccessManager(QObject *parent = 0);
 
+    static NetworkAccessManager *instance();
+
 public slots:
     void getUrl(const QUrl &url);
 

@@ -175,45 +175,23 @@ bool Protocol::showConfigurationError(const Protocol *p,
     return rc;
 }
 
+// --------- NetworkProtocol
 
-// ------------ NetworkAccessManagerProxy
-NetworkAccessManagerProxy::NetworkAccessManagerProxy()
-{
-}
-
-NetworkAccessManagerProxy::~NetworkAccessManagerProxy()
-{
-}
-
-QNetworkReply *NetworkAccessManagerProxy::httpGet(const QString &link)
+QNetworkReply *NetworkProtocol::httpGet(const QString &link)
 {
     QUrl url(link);
     QNetworkRequest r(url);
-    return networkAccessManager()->get(r);
+    return Utils::NetworkAccessManager::instance()->get(r);
 }
 
-QNetworkReply *NetworkAccessManagerProxy::httpPost(const QString &link, const QByteArray &data)
+QNetworkReply *NetworkProtocol::httpPost(const QString &link, const QByteArray &data)
 {
     QUrl url(link);
     QNetworkRequest r(url);
     // Required for Qt 4.8
     r.setHeader(QNetworkRequest::ContentTypeHeader,
                 QVariant(QByteArray("application/x-www-form-urlencoded")));
-    return networkAccessManager()->post(r, data);
-}
-
-QNetworkAccessManager *NetworkAccessManagerProxy::networkAccessManager()
-{
-    if (m_networkAccessManager.isNull())
-        m_networkAccessManager.reset(new Utils::NetworkAccessManager);
-    return m_networkAccessManager.data();
-}
-
-// --------- NetworkProtocol
-
-NetworkProtocol::NetworkProtocol(const NetworkAccessManagerProxyPtr &nw) :
-    m_networkAccessManager(nw)
-{
+    return Utils::NetworkAccessManager::instance()->post(r, data);
 }
 
 NetworkProtocol::~NetworkProtocol()

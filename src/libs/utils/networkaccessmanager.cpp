@@ -43,9 +43,29 @@
    \brief Network Access Manager for use with Qt Creator.
 
    Common initialization, Qt Creator User Agent
+
+   Preferably, the instance returned by NetworkAccessManager::instance() should be used for the main
+   thread. The constructor is provided only for multithreaded use.
  */
 
 namespace Utils {
+
+static NetworkAccessManager *namInstance = 0;
+
+void cleanupNetworkAccessManager()
+{
+    delete namInstance;
+    namInstance = 0;
+}
+
+NetworkAccessManager *NetworkAccessManager::instance()
+{
+    if (!namInstance) {
+        namInstance = new NetworkAccessManager;
+        qAddPostRoutine(cleanupNetworkAccessManager);
+    }
+    return namInstance;
+}
 
 static const QString getOsString()
 {

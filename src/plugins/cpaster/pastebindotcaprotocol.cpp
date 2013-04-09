@@ -39,8 +39,7 @@
 static const char urlC[] = "http://pastebin.ca/";
 
 namespace CodePaster {
-PasteBinDotCaProtocol::PasteBinDotCaProtocol(const NetworkAccessManagerProxyPtr &nw) :
-    NetworkProtocol(nw),
+PasteBinDotCaProtocol::PasteBinDotCaProtocol() :
     m_fetchReply(0),
     m_listReply(0),
     m_pasteReply(0),

@@ -38,7 +38,7 @@ class PasteBinDotComProtocol : public NetworkProtocol
 {
     Q_OBJECT
 public:
-    explicit PasteBinDotComProtocol(const NetworkAccessManagerProxyPtr &nw);
+    PasteBinDotComProtocol();
 
     static QString protocolName();
     QString name() const { return protocolName(); }

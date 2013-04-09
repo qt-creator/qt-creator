@@ -43,8 +43,6 @@
 #include <QSharedPointer>
 #include <QFutureWatcher>
 
-#include <utils/networkaccessmanager.h>
-
 QT_BEGIN_NAMESPACE
 class QFileInfo;
 class QStringList;
@@ -101,7 +99,6 @@ private:
     bool m_isDownloadingDefinitionsSpec;
     QList<DefinitionDownloader *> m_downloaders;
     QFutureWatcher<void> m_downloadWatcher;
-    Utils::NetworkAccessManager m_networkManager;
     QList<HighlightDefinitionMetaData> parseAvailableDefinitionsList(QIODevice *device) const;
 
     QSet<QString> m_isBuildingDefinition;

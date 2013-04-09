@@ -130,11 +130,10 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
     addAutoReleasedObject(settingsPage);
 
     // Create the protocols and append them to the Settings
-    const QSharedPointer<NetworkAccessManagerProxy> networkAccessMgrProxy(new NetworkAccessManagerProxy);
-    Protocol *protos[] =  { new PasteBinDotComProtocol(networkAccessMgrProxy),
-                            new PasteBinDotCaProtocol(networkAccessMgrProxy),
-                            new KdePasteProtocol(networkAccessMgrProxy),
-                            new CodePasterProtocol(networkAccessMgrProxy),
+    Protocol *protos[] =  { new PasteBinDotComProtocol,
+                            new PasteBinDotCaProtocol,
+                            new KdePasteProtocol,
+                            new CodePasterProtocol,
                             new FileShareProtocol
                            };
     const int count = sizeof(protos) / sizeof(Protocol *);
@@ -148,7 +147,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
         m_protocols.append(protos[i]);
     }
 
-    m_urlOpen = new UrlOpenProtocol(networkAccessMgrProxy);
+    m_urlOpen = new UrlOpenProtocol;
     connect(m_urlOpen, SIGNAL(fetchDone(QString,QString,bool)),
             this, SLOT(finishFetch(QString,QString,bool)));
 

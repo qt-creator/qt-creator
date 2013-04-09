@@ -105,26 +105,6 @@ protected:
     static QString fixNewLines(QString in);
 };
 
-/* Proxy for NetworkAccessManager that can be shared with
- * delayed initialization and conveniences
- * for HTTP-requests. */
-
-class NetworkAccessManagerProxy
-{
-    Q_DISABLE_COPY(NetworkAccessManagerProxy)
-
-public:
-    NetworkAccessManagerProxy();
-    ~NetworkAccessManagerProxy();
-
-    QNetworkReply *httpGet(const QString &url);
-    QNetworkReply *httpPost(const QString &link, const QByteArray &data);
-    QNetworkAccessManager *networkAccessManager();
-
-private:
-    QScopedPointer<QNetworkAccessManager> m_networkAccessManager;
-};
-
 /* Network-based protocol: Provides access with delayed
  * initialization to a QNetworkAccessManager and conveniences
  * for HTTP-requests. */
@@ -137,24 +117,12 @@ public:
     virtual ~NetworkProtocol();
 
 protected:
-    typedef QSharedPointer<NetworkAccessManagerProxy> NetworkAccessManagerProxyPtr;
+    QNetworkReply *httpGet(const QString &url);
 
-    explicit NetworkProtocol(const NetworkAccessManagerProxyPtr &nw);
-
-    inline QNetworkReply *httpGet(const QString &url)
-    { return m_networkAccessManager->httpGet(url); }
-
-    inline QNetworkReply *httpPost(const QString &link, const QByteArray &data)
-    { return m_networkAccessManager->httpPost(link, data); }
-
-    inline QNetworkAccessManager *networkAccessManager()
-    { return m_networkAccessManager->networkAccessManager(); }
+    QNetworkReply *httpPost(const QString &link, const QByteArray &data);
 
     // Check connectivity of host, displaying a message box.
     bool httpStatus(QString url, QString *errorMessage);
-
-private:
-    const NetworkAccessManagerProxyPtr m_networkAccessManager;
 };
 
 } //namespace CodePaster

@@ -44,8 +44,7 @@ static const char hostUrlC[]= "http://paste.kde.org/";
 static const char showPhpScriptpC[] = "show.php";
 
 namespace CodePaster {
-KdePasteProtocol::KdePasteProtocol(const NetworkAccessManagerProxyPtr &nw) :
-    NetworkProtocol(nw),
+KdePasteProtocol::KdePasteProtocol() :
     m_fetchReply(0),
     m_pasteReply(0),
     m_listReply(0),

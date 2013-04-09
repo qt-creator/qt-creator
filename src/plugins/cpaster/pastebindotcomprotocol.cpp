@@ -49,8 +49,7 @@ static const char PASTEBIN_ARCHIVE[]="archive";
 static const char API_KEY[]="api_dev_key=516686fc461fb7f9341fd7cf2af6f829&"; // user: qtcreator_apikey
 
 namespace CodePaster {
-PasteBinDotComProtocol::PasteBinDotComProtocol(const NetworkAccessManagerProxyPtr &nw) :
-    NetworkProtocol(nw),
+PasteBinDotComProtocol::PasteBinDotComProtocol() :
     m_fetchReply(0),
     m_pasteReply(0),
     m_listReply(0),
