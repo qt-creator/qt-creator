@@ -267,7 +267,8 @@ void BranchDialog::diff()
     QString branchName = m_model->branchName(selectedIndex());
     if (branchName.isEmpty())
         return;
-    GitPlugin::instance()->gitClient()->diffBranch(m_repository, QStringList(), branchName);
+    // Do not pass working dir by reference since it might change
+    GitPlugin::instance()->gitClient()->diffBranch(QString(m_repository), QStringList(), branchName);
 }
 
 void BranchDialog::log()
@@ -275,7 +276,8 @@ void BranchDialog::log()
     QString branchName = m_model->branchName(selectedIndex());
     if (branchName.isEmpty())
         return;
-    GitPlugin::instance()->gitClient()->graphLog(m_repository, branchName);
+    // Do not pass working dir by reference since it might change
+    GitPlugin::instance()->gitClient()->graphLog(QString(m_repository), branchName);
 }
 
 void BranchDialog::merge()
