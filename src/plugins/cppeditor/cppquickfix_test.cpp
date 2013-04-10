@@ -31,35 +31,15 @@
 #include "cppinsertdecldef.h"
 #include "cppplugin.h"
 #include "cppquickfixassistant.h"
-#include "cppquickfix.h"
 #include "cppquickfixes.h"
 
-#include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppcodestylepreferences.h>
 #include <cpptools/cpptoolssettings.h>
-#include <texteditor/basetextdocument.h>
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
-#include <texteditor/codeassist/iassistproposal.h>
-#include <texteditor/codeassist/iassistproposalmodel.h>
-#include <texteditor/plaintexteditor.h>
 
-#include <extensionsystem/pluginmanager.h>
-#include <utils/changeset.h>
 #include <utils/fileutils.h>
-
-#include <cplusplus/AST.h>
-#include <cplusplus/Bind.h>
-#include <cplusplus/Control.h>
-#include <cplusplus/CppDocument.h>
-#include <cplusplus/DiagnosticClient.h>
-#include <cplusplus/Literals.h>
-#include <cplusplus/Scope.h>
-#include <cplusplus/Symbols.h>
-#include <cplusplus/TranslationUnit.h>
 
 #include <QDebug>
 #include <QDir>
-#include <QTextDocument>
 #include <QtTest>
 
 

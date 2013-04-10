@@ -35,9 +35,6 @@
 #include <cpptools/symbolfinder.h>
 #include <texteditor/helpitem.h>
 
-#include <cplusplus/CppDocument.h>
-#include <cplusplus/Overview.h>
-
 #include <QString>
 #include <QStringList>
 #include <QSharedPointer>

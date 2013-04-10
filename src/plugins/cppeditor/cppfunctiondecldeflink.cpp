@@ -33,21 +33,13 @@
 #include "cppquickfixassistant.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/icore.h>
 #include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpplocalsymbols.h>
-#include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/symbolfinder.h>
 #include <texteditor/refactoroverlay.h>
-#include <texteditor/texteditorconstants.h>
 
-#include <cplusplus/AST.h>
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/CppRewriter.h>
-#include <cplusplus/LookupContext.h>
-#include <cplusplus/Overview.h>
-#include <cplusplus/Symbols.h>
-#include <cplusplus/TranslationUnit.h>
 #include <cplusplus/TypeOfExpression.h>
 
 #include <utils/proxyaction.h>

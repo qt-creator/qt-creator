@@ -29,23 +29,11 @@
 
 #include "cppelementevaluator.h"
 
-#include <coreplugin/idocument.h>
 #include <cpptools/cpptoolsreuse.h>
-#include <cpptools/ModelManagerInterface.h>
 #include <cpptools/TypeHierarchyBuilder.h>
 
-#include <cplusplus/CoreTypes.h>
 #include <cplusplus/ExpressionUnderCursor.h>
-#include <cplusplus/FullySpecifiedType.h>
 #include <cplusplus/Icons.h>
-#include <cplusplus/Literals.h>
-#include <cplusplus/LookupContext.h>
-#include <cplusplus/LookupItem.h>
-#include <cplusplus/Names.h>
-#include <cplusplus/Overview.h>
-#include <cplusplus/Scope.h>
-#include <cplusplus/Symbol.h>
-#include <cplusplus/Symbols.h>
 #include <cplusplus/TypeOfExpression.h>
 
 #include <QDir>

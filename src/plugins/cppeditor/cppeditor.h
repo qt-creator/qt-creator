@@ -30,18 +30,13 @@
 #ifndef CPPEDITOR_H
 #define CPPEDITOR_H
 
-#include "cppeditorenums.h"
 #include "cppfunctiondecldeflink.h"
 
-#include <cpptools/ModelManagerInterface.h>
 #include <cpptools/commentssettings.h>
 #include <cpptools/cppsemanticinfo.h>
 #include <texteditor/basetexteditor.h>
-#include <texteditor/quickfix.h>
 #include <texteditor/texteditorconstants.h>
 
-#include <cplusplus/CppDocument.h>
-#include <cplusplus/LookupContext.h>
 #include <utils/uncommentselection.h>
 
 #include <QThread>

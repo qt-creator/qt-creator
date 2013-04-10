@@ -37,7 +37,6 @@
 #include <utils/navigationtreeview.h>
 
 #include <QSortFilterProxyModel>
-#include <QTreeView>
 
 namespace CppEditor {
 namespace Internal {

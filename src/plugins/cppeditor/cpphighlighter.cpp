@@ -33,7 +33,6 @@
 #include <cpptools/cpptoolsreuse.h>
 #include <texteditor/basetextdocumentlayout.h>
 
-#include <cplusplus/Token.h>
 #include <cplusplus/SimpleLexer.h>
 #include <cplusplus/Lexer.h>
 

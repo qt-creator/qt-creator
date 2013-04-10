@@ -30,18 +30,13 @@
 #include "cppeditor.h"
 #include "cppplugin.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <cpptools/ModelManagerInterface.h>
-
 #include <utils/fileutils.h>
-#include <cplusplus/CppDocument.h>
 
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
 #include <QKeyEvent>
 #include <QString>
-#include <QTextDocument>
 #include <QtTest>
 
 /*!

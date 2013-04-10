@@ -32,7 +32,6 @@
 #include "cppclasswizard.h"
 #include "cppeditor.h"
 #include "cppeditorconstants.h"
-#include "cppeditorenums.h"
 #include "cppfilewizard.h"
 #include "cpphoverhandler.h"
 #include "cppoutline.h"
@@ -43,31 +42,19 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <cpptools/ModelManagerInterface.h>
 #include <cpptools/cpptoolsconstants.h>
-#include <cpptools/cpptoolssettings.h>
 #include <texteditor/texteditoractionhandler.h>
-#include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorplugin.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/hostosinfo.h>
 
-#include <QFileInfo>
-#include <QSettings>
-#include <QTimer>
 #include <QCoreApplication>
 #include <QStringList>
-#include <QMenu>
 
 using namespace CppEditor;
 using namespace CppEditor::Internal;

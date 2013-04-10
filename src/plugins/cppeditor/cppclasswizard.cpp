@@ -41,13 +41,8 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QDir>
 #include <QTextStream>
-#include <QSettings>
 #include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QPushButton>
-#include <QToolButton>
 #include <QSpacerItem>
 #include <QWizard>
 

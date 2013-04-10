@@ -38,7 +38,6 @@
 
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
-#include <texteditor/texteditorconstants.h>
 #include <texteditor/snippets/snippeteditor.h>
 
 #include <QLatin1String>

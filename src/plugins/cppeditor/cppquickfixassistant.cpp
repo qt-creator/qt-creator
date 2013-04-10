@@ -31,27 +31,11 @@
 
 #include "cppeditorconstants.h"
 #include "cppeditor.h"
-// @TODO: temp
-#include "cppquickfix.h"
 
-#include <cpptools/cpprefactoringchanges.h>
-
-#include <cplusplus/AST.h>
 #include <cplusplus/ASTPath.h>
-#include <cplusplus/CppDocument.h>
-#include <cplusplus/CppRewriter.h>
-#include <cplusplus/DependencyTable.h>
-#include <cplusplus/Overview.h>
-#include <cplusplus/ResolveExpression.h>
-#include <cplusplus/Token.h>
-#include <cplusplus/TranslationUnit.h>
-#include <cplusplus/TypeOfExpression.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
-
-#include <QFileInfo>
-#include <QTextBlock>
 
 using namespace CppEditor;
 using namespace CppEditor::Internal;

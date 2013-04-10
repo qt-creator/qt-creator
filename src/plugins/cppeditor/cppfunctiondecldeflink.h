@@ -34,11 +34,6 @@
 
 #include <cpptools/cpprefactoringchanges.h>
 
-#include <cplusplus/CppDocument.h>
-#include <cplusplus/ASTfwd.h>
-
-#include <utils/changeset.h>
-
 #include <QString>
 #include <QCoreApplication>
 #include <QSharedPointer>

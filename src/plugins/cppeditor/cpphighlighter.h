@@ -35,7 +35,6 @@
 #include <texteditor/syntaxhighlighter.h>
 
 #include <QTextCharFormat>
-#include <QtAlgorithms>
 
 namespace CppEditor {
 

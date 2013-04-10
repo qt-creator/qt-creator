@@ -32,15 +32,7 @@
 #include "cppeditor.h"
 #include "cppelementevaluator.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/helpmanager.h>
-#include <cpptools/ModelManagerInterface.h>
-#include <texteditor/basetexteditor.h>
-#include <texteditor/helpitem.h>
-#include <texteditor/itexteditor.h>
-
-#include <extensionsystem/pluginmanager.h>
 
 #include <QTextCursor>
 #include <QUrl>

@@ -33,13 +33,7 @@
 
 #include <cpptools/cpprefactoringchanges.h>
 
-#include <utils/changeset.h>
-
-#include <cplusplus/AST.h>
-#include <cplusplus/ASTVisitor.h>
-#include <cplusplus/CoreTypes.h>
 #include <cplusplus/Overview.h>
-#include <cplusplus/Symbols.h>
 #include <cplusplus/TypeOfExpression.h>
 
 #include <QApplication>

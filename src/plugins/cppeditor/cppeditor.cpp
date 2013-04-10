@@ -37,13 +37,7 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
-#include <coreplugin/mimedatabase.h>
-#include <cpptools/ModelManagerInterface.h>
 #include <cpptools/cpptoolsplugin.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppchecksymbols.h>
@@ -52,14 +46,10 @@
 #include <cpptools/cpphighlightingsupport.h>
 #include <cpptools/cpplocalsymbols.h>
 #include <cpptools/cppqtstyleindenter.h>
-#include <cpptools/cppcodestylesettings.h>
-#include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/doxygengenerator.h>
 #include <cpptools/cpptoolssettings.h>
 #include <cpptools/symbolfinder.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorer.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetextdocumentlayout.h>
 #include <texteditor/codeassist/basicproposalitem.h>
@@ -67,54 +57,25 @@
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/refactoroverlay.h>
-#include <texteditor/semantichighlighter.h>
-#include <texteditor/tabsettings.h>
-#include <texteditor/texteditorconstants.h>
 
 #include <utils/qtcassert.h>
-#include <extensionsystem/pluginmanager.h>
 
-#include <cplusplus/AST.h>
-#include <cplusplus/Control.h>
-#include <cplusplus/Token.h>
-#include <cplusplus/Scope.h>
-#include <cplusplus/Symbols.h>
-#include <cplusplus/Names.h>
-#include <cplusplus/CoreTypes.h>
-#include <cplusplus/Literals.h>
-#include <cplusplus/ASTVisitor.h>
-#include <cplusplus/SymbolVisitor.h>
-#include <cplusplus/TranslationUnit.h>
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/ExpressionUnderCursor.h>
-#include <cplusplus/TypeOfExpression.h>
-#include <cplusplus/Overview.h>
 #include <cplusplus/OverviewModel.h>
-#include <cplusplus/SimpleLexer.h>
-#include <cplusplus/MatchingText.h>
 #include <cplusplus/BackwardsScanner.h>
-#include <cplusplus/FastPreprocessor.h>
 
 #include <QDebug>
-#include <QTime>
 #include <QTimer>
 #include <QPointer>
-#include <QStack>
-#include <QSettings>
 #include <QSignalMapper>
 #include <QAction>
-#include <QApplication>
 #include <QHeaderView>
-#include <QLayout>
 #include <QMenu>
-#include <QShortcut>
 #include <QTextEdit>
 #include <QComboBox>
-#include <QToolBar>
 #include <QTreeView>
 #include <QSortFilterProxyModel>
-
-#include <sstream>
 
 enum {
     UPDATE_OUTLINE_INTERVAL = 500,

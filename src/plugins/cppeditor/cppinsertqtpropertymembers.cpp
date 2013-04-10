@@ -29,17 +29,11 @@
 
 #include "cppinsertqtpropertymembers.h"
 
-#include "cppquickfix.h"
 #include "cppquickfixassistant.h"
 
-#include <coreplugin/idocument.h>
-#include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/insertionpointlocator.h>
 
-#include <cplusplus/AST.h>
 #include <cplusplus/Overview.h>
-#include <cplusplus/Symbols.h>
-#include <cplusplus/Token.h>
 
 #include <utils/qtcassert.h>
 

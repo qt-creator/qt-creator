@@ -36,9 +36,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <cplusplus/AST.h>
-#include <cplusplus/ASTMatcher.h>
-
 QT_BEGIN_NAMESPACE
 class QByteArray;
 class QString;
