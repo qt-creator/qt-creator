@@ -67,6 +67,8 @@ QtcPlugin {
         "debuggerprotocol.cpp",
         "debuggerprotocol.h",
         "debuggerruncontrolfactory.h",
+        "debuggerrunconfigurationaspect.cpp",
+        "debuggerrunconfigurationaspect.h",
         "debuggerrunner.cpp",
         "debuggerrunner.h",
         "debuggersourcepathmappingwidget.cpp",

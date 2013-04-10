@@ -8,6 +8,7 @@ QtcPlugin {
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
     Depends { name: "Core" }
     Depends { name: "AnalyzerBase" }
+    Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "RemoteLinux" }
