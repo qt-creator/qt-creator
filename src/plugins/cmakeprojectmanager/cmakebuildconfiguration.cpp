@@ -34,15 +34,9 @@
 #include "cmakeprojectconstants.h"
 
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/gnumakeparser.h>
-#include <projectexplorer/ioutputparser.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtparser.h>
-#include <qtsupport/qtkitinformation.h>
-#include <utils/qtcassert.h>
 
 #include <QInputDialog>
 
