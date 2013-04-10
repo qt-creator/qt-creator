@@ -49,6 +49,9 @@ public:
     DiagnosticClient *diagnosticClient() const;
     void setDiagnosticClient(DiagnosticClient *diagnosticClient);
 
+    /// Returns the canonical anonymous name id
+    const AnonymousNameId *anonymousNameId(unsigned classTokenIndex);
+
     /// Returns the canonical template name id.
     const TemplateNameId *templateNameId(const Identifier *id,
                                          bool isSpecialization,

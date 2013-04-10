@@ -268,3 +268,8 @@ void NamePrettyPrinter::visit(const SelectorNameId *name)
         }
     }
 }
+
+void NamePrettyPrinter::visit(const AnonymousNameId *name)
+{
+    _name = QString(QLatin1String("Anonymous:%1")).arg(name->classTokenIndex());
+}

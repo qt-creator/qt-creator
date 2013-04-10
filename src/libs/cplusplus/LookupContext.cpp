@@ -60,7 +60,7 @@ static void addNames(const Name *name, QList<const Name *> *names, bool addAllNa
     else if (const QualifiedNameId *q = name->asQualifiedNameId()) {
         addNames(q->base(), names);
         addNames(q->name(), names, addAllNames);
-    } else if (addAllNames || name->isNameId() || name->isTemplateNameId()) {
+    } else if (addAllNames || name->isNameId() || name->isTemplateNameId() || name->isAnonymousNameId()) {
         names->append(name);
     }
 }
@@ -716,7 +716,7 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
     } else if (! processed->contains(this)) {
         processed->insert(this);
 
-        if (name->isNameId() || name->isTemplateNameId()) {
+        if (name->isNameId() || name->isTemplateNameId() || name->isAnonymousNameId()) {
             flush();
 
             foreach (Symbol *s, symbols()) {
@@ -798,9 +798,25 @@ ClassOrNamespace *ClassOrNamespace::findSpecializationWithPointer(const Template
 ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespace *origin)
 {
     Q_ASSERT(name != 0);
-    Q_ASSERT(name->isNameId() || name->isTemplateNameId());
+    Q_ASSERT(name->isNameId() || name->isTemplateNameId() || name->isAnonymousNameId());
 
     const_cast<ClassOrNamespace *>(this)->flush();
+
+    const AnonymousNameId *anonymousNameId = name->asAnonymousNameId();
+    if (anonymousNameId) {
+        QHash<const AnonymousNameId *, ClassOrNamespace *>::const_iterator cit
+                = _anonymouses.find(anonymousNameId);
+        if (cit != _anonymouses.end()) {
+            return cit.value();
+        } else {
+            ClassOrNamespace *newAnonymous = _factory->allocClassOrNamespace(this);
+#ifdef DEBUG_LOOKUP
+            newAnonymous->_name = anonymousNameId;
+#endif // DEBUG_LOOKUP
+            _anonymouses[anonymousNameId] = newAnonymous;
+            return newAnonymous;
+        }
+    }
 
     Table::const_iterator it = _classOrNamespaces.find(name);
     if (it == _classOrNamespaces.end())
@@ -1201,7 +1217,7 @@ ClassOrNamespace *ClassOrNamespace::findOrCreateType(const Name *name, ClassOrNa
 
         return findOrCreateType(q->base(), origin)->findOrCreateType(q->name(), origin);
 
-    } else if (name->isNameId() || name->isTemplateNameId()) {
+    } else if (name->isNameId() || name->isTemplateNameId() || name->isAnonymousNameId()) {
         ClassOrNamespace *e = nestedType(name, origin);
 
         if (! e) {
@@ -1470,7 +1486,7 @@ bool CreateBindings::visit(NamespaceAlias *a)
         return false;
 
     } else if (ClassOrNamespace *e = _currentClassOrNamespace->lookupType(a->namespaceName())) {
-        if (a->name()->isNameId() || a->name()->isTemplateNameId())
+        if (a->name()->isNameId() || a->name()->isTemplateNameId() || a->name()->isAnonymousNameId())
             _currentClassOrNamespace->addNestedType(a->name(), e);
 
     } else if (false) {

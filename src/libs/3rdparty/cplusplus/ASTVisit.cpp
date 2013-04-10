@@ -596,6 +596,13 @@ void ConversionFunctionIdAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void AnonymousNameAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+    }
+    visitor->endVisit(this);
+}
+
 void SimpleNameAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

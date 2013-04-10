@@ -543,6 +543,12 @@ public:
         return __ast;
     }
 
+    AnonymousNameAST *AnonymousName()
+    {
+        AnonymousNameAST *__ast = new (&pool) AnonymousNameAST;
+        return __ast;
+    }
+
     SimpleNameAST *SimpleName()
     {
         SimpleNameAST *__ast = new (&pool) SimpleNameAST;

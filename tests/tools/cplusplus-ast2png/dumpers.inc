@@ -796,6 +796,13 @@ virtual bool visit(ConversionFunctionIdAST *ast)
     return false;
 }
 
+virtual bool visit(AnonymousNameAST *ast)
+{
+    if (ast->class_token)
+        terminal(ast->class_token, ast);
+    return false;
+}
+
 virtual bool visit(SimpleNameAST *ast)
 {
     if (ast->identifier_token)

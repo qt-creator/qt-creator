@@ -188,6 +188,9 @@ private slots:
     void operatorAsteriskOfNestedClassOfTemplateClass_QTCREATORBUG9006();
     void test_checksymbols_templated_functions();
     void test_checksymbols_QTCREATORBUG9098();
+    void test_checksymbols_AnonymousClass();
+    void test_checksymbols_AnonymousClass_insideNamespace();
+    void test_checksymbols_AnonymousClass_QTCREATORBUG8963();
 };
 
 void tst_CheckSymbols::test_checksymbols_TypeUse()
@@ -1421,6 +1424,28 @@ void tst_CheckSymbols::test_checksymbols_templated_functions()
     TestData::check(source, expectedUses);
 }
 
+void tst_CheckSymbols::test_checksymbols_AnonymousClass()
+{
+    const QByteArray source =
+            "struct\n"
+            "{\n"
+            "  int foo;\n"
+            "} Foo;\n"
+            "\n"
+            "void fun()\n"
+            "{\n"
+            "  foo = 3;\n"
+            "}\n"
+            ;
+
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(3, 7, 3, CppHighlightingSupport::FieldUse)
+            << Use(6, 6, 3, CppHighlightingSupport::FunctionUse)
+            ;
+
+    TestData::check(source, expectedUses);
+}
+
 void tst_CheckSymbols::test_checksymbols_QTCREATORBUG9098()
 {
     const QByteArray source =
@@ -1456,6 +1481,88 @@ void tst_CheckSymbols::test_checksymbols_QTCREATORBUG9098()
             << Use(14, 9, 1, CppHighlightingSupport::FieldUse)
             << Use(14, 11, 1, CppHighlightingSupport::FieldUse)
             ;
+
+    TestData::check(source, expectedUses);
+}
+
+void tst_CheckSymbols::test_checksymbols_AnonymousClass_insideNamespace()
+{
+    const QByteArray source =
+            "struct { int foo1; } Foo1;\n"
+            "void bar1()\n"
+            "{\n"
+            "  Foo1.foo1 = 42;\n"
+            "}\n"
+            "namespace Ns1 {\n"
+            "  struct { int foo2; } Foo2;\n"
+            "  void bar2()\n"
+            "  {\n"
+            "    Foo2.foo2 = 42;\n"
+            "  }\n"
+            "}\n"
+            "namespace Ns2 {\n"
+            "  struct {\n"
+            "    struct { struct { int foo3; }; };\n"
+            "    void func() { foo3 = 42; }\n"
+            "  } Foo3;\n"
+            "  void bar3()\n"
+            "  {\n"
+            "    Foo3.foo3 = 42;\n"
+            "  }\n"
+            "}\n"
+            ;
+
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 14, 4, CppHighlightingSupport::FieldUse)
+            << Use(2, 6, 4, CppHighlightingSupport::FunctionUse)
+            << Use(4, 8, 4, CppHighlightingSupport::FieldUse)
+            << Use(6, 11, 3, CppHighlightingSupport::TypeUse)
+            << Use(7, 16, 4, CppHighlightingSupport::FieldUse)
+            << Use(8, 8, 4, CppHighlightingSupport::FunctionUse)
+            << Use(10, 10, 4, CppHighlightingSupport::FieldUse)
+            << Use(13, 11, 3, CppHighlightingSupport::TypeUse)
+            << Use(15, 27, 4, CppHighlightingSupport::FieldUse)
+            << Use(16, 10, 4, CppHighlightingSupport::FunctionUse)
+            << Use(18, 8, 4, CppHighlightingSupport::FunctionUse)
+            ;
+
+    TestData::check(source, expectedUses);
+}
+
+void tst_CheckSymbols::test_checksymbols_AnonymousClass_QTCREATORBUG8963()
+{
+    const QByteArray source =
+            "typedef enum {\n"
+            "    FIRST\n"
+            "} isNotInt;\n"
+            "typedef struct {\n"
+            "    int isint;\n"
+            "    int isNotInt;\n"
+            "} Struct;\n"
+            "void foo()\n"
+            "{\n"
+            "    Struct s;\n"
+            "    s.isint;\n"
+            "    s.isNotInt;\n"
+            "    FIRST;\n"
+            "}\n"
+            ;
+
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(2, 5, 5, CppHighlightingSupport::EnumerationUse)
+            << Use(3, 3, 8, CppHighlightingSupport::TypeUse)
+            << Use(5, 9, 5, CppHighlightingSupport::FieldUse)
+            << Use(6, 9, 8, CppHighlightingSupport::FieldUse)
+            << Use(7, 3, 6, CppHighlightingSupport::TypeUse)
+            << Use(8, 6, 3, CppHighlightingSupport::FunctionUse)
+            << Use(10, 5, 6, CppHighlightingSupport::TypeUse)
+            << Use(10, 12, 1, CppHighlightingSupport::LocalUse)
+            << Use(11, 5, 1, CppHighlightingSupport::LocalUse)
+            << Use(11, 7, 5, CppHighlightingSupport::FieldUse)
+            << Use(12, 5, 1, CppHighlightingSupport::LocalUse)
+            << Use(12, 7, 8, CppHighlightingSupport::FieldUse)
+            << Use(13, 5, 5, CppHighlightingSupport::EnumerationUse)
+               ;
 
     TestData::check(source, expectedUses);
 }

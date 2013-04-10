@@ -552,6 +552,14 @@ bool ConversionFunctionIdAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool AnonymousNameAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (AnonymousNameAST *_other = pattern->asAnonymousName())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
 bool SimpleNameAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (SimpleNameAST *_other = pattern->asSimpleName())

@@ -824,6 +824,13 @@ ConversionFunctionIdAST *ConversionFunctionIdAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+AnonymousNameAST *AnonymousNameAST::clone(MemoryPool *pool) const
+{
+    AnonymousNameAST *ast = new (pool) AnonymousNameAST;
+    ast->class_token = class_token;
+    return ast;
+}
+
 SimpleNameAST *SimpleNameAST::clone(MemoryPool *pool) const
 {
     SimpleNameAST *ast = new (pool) SimpleNameAST;

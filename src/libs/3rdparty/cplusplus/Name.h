@@ -36,6 +36,7 @@ public:
     virtual const Identifier *identifier() const = 0;
 
     bool isNameId() const;
+    bool isAnonymousNameId() const;
     bool isTemplateNameId() const;
     bool isDestructorNameId() const;
     bool isOperatorNameId() const;
@@ -44,6 +45,7 @@ public:
     bool isSelectorNameId() const;
 
     virtual const Identifier *asNameId() const { return 0; }
+    virtual const AnonymousNameId *asAnonymousNameId() const { return 0; }
     virtual const TemplateNameId *asTemplateNameId() const { return 0; }
     virtual const DestructorNameId *asDestructorNameId() const { return 0; }
     virtual const OperatorNameId *asOperatorNameId() const { return 0; }

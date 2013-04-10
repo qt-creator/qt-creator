@@ -127,6 +127,7 @@ public:
     virtual AccessDeclarationAST *asAccessDeclaration() { return 0; }
     virtual AliasDeclarationAST *asAliasDeclaration() { return 0; }
     virtual AlignofExpressionAST *asAlignofExpression() { return 0; }
+    virtual AnonymousNameAST *asAnonymousName() { return 0; }
     virtual ArrayAccessAST *asArrayAccess() { return 0; }
     virtual ArrayDeclaratorAST *asArrayDeclarator() { return 0; }
     virtual ArrayInitializerAST *asArrayInitializer() { return 0; }
@@ -2261,6 +2262,26 @@ public:
     virtual unsigned lastToken() const;
 
     virtual ConversionFunctionIdAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT AnonymousNameAST: public NameAST
+{
+public:
+    unsigned class_token;
+public:
+    AnonymousNameAST()
+        : class_token(0)
+    {}
+
+    virtual AnonymousNameAST *asAnonymousName() { return this; }
+    virtual unsigned firstToken() const { return 0; }
+    virtual unsigned lastToken() const { return 0; }
+
+    virtual AnonymousNameAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

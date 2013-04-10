@@ -2003,6 +2003,12 @@ bool Parser::parseClassSpecifier(SpecifierListAST *&node)
     NameAST *name = 0;
     parseName(name);
 
+    if (! name && LA() == T_LBRACE && (LA(0) == T_CLASS || LA(0) == T_STRUCT || LA(0) == T_UNION || LA(0) == T_ENUM)) {
+        AnonymousNameAST *ast = new (_pool) AnonymousNameAST;
+        ast->class_token = classkey_token;
+        name = ast;
+    }
+
     bool parsed = false;
 
     const bool previousInFunctionBody = _inFunctionBody;

@@ -253,6 +253,29 @@ private:
     bool _hasArguments;
 };
 
+class CPLUSPLUS_EXPORT AnonymousNameId: public Name
+{
+public:
+    AnonymousNameId(unsigned classTokenIndex);
+    virtual ~AnonymousNameId();
+
+    unsigned classTokenIndex() const;
+
+    virtual const Identifier *identifier() const;
+    virtual bool isEqualTo(const Name *other) const;
+
+    virtual const AnonymousNameId *asAnonymousNameId() const
+    { return this; }
+
+protected:
+    virtual void accept0(NameVisitor *visitor) const;
+
+private:
+    unsigned _classTokenIndex;
+};
+
+
+
 } // namespace CPlusPlus
 
 #endif // CPLUSPLUS_NAMES_H

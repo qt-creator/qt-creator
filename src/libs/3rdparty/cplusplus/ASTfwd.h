@@ -34,6 +34,7 @@ class ASTMatcher;
 class AccessDeclarationAST;
 class AliasDeclarationAST;
 class AlignofExpressionAST;
+class AnonymousNameAST;
 class ArrayAccessAST;
 class ArrayDeclaratorAST;
 class ArrayInitializerAST;

@@ -101,6 +101,14 @@ template <> struct Compare<ArrayType>
     }
 };
 
+template <> struct Compare<AnonymousNameId>
+{
+    bool operator()(const AnonymousNameId &name, const AnonymousNameId &otherName) const
+    {
+        return name.classTokenIndex() < otherName.classTokenIndex();
+    }
+};
+
 template <> struct Compare<DestructorNameId>
 {
     bool operator()(const DestructorNameId &name, const DestructorNameId &otherName) const
@@ -217,6 +225,11 @@ public:
     {
         // symbols
         delete_array_entries(symbols);
+    }
+
+    const AnonymousNameId *findOrInsertAnonymousNameId(unsigned classTokenIndex)
+    {
+        return anonymousNameIds.intern(AnonymousNameId(classTokenIndex));
     }
 
     template <typename _Iterator>
@@ -475,6 +488,7 @@ public:
     // ### replace std::map with lookup tables. ASAP!
 
     // names
+    Table<AnonymousNameId> anonymousNameIds;
     Table<DestructorNameId> destructorNameIds;
     Table<OperatorNameId> operatorNameIds;
     Table<ConversionNameId> conversionNameIds;
@@ -549,6 +563,9 @@ DiagnosticClient *Control::diagnosticClient() const
 
 void Control::setDiagnosticClient(DiagnosticClient *diagnosticClient)
 { d->diagnosticClient = diagnosticClient; }
+
+const AnonymousNameId *Control::anonymousNameId(unsigned classTokenIndex)
+{ return d->findOrInsertAnonymousNameId(classTokenIndex); }
 
 const OperatorNameId *Control::findOperatorNameId(OperatorNameId::Kind operatorId) const
 {

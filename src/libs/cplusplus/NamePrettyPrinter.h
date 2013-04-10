@@ -57,6 +57,7 @@ protected:
     virtual void visit(const ConversionNameId *name);
     virtual void visit(const QualifiedNameId *name);
     virtual void visit(const SelectorNameId *name);
+    virtual void visit(const AnonymousNameId *name);
 
 private:
     const Overview *_overview;
