@@ -207,10 +207,6 @@ QString CMakeProject::shadowBuildDirectory(const QString &projectFilePath, const
         return QString();
     QFileInfo info(projectFilePath);
 
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
-    if (version && !version->supportsShadowBuilds())
-        return info.absolutePath();
-
     const QString projectName = QFileInfo(info.absolutePath()).fileName();
     ProjectExplorer::ProjectMacroExpander expander(projectFilePath, projectName, k, bcName);
     QDir projectDir = QDir(projectDirectory(projectFilePath));
