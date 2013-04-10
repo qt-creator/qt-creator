@@ -1113,9 +1113,6 @@ void LldbEngine::loadPythonDumpers()
         Core::ICore::resourcePath().toLocal8Bit() + "/dumper/";
 
     postCommand("script execfile('" + dumperSourcePath + "bridge.py')");
-    postCommand("script execfile('" + dumperSourcePath + "dumper.py')");
-    postCommand("script execfile('" + dumperSourcePath + "qttypes.py')");
-    postCommand("script bbsetup('')");
 }
 
 bool LldbEngine::hasCapability(unsigned cap) const

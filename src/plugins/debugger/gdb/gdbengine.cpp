@@ -1840,6 +1840,10 @@ void GdbEngine::handleHasPython(const GdbResponse &response)
 void GdbEngine::handlePythonSetup(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
+        postCommand("python qqStringCutOff = "
+            + debuggerCore()->action(MaximalStringLength)->value().toByteArray(),
+            ConsoleCommand|NonCriticalResponse);
+
         m_hasPython = true;
         GdbMi data;
         data.fromStringMultiple(response.consoleStreamOutput);
@@ -4902,6 +4906,7 @@ void GdbEngine::startGdb(const QStringList &args)
 
 void GdbEngine::reportEngineSetupOk(const GdbResponse &response)
 {
+    loadInitScript();
     Q_UNUSED(response);
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("ENGINE SUCCESSFULLY STARTED"));
@@ -4948,19 +4953,7 @@ void GdbEngine::tryLoadPythonDumpers()
         Core::ICore::resourcePath().toLocal8Bit() + "/dumper/";
 
     postCommand("python execfile('" + dumperSourcePath + "bridge.py')",
-        ConsoleCommand|NonCriticalResponse);
-    postCommand("python execfile('" + dumperSourcePath + "dumper.py')",
-        ConsoleCommand|NonCriticalResponse);
-    postCommand("python execfile('" + dumperSourcePath + "qttypes.py')",
-        ConsoleCommand|NonCriticalResponse);
-
-    postCommand("python qqStringCutOff = "
-        + debuggerCore()->action(MaximalStringLength)->value().toByteArray(),
-        ConsoleCommand|NonCriticalResponse);
-
-    loadInitScript();
-
-    postCommand("bbsetup", ConsoleCommand, CB(handlePythonSetup));
+        ConsoleCommand, CB(handlePythonSetup));
 }
 
 void GdbEngine::reloadDebuggingHelpers()

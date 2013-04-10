@@ -45,6 +45,15 @@ def removeTempFile(name):
     except:
         pass
 
+def showException(msg, exType, exValue, exTraceback):
+    warn("**** CAUGHT EXCEPTION: %s ****" % msg)
+    try:
+        import traceback
+        for line in traceback.format_exception(exType, exValue, exTraceback):
+            warn("%s" % line)
+    except:
+        pass
+
 verbosity = 0
 verbosity = 1
 
