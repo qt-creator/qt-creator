@@ -62,6 +62,9 @@ void BindingProperty::setExpression(const QString &expression)
     if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
+    if (isDynamic())
+        qWarning() << "Calling BindingProperty::setExpression on dynamic property.";
+
     if (name() == "id") { // the ID for a node is independent of the state, so it has to be set with ModelNode::setId
         throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, name());
     }
