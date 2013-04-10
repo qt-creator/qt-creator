@@ -293,6 +293,7 @@ void GenericProject::refresh(RefreshOptions options)
         }
 
         pinfo.appendProjectPart(part);
+        setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !part->files.isEmpty());
 
         modelManager->updateProjectInfo(pinfo);
         m_codeModelFuture = modelManager->updateSourceFiles(filesToUpdate);

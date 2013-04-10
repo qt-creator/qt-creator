@@ -404,6 +404,32 @@ void Project::setProjectLanguages(Core::Context language)
     emit projectLanguagesUpdated();
 }
 
+void Project::addProjectLanguage(Core::Id id)
+{
+    Core::Context lang = projectLanguages();
+    int pos = lang.indexOf(id);
+    if (pos < 0)
+        lang.add(id);
+    setProjectLanguages(lang);
+}
+
+void Project::removeProjectLanguage(Core::Id id)
+{
+    Core::Context lang = projectLanguages();
+    int pos = lang.indexOf(id);
+    if (pos >= 0)
+        lang.removeAt(pos);
+    setProjectLanguages(lang);
+}
+
+void Project::setProjectLanguage(Core::Id id, bool enabled)
+{
+    if (enabled)
+        addProjectLanguage(id);
+    else
+        removeProjectLanguage(id);
+}
+
 Core::Context Project::projectContext() const
 {
     return d->m_projectContext;

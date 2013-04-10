@@ -394,6 +394,8 @@ bool CMakeProject::parseCMakeLists()
             modelmanager->updateProjectInfo(pinfo);
             m_codeModelFuture.cancel();
             m_codeModelFuture = modelmanager->updateSourceFiles(m_files);
+
+            setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !part->files.isEmpty());
         }
     }
     emit buildTargetsChanged();

@@ -521,6 +521,8 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData *prj)
         }
     }
 
+    setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !allFiles.isEmpty());
+
     if (pinfo.projectParts().isEmpty())
         return;
 
@@ -538,6 +540,8 @@ void QbsProject::updateQmlJsCodeModel(const qbs::ProjectData *prj)
 
     QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
             QmlJSTools::defaultProjectInfoForProject(this);
+
+    setProjectLanguage(ProjectExplorer::Constants::LANG_QMLJS, !projectInfo.sourceFiles.isEmpty());
     modelManager->updateProjectInfo(projectInfo);
 }
 

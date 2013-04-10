@@ -456,5 +456,7 @@ void AutotoolsProject::updateCppCodeModel()
 
         modelManager->updateProjectInfo(pinfo);
         modelManager->updateSourceFiles(m_files);
+
+        setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !part->files.isEmpty());
     }
 }

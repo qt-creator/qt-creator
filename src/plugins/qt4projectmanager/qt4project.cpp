@@ -581,6 +581,8 @@ void Qt4Project::updateCppCodeModel()
         pinfo.appendProjectPart(part);
     }
 
+    setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !allFiles.isEmpty());
+
     modelmanager->updateProjectInfo(pinfo);
     m_codeModelFuture = modelmanager->updateSourceFiles(allFiles);
 }
@@ -612,6 +614,8 @@ void Qt4Project::updateQmlJSCodeModel()
     }
 
     projectInfo.importPaths.removeDuplicates();
+
+    setProjectLanguage(ProjectExplorer::Constants::LANG_QMLJS, !projectInfo.sourceFiles.isEmpty());
 
     modelManager->updateProjectInfo(projectInfo);
 }
