@@ -2745,7 +2745,7 @@ QTextBlock BaseTextEditorWidget::foldedBlockAt(const QPoint &pos, QRect *box) co
 
     while (block.isValid() && top <= viewportHeight) {
         QTextBlock nextBlock = block.next();
-        if (block.isVisible() && bottom >= 0) {
+        if (block.isVisible() && bottom >= 0 && replacementVisible(block.blockNumber())) {
             if (nextBlock.isValid() && !nextBlock.isVisible()) {
                 QTextLayout *layout = block.layout();
                 QTextLine line = layout->lineAt(layout->lineCount()-1);
@@ -3532,7 +3532,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                 }
             }
 
-            if (nextBlock.isValid() && !nextBlock.isVisible()) {
+            if (nextBlock.isValid() && !nextBlock.isVisible() && replacementVisible(block.blockNumber())) {
 
                 bool selectThis = (hasSelection
                                    && nextBlock.position() >= selectionStart
@@ -4408,6 +4408,28 @@ void BaseTextEditorWidget::extraAreaContextMenuEvent(QContextMenuEvent *e)
     }
 }
 
+void BaseTextEditorWidget::updateFoldingHighlight(const QPoint &pos)
+{
+    if (!d->m_codeFoldingVisible)
+        return;
+
+    QTextCursor cursor = cursorForPosition(QPoint(0, pos.y()));
+
+    // Update which folder marker is highlighted
+    const int highlightBlockNumber = d->extraAreaHighlightFoldedBlockNumber;
+    d->extraAreaHighlightFoldedBlockNumber = -1;
+
+    if (pos.x() > extraArea()->width() - foldBoxWidth(fontMetrics())) {
+        d->extraAreaHighlightFoldedBlockNumber = cursor.blockNumber();
+    } else if (d->m_displaySettings.m_highlightBlocks) {
+        QTextCursor cursor = textCursor();
+        d->extraAreaHighlightFoldedBlockNumber = cursor.blockNumber();
+    }
+
+    if (highlightBlockNumber != d->extraAreaHighlightFoldedBlockNumber)
+        d->m_highlightBlocksTimer->start(d->m_highlightBlocksInfo.isEmpty() ? 120 : 0);
+}
+
 void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
 {
     QTextCursor cursor = cursorForPosition(QPoint(0, e->pos().y()));
@@ -4417,21 +4439,9 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
     const bool inMarkArea = e->pos().x() <= markWidth && e->pos().x() >= 0;
 
     if (d->m_codeFoldingVisible
-        && e->type() == QEvent::MouseMove && e->buttons() == 0) { // mouse tracking
-        // Update which folder marker is highlighted
-        const int highlightBlockNumber = d->extraAreaHighlightFoldedBlockNumber;
-        d->extraAreaHighlightFoldedBlockNumber = -1;
-
-        if (e->pos().x() > extraArea()->width() - foldBoxWidth(fontMetrics())) {
-            d->extraAreaHighlightFoldedBlockNumber = cursor.blockNumber();
-        } else if (d->m_displaySettings.m_highlightBlocks) {
-            QTextCursor cursor = textCursor();
-            d->extraAreaHighlightFoldedBlockNumber = cursor.blockNumber();
-        }
-
-        if (highlightBlockNumber != d->extraAreaHighlightFoldedBlockNumber)
-            d->m_highlightBlocksTimer->start(d->m_highlightBlocksInfo.isEmpty() ? 120 : 0);
-        }
+            && e->type() == QEvent::MouseMove && e->buttons() == 0) { // mouse tracking
+        updateFoldingHighlight(e->pos());
+    }
 
     // Set whether the mouse cursor is a hand or normal arrow
     if (e->type() == QEvent::MouseMove) {
@@ -6199,6 +6209,13 @@ int BaseTextEditorWidget::lineNumberDigits() const
 
 bool BaseTextEditorWidget::selectionVisible(int blockNumber) const
 {
+    Q_UNUSED(blockNumber)
+    return true;
+}
+
+bool BaseTextEditorWidget::replacementVisible(int blockNumber) const
+{
+    Q_UNUSED(blockNumber)
     return true;
 }
 

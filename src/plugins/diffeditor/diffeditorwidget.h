@@ -124,6 +124,8 @@ protected:
 private slots:
     void leftSliderChanged();
     void rightSliderChanged();
+    void leftDocumentSizeChanged();
+    void rightDocumentSizeChanged();
 
 private:
     bool isWhitespace(const QChar &c) const;
@@ -136,6 +138,7 @@ private:
     ChunkData calculateOriginalData(const QList<Diff> &diffList) const;
     FileData calculateContextData(const ChunkData &originalData) const;
     void showDiff();
+    void synchronizeFoldings(DiffViewEditorWidget *source, DiffViewEditorWidget *destination);
 
     DiffViewEditorWidget *m_leftEditor;
     DiffViewEditorWidget *m_rightEditor;
@@ -147,6 +150,8 @@ private:
 
     ChunkData m_originalChunkData;
     FileData m_contextFileData;
+
+    bool m_foldingBlocker;
 };
 
 } // namespace DiffEditor

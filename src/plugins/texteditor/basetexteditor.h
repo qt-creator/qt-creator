@@ -362,7 +362,7 @@ protected:
     virtual int lineNumberTopPositionOffset(int blockNumber) const;
     virtual int lineNumberDigits() const;
     virtual bool selectionVisible(int blockNumber) const;
-
+    virtual bool replacementVisible(int blockNumber) const;
     static QString msgTextTooLarge(quint64 size);
 
 private:
@@ -404,6 +404,7 @@ public:
     virtual void extraAreaLeaveEvent(QEvent *);
     virtual void extraAreaContextMenuEvent(QContextMenuEvent *);
     virtual void extraAreaMouseEvent(QMouseEvent *);
+    void updateFoldingHighlight(const QPoint &pos);
 
     const TabSettings &tabSettings() const;
     void setLanguageSettingsId(Core::Id settingsId);

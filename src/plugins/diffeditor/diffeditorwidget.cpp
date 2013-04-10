@@ -88,6 +88,7 @@ public:
     void clearLineNumbers();
     void clearSkippedLines() { m_skippedLines.clear(); }
     void clearSeparators() { m_separators.clear(); }
+    QTextBlock firstVisibleBlock() const { return SnippetEditorWidget::firstVisibleBlock(); }
 
 protected:
     virtual int extraAreaWidth(int *markWidthPtr = 0) const { return BaseTextEditorWidget::extraAreaWidth(markWidthPtr); }
@@ -95,6 +96,7 @@ protected:
     virtual QString lineNumber(int blockNumber) const;
     virtual int lineNumberDigits() const;
     virtual bool selectionVisible(int blockNumber) const;
+    virtual bool replacementVisible(int blockNumber) const;
     virtual void paintEvent(QPaintEvent *e);
     virtual void scrollContentsBy(int dx, int dy);
 
@@ -103,7 +105,7 @@ private:
     int m_lineNumberDigits;
     // block number, skipped lines
     QMap<int, int> m_skippedLines;
-    // block number, separator
+    // block number, separator. Separator used as lines alignment and inside skipped lines
     QMap<int, bool> m_separators;
 };
 
@@ -111,6 +113,7 @@ DiffViewEditorWidget::DiffViewEditorWidget(QWidget *parent)
     : SnippetEditorWidget(parent), m_lineNumberDigits(1)
 {
     setLineNumbersVisible(true);
+    setCodeFoldingSupported(true);
     setFrameStyle(QFrame::NoFrame);
 }
 
@@ -127,6 +130,11 @@ int DiffViewEditorWidget::lineNumberDigits() const
 bool DiffViewEditorWidget::selectionVisible(int blockNumber) const
 {
     return !m_separators.value(blockNumber, false);
+}
+
+bool DiffViewEditorWidget::replacementVisible(int blockNumber) const
+{
+    return m_skippedLines.value(blockNumber);
 }
 
 void DiffViewEditorWidget::setLineNumber(int blockNumber, const QString &lineNumber)
@@ -196,7 +204,8 @@ void DiffViewEditorWidget::paintEvent(QPaintEvent *e)
 DiffEditorWidget::DiffEditorWidget(QWidget *parent)
     : QWidget(parent),
       m_contextLinesNumber(1),
-      m_ignoreWhitespaces(true)
+      m_ignoreWhitespaces(true),
+      m_foldingBlocker(false)
 {
     TextEditor::TextEditorSettings *settings = TextEditorSettings::instance();
 
@@ -219,12 +228,16 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
             this, SLOT(leftSliderChanged()));
     connect(m_leftEditor, SIGNAL(cursorPositionChanged()),
             this, SLOT(leftSliderChanged()));
+    connect(m_leftEditor->document()->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)),
+            this, SLOT(leftDocumentSizeChanged()));
     connect(m_rightEditor->verticalScrollBar(), SIGNAL(valueChanged(int)),
             this, SLOT(rightSliderChanged()));
     connect(m_rightEditor->verticalScrollBar(), SIGNAL(actionTriggered(int)),
             this, SLOT(rightSliderChanged()));
     connect(m_rightEditor, SIGNAL(cursorPositionChanged()),
             this, SLOT(rightSliderChanged()));
+    connect(m_rightEditor->document()->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)),
+            this, SLOT(rightDocumentSizeChanged()));
 
     m_splitter = new QSplitter(this);
     m_splitter->addWidget(m_leftEditor);
@@ -586,7 +599,7 @@ FileData DiffEditorWidget::calculateContextData(const ChunkData &originalData) c
     if (m_contextLinesNumber < 0)
         return FileData(originalData);
 
-    const int joinChunkThreshold = 0;
+    const int joinChunkThreshold = 1;
 
     FileData fileData;
     QMap<int, bool> hiddenRows;
@@ -760,19 +773,30 @@ void DiffEditorWidget::showDiff()
             blockNumber++;
             QTextBlock leftBlock = m_leftEditor->document()->findBlockByNumber(blockNumber);
             for (int j = 0; j < chunkData.rows.count(); j++) {
-                leftBlock.setVisible(false);
-                leftBlock.setLineCount(0);
+                TextEditor::BaseTextDocumentLayout::setFoldingIndent(leftBlock, 1);
                 leftBlock = leftBlock.next();
             }
             QTextBlock rightBlock = m_rightEditor->document()->findBlockByNumber(blockNumber);
             for (int j = 0; j < chunkData.rows.count(); j++) {
-                rightBlock.setVisible(false);
-                rightBlock.setLineCount(0);
+                TextEditor::BaseTextDocumentLayout::setFoldingIndent(rightBlock, 1);
                 rightBlock = rightBlock.next();
             }
         }
         blockNumber += chunkData.rows.count();
     }
+    blockNumber = 0;
+    for (int i = 0; i < m_contextFileData.chunks.count(); i++) {
+        ChunkData chunkData = m_contextFileData.chunks.at(i);
+        if (!chunkData.alwaysShown) {
+            QTextBlock leftBlock = m_leftEditor->document()->findBlockByNumber(blockNumber);
+            TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(leftBlock, false);
+            QTextBlock rightBlock = m_rightEditor->document()->findBlockByNumber(blockNumber);
+            TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(rightBlock, false);
+            blockNumber++;
+        }
+        blockNumber += chunkData.rows.count();
+    }
+    m_foldingBlocker = true;
     BaseTextDocumentLayout *leftLayout = qobject_cast<BaseTextDocumentLayout *>(m_leftEditor->document()->documentLayout());
     if (leftLayout) {
         leftLayout->requestUpdate();
@@ -783,6 +807,7 @@ void DiffEditorWidget::showDiff()
         rightLayout->requestUpdate();
         rightLayout->emitDocumentSizeChanged();
     }
+    m_foldingBlocker = false;
 
 //    int ela5 = time.elapsed();
 
@@ -959,6 +984,99 @@ void DiffEditorWidget::rightSliderChanged()
     m_leftEditor->verticalScrollBar()->setValue(m_rightEditor->verticalScrollBar()->value());
 }
 
+void DiffEditorWidget::leftDocumentSizeChanged()
+{
+    synchronizeFoldings(m_leftEditor, m_rightEditor);
+}
+
+void DiffEditorWidget::rightDocumentSizeChanged()
+{
+    synchronizeFoldings(m_rightEditor, m_leftEditor);
+}
+
+void DiffEditorWidget::synchronizeFoldings(DiffViewEditorWidget *source, DiffViewEditorWidget *destination)
+{
+    if (m_foldingBlocker)
+        return;
+
+    m_foldingBlocker = true;
+    QTextBlock sourceBlock = source->document()->firstBlock();
+    QTextBlock destinationBlock = destination->document()->firstBlock();
+    while (sourceBlock.isValid() && destinationBlock.isValid()) {
+        if (TextEditor::BaseTextDocumentLayout::canFold(sourceBlock)) {
+            const bool isSourceFolded = TextEditor::BaseTextDocumentLayout::isFolded(sourceBlock);
+            const bool isDestinationFolded = TextEditor::BaseTextDocumentLayout::isFolded(destinationBlock);
+            if (isSourceFolded != isDestinationFolded) {
+                if (isSourceFolded) { // we fold the destination
+                    QTextBlock previousSource = sourceBlock.previous(); // skippedLines
+                    QTextBlock previousDestination = destinationBlock.previous(); // skippedLines
+                    QTextBlock firstVisibleDestinationBlock = destination->firstVisibleBlock();
+                    QTextBlock firstDestinationBlock = destination->document()->firstBlock();
+                    TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(destinationBlock, !isSourceFolded);
+                    TextEditor::BaseTextDocumentLayout::setFoldingIndent(sourceBlock, 1);
+                    TextEditor::BaseTextDocumentLayout::setFoldingIndent(destinationBlock, 1);
+                    previousSource.setVisible(true);
+                    previousSource.setLineCount(1);
+                    previousDestination.setVisible(true);
+                    previousDestination.setLineCount(1);
+                    sourceBlock.setVisible(false);
+                    sourceBlock.setLineCount(0);
+                    destinationBlock.setVisible(false);
+                    destinationBlock.setLineCount(0);
+                    TextEditor::BaseTextDocumentLayout::setFolded(previousSource, true);
+                    TextEditor::BaseTextDocumentLayout::setFolded(previousDestination, true);
+
+                    if (firstVisibleDestinationBlock == destinationBlock) {
+                        /*
+                        The following hack is completely crazy. That's the only way to scroll 1 line up
+                        in case destinationBlock was the top visible block.
+                        There is no need to scroll the source since this is in sync anyway
+                        (leftSliderChanged(), rightSliderChanged())
+                        */
+                        destination->verticalScrollBar()->setValue(destination->verticalScrollBar()->value() - 1);
+                        destination->verticalScrollBar()->setValue(destination->verticalScrollBar()->value() + 1);
+                        if (firstVisibleDestinationBlock.previous() == firstDestinationBlock) {
+                            /*
+                            Even more crazy case: the destinationBlock was the first top visible block.
+                            */
+                            destination->verticalScrollBar()->setValue(0);
+                        }
+                    }
+                } else { // we unfold the destination
+                    QTextBlock nextSource = sourceBlock.next();
+                    QTextBlock nextDestination = destinationBlock.next();
+                    TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(destinationBlock, !isSourceFolded);
+                    TextEditor::BaseTextDocumentLayout::setFoldingIndent(nextSource, 0);
+                    TextEditor::BaseTextDocumentLayout::setFoldingIndent(nextDestination, 0);
+                    sourceBlock.setVisible(false);
+                    sourceBlock.setLineCount(0);
+                    destinationBlock.setVisible(false);
+                    destinationBlock.setLineCount(0);
+                    TextEditor::BaseTextDocumentLayout::setFolded(nextSource, false);
+                    TextEditor::BaseTextDocumentLayout::setFolded(nextDestination, false);
+                }
+                break; // only one should be synchronized
+            }
+        }
+
+        sourceBlock = sourceBlock.next();
+        destinationBlock = destinationBlock.next();
+    }
+
+    BaseTextDocumentLayout *sourceLayout = qobject_cast<BaseTextDocumentLayout *>(source->document()->documentLayout());
+    if (sourceLayout) {
+        sourceLayout->requestUpdate();
+        sourceLayout->emitDocumentSizeChanged();
+    }
+    source->updateFoldingHighlight(source->mapFromGlobal(QCursor::pos()));
+
+    BaseTextDocumentLayout *destinationLayout = qobject_cast<BaseTextDocumentLayout *>(destination->document()->documentLayout());
+    if (destinationLayout) {
+        destinationLayout->requestUpdate();
+        destinationLayout->emitDocumentSizeChanged();
+    }
+    m_foldingBlocker = false;
+}
 
 
 } // namespace DiffEditor
