@@ -131,6 +131,14 @@ enum Type
     ErrInvalidArrayValueLength = 323
 };
 
+class QMLJS_EXPORT PrototypeMessageData {
+public:
+    Type type;
+    Severity severity;
+    QString message;
+    int placeholders;
+};
+
 class QMLJS_EXPORT Message
 {
 public:
@@ -152,6 +160,8 @@ public:
     QString message;
     Type type;
     Severity severity;
+
+    static const PrototypeMessageData prototypeForMessageType(Type type);
 };
 
 } // namespace StaticAnalysis
