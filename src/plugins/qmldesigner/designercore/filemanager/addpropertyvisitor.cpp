@@ -42,13 +42,15 @@ AddPropertyVisitor::AddPropertyVisitor(QmlDesigner::TextModifier &modifier,
                                        const QmlDesigner::PropertyName &name,
                                        const QString &value,
                                        QmlRefactoring::PropertyType propertyType,
-                                       const PropertyNameList &propertyOrder):
+                                       const PropertyNameList &propertyOrder,
+                                       const QmlDesigner::TypeName &dynamicTypeName) :
     QMLRewriter(modifier),
     m_parentLocation(parentLocation),
     m_name(name),
     m_value(value),
     m_propertyType(propertyType),
-    m_propertyOrder(propertyOrder)
+    m_propertyOrder(propertyOrder),
+    m_dynamicTypeName(dynamicTypeName)
 {
 }
 
@@ -146,6 +148,9 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
     default:
         Q_ASSERT(!"unknown property type");
     }
+
+    if (!m_dynamicTypeName.isEmpty())
+        newPropertyTemplate.prepend(QString(QLatin1String("property %1 ")).arg(QString::fromUtf8(m_dynamicTypeName)));
 
     if (isOneLiner) {
         if (needsPreceedingSemicolon)

@@ -45,7 +45,8 @@ public:
                        const QmlDesigner::PropertyName &name,
                        const QString &value,
                        QmlDesigner::QmlRefactoring::PropertyType propertyType,
-                       const PropertyNameList &propertyOrder);
+                       const PropertyNameList &propertyOrder,
+                       const QmlDesigner::TypeName &dynamicTypeName);
 
 protected:
     virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
@@ -60,6 +61,7 @@ private:
     QString m_value;
     QmlRefactoring::PropertyType m_propertyType;
     PropertyNameList m_propertyOrder;
+    QmlDesigner::TypeName m_dynamicTypeName;
 };
 
 } // namespace Internal
