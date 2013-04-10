@@ -69,7 +69,7 @@ namespace {
 static inline QStringList supportedVersionsList()
 {
     QStringList list;
-    list << QLatin1String("1.0") << QLatin1String("1.1") << QLatin1String("2.0");
+    list << QLatin1String("1.0") << QLatin1String("1.1") << QLatin1String("2.0") << QLatin1String("2.1");
     return list;
 }
 
