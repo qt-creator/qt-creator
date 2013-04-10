@@ -2260,7 +2260,7 @@ QString Qt4ProFileNode::buildDir(Qt4BuildConfiguration *bc) const
         bc = static_cast<Qt4BuildConfiguration *>(m_project->activeTarget()->activeBuildConfiguration());
     if (!bc)
         return QString();
-    return QDir(bc->buildDirectory()).absoluteFilePath(relativeDir);
+    return QDir::cleanPath(QDir(bc->buildDirectory()).absoluteFilePath(relativeDir));
 }
 
 void Qt4ProFileNode::updateCodeModelSupportFromBuild()
