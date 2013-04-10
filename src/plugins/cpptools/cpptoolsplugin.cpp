@@ -243,7 +243,7 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader)
     const QFileInfo fi(fileName);
     ProjectFile::Kind kind = ProjectFile::classify(fileName);
     const bool isHeader = ProjectFile::isHeader(kind);
-    if (*wasHeader)
+    if (wasHeader)
         *wasHeader = isHeader;
     if (m_headerSourceMapping.contains(fi.absoluteFilePath()))
         return m_headerSourceMapping.value(fi.absoluteFilePath());
