@@ -39,9 +39,7 @@ leave room for the Qt 4 target page.
         id="QtQuick2ExtensionPlugin" category="G.Libraries"
         featuresRequired="QtSupport.Wizards.FeatureQtQuick,QtSupport.Wizards.FeatureQtQuick.2">
     <icon>lib.png</icon>
-    <description>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QQmlEngine class.
-
-    Requires &lt;b&gt;Qt 5.0&lt;/b&gt; or newer.</description>
+    <description>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QQmlEngine class.&lt;br&gt;&lt;br&gt;Requires &lt;b&gt;Qt 5.0&lt;/b&gt; or newer.</description>
     <displayname>Qt Quick 2 Extension Plugin</displayname>
     <displaycategory>Libraries</displaycategory>
     <files>
