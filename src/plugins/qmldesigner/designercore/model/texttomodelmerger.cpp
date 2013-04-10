@@ -776,9 +776,9 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             check.disableMessage(StaticAnalysis::ErrCouldNotResolvePrototypeOf);
 
             foreach (StaticAnalysis::Type type, StaticAnalysis::Message::allMessageTypes()) {
-                StaticAnalysis::Message message(type, AST::SourceLocation());
-                if (message.severity == StaticAnalysis::MaybeWarning
-                    || message.severity == StaticAnalysis::Warning) {
+                StaticAnalysis::PrototypeMessageData prototypeMessageData = StaticAnalysis::Message::prototypeForMessageType(type);
+                if (prototypeMessageData.severity == StaticAnalysis::MaybeWarning
+                        || prototypeMessageData.severity == StaticAnalysis::Warning) {
                     check.disableMessage(type);
                 }
             }
