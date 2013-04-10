@@ -2620,7 +2620,7 @@ static QString maddeRoot(const QString &qmakePath)
 
 void Version11Handler::parseQtversionFile()
 {
-    QFileInfo settingsLocation(ExtensionSystem::PluginManager::settings()->fileName());
+    QFileInfo settingsLocation(Core::ICore::settings()->fileName());
     Utils::FileName fileName = Utils::FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/qtversion.xml"));
     Utils::PersistentSettingsReader reader;
     if (!reader.load(fileName)) {
@@ -2663,7 +2663,7 @@ void Version11Handler::parseQtversionFile()
 
 void Version11Handler::parseToolChainFile()
 {
-    QFileInfo settingsLocation(ExtensionSystem::PluginManager::settings()->fileName());
+    QFileInfo settingsLocation(Core::ICore::settings()->fileName());
     Utils::FileName fileName = Utils::FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/toolChains.xml"));
     Utils::PersistentSettingsReader reader;
     if (!reader.load(fileName)) {

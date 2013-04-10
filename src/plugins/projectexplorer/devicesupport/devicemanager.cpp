@@ -224,13 +224,13 @@ QVariantMap DeviceManager::toMap() const
 
 Utils::FileName DeviceManager::settingsFilePath(const QString &extension)
 {
-    return Utils::FileName::fromString(QFileInfo(ExtensionSystem::PluginManager::settings()->fileName()).absolutePath() + extension);
+    return Utils::FileName::fromString(QFileInfo(Core::ICore::settings()->fileName()).absolutePath() + extension);
 }
 
 Utils::FileName DeviceManager::systemSettingsFilePath(const QString &deviceFileRelativePath)
 {
     return Utils::FileName::fromString(
-              QFileInfo(ExtensionSystem::PluginManager::globalSettings()->fileName()).absolutePath()
+              QFileInfo(Core::ICore::settings(QSettings::SystemScope)->fileName()).absolutePath()
               + deviceFileRelativePath);
 }
 

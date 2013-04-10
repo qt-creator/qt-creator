@@ -55,7 +55,7 @@ using Utils::PersistentSettingsReader;
 
 static Utils::FileName settingsFileName()
 {
-    QFileInfo settingsLocation(ExtensionSystem::PluginManager::settings()->fileName());
+    QFileInfo settingsLocation(Core::ICore::settings()->fileName());
     return Utils::FileName::fromString(settingsLocation.absolutePath() + QLatin1String(KIT_FILENAME));
 }
 
