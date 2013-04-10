@@ -703,12 +703,11 @@ void AndroidConfigurations::load()
 
 void AndroidConfigurations::updateAndroidDevice()
 {
+    ProjectExplorer::DeviceManager * const devMgr = ProjectExplorer::DeviceManager::instance();
     if (adbToolPath().toFileInfo().exists())
-        ProjectExplorer::DeviceManager::instance()
-                ->addDevice(ProjectExplorer::IDevice::Ptr(new Internal::AndroidDevice));
-    else
-        ProjectExplorer::DeviceManager::instance()
-                ->removeDevice(Core::Id(Constants::ANDROID_DEVICE_ID));
+        devMgr->addDevice(ProjectExplorer::IDevice::Ptr(new Internal::AndroidDevice));
+    else if (devMgr->find(Constants::ANDROID_DEVICE_ID))
+        devMgr->removeDevice(Core::Id(Constants::ANDROID_DEVICE_ID));
 }
 
 AndroidConfigurations *AndroidConfigurations::m_instance = 0;
