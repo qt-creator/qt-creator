@@ -2037,9 +2037,9 @@ static bool dumpQChar(const SymbolGroupValue &v, std::wostream &str)
         if (utf16 >= 0) {
             // Print code = character,
             // exclude control characters and Pair indicator
-            str << utf16;
             if (utf16 >= 32 && (utf16 < 0xD800 || utf16 > 0xDBFF))
-                str << " '" << wchar_t(utf16) << '\'';
+                str << '\'' << wchar_t(utf16) << "' ";
+            str << '(' << utf16 << ')';
         }
         return true;
     }
