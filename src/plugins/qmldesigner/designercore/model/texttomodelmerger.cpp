@@ -1361,6 +1361,7 @@ void ModelValidator::signalHandlerSourceDiffer(SignalHandlerProperty &modelPrope
 void ModelValidator::shouldBeSignalHandlerProperty(AbstractProperty &modelProperty, const QString &javascript)
 {
     Q_UNUSED(modelProperty)
+    Q_UNUSED(javascript)
     Q_ASSERT(modelProperty.isSignalHandlerProperty());
     Q_ASSERT(0);
 }
