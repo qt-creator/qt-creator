@@ -77,8 +77,15 @@ static inline void dump64bitPointerArray(std::ostream &os, const void *a, int co
 static inline std::string fixInnerType(std::string type,
                                        const SymbolGroupValue &container)
 {
-    const std::string stripped
+    std::string stripped
         = SymbolGroupValue::stripConst(SymbolGroupValue::stripClassPrefixes(type));
+
+    // Unfortunately the cdb can not handle the vc exclusiv 64 bit integer
+    // "__int64" but works fine with "int64", so we have to strip down "__"
+    const size_t __int64pos = stripped.find("__int64");
+    if (__int64pos != std::string::npos)
+        stripped.erase(__int64pos, 2);
+
     const KnownType kt = knownType(stripped, 0);
     // Resolve types unless they are POD or pointers to POD (that is, qualify 'Foo' and 'Foo*')
     const bool needResolve = kt == KT_Unknown || kt ==  KT_PointerType || !(kt & KT_POD_Type);
