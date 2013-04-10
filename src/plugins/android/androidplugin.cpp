@@ -77,6 +77,9 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsLoaded()),
             this, SLOT(kitsRestored()));
 
+    connect(ProjectExplorer::DeviceManager::instance(), SIGNAL(devicesLoaded()),
+            this, SLOT(updateDevice()));
+
     return true;
 }
 
@@ -87,6 +90,11 @@ void AndroidPlugin::kitsRestored()
             &Internal::AndroidConfigurations::instance(), SLOT(updateAutomaticKitList()));
     disconnect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsChanged()),
                this, SLOT(kitsRestored()));
+}
+
+void AndroidPlugin::updateDevice()
+{
+    Internal::AndroidConfigurations::instance().updateAndroidDevice();
 }
 
 } // namespace Android

@@ -115,6 +115,9 @@ public:
     static QLatin1String toolchainPrefix(ProjectExplorer::Abi::Architecture architecture);
     static QLatin1String toolsPrefix(ProjectExplorer::Abi::Architecture architecture);
 
+    // called from AndroidPlugin
+    void updateAndroidDevice();
+
 signals:
     void updated();
 
@@ -132,7 +135,6 @@ private:
 
     int getSDKVersion(const QString &device) const;
     void updateAvailablePlatforms();
-    void updateAndroidDevice();
 
 
     static AndroidConfigurations *m_instance;

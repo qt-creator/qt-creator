@@ -698,7 +698,6 @@ void AndroidConfigurations::load()
     settings->beginGroup(SettingsGroup);
     m_config = AndroidConfig(*settings);
     settings->endGroup();
-    updateAndroidDevice();
 }
 
 void AndroidConfigurations::updateAndroidDevice()

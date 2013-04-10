@@ -46,6 +46,7 @@ public:
     void extensionsInitialized() { }
 
 private slots:
+    void updateDevice();
     void kitsRestored();
 };
 
