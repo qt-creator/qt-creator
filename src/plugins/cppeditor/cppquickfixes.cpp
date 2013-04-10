@@ -2339,6 +2339,30 @@ private:
     QString m_decl;
 };
 
+class DeclOperationFactory
+{
+public:
+    DeclOperationFactory(const CppQuickFixInterface &interface, const QString &fileName,
+                         const Class *matchingClass, const QString &decl)
+        : m_interface(interface)
+        , m_fileName(fileName)
+        , m_matchingClass(matchingClass)
+        , m_decl(decl)
+    {}
+    TextEditor::QuickFixOperation::Ptr
+    operator()(InsertionPointLocator::AccessSpec xsSpec)
+    {
+        return TextEditor::QuickFixOperation::Ptr(
+            new InsertDeclOperation(m_interface, m_fileName, m_matchingClass, xsSpec, m_decl));
+    }
+
+private:
+    const CppQuickFixInterface &m_interface;
+    const QString &m_fileName;
+    const Class *m_matchingClass;
+    const QString &m_decl;
+};
+
 } // anonymous namespace
 
 void InsertDeclFromDef::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
@@ -2387,8 +2411,16 @@ void InsertDeclFromDef::match(const CppQuickFixInterface &interface, QuickFixOpe
         QString fileName = QString::fromUtf8(matchingClass->fileName(),
                                              matchingClass->fileNameLength());
         const QString decl = InsertDeclOperation::generateDeclaration(fun);
-        result.append(QuickFixOperation::Ptr(new InsertDeclOperation(interface, fileName, matchingClass,
-                                                    InsertionPointLocator::Public, decl)));
+
+        // Add several possible insertion locations for declaration
+        DeclOperationFactory operation(interface, fileName, matchingClass, decl);
+
+        result.append(operation(InsertionPointLocator::Public));
+        result.append(operation(InsertionPointLocator::PublicSlot));
+        result.append(operation(InsertionPointLocator::Protected));
+        result.append(operation(InsertionPointLocator::ProtectedSlot));
+        result.append(operation(InsertionPointLocator::Private));
+        result.append(operation(InsertionPointLocator::PrivateSlot));
     }
 }
 

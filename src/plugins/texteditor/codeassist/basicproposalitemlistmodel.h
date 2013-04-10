@@ -65,6 +65,8 @@ public:
     virtual IAssistProposalItem *proposalItem(int index) const;
 
     void loadContent(const QList<BasicProposalItem *> &items);
+    void setSortingAllowed(bool isAllowed);
+    bool isSortingAllowed() const;
 
 protected:
     typedef QList<BasicProposalItem *>::iterator ItemIterator;
@@ -76,6 +78,7 @@ private:
 
     QHash<QString, int> m_idByText;
     QList<BasicProposalItem *> m_originalItems;
+    bool m_isSortingAllowed;
 };
 
 } // TextEditor

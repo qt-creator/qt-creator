@@ -126,6 +126,8 @@ private slots:
     void test_quickfix_InsertDefFromDecl_headerSource_namespace2();
     void test_quickfix_InsertDefFromDecl_freeFunction();
 
+    void test_quickfix_InsertDeclFromDef();
+
     void test_quickfix_AddIncludeForUndefinedIdentifier_normal();
     void test_quickfix_AddIncludeForUndefinedIdentifier_noinclude();
     void test_quickfix_AddIncludeForUndefinedIdentifier_noincludeComment01();

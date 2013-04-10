@@ -40,6 +40,7 @@
 #include <texteditor/basetexteditor.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
+#include <texteditor/codeassist/basicproposalitemlistmodel.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
@@ -265,6 +266,12 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
     }
 
     IAssistProposal *newProposal = processor->perform(assistInterface);
+    if (kind == QuickFix) {
+        TextEditor::BasicProposalItemListModel *proposalModel =
+                static_cast<TextEditor::BasicProposalItemListModel *>(newProposal->model());
+        proposalModel->setSortingAllowed(false);
+    }
+
     displayProposal(newProposal, reason);
     delete processor;
 }

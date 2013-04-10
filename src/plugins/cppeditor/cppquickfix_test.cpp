@@ -129,10 +129,11 @@ struct TestCase
     TestCase(const QList<TestDocumentPtr> theTestFiles);
     ~TestCase();
 
-    QuickFixOperation::Ptr getFix(CppQuickFixFactory *factory, CPPEditorWidget *editorWidget);
+    QuickFixOperation::Ptr getFix(CppQuickFixFactory *factory, CPPEditorWidget *editorWidget,
+                                  int resultIndex = 0);
     TestDocumentPtr testFileWithCursorMarker() const;
 
-    void run(CppQuickFixFactory *factory);
+    void run(CppQuickFixFactory *factory, int resultIndex = 0);
 
 private:
     TestCase(const TestCase &);
@@ -141,13 +142,14 @@ private:
     void init();
 };
 
-/// Apply the factory on the source and get back the first result or a null pointer.
-QuickFixOperation::Ptr TestCase::getFix(CppQuickFixFactory *factory, CPPEditorWidget *editorWidget)
+/// Apply the factory on the source and get back the resultIndex'th result or a null pointer.
+QuickFixOperation::Ptr TestCase::getFix(CppQuickFixFactory *factory, CPPEditorWidget *editorWidget,
+                                        int resultIndex)
 {
     CppQuickFixInterface qfi(new CppQuickFixAssistInterface(editorWidget, ExplicitlyInvoked));
     TextEditor::QuickFixOperations results;
     factory->match(qfi, results);
-    return results.isEmpty() ? QuickFixOperation::Ptr() : results.first();
+    return results.isEmpty() ? QuickFixOperation::Ptr() : results.at(resultIndex);
 }
 
 /// The '@' in the originalSource is the position from where the quick-fix discovery is triggered.
@@ -271,7 +273,7 @@ QByteArray &removeTrailingWhitespace(QByteArray &input)
     return input;
 }
 
-void TestCase::run(CppQuickFixFactory *factory)
+void TestCase::run(CppQuickFixFactory *factory, int resultIndex)
 {
     // Run the fix in the file having the cursor marker
     TestDocumentPtr testFile;
@@ -281,7 +283,7 @@ void TestCase::run(CppQuickFixFactory *factory)
     }
     QVERIFY2(testFile, "No test file with cursor marker found");
 
-    if (QuickFixOperation::Ptr fix = getFix(factory, testFile->editorWidget))
+    if (QuickFixOperation::Ptr fix = getFix(factory, testFile->editorWidget, resultIndex))
         fix->perform();
     else
         qDebug() << "Quickfix was not triggered";
@@ -879,6 +881,55 @@ void CppPlugin::test_quickfix_InsertDefFromDecl_freeFunction()
     InsertDefFromDecl factory;
     TestCase data(original, expected);
     data.run(&factory);
+}
+
+// Function for one of InsertDeclDef section cases
+void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "class Foo\n"
+        "{\n"
+        "};\n";
+    expected =
+        "class Foo\n"
+        "{\n"
+        + section + ":\n" +
+        "    Foo();\n"
+        "@};\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "\n"
+        "Foo::Foo@()\n"
+        "{\n"
+        "}\n"
+        "\n"
+        ;
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    InsertDeclFromDef factory;
+    TestCase data(testFiles);
+    data.run(&factory, sectionIndex);
+}
+
+/// Check from source file: Insert in header file.
+void CppPlugin::test_quickfix_InsertDeclFromDef()
+{
+    insertToSectionDeclFromDef("public", 0);
+    insertToSectionDeclFromDef("public slots", 1);
+    insertToSectionDeclFromDef("protected", 2);
+    insertToSectionDeclFromDef("protected slots", 3);
+    insertToSectionDeclFromDef("private", 4);
+    insertToSectionDeclFromDef("private slots", 5);
 }
 
 /// Check normal add include if there is already a include

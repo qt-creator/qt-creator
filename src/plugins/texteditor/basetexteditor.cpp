@@ -6210,7 +6210,7 @@ int BaseTextEditorWidget::lineNumberDigits() const
 
 bool BaseTextEditorWidget::selectionVisible(int blockNumber) const
 {
-    Q_UNUSED(blockNumber)
+    Q_UNUSED(blockNumber);
     return true;
 }
 
