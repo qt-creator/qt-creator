@@ -860,7 +860,7 @@ def stripForFormat(typeName):
     qqStripForFormat[typeName] = stripped
     return stripped
 
-def bbsetup(args):
+def bbsetup(args = ''):
     typeCache = {}
     module = sys.modules[__name__]
     for key, value in module.__dict__.items():

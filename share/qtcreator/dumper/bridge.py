@@ -76,8 +76,8 @@ if not gdbLoaded and not cdbLoaded:
 
 
 # One is sufficient.
-if cdbLoaded or gdbLoaded or lldbLoaded:
-    failReasons = []
+#if cdbLoaded or gdbLoaded or lldbLoaded:
+#    failReasons = []
 
 try:
     execfile(os.path.join(currentDir, "dumper.py"))

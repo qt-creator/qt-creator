@@ -316,6 +316,7 @@ void LldbEngine::handleResponse(const LldbResponse &response)
     refreshThreads(all.findChild("threads"));
     refreshTypeInfo(all.findChild("typeinfo"));
     refreshState(all.findChild("state"));
+    refreshLocation(all.findChild("location"));
     refreshModules(all.findChild("modules"));
 }
 
@@ -783,7 +784,7 @@ static bool isEatable(char c)
 void LldbEngine::readLldbStandardOutput()
 {
     QByteArray out = m_lldbProc.readAllStandardOutput();
-    showMessage(_("Lldb stdout: " + out));
+    //showMessage(_("Lldb stdout: " + out));
     qDebug("\nLLDB RAW STDOUT: '%s'", quoteUnprintable(out).constData());
     // Remove embedded backspace characters
     int j = 1;
@@ -843,7 +844,7 @@ void LldbEngine::readLldbStandardOutput()
                 if (m_inbuffer.mid(pos1 + 1).startsWith("stopped")) {
                     m_inbuffer.clear();
                     notifyInferiorSpontaneousStop();
-                    gotoLocation(stackHandler()->currentFrame());
+                    //gotoLocation(stackHandler()->currentFrame());
                     updateAll();
                 } else if (m_inbuffer.mid(pos1 + 1).startsWith("exited")) {
                     m_inbuffer.clear();
@@ -859,7 +860,7 @@ void LldbEngine::handleOutput2(const QByteArray &data)
 {
     LldbResponse response;
     response.data = data;
-    showMessage(_(data));
+    //showMessage(_(data));
     QTC_ASSERT(!m_commands.isEmpty(), qDebug() << "RESPONSE: " << data; return);
     LldbCommand cmd = m_commands.dequeue();
     // FIXME: Find a way to tell LLDB to no echo input.
@@ -962,7 +963,7 @@ GdbMi LldbEngine::parseResultFromString(QByteArray out)
     else
         showMessage(_("JUNK AT END OF RESPONSE: " + out));
 
-    all.fromStringMultiple(out);
+    all.fromString(out);
     return all;
 }
 
@@ -1064,6 +1065,15 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
             notifyInferiorRunOk();
         else if (state() != InferiorStopOk && newState == "stopped")
              notifyInferiorSpontaneousStop();
+    }
+}
+
+void LldbEngine::refreshLocation(const GdbMi &reportedLocation)
+{
+    if (reportedLocation.isValid()) {
+        QByteArray file = reportedLocation.findChild("file").data();
+        int line = reportedLocation.findChild("line").data().toInt();
+        gotoLocation(Location(QString::fromUtf8(file), line));
     }
 }
 

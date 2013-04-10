@@ -121,8 +121,19 @@ def threadsData(options):
     result += "],current-thread-id=\"%s\"}" % lldb.process.selected_thread.id
     return result
 
+# See lldb.StateType
+stateNames = ["invalid", "unloaded", "connected", "attaching", "launching", "stopped",
+    "running", "stepping", "crashed", "detached", "exited", "suspended" ]
+
 def stateData(options):
-    result = "state={},"
+    state = lldb.process.GetState()
+    return "state=\"%s\"," % stateNames[state]
+
+def locationData(options):
+    thread = lldb.process.GetSelectedThread()
+    frame = thread.GetFrameAtIndex(0)
+    return "location={file=\"%s\",line=\"%s\",addr=\"%s\"}," \
+        % (frame.line_entry.file, frame.line_entry.line, frame.pc)
 
 def stackData(options):
     try:
@@ -163,6 +174,8 @@ def updateData(parts, localsOptions, stackOptions, threadOptions):
         result += stackData(parseOptions(stackOptions))
     if parts & 4:
         result += threadsData(parseOptions(threadOptions))
+    result += stateData({})
+    result += locationData({})
     result += "}"
     return result
 
@@ -274,42 +287,57 @@ def handleBreakpoints(stuff):
     result += "]}}"
     return result
 
-def doSomeStep(func)
+def doSync(func):
     lldb.debugger.SetAsync(False)
     func()
     lldb.debugger.SetAsync(True)
+
+def createReport():
     result = "result={"
-    result += "},"
     result += stackData({'threadid': lldb.process.selected_thread.id})
     result += threadsData({})
-    result += stateData()
+    result += stateData({})
+    result += locationData({})
+    result += "}"
     return result
 
-def executeStepNext():
-    return doSomeStep(lldb.thread.StepOver)
+def executeNext():
+    doSync(lldb.thread.StepOver)
+    return createReport()
 
-def executeStepNextI():
-    return doSomeStep(lldb.thread.StepOver)
+def executeNextI():
+    doSync(lldb.thread.StepOver)
+    return createReport()
 
 def executeStep():
-    return doSomeStep(lldb.thread.Step)
+    doSync(lldb.thread.Step)
+    return createReport()
 
 def executeStepI():
-    return doSomeStep(lldb.thread.StepInstOver)
+    doSync(lldb.thread.StepInstOver)
+    return createReport()
 
 def executeStepOut():
-    return doSomeStep(lldb.thread.StepOut)
+    doSync(lldb.thread.StepOut)
+    return createReport()
 
-def executeInterrupt():
-    return doSomeStep(lldb.process.Stop)
+def executeRunToLine():
+    return "result={error={msg='Not implemented'}}"
 
 def executeJumpToLine():
-    return doSomeStep(lldb.process.Stop)
+    return "result={error={msg='Not implemented'}}"
+
+def continueInferior():
+    #lldb.debugger.HandleCommand("process continue")
+    lldb.process.Continue()
+    return "result={state='running'}"
 
 def interruptInferior():
-    #lldb.process.Continue()
-    lldb.debugger.HandleCommand("process continue")
-    return "result={}"
+    lldb.debugger.SetAsync(False)
+    lldb.process.Stop()
+    #lldb.process.SendAsyncInterrupt()
+    lldb.debugger.SetAsync(True)
+    return createReport()
 
 def setupInferior(fileName):
     lldb.debugger.HandleCommand("target create '%s'" % fileName)
@@ -373,4 +401,4 @@ if False:
                 + "pcoffset='${function.pc-offset}',"
                 + "stopreason='${thread.stop-reason}'"
                 #+ "returnvalue='${thread.return-value}'"
-                + "\},"
+                + "\},")

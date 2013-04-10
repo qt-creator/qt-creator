@@ -132,6 +132,7 @@ private:
     void refreshLocals(const GdbMi &vars);
     void refreshTypeInfo(const GdbMi &typeInfo);
     void refreshState(const GdbMi &state);
+    void refreshLocation(const GdbMi &location);
     void refreshModules(const GdbMi &modules);
 
     enum DataKind { LocalsData = 1, StackData = 2, ThreadData = 4 };
