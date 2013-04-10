@@ -124,7 +124,7 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
             }
         }
 
-        if (!model()->imports().contains(newImport))
+        if (!model()->hasImport(newImport, true, true))
             model()->changeImports(QList<Import>() << newImport, QList<Import>());
 
         QList<QPair<PropertyName, QVariant> > propertyPairList;
@@ -140,8 +140,13 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
         }
 
         propertyPairList.append(qMakePair(PropertyName("source"), QVariant(relativeImageName)));
-        newNode = createQmlItemNode("QtQuick.Image", -1, -1, propertyPairList);
-        parentNode.nodeAbstractProperty("data").reparentHere(newNode);
+        NodeMetaInfo metaInfo = model()->metaInfo("QtQuick.Image");
+        if (metaInfo.isValid()) {
+            int minorVersion = metaInfo.minorVersion();
+            int majorVersion = metaInfo.majorVersion();
+            newNode = createQmlItemNode("QtQuick.Image", majorVersion, minorVersion, propertyPairList);
+            parentNode.nodeAbstractProperty("data").reparentHere(newNode);
+        }
 
         Q_ASSERT(newNode.isValid());
 
