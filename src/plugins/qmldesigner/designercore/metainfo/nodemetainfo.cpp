@@ -593,7 +593,7 @@ const QmlJS::CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() cons
             return cppValue;
     }
 
-    return 0;
+    return value_cast<CppComponentValue>(getObjectValue());
 }
 
 const QmlJS::ObjectValue *NodeMetaInfoPrivate::getObjectValue() const
