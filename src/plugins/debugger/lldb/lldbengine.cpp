@@ -109,7 +109,6 @@ LldbEngine::LldbEngine(const DebuggerStartParameters &startParameters)
     : DebuggerEngine(startParameters)
 {
     setObjectName(QLatin1String("LldbEngine"));
-    m_pythonAttemptedToLoad = false;
 }
 
 LldbEngine::~LldbEngine()
@@ -211,52 +210,22 @@ void LldbEngine::setupEngine()
         return;
     }
 
-    loadPythonDumpers();
-    postCommand("setting set auto-confirm on");
-    postCommand("setting set interpreter.prompt-on-quit off");
+    postCommand("script execfile('" +
+        Core::ICore::resourcePath().toLocal8Bit() + "/dumper/bridge.py')",
+                CB(handleSetupEngine));
+}
 
-#if 0
-    // Default:
-    // frame-format (string) = "frame #${frame.index}: ${frame.pc}
-    // { ${module.file.basename}{`${function.name-with-args}${function.pc-offset}}}
-    // { at ${line.file.basename}:${line.number}}\n"
-    postCommand("settings set frame-format frame=\\{"
-                "index='${frame.index}',"
-                "pc='${frame.pc}',"
-                "module='${module.file.basename}',"
-                //"function='${function.name-with-args}',"
-                "function='${function.name}',"
-                "pcoffset='${function.pc-offset}',"
-                "file='${line.file.basename}',"
-                "line='${line.number}'"
-                "\\},");
-
-
-    // Default:
-    // "thread #${thread.index}: tid = ${thread.id}{, ${frame.pc}}
-    // { ${module.file.basename}{`${function.name-with-args}${function.pc-offset}}}
-    // { at ${line.file.basename}:${line.number}}
-    // {, stop reason = ${thread.stop-reason}}{\nReturn value: ${thread.return-value}}\n"
-    postCommand("settings set thread-format thread=\\{"
-                "index='${thread.index}',"
-                "tid='${thread.id}',"
-                "framepc='${frame.pc}',"
-                "module='${module.file.basename}',"
-                "function='${function.name}',"
-                "pcoffset='${function.pc-offset}',"
-                "stopreason='${thread.stop-reason}'"
-                //"returnvalue='${thread.return-value}'"
-                "\\},");
-#endif
-
+void LldbEngine::handleSetupEngine(const LldbResponse &response)
+{
+    Q_UNUSED(response);
     notifyEngineSetupOk();
 }
 
 void LldbEngine::setupInferior()
 {
-    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     QString fileName = QFileInfo(startParameters().executable).absoluteFilePath();
-    postCommand("target create " + fileName.toUtf8(), CB(handleInferiorSetup));
+    postCommand("script setupInferior('" + fileName.toUtf8() + "')",
+        CB(handleInferiorSetup));
 }
 
 void LldbEngine::handleInferiorSetup(const LldbResponse &response)
@@ -275,7 +244,7 @@ void LldbEngine::runEngine()
 void LldbEngine::runEngine2()
 {
     showStatusMessage(tr("Running requested..."), 5000);
-    postCommand("process launch", CB(handleRunEngine));
+    postCommand("script runEngine()", CB(handleRunEngine));
 }
 
 void LldbEngine::handleRunEngine(const LldbResponse &response)
@@ -287,87 +256,91 @@ void LldbEngine::handleRunEngine(const LldbResponse &response)
 void LldbEngine::interruptInferior()
 {
     showStatusMessage(tr("Interrupt requested..."), 5000);
-    //postCommand("process interrupt", CB(handleInferiorInterrupt));
-    postCommand("script doInterrupt()", CB(handleInferiorInterrupt));
+    postCommand("script interruptInferior()", CB(handleInferiorInterrupt));
 }
 
 void LldbEngine::handleInferiorInterrupt(const LldbResponse &response)
 {
     Q_UNUSED(response);
-}
-
-void LldbEngine::handleContinue(const LldbResponse &response)
-{
-    Q_UNUSED(response);
-    notifyInferiorRunOk();
+    notifyInferiorStopOk();
 }
 
 void LldbEngine::executeStep()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    postCommand("script doStep()", CB(handleStepOver));
+    postCommand("script executeStep()", CB(handleResponse));
 }
 
 void LldbEngine::executeStepI()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    postCommand("script doStepInst()", CB(handleStepOver));
+    postCommand("script executeStepI()", CB(handleResponse));
 }
 
 void LldbEngine::executeStepOut()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    postCommand("script doStepOut()", CB(handleStepOver));
+    postCommand("script executeStepOut()", CB(handleResponse));
 }
 
 void LldbEngine::executeNext()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    postCommand("script doStepOver()", CB(handleStepOver));
+    postCommand("script executeNext()", CB(handleResponse));
 }
 
 void LldbEngine::executeNextI()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    postCommand("script doStepInstOver()", CB(handleStepOver));
+    postCommand("script executeStepNextI()", CB(handleResponse));
 }
 
 void LldbEngine::continueInferior()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    postCommand("process continue", CB(handleContinue));
+    postCommand("script continueInferior()", CB(handleResponse));
 }
 
-void LldbEngine::handleStepOver(const LldbResponse &response)
+void LldbEngine::handleResponse(const LldbResponse &response)
 {
-    GdbMi all = parseFromString(response.data, "result");
-    refreshAll(all);
-    notifyInferiorRunOk();
-    notifyInferiorSpontaneousStop();
+    GdbMi all = parseResultFromString(response.data);
+
+    refreshLocals(all.findChild("data"));
+    refreshStack(all.findChild("stack"));
+    refreshThreads(all.findChild("threads"));
+    refreshTypeInfo(all.findChild("typeinfo"));
+    refreshState(all.findChild("state"));
+    refreshModules(all.findChild("modules"));
 }
 
 void LldbEngine::executeRunToLine(const ContextData &data)
 {
-    Q_UNUSED(data)
-    SDEBUG("FIXME:  LldbEngine::runToLineExec()");
+    resetLocation();
+    notifyInferiorRunRequested();
+    postCommand("script executeRunToLine(" + QByteArray::number(data.address)
+            + ',' + data.fileName.toUtf8() + ')', CB(handleResponse));
 }
 
 void LldbEngine::executeRunToFunction(const QString &functionName)
 {
-    Q_UNUSED(functionName)
-    XSDEBUG("FIXME:  LldbEngine::runToFunctionExec()");
+    resetLocation();
+    notifyInferiorRunRequested();
+    postCommand("script executeRunToFuntion(" + functionName.toUtf8() + ')',
+                CB(handleResponse));
 }
 
 void LldbEngine::executeJumpToLine(const ContextData &data)
 {
-    Q_UNUSED(data)
-    XSDEBUG("FIXME:  LldbEngine::jumpToLineExec()");
+    resetLocation();
+    notifyInferiorRunRequested();
+    postCommand("script executeJumpToLine(" + QByteArray::number(data.address)
+            + ',' + data.fileName.toUtf8() + ')', CB(handleResponse));
 }
 
 void LldbEngine::activateFrame(int frameIndex)
@@ -376,14 +349,14 @@ void LldbEngine::activateFrame(int frameIndex)
     if (state() != InferiorStopOk && state() != InferiorUnrunnable)
         return;
 
-    postCommand("frame select " + QByteArray::number(frameIndex),
-        CB(triggerUpdateAll));
+    postCommand("script activateFrame(" + QByteArray::number(frameIndex) + ')',
+        CB(handleResponse));
 }
 
 void LldbEngine::selectThread(ThreadId threadId)
 {
-    postCommand("thread select " + QByteArray::number(threadId.raw()),
-        CB(triggerUpdateAll));
+    postCommand("script selectThread(" + QByteArray::number(threadId.raw()) + ')',
+        CB(handleResponse));
 }
 
 bool LldbEngine::acceptsBreakpoint(BreakpointModelId id) const
@@ -550,7 +523,7 @@ void LldbEngine::updateBreakpointData(const GdbMi &bkpt, bool added)
 void LldbEngine::handleBreakpointsSynchronized(const LldbResponse &response)
 {
     BreakHandler *handler = breakHandler();
-    GdbMi all = parseFromString(response.data, "bkpts");
+    GdbMi all = parseResultFromString(response.data);
     GdbMi bkpts = all.findChild("bkpts");
     GdbMi added = bkpts.findChild("added");
     GdbMi changed = bkpts.findChild("changed");
@@ -587,15 +560,13 @@ void LldbEngine::loadAllSymbols()
 
 void LldbEngine::reloadModules()
 {
-    postCommand("script listModules()", CB(handleListModules));
+    postCommand("script listModules()", CB(handleResponse));
 }
 
-void LldbEngine::handleListModules(const LldbResponse &response)
+void LldbEngine::refreshModules(const GdbMi &modules)
 {
-    GdbMi all = parseFromString(response.data, "modules");
-    GdbMi mods = all.findChild("modules");
-    Modules modules;
-    foreach (const GdbMi &item, mods.children()) {
+    Modules mods;
+    foreach (const GdbMi &item, modules.children()) {
         Module module;
         module.modulePath = QString::fromUtf8(item.findChild("file").data());
         module.moduleName = QString::fromUtf8(item.findChild("name").data());
@@ -604,14 +575,14 @@ void LldbEngine::handleListModules(const LldbResponse &response)
         //    item.findChild("loaded_addr").data().toULongLong(0, 0);
         module.endAddress = 0; // FIXME: End address not easily available.
         //modulesHandler()->updateModule(module);
-        modules.append(module);
+        mods.append(module);
     }
-    modulesHandler()->setModules(modules);
+    modulesHandler()->setModules(mods);
 }
 
 void LldbEngine::requestModuleSymbols(const QString &moduleName)
 {
-    postCommand("target module list",
+    postCommand("script requestModuleSymbols(" + moduleName.toUtf8() + ')',
         CB(handleListSymbols), moduleName);
 }
 
@@ -629,12 +600,12 @@ void LldbEngine::handleListSymbols(const LldbResponse &response)
    debuggerCore()->showModuleSymbols(moduleName, symbols);
 }
 
+
 //////////////////////////////////////////////////////////////////////
 //
 // Tooltip specific stuff
 //
 //////////////////////////////////////////////////////////////////////
-
 
 static WatchData m_toolTip;
 static QPoint m_toolTipPos;
@@ -911,12 +882,6 @@ void LldbEngine::handleFirstCommand(const LldbResponse &response)
     Q_UNUSED(response);
 }
 
-void LldbEngine::triggerUpdateAll(const LldbResponse &response)
-{
-    Q_UNUSED(response);
-    updateAll();
-}
-
 void LldbEngine::updateAll()
 {
     updateData(DataKind(LocalsData | StackData | ThreadData));
@@ -972,14 +937,14 @@ void LldbEngine::updateData(DataKind kind)
             + '\'' + localsOptions + "',"
             + '\'' + stackOptions + "',"
             + '\'' + threadsOptions + "')",
-                CB(handleUpdateData));
+                CB(handleResponse));
 }
 
-GdbMi LldbEngine::parseFromString(QByteArray out, const QByteArray &firstTopLevel)
+GdbMi LldbEngine::parseResultFromString(QByteArray out)
 {
     GdbMi all;
 
-    int pos = out.indexOf(firstTopLevel + "=");
+    int pos = out.indexOf("result=");
     if (pos == -1) {
         showMessage(_("UNEXPECTED LOCALS OUTPUT:" + out));
         return all;
@@ -999,36 +964,6 @@ GdbMi LldbEngine::parseFromString(QByteArray out, const QByteArray &firstTopLeve
 
     all.fromStringMultiple(out);
     return all;
-}
-
-void LldbEngine::handleUpdateData(const LldbResponse &response)
-{
-    //qDebug() << " LOCALS: '" << response.data << "'";
-    GdbMi all = parseFromString(response.data, "data");
-    refreshAll(all);
-}
-
-void LldbEngine::refreshAll(const GdbMi &all)
-{
-
-    refreshLocals(all.findChild("data"));
-    refreshStack(all.findChild("stack"));
-    refreshThreads(all.findChild("threads"));
-//    const GdbMi typeInfo = all.findChild("typeinfo");
-//    if (typeInfo.type() == GdbMi::List) {
-//        foreach (const GdbMi &s, typeInfo.children()) {
-//            const GdbMi name = s.findChild("name");
-//            const GdbMi size = s.findChild("size");
-//            if (name.isValid() && size.isValid())
-//                m_typeInfoCache.insert(QByteArray::fromBase64(name.data()),
-//                                       TypeInfo(size.data().toUInt()));
-//        }
-//    }
-//    for (int i = 0; i != list.size(); ++i) {
-//        const TypeInfo ti = m_typeInfoCache.value(list.at(i).type);
-//        if (ti.size)
-//            list[i].size = ti.size;
-//    }
 }
 
 void LldbEngine::refreshLocals(const GdbMi &vars)
@@ -1103,16 +1038,33 @@ void LldbEngine::refreshThreads(const GdbMi &threads)
     updateViews(); // Adjust Threads combobox.
 }
 
-void LldbEngine::loadPythonDumpers()
+void LldbEngine::refreshTypeInfo(const GdbMi &typeInfo)
 {
-    if (m_pythonAttemptedToLoad)
-        return;
-    m_pythonAttemptedToLoad = true;
+    if (typeInfo.type() == GdbMi::List) {
+//        foreach (const GdbMi &s, typeInfo.children()) {
+//            const GdbMi name = s.findChild("name");
+//            const GdbMi size = s.findChild("size");
+//            if (name.isValid() && size.isValid())
+//                m_typeInfoCache.insert(QByteArray::fromBase64(name.data()),
+//                                       TypeInfo(size.data().toUInt()));
+//        }
+    }
+//    for (int i = 0; i != list.size(); ++i) {
+//        const TypeInfo ti = m_typeInfoCache.value(list.at(i).type);
+//        if (ti.size)
+//            list[i].size = ti.size;
+//    }
+}
 
-    const QByteArray dumperSourcePath =
-        Core::ICore::resourcePath().toLocal8Bit() + "/dumper/";
-
-    postCommand("script execfile('" + dumperSourcePath + "bridge.py')");
+void LldbEngine::refreshState(const GdbMi &reportedState)
+{
+    if (reportedState.isValid()) {
+        QByteArray newState = reportedState.data();
+        if (state() == InferiorRunRequested && newState == "running")
+            notifyInferiorRunOk();
+        else if (state() != InferiorStopOk && newState == "stopped")
+             notifyInferiorSpontaneousStop();
+    }
 }
 
 bool LldbEngine::hasCapability(unsigned cap) const
@@ -1124,7 +1076,6 @@ DebuggerEngine *createLldbEngine(const DebuggerStartParameters &startParameters)
 {
     return new LldbEngine(startParameters);
 }
-
 
 } // namespace Internal
 } // namespace Debugger

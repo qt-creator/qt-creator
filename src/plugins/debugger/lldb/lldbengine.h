@@ -110,7 +110,7 @@ private:
     void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
 
     void performContinuation();
-    void handleStepOver(const LldbResponse &response);
+    void handleResponse(const LldbResponse &response);
 
 signals:
     void outputReady(const QByteArray &data);
@@ -124,25 +124,26 @@ private:
     Q_SLOT void readLldbStandardOutput();
     Q_SLOT void readLldbStandardError();
     Q_SLOT void handleOutput2(const QByteArray &data);
+    void handleSetupEngine(const LldbResponse &response);
     void handleResponse(const QByteArray &ba);
     void refreshAll(const GdbMi &all);
     void refreshThreads(const GdbMi &threads);
     void refreshStack(const GdbMi &stack);
     void refreshLocals(const GdbMi &vars);
+    void refreshTypeInfo(const GdbMi &typeInfo);
+    void refreshState(const GdbMi &state);
+    void refreshModules(const GdbMi &modules);
 
     enum DataKind { LocalsData = 1, StackData = 2, ThreadData = 4 };
 
-    void loadPythonDumpers();
     void updateAll();
     void updateData(DataKind kind);
-    void triggerUpdateAll(const LldbResponse &response);
     void handleUpdateData(const LldbResponse &response);
     void handleFirstCommand(const LldbResponse &response);
     void handleExecuteDebuggerCommand(const LldbResponse &response);
     void handleInferiorSetup(const LldbResponse &response);
     void handleRunEngine(const LldbResponse &response);
     void handleInferiorInterrupt(const LldbResponse &response);
-    void handleContinue(const LldbResponse &response);
 
     typedef void (LldbEngine::*LldbCommandCallback)
         (const LldbResponse &response);
@@ -175,7 +176,7 @@ private:
                      const char *callbackName = 0,
                      const QVariant &cookie = QVariant());
     void postDirectCommand(const QByteArray &command);
-    GdbMi parseFromString(QByteArray out, const QByteArray &firstTopLevel);
+    GdbMi parseResultFromString(QByteArray out);
 
     QQueue<LldbCommand> m_commands;
     QStack<LldbCommandContinuation> m_continuations;
@@ -184,7 +185,6 @@ private:
     QString m_scriptFileName;
     QProcess m_lldbProc;
     QString m_lldb;
-    bool m_pythonAttemptedToLoad;
 };
 
 } // namespace Internal

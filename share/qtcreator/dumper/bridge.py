@@ -53,7 +53,6 @@ if False:
     try:
         import cdb_bridge
         cdbLoaded = True
-
     except:
         failReasons.append(traceback.format_exc())
 
@@ -61,8 +60,8 @@ if False:
 if not cdbLoaded:
     try:
         import gdb
-        gdbLoaded = True
         execfile(os.path.join(currentDir, "gbridge.py"))
+        gdbLoaded = True
     except:
         failReasons.append(traceback.format_exc())
 
