@@ -235,17 +235,22 @@ bool AndroidManager::ensureIconAttribute(ProjectExplorer::Target *target)
 
 QString AndroidManager::targetSDK(ProjectExplorer::Target *target)
 {
+    QString fallback = QLatin1String("android-8");
+    if (QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target->kit()))
+        if (qt->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0))
+            fallback = QLatin1String("android-9");
+
     if (!createAndroidTemplatesIfNecessary(target))
-        return AndroidConfigurations::instance().bestMatch(QLatin1String("android-8"));
+        return AndroidConfigurations::instance().bestMatch(fallback);
     QFile file(defaultPropertiesPath(target).toString());
     if (!file.open(QIODevice::ReadOnly))
-        return AndroidConfigurations::instance().bestMatch(QLatin1String("android-8"));
+        return AndroidConfigurations::instance().bestMatch(fallback);
     while (!file.atEnd()) {
         QByteArray line = file.readLine();
         if (line.startsWith("target="))
             return QString::fromLatin1(line.trimmed().mid(7));
     }
-    return AndroidConfigurations::instance().bestMatch(QLatin1String("android-8"));
+    return AndroidConfigurations::instance().bestMatch(fallback);
 }
 
 bool AndroidManager::setTargetSDK(ProjectExplorer::Target *target, const QString &sdk)
@@ -534,12 +539,18 @@ bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *
     if (!androidFiles.isEmpty())
         qt4Project->rootProjectNode()->addFiles(ProjectExplorer::UnknownFileType, androidFiles);
 
-    QStringList sdks = AndroidConfigurations::instance().sdkTargets();
+    int minApiLevel = 4;
+    if (QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target->kit()))
+        if (qt->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0))
+            minApiLevel = 9;
+
+    QStringList sdks = AndroidConfigurations::instance().sdkTargets(minApiLevel);
     if (sdks.isEmpty()) {
         raiseError(tr("No Qt for Android SDKs were found.\nPlease install at least one SDK."));
         return false;
     }
-    updateTarget(target, AndroidConfigurations::instance().sdkTargets().at(0));
+
+    updateTarget(target, AndroidConfigurations::instance().sdkTargets(minApiLevel).at(0));
     QStringList apps = availableTargetApplications(target);
     if (!apps.isEmpty())
         setTargetApplication(target, apps.at(0));

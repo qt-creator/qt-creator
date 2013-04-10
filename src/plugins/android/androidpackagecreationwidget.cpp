@@ -50,6 +50,8 @@
 #include <QFileDialog>
 #include <QFileSystemWatcher>
 #include <QMessageBox>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
 
 namespace Android {
 namespace Internal {
@@ -278,7 +280,13 @@ void AndroidPackageCreationWidget::updateAndroidProjectInfo()
     ProjectExplorer::Target *target = m_step->target();
     const QString packageName = AndroidManager::packageName(target);
     m_ui->targetSDKComboBox->clear();
-    QStringList targets = AndroidConfigurations::instance().sdkTargets();
+
+    int minApiLevel = 4;
+    if (QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target->kit()))
+        if (qt->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0))
+            minApiLevel = 9;
+
+    QStringList targets = AndroidConfigurations::instance().sdkTargets(minApiLevel);
     m_ui->targetSDKComboBox->addItems(targets);
     m_ui->targetSDKComboBox->setCurrentIndex(targets.indexOf(AndroidManager::targetSDK(target)));
     m_ui->packageNameLineEdit->setText(packageName);
