@@ -69,7 +69,6 @@ ${staging}/gdb-${version}/configure: ${source}/gdb-${version}.tar.bz2 | makestag
 	touch configure && \
         patch -p2 < ${broot}/patches/pythonhome-7.4.patch && \
         patch -p1 < ${broot}/patches/gdb-ipv6.patch && \
-        patch -p1 < ${broot}/patches/gdb-work-around-trk-single-step.patch
 
 ${gdbtargets}: ${targetdir}/gdb-%: ${staging}/gdb-${version}/configure ${staging}/lib/libpython${pyversion}.a ${staging}/lib/libexpat.a | maketargetdir
 	test -e ${staging}/gdb-${version}-$* || mkdir ${staging}/gdb-${version}-$*
