@@ -116,7 +116,16 @@ private:
                                          CPPEditor *editor, const Actions &tokenActions);
 
     static void undoAllChangesAndCloseAllEditors();
+
+    /// This function expects:
+    /// (1) Only Qt4 projects are loaded (qmake in PATH should point to Qt4/bin).
+    /// (2) No *.pro.user file exists for the projects.
+    static void configureAllProjects(const QList<QPointer<ProjectExplorer::Project> > &projects);
+
+    static bool allProjectsConfigured;
 };
+
+bool TestActionsTestCase::allProjectsConfigured = false;
 
 typedef TestActionsTestCase::Actions Actions;
 typedef TestActionsTestCase::ActionPointer ActionPointer;
@@ -128,15 +137,25 @@ void TestActionsTestCase::run(const Actions &tokenActions, const Actions &fileAc
 
     // Collect files to process
     QStringList filesToOpen;
+    QList<QPointer<ProjectExplorer::Project> > projects;
     const QList<CppModelManagerInterface::ProjectInfo> projectInfos = mm->projectInfos();
     if (projectInfos.isEmpty())
         MSKIP_SINGLE("No project(s) loaded. Test operates only on loaded projects.");
 
     foreach (const CppModelManagerInterface::ProjectInfo &info, projectInfos) {
+        QPointer<ProjectExplorer::Project> project = info.project();
+        if (!projects.contains(project))
+            projects << project;
         qDebug() << "Project" << info.project()->displayName() << "- files to process:"
                  << info.sourceFiles().size();
         foreach (const QString &sourceFile, info.sourceFiles())
             filesToOpen << sourceFile;
+    }
+
+    // Configure all projects on first execution of this function (= very first test)
+    if (!TestActionsTestCase::allProjectsConfigured) {
+        configureAllProjects(projects);
+        TestActionsTestCase::allProjectsConfigured = true;
     }
 
     qSort(filesToOpen);
@@ -286,6 +305,15 @@ void TestActionsTestCase::undoAllChangesAndCloseAllEditors()
     em->closeAllEditors(/*askAboutModifiedEditors =*/ false);
     QApplication::processEvents();
     QCOMPARE(em->openedEditors().size(), 0);
+}
+
+void TestActionsTestCase::configureAllProjects(const QList<QPointer<ProjectExplorer::Project> >
+                                               &projects)
+{
+    foreach (const QPointer<ProjectExplorer::Project> &project, projects) {
+        qDebug() << "*** Configuring project" << project->displayName();
+        project->configureAsExampleProject(QStringList());
+    }
 }
 
 class NoOpTokenAction : public TestActionsTestCase::AbstractAction
