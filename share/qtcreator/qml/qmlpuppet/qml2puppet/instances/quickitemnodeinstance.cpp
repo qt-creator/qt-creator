@@ -448,7 +448,7 @@ void QuickItemNodeInstance::refresh()
     repositioning(quickItem());
 }
 
-void doComponentCompleteRecursive(QQuickItem *item)
+static void doComponentCompleteRecursive(QQuickItem *item)
 {
     if (item) {
         if (DesignerSupport::isComponentComplete(item))
