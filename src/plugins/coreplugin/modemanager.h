@@ -66,9 +66,12 @@ public:
     static void addWidget(QWidget *widget);
 
     static void activateModeType(Id type);
-    static void setModeBarHidden(bool hidden);
     static void activateMode(Id id);
     static void setFocusToCurrentMode();
+    static bool isModeSelectorVisible();
+
+public slots:
+    void setModeSelectorVisible(bool visible);
 
 signals:
     void currentModeAboutToChange(Core::IMode *mode);

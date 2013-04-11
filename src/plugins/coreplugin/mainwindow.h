@@ -216,6 +216,7 @@ private:
     QAction *m_exitAction;
     QAction *m_optionsAction;
     QAction *m_toggleSideBarAction;
+    QAction *m_toggleModeSelectorAction;
     QAction *m_toggleFullScreenAction;
     QAction *m_minimizeAction;
     QAction *m_zoomAction;

@@ -98,6 +98,7 @@ const char EXIT[]                  = "QtCreator.Exit";
 
 const char OPTIONS[]               = "QtCreator.Options";
 const char TOGGLE_SIDEBAR[]        = "QtCreator.ToggleSidebar";
+const char TOGGLE_MODE_SELECTOR[]  = "QtCreator.ToggleModeSelector";
 const char TOGGLE_FULLSCREEN[]     = "QtCreator.ToggleFullScreen";
 
 const char MINIMIZE_WINDOW[]       = "QtCreator.MinimizeWindow";

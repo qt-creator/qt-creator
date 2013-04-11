@@ -427,8 +427,14 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     connect(m_tabBar, SIGNAL(currentChanged(int)), this, SLOT(showWidget(int)));
 }
 
-void FancyTabWidget::setSelectionWidgetHidden(bool hidden) {
-    m_selectionWidget->setHidden(hidden);
+void FancyTabWidget::setSelectionWidgetVisible(bool visible)
+{
+    m_selectionWidget->setVisible(visible);
+}
+
+bool FancyTabWidget::isSelectionWidgetVisible() const
+{
+    return m_selectionWidget->isVisible();
 }
 
 void FancyTabWidget::insertTab(int index, QWidget *tab, const QIcon &icon, const QString &label)
@@ -456,17 +462,19 @@ void FancyTabWidget::setBackgroundBrush(const QBrush &brush)
 void FancyTabWidget::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
-    QPainter painter(this);
+    if (m_selectionWidget->isVisible()) {
+        QPainter painter(this);
 
-    QRect rect = m_selectionWidget->rect().adjusted(0, 0, 1, 0);
-    rect = style()->visualRect(layoutDirection(), geometry(), rect);
-    Utils::StyleHelper::verticalGradient(&painter, rect, rect);
-    painter.setPen(Utils::StyleHelper::borderColor());
-    painter.drawLine(rect.topRight(), rect.bottomRight());
+        QRect rect = m_selectionWidget->rect().adjusted(0, 0, 1, 0);
+        rect = style()->visualRect(layoutDirection(), geometry(), rect);
+        Utils::StyleHelper::verticalGradient(&painter, rect, rect);
+        painter.setPen(Utils::StyleHelper::borderColor());
+        painter.drawLine(rect.topRight(), rect.bottomRight());
 
-    QColor light = Utils::StyleHelper::sidebarHighlight();
-    painter.setPen(light);
-    painter.drawLine(rect.bottomLeft(), rect.bottomRight());
+        QColor light = Utils::StyleHelper::sidebarHighlight();
+        painter.setPen(light);
+        painter.drawLine(rect.bottomLeft(), rect.bottomRight());
+    }
 }
 
 void FancyTabWidget::insertCornerWidget(int pos, QWidget *widget)
