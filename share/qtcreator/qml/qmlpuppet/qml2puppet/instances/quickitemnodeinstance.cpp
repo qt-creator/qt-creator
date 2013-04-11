@@ -278,8 +278,6 @@ static void disableTextCursor(QQuickItem *item)
 
 void QuickItemNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance)
 {
-    disableTextCursor(quickItem());
-
     if (instanceId() == 0) {
         DesignerSupport::setRootItem(nodeInstanceServer()->quickView(), quickItem());
     } else {
@@ -464,6 +462,8 @@ static void doComponentCompleteRecursive(QQuickItem *item)
 void QuickItemNodeInstance::doComponentComplete()
 {
     doComponentCompleteRecursive(quickItem());
+
+    disableTextCursor(quickItem());
 
     quickItem()->update();
 }
