@@ -4952,7 +4952,7 @@ void GdbEngine::tryLoadPythonDumpers()
     const QByteArray dumperSourcePath =
         Core::ICore::resourcePath().toLocal8Bit() + "/dumper/";
 
-    postCommand("python execfile('" + dumperSourcePath + "bridge.py')",
+    postCommand("python execfile('" + dumperSourcePath + "gbridge.py')",
         ConsoleCommand, CB(handlePythonSetup));
 }
 
