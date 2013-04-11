@@ -32,6 +32,7 @@
 #include "buildconfiguration.h"
 #include "environmentaspectwidget.h"
 #include "localapplicationrunconfiguration.h"
+#include "kit.h"
 #include "target.h"
 
 #include <utils/qtcassert.h>
@@ -65,8 +66,12 @@ Utils::Environment LocalEnvironmentAspect::baseEnvironment() const
     int base = baseEnvironmentBase();
     Utils::Environment env;
     if (base == static_cast<int>(BuildEnvironmentBase)) {
-        if (BuildConfiguration *bc = runConfiguration()->target()->activeBuildConfiguration())
+        if (BuildConfiguration *bc = runConfiguration()->target()->activeBuildConfiguration()) {
             env = bc->environment();
+        } else { // Fallback for targets without buildconfigurations:
+            env = Utils::Environment::systemEnvironment();
+            runConfiguration()->target()->kit()->addToEnvironment(env);
+        }
     } else if (base == static_cast<int>(SystemEnvironmentBase)) {
         env = Utils::Environment::systemEnvironment();
     }
