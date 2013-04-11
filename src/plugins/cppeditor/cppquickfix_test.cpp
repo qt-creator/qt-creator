@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "cppeditor.h"
-#include "cppinsertdecldef.h"
 #include "cppplugin.h"
 #include "cppquickfixassistant.h"
 #include "cppquickfixes.h"

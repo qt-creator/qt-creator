@@ -120,12 +120,6 @@ private:
     friend class FunctionDeclDefLinkFinder;
 };
 
-class ApplyDeclDefLinkChanges: public CppQuickFixFactory
-{
-public:
-    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
-};
-
 } // namespace Internal
 } // namespace CppEditor
 

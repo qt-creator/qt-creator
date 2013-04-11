@@ -10,13 +10,10 @@ HEADERS += cppplugin.h \
     cppeditor_global.h \
     cppclasswizard.h \
     cppoutline.h \
-    cppinsertdecldef.h \
     cpptypehierarchy.h \
     cppelementevaluator.h \
     cppautocompleter.h \
-    cppcompleteswitch.h \
     cppsnippetprovider.h \
-    cppinsertqtpropertymembers.h \
     cppquickfixassistant.h \
     cppquickfix.h \
     cppquickfixes.h \
@@ -30,13 +27,10 @@ SOURCES += cppplugin.cpp \
     cppclasswizard.cpp \
     cppquickfixes.cpp \
     cppoutline.cpp \
-    cppinsertdecldef.cpp \
     cpptypehierarchy.cpp \
     cppelementevaluator.cpp \
     cppautocompleter.cpp \
-    cppcompleteswitch.cpp \
     cppsnippetprovider.cpp \
-    cppinsertqtpropertymembers.cpp \
     cppquickfixassistant.cpp \
     cppquickfix.cpp \
     cppfunctiondecldeflink.cpp

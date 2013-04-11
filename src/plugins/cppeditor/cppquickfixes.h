@@ -230,6 +230,10 @@ public:
                                   Type *type,
                                   QByteArray *enclosingFunction = 0,
                                   CallAST **enclosingFunctionCall = 0);
+
+private:
+    static QString msgQtStringLiteralDescription(const QString &replacement, int qtVersion);
+    static QString msgQtStringLiteralDescription(const QString &replacement);
 };
 
 /*!
@@ -385,6 +389,69 @@ class ReformatPointerDeclaration : public CppQuickFixFactory
 {
 public:
     void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+};
+
+/*!
+  Adds missing case statements for "switch (enumVariable)"
+ */
+class CompleteSwitchCaseStatement: public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+};
+
+/*!
+  Adds a declarations to a definition
+ */
+class InsertDeclFromDef: public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+};
+
+/*!
+  Adds a definition for a declaration.
+ */
+class InsertDefFromDecl: public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+};
+
+/*!
+  Extracts the selected code and puts it to a function
+ */
+class ExtractFunction : public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+};
+
+/*!
+  Adds getter and setter functions for a member variable
+ */
+class GenerateGetterSetter : public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+};
+
+/*!
+  Adds missing members for a Q_PROPERTY
+ */
+class InsertQtPropertyMembers : public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+};
+
+/*!
+ Applies function signature changes
+ */
+class ApplyDeclDefLinkChanges: public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
 };
 
 } // namespace Internal
