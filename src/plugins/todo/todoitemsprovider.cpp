@@ -108,7 +108,7 @@ void TodoItemsProvider::createScanners()
 void TodoItemsProvider::setItemsListWithinStartupProject()
 {
     QHashIterator<QString, QList<TodoItem> > it(m_itemsHash);
-    QStringList fileNames = m_startupProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
+    QSet<QString> fileNames = QSet<QString>::fromList(m_startupProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles));
     while (it.hasNext()) {
         it.next();
         if (fileNames.contains(it.key()))

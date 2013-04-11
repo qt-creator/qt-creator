@@ -230,10 +230,21 @@ QString QmlTextGenerator::propertyToQml(const AbstractProperty &property, int in
 {
     QString result;
 
-    if (property.isDefaultProperty())
+    if (property.isDefaultProperty()) {
         result = toQml(property, indentDepth);
-    else
-        result = QString(indentDepth, QLatin1Char(' ')) + property.name() + QLatin1String(": ") + toQml(property, indentDepth);
+    } else {
+        if (property.isDynamic()) {
+            result = QString(indentDepth, QLatin1Char(' '))
+                    + QLatin1String("property ")
+                    + property.dynamicTypeName()
+                    + QLatin1String(" ")
+                    + property.name()
+                    + QLatin1String(": ")
+                    + toQml(property, indentDepth);
+        } else {
+            result = QString(indentDepth, QLatin1Char(' ')) + property.name() + QLatin1String(": ") + toQml(property, indentDepth);
+        }
+    }
 
     result += QLatin1Char('\n');
 

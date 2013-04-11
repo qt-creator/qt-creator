@@ -2154,7 +2154,7 @@ TargetInformation Qt4ProFileNode::targetInformation(QtSupport::ProFileReader *re
     result.executable = QDir::cleanPath(destDir + QLatin1Char('/') + result.target);
     //qDebug() << "##### updateTarget sets:" << result.workingDir << result.executable;
 
-    Utils::HostOsInfo::appendExecutableSuffix(result.executable);
+    result.executable = Utils::HostOsInfo::withExecutableSuffix(result.executable);
     result.valid = true;
 
     if (readerBP)
@@ -2234,7 +2234,7 @@ QString Qt4ProFileNode::buildDir(Qt4BuildConfiguration *bc) const
         bc = static_cast<Qt4BuildConfiguration *>(m_project->activeTarget()->activeBuildConfiguration());
     if (!bc)
         return QString();
-    return QDir(bc->buildDirectory()).absoluteFilePath(relativeDir);
+    return QDir::cleanPath(QDir(bc->buildDirectory()).absoluteFilePath(relativeDir));
 }
 
 void Qt4ProFileNode::updateCodeModelSupportFromBuild()

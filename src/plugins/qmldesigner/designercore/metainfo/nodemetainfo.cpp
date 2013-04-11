@@ -593,7 +593,7 @@ const QmlJS::CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() cons
             return cppValue;
     }
 
-    return 0;
+    return value_cast<CppComponentValue>(getObjectValue());
 }
 
 const QmlJS::ObjectValue *NodeMetaInfoPrivate::getObjectValue() const
@@ -1127,6 +1127,11 @@ bool NodeMetaInfo::propertyIsListProperty(const PropertyName &propertyName) cons
 bool NodeMetaInfo::propertyIsEnumType(const PropertyName &propertyName) const
 {
     return m_privateData->isPropertyEnum(propertyName);
+}
+
+bool NodeMetaInfo::propertyIsPrivate(const PropertyName &propertyName) const
+{
+    return propertyName.startsWith("__");
 }
 
 QString NodeMetaInfo::propertyEnumScope(const PropertyName &propertyName) const

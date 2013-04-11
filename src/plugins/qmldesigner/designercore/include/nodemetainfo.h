@@ -79,6 +79,7 @@ public:
     bool propertyIsWritable(const PropertyName &propertyName) const;
     bool propertyIsListProperty(const PropertyName &propertyName) const;
     bool propertyIsEnumType(const PropertyName &propertyName) const;
+    bool propertyIsPrivate(const PropertyName &propertyName) const;
     QString propertyEnumScope(const PropertyName &propertyName) const;
     QStringList propertyKeysForEnum(const PropertyName &propertyName) const;
     QVariant propertyCastedValue(const PropertyName &propertyName, const QVariant &value) const;

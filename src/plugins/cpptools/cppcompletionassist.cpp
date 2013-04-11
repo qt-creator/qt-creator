@@ -502,7 +502,9 @@ public:
 
     BasicProposalItem *operator()(Symbol *symbol)
     {
-        if (! symbol || ! symbol->name() || symbol->name()->isQualifiedNameId())
+        //using declaration can be qualified
+        if (! symbol || ! symbol->name() || (symbol->name()->isQualifiedNameId()
+                                             && ! symbol->asUsingDeclaration()))
             return 0;
 
         BasicProposalItem *previousItem = switchCompletionItem(0);

@@ -155,7 +155,7 @@ private:
         bool isInstantiateNestedClassNeeded(const QList<Symbol *> &symbols) const;
         bool containsTemplateType(Declaration *declaration) const;
         bool containsTemplateType(Function *function) const;
-        NamedType *findMemberNamedType(Type *memberType) const;
+        NamedType *findNamedType(Type *memberType) const;
 
         QSet<ClassOrNamespace *> _alreadyConsideredNestedClassInstantiations;
         CreateBindings *_factory;

@@ -51,7 +51,7 @@ BlackBerryDebugTokenRequestDialog::BlackBerryDebugTokenRequestDialog(
     m_ui->setupUi(this);
     m_ui->progressBar->hide();
     m_ui->status->clear();
-    m_ui->debugTokenPath->setExpectedKind(Utils::PathChooser::Any);
+    m_ui->debugTokenPath->setExpectedKind(Utils::PathChooser::SaveFile);
     m_ui->debugTokenPath->setPromptDialogTitle(tr("Request Debug Token"));
     m_ui->debugTokenPath->setPromptDialogFilter(tr("BAR Files (*.bar)"));
 
@@ -67,8 +67,12 @@ BlackBerryDebugTokenRequestDialog::BlackBerryDebugTokenRequestDialog(
             this, SLOT(requestDebugToken()));
     connect(m_ui->debugTokenPath, SIGNAL(changed(QString)),
             this, SLOT(validate()));
+    connect(m_ui->debugTokenPath, SIGNAL(beforeBrowsing()),
+            this, SLOT(setDefaultPath()));
     connect(m_ui->debugTokenPath, SIGNAL(editingFinished()),
             this, SLOT(appendExtension()));
+    connect(m_ui->debugTokenPath, SIGNAL(editingFinished()),
+            this, SLOT(expandPath()));
     connect(m_ui->keystorePassword, SIGNAL(textChanged(QString)),
             this, SLOT(validate()));
     connect(m_ui->cskPassword, SIGNAL(textChanged(QString)),
@@ -133,14 +137,45 @@ void BlackBerryDebugTokenRequestDialog::requestDebugToken()
             m_ui->keystorePassword->text(), m_ui->devicePin->text());
 }
 
+void BlackBerryDebugTokenRequestDialog::setDefaultPath()
+{
+    const QString path = m_ui->debugTokenPath->path();
+    const QString defaultFileName = QLatin1String("/debugToken.bar");
+
+    if (path.isEmpty()) {
+        m_ui->debugTokenPath->setPath(QDir::homePath() + defaultFileName);
+        return;
+    }
+
+    const QFileInfo fileInfo(path);
+
+    if (fileInfo.isDir())
+        m_ui->debugTokenPath->setPath(path + defaultFileName);
+}
+
 void BlackBerryDebugTokenRequestDialog::appendExtension()
 {
     QString path = m_ui->debugTokenPath->path();
+
+    if (path.isEmpty())
+        return;
 
     if (!path.endsWith(QLatin1String(".bar"))) {
         path += QLatin1String(".bar");
         m_ui->debugTokenPath->setPath(path);
     }
+}
+
+void BlackBerryDebugTokenRequestDialog::expandPath()
+{
+    const QString path = m_ui->debugTokenPath->path();
+
+    if (path.isEmpty() || path.startsWith(QLatin1String("/")))
+            return;
+
+    const QFileInfo fileInfo(path);
+
+    m_ui->debugTokenPath->setPath(fileInfo.absoluteFilePath());
 }
 
 void BlackBerryDebugTokenRequestDialog::checkBoxChanged(int state)

@@ -61,6 +61,9 @@ void VariantProperty::setValue(const QVariant &value)
     if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
+    if (isDynamic())
+        qWarning() << "Calling VariantProperty::setValue on dynamic property.";
+
     if (value.isNull())
         throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, name());
 

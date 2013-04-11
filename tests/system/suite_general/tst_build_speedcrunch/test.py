@@ -17,9 +17,9 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    suitableKits = QtQuickConstants.Targets.DESKTOP_474_GCC
+    suitableKits = Targets.DESKTOP_474_GCC
     if platform.system() in ('Windows', 'Microsoft'):
-        suitableKits |= QtQuickConstants.Targets.DESKTOP_474_MSVC2008
+        suitableKits |= Targets.DESKTOP_474_MSVC2008
     checkedTargets = openQmakeProject(SpeedCrunchPath, suitableKits)
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
 

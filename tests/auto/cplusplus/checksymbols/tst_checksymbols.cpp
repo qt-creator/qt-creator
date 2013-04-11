@@ -176,9 +176,14 @@ private slots:
     void test_checksymbols_StaticUse();
     void test_checksymbols_VariableHasTheSameNameAsEnumUse();
     void test_checksymbols_NestedClassOfEnclosingTemplateUse();
+    void test_checksymbols_8902_staticFunctionHighlightingAsMember_localVariable();
+    void test_checksymbols_8902_staticFunctionHighlightingAsMember_functionArgument();
+    void test_checksymbols_8902_staticFunctionHighlightingAsMember_templateParameter();
+    void test_checksymbols_8902_staticFunctionHighlightingAsMember_struct();
 
     void test_checksymbols_QTCREATORBUG8890_danglingPointer();
     void test_checksymbols_QTCREATORBUG8974_danglingPointer();
+    void operatorAsteriskOfNestedClassOfTemplateClass_QTCREATORBUG9006();
 };
 
 void tst_CheckSymbols::test_checksymbols_TypeUse()
@@ -440,6 +445,112 @@ void tst_CheckSymbols::test_checksymbols_NestedClassOfEnclosingTemplateUse()
             << Use(12, 10, 6, SemanticInfo::FieldUse)
             << Use(12, 17, 2, SemanticInfo::FieldUse)
             << Use(12, 20, 3, SemanticInfo::FieldUse)
+            ;
+
+    TestData::check(source, expectedUses);
+}
+
+void tst_CheckSymbols::test_checksymbols_8902_staticFunctionHighlightingAsMember_localVariable()
+{
+    const QByteArray source =
+            "struct Foo\n"
+            "{\n"
+            "    static int foo();\n"
+            "};\n"
+            "\n"
+            "void bar()\n"
+            "{\n"
+            "    int foo = Foo::foo();\n"
+            "}\n"
+            ;
+
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 8, 3, SemanticInfo::TypeUse)
+            << Use(3, 16, 3, SemanticInfo::FunctionUse)
+            << Use(6, 6, 3, SemanticInfo::FunctionUse)
+            << Use(8, 9, 3, SemanticInfo::LocalUse)
+            << Use(8, 15, 3, SemanticInfo::TypeUse)
+            << Use(8, 20, 3, SemanticInfo::FunctionUse)
+            ;
+
+    TestData::check(source, expectedUses);
+}
+
+void tst_CheckSymbols::test_checksymbols_8902_staticFunctionHighlightingAsMember_functionArgument()
+{
+    const QByteArray source =
+            "struct Foo\n"
+            "{\n"
+            "    static int foo();\n"
+            "};\n"
+            "\n"
+            "void bar(int foo)\n"
+            "{\n"
+            "    Foo::foo();\n"
+            "}\n"
+            ;
+
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 8, 3, SemanticInfo::TypeUse)
+            << Use(3, 16, 3, SemanticInfo::FunctionUse)
+            << Use(6, 6, 3, SemanticInfo::FunctionUse)
+            << Use(6, 14, 3, SemanticInfo::LocalUse)
+            << Use(8, 5, 3, SemanticInfo::TypeUse)
+            << Use(8, 10, 3, SemanticInfo::FunctionUse)
+            ;
+
+    TestData::check(source, expectedUses);
+}
+
+void tst_CheckSymbols::test_checksymbols_8902_staticFunctionHighlightingAsMember_templateParameter()
+{
+    const QByteArray source =
+            "struct Foo\n"
+            "{\n"
+            "    static int foo();\n"
+            "};\n"
+            "\n"
+            "template <class foo>\n"
+            "void bar()\n"
+            "{\n"
+            "    Foo::foo();\n"
+            "}\n"
+            ;
+
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 8, 3, SemanticInfo::TypeUse)
+            << Use(3, 16, 3, SemanticInfo::FunctionUse)
+            << Use(6, 17, 3, SemanticInfo::TypeUse)
+            << Use(7, 6, 3, SemanticInfo::FunctionUse)
+            << Use(9, 5, 3, SemanticInfo::TypeUse)
+            << Use(9, 10, 3, SemanticInfo::FunctionUse)
+            ;
+
+    TestData::check(source, expectedUses);
+}
+
+void tst_CheckSymbols::test_checksymbols_8902_staticFunctionHighlightingAsMember_struct()
+{
+    const QByteArray source =
+            "struct Foo\n"
+            "{\n"
+            "    static int foo();\n"
+            "};\n"
+            "\n"
+            "struct foo {};\n"
+            "void bar()\n"
+            "{\n"
+            "    Foo::foo();\n"
+            "}\n"
+            ;
+
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 8, 3, SemanticInfo::TypeUse)
+            << Use(3, 16, 3, SemanticInfo::FunctionUse)
+            << Use(6, 8, 3, SemanticInfo::TypeUse)
+            << Use(7, 6, 3, SemanticInfo::FunctionUse)
+            << Use(9, 5, 3, SemanticInfo::TypeUse)
+            << Use(9, 10, 3, SemanticInfo::FunctionUse)
             ;
 
     TestData::check(source, expectedUses);
@@ -1231,6 +1342,52 @@ void tst_CheckSymbols::test_checksymbols_QTCREATORBUG8974_danglingPointer()
         ;
 
     TestData::check(source, expectedUses);
+}
+
+void tst_CheckSymbols::operatorAsteriskOfNestedClassOfTemplateClass_QTCREATORBUG9006()
+{
+    const QByteArray source =
+            "struct Foo { int foo; };\n"
+            "\n"
+            "template<class T>\n"
+            "struct Outer\n"
+            "{\n"
+            "  struct Nested\n"
+            "  {\n"
+            "    const T &operator*() { return t; }\n"
+            "    T t;\n"
+            "  };\n"
+            "};\n"
+            "\n"
+            "void bug()\n"
+            "{\n"
+            "  Outer<Foo>::Nested nested;\n"
+            "  (*nested).foo;\n"
+            "}\n"
+        ;
+
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 8, 3, SemanticInfo::TypeUse)
+            << Use(1, 18, 3, SemanticInfo::FieldUse)
+            << Use(3, 16, 1, SemanticInfo::TypeUse)
+            << Use(4, 8, 5, SemanticInfo::TypeUse)
+            << Use(6, 10, 6, SemanticInfo::TypeUse)
+            << Use(8, 11, 1, SemanticInfo::TypeUse)
+            << Use(8, 14, 8, SemanticInfo::FunctionUse)
+            << Use(8, 35, 1, SemanticInfo::FieldUse)
+            << Use(9, 5, 1, SemanticInfo::TypeUse)
+            << Use(9, 7, 1, SemanticInfo::FieldUse)
+            << Use(13, 6, 3, SemanticInfo::FunctionUse)
+            << Use(15, 3, 5, SemanticInfo::TypeUse)
+            << Use(15, 9, 3, SemanticInfo::TypeUse)
+            << Use(15, 15, 6, SemanticInfo::TypeUse)
+            << Use(15, 22, 6, SemanticInfo::LocalUse)
+            << Use(16, 5, 6, SemanticInfo::LocalUse)
+            << Use(16, 13, 3, SemanticInfo::FieldUse)
+        ;
+
+    TestData::check(source, expectedUses);
+
 }
 
 QTEST_APPLESS_MAIN(tst_CheckSymbols)

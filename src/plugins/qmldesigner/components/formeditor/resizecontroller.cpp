@@ -158,6 +158,11 @@ ResizeController::ResizeController(const ResizeController &other)
 
 }
 
+ResizeController::ResizeController(const WeakResizeController &resizeController)
+    : m_data(resizeController.m_data.toStrongRef())
+{
+}
+
 ResizeController::~ResizeController()
 {
 }
@@ -263,11 +268,6 @@ FormEditorItem* ResizeController::formEditorItem() const
     return m_data->formEditorItem.data();
 }
 
-QWeakPointer<ResizeControllerData> ResizeController::weakPointer() const
-{
-    return m_data;
-}
-
 bool ResizeController::isTopLeftHandle(const ResizeHandleItem *handle) const
 {
     return handle == m_data->topLeftItem;
@@ -306,6 +306,43 @@ bool ResizeController::isRightHandle(const ResizeHandleItem *handle) const
 bool ResizeController::isBottomHandle(const ResizeHandleItem *handle) const
 {
     return handle == m_data->bottomItem;
+}
+
+WeakResizeController ResizeController::toWeakResizeController() const
+{
+    return WeakResizeController(*this);
+}
+
+WeakResizeController::WeakResizeController()
+{
+
+}
+
+WeakResizeController::WeakResizeController(const WeakResizeController &resizeController)
+    : m_data(resizeController.m_data)
+{
+}
+
+WeakResizeController::WeakResizeController(const ResizeController &resizeController)
+    : m_data(resizeController.m_data.toWeakRef())
+{
+}
+
+WeakResizeController::~WeakResizeController()
+{
+}
+
+WeakResizeController &WeakResizeController::operator =(const WeakResizeController &other)
+{
+    if (m_data != other.m_data)
+        m_data = other.m_data;
+
+    return *this;
+}
+
+ResizeController WeakResizeController::toResizeController() const
+{
+    return ResizeController(*this);
 }
 
 }

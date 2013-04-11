@@ -36,12 +36,12 @@
         <file>images/window.png</file>
         <file>images/window16.png</file>
     </qresource>
-    <qresource prefix="/propertyeditor">
-        <file>QtDesktop/ButtonSpecifics.qml</file>
-        <file>QtDesktop/TextFieldSpecifics.qml</file>
-        <file>QtDesktop/TextAreaSpecifics.qml</file>
-        <file>QtDesktop/ComboBoxSpecifics.qml</file>
-        <file>QtDesktop/CheckBoxSpecifics.qml</file>
-        <file>QtDesktop/RadioButtonSpecifics.qml</file>
+    <qresource prefix="/propertyeditor/QtQuick">
+        <file>Controls/ButtonSpecifics.qml</file>
+        <file>Controls/TextFieldSpecifics.qml</file>
+        <file>Controls/TextAreaSpecifics.qml</file>
+        <file>Controls/ComboBoxSpecifics.qml</file>
+        <file>Controls/CheckBoxSpecifics.qml</file>
+        <file>Controls/RadioButtonSpecifics.qml</file>
     </qresource>
 </RCC>

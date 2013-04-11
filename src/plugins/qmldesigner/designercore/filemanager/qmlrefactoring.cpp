@@ -103,12 +103,16 @@ bool QmlRefactoring::addToObjectMemberList(int parentLocation, const QString &co
     return visit(qmlDocument->qmlProgram());
 }
 
-bool QmlRefactoring::addProperty(int parentLocation, const PropertyName &name, const QString &value, PropertyType propertyType)
+bool QmlRefactoring::addProperty(int parentLocation,
+                                 const PropertyName &name,
+                                 const QString &value,
+                                 PropertyType propertyType,
+                                 const TypeName &dynamicTypeName)
 {
     if (parentLocation < 0)
         return false;
 
-    AddPropertyVisitor visit(*textModifier, (quint32) parentLocation, name, value, propertyType, m_propertyOrder);
+    AddPropertyVisitor visit(*textModifier, (quint32) parentLocation, name, value, propertyType, m_propertyOrder, dynamicTypeName);
     return visit(qmlDocument->qmlProgram());
 }
 

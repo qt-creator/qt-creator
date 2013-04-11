@@ -38,8 +38,7 @@ def performTest(templateDir, qmlFile, isMaddeDisabled):
     comboBox = findObject("{name='comboBox' type='QComboBox' visible='1' "
                           "window=':New_Core::Internal::NewDialog'}")
     targets = zip(*kits.values())[0]
-    maddeTargets = QtQuickConstants.getTargetsAsStrings([QtQuickConstants.Targets.MAEMO5,
-                                                         QtQuickConstants.Targets.HARMATTAN])
+    maddeTargets = Targets.getTargetsAsStrings([Targets.MAEMO5, Targets.HARMATTAN])
     maddeInTargets = len(set(targets) & set(maddeTargets)) > 0
     test.compare(comboBox.enabled, maddeInTargets, "Verifying whether combox is enabled.")
     test.compare(maddeInTargets, not isMaddeDisabled, "Verifying if kits are configured.")

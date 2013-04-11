@@ -7,16 +7,14 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    targets = [QtQuickConstants.Targets.DESKTOP_474_GCC]
-    if platform.system() in ('Windows', 'Microsoft'):
-        targets.append(QtQuickConstants.Targets.DESKTOP_474_MSVC2008)
-    if not checkDebuggingLibrary(targets):
+    targets = Targets.desktopTargetClasses()
+    if not checkDebuggingLibrary(Targets.intToArray(targets)):
         test.fatal("Error while checking debugging libraries - leaving this test.")
         invokeMenuItem("File", "Exit")
         return
     # using a temporary directory won't mess up a potentially existing
     workingDir = tempDir()
-    checkedTargets, projectName = createNewQtQuickApplication(workingDir)
+    checkedTargets, projectName = createNewQtQuickApplication(workingDir, targets=targets)
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     if placeCursorToLine(editor, "MouseArea.*", True):
         type(editor, '<Up>')

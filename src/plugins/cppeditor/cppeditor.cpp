@@ -283,6 +283,7 @@ struct CanonicalSymbol
         : editor(editor), info(info)
     {
         typeOfExpression.init(info.doc, info.snapshot);
+        typeOfExpression.setExpandTemplates(true);
     }
 
     const LookupContext &context() const

@@ -69,7 +69,7 @@ namespace {
 static inline QStringList supportedVersionsList()
 {
     QStringList list;
-    list << QLatin1String("1.0") << QLatin1String("1.1") << QLatin1String("2.0");
+    list << QLatin1String("1.0") << QLatin1String("1.1") << QLatin1String("2.0") << QLatin1String("2.1");
     return list;
 }
 
@@ -776,9 +776,9 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             check.disableMessage(StaticAnalysis::ErrCouldNotResolvePrototypeOf);
 
             foreach (StaticAnalysis::Type type, StaticAnalysis::Message::allMessageTypes()) {
-                StaticAnalysis::Message message(type, AST::SourceLocation());
-                if (message.severity == StaticAnalysis::MaybeWarning
-                    || message.severity == StaticAnalysis::Warning) {
+                StaticAnalysis::PrototypeMessageData prototypeMessageData = StaticAnalysis::Message::prototypeForMessageType(type);
+                if (prototypeMessageData.severity == StaticAnalysis::MaybeWarning
+                        || prototypeMessageData.severity == StaticAnalysis::Warning) {
                     check.disableMessage(type);
                 }
             }
@@ -1358,10 +1358,9 @@ void ModelValidator::signalHandlerSourceDiffer(SignalHandlerProperty &modelPrope
     Q_ASSERT(0);
 }
 
-void ModelValidator::shouldBeSignalHandlerProperty(AbstractProperty &modelProperty, const QString &javascript)
+void ModelValidator::shouldBeSignalHandlerProperty(AbstractProperty &modelProperty, const QString & /*javascript*/)
 {
     Q_UNUSED(modelProperty)
-    Q_UNUSED(javascript)
     Q_ASSERT(modelProperty.isSignalHandlerProperty());
     Q_ASSERT(0);
 }

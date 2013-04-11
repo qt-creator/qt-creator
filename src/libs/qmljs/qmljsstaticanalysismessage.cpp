@@ -43,14 +43,6 @@ class StaticAnalysisMessages
     Q_DECLARE_TR_FUNCTIONS(QmlJS::StaticAnalysisMessages)
 
 public:
-    class PrototypeMessageData {
-    public:
-        Type type;
-        Severity severity;
-        QString message;
-        int placeholders;
-    };
-
     void newMsg(Type type, Severity severity, const QString &message, int placeholders = 0)
     {
         PrototypeMessageData prototype;
@@ -248,7 +240,7 @@ Message::Message(Type type,
     : location(location), type(type)
 {
     QTC_ASSERT(messages()->messages.contains(type), return);
-    const StaticAnalysisMessages::PrototypeMessageData &prototype = messages()->messages.value(type);
+    const PrototypeMessageData &prototype = prototypeForMessageType(type);
     severity = prototype.severity;
     message = prototype.message;
     if (prototype.placeholders == 0) {
@@ -298,4 +290,12 @@ QString Message::suppressionString() const
 QRegExp Message::suppressionPattern()
 {
     return QRegExp(QLatin1String("@disable-check M(\\d+)"));
+}
+
+const PrototypeMessageData Message::prototypeForMessageType(Type type)
+{
+     QTC_CHECK(messages()->messages.contains(type));
+     const PrototypeMessageData &prototype = messages()->messages.value(type);
+
+     return prototype;
 }

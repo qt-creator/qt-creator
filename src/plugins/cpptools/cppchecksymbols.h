@@ -166,6 +166,8 @@ protected:
     void flush();
 
 private:
+    bool isConstructorDeclaration(CPlusPlus::Symbol *declaration);
+
     CPlusPlus::Document::Ptr _doc;
     CPlusPlus::LookupContext _context;
     CPlusPlus::TypeOfExpression typeOfExpression;

@@ -60,7 +60,11 @@ public:
 
     bool addToArrayMemberList(int parentLocation, const PropertyName &propertyName, const QString &content);
     bool addToObjectMemberList(int parentLocation, const QString &content);
-    bool addProperty(int parentLocation, const PropertyName &name, const QString &value, PropertyType propertyType);
+    bool addProperty(int parentLocation,
+                     const PropertyName &name,
+                     const QString &value,
+                     PropertyType propertyType,
+                     const TypeName &dynamicTypeName = TypeName());
     bool changeProperty(int parentLocation, const PropertyName &name, const QString &value, PropertyType propertyType);
     bool changeObjectType(int nodeLocation, const QString &newType);
 

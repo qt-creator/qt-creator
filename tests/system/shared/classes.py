@@ -1,53 +1,37 @@
-# for easier re-usage (because Python hasn't an enum type)
-class QtQuickConstants:
-    class Components:
-        BUILTIN = 1
-        MEEGO_HARMATTAN = 2
-        EXISTING_QML = 4
+import operator
 
-    class Targets:
-        DESKTOP_474_GCC = 1
-        SIMULATOR = 2
-        MAEMO5 = 4
-        HARMATTAN = 8
-        EMBEDDED_LINUX = 16
-        DESKTOP_474_MSVC2008 = 32
-        DESKTOP_501_DEFAULT = 64
+# for easier re-usage (because Python hasn't an enum type)
+class Targets:
+    DESKTOP_474_GCC = 1
+    SIMULATOR = 2
+    MAEMO5 = 4
+    HARMATTAN = 8
+    EMBEDDED_LINUX = 16
+    DESKTOP_474_MSVC2008 = 32
+    DESKTOP_501_DEFAULT = 64
 
     @staticmethod
     def desktopTargetClasses():
-        desktopTargets = QtQuickConstants.Targets.DESKTOP_474_GCC \
-                         | QtQuickConstants.Targets.DESKTOP_501_DEFAULT
+        desktopTargets = Targets.DESKTOP_474_GCC | Targets.DESKTOP_501_DEFAULT
         if platform.system() in ('Windows', 'Microsoft'):
-            desktopTargets |= QtQuickConstants.Targets.DESKTOP_474_MSVC2008
+            desktopTargets |= Targets.DESKTOP_474_MSVC2008
         return desktopTargets
 
     @staticmethod
-    def getStringForComponents(components):
-            if components==QtQuickConstants.Components.BUILTIN:
-                return "Built-in elements only (for all platforms)"
-            elif components==QtQuickConstants.Components.MEEGO_HARMATTAN:
-                return "Qt Quick Components for Meego/Harmattan"
-            elif components==QtQuickConstants.Components.EXISTING_QML:
-                return "Use an existing .qml file"
-            else:
-                return None
-
-    @staticmethod
     def getStringForTarget(target):
-        if target==QtQuickConstants.Targets.DESKTOP_474_GCC:
+        if target == Targets.DESKTOP_474_GCC:
             return "Desktop 474 GCC"
-        elif target==QtQuickConstants.Targets.MAEMO5:
+        elif target == Targets.MAEMO5:
             return "Fremantle"
-        elif target==QtQuickConstants.Targets.SIMULATOR:
+        elif target == Targets.SIMULATOR:
             return "Qt Simulator"
-        elif target==QtQuickConstants.Targets.HARMATTAN:
+        elif target == Targets.HARMATTAN:
             return "Harmattan"
-        elif target==QtQuickConstants.Targets.EMBEDDED_LINUX:
+        elif target == Targets.EMBEDDED_LINUX:
             return "Embedded Linux"
-        elif target==QtQuickConstants.Targets.DESKTOP_474_MSVC2008:
+        elif target == Targets.DESKTOP_474_MSVC2008:
             return "Desktop 474 MSVC2008"
-        elif target==QtQuickConstants.Targets.DESKTOP_501_DEFAULT:
+        elif target == Targets.DESKTOP_501_DEFAULT:
             return "Desktop 501 default"
         else:
             return None
@@ -57,10 +41,21 @@ class QtQuickConstants:
         if not isinstance(targets, (tuple,list)):
             test.fatal("Wrong usage... This function handles only tuples or lists.")
             return None
-        result = map(QtQuickConstants.getStringForTarget, targets)
+        result = map(Targets.getStringForTarget, targets)
         if None in result:
             test.fatal("You've passed at least one unknown target!")
         return result
+
+    @staticmethod
+    def intToArray(targets):
+        available = [Targets.DESKTOP_474_GCC, Targets.SIMULATOR, Targets.MAEMO5, Targets.HARMATTAN,
+                     Targets.EMBEDDED_LINUX, Targets.DESKTOP_474_MSVC2008,
+                     Targets.DESKTOP_501_DEFAULT]
+        return filter(lambda x: x & targets == x, available)
+
+    @staticmethod
+    def arrayToInt(targetArr):
+        return reduce(operator.or_, targetArr, 0)
 
 # this class holds some constants for easier usage inside the Projects view
 class ProjectSettings:

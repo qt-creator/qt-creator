@@ -125,7 +125,11 @@ public:
     QByteArray preprocessedExpression(const QByteArray &utf8code) const;
 
     void setExpandTemplates(bool expandTemplates)
-    { m_expandTemplates = expandTemplates; }
+    {
+        if (m_bindings)
+            m_bindings->setExpandTemplates(expandTemplates);
+        m_expandTemplates = expandTemplates;
+    }
 
 private:
 

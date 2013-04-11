@@ -48,7 +48,7 @@ public:
 
 
     ResizeHandleItem(QGraphicsItem *parent, const ResizeController &resizeController);
-
+    ~ResizeHandleItem();
     void setHandlePosition(const QPointF & globalPosition, const QPointF & itemSpacePosition);
 
     int type() const;
@@ -72,7 +72,7 @@ public:
     QPointF itemSpacePosition() const;
 
 private:
-    QWeakPointer<ResizeControllerData> m_resizeControllerData;
+    WeakResizeController m_weakResizeController;
     QPointF m_itemSpacePosition;
 };
 

@@ -107,7 +107,7 @@ bool AddPropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePos
                     << info();
         }
     } else {
-        result = refactoring.addProperty(nodeLocation, m_property.name(), m_valueText, m_propertyType);
+        result = refactoring.addProperty(nodeLocation, m_property.name(), m_valueText, m_propertyType, m_property.dynamicTypeName());
 
         if (!result) {
             qDebug() << "*** AddPropertyRewriteAction::execute failed in addProperty("
