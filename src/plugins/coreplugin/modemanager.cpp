@@ -337,9 +337,14 @@ void ModeManager::setFocusToCurrentMode()
     }
 }
 
-void ModeManager::setModeBarHidden(bool hidden)
+void ModeManager::setModeSelectorVisible(bool visible)
 {
-    d->m_modeStack->setSelectionWidgetHidden(hidden);
+    d->m_modeStack->setSelectionWidgetVisible(visible);
+}
+
+bool ModeManager::isModeSelectorVisible()
+{
+    return d->m_modeStack->isSelectionWidgetVisible();
 }
 
 ModeManager *ModeManager::instance()

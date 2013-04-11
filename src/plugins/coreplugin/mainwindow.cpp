@@ -139,6 +139,7 @@ MainWindow::MainWindow() :
     m_modeManager(0),
     m_mimeDatabase(new MimeDatabase),
     m_helpManager(new HelpManager),
+    m_modeStack(new FancyTabWidget(this)),
     m_navigationWidget(0),
     m_rightPaneWidget(0),
     m_versionDialog(0),
@@ -195,14 +196,14 @@ MainWindow::MainWindow() :
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
 
+    m_modeManager = new ModeManager(this, m_modeStack);
+
     registerDefaultContainers();
     registerDefaultActions();
 
     m_navigationWidget = new NavigationWidget(m_toggleSideBarAction);
     m_rightPaneWidget = new RightPaneWidget();
 
-    m_modeStack = new FancyTabWidget(this);
-    m_modeManager = new ModeManager(this, m_modeStack);
     m_statusBarManager = new StatusBarManager(this);
     m_messageManager = new MessageManager;
     m_editorManager = new EditorManager(this);
@@ -727,6 +728,12 @@ void MainWindow::registerDefaultActions()
     mwindow->addAction(cmd, Constants::G_WINDOW_VIEWS);
     m_toggleSideBarAction->setEnabled(false);
 
+    // Show Mode Selector Action
+    m_toggleModeSelectorAction = new QAction(tr("Show Mode Selector"), this);
+    m_toggleModeSelectorAction->setCheckable(true);
+    cmd = ActionManager::registerAction(m_toggleModeSelectorAction, Constants::TOGGLE_MODE_SELECTOR, globalContext);
+    connect(m_toggleModeSelectorAction, SIGNAL(triggered(bool)), ModeManager::instance(), SLOT(setModeSelectorVisible(bool)));
+    mwindow->addAction(cmd, Constants::G_WINDOW_VIEWS);
 
 #if defined(Q_OS_MAC)
     const QString fullScreenActionText(tr("Enter Full Screen"));
@@ -1169,6 +1176,7 @@ static const char settingsGroup[] = "MainWindow";
 static const char colorKey[] = "Color";
 static const char windowGeometryKey[] = "WindowGeometry";
 static const char windowStateKey[] = "WindowState";
+static const char modeSelectorVisibleKey[] = "ModeSelectorVisible";
 
 void MainWindow::readSettings()
 {
@@ -1188,6 +1196,10 @@ void MainWindow::readSettings()
         resize(1008, 700); // size without window decoration
     restoreState(m_settings->value(QLatin1String(windowStateKey)).toByteArray());
 
+    bool modeSelectorVisible = m_settings->value(QLatin1String(modeSelectorVisibleKey), true).toBool();
+    ModeManager::instance()->setModeSelectorVisible(modeSelectorVisible);
+    m_toggleModeSelectorAction->setChecked(modeSelectorVisible);
+
     m_settings->endGroup();
 
     m_editorManager->readSettings();
@@ -1204,6 +1216,7 @@ void MainWindow::writeSettings()
 
     m_settings->setValue(QLatin1String(windowGeometryKey), saveGeometry());
     m_settings->setValue(QLatin1String(windowStateKey), saveState());
+    m_settings->setValue(QLatin1String(modeSelectorVisibleKey), ModeManager::isModeSelectorVisible());
 
     m_settings->endGroup();
 

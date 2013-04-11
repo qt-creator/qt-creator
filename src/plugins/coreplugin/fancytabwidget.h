@@ -159,13 +159,15 @@ public:
     void setTabEnabled(int index, bool enable);
     bool isTabEnabled(int index) const;
 
+    bool isSelectionWidgetVisible() const;
+
 signals:
     void currentAboutToShow(int index);
     void currentChanged(int index);
 
 public slots:
     void setCurrentIndex(int index);
-    void setSelectionWidgetHidden(bool hidden);
+    void setSelectionWidgetVisible(bool visible);
 
 private slots:
     void showWidget(int index);
