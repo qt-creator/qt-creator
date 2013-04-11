@@ -83,9 +83,18 @@ public:
 
     Project *createProject(const QString &name);
 
+    QStringList waitForRefreshedSourceFiles();
+
 signals:
     void aboutToRemoveProject(ProjectExplorer::Project *project);
     void projectAdded(ProjectExplorer::Project*);
+
+public slots:
+    void sourceFilesRefreshed(const QStringList &files);
+
+private:
+    bool m_refreshHappened;
+    QStringList m_lastRefreshedSourceFiles;
 };
 
 } // namespace Internal

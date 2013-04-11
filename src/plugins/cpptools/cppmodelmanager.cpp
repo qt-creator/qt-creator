@@ -970,10 +970,16 @@ void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 
         foreach (const ProjectInfo &projectInfo, m_projects) {
             foreach (const ProjectPart::Ptr &projectPart, projectInfo.projectParts()) {
-                foreach (const ProjectFile &cxxFile, projectPart->files)
+                foreach (const ProjectFile &cxxFile, projectPart->files) {
                     m_srcToProjectPart[cxxFile.path].append(projectPart);
+                    foreach (const QString &fileName, m_snapshot.allIncludesForDocument(cxxFile.path))
+                        m_snapshot.remove(fileName);
+                    m_snapshot.remove(cxxFile.path);
+                }
             }
         }
+
+        m_snapshot.remove(configurationFileName());
     }
 
     if (!qgetenv("QTCREATOR_DUMP_PROJECT_INFO").isEmpty())

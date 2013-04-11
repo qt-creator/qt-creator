@@ -705,6 +705,25 @@ Document::Ptr Snapshot::documentFromSource(const QByteArray &preprocessedCode,
     return newDoc;
 }
 
+QSet<QString> Snapshot::allIncludesForDocument(const QString &fileName) const
+{
+    QSet<QString> result;
+    allIncludesForDocument_helper(fileName, result);
+    return result;
+}
+
+void Snapshot::allIncludesForDocument_helper(const QString &fileName, QSet<QString> &result) const
+{
+    if (Document::Ptr doc = document(fileName)) {
+        foreach (const QString &inc, doc->includedFiles()) {
+            if (!result.contains(inc)) {
+                result.insert(inc);
+                allIncludesForDocument_helper(inc, result);
+            }
+        }
+    }
+}
+
 Document::Ptr Snapshot::document(const QString &fileName) const
 {
     return _documents.value(fileName);
@@ -713,22 +732,13 @@ Document::Ptr Snapshot::document(const QString &fileName) const
 Snapshot Snapshot::simplified(Document::Ptr doc) const
 {
     Snapshot snapshot;
-    simplified_helper(doc, &snapshot);
+
+    if (doc) {
+        snapshot.insert(doc);
+        foreach (const QString &fileName, allIncludesForDocument(doc->fileName()))
+            if (Document::Ptr inc = document(fileName))
+                snapshot.insert(inc);
+    }
+
     return snapshot;
 }
-
-void Snapshot::simplified_helper(Document::Ptr doc, Snapshot *snapshot) const
-{
-    if (! doc)
-        return;
-
-    if (! snapshot->contains(doc->fileName())) {
-        snapshot->insert(doc);
-
-        foreach (const Document::Include &incl, doc->includes()) {
-            Document::Ptr includedDoc = document(incl.fileName());
-            simplified_helper(includedDoc, snapshot);
-        }
-    }
-}
-

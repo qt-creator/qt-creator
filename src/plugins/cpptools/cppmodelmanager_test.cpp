@@ -138,3 +138,51 @@ void CppToolsPlugin::test_modelmanager_framework_headers()
         QVERIFY(chars.startsWith("success"));
     }
 }
+
+/// QTCREATORBUG-9056
+void CppToolsPlugin::test_modelmanager_refresh()
+{
+    ModelManagerTestHelper helper;
+    CppModelManager *mm = CppModelManager::instance();
+
+    const QString testCpp(testSource(QLatin1String("test_modelmanager_refresh.cpp")));
+    const QString testHeader(testSource(QLatin1String("test_modelmanager_refresh.h")));
+
+    Project *project = helper.createProject(QLatin1String("test_modelmanager_refresh"));
+    ProjectInfo pi = mm->projectInfo(project);
+    QCOMPARE(pi.project().data(), project);
+
+    ProjectPart::Ptr part(new ProjectPart);
+    pi.appendProjectPart(part);
+    part->cxxVersion = ProjectPart::CXX98;
+    part->qtVersion = ProjectPart::Qt5;
+    part->defines = QByteArray("#define OH_BEHAVE -1\n");
+    part->includePaths = QStringList() << testIncludeDir(false);
+    part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
+
+    mm->updateProjectInfo(pi);
+    mm->updateSourceFiles(QStringList() << testCpp);
+
+    QStringList refreshedFiles = helper.waitForRefreshedSourceFiles();
+
+    QCOMPARE(refreshedFiles.size(), 1);
+    QVERIFY(refreshedFiles.contains(testCpp));
+    CPlusPlus::Snapshot snapshot = mm->snapshot();
+    QVERIFY(snapshot.contains(testHeader));
+    QVERIFY(snapshot.contains(testCpp));
+
+    part->defines = QByteArray();
+    mm->updateProjectInfo(pi);
+    snapshot = mm->snapshot();
+    QVERIFY(!snapshot.contains(testHeader));
+    QVERIFY(!snapshot.contains(testCpp));
+
+    mm->updateSourceFiles(QStringList() << testCpp);
+    refreshedFiles = helper.waitForRefreshedSourceFiles();
+
+    QCOMPARE(refreshedFiles.size(), 1);
+    QVERIFY(refreshedFiles.contains(testCpp));
+    snapshot = mm->snapshot();
+    QVERIFY(snapshot.contains(testHeader));
+    QVERIFY(snapshot.contains(testCpp));
+}

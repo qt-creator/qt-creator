@@ -137,6 +137,7 @@ private slots:
 
     void test_modelmanager_paths();
     void test_modelmanager_framework_headers();
+    void test_modelmanager_refresh();
 
 private:
     void test_completion();

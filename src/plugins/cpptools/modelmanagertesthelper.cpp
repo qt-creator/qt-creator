@@ -54,6 +54,7 @@ ModelManagerTestHelper::ModelManagerTestHelper(QObject *parent) :
 
     connect(this, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)), mm, SLOT(onAboutToRemoveProject(ProjectExplorer::Project*)));
     connect(this, SIGNAL(projectAdded(ProjectExplorer::Project*)), mm, SLOT(onProjectAdded(ProjectExplorer::Project*)));
+    connect(mm, SIGNAL(sourceFilesRefreshed(QStringList)), this, SLOT(sourceFilesRefreshed(QStringList)));
 
     cleanup();
     verifyClean();
@@ -97,3 +98,19 @@ ModelManagerTestHelper::Project *ModelManagerTestHelper::createProject(const QSt
     return tp;
 }
 
+QStringList ModelManagerTestHelper::waitForRefreshedSourceFiles()
+{
+    m_refreshHappened = false;
+
+    while (!m_refreshHappened)
+        QCoreApplication::processEvents();
+
+    return m_lastRefreshedSourceFiles;
+}
+
+
+void ModelManagerTestHelper::sourceFilesRefreshed(const QStringList &files)
+{
+    m_lastRefreshedSourceFiles = files;
+    m_refreshHappened = true;
+}

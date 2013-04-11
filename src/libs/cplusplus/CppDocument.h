@@ -389,8 +389,10 @@ public:
     Document::Ptr documentFromSource(const QByteArray &preprocessedDocument,
                                      const QString &fileName) const;
 
+    QSet<QString> allIncludesForDocument(const QString &fileName) const;
+
 private:
-    void simplified_helper(Document::Ptr doc, Snapshot *snapshot) const;
+    void allIncludesForDocument_helper(const QString &fileName, QSet<QString> &result) const;
 
 private:
     _Base _documents;
