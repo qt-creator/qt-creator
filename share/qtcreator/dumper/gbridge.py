@@ -79,10 +79,10 @@ def listOfLocals(varList):
         #warn("BLOCK: %s " % block)
     except RuntimeError, error:
         warn("BLOCK IN FRAME NOT ACCESSIBLE: %s" % error)
-        return items
+        return []
     except:
         warn("BLOCK NOT ACCESSIBLE FOR UNKNOWN REASONS")
-        return items
+        return []
 
     items = []
     shadowed = {}
