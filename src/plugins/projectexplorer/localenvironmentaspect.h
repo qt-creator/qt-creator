@@ -34,7 +34,7 @@
 
 namespace ProjectExplorer {
 
-class LocalEnvironmentAspect : public EnvironmentAspect
+class PROJECTEXPLORER_EXPORT LocalEnvironmentAspect : public EnvironmentAspect
 {
     Q_OBJECT
 
