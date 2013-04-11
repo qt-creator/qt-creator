@@ -51,6 +51,7 @@ public:
         Success,
         Busy,
         WrongPassword,
+        InvalidOutputFormat,
         Error
     };
 

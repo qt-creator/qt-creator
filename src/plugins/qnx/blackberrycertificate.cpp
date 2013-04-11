@@ -150,6 +150,19 @@ void BlackBerryCertificate::loadFinished()
             m_author = chunk.remove(QLatin1String("CN=")).trimmed();
             status = Success;
             break;
+        } else if (chunk.contains(QLatin1String("Subject Name:"))) {
+            // this format is used by newer NDKs, the interesting data
+            // comes on the next line
+            chunk = processOutput.readLine();
+            const QString token = QLatin1String("CommonName=");
+            if (chunk.contains(token)) {
+                m_author = chunk.remove(token).trimmed();
+                status = Success;
+            } else {
+                status = InvalidOutputFormat;
+            }
+
+            break;
         }
     }
 

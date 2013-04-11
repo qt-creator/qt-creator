@@ -117,13 +117,17 @@ void BlackBerryImportCertificateDialog::certificateLoaded(int status)
         m_certificate->deleteLater();
         m_certificate = 0;
 
-        if (status == BlackBerryCertificate::WrongPassword) {
-            QMessageBox::information(this, tr("Error"),
-                    tr("The keystore password is invalid."));
-        } else {
-            QMessageBox::information(this, tr("Error"),
-                    tr("An unknown error has occurred."));
-        }
+        QString message;
+
+        if (status == BlackBerryCertificate::WrongPassword)
+            message = tr("The keystore password is invalid.");
+        else if (status == BlackBerryCertificate::InvalidOutputFormat)
+            message = tr("Error parsing inferior process output.");
+        else
+            message = tr("An unknown error has occurred.");
+
+        QMessageBox::information(this, tr("Error"), message);
+
     } else {
         m_author = m_certificate->author();
         accept();
