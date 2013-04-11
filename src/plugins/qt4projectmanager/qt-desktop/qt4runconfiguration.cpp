@@ -225,7 +225,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     ProjectExplorer::EnvironmentAspect *aspect
             = qt4RunConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
     if (aspect) {
-        connect(aspect, SIGNAL(environmentChanged()), this, SLOT(environmenWasChanged()));
+        connect(aspect, SIGNAL(environmentChanged()), this, SLOT(environmentWasChanged()));
         environmentWasChanged();
     }
     m_workingDirectoryEdit->setPromptDialogTitle(tr("Select Working Directory"));
