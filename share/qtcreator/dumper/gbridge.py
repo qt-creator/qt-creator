@@ -1,11 +1,22 @@
-def warn(message):
-    print "XXX: %s\n" % message.encode("latin1")
+
+import binascii
+import inspect
+import os
+import traceback
+import gdb
+
+cdbLoaded = False
+lldbLoaded = False
+gdbLoaded = False
 
 #######################################################################
 #
 # Infrastructure
 #
 #######################################################################
+
+def warn(message):
+    print "XXX: %s\n" % message.encode("latin1")
 
 def savePrint(output):
     try:
@@ -320,3 +331,9 @@ class ScanStackCommand(gdb.Command):
 
 ScanStackCommand()
 
+
+gdbLoaded = True
+currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+execfile(os.path.join(currentDir, "dumper.py"))
+execfile(os.path.join(currentDir, "qttypes.py"))
+bbsetup()
