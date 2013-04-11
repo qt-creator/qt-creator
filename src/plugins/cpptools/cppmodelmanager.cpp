@@ -511,17 +511,17 @@ void CppPreprocessor::sourceNeeded(unsigned line, const QString &fileName, Inclu
         return;
 
     QString absoluteFileName = resolveFile(fileName, type);
+    absoluteFileName = QDir::cleanPath(absoluteFileName);
+    if (m_currentDoc && !absoluteFileName.isEmpty())
+        m_currentDoc->addIncludeFile(absoluteFileName, line);
     if (m_included.contains(absoluteFileName))
         return; // we've already seen this file.
     m_included.insert(absoluteFileName);
 
-    absoluteFileName = QDir::cleanPath(absoluteFileName);
     unsigned editorRevision = 0;
     QString contents;
     getFileContents(absoluteFileName, &contents, &editorRevision);
     if (m_currentDoc) {
-        m_currentDoc->addIncludeFile(absoluteFileName, line);
-
         if (contents.isEmpty() && ! QFileInfo(absoluteFileName).isAbsolute()) {
             QString msg = QCoreApplication::translate(
                     "CppPreprocessor", "%1: No such file or directory").arg(fileName);
