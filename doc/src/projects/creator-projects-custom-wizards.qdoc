@@ -299,7 +299,7 @@
 
     \section1 Creating Class Wizards
 
-    The widget.xml file for a class wizard is very similar to that for a project
+    The wizard.xml file for a class wizard is very similar to that for a project
     wizard. The differences are discussed below.
 
     To create a class wizard:
