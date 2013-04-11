@@ -47,13 +47,6 @@ class GdbMi;
 /* A debugger engine for using the lldb command line debugger.
  */
 
-class LldbResponse
-{
-public:
-    QByteArray data;
-    QVariant cookie;
-};
-
 class LldbEngine : public DebuggerEngine
 {
     Q_OBJECT
@@ -110,7 +103,6 @@ private:
     void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
 
     void performContinuation();
-    void handleResponse(const LldbResponse &response);
 
 signals:
     void outputReady(const QByteArray &data);
@@ -123,9 +115,7 @@ private:
     Q_SLOT void handleLldbError(QProcess::ProcessError error);
     Q_SLOT void readLldbStandardOutput();
     Q_SLOT void readLldbStandardError();
-    Q_SLOT void handleOutput2(const QByteArray &data);
-    void handleSetupEngine(const LldbResponse &response);
-    void handleResponse(const QByteArray &ba);
+    Q_SLOT void handleResponse(const QByteArray &data);
     void refreshAll(const GdbMi &all);
     void refreshThreads(const GdbMi &threads);
     void refreshStack(const GdbMi &stack);
@@ -134,49 +124,34 @@ private:
     void refreshState(const GdbMi &state);
     void refreshLocation(const GdbMi &location);
     void refreshModules(const GdbMi &modules);
-
-    enum DataKind { LocalsData = 1, StackData = 2, ThreadData = 4 };
+    void refreshBreakpoints(const GdbMi &bkpts);
 
     void updateAll();
-    void updateData(DataKind kind);
-    void handleUpdateData(const LldbResponse &response);
-    void handleFirstCommand(const LldbResponse &response);
-    void handleExecuteDebuggerCommand(const LldbResponse &response);
-    void handleInferiorSetup(const LldbResponse &response);
-    void handleRunEngine(const LldbResponse &response);
-    void handleInferiorInterrupt(const LldbResponse &response);
 
-    typedef void (LldbEngine::*LldbCommandCallback)
-        (const LldbResponse &response);
     typedef void (LldbEngine::*LldbCommandContinuation)();
 
     struct LldbCommand
     {
-        LldbCommand() : callback(0), callbackName(0), token(0) {}
-
-        LldbCommandCallback callback;
-        const char *callbackName;
+        LldbCommand() : token(0) {}
         QByteArray command;
-        QVariant cookie;
         int token;
     };
 
-    void handleStop(const LldbResponse &response);
-    void handleListLocals(const LldbResponse &response);
-    void handleListModules(const LldbResponse &response);
-    void handleListSymbols(const LldbResponse &response);
-    void handleBreakpointsSynchronized(const LldbResponse &response);
+    QByteArray currentOptions() const;
+    void handleStop(const QByteArray &response);
+    void handleListLocals(const QByteArray &response);
+    void handleListModules(const QByteArray &response);
+    void handleListSymbols(const QByteArray &response);
+    void handleBreakpointsSynchronized(const QByteArray &response);
     void updateBreakpointData(const GdbMi &bkpt, bool added);
-    void handleUpdateStack(const LldbResponse &response);
-    void handleUpdateThreads(const LldbResponse &response);
+    void handleUpdateStack(const QByteArray &response);
+    void handleUpdateThreads(const QByteArray &response);
 
     void handleChildren(const WatchData &data0, const GdbMi &item,
         QList<WatchData> *list);
-    void postCommand(const QByteArray &command,
-                     LldbCommandCallback callback = 0,
-                     const char *callbackName = 0,
-                     const QVariant &cookie = QVariant());
-    void postDirectCommand(const QByteArray &command);
+    void runSimpleCommand(const QByteArray &command);
+    void runCommand(const QByteArray &function,
+        const QByteArray &extraArgs = QByteArray());
     GdbMi parseResultFromString(QByteArray out);
 
     QQueue<LldbCommand> m_commands;

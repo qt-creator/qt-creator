@@ -68,15 +68,6 @@
 #include <stdio.h>
 
 
-#define DEBUG_SCRIPT 1
-#if DEBUG_SCRIPT
-#   define SDEBUG(s) qDebug() << s
-#else
-#   define SDEBUG(s)
-#endif
-# define XSDEBUG(s) qDebug() << s
-
-
 #define CB(callback) &LldbEngine::callback, STRINGIFY(callback)
 
 namespace Debugger {
@@ -119,44 +110,34 @@ void LldbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguage
     if (!(languages & CppLanguage))
         return;
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
-    //XSDEBUG("LldbEngine::executeDebuggerCommand:" << command);
     if (state() == DebuggerNotReady) {
         showMessage(_("LLDB PROCESS NOT RUNNING, PLAIN CMD IGNORED: ") + command);
         return;
     }
-    QTC_ASSERT(m_lldbProc.state() == QProcess::Running, notifyEngineIll());
-    postCommand(command.toLatin1(), CB(handleExecuteDebuggerCommand));
+    runCommand("executeDebuggerCommand", '"' + command.toUtf8() + '"');
 }
 
-void LldbEngine::handleExecuteDebuggerCommand(const LldbResponse &response)
+static int token = 1;
+
+void LldbEngine::runCommand(const QByteArray &functionName,
+    const QByteArray &extraArgs)
 {
-    Q_UNUSED(response);
+    runSimpleCommand("script " + functionName + "({"
+        + currentOptions()
+        + ",\"token\":" + QByteArray::number(token) + '}'
+        + (extraArgs.isEmpty() ? "" : ',' + extraArgs) + ')');
 }
 
-void LldbEngine::postDirectCommand(const QByteArray &command)
+void LldbEngine::runSimpleCommand(const QByteArray &command)
 {
-    QTC_ASSERT(m_lldbProc.state() == QProcess::Running, notifyEngineIll());
-    showMessage(_(command), LogInput);
-    m_lldbProc.write(command + '\n');
-}
-
-void LldbEngine::postCommand(const QByteArray &command,
-                 LldbCommandCallback callback,
-                 const char *callbackName,
-                 const QVariant &cookie)
-{
-    static int token = 0;
-    ++token;
     QTC_ASSERT(m_lldbProc.state() == QProcess::Running, notifyEngineIll());
     LldbCommand cmd;
-    cmd.command = command;
-    cmd.callback = callback;
-    cmd.callbackName = callbackName;
-    cmd.cookie = cookie;
     cmd.token = token;
+    cmd.command = command;
     m_commands.enqueue(cmd);
-    showMessage(QString::number(token) + _(cmd.command), LogInput);
-    m_lldbProc.write(cmd.command + '\n');
+    showMessage(QString::number(token) + _(command), LogInput);
+    m_lldbProc.write(command + '\n');
+    ++token;
 }
 
 void LldbEngine::shutdownInferior()
@@ -188,12 +169,9 @@ void LldbEngine::setupEngine()
         SLOT(readLldbStandardError()));
 
     connect(this, SIGNAL(outputReady(QByteArray)),
-        SLOT(handleOutput2(QByteArray)), Qt::QueuedConnection);
+        SLOT(handleResponse(QByteArray)), Qt::QueuedConnection);
 
     // We will stop immediately, so setup a proper callback.
-    LldbCommand cmd;
-    cmd.callback = &LldbEngine::handleFirstCommand;
-    m_commands.enqueue(cmd);
 
     m_lldbProc.start(m_lldb);
 
@@ -210,28 +188,17 @@ void LldbEngine::setupEngine()
         return;
     }
 
-    postCommand("script execfile('" +
-        Core::ICore::resourcePath().toLocal8Bit() + "/dumper/bridge.py')",
-                CB(handleSetupEngine));
-}
+    // Dummy callback for initial (lldb) prompt.
+    m_commands.enqueue(LldbCommand());
 
-void LldbEngine::handleSetupEngine(const LldbResponse &response)
-{
-    Q_UNUSED(response);
-    notifyEngineSetupOk();
+    runSimpleCommand("script execfile(\"" + Core::ICore::resourcePath().toUtf8()
+               + "/dumper/lbridge.py\")");
 }
 
 void LldbEngine::setupInferior()
 {
     QString fileName = QFileInfo(startParameters().executable).absoluteFilePath();
-    postCommand("script setupInferior('" + fileName.toUtf8() + "')",
-        CB(handleInferiorSetup));
-}
-
-void LldbEngine::handleInferiorSetup(const LldbResponse &response)
-{
-    Q_UNUSED(response);
-    notifyInferiorSetupOk();
+    runCommand("setupInferior", '"' + fileName.toUtf8() + '"');
 }
 
 void LldbEngine::runEngine()
@@ -244,73 +211,69 @@ void LldbEngine::runEngine()
 void LldbEngine::runEngine2()
 {
     showStatusMessage(tr("Running requested..."), 5000);
-    postCommand("script runEngine()", CB(handleRunEngine));
-}
-
-void LldbEngine::handleRunEngine(const LldbResponse &response)
-{
-    Q_UNUSED(response);
-    notifyEngineRunAndInferiorRunOk();
+    runCommand("runEngine");
 }
 
 void LldbEngine::interruptInferior()
 {
     showStatusMessage(tr("Interrupt requested..."), 5000);
-    postCommand("script interruptInferior()", CB(handleInferiorInterrupt));
+    runCommand("interruptInferior");
 }
 
-void LldbEngine::handleInferiorInterrupt(const LldbResponse &response)
-{
-    Q_UNUSED(response);
-    notifyInferiorStopOk();
-}
+//void LldbEngine::handleInferiorInterrupt(const QByteArray &response)
+//{
+//    Q_UNUSED(response);
+//    notifyInferiorStopOk();
+//}
 
 void LldbEngine::executeStep()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    postCommand("script executeStep()", CB(handleResponse));
+    runCommand("executeStep");
 }
 
 void LldbEngine::executeStepI()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    postCommand("script executeStepI()", CB(handleResponse));
+    runCommand("executeStepI");
 }
 
 void LldbEngine::executeStepOut()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    postCommand("script executeStepOut()", CB(handleResponse));
+    runCommand("executeStepOut");
 }
 
 void LldbEngine::executeNext()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    postCommand("script executeNext()", CB(handleResponse));
+    runCommand("executeNext");
 }
 
 void LldbEngine::executeNextI()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    postCommand("script executeStepNextI()", CB(handleResponse));
+    runCommand("executeStepNextI");
 }
 
 void LldbEngine::continueInferior()
 {
     resetLocation();
     notifyInferiorRunRequested();
-    postCommand("script continueInferior()", CB(handleResponse));
+    runCommand("continueInferior");
 }
 
-void LldbEngine::handleResponse(const LldbResponse &response)
+void LldbEngine::handleResponse(const QByteArray &response)
 {
-    GdbMi all = parseResultFromString(response.data);
+    GdbMi all = parseResultFromString(response);
 
+    int token = all.findChild("token").data().toInt();
+    Q_UNUSED(token);
     refreshLocals(all.findChild("data"));
     refreshStack(all.findChild("stack"));
     refreshThreads(all.findChild("threads"));
@@ -318,30 +281,32 @@ void LldbEngine::handleResponse(const LldbResponse &response)
     refreshState(all.findChild("state"));
     refreshLocation(all.findChild("location"));
     refreshModules(all.findChild("modules"));
+    refreshBreakpoints(all.findChild("bkpts"));
+
+    performContinuation();
 }
 
 void LldbEngine::executeRunToLine(const ContextData &data)
 {
     resetLocation();
     notifyInferiorRunRequested();
-    postCommand("script executeRunToLine(" + QByteArray::number(data.address)
-            + ',' + data.fileName.toUtf8() + ')', CB(handleResponse));
+    runCommand("executeRunToLine", QByteArray::number(data.address)
+               + ",'" + data.fileName.toUtf8() + "'");
 }
 
 void LldbEngine::executeRunToFunction(const QString &functionName)
 {
     resetLocation();
     notifyInferiorRunRequested();
-    postCommand("script executeRunToFuntion(" + functionName.toUtf8() + ')',
-                CB(handleResponse));
+    runCommand("executeRunToFunction", '"' + functionName.toUtf8() + '"');
 }
 
 void LldbEngine::executeJumpToLine(const ContextData &data)
 {
     resetLocation();
     notifyInferiorRunRequested();
-    postCommand("script executeJumpToLine(" + QByteArray::number(data.address)
-            + ',' + data.fileName.toUtf8() + ')', CB(handleResponse));
+    runCommand("executeJumpToLine", QByteArray::number(data.address)
+        + ',' + data.fileName.toUtf8());
 }
 
 void LldbEngine::activateFrame(int frameIndex)
@@ -350,14 +315,12 @@ void LldbEngine::activateFrame(int frameIndex)
     if (state() != InferiorStopOk && state() != InferiorUnrunnable)
         return;
 
-    postCommand("script activateFrame(" + QByteArray::number(frameIndex) + ')',
-        CB(handleResponse));
+    runCommand("activateFrame", QByteArray::number(frameIndex));
 }
 
 void LldbEngine::selectThread(ThreadId threadId)
 {
-    postCommand("script selectThread(" + QByteArray::number(threadId.raw()) + ')',
-        CB(handleResponse));
+    runCommand("selectThread", QByteArray::number(threadId.raw()));
 }
 
 bool LldbEngine::acceptsBreakpoint(BreakpointModelId id) const
@@ -447,24 +410,10 @@ void LldbEngine::attemptBreakpointSynchronization()
 
     if (!done) {
         showMessage(_("BREAKPOINTS ARE NOT FULLY SYNCHRONIZED"));
-        if (!toAdd.isEmpty())
-            toAdd.chop(1);
-        if (!toChange.isEmpty())
-            toChange.chop(1);
-        if (!toRemove.isEmpty())
-            toRemove.chop(1);
-
-        QByteArray cmd = "script handleBreakpoints('";
-        cmd += "{\"add\":[" + toAdd + "]";
-        cmd += ",\"change\":[" + toChange + "]";
-        cmd += ",\"remove\":[" + toRemove + "]}')";
-        postCommand(cmd, CB(handleBreakpointsSynchronized));
+        runCommand("handleBreakpoints",
+            '[' + toAdd + "],[" + toChange + "],[" + toRemove + ']');
     } else {
         showMessage(_("BREAKPOINTS ARE SYNCHRONIZED"));
-    //        d->m_disassemblerAgent.updateBreakpointMarkers();
-        //LldbResponse dummy;
-        //handleBreakpointsSynchronized(dummy);
-        performContinuation();
     }
 }
 
@@ -521,33 +470,29 @@ void LldbEngine::updateBreakpointData(const GdbMi &bkpt, bool added)
     }
 }
 
-void LldbEngine::handleBreakpointsSynchronized(const LldbResponse &response)
+void LldbEngine::refreshBreakpoints(const GdbMi &bkpts)
 {
-    BreakHandler *handler = breakHandler();
-    GdbMi all = parseResultFromString(response.data);
-    GdbMi bkpts = all.findChild("bkpts");
-    GdbMi added = bkpts.findChild("added");
-    GdbMi changed = bkpts.findChild("changed");
-    GdbMi removed = bkpts.findChild("removed");
-    foreach (const GdbMi &bkpt, added.children()) {
-        BreakpointModelId id = BreakpointModelId(bkpt.findChild("modelid").data());
-        QTC_CHECK(handler->state(id) == BreakpointInsertRequested);
-        updateBreakpointData(bkpt, true);
+    if (bkpts.isValid()) {
+        BreakHandler *handler = breakHandler();
+        GdbMi added = bkpts.findChild("added");
+        GdbMi changed = bkpts.findChild("changed");
+        GdbMi removed = bkpts.findChild("removed");
+        foreach (const GdbMi &bkpt, added.children()) {
+            BreakpointModelId id = BreakpointModelId(bkpt.findChild("modelid").data());
+            QTC_CHECK(handler->state(id) == BreakpointInsertRequested);
+            updateBreakpointData(bkpt, true);
+        }
+        foreach (const GdbMi &bkpt, changed.children()) {
+            BreakpointModelId id = BreakpointModelId(bkpt.findChild("modelid").data());
+            QTC_CHECK(handler->state(id) == BreakpointChangeRequested);
+            updateBreakpointData(bkpt, false);
+        }
+        foreach (const GdbMi &bkpt, removed.children()) {
+            BreakpointModelId id = BreakpointModelId(bkpt.findChild("modelid").data());
+            QTC_CHECK(handler->state(id) == BreakpointRemoveRequested);
+            handler->notifyBreakpointRemoveOk(id);
+        }
     }
-    foreach (const GdbMi &bkpt, changed.children()) {
-        BreakpointModelId id = BreakpointModelId(bkpt.findChild("modelid").data());
-        QTC_CHECK(handler->state(id) == BreakpointChangeRequested);
-        updateBreakpointData(bkpt, false);
-    }
-    foreach (const GdbMi &bkpt, removed.children()) {
-        BreakpointModelId id = BreakpointModelId(bkpt.findChild("modelid").data());
-        QTC_CHECK(handler->state(id) == BreakpointRemoveRequested);
-        handler->notifyBreakpointRemoveOk(id);
-    }
-
-    // Loop.
-    //attemptBreakpointSynchronization();
-    performContinuation();
 }
 
 void LldbEngine::loadSymbols(const QString &moduleName)
@@ -561,7 +506,7 @@ void LldbEngine::loadAllSymbols()
 
 void LldbEngine::reloadModules()
 {
-    postCommand("script listModules()", CB(handleResponse));
+    runCommand("listModules");
 }
 
 void LldbEngine::refreshModules(const GdbMi &modules)
@@ -583,22 +528,22 @@ void LldbEngine::refreshModules(const GdbMi &modules)
 
 void LldbEngine::requestModuleSymbols(const QString &moduleName)
 {
-    postCommand("script requestModuleSymbols(" + moduleName.toUtf8() + ')',
-        CB(handleListSymbols), moduleName);
+    runCommand("requestModuleSymbols", '"' + moduleName.toUtf8() + '"');
 }
 
-void LldbEngine::handleListSymbols(const LldbResponse &response)
+void LldbEngine::handleListSymbols(const QByteArray &response)
 {
-    GdbMi out;
-    out.fromString(response.data.trimmed());
-    Symbols symbols;
-    QString moduleName = response.cookie.toString();
-    foreach (const GdbMi &item, out.children()) {
-        Symbol symbol;
-        symbol.name = _(item.findChild("name").data());
-        symbols.append(symbol);
-    }
-   debuggerCore()->showModuleSymbols(moduleName, symbols);
+    Q_UNUSED(response);
+//    GdbMi out;
+//    out.fromString(response.trimmed());
+//    Symbols symbols;
+//    QString moduleName = response.cookie.toString();
+//    foreach (const GdbMi &item, out.children()) {
+//        Symbol symbol;
+//        symbol.name = _(item.findChild("name").data());
+//        symbols.append(symbol);
+//    }
+//   debuggerCore()->showModuleSymbols(moduleName, symbols);
 }
 
 
@@ -615,8 +560,8 @@ static QHash<QString, WatchData> m_toolTipCache;
 bool LldbEngine::setToolTipExpression(const QPoint &mousePos,
     TextEditor::ITextEditor *editor, const DebuggerToolTipContext &ctx)
 {
-    Q_UNUSED(mousePos)
-    Q_UNUSED(editor)
+    Q_UNUSED(mousePos);
+    Q_UNUSED(editor);
 
     if (state() != InferiorStopOk) {
         //SDEBUG("SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED");
@@ -698,7 +643,7 @@ void LldbEngine::assignValueInDebugger(const Internal::WatchData *, const QStrin
 {
     Q_UNUSED(expression);
     Q_UNUSED(value);
-    SDEBUG("ASSIGNING: " << (expression + QLatin1Char('=') + value.toString()));
+    //SDEBUG("ASSIGNING: " << (expression + QLatin1Char('=') + value.toString()));
 #if 0
     m_scriptEngine->evaluate(expression + QLatin1Char('=') + value.toString());
     updateLocals();
@@ -815,17 +760,29 @@ void LldbEngine::readLldbStandardOutput()
         m_inbuffer.append(out);
     }
 
-    qDebug("\nBUFFER FROM: '%s'", quoteUnprintable(m_inbuffer).constData());
+    //showMessage(_("Lldb stdout: " + out));
+    //qDebug("\nBUFFER FROM: '%s'", quoteUnprintable(m_inbuffer).constData());
     while (true) {
         int pos = m_inbuffer.indexOf("(lldb) ");
         if (pos == -1)
             break;
         QByteArray response = m_inbuffer.left(pos).trimmed();
         m_inbuffer = m_inbuffer.mid(pos + 7);
-        qDebug("\nBUFFER RECOGNIZED: '%s'", quoteUnprintable(response).constData());
+        //qDebug("\nBUFFER RECOGNIZED: '%s'", quoteUnprintable(response).constData());
+        showMessage(_(response));
+
+        if (m_commands.isEmpty()) {
+            QTC_ASSERT(false, qDebug() << "RESPONSE: " << response);
+            return;
+        }
+
+        LldbCommand cmd = m_commands.dequeue();
+        // FIXME: Find a way to tell LLDB to no echo input.
+        if (response.startsWith(cmd.command))
+            response = response.mid(cmd.command.size());
         emit outputReady(response);
     }
-    qDebug("\nBUFFER LEFT: '%s'", quoteUnprintable(m_inbuffer).constData());
+    //qDebug("\nBUFFER LEFT: '%s'", quoteUnprintable(m_inbuffer).constData());
 
     if (m_inbuffer.isEmpty())
         return;
@@ -856,45 +813,13 @@ void LldbEngine::readLldbStandardOutput()
     }
 }
 
-void LldbEngine::handleOutput2(const QByteArray &data)
-{
-    LldbResponse response;
-    response.data = data;
-    //showMessage(_(data));
-    QTC_ASSERT(!m_commands.isEmpty(), qDebug() << "RESPONSE: " << data; return);
-    LldbCommand cmd = m_commands.dequeue();
-    // FIXME: Find a way to tell LLDB to no echo input.
-    if (response.data.startsWith(cmd.command))
-        response.data = response.data.mid(cmd.command.size());
-
-    response.cookie = cmd.cookie;
-    qDebug("\nDEQUE: '%s' -> '%s'", cmd.command.constData(), cmd.callbackName);
-    if (cmd.callback) {
-        //qDebug() << "EXECUTING CALLBACK " << cmd.callbackName
-        //    << " RESPONSE: " << response.data;
-        (this->*cmd.callback)(response);
-    } else {
-        qDebug() << "NO CALLBACK FOR RESPONSE: " << response.data;
-    }
-}
-
-void LldbEngine::handleFirstCommand(const LldbResponse &response)
-{
-    Q_UNUSED(response);
-}
-
-void LldbEngine::updateAll()
-{
-    updateData(DataKind(LocalsData | StackData | ThreadData));
-}
-
-void LldbEngine::updateData(DataKind kind)
+QByteArray LldbEngine::currentOptions() const
 {
     QByteArray localsOptions;
     QByteArray stackOptions;
     QByteArray threadsOptions;
 
-    if (kind & LocalsData) {
+    {
         QByteArray watchers;
         //if (!m_toolTipExpression.isEmpty())
         //    watchers += m_toolTipExpression.toLatin1()
@@ -927,18 +852,24 @@ void LldbEngine::updateData(DataKind kind)
             + "watcher:" + watchers.toHex();
     }
 
-    if (kind & StackData) {
+    {
         int maxdepth = debuggerCore()->action(MaximalStackDepth)->value().toInt();
         ThreadId curthread = threadsHandler()->currentThread();
         stackOptions += "maxdepth:" + QByteArray::number(maxdepth);
         stackOptions += ",curthread:" + QByteArray::number(curthread.raw());
     }
 
-    postCommand("script updateData(" + QByteArray::number(kind) + ','
-            + '\'' + localsOptions + "',"
-            + '\'' + stackOptions + "',"
-            + '\'' + threadsOptions + "')",
-                CB(handleResponse));
+    QByteArray result;
+    result += "\"locals\":\"" + localsOptions + '"';
+    result += ",\"stack\":\"" + stackOptions + '"';
+    result += ",\"threads\":\"" + threadsOptions + '"';
+
+    return result;
+}
+
+void LldbEngine::updateAll()
+{
+    runCommand("createReport");
 }
 
 GdbMi LldbEngine::parseResultFromString(QByteArray out)
@@ -1063,6 +994,12 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
         QByteArray newState = reportedState.data();
         if (state() == InferiorRunRequested && newState == "running")
             notifyInferiorRunOk();
+        else if (state() == EngineSetupRequested && newState == "enginesetupok")
+            notifyEngineSetupOk();
+        else if (state() == InferiorSetupRequested && newState == "inferiorsetupok")
+            notifyInferiorSetupOk();
+        else if (state() == EngineRunRequested && newState == "enginerunok")
+            notifyEngineRunAndInferiorRunOk();
         else if (state() != InferiorStopOk && newState == "stopped")
              notifyInferiorSpontaneousStop();
     }

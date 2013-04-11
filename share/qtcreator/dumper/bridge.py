@@ -68,11 +68,11 @@ if not cdbLoaded:
 
 # LLDB
 if not gdbLoaded and not cdbLoaded:
-    try:
+    #try:
         execfile(os.path.join(currentDir, "lbridge.py"))
         lldbLoaded = True
-    except:
-        failReasons.append(traceback.format_exc())
+    #except:
+    #    failReasons.append(traceback.format_exc())
 
 
 # One is sufficient.
