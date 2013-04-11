@@ -47,7 +47,7 @@ leave room for the Qt 4 target page.
     <fieldpagetitle>Snippet Parameters</fieldpagetitle>
     <fields>
         <field name="CODE">
-            <fieldcontrol class="QTextEdit" defaulttext="int main(int argc, char *argv[]) { return 0; }"/>
+            <fieldcontrol class="QTextEdit" defaulttext="int main(int argc, char *argv[])&#10;{&#10;    return 0;&#10;}&#10;"/>
             <fielddescription>Code:</fielddescription>
         </field>
         <field name="TYPE">
