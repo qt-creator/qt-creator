@@ -47,6 +47,11 @@
 #include <QTextDocument>
 #include <QtTest>
 
+#if  QT_VERSION >= 0x050000
+#define MSKIP_SINGLE(x) QSKIP(x)
+#else
+#define MSKIP_SINGLE(x) QSKIP(x, SkipSingle)
+#endif
 
 /*!
     Tests for executing "test actions" for
@@ -125,7 +130,7 @@ void TestActionsTestCase::run(const Actions &tokenActions, const Actions &fileAc
     QStringList filesToOpen;
     const QList<CppModelManagerInterface::ProjectInfo> projectInfos = mm->projectInfos();
     if (projectInfos.isEmpty())
-        QSKIP("No project(s) loaded. Test operates only on loaded projects.");
+        MSKIP_SINGLE("No project(s) loaded. Test operates only on loaded projects.");
 
     foreach (const CppModelManagerInterface::ProjectInfo &info, projectInfos) {
         qDebug() << "Project" << info.project()->displayName() << "- files to process:"
