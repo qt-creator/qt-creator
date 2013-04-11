@@ -301,6 +301,10 @@ QWidget *CustomWizardFieldPage::registerTextEdit(const QString &fieldName,
                                                  const CustomWizardField &field)
 {
     QTextEdit *textEdit = new QTextEdit;
+    // Suppress formatting by default (inverting QTextEdit's default value) when
+    // pasting from Bug tracker, etc.
+    const bool acceptRichText = field.controlAttributes.value(QLatin1String("acceptRichText")) == QLatin1String("true");
+    textEdit->setAcceptRichText(acceptRichText);
     registerField(fieldName, textEdit, "plainText", SIGNAL(textChanged(QString)));
     const QString defaultText = field.controlAttributes.value(QLatin1String("defaulttext"));
     m_textEdits.push_back(TextEditData(textEdit, defaultText));
