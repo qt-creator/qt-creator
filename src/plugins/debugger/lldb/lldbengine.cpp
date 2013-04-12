@@ -204,8 +204,16 @@ void LldbEngine::setupInferior()
 void LldbEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+
+    QByteArray command;
+    bool done = attemptBreakpointSynchronizationHelper(&command);
+    if (done) {
+        runEngine2();
+        return;
+    }
+
     m_continuations.append(&LldbEngine::runEngine2);
-    attemptBreakpointSynchronization();
+    runCommand("handleBreakpoints", command);
 }
 
 void LldbEngine::runEngine2()
@@ -329,14 +337,8 @@ bool LldbEngine::acceptsBreakpoint(BreakpointModelId id) const
         && startParameters().startMode != AttachCore;
 }
 
-void LldbEngine::attemptBreakpointSynchronization()
+bool LldbEngine::attemptBreakpointSynchronizationHelper(QByteArray *command)
 {
-    showMessage(_("ATTEMPT BREAKPOINT SYNCHRONIZATION"));
-    if (!stateAcceptsBreakpointChanges()) {
-        showMessage(_("BREAKPOINT SYNCHRONIZATION NOT POSSIBLE IN CURRENT STATE"));
-        return;
-    }
-
     BreakHandler *handler = breakHandler();
 
     foreach (BreakpointModelId id, handler->unclaimedBreakpointIds()) {
@@ -407,11 +409,24 @@ void LldbEngine::attemptBreakpointSynchronization()
             QTC_ASSERT(false, qDebug() << "UNKNOWN STATE"  << id << state());
         }
     }
+    if (!done)
+        *command = '[' + toAdd + "],[" + toChange + "],[" + toRemove + ']';
+    return done;
+}
 
+void LldbEngine::attemptBreakpointSynchronization()
+{
+    showMessage(_("ATTEMPT BREAKPOINT SYNCHRONIZATION"));
+    if (!stateAcceptsBreakpointChanges()) {
+        showMessage(_("BREAKPOINT SYNCHRONIZATION NOT POSSIBLE IN CURRENT STATE"));
+        return;
+    }
+
+    QByteArray command;
+    bool done = attemptBreakpointSynchronizationHelper(&command);
     if (!done) {
         showMessage(_("BREAKPOINTS ARE NOT FULLY SYNCHRONIZED"));
-        runCommand("handleBreakpoints",
-            '[' + toAdd + "],[" + toChange + "],[" + toRemove + ']');
+        runCommand("handleBreakpoints", command);
     } else {
         showMessage(_("BREAKPOINTS ARE SYNCHRONIZED"));
     }
@@ -890,6 +905,8 @@ GdbMi LldbEngine::parseResultFromString(QByteArray out)
     }
     out = out.mid(pos);
     if (out.endsWith('\''))
+        out.chop(1);
+    else if (out.endsWith('"'))
         out.chop(1);
     else
         showMessage(_("JUNK AT END OF RESPONSE: " + out));

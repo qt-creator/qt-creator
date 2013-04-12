@@ -259,6 +259,7 @@ NamespaceCode = gdb.TYPE_CODE_NAMESPACE
 #Code = gdb.TYPE_CODE_DECFLOAT # Decimal floating point.
 #Code = gdb.TYPE_CODE_MODULE # Fortran
 #Code = gdb.TYPE_CODE_INTERNAL_FUNCTION
+SimpleValueCode = -1
 
 
 #######################################################################

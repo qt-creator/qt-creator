@@ -109,17 +109,13 @@ class Value:
     def fields(self):
         return [Value(self.raw.GetChildAtIndex(i)) for i in range(self.raw.num_children)]
 
-currentThread = None
-currentFrame = None
+def currentFrame():
+    currentThread = lldb.process.GetThreadAtIndex(0)
+    return currentThread.GetFrameAtIndex(0)
 
 def listOfLocals(varList):
-    global currentThread
-    global currentFrame
-
     items = []
-    currentThread = lldb.process.GetThreadAtIndex(0)
-    currentFrame = currentThread.GetFrameAtIndex(0)
-    for var in currentFrame.variables:
+    for var in currentFrame().variables:
         item = LocalItem()
         item.iname = "local." + var.name
         item.name = var.name
@@ -160,7 +156,7 @@ def threadsData(options):
         result += ",file=\"%s\"" % frame.line_entry.file
         result += "}},"
 
-    result += "],current-thread-id=\"%s\"}" % lldb.process.selected_thread.id
+    result += "],current-thread-id=\"%s\"}," % lldb.process.selected_thread.id
     return result
 
 # See lldb.StateType
@@ -256,12 +252,9 @@ def onBreak():
     result = "*stopped,frame={....}"
     print result
 
-def handleBreakpoints(opts, toAdd, toChange, toRemove):
-    #todo = json.loads(stuff)
-    #dumpJson(todo)
+def handleBreakpoints(options, toAdd, toChange, toRemove):
     #target = lldb.debugger.CreateTargetWithFileAndArch (exe, lldb.LLDB_ARCH_DEFAULT)
     target = lldb.debugger.GetTargetAtIndex(0)
-    #target = lldb.target
 
     result = "result={bkpts={added=["
 
@@ -282,8 +275,8 @@ def handleBreakpoints(opts, toAdd, toChange, toRemove):
         #"breakpoint command add 1 -o \"import time; print time.asctime()\"
         #cmd = "script print(11111111)"
         cmd = "continue"
-        lldb.debugger.HandleCommand(
-            "breakpoint command add -o 'script onBreak()' %s" % bpNew.GetID())
+        #lldb.debugger.HandleCommand(
+        #    "breakpoint command add -o 'script onBreak()' %s" % bpNew.GetID())
 
         result += dumpBreakpoint(bpNew, bp["modelid"])
 
@@ -306,126 +299,98 @@ def handleBreakpoints(opts, toAdd, toChange, toRemove):
     result += "]}}"
     return result
 
-def doSync(func):
-    lldb.debugger.SetAsync(False)
-    func()
-    lldb.debugger.SetAsync(True)
-
-def createReport(options):
+def createStoppedReport(options):
     result = "result={"
-    result += bb(options["locals"])
+    result += bb(options["locals"]) + ","
     result += stackData(options["stack"], lldb.process.selected_thread.id)
     result += threadsData({})
     result += stateData({})
     result += locationData({})
-    result += "token=\"%s\"" % options["token"]
+    result += "token=\"%s\"," % options["token"]
     result += "}"
     return result
 
-def executeNext(opts):
-    doSync(lldb.thread.StepOver)
-    return createReport(opts)
+def createRunReport(options):
+    result = "result={"
+    #result += stateData({})
+    result += "state=\"running\","
+    result += "token=\"%s\"," % options["token"]
+    result += "}"
+    return result
 
-def executeNextI(opts):
-    doSync(lldb.thread.StepOver)
-    return createReport(opts)
+def createReport(options):
+    return createStoppedReport(options)
 
-def executeStep(opts):
-    lldb.thread.Step()
-    return createReport(opts)
+def executeNext(options):
+    lldb.thread.StepOver()
+    return createRunReport(options)
 
-def executeStepI(opts):
-    doSync(lldb.thread.StepInstOver)
-    return createReport(opts)
+def executeNextI(options):
+    lldb.thread.StepOver()
+    return createRunReport(options)
 
-def executeStepOut(opts):
-    doSync(lldb.thread.StepOut)
-    return createReport(opts)
+def executeStep(options):
+    lldb.thread.StepInto()
+    return createRunReport(options)
 
-def executeRunToLine(opts):
-    return "result={error={msg='Not implemented'}}"
+def executeStepI(options):
+    lldb.thread.StepInstOver()
+    return createRunReport(options)
 
-def executeJumpToLine(opts):
-    return "result={error={msg='Not implemented'}}"
+def executeStepOut(options):
+    lldb.thread.StepOutOfFrame(currentFrame())
+    return createRunReport(options)
 
-def continueInferior(opts):
-    #lldb.debugger.HandleCommand("process continue")
+def executeRunToLine(options, file, line):
+    lldb.thread.StepOverUntil(file, line)
+    return createRunReport(options)
+
+def executeJumpToLine(options):
+    return "result={error={msg='Not implemented'},state='stopped'}"
+
+def continueInferior(options):
     lldb.process.Continue()
-    return "result={state='running'}"
+    return "result={state=\"running\"}"
 
-def interruptInferior(opts):
-    lldb.debugger.SetAsync(False)
+def interruptInferior(options):
     lldb.process.Stop()
-    #lldb.process.SendAsyncInterrupt()
-    lldb.debugger.SetAsync(True)
-    return createReport()
+    return "result={state=\"interrupting\"}"
 
-def setupInferior(opts, fileName):
-    lldb.debugger.HandleCommand("target create '%s'" % fileName)
-    return "result={state=\"inferiorsetupok\"}"
+def setupInferior(options, fileName):
+    msg = lldb.debugger.HandleCommand("target create '%s'" % fileName)
+    return "result={state=\"inferiorsetupok\",msg=\"%s\"}" % msg
 
-def runEngine(opts):
-    lldb.debugger.HandleCommand("process launch")
-    return "result={state=\"enginerunok\"}"
+def runEngine(options):
+    msg = lldb.debugger.HandleCommand("process launch")
+    return "result={state=\"enginerunok\",msg=\"%s\"}" % msg
 
-def activateFrame(opts, frame):
+def activateFrame(options, frame):
     lldb.debugger.HandleCommand("frame select " + frame)
+    return createStoppedReport(options)
 
-def selectThread(opts, thread):
+def selectThread(options, thread):
     lldb.debugger.HandleCommand("thread select " + thread)
+    return createStoppedReport(options)
 
-def requestModuleSymbols(opts, frame):
+def requestModuleSymbols(options, frame):
     lldb.debugger.HandleCommand("target module list " + frame)
 
+def executeDebuggerCommand(options, command):
+    msg = lldb.debugger.HandleCommand(command)
+    result = "result={"
+    result += bb(options["locals"]) + ","
+    result += stackData(options["stack"], lldb.process.selected_thread.id)
+    result += threadsData({})
+    result += stateData({})
+    result += locationData({})
+    result += "token=\"%s\"," % options["token"]
+    result += "msg=\"%s\"" % msg
+    result += "}"
+    return result
 
-
-#SBEvent data;
-#while (!stop) {
-#if (self->m_listener.WaitForEvent(UINT32_MAX, data)) {
-#   if (data.getType() == SBProcess::eBroadcastBitStateChanged &&
-#m_process.GetStateFromEvent (data) == eStateStopped) {
-#     SBThread th = m_process.GetSelectedThread();
-#     if (th.GetStopReason() == eStopReasonBreakpoint) {
-#       // th.GetStopReasonDataAtIndex(0) should have the breakpoint id
-#     }
-#   }
 
 lldb.debugger.HandleCommand("setting set auto-confirm on")
 lldb.debugger.HandleCommand("setting set interpreter.prompt-on-quit off")
-
-if False:
-    # default:
-    # frame-format (string) = "frame #${frame.index}: ${frame.pc}
-    # { ${module.file.basename}{`${function.name-with-args}${function.pc-offset}}}
-    # { at ${line.file.basename}:${line.number}}\n"
-    lldb.debugger.HandleCommand("settings set frame-format frame=\{"
-                + "index='${frame.index}',"
-                + "pc='${frame.pc}',"
-                + "module='${module.file.basename}',"
-                #+ "function='${function.name-with-args}',"
-                + "function='${function.name}',"
-                + "pcoffset='${function.pc-offset}',"
-                + "file='${line.file.basename}',"
-                + "line='${line.number}'"
-                + "\},")
-
-
-    # default:
-    # "thread #${thread.index}: tid = ${thread.id}{, ${frame.pc}}
-    # { ${module.file.basename}{`${function.name-with-args}${function.pc-offset}}}
-    # { at ${line.file.basename}:${line.number}}
-    # {, stop reason = ${thread.stop-reason}}{\nReturn value: ${thread.return-value}}\n"
-    lldb.debugger.HandleCommand("settings set thread-format thread=\{"
-                + "index='${thread.index}',"
-                + "tid='${thread.id}',"
-                + "framepc='${frame.pc}',"
-                + "module='${module.file.basename}',"
-                + "function='${function.name}',"
-                + "pcoffset='${function.pc-offset}',"
-                + "stopreason='${thread.stop-reason}'"
-                #+ "returnvalue='${thread.return-value}'"
-                + "\},")
-
 
 lldbLoaded = True
 

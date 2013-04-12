@@ -85,6 +85,7 @@ private:
 
     bool acceptsBreakpoint(BreakpointModelId id) const;
     void attemptBreakpointSynchronization();
+    bool attemptBreakpointSynchronizationHelper(QByteArray *command);
 
     void assignValueInDebugger(const WatchData *data,
         const QString &expr, const QVariant &value);
