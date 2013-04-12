@@ -60,7 +60,7 @@ QbsCleanStep::QbsCleanStep(ProjectExplorer::BuildStepList *bsl) :
     ProjectExplorer::BuildStep(bsl, Core::Id(Constants::QBS_CLEANSTEP_ID)),
     m_job(0), m_showCompilerOutput(true), m_parser(0)
 {
-    setDisplayName(tr("Qbs clean"));
+    setDisplayName(tr("Qbs Clean"));
 }
 
 QbsCleanStep::QbsCleanStep(ProjectExplorer::BuildStepList *bsl, const QbsCleanStep *other) :
@@ -290,9 +290,9 @@ void QbsCleanStepConfigWidget::updateState()
 
     QString command = QLatin1String("qbs clean ");
     if (m_step->dryRun())
-        command += QLatin1String("--dryRun ");
+        command += QLatin1String("--dry-run ");
     if (m_step->keepGoing())
-        command += QLatin1String("--keepGoing ");
+        command += QLatin1String("--keep-going ");
     if (m_step->maxJobs() != defaultOptions.maxJobCount)
         command += QString::fromLatin1("--jobs %1 ").arg(m_step->maxJobs());
     if (m_step->cleanAll())
@@ -344,7 +344,7 @@ QList<Core::Id> QbsCleanStepFactory::availableCreationIds(ProjectExplorer::Build
 QString QbsCleanStepFactory::displayNameForId(const Core::Id id) const
 {
     if (id == Core::Id(Constants::QBS_CLEANSTEP_ID))
-        return tr("Qbs");
+        return tr("Qbs Clean");
     return QString();
 }
 

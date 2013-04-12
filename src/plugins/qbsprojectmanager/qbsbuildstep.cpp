@@ -64,7 +64,7 @@ QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl) :
     ProjectExplorer::BuildStep(bsl, Core::Id(Constants::QBS_BUILDSTEP_ID)),
     m_job(0), m_parser(0)
 {
-    setDisplayName(tr("Qbs build"));
+    setDisplayName(tr("Qbs Build"));
 }
 
 QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl, const QbsBuildStep *other) :
@@ -379,9 +379,9 @@ void QbsBuildStepConfigWidget::updateState()
 
     QString command = QLatin1String("qbs ");
     if (m_step->dryRun())
-        command += QLatin1String("--dryRun ");
+        command += QLatin1String("--dry-run ");
     if (m_step->keepGoing())
-        command += QLatin1String("--keepGoing ");
+        command += QLatin1String("--keep-going ");
     if (m_step->maxJobs() != defaultOptions.maxJobCount)
         command += QString::fromLatin1("--jobs %1 ").arg(m_step->maxJobs());
     command += QString::fromLatin1("build profile:%1 %2").arg(m_step->profile(), buildVariant);
@@ -437,7 +437,7 @@ QList<Core::Id> QbsBuildStepFactory::availableCreationIds(ProjectExplorer::Build
 QString QbsBuildStepFactory::displayNameForId(const Core::Id id) const
 {
     if (id == Core::Id(Constants::QBS_BUILDSTEP_ID))
-        return tr("Qbs");
+        return tr("Qbs Build");
     return QString();
 }
 
