@@ -87,7 +87,10 @@ SOURCES += qnxplugin.cpp \
     bardescriptoreditorpermissionswidget.cpp \
     bardescriptoreditorenvironmentwidget.cpp \
     bardescriptoreditorassetswidget.cpp \
-    bardescriptoreditorabstractpanelwidget.cpp
+    bardescriptoreditorabstractpanelwidget.cpp \
+    blackberrysetupwizard.cpp \
+    blackberrysetupwizardpages.cpp \
+    blackberryutils.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -174,7 +177,10 @@ HEADERS += qnxplugin.h\
     bardescriptoreditorpermissionswidget.h \
     bardescriptoreditorenvironmentwidget.h \
     bardescriptoreditorassetswidget.h \
-    bardescriptoreditorabstractpanelwidget.h
+    bardescriptoreditorabstractpanelwidget.h \
+    blackberrysetupwizard.h \
+    blackberrysetupwizardpages.h \
+    blackberryutils.h
 
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \
@@ -197,7 +203,10 @@ FORMS += \
     bardescriptoreditorgeneralwidget.ui \
     bardescriptoreditorpermissionswidget.ui \
     bardescriptoreditorenvironmentwidget.ui \
-    bardescriptoreditorassetswidget.ui
+    bardescriptoreditorassetswidget.ui \
+    blackberrysetupwizardkeyspage.ui \
+    blackberrysetupwizarddevicepage.ui \
+    blackberrysetupwizardfinishpage.ui
 
 include(../../private_headers.pri)
 

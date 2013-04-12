@@ -68,8 +68,6 @@ private slots:
 private:
     void updateRegisterSection();
 
-    bool hasRegisteredKey() const;
-
     QString dataDir() const;
     QString cskFilePath() const;
     QString dbFilePath() const;

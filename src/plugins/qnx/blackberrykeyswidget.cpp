@@ -36,6 +36,7 @@
 #include "blackberryimportcertificatedialog.h"
 #include "blackberrycreatecertificatedialog.h"
 #include "blackberrycertificate.h"
+#include "blackberryutils.h"
 #include "ui_blackberrykeyswidget.h"
 
 #include <QFileInfo>
@@ -175,7 +176,7 @@ void BlackBerryKeysWidget::handleSelectionChanged(const QItemSelection &selected
 
 void BlackBerryKeysWidget::updateRegisterSection()
 {
-    if (hasRegisteredKey()) {
+    if (BlackBerryUtils::hasRegisteredKeys()) {
         m_ui->registerButton->hide();
         m_ui->unregisterButton->show();
         m_ui->registeredLabel->setText(tr("Registered: Yes"));
@@ -185,24 +186,6 @@ void BlackBerryKeysWidget::updateRegisterSection()
         m_ui->registeredLabel->setText(tr("Registered: No"));
     }
 }
-
-bool BlackBerryKeysWidget::hasRegisteredKey() const
-{
-    BlackBerryConfiguration &configuration = BlackBerryConfiguration::instance();
-
-    QFileInfo cskFile(configuration.barsignerCskPath());
-
-    if (!cskFile.exists())
-        return false;
-
-    QFileInfo dbFile(configuration.barsignerDbPath());
-
-    if (!dbFile.exists())
-        return false;
-
-    return true;
-}
-
 
 } // namespace Internal
 } // namespace Qnx

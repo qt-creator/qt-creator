@@ -80,7 +80,7 @@ QString BlackBerryDeviceInformation::hardwareId() const
 void BlackBerryDeviceInformation::processData(const QString &line)
 {
     if (line.startsWith(QLatin1String("devicepin::")))
-        m_devicePin = line.split(QLatin1String("::")).at(1).trimmed();
+        m_devicePin = line.split(QLatin1String("::0x")).at(1).trimmed();
     else if (line.startsWith(QLatin1String("device_os::")))
         m_deviceOS = line.split(QLatin1String("::")).at(1).trimmed();
     else if (line.startsWith(QLatin1String("hardwareid::")))

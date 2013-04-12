@@ -29,69 +29,54 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYREGISTERKEYDIALOG_H
-#define QNX_INTERNAL_BLACKBERRYREGISTERKEYDIALOG_H
+#include "blackberryutils.h"
+#include "blackberryconfiguration.h"
 
-#include <QDialog>
+#include <QFileInfo>
+#include <QString>
+#include <QFile>
+#include <QTextStream>
 
-QT_BEGIN_NAMESPACE
-class QPushButton;
-QT_END_NAMESPACE
+using namespace Qnx::Internal;
 
-namespace Utils {
-class PathChooser;
+bool BlackBerryUtils::hasRegisteredKeys()
+{
+    BlackBerryConfiguration &configuration = BlackBerryConfiguration::instance();
+
+    QFileInfo cskFile(configuration.barsignerCskPath());
+
+    if (!cskFile.exists())
+        return false;
+
+    QFileInfo dbFile(configuration.barsignerDbPath());
+
+    if (!dbFile.exists())
+        return false;
+
+    return true;
 }
 
-namespace Qnx {
-namespace Internal {
-
-class Ui_BlackBerryRegisterKeyDialog;
-class BlackBerryCsjRegistrar;
-class BlackBerryCertificate;
-
-class BlackBerryRegisterKeyDialog : public QDialog
+QString BlackBerryUtils::getCsjAuthor(const QString &fileName)
 {
-Q_OBJECT
+    QFile file(fileName);
 
-public:
-    explicit BlackBerryRegisterKeyDialog(QWidget *parent = 0,
-            Qt::WindowFlags f = 0);
+    QString author = QLatin1String("Unknown Author");
 
-    QString pbdtPath() const;
-    QString rdkPath() const;
-    QString csjPin() const;
-    QString cskPin() const;
-    QString keystorePassword() const;
-    QString keystorePath() const;
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return author;
 
-    BlackBerryCertificate *certificate() const;
+    QTextStream stream(&file);
 
-private slots:
-    void csjAutoComplete(const QString &path);
-    void validate();
-    void createKey();
-    void pinCheckBoxChanged(int state);
-    void certCheckBoxChanged(int state);
-    void registrarFinished(int status, const QString &errorString);
-    void certificateCreated(int status);
+    while (!stream.atEnd()) {
+        QString line = stream.readLine();
 
-private:
-    void setupCsjPathChooser(Utils::PathChooser *chooser);
-    void generateDeveloperCertificate();
-    void cleanup() const;
-    void setBusy(bool busy);
+        if (line.startsWith(QLatin1String("Company="))) {
+            author = line.remove(QLatin1String("Company=")).trimmed();
+            break;
+        }
+    }
 
-    Ui_BlackBerryRegisterKeyDialog *m_ui;
+    file.close();
 
-    BlackBerryCsjRegistrar *m_registrar;
-
-    BlackBerryCertificate *m_certificate;
-
-    QPushButton *m_okButton;
-    QPushButton *m_cancelButton;
-};
-
-} // namespace Internal
-} // namespace Qnx
-
-#endif // QNX_INTERNAL_BLACKBERRYREGISTERKEYDIALOG_H
+    return author;
+}

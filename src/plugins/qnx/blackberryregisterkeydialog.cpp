@@ -33,6 +33,7 @@
 #include "blackberrycsjregistrar.h"
 #include "blackberryconfiguration.h"
 #include "blackberrycertificate.h"
+#include "blackberryutils.h"
 #include "ui_blackberryregisterkeydialog.h"
 
 #include <QFileDialog>
@@ -273,7 +274,7 @@ BlackBerryCertificate * BlackBerryRegisterKeyDialog::certificate() const
 void BlackBerryRegisterKeyDialog::generateDeveloperCertificate()
 {
     m_certificate = new BlackBerryCertificate(keystorePath(),
-            getCsjAuthor(rdkPath()), keystorePassword());
+            BlackBerryUtils::getCsjAuthor(rdkPath()), keystorePassword());
 
     connect(m_certificate, SIGNAL(finished(int)), this, SLOT(certificateCreated(int)));
 
@@ -312,30 +313,6 @@ void BlackBerryRegisterKeyDialog::setBusy(bool busy)
 
 }
 
-QString BlackBerryRegisterKeyDialog::getCsjAuthor(const QString &fileName) const
-{
-    QFile file(fileName);
-
-    QString author = QLatin1String("Unknown Author");
-
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return author;
-
-    QTextStream stream(&file);
-
-    while (!stream.atEnd()) {
-        QString line = stream.readLine();
-
-        if (line.startsWith(QLatin1String("Company="))) {
-            author = line.remove(QLatin1String("Company=")).trimmed();
-            break;
-        }
-    }
-
-    file.close();
-
-    return author;
-}
 void BlackBerryRegisterKeyDialog::setupCsjPathChooser(Utils::PathChooser *chooser)
 {
     chooser->setExpectedKind(Utils::PathChooser::File);

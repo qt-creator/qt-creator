@@ -29,69 +29,23 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYREGISTERKEYDIALOG_H
-#define QNX_INTERNAL_BLACKBERRYREGISTERKEYDIALOG_H
+#ifndef QNX_INTERNAL_BLACKBERRYUTILS_H
+#define QNX_INTERNAL_BLACKBERRYUTILS_H
 
-#include <QDialog>
-
-QT_BEGIN_NAMESPACE
-class QPushButton;
-QT_END_NAMESPACE
-
-namespace Utils {
-class PathChooser;
-}
+class QString;
 
 namespace Qnx {
 namespace Internal {
 
-class Ui_BlackBerryRegisterKeyDialog;
-class BlackBerryCsjRegistrar;
-class BlackBerryCertificate;
-
-class BlackBerryRegisterKeyDialog : public QDialog
+class BlackBerryUtils
 {
-Q_OBJECT
-
 public:
-    explicit BlackBerryRegisterKeyDialog(QWidget *parent = 0,
-            Qt::WindowFlags f = 0);
+    static bool hasRegisteredKeys();
 
-    QString pbdtPath() const;
-    QString rdkPath() const;
-    QString csjPin() const;
-    QString cskPin() const;
-    QString keystorePassword() const;
-    QString keystorePath() const;
-
-    BlackBerryCertificate *certificate() const;
-
-private slots:
-    void csjAutoComplete(const QString &path);
-    void validate();
-    void createKey();
-    void pinCheckBoxChanged(int state);
-    void certCheckBoxChanged(int state);
-    void registrarFinished(int status, const QString &errorString);
-    void certificateCreated(int status);
-
-private:
-    void setupCsjPathChooser(Utils::PathChooser *chooser);
-    void generateDeveloperCertificate();
-    void cleanup() const;
-    void setBusy(bool busy);
-
-    Ui_BlackBerryRegisterKeyDialog *m_ui;
-
-    BlackBerryCsjRegistrar *m_registrar;
-
-    BlackBerryCertificate *m_certificate;
-
-    QPushButton *m_okButton;
-    QPushButton *m_cancelButton;
+    static QString getCsjAuthor(const QString &fileName);
 };
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_BLACKBERRYREGISTERKEYDIALOG_H
+#endif // QNX_INTERNAL_BLACKBERRYUTILS_H

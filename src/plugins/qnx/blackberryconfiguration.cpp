@@ -256,18 +256,34 @@ void BlackBerryConfiguration::syncCertificates(QList<BlackBerryCertificate*> cer
     m_config.activeCertificate = activeCertificate;
 
     foreach (BlackBerryCertificate *cert, m_config.certificates) {
-        if (!certificates.contains(cert)) {
-            m_config.certificates.removeAll(cert);
-            delete cert;
-        }
+        if (!certificates.contains(cert))
+            removeCertificate(cert);
     }
 
-    foreach (BlackBerryCertificate *cert, certificates) {
-        if (!m_config.certificates.contains(cert)) {
-            cert->setParent(this);
-            m_config.certificates << cert;
-        }
-    }
+    foreach (BlackBerryCertificate *cert, certificates)
+        addCertificate(cert);
+}
+
+void BlackBerryConfiguration::addCertificate(BlackBerryCertificate *certificate)
+{
+    if (m_config.certificates.contains(certificate))
+        return;
+
+    if (m_config.certificates.isEmpty())
+        m_config.activeCertificate = certificate;
+
+    certificate->setParent(this);
+    m_config.certificates << certificate;
+}
+
+void BlackBerryConfiguration::removeCertificate(BlackBerryCertificate *certificate)
+{
+    if (m_config.activeCertificate == certificate)
+        m_config.activeCertificate = 0;
+
+    m_config.certificates.removeAll(certificate);
+
+    delete certificate;
 }
 
 QList<BlackBerryCertificate*> BlackBerryConfiguration::certificates() const
@@ -468,6 +484,11 @@ QString BlackBerryConfiguration::barsignerDbPath() const
 QString BlackBerryConfiguration::defaultKeystorePath() const
 {
     return dataDirPath() + QLatin1String("/author.p12");
+}
+
+QString BlackBerryConfiguration::defaultDebugTokenPath() const
+{
+    return dataDirPath() + QLatin1String("/debugtoken.bar");
 }
 
 // TODO: QnxUtils::parseEnvFile() and qnxEnv() to return Util::Enviroment instead(?)

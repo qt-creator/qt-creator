@@ -83,6 +83,7 @@ const char QNX_BAR_DESCRIPTOR_WIZARD_ID[]          = "Q.QnxBlackBerryBarDescript
 const char QNX_BLACKBERRY_QTQUICK_APP_WIZARD_ID[]  = "Q.QnxBlackBerryQQApp";
 const char QNX_BLACKBERRY_QTQUICK2_APP_WIZARD_ID[] = "Q.QnxBlackBerryQQ2App";
 const char QNX_BLACKBERRY_GUI_APP_WIZARD_ID[]      = "Q.QnxBlackBerryGuiApp";
+const char QNX_BLACKBERRY_SETUP_WIZARD_ID[]        = "Q.QnxBlackBerrySetupWizardId";
 
 const char QNX_QNX_PLATFORM_NAME[] = "QNX";
 const char QNX_BB_PLATFORM_NAME[]  = "BlackBerry";

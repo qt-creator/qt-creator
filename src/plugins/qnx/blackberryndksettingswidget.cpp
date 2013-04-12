@@ -32,6 +32,8 @@
 #include "blackberryndksettingswidget.h"
 #include "ui_blackberryndksettingswidget.h"
 #include "qnxutils.h"
+#include "blackberryutils.h"
+#include "blackberrysetupwizard.h"
 
 #include <utils/pathchooser.h>
 
@@ -50,19 +52,62 @@ BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
     m_ui->setupUi(this);
     m_ui->sdkPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     m_ui->sdkPath->setPath(m_bbConfig->ndkPath());
+    m_hasValidSdkPath = QnxUtils::isValidNdkPath(m_ui->sdkPath->path());
 
     initInfoTable();
 
+    connect(m_ui->wizardButton, SIGNAL(clicked()), this, SLOT(launchBlackBerrySetupWizard()));
     connect(m_ui->sdkPath, SIGNAL(changed(QString)), this, SLOT(checkSdkPath()));
     connect(m_ui->removeButton, SIGNAL(clicked()), this, SLOT(cleanConfiguration()));
     connect(m_bbConfig, SIGNAL(updated()), this, SLOT(updateInfoTable()));
 }
 
+void BlackBerryNDKSettingsWidget::setRemoveButtonVisible(bool visible)
+{
+    m_ui->removeButton->setVisible(visible);
+}
+
+void BlackBerryNDKSettingsWidget::setWizardMessageVisible(bool visible)
+{
+    m_ui->wizardLabel->setVisible(visible);
+    m_ui->wizardButton->setVisible(visible);
+}
+
+QString BlackBerryNDKSettingsWidget::sdkPath() const
+{
+    return m_ui->sdkPath->path();
+}
+
+void BlackBerryNDKSettingsWidget::launchBlackBerrySetupWizard() const
+{
+    const bool alreadyConfigured = BlackBerryUtils::hasRegisteredKeys();
+
+    if (alreadyConfigured) {
+        QMessageBox::information(0, tr("Qt Creator"),
+            tr("It appears that your BlackBerry environment has already been configured."));
+            return;
+    }
+
+    BlackBerrySetupWizard wizard;
+    wizard.exec();
+}
+
 void BlackBerryNDKSettingsWidget::checkSdkPath()
 {
     if (!m_ui->sdkPath->path().isEmpty() &&
-            QnxUtils::isValidNdkPath(m_ui->sdkPath->path()))
+            QnxUtils::isValidNdkPath(m_ui->sdkPath->path())) {
         m_bbConfig->setupNdkConfiguration(m_ui->sdkPath->path());
+        m_hasValidSdkPath = true;
+    } else {
+        m_hasValidSdkPath = false;
+    }
+
+    emit sdkPathChanged(m_ui->sdkPath->path());
+}
+
+bool BlackBerryNDKSettingsWidget::hasValidSdkPath() const
+{
+    return m_hasValidSdkPath;
 }
 
 void BlackBerryNDKSettingsWidget::updateInfoTable()

@@ -50,10 +50,18 @@ class BlackBerryNDKSettingsWidget : public QWidget
 public:
     explicit BlackBerryNDKSettingsWidget(QWidget *parent = 0);
 
+   void setRemoveButtonVisible(bool visible);
+   void setWizardMessageVisible(bool visible);
+
+   QString sdkPath() const;
+
+   bool hasValidSdkPath() const;
+
 signals:
-    void sdkPathChanged();
+    void sdkPathChanged(const QString &newPath);
 
 public slots:
+    void launchBlackBerrySetupWizard() const;
     void checkSdkPath();
     void updateInfoTable();
     void clearInfoTable();
@@ -61,10 +69,10 @@ public slots:
 
 private:
     void initInfoTable();
-    QString m_sdkPath;
     Ui_BlackBerryNDKSettingsWidget *m_ui;
     BlackBerryConfiguration *m_bbConfig;
     QStandardItemModel *m_infoModel;
+    bool m_hasValidSdkPath;
 
 };
 
