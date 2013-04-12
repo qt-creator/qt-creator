@@ -284,7 +284,7 @@ def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None,
                 test.fail("Failed to check target '%s'." % Targets.getStringForTarget(current))
             else:
                 # Simulator has been added without knowing whether configured or not - so skip warning here?
-                if current != Targets.Targets.SIMULATOR:
+                if current != Targets.SIMULATOR:
                     test.warning("Target '%s' is not set up correctly." % Targets.getStringForTarget(current))
     return checkedTargets
 
