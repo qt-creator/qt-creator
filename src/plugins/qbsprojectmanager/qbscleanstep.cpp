@@ -264,7 +264,6 @@ QbsCleanStepConfigWidget::QbsCleanStepConfigWidget(QbsCleanStep *step) :
             this, SLOT(changeCleanAll(bool)));
     connect(m_ui->dryRunCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeDryRun(bool)));
     connect(m_ui->keepGoingCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeKeepGoing(bool)));
-    connect(m_ui->jobSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changeJobCount(int)));
 
     updateState();
 }
@@ -284,17 +283,12 @@ void QbsCleanStepConfigWidget::updateState()
     m_ui->cleanAllCheckBox->setChecked(m_step->cleanAll());
     m_ui->dryRunCheckBox->setChecked(m_step->dryRun());
     m_ui->keepGoingCheckBox->setChecked(m_step->keepGoing());
-    m_ui->jobSpinBox->setValue(m_step->maxJobs());
-
-    qbs::BuildOptions defaultOptions;
 
     QString command = QLatin1String("qbs clean ");
     if (m_step->dryRun())
         command += QLatin1String("--dry-run ");
     if (m_step->keepGoing())
         command += QLatin1String("--keep-going ");
-    if (m_step->maxJobs() != defaultOptions.maxJobCount)
-        command += QString::fromLatin1("--jobs %1 ").arg(m_step->maxJobs());
     if (m_step->cleanAll())
         command += QLatin1String(" --all-artifacts");
 
