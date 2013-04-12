@@ -187,7 +187,9 @@ bool QbsBuildStep::keepGoing() const
 
 int QbsBuildStep::maxJobs() const
 {
-    return m_qbsBuildOptions.maxJobCount;
+    if (m_qbsBuildOptions.maxJobCount > 0)
+        return m_qbsBuildOptions.maxJobCount;
+    return qbs::BuildOptions::defaultMaxJobCount();
 }
 
 bool QbsBuildStep::fromMap(const QVariantMap &map)
@@ -375,15 +377,12 @@ void QbsBuildStepConfigWidget::updateState()
     const int idx = (buildVariant == QLatin1String(Constants::QBS_VARIANT_DEBUG)) ? 0 : 1;
     m_ui->buildVariantComboBox->setCurrentIndex(idx);
 
-    qbs::BuildOptions defaultOptions;
-
     QString command = QLatin1String("qbs ");
     if (m_step->dryRun())
         command += QLatin1String("--dry-run ");
     if (m_step->keepGoing())
         command += QLatin1String("--keep-going ");
-    if (m_step->maxJobs() != defaultOptions.maxJobCount)
-        command += QString::fromLatin1("--jobs %1 ").arg(m_step->maxJobs());
+    command += QString::fromLatin1("--jobs %1 ").arg(m_step->maxJobs());
     command += QString::fromLatin1("build profile:%1 %2").arg(m_step->profile(), buildVariant);
 
     QString summary = tr("<b>Qbs:</b> %1").arg(command);
