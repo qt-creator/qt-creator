@@ -184,6 +184,7 @@ private slots:
     void test_checksymbols_QTCREATORBUG8890_danglingPointer();
     void test_checksymbols_QTCREATORBUG8974_danglingPointer();
     void operatorAsteriskOfNestedClassOfTemplateClass_QTCREATORBUG9006();
+    void test_checksymbols_templated_functions();
 };
 
 void tst_CheckSymbols::test_checksymbols_TypeUse()
@@ -1387,7 +1388,34 @@ void tst_CheckSymbols::operatorAsteriskOfNestedClassOfTemplateClass_QTCREATORBUG
         ;
 
     TestData::check(source, expectedUses);
+}
 
+void tst_CheckSymbols::test_checksymbols_templated_functions()
+{
+    const QByteArray source =
+            "struct D {};\n"                      // line 1
+            "struct A {\n"                        // line 2
+            "    template<typename T> int B();\n" // line 3
+            "    void C() {\n"                    // line 4
+            "        B<D>();\n"                   // line 5
+            "        this->B<D>();\n"             // line 6
+            "    }\n"                             // line 7
+            "};\n"                                // line 8
+            ;
+
+    const QList<Use> expectedUses = QList<Use>()
+        << Use(1, 8, 1, SemanticInfo::TypeUse)
+        << Use(2, 8, 1, SemanticInfo::TypeUse)
+        << Use(3, 23, 1, SemanticInfo::TypeUse)
+        << Use(3, 30, 1, SemanticInfo::FunctionUse)
+        << Use(4, 10, 1, SemanticInfo::FunctionUse)
+        << Use(5, 9, 1, SemanticInfo::FunctionUse)
+        << Use(5, 11, 1, SemanticInfo::TypeUse)
+        << Use(6, 15, 1, SemanticInfo::FunctionUse)
+        << Use(6, 17, 1, SemanticInfo::TypeUse)
+        ;
+
+    TestData::check(source, expectedUses);
 }
 
 QTEST_APPLESS_MAIN(tst_CheckSymbols)

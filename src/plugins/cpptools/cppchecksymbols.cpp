@@ -594,6 +594,8 @@ bool CheckSymbols::visit(CallAST *ast)
                     if (QualifiedNameAST *q = memberName->asQualifiedName()) {
                         checkNestedName(q);
                         memberName = q->unqualified_name;
+                    } else if (TemplateIdAST *tId = memberName->asTemplateId()) {
+                        accept(tId->template_argument_list);
                     }
 
                     if (!maybeAddFunction(candidates, memberName, argumentCount)
@@ -611,6 +613,8 @@ bool CheckSymbols::visit(CallAST *ast)
                     if (QualifiedNameAST *q = exprName->asQualifiedName()) {
                         checkNestedName(q);
                         exprName = q->unqualified_name;
+                    } else if (TemplateIdAST *tId = exprName->asTemplateId()) {
+                        accept(tId->template_argument_list);
                     }
 
                     const QList<LookupItem> candidates =
