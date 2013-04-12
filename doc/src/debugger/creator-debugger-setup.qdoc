@@ -242,6 +242,25 @@
 
     \endtable
 
+    \section1 Mapping Source Paths
+
+    To enable the debugger to step into the code and display the source code
+    when using a copy of the source tree at a location different from the one
+    at which the libraries where built, map the source paths to target paths:
+
+    \list 1
+
+        \li Select \gui Tools > \gui Options > \gui Debugger > \gui General >
+            \gui Add.
+
+        \li In the \gui {Source path} field, specify the source path in the
+            debug information of the executable as reported by the debugger.
+
+        \li In the \gui {Target path} field, specify the actual location of the
+            source tree on the local machine.
+
+    \endlist
+
     \section1 Setting the Symbol Server in Windows
 
     To obtain debugging information for the operating system libraries for
