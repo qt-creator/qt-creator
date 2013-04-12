@@ -52,6 +52,7 @@ const char ACTION_BUILD_FILE_QBS_CONTEXT[] = "Qbs.BuildFileCtx";
 // Ids:
 const char QBS_BUILDSTEP_ID[] = "Qbs.BuildStep";
 const char QBS_CLEANSTEP_ID[] = "Qbs.CleanStep";
+const char QBS_INSTALLSTEP_ID[] = "Qbs.InstallStep";
 
 // QBS strings:
 static const char QBS_VARIANT_DEBUG[] = "debug";

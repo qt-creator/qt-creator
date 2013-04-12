@@ -195,6 +195,13 @@ qbs::CleanJob *QbsProject::clean(const qbs::CleanOptions &opts)
     return qbsProject()->cleanAllProducts(opts);
 }
 
+qbs::InstallJob *QbsProject::install(const qbs::InstallOptions &opts)
+{
+    if (!qbsProject())
+        return 0;
+    return qbsProject()->installAllProducts(opts);
+}
+
 QString QbsProject::profileForTarget(const ProjectExplorer::Target *t) const
 {
     return m_manager->profileForKit(t->kit());

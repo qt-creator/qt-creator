@@ -81,6 +81,7 @@ public:
 
     qbs::BuildJob *build(const qbs::BuildOptions &opts);
     qbs::CleanJob *clean(const qbs::CleanOptions &opts);
+    qbs::InstallJob *install(const qbs::InstallOptions &opts);
 
     static ProjectExplorer::FileType fileTypeFor(const QSet<QString> &tags);
 
