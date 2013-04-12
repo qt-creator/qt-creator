@@ -841,6 +841,7 @@ qqEditable = {}
 qqStripForFormat = {}
 
 def stripForFormat(typeName):
+    global qqStripForFormat
     if typeName in qqStripForFormat:
         return qqStripForFormat[typeName]
     stripped = ""
@@ -860,42 +861,31 @@ def stripForFormat(typeName):
     qqStripForFormat[typeName] = stripped
     return stripped
 
-def bbsetup(args = ''):
-    typeCache = {}
-    module = sys.modules[__name__]
-    for key, value in module.__dict__.items():
-        if key.startswith("qdump__"):
-            name = key[7:]
-            qqDumpers[name] = value
-            qqFormats[name] = qqFormats.get(name, "")
-        elif key.startswith("qform__"):
-            name = key[7:]
+
+def registerDumper(function):
+    global qqDumpers, qqFormats, qqEditable
+    try:
+        funcname = function.func_name
+        if funcname.startswith("qdump__"):
+            type = funcname[7:]
+            qqDumpers[type] = function
+            qqFormats[type] = qqFormats.get(type, "")
+        elif funcname.startswith("qform__"):
+            type = funcname[7:]
             formats = ""
             try:
-                formats = value()
+                formats = function()
             except:
                 pass
-            qqFormats[name] = formats
-        elif key.startswith("qedit__"):
-            name = key[7:]
+            qqFormats[type] = formats
+        elif funcname.startswith("qedit__"):
+            type = funcname[7:]
             try:
-                qqEditable[name] = value
+                qqEditable[type] = function
             except:
                 pass
-    result = "dumpers=["
-    #qqNs = qtNamespace() # This is too early
-    for key, value in qqFormats.items():
-        if qqEditable.has_key(key):
-            result += '{type="%s",formats="%s",editable="true"},' % (key, value)
-        else:
-            result += '{type="%s",formats="%s"},' % (key, value)
-    result += ']'
-    #result += ',namespace="%s"' % qqNs
-    result += ',hasInferiorThreadList="%s"' % int(hasInferiorThreadList())
-    return result
-
-registerCommand("bbsetup", bbsetup)
-
+    except:
+        pass
 
 #######################################################################
 #
@@ -904,6 +894,7 @@ registerCommand("bbsetup", bbsetup)
 #######################################################################
 
 def bbedit(args):
+    global qqEditable
     (type, expr, value) = args.split(",")
     type = base64.b16decode(type, True)
     ns = qtNamespace()
@@ -1431,6 +1422,8 @@ class Dumper:
             self.putNumChild(0)
             return
 
+        global qqDumpers, qqFormats
+
         type = value.type.unqualified()
         typeName = str(type)
         tryDynamic &= self.useDynamicType
@@ -1666,8 +1659,8 @@ class Dumper:
                     return
 
             # Fall back to plain pointer printing.
-            warn("GENERIC PLAIN POINTER: %s" % value.type)
-            warn("ADDR PLAIN POINTER: %s" % value.address)
+            #warn("GENERIC PLAIN POINTER: %s" % value.type)
+            #warn("ADDR PLAIN POINTER: %s" % value.address)
             self.putType(typeName)
             self.putField("aaa", "1")
             #self.put('addr="0x%x",' % long(value.address))
@@ -1733,6 +1726,7 @@ class Dumper:
                     return
 
             #warn(" STRIPPED: %s" % nsStrippedType)
+            #warn(" DUMPERS: %s" % qqDumpers)
             #warn(" DUMPERS: %s" % (nsStrippedType in qqDumpers))
             dumper = qqDumpers.get(nsStrippedType, None)
             if not dumper is None:
@@ -1940,44 +1934,6 @@ def threadnames(arg):
     return out + ']'
 
 registerCommand("threadnames", threadnames)
-
-
-#######################################################################
-#
-# Import plain gdb pretty printers
-#
-#######################################################################
-
-class PlainDumper:
-    def __init__(self, printer):
-        self.printer = printer
-
-    def __call__(self, d, value):
-        printer = self.printer.gen_printer(value)
-        lister = getattr(printer, "children", None)
-        children = [] if lister is None else list(lister())
-        d.putType(self.printer.name)
-        val = printer.to_string().encode("hex")
-        d.putValue(val, Hex2EncodedLatin1)
-        d.putValue(printer.to_string())
-        d.putNumChild(len(children))
-        if d.isExpanded():
-            with Children(d):
-                for child in children:
-                    d.putSubItem(child[0], child[1])
-
-def importPlainDumper(printer):
-    name = printer.name.replace("::", "__")
-    qqDumpers[name] = PlainDumper(printer)
-    qqFormats[name] = ""
-
-def importPlainDumpers(args):
-    for obj in gdb.objfiles():
-        for printers in obj.pretty_printers + gdb.pretty_printers:
-            for printer in printers.subprinters:
-                importPlainDumper(printer)
-
-registerCommand("importPlainDumpers", importPlainDumpers)
 
 
 #######################################################################

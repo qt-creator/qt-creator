@@ -1033,7 +1033,37 @@ void LldbEngine::refreshLocation(const GdbMi &reportedLocation)
 
 bool LldbEngine::hasCapability(unsigned cap) const
 {
-    return cap & (ReloadModuleCapability|BreakConditionCapability);
+    if (cap & (ReverseSteppingCapability
+        | AutoDerefPointersCapability
+        | DisassemblerCapability
+        | RegisterCapability
+        | ShowMemoryCapability
+        | JumpToLineCapability
+        | ReloadModuleCapability
+        | ReloadModuleSymbolsCapability
+        | BreakOnThrowAndCatchCapability
+        | BreakConditionCapability
+        | TracePointCapability
+        | ReturnFromFunctionCapability
+        | CreateFullBacktraceCapability
+        | WatchpointByAddressCapability
+        | WatchpointByExpressionCapability
+        | AddWatcherCapability
+        | WatchWidgetsCapability
+        | ShowModuleSymbolsCapability
+        | ShowModuleSectionsCapability
+        | CatchCapability
+        | OperateByInstructionCapability
+        | RunToLineCapability
+        | WatchComplexExpressionsCapability
+        | MemoryAddressCapability))
+        return true;
+
+    if (startParameters().startMode == AttachCore)
+        return false;
+
+    //return cap == SnapshotCapability;
+    return false;
 }
 
 DebuggerEngine *createLldbEngine(const DebuggerStartParameters &startParameters)

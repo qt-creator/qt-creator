@@ -1,9 +1,10 @@
 
 import binascii
+import gdb
 import inspect
 import os
+import sys
 import traceback
-import gdb
 
 cdbLoaded = False
 lldbLoaded = False
@@ -333,8 +334,72 @@ class ScanStackCommand(gdb.Command):
 ScanStackCommand()
 
 
+def bbsetup(args = ''):
+    global qqDumpers, qqFormats, qqEditable, typeCache
+    typeCache = {}
+    module = sys.modules[__name__]
+
+    for key, value in module.__dict__.items():
+        registerDumper(value)
+
+    result = "dumpers=["
+    #qqNs = qtNamespace() # This is too early
+    for key, value in qqFormats.items():
+        if qqEditable.has_key(key):
+            result += '{type="%s",formats="%s",editable="true"},' % (key, value)
+        else:
+            result += '{type="%s",formats="%s"},' % (key, value)
+    result += ']'
+    #result += ',namespace="%s"' % qqNs
+    result += ',hasInferiorThreadList="%s"' % int(hasInferiorThreadList())
+    return result
+
+registerCommand("bbsetup", bbsetup)
+
+
+#######################################################################
+#
+# Import plain gdb pretty printers
+#
+#######################################################################
+
+class PlainDumper:
+    def __init__(self, printer):
+        self.printer = printer
+
+    def __call__(self, d, value):
+        printer = self.printer.gen_printer(value)
+        lister = getattr(printer, "children", None)
+        children = [] if lister is None else list(lister())
+        d.putType(self.printer.name)
+        val = printer.to_string().encode("hex")
+        d.putValue(val, Hex2EncodedLatin1)
+        d.putValue(printer.to_string())
+        d.putNumChild(len(children))
+        if d.isExpanded():
+            with Children(d):
+                for child in children:
+                    d.putSubItem(child[0], child[1])
+
+def importPlainDumper(printer):
+    global qqDumpers, qqFormats
+    name = printer.name.replace("::", "__")
+    qqDumpers[name] = PlainDumper(printer)
+    qqFormats[name] = ""
+
+def importPlainDumpers(args):
+    return
+    for obj in gdb.objfiles():
+        for printers in obj.pretty_printers + gdb.pretty_printers:
+            for printer in printers.subprinters:
+                importPlainDumper(printer)
+
+registerCommand("importPlainDumpers", importPlainDumpers)
+
+
 gdbLoaded = True
 currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 execfile(os.path.join(currentDir, "dumper.py"))
 execfile(os.path.join(currentDir, "qttypes.py"))
+
 bbsetup()

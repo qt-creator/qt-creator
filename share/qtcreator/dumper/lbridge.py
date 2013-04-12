@@ -49,10 +49,9 @@ SimpleValueCode = None # LLDB only
 #warn("LOADING LLDB")
 
 # Data members
-SimpleValueCode, \
-StructCode, \
-PointerCode \
-    = range(3)
+SimpleValueCode = 100
+StructCode = 101
+PointerCode = 102
 
 # Breakpoints. Keep synchronized with BreakpointType in breakpoint.h
 UnknownType = 0
@@ -95,6 +94,9 @@ class Type:
     def unqualified(self):
         return self
 
+    def strip_typedefs(self):
+        return self
+
 class Value:
     def __init__(self, var):
         self.raw = var
@@ -105,6 +107,9 @@ class Value:
 
     def __str__(self):
         return str(self.raw.value)
+
+    def __getitem__(self, name):
+        return None if self.raw is None else  self.raw.GetChildMemberWithName(name)
 
     def fields(self):
         return [Value(self.raw.GetChildAtIndex(i)) for i in range(self.raw.num_children)]
@@ -397,10 +402,22 @@ lldb.debugger.HandleCommand("settings set interpreter.prompt-on-quit off")
 lldb.debugger.HandleCommand("settings set frame-format ''")
 lldb.debugger.HandleCommand("settings set thread-format ''")
 
-lldbLoaded = True
-
 execfile(os.path.join(currentDir, "dumper.py"))
 execfile(os.path.join(currentDir, "qttypes.py"))
+
+def importPlainDumpers(args):
+    pass
+
+def bbsetup(args = ''):
+    global qqDumpers, qqFormats, qqEditable
+    typeCache = {}
+
+    items = globals()
+    for key in items:
+        registerDumper(items[key])
+
 bbsetup()
 
-print "result={state=\"enginesetupok\"}"
+lldbLoaded = True
+
+print "result={state=\"enginesetupok\",dumpers=\"%s\"}" % qqDumpers.keys()
