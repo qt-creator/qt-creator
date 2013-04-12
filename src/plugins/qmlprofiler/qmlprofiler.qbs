@@ -76,7 +76,6 @@ QtcPlugin {
         "qml/RangeMover.qml",
         "qml/SelectionRange.qml",
         "qml/SelectionRangeDetails.qml",
-        "qml/StatusDisplay.qml",
         "qml/TimeDisplay.qml",
         "qml/TimeMarks.qml",
         "qml/qmlprofiler.qrc",
