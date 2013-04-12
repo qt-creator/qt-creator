@@ -338,7 +338,10 @@ def executeStepI(options):
     return createRunReport(options)
 
 def executeStepOut(options):
-    lldb.thread.StepOutOfFrame(currentFrame())
+    #lldb.thread.StepOutOfFrame(None)
+    msg = lldb.debugger.HandleCommand("thread step-out")
+    # Currently results in
+    # "Couldn't find thread plan to implement step type"
     return createRunReport(options)
 
 def executeRunToLine(options, file, line):
@@ -389,8 +392,10 @@ def executeDebuggerCommand(options, command):
     return result
 
 
-lldb.debugger.HandleCommand("setting set auto-confirm on")
-lldb.debugger.HandleCommand("setting set interpreter.prompt-on-quit off")
+lldb.debugger.HandleCommand("settings set auto-confirm on")
+lldb.debugger.HandleCommand("settings set interpreter.prompt-on-quit off")
+lldb.debugger.HandleCommand("settings set frame-format ''")
+lldb.debugger.HandleCommand("settings set thread-format ''")
 
 lldbLoaded = True
 
