@@ -610,11 +610,7 @@ void tst_Dumpers::dumper()
                 "set auto-load python-scripts no\n";
 
         if (m_usePython) {
-            cmds +=
-                    "python execfile('" + dumperDir + "/bridge.py')\n"
-                    "python execfile('" + dumperDir + "/dumper.py')\n"
-                    "python execfile('" + dumperDir + "/qttypes.py')\n"
-                    "bbsetup\n"
+            cmds += "python execfile('" + dumperDir + "/gbridge.py')\n"
                     "run " + nograb + "\n"
                     "up\n"
                     "python print('@%sS@%s@' % ('N', qtNamespace()))\n"
@@ -653,10 +649,7 @@ void tst_Dumpers::dumper()
             cmds += "!qtcreatorcdbext.locals -t " + QByteArray::number(++token) + " -c 0 " + iName.toLatin1() + "\n";
         cmds += "q\n";
     } else if (m_debuggerEngine == DumpTestLldbEngine) {
-        cmds = "script execfile('" + dumperDir + "/bridge.py')\n"
-               "script execfile('" + dumperDir + "/dumper.py')\n"
-               "script execfile('" + dumperDir + "/qttypes.py')\n"
-               "bbsetup\n"
+        cmds = "script execfile('" + dumperDir + "/lbridge.py')\n"
                "run\n"
                "up\n"
                "script print('@%sS@%s@' % ('N', qtNamespace()))\n"
