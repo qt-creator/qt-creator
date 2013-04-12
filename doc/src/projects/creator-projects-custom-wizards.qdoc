@@ -466,10 +466,9 @@
 
     The \c defaulttext attribute specifies text that appears in the field by default.
 
-    The property QTextEdit::acceptRichText can be set by using the boolean
-    attribute \c acceptRichText. It is disabled by default (as opposed to the default
-    value of QTextEdit::acceptRichText) to prevent pasting of rich text with formatting,
-    which is not desireable for code templates.
+    The boolean attribute \c acceptRichText sets the property QTextEdit::acceptRichText.
+    It is disabled by default (as opposed to the default value of QTextEdit::acceptRichText)
+    to prevent pasting of rich text with formatting, which is not desirable for code templates.
 
     \section1 Processing Template Files
 
