@@ -161,7 +161,6 @@ Project {
         Depends { name: "Qt"; submodules: ["widgets", "network"] }
         Depends { name: "Utils" }
         Depends { name: "ExtensionSystem" }
-        Depends { name: "Core" }
 
         files: [
             "src/app/main.cpp",
