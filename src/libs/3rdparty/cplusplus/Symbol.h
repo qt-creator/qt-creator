@@ -290,6 +290,7 @@ public:
     /// Returns the enclosing Block scope.
     Block *enclosingBlock() const;
 
+    Scope *scope() const;
     void setScope(Scope *enclosingScope); // ### make me private
     void resetScope(); // ### make me private
     void setSourceLocation(unsigned sourceLocation, TranslationUnit *translationUnit); // ### make me private

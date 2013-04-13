@@ -123,6 +123,7 @@ private slots:
     void test_completion_typedef_using_templates1();
     void test_completion_typedef_using_templates2();
     void test_completion_namespace_alias_with_many_namespace_declarations();
+    void test_completion_QTCREATORBUG9098();
 
     void test_format_pointerdeclaration_in_simpledeclarations();
     void test_format_pointerdeclaration_in_simpledeclarations_data();

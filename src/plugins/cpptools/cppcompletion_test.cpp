@@ -1843,3 +1843,42 @@ void CppToolsPlugin::test_completion_namespace_alias_with_many_namespace_declara
     QVERIFY(completions.contains(QLatin1String("Foo1")));
     QVERIFY(completions.contains(QLatin1String("Foo2")));
 }
+
+void CppToolsPlugin::test_completion_QTCREATORBUG9098()
+{
+    TestData data;
+    data.srcText =
+            "template <typename T>\n"
+            "class B\n"
+            "{\n"
+            "public:\n"
+            "    C<T> c;\n"
+            "};\n"
+            "template <typename T>\n"
+            "class A\n"
+            "{\n"
+            "public:\n"
+            "    B<T> b;\n"
+            "    void fun()\n"
+            "    {\n"
+            "       @\n"
+            "       // padding so we get the scope right\n"
+            "    }\n"
+            "};\n"
+
+            ;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("b.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("c")));
+    QVERIFY(completions.contains(QLatin1String("B")));
+}

@@ -185,6 +185,7 @@ private slots:
     void test_checksymbols_QTCREATORBUG8974_danglingPointer();
     void operatorAsteriskOfNestedClassOfTemplateClass_QTCREATORBUG9006();
     void test_checksymbols_templated_functions();
+    void test_checksymbols_QTCREATORBUG9098();
 };
 
 void tst_CheckSymbols::test_checksymbols_TypeUse()
@@ -1414,6 +1415,44 @@ void tst_CheckSymbols::test_checksymbols_templated_functions()
         << Use(6, 15, 1, SemanticInfo::FunctionUse)
         << Use(6, 17, 1, SemanticInfo::TypeUse)
         ;
+
+}
+
+void tst_CheckSymbols::test_checksymbols_QTCREATORBUG9098()
+{
+    const QByteArray source =
+            "template <typename T>\n"
+            "class B\n"
+            "{\n"
+            "public:\n"
+            "    C<T> c;\n"
+            "};\n"
+            "template <typename T>\n"
+            "class A\n"
+            "{\n"
+            "public:\n"
+            "    B<T> b;\n"
+            "    void fun()\n"
+            "    {\n"
+            "        b.c;\n"
+            "    }\n"
+            "}\n"
+            ;
+
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 20, 1, SemanticInfo::TypeUse)
+            << Use(2, 7, 1, SemanticInfo::TypeUse)
+            << Use(5, 7, 1, SemanticInfo::TypeUse)
+            << Use(5, 10, 1, SemanticInfo::FieldUse)
+            << Use(7, 20, 1, SemanticInfo::TypeUse)
+            << Use(8, 7, 1, SemanticInfo::TypeUse)
+            << Use(11, 5, 1, SemanticInfo::TypeUse)
+            << Use(11, 7, 1, SemanticInfo::TypeUse)
+            << Use(11, 10, 1, SemanticInfo::FieldUse)
+            << Use(12, 10, 3, SemanticInfo::FunctionUse)
+            << Use(14, 9, 1, SemanticInfo::FieldUse)
+            << Use(14, 11, 1, SemanticInfo::FieldUse)
+            ;
 
     TestData::check(source, expectedUses);
 }

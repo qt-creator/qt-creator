@@ -936,6 +936,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
 
                 foreach (Symbol *s, reference->symbols()) {
                     Symbol *clone = cloner.symbol(s, &subst);
+                    clone->setScope(s->scope());
                     instantiation->_symbols.append(clone);
 #ifdef DEBUG_LOOKUP
                     Overview oo;oo.showFunctionSignatures = true;
@@ -1089,6 +1090,7 @@ void ClassOrNamespace::NestedClassInstantiator::instantiate(ClassOrNamespace *en
 
             foreach (Symbol *s, nestedClassOrNamespace->_symbols) {
                 Symbol *clone = _cloner.symbol(s, &_subst);
+                clone->setScope(s->scope());
                 nestedClassOrNamespaceInstantiation->_symbols.append(clone);
             }
         }
