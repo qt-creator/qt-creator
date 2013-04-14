@@ -27,24 +27,25 @@
 **
 ****************************************************************************/
 
-#include "mimetypesettings.h"
-#include "ui_mimetypesettingspage.h"
-#include "mimetypemagicdialog.h"
-#include "mimedatabase.h"
 #include "coreconstants.h"
 #include "editormanager.h"
 #include "icore.h"
 #include "ieditorfactory.h"
 #include "iexternaleditor.h"
+#include "mimedatabase.h"
+#include "mimetypemagicdialog.h"
+#include "mimetypesettings.h"
+#include "ui_mimetypesettingspage.h"
 
-#include <QCoreApplication>
-#include <QStringList>
-#include <QSet>
-#include <QScopedPointer>
 #include <QAbstractTableModel>
+#include <QCoreApplication>
 #include <QHash>
-#include <QTableWidgetItem>
 #include <QMessageBox>
+#include <QScopedPointer>
+#include <QSet>
+#include <QStringList>
+#include <QTableWidgetItem>
+#include <QSortFilterProxyModel>
 #include <QtAlgorithms>
 
 #include <algorithm>
@@ -232,17 +233,22 @@ public slots:
     void resetMimeTypes();
     void updateMagicHeaderButtons();
 
+private slots:
+    void setFilterPattern(const QString &pattern);
+
 public:
     static const QChar kSemiColon;
 
     QString m_keywords;
     MimeDatabase *m_mimeDatabase;
-    QScopedPointer<MimeTypeSettingsModel> m_model;
+    MimeTypeSettingsModel *m_model;
+    QSortFilterProxyModel *m_filterModel;
     int m_mimeForPatternSync;
     int m_mimeForMagicSync;
     bool m_reset;
     bool m_persist;
     QList<int> m_modifiedMimeTypes;
+    QString m_filterPattern;
     Ui::MimeTypeSettingsPage m_ui;
 };
 
@@ -250,12 +256,16 @@ const QChar MimeTypeSettingsPrivate::kSemiColon(QLatin1Char(';'));
 
 MimeTypeSettingsPrivate::MimeTypeSettingsPrivate()
     : m_mimeDatabase(ICore::mimeDatabase())
-    , m_model(new MimeTypeSettingsModel)
+    , m_model(new MimeTypeSettingsModel(this))
+    , m_filterModel(new QSortFilterProxyModel(this))
     , m_mimeForPatternSync(-1)
     , m_mimeForMagicSync(-1)
     , m_reset(false)
     , m_persist(false)
-{}
+{
+    m_filterModel->setSourceModel(m_model);
+    m_filterModel->setFilterKeyColumn(-1);
+}
 
 MimeTypeSettingsPrivate::~MimeTypeSettingsPrivate()
 {}
@@ -263,9 +273,12 @@ MimeTypeSettingsPrivate::~MimeTypeSettingsPrivate()
 void MimeTypeSettingsPrivate::configureUi(QWidget *w)
 {
     m_ui.setupUi(w);
+    m_ui.filterLineEdit->setText(m_filterPattern);
 
     m_model->load();
-    m_ui.mimeTypesTableView->setModel(m_model.data());
+    connect(m_ui.filterLineEdit, SIGNAL(textChanged(QString)),
+            this, SLOT(setFilterPattern(QString)));
+    m_ui.mimeTypesTableView->setModel(m_filterModel);
 
     configureTable(m_ui.mimeTypesTableView);
     configureTable(m_ui.magicHeadersTableWidget);
@@ -383,7 +396,7 @@ void MimeTypeSettingsPrivate::clearSyncData()
 }
 
 void MimeTypeSettingsPrivate::syncData(const QModelIndex &current,
-                                           const QModelIndex &previous)
+                                       const QModelIndex &previous)
 {
     if (previous.isValid()) {
         if (m_mimeForPatternSync == previous.row())
@@ -398,7 +411,8 @@ void MimeTypeSettingsPrivate::syncData(const QModelIndex &current,
     }
 
     if (current.isValid()) {
-        const MimeType &currentMimeType = m_model->m_mimeTypes.at(current.row());
+        const MimeType &currentMimeType =
+                m_model->m_mimeTypes.at(m_filterModel->mapToSource(current).row());
 
         QStringList formatedPatterns;
         foreach (const MimeGlobPattern &pattern, currentMimeType.globPatterns())
@@ -549,6 +563,12 @@ void MimeTypeSettingsPrivate::updateMagicHeaderButtons()
 
     m_ui.removeMagicButton->setEnabled(enabled);
     m_ui.editMagicButton->setEnabled(enabled);
+}
+
+void MimeTypeSettingsPrivate::setFilterPattern(const QString &pattern)
+{
+    m_filterPattern = pattern;
+    m_filterModel->setFilterWildcard(pattern);
 }
 
 // MimeTypeSettingsPage
