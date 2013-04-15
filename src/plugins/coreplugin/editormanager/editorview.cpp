@@ -162,6 +162,24 @@ void EditorView::setCloseSplitIcon(const QIcon &icon)
     m_toolBar->setCloseSplitIcon(icon);
 }
 
+void EditorView::paintEvent(QPaintEvent *)
+{
+    SplitterOrView *splitterOrView = ICore::editorManager()->currentSplitterOrView();
+    if (!splitterOrView || !splitterOrView->view() || splitterOrView->view() != this)
+        return;
+
+    if (editorCount() > 0)
+        return;
+
+    // Discreet indication where an editor would be if there is none
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(palette().color(QPalette::Background).darker(107));
+    const int r = 3;
+    painter.drawRoundedRect(m_container->geometry().adjusted(r , r, -r, -r), r * 2, r * 2);
+}
+
 void EditorView::addEditor(IEditor *editor)
 {
     if (m_editors.contains(editor))
@@ -299,12 +317,6 @@ void EditorView::updateEditorHistory(IEditor *editor)
         }
     }
     m_editorHistory.prepend(location);
-}
-
-QRect EditorView::editorArea() const
-{
-    const QRect cRect = m_container->rect();
-    return QRect(m_container->mapToGlobal(cRect.topLeft()), cRect.size());
 }
 
 void EditorView::addCurrentPositionToNavigationHistory(IEditor *editor, const QByteArray &saveState)
@@ -479,25 +491,6 @@ void SplitterOrView::mousePressEvent(QMouseEvent *e)
         return;
     setFocus(Qt::MouseFocusReason);
     ICore::editorManager()->setCurrentView(this);
-}
-
-void SplitterOrView::paintEvent(QPaintEvent *)
-{
-    if (ICore::editorManager()->currentSplitterOrView() != this)
-        return;
-
-    if (!m_view || hasEditors())
-        return;
-
-    // Discreet indication where an editor would be if there is none
-    QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing, true);
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(palette().color(QPalette::Background).darker(107));
-    const int r = 3;
-    const QRect areaGlobal(view()->editorArea());
-    const QRect areaLocal(mapFromGlobal(areaGlobal.topLeft()), areaGlobal.size());
-    painter.drawRoundedRect(areaLocal.adjusted(r , r, -r, -r), r * 2, r * 2);
 }
 
 SplitterOrView *SplitterOrView::findFirstView()

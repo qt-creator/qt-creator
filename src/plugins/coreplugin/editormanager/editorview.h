@@ -95,6 +95,9 @@ public:
     void setCloseSplitEnabled(bool enable);
     void setCloseSplitIcon(const QIcon &icon);
 
+protected:
+    void paintEvent(QPaintEvent *);
+
 private slots:
     void closeView();
     void listSelectionActivated(int index);
@@ -140,7 +143,6 @@ public:
 
     void copyNavigationHistoryFrom(EditorView* other);
     void updateEditorHistory(IEditor *editor);
-    QRect editorArea() const;
 };
 
 class SplitterOrView  : public QWidget
@@ -185,7 +187,6 @@ public:
     void unsplitAll();
 
 protected:
-    void paintEvent(QPaintEvent *);
     void mousePressEvent(QMouseEvent *e);
 
 private:
