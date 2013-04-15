@@ -245,7 +245,7 @@ QString VcMakeStepConfigWidget::summaryText() const
     ProjectExplorer::Project *project = bc->target()->project();
     VcProjectFile* document = static_cast<VcProjectFile *>(project->document());
     QFileInfo fileInfo(m_makeStep->msBuildCommand());
-    return QString("<b>MsBuild:</b> %1 %2 %3").arg(fileInfo.fileName())
+    return QString(QLatin1String("<b>MsBuild:</b> %1 %2 %3")).arg(fileInfo.fileName())
             .arg(document->filePath())
             .arg(m_makeStep->buildArgumentsToString());
 }

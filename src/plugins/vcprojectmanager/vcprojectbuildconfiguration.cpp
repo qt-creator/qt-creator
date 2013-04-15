@@ -7,6 +7,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/toolchain.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/qtcassert.h>
 #include <projectexplorer/target.h>
@@ -27,7 +28,7 @@ VcProjectBuildConfiguration::VcProjectBuildConfiguration(ProjectExplorer::Target
     m_buildDirectory = static_cast<VcProject *>(parent->project())->defaultBuildDirectory();
 }
 
-ProjectExplorer::BuildConfigWidget *VcProjectBuildConfiguration::createConfigWidget()
+ProjectExplorer::NamedWidget *VcProjectBuildConfiguration::createConfigWidget()
 {
     return new VcProjectBuildSettingsWidget;
 }

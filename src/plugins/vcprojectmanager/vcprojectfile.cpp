@@ -41,7 +41,7 @@ QString VcProjectFile::suggestedFileName() const
 
 QString VcProjectFile::mimeType() const
 {
-    return Constants::VCPROJ_MIMETYPE;
+    return QLatin1String(Constants::VCPROJ_MIMETYPE);
 }
 
 bool VcProjectFile::isModified() const

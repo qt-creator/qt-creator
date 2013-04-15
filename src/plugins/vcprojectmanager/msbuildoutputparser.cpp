@@ -9,15 +9,15 @@ MsBuildOutputParser::MsBuildOutputParser()
       m_buildAttempFinished(false)
 {
     setObjectName(QLatin1String("MsBuildParser"));
-    m_buildStartTimeRegExp = QRegExp("(?:Build\\sstarted\\s)(\\d+/\\d+/\\d+)(?:\\s)(\\d+:\\d+:\\d+)(?:\\s)(PM|AM)(?:.*)");
-    m_compileWarningRegExp = QRegExp("(.*)\\((\\d+)\\)(?::\\s)(warning\\s(?:[A-Z]|[a-z]|\\d)+)(?::\\s)(.*)");
-    m_compileErrorRegExp = QRegExp("(.*)\\((\\d+)\\)(?::\\s)(error\\s(?:[A-Z]|[a-z]|\\d)+)(?::\\s)(.*)");
-    m_doneTargetBuildRegExp = QRegExp("Done\\sbuilding\\starget\\s\"(.*)\"\\sin\\sproject\\s\"(.*)\"(\\s--\\sFAILED)?\\.");
-    m_doneProjectBuildRegExp = QRegExp("Done\\sbuilding\\sproject\\s\"(.*)\"((?:\\s--\\s)FAILED)?\\.");
-    m_buildSucceededRegExp = QRegExp("Build succeeded\\.");
-    m_buildFailedRegExp = QRegExp("Build FAILED\\.");
-    m_buildTimeElapsedRegExp = QRegExp("Time\\sElapsed\\s(\\d+:\\d+:\\d+(?:\\.\\d+)?)");
-    m_msBuildErrorRegExp = QRegExp("MSBUILD\\s:\\s(error\\s(?:[A-Z]|[a-z]|\\d)+):\\s(.*)");
+    m_buildStartTimeRegExp = QRegExp(QLatin1String("(?:Build\\sstarted\\s)(\\d+/\\d+/\\d+)(?:\\s)(\\d+:\\d+:\\d+)(?:\\s)(PM|AM)(?:.*)"));
+    m_compileWarningRegExp = QRegExp(QLatin1String("(.*)\\((\\d+)\\)(?::\\s)(warning\\s(?:[A-Z]|[a-z]|\\d)+)(?::\\s)(.*)"));
+    m_compileErrorRegExp = QRegExp(QLatin1String("(.*)\\((\\d+)\\)(?::\\s)(error\\s(?:[A-Z]|[a-z]|\\d)+)(?::\\s)(.*)"));
+    m_doneTargetBuildRegExp = QRegExp(QLatin1String("Done\\sbuilding\\starget\\s\"(.*)\"\\sin\\sproject\\s\"(.*)\"(\\s--\\sFAILED)?\\."));
+    m_doneProjectBuildRegExp = QRegExp(QLatin1String("Done\\sbuilding\\sproject\\s\"(.*)\"((?:\\s--\\s)FAILED)?\\."));
+    m_buildSucceededRegExp = QRegExp(QLatin1String("Build succeeded\\."));
+    m_buildFailedRegExp = QRegExp(QLatin1String("Build FAILED\\."));
+    m_buildTimeElapsedRegExp = QRegExp(QLatin1String("Time\\sElapsed\\s(\\d+:\\d+:\\d+(?:\\.\\d+)?)"));
+    m_msBuildErrorRegExp = QRegExp(QLatin1String("MSBUILD\\s:\\s(error\\s(?:[A-Z]|[a-z]|\\d)+):\\s(.*)"));
 }
 
 void MsBuildOutputParser::stdOutput(const QString &line)
@@ -50,7 +50,7 @@ void MsBuildOutputParser::stdOutput(const QString &line)
         leftover = splits.at(1);
 
         // check if the file path contains line number, example D:\blabla\gggg.cpp(55)
-        QRegExp warningLineRegExp(".*\\((\\d+)\\)$");
+        QRegExp warningLineRegExp(QLatin1String(".*\\((\\d+)\\)$"));
         if (warningLineRegExp.exactMatch(filePath)) {
             filePath.resize(filePath.length() - warningLineRegExp.cap(1).length() - 2);
         }
@@ -63,11 +63,11 @@ void MsBuildOutputParser::stdOutput(const QString &line)
         leftover = leftover.trimmed();
 
         QString description(warningCode
-                            + " "
+                            + QLatin1String(" ")
                             + leftover);
         // if line where warning has originated is present
-        if (warningLineRegExp.numCaptures() == 2 && !warningLineRegExp.cap(1).isEmpty())
-            description.append(" line: "
+        if (warningLineRegExp.captureCount() == 2 && !warningLineRegExp.cap(1).isEmpty())
+            description.append(QLatin1String(" line: ")
                                + warningLineRegExp.cap(1));
 
         emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Warning,
@@ -86,7 +86,7 @@ void MsBuildOutputParser::stdOutput(const QString &line)
         leftover = splits.at(1);
 
         // check if the file path contains line number, example D:\blabla\gggg.cpp(55)
-        QRegExp errorLineRegExp(".*\\((\\d+)\\)$");
+        QRegExp errorLineRegExp(QLatin1String(".*\\((\\d+)\\)$"));
         if (errorLineRegExp.exactMatch(filePath)) {
             filePath.resize(filePath.length() - errorLineRegExp.cap(1).length() - 2);
         }
@@ -99,11 +99,11 @@ void MsBuildOutputParser::stdOutput(const QString &line)
         leftover = leftover.trimmed();
 
         QString description(errorCode
-                            + " "
+                            + QLatin1String(" ")
                             + leftover);
         // if line where error has originated is present
-        if (errorLineRegExp.numCaptures() == 2 && !errorLineRegExp.cap(1).isEmpty())
-            description.append(" line: "
+        if (errorLineRegExp.captureCount() == 2 && !errorLineRegExp.cap(1).isEmpty())
+            description.append(QLatin1String(" line: ")
                                + errorLineRegExp.cap(1));
 
         emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
@@ -129,7 +129,7 @@ void MsBuildOutputParser::stdOutput(const QString &line)
 
     if (m_buildSucceededRegExp.indexIn(line) != -1) {
         emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Unknown,
-                                           QString("Build Succeeded."),
+                                           tr("Build Succeeded."),
                                            Utils::FileName(),
                                            -1,
                                            Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
@@ -138,7 +138,7 @@ void MsBuildOutputParser::stdOutput(const QString &line)
 
     if (m_buildFailedRegExp.indexIn(line) != -1) {
         emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Unknown,
-                                           QString("Build FAILED!"),
+                                           tr("Build FAILED!"),
                                            Utils::FileName(),
                                            -1,
                                            Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
@@ -146,7 +146,7 @@ void MsBuildOutputParser::stdOutput(const QString &line)
     }
 
     if (m_buildTimeElapsedRegExp.indexIn(line) != -1) {
-        QString description("Build lasted for: "
+        QString description(QLatin1String("Build lasted for: ")
                             + m_buildTimeElapsedRegExp.cap(1));
         emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Unknown,
                                            description,
@@ -156,9 +156,9 @@ void MsBuildOutputParser::stdOutput(const QString &line)
     }
 
     if (m_msBuildErrorRegExp.indexIn(line) != -1) {
-        QString description("MSBuild "
+        QString description(QLatin1String("MSBuild ")
                             + m_msBuildErrorRegExp.cap(1)
-                            + ": "
+                            + QLatin1String(": ")
                             + m_msBuildErrorRegExp.cap(2));
         emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
                                            description,

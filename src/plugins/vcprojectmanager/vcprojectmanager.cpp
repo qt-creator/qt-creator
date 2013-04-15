@@ -53,7 +53,7 @@ VcManager::VcManager(VcProjectBuildOptionsPage *configPage) :
 
 QString VcManager::mimeType() const
 {
-    return Constants::VCPROJ_MIMETYPE;
+    return QLatin1String(Constants::VCPROJ_MIMETYPE);
 }
 
 ProjectExplorer::Project *VcManager::openProject(const QString &fileName, QString *errorString)

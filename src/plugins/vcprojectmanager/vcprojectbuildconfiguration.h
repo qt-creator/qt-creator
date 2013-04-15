@@ -16,7 +16,7 @@ class VcProjectBuildConfiguration : public ProjectExplorer::BuildConfiguration
 public:
     explicit VcProjectBuildConfiguration(ProjectExplorer::Target *parent);
 
-    ProjectExplorer::BuildConfigWidget *createConfigWidget();
+    ProjectExplorer::NamedWidget *createConfigWidget();
     QString buildDirectory() const;
     ProjectExplorer::IOutputParser *createOutputParser() const;
     BuildType buildType() const;

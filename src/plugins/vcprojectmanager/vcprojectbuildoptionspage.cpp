@@ -60,7 +60,7 @@ void VcProjectEditMsBuildDialog::setPath(const QString &path)
 
 void VcProjectEditMsBuildDialog::showBrowseFileDialog()
 {
-    m_pathChooser->setText(QFileDialog::getOpenFileName(0, tr("Select Ms Build"), QString(), QString("*.exe")));
+    m_pathChooser->setText(QFileDialog::getOpenFileName(0, tr("Select Ms Build"), QString(), QLatin1String("*.exe")));
 }
 
 VcProjectBuildOptionsWidget::VcProjectBuildOptionsWidget(QWidget *parent) :
@@ -230,9 +230,9 @@ void VcProjectBuildOptionsWidget::onTableRowIndexChange(int index)
 VcProjectBuildOptionsPage::VcProjectBuildOptionsPage() :
     m_optionsWidget(0)
 {
-    setId(QLatin1String("VcProject.MSBuild"));
+    setId(Core::Id("VcProject.MSBuild"));
     setDisplayName(tr("MS Build"));
-    setCategory(QLatin1String(VcProjectManager::Constants::VC_PROJECT_SETTINGS_CATEGORY));
+    setCategory(Core::Id(VcProjectManager::Constants::VC_PROJECT_SETTINGS_CATEGORY));
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
                                                    VcProjectManager::Constants::VC_PROJECT_SETTINGS_TR_CATEGORY));
 
@@ -339,7 +339,7 @@ void VcProjectBuildOptionsPage::startVersionCheck()
 
 void VcProjectBuildOptionsPage::addNewMsBuild()
 {
-    QString newMsBuild = QFileDialog::getOpenFileName(0, tr("Select Ms Build"), QString(), QString("*.exe"));
+    QString newMsBuild = QFileDialog::getOpenFileName(0, tr("Select Ms Build"), QString(), QLatin1String("*.exe"));
 
     if (m_optionsWidget && !newMsBuild.isEmpty()) {
         if (m_optionsWidget->exists(newMsBuild)) {
@@ -382,7 +382,7 @@ void VcProjectBuildOptionsPage::deleteMsBuild()
 void VcProjectBuildOptionsPage::versionCheckFinished()
 {
     if (m_validator.m_process) {
-        QString response = m_validator.m_process->readAll();
+        QString response = QVariant(m_validator.m_process->readAll()).toString();
         QStringList splitData = response.split(QLatin1Char('\n'));
 
         if (m_validator.m_requestType == VcProjectValidator::ValidationRequest_Add) {

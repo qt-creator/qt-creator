@@ -10,17 +10,19 @@
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
-#include <cpptools/ModelManagerInterface.h>
+#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppprojectfile.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/abi.h>
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/headerpath.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/abi.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
 
@@ -40,6 +42,7 @@ public:
     bool matches(const Kit *k) const
     {
         ToolChain *tc = ToolChainKitInformation::toolChain(k);
+        QTC_ASSERT(tc, return false);
         Abi abi = tc->targetAbi();
         switch (abi.osFlavor()) {
         case Abi::WindowsMsvc2005Flavor:
@@ -59,7 +62,6 @@ VcProject::VcProject(VcManager *projectManager, const QString &projectFilePath)
     , m_projectFileWatcher(new QFileSystemWatcher(this))
 {
     setProjectContext(Core::Context(Constants::VC_PROJECT_CONTEXT));
-    setProjectLanguage(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
     reparse();
 
@@ -102,13 +104,6 @@ QStringList VcProject::files(Project::FilesMode fileMode) const
     Q_UNUSED(fileMode);
     // TODO: respect the mode
     return m_rootNode->files();
-}
-
-QList<BuildConfigWidget *> VcProject::subConfigWidgets()
-{
-    QList<ProjectExplorer::BuildConfigWidget*> list;
-    list << new BuildEnvironmentWidget;
-    return list;
 }
 
 QString VcProject::defaultBuildDirectory() const
@@ -205,13 +200,13 @@ bool VcProject::setupTarget(ProjectExplorer::Target *t)
 /**
  * @brief Visit folder node recursive and accumulate Source and Header files
  */
-void VcProject::addCxxModelFiles(const FolderNode *node, QStringList &sourceFiles)
+void VcProject::addCxxModelFiles(const FolderNode *node, QStringList &projectFiles)
 {
     foreach (const FileNode *file, node->fileNodes())
         if (file->fileType() == HeaderType || file->fileType() == SourceType)
-            sourceFiles += file->path();
+            projectFiles << file->path();
     foreach (const FolderNode *subfolder, node->subFolderNodes())
-        addCxxModelFiles(subfolder, sourceFiles);
+        addCxxModelFiles(subfolder, projectFiles);
 }
 
 /**
@@ -226,17 +221,16 @@ void VcProject::addCxxModelFiles(const FolderNode *node, QStringList &sourceFile
  */
 void VcProject::updateCodeModels()
 {
-    typedef CPlusPlus::CppModelManagerInterface::ProjectPart ProjectPart;
-
     Kit *k = activeTarget() ? activeTarget()->kit() : KitManager::instance()->defaultKit();
     QTC_ASSERT(k, return);
     ToolChain *tc = ToolChainKitInformation::toolChain(k);
-    CPlusPlus::CppModelManagerInterface *modelmanager = CPlusPlus::CppModelManagerInterface::instance();
+    QTC_ASSERT(tc, return);
+    CppTools::CppModelManagerInterface *modelmanager = CppTools::CppModelManagerInterface::instance();
     QTC_ASSERT(modelmanager, return);
-    CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
+    CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
 
     pinfo.clearProjectParts();
-    ProjectPart::Ptr pPart(new ProjectPart());
+    CppTools::ProjectPart::Ptr pPart(new CppTools::ProjectPart());
 
     BuildConfiguration *bc = activeTarget() ? activeTarget()->activeBuildConfiguration() : NULL;
     if (bc) {
@@ -245,19 +239,27 @@ void VcProject::updateCodeModels()
         pPart->defines += vbc->info().defines.join(QLatin1String("\n")).toLatin1();
     }
     // VS 2005-2008 has poor c++11 support, see http://wiki.apache.org/stdcxx/C%2B%2B0xCompilerSupport
-    pPart->cxx11Enabled = false;
-    pPart->qtVersion = ProjectPart::NoQt;
+    pPart->cxxVersion = CppTools::ProjectPart::CXX98;
+    pPart->qtVersion = CppTools::ProjectPart::NoQt;
     pPart->defines += tc->predefinedMacros(QStringList());
 
-    foreach (const HeaderPath &path, tc->systemHeaderPaths(Utils::FileName()))
+    QStringList cxxFlags;
+    foreach (const HeaderPath &path, tc->systemHeaderPaths(cxxFlags, Utils::FileName()))
         if (path.kind() != HeaderPath::FrameworkHeaderPath)
             pPart->includePaths += path.path();
-    addCxxModelFiles(m_rootNode, pPart->sourceFiles);
-    if (!pPart->sourceFiles.isEmpty())
+
+    QStringList files;
+    addCxxModelFiles(m_rootNode, files);
+
+    foreach (const QString &file, files)
+        pPart->files << CppTools::ProjectFile(file, CppTools::ProjectFile::CXXSource);
+
+    if (!pPart->files.isEmpty())
         pinfo.appendProjectPart(pPart);
 
     modelmanager->updateProjectInfo(pinfo);
-    m_codeModelFuture = modelmanager->updateSourceFiles(pPart->sourceFiles);
+    m_codeModelFuture = modelmanager->updateSourceFiles(files);
+    setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !pPart->files.isEmpty());
 }
 
 void VcProject::importBuildConfigurations()
@@ -286,11 +288,6 @@ VcProjectBuildSettingsWidget::VcProjectBuildSettingsWidget()
 QString VcProjectBuildSettingsWidget::displayName() const
 {
     return tr("Vc Project Settings Widget");
-}
-
-void VcProjectBuildSettingsWidget::init(BuildConfiguration *bc)
-{
-    Q_UNUSED(bc);
 }
 
 } // namespace Internal

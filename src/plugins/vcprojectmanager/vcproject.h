@@ -4,7 +4,9 @@
 #include "vcprojectreader.h"
 
 #include <projectexplorer/buildstep.h>
+#include <projectexplorer/namedwidget.h>
 #include <projectexplorer/project.h>
+
 #include <QFuture>
 
 class QFileSystemWatcher;
@@ -30,7 +32,6 @@ public:
     ProjectExplorer::IProjectManager *projectManager() const;
     ProjectExplorer::ProjectNode *rootProjectNode() const;
     QStringList files(FilesMode fileMode) const;
-    QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
     QString defaultBuildDirectory() const;
 
     bool needsConfiguration() const;
@@ -66,12 +67,11 @@ private:
     QMap<QString, VcProjectInfo::ConfigurationInfo> m_configurations;
 };
 
-class VcProjectBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget
+class VcProjectBuildSettingsWidget : public ProjectExplorer::NamedWidget
 {
 public:
     VcProjectBuildSettingsWidget();
     QString displayName() const;
-    void init(ProjectExplorer::BuildConfiguration *bc);
 };
 
 } // namespace Internal

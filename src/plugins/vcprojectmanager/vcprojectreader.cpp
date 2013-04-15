@@ -87,12 +87,12 @@ Project *VcProjectReader::parse(const QString &filePath)
         else
             customError(QObject::tr("XML Declaration missing"));
 
-        if (elementStarts(strVisualStudioProject)) {
+        if (elementStarts(QLatin1String(strVisualStudioProject))) {
             readVisualStudioProject();
             readNextNonSpace();
         }
         else
-            missingMandatoryTag(strVisualStudioProject);
+            missingMandatoryTag(QLatin1String(strVisualStudioProject));
 
         if (!isEndDocument())
             unexpectedElement();
@@ -112,84 +112,84 @@ Project *VcProjectReader::parse(const QString &filePath)
 
 void VcProjectReader::readVisualStudioProject()
 {
-    m_project->displayName = attrStr(strName);
+    m_project->displayName = attrStr(QLatin1String(strName));
 
     // Platforms is mandatory element
     readNextNonSpace();
-    if (elementStarts(strPlatforms)) {
+    if (elementStarts(QLatin1String(strPlatforms))) {
         readPlatforms();
         readNextNonSpace();
     } else {
-        missingMandatoryTag(strPlatforms);
+        missingMandatoryTag(QLatin1String(strPlatforms));
     }
 
     // ToolFiles is optional element
-    if (elementStarts(strToolFiles)) {
+    if (elementStarts(QLatin1String(strToolFiles))) {
         readToolFiles();
         readNextNonSpace();
     }
 
     // PublishingData is optional element
-    if (elementStarts(strPublishingData)) {
+    if (elementStarts(QLatin1String(strPublishingData))) {
         readPublishingData();
         readNextNonSpace();
     }
 
     // Configurations is mandatory element
-    if (elementStarts(strConfigurations)) {
+    if (elementStarts(QLatin1String(strConfigurations))) {
         readConfigurations();
         readNextNonSpace();
     } else {
-        missingMandatoryTag(strConfigurations);
+        missingMandatoryTag(QLatin1String(strConfigurations));
     }
 
     // References is optional element
-    if (elementStarts(strReferences)) {
+    if (elementStarts(QLatin1String(strReferences))) {
         readReferences();
         readNextNonSpace();
     }
 
     // Files is optional element
-    if (elementStarts(strFiles)) {
+    if (elementStarts(QLatin1String(strFiles))) {
         readFiles();
         readNextNonSpace();
     }
 
     // Globals is optional element
-    if (elementStarts(strGlobals)) {
+    if (elementStarts(QLatin1String(strGlobals))) {
         readGlobals();
         readNextNonSpace();
     }
 
-    if (!elementEnds(strVisualStudioProject))
+    if (!elementEnds(QLatin1String(strVisualStudioProject)))
         unexpectedElement();
 }
 
 void VcProjectReader::readPlatforms()
 {
-    while (!elementEnds(strPlatforms) && !hasError()) {
+    while (!elementEnds(QLatin1String(strPlatforms)) && !hasError()) {
         readNextNonSpace();
     }
 }
 
 void VcProjectReader::readToolFiles()
 {
-    while (!elementEnds(strToolFiles) && !hasError()) {
+    while (!elementEnds(QLatin1String(strToolFiles)) && !hasError()) {
         readNextNonSpace();
     }
 }
 
 void VcProjectReader::readPublishingData()
 {
-    while (!elementEnds(strPublishingData) && !hasError()) {
+    while (!elementEnds(QLatin1String(strPublishingData)) && !hasError()) {
         readNextNonSpace();
     }
 }
 
 void VcProjectReader::readConfigurations()
 {
-    while (!elementEnds(strConfigurations) && !hasError()) {
-        if (elementStarts(strConfiguration)) {
+    while (!elementEnds(QLatin1String(strConfigurations)) && !hasError()) {
+        if (elementStarts(QLatin1String(strConfiguration))) {
             readConfiguration();
         }
         readNextNonSpace();
@@ -199,10 +199,10 @@ void VcProjectReader::readConfigurations()
 void VcProjectReader::readConfiguration()
 {
     QString saved = m_currentConfigurationName;
-    m_currentConfigurationName = attrStr(strName);
+    m_currentConfigurationName = attrStr(QLatin1String(strName));
     readNextNonSpace();
-    while (!elementEnds(strConfiguration) && !hasError()) {
-        if (elementStarts(strTool)) {
+    while (!elementEnds(QLatin1String(strConfiguration)) && !hasError()) {
+        if (elementStarts(QLatin1String(strTool))) {
             readTool();
             readNextNonSpace();
         } else {
@@ -214,24 +214,24 @@ void VcProjectReader::readConfiguration()
 
 void VcProjectReader::readTool()
 {
-    if (attrStr(strName) == strVCCLCompilerTool) {
+    if (attrStr(QLatin1String(strName)) == QLatin1String(strVCCLCompilerTool)) {
         ConfigurationInfo &info = m_project->configurations[m_currentConfigurationName];
-        info.flags.useOpenMP = (attrStr(strOpenMP) == QLatin1String("true"));
+        info.flags.useOpenMP = (attrStr(QLatin1String(strOpenMP)) == QLatin1String("true"));
         bool ok = true;
-        const unsigned warningLevel = attrStr(strWarningLevel).toUInt(&ok);
+        const unsigned warningLevel = attrStr(QLatin1String(strWarningLevel)).toUInt(&ok);
         if (ok)
             info.flags.warningLevel = warningLevel;
-        info.defines = attrStr(strPreprocessorDefinitions).split(
-                    ";", QString::SkipEmptyParts);
+        info.defines = attrStr(QLatin1String(strPreprocessorDefinitions)).split(
+                    QLatin1String(";"), QString::SkipEmptyParts);
     }
-    while (!elementEnds(strTool) && !hasError()) {
+    while (!elementEnds(QLatin1String(strTool)) && !hasError()) {
         readNextNonSpace();
     }
 }
 
 void VcProjectReader::readReferences()
 {
-    while (!elementEnds(strReferences) && !hasError()) {
+    while (!elementEnds(QLatin1String(strReferences)) && !hasError()) {
         readNextNonSpace();
     }
 }
@@ -241,11 +241,11 @@ void VcProjectReader::readFiles()
     m_project->files = new Filter;
     m_currentFilter = m_project->files;
     readNextNonSpace();
-    while (!elementEnds(strFiles) && !hasError()) {
-        if (elementStarts(strFile)) {
+    while (!elementEnds(QLatin1String(strFiles)) && !hasError()) {
+        if (elementStarts(QLatin1String(strFile))) {
             readFile();
             readNextNonSpace();
-        } else if (elementStarts(strFilter)) {
+        } else if (elementStarts(QLatin1String(strFilter))) {
             readFilter();
             readNextNonSpace();
         } else {
@@ -257,15 +257,15 @@ void VcProjectReader::readFiles()
 void VcProjectReader::readFile()
 {
     File *file = new File;
-    file->relativePath = attrStr(strRelativePath);
+    file->relativePath = attrStr(QLatin1String(strRelativePath));
 #if !defined(Q_OS_WIN)
     file->relativePath.replace(QLatin1Char('\\'), QDir::separator());
 #endif
     m_currentFilter->files.append(file);
 
     readNextNonSpace();
-    while (!elementEnds(strFile) && !hasError()) {
-        if (elementStarts(strFileConfiguration)) {
+    while (!elementEnds(QLatin1String(strFile)) && !hasError()) {
+        if (elementStarts(QLatin1String(strFileConfiguration))) {
             readFileConfiguration();
             readNextNonSpace();
         } else {
@@ -276,7 +276,7 @@ void VcProjectReader::readFile()
 
 void VcProjectReader::readFileConfiguration()
 {
-    while (!elementEnds(strFileConfiguration) && !hasError()) {
+    while (!elementEnds(QLatin1String(strFileConfiguration)) && !hasError()) {
         readNextNonSpace();
     }
 }
@@ -284,18 +284,18 @@ void VcProjectReader::readFileConfiguration()
 void VcProjectReader::readFilter()
 {
     Filter *filter = new Filter;
-    filter->name = attrStr(strName);
+    filter->name = attrStr(QLatin1String(strName));
     m_currentFilter->filters.append(filter);
 
     Filter *prevFilter = m_currentFilter;
     m_currentFilter = filter;
 
     readNextNonSpace();
-    while (!elementEnds(strFilter) && !hasError()) {
-        if (elementStarts(strFile)) {
+    while (!elementEnds(QLatin1String(strFilter)) && !hasError()) {
+        if (elementStarts(QLatin1String(strFile))) {
             readFile();
             readNextNonSpace();
-        } else if (elementStarts(strFilter)) {
+        } else if (elementStarts(QLatin1String(strFilter))) {
             readFilter();
             readNextNonSpace();
         } else {
@@ -308,7 +308,7 @@ void VcProjectReader::readFilter()
 
 void VcProjectReader::readGlobals()
 {
-    while (!elementEnds(strGlobals) && !hasError()) {
+    while (!elementEnds(QLatin1String(strGlobals)) && !hasError()) {
         readNextNonSpace();
     }
 }
@@ -348,12 +348,12 @@ void VcProjectReader::customError(const QString &message)
 
 void VcProjectReader::missingMandatoryTag(const QString &tagName)
 {
-    customError(QString("<") + tagName + ">" + " expected");
+    customError(QLatin1String("<") + tagName + QLatin1String(">") + QLatin1String(" expected"));
 }
 
 void VcProjectReader::unexpectedElement()
 {
-    customError(QString("Unexpected ") + name());
+    customError(QLatin1String("Unexpected ") + name());
 }
 
 } // namespace Internal
