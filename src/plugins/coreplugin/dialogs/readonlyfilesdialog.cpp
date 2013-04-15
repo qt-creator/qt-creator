@@ -92,10 +92,10 @@ ReadOnlyFilesDialogPrivate::ReadOnlyFilesDialogPrivate(IDocument *document, bool
     , useVCS(false)
     , showWarnings(false)
     , document(document)
-    , mixedText(QApplication::translate("ReadOnlyFilesDialog", "Mixed"))
-    , makeWritableText(QApplication::translate("ReadOnlyFilesDialog", "Make Writable"))
-    , versionControlOpenText(QApplication::translate("ReadOnlyFilesDialog", "Open With VCS"))
-    , saveAsText(QApplication::translate("ReadOnlyFilesDialog", "Save As"))
+    , mixedText(ReadOnlyFilesDialog::tr("Mixed"))
+    , makeWritableText(ReadOnlyFilesDialog::tr("Make Writable"))
+    , versionControlOpenText(ReadOnlyFilesDialog::tr("Open With VCS"))
+    , saveAsText(ReadOnlyFilesDialog::tr("Save As"))
 {}
 
 ReadOnlyFilesDialogPrivate::~ReadOnlyFilesDialogPrivate()
@@ -220,12 +220,12 @@ void ReadOnlyFilesDialog::promptFailWarning(const QStringList &files, ReadOnlyRe
             message += d->failWarning;
             break;
         default:
-            title = tr("Canceled Changing Permissions!");
+            title = tr("Canceled Changing Permissions");
             message = d->failWarning;
             break;
         }
     } else {
-        title = tr("Could Not Change Permissions On Some Files!");
+        title = tr("Could Not Change Permissions On Some Files");
         message = d->failWarning;
         message += tr("\nSee details for a complete list of files.");
         details = files.join(QLatin1String("\n"));

@@ -653,8 +653,7 @@ static QList<IDocument *> saveModifiedFilesHelper(const QList<IDocument *> &docu
         }
         if (!roDocuments.isEmpty()) {
             Core::Internal::ReadOnlyFilesDialog roDialog(roDocuments, d->m_mainWindow);
-            roDialog.setShowFailWarning(true, QCoreApplication::translate(
-                                            "saveModifiedFilesHelper",
+            roDialog.setShowFailWarning(true, DocumentManager::tr(
                                             "Could not save the files.",
                                             "error message"));
             if (roDialog.exec() == Core::Internal::ReadOnlyFilesDialog::RO_Cancel) {
