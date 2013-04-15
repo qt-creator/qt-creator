@@ -56,6 +56,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QSharedPointer>
+#include <QStringBuilder>
 #include <QTextBlock>
 #include <QTextCursor>
 
