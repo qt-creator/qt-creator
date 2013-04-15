@@ -29,6 +29,8 @@
 
 #include "linecolumnlabel.h"
 
+#include <QMouseEvent>
+
 /*!
     \class Utils::LineColumnLabel
 
@@ -39,7 +41,8 @@
 namespace Utils {
 
 LineColumnLabel::LineColumnLabel(QWidget *parent)
-  : QLabel(parent), m_unused(0)
+    : QLabel(parent)
+    , m_pressed(false)
 {
 }
 
@@ -48,6 +51,7 @@ void LineColumnLabel::setText(const QString &text, const QString &maxText)
     QLabel::setText(text);
     m_maxText = maxText;
 }
+
 QSize LineColumnLabel::sizeHint() const
 {
     return fontMetrics().boundingRect(m_maxText).size();
@@ -60,7 +64,24 @@ QString LineColumnLabel::maxText() const
 
 void LineColumnLabel::setMaxText(const QString &maxText)
 {
-     m_maxText = maxText;
+    m_maxText = maxText;
+}
+
+void LineColumnLabel::mousePressEvent(QMouseEvent *ev)
+{
+    QLabel::mousePressEvent(ev);
+    if (ev->button() == Qt::LeftButton)
+        m_pressed = true;
+}
+
+void LineColumnLabel::mouseReleaseEvent(QMouseEvent *ev)
+{
+    QLabel::mouseReleaseEvent(ev);
+    if (ev->button() != Qt::LeftButton)
+        return;
+    if (m_pressed && rect().contains(ev->pos()))
+        emit clicked();
+    m_pressed = false;
 }
 
 } // namespace Utils

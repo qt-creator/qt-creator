@@ -54,6 +54,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/manhattanstyle.h>
 #include <find/basetextfind.h>
@@ -6285,6 +6286,7 @@ BaseTextEditor::BaseTextEditor(BaseTextEditorWidget *editor)
     m_cursorPositionLabelAction = m_toolBar->addWidget(m_cursorPositionLabel);
 
     connect(editor, SIGNAL(cursorPositionChanged()), this, SLOT(updateCursorPosition()));
+    connect(m_cursorPositionLabel, SIGNAL(clicked()), this, SLOT(openGotoLocator()));
 }
 
 BaseTextEditor::~BaseTextEditor()
@@ -6418,6 +6420,16 @@ void BaseTextEditor::updateCursorPosition()
     if (!block.isVisible())
         e->ensureCursorVisible();
 
+}
+
+void BaseTextEditor::openGotoLocator()
+{
+    Core::EditorManager::activateEditor(this, Core::EditorManager::IgnoreNavigationHistory);
+    if (Core::Command *cmd = Core::ActionManager::command(Core::Constants::GOTO)) {
+        if (QAction *act = cmd->action()) {
+            act->trigger();
+        }
+    }
 }
 
 QString BaseTextEditor::contextHelpId() const

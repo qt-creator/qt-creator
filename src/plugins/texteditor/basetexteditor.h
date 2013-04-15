@@ -669,8 +669,10 @@ public:
     void setCursorPosition(int pos);
     void select(int toPos);
     const Utils::CommentDefinition* commentDefinition() const;
+
 private slots:
     void updateCursorPosition();
+    void openGotoLocator();
 
 private:
     BaseTextEditorWidget *e;

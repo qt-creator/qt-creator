@@ -49,9 +49,16 @@ public:
     QString maxText() const;
     void setMaxText(const QString &maxText);
 
+protected:
+    void mousePressEvent(QMouseEvent *ev);
+    void mouseReleaseEvent(QMouseEvent *ev);
+
+signals:
+    void clicked();
+
 private:
     QString m_maxText;
-    void *m_unused;
+    bool m_pressed;
 };
 
 } // namespace Utils
