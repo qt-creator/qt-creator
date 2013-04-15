@@ -6440,10 +6440,11 @@ void Parser::rewind(unsigned cursor)
         fprintf(stderr, "! rewinding from token %d to token %d\n", _tokenIndex, cursor);
 #endif
 
-    if (cursor < _translationUnit->tokenCount())
+    const int n = _translationUnit->tokenCount();
+    if (cursor < n)
         _tokenIndex = cursor;
     else
-        _tokenIndex = _translationUnit->tokenCount() - 1;
+        _tokenIndex = n - 1;
 }
 
 void Parser::warning(unsigned index, const char *format, ...)
