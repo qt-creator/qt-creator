@@ -1811,7 +1811,8 @@ void DebuggerEngine::checkForReleaseBuild(const DebuggerStartParameters &sp)
         if (getPDBFiles(binary, &rc, &errorMessage) && !rc.isEmpty())
             return;
         if (!errorMessage.isEmpty()) {
-            detailedWarning.append(tr("\n").append(errorMessage));
+            detailedWarning.append(QLatin1Char('\n'));
+            detailedWarning.append(errorMessage);
         }
         break;
     }
