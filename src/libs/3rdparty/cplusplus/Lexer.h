@@ -99,13 +99,9 @@ private:
 
     inline void yyinp()
     {
-        if (++_currentChar == _lastChar)
-            _yychar = 0;
-        else {
-            _yychar = *_currentChar;
-            if (_yychar == '\n')
-                pushLineStartOffset();
-        }
+        _yychar = *++_currentChar;
+        if (Q_UNLIKELY(_yychar == '\n'))
+            pushLineStartOffset();
     }
 
     void pushLineStartOffset();
