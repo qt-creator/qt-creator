@@ -52,9 +52,12 @@ public:
 
     void setSource(const char *source, unsigned size);
 
-    unsigned tokenCount() const;
-    const Token &tokenAt(unsigned index) const;
-    int tokenKind(unsigned index) const;
+    unsigned tokenCount() const
+        { return _tokens->size(); }
+    const Token &tokenAt(unsigned index) const
+        { return _tokens->at(index); }
+    int tokenKind(unsigned index) const
+        { return _tokens->at(index).f.kind; }
     const char *spell(unsigned index) const;
 
     unsigned commentCount() const;
