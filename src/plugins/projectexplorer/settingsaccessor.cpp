@@ -749,7 +749,7 @@ SettingsAccessor::SettingsData SettingsAccessor::readUserSettings() const
                                     "No valid .user file found for '%1'")
                     .arg(project()->displayName()),
             QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                    "<p>There was no valid settings file found "
+                                    "<p>No valid settings file could be found "
                                     "for this installation of Qt Creator.</p>"
                                     "<p>All settings files were either too new or too "
                                     "old to be read.</p>"),
